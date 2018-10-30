@@ -3,3 +3,4 @@
 
 # Ignore Python cache
 .cache
+__pycache__
