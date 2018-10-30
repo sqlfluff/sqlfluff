@@ -9,12 +9,26 @@ def ordinalise(s):
     return [ord(c) for c in s]
 
 
+class PositionedChunk(object):
+    def __init__(self, chunk, start_pos, line_no):
+        self.chunk = chunk
+        self.start_pos = start_pos
+        self.line_no = line_no
+    
+    def __repr__(self):
+        return "<PositionedChunk @(L:{line_no},P:{start_pos}) {chunk!r}>".format(
+            **self.__dict__)
+    
+    def __len__(self):
+        return len(self.chunk)
+
+
 class ParsedLine(object):
     whitespace_regex = re.compile('\s+')
-    def __init__(self, line):
-        self.initial_string = None
-        self.terminal_string = None
-        self.core_string = None
+    def __init__(self, line, line_no):
+        self.initial_chunk = None
+        self.terminal_chunk = None
+        self.core_chunk = None
         #click.echo(len(line))
         # Iterate through whitespace matches
         for m in self.whitespace_regex.finditer(line):
@@ -24,15 +38,18 @@ class ParsedLine(object):
                 match_start, match_end = m.span()
                 if match_start == 0:
                     #click.echo("Initial String")
-                    self.initial_string = m.group()
+                    self.initial_chunk = PositionedChunk(m.group(), match_start, line_no)    
                 elif match_end == len(line):
                     #click.echo("Terminal Match")
-                    self.terminal_string = m.group()
-        self.core_string = line[len(self.initial_string or '') : len(line) - len(self.terminal_string or '')]
-        #click.echo(self.core_string)
+                    self.terminal_chunk = PositionedChunk(m.group(), match_start, line_no)
+        central_start = len(self.initial_chunk or '')
+        central_end = len(line) - len(self.terminal_chunk or '')
+        central_chunk = line[central_start : central_end]
+        self.core_chunk = PositionedChunk(central_chunk, central_start, line_no)
+        #click.echo(self.core_chunk)
     
     def __repr__(self):
-        return '<Parsed Line - Core:%r, Initial=%r, Terminal=%r>' % (self.core_string, self.initial_string, self.terminal_string)
+        return '<Parsed Line - Core:%r, Initial=%r, Terminal=%r>' % (self.core_chunk, self.initial_chunk, self.terminal_chunk)
 
 
 @click.command()
@@ -53,13 +70,13 @@ def sqlfluff_lint(dialect, paths):
     for fname in ['example.sql', 'example-tab.sql']:
         click.echo(fname)
         with open(fname) as f:
-            for line in f:
+            for idx, line in enumerate(f):
                 #click.echo("##############")
                 #click.echo(line)
                 #click.echo("###")
                 #click.echo(ordinalise(line))
                 #click.echo("###")
-                obj = ParsedLine(line)
+                obj = ParsedLine(line, idx)
                 click.echo(obj)
                 
 
