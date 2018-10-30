@@ -1,0 +1,5 @@
+# Ignore VSCode
+.vscode
+
+# Ignore Python cache
+.cache
