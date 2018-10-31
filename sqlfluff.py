@@ -51,13 +51,34 @@ class ChunkString(object):
         return [elem.content for elem in self.chunk_list]
 
 
+class CharMatchPattern(object):
+    def __init__(self, c):
+        self._char = c
+    
+    def first_match_pos(self, s):
+        # Assume s is a string
+        for idx, c in enumerate(s):
+            if c == self._char:
+                return idx
+        else:
+            return None
+
+
 class AnsiSQLDialiect(object):
+    patterns = {
+        'whitespace'
+
+    }
     # Whitespace is what divides other bits of syntax
     whitespace_regex = re.compile(r'\s+')
     # Anything after an inline comment gets chunked together as not code
     inline_comment_regex = re.compile(r'--|#')
     # Anything between the first and last part of this tuple counts as not code
     block_comment_regex_tuple = (re.compile(r'/\*'), re.compile(r'\*/'))
+    # String Quote Characters
+    string_quote_characters = ("'",)  # NB in Mysql this should also include "
+    # Identifier Quote Characters
+    identifier_quote_characters = ('"',)  # NB in Mysql this should be `
 
 
 LexerContext = namedtuple('LexerContext', ['dialect', 'multiline_comment_active'])
@@ -69,6 +90,9 @@ class RecursiveLexer(object):
     def lex(self, chunk, **start_context):
         # scan the chunk for whitespace
         first_whitespace = self.dialect.whitespace_regex.search(chunk.chunk)
+        first_single_comment = self.dialect.inline_comment_regex.search(chunk.chunk)
+        first_block_comment_start = self.dialect.block_comment_regex_tuple[0].search(chunk.chunk)
+        first_block_comment_end = self.dialect.block_comment_regex_tuple[0].search(chunk.chunk)
         if first_whitespace:
             match_start, match_end = first_whitespace.span()
             if match_start == 0:
