@@ -46,6 +46,9 @@ class ChunkString(object):
     
     def __len__(self):
         return len(self.chunk_list)
+    
+    def content_list(self):
+        return [elem.content for elem in self.chunk_list]
 
 
 class AnsiSQLDialiect(object):
