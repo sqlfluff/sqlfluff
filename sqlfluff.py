@@ -1,9 +1,10 @@
 """ The Main file for SQLFluff """
 
 import click
-import os
+# import os
 import re
 from collections import namedtuple
+
 
 def ordinalise(s):
     return [ord(c) for c in s]
@@ -11,42 +12,46 @@ def ordinalise(s):
 
 class PositionedChunk(object):
     chunk_type = 'PositionedChunk'
+
     def __init__(self, chunk, start_pos, line_no, content=None):
         self.chunk = chunk
         self.start_pos = start_pos
         self.line_no = line_no
         self.content = content
-    
+
     def __repr__(self):
         # We introspect the class to make this more generic
         return "<{class_type} @(L:{line_no},P:{start_pos}) {chunk!r}>".format(
             class_type=self.__class__.__name__, **self.__dict__)
-    
+
     def __len__(self):
         return len(self.chunk)
-    
+
     def set_content(self, content):
         self.content = content
-    
+
     def split_at(self, pos):
         if pos <= 0 or pos > len(self):
             raise RuntimeError("Trying to split at wrong index: {pos}".format(pos=pos))
-        return PositionedChunk(self.chunk[:pos], self.start_pos, self.line_no), PositionedChunk(self.chunk[pos:], self.start_pos + pos, self.line_no)
+        return (
+            PositionedChunk(self.chunk[:pos], self.start_pos, self.line_no),
+            PositionedChunk(self.chunk[pos:], self.start_pos + pos, self.line_no))
+
 
 class ChunkString(object):
     def __init__(self, *args):
         assert all([isinstance(elem, PositionedChunk) for elem in args])
         self.chunk_list = list(args)
-    
+
     def __add__(self, other):
         return ChunkString(*self.chunk_list, *other.chunk_list)
 
     def __getitem__(self, key):
         return self.chunk_list[key]
-    
+
     def __len__(self):
         return len(self.chunk_list)
-    
+
     def content_list(self):
         return [elem.content for elem in self.chunk_list]
 
@@ -54,7 +59,7 @@ class ChunkString(object):
 class CharMatchPattern(object):
     def __init__(self, c):
         self._char = c
-    
+
     def first_match_pos(self, s):
         # Assume s is a string
         for idx, c in enumerate(s):
@@ -83,10 +88,11 @@ class AnsiSQLDialiect(object):
 
 LexerContext = namedtuple('LexerContext', ['dialect', 'multiline_comment_active'])
 
+
 class RecursiveLexer(object):
     def __init__(self, dialect=AnsiSQLDialiect):
         self.dialect = dialect
-    
+
     def lex(self, chunk, **start_context):
         # scan the chunk for whitespace
         first_whitespace = self.dialect.whitespace_regex.search(chunk.chunk)
@@ -128,7 +134,7 @@ class RecursiveLexer(object):
         else:
             # No whitespace, all content
             chunk.set_content('content')
-            return ChunkString(chunk), start_context        
+            return ChunkString(chunk), start_context
 
 
 def recursive_lexer(chunk, context):
@@ -188,31 +194,30 @@ def parse_file(file_obj, dialect=AnsiSQLDialiect):
         chunks, context = recursive_lexer(line_chunk, context)
 
 
-
 class ParsedLine(object):
     def __init__(self, line, line_no, dialect=AnsiSQLDialiect):
         self.initial_chunk = None
         self.terminal_chunk = None
         self.core_chunk = None
-        #click.echo(len(line))
+        # click.echo(len(line))
         # Iterate through whitespace matches
         for m in dialect.whitespace_regex.finditer(line):
             if m:
-                #click.echo(m)
-                #click.echo(repr(m.group()))
+                # click.echo(m)
+                # click.echo(repr(m.group()))
                 match_start, match_end = m.span()
                 if match_start == 0:
-                    #click.echo("Initial String")
-                    self.initial_chunk = PositionedChunk(m.group(), match_start, line_no)    
+                    # click.echo("Initial String")
+                    self.initial_chunk = PositionedChunk(m.group(), match_start, line_no)
                 elif match_end == len(line):
-                    #click.echo("Terminal Match")
+                    # click.echo("Terminal Match")
                     self.terminal_chunk = PositionedChunk(m.group(), match_start, line_no)
         central_start = len(self.initial_chunk or '')
         central_end = len(line) - len(self.terminal_chunk or '')
-        central_chunk = line[central_start : central_end]
+        central_chunk = line[central_start: central_end]
         self.core_chunk = PositionedChunk(central_chunk, central_start, line_no)
-        #click.echo(self.core_chunk)
-    
+        # click.echo(self.core_chunk)
+
     def __repr__(self):
         return '<Parsed Line - Core:%r, Initial=%r, Terminal=%r>' % (self.core_chunk, self.initial_chunk, self.terminal_chunk)
 

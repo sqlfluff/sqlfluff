@@ -2,6 +2,7 @@
 
 from sqlfluff import CharMatchPattern, RecursiveLexer, PositionedChunk, ChunkString
 
+
 # ############## Matchers
 def test__charmatch__basic():
     cmp = CharMatchPattern('s')
@@ -12,7 +13,7 @@ def test__charmatch__basic():
 def test__charmatch__none():
     cmp = CharMatchPattern('s')
     s = 'aefalfuin^efuynl*fa'
-    assert cmp.first_match_pos(s) == None
+    assert cmp.first_match_pos(s) is None
 
 
 # ############## LEXER TESTS
