@@ -1,13 +1,20 @@
 """ The Test file for SQLFluff """
 
+import pytest
 from sqlfluff import CharMatchPattern, RecursiveLexer, PositionedChunk, ChunkString
 
 # ############## Chunks
 def test__chunk__split():
-    c = PositionedChunk('foobarbar', 10, 20)
+    c = PositionedChunk('foobarbar', 10, 20, None)
     a, b = c.split_at(3)
-    assert a == PositionedChunk('foo', 10, 20)
-    assert b == PositionedChunk('barbar', 13, 20)
+    assert a == PositionedChunk('foo', 10, 20, None)
+    assert b == PositionedChunk('barbar', 13, 20, None)
+
+
+def test__chunk__split_context_error():
+    c = PositionedChunk('foobarbar', 10, 20, 'context')
+    with pytest.raises(RuntimeError):
+        c.split_at(4)
 
 
 # ############## Matchers
@@ -32,7 +39,7 @@ def test__charmatch__span():
 # ############## LEXER TESTS
 def test__recursive__basic():
     rl = RecursiveLexer()
-    pc = PositionedChunk('SELECT\n', 0, 1)
+    pc = PositionedChunk('SELECT\n', 0, 1, None)
     res, context = rl.lex(pc)
     assert isinstance(res, ChunkString)
     assert len(res) == 2
@@ -41,22 +48,22 @@ def test__recursive__basic():
 
 def test__recursive__multi_whitespace_a():
     rl = RecursiveLexer()
-    pc = PositionedChunk('    SELECT    \n', 0, 1)
+    pc = PositionedChunk('    SELECT    \n', 0, 1, None)
     res, context = rl.lex(pc)
     assert isinstance(res, ChunkString)
     assert len(res) == 3
-    assert res[0].content == 'whitespace'
+    assert res[0].context == 'whitespace'
     assert res[1].chunk == 'SELECT'
 
 
 def test__recursive__multi_whitespace_b():
     # This test requires recursion
     rl = RecursiveLexer()
-    pc = PositionedChunk('    SELECT   foo    \n', 0, 1)
+    pc = PositionedChunk('    SELECT   foo    \n', 0, 1, None)
     res, context = rl.lex(pc)
     assert isinstance(res, ChunkString)
     assert len(res) == 5
-    assert res[0].content == 'whitespace'
+    assert res[0].context == 'whitespace'
     assert res[1].chunk == 'SELECT'
     assert res[3].chunk == 'foo'
     assert res[3].start_pos == 13
@@ -67,7 +74,7 @@ def atest__recursive__comment_a():
     # This test requires recursion
     rl = RecursiveLexer()
     # The whitespace on the end of a comment should be it's own chunk
-    pc = PositionedChunk('SELECT    -- Testing Comment\n', 0, 1)
+    pc = PositionedChunk('SELECT    -- Testing Comment\n', 0, 1, None)
     res, context = rl.lex(pc)
     assert res.content_list() == ['content', 'whitespace', 'comment', 'whitespace']
     assert res[3].content == '\n'

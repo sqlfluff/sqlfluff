@@ -10,37 +10,28 @@ def ordinalise(s):
     return [ord(c) for c in s]
 
 
-class PositionedChunk(object):
-    chunk_type = 'PositionedChunk'
-
-    def __init__(self, chunk, start_pos, line_no, content=None):
-        self.chunk = chunk
-        self.start_pos = start_pos
-        self.line_no = line_no
-        self.content = content
-
+# chunks should be immutable, they are a subclass of namedtuple (context defaults to None)
+class PositionedChunk(namedtuple('ProtoChunk', ['chunk', 'start_pos', 'line_no', 'context'])):
     def __repr__(self):
         # We introspect the class to make this more generic
-        return "<{class_type} @(L:{line_no},P:{start_pos}) {chunk!r}>".format(
+        return "<{class_type} @(L:{line_no},P:{start_pos},C:{context}) {chunk!r}>".format(
             class_type=self.__class__.__name__, **self.__dict__)
 
     def __len__(self):
         return len(self.chunk)
     
-    def __eq__(self, other):
-        # compare the chunk, start_pos, line_no and content
-        return (self.chunk == other.chunk and self.start_pos == other.start_pos
-                and self.line_no == other.line_no and self.content == other.content)
-
-    def set_content(self, content):
-        self.content = content
+    def contextualise(self, context):
+        # Return a copy, just with the context set
+        return PositionedChunk(self.chunk, self.start_pos, self.line_no, context=context)
 
     def split_at(self, pos):
+        if self.context:
+            raise RuntimeError("Attempting to split a chunk which already has context!")
         if pos <= 0 or pos > len(self):
             raise RuntimeError("Trying to split at wrong index: {pos}".format(pos=pos))
         return (
-            PositionedChunk(self.chunk[:pos], self.start_pos, self.line_no),
-            PositionedChunk(self.chunk[pos:], self.start_pos + pos, self.line_no))
+            PositionedChunk(self.chunk[:pos], self.start_pos, self.line_no, None),
+            PositionedChunk(self.chunk[pos:], self.start_pos + pos, self.line_no, None))
 
 
 class ChunkString(object):
@@ -137,36 +128,31 @@ class RecursiveLexer(object):
                 # Whitespace at the start
                 if match_end == len(chunk):
                     # All whitespace
-                    chunk.set_content('whitespace')
-                    return ChunkString(chunk), start_context
+                    return ChunkString(chunk.contextualise('whitespace')), start_context
                 else:
                     # Some content after the whitespace
                     white_chunk, remainder_chunk = chunk.split_at(match_end)
-                    white_chunk.set_content('whitespace')
                     remainder_string, end_context = self.lex(remainder_chunk, **start_context)
-                    return ChunkString(white_chunk) + remainder_string, end_context
+                    return ChunkString(white_chunk.contextualise('whitespace')) + remainder_string, end_context
             else:
                 # White space after some content
                 if match_end == len(chunk):
                     # Whitespace to the end
                     remainder_chunk, white_chunk = chunk.split_at(match_start)
-                    white_chunk.set_content('whitespace')
                     remainder_string, end_context = self.lex(remainder_chunk, **start_context)
                     # NB whitespacec shouldn't change context so we'll assume that whatever context is left
                     # at the end of the remainder is what should persist
-                    return remainder_string + ChunkString(white_chunk), end_context
+                    return remainder_string + ChunkString(white_chunk.contextualise('whitespace')), end_context
                 else:
                     # Content at the start, then some whitespace, then more content
                     content_chunk, remainder_chunk = chunk.split_at(match_start)
-                    content_chunk.set_content('content')
+                    content_chunk = content_chunk.contextualise('content')
                     white_chunk, remainder_chunk = remainder_chunk.split_at(match_end - len(content_chunk))
-                    white_chunk.set_content('whitespace')
                     remainder_string, end_context = self.lex(remainder_chunk, **start_context)
-                    return ChunkString(content_chunk, white_chunk) + remainder_string, end_context
+                    return ChunkString(content_chunk, white_chunk.contextualise('whitespace')) + remainder_string, end_context
         else:
             # No whitespace, all content
-            chunk.set_content('content')
-            return ChunkString(chunk), start_context
+            return ChunkString(chunk.contextualise('content')), start_context
 
 
 def recursive_lexer(chunk, context):
