@@ -3,7 +3,7 @@
 import click
 # import os
 import re
-from collections import namedtuple
+from collections import namedtuple, OrderedDict
 
 
 def ordinalise(s):
@@ -33,11 +33,15 @@ class PositionedChunk(namedtuple('ProtoChunk', ['chunk', 'start_pos', 'line_no',
             PositionedChunk(self.chunk[:pos], self.start_pos, self.line_no, None),
             PositionedChunk(self.chunk[pos:], self.start_pos + pos, self.line_no, None))
     
-    def subchunk(self, start, end=None):
+    def subchunk(self, start, end=None, context=None):
         if end:
-            return PositionedChunk(self.chunk[start: end], self.start_pos + start, self.line_no, context=self.context)
+            return PositionedChunk(
+                self.chunk[start: end], self.start_pos + start,
+                self.line_no, context=context or self.context)
         else:
-            return PositionedChunk(self.chunk[start:], self.start_pos + start, self.line_no, context=self.context)
+            return PositionedChunk(
+                self.chunk[start:], self.start_pos + start,
+                self.line_no, context=context or self.context)
 
 
 class ChunkString(object):
@@ -89,12 +93,18 @@ class CharMatchPattern(object):
         return first, None
     
     def chunkmatch(self, c):
+        """ Given a full chunk, rather than just a string, return the first matching subchunk """
         span = self.span(c.chunk)
         if span[0]:
             # there's a start!
             if span[1]:
                 # there's a defined end!
-                return 
+                return c.subchunk(start=span[0], end=span[1], context='match')
+            else:
+                # start but no end
+                return c.subchunk(start=span[0], context='match')
+        else:
+            return None
 
 
 class RegexMatchPattern(CharMatchPattern):

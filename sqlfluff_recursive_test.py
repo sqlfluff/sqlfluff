@@ -17,7 +17,7 @@ def test__chunk__split_context_error():
         c.split_at(4)
 
 
-def test__shunk__subchunk():
+def test__chunk__subchunk():
     c = PositionedChunk('foobarbar', 10, 20, None)
     r = c.subchunk(3,6)
     assert r == PositionedChunk('bar', 13, 20, None)
@@ -40,6 +40,14 @@ def test__charmatch__span():
     cmp = CharMatchPattern('"', None)
     s = 'aefal "fuin^ef" uynl*fa'
     assert cmp.span(s) == (6, 15)
+
+
+def test__charmatch__chunkmatch():
+    cmp = CharMatchPattern('"', None)
+    chk = PositionedChunk('aefal "fuin^ef" uynl*fa', 13, 20, None)
+    sub_chunk = cmp.chunkmatch(chk)
+    assert sub_chunk is not None
+    assert sub_chunk == PositionedChunk('"fuin^ef"', 13 + 6, 20, 'match')
 
 
 def test__regexmatch__span():
