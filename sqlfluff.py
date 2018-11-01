@@ -32,6 +32,12 @@ class PositionedChunk(namedtuple('ProtoChunk', ['chunk', 'start_pos', 'line_no',
         return (
             PositionedChunk(self.chunk[:pos], self.start_pos, self.line_no, None),
             PositionedChunk(self.chunk[pos:], self.start_pos + pos, self.line_no, None))
+    
+    def subchunk(self, start, end=None):
+        if end:
+            return PositionedChunk(self.chunk[start: end], self.start_pos + start, self.line_no, context=self.context)
+        else:
+            return PositionedChunk(self.chunk[start:], self.start_pos + start, self.line_no, context=self.context)
 
 
 class ChunkString(object):
@@ -81,6 +87,14 @@ class CharMatchPattern(object):
                 return first, second + 2 + first
         # unless both first AND second match, then return here
         return first, None
+    
+    def chunkmatch(self, c):
+        span = self.span(c.chunk)
+        if span[0]:
+            # there's a start!
+            if span[1]:
+                # there's a defined end!
+                return 
 
 
 class RegexMatchPattern(CharMatchPattern):
@@ -99,6 +113,19 @@ class RegexMatchPattern(CharMatchPattern):
     def first_match_pos(self, s):
         span = self.span(s)
         return span[0]
+
+
+class MatcherBag(object):
+    def __init__(self, *matchers):
+        # Check that names are unique
+        assert len(matchers) == len(set([elem.name for elem in matchers]))
+        # store them as a dict, so we can do lookups
+        self._matchers = {elem.name: elem for elem in matchers}
+    
+    def __add__(self, other):
+        # combining bags is just like making a bag with the combination of the matchers.
+        # there will be a uniqueness check in this operation
+        return MatcherBag(*self._matchers.values(), *other._matchers.values())
 
 
 class AnsiSQLDialiect(object):

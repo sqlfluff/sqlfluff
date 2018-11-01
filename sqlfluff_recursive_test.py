@@ -1,7 +1,7 @@
 """ The Test file for SQLFluff """
 
 import pytest
-from sqlfluff import CharMatchPattern, RegexMatchPattern, RecursiveLexer, PositionedChunk, ChunkString
+from sqlfluff import CharMatchPattern, RegexMatchPattern, MatcherBag, RecursiveLexer, PositionedChunk, ChunkString
 
 # ############## Chunks
 def test__chunk__split():
@@ -15,6 +15,12 @@ def test__chunk__split_context_error():
     c = PositionedChunk('foobarbar', 10, 20, 'context')
     with pytest.raises(RuntimeError):
         c.split_at(4)
+
+
+def test__shunk__subchunk():
+    c = PositionedChunk('foobarbar', 10, 20, None)
+    r = c.subchunk(3,6)
+    assert r == PositionedChunk('bar', 13, 20, None)
 
 
 # ############## Matchers
@@ -40,6 +46,19 @@ def test__regexmatch__span():
     cmp = RegexMatchPattern(r'"[a-z]+"', None)
     s = 'aefal "fuinef" uynl*fa'
     assert cmp.span(s) == (6, 14)
+
+
+# ############## Matcher Bag
+def test__matcherbag__unique():
+    # raise an error that are duplicate names
+    with pytest.raises(AssertionError):
+        MatcherBag(CharMatchPattern('"', 'foo'), CharMatchPattern('"', 'foo'))
+
+
+def test__matcherbag__add_unique():
+    # raise an error that are duplicate names
+    with pytest.raises(AssertionError):
+        m = MatcherBag(CharMatchPattern('"', 'foo')) + MatcherBag(CharMatchPattern('"', 'foo'))
 
 
 # ############## LEXER TESTS
