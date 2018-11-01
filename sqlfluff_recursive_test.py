@@ -3,6 +3,7 @@
 import pytest
 from sqlfluff import CharMatchPattern, RegexMatchPattern, MatcherBag, RecursiveLexer, PositionedChunk, ChunkString
 
+
 # ############## Chunks
 def test__chunk__split():
     c = PositionedChunk('foobarbar', 10, 20, None)
@@ -19,7 +20,7 @@ def test__chunk__split_context_error():
 
 def test__chunk__subchunk():
     c = PositionedChunk('foobarbar', 10, 20, None)
-    r = c.subchunk(3,6)
+    r = c.subchunk(3, 6)
     assert r == PositionedChunk('bar', 13, 20, None)
 
 
@@ -73,7 +74,7 @@ def test__matcherbag__unique():
 def test__matcherbag__add_unique():
     # raise an error that are duplicate names
     with pytest.raises(AssertionError):
-        m = MatcherBag(CharMatchPattern('"', 'foo')) + MatcherBag(CharMatchPattern('"', 'foo'))
+        MatcherBag(CharMatchPattern('"', 'foo')) + MatcherBag(CharMatchPattern('"', 'foo'))
 
 
 def test__matcherbag__chunkmatch_a():

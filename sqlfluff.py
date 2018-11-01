@@ -13,6 +13,7 @@ def ordinalise(s):
 # chunks should be immutable, they are a subclass of namedtuple (context defaults to None)
 class PositionedChunk(namedtuple('ProtoChunk', ['chunk', 'start_pos', 'line_no', 'context'])):
     __slots__ = ()
+
     def __len__(self):
         return len(self.chunk)
 
@@ -28,7 +29,7 @@ class PositionedChunk(namedtuple('ProtoChunk', ['chunk', 'start_pos', 'line_no',
         return (
             PositionedChunk(self.chunk[:pos], self.start_pos, self.line_no, None),
             PositionedChunk(self.chunk[pos:], self.start_pos + pos, self.line_no, None))
-    
+
     def subchunk(self, start, end=None, context=None):
         if end:
             return PositionedChunk(
@@ -63,10 +64,10 @@ class CharMatchPattern(object):
     def __init__(self, c, name):
         self._char = c
         self.name = name
-    
+
     def _repr_pattern(self):
         return self._char * 2
-    
+
     def __repr__(self):
         return "<{classname}: '{pattern}'>".format(classname=self.__class__.__name__, pattern=self._repr_pattern())
 
@@ -93,7 +94,7 @@ class CharMatchPattern(object):
                 return first, second + 2 + first
         # unless both first AND second match, then return here
         return first, None
-    
+
     def chunkmatch(self, c):
         """ Given a full chunk, rather than just a string, return the first matching subchunk """
         span = self.span(c.chunk)
@@ -136,7 +137,7 @@ class MatcherBag(object):
         assert len(matchers) == len(set([elem.name for elem in matchers]))
         # store them as a dict, so we can do lookups
         self._matchers = matchers
-    
+
     def __add__(self, other):
         # combining bags is just like making a bag with the combination of the matchers.
         # there will be a uniqueness check in this operation
@@ -145,7 +146,7 @@ class MatcherBag(object):
     def chunkmatch(self, c):
         """
         Given a full chunk, compare against matchers in the bag and then order by first match
-        
+
         Return a list of tuples (subchunk, pos, matcher)
         """
         match_buffer = []
