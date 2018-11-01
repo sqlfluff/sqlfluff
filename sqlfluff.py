@@ -57,6 +57,7 @@ class ChunkString(object):
 
 
 class CharMatchPattern(object):
+    """ Intended for things like quote characters """
     def __init__(self, c):
         self._char = c
 
@@ -65,6 +66,32 @@ class CharMatchPattern(object):
         for idx, c in enumerate(s):
             if c == self._char:
                 return idx
+        else:
+            return None
+    
+    def span(self, s):
+        first = self.first_match_pos(s)
+        # check that we're not matching in the last position
+        # (otherwise we can't add one to it)
+        if first < len(s):
+            # Look or the next match after this
+            second = self.first_match_pos(s[first + 1:])
+            if second:
+                # we add one here because we add it above
+                return first, second + 1 + first
+        # unless both first AND second match, then return here
+        return first, None
+
+
+class RegexMatchPattern(CharMatchPattern):
+    def __init__(self, r):
+        self._pattern = re.compile(r)
+
+    def first_match_pos(self, s):
+        # Assume s is a string
+        m = self._pattern.search(s)
+        if m:
+            return m.span()[0]
         else:
             return None
 

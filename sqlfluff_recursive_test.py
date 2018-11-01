@@ -16,6 +16,12 @@ def test__charmatch__none():
     assert cmp.first_match_pos(s) is None
 
 
+def test__charmatch__span():
+    cmp = CharMatchPattern('"')
+    s = 'aefal "fuin^ef" uynl*fa'
+    assert cmp.span(s) == (6, 14)
+
+
 # ############## LEXER TESTS
 def test__recursive__basic():
     rl = RecursiveLexer()
