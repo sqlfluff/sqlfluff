@@ -55,8 +55,11 @@ class ChunkString(object):
     def __len__(self):
         return len(self.chunk_list)
 
-    def content_list(self):
-        return [elem.content for elem in self.chunk_list]
+    def context_list(self):
+        return [elem.context for elem in self.chunk_list]
+    
+    def string_list(self):
+        return [elem.chunk for elem in self.chunk_list]
 
 
 class CharMatchPattern(object):
@@ -227,6 +230,16 @@ class RecursiveLexer(object):
         else:
             # No Match, just content
             return ChunkString(chunk.contextualise('content')), start_context
+    
+    def lex_chunk_buffer(self, chunk_iterable, **start_context):
+        """ Iterate through chunks adding to the string """
+        cs = ChunkString()
+        context_cache = {**start_context}
+        for new_chunk in chunk_iterable:
+            ncs, context_cache = self.lex(new_chunk, **context_cache)
+            cs += ncs
+        return cs, context_cache
+
 
 
 def parse_file(file_obj, dialect=AnsiSQLDialiect):

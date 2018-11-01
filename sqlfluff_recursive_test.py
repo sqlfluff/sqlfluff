@@ -162,12 +162,22 @@ def test__recursive__multi_whitespace_b():
     assert res[3].start_pos == 13
 
 
-# short term disabled test
-def atest__recursive__comment_a():
+def test__recursive__comment_a():
     # This test requires recursion
     rl = RecursiveLexer()
     # The whitespace on the end of a comment should be it's own chunk
     pc = PositionedChunk('SELECT    -- Testing Comment\n', 0, 1, None)
     res, context = rl.lex(pc)
-    assert res.content_list() == ['content', 'whitespace', 'comment', 'whitespace']
-    assert res[3].content == '\n'
+    assert res.context_list() == ['content', 'whitespace', 'comment', 'whitespace']
+    assert res[3].chunk == '\n'
+
+
+def test__recursive__lex_chunk_buffer():
+    # This test requires recursion
+    rl = RecursiveLexer()
+    # The whitespace on the end of a comment should be it's own chunk
+    pc_list = [PositionedChunk('SELECT\n', 0, 1, None), PositionedChunk('NOTHING\n', 0, 2, None)]
+    res, context = rl.lex_chunk_buffer(pc_list)
+    assert res.context_list() == ['content', 'whitespace', 'content', 'whitespace']
+    assert res[1].chunk == '\n'
+    assert res[3].chunk == '\n'
