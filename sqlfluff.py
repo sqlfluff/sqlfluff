@@ -19,7 +19,7 @@ class PositionedChunk(namedtuple('ProtoChunk', ['chunk', 'start_pos', 'line_no',
 
     def __len__(self):
         return len(self.chunk)
-    
+
     def contextualise(self, context):
         # Return a copy, just with the context set
         return PositionedChunk(self.chunk, self.start_pos, self.line_no, context=context)
@@ -65,7 +65,7 @@ class CharMatchPattern(object):
                 return idx
         else:
             return None
-    
+
     def span(self, s):
         # SPAN should return the index from and to of the match
         # a single character match will have a difference of span
@@ -87,7 +87,7 @@ class RegexMatchPattern(CharMatchPattern):
     def __init__(self, r, name):
         self._pattern = re.compile(r)
         self.name = name
-    
+
     def span(self, s):
         # Assume s is a string
         m = self._pattern.search(s)
