@@ -88,6 +88,22 @@ def test__matcherbag__chunkmatch_a():
         (PositionedChunk('bjkeb', 13 + 4, 20, 'match'), 4, b)]
 
 
+def test__matcherbag__chunkmatch_b():
+    """ A more complicated matcher test, explicitly testing sorting """
+    k = CharMatchPattern('k', 'bim')
+    b = CharMatchPattern('b', 'bar')
+    a = CharMatchPattern('a', 'foo')
+    r = RegexMatchPattern(r'e[a-z][a-df-z]+e[a-z]', 'eee')
+    m = MatcherBag(k, b, a, r)
+    chk = PositionedChunk('asdfbjkebkjaekljds', 11, 2, None)
+    matches = m.chunkmatch(chk)
+    assert matches == [
+        (PositionedChunk('asdfbjkebkja', 11, 2, 'match'), 0, a),
+        (PositionedChunk('bjkeb', 11 + 4, 2, 'match'), 4, b),
+        (PositionedChunk('kebk', 11 + 6, 2, 'match'), 6, k),
+        (PositionedChunk('ebkjaek', 11 + 7, 2, 'match'), 7, r)]
+
+
 # ############## LEXER TESTS
 def test__recursive__basic():
     rl = RecursiveLexer()
