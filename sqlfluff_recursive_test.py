@@ -2,6 +2,13 @@
 
 from sqlfluff import CharMatchPattern, RecursiveLexer, PositionedChunk, ChunkString
 
+# ############## Chunks
+def test__chunk__split():
+    c = PositionedChunk('foobarbar', 10, 20)
+    a, b = c.split_at(3)
+    assert a == PositionedChunk('foo', 10, 20)
+    assert b == PositionedChunk('barbar', 13, 20)
+
 
 # ############## Matchers
 def test__charmatch__basic():

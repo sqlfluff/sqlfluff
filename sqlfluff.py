@@ -26,6 +26,11 @@ class PositionedChunk(object):
 
     def __len__(self):
         return len(self.chunk)
+    
+    def __eq__(self, other):
+        # compare the chunk, start_pos, line_no and content
+        return (self.chunk == other.chunk and self.start_pos == other.start_pos
+                and self.line_no == other.line_no and self.content == other.content)
 
     def set_content(self, content):
         self.content = content
