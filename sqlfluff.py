@@ -54,8 +54,9 @@ class ChunkString(object):
 
 class CharMatchPattern(object):
     """ Intended for things like quote characters """
-    def __init__(self, c):
+    def __init__(self, c, name):
         self._char = c
+        self.name = name
 
     def first_match_pos(self, s):
         # Assume s is a string
@@ -66,6 +67,9 @@ class CharMatchPattern(object):
             return None
     
     def span(self, s):
+        # SPAN should return the index from and to of the match
+        # a single character match will have a difference of span
+        # equal to 1.
         first = self.first_match_pos(s)
         # check that we're not matching in the last position
         # (otherwise we can't add one to it)
@@ -74,22 +78,27 @@ class CharMatchPattern(object):
             second = self.first_match_pos(s[first + 1:])
             if second:
                 # we add one here because we add it above
-                return first, second + 1 + first
+                return first, second + 2 + first
         # unless both first AND second match, then return here
         return first, None
 
 
 class RegexMatchPattern(CharMatchPattern):
-    def __init__(self, r):
+    def __init__(self, r, name):
         self._pattern = re.compile(r)
-
-    def first_match_pos(self, s):
+        self.name = name
+    
+    def span(self, s):
         # Assume s is a string
         m = self._pattern.search(s)
         if m:
-            return m.span()[0]
+            return m.span()
         else:
-            return None
+            return None, None
+
+    def first_match_pos(self, s):
+        span = self.span(s)
+        return span[0]
 
 
 class AnsiSQLDialiect(object):

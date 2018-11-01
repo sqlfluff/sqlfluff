@@ -1,7 +1,7 @@
 """ The Test file for SQLFluff """
 
 import pytest
-from sqlfluff import CharMatchPattern, RecursiveLexer, PositionedChunk, ChunkString
+from sqlfluff import CharMatchPattern, RegexMatchPattern, RecursiveLexer, PositionedChunk, ChunkString
 
 # ############## Chunks
 def test__chunk__split():
@@ -19,20 +19,26 @@ def test__chunk__split_context_error():
 
 # ############## Matchers
 def test__charmatch__basic():
-    cmp = CharMatchPattern('s')
+    cmp = CharMatchPattern('s', None)
     s = 'aefalfuinsefuynlsfa'
     assert cmp.first_match_pos(s) == 9
 
 
 def test__charmatch__none():
-    cmp = CharMatchPattern('s')
+    cmp = CharMatchPattern('s', None)
     s = 'aefalfuin^efuynl*fa'
     assert cmp.first_match_pos(s) is None
 
 
 def test__charmatch__span():
-    cmp = CharMatchPattern('"')
+    cmp = CharMatchPattern('"', None)
     s = 'aefal "fuin^ef" uynl*fa'
+    assert cmp.span(s) == (6, 15)
+
+
+def test__regexmatch__span():
+    cmp = RegexMatchPattern(r'"[a-z]+"', None)
+    s = 'aefal "fuinef" uynl*fa'
     assert cmp.span(s) == (6, 14)
 
 
