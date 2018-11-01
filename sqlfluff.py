@@ -86,7 +86,7 @@ class CharMatchPattern(object):
         first = self.first_match_pos(s)
         # check that we're not matching in the last position
         # (otherwise we can't add one to it)
-        if first < len(s):
+        if first is not None and first < len(s):
             # Look or the next match after this
             second = self.first_match_pos(s[first + 1:])
             if second:
@@ -198,127 +198,49 @@ class RecursiveLexer(object):
         self.dialect = dialect
 
     def lex(self, chunk, **start_context):
-        # scan the chunk for whitespace
-        first_whitespace = self.dialect.whitespace_regex.search(chunk.chunk)
-        first_single_comment = self.dialect.inline_comment_regex.search(chunk.chunk)
-        first_block_comment_start = self.dialect.block_comment_regex_tuple[0].search(chunk.chunk)
-        first_block_comment_end = self.dialect.block_comment_regex_tuple[0].search(chunk.chunk)
-        if first_whitespace:
-            match_start, match_end = first_whitespace.span()
-            if match_start == 0:
-                # Whitespace at the start
-                if match_end == len(chunk):
-                    # All whitespace
-                    return ChunkString(chunk.contextualise('whitespace')), start_context
-                else:
-                    # Some content after the whitespace
-                    white_chunk, remainder_chunk = chunk.split_at(match_end)
-                    remainder_string, end_context = self.lex(remainder_chunk, **start_context)
-                    return ChunkString(white_chunk.contextualise('whitespace')) + remainder_string, end_context
+        # Match based on available matchers
+        matches = self.dialect.outside_block_comment_matchers.chunkmatch(chunk)
+        # examine first match
+        first_match = matches[0]
+        if first_match[0].chunk == chunk.chunk:
+            # We've matched the whole string!
+            cs = ChunkString(chunk.contextualise(first_match[2].name))
+            if first_match[2].name == 'open_block_comment_start':
+                new_context = {**start_context}
+                new_context['block_comment_open'] = True
+                return cs, new_context
             else:
-                # White space after some content
-                if match_end == len(chunk):
-                    # Whitespace to the end
-                    remainder_chunk, white_chunk = chunk.split_at(match_start)
-                    remainder_string, end_context = self.lex(remainder_chunk, **start_context)
-                    # NB whitespacec shouldn't change context so we'll assume that whatever context is left
-                    # at the end of the remainder is what should persist
-                    return remainder_string + ChunkString(white_chunk.contextualise('whitespace')), end_context
-                else:
-                    # Content at the start, then some whitespace, then more content
-                    content_chunk, remainder_chunk = chunk.split_at(match_start)
-                    content_chunk = content_chunk.contextualise('content')
-                    white_chunk, remainder_chunk = remainder_chunk.split_at(match_end - len(content_chunk))
-                    remainder_string, end_context = self.lex(remainder_chunk, **start_context)
-                    return ChunkString(content_chunk, white_chunk.contextualise('whitespace')) + remainder_string, end_context
+                return cs, start_context
+        elif first_match[0].start_pos == chunk.start_pos:
+            # The match starts at the beginning, but isn't the whole string
+            matched_chunk, remainder_chunk = chunk.split_at(len(first_match[0]))
+            new_context = {**start_context}
+            if first_match[2].name == 'open_block_comment_start':
+                new_context['block_comment_open'] = True
+            remainder_string, end_context = self.lex(remainder_chunk, **new_context)
+            return ChunkString(matched_chunk.contextualise(first_match[2].name)) + remainder_string, end_context
+        elif first_match[0].start_pos:
+            # The match doesn't start at the beginning, we've got content first
+            content_chunk, remainder_chunk = chunk.split_at(first_match[1])
+            remainder_string, end_context = self.lex(remainder_chunk, **start_context)
+            return ChunkString(content_chunk.contextualise('content')) + remainder_string, end_context
         else:
-            # No whitespace, all content
+            # No Match, just content
             return ChunkString(chunk.contextualise('content')), start_context
-
-
-def recursive_lexer(chunk, context):
-    click.echo("Parsing: {chunk!r}".format(chunk=chunk))
-    if context.multiline_comment_active:
-        # if there's a comment in progress, then it's all comment unless we find the end
-        multi_comment_match = context.dialect.block_comment_regex_tuple[1].search(chunk.chunk)
-        if multi_comment_match:
-            match_start, match_end = m.span()
-            click.echo("Found end of block comment")
-        else:
-            chunk.set_content('comment')
-            return ChunkString(chunk), context
-    else:
-        # Any comments starting
-        single_comment_match = context.dialect.inline_comment_regex.search(chunk.chunk)
-        multi_comment_match = context.dialect.block_comment_regex_tuple[0].search(chunk.chunk)
-        if single_comment_match and multi_comment_match:
-            # both!? - we need to work out which first
-            pass
-        elif single_comment_match:
-            # if there's a single line comment, then it takes all of the rest of the line
-            if single_comment_match.pos > 0:
-                code_chunk, comment_chunk = chunk.split_at(single_comment_match.pos)
-                comment_chunk.set_content('comment')
-                substr = recursive_lexer(code_chunk, context)
-                return substr + ChunkString(comment_chunk), context
-            else:
-                chunk.set_content('comment')
-                return ChunkString(chunk), context
-        elif multi_comment_match:
-            # if there's a single line comment, then it takes all of the rest of the line
-            if multi_comment_match.pos > 0:
-                first_chunk, second_chunk = chunk.split_at(multi_comment_match.pos)
-                comment_chunk.set_content('comment')
-                substr = recursive_lexer(code_chunk, context)
-                return substr + ChunkString(comment_chunk), context
-            else:
-                chunk.set_content('comment')
-                return ChunkString(chunk), context
-
-        # THIS NEEDS TO CHANGE
-        return ChunkString(chunk), context
 
 
 def parse_file(file_obj, dialect=AnsiSQLDialiect):
     """ Take a file like oject and parse it into chunks """
     # Create some variables to hold context between lines
-    multi_line_comment_active = False
     string_buffer = None
     chunk_buffer = []
-    # initialise the context
-    context = LexerContext(dialect=dialect, multiline_comment_active=False)
+    context = {}
+    rl = RecursiveLexer()
     for idx, line in enumerate(file_obj, start=1):
-        line_chunk = PositionedChunk(line, 0, idx)
+        line_chunk = PositionedChunk(line, 0, idx, None)
         # context carries on
-        chunks, context = recursive_lexer(line_chunk, context)
-
-
-class ParsedLine(object):
-    def __init__(self, line, line_no, dialect=AnsiSQLDialiect):
-        self.initial_chunk = None
-        self.terminal_chunk = None
-        self.core_chunk = None
-        # click.echo(len(line))
-        # Iterate through whitespace matches
-        for m in dialect.whitespace_regex.finditer(line):
-            if m:
-                # click.echo(m)
-                # click.echo(repr(m.group()))
-                match_start, match_end = m.span()
-                if match_start == 0:
-                    # click.echo("Initial String")
-                    self.initial_chunk = PositionedChunk(m.group(), match_start, line_no)
-                elif match_end == len(line):
-                    # click.echo("Terminal Match")
-                    self.terminal_chunk = PositionedChunk(m.group(), match_start, line_no)
-        central_start = len(self.initial_chunk or '')
-        central_end = len(line) - len(self.terminal_chunk or '')
-        central_chunk = line[central_start: central_end]
-        self.core_chunk = PositionedChunk(central_chunk, central_start, line_no)
-        # click.echo(self.core_chunk)
-
-    def __repr__(self):
-        return '<Parsed Line - Core:%r, Initial=%r, Terminal=%r>' % (self.core_chunk, self.initial_chunk, self.terminal_chunk)
+        res, context = rl.lex(line_chunk, **context)
+        click.echo(res)
 
 
 @click.command()

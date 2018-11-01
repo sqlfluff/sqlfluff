@@ -43,7 +43,7 @@ def test__charmatch__span():
     assert cmp.span(s) == (6, 15)
 
 
-def test__charmatch__chunkmatch():
+def test__charmatch__chunkmatch_1():
     cmp = CharMatchPattern('"', None)
     chk = PositionedChunk('aefal "fuin^ef" uynl*fa', 13, 20, None)
     sub_chunk = cmp.chunkmatch(chk)
@@ -56,6 +56,14 @@ def test__charmatch__chunkmatch_2():
     chk = PositionedChunk('asdfbjkebkjaekljds', 13, 20, None)
     sub_chunk = cmp.chunkmatch(chk)
     assert sub_chunk == PositionedChunk('asdfbjkebkja', 13, 20, 'match')
+
+
+def test__charmatch__chunkmatch_3():
+    # Check for an no match scenario
+    cmp = CharMatchPattern('a', None)
+    chk = PositionedChunk('sdflkg;j;d;sflkgjds', 13, 20, None)
+    sub_chunk = cmp.chunkmatch(chk)
+    assert sub_chunk is None
 
 
 def test__regexmatch__span():
@@ -113,7 +121,16 @@ def test__matcherbag__chunkmatch_b():
 
 
 # ############## LEXER TESTS
-def test__recursive__basic():
+def test__recursive__basic_1():
+    rl = RecursiveLexer()
+    pc = PositionedChunk('   ', 0, 1, None)
+    res, context = rl.lex(pc)
+    assert isinstance(res, ChunkString)
+    assert len(res) == 1
+    assert res[0].chunk == '   '
+
+
+def test__recursive__basic_2():
     rl = RecursiveLexer()
     pc = PositionedChunk('SELECT\n', 0, 1, None)
     res, context = rl.lex(pc)
