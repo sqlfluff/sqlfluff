@@ -57,7 +57,7 @@ class ChunkString(object):
 
     def context_list(self):
         return [elem.context for elem in self.chunk_list]
-    
+
     def string_list(self):
         return [elem.chunk for elem in self.chunk_list]
 
@@ -154,7 +154,7 @@ class MatcherBag(object):
         # combining bags is just like making a bag with the combination of the matchers.
         # there will be a uniqueness check in this operation
         return MatcherBag(*self._matchers, *other._matchers)
-    
+
     def __len__(self):
         return len(self._matchers)
 
@@ -189,11 +189,8 @@ class AnsiSQLDialiect(object):
     outside_block_comment_matchers = MatcherBag(
         whitespace_regex, inline_comment_regex, closed_block_comment,
         open_block_comment_start, string_quote_characters, identifier_quote_characters)
-    
+
     inside_block_comment_matchers = MatcherBag(open_block_comment_end)
-
-
-LexerContext = namedtuple('LexerContext', ['dialect', 'multiline_comment_active'])
 
 
 class RecursiveLexer(object):
@@ -203,6 +200,11 @@ class RecursiveLexer(object):
     def lex(self, chunk, **start_context):
         # Match based on available matchers
         matches = self.dialect.outside_block_comment_matchers.chunkmatch(chunk)
+
+        if len(matches) == 0:
+            # No Match, just content
+            return ChunkString(chunk.contextualise('content')), start_context
+
         # examine first match
         first_match = matches[0]
         if first_match[0].chunk == chunk.chunk:
@@ -230,7 +232,7 @@ class RecursiveLexer(object):
         else:
             # No Match, just content
             return ChunkString(chunk.contextualise('content')), start_context
-    
+
     def lex_chunk_buffer(self, chunk_iterable, **start_context):
         """ Iterate through chunks adding to the string """
         cs = ChunkString()
@@ -240,20 +242,13 @@ class RecursiveLexer(object):
             cs += ncs
         return cs, context_cache
 
-
-
-def parse_file(file_obj, dialect=AnsiSQLDialiect):
-    """ Take a file like oject and parse it into chunks """
-    # Create some variables to hold context between lines
-    string_buffer = None
-    chunk_buffer = []
-    context = {}
-    rl = RecursiveLexer()
-    for idx, line in enumerate(file_obj, start=1):
-        line_chunk = PositionedChunk(line, 0, idx, None)
-        # context carries on
-        res, context = rl.lex(line_chunk, **context)
-        click.echo(res)
+    def lex_file_obj(self, file_obj):
+        chunk_buffer = []
+        for idx, line in enumerate(file_obj, start=1):
+            chunk_buffer.append(PositionedChunk(line, 0, idx, None))
+        # We just pull the first element of the tuple, we don't care about the remaining context
+        res = self.lex_chunk_buffer(chunk_buffer)[0]
+        return res
 
 
 @click.command()
@@ -274,7 +269,10 @@ def sqlfluff_lint(dialect, paths):
     for fname in ['example.sql', 'example-tab.sql']:
         click.echo(fname)
         with open(fname) as f:
-            parse_file(f)
+            rl = RecursiveLexer()
+            res = rl.lex_file_obj(f)
+            click.echo(res.string_list())
+            click.echo(res.context_list())
 
 
 if __name__ == '__main__':

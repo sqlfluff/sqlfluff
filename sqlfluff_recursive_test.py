@@ -1,6 +1,7 @@
 """ The Test file for SQLFluff """
 
 import pytest
+import io
 from sqlfluff import CharMatchPattern, RegexMatchPattern, MatcherBag, RecursiveLexer, PositionedChunk, ChunkString
 
 
@@ -181,3 +182,15 @@ def test__recursive__lex_chunk_buffer():
     assert res.context_list() == ['content', 'whitespace', 'content', 'whitespace']
     assert res[1].chunk == '\n'
     assert res[3].chunk == '\n'
+
+
+def test__recursive__lex_file():
+    # Test iterating through a file-like object
+    rl = RecursiveLexer()
+    f = io.StringIO("Select\n   *\nFROM tbl\n")
+    res = rl.lex_file_obj(f)
+    assert res.string_list() == ['Select', '\n', '   ', '*', '\n', 'FROM', ' ', 'tbl', '\n']
+    assert res.context_list() == [
+        'content', 'whitespace', 'whitespace', 'content',
+        'whitespace', 'content', 'whitespace', 'content',
+        'whitespace']
