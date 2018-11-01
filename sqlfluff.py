@@ -133,15 +133,27 @@ class RegexMatchPattern(CharMatchPattern):
 
 class MatcherBag(object):
     def __init__(self, *matchers):
+        expanded_matchers = []
+        for elem in matchers:
+            if isinstance(elem, MatcherBag):
+                expanded_matchers += elem._matchers
+            elif isinstance(elem, CharMatchPattern):
+                # matches any match pattern or derivative
+                expanded_matchers.append(elem)
+            else:
+                raise TypeError("Unexpected Class in Bag: {0}".format(elem))
         # Check that names are unique
-        assert len(matchers) == len(set([elem.name for elem in matchers]))
+        assert len(expanded_matchers) == len(set([elem.name for elem in expanded_matchers]))
         # store them as a dict, so we can do lookups
-        self._matchers = matchers
+        self._matchers = expanded_matchers
 
     def __add__(self, other):
         # combining bags is just like making a bag with the combination of the matchers.
         # there will be a uniqueness check in this operation
         return MatcherBag(*self._matchers, *other._matchers)
+    
+    def __len__(self):
+        return len(self._matchers)
 
     def chunkmatch(self, c):
         """
@@ -158,20 +170,24 @@ class MatcherBag(object):
 
 
 class AnsiSQLDialiect(object):
-    patterns = {
-        'whitespace'
-
-    }
     # Whitespace is what divides other bits of syntax
-    whitespace_regex = re.compile(r'\s+')
+    whitespace_regex = RegexMatchPattern(r'\s+', 'whitespace')
     # Anything after an inline comment gets chunked together as not code
-    inline_comment_regex = re.compile(r'--|#')
+    inline_comment_regex = RegexMatchPattern(r'(--|#)[^\n]*', 'comment')  # In MySQL, we need a space after the '--'
     # Anything between the first and last part of this tuple counts as not code
-    block_comment_regex_tuple = (re.compile(r'/\*'), re.compile(r'\*/'))
+    closed_block_comment = RegexMatchPattern(r'/\*[^\n]*\*/', 'closed_block_comment')
+    open_block_comment_start = RegexMatchPattern(r'/\*[^\n]', 'open_block_comment_start')
+    open_block_comment_end = RegexMatchPattern(r'[^\n]*\*/', 'open_block_comment_end')
     # String Quote Characters
-    string_quote_characters = ("'",)  # NB in Mysql this should also include "
+    string_quote_characters = MatcherBag(CharMatchPattern("'", 'string_literal'))  # NB in Mysql this should also include "
     # Identifier Quote Characters
-    identifier_quote_characters = ('"',)  # NB in Mysql this should be `
+    identifier_quote_characters = MatcherBag(CharMatchPattern('"', 'object_literal'))  # NB in Mysql this should be `
+
+    outside_block_comment_matchers = MatcherBag(
+        whitespace_regex, inline_comment_regex, closed_block_comment,
+        open_block_comment_start, string_quote_characters, identifier_quote_characters)
+    
+    inside_block_comment_matchers = MatcherBag(open_block_comment_end)
 
 
 LexerContext = namedtuple('LexerContext', ['dialect', 'multiline_comment_active'])

@@ -77,6 +77,13 @@ def test__matcherbag__add_unique():
         MatcherBag(CharMatchPattern('"', 'foo')) + MatcherBag(CharMatchPattern('"', 'foo'))
 
 
+def test__matcherbag__add_bag():
+    # check we can make a bag out of another bag
+    bag = MatcherBag(CharMatchPattern('a', 'foo'), MatcherBag(CharMatchPattern('b', 'bar')))
+    bag2 = MatcherBag(bag, CharMatchPattern('c', 'bim'))
+    assert len(bag2) == 3
+
+
 def test__matcherbag__chunkmatch_a():
     a = CharMatchPattern('a', 'foo')
     b = CharMatchPattern('b', 'bar')
