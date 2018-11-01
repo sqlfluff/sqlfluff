@@ -24,7 +24,7 @@ def test__chunk__subchunk():
 
 
 # ############## Matchers
-def test__charmatch__basic():
+def test__charmatch__basic_1():
     cmp = CharMatchPattern('s', None)
     s = 'aefalfuinsefuynlsfa'
     assert cmp.first_match_pos(s) == 9
@@ -50,6 +50,13 @@ def test__charmatch__chunkmatch():
     assert sub_chunk == PositionedChunk('"fuin^ef"', 13 + 6, 20, 'match')
 
 
+def test__charmatch__chunkmatch_2():
+    cmp = CharMatchPattern('a', 'foo')
+    chk = PositionedChunk('asdfbjkebkjaekljds', 13, 20, None)
+    sub_chunk = cmp.chunkmatch(chk)
+    assert sub_chunk == PositionedChunk('asdfbjkebkja', 13, 20, 'match')
+
+
 def test__regexmatch__span():
     cmp = RegexMatchPattern(r'"[a-z]+"', None)
     s = 'aefal "fuinef" uynl*fa'
@@ -67,6 +74,18 @@ def test__matcherbag__add_unique():
     # raise an error that are duplicate names
     with pytest.raises(AssertionError):
         m = MatcherBag(CharMatchPattern('"', 'foo')) + MatcherBag(CharMatchPattern('"', 'foo'))
+
+
+def test__matcherbag__chunkmatch_a():
+    a = CharMatchPattern('a', 'foo')
+    b = CharMatchPattern('b', 'bar')
+    m = MatcherBag(a, b)
+    chk = PositionedChunk('asdfbjkebkjaekljds', 13, 20, None)
+    matches = m.chunkmatch(chk)
+    assert len(matches) == 2
+    assert matches == [
+        (PositionedChunk('asdfbjkebkja', 13, 20, 'match'), 0, a),
+        (PositionedChunk('bjkeb', 13 + 4, 20, 'match'), 4, b)]
 
 
 # ############## LEXER TESTS

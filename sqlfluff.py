@@ -3,7 +3,7 @@
 import click
 # import os
 import re
-from collections import namedtuple, OrderedDict
+from collections import namedtuple
 
 
 def ordinalise(s):
@@ -12,11 +12,7 @@ def ordinalise(s):
 
 # chunks should be immutable, they are a subclass of namedtuple (context defaults to None)
 class PositionedChunk(namedtuple('ProtoChunk', ['chunk', 'start_pos', 'line_no', 'context'])):
-    def __repr__(self):
-        # We introspect the class to make this more generic
-        return "<{class_type} @(L:{line_no},P:{start_pos},C:{context}) {chunk!r}>".format(
-            class_type=self.__class__.__name__, **self.__dict__)
-
+    __slots__ = ()
     def __len__(self):
         return len(self.chunk)
 
@@ -67,6 +63,12 @@ class CharMatchPattern(object):
     def __init__(self, c, name):
         self._char = c
         self.name = name
+    
+    def _repr_pattern(self):
+        return self._char * 2
+    
+    def __repr__(self):
+        return "<{classname}: '{pattern}'>".format(classname=self.__class__.__name__, pattern=self._repr_pattern())
 
     def first_match_pos(self, s):
         # Assume s is a string
@@ -95,9 +97,9 @@ class CharMatchPattern(object):
     def chunkmatch(self, c):
         """ Given a full chunk, rather than just a string, return the first matching subchunk """
         span = self.span(c.chunk)
-        if span[0]:
+        if span[0] is not None:
             # there's a start!
-            if span[1]:
+            if span[1] is not None:
                 # there's a defined end!
                 return c.subchunk(start=span[0], end=span[1], context='match')
             else:
@@ -111,6 +113,9 @@ class RegexMatchPattern(CharMatchPattern):
     def __init__(self, r, name):
         self._pattern = re.compile(r)
         self.name = name
+
+    def _repr_pattern(self):
+        return self._pattern.pattern
 
     def span(self, s):
         # Assume s is a string
@@ -130,12 +135,25 @@ class MatcherBag(object):
         # Check that names are unique
         assert len(matchers) == len(set([elem.name for elem in matchers]))
         # store them as a dict, so we can do lookups
-        self._matchers = {elem.name: elem for elem in matchers}
+        self._matchers = matchers
     
     def __add__(self, other):
         # combining bags is just like making a bag with the combination of the matchers.
         # there will be a uniqueness check in this operation
-        return MatcherBag(*self._matchers.values(), *other._matchers.values())
+        return MatcherBag(*self._matchers, *other._matchers)
+
+    def chunkmatch(self, c):
+        """
+        Given a full chunk, compare against matchers in the bag and then order by first match
+        
+        Return a list of tuples (subchunk, pos, matcher)
+        """
+        match_buffer = []
+        for matcher in self._matchers:
+            chk = matcher.chunkmatch(c)
+            if chk:
+                match_buffer.append((chk, chk.start_pos - c.start_pos, matcher))
+        return sorted(match_buffer, key=lambda x: x[1])
 
 
 class AnsiSQLDialiect(object):
