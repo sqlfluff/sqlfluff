@@ -4,3 +4,5 @@
 # Ignore Python cache
 .cache
 __pycache__
+env
+.tox
