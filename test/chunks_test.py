@@ -2,7 +2,7 @@
 
 import pytest
 
-from sqlfluff.chunks import PositionedChunk
+from sqlfluff.chunks import PositionedChunk, ChunkString
 
 
 # ############## Chunks
@@ -23,3 +23,17 @@ def test__chunk__subchunk():
     c = PositionedChunk('foobarbar', 10, 20, None)
     r = c.subchunk(3, 6)
     assert r == PositionedChunk('bar', 13, 20, None)
+
+
+# ############## Chunklist
+
+def test__chunklist__content():
+    # Raise an exception if we try to create with anything but chunks
+    with pytest.raises(AssertionError):
+        ChunkString(1, 2, 3)
+
+
+def test__chunklist__simple_content():
+    # Raise an exception if we try to create with anything but chunks
+    cs = ChunkString(PositionedChunk('foobarbar', 1, 20, 'a'), PositionedChunk('foobarbar', 1, 21, 'b'))
+    assert list(cs.simple_list()) == [('foobarbar', 'a'), ('foobarbar', 'b')]

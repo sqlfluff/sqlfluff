@@ -53,3 +53,7 @@ class ChunkString(object):
 
     def string_list(self):
         return [elem.chunk for elem in self.chunk_list]
+
+    def simple_list(self):
+        # a zipped version of the sring and context
+        return zip(self.string_list(), self.context_list())
