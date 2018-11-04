@@ -87,6 +87,28 @@ def test__recursive__lex_file_basic():
     rl = RecursiveLexer()
     with open('test/fixtures/lexer/basic.sql') as f:
         res = rl.lex_file_obj(f)
-        assert len(res) == 16
+        assert len(res) == 17
         assert res[0].chunk == 'SELECT'
         assert res[-1].chunk == '\n'
+
+
+def test__recursive__lex_file_inlinecomment():
+    # Check we can deal with block comments in line
+    rl = RecursiveLexer()
+    with open('test/fixtures/lexer/inline_comment.sql') as f:
+        res = rl.lex_file_obj(f)
+        # check that the inline comment arrives whole
+        assert "-- This is an inline comment" in res.string_list()
+        # The second is more tricky because it contains a quote
+        assert "-- Sometimes they're on a new line" in res.string_list()
+
+
+def test__recursive__lex_file_blockcomment():
+    # Check we can deal with block comments in line
+    rl = RecursiveLexer()
+    with open('test/fixtures/lexer/block_comment.sql') as f:
+        res = rl.lex_file_obj(f)
+        # Check we get the block comment whole
+        assert "/* Block comment with ending */" in res.string_list()
+        # Check we get the field after the comment
+        assert "a.something" in res.string_list()

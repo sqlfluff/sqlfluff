@@ -1,6 +1,6 @@
 """ Contains SQL Dialects """
 
-from .matchers import RegexMatchPattern, CharMatchPattern, MatcherBag
+from .matchers import RegexMatchPattern, CharMatchPattern, SingleCharMatchPattern, MatcherBag
 
 
 class AnsiSQLDialiect(object):
@@ -16,9 +16,13 @@ class AnsiSQLDialiect(object):
     string_quote_characters = MatcherBag(CharMatchPattern("'", 'string_literal'))  # NB in Mysql this should also include "
     # Identifier Quote Characters
     identifier_quote_characters = MatcherBag(CharMatchPattern('"', 'object_literal'))  # NB in Mysql this should be `
+    # Singleton Match Patterns
+    comma_characters = SingleCharMatchPattern(',', 'comma')
+    star_characters = SingleCharMatchPattern('*', 'star')
 
     outside_block_comment_matchers = MatcherBag(
         whitespace_regex, inline_comment_regex, closed_block_comment,
-        open_block_comment_start, string_quote_characters, identifier_quote_characters)
+        open_block_comment_start, string_quote_characters, identifier_quote_characters,
+        comma_characters, star_characters)
 
     inside_block_comment_matchers = MatcherBag(open_block_comment_end)
