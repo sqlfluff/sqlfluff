@@ -54,6 +54,26 @@ class CharMatchPattern(object):
             return None
 
 
+class SingleCharMatchPattern(CharMatchPattern):
+    """
+    Intended for things like commas and newlines which come along
+    This is a simplification of the standard CharMatchPattern
+    """
+
+    def _repr_pattern(self):
+        return self._char
+
+    def span(self, s):
+        # SPAN should return the index from and to of the match
+        # a single character match will have a difference of span
+        # equal to 1.
+        first = self.first_match_pos(s)
+        if first:
+            return first, first + 1
+        else:
+            return None, None
+
+
 class RegexMatchPattern(CharMatchPattern):
     def __init__(self, r, name):
         self._pattern = re.compile(r)

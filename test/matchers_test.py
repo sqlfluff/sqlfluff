@@ -2,7 +2,7 @@
 
 import pytest
 
-from sqlfluff.matchers import CharMatchPattern, RegexMatchPattern, MatcherBag
+from sqlfluff.matchers import CharMatchPattern, SingleCharMatchPattern, RegexMatchPattern, MatcherBag
 from sqlfluff.chunks import PositionedChunk
 
 
@@ -52,6 +52,22 @@ def test__regexmatch__span():
     cmp = RegexMatchPattern(r'"[a-z]+"', None)
     s = 'aefal "fuinef" uynl*fa'
     assert cmp.span(s) == (6, 14)
+
+
+def test__singlecharmatch__none():
+    cmp = SingleCharMatchPattern('*', None)
+    chk = PositionedChunk('aefal "fuin^ef" uynlfa', 13, 20, None)
+    sub_chunk = cmp.chunkmatch(chk)
+    assert sub_chunk is None
+
+
+def test__singlecharmatch__chunkmatch_1():
+    cmp = SingleCharMatchPattern('*', None)
+    # Check that it only matches once!
+    chk = PositionedChunk('aefal "fuin^ef" uynl*fa**', 13, 20, None)
+    sub_chunk = cmp.chunkmatch(chk)
+    assert sub_chunk is not None
+    assert sub_chunk == PositionedChunk('*', 13 + 20, 20, 'match')
 
 
 # ############## Matcher Bag
