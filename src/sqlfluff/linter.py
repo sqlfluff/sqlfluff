@@ -3,6 +3,7 @@
 import os
 
 from .dialects import AnsiSQLDialiect
+from sqlfluff.lexer import RecursiveLexer
 
 
 class Linter(object):
@@ -17,7 +18,7 @@ class Linter(object):
         elif os.path.isdir(path):
             # Then expand the path!
             buffer = set()
-            for dirpath, dirnames, filenames in os.walk(path):
+            for dirpath, _, filenames in os.walk(path):
                 for fname in filenames:
                     for ext in self.sql_exts:
                         # is it a sql file?
@@ -26,10 +27,10 @@ class Linter(object):
                             buffer.add(os.path.normpath(os.path.join(dirpath, fname)))
             return buffer
         else:
-            return path
+            return [path]
 
-    def files_from_path(self, path):
-        pass
-
-    def lint_path(self, target):
-        pass
+    def lint_path(self, path):
+        for fname in self.paths_from_path(path):
+            with open(fname, 'r') as f:
+                rl = RecursiveLexer(dialect=self.dialect)
+                rl.lex_file_obj(f)
