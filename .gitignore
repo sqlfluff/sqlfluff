@@ -1,9 +1,12 @@
 # Ignore VSCode
 .vscode
 
-# Ignore Python cache
+# Ignore Python cache and prebuilt things
 .cache
 __pycache__
+*.egg-info
+*.pyc
+
+# Ignore the Environment
 env
 .tox
-*.egg-info
