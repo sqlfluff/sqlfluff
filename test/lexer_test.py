@@ -69,7 +69,7 @@ def test__recursive__lex_chunk_buffer():
     assert res[3].chunk == '\n'
 
 
-def test__recursive__lex_file():
+def test__recursive__lex_filelike():
     # Test iterating through a file-like object
     rl = RecursiveLexer()
     # Specify explicitly a *unicode* string for python 2
@@ -80,3 +80,13 @@ def test__recursive__lex_file():
         'content', 'whitespace', 'whitespace', 'content',
         'whitespace', 'content', 'whitespace', 'content',
         'whitespace']
+
+
+def test__recursive__lex_file_basic():
+    # Test iterating through a file object
+    rl = RecursiveLexer()
+    with open('test/fixtures/lexer/basic.sql') as f:
+        res = rl.lex_file_obj(f)
+        assert len(res) == 16
+        assert res[0].chunk == 'SELECT'
+        assert res[-1].chunk == '\n'
