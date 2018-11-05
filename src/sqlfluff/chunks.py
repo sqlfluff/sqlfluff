@@ -48,6 +48,10 @@ class ChunkString(object):
     def __len__(self):
         return len(self.chunk_list)
 
+    def __repr__(self):
+        return "<ChunkString: {content!r}>".format(
+            content=self.chunk_list)
+
     def context_list(self):
         return [elem.context for elem in self.chunk_list]
 

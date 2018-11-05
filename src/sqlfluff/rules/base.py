@@ -7,6 +7,9 @@ class RuleViolation(object):
         self.chunk = chunk
         self.rule = rule
 
+    def __repr__(self):
+        return "<Rule Violation: {rule!r} : {chunk!r}>".format(rule=self.rule, chunk=self.chunk)
+
 
 class BaseRule(object):
     """ A single linting rule to apply """
@@ -14,6 +17,9 @@ class BaseRule(object):
         self.code = code
         self.description = description
         self.func = func
+
+    def __repr__(self):
+        return "<Rule {code}: {description}>".format(code=self.code, description=self.description)
 
     def evaluate(self, chunk):
         """ If the function evaluates then we've found a violation """
@@ -34,6 +40,12 @@ class BaseRuleSet(object):
             violation = rule.evaluate(chunk)
             if violation:
                 buffer.append(violation)
+        return buffer
+
+    def evaluate_chunkstring(self, chunkstring):
+        buffer = []
+        for chunk in chunkstring:
+            buffer = buffer + self.evaluate(chunk)
         return buffer
 
 

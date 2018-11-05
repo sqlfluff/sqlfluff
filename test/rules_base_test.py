@@ -1,6 +1,7 @@
 """ The Test file for SQLFluff """
 
 from sqlfluff.rules.base import BaseRule, BaseRuleSet, RuleViolation
+from sqlfluff.chunks import PositionedChunk, ChunkString
 
 
 # ############## BASE RULES TESTS
@@ -25,3 +26,22 @@ def test__rules__base__ruleset():
     vs = rs.evaluate(1)
     assert len(vs) == 1
     assert vs[0].rule.code == 'A'
+
+
+def test__rules__base__ruleset_chunkstring():
+    """ An extension of the above test, but applied to a chunkstring """
+    rs = BaseRuleSet(
+        BaseRule('A', 'foo', lambda x: True),
+        BaseRule('B', 'bar', lambda x: False)
+    )
+    cs = ChunkString(
+        PositionedChunk('foo', 1, 20, 'a'),
+        PositionedChunk('bar', 1, 21, 'b')
+    )
+    vs = rs.evaluate_chunkstring(cs)
+    # We should get two instances of rule A
+    assert len(vs) == 2
+    assert vs[0].rule.code == 'A'
+    assert vs[0].chunk.chunk == 'foo'
+    assert vs[1].rule.code == 'A'
+    assert vs[1].chunk.chunk == 'bar'
