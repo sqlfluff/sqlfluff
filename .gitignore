@@ -6,6 +6,7 @@
 __pycache__
 *.egg-info
 *.pyc
+build
 
 # Ignore the Environment
 env
