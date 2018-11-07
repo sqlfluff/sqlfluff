@@ -32,11 +32,13 @@ class Linter(object):
 
     def lint_path(self, path):
         rules = load_standard_set()
-        violations = []
+        violations = {}
         for fname in self.paths_from_path(path):
+            violations[path] = []
             with open(fname, 'r') as f:
                 rl = RecursiveLexer(dialect=self.dialect)
                 chunkstring = rl.lex_file_obj(f)
                 vs = rules.evaluate_chunkstring(chunkstring)
-                violations = violations + vs
+                # Use a list method instead here!
+                violations[path] = violations[path] + vs
         return violations

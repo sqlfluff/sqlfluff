@@ -23,7 +23,11 @@ def test__linter__lint_file():
     lntr = Linter()
     lnt = lntr.lint_path('test/fixtures/linter/indentation_errors.sql')
     # lets make an object of the codes, line numbers and positions of violations
-    violations = [(v.rule.code, v.chunk.line_no, v.chunk.start_pos) for v in lnt]
+    violations = []
+    for file in lnt:
+        for elem in lnt[file]:
+            violations.append(elem)
+    violations = [v.check_tuple() for v in violations]
     # Check we get the trialing whitespace violation
     assert ('L001', 4, 22) in violations
     # Check we get the mixed indentation errors

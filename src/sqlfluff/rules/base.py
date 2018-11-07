@@ -10,6 +10,9 @@ class RuleViolation(object):
     def __repr__(self):
         return "<Rule Violation: {rule!r} : {chunk!r}>".format(rule=self.rule, chunk=self.chunk)
 
+    def check_tuple(self):
+        return (self.rule.code, self.chunk.line_no, self.chunk.start_pos)
+
 
 class BaseRule(object):
     """ A single linting rule to apply """
