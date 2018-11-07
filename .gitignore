@@ -7,6 +7,7 @@ __pycache__
 *.egg-info
 *.pyc
 build
+dist
 
 # Ignore the Environment
 env
