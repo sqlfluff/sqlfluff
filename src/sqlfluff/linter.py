@@ -28,7 +28,7 @@ class Linter(object):
                             buffer.add(os.path.normpath(os.path.join(dirpath, fname)))
             return buffer
         else:
-            return [path]
+            return set([path])
 
     def lint_path(self, path):
         rules = load_standard_set()

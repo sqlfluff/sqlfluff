@@ -4,11 +4,18 @@ from sqlfluff.linter import Linter
 
 
 # ############## LINTER TESTS
-def test__linter__path_from_paths():
+def test__linter__path_from_paths__dir():
     lntr = Linter()
     paths = lntr.paths_from_path('test/fixtures/lexer')
     # NB This test might fail on Linux or Mac - should probably correct...
     assert paths == set(['test\\fixtures\\lexer\\block_comment.sql', 'test\\fixtures\\lexer\\inline_comment.sql', 'test\\fixtures\\lexer\\basic.sql'])
+
+
+def test__linter__path_from_paths__file():
+    lntr = Linter()
+    paths = lntr.paths_from_path('test/fixtures/linter/indentation_errors.sql')
+    # NB This test might fail on Linux or Mac - should probably correct...
+    assert paths == set(['test/fixtures/linter/indentation_errors.sql'])
 
 
 def test__linter__path_from_paths_dot():

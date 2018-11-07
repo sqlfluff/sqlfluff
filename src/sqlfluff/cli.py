@@ -47,7 +47,7 @@ def main(dialect, paths):
         click.echo('Linting: {0}'.format(path))
         # Iterate through files recursively in the specified directory (if it's a directory)
         # or read the file directly if it's not
-        violations = lnt.lint_path(paths)
+        violations = lnt.lint_path(path)
         formatted = format_violations(violations)
         for line in formatted:
             click.echo(line)

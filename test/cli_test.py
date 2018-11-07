@@ -1,5 +1,7 @@
 """ The Test file for Chunks """
 
+import subprocess
+
 from sqlfluff.chunks import PositionedChunk
 from sqlfluff.rules.base import RuleViolation, BaseRule
 from sqlfluff.cli import format_filename, format_violation, format_violations
@@ -44,3 +46,13 @@ def test__cli__violations():
     for elem in k:
         chk2 = chk2 + [format_filename(elem)] + chk[elem]
     assert f == chk2
+
+
+def test__cli__shell_directed():
+    """ Check the script actually in the shell """
+    res = subprocess.check_output(
+        ['sqlfluff', 'test/fixtures/linter/indentation_error_simple.sql'])
+    # Removing \r is important for windows
+    check = "L:2|P:1|L003| Single indentation uses a number of spaces not a multiple of 4"
+    lines = res.decode().replace("\r", "").split("\n")
+    assert check in lines
