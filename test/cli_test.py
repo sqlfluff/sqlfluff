@@ -11,12 +11,12 @@ from sqlfluff.cli import format_filename, format_violation, format_violations
 
 def test__cli__filename():
     res = format_filename('blah')
-    assert res == r"== [\u001b[30;1mblah\u001b[0m] \u001b[31mFAIL\u001b[0m"
+    assert res == "== [\u001b[30;1mblah\u001b[0m] \u001b[31mFAIL\u001b[0m"
 
 
 def test__cli__filename_success():
     res = format_filename('blah', success=True)
-    assert res == r"== [\u001b[30;1mblah\u001b[0m] \u001b[32mPASS\u001b[0m"
+    assert res == "== [\u001b[30;1mblah\u001b[0m] \u001b[32mPASS\u001b[0m"
 
 
 def test__cli__violation():

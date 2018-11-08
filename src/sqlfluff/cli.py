@@ -9,7 +9,7 @@ from .linter import Linter
 
 
 def format_filename(filename, success=False, verbose=0):
-    return r"== [\u001b[30;1m{0}\u001b[0m] {1}".format(filename, r'\u001b[32mPASS\u001b[0m' if success else r'\u001b[31mFAIL\u001b[0m')
+    return "== [\u001b[30;1m{0}\u001b[0m] {1}".format(filename, '\u001b[32mPASS\u001b[0m' if success else '\u001b[31mFAIL\u001b[0m')
 
 
 def format_violation(violation, verbose=0):
