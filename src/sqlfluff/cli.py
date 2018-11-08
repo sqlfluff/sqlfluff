@@ -9,11 +9,11 @@ from .linter import Linter
 
 
 def format_filename(filename, success=False, verbose=0):
-    return "== [{0}] {1}".format(filename, 'PASS' if success else 'FAIL')
+    return r"== [\u001b[30;1m{0}\u001b[0m] {1}".format(filename, r'\u001b[32mPASS\u001b[0m' if success else r'\u001b[31mFAIL\u001b[0m')
 
 
 def format_violation(violation, verbose=0):
-    return "L:{0:4d} | P:{1:4d} | {2} | {3}".format(
+    return r"\u001b[36mL:{0:4d} | P:{1:4d} | {2} |\u001b[0m {3}".format(
         violation.chunk.line_no,
         violation.chunk.start_pos + 1,
         violation.rule.code,
@@ -45,14 +45,14 @@ def format_violations(violations, verbose=0):
 
 def format_version(verbose=0):
     if verbose > 0:
-        return "sqlfluff: {0}  python: {1[0]}.{1[1]}.{1[2]}".format(
+        return "\u001b[30;1msqlfluff:\u001b[0m {0}  \u001b[30;1m python:\u001b[0m {1[0]}.{1[1]}.{1[2]}".format(
             sqlfluff.__version__, sys.version_info)
     else:
         return sqlfluff.__version__
 
 
 def format_dialect(dialect):
-    return "dialect: {0}".format(dialect.name)
+    return "\u001b[30;1mdialect:\u001b[0m {0}".format(dialect.name)
 
 
 @click.group()
@@ -63,7 +63,7 @@ def cli():
 
 @cli.command()
 @click.option('-v', '--verbose', count=True)
-def version(verbose):
+def version(verbose, nocolor=None):
     """ Show the version of sqlfluff """
     click.echo(format_version(verbose=verbose))
 
@@ -71,9 +71,11 @@ def version(verbose):
 @cli.command()
 @click.option('--dialect', default='ansi', help='The dialect of SQL to lint')
 @click.option('-v', '--verbose', count=True)
+@click.option('-n', '--nocolor', is_flag=True)
 @click.argument('paths', nargs=-1)
-def lint(dialect, verbose, paths):
+def lint(dialect, verbose, nocolor, paths):
     """ Lint SQL files """
+    color = False if nocolor else None
     try:
         dialect_obj = sqlfluff.dialects.dialect_selector(dialect)
     except KeyError:
@@ -83,9 +85,9 @@ def lint(dialect, verbose, paths):
     # Only show version information if verbosity is high enough
     if verbose > 0:
         click.echo("==== sqlfluff ====")
-        click.echo(format_version(verbose=verbose))
-        click.echo(format_dialect(dialect=dialect_obj))
-        click.echo("verbosity: {0}".format(verbose))
+        click.echo(format_version(verbose=verbose), color=color)
+        click.echo(format_dialect(dialect=dialect_obj), color=color)
+        click.echo(r"\u001b[30;1m verbosity:\u001b[0m {0}".format(verbose), color=color)
         click.echo("==== readout ====")
 
     # Instantiate the linter
@@ -98,14 +100,14 @@ def lint(dialect, verbose, paths):
     num_violations = 0
     for path in paths:
         if verbose > 0:
-            click.echo('=== [{0}] ==='.format(path))
+            click.echo(r'=== [\u001b[30;1m{0}\u001b[0m] ==='.format(path))
         # Iterate through files recursively in the specified directory (if it's a directory)
         # or read the file directly if it's not
         violations = lnt.lint_path(path)
         num_violations = num_violations + sum([len(violations[key]) for key in violations])
         formatted = format_violations(violations, verbose=verbose)
         for line in formatted:
-            click.echo(line)
+            click.echo(line, color=color)
     if verbose > 0:
         click.echo('=== {0:4d} Violations ==='.format(num_violations))
     if num_violations > 0:

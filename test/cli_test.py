@@ -11,12 +11,12 @@ from sqlfluff.cli import format_filename, format_violation, format_violations
 
 def test__cli__filename():
     res = format_filename('blah')
-    assert res == "== [blah] FAIL"
+    assert res == r"== [\u001b[30;1mblah\u001b[0m] \u001b[31mFAIL\u001b[0m"
 
 
 def test__cli__filename_success():
     res = format_filename('blah', success=True)
-    assert res == "== [blah] PASS"
+    assert res == r"== [\u001b[30;1mblah\u001b[0m] \u001b[32mPASS\u001b[0m"
 
 
 def test__cli__violation():
@@ -25,7 +25,7 @@ def test__cli__violation():
     r = BaseRule('A', 'DESC', lambda x: True)
     v = RuleViolation(c, r)
     f = format_violation(v)
-    assert f == "L:  20 | P:  11 | A | DESC"
+    assert f == r"\u001b[36mL:  20 | P:  11 | A |\u001b[0m DESC"
 
 
 def test__cli__violations():
@@ -46,8 +46,8 @@ def test__cli__violations():
     f = format_violations(v)
     k = sorted(['foo', 'bar'])
     chk = {
-        'foo': ["L:  21 | P:   3 | B | DESC", "L:  25 | P:   2 | A | DESC"],
-        'bar': ["L:   2 | P:  11 | C | DESC"]
+        'foo': [r"\u001b[36mL:  21 | P:   3 | B |\u001b[0m DESC", r"\u001b[36mL:  25 | P:   2 | A |\u001b[0m DESC"],
+        'bar': [r"\u001b[36mL:   2 | P:  11 | C |\u001b[0m DESC"]
     }
     chk2 = []
     for elem in k:
@@ -59,12 +59,12 @@ def test__cli__shell_directed():
     """ Check the script actually in the shell """
     try:
         subprocess.check_output(
-            ['sqlfluff', 'lint', 'test/fixtures/linter/indentation_error_simple.sql'])
+            ['sqlfluff', 'lint', '-n', 'test/fixtures/linter/indentation_error_simple.sql'])
     except subprocess.CalledProcessError as err:
         # There are violations so there should be a non-zero exit code
         assert err.returncode == 65
         # We should get a readout of what the error was
-        check = b"L:   2 | P:   1 | L003 | Single indentation uses a number of spaces not a multiple of 4"
+        check = b"\\u001b[36mL:   2 | P:   1 | L003 |\\u001b[0m Single indentation uses a number of spaces not a multiple of 4"
         assert check in err.output
 
 
@@ -72,7 +72,7 @@ def test__cli__shell_dialect():
     """ Check the script raises the right exception on an unknown dialect """
     try:
         subprocess.check_output(
-            ['sqlfluff', 'lint', '--dialect', 'faslkjh', 'test/fixtures/linter/indentation_error_simple.sql'])
+            ['sqlfluff', 'lint', '-n', '--dialect', 'faslkjh', 'test/fixtures/linter/indentation_error_simple.sql'])
     except subprocess.CalledProcessError as err:
         # The dialect is unknown should be a non-zero exit code
         assert err.returncode == 66
