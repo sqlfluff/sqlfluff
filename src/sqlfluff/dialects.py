@@ -3,7 +3,15 @@
 from .matchers import RegexMatchPattern, CharMatchPattern, SingleCharMatchPattern, MatcherBag
 
 
+def dialect_selector(s):
+    lookup = {
+        'ansi': AnsiSQLDialiect
+    }
+    return lookup[s]
+
+
 class AnsiSQLDialiect(object):
+    name = 'ansi'
     # Whitespace is what divides other bits of syntax
     whitespace_regex = RegexMatchPattern(r'\s+', 'whitespace')
     # Anything after an inline comment gets chunked together as not code

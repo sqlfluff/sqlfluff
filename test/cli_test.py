@@ -11,7 +11,12 @@ from sqlfluff.cli import format_filename, format_violation, format_violations
 
 def test__cli__filename():
     res = format_filename('blah')
-    assert res == "### [blah]: Violations:"
+    assert res == "== [blah] FAIL"
+
+
+def test__cli__filename_success():
+    res = format_filename('blah', success=True)
+    assert res == "== [blah] PASS"
 
 
 def test__cli__violation():
@@ -20,7 +25,7 @@ def test__cli__violation():
     r = BaseRule('A', 'DESC', lambda x: True)
     v = RuleViolation(c, r)
     f = format_violation(v)
-    assert f == "L:20|P:11|A| DESC"
+    assert f == "L:  20 | P:  11 | A | DESC"
 
 
 def test__cli__violations():
@@ -41,8 +46,8 @@ def test__cli__violations():
     f = format_violations(v)
     k = sorted(['foo', 'bar'])
     chk = {
-        'foo': ["L:21|P:3|B| DESC", "L:25|P:2|A| DESC"],
-        'bar': ["L:2|P:11|C| DESC"]
+        'foo': ["L:  21 | P:   3 | B | DESC", "L:  25 | P:   2 | A | DESC"],
+        'bar': ["L:   2 | P:  11 | C | DESC"]
     }
     chk2 = []
     for elem in k:
@@ -52,12 +57,25 @@ def test__cli__violations():
 
 def test__cli__shell_directed():
     """ Check the script actually in the shell """
-    res = subprocess.check_output(
-        ['sqlfluff', 'lint', 'test/fixtures/linter/indentation_error_simple.sql'])
-    # Removing \r is important for windows
-    check = "L:2|P:1|L003| Single indentation uses a number of spaces not a multiple of 4"
-    lines = res.decode().replace("\r", "").split("\n")
-    assert check in lines
+    try:
+        subprocess.check_output(
+            ['sqlfluff', 'lint', 'test/fixtures/linter/indentation_error_simple.sql'])
+    except subprocess.CalledProcessError as err:
+        # There are violations so there should be a non-zero exit code
+        assert err.returncode == 65
+        # We should get a readout of what the error was
+        check = b"L:   2 | P:   1 | L003 | Single indentation uses a number of spaces not a multiple of 4"
+        assert check in err.output
+
+
+def test__cli__shell_dialect():
+    """ Check the script raises the right exception on an unknown dialect """
+    try:
+        subprocess.check_output(
+            ['sqlfluff', 'lint', '--dialect', 'faslkjh', 'test/fixtures/linter/indentation_error_simple.sql'])
+    except subprocess.CalledProcessError as err:
+        # The dialect is unknown should be a non-zero exit code
+        assert err.returncode == 66
 
 
 def test__cli__versioning():
