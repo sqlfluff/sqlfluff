@@ -1,7 +1,9 @@
 """ The Test file for Chunks """
 
 import subprocess
+import configparser
 
+import sqlfluff
 from sqlfluff.chunks import PositionedChunk
 from sqlfluff.rules.base import RuleViolation, BaseRule
 from sqlfluff.cli import format_filename, format_violation, format_violations
@@ -51,8 +53,23 @@ def test__cli__violations():
 def test__cli__shell_directed():
     """ Check the script actually in the shell """
     res = subprocess.check_output(
-        ['sqlfluff', 'test/fixtures/linter/indentation_error_simple.sql'])
+        ['sqlfluff', 'lint', 'test/fixtures/linter/indentation_error_simple.sql'])
     # Removing \r is important for windows
     check = "L:2|P:1|L003| Single indentation uses a number of spaces not a multiple of 4"
     lines = res.decode().replace("\r", "").split("\n")
     assert check in lines
+
+
+def test__cli__versioning():
+    # Get the package version info
+    pkg_version = sqlfluff.__version__
+    # Get the version info from the config file
+    config = configparser.ConfigParser()
+    config.read_file(open('src/sqlfluff/config.ini'))
+    config_version = config['sqlfluff']['version']
+    assert pkg_version == config_version
+    # Get the version from the cli
+    cli_version = subprocess.check_output(
+        ['sqlfluff', 'version'])
+    # We need to strip to remove the newline characters, decode for python27
+    assert cli_version.decode().strip() == pkg_version

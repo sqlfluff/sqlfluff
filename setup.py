@@ -4,6 +4,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 import io
+import configparser
 # import re
 from glob import glob
 from os.path import basename
@@ -15,6 +16,13 @@ from setuptools import find_packages
 from setuptools import setup
 
 
+# Get the global config info as currently stated
+# (we use the config file to avoid actually loading any python here)
+config = configparser.ConfigParser()
+config.read_file(open('src/sqlfluff/config.ini'))
+version = config.get('sqlfluff', 'version')
+
+
 def read(*names, **kwargs):
     return io.open(
         join(dirname(__file__), *names),
@@ -24,7 +32,7 @@ def read(*names, **kwargs):
 
 setup(
     name='sqlfluff',
-    version='0.0.1',
+    version=version,
     license='MIT License',
     description='Modular SQL Linting for Humans',
     # long_description='%s\n%s' % (
@@ -78,7 +86,9 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'sqlfluff = sqlfluff.cli:main',
+            'sqlfluff = sqlfluff.cli:cli',
         ]
     },
+    # Use datafiles to make sure the config versioning file is included
+    data_files=[('', ['src/sqlfluff/config.ini'])]
 )

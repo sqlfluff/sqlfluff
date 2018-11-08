@@ -2,6 +2,7 @@
 
 import click
 
+import sqlfluff
 from .linter import Linter
 
 
@@ -32,11 +33,23 @@ def format_violations(violations, verbosity='std'):
     return text_buffer
 
 
-@click.command()
+@click.group()
+def cli():
+    """ The generic linting command (and root of the cli) """
+    pass
+
+
+@cli.command()
+def version():
+    """ The version command """
+    click.echo(sqlfluff.__version__)
+
+
+@cli.command()
 @click.option('--dialect', default='ansi', help='The dialect of SQL to lint')
 @click.argument('paths', nargs=-1)
-def main(dialect, paths):
-    """Lint SQL files"""
+def lint(dialect, paths):
+    """ Lint SQL files """
     click.echo('Linting... [Dialect: {0}]'.format(dialect))
     click.echo(paths)
     lnt = Linter()
@@ -51,7 +64,3 @@ def main(dialect, paths):
         formatted = format_violations(violations)
         for line in formatted:
             click.echo(line)
-
-
-if __name__ == '__main__':
-    main()
