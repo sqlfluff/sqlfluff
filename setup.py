@@ -35,11 +35,7 @@ setup(
     version=version,
     license='MIT License',
     description='Modular SQL Linting for Humans',
-    # long_description='%s\n%s' % (
-    #     re.compile('^.. start-badges.*^.. end-badges', re.M | re.S).sub('', read('README.md')),
-    #     re.sub(':[a-z]+:`~?(.*?)`', r'``\1``', read('CHANGELOG.md'))
-    # ),
-    long_description="TODO",
+    long_description=read('README.md') + "\n\n" + read('CHANGELOG.md'),
     author='Alan Cruickshank',
     author_email='alan@designingoverload.com',
     url='https://github.com/alanmcruickshank/sqlfluff',
@@ -47,7 +43,6 @@ setup(
     package_dir={'': 'src'},
     py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],
     include_package_data=True,
-    # zip_safe=False,
     classifiers=[
         # complete classifier list: http://pypi.python.org/pypi?%3Aaction=list_classifiers
         'Development Status :: 2 - Pre-Alpha',
@@ -66,10 +61,6 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
-        # uncomment if you test on these interpreters:
-        # 'Programming Language :: Python :: Implementation :: IronPython',
-        # 'Programming Language :: Python :: Implementation :: Jython',
-        # 'Programming Language :: Python :: Implementation :: Stackless',
         'Topic :: Utilities',
     ],
     keywords=[
@@ -90,5 +81,5 @@ setup(
         ]
     },
     # Use datafiles to make sure the config versioning file is included
-    data_files=[('', ['src/sqlfluff/config.ini'])]
+    data_files=[('', ['src/sqlfluff/config.ini', 'README.md', 'CHANGELOG.md'])]
 )
