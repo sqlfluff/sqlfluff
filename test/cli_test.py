@@ -25,7 +25,7 @@ def test__cli__violation():
     r = BaseRule('A', 'DESC', lambda x: True)
     v = RuleViolation(c, r)
     f = format_violation(v)
-    assert f == r"\u001b[36mL:  20 | P:  11 | A |\u001b[0m DESC"
+    assert f == "\u001b[36mL:  20 | P:  11 | A |\u001b[0m DESC"
 
 
 def test__cli__violations():
@@ -46,8 +46,8 @@ def test__cli__violations():
     f = format_violations(v)
     k = sorted(['foo', 'bar'])
     chk = {
-        'foo': [r"\u001b[36mL:  21 | P:   3 | B |\u001b[0m DESC", r"\u001b[36mL:  25 | P:   2 | A |\u001b[0m DESC"],
-        'bar': [r"\u001b[36mL:   2 | P:  11 | C |\u001b[0m DESC"]
+        'foo': ["\u001b[36mL:  21 | P:   3 | B |\u001b[0m DESC", "\u001b[36mL:  25 | P:   2 | A |\u001b[0m DESC"],
+        'bar': ["\u001b[36mL:   2 | P:  11 | C |\u001b[0m DESC"]
     }
     chk2 = []
     for elem in k:
@@ -64,8 +64,10 @@ def test__cli__shell_directed():
         # There are violations so there should be a non-zero exit code
         assert err.returncode == 65
         # We should get a readout of what the error was
-        check = b"\\u001b[36mL:   2 | P:   1 | L003 |\\u001b[0m Single indentation uses a number of spaces not a multiple of 4"
-        assert check in err.output
+        check_a = "L:   2 | P:   1 | L003"
+        check_b = "Single indentation uses a number of spaces not a multiple of 4"
+        assert check_a in err.output.decode()
+        assert check_b in err.output.decode()
 
 
 def test__cli__shell_dialect():

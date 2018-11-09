@@ -13,7 +13,7 @@ def format_filename(filename, success=False, verbose=0):
 
 
 def format_violation(violation, verbose=0):
-    return r"\u001b[36mL:{0:4d} | P:{1:4d} | {2} |\u001b[0m {3}".format(
+    return "\u001b[36mL:{0:4d} | P:{1:4d} | {2} |\u001b[0m {3}".format(
         violation.chunk.line_no,
         violation.chunk.start_pos + 1,
         violation.rule.code,
@@ -87,7 +87,7 @@ def lint(dialect, verbose, nocolor, paths):
         click.echo("==== sqlfluff ====")
         click.echo(format_version(verbose=verbose), color=color)
         click.echo(format_dialect(dialect=dialect_obj), color=color)
-        click.echo(r"\u001b[30;1m verbosity:\u001b[0m {0}".format(verbose), color=color)
+        click.echo("\u001b[30;1m verbosity:\u001b[0m {0}".format(verbose), color=color)
         click.echo("==== readout ====")
 
     # Instantiate the linter
@@ -100,7 +100,7 @@ def lint(dialect, verbose, nocolor, paths):
     num_violations = 0
     for path in paths:
         if verbose > 0:
-            click.echo(r'=== [\u001b[30;1m{0}\u001b[0m] ==='.format(path))
+            click.echo('=== [\u001b[30;1m{0}\u001b[0m] ==='.format(path), color=color)
         # Iterate through files recursively in the specified directory (if it's a directory)
         # or read the file directly if it's not
         violations = lnt.lint_path(path)
