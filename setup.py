@@ -12,7 +12,6 @@ from os.path import dirname
 from os.path import join
 from os.path import splitext
 
-from setuptools import find_packages
 from setuptools import setup
 
 
@@ -39,8 +38,8 @@ setup(
     author='Alan Cruickshank',
     author_email='alan@designingoverload.com',
     url='https://github.com/alanmcruickshank/sqlfluff',
-    packages=find_packages('src'),
-    package_dir={'': 'src'},
+    packages=['sqlfluff'],
+    package_dir={'sqlfluff': 'src/sqlfluff'},
     py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],
     include_package_data=True,
     classifiers=[
