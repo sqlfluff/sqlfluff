@@ -87,7 +87,7 @@ def lint(dialect, verbose, nocolor, paths):
         click.echo("==== sqlfluff ====")
         click.echo(format_version(verbose=verbose), color=color)
         click.echo(format_dialect(dialect=dialect_obj), color=color)
-        click.echo("\u001b[30;1m verbosity:\u001b[0m {0}".format(verbose), color=color)
+        click.echo("\u001b[30;1mverbosity:\u001b[0m {0}".format(verbose), color=color)
         click.echo("==== readout ====")
 
     # Instantiate the linter
@@ -100,7 +100,7 @@ def lint(dialect, verbose, nocolor, paths):
     num_violations = 0
     for path in paths:
         if verbose > 0:
-            click.echo('=== [\u001b[30;1m{0}\u001b[0m] ==='.format(path), color=color)
+            click.echo('=== [ path: \u001b[30;1m{0}\u001b[0m ] ==='.format(path), color=color)
         # Iterate through files recursively in the specified directory (if it's a directory)
         # or read the file directly if it's not
         violations = lnt.lint_path(path)
@@ -110,11 +110,14 @@ def lint(dialect, verbose, nocolor, paths):
             click.echo(line, color=color)
 
     if verbose >= 2:
-        click.echo('=== {0:d} Violations across {1:d} Files  ==='.format(num_violations, len(violations)))
+        click.echo('=== {0:d} violations (across {1:d} files) ==='.format(num_violations, len(violations)))
+        click.echo('=== [{0:d} clean files - {1:d} unclean files] ==='.format(
+            sum([1 if len(violations[key]) > 0 else 0 for key in violations]),
+            sum([0 if len(violations[key]) > 0 else 1 for key in violations])))
         if num_violations > 0:
-            click.echo('=== Avg {0:.2f} Violations / File  ==='.format(num_violations * 1.0 / len(violations)))
+            click.echo('=== avg {0:.2f} violations / file  ==='.format(num_violations * 1.0 / len(violations)))
     elif verbose >= 1:
-        click.echo('=== {0:4d} Violations ==='.format(num_violations))
+        click.echo('=== {0:4d} violations ==='.format(num_violations))
 
     if num_violations > 0:
         sys.exit(65)
