@@ -4,18 +4,18 @@ import subprocess
 import configparser
 
 import sqlfluff
+from sqlfluff import cli
 from sqlfluff.chunks import PositionedChunk
 from sqlfluff.rules.base import RuleViolation, BaseRule
-from sqlfluff.cli import format_filename, format_violation, format_violations
 
 
 def test__cli__filename():
-    res = format_filename('blah')
+    res = cli.format_filename('blah')
     assert res == "== [\u001b[30;1mblah\u001b[0m] \u001b[31mFAIL\u001b[0m"
 
 
 def test__cli__filename_success():
-    res = format_filename('blah', success=True)
+    res = cli.format_filename('blah', success=True)
     assert res == "== [\u001b[30;1mblah\u001b[0m] \u001b[32mPASS\u001b[0m"
 
 
@@ -24,7 +24,7 @@ def test__cli__violation():
     c = PositionedChunk('foobarbar', 10, 20, 'context')
     r = BaseRule('A', 'DESC', lambda x: True)
     v = RuleViolation(c, r)
-    f = format_violation(v)
+    f = cli.format_violation(v)
     assert f == "\u001b[36mL:  20 | P:  11 | A |\u001b[0m DESC"
 
 
@@ -43,7 +43,7 @@ def test__cli__violations():
                 PositionedChunk('blah', 10, 2, 'context'),
                 BaseRule('C', 'DESC', None))]
     }
-    f = format_violations(v)
+    f = cli.format_violations(v)
     k = sorted(['foo', 'bar'])
     chk = {
         'foo': ["\u001b[36mL:  21 | P:   3 | B |\u001b[0m DESC", "\u001b[36mL:  25 | P:   2 | A |\u001b[0m DESC"],
@@ -51,7 +51,7 @@ def test__cli__violations():
     }
     chk2 = []
     for elem in k:
-        chk2 = chk2 + [format_filename(elem)] + chk[elem]
+        chk2 = chk2 + [cli.format_filename(elem)] + chk[elem]
     assert f == chk2
 
 

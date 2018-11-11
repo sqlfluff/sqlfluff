@@ -108,8 +108,14 @@ def lint(dialect, verbose, nocolor, paths):
         formatted = format_violations(violations, verbose=verbose)
         for line in formatted:
             click.echo(line, color=color)
-    if verbose > 0:
+
+    if verbose >= 2:
+        click.echo('=== {0:d} Violations across {1:d} Files  ==='.format(num_violations, len(violations)))
+        if num_violations > 0:
+            click.echo('=== Avg {0:.2f} Violations / File  ==='.format(num_violations * 1.0 / len(violations)))
+    elif verbose >= 1:
         click.echo('=== {0:4d} Violations ==='.format(num_violations))
+
     if num_violations > 0:
         sys.exit(65)
     else:

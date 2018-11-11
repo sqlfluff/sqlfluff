@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - Changed import of version information to fix bug with importing config.ini
+- Added basic violations/file reporting for some verbosities
 
 ## [0.0.2] - 2018-11-09
 ### Added
