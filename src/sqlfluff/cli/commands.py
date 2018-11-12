@@ -8,14 +8,15 @@ from .. import __version__ as pkg_version
 from ..dialects import dialect_selector
 from ..linter import Linter
 from .formatters import format_violations
+from .helpers import cli_table
 
 
-def format_version(verbose=0):
-    if verbose > 0:
-        return "\u001b[30;1msqlfluff:\u001b[0m {0}  \u001b[30;1m python:\u001b[0m {1[0]}.{1[1]}.{1[2]}".format(
-            pkg_version, sys.version_info)
-    else:
-        return pkg_version
+def get_python_version():
+    return "{0[0]}.{0[1]}.{0[2]}".format(sys.version_info)
+
+
+def get_package_version():
+    return pkg_version
 
 
 def format_dialect(dialect):
@@ -32,7 +33,15 @@ def cli():
 @click.option('-v', '--verbose', count=True)
 def version(verbose, nocolor=None):
     """ Show the version of sqlfluff """
-    click.echo(format_version(verbose=verbose))
+    color = False if nocolor else None
+    if verbose > 0:
+        click.echo(
+            cli_table(
+                [('sqlfluff', get_package_version()),
+                 ('python', get_python_version())]),
+            color=color)
+    else:
+        click.echo(get_package_version(), color=color)
 
 
 @cli.command()
@@ -52,9 +61,13 @@ def lint(dialect, verbose, nocolor, paths):
     # Only show version information if verbosity is high enough
     if verbose > 0:
         click.echo("==== sqlfluff ====")
-        click.echo(format_version(verbose=verbose), color=color)
-        click.echo(format_dialect(dialect=dialect_obj), color=color)
-        click.echo("\u001b[30;1mverbosity:\u001b[0m {0}".format(verbose), color=color)
+        config_content = [
+            ('sqlfluff', get_package_version()),
+            ('python', get_python_version()),
+            ('dialect', dialect_obj.name),
+            ('verbosity', verbose)
+        ]
+        click.echo(cli_table(config_content), color=color)
         click.echo("==== readout ====")
 
     # Instantiate the linter

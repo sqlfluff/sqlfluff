@@ -9,5 +9,6 @@ def test__cli__helpers__colorize():
 
 def test__cli__helpers__cli_table():
     vals = [('a', 3), ('b', 'c'), ('d', 4.7654), ('e', 9)]
-    txt = cli_table(vals, col_width=6, divider_char='|')
-    assert txt == 'a:   3|b:   c\nd:4.77|e:   9\n'
+    txt = cli_table(vals, col_width=6, divider_char='|', label_color=None)
+    # NB: No trailing newline
+    assert txt == 'a:   3|b:   c\nd:4.77|e:   9'

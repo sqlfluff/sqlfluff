@@ -22,9 +22,10 @@ def colorize(s, color=None):
 
 
 def cli_table(fields, col_width=20, cols=2, divider_char=' ', sep_char=':',
-              label_color=None, float_format="{0:.2f}"):
+              label_color='lightgrey', float_format="{0:.2f}"):
     """ make a crude ascii table, assuming that `fields` is an iterable of (label, value) pairs """
     col = 1
+    first_row = True
     buff = StringIO()
     for label, value in fields:
         label = str(label)
@@ -36,6 +37,10 @@ def cli_table(fields, col_width=20, cols=2, divider_char=' ', sep_char=':',
         if gap < 0:
             raise ValueError("Label, seperator, value combination ({0},{1},{2}) overflows the column width of {3}".format(
                 label, sep_char, value, col_width))
+        # Check to see if we need a newline
+        if col == 1 and not first_row:
+            buff.write('\n')
+        # Actually write the data
         buff.write(colorize(label + sep_char, color=label_color))
         buff.write((' ' * gap) + value)
         # If we're not the last column, add a divider, otherwise add a newline
@@ -43,6 +48,9 @@ def cli_table(fields, col_width=20, cols=2, divider_char=' ', sep_char=':',
             buff.write(divider_char)
             col += 1
         else:
-            buff.write('\n')
+            # set us back to col #1, don't write the newline yet
+            # as we don't know if there is any more data. Mark us
+            # as not on the first line anymore.
             col = 1
+            first_row = False
     return buff.getvalue()
