@@ -4,51 +4,18 @@ import click
 import sys
 import os
 
-import sqlfluff
-from .linter import Linter
-
-
-def format_filename(filename, success=False, verbose=0):
-    return "== [\u001b[30;1m{0}\u001b[0m] {1}".format(filename, '\u001b[32mPASS\u001b[0m' if success else '\u001b[31mFAIL\u001b[0m')
-
-
-def format_violation(violation, verbose=0):
-    return "\u001b[36mL:{0:4d} | P:{1:4d} | {2} |\u001b[0m {3}".format(
-        violation.chunk.line_no,
-        violation.chunk.start_pos + 1,
-        violation.rule.code,
-        violation.rule.description)
-
-
-def format_violations(violations, verbose=0):
-    # Violations should be a dict
-    keys = sorted(violations.keys())
-    text_buffer = []
-    for key in keys:
-        # Success is having no violations
-        success = len(violations[key]) == 0
-
-        # Only print the filename if it's either a failure or verbosity > 1
-        if verbose > 1 or not success:
-            text_buffer.append(format_filename(key, success=success))
-
-        # If we have violations, print them
-        if not success:
-            # first sort by position
-            s = sorted(violations[key], key=lambda v: v.chunk.start_pos)
-            # the primarily sort by line no
-            s = sorted(s, key=lambda v: v.chunk.line_no)
-            for violation in s:
-                text_buffer.append(format_violation(violation))
-    return text_buffer
+from .. import __version__ as pkg_version
+from ..dialects import dialect_selector
+from ..linter import Linter
+from .formatters import format_violations
 
 
 def format_version(verbose=0):
     if verbose > 0:
         return "\u001b[30;1msqlfluff:\u001b[0m {0}  \u001b[30;1m python:\u001b[0m {1[0]}.{1[1]}.{1[2]}".format(
-            sqlfluff.__version__, sys.version_info)
+            pkg_version, sys.version_info)
     else:
-        return sqlfluff.__version__
+        return pkg_version
 
 
 def format_dialect(dialect):
@@ -77,7 +44,7 @@ def lint(dialect, verbose, nocolor, paths):
     """ Lint SQL files """
     color = False if nocolor else None
     try:
-        dialect_obj = sqlfluff.dialects.dialect_selector(dialect)
+        dialect_obj = dialect_selector(dialect)
     except KeyError:
         click.echo("Error: Unknown dialect {0!r}".format(dialect))
         sys.exit(66)

@@ -1,6 +1,6 @@
 """ The Test file for SQLFluff """
 
-import io
+from six import StringIO
 
 from sqlfluff.chunks import PositionedChunk, ChunkString
 from sqlfluff.lexer import RecursiveLexer
@@ -73,7 +73,7 @@ def test__recursive__lex_filelike():
     # Test iterating through a file-like object
     rl = RecursiveLexer()
     # Specify explicitly a *unicode* string for python 2
-    f = io.StringIO(u"Select\n   *\nFROM tbl\n")
+    f = StringIO(u"Select\n   *\nFROM tbl\n")
     res = rl.lex_file_obj(f)
     assert res.string_list() == ['Select', '\n', '   ', '*', '\n', 'FROM', ' ', 'tbl', '\n']
     assert res.context_list() == [

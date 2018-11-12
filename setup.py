@@ -5,12 +5,8 @@ from __future__ import print_function
 
 import io
 import configparser
-# import re
-from glob import glob
-from os.path import basename
 from os.path import dirname
 from os.path import join
-from os.path import splitext
 
 from setuptools import setup
 
@@ -38,9 +34,9 @@ setup(
     author='Alan Cruickshank',
     author_email='alan@designingoverload.com',
     url='https://github.com/alanmcruickshank/sqlfluff',
-    packages=['sqlfluff'],
-    package_dir={'sqlfluff': 'src/sqlfluff'},
-    py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],
+    # Specify all the seperate packages, modules come automatically
+    packages=['sqlfluff', 'sqlfluff.cli', 'sqlfluff.rules'],
+    package_dir={"": "src"},
     include_package_data=True,
     classifiers=[
         # complete classifier list: http://pypi.python.org/pypi?%3Aaction=list_classifiers
@@ -67,7 +63,7 @@ setup(
     ],
     install_requires=[
         'click>=2.0',
-        # eg: 'aspectlib==1.1.1', 'six>=1.7',
+        'six>=1.0'
     ],
     extras_require={
         # eg:
@@ -76,7 +72,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'sqlfluff = sqlfluff.cli:cli',
+            'sqlfluff = sqlfluff.cli.commands:cli',
         ]
     },
     # Use datafiles to make sure the config versioning file is included

@@ -3,8 +3,8 @@
 import os
 
 from .dialects import AnsiSQLDialiect
-from sqlfluff.lexer import RecursiveLexer
-from sqlfluff.rules.std import load_standard_set
+from .lexer import RecursiveLexer
+from .rules.std import load_standard_set
 
 
 class Linter(object):
