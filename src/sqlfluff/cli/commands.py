@@ -8,7 +8,7 @@ from .. import __version__ as pkg_version
 from ..dialects import dialect_selector
 from ..linter import Linter
 from .formatters import format_violations
-from .helpers import cli_table
+from .helpers import cli_table, colorize
 
 
 def get_python_version():
@@ -17,10 +17,6 @@ def get_python_version():
 
 def get_package_version():
     return pkg_version
-
-
-def format_dialect(dialect):
-    return "\u001b[30;1mdialect:\u001b[0m {0}".format(dialect.name)
 
 
 @click.group()
@@ -80,7 +76,7 @@ def lint(dialect, verbose, nocolor, paths):
     num_violations = 0
     for path in paths:
         if verbose > 0:
-            click.echo('=== [ path: \u001b[30;1m{0}\u001b[0m ] ==='.format(path), color=color)
+            click.echo('=== [ path: {0} ] ==='.format(colorize(path, 'lightgrey')), color=color)
         # Iterate through files recursively in the specified directory (if it's a directory)
         # or read the file directly if it's not
         violations = lnt.lint_path(path)
@@ -89,17 +85,30 @@ def lint(dialect, verbose, nocolor, paths):
         for line in formatted:
             click.echo(line, color=color)
 
-    if verbose >= 2:
-        click.echo('=== {0:d} violations (across {1:d} files) ==='.format(num_violations, len(violations)))
-        click.echo('=== [{0:d} clean files - {1:d} unclean files] ==='.format(
-            sum([1 if len(violations[key]) > 0 else 0 for key in violations]),
-            sum([0 if len(violations[key]) > 0 else 1 for key in violations])))
-        if num_violations > 0:
-            click.echo('=== avg {0:.2f} violations / file  ==='.format(num_violations * 1.0 / len(violations)))
-    elif verbose >= 1:
-        click.echo('=== {0:4d} violations ==='.format(num_violations))
+    num_files = {
+        'total': len(violations),
+        'clean': sum([0 if len(violations[key]) > 0 else 1 for key in violations])
+    }
+    num_files['unclean'] = num_files['total'] - num_files['clean']
+    exit_state = {
+        'code': 65 if num_violations > 0 else 0,
+        'status': 'FAIL' if num_violations > 0 else 0
+    }
+    if verbose >= 1:
+        click.echo("==== summary ====")
+        if verbose >= 2:
+            summary_content = [
+                ('files', num_files['total']),
+                ('violations', num_violations),
+                ('clean files', num_files['clean']),
+                ('unclean files', num_files['unclean']),
+                ('avg per file', num_violations * 1.0 / num_files['total']),
+                ('status', exit_state['status'])
+            ]
+        else:
+            summary_content = [
+                ('violations', num_violations),
+                ('status', exit_state['status'])]
+        click.echo(cli_table(summary_content), color=color)
 
-    if num_violations > 0:
-        sys.exit(65)
-    else:
-        sys.exit(0)
+    sys.exit(exit_state['code'])
