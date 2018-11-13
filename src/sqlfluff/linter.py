@@ -4,7 +4,7 @@ import os
 
 from .dialects import AnsiSQLDialiect
 from .lexer import RecursiveLexer
-from .rules.std import load_standard_set
+from .rules.std import StandardRuleSet
 
 
 class Linter(object):
@@ -31,14 +31,15 @@ class Linter(object):
             return set([path])
 
     def lint_path(self, path):
-        rules = load_standard_set()
         violations = {}
         for fname in self.paths_from_path(path):
             violations[fname] = []
             with open(fname, 'r') as f:
+                # Instantiate a rule set
+                rule_set = StandardRuleSet()
                 rl = RecursiveLexer(dialect=self.dialect)
                 chunkstring = rl.lex_file_obj(f)
-                vs = rules.evaluate_chunkstring(chunkstring)
+                vs = rule_set.evaluate_chunkstring(chunkstring)
                 # Use a list method instead here!
                 violations[fname] = violations[fname] + vs
         return violations

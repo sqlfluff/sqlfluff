@@ -1,7 +1,7 @@
 """ The Test file for CLI Formatters """
 
 from sqlfluff.chunks import PositionedChunk
-from sqlfluff.rules.base import RuleViolation, BaseRule
+from sqlfluff.rules.base import RuleViolation, RuleGhost
 from sqlfluff.cli.formatters import format_filename, format_violation, format_violations
 
 
@@ -18,7 +18,7 @@ def test__cli__formatters__filename_col():
 def test__cli__formatters__violation():
     """ NB Position is 1 + start_pos """
     c = PositionedChunk('foobarbar', 10, 20, 'context')
-    r = BaseRule('A', 'DESC', lambda x: True)
+    r = RuleGhost('A', 'DESC')
     v = RuleViolation(c, r)
     f = format_violation(v, color=False)
     assert f == "L:  20 | P:  11 | A | DESC"
@@ -30,14 +30,14 @@ def test__cli__formatters__violations():
         'foo': [
             RuleViolation(
                 PositionedChunk('blah', 1, 25, 'context'),
-                BaseRule('A', 'DESC', None)),
+                RuleGhost('A', 'DESC')),
             RuleViolation(
                 PositionedChunk('blah', 2, 21, 'context'),
-                BaseRule('B', 'DESC', None))],
+                RuleGhost('B', 'DESC'))],
         'bar': [
             RuleViolation(
                 PositionedChunk('blah', 10, 2, 'context'),
-                BaseRule('C', 'DESC', None))]
+                RuleGhost('C', 'DESC'))]
     }
     f = format_violations(v, color=False)
     k = sorted(['foo', 'bar'])
