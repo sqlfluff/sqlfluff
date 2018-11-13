@@ -68,7 +68,7 @@ class BaseRule(object):
         return self.__doc__
 
     @classmethod
-    def rule(cls, code, description, func):
+    def rule(cls, code, description, eval_func, memory_func=None):
         """
         Syntactic sugar to create subclassed rules with less typing.
 
@@ -82,7 +82,15 @@ class BaseRule(object):
             def eval_func(c, m):
                 return func(c, m)
         """
-        return type(code, (cls,), dict(eval_func=staticmethod(func), __doc__=description))
+        return type(
+            code, (cls,),
+            dict(
+                eval_func=staticmethod(eval_func),
+                # If one has been provided use it, but otherwise use the default
+                memory_func=staticmethod(memory_func or cls.memory_func),
+                __doc__=description
+            )
+        )
 
     def __repr__(self):
         return "<Rule {code}: {description}>".format(code=self.code, description=self.description)
