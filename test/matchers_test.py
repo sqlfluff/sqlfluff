@@ -70,6 +70,15 @@ def test__singlecharmatch__chunkmatch_1():
     assert sub_chunk == PositionedChunk('*', 13 + 20, 20, 'match')
 
 
+def test__singlecharmatch__chunkmatch_2():
+    cmp = SingleCharMatchPattern('*', None)
+    # Explicitly check matching the first character
+    chk = PositionedChunk('*\n', 13, 20, None)
+    sub_chunk = cmp.chunkmatch(chk)
+    assert sub_chunk is not None
+    assert sub_chunk == PositionedChunk('*', 13, 20, 'match')
+
+
 # ############## Matcher Bag
 def test__matcherbag__unique():
     # raise an error that are duplicate names
@@ -107,12 +116,14 @@ def test__matcherbag__chunkmatch_b():
     k = CharMatchPattern('k', 'bim')
     b = CharMatchPattern('b', 'bar')
     a = CharMatchPattern('a', 'foo')
+    s = SingleCharMatchPattern('s', 'ess')
     r = RegexMatchPattern(r'e[a-z][a-df-z]+e[a-z]', 'eee')
-    m = MatcherBag(k, b, a, r)
+    m = MatcherBag(k, b, a, r, s)
     chk = PositionedChunk('asdfbjkebkjaekljds', 11, 2, None)
     matches = m.chunkmatch(chk)
     assert matches == [
         (PositionedChunk('asdfbjkebkja', 11, 2, 'match'), 0, a),
+        (PositionedChunk('s', 11 + 1, 2, 'match'), 1, s),
         (PositionedChunk('bjkeb', 11 + 4, 2, 'match'), 4, b),
         (PositionedChunk('kebk', 11 + 6, 2, 'match'), 6, k),
         (PositionedChunk('ebkjaek', 11 + 7, 2, 'match'), 7, r)]

@@ -43,6 +43,20 @@ class L004(BaseRule):
             return m
 
 
+class L005(BaseRule):
+    """Commas should not have whitespace directly before them"""
+
+    @staticmethod
+    def eval_func(c, m):
+        if c.context == 'comma':
+            previous_whitespace = m.get('previous_whitespace', False)
+            return previous_whitespace
+
+    @staticmethod
+    def memory_func(c, m):
+        return dict(previous_whitespace=(c.context == 'whitespace'))
+
+
 class StandardRuleSet(BaseRuleSet):
     """ A standard set of SQL rules """
     rules = [
@@ -56,5 +70,5 @@ class StandardRuleSet(BaseRuleSet):
             'L003', "Single indentation uses a number of spaces not a multiple of 4",
             lambda c, m: c.context == 'whitespace' and c.start_pos == 0 and c.chunk.count(' ') % 4 != 0),
         # Defined a seperate rules
-        L004
+        L004, L005
     ]

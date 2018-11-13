@@ -68,7 +68,8 @@ class SingleCharMatchPattern(CharMatchPattern):
         # a single character match will have a difference of span
         # equal to 1.
         first = self.first_match_pos(s)
-        if first:
+        # NB: Zero is still an acceptable answer here.
+        if first is not None:
             return first, first + 1
         else:
             return None, None

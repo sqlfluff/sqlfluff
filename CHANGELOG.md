@@ -5,10 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Refactor of rules to allow rules with memory
+- Adding comma linting rules (correcting the single character matchers)
+- Adding mixed indentation linting rules
+
 ### Changed
 - Changed import of version information to fix bug with importing config.ini
 - Added basic violations/file reporting for some verbosities
-- Refactor of rules to allow rules with memory and added a few memory based rules
 - Refactor of rules to simplify definition
 - Refactor of color cli output to make it more reusable
 
