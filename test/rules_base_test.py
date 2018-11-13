@@ -4,6 +4,7 @@ from sqlfluff.rules.base import BaseRule, BaseRuleSet, RuleViolation
 from sqlfluff.chunks import PositionedChunk, ChunkString
 
 
+# Create Directly
 class TRuleA(BaseRule):
     """foo"""
     @staticmethod
@@ -11,21 +12,12 @@ class TRuleA(BaseRule):
         return True
 
 
-class TRuleB(BaseRule):
-    @staticmethod
-    def eval_func(c, m):
-        return c % 6 == 0
-
-
-class TRuleC(BaseRule):
-    """bar"""
-    @staticmethod
-    def eval_func(c, m):
-        return False
+# Create Using the Sugar
+TRuleB = BaseRule.rule('TRuleB', "NA", lambda c, m: c % 6 == 0)
 
 
 class TRuleSet(BaseRuleSet):
-    rules = [TRuleA, TRuleC]
+    rules = [TRuleA, BaseRule.rule('TRuleC', "bar", lambda c, m: False)]
 
 
 # ############## BASE RULES TESTS
@@ -36,6 +28,7 @@ def test__rules__base__baserule_a():
 
 def test__rules__base__baserule_b():
     r = TRuleB()
+    assert r.description == 'NA'
     assert isinstance(r.evaluate(36), RuleViolation)
     assert r.evaluate(36).chunk == 36
     assert r.evaluate(36).rule == r.ghost()

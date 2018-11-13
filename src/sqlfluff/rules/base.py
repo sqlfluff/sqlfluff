@@ -67,6 +67,23 @@ class BaseRule(object):
         #     """ <description> """
         return self.__doc__
 
+    @classmethod
+    def rule(cls, code, description, func):
+        """
+        Syntactic sugar to create subclassed rules with less typing.
+
+        L999 = BaseRule.rule('L999', 'foo', func)
+
+        ... is equivalent to ...
+
+        class L999(BaseRule):
+            '''foo'''
+            @staticmethod
+            def eval_func(c, m):
+                return func(c, m)
+        """
+        return type(code, (cls,), dict(eval_func=staticmethod(func), __doc__=description))
+
     def __repr__(self):
         return "<Rule {code}: {description}>".format(code=self.code, description=self.description)
 

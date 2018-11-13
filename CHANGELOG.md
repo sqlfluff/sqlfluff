@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed import of version information to fix bug with importing config.ini
 - Added basic violations/file reporting for some verbosities
 - Refactor of rules to allow rules with memory
+- Refactor of rules to simplify definition
 - Refactor of color cli output to make it more reusable
 
 ## [0.0.2] - 2018-11-09
