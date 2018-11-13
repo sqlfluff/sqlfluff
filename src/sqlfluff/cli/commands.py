@@ -8,7 +8,7 @@ from .. import __version__ as pkg_version
 from ..dialects import dialect_selector
 from ..linter import Linter
 from .formatters import format_violations
-from .helpers import cli_table, colorize
+from .helpers import cli_table, colorize, sum_dicts
 
 
 def get_python_version():
@@ -73,41 +73,36 @@ def lint(dialect, verbose, nocolor, paths):
     if len(paths) == 0:
         paths = (os.getcwd(),)
 
-    num_violations = 0
+    all_stats = {}
     for path in paths:
         if verbose > 0:
             click.echo('=== [ path: {0} ] ==='.format(colorize(path, 'lightgrey')), color=color)
         # Iterate through files recursively in the specified directory (if it's a directory)
         # or read the file directly if it's not
-        violations = lnt.lint_path(path)
-        num_violations = num_violations + sum([len(violations[key]) for key in violations])
-        formatted = format_violations(violations, verbose=verbose)
+        linted_path = lnt.lint_path(path)
+        formatted = format_violations(linted_path.violations(), verbose=verbose)
         for line in formatted:
             click.echo(line, color=color)
+        all_stats = sum_dicts(linted_path.stats(), all_stats)
 
-    num_files = {
-        'total': len(violations),
-        'clean': sum([0 if len(violations[key]) > 0 else 1 for key in violations])
-    }
-    num_files['unclean'] = num_files['total'] - num_files['clean']
     exit_state = {
-        'code': 65 if num_violations > 0 else 0,
-        'status': 'FAIL' if num_violations > 0 else 0
+        'code': 65 if all_stats['violations'] > 0 else 0,
+        'status': 'FAIL' if all_stats['violations'] > 0 else 0
     }
     if verbose >= 1:
         click.echo("==== summary ====")
         if verbose >= 2:
             summary_content = [
-                ('files', num_files['total']),
-                ('violations', num_violations),
-                ('clean files', num_files['clean']),
-                ('unclean files', num_files['unclean']),
-                ('avg per file', num_violations * 1.0 / num_files['total']),
+                ('files', all_stats['files']),
+                ('violations', all_stats['violations']),
+                ('clean files', all_stats['clean']),
+                ('unclean files', all_stats['unclean']),
+                ('avg per file', all_stats['violations'] * 1.0 / all_stats['files']),
                 ('status', exit_state['status'])
             ]
         else:
             summary_content = [
-                ('violations', num_violations),
+                ('violations', all_stats['violations']),
                 ('status', exit_state['status'])]
         click.echo(cli_table(summary_content), color=color)
 

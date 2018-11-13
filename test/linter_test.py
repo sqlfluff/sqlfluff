@@ -29,12 +29,7 @@ def test__linter__path_from_paths_dot():
 def test__linter__lint_file_indentation():
     lntr = Linter()
     lnt = lntr.lint_path('test/fixtures/linter/indentation_errors.sql')
-    # lets make an object of the codes, line numbers and positions of violations
-    violations = []
-    for file in lnt:
-        for elem in lnt[file]:
-            violations.append(elem)
-    violations = [v.check_tuple() for v in violations]
+    violations = lnt.check_tuples()
     # Check we get the trialing whitespace violation
     assert ('L001', 4, 23) in violations
     # Check we get the mixed indentation errors
@@ -49,12 +44,7 @@ def test__linter__lint_file_indentation():
 def test__linter__lint_file_whitespace():
     lntr = Linter()
     lnt = lntr.lint_path('test/fixtures/linter/whitespace_errors.sql')
-    # lets make an object of the codes, line numbers and positions of violations
-    violations = []
-    for file in lnt:
-        for elem in lnt[file]:
-            violations.append(elem)
-    violations = [v.check_tuple() for v in violations]
+    violations = lnt.check_tuples()
     # Check we get comma whitespace errors
     assert ('L005', 2, 11) in violations
     assert ('L005', 5, 0) in violations

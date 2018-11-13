@@ -6,11 +6,9 @@ from collections import namedtuple
 RuleGhost = namedtuple('RuleGhost', ['code', 'description'])
 
 
-class RuleViolation(object):
+class RuleViolation(namedtuple('ProtoViolation', ['chunk', 'rule'])):
     """ The result of applying a rule to a piece of content and finding a violation """
-    def __init__(self, chunk, rule):
-        self.chunk = chunk
-        self.rule = rule
+    __slots__ = ()
 
     def __repr__(self):
         return "<Rule Violation: {rule!r} : {chunk!r}>".format(rule=self.rule, chunk=self.chunk)

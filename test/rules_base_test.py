@@ -71,3 +71,11 @@ def test__rules__base__ruleset_chunkstring():
     assert vs[0].chunk.chunk == 'foo'
     assert vs[1].rule.code == 'TRuleA'
     assert vs[1].chunk.chunk == 'bar'
+
+
+# ############ Violations test
+def test__rules__base__violation_tuple():
+    r = TRuleA()
+    v = r.evaluate(PositionedChunk('foo', 1, 20, 'a'))
+    t = v.check_tuple()
+    assert t == ('TRuleA', 20, 1)
