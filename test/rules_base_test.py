@@ -42,6 +42,21 @@ def test__rules__base__ruleset():
     assert vs[0].rule.code == 'TRuleA'
 
 
+def test__rules__base__ruleset_lookup_class():
+    rl = TRuleSet.code_lookup('blah')
+    assert rl is None
+    rl = TRuleSet.code_lookup('TRuleA')
+    assert rl == TRuleA
+
+
+def test__rules__base__ruleset_lookup_inst():
+    rl = TRuleSet().code_lookup('blah')
+    assert rl is None
+    # Even when instantiated, it should still return the class
+    rl = TRuleSet().code_lookup('TRuleA')
+    assert rl == TRuleA
+
+
 def test__rules__base__ruleset_chunkstring():
     """ An extension of the above test, but applied to a chunkstring """
     rs = TRuleSet()

@@ -1,7 +1,7 @@
 """ The Test file for SQLFluff """
 
 from sqlfluff.rules.std import StandardRuleSet
-from sqlfluff.chunks import PositionedChunk
+from sqlfluff.chunks import PositionedChunk, ChunkString
 
 
 # ############## STD RULES TESTS
@@ -21,3 +21,31 @@ def test__rules__std__L003():
     rs = StandardRuleSet()
     c = PositionedChunk('     ', 0, 20, 'whitespace')
     assert any([v.rule.code == 'L003' for v in rs.evaluate(c)])
+
+
+def test__rules__std__L004_whitespace():
+    rl = StandardRuleSet.code_lookup('L004')
+    ws_chars = rl.whitespace_chars('r4o4o4owii78w4w')
+    assert ws_chars == set([])
+    ws_chars = rl.whitespace_chars(' dsafk\tdsjk\n   \tsakldj')
+    assert ws_chars == set([' ', '\t'])
+
+
+def test__rules__std__L004():
+    cs = ChunkString(
+        PositionedChunk('    \n', 0, 20, 'whitespace'),
+        PositionedChunk('\t\n', 0, 21, 'whitespace')
+    )
+    # Check individually, there's no errors
+    # First (alone should not raise)
+    rs = StandardRuleSet()
+    vs = rs.evaluate(cs[0])
+    assert not any([v.rule.code == 'L004' for v in vs])
+    # Second (alone should not raise)
+    rs = StandardRuleSet()
+    vs = rs.evaluate(cs[1])
+    assert not any([v.rule.code == 'L004' for v in vs])
+    # Combined (which should raise an L004)
+    rs = StandardRuleSet()
+    vs = rs.evaluate_chunkstring(cs)
+    assert any([v.rule.code == 'L004' for v in vs])

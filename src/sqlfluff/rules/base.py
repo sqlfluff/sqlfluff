@@ -40,7 +40,7 @@ class BaseRule(object):
         return False
 
     # The Memory Func (how should we update the memory on the basis of this chunk)
-    # The function will be passed the chunk and the current memory (which is a dict)
+    # The function will be passed the chunk and the current memory (which is probably a dict)
     # It should return the new state of the memory (as a dict)
     # NB: The default here means that if no memory required, it can be skipped
     @staticmethod
@@ -135,3 +135,11 @@ class BaseRuleSet(object):
         for chunk in chunkstring:
             buffer = buffer + self.evaluate(chunk)
         return buffer
+
+    @classmethod
+    def code_lookup(cls, code):
+        for rule in cls.rules:
+            if rule.__name__ == code:
+                return rule
+        else:
+            return None
