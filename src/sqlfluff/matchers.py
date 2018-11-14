@@ -5,15 +5,18 @@ import re
 
 class CharMatchPattern(object):
     """ Intended for things like quote characters """
-    def __init__(self, c, name):
+    def __init__(self, c, name, priority=1):
         self._char = c
         self.name = name
+        self.priority = priority
 
     def _repr_pattern(self):
         return self._char * 2
 
     def __repr__(self):
-        return "<{classname}: '{pattern}'>".format(classname=self.__class__.__name__, pattern=self._repr_pattern())
+        return "<{classname}: \"{name}\" '{pattern}'>".format(
+            classname=self.__class__.__name__, name=self.name,
+            pattern=self._repr_pattern())
 
     def first_match_pos(self, s):
         # Assume s is a string
@@ -76,9 +79,10 @@ class SingleCharMatchPattern(CharMatchPattern):
 
 
 class RegexMatchPattern(CharMatchPattern):
-    def __init__(self, r, name):
+    def __init__(self, r, name, priority=1):
         self._pattern = re.compile(r)
         self.name = name
+        self.priority = priority
 
     def _repr_pattern(self):
         return self._pattern.pattern
@@ -122,7 +126,8 @@ class MatcherBag(object):
 
     def chunkmatch(self, c):
         """
-        Given a full chunk, compare against matchers in the bag and then order by first match
+        Given a full chunk, compare against matchers in the bag and then order by:
+        first match, then priority, then matcher name (to be deterministic)
 
         Return a list of tuples (subchunk, pos, matcher)
         """
@@ -131,4 +136,9 @@ class MatcherBag(object):
             chk = matcher.chunkmatch(c)
             if chk:
                 match_buffer.append((chk, chk.start_pos - c.start_pos, matcher))
+        # Sort by name
+        match_buffer = sorted(match_buffer, key=lambda x: x[2].name)
+        # Sort by priority (reversed because a HIGHER priority should come first)
+        match_buffer = sorted(match_buffer, key=lambda x: x[2].priority, reverse=True)
+        # Sort by position then return
         return sorted(match_buffer, key=lambda x: x[1])

@@ -90,7 +90,7 @@ def test__recursive__lex_filelike():
     res = rl.lex_file_obj(f)
     assert res.string_list() == ['Select', '\n', '   ', '*', '\n', 'FROM', ' ', 'tbl', '\n']
     assert res.context_list() == [
-        'content', 'whitespace', 'whitespace', 'star',
+        'content', 'whitespace', 'whitespace', 'operator',
         'whitespace', 'content', 'whitespace', 'content',
         'whitespace']
 

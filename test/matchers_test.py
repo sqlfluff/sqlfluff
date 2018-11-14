@@ -112,7 +112,10 @@ def test__matcherbag__chunkmatch_a():
 
 
 def test__matcherbag__chunkmatch_b():
-    """ A more complicated matcher test, explicitly testing sorting """
+    """
+    A more complicated matcher test,
+    explicitly testing sorting
+    """
     k = CharMatchPattern('k', 'bim')
     b = CharMatchPattern('b', 'bar')
     a = CharMatchPattern('a', 'foo')
@@ -127,3 +130,18 @@ def test__matcherbag__chunkmatch_b():
         (PositionedChunk('bjkeb', 11 + 4, 2, 'match'), 4, b),
         (PositionedChunk('kebk', 11 + 6, 2, 'match'), 6, k),
         (PositionedChunk('ebkjaek', 11 + 7, 2, 'match'), 7, r)]
+
+
+def test__matcherbag__chunkmatch_c():
+    """
+    A more complicated matcher test,
+    explicitly testing sorting, with ambiguous matchers
+    """
+    a = SingleCharMatchPattern('a', 'bim', priority=2)
+    b = SingleCharMatchPattern('a', 'bar', priority=2)
+    c = SingleCharMatchPattern('a', 'foo', priority=3)
+    m = MatcherBag(a, b, c)
+    chk = PositionedChunk('asd', 11, 2, None)
+    matches = m.chunkmatch(chk)
+    matcher_ordered = [m[2] for m in matches]
+    assert matcher_ordered == [c, b, a]
