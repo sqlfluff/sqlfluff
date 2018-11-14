@@ -5,10 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.0.3] - 2018-11-14
 ### Added
 - Refactor of rules to allow rules with memory
 - Adding comma linting rules (correcting the single character matchers)
 - Adding mixed indentation linting rules
+- Integration with CircleCI, CodeCov and lots of badges
 
 ### Changed
 - Changed import of version information to fix bug with importing config.ini
