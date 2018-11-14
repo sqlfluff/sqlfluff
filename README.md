@@ -1,7 +1,7 @@
 # SqlFluff
 ## The SQL Linter for humans
 
-[![CircleCI](https://circleci.com/gh/alanmcruickshank/sqlfluff/tree/master.svg?style=svg)](https://circleci.com/gh/alanmcruickshank/sqlfluff/tree/master)
+[![CircleCI](https://circleci.com/gh/alanmcruickshank/sqlfluff/tree/master.svg?style=svg)](https://circleci.com/gh/alanmcruickshank/sqlfluff/tree/master) [![codecov](https://codecov.io/gh/alanmcruickshank/sqlfluff/branch/master/graph/badge.svg)](https://codecov.io/gh/alanmcruickshank/sqlfluff)
 
 Bored of not having a good SQL linter that works with whichever dialiect you're
 working with? Fluff is an extensible and modular linter designed to help you write
