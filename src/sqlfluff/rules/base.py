@@ -30,6 +30,9 @@ class BaseRule(object):
     # The docstring is the description
     # The Class Name is the Code
 
+    # We provide a configurable init value for m
+    init_m = {}
+
     # The Eval Func (does the rule pass or not?)
     # The function will be passed the chunk and the memory (which is a dict)
     # It should return True or False, True indicates a violation
@@ -47,7 +50,7 @@ class BaseRule(object):
 
     def __init__(self):
         # Just initialise the memory when instantiated
-        self.memory = {}
+        self.memory = self.init_m
 
     @property
     def code(self):

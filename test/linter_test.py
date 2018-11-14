@@ -52,3 +52,13 @@ def test__linter__lint_file_whitespace():
     # Check we get comma whitespace errors
     assert ('L005', 2, 11) in violations
     assert ('L005', 5, 0) in violations
+
+
+def test__linter__lint_file_operators():
+    lntr = Linter()
+    lnt = lntr.lint_path('test/fixtures/linter/operator_errors.sql')
+    violations = lnt.check_tuples()
+    # Check we get comma whitespace errors
+    assert ('L006', 3, 10) in violations
+    assert ('L006', 4, 9) in violations
+    assert ('L007', 5, 9) in violations

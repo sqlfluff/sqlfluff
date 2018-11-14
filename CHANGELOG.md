@@ -4,10 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.0.4] - 2018-11-14
 ### Added
 - Added operator regexes
 - Added a priority for matchers to resolve some abiguity
+- Added tests for operator regexes
+- Added ability to initialise the memory in rules
 
 ## [0.0.3] - 2018-11-14
 ### Added
