@@ -1,0 +1,21 @@
+### =============================================================
+### This configuration file is used by CircleCI build server
+### https://circleci.com/docs/config-sample
+### =============================================================
+
+version: 2
+
+jobs:
+  # using tox
+  toxify:
+      docker:
+        - image: circleci/python:3.6.1
+      steps:
+        - checkout
+        - run: pip install tox && tox
+
+workflows:
+  version: 2
+  sqlfluff:
+    jobs:
+      - toxify

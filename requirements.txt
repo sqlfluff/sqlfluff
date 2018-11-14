@@ -1,5 +1,4 @@
 click>=2.0
 colorama>=0.3
 six>=1.0
-pytest
-flake8
+configparser
