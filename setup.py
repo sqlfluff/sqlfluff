@@ -30,7 +30,9 @@ setup(
     version=version,
     license='MIT License',
     description='Modular SQL Linting for Humans',
-    long_description=read('README.md') + "\n\n" + read('CHANGELOG.md'),
+    long_description=read('README.md') + "\n\n---\n\n" + read('CHANGELOG.md'),
+    # Make sure pypi is expecting markdown!
+    long_description_content_type='text/markdown',
     author='Alan Cruickshank',
     author_email='alan@designingoverload.com',
     url='https://github.com/alanmcruickshank/sqlfluff',
