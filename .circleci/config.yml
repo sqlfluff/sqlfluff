@@ -57,7 +57,7 @@ jobs:
         environment:
           TOXENV=py36
 
-          
+
 ### Workflows which call the different tox jobs
 workflows:
   version: 2
@@ -65,5 +65,4 @@ workflows:
     jobs:
       - linting
       - py27
-      - py35
       - py36
