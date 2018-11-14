@@ -5,17 +5,65 @@
 
 version: 2
 
-jobs:
-  # using tox
-  toxify:
-      docker:
-        - image: circleci/python:3.6.1
-      steps:
-        - checkout
-        - run: pip install tox && tox
+### COMMON CONFIG FOR ALL JOBS
+common: &common
+  steps:
+    - checkout
+    # Restore the Cache (if there is one)
+    - restore_cache:
+        keys:
+          - v2-deps-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+    - run:
+        name: install dependencies
+        command: pip install --user tox
+    - run:
+        name: run tox
+        command: ~/.local/bin/tox
+    - run:
+        name: upload coverage report
+        command: |
+          if [[ "$UPLOAD_COVERAGE" != 0 ]]; then
+            pip install --user codecov
+            ~/.local/bin/codecov --required -X search gcov pycov -f coverage.xml --flags $CIRCLE_JOB
+          fi
+    # Save the Cache to save time next time
+    - save_cache:
+        paths:
+          - .tox
+          - ~/.cache/pip
+          - ~/.local
+          - ./eggs
+        key: v2-deps-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
 
+### JOBS
+jobs:
+  linting:
+    <<: *common
+    docker:
+      - image: circleci/python:3.6
+        environment:
+          - TOXENV=linting
+          - UPLOAD_COVERAGE=0
+  py27:
+    <<: *common
+    docker:
+      - image: circleci/python:2.7
+        environment:
+          TOXENV=py27
+  py36:
+    <<: *common
+    docker:
+      - image: circleci/python:3.6
+        environment:
+          TOXENV=py36
+
+          
+### Workflows which call the different tox jobs
 workflows:
   version: 2
-  sqlfluff:
+  test-sqlfluff:
     jobs:
-      - toxify
+      - linting
+      - py27
+      - py35
+      - py36

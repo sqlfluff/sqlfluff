@@ -16,3 +16,4 @@ env
 # Ignore coverage reports
 .coverage
 .coverage.*
+coverage.xml
