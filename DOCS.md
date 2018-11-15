@@ -31,15 +31,27 @@
 
 **Purpose:** Actually lint things.
 
-**Usage:** `sqlfluff lint [-v, --verbose] [-n, --nocolor] [--dialect ansi]`
+**Usage:** `sqlfluff lint [-v, --verbose] [-n, --nocolor] [--dialect ansi] [PATH]`
 
 **Parameters:**
 
 - `[-v, --verbose]`: Verbosity, how detailed should the output be.
-- `[-n, --nocolor]`: No color - if this is set then the output will be without ANSI color codes.
-- `[--dialect ansi]`: Which dialect to run sqlfluff with, defaulting to `ansi`. Options
-  - `ansi` - Currently the only option - assumes that the sql is in line with [_ISO/IEC 9075_](https://en.wikipedia.org/wiki/ISO/IEC_9075)
+- `[-n, --nocolor]`: No color - if this is set then the output will be
+  without ANSI color codes.
+- `[--dialect ansi]`: Which dialect to run sqlfluff with, defaulting
+  to `ansi`. Options
+  - `ansi` - Currently the only option - assumes that the sql is in
+    line with [_ISO/IEC 9075_](https://en.wikipedia.org/wiki/ISO/IEC_9075)
   - ... to come `mysql`, `redshift` and potentially others...
+- `[PATH]` the path to a sql file or directory to lint.
+  - _Files_ e.g. `test_file.sql` or `src/some_other_file.sql` - passing
+    the path of a single file just lints a single file.
+  - _Directories_ e.g. `src` or `~/dev/my_project` - pass a directory path
+    searches through that directory for `.sql` files and lints all the
+    files it finds.
+  - _Blank_. If you just call `sqlfluff lint` without a path specified
+    if will be as though you passed the current working directory and
+    will behave as per the above command.
 
 **Example responses:**
 
