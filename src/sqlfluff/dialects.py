@@ -38,6 +38,10 @@ class AnsiSQLDialiect(object):
     # These are case insensitive but require spaces to distinguish from words
     text_operator_regex = RegexMatchPattern(r'(?i)(or|and)', 'operator')
 
+    # Number matchers, and these must have a higher priority than the operator one
+    # to make sure we deal with minus signs correctly
+    number_regex = RegexMatchPattern(r'-?[0-9]+\.?[0-9]*', 'number', priority=2)
+
     # Bracket matchers
     open_bracket_matcher = SingleCharMatchPattern('(', 'open_bracket')
     close_bracket_matcher = SingleCharMatchPattern(')', 'close_bracket')
@@ -45,6 +49,7 @@ class AnsiSQLDialiect(object):
     outside_block_comment_matchers = MatcherBag(
         whitespace_regex, inline_comment_regex, closed_block_comment,
         open_block_comment_start, string_quote_characters, identifier_quote_characters,
-        comma_characters, operator_regex, open_bracket_matcher, close_bracket_matcher)
+        comma_characters, operator_regex, open_bracket_matcher, close_bracket_matcher,
+        number_regex)
 
     inside_block_comment_matchers = MatcherBag(open_block_comment_end)

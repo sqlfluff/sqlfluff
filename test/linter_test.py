@@ -1,5 +1,7 @@
 """ The Test file for SQLFluff """
 
+from six import StringIO
+
 from sqlfluff.linter import Linter
 
 
@@ -67,3 +69,12 @@ def test__linter__lint_file_operators():
     assert ('L006', 3, 9) in violations
     assert ('L006', 4, 8) in violations
     assert ('L007', 5, 8) in violations
+
+
+def test__linter__lint_file_operators_negative():
+    lntr = Linter()
+    f = StringIO(u"SELECT\n    a  -  b as c,\n    -2 as d\n    a - b as e\nFROM tbl\n")
+    lnt = lntr.lint_file(f)
+    violations = lnt.check_tuples()
+    # Check we only get one violation and it's the first
+    assert violations == [('L006', 2, 7)]

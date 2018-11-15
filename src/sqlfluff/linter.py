@@ -60,6 +60,15 @@ class Linter(object):
         self.dialect = dialect
         self.sql_exts = sql_exts
 
+    def lint_file(self, f, fname=None):
+        """ Lint a file object - fname is optional for testing """
+        # Instantiate a rule set
+        rule_set = StandardRuleSet()
+        rl = RecursiveLexer(dialect=self.dialect)
+        chunkstring = rl.lex_file_obj(f)
+        vs = rule_set.evaluate_chunkstring(chunkstring)
+        return LintedFile(fname, vs)
+
     def paths_from_path(self, path):
         # take a path (potentially a directory) and return just the sql files
         if not os.path.exists(path):
@@ -82,10 +91,5 @@ class Linter(object):
         linted_path = LintedPath(path)
         for fname in self.paths_from_path(path):
             with open(fname, 'r') as f:
-                # Instantiate a rule set
-                rule_set = StandardRuleSet()
-                rl = RecursiveLexer(dialect=self.dialect)
-                chunkstring = rl.lex_file_obj(f)
-                vs = rule_set.evaluate_chunkstring(chunkstring)
-                linted_path.add(LintedFile(fname, vs))
+                linted_path.add(self.lint_file(f, fname=fname))
         return linted_path
