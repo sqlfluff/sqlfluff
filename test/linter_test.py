@@ -78,3 +78,13 @@ def test__linter__lint_file_operators_negative():
     violations = lnt.check_tuples()
     # Check we only get one violation and it's the first
     assert violations == [('L006', 2, 7)]
+
+
+def test__linter__lint_file_operators_star():
+    """ Test the exception to the operator rule, allowing a star in brackets """
+    lntr = Linter()
+    f = StringIO(u"SELECT COUNT(*) FROM tbl")
+    lnt = lntr.lint_file(f)
+    violations = lnt.check_tuples()
+    # Check that this is allowed
+    assert violations == []

@@ -89,6 +89,9 @@ class L006(BaseRule):
                             # Preceeding whitespace is wrong length
                             return cm1
                     else:
+                        # Check for the allowed exception of a star in brackets
+                        if cm1.chunk == '*' and cm2.chunk == '(' and c.chunk == ')':
+                            return False
                         # Preceeding content is not whitespace
                         return cm1
 
