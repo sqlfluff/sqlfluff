@@ -14,21 +14,45 @@ good SQL and catch errors and bad SQL before it hits your database.
 
 # Getting Started
 
-To get started just install the package and run it in your path of choice
+To get started just install the package, make a sql file and then run sqlfluff and point it at the file.
 
 ```shell
 $ pip install sqlfluff
-$ sqlfluff lint
-== [/path/you/ran/sqlfluff/in/query.sql] FAIL
-L:   2 | P:   1 | L003 | Single indentation uses a number of spaces not a multiple of 4
+$ echo "  SELECT a  +  b FROM tbl;  " > test.sql
+$ sqlfluff lint test.sql
+== [test.sql] FAIL
+L:   1 | P:   1 | L003 | Single indentation uses a number of spaces not a multiple of 4
+L:   1 | P:  14 | L006 | Operators should be surrounded by a single space unless at the start/end of a line
+L:   1 | P:  27 | L001 | Unnecessary trailing whitespace
 ```
 
-# TODO
+# Usage
 
-There's lots to do in this project, and we're just getting started. Things 
-still to do:
+For more details on usage see the docs on github [here](https://github.com/alanmcruickshank/sqlfluff/blob/master/DOCS.md).
 
-- Basic ANSI linting
-- MySQL 
-- Redshift
-- Detecting dialect from a config file of some kind
+# Progress
+
+There's lots to do in this project, and we're just getting started.
+
+- [x] Command line interface
+  - [x] Basic linting, both of paths and files
+  - [x] Version information
+  - [x] Nicely formatted readout of linting success or fail
+  - [x] Exist codes which reflect linting success or fail
+- [ ] Basic ANSI linting
+  - [x] Simple whitespace testing
+  - [x] Whitespace around operators
+  - [x] Indentation (size and mix of tabs and spaces)
+  - [ ] Indentation between lines and when to indent
+  - [ ] Number of blank lines
+  - [ ] Indentation of comments
+- [ ] Configurable linting
+  - [ ] Command line options for config
+  - [ ] Ability to read from config files
+  - [ ] Ignore particular rules
+  - [ ] Specifying particlar dialects to use
+  - [ ] Preconfiguring verbosity
+- [ ] Dialects
+  - [ ] MySQL 
+  - [ ] Redshift
+  - [ ] Detecting dialect from a config file of some kind
