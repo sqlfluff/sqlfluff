@@ -34,12 +34,17 @@ class AnsiSQLDialiect(object):
     # star_characters = SingleCharMatchPattern('*', 'star')
 
     # Operator Match Patterns (A slightly larger supserset of ansi)
-    # TODO: This should be case insensitive
-    operator_regex = RegexMatchPattern(r'(\+|-|\*|/|or|and)', 'operator')
+    operator_regex = RegexMatchPattern(r'(\+|-|\*|/)', 'operator')
+    # These are case insensitive but require spaces to distinguish from words
+    text_operator_regex = RegexMatchPattern(r'(?i)(or|and)', 'operator')
+
+    # Bracket matchers
+    open_bracket_matcher = SingleCharMatchPattern('(', 'open_bracket')
+    close_bracket_matcher = SingleCharMatchPattern(')', 'close_bracket')
 
     outside_block_comment_matchers = MatcherBag(
         whitespace_regex, inline_comment_regex, closed_block_comment,
         open_block_comment_start, string_quote_characters, identifier_quote_characters,
-        comma_characters, operator_regex)
+        comma_characters, operator_regex, open_bracket_matcher, close_bracket_matcher)
 
     inside_block_comment_matchers = MatcherBag(open_block_comment_end)

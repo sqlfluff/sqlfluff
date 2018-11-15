@@ -125,3 +125,23 @@ def test__recursive__lex_file_blockcomment():
         assert "/* Block comment with ending */" in res.string_list()
         # Check we get the field after the comment
         assert "a.something" in res.string_list()
+
+
+def test__recursive__lex_str_order_not_or():
+    # Test lexing or and order correctly
+    rl = RecursiveLexer()
+    # Specify explicitly a *unicode* string for python 2
+    f = StringIO(u"SELECT\n    a oR b as c\nFROM tbl\nORDER BY 1")
+    res = rl.lex_file_obj(f)
+    assert "ORDER" in res.string_list()
+    assert "oR" in res.string_list()
+    assert "OR" not in res.string_list()
+
+
+def test__recursive__lex_str_comma():
+    # Test lexing or and order correctly
+    rl = RecursiveLexer()
+    # Specify explicitly a *unicode* string for python 2
+    f = StringIO(u"(1,2,3,4,5)")
+    res = rl.lex_file_obj(f)
+    assert set(res.string_list()) >= set([',', '1', '2', '3', '4', '5'])

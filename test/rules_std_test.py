@@ -49,3 +49,14 @@ def test__rules__std__L004():
     rs = StandardRuleSet()
     vs = rs.evaluate_chunkstring(cs)
     assert any([v.rule.code == 'L004' for v in vs])
+
+
+def test__rules__std__L005():
+    cs = ChunkString(
+        PositionedChunk('1', 0, 20, 'content'),
+        PositionedChunk(',', 0, 21, 'comma'),
+        PositionedChunk('2', 0, 22, 'content')
+    )
+    rs = StandardRuleSet()
+    vs = rs.evaluate_chunkstring(cs)
+    assert any([v.rule.code == 'L005' for v in vs])

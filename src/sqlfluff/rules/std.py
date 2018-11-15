@@ -49,12 +49,18 @@ class L005(BaseRule):
     @staticmethod
     def eval_func(c, m):
         if c.context == 'comma':
-            previous_whitespace = m.get('previous_whitespace', False)
-            return previous_whitespace
+            previous_chunk = m.get('previous_chunk', None)
+            if previous_chunk:
+                if previous_chunk.context != 'whitespace':
+                    return True
+                elif len(previous_chunk.chunk) != 1 or previous_chunk.chunk in ['\n', '\t']:
+                    return True
+        return False
 
     @staticmethod
     def memory_func(c, m):
-        return dict(previous_whitespace=(c.context == 'whitespace'))
+        return dict(
+            previous_chunk=c)
 
 
 class L006(BaseRule):
