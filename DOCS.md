@@ -54,9 +54,9 @@ _NB: Examples of the `--nocolor` option not shown as the textual output is the s
 > L:   1 | P:  27 | L001 | Unnecessary trailing whitespace
 > ```
 
-> *Verbose:*
+> *Verbose (with dialect):*
 > ```shell
-> $ sqlfluff lint test.sql -v
+> $ sqlfluff lint test.sql -v  --dialect ansi
 > ==== sqlfluff ====
 > sqlfluff:      0.0.4 python:        3.6.7
 > dialect:        ansi verbosity:         1
