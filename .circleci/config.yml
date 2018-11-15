@@ -34,6 +34,11 @@ common: &common
           - ~/.local
           - ./eggs
         key: v2-deps-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+    # Store test reports for circle
+    - store_test_results:
+        path: .test-reports
+    - store_artifacts:
+        path: .test-reports
 
 ### JOBS
 jobs:

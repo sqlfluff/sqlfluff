@@ -8,6 +8,7 @@ __pycache__
 *.pyc
 build
 dist
+.pytest_cache
 
 # Ignore the Environment
 env
@@ -17,3 +18,6 @@ env
 .coverage
 .coverage.*
 coverage.xml
+
+# Ignore test reports
+.test-reports
