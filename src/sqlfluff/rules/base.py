@@ -103,13 +103,25 @@ class BaseRule(object):
     def evaluate(self, chunk):
         """ If the function evaluates then we've found a violation """
         # Firstly evaluate whether this chunk is a violation based on the previous memory
-        is_violation = self.eval_func(chunk, self.memory)
+        resp = self.eval_func(chunk, self.memory)
+        # If the result is boolean, assume it's about this chunk, otherwise optionally
+        # accept a specific chunk back which is being flagged (as defined by having a chunk attribute)
+        if hasattr(resp, 'chunk'):
+            # it looks like a chunk
+            return_chunk = resp
+            is_violation = True
+        else:
+            return_chunk = chunk
+            if resp:
+                is_violation = True
+            else:
+                is_violation = False
         # Secondly update the memory based on this chunk and the existing memory
         self.memory = self.memory_func(chunk, self.memory)
         # Then return a violation if one is found
         if is_violation:
             # Return a ghost of this rule
-            return RuleViolation(chunk, self.ghost())
+            return RuleViolation(return_chunk, self.ghost())
         else:
             return None
 

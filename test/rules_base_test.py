@@ -35,6 +35,17 @@ def test__rules__base__baserule_b():
     assert r.evaluate(37) is None
 
 
+def test__rules__base__chunkrule():
+    """ Check functionality with a rule which returns a chunk """
+    # A rule that returns a chunk
+    test_chunk = PositionedChunk('foo', 1, 20, 'a')
+    TRuleD = BaseRule.rule('TRuleD', "NA", lambda c, m: test_chunk)
+    r = TRuleD()
+    eval_chunk = PositionedChunk('bar', 1, 20, 'a')
+    # Check that the violation refers to the other chunk
+    assert r.evaluate(eval_chunk).chunk == test_chunk
+
+
 def test__rules__base__ruleset():
     rs = TRuleSet()
     vs = rs.evaluate(1)

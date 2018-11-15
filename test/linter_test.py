@@ -49,9 +49,14 @@ def test__linter__lint_file_whitespace():
     lntr = Linter()
     lnt = lntr.lint_path('test/fixtures/linter/whitespace_errors.sql')
     violations = lnt.check_tuples()
-    # Check we get comma whitespace errors
-    assert ('L005', 2, 11) in violations
-    assert ('L005', 5, 0) in violations
+    # Check we get comma (with leading space) whitespace errors
+    assert ('L005', 2, 8) in violations
+    assert ('L005', 4, 0) in violations
+    # Check we get comma (with incorrect trailing space) whitespace errors
+    assert ('L008', 3, 11) in violations
+    # Check for no false positives on line 4 or 5
+    assert not any([v[0] == 'L008' and v[1] == 4 for v in violations])
+    assert not any([v[1] == 5 for v in violations])
 
 
 def test__linter__lint_file_operators():
@@ -59,6 +64,6 @@ def test__linter__lint_file_operators():
     lnt = lntr.lint_path('test/fixtures/linter/operator_errors.sql')
     violations = lnt.check_tuples()
     # Check we get comma whitespace errors
-    assert ('L006', 3, 10) in violations
-    assert ('L006', 4, 9) in violations
-    assert ('L007', 5, 9) in violations
+    assert ('L006', 3, 9) in violations
+    assert ('L006', 4, 8) in violations
+    assert ('L007', 5, 8) in violations

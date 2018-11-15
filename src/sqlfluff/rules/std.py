@@ -51,10 +51,11 @@ class L005(BaseRule):
         if c.context == 'comma':
             previous_chunk = m.get('previous_chunk', None)
             if previous_chunk:
-                if previous_chunk.context != 'whitespace':
-                    return True
-                elif len(previous_chunk.chunk) != 1 or previous_chunk.chunk in ['\n', '\t']:
-                    return True
+                if previous_chunk.context == 'whitespace':
+                    if '\n' in previous_chunk.chunk:
+                        return c
+                    else:
+                        return previous_chunk
         return False
 
     @staticmethod
@@ -86,10 +87,10 @@ class L006(BaseRule):
                         # check length and indentation (more than 1 allowed if it's an indent)
                         if len(cm2.chunk) != 1 and cm2.start_pos != 0:
                             # Preceeding whitespace is wrong length
-                            return True
+                            return cm1
                     else:
                         # Preceeding content is not whitespace
-                        return True
+                        return cm1
 
                 # Second check following whitespace
                 if c.context == 'whitespace':
@@ -97,10 +98,10 @@ class L006(BaseRule):
                     # check length
                     if len(c.chunk) != 1:
                         # Following whitespace is wrong length
-                        return True
+                        return cm1
                 else:
                     # Following content is not whitespace
-                    return True
+                    return cm1
         return False
 
     @staticmethod
@@ -130,8 +131,32 @@ class L007(L006):
                 # Second check following whitespace
                 if '\n' in c.chunk:
                     # Following whitespace contains a newline
-                    return True
+                    return cm1
         return False
+
+
+class L008(BaseRule):
+    """Commas should be followed by a single whitespace, unless followed by a comment"""
+
+    @staticmethod
+    def eval_func(c, m):
+        cm1 = m.get('cm1', None)
+        cm2 = m.get('cm2', None)
+        if cm1 and cm2:
+            if cm2.context == 'comma':
+                if cm1.context != 'whitespace':
+                    return cm1
+                # Look for single whitespace, but allow this if it's followed by a comment
+                elif cm1.chunk not in ['\n', ' '] and c.context != 'comment':
+                    return cm1
+        return False
+
+    @staticmethod
+    def memory_func(c, m):
+        # Store the last three chunks
+        return dict(
+            cm2=m.get('cm1', None),
+            cm1=c)
 
 
 class StandardRuleSet(BaseRuleSet):
@@ -147,5 +172,5 @@ class StandardRuleSet(BaseRuleSet):
             'L003', "Single indentation uses a number of spaces not a multiple of 4",
             lambda c, m: c.context == 'whitespace' and c.start_pos == 0 and c.chunk.count(' ') % 4 != 0),
         # Defined a seperate rules
-        L004, L005, L006, L007
+        L004, L005, L006, L007, L008
     ]

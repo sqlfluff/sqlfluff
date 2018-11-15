@@ -52,11 +52,26 @@ def test__rules__std__L004():
 
 
 def test__rules__std__L005():
+    # L005 is about spaces before commas
     cs = ChunkString(
         PositionedChunk('1', 0, 20, 'content'),
-        PositionedChunk(',', 0, 21, 'comma'),
-        PositionedChunk('2', 0, 22, 'content')
+        PositionedChunk(' ', 0, 21, 'whitespace'),
+        PositionedChunk(',', 0, 22, 'comma')
     )
     rs = StandardRuleSet()
     vs = rs.evaluate_chunkstring(cs)
     assert any([v.rule.code == 'L005' for v in vs])
+
+
+def test__rules__std__L008():
+    # L008 is about spaces after commas
+    cs = ChunkString(
+        PositionedChunk('1', 0, 20, 'content'),
+        PositionedChunk(',', 0, 21, 'comma'),
+        PositionedChunk('   ', 0, 22, 'whitespace'),
+        PositionedChunk('2', 0, 23, 'content'),
+        PositionedChunk('\n', 0, 24, 'whitespace'),
+    )
+    rs = StandardRuleSet()
+    vs = rs.evaluate_chunkstring(cs)
+    assert any([v.rule.code == 'L008' for v in vs])
