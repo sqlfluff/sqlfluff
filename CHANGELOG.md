@@ -5,8 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.0.5] - 2018-11-15
 ### Added
 - Much better documentation including the DOCS.md
+
+### Changed
+- Fixed comma parsing and linting
 
 ## [0.0.4] - 2018-11-14
 ### Added
