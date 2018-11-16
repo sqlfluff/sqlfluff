@@ -79,26 +79,4 @@ def lint(dialect, verbose, nocolor, paths):
 
     all_stats = result.stats()
 
-    exit_state = {
-        'code': 65 if all_stats['violations'] > 0 else 0,
-        'status': 'FAIL' if all_stats['violations'] > 0 else 0
-    }
-    if verbose >= 1:
-        click.echo("==== summary ====")
-        if verbose >= 2:
-            summary_content = [
-                ('files', all_stats['files']),
-                ('violations', all_stats['violations']),
-                ('clean files', all_stats['clean']),
-                ('unclean files', all_stats['unclean']),
-                ('avg per file', all_stats['violations'] * 1.0 / all_stats['files']),
-                ('unclean rate', "{:.0%}".format(all_stats['unclean'] * 1.0 / all_stats['files'])),
-                ('status', exit_state['status'])
-            ]
-        else:
-            summary_content = [
-                ('violations', all_stats['violations']),
-                ('status', exit_state['status'])]
-        click.echo(cli_table(summary_content), color=color)
-
-    sys.exit(exit_state['code'])
+    sys.exit(all_stats['exit code'])
