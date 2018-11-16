@@ -39,6 +39,8 @@ There's lots to do in this project, and we're just getting started.
   - [x] Version information
   - [x] Nicely formatted readout of linting success or fail
   - [x] Exist codes which reflect linting success or fail
+  - [ ] Filtering to particular codes in the linting step
+  - [ ] Allow basic correction of some linting codes
 - [ ] Basic ANSI linting
   - [x] Simple whitespace testing
   - [x] Whitespace around operators
