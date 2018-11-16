@@ -1,5 +1,8 @@
 """ Defines the formatters for the CLI """
 
+
+from six import StringIO
+
 from .helpers import colorize
 
 
@@ -34,14 +37,15 @@ def format_violation(violation, color=True, verbose=0):
 def format_violations(violations, color=True, verbose=0):
     # Violations should be a dict
     keys = sorted(violations.keys())
-    text_buffer = []
+    text_buffer = StringIO()
     for key in keys:
         # Success is having no violations
         success = len(violations[key]) == 0
 
         # Only print the filename if it's either a failure or verbosity > 1
         if verbose > 1 or not success:
-            text_buffer.append(format_filename(key, success=success, color=color, verbose=verbose))
+            text_buffer.write(format_filename(key, success=success, color=color, verbose=verbose))
+            text_buffer.write('\n')
 
         # If we have violations, print them
         if not success:
@@ -50,5 +54,20 @@ def format_violations(violations, color=True, verbose=0):
             # the primarily sort by line no
             s = sorted(s, key=lambda v: v.chunk.line_no)
             for violation in s:
-                text_buffer.append(format_violation(violation, color=color, verbose=verbose))
-    return text_buffer
+                text_buffer.write(format_violation(violation, color=color, verbose=verbose))
+                text_buffer.write('\n')
+    str_buffer = text_buffer.getvalue()
+    # Remove the trailing newline if there is one
+    if str_buffer[-1] == '\n':
+        str_buffer = str_buffer[:-1]
+    return str_buffer
+
+
+def format_linting_result(result, color=True, verbose=0):
+    """ Assume we're passed a LintingResult """
+    text_buffer = StringIO()
+    for path in result.paths:
+        if verbose > 0:
+            text_buffer.write('=== [ path: {0} ] ===\n'.format(colorize(path.path, 'lightgrey')))
+        text_buffer.write(format_violations(path.violations(), verbose=verbose))
+    return text_buffer.getvalue()

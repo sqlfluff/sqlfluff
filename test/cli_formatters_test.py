@@ -48,4 +48,5 @@ def test__cli__formatters__violations():
     chk2 = []
     for elem in k:
         chk2 = chk2 + [format_filename(elem, color=False)] + chk[elem]
+    chk2 = '\n'.join(chk2)
     assert f == chk2

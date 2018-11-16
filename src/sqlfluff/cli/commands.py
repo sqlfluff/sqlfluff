@@ -7,8 +7,8 @@ import os
 from .. import __version__ as pkg_version
 from ..dialects import dialect_selector
 from ..linter import Linter
-from .formatters import format_violations
-from .helpers import cli_table, colorize, sum_dicts
+from .formatters import format_linting_result
+from .helpers import cli_table
 
 
 def get_python_version():
@@ -66,24 +66,18 @@ def lint(dialect, verbose, nocolor, paths):
         click.echo(cli_table(config_content), color=color)
         click.echo("==== readout ====")
 
-    # Instantiate the linter
-    lnt = Linter(dialect=dialect_obj)
-
     # If no paths specified - assume local
     if len(paths) == 0:
         paths = (os.getcwd(),)
 
-    all_stats = {}
-    for path in paths:
-        if verbose > 0:
-            click.echo('=== [ path: {0} ] ==='.format(colorize(path, 'lightgrey')), color=color)
-        # Iterate through files recursively in the specified directory (if it's a directory)
-        # or read the file directly if it's not
-        linted_path = lnt.lint_path(path)
-        formatted = format_violations(linted_path.violations(), verbose=verbose)
-        for line in formatted:
-            click.echo(line, color=color)
-        all_stats = sum_dicts(linted_path.stats(), all_stats)
+    # Instantiate the linter and lint the paths
+    lnt = Linter(dialect=dialect_obj)
+    result = lnt.lint_paths(paths)
+    output = format_linting_result(result, verbose=verbose)
+
+    click.echo(output, color=color)
+
+    all_stats = result.stats()
 
     exit_state = {
         'code': 65 if all_stats['violations'] > 0 else 0,
@@ -98,6 +92,7 @@ def lint(dialect, verbose, nocolor, paths):
                 ('clean files', all_stats['clean']),
                 ('unclean files', all_stats['unclean']),
                 ('avg per file', all_stats['violations'] * 1.0 / all_stats['files']),
+                ('unclean rate', "{:.0%}".format(all_stats['unclean'] * 1.0 / all_stats['files'])),
                 ('status', exit_state['status'])
             ]
         else:

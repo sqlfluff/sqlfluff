@@ -2,7 +2,7 @@
 
 from six import StringIO
 
-from sqlfluff.linter import Linter
+from sqlfluff.linter import Linter, LintingResult
 
 
 # ############## LINTER TESTS
@@ -88,3 +88,14 @@ def test__linter__lint_file_operators_star():
     violations = lnt.check_tuples()
     # Check that this is allowed
     assert violations == []
+
+
+def test__linter__linting_result__sum_dicts():
+    lr = LintingResult()
+    i = {}
+    a = dict(a=3, b=123, f=876.321)
+    b = dict(a=19, b=321.0, g=23478)
+    r = dict(a=22, b=444.0, f=876.321, g=23478)
+    assert lr.sum_dicts(a, b) == r
+    # Check the identity too
+    assert lr.sum_dicts(r, i) == r

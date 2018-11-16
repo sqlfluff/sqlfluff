@@ -55,6 +55,46 @@ class LintedPath(object):
         )
 
 
+class LintingResult(object):
+    def __init__(self):
+        self.paths = []
+
+    @staticmethod
+    def sum_dicts(d1, d2):
+        """ Take the keys of two dictionaries and add them """
+        keys = set(d1.keys()) | set(d2.keys())
+        return {key: d1.get(key, 0) + d2.get(key, 0) for key in keys}
+
+    def add(self, path):
+        self.paths.append(path)
+
+    def check_tuples(self):
+        """
+        Just compress all the tuples into one list
+        NB: This is a little crude, as you can't tell which
+        file the violations are from. Good for testing though.
+        """
+        tuple_buffer = []
+        for path in self.paths:
+            tuple_buffer += path.check_tuples()
+        return tuple_buffer
+
+    def num_violations(self):
+        return sum([path.num_violations() for path in self.paths])
+
+    def violations(self):
+        dict_buffer = {}
+        for path in self.paths:
+            dict_buffer.update(path.violations())
+        return dict_buffer
+
+    def stats(self):
+        all_stats = {}
+        for path in self.paths:
+            all_stats = self.sum_dicts(path.stats(), all_stats)
+        return all_stats
+
+
 class Linter(object):
     def __init__(self, dialect=AnsiSQLDialiect, sql_exts=('.sql',)):
         self.dialect = dialect
@@ -93,3 +133,11 @@ class Linter(object):
             with open(fname, 'r') as f:
                 linted_path.add(self.lint_file(f, fname=fname))
         return linted_path
+
+    def lint_paths(self, paths):
+        result = LintingResult()
+        for path in paths:
+            # Iterate through files recursively in the specified directory (if it's a directory)
+            # or read the file directly if it's not
+            result.add(self.lint_path(path))
+        return result

@@ -3,12 +3,6 @@
 from six import StringIO
 
 
-def sum_dicts(d1, d2):
-    """ Take the keys of two dictionaries and add them """
-    keys = set(d1.keys()) | set(d2.keys())
-    return {key: d1.get(key, 0) + d2.get(key, 0) for key in keys}
-
-
 color_lookup = {
     'red': "\u001b[31m",
     'green': "\u001b[32m",
