@@ -31,6 +31,28 @@ def test__cli__shell_dialect():
         assert err.returncode == 66
 
 
+def test__cli__shell_lint_a():
+    """ Check the script raises the right exception on an unknown dialect """
+    # Not verbose
+    subprocess.check_output(
+        ['sqlfluff', 'lint', '-n', 'test/fixtures/cli/passing_a.sql'])
+    # Verbose
+    subprocess.check_output(
+        ['sqlfluff', 'lint', '-n', '-v', 'test/fixtures/cli/passing_a.sql'])
+    # Very Verbose
+    subprocess.check_output(
+        ['sqlfluff', 'lint', '-n', '-vv', 'test/fixtures/cli/passing_a.sql'])
+    # Very Verbose (Colored)
+    subprocess.check_output(
+        ['sqlfluff', 'lint', '-vv', 'test/fixtures/cli/passing_a.sql'])
+
+
+def test__cli__shell_lint_b():
+    """ Check the script raises the right exception on an unknown dialect """
+    subprocess.check_output(
+        ['sqlfluff', 'lint', '-n', 'test/fixtures/cli/passing_b.sql'])
+
+
 def test__cli__versioning():
     # Get the package version info
     pkg_version = sqlfluff.__version__
