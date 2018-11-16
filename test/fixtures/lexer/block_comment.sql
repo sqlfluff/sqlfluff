@@ -1,7 +1,10 @@
 SELECT
     a.id,
     /* Block comment with ending */ a.something,
-    a.name
+    a.name,
+    /*
+    Block comment on newlines
+    */
 /* Some block comments
 go over multiple
 lines */

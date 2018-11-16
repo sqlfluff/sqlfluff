@@ -10,39 +10,71 @@ class RecursiveLexer(object):
 
     def lex(self, chunk, **start_context):
         # Match based on available matchers
-        matches = self.dialect.outside_block_comment_matchers.chunkmatch(chunk)
+        if start_context.get('block_comment_open', False):
+            matches = self.dialect.inside_block_comment_matchers.chunkmatch(chunk)
 
-        if len(matches) == 0:
-            # No Match, just content
-            return ChunkString(chunk.contextualise('content')), start_context
+            if len(matches) == 0:
+                # No Match, just comment
+                return ChunkString(chunk.contextualise('comment')), start_context
 
-        # examine first match
-        first_match = matches[0]
-        if first_match[0].chunk == chunk.chunk:
-            # We've matched the whole string!
-            cs = ChunkString(chunk.contextualise(first_match[2].name))
-            if first_match[2].name == 'open_block_comment_start':
+            # examine first match
+            first_match = matches[0]
+            if first_match[0].chunk == chunk.chunk:
+                # We've matched the whole string!
+                cs = ChunkString(chunk.contextualise(first_match[2].name))
+                if first_match[2].name == 'open_block_comment_end':
+                    new_context = start_context.copy()
+                    new_context['block_comment_open'] = False
+                    return cs, new_context
+                else:
+                    return cs, start_context
+            elif first_match[0].start_pos == chunk.start_pos:
+                # The match starts at the beginning, but isn't the whole string
+                matched_chunk, remainder_chunk = chunk.split_at(len(first_match[0]))
                 new_context = start_context.copy()
-                new_context['block_comment_open'] = True
-                return cs, new_context
+                if first_match[2].name == 'open_block_comment_end':
+                    new_context['block_comment_open'] = False
+                remainder_string, end_context = self.lex(remainder_chunk, **new_context)
+                return ChunkString(matched_chunk.contextualise(first_match[2].name)) + remainder_string, end_context
+            elif first_match[0].start_pos:
+                raise RuntimeError("Found content, in an open block comment, before matching an end!? This shouldn't happen")
             else:
-                return cs, start_context
-        elif first_match[0].start_pos == chunk.start_pos:
-            # The match starts at the beginning, but isn't the whole string
-            matched_chunk, remainder_chunk = chunk.split_at(len(first_match[0]))
-            new_context = start_context.copy()
-            if first_match[2].name == 'open_block_comment_start':
-                new_context['block_comment_open'] = True
-            remainder_string, end_context = self.lex(remainder_chunk, **new_context)
-            return ChunkString(matched_chunk.contextualise(first_match[2].name)) + remainder_string, end_context
-        elif first_match[0].start_pos:
-            # The match doesn't start at the beginning, we've got content first
-            content_chunk, remainder_chunk = chunk.split_at(first_match[1])
-            remainder_string, end_context = self.lex(remainder_chunk, **start_context)
-            return ChunkString(content_chunk.contextualise('content')) + remainder_string, end_context
+                # No Match, just content
+                return ChunkString(chunk.contextualise('comment')), start_context
         else:
-            # No Match, just content
-            return ChunkString(chunk.contextualise('content')), start_context
+            matches = self.dialect.outside_block_comment_matchers.chunkmatch(chunk)
+
+            if len(matches) == 0:
+                # No Match, just content
+                return ChunkString(chunk.contextualise('content')), start_context
+
+            # examine first match
+            first_match = matches[0]
+            if first_match[0].chunk == chunk.chunk:
+                # We've matched the whole string!
+                cs = ChunkString(chunk.contextualise(first_match[2].name))
+                if first_match[2].name == 'open_block_comment_start':
+                    new_context = start_context.copy()
+                    new_context['block_comment_open'] = True
+                    return cs, new_context
+                else:
+                    return cs, start_context
+            elif first_match[0].start_pos == chunk.start_pos:
+                # The match starts at the beginning, but isn't the whole string
+                matched_chunk, remainder_chunk = chunk.split_at(len(first_match[0]))
+                new_context = start_context.copy()
+                if first_match[2].name == 'open_block_comment_start':
+                    new_context['block_comment_open'] = True
+                remainder_string, end_context = self.lex(remainder_chunk, **new_context)
+                return ChunkString(matched_chunk.contextualise(first_match[2].name)) + remainder_string, end_context
+            elif first_match[0].start_pos:
+                # The match doesn't start at the beginning, we've got content first
+                content_chunk, remainder_chunk = chunk.split_at(first_match[1])
+                remainder_string, end_context = self.lex(remainder_chunk, **start_context)
+                return ChunkString(content_chunk.contextualise('content')) + remainder_string, end_context
+            else:
+                # No Match, just content
+                return ChunkString(chunk.contextualise('content')), start_context
 
     def lex_chunk_buffer(self, chunk_iterable, **start_context):
         """ Iterate through chunks adding to the string """

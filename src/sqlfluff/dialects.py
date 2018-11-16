@@ -19,9 +19,9 @@ class AnsiSQLDialiect(object):
     inline_comment_regex = RegexMatchPattern(r'(--|#)[^\n]*', 'comment', priority=2)  # In MySQL, we need a space after the '--'
     # Anything between the first and last part of this tuple counts as not code
     # Priority required because of divide operator or multiply operator
-    closed_block_comment = RegexMatchPattern(r'/\*[^\n]*\*/', 'closed_block_comment', priority=2)
-    open_block_comment_start = RegexMatchPattern(r'/\*[^\n]', 'open_block_comment_start', priority=2)
-    open_block_comment_end = RegexMatchPattern(r'[^\n]*\*/', 'open_block_comment_end', priority=2)
+    closed_block_comment = RegexMatchPattern(r'/\*[^\n]*\*/', 'closed_block_comment', priority=3)
+    open_block_comment_start = RegexMatchPattern(r'/\*[^\n]*', 'open_block_comment_start', priority=2)
+    open_block_comment_end = RegexMatchPattern(r'[^\n]*\*/', 'open_block_comment_end', priority=3)
     # String Quote Characters
     string_quote_characters = MatcherBag(CharMatchPattern("'", 'string_literal'))  # NB in Mysql this should also include "
     # Identifier Quote Characters
