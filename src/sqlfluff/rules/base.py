@@ -135,19 +135,19 @@ class BaseRuleSet(object):
         # Instantiate all of our rules afresh
         self._rule_instances = [rule() for rule in self.rules]
 
-    def evaluate(self, chunk, rules=None):
+    def evaluate(self, chunk, rule_whitelist=None):
         buffer = []
         for rule in self._rule_instances:
-            if rules is None or rule.code in rules:
+            if rule_whitelist is None or rule.code in rule_whitelist:
                 violation = rule.evaluate(chunk)
                 if violation:
                     buffer.append(violation)
         return buffer
 
-    def evaluate_chunkstring(self, chunkstring, rules=None):
+    def evaluate_chunkstring(self, chunkstring, rule_whitelist=None):
         buffer = []
         for chunk in chunkstring:
-            buffer = buffer + self.evaluate(chunk, rules=rules)
+            buffer = buffer + self.evaluate(chunk, rule_whitelist=rule_whitelist)
         return buffer
 
     @classmethod

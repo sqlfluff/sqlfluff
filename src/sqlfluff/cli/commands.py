@@ -19,6 +19,12 @@ def get_package_version():
     return pkg_version
 
 
+def common_options(f):
+    f = click.option('-v', '--verbose', count=True)(f)
+    f = click.option('-n', '--nocolor', is_flag=True)(f)
+    return f
+
+
 @click.group()
 def cli():
     """ sqlfluff is a modular sql linter for humans """
@@ -26,7 +32,7 @@ def cli():
 
 
 @cli.command()
-@click.option('-v', '--verbose', count=True)
+@common_options
 def version(verbose, nocolor=None):
     """ Show the version of sqlfluff """
     color = False if nocolor else None
@@ -41,12 +47,11 @@ def version(verbose, nocolor=None):
 
 
 @cli.command()
+@common_options
 @click.option('--dialect', default='ansi', help='The dialect of SQL to lint')
-@click.option('-v', '--verbose', count=True)
-@click.option('-n', '--nocolor', is_flag=True)
 @click.option('--rules', default=None, help='Specify a particular rule, or comma seperated rules to check')
 @click.argument('paths', nargs=-1)
-def lint(dialect, verbose, nocolor, rules, paths):
+def lint(verbose, nocolor, dialect, rules, paths):
     """ Lint SQL files """
     color = False if nocolor else None
     try:
@@ -79,7 +84,7 @@ def lint(dialect, verbose, nocolor, rules, paths):
         paths = (os.getcwd(),)
 
     # Instantiate the linter and lint the paths
-    lnt = Linter(dialect=dialect_obj, rules=rule_list)
+    lnt = Linter(dialect=dialect_obj, rule_whitelist=rule_list)
     result = lnt.lint_paths(paths)
     output = format_linting_result(result, verbose=verbose)
 
