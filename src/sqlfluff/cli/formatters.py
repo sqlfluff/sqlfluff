@@ -129,6 +129,6 @@ def format_rules(linter, verbose=0):
     text_buffer.write("==== sqlfluff - rules ====\n")
     text_buffer.write(
         cli_table(
-            linter.rule_tuples(), col_width=41,
-            cols=1, label_color='blue'))
+            linter.rule_tuples(), col_width=80,
+            cols=1, label_color='blue', val_align='left'))
     return text_buffer.getvalue()

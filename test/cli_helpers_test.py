@@ -1,6 +1,6 @@
 """ The Test file for CLI helpers """
 
-from sqlfluff.cli.helpers import colorize, cli_table, wrap_elem
+from sqlfluff.cli.helpers import colorize, cli_table, wrap_elem, wrap_field, pad_line
 
 
 def test__cli__helpers__colorize():
@@ -36,3 +36,35 @@ def test__cli__helpers__wrap_elem_d():
     """ Harder wrap test, with a newline """
     str_list = wrap_elem('A hippopotamus\ncame for tea', 10)
     assert str_list == ['A hippopot', 'amus came', 'for tea']
+
+
+def test__cli__helpers__wrap_field_a():
+    """ Simple wrap test """
+    dct = wrap_field('abc', 'How Now Brown Cow', width=40)
+    assert dct['label_list'] == ['abc']
+    assert dct['val_list'] == ['How Now Brown Cow']
+    assert 'sep_char' in dct
+    assert dct['lines'] == 1
+    assert dct['label_width'] == 3
+
+
+def test__cli__helpers__wrap_field_b():
+    """ Simple wrap test, but testing overlap allowance """
+    dct = wrap_field('abc', 'How Now Brown Cow', width=23)
+    assert dct['label_list'] == ['abc']
+    assert dct['val_list'] == ['How Now Brown Cow']
+    assert dct['label_width'] == 3
+
+
+def test__cli__helpers__wrap_field_c():
+    """ Simple wrap test """
+    dct = wrap_field('how now brn cow', 'How Now Brown Cow', width=25)
+    assert dct['label_list'] == ['how now', 'brn cow']
+    assert dct['label_width'] == 7
+    assert dct['val_list'] == ['How Now Brown', 'Cow']
+    assert dct['lines'] == 2
+
+
+def test__cli__helpers__pad_line():
+    assert pad_line("abc", 5) == 'abc  '
+    assert pad_line("abcdef", 10, align='right') == '    abcdef'

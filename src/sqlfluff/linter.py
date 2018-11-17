@@ -120,7 +120,11 @@ class Linter(object):
 
     def rule_tuples(self):
         """ A simple pass through to access the rule tuples of the rule set """
-        return self.get_ruleset().rule_tuples()
+        rt = self.get_ruleset().rule_tuples()
+        if self.rule_whitelist:
+            return [elem for elem in rt if elem[0] in self.rule_whitelist]
+        else:
+            return rt
 
     def lint_file(self, f, fname=None):
         """ Lint a file object - fname is optional for testing """
