@@ -3,15 +3,30 @@
 
 # Documentation
 
+## General Parameters
+
+Most SQLfluff commands implement a few common parameters, rather than documenting
+them on each command, they are documented here for brevity:
+
+- `[-v, --verbose]`: Verbosity, how detailed should the output be.
+- `[-n, --nocolor]`: No color - if this is set then the output will be
+  without ANSI color codes.
+- `[--dialect ansi]`: Which dialect to run sqlfluff with, defaulting
+  to `ansi`. Options
+  - `ansi` - Currently the only option - assumes that the sql is in
+    line with [_ISO/IEC 9075_](https://en.wikipedia.org/wiki/ISO/IEC_9075)
+  - ... to come `mysql`, `redshift` and potentially others...
+- `[--rules RULES]`: Narrow the search to only specific rules. For example
+  specifying `--rules L001` will only search for rule `L001` (Unnessesary
+  trailing whitespace). Multiple rules can be specified with commas e.g.
+  `--rules L001,L002` will specify only looking for violations of rule 
+  `L001` and rule `L002`.
+
 ## `sqlfluff version`
 
 **Purpose:** Read out the current version information of sqlfluff.
 
-**Usage:** `sqlfluff version [-v, --verbose]`
-
-**Parameters:**
-
-- `[-v, --verbose]`: Verbosity, how detailed should the output be.
+**Usage:** `sqlfluff version [-v, --verbose] [-n, --nocolor] [--dialect ansi] [--rules RULES]`
 
 **Example responses:**
 
@@ -35,19 +50,6 @@
 
 **Parameters:**
 
-- `[-v, --verbose]`: Verbosity, how detailed should the output be.
-- `[-n, --nocolor]`: No color - if this is set then the output will be
-  without ANSI color codes.
-- `[--dialect ansi]`: Which dialect to run sqlfluff with, defaulting
-  to `ansi`. Options
-  - `ansi` - Currently the only option - assumes that the sql is in
-    line with [_ISO/IEC 9075_](https://en.wikipedia.org/wiki/ISO/IEC_9075)
-  - ... to come `mysql`, `redshift` and potentially others...
-- `[--rules RULES]`: Narrow the search to only specific rules. For example
-  specifying `--rules L001` will only search for rule `L001` (Unnessesary
-  trailing whitespace). Multiple rules can be specified with commas e.g.
-  `--rules L001,L002` will specify only looking for violations of rule 
-  `L001` and rule `L002`.
 - `[PATH]` the path to a sql file or directory to lint.
   - _Files_ e.g. `test_file.sql` or `src/some_other_file.sql` - passing
     the path of a single file just lints a single file.
@@ -104,4 +106,29 @@ _NB: Examples of the `--nocolor` option not shown as the textual output is the s
 > files:             1 violations:        3
 > clean files:       0 unclean files:     1
 > avg per file:   3.00 status:         FAIL
+> ```
+
+## `sqlfluff rules`
+
+**Purpose:** Display the current available rules.
+
+**Usage:** `sqlfluff rules [-v, --verbose] [-n, --nocolor] [--dialect ansi] [--rules RULES]`
+
+**Example responses:**
+
+> *Limited:*
+> ```shell
+> $ sqlfluff rules --rules L001
+> ==== sqlfluff - rules ====
+> L001: Unnecessary trailing whitespace
+> ```
+
+> *Unlimited:*
+> ```shell
+> $ sqlfluff rules
+> ==== sqlfluff - rules ====
+> L001: Unnecessary trailing whitespace
+> L002: Single indentation uses mixture of tabs and spaces
+> L003: Single indentation uses a number of spaces not a multiple of 4
+> ...
 > ```
