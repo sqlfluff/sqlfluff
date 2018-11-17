@@ -2,6 +2,9 @@
 
 from six import StringIO
 import sys
+import itertools
+import re
+import textwrap
 
 from .. import __version__ as pkg_version
 
@@ -32,9 +35,37 @@ def get_package_version():
     return pkg_version
 
 
-def cli_table(fields, col_width=20, cols=2, divider_char=' ', sep_char=':',
+def wrap_elem(s, width):
+    """ take a string, and attempt to wrap into a list of strings all less than <width> """
+    return textwrap.wrap(s, width=width)
+
+
+def wrap_field(label, val, width, max_label_width=10, sep_char=': '):
+    """
+    Wrap a field (label, val)
+    Return a dict of {label_list, val_list, sep_char, lines}
+    """
+    if len(label) > max_label_width:
+        label_width = max_label_width
+        label_list = wrap_elem(label, width=max_label_width)
+    else:
+        label_width = width - len(label) - len(sep_char)
+        label_list = [label]
+    
+    max_val_width = width - len(sep_char) - label_width
+    val_list = wrap_elem(val, width=max_val_width)
+    return dict(
+        label_list=label_list,
+        val_list=val_list,
+        sep_char=sep_char,
+        lines=max(len(label_list), len(val_list))
+    )
+
+
+def cli_table(fields, col_width=20, cols=2, divider_char=' ', sep_char=': ',
               label_color='lightgrey', float_format="{0:.2f}"):
     """ make a crude ascii table, assuming that `fields` is an iterable of (label, value) pairs """
+    # First turn the fields, into a collection of fields with wordwrap applied
     col = 1
     first_row = True
     buff = StringIO()
