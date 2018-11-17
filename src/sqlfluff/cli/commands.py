@@ -44,8 +44,9 @@ def version(verbose, nocolor=None):
 @click.option('--dialect', default='ansi', help='The dialect of SQL to lint')
 @click.option('-v', '--verbose', count=True)
 @click.option('-n', '--nocolor', is_flag=True)
+@click.option('--rules', default=None, help='Specify a particular rule, or comma seperated rules to check')
 @click.argument('paths', nargs=-1)
-def lint(dialect, verbose, nocolor, paths):
+def lint(dialect, verbose, nocolor, rules, paths):
     """ Lint SQL files """
     color = False if nocolor else None
     try:
@@ -53,6 +54,12 @@ def lint(dialect, verbose, nocolor, paths):
     except KeyError:
         click.echo("Error: Unknown dialect {0!r}".format(dialect))
         sys.exit(66)
+
+    # Work out if rules have been specified
+    if rules:
+        rule_list = rules.split(',')
+    else:
+        rule_list = None
 
     # Only show version information if verbosity is high enough
     if verbose > 0:
@@ -64,14 +71,15 @@ def lint(dialect, verbose, nocolor, paths):
             ('verbosity', verbose)
         ]
         click.echo(cli_table(config_content), color=color)
-        click.echo("==== readout ====")
+        if rule_list:
+            click.echo(cli_table([('rules', ', '.join(rule_list))], col_width=41), color=color)
 
     # If no paths specified - assume local
     if len(paths) == 0:
         paths = (os.getcwd(),)
 
     # Instantiate the linter and lint the paths
-    lnt = Linter(dialect=dialect_obj)
+    lnt = Linter(dialect=dialect_obj, rules=rule_list)
     result = lnt.lint_paths(paths)
     output = format_linting_result(result, verbose=verbose)
 

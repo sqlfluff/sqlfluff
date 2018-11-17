@@ -32,7 +32,11 @@ def test__cli__shell_dialect():
 
 
 def test__cli__shell_lint_a():
-    """ Check the script raises the right exception on an unknown dialect """
+    """
+    Check basic commands on a simple script.
+    The subprocess command should exit without erros, as
+    no issues should be found.
+    """
     # Not verbose
     subprocess.check_output(
         ['sqlfluff', 'lint', '-n', 'test/fixtures/cli/passing_a.sql'])
@@ -48,9 +52,33 @@ def test__cli__shell_lint_a():
 
 
 def test__cli__shell_lint_b():
-    """ Check the script raises the right exception on an unknown dialect """
+    """
+    Check basic commands on a more complicated script.
+    The subprocess command should exit without erros, as
+    no issues should be found.
+    """
     subprocess.check_output(
         ['sqlfluff', 'lint', '-n', 'test/fixtures/cli/passing_b.sql'])
+
+
+def test__cli__shell_lint_c_rules_single():
+    """
+    Check that only checking for a single specific rule using the cli works.
+    The subprocess command should exit without erros, as
+    no issues should be found.
+    """
+    subprocess.check_output(
+        ['sqlfluff', 'lint', '-n', '--rules', 'L001', 'test/fixtures/linter/operator_errors.sql'])
+
+
+def test__cli__shell_lint_c_rules_multi():
+    """
+    Check that only checking for multiple specific rules using the cli works.
+    The subprocess command should exit without erros, as
+    no issues should be found.
+    """
+    subprocess.check_output(
+        ['sqlfluff', 'lint', '-n', '--rules', 'L001,L002', 'test/fixtures/linter/operator_errors.sql'])
 
 
 def test__cli__versioning():

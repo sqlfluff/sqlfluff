@@ -99,6 +99,8 @@ def format_linting_violations(result, color=True, verbose=0):
 def format_linting_result(result, color=True, verbose=0):
     """ Assume we're passed a LintingResult """
     text_buffer = StringIO()
+    if verbose >= 1:
+        text_buffer.write("==== readout ====\n")
     text_buffer.write(format_linting_violations(result, color=color, verbose=verbose))
     text_buffer.write('\n')
     text_buffer.write(format_linting_stats(result, color=color, verbose=verbose))

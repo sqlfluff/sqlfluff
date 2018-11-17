@@ -31,7 +31,7 @@
 
 **Purpose:** Actually lint things.
 
-**Usage:** `sqlfluff lint [-v, --verbose] [-n, --nocolor] [--dialect ansi] [PATH]`
+**Usage:** `sqlfluff lint [-v, --verbose] [-n, --nocolor] [--dialect ansi] [--rules RULES] [PATH]`
 
 **Parameters:**
 
@@ -43,6 +43,11 @@
   - `ansi` - Currently the only option - assumes that the sql is in
     line with [_ISO/IEC 9075_](https://en.wikipedia.org/wiki/ISO/IEC_9075)
   - ... to come `mysql`, `redshift` and potentially others...
+- `[--rules RULES]`: Narrow the search to only specific rules. For example
+  specifying `--rules L001` will only search for rule `L001` (Unnessesary
+  trailing whitespace). Multiple rules can be specified with commas e.g.
+  `--rules L001,L002` will specify only looking for violations of rule 
+  `L001` and rule `L002`.
 - `[PATH]` the path to a sql file or directory to lint.
   - _Files_ e.g. `test_file.sql` or `src/some_other_file.sql` - passing
     the path of a single file just lints a single file.

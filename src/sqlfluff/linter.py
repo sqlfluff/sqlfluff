@@ -56,8 +56,10 @@ class LintedPath(object):
 
 
 class LintingResult(object):
-    def __init__(self):
+    def __init__(self, rules=None):
         self.paths = []
+        # Store the rules we're using
+        self.rules = rules
 
     @staticmethod
     def sum_dicts(d1, d2):
@@ -102,9 +104,12 @@ class LintingResult(object):
 
 
 class Linter(object):
-    def __init__(self, dialect=AnsiSQLDialiect, sql_exts=('.sql',)):
+    def __init__(self, dialect=AnsiSQLDialiect, sql_exts=('.sql',), rules=None):
         self.dialect = dialect
         self.sql_exts = sql_exts
+        # restrict the search to only specific rules.
+        # assume that this is a list of rule codes
+        self.rules = rules
 
     def lint_file(self, f, fname=None):
         """ Lint a file object - fname is optional for testing """
@@ -112,7 +117,7 @@ class Linter(object):
         rule_set = StandardRuleSet()
         rl = RecursiveLexer(dialect=self.dialect)
         chunkstring = rl.lex_file_obj(f)
-        vs = rule_set.evaluate_chunkstring(chunkstring)
+        vs = rule_set.evaluate_chunkstring(chunkstring, rules=self.rules)
         return LintedFile(fname, vs)
 
     def paths_from_path(self, path):
@@ -141,7 +146,7 @@ class Linter(object):
         return linted_path
 
     def lint_paths(self, paths):
-        result = LintingResult()
+        result = LintingResult(rules=self.rules)
         for path in paths:
             # Iterate through files recursively in the specified directory (if it's a directory)
             # or read the file directly if it's not
