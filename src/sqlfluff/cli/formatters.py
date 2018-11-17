@@ -82,7 +82,7 @@ def format_linting_stats(result, verbose=0):
                 if key in special_formats
                 else all_stats[key]) for key in output_fields]
         # Render it all as a table
-        text_buffer.write(cli_table(summary_content))
+        text_buffer.write(cli_table(summary_content, max_label_width=14))
     return text_buffer.getvalue()
 
 
