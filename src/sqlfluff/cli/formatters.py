@@ -3,7 +3,7 @@
 
 from six import StringIO
 
-from .helpers import colorize, cli_table
+from .helpers import colorize, cli_table, get_package_version, get_python_version
 
 
 def format_filename(filename, success=False, color=True, verbose=0):
@@ -63,7 +63,7 @@ def format_violations(violations, color=True, verbose=0):
     return str_buffer
 
 
-def format_linting_stats(result, color=True, verbose=0):
+def format_linting_stats(result, verbose=0):
     """ Assume we're passed a LintingResult """
     text_buffer = StringIO()
     all_stats = result.stats()
@@ -86,7 +86,7 @@ def format_linting_stats(result, color=True, verbose=0):
     return text_buffer.getvalue()
 
 
-def format_linting_violations(result, color=True, verbose=0):
+def format_linting_violations(result, verbose=0):
     """ Assume we're passed a LintingResult """
     text_buffer = StringIO()
     for path in result.paths:
@@ -96,12 +96,39 @@ def format_linting_violations(result, color=True, verbose=0):
     return text_buffer.getvalue()
 
 
-def format_linting_result(result, color=True, verbose=0):
+def format_linting_result(result, verbose=0):
     """ Assume we're passed a LintingResult """
     text_buffer = StringIO()
     if verbose >= 1:
         text_buffer.write("==== readout ====\n")
-    text_buffer.write(format_linting_violations(result, color=color, verbose=verbose))
+    text_buffer.write(format_linting_violations(result, verbose=verbose))
     text_buffer.write('\n')
-    text_buffer.write(format_linting_stats(result, color=color, verbose=verbose))
+    text_buffer.write(format_linting_stats(result, verbose=verbose))
+    return text_buffer.getvalue()
+
+
+def format_config(linter, verbose=0):
+    text_buffer = StringIO()
+    # Only show version information if verbosity is high enough
+    if verbose > 0:
+        text_buffer.write("==== sqlfluff ====\n")
+        config_content = [
+            ('sqlfluff', get_package_version()),
+            ('python', get_python_version()),
+            ('dialect', linter.dialect.name),
+            ('verbosity', verbose)
+        ]
+        text_buffer.write(cli_table(config_content))
+        if linter.rule_whitelist:
+            text_buffer.write(cli_table([('rules', ', '.join(linter.rule_whitelist))], col_width=41))
+    return text_buffer.getvalue()
+
+
+def format_rules(linter, verbose=0):
+    text_buffer = StringIO()
+    text_buffer.write("==== sqlfluff - rules ====\n")
+    text_buffer.write(
+        cli_table(
+            linter.rule_tuples(), col_width=41,
+            cols=1, label_color='blue'))
     return text_buffer.getvalue()

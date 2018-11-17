@@ -68,6 +68,13 @@ def test__rules__base__ruleset_lookup_inst():
     assert rl == TRuleA
 
 
+def test__rules__base__ruleset_rule_tuples():
+    """ Check the rule tuples method """
+    rt = TRuleSet().rule_tuples()
+    assert ('TRuleC', 'bar') in rt
+    assert len(rt) == 2
+
+
 def test__rules__base__ruleset_chunkstring():
     """ An extension of the above test, but applied to a chunkstring """
     rs = TRuleSet()

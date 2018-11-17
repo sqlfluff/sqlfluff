@@ -1,6 +1,9 @@
 """ CLI helper utilities """
 
 from six import StringIO
+import sys
+
+from .. import __version__ as pkg_version
 
 
 color_lookup = {
@@ -19,6 +22,14 @@ def colorize(s, color=None):
         return start_tag + s + end_tag
     else:
         return s
+
+
+def get_python_version():
+    return "{0[0]}.{0[1]}.{0[2]}".format(sys.version_info)
+
+
+def get_package_version():
+    return pkg_version
 
 
 def cli_table(fields, col_width=20, cols=2, divider_char=' ', sep_char=':',

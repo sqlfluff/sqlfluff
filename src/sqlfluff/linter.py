@@ -111,10 +111,21 @@ class Linter(object):
         # assume that this is a list of rule codes
         self.rule_whitelist = rule_whitelist
 
+    def get_ruleset(self):
+        """
+        A way of getting hold of a set of rules.
+        We should probably extend this later for differing rules.
+        """
+        return StandardRuleSet()
+
+    def rule_tuples(self):
+        """ A simple pass through to access the rule tuples of the rule set """
+        return self.get_ruleset().rule_tuples()
+
     def lint_file(self, f, fname=None):
         """ Lint a file object - fname is optional for testing """
         # Instantiate a rule set
-        rule_set = StandardRuleSet()
+        rule_set = self.get_ruleset()
         rl = RecursiveLexer(dialect=self.dialect)
         chunkstring = rl.lex_file_obj(f)
         vs = rule_set.evaluate_chunkstring(chunkstring, rule_whitelist=self.rule_whitelist)

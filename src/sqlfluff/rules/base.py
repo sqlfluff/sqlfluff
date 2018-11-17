@@ -6,6 +6,14 @@ from collections import namedtuple
 RuleGhost = namedtuple('RuleGhost', ['code', 'description'])
 
 
+# Subclass property to create a ClassProperty
+#   This enables the definition mechanism for rules
+# https://stackoverflow.com/questions/128573/using-property-on-classmethods
+class ClassProperty(property):
+    def __get__(self, cls, owner):
+        return self.fget.__get__(None, owner)()
+
+
 class RuleViolation(namedtuple('ProtoViolation', ['chunk', 'rule'])):
     """ The result of applying a rule to a piece of content and finding a violation """
     __slots__ = ()
@@ -52,21 +60,23 @@ class BaseRule(object):
         # Just initialise the memory when instantiated
         self.memory = self.init_m
 
-    @property
-    def code(self):
+    @ClassProperty
+    @classmethod
+    def code(cls):
         # We use the class name for the code of the exception
         # Subclasses should subclass like: class L001(BaseRule): etc...
         # The actual class name will probably be sqlfluff.rules.base.BaseRule
         # we just want the last portion of that
-        return self.__class__.__name__.split('.')[-1]
+        return cls.__name__.split('.')[-1]
 
-    @property
-    def description(self):
+    @ClassProperty
+    @classmethod
+    def description(cls):
         # We use the docstring for the description
         # Subclasses should subclass like:
         # class L001(BaseRule):
         #     """ <description> """
-        return self.__doc__
+        return cls.__doc__
 
     @classmethod
     def rule(cls, code, description, eval_func, memory_func=None):
@@ -157,3 +167,10 @@ class BaseRuleSet(object):
                 return rule
         else:
             return None
+
+    @classmethod
+    def rule_tuples(cls):
+        """ Return rule tuples, can be called from instance or class """
+        rule_dict = {rule.code: rule.description for rule in cls.rules}
+        rule_tuples = [(code, rule_dict[code]) for code in sorted(rule_dict.keys())]
+        return rule_tuples
