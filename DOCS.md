@@ -132,3 +132,23 @@ _NB: Examples of the `--nocolor` option not shown as the textual output is the s
 > L003: Single indentation uses a number of spaces not a multiple of 4
 > ...
 > ```
+
+## `sqlfluff fix`
+
+**Purpose:** Autofix linting errors.
+
+> This command will make widespread changes to your SQL codebase. Use with
+> caution, and in particular I would **VERY STRONGLY RECOMMEND** only using
+> the tool on a codebase which uses version control (e.g. Git) so that you
+> can easily roll back any changes made.
+
+**Usage:** `sqlfluff fix [-v, --verbose] [-n, --nocolor] [--dialect ansi] [--rules RULES] [-f, --force] [PATH]`
+
+**Parameters:**
+
+- **NB:** The `rules` option is compulsory for fixing errors (you can still
+  specify mutiple linting rules if you wish however). This is for your own
+  safety!
+- `[-f, --force]` - skip the confirmation prompt and go straight to applying
+  fixes. **Use this with caution.**
+- `[PATH]` - Exactly the same implementation as `sqlfluff lint`.

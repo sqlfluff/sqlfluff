@@ -12,6 +12,10 @@ Bored of not having a good SQL linter that works with whichever dialiect you're
 working with? Fluff is an extensible and modular linter designed to help you write
 good SQL and catch errors and bad SQL before it hits your database.
 
+> **Sqlfluff** is still in an open alpha phase - expect the tool to change significantly
+> over the coming months, and expect potentially non-backward compatable api changes
+> to happen at any point.
+
 # Getting Started
 
 To get started just install the package, make a sql file and then run sqlfluff and point it at the file.

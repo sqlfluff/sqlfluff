@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [0.0.7] - 2018-11-19
+### Added
+- Added a `sqlfluff fix` as a command to implement auto-fixing of linting
+  errors. For now only `L001` is implemented as a rule that can fix things.
+- Added a `rules` command to introspec the available rules.
+- Updated the cli table function to use the `testwrap` library and also
+  deal a lot better with longer values.
+- Added a `--rules` argument to most of the commands to allow rule users
+  to focus their search on a specific subset of rules.
+
+### Changed
+- Refactor the cli tests to use the click CliRunner. Much faster
+
 ## [0.0.6] - 2018-11-15
 ### Added
 - Number matching
