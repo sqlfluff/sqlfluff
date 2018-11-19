@@ -94,3 +94,18 @@ def test__cli__versioning():
         ['sqlfluff', 'version'])
     # We need to strip to remove the newline characters, decode for python27
     assert cli_version.decode().strip() == pkg_version
+
+
+def test__cli__shell_version():
+    """ Just check version command for exceptions """
+    subprocess.check_output(
+        ['sqlfluff', 'version'])
+    # Check a verbose version
+    subprocess.check_output(
+        ['sqlfluff', 'version', '-v'])
+
+
+def test__cli__shell_rules():
+    """ Just check rules command for exceptions """
+    subprocess.check_output(
+        ['sqlfluff', 'rules'])
