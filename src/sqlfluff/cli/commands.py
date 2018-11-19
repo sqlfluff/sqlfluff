@@ -118,14 +118,16 @@ def fix(verbose, nocolor, dialect, rules, force, paths):
         ))
         if force:
             click.echo('FORCE MODE: Attempting fixes...')
-            click.echo(format_linting_fixes(result, verbose=verbose), color=color)
+            fixes = result.fix()
+            click.echo(format_linting_fixes(fixes, verbose=verbose), color=color)
             click.echo('Done. Please check your files to confirm.')
         else:
             click.echo('Are you sure you wish to attempt to fix these? [Y/n] ', nl=False)
             c = click.getchar()
             if c == 'Y':
                 click.echo('Attempting fixes...')
-                click.echo(format_linting_fixes(result, verbose=verbose), color=color)
+                fixes = result.fix()
+                click.echo(format_linting_fixes(fixes, verbose=verbose), color=color)
                 click.echo('Done. Please check your files to confirm.')
             elif c == 'n':
                 click.echo('Aborting...')

@@ -114,3 +114,11 @@ def test__linter__linting_result__sum_dicts():
     assert lr.sum_dicts(a, b) == r
     # Check the identity too
     assert lr.sum_dicts(r, i) == r
+
+
+def test__linter__linting_result__combine_dicts():
+    lr = LintingResult()
+    a = dict(a=3, b=123, f=876.321)
+    b = dict(h=19, i=321.0, j=23478)
+    r = dict(z=22)
+    assert lr.combine_dicts(a, b, r) == dict(a=3, b=123, f=876.321, h=19, i=321.0, j=23478, z=22)

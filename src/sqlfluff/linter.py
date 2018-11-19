@@ -64,13 +64,15 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations'])):
                 for idx, c in enumerate(line):
                     if skip > 0:
                         skip -= 1
-                    elif idx < correction.chunk.start_pos:
+                    # If we're past the last correction (correction is None)
+                    # then we should just write the characters
+                    elif correction is None or idx < correction.chunk.start_pos:
                         buff.write(c)
                     elif idx == correction.chunk.start_pos:
                         # So here we write the correction instead of the original characters
                         buff.write(correction.correction)
-                        # and remember how many characters to skip
-                        skip = len(correction.chunk.chunk)
+                        # and remember how many characters to skip (bear in mind we're on one already)
+                        skip = len(correction.chunk.chunk) - 1
                         # and fetch the next correction
                         correction = next_correction()
                     else:
@@ -91,27 +93,39 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations'])):
         with open(self.path, 'r+') as f:
             self.apply_corrections_to_fileobj(f, corrections)
 
-    def fixes(self):
-        """ Attempt to fix the violations we found """
-        result_buffer = []
+    def fix(self):
+        """ Find and attempt to fix the violations we found """
+        fix_buffer = []
+        pending_fix_buffer = []
         correction_buffer = []
-        file_success = True
         for v in self.violations:
             corrections = v.corrections
             # First check if any corrections are available
             if len(corrections) == 0:
-                file_success = False
-                result_buffer.append(FixResult(v, False, 'No correction available'))
+                fix_buffer.append(FixResult(v, False, 'No correction available'))
             # Second check if the corrections overlap any existing corrections
             elif any([a.same_pos_as(b) for a, b in itertools.product(correction_buffer, corrections)]):
-                file_success = False
-                result_buffer.append(FixResult(v, False, 'The correction overlaps an existing correction in this round. Try again'))
+                fix_buffer.append(FixResult(v, False, 'The correction overlaps an existing correction in this round. Try again'))
             else:
+                # We still buffer the corrections
                 correction_buffer += corrections
-                result_buffer.append(FixResult(v, True, None))
-        # Actually apply the corrections (this should probably move)
-        self.apply_corrections_to_file(correction_buffer)
-        return result_buffer, file_success
+                # We buffer the violations that it looks like we're going to fix
+                pending_fix_buffer.append(v)
+        # Let's try appling all these corrections now, and then update the fix buffer as a result
+        try:
+            self.apply_corrections_to_file(correction_buffer)
+            application_success = True
+            application_message = None
+        except Exception as exc: # noqa
+            # Assume if it's unsuccessful in any way that the whole thing failed
+            application_success = False
+            # Spit out the name of the exception for debugging
+            application_message = 'Error occurred in applying the changes ({0})'.format(
+                exc.__class__.__name__)
+        # Use the result of applying the changes to see if the rest were successful
+        for v in pending_fix_buffer:
+            fix_buffer.append(FixResult(v, application_success, application_message))
+        return fix_buffer
 
 
 class LintedPath(object):
@@ -147,6 +161,10 @@ class LintedPath(object):
             violations=sum([file.num_violations() for file in self.files])
         )
 
+    def fix(self):
+        # Run all the fixes for all the files and return a dict
+        return {file.path: file.fix() for file in self.files}
+
 
 class LintingResult(object):
     def __init__(self, rule_whitelist=None):
@@ -159,6 +177,14 @@ class LintingResult(object):
         """ Take the keys of two dictionaries and add them """
         keys = set(d1.keys()) | set(d2.keys())
         return {key: d1.get(key, 0) + d2.get(key, 0) for key in keys}
+
+    @staticmethod
+    def combine_dicts(*d):
+        """ Take any set of dictionaries and combine them """
+        dict_buffer = {}
+        for dct in d:
+            dict_buffer.update(dct)
+        return dict_buffer
 
     def add(self, path):
         self.paths.append(path)
@@ -178,10 +204,7 @@ class LintingResult(object):
         return sum([path.num_violations() for path in self.paths])
 
     def violations(self):
-        dict_buffer = {}
-        for path in self.paths:
-            dict_buffer.update(path.violations())
-        return dict_buffer
+        return self.combine_dicts(path.violations() for path in self.paths)
 
     def stats(self):
         all_stats = dict(files=0, clean=0, unclean=0, violations=0)
@@ -194,6 +217,10 @@ class LintingResult(object):
         all_stats['exit code'] = 65 if all_stats['violations'] > 0 else 0
         all_stats['status'] = 'FAIL' if all_stats['violations'] > 0 else 'PASS'
         return all_stats
+
+    def fix(self):
+        # Run all the fixes for all the files and return a dict
+        return self.combine_dicts(*[path.fix() for path in self.paths])
 
 
 class Linter(object):

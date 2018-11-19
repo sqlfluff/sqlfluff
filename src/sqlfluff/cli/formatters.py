@@ -104,20 +104,18 @@ def format_linting_violations(result, verbose=0):
     return text_buffer.getvalue()
 
 
-def format_linting_fixes(result, verbose=0):
-    """ Assume we're passed a LintingResult """
+def format_linting_fixes(fixes, verbose=0):
+    """ Assume we're passed a dict of fix results """
     text_buffer = StringIO()
-    for path in result.paths:
-        if path.num_violations() > 0:
-            text_buffer.write('=== [ path: {0} ] ===\n'.format(colorize(path.path, 'lightgrey')))
-            for file in path.files:
-                if file.num_violations() > 0:
-                    fixes, success = file.fixes()
-                    text_buffer.write(format_filename(file.path, success=success, verbose=verbose, success_text='FIXED'))
-                    text_buffer.write('\n')
-                    for fix in fixes:
-                        text_buffer.write(format_fix(fix, verbose=verbose))
-                        text_buffer.write('\n')
+    for file in fixes:
+        if len(fixes[file]) > 0:
+            fix_buff = fixes[file]
+            success = all([fix.success for fix in fix_buff])
+            text_buffer.write(format_filename(file, success=success, verbose=verbose, success_text='FIXED'))
+            text_buffer.write('\n')
+            for fix in fix_buff:
+                text_buffer.write(format_fix(fix, verbose=verbose))
+                text_buffer.write('\n')
     return text_buffer.getvalue()
 
 
