@@ -111,7 +111,7 @@ def fix(verbose, nocolor, dialect, rules, force, paths):
         click.echo("==== violations found ====")
         click.echo(format_linting_violations(result, verbose=verbose), color=color)
         click.echo("==== fixing violations ====")
-        click.echo("{0} violations found of rules {1}".format(
+        click.echo("{0} violations found of rule(s) {1}".format(
             result.num_violations(),
             ", ".join(result.rule_whitelist)
         ))
