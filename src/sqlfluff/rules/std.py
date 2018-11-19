@@ -155,6 +155,19 @@ class L008(BaseRule):
         return False
 
     @staticmethod
+    def correction_func(c, m):
+        cm1 = m.get('cm1', None)
+        if cm1.context != 'whitespace':
+            # Just add some whitespace
+            return cm1.correct(' ' + cm1.chunk)
+        else:
+            # It is whitespace, just the wrong amount
+            if '\n' in cm1.chunk:
+                return cm1.correct('\n')
+            else:
+                return cm1.correct(' ')
+
+    @staticmethod
     def memory_func(c, m):
         # Store the last three chunks
         return dict(
