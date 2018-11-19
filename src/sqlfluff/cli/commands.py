@@ -88,8 +88,9 @@ def lint(verbose, nocolor, dialect, rules, paths):
 
 @cli.command()
 @common_options
+@click.option('-f', '--force', is_flag=True)
 @click.argument('paths', nargs=-1)
-def fix(verbose, nocolor, dialect, rules, paths):
+def fix(verbose, nocolor, dialect, rules, force, paths):
     """ Fix SQL files """
     # Configure Color
     color = False if nocolor else None
@@ -114,17 +115,22 @@ def fix(verbose, nocolor, dialect, rules, paths):
             result.num_violations(),
             ", ".join(result.rule_whitelist)
         ))
-        click.echo('Are you sure you wish to attempt to fix these? [Y/n] ', nl=False)
-        c = click.getchar()
-        if c == 'Y':
-            click.echo('Attempting fixes...')
+        if force:
+            click.echo('FORCE MODE: Attempting fixes...')
             click.echo(format_linting_fixes(result, verbose=verbose), color=color)
             click.echo('Done. Please check your files to confirm.')
-        elif c == 'n':
-            click.echo('Aborting...')
         else:
-            click.echo('Invalid input :(')
-            click.echo('Aborting...')
+            click.echo('Are you sure you wish to attempt to fix these? [Y/n] ', nl=False)
+            c = click.getchar()
+            if c == 'Y':
+                click.echo('Attempting fixes...')
+                click.echo(format_linting_fixes(result, verbose=verbose), color=color)
+                click.echo('Done. Please check your files to confirm.')
+            elif c == 'n':
+                click.echo('Aborting...')
+            else:
+                click.echo('Invalid input :(')
+                click.echo('Aborting...')
     else:
         click.echo("==== no violations found ====")
     sys.exit(0)
