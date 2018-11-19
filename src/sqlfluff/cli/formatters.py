@@ -6,35 +6,43 @@ from six import StringIO
 from .helpers import colorize, cli_table, get_package_version, get_python_version
 
 
-def format_filename(filename, success=False, color=True, verbose=0):
-    if color:
-        fname_col = 'lightgrey'
-        status_col = 'green' if success else 'red'
-    else:
-        fname_col = None
-        status_col = None
-
+def format_filename(filename, success=False, verbose=0, success_text='PASS'):
+    status_string = colorize(
+        success_text if success else 'FAIL',
+        'green' if success else 'red')
     return (
         "== ["
-        + colorize("{0}".format(filename), fname_col)
-        + "] "
-        + colorize('PASS' if success else 'FAIL', status_col)
-    )
+        + colorize("{0}".format(filename), 'lightgrey')
+        + "] " + status_string)
 
 
-def format_violation(violation, color=True, verbose=0):
+def format_violation(violation, verbose=0):
     return (
         colorize(
             "L:{0:4d} | P:{1:4d} | {2} |".format(
                 violation.chunk.line_no,
                 violation.chunk.start_pos + 1,
                 violation.rule.code),
-            'blue' if color else None)
+            'blue')
         + " {0}".format(violation.rule.description)
     )
 
 
-def format_violations(violations, color=True, verbose=0):
+def format_fix(fix, verbose=0):
+    return (
+        colorize(
+            "L:{0:4d} | P:{1:4d} | {2} | ".format(
+                fix.violation.chunk.line_no,
+                fix.violation.chunk.start_pos + 1,
+                fix.violation.rule.code),
+            'blue')
+        + (colorize("SUCCESS", 'green') if fix.success else colorize("FAIL", 'red'))
+        + " | "
+        + " {0}".format(fix.detail or "")
+    )
+
+
+def format_violations(violations, verbose=0):
     # Violations should be a dict
     keys = sorted(violations.keys())
     text_buffer = StringIO()
@@ -44,7 +52,7 @@ def format_violations(violations, color=True, verbose=0):
 
         # Only print the filename if it's either a failure or verbosity > 1
         if verbose > 1 or not success:
-            text_buffer.write(format_filename(key, success=success, color=color, verbose=verbose))
+            text_buffer.write(format_filename(key, success=success, verbose=verbose))
             text_buffer.write('\n')
 
         # If we have violations, print them
@@ -54,7 +62,7 @@ def format_violations(violations, color=True, verbose=0):
             # the primarily sort by line no
             s = sorted(s, key=lambda v: v.chunk.line_no)
             for violation in s:
-                text_buffer.write(format_violation(violation, color=color, verbose=verbose))
+                text_buffer.write(format_violation(violation, verbose=verbose))
                 text_buffer.write('\n')
     str_buffer = text_buffer.getvalue()
     # Remove the trailing newline if there is one
@@ -96,6 +104,24 @@ def format_linting_violations(result, verbose=0):
     return text_buffer.getvalue()
 
 
+def format_linting_fixes(result, verbose=0):
+    """ Assume we're passed a LintingResult """
+    text_buffer = StringIO()
+    for path in result.paths:
+        if path.num_violations() > 0:
+            text_buffer.write('=== [ path: {0} ] ===\n'.format(colorize(path.path, 'lightgrey')))
+            for file in path.files:
+                if file.num_violations() > 0:
+                    fixes, success = file.fixes()
+                    text_buffer.write(format_filename(file.path, success=success, verbose=verbose, success_text='FIXED'))
+                    text_buffer.write('\n')
+                    for fix in fixes:
+                        if not fix.success or verbose >= 1:
+                            text_buffer.write(format_fix(fix, verbose=verbose))
+                            text_buffer.write('\n')
+    return text_buffer.getvalue()
+
+
 def format_linting_result(result, verbose=0):
     """ Assume we're passed a LintingResult """
     text_buffer = StringIO()
@@ -119,6 +145,7 @@ def format_config(linter, verbose=0):
             ('verbosity', verbose)
         ]
         text_buffer.write(cli_table(config_content))
+        text_buffer.write("\n")
         if linter.rule_whitelist:
             text_buffer.write(cli_table([('rules', ', '.join(linter.rule_whitelist))], col_width=41))
     return text_buffer.getvalue()

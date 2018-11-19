@@ -14,6 +14,10 @@ class PositionedChunk(namedtuple('ProtoChunk', ['chunk', 'start_pos', 'line_no',
         # Return a copy, just with the context set
         return PositionedChunk(self.chunk, self.start_pos, self.line_no, context=context)
 
+    def correct(self, correction):
+        """ Helper Command to access a correction from here """
+        return PositionedCorrection(chunk=self, correction=correction)
+
     def split_at(self, pos):
         if self.context:
             raise RuntimeError("Attempting to split a chunk which already has context!")
@@ -32,6 +36,16 @@ class PositionedChunk(namedtuple('ProtoChunk', ['chunk', 'start_pos', 'line_no',
             return PositionedChunk(
                 self.chunk[start:], self.start_pos + start,
                 self.line_no, context=context or self.context)
+
+    def same_pos_as(self, other):
+        """ A helper function for comparing if two chunks occupy the same space """
+        return self.start_pos == other.start_pos and self.line_no == other.line_no
+
+
+class PositionedCorrection(namedtuple('ProtoCorr', ['chunk', 'correction'])):
+    # Implment the same_pos_as command
+    def same_pos_as(self, other):
+        return self.chunk.same_pos_as(other.chunk)
 
 
 class ChunkString(object):

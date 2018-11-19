@@ -167,7 +167,9 @@ class StandardRuleSet(BaseRuleSet):
     rules = [
         BaseRule.rule(
             'L001', "Unnecessary trailing whitespace",
-            lambda c, m: c.context == 'whitespace' and c.chunk[-1] == '\n' and len(c) > 1),
+            lambda c, m: c.context == 'whitespace' and c.chunk[-1] == '\n' and len(c) > 1,
+            # Correction Func, just trim the whitespace
+            correction_func=(lambda c, m: c.correct('\n'))),
         BaseRule.rule(
             'L002', "Single indentation uses mixture of tabs and spaces",
             lambda c, m: c.context == 'whitespace' and c.start_pos == 0 and ' ' in c.chunk and '\t' in c.chunk),

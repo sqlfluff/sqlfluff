@@ -2,6 +2,8 @@
 
 from collections import namedtuple
 
+from ..chunks import PositionedCorrection
+
 # The ghost of a rule
 RuleGhost = namedtuple('RuleGhost', ['code', 'description'])
 
@@ -14,7 +16,7 @@ class ClassProperty(property):
         return self.fget.__get__(None, owner)()
 
 
-class RuleViolation(namedtuple('ProtoViolation', ['chunk', 'rule'])):
+class RuleViolation(namedtuple('ProtoViolation', ['chunk', 'rule', 'corrections'])):
     """ The result of applying a rule to a piece of content and finding a violation """
     __slots__ = ()
 
@@ -56,6 +58,12 @@ class BaseRule(object):
     def memory_func(c, m):
         return m
 
+    # The default correction func, returns a blank list.
+    # If there were corrections, it will return a list of corrected chunks
+    @staticmethod
+    def correction_func(c, m):
+        return []
+
     def __init__(self):
         # Just initialise the memory when instantiated
         self.memory = self.init_m
@@ -79,7 +87,7 @@ class BaseRule(object):
         return cls.__doc__
 
     @classmethod
-    def rule(cls, code, description, eval_func, memory_func=None):
+    def rule(cls, code, description, eval_func, memory_func=None, correction_func=None):
         """
         Syntactic sugar to create subclassed rules with less typing.
 
@@ -99,6 +107,7 @@ class BaseRule(object):
                 eval_func=staticmethod(eval_func),
                 # If one has been provided use it, but otherwise use the default
                 memory_func=staticmethod(memory_func or cls.memory_func),
+                correction_func=staticmethod(correction_func or cls.correction_func),
                 __doc__=description
             )
         )
@@ -126,12 +135,25 @@ class BaseRule(object):
                 is_violation = True
             else:
                 is_violation = False
+        # Evaluate any corrections (before updating the memory, because we need to to be the same)
+        if is_violation:
+            corrections = self.correction_func(chunk, self.memory)
+            if isinstance(corrections, PositionedCorrection):
+                corrections = [corrections]
+        else:
+            corrections = []
+        # Make sure all the corrections are actaually corrections
+        if any([not isinstance(c, PositionedCorrection) for c in corrections]):
+            raise TypeError(
+                "A rule has returned something other than a correction chunk! [Rule: {0}]".format(
+                    self.code))
+
         # Secondly update the memory based on this chunk and the existing memory
         self.memory = self.memory_func(chunk, self.memory)
         # Then return a violation if one is found
         if is_violation:
             # Return a ghost of this rule
-            return RuleViolation(return_chunk, self.ghost())
+            return RuleViolation(return_chunk, self.ghost(), corrections)
         else:
             return None
 

@@ -2,10 +2,17 @@
 
 import os
 from collections import namedtuple
+import itertools
+
+from six import StringIO
 
 from .dialects import AnsiSQLDialiect
 from .lexer import RecursiveLexer
 from .rules.std import StandardRuleSet
+
+
+class FixResult(namedtuple('ProtoFix', ['violation', 'success', 'detail'])):
+    __slots__ = ()
 
 
 class LintedFile(namedtuple('ProtoFile', ['path', 'violations'])):
@@ -19,6 +26,77 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations'])):
 
     def is_clean(self):
         return len(self.violations) == 0
+
+    def apply_corrections_to_file(self, corrections):
+        """ We don't validate here, we just apply """
+        # NB: Make sure here that things don't overlap.
+        # I don't know how it will behave if they do
+
+        # Make a buffer to hold the new version of the file
+        buff = StringIO()
+        # Sort the corrections into a list (first ordered by line pos, then line no)
+        # first sort by position
+        correction_queue = sorted(corrections, key=lambda c: c.chunk.start_pos)
+        # the primarily sort by line no
+        correction_queue = sorted(correction_queue, key=lambda c: c.chunk.line_no)
+        with open(self.path, 'r') as f:
+            try:
+                current_correction = correction_queue.pop(0)
+            except IndexError:
+                current_correction = None
+            current_line = 0
+            skip = 0
+            for line in f:
+                current_line += 1
+                # If we're not at the right line to correct yet, just pass through
+                # (or we've done all our corrections)
+                if current_correction is None or current_line < current_correction.chunk.line_no:
+                    buff.write(line)
+                elif current_line == current_correction.chunk.line_no:
+                    for idx, c in enumerate(line):
+                        if skip > 0:
+                            skip -= 1
+                        elif idx < current_correction.chunk.start_pos:
+                            buff.write(c)
+                        elif idx == current_correction.chunk.start_pos:
+                            # So here we write the correction instead of the original characters
+                            buff.write(current_correction.correction)
+                            # and remember how many characters to skip
+                            skip = len(current_correction.chunk.chunk)
+                            # and fetch the next correction
+                            try:
+                                current_correction = correction_queue.pop(0)
+                            except IndexError:
+                                current_correction = None
+                        else:
+                            raise ValueError("This shouldn't happen! sdkdjhf")
+                else:
+                    raise ValueError("This shouldn't happen! awdjakh")
+        # We've got through the file, write it back
+        with open(self.path, 'w') as f:
+            f.write(buff.getvalue())
+
+    def fixes(self):
+        """ Attempt to fix the violations we found """
+        result_buffer = []
+        correction_buffer = []
+        file_success = True
+        for v in self.violations:
+            corrections = v.corrections
+            # First check if any corrections are available
+            if len(corrections) == 0:
+                file_success = False
+                result_buffer.append(FixResult(v, False, 'No correction available'))
+            # Second check if the corrections overlap any existing corrections
+            elif any([a.same_pos_as(b) for a, b in itertools.product(correction_buffer, corrections)]):
+                file_success = False
+                result_buffer.append(FixResult(v, False, 'The correction overlaps an existing correction in this round. Try again'))
+            else:
+                correction_buffer += corrections
+                result_buffer.append(FixResult(v, True, None))
+        # Actually apply the corrections (this should probably move)
+        self.apply_corrections_to_file(correction_buffer)
+        return result_buffer, file_success
 
 
 class LintedPath(object):
@@ -161,6 +239,10 @@ class Linter(object):
         return linted_path
 
     def lint_paths(self, paths):
+        # If no paths specified - assume local
+        if len(paths) == 0:
+            paths = (os.getcwd(),)
+        # Set up the result to hold what we get back
         result = LintingResult(rule_whitelist=self.rule_whitelist)
         for path in paths:
             # Iterate through files recursively in the specified directory (if it's a directory)
