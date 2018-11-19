@@ -116,9 +116,8 @@ def format_linting_fixes(result, verbose=0):
                     text_buffer.write(format_filename(file.path, success=success, verbose=verbose, success_text='FIXED'))
                     text_buffer.write('\n')
                     for fix in fixes:
-                        if not fix.success or verbose >= 1:
-                            text_buffer.write(format_fix(fix, verbose=verbose))
-                            text_buffer.write('\n')
+                        text_buffer.write(format_fix(fix, verbose=verbose))
+                        text_buffer.write('\n')
     return text_buffer.getvalue()
 
 
