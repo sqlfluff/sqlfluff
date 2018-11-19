@@ -27,8 +27,9 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations'])):
     def is_clean(self):
         return len(self.violations) == 0
 
-    def apply_corrections_to_file(self, corrections):
-        """ We don't validate here, we just apply """
+    @staticmethod
+    def apply_corrections_to_fileobj(fileobj, corrections):
+        """ We don't validate here, we just apply to a file object """
         # NB: Make sure here that things don't overlap.
         # I don't know how it will behave if they do
 
@@ -39,45 +40,56 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations'])):
         correction_queue = sorted(corrections, key=lambda c: c.chunk.start_pos)
         # the primarily sort by line no
         correction_queue = sorted(correction_queue, key=lambda c: c.chunk.line_no)
-        with open(self.path, 'r') as f:
+
+        # Define a couple of helpers
+        def next_correction():
             try:
-                current_correction = correction_queue.pop(0)
+                return correction_queue.pop(0)
             except IndexError:
-                current_correction = None
-            current_line = 0
-            for line in f:
-                current_line += 1
-                # If we're not at the right line to correct yet, just pass through
-                # (or we've done all our corrections)
-                if current_correction is None or current_line < current_correction.chunk.line_no:
-                    buff.write(line)
-                elif current_line == current_correction.chunk.line_no:
-                    # Reset the skip counter for this line
-                    skip = 0
-                    for idx, c in enumerate(line):
-                        if skip > 0:
-                            skip -= 1
-                        elif idx < current_correction.chunk.start_pos:
-                            buff.write(c)
-                        elif idx == current_correction.chunk.start_pos:
-                            # So here we write the correction instead of the original characters
-                            buff.write(current_correction.correction)
-                            # and remember how many characters to skip
-                            skip = len(current_correction.chunk.chunk)
-                            # and fetch the next correction
-                            try:
-                                current_correction = correction_queue.pop(0)
-                            except IndexError:
-                                current_correction = None
-                        else:
-                            raise ValueError("This shouldn't happen! [sdkdjhf] idx:{0} skip:{1} corr:{2}".format(
-                                idx, skip, current_correction))
-                else:
-                    raise ValueError("This shouldn't happen! [awdjakh] line: {0!r} no:{1} corr: {2}".format(
-                        line, current_line, current_correction))
-        # We've got through the file, write it back
-        with open(self.path, 'w') as f:
-            f.write(buff.getvalue())
+                return None
+
+        # Begin reading the existing file
+        fileobj.seek(0)
+        # Get the first correction
+        correction = next_correction()
+        # Start iterating through the source file
+        for lineno, line in enumerate(fileobj, 1):
+            # If we're not at the right line to correct yet, just pass through
+            # (or we've done all our corrections)
+            if correction is None or lineno < correction.chunk.line_no:
+                buff.write(line)
+            elif lineno == correction.chunk.line_no:
+                # Reset the skip counter for this line
+                skip = 0
+                for idx, c in enumerate(line):
+                    if skip > 0:
+                        skip -= 1
+                    elif idx < correction.chunk.start_pos:
+                        buff.write(c)
+                    elif idx == correction.chunk.start_pos:
+                        # So here we write the correction instead of the original characters
+                        buff.write(correction.correction)
+                        # and remember how many characters to skip
+                        skip = len(correction.chunk.chunk)
+                        # and fetch the next correction
+                        correction = next_correction()
+                    else:
+                        raise ValueError("This shouldn't happen! [sdkdjhf] idx:{0} skip:{1} corr:{2}".format(
+                            idx, skip, correction))
+            else:
+                raise ValueError("This shouldn't happen! [awdjakh] line: {0!r} no:{1} corr: {2}".format(
+                    line, lineno, correction))
+        # We've now read the whole file, seek back to the beginning to truncate and overwrite
+        fileobj.seek(0)
+        fileobj.write(buff.getvalue())
+        fileobj.truncate()
+
+    def apply_corrections_to_file(self, corrections):
+        """ We don't validate here, we just apply corrections to a path """
+        # NB: Make sure here that things don't overlap.
+        # I don't know how it will behave if they do
+        with open(self.path, 'r+') as f:
+            self.apply_corrections_to_fileobj(f, corrections)
 
     def fixes(self):
         """ Attempt to fix the violations we found """
