@@ -45,7 +45,6 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations'])):
             except IndexError:
                 current_correction = None
             current_line = 0
-            skip = 0
             for line in f:
                 current_line += 1
                 # If we're not at the right line to correct yet, just pass through
@@ -53,6 +52,8 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations'])):
                 if current_correction is None or current_line < current_correction.chunk.line_no:
                     buff.write(line)
                 elif current_line == current_correction.chunk.line_no:
+                    # Reset the skip counter for this line
+                    skip = 0
                     for idx, c in enumerate(line):
                         if skip > 0:
                             skip -= 1
@@ -69,9 +70,11 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations'])):
                             except IndexError:
                                 current_correction = None
                         else:
-                            raise ValueError("This shouldn't happen! sdkdjhf")
+                            raise ValueError("This shouldn't happen! [sdkdjhf] idx:{0} skip:{1} corr:{2}".format(
+                                idx, skip, current_correction))
                 else:
-                    raise ValueError("This shouldn't happen! awdjakh")
+                    raise ValueError("This shouldn't happen! [awdjakh] line: {0!r} no:{1} corr: {2}".format(
+                        line, current_line, current_correction))
         # We've got through the file, write it back
         with open(self.path, 'w') as f:
             f.write(buff.getvalue())
