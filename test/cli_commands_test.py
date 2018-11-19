@@ -133,6 +133,9 @@ def generic_roundtrip_test(source_file, rulestring):
         for line in source_file:
             dest_file.write(line)
     runner = CliRunner()
+    # Check that we first detect the issue
+    result = runner.invoke(lint, ['--rules', rulestring, filepath])
+    assert result.exit_code == 65
     # Fix the file (in force mode)
     result = runner.invoke(fix, ['--rules', rulestring, '-f', filepath])
     assert result.exit_code == 0
