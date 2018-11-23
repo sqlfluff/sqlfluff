@@ -1,5 +1,6 @@
 """ CLI helper utilities """
 
+from __future__ import unicode_literals
 from six import StringIO
 import sys
 import textwrap
