@@ -1,7 +1,6 @@
 """ The Test file for CLI Formatters """
 
 import re
-import six
 
 from sqlfluff.chunks import PositionedChunk
 from sqlfluff.rules.base import RuleViolation, RuleGhost
@@ -10,12 +9,7 @@ from sqlfluff.cli.formatters import format_filename, format_violation, format_vi
 
 def escape_ansi(line):
     """ A helper function to remove ANSI color codes """
-    if six.PY2:
-        # (WORKS IN P27)
-        ansi_escape = re.compile(u'\\\\u001b\\[[0-9]+(;[0-9]+)?m', flags=re.UNICODE)
-    else:
-        # (WORKS IN P36)
-        ansi_escape = re.compile(u'\u001b\\[[0-9]+(;[0-9]+)?m')
+    ansi_escape = re.compile(u'\u001b\\[[0-9]+(;[0-9]+)?m')
     return ansi_escape.sub('', line)
 
 
@@ -27,7 +21,7 @@ def test__cli__formatters__filename_nocol():
 def test__cli__formatters__filename_col():
     """ Explicity test color codes """
     res = format_filename('blah', success=False, verbose=0)
-    assert res == "== [\u001b[30;1mblah\u001b[0m] \u001b[31mFAIL\u001b[0m"
+    assert res == u"== [\u001b[30;1mblah\u001b[0m] \u001b[31mFAIL\u001b[0m"
 
 
 def test__cli__formatters__violation():
