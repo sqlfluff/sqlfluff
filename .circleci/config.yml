@@ -14,9 +14,6 @@ common: &common
         keys:
           - v2-deps-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
     - run:
-        name: Make directory for test results
-        command: mkdir .test-reports
-    - run:
         name: install dependencies
         command: pip install --user tox
     - run:
