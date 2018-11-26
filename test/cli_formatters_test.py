@@ -1,7 +1,6 @@
 """ The Test file for CLI Formatters """
 
 import re
-import six
 
 from sqlfluff.chunks import PositionedChunk
 from sqlfluff.rules.base import RuleViolation, RuleGhost
