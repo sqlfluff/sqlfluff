@@ -17,6 +17,9 @@ good SQL and catch errors and bad SQL before it hits your database.
 > over the coming months, and expect potentially non-backward compatable api changes
 > to happen at any point.
 
+> **Sqlfluff** has had a big rearchitecture to it's parsing engine. To read more about
+> that then you can find details [here](https://github.com/alanmcruickshank/sqlfluff/blob/master/ARCHITECTURE.md).
+
 # Getting Started
 
 To get started just install the package, make a sql file and then run sqlfluff and point it at the file.
