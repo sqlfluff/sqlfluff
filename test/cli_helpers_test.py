@@ -4,7 +4,7 @@ from sqlfluff.cli.helpers import colorize, cli_table, wrap_elem, wrap_field, pad
 
 
 def test__cli__helpers__colorize():
-    assert colorize('foo', 'red') == "\u001b[31mfoo\u001b[0m"
+    assert colorize('foo', 'red') == u"\u001b[31mfoo\u001b[0m"
 
 
 def test__cli__helpers__cli_table():
