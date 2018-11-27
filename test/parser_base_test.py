@@ -1,6 +1,7 @@
 """ The Test file for SQLFluff """
 
 # from six import StringIO
+import pytest
 
 from sqlfluff.parser.base import Token, SyntaxRule, Dialect, TokenChunk
 
@@ -25,6 +26,22 @@ def test__token__match_c():
     assert t.match('BLACK') is None
 
 
+# ########## Rule tests (make sure that invalid rules are caught)
+def test__rule__validate():
+    SyntaxRule.validate_sequence(['a'])
+    SyntaxRule.validate_sequence([['a']])
+    SyntaxRule.validate_sequence([set(['a', 'b']), 'd'])
+    SyntaxRule.validate_sequence([('a',)])
+    with pytest.raises(AssertionError):
+        SyntaxRule.validate_sequence('a')
+    with pytest.raises(AssertionError):
+        SyntaxRule.validate_sequence([[['a']]])
+    with pytest.raises(AssertionError):
+        SyntaxRule.validate_sequence(['a', 2])
+    with pytest.raises(AssertionError):
+        SyntaxRule.validate_sequence(['a', ['c', 'd']])
+
+
 # ########## Dialect tests
 test_dialect = Dialect(
     name=None, description=None,
@@ -34,7 +51,7 @@ test_dialect = Dialect(
         Token(pattern=r'c', syntax=False)
     ],
     syntax_rules=[
-        SyntaxRule(name='bar', sequence=['a', 'b', 'a']),
+        SyntaxRule(name='bar', sequence=['a', 'b', ['a']]),
         SyntaxRule(name='foo', sequence=['bar', 'b'])
     ],
     root_element='foo'
@@ -78,6 +95,18 @@ def test__dialect__non_syntax():
     assert d.match_non_syntax('CABA') == {(('c', False),): 'C'}
     # And via the root element
     assert d.match_root_element('CABA') == {(('c', False),): 'C'}
+
+
+def test__dialect__fully_matched():
+    """ Test the fully matched detection """
+    d = test_dialect
+    # Match some terminals
+    assert d._is_fully_matched('a', (('a', True),)) == 'FullyMatched'
+    assert d._is_fully_matched('a', (('c', False),)) == 'Unmatched'
+    # Match some rules
+    assert d._is_fully_matched('bar', (('bar', 0), ('a', True))) == 'Unmatched'
+    assert d._is_fully_matched('bar', (('bar', 2), ('a', True))) == 'FullyMatched'
+    assert d._is_fully_matched('foo', (('foo', 1), ('b', True))) == 'FullyMatched'
 
 
 def test__dialect__pop_token():

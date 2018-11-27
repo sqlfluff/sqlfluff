@@ -92,13 +92,42 @@ class SyntaxRule(object):
     """
     def __init__(self, name, sequence):
         self.name = name
+        self.validate_sequence(sequence)
         self.sequence = sequence
+
+    @staticmethod
+    def validate_sequence(seq):
+        """
+        Validate that the given sequence is valid according to current
+        rules and assumptions.
+        """
+        try:
+            assert isinstance(seq, list)
+        except AssertionError:
+            raise AssertionError("SyntaxRule sequences must be lists!")
+        try:
+            for elem in seq:
+                assert isinstance(elem, (six.string_types, list, set, tuple))
+        except AssertionError:
+            raise AssertionError("SyntaxRule sequences must contain only lists, sets or tuples!")
+        try:
+            for elem in seq:
+                if isinstance(elem, (list, tuple)):
+                    assert len(elem) == 1
+                    assert isinstance(elem[0], six.string_types)
+        except AssertionError:
+            raise AssertionError("SyntaxRule optional items (lists and tuples), must contain only "
+                                 "one element, and this must be a rule reference not another construction! "
+                                 "Write a seperate rule for more complex constructions!")
 
     def __len__(self):
         return len(self.sequence)
 
     def __getitem__(self, idx):
         return self.sequence[idx]
+
+    def __repr__(self):
+        return "<SyntaxRule {name!r} {sequence!r}>".format(**self.__dict__)
 
 
 class Dialect(object):
@@ -165,6 +194,53 @@ class Dialect(object):
         if non_syntax_matches:
             matches.update({((key, False),): non_syntax_matches[key] for key in non_syntax_matches})
         return matches
+
+    def _is_fully_matched(self, rule, stack_pos=None):
+        """ Another recursive function to asertain whether we're fully matched """
+        if stack_pos:
+            if stack_pos[0][0] != rule:
+                return 'Unmatched'
+                # raise ValueError("Stack position doesn't match current rule! {0!r} rule:{1}".format(
+                #    stack_pos, rule))
+            else:
+                # A boolean would imply a terminal (syntax or otherwise)
+                if isinstance(stack_pos[0][1], bool):
+                    # Being here means we're checking whether a terminal rule has been matched.
+                    # Any match at all is by definition, full
+                    return 'FullyMatched'
+                # If it's not a boolean, then we're dealing with an integer.
+                # We also need to actually fetch the rule to find out.
+                else:
+                    # Get the rule
+                    r = self._rules[rule]
+                    pos = stack_pos[0][1]
+                    remaining_stack = stack_pos[1:]
+                    last_rule_exp = r[pos]
+                    # Is it just a rule that we matched last time?
+                    if isinstance(last_rule_exp, six.string_types):
+                        m = self._is_fully_matched(last_rule_exp, remaining_stack)
+                    # Is it an optional rule that we matched?
+                    elif isinstance(last_rule_exp, list):
+                        m = self._is_fully_matched(last_rule_exp[0], remaining_stack)
+                    else:
+                        raise NotImplementedError("fsaljkshealfsiuhsaef")
+                    if m == 'FullyMatched':
+                        # Are we already at the end of the rule?
+                        if pos + 1 == len(r):
+                            return 'FullyMatched'
+                        # Is the next element a defined rule, or set of rules?
+                        elif isinstance(r[pos + 1], (six.string_types, set)):
+                            return 'Unmatched'
+                        # Is the next element an optional element
+                        else:
+                            raise NotImplementedError("Unable to handle this situation (_is_fully_matched)")
+                    elif m == 'Unmatched':
+                        return 'Unmatched'
+                    # else m == 'PotentiallyMatched'
+                    raise RuntimeError("{0!r} {1!r} {2!r} {3!r}".format(r, pos, remaining_stack, m))
+                    #  First check whether we matched the last element of the rule
+        else:
+            return 'Unmatched'
 
     def _match_rule(self, s, rule, index=0, stack_pos=None):
         """
