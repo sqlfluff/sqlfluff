@@ -242,15 +242,15 @@ class Dialect(object):
         else:
             return 'Unmatched'
 
-    def _match_rule(self, s, rule, index=0, stack_pos=None):
+    def _match_rule(self, s, rule, stack_pos=None):
         """
         match a given string against a rule, and a given position within that rule.
         This is recursive, it returns a dict of ((rule, idx), ..., (token)): match
         """
         # Fetch the rule, if it's not a rule, match as a token
         if rule not in self._rules:
-            if index > 0:
-                raise ValueError("Attempting to access token at index > 0! ({0!r}, {1})".format(rule, index))
+            # if index > 0:
+            #    raise ValueError("Attempting to access token at index > 0! ({0!r}, {1})".format(rule, index))
             matches = {}
             # This should be the only entry point to match tokens
             syntax_match = self._match_token(s, token=rule)
@@ -260,12 +260,37 @@ class Dialect(object):
         else:
             # Get the rule
             r = self._rules[rule]
+            # Lets see what context we've already got
+            if stack_pos:
+                if stack_pos[0][0] != rule:
+                    # The last match wasn't for this rule, so move on
+                    index = 0
+                    elem = r[index]
+                else:
+                    # Well it is for this rule, have we fully exhasted the rule we matched last time?
+                    index = stack_pos[0][1]
+                    elem = r[index]
+                    m = self._is_fully_matched(elem, stack_pos=stack_pos[1:])
+                    if m == 'Unmatched':
+                        pass
+                    elif m == 'FullyMatched':
+                        # this rule is exhausted, increment
+                        index += 1
+                    else:
+                        raise NotImplementedError("blurgh")
+            else:
+                # Nothing already matched, 
+                index = 0
+                elem = r[index]
+
             # Are we looking beyond the end of the rule?
             # If so, just return an empty dict
             if index >= len(r):
                 return {}
             # What is at this index of the rule
             elem = r[index]
+
+
             matches = {}
             # Is it a string?
             if isinstance(elem, six.string_types):

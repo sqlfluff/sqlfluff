@@ -121,9 +121,9 @@ def test__dialect__pop_token():
     assert d.pop_token('ABCD', 1, 1) == [(expected_chunk_token, 'BCD')]
     # Check with an existing stack (The stack defines where in the rules we are)
     # For a Syntax Token
-    # # expected_new_stack_position = (('foo', 0), ('bar', 1), ('b', True))
-    # # expected_chunk_token = TokenChunk('B', 2, 1, stack=expected_new_stack_position)
-    # # assert d.pop_token('BAB', 2, 1, stack_pos=expected_stack_position) == [(expected_chunk_token, 'AB')]
+    expected_new_stack_position = (('foo', 0), ('bar', 1), ('b', True))
+    expected_chunk_token = TokenChunk('B', 2, 1, stack=expected_new_stack_position)
+    assert d.pop_token('BAB', 2, 1, stack_pos=expected_stack_position) == [(expected_chunk_token, 'AB')]
     # For a non-syntax token
     # # expected_chunk_token = TokenChunk('C', 2, 1, stack=(('c', False),))
     # # assert d.pop_token('CAB', 2, 1, stack_pos=expected_stack_position) == [(expected_chunk_token, 'AB')]
