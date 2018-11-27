@@ -28,9 +28,22 @@ class TokenChunk(object):
 
     A chunk can optionally have corrections applied to it.
     """
-    pass
-
-
+    def __init__(self, s, col_no, line_no, stack):
+        self.s = s
+        self.col_no = col_no
+        self.line_no = line_no
+        self.stack = stack
+    
+    def __eq__(self, other):
+        return (self.s == other.s
+            and self.col_no == other.col_no
+            and self.line_no == other.line_no
+            and self.stack == other.stack)
+    
+    def __repr__(self):
+        return "<TokenChunk {s!r} col:{col_no} line:{line_no} stack:{stack!r}>".format(
+            **self.__dict__
+        )
 
 
 class Token(Chunk):
@@ -208,12 +221,21 @@ class Dialect(object):
                 return {((rule, index), ) + k: matches[k] for k in matches}
             else:
                 return {}
-    
+
     def match_root_element(self, s):
         matches = {}
         matches.update(self._match_rule(s, self.root_element))
         matches.update(self.match_non_syntax(s))
         return matches
+    
+    def pop_token(self, s, col_no, line_no):
+        """ pop a list of potential tokens off the string """
+        matches = self.match_root_element(s)
+        tokens = []
+        for stack in matches:
+            remaining_string = s[len(matches[stack]):]
+            tokens.append((TokenChunk(matches[stack], col_no, line_no, stack), remaining_string))
+        return tokens
 
     def parse_stream(self, stream):
         rule_stack = []
