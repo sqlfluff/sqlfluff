@@ -54,7 +54,7 @@ class Token(Chunk):
         self.name = name or pattern
         # Should the regex match be case sensitive? (default to no)
         self.case_sensitive = case_sensitive
-        # Should this token be counted toward syntax (or ignored like whitespace)
+        # The syntax flag is about whether it is only relevant at a particular place
         self.syntax = syntax
         # Precompile the pattern
         if case_sensitive:
@@ -114,6 +114,8 @@ class Dialect(object):
         if root_element not in self._rules:
             raise ValueError("Root element {0!r} not in the given list of rules.".format(root_element))
         self.root_element = root_element
+        # Detect the non-syntax tokens
+        self.non_syntax_tokens = [token for token in self._tokens if not self._tokens[token].syntax]
 
     def _match_token(self, s, token):
         """
@@ -150,14 +152,18 @@ class Dialect(object):
         """
         # Fetch the rule, if it's not a rule, match as a token
         if rule not in self._rules:
-            # This should be the only entry point to match tokens
-            m = self._match_token(s, token=rule)
             if index > 0:
                 raise ValueError("Attempting to access token at index > 0! ({0!r}, {1})".format(rule, index))
-            if m:
-                return {((rule,),): m}
-            else:
-                return {}
+            matches = {}
+            # This should be the only entry point to match tokens
+            syntax_match = self._match_token(s, token=rule)
+            if syntax_match:
+                matches.update({((rule, True),): syntax_match})
+            # We should also match for non-syntax tokens at this point
+            non_syntax_matches = self._match_tokens(s, self.non_syntax_tokens)
+            if non_syntax_matches:
+                matches.update({((key, False),): non_syntax_matches[key] for key in non_syntax_matches})
+            return matches
         else:
             # Get the rule
             r = self._rules[rule]
@@ -237,16 +243,14 @@ ansi = Dialect(
     syntax_rules=[
         SyntaxRule(
             name='sql_statements',
-            # Eventually put the other kinds of statement in here
             sequence=[('terminated_sql_statement'), 'sql_statement', ('statement_terminator')]),
         SyntaxRule(
             name='terminated_sql_statement',
-            # Eventually put the other kinds of statement in here
             sequence=['sql_statement', 'statement_terminator']),
         SyntaxRule(
             name='sql_statement',
             # Eventually put the other kinds of statement in here
-            sequence=set(['select_statement'])),
+            sequence=[set(['select_statement'])]),
         SyntaxRule(
             name='select_statement',
             sequence=['select', 'column_selection', 'from',

@@ -48,9 +48,9 @@ def test__dialect__simple():
     assert d._match_all_tokens('BAB') == {'b': 'B'}
     # Rule Matching
     assert d._match_rule('BAB', 'a') == {}
-    assert d._match_rule('BAB', 'b') == {(('b',),): 'B'}
+    assert d._match_rule('BAB', 'b') == {(('b', True),): 'B'}
     assert d._match_rule('BAB', 'aba') == {}
-    assert d._match_rule('ABA', 'aba') == {(('aba', 0), ('a',)): 'A'}
+    assert d._match_rule('ABA', 'aba') == {(('aba', 0), ('a', True)): 'A'}
 
 
 def test__dialect__deeper():
@@ -69,6 +69,6 @@ def test__dialect__deeper():
     )
     # Rule Matching
     assert d._match_rule('BAB', 'foo') == {}
-    assert d._match_rule('ABA', 'foo') == {(('foo', 0), ('bar', 0), ('a',)): 'A'}
+    assert d._match_rule('ABA', 'foo') == {(('foo', 0), ('bar', 0), ('a', True)): 'A'}
     # And via the root element
-    assert d.match_root_element('ABA') == {(('foo', 0), ('bar', 0), ('a',)): 'A'}
+    assert d.match_root_element('ABA') == {(('foo', 0), ('bar', 0), ('a', True)): 'A'}
