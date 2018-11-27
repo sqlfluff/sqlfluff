@@ -28,7 +28,7 @@ def clean_tests(path):
         click.echo("Removed {0!r}...".format(path))
     except (FileNotFoundError, IOError):  # IOError is for python 27
         click.echo("Directory {0!r} does not exist. Skipping...".format(path))
-    
+
     os.mkdir(path)
     click.echo("Created {0!r}".format(path))
 

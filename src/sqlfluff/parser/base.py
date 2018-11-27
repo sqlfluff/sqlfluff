@@ -33,13 +33,13 @@ class TokenChunk(object):
         self.col_no = col_no
         self.line_no = line_no
         self.stack = stack
-    
+
     def __eq__(self, other):
         return (self.s == other.s
-            and self.col_no == other.col_no
-            and self.line_no == other.line_no
-            and self.stack == other.stack)
-    
+                and self.col_no == other.col_no
+                and self.line_no == other.line_no
+                and self.stack == other.stack)
+
     def __repr__(self):
         return "<TokenChunk {s!r} col:{col_no} line:{line_no} stack:{stack!r}>".format(
             **self.__dict__
@@ -166,7 +166,7 @@ class Dialect(object):
             matches.update({((key, False),): non_syntax_matches[key] for key in non_syntax_matches})
         return matches
 
-    def _match_rule(self, s, rule, index=0):
+    def _match_rule(self, s, rule, index=0, stack_pos=None):
         """
         match a given string against a rule, and a given position within that rule.
         This is recursive, it returns a dict of ((rule, idx), ..., (token)): match
@@ -222,29 +222,29 @@ class Dialect(object):
             else:
                 return {}
 
-    def match_root_element(self, s):
+    def match_root_element(self, s, stack_pos=None):
         matches = {}
-        matches.update(self._match_rule(s, self.root_element))
+        matches.update(self._match_rule(s, self.root_element, stack_pos=stack_pos))
         matches.update(self.match_non_syntax(s))
         return matches
-    
-    def pop_token(self, s, col_no, line_no):
+
+    def pop_token(self, s, col_no, line_no, stack_pos=None):
         """ pop a list of potential tokens off the string """
-        matches = self.match_root_element(s)
+        matches = self.match_root_element(s, stack_pos=stack_pos)
         tokens = []
         for stack in matches:
             remaining_string = s[len(matches[stack]):]
             tokens.append((TokenChunk(matches[stack], col_no, line_no, stack), remaining_string))
         return tokens
 
-    def parse_stream(self, stream):
-        rule_stack = []
-        current_element = self.root_element
-        rule_index = 0
-        # enumerate through line by line
-        for line_no, line in enumerate(stream, start=1):
-            # match
-            pass
+    # def parse_stream(self, stream):
+    #    rule_stack = []
+    #    current_element = self.root_element
+    #    rule_index = 0
+    #    # enumerate through line by line
+    #    for line_no, line in enumerate(stream, start=1):
+    #        # match
+    #        pass
 
 
 # a list is a set sequence of elements
@@ -283,7 +283,7 @@ ansi = Dialect(
         SyntaxRule(
             name='select_statement',
             sequence=['select', 'column_selection', 'from',
-                    'table_expression', ['where_clause'], ['group_by_clause']])
+                      'table_expression', ['where_clause'], ['group_by_clause']])
     ],
     root_element='sql_statements'
 )
