@@ -81,6 +81,12 @@ class SyntaxRule(object):
         self.name = name
         self.sequence = sequence
 
+    def __len__(self):
+        return len(self.sequence)
+
+    def __getitem__(self, idx):
+        return self.sequence[idx]
+
 
 class Dialect(object):
     """
@@ -149,7 +155,7 @@ class Dialect(object):
             if index > 0:
                 raise ValueError("Attempting to access token at index > 0! ({0!r}, {1})".format(rule, index))
             if m:
-                return {(rule): m}
+                return {((rule,),): m}
             else:
                 return {}
         else:
@@ -189,9 +195,12 @@ class Dialect(object):
 
             if matches:
                 # if we've got a match, make sure we return the full path
-                return {(rule, index) + k: matches[k] for k in matches}
+                return {((rule, index), ) + k: matches[k] for k in matches}
             else:
                 return {}
+    
+    def match_root_element(self, s):
+        return self._match_rule(s, self.root_element)
 
     def parse_stream(self, stream):
         rule_stack = []
