@@ -72,3 +72,27 @@ def test__dialect__deeper():
     assert d._match_rule('ABA', 'foo') == {(('foo', 0), ('bar', 0), ('a', True)): 'A'}
     # And via the root element
     assert d.match_root_element('ABA') == {(('foo', 0), ('bar', 0), ('a', True)): 'A'}
+
+
+def test__dialect__non_syntax():
+    """ Dialect matching with non syntax """
+    d = Dialect(
+        name=None, description=None,
+        tokens=[
+            Token(pattern=r'a'),
+            Token(pattern=r'b'),
+            Token(pattern=r'c', syntax=False)
+        ],
+        syntax_rules=[
+            SyntaxRule(name='bar', sequence=['a', 'b', 'a']),
+            SyntaxRule(name='foo', sequence=['bar', 'b'])
+        ],
+        root_element='foo'
+    )
+    # Rule Matching
+    assert d._match_rule('CBAB', 'bar') == {}
+    assert d._match_rule('CABA', 'foo') == {}
+    # Non Syntax Matching
+    assert d.match_non_syntax('CABA') == {(('c', False),): 'C'}
+    # And via the root element
+    assert d.match_root_element('CABA') == {(('c', False),): 'C'}

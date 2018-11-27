@@ -145,6 +145,14 @@ class Dialect(object):
         """
         return self._match_tokens(s, self._tokens.keys())
 
+    def match_non_syntax(self, s):
+        # We should also match for non-syntax tokens at this point
+        matches = {}
+        non_syntax_matches = self._match_tokens(s, self.non_syntax_tokens)
+        if non_syntax_matches:
+            matches.update({((key, False),): non_syntax_matches[key] for key in non_syntax_matches})
+        return matches
+
     def _match_rule(self, s, rule, index=0):
         """
         match a given string against a rule, and a given position within that rule.
@@ -159,10 +167,6 @@ class Dialect(object):
             syntax_match = self._match_token(s, token=rule)
             if syntax_match:
                 matches.update({((rule, True),): syntax_match})
-            # We should also match for non-syntax tokens at this point
-            non_syntax_matches = self._match_tokens(s, self.non_syntax_tokens)
-            if non_syntax_matches:
-                matches.update({((key, False),): non_syntax_matches[key] for key in non_syntax_matches})
             return matches
         else:
             # Get the rule
@@ -206,7 +210,10 @@ class Dialect(object):
                 return {}
     
     def match_root_element(self, s):
-        return self._match_rule(s, self.root_element)
+        matches = {}
+        matches.update(self._match_rule(s, self.root_element))
+        matches.update(self.match_non_syntax(s))
+        return matches
 
     def parse_stream(self, stream):
         rule_stack = []
