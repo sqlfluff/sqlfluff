@@ -48,13 +48,12 @@ class Dialect(object):
                 raise ValueError("Rule with name {0!r} already exists in dialect {1}!".format(rule.name, self.name))
             else:
                 self.rules[rule.name] = rule
-        # Check that the root rule is accessible
-        if self.root_rule not in self.rules:
-            raise ValueError("Root rule {0!r} not found in set of rules provided for dialect {1}".format(self.name))
+        # Check that the root rule is accessible (raise expection if not)
+        self.get_rule(self.root_rule)
 
     def get_rule(self, name):
         if name not in self.rules:
-            raise ValueError("Rule {0!r} not found in set of rules provided for dialect {1}".format(self.name))
+            raise ValueError("Rule {0!r} not found in set of rules provided for dialect {1}".format(name, self.name))
         else:
             return self.rules[name]
 
