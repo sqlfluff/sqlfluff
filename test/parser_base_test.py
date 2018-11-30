@@ -109,21 +109,21 @@ def test__dialect__fully_matched():
     assert d._is_fully_matched('foo', (('foo', 1), ('b', True))) == 'FullyMatched'
 
 
-def test__dialect__pop_token():
-    """ Dialect matching with token popping """
-    d = test_dialect
-    # Check without any existing stack (for a non-syntax token)
-    expected_chunk_token = TokenChunk('C', 1, 1, stack=(('c', False),))
-    assert d.pop_token('CBAB', 1, 1) == [(expected_chunk_token, 'BAB')]
-    # Check without any existing stack (for a syntax token)
-    expected_stack_position = (('foo', 0), ('bar', 0), ('a', True))
-    expected_chunk_token = TokenChunk('A', 1, 1, stack=expected_stack_position)
-    assert d.pop_token('ABCD', 1, 1) == [(expected_chunk_token, 'BCD')]
-    # Check with an existing stack (The stack defines where in the rules we are)
-    # For a Syntax Token
-    expected_new_stack_position = (('foo', 0), ('bar', 1), ('b', True))
-    expected_chunk_token = TokenChunk('B', 2, 1, stack=expected_new_stack_position)
-    assert d.pop_token('BAB', 2, 1, stack_pos=expected_stack_position) == [(expected_chunk_token, 'AB')]
-    # For a non-syntax token
-    # # expected_chunk_token = TokenChunk('C', 2, 1, stack=(('c', False),))
-    # # assert d.pop_token('CAB', 2, 1, stack_pos=expected_stack_position) == [(expected_chunk_token, 'AB')]
+# def test__dialect__pop_token():
+#    """ Dialect matching with token popping """
+#    d = test_dialect
+#    # Check without any existing stack (for a non-syntax token)
+#    expected_chunk_token = TokenChunk('C', 1, 1, stack=(('c', False),))
+#    assert d.pop_token('CBAB', 1, 1) == [(expected_chunk_token, 'BAB')]
+#    # Check without any existing stack (for a syntax token)
+#    expected_stack_position = (('foo', 0), ('bar', 0), ('a', True))
+#    expected_chunk_token = TokenChunk('A', 1, 1, stack=expected_stack_position)
+#    assert d.pop_token('ABCD', 1, 1) == [(expected_chunk_token, 'BCD')]
+#    # Check with an existing stack (The stack defines where in the rules we are)
+#    # For a Syntax Token
+#    expected_new_stack_position = (('foo', 0), ('bar', 1), ('b', True))
+#    expected_chunk_token = TokenChunk('B', 2, 1, stack=expected_new_stack_position)
+#    assert d.pop_token('BAB', 2, 1, stack_pos=expected_stack_position) == [(expected_chunk_token, 'AB')]
+#    # For a non-syntax token
+#    # # expected_chunk_token = TokenChunk('C', 2, 1, stack=(('c', False),))
+#    # # assert d.pop_token('CAB', 2, 1, stack_pos=expected_stack_position) == [(expected_chunk_token, 'AB')]

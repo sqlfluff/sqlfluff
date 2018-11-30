@@ -279,7 +279,7 @@ class Dialect(object):
                     else:
                         raise NotImplementedError("blurgh")
             else:
-                # Nothing already matched, 
+                # Nothing already matched,
                 index = 0
                 elem = r[index]
 
@@ -289,7 +289,6 @@ class Dialect(object):
                 return {}
             # What is at this index of the rule
             elem = r[index]
-
 
             matches = {}
             # Is it a string?

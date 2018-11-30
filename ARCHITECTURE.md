@@ -21,5 +21,27 @@ The general architecture of parsing if that we have a few entities:
 - `dialect`, which represents a unique dialect of sql. This is a collection of `tokens`
   and `syntax elements`. These are defined so that inheritance can be used to define
   related syntaxes.
+  
 
+# More Notes...
 
+We need a change of approach, especially in how the parser works.
+
+## Principles:
+- The parser is left to right, with no look ahead.
+- It treats whitespace and comments as tokens.
+- Patterns are *recursive*. They take a string, take what they can, pass some down to
+  children and then return the unused part back to the parent.
+- Patterns consist of *sequences*. A pattern can have sub-sequences at definition
+  but these will get converted to their own sequences under the hood.
+- Patterns are *greedy*, meaning they will take as much as they can before yielding
+  and remaining string.
+- A terminal behaves as a special case of a pattern. It exhibits the same behaviours
+  as a pattern.
+- Patterns either match, or not.
+  - If a match is made, then the pattern extracts the part of the string which it
+    has matched and returns the rest back up, along with a `node`.
+  - If no match is made, then the pattern returns the whole string, the parent
+    sequence decides whether this is an issue.
+  - If at any point, we fail to match all the way up to the root `node` then that
+    should raise a parsing error.
