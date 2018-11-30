@@ -52,6 +52,21 @@ def test__parser__rule():
     assert tr.nodes[1].s == 'C'
 
 
+def test__parser__rule():
+    a = Rule('a', ['b', 'c'])
+    b = TerminalRule(r'b')
+    c = TerminalRule(r'c')
+    dialect = Dialect(None, 'a', [a, b, c])
+    # Call rule via root_rule
+    tr, s = dialect.parse('BCfoo')
+    assert s == 'foo'  # Check we catch the remainder properly
+    assert isinstance(tr, Node)
+    assert tr.nodes[0].token == 'b'
+    assert tr.nodes[1].token == 'c'
+    assert tr.nodes[0].s == 'B'
+    assert tr.nodes[1].s == 'C'
+
+
 def test__parser__rule_optional():
     # Optional elements are shown in brackets
     a = Rule('a', ['b', ['c'], 'd', ['b']])

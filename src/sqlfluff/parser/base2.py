@@ -57,10 +57,11 @@ class Dialect(object):
         else:
             return self.rules[name]
 
-    def parse(self, s):
+    def parse(self, s, rule_stack=None):
         rule = self.get_rule(self.root_rule)
         # Parse and make a tree recursively, passing self as the dialect
-        tree, remainder = rule.parse(s, dialect=self)
+        # We should assume there's no existing rule stack, so pass an empty one in
+        tree, remainder = rule.parse(s, rule_stack=rule_stack or tuple(), dialect=self)
         return tree, remainder
 
 
@@ -135,3 +136,16 @@ class TerminalRule(Rule):
             last_pos = m.end()
             return Terminal(s[:last_pos], self.name, rule_stack), s[last_pos:]
         return None, s
+
+
+ansi_rules = [
+    TerminalRule(r'select'),
+    TerminalRule(r'from'),
+    TerminalRule(r'[a-z_]', name='object_literal'),
+    TerminalRule(r'\s+', name='whitespace'),
+    Rule('select_stmt', ['select', 'whitespace', 'col_expr', 'whitespace', 'from', 'table_expr']),
+    Rule('col_expr', ['object_literal']),
+    Rule('table_expr', ['object_literal'])
+]
+
+ansi = Dialect('ansi', 'select_stmt', ansi_rules)
