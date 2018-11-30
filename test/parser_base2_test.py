@@ -2,7 +2,7 @@
 
 import pytest
 
-from sqlfluff.parser.base2 import TerminalRule, Dialect
+from sqlfluff.parser.base2 import TerminalRule, Dialect, Rule, Node
 
 
 # ############## Terminal TESTS
@@ -34,3 +34,19 @@ def test__dialect__validation():
     # Unknown Root Node
     with pytest.raises(ValueError):
         Dialect(None, 'failfail', [a2])
+
+
+# ############## Rule TESTS
+def test__parser__rule():
+    a = Rule('a', ['b', 'c'])
+    b = TerminalRule('b', r'b', case_sensitive=False)
+    c = TerminalRule('c', r'c', case_sensitive=False)
+    d = Dialect(None, 'a', [a, b, c])
+    # Parse by rule directly
+    tr, s = a.parse('BC', tuple(), d)
+    assert s == ''
+    assert isinstance(tr, Node)
+    assert tr.nodes[0].token == 'b'
+    assert tr.nodes[1].token == 'c'
+    assert tr.nodes[0].s == 'B'
+    assert tr.nodes[1].s == 'C'

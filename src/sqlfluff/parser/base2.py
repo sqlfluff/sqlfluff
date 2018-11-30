@@ -71,7 +71,13 @@ class Rule(object):
         # sequence can be any iterable (but the types of the elements are important)
         self.sequence = sequence
 
-    def parse(self, s, dialect):
+    def parse(self, s, rule_stack, dialect):
+        # Update the pass-through stack
+        pass_stack = rule_stack + (self.name,)
+        # Create a local variable to keep track of the remaining string
+        s_buff = s
+        # Create a local buffer for notes
+        node_buff = []
         # Run through the elements of the sequence in order
         for elem in self.sequence:
             # Could create subrules here?
@@ -79,7 +85,20 @@ class Rule(object):
             # Is it a compulsary rule reference?
             if isinstance(elem, six.string_types):
                 rule = dialect.get_rule(elem)
-                raise RuntimeError(rule)
+                nd, s_buff = rule.parse(s_buff, pass_stack, dialect=dialect)
+                if nd:
+                    # Got a match, stick it onto the buffer.
+                    node_buff += [nd]
+                    # s_buff is already updated (so no need to do that)
+                else:
+                    # No match - we're greedy, and this is a required field.
+                    # that means even if we've partially matched, we can't proceed.
+                    raise sqlfluffParseError(rule, elem, s_buff)
+            else:
+                # Unknown type found in the sequence!
+                raise RuntimeError("Unknown type found in the sequence {0} {1!r}".format(type(elem), elem))
+        # Assuming we get this far, spit back out a completed node
+        return Node(node_buff, rule_stack, complete=True), s_buff
 
 
 class TerminalRule(Rule):
