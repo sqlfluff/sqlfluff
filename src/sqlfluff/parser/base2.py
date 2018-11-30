@@ -120,8 +120,8 @@ class Rule(object):
 
 class TerminalRule(Rule):
     """ TerminalRules are just special cases of Rules """
-    def __init__(self, name, pattern, case_sensitive=False):
-        self.name = name
+    def __init__(self, pattern, name=None, case_sensitive=False):
+        self.name = name or pattern
         # Precompile the pattern
         if case_sensitive:
             self.pattern = re.compile(pattern)

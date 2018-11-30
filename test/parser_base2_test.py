@@ -7,7 +7,7 @@ from sqlfluff.parser.base2 import TerminalRule, Dialect, Rule, Node
 
 # ############## Terminal TESTS
 def test__parser__terminal():
-    tr = TerminalRule('test', 'a', case_sensitive=False)
+    tr = TerminalRule('a', name='test', case_sensitive=False)
     m, r = tr.parse('ABC', None, None)
     assert m.s == 'A'
     assert m.token == 'test'
@@ -16,16 +16,16 @@ def test__parser__terminal():
 
 # ############## Dialect TESTS
 def test__dialect__get_rule():
-    a = TerminalRule('testA', r'a', case_sensitive=False)
-    b = TerminalRule('testB', r'b', case_sensitive=False)
+    a = TerminalRule(r'a', name='testA', case_sensitive=False)
+    b = TerminalRule(r'b', name='testB', case_sensitive=False)
     d = Dialect(None, 'testA', [a, b])
     assert d.get_rule('testA') is a
     assert d.get_rule('testB') is b
 
 
 def test__dialect__validation():
-    a = TerminalRule('testA', r'a', case_sensitive=False)
-    a2 = TerminalRule('testA', r'b', case_sensitive=False)
+    a = TerminalRule(r'a', name='testA', case_sensitive=False)
+    a2 = TerminalRule(r'b', name='testA', case_sensitive=False)
     # Check simple passes
     Dialect(None, 'testA', [a])
     # Duplicate names
@@ -39,8 +39,8 @@ def test__dialect__validation():
 # ############## Rule TESTS
 def test__parser__rule():
     a = Rule('a', ['b', 'c'])
-    b = TerminalRule('b', r'b', case_sensitive=False)
-    c = TerminalRule('c', r'c', case_sensitive=False)
+    b = TerminalRule(r'b')
+    c = TerminalRule(r'c')
     dialect = Dialect(None, 'a', [a, b, c])
     # Parse by rule directly
     tr, s = a.parse('BCfoo', tuple(), dialect)
@@ -55,9 +55,9 @@ def test__parser__rule():
 def test__parser__rule_optional():
     # Optional elements are shown in brackets
     a = Rule('a', ['b', ['c'], 'd', ['b']])
-    b = TerminalRule('b', r'b', case_sensitive=False)
-    c = TerminalRule('c', r'c', case_sensitive=False)
-    d = TerminalRule('d', r'd', case_sensitive=False)
+    b = TerminalRule(r'b')
+    c = TerminalRule(r'c')
+    d = TerminalRule(r'd')
     dialect = Dialect(None, 'a', [a, b, c, d])
     # Parse with optional element
     tr, s = a.parse('BCD', tuple(), dialect)
