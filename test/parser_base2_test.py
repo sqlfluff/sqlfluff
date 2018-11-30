@@ -41,12 +41,42 @@ def test__parser__rule():
     a = Rule('a', ['b', 'c'])
     b = TerminalRule('b', r'b', case_sensitive=False)
     c = TerminalRule('c', r'c', case_sensitive=False)
-    d = Dialect(None, 'a', [a, b, c])
+    dialect = Dialect(None, 'a', [a, b, c])
     # Parse by rule directly
-    tr, s = a.parse('BC', tuple(), d)
-    assert s == ''
+    tr, s = a.parse('BCfoo', tuple(), dialect)
+    assert s == 'foo'  # Check we catch the remainder properly
     assert isinstance(tr, Node)
     assert tr.nodes[0].token == 'b'
     assert tr.nodes[1].token == 'c'
     assert tr.nodes[0].s == 'B'
     assert tr.nodes[1].s == 'C'
+
+
+def test__parser__rule_optional():
+    # Optional elements are shown in brackets
+    a = Rule('a', ['b', ['c'], 'd', ['b']])
+    b = TerminalRule('b', r'b', case_sensitive=False)
+    c = TerminalRule('c', r'c', case_sensitive=False)
+    d = TerminalRule('d', r'd', case_sensitive=False)
+    dialect = Dialect(None, 'a', [a, b, c, d])
+    # Parse with optional element
+    tr, s = a.parse('BCD', tuple(), dialect)
+    assert s == ''
+    assert isinstance(tr, Node)
+    assert tr.nodes[0].token == 'b'
+    assert tr.nodes[1].token == 'c'
+    assert tr.nodes[2].token == 'd'
+    # Parse without optional element
+    tr, s = a.parse('BD', tuple(), dialect)
+    assert s == ''
+    assert isinstance(tr, Node)
+    assert tr.nodes[0].token == 'b'
+    assert tr.nodes[1].token == 'd'
+    # Parse with optional element at the end
+    tr, s = a.parse('bDb', tuple(), dialect)
+    assert s == ''
+    assert isinstance(tr, Node)
+    assert tr.nodes[0].token == 'b'
+    assert tr.nodes[1].token == 'd'
+    assert tr.nodes[2].token == 'b'
+

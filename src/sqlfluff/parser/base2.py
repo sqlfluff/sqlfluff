@@ -94,6 +94,23 @@ class Rule(object):
                     # No match - we're greedy, and this is a required field.
                     # that means even if we've partially matched, we can't proceed.
                     raise sqlfluffParseError(rule, elem, s_buff)
+            # Is it a list (i.e. an optional element which can appear zero or one times)
+            elif isinstance(elem, list):
+                # how many elements does the list have?
+                if len(elem) == 0:
+                    raise ValueError("Found a zero length optional element in rule {0}!".format(self.name))
+                elif len(elem) == 1:
+                    rule_name = elem[0]
+                    rule = dialect.get_rule(rule_name)
+                    nd, s_buff = rule.parse(s_buff, pass_stack, dialect=dialect)
+                    if nd:
+                        # Got a match, stick it onto the buffer.
+                        node_buff += [nd]
+                    else:
+                        # No match, but this is optional, so just carry on...
+                        pass
+                else:
+                    raise NotImplementedError("Not implemented optional elements of length > 1 yet")
             else:
                 # Unknown type found in the sequence!
                 raise RuntimeError("Unknown type found in the sequence {0} {1!r}".format(type(elem), elem))
