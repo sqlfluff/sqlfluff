@@ -52,7 +52,7 @@ def test__parser__rule():
     assert tr.nodes[1].s == 'C'
 
 
-def test__parser__rule():
+def test__parser__dialect_parse():
     a = Rule('a', ['b', 'c'])
     b = TerminalRule(r'b')
     c = TerminalRule(r'c')
@@ -65,6 +65,8 @@ def test__parser__rule():
     assert tr.nodes[1].token == 'c'
     assert tr.nodes[0].s == 'B'
     assert tr.nodes[1].s == 'C'
+    # Check that formatting doesn't error
+    assert isinstance(tr.prnt(), str)
 
 
 def test__parser__rule_optional():

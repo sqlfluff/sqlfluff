@@ -21,11 +21,23 @@ class sqlfluffParseError(Exception):
 
 
 class Node(object):
-    def __init__(self, nodes, rule_stack, complete=False):
+    def __init__(self, nodes, rule_stack, name='-', complete=False):
         self.nodes = nodes
         self.rule_stack = rule_stack
+        self.name = name
         # This will get set to true when it's fully parsed
         self.complete = complete
+
+    def fmt(self, indent=0):
+        line_buff = []
+        line_buff.append(('  ' * indent) + self.name + ':')
+        for nd in self.nodes:
+            line_buff += nd.fmt(indent=indent+1)
+        return line_buff
+    
+    def prnt(self):
+        return '\n'.join(self.fmt())
+
 
 
 class Terminal(object):
@@ -34,6 +46,11 @@ class Terminal(object):
         self.s = s
         self.token = token
         self.rule_stack = rule_stack
+
+    def fmt(self, indent=0):
+        line_buff = []
+        line_buff.append(('  ' * indent) + self.token + ':' + '\t\t' + repr(self.s))
+        return line_buff
 
 
 class Dialect(object):
@@ -116,7 +133,7 @@ class Rule(object):
                 # Unknown type found in the sequence!
                 raise RuntimeError("Unknown type found in the sequence {0} {1!r}".format(type(elem), elem))
         # Assuming we get this far, spit back out a completed node
-        return Node(node_buff, rule_stack, complete=True), s_buff
+        return Node(node_buff, rule_stack, name=self.name, complete=True), s_buff
 
 
 class TerminalRule(Rule):
@@ -141,9 +158,9 @@ class TerminalRule(Rule):
 ansi_rules = [
     TerminalRule(r'select'),
     TerminalRule(r'from'),
-    TerminalRule(r'[a-z_]', name='object_literal'),
+    TerminalRule(r'[a-z_]+', name='object_literal'),
     TerminalRule(r'\s+', name='whitespace'),
-    Rule('select_stmt', ['select', 'whitespace', 'col_expr', 'whitespace', 'from', 'table_expr']),
+    Rule('select_stmt', ['select', 'whitespace', 'col_expr', 'whitespace', 'from', 'whitespace', 'table_expr']),
     Rule('col_expr', ['object_literal']),
     Rule('table_expr', ['object_literal'])
 ]
