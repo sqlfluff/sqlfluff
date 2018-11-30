@@ -3,7 +3,7 @@
 # from six import StringIO
 import pytest
 
-from sqlfluff.parser.base import Token, SyntaxRule, Dialect, TokenChunk
+from sqlfluff.parser.base import Token, SyntaxRule, Dialect
 
 
 # ############## PARSER TESTS

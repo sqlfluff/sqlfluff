@@ -1,8 +1,5 @@
 """ The Test file for SQLFluff """
 
-# from six import StringIO
-import pytest
-
 from sqlfluff.parser.base2 import TerminalRule
 
 
