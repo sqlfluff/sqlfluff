@@ -28,15 +28,15 @@ class Node(object):
         # This will get set to true when it's fully parsed
         self.complete = complete
 
-    def fmt(self, indent=0):
+    def fmt(self, indent=0, deep_indent=50):
         line_buff = []
         line_buff.append(('  ' * indent) + self.name + ':')
         for nd in self.nodes:
-            line_buff += nd.fmt(indent=indent+1)
+            line_buff += nd.fmt(indent=indent+1, deep_indent=deep_indent)
         return line_buff
     
-    def prnt(self):
-        return '\n'.join(self.fmt())
+    def prnt(self, deep_indent=50):
+        return '\n'.join(self.fmt(deep_indent=deep_indent))
 
 
 
@@ -47,9 +47,12 @@ class Terminal(object):
         self.token = token
         self.rule_stack = rule_stack
 
-    def fmt(self, indent=0):
+    def fmt(self, indent=0, deep_indent=50):
         line_buff = []
-        line_buff.append(('  ' * indent) + self.token + ':' + '\t\t' + repr(self.s))
+        line_buff.append(
+            ('  ' * indent) + self.token + ':'
+             + (' ' * (deep_indent - ((indent * 2) + len(self.token) + 1)))
+             + repr(self.s))
         return line_buff
 
 
@@ -120,12 +123,13 @@ class Rule(object):
                 elif len(elem) == 1:
                     rule_name = elem[0]
                     rule = dialect.get_rule(rule_name)
-                    nd, s_buff = rule.parse(s_buff, pass_stack, dialect=dialect)
-                    if nd:
-                        # Got a match, stick it onto the buffer.
-                        node_buff += [nd]
-                    else:
-                        # No match, but this is optional, so just carry on...
+                    try:
+                        nd, s_buff = rule.parse(s_buff, pass_stack, dialect=dialect)
+                        if nd:
+                            # Got a match! stick it onto the buffer.
+                            node_buff += [nd]
+                    except sqlfluffParseError:
+                        # if we get an error, it's no biggie - it's optional!!
                         pass
                 else:
                     raise NotImplementedError("Not implemented optional elements of length > 1 yet")
@@ -158,11 +162,18 @@ class TerminalRule(Rule):
 ansi_rules = [
     TerminalRule(r'select'),
     TerminalRule(r'from'),
+    TerminalRule(r'group by', name='groupby'),
+    TerminalRule(r'order by', name='orderby'),
     TerminalRule(r'[a-z_]+', name='object_literal'),
     TerminalRule(r'\s+', name='whitespace'),
-    Rule('select_stmt', ['select', 'whitespace', 'col_expr', 'whitespace', 'from', 'whitespace', 'table_expr']),
+    # Rule('select_stmt', ['select', 'whitespace', 'col_expr', 'whitespace', 'from',
+    #                      'whitespace', 'table_expr']),
+    Rule('select_stmt', ['select', 'whitespace', 'col_expr', 'whitespace', 'from',
+                         'whitespace', 'table_expr', ['group_by_expr'], ['order_by_expr']]),
     Rule('col_expr', ['object_literal']),
-    Rule('table_expr', ['object_literal'])
+    Rule('table_expr', ['object_literal']),
+    Rule('group_by_expr', ['whitespace', 'groupby', 'whitespace', 'col_expr']),
+    Rule('order_by_expr', ['whitespace', 'orderby', 'whitespace', 'col_expr'])
 ]
 
 ansi = Dialect('ansi', 'select_stmt', ansi_rules)
