@@ -95,8 +95,7 @@ class Rule(object):
         # sequence can be any iterable (but the types of the elements are important)
         self.sequence = sequence
 
-    @classmethod
-    def _match_sequence(cls, s, seq, pass_stack, dialect):
+    def _match_sequence(self, s, seq, pass_stack, dialect):
         """ This is an internal method, designed to do the heavy
         lifting of matching sequences. It's also called recursively for
         nested rules. """
@@ -121,7 +120,7 @@ class Rule(object):
                 node_buff = []
                 for elem in seq:
                     # We'll call recursively to match each element of the list:
-                    ndl, s_buff = cls._match_sequence(s_buff, elem, pass_stack, dialect=dialect)
+                    ndl, s_buff = self._match_sequence(s_buff, elem, pass_stack, dialect=dialect)
                     node_buff += ndl
                 else:
                     # If we manage to successfully loop through the whole pattern
@@ -133,7 +132,25 @@ class Rule(object):
                 # and we're giving something further up the stack the opporunitiy to
                 # match whatever is present.
                 return [], s
+        # Is is a set? i.e. a compulary element, but with multiple options.
         elif isinstance(seq, set):
+            # With a set, we iterate across the items, looking for the first match. If
+            # there are no matching options, then raise a parsing error.
+            for elem in seq:
+                try:
+                    # If we manage to match without throwing an error, then we can just return
+                    # straight away. If the match fails, then we'll catch the exception and try
+                    # the next one.
+                    return self._match_sequence(s, elem, pass_stack, dialect=dialect)
+                except sqlfluffParseError:
+                    # Any errors, we can ignore for now. We'll raise our own exception
+                    # if we don't find any matches
+                    pass
+            else:
+                # We've iterated through all the options, and not found a match
+                # so we should raise an exception.
+                raise sqlfluffParseError(self, seq, s)
+
             raise NotImplementedError("Set matching still not in place!")
         else:
             raise RuntimeError("Unknown type found in the sequence {0} {1!r}".format(type(seq), seq))
