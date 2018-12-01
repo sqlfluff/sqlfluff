@@ -1,129 +1,214 @@
 """ The Test file for SQLFluff """
 
-# from six import StringIO
 import pytest
 
-from sqlfluff.parser.base import Token, SyntaxRule, Dialect
+from sqlfluff.parser.base import TerminalRule, Dialect, Rule, Node, sqlfluffParseError, ZeroOrOne, OneOf, Seq, ZeroOrMore, OneOrMore
 
 
-# ############## PARSER TESTS
-# ########## Token tests
-def test__token__match_a():
-    """ basic token matching """
-    t = Token(r'bl')
-    assert t.match('black') == 'bl'
+# ############## Terminal TESTS
+def test__parser__terminal():
+    tr = TerminalRule('a', name='test', case_sensitive=False)
+    m, r = tr.parse('ABC', None, None)
+    assert m.s == 'A'
+    assert m.token == 'test'
+    assert r == 'BC'
 
 
-def test__token__match_b():
-    """ case token matching """
-    t = Token(r'bl')
-    assert t.match('BLACK') == 'BL'
+# ############## Dialect TESTS
+def test__dialect__get_rule():
+    a = TerminalRule(r'a', name='testA', case_sensitive=False)
+    b = TerminalRule(r'b', name='testB', case_sensitive=False)
+    d = Dialect(None, 'testA', [a, b])
+    assert d.get_rule('testA') is a
+    assert d.get_rule('testB') is b
 
 
-def test__token__match_c():
-    """ case token matching """
-    t = Token(r'bl', case_sensitive=True)
-    assert t.match('BLACK') is None
+def test__dialect__validation():
+    a = TerminalRule(r'a', name='testA', case_sensitive=False)
+    a2 = TerminalRule(r'b', name='testA', case_sensitive=False)
+    # Check simple passes
+    Dialect(None, 'testA', [a])
+    # Duplicate names
+    with pytest.raises(ValueError):
+        Dialect(None, 'testA', [a, a2])
+    # Unknown Root Node
+    with pytest.raises(ValueError):
+        Dialect(None, 'failfail', [a2])
 
 
-# ########## Rule tests (make sure that invalid rules are caught)
-def test__rule__validate():
-    SyntaxRule.validate_sequence(['a'])
-    SyntaxRule.validate_sequence([['a']])
-    SyntaxRule.validate_sequence([set(['a', 'b']), 'd'])
-    SyntaxRule.validate_sequence([('a',)])
-    with pytest.raises(AssertionError):
-        SyntaxRule.validate_sequence('a')
-    with pytest.raises(AssertionError):
-        SyntaxRule.validate_sequence([[['a']]])
-    with pytest.raises(AssertionError):
-        SyntaxRule.validate_sequence(['a', 2])
-    with pytest.raises(AssertionError):
-        SyntaxRule.validate_sequence(['a', ['c', 'd']])
+# ############## Rule TESTS
+def test__parser__rule():
+    a = Rule('a', Seq('b', 'c'))
+    b = TerminalRule(r'b')
+    c = TerminalRule(r'c')
+    dialect = Dialect(None, 'a', [a, b, c])
+    # Parse by rule directly
+    tr, s = a.parse('BCfoo', tuple(), dialect)
+    assert s == 'foo'  # Check we catch the remainder properly
+    assert isinstance(tr, Node)
+    assert tr.nodes[0].token == 'b'
+    assert tr.nodes[1].token == 'c'
+    assert tr.nodes[0].s == 'B'
+    assert tr.nodes[1].s == 'C'
 
 
-# ########## Dialect tests
-test_dialect = Dialect(
-    name=None, description=None,
-    tokens=[
-        Token(pattern=r'a'),
-        Token(pattern=r'b'),
-        Token(pattern=r'c', syntax=False)
-    ],
-    syntax_rules=[
-        SyntaxRule(name='bar', sequence=['a', 'b', ['a']]),
-        SyntaxRule(name='foo', sequence=['bar', 'b'])
-    ],
-    root_element='foo'
-)
+def test__parser__rule_astuple():
+    """ Same test as above, but testing astuple """
+    a = Rule('a', Seq('b', 'c'))
+    b = TerminalRule(r'b')
+    c = TerminalRule(r'c')
+    dialect = Dialect(None, 'a', [a, b, c])
+    # Parse by rule directly
+    tr, _ = a.parse('BCfoo', tuple(), dialect)
+    assert tr.astuple() == ('a', (('b', 'B'), ('c', 'C')))
 
 
-def test__dialect__simple():
-    """ Simple Dialect Matching """
-    d = test_dialect
-    # Single token matching
-    assert d._match_token('BAB', 'b') == 'B'
-    assert d._match_token('BAB', 'a') is None
-    # Multi Token Matching
-    assert d._match_tokens('BAB', ['a', 'b']) == {'b': 'B'}
-    # All Token Matching
-    assert d._match_all_tokens('BAB') == {'b': 'B'}
-    # Rule Matching
-    assert d._match_rule('BAB', 'a') == {}
-    assert d._match_rule('BAB', 'b') == {(('b', True),): 'B'}
-    assert d._match_rule('BAB', 'bar') == {}
-    assert d._match_rule('ABA', 'bar') == {(('bar', 0), ('a', True)): 'A'}
+def test__parser__dialect_parse():
+    a = Rule('a', Seq('b', 'c'))
+    b = TerminalRule(r'b')
+    c = TerminalRule(r'c')
+    dialect = Dialect(None, 'a', [a, b, c])
+    # Call rule via root_rule
+    tr, s = dialect.parse('BCfoo')
+    assert s == 'foo'  # Check we catch the remainder properly
+    assert isinstance(tr, Node)
+    assert tr.nodes[0].token == 'b'
+    assert tr.nodes[1].token == 'c'
+    assert tr.nodes[0].s == 'B'
+    assert tr.nodes[1].s == 'C'
+    # Check that formatting doesn't error
+    assert isinstance(tr.prnt(), str)
 
 
-def test__dialect__deeper():
-    """ Dialect matching with deeper rules """
-    d = test_dialect
-    # Rule Matching
-    assert d._match_rule('BAB', 'foo') == {}
-    assert d._match_rule('ABA', 'foo') == {(('foo', 0), ('bar', 0), ('a', True)): 'A'}
-    # And via the root element
-    assert d.match_root_element('ABA') == {(('foo', 0), ('bar', 0), ('a', True)): 'A'}
+def test__parser__rule_optional():
+    # Optional elements are ZeroOrOne
+    a = Rule('a', Seq('b', ZeroOrOne('c'), 'd', ZeroOrOne('b')))
+    b = TerminalRule(r'b')
+    c = TerminalRule(r'c')
+    d = TerminalRule(r'd')
+    dialect = Dialect(None, 'a', [a, b, c, d])
+    # Parse with optional element
+    tr, s = a.parse('BCD', tuple(), dialect)
+    assert s == ''
+    assert isinstance(tr, Node)
+    assert tr.nodes[0].token == 'b'
+    assert tr.nodes[1].token == 'c'
+    assert tr.nodes[2].token == 'd'
+    # Parse without optional element
+    tr, s = a.parse('BD', tuple(), dialect)
+    assert s == ''
+    assert isinstance(tr, Node)
+    assert tr.nodes[0].token == 'b'
+    assert tr.nodes[1].token == 'd'
+    # Parse with optional element at the end
+    tr, s = a.parse('bDb', tuple(), dialect)
+    assert s == ''
+    assert isinstance(tr, Node)
+    assert tr.nodes[0].token == 'b'
+    assert tr.nodes[1].token == 'd'
+    assert tr.nodes[2].token == 'b'
 
 
-def test__dialect__non_syntax():
-    """ Dialect matching with non syntax """
-    d = test_dialect
-    # Rule Matching
-    assert d._match_rule('CBAB', 'bar') == {}
-    assert d._match_rule('CABA', 'foo') == {}
-    # Non Syntax Matching
-    assert d.match_non_syntax('CABA') == {(('c', False),): 'C'}
-    # And via the root element
-    assert d.match_root_element('CABA') == {(('c', False),): 'C'}
+def test__parser__rule_nested():
+    # Optional elements are shown in brackets
+    a = Rule('a', Seq('b', ZeroOrOne('c'), 'd', ZeroOrOne('b')))
+    b = Rule('b', Seq('d', ZeroOrOne('c'), 'd'))
+    c = TerminalRule(r'c')
+    d = TerminalRule(r'd')
+    dialect = Dialect(None, 'a', [a, b, c, d])
+    # Parse with optional element
+    tr, s = a.parse('DCDCDDD', tuple(), dialect)
+    assert s == ''
+    assert tr.astuple() == (
+        'a', (
+            ('b', (('d', 'D'), ('c', 'C'), ('d', 'D'))),
+            ('c', 'C'),
+            ('d', 'D'),
+            ('b', (('d', 'D'), ('d', 'D')))
+        )
+    )
 
 
-def test__dialect__fully_matched():
-    """ Test the fully matched detection """
-    d = test_dialect
-    # Match some terminals
-    assert d._is_fully_matched('a', (('a', True),)) == 'FullyMatched'
-    assert d._is_fully_matched('a', (('c', False),)) == 'Unmatched'
-    # Match some rules
-    assert d._is_fully_matched('bar', (('bar', 0), ('a', True))) == 'Unmatched'
-    assert d._is_fully_matched('bar', (('bar', 2), ('a', True))) == 'FullyMatched'
-    assert d._is_fully_matched('foo', (('foo', 1), ('b', True))) == 'FullyMatched'
+def test__parser__rule_options():
+    # Elements where there are options are shown in {}
+    a = Rule('a', Seq('c', OneOf('c', 'd'), 'd'))
+    c = TerminalRule(r'c')
+    d = TerminalRule(r'd')
+    dialect = Dialect(None, 'a', [a, c, d])
+    # Parse with something intentionally leftover
+    tr, s = a.parse('CCDD', tuple(), dialect)
+    assert s == 'D'
+    assert tr.astuple() == (
+        'a', (
+            ('c', 'C'),
+            ('c', 'C'),
+            ('d', 'D')
+        )
+    )
+    # Parse with something intentionally not leftover
+    tr, s = a.parse('CDD', tuple(), dialect)
+    assert s == ''
+    assert tr.astuple() == (
+        'a', (
+            ('c', 'C'),
+            ('d', 'D'),
+            ('d', 'D')
+        )
+    )
 
 
-# def test__dialect__pop_token():
-#    """ Dialect matching with token popping """
-#    d = test_dialect
-#    # Check without any existing stack (for a non-syntax token)
-#    expected_chunk_token = TokenChunk('C', 1, 1, stack=(('c', False),))
-#    assert d.pop_token('CBAB', 1, 1) == [(expected_chunk_token, 'BAB')]
-#    # Check without any existing stack (for a syntax token)
-#    expected_stack_position = (('foo', 0), ('bar', 0), ('a', True))
-#    expected_chunk_token = TokenChunk('A', 1, 1, stack=expected_stack_position)
-#    assert d.pop_token('ABCD', 1, 1) == [(expected_chunk_token, 'BCD')]
-#    # Check with an existing stack (The stack defines where in the rules we are)
-#    # For a Syntax Token
-#    expected_new_stack_position = (('foo', 0), ('bar', 1), ('b', True))
-#    expected_chunk_token = TokenChunk('B', 2, 1, stack=expected_new_stack_position)
-#    assert d.pop_token('BAB', 2, 1, stack_pos=expected_stack_position) == [(expected_chunk_token, 'AB')]
-#    # For a non-syntax token
-#    # # expected_chunk_token = TokenChunk('C', 2, 1, stack=(('c', False),))
-#    # # assert d.pop_token('CAB', 2, 1, stack_pos=expected_stack_position) == [(expected_chunk_token, 'AB')]
+def generic_passing_failing_dialect_test(dialect, parsing_examples=[], failing_examples=[]):
+    # Some examples that parse
+    for example in parsing_examples:
+        print("Example: {0}".format(example))
+        assert dialect.parse(example, tuple())[1] == ''
+    # Some example that shouldn't parse
+    for example in failing_examples:
+        print("Example: {0}".format(example))
+        with pytest.raises(sqlfluffParseError):
+            dialect.parse(example, tuple())
+
+
+def test__parser__rule_options_nested():
+    # Defining a complex rule with nested components.
+    a = Rule('a', Seq('c', OneOf(Seq('c', 'd'), Seq('d', OneOf('d', 'e'))), 'd'))
+    c = TerminalRule(r'c')
+    d = TerminalRule(r'd')
+    e = TerminalRule(r'e')
+    dialect = Dialect(None, 'a', [a, c, d, e])
+    generic_passing_failing_dialect_test(
+        dialect,
+        parsing_examples=['ccdd', 'cddd', 'cded'],
+        failing_examples=['ccd', 'cde', 'cd', 'cdded']
+    )
+
+
+def test__parser__rule_zeroormore():
+    # Defining a complex rule with nested components.
+    a = Rule('a', ZeroOrMore('c', OneOf('d', 'e')))
+    c = TerminalRule(r'c')
+    d = TerminalRule(r'd')
+    e = TerminalRule(r'e')
+    dialect = Dialect(None, 'a', [a, c, d, e])
+    generic_passing_failing_dialect_test(
+        dialect,
+        parsing_examples=['cdcdcdcdcdcdcd', 'cdcecdcecdce', 'cececececece', 'cd', '']
+    )
+    # Check a remainder example
+    assert dialect.parse('cde', tuple())[1] == 'e'
+
+
+def test__parser__rule_oneormore():
+    # Defining a complex rule with nested components.
+    a = Rule('a', OneOrMore('c', OneOf('d', 'e')))
+    c = TerminalRule(r'c')
+    d = TerminalRule(r'd')
+    e = TerminalRule(r'e')
+    dialect = Dialect(None, 'a', [a, c, d, e])
+    generic_passing_failing_dialect_test(
+        dialect,
+        parsing_examples=['cd', 'cdcdcdcdcdcdcd', 'cdcecdcecdce', 'cececececece'],
+        failing_examples=['c']
+    )
+    # Check a remainder example
+    assert dialect.parse('cde', tuple())[1] == 'e'
