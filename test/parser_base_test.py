@@ -2,7 +2,30 @@
 
 import pytest
 
-from sqlfluff.parser.base import TerminalRule, Dialect, Rule, Node, sqlfluffParseError, ZeroOrOne, OneOf, Seq, ZeroOrMore, OneOrMore
+from sqlfluff.parser.base import TerminalRule, Dialect, Rule, Node, sqlfluffParseError, ZeroOrOne, OneOf, Seq, ZeroOrMore, OneOrMore, PositionedString
+
+
+# ############## String TESTS
+def test__parser__posstring_a():
+    """ check string popping without newlines """
+    s = PositionedString('abcdef')
+    ns = s.popleft(3)
+    assert ns.s == 'abc'
+    assert ns.col_no == 1
+    assert ns.line_no == 1
+    assert s.s == 'def'
+    assert s.col_no == 4
+    assert s.line_no == 1
+
+
+def test__parser__posstring_b():
+    """ check string popping with newlines """
+    s = PositionedString('ab\nc\ndef')
+    ns = s.popleft(6)
+    assert ns.s == 'ab\nc\nd'
+    assert s.s == 'ef'
+    assert s.col_no == 2
+    assert s.line_no == 3
 
 
 # ############## Terminal TESTS

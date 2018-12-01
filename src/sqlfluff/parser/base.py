@@ -4,6 +4,9 @@ import re
 import six
 
 
+# ###############
+# ## EXCEPTIONS
+# ###############
 class sqlfluffParseError(Exception):
     def __init__(self, rule, expected, found):
         self.rule = rule
@@ -20,6 +23,9 @@ class sqlfluffParseError(Exception):
         super(sqlfluffParseError, self).__init__(message)
 
 
+# ###############
+# ## SEQUENCES
+# ###############
 class BaseSequence(object):
     def __init__(self, *seq):
         self.seq = seq
@@ -113,6 +119,44 @@ class OneOf(BaseSequence):
             raise sqlfluffParseError(rule, self.seq, s)
 
 
+# ###############
+# ## POSITIONED STRING
+# ###############
+class PositionedString(object):
+    """ A String, but with a starting line and col """
+    def __init__(self, s, col_no=1, line_no=1):
+        self.s = s
+        self.col_no = col_no
+        self.line_no = line_no
+
+    def __getitem__(self, item):
+        return self.s[item]
+
+    def __eq__(self, other):
+        if isinstance(other, PositionedString):
+            return self.s == other.s
+        else:
+            return self.s == other
+
+    def popleft(self, chars):
+        """ chars is the number of characters to pop off the left """
+        # the current object then moves it's index along
+        left_string = self.s[:chars]
+        newlines = left_string.count('\n')
+        newcol = len(left_string.split('\n')[-1])
+        result = PositionedString(s=self.s[:chars], col_no=self.col_no, line_no=self.line_no)
+        self.s = self.s[chars:]
+        self.line_no += newlines
+        if newlines > 0:
+            self.col_no = newcol + 1
+        else:
+            self.col_no += newcol
+        return result
+
+
+# ###############
+# ## PARSER
+# ###############
 class Node(object):
     def __init__(self, nodes, rule_stack, name='-'):
         self.nodes = nodes
@@ -192,6 +236,10 @@ class Dialect(object):
 
     def parse(self, s, rule_stack=None):
         rule = self.get_rule(self.root_rule)
+        # Check whether we're working with a positioned string or not.
+        # Turn this into one if we aren't.
+        if isinstance(s, six.string_types):
+            s = PositionedString(s)
         # Parse and make a tree recursively, passing self as the dialect
         # We should assume there's no existing rule stack, so pass an empty one in
         tree, remainder = rule.parse(s, rule_stack=rule_stack or tuple(), dialect=self)
@@ -231,6 +279,10 @@ class Rule(object):
             raise RuntimeError("Unknown type found in the sequence {0} {1!r}".format(type(seq), seq))
 
     def parse(self, s, rule_stack, dialect):
+        # Check whether we're working with a positioned string or not.
+        # Turn this into one if we aren't.
+        if isinstance(s, six.string_types):
+            s = PositionedString(s)
         # Update the pass-through stack
         pass_stack = rule_stack + (self.name,)
         # Create a local variable to keep track of the remaining string
@@ -256,10 +308,16 @@ class TerminalRule(Rule):
 
     def parse(self, s, rule_stack, dialect):
         """ NB: Same interface as for rules """
-        m = self.pattern.match(s)
+        # Check whether we're working with a positioned string or not.
+        # Turn this into one if we aren't.
+        if isinstance(s, six.string_types):
+            s = PositionedString(s)
+        # Match it
+        m = self.pattern.match(s.s)
         if m:
             last_pos = m.end()
-            return Terminal(s[:last_pos], self.name, rule_stack), s[last_pos:]
+            left_string = s.popleft(last_pos)
+            return Terminal(left_string, self.name, rule_stack), s
         else:
             # We don't have a match, raise an exception which can be optionally
             # caught further up stream.
