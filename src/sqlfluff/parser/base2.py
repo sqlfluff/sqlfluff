@@ -12,7 +12,7 @@ class sqlfluffParseError(Exception):
         if len(found[16:]) > 0:
             self.found += '...'
 
-        message = "Rule {0} expected to find {1} and actually found {2}".format(
+        message = "Rule {0} expected to find {1} and actually found {2!r}".format(
             self.rule.name,
             self.expected,
             self.found)
@@ -57,11 +57,12 @@ class BaseSequence(object):
             try:
                 ndl, s_buff = self._match_full_sequence(s_buff, rule, pass_stack, dialect=dialect)
                 node_buff += ndl
+                matches += 1
             except sqlfluffParseError as err:
                 # Store the error in case we want to come back to it
                 last_err = err
                 break
-        if matches >= min_times and (matches <= max_times or max_times == -1):
+        if matches >= min_times:
             return node_buff, s_buff
         else:
             # We've broken and don't have the right number of matches...
@@ -166,6 +167,10 @@ class Dialect(object):
         # Check that the root rule is accessible (raise expection if not)
         self.get_rule(self.root_rule)
 
+    def __repr__(self):
+        return "<Dialect: {name}>".format(
+            name=self.name)
+
     def get_rule(self, name):
         if name not in self.rules:
             raise ValueError("Rule {0!r} not found in set of rules provided for dialect {1}".format(name, self.name))
@@ -186,6 +191,11 @@ class Rule(object):
         self.name = name
         # sequence can be any iterable (but the types of the elements are important)
         self.sequence = sequence
+
+    def __repr__(self):
+        return "<{classname}: {name!r}>".format(
+            classname=self.__class__.__name__,
+            name=self.name)
 
     def _match_sequence(self, s, seq, pass_stack, dialect):
         """ This is an internal method, designed to do the heavy

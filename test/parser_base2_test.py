@@ -2,7 +2,7 @@
 
 import pytest
 
-from sqlfluff.parser.base2 import TerminalRule, Dialect, Rule, Node, sqlfluffParseError, ZeroOrOne, OneOf, Seq
+from sqlfluff.parser.base2 import TerminalRule, Dialect, Rule, Node, sqlfluffParseError, ZeroOrOne, OneOf, Seq, ZeroOrMore, OneOrMore
 
 
 # ############## Terminal TESTS
@@ -157,6 +157,18 @@ def test__parser__rule_options():
     )
 
 
+def generic_passing_failing_dialect_test(dialect, parsing_examples=[], failing_examples=[]):
+    # Some examples that parse
+    for example in parsing_examples:
+        print("Example: {0}".format(example))
+        assert dialect.parse(example, tuple())[1] == ''
+    # Some example that shouldn't parse
+    for example in failing_examples:
+        print("Example: {0}".format(example))
+        with pytest.raises(sqlfluffParseError):
+            dialect.parse(example, tuple())
+
+
 def test__parser__rule_options_nested():
     # Defining a complex rule with nested components.
     a = Rule('a', Seq('c', OneOf(Seq('c', 'd'), Seq('d', OneOf('d', 'e'))), 'd'))
@@ -164,12 +176,39 @@ def test__parser__rule_options_nested():
     d = TerminalRule(r'd')
     e = TerminalRule(r'e')
     dialect = Dialect(None, 'a', [a, c, d, e])
-    # Some examples that parse
-    parsing_examples = ['ccdd', 'cddd', 'cded']
-    for example in parsing_examples:
-        assert a.parse(example, tuple(), dialect)[1] == ''
-    # Some example that shouldn't parse
-    failing_examples = ['ccd', 'cde', 'cd', 'cdded']
-    for example in failing_examples:
-        with pytest.raises(sqlfluffParseError):
-            a.parse(example, tuple(), dialect)
+    generic_passing_failing_dialect_test(
+        dialect,
+        parsing_examples=['ccdd', 'cddd', 'cded'],
+        failing_examples=['ccd', 'cde', 'cd', 'cdded']
+    )
+
+
+def test__parser__rule_zeroormore():
+    # Defining a complex rule with nested components.
+    a = Rule('a', ZeroOrMore('c', OneOf('d', 'e')))
+    c = TerminalRule(r'c')
+    d = TerminalRule(r'd')
+    e = TerminalRule(r'e')
+    dialect = Dialect(None, 'a', [a, c, d, e])
+    generic_passing_failing_dialect_test(
+        dialect,
+        parsing_examples=['cdcdcdcdcdcdcd', 'cdcecdcecdce', 'cececececece', 'cd', '']
+    )
+    # Check a remainder example
+    assert dialect.parse('cde', tuple())[1] == 'e'
+
+
+def test__parser__rule_oneormore():
+    # Defining a complex rule with nested components.
+    a = Rule('a', OneOrMore('c', OneOf('d', 'e')))
+    c = TerminalRule(r'c')
+    d = TerminalRule(r'd')
+    e = TerminalRule(r'e')
+    dialect = Dialect(None, 'a', [a, c, d, e])
+    generic_passing_failing_dialect_test(
+        dialect,
+        parsing_examples=['cd', 'cdcdcdcdcdcdcd', 'cdcecdcecdce', 'cececececece'],
+        failing_examples=['c']
+    )
+    # Check a remainder example
+    assert dialect.parse('cde', tuple())[1] == 'e'
