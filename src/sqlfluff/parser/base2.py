@@ -247,12 +247,12 @@ ansi_rules = [
     TerminalRule(r'\s+', name='whitespace'),
     # Rule('select_stmt', ['select', 'whitespace', 'col_expr', 'whitespace', 'from',
     #                      'whitespace', 'table_expr']),
-    Rule('select_stmt', ['select', 'whitespace', 'col_expr', 'whitespace', 'from',
-                         'whitespace', 'table_expr', ['group_by_expr'], ['order_by_expr']]),
-    Rule('col_expr', ['object_literal']),
-    Rule('table_expr', ['object_literal']),
-    Rule('group_by_expr', ['whitespace', 'groupby', 'whitespace', 'col_expr']),
-    Rule('order_by_expr', ['whitespace', 'orderby', 'whitespace', 'col_expr'])
+    Rule('select_stmt', Seq('select', 'whitespace', 'col_expr', 'whitespace', 'from',
+                            'whitespace', 'table_expr', ZeroOrOne('group_by_expr'), ZeroOrOne('order_by_expr'))),
+    Rule('col_expr', Seq('object_literal')),
+    Rule('table_expr', Seq('object_literal')),
+    Rule('group_by_expr', Seq('whitespace', 'groupby', 'whitespace', 'col_expr')),
+    Rule('order_by_expr', Seq('whitespace', 'orderby', 'whitespace', 'col_expr'))
 ]
 
 ansi = Dialect('ansi', 'select_stmt', ansi_rules)
