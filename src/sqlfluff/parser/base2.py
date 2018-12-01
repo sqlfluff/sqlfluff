@@ -4,53 +4,6 @@ import re
 import six
 
 
-class BaseSequence(object):
-    def __init__(self, *seq):
-        self.seq = seq
-
-    def __iter__(self):
-        return iter(self.seq)
-
-    def __repr__(self):
-        return "<{classname}: {content}>".format(
-            classname=self.__class__.__name__,
-            content=", ".join(["{0!r}".format(elem) for elem in self]))
-
-    def match(self, s, rule, pass_stack, dialect):
-        # We'll attempt to match each element in order.
-        s_buff = s
-        node_buff = []
-        for elem in self.seq:
-            # We'll call recursively to match each element of the list:
-            ndl, s_buff = rule._match_sequence(s_buff, elem, pass_stack, dialect=dialect)
-            node_buff += ndl
-        else:
-            # If we manage to successfully loop through the whole pattern
-            # without error, then we return the buffers and carry on
-            return node_buff, s_buff
-
-
-class Seq(BaseSequence):
-    """ Basically an alias """
-    pass
-
-
-class ZeroOrMore(BaseSequence):
-    pass
-
-
-class OneOrMore(BaseSequence):
-    pass
-
-
-class ZeroOrOne(BaseSequence):
-    pass
-
-
-class OneOf(BaseSequence):
-    pass
-
-
 class sqlfluffParseError(Exception):
     def __init__(self, rule, expected, found):
         self.rule = rule
@@ -65,6 +18,98 @@ class sqlfluffParseError(Exception):
             self.found)
         # Call the base class constructor with the parameters it needs
         super(sqlfluffParseError, self).__init__(message)
+
+
+class BaseSequence(object):
+    def __init__(self, *seq):
+        self.seq = seq
+
+    def __iter__(self):
+        return iter(self.seq)
+
+    def __repr__(self):
+        return "<{classname}: {content}>".format(
+            classname=self.__class__.__name__,
+            content=", ".join(["{0!r}".format(elem) for elem in self]))
+
+    def _match_full_sequence(self, s, rule, pass_stack, dialect):
+        # We'll attempt to match each element in order.
+        s_buff = s
+        node_buff = []
+        for elem in self.seq:
+            # We'll call recursively to match each element of the list:
+            ndl, s_buff = rule._match_sequence(s_buff, elem, pass_stack, dialect=dialect)
+            node_buff += ndl
+        else:
+            # If we manage to successfully loop through the whole pattern
+            # without error, then we return the buffers and carry on
+            return node_buff, s_buff
+
+    def _match_sequence_multiple(self, s, rule, pass_stack, dialect, min_times=1, max_times=1):
+        matches = 0
+        s_buff = s
+        node_buff = []
+        last_err = RuntimeError("This shouldn't happen!")
+        while True:
+            # Check whether we have enough matches (or if there isn't a limit)
+            if (matches >= max_times and max_times != -1):
+                break
+            try:
+                ndl, s_buff = self._match_full_sequence(s_buff, rule, pass_stack, dialect=dialect)
+                node_buff += ndl
+            except sqlfluffParseError as err:
+                # Store the error in case we want to come back to it
+                last_err = err
+                break
+        if matches >= min_times and (matches <= max_times or max_times == -1):
+            return node_buff, s_buff
+        else:
+            # We've broken and don't have the right number of matches...
+            raise last_err
+
+    def match(self, s, rule, pass_stack, dialect):
+        return self._match_full_sequence(s, rule, pass_stack, dialect=dialect)
+
+
+class Seq(BaseSequence):
+    """ Basically an alias """
+    pass
+
+
+class ZeroOrMore(BaseSequence):
+    def match(self, s, rule, pass_stack, dialect):
+        return self._match_sequence_multiple(s, rule, pass_stack, dialect=dialect, min_times=0, max_times=-1)
+
+
+class OneOrMore(BaseSequence):
+    def match(self, s, rule, pass_stack, dialect):
+        return self._match_sequence_multiple(s, rule, pass_stack, dialect=dialect, min_times=1, max_times=-1)
+
+
+class ZeroOrOne(BaseSequence):
+    def match(self, s, rule, pass_stack, dialect):
+        return self._match_sequence_multiple(s, rule, pass_stack, dialect=dialect, min_times=0, max_times=1)
+
+
+class OneOf(BaseSequence):
+    def match(self, s, rule, pass_stack, dialect):
+        """ OneOf MAtching is a little different """
+        # With a OneOf, we iterate across the items, looking for the first match. If
+        # there are no matching options, then raise a parsing error.
+        for elem in self.seq:
+            try:
+                # If we manage to match without throwing an error, then we can just return
+                # straight away. If the match fails, then we'll catch the exception and try
+                # the next one.
+                return rule._match_sequence(s, elem, pass_stack, dialect=dialect)
+            except sqlfluffParseError:
+                # Any errors, we can ignore for now. We'll raise our own exception
+                # if we don't find any matches
+                pass
+        else:
+            # We've iterated through all the options, and not found a match
+            # so we should raise an exception.
+            raise sqlfluffParseError(rule, self.seq, s)
 
 
 class Node(object):
@@ -156,52 +201,9 @@ class Rule(object):
             nd, r = rule.parse(s, pass_stack, dialect=dialect)
             # make the node into a list before returning
             return [nd], r
-        # Is it a Sequence? i.e. a compulsary element with multiple elements
-        elif isinstance(seq, Seq):
+        # Is it any kind of sequence class?
+        elif isinstance(seq, BaseSequence):
             return seq.match(s, rule=self, pass_stack=pass_stack, dialect=dialect)
-        # Is it a ZeroOrOne? i.e. an optional element which matches zero or once?
-        elif isinstance(seq, ZeroOrOne):
-            # With a ZeroOrOne, we don't HAVE to match it at all, but if we do match
-            # it then it has to be in full. We'll attempt to match each element
-            # in order, but if any fail, then we'll catch the exception and
-            # happily return an empty node list and the original string.
-            try:
-                s_buff = s
-                node_buff = []
-                for elem in seq:
-                    # We'll call recursively to match each element of the list:
-                    ndl, s_buff = self._match_sequence(s_buff, elem, pass_stack, dialect=dialect)
-                    node_buff += ndl
-                else:
-                    # If we manage to successfully loop through the whole pattern
-                    # without error, then we return the buffers and carry on
-                    return node_buff, s_buff
-            except sqlfluffParseError:
-                # We didn't manage to match without error, just return an empty list.
-                # This means we're assuming that the optional element is NOT present
-                # and we're giving something further up the stack the opporunitiy to
-                # match whatever is present.
-                return [], s
-        # Is is a OneOf? i.e. a compulary element, but with multiple options.
-        elif isinstance(seq, OneOf):
-            # With a OneOf, we iterate across the items, looking for the first match. If
-            # there are no matching options, then raise a parsing error.
-            for elem in seq:
-                try:
-                    # If we manage to match without throwing an error, then we can just return
-                    # straight away. If the match fails, then we'll catch the exception and try
-                    # the next one.
-                    return self._match_sequence(s, elem, pass_stack, dialect=dialect)
-                except sqlfluffParseError:
-                    # Any errors, we can ignore for now. We'll raise our own exception
-                    # if we don't find any matches
-                    pass
-            else:
-                # We've iterated through all the options, and not found a match
-                # so we should raise an exception.
-                raise sqlfluffParseError(self, seq, s)
-
-            raise NotImplementedError("Set matching still not in place!")
         else:
             raise RuntimeError("Unknown type found in the sequence {0} {1!r}".format(type(seq), seq))
 
