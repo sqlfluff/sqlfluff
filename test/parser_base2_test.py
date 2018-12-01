@@ -2,7 +2,7 @@
 
 import pytest
 
-from sqlfluff.parser.base2 import TerminalRule, Dialect, Rule, Node
+from sqlfluff.parser.base2 import TerminalRule, Dialect, Rule, Node, sqlfluffParseError, ZeroOrOne, OneOf, Seq
 
 
 # ############## Terminal TESTS
@@ -38,7 +38,7 @@ def test__dialect__validation():
 
 # ############## Rule TESTS
 def test__parser__rule():
-    a = Rule('a', ['b', 'c'])
+    a = Rule('a', Seq('b', 'c'))
     b = TerminalRule(r'b')
     c = TerminalRule(r'c')
     dialect = Dialect(None, 'a', [a, b, c])
@@ -54,7 +54,7 @@ def test__parser__rule():
 
 def test__parser__rule_astuple():
     """ Same test as above, but testing astuple """
-    a = Rule('a', ['b', 'c'])
+    a = Rule('a', Seq('b', 'c'))
     b = TerminalRule(r'b')
     c = TerminalRule(r'c')
     dialect = Dialect(None, 'a', [a, b, c])
@@ -64,7 +64,7 @@ def test__parser__rule_astuple():
 
 
 def test__parser__dialect_parse():
-    a = Rule('a', ['b', 'c'])
+    a = Rule('a', Seq('b', 'c'))
     b = TerminalRule(r'b')
     c = TerminalRule(r'c')
     dialect = Dialect(None, 'a', [a, b, c])
@@ -81,8 +81,8 @@ def test__parser__dialect_parse():
 
 
 def test__parser__rule_optional():
-    # Optional elements are shown in brackets
-    a = Rule('a', ['b', ['c'], 'd', ['b']])
+    # Optional elements are ZeroOrOne
+    a = Rule('a', Seq('b', ZeroOrOne('c'), 'd', ZeroOrOne('b')))
     b = TerminalRule(r'b')
     c = TerminalRule(r'c')
     d = TerminalRule(r'd')
@@ -111,8 +111,8 @@ def test__parser__rule_optional():
 
 def test__parser__rule_nested():
     # Optional elements are shown in brackets
-    a = Rule('a', ['b', ['c'], 'd', ['b']])
-    b = Rule('b', ['d', ['c'], 'd'])
+    a = Rule('a', Seq('b', ZeroOrOne('c'), 'd', ZeroOrOne('b')))
+    b = Rule('b', Seq('d', ZeroOrOne('c'), 'd'))
     c = TerminalRule(r'c')
     d = TerminalRule(r'd')
     dialect = Dialect(None, 'a', [a, b, c, d])
@@ -131,7 +131,7 @@ def test__parser__rule_nested():
 
 def test__parser__rule_options():
     # Elements where there are options are shown in {}
-    a = Rule('a', ['c', {'c', 'd'}, 'd'])
+    a = Rule('a', Seq('c', OneOf('c', 'd'), 'd'))
     c = TerminalRule(r'c')
     d = TerminalRule(r'd')
     dialect = Dialect(None, 'a', [a, c, d])
@@ -155,3 +155,21 @@ def test__parser__rule_options():
             ('d', 'D')
         )
     )
+
+
+def test__parser__rule_options_nested():
+    # Defining a complex rule with nested components.
+    a = Rule('a', Seq('c', OneOf(Seq('c', 'd'), Seq('d', OneOf('d', 'e'))), 'd'))
+    c = TerminalRule(r'c')
+    d = TerminalRule(r'd')
+    e = TerminalRule(r'e')
+    dialect = Dialect(None, 'a', [a, c, d, e])
+    # Some examples that parse
+    parsing_examples = ['ccdd', 'cddd', 'cded']
+    for example in parsing_examples:
+        assert a.parse(example, tuple(), dialect)[1] == ''
+    # Some example that shouldn't parse
+    failing_examples = ['ccd', 'cde', 'cd', 'cdded']
+    for example in failing_examples:
+        with pytest.raises(sqlfluffParseError):
+            a.parse(example, tuple(), dialect)

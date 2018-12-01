@@ -4,6 +4,40 @@ import re
 import six
 
 
+class BaseSequence(object):
+    def __init__(self, *seq):
+        self.seq = seq
+
+    def __iter__(self):
+        return iter(self.seq)
+
+    def __repr__(self):
+        return "<{classname}: {content}>".format(
+            classname=self.__class__.__name__,
+            content=", ".join(["{0!r}".format(elem) for elem in self]))
+
+
+class Seq(BaseSequence):
+    """ Basically an alias """
+    pass
+
+
+class ZeroOrMore(BaseSequence):
+    pass
+
+
+class OneOrMore(BaseSequence):
+    pass
+
+
+class ZeroOrOne(BaseSequence):
+    pass
+
+
+class OneOf(BaseSequence):
+    pass
+
+
 class sqlfluffParseError(Exception):
     def __init__(self, rule, expected, found):
         self.rule = rule
@@ -109,9 +143,22 @@ class Rule(object):
             nd, r = rule.parse(s, pass_stack, dialect=dialect)
             # make the node into a list before returning
             return [nd], r
-        # Is it a list? i.e. an optional element which matches zero or once?
-        elif isinstance(seq, list):
-            # With a list, we don't HAVE to match it at all, but if we do match
+        # Is it a Sequence? i.e. a compulsary element with multiple elements
+        elif isinstance(seq, Seq):
+            # We'll attempt to match each element in order.
+            s_buff = s
+            node_buff = []
+            for elem in seq:
+                # We'll call recursively to match each element of the list:
+                ndl, s_buff = self._match_sequence(s_buff, elem, pass_stack, dialect=dialect)
+                node_buff += ndl
+            else:
+                # If we manage to successfully loop through the whole pattern
+                # without error, then we return the buffers and carry on
+                return node_buff, s_buff
+        # Is it a ZeroOrOne? i.e. an optional element which matches zero or once?
+        elif isinstance(seq, ZeroOrOne):
+            # With a ZeroOrOne, we don't HAVE to match it at all, but if we do match
             # it then it has to be in full. We'll attempt to match each element
             # in order, but if any fail, then we'll catch the exception and
             # happily return an empty node list and the original string.
@@ -132,9 +179,9 @@ class Rule(object):
                 # and we're giving something further up the stack the opporunitiy to
                 # match whatever is present.
                 return [], s
-        # Is is a set? i.e. a compulary element, but with multiple options.
-        elif isinstance(seq, set):
-            # With a set, we iterate across the items, looking for the first match. If
+        # Is is a OneOf? i.e. a compulary element, but with multiple options.
+        elif isinstance(seq, OneOf):
+            # With a OneOf, we iterate across the items, looking for the first match. If
             # there are no matching options, then raise a parsing error.
             for elem in seq:
                 try:
@@ -154,7 +201,6 @@ class Rule(object):
             raise NotImplementedError("Set matching still not in place!")
         else:
             raise RuntimeError("Unknown type found in the sequence {0} {1!r}".format(type(seq), seq))
-
 
     def parse(self, s, rule_stack, dialect):
         # Update the pass-through stack
