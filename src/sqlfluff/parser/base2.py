@@ -16,6 +16,19 @@ class BaseSequence(object):
             classname=self.__class__.__name__,
             content=", ".join(["{0!r}".format(elem) for elem in self]))
 
+    def match(self, s, rule, pass_stack, dialect):
+        # We'll attempt to match each element in order.
+        s_buff = s
+        node_buff = []
+        for elem in self.seq:
+            # We'll call recursively to match each element of the list:
+            ndl, s_buff = rule._match_sequence(s_buff, elem, pass_stack, dialect=dialect)
+            node_buff += ndl
+        else:
+            # If we manage to successfully loop through the whole pattern
+            # without error, then we return the buffers and carry on
+            return node_buff, s_buff
+
 
 class Seq(BaseSequence):
     """ Basically an alias """
@@ -145,17 +158,7 @@ class Rule(object):
             return [nd], r
         # Is it a Sequence? i.e. a compulsary element with multiple elements
         elif isinstance(seq, Seq):
-            # We'll attempt to match each element in order.
-            s_buff = s
-            node_buff = []
-            for elem in seq:
-                # We'll call recursively to match each element of the list:
-                ndl, s_buff = self._match_sequence(s_buff, elem, pass_stack, dialect=dialect)
-                node_buff += ndl
-            else:
-                # If we manage to successfully loop through the whole pattern
-                # without error, then we return the buffers and carry on
-                return node_buff, s_buff
+            return seq.match(s, rule=self, pass_stack=pass_stack, dialect=dialect)
         # Is it a ZeroOrOne? i.e. an optional element which matches zero or once?
         elif isinstance(seq, ZeroOrOne):
             # With a ZeroOrOne, we don't HAVE to match it at all, but if we do match
