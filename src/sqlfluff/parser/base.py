@@ -138,6 +138,10 @@ class PositionedString(object):
         else:
             return self.s == other
 
+    def __repr__(self):
+        return "<{s!r} @{col},{line}>".format(
+            s=self.s, col=self.col_no, line=self.line_no)
+
     def popleft(self, chars):
         """ chars is the number of characters to pop off the left """
         # the current object then moves it's index along

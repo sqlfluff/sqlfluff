@@ -1,6 +1,7 @@
 """ The Test file for SQLFluff """
 
 import pytest
+import six
 
 from sqlfluff.parser.base import TerminalRule, Dialect, Rule, Node, sqlfluffParseError, ZeroOrOne, OneOf, Seq, ZeroOrMore, OneOrMore, PositionedString
 
@@ -28,6 +29,10 @@ def test__parser__posstring_b():
     assert s.line_no == 3
 
 
+def test__parser__posstring_repr():
+    assert isinstance(repr(PositionedString('ab\nc\ndef')), six.string_types)
+
+
 # ############## Terminal TESTS
 def test__parser__terminal():
     tr = TerminalRule('a', name='test', case_sensitive=False)
@@ -35,6 +40,8 @@ def test__parser__terminal():
     assert m.s == 'A'
     assert m.token == 'test'
     assert r == 'BC'
+    # Check formatting
+    assert isinstance(repr(tr), six.string_types)
 
 
 # ############## Dialect TESTS
@@ -50,13 +57,15 @@ def test__dialect__validation():
     a = TerminalRule(r'a', name='testA', case_sensitive=False)
     a2 = TerminalRule(r'b', name='testA', case_sensitive=False)
     # Check simple passes
-    Dialect(None, 'testA', [a])
+    d = Dialect(None, 'testA', [a])
     # Duplicate names
     with pytest.raises(ValueError):
         Dialect(None, 'testA', [a, a2])
     # Unknown Root Node
     with pytest.raises(ValueError):
         Dialect(None, 'failfail', [a2])
+    # Check formatting
+    assert isinstance(repr(d), six.string_types)
 
 
 # ############## Rule TESTS
@@ -73,6 +82,8 @@ def test__parser__rule():
     assert tr.nodes[1].token == 'c'
     assert tr.nodes[0].s == 'B'
     assert tr.nodes[1].s == 'C'
+    # Check formatting
+    assert isinstance(repr(a), six.string_types)
 
 
 def test__parser__rule_astuple():
