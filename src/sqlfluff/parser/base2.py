@@ -2,7 +2,6 @@
 
 import re
 import six
-import collections
 
 
 class sqlfluffParseError(Exception):
@@ -36,12 +35,11 @@ class Node(object):
         line_buff = []
         line_buff.append(('  ' * indent) + self.name + ':')
         for nd in self.nodes:
-            line_buff += nd.fmt(indent=indent+1, deep_indent=deep_indent)
+            line_buff += nd.fmt(indent=indent + 1, deep_indent=deep_indent)
         return line_buff
-    
+
     def prnt(self, deep_indent=50):
         return '\n'.join(self.fmt(deep_indent=deep_indent))
-
 
 
 class Terminal(object):
@@ -55,8 +53,8 @@ class Terminal(object):
         line_buff = []
         line_buff.append(
             ('  ' * indent) + self.token + ':'
-             + (' ' * (deep_indent - ((indent * 2) + len(self.token) + 1)))
-             + repr(self.s))
+            + (' ' * (deep_indent - ((indent * 2) + len(self.token) + 1)))
+            + repr(self.s))
         return line_buff
 
     def astuple(self):
