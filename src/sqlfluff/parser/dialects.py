@@ -19,7 +19,6 @@ ansi_rules = [
     Rule('select_stmt', Seq('select', 'whitespace', 'col_expr', 'whitespace', 'from',
                             'whitespace', 'table_expr', ZeroOrOne('group_by_expr'),
                             ZeroOrOne('order_by_expr'))),
-    
     Rule('group_by_expr', Seq('whitespace', 'groupby', 'whitespace', 'col_expr')),
     Rule('order_by_expr', Seq('whitespace', 'orderby', 'whitespace', 'col_expr'))
 ]

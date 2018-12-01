@@ -130,7 +130,16 @@ class Node(object):
         return line_buff
 
     def prnt(self, deep_indent=50):
+        """ Use for printing the structure of the tree """
+        # e.g. print(dialect.prnt())
         return '\n'.join(self.fmt(deep_indent=deep_indent))
+
+    def tokens(self):
+        """ Flatten the tree and return a list of token tuples """
+        token_buffer = []
+        for node in self.nodes:
+            token_buffer += node.tokens()
+        return token_buffer
 
 
 class Terminal(object):
@@ -150,6 +159,10 @@ class Terminal(object):
 
     def astuple(self):
         return (self.token, self.s)
+
+    def tokens(self):
+        """ Designed to fit with Node.tokens() """
+        return [self.astuple()]
 
 
 class Dialect(object):
