@@ -52,6 +52,17 @@ def test__parser__rule():
     assert tr.nodes[1].s == 'C'
 
 
+def test__parser__rule_astuple():
+    """ Same test as above, but testing astuple """
+    a = Rule('a', ['b', 'c'])
+    b = TerminalRule(r'b')
+    c = TerminalRule(r'c')
+    dialect = Dialect(None, 'a', [a, b, c])
+    # Parse by rule directly
+    tr, _ = a.parse('BCfoo', tuple(), dialect)
+    assert tr.astuple() == ('a', (('b', 'B'), ('c', 'C')))
+
+
 def test__parser__dialect_parse():
     a = Rule('a', ['b', 'c'])
     b = TerminalRule(r'b')
@@ -97,3 +108,22 @@ def test__parser__rule_optional():
     assert tr.nodes[1].token == 'd'
     assert tr.nodes[2].token == 'b'
 
+
+def test__parser__rule_nested():
+    # Optional elements are shown in brackets
+    a = Rule('a', ['b', ['c'], 'd', ['b']])
+    b = Rule('b', ['d', ['c'], 'd'])
+    c = TerminalRule(r'c')
+    d = TerminalRule(r'd')
+    dialect = Dialect(None, 'a', [a, b, c, d])
+    # Parse with optional element
+    tr, s = a.parse('DCDCDDD', tuple(), dialect)
+    assert s == ''
+    assert tr.astuple() == (
+        'a', (
+            ('b', (('d', 'D'), ('c', 'C'), ('d', 'D'))),
+            ('c', 'C'),
+            ('d', 'D'),
+            ('b', (('d', 'D'), ('d', 'D')))
+        )
+    )

@@ -2,6 +2,7 @@
 
 import re
 import six
+import collections
 
 
 class sqlfluffParseError(Exception):
@@ -27,6 +28,9 @@ class Node(object):
         self.name = name
         # This will get set to true when it's fully parsed
         self.complete = complete
+
+    def astuple(self):
+        return (self.name, tuple([node.astuple() for node in self.nodes]))
 
     def fmt(self, indent=0, deep_indent=50):
         line_buff = []
@@ -54,6 +58,9 @@ class Terminal(object):
              + (' ' * (deep_indent - ((indent * 2) + len(self.token) + 1)))
              + repr(self.s))
         return line_buff
+
+    def astuple(self):
+        return (self.token, self.s)
 
 
 class Dialect(object):
