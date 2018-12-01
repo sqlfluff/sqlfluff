@@ -21,12 +21,10 @@ class sqlfluffParseError(Exception):
 
 
 class Node(object):
-    def __init__(self, nodes, rule_stack, name='-', complete=False):
+    def __init__(self, nodes, rule_stack, name='-'):
         self.nodes = nodes
         self.rule_stack = rule_stack
         self.name = name
-        # This will get set to true when it's fully parsed
-        self.complete = complete
 
     def astuple(self):
         return (self.name, tuple([node.astuple() for node in self.nodes]))
@@ -97,6 +95,50 @@ class Rule(object):
         # sequence can be any iterable (but the types of the elements are important)
         self.sequence = sequence
 
+    @classmethod
+    def _match_sequence(cls, s, seq, pass_stack, dialect):
+        """ This is an internal method, designed to do the heavy
+        lifting of matching sequences. It's also called recursively for
+        nested rules. """
+        # First we work out what we've been presented with
+        # Is it a string? i.e. a reference to a rule?
+        if isinstance(seq, six.string_types):
+            rule = dialect.get_rule(seq)
+            # Assume for now, that it's a compulsory element. If it doesn't
+            # match then we'll throw a parse error, which will get caught.
+            # So for now. ASSUME that this is successful.
+            nd, r = rule.parse(s, pass_stack, dialect=dialect)
+            # make the node into a list before returning
+            return [nd], r
+        # Is it a list? i.e. an optional element which matches zero or once?
+        elif isinstance(seq, list):
+            # With a list, we don't HAVE to match it at all, but if we do match
+            # it then it has to be in full. We'll attempt to match each element
+            # in order, but if any fail, then we'll catch the exception and
+            # happily return an empty node list and the original string.
+            try:
+                s_buff = s
+                node_buff = []
+                for elem in seq:
+                    # We'll call recursively to match each element of the list:
+                    ndl, s_buff = cls._match_sequence(s_buff, elem, pass_stack, dialect=dialect)
+                    node_buff += ndl
+                else:
+                    # If we manage to successfully loop through the whole pattern
+                    # without error, then we return the buffers and carry on
+                    return node_buff, s_buff
+            except sqlfluffParseError:
+                # We didn't manage to match without error, just return an empty list.
+                # This means we're assuming that the optional element is NOT present
+                # and we're giving something further up the stack the opporunitiy to
+                # match whatever is present.
+                return [], s
+        elif isinstance(seq, set):
+            raise NotImplementedError("Set matching still not in place!")
+        else:
+            raise RuntimeError("Unknown type found in the sequence {0} {1!r}".format(type(seq), seq))
+
+
     def parse(self, s, rule_stack, dialect):
         # Update the pass-through stack
         pass_stack = rule_stack + (self.name,)
@@ -104,45 +146,11 @@ class Rule(object):
         s_buff = s
         # Create a local buffer for notes
         node_buff = []
-        # Run through the elements of the sequence in order
-        for elem in self.sequence:
-            # Could create subrules here?
-
-            # Is it a compulsary rule reference?
-            if isinstance(elem, six.string_types):
-                rule = dialect.get_rule(elem)
-                nd, s_buff = rule.parse(s_buff, pass_stack, dialect=dialect)
-                if nd:
-                    # Got a match, stick it onto the buffer.
-                    node_buff += [nd]
-                    # s_buff is already updated (so no need to do that)
-                else:
-                    # No match - we're greedy, and this is a required field.
-                    # that means even if we've partially matched, we can't proceed.
-                    raise sqlfluffParseError(rule, elem, s_buff)
-            # Is it a list (i.e. an optional element which can appear zero or one times)
-            elif isinstance(elem, list):
-                # how many elements does the list have?
-                if len(elem) == 0:
-                    raise ValueError("Found a zero length optional element in rule {0}!".format(self.name))
-                elif len(elem) == 1:
-                    rule_name = elem[0]
-                    rule = dialect.get_rule(rule_name)
-                    try:
-                        nd, s_buff = rule.parse(s_buff, pass_stack, dialect=dialect)
-                        if nd:
-                            # Got a match! stick it onto the buffer.
-                            node_buff += [nd]
-                    except sqlfluffParseError:
-                        # if we get an error, it's no biggie - it's optional!!
-                        pass
-                else:
-                    raise NotImplementedError("Not implemented optional elements of length > 1 yet")
-            else:
-                # Unknown type found in the sequence!
-                raise RuntimeError("Unknown type found in the sequence {0} {1!r}".format(type(elem), elem))
-        # Assuming we get this far, spit back out a completed node
-        return Node(node_buff, rule_stack, name=self.name, complete=True), s_buff
+        # Find matches (any missing matches will raise an exception)
+        node_buff, s_buff = self._match_sequence(s, seq=self.sequence,
+                                                 pass_stack=pass_stack, dialect=dialect)
+        # Assuming we get this far, spit back out a node
+        return Node(node_buff, rule_stack, name=self.name), s_buff
 
 
 class TerminalRule(Rule):
@@ -161,7 +169,10 @@ class TerminalRule(Rule):
         if m:
             last_pos = m.end()
             return Terminal(s[:last_pos], self.name, rule_stack), s[last_pos:]
-        return None, s
+        else:
+            # We don't have a match, raise an exception which can be optionally
+            # caught further up stream.
+            raise sqlfluffParseError(self, self.name, s)
 
 
 ansi_rules = [

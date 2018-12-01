@@ -127,3 +127,31 @@ def test__parser__rule_nested():
             ('b', (('d', 'D'), ('d', 'D')))
         )
     )
+
+
+def test__parser__rule_options():
+    # Elements where there are options are shown in {}
+    a = Rule('a', ['c', {'c', 'd'}, 'd'])
+    c = TerminalRule(r'c')
+    d = TerminalRule(r'd')
+    dialect = Dialect(None, 'a', [a, c, d])
+    # Parse with something intentionally leftover
+    tr, s = a.parse('CCDD', tuple(), dialect)
+    assert s == 'D'
+    assert tr.astuple() == (
+        'a', (
+            ('c', 'C'),
+            ('c', 'C'),
+            ('d', 'D')
+        )
+    )
+    # Parse with something intentionally not leftover
+    tr, s = a.parse('CDD', tuple(), dialect)
+    assert s == ''
+    assert tr.astuple() == (
+        'a', (
+            ('c', 'C'),
+            ('d', 'D'),
+            ('d', 'D')
+        )
+    )
