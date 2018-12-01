@@ -26,7 +26,7 @@ def clean_tests(path):
     try:
         shutil.rmtree(path)
         click.echo("Removed {0!r}...".format(path))
-    except (FileNotFoundError, IOError):  # IOError is for python 27
+    except IOError:  # IOError is for python 27, in py36 its FileNotFoundError (but that inherits from IOError)
         click.echo("Directory {0!r} does not exist. Skipping...".format(path))
 
     os.mkdir(path)
