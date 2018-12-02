@@ -3,7 +3,7 @@
 import pytest
 import six
 
-from sqlfluff.parser.base import TerminalRule, Dialect, Rule, Node, sqlfluffParseError, ZeroOrOne, OneOf, Seq, ZeroOrMore, OneOrMore, PositionedString
+from sqlfluff.parser.base import TerminalRule, Dialect, Rule, Node, sqlfluffParseError, ZeroOrOne, OneOf, Seq, ZeroOrMore, OneOrMore, PositionedString, AnyOf
 
 
 # ############## String TESTS
@@ -246,3 +246,17 @@ def test__parser__rule_oneormore():
     )
     # Check a remainder example
     assert dialect.parse('cde', tuple())[1] == 'e'
+
+
+def test__parser__rule_anyof():
+    # Defining a complex rule with nested components.
+    a = Rule('a', Seq('c', AnyOf('d', 'e'), 'c'))
+    c = TerminalRule(r'c')
+    d = TerminalRule(r'd')
+    e = TerminalRule(r'e')
+    dialect = Dialect(None, 'a', [a, c, d, e])
+    generic_passing_failing_dialect_test(
+        dialect,
+        parsing_examples=['cc', 'cdeedddeddedc', 'cec', 'cdc'],
+        failing_examples=['c', 'd', 'e']
+    )

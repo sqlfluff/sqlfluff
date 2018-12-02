@@ -100,7 +100,7 @@ class ZeroOrOne(BaseSequence):
 
 class OneOf(BaseSequence):
     def match(self, s, rule, pass_stack, dialect):
-        """ OneOf MAtching is a little different """
+        """ OneOf Matching is a little different """
         # With a OneOf, we iterate across the items, looking for the first match. If
         # there are no matching options, then raise a parsing error.
         for elem in self.seq:
@@ -117,6 +117,29 @@ class OneOf(BaseSequence):
             # We've iterated through all the options, and not found a match
             # so we should raise an exception.
             raise sqlfluffParseError(rule, self.seq, s)
+
+
+class AnyOf(BaseSequence):
+    def match(self, s, rule, pass_stack, dialect):
+        """ AnyOf Matching is a little different """
+        # With a AnyOf, we continue to try and match any of the rules in the sequence
+        # until we cannot match any more. Matching ZERO is an acceptable outcome.
+        # NB: This means that it's impossible for this kind of sequence to raise
+        # a parsing error.
+        s_buff = s
+        node_buff = []
+        while True:
+            for elem in self.seq:
+                try:
+                    ndl, s_buff = rule._match_sequence(s_buff, elem, pass_stack, dialect=dialect)
+                    node_buff += ndl
+                    # We break out of the for loop here to let the while clause come back around.
+                    break
+                except sqlfluffParseError:
+                    pass
+            else:
+                # We've iterated through all the loops, return
+                return node_buff, s_buff
 
 
 # ###############
@@ -205,8 +228,11 @@ class Terminal(object):
             + repr(self.s))
         return line_buff
 
-    def astuple(self):
-        return (self.token, self.s)
+    def astuple(self, pos_class=False):
+        if pos_class:
+            return (self.token, self.s)
+        else:
+            return (self.token, self.s.s)
 
     def tokens(self):
         """ Designed to fit with Node.tokens() """
@@ -215,9 +241,10 @@ class Terminal(object):
 
 class Dialect(object):
     """ A dialect is a collection of rules """
-    def __init__(self, name, root_rule, rules):
+    def __init__(self, name, root_rule, rules, join_rule=None):
         self.name = name
         self.root_rule = root_rule
+        self.join_rule = join_rule
         # Populate the rule set
         self.rules = {}
         for rule in rules:
