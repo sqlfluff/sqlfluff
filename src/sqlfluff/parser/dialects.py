@@ -1,6 +1,6 @@
 
 from .base import TerminalRule, Rule, Dialect
-from .base import Seq, ZeroOrOne, OneOf, AnyOf
+from .base import Seq, ZeroOrOne, AnyOf  # OneOf
 
 ansi_rules = [
     # Terminals

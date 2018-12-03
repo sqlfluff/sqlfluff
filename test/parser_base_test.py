@@ -2,8 +2,10 @@
 
 import pytest
 import six
+import logging
 
-from sqlfluff.parser.base import TerminalRule, Dialect, Rule, Node, sqlfluffParseError, ZeroOrOne, OneOf, Seq, ZeroOrMore, OneOrMore, PositionedString, AnyOf
+from sqlfluff.parser.base import TerminalRule, Dialect, Rule, Node, sqlfluffParseError
+from sqlfluff.parser.base import ZeroOrOne, OneOf, Seq, ZeroOrMore, OneOrMore, PositionedString, AnyOf
 
 
 # ############## String TESTS
@@ -194,13 +196,15 @@ def test__parser__rule_options():
 def generic_passing_failing_dialect_test(dialect, parsing_examples=[], failing_examples=[]):
     # Some examples that parse
     for example in parsing_examples:
-        print("Example: {0}".format(example))
+        logging.info("### Starting test for passing example: {0!r}".format(example))
         assert dialect.parse(example, tuple())[1] == ''
+        logging.info("### Success for example: {0!r}".format(example))
     # Some example that shouldn't parse
     for example in failing_examples:
-        print("Example: {0}".format(example))
+        logging.info("### Starting test for failing example: {0!r}".format(example))
         with pytest.raises(sqlfluffParseError):
             dialect.parse(example, tuple())
+        logging.info("### Success for example: {0!r}".format(example))
 
 
 def test__parser__rule_options_nested():
@@ -248,7 +252,9 @@ def test__parser__rule_oneormore():
     assert dialect.parse('cde', tuple())[1] == 'e'
 
 
-def test__parser__rule_anyof():
+def test__parser__rule_anyof(caplog):
+    # We want to see debug info for this test
+    caplog.set_level(logging.DEBUG)
     # Defining a complex rule with nested components.
     a = Rule('a', Seq('c', AnyOf('d', 'e'), 'c'))
     c = TerminalRule(r'c')
@@ -257,6 +263,7 @@ def test__parser__rule_anyof():
     dialect = Dialect(None, 'a', [a, c, d, e])
     generic_passing_failing_dialect_test(
         dialect,
-        parsing_examples=['cc', 'cdeedddeddedc', 'cec', 'cdc'],
-        failing_examples=['c', 'd', 'e']
+        parsing_examples=['cdeedddeddedc', 'cec', 'cdc'],
+        # 'cc' fails because we must match at least one
+        failing_examples=['c', 'd', 'e', 'cc']
     )
