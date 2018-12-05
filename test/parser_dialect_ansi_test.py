@@ -28,6 +28,23 @@ def test__parser__dialect_ansi_simple_b(caplog):
     assert r.line_no == 3
 
 
+def test__parser__dialect_ansi_simple_c(caplog):
+    """ Testing multiple columns """
+    # We want to see log info for this test
+    caplog.set_level(logging.DEBUG)
+    # Actually test
+    root_node, r = ansi.parse('SelECt     \n colsdanjn_As_, blah as blahblah,   \n  \t tbl.col  '
+                              '  AS \n colcol   \n  \t   FrOM     blah__   ')
+    tkns = root_node.tokens()
+    logging.info(tkns)
+    assert ('object_literal', 'colsdanjn_As_') in tkns
+    assert ('object_literal', 'blah') in tkns
+    assert ('object_literal', 'tbl') in tkns
+    # Check for whitespace handling
+    assert ('whitespace', '   \n  \t   ') in tkns
+    assert r.line_no == 5
+
+
 def test__parser__dialect_ansi_comment_a(caplog):
     # We want to see log info for this test
     caplog.set_level(logging.DEBUG)

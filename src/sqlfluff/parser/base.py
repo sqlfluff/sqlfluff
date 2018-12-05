@@ -28,8 +28,9 @@ class sqlfluffParseError(Exception):
 # ## SEQUENCES
 # ###############
 class BaseSequence(object):
-    def __init__(self, *seq):
+    def __init__(self, *seq, nsj=True):
         self.seq = seq
+        self.allow_nsj = nsj
 
     def __iter__(self):
         return iter(self.seq)
@@ -57,11 +58,12 @@ class BaseSequence(object):
             while True:
                 # We loop so that we get multiple attempts
                 logging.debug(
-                    "{cls}._m_f_s - loop: {ndl!r}".format(
+                    ("->" * len(pass_stack)) + " "
+                    + "{cls}._m_f_s - loop: {ndl!r}".format(
                         cls=self.__class__.__name__, ndl=node_buff))
 
-                # Be greedy and first check for NSJs (if we're already in the sequence)
-                if dialect.join_rule and len(node_buff) > 0:
+                # Be greedy and first check for NSJs (if we're already in the sequence and it's allowed)
+                if dialect.join_rule and len(node_buff) > 0 and self.allow_nsj:
                     nsj_rule = dialect.get_rule(dialect.join_rule)
                     try:
                         nd, s_buff = nsj_rule.parse(s_buff, pass_stack, dialect=dialect)
@@ -114,17 +116,20 @@ class BaseSequence(object):
     def match(self, s, rule, pass_stack, dialect):
         """ A wrapper around _match, to assist with logging """
         logging.debug(
-            "{cls}.match(seq={seq!r}, s={s!r}) - begin...".format(
+            ("->" * len(pass_stack)) + " "
+            + "{cls}.match(seq={seq!r}, s={s!r}) - begin...".format(
                 cls=self.__class__.__name__, seq=self.seq, s=s))
         try:
             ndl, r = self._match(s, rule, pass_stack, dialect=dialect)
         except sqlfluffParseError as err:
             logging.debug(
-                "{cls}.match(seq={seq!r}, s={s!r}) - fail".format(
+                ("->" * len(pass_stack)) + " "
+                + "{cls}.match(seq={seq!r}, s={s!r}) - fail".format(
                     cls=self.__class__.__name__, seq=self.seq, s=s))
             raise err
         logging.debug(
-            "{cls}.match(seq={seq!r}, s={s!r}) - success: {ndl!r}".format(
+            ("->" * len(pass_stack)) + " "
+            + "{cls}.match(seq={seq!r}, s={s!r}) - success: {ndl!r}".format(
                 cls=self.__class__.__name__, seq=self.seq, s=s, ndl=ndl))
         return ndl, r
 
@@ -156,10 +161,12 @@ class OneOf(BaseSequence):
         # there are no matching options, then raise a parsing error.
         for elem in self.seq:
             try:
+                # Copy each time just in case the match fails
+                temp_s = s.copy()
                 # If we manage to match without throwing an error, then we can just return
                 # straight away. If the match fails, then we'll catch the exception and try
                 # the next one.
-                return rule._match_sequence(s, elem, pass_stack, dialect=dialect)
+                return rule._match_sequence(temp_s, elem, pass_stack, dialect=dialect)
             except sqlfluffParseError:
                 # Any errors, we can ignore for now. We'll raise our own exception
                 # if we don't find any matches
@@ -168,6 +175,29 @@ class OneOf(BaseSequence):
             # We've iterated through all the options, and not found a match
             # so we should raise an exception.
             raise sqlfluffParseError(rule, self.seq, s)
+
+
+class ZeroOrOneOf(BaseSequence):
+    def _match(self, s, rule, pass_stack, dialect):
+        """ OneOf Matching is a little different """
+        # With a OneOf, we iterate across the items, looking for the first match. If
+        # there are no matching options, then raise a parsing error.
+        for elem in self.seq:
+            try:
+                # Copy each time just in case the match fails
+                temp_s = s.copy()
+                # If we manage to match without throwing an error, then we can just return
+                # straight away. If the match fails, then we'll catch the exception and try
+                # the next one.
+                return rule._match_sequence(temp_s, elem, pass_stack, dialect=dialect)
+            except sqlfluffParseError:
+                # Any errors, we can ignore for now. We'll raise our own exception
+                # if we don't find any matches
+                pass
+        else:
+            # We've iterated through all the options, and not found a match
+            # but in this case we can just return having returned nothing
+            return [], s
 
 
 class AnyOf(BaseSequence):
@@ -223,6 +253,9 @@ class PositionedString(object):
     def __repr__(self):
         return "<{s!r} @{col},{line}>".format(
             s=self.s, col=self.col_no, line=self.line_no)
+
+    def copy(self):
+        return PositionedString(s=self.s, col_no=self.col_no, line_no=self.line_no)
 
     def popleft(self, chars):
         """ chars is the number of characters to pop off the left """
@@ -379,7 +412,8 @@ class Rule(object):
 
     def parse(self, s, rule_stack, dialect):
         logging.debug(
-            "Rule.parse(name={0!r}, s={1!r}, seq={2!r}, rule_stack={3!r}) - begin ...".format(
+            ("->" * len(rule_stack)) + " "
+            + "Rule.parse(name={0!r}, s={1!r}, seq={2!r}, rule_stack={3!r}) - begin ...".format(
                 self.name, s, self.sequence, rule_stack))
         # Check whether we're working with a positioned string or not.
         # Turn this into one if we aren't.
@@ -396,11 +430,13 @@ class Rule(object):
             node_buff, s_buff = self._match_sequence(s, seq=self.sequence,
                                                      pass_stack=pass_stack, dialect=dialect)
             logging.debug(
-                "Rule.parse(name={0!r}) - success".format(
+                ("->" * len(rule_stack)) + " "
+                + "Rule.parse(name={0!r}) - success".format(
                     self.name))
         except sqlfluffParseError as err:
             logging.debug(
-                "Rule.parse(name={0!r}) - fail".format(
+                ("->" * len(rule_stack)) + " "
+                + "Rule.parse(name={0!r}) - fail".format(
                     self.name))
             raise err
         # Assuming we get this far, spit back out a node
@@ -423,16 +459,25 @@ class TerminalRule(Rule):
         # Turn this into one if we aren't.
         if isinstance(s, six.string_types):
             s = PositionedString(s)
+        # Reformat the rule_stack if not passed (usually in testing)
+        if rule_stack is None:
+            rule_stack = []
         # Match it
         m = self.pattern.match(s.s)
         if m:
             last_pos = m.end()
             left_string = s.popleft(last_pos)
             terminal = Terminal(left_string, self.name, rule_stack)
-            logging.debug("TerminalRule.parse(name={0!r}): Match {1!r}".format(self.name, terminal))
+            logging.debug(
+                ("->" * len(rule_stack)) + " "
+                + "TerminalRule.parse(name={0!r}): Match {1!r}".format(
+                    self.name, terminal))
             return terminal, s
         else:
             # We don't have a match, raise an exception which can be optionally
             # caught further up stream.
-            logging.debug("TerminalRule.parse(name={0!r}): No Match (raise exception)".format(self.name))
+            logging.debug(
+                ("->" * len(rule_stack)) + " "
+                + "TerminalRule.parse(name={0!r}): No Match (raise exception)".format(
+                    self.name))
             raise sqlfluffParseError(self, self.name, s)
