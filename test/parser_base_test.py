@@ -267,3 +267,16 @@ def test__parser__rule_anyof(caplog):
         # 'cc' fails because we must match at least one
         failing_examples=['c', 'd', 'e', 'cc']
     )
+
+
+def test__parser__rule_reconstruct(caplog):
+    # We want to see debug info for this test
+    caplog.set_level(logging.DEBUG)
+    # Defining a complex rule with nested components.
+    a = Rule('a', AnyOf('d', 'e'))
+    d = TerminalRule(r'd')
+    e = TerminalRule(r'e')
+    dialect = Dialect(None, 'a', [a, d, e])
+    test_case = 'deedddedded'
+    nd, _ = dialect.parse(test_case, tuple())
+    assert nd.reconstruct() == test_case

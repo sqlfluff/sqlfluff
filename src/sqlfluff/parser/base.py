@@ -254,6 +254,10 @@ class PositionedString(object):
         return "<{s!r} @{col},{line}>".format(
             s=self.s, col=self.col_no, line=self.line_no)
 
+    def __str__(self):
+        """ return the containing string """
+        return self.s
+
     def copy(self):
         return PositionedString(s=self.s, col_no=self.col_no, line_no=self.line_no)
 
@@ -308,6 +312,13 @@ class Node(object):
             token_buffer += node.tokens()
         return token_buffer
 
+    def reconstruct(self, corrected=True):
+        """ reconstruct the string from the tree, optionally with corrections """
+        string_buffer = ""
+        for node in self.nodes:
+            string_buffer += node.reconstruct(corrected=corrected)
+        return string_buffer
+
 
 class Terminal(object):
     """ Like a node, but has no children """
@@ -315,10 +326,15 @@ class Terminal(object):
         self.s = s
         self.token = token
         self.rule_stack = rule_stack
+        self.correction = None
 
     def __repr__(self):
         return "<Terminal {token}: {s!r}>".format(
             s=self.s, token=self.token)
+
+    def __str__(self):
+        """ return the containing string """
+        return self.s
 
     def fmt(self, indent=0, deep_indent=50):
         line_buff = []
@@ -337,6 +353,19 @@ class Terminal(object):
     def tokens(self):
         """ Designed to fit with Node.tokens() """
         return [self.astuple()]
+
+    def correct(self, correction):
+        if self.correction:
+            raise RuntimeError("Overlapping correction! sdalfsahl")
+        else:
+            self.correction = correction
+
+    def reconstruct(self, corrected=True):
+        """ reconstruct the string from the tree, optionally with corrections """
+        if not corrected:
+            return str(self.s)
+        else:
+            return str(self.correction or self.s)
 
 
 class Dialect(object):
