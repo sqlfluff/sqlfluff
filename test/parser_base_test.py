@@ -116,7 +116,12 @@ def test__parser__dialect_parse():
     assert isinstance(tr.prnt(), str)
 
 
-def test__parser__rule_optional():
+@pytest.mark.parametrize("test_input,expected_tokens,expected_residual", [
+    ("BCD", ['b', 'c', 'd'], ''),
+    ("BD", ['b', 'd'], ''),
+    ("bDb", ['b', 'd', 'b'], ''),
+])
+def test__parser__rule_optional(test_input, expected_tokens, expected_residual):
     # Optional elements are ZeroOrOne
     a = Rule('a', Seq('b', ZeroOrOne('c'), 'd', ZeroOrOne('b')))
     b = TerminalRule(r'b')
@@ -124,25 +129,10 @@ def test__parser__rule_optional():
     d = TerminalRule(r'd')
     dialect = Dialect(None, 'a', [a, b, c, d])
     # Parse with optional element
-    tr, s = a.parse('BCD', tuple(), dialect)
-    assert s == ''
+    tr, s = a.parse(test_input, tuple(), dialect)
+    assert s == expected_residual
     assert isinstance(tr, Node)
-    assert tr.nodes[0].token == 'b'
-    assert tr.nodes[1].token == 'c'
-    assert tr.nodes[2].token == 'd'
-    # Parse without optional element
-    tr, s = a.parse('BD', tuple(), dialect)
-    assert s == ''
-    assert isinstance(tr, Node)
-    assert tr.nodes[0].token == 'b'
-    assert tr.nodes[1].token == 'd'
-    # Parse with optional element at the end
-    tr, s = a.parse('bDb', tuple(), dialect)
-    assert s == ''
-    assert isinstance(tr, Node)
-    assert tr.nodes[0].token == 'b'
-    assert tr.nodes[1].token == 'd'
-    assert tr.nodes[2].token == 'b'
+    assert [nd.token for nd in tr.nodes] == expected_tokens
 
 
 def test__parser__rule_nested():
@@ -193,83 +183,103 @@ def test__parser__rule_options():
     )
 
 
-def generic_passing_failing_dialect_test(dialect, parsing_examples=[], failing_examples=[]):
-    # Some examples that parse
-    for example in parsing_examples:
-        logging.info("### Starting test for passing example: {0!r}".format(example))
-        assert dialect.parse(example, tuple())[1] == ''
-        logging.info("### Success for example: {0!r}".format(example))
-    # Some example that shouldn't parse
-    for example in failing_examples:
-        logging.info("### Starting test for failing example: {0!r}".format(example))
+def assert_rule_parse(dialect, example, expected_residual='', rule=None, stack=None):
+    if stack is None:
+        stack = tuple()
+    if rule:
+        assert rule.parse(example, stack, dialect)[1] == expected_residual
+    else:
+        assert dialect.parse(example, stack)[1] == expected_residual
+
+
+def assert_rule_fail(dialect, example, rule=None, stack=None):
+    if stack is None:
+        stack = tuple()
+    if rule:
         with pytest.raises(sqlfluffParseError):
-            dialect.parse(example, tuple())
-        logging.info("### Success for example: {0!r}".format(example))
+            rule.parse(example, stack, dialect)
+    else:
+        with pytest.raises(sqlfluffParseError):
+            dialect.parse(example, stack)
 
 
-def test__parser__rule_options_nested():
-    # Defining a complex rule with nested components.
-    a = Rule('a', Seq('c', OneOf(Seq('c', 'd'), Seq('d', OneOf('d', 'e'))), 'd'))
+def assert_rule_result(dialect, example, rule=None, stack=None, success=True, expected_residual=''):
+    if success:
+        assert_rule_parse(dialect=dialect, example=example, rule=rule,
+                          stack=stack, expected_residual=expected_residual)
+    else:
+        assert_rule_fail(dialect=dialect, example=example, rule=rule, stack=stack)
+
+
+@pytest.fixture(scope="module")
+def token_dialect():
     c = TerminalRule(r'c')
     d = TerminalRule(r'd')
     e = TerminalRule(r'e')
-    dialect = Dialect(None, 'a', [a, c, d, e])
-    generic_passing_failing_dialect_test(
-        dialect,
-        parsing_examples=['ccdd', 'cddd', 'cded'],
-        failing_examples=['ccd', 'cde', 'cd', 'cdded']
-    )
+    dialect = Dialect(None, 'c', [c, d, e])
+    return dialect
 
 
-def test__parser__rule_zeroormore():
+@pytest.mark.parametrize("example,success", [
+    ('ccdd', True),
+    ('cddd', True),
+    ('cded', True),
+    ('ccd', False),
+    ('cde', False),
+    ('cd', False),
+    ('cdded', False)
+])
+def test__parser__rule_options_nested(token_dialect, example, success):
     # Defining a complex rule with nested components.
-    a = Rule('a', ZeroOrMore('c', OneOf('d', 'e')))
-    c = TerminalRule(r'c')
-    d = TerminalRule(r'd')
-    e = TerminalRule(r'e')
-    dialect = Dialect(None, 'a', [a, c, d, e])
-    generic_passing_failing_dialect_test(
-        dialect,
-        parsing_examples=['cdcdcdcdcdcdcd', 'cdcecdcecdce', 'cececececece', 'cd', '']
-    )
-    # Check a remainder example
-    assert dialect.parse('cde', tuple())[1] == 'e'
+    r = Rule('a', Seq('c', OneOf(Seq('c', 'd'), Seq('d', OneOf('d', 'e'))), 'd'))
+    assert_rule_result(dialect=token_dialect, example=example, rule=r, success=success)
 
 
-def test__parser__rule_oneormore():
+@pytest.mark.parametrize("example,success,remainder", [
+    ('cdcdcdcdcdcdcd', True, ''),
+    ('cdcecdcecdce', True, ''),
+    ('cececececece', True, ''),
+    ('cd', True, ''),
+    ('', True, ''),
+    ('cde', True, 'e')
+])
+def test__parser__rule_zeroormore(token_dialect, example, success, remainder):
     # Defining a complex rule with nested components.
-    a = Rule('a', OneOrMore('c', OneOf('d', 'e')))
-    c = TerminalRule(r'c')
-    d = TerminalRule(r'd')
-    e = TerminalRule(r'e')
-    dialect = Dialect(None, 'a', [a, c, d, e])
-    generic_passing_failing_dialect_test(
-        dialect,
-        parsing_examples=['cd', 'cdcdcdcdcdcdcd', 'cdcecdcecdce', 'cececececece'],
-        failing_examples=['c']
-    )
-    # Check a remainder example
-    assert dialect.parse('cde', tuple())[1] == 'e'
+    r = Rule('a', ZeroOrMore('c', OneOf('d', 'e')))
+    assert_rule_result(dialect=token_dialect, example=example, rule=r,
+                       success=success, expected_residual=remainder)
 
 
-def test__parser__rule_anyof(caplog):
+@pytest.mark.parametrize("example,success,remainder", [
+    ('cd', True, ''),
+    ('cdcdcdcdcdcdcd', True, ''),
+    ('cdcecdcecdce', True, ''),
+    ('cececececece', True, ''),
+    ('c', False, ''),
+    ('cde', True, 'e')
+])
+def test__parser__rule_oneormore(token_dialect, example, success, remainder):
+    # Defining a complex rule with nested components.
+    r = Rule('a', OneOrMore('c', OneOf('d', 'e')))
+    assert_rule_result(dialect=token_dialect, example=example, rule=r,
+                       success=success, expected_residual=remainder)
+
+
+@pytest.mark.parametrize("example,success", [
+    ('cdeedddeddedc', True), ('cec', True), ('cdc', True),
+    ('c', False), ('d', False), ('e', False), ('cc', False)
+])
+def test__parser__rule_anyof(caplog, token_dialect, example, success):
     # We want to see debug info for this test
     caplog.set_level(logging.DEBUG)
     # Defining a complex rule with nested components.
-    a = Rule('a', Seq('c', AnyOf('d', 'e'), 'c'))
-    c = TerminalRule(r'c')
-    d = TerminalRule(r'd')
-    e = TerminalRule(r'e')
-    dialect = Dialect(None, 'a', [a, c, d, e])
-    generic_passing_failing_dialect_test(
-        dialect,
-        parsing_examples=['cdeedddeddedc', 'cec', 'cdc'],
-        # 'cc' fails because we must match at least one
-        failing_examples=['c', 'd', 'e', 'cc']
-    )
+    r = Rule('a', Seq('c', AnyOf('d', 'e'), 'c'))
+    assert_rule_result(dialect=token_dialect, example=example, rule=r,
+                       success=success)
 
 
 def test__parser__rule_reconstruct(caplog):
+    """ Check we can reconstruct the string properly after deconstruction """
     # We want to see debug info for this test
     caplog.set_level(logging.DEBUG)
     # Defining a complex rule with nested components.
