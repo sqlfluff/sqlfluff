@@ -3,6 +3,7 @@
 import re
 import six
 import logging
+import itertools
 
 
 # ###############
@@ -280,18 +281,49 @@ class PositionedString(object):
 # ###############
 # ## PARSER
 # ###############
-class Node(object):
-    def __init__(self, nodes, rule_stack, name='-'):
-        self.nodes = nodes
-        self.rule_stack = rule_stack
+class NodeTerminalBase(object):
+    """ The base class which contains the interfaces common
+    to nodes and terminals """
+    def __init__(self, name='-', rule_stack=None):
         self.name = name
+        if rule_stack is None:
+            self.rule_stack = tuple()
+        else:
+            self.rule_stack = rule_stack
+
+    def __str__(self):
+        return self.asstring()
+
+    def _content(self, string=False):
+        raise NotImplementedError("Method not defined for base class!")
+
+    def token_tuples(self):
+        raise NotImplementedError("Method not defined for base class!")
+
+    def tokens(self):
+        raise NotImplementedError("Method not defined for base class!")
+
+    def asstring(self):
+        raise NotImplementedError("Method not defined for base class!")
+
+    def astuple(self, string=False):
+        """ string implies that we return a string rather
+        than the PositionedString class """
+        return (self.name, self._content(string=string))
+
+
+class Node(NodeTerminalBase):
+    def __init__(self, nodes, **kwargs):
+        self.nodes = nodes
+        super(Node, self).__init__(**kwargs)
 
     def __repr__(self):
         return "<Node {name!r} tkns:{tkns!r}>".format(
             name=self.name, tkns=self.tokens())
 
-    def astuple(self):
-        return (self.name, tuple([node.astuple() for node in self.nodes]))
+    def _content(self, string=False):
+        """ The second part of the tuple function """
+        return tuple([node.astuple(string=string) for node in self.nodes])
 
     def fmt(self, indent=0, deep_indent=50):
         line_buff = []
@@ -305,67 +337,52 @@ class Node(object):
         # e.g. print(dialect.prnt())
         return '\n'.join(self.fmt(deep_indent=deep_indent))
 
-    def tokens(self):
+    def token_tuples(self):
         """ Flatten the tree and return a list of token tuples """
-        token_buffer = []
-        for node in self.nodes:
-            token_buffer += node.tokens()
-        return token_buffer
+        return list(itertools.chain(*[node.token_tuples() for node in self.nodes]))
 
-    def reconstruct(self, corrected=True):
-        """ reconstruct the string from the tree, optionally with corrections """
-        string_buffer = ""
-        for node in self.nodes:
-            string_buffer += node.reconstruct(corrected=corrected)
-        return string_buffer
+    def tokens(self):
+        """ Flatten the tree and return a list of token names """
+        return list(itertools.chain(*[node.tokens() for node in self.nodes]))
+
+    def asstring(self):
+        """ reconstruct the string from the tree """
+        return "".join([node.asstring() for node in self.nodes])
 
 
-class Terminal(object):
+class Terminal(NodeTerminalBase):
     """ Like a node, but has no children """
-    def __init__(self, s, token, rule_stack):
-        self.s = s
-        self.token = token
-        self.rule_stack = rule_stack
-        self.correction = None
+    def __init__(self, content, **kwargs):
+        self.content = content
+        super(Terminal, self).__init__(**kwargs)
 
     def __repr__(self):
         return "<Terminal {token}: {s!r}>".format(
-            s=self.s, token=self.token)
-
-    def __str__(self):
-        """ return the containing string """
-        return self.s
+            s=self.content, token=self.name)
 
     def fmt(self, indent=0, deep_indent=50):
         line_buff = []
         line_buff.append(
-            ('  ' * indent) + self.token + ':'
-            + (' ' * (deep_indent - ((indent * 2) + len(self.token) + 1)))
-            + repr(self.s))
+            ('  ' * indent) + self.name + ':'
+            + (' ' * (deep_indent - ((indent * 2) + len(self.name) + 1)))
+            + repr(self.content))
         return line_buff
 
-    def astuple(self, pos_class=False):
-        if pos_class:
-            return (self.token, self.s)
-        else:
-            return (self.token, self.s.s)
+    def _content(self, string=False):
+        """ The second part of the tuple function """
+        return self.content.s if string else self.content
 
-    def tokens(self):
+    def token_tuples(self):
         """ Designed to fit with Node.tokens() """
         return [self.astuple()]
 
-    def correct(self, correction):
-        if self.correction:
-            raise RuntimeError("Overlapping correction! sdalfsahl")
-        else:
-            self.correction = correction
+    def tokens(self):
+        """ Designed to fit with Node.tokens() """
+        return [self.name]
 
-    def reconstruct(self, corrected=True):
-        """ reconstruct the string from the tree, optionally with corrections """
-        if not corrected:
-            return str(self.s)
-        else:
-            return str(self.correction or self.s)
+    def asstring(self):
+        """ reconstruct the string from the tree """
+        return str(self.content)
 
 
 class Dialect(object):
@@ -394,15 +411,15 @@ class Dialect(object):
         else:
             return self.rules[name]
 
-    def parse(self, s, rule_stack=None):
+    def parse(self, sql, rule_stack=None):
         rule = self.get_rule(self.root_rule)
         # Check whether we're working with a positioned string or not.
         # Turn this into one if we aren't.
-        if isinstance(s, six.string_types):
-            s = PositionedString(s)
+        if isinstance(sql, six.string_types):
+            sql = PositionedString(sql)
         # Parse and make a tree recursively, passing self as the dialect
         # We should assume there's no existing rule stack, so pass an empty one in
-        tree, remainder = rule.parse(s, rule_stack=rule_stack or tuple(), dialect=self)
+        tree, remainder = rule.parse(sql, rule_stack=rule_stack or tuple(), dialect=self)
         return tree, remainder
 
 
@@ -418,7 +435,7 @@ class Rule(object):
             classname=self.__class__.__name__,
             name=self.name)
 
-    def _match_sequence(self, s, seq, pass_stack, dialect):
+    def _match_sequence(self, sql, seq, pass_stack, dialect):
         """ This is an internal method, designed to do the heavy
         lifting of matching sequences. It's also called recursively for
         nested rules. """
@@ -429,34 +446,34 @@ class Rule(object):
             # Assume for now, that it's a compulsory element. If it doesn't
             # match then we'll throw a parse error, which will get caught.
             # So for now. ASSUME that this is successful.
-            nd, r = rule.parse(s, pass_stack, dialect=dialect)
+            nd, r = rule.parse(sql, pass_stack, dialect=dialect)
             # make the node into a list before returning
             return [nd], r
         # Is it any kind of sequence class?
         elif isinstance(seq, BaseSequence):
-            ndl, r = seq.match(s, rule=self, pass_stack=pass_stack, dialect=dialect)
+            ndl, r = seq.match(sql, rule=self, pass_stack=pass_stack, dialect=dialect)
             return ndl, r
         else:
             raise RuntimeError("Unknown type found in the sequence {0} {1!r}".format(type(seq), seq))
 
-    def parse(self, s, rule_stack, dialect):
+    def parse(self, sql, rule_stack, dialect):
         logging.debug(
             ("->" * len(rule_stack)) + " "
-            + "Rule.parse(name={0!r}, s={1!r}, seq={2!r}, rule_stack={3!r}) - begin ...".format(
-                self.name, s, self.sequence, rule_stack))
+            + "Rule.parse(name={0!r}, sql={1!r}, seq={2!r}, rule_stack={3!r}) - begin ...".format(
+                self.name, sql, self.sequence, rule_stack))
         # Check whether we're working with a positioned string or not.
         # Turn this into one if we aren't.
-        if isinstance(s, six.string_types):
-            s = PositionedString(s)
+        if isinstance(sql, six.string_types):
+            sql = PositionedString(sql)
         # Update the pass-through stack
         pass_stack = rule_stack + (self.name,)
         # Create a local variable to keep track of the remaining string
-        s_buff = s
+        s_buff = sql
         # Create a local buffer for notes
         node_buff = []
         # Find matches (any missing matches will raise an exception)
         try:
-            node_buff, s_buff = self._match_sequence(s, seq=self.sequence,
+            node_buff, s_buff = self._match_sequence(sql, seq=self.sequence,
                                                      pass_stack=pass_stack, dialect=dialect)
             logging.debug(
                 ("->" * len(rule_stack)) + " "
@@ -469,7 +486,7 @@ class Rule(object):
                     self.name))
             raise err
         # Assuming we get this far, spit back out a node
-        return Node(node_buff, rule_stack, name=self.name), s_buff
+        return Node(node_buff, rule_stack=rule_stack, name=self.name), s_buff
 
 
 class TerminalRule(Rule):
@@ -496,7 +513,7 @@ class TerminalRule(Rule):
         if m:
             last_pos = m.end()
             left_string = s.popleft(last_pos)
-            terminal = Terminal(left_string, self.name, rule_stack)
+            terminal = Terminal(left_string, name=self.name, rule_stack=rule_stack)
             logging.debug(
                 ("->" * len(rule_stack)) + " "
                 + "TerminalRule.parse(name={0!r}): Match {1!r}".format(

@@ -39,8 +39,8 @@ def test__parser__posstring_repr():
 def test__parser__terminal():
     tr = TerminalRule('a', name='test', case_sensitive=False)
     m, r = tr.parse('ABC', None, None)
-    assert m.s == 'A'
-    assert m.token == 'test'
+    assert m.asstring() == 'A'
+    assert m.name == 'test'
     assert r == 'BC'
     # Check formatting
     assert isinstance(repr(tr), six.string_types)
@@ -80,10 +80,10 @@ def test__parser__rule():
     tr, s = a.parse('BCfoo', tuple(), dialect)
     assert s == 'foo'  # Check we catch the remainder properly
     assert isinstance(tr, Node)
-    assert tr.nodes[0].token == 'b'
-    assert tr.nodes[1].token == 'c'
-    assert tr.nodes[0].s == 'B'
-    assert tr.nodes[1].s == 'C'
+    assert tr.nodes[0].name == 'b'
+    assert tr.nodes[1].name == 'c'
+    assert str(tr.nodes[0]) == 'B'
+    assert str(tr.nodes[1]) == 'C'
     # Check formatting
     assert isinstance(repr(a), six.string_types)
 
@@ -108,10 +108,10 @@ def test__parser__dialect_parse():
     tr, s = dialect.parse('BCfoo')
     assert s == 'foo'  # Check we catch the remainder properly
     assert isinstance(tr, Node)
-    assert tr.nodes[0].token == 'b'
-    assert tr.nodes[1].token == 'c'
-    assert tr.nodes[0].s == 'B'
-    assert tr.nodes[1].s == 'C'
+    assert tr.nodes[0].name == 'b'
+    assert tr.nodes[1].name == 'c'
+    assert str(tr.nodes[0]) == 'B'
+    assert str(tr.nodes[1]) == 'C'
     # Check that formatting doesn't error
     assert isinstance(tr.prnt(), str)
 
@@ -132,7 +132,7 @@ def test__parser__rule_optional(test_input, expected_tokens, expected_residual):
     tr, s = a.parse(test_input, tuple(), dialect)
     assert s == expected_residual
     assert isinstance(tr, Node)
-    assert [nd.token for nd in tr.nodes] == expected_tokens
+    assert tr.tokens() == expected_tokens
 
 
 def test__parser__rule_nested():
@@ -278,7 +278,7 @@ def test__parser__rule_anyof(caplog, token_dialect, example, success):
                        success=success)
 
 
-def test__parser__rule_reconstruct(caplog):
+def test__parser__rule_asstring(caplog):
     """ Check we can reconstruct the string properly after deconstruction """
     # We want to see debug info for this test
     caplog.set_level(logging.DEBUG)
@@ -289,4 +289,4 @@ def test__parser__rule_reconstruct(caplog):
     dialect = Dialect(None, 'a', [a, d, e])
     test_case = 'deedddedded'
     nd, _ = dialect.parse(test_case, tuple())
-    assert nd.reconstruct() == test_case
+    assert nd.asstring() == test_case

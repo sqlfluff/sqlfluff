@@ -10,7 +10,7 @@ def test__parser__dialect_ansi_simple_a(caplog):
     caplog.set_level(logging.DEBUG)
     # Actually test
     root_node, _ = ansi.parse('SelECt sdfsaasd    FrOM   asdfawwwww   GroUP BY  asdfawwwww.fasfekjhsf   order BY  something_else    ')
-    tkns = root_node.tokens()
+    tkns = root_node.token_tuples()
     logging.info(tkns)
     assert ('groupby', 'GroUP BY') in tkns
 
@@ -20,7 +20,7 @@ def test__parser__dialect_ansi_simple_b(caplog):
     caplog.set_level(logging.DEBUG)
     # Actually test
     root_node, r = ansi.parse('SelECt     \n colsdanjn_As_   \n  \t   FrOM     blah__   ')
-    tkns = root_node.tokens()
+    tkns = root_node.token_tuples()
     logging.info(tkns)
     assert ('object_literal', 'colsdanjn_As_') in tkns
     # Check for whitespace handling
@@ -35,7 +35,7 @@ def test__parser__dialect_ansi_simple_c(caplog):
     # Actually test
     root_node, r = ansi.parse('SelECt     \n colsdanjn_As_, blah as blahblah,   \n  \t tbl.col  '
                               '  AS \n colcol   \n  \t   FrOM     blah__   ')
-    tkns = root_node.tokens()
+    tkns = root_node.token_tuples()
     logging.info(tkns)
     assert ('object_literal', 'colsdanjn_As_') in tkns
     assert ('object_literal', 'blah') in tkns
@@ -50,7 +50,7 @@ def test__parser__dialect_ansi_comment_a(caplog):
     caplog.set_level(logging.DEBUG)
     # Actually test
     root_node, r = ansi.parse('SelECt     -- This is an end of line comment   \n colsdanjn_As_   -- And so is this\n  \t   FrOM     blah__   ')
-    tkns = root_node.tokens()
+    tkns = root_node.token_tuples()
     logging.info(tkns)
     assert ('object_literal', 'colsdanjn_As_') in tkns
     # NB: Newline characters count as their own whitespace
@@ -66,7 +66,7 @@ def test__parser__dialect_ansi_comment_b(caplog):
     caplog.set_level(logging.DEBUG)
     # Actually test
     root_node, r = ansi.parse('SelECt  \n  /* Block Comment 1 */ colsdanjn_As_   /* Block  \n  \t  Comment 2 */  FrOM     blah__   ')
-    tkns = root_node.tokens()
+    tkns = root_node.token_tuples()
     logging.info(tkns)
     assert ('object_literal', 'colsdanjn_As_') in tkns
     assert ('block_comment', '/* Block Comment 1 */') in tkns
