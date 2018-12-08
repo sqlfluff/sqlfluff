@@ -8,31 +8,37 @@ from sqlfluff.parser.base import TerminalRule, Dialect, Rule, Node, sqlfluffPars
 from sqlfluff.parser.base import ZeroOrOne, OneOf, Seq, ZeroOrMore, OneOrMore, PositionedString, AnyOf
 
 
+@pytest.fixture(scope="module")
+def token_dialect():
+    c = TerminalRule(r'c')
+    d = TerminalRule(r'd')
+    e = TerminalRule(r'e')
+    dialect = Dialect(None, 'c', [c, d, e])
+    return dialect
+
+
 # ############## String TESTS
-def test__parser__posstring_a():
-    """ check string popping without newlines """
-    s = PositionedString('abcdef')
-    ns = s.popleft(3)
-    assert ns.s == 'abc'
-    assert ns.col_no == 1
-    assert ns.line_no == 1
-    assert s.s == 'def'
-    assert s.col_no == 4
-    assert s.line_no == 1
-
-
-def test__parser__posstring_b():
-    """ check string popping with newlines """
-    s = PositionedString('ab\nc\ndef')
-    ns = s.popleft(6)
-    assert ns.s == 'ab\nc\nd'
-    assert s.s == 'ef'
-    assert s.col_no == 2
-    assert s.line_no == 3
-
-
-def test__parser__posstring_repr():
-    assert isinstance(repr(PositionedString('ab\nc\ndef')), six.string_types)
+@pytest.mark.parametrize("example", ['abcdef', 'ab\nc\ndef', '\n\n\n\n\nefBLAH'])
+@pytest.mark.parametrize("offset", [1, 2, 3, 5])
+def test__parser__posstring(example, offset):
+    example_string = PositionedString(example)
+    # Check type of repr
+    assert isinstance(repr(example_string), six.string_types)
+    # str function
+    assert str(example_string) == example
+    # Test splitting
+    left_string = example_string.popleft(offset)
+    # Check the left side of the deal
+    assert str(left_string) == example[:offset]
+    assert left_string.col_no == 1
+    assert left_string.line_no == 1
+    # Check the right side of the deal
+    assert str(example_string) == example[offset:]
+    if '\n' in example[:offset]:
+        assert example_string.col_no == len(example[:offset].split('\n')[-1]) + 1
+    else:
+        assert example_string.col_no == len(example[:offset]) + 1
+    assert example_string.line_no == example[:offset].count('\n') + 1
 
 
 # ############## Terminal TESTS
@@ -209,15 +215,6 @@ def assert_rule_result(dialect, example, rule=None, stack=None, success=True, ex
                           stack=stack, expected_residual=expected_residual)
     else:
         assert_rule_fail(dialect=dialect, example=example, rule=rule, stack=stack)
-
-
-@pytest.fixture(scope="module")
-def token_dialect():
-    c = TerminalRule(r'c')
-    d = TerminalRule(r'd')
-    e = TerminalRule(r'e')
-    dialect = Dialect(None, 'c', [c, d, e])
-    return dialect
 
 
 @pytest.mark.parametrize("example,success", [

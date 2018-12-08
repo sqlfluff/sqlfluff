@@ -297,6 +297,14 @@ class NodeTerminalBase(object):
     def _content(self, string=False):
         raise NotImplementedError("Method not defined for base class!")
 
+    def node_tuple_set(self):
+        """ Produce a set of tuples, but not just the terminals, all the tuples """
+        raise NotImplementedError("Method not defined for base class!")
+
+    def node_tuple(self):
+        """ Produce a tuple for this node """
+        return (self.name, self.asstring())
+
     def token_tuples(self):
         raise NotImplementedError("Method not defined for base class!")
 
@@ -337,6 +345,11 @@ class Node(NodeTerminalBase):
         # e.g. print(dialect.prnt())
         return '\n'.join(self.fmt(deep_indent=deep_indent))
 
+    def node_tuple_set(self):
+        """ Produce a set of tuples, but not just the terminals, all the tuples """
+        # We take the tuple for THIS node AND all the children
+        return set([self.node_tuple()]) | set().union(*[nd.node_tuple_set() for nd in self.nodes])
+
     def token_tuples(self):
         """ Flatten the tree and return a list of token tuples """
         return list(itertools.chain(*[node.token_tuples() for node in self.nodes]))
@@ -372,8 +385,12 @@ class Terminal(NodeTerminalBase):
         """ The second part of the tuple function """
         return self.content.s if string else self.content
 
+    def node_tuple_set(self):
+        """ Produce a set of tuples, but not just the terminals, all the tuples """
+        return set([self.node_tuple()])
+
     def token_tuples(self):
-        """ Designed to fit with Node.tokens() """
+        """ Designed to fit with Node.token_tuples() """
         return [self.astuple()]
 
     def tokens(self):
