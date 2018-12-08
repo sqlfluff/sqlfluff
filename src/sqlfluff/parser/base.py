@@ -29,9 +29,10 @@ class sqlfluffParseError(Exception):
 # ## SEQUENCES
 # ###############
 class BaseSequence(object):
-    def __init__(self, *seq, nsj=True):
+    def __init__(self, *seq, **kwargs):
         self.seq = seq
-        self.allow_nsj = nsj
+        # Allow nsj to be passed through as a kwarg (py27 compatable)
+        self.allow_nsj = kwargs.pop('nsj', True)
 
     def __iter__(self):
         return iter(self.seq)
