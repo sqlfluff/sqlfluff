@@ -68,7 +68,7 @@ class BaseSequence(object):
                 if dialect.join_rule and len(node_buff) > 0 and self.allow_nsj:
                     nsj_rule = dialect.get_rule(dialect.join_rule)
                     try:
-                        nd, s_buff = nsj_rule.parse(s_buff, pass_stack, dialect=dialect)
+                        nd, s_buff = nsj_rule.parse(s_buff, rule_stack=pass_stack, dialect=dialect)
                         node_buff += [nd]
                         # we carry on from here, back into the loop for another crack at the main element or another NSJ.
                     except sqlfluffParseError:
@@ -76,7 +76,7 @@ class BaseSequence(object):
                         pass
 
                 try:
-                    ndl, s_buff = rule._match_sequence(s_buff, elem, pass_stack, dialect=dialect)
+                    ndl, s_buff = rule._match_sequence(s_buff, elem, pass_stack=pass_stack, dialect=dialect)
                     node_buff += ndl
                     # Break so that we move on an try the next element
                     break
@@ -285,6 +285,8 @@ class PositionedString(object):
 class NodeTerminalBase(object):
     """ The base class which contains the interfaces common
     to nodes and terminals """
+    terminal = None
+
     def __init__(self, name='-', rule_stack=None):
         self.name = name
         if rule_stack is None:
@@ -315,13 +317,15 @@ class NodeTerminalBase(object):
     def asstring(self):
         raise NotImplementedError("Method not defined for base class!")
 
-    def astuple(self, string=False):
+    def astuple(self, string=True):
         """ string implies that we return a string rather
         than the PositionedString class """
         return (self.name, self._content(string=string))
 
 
 class Node(NodeTerminalBase):
+    terminal = False
+
     def __init__(self, nodes, **kwargs):
         self.nodes = nodes
         super(Node, self).__init__(**kwargs)
@@ -330,7 +334,7 @@ class Node(NodeTerminalBase):
         return "<Node {name!r} tkns:{tkns!r}>".format(
             name=self.name, tkns=self.tokens())
 
-    def _content(self, string=False):
+    def _content(self, string=True):
         """ The second part of the tuple function """
         return tuple([node.astuple(string=string) for node in self.nodes])
 
@@ -366,6 +370,8 @@ class Node(NodeTerminalBase):
 
 class Terminal(NodeTerminalBase):
     """ Like a node, but has no children """
+    terminal = True
+
     def __init__(self, content, **kwargs):
         self.content = content
         super(Terminal, self).__init__(**kwargs)
@@ -464,7 +470,7 @@ class Rule(object):
             # Assume for now, that it's a compulsory element. If it doesn't
             # match then we'll throw a parse error, which will get caught.
             # So for now. ASSUME that this is successful.
-            nd, r = rule.parse(sql, pass_stack, dialect=dialect)
+            nd, r = rule.parse(sql, rule_stack=pass_stack, dialect=dialect)
             # make the node into a list before returning
             return [nd], r
         # Is it any kind of sequence class?
@@ -474,7 +480,9 @@ class Rule(object):
         else:
             raise RuntimeError("Unknown type found in the sequence {0} {1!r}".format(type(seq), seq))
 
-    def parse(self, sql, rule_stack, dialect):
+    def parse(self, sql, dialect, rule_stack=None):
+        if rule_stack is None:
+            rule_stack = tuple()
         logging.debug(
             ("->" * len(rule_stack)) + " "
             + "Rule.parse(name={0!r}, sql={1!r}, seq={2!r}, rule_stack={3!r}) - begin ...".format(
@@ -517,7 +525,7 @@ class TerminalRule(Rule):
         else:
             self.pattern = re.compile(pattern, re.IGNORECASE)
 
-    def parse(self, s, rule_stack, dialect):
+    def parse(self, s, dialect, rule_stack=None):
         """ NB: Same interface as for rules """
         # Check whether we're working with a positioned string or not.
         # Turn this into one if we aren't.
@@ -525,7 +533,7 @@ class TerminalRule(Rule):
             s = PositionedString(s)
         # Reformat the rule_stack if not passed (usually in testing)
         if rule_stack is None:
-            rule_stack = []
+            rule_stack = tuple()
         # Match it
         m = self.pattern.match(s.s)
         if m:

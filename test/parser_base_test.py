@@ -4,7 +4,7 @@ import pytest
 import six
 import logging
 
-from sqlfluff.parser.base import TerminalRule, Dialect, Rule, Node, sqlfluffParseError
+from sqlfluff.parser.base import TerminalRule, Dialect, Rule, Node, sqlfluffParseError, Terminal
 from sqlfluff.parser.base import ZeroOrOne, OneOf, Seq, ZeroOrMore, OneOrMore, PositionedString, AnyOf
 
 
@@ -17,6 +17,15 @@ def token_dialect():
     return dialect
 
 
+@pytest.fixture(scope="module")
+def simple_dialect():
+    a = Rule('a', Seq('b', 'c'))
+    b = TerminalRule(r'b')
+    c = TerminalRule(r'c')
+    dialect = Dialect(None, 'a', [a, b, c])
+    return dialect
+
+
 # ############## String TESTS
 @pytest.mark.parametrize("example", ['abcdef', 'ab\nc\ndef', '\n\n\n\n\nefBLAH'])
 @pytest.mark.parametrize("offset", [1, 2, 3, 5])
@@ -26,6 +35,9 @@ def test__parser__posstring(example, offset):
     assert isinstance(repr(example_string), six.string_types)
     # str function
     assert str(example_string) == example
+    # check equality assertions (both with the raw string and another PositionedString)
+    assert example_string == example
+    assert example_string == PositionedString(example)
     # Test splitting
     left_string = example_string.popleft(offset)
     # Check the left side of the deal
@@ -77,13 +89,12 @@ def test__dialect__validation():
 
 
 # ############## Rule TESTS
-def test__parser__rule():
-    a = Rule('a', Seq('b', 'c'))
-    b = TerminalRule(r'b')
-    c = TerminalRule(r'c')
-    dialect = Dialect(None, 'a', [a, b, c])
+def test__parser__rule(simple_dialect):
+    """ Parsing via a rule """
+    # Get the a rule
+    a = simple_dialect.get_rule('a')
     # Parse by rule directly
-    tr, s = a.parse('BCfoo', tuple(), dialect)
+    tr, s = a.parse('BCfoo', dialect=simple_dialect)
     assert s == 'foo'  # Check we catch the remainder properly
     assert isinstance(tr, Node)
     assert tr.nodes[0].name == 'b'
@@ -91,27 +102,36 @@ def test__parser__rule():
     assert str(tr.nodes[0]) == 'B'
     assert str(tr.nodes[1]) == 'C'
     # Check formatting
-    assert isinstance(repr(a), six.string_types)
+    assert isinstance(repr(tr), six.string_types)
 
 
-def test__parser__rule_astuple():
-    """ Same test as above, but testing astuple """
-    a = Rule('a', Seq('b', 'c'))
-    b = TerminalRule(r'b')
-    c = TerminalRule(r'c')
-    dialect = Dialect(None, 'a', [a, b, c])
+def test__parser__rule_terminal(simple_dialect):
+    """ Parsing via a terminal """
+    # Get the a rule
+    b = simple_dialect.get_rule('b')
     # Parse by rule directly
-    tr, _ = a.parse('BCfoo', tuple(), dialect)
+    tr, s = b.parse('BCfoo', dialect=simple_dialect)
+    assert s == 'Cfoo'  # Check we catch the remainder properly
+    assert isinstance(tr, Terminal)
+    assert tr.name == 'b'
+    assert str(tr) == 'B'
+    # Check formatting
+    assert isinstance(repr(tr), six.string_types)
+
+
+def test__parser__rule_astuple(simple_dialect):
+    """ Same test as above, but testing astuple """
+    # Get the a rule
+    a = simple_dialect.get_rule('a')
+    # Parse by rule directly
+    tr, _ = a.parse('BCfoo', dialect=simple_dialect)
     assert tr.astuple() == ('a', (('b', 'B'), ('c', 'C')))
 
 
-def test__parser__dialect_parse():
-    a = Rule('a', Seq('b', 'c'))
-    b = TerminalRule(r'b')
-    c = TerminalRule(r'c')
-    dialect = Dialect(None, 'a', [a, b, c])
+def test__parser__dialect_parse(simple_dialect):
+    """ Parsing via the dialect """
     # Call rule via root_rule
-    tr, s = dialect.parse('BCfoo')
+    tr, s = simple_dialect.parse('BCfoo')
     assert s == 'foo'  # Check we catch the remainder properly
     assert isinstance(tr, Node)
     assert tr.nodes[0].name == 'b'
@@ -120,6 +140,13 @@ def test__parser__dialect_parse():
     assert str(tr.nodes[1]) == 'C'
     # Check that formatting doesn't error
     assert isinstance(tr.prnt(), str)
+
+
+def test__parser__dialect_parse_node_tuple_set(simple_dialect):
+    """ Check that the node_tuple_set works """
+    # Call rule via root_rule
+    tr, _ = simple_dialect.parse('BCfoo')
+    assert tr.node_tuple_set() == {('a', 'BC'), ('b', 'B'), ('c', 'C')}
 
 
 @pytest.mark.parametrize("test_input,expected_tokens,expected_residual", [
@@ -135,7 +162,7 @@ def test__parser__rule_optional(test_input, expected_tokens, expected_residual):
     d = TerminalRule(r'd')
     dialect = Dialect(None, 'a', [a, b, c, d])
     # Parse with optional element
-    tr, s = a.parse(test_input, tuple(), dialect)
+    tr, s = a.parse(test_input, dialect=dialect)
     assert s == expected_residual
     assert isinstance(tr, Node)
     assert tr.tokens() == expected_tokens
@@ -149,7 +176,7 @@ def test__parser__rule_nested():
     d = TerminalRule(r'd')
     dialect = Dialect(None, 'a', [a, b, c, d])
     # Parse with optional element
-    tr, s = a.parse('DCDCDDD', tuple(), dialect)
+    tr, s = a.parse('DCDCDDD', dialect=dialect)
     assert s == ''
     assert tr.astuple() == (
         'a', (
@@ -168,7 +195,7 @@ def test__parser__rule_options():
     d = TerminalRule(r'd')
     dialect = Dialect(None, 'a', [a, c, d])
     # Parse with something intentionally leftover
-    tr, s = a.parse('CCDD', tuple(), dialect)
+    tr, s = a.parse('CCDD', dialect=dialect)
     assert s == 'D'
     assert tr.astuple() == (
         'a', (
@@ -178,7 +205,7 @@ def test__parser__rule_options():
         )
     )
     # Parse with something intentionally not leftover
-    tr, s = a.parse('CDD', tuple(), dialect)
+    tr, s = a.parse('CDD', dialect=dialect)
     assert s == ''
     assert tr.astuple() == (
         'a', (
@@ -193,9 +220,9 @@ def assert_rule_parse(dialect, example, expected_residual='', rule=None, stack=N
     if stack is None:
         stack = tuple()
     if rule:
-        assert rule.parse(example, stack, dialect)[1] == expected_residual
+        assert rule.parse(example, rule_stack=stack, dialect=dialect)[1] == expected_residual
     else:
-        assert dialect.parse(example, stack)[1] == expected_residual
+        assert dialect.parse(example, rule_stack=stack)[1] == expected_residual
 
 
 def assert_rule_fail(dialect, example, rule=None, stack=None):
@@ -203,10 +230,10 @@ def assert_rule_fail(dialect, example, rule=None, stack=None):
         stack = tuple()
     if rule:
         with pytest.raises(sqlfluffParseError):
-            rule.parse(example, stack, dialect)
+            rule.parse(example, rule_stack=stack, dialect=dialect)
     else:
         with pytest.raises(sqlfluffParseError):
-            dialect.parse(example, stack)
+            dialect.parse(example, rule_stack=stack)
 
 
 def assert_rule_result(dialect, example, rule=None, stack=None, success=True, expected_residual=''):
