@@ -82,7 +82,8 @@ def lint(verbose, nocolor, dialect, rules, paths):
     result = lnt.lint_paths(paths)
     # Output the results
     output = format_linting_result(result, verbose=verbose)
-    click.echo(output, color=color)
+    # Echo the output out, without adding a newline
+    click.echo(output, color=color, nl=False)
     sys.exit(result.stats()['exit code'])
 
 

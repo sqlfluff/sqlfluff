@@ -57,5 +57,5 @@ def test__cli__formatters__violations():
     chk2 = []
     for elem in k:
         chk2 = chk2 + [format_filename(elem)] + chk[elem]
-    chk2 = '\n'.join(chk2)
+    chk2 = '\n'.join(chk2) + '\n'
     assert escape_ansi(f) == escape_ansi(chk2)

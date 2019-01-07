@@ -64,11 +64,7 @@ def format_violations(violations, verbose=0):
             for violation in s:
                 text_buffer.write(format_violation(violation, verbose=verbose))
                 text_buffer.write('\n')
-    str_buffer = text_buffer.getvalue()
-    # Remove the trailing newline if there is one
-    if len(str_buffer) > 0 and str_buffer[-1] == '\n':
-        str_buffer = str_buffer[:-1]
-    return str_buffer
+    return text_buffer.getvalue()
 
 
 def format_linting_stats(result, verbose=0):
@@ -101,7 +97,12 @@ def format_linting_violations(result, verbose=0):
         if verbose > 0:
             text_buffer.write('=== [ path: {0} ] ===\n'.format(colorize(path.path, 'lightgrey')))
         text_buffer.write(format_violations(path.violations(), verbose=verbose))
-    return text_buffer.getvalue()
+
+    str_buffer = text_buffer.getvalue()
+    # Remove the trailing newline if there is one
+    if len(str_buffer) > 0 and str_buffer[-1] == '\n':
+        str_buffer = str_buffer[:-1]
+    return str_buffer
 
 
 def format_linting_fixes(fixes, verbose=0):
