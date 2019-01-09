@@ -92,7 +92,7 @@ def test__cli__command_lint_c_exclude_rules_single():
     no issues should be found.
     """
     runner = CliRunner()
-    result = runner.invoke(lint, ['-n', '--exclude-rules', 'L001', 'test/fixtures/linter/operator_errors.sql'])
+    result = runner.invoke(lint, ['-n', '--rules', 'L001,L006', '--exclude-rules', 'L006', 'test/fixtures/linter/operator_errors.sql'])
     assert result.exit_code == 0
 
 
@@ -103,7 +103,7 @@ def test__cli__command_lint_c_exclude_rules_multi():
     no issues should be found.
     """
     runner = CliRunner()
-    result = runner.invoke(lint, ['-n', '--exclude-rules', 'L001,L002', 'test/fixtures/linter/operator_errors.sql'])
+    result = runner.invoke(lint, ['-n', '--exclude-rules', 'L006,L007', 'test/fixtures/linter/operator_errors.sql'])
     assert result.exit_code == 0
 
 
