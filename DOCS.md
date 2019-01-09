@@ -1,4 +1,5 @@
 # SqlFluff
+
 ## The SQL Linter for humans
 
 # Documentation
@@ -19,24 +20,31 @@ them on each command, they are documented here for brevity:
 - `[--rules RULES]`: Narrow the search to only specific rules. For example
   specifying `--rules L001` will only search for rule `L001` (Unnessesary
   trailing whitespace). Multiple rules can be specified with commas e.g.
-  `--rules L001,L002` will specify only looking for violations of rule 
+  `--rules L001,L002` will specify only looking for violations of rule
+  `L001` and rule `L002`.
+- `[--exclude-rules RULES]`: Exclude only specific rules. For example
+  specifying `--exclude-rules L001` will only remove rule `L001` (Unnessesary
+  trailing whitespace). Multiple rules can be specified with commas e.g.
+  `--exclude-rules L001,L002` will exclude only violations of rule
   `L001` and rule `L002`.
 
 ## `sqlfluff version`
 
 **Purpose:** Read out the current version information of sqlfluff.
 
-**Usage:** `sqlfluff version [-v, --verbose] [-n, --nocolor] [--dialect ansi] [--rules RULES]`
+**Usage:** `sqlfluff version [-v, --verbose] [-n, --nocolor] [--dialect ansi] [--rules RULES] [--exclude-rules RULES]`
 
 **Example responses:**
 
-> *Not verbose:*
+> _Not verbose:_
+>
 > ```shell
 > $ sqlfluff version
 > 0.0.4
 > ```
 
-> *Verbose:*
+> _Verbose:_
+>
 > ```shell
 > $ sqlfluff version -v
 > sqlfluff:      0.0.4 python:        3.6.7
@@ -46,7 +54,7 @@ them on each command, they are documented here for brevity:
 
 **Purpose:** Actually lint things.
 
-**Usage:** `sqlfluff lint [-v, --verbose] [-n, --nocolor] [--dialect ansi] [--rules RULES] [PATH]`
+**Usage:** `sqlfluff lint [-v, --verbose] [-n, --nocolor] [--dialect ansi] [--rules RULES] [--exclude-rules RULES] [PATH]`
 
 **Parameters:**
 
@@ -64,7 +72,8 @@ them on each command, they are documented here for brevity:
 
 _NB: Examples of the `--nocolor` option not shown as the textual output is the same, just with different colors_
 
-> *Not verbose:*
+> _Not verbose:_
+>
 > ```shell
 > $ sqlfluff lint test.sql
 > == [test.sql] FAIL
@@ -73,7 +82,8 @@ _NB: Examples of the `--nocolor` option not shown as the textual output is the s
 > L:   1 | P:  27 | L001 | Unnecessary trailing whitespace
 > ```
 
-> *Verbose (with dialect):*
+> _Verbose (with dialect):_
+>
 > ```shell
 > $ sqlfluff lint test.sql -v  --dialect ansi
 > ==== sqlfluff ====
@@ -89,8 +99,8 @@ _NB: Examples of the `--nocolor` option not shown as the textual output is the s
 > violations:        3 status:         FAIL
 > ```
 
-
-> *Very Verbose:*
+> _Very Verbose:_
+>
 > ```shell
 > $ sqlfluff lint test.sql -vv
 > ==== sqlfluff ====
@@ -112,18 +122,20 @@ _NB: Examples of the `--nocolor` option not shown as the textual output is the s
 
 **Purpose:** Display the current available rules.
 
-**Usage:** `sqlfluff rules [-v, --verbose] [-n, --nocolor] [--dialect ansi] [--rules RULES]`
+**Usage:** `sqlfluff rules [-v, --verbose] [-n, --nocolor] [--dialect ansi] [--rules RULES] [--exclude-rules RULES]`
 
 **Example responses:**
 
-> *Limited:*
+> _Limited:_
+>
 > ```shell
 > $ sqlfluff rules --rules L001
 > ==== sqlfluff - rules ====
 > L001: Unnecessary trailing whitespace
 > ```
 
-> *Unlimited:*
+> _Unlimited:_
+>
 > ```shell
 > $ sqlfluff rules
 > ==== sqlfluff - rules ====
@@ -142,7 +154,7 @@ _NB: Examples of the `--nocolor` option not shown as the textual output is the s
 > the tool on a codebase which uses version control (e.g. Git) so that you
 > can easily roll back any changes made.
 
-**Usage:** `sqlfluff fix [-v, --verbose] [-n, --nocolor] [--dialect ansi] [--rules RULES] [-f, --force] [PATH]`
+**Usage:** `sqlfluff fix [-v, --verbose] [-n, --nocolor] [--dialect ansi] [--rules RULES] [--exclude-rules RULES] [-f, --force] [PATH]`
 
 **Parameters:**
 

@@ -116,7 +116,7 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations'])):
             self.apply_corrections_to_file(correction_buffer)
             application_success = True
             application_message = None
-        except Exception as exc: # noqa
+        except Exception as exc:  # noqa
             # Assume if it's unsuccessful in any way that the whole thing failed
             application_success = False
             # Spit out the name of the exception for debugging
@@ -224,12 +224,23 @@ class LintingResult(object):
 
 
 class Linter(object):
-    def __init__(self, dialect=AnsiSQLDialiect, sql_exts=('.sql',), rule_whitelist=None):
+    def __init__(self, dialect=AnsiSQLDialiect, sql_exts=('.sql',), rule_whitelist=None, rule_blacklist=None):
         self.dialect = dialect
         self.sql_exts = sql_exts
         # restrict the search to only specific rules.
         # assume that this is a list of rule codes
         self.rule_whitelist = rule_whitelist
+        if rule_blacklist:
+            self._exclude_rules(rule_blacklist)
+
+    def _exclude_rules(self, rule_blacklist):
+        if not self.rule_whitelist:
+            rt = self.get_ruleset().rule_tuples()
+            self.rule_whitelist = [elem[0] for elem in rt]
+
+        self.rule_whitelist = list(
+            set(self.rule_whitelist).difference(set(rule_blacklist))
+        )
 
     def get_ruleset(self):
         """

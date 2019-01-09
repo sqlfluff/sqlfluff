@@ -16,10 +16,11 @@ def common_options(f):
     f = click.option('-n', '--nocolor', is_flag=True)(f)
     f = click.option('--dialect', default='ansi', help='The dialect of SQL to lint')(f)
     f = click.option('--rules', default=None, help='Specify a particular rule, or comma seperated rules to check')(f)
+    f = click.option('--exclude-rules', default=None, help='Specify a particular rule, or comma seperated rules to exclude')(f)
     return f
 
 
-def get_linter(dialiect_string, rule_string):
+def get_linter(dialiect_string, rule_string, exclude_rule_string):
     """ A generic way of getting hold of a linter """
     try:
         dialect_obj = dialect_selector(dialiect_string)
@@ -31,8 +32,13 @@ def get_linter(dialiect_string, rule_string):
         rule_list = rule_string.split(',')
     else:
         rule_list = None
+
+    if exclude_rule_string:
+        excluded_rule_list = exclude_rule_string.split(',')
+    else:
+        excluded_rule_list = None
     # Instantiate the linter and return
-    return Linter(dialect=dialect_obj, rule_whitelist=rule_list)
+    return Linter(dialect=dialect_obj, rule_whitelist=rule_list, rule_blacklist=excluded_rule_list)
 
 
 @click.group()
@@ -43,13 +49,13 @@ def cli():
 
 @cli.command()
 @common_options
-def version(verbose, nocolor, dialect, rules):
+def version(verbose, nocolor, dialect, rules, exclude_rules):
     """ Show the version of sqlfluff """
     # Configure Color
     color = False if nocolor else None
     if verbose > 0:
         # Instantiate the linter
-        lnt = get_linter(dialiect_string=dialect, rule_string=rules)
+        lnt = get_linter(dialiect_string=dialect, rule_string=rules, exclude_rule_string=exclude_rules)
         click.echo(format_config(lnt, verbose=verbose))
     else:
         click.echo(get_package_version(), color=color)
@@ -57,24 +63,24 @@ def version(verbose, nocolor, dialect, rules):
 
 @cli.command()
 @common_options
-def rules(verbose, nocolor, dialect, rules):
+def rules(verbose, nocolor, dialect, rules, exclude_rules):
     """ Show the current rules is use """
     # Configure Color
     color = False if nocolor else None
     # Instantiate the linter
-    lnt = get_linter(dialiect_string=dialect, rule_string=rules)
+    lnt = get_linter(dialiect_string=dialect, rule_string=rules, exclude_rule_string=exclude_rules)
     click.echo(format_rules(lnt), color=color)
 
 
 @cli.command()
 @common_options
 @click.argument('paths', nargs=-1)
-def lint(verbose, nocolor, dialect, rules, paths):
+def lint(verbose, nocolor, dialect, rules, exclude_rules, paths):
     """ Lint SQL files """
     # Configure Color
     color = False if nocolor else None
     # Instantiate the linter
-    lnt = get_linter(dialiect_string=dialect, rule_string=rules)
+    lnt = get_linter(dialiect_string=dialect, rule_string=rules, exclude_rule_string=exclude_rules)
     config_string = format_config(lnt, verbose=verbose)
     if len(config_string) > 0:
         click.echo(config_string, color=color)
@@ -90,12 +96,12 @@ def lint(verbose, nocolor, dialect, rules, paths):
 @common_options
 @click.option('-f', '--force', is_flag=True)
 @click.argument('paths', nargs=-1)
-def fix(verbose, nocolor, dialect, rules, force, paths):
+def fix(verbose, nocolor, dialect, rules, exclude_rules, force, paths):
     """ Fix SQL files """
     # Configure Color
     color = False if nocolor else None
     # Instantiate the linter
-    lnt = get_linter(dialiect_string=dialect, rule_string=rules)
+    lnt = get_linter(dialiect_string=dialect, rule_string=rules, exclude_rule_string=exclude_rules)
     config_string = format_config(lnt, verbose=verbose)
     if len(config_string) > 0:
         click.echo(config_string, color=color)
