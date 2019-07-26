@@ -278,6 +278,8 @@ class StatementSegment(BaseSegment):
     type = 'statement'
 
     def parse(self):
+        if self.segments is None:
+            raise ValueError("No Segments to parse!?")
         return self
 
 class CodeSegment(BaseSegment):
