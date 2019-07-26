@@ -91,6 +91,16 @@ class BaseSegment(object):
         else:
             return self.raw
 
+    def print(self, ident=0, tabsize=4, pos_idx=60, raw_idx=80):
+        preface = (' ' * (ident * tabsize)) + self.__class__.__name__ + ":"
+        preface = preface + (' ' * max(pos_idx - len(preface), 0)) + str(self.pos_marker)
+        if self.segments:
+            print(preface)
+            for seg in self.segments:
+                seg.print(ident=ident + 1, tabsize=tabsize, pos_idx=pos_idx, raw_idx=raw_idx)
+        else:
+            print(preface + (' ' * max(raw_idx - len(preface), 0)) + "{0!r}".format(self.raw))
+
 
 class FileSegment(BaseSegment):
     type = 'file'
@@ -314,3 +324,4 @@ if __name__ == "__main__":
     parsed = fs.parse()
     print(parsed.segments)
     print(parsed.reconstruct())
+    parsed.print()
