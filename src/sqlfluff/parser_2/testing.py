@@ -20,18 +20,31 @@ print("Hello World!")
 class BaseSegment(object):
     type = 'base'
 
-    def __init__(self, raw, segments=None):
+    def __init__(self, raw, statement_index=1, line_no=1, line_pos=1, segments=None):
         self.raw = raw
         self.segments = segments
+        self.statement_index = statement_index
+        self.line_no = line_no
+        self.line_pos = line_pos
     
     def parse(self):
         raise NotImplementedError("parse not implemented on type {0}".format(self.__class__))
     
     def __repr__(self):
         if self.segments:
-            return "<{0}: {1!s}>".format(self.__class__.__name__, self.segments)
+            return "<{0}: ({1},{2},{3}) {4!s}>".format(
+                self.__class__.__name__,
+                self.statement_index,
+                self.line_no,
+                self.line_pos,
+                self.segments)
         else:
-            return "<{0}: {1!r}>".format(self.__class__.__name__, self.raw)
+            return "<{0}: ({1},{2},{3}) {4!r}>".format(
+                self.__class__.__name__,
+                self.statement_index,
+                self.line_no,
+                self.line_pos,
+                self.raw)
 
     def reconstruct(self):
         if self.segments:
@@ -45,6 +58,9 @@ class FileSegment(BaseSegment):
 
     def parse(self):
         # Parsing files involves seperating comment segments and code segments and statements segments
+        statement_index = self.statement_index
+        line_no = self.line_no
+        line_pos = self.line_pos
 
         # Comments override everything unless we're in a string literal
         string_tokens = [
@@ -63,12 +79,23 @@ class FileSegment(BaseSegment):
 
         last_statement_pos = 0
         last_pos = 0
+        last_line_no = line_no
+        last_line_pos = line_pos
         statement_stack = []
         segment_stack = []
         comment_entry = None
         string_entry = None
         skip = 0
+        was_newline = False
         for pos in range(len(self.raw)):
+            if was_newline:
+                line_no += line_no
+                line_pos = 0
+            else:
+                line_pos += 1
+            # This will get picked up on the next round, hence WAS
+            was_newline = (raw[pos] == '\n')
+
             if skip > 0:
                 skip -= 1
                 continue
@@ -87,7 +114,12 @@ class FileSegment(BaseSegment):
                         comment_entry = TokenMemory(pos, c)
                         # check that we have a segment to add
                         if pos - 1 > last_pos:
-                            segment_stack.append(CodeSegment(raw[last_pos:pos]))
+                            segment_stack.append(
+                                CodeSegment(
+                                    raw[last_pos:pos],
+                                    statement_index=statement_index
+                                )
+                            )
                             last_pos = pos
                         continue
                 for e in statement_seperators:
@@ -96,16 +128,25 @@ class FileSegment(BaseSegment):
                         print("Found statement end at pos {0}! [{1!r}]".format(pos, forward[:5]))
                         # We need to end the current code segment FIRST
                         if pos - 1 > last_pos:
-                            segment_stack.append(CodeSegment(raw[last_pos:pos]))
+                            segment_stack.append(
+                                CodeSegment(
+                                    raw[last_pos:pos],
+                                    statement_index=statement_index
+                                )
+                            )
                             last_pos = pos
                         etl = len(e)
                         statement_stack.append(
                             StatementSegment(
                                 raw[last_statement_pos:pos],
-                                segments=segment_stack))
+                                segments=segment_stack,
+                                statement_index=statement_index))
                         statement_stack.append(
-                            StatementSperatorSegment(e)
+                            StatementSperatorSegment(
+                                e,
+                                statement_index=statement_index)
                         )
+                        statement_index += 1
                         segment_stack = []
                         last_statement_pos = pos + etl
                         last_pos = pos + etl
@@ -133,7 +174,12 @@ class FileSegment(BaseSegment):
                     # End of segment
                     if pos - 1 > last_pos:
                         etl = len(comment_entry.token.end)
-                        segment_stack.append(CommentSegment(raw[last_pos:pos + etl]))
+                        segment_stack.append(
+                            CommentSegment(
+                                raw[last_pos:pos + etl],
+                                statement_index=statement_index
+                            )
+                        )
                         last_pos = pos + etl
                         skip = etl
                     comment_entry = None
@@ -142,7 +188,12 @@ class FileSegment(BaseSegment):
                     print("Found comment terminator at pos {0}! [{1!r}]".format(pos, forward[:5]))
                     # End of segment
                     if pos - 1 > last_pos:
-                        segment_stack.append(CommentSegment(raw[last_pos:pos]))
+                        segment_stack.append(
+                            CommentSegment(
+                                raw[last_pos:pos],
+                                statement_index=statement_index
+                            )
+                        )
                         last_pos = pos
                     comment_entry = None
                     continue
@@ -152,14 +203,24 @@ class FileSegment(BaseSegment):
         if not comment_entry and not string_entry:
             # We ended on a code block. OK
             if len(raw) > last_pos:
-                segment_stack.append(CodeSegment(raw[last_pos:len(raw)]))
+                segment_stack.append(
+                    CodeSegment(
+                        raw[last_pos:len(raw)],
+                        statement_index=statement_index
+                    )
+                )
         elif comment_entry:
             # We ended on a comment block
             # Should it have an ending?
             if comment_entry.token.end:
                 raise SQLParseError("Final comment not terminated (Expected {0!r})".format(comment_entry.token.end))
             else:
-                segment_stack.append(CommentSegment(raw[last_pos:len(raw)]))
+                segment_stack.append(
+                    CommentSegment(
+                        raw[last_pos:len(raw)],
+                        statement_index=statement_index
+                    )
+                )
         elif string_entry:
             if string_entry.token.end:
                 raise SQLParseError("Final string not terminated (Expected {0!r})".format(string_entry.token.end))
@@ -173,7 +234,9 @@ class FileSegment(BaseSegment):
             statement_stack.append(
                 StatementSegment(
                     raw[last_statement_pos:pos],
-                    segments=segment_stack))
+                    segments=segment_stack,
+                    statement_index=statement_index))
+            statement_index += 1
             segment_stack = []
             last_statement_pos = 0
             last_pos = 0
