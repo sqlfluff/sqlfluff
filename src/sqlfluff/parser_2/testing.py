@@ -314,6 +314,8 @@ class CommentSegment(BaseSegment):
     type = 'comment'
 
     def parse(self):
+        # Split into several types of comment? Or just parse as is?
+        # Probably parse as is.
         return self
 
 
