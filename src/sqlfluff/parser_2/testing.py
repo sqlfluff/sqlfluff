@@ -45,6 +45,7 @@ print("Hello World!")
 
 class BaseSegment(object):
     type = 'base'
+    grammar = None
 
     def __init__(self, raw, segments=None, pos_marker=None):
         self.raw = raw
@@ -101,11 +102,25 @@ class BaseSegment(object):
         else:
             print(preface + (' ' * max(raw_idx - len(preface), 0)) + "{0!r}".format(self.raw))
 
+    @classmethod
+    def match(cls, raw, segments):
+        """
+            Matching can be done from either the raw or the segments.
+            This raw function can be overridden, or a grammar defined
+            on the underlying class.
+        """
+        if grammar:
+            return grammar.match(raw=raw, segments=segments)
+        else:
+            raise NotImplementedError("{0} has no match function implemented".format(cls.__class__.__name__))
+
 
 class FileSegment(BaseSegment):
     type = 'file'
 
     def parse(self):
+        """ The parse function on the file segment is a bit special
+        so that it contains errors between each statement """
         # Parsing files involves seperating comment segments and code segments and statements segments
         last_pos = self.pos_marker
 
@@ -222,7 +237,7 @@ class FileSegment(BaseSegment):
                             pos_marker=last_seg_pos
                         )
                     )
-                    last_seg_pos = this_pos.advance_by(e)
+                    last_seg_pos = this_pos.advance_by(comment_entry.token.end)
                     comment_entry = None
                     continue
             else:
@@ -280,6 +295,13 @@ class StatementSegment(BaseSegment):
     def parse(self):
         if self.segments is None:
             raise ValueError("No Segments to parse!?")
+        # Here we then need to allow any number of comments and whitespace
+        # (to lint later)
+        # THEN it must match a type of sql statement
+
+        # Mutate itself, and then return
+
+        # If it can't match, then we should have an unparsable block
         return self
 
 class CodeSegment(BaseSegment):
