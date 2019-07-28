@@ -46,6 +46,7 @@ print("Hello World!")
 class BaseSegment(object):
     type = 'base'
     grammar = None
+    comment_seperate = False
 
     def __init__(self, raw, segments=None, pos_marker=None):
         self.raw = raw
@@ -92,13 +93,35 @@ class BaseSegment(object):
         else:
             return self.raw
 
-    def print(self, ident=0, tabsize=4, pos_idx=60, raw_idx=80):
+    def _preface(self, ident, tabsize, pos_idx):
         preface = (' ' * (ident * tabsize)) + self.__class__.__name__ + ":"
         preface = preface + (' ' * max(pos_idx - len(preface), 0)) + str(self.pos_marker)
+        return preface
+
+    @property
+    def comments(self):
+        return [seg for seg in self.segments if seg.type == 'comment']
+    
+    @property
+    def non_comments(self):
+        return [seg for seg in self.segments if seg.type != 'comment']
+
+    def print(self, ident=0, tabsize=4, pos_idx=60, raw_idx=80):
+        preface = self._preface(ident=ident, tabsize=tabsize, pos_idx=pos_idx)
         if self.segments:
             print(preface)
-            for seg in self.segments:
-                seg.print(ident=ident + 1, tabsize=tabsize, pos_idx=pos_idx, raw_idx=raw_idx)
+            if self.comment_seperate:
+                if self.comments:
+                    print((' ' * ((ident + 1) * tabsize)) + 'Comments:')
+                    for seg in self.comments:
+                        seg.print(ident=ident + 2, tabsize=tabsize, pos_idx=pos_idx, raw_idx=raw_idx)
+                if self.non_comments:
+                    print((' ' * ((ident + 1) * tabsize)) + 'Code:')
+                    for seg in self.non_comments:
+                        seg.print(ident=ident + 2, tabsize=tabsize, pos_idx=pos_idx, raw_idx=raw_idx)
+            else:
+                for seg in self.segments:
+                    seg.print(ident=ident + 1, tabsize=tabsize, pos_idx=pos_idx, raw_idx=raw_idx)
         else:
             print(preface + (' ' * max(raw_idx - len(preface), 0)) + "{0!r}".format(self.raw))
 
@@ -291,6 +314,8 @@ class StatementSperatorSegment(BaseSegment):
 
 class StatementSegment(BaseSegment):
     type = 'statement'
+    # From here down, comments are printed seperately.
+    comment_seperate = True
 
     def parse(self):
         if self.segments is None:
