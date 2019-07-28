@@ -47,6 +47,7 @@ class BaseSegment(object):
     type = 'base'
     grammar = None
     comment_seperate = False
+    is_whitespace = False
 
     def __init__(self, raw, segments=None, pos_marker=None):
         self.raw = raw
@@ -69,8 +70,9 @@ class BaseSegment(object):
         return self.pos_marker.line_pos
 
     def parse(self):
-        raise NotImplementedError("parse not implemented on type {0}".format(self.__class__))
-    
+        # raise NotImplementedError("parse not implemented on type {0}".format(self.__class__))
+        return self
+
     def __repr__(self):
         if self.segments:
             return "<{0}: ({1},{2},{3}) {4!s}>".format(
@@ -137,6 +139,19 @@ class BaseSegment(object):
         else:
             raise NotImplementedError("{0} has no match function implemented".format(cls.__class__.__name__))
 
+    @staticmethod
+    def expand(segments):
+        segs = []
+        for stmt in segments:
+            res = stmt.parse()
+            if isinstance(res, BaseSegment):
+                segs.append(res)
+            else:
+                # We might get back an iterable of segments
+                segs += stmt.parse()
+        return segs
+
+
 
 class FileSegment(BaseSegment):
     type = 'file'
@@ -195,8 +210,15 @@ class FileSegment(BaseSegment):
                     if forward.startswith(s.start):
                         print("Found string start at pos {0}! [{1!r}]".format(this_pos, forward[:5]))
                         string_entry = TokenMemory(this_pos, s)
-                        # Don't store the segment, because we're only looking for
-                        # strings at this stage so we can ignore "false" comments
+                        # check that we have a segment to add
+                        if this_pos > last_seg_pos:
+                            segment_stack.append(
+                                CodeSegment(
+                                    raw[last_seg_pos.char_pos:this_pos.char_pos],
+                                    pos_marker=last_seg_pos
+                                )
+                            )
+                            last_seg_pos = this_pos
                         continue
                 for c in comment_tokens:
                     if forward.startswith(c.start):
@@ -245,7 +267,14 @@ class FileSegment(BaseSegment):
                 if string_entry.token.end and forward.startswith(string_entry.token.end):
                     print("Found string end at pos {0}! [{1!r}]".format(this_pos, forward[:5]))
                     # End of segment
-                    # Don't save, remember, we're only looking for comments!
+                    skip = len(string_entry.token.end)
+                    segment_stack.append(
+                        QuotedSegment(
+                            raw[last_seg_pos.char_pos:this_pos.char_pos + skip],
+                            pos_marker=last_seg_pos
+                        )
+                    )
+                    last_seg_pos = this_pos.advance_by(string_entry.token.end)
                     string_entry = None
                     continue
             elif comment_entry:
@@ -303,14 +332,12 @@ class FileSegment(BaseSegment):
                     segments=segment_stack,
                     pos_marker=last_stmt_pos))
 
-        self.segments = statement_stack
+        # We now need to parse each of the sub elements.
+        self.segments = self.expand(statement_stack)
         return self
 
 class StatementSperatorSegment(BaseSegment):
     type = 'statement_seperator'
-
-    def parse(self):
-        return self
 
 class StatementSegment(BaseSegment):
     type = 'statement'
@@ -320,6 +347,12 @@ class StatementSegment(BaseSegment):
     def parse(self):
         if self.segments is None:
             raise ValueError("No Segments to parse!?")
+
+        # First we need to allow any existing segments in this
+        # statement to expand out. This could inlude code and comment
+        # segments
+        self.segments = self.expand(self.segments)
+
         # Here we then need to allow any number of comments and whitespace
         # (to lint later)
         # THEN it must match a type of sql statement
@@ -333,7 +366,82 @@ class CodeSegment(BaseSegment):
     type = 'code'
 
     def parse(self):
-        return self
+        # Split into whitespace, newline and StrippedCode
+        whitespace_chars = [' ', '\t']
+        newline_chars = ['\n']
+        this_pos = self.pos_marker
+        segment_stack = []
+        started = None
+        last_char = None
+        for idx, c in enumerate(self.raw):
+            if last_char:
+                this_pos = this_pos.advance_by(last_char)
+            # Save the last char
+            last_char = c
+            if c in newline_chars:
+                if started:
+                    if started[0] == 'whitespace':
+                        segment_stack.append(
+                            WhitespaceSegment(
+                                self.raw[started[2]:idx],
+                                pos_marker=started[1])
+                        )
+                        started = None
+                    elif started[0] == 'code':
+                        segment_stack.append(
+                            StrippedCodeSegment(
+                                self.raw[started[2]:idx],
+                                pos_marker=started[1])
+                        )
+                        started = None
+                    else:
+                        raise ValueError("Unexpected `started` value?!")
+                segment_stack.append(
+                    NewlineSegment(c, pos_marker=this_pos)
+                )
+            elif c in whitespace_chars:
+                if started:
+                    if started[0] == 'whitespace':
+                        # We don't want to reset the whitespace counter!
+                        continue
+                    elif started[0] == 'code':
+                        segment_stack.append(
+                            StrippedCodeSegment(
+                                self.raw[started[2]:idx],
+                                pos_marker=started[1])
+                        )
+                    else:
+                        raise ValueError("Unexpected `started` value?!")
+                started = ('whitespace', this_pos, idx)
+            else:
+                # This isn't whitespace or a newline
+                if started:
+                    if started[0] == 'code':
+                        # We don't want to reset the code counter!
+                        continue
+                    elif started[0] == 'whitespace':
+                        segment_stack.append(
+                            WhitespaceSegment(
+                                self.raw[started[2]:idx],
+                                pos_marker=started[1])
+                        )
+                    else:
+                        raise ValueError("Unexpected `started` value?!")
+                started = ('code', this_pos, idx)
+        return segment_stack
+
+class QuotedSegment(BaseSegment):
+    type = 'quoted'
+
+class StrippedCodeSegment(BaseSegment):
+    type = 'strippedcode'
+
+class WhitespaceSegment(BaseSegment):
+    type = 'whitespace'
+    is_whitespace = True
+
+class NewlineSegment(WhitespaceSegment):
+    type = 'newline'
 
 class CommentSegment(BaseSegment):
     type = 'comment'
