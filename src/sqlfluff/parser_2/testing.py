@@ -137,7 +137,19 @@ class BaseSegment(object):
             on the underlying class.
         """
         if cls.grammar:
-            return cls.grammar.match(raw=raw, segments=segments)
+            m = cls.grammar.match(raw=raw, segments=segments)
+            # m will either be a segment, or a list.
+            # if it's a list, it's a list of segments to construct THIS class
+            # if it's a segment, then it's a replacement
+            # if it's NONE then we haven't matched and we should return that
+            if isinstance(m, BaseSegment):
+                return m
+            elif isinstance(m, list):
+                return cls(raw=raw, segments=m)
+            elif m is None:
+                return None
+            else:
+                raise ValueError("Unexpected response to cls.grammar.match: {0!r}".format(m))
         else:
             raise NotImplementedError("{0} has no match function implemented".format(cls.__class__.__name__))
 
@@ -331,7 +343,7 @@ class FileSegment(BaseSegment):
                     segments=segment_stack,
                     pos_marker=last_stmt_pos))
 
-        # We now need to parse each of the sub elements.
+        # We now need to parse each of the sub elements. Expand does that.
         self.segments = self.expand(statement_stack)
         return self
 
@@ -374,49 +386,75 @@ class AnyOf(BaseGrammar):
             return None
 
 
+class StartsWith(BaseGrammar):
+    """ Match if the first element is the same, with configurable
+    whitespace and comment handling """
+    def __init__(self, target, code_only=True, **kwargs):
+        self.target = target
+        self.code_only = code_only
+        # Implement config handling later...
+
+    def match(self, raw, segments):
+        if self.code_only:
+            first_code = None
+            first_code_idx = None
+            for idx, seg in enumerate(segments):
+                if seg.type == 'strippedcode':
+                    first_code_idx = idx
+                    first_code = seg
+                    break
+            else:
+                return None
+
+            match = self.target.match(raw=first_code.raw, segments=[first_code])
+            if match:
+                # Let's actually make it a keyword segment
+                segments[first_code_idx] = match
+                return segments
+            else:
+                return None
+        else:
+            raise NotImplementedError("Not expecting to match StartsWith and also not just code!?")
+
+
+class Keyword(BaseGrammar):
+    """ Match a keyword, optionally case sensitive """
+    def __init__(self, word, case_sensitive=False, **kwargs):
+        # NB We store the word as upper case unless case sensitive
+        # For this one we won't accept whitespace or comments
+        self.case_sensitive = case_sensitive
+        if self.case_sensitive:
+            self.word = word
+        else:
+            self.word = word.upper()
+
+    def match(self, raw, segments):
+        # We can only match segments of length 1
+        if len(segments) == 1:
+            if ((self.case_sensitive and self.word == raw) or (not self.case_sensitive and self.word == raw.upper())):
+                return KeywordSegment(raw=raw, segments=segments)
+        return None
+
 # Note on SQL Grammar
 # https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
+
+
+class KeywordSegment(BaseSegment):
+    type = 'keyword'
+
 
 class SelectStatementSegment(BaseSegment):
     type = 'select_statement'
     # From here down, comments are printed seperately.
     comment_seperate = True
-
-    @classmethod
-    def match(cls, raw, segments):
-        first_code = None
-        for seg in segments:
-            if seg.type == 'strippedcode':
-                first_code = seg
-                break
-        else:
-            return None
-
-        if first_code.raw.upper() == 'SELECT':
-            return cls(raw=raw, segments=segments)
-        else:
-            return None
+    grammar = StartsWith(Keyword('select'))
 
 
 class InsertStatementSegment(BaseSegment):
     type = 'insert_statement'
     # From here down, comments are printed seperately.
     comment_seperate = True
-
-    @classmethod
-    def match(cls, raw, segments):
-        first_code = None
-        for seg in segments:
-            if seg.type == 'strippedcode':
-                first_code = seg
-                break
-        else:
-            return None
-
-        if first_code.raw.upper() == 'INSERT':
-            return cls(raw=raw, segments=segments)
-        else:
-            return None
+    grammar = StartsWith(Keyword('insert'))
 
 
 class UnparsableSegment(BaseSegment):
