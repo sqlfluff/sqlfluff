@@ -6,6 +6,7 @@ Token = namedtuple('Token', ['start', 'end'])
 
 protoFilePositionMarker = namedtuple('FilePositionMarker', ['statement_index', 'line_no', 'line_pos', 'char_pos'])
 
+
 class FilePositionMarker(protoFilePositionMarker):
     def advance_by(self, raw="", idx=0):
         stmt = self.statement_index
@@ -35,12 +36,13 @@ class FilePositionMarker(protoFilePositionMarker):
 class SQLParseError(ValueError):
     pass
 
+
 print("Hello World!")
 
 # Multi stage parser
 
-## First strip comments, potentially extracting special comments (which start with sqlfluff:)
-##   - this also makes comment sections, config sections (a subset of comments) and code sections
+# First strip comments, potentially extracting special comments (which start with sqlfluff:)
+#   - this also makes comment sections, config sections (a subset of comments) and code sections
 
 
 class BaseSegment(object):
@@ -103,7 +105,7 @@ class BaseSegment(object):
     @property
     def comments(self):
         return [seg for seg in self.segments if seg.type == 'comment']
-    
+
     @property
     def non_comments(self):
         return [seg for seg in self.segments if seg.type != 'comment']
@@ -152,7 +154,6 @@ class BaseSegment(object):
         return segs
 
 
-
 class FileSegment(BaseSegment):
     type = 'file'
 
@@ -160,7 +161,6 @@ class FileSegment(BaseSegment):
         """ The parse function on the file segment is a bit special
         so that it contains errors between each statement """
         # Parsing files involves seperating comment segments and code segments and statements segments
-        last_pos = self.pos_marker
 
         # Comments override everything unless we're in a string literal
         string_tokens = [
@@ -182,11 +182,10 @@ class FileSegment(BaseSegment):
         comment_entry = None
         string_entry = None
         skip = 0
-        was_newline = False
         this_pos = self.pos_marker
         last_char = None
-        last_seg_pos = this_pos # The starting position of the "current" segment
-        last_stmt_pos = this_pos # The starting position of the "current" statement
+        last_seg_pos = this_pos  # The starting position of the "current" segment
+        last_stmt_pos = this_pos  # The starting position of the "current" statement
         stmt_idx_buff = 0
         for c in self.raw:
             # Advance using the last character
@@ -323,7 +322,7 @@ class FileSegment(BaseSegment):
                 raise ValueError("Huh? safiihew")
         else:
             raise ValueError("Huh? eaiuyawren")
-        
+
         if len(segment_stack) > 0:
             # Let's just terminate this as a statement
             statement_stack.append(
@@ -335,6 +334,7 @@ class FileSegment(BaseSegment):
         # We now need to parse each of the sub elements.
         self.segments = self.expand(statement_stack)
         return self
+
 
 class StatementSperatorSegment(BaseSegment):
     type = 'statement_seperator'
@@ -374,6 +374,9 @@ class AnyOf(BaseGrammar):
             return None
 
 
+# Note on SQL Grammar
+# https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
+
 class SelectStatementSegment(BaseSegment):
     type = 'select_statement'
     # From here down, comments are printed seperately.
@@ -389,7 +392,7 @@ class SelectStatementSegment(BaseSegment):
         else:
             return None
 
-        if seg.raw.upper() == 'SELECT':
+        if first_code.raw.upper() == 'SELECT':
             return cls(raw=raw, segments=segments)
         else:
             return None
@@ -410,7 +413,7 @@ class InsertStatementSegment(BaseSegment):
         else:
             return None
 
-        if seg.raw.upper() == 'INSERT':
+        if first_code.raw.upper() == 'INSERT':
             return cls(raw=raw, segments=segments)
         else:
             return None
@@ -452,6 +455,7 @@ class StatementSegment(BaseSegment):
             self.segments = [match]
 
         return self
+
 
 class CodeSegment(BaseSegment):
     type = 'code'
@@ -521,18 +525,23 @@ class CodeSegment(BaseSegment):
                 started = ('code', this_pos, idx)
         return segment_stack
 
+
 class QuotedSegment(BaseSegment):
     type = 'quoted'
 
+
 class StrippedCodeSegment(BaseSegment):
     type = 'strippedcode'
+
 
 class WhitespaceSegment(BaseSegment):
     type = 'whitespace'
     is_whitespace = True
 
+
 class NewlineSegment(WhitespaceSegment):
     type = 'newline'
+
 
 class CommentSegment(BaseSegment):
     type = 'comment'
@@ -543,28 +552,26 @@ class CommentSegment(BaseSegment):
         return self
 
 
-
-
-
-
 raw = """\
 # COMMENT
 -- Another Comment
-Select A from Sys.dual where a  
+Select A from Sys.dual where a
 -- inline comment
 in  ('RED',  /* Inline */  'GREEN','BLUE');
 select * from tbl_b; # as another comment
 insert into sch.tbl_b
     (col1)
-values (123)
+values (123);
+with tmp as (
+    select * from  blah
+)
+select a, b from tmp;
+# And that's the end
 """
-
 
 
 tabsize = 4
 SEMICOLON = ';'
-
-
 
 
 if __name__ == "__main__":
