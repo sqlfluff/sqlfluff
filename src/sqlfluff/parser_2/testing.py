@@ -1,10 +1,10 @@
 
 from collections import namedtuple
 
-TokenMemory = namedtuple('TokenMemory', ['pos', 'token'], verbose=True)
-Token = namedtuple('Token', ['start', 'end'], verbose=True)
+TokenMemory = namedtuple('TokenMemory', ['pos', 'token'])
+Token = namedtuple('Token', ['start', 'end'])
 
-protoFilePositionMarker = namedtuple('FilePositionMarker', ['statement_index', 'line_no', 'line_pos', 'char_pos'], verbose=True)
+protoFilePositionMarker = namedtuple('FilePositionMarker', ['statement_index', 'line_no', 'line_pos', 'char_pos'])
 
 class FilePositionMarker(protoFilePositionMarker):
     def advance_by(self, raw="", idx=0):
@@ -112,7 +112,7 @@ class BaseSegment(object):
         preface = self._preface(ident=ident, tabsize=tabsize, pos_idx=pos_idx)
         if self.segments:
             print(preface)
-            if self.comment_seperate:
+            if self.comment_seperate and len(self.comments) > 0:
                 if self.comments:
                     print((' ' * ((ident + 1) * tabsize)) + 'Comments:')
                     for seg in self.comments:
@@ -134,8 +134,8 @@ class BaseSegment(object):
             This raw function can be overridden, or a grammar defined
             on the underlying class.
         """
-        if grammar:
-            return grammar.match(raw=raw, segments=segments)
+        if cls.grammar:
+            return cls.grammar.match(raw=raw, segments=segments)
         else:
             raise NotImplementedError("{0} has no match function implemented".format(cls.__class__.__name__))
 
@@ -339,10 +339,75 @@ class FileSegment(BaseSegment):
 class StatementSperatorSegment(BaseSegment):
     type = 'statement_seperator'
 
+
+class BaseGrammar(object):
+    """ Grammars are a way of composing match statements, any grammar
+    must implment the `match` function. Segments can also be passed to
+    most grammars. Segments implement `match` as a classmethod. Grammars
+    implement it as an instance method """
+    def match(self, raw, segments):
+        """
+            Matching can be done from either the raw or the segments.
+            This raw function can be overridden, or a grammar defined
+            on the underlying class.
+        """
+        raise NotImplementedError("{0} has no match function implemented".format(self.__class__.__name__))
+
+
+class AnyOf(BaseGrammar):
+    """ Match any of the elements given once, if it matches
+    multiple, it returns the first """
+    def __init__(self, *args, **kwargs):
+        self._options = args
+
+    def match(self, raw, segments):
+        # Match on each of the options
+        matches = [opt.match(raw, segments) for opt in self._options]
+
+        if sum([1 if m is not None else 0 for m in matches]) > 1:
+            print("WARNING! Ambiguous match!")
+
+        for m in matches:
+            if m:
+                return m
+        else:
+            return None
+
+
+class SelectStatementSegment(BaseSegment):
+    type = 'select_statement'
+    # From here down, comments are printed seperately.
+    comment_seperate = True
+
+    @classmethod
+    def match(cls, raw, segments):
+        # Lets just assume it's a match for now
+        return cls(raw=raw, segments=segments)
+
+
+class InsertStatementSegment(BaseSegment):
+    type = 'insert_statement'
+    # From here down, comments are printed seperately.
+    comment_seperate = True
+
+    @classmethod
+    def match(cls, raw, segments):
+        # Lets just assume it's never a match for now
+        return None
+
+
+class UnparsableSegment(BaseSegment):
+    type = 'unparsable'
+    # From here down, comments are printed seperately.
+    comment_seperate = True
+
+
 class StatementSegment(BaseSegment):
     type = 'statement'
     # From here down, comments are printed seperately.
     comment_seperate = True
+    # Let's define a grammar from here on in
+    grammar = AnyOf(SelectStatementSegment, InsertStatementSegment)
 
     def parse(self):
         if self.segments is None:
@@ -360,6 +425,12 @@ class StatementSegment(BaseSegment):
         # Mutate itself, and then return
 
         # If it can't match, then we should have an unparsable block
+        match = self.match(raw=self.raw, segments=self.segments)
+        if match is None:
+            self.segments = UnparsableSegment(raw=self.raw, segments=self.segments)
+        else:
+            self.segments = [match]
+
         return self
 
 class CodeSegment(BaseSegment):
