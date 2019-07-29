@@ -381,8 +381,18 @@ class SelectStatementSegment(BaseSegment):
 
     @classmethod
     def match(cls, raw, segments):
-        # Lets just assume it's a match for now
-        return cls(raw=raw, segments=segments)
+        first_code = None
+        for seg in segments:
+            if seg.type == 'strippedcode':
+                first_code = seg
+                break
+        else:
+            return None
+
+        if seg.raw.upper() == 'SELECT':
+            return cls(raw=raw, segments=segments)
+        else:
+            return None
 
 
 class InsertStatementSegment(BaseSegment):
@@ -392,8 +402,18 @@ class InsertStatementSegment(BaseSegment):
 
     @classmethod
     def match(cls, raw, segments):
-        # Lets just assume it's never a match for now
-        return None
+        first_code = None
+        for seg in segments:
+            if seg.type == 'strippedcode':
+                first_code = seg
+                break
+        else:
+            return None
+
+        if seg.raw.upper() == 'INSERT':
+            return cls(raw=raw, segments=segments)
+        else:
+            return None
 
 
 class UnparsableSegment(BaseSegment):
@@ -427,7 +447,7 @@ class StatementSegment(BaseSegment):
         # If it can't match, then we should have an unparsable block
         match = self.match(raw=self.raw, segments=self.segments)
         if match is None:
-            self.segments = UnparsableSegment(raw=self.raw, segments=self.segments)
+            self.segments = [UnparsableSegment(raw=self.raw, segments=self.segments)]
         else:
             self.segments = [match]
 
