@@ -386,6 +386,31 @@ class AnyOf(BaseGrammar):
             return None
 
 
+class ContainsOnly(BaseGrammar):
+    """ match a sequence of segments which are only of the types,
+    or only match the grammars in the list """
+    def __init__(self, *args, **kwargs):
+        self._options = args
+
+    def match(self, raw, segments):
+        for seg in segments:
+            matched = False
+            for opt in self._options:
+                if isinstance(opt, str) and seg.type == opt:
+                    matched = True
+                    break
+                elif isinstance(opt, (BaseGrammar, BaseSegment)) and opt.match(seg.raw, [seg]):
+                    matched = True
+                    break
+            if not matched:
+                print("Non Matching Segment! {0!r}".format(seg))
+                # found a non matching segment:
+                return None
+        else:
+            # Should we also be returning a raw here?
+            return segments
+
+
 class StartsWith(BaseGrammar):
     """ Match if the first element is the same, with configurable
     whitespace and comment handling """
@@ -457,6 +482,13 @@ class InsertStatementSegment(BaseSegment):
     grammar = StartsWith(Keyword('insert'))
 
 
+class EmptyStatementSegment(BaseSegment):
+    type = 'empty_statement'
+    # From here down, comments are printed seperately.
+    comment_seperate = True
+    grammar = ContainsOnly('comment', 'newline')
+
+
 class UnparsableSegment(BaseSegment):
     type = 'unparsable'
     # From here down, comments are printed seperately.
@@ -468,7 +500,7 @@ class StatementSegment(BaseSegment):
     # From here down, comments are printed seperately.
     comment_seperate = True
     # Let's define a grammar from here on in
-    grammar = AnyOf(SelectStatementSegment, InsertStatementSegment)
+    grammar = AnyOf(SelectStatementSegment, InsertStatementSegment, EmptyStatementSegment)
 
     def parse(self):
         if self.segments is None:
