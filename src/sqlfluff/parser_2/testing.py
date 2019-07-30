@@ -487,6 +487,8 @@ class EmptyStatementSegment(BaseSegment):
     # From here down, comments are printed seperately.
     comment_seperate = True
     grammar = ContainsOnly('comment', 'newline')
+    # TODO: At some point - we should lint that these are only
+    # allowed at the END - otherwise it's probably a parsing error
 
 
 class UnparsableSegment(BaseSegment):
