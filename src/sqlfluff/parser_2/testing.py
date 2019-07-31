@@ -366,7 +366,7 @@ class BaseGrammar(object):
         raise NotImplementedError("{0} has no match function implemented".format(self.__class__.__name__))
 
 
-class AnyOf(BaseGrammar):
+class OneOf(BaseGrammar):
     """ Match any of the elements given once, if it matches
     multiple, it returns the first """
     def __init__(self, *args, **kwargs):
@@ -502,7 +502,7 @@ class StatementSegment(BaseSegment):
     # From here down, comments are printed seperately.
     comment_seperate = True
     # Let's define a grammar from here on in
-    grammar = AnyOf(SelectStatementSegment, InsertStatementSegment, EmptyStatementSegment)
+    grammar = OneOf(SelectStatementSegment, InsertStatementSegment, EmptyStatementSegment)
 
     def parse(self):
         if self.segments is None:
