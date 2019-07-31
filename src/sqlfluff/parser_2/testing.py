@@ -54,9 +54,22 @@ print("Hello World!")
 
 class BaseSegment(object):
     type = 'base'
+    parse_grammar = None
     grammar = None
     comment_seperate = False
     is_whitespace = False
+
+    @classmethod
+    def _match_grammar(self):
+        return self.grammar
+
+    @classmethod
+    def _parse_grammar(self):
+        #return self.parse_grammar
+        if self.parse_grammar:
+            return self.parse_grammar
+        else:
+            return self.grammar
 
     def __init__(self, segments, pos_marker=None):
         self.segments = segments
@@ -71,14 +84,60 @@ class BaseSegment(object):
         raise NotImplementedError("from_raw is not implemented for {0}".format(cls.__name__))
 
     def parse(self):
-        # raise NotImplementedError("parse not implemented on type {0}".format(self.__class__))
+        print("PARSE: {0}".format(self))
+        if self.segments is None:
+            raise ValueError("No Segments to parse!?")
+        # First we need to allow any existing segments in this
+        # statement to expand out. This could inlude code and comment
+        # segments.
+        # We now need to parse each of the sub elements. Expand does that.
+        self.segments = self.expand(self.segments)
+        print("EXPANDED: {0}: {1}".format(self, self.segments))
+        # print("{0}: {1}".format(self.__class__.__name__, self.segments))
+        # Here we then need to allow any number of comments and whitespace
+        # (to lint later)
+        # THEN it must match a type of sql statement
+
+        # Mutate itself, and then return
+
+        # If it can't match, then we should have an unparsable block
+        #match = self.match(segments=self.segments)
+        #if match is None:
+        #    self.segments = [UnparsableSegment(segments=self.segments)]
+        #else:
+        #    self.segments = [match]
+
+        # Similar to the match grammar, we use parse grammar here:
+        if self._parse_grammar():
+            print(self._parse_grammar())
+            m = self._parse_grammar().match(segments=self.segments)
+            print("saflkjefhseakjh: {0}".format(self.__class__.__name__))
+            print(m)
+            # m will either be a segment, or a list.
+            # if it's a list, it's a list of segments to construct THIS class
+            # if it's a segment, then it's a replacement
+            # if it's NONE then we haven't matched and we should return that
+            if isinstance(m, BaseSegment):
+                self.segments = [m]
+            elif isinstance(m, list):
+                self.segments = m
+            elif m is None:
+                self.segments = [UnparsableSegment(segments=self.segments)]
+            else:
+                raise ValueError("Unexpected response to self._parse_grammar.match: {0!r}".format(m))
+        #else:
+        #    raise NotImplementedError("{0} has no parse grammar function implemented".format(self.__class__.__name__))
+        print("EXPANDED POST PARSE: {0}: {1}".format(self, self.segments))
         return self
 
     def __repr__(self):
-        return "<{0}: ({1}) {2!s}>".format(
+        #return "<{0}: ({1}) {2!s}>".format(
+        #    self.__class__.__name__,
+        #    self.pos_marker,
+        #    self.segments)
+        return "<{0}: ({1})>".format(
             self.__class__.__name__,
-            self.pos_marker,
-            self.segments)
+            self.pos_marker)
 
     def _reconstruct(self):
         return "".join([seg._reconstruct() for seg in self.segments])
@@ -116,6 +175,9 @@ class BaseSegment(object):
             for seg in self.segments:
                 seg.print(ident=ident + 1, tabsize=tabsize, pos_idx=pos_idx, raw_idx=raw_idx)
 
+    # Match for segments is done in the ABSTRACT.
+    # When dealing with concrete then we're always in parse.
+    # Parse is what happens during expand.
     @classmethod
     def match(cls, segments):
         """
@@ -123,22 +185,23 @@ class BaseSegment(object):
             This raw function can be overridden, or a grammar defined
             on the underlying class.
         """
-        if cls.grammar:
-            m = cls.grammar.match(segments=segments)
+        print("MATCH: {0}".format(cls))
+        if cls._match_grammar():
+            m = cls._match_grammar().match(segments=segments)
             # m will either be a segment, or a list.
             # if it's a list, it's a list of segments to construct THIS class
             # if it's a segment, then it's a replacement
             # if it's NONE then we haven't matched and we should return that
             if isinstance(m, BaseSegment):
-                return m
+                return cls(segments=[m])
             elif isinstance(m, list):
                 return cls(segments=m)
             elif m is None:
                 return None
             else:
-                raise ValueError("Unexpected response to cls.grammar.match: {0!r}".format(m))
+                raise ValueError("Unexpected response to cls._match_grammar.match: {0!r}".format(m))
         else:
-            raise NotImplementedError("{0} has no match function implemented".format(cls.__class__.__name__))
+            raise NotImplementedError("{0} has no match function implemented".format(cls.__name__))
 
     @staticmethod
     def expand(segments):
@@ -185,6 +248,10 @@ class RawSegment(BaseSegment):
     def print(self, ident=0, tabsize=4, pos_idx=60, raw_idx=80):
         preface = self._preface(ident=ident, tabsize=tabsize, pos_idx=pos_idx)
         print(preface + (' ' * max(raw_idx - len(preface), 0)) + "{0!r}".format(self.raw))
+
+    def parse(self):
+        # TODO: Check this is right?
+        return self
 
 
 class FileSegment(BaseSegment):
@@ -366,14 +433,6 @@ class FileSegment(BaseSegment):
         # We should call parse for that.
         return cls(segments=statement_stack)
 
-    def parse(self):
-        # TODO: Rewrite the docstring here to be more accurate.
-        """ The parse function on the file segment is a bit special
-        so that it contains errors between each statement """
-        # We now need to parse each of the sub elements. Expand does that.
-        self.segments = self.expand(self.segments)
-        return self
-
 
 class StatementSperatorSegment(RawSegment):
     type = 'statement_seperator'
@@ -385,14 +444,13 @@ class BaseGrammar(object):
     most grammars. Segments implement `match` as a classmethod. Grammars
     implement it as an instance method """
 
-    # TODO: We should probably remove the raw idea from here. We don't use it,
-    # and we should just reconstruct from the segments if we need to.
     def match(self, segments):
         """
             Matching can be done from either the raw or the segments.
             This raw function can be overridden, or a grammar defined
             on the underlying class.
         """
+        print("MATCH: {0}".format(self))
         raise NotImplementedError("{0} has no match function implemented".format(self.__class__.__name__))
 
 
@@ -403,6 +461,7 @@ class OneOf(BaseGrammar):
         self._options = args
 
     def match(self, segments):
+        print("MATCH: {0}".format(self))
         # Match on each of the options
         matches = [opt.match(segments) for opt in self._options]
 
@@ -411,6 +470,7 @@ class OneOf(BaseGrammar):
 
         for m in matches:
             if m:
+                print("MATCH: {0}: Returning: {1}".format(self, m))
                 return m
         else:
             return None
@@ -426,6 +486,7 @@ class GreedyUntil(BaseGrammar):
         self.strict = kwargs.get('strict', False)
 
     def match(self, segments):
+        print("MATCH: {0}".format(self))
         seg_buffer = []
         for seg in segments:
             for opt in self._options:
@@ -456,6 +517,7 @@ class Sequence(BaseGrammar):
         self._elems = args
 
     def match(self, segments):
+        print("MATCH: {0}".format(self))
         # we should assume that segments aren't mutated in a grammar
         # so that the number we get back from a match is the same as
         # the number we should skip.
@@ -481,6 +543,7 @@ class ContainsOnly(BaseGrammar):
         self._options = args
 
     def match(self, segments):
+        print("MATCH: {0}".format(self))
         for seg in segments:
             matched = False
             for opt in self._options:
@@ -508,6 +571,7 @@ class StartsWith(BaseGrammar):
         # Implement config handling later...
 
     def match(self, segments):
+        print("MATCH: {0}".format(self))
         if self.code_only:
             first_code = None
             first_code_idx = None
@@ -542,6 +606,7 @@ class Keyword(BaseGrammar):
             self.word = word.upper()
 
     def match(self, segments):
+        print("MATCH: {0}".format(self))
         # We can only match segments of length 1
         if len(segments) == 1:
             raw = segments[0].raw
@@ -564,11 +629,6 @@ class SelectStatementSegment(BaseSegment):
     comment_seperate = True
     # match grammar
     grammar = StartsWith(Keyword('select'))
-
-    def parse(self):
-        print("PARSING SELECT STATEMENT")
-        raise NotImplementedError("Blah!")
-        return self
 
 
 class InsertStatementSegment(BaseSegment):
@@ -599,30 +659,6 @@ class StatementSegment(BaseSegment):
     comment_seperate = True
     # Let's define a grammar from here on in
     grammar = OneOf(SelectStatementSegment, InsertStatementSegment, EmptyStatementSegment)
-
-    def parse(self):
-        if self.segments is None:
-            raise ValueError("No Segments to parse!?")
-
-        # First we need to allow any existing segments in this
-        # statement to expand out. This could inlude code and comment
-        # segments
-        self.segments = self.expand(self.segments)
-
-        # Here we then need to allow any number of comments and whitespace
-        # (to lint later)
-        # THEN it must match a type of sql statement
-
-        # Mutate itself, and then return
-
-        # If it can't match, then we should have an unparsable block
-        match = self.match(segments=self.segments)
-        if match is None:
-            self.segments = [UnparsableSegment(segments=self.segments)]
-        else:
-            self.segments = [match]
-
-        return self
 
 
 class CodeSegment(RawSegment):
