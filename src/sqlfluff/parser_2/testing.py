@@ -7,6 +7,13 @@ Token = namedtuple('Token', ['start', 'end'])
 protoFilePositionMarker = namedtuple('FilePositionMarker', ['statement_index', 'line_no', 'line_pos', 'char_pos'])
 
 
+# NOTE: There is a concept here, of parallel grammars.
+# We use one (slightly more permissive) grammar to MATCH
+# and then a more detailed one to PARSE. One is called first,
+# then the other - which allows sections of the file to be
+# parsed even when others won't.
+
+
 class FilePositionMarker(protoFilePositionMarker):
     def advance_by(self, raw="", idx=0):
         stmt = self.statement_index
