@@ -61,7 +61,10 @@ class BaseSegment(object):
 
     @classmethod
     def _match_grammar(self):
-        return self.grammar
+        if self.grammar:
+            return self.grammar
+        else:
+            return self.parse_grammar
 
     @classmethod
     def _parse_grammar(self):
@@ -84,7 +87,7 @@ class BaseSegment(object):
         raise NotImplementedError("from_raw is not implemented for {0}".format(cls.__name__))
 
     def parse(self):
-        print("PARSE: {0}".format(self))
+        print("{0}.parse A".format(self.__class__.__name__))
         if self.segments is None:
             raise ValueError("No Segments to parse!?")
         # First we need to allow any existing segments in this
@@ -92,7 +95,8 @@ class BaseSegment(object):
         # segments.
         # We now need to parse each of the sub elements. Expand does that.
         self.segments = self.expand(self.segments)
-        print("EXPANDED: {0}: {1}".format(self, self.segments))
+        print("{0}.parse B".format(self.__class__.__name__))
+        #print("{0}".format(self.segments))
         # print("{0}: {1}".format(self.__class__.__name__, self.segments))
         # Here we then need to allow any number of comments and whitespace
         # (to lint later)
@@ -109,10 +113,9 @@ class BaseSegment(object):
 
         # Similar to the match grammar, we use parse grammar here:
         if self._parse_grammar():
-            print(self._parse_grammar())
             m = self._parse_grammar().match(segments=self.segments)
-            print("saflkjefhseakjh: {0}".format(self.__class__.__name__))
-            print(m)
+            print("{0}.parse C".format(self.__class__.__name__))
+            #print(m)
             # m will either be a segment, or a list.
             # if it's a list, it's a list of segments to construct THIS class
             # if it's a segment, then it's a replacement
@@ -125,9 +128,13 @@ class BaseSegment(object):
                 self.segments = [UnparsableSegment(segments=self.segments)]
             else:
                 raise ValueError("Unexpected response to self._parse_grammar.match: {0!r}".format(m))
+            print("{0}.parse D".format(self.__class__.__name__))
+            #print(self.segments)
+            self.segments = self.expand(self.segments)
         #else:
         #    raise NotImplementedError("{0} has no parse grammar function implemented".format(self.__class__.__name__))
-        print("EXPANDED POST PARSE: {0}: {1}".format(self, self.segments))
+        print("{0}.parse E".format(self.__class__.__name__))
+        #rint(self.segments)
         return self
 
     def __repr__(self):
@@ -521,16 +528,31 @@ class Sequence(BaseGrammar):
         # we should assume that segments aren't mutated in a grammar
         # so that the number we get back from a match is the same as
         # the number we should skip.
+        if isinstance(segments, BaseSegment):
+            segments = [segments]
         seg_idx = 0
-        for elem in self.elems:
-            m = elem.match(segments[seg_idx:])
-            if m:
-                # deal with the matches
-                # advance the counter
-                seg_idx += len(m)
-            else:
-                # We failed to match an element, fail out.
-                return None
+        for elem in self._elems:
+            print(elem)
+            print("Sequence Matching at index: {0}".format(seg_idx))
+            # sequentially try longer segments to see if it works
+            l = 1
+            while True:
+                if seg_idx + l > len(segments):
+                    # We failed to match an element, fail out.
+                    print("FAIL")
+                    return None
+                m = elem.match(segments[seg_idx:seg_idx+l])
+                print(m)
+                if m:
+                    # deal with the matches
+                    # advance the counter
+                    if isinstance(m, BaseSegment):
+                        seg_idx = 1
+                    else:
+                        seg_idx += len(m)
+                    print(seg_idx)
+                    break
+                l += 1
         else:
             # If the segments get mutated we might need to do something different here
             return segments
@@ -608,9 +630,13 @@ class Keyword(BaseGrammar):
     def match(self, segments):
         print("MATCH: {0}".format(self))
         # We can only match segments of length 1
+        if isinstance(segments, BaseSegment):
+            segments = [segments]
+        print(len(segments))
         if len(segments) == 1:
             raw = segments[0].raw
             pos = segments[0].pos_marker
+            print(raw)
             if ((self.case_sensitive and self.word == raw) or (not self.case_sensitive and self.word == raw.upper())):
                 return KeywordSegment(raw=raw, pos_marker=pos)
         return None
@@ -623,12 +649,22 @@ class KeywordSegment(RawSegment):
     type = 'keyword'
 
 
+class SelectTargetGroupStatementSegment(BaseSegment):
+    type = 'select_target_group'
+    # From here down, comments are printed seperately.
+    comment_seperate = True
+    # match grammar - doesn't exist - don't match, only parse
+    grammar = None
+    parse_grammar = Sequence(GreedyUntil(Keyword('from')))
+
+
 class SelectStatementSegment(BaseSegment):
     type = 'select_statement'
     # From here down, comments are printed seperately.
     comment_seperate = True
     # match grammar
     grammar = StartsWith(Keyword('select'))
+    parse_grammar = Sequence(Keyword('select'), SelectTargetGroupStatementSegment, GreedyUntil(Keyword('limit')))
 
 
 class InsertStatementSegment(BaseSegment):
@@ -772,6 +808,9 @@ with tmp as (
 select a, b from tmp;
 # And that's the end
 """
+
+# Something simple for testing
+raw = """select a, b from tmp"""
 
 
 tabsize = 4
