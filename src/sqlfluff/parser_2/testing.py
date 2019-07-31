@@ -58,13 +58,17 @@ class BaseSegment(object):
     comment_seperate = False
     is_whitespace = False
 
-    def __init__(self, raw, segments=None, pos_marker=None):
-        self.raw = raw
+    def __init__(self, segments, pos_marker=None):
         self.segments = segments
         if pos_marker:
             self.pos_marker = pos_marker
         else:
-            self.pos_marker = FilePositionMarker(1, 1, 1, 0)
+            # If no pos given, it's the pos of the first segment
+            self.pos_marker = segments[0].pos_marker
+
+    @classmethod
+    def from_raw(cls, raw):
+        raise NotImplementedError("from_raw is not implemented for {0}".format(cls.__name__))
 
     @property
     def statement_index(self):
@@ -83,26 +87,19 @@ class BaseSegment(object):
         return self
 
     def __repr__(self):
-        if self.segments:
-            return "<{0}: ({1},{2},{3}) {4!s}>".format(
-                self.__class__.__name__,
-                self.statement_index,
-                self.line_no,
-                self.line_pos,
-                self.segments)
-        else:
-            return "<{0}: ({1},{2},{3}) {4!r}>".format(
-                self.__class__.__name__,
-                self.statement_index,
-                self.line_no,
-                self.line_pos,
-                self.raw)
+        return "<{0}: ({1},{2},{3}) {4!s}>".format(
+            self.__class__.__name__,
+            self.statement_index,
+            self.line_no,
+            self.line_pos,
+            self.segments)
 
     def reconstruct(self):
-        if self.segments:
-            return "".join([seg.reconstruct() for seg in self.segments])
-        else:
-            return self.raw
+        return "".join([seg.reconstruct() for seg in self.segments])
+
+    @property
+    def raw(self):
+        return self.reconstruct()
 
     def _preface(self, ident, tabsize, pos_idx):
         preface = (' ' * (ident * tabsize)) + self.__class__.__name__ + ":"
@@ -119,32 +116,29 @@ class BaseSegment(object):
 
     def print(self, ident=0, tabsize=4, pos_idx=60, raw_idx=80):
         preface = self._preface(ident=ident, tabsize=tabsize, pos_idx=pos_idx)
-        if self.segments:
-            print(preface)
-            if self.comment_seperate and len(self.comments) > 0:
-                if self.comments:
-                    print((' ' * ((ident + 1) * tabsize)) + 'Comments:')
-                    for seg in self.comments:
-                        seg.print(ident=ident + 2, tabsize=tabsize, pos_idx=pos_idx, raw_idx=raw_idx)
-                if self.non_comments:
-                    print((' ' * ((ident + 1) * tabsize)) + 'Code:')
-                    for seg in self.non_comments:
-                        seg.print(ident=ident + 2, tabsize=tabsize, pos_idx=pos_idx, raw_idx=raw_idx)
-            else:
-                for seg in self.segments:
-                    seg.print(ident=ident + 1, tabsize=tabsize, pos_idx=pos_idx, raw_idx=raw_idx)
+        print(preface)
+        if self.comment_seperate and len(self.comments) > 0:
+            if self.comments:
+                print((' ' * ((ident + 1) * tabsize)) + 'Comments:')
+                for seg in self.comments:
+                    seg.print(ident=ident + 2, tabsize=tabsize, pos_idx=pos_idx, raw_idx=raw_idx)
+            if self.non_comments:
+                print((' ' * ((ident + 1) * tabsize)) + 'Code:')
+                for seg in self.non_comments:
+                    seg.print(ident=ident + 2, tabsize=tabsize, pos_idx=pos_idx, raw_idx=raw_idx)
         else:
-            print(preface + (' ' * max(raw_idx - len(preface), 0)) + "{0!r}".format(self.raw))
+            for seg in self.segments:
+                seg.print(ident=ident + 1, tabsize=tabsize, pos_idx=pos_idx, raw_idx=raw_idx)
 
     @classmethod
-    def match(cls, raw, segments):
+    def match(cls, segments):
         """
             Matching can be done from either the raw or the segments.
             This raw function can be overridden, or a grammar defined
             on the underlying class.
         """
         if cls.grammar:
-            m = cls.grammar.match(raw=raw, segments=segments)
+            m = cls.grammar.match(segments=segments)
             # m will either be a segment, or a list.
             # if it's a list, it's a list of segments to construct THIS class
             # if it's a segment, then it's a replacement
@@ -152,7 +146,7 @@ class BaseSegment(object):
             if isinstance(m, BaseSegment):
                 return m
             elif isinstance(m, list):
-                return cls(raw=raw, segments=m)
+                return cls(segments=m)
             elif m is None:
                 return None
             else:
@@ -173,12 +167,48 @@ class BaseSegment(object):
         return segs
 
 
+class RawSegment(BaseSegment):
+    """ This is a segment without any subsegments,
+    it could be postprocessed later, but then it would be
+    a different class. """
+
+    def __init__(self, raw, pos_marker):
+        self._raw = raw
+        # pos marker is required here
+        self.pos_marker = pos_marker
+
+    @property
+    def segments(self):
+        """ in case we need to iterate """
+        raise RuntimeError("Trying to iterate on a RawSegment!")
+        return [self]
+
+    @property
+    def raw(self):
+        return self._raw
+
+    def reconstruct(self):
+        return self.raw
+
+    def __repr__(self):
+        return "<{0}: ({1},{2},{3}) {4!r}>".format(
+            self.__class__.__name__,
+            self.statement_index,
+            self.line_no,
+            self.line_pos,
+            self.raw)
+
+    def print(self, ident=0, tabsize=4, pos_idx=60, raw_idx=80):
+        preface = self._preface(ident=ident, tabsize=tabsize, pos_idx=pos_idx)
+        print(preface + (' ' * max(raw_idx - len(preface), 0)) + "{0!r}".format(self.raw))
+
+
 class FileSegment(BaseSegment):
     type = 'file'
 
-    def parse(self):
-        """ The parse function on the file segment is a bit special
-        so that it contains errors between each statement """
+    @classmethod
+    def from_raw(cls, raw):
+        """ Take Raw Text and Make a FileSegment """
         # Parsing files involves seperating comment segments and code segments and statements segments
 
         # Comments override everything unless we're in a string literal
@@ -201,12 +231,13 @@ class FileSegment(BaseSegment):
         comment_entry = None
         string_entry = None
         skip = 0
-        this_pos = self.pos_marker
+        # This is the only time that we initialise the file position marker
+        this_pos = FilePositionMarker(1, 1, 1, 0)
         last_char = None
         last_seg_pos = this_pos  # The starting position of the "current" segment
         last_stmt_pos = this_pos  # The starting position of the "current" statement
         stmt_idx_buff = 0
-        for c in self.raw:
+        for c in raw:
             # Advance using the last character
             if last_char:
                 this_pos = this_pos.advance_by(last_char, idx=stmt_idx_buff)
@@ -220,7 +251,7 @@ class FileSegment(BaseSegment):
                 continue
 
             # Get a forward looking view for comparison
-            forward = self.raw[this_pos.char_pos:]
+            forward = raw[this_pos.char_pos:]
 
             # What state are we in?
             if not comment_entry and not string_entry:
@@ -232,7 +263,7 @@ class FileSegment(BaseSegment):
                         if this_pos > last_seg_pos:
                             segment_stack.append(
                                 CodeSegment(
-                                    raw[last_seg_pos.char_pos:this_pos.char_pos],
+                                    raw=raw[last_seg_pos.char_pos:this_pos.char_pos],
                                     pos_marker=last_seg_pos
                                 )
                             )
@@ -246,7 +277,7 @@ class FileSegment(BaseSegment):
                         if this_pos > last_seg_pos:
                             segment_stack.append(
                                 CodeSegment(
-                                    raw[last_seg_pos.char_pos:this_pos.char_pos],
+                                    raw=raw[last_seg_pos.char_pos:this_pos.char_pos],
                                     pos_marker=last_seg_pos
                                 )
                             )
@@ -259,19 +290,18 @@ class FileSegment(BaseSegment):
                         # We need to end the current code segment FIRST
                         segment_stack.append(
                             CodeSegment(
-                                raw[last_seg_pos.char_pos:this_pos.char_pos],
+                                raw=raw[last_seg_pos.char_pos:this_pos.char_pos],
                                 pos_marker=last_seg_pos
                             )
                         )
                         last_seg_pos = this_pos
                         statement_stack.append(
                             StatementSegment(
-                                raw[last_stmt_pos.char_pos:this_pos.char_pos],
                                 segments=segment_stack,
                                 pos_marker=last_stmt_pos))
                         statement_stack.append(
                             StatementSperatorSegment(
-                                e, pos_marker=this_pos)
+                                raw=e, pos_marker=this_pos)
                         )
                         segment_stack = []
                         stmt_idx_buff = 1
@@ -346,16 +376,22 @@ class FileSegment(BaseSegment):
             # Let's just terminate this as a statement
             statement_stack.append(
                 StatementSegment(
-                    raw[last_stmt_pos.char_pos:this_pos.char_pos],
                     segments=segment_stack,
                     pos_marker=last_stmt_pos))
+        # We haven't expanded yet, just the base parsing...
+        # We should call parse for that.
+        return cls(segments=statement_stack)
 
+    def parse(self):
+        # TODO: Rewrite the docstring here to be more accurate.
+        """ The parse function on the file segment is a bit special
+        so that it contains errors between each statement """
         # We now need to parse each of the sub elements. Expand does that.
-        self.segments = self.expand(statement_stack)
+        self.segments = self.expand(self.segments)
         return self
 
 
-class StatementSperatorSegment(BaseSegment):
+class StatementSperatorSegment(RawSegment):
     type = 'statement_seperator'
 
 
@@ -367,7 +403,7 @@ class BaseGrammar(object):
 
     # TODO: We should probably remove the raw idea from here. We don't use it,
     # and we should just reconstruct from the segments if we need to.
-    def match(self, raw, segments):
+    def match(self, segments):
         """
             Matching can be done from either the raw or the segments.
             This raw function can be overridden, or a grammar defined
@@ -382,9 +418,9 @@ class OneOf(BaseGrammar):
     def __init__(self, *args, **kwargs):
         self._options = args
 
-    def match(self, raw, segments):
+    def match(self, segments):
         # Match on each of the options
-        matches = [opt.match(raw, segments) for opt in self._options]
+        matches = [opt.match(segments) for opt in self._options]
 
         if sum([1 if m is not None else 0 for m in matches]) > 1:
             print("WARNING! Ambiguous match!")
@@ -405,11 +441,11 @@ class GreedyUntil(BaseGrammar):
         # then this will still match
         self.strict = kwargs.get('strict', False)
 
-    def match(self, raw, segments):
+    def match(self, segments):
         seg_buffer = []
         for seg in segments:
             for opt in self._options:
-                if opt.match(seg.raw, seg):
+                if opt.match(seg):
                     # it's a match! Return everything up to this point
                     if seg_buffer:
                         return seg
@@ -435,7 +471,7 @@ class Sequence(BaseGrammar):
     def __init__(self, *args, **kwargs):
         self._elems = args
 
-    def match(self, raw, segments):
+    def match(self, segments):
         # we should assume that segments aren't mutated in a grammar
         # so that the number we get back from a match is the same as
         # the number we should skip.
@@ -460,14 +496,14 @@ class ContainsOnly(BaseGrammar):
     def __init__(self, *args, **kwargs):
         self._options = args
 
-    def match(self, raw, segments):
+    def match(self, segments):
         for seg in segments:
             matched = False
             for opt in self._options:
                 if isinstance(opt, str) and seg.type == opt:
                     matched = True
                     break
-                elif isinstance(opt, (BaseGrammar, BaseSegment)) and opt.match(seg.raw, [seg]):
+                elif isinstance(opt, (BaseGrammar, BaseSegment)) and opt.match([seg]):
                     matched = True
                     break
             if not matched:
@@ -487,7 +523,7 @@ class StartsWith(BaseGrammar):
         self.code_only = code_only
         # Implement config handling later...
 
-    def match(self, raw, segments):
+    def match(self, segments):
         if self.code_only:
             first_code = None
             first_code_idx = None
@@ -499,7 +535,7 @@ class StartsWith(BaseGrammar):
             else:
                 return None
 
-            match = self.target.match(raw=first_code.raw, segments=[first_code])
+            match = self.target.match(segments=[first_code])
             if match:
                 # Let's actually make it a keyword segment
                 segments[first_code_idx] = match
@@ -521,18 +557,20 @@ class Keyword(BaseGrammar):
         else:
             self.word = word.upper()
 
-    def match(self, raw, segments):
+    def match(self, segments):
         # We can only match segments of length 1
         if len(segments) == 1:
+            raw = segments[0].raw
+            pos = segments[0].pos_marker
             if ((self.case_sensitive and self.word == raw) or (not self.case_sensitive and self.word == raw.upper())):
-                return KeywordSegment(raw=raw, segments=segments)
+                return KeywordSegment(raw=raw, pos_marker=pos)
         return None
 
 # Note on SQL Grammar
 # https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 
 
-class KeywordSegment(BaseSegment):
+class KeywordSegment(RawSegment):
     type = 'keyword'
 
 
@@ -594,16 +632,16 @@ class StatementSegment(BaseSegment):
         # Mutate itself, and then return
 
         # If it can't match, then we should have an unparsable block
-        match = self.match(raw=self.raw, segments=self.segments)
+        match = self.match(segments=self.segments)
         if match is None:
-            self.segments = [UnparsableSegment(raw=self.raw, segments=self.segments)]
+            self.segments = [UnparsableSegment(segments=self.segments)]
         else:
             self.segments = [match]
 
         return self
 
 
-class CodeSegment(BaseSegment):
+class CodeSegment(RawSegment):
     type = 'code'
 
     def parse(self):
@@ -672,15 +710,15 @@ class CodeSegment(BaseSegment):
         return segment_stack
 
 
-class QuotedSegment(BaseSegment):
+class QuotedSegment(RawSegment):
     type = 'quoted'
 
 
-class StrippedCodeSegment(BaseSegment):
+class StrippedCodeSegment(RawSegment):
     type = 'strippedcode'
 
 
-class WhitespaceSegment(BaseSegment):
+class WhitespaceSegment(RawSegment):
     type = 'whitespace'
     is_whitespace = True
 
@@ -689,7 +727,7 @@ class NewlineSegment(WhitespaceSegment):
     type = 'newline'
 
 
-class CommentSegment(BaseSegment):
+class CommentSegment(RawSegment):
     type = 'comment'
 
     def parse(self):
@@ -723,7 +761,7 @@ SEMICOLON = ';'
 if __name__ == "__main__":
     print("##### parsing:")
     print(raw)
-    fs = FileSegment(raw)
+    fs = FileSegment.from_raw(raw)
     parsed = fs.parse()
     print(parsed.segments)
     print(parsed.reconstruct())
