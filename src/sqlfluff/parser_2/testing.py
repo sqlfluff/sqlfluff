@@ -357,6 +357,9 @@ class BaseGrammar(object):
     must implment the `match` function. Segments can also be passed to
     most grammars. Segments implement `match` as a classmethod. Grammars
     implement it as an instance method """
+
+    # TODO: We should probably remove the raw idea from here. We don't use it,
+    # and we should just reconstruct from the segments if we need to.
     def match(self, raw, segments):
         """
             Matching can be done from either the raw or the segments.
@@ -384,6 +387,64 @@ class OneOf(BaseGrammar):
                 return m
         else:
             return None
+
+
+class GreedyUntil(BaseGrammar):
+    """ Match anything, up to but not including the given options """
+    def __init__(self, *args, **kwargs):
+        self._options = args
+        # `strict`, means the segment will not be matched WITHOUT
+        # the ending clause. Normally, if we run out of segments,
+        # then this will still match
+        self.strict = kwargs.get('strict', False)
+
+    def match(self, raw, segments):
+        seg_buffer = []
+        for seg in segments:
+            for opt in self._options:
+                if opt.match(seg.raw, seg):
+                    # it's a match! Return everything up to this point
+                    if seg_buffer:
+                        return seg
+                    else:
+                        # if the buffer is empty, then no match
+                        return None
+                else:
+                    continue
+            else:
+                # Add this to the buffer
+                seg_buffer.append(seg)
+        else:
+            # We've gone through all the segments, and not found the end
+            if self.strict:
+                # Strict mode means this is NOT at match because we didn't find the end
+                return None
+            else:
+                return seg_buffer
+
+
+class Sequence(BaseGrammar):
+    """ Match a specific sequence of elements """
+    def __init__(self, *args, **kwargs):
+        self._elems = args
+
+    def match(self, raw, segments):
+        # we should assume that segments aren't mutated in a grammar
+        # so that the number we get back from a match is the same as
+        # the number we should skip.
+        seg_idx = 0
+        for elem in self.elems:
+            m = elem.match(segments[seg_idx:])
+            if m:
+                # deal with the matches
+                # advance the counter
+                seg_idx += len(m)
+            else:
+                # We failed to match an element, fail out.
+                return None
+        else:
+            # If the segments get mutated we might need to do something different here
+            return segments
 
 
 class ContainsOnly(BaseGrammar):
@@ -472,7 +533,13 @@ class SelectStatementSegment(BaseSegment):
     type = 'select_statement'
     # From here down, comments are printed seperately.
     comment_seperate = True
+    # match grammar
     grammar = StartsWith(Keyword('select'))
+
+    def parse(self):
+        print("PARSING SELECT STATEMENT")
+        raise NotImplementedError("Blah!")
+        return self
 
 
 class InsertStatementSegment(BaseSegment):
