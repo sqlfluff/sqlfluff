@@ -70,36 +70,22 @@ class BaseSegment(object):
     def from_raw(cls, raw):
         raise NotImplementedError("from_raw is not implemented for {0}".format(cls.__name__))
 
-    @property
-    def statement_index(self):
-        return self.pos_marker.statement_index
-
-    @property
-    def line_no(self):
-        return self.pos_marker.line_no
-
-    @property
-    def line_pos(self):
-        return self.pos_marker.line_pos
-
     def parse(self):
         # raise NotImplementedError("parse not implemented on type {0}".format(self.__class__))
         return self
 
     def __repr__(self):
-        return "<{0}: ({1},{2},{3}) {4!s}>".format(
+        return "<{0}: ({1}) {2!s}>".format(
             self.__class__.__name__,
-            self.statement_index,
-            self.line_no,
-            self.line_pos,
+            self.pos_marker,
             self.segments)
 
-    def reconstruct(self):
-        return "".join([seg.reconstruct() for seg in self.segments])
+    def _reconstruct(self):
+        return "".join([seg._reconstruct() for seg in self.segments])
 
     @property
     def raw(self):
-        return self.reconstruct()
+        return self._reconstruct()
 
     def _preface(self, ident, tabsize, pos_idx):
         preface = (' ' * (ident * tabsize)) + self.__class__.__name__ + ":"
@@ -107,24 +93,24 @@ class BaseSegment(object):
         return preface
 
     @property
-    def comments(self):
+    def _comments(self):
         return [seg for seg in self.segments if seg.type == 'comment']
 
     @property
-    def non_comments(self):
+    def _non_comments(self):
         return [seg for seg in self.segments if seg.type != 'comment']
 
     def print(self, ident=0, tabsize=4, pos_idx=60, raw_idx=80):
         preface = self._preface(ident=ident, tabsize=tabsize, pos_idx=pos_idx)
         print(preface)
-        if self.comment_seperate and len(self.comments) > 0:
-            if self.comments:
+        if self.comment_seperate and len(self._comments) > 0:
+            if self._comments:
                 print((' ' * ((ident + 1) * tabsize)) + 'Comments:')
-                for seg in self.comments:
+                for seg in self._comments:
                     seg.print(ident=ident + 2, tabsize=tabsize, pos_idx=pos_idx, raw_idx=raw_idx)
-            if self.non_comments:
+            if self._non_comments:
                 print((' ' * ((ident + 1) * tabsize)) + 'Code:')
-                for seg in self.non_comments:
+                for seg in self._non_comments:
                     seg.print(ident=ident + 2, tabsize=tabsize, pos_idx=pos_idx, raw_idx=raw_idx)
         else:
             for seg in self.segments:
@@ -181,21 +167,19 @@ class RawSegment(BaseSegment):
     def segments(self):
         """ in case we need to iterate """
         raise RuntimeError("Trying to iterate on a RawSegment!")
-        return [self]
+        # return [self]
 
     @property
     def raw(self):
         return self._raw
 
-    def reconstruct(self):
+    def _reconstruct(self):
         return self.raw
 
     def __repr__(self):
-        return "<{0}: ({1},{2},{3}) {4!r}>".format(
+        return "<{0}: ({1}) {2!r}>".format(
             self.__class__.__name__,
-            self.statement_index,
-            self.line_no,
-            self.line_pos,
+            self.pos_marker,
             self.raw)
 
     def print(self, ident=0, tabsize=4, pos_idx=60, raw_idx=80):
@@ -764,5 +748,5 @@ if __name__ == "__main__":
     fs = FileSegment.from_raw(raw)
     parsed = fs.parse()
     print(parsed.segments)
-    print(parsed.reconstruct())
+    print(parsed.raw)
     parsed.print()
