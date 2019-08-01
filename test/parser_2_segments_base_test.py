@@ -3,7 +3,7 @@
 import pytest
 
 from sqlfluff.parser_2.markers import FilePositionMarker
-from sqlfluff.parser_2.base_segments import RawSegment, BaseSegment
+from sqlfluff.parser_2.segments_base import RawSegment, BaseSegment
 
 
 @pytest.fixture(scope="module")

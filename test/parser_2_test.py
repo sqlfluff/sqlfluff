@@ -2,7 +2,7 @@
 
 import logging
 
-from sqlfluff.parser_2.proto import FileSegment
+from sqlfluff.parser_2.segments_file import FileSegment
 
 # from sqlfluff.parser_2.proto import StatementSegment
 # from sqlfluff.parser_2.proto import SelectStatementSegment
