@@ -1,0 +1,3 @@
+
+class SQLParseError(ValueError):
+    pass
