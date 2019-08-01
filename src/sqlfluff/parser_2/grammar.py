@@ -83,38 +83,40 @@ class Sequence(BaseGrammar):
         self._elems = args
 
     def match(self, segments):
-        logging.debug("MATCH: {0}".format(self))
         # we should assume that segments aren't mutated in a grammar
         # so that the number we get back from a match is the same as
         # the number we should skip.
         if isinstance(segments, BaseSegment):
             segments = [segments]
         seg_idx = 0
+        matched_segments = []
         for elem in self._elems:
-            logging.debug(elem)
-            logging.debug("Sequence Matching at index: {0}".format(seg_idx))
             # sequentially try longer segments to see if it works
             seg_len = 1
             while True:
                 if seg_idx + seg_len > len(segments):
-                    # We failed to match an element, fail out.
-                    logging.debug("FAIL")
                     return None
                 m = elem.match(segments[seg_idx:seg_idx + seg_len])
-                logging.debug(m)
                 if m:
                     # deal with the matches
                     # advance the counter
                     if isinstance(m, BaseSegment):
-                        seg_idx = 1
+                        seg_idx += 1
+                        matched_segments += [m]
                     else:
                         seg_idx += len(m)
-                    logging.debug(seg_idx)
+                        matched_segments += m
                     break
                 seg_len += 1
         else:
-            # If the segments get mutated we might need to do something different here
-            return segments
+            # We've matched everything in the sequence, but we need to check FINALLY
+            # if we've matched everything that was given.
+            if seg_idx == len(segments):
+                # If the segments get mutated we might need to do something different here
+                return matched_segments
+            else:
+                # We matched all the sequence, but the number of segments given was longer
+                return None
 
 
 class ContainsOnly(BaseGrammar):

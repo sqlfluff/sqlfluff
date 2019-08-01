@@ -29,6 +29,12 @@ class DummySegment(BaseSegment):
     # test grammar elsewhere.
 
 
+class DummyAuxSegment(BaseSegment):
+    type = 'dummy_aux'
+    # NB: Don't define grammar at this stage. We'll
+    # test grammar elsewhere.
+
+
 def test__parser_2__base_segments_raw_init():
     """ Test initialisation. Other tests just use the fixture """
     fp = FilePositionMarker.from_fresh()
@@ -69,3 +75,27 @@ def test__parser_2__base_segments_base(raw_seg_list):
             == ("  DummySegment:     [3](1, 1, 4)\n"
                 "    RawSegment:     [3](1, 1, 4)   'foobar'\n"
                 "    RawSegment:     [9](1, 1, 10)  '.barfoo'\n"))
+
+
+def test__parser_2__base_segments_raw_compare():
+    fp1 = FilePositionMarker.from_fresh()
+    fp2 = FilePositionMarker.from_fresh()
+    rs1 = RawSegment('foobar', fp1)
+    rs2 = RawSegment('foobar', fp2)
+    assert rs1 == rs2
+
+
+def test__parser_2__base_segments_base_compare():
+    fp1 = FilePositionMarker.from_fresh()
+    fp2 = FilePositionMarker.from_fresh()
+    rs1 = RawSegment('foobar', fp1)
+    rs2 = RawSegment('foobar', fp2)
+
+    ds1 = DummySegment([rs1])
+    ds2 = DummySegment([rs2])
+    dsa2 = DummyAuxSegment([rs2])
+
+    # Check for equality
+    assert ds1 == ds2
+    # Check a different match on the same details are not the same
+    assert ds1 != dsa2
