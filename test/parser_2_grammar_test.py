@@ -54,3 +54,18 @@ def test__parser_2__grammar_sequence(raw_seg_list):
         bs('bar', raw_seg_list[0].pos_marker),
         fs('foo', raw_seg_list[1].pos_marker)
     ]
+
+
+def test__parser_2__grammar_sequence_nested(raw_seg_list):
+    fs = KeywordSegment.make('foo')
+    bs = KeywordSegment.make('bar')
+    bas = KeywordSegment.make('baar')
+    g = Sequence(Sequence(bs, fs), bas)
+    # Matching the start of the list shouldn't work
+    assert g.match(raw_seg_list[:2]) is None
+    # Matching the whole list should, and the result should be flat
+    assert g.match(raw_seg_list) == [
+        bs('bar', raw_seg_list[0].pos_marker),
+        fs('foo', raw_seg_list[1].pos_marker),
+        bas('baar', raw_seg_list[2].pos_marker)
+    ]
