@@ -183,6 +183,7 @@ class RawSegment(BaseSegment):
     """ This is a segment without any subsegments,
     it could be postprocessed later, but then it would be
     a different class. """
+    type = 'raw'
 
     def __init__(self, raw, pos_marker):
         self._raw = raw
