@@ -9,6 +9,7 @@ class BaseSegment(object):
     grammar = None
     comment_seperate = False
     is_whitespace = False
+    is_code = False
 
     @classmethod
     def _match_grammar(self):

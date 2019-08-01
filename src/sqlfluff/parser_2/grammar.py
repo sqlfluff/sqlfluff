@@ -59,7 +59,7 @@ class GreedyUntil(BaseGrammar):
                 if opt.match(seg):
                     # it's a match! Return everything up to this point
                     if seg_buffer:
-                        return seg
+                        return seg_buffer
                     else:
                         # if the buffer is empty, then no match
                         return None
@@ -159,7 +159,7 @@ class StartsWith(BaseGrammar):
             first_code = None
             first_code_idx = None
             for idx, seg in enumerate(segments):
-                if seg.type == 'strippedcode':
+                if seg.is_code:
                     first_code_idx = idx
                     first_code = seg
                     break

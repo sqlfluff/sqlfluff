@@ -25,6 +25,7 @@ class KeywordSegment(RawSegment):
     fly for convenience """
 
     type = 'keyword'
+    is_code = True
     _template = '<unset>'
     _case_sensitive = False
 
@@ -106,8 +107,8 @@ class StatementSegment(BaseSegment):
     grammar = OneOf(SelectStatementSegment, InsertStatementSegment, EmptyStatementSegment)
 
 
-class CodeSegment(RawSegment):
-    type = 'code'
+class RawCodeSegment(RawSegment):
+    type = 'rawcode'
 
     def parse(self):
         # Split into whitespace, newline and StrippedCode
@@ -133,7 +134,7 @@ class CodeSegment(RawSegment):
                         started = None
                     elif started[0] == 'code':
                         segment_stack.append(
-                            StrippedCodeSegment(
+                            StrippedRawCodeSegment(
                                 self.raw[started[2]:idx],
                                 pos_marker=started[1])
                         )
@@ -150,7 +151,7 @@ class CodeSegment(RawSegment):
                         continue
                     elif started[0] == 'code':
                         segment_stack.append(
-                            StrippedCodeSegment(
+                            StrippedRawCodeSegment(
                                 self.raw[started[2]:idx],
                                 pos_marker=started[1])
                         )
@@ -179,8 +180,9 @@ class QuotedSegment(RawSegment):
     type = 'quoted'
 
 
-class StrippedCodeSegment(RawSegment):
+class StrippedRawCodeSegment(RawSegment):
     type = 'strippedcode'
+    is_code = True
 
 
 class WhitespaceSegment(RawSegment):

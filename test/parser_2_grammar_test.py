@@ -2,7 +2,7 @@
 
 import pytest
 
-from sqlfluff.parser_2.grammar import OneOf, Sequence
+from sqlfluff.parser_2.grammar import OneOf, Sequence, GreedyUntil
 from sqlfluff.parser_2.markers import FilePositionMarker
 from sqlfluff.parser_2.segments_base import RawSegment
 from sqlfluff.parser_2.segments_core import KeywordSegment
@@ -69,3 +69,18 @@ def test__parser_2__grammar_sequence_nested(raw_seg_list):
         fs('foo', raw_seg_list[1].pos_marker),
         bas('baar', raw_seg_list[2].pos_marker)
     ]
+
+
+def test__parser_2__grammar_greedyuntil(raw_seg_list):
+    fs = KeywordSegment.make('foo')
+    bs = KeywordSegment.make('bar')
+    bas = KeywordSegment.make('baar')
+    g0 = GreedyUntil(bs)
+    g1 = GreedyUntil(fs)
+    g2 = GreedyUntil(bas)
+    # Greedy matching until the first item should return none
+    assert g0.match(raw_seg_list) is None
+    # Greedy matching up to foo should return bar (as a raw!)
+    assert g1.match(raw_seg_list) == raw_seg_list[:1]
+    # Greedy matching up to baar should return bar, foo  (as a raw!)
+    assert g2.match(raw_seg_list) == raw_seg_list[:2]

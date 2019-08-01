@@ -7,7 +7,7 @@ from .tokens import Token, TokenMemory
 from .markers import FilePositionMarker
 from .errors import SQLParseError
 from .segments_base import BaseSegment
-from .segments_core import (CodeSegment, StatementSegment, StatementSeperatorSegment,
+from .segments_core import (RawCodeSegment, StatementSegment, StatementSeperatorSegment,
                             CommentSegment, QuotedSegment)
 
 
@@ -72,7 +72,7 @@ class FileSegment(BaseSegment):
                         # check that we have a segment to add
                         if this_pos > last_seg_pos:
                             segment_stack.append(
-                                CodeSegment(
+                                RawCodeSegment(
                                     raw=raw[last_seg_pos.char_pos:this_pos.char_pos],
                                     pos_marker=last_seg_pos
                                 )
@@ -86,7 +86,7 @@ class FileSegment(BaseSegment):
                         # check that we have a segment to add
                         if this_pos > last_seg_pos:
                             segment_stack.append(
-                                CodeSegment(
+                                RawCodeSegment(
                                     raw=raw[last_seg_pos.char_pos:this_pos.char_pos],
                                     pos_marker=last_seg_pos
                                 )
@@ -99,7 +99,7 @@ class FileSegment(BaseSegment):
                         logging.debug("Found statement end at pos {0}! [{1!r}]".format(this_pos, forward[:5]))
                         # We need to end the current code segment FIRST
                         segment_stack.append(
-                            CodeSegment(
+                            RawCodeSegment(
                                 raw=raw[last_seg_pos.char_pos:this_pos.char_pos],
                                 pos_marker=last_seg_pos
                             )
@@ -157,7 +157,7 @@ class FileSegment(BaseSegment):
             # We ended on a code block. OK
             if this_pos.char_pos > last_seg_pos.char_pos:
                 segment_stack.append(
-                    CodeSegment(
+                    RawCodeSegment(
                         raw[last_seg_pos.char_pos:this_pos.char_pos],
                         pos_marker=last_seg_pos
                     )
