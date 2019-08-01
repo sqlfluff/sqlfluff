@@ -39,9 +39,11 @@ class KeywordSegment(RawSegment):
         if len(segments) == 1:
             raw = segments[0].raw
             pos = segments[0].pos_marker
-            logging.debug(raw)
+            logging.warning(raw)
             if ((cls._case_sensitive and cls._template == raw) or (not cls._case_sensitive and cls._template == raw.upper())):
                 return cls(raw=raw, pos_marker=pos)
+        else:
+            logging.warning("Keyword will not match sequence of length {0}".format(len(segments)))
         return None
 
     @classmethod

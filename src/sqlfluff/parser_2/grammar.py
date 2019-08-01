@@ -126,23 +126,32 @@ class ContainsOnly(BaseGrammar):
         self._options = args
 
     def match(self, segments):
-        logging.debug("MATCH: {0}".format(self))
+        seg_buffer = []
         for seg in segments:
             matched = False
             for opt in self._options:
-                if isinstance(opt, str) and seg.type == opt:
-                    matched = True
-                    break
-                elif isinstance(opt, (BaseGrammar, BaseSegment)) and opt.match([seg]):
-                    matched = True
-                    break
+                if isinstance(opt, str):
+                    if seg.type == opt:
+                        matched = True
+                        seg_buffer.append(seg)
+                        break
+                else:
+                    try:
+                        m = opt.match(seg)
+                    except AttributeError:
+                        # it doesn't have a match method
+                        continue
+                    if m:
+                        matched = True
+                        seg_buffer.append(m)
+                        break
             if not matched:
                 logging.debug("Non Matching Segment! {0!r}".format(seg))
                 # found a non matching segment:
                 return None
         else:
             # Should we also be returning a raw here?
-            return segments
+            return seg_buffer
 
 
 class StartsWith(BaseGrammar):

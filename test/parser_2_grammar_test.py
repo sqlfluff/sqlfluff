@@ -2,7 +2,7 @@
 
 import pytest
 
-from sqlfluff.parser_2.grammar import OneOf, Sequence, GreedyUntil
+from sqlfluff.parser_2.grammar import OneOf, Sequence, GreedyUntil, ContainsOnly
 from sqlfluff.parser_2.markers import FilePositionMarker
 from sqlfluff.parser_2.segments_base import RawSegment
 from sqlfluff.parser_2.segments_core import KeywordSegment
@@ -84,3 +84,22 @@ def test__parser_2__grammar_greedyuntil(raw_seg_list):
     assert g1.match(raw_seg_list) == raw_seg_list[:1]
     # Greedy matching up to baar should return bar, foo  (as a raw!)
     assert g2.match(raw_seg_list) == raw_seg_list[:2]
+
+
+def test__parser_2__grammar_containsonly(raw_seg_list):
+    fs = KeywordSegment.make('foo')
+    bs = KeywordSegment.make('bar')
+    bas = KeywordSegment.make('baar')
+    g0 = ContainsOnly(bs, bas)
+    g1 = ContainsOnly('raw')
+    g2 = ContainsOnly(fs, bas, bs)
+    # Contains only, without matches for all shouldn't match
+    assert g0.match(raw_seg_list) is None
+    # Contains only, with just the type should return the list as is
+    assert g1.match(raw_seg_list) == raw_seg_list
+    # Contains only with matches for all should, as the matched versions
+    assert g2.match(raw_seg_list) == [
+        bs('bar', raw_seg_list[0].pos_marker),
+        fs('foo', raw_seg_list[1].pos_marker),
+        bas('baar', raw_seg_list[2].pos_marker)
+    ]
