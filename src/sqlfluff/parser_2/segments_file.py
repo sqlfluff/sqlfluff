@@ -6,8 +6,8 @@ import logging
 from .tokens import Token, TokenMemory
 from .markers import FilePositionMarker
 from .errors import SQLParseError
-from .segments_base import BaseSegment, StatementSeperatorSegment
-from .segments_core import (CodeSegment, StatementSegment,
+from .segments_base import BaseSegment
+from .segments_core import (CodeSegment, StatementSegment, StatementSeperatorSegment,
                             CommentSegment, QuotedSegment)
 
 

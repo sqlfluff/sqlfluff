@@ -1,6 +1,8 @@
 
+import logging
+
 from .segments_base import (BaseSegment, RawSegment)
-from .grammar import (Sequence, GreedyUntil, Keyword, StartsWith, ContainsOnly, OneOf)
+from .grammar import (Sequence, GreedyUntil, StartsWith, ContainsOnly, OneOf)
 
 # NOTE: There is a concept here, of parallel grammars.
 # We use one (slightly more permissive) grammar to MATCH
@@ -17,13 +19,58 @@ from .grammar import (Sequence, GreedyUntil, Keyword, StartsWith, ContainsOnly, 
 # https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 
 
+class KeywordSegment(RawSegment):
+    """ The Keyword Segment is a bit special, because while it
+    can be instantiated directly, we mostly generate them on the
+    fly for convenience """
+
+    type = 'keyword'
+    _template = '<unset>'
+    _case_sensitive = False
+
+    @classmethod
+    def match(cls, segments):
+        """ Keyword implements it's own matching function """
+        # If we've been passed the singular, make it a list
+        if isinstance(segments, BaseSegment):
+            segments = [segments]
+        # We only match if it's of length 1, otherwise not
+        if len(segments) == 1:
+            raw = segments[0].raw
+            pos = segments[0].pos_marker
+            logging.debug(raw)
+            if ((cls._case_sensitive and cls._template == raw) or (not cls._case_sensitive and cls._template == raw.upper())):
+                return cls(raw=raw, pos_marker=pos)
+        return None
+
+    @classmethod
+    def make(cls, template, case_sensitive=False):
+        # Let's deal with the template first
+        if case_sensitive:
+            _template = template
+        else:
+            _template = template.upper()
+        # Now lets make the classname (it indicates the mother class for clarity)
+        classname = "{0}_{1}".format(_template, cls.__name__)
+        # This is the magic, we generate a new class! SORCERY
+        newclass = type(classname, (cls, ),
+                        dict(_template=_template, _case_sensitive=case_sensitive))
+        # Now we return that class in the abstract. NOT INSTANTIATED
+        return newclass
+
+
+class StatementSeperatorSegment(KeywordSegment):
+    type = 'statement_seperator'
+    _template = ';'
+
+
 class SelectTargetGroupStatementSegment(BaseSegment):
     type = 'select_target_group'
     # From here down, comments are printed seperately.
     comment_seperate = True
     # match grammar - doesn't exist - don't match, only parse
     grammar = None
-    parse_grammar = Sequence(GreedyUntil(Keyword('from')))
+    parse_grammar = Sequence(GreedyUntil(KeywordSegment.make('from')))
 
 
 class SelectStatementSegment(BaseSegment):
@@ -31,15 +78,15 @@ class SelectStatementSegment(BaseSegment):
     # From here down, comments are printed seperately.
     comment_seperate = True
     # match grammar
-    grammar = StartsWith(Keyword('select'))
-    parse_grammar = Sequence(Keyword('select'), SelectTargetGroupStatementSegment, GreedyUntil(Keyword('limit')))
+    grammar = StartsWith(KeywordSegment.make('select'))
+    parse_grammar = Sequence(KeywordSegment.make('select'), SelectTargetGroupStatementSegment, GreedyUntil(KeywordSegment.make('limit')))
 
 
 class InsertStatementSegment(BaseSegment):
     type = 'insert_statement'
     # From here down, comments are printed seperately.
     comment_seperate = True
-    grammar = StartsWith(Keyword('insert'))
+    grammar = StartsWith(KeywordSegment.make('insert'))
 
 
 class EmptyStatementSegment(BaseSegment):
@@ -68,7 +115,7 @@ class CodeSegment(RawSegment):
         newline_chars = ['\n']
         this_pos = self.pos_marker
         segment_stack = []
-        started = None
+        started = tuple()  # empty tuple to satisfy the linter (was None)
         last_char = None
         for idx, c in enumerate(self.raw):
             if last_char:

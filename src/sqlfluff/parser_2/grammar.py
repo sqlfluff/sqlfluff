@@ -1,7 +1,7 @@
 
 import logging
 
-from .segments_base import BaseSegment, KeywordSegment
+from .segments_base import BaseSegment
 
 
 class BaseGrammar(object):
@@ -173,32 +173,3 @@ class StartsWith(BaseGrammar):
                 return None
         else:
             raise NotImplementedError("Not expecting to match StartsWith and also not just code!?")
-
-
-class Keyword(BaseGrammar):
-    """ Match a keyword, optionally case sensitive """
-    def __init__(self, word, case_sensitive=False, **kwargs):
-        # NB We store the word as upper case unless case sensitive
-        # For this one we won't accept whitespace or comments
-        self.case_sensitive = case_sensitive
-        if self.case_sensitive:
-            self.word = word
-        else:
-            self.word = word.upper()
-
-    def match(self, segments):
-        # TODO: This shouldn't reference KeywordSegment, it's untidy. Ideally
-        # a keyword should be able to match itself, without needing a grammar
-        # to do if for itself.
-        logging.debug("MATCH: {0}".format(self))
-        # We can only match segments of length 1
-        if isinstance(segments, BaseSegment):
-            segments = [segments]
-        logging.debug(len(segments))
-        if len(segments) == 1:
-            raw = segments[0].raw
-            pos = segments[0].pos_marker
-            logging.debug(raw)
-            if ((self.case_sensitive and self.word == raw) or (not self.case_sensitive and self.word == raw.upper())):
-                return KeywordSegment(raw=raw, pos_marker=pos)
-        return None

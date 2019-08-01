@@ -224,11 +224,3 @@ class UnparsableSegment(BaseSegment):
     type = 'unparsable'
     # From here down, comments are printed seperately.
     comment_seperate = True
-
-
-class StatementSeperatorSegment(RawSegment):
-    type = 'statement_seperator'
-
-
-class KeywordSegment(RawSegment):
-    type = 'keyword'
