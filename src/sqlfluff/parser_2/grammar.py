@@ -147,22 +147,27 @@ class ContainsOnly(BaseGrammar):
         seg_buffer = []
         for seg in segments:
             matched = False
-            for opt in self._options:
-                if isinstance(opt, str):
-                    if seg.type == opt:
-                        matched = True
-                        seg_buffer.append(seg)
-                        break
-                else:
-                    try:
-                        m = opt.match(seg)
-                    except AttributeError:
-                        # it doesn't have a match method
-                        continue
-                    if m:
-                        matched = True
-                        seg_buffer.append(m)
-                        break
+            if self.code_only and not seg.is_code:
+                # Don't worry about non-code segments
+                matched = True
+                seg_buffer.append(seg)
+            else:    
+                for opt in self._options:
+                    if isinstance(opt, str):
+                        if seg.type == opt:
+                            matched = True
+                            seg_buffer.append(seg)
+                            break
+                    else:
+                        try:
+                            m = opt.match(seg)
+                        except AttributeError:
+                            # it doesn't have a match method
+                            continue
+                        if m:
+                            matched = True
+                            seg_buffer.append(m)
+                            break
             if not matched:
                 logging.debug("Non Matching Segment! {0!r}".format(seg))
                 # found a non matching segment:

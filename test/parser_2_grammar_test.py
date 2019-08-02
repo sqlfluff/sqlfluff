@@ -104,8 +104,9 @@ def test__parser_2__grammar_containsonly(seg_list):
     bs = KeywordSegment.make('bar')
     bas = KeywordSegment.make('baar')
     g0 = ContainsOnly(bs, bas)
-    g1 = ContainsOnly('raw')
+    g1 = ContainsOnly('strippedcode')
     g2 = ContainsOnly(fs, bas, bs)
+    g3 = ContainsOnly(fs, bas, bs, code_only=False)
     # Contains only, without matches for all shouldn't match
     assert g0.match(seg_list) is None
     # Contains only, with just the type should return the list as is
@@ -113,6 +114,10 @@ def test__parser_2__grammar_containsonly(seg_list):
     # Contains only with matches for all should, as the matched versions
     assert g2.match(seg_list) == [
         bs('bar', seg_list[0].pos_marker),
-        fs('foo', seg_list[1].pos_marker),
-        bas('baar', seg_list[2].pos_marker)
+        seg_list[1],  # This will be the whitespace segment
+        fs('foo', seg_list[2].pos_marker),
+        bas('baar', seg_list[3].pos_marker),
+        seg_list[4]  # This will be the whitespace segment
     ]
+    # When we consider mode than code then it shouldn't work
+    assert g3.match(seg_list) is None
