@@ -25,6 +25,7 @@ class OneOf(BaseGrammar):
     multiple, it returns the first """
     def __init__(self, *args, **kwargs):
         self._options = args
+        self.code_only = kwargs.get('code_only', True)
 
     def match(self, segments):
         logging.debug("MATCH: {0}".format(self))
@@ -50,6 +51,7 @@ class GreedyUntil(BaseGrammar):
         # the ending clause. Normally, if we run out of segments,
         # then this will still match
         self.strict = kwargs.get('strict', False)
+        self.code_only = kwargs.get('code_only', True)
 
     def match(self, segments):
         logging.debug("MATCH: {0}".format(self))
@@ -81,6 +83,7 @@ class Sequence(BaseGrammar):
     """ Match a specific sequence of elements """
     def __init__(self, *args, **kwargs):
         self._elems = args
+        self.code_only = kwargs.get('code_only', True)
 
     def match(self, segments):
         # we should assume that segments aren't mutated in a grammar
@@ -91,11 +94,19 @@ class Sequence(BaseGrammar):
         seg_idx = 0
         matched_segments = []
         for elem in self._elems:
-            # sequentially try longer segments to see if it works
+            # sequentially try longer segments to see if it works.
+            # We do this because the matcher might also be looking for
+            # a sequence rather than a singular.
             seg_len = 1
             while True:
                 if seg_idx + seg_len > len(segments):
                     return None
+                # Check if the start of this sequence is code_only
+                if self.code_only and not segments[seg_idx].is_code:
+                    # skip this one for matching, but add it to the match
+                    matched_segments += [segments[seg_idx]]
+                    seg_idx += 1
+                    continue
                 m = elem.match(segments[seg_idx:seg_idx + seg_len])
                 if m:
                     # deal with the matches
@@ -114,6 +125,10 @@ class Sequence(BaseGrammar):
             if seg_idx == len(segments):
                 # If the segments get mutated we might need to do something different here
                 return matched_segments
+            elif self.code_only and all(not seg.is_code for seg in segments[seg_idx:]):
+                # If we're only looking for code, and the only segments left are non-code
+                # then be greedy
+                return matched_segments + segments[seg_idx:]
             else:
                 # We matched all the sequence, but the number of segments given was longer
                 return None
@@ -124,6 +139,7 @@ class ContainsOnly(BaseGrammar):
     or only match the grammars in the list """
     def __init__(self, *args, **kwargs):
         self._options = args
+        self.code_only = kwargs.get('code_only', True)
 
     def match(self, segments):
         seg_buffer = []
