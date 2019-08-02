@@ -33,6 +33,12 @@ raw2 = """select a, b from tmp"""
 def test__parser_2__base_parse():
     raw = "select a from tbl"
     fs = FileSegment.from_raw(raw)
+
+    # check structure pre parse
+    logging.warning(fs.segments)
+    logging.warning(fs.to_tuple())
+    logging.warning(fs.stringify())
+
     parsed = fs.parse()
 
     # check structure using the structure checker.

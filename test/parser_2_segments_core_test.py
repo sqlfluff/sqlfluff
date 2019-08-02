@@ -2,9 +2,11 @@
 
 import pytest
 
+import logging
+
 from sqlfluff.parser_2.markers import FilePositionMarker
 from sqlfluff.parser_2.segments_base import RawSegment
-from sqlfluff.parser_2.segments_core import KeywordSegment
+from sqlfluff.parser_2.segments_core import KeywordSegment, RawCodeSegment
 
 
 @pytest.fixture(scope="module")
@@ -19,6 +21,25 @@ def raw_seg_list():
             FilePositionMarker.from_fresh().advance_by('bar')
         )
     ]
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        "foobar", " foo ", "foo\nbar", "select * from blah",
+        "insert into sch.tbl values (1, 2, 3)"
+    ]
+)
+def test__parser_2__core_rawcode_a(raw):
+    """ Test the RawCodeSegment and basic parsing """
+    rcs = RawCodeSegment(raw, FilePositionMarker.from_fresh())
+    # Parse and test reconstruct
+    segs = rcs.parse()
+    logging.warning(segs)
+    assert ''.join([seg.raw for seg in segs]) == raw
+    # Check that if there's a newline, that we get it's own segment
+    if '\n' in raw:
+        assert any([seg.type == 'newline' for seg in segs])
 
 
 def test__parser_2__core_keyword(raw_seg_list):

@@ -151,7 +151,7 @@ class ContainsOnly(BaseGrammar):
                 # Don't worry about non-code segments
                 matched = True
                 seg_buffer.append(seg)
-            else:    
+            else:
                 for opt in self._options:
                     if isinstance(opt, str):
                         if seg.type == opt:

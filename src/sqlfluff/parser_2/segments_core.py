@@ -120,13 +120,18 @@ class RawCodeSegment(RawSegment):
         segment_stack = []
         started = tuple()  # empty tuple to satisfy the linter (was None)
         last_char = None
-        for idx, c in enumerate(self.raw):
+        for idx, c in enumerate(self.raw):  # enumerate through characters in the raw
+            # Keep track of where we've got up to in the string, and keep a ref
+            # to the last character.
             if last_char:
                 this_pos = this_pos.advance_by(last_char)
             # Save the last char
             last_char = c
+            # Check what kind of character we've found
             if c in newline_chars:
+                # Are we part way through a segment?
                 if started:
+                    # Close the segment that we were in if we need to.
                     if started[0] == 'whitespace':
                         segment_stack.append(
                             WhitespaceSegment(
@@ -143,13 +148,19 @@ class RawCodeSegment(RawSegment):
                         started = None
                     else:
                         raise ValueError("Unexpected `started` value?!")
+                # Regardless whether we needed to CLOSE the previous segment,
+                # we should just push this one straight onto the stack, because
+                # newlines are always a single char.
                 segment_stack.append(
                     NewlineSegment(c, pos_marker=this_pos)
                 )
+            # Is it whitespace
             elif c in whitespace_chars:
+                # Close the segment if we need to, if it's changed
                 if started:
                     if started[0] == 'whitespace':
                         # We don't want to reset the whitespace counter!
+                        # This is because we're already in a whitespace segment.
                         continue
                     elif started[0] == 'code':
                         segment_stack.append(
@@ -159,12 +170,14 @@ class RawCodeSegment(RawSegment):
                         )
                     else:
                         raise ValueError("Unexpected `started` value?!")
+                # Start a new segment on the current character
                 started = ('whitespace', this_pos, idx)
             else:
                 # This isn't whitespace or a newline
                 if started:
                     if started[0] == 'code':
                         # We don't want to reset the code counter!
+                        # This is because we're already in a code segment.
                         continue
                     elif started[0] == 'whitespace':
                         segment_stack.append(
@@ -175,6 +188,23 @@ class RawCodeSegment(RawSegment):
                     else:
                         raise ValueError("Unexpected `started` value?!")
                 started = ('code', this_pos, idx)
+        # We've got to the end, Have we started without finishing
+        if started:
+            if started[0] == 'code':
+                segment_stack.append(
+                    StrippedRawCodeSegment(
+                        self.raw[started[2]:],
+                        pos_marker=started[1])
+                )
+            elif started[0] == 'whitespace':
+                segment_stack.append(
+                    WhitespaceSegment(
+                        self.raw[started[2]:],
+                        pos_marker=started[1])
+                )
+            else:
+                raise ValueError("Unexpected `started` value?! (on close)")
+        # Return the full segment stack
         return segment_stack
 
 
