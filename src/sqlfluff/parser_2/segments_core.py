@@ -82,7 +82,18 @@ class SelectStatementSegment(BaseSegment):
     comment_seperate = True
     # match grammar
     grammar = StartsWith(KeywordSegment.make('select'))
-    parse_grammar = Sequence(KeywordSegment.make('select'), SelectTargetGroupStatementSegment, GreedyUntil(KeywordSegment.make('limit')))
+    # TODO: Re-enable this to parse the segment properly
+    # parse_grammar = Sequence(KeywordSegment.make('select'), SelectTargetGroupStatementSegment, GreedyUntil(KeywordSegment.make('limit')))
+
+
+class WithCompoundStatementSegment(BaseSegment):
+    type = 'with_compound_statement'
+    # From here down, comments are printed seperately.
+    comment_seperate = True
+    # match grammar
+    grammar = StartsWith(KeywordSegment.make('with'))
+    # TODO: Re-enable this to parse the segment properly
+    # parse_grammar = Sequence(KeywordSegment.make('select'), SelectTargetGroupStatementSegment, GreedyUntil(KeywordSegment.make('limit')))
 
 
 class InsertStatementSegment(BaseSegment):
@@ -106,7 +117,7 @@ class StatementSegment(BaseSegment):
     # From here down, comments are printed seperately.
     comment_seperate = True
     # Let's define a grammar from here on in
-    grammar = OneOf(SelectStatementSegment, InsertStatementSegment, EmptyStatementSegment)
+    grammar = OneOf(SelectStatementSegment, InsertStatementSegment, EmptyStatementSegment, WithCompoundStatementSegment)
 
 
 class RawCodeSegment(RawSegment):

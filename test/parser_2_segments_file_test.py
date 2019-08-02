@@ -1,14 +1,12 @@
 """ The Test file for The New Parser """
 
 import logging
+import pytest
 
 from sqlfluff.parser_2.segments_file import FileSegment
 
-# from sqlfluff.parser_2.proto import StatementSegment
-# from sqlfluff.parser_2.proto import SelectStatementSegment
 
-
-raw = """\
+multi_statement_test = """\
 # COMMENT
 -- Another Comment
 Select A from Sys.dual where a
@@ -25,14 +23,19 @@ select a, b from tmp;
 # And that's the end
 """
 
-# Something simple for testing
-raw2 = """select a, b from tmp"""
 
-
-# ############## Chunks
-def test__parser_2__base_parse():
-    raw = "select a from tbl"
+@pytest.mark.parametrize(
+    "raw",
+    [
+        "select a from tbl", "select * from blah",
+        "select a, b from tmp", " select 12 -- ends with comment",
+        multi_statement_test
+    ]
+)
+def test__parser_2__base_parse(raw):
     fs = FileSegment.from_raw(raw)
+    # From just the initial parse, check we're all there
+    assert fs.raw == raw
 
     # check structure pre parse
     logging.warning(fs.segments)
@@ -40,20 +43,21 @@ def test__parser_2__base_parse():
     logging.warning(fs.stringify())
 
     parsed = fs.parse()
-
-    # check structure using the structure checker.
-    logging.warning(parsed.to_tuple())
-    logging.warning(parsed.segments)
-    logging.warning(parsed.raw)
-    logging.warning(parsed.stringify())
-
-    # check outline structure
-    tpl = parsed.to_tuple()
-    assert tpl[0] == 'file'
-    assert tpl[1][0][0] == 'statement'
-    assert tpl[1][0][1][0][0] == 'select_statement'
-    assert tpl[1][0][1][0][1][0][0] == 'keyword'
-    # check reconstruction, and that nothing was lost
+    # Check we're all there.
     assert parsed.raw == raw
 
-    raise ValueError("blah")
+    # check structure post parse
+    logging.warning(parsed.segments)
+    logging.warning(parsed.to_tuple())
+    logging.warning(parsed.stringify())
+
+    # Make a recursive function to collect types
+    def collect_types(seg):
+        typs = set([seg.type])
+        for s in seg.segments:
+            typs |= collect_types(s)
+        return typs
+
+    # Check that there's nothing un parsable
+    typs = collect_types(parsed)
+    assert 'unparsable' not in typs

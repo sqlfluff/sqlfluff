@@ -158,22 +158,21 @@ class FileSegment(BaseSegment):
             if this_pos.char_pos > last_seg_pos.char_pos:
                 segment_stack.append(
                     RawCodeSegment(
-                        raw[last_seg_pos.char_pos:this_pos.char_pos],
+                        raw[last_seg_pos.char_pos:],
                         pos_marker=last_seg_pos
                     )
                 )
         elif comment_entry:
             # We ended on a comment block
             # Should it have an ending?
-            if comment_entry.token.end:
-                raise SQLParseError("Final comment not terminated (Expected {0!r})".format(comment_entry.token.end))
-            else:
-                segment_stack.append(
-                    CommentSegment(
-                        raw[last_seg_pos.char_pos:this_pos.char_pos],
-                        pos_marker=last_seg_pos
-                    )
+            # TODO: Unterminated comment blocks, should probably be a linting issue
+            # we're going to just allow them for now. It shouldn't break the parse.
+            segment_stack.append(
+                CommentSegment(
+                    raw[last_seg_pos.char_pos:],
+                    pos_marker=last_seg_pos
                 )
+            )
         elif string_entry:
             if string_entry.token.end:
                 raise SQLParseError("Final string not terminated (Expected {0!r})".format(string_entry.token.end))
