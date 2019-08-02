@@ -51,6 +51,8 @@ class GreedyUntil(BaseGrammar):
         # the ending clause. Normally, if we run out of segments,
         # then this will still match
         self.strict = kwargs.get('strict', False)
+        # NB: Right now, code_only has no effect here, because we're already
+        # greedy regardless of type
         self.code_only = kwargs.get('code_only', True)
 
     def match(self, segments):

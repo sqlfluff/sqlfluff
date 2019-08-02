@@ -94,9 +94,9 @@ def test__parser_2__grammar_greedyuntil(seg_list):
     # Greedy matching until the first item should return none
     assert g0.match(seg_list) is None
     # Greedy matching up to foo should return bar (as a raw!)
-    assert g1.match(seg_list) == seg_list[:1]
+    assert g1.match(seg_list) == seg_list[:2]
     # Greedy matching up to baar should return bar, foo  (as a raw!)
-    assert g2.match(seg_list) == seg_list[:2]
+    assert g2.match(seg_list) == seg_list[:3]
 
 
 def test__parser_2__grammar_containsonly(seg_list):
