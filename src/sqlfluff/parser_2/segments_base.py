@@ -137,7 +137,12 @@ class BaseSegment(object):
         return buff.getvalue()
 
     def to_tuple(self, **kwargs):
-        return (self.type, tuple([seg.to_tuple(**kwargs) for seg in self.segments]))
+        # works for both base and raw
+        code_only = kwargs.get('code_only', False)
+        if code_only:
+            return (self.type, tuple([seg.to_tuple(**kwargs) for seg in self.segments if seg.is_code]))
+        else:
+            return (self.type, tuple([seg.to_tuple(**kwargs) for seg in self.segments]))
 
     # Match for segments is done in the ABSTRACT.
     # When dealing with concrete then we're always in parse.
@@ -178,6 +183,12 @@ class BaseSegment(object):
                 # We might get back an iterable of segments
                 segs += stmt.parse()
         return segs
+
+    def type_set(self):
+        typs = set([self.type])
+        for s in self.segments:
+            typs |= s.type_set()
+        return typs
 
     def __eq__(self, other):
         # Equal if type, content and pos are the same

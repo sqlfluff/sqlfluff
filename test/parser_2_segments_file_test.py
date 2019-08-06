@@ -1,6 +1,5 @@
 """ The Test file for The New Parser """
 
-import logging
 import pytest
 
 from sqlfluff.parser_2.segments_file import FileSegment
@@ -32,32 +31,42 @@ select a, b from tmp;
         multi_statement_test
     ]
 )
-def test__parser_2__base_parse(raw):
+def DISABLED_test__parser_2__base_parse(raw):
     fs = FileSegment.from_raw(raw)
     # From just the initial parse, check we're all there
     assert fs.raw == raw
-
-    # check structure pre parse
-    logging.warning(fs.segments)
-    logging.warning(fs.to_tuple())
-    logging.warning(fs.stringify())
 
     parsed = fs.parse()
     # Check we're all there.
     assert parsed.raw == raw
 
-    # check structure post parse
-    logging.warning(parsed.segments)
-    logging.warning(parsed.to_tuple())
-    logging.warning(parsed.stringify())
-
-    # Make a recursive function to collect types
-    def collect_types(seg):
-        typs = set([seg.type])
-        for s in seg.segments:
-            typs |= collect_types(s)
-        return typs
-
     # Check that there's nothing un parsable
-    typs = collect_types(parsed)
+    typs = parsed.type_set()
     assert 'unparsable' not in typs
+
+
+@pytest.mark.parametrize(
+    "raw,res",
+    # Need to add some full structures here, but also to
+    # implement the logic to parse them.
+    [
+        (
+            "select * from blah",
+            ('file', (('statement', (('select_statement', (
+                ('select_clause', (
+                    ('keyword', ()),
+                    ('blah', ())
+                )),
+                ('from_clause', (
+
+                ))
+            )),)),))
+        ),
+        ("select a,b, c from blah", ())
+    ]
+)
+def DISABLED_test__parser_2__base_parse_struct(raw, res):
+    """ Some simple statements to check full parsing structure """
+    fs = FileSegment.from_raw(raw)
+    parsed = fs.parse()
+    assert parsed.to_tuple() == res  # if seg.is_code

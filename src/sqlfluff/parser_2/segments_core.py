@@ -2,7 +2,8 @@
 import logging
 
 from .segments_base import (BaseSegment, RawSegment)
-from .grammar import (Sequence, GreedyUntil, StartsWith, ContainsOnly, OneOf)
+from .grammar import (Sequence, GreedyUntil, StartsWith, ContainsOnly,
+                      OneOf, Delimited)
 
 # NOTE: There is a concept here, of parallel grammars.
 # We use one (slightly more permissive) grammar to MATCH
@@ -39,27 +40,61 @@ class KeywordSegment(RawSegment):
         if len(segments) == 1:
             raw = segments[0].raw
             pos = segments[0].pos_marker
-            logging.warning(raw)
+            logging.debug("{1} considering {0!r}".format(raw, cls.__name__))
             if ((cls._case_sensitive and cls._template == raw) or (not cls._case_sensitive and cls._template == raw.upper())):
                 return cls(raw=raw, pos_marker=pos)
         else:
-            logging.warning("Keyword will not match sequence of length {0}".format(len(segments)))
+            logging.debug("{1} will not match sequence of length {0}".format(len(segments), cls.__name__))
         return None
 
     @classmethod
-    def make(cls, template, case_sensitive=False):
+    def make(cls, template, case_sensitive=False, name=None):
         # Let's deal with the template first
         if case_sensitive:
             _template = template
         else:
             _template = template.upper()
+        # Use the name if provided otherwise default to the template
+        name = name or _template
         # Now lets make the classname (it indicates the mother class for clarity)
-        classname = "{0}_{1}".format(_template, cls.__name__)
+        classname = "{0}_{1}".format(name, cls.__name__)
         # This is the magic, we generate a new class! SORCERY
         newclass = type(classname, (cls, ),
                         dict(_template=_template, _case_sensitive=case_sensitive))
         # Now we return that class in the abstract. NOT INSTANTIATED
         return newclass
+
+
+CommaSegment = KeywordSegment.make(',', name='Comma')
+DotSegment = KeywordSegment.make('.', name='Dot')
+
+
+# class QuotedIdentifierSegment(BaseSegment):
+#    type = 'quoted_identifier'
+#    grammar = Sequence(UnquotedIdentifierSegment, QuotedIdentifierSegment, code_only=False)
+
+class UnquotedIdentifierSegment(BaseSegment):
+    type = 'unquoted_identifier'
+    grammar = KeywordSegment.make('dummy')
+
+
+class IdentifierSegment(BaseSegment):
+    type = 'identifier'
+    grammar = OneOf(UnquotedIdentifierSegment, code_only=False)  # QuotedIdentifierSegment
+
+
+class ColumnExpressionSegment(BaseSegment):
+    type = 'column_expression'
+    comment_seperate = True
+    # match grammar (don't allow whitespace)
+    grammar = Delimited(IdentifierSegment, delimiter=DotSegment, code_only=False)
+
+
+class TableExpressionSegment(BaseSegment):
+    type = 'table_expression'
+    comment_seperate = True
+    # match grammar (don't allow whitespace)
+    grammar = Delimited(IdentifierSegment, delimiter=DotSegment, code_only=False)
 
 
 class StatementSeperatorSegment(KeywordSegment):
@@ -83,7 +118,23 @@ class SelectStatementSegment(BaseSegment):
     # match grammar
     grammar = StartsWith(KeywordSegment.make('select'))
     # TODO: Re-enable this to parse the segment properly
-    # parse_grammar = Sequence(KeywordSegment.make('select'), SelectTargetGroupStatementSegment, GreedyUntil(KeywordSegment.make('limit')))
+    parse_grammar = Sequence(KeywordSegment.make('select'), SelectTargetGroupStatementSegment, GreedyUntil(KeywordSegment.make('limit')))
+
+
+class SelectClauseSegment(BaseSegment):
+    type = 'select_clause'
+    # From here down, comments are printed seperately.
+    comment_seperate = True
+    # match grammar
+    grammar = Sequence(KeywordSegment.make('select'), Delimited(ColumnExpressionSegment, delimiter=CommaSegment))
+
+
+class FromClauseSegment(BaseSegment):
+    type = 'from_clause'
+    # From here down, comments are printed seperately.
+    comment_seperate = True
+    # match grammar
+    grammar = Sequence(KeywordSegment.make('from'), Delimited(TableExpressionSegment, delimiter=CommaSegment))
 
 
 class WithCompoundStatementSegment(BaseSegment):
