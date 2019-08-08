@@ -37,7 +37,7 @@ def assert_matches(instring, matcher, matchstring):
 def test__parser_2__lexer_obj(raw, res, caplog):
     lex = Lexer()
     with caplog.at_level(logging.DEBUG):
-        assert lex.lex(raw) == res
+        assert [seg.raw for seg in lex.lex(raw)] == res
 
 
 @pytest.mark.parametrize(

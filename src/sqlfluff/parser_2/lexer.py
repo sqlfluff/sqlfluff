@@ -3,10 +3,9 @@
 from collections import namedtuple
 import re
 
-import logging
-
-# from .markers import FilePositionMarker
-# from .segments_base import RawSegment
+from .markers import FilePositionMarker
+from .segments_base import RawSegment
+from .errors import SQLParseError
 
 
 LexMatch = namedtuple('LexMatch', ['new_string', 'new_pos', 'segments'])
@@ -38,7 +37,7 @@ class SingletonMatcher(BaseForwardMatcher):
         if len(forward_string) == 0:
             raise ValueError("Unexpected empty string!")
         matched = self._match(forward_string)
-        logging.debug("Matcher: {0} - {1}".format(forward_string, matched))
+        # logging.debug("Matcher: {0} - {1}".format(forward_string, matched))
         if matched:
             new_pos = start_pos.advance_by(matched)
             return LexMatch(
@@ -65,9 +64,7 @@ class RegexMatcher(SingletonMatcher):
     """ Use regexes to match chunks """
     def _match(self, forward_string):
         match = self._compiled_regex.match(forward_string)
-        logging.debug(match)
         if match:
-            logging.debug(match.group(0))
             return match.group(0)
         else:
             return None
@@ -137,6 +134,26 @@ default_config = {}
 class Lexer(object):
     def __init__(self, config=None):
         self.config = config or default_config
+        self.matcher = RepeatedMultiMatcher(
+            RegexMatcher(
+                "whitespace", r"[\t ]*", RawSegment.make('whitespace', name='whitespace')
+            ),
+            SingletonMatcher(
+                "newline", "\n", RawSegment.make('\n', name='newline')
+            ),
+            SingletonMatcher(
+                "dot", ".", RawSegment.make('.', name='dot', is_code=True)
+            ),
+            RegexMatcher(
+                "code", r"[0-9a-zA-Z_]*", RawSegment.make('code', name='code', is_code=True)
+            )
+        )
 
     def lex(self, raw):
-        return []
+        start_pos = FilePositionMarker.from_fresh()
+        res = self.matcher.match(raw, start_pos)
+        if len(res.new_string) > 0:
+            raise SQLParseError(
+                "Unable to lex characters: '{0}...'".format(
+                    res.new_string[:10]))
+        return res.segments
