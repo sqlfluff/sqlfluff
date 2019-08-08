@@ -31,7 +31,15 @@ def assert_matches(instring, matcher, matchstring):
     [
         ("a b", ['a', ' ', 'b']),
         ("b.c", ['b', '.', 'c']),
-        ("abc \n \t def  ;blah", ['abc', ' ', '\n', ' \t ', 'def', '  ', ';', 'blah'])
+        ("abc \n \t def  ;blah", ['abc', ' ', '\n', ' \t ', 'def', '  ', ';', 'blah']),
+        # Test Quotes
+        ("abc'\n \"\t' \"de`f\"", ['abc', "'\n \"\t'", ' ', '"de`f"']),
+        # Test Comments
+        ("abc -- comment \nblah", ['abc', ' ', "-- comment ", "\n", "blah"]),
+        ("abc # comment \nblah", ['abc', ' ', "# comment ", "\n", "blah"]),
+        ("abc /* comment \nblah*/", ['abc', ' ', "/* comment \nblah*/"]),
+        # Test Singletons
+        ("*-+bd/", ['*', '-', '+', 'bd', '/'])
     ]
 )
 def test__parser_2__lexer_obj(raw, res, caplog):
@@ -65,8 +73,8 @@ def test__parser_2__lexer_singleton(raw, res):
         # Matching whitespace segments (with a newline)
         ("   \t \n  fsaljk", r"[\t ]*", "   \t "),
         # Matching quotes containing stuff
-        ("'something boring'   \t \n  fsaljk", r"'[^'].*'", "'something boring'"),
-        ("' something exciting \t\n '   \t \n  fsaljk", r"'[^'].*'", "' something exciting \t\n '"),
+        ("'something boring'   \t \n  fsaljk", r"'[^']*'", "'something boring'"),
+        ("' something exciting \t\n '   \t \n  fsaljk", r"'[^']*'", "' something exciting \t\n '"),
     ]
 )
 def test__parser_2__lexer_regex(raw, reg, res, caplog):

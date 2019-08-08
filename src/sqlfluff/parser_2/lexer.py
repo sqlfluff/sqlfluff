@@ -145,8 +145,19 @@ class Lexer(object):
         self.config = config or default_config
         self.matcher = RepeatedMultiMatcher(
             RegexMatcher.from_shorthand("whitespace", r"[\t ]*"),
+            RegexMatcher.from_shorthand("inline_comment", r"(-- |#)[^\n]*"),
+            RegexMatcher.from_shorthand("block_comment", r"/\*([^\\]|\\[^\*])*"),
+            RegexMatcher.from_shorthand("single_quote", r"'[^']*'"),
+            RegexMatcher.from_shorthand("double_quote", r'"[^"]*"'),
+            RegexMatcher.from_shorthand("back_quote", r"`[^`]*`"),
             SingletonMatcher.from_shorthand("newline", "\n"),
             SingletonMatcher.from_shorthand("dot", ".", is_code=True),
+            SingletonMatcher.from_shorthand("plus", "+", is_code=True),
+            SingletonMatcher.from_shorthand("minus", "-", is_code=True),
+            SingletonMatcher.from_shorthand("divide", "/", is_code=True),
+            SingletonMatcher.from_shorthand("star", "*", is_code=True),
+            SingletonMatcher.from_shorthand("bracket_open", "(", is_code=True),
+            SingletonMatcher.from_shorthand("bracket_close", ")", is_code=True),
             SingletonMatcher.from_shorthand("semicolon", ";", is_code=True),
             RegexMatcher.from_shorthand("code", r"[0-9a-zA-Z_]*", is_code=True)
         )
