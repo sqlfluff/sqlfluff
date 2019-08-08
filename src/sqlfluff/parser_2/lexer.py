@@ -90,6 +90,47 @@ class StatefulMatcher(BaseForwardMatcher):
         self.remainder_segment = remainder_segment  # Required
 
 
+class RepeatedMultiMatcher(BaseForwardMatcher):
+    """
+    Uses other matchers in priority order
+    """
+
+    # NB the base matcher is probably stateful, in the `code` state, but will end up
+    # using the remainder segment liberally.
+    def __init__(self, *submatchers):
+        self.submatchers = submatchers
+        # If we bottom out then return the rest of the string
+
+    def match(self, forward_string, start_pos):
+        seg_buff = tuple()
+        while True:
+            if len(forward_string) == 0:
+                return LexMatch(
+                    forward_string,
+                    start_pos,
+                    seg_buff
+                )
+            for matcher in self.submatchers:
+                res = matcher.match(forward_string, start_pos)
+                if res.segments:
+                    # If we have new segments then whoop!
+                    seg_buff += res.segments
+                    forward_string = res.new_string
+                    start_pos = res.new_pos
+                    # Cycle back around again and start with the top
+                    # matcher again.
+                    break
+                else:
+                    continue
+            else:
+                # We've got so far, but now can't match. Return
+                return LexMatch(
+                    forward_string,
+                    start_pos,
+                    seg_buff
+                )
+
+
 default_config = {}
 
 
