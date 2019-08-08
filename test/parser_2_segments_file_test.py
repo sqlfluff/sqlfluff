@@ -1,6 +1,7 @@
 """ The Test file for The New Parser """
 
 import pytest
+import logging
 
 from sqlfluff.parser_2.segments_file import FileSegment
 
@@ -21,6 +22,22 @@ with tmp as (
 select a, b from tmp;
 # And that's the end
 """
+
+
+@pytest.mark.parametrize(
+    "raw,res",
+    [
+        ("a b", ['a', ' ', 'b']),
+        ("b.c", ['a', '.', 'b']),
+        ("abc \n \t def  ;blah", ['abc', ' ', '\n', ' \t ', 'def', '  ', ';', 'blah'])
+    ]
+)
+def DISABLED_test__parser_2__file_from_raw(raw, res, caplog):
+    with caplog.at_level(logging.DEBUG):
+        fs = FileSegment.from_raw(raw)
+    # From just the initial parse, check we're all there
+    assert fs.raw == raw
+    assert fs.raw_list() == res
 
 
 @pytest.mark.parametrize(

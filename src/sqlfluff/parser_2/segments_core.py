@@ -23,7 +23,8 @@ from .grammar import (Sequence, GreedyUntil, StartsWith, ContainsOnly,
 class KeywordSegment(RawSegment):
     """ The Keyword Segment is a bit special, because while it
     can be instantiated directly, we mostly generate them on the
-    fly for convenience """
+    fly for convenience. The `make` method is defined on RawSegment
+    instead of here, but can be used here too. """
 
     type = 'keyword'
     is_code = True
@@ -46,23 +47,6 @@ class KeywordSegment(RawSegment):
         else:
             logging.debug("{1} will not match sequence of length {0}".format(len(segments), cls.__name__))
         return None
-
-    @classmethod
-    def make(cls, template, case_sensitive=False, name=None):
-        # Let's deal with the template first
-        if case_sensitive:
-            _template = template
-        else:
-            _template = template.upper()
-        # Use the name if provided otherwise default to the template
-        name = name or _template
-        # Now lets make the classname (it indicates the mother class for clarity)
-        classname = "{0}_{1}".format(name, cls.__name__)
-        # This is the magic, we generate a new class! SORCERY
-        newclass = type(classname, (cls, ),
-                        dict(_template=_template, _case_sensitive=case_sensitive))
-        # Now we return that class in the abstract. NOT INSTANTIATED
-        return newclass
 
 
 CommaSegment = KeywordSegment.make(',', name='Comma')
@@ -182,6 +166,8 @@ class RawCodeSegment(RawSegment):
         segment_stack = []
         started = tuple()  # empty tuple to satisfy the linter (was None)
         last_char = None
+        # TODO: Move this code into the FILE parsing routine.
+        # TODO: Also make that code better
         for idx, c in enumerate(self.raw):  # enumerate through characters in the raw
             # Keep track of where we've got up to in the string, and keep a ref
             # to the last character.

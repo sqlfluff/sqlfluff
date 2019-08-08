@@ -184,7 +184,15 @@ class BaseSegment(object):
                 segs += stmt.parse()
         return segs
 
+    def raw_list(self):
+        """ List of raw elements, mostly for testing """
+        buff = []
+        for s in self.segments:
+            buff += s.raw_list()
+        return buff
+
     def type_set(self):
+        """ A set of the types contained, mostly for testing """
         typs = set([self.type])
         for s in self.segments:
             typs |= s.type_set()
@@ -203,6 +211,9 @@ class RawSegment(BaseSegment):
     it could be postprocessed later, but then it would be
     a different class. """
     type = 'raw'
+    is_code = False
+    _template = '<unset>'
+    _case_sensitive = False
 
     def __init__(self, raw, pos_marker):
         self._raw = raw
@@ -216,6 +227,9 @@ class RawSegment(BaseSegment):
         # A Raw segments, has no segments, it's empty
         # raise RuntimeError("Trying to iterate on a RawSegment!")
         # return [self]
+
+    def raw_list(self):
+        return [self.raw]
 
     @property
     def raw(self):
@@ -237,6 +251,26 @@ class RawSegment(BaseSegment):
     def parse(self):
         # TODO: Check this is right?
         return self
+
+    @classmethod
+    def make(cls, template, case_sensitive=False, name=None,
+             # type=None, is_code=None. USE KWARGS FOR THESE
+             **kwargs):
+        # Let's deal with the template first
+        if case_sensitive:
+            _template = template
+        else:
+            _template = template.upper()
+        # Use the name if provided otherwise default to the template
+        name = name or _template
+        # Now lets make the classname (it indicates the mother class for clarity)
+        classname = "{0}_{1}".format(name, cls.__name__)
+        # This is the magic, we generate a new class! SORCERY
+        newclass = type(classname, (cls, ),
+                        dict(_template=_template, _case_sensitive=case_sensitive,
+                             **kwargs))
+        # Now we return that class in the abstract. NOT INSTANTIATED
+        return newclass
 
 
 class UnparsableSegment(BaseSegment):

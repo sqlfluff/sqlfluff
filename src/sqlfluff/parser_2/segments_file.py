@@ -35,6 +35,7 @@ class FileSegment(BaseSegment):
         ]
 
         statement_seperators = [';']
+        code_singletons = ['.']
 
         statement_stack = []
         segment_stack = []
@@ -62,6 +63,7 @@ class FileSegment(BaseSegment):
 
             # Get a forward looking view for comparison
             forward = raw[this_pos.char_pos:]
+            logging.debug("Forward {0}".format(forward[:5]))
 
             # What state are we in?
             if not comment_entry and not string_entry:
@@ -117,6 +119,25 @@ class FileSegment(BaseSegment):
                         stmt_idx_buff = 1
                         last_stmt_pos = this_pos.advance_by(e, idx=stmt_idx_buff)
                         last_seg_pos = this_pos.advance_by(e, idx=stmt_idx_buff)
+                        skip = len(e)
+                        continue
+                for e in code_singletons:
+                    if forward.startswith(e):
+                        # Ok we've found a statement ender, not in a comment or a string
+                        logging.debug("Found code singleton at pos {0}! [{1!r}]".format(this_pos, forward[:5]))
+                        # Close the current segment
+                        segment_stack.append(
+                            RawCodeSegment(
+                                raw=raw[last_seg_pos.char_pos:this_pos.char_pos],
+                                pos_marker=last_seg_pos
+                            )
+                        )
+                        segment_stack.append(
+                            RawCodeSegment(
+                                raw=e, pos_marker=this_pos
+                            )
+                        )
+                        last_seg_pos = this_pos.advance_by(e)
                         skip = len(e)
                         continue
                 # logging.debug(raw[pos:])
