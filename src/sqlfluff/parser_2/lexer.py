@@ -12,6 +12,11 @@ LexMatch = namedtuple('LexMatch', ['new_string', 'new_pos', 'segments'])
 
 
 class BaseForwardMatcher(object):
+    def __init__(self, name, template, target_seg_class, *args, **kwargs):
+        self.name = name
+        self.template = template
+        self.target_seg_class = target_seg_class
+
     def match(self, forward_string, start_pos):
         # match should return the remainder of the forward
         # string, the new pos of that string and a list
@@ -20,13 +25,17 @@ class BaseForwardMatcher(object):
             "{0} has no match function implmeneted".format(
                 self.__class__.__name__))
 
+    @classmethod
+    def from_shorthand(cls, name, template, **kwargs):
+        return cls(
+            name, template,
+            RawSegment.make(
+                template, name=name, **kwargs
+            )
+        )
+
 
 class SingletonMatcher(BaseForwardMatcher):
-    def __init__(self, name, template, target_seg_class):
-        self.name = name
-        self.template = template
-        self.target_seg_class = target_seg_class
-
     def _match(self, forward_string):
         if forward_string[0] == self.template:
             return forward_string[0]
@@ -135,18 +144,11 @@ class Lexer(object):
     def __init__(self, config=None):
         self.config = config or default_config
         self.matcher = RepeatedMultiMatcher(
-            RegexMatcher(
-                "whitespace", r"[\t ]*", RawSegment.make('whitespace', name='whitespace')
-            ),
-            SingletonMatcher(
-                "newline", "\n", RawSegment.make('\n', name='newline')
-            ),
-            SingletonMatcher(
-                "dot", ".", RawSegment.make('.', name='dot', is_code=True)
-            ),
-            RegexMatcher(
-                "code", r"[0-9a-zA-Z_]*", RawSegment.make('code', name='code', is_code=True)
-            )
+            RegexMatcher.from_shorthand("whitespace", r"[\t ]*"),
+            SingletonMatcher.from_shorthand("newline", "\n"),
+            SingletonMatcher.from_shorthand("dot", ".", is_code=True),
+            SingletonMatcher.from_shorthand("semicolon", ";", is_code=True),
+            RegexMatcher.from_shorthand("code", r"[0-9a-zA-Z_]*", is_code=True)
         )
 
     def lex(self, raw):

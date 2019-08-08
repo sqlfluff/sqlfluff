@@ -30,8 +30,8 @@ def assert_matches(instring, matcher, matchstring):
     "raw,res",
     [
         ("a b", ['a', ' ', 'b']),
-        # ("b.c", ['a', '.', 'b']),
-        # ("abc \n \t def  ;blah", ['abc', ' ', '\n', ' \t ', 'def', '  ', ';', 'blah'])
+        ("b.c", ['b', '.', 'c']),
+        ("abc \n \t def  ;blah", ['abc', ' ', '\n', ' \t ', 'def', '  ', ';', 'blah'])
     ]
 )
 def test__parser_2__lexer_obj(raw, res, caplog):
