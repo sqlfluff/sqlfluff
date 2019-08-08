@@ -1,6 +1,9 @@
 """ The code for the new lexer """
 
 from collections import namedtuple
+import re
+
+import logging
 
 # from .markers import FilePositionMarker
 # from .segments_base import RawSegment
@@ -25,23 +28,49 @@ class SingletonMatcher(BaseForwardMatcher):
         self.template = template
         self.target_seg_class = target_seg_class
 
+    def _match(self, forward_string):
+        if forward_string[0] == self.template:
+            return forward_string[0]
+        else:
+            return None
+
     def match(self, forward_string, start_pos):
         if len(forward_string) == 0:
             raise ValueError("Unexpected empty string!")
-        raw = forward_string[0]
-        if raw == self.template:
-            new_pos = start_pos.advance_by(raw)
+        matched = self._match(forward_string)
+        logging.debug("Matcher: {0} - {1}".format(forward_string, matched))
+        if matched:
+            new_pos = start_pos.advance_by(matched)
             return LexMatch(
-                forward_string[1:],
+                forward_string[len(matched):],
                 new_pos,
                 tuple([
                     self.target_seg_class(
-                        raw=raw,
+                        raw=matched,
                         pos_marker=start_pos),
                 ])
             )
         else:
             return LexMatch(forward_string, start_pos, tuple())
+
+
+class RegexMatcher(SingletonMatcher):
+    def __init__(self, *args, **kwargs):
+        super(RegexMatcher, self).__init__(*args, **kwargs)
+        # We might want to configure this at some point, but for now, newlines
+        # do get matched by .
+        flags = re.DOTALL
+        self._compiled_regex = re.compile(self.template, flags)
+
+    """ Use regexes to match chunks """
+    def _match(self, forward_string):
+        match = self._compiled_regex.match(forward_string)
+        logging.debug(match)
+        if match:
+            logging.debug(match.group(0))
+            return match.group(0)
+        else:
+            return None
 
 
 class StatefulMatcher(BaseForwardMatcher):

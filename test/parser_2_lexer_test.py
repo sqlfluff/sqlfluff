@@ -4,7 +4,7 @@ import pytest
 import logging
 
 from sqlfluff.parser_2.lexer import Lexer
-from sqlfluff.parser_2.lexer import SingletonMatcher, LexMatch
+from sqlfluff.parser_2.lexer import SingletonMatcher, LexMatch, RegexMatcher
 from sqlfluff.parser_2.segments_base import RawSegment
 from sqlfluff.parser_2.markers import FilePositionMarker
 
@@ -40,9 +40,38 @@ def test__parser_2__lexer_obj(raw, res, caplog):
         assert lex.lex(raw) == res
 
 
-def test__parser_2__lexer_singleton():
+@pytest.mark.parametrize(
+    "raw,res",
+    [
+        (".fsaljk", '.'),
+        ("fsaljk", None),
+    ]
+)
+def test__parser_2__lexer_singleton(raw, res):
     matcher = SingletonMatcher(
         "dot", ".", RawSegment.make('.', name='dot', is_code=True)
     )
-    assert_matches('.fsaljk', matcher, '.')
-    assert_matches('fsaljk', matcher, None)
+    assert_matches(raw, matcher, res)
+
+
+@pytest.mark.parametrize(
+    "raw,reg,res",
+    [
+        ("fsaljk", "f", "f"),
+        ("fsaljk", r"f", "f"),
+        ("fsaljk", r"[fas]*", "fsa"),
+        # Matching whitespace segments
+        ("   \t   fsaljk", r"[\t ]*", "   \t   "),
+        # Matching whitespace segments (with a newline)
+        ("   \t \n  fsaljk", r"[\t ]*", "   \t "),
+        # Matching quotes containing stuff
+        ("'something boring'   \t \n  fsaljk", r"'[^'].*'", "'something boring'"),
+        ("' something exciting \t\n '   \t \n  fsaljk", r"'[^'].*'", "' something exciting \t\n '"),
+    ]
+)
+def test__parser_2__lexer_regex(raw, reg, res, caplog):
+    matcher = RegexMatcher(
+        "test", reg, RawSegment.make('test', name='test')
+    )
+    with caplog.at_level(logging.DEBUG):
+        assert_matches(raw, matcher, res)
