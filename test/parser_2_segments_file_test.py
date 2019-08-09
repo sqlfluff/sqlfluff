@@ -28,11 +28,11 @@ select a, b from tmp;
     "raw,res",
     [
         ("a b", ['a', ' ', 'b']),
-        ("b.c", ['a', '.', 'b']),
+        ("b.c", ['b', '.', 'c']),
         ("abc \n \t def  ;blah", ['abc', ' ', '\n', ' \t ', 'def', '  ', ';', 'blah'])
     ]
 )
-def DISABLED_test__parser_2__file_from_raw(raw, res, caplog):
+def test__parser_2__file_from_raw(raw, res, caplog):
     with caplog.at_level(logging.DEBUG):
         fs = FileSegment.from_raw(raw)
     # From just the initial parse, check we're all there
