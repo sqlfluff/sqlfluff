@@ -115,15 +115,19 @@ def test__parser_2__grammar_delimited(caplog):
         seg_list[5]  # This will be the whitespace segment
     ]
     g = Delimited(bs, delimiter=comma)
+    gt = Delimited(bs, delimiter=comma, allow_trailing=True)
     with caplog.at_level(logging.DEBUG):
         # Matching not quite the full list shouldn't work
         logging.info("#### TEST 1")
         assert g.match(seg_list[:4]) is None
+        # Matching not quite the full list should work if we allow trailing
+        logging.info("#### TEST 1")
+        assert gt.match(seg_list[:4]) is not None
         # Matching up to 'bar' should
-        logging.info("#### TEST 2")
+        logging.info("#### TEST 3")
         assert g.match(seg_list[:5]) == expectation[:5]
         # Matching the full list ALSO should, because it's just whitespace
-        logging.info("#### TEST 3")
+        logging.info("#### TEST 4")
         assert g.match(seg_list) == expectation
 
 

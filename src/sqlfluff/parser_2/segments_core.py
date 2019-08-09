@@ -153,6 +153,7 @@ class StatementSegment(BaseSegment):
     comment_seperate = True
     # Let's define a grammar from here on in
     grammar = OneOf(SelectStatementSegment, InsertStatementSegment, EmptyStatementSegment, WithCompoundStatementSegment)
+    match_grammar = GreedyUntil(KeywordSegment.make(';'))
 
 
 class RawCodeSegment(RawSegment):

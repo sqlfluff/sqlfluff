@@ -170,10 +170,16 @@ class Delimited(Sequence):
     """ Match an arbitrary number of elements seperated by a delimiter """
     def __init__(self, *args, **kwargs):
         self._elems = args
-        self.code_only = kwargs.get('code_only', True)
+        self.code_only = kwargs.pop('code_only', True)
         if 'delimiter' not in kwargs:
             raise ValueError("Delimited grammars require a `delimiter`")
-        self.delimiter = kwargs['delimiter']
+        self.delimiter = kwargs.pop('delimiter')
+        self.allow_trailing = kwargs.pop('allow_trailing', False)
+        if kwargs:
+            raise ValueError("Unconsumed kwargs for {0}: {1}".format(
+                self.__class__.__name__,
+                kwargs
+            ))
 
     def match(self, segments):
         if isinstance(segments, BaseSegment):
@@ -188,8 +194,12 @@ class Delimited(Sequence):
 
             if seg_idx >= len(segments):
                 # We've got to the end of the segments, we can't end on a delimiter
+                # unless allow_trailing is set
                 if looking_for == 'element':
-                    return None
+                    if self.allow_trailing:
+                        return matched_segments
+                    else:
+                        return None
                 elif looking_for == 'delimiter':
                     return matched_segments
                 else:
