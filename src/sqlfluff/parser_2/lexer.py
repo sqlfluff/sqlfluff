@@ -152,6 +152,7 @@ class Lexer(object):
             RegexMatcher.from_shorthand("back_quote", r"`[^`]*`"),
             SingletonMatcher.from_shorthand("newline", "\n"),
             SingletonMatcher.from_shorthand("dot", ".", is_code=True),
+            SingletonMatcher.from_shorthand("comma", ",", is_code=True),
             SingletonMatcher.from_shorthand("plus", "+", is_code=True),
             SingletonMatcher.from_shorthand("minus", "-", is_code=True),
             SingletonMatcher.from_shorthand("divide", "/", is_code=True),

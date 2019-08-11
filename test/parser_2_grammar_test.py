@@ -36,7 +36,7 @@ def generate_test_segments(elems):
             )
         )
         raw_buff += elem
-    return buff
+    return tuple(buff)  # Make sure we return a tuple
 
 
 @pytest.fixture(scope="module")
@@ -50,9 +50,9 @@ def test__parser_2__grammar_oneof(seg_list):
     g = OneOf(fs, bs)
     # Matching the list shouldn't work
     assert g.match(seg_list) is None
-    # Matching either element should return the relevant one
-    assert g.match(seg_list[0]) == bs('bar', seg_list[0].pos_marker)
-    assert g.match(seg_list[2]) == fs('foo', seg_list[2].pos_marker)
+    # Matching either element should return the relevant one (as a tuple)
+    assert g.match(seg_list[0]) == (bs('bar', seg_list[0].pos_marker),)
+    assert g.match(seg_list[2]) == (fs('foo', seg_list[2].pos_marker),)
 
 
 def test__parser_2__grammar_sequence(seg_list, caplog):
@@ -72,11 +72,11 @@ def test__parser_2__grammar_sequence(seg_list, caplog):
         assert g.match(seg_list[1:]) is None
         # Matching a slice should
         logging.info("#### TEST 4")
-        assert g.match(seg_list[:3]) == [
+        assert g.match(seg_list[:3]) == (
             bs('bar', seg_list[0].pos_marker),
             seg_list[1],  # This will be the whitespace segment
             fs('foo', seg_list[2].pos_marker)
-        ]
+        )
         # Matching the slice, but broadening to more than code shouldn't
         logging.info("#### TEST 5")
         assert gc.match(seg_list[:3]) is None
@@ -93,27 +93,27 @@ def test__parser_2__grammar_sequence_nested(seg_list, caplog):
         assert g.match(seg_list[:2]) is None
         # Matching the whole list should, and the result should be flat
         logging.info("#### TEST 2")
-        assert g.match(seg_list) == [
+        assert g.match(seg_list) == (
             bs('bar', seg_list[0].pos_marker),
             seg_list[1],  # This will be the whitespace segment
             fs('foo', seg_list[2].pos_marker),
             bas('baar', seg_list[3].pos_marker),
             seg_list[4]  # This will be the whitespace segment
-        ]
+        )
 
 
 def test__parser_2__grammar_delimited(caplog):
     seg_list = generate_test_segments(['bar', ' \t ', ',', '    ', 'bar', '    '])
     bs = KeywordSegment.make('bar')
     comma = KeywordSegment.make(',', name='comma')
-    expectation = [
+    expectation = (
         bs('bar', seg_list[0].pos_marker),
         seg_list[1],  # This will be the whitespace segment
         comma(',', seg_list[2].pos_marker),
         seg_list[3],  # This will be the whitespace segment
         bs('bar', seg_list[4].pos_marker),
         seg_list[5]  # This will be the whitespace segment
-    ]
+    )
     g = Delimited(bs, delimiter=comma)
     gt = Delimited(bs, delimiter=comma, allow_trailing=True)
     with caplog.at_level(logging.DEBUG):
@@ -175,12 +175,12 @@ def test__parser_2__grammar_containsonly(seg_list):
     # Contains only, with just the type should return the list as is
     assert g1.match(seg_list) == seg_list
     # Contains only with matches for all should, as the matched versions
-    assert g2.match(seg_list) == [
+    assert g2.match(seg_list) == (
         bs('bar', seg_list[0].pos_marker),
         seg_list[1],  # This will be the whitespace segment
         fs('foo', seg_list[2].pos_marker),
         bas('baar', seg_list[3].pos_marker),
         seg_list[4]  # This will be the whitespace segment
-    ]
+    )
     # When we consider mode than code then it shouldn't work
     assert g3.match(seg_list) is None

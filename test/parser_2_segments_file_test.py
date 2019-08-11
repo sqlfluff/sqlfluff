@@ -43,17 +43,23 @@ def test__parser_2__file_from_raw(raw, res, caplog):
 @pytest.mark.parametrize(
     "raw",
     [
-        "select a from tbl", "select * from blah",
-        "select a, b from tmp", " select 12 -- ends with comment",
-        multi_statement_test
+        "select a from tbl",
+        # "select * from blah",
+        # "select a, b from tmp", " select 12 -- ends with comment",
+        # multi_statement_test
     ]
 )
-def DISABLED_test__parser_2__base_parse(raw):
+def test__parser_2__base_file_parse(raw, caplog):
     fs = FileSegment.from_raw(raw)
     # From just the initial parse, check we're all there
     assert fs.raw == raw
 
-    parsed = fs.parse()
+    with caplog.at_level(logging.DEBUG):
+        logging.debug("Pre-parse structure: {0}".format(fs.to_tuple(show_raw=True)))
+        logging.debug("Pre-parse structure: {0}".format(fs.stringify()))
+        parsed = fs.parse(recurse=False)
+        logging.debug("Post-parse structure: {0}".format(fs.to_tuple(show_raw=True)))
+        logging.debug("Post-parse structure: {0}".format(fs.stringify()))
     # Check we're all there.
     assert parsed.raw == raw
 

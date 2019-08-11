@@ -13,10 +13,7 @@ class BaseSegment(object):
 
     @classmethod
     def _match_grammar(self):
-        if self.grammar:
-            return self.grammar
-        else:
-            return self.parse_grammar
+        return self.grammar
 
     @classmethod
     def _parse_grammar(self):
@@ -38,55 +35,45 @@ class BaseSegment(object):
     def from_raw(cls, raw):
         raise NotImplementedError("from_raw is not implemented for {0}".format(cls.__name__))
 
-    def parse(self):
-        logging.debug("{0}.parse A".format(self.__class__.__name__))
-        if self.segments is None:
-            raise ValueError("No Segments to parse!?")
-        # First we need to allow any existing segments in this
-        # statement to expand out. This could inlude code and comment
-        # segments.
-        # We now need to parse each of the sub elements. Expand does that.
-        self.segments = self.expand(self.segments)
-        logging.debug("{0}.parse B".format(self.__class__.__name__))
-        # logging.debug("{0}".format(self.segments))
-        # logging.debug("{0}: {1}".format(self.__class__.__name__, self.segments))
-        # Here we then need to allow any number of comments and whitespace
-        # (to lint later)
-        # THEN it must match a type of sql statement
+    def parse(self, recurse=True):
+        """ Use the parse kwarg for testing, mostly to check how deep to go.
+        True/False for yes or no, an integer allows a certain number of levels """
 
-        # Mutate itself, and then return
+        # We should call the parse grammar on this segment, which calls
+        # the match grammar on all it's children.
 
-        # If it can't match, then we should have an unparsable block
-        # match = self.match(segments=self.segments)
-        # if match is None:
-        #    self.segments = [UnparsableSegment(segments=self.segments)]
-        # else:
-        #    self.segments = [match]
+        # if the `parse` kwarg has the right value, we then call `parse`
+        # on each of the children.
+        logging.debug("{0}.parse: recurse={1!r}".format(self.__class__.__name__, recurse))
+        if not self.segments:
+            # This means we're a root segment, just return an unmutated self
+            return self
 
-        # Similar to the match grammar, we use parse grammar here:
-        if self._parse_grammar():
-            m = self._parse_grammar().match(segments=self.segments)
-            logging.debug("{0}.parse C".format(self.__class__.__name__))
-            # logging.debug(m)
-            # m will either be a segment, or a list.
-            # if it's a list, it's a list of segments to construct THIS class
-            # if it's a segment, then it's a replacement
-            # if it's NONE then we haven't matched and we should return that
-            if isinstance(m, BaseSegment):
-                self.segments = [m]
-            elif isinstance(m, list):
-                self.segments = m
-            elif m is None:
-                self.segments = [UnparsableSegment(segments=self.segments)]
-            else:
-                raise ValueError("Unexpected response to self._parse_grammar.match: {0!r}".format(m))
-            logging.debug("{0}.parse D".format(self.__class__.__name__))
-            # logging.debug(self.segments)
-            self.segments = self.expand(self.segments)
-        # else:
-        #    raise NotImplementedError("{0} has no parse grammar function implemented".format(self.__class__.__name__))
-        logging.debug("{0}.parse E".format(self.__class__.__name__))
-        # rint(self.segments)
+        # Get the Parse Grammar
+        g = self._parse_grammar()
+        if g is None:
+            logging.debug("{0}.parse: no grammar. returning".format(self.__class__.__name__))
+            return self
+        # Use the Parse Grammar (and the private method)
+        m = g._match(segments=self.segments)
+        if isinstance(m, BaseSegment):
+            logging.error(self._parse_grammar())
+            logging.error(m)
+            raise ValueError("Grammar returned a segment rather than an iterable!!")
+        elif isinstance(m, (list, tuple)):
+            self.segments = m
+        elif m is None:
+            self.segments = [UnparsableSegment(segments=self.segments)]
+        else:
+            raise ValueError("Unexpected response to self._parse_grammar.match: {0!r}".format(m))
+
+        # Recurse if allowed (using the expand method to deal with the expansion)
+        if recurse is True:
+            self.segments = self.expand(self.segments, recurse=True)
+        if isinstance(recurse, int):
+            if recurse > 1:
+                self.segments = self.expand(self.segments, recurse=recurse - 1)
+
         return self
 
     def __repr__(self):
@@ -139,7 +126,10 @@ class BaseSegment(object):
     def to_tuple(self, **kwargs):
         # works for both base and raw
         code_only = kwargs.get('code_only', False)
-        if code_only:
+        show_raw = kwargs.get('show_raw', False)
+        if show_raw and not self.segments:
+            return (self.type, self.raw)
+        elif code_only:
             return (self.type, tuple([seg.to_tuple(**kwargs) for seg in self.segments if seg.is_code]))
         else:
             return (self.type, tuple([seg.to_tuple(**kwargs) for seg in self.segments]))
@@ -156,15 +146,19 @@ class BaseSegment(object):
         """
         logging.debug("MATCH: {0}".format(cls))
         if cls._match_grammar():
-            m = cls._match_grammar().match(segments=segments)
+            # Call the private method
+            m = cls._match_grammar()._match(segments=segments)
             # m will either be a segment, or a list.
             # if it's a list, it's a list of segments to construct THIS class
             # if it's a segment, then it's a replacement
             # if it's NONE then we haven't matched and we should return that
             if isinstance(m, BaseSegment):
-                return cls(segments=[m])
-            elif isinstance(m, list):
-                return cls(segments=m)
+                logging.info("MATCH SUCCESS: {0}: {1}".format(cls, [m]))
+                logging.warning("Matcher {0} returned a list!".format(cls._match_grammar()))
+                return cls(segments=(m,))
+            elif isinstance(m, (list, tuple)):
+                logging.info("MATCH SUCCESS: {0}: {1}".format(cls, m))
+                return cls(segments=m),  # Return a tuple
             elif m is None:
                 return None
             else:
@@ -172,16 +166,30 @@ class BaseSegment(object):
         else:
             raise NotImplementedError("{0} has no match function implemented".format(cls.__name__))
 
+    @classmethod
+    def _match(cls, segments):
+        """ A wrapper on the match function to do some basic validation """
+        if not isinstance(segments, tuple):
+            logging.warning(
+                "{0}.match, was passed {1} rather than tuple".format(
+                    cls.__name__, type(segments)))
+        m = cls.match(segments)
+        if not isinstance(m, tuple):
+            logging.warning(
+                "{0}.match, returned {1} rather than tuple".format(
+                    cls.__name__, type(m)))
+        return m
+
     @staticmethod
-    def expand(segments):
-        segs = []
+    def expand(segments, recurse=True):
+        segs = tuple()
         for stmt in segments:
-            res = stmt.parse()
+            res = stmt.parse(recurse=recurse)
             if isinstance(res, BaseSegment):
-                segs.append(res)
+                raise ValueError("We got ANOTHER segment back rather than an iterable!!?")
             else:
                 # We might get back an iterable of segments
-                segs += stmt.parse()
+                segs += res
         return segs
 
     def raw_list(self):
@@ -247,10 +255,6 @@ class RawSegment(BaseSegment):
     def stringify(self, ident=0, tabsize=4, pos_idx=60, raw_idx=80):
         preface = self._preface(ident=ident, tabsize=tabsize, pos_idx=pos_idx)
         return preface + (' ' * max(raw_idx - len(preface), 0)) + "{0!r}\n".format(self.raw)
-
-    def parse(self):
-        # TODO: Check this is right?
-        return self
 
     @classmethod
     def make(cls, template, case_sensitive=False, name=None,

@@ -43,7 +43,7 @@ class KeywordSegment(RawSegment):
             pos = segments[0].pos_marker
             logging.debug("{1} considering {0!r}".format(raw, cls.__name__))
             if ((cls._case_sensitive and cls._template == raw) or (not cls._case_sensitive and cls._template == raw.upper())):
-                return cls(raw=raw, pos_marker=pos)
+                return cls(raw=raw, pos_marker=pos),  # Return as a tuple
         else:
             logging.debug("{1} will not match sequence of length {0}".format(len(segments), cls.__name__))
         return None

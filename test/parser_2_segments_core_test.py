@@ -56,13 +56,13 @@ def test__parser_2__core_keyword(raw_seg_list):
     assert FooKeyword.match(raw_seg_list[0]) is None
     # Match it against a the first element as a list and check it doesn't match
     assert FooKeyword.match([raw_seg_list[0]]) is None
-    # Match it against the final element
-    assert FooKeyword.match(raw_seg_list[1]) == FooKeyword(
+    # Match it against the final element (returns tuple)
+    assert FooKeyword.match(raw_seg_list[1]) == (FooKeyword(
         'foo',
         FilePositionMarker.from_fresh().advance_by('bar')
-    )
-    # Match it against the final element as a list
-    assert FooKeyword.match([raw_seg_list[1]]) == FooKeyword(
+    ),)
+    # Match it against the final element as a list (returns tuple)
+    assert FooKeyword.match([raw_seg_list[1]]) == (FooKeyword(
         'foo',
         FilePositionMarker.from_fresh().advance_by('bar')
-    )
+    ),)

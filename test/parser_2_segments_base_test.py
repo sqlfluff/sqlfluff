@@ -51,6 +51,8 @@ def test__parser_2__base_segments_raw(raw_seg):
             == "  RawSegment:       [3](1, 1, 4)   'foobar'\n")
     # Check tuple
     assert raw_seg.to_tuple() == ('raw', ())
+    # Check tuple
+    assert raw_seg.to_tuple(show_raw=True) == ('raw', 'foobar')
 
 
 def test__parser_2__base_segments_base(raw_seg_list):
