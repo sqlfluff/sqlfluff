@@ -6,6 +6,7 @@ from six import StringIO
 class BaseSegment(object):
     type = 'base'
     parse_grammar = None
+    match_grammar = None
     grammar = None
     comment_seperate = False
     is_whitespace = False
@@ -13,13 +14,18 @@ class BaseSegment(object):
 
     @classmethod
     def _match_grammar(self):
-        return self.grammar
+        if self.match_grammar:
+            return self.match_grammar
+        else:
+            return self.grammar
 
     @classmethod
     def _parse_grammar(self):
         # return self.parse_grammar
         if self.parse_grammar:
             return self.parse_grammar
+        elif self.match_grammar:
+            return self.match_grammar
         else:
             return self.grammar
 
@@ -55,7 +61,7 @@ class BaseSegment(object):
             logging.debug("{0}.parse: no grammar. returning".format(self.__class__.__name__))
             return self
         # Use the Parse Grammar (and the private method)
-        m = g._match(segments=self.segments)
+        m = g._match(segments=self.segments)  # NB No match depth kwarg, because we're starting here!
         if isinstance(m, BaseSegment):
             logging.error(self._parse_grammar())
             logging.error(m)
@@ -68,6 +74,8 @@ class BaseSegment(object):
             raise ValueError("Unexpected response to self._parse_grammar.match: {0!r}".format(m))
 
         # Recurse if allowed (using the expand method to deal with the expansion)
+        logging.debug("{0}.parse: Done Parse. Plotting Recursion. Recurse={1!r}".format(self.__class__.__name__, recurse))
+        logging.debug("{0}.parse: Pre-Recursion Structure: {1!r}".format(self.__class__.__name__, self.segments))
         if recurse is True:
             self.segments = self.expand(self.segments, recurse=True)
         if isinstance(recurse, int):
@@ -138,7 +146,7 @@ class BaseSegment(object):
     # When dealing with concrete then we're always in parse.
     # Parse is what happens during expand.
     @classmethod
-    def match(cls, segments):
+    def match(cls, segments, match_depth=0):
         """
             Matching can be done from either the raw or the segments.
             This raw function can be overridden, or a grammar defined
@@ -147,7 +155,7 @@ class BaseSegment(object):
         logging.debug("MATCH: {0}".format(cls))
         if cls._match_grammar():
             # Call the private method
-            m = cls._match_grammar()._match(segments=segments)
+            m = cls._match_grammar()._match(segments=segments, match_depth=match_depth + 1)
             # m will either be a segment, or a list.
             # if it's a list, it's a list of segments to construct THIS class
             # if it's a segment, then it's a replacement
@@ -167,17 +175,22 @@ class BaseSegment(object):
             raise NotImplementedError("{0} has no match function implemented".format(cls.__name__))
 
     @classmethod
-    def _match(cls, segments):
+    def _match(cls, segments, match_depth=0):
         """ A wrapper on the match function to do some basic validation """
-        if not isinstance(segments, tuple):
+        logging.info("[MD:{0}] {1}._match IN".format(match_depth, cls.__name__))
+        if not isinstance(segments, (tuple, BaseSegment)):
             logging.warning(
-                "{0}.match, was passed {1} rather than tuple".format(
+                "{0}.match, was passed {1} rather than tuple or segment".format(
                     cls.__name__, type(segments)))
-        m = cls.match(segments)
-        if not isinstance(m, tuple):
+            if isinstance(segments, list):
+                # Let's make it a tuple for compatibility
+                segments = tuple(segments)
+        m = cls.match(segments, match_depth=match_depth)
+        if not isinstance(m, tuple) and m is not None:
             logging.warning(
                 "{0}.match, returned {1} rather than tuple".format(
                     cls.__name__, type(m)))
+        logging.info("[MD:{0}] {1}._match OUT [m={2}]".format(match_depth, cls.__name__, m))
         return m
 
     @staticmethod

@@ -32,7 +32,7 @@ class KeywordSegment(RawSegment):
     _case_sensitive = False
 
     @classmethod
-    def match(cls, segments):
+    def match(cls, segments, match_depth=0):
         """ Keyword implements it's own matching function """
         # If we've been passed the singular, make it a list
         if isinstance(segments, BaseSegment):
@@ -152,8 +152,8 @@ class StatementSegment(BaseSegment):
     # From here down, comments are printed seperately.
     comment_seperate = True
     # Let's define a grammar from here on in
-    grammar = OneOf(SelectStatementSegment, InsertStatementSegment, EmptyStatementSegment, WithCompoundStatementSegment)
-    match_grammar = GreedyUntil(KeywordSegment.make(';'))
+    parse_grammar = OneOf(SelectStatementSegment, InsertStatementSegment, EmptyStatementSegment, WithCompoundStatementSegment)
+    match_grammar = GreedyUntil(KeywordSegment.make(';', name='semicolon'), strict=False)
 
 
 class RawCodeSegment(RawSegment):
