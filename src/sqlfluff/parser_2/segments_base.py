@@ -41,7 +41,7 @@ class BaseSegment(object):
     def from_raw(cls, raw):
         raise NotImplementedError("from_raw is not implemented for {0}".format(cls.__name__))
 
-    def parse(self, recurse=True):
+    def parse(self, recurse=True, parse_depth=0):
         """ Use the parse kwarg for testing, mostly to check how deep to go.
         True/False for yes or no, an integer allows a certain number of levels """
 
@@ -61,7 +61,7 @@ class BaseSegment(object):
             logging.debug("{0}.parse: no grammar. returning".format(self.__class__.__name__))
             return self
         # Use the Parse Grammar (and the private method)
-        m = g._match(segments=self.segments)  # NB No match depth kwarg, because we're starting here!
+        m = g._match(segments=self.segments, parse_depth=parse_depth)  # NB No match_depth kwarg, because we're starting here!
         if isinstance(m, BaseSegment):
             logging.error(self._parse_grammar())
             logging.error(m)
@@ -77,10 +77,10 @@ class BaseSegment(object):
         logging.debug("{0}.parse: Done Parse. Plotting Recursion. Recurse={1!r}".format(self.__class__.__name__, recurse))
         logging.debug("{0}.parse: Pre-Recursion Structure: {1!r}".format(self.__class__.__name__, self.segments))
         if recurse is True:
-            self.segments = self.expand(self.segments, recurse=True)
+            self.segments = self.expand(self.segments, recurse=True, parse_depth=parse_depth + 1)
         if isinstance(recurse, int):
             if recurse > 1:
-                self.segments = self.expand(self.segments, recurse=recurse - 1)
+                self.segments = self.expand(self.segments, recurse=recurse - 1, parse_depth=parse_depth + 1)
 
         return self
 
@@ -146,26 +146,25 @@ class BaseSegment(object):
     # When dealing with concrete then we're always in parse.
     # Parse is what happens during expand.
     @classmethod
-    def match(cls, segments, match_depth=0):
+    def match(cls, segments, match_depth=0, parse_depth=0):
         """
             Matching can be done from either the raw or the segments.
             This raw function can be overridden, or a grammar defined
             on the underlying class.
         """
-        logging.debug("MATCH: {0}".format(cls))
         if cls._match_grammar():
             # Call the private method
-            m = cls._match_grammar()._match(segments=segments, match_depth=match_depth + 1)
+            m = cls._match_grammar()._match(segments=segments, match_depth=match_depth + 1, parse_depth=parse_depth)
             # m will either be a segment, or a list.
             # if it's a list, it's a list of segments to construct THIS class
             # if it's a segment, then it's a replacement
             # if it's NONE then we haven't matched and we should return that
             if isinstance(m, BaseSegment):
-                logging.info("MATCH SUCCESS: {0}: {1}".format(cls, [m]))
-                logging.warning("Matcher {0} returned a list!".format(cls._match_grammar()))
+                # logging.info("MATCH SUCCESS: {0}: {1}".format(cls, [m]))
+                # logging.warning("Matcher {0} returned a list!".format(cls._match_grammar()))
                 return cls(segments=(m,))
             elif isinstance(m, (list, tuple)):
-                logging.info("MATCH SUCCESS: {0}: {1}".format(cls, m))
+                # logging.info("MATCH SUCCESS: {0}: {1}".format(cls, m))
                 return cls(segments=m),  # Return a tuple
             elif m is None:
                 return None
@@ -175,9 +174,9 @@ class BaseSegment(object):
             raise NotImplementedError("{0} has no match function implemented".format(cls.__name__))
 
     @classmethod
-    def _match(cls, segments, match_depth=0):
+    def _match(cls, segments, match_depth=0, parse_depth=0):
         """ A wrapper on the match function to do some basic validation """
-        logging.info("[MD:{0}] {1}._match IN".format(match_depth, cls.__name__))
+        logging.info("[PD:{0} MD:{1}] {2}._match IN [ls={3}]".format(parse_depth, match_depth, cls.__name__, len(segments)))
         if not isinstance(segments, (tuple, BaseSegment)):
             logging.warning(
                 "{0}.match, was passed {1} rather than tuple or segment".format(
@@ -185,21 +184,22 @@ class BaseSegment(object):
             if isinstance(segments, list):
                 # Let's make it a tuple for compatibility
                 segments = tuple(segments)
-        m = cls.match(segments, match_depth=match_depth)
+        m = cls.match(segments, match_depth=match_depth, parse_depth=parse_depth)
         if not isinstance(m, tuple) and m is not None:
             logging.warning(
                 "{0}.match, returned {1} rather than tuple".format(
                     cls.__name__, type(m)))
-        logging.info("[MD:{0}] {1}._match OUT [m={2}]".format(match_depth, cls.__name__, m))
+        logging.info("[PD:{0} MD:{1}] {2}._match OUT [m={3}]".format(parse_depth, match_depth, cls.__name__, m))
         return m
 
     @staticmethod
-    def expand(segments, recurse=True):
+    def expand(segments, recurse=True, parse_depth=0):
         segs = tuple()
         for stmt in segments:
-            res = stmt.parse(recurse=recurse)
+            res = stmt.parse(recurse=recurse, parse_depth=parse_depth)
             if isinstance(res, BaseSegment):
-                raise ValueError("We got ANOTHER segment back rather than an iterable!!?")
+                logging.warning("EXPAND: We got ANOTHER segment back rather than an iterable!!?")
+                segs += (res,)
             else:
                 # We might get back an iterable of segments
                 segs += res
@@ -225,6 +225,10 @@ class BaseSegment(object):
         return ((type(self) == type(other))
                 and (self.raw == other.raw)
                 and (self.pos_marker == other.pos_marker))
+
+    def __len__(self):
+        """ implement a len method to make everyone's lives easier """
+        return 1
 
 
 class RawSegment(BaseSegment):

@@ -38,3 +38,10 @@ Some linters, may optionally be able to _fix_ the problems they find. If this is
 return a mutated tree as one of their return values, which can be passed to the next linter. In normal operation
 this will not be what is returned, because it becomes confusing with line references for a user fixing issues
 manually.
+
+# TODOS
+
+## Parser
+- Get the simple parsing examples to work
+  - WE NEED TO BE MORE SPECIFIC ABOUT HOW GREEDY UNTIL WORKS. How do we deal with partial returns in the
+    current structure? That ambiguity is causing chaos at the moment.

@@ -32,7 +32,7 @@ class KeywordSegment(RawSegment):
     _case_sensitive = False
 
     @classmethod
-    def match(cls, segments, match_depth=0):
+    def match(cls, segments, match_depth=0, parse_depth=0):
         """ Keyword implements it's own matching function """
         # If we've been passed the singular, make it a list
         if isinstance(segments, BaseSegment):
@@ -90,19 +90,20 @@ class SelectTargetGroupStatementSegment(BaseSegment):
     type = 'select_target_group'
     # From here down, comments are printed seperately.
     comment_seperate = True
-    # match grammar - doesn't exist - don't match, only parse
-    grammar = None
-    parse_grammar = Sequence(GreedyUntil(KeywordSegment.make('from')))
+    match_grammar = GreedyUntil(KeywordSegment.make('from'))
+    # We should edit the parse grammar to deal with DISTINCT, ALL or similar
+    # parse_grammar = Sequence(GreedyUntil(KeywordSegment.make('from')))
 
 
 class SelectStatementSegment(BaseSegment):
     type = 'select_statement'
     # From here down, comments are printed seperately.
     comment_seperate = True
-    # match grammar
-    grammar = StartsWith(KeywordSegment.make('select'))
-    # TODO: Re-enable this to parse the segment properly
-    parse_grammar = Sequence(KeywordSegment.make('select'), SelectTargetGroupStatementSegment, GreedyUntil(KeywordSegment.make('limit')))
+    # match grammar. This one makes sense in the context of knowing that it's
+    # definitely a statement, we just don't know what type yet.
+    match_grammar = StartsWith(KeywordSegment.make('select'))
+    # TODO: Prase grammar needs work
+    parse_grammar = Sequence(KeywordSegment.make('select'), SelectTargetGroupStatementSegment, GreedyUntil(KeywordSegment.make('limit'), strict=False))
 
 
 class SelectClauseSegment(BaseSegment):

@@ -10,7 +10,7 @@ class BaseGrammar(object):
     most grammars. Segments implement `match` as a classmethod. Grammars
     implement it as an instance method """
 
-    def match(self, segments, match_depth=0):
+    def match(self, segments, match_depth=0, parse_depth=0):
         """
             Matching can be done from either the raw or the segments.
             This raw function can be overridden, or a grammar defined
@@ -19,9 +19,9 @@ class BaseGrammar(object):
         logging.debug("MATCH: {0}".format(self))
         raise NotImplementedError("{0} has no match function implemented".format(self.__class__.__name__))
 
-    def _match(self, segments, match_depth=0):
+    def _match(self, segments, match_depth=0, parse_depth=0):
         """ A wrapper on the match function to do some basic validation """
-        logging.info("[MD:{0}] {1}._match IN".format(match_depth, self.__class__.__name__))
+        logging.info("[PD:{0} MD:{1}] {2}._match IN [ls={3}]".format(parse_depth, match_depth, self.__class__.__name__, len(segments)))
         if not isinstance(segments, (tuple, BaseSegment)):
             logging.warning(
                 "{0}.match, was passed {1} rather than tuple or segment".format(
@@ -29,12 +29,12 @@ class BaseGrammar(object):
             if isinstance(segments, list):
                 # Let's make it a tuple for compatibility
                 segments = tuple(segments)
-        m = self.match(segments, match_depth=match_depth)
+        m = self.match(segments, match_depth=match_depth, parse_depth=parse_depth)
         if not isinstance(m, tuple) and m is not None:
             logging.warning(
                 "{0}.match, returned {1} rather than tuple".format(
                     self.__class__.__name__, type(m)))
-        logging.info("[MD:{0}] {1}._match OUT [m={2}]".format(match_depth, self.__class__.__name__, m))
+        logging.info("[PD:{0} MD:{1}] {2}._match OUT [m={3}]".format(parse_depth, match_depth, self.__class__.__name__, m))
         return m
 
 
@@ -45,12 +45,12 @@ class OneOf(BaseGrammar):
         self._options = args
         self.code_only = kwargs.get('code_only', True)
 
-    def match(self, segments, match_depth=0):
+    def match(self, segments, match_depth=0, parse_depth=0):
         logging.debug("MATCH: {0}".format(self))
         # Match on each of the options
         matches = []
         for opt in self._options:
-            m = opt._match(segments, match_depth=match_depth + 1)
+            m = opt._match(segments, match_depth=match_depth + 1, parse_depth=parse_depth)
             matches.append(m)
 
         # matches = [opt.match(segments) for opt in self._options]
@@ -78,11 +78,11 @@ class GreedyUntil(BaseGrammar):
         # greedy regardless of type
         self.code_only = kwargs.get('code_only', True)
 
-    def match(self, segments, match_depth=0):
+    def match(self, segments, match_depth=0, parse_depth=0):
         seg_buffer = tuple()
         for seg in segments:
             for opt in self._options:
-                if opt._match(seg, match_depth=match_depth + 1):
+                if opt._match(seg, match_depth=match_depth + 1, parse_depth=parse_depth):
                     # it's a match! Return everything up to this point
                     if seg_buffer:
                         return seg_buffer
@@ -110,13 +110,13 @@ class Sequence(BaseGrammar):
         self.code_only = kwargs.get('code_only', True)
 
     @staticmethod
-    def _match_forward(segments, matcher, code_only=True, match_depth=0):
+    def _match_forward(segments, matcher, code_only=True, match_depth=0, parse_depth=0):
         """ sequentially match shorter and shorter forward segments
         looking for arbitrary length matches. this function deals with
         skipping non code segments.
         UPDATE: Now starts with the longest, and go shorter. That's the make things
         work for the Delimited grammar especially. Used to start short and go long."""
-        logging.debug("_match_forward: {0!r}, {1!r}".format(matcher, segments))
+        # logging.debug("_match_forward: {0!r}, {1!r}".format(matcher, segments))
         # Check if the start of this sequence is code_only
         if code_only and not segments[0].is_code:
             # skip this one for matching, but add it to the match
@@ -124,8 +124,9 @@ class Sequence(BaseGrammar):
         # Try decreasing lengths to match the remainder
         match_len = len(segments)
         while True:
-            logging.debug("_match_forward [loop]: {0!r}, {1!r}".format(matcher, segments[:match_len]))
-            m = matcher._match(segments[:match_len], match_depth=match_depth + 1)
+            # logging.debug("_match_forward [loop]: {0!r}, {1!r}".format(matcher, segments[:match_len]))
+            m = matcher._match(segments[:match_len], match_depth=match_depth + 1,
+                               parse_depth=parse_depth)
             if m:
                 # deal with the matches
                 # advance the counter
@@ -138,16 +139,16 @@ class Sequence(BaseGrammar):
             if match_len <= 0:
                 return None, 0, True
 
-    def match(self, segments, match_depth=0):
+    def match(self, segments, match_depth=0, parse_depth=0):
         if isinstance(segments, BaseSegment):
             segments = tuple(segments)
-        logging.debug("{0}.match, inbound segments: {1!r}".format(self.__class__.__name__, segments))
+        # logging.debug("{0}.match, inbound segments: {1!r}".format(self.__class__.__name__, segments))
         seg_idx = 0
         matched_segments = tuple()
         for elem in self._elems:
-            logging.debug("{0}.match, already matched: {1!r}".format(self.__class__.__name__, matched_segments))
-            logging.debug("{0}.match, considering: {1!r}".format(self.__class__.__name__, elem))
-            logging.debug("{0}.match, seg_idx: {1!r}".format(self.__class__.__name__, seg_idx))
+            # logging.debug("{0}.match, already matched: {1!r}".format(self.__class__.__name__, matched_segments))
+            # logging.debug("{0}.match, considering: {1!r}".format(self.__class__.__name__, elem))
+            # logging.debug("{0}.match, seg_idx: {1!r}".format(self.__class__.__name__, seg_idx))
             while True:
                 if seg_idx >= len(segments):
                     # We've run our of sequence without matching everyting:
@@ -157,12 +158,12 @@ class Sequence(BaseGrammar):
                 # a sequence rather than a singular.
                 m, n, c = self._match_forward(
                     segments=segments[seg_idx:], matcher=elem, code_only=self.code_only,
-                    match_depth=match_depth)
+                    match_depth=match_depth, parse_depth=parse_depth)
                 if m is None:
                     # We've failed to match at this index
                     return None
                 else:
-                    logging.debug("{0}.match, found: [n={1}] {2!r}".format(self.__class__.__name__, n, m))
+                    # logging.debug("{0}.match, found: [n={1}] {2!r}".format(self.__class__.__name__, n, m))
                     matched_segments += m
                     # Advance the counter by the length of the match
                     seg_idx += n
@@ -207,16 +208,16 @@ class Delimited(Sequence):
                 kwargs
             ))
 
-    def match(self, segments, match_depth=0):
+    def match(self, segments, match_depth=0, parse_depth=0):
         if isinstance(segments, BaseSegment):
             segments = [segments]
         seg_idx = 0
         matched_segments = tuple()
         looking_for = 'element'  # This will be `delimiter` when we find an element
         while True:
-            logging.debug("{0}.match, already matched: {1!r}".format(self.__class__.__name__, matched_segments))
-            logging.debug("{0}.match, looking for: {1!r}".format(self.__class__.__name__, looking_for))
-            logging.debug("{0}.match, seg_idx: {1!r}".format(self.__class__.__name__, seg_idx))
+            # logging.debug("{0}.match, already matched: {1!r}".format(self.__class__.__name__, matched_segments))
+            # logging.debug("{0}.match, looking for: {1!r}".format(self.__class__.__name__, looking_for))
+            # logging.debug("{0}.match, seg_idx: {1!r}".format(self.__class__.__name__, seg_idx))
 
             if seg_idx >= len(segments):
                 # We've got to the end of the segments, we can't end on a delimiter
@@ -233,16 +234,17 @@ class Delimited(Sequence):
 
             if looking_for == 'element':
                 for elem in self._elems:
-                    logging.debug("{0}.match, considering: {1!r}".format(self.__class__.__name__, elem))
+                    # logging.debug("{0}.match, considering: {1!r}".format(self.__class__.__name__, elem))
                     m, n, c = self._match_forward(
                         segments=segments[seg_idx:], matcher=elem,
                         code_only=self.code_only,
-                        match_depth=match_depth)
+                        match_depth=match_depth,
+                        parse_depth=parse_depth)
                     if m is None:
                         # We've failed to match at this index
                         continue
                     else:
-                        logging.debug("{0}.match, found: [n={1}] {2!r}".format(self.__class__.__name__, n, m))
+                        # logging.debug("{0}.match, found: [n={1}] {2!r}".format(self.__class__.__name__, n, m))
                         matched_segments += m
                         # Advance the counter by the length of the match
                         seg_idx += n
@@ -252,20 +254,21 @@ class Delimited(Sequence):
                         break
                 else:
                     # Completed a loop without a match
-                    logging.debug("{0}.match, no match [elem]".format(self.__class__.__name__))
+                    # logging.debug("{0}.match, no match [elem]".format(self.__class__.__name__))
                     return None
             elif looking_for == 'delimiter':
-                logging.debug("{0}.match, considering: {1!r}".format(self.__class__.__name__, self.delimiter))
+                # logging.debug("{0}.match, considering: {1!r}".format(self.__class__.__name__, self.delimiter))
                 m, n, c = self._match_forward(
                     segments=segments[seg_idx:], matcher=self.delimiter,
                     code_only=self.code_only,
-                    match_depth=match_depth)
+                    match_depth=match_depth,
+                    parse_depth=parse_depth)
                 if m is None:
                     # We've failed to match at this index
-                    logging.debug("{0}.match, no match [delim]".format(self.__class__.__name__))
+                    # logging.debug("{0}.match, no match [delim]".format(self.__class__.__name__))
                     return None
                 else:
-                    logging.debug("{0}.match, found: [n={1}] {2!r}".format(self.__class__.__name__, n, m))
+                    # logging.debug("{0}.match, found: [n={1}] {2!r}".format(self.__class__.__name__, n, m))
                     matched_segments += m
                     # Advance the counter by the length of the match
                     seg_idx += n
@@ -284,7 +287,7 @@ class ContainsOnly(BaseGrammar):
         self._options = args
         self.code_only = kwargs.get('code_only', True)
 
-    def match(self, segments, match_depth=0):
+    def match(self, segments, match_depth=0, parse_depth=0):
         seg_buffer = tuple()
         for seg in segments:
             matched = False
@@ -301,7 +304,7 @@ class ContainsOnly(BaseGrammar):
                             break
                     else:
                         try:
-                            m = opt._match(seg, match_depth=match_depth + 1)
+                            m = opt._match(seg, match_depth=match_depth + 1, parse_depth=parse_depth)
                         except AttributeError:
                             # it doesn't have a match method
                             continue
@@ -310,7 +313,7 @@ class ContainsOnly(BaseGrammar):
                             seg_buffer += m
                             break
             if not matched:
-                logging.debug("Non Matching Segment! {0!r}".format(seg))
+                # logging.debug("Non Matching Segment! {0!r}".format(seg))
                 # found a non matching segment:
                 return None
         else:
@@ -326,7 +329,7 @@ class StartsWith(BaseGrammar):
         self.code_only = code_only
         # Implement config handling later...
 
-    def match(self, segments, match_depth=0):
+    def match(self, segments, match_depth=0, parse_depth=0):
         if self.code_only:
             first_code = None
             first_code_idx = None
@@ -338,7 +341,7 @@ class StartsWith(BaseGrammar):
             else:
                 return None
 
-            match = self.target._match(segments=[first_code], match_depth=match_depth + 1)
+            match = self.target._match(segments=[first_code], match_depth=match_depth + 1, parse_depth=parse_depth)
             if match:
                 # Let's actually make it a keyword segment
                 # segments[first_code_idx] = match  <- can't do this on a tuple

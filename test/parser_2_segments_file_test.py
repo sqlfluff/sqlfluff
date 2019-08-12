@@ -57,12 +57,11 @@ def test__parser_2__base_file_parse(raw, caplog):
     with caplog.at_level(logging.DEBUG):
         logging.debug("Pre-parse structure: {0}".format(fs.to_tuple(show_raw=True)))
         logging.debug("Pre-parse structure: {0}".format(fs.stringify()))
-        parsed = fs.parse(recurse=False)
+        parsed = fs.parse()  # Optional: set recurse=1 to limit recursion
         logging.debug("Post-parse structure: {0}".format(fs.to_tuple(show_raw=True)))
         logging.debug("Post-parse structure: {0}".format(fs.stringify()))
     # Check we're all there.
     assert parsed.raw == raw
-
     # Check that there's nothing un parsable
     typs = parsed.type_set()
     assert 'unparsable' not in typs
