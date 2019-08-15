@@ -45,3 +45,9 @@ manually.
 - Get the simple parsing examples to work
   - WE NEED TO BE MORE SPECIFIC ABOUT HOW GREEDY UNTIL WORKS. How do we deal with partial returns in the
     current structure? That ambiguity is causing chaos at the moment.
+- Principles:
+    - Grammars should either match or not (when used in the context of a match or parse function)
+    - Grammars should be able to match a section and return the rest in the context of a sub grammar
+      allowing the rest to be matched by any following grammar.
+    - Return value from a match should probably be uniform, and some kind of object (a `namedTuple`?),
+      on which we can ask whether it's a complete match or not.
