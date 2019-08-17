@@ -29,13 +29,49 @@ class BaseSegment(object):
         else:
             return self.grammar
 
+    def validate_segments(self, text="constructing"):
+        # Check elements of segments:
+        for elem in self.segments:
+            if not isinstance(elem, BaseSegment):
+                raise TypeError(
+                    "In {0} {1}, found an element of the segments tuple which"
+                    " isn't a segment. Instead found element of type {2}.\nFound: {3}\nFull segments:{4}".format(
+                        text,
+                        type(self),
+                        type(elem),
+                        elem,
+                        self.segments
+                    ))
+
     def __init__(self, segments, pos_marker=None):
-        self.segments = segments
+        if hasattr(segments, 'matched_segments'):
+            # Safely extract segments from a match
+            self.segments = segments.matched_segments
+        elif isinstance(segments, tuple):
+            self.segments = segments
+        elif isinstance(segments, list):
+            self.segments = tuple(segments)
+        else:
+            raise TypeError(
+                "Unexpected type passed to BaseSegment: {0}".format(
+                    type(segments)))
+
+        # Check elements of segments:
+        self.validate_segments()
+
         if pos_marker:
             self.pos_marker = pos_marker
         else:
             # If no pos given, it's the pos of the first segment
-            self.pos_marker = segments[0].pos_marker
+            # Work out if we're dealing with a match result...
+            if hasattr(segments, 'initial_match_pos_marker'):
+                self.pos_marker = segments.initial_match_pos_marker()
+            elif isinstance(segments, (tuple, list)):
+                self.pos_marker = segments[0].pos_marker
+            else:
+                raise TypeError(
+                    "Unexpected type passed to BaseSegment: {0}".format(
+                        type(segments)))
 
     @classmethod
     def from_raw(cls, raw):
@@ -63,24 +99,35 @@ class BaseSegment(object):
         # Use the Parse Grammar (and the private method)
         m = g._match(segments=self.segments, parse_depth=parse_depth)  # NB No match_depth kwarg, because we're starting here!
         if isinstance(m, BaseSegment):
-            logging.error(self._parse_grammar())
+            logging.error(g)
             logging.error(m)
             raise ValueError("Grammar returned a segment rather than an iterable!!")
+        elif hasattr(m, 'has_match'):  # Is it a matchresult
+            self.segments = m.matched_segments
         elif isinstance(m, (list, tuple)):
             self.segments = m
         elif m is None:
-            self.segments = [UnparsableSegment(segments=self.segments)]
+            self.segments = UnparsableSegment(segments=self.segments, expected=g.expected_string()),  # NB: tuple
         else:
             raise ValueError("Unexpected response to self._parse_grammar.match: {0!r}".format(m))
+
+        # Validate new segments
+        self.validate_segments(text="parsing")
 
         # Recurse if allowed (using the expand method to deal with the expansion)
         logging.debug("{0}.parse: Done Parse. Plotting Recursion. Recurse={1!r}".format(self.__class__.__name__, recurse))
         logging.debug("{0}.parse: Pre-Recursion Structure: {1!r}".format(self.__class__.__name__, self.segments))
+        parse_depth_msg = "###\n#\n# Beginning Parse Depth {0}\n#\n###".format(parse_depth + 1)
         if recurse is True:
+            logging.debug(parse_depth_msg)
             self.segments = self.expand(self.segments, recurse=True, parse_depth=parse_depth + 1)
-        if isinstance(recurse, int):
+        elif isinstance(recurse, int):
             if recurse > 1:
+                logging.debug(parse_depth_msg)
                 self.segments = self.expand(self.segments, recurse=recurse - 1, parse_depth=parse_depth + 1)
+
+        # Validate new segments
+        self.validate_segments(text="expanding")
 
         return self
 
@@ -100,10 +147,18 @@ class BaseSegment(object):
     def raw(self):
         return self._reconstruct()
 
-    def _preface(self, ident, tabsize, pos_idx):
+    def _suffix(self):
+        """ NB Override this for specific subclassesses if we want extra output """
+        return ""
+
+    def _preface(self, ident, tabsize, pos_idx, raw_idx):
         preface = (' ' * (ident * tabsize)) + self.__class__.__name__ + ":"
         preface = preface + (' ' * max(pos_idx - len(preface), 0)) + str(self.pos_marker)
-        return preface
+        sfx = self._suffix()
+        if sfx:
+            return preface + (' ' * max(raw_idx - len(preface), 0)) + sfx
+        else:
+            return preface
 
     @property
     def _comments(self):
@@ -115,7 +170,7 @@ class BaseSegment(object):
 
     def stringify(self, ident=0, tabsize=4, pos_idx=60, raw_idx=80):
         buff = StringIO()
-        preface = self._preface(ident=ident, tabsize=tabsize, pos_idx=pos_idx)
+        preface = self._preface(ident=ident, tabsize=tabsize, pos_idx=pos_idx, raw_idx=raw_idx)
         buff.write(preface + '\n')
         if self.comment_seperate and len(self._comments) > 0:
             if self._comments:
@@ -159,7 +214,13 @@ class BaseSegment(object):
             # if it's a list, it's a list of segments to construct THIS class
             # if it's a segment, then it's a replacement
             # if it's NONE then we haven't matched and we should return that
-            if isinstance(m, BaseSegment):
+            if hasattr(m, 'matched_segments'):
+                # It's a match object:
+                if m.has_match():
+                    return cls(segments=m.matched_segments)
+                else:
+                    return None
+            elif isinstance(m, BaseSegment):
                 # logging.info("MATCH SUCCESS: {0}: {1}".format(cls, [m]))
                 # logging.warning("Matcher {0} returned a list!".format(cls._match_grammar()))
                 return cls(segments=(m,))
@@ -196,6 +257,8 @@ class BaseSegment(object):
     def expand(segments, recurse=True, parse_depth=0):
         segs = tuple()
         for stmt in segments:
+            if not hasattr(stmt, 'parse'):
+                raise ValueError("{0} has no method `parse`. This segment appears poorly constructed.".format(stmt))
             res = stmt.parse(recurse=recurse, parse_depth=parse_depth)
             if isinstance(res, BaseSegment):
                 logging.warning("EXPAND: We got ANOTHER segment back rather than an iterable!!?")
@@ -229,6 +292,13 @@ class BaseSegment(object):
     def __len__(self):
         """ implement a len method to make everyone's lives easier """
         return 1
+
+    @classmethod
+    def expected_string(cls):
+        """ This is never going to be called on an _instance_
+        but rather on the class, as part of a grammar, and therefore
+        as part of the matching phase. So we use the match grammar."""
+        return cls._match_grammar().expected_string()
 
 
 class RawSegment(BaseSegment):
@@ -270,8 +340,11 @@ class RawSegment(BaseSegment):
             self.raw)
 
     def stringify(self, ident=0, tabsize=4, pos_idx=60, raw_idx=80):
-        preface = self._preface(ident=ident, tabsize=tabsize, pos_idx=pos_idx)
-        return preface + (' ' * max(raw_idx - len(preface), 0)) + "{0!r}\n".format(self.raw)
+        preface = self._preface(ident=ident, tabsize=tabsize, pos_idx=pos_idx, raw_idx=raw_idx)
+        return preface + '\n'
+
+    def _suffix(self):
+        return "{0!r}".format(self.raw)
 
     @classmethod
     def make(cls, template, case_sensitive=False, name=None,
@@ -298,3 +371,11 @@ class UnparsableSegment(BaseSegment):
     type = 'unparsable'
     # From here down, comments are printed seperately.
     comment_seperate = True
+    _expected = ""
+
+    def __init__(self, *args, **kwargs):
+        self._expected = kwargs.pop('expected', "")
+        super(UnparsableSegment, self).__init__(*args, **kwargs)
+
+    def _suffix(self):
+        return "!! Expected: {0!r}".format(self._expected)

@@ -1,7 +1,123 @@
 
 import logging
+from collections import namedtuple
 
 from .segments_base import BaseSegment
+
+
+class MatchResult(namedtuple('MatchResult', ['matched_segments', 'unmatched_segments'])):
+    def initial_match_pos_marker(self):
+        if self.has_match():
+            return self.matched_segments[0].pos_marker
+        else:
+            return None
+
+    def __len__(self):
+        return len(self.matched_segments)
+
+    def is_complete(self):
+        return len(self) == 0
+
+    def has_match(self):
+        return len(self) > 0
+
+    def __bool__(self):
+        return self.has_match()
+
+    def raw_matched(self):
+        return ''.join([seg.raw for seg in self.matched_segments])
+
+    def __str__(self):
+        return "<MatchResult {0}/{1}: {2!r}>".format(
+            len(self.matched_segments), len(self.matched_segments) + len(self.unmatched_segments),
+            self.raw_matched())
+
+    def __eq__(self, other):
+        """ Equals function override, means comparison to tuples
+        for testing isn't silly """
+        if isinstance(other, MatchResult):
+            return (self.matched_segments == other.matched_segments
+                    and self.unmatched_segments == other.unmatched_segments)
+        elif isinstance(other, tuple):
+            return self.matched_segments == other
+        elif isinstance(other, list):
+            return self.matched_segments == tuple(other)
+        else:
+            raise TypeError(
+                "Unexpected equality comparison: type: {0}".format(
+                    type(other)))
+
+    @staticmethod
+    def seg_to_tuple(segs):
+        if isinstance(segs, tuple):
+            return segs
+        if isinstance(segs, BaseSegment):
+            return (segs,)
+        elif isinstance(segs, list):
+            return tuple(segs)
+        else:
+            raise ValueError("Unexpected input to `seg_to_tuple`: {0}".format(segs))
+
+    @classmethod
+    def from_unmatched(cls, unmatched):
+        # NB seg_to_tuple does the type munging
+        return cls(
+            matched_segments=(),
+            unmatched_segments=cls.seg_to_tuple(unmatched)
+        )
+
+    @classmethod
+    def from_matched(cls, matched):
+        # NB seg_to_tuple does the type munging
+        return cls(
+            unmatched_segments=(),
+            matched_segments=cls.seg_to_tuple(matched)
+        )
+
+    @classmethod
+    def from_empty(cls):
+        return cls(unmatched_segments=(),
+                   matched_segments=())
+
+    def __add__(self, other):
+        """ override + """
+        if isinstance(other, BaseSegment):
+            return self.__class__(
+                matched_segments=self.matched_segments + (other,),
+                unmatched_segments=self.unmatched_segments
+            )
+        elif isinstance(other, MatchResult):
+            return self.__class__(
+                matched_segments=self.matched_segments + other.matched_segments,
+                unmatched_segments=self.unmatched_segments
+            )
+        elif isinstance(other, tuple):
+            if len(other) > 0 and not isinstance(other[0], BaseSegment):
+                raise TypeError(
+                    "Unexpected type passed to MatchResult.__add__: tuple of {0}.\n{1}".format(
+                        type(other[0]), other))
+            return self.__class__(
+                matched_segments=self.matched_segments + other,
+                unmatched_segments=self.unmatched_segments
+            )
+        elif isinstance(other, list):
+            if len(other) > 0 and not isinstance(other[0], BaseSegment):
+                raise TypeError(
+                    "Unexpected type passed to MatchResult.__add__: list of {0}".format(
+                        type(other[0])))
+            return self.__class__(
+                matched_segments=self.matched_segments + tuple(other),
+                unmatched_segments=self.unmatched_segments
+            )
+        else:
+            raise TypeError(
+                "Unexpected type passed to MatchResult.__add__: {0}".format(
+                    type(other)))
+
+    # def __iadd__(self, other):
+    #     """ override += """
+    #     # https://www.python-course.eu/python3_magic_methods.php
+    #     return self
 
 
 class BaseGrammar(object):
@@ -30,12 +146,18 @@ class BaseGrammar(object):
                 # Let's make it a tuple for compatibility
                 segments = tuple(segments)
         m = self.match(segments, match_depth=match_depth, parse_depth=parse_depth)
-        if not isinstance(m, tuple) and m is not None:
+        if not isinstance(m, MatchResult):
             logging.warning(
-                "{0}.match, returned {1} rather than tuple".format(
+                "{0}.match, returned {1} rather than MatchResult".format(
                     self.__class__.__name__, type(m)))
         logging.info("[PD:{0} MD:{1}] {2}._match OUT [m={3}]".format(parse_depth, match_depth, self.__class__.__name__, m))
         return m
+
+    def expected_string(self):
+        """ Return a String which is helpful to understand what this grammar expects """
+        raise NotImplementedError(
+            "{0} does not implement expected_string!".format(
+                self.__class__.__name__))
 
 
 class OneOf(BaseGrammar):
@@ -53,21 +175,27 @@ class OneOf(BaseGrammar):
             m = opt._match(segments, match_depth=match_depth + 1, parse_depth=parse_depth)
             matches.append(m)
 
-        # matches = [opt.match(segments) for opt in self._options]
-
-        if sum([1 if m is not None else 0 for m in matches]) > 1:
+        if sum([1 if m else 0 for m in matches]) > 1:
             logging.warning("WARNING! Ambiguous match!")
 
         for m in matches:
             if m:
-                logging.debug("MATCH: {0}: Returning: {1}".format(self, m))
                 return m
         else:
-            return None
+            return MatchResult.from_unmatched(segments)
+
+    def expected_string(self):
+        return " | ".join([opt.expected_string() for opt in self._options])
 
 
 class GreedyUntil(BaseGrammar):
-    """ Match anything, up to but not including the given options """
+    """
+    Match anything, up to but not including the given options.
+
+    NB: To be really specific, IF the `until` clause *is* found
+    then this grammar WILL NOT match, it will only match if that
+    is not present.
+    """
     def __init__(self, *args, **kwargs):
         self._options = args
         # `strict`, means the segment will not be matched WITHOUT
@@ -79,28 +207,35 @@ class GreedyUntil(BaseGrammar):
         self.code_only = kwargs.get('code_only', True)
 
     def match(self, segments, match_depth=0, parse_depth=0):
-        seg_buffer = tuple()
+        seg_buffer = MatchResult.from_empty()
         for seg in segments:
             for opt in self._options:
                 if opt._match(seg, match_depth=match_depth + 1, parse_depth=parse_depth):
                     # it's a match! Return everything up to this point
-                    if seg_buffer:
-                        return seg_buffer
-                    else:
-                        # if the buffer is empty, then no match
-                        return None
+                    # NOTE: We used to return everything up until this point
+                    # but that's not in keeping with how a grammar should work.
+                    # We don not return ANYTHING, if the `until` clause is found
+                    # with the assumption that this is either a top level grammar
+                    # OR, that it's part of a sequence, and *that sequence* will retry
+                    # this grammar with a shorter segment.
+                    return MatchResult.from_unmatched(segments)
                 else:
                     continue
             else:
                 # Add this to the buffer
-                seg_buffer += (seg,)
+                seg_buffer += seg
         else:
             # We've gone through all the segments, and not found the end
             if self.strict:
-                # Strict mode means this is NOT at match because we didn't find the end
-                return None
+                # Strict mode means this is NOT at match because we didn't find the end.
+                # NOTE: The change to the return logic means that in strict mode, we will
+                # NEVER match.
+                return MatchResult.from_unmatched(segments)
             else:
                 return seg_buffer
+
+    def expected_string(self):
+        return "..., " + " ( " + " | ".join([opt.expected_string() for opt in self._options]) + " ) "
 
 
 class Sequence(BaseGrammar):
@@ -124,10 +259,12 @@ class Sequence(BaseGrammar):
         # Try decreasing lengths to match the remainder
         match_len = len(segments)
         while True:
+            logging.debug("[PD:{0} MD:{1}] Forward Match (l={2}): {3}".format(parse_depth, match_depth, match_len, ''.join([seg.raw for seg in segments[:match_len]])))
             # logging.debug("_match_forward [loop]: {0!r}, {1!r}".format(matcher, segments[:match_len]))
             m = matcher._match(segments[:match_len], match_depth=match_depth + 1,
                                parse_depth=parse_depth)
             if m:
+                logging.warning("Blorp: {0}".format(m))
                 # deal with the matches
                 # advance the counter
                 if isinstance(m, BaseSegment):
@@ -144,7 +281,7 @@ class Sequence(BaseGrammar):
             segments = tuple(segments)
         # logging.debug("{0}.match, inbound segments: {1!r}".format(self.__class__.__name__, segments))
         seg_idx = 0
-        matched_segments = tuple()
+        matched_segments = MatchResult.from_empty()
         for elem in self._elems:
             # logging.debug("{0}.match, already matched: {1!r}".format(self.__class__.__name__, matched_segments))
             # logging.debug("{0}.match, considering: {1!r}".format(self.__class__.__name__, elem))
@@ -163,7 +300,7 @@ class Sequence(BaseGrammar):
                     # We've failed to match at this index
                     return None
                 else:
-                    # logging.debug("{0}.match, found: [n={1}] {2!r}".format(self.__class__.__name__, n, m))
+                    logging.debug("{0}.match, found: [n={1}] {2!r}".format(self.__class__.__name__, n, m))
                     matched_segments += m
                     # Advance the counter by the length of the match
                     seg_idx += n
@@ -192,6 +329,9 @@ class Sequence(BaseGrammar):
                 # We matched all the sequence, but the number of segments given was longer
                 return None
 
+    def expected_string(self):
+        return ", ".join([opt.expected_string() for opt in self._elems])
+
 
 class Delimited(Sequence):
     """ Match an arbitrary number of elements seperated by a delimiter """
@@ -212,7 +352,7 @@ class Delimited(Sequence):
         if isinstance(segments, BaseSegment):
             segments = [segments]
         seg_idx = 0
-        matched_segments = tuple()
+        matched_segments = MatchResult.from_empty()
         looking_for = 'element'  # This will be `delimiter` when we find an element
         while True:
             # logging.debug("{0}.match, already matched: {1!r}".format(self.__class__.__name__, matched_segments))
@@ -226,7 +366,7 @@ class Delimited(Sequence):
                     if self.allow_trailing:
                         return matched_segments
                     else:
-                        return None
+                        return MatchResult.from_empty()
                 elif looking_for == 'delimiter':
                     return matched_segments
                 else:
@@ -255,7 +395,7 @@ class Delimited(Sequence):
                 else:
                     # Completed a loop without a match
                     # logging.debug("{0}.match, no match [elem]".format(self.__class__.__name__))
-                    return None
+                    return MatchResult.from_empty()
             elif looking_for == 'delimiter':
                 # logging.debug("{0}.match, considering: {1!r}".format(self.__class__.__name__, self.delimiter))
                 m, n, c = self._match_forward(
@@ -266,7 +406,7 @@ class Delimited(Sequence):
                 if m is None:
                     # We've failed to match at this index
                     # logging.debug("{0}.match, no match [delim]".format(self.__class__.__name__))
-                    return None
+                    return MatchResult.from_empty()
                 else:
                     # logging.debug("{0}.match, found: [n={1}] {2!r}".format(self.__class__.__name__, n, m))
                     matched_segments += m
@@ -278,6 +418,9 @@ class Delimited(Sequence):
                     # NB: No break here, because we're not looping through options
             else:
                 raise ValueError("Unexpected looking for: {0!r}".format(looking_for))
+
+    def expected_string(self):
+        return " {0} ".format(self.delimiter.expected_string()).join([opt.expected_string() for opt in self._elems])
 
 
 class ContainsOnly(BaseGrammar):

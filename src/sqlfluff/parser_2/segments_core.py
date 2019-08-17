@@ -48,6 +48,10 @@ class KeywordSegment(RawSegment):
             logging.debug("{1} will not match sequence of length {0}".format(len(segments), cls.__name__))
         return None
 
+    @classmethod
+    def expected_string(cls):
+        return cls._template
+
 
 CommaSegment = KeywordSegment.make(',', name='Comma')
 DotSegment = KeywordSegment.make('.', name='Dot')

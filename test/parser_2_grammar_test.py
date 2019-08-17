@@ -49,7 +49,7 @@ def test__parser_2__grammar_oneof(seg_list):
     bs = KeywordSegment.make('bar')
     g = OneOf(fs, bs)
     # Matching the list shouldn't work
-    assert g.match(seg_list) is None
+    assert not g.match(seg_list)
     # Matching either element should return the relevant one (as a tuple)
     assert g.match(seg_list[0]) == (bs('bar', seg_list[0].pos_marker),)
     assert g.match(seg_list[2]) == (fs('foo', seg_list[2].pos_marker),)
@@ -63,13 +63,13 @@ def test__parser_2__grammar_sequence(seg_list, caplog):
     with caplog.at_level(logging.DEBUG):
         # Matching the full list shouldn't work
         logging.info("#### TEST 1")
-        assert g.match(seg_list) is None
+        assert not g.match(seg_list)
         # Matching a short list shouldn't work (even though the first matches)
         logging.info("#### TEST 2")
-        assert g.match([seg_list[0]]) is None
+        assert not g.match([seg_list[0]])
         # Matching a list of the right length shouldn't match if the content isn't the same
         logging.info("#### TEST 3")
-        assert g.match(seg_list[1:]) is None
+        assert not g.match(seg_list[1:])
         # Matching a slice should
         logging.info("#### TEST 4")
         assert g.match(seg_list[:3]) == (
@@ -79,7 +79,7 @@ def test__parser_2__grammar_sequence(seg_list, caplog):
         )
         # Matching the slice, but broadening to more than code shouldn't
         logging.info("#### TEST 5")
-        assert gc.match(seg_list[:3]) is None
+        assert not gc.match(seg_list[:3])
 
 
 def test__parser_2__grammar_sequence_nested(seg_list, caplog):
@@ -90,7 +90,7 @@ def test__parser_2__grammar_sequence_nested(seg_list, caplog):
     with caplog.at_level(logging.DEBUG):
         # Matching the start of the list shouldn't work
         logging.info("#### TEST 1")
-        assert g.match(seg_list[:2]) is None
+        assert not g.match(seg_list[:2])
         # Matching the whole list should, and the result should be flat
         logging.info("#### TEST 2")
         assert g.match(seg_list) == (
@@ -119,7 +119,7 @@ def test__parser_2__grammar_delimited(caplog):
     with caplog.at_level(logging.DEBUG):
         # Matching not quite the full list shouldn't work
         logging.info("#### TEST 1")
-        assert g.match(seg_list[:4]) is None
+        assert not g.match(seg_list[:4])
         # Matching not quite the full list should work if we allow trailing
         logging.info("#### TEST 1")
         assert gt.match(seg_list[:4]) is not None
@@ -141,13 +141,15 @@ def test__parser_2__grammar_delimited_not_code_only(caplog):
         # Matching with whitespace shouldn't match
         # TODO: dots should be parsed out EARLY
         logging.info("#### TEST 1")
-        assert g.match(seg_list_a) is None
+        assert not g.match(seg_list_a)
         # Matching up to 'bar' should
         logging.info("#### TEST 2")
         assert g.match(seg_list_b) is not None
 
 
 def test__parser_2__grammar_greedyuntil(seg_list):
+    """ NB Greedy until should NOT match if the until
+    segment is present at all """
     fs = KeywordSegment.make('foo')
     bs = KeywordSegment.make('bar')
     bas = KeywordSegment.make('baar')
@@ -155,11 +157,13 @@ def test__parser_2__grammar_greedyuntil(seg_list):
     g1 = GreedyUntil(fs)
     g2 = GreedyUntil(bas)
     # Greedy matching until the first item should return none
-    assert g0.match(seg_list) is None
+    assert not g0.match(seg_list)
     # Greedy matching up to foo should return bar (as a raw!)
-    assert g1.match(seg_list) == seg_list[:2]
+    assert not g1.match(seg_list)
+    assert g1.match(seg_list[:2]) == seg_list[:2]
     # Greedy matching up to baar should return bar, foo  (as a raw!)
-    assert g2.match(seg_list) == seg_list[:3]
+    assert not g2.match(seg_list)
+    assert g2.match(seg_list[:3]) == seg_list[:3]
 
 
 def test__parser_2__grammar_containsonly(seg_list):
@@ -171,7 +175,7 @@ def test__parser_2__grammar_containsonly(seg_list):
     g2 = ContainsOnly(fs, bas, bs)
     g3 = ContainsOnly(fs, bas, bs, code_only=False)
     # Contains only, without matches for all shouldn't match
-    assert g0.match(seg_list) is None
+    assert not g0.match(seg_list)
     # Contains only, with just the type should return the list as is
     assert g1.match(seg_list) == seg_list
     # Contains only with matches for all should, as the matched versions
@@ -183,4 +187,4 @@ def test__parser_2__grammar_containsonly(seg_list):
         seg_list[4]  # This will be the whitespace segment
     )
     # When we consider mode than code then it shouldn't work
-    assert g3.match(seg_list) is None
+    assert not g3.match(seg_list)
