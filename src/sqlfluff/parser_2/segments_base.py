@@ -1,6 +1,22 @@
+"""
+Base segment definitions
+
+Here we define:
+- BaseSegment. This is the root class for all segments, and is
+  designed to hold other subsegments.
+- RawSegment. This is designed to be the root segment, without
+  any children, and the output of the lexer.
+- UnparsableSegment. A special wrapper to indicate that the parse
+  function failed on this block of segments and to prevent further
+  analysis.
+
+These are the fundamental building blocks.
+"""
 
 import logging
 from six import StringIO
+
+from .match import MatchResult
 
 
 class BaseSegment(object):
@@ -11,6 +27,12 @@ class BaseSegment(object):
     comment_seperate = False
     is_whitespace = False
     optional = False  # NB: See the seguence grammar for details
+    is_segment = True
+    _name = None
+
+    @property
+    def name(self):
+        return self._name or self.__class__.__name__
 
     @property
     def is_expandable(self):
@@ -97,9 +119,7 @@ class BaseSegment(object):
         # We should call the parse grammar on this segment, which calls
         # the match grammar on all it's children.
 
-        # if the `parse` kwarg has the right value, we then call `parse`
-        # on each of the children.
-        logging.debug("{0}.parse: recurse={1!r}".format(self.__class__.__name__, recurse))
+        # the parse_depth and recurse kwargs control how deep we will recurse for testing.
         if not self.segments:
             # This means we're a root segment, just return an unmutated self
             return self
@@ -110,27 +130,34 @@ class BaseSegment(object):
             logging.debug("{0}.parse: no grammar. returning".format(self.__class__.__name__))
             return self
         # Use the Parse Grammar (and the private method)
-        m = g._match(segments=self.segments, parse_depth=parse_depth)  # NB No match_depth kwarg, because we're starting here!
-        if isinstance(m, BaseSegment):
-            logging.error(g)
-            logging.error(m)
-            raise ValueError("Grammar returned a segment rather than an iterable!!")
-        elif hasattr(m, 'has_match'):  # Is it a matchresult
+        # NOTE: No match_depth kwarg, because this is the start of the matching.
+        m = g._match(segments=self.segments, parse_depth=parse_depth)
+
+        # Calling unify here, allows the MatchResult class to do all the type checking.
+        try:
+            m = MatchResult.unify(m)
+        except TypeError as err:
+            logging.error(
+                "[PD:{0}] {1}.parse. Error on unifying result of match grammar!".format(
+                    parse_depth, self.__class__.__name__))
+            raise err
+
+        if m.has_match():
             self.segments = m.matched_segments
-        elif isinstance(m, (list, tuple)):
-            self.segments = m
-        elif m is None:
-            self.segments = UnparsableSegment(segments=self.segments, expected=g.expected_string()),  # NB: tuple
         else:
-            raise ValueError("Unexpected response to self._parse_grammar.match: {0!r}".format(m))
+            # If there's no match at this stage, then it's unparsable. That's
+            # a problem at this stage so wrap it in an unparable segment and carry on.
+            self.segments = UnparsableSegment(segments=self.segments, expected=g.expected_string()),  # NB: tuple
 
         # Validate new segments
         self.validate_segments(text="parsing")
 
         # Recurse if allowed (using the expand method to deal with the expansion)
-        logging.debug("{0}.parse: Done Parse. Plotting Recursion. Recurse={1!r}".format(self.__class__.__name__, recurse))
-        logging.debug("{0}.parse: Pre-Recursion Structure: {1!r}".format(self.__class__.__name__, self.segments))
-        parse_depth_msg = "###\n#\n# Beginning Parse Depth {0}: {1}\n#\n###".format(parse_depth + 1, self.__class__.__name__)
+        logging.debug(
+            "{0}.parse: Done Parse. Plotting Recursion. Recurse={1!r}".format(
+                self.__class__.__name__, recurse))
+        parse_depth_msg = "###\n#\n# Beginning Parse Depth {0}: {1}\n#\n###\nInitial Structure{2}".format(
+            parse_depth + 1, self.__class__.__name__, self.stringify())
         if recurse is True:
             logging.debug(parse_depth_msg)
             self.segments = self.expand(self.segments, recurse=True, parse_depth=parse_depth + 1)
@@ -223,33 +250,27 @@ class BaseSegment(object):
         if cls._match_grammar():
             # Call the private method
             m = cls._match_grammar()._match(segments=segments, match_depth=match_depth + 1, parse_depth=parse_depth)
-            # m will either be a segment, or a list.
-            # if it's a list, it's a list of segments to construct THIS class
-            # if it's a segment, then it's a replacement
-            # if it's NONE then we haven't matched and we should return that
-            if hasattr(m, 'matched_segments'):
-                # It's a match object:
-                if m.has_match():
-                    return cls(segments=m.matched_segments)
-                else:
-                    return None
-            elif isinstance(m, BaseSegment):
-                # logging.info("MATCH SUCCESS: {0}: {1}".format(cls, [m]))
-                # logging.warning("Matcher {0} returned a list!".format(cls._match_grammar()))
-                return cls(segments=(m,))
-            elif isinstance(m, (list, tuple)):
-                # logging.info("MATCH SUCCESS: {0}: {1}".format(cls, m))
-                return cls(segments=m),  # Return a tuple
-            elif m is None:
-                return None
+
+            # Calling unify here, allows the MatchResult class to do all the type checking.
+            try:
+                m = MatchResult.unify(m)
+            except TypeError as err:
+                logging.error(
+                    "[PD:{0} MD:{1}] {2}.match. Error on unifying result of match grammar!".format(
+                        parse_depth, match_depth, cls.__name__))
+                raise err
+
+            # Once unified we can deal with it just as a MatchResult
+            if m.has_match():
+                return cls(segments=m.matched_segments)
             else:
-                raise ValueError("Unexpected response to cls._match_grammar.match: {0!r}".format(m))
+                return MatchResult.from_empty()
         else:
             raise NotImplementedError("{0} has no match function implemented".format(cls.__name__))
 
     @classmethod
     def _match(cls, segments, match_depth=0, parse_depth=0):
-        """ A wrapper on the match function to do some basic validation """
+        """ A wrapper on the match function to do some basic validation and logging """
         logging.info("[PD:{0} MD:{1}] {2}._match IN [ls={3}]".format(parse_depth, match_depth, cls.__name__, len(segments)))
         if not isinstance(segments, (tuple, BaseSegment)):
             logging.warning(
@@ -285,11 +306,10 @@ class BaseSegment(object):
             logging.debug(parse_depth_msg)
             res = stmt.parse(recurse=recurse, parse_depth=parse_depth)
             if isinstance(res, BaseSegment):
-                logging.warning("EXPAND: We got ANOTHER segment back rather than an iterable!!?")
                 segs += (res,)
             else:
                 # We might get back an iterable of segments
-                segs += res
+                segs += tuple(res)
         return segs
 
     def raw_list(self):
@@ -407,7 +427,7 @@ class RawSegment(BaseSegment):
         # This is the magic, we generate a new class! SORCERY
         newclass = type(classname, (cls, ),
                         dict(_template=_template, _case_sensitive=case_sensitive,
-                             **kwargs))
+                             _name=name, **kwargs))
         # Now we return that class in the abstract. NOT INSTANTIATED
         return newclass
 

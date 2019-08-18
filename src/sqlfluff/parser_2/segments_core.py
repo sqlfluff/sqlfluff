@@ -1,8 +1,13 @@
+"""
+This is the core SQL grammar. We'll probably extend this or make it pluggable
+for other dialects. Here we encode the structure of the language.
 
-import logging
-import re
+There shouldn't be any underlying "machinery" here, that should all
+be defined elsewhere.
+"""
 
 from .segments_base import (BaseSegment, RawSegment)
+from .segments_common import (KeywordSegment, ReSegment, NamedSegment)
 from .grammar import (Sequence, GreedyUntil, StartsWith, ContainsOnly,
                       OneOf, Delimited)
 
@@ -21,84 +26,11 @@ from .grammar import (Sequence, GreedyUntil, StartsWith, ContainsOnly,
 # https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 
 
-class KeywordSegment(RawSegment):
-    """ The Keyword Segment is a bit special, because while it
-    can be instantiated directly, we mostly generate them on the
-    fly for convenience. The `make` method is defined on RawSegment
-    instead of here, but can be used here too. """
-
-    type = 'keyword'
-    _is_code = True
-    _template = '<unset>'
-    _case_sensitive = False
-
-    @classmethod
-    def match(cls, segments, match_depth=0, parse_depth=0):
-        """ Keyword implements it's own matching function """
-        # If we've been passed the singular, make it a list
-        if isinstance(segments, BaseSegment):
-            segments = [segments]
-        # We only match if it's of length 1, otherwise not
-        if len(segments) == 1:
-            raw = segments[0].raw
-            pos = segments[0].pos_marker
-            if cls._case_sensitive:
-                raw_comp = raw
-            else:
-                raw_comp = raw.upper()
-            logging.debug("[PD:{0} MD:{1}] (KW) {2}.match considering {3!r} against {4!r}".format(
-                parse_depth, match_depth, cls.__name__, raw_comp, cls._template))
-            if cls._template == raw_comp:
-                return cls(raw=raw, pos_marker=pos),  # Return as a tuple
-        else:
-            logging.debug("{1} will not match sequence of length {0}".format(len(segments), cls.__name__))
-        return None
-
-    @classmethod
-    def expected_string(cls):
-        return cls._template
-
-
-class ReSegment(KeywordSegment):
-    """ A more flexible matching segment for use of regexes
-    USE WISELY """
-    @classmethod
-    def match(cls, segments, match_depth=0, parse_depth=0):
-        """ ReSegment implements it's own matching function,
-        we assume that ._template is a r"" string, and is formatted
-        for use directly as a regex. """
-        # If we've been passed the singular, make it a list
-        if isinstance(segments, BaseSegment):
-            segments = [segments]
-        # Regardless of what we're passed, make a string
-        s = ''.join([seg.raw for seg in segments])
-        # Deal with case sentitivity
-        if not cls._case_sensitive:
-            sc = s.upper()
-        else:
-            sc = s
-        if len(s) == 0:
-            raise ValueError("Zero length string passed to ReSegment!?")
-        logging.debug("[PD:{0} MD:{1}] (RE) {2}.match considering {3!r} against {4!r}".format(
-            parse_depth, match_depth, cls.__name__, sc, cls._template))
-        # Try the regex
-        result = re.match(cls._template, sc)
-        if result:
-            r = result.group(0)
-            # Check that we've fully matched
-            if r == sc:
-                return cls(raw=s, pos_marker=segments[0].pos_marker)
-        return None
-
-    @classmethod
-    def expected_string(cls):
-        return cls.type
-
-
 CommaSegment = KeywordSegment.make(',', name='Comma')
 DotSegment = KeywordSegment.make('.', name='Dot', type='dot')
 
 NakedIdentifierSegment = ReSegment.make(r"[A-Z0-9_]*", name='Identifier', type='naked_identifier')
+QuotedIdentifierSegment = NamedSegment.make('double_quote', name='Identifier', type='quoted_identifier')
 # QuotedIdentifierSegment = ReSegment.make(r"(\"|\'|\`)[A-Z0-9_]*(\"|\'|\`)", name='Identifier', type='naked_identifier')
 
 # class QuotedIdentifierSegment(BaseSegment):
@@ -112,7 +44,7 @@ NakedIdentifierSegment = ReSegment.make(r"[A-Z0-9_]*", name='Identifier', type='
 
 class IdentifierSegment(BaseSegment):
     type = 'identifier'
-    grammar = Delimited(OneOf(NakedIdentifierSegment), delimiter=DotSegment, code_only=False)
+    grammar = Delimited(OneOf(NakedIdentifierSegment, QuotedIdentifierSegment), delimiter=DotSegment, code_only=False)
 
 
 class ColumnExpressionSegment(BaseSegment):

@@ -1,123 +1,8 @@
-
+""" Definitions for Grammar """
 import logging
-from collections import namedtuple
 
 from .segments_base import BaseSegment
-
-
-class MatchResult(namedtuple('MatchResult', ['matched_segments', 'unmatched_segments'])):
-    def initial_match_pos_marker(self):
-        if self.has_match():
-            return self.matched_segments[0].pos_marker
-        else:
-            return None
-
-    def __len__(self):
-        return len(self.matched_segments)
-
-    def is_complete(self):
-        return len(self) == 0
-
-    def has_match(self):
-        return len(self) > 0
-
-    def __bool__(self):
-        return self.has_match()
-
-    def raw_matched(self):
-        return ''.join([seg.raw for seg in self.matched_segments])
-
-    def __str__(self):
-        return "<MatchResult {0}/{1}: {2!r}>".format(
-            len(self.matched_segments), len(self.matched_segments) + len(self.unmatched_segments),
-            self.raw_matched())
-
-    def __eq__(self, other):
-        """ Equals function override, means comparison to tuples
-        for testing isn't silly """
-        if isinstance(other, MatchResult):
-            return (self.matched_segments == other.matched_segments
-                    and self.unmatched_segments == other.unmatched_segments)
-        elif isinstance(other, tuple):
-            return self.matched_segments == other
-        elif isinstance(other, list):
-            return self.matched_segments == tuple(other)
-        else:
-            raise TypeError(
-                "Unexpected equality comparison: type: {0}".format(
-                    type(other)))
-
-    @staticmethod
-    def seg_to_tuple(segs):
-        if isinstance(segs, tuple):
-            return segs
-        if isinstance(segs, BaseSegment):
-            return (segs,)
-        elif isinstance(segs, list):
-            return tuple(segs)
-        else:
-            raise ValueError("Unexpected input to `seg_to_tuple`: {0}".format(segs))
-
-    @classmethod
-    def from_unmatched(cls, unmatched):
-        # NB seg_to_tuple does the type munging
-        return cls(
-            matched_segments=(),
-            unmatched_segments=cls.seg_to_tuple(unmatched)
-        )
-
-    @classmethod
-    def from_matched(cls, matched):
-        # NB seg_to_tuple does the type munging
-        return cls(
-            unmatched_segments=(),
-            matched_segments=cls.seg_to_tuple(matched)
-        )
-
-    @classmethod
-    def from_empty(cls):
-        return cls(unmatched_segments=(),
-                   matched_segments=())
-
-    def __add__(self, other):
-        """ override + """
-        if isinstance(other, BaseSegment):
-            return self.__class__(
-                matched_segments=self.matched_segments + (other,),
-                unmatched_segments=self.unmatched_segments
-            )
-        elif isinstance(other, MatchResult):
-            return self.__class__(
-                matched_segments=self.matched_segments + other.matched_segments,
-                unmatched_segments=self.unmatched_segments
-            )
-        elif isinstance(other, tuple):
-            if len(other) > 0 and not isinstance(other[0], BaseSegment):
-                raise TypeError(
-                    "Unexpected type passed to MatchResult.__add__: tuple of {0}.\n{1}".format(
-                        type(other[0]), other))
-            return self.__class__(
-                matched_segments=self.matched_segments + other,
-                unmatched_segments=self.unmatched_segments
-            )
-        elif isinstance(other, list):
-            if len(other) > 0 and not isinstance(other[0], BaseSegment):
-                raise TypeError(
-                    "Unexpected type passed to MatchResult.__add__: list of {0}".format(
-                        type(other[0])))
-            return self.__class__(
-                matched_segments=self.matched_segments + tuple(other),
-                unmatched_segments=self.unmatched_segments
-            )
-        else:
-            raise TypeError(
-                "Unexpected type passed to MatchResult.__add__: {0}".format(
-                    type(other)))
-
-    # def __iadd__(self, other):
-    #     """ override += """
-    #     # https://www.python-course.eu/python3_magic_methods.php
-    #     return self
+from .match import MatchResult
 
 
 class BaseGrammar(object):
@@ -142,6 +27,7 @@ class BaseGrammar(object):
             ))
 
     def is_optional(self):
+        # The optional attribute is set in the __init__ method
         return self.optional
 
     def match(self, segments, match_depth=0, parse_depth=0):
@@ -186,19 +72,18 @@ class OneOf(BaseGrammar):
         matches = []
         for opt in self._elements:
             m = opt._match(segments, match_depth=match_depth + 1, parse_depth=parse_depth)
+            # Do Type Munging using unify
+            m = MatchResult.unify(m)
             matches.append(m)
 
-        if sum([1 if m else 0 for m in matches]) > 1:
+        if sum([1 if m.has_match() else 0 for m in matches]) > 1:
             logging.warning("WARNING! Ambiguous match!")
         else:
             logging.debug(matches)
 
         for m in matches:
-            if m:
-                if isinstance(m, BaseSegment):
-                    return MatchResult.from_matched(m)
-                else:
-                    return m
+            if m.has_match():
+                return m
         else:
             return MatchResult.from_unmatched(segments)
 
@@ -253,7 +138,7 @@ class GreedyUntil(BaseGrammar):
                 return seg_buffer
 
     def expected_string(self):
-        return "..., " + " ( " + " | ".join([opt.expected_string() for opt in self._elements]) + " ) "
+        return "..., " + " !( " + " | ".join([opt.expected_string() for opt in self._elements]) + " ) "
 
 
 class Sequence(BaseGrammar):
@@ -278,7 +163,6 @@ class Sequence(BaseGrammar):
             m = matcher._match(segments[:match_len], match_depth=match_depth + 1,
                                parse_depth=parse_depth)
             if m:
-                logging.warning("Blorp: {0}".format(m))
                 # deal with the matches
                 # advance the counter
                 if isinstance(m, BaseSegment):
@@ -483,6 +367,15 @@ class ContainsOnly(BaseGrammar):
             # Should we also be returning a raw here?
             return seg_buffer
 
+    def expected_string(self):
+        buff = []
+        for opt in self._elements:
+            if isinstance(opt, str):
+                buff.append(opt)
+            else:
+                buff.append(opt.expected_string())
+        return " ( " + " | ".join(buff) + " | + )"
+
 
 class StartsWith(BaseGrammar):
     """ Match if the first element is the same, with configurable
@@ -514,3 +407,6 @@ class StartsWith(BaseGrammar):
                 return None
         else:
             raise NotImplementedError("Not expecting to match StartsWith and also not just code!?")
+
+    def expected_string(self):
+        return self.target.expected_string() + ", ..."

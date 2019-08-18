@@ -12,9 +12,6 @@ Seperate out the matchResult class into a seperate module
 ## Notes
 
 ### Development (Now)
-- Re-assess Nested Identifers
-- Deal with quoted identifiers (probably a quoted grammar?)
-- remove blorp logging
 - deal with warnings in parsing
 ### Development (Next)
 - tbc
