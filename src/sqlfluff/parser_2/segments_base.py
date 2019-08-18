@@ -13,6 +13,13 @@ class BaseSegment(object):
     optional = False  # NB: See the seguence grammar for details
 
     @property
+    def is_expandable(self):
+        if self._parse_grammar():
+            return True
+        else:
+            return False
+
+    @property
     def is_code(self):
         return any([seg.is_code for seg in self.segments])
 
@@ -32,8 +39,6 @@ class BaseSegment(object):
         # return self.parse_grammar
         if self.parse_grammar:
             return self.parse_grammar
-        elif self.match_grammar:
-            return self.match_grammar
         else:
             return self.grammar
 
@@ -265,8 +270,19 @@ class BaseSegment(object):
     def expand(segments, recurse=True, parse_depth=0):
         segs = tuple()
         for stmt in segments:
+            try:
+                if not stmt.is_expandable:
+                    logging.info("[PD:{0}] Skipping expansion of {1}...".format(parse_depth, stmt))
+                    segs += stmt,
+                    continue
+            except Exception as err:
+                # raise ValueError("{0} has no attribute `is_expandable`. This segment appears poorly constructed.".format(stmt))
+                logging.error("{0} has no attribute `is_expandable`. This segment appears poorly constructed.".format(stmt))
+                raise err
             if not hasattr(stmt, 'parse'):
                 raise ValueError("{0} has no method `parse`. This segment appears poorly constructed.".format(stmt))
+            parse_depth_msg = "###\n#\n# Parse Depth {0}. Expanding: {1}\n#\n###".format(parse_depth, stmt.__class__.__name__)
+            logging.debug(parse_depth_msg)
             res = stmt.parse(recurse=recurse, parse_depth=parse_depth)
             if isinstance(res, BaseSegment):
                 logging.warning("EXPAND: We got ANOTHER segment back rather than an iterable!!?")
@@ -330,6 +346,10 @@ class RawSegment(BaseSegment):
     _is_code = False
     _template = '<unset>'
     _case_sensitive = False
+
+    @property
+    def is_expandable(self):
+        return False
 
     @property
     def is_code(self):

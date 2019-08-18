@@ -88,14 +88,14 @@ def test__parser_2__base_file_parse(raw, caplog):
                     ('keyword', 'from'),
                     ('table_expression', (
                         ('identifier', (
-                            ('identifier', 'blah'),
+                            ('naked_identifier', 'blah'),
                         )),
                     ))
                 )),
             )),)),))
         ),
         (
-            "select a,b, c from blah",
+            'select a,b, c from sch.blah',
             ('file', (('statement', (('select_statement', (
                 ('keyword', 'select'),
                 ('select_target_group', (
@@ -109,7 +109,9 @@ def test__parser_2__base_file_parse(raw, caplog):
                     ('keyword', 'from'),
                     ('table_expression', (
                         ('identifier', (
-                            ('identifier', 'blah'),
+                            ('naked_identifier', 'sch'),
+                            ('dot', '.'),
+                            ('naked_identifier', 'blah'),
                         )),
                     ))
                 )),

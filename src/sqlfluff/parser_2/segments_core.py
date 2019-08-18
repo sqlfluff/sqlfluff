@@ -78,7 +78,7 @@ class ReSegment(KeywordSegment):
         else:
             sc = s
         if len(s) == 0:
-            raise ValueError("Zero lenght string passed to ReSegment!?")
+            raise ValueError("Zero length string passed to ReSegment!?")
         logging.debug("[PD:{0} MD:{1}] (RE) {2}.match considering {3!r} against {4!r}".format(
             parse_depth, match_depth, cls.__name__, sc, cls._template))
         # Try the regex
@@ -96,9 +96,10 @@ class ReSegment(KeywordSegment):
 
 
 CommaSegment = KeywordSegment.make(',', name='Comma')
-DotSegment = KeywordSegment.make('.', name='Dot')
+DotSegment = KeywordSegment.make('.', name='Dot', type='dot')
 
-UnquotedIdentifierSegment = ReSegment.make(r"[A-Z0-9_]*", name='Identifier', type='identifier')
+NakedIdentifierSegment = ReSegment.make(r"[A-Z0-9_]*", name='Identifier', type='naked_identifier')
+# QuotedIdentifierSegment = ReSegment.make(r"(\"|\'|\`)[A-Z0-9_]*(\"|\'|\`)", name='Identifier', type='naked_identifier')
 
 # class QuotedIdentifierSegment(BaseSegment):
 #    type = 'quoted_identifier'
@@ -111,14 +112,13 @@ UnquotedIdentifierSegment = ReSegment.make(r"[A-Z0-9_]*", name='Identifier', typ
 
 class IdentifierSegment(BaseSegment):
     type = 'identifier'
-    grammar = OneOf(UnquotedIdentifierSegment, code_only=False)  # QuotedIdentifierSegment
+    grammar = Delimited(OneOf(NakedIdentifierSegment), delimiter=DotSegment, code_only=False)
 
 
 class ColumnExpressionSegment(BaseSegment):
     type = 'column_expression'
     comment_seperate = True
-    # match grammar (don't allow whitespace)
-    grammar = Delimited(IdentifierSegment, delimiter=DotSegment, code_only=False)
+    grammar = OneOf(IdentifierSegment, code_only=False)  # QuotedIdentifierSegment
 
 
 class TableExpressionSegment(BaseSegment):
