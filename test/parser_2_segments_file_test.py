@@ -73,22 +73,53 @@ def test__parser_2__base_file_parse(raw, caplog):
     # implement the logic to parse them.
     [
         (
-            "select * from blah",
+            "select 1",  # A REALLY SIMPLE, BUT VALID QUERY
             ('file', (('statement', (('select_statement', (
-                ('select_clause', (
-                    ('keyword', ()),
-                    ('blah', ())
-                )),
-                ('from_clause', (
-
-                ))
+                ('keyword', 'select'),
+                ('select_target_group', (('raw', '1'),))
             )),)),))
         ),
-        ("select a,b, c from blah", ())
+        (
+            "select * from blah",
+            ('file', (('statement', (('select_statement', (
+                ('keyword', 'select'),
+                ('select_target_group', (('raw', '*'),)),
+                ('from_clause', (
+                    ('keyword', 'from'),
+                    ('table_expression', (
+                        ('identifier', (
+                            ('identifier', 'blah'),
+                        )),
+                    ))
+                )),
+            )),)),))
+        ),
+        (
+            "select a,b, c from blah",
+            ('file', (('statement', (('select_statement', (
+                ('keyword', 'select'),
+                ('select_target_group', (
+                    ('raw', 'a'),
+                    ('raw', ','),
+                    ('raw', 'b'),
+                    ('raw', ','),
+                    ('raw', 'c'),
+                )),
+                ('from_clause', (
+                    ('keyword', 'from'),
+                    ('table_expression', (
+                        ('identifier', (
+                            ('identifier', 'blah'),
+                        )),
+                    ))
+                )),
+            )),)),))
+        )
     ]
 )
-def DISABLED_test__parser_2__base_parse_struct(raw, res):
+def test__parser_2__base_parse_struct(raw, res, caplog):
     """ Some simple statements to check full parsing structure """
     fs = FileSegment.from_raw(raw)
-    parsed = fs.parse()
-    assert parsed.to_tuple() == res  # if seg.is_code
+    with caplog.at_level(logging.DEBUG):
+        parsed = fs.parse()
+    assert parsed.to_tuple(code_only=True, show_raw=True) == res  # if seg.is_code

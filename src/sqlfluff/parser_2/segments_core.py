@@ -1,5 +1,6 @@
 
 import logging
+import re
 
 from .segments_base import (BaseSegment, RawSegment)
 from .grammar import (Sequence, GreedyUntil, StartsWith, ContainsOnly,
@@ -27,7 +28,7 @@ class KeywordSegment(RawSegment):
     instead of here, but can be used here too. """
 
     type = 'keyword'
-    is_code = True
+    _is_code = True
     _template = '<unset>'
     _case_sensitive = False
 
@@ -41,8 +42,13 @@ class KeywordSegment(RawSegment):
         if len(segments) == 1:
             raw = segments[0].raw
             pos = segments[0].pos_marker
-            logging.debug("{1} considering {0!r}".format(raw, cls.__name__))
-            if ((cls._case_sensitive and cls._template == raw) or (not cls._case_sensitive and cls._template == raw.upper())):
+            if cls._case_sensitive:
+                raw_comp = raw
+            else:
+                raw_comp = raw.upper()
+            logging.debug("[PD:{0} MD:{1}] (KW) {2}.match considering {3!r} against {4!r}".format(
+                parse_depth, match_depth, cls.__name__, raw_comp, cls._template))
+            if cls._template == raw_comp:
                 return cls(raw=raw, pos_marker=pos),  # Return as a tuple
         else:
             logging.debug("{1} will not match sequence of length {0}".format(len(segments), cls.__name__))
@@ -53,17 +59,54 @@ class KeywordSegment(RawSegment):
         return cls._template
 
 
+class ReSegment(KeywordSegment):
+    """ A more flexible matching segment for use of regexes
+    USE WISELY """
+    @classmethod
+    def match(cls, segments, match_depth=0, parse_depth=0):
+        """ ReSegment implements it's own matching function,
+        we assume that ._template is a r"" string, and is formatted
+        for use directly as a regex. """
+        # If we've been passed the singular, make it a list
+        if isinstance(segments, BaseSegment):
+            segments = [segments]
+        # Regardless of what we're passed, make a string
+        s = ''.join([seg.raw for seg in segments])
+        # Deal with case sentitivity
+        if not cls._case_sensitive:
+            sc = s.upper()
+        else:
+            sc = s
+        if len(s) == 0:
+            raise ValueError("Zero lenght string passed to ReSegment!?")
+        logging.debug("[PD:{0} MD:{1}] (RE) {2}.match considering {3!r} against {4!r}".format(
+            parse_depth, match_depth, cls.__name__, sc, cls._template))
+        # Try the regex
+        result = re.match(cls._template, sc)
+        if result:
+            r = result.group(0)
+            # Check that we've fully matched
+            if r == sc:
+                return cls(raw=s, pos_marker=segments[0].pos_marker)
+        return None
+
+    @classmethod
+    def expected_string(cls):
+        return cls.type
+
+
 CommaSegment = KeywordSegment.make(',', name='Comma')
 DotSegment = KeywordSegment.make('.', name='Dot')
 
+UnquotedIdentifierSegment = ReSegment.make(r"[A-Z0-9_]*", name='Identifier', type='identifier')
 
 # class QuotedIdentifierSegment(BaseSegment):
 #    type = 'quoted_identifier'
 #    grammar = Sequence(UnquotedIdentifierSegment, QuotedIdentifierSegment, code_only=False)
 
-class UnquotedIdentifierSegment(BaseSegment):
-    type = 'unquoted_identifier'
-    grammar = KeywordSegment.make('dummy')
+# class UnquotedIdentifierSegment(BaseSegment):
+#    type = 'unquoted_identifier'
+#    grammar = KeywordSegment.make('dummy')
 
 
 class IdentifierSegment(BaseSegment):
@@ -99,6 +142,14 @@ class SelectTargetGroupStatementSegment(BaseSegment):
     # parse_grammar = Sequence(GreedyUntil(KeywordSegment.make('from')))
 
 
+class FromClauseSegment(BaseSegment):
+    type = 'from_clause'
+    # From here down, comments are printed seperately.
+    comment_seperate = True
+    # match grammar
+    match_grammar = Sequence(KeywordSegment.make('from'), Delimited(TableExpressionSegment, delimiter=CommaSegment))
+
+
 class SelectStatementSegment(BaseSegment):
     type = 'select_statement'
     # From here down, comments are printed seperately.
@@ -107,23 +158,12 @@ class SelectStatementSegment(BaseSegment):
     # definitely a statement, we just don't know what type yet.
     match_grammar = StartsWith(KeywordSegment.make('select'))
     # TODO: Prase grammar needs work
-    parse_grammar = Sequence(KeywordSegment.make('select'), SelectTargetGroupStatementSegment, GreedyUntil(KeywordSegment.make('limit'), strict=False))
-
-
-class SelectClauseSegment(BaseSegment):
-    type = 'select_clause'
-    # From here down, comments are printed seperately.
-    comment_seperate = True
-    # match grammar
-    grammar = Sequence(KeywordSegment.make('select'), Delimited(ColumnExpressionSegment, delimiter=CommaSegment))
-
-
-class FromClauseSegment(BaseSegment):
-    type = 'from_clause'
-    # From here down, comments are printed seperately.
-    comment_seperate = True
-    # match grammar
-    grammar = Sequence(KeywordSegment.make('from'), Delimited(TableExpressionSegment, delimiter=CommaSegment))
+    parse_grammar = Sequence(
+        KeywordSegment.make('select'),
+        SelectTargetGroupStatementSegment,
+        FromClauseSegment.as_optional(),
+        # GreedyUntil(KeywordSegment.make('limit'), strict=False, optional=True)
+    )
 
 
 class WithCompoundStatementSegment(BaseSegment):
@@ -268,7 +308,7 @@ class QuotedSegment(RawSegment):
 
 class StrippedRawCodeSegment(RawSegment):
     type = 'strippedcode'
-    is_code = True
+    _is_code = True
 
 
 class WhitespaceSegment(RawSegment):

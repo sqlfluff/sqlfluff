@@ -10,7 +10,15 @@ class BaseSegment(object):
     grammar = None
     comment_seperate = False
     is_whitespace = False
-    is_code = False
+    optional = False  # NB: See the seguence grammar for details
+
+    @property
+    def is_code(self):
+        return any([seg.is_code for seg in self.segments])
+
+    @classmethod
+    def is_optional(cls):
+        return cls.optional
 
     @classmethod
     def _match_grammar(self):
@@ -117,7 +125,7 @@ class BaseSegment(object):
         # Recurse if allowed (using the expand method to deal with the expansion)
         logging.debug("{0}.parse: Done Parse. Plotting Recursion. Recurse={1!r}".format(self.__class__.__name__, recurse))
         logging.debug("{0}.parse: Pre-Recursion Structure: {1!r}".format(self.__class__.__name__, self.segments))
-        parse_depth_msg = "###\n#\n# Beginning Parse Depth {0}\n#\n###".format(parse_depth + 1)
+        parse_depth_msg = "###\n#\n# Beginning Parse Depth {0}: {1}\n#\n###".format(parse_depth + 1, self.__class__.__name__)
         if recurse is True:
             logging.debug(parse_depth_msg)
             self.segments = self.expand(self.segments, recurse=True, parse_depth=parse_depth + 1)
@@ -300,15 +308,32 @@ class BaseSegment(object):
         as part of the matching phase. So we use the match grammar."""
         return cls._match_grammar().expected_string()
 
+    @classmethod
+    def as_optional(cls):
+        """ Used in constructing grammars, will make an identical class
+        but with the optional argument set to true. Used in constructing
+        sequences """
+        # Now lets make the classname (it indicates the mother class for clarity)
+        classname = "Optional_{0}".format(cls.__name__)
+        # This is the magic, we generate a new class! SORCERY
+        newclass = type(classname, (cls, ),
+                        dict(optional=True))
+        # Now we return that class in the abstract. NOT INSTANTIATED
+        return newclass
+
 
 class RawSegment(BaseSegment):
     """ This is a segment without any subsegments,
     it could be postprocessed later, but then it would be
     a different class. """
     type = 'raw'
-    is_code = False
+    _is_code = False
     _template = '<unset>'
     _case_sensitive = False
+
+    @property
+    def is_code(self):
+        return self._is_code
 
     def __init__(self, raw, pos_marker):
         self._raw = raw
