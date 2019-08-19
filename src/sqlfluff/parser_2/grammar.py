@@ -362,7 +362,7 @@ class ContainsOnly(BaseGrammar):
             if not matched:
                 # logging.debug("Non Matching Segment! {0!r}".format(seg))
                 # found a non matching segment:
-                return None
+                return MatchResult.from_empty()
         else:
             # Should we also be returning a raw here?
             return seg_buffer
@@ -395,16 +395,16 @@ class StartsWith(BaseGrammar):
                     first_code = seg
                     break
             else:
-                return None
+                return MatchResult.from_empty()
 
-            match = self.target._match(segments=[first_code], match_depth=match_depth + 1, parse_depth=parse_depth)
+            match = self.target._match(segments=(first_code,), match_depth=match_depth + 1, parse_depth=parse_depth)
             if match:
                 # Let's actually make it a keyword segment
                 # segments[first_code_idx] = match  <- can't do this on a tuple
                 segments = segments[:first_code_idx] + tuple(match) + segments[first_code_idx + 1:]
-                return segments
+                return MatchResult.from_matched(segments)
             else:
-                return None
+                return MatchResult.from_empty()
         else:
             raise NotImplementedError("Not expecting to match StartsWith and also not just code!?")
 

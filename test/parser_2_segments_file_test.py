@@ -44,8 +44,10 @@ def test__parser_2__file_from_raw(raw, res, caplog):
     "raw",
     [
         "select a from tbl",
-        # "select * from blah",
-        # "select a, b from tmp", " select 12 -- ends with comment",
+        "select * from blah",
+        "select a, b from tmp", " select 12 -- ends with comment",
+        # A simple multi statement example
+        "select a from tbl1; select b from tbl2;   -- trailling ending comment\n  \t "
         # multi_statement_test
     ]
 )

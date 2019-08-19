@@ -156,7 +156,7 @@ class BaseSegment(object):
         logging.debug(
             "{0}.parse: Done Parse. Plotting Recursion. Recurse={1!r}".format(
                 self.__class__.__name__, recurse))
-        parse_depth_msg = "###\n#\n# Beginning Parse Depth {0}: {1}\n#\n###\nInitial Structure{2}".format(
+        parse_depth_msg = "###\n#\n# Beginning Parse Depth {0}: {1}\n#\n###\nInitial Structure:\n{2}".format(
             parse_depth + 1, self.__class__.__name__, self.stringify())
         if recurse is True:
             logging.debug(parse_depth_msg)
@@ -262,7 +262,7 @@ class BaseSegment(object):
 
             # Once unified we can deal with it just as a MatchResult
             if m.has_match():
-                return cls(segments=m.matched_segments)
+                return MatchResult.from_matched(cls(segments=m.matched_segments))
             else:
                 return MatchResult.from_empty()
         else:

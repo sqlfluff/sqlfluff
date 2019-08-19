@@ -83,7 +83,7 @@ class ReSegment(KeywordSegment):
             r = result.group(0)
             # Check that we've fully matched
             if r == sc:
-                return cls(raw=s, pos_marker=segments[0].pos_marker)
+                return cls(raw=s, pos_marker=segments[0].pos_marker),  # Return a tuple
         return None
 
     @classmethod
