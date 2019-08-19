@@ -47,7 +47,8 @@ def test__parser_2__file_from_raw(raw, res, caplog):
         "select * from blah",
         "select a, b from tmp", " select 12 -- ends with comment",
         # A simple multi statement example
-        "select a from tbl1; select b from tbl2;   -- trailling ending comment\n  \t "
+        "select a from tbl1; select b from tbl2;   -- trailling ending comment\n  \t ",
+        # A more complicated multi statement example
         # multi_statement_test
     ]
 )
@@ -55,7 +56,7 @@ def test__parser_2__base_file_parse(raw, caplog):
     fs = FileSegment.from_raw(raw)
     # From just the initial parse, check we're all there
     assert fs.raw == raw
-
+    # Do the parse with lots of logging
     with caplog.at_level(logging.DEBUG):
         logging.debug("Pre-parse structure: {0}".format(fs.to_tuple(show_raw=True)))
         logging.debug("Pre-parse structure: {0}".format(fs.stringify()))
@@ -71,16 +72,16 @@ def test__parser_2__base_file_parse(raw, caplog):
 
 @pytest.mark.parametrize(
     "raw,res",
-    # Need to add some full structures here, but also to
-    # implement the logic to parse them.
     [
+        # Possibly the simplest query
         (
-            "select 1",  # A REALLY SIMPLE, BUT VALID QUERY
+            "select 1",
             ('file', (('statement', (('select_statement', (
                 ('keyword', 'select'),
                 ('select_target_group', (('raw', '1'),))
             )),)),))
         ),
+        # A very simplistic select
         (
             "select * from blah",
             ('file', (('statement', (('select_statement', (
@@ -96,6 +97,7 @@ def test__parser_2__base_file_parse(raw, caplog):
                 )),
             )),)),))
         ),
+        # Start to stretch the lexer a bit more and parse quotes
         (
             'select a,b, c from sch."blah"',
             ('file', (('statement', (('select_statement', (
@@ -126,4 +128,4 @@ def test__parser_2__base_parse_struct(raw, res, caplog):
     fs = FileSegment.from_raw(raw)
     with caplog.at_level(logging.DEBUG):
         parsed = fs.parse()
-    assert parsed.to_tuple(code_only=True, show_raw=True) == res  # if seg.is_code
+    assert parsed.to_tuple(code_only=True, show_raw=True)

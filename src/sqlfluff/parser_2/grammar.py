@@ -92,50 +92,34 @@ class OneOf(BaseGrammar):
 
 
 class GreedyUntil(BaseGrammar):
-    """
-    Match anything, up to but not including the given options.
-
-    NB: To be really specific, IF the `until` clause *is* found
-    then this grammar WILL NOT match, it will only match if that
-    is not present.
-    """
-    def __init__(self, *args, **kwargs):
-        # The _elements property, replaces the old _options attribute
-        # `strict`, means the segment will not be matched WITHOUT
-        # the ending clause. Normally, if we run out of segments,
-        # then this will still match
-        self.strict = kwargs.pop('strict', False)
-        # NB: Right now, code_only has no effect here, because we're already
-        # greedy regardless of type
-        super(GreedyUntil, self).__init__(*args, **kwargs)
-
+    """ See the match method desription for the full details """
     def match(self, segments, match_depth=0, parse_depth=0):
-        seg_buffer = MatchResult.from_empty()
+        """
+        Matching for GreedyUntil works in a specific way for a specific reason.
+        It's also a little counter intuitive, and would probably be better known
+        as "DoesntContain" than Greedy Until.
+
+        GreedyUntil(c)  on  abc     returns None
+        GreedyUntil(d)  on  abc     returns abc
+        GreedyUntil(a)  on  abc     returns None
+
+        The reasoning for this is that we're assuming that we're probably within
+        the context of a sequence which will retry with a shorter sequence if the match
+        fails.
+        """
         for seg in segments:
             for opt in self._elements:
                 if opt._match(seg, match_depth=match_depth + 1, parse_depth=parse_depth):
-                    # it's a match! Return everything up to this point
-                    # NOTE: We used to return everything up until this point
-                    # but that's not in keeping with how a grammar should work.
-                    # We don not return ANYTHING, if the `until` clause is found
-                    # with the assumption that this is either a top level grammar
-                    # OR, that it's part of a sequence, and *that sequence* will retry
-                    # this grammar with a shorter segment.
+                    # We've matched something. That means we should return empty
                     return MatchResult.from_unmatched(segments)
                 else:
                     continue
-            else:
-                # Add this to the buffer
-                seg_buffer += seg
         else:
-            # We've gone through all the segments, and not found the end
-            if self.strict:
-                # Strict mode means this is NOT at match because we didn't find the end.
-                # NOTE: The change to the return logic means that in strict mode, we will
-                # NEVER match.
-                return MatchResult.from_unmatched(segments)
-            else:
-                return seg_buffer
+            # We've got to the end without matching anything, so return.
+            # We don't need to keep track of the match results, because
+            # if any of them were usable, then we wouldn't be returning
+            # anyway.
+            return segments
 
     def expected_string(self):
         return "..., " + " !( " + " | ".join([opt.expected_string() for opt in self._elements]) + " ) "
@@ -177,13 +161,9 @@ class Sequence(BaseGrammar):
     def match(self, segments, match_depth=0, parse_depth=0):
         if isinstance(segments, BaseSegment):
             segments = tuple(segments)
-        # logging.debug("{0}.match, inbound segments: {1!r}".format(self.__class__.__name__, segments))
         seg_idx = 0
         matched_segments = MatchResult.from_empty()
         for elem in self._elements:
-            # logging.debug("{0}.match, already matched: {1!r}".format(self.__class__.__name__, matched_segments))
-            # logging.debug("{0}.match, considering: {1!r}".format(self.__class__.__name__, elem))
-            # logging.debug("{0}.match, seg_idx: {1!r}".format(self.__class__.__name__, seg_idx))
             while True:
                 if seg_idx >= len(segments):
                     # We've run our of sequence without matching everyting:
@@ -262,11 +242,6 @@ class Delimited(Sequence):
         matched_segments = MatchResult.from_empty()
         looking_for = 'element'  # This will be `delimiter` when we find an element
         while True:
-            logging.debug("{0}.match, already matched: {1!r}".format(self.__class__.__name__, matched_segments))
-            logging.debug("{0}.match, looking for: {1!r}".format(self.__class__.__name__, looking_for))
-            logging.debug("{0}.match, seg_idx: {1!r}".format(self.__class__.__name__, seg_idx))
-            logging.debug(self._elements)
-
             if seg_idx >= len(segments):
                 # We've got to the end of the segments, we can't end on a delimiter
                 # unless allow_trailing is set
@@ -339,7 +314,8 @@ class ContainsOnly(BaseGrammar):
         for seg in segments:
             matched = False
             if self.code_only and not seg.is_code:
-                # Don't worry about non-code segments
+                # Don't worry about non-code segments if we're configured
+                # to do so.
                 matched = True
                 seg_buffer += (seg,)
             else:
@@ -353,18 +329,19 @@ class ContainsOnly(BaseGrammar):
                         try:
                             m = opt._match(seg, match_depth=match_depth + 1, parse_depth=parse_depth)
                         except AttributeError:
-                            # it doesn't have a match method
+                            # This is unlikely, but if the element doesn't have a
+                            # match method, then don't sweat. Just carry on.
                             continue
                         if m:
                             matched = True
                             seg_buffer += m
                             break
             if not matched:
-                # logging.debug("Non Matching Segment! {0!r}".format(seg))
-                # found a non matching segment:
+                # Found a segment which doesn't match, this means
+                # we fail the whole grammar because it doesn't just
+                # contain only the given elements.
                 return MatchResult.from_empty()
         else:
-            # Should we also be returning a raw here?
             return seg_buffer
 
     def expected_string(self):
@@ -383,7 +360,6 @@ class StartsWith(BaseGrammar):
     def __init__(self, target, *args, **kwargs):
         self.target = target
         super(StartsWith, self).__init__(*args, **kwargs)
-        # TODO: Implement config handling later...
 
     def match(self, segments, match_depth=0, parse_depth=0):
         if self.code_only:
@@ -399,8 +375,11 @@ class StartsWith(BaseGrammar):
 
             match = self.target._match(segments=(first_code,), match_depth=match_depth + 1, parse_depth=parse_depth)
             if match:
-                # Let's actually make it a keyword segment
-                # segments[first_code_idx] = match  <- can't do this on a tuple
+                # The match will probably have returned a mutated version rather
+                # that the raw segment sent for matching. We need to reinsert it
+                # back into the sequence in place of the raw one, but we can't
+                # just assign at the index because it's a tuple and not a list.
+                # to get around that we do this slightly more elaborate construction.
                 segments = segments[:first_code_idx] + tuple(match) + segments[first_code_idx + 1:]
                 return MatchResult.from_matched(segments)
             else:

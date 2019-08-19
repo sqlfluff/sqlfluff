@@ -94,7 +94,7 @@ class SelectStatementSegment(BaseSegment):
         KeywordSegment.make('select'),
         SelectTargetGroupStatementSegment,
         FromClauseSegment.as_optional(),
-        # GreedyUntil(KeywordSegment.make('limit'), strict=False, optional=True)
+        # GreedyUntil(KeywordSegment.make('limit'), optional=True)
     )
 
 
@@ -130,7 +130,7 @@ class StatementSegment(BaseSegment):
     comment_seperate = True
     # Let's define a grammar from here on in
     parse_grammar = OneOf(SelectStatementSegment, InsertStatementSegment, EmptyStatementSegment, WithCompoundStatementSegment)
-    match_grammar = GreedyUntil(KeywordSegment.make(';', name='semicolon'), strict=False)
+    match_grammar = GreedyUntil(KeywordSegment.make(';', name='semicolon'))
 
 
 class RawCodeSegment(RawSegment):
