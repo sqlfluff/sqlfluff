@@ -6,8 +6,8 @@ import logging
 from sqlfluff.parser_2.grammar import (OneOf, Sequence, GreedyUntil, ContainsOnly,
                                        Delimited)
 from sqlfluff.parser_2.markers import FilePositionMarker
-from sqlfluff.parser_2.segments_core import (KeywordSegment, StrippedRawCodeSegment, WhitespaceSegment,
-                                             QuotedSegment, NewlineSegment, CommentSegment)
+from sqlfluff.parser_2.segments_base import RawSegment
+from sqlfluff.parser_2.segments_core import (KeywordSegment)
 
 # NB: All of these tests depend somewhat on the KeywordSegment working as planned
 
@@ -19,15 +19,17 @@ def generate_test_segments(elems):
     raw_buff = ''
     for elem in elems:
         if set(elem) <= set([' ', '\t']):
-            cls = WhitespaceSegment
+            cls = RawSegment.make(' ', name='whitespace')
         elif set(elem) <= set(['\n']):
-            cls = NewlineSegment
+            cls = RawSegment.make('\n', name='newline')
         elif elem.startswith('--'):
-            cls = CommentSegment
-        elif elem.startswith('"') or elem.startswith("'"):
-            cls = QuotedSegment
+            cls = RawSegment.make('--', name='inline_comment')
+        elif elem.startswith('"'):
+            cls = RawSegment.make('"', name='double_quote', _is_code=True)
+        elif elem.startswith("'"):
+            cls = RawSegment.make("'", name='single_quote', _is_code=True)
         else:
-            cls = StrippedRawCodeSegment
+            cls = RawSegment.make('', _is_code=True)
 
         buff.append(
             cls(
@@ -171,7 +173,7 @@ def test__parser_2__grammar_containsonly(seg_list):
     bs = KeywordSegment.make('bar')
     bas = KeywordSegment.make('baar')
     g0 = ContainsOnly(bs, bas)
-    g1 = ContainsOnly('strippedcode')
+    g1 = ContainsOnly('raw')
     g2 = ContainsOnly(fs, bas, bs)
     g3 = ContainsOnly(fs, bas, bs, code_only=False)
     # Contains only, without matches for all shouldn't match

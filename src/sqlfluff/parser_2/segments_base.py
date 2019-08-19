@@ -172,10 +172,6 @@ class BaseSegment(object):
         return self
 
     def __repr__(self):
-        # return "<{0}: ({1}) {2!s}>".format(
-        #    self.__class__.__name__,
-        #    self.pos_marker,
-        #    self.segments)
         return "<{0}: ({1})>".format(
             self.__class__.__name__,
             self.pos_marker)

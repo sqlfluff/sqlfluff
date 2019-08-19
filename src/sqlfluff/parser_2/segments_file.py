@@ -23,6 +23,4 @@ class FileSegment(BaseSegment):
         """ Take Raw Text and Make a FileSegment using the Lexer """
         lexer = Lexer()
         segments = lexer.lex(raw)
-        # I think the logic for expanding out into statements should
-        # live in the parse function.
         return cls(segments=segments)
