@@ -15,6 +15,10 @@ Seperate out the matchResult class into a seperate module
 - deal with joins
 - deal with insert statements and with statements
 - deal with the infinite loop on the multi statement test
+- deal with the infinite loop on the with statement test
+- perf improvement on the sequence matcher to avoid testing more than once, do
+  it in a single pass and work backwards from the end, if it doesn't match then
+  we can immediately fail out.
 ### Development (Next)
 - integrate with linting
 - Implement config parsing from comment segments

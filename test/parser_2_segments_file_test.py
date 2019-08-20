@@ -46,10 +46,17 @@ def test__parser_2__file_from_raw(raw, res, caplog):
         "select a from tbl",
         "select * from blah",
         "select a, b from tmp", " select 12 -- ends with comment",
+        # Simple Joins
+        "select * from foo, bar",
+        # INFINITE LOOP: "select * from foo JOIN bar ON (foo.a = bar.a)",
+        # A simple insert statement
+        "INSERT into tbl_b (col1) values (123);",
+        # A simple insert statement
+        "WITH blah AS (select x,y,z FROM foo) select z, y, x from blah;",
         # A simple multi statement example
         "select a from tbl1; select b from tbl2;   -- trailling ending comment\n  \t ",
         # A more complicated multi statement example
-        # multi_statement_test
+        # INFINITE LOOP: multi_statement_test
     ]
 )
 def test__parser_2__base_file_parse(raw, caplog):
@@ -120,6 +127,37 @@ def test__parser_2__base_file_parse(raw, caplog):
                     ))
                 )),
             )),)),))
+        ),
+        # Insert Statements
+        (
+            "INSERT into tbl_b (col1) values (123);",
+            ('file', (
+                ('statement', (
+                    ('insert_statement', (
+                        ('keyword', 'INSERT'),
+                        ('keyword', 'into'),
+                        ('table_expression', (
+                            ('identifier', (
+                                ('naked_identifier', 'tbl_b'),)),)),
+                        ('start_bracket', '('),
+                        ('table_expression', (
+                            ('identifier', (
+                                ('naked_identifier', 'col1'),)),)),
+                        ('end_bracket', ')'),
+                        ('values_clause', (
+                            ('keyword', 'values'),
+                            ('start_bracket', '('),
+                            ('literal', (('numeric_literal', '123'),)),
+                            ('end_bracket', ')')))
+                    )),
+                )),
+                ('keyword', ';')
+            ))
+        ),
+        # WITH SQL Statements
+        (
+            "WITH cte as (select a from tbla)\nselect a from cte",
+            ('file', ('blorp'))
         )
     ]
 )
@@ -128,4 +166,4 @@ def test__parser_2__base_parse_struct(raw, res, caplog):
     fs = FileSegment.from_raw(raw)
     with caplog.at_level(logging.DEBUG):
         parsed = fs.parse()
-    assert parsed.to_tuple(code_only=True, show_raw=True)
+    assert parsed.to_tuple(code_only=True, show_raw=True) == res

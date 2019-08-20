@@ -151,6 +151,7 @@ class Lexer(object):
             RegexMatcher.from_shorthand("double_quote", r'"[^"]*"', is_code=True),
             RegexMatcher.from_shorthand("back_quote", r"`[^`]*`", is_code=True),
             SingletonMatcher.from_shorthand("newline", "\n"),
+            SingletonMatcher.from_shorthand("equals", "=", is_code=True),
             SingletonMatcher.from_shorthand("dot", ".", is_code=True),
             SingletonMatcher.from_shorthand("comma", ",", is_code=True),
             SingletonMatcher.from_shorthand("plus", "+", is_code=True),

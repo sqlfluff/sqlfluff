@@ -9,7 +9,7 @@ be defined elsewhere.
 from .segments_base import (BaseSegment)
 from .segments_common import (KeywordSegment, ReSegment, NamedSegment)
 from .grammar import (Sequence, GreedyUntil, StartsWith, ContainsOnly,
-                      OneOf, Delimited)
+                      OneOf, Delimited, Bracketed)
 
 # NOTE: There is a concept here, of parallel grammars.
 # We use one (slightly more permissive) grammar to MATCH
@@ -31,6 +31,8 @@ DotSegment = KeywordSegment.make('.', name='Dot', type='dot')
 
 NakedIdentifierSegment = ReSegment.make(r"[A-Z0-9_]*", name='Identifier', type='naked_identifier')
 QuotedIdentifierSegment = NamedSegment.make('double_quote', name='Identifier', type='quoted_identifier')
+QuotedLiteralSegment = NamedSegment.make('single_quote', name='Literal', type='quoted_literal')
+NumericLiteralSegment = ReSegment.make(r"[0-9]*", name='Literal', type='numeric_literal')
 
 
 class IdentifierSegment(BaseSegment):
@@ -38,12 +40,21 @@ class IdentifierSegment(BaseSegment):
     match_grammar = Delimited(OneOf(NakedIdentifierSegment, QuotedIdentifierSegment), delimiter=DotSegment, code_only=False)
 
 
+class LiteralSegment(BaseSegment):
+    type = 'literal'
+    match_grammar = OneOf(
+        QuotedLiteralSegment, NumericLiteralSegment,
+        # Use a sequence for decimals
+        Sequence(NumericLiteralSegment, DotSegment, NumericLiteralSegment, code_only=False)
+    )
+
+
 class ColumnExpressionSegment(BaseSegment):
     type = 'column_expression'
     match_grammar = OneOf(IdentifierSegment, code_only=False)  # QuotedIdentifierSegment
 
 
-class TableExpressionSegment(BaseSegment):
+class ObjectNameSegment(BaseSegment):
     type = 'table_expression'
     # match grammar (don't allow whitespace)
     match_grammar = Delimited(IdentifierSegment, delimiter=DotSegment, code_only=False)
@@ -58,9 +69,26 @@ class SelectTargetGroupStatementSegment(BaseSegment):
 
 class FromClauseSegment(BaseSegment):
     type = 'from_clause'
-    # From here down, comments are printed seperately.
-    comment_seperate = True
-    match_grammar = Sequence(KeywordSegment.make('from'), Delimited(TableExpressionSegment, delimiter=CommaSegment))
+    match_grammar = Sequence(KeywordSegment.make('from'), Delimited(ObjectNameSegment, delimiter=CommaSegment))
+
+
+class ValuesClauseSegment(BaseSegment):
+    type = 'values_clause'
+    match_grammar = Sequence(
+        OneOf(
+            KeywordSegment.make('value'),
+            KeywordSegment.make('values')
+        ),
+        Delimited(
+            Bracketed(
+                Delimited(
+                    LiteralSegment,
+                    delimiter=CommaSegment
+                )
+            ),
+            delimiter=CommaSegment
+        )
+    )
 
 
 class SelectStatementSegment(BaseSegment):
@@ -80,13 +108,33 @@ class WithCompoundStatementSegment(BaseSegment):
     type = 'with_compound_statement'
     # match grammar
     match_grammar = StartsWith(KeywordSegment.make('with'))
-    # TODO: Re-enable this to parse the segment properly
-    # parse_grammar = Sequence(KeywordSegment.make('select'), SelectTargetGroupStatementSegment, GreedyUntil(KeywordSegment.make('limit')))
+    parse_grammar = Sequence(
+        KeywordSegment.make('with'),
+        Delimited(
+            Sequence(
+                ObjectNameSegment,
+                KeywordSegment.make('as'),
+                Bracketed(SelectStatementSegment)
+            ),
+            delimiter=CommaSegment
+        ),
+        SelectStatementSegment
+    )
 
 
 class InsertStatementSegment(BaseSegment):
     type = 'insert_statement'
-    grammar = StartsWith(KeywordSegment.make('insert'))
+    match_grammar = StartsWith(KeywordSegment.make('insert'))
+    parse_grammar = Sequence(
+        KeywordSegment.make('insert'),
+        KeywordSegment.make('into', optional=True),
+        ObjectNameSegment,
+        Bracketed(Delimited(ObjectNameSegment, delimiter=CommaSegment), optional=True),
+        OneOf(
+            SelectStatementSegment,
+            ValuesClauseSegment
+        )
+    )
 
 
 class EmptyStatementSegment(BaseSegment):

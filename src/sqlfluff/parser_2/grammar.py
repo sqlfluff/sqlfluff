@@ -2,6 +2,7 @@
 import logging
 
 from .segments_base import BaseSegment
+from .segments_common import KeywordSegment
 from .match import MatchResult
 
 
@@ -173,7 +174,7 @@ class Sequence(BaseGrammar):
                         break
                     else:
                         logging.debug("{0}.match, failed to see match full sequence? Looking for non-optional: {1!r}".format(self.__class__.__name__, elem))
-                        return None
+                        return MatchResult.from_empty()
                 # sequentially try longer segments to see if it works.
                 # We do this because the matcher might also be looking for
                 # a sequence rather than a singular.
@@ -190,7 +191,7 @@ class Sequence(BaseGrammar):
                         break
                     else:
                         logging.debug("{0}.match, failed to find non-optional segment: {1!r}".format(self.__class__.__name__, elem))
-                        return None
+                        return MatchResult.from_empty()
                 else:
                     logging.debug("{0}.match, found: [n={1}] {2!r}".format(self.__class__.__name__, n, m))
                     matched_segments += m
@@ -220,7 +221,7 @@ class Sequence(BaseGrammar):
             else:
                 # We matched all the sequence, but the number of segments given was longer
                 logging.debug("{0}.match, failed to match fully. Unmatched elements remain: {1!r}".format(self.__class__.__name__, segments[seg_idx:]))
-                return None
+                return MatchResult.from_empty()
 
     def expected_string(self):
         return ", ".join([opt.expected_string() for opt in self._elements])
@@ -389,3 +390,21 @@ class StartsWith(BaseGrammar):
 
     def expected_string(self):
         return self.target.expected_string() + ", ..."
+
+
+class Bracketed(Sequence):
+    """ Bracketed is just a wrapper around Sequence """
+    def __init__(self, *args, **kwargs):
+        # Start and end tokens
+        start_bracket = kwargs.pop(
+            'start_bracket',
+            KeywordSegment.make('(', name='start_bracket', type='start_bracket')
+        )
+        end_bracket = kwargs.pop(
+            'end_bracket',
+            KeywordSegment.make(')', name='end_bracket', type='end_bracket')
+        )
+        # Construct the sequence with brackets (as tuples)
+        newargs = (start_bracket,) + args + (end_bracket,)
+        # Call the sequence
+        super(Bracketed, self).__init__(*newargs, **kwargs)
