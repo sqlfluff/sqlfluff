@@ -5,7 +5,7 @@ import re
 
 from .markers import FilePositionMarker
 from .segments_base import RawSegment
-from .errors import SQLParseError
+from ..errors import SQLParseError
 
 
 LexMatch = namedtuple('LexMatch', ['new_string', 'new_pos', 'segments'])

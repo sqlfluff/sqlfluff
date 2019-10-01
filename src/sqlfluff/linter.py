@@ -7,8 +7,12 @@ import itertools
 from six import StringIO
 
 from .dialects import AnsiSQLDialiect
-from .lexer import RecursiveLexer
 from .rules.std import StandardRuleSet
+
+from .parser_2.segments_file import FileSegment
+from .errors import SQLParseError, SQLLexError
+
+from .rules_2.crawler import L009
 
 
 class FixResult(namedtuple('ProtoFix', ['violation', 'success', 'detail'])):
@@ -248,11 +252,70 @@ class Linter(object):
 
     def lint_file(self, f, fname=None):
         """ Lint a file object - fname is optional for testing """
-        # Instantiate a rule set
-        rule_set = self.get_ruleset()
-        rl = RecursiveLexer(dialect=self.dialect)
-        chunkstring = rl.lex_file_obj(f)
-        vs = rule_set.evaluate_chunkstring(chunkstring, rule_whitelist=self.rule_whitelist)
+        # TODO: Tidy this up - it's a mess
+        # Using the new parser, read the file object.
+        vs = []
+        # # print("LINTING RAW ({0})".format(fname))
+        try:
+            fs = FileSegment.from_raw(f.read())
+        except SQLLexError as err:
+            # # print("LEXING ERROR IN FILE {0}".format(fname))
+            # Append the error to the list of violations. Probably not
+            # what we're supposed to do but it should work for now...
+            vs.append(err)
+            pass
+        # # print(fs.stringify())
+        # At this point we should evaulate whether any lexing errors have occured
+        # # print("PARSING")
+        try:
+            parsed = fs.parse()
+        except SQLParseError as err:
+            # # print("PARSING ERROR IN FILE {0}".format(fname))
+            # Append the error to the list of violations. Probably not
+            # what we're supposed to do but it should work for now...
+            vs.append(err)
+
+        # Now extract all the unparsable segments
+        for unparsable in parsed.iter_unparsables():
+            # # print("FOUND AN UNPARSABLE!")
+            # # print(unparsable)
+            # # print(unparsable.stringify())
+            # No exception has been raised explicitly, but we still create one here
+            # so that we can use the common interface
+            vs.append(
+                SQLParseError(
+                    segment=unparsable
+                )
+            )
+
+        # # print(parsed.stringify())
+        # At this point we should evaluate whether any parsing errors have occured
+
+        # # print("LINTING")
+        # NOW APPLY EACH LINTER
+        linting_errors = []
+        for crawler in [L009]:
+            linting_errors += crawler.crawl(parsed)
+
+        # for err in linting_errors:
+        #     print(err)
+
+        vs += linting_errors
+
+        # print(vs)
+        # evaulate whether any linting errors have occured.
+
+        # TODO: Put all the violations together and then return the linted file. This
+        # LintedFile object should be able to sort the violations by type itself.
+        # All the different types should be of the same base class, which probably
+        # needs to be different from the current one.
+        # raise NotImplementedError(parsed)
+
+        # # Instantiate a rule set
+        # rule_set = self.get_ruleset()
+        # rl = RecursiveLexer(dialect=self.dialect)
+        # chunkstring = rl.lex_file_obj(f)
+        # vs = rule_set.evaluate_chunkstring(chunkstring, rule_whitelist=self.rule_whitelist)
         return LintedFile(fname, vs)
 
     def paths_from_path(self, path):

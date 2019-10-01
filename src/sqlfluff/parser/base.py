@@ -98,6 +98,7 @@ class BaseSequence(object):
             # Check whether we have enough matches (or if there isn't a limit)
             if (matches >= max_times and max_times != -1):
                 break
+
             try:
                 ndl, s_buff = self._match_full_sequence(s_buff, rule, pass_stack, dialect=dialect)
                 node_buff += ndl

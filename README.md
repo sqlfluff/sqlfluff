@@ -41,19 +41,20 @@ For more details on usage see the docs on github [here](https://github.com/alanm
 
 # Progress
 
-There's lots to do in this project, and we're just getting started.
+There's lots to do in this project, and we're just getting started. __NB: This list__
+__has started again from the top due to the re-write__.
 
 - [x] Command line interface
   - [x] Basic linting, both of paths and files
-  - [x] Version information
-  - [x] Nicely formatted readout of linting success or fail
-  - [x] Exist codes which reflect linting success or fail
+  - [ ] Version information
+  - [ ] Nicely formatted readout of linting success or fail
+  - [ ] Exist codes which reflect linting success or fail
   - [ ] Filtering to particular codes in the linting step
   - [ ] Allow basic correction of some linting codes
 - [ ] Basic ANSI linting
-  - [x] Simple whitespace testing
-  - [x] Whitespace around operators
-  - [x] Indentation (size and mix of tabs and spaces)
+  - [ ] Simple whitespace testing
+  - [ ] Whitespace around operators
+  - [ ] Indentation (size and mix of tabs and spaces)
   - [ ] Indentation between lines and when to indent
   - [ ] Number of blank lines
   - [ ] Indentation of comments
@@ -66,4 +67,6 @@ There's lots to do in this project, and we're just getting started.
 - [ ] Dialects
   - [ ] MySQL 
   - [ ] Redshift
+  - [ ] Snowflake
   - [ ] Detecting dialect from a config file of some kind
+  - [ ] jinja2 compatible linting (for dbt)

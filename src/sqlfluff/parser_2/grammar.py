@@ -196,6 +196,8 @@ class Sequence(BaseGrammar):
                     logging.debug("{0}.match, found: [n={1}] {2!r}".format(self.__class__.__name__, n, m))
                     matched_segments += m
                     # Advance the counter by the length of the match
+                    if n <= 0:
+                        raise ValueError("Advancing by zero: This means we'll loop infinitely!")
                     seg_idx += n
                     # If code only, then see if we've matched on code
                     if self.code_only:
@@ -271,6 +273,8 @@ class Delimited(Sequence):
                         logging.debug("{0}.match, found: [n={1}] {2!r}".format(self.__class__.__name__, n, m))
                         matched_segments += m
                         # Advance the counter by the length of the match
+                        if n <= 0:
+                            raise ValueError("Advancing by zero: This means we'll loop infinitely!")
                         seg_idx += n
                         # If we matched on code, then switch
                         if c:
@@ -295,6 +299,8 @@ class Delimited(Sequence):
                     logging.debug("{0}.match, found: [n={1}] {2!r}".format(self.__class__.__name__, n, m))
                     matched_segments += m
                     # Advance the counter by the length of the match
+                    if n <= 0:
+                        raise ValueError("Advancing by zero: This means we'll loop infinitely!")
                     seg_idx += n
                     # If we matched on code, then switch
                     if c:

@@ -315,6 +315,12 @@ class BaseSegment(object):
             buff += s.raw_list()
         return buff
 
+    def iter_unparsables(self):
+        """ Iterate through any unparsables this segment may contain """
+        for s in self.segments:
+            for u in s.iter_unparsables():
+                yield u
+
     def type_set(self):
         """ A set of the types contained, mostly for testing """
         typs = set([self.type])
@@ -440,3 +446,7 @@ class UnparsableSegment(BaseSegment):
 
     def _suffix(self):
         return "!! Expected: {0!r}".format(self._expected)
+
+    def iter_unparsables(self):
+        """ As this is an unparsable, it should yield itself """
+        yield self

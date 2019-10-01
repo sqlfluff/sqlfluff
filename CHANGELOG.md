@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Changed unicode handling for better escape codes in python 2.
   Thanks [@mrshu](https://github.com/mrshu)
+- BIG rewrite of the parser, completely new architecture. This introduces
+  breaking changes and some loss of functionality while we catch up.
 
 ## [0.0.7] - 2018-11-19
 ### Added
