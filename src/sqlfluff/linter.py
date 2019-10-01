@@ -250,12 +250,13 @@ class Linter(object):
         else:
             return rt
 
-    def lint_file(self, f, fname=None):
+    def lint_file(self, f, fname=None, verbosity=0):
         """ Lint a file object - fname is optional for testing """
         # TODO: Tidy this up - it's a mess
         # Using the new parser, read the file object.
         vs = []
-        # # print("LINTING RAW ({0})".format(fname))
+        if verbosity >= 2:
+            print("LEXING RAW ({0})".format(fname))
         try:
             fs = FileSegment.from_raw(f.read())
         except SQLLexError as err:
@@ -266,7 +267,8 @@ class Linter(object):
             pass
         # # print(fs.stringify())
         # At this point we should evaulate whether any lexing errors have occured
-        # # print("PARSING")
+        if verbosity >= 2:
+            print("PARSING ({0})".format(fname))
         try:
             parsed = fs.parse()
         except SQLParseError as err:
@@ -284,14 +286,18 @@ class Linter(object):
             # so that we can use the common interface
             vs.append(
                 SQLParseError(
+                    "Found unparsable segment @ {0},{1}: {2!r}".format(
+                        unparsable.pos_marker.line_no,
+                        unparsable.pos_marker.line_pos,
+                        unparsable.raw[:20] + "..."),
                     segment=unparsable
                 )
             )
 
         # # print(parsed.stringify())
         # At this point we should evaluate whether any parsing errors have occured
-
-        # # print("LINTING")
+        if verbosity >= 2:
+            print("LINTING ({0})".format(fname))
         # NOW APPLY EACH LINTER
         linting_errors = []
         for crawler in [L009]:
@@ -336,14 +342,14 @@ class Linter(object):
         else:
             return set([path])
 
-    def lint_path(self, path):
+    def lint_path(self, path, verbosity=0):
         linted_path = LintedPath(path)
         for fname in self.paths_from_path(path):
             with open(fname, 'r') as f:
-                linted_path.add(self.lint_file(f, fname=fname))
+                linted_path.add(self.lint_file(f, fname=fname, verbosity=verbosity))
         return linted_path
 
-    def lint_paths(self, paths):
+    def lint_paths(self, paths, verbosity=0):
         # If no paths specified - assume local
         if len(paths) == 0:
             paths = (os.getcwd(),)
@@ -352,5 +358,5 @@ class Linter(object):
         for path in paths:
             # Iterate through files recursively in the specified directory (if it's a directory)
             # or read the file directly if it's not
-            result.add(self.lint_path(path))
+            result.add(self.lint_path(path, verbosity=verbosity))
         return result

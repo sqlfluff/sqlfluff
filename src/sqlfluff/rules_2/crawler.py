@@ -64,7 +64,7 @@ class BaseCrawler(object):
         return vs
 
 
-def L009_eval(segment, siblings_post, **kwargs):
+def L009_eval(segment, siblings_post, parent_stack, **kwargs):
     """ We only care about the segment and the siblings which come after it
     for this rule, we discard the others into the kwargs argument """
     if len(siblings_post) > 0:
@@ -76,11 +76,20 @@ def L009_eval(segment, siblings_post, **kwargs):
     elif segment.raw == '\n':
         # If this is the last segment, and it's a newline then we're good
         return True
+    else:
+        # so this looks like the end of the file, but we
+        # need to check that each parent segment is also the last
+        file_len = len(parent_stack[0].raw)
+        pos = segment.pos_marker.char_pos
+        # Does the length of the file, equal the length of the segment plus it's position
+        if file_len != pos + len(segment.raw):
+            return True
+
     # No return value here is interpreted as a fail.
 
 
 L009 = BaseCrawler(
     'L009',
-    'Files must end with a trailing whitespace',
+    'Files must end with a trailing newline',
     evaluate_function=L009_eval
 )

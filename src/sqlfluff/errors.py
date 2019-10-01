@@ -22,8 +22,10 @@ class SQLBaseError(ValueError):
             # Return the first element - probably a string message
             if len(self.args) > 1:
                 return self.args
-            else:
+            elif len(self.args) == 1:
                 return self.args[0]
+            else:
+                return self.__class__.__name__
 
     def line_no(self):
         pm = self.pos_marker()
@@ -63,16 +65,16 @@ class SQLLexError(SQLBaseError):
 
 class SQLParseError(SQLBaseError):
     # Lex Errors are linked to unparsable segment
-    def __init__(self, segment=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         # Store the segment on creation - we might need it later
-        self.segment = segment
+        self.segment = kwargs.pop('segment', None)
         super(SQLParseError, self).__init__(*args, **kwargs)
 
 
 class SQLLintError(SQLBaseError):
     # Linting errors are triggered by RULES. So we should reference the rule.
-    def __init__(self, segment=None, rule=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         # Something about position, message and fix?
-        self.segment = segment
-        self.rule = rule
+        self.segment = kwargs.pop('segment', None)
+        self.rule = kwargs.pop('rule', None)
         super(SQLLintError, self).__init__(*args, **kwargs)

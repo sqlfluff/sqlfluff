@@ -79,7 +79,9 @@ def lint(verbose, nocolor, dialect, rules, paths):
     if len(config_string) > 0:
         click.echo(config_string, color=color)
     # Lint the paths
-    result = lnt.lint_paths(paths)
+    if verbose > 1:
+        click.echo("==== logging ====")
+    result = lnt.lint_paths(paths, verbosity=verbose)
     # Output the results
     output = format_linting_result(result, verbose=verbose)
     click.echo(output, color=color)
