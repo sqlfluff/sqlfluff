@@ -120,7 +120,7 @@ class GreedyUntil(BaseGrammar):
             # We don't need to keep track of the match results, because
             # if any of them were usable, then we wouldn't be returning
             # anyway.
-            return segments
+            return MatchResult.from_matched(segments)
 
     def expected_string(self):
         return "..., " + " !( " + " | ".join([opt.expected_string() for opt in self._elements]) + " ) "
