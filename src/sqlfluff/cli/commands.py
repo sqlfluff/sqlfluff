@@ -7,7 +7,8 @@ import sys
 from ..dialects import dialect_selector
 from ..linter import Linter
 from .formatters import (format_linting_result, format_config, format_rules,
-                         format_linting_violations, format_linting_fixes)
+                         format_linting_violations, format_linting_fixes,
+                         format_violation)
 from .helpers import get_package_version
 
 
@@ -139,3 +140,37 @@ def fix(verbose, nocolor, dialect, rules, force, paths):
     else:
         click.echo("==== no violations found ====")
     sys.exit(0)
+
+
+@cli.command()
+@common_options
+@click.argument('path', nargs=1)
+def parse(verbose, nocolor, dialect, rules, path):
+    """ Parse SQL files and just spit out the result """
+    # Configure Color
+    color = False if nocolor else None
+    # Instantiate the linter
+    lnt = get_linter(dialiect_string=dialect, rule_string=rules)
+    config_string = format_config(lnt, verbose=verbose)
+    if len(config_string) > 0:
+        click.echo(config_string, color=color)
+
+    nv = 0
+    # A single path must be specified for this command
+    for parsed, violations, time_dict in lnt.parse_path(path, verbosity=verbose):
+        if verbose > 0:
+            click.echo('=== [\u001b[30;1m{0}\u001b[0m] ==='.format(path), color=color)
+        click.echo(parsed.stringify())
+        nv += len(violations)
+        for v in violations:
+            click.echo(
+                format_violation(v, verbose=verbose),
+                color=color
+            )
+        if verbose >= 2:
+            # TODO: Format this nicely
+            click.echo(time_dict)
+    if nv > 0:
+        sys.exit(66)
+    else:
+        sys.exit(0)

@@ -37,6 +37,8 @@ Seperate out the matchResult class into a seperate module
   - consistent capitalisation for unquoted identifiers
 - Implement singleton matching for `::`, `:` and `||`. For the first two allow these
   in identifier matchers.
+- Hook up dialects
+- Make sure we can output the parsed structure
 ### Pre Deployment
 - Remove the TODO file or at least make this tidy before go-live
 - Make a note about changes and limitations in the readme

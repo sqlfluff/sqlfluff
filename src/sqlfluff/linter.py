@@ -3,6 +3,7 @@
 import os
 from collections import namedtuple
 import itertools
+import time
 
 from six import StringIO
 
@@ -19,7 +20,7 @@ class FixResult(namedtuple('ProtoFix', ['violation', 'success', 'detail'])):
     __slots__ = ()
 
 
-class LintedFile(namedtuple('ProtoFile', ['path', 'violations'])):
+class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict'])):
     __slots__ = ()
 
     def check_tuples(self):
@@ -250,32 +251,38 @@ class Linter(object):
         else:
             return rt
 
+    def parse_file(self, f, fname=None, verbosity=0):
+        violations = []
+        t0 = time.monotonic()
+
+        if verbosity >= 2:
+            print("LEXING RAW ({0})".format(fname))
+        # Lex the file and log any problems
+        try:
+            fs = FileSegment.from_raw(f.read())
+        except SQLLexError as err:
+            violations.append(err)
+            pass
+
+        t1 = time.monotonic()
+        if verbosity >= 2:
+            print("PARSING ({0})".format(fname))
+        # Parse the file and log any problems
+        try:
+            parsed = fs.parse()
+        except SQLParseError as err:
+            violations.append(err)
+
+        t2 = time.monotonic()
+        time_dict = {'lexing': t1 - t0, 'parsing': t2 - t1}
+
+        return parsed, violations, time_dict
+
     def lint_file(self, f, fname=None, verbosity=0):
         """ Lint a file object - fname is optional for testing """
         # TODO: Tidy this up - it's a mess
         # Using the new parser, read the file object.
-        vs = []
-        if verbosity >= 2:
-            print("LEXING RAW ({0})".format(fname))
-        try:
-            fs = FileSegment.from_raw(f.read())
-        except SQLLexError as err:
-            # # print("LEXING ERROR IN FILE {0}".format(fname))
-            # Append the error to the list of violations. Probably not
-            # what we're supposed to do but it should work for now...
-            vs.append(err)
-            pass
-        # # print(fs.stringify())
-        # At this point we should evaulate whether any lexing errors have occured
-        if verbosity >= 2:
-            print("PARSING ({0})".format(fname))
-        try:
-            parsed = fs.parse()
-        except SQLParseError as err:
-            # # print("PARSING ERROR IN FILE {0}".format(fname))
-            # Append the error to the list of violations. Probably not
-            # what we're supposed to do but it should work for now...
-            vs.append(err)
+        parsed, vs, time_dict = self.parse_file(f=f, fname=fname, verbosity=verbosity)
 
         # Now extract all the unparsable segments
         for unparsable in parsed.iter_unparsables():
@@ -297,7 +304,7 @@ class Linter(object):
                 print("Found unparsable segment...")
                 print(unparsable.stringify())
 
-        # # print(parsed.stringify())
+        t0 = time.monotonic()
         # At this point we should evaluate whether any parsing errors have occured
         if verbosity >= 2:
             print("LINTING ({0})".format(fname))
@@ -306,13 +313,11 @@ class Linter(object):
         for crawler in [L009]:
             linting_errors += crawler.crawl(parsed)
 
-        # for err in linting_errors:
-        #     print(err)
+        # Update the timing dict
+        t1 = time.monotonic()
+        time_dict['linting'] = t1 - t0
 
         vs += linting_errors
-
-        # print(vs)
-        # evaulate whether any linting errors have occured.
 
         # TODO: Put all the violations together and then return the linted file. This
         # LintedFile object should be able to sort the violations by type itself.
@@ -325,7 +330,7 @@ class Linter(object):
         # rl = RecursiveLexer(dialect=self.dialect)
         # chunkstring = rl.lex_file_obj(f)
         # vs = rule_set.evaluate_chunkstring(chunkstring, rule_whitelist=self.rule_whitelist)
-        return LintedFile(fname, vs)
+        return LintedFile(fname, vs, time_dict)
 
     def paths_from_path(self, path):
         # take a path (potentially a directory) and return just the sql files
@@ -363,3 +368,8 @@ class Linter(object):
             # or read the file directly if it's not
             result.add(self.lint_path(path, verbosity=verbosity))
         return result
+
+    def parse_path(self, path, verbosity=0):
+        for fname in self.paths_from_path(path):
+            with open(fname, 'r') as f:
+                yield self.parse_file(f, fname=fname, verbosity=verbosity)
