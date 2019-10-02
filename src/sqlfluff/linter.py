@@ -293,6 +293,9 @@ class Linter(object):
                     segment=unparsable
                 )
             )
+            if verbosity >= 2:
+                print("Found unparsable segment...")
+                print(unparsable.stringify())
 
         # # print(parsed.stringify())
         # At this point we should evaluate whether any parsing errors have occured
