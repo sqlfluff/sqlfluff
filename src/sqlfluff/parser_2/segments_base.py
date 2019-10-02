@@ -222,6 +222,10 @@ class BaseSegment(object):
                 buff.write(seg.stringify(ident=ident + 1, tabsize=tabsize, pos_idx=pos_idx, raw_idx=raw_idx))
         return buff.getvalue()
 
+    @staticmethod
+    def segs_to_tuple(segs, **kwargs):
+        return tuple([seg.to_tuple(**kwargs) for seg in segs])
+
     def to_tuple(self, **kwargs):
         # works for both base and raw
         code_only = kwargs.get('code_only', False)
@@ -309,11 +313,17 @@ class BaseSegment(object):
         return segs
 
     def raw_list(self):
-        """ List of raw elements, mostly for testing """
+        """ List of raw elements, mostly for testing or searching """
         buff = []
         for s in self.segments:
             buff += s.raw_list()
         return buff
+
+    def iter_raw_seg(self):
+        """ Iterate raw segments, mostly for searching """
+        for s in self.segments:
+            for seg in s.iter_raw_seg():
+                yield seg
 
     def iter_unparsables(self):
         """ Iterate through any unparsables this segment may contain """
@@ -381,6 +391,10 @@ class RawSegment(BaseSegment):
         self._raw = raw
         # pos marker is required here
         self.pos_marker = pos_marker
+
+    def iter_raw_seg(self):
+        """ Iterate raw segments, mostly for searching """
+        yield self
 
     @property
     def segments(self):
