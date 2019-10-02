@@ -37,7 +37,13 @@ NumericLiteralSegment = ReSegment.make(r"[0-9]*", name='Literal', type='numeric_
 
 class IdentifierSegment(BaseSegment):
     type = 'identifier'
-    match_grammar = Delimited(OneOf(NakedIdentifierSegment, QuotedIdentifierSegment), delimiter=DotSegment, code_only=False)
+    match_grammar = Delimited(
+        OneOf(NakedIdentifierSegment, QuotedIdentifierSegment),
+        delimiter=DotSegment,
+        code_only=False,
+        # if this contains any whitespace then it won't match
+        terminal_hint=(lambda grammar, segments, matcher, code_only: ' ' in ''.join([s.raw for s in segments]))
+    )
 
 
 class LiteralSegment(BaseSegment):

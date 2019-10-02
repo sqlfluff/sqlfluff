@@ -129,7 +129,8 @@ class GreedyUntil(BaseGrammar):
 class Sequence(BaseGrammar):
     """ Match a specific sequence of elements """
 
-    def _terminal_hint(self, segments, matcher, code_only):
+    @staticmethod
+    def _terminal_hint(grammar, segments, matcher, code_only):
         """ A place to override for a whole class """
         return False
 
@@ -140,7 +141,7 @@ class Sequence(BaseGrammar):
             return self._terminal_hint
 
     @staticmethod
-    def _match_forward(segments, matcher, hint_func, code_only=True, match_depth=0, parse_depth=0):
+    def _match_forward(segments, matcher, hint_func, grammar, code_only=True, match_depth=0, parse_depth=0):
         """ sequentially match shorter and shorter forward segments
         looking for arbitrary length matches. this function deals with
         skipping non code segments.
@@ -157,12 +158,12 @@ class Sequence(BaseGrammar):
         # Try decreasing lengths to match the remainder
         match_len = len(segments)
         while True:
-            logging.debug("[PD:{0} MD:{1}] Forward Match (l={2}): {3}".format(parse_depth, match_depth, match_len, ''.join([seg.raw for seg in segments[:match_len]])))
+            print("[PD:{0} MD:{1}] Forward Match (l={2}): {3}".format(parse_depth, match_depth, match_len, ''.join([seg.raw for seg in segments[:match_len]])))
             # logging.debug("_match_forward [loop]: {0!r}, {1!r}".format(matcher, segments[:match_len]))
             # Check for terminal hint
-            hint = hint_func(segments[:match_len], matcher, code_only)
+            hint = hint_func(grammar, segments[:match_len], matcher, code_only)
             if hint == True:
-                print("Got TRUE hint")
+                # print("Got TRUE hint")
                 return None, 0, True
             elif hint == False:
                 pass
@@ -215,6 +216,7 @@ class Sequence(BaseGrammar):
                 # a sequence rather than a singular.
                 m, n, c = self._match_forward(
                     segments=segments[seg_idx:], matcher=elem, hint_func=self._get_terminal_hint_func(),
+                    grammar=self,
                     code_only=self.code_only, match_depth=match_depth, parse_depth=parse_depth)
                 if not m:
                     # We've failed to match at this index.
@@ -228,7 +230,7 @@ class Sequence(BaseGrammar):
                         logging.debug("{0}.match, failed to find non-optional segment: {1!r}".format(self.__class__.__name__, elem))
                         return MatchResult.from_empty()
                 else:
-                    logging.debug("{0}.match, found: [n={1}] {2!r}".format(self.__class__.__name__, n, m))
+                    print("{0}.match, found: [n={1}] {2!r}".format(self.__class__.__name__, n, m))
                     matched_segments += m
                     # Advance the counter by the length of the match
                     if n <= 0:
@@ -298,6 +300,7 @@ class Delimited(Sequence):
                     logging.debug("{0}.match, considering: {1!r}".format(self.__class__.__name__, elem))
                     m, n, c = self._match_forward(
                         segments=segments[seg_idx:], matcher=elem,
+                        grammar=self,
                         hint_func=self._get_terminal_hint_func(),
                         code_only=self.code_only,
                         match_depth=match_depth,
@@ -324,6 +327,7 @@ class Delimited(Sequence):
                 logging.debug("{0}.match, considering: {1!r}".format(self.__class__.__name__, self.delimiter))
                 m, n, c = self._match_forward(
                     segments=segments[seg_idx:], matcher=self.delimiter,
+                    grammar=self,
                     hint_func=self._get_terminal_hint_func(),
                     code_only=self.code_only,
                     match_depth=match_depth,
@@ -452,11 +456,12 @@ class Bracketed(Sequence):
         # Call the sequence
         super(Bracketed, self).__init__(*newargs, **kwargs)
 
-    def _terminal_hint(self, segments, matcher, code_only):
+    @staticmethod
+    def _terminal_hint(grammar, segments, matcher, code_only):
         """ A place to override for a whole class """
         # does it start with a bracket,
         for seg in segments:
-            if self.start_bracket.match(seg):
+            if grammar.start_bracket.match(seg):
                 # ok we've got a start bracket
                 break
             elif not seg.is_code and code_only:
@@ -472,13 +477,12 @@ class Bracketed(Sequence):
         bracket_stack = []
         for idx, seg in enumerate(segments):
             for raw in seg.iter_raw_seg():
-                if self.start_bracket.match(raw):
+                if grammar.start_bracket.match(raw):
                     bracket_stack.append(idx)
-                elif self.end_bracket.match(raw):
+                elif grammar.end_bracket.match(raw):
                     if len(bracket_stack) == 1:
                         # We're on our last bracket, this should be the index to search for.
-                        # TODO: Check whether this should be +1 or not.
-                        return idx + 1
+                        return idx
                     elif len(bracket_stack) <= 0:
                         # We should never get here
                         logging.warning("We should never get here: ID: A487AWHOL87AW3J")

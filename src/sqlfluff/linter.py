@@ -263,6 +263,8 @@ class Linter(object):
         except SQLLexError as err:
             violations.append(err)
             pass
+        if verbosity >= 2:
+            print(fs.stringify())
 
         t1 = time.monotonic()
         if verbosity >= 2:
@@ -272,6 +274,8 @@ class Linter(object):
             parsed = fs.parse()
         except SQLParseError as err:
             violations.append(err)
+        if verbosity >= 2:
+            print(parsed.stringify())
 
         t2 = time.monotonic()
         time_dict = {'lexing': t1 - t0, 'parsing': t2 - t1}
