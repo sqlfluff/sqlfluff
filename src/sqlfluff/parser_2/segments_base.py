@@ -19,12 +19,16 @@ from six import StringIO
 from .match import MatchResult, curtail_string
 
 
-def verbosity_logger(msg, verbosity=0, level='info', v_level=1):
+def verbosity_logger(msg, verbosity=0, level='info', v_level=2):
     if verbosity >= v_level:
         print(msg)
     else:
         # Should be mostly equivalent to logging.info(msg)
         getattr(logging, level)(msg)
+
+
+def frame_msg(msg):
+    return "###\n#\n# {0}\n#\n###".format(msg)
 
 
 class BaseSegment(object):
@@ -282,7 +286,7 @@ class BaseSegment(object):
         verbosity_logger(
             "[PD:{0} MD:{1}] {2}._match IN [ls={3}]".format(parse_depth, match_depth, cls.__name__, len(segments)),
             verbosity=verbosity,
-            v_level=2)
+            v_level=3)
         if not isinstance(segments, (tuple, BaseSegment)):
             logging.warning(
                 "{0}.match, was passed {1} rather than tuple or segment".format(
@@ -298,7 +302,7 @@ class BaseSegment(object):
         verbosity_logger(
             "[PD:{0} MD:{1}] {2}._match OUT [m={3}]".format(parse_depth, match_depth, cls.__name__, m),
             verbosity=verbosity,
-            v_level=2)
+            v_level=3)
         return m
 
     @staticmethod
@@ -316,12 +320,10 @@ class BaseSegment(object):
                 raise err
             if not hasattr(stmt, 'parse'):
                 raise ValueError("{0} has no method `parse`. This segment appears poorly constructed.".format(stmt))
-            parse_depth_msg = "###\n#\n# Parse Depth {0}. Expanding: {1}: {2!r}\n#\n###".format(
+            parse_depth_msg = "Parse Depth {0}. Expanding: {1}: {2!r}".format(
                 parse_depth, stmt.__class__.__name__,
                 curtail_string(stmt.raw))
-            logging.debug(parse_depth_msg)
-            if verbosity >= 1:
-                print(parse_depth_msg)
+            verbosity_logger(frame_msg(parse_depth_msg), verbosity=verbosity)
             res = stmt.parse(recurse=recurse, parse_depth=parse_depth, verbosity=verbosity)
             if isinstance(res, BaseSegment):
                 segs += (res,)

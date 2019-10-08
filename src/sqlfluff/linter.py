@@ -11,6 +11,7 @@ from .dialects import AnsiSQLDialiect
 from .rules.std import StandardRuleSet
 
 from .parser_2.segments_file import FileSegment
+from .parser_2.segments_base import verbosity_logger, frame_msg
 from .errors import SQLParseError, SQLLexError
 
 from .rules_2.crawler import L009
@@ -255,20 +256,17 @@ class Linter(object):
         violations = []
         t0 = time.monotonic()
 
-        if verbosity >= 2:
-            print("LEXING RAW ({0})".format(fname))
+        verbosity_logger("LEXING RAW ({0})".format(fname), verbosity=verbosity)
         # Lex the file and log any problems
         try:
             fs = FileSegment.from_raw(f.read())
         except SQLLexError as err:
             violations.append(err)
             fs = None
-        if verbosity >= 2:
-            print(fs.stringify())
+        verbosity_logger(fs.stringify(), verbosity=verbosity)
 
         t1 = time.monotonic()
-        if verbosity >= 2:
-            print("PARSING ({0})".format(fname))
+        verbosity_logger("PARSING ({0})".format(fname), verbosity=verbosity)
         # Parse the file and log any problems
         if fs:
             try:
@@ -276,8 +274,9 @@ class Linter(object):
             except SQLParseError as err:
                 violations.append(err)
                 parsed = None
-            if verbosity >= 2 and parsed:
-                print(parsed.stringify())
+            if parsed:
+                verbosity_logger(frame_msg("Parsed Tree:"), verbosity=verbosity)
+                verbosity_logger(parsed.stringify(), verbosity=verbosity)
         else:
             parsed = None
 
