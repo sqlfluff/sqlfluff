@@ -1,5 +1,6 @@
 """ Contains SQL Dialects """
 
+
 def dialect_selector(s):
     lookup = {
         'ansi': AnsiSQLDialiect

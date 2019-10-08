@@ -12,7 +12,13 @@
 # should flag on the segment FOLLOWING, the place that the desired element is
 # missing.
 
+from collections import namedtuple
+
 from ..errors import SQLBaseError, SQLLintError
+
+
+# The ghost of a rule (mostly used for testing)
+RuleGhost = namedtuple('RuleGhost', ['code', 'description'])
 
 
 class BaseCrawler(object):
