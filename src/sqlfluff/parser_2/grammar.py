@@ -4,7 +4,7 @@ import time
 
 from .segments_base import BaseSegment, verbosity_logger
 from .segments_common import KeywordSegment
-from .match import MatchResult
+from .match import MatchResult, join_segments_raw_curtailed
 
 
 class BaseGrammar(object):
@@ -44,13 +44,10 @@ class BaseGrammar(object):
         """ A wrapper on the match function to do some basic validation """
         t0 = time.monotonic()
         # Work out the raw representation and curtail if long
-        raw = ''.join([s.raw for s in segments])
-        if len(raw) > 20:
-            raw = raw[:20] + '...'
         verbosity_logger(
             "[PD:{0} MD:{1}] {2}._match IN [ls={3}, seg={4!r}]".format(
                 parse_depth, match_depth, self.__class__.__name__, len(segments),
-                raw),
+                join_segments_raw_curtailed(segments)),
             verbosity)
         if not isinstance(segments, (tuple, BaseSegment)):
             logging.warning(

@@ -16,7 +16,7 @@ These are the fundamental building blocks.
 import logging
 from six import StringIO
 
-from .match import MatchResult
+from .match import MatchResult, curtail_string
 
 
 def verbosity_logger(msg, verbosity=0, level='info', v_level=1):
@@ -279,7 +279,10 @@ class BaseSegment(object):
     @classmethod
     def _match(cls, segments, match_depth=0, parse_depth=0, verbosity=0):
         """ A wrapper on the match function to do some basic validation and logging """
-        verbosity_logger("[PD:{0} MD:{1}] {2}._match IN [ls={3}]".format(parse_depth, match_depth, cls.__name__, len(segments)), verbosity=verbosity)
+        verbosity_logger(
+            "[PD:{0} MD:{1}] {2}._match IN [ls={3}]".format(parse_depth, match_depth, cls.__name__, len(segments)),
+            verbosity=verbosity,
+            v_level=2)
         if not isinstance(segments, (tuple, BaseSegment)):
             logging.warning(
                 "{0}.match, was passed {1} rather than tuple or segment".format(
@@ -292,7 +295,10 @@ class BaseSegment(object):
             logging.warning(
                 "{0}.match, returned {1} rather than tuple".format(
                     cls.__name__, type(m)))
-        verbosity_logger("[PD:{0} MD:{1}] {2}._match OUT [m={3}]".format(parse_depth, match_depth, cls.__name__, m), verbosity=verbosity)
+        verbosity_logger(
+            "[PD:{0} MD:{1}] {2}._match OUT [m={3}]".format(parse_depth, match_depth, cls.__name__, m),
+            verbosity=verbosity,
+            v_level=2)
         return m
 
     @staticmethod
@@ -310,7 +316,9 @@ class BaseSegment(object):
                 raise err
             if not hasattr(stmt, 'parse'):
                 raise ValueError("{0} has no method `parse`. This segment appears poorly constructed.".format(stmt))
-            parse_depth_msg = "###\n#\n# Parse Depth {0}. Expanding: {1}\n#\n###".format(parse_depth, stmt.__class__.__name__)
+            parse_depth_msg = "###\n#\n# Parse Depth {0}. Expanding: {1}: {2!r}\n#\n###".format(
+                parse_depth, stmt.__class__.__name__,
+                curtail_string(stmt.raw))
             logging.debug(parse_depth_msg)
             if verbosity >= 1:
                 print(parse_depth_msg)

@@ -10,6 +10,24 @@ def _is_segment(other):
     return getattr(other, 'is_segment', False)
 
 
+def curtail_string(s, length=20):
+    if len(s) > length:
+        return s[:length] + '...'
+    else:
+        return s
+
+
+def join_segments_raw(segments):
+    return ''.join([s.raw for s in segments])
+
+
+def join_segments_raw_curtailed(segments, length=20):
+    return curtail_string(
+        join_segments_raw(segments),
+        length=length
+    )
+
+
 class MatchResult(namedtuple('MatchResult', ['matched_segments', 'unmatched_segments'])):
     def initial_match_pos_marker(self):
         if self.has_match():
