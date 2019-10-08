@@ -9,7 +9,7 @@ from ..linter import Linter
 from .formatters import (format_linting_result, format_config, format_rules,
                          format_linting_violations, format_linting_fixes,
                          format_violation)
-from .helpers import get_package_version
+from .helpers import get_package_version, cli_table
 
 
 def common_options(f):
@@ -175,8 +175,8 @@ def parse(verbose, nocolor, dialect, rules, path, recurse):
                 color=color
             )
         if verbose >= 2:
-            # TODO: Format this nicely
-            click.echo(time_dict)
+            click.echo("==== timings ====")
+            click.echo(cli_table(time_dict.items()))
     if nv > 0:
         sys.exit(66)
     else:
