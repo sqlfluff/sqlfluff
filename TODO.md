@@ -38,3 +38,4 @@ Seperate out the matchResult class into a seperate module
 ### Pre Deployment
 - Remove the TODO file or at least make this tidy before go-live
 - Make a note about changes and limitations in the readme
+- UPDATE CLI docs for all the existing methods and their commands.
