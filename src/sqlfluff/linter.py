@@ -8,7 +8,6 @@ import time
 from six import StringIO
 
 from .dialects import AnsiSQLDialiect
-from .rules.std import StandardRuleSet
 
 from .parser_2.segments_file import FileSegment
 from .parser_2.segments_base import verbosity_logger, frame_msg
@@ -242,7 +241,7 @@ class Linter(object):
         A way of getting hold of a set of rules.
         We should probably extend this later for differing rules.
         """
-        return StandardRuleSet()
+        return [L009]
 
     def rule_tuples(self):
         """ A simple pass through to access the rule tuples of the rule set """
