@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - The `Delimited` matcher has had a significant re-write with a major
     speedup and broken the dependency on `Sequence`.
   - Rewrite of `StartsWith` and `Sequence` to use partial matches properly.
+  - Different treatment of numeric literals.
+  - Both `Bracketed` and `Delimited` respect bracket counting.
+  - MASSIVE rewrite of `Bracketed`.
 - Grammars now have timers.
 - Rewrite of logging to selectively output commands at different levels
   of verbosity. This uses the `verbosity_logger` method.

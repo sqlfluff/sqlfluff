@@ -270,7 +270,7 @@ class BaseSegment(object):
 
             # Once unified we can deal with it just as a MatchResult
             if m.has_match():
-                return MatchResult.from_matched(cls(segments=m.matched_segments))
+                return MatchResult((cls(segments=m.matched_segments),), m.unmatched_segments)
             else:
                 return MatchResult.from_empty()
         else:

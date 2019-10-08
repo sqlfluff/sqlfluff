@@ -32,7 +32,7 @@ DotSegment = KeywordSegment.make('.', name='Dot', type='dot')
 NakedIdentifierSegment = ReSegment.make(r"[A-Z0-9_]*", name='Identifier', type='naked_identifier')
 QuotedIdentifierSegment = NamedSegment.make('double_quote', name='Identifier', type='quoted_identifier')
 QuotedLiteralSegment = NamedSegment.make('single_quote', name='Literal', type='quoted_literal')
-NumericLiteralSegment = ReSegment.make(r"[0-9]*", name='Literal', type='numeric_literal')
+NumericLiteralSegment = NamedSegment.make('numeric_literal', name='Literal', type='numeric_literal')
 
 
 class IdentifierSegment(BaseSegment):
@@ -47,9 +47,7 @@ class IdentifierSegment(BaseSegment):
 class LiteralSegment(BaseSegment):
     type = 'literal'
     match_grammar = OneOf(
-        QuotedLiteralSegment, NumericLiteralSegment,
-        # Use a sequence for decimals
-        Sequence(NumericLiteralSegment, DotSegment, NumericLiteralSegment, code_only=False)
+        QuotedLiteralSegment, NumericLiteralSegment
     )
 
 
@@ -120,7 +118,8 @@ class WithCompoundStatementSegment(BaseSegment):
                 KeywordSegment.make('as'),
                 Bracketed(SelectStatementSegment)
             ),
-            delimiter=CommaSegment
+            delimiter=CommaSegment,
+            terminator=KeywordSegment.make('select')
         ),
         SelectStatementSegment
     )

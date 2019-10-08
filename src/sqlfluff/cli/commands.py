@@ -162,9 +162,12 @@ def parse(verbose, nocolor, dialect, rules, path, recurse):
     nv = 0
     # A single path must be specified for this command
     for parsed, violations, time_dict in lnt.parse_path(path, verbosity=verbose, recurse=recurse):
-        if verbose > 0:
-            click.echo('=== [\u001b[30;1m{0}\u001b[0m] ==='.format(path), color=color)
-        click.echo(parsed.stringify())
+        click.echo('=== [\u001b[30;1m{0}\u001b[0m] ==='.format(path), color=color)
+        if parsed:
+            click.echo(parsed.stringify())
+        else:
+            # TODO: Make this prettier
+            click.echo('...Failed to Parse...', color=color)
         nv += len(violations)
         for v in violations:
             click.echo(

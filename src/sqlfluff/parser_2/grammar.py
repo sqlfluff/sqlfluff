@@ -5,6 +5,7 @@ import time
 from .segments_base import BaseSegment, verbosity_logger
 from .segments_common import KeywordSegment
 from .match import MatchResult, join_segments_raw_curtailed
+from ..errors import SQLParseError
 
 
 class BaseGrammar(object):
@@ -134,11 +135,24 @@ class Sequence(BaseGrammar):
         # Sub-matchers should be greedy and so we can jsut work forward with each one.
         if isinstance(segments, BaseSegment):
             segments = tuple(segments)
-        seg_idx = 0
+        # NB: We don't use seg_idx here because the submatchers may be mutating the length
+        # of the remaining segments
         matched_segments = MatchResult.from_empty()
+        unmatched_segments = segments
+
+        def check_still_complete():
+            initial_str = join_segments_raw_curtailed(segments)
+            current_str = join_segments_raw_curtailed(
+                matched_segments.matched_segments + unmatched_segments
+            )
+            if initial_str != current_str:
+                raise RuntimeError(
+                    "Dropped elements in sequence matching! {0!r} != {1!r}".format(
+                        initial_str, current_str))
+
         for idx, elem in enumerate(self._elements):
             while True:
-                if seg_idx >= len(segments):
+                if len(unmatched_segments) == 0:
                     # We've run our of sequence without matching everyting.
                     # Do only optional elements remain.
                     if all([e.is_optional() for e in self._elements[idx:]]):
@@ -151,22 +165,27 @@ class Sequence(BaseGrammar):
                         return MatchResult.from_unmatched(segments)
                 else:
                     # We're not at the end, first detect whitespace and then try to match.
-                    if self.code_only and not segments[seg_idx].is_code:
+                    if self.code_only and not unmatched_segments[0].is_code:
                         # We should add this one to the match and carry on
-                        matched_segments += segments[seg_idx]
-                        seg_idx += 1
+                        matched_segments += unmatched_segments[0],
+                        unmatched_segments = unmatched_segments[1:]
+                        check_still_complete()
                         continue
 
                     # It's not whitespace, so carry on to matching
                     elem_match = elem._match(
-                        segments[seg_idx:], match_depth=match_depth + 1,
+                        unmatched_segments, match_depth=match_depth + 1,
                         parse_depth=parse_depth, verbosity=verbosity)
 
                     if elem_match.has_match():
                         # We're expecting mostly partial matches here, but complete
                         # matches are possible.
                         matched_segments += elem_match.matched_segments
-                        seg_idx += len(elem_match.matched_segments)
+                        unmatched_segments = elem_match.unmatched_segments
+                        # Each time we do this, we do a sense check to make sure we haven't
+                        # dropped anything. (Because it's happened before!).
+                        check_still_complete()
+
                         # Break out of the while loop and move to the next element.
                         break
                     else:
@@ -184,25 +203,40 @@ class Sequence(BaseGrammar):
             # but still have some segments left (or perhaps have precisely zero left).
             # In either case, we're golden. Return successfully, with any leftovers as
             # the unmatched elements.
-            return MatchResult(matched_segments.matched_segments, segments[seg_idx:])
+            return MatchResult(matched_segments.matched_segments, unmatched_segments)
 
     def expected_string(self):
         return ", ".join([opt.expected_string() for opt in self._elements])
 
 
 class Delimited(BaseGrammar):
-    """ Match an arbitrary number of elements seperated by a delimiter """
+    """ Match an arbitrary number of elements seperated by a delimiter.
+    Note that if there are multiple elements passed in that they will be treated
+    as different options of what can be delimited, rather than a sequence. """
     def __init__(self, *args, **kwargs):
         if 'delimiter' not in kwargs:
             raise ValueError("Delimited grammars require a `delimiter`")
         self.delimiter = kwargs.pop('delimiter')
         self.allow_trailing = kwargs.pop('allow_trailing', False)
+        self.terminator = kwargs.pop('terminator', None)
+        # TODO: Maybe these bracket keywords should be defined somewhere else.
+        self.start_bracket = kwargs.pop(
+            'start_bracket',
+            KeywordSegment.make('(', name='start_bracket', type='start_bracket')
+        )
+        self.end_bracket = kwargs.pop(
+            'end_bracket',
+            KeywordSegment.make(')', name='end_bracket', type='end_bracket')
+        )
         super(Delimited, self).__init__(*args, **kwargs)
 
     def match(self, segments, match_depth=0, parse_depth=0, verbosity=0):
         if isinstance(segments, BaseSegment):
             segments = [segments]
         seg_idx = 0
+        terminal_idx = len(segments)
+        sub_bracket_count = 0
+        start_bracket_idx = None
         # delimiters is a list of tuples (idx, len), which keeps track of where
         # we found delimiters up to this point.
         delimiters = []
@@ -216,24 +250,31 @@ class Delimited(BaseGrammar):
         # up to that point onto a list of slices. Carry on.
         while True:
             # Are we at the end of the sequence?
-            if seg_idx >= len(segments):
+            if seg_idx >= terminal_idx:
                 # Yes we're at the end
 
                 # We now need to check whether everything from either the start
                 # or from the last delimiter up to here matches. We CAN allow
                 # a partial match at this stage.
 
+                # Are we in a bracket counting cycle that hasn't finished yet?
+                if sub_bracket_count > 0:
+                    # TODO: Format this better
+                    raise SQLParseError(
+                        "Couldn't find closing bracket for opening bracket.",
+                        segment=segments[start_bracket_idx])
+
                 # Do we already have any delimiters?
                 if delimiters:
                     # Yes, get the last delimiter
                     dm1 = delimiters[-1]
                     # get everything after the last delimiter
-                    pre_segment = segments[dm1[0] + dm1[1]:]
+                    pre_segment = segments[dm1[0] + dm1[1]:terminal_idx]
                 else:
                     # No, no delimiters at all so far.
                     # TODO: Allow this to be configured.
                     # Just get everything up to this point
-                    pre_segment = segments
+                    pre_segment = segments[:terminal_idx]
 
                 # See if any of the elements match
                 for elem in self._elements:
@@ -248,7 +289,7 @@ class Delimited(BaseGrammar):
                         # We do this in a slightly odd way here to allow partial matches.
                         return MatchResult(
                             matched_segments.matched_segments + elem_match.matched_segments,
-                            elem_match.unmatched_segments)
+                            elem_match.unmatched_segments + segments[terminal_idx:])
                     else:
                         # Not matched this element, move on.
                         # NB, a partial match here isn't helpful. We're matching
@@ -260,67 +301,116 @@ class Delimited(BaseGrammar):
                     # BUT, if we allow trailing, and we have matched something, we can end on the last
                     # delimiter
                     if self.allow_trailing and len(matched_segments) > 0:
-                        return MatchResult(matched_segments.matched_segments, pre_segment)
+                        return MatchResult(matched_segments.matched_segments, pre_segment + segments[terminal_idx:])
                     else:
                         return MatchResult.from_unmatched(segments)
 
             else:
                 # We've got some sequence left
-                # Do we have a delimiter at the current index?
 
-                # NB: New matching format, pass it all to the matcher and allow
-                # it to match the rest.
-                del_match = self.delimiter._match(
-                    segments[seg_idx:], match_depth=match_depth + 1,
-                    parse_depth=parse_depth, verbosity=verbosity)
+                # Are we in a bracket cycle?
+                if sub_bracket_count > 0:
+                    # Is it another bracket entry?
+                    bracket_match = self.start_bracket._match(
+                        segments=segments[seg_idx:], match_depth=match_depth + 1,
+                        parse_depth=parse_depth, verbosity=verbosity)
+                    if bracket_match.has_match():
+                        # increment the open bracket counter and proceed
+                        sub_bracket_count += 1
+                        seg_idx += len(bracket_match)
+                        continue
 
-                # Doesn't have to match fully, just has to give us a delimiter.
-                if del_match.has_match():
-                    # We've got at least a partial match
-                    # Record the location of this delimiter
-                    d = (seg_idx, len(del_match))
-                    # Do we already have any delimiters?
-                    if delimiters:
-                        # Yes
-                        dm1 = delimiters[-1]
-                        # slice the segments between this delimiter and the previous
-                        pre_segment = segments[dm1[0] + dm1[1]:d[0]]
-                    else:
-                        # No
-                        # Just get everything up to this point
-                        pre_segment = segments[:d[0]]
-                    # Append the delimiter that we have found.
-                    delimiters.append(d)
+                    # Is it a closing bracket?
+                    bracket_match = self.end_bracket._match(
+                        segments=segments[seg_idx:], match_depth=match_depth + 1,
+                        parse_depth=parse_depth, verbosity=verbosity)
+                    if bracket_match.has_match():
+                        # reduce the bracket count and then advance the counter.
+                        sub_bracket_count -= 1
+                        seg_idx += len(bracket_match)
+                        continue
 
-                    # We now check that this chunk matches whatever we're delimiting.
-                    # In this case it MUST be a full match, not just a partial match
-                    for elem in self._elements:
-                        elem_match = elem._match(
-                            pre_segment, match_depth=match_depth + 1,
-                            parse_depth=parse_depth, verbosity=verbosity)
-
-                        if elem_match.is_complete():
-                            # Successfully matched one of the elements in this spot
-
-                            # First add the segment up to the delimiter to the matched segments
-                            matched_segments += elem_match
-                            # Then add the delimiter to the matched segments
-                            matched_segments += del_match
-                            # Break this for loop and move on, looking for the next delimiter
-                            seg_idx += 1
-                            break
-                        else:
-                            # Not matched this element, move on.
-                            # NB, a partial match here isn't helpful. We're matching
-                            # BETWEEN two delimiters and so it must be a complete match.
-                            # Incomplete matches are only possible at the end
-                            continue
-                    else:
-                        # If we're here we haven't matched any of the elements, then we have a problem
-                        return MatchResult.from_unmatched(segments)
-                # This index doesn't have a delimiter, carry on.
                 else:
-                    seg_idx += 1
+                    # No bracket cycle
+                    # Do we have a delimiter at the current index?
+
+                    # NB: New matching format, pass it all to the matcher and allow
+                    # it to match the rest.
+                    del_match = self.delimiter._match(
+                        segments[seg_idx:], match_depth=match_depth + 1,
+                        parse_depth=parse_depth, verbosity=verbosity)
+
+                    # Doesn't have to match fully, just has to give us a delimiter.
+                    if del_match.has_match():
+                        # We've got at least a partial match
+                        # Record the location of this delimiter
+                        d = (seg_idx, len(del_match))
+                        # Do we already have any delimiters?
+                        if delimiters:
+                            # Yes
+                            dm1 = delimiters[-1]
+                            # slice the segments between this delimiter and the previous
+                            pre_segment = segments[dm1[0] + dm1[1]:d[0]]
+                        else:
+                            # No
+                            # Just get everything up to this point
+                            pre_segment = segments[:d[0]]
+                        # Append the delimiter that we have found.
+                        delimiters.append(d)
+
+                        # We now check that this chunk matches whatever we're delimiting.
+                        # In this case it MUST be a full match, not just a partial match
+                        for elem in self._elements:
+                            elem_match = elem._match(
+                                pre_segment, match_depth=match_depth + 1,
+                                parse_depth=parse_depth, verbosity=verbosity)
+
+                            if elem_match.is_complete():
+                                # Successfully matched one of the elements in this spot
+
+                                # First add the segment up to the delimiter to the matched segments
+                                matched_segments += elem_match
+                                # Then add the delimiter to the matched segments
+                                matched_segments += del_match
+                                # Break this for loop and move on, looking for the next delimiter
+                                seg_idx += 1
+                                break
+                            else:
+                                # Not matched this element, move on.
+                                # NB, a partial match here isn't helpful. We're matching
+                                # BETWEEN two delimiters and so it must be a complete match.
+                                # Incomplete matches are only possible at the end
+                                continue
+                        else:
+                            # If we're here we haven't matched any of the elements, then we have a problem
+                            return MatchResult.from_unmatched(segments)
+                    # This index doesn't have a delimiter, check for brackets and terminators
+
+                    # First is it a terminator (and we're not in a bracket cycle)
+                    if self.terminator:
+                        term_match = self.terminator._match(
+                            segments[seg_idx:], match_depth=match_depth + 1,
+                            parse_depth=parse_depth, verbosity=verbosity)
+                        if term_match:
+                            # we've found a terminator.
+                            # End the cycle here.
+                            terminal_idx = seg_idx
+                            continue
+
+                    # Last, do we need to enter a bracket cycle
+                    bracket_match = self.start_bracket._match(
+                        segments=segments[seg_idx:], match_depth=match_depth + 1,
+                        parse_depth=parse_depth, verbosity=verbosity)
+                    if bracket_match.has_match():
+                        # increment the open bracket counter and proceed
+                        sub_bracket_count += 1
+                        seg_idx += len(bracket_match)
+                        continue
+
+                # Nothing else interesting. Carry On
+                # This is the same regardless of whether we're in the bracket cycle
+                # or otherwise.
+                seg_idx += 1
 
     def expected_string(self):
         return " {0} ".format(self.delimiter.expected_string()).join([opt.expected_string() for opt in self._elements])
@@ -390,8 +480,8 @@ class StartsWith(BaseGrammar):
                     first_code_idx = idx
                     break
             else:
-                # We've not found something that isn't code, that means this
-                # isn't a match.
+                # We've trying to match on a sequence of segments which contain no code.
+                # That means this isn't a match.
                 return MatchResult.from_unmatched(segments)
 
             match = self.target._match(
@@ -421,8 +511,10 @@ class StartsWith(BaseGrammar):
         return self.target.expected_string() + ", ..."
 
 
-class Bracketed(Sequence):
-    """ Bracketed is just a wrapper around Sequence """
+class Bracketed(BaseGrammar):
+    """ Bracketed works differently to sequence, although it used to. Note
+    that if multiple arguments are passed then the options will be considered
+    as options for what can be in the brackets rather than a sequence. """
     def __init__(self, *args, **kwargs):
         # Start and end tokens
         self.start_bracket = kwargs.pop(
@@ -433,7 +525,119 @@ class Bracketed(Sequence):
             'end_bracket',
             KeywordSegment.make(')', name='end_bracket', type='end_bracket')
         )
-        # Construct the sequence with brackets (as tuples)
-        newargs = (self.start_bracket,) + args + (self.end_bracket,)
-        # Call the sequence
-        super(Bracketed, self).__init__(*newargs, **kwargs)
+        super(Bracketed, self).__init__(*args, **kwargs)
+
+    def match(self, segments, match_depth=0, parse_depth=0, verbosity=0):
+        """ The match function for `bracketed` implements bracket counting. """
+
+        # 1. work forwards to find the first bracket.
+        #    If we find something other that whitespace, then fail out.
+        # 2. Once we have the first bracket, we need to bracket count forward to find it's partner.
+        # 3. Assuming we find it's partner then we try and match what goes between them.
+        #    If we match, great. If not, then we return an empty match.
+        #    If we never find it's partner then we return an empty match but should probably
+        #    log a parsing warning, or error?
+
+        seg_idx = 0
+
+        # Step 1. Find the first useful segment
+        # Work through to find the first code segment...
+        if self.code_only:
+            for idx, seg in enumerate(segments):
+                if seg.is_code:
+                    seg_idx = idx
+                    break
+            else:
+                # We've trying to match on a sequence of segments which contain no code.
+                # That means this isn't a match.
+                return MatchResult.from_unmatched(segments)
+
+        # is it a bracket?
+        m = self.start_bracket._match(
+            segments=segments[seg_idx:], match_depth=match_depth + 1,
+            parse_depth=parse_depth, verbosity=verbosity)
+
+        if m.has_match():
+            # We've got the first bracket.
+            # Update the seg_idx by the length of the match
+            start_bracket_idx = seg_idx
+            seg_idx += len(m)
+        else:
+            # Whatever we have, it doesn't start with a bracket.
+            return MatchResult.from_unmatched(segments)
+
+        # Step 2: Bracket count forward to find it's pair
+        content_start_idx = seg_idx  # Keep track of where the content starts
+        sub_bracket_count = 0
+
+        while True:
+            # Are we at the end of the sequence?
+            if len(segments[seg_idx:]) == 0:
+                # We've got to the end without finding the closing bracket
+                # this isn't just parsing issue this is probably a syntax
+                # error.
+                # TODO: Format this better
+                raise SQLParseError(
+                    "Couldn't find closing bracket for opening bracket.",
+                    segment=segments[start_bracket_idx])
+
+            # Is it a closing bracket?
+            m = self.end_bracket._match(
+                segments=segments[seg_idx:], match_depth=match_depth + 1,
+                parse_depth=parse_depth, verbosity=verbosity)
+            if m.has_match():
+                if sub_bracket_count == 0:
+                    # We're back to the bracket pair!
+                    content_end_idx = seg_idx
+                    remainder_start_idx = seg_idx + len(m)
+                    break
+                else:
+                    # reduce the bracket count and then advance the counter.
+                    sub_bracket_count -= 1
+                    seg_idx += len(m)
+                    continue
+
+            # Is it an opening bracket?
+            m = self.start_bracket._match(
+                segments=segments[seg_idx:], match_depth=match_depth + 1,
+                parse_depth=parse_depth, verbosity=verbosity)
+            if m.has_match():
+                # increment the open bracket counter and proceed
+                sub_bracket_count += 1
+                seg_idx += len(m)
+                continue
+
+            # If we get here it's not an opening bracket or a closing bracket
+            # so we should carry on our merry way
+            seg_idx += 1
+
+        # If we get to here then we've found our closing bracket.
+        # Let's identify the section to match for our content matchers
+        # and then try it against each of them.
+        content_segments = segments[content_start_idx:content_end_idx]
+
+        for elem in self._elements:
+            elem_match = elem._match(
+                content_segments, match_depth=match_depth + 1,
+                parse_depth=parse_depth, verbosity=verbosity)
+            # Matches at this stage must be complete, because we've got nothing
+            # to do with any leftovers within the brackets.
+            if elem_match.is_complete():
+                # We're also returning the *mutated* versions from the sub-matcher
+                return MatchResult(
+                    segments[:content_start_idx]
+                    + elem_match.matched_segments
+                    + segments[content_end_idx:remainder_start_idx],
+                    segments[remainder_start_idx:])
+            else:
+                # Not matched this element, move on.
+                # NB, a partial match here isn't helpful. We're matching
+                # BETWEEN two delimiters and so it must be a complete match.
+                # Incomplete matches are only possible at the end
+                continue
+        else:
+            # If we're here we haven't matched any of the elements, then we have a problem
+            return MatchResult.from_unmatched(segments)
+
+    def expected_string(self):
+        return " ( {0} ) ".format(' | '.join([opt.expected_string() for opt in self._elements]))

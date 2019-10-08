@@ -262,7 +262,7 @@ class Linter(object):
             fs = FileSegment.from_raw(f.read())
         except SQLLexError as err:
             violations.append(err)
-            pass
+            fs = None
         if verbosity >= 2:
             print(fs.stringify())
 
@@ -270,12 +270,16 @@ class Linter(object):
         if verbosity >= 2:
             print("PARSING ({0})".format(fname))
         # Parse the file and log any problems
-        try:
-            parsed = fs.parse(recurse=recurse, verbosity=verbosity)
-        except SQLParseError as err:
-            violations.append(err)
-        if verbosity >= 2:
-            print(parsed.stringify())
+        if fs:
+            try:
+                parsed = fs.parse(recurse=recurse, verbosity=verbosity)
+            except SQLParseError as err:
+                violations.append(err)
+                parsed = None
+            if verbosity >= 2 and parsed:
+                print(parsed.stringify())
+        else:
+            parsed = None
 
         t2 = time.monotonic()
         time_dict = {'lexing': t1 - t0, 'parsing': t2 - t1}
