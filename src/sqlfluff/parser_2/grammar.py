@@ -18,7 +18,7 @@ class BaseGrammar(object):
         # We provide a common interface for any grammar that allows positional elements
         self._elements = args
         # Now we deal with the standard kwargs
-        for var, default in [('code_only', True), ('optional', False), ('terminal_hint', None)]:
+        for var, default in [('code_only', True), ('optional', False)]:
             setattr(self, var, kwargs.pop(var, default))
         # optional, only really makes sense in the context of a sequence.
         # If a grammar is optional, then a sequence can continue without it.
@@ -129,138 +129,62 @@ class GreedyUntil(BaseGrammar):
 class Sequence(BaseGrammar):
     """ Match a specific sequence of elements """
 
-    @staticmethod
-    def _terminal_hint(grammar, segments, matcher, code_only):
-        """ A place to override for a whole class """
-        return False
-
-    def _get_terminal_hint_func(self):
-        if self.terminal_hint:
-            return self.terminal_hint
-        else:
-            return self._terminal_hint
-
-    @staticmethod
-    def _match_forward(segments, matcher, hint_func, grammar, code_only=True, match_depth=0, parse_depth=0, verbosity=0):
-        """ sequentially match shorter and shorter forward segments
-        looking for arbitrary length matches. this function deals with
-        skipping non code segments.
-        UPDATE: Now starts with the longest, and go shorter. That's the make things
-        work for the Delimited grammar especially. Used to start short and go long.
-        UPDATE: We now allow a `terminal_hint` method, which if it's present and true,
-        stops any further iteration. If it returns true then we terminate, if it returns an integer
-        then it skips to that index."""
-        # logging.debug("_match_forward: {0!r}, {1!r}".format(matcher, segments))
-        # Check if the start of this sequence is code_only
-        if code_only and not segments[0].is_code:
-            # skip this one for matching, but add it to the match
-            return (segments[0],), 1, False
-        # Try decreasing lengths to match the remainder
-        match_len = len(segments)
-        while True:
-            print("[PD:{0} MD:{1}] Forward Match (l={2}): {3}".format(parse_depth, match_depth, match_len, ''.join([seg.raw for seg in segments[:match_len]])))
-            # logging.debug("_match_forward [loop]: {0!r}, {1!r}".format(matcher, segments[:match_len]))
-            # Check for terminal hint
-            hint = hint_func(grammar, segments[:match_len], matcher, code_only)
-            if isinstance(hint, bool) and hint:
-                # print("Got TRUE hint")
-                return None, 0, True
-            elif isinstance(hint, bool) and not hint:
-                pass
-            elif isinstance(hint, int):
-                print("Got hint of {0}".format(hint))
-                if hint < match_len:
-                    match_len = hint
-                else:
-                    logging.warning("Ignoring hint - it seems longer the current match length?!")
-            m = matcher._match(segments[:match_len], match_depth=match_depth + 1,
-                               parse_depth=parse_depth, verbosity=verbosity)
-            if m:
-                # deal with the matches
-                # advance the counter
-                if isinstance(m, BaseSegment):
-                    logging.warning("{0} returned a segment not a tuple!".format(matcher))
-                    return (m,), match_len, True
-                else:
-                    return m, match_len, True
-            match_len -= 1
-            if match_len <= 0:
-                return None, 0, True
-
     def match(self, segments, match_depth=0, parse_depth=0, verbosity=0):
-        print(
-            "PD:{0} MD:{1} Entering {2}.match. expected: {3!r}\t\traw: {4!r}\t\tsegments: {5!r}".format(
-                parse_depth,
-                match_depth,
-                self.__class__.__name__,
-                self.expected_string(),
-                ''.join([seg.raw for seg in segments]),
-                BaseSegment.segs_to_tuple(segments, show_raw=True)))
+        # Rewrite of sequence. We should match FORWARD, this reduced duplication.
+        # Sub-matchers should be greedy and so we can jsut work forward with each one.
         if isinstance(segments, BaseSegment):
             segments = tuple(segments)
         seg_idx = 0
         matched_segments = MatchResult.from_empty()
-        for elem in self._elements:
+        for idx, elem in enumerate(self._elements):
             while True:
                 if seg_idx >= len(segments):
-                    # We've run our of sequence without matching everyting:
-                    # is it optional?
-                    if elem.is_optional():
-                        # then it's ok
-                        break
+                    # We've run our of sequence without matching everyting.
+                    # Do only optional elements remain.
+                    if all([e.is_optional() for e in self._elements[idx:]]):
+                        # then it's ok, and we can return what we've got so far.
+                        # No need to deal with anything left over because we're at the end.
+                        return matched_segments
                     else:
-                        logging.debug("{0}.match, failed to see match full sequence? Looking for non-optional: {1!r}".format(self.__class__.__name__, elem))
-                        return MatchResult.from_empty()
-                # sequentially try longer segments to see if it works.
-                # We do this because the matcher might also be looking for
-                # a sequence rather than a singular.
-                m, n, c = self._match_forward(
-                    segments=segments[seg_idx:], matcher=elem, hint_func=self._get_terminal_hint_func(),
-                    grammar=self,
-                    code_only=self.code_only, match_depth=match_depth, parse_depth=parse_depth, verbosity=verbosity)
-                if not m:
-                    # We've failed to match at this index.
-                    # Normally failing to match the next element in the
-                    # sequence should return None directly, BUT if the element
-                    # is optional then we may be able to move on.
-                    if elem.is_optional():
-                        logging.debug("{0}.match, skipping optional segment: {1!r}".format(self.__class__.__name__, elem))
-                        break
-                    else:
-                        logging.debug("{0}.match, failed to find non-optional segment: {1!r}".format(self.__class__.__name__, elem))
-                        return MatchResult.from_empty()
+                        # we've got to the end of the sequence without matching all
+                        # required elements.
+                        return MatchResult.from_unmatched(segments)
                 else:
-                    print("{0}.match, found: [n={1}] {2!r}".format(self.__class__.__name__, n, m))
-                    matched_segments += m
-                    # Advance the counter by the length of the match
-                    if n <= 0:
-                        raise ValueError("Advancing by zero: This means we'll loop infinitely!")
-                    seg_idx += n
-                    # If code only, then see if we've matched on code
-                    if self.code_only:
-                        if c:
-                            # If code_only, and a code match, we should move on to the next element
+                    # We're not at the end, first detect whitespace and then try to match.
+                    if self.code_only and not segments[seg_idx].is_code:
+                        # We should add this one to the match and carry on
+                        matched_segments += segments[seg_idx]
+                        seg_idx += 1
+                        continue
+
+                    # It's not whitespace, so carry on to matching
+                    elem_match = elem._match(
+                        segments[seg_idx:], match_depth=match_depth + 1,
+                        parse_depth=parse_depth, verbosity=verbosity)
+
+                    if elem_match.has_match():
+                        # We're expecting mostly partial matches here, but complete
+                        # matches are possible.
+                        matched_segments += elem_match.matched_segments
+                        seg_idx += len(elem_match.matched_segments)
+                        # Break out of the while loop and move to the next element.
+                        break
+                    else:
+                        # If we can't match an element, we should ascertain whether it's
+                        # required. If so then fine, move on, but otherwise we should crash
+                        # out without a match. We have not matched the sequence.
+                        if elem.is_optional():
+                            # This will crash us out of the while loop and move us
+                            # onto the next matching element
                             break
                         else:
-                            # If code_only, and not a code match, we should carry on with the same element
-                            continue
-                    else:
-                        # If not code_only, then any match means we should advance the element
-                        break
+                            return MatchResult.from_unmatched(segments)
         else:
-            # We've matched everything in the sequence, but we need to check FINALLY
-            # if we've matched everything that was given.
-            if seg_idx == len(segments):
-                # If the segments get mutated we might need to do something different here
-                return matched_segments
-            elif self.code_only and all(not seg.is_code for seg in segments[seg_idx:]):
-                # If we're only looking for code, and the only segments left are non-code
-                # then be greedy
-                return matched_segments + segments[seg_idx:]
-            else:
-                # We matched all the sequence, but the number of segments given was longer
-                logging.debug("{0}.match, failed to match fully. Unmatched elements remain: {1!r}".format(self.__class__.__name__, segments[seg_idx:]))
-                return MatchResult.from_empty()
+            # If we get to here, we've matched all of the elements (or skipped them)
+            # but still have some segments left (or perhaps have precisely zero left).
+            # In either case, we're golden. Return successfully, with any leftovers as
+            # the unmatched elements.
+            return MatchResult(matched_segments.matched_segments, segments[seg_idx:])
 
     def expected_string(self):
         return ", ".join([opt.expected_string() for opt in self._elements])
@@ -323,7 +247,7 @@ class Delimited(BaseGrammar):
                         # Add this match onto any already matched segments and return.
                         # We do this in a slightly odd way here to allow partial matches.
                         return MatchResult(
-                            matched_segments + elem_match.matched_segments,
+                            matched_segments.matched_segments + elem_match.matched_segments,
                             elem_match.unmatched_segments)
                     else:
                         # Not matched this element, move on.
@@ -513,41 +437,3 @@ class Bracketed(Sequence):
         newargs = (self.start_bracket,) + args + (self.end_bracket,)
         # Call the sequence
         super(Bracketed, self).__init__(*newargs, **kwargs)
-
-    @staticmethod
-    def _terminal_hint(grammar, segments, matcher, code_only):
-        """ A place to override for a whole class """
-        # does it start with a bracket,
-        for seg in segments:
-            if grammar.start_bracket.match(seg):
-                # ok we've got a start bracket
-                break
-            elif not seg.is_code and code_only:
-                # this isn't code, move on
-                continue
-            else:
-                # This starts with a segment which isn't a bracket
-                return True
-        else:
-            # Don't know how we get here but it's bad
-            return True
-
-        bracket_stack = []
-        for idx, seg in enumerate(segments):
-            for raw in seg.iter_raw_seg():
-                if grammar.start_bracket.match(raw):
-                    bracket_stack.append(idx)
-                elif grammar.end_bracket.match(raw):
-                    if len(bracket_stack) == 1:
-                        # We're on our last bracket, this should be the index to search for.
-                        return idx
-                    elif len(bracket_stack) <= 0:
-                        # We should never get here
-                        logging.warning("We should never get here: ID: A487AWHOL87AW3J")
-                        return False
-                    else:
-                        bracket_stack.pop()
-
-        # If we get to here, we never found the end bracket for the first opening one.
-        # We should abort
-        return False

@@ -41,8 +41,6 @@ class IdentifierSegment(BaseSegment):
         OneOf(NakedIdentifierSegment, QuotedIdentifierSegment),
         delimiter=DotSegment,
         code_only=False,
-        # if this contains any whitespace then it won't match
-        terminal_hint=(lambda grammar, segments, matcher, code_only: ' ' in ''.join([s.raw for s in segments]))
     )
 
 

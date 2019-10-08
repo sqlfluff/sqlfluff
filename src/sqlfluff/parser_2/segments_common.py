@@ -65,12 +65,13 @@ class ReSegment(KeywordSegment):
     def match(cls, segments, match_depth=0, parse_depth=0, verbosity=0):
         """ ReSegment implements it's own matching function,
         we assume that ._template is a r"" string, and is formatted
-        for use directly as a regex. """
+        for use directly as a regex. This only matches on a single segment."""
         # If we've been passed the singular, make it a list
         if isinstance(segments, BaseSegment):
             segments = [segments]
-        # Regardless of what we're passed, make a string
-        s = ''.join([seg.raw for seg in segments])
+        # Regardless of what we're passed, make a string.
+        # NB: We only match on the first element of a set of segments.
+        s = segments[0].raw
         # Deal with case sentitivity
         if not cls._case_sensitive:
             sc = s.upper()
@@ -86,8 +87,9 @@ class ReSegment(KeywordSegment):
             r = result.group(0)
             # Check that we've fully matched
             if r == sc:
-                return cls(raw=s, pos_marker=segments[0].pos_marker),  # Return a tuple
-        return None
+                m = cls(raw=s, pos_marker=segments[0].pos_marker),  # Return a tuple
+                return MatchResult(m, segments[1:])
+        return MatchResult.from_unmatched(segments)
 
     @classmethod
     def expected_string(cls):
@@ -106,8 +108,8 @@ class NamedSegment(KeywordSegment):
         if isinstance(segments, BaseSegment):
             segments = [segments]
 
-        # We only match if it's of length 1, otherwise not
-        if len(segments) == 1:
+        # We only match on the first element of a set of segments
+        if len(segments) >= 1:
             s = segments[0]
             if not cls._case_sensitive:
                 n = s.name.upper()
@@ -116,10 +118,11 @@ class NamedSegment(KeywordSegment):
             logging.debug("[PD:{0} MD:{1}] (KW) {2}.match considering {3!r} against {4!r}".format(
                 parse_depth, match_depth, cls.__name__, n, cls._template))
             if cls._template == n:
-                return cls(raw=s.raw, pos_marker=s.pos_marker),  # Return as a tuple
+                m = cls(raw=s.raw, pos_marker=segments[0].pos_marker),  # Return a tuple
+                return MatchResult(m, segments[1:])
         else:
             logging.debug("{1} will not match sequence of length {0}".format(len(segments), cls.__name__))
-        return None
+        return MatchResult.from_unmatched(segments)
 
     @classmethod
     def expected_string(cls):
