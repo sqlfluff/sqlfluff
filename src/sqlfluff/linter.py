@@ -251,7 +251,7 @@ class Linter(object):
         else:
             return rt
 
-    def parse_file(self, f, fname=None, verbosity=0):
+    def parse_file(self, f, fname=None, verbosity=0, recurse=True):
         violations = []
         t0 = time.monotonic()
 
@@ -271,7 +271,7 @@ class Linter(object):
             print("PARSING ({0})".format(fname))
         # Parse the file and log any problems
         try:
-            parsed = fs.parse()
+            parsed = fs.parse(recurse=recurse, verbosity=verbosity)
         except SQLParseError as err:
             violations.append(err)
         if verbosity >= 2:
@@ -373,7 +373,7 @@ class Linter(object):
             result.add(self.lint_path(path, verbosity=verbosity))
         return result
 
-    def parse_path(self, path, verbosity=0):
+    def parse_path(self, path, verbosity=0, recurse=True):
         for fname in self.paths_from_path(path):
             with open(fname, 'r') as f:
-                yield self.parse_file(f, fname=fname, verbosity=verbosity)
+                yield self.parse_file(f, fname=fname, verbosity=verbosity, recurse=recurse)

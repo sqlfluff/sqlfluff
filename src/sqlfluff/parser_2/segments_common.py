@@ -15,6 +15,7 @@ import logging
 import re
 
 from .segments_base import (BaseSegment, RawSegment)
+from .match import MatchResult
 
 
 class KeywordSegment(RawSegment):
@@ -29,13 +30,14 @@ class KeywordSegment(RawSegment):
     _case_sensitive = False
 
     @classmethod
-    def match(cls, segments, match_depth=0, parse_depth=0):
+    def match(cls, segments, match_depth=0, parse_depth=0, verbosity=0):
         """ Keyword implements it's own matching function """
         # If we've been passed the singular, make it a list
         if isinstance(segments, BaseSegment):
             segments = [segments]
-        # We only match if it's of length 1, otherwise not
-        if len(segments) == 1:
+
+        # We're only going to match against the first element
+        if len(segments) >= 1:
             raw = segments[0].raw
             pos = segments[0].pos_marker
             if cls._case_sensitive:
@@ -45,10 +47,11 @@ class KeywordSegment(RawSegment):
             logging.debug("[PD:{0} MD:{1}] (KW) {2}.match considering {3!r} against {4!r}".format(
                 parse_depth, match_depth, cls.__name__, raw_comp, cls._template))
             if cls._template == raw_comp:
-                return cls(raw=raw, pos_marker=pos),  # Return as a tuple
+                m = cls(raw=raw, pos_marker=pos),  # Return as a tuple
+                return MatchResult(m, segments[1:])
         else:
             logging.debug("{1} will not match sequence of length {0}".format(len(segments), cls.__name__))
-        return None
+        return MatchResult.from_unmatched(segments)
 
     @classmethod
     def expected_string(cls):
@@ -59,7 +62,7 @@ class ReSegment(KeywordSegment):
     """ A more flexible matching segment for use of regexes
     USE WISELY """
     @classmethod
-    def match(cls, segments, match_depth=0, parse_depth=0):
+    def match(cls, segments, match_depth=0, parse_depth=0, verbosity=0):
         """ ReSegment implements it's own matching function,
         we assume that ._template is a r"" string, and is formatted
         for use directly as a regex. """
@@ -96,7 +99,7 @@ class NamedSegment(KeywordSegment):
     of segments. Useful for matching quoted segments.
     USE WISELY """
     @classmethod
-    def match(cls, segments, match_depth=0, parse_depth=0):
+    def match(cls, segments, match_depth=0, parse_depth=0, verbosity=0):
         """ NamedSegment implements it's own matching function,
         we assume that ._template is the `name` of a segment"""
         # If we've been passed the singular, make it a list

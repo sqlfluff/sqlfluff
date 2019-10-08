@@ -51,3 +51,18 @@ manually.
       allowing the rest to be matched by any following grammar.
     - Return value from a match should probably be uniform, and some kind of object (a `namedTuple`?),
       on which we can ask whether it's a complete match or not.
+
+
+# New Grammar
+
+- Grammar needs to be rewritten - it's inefficient and WRONG. Bracket matching doesn't work.
+
+Rules for Grammars:
+1. Grammars have a just a match method.
+2. Grammars should do the minimal to call any sub matchers.
+3. Grammars should each maintain a timer which keeps track of how long they each take.
+4. Grammars should log at least on entry and exit, including logging the timing.
+5. Matchers should be greedy, any should be called only once. They should match as
+   much as they can, and pass back the rest.
+
+

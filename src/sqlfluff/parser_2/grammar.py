@@ -1,7 +1,8 @@
 """ Definitions for Grammar """
 import logging
+import time
 
-from .segments_base import BaseSegment
+from .segments_base import BaseSegment, verbosity_logger
 from .segments_common import KeywordSegment
 from .match import MatchResult
 
@@ -31,7 +32,7 @@ class BaseGrammar(object):
         # The optional attribute is set in the __init__ method
         return self.optional
 
-    def match(self, segments, match_depth=0, parse_depth=0):
+    def match(self, segments, match_depth=0, parse_depth=0, verbosity=0):
         """
             Matching can be done from either the raw or the segments.
             This raw function can be overridden, or a grammar defined
@@ -39,9 +40,18 @@ class BaseGrammar(object):
         """
         raise NotImplementedError("{0} has no match function implemented".format(self.__class__.__name__))
 
-    def _match(self, segments, match_depth=0, parse_depth=0):
+    def _match(self, segments, match_depth=0, parse_depth=0, verbosity=0):
         """ A wrapper on the match function to do some basic validation """
-        logging.info("[PD:{0} MD:{1}] {2}._match IN [ls={3}]".format(parse_depth, match_depth, self.__class__.__name__, len(segments)))
+        t0 = time.monotonic()
+        # Work out the raw representation and curtail if long
+        raw = ''.join([s.raw for s in segments])
+        if len(raw) > 20:
+            raw = raw[:20] + '...'
+        verbosity_logger(
+            "[PD:{0} MD:{1}] {2}._match IN [ls={3}, seg={4!r}]".format(
+                parse_depth, match_depth, self.__class__.__name__, len(segments),
+                raw),
+            verbosity)
         if not isinstance(segments, (tuple, BaseSegment)):
             logging.warning(
                 "{0}.match, was passed {1} rather than tuple or segment".format(
@@ -49,12 +59,15 @@ class BaseGrammar(object):
             if isinstance(segments, list):
                 # Let's make it a tuple for compatibility
                 segments = tuple(segments)
-        m = self.match(segments, match_depth=match_depth, parse_depth=parse_depth)
+        m = self.match(segments, match_depth=match_depth, parse_depth=parse_depth, verbosity=verbosity)
         if not isinstance(m, MatchResult):
             logging.warning(
                 "{0}.match, returned {1} rather than MatchResult".format(
                     self.__class__.__name__, type(m)))
-        logging.info("[PD:{0} MD:{1}] {2}._match OUT [m={3}]".format(parse_depth, match_depth, self.__class__.__name__, m))
+        dt = time.monotonic() - t0
+        verbosity_logger(
+            "[PD:{0} MD:{1}] {2}._match OUT [dt={3:.3f}, m={4}]".format(parse_depth, match_depth, self.__class__.__name__, dt, m),
+            verbosity)
         return m
 
     def expected_string(self):
@@ -67,12 +80,12 @@ class BaseGrammar(object):
 class OneOf(BaseGrammar):
     """ Match any of the elements given once, if it matches
     multiple, it returns the first """
-    def match(self, segments, match_depth=0, parse_depth=0):
+    def match(self, segments, match_depth=0, parse_depth=0, verbosity=0):
         logging.debug("MATCH: {0}".format(self))
         # Match on each of the options
         matches = []
         for opt in self._elements:
-            m = opt._match(segments, match_depth=match_depth + 1, parse_depth=parse_depth)
+            m = opt._match(segments, match_depth=match_depth + 1, parse_depth=parse_depth, verbosity=verbosity)
             # Do Type Munging using unify
             m = MatchResult.unify(m)
             matches.append(m)
@@ -94,25 +107,15 @@ class OneOf(BaseGrammar):
 
 class GreedyUntil(BaseGrammar):
     """ See the match method desription for the full details """
-    def match(self, segments, match_depth=0, parse_depth=0):
+    def match(self, segments, match_depth=0, parse_depth=0, verbosity=0):
         """
-        Matching for GreedyUntil works in a specific way for a specific reason.
-        It's also a little counter intuitive, and would probably be better known
-        as "DoesntContain" than Greedy Until.
-
-        GreedyUntil(c)  on  abc     returns None
-        GreedyUntil(d)  on  abc     returns abc
-        GreedyUntil(a)  on  abc     returns None
-
-        The reasoning for this is that we're assuming that we're probably within
-        the context of a sequence which will retry with a shorter sequence if the match
-        fails.
+        Matching for GreedyUntil works just how you'd expect.
         """
-        for seg in segments:
+        for idx, seg in enumerate(segments):
             for opt in self._elements:
-                if opt._match(seg, match_depth=match_depth + 1, parse_depth=parse_depth):
-                    # We've matched something. That means we should return empty
-                    return MatchResult.from_unmatched(segments)
+                if opt._match(seg, match_depth=match_depth + 1, parse_depth=parse_depth, verbosity=verbosity):
+                    # We've matched something. That means we should return everything up to this point
+                    return MatchResult(segments[:idx], segments[idx:])
                 else:
                     continue
         else:
@@ -141,7 +144,7 @@ class Sequence(BaseGrammar):
             return self._terminal_hint
 
     @staticmethod
-    def _match_forward(segments, matcher, hint_func, grammar, code_only=True, match_depth=0, parse_depth=0):
+    def _match_forward(segments, matcher, hint_func, grammar, code_only=True, match_depth=0, parse_depth=0, verbosity=0):
         """ sequentially match shorter and shorter forward segments
         looking for arbitrary length matches. this function deals with
         skipping non code segments.
@@ -162,10 +165,10 @@ class Sequence(BaseGrammar):
             # logging.debug("_match_forward [loop]: {0!r}, {1!r}".format(matcher, segments[:match_len]))
             # Check for terminal hint
             hint = hint_func(grammar, segments[:match_len], matcher, code_only)
-            if hint == True:
+            if isinstance(hint, bool) and hint:
                 # print("Got TRUE hint")
                 return None, 0, True
-            elif hint == False:
+            elif isinstance(hint, bool) and not hint:
                 pass
             elif isinstance(hint, int):
                 print("Got hint of {0}".format(hint))
@@ -174,7 +177,7 @@ class Sequence(BaseGrammar):
                 else:
                     logging.warning("Ignoring hint - it seems longer the current match length?!")
             m = matcher._match(segments[:match_len], match_depth=match_depth + 1,
-                               parse_depth=parse_depth)
+                               parse_depth=parse_depth, verbosity=verbosity)
             if m:
                 # deal with the matches
                 # advance the counter
@@ -187,7 +190,7 @@ class Sequence(BaseGrammar):
             if match_len <= 0:
                 return None, 0, True
 
-    def match(self, segments, match_depth=0, parse_depth=0):
+    def match(self, segments, match_depth=0, parse_depth=0, verbosity=0):
         print(
             "PD:{0} MD:{1} Entering {2}.match. expected: {3!r}\t\traw: {4!r}\t\tsegments: {5!r}".format(
                 parse_depth,
@@ -217,7 +220,7 @@ class Sequence(BaseGrammar):
                 m, n, c = self._match_forward(
                     segments=segments[seg_idx:], matcher=elem, hint_func=self._get_terminal_hint_func(),
                     grammar=self,
-                    code_only=self.code_only, match_depth=match_depth, parse_depth=parse_depth)
+                    code_only=self.code_only, match_depth=match_depth, parse_depth=parse_depth, verbosity=verbosity)
                 if not m:
                     # We've failed to match at this index.
                     # Normally failing to match the next element in the
@@ -266,7 +269,7 @@ class Sequence(BaseGrammar):
         return ", ".join([opt.expected_string() for opt in self._elements])
 
 
-class Delimited(Sequence):
+class Delimited(BaseGrammar):
     """ Match an arbitrary number of elements seperated by a delimiter """
     def __init__(self, *args, **kwargs):
         if 'delimiter' not in kwargs:
@@ -275,80 +278,128 @@ class Delimited(Sequence):
         self.allow_trailing = kwargs.pop('allow_trailing', False)
         super(Delimited, self).__init__(*args, **kwargs)
 
-    def match(self, segments, match_depth=0, parse_depth=0):
+    def match(self, segments, match_depth=0, parse_depth=0, verbosity=0):
         if isinstance(segments, BaseSegment):
             segments = [segments]
         seg_idx = 0
+        # delimiters is a list of tuples (idx, len), which keeps track of where
+        # we found delimiters up to this point.
+        delimiters = []
         matched_segments = MatchResult.from_empty()
-        looking_for = 'element'  # This will be `delimiter` when we find an element
-        while True:
-            if seg_idx >= len(segments):
-                # We've got to the end of the segments, we can't end on a delimiter
-                # unless allow_trailing is set
-                if looking_for == 'element':
-                    if self.allow_trailing:
-                        return matched_segments
-                    else:
-                        return MatchResult.from_empty()
-                elif looking_for == 'delimiter':
-                    return matched_segments
-                else:
-                    raise ValueError("Unexpected looking for!")
 
-            if looking_for == 'element':
+        # First iterate through all the segments, looking for the delimiter.
+        # Second, split the list on each of the delimiters, and ensure that
+        # each sublist in turn matches one of the elements.
+
+        # In more detail, match against delimiter, if we match, put a slice
+        # up to that point onto a list of slices. Carry on.
+        while True:
+            # Are we at the end of the sequence?
+            if seg_idx >= len(segments):
+                # Yes we're at the end
+
+                # We now need to check whether everything from either the start
+                # or from the last delimiter up to here matches. We CAN allow
+                # a partial match at this stage.
+
+                # Do we already have any delimiters?
+                if delimiters:
+                    # Yes, get the last delimiter
+                    dm1 = delimiters[-1]
+                    # get everything after the last delimiter
+                    pre_segment = segments[dm1[0] + dm1[1]:]
+                else:
+                    # No, no delimiters at all so far.
+                    # TODO: Allow this to be configured.
+                    # Just get everything up to this point
+                    pre_segment = segments
+
+                # See if any of the elements match
                 for elem in self._elements:
-                    logging.debug("{0}.match, considering: {1!r}".format(self.__class__.__name__, elem))
-                    m, n, c = self._match_forward(
-                        segments=segments[seg_idx:], matcher=elem,
-                        grammar=self,
-                        hint_func=self._get_terminal_hint_func(),
-                        code_only=self.code_only,
-                        match_depth=match_depth,
-                        parse_depth=parse_depth)
-                    if not m:
-                        # We've failed to match at this index
-                        continue
+                    elem_match = elem._match(
+                        pre_segment, match_depth=match_depth + 1,
+                        parse_depth=parse_depth, verbosity=verbosity)
+
+                    if elem_match.has_match():
+                        # Successfully matched one of the elements in this spot
+
+                        # Add this match onto any already matched segments and return.
+                        # We do this in a slightly odd way here to allow partial matches.
+                        return MatchResult(
+                            matched_segments + elem_match.matched_segments,
+                            elem_match.unmatched_segments)
                     else:
-                        logging.debug("{0}.match, found: [n={1}] {2!r}".format(self.__class__.__name__, n, m))
-                        matched_segments += m
-                        # Advance the counter by the length of the match
-                        if n <= 0:
-                            raise ValueError("Advancing by zero: This means we'll loop infinitely!")
-                        seg_idx += n
-                        # If we matched on code, then switch
-                        if c:
-                            looking_for = 'delimiter'
-                        break
+                        # Not matched this element, move on.
+                        # NB, a partial match here isn't helpful. We're matching
+                        # BETWEEN two delimiters and so it must be a complete match.
+                        # Incomplete matches are only possible at the end
+                        continue
                 else:
-                    # Completed a loop without a match
-                    logging.debug("{0}.match, no match [elem]".format(self.__class__.__name__))
-                    return MatchResult.from_empty()
-            elif looking_for == 'delimiter':
-                logging.debug("{0}.match, considering: {1!r}".format(self.__class__.__name__, self.delimiter))
-                m, n, c = self._match_forward(
-                    segments=segments[seg_idx:], matcher=self.delimiter,
-                    grammar=self,
-                    hint_func=self._get_terminal_hint_func(),
-                    code_only=self.code_only,
-                    match_depth=match_depth,
-                    parse_depth=parse_depth)
-                if m is None:
-                    # We've failed to match at this index
-                    logging.debug("{0}.match, no match [delim]".format(self.__class__.__name__))
-                    return MatchResult.from_empty()
-                else:
-                    logging.debug("{0}.match, found: [n={1}] {2!r}".format(self.__class__.__name__, n, m))
-                    matched_segments += m
-                    # Advance the counter by the length of the match
-                    if n <= 0:
-                        raise ValueError("Advancing by zero: This means we'll loop infinitely!")
-                    seg_idx += n
-                    # If we matched on code, then switch
-                    if c:
-                        looking_for = 'element'
-                    # NB: No break here, because we're not looping through options
+                    # If we're here we haven't matched any of the elements on this last element.
+                    # BUT, if we allow trailing, and we have matched something, we can end on the last
+                    # delimiter
+                    if self.allow_trailing and len(matched_segments) > 0:
+                        return MatchResult(matched_segments.matched_segments, pre_segment)
+                    else:
+                        return MatchResult.from_unmatched(segments)
+
             else:
-                raise ValueError("Unexpected looking for: {0!r}".format(looking_for))
+                # We've got some sequence left
+                # Do we have a delimiter at the current index?
+
+                # NB: New matching format, pass it all to the matcher and allow
+                # it to match the rest.
+                del_match = self.delimiter._match(
+                    segments[seg_idx:], match_depth=match_depth + 1,
+                    parse_depth=parse_depth, verbosity=verbosity)
+
+                # Doesn't have to match fully, just has to give us a delimiter.
+                if del_match.has_match():
+                    # We've got at least a partial match
+                    # Record the location of this delimiter
+                    d = (seg_idx, len(del_match))
+                    # Do we already have any delimiters?
+                    if delimiters:
+                        # Yes
+                        dm1 = delimiters[-1]
+                        # slice the segments between this delimiter and the previous
+                        pre_segment = segments[dm1[0] + dm1[1]:d[0]]
+                    else:
+                        # No
+                        # Just get everything up to this point
+                        pre_segment = segments[:d[0]]
+                    # Append the delimiter that we have found.
+                    delimiters.append(d)
+
+                    # We now check that this chunk matches whatever we're delimiting.
+                    # In this case it MUST be a full match, not just a partial match
+                    for elem in self._elements:
+                        elem_match = elem._match(
+                            pre_segment, match_depth=match_depth + 1,
+                            parse_depth=parse_depth, verbosity=verbosity)
+
+                        if elem_match.is_complete():
+                            # Successfully matched one of the elements in this spot
+
+                            # First add the segment up to the delimiter to the matched segments
+                            matched_segments += elem_match
+                            # Then add the delimiter to the matched segments
+                            matched_segments += del_match
+                            # Break this for loop and move on, looking for the next delimiter
+                            seg_idx += 1
+                            break
+                        else:
+                            # Not matched this element, move on.
+                            # NB, a partial match here isn't helpful. We're matching
+                            # BETWEEN two delimiters and so it must be a complete match.
+                            # Incomplete matches are only possible at the end
+                            continue
+                    else:
+                        # If we're here we haven't matched any of the elements, then we have a problem
+                        return MatchResult.from_unmatched(segments)
+                # This index doesn't have a delimiter, carry on.
+                else:
+                    seg_idx += 1
 
     def expected_string(self):
         return " {0} ".format(self.delimiter.expected_string()).join([opt.expected_string() for opt in self._elements])
@@ -357,7 +408,7 @@ class Delimited(Sequence):
 class ContainsOnly(BaseGrammar):
     """ match a sequence of segments which are only of the types,
     or only match the grammars in the list """
-    def match(self, segments, match_depth=0, parse_depth=0):
+    def match(self, segments, match_depth=0, parse_depth=0, verbosity=0):
         seg_buffer = tuple()
         for seg in segments:
             matched = False
@@ -375,7 +426,7 @@ class ContainsOnly(BaseGrammar):
                             break
                     else:
                         try:
-                            m = opt._match(seg, match_depth=match_depth + 1, parse_depth=parse_depth)
+                            m = opt._match(seg, match_depth=match_depth + 1, parse_depth=parse_depth, verbosity=verbosity)
                         except AttributeError:
                             # This is unlikely, but if the element doesn't have a
                             # match method, then don't sweat. Just carry on.
@@ -409,7 +460,7 @@ class StartsWith(BaseGrammar):
         self.target = target
         super(StartsWith, self).__init__(*args, **kwargs)
 
-    def match(self, segments, match_depth=0, parse_depth=0):
+    def match(self, segments, match_depth=0, parse_depth=0, verbosity=0):
         if self.code_only:
             first_code = None
             first_code_idx = None
@@ -421,7 +472,7 @@ class StartsWith(BaseGrammar):
             else:
                 return MatchResult.from_empty()
 
-            match = self.target._match(segments=(first_code,), match_depth=match_depth + 1, parse_depth=parse_depth)
+            match = self.target._match(segments=(first_code,), match_depth=match_depth + 1, parse_depth=parse_depth, verbosity=verbosity)
             if match:
                 # The match will probably have returned a mutated version rather
                 # that the raw segment sent for matching. We need to reinsert it

@@ -21,7 +21,9 @@ class MatchResult(namedtuple('MatchResult', ['matched_segments', 'unmatched_segm
         return len(self.matched_segments)
 
     def is_complete(self):
-        return len(self) == 0
+        # Have we Matched everything?
+        # An empty match is not a match
+        return len(self.unmatched_segments) == 0 and len(self.matched_segments) > 0
 
     def has_match(self):
         return len(self) > 0

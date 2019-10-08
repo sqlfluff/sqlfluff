@@ -19,6 +19,14 @@ from six import StringIO
 from .match import MatchResult
 
 
+def verbosity_logger(msg, verbosity=0, level='info', v_level=1):
+    if verbosity >= v_level:
+        print(msg)
+    else:
+        # Should be mostly equivalent to logging.info(msg)
+        getattr(logging, level)(msg)
+
+
 class BaseSegment(object):
     type = 'base'
     parse_grammar = None
@@ -112,7 +120,7 @@ class BaseSegment(object):
     def from_raw(cls, raw):
         raise NotImplementedError("from_raw is not implemented for {0}".format(cls.__name__))
 
-    def parse(self, recurse=True, parse_depth=0):
+    def parse(self, recurse=True, parse_depth=0, verbosity=0):
         """ Use the parse kwarg for testing, mostly to check how deep to go.
         True/False for yes or no, an integer allows a certain number of levels """
 
@@ -131,7 +139,7 @@ class BaseSegment(object):
             return self
         # Use the Parse Grammar (and the private method)
         # NOTE: No match_depth kwarg, because this is the start of the matching.
-        m = g._match(segments=self.segments, parse_depth=parse_depth)
+        m = g._match(segments=self.segments, parse_depth=parse_depth, verbosity=verbosity)
 
         # Calling unify here, allows the MatchResult class to do all the type checking.
         try:
@@ -160,11 +168,11 @@ class BaseSegment(object):
             parse_depth + 1, self.__class__.__name__, self.stringify())
         if recurse is True:
             logging.debug(parse_depth_msg)
-            self.segments = self.expand(self.segments, recurse=True, parse_depth=parse_depth + 1)
+            self.segments = self.expand(self.segments, recurse=True, parse_depth=parse_depth + 1, verbosity=verbosity)
         elif isinstance(recurse, int):
             if recurse > 1:
                 logging.debug(parse_depth_msg)
-                self.segments = self.expand(self.segments, recurse=recurse - 1, parse_depth=parse_depth + 1)
+                self.segments = self.expand(self.segments, recurse=recurse - 1, parse_depth=parse_depth + 1, verbosity=verbosity)
 
         # Validate new segments
         self.validate_segments(text="expanding")
@@ -241,7 +249,7 @@ class BaseSegment(object):
     # When dealing with concrete then we're always in parse.
     # Parse is what happens during expand.
     @classmethod
-    def match(cls, segments, match_depth=0, parse_depth=0):
+    def match(cls, segments, match_depth=0, parse_depth=0, verbosity=0):
         """
             Matching can be done from either the raw or the segments.
             This raw function can be overridden, or a grammar defined
@@ -249,7 +257,7 @@ class BaseSegment(object):
         """
         if cls._match_grammar():
             # Call the private method
-            m = cls._match_grammar()._match(segments=segments, match_depth=match_depth + 1, parse_depth=parse_depth)
+            m = cls._match_grammar()._match(segments=segments, match_depth=match_depth + 1, parse_depth=parse_depth, verbosity=verbosity)
 
             # Calling unify here, allows the MatchResult class to do all the type checking.
             try:
@@ -269,9 +277,9 @@ class BaseSegment(object):
             raise NotImplementedError("{0} has no match function implemented".format(cls.__name__))
 
     @classmethod
-    def _match(cls, segments, match_depth=0, parse_depth=0):
+    def _match(cls, segments, match_depth=0, parse_depth=0, verbosity=0):
         """ A wrapper on the match function to do some basic validation and logging """
-        logging.info("[PD:{0} MD:{1}] {2}._match IN [ls={3}]".format(parse_depth, match_depth, cls.__name__, len(segments)))
+        verbosity_logger("[PD:{0} MD:{1}] {2}._match IN [ls={3}]".format(parse_depth, match_depth, cls.__name__, len(segments)), verbosity=verbosity)
         if not isinstance(segments, (tuple, BaseSegment)):
             logging.warning(
                 "{0}.match, was passed {1} rather than tuple or segment".format(
@@ -279,16 +287,16 @@ class BaseSegment(object):
             if isinstance(segments, list):
                 # Let's make it a tuple for compatibility
                 segments = tuple(segments)
-        m = cls.match(segments, match_depth=match_depth, parse_depth=parse_depth)
+        m = cls.match(segments, match_depth=match_depth, parse_depth=parse_depth, verbosity=verbosity)
         if not isinstance(m, tuple) and m is not None:
             logging.warning(
                 "{0}.match, returned {1} rather than tuple".format(
                     cls.__name__, type(m)))
-        logging.info("[PD:{0} MD:{1}] {2}._match OUT [m={3}]".format(parse_depth, match_depth, cls.__name__, m))
+        verbosity_logger("[PD:{0} MD:{1}] {2}._match OUT [m={3}]".format(parse_depth, match_depth, cls.__name__, m), verbosity=verbosity)
         return m
 
     @staticmethod
-    def expand(segments, recurse=True, parse_depth=0):
+    def expand(segments, recurse=True, parse_depth=0, verbosity=0):
         segs = tuple()
         for stmt in segments:
             try:
@@ -304,7 +312,9 @@ class BaseSegment(object):
                 raise ValueError("{0} has no method `parse`. This segment appears poorly constructed.".format(stmt))
             parse_depth_msg = "###\n#\n# Parse Depth {0}. Expanding: {1}\n#\n###".format(parse_depth, stmt.__class__.__name__)
             logging.debug(parse_depth_msg)
-            res = stmt.parse(recurse=recurse, parse_depth=parse_depth)
+            if verbosity >= 1:
+                print(parse_depth_msg)
+            res = stmt.parse(recurse=recurse, parse_depth=parse_depth, verbosity=verbosity)
             if isinstance(res, BaseSegment):
                 segs += (res,)
             else:
