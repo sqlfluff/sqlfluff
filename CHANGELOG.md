@@ -10,6 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Thanks [@mrshu](https://github.com/mrshu)
 - BIG rewrite of the parser, completely new architecture. This introduces
   breaking changes and some loss of functionality while we catch up.
+  - In particular, matches now return partial matches to speed up parsing.
+  - The `Delimited` matcher has had a significant re-write with a major
+    speedup and broken the dependency on `Sequence`.
+- Grammars now have timers.
+- Rewrite of logging to selectively output commands at different levels
+  of verbosity. This uses the `verbosity_logger` method.
+- Added a command line `parse` option which runs just the parsing step
+  of the process to better understand how a file is being parsed.
 
 ## [0.0.7] - 2018-11-19
 ### Added
