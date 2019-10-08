@@ -462,27 +462,37 @@ class StartsWith(BaseGrammar):
 
     def match(self, segments, match_depth=0, parse_depth=0, verbosity=0):
         if self.code_only:
-            first_code = None
             first_code_idx = None
+            # Work through to find the first code segment...
             for idx, seg in enumerate(segments):
                 if seg.is_code:
                     first_code_idx = idx
-                    first_code = seg
                     break
             else:
-                return MatchResult.from_empty()
+                # We've not found something that isn't code, that means this
+                # isn't a match.
+                return MatchResult.from_unmatched(segments)
 
-            match = self.target._match(segments=(first_code,), match_depth=match_depth + 1, parse_depth=parse_depth, verbosity=verbosity)
+            match = self.target._match(
+                segments=segments[first_code_idx:], match_depth=match_depth + 1,
+                parse_depth=parse_depth, verbosity=verbosity)
             if match:
                 # The match will probably have returned a mutated version rather
                 # that the raw segment sent for matching. We need to reinsert it
                 # back into the sequence in place of the raw one, but we can't
                 # just assign at the index because it's a tuple and not a list.
                 # to get around that we do this slightly more elaborate construction.
-                segments = segments[:first_code_idx] + tuple(match) + segments[first_code_idx + 1:]
-                return MatchResult.from_matched(segments)
+
+                # NB: This match may be partial or full, either is cool. In the case
+                # of a partial match, given that we're only interested in what it STARTS
+                # with, then we can still used the unmatched parts on the end.
+                # We still need to deal with ano non-code segments at the start.
+                return MatchResult.from_matched(
+                    segments[:first_code_idx]
+                    + match.matched_segments
+                    + match.unmatched_segments)
             else:
-                return MatchResult.from_empty()
+                return MatchResult.from_unmatched(segments)
         else:
             raise NotImplementedError("Not expecting to match StartsWith and also not just code!?")
 
