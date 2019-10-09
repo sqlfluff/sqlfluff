@@ -9,7 +9,7 @@ be defined elsewhere.
 from .segments_base import (BaseSegment)
 from .segments_common import (KeywordSegment, ReSegment, NamedSegment)
 from .grammar import (Sequence, GreedyUntil, StartsWith, ContainsOnly,
-                      OneOf, Delimited, Bracketed)
+                      OneOf, Delimited, Bracketed, AnyNumberOf)
 
 # NOTE: There is a concept here, of parallel grammars.
 # We use one (slightly more permissive) grammar to MATCH
@@ -73,11 +73,66 @@ class AliasedObjectNameSegment(BaseSegment):
     match_grammar = Sequence(ObjectNameSegment, KeywordSegment.make('as'), IdentifierSegment)
 
 
+class TableExpressionSegment(BaseSegment):
+    type = 'table_expression'
+    # match grammar (don't allow whitespace)
+    match_grammar = OneOf(
+        AliasedObjectNameSegment,
+        ObjectNameSegment
+        # Values clause?
+    )
+
+
 class SelectTargetGroupStatementSegment(BaseSegment):
     type = 'select_target_group'
     match_grammar = GreedyUntil(KeywordSegment.make('from'))
     # We should edit the parse grammar to deal with DISTINCT, ALL or similar
     # parse_grammar = Sequence(GreedyUntil(KeywordSegment.make('from')))
+
+
+class JoinClauseSegment(BaseSegment):
+    type = 'join_clause'
+    match_grammar = OneOf(
+        # Types of join clause
+
+        # Old School Comma style clause
+        Sequence(
+            CommaSegment,
+            TableExpressionSegment
+        ),
+
+        # New style Join clauses
+        Sequence(
+            # NB These qualifiers are optional
+            AnyNumberOf(
+                KeywordSegment.make('inner'),
+                KeywordSegment.make('left'),
+                KeywordSegment.make('cross'),
+                max_times=1
+            ),
+            KeywordSegment.make('join'),
+            TableExpressionSegment,
+            # NB: this is optional
+            AnyNumberOf(
+                # ON clause
+                Sequence(
+                    KeywordSegment.make('on'),
+                    Bracketed(
+                        # This is the lazy option for now...
+                        GreedyUntil(
+                            KeywordSegment.make('foobar')
+                        )
+                    )
+                ),
+                # USING clause
+                Sequence(
+                    KeywordSegment.make('using'),
+                    Bracketed(IdentifierSegment)
+                ),
+                max_times=1
+            )
+        )
+    )
 
 
 class FromClauseSegment(BaseSegment):
@@ -93,13 +148,9 @@ class FromClauseSegment(BaseSegment):
     )
     parse_grammar = Sequence(
         KeywordSegment.make('from'),
-        Delimited(
-            OneOf(
-                AliasedObjectNameSegment,
-                ObjectNameSegment
-            ),
-            delimiter=CommaSegment,
-            terminator=KeywordSegment.make('order')
+        TableExpressionSegment,
+        AnyNumberOf(
+            JoinClauseSegment
         )
     )
 

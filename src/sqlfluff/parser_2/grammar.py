@@ -179,7 +179,6 @@ class OneOf(BaseGrammar):
     """ Match any of the elements given once, if it matches
     multiple, it returns the first """
     def match(self, segments, match_depth=0, parse_depth=0, verbosity=0):
-        logging.debug("MATCH: {0}".format(self))
         # Match on each of the options
         matches = []
         for opt in self._elements:
@@ -201,6 +200,63 @@ class OneOf(BaseGrammar):
 
     def expected_string(self):
         return " | ".join([opt.expected_string() for opt in self._elements])
+
+
+class AnyNumberOf(BaseGrammar):
+    """ A more configurable version of OneOf """
+    def __init__(self, *args, **kwargs):
+        self.max_times = kwargs.pop('max_times', None)
+        self.min_times = kwargs.pop('min_times', 0)
+        super(AnyNumberOf, self).__init__(*args, **kwargs)
+
+    def match(self, segments, match_depth=0, parse_depth=0, verbosity=0):
+        # Match on each of the options
+        matched_segments = MatchResult.from_empty()
+        unmatched_segments = segments
+        n_matches = 0
+        while True:
+            if self.max_times and n_matches >= self.max_times:
+                # We've matched as many times as we can
+                return MatchResult(matched_segments.matched_segments, unmatched_segments)
+
+            # Is there anything left to match?
+            if len(unmatched_segments) == 0:
+                # No...
+                if n_matches >= self.min_times:
+                    return MatchResult(matched_segments.matched_segments, unmatched_segments)
+                else:
+                    # We didn't meet the hurdle
+                    return MatchResult.from_unmatched(unmatched_segments)
+
+            # Is the next segment code?
+            if self.code_only and not unmatched_segments[0].is_code:
+                # We should add this one to the match and carry on
+                matched_segments += unmatched_segments[0],
+                unmatched_segments = unmatched_segments[1:]
+                check_still_complete(segments, matched_segments.matched_segments, unmatched_segments)
+                continue
+
+            # Try the possibilities
+            for opt in self._elements:
+                m = opt._match(unmatched_segments, match_depth=match_depth + 1,
+                               parse_depth=parse_depth, verbosity=verbosity)
+                if m.has_match():
+                    matched_segments += m.matched_segments
+                    unmatched_segments = m.unmatched_segments
+                    n_matches += 1
+                    continue
+
+            # If we get here, then we've not managed to match. And the next
+            # unmatched segments are meaningful.
+            if n_matches >= self.min_times:
+                return MatchResult(matched_segments.matched_segments, unmatched_segments)
+            else:
+                # We didn't meet the hurdle
+                return MatchResult.from_unmatched(unmatched_segments)
+
+    def expected_string(self):
+        # TODO: Make something nice here
+        return " !!TODO!! "
 
 
 class GreedyUntil(BaseGrammar):
@@ -757,8 +813,8 @@ class Bracketed(BaseGrammar):
 
             # If we get here it's not an opening bracket or a closing bracket
             # so we should carry on our merry way
-            matched_segs += unmatched_segs[0]
-            content_segments += unmatched_segs[0]
+            matched_segs += unmatched_segs[0],
+            content_segments += unmatched_segs[0],
             unmatched_segs = unmatched_segs[1:]
 
         # If we get to here then we've found our closing bracket.
