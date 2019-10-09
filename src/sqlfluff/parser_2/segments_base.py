@@ -19,7 +19,7 @@ from six import StringIO
 from .match import MatchResult, curtail_string, join_segments_raw
 
 
-def verbosity_logger(msg, verbosity=0, level='info', v_level=2):
+def verbosity_logger(msg, verbosity=0, level='info', v_level=3):
     if verbosity >= v_level:
         print(msg)
     else:
@@ -309,7 +309,7 @@ class BaseSegment(object):
         verbosity_logger(
             "[PD:{0} MD:{1}] {2}._match IN [ls={3}]".format(parse_depth, match_depth, cls.__name__, len(segments)),
             verbosity=verbosity,
-            v_level=3)
+            v_level=4)
         if isinstance(segments, BaseSegment):
             segments = segments,  # Make into a tuple for compatability
         if not isinstance(segments, tuple):
@@ -327,7 +327,7 @@ class BaseSegment(object):
         verbosity_logger(
             "[PD:{0} MD:{1}] {2}._match OUT [m={3}]".format(parse_depth, match_depth, cls.__name__, m),
             verbosity=verbosity,
-            v_level=3)
+            v_level=4)
         # Basic Validation
         check_still_complete(segments, m.matched_segments, m.unmatched_segments)
         return m
