@@ -12,8 +12,6 @@ Seperate out the matchResult class into a seperate module
 ## Notes
 
 ### Development (Now)
-- deal with joins
-  - Use `sqlfluff lint test/fixtures/cli/passing_b.sql -vv` for testing
 - deal with insert statements
 - add some sensible matchers for the lower level building blocks (like identifiers)
   so that we reduce how deep the parser goes for certain things.

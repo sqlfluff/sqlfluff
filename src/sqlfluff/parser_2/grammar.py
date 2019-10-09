@@ -187,12 +187,13 @@ class OneOf(BaseGrammar):
             m = MatchResult.unify(m)
             matches.append(m)
 
-        if sum([1 if m.has_match() else 0 for m in matches]) > 1:
-            logging.warning("WARNING! Ambiguous match!")
-        else:
-            logging.debug(matches)
+        # if sum([1 if m.has_match() else 0 for m in matches]) > 1:
+        #     logging.warning("WARNING! Ambiguous match!")
+        # else:
+        #     logging.debug(matches)
 
         for m in matches:
+            # Pick the first match.
             if m.has_match():
                 return m
         else:
@@ -244,15 +245,17 @@ class AnyNumberOf(BaseGrammar):
                     matched_segments += m.matched_segments
                     unmatched_segments = m.unmatched_segments
                     n_matches += 1
-                    continue
-
-            # If we get here, then we've not managed to match. And the next
-            # unmatched segments are meaningful.
-            if n_matches >= self.min_times:
-                return MatchResult(matched_segments.matched_segments, unmatched_segments)
+                    # Break out of the for loop which cycles us round
+                    break
             else:
-                # We didn't meet the hurdle
-                return MatchResult.from_unmatched(unmatched_segments)
+                # If we get here, then we've not managed to match. And the next
+                # unmatched segments are meaningful, i.e. they're not what we're
+                # looking for.
+                if n_matches >= self.min_times:
+                    return MatchResult(matched_segments.matched_segments, unmatched_segments)
+                else:
+                    # We didn't meet the hurdle
+                    return MatchResult.from_unmatched(unmatched_segments)
 
     def expected_string(self):
         # TODO: Make something nice here

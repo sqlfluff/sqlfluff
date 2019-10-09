@@ -108,7 +108,8 @@ class JoinClauseSegment(BaseSegment):
                 KeywordSegment.make('inner'),
                 KeywordSegment.make('left'),
                 KeywordSegment.make('cross'),
-                max_times=1
+                max_times=1,
+                optional=True
             ),
             KeywordSegment.make('join'),
             TableExpressionSegment,

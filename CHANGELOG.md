@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Both `Bracketed` and `Delimited` respect bracket counting.
   - MASSIVE rewrite of `Bracketed`.
 - Grammars now have timers.
+- Joins properly parsing,
 - Rewrite of logging to selectively output commands at different levels
   of verbosity. This uses the `verbosity_logger` method.
 - Added a command line `sqlfluff parse` option which runs just the parsing step
