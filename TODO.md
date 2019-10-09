@@ -13,12 +13,12 @@ Seperate out the matchResult class into a seperate module
 
 ### Development (Now)
 - deal with insert statements
-- add some sensible matchers for the lower level building blocks (like identifiers)
-  so that we reduce how deep the parser goes for certain things.
 - Fix all the now-failing tests
+- Implement proper matching for join conditions
 ### Development (Next)
 - Implement config parsing from comment segments
 - Implement some basic linting for:
+  - Most of the original linting rules
   - consistent capitalisation of keywords
   - consistent capitalisation for unquoted identifiers
 - Implement singleton matching for `::`, `:` and `||`. For the first two allow these
