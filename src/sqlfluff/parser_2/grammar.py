@@ -675,15 +675,21 @@ class Bracketed(BaseGrammar):
         #    If we never find it's partner then we return an empty match but should probably
         #    log a parsing warning, or error?
 
-        seg_idx = 0
+        sub_bracket_count = 0
+        pre_content_segments = tuple()
+        unmatched_segs = segments
+        matched_segs = tuple()
+        current_bracket_segment = None
 
         # Step 1. Find the first useful segment
         # Work through to find the first code segment...
         if self.code_only:
             for idx, seg in enumerate(segments):
                 if seg.is_code:
-                    seg_idx = idx
                     break
+                else:
+                    matched_segs += seg,
+                    unmatched_segs = unmatched_segs[1:]
             else:
                 # We've trying to match on a sequence of segments which contain no code.
                 # That means this isn't a match.
@@ -691,67 +697,73 @@ class Bracketed(BaseGrammar):
 
         # is it a bracket?
         m = self.start_bracket._match(
-            segments=segments[seg_idx:], match_depth=match_depth + 1,
+            segments=unmatched_segs, match_depth=match_depth + 1,
             parse_depth=parse_depth, verbosity=verbosity)
 
         if m.has_match():
             # We've got the first bracket.
             # Update the seg_idx by the length of the match
-            start_bracket_idx = seg_idx
-            seg_idx += len(m)
+            current_bracket_segment = m.matched_segments[0]
+            # No indexing to allow mutation
+            matched_segs += m.matched_segments
+            unmatched_segs = m.unmatched_segments
         else:
             # Whatever we have, it doesn't start with a bracket.
             return MatchResult.from_unmatched(segments)
 
         # Step 2: Bracket count forward to find it's pair
-        content_start_idx = seg_idx  # Keep track of where the content starts
-        sub_bracket_count = 0
+        content_segments = tuple()
+        pre_content_segments = matched_segs
 
         while True:
             # Are we at the end of the sequence?
-            if len(segments[seg_idx:]) == 0:
+            if len(unmatched_segs) == 0:
                 # We've got to the end without finding the closing bracket
                 # this isn't just parsing issue this is probably a syntax
                 # error.
                 # TODO: Format this better
                 raise SQLParseError(
                     "Couldn't find closing bracket for opening bracket.",
-                    segment=segments[start_bracket_idx])
+                    segment=current_bracket_segment)
 
             # Is it a closing bracket?
             m = self.end_bracket._match(
-                segments=segments[seg_idx:], match_depth=match_depth + 1,
+                segments=unmatched_segs, match_depth=match_depth + 1,
                 parse_depth=parse_depth, verbosity=verbosity)
             if m.has_match():
                 if sub_bracket_count == 0:
                     # We're back to the bracket pair!
-                    content_end_idx = seg_idx
-                    remainder_start_idx = seg_idx + len(m)
+                    matched_segs += m.matched_segments
+                    unmatched_segs = m.unmatched_segments
+                    closing_bracket_segs = m.matched_segments
                     break
                 else:
                     # reduce the bracket count and then advance the counter.
                     sub_bracket_count -= 1
-                    seg_idx += len(m)
+                    matched_segs += m.matched_segments
+                    unmatched_segs = m.unmatched_segments
                     continue
 
             # Is it an opening bracket?
             m = self.start_bracket._match(
-                segments=segments[seg_idx:], match_depth=match_depth + 1,
+                segments=unmatched_segs, match_depth=match_depth + 1,
                 parse_depth=parse_depth, verbosity=verbosity)
             if m.has_match():
                 # increment the open bracket counter and proceed
                 sub_bracket_count += 1
-                seg_idx += len(m)
+                matched_segs += m.matched_segments
+                unmatched_segs = m.unmatched_segments
                 continue
 
             # If we get here it's not an opening bracket or a closing bracket
             # so we should carry on our merry way
-            seg_idx += 1
+            matched_segs += unmatched_segs[0]
+            content_segments += unmatched_segs[0]
+            unmatched_segs = unmatched_segs[1:]
 
         # If we get to here then we've found our closing bracket.
         # Let's identify the section to match for our content matchers
         # and then try it against each of them.
-        content_segments = segments[content_start_idx:content_end_idx]
 
         for elem in self._elements:
             elem_match = elem._match(
@@ -762,10 +774,10 @@ class Bracketed(BaseGrammar):
             if elem_match.is_complete():
                 # We're also returning the *mutated* versions from the sub-matcher
                 return MatchResult(
-                    segments[:content_start_idx]
+                    pre_content_segments
                     + elem_match.matched_segments
-                    + segments[content_end_idx:remainder_start_idx],
-                    segments[remainder_start_idx:])
+                    + closing_bracket_segs,
+                    unmatched_segs)
             else:
                 # Not matched this element, move on.
                 # NB, a partial match here isn't helpful. We're matching
