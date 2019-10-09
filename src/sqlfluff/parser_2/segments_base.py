@@ -16,7 +16,7 @@ These are the fundamental building blocks.
 import logging
 from six import StringIO
 
-from .match import MatchResult, curtail_string
+from .match import MatchResult, curtail_string, join_segments_raw
 
 
 def verbosity_logger(msg, verbosity=0, level='info', v_level=2):
@@ -29,6 +29,17 @@ def verbosity_logger(msg, verbosity=0, level='info', v_level=2):
 
 def frame_msg(msg):
     return "###\n#\n# {0}\n#\n###".format(msg)
+
+
+def check_still_complete(segments_in, matched_segments, unmatched_segments):
+            initial_str = join_segments_raw(segments_in)
+            current_str = join_segments_raw(
+                matched_segments + unmatched_segments
+            )
+            if initial_str != current_str:
+                raise RuntimeError(
+                    "Dropped elements in sequence matching! {0!r} != {1!r}".format(
+                        initial_str, current_str))
 
 
 class BaseSegment(object):
@@ -154,8 +165,20 @@ class BaseSegment(object):
                     parse_depth, self.__class__.__name__))
             raise err
 
+        # Basic Validation, that we haven't dropped anything.
+        check_still_complete(self.segments, m.matched_segments, m.unmatched_segments)
+
         if m.has_match():
-            self.segments = m.matched_segments
+            if m.is_complete():
+                # Complete match, happy days!
+                self.segments = m.matched_segments
+            else:
+                # Incomplete match.
+                # For now this means the parsing has failed. Lets add the unmatched bit at the
+                # end as something unparsable.
+                # TODO: Do something more intelligent here.
+                self.segments = m.matched_segments + (UnparsableSegment(
+                    segments=m.unmatched_segments, expected="Nothing..."),)
         else:
             # If there's no match at this stage, then it's unparsable. That's
             # a problem at this stage so wrap it in an unparable segment and carry on.
@@ -276,7 +299,7 @@ class BaseSegment(object):
             if m.has_match():
                 return MatchResult((cls(segments=m.matched_segments),), m.unmatched_segments)
             else:
-                return MatchResult.from_empty()
+                return MatchResult.from_unmatched(segments)
         else:
             raise NotImplementedError("{0} has no match function implemented".format(cls.__name__))
 
@@ -287,7 +310,9 @@ class BaseSegment(object):
             "[PD:{0} MD:{1}] {2}._match IN [ls={3}]".format(parse_depth, match_depth, cls.__name__, len(segments)),
             verbosity=verbosity,
             v_level=3)
-        if not isinstance(segments, (tuple, BaseSegment)):
+        if isinstance(segments, BaseSegment):
+            segments = segments,  # Make into a tuple for compatability
+        if not isinstance(segments, tuple):
             logging.warning(
                 "{0}.match, was passed {1} rather than tuple or segment".format(
                     cls.__name__, type(segments)))
@@ -303,6 +328,8 @@ class BaseSegment(object):
             "[PD:{0} MD:{1}] {2}._match OUT [m={3}]".format(parse_depth, match_depth, cls.__name__, m),
             verbosity=verbosity,
             v_level=3)
+        # Basic Validation
+        check_still_complete(segments, m.matched_segments, m.unmatched_segments)
         return m
 
     @staticmethod
@@ -330,6 +357,8 @@ class BaseSegment(object):
             else:
                 # We might get back an iterable of segments
                 segs += tuple(res)
+        # Basic Validation
+        check_still_complete(segments, segs, tuple())
         return segs
 
     def raw_list(self):

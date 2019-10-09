@@ -1,11 +1,11 @@
 """ Definitions for Grammar """
 import logging
-import time
 
-from .segments_base import BaseSegment, verbosity_logger
+from .segments_base import BaseSegment, verbosity_logger, check_still_complete
 from .segments_common import KeywordSegment
 from .match import MatchResult, join_segments_raw_curtailed
 from ..errors import SQLParseError
+from ..helpers import get_time
 
 
 class BaseGrammar(object):
@@ -43,14 +43,16 @@ class BaseGrammar(object):
 
     def _match(self, segments, match_depth=0, parse_depth=0, verbosity=0):
         """ A wrapper on the match function to do some basic validation """
-        t0 = time.monotonic()
+        t0 = get_time()
         # Work out the raw representation and curtail if long
         verbosity_logger(
             "[PD:{0} MD:{1}] {2}._match IN [ls={3}, seg={4!r}]".format(
                 parse_depth, match_depth, self.__class__.__name__, len(segments),
                 join_segments_raw_curtailed(segments)),
             verbosity)
-        if not isinstance(segments, (tuple, BaseSegment)):
+        if isinstance(segments, BaseSegment):
+            segments = segments,  # Make into a tuple for compatability
+        if not isinstance(segments, tuple):
             logging.warning(
                 "{0}.match, was passed {1} rather than tuple or segment".format(
                     self.__class__.__name__, type(segments)))
@@ -62,10 +64,12 @@ class BaseGrammar(object):
             logging.warning(
                 "{0}.match, returned {1} rather than MatchResult".format(
                     self.__class__.__name__, type(m)))
-        dt = time.monotonic() - t0
+        dt = get_time() - t0
         verbosity_logger(
             "[PD:{0} MD:{1}] {2}._match OUT [dt={3:.3f}, m={4}]".format(parse_depth, match_depth, self.__class__.__name__, dt, m),
             verbosity)
+        # Basic Validation
+        check_still_complete(segments, m.matched_segments, m.unmatched_segments)
         return m
 
     def expected_string(self):
@@ -140,16 +144,6 @@ class Sequence(BaseGrammar):
         matched_segments = MatchResult.from_empty()
         unmatched_segments = segments
 
-        def check_still_complete():
-            initial_str = join_segments_raw_curtailed(segments)
-            current_str = join_segments_raw_curtailed(
-                matched_segments.matched_segments + unmatched_segments
-            )
-            if initial_str != current_str:
-                raise RuntimeError(
-                    "Dropped elements in sequence matching! {0!r} != {1!r}".format(
-                        initial_str, current_str))
-
         for idx, elem in enumerate(self._elements):
             while True:
                 if len(unmatched_segments) == 0:
@@ -169,7 +163,7 @@ class Sequence(BaseGrammar):
                         # We should add this one to the match and carry on
                         matched_segments += unmatched_segments[0],
                         unmatched_segments = unmatched_segments[1:]
-                        check_still_complete()
+                        check_still_complete(segments, matched_segments.matched_segments, unmatched_segments)
                         continue
 
                     # It's not whitespace, so carry on to matching
@@ -184,7 +178,7 @@ class Sequence(BaseGrammar):
                         unmatched_segments = elem_match.unmatched_segments
                         # Each time we do this, we do a sense check to make sure we haven't
                         # dropped anything. (Because it's happened before!).
-                        check_still_complete()
+                        check_still_complete(segments, matched_segments.matched_segments, unmatched_segments)
 
                         # Break out of the while loop and move to the next element.
                         break
@@ -202,7 +196,20 @@ class Sequence(BaseGrammar):
             # If we get to here, we've matched all of the elements (or skipped them)
             # but still have some segments left (or perhaps have precisely zero left).
             # In either case, we're golden. Return successfully, with any leftovers as
-            # the unmatched elements.
+            # the unmatched elements. UNLESS they're whitespace and we should be greedy.
+            if self.code_only:
+                while True:
+                    if len(unmatched_segments) == 0:
+                        break
+                    elif not unmatched_segments[0].is_code:
+                        # We should add this one to the match and carry on
+                        matched_segments += unmatched_segments[0],
+                        unmatched_segments = unmatched_segments[1:]
+                        check_still_complete(segments, matched_segments.matched_segments, unmatched_segments)
+                        continue
+                    else:
+                        break
+
             return MatchResult(matched_segments.matched_segments, unmatched_segments)
 
     def expected_string(self):
@@ -450,7 +457,7 @@ class ContainsOnly(BaseGrammar):
                 # Found a segment which doesn't match, this means
                 # we fail the whole grammar because it doesn't just
                 # contain only the given elements.
-                return MatchResult.from_empty()
+                return MatchResult.from_unmatched(segments)
         else:
             return seg_buffer
 

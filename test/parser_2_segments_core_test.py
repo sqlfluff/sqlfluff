@@ -18,6 +18,10 @@ def raw_seg_list():
         RawSegment(
             'foo',
             FilePositionMarker.from_fresh().advance_by('bar')
+        ),
+        RawSegment(
+            'bar',
+            FilePositionMarker.from_fresh().advance_by('barfoo')
         )
     ]
 
@@ -31,18 +35,17 @@ def test__parser_2__core_keyword(raw_seg_list):
     assert FooKeyword.__name__ == "FOO_KeywordSegment"
     assert FooKeyword._template == 'FOO'
     # Match it against a list and check it doesn't match
-    assert FooKeyword.match(raw_seg_list) is None
+    assert not FooKeyword.match(raw_seg_list)
     # Match it against a the first element and check it doesn't match
-    assert FooKeyword.match(raw_seg_list[0]) is None
+    assert not FooKeyword.match(raw_seg_list[0])
     # Match it against a the first element as a list and check it doesn't match
-    assert FooKeyword.match([raw_seg_list[0]]) is None
+    assert not FooKeyword.match([raw_seg_list[0]])
     # Match it against the final element (returns tuple)
-    assert FooKeyword.match(raw_seg_list[1]) == (FooKeyword(
-        'foo',
-        FilePositionMarker.from_fresh().advance_by('bar')
-    ),)
-    # Match it against the final element as a list (returns tuple)
-    assert FooKeyword.match([raw_seg_list[1]]) == (FooKeyword(
-        'foo',
-        FilePositionMarker.from_fresh().advance_by('bar')
-    ),)
+    m = FooKeyword.match(raw_seg_list[1])
+    assert m
+    assert m.matched_segments[0].raw == 'foo'
+    assert isinstance(m.matched_segments[0], FooKeyword)
+    # Match it against the final element as a list
+    assert FooKeyword.match([raw_seg_list[1]])
+    # Match it against a list slice and check it still works
+    assert FooKeyword.match(raw_seg_list[1:])

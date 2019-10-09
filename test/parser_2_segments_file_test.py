@@ -157,7 +157,29 @@ def test__parser_2__base_file_parse(raw, caplog):
         # WITH SQL Statements
         (
             "WITH cte as (select a from tbla)\nselect a from cte",
-            ('file', ('blorp'))
+            ('file',
+             (('statement',
+               (('with_compound_statement',
+                 (('keyword', 'WITH'),
+                  ('table_expression',
+                   (('identifier', (('naked_identifier', 'cte'),)),)),
+                  ('keyword', 'as'),
+                  ('raw', '('),
+                  ('select_statement',
+                   (('keyword', 'select'),
+                    ('select_target_group', (('raw', 'a'),)),
+                    ('from_clause',
+                     (('keyword', 'from'),
+                      ('table_expression',
+                       (('identifier', (('naked_identifier', 'tbla'),)),)))))),
+                  ('raw', ')'),
+                  ('select_statement',
+                   (('keyword', 'select'),
+                    ('select_target_group', (('raw', 'a'),)),
+                    ('from_clause',
+                     (('keyword', 'from'),
+                      ('table_expression',
+                       (('identifier', (('naked_identifier', 'cte'),)),)))))))),)),))
         )
     ]
 )

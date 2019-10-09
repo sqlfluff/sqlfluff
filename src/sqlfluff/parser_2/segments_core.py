@@ -37,8 +37,13 @@ NumericLiteralSegment = NamedSegment.make('numeric_literal', name='Literal', typ
 
 class IdentifierSegment(BaseSegment):
     type = 'identifier'
+    match_grammar = OneOf(NakedIdentifierSegment, QuotedIdentifierSegment)
+
+
+class QualifiedIdentifierSegment(BaseSegment):
+    type = 'identifier'
     match_grammar = Delimited(
-        OneOf(NakedIdentifierSegment, QuotedIdentifierSegment),
+        IdentifierSegment,
         delimiter=DotSegment,
         code_only=False,
     )
@@ -62,6 +67,12 @@ class ObjectNameSegment(BaseSegment):
     match_grammar = Delimited(IdentifierSegment, delimiter=DotSegment, code_only=False)
 
 
+class AliasedObjectNameSegment(BaseSegment):
+    type = 'table_expression'
+    # match grammar (don't allow whitespace)
+    match_grammar = Sequence(ObjectNameSegment, KeywordSegment.make('as'), IdentifierSegment)
+
+
 class SelectTargetGroupStatementSegment(BaseSegment):
     type = 'select_target_group'
     match_grammar = GreedyUntil(KeywordSegment.make('from'))
@@ -71,7 +82,14 @@ class SelectTargetGroupStatementSegment(BaseSegment):
 
 class FromClauseSegment(BaseSegment):
     type = 'from_clause'
-    match_grammar = Sequence(KeywordSegment.make('from'), Delimited(ObjectNameSegment, delimiter=CommaSegment))
+    match_grammar = Sequence(
+        KeywordSegment.make('from'),
+        Delimited(
+            OneOf(
+                AliasedObjectNameSegment,
+                ObjectNameSegment
+            ),
+            delimiter=CommaSegment))
 
 
 class ValuesClauseSegment(BaseSegment):

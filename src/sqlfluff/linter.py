@@ -3,7 +3,6 @@
 import os
 from collections import namedtuple
 import itertools
-import time
 
 from six import StringIO
 
@@ -14,6 +13,7 @@ from .parser_2.segments_base import verbosity_logger, frame_msg
 from .errors import SQLParseError, SQLLexError
 
 from .rules_2.crawler import L009
+from .helpers import get_time
 
 
 class FixResult(namedtuple('ProtoFix', ['violation', 'success', 'detail'])):
@@ -253,7 +253,7 @@ class Linter(object):
 
     def parse_file(self, f, fname=None, verbosity=0, recurse=True):
         violations = []
-        t0 = time.monotonic()
+        t0 = get_time()
 
         verbosity_logger("LEXING RAW ({0})".format(fname), verbosity=verbosity)
         # Lex the file and log any problems
@@ -264,7 +264,7 @@ class Linter(object):
             fs = None
         verbosity_logger(fs.stringify(), verbosity=verbosity)
 
-        t1 = time.monotonic()
+        t1 = get_time()
         verbosity_logger("PARSING ({0})".format(fname), verbosity=verbosity)
         # Parse the file and log any problems
         if fs:
@@ -279,7 +279,7 @@ class Linter(object):
         else:
             parsed = None
 
-        t2 = time.monotonic()
+        t2 = get_time()
         time_dict = {'lexing': t1 - t0, 'parsing': t2 - t1}
 
         return parsed, violations, time_dict
@@ -310,7 +310,7 @@ class Linter(object):
                 print("Found unparsable segment...")
                 print(unparsable.stringify())
 
-        t0 = time.monotonic()
+        t0 = get_time()
         # At this point we should evaluate whether any parsing errors have occured
         if verbosity >= 2:
             print("LINTING ({0})".format(fname))
@@ -320,7 +320,7 @@ class Linter(object):
             linting_errors += crawler.crawl(parsed)
 
         # Update the timing dict
-        t1 = time.monotonic()
+        t1 = get_time()
         time_dict['linting'] = t1 - t0
 
         vs += linting_errors
