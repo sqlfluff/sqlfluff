@@ -17,7 +17,6 @@ Seperate out the matchResult class into a seperate module
 - add some sensible matchers for the lower level building blocks (like identifiers)
   so that we reduce how deep the parser goes for certain things.
 - Fix all the now-failing tests
-- When brackets are matched as raw, they are mutated
 ### Development (Next)
 - Implement config parsing from comment segments
 - Implement some basic linting for:
