@@ -78,6 +78,102 @@ class BaseGrammar(object):
             "{0} does not implement expected_string!".format(
                 self.__class__.__name__))
 
+    @staticmethod
+    def bracket_sensitive_forward_match(segments, start_bracket, end_bracket,
+                                        match_depth, parse_depth, verbosity,
+                                        terminator=None, target=None):
+        sub_bracket_count = 0
+        unmatched_segs = segments
+        matched_segs = tuple()
+        current_bracket_segment = None
+
+        while True:
+            # Are we at the end of the sequence?
+            if len(unmatched_segs) == 0:
+                # Yes we're at the end
+
+                # Are we in a bracket counting cycle that hasn't finished yet?
+                if sub_bracket_count > 0:
+                    # TODO: Format this better
+                    raise SQLParseError(
+                        "Couldn't find closing bracket for opening bracket.",
+                        segment=current_bracket_segment)
+
+                # TODO: Do something more intelligent here...
+                # Currently we just behave like we hit a terminator
+                return MatchResult(matched_segs, unmatched_segs)
+
+            else:
+                # Are we in a bracket cycle?
+                if sub_bracket_count > 0:
+                    # Yes we're in a bracket cycle. Ignore the other considerations.
+
+                    # Is it another bracket entry?
+                    bracket_match = start_bracket._match(
+                        segments=unmatched_segs, match_depth=match_depth + 1,
+                        parse_depth=parse_depth, verbosity=verbosity)
+                    if bracket_match.has_match():
+                        # increment the open bracket counter and proceed
+                        sub_bracket_count += 1
+                        # Not using indexing here allows the segments to mutate
+                        matched_segs += bracket_match.matched_segments
+                        unmatched_segs = bracket_match.unmatched_segments
+                        continue
+
+                    # Is it a closing bracket?
+                    bracket_match = end_bracket._match(
+                        segments=unmatched_segs, match_depth=match_depth + 1,
+                        parse_depth=parse_depth, verbosity=verbosity)
+                    if bracket_match.has_match():
+                        # reduce the bracket count and then advance the counter.
+                        sub_bracket_count -= 1
+                        # Not using indexing here allows the segments to mutate
+                        matched_segs += bracket_match.matched_segments
+                        unmatched_segs = bracket_match.unmatched_segments
+                        continue
+
+                else:
+                    # No we're not in a bracket cycle.
+                    # Here we can either start a bracket cycle, find a target or find a terminator.
+
+                    # First look for a target if there is one.
+                    if target:
+                        target_match = target._match(
+                            unmatched_segs, match_depth=match_depth + 1,
+                            parse_depth=parse_depth, verbosity=verbosity)
+                        # Doesn't have to match fully, just has to give us a delimiter.
+                        if target_match.has_match():
+                            raise NotImplementedError("Still need to do this bit - maybe a callback")
+                    # Look for a terminator if there is one.
+                    if terminator:
+                        terminator_match = terminator._match(
+                            unmatched_segs, match_depth=match_depth + 1,
+                            parse_depth=parse_depth, verbosity=verbosity)
+                        # Doesn't have to match fully, just has to give us a delimiter.
+                        if terminator_match.has_match():
+                            # we've found a terminator.
+                            # TODO: We might need some kind of callback here to deal with the delimiter case
+                            return MatchResult(matched_segs, unmatched_segs)
+                    # Look for the start of a new bracket sequence
+                    bracket_match = start_bracket._match(
+                        segments=unmatched_segs, match_depth=match_depth + 1,
+                        parse_depth=parse_depth, verbosity=verbosity)
+                    if bracket_match.has_match():
+                        # increment the open bracket counter and proceed
+                        sub_bracket_count += 1
+                        # Keep track of this segment for error reporting
+                        current_bracket_segment = bracket_match.matched_segments[0]
+                        # Not using indexing here allows the segments to mutate
+                        matched_segs += bracket_match.matched_segments
+                        unmatched_segs = bracket_match.unmatched_segments
+                        continue
+                # Move onward. For the moment we're not fussy about what's in between
+                # as we're just looking for terminators or targets.
+                # TODO: configure this to allow rules around what can be here.
+                # For now, just assume if we've not matched it then it's good.
+                matched_segs += unmatched_segs[0],  # as tuple
+                unmatched_segs = unmatched_segs[1:]
+
 
 class OneOf(BaseGrammar):
     """ Match any of the elements given once, if it matches
@@ -476,6 +572,16 @@ class StartsWith(BaseGrammar):
     whitespace and comment handling """
     def __init__(self, target, *args, **kwargs):
         self.target = target
+        self.terminator = kwargs.pop('terminator', None)
+        # TODO: Maybe these bracket keywords should be defined somewhere else.
+        self.start_bracket = kwargs.pop(
+            'start_bracket',
+            KeywordSegment.make('(', name='start_bracket', type='start_bracket')
+        )
+        self.end_bracket = kwargs.pop(
+            'end_bracket',
+            KeywordSegment.make(')', name='end_bracket', type='end_bracket')
+        )
         super(StartsWith, self).__init__(*args, **kwargs)
 
     def match(self, segments, match_depth=0, parse_depth=0, verbosity=0):
@@ -504,11 +610,35 @@ class StartsWith(BaseGrammar):
                 # NB: This match may be partial or full, either is cool. In the case
                 # of a partial match, given that we're only interested in what it STARTS
                 # with, then we can still used the unmatched parts on the end.
-                # We still need to deal with ano non-code segments at the start.
-                return MatchResult.from_matched(
-                    segments[:first_code_idx]
-                    + match.matched_segments
-                    + match.unmatched_segments)
+                # We still need to deal with any non-code segments at the start.
+                if self.terminator:
+                    # We have an optional terminator. We should only match up to when
+                    # this matches. This should also respect bracket counting.
+                    match_segments = match.matched_segments
+                    trailing_segments = match.unmatched_segments
+
+                    # Given a set of segments, iterate through looking for
+                    # a terminator.
+                    term_match = self.bracket_sensitive_forward_match(
+                        segments=trailing_segments,
+                        start_bracket=self.start_bracket,
+                        end_bracket=self.end_bracket,
+                        match_depth=match_depth,
+                        parse_depth=parse_depth,
+                        verbosity=verbosity,
+                        terminator=self.terminator
+                    )
+                    return MatchResult(
+                        segments[:first_code_idx]
+                        + match_segments
+                        + term_match.matched_segments,
+                        term_match.unmatched_segments,
+                    )
+                else:
+                    return MatchResult.from_matched(
+                        segments[:first_code_idx]
+                        + match.matched_segments
+                        + match.unmatched_segments)
             else:
                 return MatchResult.from_unmatched(segments)
         else:

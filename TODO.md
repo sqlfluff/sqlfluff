@@ -27,6 +27,7 @@ Seperate out the matchResult class into a seperate module
   in identifier matchers.
 - Hook up dialects
 - Add some tests for lots of the new bits (especially rules)
+- Implement a context manager for all the parse and match depth details.
 ### Pre Deployment
 - Remove the TODO file or at least make this tidy before go-live
 - Make a note about changes and limitations in the readme

@@ -82,14 +82,53 @@ class SelectTargetGroupStatementSegment(BaseSegment):
 
 class FromClauseSegment(BaseSegment):
     type = 'from_clause'
-    match_grammar = Sequence(
+    match_grammar = StartsWith(
+        KeywordSegment.make('from'),
+        terminator=OneOf(
+            KeywordSegment.make('limit'),
+            KeywordSegment.make('group'),
+            KeywordSegment.make('order'),
+            KeywordSegment.make('having')
+        )
+    )
+    parse_grammar = Sequence(
         KeywordSegment.make('from'),
         Delimited(
             OneOf(
                 AliasedObjectNameSegment,
                 ObjectNameSegment
             ),
-            delimiter=CommaSegment))
+            delimiter=CommaSegment,
+            terminator=KeywordSegment.make('order')
+        )
+    )
+
+
+class OrderByClauseSegment(BaseSegment):
+    type = 'orderby_clause'
+    match_grammar = StartsWith(
+        KeywordSegment.make('order'),
+        terminator=OneOf(
+            KeywordSegment.make('limit'),
+            KeywordSegment.make('having')
+        )
+    )
+    parse_grammar = Sequence(
+        KeywordSegment.make('order'),
+        KeywordSegment.make('by'),
+        Delimited(
+            Sequence(
+                ObjectNameSegment,
+                OneOf(
+                    KeywordSegment.make('asc'),
+                    KeywordSegment.make('desc'),
+                    optional=True
+                ),
+            ),
+            delimiter=CommaSegment,
+            terminator=KeywordSegment.make('limit')
+        )
+    )
 
 
 class ValuesClauseSegment(BaseSegment):
@@ -120,6 +159,7 @@ class SelectStatementSegment(BaseSegment):
         KeywordSegment.make('select'),
         SelectTargetGroupStatementSegment,
         FromClauseSegment.as_optional(),
+        OrderByClauseSegment.as_optional(),
         # GreedyUntil(KeywordSegment.make('limit'), optional=True)
     )
 
