@@ -146,7 +146,7 @@ class Lexer(object):
         self.matcher = RepeatedMultiMatcher(
             RegexMatcher.from_shorthand("whitespace", r"[\t ]*"),
             RegexMatcher.from_shorthand("inline_comment", r"(-- |#)[^\n]*"),
-            RegexMatcher.from_shorthand("block_comment", r"/\*([^\\]|\\[^\*])*"),
+            RegexMatcher.from_shorthand("block_comment", r"\/\*([^\*]|\*[^\/])*\*\/"),
             RegexMatcher.from_shorthand("single_quote", r"'[^']*'", is_code=True),
             RegexMatcher.from_shorthand("double_quote", r'"[^"]*"', is_code=True),
             RegexMatcher.from_shorthand("back_quote", r"`[^`]*`", is_code=True),

@@ -32,14 +32,14 @@ def frame_msg(msg):
 
 
 def check_still_complete(segments_in, matched_segments, unmatched_segments):
-            initial_str = join_segments_raw(segments_in)
-            current_str = join_segments_raw(
-                matched_segments + unmatched_segments
-            )
-            if initial_str != current_str:
-                raise RuntimeError(
-                    "Dropped elements in sequence matching! {0!r} != {1!r}".format(
-                        initial_str, current_str))
+    initial_str = join_segments_raw(segments_in)
+    current_str = join_segments_raw(
+        matched_segments + unmatched_segments
+    )
+    if initial_str != current_str:
+        raise RuntimeError(
+            "Dropped elements in sequence matching! {0!r} != {1!r}".format(
+                initial_str, current_str))
 
 
 class BaseSegment(object):
