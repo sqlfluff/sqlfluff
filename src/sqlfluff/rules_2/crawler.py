@@ -30,7 +30,7 @@ class BaseCrawler(object):
         # True means that we PASS. False means that we have a problem
         self.evaluate_function = evaluate_function
 
-    def crawl(self, segment, parent_stack=None, siblings_pre=None, siblings_post=None, fix=False):
+    def crawl(self, segment, parent_stack=None, siblings_pre=None, siblings_post=None, raw_stack=None, fix=False):
         # parent stack should be a tuple if it exists
 
         # crawlers, should evalutate on segments FIRST, before evaulating on their
@@ -40,12 +40,14 @@ class BaseCrawler(object):
         # TODO: Work out how to do this!
 
         parent_stack = parent_stack or tuple([])
+        raw_stack = raw_stack or tuple([])
         siblings_post = siblings_post or tuple([])
         siblings_pre = siblings_pre or tuple([])
 
         res = self.evaluate_function(
             segment=segment, parent_stack=parent_stack,
-            siblings_pre=siblings_pre, siblings_post=siblings_post)
+            siblings_pre=siblings_pre, siblings_post=siblings_post,
+            raw_stack=raw_stack)
 
         vs = []
         if isinstance(res, bool) or res is None:
@@ -61,41 +63,18 @@ class BaseCrawler(object):
             else:
                 raise ValueError("Unexpected response from a crawler: {0}".format(res))
 
-        parent_stack = parent_stack + tuple([segment])
+        # The raw stack only keeps track of the previous raw segments
+        if len(segment.segments) == 0:
+            raw_stack += tuple([segment])
+        # Parent stack keeps track of all the parent segments
+        parent_stack += tuple([segment])
+
         for idx, child in enumerate(segment.segments):
-            vs += self.crawl(child, parent_stack=parent_stack,
-                             siblings_pre=segment.segments[:idx], siblings_post=segment.segments[idx + 1:],
-                             fix=fix)
+            dvs, raw_stack = self.crawl(
+                child, parent_stack=parent_stack,
+                siblings_pre=segment.segments[:idx],
+                siblings_post=segment.segments[idx + 1:],
+                raw_stack=raw_stack, fix=fix)
+            vs += dvs
 
-        return vs
-
-
-def L009_eval(segment, siblings_post, parent_stack, **kwargs):
-    """ We only care about the segment and the siblings which come after it
-    for this rule, we discard the others into the kwargs argument """
-    if len(siblings_post) > 0:
-        # This can only fail on the last segment
-        return True
-    elif len(segment.segments) > 0:
-        # This can only fail on the last base segment
-        return True
-    elif segment.raw == '\n':
-        # If this is the last segment, and it's a newline then we're good
-        return True
-    else:
-        # so this looks like the end of the file, but we
-        # need to check that each parent segment is also the last
-        file_len = len(parent_stack[0].raw)
-        pos = segment.pos_marker.char_pos
-        # Does the length of the file, equal the length of the segment plus it's position
-        if file_len != pos + len(segment.raw):
-            return True
-
-    # No return value here is interpreted as a fail.
-
-
-L009 = BaseCrawler(
-    'L009',
-    'Files must end with a trailing newline',
-    evaluate_function=L009_eval
-)
+        return vs, raw_stack

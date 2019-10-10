@@ -12,7 +12,7 @@ from .parser_2.segments_file import FileSegment
 from .parser_2.segments_base import verbosity_logger, frame_msg
 from .errors import SQLParseError, SQLLexError
 
-from .rules_2.crawler import L009
+from .rules_2.std import standard_rule_set
 from .helpers import get_time
 
 
@@ -241,7 +241,7 @@ class Linter(object):
         A way of getting hold of a set of rules.
         We should probably extend this later for differing rules.
         """
-        return [L009]
+        return standard_rule_set
 
     def rule_tuples(self):
         """ A simple pass through to access the rule tuples of the rule set """
@@ -316,8 +316,9 @@ class Linter(object):
             print("LINTING ({0})".format(fname))
         # NOW APPLY EACH LINTER
         linting_errors = []
-        for crawler in [L009]:
-            linting_errors += crawler.crawl(parsed)
+        for crawler in self.get_ruleset():
+            lerrs, _ = crawler.crawl(parsed)
+            linting_errors += lerrs
 
         # Update the timing dict
         t1 = get_time()
