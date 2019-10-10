@@ -127,10 +127,10 @@ def test__parser_2__grammar_delimited(caplog):
         assert gt.match(seg_list[:4]) is not None
         # Matching up to 'bar' should
         logging.info("#### TEST 3")
-        assert g.match(seg_list[:5]) == expectation[:5]
+        assert g.match(seg_list[:5]).matched_segments == expectation[:5]
         # Matching the full list ALSO should, because it's just whitespace
         logging.info("#### TEST 4")
-        assert g.match(seg_list) == expectation
+        assert g.match(seg_list).matched_segments == expectation
 
 
 def test__parser_2__grammar_delimited_not_code_only(caplog):
@@ -161,11 +161,9 @@ def test__parser_2__grammar_greedyuntil(seg_list):
     # Greedy matching until the first item should return none
     assert not g0.match(seg_list)
     # Greedy matching up to foo should return bar (as a raw!)
-    assert not g1.match(seg_list)
-    assert g1.match(seg_list[:2]) == seg_list[:2]
+    assert g1.match(seg_list).matched_segments == seg_list[:2]
     # Greedy matching up to baar should return bar, foo  (as a raw!)
-    assert not g2.match(seg_list)
-    assert g2.match(seg_list[:3]) == seg_list[:3]
+    assert g2.match(seg_list).matched_segments == seg_list[:3]
 
 
 def test__parser_2__grammar_containsonly(seg_list):
@@ -181,7 +179,7 @@ def test__parser_2__grammar_containsonly(seg_list):
     # Contains only, with just the type should return the list as is
     assert g1.match(seg_list) == seg_list
     # Contains only with matches for all should, as the matched versions
-    assert g2.match(seg_list) == (
+    assert g2.match(seg_list).matched_segments == (
         bs('bar', seg_list[0].pos_marker),
         seg_list[1],  # This will be the whitespace segment
         fs('foo', seg_list[2].pos_marker),

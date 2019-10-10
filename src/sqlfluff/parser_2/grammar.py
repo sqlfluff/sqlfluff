@@ -210,6 +210,11 @@ class AnyNumberOf(BaseGrammar):
         self.min_times = kwargs.pop('min_times', 0)
         super(AnyNumberOf, self).__init__(*args, **kwargs)
 
+    def is_optional(self):
+        # The optional attribute is set in the __init__ method,
+        # But also here, if min_times is zero then this is also optional
+        return self.optional or self.min_times == 0
+
     def match(self, segments, match_depth=0, parse_depth=0, verbosity=0):
         # Match on each of the options
         matched_segments = MatchResult.from_empty()

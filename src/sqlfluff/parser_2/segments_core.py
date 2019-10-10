@@ -151,7 +151,8 @@ class FromClauseSegment(BaseSegment):
         KeywordSegment.make('from'),
         TableExpressionSegment,
         AnyNumberOf(
-            JoinClauseSegment
+            JoinClauseSegment,
+            optional=True
         )
     )
 
