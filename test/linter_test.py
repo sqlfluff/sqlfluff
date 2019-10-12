@@ -37,12 +37,12 @@ def test__linter__lint_file_indentation():
     lnt = lntr.lint_path('test/fixtures/linter/indentation_errors.sql')
     violations = lnt.check_tuples()
     # Check we get the trialing whitespace violation
-    assert ('L001', 4, 23) in violations
+    assert ('L001', 4, 24) in violations
     # Check we get the mixed indentation errors
-    assert ('L002', 3, 0) in violations
-    assert ('L002', 4, 0) in violations
+    assert ('L002', 3, 1) in violations
+    assert ('L002', 4, 1) in violations
     # Check we get the space multiple violations
-    assert ('L003', 3, 0) in violations
+    assert ('L003', 3, 1) in violations
     # Check we get the mixed indentation errors between lines
     assert ('L004', 5, 0) in violations
 

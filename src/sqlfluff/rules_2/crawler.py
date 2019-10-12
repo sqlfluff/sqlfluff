@@ -15,6 +15,7 @@
 from collections import namedtuple
 
 from ..errors import SQLBaseError, SQLLintError
+from ..parser_2.segments_base import BaseSegment
 
 
 # The ghost of a rule (mostly used for testing)
@@ -58,6 +59,10 @@ class BaseCrawler(object):
                 # We're appending strings for now. We can do better
                 # vs.append("Found Violation of {0} at {1}".format(self.code, segment))
                 vs.append(SQLLintError(rule=self, segment=segment))
+        elif isinstance(res, BaseSegment):
+            # if we're returned a segment, then this is a fail, and the crawler is
+            # indicating the offending segment
+            vs.append(SQLLintError(rule=self, segment=res))
         elif res:
             # If we've got anything else, then there was a problem
             if isinstance(res, SQLBaseError):

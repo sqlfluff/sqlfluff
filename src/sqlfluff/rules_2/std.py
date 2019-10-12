@@ -9,7 +9,7 @@ def L001_eval(segment, raw_stack, **kwargs):
     # We only trigger on newlines
     if segment.raw == '\n' and raw_stack[-1].name == 'whitespace':
         # If we find a newline, which is preceeded by whitespace, then bad
-        return False
+        return raw_stack[-1]
     else:
         return True
 

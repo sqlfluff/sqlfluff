@@ -453,6 +453,15 @@ class Delimited(BaseGrammar):
                     # Just get everything up to this point
                     pre_segment = segments[:terminal_idx]
 
+                # Optionally here, we can match some non-code up front.
+                if self.code_only:
+                    while len(pre_segment) > 0:
+                        if not pre_segment[0].is_code:
+                            matched_segments += pre_segment[0],  # As tuple
+                            pre_segment = pre_segment[1:]
+                        else:
+                            break
+
                 # See if any of the elements match
                 for elem in self._elements:
                     elem_match = elem._match(
