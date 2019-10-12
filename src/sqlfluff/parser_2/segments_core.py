@@ -61,24 +61,24 @@ class ColumnExpressionSegment(BaseSegment):
     match_grammar = OneOf(IdentifierSegment, code_only=False)  # QuotedIdentifierSegment
 
 
-class ObjectNameSegment(BaseSegment):
-    type = 'table_expression'
+class ObjectReferenceSegment(BaseSegment):
+    type = 'object_reference'
     # match grammar (don't allow whitespace)
     match_grammar = Delimited(IdentifierSegment, delimiter=DotSegment, code_only=False)
 
 
-class AliasedObjectNameSegment(BaseSegment):
-    type = 'table_expression'
+class AliasedObjectReferenceSegment(BaseSegment):
+    type = 'object_reference'
     # match grammar (don't allow whitespace)
-    match_grammar = Sequence(ObjectNameSegment, KeywordSegment.make('as'), IdentifierSegment)
+    match_grammar = Sequence(ObjectReferenceSegment, KeywordSegment.make('as'), IdentifierSegment)
 
 
 class TableExpressionSegment(BaseSegment):
     type = 'table_expression'
     # match grammar (don't allow whitespace)
     match_grammar = OneOf(
-        AliasedObjectNameSegment,
-        ObjectNameSegment
+        AliasedObjectReferenceSegment,
+        ObjectReferenceSegment
         # Values clause?
     )
 
@@ -171,7 +171,7 @@ class OrderByClauseSegment(BaseSegment):
         KeywordSegment.make('by'),
         Delimited(
             Sequence(
-                ObjectNameSegment,
+                ObjectReferenceSegment,
                 OneOf(
                     KeywordSegment.make('asc'),
                     KeywordSegment.make('desc'),
@@ -225,7 +225,7 @@ class WithCompoundStatementSegment(BaseSegment):
         KeywordSegment.make('with'),
         Delimited(
             Sequence(
-                ObjectNameSegment,
+                ObjectReferenceSegment,
                 KeywordSegment.make('as'),
                 Bracketed(SelectStatementSegment)
             ),
@@ -242,8 +242,8 @@ class InsertStatementSegment(BaseSegment):
     parse_grammar = Sequence(
         KeywordSegment.make('insert'),
         KeywordSegment.make('into', optional=True),
-        ObjectNameSegment,
-        Bracketed(Delimited(ObjectNameSegment, delimiter=CommaSegment), optional=True),
+        ObjectReferenceSegment,
+        Bracketed(Delimited(ObjectReferenceSegment, delimiter=CommaSegment), optional=True),
         OneOf(
             SelectStatementSegment,
             ValuesClauseSegment
