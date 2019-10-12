@@ -68,6 +68,10 @@ class BaseSegment(object):
     def is_code(self):
         return any([seg.is_code for seg in self.segments])
 
+    @property
+    def is_comment(self):
+        return all([seg.is_comment for seg in self.segments])
+
     @classmethod
     def is_optional(cls):
         return cls.optional
@@ -614,6 +618,7 @@ class RawSegment(BaseSegment):
     a different class. """
     type = 'raw'
     _is_code = False
+    _is_comment = False
     _template = '<unset>'
     _case_sensitive = False
 
@@ -624,6 +629,10 @@ class RawSegment(BaseSegment):
     @property
     def is_code(self):
         return self._is_code
+
+    @property
+    def is_comment(self):
+        return self._is_comment
 
     def __init__(self, raw, pos_marker):
         self._raw = raw

@@ -114,7 +114,7 @@ def L008_eval(segment, raw_stack, **kwargs):
             if cm1.name not in ['whitespace', 'newline']:
                 # comma followed by something that isn't whitespace!
                 return False
-            elif cm1.raw not in ['\n', ' '] and segment.name != 'comment':
+            elif cm1.raw not in ['\n', ' '] and not segment.is_comment:
                 return False
     return True
 
@@ -132,7 +132,7 @@ def L008_fix(segment, raw_stack, **kwargs):
                 ws = RawSegment.make(' ', name='whitespace')
                 ins = ws(raw=' ', pos_marker=cm1.pos_marker)
                 return {'create': [(cm1, ins)]}
-            elif cm1.raw not in ['\n', ' '] and segment.name != 'comment':
+            elif cm1.raw not in ['\n', ' '] and not segment.is_comment:
                 repl = cm1.__class__(
                     raw=' ',
                     pos_marker=cm1.pos_marker
