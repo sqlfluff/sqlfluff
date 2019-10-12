@@ -1,6 +1,7 @@
 """ Standard SQL Linting Rules """
 
 from .crawler import BaseCrawler
+from ..parser_2.segments_base import RawSegment
 
 
 def L001_eval(segment, raw_stack, **kwargs):
@@ -97,6 +98,56 @@ L003 = BaseCrawler(
 )
 
 
+# L008 - Commas should be followed by a single whitespace unless followed by a comment
+
+
+def L008_eval(segment, raw_stack, **kwargs):
+    """ This is a slightly odd one, because we'll almost always evaluate from a point a few places
+    after the problem site """
+    # We need at least two segments behind us for this to work
+    if len(raw_stack) < 2:
+        return True
+    else:
+        cm1 = raw_stack[-1]
+        cm2 = raw_stack[-2]
+        if cm2.name == 'comma':
+            if cm1.name not in ['whitespace', 'newline']:
+                # comma followed by something that isn't whitespace!
+                return False
+            elif cm1.raw not in ['\n', ' '] and segment.name != 'comment':
+                return False
+    return True
+
+
+def L008_fix(segment, raw_stack, **kwargs):
+    # We need at least two segments behind us for this to work
+    if len(raw_stack) < 2:
+        return True
+    else:
+        cm1 = raw_stack[-1]
+        cm2 = raw_stack[-2]
+        if cm2.name == 'comma':
+            if cm1.name not in ['whitespace', 'newline']:
+                # comma followed by something that isn't whitespace!
+                ws = RawSegment.make(' ', name='whitespace')
+                ins = ws(raw=' ', pos_marker=cm1.pos_marker)
+                return {'create': [(cm1, ins)]}
+            elif cm1.raw not in ['\n', ' '] and segment.name != 'comment':
+                repl = cm1.__class__(
+                    raw=' ',
+                    pos_marker=cm1.pos_marker
+                )
+                return {'edit': [(cm1, repl)]}
+    return True
+
+
+L008 = BaseCrawler(
+    'L008',
+    'Commas should be followed by a single whitespace, unless followed by a comment',
+    evaluate_function=L008_eval,
+    fix_function=L008_fix
+)
+
 # L009 - Trailing Whitespace
 
 
@@ -131,4 +182,4 @@ L009 = BaseCrawler(
 )
 
 
-standard_rule_set = [L001, L002, L003, L009]
+standard_rule_set = [L001, L002, L003, L008, L009]

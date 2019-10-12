@@ -96,11 +96,13 @@ def test__parser_2__base_file_parse(raw, caplog):
                 ('select_target_group', (('raw', '*'),)),
                 ('from_clause', (
                     ('keyword', 'from'),
-                    ('object_reference', (
-                        ('identifier', (
-                            ('naked_identifier', 'blah'),
+                    ('table_expression', (
+                        ('object_reference', (
+                            ('identifier', (
+                                ('naked_identifier', 'blah'),
+                            )),
                         )),
-                    ))
+                    )),
                 )),
             )),)),))
         ),
@@ -118,13 +120,15 @@ def test__parser_2__base_file_parse(raw, caplog):
                 )),
                 ('from_clause', (
                     ('keyword', 'from'),
-                    ('object_reference', (
-                        ('identifier', (
-                            ('naked_identifier', 'sch'),
-                            ('dot', '.'),
-                            ('quoted_identifier', '"blah"'),
+                    ('table_expression', (
+                        ('object_reference', (
+                            ('identifier', (
+                                ('naked_identifier', 'sch'),
+                                ('dot', '.'),
+                                ('quoted_identifier', '"blah"'),
+                            )),
                         )),
-                    ))
+                    )),
                 )),
             )),)),))
         ),
@@ -136,9 +140,10 @@ def test__parser_2__base_file_parse(raw, caplog):
                     ('insert_statement', (
                         ('keyword', 'INSERT'),
                         ('keyword', 'into'),
-                        ('object_reference', (
-                            ('identifier', (
-                                ('naked_identifier', 'tbl_b'),)),)),
+                        ('table_expression', (
+                            ('object_reference', (
+                                ('identifier', (
+                                    ('naked_identifier', 'tbl_b'),)),)),)),
                         ('start_bracket', '('),
                         ('object_reference', (
                             ('identifier', (
@@ -170,8 +175,9 @@ def test__parser_2__base_file_parse(raw, caplog):
                     ('select_target_group', (('raw', 'a'),)),
                     ('from_clause',
                      (('keyword', 'from'),
-                      ('object_reference',
-                       (('identifier', (('naked_identifier', 'tbla'),)),)))))),
+                      ('table_expression',
+                       (('object_reference',
+                        (('identifier', (('naked_identifier', 'tbla'),)),)))),)),)),
                   ('end_bracket', ')'),
                   ('select_statement',
                    (('keyword', 'select'),
