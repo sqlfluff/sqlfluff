@@ -1,15 +1,4 @@
-# TODO Notes
-
-
-probably write some tests around identifier matching
-
-
-the basic sql statement is ALMOST there, maybe simplify the grammar a bit before making it more complicated again.
-
-
-Seperate out the matchResult class into a seperate module
-
-## Notes
+## TODO
 
 ### Development (Now)
 - deal with insert statements
@@ -31,3 +20,10 @@ Seperate out the matchResult class into a seperate module
 - Make a note about changes and limitations in the readme
 - UPDATE CLI docs for all the existing methods and their commands.
 - Implement all the old rules
+
+### Things to put up for hacktober fest (or starter things)
+- Update docs to represent current implementation
+- Update the readouts from functions to match current state in the docs.
+- More crawlers
+- Blacklisting
+- Better dialect handling
