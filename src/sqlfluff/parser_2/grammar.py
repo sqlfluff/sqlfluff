@@ -501,8 +501,6 @@ class Delimited(BaseGrammar):
                     # No bracket cycle
                     # Do we have a delimiter at the current index?
 
-                    # NB: New matching format, pass it all to the matcher and allow
-                    # it to match the rest.
                     del_match = self.delimiter._match(
                         segments[seg_idx:], match_depth=match_depth + 1,
                         parse_depth=parse_depth, verbosity=verbosity)
@@ -525,6 +523,15 @@ class Delimited(BaseGrammar):
                         # Append the delimiter that we have found.
                         delimiters.append(d)
 
+                        # Optionally here, we can match some non-code up front.
+                        if self.code_only:
+                            while len(pre_segment) > 0:
+                                if not pre_segment[0].is_code:
+                                    matched_segments += pre_segment[0],  # As tuple
+                                    pre_segment = pre_segment[1:]
+                                else:
+                                    break
+
                         # We now check that this chunk matches whatever we're delimiting.
                         # In this case it MUST be a full match, not just a partial match
                         for elem in self._elements:
@@ -542,6 +549,18 @@ class Delimited(BaseGrammar):
                                 # Break this for loop and move on, looking for the next delimiter
                                 seg_idx += 1
                                 break
+                            elif elem_match and self.code_only:
+                                # Optionally if it's not a complete match but the unmatched bits are
+                                # all non code then we'll also take it.
+                                if all([not seg.is_code for seg in elem_match.unmatched_segments]):
+                                    # Logic as above, just with the unmatched bits too because none are code
+                                    matched_segments += elem_match.matched_segments
+                                    matched_segments += elem_match.unmatched_segments
+                                    matched_segments += del_match
+                                    seg_idx += 1
+                                    break
+                                else:
+                                    continue
                             else:
                                 # Not matched this element, move on.
                                 # NB, a partial match here isn't helpful. We're matching

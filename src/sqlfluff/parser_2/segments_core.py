@@ -159,11 +159,6 @@ class BooleanExpressionSegment(BaseSegment):
     type = 'boolean_expression'
     match_grammar = Delimited(
         OneOf(
-            # If it's a boolean field it could just be an identifier (with or without a not)
-            Sequence(
-                KeywordSegment.make('not').as_optional(),
-                ObjectReferenceSegment
-            ),
             # It could be a simple equality
             # TODO: Expand this to more arithmetic later
             Sequence(
@@ -182,6 +177,12 @@ class BooleanExpressionSegment(BaseSegment):
                         delimiter=CommaSegment
                     )
                 )
+            ),
+            # If it's a boolean field it could just be an identifier (with or without a not)
+            # We do this last so that it's the least likely to match
+            Sequence(
+                KeywordSegment.make('not').as_optional(),
+                ObjectReferenceSegment
             ),
         ),
         delimiter=OneOf(
