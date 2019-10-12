@@ -619,7 +619,7 @@ class ContainsOnly(BaseGrammar):
                 # contain only the given elements.
                 return MatchResult.from_unmatched(segments)
         else:
-            return seg_buffer
+            return MatchResult.from_matched(seg_buffer)
 
     def expected_string(self):
         buff = []

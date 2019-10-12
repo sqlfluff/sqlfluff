@@ -56,7 +56,7 @@ def test__parser_2__file_from_raw(raw, res, caplog):
         # A simple multi statement example
         "select a from tbl1; select b from tbl2;   -- trailling ending comment\n  \t ",
         # A more complicated multi statement example
-        # INFINITE LOOP: multi_statement_test
+        multi_statement_test
     ]
 )
 def test__parser_2__base_file_parse(raw, caplog):
@@ -96,7 +96,7 @@ def test__parser_2__base_file_parse(raw, caplog):
                 ('select_target_group', (('raw', '*'),)),
                 ('from_clause', (
                     ('keyword', 'from'),
-                    ('table_expression', (
+                    ('object_reference', (
                         ('identifier', (
                             ('naked_identifier', 'blah'),
                         )),
@@ -118,7 +118,7 @@ def test__parser_2__base_file_parse(raw, caplog):
                 )),
                 ('from_clause', (
                     ('keyword', 'from'),
-                    ('table_expression', (
+                    ('object_reference', (
                         ('identifier', (
                             ('naked_identifier', 'sch'),
                             ('dot', '.'),
@@ -136,11 +136,11 @@ def test__parser_2__base_file_parse(raw, caplog):
                     ('insert_statement', (
                         ('keyword', 'INSERT'),
                         ('keyword', 'into'),
-                        ('table_expression', (
+                        ('object_reference', (
                             ('identifier', (
                                 ('naked_identifier', 'tbl_b'),)),)),
                         ('start_bracket', '('),
-                        ('table_expression', (
+                        ('object_reference', (
                             ('identifier', (
                                 ('naked_identifier', 'col1'),)),)),
                         ('end_bracket', ')'),
@@ -161,7 +161,7 @@ def test__parser_2__base_file_parse(raw, caplog):
              (('statement',
                (('with_compound_statement',
                  (('keyword', 'WITH'),
-                  ('table_expression',
+                  ('object_reference',
                    (('identifier', (('naked_identifier', 'cte'),)),)),
                   ('keyword', 'as'),
                   ('start_bracket', '('),
@@ -170,7 +170,7 @@ def test__parser_2__base_file_parse(raw, caplog):
                     ('select_target_group', (('raw', 'a'),)),
                     ('from_clause',
                      (('keyword', 'from'),
-                      ('table_expression',
+                      ('object_reference',
                        (('identifier', (('naked_identifier', 'tbla'),)),)))))),
                   ('end_bracket', ')'),
                   ('select_statement',
@@ -178,7 +178,7 @@ def test__parser_2__base_file_parse(raw, caplog):
                     ('select_target_group', (('raw', 'a'),)),
                     ('from_clause',
                      (('keyword', 'from'),
-                      ('table_expression',
+                      ('object_reference',
                        (('identifier', (('naked_identifier', 'cte'),)),)))))))),)),))
         )
     ]

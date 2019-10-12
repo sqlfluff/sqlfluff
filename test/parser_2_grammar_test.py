@@ -50,11 +50,10 @@ def test__parser_2__grammar_oneof(seg_list):
     fs = KeywordSegment.make('foo')
     bs = KeywordSegment.make('bar')
     g = OneOf(fs, bs)
-    # Matching the list shouldn't work
-    assert not g.match(seg_list)
-    # Matching either element should return the relevant one (as a tuple)
-    assert g.match(seg_list[0]) == (bs('bar', seg_list[0].pos_marker),)
-    assert g.match(seg_list[2]) == (fs('foo', seg_list[2].pos_marker),)
+    # Check directly
+    assert g.match(seg_list).matched_segments == (bs('bar', seg_list[0].pos_marker),)
+    # Check with a bit of whitespace
+    assert g.match(seg_list[1:]).matched_segments[1] == fs('foo', seg_list[2].pos_marker)
 
 
 def test__parser_2__grammar_sequence(seg_list, caplog):
@@ -63,25 +62,22 @@ def test__parser_2__grammar_sequence(seg_list, caplog):
     g = Sequence(bs, fs)
     gc = Sequence(bs, fs, code_only=False)
     with caplog.at_level(logging.DEBUG):
-        # Matching the full list shouldn't work
+        # Should be able to match the list using the normal matcher
         logging.info("#### TEST 1")
-        assert not g.match(seg_list)
-        # Matching a short list shouldn't work (even though the first matches)
-        logging.info("#### TEST 2")
-        assert not g.match([seg_list[0]])
-        # Matching a list of the right length shouldn't match if the content isn't the same
-        logging.info("#### TEST 3")
-        assert not g.match(seg_list[1:])
-        # Matching a slice should
-        logging.info("#### TEST 4")
-        assert g.match(seg_list[:3]) == (
+        m = g.match(seg_list)
+        assert m
+        assert len(m) == 3
+        assert m.matched_segments == (
             bs('bar', seg_list[0].pos_marker),
             seg_list[1],  # This will be the whitespace segment
             fs('foo', seg_list[2].pos_marker)
         )
-        # Matching the slice, but broadening to more than code shouldn't
-        logging.info("#### TEST 5")
-        assert not gc.match(seg_list[:3])
+        # Shouldn't with the code_only matcher
+        logging.info("#### TEST 2")
+        assert not gc.match(seg_list)
+        # Shouldn't match even on the normal one if we don't start at the beginning
+        logging.info("#### TEST 2")
+        assert not g.match(seg_list[1:])
 
 
 def test__parser_2__grammar_sequence_nested(seg_list, caplog):
@@ -95,7 +91,7 @@ def test__parser_2__grammar_sequence_nested(seg_list, caplog):
         assert not g.match(seg_list[:2])
         # Matching the whole list should, and the result should be flat
         logging.info("#### TEST 2")
-        assert g.match(seg_list) == (
+        assert g.match(seg_list).matched_segments == (
             bs('bar', seg_list[0].pos_marker),
             seg_list[1],  # This will be the whitespace segment
             fs('foo', seg_list[2].pos_marker),
@@ -124,7 +120,7 @@ def test__parser_2__grammar_delimited(caplog):
         assert not g.match(seg_list[:4])
         # Matching not quite the full list should work if we allow trailing
         logging.info("#### TEST 1")
-        assert gt.match(seg_list[:4]) is not None
+        assert gt.match(seg_list[:4])
         # Matching up to 'bar' should
         logging.info("#### TEST 3")
         assert g.match(seg_list[:5]).matched_segments == expectation[:5]

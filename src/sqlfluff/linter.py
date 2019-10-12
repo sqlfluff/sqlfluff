@@ -151,7 +151,10 @@ class Linter(object):
 
     def rule_tuples(self):
         """ A simple pass through to access the rule tuples of the rule set """
-        rt = self.get_ruleset().rule_tuples()
+        rs = self.get_ruleset()
+        rt = [(rule.code, rule.description) for rule in rs]
+        return rt
+
         if self.rule_whitelist:
             return [elem for elem in rt if elem[0] in self.rule_whitelist]
         else:
