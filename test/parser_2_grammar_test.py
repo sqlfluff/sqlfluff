@@ -53,7 +53,9 @@ def test__parser_2__grammar_oneof(seg_list):
     # Check directly
     assert g.match(seg_list).matched_segments == (bs('bar', seg_list[0].pos_marker),)
     # Check with a bit of whitespace
-    assert g.match(seg_list[1:]).matched_segments[1] == fs('foo', seg_list[2].pos_marker)
+    m = g.match(seg_list[1:])
+    assert m
+    assert m.matched_segments[1] == fs('foo', seg_list[2].pos_marker)
 
 
 def test__parser_2__grammar_sequence(seg_list, caplog):

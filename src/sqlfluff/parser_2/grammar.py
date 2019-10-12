@@ -180,24 +180,34 @@ class OneOf(BaseGrammar):
     multiple, it returns the first """
     def match(self, segments, match_depth=0, parse_depth=0, verbosity=0):
         # Match on each of the options
-        matches = []
         for opt in self._elements:
             m = opt._match(segments, match_depth=match_depth + 1, parse_depth=parse_depth, verbosity=verbosity)
-            # Do Type Munging using unify
-            m = MatchResult.unify(m)
-            matches.append(m)
-
-        # if sum([1 if m.has_match() else 0 for m in matches]) > 1:
-        #     logging.warning("WARNING! Ambiguous match!")
-        # else:
-        #     logging.debug(matches)
-
-        for m in matches:
-            # Pick the first match.
-            if m.has_match():
+            # If we get a match, just return it.
+            if m:
                 return m
         else:
-            return MatchResult.from_unmatched(segments)
+            # No match from the first time round. Small getout if we can match any whitespace
+            if self.code_only:
+                matched_segs = tuple()
+                unmatched_segs = segments
+                # Look for non-code up front
+                while True:
+                    if len(unmatched_segs) == 0:
+                        # We can't return a successful match on JUST whitespace
+                        return MatchResult.from_unmatched(segments)
+                    elif not unmatched_segs[0].is_code:
+                        matched_segs += unmatched_segs[0],
+                        unmatched_segs = unmatched_segs[1:]
+                    else:
+                        break
+                # Now try and match
+                for opt in self._elements:
+                    m = opt._match(unmatched_segs, match_depth=match_depth + 1, parse_depth=parse_depth, verbosity=verbosity)
+                    # If we get a match, just return it.
+                    if m:
+                        return MatchResult(matched_segs + m.matched_segments, m.unmatched_segments)
+                else:
+                    return MatchResult.from_unmatched(segments)
 
     def expected_string(self):
         return " | ".join([opt.expected_string() for opt in self._elements])
@@ -606,39 +616,35 @@ class ContainsOnly(BaseGrammar):
     """ match a sequence of segments which are only of the types,
     or only match the grammars in the list """
     def match(self, segments, match_depth=0, parse_depth=0, verbosity=0):
-        seg_buffer = tuple()
-        for seg in segments:
-            matched = False
-            if self.code_only and not seg.is_code:
-                # Don't worry about non-code segments if we're configured
-                # to do so.
-                matched = True
-                seg_buffer += (seg,)
+        matched_buffer = tuple()
+        forward_buffer = segments
+        while True:
+            if len(forward_buffer) == 0:
+                # We're all good
+                return MatchResult.from_matched(matched_buffer)
+            elif self.code_only and not forward_buffer[0].is_code:
+                matched_buffer += forward_buffer[0],
+                forward_buffer = forward_buffer[1:]
             else:
+                # Try and match it
                 for opt in self._elements:
                     if isinstance(opt, str):
-                        if seg.type == opt:
-                            matched = True
-                            seg_buffer += (seg,)
+                        if forward_buffer[0].type == opt:
+                            matched_buffer += forward_buffer[0],
+                            forward_buffer = forward_buffer[1:]
                             break
                     else:
-                        try:
-                            m = opt._match(seg, match_depth=match_depth + 1, parse_depth=parse_depth, verbosity=verbosity)
-                        except AttributeError:
-                            # This is unlikely, but if the element doesn't have a
-                            # match method, then don't sweat. Just carry on.
-                            continue
+                        m = opt._match(
+                            forward_buffer, match_depth=match_depth + 1, parse_depth=parse_depth,
+                            verbosity=verbosity)
                         if m:
-                            matched = True
-                            seg_buffer += m
+                            matched_buffer += m.matched_segments
+                            forward_buffer = m.unmatched_segments
                             break
-            if not matched:
-                # Found a segment which doesn't match, this means
-                # we fail the whole grammar because it doesn't just
-                # contain only the given elements.
-                return MatchResult.from_unmatched(segments)
-        else:
-            return MatchResult.from_matched(seg_buffer)
+                else:
+                    # Unable to match the forward buffer. We must have found something
+                    # which isn't on our element list. Crash out.
+                    return MatchResult.from_unmatched(segments)
 
     def expected_string(self):
         buff = []
