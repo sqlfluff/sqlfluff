@@ -13,10 +13,29 @@ def L001_eval(segment, raw_stack, **kwargs):
         return True
 
 
+def L001_fix(segment, raw_stack, **kwargs):
+    """ We only care about the segment the preceeding segments """
+    # We only trigger on newlines
+    if segment.raw == '\n' and raw_stack[-1].name == 'whitespace':
+        # If we find a newline, which is preceeded by whitespace, then bad
+        deletions = []
+        idx = -1
+        while True:
+            if raw_stack[idx].name == 'whitespace':
+                deletions.append(raw_stack[idx])
+                idx -= 1
+            else:
+                break
+        return {'delete': deletions}
+    else:
+        return {}
+
+
 L001 = BaseCrawler(
     'L001',
     'Uneccessary trailing whitespace',
-    evaluate_function=L001_eval
+    evaluate_function=L001_eval,
+    fix_function=L001_fix
 )
 
 

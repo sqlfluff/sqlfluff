@@ -22,13 +22,16 @@ RuleGhost = namedtuple('RuleGhost', ['code', 'description'])
 
 
 class BaseCrawler(object):
-    def __init__(self, code, description, evaluate_function):
+    def __init__(self, code, description, evaluate_function, fix_function=None):
         # NB not sure how crawlers should be instantiated yet.
         self.description = description
         self.code = code
         # evaluation functions should return a boolean and optionally a fixed version of the given segment.
         # True means that we PASS. False means that we have a problem
         self.evaluate_function = evaluate_function
+        # Fix functions should return results as a dict
+        # of the form {'create':[],'edit':[],'delete':[]}
+        self.fix_function = fix_function
 
     def crawl(self, segment, parent_stack=None, siblings_pre=None, siblings_post=None, raw_stack=None, fix=False):
         # parent stack should be a tuple if it exists
@@ -63,6 +66,20 @@ class BaseCrawler(object):
             else:
                 raise ValueError("Unexpected response from a crawler: {0}".format(res))
 
+        fix_edits = None
+        if fix and vs and self.fix_function:
+            # There must be a violation to invoke a fix
+            fix_edits = self.fix_function(
+                segment=segment, parent_stack=parent_stack,
+                siblings_pre=siblings_pre, siblings_post=siblings_post,
+                raw_stack=raw_stack)
+            if fix_edits:
+                # If we made any fixes, we should return immediately
+                return vs, raw_stack, fix_edits
+            else:
+                # TODO: May log nicely and warn here...
+                pass
+
         # The raw stack only keeps track of the previous raw segments
         if len(segment.segments) == 0:
             raw_stack += tuple([segment])
@@ -70,11 +87,17 @@ class BaseCrawler(object):
         parent_stack += tuple([segment])
 
         for idx, child in enumerate(segment.segments):
-            dvs, raw_stack = self.crawl(
+            dvs, raw_stack, fix_edits = self.crawl(
                 child, parent_stack=parent_stack,
                 siblings_pre=segment.segments[:idx],
                 siblings_post=segment.segments[idx + 1:],
                 raw_stack=raw_stack, fix=fix)
             vs += dvs
 
-        return vs, raw_stack
+            if fix_edits:
+                # If we have a fix then return immediately so it can be applied
+                return vs, raw_stack, fix_edits
+
+        # NB If we're returning at this stage, the assumption is that
+        # there aren't any fixes to apply
+        return vs, raw_stack, fix_edits

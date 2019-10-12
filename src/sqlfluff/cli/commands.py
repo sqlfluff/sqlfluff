@@ -7,7 +7,7 @@ import sys
 from ..dialects import dialect_selector
 from ..linter import Linter
 from .formatters import (format_linting_result, format_config, format_rules,
-                         format_linting_violations, format_linting_fixes,
+                         format_linting_violations,
                          format_violation)
 from .helpers import get_package_version, cli_table
 
@@ -107,7 +107,7 @@ def fix(verbose, nocolor, dialect, rules, force, paths):
         click.echo(("The fix option is only available in combination"
                     " with --rules. This is for your own safety!"))
         sys.exit(1)
-    # Lint the paths
+    # Lint the paths (not with the fix argument at this stage)
     result = lnt.lint_paths(paths)
 
     if result.num_violations() > 0:
@@ -121,16 +121,23 @@ def fix(verbose, nocolor, dialect, rules, force, paths):
         ))
         if force:
             click.echo('FORCE MODE: Attempting fixes...')
-            fixes = result.fix()
-            click.echo(format_linting_fixes(fixes, verbose=verbose), color=color)
+            result = lnt.lint_paths(paths, fix=True)
+            click.echo('Persisting Changes...')
+            result.persist_changes()
+            # TODO: Make return value of persist_changes() a more interesting result and then format it
+            # click.echo(format_linting_fixes(result, verbose=verbose), color=color)
             click.echo('Done. Please check your files to confirm.')
         else:
             click.echo('Are you sure you wish to attempt to fix these? [Y/n] ', nl=False)
-            c = click.getchar()
-            if c == 'Y':
+            c = click.getchar().lower()
+            click.echo('...')
+            if c == 'y':
                 click.echo('Attempting fixes...')
-                fixes = result.fix()
-                click.echo(format_linting_fixes(fixes, verbose=verbose), color=color)
+                result = lnt.lint_paths(paths, fix=True)
+                click.echo('Persisting Changes...')
+                result.persist_changes()
+                # TODO: Make return value of persist_changes() a more interesting result and then format it
+                # click.echo(format_linting_fixes(fixes, verbose=verbose), color=color)
                 click.echo('Done. Please check your files to confirm.')
             elif c == 'n':
                 click.echo('Aborting...')
