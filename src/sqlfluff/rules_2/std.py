@@ -140,9 +140,9 @@ def L008_eval(segment, raw_stack, **kwargs):
         if cm2.name == 'comma':
             if cm1.name not in ['whitespace', 'newline']:
                 # comma followed by something that isn't whitespace!
-                return False
+                return cm2
             elif cm1.raw not in ['\n', ' '] and not segment.is_comment:
-                return False
+                return cm1
     return True
 
 
