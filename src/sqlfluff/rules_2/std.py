@@ -98,6 +98,33 @@ L003 = BaseCrawler(
 )
 
 
+# L004 - Indentation is not a multiple of four
+
+
+def L004_eval(segment, raw_stack, memory, **kwargs):
+    # We can only trigger on whitespace which is either
+    # preceeded by nothing or a newline.
+    indents_seen = memory.get('indents_seen', set())
+    if segment.name == 'whitespace':
+        if len(raw_stack) == 0 or raw_stack[-1].raw == '\n':
+            indents_here = set(segment.raw)
+            indents_union = indents_here | indents_seen
+            memory['indents_seen'] = indents_union
+            if len(indents_union) > 1:
+                # We are seeing an indent we haven't seen before and we've seen others before
+                return False, memory
+            else:
+                return True, memory
+    return True, memory
+
+
+L004 = BaseCrawler(
+    'L004',
+    'Mixed tab/space indentation found in file',
+    evaluate_function=L004_eval
+)
+
+
 # L008 - Commas should be followed by a single whitespace unless followed by a comment
 
 
@@ -182,4 +209,4 @@ L009 = BaseCrawler(
 )
 
 
-standard_rule_set = [L001, L002, L003, L008, L009]
+standard_rule_set = [L001, L002, L003, L004, L008, L009]

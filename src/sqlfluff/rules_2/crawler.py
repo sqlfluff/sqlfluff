@@ -34,7 +34,7 @@ class BaseCrawler(object):
         # of the form {'create':[],'edit':[],'delete':[]}
         self.fix_function = fix_function
 
-    def crawl(self, segment, parent_stack=None, siblings_pre=None, siblings_post=None, raw_stack=None, fix=False):
+    def crawl(self, segment, parent_stack=None, siblings_pre=None, siblings_post=None, raw_stack=None, fix=False, memory=None):
         # parent stack should be a tuple if it exists
 
         # crawlers, should evalutate on segments FIRST, before evaulating on their
@@ -47,11 +47,17 @@ class BaseCrawler(object):
         raw_stack = raw_stack or tuple([])
         siblings_post = siblings_post or tuple([])
         siblings_pre = siblings_pre or tuple([])
+        memory = memory or {}
 
         res = self.evaluate_function(
             segment=segment, parent_stack=parent_stack,
             siblings_pre=siblings_pre, siblings_post=siblings_post,
-            raw_stack=raw_stack)
+            raw_stack=raw_stack, memory=memory)
+
+        # If we're using the memory then unpack it
+        if isinstance(res, tuple):
+            memory = res[1]
+            res = res[0]
 
         vs = []
         if isinstance(res, bool) or res is None:
@@ -77,10 +83,10 @@ class BaseCrawler(object):
             fix_edits = self.fix_function(
                 segment=segment, parent_stack=parent_stack,
                 siblings_pre=siblings_pre, siblings_post=siblings_post,
-                raw_stack=raw_stack)
+                raw_stack=raw_stack, memory=memory)
             if fix_edits:
                 # If we made any fixes, we should return immediately
-                return vs, raw_stack, fix_edits
+                return vs, raw_stack, fix_edits, memory
             else:
                 # TODO: May log nicely and warn here...
                 pass
@@ -92,17 +98,17 @@ class BaseCrawler(object):
         parent_stack += tuple([segment])
 
         for idx, child in enumerate(segment.segments):
-            dvs, raw_stack, fix_edits = self.crawl(
+            dvs, raw_stack, fix_edits, memory = self.crawl(
                 child, parent_stack=parent_stack,
                 siblings_pre=segment.segments[:idx],
                 siblings_post=segment.segments[idx + 1:],
-                raw_stack=raw_stack, fix=fix)
+                raw_stack=raw_stack, fix=fix, memory=memory)
             vs += dvs
 
             if fix_edits:
                 # If we have a fix then return immediately so it can be applied
-                return vs, raw_stack, fix_edits
+                return vs, raw_stack, fix_edits, memory
 
         # NB If we're returning at this stage, the assumption is that
         # there aren't any fixes to apply
-        return vs, raw_stack, fix_edits
+        return vs, raw_stack, fix_edits, memory

@@ -44,7 +44,7 @@ def test__linter__lint_file_indentation():
     # Check we get the space multiple violations
     assert ('L003', 3, 1) in violations
     # Check we get the mixed indentation errors between lines
-    assert ('L004', 5, 0) in violations
+    assert ('L004', 5, 1) in violations
 
 
 def test__linter__lint_file_whitespace():

@@ -238,7 +238,7 @@ class Linter(object):
                     # "anchor", the segment to look for either to edit or to insert BEFORE.
                     # The second is the element to insert or create.
 
-                    lerrs, _, fixes = crawler.crawl(working, fix=True)
+                    lerrs, _, fixes, _ = crawler.crawl(working, fix=True)
                     linting_errors += lerrs
                     if fixes:
                         verbosity_logger("Applying Fixes: {0}".format(fixes), verbosity=verbosity)
@@ -263,7 +263,7 @@ class Linter(object):
             # Just get the violations
             linting_errors = []
             for crawler in self.get_ruleset():
-                lerrs, _, _ = crawler.crawl(parsed)
+                lerrs, _, _, _ = crawler.crawl(parsed)
                 linting_errors += lerrs
 
         # Update the timing dict
