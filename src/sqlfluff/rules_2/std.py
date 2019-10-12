@@ -39,6 +39,64 @@ L001 = BaseCrawler(
 )
 
 
+# L002 - Mixed Tabs and Spaces
+
+
+def L002_eval(segment, raw_stack, **kwargs):
+    # We can only trigger on whitespace which is either
+    # preceeded by nothing, a newline, or whitespace then either of the above.
+    if segment.name == 'whitespace':
+        if ' ' in segment.raw and '\t' in segment.raw:
+            if len(raw_stack) == 0 or raw_stack[-1].raw == '\n':
+                return False
+            elif raw_stack[-1].name == 'whitespace':
+                # It's preceeded by more whitespace!
+                buff = list(raw_stack)
+                while True:
+                    # pop something off the end
+                    if len(buff) == 0:
+                        # Found start of file
+                        return False
+
+                    seg = buff.pop()
+                    if seg.name == 'whitespace':
+                        continue
+                    elif seg.raw == '\n':
+                        # we're at the start of a line
+                        return False
+                    else:
+                        # We're not at the start of a line
+                        break
+    return True
+
+
+L002 = BaseCrawler(
+    'L002',
+    'Mixture of tabs and spaces in indentation',
+    evaluate_function=L002_eval
+)
+
+
+# L003 - Indentation is not a multiple of four
+
+
+def L003_eval(segment, raw_stack, **kwargs):
+    # We can only trigger on whitespace which is either
+    # preceeded by nothing or a newline.
+    if segment.name == 'whitespace':
+        if segment.raw.count(' ') % 4 != 0:
+            if len(raw_stack) == 0 or raw_stack[-1].raw == '\n':
+                return False
+    return True
+
+
+L003 = BaseCrawler(
+    'L003',
+    'Spaced indent is not a multiple of four',
+    evaluate_function=L003_eval
+)
+
+
 # L009 - Trailing Whitespace
 
 
@@ -73,4 +131,4 @@ L009 = BaseCrawler(
 )
 
 
-standard_rule_set = [L001, L009]
+standard_rule_set = [L001, L002, L003, L009]
