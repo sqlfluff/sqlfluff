@@ -98,9 +98,7 @@ def test__parser_2__base_file_parse(raw, caplog):
                     ('keyword', 'from'),
                     ('table_expression', (
                         ('object_reference', (
-                            ('identifier', (
-                                ('naked_identifier', 'blah'),
-                            )),
+                            ('naked_identifier', 'blah'),
                         )),
                     )),
                 )),
@@ -122,14 +120,12 @@ def test__parser_2__base_file_parse(raw, caplog):
                     ('keyword', 'from'),
                     ('table_expression', (
                         ('object_reference', (
-                            ('identifier', (
-                                ('naked_identifier', 'sch'),
-                                ('dot', '.'),
-                                ('quoted_identifier', '"blah"'),
-                            )),
+                            ('naked_identifier', 'sch'),
+                            ('dot', '.'),
+                            ('quoted_identifier', '"blah"')
                         )),
-                    )),
-                )),
+                    ))
+                ))
             )),)),))
         ),
         # Insert Statements
@@ -140,14 +136,11 @@ def test__parser_2__base_file_parse(raw, caplog):
                     ('insert_statement', (
                         ('keyword', 'INSERT'),
                         ('keyword', 'into'),
-                        ('table_expression', (
-                            ('object_reference', (
-                                ('identifier', (
-                                    ('naked_identifier', 'tbl_b'),)),)),)),
+                        ('object_reference', (
+                            ('naked_identifier', 'tbl_b'),)),
                         ('start_bracket', '('),
                         ('object_reference', (
-                            ('identifier', (
-                                ('naked_identifier', 'col1'),)),)),
+                            ('naked_identifier', 'col1'),)),
                         ('end_bracket', ')'),
                         ('values_clause', (
                             ('keyword', 'values'),
@@ -167,7 +160,7 @@ def test__parser_2__base_file_parse(raw, caplog):
                (('with_compound_statement',
                  (('keyword', 'WITH'),
                   ('object_reference',
-                   (('identifier', (('naked_identifier', 'cte'),)),)),
+                   (('naked_identifier', 'cte'),)),
                   ('keyword', 'as'),
                   ('start_bracket', '('),
                   ('select_statement',
@@ -177,15 +170,16 @@ def test__parser_2__base_file_parse(raw, caplog):
                      (('keyword', 'from'),
                       ('table_expression',
                        (('object_reference',
-                        (('identifier', (('naked_identifier', 'tbla'),)),)))),)),)),
+                        (('naked_identifier', 'tbla'),)),)),)),)),
                   ('end_bracket', ')'),
                   ('select_statement',
                    (('keyword', 'select'),
                     ('select_target_group', (('raw', 'a'),)),
                     ('from_clause',
                      (('keyword', 'from'),
-                      ('object_reference',
-                       (('identifier', (('naked_identifier', 'cte'),)),)))))))),)),))
+                      ('table_expression',
+                       (('object_reference',
+                        (('naked_identifier', 'cte'),)),)),)),)),)),)),))
         )
     ]
 )

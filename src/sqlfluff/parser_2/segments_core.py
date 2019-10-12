@@ -28,6 +28,7 @@ from .grammar import (Sequence, GreedyUntil, StartsWith, ContainsOnly,
 
 CommaSegment = KeywordSegment.make(',', name='Comma')
 DotSegment = KeywordSegment.make('.', name='Dot', type='dot')
+EqualsSegment = KeywordSegment.make('=', name='Equals', type='equals')
 
 NakedIdentifierSegment = ReSegment.make(r"[A-Z0-9_]*", name='Identifier', type='naked_identifier')
 QuotedIdentifierSegment = NamedSegment.make('double_quote', name='Identifier', type='quoted_identifier')
@@ -35,18 +36,8 @@ QuotedLiteralSegment = NamedSegment.make('single_quote', name='Literal', type='q
 NumericLiteralSegment = NamedSegment.make('numeric_literal', name='Literal', type='numeric_literal')
 
 
-class IdentifierSegment(BaseSegment):
-    type = 'identifier'
-    match_grammar = OneOf(NakedIdentifierSegment, QuotedIdentifierSegment)
-
-
-class QualifiedIdentifierSegment(BaseSegment):
-    type = 'identifier'
-    match_grammar = Delimited(
-        IdentifierSegment,
-        delimiter=DotSegment,
-        code_only=False,
-    )
+# We use a GRAMMAR here not a Segment. Otherwise we get an unecessary layer
+SingleIdentifierGrammar = OneOf(NakedIdentifierSegment, QuotedIdentifierSegment)
 
 
 class LiteralSegment(BaseSegment):
@@ -58,19 +49,19 @@ class LiteralSegment(BaseSegment):
 
 class ColumnExpressionSegment(BaseSegment):
     type = 'column_expression'
-    match_grammar = OneOf(IdentifierSegment, code_only=False)  # QuotedIdentifierSegment
+    match_grammar = OneOf(SingleIdentifierGrammar, code_only=False)  # QuotedIdentifierSegment
 
 
 class ObjectReferenceSegment(BaseSegment):
     type = 'object_reference'
     # match grammar (don't allow whitespace)
-    match_grammar = Delimited(IdentifierSegment, delimiter=DotSegment, code_only=False)
+    match_grammar = Delimited(SingleIdentifierGrammar, delimiter=DotSegment, code_only=False)
 
 
 class AliasedObjectReferenceSegment(BaseSegment):
     type = 'object_reference'
     # match grammar (don't allow whitespace)
-    match_grammar = Sequence(ObjectReferenceSegment, KeywordSegment.make('as'), IdentifierSegment)
+    match_grammar = Sequence(ObjectReferenceSegment, KeywordSegment.make('as'), SingleIdentifierGrammar)
 
 
 class TableExpressionSegment(BaseSegment):
@@ -128,7 +119,12 @@ class JoinClauseSegment(BaseSegment):
                 # USING clause
                 Sequence(
                     KeywordSegment.make('using'),
-                    Bracketed(IdentifierSegment)
+                    Bracketed(
+                        Delimited(
+                            SingleIdentifierGrammar,
+                            delimiter=CommaSegment
+                        )
+                    )
                 ),
                 max_times=1
             )
@@ -141,6 +137,7 @@ class FromClauseSegment(BaseSegment):
     match_grammar = StartsWith(
         KeywordSegment.make('from'),
         terminator=OneOf(
+            KeywordSegment.make('where'),
             KeywordSegment.make('limit'),
             KeywordSegment.make('group'),
             KeywordSegment.make('order'),
@@ -154,6 +151,60 @@ class FromClauseSegment(BaseSegment):
             JoinClauseSegment,
             optional=True
         )
+    )
+
+
+class BooleanExpressionSegment(BaseSegment):
+    # TODO: This needs to be somehow recursive. Could be a problem...
+    type = 'boolean_expression'
+    match_grammar = Delimited(
+        OneOf(
+            # If it's a boolean field it could just be an identifier (with or without a not)
+            Sequence(
+                KeywordSegment.make('not').as_optional(),
+                ObjectReferenceSegment
+            ),
+            # It could be a simple equality
+            # TODO: Expand this to more arithmetic later
+            Sequence(
+                OneOf(ObjectReferenceSegment, LiteralSegment),
+                EqualsSegment,
+                OneOf(ObjectReferenceSegment, LiteralSegment),
+            ),
+            # It could be an IN statement
+            # TODO: Expand this to more arithmetic later
+            Sequence(
+                OneOf(ObjectReferenceSegment, LiteralSegment),
+                KeywordSegment.make('in'),
+                Bracketed(
+                    Delimited(
+                        LiteralSegment,
+                        delimiter=CommaSegment
+                    )
+                )
+            ),
+        ),
+        delimiter=OneOf(
+            KeywordSegment.make('and'),
+            KeywordSegment.make('or')
+        )
+    )
+
+
+class WhereClauseSegment(BaseSegment):
+    type = 'where_clause'
+    match_grammar = StartsWith(
+        KeywordSegment.make('where'),
+        terminator=OneOf(
+            KeywordSegment.make('limit'),
+            KeywordSegment.make('group'),
+            KeywordSegment.make('order'),
+            KeywordSegment.make('having')
+        )
+    )
+    parse_grammar = Sequence(
+        KeywordSegment.make('where'),
+        BooleanExpressionSegment
     )
 
 
@@ -212,6 +263,7 @@ class SelectStatementSegment(BaseSegment):
         KeywordSegment.make('select'),
         SelectTargetGroupStatementSegment,
         FromClauseSegment.as_optional(),
+        WhereClauseSegment.as_optional(),
         OrderByClauseSegment.as_optional(),
         # GreedyUntil(KeywordSegment.make('limit'), optional=True)
     )
