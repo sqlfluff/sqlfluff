@@ -18,7 +18,7 @@ def test__cli__command_directed():
     assert result.exit_code == 65
     # We should get a readout of what the error was
     check_a = "L:   2 | P:   1 | L003"
-    check_b = "Single indentation uses a number of spaces not a multiple of 4"
+    check_b = "Spaced indent is not a multiple of four"
     assert check_a in result.output
     assert check_b in result.output
 

@@ -5,6 +5,8 @@ from six import StringIO
 
 from .helpers import colorize, cli_table, get_package_version, get_python_version
 
+from ..errors import SQLBaseError
+
 
 def format_filename(filename, success=False, verbose=0, success_text='PASS'):
     status_string = colorize(
@@ -17,14 +19,21 @@ def format_filename(filename, success=False, verbose=0, success_text='PASS'):
 
 
 def format_violation(violation, verbose=0):
+    if isinstance(violation, SQLBaseError):
+        code, line, pos, desc = violation.get_info_tuple()
+    elif hasattr('chunk', violation):
+        code = violation.rule.code
+        line = violation.chunk.line_no
+        pos = violation.chunk.start_pos + 1
+        desc = violation.rule.description
+    else:
+        raise ValueError("Unexpected violation format: {0}".format(violation))
+
     return (
         colorize(
-            "L:{0:4d} | P:{1:4d} | {2} |".format(
-                violation.chunk.line_no,
-                violation.chunk.start_pos + 1,
-                violation.rule.code),
+            "L:{0:4d} | P:{1:4d} | {2} |".format(line, pos, code),
             'blue')
-        + " {0}".format(violation.rule.description)
+        + " {0}".format(desc)
     )
 
 
@@ -57,10 +66,8 @@ def format_violations(violations, verbose=0):
 
         # If we have violations, print them
         if not success:
-            # first sort by position
-            s = sorted(violations[key], key=lambda v: v.chunk.start_pos)
-            # the primarily sort by line no
-            s = sorted(s, key=lambda v: v.chunk.line_no)
+            # sort by position in file
+            s = sorted(violations[key], key=lambda v: v.char_pos())
             for violation in s:
                 text_buffer.write(format_violation(violation, verbose=verbose))
                 text_buffer.write('\n')
@@ -101,21 +108,6 @@ def format_linting_violations(result, verbose=0):
         if verbose > 0:
             text_buffer.write('=== [ path: {0} ] ===\n'.format(colorize(path.path, 'lightgrey')))
         text_buffer.write(format_violations(path.violations(), verbose=verbose))
-    return text_buffer.getvalue()
-
-
-def format_linting_fixes(fixes, verbose=0):
-    """ Assume we're passed a dict of fix results """
-    text_buffer = StringIO()
-    for file in fixes:
-        if len(fixes[file]) > 0:
-            fix_buff = fixes[file]
-            success = all([fix.success for fix in fix_buff])
-            text_buffer.write(format_filename(file, success=success, verbose=verbose, success_text='FIXED'))
-            text_buffer.write('\n')
-            for fix in fix_buff:
-                text_buffer.write(format_fix(fix, verbose=verbose))
-                text_buffer.write('\n')
     return text_buffer.getvalue()
 
 

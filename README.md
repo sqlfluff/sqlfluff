@@ -8,6 +8,7 @@
 [![Requirements Status](https://requires.io/github/alanmcruickshank/sqlfluff/requirements.svg?branch=master)](https://requires.io/github/alanmcruickshank/sqlfluff/requirements/?branch=master)
 [![CircleCI](https://circleci.com/gh/alanmcruickshank/sqlfluff/tree/master.svg?style=svg)](https://circleci.com/gh/alanmcruickshank/sqlfluff/tree/master)
 
+> ## *NOTE:* sqlfluff is currently undergoing a major re-write to the parser, and so is not currently accepting pull requests.
 
 Bored of not having a good SQL linter that works with whichever dialiect you're
 working with? Fluff is an extensible and modular linter designed to help you write
@@ -16,6 +17,9 @@ good SQL and catch errors and bad SQL before it hits your database.
 > **Sqlfluff** is still in an open alpha phase - expect the tool to change significantly
 > over the coming months, and expect potentially non-backward compatable api changes
 > to happen at any point.
+
+> **Sqlfluff** has had a big rearchitecture to it's parsing engine. To read more about
+> that then you can find details [here](https://github.com/alanmcruickshank/sqlfluff/blob/master/ARCHITECTURE.md).
 
 # Getting Started
 
@@ -37,19 +41,20 @@ For more details on usage see the docs on github [here](https://github.com/alanm
 
 # Progress
 
-There's lots to do in this project, and we're just getting started.
+There's lots to do in this project, and we're just getting started. __NB: This list__
+__has started again from the top due to the re-write__.
 
 - [x] Command line interface
   - [x] Basic linting, both of paths and files
-  - [x] Version information
-  - [x] Nicely formatted readout of linting success or fail
-  - [x] Exist codes which reflect linting success or fail
+  - [ ] Version information
+  - [ ] Nicely formatted readout of linting success or fail
+  - [ ] Exist codes which reflect linting success or fail
   - [ ] Filtering to particular codes in the linting step
   - [ ] Allow basic correction of some linting codes
 - [ ] Basic ANSI linting
-  - [x] Simple whitespace testing
-  - [x] Whitespace around operators
-  - [x] Indentation (size and mix of tabs and spaces)
+  - [ ] Simple whitespace testing
+  - [ ] Whitespace around operators
+  - [ ] Indentation (size and mix of tabs and spaces)
   - [ ] Indentation between lines and when to indent
   - [ ] Number of blank lines
   - [ ] Indentation of comments
@@ -62,4 +67,6 @@ There's lots to do in this project, and we're just getting started.
 - [ ] Dialects
   - [ ] MySQL 
   - [ ] Redshift
+  - [ ] Snowflake
   - [ ] Detecting dialect from a config file of some kind
+  - [ ] jinja2 compatible linting (for dbt)

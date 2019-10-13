@@ -8,6 +8,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Changed unicode handling for better escape codes in python 2.
   Thanks [@mrshu](https://github.com/mrshu)
+- BIG rewrite of the parser, completely new architecture. This introduces
+  breaking changes and some loss of functionality while we catch up.
+  - In particular, matches now return partial matches to speed up parsing.
+  - The `Delimited` matcher has had a significant re-write with a major
+    speedup and broken the dependency on `Sequence`.
+  - Rewrite of `StartsWith` and `Sequence` to use partial matches properly.
+  - Different treatment of numeric literals.
+  - Both `Bracketed` and `Delimited` respect bracket counting.
+  - MASSIVE rewrite of `Bracketed`.
+- Grammars now have timers.
+- Joins properly parsing,
+- Rewrite of logging to selectively output commands at different levels
+  of verbosity. This uses the `verbosity_logger` method.
+- Added a command line `sqlfluff parse` option which runs just the parsing step
+  of the process to better understand how a file is being parsed. This also
+  has options to configure how deep we recurse.
 
 ## [0.0.7] - 2018-11-19
 ### Added

@@ -2,20 +2,18 @@
 
 import os
 from collections import namedtuple
-import itertools
-
-from six import StringIO
 
 from .dialects import AnsiSQLDialiect
-from .lexer import RecursiveLexer
-from .rules.std import StandardRuleSet
+
+from .parser_2.segments_file import FileSegment
+from .parser_2.segments_base import verbosity_logger, frame_msg
+from .errors import SQLParseError, SQLLexError
+
+from .rules_2.std import standard_rule_set
+from .helpers import get_time
 
 
-class FixResult(namedtuple('ProtoFix', ['violation', 'success', 'detail'])):
-    __slots__ = ()
-
-
-class LintedFile(namedtuple('ProtoFile', ['path', 'violations'])):
+class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tree'])):
     __slots__ = ()
 
     def check_tuples(self):
@@ -27,105 +25,14 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations'])):
     def is_clean(self):
         return len(self.violations) == 0
 
-    @staticmethod
-    def apply_corrections_to_fileobj(fileobj, corrections):
-        """ We don't validate here, we just apply to a file object """
-        # NB: Make sure here that things don't overlap.
-        # I don't know how it will behave if they do
-
-        # Make a buffer to hold the new version of the file
-        buff = StringIO()
-        # Sort the corrections into a list (first ordered by line pos, then line no)
-        # first sort by position
-        correction_queue = sorted(corrections, key=lambda c: c.chunk.start_pos)
-        # the primarily sort by line no
-        correction_queue = sorted(correction_queue, key=lambda c: c.chunk.line_no)
-
-        # Define a couple of helpers
-        def next_correction():
-            try:
-                return correction_queue.pop(0)
-            except IndexError:
-                return None
-
-        # Begin reading the existing file
-        fileobj.seek(0)
-        # Get the first correction
-        correction = next_correction()
-        # Start iterating through the source file
-        for lineno, line in enumerate(fileobj, 1):
-            # If we're not at the right line to correct yet, just pass through
-            # (or we've done all our corrections)
-            if correction is None or lineno < correction.chunk.line_no:
-                buff.write(line)
-            elif lineno == correction.chunk.line_no:
-                # Reset the skip counter for this line
-                skip = 0
-                for idx, c in enumerate(line):
-                    if skip > 0:
-                        skip -= 1
-                    # If we're past the last correction (correction is None)
-                    # then we should just write the characters
-                    elif correction is None or idx < correction.chunk.start_pos:
-                        buff.write(c)
-                    elif idx == correction.chunk.start_pos:
-                        # So here we write the correction instead of the original characters
-                        buff.write(correction.correction)
-                        # and remember how many characters to skip (bear in mind we're on one already)
-                        skip = len(correction.chunk.chunk) - 1
-                        # and fetch the next correction
-                        correction = next_correction()
-                    else:
-                        raise ValueError("This shouldn't happen! [sdkdjhf] idx:{0} skip:{1} corr:{2}".format(
-                            idx, skip, correction))
-            else:
-                raise ValueError("This shouldn't happen! [awdjakh] line: {0!r} no:{1} corr: {2}".format(
-                    line, lineno, correction))
-        # We've now read the whole file, seek back to the beginning to truncate and overwrite
-        fileobj.seek(0)
-        fileobj.write(buff.getvalue())
-        fileobj.truncate()
-
-    def apply_corrections_to_file(self, corrections):
+    def persist_tree(self):
         """ We don't validate here, we just apply corrections to a path """
-        # NB: Make sure here that things don't overlap.
-        # I don't know how it will behave if they do
-        with open(self.path, 'r+') as f:
-            self.apply_corrections_to_fileobj(f, corrections)
-
-    def fix(self):
-        """ Find and attempt to fix the violations we found """
-        fix_buffer = []
-        pending_fix_buffer = []
-        correction_buffer = []
-        for v in self.violations:
-            corrections = v.corrections
-            # First check if any corrections are available
-            if len(corrections) == 0:
-                fix_buffer.append(FixResult(v, False, 'No correction available'))
-            # Second check if the corrections overlap any existing corrections
-            elif any([a.same_pos_as(b) for a, b in itertools.product(correction_buffer, corrections)]):
-                fix_buffer.append(FixResult(v, False, 'The correction overlaps an existing correction in this round. Try again'))
-            else:
-                # We still buffer the corrections
-                correction_buffer += corrections
-                # We buffer the violations that it looks like we're going to fix
-                pending_fix_buffer.append(v)
-        # Let's try appling all these corrections now, and then update the fix buffer as a result
-        try:
-            self.apply_corrections_to_file(correction_buffer)
-            application_success = True
-            application_message = None
-        except Exception as exc: # noqa
-            # Assume if it's unsuccessful in any way that the whole thing failed
-            application_success = False
-            # Spit out the name of the exception for debugging
-            application_message = 'Error occurred in applying the changes ({0})'.format(
-                exc.__class__.__name__)
-        # Use the result of applying the changes to see if the rest were successful
-        for v in pending_fix_buffer:
-            fix_buffer.append(FixResult(v, application_success, application_message))
-        return fix_buffer
+        with open(self.path, 'w') as f:
+            # TODO: We should probably have a seperate function for checking what's
+            # already there and doing a diff. For now we'll just go an overwrite.
+            f.write(self.tree.raw)
+        # TODO: Make this return value more interesting...
+        return True
 
 
 class LintedPath(object):
@@ -161,9 +68,9 @@ class LintedPath(object):
             violations=sum([file.num_violations() for file in self.files])
         )
 
-    def fix(self):
+    def persist_changes(self):
         # Run all the fixes for all the files and return a dict
-        return {file.path: file.fix() for file in self.files}
+        return {file.path: file.persist_tree() for file in self.files}
 
 
 class LintingResult(object):
@@ -218,9 +125,9 @@ class LintingResult(object):
         all_stats['status'] = 'FAIL' if all_stats['violations'] > 0 else 'PASS'
         return all_stats
 
-    def fix(self):
+    def persist_changes(self):
         # Run all the fixes for all the files and return a dict
-        return self.combine_dicts(*[path.fix() for path in self.paths])
+        return self.combine_dicts(*[path.persist_changes() for path in self.paths])
 
 
 class Linter(object):
@@ -236,24 +143,136 @@ class Linter(object):
         A way of getting hold of a set of rules.
         We should probably extend this later for differing rules.
         """
-        return StandardRuleSet()
+        rs = standard_rule_set
+        if self.rule_whitelist:
+            return [r for r in rs if r.code in self.rule_whitelist]
+        else:
+            return standard_rule_set
 
     def rule_tuples(self):
         """ A simple pass through to access the rule tuples of the rule set """
-        rt = self.get_ruleset().rule_tuples()
+        rs = self.get_ruleset()
+        rt = [(rule.code, rule.description) for rule in rs]
+        return rt
+
         if self.rule_whitelist:
             return [elem for elem in rt if elem[0] in self.rule_whitelist]
         else:
             return rt
 
-    def lint_file(self, f, fname=None):
+    def parse_file(self, f, fname=None, verbosity=0, recurse=True):
+        violations = []
+        t0 = get_time()
+
+        verbosity_logger("LEXING RAW ({0})".format(fname), verbosity=verbosity)
+        # Lex the file and log any problems
+        try:
+            fs = FileSegment.from_raw(f.read())
+        except SQLLexError as err:
+            violations.append(err)
+            fs = None
+        verbosity_logger(fs.stringify(), verbosity=verbosity)
+
+        t1 = get_time()
+        verbosity_logger("PARSING ({0})".format(fname), verbosity=verbosity)
+        # Parse the file and log any problems
+        if fs:
+            try:
+                parsed = fs.parse(recurse=recurse, verbosity=verbosity)
+            except SQLParseError as err:
+                violations.append(err)
+                parsed = None
+            if parsed:
+                verbosity_logger(frame_msg("Parsed Tree:"), verbosity=verbosity)
+                verbosity_logger(parsed.stringify(), verbosity=verbosity)
+        else:
+            parsed = None
+
+        t2 = get_time()
+        time_dict = {'lexing': t1 - t0, 'parsing': t2 - t1}
+
+        return parsed, violations, time_dict
+
+    def lint_file(self, f, fname=None, verbosity=0, fix=False):
         """ Lint a file object - fname is optional for testing """
-        # Instantiate a rule set
-        rule_set = self.get_ruleset()
-        rl = RecursiveLexer(dialect=self.dialect)
-        chunkstring = rl.lex_file_obj(f)
-        vs = rule_set.evaluate_chunkstring(chunkstring, rule_whitelist=self.rule_whitelist)
-        return LintedFile(fname, vs)
+        # TODO: Tidy this up - it's a mess
+        # Using the new parser, read the file object.
+        parsed, vs, time_dict = self.parse_file(f=f, fname=fname, verbosity=verbosity)
+
+        # Now extract all the unparsable segments
+        for unparsable in parsed.iter_unparsables():
+            # # print("FOUND AN UNPARSABLE!")
+            # # print(unparsable)
+            # # print(unparsable.stringify())
+            # No exception has been raised explicitly, but we still create one here
+            # so that we can use the common interface
+            vs.append(
+                SQLParseError(
+                    "Found unparsable segment @ {0},{1}: {2!r}".format(
+                        unparsable.pos_marker.line_no,
+                        unparsable.pos_marker.line_pos,
+                        unparsable.raw[:20] + "..."),
+                    segment=unparsable
+                )
+            )
+            if verbosity >= 2:
+                verbosity_logger("Found unparsable segment...", verbosity=verbosity)
+                verbosity_logger(unparsable.stringify(), verbosity=verbosity)
+
+        t0 = get_time()
+        # At this point we should evaluate whether any parsing errors have occured
+        if verbosity >= 2:
+            verbosity_logger("LINTING ({0})".format(fname), verbosity=verbosity)
+
+        # NOW APPLY EACH LINTER
+        if fix:
+            # If we're in fix mode, then we need to progressively call and reconstruct
+            working = parsed
+            linting_errors = []
+            last_fixes = None
+            while True:
+                for crawler in self.get_ruleset():
+                    # fixes should be a dict {} with keys edit, delete, create
+                    # delete is just a list of segments to delete
+                    # edit and create are list of tuples. The first element is the
+                    # "anchor", the segment to look for either to edit or to insert BEFORE.
+                    # The second is the element to insert or create.
+
+                    lerrs, _, fixes, _ = crawler.crawl(working, fix=True)
+                    linting_errors += lerrs
+                    if fixes:
+                        verbosity_logger("Applying Fixes: {0}".format(fixes), verbosity=verbosity)
+                        if fixes == last_fixes:
+                            raise RuntimeError(
+                                ("Fixes appear to not have been applied, they are "
+                                 "the same as last time! {0}").format(
+                                    fixes))
+                        else:
+                            last_fixes = fixes
+                        working, fixes = working.apply_fixes(fixes)
+                        break
+                    else:
+                        # No fixes, move on to next crawler
+                        continue
+                else:
+                    # No more fixes to apply
+                    break
+            # Set things up to return the altered version
+            parsed = working
+        else:
+            # Just get the violations
+            linting_errors = []
+            for crawler in self.get_ruleset():
+                lerrs, _, _, _ = crawler.crawl(parsed)
+                linting_errors += lerrs
+
+        # Update the timing dict
+        t1 = get_time()
+        time_dict['linting'] = t1 - t0
+
+        vs += linting_errors
+
+        return LintedFile(fname, vs, time_dict, parsed)
 
     def paths_from_path(self, path):
         # take a path (potentially a directory) and return just the sql files
@@ -273,14 +292,14 @@ class Linter(object):
         else:
             return set([path])
 
-    def lint_path(self, path):
+    def lint_path(self, path, verbosity=0, fix=False):
         linted_path = LintedPath(path)
         for fname in self.paths_from_path(path):
             with open(fname, 'r') as f:
-                linted_path.add(self.lint_file(f, fname=fname))
+                linted_path.add(self.lint_file(f, fname=fname, verbosity=verbosity, fix=fix))
         return linted_path
 
-    def lint_paths(self, paths):
+    def lint_paths(self, paths, verbosity=0, fix=False):
         # If no paths specified - assume local
         if len(paths) == 0:
             paths = (os.getcwd(),)
@@ -289,5 +308,10 @@ class Linter(object):
         for path in paths:
             # Iterate through files recursively in the specified directory (if it's a directory)
             # or read the file directly if it's not
-            result.add(self.lint_path(path))
+            result.add(self.lint_path(path, verbosity=verbosity, fix=fix))
         return result
+
+    def parse_path(self, path, verbosity=0, recurse=True):
+        for fname in self.paths_from_path(path):
+            with open(fname, 'r') as f:
+                yield self.parse_file(f, fname=fname, verbosity=verbosity, recurse=recurse)

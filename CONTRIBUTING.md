@@ -38,6 +38,21 @@ tox -e cov-init,py36,cov-report,linting
 > generates the results for tests in that python version and the `cov-report` environment
 > actually reports those results out to you.
 
+### Using your local version
+
+To trial using your local development branch of sqlfluff, I recommend you use a virtual
+environment. __(TODO: Insert a link here to the python docs for `virtualenv`)__
+
+Once you're in a virtual environment, run:
+
+```shell
+pip install -r requirements.txt
+python setup.py develop
+```
+
+> `setup.py develop` installs the package using a link to the source code so that any changes
+> which you make will immediately be available for use.
+
 ## Building Package
 
 To build and submit the package to pypi we use `twine`. You'll need to be an admin

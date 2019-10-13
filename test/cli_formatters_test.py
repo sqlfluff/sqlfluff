@@ -2,8 +2,12 @@
 
 import re
 
-from sqlfluff.chunks import PositionedChunk
-from sqlfluff.rules.base import RuleViolation, RuleGhost
+# from sqlfluff.chunks import PositionedChunk
+# from sqlfluff.rules.base import RuleViolation, RuleGhost
+from sqlfluff.rules_2.crawler import RuleGhost
+from sqlfluff.parser_2.segments_base import RawSegment
+from sqlfluff.parser_2.markers import FilePositionMarker
+from sqlfluff.errors import SQLLintError
 from sqlfluff.cli.formatters import format_filename, format_violation, format_violations
 
 
@@ -26,9 +30,9 @@ def test__cli__formatters__filename_col():
 
 def test__cli__formatters__violation():
     """ NB Position is 1 + start_pos """
-    c = PositionedChunk('foobarbar', 10, 20, 'context')
+    s = RawSegment('foobarbar', FilePositionMarker(0, 20, 11, 100))
     r = RuleGhost('A', 'DESC')
-    v = RuleViolation(c, r, [])
+    v = SQLLintError(segment=s, rule=r)
     f = format_violation(v)
     assert escape_ansi(f) == "L:  20 | P:  11 | A | DESC"
 
@@ -37,16 +41,16 @@ def test__cli__formatters__violations():
     # check not just the formatting, but the ordering
     v = {
         'foo': [
-            RuleViolation(
-                PositionedChunk('blah', 1, 25, 'context'),
-                RuleGhost('A', 'DESC'), []),
-            RuleViolation(
-                PositionedChunk('blah', 2, 21, 'context'),
-                RuleGhost('B', 'DESC'), [])],
+            SQLLintError(
+                segment=RawSegment('blah', FilePositionMarker(0, 25, 2, 26)),
+                rule=RuleGhost('A', 'DESC')),
+            SQLLintError(
+                segment=RawSegment('blah', FilePositionMarker(0, 21, 3, 22)),
+                rule=RuleGhost('B', 'DESC'))],
         'bar': [
-            RuleViolation(
-                PositionedChunk('blah', 10, 2, 'context'),
-                RuleGhost('C', 'DESC'), [])]
+            SQLLintError(
+                segment=RawSegment('blah', FilePositionMarker(0, 2, 11, 3)),
+                rule=RuleGhost('C', 'DESC'))]
     }
     f = format_violations(v)
     k = sorted(['foo', 'bar'])
