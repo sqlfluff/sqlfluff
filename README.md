@@ -6,7 +6,7 @@
 [![image](https://img.shields.io/pypi/pyversions/sqlfluff.svg)](https://pypi.org/project/sqlfluff/)
 [![codecov](https://codecov.io/gh/alanmcruickshank/sqlfluff/branch/master/graph/badge.svg)](https://codecov.io/gh/alanmcruickshank/sqlfluff)
 [![Requirements Status](https://requires.io/github/alanmcruickshank/sqlfluff/requirements.svg?branch=master)](https://requires.io/github/alanmcruickshank/sqlfluff/requirements/?branch=master)
-[![CircleCI](https://circleci.com/gh/alanmcruickshank/sqlfluff/tree/master.svg?style=svg)](https://circleci.com/gh/alanmcruickshank/sqlfluff/tree/master)
+[![CircleCI](https://circleci.com/gh/alanmcruickshank/sqlfluff/tree/master.svg?style=shield)](https://circleci.com/gh/alanmcruickshank/sqlfluff/tree/master)
 
 > ## *NOTE:* sqlfluff is currently undergoing a major re-write to the parser, and so is not currently accepting pull requests.
 
