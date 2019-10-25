@@ -2,6 +2,7 @@
 
 import os
 from collections import namedtuple
+from six import StringIO
 
 from .dialects import AnsiSQLDialiect
 
@@ -153,7 +154,6 @@ class Linter(object):
         """ A simple pass through to access the rule tuples of the rule set """
         rs = self.get_ruleset()
         rt = [(rule.code, rule.description) for rule in rs]
-        return rt
 
         if self.rule_whitelist:
             return [elem for elem in rt if elem[0] in self.rule_whitelist]
@@ -163,6 +163,11 @@ class Linter(object):
     def parse_file(self, f, fname=None, verbosity=0, recurse=True):
         violations = []
         t0 = get_time()
+
+        # Allow f to optionally be a raw string
+        if isinstance(f, str):
+            # Add it to a buffer if that's what we're doing
+            f = StringIO(f)
 
         verbosity_logger("LEXING RAW ({0})".format(fname), verbosity=verbosity)
         # Lex the file and log any problems

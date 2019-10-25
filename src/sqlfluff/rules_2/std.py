@@ -1,20 +1,15 @@
 """ Standard SQL Linting Rules """
 
-from .crawler import BaseCrawler
+from .crawler import BaseCrawler, LintResult, LintFix
 from ..parser_2.segments_base import RawSegment
 
 
+# TODO: Make this multiple configurable somewhere in
+# the dialect.
+TAB_SPACE_SIZE = 4
+
+
 def L001_eval(segment, raw_stack, **kwargs):
-    """ We only care about the segment the preceeding segments """
-    # We only trigger on newlines
-    if segment.raw == '\n' and raw_stack[-1].name == 'whitespace':
-        # If we find a newline, which is preceeded by whitespace, then bad
-        return raw_stack[-1]
-    else:
-        return True
-
-
-def L001_fix(segment, raw_stack, **kwargs):
     """ We only care about the segment the preceeding segments """
     # We only trigger on newlines
     if segment.raw == '\n' and raw_stack[-1].name == 'whitespace':
@@ -27,16 +22,16 @@ def L001_fix(segment, raw_stack, **kwargs):
                 idx -= 1
             else:
                 break
-        return {'delete': deletions}
-    else:
-        return {}
+        return LintResult(
+            anchor=deletions[-1],
+            fixes=[LintFix('delete', d) for d in deletions]
+        )
 
 
 L001 = BaseCrawler(
     'L001',
     'Uneccessary trailing whitespace',
-    evaluate_function=L001_eval,
-    fix_function=L001_fix
+    evaluate_function=L001_eval
 )
 
 
@@ -46,29 +41,46 @@ L001 = BaseCrawler(
 def L002_eval(segment, raw_stack, **kwargs):
     # We can only trigger on whitespace which is either
     # preceeded by nothing, a newline, or whitespace then either of the above.
+
+    def construct_response():
+        """ Make this generic so we can call it from a few places """
+        return LintResult(
+            anchor=segment,
+            fixes=[
+                LintFix(
+                    'edit', segment,
+                    segment.edit(segment.raw.replace('\t', ' ' * TAB_SPACE_SIZE)))
+            ]
+        )
+
     if segment.name == 'whitespace':
         if ' ' in segment.raw and '\t' in segment.raw:
             if len(raw_stack) == 0 or raw_stack[-1].raw == '\n':
-                return False
+                # We've got a single whitespace at the beginning of a line.
+                # It's got a mix of spaces and tabs. Replace each tab with
+                # a multiple of spaces
+                return construct_response()
             elif raw_stack[-1].name == 'whitespace':
                 # It's preceeded by more whitespace!
+                # We shouldn't worry about correcting those
+                # segments, because those will be caught themselves, but we
+                # do want to collect them together.
                 buff = list(raw_stack)
                 while True:
                     # pop something off the end
-                    if len(buff) == 0:
-                        # Found start of file
-                        return False
-
                     seg = buff.pop()
                     if seg.name == 'whitespace':
-                        continue
+                        if len(buff) == 0:
+                            # Found start of file
+                            return construct_response()
+                        else:
+                            continue
                     elif seg.raw == '\n':
                         # we're at the start of a line
-                        return False
+                        return construct_response()
                     else:
                         # We're not at the start of a line
                         break
-    return True
 
 
 L002 = BaseCrawler(
@@ -85,20 +97,24 @@ def L003_eval(segment, raw_stack, **kwargs):
     # We can only trigger on whitespace which is either
     # preceeded by nothing or a newline.
     if segment.name == 'whitespace':
-        if segment.raw.count(' ') % 4 != 0:
+        ws_len = segment.raw.count(' ')
+        if ws_len % TAB_SPACE_SIZE != 0:
             if len(raw_stack) == 0 or raw_stack[-1].raw == '\n':
-                return False
-    return True
+                best_len = int(round(ws_len * 1.0 / TAB_SPACE_SIZE)) * TAB_SPACE_SIZE
+                return LintResult(
+                    anchor=segment,
+                    fixes=[LintFix('edit', segment, segment.edit(' ' * best_len))]
+                )
 
 
 L003 = BaseCrawler(
     'L003',
-    'Spaced indent is not a multiple of four',
+    'Spaced indent is not a multiple of {0}'.format(TAB_SPACE_SIZE),
     evaluate_function=L003_eval
 )
 
 
-# L004 - Indentation is not a multiple of four
+# L004 - Mixed tab/space indentation found in file
 
 
 def L004_eval(segment, raw_stack, memory, **kwargs):
@@ -112,10 +128,10 @@ def L004_eval(segment, raw_stack, memory, **kwargs):
             memory['indents_seen'] = indents_union
             if len(indents_union) > 1:
                 # We are seeing an indent we haven't seen before and we've seen others before
-                return False, memory
+                return LintResult(anchor=segment, memory=memory)
             else:
-                return True, memory
-    return True, memory
+                return LintResult(memory=memory)
+    return LintResult(memory=memory)
 
 
 L004 = BaseCrawler(
@@ -125,31 +141,33 @@ L004 = BaseCrawler(
 )
 
 
+# L005 - Commas should not have whitespace directly before them
+
+
+def L005_fix(segment, raw_stack, **kwargs):
+    # We need at least one segments behind us for this to work
+    if len(raw_stack) >= 1:
+        cm1 = raw_stack[-1]
+        if segment.name == 'comma' and cm1.name == 'whitespace':
+            return LintResult(anchor=cm1, fixes=[LintFix('delete', cm1)])
+
+
+L005 = BaseCrawler(
+    'L005',
+    'Commas should not have whitespace directly before them',
+    evaluate_function=L005_fix
+)
+
+
 # L008 - Commas should be followed by a single whitespace unless followed by a comment
 
 
-def L008_eval(segment, raw_stack, **kwargs):
+def L008_fix(segment, raw_stack, **kwargs):
     """ This is a slightly odd one, because we'll almost always evaluate from a point a few places
     after the problem site """
     # We need at least two segments behind us for this to work
     if len(raw_stack) < 2:
-        return True
-    else:
-        cm1 = raw_stack[-1]
-        cm2 = raw_stack[-2]
-        if cm2.name == 'comma':
-            if cm1.name not in ['whitespace', 'newline']:
-                # comma followed by something that isn't whitespace!
-                return cm2
-            elif cm1.raw not in ['\n', ' '] and not segment.is_comment:
-                return cm1
-    return True
-
-
-def L008_fix(segment, raw_stack, **kwargs):
-    # We need at least two segments behind us for this to work
-    if len(raw_stack) < 2:
-        return True
+        return None
     else:
         cm1 = raw_stack[-1]
         cm2 = raw_stack[-2]
@@ -158,21 +176,19 @@ def L008_fix(segment, raw_stack, **kwargs):
                 # comma followed by something that isn't whitespace!
                 ws = RawSegment.make(' ', name='whitespace')
                 ins = ws(raw=' ', pos_marker=cm1.pos_marker)
-                return {'create': [(cm1, ins)]}
+                return LintResult(anchor=cm1, fixes=[LintFix('create', cm1, ins)])
             elif cm1.raw not in ['\n', ' '] and not segment.is_comment:
                 repl = cm1.__class__(
                     raw=' ',
                     pos_marker=cm1.pos_marker
                 )
-                return {'edit': [(cm1, repl)]}
-    return True
+                return LintResult(anchor=cm1, fixes=[LintFix('edit', cm1, repl)])
 
 
 L008 = BaseCrawler(
     'L008',
     'Commas should be followed by a single whitespace, unless followed by a comment',
-    evaluate_function=L008_eval,
-    fix_function=L008_fix
+    evaluate_function=L008_fix
 )
 
 # L009 - Trailing Whitespace
@@ -183,13 +199,13 @@ def L009_eval(segment, siblings_post, parent_stack, **kwargs):
     for this rule, we discard the others into the kwargs argument """
     if len(siblings_post) > 0:
         # This can only fail on the last segment
-        return True
+        return None
     elif len(segment.segments) > 0:
         # This can only fail on the last base segment
-        return True
+        return None
     elif segment.raw == '\n':
         # If this is the last segment, and it's a newline then we're good
-        return True
+        return None
     else:
         # so this looks like the end of the file, but we
         # need to check that each parent segment is also the last
@@ -197,9 +213,12 @@ def L009_eval(segment, siblings_post, parent_stack, **kwargs):
         pos = segment.pos_marker.char_pos
         # Does the length of the file, equal the length of the segment plus it's position
         if file_len != pos + len(segment.raw):
-            return True
+            return None
 
-    # No return value here is interpreted as a fail.
+    nls = RawSegment.make('\n', name='newline')
+    ins = nls(raw='\n', pos_marker=segment.pos_marker.advance_by(segment.raw))
+    # We're going to make an edit because otherwise we would never get a match!
+    return LintResult(anchor=segment, fixes=[LintFix('edit', segment, [segment, ins])])
 
 
 L009 = BaseCrawler(
@@ -209,4 +228,4 @@ L009 = BaseCrawler(
 )
 
 
-standard_rule_set = [L001, L002, L003, L004, L008, L009]
+standard_rule_set = [L001, L002, L003, L004, L005, L008, L009]
