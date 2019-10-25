@@ -3,11 +3,11 @@
 import pytest
 import logging
 
-from sqlfluff.parser_2.grammar import (OneOf, Sequence, GreedyUntil, ContainsOnly,
-                                       Delimited)
-from sqlfluff.parser_2.markers import FilePositionMarker
-from sqlfluff.parser_2.segments_base import RawSegment
-from sqlfluff.parser_2.segments_common import (KeywordSegment)
+from sqlfluff.parser.grammar import (OneOf, Sequence, GreedyUntil, ContainsOnly,
+                                     Delimited)
+from sqlfluff.parser.markers import FilePositionMarker
+from sqlfluff.parser.segments_base import RawSegment
+from sqlfluff.parser.segments_common import KeywordSegment
 
 # NB: All of these tests depend somewhat on the KeywordSegment working as planned
 
@@ -46,7 +46,7 @@ def seg_list():
     return generate_test_segments(['bar', ' \t ', 'foo', 'baar', ' \t '])
 
 
-def test__parser_2__grammar_oneof(seg_list):
+def test__parser__grammar_oneof(seg_list):
     fs = KeywordSegment.make('foo')
     bs = KeywordSegment.make('bar')
     g = OneOf(fs, bs)
@@ -58,7 +58,7 @@ def test__parser_2__grammar_oneof(seg_list):
     assert m.matched_segments[1] == fs('foo', seg_list[2].pos_marker)
 
 
-def test__parser_2__grammar_sequence(seg_list, caplog):
+def test__parser__grammar_sequence(seg_list, caplog):
     fs = KeywordSegment.make('foo')
     bs = KeywordSegment.make('bar')
     g = Sequence(bs, fs)
@@ -82,7 +82,7 @@ def test__parser_2__grammar_sequence(seg_list, caplog):
         assert not g.match(seg_list[1:])
 
 
-def test__parser_2__grammar_sequence_nested(seg_list, caplog):
+def test__parser__grammar_sequence_nested(seg_list, caplog):
     fs = KeywordSegment.make('foo')
     bs = KeywordSegment.make('bar')
     bas = KeywordSegment.make('baar')
@@ -102,7 +102,7 @@ def test__parser_2__grammar_sequence_nested(seg_list, caplog):
         )
 
 
-def test__parser_2__grammar_delimited(caplog):
+def test__parser__grammar_delimited(caplog):
     seg_list = generate_test_segments(['bar', ' \t ', ',', '    ', 'bar', '    '])
     bs = KeywordSegment.make('bar')
     comma = KeywordSegment.make(',', name='comma')
@@ -133,7 +133,7 @@ def test__parser_2__grammar_delimited(caplog):
         # TODO: Check I actually mean this...
 
 
-def test__parser_2__grammar_delimited_not_code_only(caplog):
+def test__parser__grammar_delimited_not_code_only(caplog):
     seg_list_a = generate_test_segments(['bar', ' \t ', '.', '    ', 'bar'])
     seg_list_b = generate_test_segments(['bar', '.', 'bar'])
     bs = KeywordSegment.make('bar')
@@ -149,7 +149,7 @@ def test__parser_2__grammar_delimited_not_code_only(caplog):
         assert g.match(seg_list_b) is not None
 
 
-def test__parser_2__grammar_greedyuntil(seg_list):
+def test__parser__grammar_greedyuntil(seg_list):
     """ NB Greedy until should NOT match if the until
     segment is present at all """
     fs = KeywordSegment.make('foo')
@@ -166,7 +166,7 @@ def test__parser_2__grammar_greedyuntil(seg_list):
     assert g2.match(seg_list).matched_segments == seg_list[:3]
 
 
-def test__parser_2__grammar_containsonly(seg_list):
+def test__parser__grammar_containsonly(seg_list):
     fs = KeywordSegment.make('foo')
     bs = KeywordSegment.make('bar')
     bas = KeywordSegment.make('baar')

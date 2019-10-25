@@ -4,9 +4,9 @@ import re
 
 # from sqlfluff.chunks import PositionedChunk
 # from sqlfluff.rules.base import RuleViolation, RuleGhost
-from sqlfluff.rules_2.crawler import RuleGhost
-from sqlfluff.parser_2.segments_base import RawSegment
-from sqlfluff.parser_2.markers import FilePositionMarker
+from sqlfluff.rules.crawler import RuleGhost
+from sqlfluff.parser import RawSegment
+from sqlfluff.parser.markers import FilePositionMarker
 from sqlfluff.errors import SQLLintError
 from sqlfluff.cli.formatters import format_filename, format_violation, format_violations
 

@@ -3,10 +3,10 @@
 import pytest
 import logging
 
-from sqlfluff.parser_2.lexer import Lexer
-from sqlfluff.parser_2.lexer import SingletonMatcher, LexMatch, RegexMatcher, RepeatedMultiMatcher
-from sqlfluff.parser_2.segments_base import RawSegment
-from sqlfluff.parser_2.markers import FilePositionMarker
+from sqlfluff.parser.lexer import Lexer
+from sqlfluff.parser.lexer import SingletonMatcher, LexMatch, RegexMatcher, RepeatedMultiMatcher
+from sqlfluff.parser.segments_base import RawSegment
+from sqlfluff.parser.markers import FilePositionMarker
 
 
 def assert_matches(instring, matcher, matchstring):
@@ -42,7 +42,7 @@ def assert_matches(instring, matcher, matchstring):
         ("*-+bd/", ['*', '-', '+', 'bd', '/'])
     ]
 )
-def test__parser_2__lexer_obj(raw, res, caplog):
+def test__parser__lexer_obj(raw, res, caplog):
     lex = Lexer()
     with caplog.at_level(logging.DEBUG):
         assert [seg.raw for seg in lex.lex(raw)] == res
@@ -55,7 +55,7 @@ def test__parser_2__lexer_obj(raw, res, caplog):
         ("fsaljk", None),
     ]
 )
-def test__parser_2__lexer_singleton(raw, res):
+def test__parser__lexer_singleton(raw, res):
     matcher = SingletonMatcher(
         "dot", ".", RawSegment.make('.', name='dot', is_code=True)
     )
@@ -77,7 +77,7 @@ def test__parser_2__lexer_singleton(raw, res):
         ("' something exciting \t\n '   \t \n  fsaljk", r"'[^']*'", "' something exciting \t\n '"),
     ]
 )
-def test__parser_2__lexer_regex(raw, reg, res, caplog):
+def test__parser__lexer_regex(raw, reg, res, caplog):
     matcher = RegexMatcher(
         "test", reg, RawSegment.make('test', name='test')
     )
@@ -85,7 +85,7 @@ def test__parser_2__lexer_regex(raw, reg, res, caplog):
         assert_matches(raw, matcher, res)
 
 
-def test__parser_2__lexer_multimatcher(caplog):
+def test__parser__lexer_multimatcher(caplog):
     matcher = RepeatedMultiMatcher(
         SingletonMatcher(
             "dot", ".", RawSegment.make('.', name='dot', is_code=True)

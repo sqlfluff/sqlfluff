@@ -3,7 +3,7 @@
 import pytest
 import logging
 
-from sqlfluff.parser_2.segments_file import FileSegment
+from sqlfluff.parser.segments_file import FileSegment
 from sqlfluff.dialects import ansi_dialect
 
 
@@ -33,7 +33,7 @@ select a, b from tmp;
         ("abc \n \t def  ;blah", ['abc', ' ', '\n', ' \t ', 'def', '  ', ';', 'blah'])
     ]
 )
-def test__parser_2__file_from_raw(raw, res, caplog):
+def test__parser__file_from_raw(raw, res, caplog):
     with caplog.at_level(logging.DEBUG):
         fs = FileSegment.from_raw(raw)
     # From just the initial parse, check we're all there
@@ -60,7 +60,7 @@ def test__parser_2__file_from_raw(raw, res, caplog):
         multi_statement_test
     ]
 )
-def test__parser_2__base_file_parse(raw, caplog):
+def test__parser__base_file_parse(raw, caplog):
     fs = FileSegment.from_raw(raw)
     # From just the initial parse, check we're all there
     assert fs.raw == raw
@@ -184,7 +184,7 @@ def test__parser_2__base_file_parse(raw, caplog):
         )
     ]
 )
-def test__parser_2__base_parse_struct(raw, res, caplog):
+def test__parser__base_parse_struct(raw, res, caplog):
     """ Some simple statements to check full parsing structure """
     fs = FileSegment.from_raw(raw)
     with caplog.at_level(logging.DEBUG):

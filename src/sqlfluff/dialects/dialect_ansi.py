@@ -6,10 +6,9 @@ There shouldn't be any underlying "machinery" here, that should all
 be defined elsewhere.
 """
 
-from ..parser_2.segments_base import (BaseSegment)
-from ..parser_2.segments_common import (KeywordSegment, ReSegment, NamedSegment)
-from ..parser_2.grammar import (Sequence, GreedyUntil, StartsWith, ContainsOnly,
-                                OneOf, Delimited, Bracketed, AnyNumberOf)
+from ..parser import (BaseSegment, KeywordSegment, ReSegment, NamedSegment,
+                      Sequence, GreedyUntil, StartsWith, ContainsOnly,
+                      OneOf, Delimited, Bracketed, AnyNumberOf)
 from .base import Dialect
 
 # NOTE: There is a concept here, of parallel grammars.

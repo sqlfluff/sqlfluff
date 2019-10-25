@@ -1,9 +1,9 @@
 """ The Test file for The New Parser (Marker Classes)"""
 
-from sqlfluff.parser_2.markers import FilePositionMarker
+from sqlfluff.parser.markers import FilePositionMarker
 
 
-def test__parser_2__common_marker():
+def test__parser__common_marker():
     # test making one from fresh
     fp1 = FilePositionMarker.from_fresh()
     fp2 = fp1.advance_by('abc')
@@ -19,7 +19,7 @@ def test__parser_2__common_marker():
     assert fp4 == FilePositionMarker(2, 3, 7, 17)
 
 
-def test__parser_2__common_marker_format():
+def test__parser__common_marker_format():
     fp1 = FilePositionMarker(1, 2, 3, 0)
     # Check Formatting Style
     assert str(fp1) == "[0](1, 2, 3)"

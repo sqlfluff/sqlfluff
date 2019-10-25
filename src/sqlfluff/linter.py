@@ -6,11 +6,13 @@ from six import StringIO
 
 from .dialects import dialect_selector
 
-from .parser_2.segments_file import FileSegment
-from .parser_2.segments_base import verbosity_logger, frame_msg
+# TODO: I feel like these functions should live elsewhere, or
+# be importable directly from .parser
+from .parser.segments_file import FileSegment
+from .parser.segments_base import verbosity_logger, frame_msg
 from .errors import SQLParseError, SQLLexError
 
-from .rules_2.std import standard_rule_set
+from .rules.std import standard_rule_set
 from .helpers import get_time
 
 
