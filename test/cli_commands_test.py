@@ -8,7 +8,7 @@ import shutil
 from click.testing import CliRunner
 
 import sqlfluff
-from sqlfluff.cli.commands import lint, version, rules, fix
+from sqlfluff.cli.commands import lint, version, rules, fix, parse
 
 
 def test__cli__command_directed():
@@ -61,6 +61,15 @@ def test__cli__command_lint_b():
     """
     runner = CliRunner()
     result = runner.invoke(lint, ['-n', 'test/fixtures/cli/passing_b.sql'])
+    assert result.exit_code == 0
+
+
+def test__cli__command_parse():
+    """
+    Check parse command
+    """
+    runner = CliRunner()
+    result = runner.invoke(parse, ['-n', 'test/fixtures/cli/passing_b.sql'])
     assert result.exit_code == 0
 
 
