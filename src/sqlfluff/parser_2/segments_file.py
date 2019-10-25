@@ -2,9 +2,10 @@
 
 
 from .segments_base import BaseSegment
-from .segments_core import (StatementSegment, KeywordSegment)
+# TODO: Remove this too
+from .segments_common import KeywordSegment
 from .lexer import Lexer
-from .grammar import Delimited
+from .grammar import Delimited, Ref
 
 
 class FileSegment(BaseSegment):
@@ -12,7 +13,7 @@ class FileSegment(BaseSegment):
     and probably defines structure a little further down than it should. """
     type = 'file'
     grammar = Delimited(
-        StatementSegment,
+        Ref('StatementSegment'),
         delimiter=KeywordSegment.make(';', name="semicolon"),
         code_only=False,
         allow_trailing=True

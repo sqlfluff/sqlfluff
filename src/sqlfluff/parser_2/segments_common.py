@@ -30,7 +30,7 @@ class KeywordSegment(RawSegment):
     _case_sensitive = False
 
     @classmethod
-    def match(cls, segments, match_depth=0, parse_depth=0, verbosity=0):
+    def match(cls, segments, match_depth=0, parse_depth=0, verbosity=0, dialect=None):
         """ Keyword implements it's own matching function """
         # If we've been passed the singular, make it a list
         if isinstance(segments, BaseSegment):
@@ -54,7 +54,7 @@ class KeywordSegment(RawSegment):
         return MatchResult.from_unmatched(segments)
 
     @classmethod
-    def expected_string(cls):
+    def expected_string(cls, dialect=None):
         return cls._template
 
 
@@ -62,7 +62,7 @@ class ReSegment(KeywordSegment):
     """ A more flexible matching segment for use of regexes
     USE WISELY """
     @classmethod
-    def match(cls, segments, match_depth=0, parse_depth=0, verbosity=0):
+    def match(cls, segments, match_depth=0, parse_depth=0, verbosity=0, dialect=None):
         """ ReSegment implements it's own matching function,
         we assume that ._template is a r"" string, and is formatted
         for use directly as a regex. This only matches on a single segment."""
@@ -92,7 +92,7 @@ class ReSegment(KeywordSegment):
         return MatchResult.from_unmatched(segments)
 
     @classmethod
-    def expected_string(cls):
+    def expected_string(cls, dialect=None):
         return cls.type
 
 
@@ -101,7 +101,7 @@ class NamedSegment(KeywordSegment):
     of segments. Useful for matching quoted segments.
     USE WISELY """
     @classmethod
-    def match(cls, segments, match_depth=0, parse_depth=0, verbosity=0):
+    def match(cls, segments, match_depth=0, parse_depth=0, verbosity=0, dialect=None):
         """ NamedSegment implements it's own matching function,
         we assume that ._template is the `name` of a segment"""
         # If we've been passed the singular, make it a list
@@ -125,5 +125,5 @@ class NamedSegment(KeywordSegment):
         return MatchResult.from_unmatched(segments)
 
     @classmethod
-    def expected_string(cls):
+    def expected_string(cls, dialect=None):
         return "[" + cls._template + "]"

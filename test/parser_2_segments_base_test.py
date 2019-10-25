@@ -4,6 +4,7 @@ import pytest
 
 from sqlfluff.parser_2.markers import FilePositionMarker
 from sqlfluff.parser_2.segments_base import RawSegment, BaseSegment
+from sqlfluff.dialects import ansi_dialect
 
 
 @pytest.fixture(scope="module")
@@ -60,7 +61,7 @@ def test__parser_2__base_segments_base(raw_seg_list):
     # Check we assume the position correctly
     assert base_seg.pos_marker == raw_seg_list[0].pos_marker
     # Expand and given we don't have a grammar we should get the same thing
-    assert base_seg.parse() == base_seg
+    assert base_seg.parse(dialect=ansi_dialect) == base_seg
     # Check that we correctly reconstruct the raw
     assert base_seg.raw == "foobar.barfoo"
     # Check tuple

@@ -7,7 +7,7 @@ from sqlfluff.parser_2.grammar import (OneOf, Sequence, GreedyUntil, ContainsOnl
                                        Delimited)
 from sqlfluff.parser_2.markers import FilePositionMarker
 from sqlfluff.parser_2.segments_base import RawSegment
-from sqlfluff.parser_2.segments_core import (KeywordSegment)
+from sqlfluff.parser_2.segments_common import (KeywordSegment)
 
 # NB: All of these tests depend somewhat on the KeywordSegment working as planned
 

@@ -6,10 +6,11 @@ There shouldn't be any underlying "machinery" here, that should all
 be defined elsewhere.
 """
 
-from .segments_base import (BaseSegment)
-from .segments_common import (KeywordSegment, ReSegment, NamedSegment)
-from .grammar import (Sequence, GreedyUntil, StartsWith, ContainsOnly,
-                      OneOf, Delimited, Bracketed, AnyNumberOf)
+from ..parser_2.segments_base import (BaseSegment)
+from ..parser_2.segments_common import (KeywordSegment, ReSegment, NamedSegment)
+from ..parser_2.grammar import (Sequence, GreedyUntil, StartsWith, ContainsOnly,
+                                OneOf, Delimited, Bracketed, AnyNumberOf)
+from .base import Dialect
 
 # NOTE: There is a concept here, of parallel grammars.
 # We use one (slightly more permissive) grammar to MATCH
@@ -40,6 +41,10 @@ NumericLiteralSegment = NamedSegment.make('numeric_literal', name='Literal', typ
 SingleIdentifierGrammar = OneOf(NakedIdentifierSegment, QuotedIdentifierSegment)
 
 
+ansi_dialect = Dialect('ansi')
+
+
+@ansi_dialect.segment()
 class LiteralSegment(BaseSegment):
     type = 'literal'
     match_grammar = OneOf(
@@ -47,23 +52,27 @@ class LiteralSegment(BaseSegment):
     )
 
 
+@ansi_dialect.segment()
 class ColumnExpressionSegment(BaseSegment):
     type = 'column_expression'
     match_grammar = OneOf(SingleIdentifierGrammar, code_only=False)  # QuotedIdentifierSegment
 
 
+@ansi_dialect.segment()
 class ObjectReferenceSegment(BaseSegment):
     type = 'object_reference'
     # match grammar (don't allow whitespace)
     match_grammar = Delimited(SingleIdentifierGrammar, delimiter=DotSegment, code_only=False)
 
 
+@ansi_dialect.segment()
 class AliasedObjectReferenceSegment(BaseSegment):
     type = 'object_reference'
     # match grammar (don't allow whitespace)
     match_grammar = Sequence(ObjectReferenceSegment, KeywordSegment.make('as'), SingleIdentifierGrammar)
 
 
+@ansi_dialect.segment()
 class TableExpressionSegment(BaseSegment):
     type = 'table_expression'
     # match grammar (don't allow whitespace)
@@ -74,6 +83,7 @@ class TableExpressionSegment(BaseSegment):
     )
 
 
+@ansi_dialect.segment()
 class SelectTargetGroupStatementSegment(BaseSegment):
     type = 'select_target_group'
     match_grammar = GreedyUntil(KeywordSegment.make('from'))
@@ -81,6 +91,7 @@ class SelectTargetGroupStatementSegment(BaseSegment):
     # parse_grammar = Sequence(GreedyUntil(KeywordSegment.make('from')))
 
 
+@ansi_dialect.segment()
 class JoinClauseSegment(BaseSegment):
     type = 'join_clause'
     match_grammar = OneOf(
@@ -132,6 +143,7 @@ class JoinClauseSegment(BaseSegment):
     )
 
 
+@ansi_dialect.segment()
 class FromClauseSegment(BaseSegment):
     type = 'from_clause'
     match_grammar = StartsWith(
@@ -154,6 +166,7 @@ class FromClauseSegment(BaseSegment):
     )
 
 
+@ansi_dialect.segment()
 class BooleanExpressionSegment(BaseSegment):
     # TODO: This needs to be somehow recursive. Could be a problem...
     type = 'boolean_expression'
@@ -192,6 +205,7 @@ class BooleanExpressionSegment(BaseSegment):
     )
 
 
+@ansi_dialect.segment()
 class WhereClauseSegment(BaseSegment):
     type = 'where_clause'
     match_grammar = StartsWith(
@@ -209,6 +223,7 @@ class WhereClauseSegment(BaseSegment):
     )
 
 
+@ansi_dialect.segment()
 class OrderByClauseSegment(BaseSegment):
     type = 'orderby_clause'
     match_grammar = StartsWith(
@@ -236,6 +251,7 @@ class OrderByClauseSegment(BaseSegment):
     )
 
 
+@ansi_dialect.segment()
 class ValuesClauseSegment(BaseSegment):
     type = 'values_clause'
     match_grammar = Sequence(
@@ -255,6 +271,7 @@ class ValuesClauseSegment(BaseSegment):
     )
 
 
+@ansi_dialect.segment()
 class SelectStatementSegment(BaseSegment):
     type = 'select_statement'
     # match grammar. This one makes sense in the context of knowing that it's
@@ -270,6 +287,7 @@ class SelectStatementSegment(BaseSegment):
     )
 
 
+@ansi_dialect.segment()
 class WithCompoundStatementSegment(BaseSegment):
     type = 'with_compound_statement'
     # match grammar
@@ -289,6 +307,7 @@ class WithCompoundStatementSegment(BaseSegment):
     )
 
 
+@ansi_dialect.segment()
 class InsertStatementSegment(BaseSegment):
     type = 'insert_statement'
     match_grammar = StartsWith(KeywordSegment.make('insert'))
@@ -304,6 +323,7 @@ class InsertStatementSegment(BaseSegment):
     )
 
 
+@ansi_dialect.segment()
 class EmptyStatementSegment(BaseSegment):
     type = 'empty_statement'
     grammar = ContainsOnly('comment', 'newline')
@@ -311,6 +331,7 @@ class EmptyStatementSegment(BaseSegment):
     # allowed at the END - otherwise it's probably a parsing error
 
 
+@ansi_dialect.segment()
 class StatementSegment(BaseSegment):
     type = 'statement'
     parse_grammar = OneOf(SelectStatementSegment, InsertStatementSegment, EmptyStatementSegment, WithCompoundStatementSegment)

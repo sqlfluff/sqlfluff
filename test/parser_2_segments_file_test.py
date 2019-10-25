@@ -4,6 +4,7 @@ import pytest
 import logging
 
 from sqlfluff.parser_2.segments_file import FileSegment
+from sqlfluff.dialects import ansi_dialect
 
 
 multi_statement_test = """\
@@ -67,7 +68,7 @@ def test__parser_2__base_file_parse(raw, caplog):
     with caplog.at_level(logging.DEBUG):
         logging.debug("Pre-parse structure: {0}".format(fs.to_tuple(show_raw=True)))
         logging.debug("Pre-parse structure: {0}".format(fs.stringify()))
-        parsed = fs.parse()  # Optional: set recurse=1 to limit recursion
+        parsed = fs.parse(dialect=ansi_dialect)  # Optional: set recurse=1 to limit recursion
         logging.debug("Post-parse structure: {0}".format(fs.to_tuple(show_raw=True)))
         logging.debug("Post-parse structure: {0}".format(fs.stringify()))
     # Check we're all there.
@@ -187,5 +188,5 @@ def test__parser_2__base_parse_struct(raw, res, caplog):
     """ Some simple statements to check full parsing structure """
     fs = FileSegment.from_raw(raw)
     with caplog.at_level(logging.DEBUG):
-        parsed = fs.parse()
+        parsed = fs.parse(dialect=ansi_dialect)
     assert parsed.to_tuple(code_only=True, show_raw=True) == res
