@@ -14,25 +14,51 @@
 
 from collections import namedtuple
 
-from ..errors import SQLBaseError, SQLLintError
-from ..parser_2.segments_base import BaseSegment
+from ..errors import SQLLintError
 
 
 # The ghost of a rule (mostly used for testing)
 RuleGhost = namedtuple('RuleGhost', ['code', 'description'])
 
 
+class LintResult(object):
+    def __init__(self, anchor=None, fixes=None, memory=None):
+        # An anchor of none, means no issue
+        self.anchor = anchor
+        # Fixes might be blank
+        self.fixes = fixes or []
+        # Memory is passed back in the linting result
+        self.memory = memory
+
+    def to_linting_error(self, rule):
+        if self.anchor:
+            return SQLLintError(rule=rule, segment=self.anchor, fixes=self.fixes)
+        else:
+            return None
+
+
+class LintFix(object):
+    def __init__(self, edit_type, anchor, edit=None):
+        if edit_type not in ['create', 'edit', 'delete']:
+            raise ValueError("Unexpected edit_type: {0}".format(edit_type))
+        self.edit_type = edit_type
+        self.anchor = anchor
+        self.edit = edit
+
+    def __repr__(self):
+        return "<LintFix: {0} @{1}>".format(self.edit_type, self.anchor.pos_marker)
+
+
 class BaseCrawler(object):
-    def __init__(self, code, description, evaluate_function, fix_function=None):
+    def __init__(self, code, description, evaluate_function=None, fix_function=None):
         # NB not sure how crawlers should be instantiated yet.
         self.description = description
         self.code = code
         # evaluation functions should return a boolean and optionally a fixed version of the given segment.
         # True means that we PASS. False means that we have a problem
+        # Evaluate functions can be simple, but best they should return a LintResult
+        # which also records any fixes to be made.
         self.evaluate_function = evaluate_function
-        # Fix functions should return results as a dict
-        # of the form {'create':[],'edit':[],'delete':[]}
-        self.fix_function = fix_function
 
     def crawl(self, segment, parent_stack=None, siblings_pre=None, siblings_post=None, raw_stack=None, fix=False, memory=None):
         # parent stack should be a tuple if it exists
@@ -48,48 +74,29 @@ class BaseCrawler(object):
         siblings_post = siblings_post or tuple([])
         siblings_pre = siblings_pre or tuple([])
         memory = memory or {}
+        vs = []
 
         res = self.evaluate_function(
             segment=segment, parent_stack=parent_stack,
             siblings_pre=siblings_pre, siblings_post=siblings_post,
             raw_stack=raw_stack, memory=memory)
 
-        # If we're using the memory then unpack it
-        if isinstance(res, tuple):
-            memory = res[1]
-            res = res[0]
-
-        vs = []
-        if isinstance(res, bool) or res is None:
-            if not res:  # NB: This triggers on False, but also None
-                # We're appending strings for now. We can do better
-                # vs.append("Found Violation of {0} at {1}".format(self.code, segment))
-                vs.append(SQLLintError(rule=self, segment=segment))
-        elif isinstance(res, BaseSegment):
-            # if we're returned a segment, then this is a fail, and the crawler is
-            # indicating the offending segment
-            vs.append(SQLLintError(rule=self, segment=res))
-        elif res:
-            # If we've got anything else, then there was a problem
-            if isinstance(res, SQLBaseError):
-                # Maybe the crawler implements it's own erro handling
-                vs.append(res)
-            else:
-                raise ValueError("Unexpected response from a crawler: {0}".format(res))
-
-        fix_edits = None
-        if fix and vs and self.fix_function:
-            # There must be a violation to invoke a fix
-            fix_edits = self.fix_function(
-                segment=segment, parent_stack=parent_stack,
-                siblings_pre=siblings_pre, siblings_post=siblings_post,
-                raw_stack=raw_stack, memory=memory)
-            if fix_edits:
-                # If we made any fixes, we should return immediately
-                return vs, raw_stack, fix_edits, memory
-            else:
-                # TODO: May log nicely and warn here...
-                pass
+        if res is None:
+            # Assume this means no problems (also means no memory)
+            pass
+        elif isinstance(res, LintResult):
+            # Extract any memory
+            memory = res.memory
+            lerr = res.to_linting_error(rule=self)
+            if lerr:
+                vs.append(lerr)
+            # We need fixes and to be in fix mode to invoke this...
+            if res.fixes and fix:
+                # Return straight away so the fixes can be applied.
+                return vs, raw_stack, res.fixes, memory
+        else:
+            raise TypeError(
+                "Got unexpected result [{0!r}] back from linting rule: {1!r}".format(res, self.code))
 
         # The raw stack only keeps track of the previous raw segments
         if len(segment.segments) == 0:
@@ -98,17 +105,17 @@ class BaseCrawler(object):
         parent_stack += tuple([segment])
 
         for idx, child in enumerate(segment.segments):
-            dvs, raw_stack, fix_edits, memory = self.crawl(
+            dvs, raw_stack, fixes, memory = self.crawl(
                 child, parent_stack=parent_stack,
                 siblings_pre=segment.segments[:idx],
                 siblings_post=segment.segments[idx + 1:],
                 raw_stack=raw_stack, fix=fix, memory=memory)
             vs += dvs
 
-            if fix_edits:
+            if fixes and fix:
                 # If we have a fix then return immediately so it can be applied
-                return vs, raw_stack, fix_edits, memory
+                return vs, raw_stack, fixes, memory
 
-        # NB If we're returning at this stage, the assumption is that
-        # there aren't any fixes to apply
-        return vs, raw_stack, fix_edits, memory
+        # If we get here, then we're not returning any fixes (even if they've been
+        # generated). So blank that out here.
+        return vs, raw_stack, [], memory

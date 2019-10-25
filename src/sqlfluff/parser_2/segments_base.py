@@ -17,6 +17,7 @@ import logging
 from six import StringIO
 
 from .match import MatchResult, curtail_string, join_segments_raw
+from ..errors import SQLLintError
 
 
 def verbosity_logger(msg, verbosity=0, level='info', v_level=3):
@@ -437,119 +438,74 @@ class BaseSegment(object):
         # We need to have fixes to apply AND this must have children. In the case
         # of raw segments, they will be replaced or removed by their parent and
         # so this function should just return self.
+
+        # Let's check what we've been given.
+        if fixes and isinstance(fixes[0], SQLLintError):
+            logging.error("Transforming `fixes` from errors into a list of fixes")
+            # We've got linting errors, let's aggregate them into a list of fixes
+            buff = []
+            for err in fixes:
+                buff += err.fixes
+            # Overwrite fixes
+            fixes = buff
+
         if fixes and not self.is_raw():
             # Get a reference to self to start with, but this will rapidly
             # become a working copy.
             r = self
 
-            # First mutate self if required. Then recurse. Then create.
-
-            # First remove stuff (because that's easy)
-            if 'delete' in fixes:
-                # Make a working copy
-                seg_buffer = []
-                todo_buffer = list(self.segments)
-                while True:
-                    if len(todo_buffer) == 0:
-                        break
-                    else:
-                        seg = todo_buffer.pop(0)
-                        # We do still need to check for whether the delete key is there
-                        # because we might have removed it during this cycle
-                        if 'delete' in fixes and seg in fixes['delete']:
-                            # If its' the the delete buffer, then skip it from assembling the
-                            # sequence, but also remove if from the delete buffer
-                            fixes['delete'].remove(seg)
-                            # If we've removed the last one, remove the delete key
-                            if len(fixes['delete']) == 0:
-                                del fixes['delete']
-                        else:
-                            # We don't want to remove this one so add it to the buffer
-                            seg_buffer.append(seg)
-                # Make the buffer into a tuple
-                seg_buffer = tuple(seg_buffer)
-                # Do we need to reform?
-                if seg_buffer != r.segments:
-                    r = r.__class__(
-                        segments=seg_buffer,
-                        pos_marker=r.pos_marker
-                    )
-
-            # Then edit stuff
-            if 'edit' in fixes:
-                # Make a working copy
-                q = fixes['edit']
-                for anchor, edit in q:
-                    for s in r.segments:
-                        if anchor == s:
-                            # We've found the segment to delete.
-                            # Copy the working segment, with everything except
-                            # this item
-
-                            # TODO: Redo this so we don't use index matcing!!!!
-
-                            seg_buffer = []
-                            for seg in r.segments:
-                                if seg == anchor:
-                                    seg_buffer.append(edit)
-                                else:
-                                    seg_buffer.append(seg)
-                            r = r.__class__(
-                                segments=tuple(seg_buffer),
-                                pos_marker=r.pos_marker
-                            )
-                            # Given we've dealt with this item, remove it from the pending fixes
-                            fixes['edit'].remove((anchor, edit))
-                            # If we've removed the last one, remove the edit key
-                            if len(fixes['edit']) == 0:
-                                del fixes['edit']
-                            # break out of the r.segments iteration, so we can reform on the
-                            # new working version.
-                            break
-
-            # Then recurse (i.e. deal with the children)
+            # Make a working copy
             seg_buffer = []
-            seg_queue = r.segments
+            todo_buffer = list(self.segments)
+            while True:
+                if len(todo_buffer) == 0:
+                    break
+                else:
+                    seg = todo_buffer.pop(0)
+                    unused_fixes = []
+                    for f in fixes:
+                        if f.anchor == seg:
+                            if f.edit_type == 'delete':
+                                # We're just getting rid of this segment.
+                                seg = None
+                            elif f.edit_type in ('edit', 'create'):
+                                # We're doing a replacement (it could be a single segment or an iterable)
+                                if isinstance(f.edit, BaseSegment):
+                                    seg_buffer.append(f.edit)
+                                else:
+                                    for s in f.edit:
+                                        seg_buffer.append(s)
+
+                                if f.edit_type == 'create':
+                                    # in the case of a creation, also add this segment on the end
+                                    seg_buffer.append(seg)
+                            else:
+                                raise ValueError(
+                                    "Unexpected edit_type: {0!r} in {1!r}".format(
+                                        f.edit_type, f))
+                            # We've applied a fix here. Move on, this also consumes the fix
+                            # TODO: Maybe deal with overlapping fixes later.
+                            break
+                        else:
+                            # We've not used the fix so we should keep it in the list for later.
+                            unused_fixes.append(f)
+                    else:
+                        seg_buffer.append(seg)
+                # Switch over the the unused list
+                fixes = unused_fixes
+
+            # Then recurse (i.e. deal with the children) (Requeueing)
+            seg_queue = seg_buffer
+            seg_buffer = []
             for seg in seg_queue:
                 s, fixes = seg.apply_fixes(fixes)
                 seg_buffer.append(s)
+
+            # Reform into a new segment
             r = r.__class__(
                 segments=tuple(seg_buffer),
                 pos_marker=r.pos_marker
             )
-
-            # Finally create new things (we don't recurse on these, because that
-            # makes no sense).
-            # Then edit stuff
-            if 'create' in fixes:
-                # Make a working copy
-                q = fixes['create']
-                for c in q:
-                    pre_buffer = []
-                    post_buffer = r.segments
-                    while True:
-                        if len(post_buffer) == 0:
-                            # We've run out of segments without finding the fix, it's not here...
-                            break
-                        elif post_buffer[0].pos_marker == c.pos_marker:
-                            # This is the position of this fix! Insert it in.
-                            # There will already be a segment in this position, so we
-                            # insert the fix in BEFORE that one, and then realign.
-                            r = r.__class__(
-                                segments=tuple(pre_buffer + [c] + post_buffer),
-                                pos_marker=r.pos_marker
-                            )
-                            # Given we've dealt with this item, remove it from the pending fixes
-                            fixes['create'].remove(c)
-                            # If we've removed the last one, remove the create key
-                            if len(fixes['create']) == 0:
-                                del fixes['create']
-                            # break out of the r.segments iteration, so we can reform on the
-                            # new working version.
-                            break
-                        else:
-                            # Move on
-                            pre_buffer.append(post_buffer.pop(0))
 
             # Lastly, before returning, we should realign positions.
             # Note: Realign also returns a copy
@@ -693,6 +649,14 @@ class RawSegment(BaseSegment):
                              _name=name, **kwargs))
         # Now we return that class in the abstract. NOT INSTANTIATED
         return newclass
+
+    def edit(self, raw):
+        # Create a new segment, with exactly the same position.
+        # Return a copy with new contents
+        return self.__class__(
+            raw=raw,
+            pos_marker=self.pos_marker
+        )
 
 
 class UnparsableSegment(BaseSegment):

@@ -77,8 +77,13 @@ class SQLLintError(SQLBaseError):
         # Something about position, message and fix?
         self.segment = kwargs.pop('segment', None)
         self.rule = kwargs.pop('rule', None)
+        self.fixes = kwargs.pop('fixes', [])
         super(SQLLintError, self).__init__(*args, **kwargs)
 
     def check_tuple(self):
         """ This is used mostly in testing to easily example a linting result """
         return (self.rule.code, self.segment.pos_marker.line_no, self.segment.pos_marker.line_pos)
+
+    def __repr__(self):
+        return "<SQLLintError: rule {0} pos:{1!r}, #fixes: {2}>".format(
+            self.rule_code(), self.pos_marker(), len(self.fixes))
