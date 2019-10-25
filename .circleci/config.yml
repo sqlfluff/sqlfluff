@@ -24,7 +24,14 @@ common: &common
         command: |
           if [[ "$UPLOAD_COVERAGE" != 0 ]]; then
             pip install --user codecov
-            ~/.local/bin/codecov --required -X search gcov pycov -f coverage.xml --flags $CIRCLE_JOB
+            # Retry upload until success (sometimes we get a timeout)
+            n=0
+            until [ $n -ge 5 ]
+            do
+              ~/.local/bin/codecov --required -X search gcov pycov -f coverage.xml --flags $CIRCLE_JOB && break  # substitute your command here
+              n=$[$n+1]
+              sleep 5
+            done
           fi
     # Save the Cache to save time next time
     - save_cache:
