@@ -37,7 +37,7 @@ setup(
     author_email='alan@designingoverload.com',
     url='https://github.com/alanmcruickshank/sqlfluff',
     # Specify all the seperate packages, modules come automatically
-    packages=['sqlfluff', 'sqlfluff.cli', 'sqlfluff.rules', 'sqlfluff.parser'],
+    packages=['sqlfluff', 'sqlfluff.cli'],
     package_dir={"": "src"},
     include_package_data=True,
     classifiers=[
