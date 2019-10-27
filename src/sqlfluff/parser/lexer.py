@@ -150,7 +150,7 @@ class Lexer(object):
             RegexMatcher.from_shorthand("single_quote", r"'[^']*'", is_code=True),
             RegexMatcher.from_shorthand("double_quote", r'"[^"]*"', is_code=True),
             RegexMatcher.from_shorthand("back_quote", r"`[^`]*`", is_code=True),
-            RegexMatcher.from_shorthand("numeric_literal", r"([0-9]+(\.[0-9]+)?)", is_code=True),
+            RegexMatcher.from_shorthand("numeric_literal", r"(-?[0-9]+(\.[0-9]+)?)", is_code=True),
             RegexMatcher.from_shorthand("greater_than_or_equal", r">=", is_code=True),
             RegexMatcher.from_shorthand("less_than_or_equal", r"<=", is_code=True),
             SingletonMatcher.from_shorthand("newline", "\n"),
