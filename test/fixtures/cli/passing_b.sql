@@ -4,7 +4,7 @@ SELECT
     /*
     This is a block comment
     */
-    c.val + b.val / -2 as a_calculation
+    c.val + b.val / -2 as a_calculation,
     d.something,    -- Which a comment after it
     a.foo
 FROM tbl as a

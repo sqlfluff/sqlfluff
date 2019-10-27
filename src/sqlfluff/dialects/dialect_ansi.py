@@ -8,7 +8,7 @@ be defined elsewhere.
 
 from ..parser import (BaseSegment, KeywordSegment, ReSegment, NamedSegment,
                       Sequence, GreedyUntil, StartsWith, ContainsOnly,
-                      OneOf, Delimited, Bracketed, AnyNumberOf)
+                      OneOf, Delimited, Bracketed, AnyNumberOf, Ref)
 from .base import Dialect
 
 # NOTE: There is a concept here, of parallel grammars.
@@ -26,68 +26,129 @@ from .base import Dialect
 # https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 
 
-CommaSegment = KeywordSegment.make(',', name='Comma')
-DotSegment = KeywordSegment.make('.', name='Dot', type='dot')
-EqualsSegment = KeywordSegment.make('=', name='Equals', type='equals')
-
-NakedIdentifierSegment = ReSegment.make(r"[A-Z0-9_]*", name='Identifier', type='naked_identifier')
-QuotedIdentifierSegment = NamedSegment.make('double_quote', name='Identifier', type='quoted_identifier')
-QuotedLiteralSegment = NamedSegment.make('single_quote', name='Literal', type='quoted_literal')
-NumericLiteralSegment = NamedSegment.make('numeric_literal', name='Literal', type='numeric_literal')
-
-
-# We use a GRAMMAR here not a Segment. Otherwise we get an unecessary layer
-SingleIdentifierGrammar = OneOf(NakedIdentifierSegment, QuotedIdentifierSegment)
-
-
 ansi_dialect = Dialect('ansi')
+
+
+ansi_dialect.add(
+    SemicolonSegment=KeywordSegment.make(';', name="semicolon"),
+    StartBracketSegment=KeywordSegment.make('(', name='start_bracket', type='start_bracket'),
+    EndBracketSegment=KeywordSegment.make(')', name='end_bracket', type='end_bracket'),
+    CommaSegment=KeywordSegment.make(',', name='comma'),
+    DotSegment=KeywordSegment.make('.', name='dot', type='dot'),
+    StarSegment=KeywordSegment.make('*', name='star'),
+    EqualsSegment=KeywordSegment.make('=', name='equals', type='equals'),
+    NakedIdentifierSegment=ReSegment.make(r"[A-Z0-9_]*", name='identifier', type='naked_identifier'),
+    QuotedIdentifierSegment=NamedSegment.make('double_quote', name='identifier', type='quoted_identifier'),
+    QuotedLiteralSegment=NamedSegment.make('single_quote', name='literal', type='quoted_literal'),
+    NumericLiteralSegment=NamedSegment.make('numeric_literal', name='literal', type='numeric_literal'),
+    # We use a GRAMMAR here not a Segment. Otherwise we get an unecessary layer
+    SingleIdentifierGrammar=OneOf(Ref('NakedIdentifierSegment'), Ref('QuotedIdentifierSegment')),
+    # Keywords
+    AsKeywordSegment=KeywordSegment.make('as'),
+    FromKeywordSegment=KeywordSegment.make('from'),
+    DistinctKeywordSegment=KeywordSegment.make('distinct'),
+    AllKeywordSegment=KeywordSegment.make('all'),
+    LimitKeywordSegment=KeywordSegment.make('limit'),
+    OnKeywordSegment=KeywordSegment.make('on'),
+    JoinKeywordSegment=KeywordSegment.make('join'),
+    InnerKeywordSegment=KeywordSegment.make('inner'),
+    LeftKeywordSegment=KeywordSegment.make('left'),
+    CrossKeywordSegment=KeywordSegment.make('cross'),
+    UsingKeywordSegment=KeywordSegment.make('using'),
+    WhereKeywordSegment=KeywordSegment.make('where'),
+    GroupKeywordSegment=KeywordSegment.make('group'),
+    OrderKeywordSegment=KeywordSegment.make('order'),
+    HavingKeywordSegment=KeywordSegment.make('having'),
+    ByKeywordSegment=KeywordSegment.make('by'),
+    InKeywordSegment=KeywordSegment.make('in'),
+    AndKeywordSegment=KeywordSegment.make('and'),
+    OrKeywordSegment=KeywordSegment.make('or'),
+    NotKeywordSegment=KeywordSegment.make('not'),
+    AscKeywordSegment=KeywordSegment.make('asc'),
+    DescKeywordSegment=KeywordSegment.make('dec'),
+    ValueKeywordSegment=KeywordSegment.make('value'),
+    ValuesKeywordSegment=KeywordSegment.make('values'),
+    SelectKeywordSegment=KeywordSegment.make('select'),
+    WithKeywordSegment=KeywordSegment.make('with'),
+    InsertKeywordSegment=KeywordSegment.make('insert'),
+    IntoKeywordSegment=KeywordSegment.make('into')
+)
 
 
 @ansi_dialect.segment()
 class LiteralSegment(BaseSegment):
     type = 'literal'
     match_grammar = OneOf(
-        QuotedLiteralSegment, NumericLiteralSegment
+        Ref('QuotedLiteralSegment'), Ref('NumericLiteralSegment')
     )
 
 
 @ansi_dialect.segment()
 class ColumnExpressionSegment(BaseSegment):
     type = 'column_expression'
-    match_grammar = OneOf(SingleIdentifierGrammar, code_only=False)  # QuotedIdentifierSegment
+    match_grammar = OneOf(Ref('SingleIdentifierGrammar'), code_only=False)  # QuotedIdentifierSegment
 
 
 @ansi_dialect.segment()
 class ObjectReferenceSegment(BaseSegment):
     type = 'object_reference'
     # match grammar (don't allow whitespace)
-    match_grammar = Delimited(SingleIdentifierGrammar, delimiter=DotSegment, code_only=False)
+    match_grammar = Delimited(Ref('SingleIdentifierGrammar'), delimiter=Ref('DotSegment'), code_only=False)
 
 
 @ansi_dialect.segment()
 class AliasedObjectReferenceSegment(BaseSegment):
     type = 'object_reference'
-    # match grammar (don't allow whitespace)
-    match_grammar = Sequence(ObjectReferenceSegment, KeywordSegment.make('as'), SingleIdentifierGrammar)
+    match_grammar = Sequence(Ref('ObjectReferenceSegment'), Ref('AsKeywordSegment'), Ref('SingleIdentifierGrammar'))
 
 
 @ansi_dialect.segment()
 class TableExpressionSegment(BaseSegment):
     type = 'table_expression'
-    # match grammar (don't allow whitespace)
     match_grammar = OneOf(
-        AliasedObjectReferenceSegment,
-        ObjectReferenceSegment
+        Ref('AliasedObjectReferenceSegment'),
+        Ref('ObjectReferenceSegment')
         # Values clause?
+    )
+
+
+@ansi_dialect.segment()
+class SelectTargetElementSegment(BaseSegment):
+    type = 'select_target_element'
+    # Important to split elements before parsing, otherwise debugging is really hard.
+    match_grammar = GreedyUntil(Ref('CommaSegment'))
+    parse_grammar = OneOf(
+        # *
+        Ref('StarSegment'),
+        # 123 or 'sadfkj'
+        Ref('LiteralSegment'),
+        # 123 as blah,
+        Sequence(Ref('LiteralSegment'), Ref('AsKeywordSegment'), Ref('SingleIdentifierGrammar')),
+        # blah.*
+        Sequence(Ref('SingleIdentifierGrammar'), Ref('DotSegment'), Ref('StarSegment'), code_only=False),
+        # blah
+        Ref('ObjectReferenceSegment'),
+        # blah as blah
+        Ref('AliasedObjectReferenceSegment')
     )
 
 
 @ansi_dialect.segment()
 class SelectTargetGroupStatementSegment(BaseSegment):
     type = 'select_target_group'
-    match_grammar = GreedyUntil(KeywordSegment.make('from'))
+    match_grammar = GreedyUntil(Ref('FromKeywordSegment'))
     # We should edit the parse grammar to deal with DISTINCT, ALL or similar
-    # parse_grammar = Sequence(GreedyUntil(KeywordSegment.make('from')))
+    parse_grammar = Sequence(
+        OneOf(
+            Ref('DistinctKeywordSegment'),
+            Ref('AllKeywordSegment'),
+            optional=True
+        ),
+        Delimited(
+            Ref('SelectTargetElementSegment'),
+            delimiter=Ref('CommaSegment')
+        )
+    )
 
 
 @ansi_dialect.segment()
@@ -98,27 +159,27 @@ class JoinClauseSegment(BaseSegment):
 
         # Old School Comma style clause
         Sequence(
-            CommaSegment,
-            TableExpressionSegment
+            Ref('CommaSegment'),
+            Ref('TableExpressionSegment')
         ),
 
         # New style Join clauses
         Sequence(
             # NB These qualifiers are optional
             AnyNumberOf(
-                KeywordSegment.make('inner'),
-                KeywordSegment.make('left'),
-                KeywordSegment.make('cross'),
+                Ref('InnerKeywordSegment'),
+                Ref('LeftKeywordSegment'),
+                Ref('CrossKeywordSegment'),
                 max_times=1,
                 optional=True
             ),
-            KeywordSegment.make('join'),
-            TableExpressionSegment,
+            Ref('JoinKeywordSegment'),
+            Ref('TableExpressionSegment'),
             # NB: this is optional
             AnyNumberOf(
                 # ON clause
                 Sequence(
-                    KeywordSegment.make('on'),
+                    Ref('OnKeywordSegment'),
                     Bracketed(
                         # This is the lazy option for now...
                         GreedyUntil(
@@ -128,11 +189,11 @@ class JoinClauseSegment(BaseSegment):
                 ),
                 # USING clause
                 Sequence(
-                    KeywordSegment.make('using'),
+                    Ref('UsingKeywordSegment'),
                     Bracketed(
                         Delimited(
-                            SingleIdentifierGrammar,
-                            delimiter=CommaSegment
+                            Ref('SingleIdentifierGrammar'),
+                            delimiter=Ref('CommaSegment')
                         )
                     )
                 ),
@@ -146,20 +207,20 @@ class JoinClauseSegment(BaseSegment):
 class FromClauseSegment(BaseSegment):
     type = 'from_clause'
     match_grammar = StartsWith(
-        KeywordSegment.make('from'),
+        Ref('FromKeywordSegment'),
         terminator=OneOf(
-            KeywordSegment.make('where'),
-            KeywordSegment.make('limit'),
-            KeywordSegment.make('group'),
-            KeywordSegment.make('order'),
-            KeywordSegment.make('having')
+            Ref('WhereKeywordSegment'),
+            Ref('LimitKeywordSegment'),
+            Ref('GroupKeywordSegment'),
+            Ref('OrderKeywordSegment'),
+            Ref('HavingKeywordSegment')
         )
     )
     parse_grammar = Sequence(
-        KeywordSegment.make('from'),
-        TableExpressionSegment,
+        Ref('FromKeywordSegment'),
+        Ref('TableExpressionSegment'),
         AnyNumberOf(
-            JoinClauseSegment,
+            Ref('JoinClauseSegment'),
             optional=True
         )
     )
@@ -174,32 +235,32 @@ class BooleanExpressionSegment(BaseSegment):
             # It could be a simple equality
             # TODO: Expand this to more arithmetic later
             Sequence(
-                OneOf(ObjectReferenceSegment, LiteralSegment),
-                EqualsSegment,
-                OneOf(ObjectReferenceSegment, LiteralSegment),
+                OneOf(Ref('ObjectReferenceSegment'), Ref('LiteralSegment')),
+                Ref('EqualsSegment'),
+                OneOf(Ref('ObjectReferenceSegment'), Ref('LiteralSegment')),
             ),
             # It could be an IN statement
             # TODO: Expand this to more arithmetic later
             Sequence(
-                OneOf(ObjectReferenceSegment, LiteralSegment),
-                KeywordSegment.make('in'),
+                OneOf(Ref('ObjectReferenceSegment'), Ref('LiteralSegment')),
+                Ref('InKeywordSegment'),
                 Bracketed(
                     Delimited(
-                        LiteralSegment,
-                        delimiter=CommaSegment
+                        Ref('LiteralSegment'),
+                        delimiter=Ref('CommaSegment')
                     )
                 )
             ),
             # If it's a boolean field it could just be an identifier (with or without a not)
             # We do this last so that it's the least likely to match
             Sequence(
-                KeywordSegment.make('not').as_optional(),
-                ObjectReferenceSegment
+                Ref('NotKeywordSegment', optional=True),
+                Ref('ObjectReferenceSegment')
             ),
         ),
         delimiter=OneOf(
-            KeywordSegment.make('and'),
-            KeywordSegment.make('or')
+            Ref('AndKeywordSegment'),
+            Ref('OrKeywordSegment')
         )
     )
 
@@ -208,17 +269,17 @@ class BooleanExpressionSegment(BaseSegment):
 class WhereClauseSegment(BaseSegment):
     type = 'where_clause'
     match_grammar = StartsWith(
-        KeywordSegment.make('where'),
+        Ref('WhereKeywordSegment'),
         terminator=OneOf(
-            KeywordSegment.make('limit'),
-            KeywordSegment.make('group'),
-            KeywordSegment.make('order'),
-            KeywordSegment.make('having')
+            Ref('LimitKeywordSegment'),
+            Ref('GroupKeywordSegment'),
+            Ref('OrderKeywordSegment'),
+            Ref('HavingKeywordSegment')
         )
     )
     parse_grammar = Sequence(
-        KeywordSegment.make('where'),
-        BooleanExpressionSegment
+        Ref('WhereKeywordSegment'),
+        Ref('BooleanExpressionSegment')
     )
 
 
@@ -226,26 +287,26 @@ class WhereClauseSegment(BaseSegment):
 class OrderByClauseSegment(BaseSegment):
     type = 'orderby_clause'
     match_grammar = StartsWith(
-        KeywordSegment.make('order'),
+        Ref('OrderKeywordSegment'),
         terminator=OneOf(
-            KeywordSegment.make('limit'),
-            KeywordSegment.make('having')
+            Ref('LimitKeywordSegment'),
+            Ref('HavingKeywordSegment')
         )
     )
     parse_grammar = Sequence(
-        KeywordSegment.make('order'),
-        KeywordSegment.make('by'),
+        Ref('OrderKeywordSegment'),
+        Ref('ByKeywordSegment'),
         Delimited(
             Sequence(
-                ObjectReferenceSegment,
+                Ref('ObjectReferenceSegment'),
                 OneOf(
-                    KeywordSegment.make('asc'),
-                    KeywordSegment.make('desc'),
+                    Ref('AscKeywordSegment'),
+                    Ref('DescKeywordSegment'),
                     optional=True
                 ),
             ),
-            delimiter=CommaSegment,
-            terminator=KeywordSegment.make('limit')
+            delimiter=Ref('CommaSegment'),
+            terminator=Ref('LimitKeywordSegment')
         )
     )
 
@@ -255,17 +316,17 @@ class ValuesClauseSegment(BaseSegment):
     type = 'values_clause'
     match_grammar = Sequence(
         OneOf(
-            KeywordSegment.make('value'),
-            KeywordSegment.make('values')
+            Ref('ValueKeywordSegment'),
+            Ref('ValuesKeywordSegment')
         ),
         Delimited(
             Bracketed(
                 Delimited(
                     LiteralSegment,
-                    delimiter=CommaSegment
+                    delimiter=Ref('CommaSegment')
                 )
             ),
-            delimiter=CommaSegment
+            delimiter=Ref('CommaSegment')
         )
     )
 
@@ -275,13 +336,13 @@ class SelectStatementSegment(BaseSegment):
     type = 'select_statement'
     # match grammar. This one makes sense in the context of knowing that it's
     # definitely a statement, we just don't know what type yet.
-    match_grammar = StartsWith(KeywordSegment.make('select'))
+    match_grammar = StartsWith(Ref('SelectKeywordSegment'))
     parse_grammar = Sequence(
-        KeywordSegment.make('select'),
-        SelectTargetGroupStatementSegment,
-        FromClauseSegment.as_optional(),
-        WhereClauseSegment.as_optional(),
-        OrderByClauseSegment.as_optional(),
+        Ref('SelectKeywordSegment'),
+        Ref('SelectTargetGroupStatementSegment'),
+        Ref('FromClauseSegment', optional=True),
+        Ref('WhereClauseSegment', optional=True),
+        Ref('OrderByClauseSegment', optional=True),
         # GreedyUntil(KeywordSegment.make('limit'), optional=True)
     )
 
@@ -290,34 +351,34 @@ class SelectStatementSegment(BaseSegment):
 class WithCompoundStatementSegment(BaseSegment):
     type = 'with_compound_statement'
     # match grammar
-    match_grammar = StartsWith(KeywordSegment.make('with'))
+    match_grammar = StartsWith(Ref('WithKeywordSegment'))
     parse_grammar = Sequence(
-        KeywordSegment.make('with'),
+        Ref('WithKeywordSegment'),
         Delimited(
             Sequence(
-                ObjectReferenceSegment,
-                KeywordSegment.make('as'),
-                Bracketed(SelectStatementSegment)
+                Ref('ObjectReferenceSegment'),
+                Ref('AsKeywordSegment'),
+                Bracketed(Ref('SelectStatementSegment'))
             ),
-            delimiter=CommaSegment,
-            terminator=KeywordSegment.make('select')
+            delimiter=Ref('CommaSegment'),
+            terminator=Ref('SelectKeywordSegment')
         ),
-        SelectStatementSegment
+        Ref('SelectStatementSegment')
     )
 
 
 @ansi_dialect.segment()
 class InsertStatementSegment(BaseSegment):
     type = 'insert_statement'
-    match_grammar = StartsWith(KeywordSegment.make('insert'))
+    match_grammar = StartsWith(Ref('InsertKeywordSegment'))
     parse_grammar = Sequence(
-        KeywordSegment.make('insert'),
-        KeywordSegment.make('into', optional=True),
-        ObjectReferenceSegment,
-        Bracketed(Delimited(ObjectReferenceSegment, delimiter=CommaSegment), optional=True),
+        Ref('InsertKeywordSegment'),
+        Ref('IntoKeywordSegment', optional=True),
+        Ref('ObjectReferenceSegment'),
+        Bracketed(Delimited(Ref('ObjectReferenceSegment'), delimiter=Ref('CommaSegment')), optional=True),
         OneOf(
-            SelectStatementSegment,
-            ValuesClauseSegment
+            Ref('SelectStatementSegment'),
+            Ref('ValuesClauseSegment')
         )
     )
 
@@ -333,5 +394,7 @@ class EmptyStatementSegment(BaseSegment):
 @ansi_dialect.segment()
 class StatementSegment(BaseSegment):
     type = 'statement'
-    parse_grammar = OneOf(SelectStatementSegment, InsertStatementSegment, EmptyStatementSegment, WithCompoundStatementSegment)
-    match_grammar = GreedyUntil(KeywordSegment.make(';', name='semicolon'))
+    parse_grammar = OneOf(
+        Ref('SelectStatementSegment'), Ref('InsertStatementSegment'),
+        Ref('EmptyStatementSegment'), Ref('WithCompoundStatementSegment'))
+    match_grammar = GreedyUntil(Ref('SemicolonSegment'))

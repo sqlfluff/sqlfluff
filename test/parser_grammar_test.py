@@ -8,6 +8,7 @@ from sqlfluff.parser.grammar import (OneOf, Sequence, GreedyUntil, ContainsOnly,
 from sqlfluff.parser.markers import FilePositionMarker
 from sqlfluff.parser.segments_base import RawSegment
 from sqlfluff.parser.segments_common import KeywordSegment
+from sqlfluff.dialects import ansi_dialect
 
 # NB: All of these tests depend somewhat on the KeywordSegment working as planned
 
@@ -119,16 +120,16 @@ def test__parser__grammar_delimited(caplog):
     with caplog.at_level(logging.DEBUG):
         # Matching not quite the full list shouldn't work
         logging.info("#### TEST 1")
-        assert not g.match(seg_list[:4])
+        assert not g.match(seg_list[:4], dialect=ansi_dialect)
         # Matching not quite the full list should work if we allow trailing
         logging.info("#### TEST 1")
-        assert gt.match(seg_list[:4])
+        assert gt.match(seg_list[:4], dialect=ansi_dialect)
         # Matching up to 'bar' should
         logging.info("#### TEST 3")
-        assert g._match(seg_list[:5]).matched_segments == expectation[:5]
+        assert g._match(seg_list[:5], dialect=ansi_dialect).matched_segments == expectation[:5]
         # Matching the full list ALSO should, because it's just whitespace
         logging.info("#### TEST 4")
-        assert g.match(seg_list).matched_segments == expectation[:5]
+        assert g.match(seg_list, dialect=ansi_dialect).matched_segments == expectation[:5]
         # We shouldn't have matched the trailing whitespace.
         # TODO: Check I actually mean this...
 
@@ -143,10 +144,10 @@ def test__parser__grammar_delimited_not_code_only(caplog):
         # Matching with whitespace shouldn't match
         # TODO: dots should be parsed out EARLY
         logging.info("#### TEST 1")
-        assert not g.match(seg_list_a)
+        assert not g.match(seg_list_a, dialect=ansi_dialect)
         # Matching up to 'bar' should
         logging.info("#### TEST 2")
-        assert g.match(seg_list_b) is not None
+        assert g.match(seg_list_b, dialect=ansi_dialect) is not None
 
 
 def test__parser__grammar_greedyuntil(seg_list):

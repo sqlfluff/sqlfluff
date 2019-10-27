@@ -33,7 +33,7 @@ select a, b from tmp;
         ("abc \n \t def  ;blah", ['abc', ' ', '\n', ' \t ', 'def', '  ', ';', 'blah'])
     ]
 )
-def test__parser__file_from_raw(raw, res, caplog):
+def test__dialect__ansi__file_from_raw(raw, res, caplog):
     with caplog.at_level(logging.DEBUG):
         fs = FileSegment.from_raw(raw)
     # From just the initial parse, check we're all there
@@ -60,7 +60,7 @@ def test__parser__file_from_raw(raw, res, caplog):
         multi_statement_test
     ]
 )
-def test__parser__base_file_parse(raw, caplog):
+def test__dialect__ansi__base_file_parse(raw, caplog):
     fs = FileSegment.from_raw(raw)
     # From just the initial parse, check we're all there
     assert fs.raw == raw
@@ -86,7 +86,10 @@ def test__parser__base_file_parse(raw, caplog):
             "select 1",
             ('file', (('statement', (('select_statement', (
                 ('keyword', 'select'),
-                ('select_target_group', (('raw', '1'),))
+                ('select_target_group',
+                 (('select_target_element',
+                   (('literal',
+                     (('numeric_literal', '1'),)),)),))
             )),)),))
         ),
         # A very simplistic select
@@ -94,14 +97,14 @@ def test__parser__base_file_parse(raw, caplog):
             "select * from blah",
             ('file', (('statement', (('select_statement', (
                 ('keyword', 'select'),
-                ('select_target_group', (('raw', '*'),)),
+                ('select_target_group',
+                 (('select_target_element',
+                   (('keyword', '*'),)),)),
                 ('from_clause', (
                     ('keyword', 'from'),
                     ('table_expression', (
                         ('object_reference', (
-                            ('naked_identifier', 'blah'),
-                        )),
-                    )),
+                            ('naked_identifier', 'blah'),)),)),
                 )),
             )),)),))
         ),
@@ -111,11 +114,17 @@ def test__parser__base_file_parse(raw, caplog):
             ('file', (('statement', (('select_statement', (
                 ('keyword', 'select'),
                 ('select_target_group', (
-                    ('raw', 'a'),
-                    ('raw', ','),
-                    ('raw', 'b'),
-                    ('raw', ','),
-                    ('raw', 'c'),
+                    ('select_target_element',
+                     (('object_reference',
+                       (('naked_identifier', 'a'),)),)),
+                    ('keyword', ','),
+                    ('select_target_element',
+                     (('object_reference',
+                       (('naked_identifier', 'b'),)),)),
+                    ('keyword', ','),
+                    ('select_target_element',
+                     (('object_reference',
+                       (('naked_identifier', 'c'),)),))
                 )),
                 ('from_clause', (
                     ('keyword', 'from'),
@@ -166,7 +175,10 @@ def test__parser__base_file_parse(raw, caplog):
                   ('start_bracket', '('),
                   ('select_statement',
                    (('keyword', 'select'),
-                    ('select_target_group', (('raw', 'a'),)),
+                    ('select_target_group',
+                     (('select_target_element',
+                       (('object_reference',
+                         (('naked_identifier', 'a'),)),)),)),
                     ('from_clause',
                      (('keyword', 'from'),
                       ('table_expression',
@@ -175,16 +187,24 @@ def test__parser__base_file_parse(raw, caplog):
                   ('end_bracket', ')'),
                   ('select_statement',
                    (('keyword', 'select'),
-                    ('select_target_group', (('raw', 'a'),)),
+                    ('select_target_group',
+                     (('select_target_element',
+                       (('object_reference',
+                         (('naked_identifier', 'a'),)),)),)),
                     ('from_clause',
                      (('keyword', 'from'),
                       ('table_expression',
                        (('object_reference',
                         (('naked_identifier', 'cte'),)),)),)),)),)),)),))
+        ),
+        # A recursive expression
+        (
+            "SELECT 1 + (2 * 3) >= 4 + 6+13 as val",
+            ('file', ())
         )
     ]
 )
-def test__parser__base_parse_struct(raw, res, caplog):
+def test__dialect__ansi__base_parse_struct(raw, res, caplog):
     """ Some simple statements to check full parsing structure """
     fs = FileSegment.from_raw(raw)
     with caplog.at_level(logging.DEBUG):

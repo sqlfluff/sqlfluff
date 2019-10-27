@@ -2,8 +2,6 @@
 
 import re
 
-# from sqlfluff.chunks import PositionedChunk
-# from sqlfluff.rules.base import RuleViolation, RuleGhost
 from sqlfluff.rules.crawler import RuleGhost
 from sqlfluff.parser import RawSegment
 from sqlfluff.parser.markers import FilePositionMarker

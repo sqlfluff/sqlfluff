@@ -8,7 +8,15 @@ class Dialect(object):
         self.name = name
 
     def segment(self):
-        """ This is the decorator for elements, it should be called as a method """
+        """
+        This is the decorator for elements, it should be called as a method.
+
+        e.g.
+        @dialect.segment()
+        class SomeSegment(BaseSegment):
+            blah blah blah
+
+        """
         def segment_wrap(cls):
             """ This inner function is applied to classes to register them """
             n = cls.__name__
@@ -21,12 +29,35 @@ class Dialect(object):
         # return the wrapping function
         return segment_wrap
 
+    def add(self, **kwargs):
+        """
+        This is the alternative to the decorator route, most useful for segments
+        defined using `make`. Segments are passed in as kwargs.
+
+        e.g.
+        dialect.add(SomeSegment=KeyworkSegment.make(blah, blah, blah))
+
+        Note that mutiple segments can be added in the same call as this method
+        will iterate through the kwargs
+        """
+        for n in kwargs:
+            if n in self._library:
+                raise ValueError("{0!r} is already registered in {1!r}".format(n, self))
+            else:
+                self._library[n] = kwargs[n]
+
     def ref(self, name):
         """ Return an object which acts as a late binding reference to
         the element named """
         if name in self._library:
-            return self._library[name]
+            res = self._library[name]
+            if res:
+                return res
+            else:
+                raise ValueError(
+                    "Unexpected Null response while fetching {0!r} from {1}".format(
+                        name, self.name))
         else:
-            RuntimeError(
+            raise RuntimeError(
                 "Grammar refers to {0!r} which was not found in the {1} dialect".format(
                     name, self.name))

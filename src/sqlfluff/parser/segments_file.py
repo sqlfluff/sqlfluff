@@ -2,8 +2,6 @@
 
 
 from .segments_base import BaseSegment
-# TODO: Remove this too
-from .segments_common import KeywordSegment
 from .lexer import Lexer
 from .grammar import Delimited, Ref
 
@@ -14,7 +12,7 @@ class FileSegment(BaseSegment):
     type = 'file'
     grammar = Delimited(
         Ref('StatementSegment'),
-        delimiter=KeywordSegment.make(';', name="semicolon"),
+        delimiter=Ref('SemicolonSegment'),
         code_only=False,
         allow_trailing=True
     )

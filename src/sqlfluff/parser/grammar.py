@@ -2,7 +2,6 @@
 import logging
 
 from .segments_base import BaseSegment, verbosity_logger, check_still_complete
-from .segments_common import KeywordSegment
 from .match import MatchResult, join_segments_raw_curtailed
 from ..errors import SQLParseError
 from ..helpers import get_time
@@ -44,12 +43,7 @@ class BaseGrammar(object):
     def _match(self, segments, match_depth=0, parse_depth=0, verbosity=0, dialect=None):
         """ A wrapper on the match function to do some basic validation """
         t0 = get_time()
-        # Work out the raw representation and curtail if long
-        verbosity_logger(
-            "[PD:{0} MD:{1}] {2}._match IN [ls={3}, seg={4!r}]".format(
-                parse_depth, match_depth, self.__class__.__name__, len(segments),
-                join_segments_raw_curtailed(segments)),
-            verbosity)
+
         if isinstance(segments, BaseSegment):
             segments = segments,  # Make into a tuple for compatability
         if not isinstance(segments, tuple):
@@ -59,18 +53,29 @@ class BaseGrammar(object):
             if isinstance(segments, list):
                 # Let's make it a tuple for compatibility
                 segments = tuple(segments)
+
+        # Work out the raw representation and curtail if long
+        verbosity_logger(
+            "[PD:{0} MD:{1}] {2}._match IN [ls={3}, seg={4!r}]".format(
+                parse_depth, match_depth, self.__class__.__name__, len(segments),
+                join_segments_raw_curtailed(segments)),
+            verbosity)
+
         m = self.match(segments, match_depth=match_depth, parse_depth=parse_depth,
                        verbosity=verbosity, dialect=dialect)
+
         if not isinstance(m, MatchResult):
             logging.warning(
                 "{0}.match, returned {1} rather than MatchResult".format(
                     self.__class__.__name__, type(m)))
+
         dt = get_time() - t0
         verbosity_logger(
             "[PD:{0} MD:{1}] {2}._match OUT [dt={3:.3f}, m={4}]".format(
                 parse_depth, match_depth, self.__class__.__name__, dt, m
             ),
             verbosity)
+
         # Basic Validation
         check_still_complete(segments, m.matched_segments, m.unmatched_segments)
         return m
@@ -200,11 +205,15 @@ class Ref(BaseGrammar):
 
     def match(self, segments, match_depth=0, parse_depth=0, verbosity=0, dialect=None):
         elem = self._get_elem(dialect=dialect)
-        # Match against that. NB We're not incrementing the match_depth here.
-        # References shouldn't relly count as a depth of match.
-        return elem._match(
-            segments=segments, match_depth=match_depth,
-            parse_depth=parse_depth, verbosity=verbosity, dialect=dialect)
+
+        if elem:
+            # Match against that. NB We're not incrementing the match_depth here.
+            # References shouldn't relly count as a depth of match.
+            return elem._match(
+                segments=segments, match_depth=match_depth,
+                parse_depth=parse_depth, verbosity=verbosity, dialect=dialect)
+        else:
+            raise ValueError("Null Element returned! _elements: {0!r}".format(self._elements))
 
     def expected_string(self, dialect=None):
         """ pass through to the referenced method """
@@ -220,9 +229,28 @@ class OneOf(BaseGrammar):
         for opt in self._elements:
             m = opt._match(segments, match_depth=match_depth + 1, parse_depth=parse_depth,
                            verbosity=verbosity, dialect=dialect)
-            # If we get a match, just return it.
-            if m:
+            # If we get a complete match, just return it. If it's incomplete, then check to
+            # see if it's all non-code if that allowed and match it
+            if m.is_complete():
                 return m
+            elif m:
+                if self.code_only:
+                    # Attempt to consume whitespace if we can
+                    matched_segments = m.matched_segments
+                    unmatched_segments = m.unmatched_segments
+                    while True:
+                        if len(unmatched_segments) > 0:
+                            if unmatched_segments[0].is_code:
+                                break
+                            else:
+                                # Append as tuple
+                                matched_segments += unmatched_segments[0],
+                                unmatched_segments = unmatched_segments[1:]
+                        else:
+                            break
+                    return MatchResult(matched_segments, unmatched_segments)
+                else:
+                    return m
         else:
             # No match from the first time round. Small getout if we can match any whitespace
             if self.code_only:
@@ -436,15 +464,10 @@ class Delimited(BaseGrammar):
         self.delimiter = kwargs.pop('delimiter')
         self.allow_trailing = kwargs.pop('allow_trailing', False)
         self.terminator = kwargs.pop('terminator', None)
-        # TODO: Maybe these bracket keywords should be defined somewhere else.
-        self.start_bracket = kwargs.pop(
-            'start_bracket',
-            KeywordSegment.make('(', name='start_bracket', type='start_bracket')
-        )
-        self.end_bracket = kwargs.pop(
-            'end_bracket',
-            KeywordSegment.make(')', name='end_bracket', type='end_bracket')
-        )
+
+        # The details on how to match a bracket are stored in the dialect
+        self.start_bracket = Ref('StartBracketSegment')
+        self.end_bracket = Ref('EndBracketSegment')
         super(Delimited, self).__init__(*args, **kwargs)
 
     def match(self, segments, match_depth=0, parse_depth=0, verbosity=0, dialect=None):
@@ -713,15 +736,9 @@ class StartsWith(BaseGrammar):
     def __init__(self, target, *args, **kwargs):
         self.target = target
         self.terminator = kwargs.pop('terminator', None)
-        # TODO: Maybe these bracket keywords should be defined somewhere else.
-        self.start_bracket = kwargs.pop(
-            'start_bracket',
-            KeywordSegment.make('(', name='start_bracket', type='start_bracket')
-        )
-        self.end_bracket = kwargs.pop(
-            'end_bracket',
-            KeywordSegment.make(')', name='end_bracket', type='end_bracket')
-        )
+        # The details on how to match a bracket are stored in the dialect
+        self.start_bracket = Ref('StartBracketSegment')
+        self.end_bracket = Ref('EndBracketSegment')
         super(StartsWith, self).__init__(*args, **kwargs)
 
     def match(self, segments, match_depth=0, parse_depth=0, verbosity=0, dialect=None):
@@ -795,14 +812,9 @@ class Bracketed(BaseGrammar):
     as options for what can be in the brackets rather than a sequence. """
     def __init__(self, *args, **kwargs):
         # Start and end tokens
-        self.start_bracket = kwargs.pop(
-            'start_bracket',
-            KeywordSegment.make('(', name='start_bracket', type='start_bracket')
-        )
-        self.end_bracket = kwargs.pop(
-            'end_bracket',
-            KeywordSegment.make(')', name='end_bracket', type='end_bracket')
-        )
+        # The details on how to match a bracket are stored in the dialect
+        self.start_bracket = Ref('StartBracketSegment')
+        self.end_bracket = Ref('EndBracketSegment')
         super(Bracketed, self).__init__(*args, **kwargs)
 
     def match(self, segments, match_depth=0, parse_depth=0, verbosity=0, dialect=None):
