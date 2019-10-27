@@ -36,6 +36,10 @@ ansi_dialect.add(
     CommaSegment=KeywordSegment.make(',', name='comma'),
     DotSegment=KeywordSegment.make('.', name='dot', type='dot'),
     StarSegment=KeywordSegment.make('*', name='star'),
+    PlusSegment=KeywordSegment.make('+', name='plus', type='binary_operator'),
+    MinusSegment=KeywordSegment.make('-', name='minus', type='binary_operator'),
+    DivideSegment=KeywordSegment.make('/', name='divide', type='binary_operator'),
+    MultiplySegment=KeywordSegment.make('*', name='multiply', type='binary_operator'),
     EqualsSegment=KeywordSegment.make('=', name='equals', type='equals'),
     NakedIdentifierSegment=ReSegment.make(r"[A-Z0-9_]*", name='identifier', type='naked_identifier'),
     QuotedIdentifierSegment=NamedSegment.make('double_quote', name='identifier', type='quoted_identifier'),
@@ -43,6 +47,11 @@ ansi_dialect.add(
     NumericLiteralSegment=NamedSegment.make('numeric_literal', name='literal', type='numeric_literal'),
     # We use a GRAMMAR here not a Segment. Otherwise we get an unecessary layer
     SingleIdentifierGrammar=OneOf(Ref('NakedIdentifierSegment'), Ref('QuotedIdentifierSegment')),
+    # We specifically define a group of arithmetic operators to make it easier to override this
+    # if some dialects have different available operators
+    ArithmeticBinaryOperatorGrammar=OneOf(
+        Ref('PlusSegment'), Ref('MinusSegment'), Ref('DivideSegment'), Ref('MultiplySegment')),
+    AliasExpressionGrammar=Sequence(Ref('AsKeywordSegment'), Ref('SingleIdentifierGrammar')),
     # Keywords
     AsKeywordSegment=KeywordSegment.make('as'),
     FromKeywordSegment=KeywordSegment.make('from'),
@@ -99,7 +108,7 @@ class ObjectReferenceSegment(BaseSegment):
 @ansi_dialect.segment()
 class AliasedObjectReferenceSegment(BaseSegment):
     type = 'object_reference'
-    match_grammar = Sequence(Ref('ObjectReferenceSegment'), Ref('AsKeywordSegment'), Ref('SingleIdentifierGrammar'))
+    match_grammar = Sequence(Ref('ObjectReferenceSegment'), Ref('AliasExpressionGrammar'))
 
 
 @ansi_dialect.segment()
@@ -117,19 +126,19 @@ class SelectTargetElementSegment(BaseSegment):
     type = 'select_target_element'
     # Important to split elements before parsing, otherwise debugging is really hard.
     match_grammar = GreedyUntil(Ref('CommaSegment'))
-    parse_grammar = OneOf(
-        # *
-        Ref('StarSegment'),
-        # 123 or 'sadfkj'
-        Ref('LiteralSegment'),
-        # 123 as blah,
-        Sequence(Ref('LiteralSegment'), Ref('AsKeywordSegment'), Ref('SingleIdentifierGrammar')),
-        # blah.*
-        Sequence(Ref('SingleIdentifierGrammar'), Ref('DotSegment'), Ref('StarSegment'), code_only=False),
-        # blah
-        Ref('ObjectReferenceSegment'),
-        # blah as blah
-        Ref('AliasedObjectReferenceSegment')
+    parse_grammar = Sequence(
+        OneOf(
+            # *
+            Ref('StarSegment'),
+            # 123 or 'sadfkj'
+            Ref('LiteralSegment'),
+            # blah.*
+            Sequence(Ref('SingleIdentifierGrammar'), Ref('DotSegment'), Ref('StarSegment'), code_only=False),
+            Ref('ObjectReferenceSegment'),
+            Ref('BooleanExpressionSegment'),
+            Ref('ArithmeticExpressionSegment')
+        ),
+        Ref('AliasExpressionGrammar', optional=True)
     )
 
 
@@ -262,6 +271,23 @@ class BooleanExpressionSegment(BaseSegment):
             Ref('AndKeywordSegment'),
             Ref('OrKeywordSegment')
         )
+    )
+
+
+@ansi_dialect.segment()
+class ArithmeticExpressionSegment(BaseSegment):
+    """ NB: This is potentially recursive """
+    type = 'arithmetic_expression'
+    match_grammar = Delimited(
+        OneOf(
+            Ref('NumericLiteralSegment'),
+            Ref('ObjectReferenceSegment'),
+            Bracketed(
+                # Recursion!
+                Ref('ArithmeticExpressionSegment')
+            )
+        ),
+        delimiter=Ref('ArithmeticBinaryOperatorGrammar')
     )
 
 
