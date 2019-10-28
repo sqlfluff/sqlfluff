@@ -12,6 +12,7 @@ class BaseGrammar(object):
     must implment the `match` function. Segments can also be passed to
     most grammars. Segments implement `match` as a classmethod. Grammars
     implement it as an instance method """
+    v_level = 3
 
     def __init__(self, *args, **kwargs):
         """ Deal with kwargs common to all grammars """
@@ -63,7 +64,7 @@ class BaseGrammar(object):
             "[PD:{0} MD:{1}] {2}._match IN [ls={3}, seg={4!r}]".format(
                 parse_depth, match_depth, self.__class__.__name__, len(segments),
                 join_segments_raw_curtailed(segments)),
-            verbosity)
+            verbosity, v_level=self.v_level)
 
         m = self.match(segments, match_depth=match_depth, parse_depth=parse_depth,
                        verbosity=verbosity, dialect=dialect)
@@ -78,7 +79,7 @@ class BaseGrammar(object):
             "[PD:{0} MD:{1}] {2}._match OUT [dt={3:.3f}, m={4}]".format(
                 parse_depth, match_depth, self.__class__.__name__, dt, m
             ),
-            verbosity)
+            verbosity, v_level=self.v_level)
 
         # Basic Validation
         check_still_complete(segments, m.matched_segments, m.unmatched_segments)
@@ -190,6 +191,8 @@ class BaseGrammar(object):
 class Ref(BaseGrammar):
     """ A kind of meta-grammar that allows other defined grammars to be referenced
     at runtime from the dialect """
+    # Log less for Ref
+    v_level = 4
 
     def _get_ref(self):
         # Unusually for a grammar we expect _elements to be a list of strings.
@@ -242,8 +245,15 @@ class Ref(BaseGrammar):
 
 class OneOf(BaseGrammar):
     """ Match any of the elements given once, if it matches
-    multiple, it returns the first """
+    multiple, it returns the longest, and if any are the same
+    length it returns the first (unless we explicitly just match first)"""
+
+    def __init__(self, *args, **kwargs):
+        self.mode = kwargs.pop('mode', 'longest')  # can be 'first' or 'longest'
+        super(OneOf, self).__init__(*args, **kwargs)
+
     def match(self, segments, match_depth=0, parse_depth=0, verbosity=0, dialect=None):
+        best_match = None
         # Match on each of the options
         for opt in self._elements:
             m = opt._match(segments, match_depth=match_depth + 1, parse_depth=parse_depth,
@@ -251,6 +261,7 @@ class OneOf(BaseGrammar):
             # If we get a complete match, just return it. If it's incomplete, then check to
             # see if it's all non-code if that allowed and match it
             if m.is_complete():
+                # this will return on the *first* complete match
                 return m
             elif m:
                 if self.code_only:
@@ -267,11 +278,24 @@ class OneOf(BaseGrammar):
                                 unmatched_segments = unmatched_segments[1:]
                         else:
                             break
-                    return MatchResult(matched_segments, unmatched_segments)
+                    m = MatchResult(matched_segments, unmatched_segments)
+                if best_match:
+                    if len(m) > len(best_match):
+                        best_match = m
+                    else:
+                        continue
                 else:
-                    return m
+                    best_match = m
+                verbosity_logger(
+                    "[PD:{0} MD:{1}] {2}._match. Saving Match of Length {3}:  {4}".format(
+                        parse_depth, match_depth, self.__class__.__name__, len(m), m
+                    ),
+                    verbosity, v_level=self.v_level)
         else:
-            # No match from the first time round. Small getout if we can match any whitespace
+            # No full match from the first time round. If we've got a long partial match then return that.
+            if best_match:
+                return best_match
+            # Ok so no match at all from the elements. Small getout if we can match any whitespace
             if self.code_only:
                 matched_segs = tuple()
                 unmatched_segs = segments
@@ -289,11 +313,28 @@ class OneOf(BaseGrammar):
                 for opt in self._elements:
                     m = opt._match(unmatched_segs, match_depth=match_depth + 1, parse_depth=parse_depth,
                                    verbosity=verbosity, dialect=dialect)
-                    # If we get a match, just return it.
-                    if m:
-                        return MatchResult(matched_segs + m.matched_segments, m.unmatched_segments)
+                    # Once again, if it's complete - return, if not wait to see if we get a more complete one
+                    new_match = MatchResult(matched_segs + m.matched_segments, m.unmatched_segments)
+                    if m.is_complete():
+                        return new_match
+                    elif m:
+                        if best_match:
+                            if len(best_match) > len(m):
+                                best_match = m
+                            else:
+                                continue
+                        else:
+                            best_match = m
+                        verbosity_logger(
+                            "[PD:{0} MD:{1}] {2}._match. Last-Ditch: Saving Match of Length {3}:  {4}".format(
+                                parse_depth, match_depth, self.__class__.__name__, len(m), m
+                            ),
+                            verbosity, v_level=self.v_level)
                 else:
-                    return MatchResult.from_unmatched(segments)
+                    if best_match:
+                        return MatchResult(matched_segs + best_match.matched_segments, best_match.unmatched_segments)
+                    else:
+                        return MatchResult.from_unmatched(segments)
 
     def expected_string(self, dialect=None, called_from=None):
         return " | ".join([opt.expected_string(dialect=dialect, called_from=called_from) for opt in self._elements])

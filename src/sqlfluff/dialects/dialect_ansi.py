@@ -137,18 +137,25 @@ class SelectTargetElementSegment(BaseSegment):
     type = 'select_target_element'
     # Important to split elements before parsing, otherwise debugging is really hard.
     match_grammar = GreedyUntil(Ref('CommaSegment'))
-    parse_grammar = Sequence(
-        OneOf(
-            # *
-            Ref('StarSegment'),
-            # blah.*
-            Sequence(Ref('SingleIdentifierGrammar'), Ref('DotSegment'), Ref('StarSegment'), code_only=False),
-            Ref('BooleanExpressionSegment'),
-            Ref('ArithmeticExpressionSegment'),
-            Ref('ObjectReferenceSegment'),
-            Ref('LiteralSegment'),
+    parse_grammar = OneOf(
+        # *
+        Ref('StarSegment'),
+        # blah.*
+        Sequence(Ref('SingleIdentifierGrammar'), Ref('DotSegment'), Ref('StarSegment'), code_only=False),
+        Sequence(
+            OneOf(
+                Ref('ObjectReferenceSegment'),
+                Ref('LiteralSegment'),
+            ),
+            Ref('AliasExpressionGrammar', optional=True)
         ),
-        Ref('AliasExpressionGrammar', optional=True)
+        Sequence(
+            OneOf(
+                Ref('BooleanExpressionSegment'),
+                Ref('ArithmeticExpressionSegment'),
+            ),
+            Ref('AliasExpressionGrammar', optional=True)
+        ),
     )
 
 
@@ -280,7 +287,7 @@ class BooleanExpressionSegment(BaseSegment):
             Ref('AndKeywordSegment'),
             Ref('OrKeywordSegment')
         ),
-        min_delimiters=1
+        # min_delimiters=1
     )
 
 

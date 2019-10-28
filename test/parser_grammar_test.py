@@ -58,16 +58,17 @@ def test__parser__grammar_oneof(seg_list):
     assert not m
 
 
-def test__parser__grammar_oneof_codeonly(seg_list):
+def test__parser__grammar_oneof_codeonly(seg_list, caplog):
     fs = KeywordSegment.make('foo')
     bs = KeywordSegment.make('bar')
     g = OneOf(fs, bs)
-    # Check directly
-    assert g.match(seg_list).matched_segments == (bs('bar', seg_list[0].pos_marker), seg_list[1])
-    # Check with a bit of whitespace
-    m = g.match(seg_list[1:])
-    assert m
-    assert m.matched_segments[1] == fs('foo', seg_list[2].pos_marker)
+    with caplog.at_level(logging.DEBUG):
+        # Check directly
+        assert g.match(seg_list).matched_segments == (bs('bar', seg_list[0].pos_marker), seg_list[1])
+        # Check with a bit of whitespace
+        m = g.match(seg_list[1:])
+        assert m
+        assert m.matched_segments[1] == fs('foo', seg_list[2].pos_marker)
 
 
 def test__parser__grammar_sequence(seg_list, caplog):
