@@ -327,8 +327,10 @@ class BaseSegment(object):
             "[PD:{0} MD:{1}] {2}._match IN [ls={3}]".format(parse_depth, match_depth, cls.__name__, len(segments)),
             verbosity=verbosity,
             v_level=4)
+
         if isinstance(segments, BaseSegment):
             segments = segments,  # Make into a tuple for compatability
+
         if not isinstance(segments, tuple):
             logging.warning(
                 "{0}.match, was passed {1} rather than tuple or segment".format(
@@ -336,12 +338,18 @@ class BaseSegment(object):
             if isinstance(segments, list):
                 # Let's make it a tuple for compatibility
                 segments = tuple(segments)
+
+        if len(segments) == 0:
+            logging.info("{0}.match, was passed zero length segments list".format(cls.__name__))
+
         m = cls.match(segments, match_depth=match_depth, parse_depth=parse_depth,
                       verbosity=verbosity, dialect=dialect)
+
         if not isinstance(m, tuple) and m is not None:
             logging.warning(
                 "{0}.match, returned {1} rather than tuple".format(
                     cls.__name__, type(m)))
+
         verbosity_logger(
             "[PD:{0} MD:{1}] {2}._match OUT [m={3}]".format(parse_depth, match_depth, cls.__name__, m),
             verbosity=verbosity,

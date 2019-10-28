@@ -50,9 +50,20 @@ def seg_list():
 def test__parser__grammar_oneof(seg_list):
     fs = KeywordSegment.make('foo')
     bs = KeywordSegment.make('bar')
-    g = OneOf(fs, bs)
+    g = OneOf(fs, bs, code_only=False)
     # Check directly
     assert g.match(seg_list).matched_segments == (bs('bar', seg_list[0].pos_marker),)
+    # Check with a bit of whitespace
+    m = g.match(seg_list[1:])
+    assert not m
+
+
+def test__parser__grammar_oneof_codeonly(seg_list):
+    fs = KeywordSegment.make('foo')
+    bs = KeywordSegment.make('bar')
+    g = OneOf(fs, bs)
+    # Check directly
+    assert g.match(seg_list).matched_segments == (bs('bar', seg_list[0].pos_marker), seg_list[1])
     # Check with a bit of whitespace
     m = g.match(seg_list[1:])
     assert m

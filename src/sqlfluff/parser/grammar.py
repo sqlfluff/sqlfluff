@@ -54,6 +54,10 @@ class BaseGrammar(object):
                 # Let's make it a tuple for compatibility
                 segments = tuple(segments)
 
+        if len(segments) == 0:
+            logging.info("{0}.match, was passed zero length segments list. NB: {0} contains {1!r}".format(
+                self.__class__.__name__, self._elements))
+
         # Work out the raw representation and curtail if long
         verbosity_logger(
             "[PD:{0} MD:{1}] {2}._match IN [ls={3}, seg={4!r}]".format(
@@ -464,6 +468,8 @@ class Delimited(BaseGrammar):
         self.delimiter = kwargs.pop('delimiter')
         self.allow_trailing = kwargs.pop('allow_trailing', False)
         self.terminator = kwargs.pop('terminator', None)
+        # Setting min delimiters means we have to match at least this number
+        self.min_delimiters = kwargs.pop('min_delimiters', None)
 
         # The details on how to match a bracket are stored in the dialect
         self.start_bracket = Ref('StartBracketSegment')
@@ -481,6 +487,10 @@ class Delimited(BaseGrammar):
         # we found delimiters up to this point.
         delimiters = []
         matched_segments = MatchResult.from_empty()
+
+        # Have we been passed an empty list?
+        if len(segments) == 0:
+            return MatchResult.from_empty()
 
         # First iterate through all the segments, looking for the delimiter.
         # Second, split the list on each of the delimiters, and ensure that
@@ -525,38 +535,44 @@ class Delimited(BaseGrammar):
                         else:
                             break
 
-                # See if any of the elements match
-                for elem in self._elements:
-                    elem_match = elem._match(
-                        pre_segment, match_depth=match_depth + 1,
-                        parse_depth=parse_depth, verbosity=verbosity, dialect=dialect)
+                # Check we actually have something left to match on
+                if len(pre_segment) > 0:
+                    # See if any of the elements match
+                    for elem in self._elements:
+                        elem_match = elem._match(
+                            pre_segment, match_depth=match_depth + 1,
+                            parse_depth=parse_depth, verbosity=verbosity, dialect=dialect)
 
-                    if elem_match.has_match():
-                        # Successfully matched one of the elements in this spot
+                        if elem_match.has_match():
+                            # Successfully matched one of the elements in this spot
 
-                        # Add this match onto any already matched segments and return.
-                        # We do this in a slightly odd way here to allow partial matches.
-                        return MatchResult(
-                            matched_segments.matched_segments + elem_match.matched_segments,
-                            elem_match.unmatched_segments + segments[terminal_idx:])
-                    else:
-                        # Not matched this element, move on.
-                        # NB, a partial match here isn't helpful. We're matching
-                        # BETWEEN two delimiters and so it must be a complete match.
-                        # Incomplete matches are only possible at the end
-                        continue
+                            # Add this match onto any already matched segments and return.
+                            # We do this in a slightly odd way here to allow partial matches.
+
+                            # we do a quick check on min_delimiters if present
+                            if self.min_delimiters and len(delimiters) < self.min_delimiters:
+                                # if we do have a limit and we haven't met it then crash out
+                                return MatchResult.from_unmatched(segments)
+                            return MatchResult(
+                                matched_segments.matched_segments + elem_match.matched_segments,
+                                elem_match.unmatched_segments + segments[terminal_idx:])
+                        else:
+                            # Not matched this element, move on.
+                            # NB, a partial match here isn't helpful. We're matching
+                            # BETWEEN two delimiters and so it must be a complete match.
+                            # Incomplete matches are only possible at the end
+                            continue
+
+                # If we're here we haven't matched any of the elements on this last element.
+                # BUT, if we allow trailing, and we have matched something, we can end on the last
+                # delimiter
+                if self.allow_trailing and len(matched_segments) > 0:
+                    return MatchResult(matched_segments.matched_segments, pre_segment + segments[terminal_idx:])
                 else:
-                    # If we're here we haven't matched any of the elements on this last element.
-                    # BUT, if we allow trailing, and we have matched something, we can end on the last
-                    # delimiter
-                    if self.allow_trailing and len(matched_segments) > 0:
-                        return MatchResult(matched_segments.matched_segments, pre_segment + segments[terminal_idx:])
-                    else:
-                        return MatchResult.from_unmatched(segments)
+                    return MatchResult.from_unmatched(segments)
 
             else:
-                # We've got some sequence left
-
+                # We've got some sequence left.
                 # Are we in a bracket cycle?
                 if sub_bracket_count > 0:
                     # Is it another bracket entry?
@@ -629,7 +645,7 @@ class Delimited(BaseGrammar):
                                 # Then add the delimiter to the matched segments
                                 matched_segments += del_match
                                 # Break this for loop and move on, looking for the next delimiter
-                                seg_idx += 1
+                                seg_idx += len(del_match)
                                 break
                             elif elem_match and self.code_only:
                                 # Optionally if it's not a complete match but the unmatched bits are
@@ -639,7 +655,7 @@ class Delimited(BaseGrammar):
                                     matched_segments += elem_match.matched_segments
                                     matched_segments += elem_match.unmatched_segments
                                     matched_segments += del_match
-                                    seg_idx += 1
+                                    seg_idx += len(del_match)
                                     break
                                 else:
                                     continue

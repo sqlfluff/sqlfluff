@@ -40,17 +40,28 @@ ansi_dialect.add(
     MinusSegment=KeywordSegment.make('-', name='minus', type='binary_operator'),
     DivideSegment=KeywordSegment.make('/', name='divide', type='binary_operator'),
     MultiplySegment=KeywordSegment.make('*', name='multiply', type='binary_operator'),
-    EqualsSegment=KeywordSegment.make('=', name='equals', type='equals'),
-    NakedIdentifierSegment=ReSegment.make(r"[A-Z0-9_]*", name='identifier', type='naked_identifier'),
+    EqualsSegment=KeywordSegment.make('=', name='equals', type='comparison_operator'),
+    GreaterThanSegment=KeywordSegment.make('>', name='greater_than', type='comparison_operator'),
+    LessThanSegment=KeywordSegment.make('<', name='less_than', type='comparison_operator'),
+    GreaterThanOrEqualToSegment=KeywordSegment.make('>=', name='greater_than_equal_to', type='comparison_operator'),
+    LessThanOrEqualToSegment=KeywordSegment.make('<=', name='less_than_equal_to', type='comparison_operator'),
+    # The strange regex here it to make sure we don't accidentally match numeric literals
+    NakedIdentifierSegment=ReSegment.make(r"[A-Z0-9_]*[A-Z][A-Z0-9_]*", name='identifier', type='naked_identifier'),
     QuotedIdentifierSegment=NamedSegment.make('double_quote', name='identifier', type='quoted_identifier'),
     QuotedLiteralSegment=NamedSegment.make('single_quote', name='literal', type='quoted_literal'),
     NumericLiteralSegment=NamedSegment.make('numeric_literal', name='literal', type='numeric_literal'),
+    TrueSegment=KeywordSegment.make('true', name='true', type='boolean_literal'),
+    FalseSegment=KeywordSegment.make('false', name='false', type='boolean_literal'),
     # We use a GRAMMAR here not a Segment. Otherwise we get an unecessary layer
     SingleIdentifierGrammar=OneOf(Ref('NakedIdentifierSegment'), Ref('QuotedIdentifierSegment')),
+    BooleanLiteralGrammar=OneOf(Ref('TrueSegment'), Ref('FalseSegment')),
     # We specifically define a group of arithmetic operators to make it easier to override this
     # if some dialects have different available operators
     ArithmeticBinaryOperatorGrammar=OneOf(
         Ref('PlusSegment'), Ref('MinusSegment'), Ref('DivideSegment'), Ref('MultiplySegment')),
+    ComparisonOperatorGrammar=OneOf(
+        Ref('EqualsSegment'), Ref('GreaterThanSegment'), Ref('LessThanSegment'),
+        Ref('GreaterThanOrEqualToSegment'), Ref('LessThanOrEqualToSegment')),
     AliasExpressionGrammar=Sequence(Ref('AsKeywordSegment'), Ref('SingleIdentifierGrammar')),
     # Keywords
     AsKeywordSegment=KeywordSegment.make('as'),
@@ -88,7 +99,7 @@ ansi_dialect.add(
 class LiteralSegment(BaseSegment):
     type = 'literal'
     match_grammar = OneOf(
-        Ref('QuotedLiteralSegment'), Ref('NumericLiteralSegment')
+        Ref('QuotedLiteralSegment'), Ref('NumericLiteralSegment'), Ref('BooleanLiteralGrammar')
     )
 
 
@@ -130,13 +141,12 @@ class SelectTargetElementSegment(BaseSegment):
         OneOf(
             # *
             Ref('StarSegment'),
-            # 123 or 'sadfkj'
-            Ref('LiteralSegment'),
             # blah.*
             Sequence(Ref('SingleIdentifierGrammar'), Ref('DotSegment'), Ref('StarSegment'), code_only=False),
-            Ref('ObjectReferenceSegment'),
             Ref('BooleanExpressionSegment'),
-            Ref('ArithmeticExpressionSegment')
+            Ref('ArithmeticExpressionSegment'),
+            Ref('ObjectReferenceSegment'),
+            Ref('LiteralSegment'),
         ),
         Ref('AliasExpressionGrammar', optional=True)
     )
@@ -241,15 +251,13 @@ class BooleanExpressionSegment(BaseSegment):
     type = 'boolean_expression'
     match_grammar = Delimited(
         OneOf(
-            # It could be a simple equality
-            # TODO: Expand this to more arithmetic later
+            # It could be a simple comparison
             Sequence(
-                OneOf(Ref('ObjectReferenceSegment'), Ref('LiteralSegment')),
-                Ref('EqualsSegment'),
-                OneOf(Ref('ObjectReferenceSegment'), Ref('LiteralSegment')),
+                OneOf(Ref('ObjectReferenceSegment'), Ref('LiteralSegment'), Ref('ArithmeticExpressionSegment')),
+                Ref('ComparisonOperatorGrammar'),
+                OneOf(Ref('ObjectReferenceSegment'), Ref('LiteralSegment'), Ref('ArithmeticExpressionSegment')),
             ),
             # It could be an IN statement
-            # TODO: Expand this to more arithmetic later
             Sequence(
                 OneOf(Ref('ObjectReferenceSegment'), Ref('LiteralSegment')),
                 Ref('InKeywordSegment'),
@@ -260,17 +268,19 @@ class BooleanExpressionSegment(BaseSegment):
                     )
                 )
             ),
-            # If it's a boolean field it could just be an identifier (with or without a not)
-            # We do this last so that it's the least likely to match
+            # If it's a boolean field it could just be an identifier with a not
             Sequence(
-                Ref('NotKeywordSegment', optional=True),
+                Ref('NotKeywordSegment'),
                 Ref('ObjectReferenceSegment')
             ),
+            Ref('ObjectReferenceSegment'),
+            Ref('BooleanLiteralGrammar')
         ),
         delimiter=OneOf(
             Ref('AndKeywordSegment'),
             Ref('OrKeywordSegment')
-        )
+        ),
+        min_delimiters=1
     )
 
 
@@ -287,7 +297,8 @@ class ArithmeticExpressionSegment(BaseSegment):
                 Ref('ArithmeticExpressionSegment')
             )
         ),
-        delimiter=Ref('ArithmeticBinaryOperatorGrammar')
+        delimiter=Ref('ArithmeticBinaryOperatorGrammar'),
+        min_delimiters=1
     )
 
 
