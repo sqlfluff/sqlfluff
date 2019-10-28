@@ -84,7 +84,7 @@ class BaseGrammar(object):
         check_still_complete(segments, m.matched_segments, m.unmatched_segments)
         return m
 
-    def expected_string(self, dialect=None):
+    def expected_string(self, dialect=None, called_from=None):
         """ Return a String which is helpful to understand what this grammar expects """
         raise NotImplementedError(
             "{0} does not implement expected_string!".format(
@@ -191,19 +191,21 @@ class Ref(BaseGrammar):
     """ A kind of meta-grammar that allows other defined grammars to be referenced
     at runtime from the dialect """
 
+    def _get_ref(self):
+        # Unusually for a grammar we expect _elements to be a list of strings.
+        # Notable ONE string for now.
+        if len(self._elements) == 1:
+            # We're good on length. Get the name of the reference
+            return self._elements[0]
+        else:
+            raise ValueError(
+                "Ref grammar can only deal with precisely one element for now. Instead found {0!r}".format(
+                    self._elements))
+
     def _get_elem(self, dialect):
         if dialect:
-            # Unusually for a grammar we expect _elements to be a list of strings.
-            # Notable ONE string for now.
-            if len(self._elements) == 1:
-                # We're good on length. Get the name of the reference
-                ref = self._elements[0]
-                # Use the dialect to retrieve the grammar it refers to.
-                return dialect.ref(ref)
-            else:
-                raise ValueError(
-                    "Ref grammar can only deal with precisely one element for now. Instead found {0!r}".format(
-                        self._elements))
+            # Use the dialect to retrieve the grammar it refers to.
+            return dialect.ref(self._get_ref())
         else:
             raise ReferenceError("No Dialect has been provided to Ref grammar!")
 
@@ -219,10 +221,23 @@ class Ref(BaseGrammar):
         else:
             raise ValueError("Null Element returned! _elements: {0!r}".format(self._elements))
 
-    def expected_string(self, dialect=None):
+    def expected_string(self, dialect=None, called_from=None):
         """ pass through to the referenced method """
         elem = self._get_elem(dialect=dialect)
-        return elem.expected_string(dialect=dialect)
+        if called_from and self._get_ref() in called_from:
+            # This means we're in recursion so we should stop here.
+            # At the moment this means we'll just insert in the name
+            # of the segment that we're looking for.
+            # Otherwise we get an infinite recursion error
+            # TODO: Make this more elegant
+            return self._get_ref()
+        else:
+            # Either add to set or make set
+            if called_from:
+                called_from.add(self._get_ref())
+            else:
+                called_from = {self._get_ref()}
+            return elem.expected_string(dialect=dialect, called_from=called_from)
 
 
 class OneOf(BaseGrammar):
@@ -280,8 +295,8 @@ class OneOf(BaseGrammar):
                 else:
                     return MatchResult.from_unmatched(segments)
 
-    def expected_string(self, dialect=None):
-        return " | ".join([opt.expected_string(dialect=dialect) for opt in self._elements])
+    def expected_string(self, dialect=None, called_from=None):
+        return " | ".join([opt.expected_string(dialect=dialect, called_from=called_from) for opt in self._elements])
 
 
 class AnyNumberOf(BaseGrammar):
@@ -343,7 +358,7 @@ class AnyNumberOf(BaseGrammar):
                     # We didn't meet the hurdle
                     return MatchResult.from_unmatched(unmatched_segments)
 
-    def expected_string(self, dialect=None):
+    def expected_string(self, dialect=None, called_from=None):
         # TODO: Make something nice here
         return " !!TODO!! "
 
@@ -369,8 +384,10 @@ class GreedyUntil(BaseGrammar):
             # anyway.
             return MatchResult.from_matched(segments)
 
-    def expected_string(self, dialect=None):
-        return "..., " + " !( " + " | ".join([opt.expected_string(dialect=dialect) for opt in self._elements]) + " ) "
+    def expected_string(self, dialect=None, called_from=None):
+        return "..., " + " !( " + " | ".join(
+            [opt.expected_string(dialect=dialect, called_from=called_from) for opt in self._elements]
+        ) + " ) "
 
 
 class Sequence(BaseGrammar):
@@ -454,8 +471,8 @@ class Sequence(BaseGrammar):
 
             return MatchResult(matched_segments.matched_segments, unmatched_segments)
 
-    def expected_string(self, dialect=None):
-        return ", ".join([opt.expected_string(dialect=dialect) for opt in self._elements])
+    def expected_string(self, dialect=None, called_from=None):
+        return ", ".join([opt.expected_string(dialect=dialect, called_from=called_from) for opt in self._elements])
 
 
 class Delimited(BaseGrammar):
@@ -696,10 +713,10 @@ class Delimited(BaseGrammar):
                 # or otherwise.
                 seg_idx += 1
 
-    def expected_string(self, dialect=None):
+    def expected_string(self, dialect=None, called_from=None):
         return " {0} ".format(
-            self.delimiter.expected_string(dialect=dialect)).join(
-                [opt.expected_string(dialect=dialect) for opt in self._elements])
+            self.delimiter.expected_string(dialect=dialect, called_from=called_from)).join(
+                [opt.expected_string(dialect=dialect, called_from=called_from) for opt in self._elements])
 
 
 class ContainsOnly(BaseGrammar):
@@ -736,13 +753,13 @@ class ContainsOnly(BaseGrammar):
                     # which isn't on our element list. Crash out.
                     return MatchResult.from_unmatched(segments)
 
-    def expected_string(self, dialect=None):
+    def expected_string(self, dialect=None, called_from=None):
         buff = []
         for opt in self._elements:
             if isinstance(opt, str):
                 buff.append(opt)
             else:
-                buff.append(opt.expected_string(dialect=dialect))
+                buff.append(opt.expected_string(dialect=dialect, called_from=called_from))
         return " ( " + " | ".join(buff) + " | + )"
 
 
@@ -818,8 +835,8 @@ class StartsWith(BaseGrammar):
         else:
             raise NotImplementedError("Not expecting to match StartsWith and also not just code!?")
 
-    def expected_string(self, dialect=None):
-        return self.target.expected_string(dialect=dialect) + ", ..."
+    def expected_string(self, dialect=None, called_from=None):
+        return self.target.expected_string(dialect=dialect, called_from=called_from) + ", ..."
 
 
 class Bracketed(BaseGrammar):
@@ -957,5 +974,5 @@ class Bracketed(BaseGrammar):
             # If we're here we haven't matched any of the elements, then we have a problem
             return MatchResult.from_unmatched(segments)
 
-    def expected_string(self, dialect=None):
-        return " ( {0} ) ".format(' | '.join([opt.expected_string(dialect=dialect) for opt in self._elements]))
+    def expected_string(self, dialect=None, called_from=None):
+        return " ( {0} ) ".format(' | '.join([opt.expected_string(dialect=dialect, called_from=called_from) for opt in self._elements]))

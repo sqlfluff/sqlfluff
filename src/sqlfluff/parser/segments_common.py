@@ -54,7 +54,7 @@ class KeywordSegment(RawSegment):
         return MatchResult.from_unmatched(segments)
 
     @classmethod
-    def expected_string(cls, dialect=None):
+    def expected_string(cls, dialect=None, called_from=None):
         return cls._template
 
 
@@ -92,7 +92,7 @@ class ReSegment(KeywordSegment):
         return MatchResult.from_unmatched(segments)
 
     @classmethod
-    def expected_string(cls, dialect=None):
+    def expected_string(cls, dialect=None, called_from=None):
         return cls.type
 
 
@@ -125,5 +125,5 @@ class NamedSegment(KeywordSegment):
         return MatchResult.from_unmatched(segments)
 
     @classmethod
-    def expected_string(cls, dialect=None):
+    def expected_string(cls, dialect=None, called_from=None):
         return "[" + cls._template + "]"
