@@ -1,4 +1,9 @@
-""" The Test file for The New Parser """
+"""
+Automated tests for all dialects.
+
+Any files in the /tests/fixtures/parser directoy will be picked up
+and automatically tested against the appropriate dialect.
+"""
 
 import pytest
 import logging
@@ -9,28 +14,15 @@ from sqlfluff.parser.segments_file import FileSegment
 from sqlfluff.dialects import dialect_selector
 
 
-@pytest.mark.parametrize(
-    "raw,res",
-    [
-        ("a b", ['a', ' ', 'b']),
-        ("b.c", ['b', '.', 'c']),
-        ("abc \n \t def  ;blah", ['abc', ' ', '\n', ' \t ', 'def', '  ', ';', 'blah'])
-    ]
-)
-def test__dialect__ansi__file_from_raw(raw, res, caplog):
-    with caplog.at_level(logging.DEBUG):
-        fs = FileSegment.from_raw(raw)
-    # From just the initial parse, check we're all there
-    assert fs.raw == raw
-    assert fs.raw_list() == res
-
-
 # Construct the tests from the filepath
 parse_success_examples = []
 parse_structure_examples = []
 
 # Generate the filenames for each dialect from the parser test directory
 for d in os.listdir(os.path.join('test', 'fixtures', 'parser')):
+    # Ignore documentation
+    if d.endswith('.md'):
+        continue
     # assume that d is now the name of a dialect
     dirlist = os.listdir(os.path.join('test', 'fixtures', 'parser', d))
     for f in dirlist:
