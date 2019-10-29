@@ -1,13 +1,17 @@
 # SqlFluff - Contributing
 
-*First* - thanks for being interested in improving sqlfluff.
+:star2: **First** - thanks for being interested in improving sqlfluff! :smiley:
 
-*Second* - the best way to get started contributing, is to use the
+:star2: **Second** - the best way to get started contributing, is to use the
 tool in anger and then to submit bugs and features through github.
+In particular, in helping to develop the parser, examples of queries
+which don't parse as expected are especially helpful.
 
-*Third* - if you're so inclined - pull requests are always welcome.
+:star2: **Third** - if you're so inclined - pull requests are always welcome.
 Bear in mind that all the tests should pass, and test coverage should
-not decrease unduly as part of the changes which you make.
+not decrease unduly as part of the changes which you make. You may find it
+useful to familiarise yourself with the [architectural principles here](ARCHITECTURE.md),
+and with the [current documentation here](DOCS.md).
 
 ## Nerdy Details
 ### Testing
