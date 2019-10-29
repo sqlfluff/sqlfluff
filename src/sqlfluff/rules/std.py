@@ -12,7 +12,7 @@ TAB_SPACE_SIZE = 4
 def L001_eval(segment, raw_stack, **kwargs):
     """ We only care about the segment the preceeding segments """
     # We only trigger on newlines
-    if segment.raw == '\n' and raw_stack[-1].name == 'whitespace':
+    if segment.name == 'newline' and raw_stack[-1].name == 'whitespace':
         # If we find a newline, which is preceeded by whitespace, then bad
         deletions = []
         idx = -1
@@ -55,7 +55,7 @@ def L002_eval(segment, raw_stack, **kwargs):
 
     if segment.name == 'whitespace':
         if ' ' in segment.raw and '\t' in segment.raw:
-            if len(raw_stack) == 0 or raw_stack[-1].raw == '\n':
+            if len(raw_stack) == 0 or raw_stack[-1].name == 'newline':
                 # We've got a single whitespace at the beginning of a line.
                 # It's got a mix of spaces and tabs. Replace each tab with
                 # a multiple of spaces
@@ -75,7 +75,7 @@ def L002_eval(segment, raw_stack, **kwargs):
                             return construct_response()
                         else:
                             continue
-                    elif seg.raw == '\n':
+                    elif seg.name == 'newline':
                         # we're at the start of a line
                         return construct_response()
                     else:
@@ -99,7 +99,7 @@ def L003_eval(segment, raw_stack, **kwargs):
     if segment.name == 'whitespace':
         ws_len = segment.raw.count(' ')
         if ws_len % TAB_SPACE_SIZE != 0:
-            if len(raw_stack) == 0 or raw_stack[-1].raw == '\n':
+            if len(raw_stack) == 0 or raw_stack[-1].name == 'newline':
                 best_len = int(round(ws_len * 1.0 / TAB_SPACE_SIZE)) * TAB_SPACE_SIZE
                 return LintResult(
                     anchor=segment,
@@ -122,7 +122,7 @@ def L004_eval(segment, raw_stack, memory, **kwargs):
     # preceeded by nothing or a newline.
     indents_seen = memory.get('indents_seen', set())
     if segment.name == 'whitespace':
-        if len(raw_stack) == 0 or raw_stack[-1].raw == '\n':
+        if len(raw_stack) == 0 or raw_stack[-1].name == 'newline':
             indents_here = set(segment.raw)
             indents_union = indents_here | indents_seen
             memory['indents_seen'] = indents_union
@@ -177,7 +177,7 @@ def L008_fix(segment, raw_stack, **kwargs):
                 ws = RawSegment.make(' ', name='whitespace')
                 ins = ws(raw=' ', pos_marker=cm1.pos_marker)
                 return LintResult(anchor=cm1, fixes=[LintFix('create', cm1, ins)])
-            elif cm1.raw not in ['\n', ' '] and not segment.is_comment:
+            elif (cm1.raw != ' ' and cm1.name != 'newline') and not segment.is_comment:
                 repl = cm1.__class__(
                     raw=' ',
                     pos_marker=cm1.pos_marker
@@ -203,7 +203,7 @@ def L009_eval(segment, siblings_post, parent_stack, **kwargs):
     elif len(segment.segments) > 0:
         # This can only fail on the last base segment
         return None
-    elif segment.raw == '\n':
+    elif segment.name == 'newline':
         # If this is the last segment, and it's a newline then we're good
         return None
     else:

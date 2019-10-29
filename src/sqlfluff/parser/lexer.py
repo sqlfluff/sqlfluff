@@ -153,6 +153,7 @@ class Lexer(object):
             RegexMatcher.from_shorthand("numeric_literal", r"(-?[0-9]+(\.[0-9]+)?)", is_code=True),
             RegexMatcher.from_shorthand("greater_than_or_equal", r">=", is_code=True),
             RegexMatcher.from_shorthand("less_than_or_equal", r"<=", is_code=True),
+            RegexMatcher.from_shorthand("newline", r"\r\n"),
             SingletonMatcher.from_shorthand("newline", "\n"),
             SingletonMatcher.from_shorthand("equals", "=", is_code=True),
             SingletonMatcher.from_shorthand("greater_than", ">", is_code=True),
