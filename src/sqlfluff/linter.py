@@ -4,13 +4,15 @@ import os
 from collections import namedtuple
 from six import StringIO
 
-from .dialects import AnsiSQLDialiect
+from .dialects import dialect_selector
 
-from .parser_2.segments_file import FileSegment
-from .parser_2.segments_base import verbosity_logger, frame_msg
+# TODO: I feel like these functions should live elsewhere, or
+# be importable directly from .parser
+from .parser.segments_file import FileSegment
+from .parser.segments_base import verbosity_logger, frame_msg
 from .errors import SQLParseError, SQLLexError
 
-from .rules_2.std import standard_rule_set
+from .rules.std import standard_rule_set
 from .helpers import get_time
 
 
@@ -132,7 +134,10 @@ class LintingResult(object):
 
 
 class Linter(object):
-    def __init__(self, dialect=AnsiSQLDialiect, sql_exts=('.sql',), rule_whitelist=None):
+    def __init__(self, dialect=None, sql_exts=('.sql',), rule_whitelist=None):
+        # NB: dialect defaults to ansi if "none" supplied
+        if isinstance(dialect, str) or dialect is None:
+            dialect = dialect_selector(dialect)
         self.dialect = dialect
         self.sql_exts = sql_exts
         # restrict the search to only specific rules.
@@ -183,7 +188,7 @@ class Linter(object):
         # Parse the file and log any problems
         if fs:
             try:
-                parsed = fs.parse(recurse=recurse, verbosity=verbosity)
+                parsed = fs.parse(recurse=recurse, verbosity=verbosity, dialect=self.dialect)
             except SQLParseError as err:
                 violations.append(err)
                 parsed = None

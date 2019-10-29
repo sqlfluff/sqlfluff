@@ -1,6 +1,6 @@
 """ The Test file for SQLFluff """
 
-from sqlfluff.rules_2.std import standard_rule_set
+from sqlfluff.rules.std import standard_rule_set
 from sqlfluff.linter import Linter
 
 

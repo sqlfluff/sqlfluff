@@ -3,9 +3,9 @@
 import pytest
 
 
-from sqlfluff.parser_2.markers import FilePositionMarker
-from sqlfluff.parser_2.segments_base import RawSegment
-from sqlfluff.parser_2.segments_core import KeywordSegment
+from sqlfluff.parser.markers import FilePositionMarker
+from sqlfluff.parser.segments_base import RawSegment
+from sqlfluff.parser.segments_common import KeywordSegment
 
 
 @pytest.fixture(scope="module")
@@ -26,7 +26,7 @@ def raw_seg_list():
     ]
 
 
-def test__parser_2__core_keyword(raw_seg_list):
+def test__parser__core_keyword(raw_seg_list):
     """ Test the Mystical KeywordSegment """
     # First make a keyword
     FooKeyword = KeywordSegment.make('foo')

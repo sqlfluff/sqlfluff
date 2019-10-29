@@ -9,10 +9,14 @@ version: 2
 common: &common
   steps:
     - checkout
-    # Restore the Cache (if there is one)
+    # Restore the Cache (if there is one).
+    # the v1 prefix is used to intentionally invalidate the cache if required. Just increment and commit for
+    # instant cache invalidation.
+    # https://circleci.com/docs/2.0/caching/#clearing-cache
+    # https://support.circleci.com/hc/en-us/articles/115015426888-Clear-project-cache
     - restore_cache:
         keys:
-          - v2-deps-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+          - v3-deps-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}-{{ checksum "requirements.txt" }}
     - run:
         name: install dependencies
         command: pip install --user tox
@@ -28,7 +32,8 @@ common: &common
             n=0
             until [ $n -ge 5 ]
             do
-              ~/.local/bin/codecov --required -X search gcov pycov -f coverage.xml --flags $CIRCLE_JOB && break  # substitute your command here
+              # The break at the end means if the command succeeds then we break out of the loop.
+              ~/.local/bin/codecov --required -X search gcov pycov -f coverage.xml --flags $CIRCLE_JOB && break
               n=$[$n+1]
               sleep 5
             done
@@ -40,7 +45,7 @@ common: &common
           - ~/.cache/pip
           - ~/.local
           - ./eggs
-        key: v2-deps-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+        key: v3-deps-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}-{{ checksum "requirements.txt" }}
     # Store test reports for circle
     - store_test_results:
         path: .test-reports
