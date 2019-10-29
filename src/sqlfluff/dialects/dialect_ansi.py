@@ -259,10 +259,11 @@ class BooleanExpressionSegment(BaseSegment):
     match_grammar = Delimited(
         OneOf(
             # It could be a simple comparison
-            Sequence(
+            Delimited(
                 OneOf(Ref('ObjectReferenceSegment'), Ref('LiteralSegment'), Ref('ArithmeticExpressionSegment')),
-                Ref('ComparisonOperatorGrammar'),
-                OneOf(Ref('ObjectReferenceSegment'), Ref('LiteralSegment'), Ref('ArithmeticExpressionSegment')),
+                delimiter=Ref('ComparisonOperatorGrammar'),
+                terminator=OneOf(Ref('CommaSegment'), Ref('AsKeywordSegment')),
+                min_delimiters=1
             ),
             # It could be an IN statement
             Sequence(
