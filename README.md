@@ -10,7 +10,7 @@
 [![Requirements Status](https://img.shields.io/requires/github/alanmcruickshank/sqlfluff.svg?style=flat-square)](https://requires.io/github/alanmcruickshank/sqlfluff/requirements/?branch=master)
 [![CircleCI](https://img.shields.io/circleci/build/gh/alanmcruickshank/sqlfluff/master?style=flat-square&logo=CircleCI)](https://circleci.com/gh/alanmcruickshank/sqlfluff/tree/master)
 
-> ## *NOTE:* sqlfluff has just undergone a major rewrite with the move from 0.0.x to 0.0.1, this will have introduced some loss in functionality in places. If you'd like to help with this please take a look a [contributing](CONTRIBUTING.md).
+> ## *NOTE:* sqlfluff has just undergone a major rewrite with the move from 0.0.x to 0.1.x, this will have introduced some loss in functionality in places. If you'd like to help with this please take a look a [contributing](CONTRIBUTING.md).
 
 Bored of not having a good SQL linter that works with whichever dialiect you're
 working with? Fluff is an extensible and modular linter designed to help you write
