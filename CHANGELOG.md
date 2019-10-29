@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
+
+## [0.1.0] - 2019-10-29
+### Changed
+- *Big Rewrite - some loss in functionality might be apparent compared
+  to pre-0.1.0. Please submit any major problems as issues on github*
 - Changed unicode handling for better escape codes in python 2.
   Thanks [@mrshu](https://github.com/mrshu)
 - BIG rewrite of the parser, completely new architecture. This introduces

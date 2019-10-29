@@ -60,14 +60,24 @@ __has started again from the top due to the re-write__.
   - [ ] Indentation between lines and when to indent
   - [ ] Number of blank lines
   - [ ] Indentation of comments
+  - [ ] Inconsistent capitalisation of keywords
+  - [ ] Inconsistent capitalisation of unquoted identifiers
+  - [ ] _(idea)_ Implement a context manager in the parse and match
+    functions to avoid passing around so many variables.
 - [ ] Configurable linting
   - [ ] Command line options for config
   - [ ] Ability to read from config files
-  - [ ] Ignore particular rules
+  - [ ] Ability to read config from block comment
+    sections in `.sql` files.
+  - [ ] Ignore particular rules (blacklisting)
   - [ ] Specifying particlar dialects to use
   - [ ] Preconfiguring verbosity
 - [x] Dialects
   - [ ] ANSI
+    - [ ] Implement singleton matching for `::`, `:` and `||`.
+    - [ ] Bring in a much wider selection of test queries to identify
+      next gaps.
+    - [ ] Flesh out function coverage.
   - [ ] MySQL 
   - [ ] Redshift
   - [ ] Snowflake
