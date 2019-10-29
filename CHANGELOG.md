@@ -24,6 +24,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a command line `sqlfluff parse` option which runs just the parsing step
   of the process to better understand how a file is being parsed. This also
   has options to configure how deep we recurse.
+- Complete Re-write of the rules section, implementing new `crawlers` which
+  implement the linting rules. Now with inbuilt fixers in them.
+- Old rules removed and re implemented so we now have parity with the old rule sets.
+- Moved to using Ref mostly within the core grammar so that we can have recursion.
+- Used recursion to do a first implementation of arithmetic parsing. Including a test for it.
+- Moved the main grammar into a seperate dialect and renamed source and test files accordingly.
+- Moved to file-based tests for the ansi dialect to make it easier to test using the tool directly.
+- As part of file tests - expected outcomes are now encoded in yaml to make it easier to write new tests.
+- Vastly improved readability and debugging potential of the _match logging.
+- Added support for windows line endings in the lexer.
 
 ## [0.0.7] - 2018-11-19
 ### Added

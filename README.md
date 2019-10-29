@@ -10,7 +10,7 @@
 [![Requirements Status](https://img.shields.io/requires/github/alanmcruickshank/sqlfluff.svg?style=flat-square)](https://requires.io/github/alanmcruickshank/sqlfluff/requirements/?branch=master)
 [![CircleCI](https://img.shields.io/circleci/build/gh/alanmcruickshank/sqlfluff/master?style=flat-square&logo=CircleCI)](https://circleci.com/gh/alanmcruickshank/sqlfluff/tree/master)
 
-> ## *NOTE:* sqlfluff is currently undergoing a major re-write to the parser, and so is not currently accepting pull requests.
+> ## *NOTE:* sqlfluff has just undergone a major rewrite with the move from 0.0.x to 0.0.1, this will have introduced some loss in functionality in places. If you'd like to help with this please take a look a [contributing](CONTRIBUTING.md).
 
 Bored of not having a good SQL linter that works with whichever dialiect you're
 working with? Fluff is an extensible and modular linter designed to help you write
@@ -21,7 +21,7 @@ good SQL and catch errors and bad SQL before it hits your database.
 > to happen at any point.
 
 > **Sqlfluff** has had a big rearchitecture to it's parsing engine. To read more about
-> that then you can find details [here](https://github.com/alanmcruickshank/sqlfluff/blob/master/ARCHITECTURE.md).
+> that then you can find details [here](ARCHITECTURE.md).
 
 # Getting Started
 
@@ -39,7 +39,7 @@ L:   1 | P:  27 | L001 | Unnecessary trailing whitespace
 
 # Usage
 
-For more details on usage see the docs on github [here](https://github.com/alanmcruickshank/sqlfluff/blob/master/DOCS.md).
+For more details on usage see the docs on github [here](DOCS.md).
 
 # Progress
 
@@ -48,15 +48,15 @@ __has started again from the top due to the re-write__.
 
 - [x] Command line interface
   - [x] Basic linting, both of paths and files
-  - [ ] Version information
-  - [ ] Nicely formatted readout of linting success or fail
-  - [ ] Exist codes which reflect linting success or fail
-  - [ ] Filtering to particular codes in the linting step
-  - [ ] Allow basic correction of some linting codes
-- [ ] Basic ANSI linting
-  - [ ] Simple whitespace testing
-  - [ ] Whitespace around operators
-  - [ ] Indentation (size and mix of tabs and spaces)
+  - [x] Version information
+  - [x] Nicely formatted readout of linting success or fail
+  - [x] Exit codes which reflect linting success or fail
+  - [x] Filtering to particular codes in the linting step
+  - [x] Allow basic correction of some linting codes
+- [x] Basic ANSI linting
+  - [x] Simple whitespace testing
+  - [x] Whitespace around operators
+  - [x] Indentation (size and mix of tabs and spaces)
   - [ ] Indentation between lines and when to indent
   - [ ] Number of blank lines
   - [ ] Indentation of comments
@@ -66,9 +66,13 @@ __has started again from the top due to the re-write__.
   - [ ] Ignore particular rules
   - [ ] Specifying particlar dialects to use
   - [ ] Preconfiguring verbosity
-- [ ] Dialects
+- [x] Dialects
+  - [ ] ANSI
   - [ ] MySQL 
   - [ ] Redshift
   - [ ] Snowflake
   - [ ] Detecting dialect from a config file of some kind
   - [ ] jinja2 compatible linting (for dbt)
+- [ ] Documentation
+  - [x] Basic architectural principles
+  - [ ] Update CLI docs to match current state
