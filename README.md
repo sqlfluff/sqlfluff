@@ -10,18 +10,15 @@
 [![Requirements Status](https://img.shields.io/requires/github/alanmcruickshank/sqlfluff.svg?style=flat-square)](https://requires.io/github/alanmcruickshank/sqlfluff/requirements/?branch=master)
 [![CircleCI](https://img.shields.io/circleci/build/gh/alanmcruickshank/sqlfluff/master?style=flat-square&logo=CircleCI)](https://circleci.com/gh/alanmcruickshank/sqlfluff/tree/master)
 
-> ## *NOTE:* sqlfluff has just undergone a major rewrite with the move from 0.0.x to 0.1.x, this will have introduced some loss in functionality in places. If you'd like to help with this please take a look a [contributing](CONTRIBUTING.md).
-
 Bored of not having a good SQL linter that works with whichever dialiect you're
 working with? Fluff is an extensible and modular linter designed to help you write
 good SQL and catch errors and bad SQL before it hits your database.
 
 > **Sqlfluff** is still in an open alpha phase - expect the tool to change significantly
 > over the coming months, and expect potentially non-backward compatable api changes
-> to happen at any point.
-
-> **Sqlfluff** has had a big rearchitecture to it's parsing engine. To read more about
-> that then you can find details [here](ARCHITECTURE.md).
+> to happen at any point. In particular moving from 0.0.x to 0.1.x introduced some
+> non backward compatible changes and potential loss in functionality. If you'd like to
+> help please consider [contributing](CONTRIBUTING.md).
 
 # Getting Started
 
@@ -44,7 +41,8 @@ For more details on usage see the docs on github [here](DOCS.md).
 # Progress
 
 There's lots to do in this project, and we're just getting started. __NB: This list__
-__has started again from the top due to the re-write__.
+__has started again from the top due to the re-write__. If you want to understand more
+about the architecture of sqlfluff, you can find [more here](ARCHITECTURE.md).
 
 - [x] Command line interface
   - [x] Basic linting, both of paths and files
