@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 
+## [0.1.3] - 2019-10-30
+### Changed
+- Tweak to the L001 rule so that it doesn't crash the whole thing.
+
 ## [0.1.2] - 2019-10-30
 ### Changed
 - Fixed the errors raised by the lexer.
