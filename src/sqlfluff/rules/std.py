@@ -12,7 +12,7 @@ TAB_SPACE_SIZE = 4
 def L001_eval(segment, raw_stack, **kwargs):
     """ We only care about the segment the preceeding segments """
     # We only trigger on newlines
-    if segment.name == 'newline' and raw_stack[-1].name == 'whitespace':
+    if segment.name == 'newline' and len(raw_stack) > 0 and raw_stack[-1].name == 'whitespace':
         # If we find a newline, which is preceeded by whitespace, then bad
         deletions = []
         idx = -1
