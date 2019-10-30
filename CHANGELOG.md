@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
+- Added lexing for `!=` and `::`
 
 ## [0.1.3] - 2019-10-30
 ### Changed
