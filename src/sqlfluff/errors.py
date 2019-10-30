@@ -50,7 +50,11 @@ class SQLBaseError(ValueError):
 
     def pos_marker(self):
         if hasattr(self, 'segment'):
+            # Linting and Parsing Errors
             return self.segment.pos_marker
+        elif hasattr(self, 'pos'):
+            # Lexing errors
+            return self.pos
         else:
             return None
 
@@ -59,8 +63,11 @@ class SQLBaseError(ValueError):
 
 
 class SQLLexError(SQLBaseError):
-    # Not sure how we deal with lexing errors... Do they have a location?
-    pass
+    # Lexing errors just have position
+    def __init__(self, *args, **kwargs):
+        # Store the segment on creation - we might need it later
+        self.pos = kwargs.pop('pos', None)
+        super(SQLLexError, self).__init__(*args, **kwargs)
 
 
 class SQLParseError(SQLBaseError):

@@ -7,6 +7,7 @@ from sqlfluff.parser.lexer import Lexer
 from sqlfluff.parser.lexer import SingletonMatcher, LexMatch, RegexMatcher, RepeatedMultiMatcher
 from sqlfluff.parser.segments_base import RawSegment
 from sqlfluff.parser.markers import FilePositionMarker
+from sqlfluff.errors import SQLLexError
 
 
 def assert_matches(instring, matcher, matchstring):
@@ -101,3 +102,11 @@ def test__parser__lexer_multimatcher(caplog):
         assert res.new_pos == start_pos.advance_by('..#..#..')
         assert len(res.segments) == 5
         assert res.segments[2].raw == '#..#'
+
+
+def test__parser__lexer_fail(caplog):
+    lex = Lexer()
+    try:
+        lex.lex("Select \u0394")
+    except SQLLexError as err:
+        assert err.pos_marker().char_pos == 7

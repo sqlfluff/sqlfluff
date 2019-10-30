@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 
+## [0.1.2] - 2019-10-30
+### Changed
+- Fixed the errors raised by the lexer.
+
 ## [0.1.1] - 2019-10-30
 ### Changed
 - Fixed which modules from sqlfluff are installed in the setup.py. This affects

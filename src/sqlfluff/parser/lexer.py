@@ -5,7 +5,7 @@ import re
 
 from .markers import FilePositionMarker
 from .segments_base import RawSegment
-from ..errors import SQLParseError
+from ..errors import SQLLexError
 
 
 LexMatch = namedtuple('LexMatch', ['new_string', 'new_pos', 'segments'])
@@ -174,7 +174,9 @@ class Lexer(object):
         start_pos = FilePositionMarker.from_fresh()
         res = self.matcher.match(raw, start_pos)
         if len(res.new_string) > 0:
-            raise SQLParseError(
+            raise SQLLexError(
                 "Unable to lex characters: '{0}...'".format(
-                    res.new_string[:10]))
+                    res.new_string[:10]),
+                pos=res.new_pos
+            )
         return res.segments

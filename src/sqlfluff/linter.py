@@ -181,7 +181,9 @@ class Linter(object):
         except SQLLexError as err:
             violations.append(err)
             fs = None
-        verbosity_logger(fs.stringify(), verbosity=verbosity)
+
+        if fs:
+            verbosity_logger(fs.stringify(), verbosity=verbosity)
 
         t1 = get_time()
         verbosity_logger("PARSING ({0})".format(fname), verbosity=verbosity)
@@ -209,78 +211,79 @@ class Linter(object):
         # Using the new parser, read the file object.
         parsed, vs, time_dict = self.parse_file(f=f, fname=fname, verbosity=verbosity)
 
-        # Now extract all the unparsable segments
-        for unparsable in parsed.iter_unparsables():
-            # # print("FOUND AN UNPARSABLE!")
-            # # print(unparsable)
-            # # print(unparsable.stringify())
-            # No exception has been raised explicitly, but we still create one here
-            # so that we can use the common interface
-            vs.append(
-                SQLParseError(
-                    "Found unparsable segment @ {0},{1}: {2!r}".format(
-                        unparsable.pos_marker.line_no,
-                        unparsable.pos_marker.line_pos,
-                        unparsable.raw[:20] + "..."),
-                    segment=unparsable
+        if parsed:
+            # Now extract all the unparsable segments
+            for unparsable in parsed.iter_unparsables():
+                # # print("FOUND AN UNPARSABLE!")
+                # # print(unparsable)
+                # # print(unparsable.stringify())
+                # No exception has been raised explicitly, but we still create one here
+                # so that we can use the common interface
+                vs.append(
+                    SQLParseError(
+                        "Found unparsable segment @ {0},{1}: {2!r}".format(
+                            unparsable.pos_marker.line_no,
+                            unparsable.pos_marker.line_pos,
+                            unparsable.raw[:20] + "..."),
+                        segment=unparsable
+                    )
                 )
-            )
+                if verbosity >= 2:
+                    verbosity_logger("Found unparsable segment...", verbosity=verbosity)
+                    verbosity_logger(unparsable.stringify(), verbosity=verbosity)
+
+            t0 = get_time()
+            # At this point we should evaluate whether any parsing errors have occured
             if verbosity >= 2:
-                verbosity_logger("Found unparsable segment...", verbosity=verbosity)
-                verbosity_logger(unparsable.stringify(), verbosity=verbosity)
+                verbosity_logger("LINTING ({0})".format(fname), verbosity=verbosity)
 
-        t0 = get_time()
-        # At this point we should evaluate whether any parsing errors have occured
-        if verbosity >= 2:
-            verbosity_logger("LINTING ({0})".format(fname), verbosity=verbosity)
+            # NOW APPLY EACH LINTER
+            if fix:
+                # If we're in fix mode, then we need to progressively call and reconstruct
+                working = parsed
+                linting_errors = []
+                last_fixes = None
+                while True:
+                    for crawler in self.get_ruleset():
+                        # fixes should be a dict {} with keys edit, delete, create
+                        # delete is just a list of segments to delete
+                        # edit and create are list of tuples. The first element is the
+                        # "anchor", the segment to look for either to edit or to insert BEFORE.
+                        # The second is the element to insert or create.
 
-        # NOW APPLY EACH LINTER
-        if fix:
-            # If we're in fix mode, then we need to progressively call and reconstruct
-            working = parsed
-            linting_errors = []
-            last_fixes = None
-            while True:
-                for crawler in self.get_ruleset():
-                    # fixes should be a dict {} with keys edit, delete, create
-                    # delete is just a list of segments to delete
-                    # edit and create are list of tuples. The first element is the
-                    # "anchor", the segment to look for either to edit or to insert BEFORE.
-                    # The second is the element to insert or create.
-
-                    lerrs, _, fixes, _ = crawler.crawl(working, fix=True)
-                    linting_errors += lerrs
-                    if fixes:
-                        verbosity_logger("Applying Fixes: {0}".format(fixes), verbosity=verbosity)
-                        if fixes == last_fixes:
-                            raise RuntimeError(
-                                ("Fixes appear to not have been applied, they are "
-                                 "the same as last time! {0}").format(
-                                    fixes))
+                        lerrs, _, fixes, _ = crawler.crawl(working, fix=True)
+                        linting_errors += lerrs
+                        if fixes:
+                            verbosity_logger("Applying Fixes: {0}".format(fixes), verbosity=verbosity)
+                            if fixes == last_fixes:
+                                raise RuntimeError(
+                                    ("Fixes appear to not have been applied, they are "
+                                     "the same as last time! {0}").format(
+                                        fixes))
+                            else:
+                                last_fixes = fixes
+                            working, fixes = working.apply_fixes(fixes)
+                            break
                         else:
-                            last_fixes = fixes
-                        working, fixes = working.apply_fixes(fixes)
-                        break
+                            # No fixes, move on to next crawler
+                            continue
                     else:
-                        # No fixes, move on to next crawler
-                        continue
-                else:
-                    # No more fixes to apply
-                    break
-            # Set things up to return the altered version
-            parsed = working
-        else:
-            # Just get the violations
-            linting_errors = []
-            for crawler in self.get_ruleset():
-                lerrs, _, _, _ = crawler.crawl(parsed)
-                linting_errors += lerrs
+                        # No more fixes to apply
+                        break
+                # Set things up to return the altered version
+                parsed = working
+            else:
+                # Just get the violations
+                linting_errors = []
+                for crawler in self.get_ruleset():
+                    lerrs, _, _, _ = crawler.crawl(parsed)
+                    linting_errors += lerrs
 
-        # Update the timing dict
-        t1 = get_time()
-        time_dict['linting'] = t1 - t0
+            # Update the timing dict
+            t1 = get_time()
+            time_dict['linting'] = t1 - t0
 
-        vs += linting_errors
+            vs += linting_errors
 
         return LintedFile(fname, vs, time_dict, parsed)
 
