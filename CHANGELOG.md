@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 
+## [0.1.1] - 2019-10-30
+### Changed
+- Fixed which modules from sqlfluff are installed in the setup.py. This affects
+  the `version` command.
+
 ## [0.1.0] - 2019-10-29
 ### Changed
 - *Big Rewrite - some loss in functionality might be apparent compared
