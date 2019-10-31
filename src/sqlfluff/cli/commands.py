@@ -159,7 +159,7 @@ def fix(verbose, nocolor, dialect, rules, exclude_rules, force, paths):
 @common_options
 @click.argument('path', nargs=1)
 @click.option('--recurse', default=0, help='The depth to recursievely parse to (0 for unlimited)')
-def parse(verbose, nocolor, dialect, rules, path, recurse):
+def parse(verbose, nocolor, dialect, rules, exclude_rules, path, recurse):
     """ Parse SQL files and just spit out the result """
     # Configure Color
     color = False if nocolor else None
@@ -167,7 +167,7 @@ def parse(verbose, nocolor, dialect, rules, path, recurse):
     if recurse == 0:
         recurse = True
     # Instantiate the linter
-    lnt = get_linter(dialiect_string=dialect, rule_string=rules)
+    lnt = get_linter(dialiect_string=dialect, rule_string=rules, exclude_rule_string=exclude_rules)
     config_string = format_config(lnt, verbose=verbose)
     if len(config_string) > 0:
         click.echo(config_string, color=color)
