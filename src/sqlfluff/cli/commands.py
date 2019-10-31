@@ -7,8 +7,9 @@ import sys
 from ..dialects import dialect_selector
 from ..linter import Linter
 from .formatters import (format_linting_result, format_config, format_rules,
-                         format_linting_violations, format_linting_fixes)
-from .helpers import get_package_version
+                         format_linting_violations,
+                         format_violation)
+from .helpers import get_package_version, cli_table
 
 
 def common_options(f):
@@ -85,7 +86,9 @@ def lint(verbose, nocolor, dialect, rules, exclude_rules, paths):
     if len(config_string) > 0:
         click.echo(config_string, color=color)
     # Lint the paths
-    result = lnt.lint_paths(paths)
+    if verbose > 1:
+        click.echo("==== logging ====")
+    result = lnt.lint_paths(paths, verbosity=verbose)
     # Output the results
     output = format_linting_result(result, verbose=verbose)
     click.echo(output, color=color)
@@ -110,7 +113,7 @@ def fix(verbose, nocolor, dialect, rules, exclude_rules, force, paths):
         click.echo(("The fix option is only available in combination"
                     " with --rules. This is for your own safety!"))
         sys.exit(1)
-    # Lint the paths
+    # Lint the paths (not with the fix argument at this stage)
     result = lnt.lint_paths(paths)
 
     if result.num_violations() > 0:
@@ -124,16 +127,23 @@ def fix(verbose, nocolor, dialect, rules, exclude_rules, force, paths):
         ))
         if force:
             click.echo('FORCE MODE: Attempting fixes...')
-            fixes = result.fix()
-            click.echo(format_linting_fixes(fixes, verbose=verbose), color=color)
+            result = lnt.lint_paths(paths, fix=True)
+            click.echo('Persisting Changes...')
+            result.persist_changes()
+            # TODO: Make return value of persist_changes() a more interesting result and then format it
+            # click.echo(format_linting_fixes(result, verbose=verbose), color=color)
             click.echo('Done. Please check your files to confirm.')
         else:
             click.echo('Are you sure you wish to attempt to fix these? [Y/n] ', nl=False)
-            c = click.getchar()
-            if c == 'Y':
+            c = click.getchar().lower()
+            click.echo('...')
+            if c == 'y':
                 click.echo('Attempting fixes...')
-                fixes = result.fix()
-                click.echo(format_linting_fixes(fixes, verbose=verbose), color=color)
+                result = lnt.lint_paths(paths, fix=True)
+                click.echo('Persisting Changes...')
+                result.persist_changes()
+                # TODO: Make return value of persist_changes() a more interesting result and then format it
+                # click.echo(format_linting_fixes(fixes, verbose=verbose), color=color)
                 click.echo('Done. Please check your files to confirm.')
             elif c == 'n':
                 click.echo('Aborting...')
@@ -143,3 +153,44 @@ def fix(verbose, nocolor, dialect, rules, exclude_rules, force, paths):
     else:
         click.echo("==== no violations found ====")
     sys.exit(0)
+
+
+@cli.command()
+@common_options
+@click.argument('path', nargs=1)
+@click.option('--recurse', default=0, help='The depth to recursievely parse to (0 for unlimited)')
+def parse(verbose, nocolor, dialect, rules, path, recurse):
+    """ Parse SQL files and just spit out the result """
+    # Configure Color
+    color = False if nocolor else None
+    # Configure the recursion
+    if recurse == 0:
+        recurse = True
+    # Instantiate the linter
+    lnt = get_linter(dialiect_string=dialect, rule_string=rules)
+    config_string = format_config(lnt, verbose=verbose)
+    if len(config_string) > 0:
+        click.echo(config_string, color=color)
+
+    nv = 0
+    # A single path must be specified for this command
+    for parsed, violations, time_dict in lnt.parse_path(path, verbosity=verbose, recurse=recurse):
+        click.echo('=== [\u001b[30;1m{0}\u001b[0m] ==='.format(path), color=color)
+        if parsed:
+            click.echo(parsed.stringify())
+        else:
+            # TODO: Make this prettier
+            click.echo('...Failed to Parse...', color=color)
+        nv += len(violations)
+        for v in violations:
+            click.echo(
+                format_violation(v, verbose=verbose),
+                color=color
+            )
+        if verbose >= 2:
+            click.echo("==== timings ====")
+            click.echo(cli_table(time_dict.items()))
+    if nv > 0:
+        sys.exit(66)
+    else:
+        sys.exit(0)

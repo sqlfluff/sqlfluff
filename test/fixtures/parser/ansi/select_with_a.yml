@@ -1,0 +1,32 @@
+# Possibly the simplest query
+file:
+  statement:
+    with_compound_statement:
+    - keyword: WITH
+    - object_reference:
+        naked_identifier: cte
+    - keyword: as
+    - start_bracket: (
+    - select_statement:
+      - keyword: select
+      - select_target_group:
+          select_target_element:
+            object_reference:
+              naked_identifier: a
+      - from_clause:
+          keyword: from
+          table_expression:
+            object_reference:
+              naked_identifier: tbla
+    - end_bracket: )
+    - select_statement:
+      - keyword: select
+      - select_target_group:
+          select_target_element:
+            object_reference:
+              naked_identifier: a
+      - from_clause:
+          keyword: from
+          table_expression:
+            object_reference:
+              naked_identifier: cte

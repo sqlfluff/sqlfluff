@@ -9,13 +9,14 @@ version: 2
 common: &common
   steps:
     - checkout
-    # Restore the Cache (if there is one)
+    # Restore the Cache (if there is one).
+    # the v1 prefix is used to intentionally invalidate the cache if required. Just increment and commit for
+    # instant cache invalidation.
+    # https://circleci.com/docs/2.0/caching/#clearing-cache
+    # https://support.circleci.com/hc/en-us/articles/115015426888-Clear-project-cache
     - restore_cache:
         keys:
-          - v2-deps-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
-    - run:
-        name: Make directory for test results
-        command: mkdir .test-reports
+          - v3-deps-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}-{{ checksum "requirements.txt" }}
     - run:
         name: install dependencies
         command: pip install --user tox
@@ -27,7 +28,15 @@ common: &common
         command: |
           if [[ "$UPLOAD_COVERAGE" != 0 ]]; then
             pip install --user codecov
-            ~/.local/bin/codecov --required -X search gcov pycov -f coverage.xml --flags $CIRCLE_JOB
+            # Retry upload until success (sometimes we get a timeout)
+            n=0
+            until [ $n -ge 5 ]
+            do
+              # The break at the end means if the command succeeds then we break out of the loop.
+              ~/.local/bin/codecov --required -X search gcov pycov -f coverage.xml --flags $CIRCLE_JOB && break
+              n=$[$n+1]
+              sleep 5
+            done
           fi
     # Save the Cache to save time next time
     - save_cache:
@@ -36,7 +45,7 @@ common: &common
           - ~/.cache/pip
           - ~/.local
           - ./eggs
-        key: v2-deps-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+        key: v3-deps-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}-{{ checksum "requirements.txt" }}
     # Store test reports for circle
     - store_test_results:
         path: .test-reports

@@ -1,0 +1,13 @@
+# A very simplistic select
+file:
+  statement:
+    select_statement:
+      keyword: select
+      select_target_group:
+        select_target_element:
+          keyword: '*'
+      from_clause:
+        keyword: from
+        table_expression:
+          object_reference:
+            naked_identifier: blah

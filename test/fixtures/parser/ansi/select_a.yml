@@ -1,0 +1,24 @@
+# Start to stretch the lexer a bit more and parse quotes
+file:
+  statement:
+    select_statement:
+      keyword: select
+      select_target_group:
+      - select_target_element:
+          object_reference:
+            naked_identifier: a
+      - keyword: ','
+      - select_target_element:
+          object_reference:
+            naked_identifier: b
+      - keyword: ','
+      - select_target_element:
+          object_reference:
+            naked_identifier: c
+      from_clause:
+        keyword: from
+        table_expression:
+          object_reference:
+            naked_identifier: sch
+            dot: '.'
+            quoted_identifier: '"blah"'

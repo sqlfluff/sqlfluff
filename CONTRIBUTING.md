@@ -1,13 +1,17 @@
 # SqlFluff - Contributing
 
-*First* - thanks for being interested in improving sqlfluff.
+:star2: **First** - thanks for being interested in improving sqlfluff! :smiley:
 
-*Second* - the best way to get started contributing, is to use the
+:star2: **Second** - the best way to get started contributing, is to use the
 tool in anger and then to submit bugs and features through github.
+In particular, in helping to develop the parser, examples of queries
+which don't parse as expected are especially helpful.
 
-*Third* - if you're so inclined - pull requests are always welcome.
+:star2: **Third** - if you're so inclined - pull requests are always welcome.
 Bear in mind that all the tests should pass, and test coverage should
-not decrease unduly as part of the changes which you make.
+not decrease unduly as part of the changes which you make. You may find it
+useful to familiarise yourself with the [architectural principles here](ARCHITECTURE.md),
+and with the [current documentation here](DOCS.md).
 
 ## Nerdy Details
 ### Testing
@@ -37,6 +41,21 @@ tox -e cov-init,py36,cov-report,linting
 > NB: The `cov-init` task clears the previous test results, the `py36` environment
 > generates the results for tests in that python version and the `cov-report` environment
 > actually reports those results out to you.
+
+### Using your local version
+
+To trial using your local development branch of sqlfluff, I recommend you use a virtual
+environment. __(TODO: Insert a link here to the python docs for `virtualenv`)__
+
+Once you're in a virtual environment, run:
+
+```shell
+pip install -r requirements.txt
+python setup.py develop
+```
+
+> `setup.py develop` installs the package using a link to the source code so that any changes
+> which you make will immediately be available for use.
 
 ## Building Package
 

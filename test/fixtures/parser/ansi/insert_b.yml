@@ -1,0 +1,19 @@
+# Insert Statements
+file:
+  statement:
+    insert_statement:
+      keyword: INSERT
+      keyword: into
+      object_reference:
+        naked_identifier: tbl_b
+      start_bracket: (
+      object_reference:
+        naked_identifier: col1
+      end_bracket: )
+      values_clause:
+        keyword: values
+        start_bracket: (
+        literal:
+          numeric_literal: 123
+        end_bracket: )
+  keyword: ;

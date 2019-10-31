@@ -1,0 +1,8 @@
+file:
+  statement:
+    select_statement:
+      keyword: select
+      select_target_group:
+        select_target_element:
+          literal:
+            numeric_literal: 1

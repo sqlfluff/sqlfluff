@@ -8,7 +8,7 @@ import shutil
 from click.testing import CliRunner
 
 import sqlfluff
-from sqlfluff.cli.commands import lint, version, rules, fix
+from sqlfluff.cli.commands import lint, version, rules, fix, parse
 
 
 def test__cli__command_directed():
@@ -18,7 +18,8 @@ def test__cli__command_directed():
     assert result.exit_code == 65
     # We should get a readout of what the error was
     check_a = "L:   2 | P:   1 | L003"
-    check_b = "Single indentation uses a number of spaces not a multiple of 4"
+    # NB: Skip the number at the end because it's configurable
+    check_b = "Spaced indent is not a multiple of"
     assert check_a in result.output
     assert check_b in result.output
 
@@ -60,6 +61,15 @@ def test__cli__command_lint_b():
     """
     runner = CliRunner()
     result = runner.invoke(lint, ['-n', 'test/fixtures/cli/passing_b.sql'])
+    assert result.exit_code == 0
+
+
+def test__cli__command_parse():
+    """
+    Check parse command
+    """
+    runner = CliRunner()
+    result = runner.invoke(parse, ['-n', 'test/fixtures/cli/passing_b.sql'])
     assert result.exit_code == 0
 
 
@@ -105,7 +115,7 @@ def test__cli__command_lint_c_exclude_rules_multi():
     runner = CliRunner()
     result = runner.invoke(lint, ['-n', '--exclude-rules', 'L006,L007', 'test/fixtures/linter/operator_errors.sql'])
     assert result.exit_code == 0
-
+    
 
 def test__cli__command_versioning():
     # Get the package version info

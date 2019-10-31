@@ -1,77 +1,78 @@
 """ The Test file for SQLFluff """
 
-from sqlfluff.rules.std import StandardRuleSet
-from sqlfluff.chunks import PositionedChunk, ChunkString
+from sqlfluff.rules.std import standard_rule_set
+from sqlfluff.linter import Linter
+
+
+def get_rule_from_set(code):
+    for r in standard_rule_set:
+        if r.code == code:
+            return r
+    else:
+        raise ValueError("{0!r} not in {1!r}".format(code, standard_rule_set))
+
+
+def assert_rule_fail_in_sql(code, sql):
+    r = get_rule_from_set(code)
+    parsed, _, _ = Linter().parse_file(sql)
+    print("Parsed:\n {0}".format(parsed.stringify()))
+    lerrs, _, _, _ = r.crawl(parsed, fix=True)
+    print("Errors Found: {0}".format(lerrs))
+    assert any([v.rule.code == code for v in lerrs])
+    fixes = []
+    for e in lerrs:
+        fixes += e.fixes
+    print("Fixes to apply: {0}".format(fixes))
+    while True:
+        l_fixes = fixes
+        fixed, fixes = parsed.apply_fixes(fixes)
+        # iterate until all fixes applied
+        if fixes:
+            if fixes == l_fixes:
+                raise RuntimeError(
+                    "Fixes aren't being applied: {0!r}".format(fixes))
+            else:
+                continue
+        else:
+            break
+    return fixed.raw
+
+
+def assert_rule_pass_in_sql(code, sql):
+    r = get_rule_from_set(code)
+    parsed, _, _ = Linter().parse_file(sql)
+    print("Parsed:\n {0}".format(parsed.stringify()))
+    lerrs, _, _, _ = r.crawl(parsed, fix=True)
+    print("Errors Found: {0}".format(lerrs))
+    assert not any([v.rule.code == code for v in lerrs])
 
 
 # ############## STD RULES TESTS
 def test__rules__std__L001():
-    rs = StandardRuleSet()
-    c = PositionedChunk('     \n', 10, 20, 'whitespace')
-    assert any([v.rule.code == 'L001' for v in rs.evaluate(c)])
+    res = assert_rule_fail_in_sql('L001', 'SELECT 1     \n')
+    assert res == 'SELECT 1\n'
 
 
 def test__rules__std__L002():
-    rs = StandardRuleSet()
-    c = PositionedChunk('    \t    \t    ', 0, 20, 'whitespace')
-    assert any([v.rule.code == 'L002' for v in rs.evaluate(c)])
+    assert_rule_fail_in_sql('L002', '    \t    \t    SELECT 1')
 
 
 def test__rules__std__L003():
-    rs = StandardRuleSet()
-    c = PositionedChunk('     ', 0, 20, 'whitespace')
-    assert any([v.rule.code == 'L003' for v in rs.evaluate(c)])
-
-
-def test__rules__std__L004_whitespace():
-    rl = StandardRuleSet.code_lookup('L004')
-    ws_chars = rl.whitespace_chars('r4o4o4owii78w4w')
-    assert ws_chars == set([])
-    ws_chars = rl.whitespace_chars(' dsafk\tdsjk\n   \tsakldj')
-    assert ws_chars == set([' ', '\t'])
+    assert_rule_fail_in_sql('L003', '     SELECT 1')
 
 
 def test__rules__std__L004():
-    cs = ChunkString(
-        PositionedChunk('    \n', 0, 20, 'whitespace'),
-        PositionedChunk('\t\n', 0, 21, 'whitespace')
-    )
-    # Check individually, there's no errors
-    # First (alone should not raise)
-    rs = StandardRuleSet()
-    vs = rs.evaluate(cs[0])
-    assert not any([v.rule.code == 'L004' for v in vs])
-    # Second (alone should not raise)
-    rs = StandardRuleSet()
-    vs = rs.evaluate(cs[1])
-    assert not any([v.rule.code == 'L004' for v in vs])
-    # Combined (which should raise an L004)
-    rs = StandardRuleSet()
-    vs = rs.evaluate_chunkstring(cs)
-    assert any([v.rule.code == 'L004' for v in vs])
+    assert_rule_pass_in_sql('L004', '   \nSELECT 1')
+    assert_rule_pass_in_sql('L004', '\t\tSELECT 1\n')
+    assert_rule_fail_in_sql('L004', '   \n  \t \n  SELECT 1')
 
 
 def test__rules__std__L005():
     # L005 is about spaces before commas
-    cs = ChunkString(
-        PositionedChunk('1', 0, 20, 'content'),
-        PositionedChunk(' ', 0, 21, 'whitespace'),
-        PositionedChunk(',', 0, 22, 'comma')
-    )
-    rs = StandardRuleSet()
-    vs = rs.evaluate_chunkstring(cs)
-    assert any([v.rule.code == 'L005' for v in vs])
+    assert_rule_fail_in_sql('L005', 'SELECT 1 ,4')
 
 
 def test__rules__std__L008():
     # L008 is about spaces after commas
-    cs = ChunkString(
-        PositionedChunk('1', 0, 20, 'content'),
-        PositionedChunk(',', 0, 21, 'comma'),
-        PositionedChunk('   ', 0, 22, 'whitespace'),
-        PositionedChunk('2', 0, 23, 'content'),
-        PositionedChunk('\n', 0, 24, 'whitespace'),
-    )
-    rs = StandardRuleSet()
-    vs = rs.evaluate_chunkstring(cs)
-    assert any([v.rule.code == 'L008' for v in vs])
+    assert_rule_pass_in_sql('L008', 'SELECT 1, 4')
+    assert_rule_fail_in_sql('L008', 'SELECT 1,   4')
