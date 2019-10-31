@@ -134,7 +134,7 @@ class LintingResult(object):
 
 
 class Linter(object):
-    def __init__(self, dialect=None, sql_exts=('.sql',), rule_whitelist=None):
+    def __init__(self, dialect=None, sql_exts=('.sql',), rule_whitelist=None, rule_blacklist=None):
         # NB: dialect defaults to ansi if "none" supplied
         if isinstance(dialect, str) or dialect is None:
             dialect = dialect_selector(dialect)
@@ -143,6 +143,7 @@ class Linter(object):
         # restrict the search to only specific rules.
         # assume that this is a list of rule codes
         self.rule_whitelist = rule_whitelist
+        self.rule_blacklist = rule_blacklist
 
     def get_ruleset(self):
         """
@@ -151,9 +152,10 @@ class Linter(object):
         """
         rs = standard_rule_set
         if self.rule_whitelist:
-            return [r for r in rs if r.code in self.rule_whitelist]
-        else:
-            return standard_rule_set
+            rs = [r for r in rs if r.code in self.rule_whitelist]
+        if self.rule_blacklist:
+            rs = [r for r in rs if r.code not in self.rule_blacklist]
+        return rs
 
     def rule_tuples(self):
         """ A simple pass through to access the rule tuples of the rule set """

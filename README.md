@@ -67,7 +67,7 @@ about the architecture of sqlfluff, you can find [more here](ARCHITECTURE.md).
   - [ ] Ability to read from config files
   - [ ] Ability to read config from block comment
     sections in `.sql` files.
-  - [ ] Ignore particular rules (blacklisting)
+  - [x] Ignore particular rules (blacklisting)
   - [ ] Specifying particlar dialects to use
   - [ ] Preconfiguring verbosity
 - [x] Dialects
