@@ -95,6 +95,28 @@ def test__cli__command_lint_c_rules_multi():
     assert result.exit_code == 0
 
 
+def test__cli__command_lint_c_exclude_rules_single():
+    """
+    Check that only excluding a single specific rule using the cli works.
+    The subprocess command should exit without erros, as
+    no issues should be found.
+    """
+    runner = CliRunner()
+    result = runner.invoke(lint, ['-n', '--rules', 'L001,L006', '--exclude-rules', 'L006', 'test/fixtures/linter/operator_errors.sql'])
+    assert result.exit_code == 0
+
+
+def test__cli__command_lint_c_exclude_rules_multi():
+    """
+    Check that excluding multiple specific rules using the cli works.
+    The subprocess command should exit without erros, as
+    no issues should be found.
+    """
+    runner = CliRunner()
+    result = runner.invoke(lint, ['-n', '--exclude-rules', 'L006,L007', 'test/fixtures/linter/operator_errors.sql'])
+    assert result.exit_code == 0
+    
+
 def test__cli__command_versioning():
     # Get the package version info
     pkg_version = sqlfluff.__version__
