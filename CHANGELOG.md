@@ -13,20 +13,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added lexing for `!=` and `::`
 
 ## [0.1.3] - 2019-10-30
+
 ### Changed
+
 - Tweak to the L001 rule so that it doesn't crash the whole thing.
 
 ## [0.1.2] - 2019-10-30
+
 ### Changed
+
 - Fixed the errors raised by the lexer.
 
 ## [0.1.1] - 2019-10-30
+
 ### Changed
+
 - Fixed which modules from sqlfluff are installed in the setup.py. This affects
   the `version` command.
 
 ## [0.1.0] - 2019-10-29
+
 ### Changed
+
 - *Big Rewrite - some loss in functionality might be apparent compared
   to pre-0.1.0. Please submit any major problems as issues on github*
 - Changed unicode handling for better escape codes in python 2.
