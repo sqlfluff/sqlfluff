@@ -22,10 +22,12 @@ them on each command, they are documented here for brevity:
   trailing whitespace). Multiple rules can be specified with commas e.g.
   `--rules L001,L002` will specify only looking for violations of rule
   `L001` and rule `L002`.
-- `[--exclude-rules RULES]`: Exclude only specific rules. For example
-  specifying `--exclude-rules L001` will only remove rule `L001` (Unnessesary
-  trailing whitespace). Multiple rules can be specified with commas e.g.
-  `--exclude-rules L001,L002` will exclude only violations of rule
+- `[--exclude-rules RULES]`: Exclude specific rules. For example
+  specifying `--exclude-rules L001` will remove rule `L001` (Unnessesary
+  trailing whitespace) from the set of considered rules. This could either
+  be the whitelist, or the general set if there is no specific whitelist.
+  Multiple rules can be specified with commas e.g.
+  `--exclude-rules L001,L002` will exclude violations of rule
   `L001` and rule `L002`.
 
 ## `sqlfluff version`
