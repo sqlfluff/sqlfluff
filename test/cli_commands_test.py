@@ -115,7 +115,7 @@ def test__cli__command_lint_c_exclude_rules_multi():
     runner = CliRunner()
     result = runner.invoke(lint, ['-n', '--exclude-rules', 'L006,L007', 'test/fixtures/linter/operator_errors.sql'])
     assert result.exit_code == 0
-    
+
 
 def test__cli__command_versioning():
     # Get the package version info
