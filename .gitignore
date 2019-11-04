@@ -13,6 +13,7 @@ dist
 # Ignore the Environment
 env
 .tox
+venv
 
 # Ignore coverage reports
 .coverage
