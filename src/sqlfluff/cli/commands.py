@@ -1,15 +1,15 @@
 """ Contains the CLI """
 
-import click
 import sys
 
+import click
 
 from ..dialects import dialect_selector
 from ..linter import Linter
-from .formatters import (format_linting_result, format_config, format_rules,
-                         format_linting_violations,
+from .formatters import (format_config, format_linting_result,
+                         format_linting_violations, format_rules,
                          format_violation)
-from .helpers import get_package_version, cli_table
+from .helpers import cli_table, get_package_version
 
 
 def common_options(f):
@@ -88,7 +88,11 @@ def lint(verbose, nocolor, dialect, rules, exclude_rules, paths):
     # Lint the paths
     if verbose > 1:
         click.echo("==== logging ====")
-    result = lnt.lint_paths(paths, verbosity=verbose)
+    # add stdin if specified via lone '-'
+    if ('-',) == paths:
+        result = lnt.lint_string(sys.stdin.read(), name='stdin', verbosity=verbose)
+    else:
+        result = lnt.lint_paths(paths, verbosity=verbose)
     # Output the results
     output = format_linting_result(result, verbose=verbose)
     click.echo(output, color=color)
@@ -115,7 +119,7 @@ def fix(verbose, nocolor, dialect, rules, exclude_rules, force, paths):
         sys.exit(1)
     # Lint the paths (not with the fix argument at this stage)
     result = lnt.lint_paths(paths)
-
+    
     if result.num_violations() > 0:
         click.echo("==== violations found ====")
         click.echo(format_linting_violations(result, verbose=verbose), color=color)
