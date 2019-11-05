@@ -1,7 +1,6 @@
 """ Defines the linter class """
 
 import os
-import tempfile
 from collections import namedtuple
 
 from six import StringIO

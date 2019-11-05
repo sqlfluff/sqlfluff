@@ -119,7 +119,7 @@ def fix(verbose, nocolor, dialect, rules, exclude_rules, force, paths):
         sys.exit(1)
     # Lint the paths (not with the fix argument at this stage)
     result = lnt.lint_paths(paths)
-    
+
     if result.num_violations() > 0:
         click.echo("==== violations found ====")
         click.echo(format_linting_violations(result, verbose=verbose), color=color)
