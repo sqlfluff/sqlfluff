@@ -4,7 +4,6 @@ import configparser
 import tempfile
 import os
 import shutil
-from pathlib import Path
 
 import pytest
 from click.testing import CliRunner
@@ -63,7 +62,8 @@ def test__cli__command_lint_stdin(command):
 
     The subprocess command should exit without errors, as no issues should be found.
     """
-    sql = Path('test/fixtures/cli/passing_a.sql').read_text()
+    with open('test/fixtures/cli/passing_a.sql', 'r') as f:
+        sql = f.read()
     runner = CliRunner()
     result = runner.invoke(lint, command, input=sql)
     assert result.exit_code == 0
