@@ -77,7 +77,17 @@ def rules(verbose, nocolor, dialect, rules, exclude_rules):
 @common_options
 @click.argument('paths', nargs=-1)
 def lint(verbose, nocolor, dialect, rules, exclude_rules, paths):
-    """ Lint SQL files """
+    """Lint SQL files via passing a list of files or using stdin.
+
+    Linting SQL files:
+
+        sqlfluff lint path/to/file.sql
+
+    Linting the same file via stdin (note the lone '-' character):
+
+        cat path/to/file.sql | sqlfluff lint -
+
+    """
     # Configure Color
     color = False if nocolor else None
     # Instantiate the linter
