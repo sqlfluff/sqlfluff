@@ -4,7 +4,9 @@ import configparser
 import tempfile
 import os
 import shutil
+from pathlib import Path
 
+import pytest
 from click.testing import CliRunner
 
 import sqlfluff
@@ -35,7 +37,7 @@ def test__cli__command_dialect():
 def test__cli__command_lint_a():
     """
     Check basic commands on a simple script.
-    The subprocess command should exit without erros, as
+    The subprocess command should exit without errors, as
     no issues should be found.
     """
     runner = CliRunner()
@@ -52,6 +54,18 @@ def test__cli__command_lint_a():
     result = runner.invoke(lint, ['-vv', 'test/fixtures/cli/passing_a.sql'])
     assert result.exit_code == 0
 
+@pytest.mark.parametrize('command', [
+    ('-', '-n', ), ('-', '-n', '-v',), ('-', '-n', '-vv',), ('-', '-vv',),
+])
+def test__cli__command_lint_stdin(command):
+    """Check basic commands on a simple script using stdin.
+    
+    The subprocess command should exit without errors, as no issues should be found.
+    """
+    sql = Path('test/fixtures/cli/passing_a.sql').read_text()
+    runner = CliRunner()
+    result = runner.invoke(lint, command, input=sql)
+    assert result.exit_code == 0
 
 def test__cli__command_lint_b():
     """
