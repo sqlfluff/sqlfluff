@@ -309,8 +309,16 @@ class Linter(object):
     def lint_string(self, string, name='<string input>', verbosity=0, fix=False):
         result = LintingResult(rule_whitelist=self.rule_whitelist)
         linted_path = LintedPath(name)
-        with StringIO(string) as f:
-            linted_path.add(self.lint_file(f, fname=name, verbosity=verbosity, fix=fix))
+        buf = StringIO(string)
+        try:
+            linted_path.add(
+                self.lint_file(buf, fname=name, verbosity=verbosity, fix=fix)
+            )
+        except Exception:
+            raise
+        finally:
+            buf.close()
+
         result.add(linted_path)
         return result
 
