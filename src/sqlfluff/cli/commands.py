@@ -88,7 +88,7 @@ def lint(verbose, nocolor, dialect, rules, exclude_rules, paths):
     Linting a file via stdin (note the lone '-' character):
 
         \b
-        cat path/to/file.sql | sqlfluff lint -  
+        cat path/to/file.sql | sqlfluff lint -
         echo 'select col from tbl' | sqlfluff lint -
 
     """
