@@ -82,10 +82,12 @@ def lint(verbose, nocolor, dialect, rules, exclude_rules, paths):
     Linting SQL files:
 
         sqlfluff lint path/to/file.sql
+        sqlfluff lint directory/of/sql/files
 
-    Linting the same file via stdin (note the lone '-' character):
+    Linting a file via stdin (note the lone '-' character):
 
         cat path/to/file.sql | sqlfluff lint -
+        echo 'select col from tbl' | sqlfluff lint -
 
     """
     # Configure Color
