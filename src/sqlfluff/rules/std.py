@@ -1,8 +1,7 @@
 """ Standard SQL Linting Rules """
 
-from .crawler import BaseCrawler, LintResult, LintFix
 from ..parser import RawSegment
-
+from .crawler import BaseCrawler, LintFix, LintResult
 
 # TODO: Make this multiple configurable somewhere in
 # the dialect.

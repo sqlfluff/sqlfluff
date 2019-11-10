@@ -2,18 +2,17 @@
 
 import os
 from collections import namedtuple
+
 from six import StringIO
 
 from .dialects import dialect_selector
-
+from .errors import SQLLexError, SQLParseError
+from .helpers import get_time
+from .parser.segments_base import frame_msg, verbosity_logger
 # TODO: I feel like these functions should live elsewhere, or
 # be importable directly from .parser
 from .parser.segments_file import FileSegment
-from .parser.segments_base import verbosity_logger, frame_msg
-from .errors import SQLParseError, SQLLexError
-
 from .rules.std import standard_rule_set
-from .helpers import get_time
 
 
 class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tree'])):
@@ -306,6 +305,22 @@ class Linter(object):
             return buffer
         else:
             return set([path])
+
+    def lint_string(self, string, name='<string input>', verbosity=0, fix=False):
+        result = LintingResult(rule_whitelist=self.rule_whitelist)
+        linted_path = LintedPath(name)
+        buf = StringIO(string)
+        try:
+            linted_path.add(
+                self.lint_file(buf, fname=name, verbosity=verbosity, fix=fix)
+            )
+        except Exception:
+            raise
+        finally:
+            buf.close()
+
+        result.add(linted_path)
+        return result
 
     def lint_path(self, path, verbosity=0, fix=False):
         linted_path = LintedPath(path)
