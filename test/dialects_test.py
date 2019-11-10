@@ -10,6 +10,7 @@ import logging
 import os
 import oyaml
 
+from sqlfluff.parser.segments_base import ParseContext
 from sqlfluff.parser.segments_file import FileSegment
 from sqlfluff.dialects import dialect_selector
 
@@ -86,11 +87,12 @@ def test__dialect__ansi__base_file_parse(dialect, file, caplog):
     assert fs.raw == raw
     # Load the right dialect
     dia = dialect_selector(dialect)
+    context = ParseContext(dialect=dia)
     # Do the parse with lots of logging
     with caplog.at_level(logging.DEBUG):
         logging.debug("Pre-parse structure: {0}".format(fs.to_tuple(show_raw=True)))
         logging.debug("Pre-parse structure: {0}".format(fs.stringify()))
-        parsed = fs.parse(dialect=dia)  # Optional: set recurse=1 to limit recursion
+        parsed = fs.parse(parse_context=context)  # Optional: set recurse=1 to limit recursion
         logging.debug("Post-parse structure: {0}".format(fs.to_tuple(show_raw=True)))
         logging.debug("Post-parse structure: {0}".format(fs.stringify()))
     # Check we're all there.
@@ -108,11 +110,12 @@ def test__dialect__ansi__base_parse_struct(dialect, sqlfile, yamlfile, caplog):
     """ Some simple statements to check full parsing structure """
     # Load the right dialect
     dia = dialect_selector(dialect)
+    context = ParseContext(dialect=dia)
     # Load the SQL
     raw = load_file(dialect, sqlfile)
     fs = FileSegment.from_raw(raw)
     # Load the YAML
     res = load_struct(dialect, yamlfile)
     with caplog.at_level(logging.DEBUG):
-        parsed = fs.parse(dialect=dia)
+        parsed = fs.parse(parse_context=context)
     assert parsed.to_tuple(code_only=True, show_raw=True) == res

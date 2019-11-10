@@ -35,6 +35,9 @@ class MatchResult(namedtuple('MatchResult', ['matched_segments', 'unmatched_segm
         else:
             return None
 
+    def all_segments(self):
+        return self.matched_segments + self.unmatched_segments
+
     def __len__(self):
         return len(self.matched_segments)
 

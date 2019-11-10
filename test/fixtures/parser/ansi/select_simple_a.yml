@@ -4,5 +4,4 @@ file:
       keyword: select
       select_target_group:
         select_target_element:
-          literal:
-            numeric_literal: 1
+          numeric_literal: 1

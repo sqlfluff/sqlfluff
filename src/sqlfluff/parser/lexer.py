@@ -163,6 +163,7 @@ class Lexer(object):
             SingletonMatcher.from_shorthand("dot", ".", is_code=True),
             SingletonMatcher.from_shorthand("comma", ",", is_code=True),
             SingletonMatcher.from_shorthand("plus", "+", is_code=True),
+            SingletonMatcher.from_shorthand("tilde", "~", is_code=True),
             SingletonMatcher.from_shorthand("minus", "-", is_code=True),
             SingletonMatcher.from_shorthand("divide", "/", is_code=True),
             SingletonMatcher.from_shorthand("star", "*", is_code=True),
