@@ -7,10 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed
+### Added
+
 - Added a `--exclude-rules` argument to most of the commands to allow rule users
   to exclude specific subset of rules, by [@sumitkumar1209](https://github.com/sumitkumar1209)
-- Added lexing for `!=` and `::`
+- Added lexing for `!=`, `~` and `::`.
+- Added a new common segment: `LambdaSegment` which allows matching based on arbitrary
+  functions which can be applied to segments.
+- Recursive Expressions for both arithmetic and functions, based heavily off the grammar
+  provided by the guys at [CockroachDB](https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt).
+- An `Anything` grammar, useful in matching rather than in parsing to match anything.
+
+### Changed
+
+- Complete rewrite of the bracket counting functions, using some centralised class methods
+  on the `BaseGrammar` class to support common matching features across multiple grammars.
+  In particular this affects the `Delimited` grammar which is now *much simpler* but does
+  also require *slightly* more liberal use of terminators to match effectively.
+- Rather than passing around multiple variables during parsing and matching, there is now
+  a `ParseContext` object which contains things like the dialect and various depths. This
+  simplifies the parsing and matching code significantly.
+- Bracket referencing is now done from the dialect directly, rather than in individual
+  Grammars (except the `Bracketed` grammar, which still implements it directly). This
+  takes out some originally duplicated code.
+
+### Removed
+
+- Removed the `bracket_sensitive_forward_match` method from the `BaseGrammar`. It was ugly
+  and not flexible enough. It's been replaced by a suite of methods as described above.
 
 ## [0.1.3] - 2019-10-30
 

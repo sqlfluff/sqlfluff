@@ -8,7 +8,8 @@ be defined elsewhere.
 
 from ..parser import (BaseSegment, KeywordSegment, ReSegment, NamedSegment,
                       Sequence, GreedyUntil, StartsWith, ContainsOnly,
-                      OneOf, Delimited, Bracketed, AnyNumberOf, Ref)
+                      OneOf, Delimited, Bracketed, AnyNumberOf, Ref,
+                      Anything, LambdaSegment)
 from .base import Dialect
 
 # NOTE: There is a concept here, of parallel grammars.
@@ -22,7 +23,10 @@ from .base import Dialect
 # First strip comments, potentially extracting special comments (which start with sqlfluff:)
 #   - this also makes comment sections, config sections (a subset of comments) and code sections
 
-# Note on SQL Grammar
+# Note on SQL Grammar:
+# A lot of the inspiration for this sql grammar is taken from the cockroach
+# labs full sql grammar. In particular their way for dividing up the expression
+# grammar.
 # https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 
 
@@ -30,12 +34,16 @@ ansi_dialect = Dialect('ansi')
 
 
 ansi_dialect.add(
+    # NB The NonCode Segment is not really for matching, mostly just for use as a terminator
+    _NonCodeSegment=LambdaSegment.make(lambda x: not x.is_code, is_code=False, name='non_code'),
+    # Real segments
     SemicolonSegment=KeywordSegment.make(';', name="semicolon"),
     StartBracketSegment=KeywordSegment.make('(', name='start_bracket', type='start_bracket'),
     EndBracketSegment=KeywordSegment.make(')', name='end_bracket', type='end_bracket'),
     CommaSegment=KeywordSegment.make(',', name='comma'),
     DotSegment=KeywordSegment.make('.', name='dot', type='dot'),
     StarSegment=KeywordSegment.make('*', name='star'),
+    TildeSegment=KeywordSegment.make('~', name='tilde'),
     PlusSegment=KeywordSegment.make('+', name='plus', type='binary_operator'),
     MinusSegment=KeywordSegment.make('-', name='minus', type='binary_operator'),
     DivideSegment=KeywordSegment.make('/', name='divide', type='binary_operator'),
@@ -47,6 +55,7 @@ ansi_dialect.add(
     LessThanOrEqualToSegment=KeywordSegment.make('<=', name='less_than_equal_to', type='comparison_operator'),
     # The strange regex here it to make sure we don't accidentally match numeric literals
     NakedIdentifierSegment=ReSegment.make(r"[A-Z0-9_]*[A-Z][A-Z0-9_]*", name='identifier', type='naked_identifier'),
+    FunctionNameSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='function_name', type='function_name'),
     QuotedIdentifierSegment=NamedSegment.make('double_quote', name='identifier', type='quoted_identifier'),
     QuotedLiteralSegment=NamedSegment.make('single_quote', name='literal', type='quoted_literal'),
     NumericLiteralSegment=NamedSegment.make('numeric_literal', name='literal', type='numeric_literal'),
@@ -59,6 +68,8 @@ ansi_dialect.add(
     # if some dialects have different available operators
     ArithmeticBinaryOperatorGrammar=OneOf(
         Ref('PlusSegment'), Ref('MinusSegment'), Ref('DivideSegment'), Ref('MultiplySegment')),
+    BooleanBinaryOperatorGrammar=OneOf(
+        Ref('AndKeywordSegment'), Ref('OrKeywordSegment')),
     ComparisonOperatorGrammar=OneOf(
         Ref('EqualsSegment'), Ref('GreaterThanSegment'), Ref('LessThanSegment'),
         Ref('GreaterThanOrEqualToSegment'), Ref('LessThanOrEqualToSegment')),
@@ -91,16 +102,12 @@ ansi_dialect.add(
     SelectKeywordSegment=KeywordSegment.make('select'),
     WithKeywordSegment=KeywordSegment.make('with'),
     InsertKeywordSegment=KeywordSegment.make('insert'),
-    IntoKeywordSegment=KeywordSegment.make('into')
-)
-
-
-@ansi_dialect.segment()
-class LiteralSegment(BaseSegment):
-    type = 'literal'
-    match_grammar = OneOf(
+    IntoKeywordSegment=KeywordSegment.make('into'),
+    # Some more grammars:
+    LiteralGrammar=OneOf(
         Ref('QuotedLiteralSegment'), Ref('NumericLiteralSegment'), Ref('BooleanLiteralGrammar')
-    )
+    ),
+)
 
 
 @ansi_dialect.segment()
@@ -113,7 +120,11 @@ class ColumnExpressionSegment(BaseSegment):
 class ObjectReferenceSegment(BaseSegment):
     type = 'object_reference'
     # match grammar (don't allow whitespace)
-    match_grammar = Delimited(Ref('SingleIdentifierGrammar'), delimiter=Ref('DotSegment'), code_only=False)
+    match_grammar = Delimited(
+        Ref('SingleIdentifierGrammar'),
+        delimiter=Ref('DotSegment'),
+        terminator=OneOf(Ref('_NonCodeSegment'), Ref('CommaSegment')),
+        code_only=False)
 
 
 @ansi_dialect.segment()
@@ -123,12 +134,36 @@ class AliasedObjectReferenceSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class FunctionSegment(BaseSegment):
+    type = 'function'
+    match_grammar = Sequence(
+        Ref('FunctionNameSegment'),
+        Bracketed(
+            Anything()
+        ),
+        code_only=False
+    )
+    parse_grammar = Sequence(
+        Ref('FunctionNameSegment'),
+        Bracketed(
+            Delimited(
+                Ref('ExpressionSegment'),
+                delimiter=Ref('CommaSegment')
+            )
+        ),
+        code_only=False
+    )
+
+
+@ansi_dialect.segment()
 class TableExpressionSegment(BaseSegment):
     type = 'table_expression'
-    match_grammar = OneOf(
-        Ref('AliasedObjectReferenceSegment'),
-        Ref('ObjectReferenceSegment')
-        # Values clause?
+    match_grammar = Sequence(
+        OneOf(
+            Ref('ObjectReferenceSegment'),
+            # Values clause?
+        ),
+        Ref('AliasExpressionGrammar', optional=True)
     )
 
 
@@ -145,14 +180,14 @@ class SelectTargetElementSegment(BaseSegment):
         Sequence(
             OneOf(
                 Ref('ObjectReferenceSegment'),
-                Ref('LiteralSegment'),
+                Ref('LiteralGrammar'),
+                Ref('FunctionSegment')
             ),
             Ref('AliasExpressionGrammar', optional=True)
         ),
         Sequence(
             OneOf(
-                Ref('BooleanExpressionSegment'),
-                Ref('ArithmeticExpressionSegment'),
+                Ref('ExpressionSegment'),
             ),
             Ref('AliasExpressionGrammar', optional=True)
         ),
@@ -207,10 +242,10 @@ class JoinClauseSegment(BaseSegment):
                 Sequence(
                     Ref('OnKeywordSegment'),
                     Bracketed(
-                        # This is the lazy option for now...
-                        GreedyUntil(
-                            KeywordSegment.make('foobar')
-                        )
+                        # this is the lazy option for now. Perhaps we should even
+                        # allow ON conditions without brackets?
+                        # TODO: Do that.
+                        Anything()
                     )
                 ),
                 # USING clause
@@ -252,62 +287,69 @@ class FromClauseSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
-class BooleanExpressionSegment(BaseSegment):
-    # TODO: This needs to be somehow recursive. Could be a problem...
-    type = 'boolean_expression'
-    match_grammar = Delimited(
+ansi_dialect.add(
+    Expression_A_Grammar=Sequence(
         OneOf(
-            # It could be a simple comparison
-            Delimited(
-                OneOf(Ref('ObjectReferenceSegment'), Ref('LiteralSegment'), Ref('ArithmeticExpressionSegment')),
-                delimiter=Ref('ComparisonOperatorGrammar'),
-                terminator=OneOf(Ref('CommaSegment'), Ref('AsKeywordSegment')),
-                min_delimiters=1
-            ),
-            # It could be an IN statement
+            Ref('Expression_C_Grammar'),
             Sequence(
-                OneOf(Ref('ObjectReferenceSegment'), Ref('LiteralSegment')),
-                Ref('InKeywordSegment'),
-                Bracketed(
-                    Delimited(
-                        Ref('LiteralSegment'),
-                        delimiter=Ref('CommaSegment')
-                    )
-                )
-            ),
-            # If it's a boolean field it could just be an identifier with a not
-            Sequence(
-                Ref('NotKeywordSegment'),
-                Ref('ObjectReferenceSegment')
-            ),
-            Ref('ObjectReferenceSegment'),
-            Ref('BooleanLiteralGrammar')
-        ),
-        delimiter=OneOf(
-            Ref('AndKeywordSegment'),
-            Ref('OrKeywordSegment')
-        ),
-        # min_delimiters=1
-    )
-
-
-@ansi_dialect.segment()
-class ArithmeticExpressionSegment(BaseSegment):
-    """ NB: This is potentially recursive """
-    type = 'arithmetic_expression'
-    match_grammar = Delimited(
-        OneOf(
-            Ref('NumericLiteralSegment'),
-            Ref('ObjectReferenceSegment'),
-            Bracketed(
-                # Recursion!
-                Ref('ArithmeticExpressionSegment')
+                OneOf(
+                    Ref('PlusSegment'),
+                    Ref('MinusSegment'),
+                    Ref('TildeSegment'),
+                    Ref('NotKeywordSegment')
+                ),
+                Ref('Expression_A_Grammar')
             )
         ),
-        delimiter=Ref('ArithmeticBinaryOperatorGrammar'),
-        min_delimiters=1
+        AnyNumberOf(
+            OneOf(
+                Sequence(
+                    OneOf(
+                        Ref('ArithmeticBinaryOperatorGrammar'),
+                        Ref('ComparisonOperatorGrammar'),
+                        Ref('BooleanBinaryOperatorGrammar')
+                        # We need to add a lot more here...
+                    ),
+                    Ref('Expression_A_Grammar')
+                ),
+                Sequence(
+                    Ref('InKeywordSegment'),
+                    Bracketed(
+                        OneOf(
+                            Delimited(
+                                Ref('LiteralGrammar'),
+                                delimiter=Ref('CommaSegment')
+                            ),
+                            Ref('SelectStatementSegment')
+                        )
+                    )
+                )
+            )
+        )
+    ),
+    Expression_B_Grammar=None,  # TODO
+    Expression_C_Grammar=Ref('Expression_D_Grammar'),
+    Expression_D_Grammar=OneOf(
+        Ref('LiteralGrammar'),
+        Ref('ObjectReferenceSegment'),
+        Ref('FunctionSegment'),
+        Bracketed(
+            Ref('Expression_A_Grammar')
+        )
+    ),
+)
+
+
+@ansi_dialect.segment()
+class ExpressionSegment(BaseSegment):
+    """ NB: This is potentially VERY recursive and
+    mostly uses the grammars above"""
+    type = 'expression'
+    match_grammar = GreedyUntil(
+        Ref('CommaSegment'),
+        Ref('AsKeywordSegment')
     )
+    parse_grammar = Ref('Expression_A_Grammar')
 
 
 @ansi_dialect.segment()
@@ -324,7 +366,7 @@ class WhereClauseSegment(BaseSegment):
     )
     parse_grammar = Sequence(
         Ref('WhereKeywordSegment'),
-        Ref('BooleanExpressionSegment')
+        Ref('ExpressionSegment')
     )
 
 
@@ -367,7 +409,7 @@ class ValuesClauseSegment(BaseSegment):
         Delimited(
             Bracketed(
                 Delimited(
-                    LiteralSegment,
+                    Ref('LiteralGrammar'),
                     delimiter=Ref('CommaSegment')
                 )
             ),

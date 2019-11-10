@@ -8,10 +8,8 @@ from six import StringIO
 from .dialects import dialect_selector
 from .errors import SQLLexError, SQLParseError
 from .helpers import get_time
-from .parser.segments_base import frame_msg, verbosity_logger
-# TODO: I feel like these functions should live elsewhere, or
-# be importable directly from .parser
 from .parser.segments_file import FileSegment
+from .parser.segments_base import verbosity_logger, frame_msg, ParseContext
 from .rules.std import standard_rule_set
 
 
@@ -191,7 +189,9 @@ class Linter(object):
         # Parse the file and log any problems
         if fs:
             try:
-                parsed = fs.parse(recurse=recurse, verbosity=verbosity, dialect=self.dialect)
+                # Make a parse context and parse
+                context = ParseContext(dialect=self.dialect, verbosity=verbosity, recurse=recurse)
+                parsed = fs.parse(parse_context=context)
             except SQLParseError as err:
                 violations.append(err)
                 parsed = None
