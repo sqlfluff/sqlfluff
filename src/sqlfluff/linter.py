@@ -8,12 +8,8 @@ from six import StringIO
 from .dialects import dialect_selector
 from .errors import SQLLexError, SQLParseError
 from .helpers import get_time
-from .parser.segments_base import frame_msg, verbosity_logger
-# TODO: I feel like these functions should live elsewhere, or
-# be importable directly from .parser
 from .parser.segments_file import FileSegment
 from .parser.segments_base import verbosity_logger, frame_msg, ParseContext
-from .errors import SQLParseError, SQLLexError
 from .rules.std import standard_rule_set
 
 
