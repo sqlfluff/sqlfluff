@@ -1,15 +1,15 @@
 """ Contains the CLI """
 
-import click
 import sys
 
+import click
 
 from ..dialects import dialect_selector
 from ..linter import Linter
-from .formatters import (format_linting_result, format_config, format_rules,
-                         format_linting_violations,
+from .formatters import (format_config, format_linting_result,
+                         format_linting_violations, format_rules,
                          format_violation)
-from .helpers import get_package_version, cli_table
+from .helpers import cli_table, get_package_version
 
 
 def common_options(f):
@@ -77,7 +77,21 @@ def rules(verbose, nocolor, dialect, rules, exclude_rules):
 @common_options
 @click.argument('paths', nargs=-1)
 def lint(verbose, nocolor, dialect, rules, exclude_rules, paths):
-    """ Lint SQL files """
+    """Lint SQL files via passing a list of files or using stdin.
+
+    Linting SQL files:
+
+        \b
+        sqlfluff lint path/to/file.sql
+        sqlfluff lint directory/of/sql/files
+
+    Linting a file via stdin (note the lone '-' character):
+
+        \b
+        cat path/to/file.sql | sqlfluff lint -
+        echo 'select col from tbl' | sqlfluff lint -
+
+    """
     # Configure Color
     color = False if nocolor else None
     # Instantiate the linter
@@ -88,7 +102,11 @@ def lint(verbose, nocolor, dialect, rules, exclude_rules, paths):
     # Lint the paths
     if verbose > 1:
         click.echo("==== logging ====")
-    result = lnt.lint_paths(paths, verbosity=verbose)
+    # add stdin if specified via lone '-'
+    if ('-',) == paths:
+        result = lnt.lint_string(sys.stdin.read(), name='stdin', verbosity=verbose)
+    else:
+        result = lnt.lint_paths(paths, verbosity=verbose)
     # Output the results
     output = format_linting_result(result, verbose=verbose)
     click.echo(output, color=color)

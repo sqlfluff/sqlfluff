@@ -69,6 +69,8 @@ them on each command, they are documented here for brevity:
   - _Blank_. If you just call `sqlfluff lint` without a path specified
     if will be as though you passed the current working directory and
     will behave as per the above command.
+  - _Stdin_. A lone `-` character will tell `sqlfluff` to lint data passed via stdin.
+
 
 **Example responses:**
 

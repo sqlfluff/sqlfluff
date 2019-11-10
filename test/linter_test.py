@@ -60,7 +60,6 @@ def test__linter__lint_file_whitespace():
     assert not any([v[0] == 'L008' and v[1] == 4 for v in violations])
     assert not any([v[1] == 5 for v in violations])
 
-
 # def test__linter__lint_file_operators():
 #    lntr = Linter()
 #    lnt = lntr.lint_path('test/fixtures/linter/operator_errors.sql')
@@ -103,6 +102,39 @@ def test__linter__lint_file_whitespace():
 #    violations = lnt.check_tuples()
 #    # Check that this is allowed
 #    assert violations == []
+
+def test__linter__lint_string_indentation():
+    with open('test/fixtures/linter/indentation_errors.sql', 'r') as f:
+        sql = f.read()
+
+    lntr = Linter()
+    lnt = lntr.lint_string(sql)
+    violations = lnt.check_tuples()
+    # Check we get the trialing whitespace violation
+    assert ('L001', 4, 24) in violations
+    # Check we get the mixed indentation errors
+    assert ('L002', 3, 1) in violations
+    assert ('L002', 4, 1) in violations
+    # Check we get the space multiple violations
+    assert ('L003', 3, 1) in violations
+    # Check we get the mixed indentation errors between lines
+    assert ('L004', 5, 1) in violations
+
+
+def test__linter__lint_string_whitespace():
+    with open('test/fixtures/linter/whitespace_errors.sql', 'r') as f:
+        sql = f.read()
+    lntr = Linter()
+    lnt = lntr.lint_string(sql)
+    violations = lnt.check_tuples()
+    # Check we get comma (with leading space) whitespace errors
+    # assert ('L005', 2, 8) in violations
+    # assert ('L005', 4, 0) in violations
+    # Check we get comma (with incorrect trailing space) whitespace errors
+    assert ('L008', 3, 12) in violations
+    # Check for no false positives on line 4 or 5
+    assert not any([v[0] == 'L008' and v[1] == 4 for v in violations])
+    assert not any([v[1] == 5 for v in violations])
 
 
 def test__linter__linting_result__sum_dicts():

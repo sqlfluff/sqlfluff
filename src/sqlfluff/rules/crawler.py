@@ -2,7 +2,7 @@
 
 # Crawlers, crawl through the trees returned by the parser and
 # evaluate particular rules.
-# The intent is that it should be possible for the rules to be epxressed
+# The intent is that it should be possible for the rules to be expressed
 # as simply as possible, with as much of the complexity abstracted away.
 
 # The evaluation function should take enough arguments that it can evaluate
@@ -15,7 +15,6 @@
 from collections import namedtuple
 
 from ..errors import SQLLintError
-
 
 # The ghost of a rule (mostly used for testing)
 RuleGhost = namedtuple('RuleGhost', ['code', 'description'])
