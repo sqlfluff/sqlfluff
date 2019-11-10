@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bracket referencing is now done from the dialect directly, rather than in individual
   Grammars (except the `Bracketed` grammar, which still implements it directly). This
   takes out some originally duplicated code.
+- Corrected the parsing of ordering keywords in and `ORDER BY` clause.
 
 ### Removed
 

@@ -96,7 +96,7 @@ ansi_dialect.add(
     OrKeywordSegment=KeywordSegment.make('or'),
     NotKeywordSegment=KeywordSegment.make('not'),
     AscKeywordSegment=KeywordSegment.make('asc'),
-    DescKeywordSegment=KeywordSegment.make('dec'),
+    DescKeywordSegment=KeywordSegment.make('desc'),
     ValueKeywordSegment=KeywordSegment.make('value'),
     ValuesKeywordSegment=KeywordSegment.make('values'),
     SelectKeywordSegment=KeywordSegment.make('select'),
