@@ -18,6 +18,10 @@ def format_filename(filename, success=False, verbose=0, success_text='PASS'):
         + "] " + status_string)
 
 
+def format_path(path):
+    return '=== [ path: {0} ] ===\n'.format(colorize(path, 'lightgrey'))
+
+
 def format_violation(violation, verbose=0):
     if isinstance(violation, SQLBaseError):
         code, line, pos, desc = violation.get_info_tuple()
@@ -51,26 +55,37 @@ def format_fix(fix, verbose=0):
     )
 
 
-def format_violations(violations, verbose=0):
+def format_file_violations(fname, res, verbose=0):
+    text_buffer = StringIO()
+    # Success is having no violations
+    success = len(res) == 0
+
+    # Only print the filename if it's either a failure or verbosity > 1
+    if verbose > 1 or not success:
+        text_buffer.write(format_filename(fname, success=success, verbose=verbose))
+        text_buffer.write('\n')
+
+    # If we have violations, print them
+    if not success:
+        # sort by position in file
+        s = sorted(res, key=lambda v: v.char_pos())
+        for violation in s:
+            text_buffer.write(format_violation(violation, verbose=verbose))
+            text_buffer.write('\n')
+    str_buffer = text_buffer.getvalue()
+    # Remove the trailing newline if there is one
+    if len(str_buffer) > 0 and str_buffer[-1] == '\n':
+        str_buffer = str_buffer[:-1]
+    return str_buffer
+
+
+def format_path_violations(violations, verbose=0):
     # Violations should be a dict
     keys = sorted(violations.keys())
     text_buffer = StringIO()
     for key in keys:
-        # Success is having no violations
-        success = len(violations[key]) == 0
-
-        # Only print the filename if it's either a failure or verbosity > 1
-        if verbose > 1 or not success:
-            text_buffer.write(format_filename(key, success=success, verbose=verbose))
-            text_buffer.write('\n')
-
-        # If we have violations, print them
-        if not success:
-            # sort by position in file
-            s = sorted(violations[key], key=lambda v: v.char_pos())
-            for violation in s:
-                text_buffer.write(format_violation(violation, verbose=verbose))
-                text_buffer.write('\n')
+        text_buffer.write(format_file_violations(key, violations[key], verbose=verbose))
+        text_buffer.write('\n')
     str_buffer = text_buffer.getvalue()
     # Remove the trailing newline if there is one
     if len(str_buffer) > 0 and str_buffer[-1] == '\n':
@@ -101,24 +116,55 @@ def format_linting_stats(result, verbose=0):
     return text_buffer.getvalue()
 
 
+def format_linting_path(p, verbose=0):
+    text_buffer = StringIO()
+    if verbose > 0:
+        text_buffer.write(format_path(p))
+    return text_buffer.getvalue()
+
+
+def _format_path_linting_violations(result, verbose=0):
+    text_buffer = StringIO()
+    text_buffer.write(format_linting_path(result.path))
+    text_buffer.write(format_path_violations(result.violations(), verbose=verbose))
+    return text_buffer.getvalue()
+
+
 def format_linting_violations(result, verbose=0):
     """ Assume we're passed a LintingResult """
     text_buffer = StringIO()
-    for path in result.paths:
-        if verbose > 0:
-            text_buffer.write('=== [ path: {0} ] ===\n'.format(colorize(path.path, 'lightgrey')))
-        text_buffer.write(format_violations(path.violations(), verbose=verbose))
+    if hasattr(result, 'paths'):
+        # We've got a full path
+        for path in result.paths:
+            text_buffer.write(_format_path_linting_violations(path, verbose=verbose))
+    else:
+        # We've got an individual
+        text_buffer.write(_format_path_linting_violations(result, verbose=verbose))
+    return text_buffer.getvalue()
+
+
+def format_linting_result_header(verbose=0):
+    """ Assume we're passed a LintingResult """
+    text_buffer = StringIO()
+    if verbose >= 1:
+        text_buffer.write("==== readout ====\n")
+    return text_buffer.getvalue()
+
+
+def format_linting_result_footer(result, verbose=0):
+    """ Assume we're passed a LintingResult """
+    text_buffer = StringIO()
+    text_buffer.write('\n')
+    text_buffer.write(format_linting_stats(result, verbose=verbose))
     return text_buffer.getvalue()
 
 
 def format_linting_result(result, verbose=0):
     """ Assume we're passed a LintingResult """
     text_buffer = StringIO()
-    if verbose >= 1:
-        text_buffer.write("==== readout ====\n")
+    text_buffer.write(format_linting_result_header(verbose=verbose))
     text_buffer.write(format_linting_violations(result, verbose=verbose))
-    text_buffer.write('\n')
-    text_buffer.write(format_linting_stats(result, verbose=verbose))
+    text_buffer.write(format_linting_result_footer(result, verbose=verbose))
     return text_buffer.getvalue()
 
 

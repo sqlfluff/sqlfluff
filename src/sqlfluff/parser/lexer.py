@@ -178,7 +178,7 @@ class Lexer(object):
         res = self.matcher.match(raw, start_pos)
         if len(res.new_string) > 0:
             raise SQLLexError(
-                "Unable to lex characters: '{0}...'".format(
+                "Unable to lex characters: '{0!r}...'".format(
                     res.new_string[:10]),
                 pos=res.new_pos
             )
