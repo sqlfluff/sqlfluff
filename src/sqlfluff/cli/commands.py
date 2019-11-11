@@ -6,9 +6,9 @@ import click
 
 from ..dialects import dialect_selector
 from ..linter import Linter
-from .formatters import (format_config, format_linting_result,
-                         format_linting_violations, format_rules,
-                         format_violation)
+from .formatters import (format_config, format_rules,
+                         format_violation, format_linting_result_header,
+                         format_linting_result_footer)
 from .helpers import cli_table, get_package_version
 
 
@@ -21,7 +21,7 @@ def common_options(f):
     return f
 
 
-def get_linter(dialiect_string, rule_string, exclude_rule_string):
+def get_linter(dialiect_string, rule_string, exclude_rule_string, color=False):
     """ A generic way of getting hold of a linter """
     try:
         dialect_obj = dialect_selector(dialiect_string)
@@ -38,8 +38,9 @@ def get_linter(dialiect_string, rule_string, exclude_rule_string):
         excluded_rule_list = exclude_rule_string.split(',')
     else:
         excluded_rule_list = None
-    # Instantiate the linter and return
-    return Linter(dialect=dialect_obj, rule_whitelist=rule_list, rule_blacklist=excluded_rule_list)
+    # Instantiate the linter and return (with an output function)
+    return Linter(dialect=dialect_obj, rule_whitelist=rule_list, rule_blacklist=excluded_rule_list,
+                  output_func=lambda m: click.echo(m, color=color))
 
 
 @click.group()
@@ -56,7 +57,8 @@ def version(verbose, nocolor, dialect, rules, exclude_rules):
     color = False if nocolor else None
     if verbose > 0:
         # Instantiate the linter
-        lnt = get_linter(dialiect_string=dialect, rule_string=rules, exclude_rule_string=exclude_rules)
+        lnt = get_linter(dialiect_string=dialect, rule_string=rules, exclude_rule_string=exclude_rules,
+                         color=color)
         click.echo(format_config(lnt, verbose=verbose))
     else:
         click.echo(get_package_version(), color=color)
@@ -69,7 +71,8 @@ def rules(verbose, nocolor, dialect, rules, exclude_rules):
     # Configure Color
     color = False if nocolor else None
     # Instantiate the linter
-    lnt = get_linter(dialiect_string=dialect, rule_string=rules, exclude_rule_string=exclude_rules)
+    lnt = get_linter(dialiect_string=dialect, rule_string=rules, exclude_rule_string=exclude_rules,
+                     color=color)
     click.echo(format_rules(lnt), color=color)
 
 
@@ -95,21 +98,22 @@ def lint(verbose, nocolor, dialect, rules, exclude_rules, paths):
     # Configure Color
     color = False if nocolor else None
     # Instantiate the linter
-    lnt = get_linter(dialiect_string=dialect, rule_string=rules, exclude_rule_string=exclude_rules)
+    lnt = get_linter(dialiect_string=dialect, rule_string=rules, exclude_rule_string=exclude_rules, color=color)
     config_string = format_config(lnt, verbose=verbose)
     if len(config_string) > 0:
-        click.echo(config_string, color=color)
+        lnt.log(config_string)
     # Lint the paths
     if verbose > 1:
-        click.echo("==== logging ====")
+        lnt.log("==== logging ====")
     # add stdin if specified via lone '-'
     if ('-',) == paths:
         result = lnt.lint_string(sys.stdin.read(), name='stdin', verbosity=verbose)
     else:
+        # Output the results as we go
+        lnt.log(format_linting_result_header(verbose=verbose))
         result = lnt.lint_paths(paths, verbosity=verbose)
-    # Output the results
-    output = format_linting_result(result, verbose=verbose)
-    click.echo(output, color=color)
+        # Output the final stats
+        lnt.log(format_linting_result_footer(result, verbose=verbose))
     sys.exit(result.stats()['exit code'])
 
 
@@ -121,22 +125,21 @@ def fix(verbose, nocolor, dialect, rules, exclude_rules, force, paths):
     """ Fix SQL files """
     # Configure Color
     color = False if nocolor else None
-    # Instantiate the linter
-    lnt = get_linter(dialiect_string=dialect, rule_string=rules, exclude_rule_string=exclude_rules)
+    # Instantiate the linter (with an output function)
+    lnt = get_linter(dialiect_string=dialect, rule_string=rules, exclude_rule_string=exclude_rules, color=color)
     config_string = format_config(lnt, verbose=verbose)
     if len(config_string) > 0:
-        click.echo(config_string, color=color)
+        lnt.log(config_string)
     # Check that if fix is specified, that we have picked only a subset of rules
     if lnt.rule_whitelist is None:
-        click.echo(("The fix option is only available in combination"
-                    " with --rules. This is for your own safety!"))
+        lnt.log(("The fix option is only available in combination"
+                 " with --rules. This is for your own safety!"))
         sys.exit(1)
-    # Lint the paths (not with the fix argument at this stage)
-    result = lnt.lint_paths(paths)
+    # Lint the paths (not with the fix argument at this stage), outputting as we go.
+    lnt.log("==== finding violations ====")
+    result = lnt.lint_paths(paths, verbosity=verbose)
 
     if result.num_violations() > 0:
-        click.echo("==== violations found ====")
-        click.echo(format_linting_violations(result, verbose=verbose), color=color)
         click.echo("==== fixing violations ====")
         click.echo("{0} violations found of rule{1} {2}".format(
             result.num_violations(),
@@ -185,29 +188,25 @@ def parse(verbose, nocolor, dialect, rules, exclude_rules, path, recurse):
     if recurse == 0:
         recurse = True
     # Instantiate the linter
-    lnt = get_linter(dialiect_string=dialect, rule_string=rules, exclude_rule_string=exclude_rules)
+    lnt = get_linter(dialiect_string=dialect, rule_string=rules, exclude_rule_string=exclude_rules, color=color)
     config_string = format_config(lnt, verbose=verbose)
     if len(config_string) > 0:
-        click.echo(config_string, color=color)
+        lnt.log(config_string)
 
     nv = 0
     # A single path must be specified for this command
     for parsed, violations, time_dict in lnt.parse_path(path, verbosity=verbose, recurse=recurse):
-        click.echo('=== [\u001b[30;1m{0}\u001b[0m] ==='.format(path), color=color)
         if parsed:
-            click.echo(parsed.stringify())
+            lnt.log(parsed.stringify())
         else:
             # TODO: Make this prettier
-            click.echo('...Failed to Parse...', color=color)
+            lnt.log('...Failed to Parse...')
         nv += len(violations)
         for v in violations:
-            click.echo(
-                format_violation(v, verbose=verbose),
-                color=color
-            )
+            lnt.log(format_violation(v, verbose=verbose))
         if verbose >= 2:
-            click.echo("==== timings ====")
-            click.echo(cli_table(time_dict.items()))
+            lnt.log("==== timings ====")
+            lnt.log(cli_table(time_dict.items()))
     if nv > 0:
         sys.exit(66)
     else:

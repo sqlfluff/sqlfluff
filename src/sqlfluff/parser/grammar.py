@@ -251,7 +251,7 @@ class BaseGrammar(object):
 
         # Have we been passed an empty list?
         if len(segments) == 0:
-            return MatchResult.from_empty()
+            return ((), MatchResult.from_unmatched(segments), None)
 
         # Get hold of the bracket matchers from the dialect, and append them
         # to the list of matchers.

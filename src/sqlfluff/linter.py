@@ -12,6 +12,8 @@ from .parser.segments_file import FileSegment
 from .parser.segments_base import verbosity_logger, frame_msg, ParseContext
 from .rules.std import standard_rule_set
 
+from .cli.formatters import format_linting_path, format_file_violations
+
 
 class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tree'])):
     __slots__ = ()
@@ -131,7 +133,8 @@ class LintingResult(object):
 
 
 class Linter(object):
-    def __init__(self, dialect=None, sql_exts=('.sql',), rule_whitelist=None, rule_blacklist=None):
+    def __init__(self, dialect=None, sql_exts=('.sql',), rule_whitelist=None,
+                 rule_blacklist=None, output_func=None):
         # NB: dialect defaults to ansi if "none" supplied
         if isinstance(dialect, str) or dialect is None:
             dialect = dialect_selector(dialect)
@@ -141,6 +144,14 @@ class Linter(object):
         # assume that this is a list of rule codes
         self.rule_whitelist = rule_whitelist
         self.rule_blacklist = rule_blacklist
+        # Used for logging as we go
+        self.output_func = output_func
+
+    def log(self, msg):
+        if self.output_func:
+            # Check we've actually got a meaningful message
+            if msg.strip(' \n\t'):
+                self.output_func(msg)
 
     def get_ruleset(self):
         """
@@ -286,7 +297,10 @@ class Linter(object):
 
             vs += linting_errors
 
-        return LintedFile(fname, vs, time_dict, parsed)
+        res = LintedFile(fname, vs, time_dict, parsed)
+        # Do the logging as appropriate
+        self.log(format_file_violations(fname, res.violations, verbose=verbosity))
+        return res
 
     def paths_from_path(self, path):
         # take a path (potentially a directory) and return just the sql files
@@ -324,6 +338,7 @@ class Linter(object):
 
     def lint_path(self, path, verbosity=0, fix=False):
         linted_path = LintedPath(path)
+        self.log(format_linting_path(path, verbose=verbosity))
         for fname in self.paths_from_path(path):
             with open(fname, 'r') as f:
                 linted_path.add(self.lint_file(f, fname=fname, verbosity=verbosity, fix=fix))
@@ -343,5 +358,6 @@ class Linter(object):
 
     def parse_path(self, path, verbosity=0, recurse=True):
         for fname in self.paths_from_path(path):
+            self.log('=== [\u001b[30;1m{0}\u001b[0m] ==='.format(fname))
             with open(fname, 'r') as f:
                 yield self.parse_file(f, fname=fname, verbosity=verbosity, recurse=recurse)

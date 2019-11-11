@@ -6,7 +6,7 @@ from sqlfluff.rules.crawler import RuleGhost
 from sqlfluff.parser import RawSegment
 from sqlfluff.parser.markers import FilePositionMarker
 from sqlfluff.errors import SQLLintError
-from sqlfluff.cli.formatters import format_filename, format_violation, format_violations
+from sqlfluff.cli.formatters import format_filename, format_violation, format_path_violations
 
 
 def escape_ansi(line):
@@ -50,7 +50,7 @@ def test__cli__formatters__violations():
                 segment=RawSegment('blah', FilePositionMarker(0, 2, 11, 3)),
                 rule=RuleGhost('C', 'DESC'))]
     }
-    f = format_violations(v)
+    f = format_path_violations(v)
     k = sorted(['foo', 'bar'])
     chk = {
         'foo': ["L:  21 | P:   3 | B | DESC", "L:  25 | P:   2 | A | DESC"],

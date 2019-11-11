@@ -12,11 +12,24 @@ import sqlfluff
 from sqlfluff.cli.commands import lint, version, rules, fix, parse
 
 
+def invoke_assert_code(ret_code=0, args=None, kwargs=None):
+    args = args or []
+    kwargs = kwargs or {}
+    runner = CliRunner()
+    result = runner.invoke(*args, **kwargs)
+    if ret_code == 0:
+        if result.exception:
+            raise result.exception
+    assert ret_code == result.exit_code
+    return result
+
+
 def test__cli__command_directed():
     """ Basic checking of lint functionality """
-    runner = CliRunner()
-    result = runner.invoke(lint, ['-n', 'test/fixtures/linter/indentation_error_simple.sql'])
-    assert result.exit_code == 65
+    result = invoke_assert_code(
+        ret_code=65,
+        args=[lint, ['-n', 'test/fixtures/linter/indentation_error_simple.sql']]
+    )
     # We should get a readout of what the error was
     check_a = "L:   2 | P:   1 | L003"
     # NB: Skip the number at the end because it's configurable
@@ -27,10 +40,11 @@ def test__cli__command_directed():
 
 def test__cli__command_dialect():
     """ Check the script raises the right exception on an unknown dialect """
-    runner = CliRunner()
-    result = runner.invoke(lint, ['-n', '--dialect', 'faslkjh', 'test/fixtures/linter/indentation_error_simple.sql'])
     # The dialect is unknown should be a non-zero exit code
-    assert result.exit_code == 66
+    invoke_assert_code(
+        ret_code=66,
+        args=[lint, ['-n', '--dialect', 'faslkjh', 'test/fixtures/linter/indentation_error_simple.sql']]
+    )
 
 
 def test__cli__command_lint_a():
@@ -39,19 +53,14 @@ def test__cli__command_lint_a():
     The subprocess command should exit without errors, as
     no issues should be found.
     """
-    runner = CliRunner()
     # Not verbose
-    result = runner.invoke(lint, ['-n', 'test/fixtures/cli/passing_a.sql'])
-    assert result.exit_code == 0
+    invoke_assert_code(args=[lint, ['-n', 'test/fixtures/cli/passing_a.sql']])
     # Verbose
-    result = runner.invoke(lint, ['-n', '-v', 'test/fixtures/cli/passing_a.sql'])
-    assert result.exit_code == 0
+    invoke_assert_code(args=[lint, ['-n', '-v', 'test/fixtures/cli/passing_a.sql']])
     # Very Verbose
-    result = runner.invoke(lint, ['-n', '-vv', 'test/fixtures/cli/passing_a.sql'])
-    assert result.exit_code == 0
+    invoke_assert_code(args=[lint, ['-n', '-vvvv', 'test/fixtures/cli/passing_a.sql']])
     # Very Verbose (Colored)
-    result = runner.invoke(lint, ['-vv', 'test/fixtures/cli/passing_a.sql'])
-    assert result.exit_code == 0
+    invoke_assert_code(args=[lint, ['-vvvv', 'test/fixtures/cli/passing_a.sql']])
 
 
 @pytest.mark.parametrize('command', [
@@ -64,9 +73,7 @@ def test__cli__command_lint_stdin(command):
     """
     with open('test/fixtures/cli/passing_a.sql', 'r') as f:
         sql = f.read()
-    runner = CliRunner()
-    result = runner.invoke(lint, command, input=sql)
-    assert result.exit_code == 0
+    invoke_assert_code(args=[lint, command], kwargs=dict(input=sql))
 
 
 def test__cli__command_lint_b():
@@ -75,18 +82,14 @@ def test__cli__command_lint_b():
     The subprocess command should exit without errors, as
     no issues should be found.
     """
-    runner = CliRunner()
-    result = runner.invoke(lint, ['-n', 'test/fixtures/cli/passing_b.sql'])
-    assert result.exit_code == 0
+    invoke_assert_code(args=[lint, ['-n', 'test/fixtures/cli/passing_b.sql']])
 
 
 def test__cli__command_parse():
     """
     Check parse command
     """
-    runner = CliRunner()
-    result = runner.invoke(parse, ['-n', 'test/fixtures/cli/passing_b.sql'])
-    assert result.exit_code == 0
+    invoke_assert_code(args=[parse, ['-n', 'test/fixtures/cli/passing_b.sql']])
 
 
 def test__cli__command_lint_c_rules_single():
@@ -95,9 +98,7 @@ def test__cli__command_lint_c_rules_single():
     The subprocess command should exit without erros, as
     no issues should be found.
     """
-    runner = CliRunner()
-    result = runner.invoke(lint, ['-n', '--rules', 'L001', 'test/fixtures/linter/operator_errors.sql'])
-    assert result.exit_code == 0
+    invoke_assert_code(args=[lint, ['-n', '--rules', 'L001', 'test/fixtures/linter/operator_errors.sql']])
 
 
 def test__cli__command_lint_c_rules_multi():
@@ -106,9 +107,7 @@ def test__cli__command_lint_c_rules_multi():
     The subprocess command should exit without erros, as
     no issues should be found.
     """
-    runner = CliRunner()
-    result = runner.invoke(lint, ['-n', '--rules', 'L001,L002', 'test/fixtures/linter/operator_errors.sql'])
-    assert result.exit_code == 0
+    invoke_assert_code(args=[lint, ['-n', '--rules', 'L001,L002', 'test/fixtures/linter/operator_errors.sql']])
 
 
 def test__cli__command_lint_c_exclude_rules_single():
@@ -117,9 +116,7 @@ def test__cli__command_lint_c_exclude_rules_single():
     The subprocess command should exit without erros, as
     no issues should be found.
     """
-    runner = CliRunner()
-    result = runner.invoke(lint, ['-n', '--rules', 'L001,L006', '--exclude-rules', 'L006', 'test/fixtures/linter/operator_errors.sql'])
-    assert result.exit_code == 0
+    invoke_assert_code(args=[lint, ['-n', '--rules', 'L001,L006', '--exclude-rules', 'L006', 'test/fixtures/linter/operator_errors.sql']])
 
 
 def test__cli__command_lint_c_exclude_rules_multi():
@@ -128,9 +125,7 @@ def test__cli__command_lint_c_exclude_rules_multi():
     The subprocess command should exit without erros, as
     no issues should be found.
     """
-    runner = CliRunner()
-    result = runner.invoke(lint, ['-n', '--exclude-rules', 'L006,L007', 'test/fixtures/linter/operator_errors.sql'])
-    assert result.exit_code == 0
+    invoke_assert_code(args=[lint, ['-n', '--exclude-rules', 'L006,L007', 'test/fixtures/linter/operator_errors.sql']])
 
 
 def test__cli__command_versioning():
@@ -165,9 +160,7 @@ def test__cli__command_version():
 
 def test__cli__command_rules():
     """ Just check rules command for exceptions """
-    runner = CliRunner()
-    result = runner.invoke(rules)
-    assert result.exit_code == 0
+    invoke_assert_code(args=[rules])
 
 
 def generic_roundtrip_test(source_file, rulestring):
@@ -180,16 +173,12 @@ def generic_roundtrip_test(source_file, rulestring):
     with open(filepath, mode='w') as dest_file:
         for line in source_file:
             dest_file.write(line)
-    runner = CliRunner()
     # Check that we first detect the issue
-    result = runner.invoke(lint, ['--rules', rulestring, filepath])
-    assert result.exit_code == 65
+    invoke_assert_code(ret_code=65, args=[lint, ['--rules', rulestring, filepath]])
     # Fix the file (in force mode)
-    result = runner.invoke(fix, ['--rules', rulestring, '-f', filepath])
-    assert result.exit_code == 0
+    invoke_assert_code(args=[fix, ['--rules', rulestring, '-f', filepath]])
     # Now lint the file and check for exceptions
-    result = runner.invoke(lint, ['--rules', rulestring, filepath])
-    assert result.exit_code == 0
+    invoke_assert_code(args=[lint, ['--rules', rulestring, filepath]])
     shutil.rmtree(tempdir_path)
 
 
