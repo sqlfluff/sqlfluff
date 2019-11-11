@@ -91,6 +91,12 @@ jobs:
       - image: circleci/python:3.7
         environment:
           TOXENV=py37
+  py38:
+    <<: *common
+    docker:
+      - image: circleci/python:3.8
+        environment:
+          TOXENV=py38
 
 
 ### Workflows which call the different tox jobs
@@ -104,3 +110,4 @@ workflows:
       - py35
       - py36
       - py37
+      - py38
