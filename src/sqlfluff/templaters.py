@@ -1,13 +1,21 @@
 """ Defines the templaters """
 
+from .errors import SQLTemplaterError
+
 _templater_lookup = {}
 
 
 def templater_selector(s=None, **kwargs):
-    s = s or 'raw'
-    cls = _templater_lookup[s]
-    # Instantiate here, optionally with kwargs
-    return cls(**kwargs)
+    s = s or 'jinja'  # default to jinja
+    try:
+        cls = _templater_lookup[s]
+        # Instantiate here, optionally with kwargs
+        return cls(**kwargs)
+    except KeyError:
+        raise ValueError(
+            "Requested templater {0!r} which is not currently available. Try one of {1}".format(
+                s, ', '.join(_templater_lookup.keys())
+            ))
 
 
 def register_templater(cls):
@@ -44,8 +52,8 @@ class RawTemplateInterface(object):
 
 
 @register_templater
-class JinjaTemplateInterface(RawTemplateInterface):
-    name = 'jinja'
+class PythonTemplateInterface(RawTemplateInterface):
+    name = 'python'
 
     def __init__(self, override_context=None, **kwargs):
         """ here we should load any initial config found in the root directory. The init
@@ -55,7 +63,34 @@ class JinjaTemplateInterface(RawTemplateInterface):
         arguments in here. """
         self.default_context = dict(test_value='__test__')
         self.override_context = override_context or {}
+        # TODO: Load variables from file.
+        # TODO: Have a way of loading functions from file. Python is unsecure,
+        # suggest that we use the option of lua scripts or just them defaulting
+        # to literals. Even better might be to force people to define them as jinja
+        # macros.
         pass
+
+    def get_context(self, fname=None):
+        """ NB: fname is used for loading the config """
+        # TODO: The config loading should be done outside the templater code. Here
+        # is a silly place.
+        loaded_context = {}
+        live_context = {}
+        live_context.update(self.default_context)
+        live_context.update(loaded_context)
+        live_context.update(self.override_context)
+        return live_context
+
+    def process(self, in_str, fname=None):
+        """ fname is so that we can load any config files in the FILE directory, or in the
+        file itself """
+        live_context = self.get_context(fname=fname)
+        return in_str.format(**live_context)
+
+
+@register_templater
+class JinjaTemplateInterface(PythonTemplateInterface):
+    name = 'jinja'
 
     def process(self, in_str, fname=None):
         """ fname is so that we can load any config files in the FILE directory, or in the
@@ -63,9 +98,10 @@ class JinjaTemplateInterface(RawTemplateInterface):
         # No need to import this unless we're using this templater
         from jinja2 import Template  # noqa
         template = Template(in_str)
-        loaded_context = {}
-        live_context = {}
-        live_context.update(self.default_context)
-        live_context.update(loaded_context)
-        live_context.update(self.override_context)
-        return template.render(**live_context)
+        live_context = self.get_context(fname=fname)
+        try:
+            out_str = template.render(**live_context)
+            return out_str
+        except Exception as err:
+            # TODO: Add a url here so people can get more help.
+            raise SQLTemplaterError("Failure in Jinja templating: {0}. Have you configured your variables?".format(err))

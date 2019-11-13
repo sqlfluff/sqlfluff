@@ -191,12 +191,15 @@ class Linter(object):
             fs = None
             # NB: We'll carry on if we fail to template, it might still lex
 
-        verbosity_logger("LEXING RAW ({0})".format(fname), verbosity=verbosity)
-        # Lex the file and log any problems
-        try:
-            fs = FileSegment.from_raw(s)
-        except SQLLexError as err:
-            violations.append(err)
+        if s:
+            verbosity_logger("LEXING RAW ({0})".format(fname), verbosity=verbosity)
+            # Lex the file and log any problems
+            try:
+                fs = FileSegment.from_raw(s)
+            except SQLLexError as err:
+                violations.append(err)
+                fs = None
+        else:
             fs = None
 
         if fs:
