@@ -32,7 +32,8 @@ def test__templater_python():
 
 
 def test__templater_jinja():
+    """ NB We're explicitly checking the final newline treatment too """
     t = JinjaTemplateInterface(override_context=dict(blah='foo'))
-    instr = 'SELECT * FROM {% for c in blah %}{{c}}{% if not loop.last %}, {% endif %}{% endfor %}'
+    instr = 'SELECT * FROM {% for c in blah %}{{c}}{% if not loop.last %}, {% endif %}{% endfor %}\n\n'
     outstr = t.process(instr)
-    assert outstr == 'SELECT * FROM f, o, o'
+    assert outstr == 'SELECT * FROM f, o, o\n\n'

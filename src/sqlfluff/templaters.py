@@ -96,8 +96,10 @@ class JinjaTemplateInterface(PythonTemplateInterface):
         """ fname is so that we can load any config files in the FILE directory, or in the
         file itself """
         # No need to import this unless we're using this templater
-        from jinja2 import Template  # noqa
-        template = Template(in_str)
+        from jinja2 import Environment  # noqa
+        # We explicitly want to preserve newlines.
+        env = Environment(keep_trailing_newline=True)
+        template = env.from_string(in_str)
         live_context = self.get_context(fname=fname)
         try:
             out_str = template.render(**live_context)
