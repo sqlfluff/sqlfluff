@@ -62,6 +62,15 @@ class SQLBaseError(ValueError):
         return self.rule_code(), self.line_no(), self.line_pos(), self.desc()
 
 
+class SQLTemplaterError(SQLBaseError):
+    # Templating Errors Just have position
+    # TODO: Work out how...?
+    def __init__(self, *args, **kwargs):
+        # Store the segment on creation - we might need it later
+        self.pos = kwargs.pop('pos', None)
+        super(SQLTemplaterError, self).__init__(*args, **kwargs)
+
+
 class SQLLexError(SQLBaseError):
     # Lexing errors just have position
     def __init__(self, *args, **kwargs):

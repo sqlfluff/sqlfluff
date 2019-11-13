@@ -4,3 +4,4 @@ six>=1.0
 configparser
 # oyaml is like pyyaml but preserves orderings
 oyaml
+Jinja2
