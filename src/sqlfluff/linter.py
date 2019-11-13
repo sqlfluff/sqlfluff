@@ -3,10 +3,9 @@
 import os
 from collections import namedtuple
 
-from six import StringIO
-
 from .dialects import dialect_selector
-from .errors import SQLLexError, SQLParseError
+from .templaters import templater_selector
+from .errors import SQLLexError, SQLParseError, SQLTemplaterError
 from .helpers import get_time
 from .parser.segments_file import FileSegment
 from .parser.segments_base import verbosity_logger, frame_msg, ParseContext
@@ -134,11 +133,15 @@ class LintingResult(object):
 
 class Linter(object):
     def __init__(self, dialect=None, sql_exts=('.sql',), rule_whitelist=None,
-                 rule_blacklist=None, output_func=None):
+                 rule_blacklist=None, output_func=None, templater=None):
         # NB: dialect defaults to ansi if "none" supplied
         if isinstance(dialect, str) or dialect is None:
             dialect = dialect_selector(dialect)
         self.dialect = dialect
+        # Templater defaults to raw
+        if isinstance(templater, str) or templater is None:
+            templater = templater_selector(templater)
+        self.templater = templater
         self.sql_exts = sql_exts
         # restrict the search to only specific rules.
         # assume that this is a list of rule codes
@@ -175,21 +178,28 @@ class Linter(object):
         else:
             return rt
 
-    def parse_file(self, f, fname=None, verbosity=0, recurse=True):
+    def parse_string(self, s, fname=None, verbosity=0, recurse=True):
         violations = []
         t0 = get_time()
 
-        # Allow f to optionally be a raw string
-        if isinstance(f, str):
-            # Add it to a buffer if that's what we're doing
-            f = StringIO(f)
-
-        verbosity_logger("LEXING RAW ({0})".format(fname), verbosity=verbosity)
+        verbosity_logger("TEMPLATING RAW [{0}] ({1})".format(self.templater.name, fname), verbosity=verbosity)
         # Lex the file and log any problems
         try:
-            fs = FileSegment.from_raw(f.read())
-        except SQLLexError as err:
+            s = self.templater.process(s, fname=fname)
+        except SQLTemplaterError as err:
             violations.append(err)
+            fs = None
+            # NB: We'll carry on if we fail to template, it might still lex
+
+        if s:
+            verbosity_logger("LEXING RAW ({0})".format(fname), verbosity=verbosity)
+            # Lex the file and log any problems
+            try:
+                fs = FileSegment.from_raw(s)
+            except SQLLexError as err:
+                violations.append(err)
+                fs = None
+        else:
             fs = None
 
         if fs:
@@ -217,11 +227,11 @@ class Linter(object):
 
         return parsed, violations, time_dict
 
-    def lint_file(self, f, fname=None, verbosity=0, fix=False):
+    def lint_string(self, s, fname='<string input>', verbosity=0, fix=False):
         """ Lint a file object - fname is optional for testing """
         # TODO: Tidy this up - it's a mess
         # Using the new parser, read the file object.
-        parsed, vs, time_dict = self.parse_file(f=f, fname=fname, verbosity=verbosity)
+        parsed, vs, time_dict = self.parse_string(s=s, fname=fname, verbosity=verbosity)
 
         if parsed:
             # Now extract all the unparsable segments
@@ -320,19 +330,13 @@ class Linter(object):
         else:
             return set([path])
 
-    def lint_string(self, string, name='<string input>', verbosity=0, fix=False):
+    def lint_string_wrapped(self, string, fname='<string input>', verbosity=0, fix=False):
+        """ Use to lint strings directly """
         result = LintingResult(rule_whitelist=self.rule_whitelist)
-        linted_path = LintedPath(name)
-        buf = StringIO(string)
-        try:
-            linted_path.add(
-                self.lint_file(buf, fname=name, verbosity=verbosity, fix=fix)
-            )
-        except Exception:
-            raise
-        finally:
-            buf.close()
-
+        linted_path = LintedPath(fname)
+        linted_path.add(
+            self.lint_string(string, fname=fname, verbosity=verbosity, fix=fix)
+        )
         result.add(linted_path)
         return result
 
@@ -341,7 +345,7 @@ class Linter(object):
         self.log(format_linting_path(path, verbose=verbosity))
         for fname in self.paths_from_path(path):
             with open(fname, 'r') as f:
-                linted_path.add(self.lint_file(f, fname=fname, verbosity=verbosity, fix=fix))
+                linted_path.add(self.lint_string(f.read(), fname=fname, verbosity=verbosity, fix=fix))
         return linted_path
 
     def lint_paths(self, paths, verbosity=0, fix=False):
@@ -360,4 +364,4 @@ class Linter(object):
         for fname in self.paths_from_path(path):
             self.log('=== [\u001b[30;1m{0}\u001b[0m] ==='.format(fname))
             with open(fname, 'r') as f:
-                yield self.parse_file(f, fname=fname, verbosity=verbosity, recurse=recurse)
+                yield self.parse_string(f.read(), fname=fname, verbosity=verbosity, recurse=recurse)

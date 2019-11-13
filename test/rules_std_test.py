@@ -14,7 +14,7 @@ def get_rule_from_set(code):
 
 def assert_rule_fail_in_sql(code, sql):
     r = get_rule_from_set(code)
-    parsed, _, _ = Linter().parse_file(sql)
+    parsed, _, _ = Linter().parse_string(sql)
     print("Parsed:\n {0}".format(parsed.stringify()))
     lerrs, _, _, _ = r.crawl(parsed, fix=True)
     print("Errors Found: {0}".format(lerrs))
@@ -40,7 +40,7 @@ def assert_rule_fail_in_sql(code, sql):
 
 def assert_rule_pass_in_sql(code, sql):
     r = get_rule_from_set(code)
-    parsed, _, _ = Linter().parse_file(sql)
+    parsed, _, _ = Linter().parse_string(sql)
     print("Parsed:\n {0}".format(parsed.stringify()))
     lerrs, _, _, _ = r.crawl(parsed, fix=True)
     print("Errors Found: {0}".format(lerrs))

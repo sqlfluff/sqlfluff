@@ -107,7 +107,7 @@ def lint(verbose, nocolor, dialect, rules, exclude_rules, paths):
         lnt.log("==== logging ====")
     # add stdin if specified via lone '-'
     if ('-',) == paths:
-        result = lnt.lint_string(sys.stdin.read(), name='stdin', verbosity=verbose)
+        result = lnt.lint_string_wrapped(sys.stdin.read(), fname='stdin', verbosity=verbose)
     else:
         # Output the results as we go
         lnt.log(format_linting_result_header(verbose=verbose))
