@@ -23,11 +23,17 @@ def nested_combine(*dicts):
 class ConfigLoader(object):
     """ the class for loading config files """
     def __init__(self):
-        pass
+        # TODO: check that this cache implementation is actually useful
+        self._config_cache = {}
 
     def load_config_at_path(self, path):
+        # First check the cache
+        if str(path) in self._config_cache:
+            return self._config_cache[str(path)]
+
         # The potential filenames we would look for at this path.
-        filename_options = ['.sqlfluff', 'tox.ini', 'setup.cfg']
+        # NB: later in this list overwrites earlier
+        filename_options = ['setup.cfg', 'tox.ini', '.sqlfluff']
 
         c = {}
 
@@ -36,8 +42,10 @@ class ConfigLoader(object):
         else:
             p = os.path.dirname(path)
 
-        for fname in os.listdir(p):
-            if fname in filename_options:
+        d = os.listdir(p)
+        # iterate this way round to make sure things overwrite is the right direction
+        for fname in filename_options:
+            if fname in d:
                 config = configparser.ConfigParser()
                 config.read(os.path.join(p, fname))
                 for k in config.sections():
@@ -49,7 +57,10 @@ class ConfigLoader(object):
                         # if it doesn't start with sqlfluff, then don't go
                         # further on this iteration
                         continue
-                    c[key] = {}
+
+                    if key not in c:
+                        c[key] = {}
+
                     for name, val in config.items(section=k):
                         try:
                             v = int(val)
@@ -59,6 +70,9 @@ class ConfigLoader(object):
                             except ValueError:
                                 v = val
                         c[key][name] = v
+
+        # Store in the cache
+        self._config_cache[str(path)] = c
         return c
 
     def load_config_up_to_path(self, path):
@@ -85,4 +99,6 @@ class ConfigLoader(object):
             # we have divergent paths, we can only load config for that path and global
             config_stack.append(self.load_config_at_path(given_path))
 
+        # The lowest priority is the user config, then increasingly the configs closest
+        # to the file being directly linted.
         return nested_combine(user_config, *config_stack)

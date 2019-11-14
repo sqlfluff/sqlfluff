@@ -34,6 +34,8 @@ def test__config__load_file_f():
 
 
 def test__config__load_nested():
+    """ We're testing nested overwrite, but also the ordering of precedence of files in the
+    same directory """
     c = ConfigLoader()
     cfg = c.load_config_up_to_path(os.path.join('test', 'fixtures', 'config', 'nested', 'blah.sql'))
-    assert cfg == {'core': {'testing_val': 'foobar', 'testing_int': 4}, 'bar': {'foo': 'foobar'}}
+    assert cfg == {'core': {'testing_val': 'foobar', 'testing_int': 6, 'testing_bar': 7.698}, 'bar': {'foo': 'foobar'}}

@@ -67,7 +67,7 @@ class PythonTemplateInterface(RawTemplateInterface):
         # TODO: Have a way of loading functions from file. Python is unsecure,
         # suggest that we use the option of lua scripts or just them defaulting
         # to literals. Even better might be to force people to define them as jinja
-        # macros.
+        # macros. Like this: http://codyaray.com/2015/05/auto-load-jinja2-macros
         pass
 
     def get_context(self, fname=None):
