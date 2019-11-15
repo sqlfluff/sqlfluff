@@ -73,6 +73,8 @@ about the architecture of sqlfluff, you can find [more here](ARCHITECTURE.md).
   - [ ] Specifying particlar dialects to use
   - [ ] Specifying particlar templaters to use
   - [ ] Preconfiguring verbosity
+  - [ ] Delta-configs for individual files printed before each above some
+        level of verbosity.
 - [x] Dialects
   - [ ] ANSI
     - [ ] Implement singleton matching for `::`, `:` and `||`.

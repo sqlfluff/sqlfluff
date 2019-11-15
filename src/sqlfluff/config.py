@@ -3,9 +3,16 @@
 import configparser
 import os
 
+from .dialects import dialect_selector
+from .templaters import templater_selector
+
+
+# We define a global loader, so that between calls to load config, we
+# can still cache appropriately
+global_loader = None
+
 
 def nested_combine(*dicts):
-    print(dicts)
     r = {}
     for d in dicts:
         for k in d:
@@ -13,11 +20,29 @@ def nested_combine(*dicts):
                 if isinstance(d[k], dict):
                     r[k] = nested_combine(r[k], d[k])
                 else:
-                    raise ValueError("Key {0!r} is a dict in one config but not another! PANIC".format(k))
+                    raise ValueError("Key {0!r} is a dict in one config but not another! PANIC: {1!r}".format(k, d[k]))
             else:
                 r[k] = d[k]
-    print(r)
     return r
+
+
+def dict_diff(left, right):
+    buff = {}
+    for k in left:
+        # Is the key there at all?
+        if k not in right:
+            buff[k] = left[k]
+        # Is the content the same?
+        elif left[k] == right[k]:
+            continue
+        # If it's not the same but both are dicts, then compare
+        elif isinstance(left[k], dict) and isinstance(right[k], dict):
+            diff = dict_diff(left[k], right[k])
+            buff[k] = diff
+        # It's just different
+        else:
+            buff[k] = left[k]
+    return buff
 
 
 class ConfigLoader(object):
@@ -25,6 +50,14 @@ class ConfigLoader(object):
     def __init__(self):
         # TODO: check that this cache implementation is actually useful
         self._config_cache = {}
+
+    @classmethod
+    def get_global(cls):
+        """ Get the singleton loader """
+        global global_loader
+        if not global_loader:
+            global_loader = cls()
+        return global_loader
 
     def load_config_at_path(self, path):
         # First check the cache
@@ -62,23 +95,31 @@ class ConfigLoader(object):
                         c[key] = {}
 
                     for name, val in config.items(section=k):
+                        # Try to coerce it to a more specific type,
+                        # otherwise just make it a string.
                         try:
                             v = int(val)
                         except ValueError:
                             try:
                                 v = float(val)
                             except ValueError:
-                                v = val
+                                if val in ['True', 'False']:
+                                    v = bool(val)
+                                else:
+                                    v = val
                         c[key][name] = v
 
         # Store in the cache
         self._config_cache[str(path)] = c
         return c
 
+    def load_user_config(self):
+        user_home_path = os.path.expanduser("~")
+        return self.load_config_at_path(user_home_path)
+
     def load_config_up_to_path(self, path):
         """ an extention of the above which loads a selection of config files """
-        user_home_path = os.path.expanduser("~")
-        user_config = self.load_config_at_path(user_home_path)
+        user_config = self.load_user_config()
 
         working_path = os.getcwd()
         given_path = os.path.abspath(path)
@@ -102,3 +143,61 @@ class ConfigLoader(object):
         # The lowest priority is the user config, then increasingly the configs closest
         # to the file being directly linted.
         return nested_combine(user_config, *config_stack)
+
+
+class FluffConfig(object):
+    """ The class that actually gets passed around as a config object """
+    defaults = {'core': {
+        'verbose': 0,
+        'nocolor': False,
+        'dialect': 'ansi',
+        'templater': 'jinja',
+        'rules': None,
+        'exclude_rules': None,
+        'recurse': 0
+    }}
+
+    def __init__(self, configs=None, overrides=None):
+        self._configs = nested_combine(
+            self.defaults,
+            configs or {'core': {}},
+            {'core': overrides or {}})
+        # Some configs require special treatment
+        self._configs['core']['color'] = False if self._configs['core']['nocolor'] else None
+        # Whitelists and blacklists
+        if self._configs['core']['rules']:
+            self._configs['core']['rule_whitelist'] = self._configs['core']['rules'].split(',')
+        else:
+            self._configs['core']['rule_whitelist'] = None
+        if self._configs['core']['exclude_rules']:
+            self._configs['core']['rule_blacklist'] = self._configs['core']['exclude_rules'].split(',')
+        else:
+            self._configs['core']['rule_blacklist'] = None
+        # Configure Recursion
+        if self._configs['core']['recurse'] == 0:
+            self._configs['core']['recurse'] = True
+        # Dialect and Template selection
+        self._configs['core']['dialect_obj'] = dialect_selector(self._configs['core']['dialect'])
+        self._configs['core']['templater_obj'] = templater_selector(self._configs['core']['templater'])
+
+    @classmethod
+    def from_root(cls, overrides=None):
+        """ loads a config object just based on the root directory """
+        loader = ConfigLoader.get_global()
+        c = loader.load_user_config()
+        return cls(configs=c, overrides=overrides)
+
+    @classmethod
+    def from_path(cls, path, overrides=None):
+        """ loads a config object given a particular path """
+        loader = ConfigLoader.get_global()
+        c = loader.load_config_up_to_path(path=path)
+        return cls(configs=c, overrides=overrides)
+
+    def diff_to(self, other):
+        """ Returns a filtered dict of items in this config that are not in the other
+        or are different to the other """
+        return dict_diff(self._configs, other._configs)
+
+    def get(self, val, section='core'):
+        return self._configs[section].get(val, None)

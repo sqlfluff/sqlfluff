@@ -3,6 +3,7 @@
 # from six import StringIO
 
 from sqlfluff.linter import Linter, LintingResult
+from sqlfluff.config import FluffConfig
 
 
 # ############## LINTER TESTS
@@ -13,27 +14,27 @@ def normalise_paths(paths):
 
 
 def test__linter__path_from_paths__dir():
-    lntr = Linter()
+    lntr = Linter(config=FluffConfig())
     paths = lntr.paths_from_path('test/fixtures/lexer')
     # NB This test might fail on Linux or Mac - should probably correct...
     assert normalise_paths(paths) == set(['test.fixtures.lexer.block_comment.sql', 'test.fixtures.lexer.inline_comment.sql', 'test.fixtures.lexer.basic.sql'])
 
 
 def test__linter__path_from_paths__file():
-    lntr = Linter()
+    lntr = Linter(config=FluffConfig())
     paths = lntr.paths_from_path('test/fixtures/linter/indentation_errors.sql')
     assert normalise_paths(paths) == set(['test.fixtures.linter.indentation_errors.sql'])
 
 
 def test__linter__path_from_paths_dot():
-    lntr = Linter()
+    lntr = Linter(config=FluffConfig())
     paths = lntr.paths_from_path('.')
     # Use set theory to check that we get AT LEAST these files
     assert normalise_paths(paths) >= set(['test.fixtures.lexer.block_comment.sql', 'test.fixtures.lexer.inline_comment.sql', 'test.fixtures.lexer.basic.sql'])
 
 
 def test__linter__lint_file_indentation():
-    lntr = Linter()
+    lntr = Linter(config=FluffConfig())
     lnt = lntr.lint_path('test/fixtures/linter/indentation_errors.sql')
     violations = lnt.check_tuples()
     # Check we get the trialing whitespace violation
@@ -48,7 +49,7 @@ def test__linter__lint_file_indentation():
 
 
 def test__linter__lint_file_whitespace():
-    lntr = Linter()
+    lntr = Linter(config=FluffConfig())
     lnt = lntr.lint_path('test/fixtures/linter/whitespace_errors.sql')
     violations = lnt.check_tuples()
     # Check we get comma (with leading space) whitespace errors
@@ -60,8 +61,10 @@ def test__linter__lint_file_whitespace():
     assert not any([v[0] == 'L008' and v[1] == 4 for v in violations])
     assert not any([v[1] == 5 for v in violations])
 
+
+# TODO: Renable these tests
 # def test__linter__lint_file_operators():
-#    lntr = Linter()
+#    lntr = Linter(config=FluffConfig())
 #    lnt = lntr.lint_path('test/fixtures/linter/operator_errors.sql')
 #    # Check the Num violations command while we're here
 #    assert lnt.num_violations() == 3
@@ -74,7 +77,7 @@ def test__linter__lint_file_whitespace():
 
 # def test__linter__lint_file_operators_paths():
 #    """ Same as the above test, but called via lint_paths """
-#    lntr = Linter()
+#    lntr = Linter(config=FluffConfig())
 #    lnt = lntr.lint_paths(['test/fixtures/linter/operator_errors.sql'])
 #    # Check the Num violations command while we're here
 #    assert lnt.num_violations() == 3
@@ -86,7 +89,7 @@ def test__linter__lint_file_whitespace():
 
 
 # def test__linter__lint_file_operators_negative():
-#    lntr = Linter()
+#    lntr = Linter(config=FluffConfig())
 #    f = StringIO(u"SELECT\n    a  -  b as c,\n    -2 as d\n    a - b as e\nFROM tbl\n")
 #    lnt = lntr.lint_file(f)
 #    violations = lnt.check_tuples()
@@ -96,7 +99,7 @@ def test__linter__lint_file_whitespace():
 
 # def test__linter__lint_file_operators_star():
 #    """ Test the exception to the operator rule, allowing a star in brackets """
-#    lntr = Linter()
+#    lntr = Linter(config=FluffConfig())
 #    f = StringIO(u"SELECT COUNT(*) FROM tbl")
 #    lnt = lntr.lint_file(f)
 #    violations = lnt.check_tuples()
@@ -107,7 +110,7 @@ def test__linter__lint_string_indentation():
     with open('test/fixtures/linter/indentation_errors.sql', 'r') as f:
         sql = f.read()
 
-    lntr = Linter()
+    lntr = Linter(config=FluffConfig())
     lnt = lntr.lint_string(sql)
     violations = lnt.check_tuples()
     # Check we get the trialing whitespace violation
@@ -124,7 +127,7 @@ def test__linter__lint_string_indentation():
 def test__linter__lint_string_whitespace():
     with open('test/fixtures/linter/whitespace_errors.sql', 'r') as f:
         sql = f.read()
-    lntr = Linter()
+    lntr = Linter(config=FluffConfig())
     lnt = lntr.lint_string(sql)
     violations = lnt.check_tuples()
     # Check we get comma (with leading space) whitespace errors

@@ -3,8 +3,6 @@
 import os
 from collections import namedtuple
 
-from .dialects import dialect_selector
-from .templaters import templater_selector
 from .errors import SQLLexError, SQLParseError, SQLTemplaterError
 from .helpers import get_time
 from .parser.segments_file import FileSegment
@@ -132,23 +130,27 @@ class LintingResult(object):
 
 
 class Linter(object):
-    def __init__(self, dialect=None, sql_exts=('.sql',), rule_whitelist=None,
-                 rule_blacklist=None, output_func=None, templater=None):
-        # NB: dialect defaults to ansi if "none" supplied
-        if isinstance(dialect, str) or dialect is None:
-            dialect = dialect_selector(dialect)
-        self.dialect = dialect
-        # Templater defaults to raw
-        if isinstance(templater, str) or templater is None:
-            templater = templater_selector(templater)
-        self.templater = templater
+    def __init__(self, sql_exts=('.sql',), output_func=None,
+                 config=None):
+        if config is None:
+            raise ValueError("No config object provided to linter!")
+        self.dialect = config.get('dialect_obj')
+        self.templater = config.get('templater_obj')
         self.sql_exts = sql_exts
         # restrict the search to only specific rules.
         # assume that this is a list of rule codes
-        self.rule_whitelist = rule_whitelist
-        self.rule_blacklist = rule_blacklist
+        self.rule_whitelist = config.get('rule_whitelist')
+        self.rule_blacklist = config.get('rule_blacklist')
         # Used for logging as we go
         self.output_func = output_func
+        # Store the config object
+        self.config = config
+
+    def get_parse_context(self):
+        if self.config:
+            return ParseContext.from_config(self.config)
+        else:
+            raise ValueError("No config object!")
 
     def log(self, msg):
         if self.output_func:
@@ -211,7 +213,7 @@ class Linter(object):
         if fs:
             try:
                 # Make a parse context and parse
-                context = ParseContext(dialect=self.dialect, verbosity=verbosity, recurse=recurse)
+                context = self.get_parse_context()
                 parsed = fs.parse(parse_context=context)
             except SQLParseError as err:
                 violations.append(err)

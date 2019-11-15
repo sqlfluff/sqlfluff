@@ -87,6 +87,10 @@ class ParseContext(object):
         # Return
         return self.__class__(**current_vals)
 
+    @classmethod
+    def from_config(cls, config):
+        return cls(dialect=config.get('dialect_obj'), recurse=config.get('recurse'))
+
 
 class BaseSegment(object):
     type = 'base'
