@@ -42,16 +42,19 @@ class LintedPath(object):
     def add(self, file):
         self.files.append(file)
 
-    def check_tuples(self):
+    def check_tuples(self, by_path=False):
         """
         Just compress all the tuples into one list
         NB: This is a little crude, as you can't tell which
         file the violations are from. Good for testing though.
         """
-        tuple_buffer = []
-        for file in self.files:
-            tuple_buffer += file.check_tuples()
-        return tuple_buffer
+        if by_path:
+            return {file.path: file.check_tuples() for file in self.files}
+        else:
+            tuple_buffer = []
+            for file in self.files:
+                tuple_buffer += file.check_tuples()
+            return tuple_buffer
 
     def num_violations(self):
         return sum([file.num_violations() for file in self.files])
@@ -95,16 +98,22 @@ class LintingResult(object):
     def add(self, path):
         self.paths.append(path)
 
-    def check_tuples(self):
+    def check_tuples(self, by_path=False):
         """
         Just compress all the tuples into one list
         NB: This is a little crude, as you can't tell which
         file the violations are from. Good for testing though.
         """
-        tuple_buffer = []
-        for path in self.paths:
-            tuple_buffer += path.check_tuples()
-        return tuple_buffer
+        if by_path:
+            buff = {}
+            for path in self.paths:
+                buff.update(path.check_tuples(by_path=by_path))
+            return buff
+        else:
+            tuple_buffer = []
+            for path in self.paths:
+                tuple_buffer += path.check_tuples()
+            return tuple_buffer
 
     def num_violations(self):
         return sum([path.num_violations() for path in self.paths])
@@ -146,8 +155,12 @@ class Linter(object):
         # Store the config object
         self.config = config
 
-    def get_parse_context(self):
-        if self.config:
+    def get_parse_context(self, config=None):
+        # Try to use a given config
+        if config:
+            return ParseContext.from_config(config)
+        # Default to the instance config
+        elif self.config:
             return ParseContext.from_config(self.config)
         else:
             raise ValueError("No config object!")
@@ -158,16 +171,17 @@ class Linter(object):
             if msg.strip(' \n\t'):
                 self.output_func(msg)
 
-    def get_ruleset(self):
+    def get_ruleset(self, config=None):
         """
         A way of getting hold of a set of rules.
         We should probably extend this later for differing rules.
         """
         rs = standard_rule_set
-        if self.rule_whitelist:
-            rs = [r for r in rs if r.code in self.rule_whitelist]
-        if self.rule_blacklist:
-            rs = [r for r in rs if r.code not in self.rule_blacklist]
+        cfg = config or self.config
+        # default the whitelist to all the rules if not set
+        whitelist = cfg.get('rule_whitelist') or [r.code for r in rs]
+        blacklist = cfg.get('rule_blacklist') or []
+        rs = [r for r in rs if r.code in whitelist and r.code not in blacklist]
         return rs
 
     def rule_tuples(self):
@@ -180,14 +194,14 @@ class Linter(object):
         else:
             return rt
 
-    def parse_string(self, s, fname=None, verbosity=0, recurse=True):
+    def parse_string(self, s, fname=None, verbosity=0, recurse=True, config=None):
         violations = []
         t0 = get_time()
 
         verbosity_logger("TEMPLATING RAW [{0}] ({1})".format(self.templater.name, fname), verbosity=verbosity)
         # Lex the file and log any problems
         try:
-            s = self.templater.process(s, fname=fname)
+            s = self.templater.process(s, fname=fname, config=config)
         except SQLTemplaterError as err:
             violations.append(err)
             fs = None
@@ -229,11 +243,11 @@ class Linter(object):
 
         return parsed, violations, time_dict
 
-    def lint_string(self, s, fname='<string input>', verbosity=0, fix=False):
+    def lint_string(self, s, fname='<string input>', verbosity=0, fix=False, config=None):
         """ Lint a file object - fname is optional for testing """
         # TODO: Tidy this up - it's a mess
         # Using the new parser, read the file object.
-        parsed, vs, time_dict = self.parse_string(s=s, fname=fname, verbosity=verbosity)
+        parsed, vs, time_dict = self.parse_string(s=s, fname=fname, verbosity=verbosity, config=config)
 
         if parsed:
             # Now extract all the unparsable segments
@@ -268,7 +282,7 @@ class Linter(object):
                 linting_errors = []
                 last_fixes = None
                 while True:
-                    for crawler in self.get_ruleset():
+                    for crawler in self.get_ruleset(config=config):
                         # fixes should be a dict {} with keys edit, delete, create
                         # delete is just a list of segments to delete
                         # edit and create are list of tuples. The first element is the
@@ -299,7 +313,7 @@ class Linter(object):
             else:
                 # Just get the violations
                 linting_errors = []
-                for crawler in self.get_ruleset():
+                for crawler in self.get_ruleset(config=config):
                     lerrs, _, _, _ = crawler.crawl(parsed)
                     linting_errors += lerrs
 
@@ -346,8 +360,9 @@ class Linter(object):
         linted_path = LintedPath(path)
         self.log(format_linting_path(path, verbose=verbosity))
         for fname in self.paths_from_path(path):
+            config = self.config.make_child_from_path(fname)
             with open(fname, 'r') as f:
-                linted_path.add(self.lint_string(f.read(), fname=fname, verbosity=verbosity, fix=fix))
+                linted_path.add(self.lint_string(f.read(), fname=fname, verbosity=verbosity, fix=fix, config=config))
         return linted_path
 
     def lint_paths(self, paths, verbosity=0, fix=False):
@@ -365,5 +380,6 @@ class Linter(object):
     def parse_path(self, path, verbosity=0, recurse=True):
         for fname in self.paths_from_path(path):
             self.log('=== [\u001b[30;1m{0}\u001b[0m] ==='.format(fname))
+            config = self.config.make_child_from_path(fname)
             with open(fname, 'r') as f:
-                yield self.parse_string(f.read(), fname=fname, verbosity=verbosity, recurse=recurse)
+                yield self.parse_string(f.read(), fname=fname, verbosity=verbosity, recurse=recurse, config=config)

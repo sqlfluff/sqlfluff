@@ -123,6 +123,10 @@ class ConfigLoader(object):
 
         working_path = os.getcwd()
         given_path = os.path.abspath(path)
+        # If we've been passed a file and not a directory,
+        # then go straight to the directory.
+        if not os.path.isdir(given_path):
+            given_path = os.path.dirname(given_path)
         config_stack = []
 
         common_path = os.path.commonpath([working_path, given_path])
@@ -158,6 +162,7 @@ class FluffConfig(object):
     }}
 
     def __init__(self, configs=None, overrides=None):
+        self._overrides = overrides  # We only store this for child configs
         self._configs = nested_combine(
             self.defaults,
             configs or {'core': {}},
@@ -194,6 +199,10 @@ class FluffConfig(object):
         c = loader.load_config_up_to_path(path=path)
         return cls(configs=c, overrides=overrides)
 
+    def make_child_from_path(self, path):
+        """ Make a new child config at a path but pass on overrides """
+        return self.from_path(path, overrides=self._overrides)
+
     def diff_to(self, other):
         """ Returns a filtered dict of items in this config that are not in the other
         or are different to the other """
@@ -201,3 +210,6 @@ class FluffConfig(object):
 
     def get(self, val, section='core'):
         return self._configs[section].get(val, None)
+
+    def get_section(self, section):
+        return self._configs.get(section, None)

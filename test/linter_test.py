@@ -33,6 +33,21 @@ def test__linter__path_from_paths_dot():
     assert normalise_paths(paths) >= set(['test.fixtures.lexer.block_comment.sql', 'test.fixtures.lexer.inline_comment.sql', 'test.fixtures.lexer.basic.sql'])
 
 
+def test__linter__nested_config_tests():
+    lntr = Linter(config=FluffConfig(overrides=dict(exclude_rules='L002')))
+    lnt = lntr.lint_path('test/fixtures/config/inheritance_b')
+    violations = lnt.check_tuples(by_path=True)
+    for k in violations:
+        if k.endswith('nested\\example.sql'):
+            assert ('L003', 1, 1) in violations[k]
+            assert ('L009', 1, 12) in violations[k]
+            assert 'L002' not in [c[0] for c in violations[k]]
+        elif k.endswith('inheritance_b\\example.sql'):
+            assert ('L003', 1, 1) in violations[k]
+            assert 'L002' not in [c[0] for c in violations[k]]
+            assert 'L009' not in [c[0] for c in violations[k]]
+
+
 def test__linter__lint_file_indentation():
     lntr = Linter(config=FluffConfig())
     lnt = lntr.lint_path('test/fixtures/linter/indentation_errors.sql')

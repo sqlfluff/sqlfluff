@@ -32,13 +32,13 @@ def test__config__dict_diff():
 
 def test__config__load_file_dir():
     c = ConfigLoader()
-    cfg = c.load_config_at_path(os.path.join('test', 'fixtures', 'config'))
+    cfg = c.load_config_at_path(os.path.join('test', 'fixtures', 'config', 'inheritance_a'))
     assert cfg == config_a
 
 
 def test__config__load_file_f():
     c = ConfigLoader()
-    cfg = c.load_config_at_path(os.path.join('test', 'fixtures', 'config', 'testing.sql'))
+    cfg = c.load_config_at_path(os.path.join('test', 'fixtures', 'config', 'inheritance_a', 'testing.sql'))
     assert cfg == config_a
 
 
@@ -46,5 +46,5 @@ def test__config__load_nested():
     """ We're testing nested overwrite, but also the ordering of precedence of files in the
     same directory """
     c = ConfigLoader()
-    cfg = c.load_config_up_to_path(os.path.join('test', 'fixtures', 'config', 'nested', 'blah.sql'))
+    cfg = c.load_config_up_to_path(os.path.join('test', 'fixtures', 'config', 'inheritance_a', 'nested', 'blah.sql'))
     assert cfg == {'core': {'testing_val': 'foobar', 'testing_int': 6, 'testing_bar': 7.698}, 'bar': {'foo': 'foobar'}}

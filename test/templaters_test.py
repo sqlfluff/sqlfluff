@@ -6,6 +6,8 @@ import pytest
 
 from sqlfluff.templaters import (RawTemplateInterface, templater_selector,
                                  PythonTemplateInterface, JinjaTemplateInterface)
+from sqlfluff.linter import Linter
+from sqlfluff.config import FluffConfig
 
 
 def test__templater_selection():
@@ -37,3 +39,16 @@ def test__templater_jinja():
     instr = 'SELECT * FROM {% for c in blah %}{{c}}{% if not loop.last %}, {% endif %}{% endfor %}\n\n'
     outstr = t.process(instr)
     assert outstr == 'SELECT * FROM f, o, o\n\n'
+
+
+def test__templater_config():
+    lntr = Linter(config=FluffConfig())
+    p = list(lntr.parse_path('test/fixtures/templater/jinja_a/jinja.sql'))
+    parsed = p[0][0]
+    tpl = parsed.to_tuple(code_only=True, show_raw=True)
+    assert tpl == ('file', (('statement', (('select_statement', (
+        ('keyword', 'SELECT'), ('select_target_group', (('select_target_element', (('numeric_literal', '56'),)),)),
+        ('from_clause', (('keyword', 'FROM'), ('table_expression', (('object_reference', (
+            ('naked_identifier', 'sch1'), ('dot', '.'), ('naked_identifier', 'tbl2')
+        )),))))
+    )),)),))

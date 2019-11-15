@@ -61,31 +61,33 @@ about the architecture of sqlfluff, you can find [more here](ARCHITECTURE.md).
   - [ ] Inconsistent capitalisation of keywords
   - [ ] Inconsistent capitalisation of unquoted identifiers
   - [x] Implement a context manager in the parse and match
-    functions to avoid passing around so many variables.
+        functions to avoid passing around so many variables.
+  - [ ] Reenable disabled linter tests
 - [ ] Configurable linting
-  - [ ] Command line options for config
-    - [ ] Rough parity between command line and file based config
+  - [x] Command line options for config
+    - [x] Rough parity between command line and file based config
   - [x] Ability to read from config files
     - [ ] Documentation of the config loading system
   - [ ] Ability to read config from block comment
-    sections in `.sql` files.
+        sections in `.sql` files.
   - [x] Ignore particular rules (blacklisting)
   - [ ] Specifying particlar dialects to use
   - [ ] Specifying particlar templaters to use
   - [ ] Preconfiguring verbosity
   - [ ] Delta-configs for individual files printed before each above some
         level of verbosity.
+  - [ ] Work out a solution to templating *macros*.
 - [x] Dialects
   - [ ] ANSI
     - [ ] Implement singleton matching for `::`, `:` and `||`.
     - [ ] Bring in a much wider selection of test queries to identify
-      next gaps.
+          next gaps.
     - [x] Flesh out function coverage.
   - [ ] MySQL 
   - [ ] Redshift
   - [ ] Snowflake
   - [ ] Detecting dialect from a config file of some kind
-  - [ ] jinja2 compatible linting (for dbt)
+  - [x] jinja2 compatible linting (for dbt)
     - [ ] a preconfigured default set of templating macros for dbt use which can be loaded
           as config.
 - [ ] Documentation
