@@ -129,7 +129,12 @@ class ConfigLoader(object):
             given_path = os.path.dirname(given_path)
         config_stack = []
 
-        common_path = os.path.commonpath([working_path, given_path])
+        if hasattr(os.path, 'commonpath'):
+            common_path = os.path.commonpath([working_path, given_path])
+        else:
+            # Compatabilty with pre python 3.5
+            common_path = os.path.commonprefix([working_path, given_path])
+
         if common_path == working_path:
             # we have a sub path! We can load nested paths
             last_path = given_path
