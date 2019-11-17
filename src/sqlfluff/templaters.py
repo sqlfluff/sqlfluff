@@ -45,7 +45,7 @@ class RawTemplateInterface(object):
         arguments in here. """
         pass
 
-    def process(self, in_str, fname=None):
+    def process(self, in_str, fname=None, config=None):
         """ fname is so that we can load any config files in the FILE directory, or in the file
         itself """
         return in_str
@@ -54,6 +54,7 @@ class RawTemplateInterface(object):
 @register_templater
 class PythonTemplateInterface(RawTemplateInterface):
     name = 'python'
+    _context_section = 'pythoncontext'
 
     def __init__(self, override_context=None, **kwargs):
         """ here we should load any initial config found in the root directory. The init
@@ -67,32 +68,36 @@ class PythonTemplateInterface(RawTemplateInterface):
         # TODO: Have a way of loading functions from file. Python is unsecure,
         # suggest that we use the option of lua scripts or just them defaulting
         # to literals. Even better might be to force people to define them as jinja
-        # macros.
+        # macros. Like this: http://codyaray.com/2015/05/auto-load-jinja2-macros
         pass
 
-    def get_context(self, fname=None):
+    def get_context(self, fname=None, config=None):
         """ NB: fname is used for loading the config """
         # TODO: The config loading should be done outside the templater code. Here
         # is a silly place.
-        loaded_context = {}
+        if config:
+            loaded_context = config.get_section(self._context_section) or {}
+        else:
+            loaded_context = {}
         live_context = {}
         live_context.update(self.default_context)
         live_context.update(loaded_context)
         live_context.update(self.override_context)
         return live_context
 
-    def process(self, in_str, fname=None):
+    def process(self, in_str, fname=None, config=None):
         """ fname is so that we can load any config files in the FILE directory, or in the
         file itself """
-        live_context = self.get_context(fname=fname)
+        live_context = self.get_context(fname=fname, config=config)
         return in_str.format(**live_context)
 
 
 @register_templater
 class JinjaTemplateInterface(PythonTemplateInterface):
     name = 'jinja'
+    _context_section = 'jinjacontext'
 
-    def process(self, in_str, fname=None):
+    def process(self, in_str, fname=None, config=None):
         """ fname is so that we can load any config files in the FILE directory, or in the
         file itself """
         # No need to import this unless we're using this templater
@@ -100,7 +105,7 @@ class JinjaTemplateInterface(PythonTemplateInterface):
         # We explicitly want to preserve newlines.
         env = Environment(keep_trailing_newline=True)
         template = env.from_string(in_str)
-        live_context = self.get_context(fname=fname)
+        live_context = self.get_context(fname=fname, config=config)
         try:
             out_str = template.render(**live_context)
             return out_str

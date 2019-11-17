@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Templating support (jinja2, python or raw)
+- Config file support, including specifying context for the templater
 
 ## [0.1.5] - 2019-11-11
 
