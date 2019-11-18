@@ -34,7 +34,9 @@ extensions = [
     # Autodocumentation from docstrings
     'sphinx.ext.autodoc',
     # Allow Google style docstrings
-    'sphinx.ext.napoleon'
+    'sphinx.ext.napoleon',
+    # Documenting click commands
+    'sphinx_click.ext'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
