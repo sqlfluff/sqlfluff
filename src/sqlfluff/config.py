@@ -66,7 +66,7 @@ class ConfigLoader(object):
 
         # The potential filenames we would look for at this path.
         # NB: later in this list overwrites earlier
-        filename_options = ['setup.cfg', 'tox.ini', '.sqlfluff']
+        filename_options = ['setup.cfg', 'tox.ini', 'pep8.ini', '.sqlfluff']
 
         c = {}
 
