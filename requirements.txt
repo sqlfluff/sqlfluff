@@ -5,3 +5,6 @@ configparser
 # oyaml is like pyyaml but preserves orderings
 oyaml
 Jinja2
+# for building docs
+sphinx
+doc8
