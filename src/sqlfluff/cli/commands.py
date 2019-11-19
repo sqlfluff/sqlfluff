@@ -14,12 +14,29 @@ from ..config import FluffConfig
 
 
 def common_options(f):
-    f = click.option('-v', '--verbose', count=True)(f)
-    f = click.option('-n', '--nocolor', is_flag=True)(f)
+    f = click.option('-v', '--verbose', count=True,
+                     help=('Verbosity, how detailed should the output be. This is *stackable*, so `-vv`'
+                           ' is more verbose than `-v`. For the most verbose option try `-vvvv` or `-vvvvv`.'))(f)
+    f = click.option('-n', '--nocolor', is_flag=True,
+                     help='No color - if this is set then the output will be without ANSI color codes.')(f)
     f = click.option('--dialect', default=None, help='The dialect of SQL to lint (default=ansi)')(f)
-    f = click.option('--templater', default=None, help='The dialect of SQL to lint (default=jinja)')(f)
-    f = click.option('--rules', default=None, help='Specify a particular rule, or comma seperated rules to check')(f)
-    f = click.option('--exclude-rules', default=None, help='Specify a particular rule, or comma seperated rules to exclude')(f)
+    f = click.option('--templater', default=None, help='The templater to use (default=jinja)')(f)
+    f = click.option('--rules', default=None,
+                     # short_help='Specify a particular rule, or comma seperated rules, to check',
+                     help=('Narrow the search to only specific rules. For example '
+                           'specifying `--rules L001` will only search for rule `L001` (Unnessesary '
+                           'trailing whitespace). Multiple rules can be specified with commas e.g. '
+                           '`--rules L001,L002` will specify only looking for violations of rule '
+                           '`L001` and rule `L002`.'))(f)
+    f = click.option('--exclude-rules', default=None,
+                     # short_help='Specify a particular rule, or comma seperated rules to exclude',
+                     help=('Exclude specific rules. For example '
+                           'specifying `--exclude-rules L001` will remove rule `L001` (Unnessesary '
+                           'trailing whitespace) from the set of considered rules. This could either '
+                           'be the whitelist, or the general set if there is no specific whitelist. '
+                           'Multiple rules can be specified with commas e.g. '
+                           '`--exclude-rules L001,L002` will exclude violations of rule '
+                           '`L001` and rule `L002`.'))(f)
     return f
 
 
@@ -84,15 +101,18 @@ def rules(**kwargs):
 def lint(paths, **kwargs):
     """Lint SQL files via passing a list of files or using stdin.
 
+    PATH is the path to a sql file or directory to lint. This can be either a
+    file (`path/to/file.sql`), a path (`directory/of/sql/files`), a single (`-`)
+    character to indicate reading from `stdin` or a dot/blank (`.`/` `) which will
+    be interpreted like passing the current working directory as a path argument.
+
     Linting SQL files:
 
-        \b
         sqlfluff lint path/to/file.sql
         sqlfluff lint directory/of/sql/files
 
     Linting a file via stdin (note the lone '-' character):
 
-        \b
         cat path/to/file.sql | sqlfluff lint -
         echo 'select col from tbl' | sqlfluff lint -
 
@@ -121,10 +141,19 @@ def lint(paths, **kwargs):
 
 @cli.command()
 @common_options
-@click.option('-f', '--force', is_flag=True)
+@click.option('-f', '--force', is_flag=True,
+              help=('skip the confirmation prompt and go straight to applying '
+                    'fixes. **Use this with caution.**'))
 @click.argument('paths', nargs=-1)
 def fix(force, paths, **kwargs):
-    """ Fix SQL files """
+    """
+    Fix SQL files
+
+    PATH is the path to a sql file or directory to lint. This can be either a
+    file (`path/to/file.sql`), a path (`directory/of/sql/files`), a single (`-`)
+    character to indicate reading from `stdin` or a dot/blank (`.`/` `) which will
+    be interpreted like passing the current working directory as a path argument.
+    """
     c = get_config(**kwargs)
     lnt = get_linter(c)
     verbose = c.get('verbose')
@@ -181,9 +210,16 @@ def fix(force, paths, **kwargs):
 @cli.command()
 @common_options
 @click.argument('path', nargs=1)
-@click.option('--recurse', default=0, help='The depth to recursievely parse to (0 for unlimited)')
+@click.option('--recurse', default=0, help='The depth to recursively parse to (0 for unlimited)')
 def parse(path, **kwargs):
-    """ Parse SQL files and just spit out the result """
+    """
+    Parse SQL files and just spit out the result
+
+    PATH is the path to a sql file or directory to lint. This can be either a
+    file (`path/to/file.sql`), a path (`directory/of/sql/files`), a single (`-`)
+    character to indicate reading from `stdin` or a dot/blank (`.`/` `) which will
+    be interpreted like passing the current working directory as a path argument.
+    """
     c = get_config(**kwargs)
     lnt = get_linter(c)
     verbose = c.get('verbose')

@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
+
+"""The script for setting up sqlfluff."""
+
 from __future__ import absolute_import
 from __future__ import print_function
 
@@ -19,6 +22,7 @@ version = config.get('sqlfluff', 'version')
 
 
 def read(*names, **kwargs):
+    """Read a file and return the contents as a string."""
     return io.open(
         join(dirname(__file__), *names),
         encoding=kwargs.get('encoding', 'utf8')

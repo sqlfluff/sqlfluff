@@ -1,5 +1,12 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
+
+"""
+Utility strings for use during deployment.
+
+NB: This is not part of the core sqlfluff code.
+"""
+
 from __future__ import absolute_import
 from __future__ import print_function
 
@@ -12,6 +19,7 @@ import click
 
 @click.group()
 def cli():
+    """Launch the utility cli."""
     pass
 
 
@@ -19,7 +27,8 @@ def cli():
 @click.option('--path', default='.test-reports')
 def clean_tests(path):
     """
-    Clear up the tests directory
+    Clear up the tests directory.
+
     NB: Using scripts allows platform independence
     Makes a new one afterward
     """
