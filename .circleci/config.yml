@@ -61,6 +61,13 @@ jobs:
         environment:
           - TOXENV=linting
           - UPLOAD_COVERAGE=0
+  doclinting:
+    <<: *common
+    docker:
+      - image: circleci/python:3.6
+        environment:
+          - TOXENV=doclinting
+          - UPLOAD_COVERAGE=0
   py27:
     <<: *common
     docker:
@@ -105,6 +112,7 @@ workflows:
   test-sqlfluff:
     jobs:
       - linting
+      - doclinting
       - py27
       - py34
       - py35

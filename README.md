@@ -9,6 +9,7 @@
 [![codecov](https://img.shields.io/codecov/c/gh/alanmcruickshank/sqlfluff.svg?style=flat-square&logo=Codecov)](https://codecov.io/gh/alanmcruickshank/sqlfluff)
 [![Requirements Status](https://img.shields.io/requires/github/alanmcruickshank/sqlfluff.svg?style=flat-square)](https://requires.io/github/alanmcruickshank/sqlfluff/requirements/?branch=master)
 [![CircleCI](https://img.shields.io/circleci/build/gh/alanmcruickshank/sqlfluff/master?style=flat-square&logo=CircleCI)](https://circleci.com/gh/alanmcruickshank/sqlfluff/tree/master)
+[![ReadTheDocs](https://img.shields.io/readthedocs/sqlfluff?style=flat-square&logo=CircleCI)](https://sqlfluff.readthedocs.io)
 
 Bored of not having a good SQL linter that works with whichever dialiect you're
 working with? Fluff is an extensible and modular linter designed to help you write
@@ -36,13 +37,13 @@ L:   1 | P:  27 | L001 | Unnecessary trailing whitespace
 
 # Usage
 
-For more details on usage see the docs on github [here](DOCS.md).
+For more details on usage see the docs on readthedocs [here](http://sqlfluff.readthedocs.io).
 
 # Progress
 
 There's lots to do in this project, and we're just getting started. __NB: This list__
 __has started again from the top due to the re-write__. If you want to understand more
-about the architecture of sqlfluff, you can find [more here](ARCHITECTURE.md).
+about the architecture of sqlfluff, you can find [more here](http://sqlfluff.readthedocs.io).
 
 - [x] Command line interface
   - [x] Basic linting, both of paths and files
