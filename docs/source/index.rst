@@ -37,6 +37,7 @@ Contents
    :maxdepth: 3
    :caption: Documentation for sqlfluff:
 
+   configuration
    architecture
    cli
 

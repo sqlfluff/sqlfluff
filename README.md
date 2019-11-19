@@ -41,9 +41,8 @@ For more details on usage see the docs on readthedocs [here](http://sqlfluff.rea
 
 # Progress
 
-There's lots to do in this project, and we're just getting started. __NB: This list__
-__has started again from the top due to the re-write__. If you want to understand more
-about the architecture of sqlfluff, you can find [more here](http://sqlfluff.readthedocs.io).
+There's lots to do in this project, and we're just getting started. If you want to understand more
+about the architecture of sqlfluff, you can find [more here](https://sqlfluff.readthedocs.io/en/latest/architecture.html).
 
 - [x] Command line interface
   - [x] Basic linting, both of paths and files

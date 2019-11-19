@@ -1,3 +1,5 @@
+.. _cliref:
+
 CLI Reference
 =============
 
