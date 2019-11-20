@@ -65,7 +65,7 @@ config for the *python* templater is found in the
 
 For example, if passed the following *.sql* file:
 
-.. code-block:: sql
+.. code-block:: jinja
 
     SELECT {{ num_things }} FROM {{ tbl_name }} WHERE id > 10 LIMIT 5
 
@@ -89,3 +89,44 @@ For example, if passed the following *.sql* file:
     the current configuration context, then this will raise a `SQLTemplatingError`
     and this will appear as a violation without a line number, quoting
     the name of the variable that couldn't be found.
+
+Macro Templating
+^^^^^^^^^^^^^^^^
+
+Macros (which also look and feel like *functions* are available only in the
+*jinja* templater. Similar to `Variable Templating`_, these are specified in
+config files, what's different in this case is how they are named. Similar to
+the *context* section above, macros are configured seperately in the *macros*
+section of the config. Consider the following example.
+
+If passed the following *.sql* file:
+
+.. code-block:: jinja
+
+    SELECT {{ my_macro(6) }} FROM some_table
+
+...and the following configuration in *.sqlfluff* in the same directory (note
+the tight control of whitespace):
+
+.. code-block:: cfg
+
+    [sqlfluff:templater:jinja:macros]
+    a_macro_def = {% macro my_macro(something) %}{{something}} + {{something * 2}}{% endmacro %}
+
+...then before parsing, the sql will be transformed to:
+
+.. code-block:: sql
+
+    SELECT 6 + 12 FROM some_table
+
+.. note::
+
+    Throughout the templating process **whitespace** will still be treated
+    rigourously, and this includes **newlines**. In particular you may choose
+    to provide your *dummy* macros in your configuration with different to
+    the actual macros you may be using in production.
+
+    **REMEMBER:** The purpose of providing the option of macros is to *enable*
+    the parsing of templated sql without it being a blocker. It shouldn't
+    be a requirement that the *templating* is accurate - only so far as that
+    is required to enable the *parsing* and *linting* to be helpful.

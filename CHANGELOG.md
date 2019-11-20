@@ -10,7 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Templating support (jinja2, python or raw)
+  - Variables + Macros
 - Config file support, including specifying context for the templater
+- Documentation via Sphinx and readthedocs.
+- Documentation LINTING (given we're a linting project) introduced in CI
+
+### Changed
+
+- Fixed a bug which could cause potential infinite recursion in configuration
+
 
 ## [0.1.5] - 2019-11-11
 

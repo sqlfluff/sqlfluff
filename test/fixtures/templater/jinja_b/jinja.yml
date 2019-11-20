@@ -2,25 +2,38 @@
 file:
   statement:
     select_statement:
-      keyword: SELECT
-      select_target_group:
+    - keyword: SELECT
+    - raw: "\n"
+    - raw: '    '
+    - select_target_group:
       - select_target_element:
-          expression:
+        - expression:
           - numeric_literal: 3
+          - raw: ' '
           - binary_operator: +
+          - raw: ' '
           - numeric_literal: 6
-          keyword: as
-          naked_identifier: a
+        - raw: ' '
+        - keyword: as
+        - raw: ' '
+        - naked_identifier: a
       - keyword: ','
       - select_target_element:
-          expression:
+        - expression:
           - numeric_literal: 7
+          - raw: ' '
           - binary_operator: +
+          - raw: ' '
           - numeric_literal: 14
-          keyword: as
-          naked_identifier: b
-      from_clause:
+        - raw: ' '
+        - keyword: as
+        - raw: ' '
+        - naked_identifier: b
+    - raw: "\n"
+    - from_clause:
         keyword: FROM
+        raw: ' '
         table_expression:
           object_reference:
             naked_identifier: some_table
+          raw: "\n"

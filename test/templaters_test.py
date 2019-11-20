@@ -64,6 +64,7 @@ def test__templater_config_macro(yaml_loader):
     if parsed is None:
         print(p)
         raise RuntimeError(p[0][1])
-    tpl = parsed.to_tuple(code_only=True, show_raw=True)
+    # Whitespace is important here to test how that's treated
+    tpl = parsed.to_tuple(code_only=False, show_raw=True)
     expected = yaml_loader('test/fixtures/templater/jinja_b/jinja.yml')
     assert tpl == expected
