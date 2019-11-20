@@ -151,8 +151,6 @@ class JinjaTemplateInterface(PythonTemplateInterface):
 
         template = env.from_string(in_str)
         live_context = self.get_context(fname=fname, config=config)
-        if config:
-            print(config._configs)
         try:
             out_str = template.render(**live_context)
             return out_str

@@ -41,30 +41,26 @@ def test__templater_jinja():
     assert outstr == 'SELECT * FROM f, o, o\n\n'
 
 
-def test__templater_config_scalar():
+def assert_structure(yaml_loader, path, code_only=True):
     lntr = Linter(config=FluffConfig())
-    p = list(lntr.parse_path('test/fixtures/templater/jinja_a/jinja.sql'))
-    parsed = p[0][0]
-    if parsed is None:
-        print(p)
-        raise RuntimeError(p[0][1])
-    tpl = parsed.to_tuple(code_only=True, show_raw=True)
-    assert tpl == ('file', (('statement', (('select_statement', (
-        ('keyword', 'SELECT'), ('select_target_group', (('select_target_element', (('numeric_literal', '56'),)),)),
-        ('from_clause', (('keyword', 'FROM'), ('table_expression', (('object_reference', (
-            ('naked_identifier', 'sch1'), ('dot', '.'), ('naked_identifier', 'tbl2')
-        )),))))
-    )),)),))
-
-
-def test__templater_config_macro(yaml_loader):
-    lntr = Linter(config=FluffConfig())
-    p = list(lntr.parse_path('test/fixtures/templater/jinja_b/jinja.sql'))
+    p = list(lntr.parse_path(path + '.sql'))
     parsed = p[0][0]
     if parsed is None:
         print(p)
         raise RuntimeError(p[0][1])
     # Whitespace is important here to test how that's treated
-    tpl = parsed.to_tuple(code_only=False, show_raw=True)
-    expected = yaml_loader('test/fixtures/templater/jinja_b/jinja.yml')
+    tpl = parsed.to_tuple(code_only=code_only, show_raw=True)
+    expected = yaml_loader(path + '.yml')
     assert tpl == expected
+
+
+def test__templater_config_scalar(yaml_loader):
+    assert_structure(yaml_loader, 'test/fixtures/templater/jinja_a/jinja')
+
+
+def test__templater_config_macro(yaml_loader):
+    assert_structure(yaml_loader, 'test/fixtures/templater/jinja_b/jinja', code_only=False)
+
+
+def test__templater_config_dbt(yaml_loader):
+    assert_structure(yaml_loader, 'test/fixtures/templater/jinja_c_dbt/dbt_builtins')

@@ -1,0 +1,17 @@
+file:
+  statement:
+    select_statement:
+      keyword: SELECT
+      select_target_group:
+      - select_target_element:
+          object_reference:
+            naked_identifier: col1
+      - keyword: ','
+      - select_target_element:
+          object_reference:
+            naked_identifier: col2
+      from_clause:
+        keyword: FROM
+        table_expression:
+          object_reference:
+            naked_identifier: my_table
