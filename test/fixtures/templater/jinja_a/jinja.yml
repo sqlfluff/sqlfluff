@@ -1,0 +1,14 @@
+file:
+  statement:
+    select_statement:
+      keyword: SELECT
+      select_target_group:
+      - select_target_element:
+          numeric_literal: 56
+      from_clause:
+        keyword: FROM
+        table_expression:
+          object_reference:
+          - naked_identifier: sch1
+          - dot: '.'
+          - naked_identifier: tbl2

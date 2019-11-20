@@ -59,6 +59,80 @@ class ConfigLoader(object):
             global_loader = cls()
         return global_loader
 
+    def _get_config_elems_from_file(self, fpath):
+        """
+        load a config from a file and return a list of tuples.
+
+        The return value is a list of tuples, were each tuple has two elements,
+        the first is a tuple of paths, the second is the value at that path.
+        """
+        buff = []
+        # Disable interpolation so we can load macros
+        config = configparser.ConfigParser(interpolation=None)
+        config.read(fpath)
+        for k in config.sections():
+            if k == 'sqlfluff':
+                key = ('core',)
+            elif k.startswith('sqlfluff:'):
+                # Return a tuple of nested values
+                key = tuple(k[len('sqlfluff:'):].split(':'))
+            else:
+                # if it doesn't start with sqlfluff, then don't go
+                # further on this iteration
+                continue
+
+            for name, val in config.items(section=k):
+                # Try to coerce it to a more specific type,
+                # otherwise just make it a string.
+                try:
+                    v = int(val)
+                except ValueError:
+                    try:
+                        v = float(val)
+                    except ValueError:
+                        if val in ['True', 'False']:
+                            v = bool(val)
+                        elif val in ['None', 'none']:
+                            v = None
+                        else:
+                            v = val
+                # Add the name to the end of the key
+                buff.append((key + (name,), v))
+        return buff
+
+    def _incorporate_vals(self, ctx, vals):
+        c = ctx
+        for k, v in vals:
+            # Keep a ref we can use for recursion
+            r = c
+            # Get the name of the variable
+            n = k[-1]
+            # Get the path
+            pth = k[:-1]
+            for dp in pth:
+                # Does this path exist?
+                if dp in r:
+                    if isinstance(r[dp], dict):
+                        r = r[dp]
+                    else:
+                        raise ValueError("Overriding config value with section! [{0}]".format(k))
+                else:
+                    r[dp] = {}
+                    r = r[dp]
+            # Deal with the value itself
+            r[n] = v
+        return c
+
+    def load_default_config_file(self):
+        """Load the default config file"""
+        elems = self._get_config_elems_from_file(
+            os.path.join(
+                os.path.dirname(__file__),
+                'default_config.cfg'
+            )
+        )
+        return self._incorporate_vals({}, elems)
+
     def load_config_at_path(self, path):
         # First check the cache
         if str(path) in self._config_cache:
@@ -79,35 +153,8 @@ class ConfigLoader(object):
         # iterate this way round to make sure things overwrite is the right direction
         for fname in filename_options:
             if fname in d:
-                config = configparser.ConfigParser()
-                config.read(os.path.join(p, fname))
-                for k in config.sections():
-                    if k == 'sqlfluff':
-                        key = 'core'
-                    elif k.startswith('sqlfluff:'):
-                        key = k[len('sqlfluff:'):]
-                    else:
-                        # if it doesn't start with sqlfluff, then don't go
-                        # further on this iteration
-                        continue
-
-                    if key not in c:
-                        c[key] = {}
-
-                    for name, val in config.items(section=k):
-                        # Try to coerce it to a more specific type,
-                        # otherwise just make it a string.
-                        try:
-                            v = int(val)
-                        except ValueError:
-                            try:
-                                v = float(val)
-                            except ValueError:
-                                if val in ['True', 'False']:
-                                    v = bool(val)
-                                else:
-                                    v = val
-                        c[key][name] = v
+                elems = self._get_config_elems_from_file(os.path.join(p, fname))
+                c = self._incorporate_vals(c, elems)
 
         # Store in the cache
         self._config_cache[str(path)] = c
@@ -140,10 +187,14 @@ class ConfigLoader(object):
             last_path = given_path
             while True:
                 config_stack.insert(0, self.load_config_at_path(last_path))
-                # iterate up the directories
-                last_path = os.path.dirname(last_path)
                 if last_path == working_path:
                     break
+                # iterate up the directories
+                if last_path == os.path.dirname(last_path):
+                    # we're not making progres...
+                    # [prevent infinite loop]
+                    break
+                last_path = os.path.dirname(last_path)
             config_stack.insert(0, self.load_config_at_path(working_path))
         else:
             # we have divergent paths, we can only load config for that path and global
@@ -156,20 +207,12 @@ class ConfigLoader(object):
 
 class FluffConfig(object):
     """ The class that actually gets passed around as a config object """
-    defaults = {'core': {
-        'verbose': 0,
-        'nocolor': False,
-        'dialect': 'ansi',
-        'templater': 'jinja',
-        'rules': None,
-        'exclude_rules': None,
-        'recurse': 0
-    }}
 
     def __init__(self, configs=None, overrides=None):
         self._overrides = overrides  # We only store this for child configs
+        defaults = ConfigLoader.get_global().load_default_config_file()
         self._configs = nested_combine(
-            self.defaults,
+            defaults,
             configs or {'core': {}},
             {'core': overrides or {}})
         # Some configs require special treatment
@@ -217,4 +260,13 @@ class FluffConfig(object):
         return self._configs[section].get(val, None)
 
     def get_section(self, section):
-        return self._configs.get(section, None)
+        if isinstance(section, str):
+            return self._configs.get(section, None)
+        else:
+            # Try iterating
+            buff = self._configs
+            for sec in section:
+                buff = buff.get(sec, None)
+                if buff is None:
+                    return None
+            return buff

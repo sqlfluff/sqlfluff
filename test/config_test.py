@@ -47,4 +47,8 @@ def test__config__load_nested():
     same directory """
     c = ConfigLoader()
     cfg = c.load_config_up_to_path(os.path.join('test', 'fixtures', 'config', 'inheritance_a', 'nested', 'blah.sql'))
-    assert cfg == {'core': {'testing_val': 'foobar', 'testing_int': 6, 'testing_bar': 7.698}, 'bar': {'foo': 'foobar'}}
+    assert cfg == {
+        'core': {'testing_val': 'foobar', 'testing_int': 6, 'testing_bar': 7.698},
+        'bar': {'foo': 'foobar'},
+        'fnarr': {'fnarr': {'foo': 'foobar'}}
+    }

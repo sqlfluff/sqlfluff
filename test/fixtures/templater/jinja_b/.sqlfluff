@@ -1,0 +1,2 @@
+[sqlfluff:templater:jinja:macros]
+some_macro = {% macro some_func(something) %}{{something}} + {{something * 2}}{% endmacro %}

@@ -9,7 +9,7 @@
 [![codecov](https://img.shields.io/codecov/c/gh/alanmcruickshank/sqlfluff.svg?style=flat-square&logo=Codecov)](https://codecov.io/gh/alanmcruickshank/sqlfluff)
 [![Requirements Status](https://img.shields.io/requires/github/alanmcruickshank/sqlfluff.svg?style=flat-square)](https://requires.io/github/alanmcruickshank/sqlfluff/requirements/?branch=master)
 [![CircleCI](https://img.shields.io/circleci/build/gh/alanmcruickshank/sqlfluff/master?style=flat-square&logo=CircleCI)](https://circleci.com/gh/alanmcruickshank/sqlfluff/tree/master)
-[![ReadTheDocs](https://img.shields.io/readthedocs/sqlfluff?style=flat-square&logo=CircleCI)](https://sqlfluff.readthedocs.io)
+[![ReadTheDocs](https://img.shields.io/readthedocs/sqlfluff?style=flat-square&logo=Read%20the%20Docs)](https://sqlfluff.readthedocs.io)
 
 Bored of not having a good SQL linter that works with whichever dialiect you're
 working with? Fluff is an extensible and modular linter designed to help you write
@@ -63,20 +63,20 @@ about the architecture of sqlfluff, you can find [more here](https://sqlfluff.re
   - [x] Implement a context manager in the parse and match
         functions to avoid passing around so many variables.
   - [ ] Reenable disabled linter tests
-- [ ] Configurable linting
+- [x] Configurable linting
   - [x] Command line options for config
     - [x] Rough parity between command line and file based config
   - [x] Ability to read from config files
-    - [ ] Documentation of the config loading system
+    - [x] Documentation of the config loading system
   - [ ] Ability to read config from block comment
         sections in `.sql` files.
   - [x] Ignore particular rules (blacklisting)
-  - [ ] Specifying particlar dialects to use
-  - [ ] Specifying particlar templaters to use
-  - [ ] Preconfiguring verbosity
+  - [x] Specifying particlar dialects to use
+  - [x] Specifying particlar templaters to use
+  - [x] Preconfiguring verbosity
   - [ ] Delta-configs for individual files printed before each above some
         level of verbosity.
-  - [ ] Work out a solution to templating *macros*.
+  - [x] Work out a solution to templating *macros*.
 - [x] Dialects
   - [ ] ANSI
     - [ ] Implement singleton matching for `::`, `:` and `||`.
@@ -86,9 +86,9 @@ about the architecture of sqlfluff, you can find [more here](https://sqlfluff.re
   - [ ] MySQL 
   - [ ] Redshift
   - [ ] Snowflake
-  - [ ] Detecting dialect from a config file of some kind
+  - [x] Detecting dialect from a config file of some kind
   - [x] jinja2 compatible linting (for dbt)
-    - [ ] a preconfigured default set of templating macros for dbt use which can be loaded
+    - [x] a preconfigured default set of templating macros for dbt use which can be loaded
           as config.
 - [ ] Documentation
   - [x] Basic architectural principles

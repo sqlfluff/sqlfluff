@@ -36,6 +36,7 @@ def register_templater(cls):
 @register_templater
 class RawTemplateInterface(object):
     name = 'raw'
+    templater_selector = 'templater'
 
     def __init__(self, **kwargs):
         """ here we should load any initial config found in the root directory. The init
@@ -54,7 +55,6 @@ class RawTemplateInterface(object):
 @register_templater
 class PythonTemplateInterface(RawTemplateInterface):
     name = 'python'
-    _context_section = 'pythoncontext'
 
     def __init__(self, override_context=None, **kwargs):
         """ here we should load any initial config found in the root directory. The init
@@ -76,7 +76,8 @@ class PythonTemplateInterface(RawTemplateInterface):
         # TODO: The config loading should be done outside the templater code. Here
         # is a silly place.
         if config:
-            loaded_context = config.get_section(self._context_section) or {}
+            # This is now a nested section
+            loaded_context = config.get_section((self.templater_selector, self.name, 'context')) or {}
         else:
             loaded_context = {}
         live_context = {}
@@ -95,15 +96,59 @@ class PythonTemplateInterface(RawTemplateInterface):
 @register_templater
 class JinjaTemplateInterface(PythonTemplateInterface):
     name = 'jinja'
-    _context_section = 'jinjacontext'
+
+    def _extract_macros_from_template(self, template, env):
+        """
+        Take a template string and extract any macros from it.
+
+        Lovingly inspired by http://codyaray.com/2015/05/auto-load-jinja2-macros
+        """
+        from jinja2.runtime import Macro  # noqa
+
+        # Iterate through keys exported from the loaded template string
+        context = {}
+        macro_template = env.from_string(template)
+        # This is kind of low level and hacky but it works
+        for k in macro_template.module.__dict__:
+            attr = getattr(macro_template.module, k)
+            # Is it a macro? If so install it at the name of the macro
+            if isinstance(attr, Macro):
+                context[k] = attr
+        # Return the context
+        return context
+
+    def _extract_macros_from_config(self, config, env):
+        """Take a config and load any macros from it."""
+        if config:
+            # This is now a nested section
+            loaded_context = config.get_section((self.templater_selector, self.name, 'macros')) or {}
+        else:
+            loaded_context = {}
+
+        # Iterate to load macros
+        macro_ctx = {}
+        for key in loaded_context:
+            macro_ctx.update(
+                self._extract_macros_from_template(
+                    loaded_context[key], env=env
+                )
+            )
+        return macro_ctx
 
     def process(self, in_str, fname=None, config=None):
-        """ fname is so that we can load any config files in the FILE directory, or in the
-        file itself """
+        """
+        fname is so that we can load any config files in the FILE directory, or in the
+        file itself
+        """
         # No need to import this unless we're using this templater
-        from jinja2 import Environment  # noqa
+        from jinja2 import Environment, StrictUndefined  # noqa
         # We explicitly want to preserve newlines.
-        env = Environment(keep_trailing_newline=True)
+        env = Environment(keep_trailing_newline=True, undefined=StrictUndefined)
+
+        ctx = self._extract_macros_from_config(config=config, env=env)
+        # Apply to globals
+        env.globals.update(ctx)
+
         template = env.from_string(in_str)
         live_context = self.get_context(fname=fname, config=config)
         try:
@@ -111,4 +156,5 @@ class JinjaTemplateInterface(PythonTemplateInterface):
             return out_str
         except Exception as err:
             # TODO: Add a url here so people can get more help.
-            raise SQLTemplaterError("Failure in Jinja templating: {0}. Have you configured your variables?".format(err))
+            raise SQLTemplaterError(
+                "Failure in Jinja templating: {0}. Have you configured your variables?".format(err))
