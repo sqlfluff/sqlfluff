@@ -59,6 +59,44 @@ class ConfigLoader(object):
             global_loader = cls()
         return global_loader
 
+    def _get_config_elems_from_file(self, fpath):
+        """
+        load a config from a file and return a list of tuples.
+
+        The return value is a list of tuples, were each tuple has two elements,
+        the first is a tuple of paths, the second is the value at that path.
+        """
+        buff = []
+        config = configparser.ConfigParser()
+        config.read(fpath)
+        for k in config.sections():
+            if k == 'sqlfluff':
+                key = ('core',)
+            elif k.startswith('sqlfluff:'):
+                # Return a tuple of nested values
+                key = tuple(k[len('sqlfluff:'):].split(':'))
+            else:
+                # if it doesn't start with sqlfluff, then don't go
+                # further on this iteration
+                continue
+
+            for name, val in config.items(section=k):
+                # Try to coerce it to a more specific type,
+                # otherwise just make it a string.
+                try:
+                    v = int(val)
+                except ValueError:
+                    try:
+                        v = float(val)
+                    except ValueError:
+                        if val in ['True', 'False']:
+                            v = bool(val)
+                        else:
+                            v = val
+                # Add the name to the end of the key
+                buff.append((key + (name,), v))
+        return buff
+
     def load_config_at_path(self, path):
         # First check the cache
         if str(path) in self._config_cache:
@@ -79,35 +117,27 @@ class ConfigLoader(object):
         # iterate this way round to make sure things overwrite is the right direction
         for fname in filename_options:
             if fname in d:
-                config = configparser.ConfigParser()
-                config.read(os.path.join(p, fname))
-                for k in config.sections():
-                    if k == 'sqlfluff':
-                        key = 'core'
-                    elif k.startswith('sqlfluff:'):
-                        key = k[len('sqlfluff:'):]
-                    else:
-                        # if it doesn't start with sqlfluff, then don't go
-                        # further on this iteration
-                        continue
-
-                    if key not in c:
-                        c[key] = {}
-
-                    for name, val in config.items(section=k):
-                        # Try to coerce it to a more specific type,
-                        # otherwise just make it a string.
-                        try:
-                            v = int(val)
-                        except ValueError:
-                            try:
-                                v = float(val)
-                            except ValueError:
-                                if val in ['True', 'False']:
-                                    v = bool(val)
-                                else:
-                                    v = val
-                        c[key][name] = v
+                elems = self._get_config_elems_from_file(os.path.join(p, fname))
+                # deal with elems
+                for k, v in elems:
+                    # Keep a ref we can use for recursion
+                    r = c
+                    # Get the name of the variable
+                    n = k[-1]
+                    # Get the path
+                    pth = k[:-1]
+                    for dp in pth:
+                        # Does this path exist?
+                        if dp in r:
+                            if isinstance(r[dp], dict):
+                                r = r[dp]
+                            else:
+                                raise ValueError("Overriding config value with section! [{0}]".format(k))
+                        else:
+                            r[dp] = {}
+                            r = r[dp]
+                    # Deal with the value itself
+                    r[n] = v
 
         # Store in the cache
         self._config_cache[str(path)] = c
