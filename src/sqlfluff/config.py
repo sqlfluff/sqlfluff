@@ -140,10 +140,14 @@ class ConfigLoader(object):
             last_path = given_path
             while True:
                 config_stack.insert(0, self.load_config_at_path(last_path))
-                # iterate up the directories
-                last_path = os.path.dirname(last_path)
                 if last_path == working_path:
                     break
+                # iterate up the directories
+                if last_path == os.path.dirname(last_path):
+                    # we're not making progres...
+                    # [prevent infinite loop]
+                    break
+                last_path = os.path.dirname(last_path)
             config_stack.insert(0, self.load_config_at_path(working_path))
         else:
             # we have divergent paths, we can only load config for that path and global
