@@ -97,13 +97,44 @@ class JinjaTemplateInterface(PythonTemplateInterface):
     name = 'jinja'
     _context_section = 'jinjacontext'
 
+    def _extract_macros_from_template(self, template, env):
+        """
+        Take a template string and extract any macros from it.
+
+        Lovingly inspired by http://codyaray.com/2015/05/auto-load-jinja2-macros
+        """
+        from jinja2.runtime import Macro  # noqa
+
+        # Iterate through keys exported from the loaded template string
+        context = {}
+        macro_template = env.from_string(template)
+        # This is kind of low level and hacky but it works
+        for k in macro_template.module.__dict__:
+            attr = getattr(macro_template.module, k)
+            # Is it a macro? If so install it at the name of the macro
+            if isinstance(attr, Macro):
+                context[k] = attr
+        # Return the context
+        return context
+
     def process(self, in_str, fname=None, config=None):
-        """ fname is so that we can load any config files in the FILE directory, or in the
-        file itself """
+        """
+        fname is so that we can load any config files in the FILE directory, or in the
+        file itself
+        """
         # No need to import this unless we're using this templater
-        from jinja2 import Environment  # noqa
+        from jinja2 import Environment, StrictUndefined  # noqa
         # We explicitly want to preserve newlines.
-        env = Environment(keep_trailing_newline=True)
+        env = Environment(keep_trailing_newline=True, undefined=StrictUndefined)
+
+        # Try loading macros
+        macro = ("{% macro some_macro(something) %}"
+                 "nothing({{something}})"
+                 "{% endmacro %}")
+        ctx = self._extract_macros_from_template(macro, env=env)
+        # Apply to globals
+        env.globals.update(ctx)
+
         template = env.from_string(in_str)
         live_context = self.get_context(fname=fname, config=config)
         try:
@@ -111,4 +142,5 @@ class JinjaTemplateInterface(PythonTemplateInterface):
             return out_str
         except Exception as err:
             # TODO: Add a url here so people can get more help.
-            raise SQLTemplaterError("Failure in Jinja templating: {0}. Have you configured your variables?".format(err))
+            raise SQLTemplaterError(
+                "Failure in Jinja templating: {0}. Have you configured your variables?".format(err))
