@@ -117,6 +117,24 @@ class JinjaTemplateInterface(PythonTemplateInterface):
         # Return the context
         return context
 
+    def _extract_macros_from_config(self, config, env):
+        """Take a config and load any macros from it."""
+        if config:
+            # This is now a nested section
+            loaded_context = config.get_section((self.templater_selector, self.name, 'macros')) or {}
+        else:
+            loaded_context = {}
+
+        # Iterate to load macros
+        macro_ctx = {}
+        for key in loaded_context:
+            macro_ctx.update(
+                self._extract_macros_from_template(
+                    loaded_context[key], env=env
+                )
+            )
+        return macro_ctx
+
     def process(self, in_str, fname=None, config=None):
         """
         fname is so that we can load any config files in the FILE directory, or in the
@@ -127,16 +145,14 @@ class JinjaTemplateInterface(PythonTemplateInterface):
         # We explicitly want to preserve newlines.
         env = Environment(keep_trailing_newline=True, undefined=StrictUndefined)
 
-        # Try loading macros
-        macro = ("{% macro some_macro(something) %}"
-                 "nothing({{something}})"
-                 "{% endmacro %}")
-        ctx = self._extract_macros_from_template(macro, env=env)
+        ctx = self._extract_macros_from_config(config=config, env=env)
         # Apply to globals
         env.globals.update(ctx)
 
         template = env.from_string(in_str)
         live_context = self.get_context(fname=fname, config=config)
+        if config:
+            print(config._configs)
         try:
             out_str = template.render(**live_context)
             return out_str

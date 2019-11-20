@@ -1,0 +1,26 @@
+# Testing that templating works as expected with macros
+file:
+  statement:
+    select_statement:
+      keyword: SELECT
+      select_target_group:
+      - select_target_element:
+          expression:
+          - numeric_literal: 3
+          - binary_operator: +
+          - numeric_literal: 6
+          keyword: as
+          naked_identifier: a
+      - keyword: ','
+      - select_target_element:
+          expression:
+          - numeric_literal: 7
+          - binary_operator: +
+          - numeric_literal: 14
+          keyword: as
+          naked_identifier: b
+      from_clause:
+        keyword: FROM
+        table_expression:
+          object_reference:
+            naked_identifier: some_table

@@ -41,12 +41,13 @@ def test__templater_jinja():
     assert outstr == 'SELECT * FROM f, o, o\n\n'
 
 
-def test__templater_config():
+def test__templater_config_scalar():
     lntr = Linter(config=FluffConfig())
     p = list(lntr.parse_path('test/fixtures/templater/jinja_a/jinja.sql'))
     parsed = p[0][0]
     if parsed is None:
         print(p)
+        raise RuntimeError(p[0][1])
     tpl = parsed.to_tuple(code_only=True, show_raw=True)
     assert tpl == ('file', (('statement', (('select_statement', (
         ('keyword', 'SELECT'), ('select_target_group', (('select_target_element', (('numeric_literal', '56'),)),)),
@@ -54,3 +55,15 @@ def test__templater_config():
             ('naked_identifier', 'sch1'), ('dot', '.'), ('naked_identifier', 'tbl2')
         )),))))
     )),)),))
+
+
+def test__templater_config_macro(yaml_loader):
+    lntr = Linter(config=FluffConfig())
+    p = list(lntr.parse_path('test/fixtures/templater/jinja_b/jinja.sql'))
+    parsed = p[0][0]
+    if parsed is None:
+        print(p)
+        raise RuntimeError(p[0][1])
+    tpl = parsed.to_tuple(code_only=True, show_raw=True)
+    expected = yaml_loader('test/fixtures/templater/jinja_b/jinja.yml')
+    assert tpl == expected

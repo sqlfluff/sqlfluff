@@ -8,7 +8,6 @@ and automatically tested against the appropriate dialect.
 import pytest
 import logging
 import os
-import oyaml
 
 from sqlfluff.parser.segments_base import ParseContext
 from sqlfluff.parser.segments_file import FileSegment
@@ -36,44 +35,14 @@ for d in os.listdir(os.path.join('test', 'fixtures', 'parser')):
                 parse_structure_examples.append((d, f, y))
 
 
+def make_dialect_path(dialect, fname):
+    return os.path.join('test', 'fixtures', 'parser', dialect, fname)
+
+
 def load_file(dialect, fname):
-    with open(os.path.join('test', 'fixtures', 'parser', dialect, fname)) as f:
+    with open(make_dialect_path(dialect, fname)) as f:
         raw = f.read()
     return raw
-
-
-def process_struct(obj):
-    if isinstance(obj, dict):
-        return tuple(
-            [(k, process_struct(obj[k])) for k in obj]
-        )
-    elif isinstance(obj, list):
-        # We'll assume that it's a list of dicts
-        if isinstance(obj[0], dict):
-            buff = [process_struct(elem) for elem in obj]
-            if any([len(elem) > 1 for elem in buff]):
-                raise ValueError("Not sure how to deal with multi key dict: {0!r}".format(buff))
-            return tuple(
-                [elem[0] for elem in buff]
-            )
-        else:
-            raise TypeError(
-                "Did not expect a list of {0}: {1!r}".format(
-                    type(obj[0]), obj[0]))
-    elif isinstance(obj, str):
-        return obj
-    elif isinstance(obj, int):
-        return str(obj)
-    else:
-        raise TypeError("Not sure how to deal with type {0}: {1!r}".format(
-            type(obj), obj))
-
-
-def load_struct(dialect, fname):
-    raw = load_file(dialect, fname)
-    obj = oyaml.safe_load(raw)
-    # Unwrap one layer of tuple
-    return process_struct(obj)[0]
 
 
 @pytest.mark.parametrize(
@@ -106,7 +75,7 @@ def test__dialect__ansi__base_file_parse(dialect, file, caplog):
     "dialect,sqlfile,yamlfile",
     parse_structure_examples
 )
-def test__dialect__ansi__base_parse_struct(dialect, sqlfile, yamlfile, caplog):
+def test__dialect__ansi__base_parse_struct(dialect, sqlfile, yamlfile, caplog, yaml_loader):
     """ Some simple statements to check full parsing structure """
     # Load the right dialect
     dia = dialect_selector(dialect)
@@ -115,7 +84,7 @@ def test__dialect__ansi__base_parse_struct(dialect, sqlfile, yamlfile, caplog):
     raw = load_file(dialect, sqlfile)
     fs = FileSegment.from_raw(raw)
     # Load the YAML
-    res = load_struct(dialect, yamlfile)
+    res = yaml_loader(make_dialect_path(dialect, yamlfile))
     with caplog.at_level(logging.DEBUG):
         parsed = fs.parse(parse_context=context)
     assert parsed.to_tuple(code_only=True, show_raw=True) == res

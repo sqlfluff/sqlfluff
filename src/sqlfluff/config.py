@@ -67,7 +67,8 @@ class ConfigLoader(object):
         the first is a tuple of paths, the second is the value at that path.
         """
         buff = []
-        config = configparser.ConfigParser()
+        # Disable interpolation so we can load macros
+        config = configparser.ConfigParser(interpolation=None)
         config.read(fpath)
         for k in config.sections():
             if k == 'sqlfluff':
