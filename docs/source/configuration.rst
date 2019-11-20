@@ -59,8 +59,9 @@ Variables are available in the *jinja* and *python* templaters. By default
 the templating engine will expect variables for templating to be available
 in the config, and the templater will be look in the section corresponding
 to the context for that templater. By convention, the config for the *jinja*
-templater is found in the *jinjacontext* section and the config for the
-*python* templater is found in the *pythoncontext* section.
+templater is found in the *sqlfluff:templater:jinja:context* section and the
+config for the *python* templater is found in the
+*sqlfluff:templater:python:context* section.
 
 For example, if passed the following *.sql* file:
 
@@ -72,7 +73,7 @@ For example, if passed the following *.sql* file:
 
 .. code-block:: cfg
 
-    [sqlfluff:jinjacontext]
+    [sqlfluff:templater:jinja:context]
     num_things=456
     tbl_name=my_table
 

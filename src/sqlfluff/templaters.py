@@ -36,6 +36,7 @@ def register_templater(cls):
 @register_templater
 class RawTemplateInterface(object):
     name = 'raw'
+    templater_selector = 'templater'
 
     def __init__(self, **kwargs):
         """ here we should load any initial config found in the root directory. The init
@@ -54,7 +55,6 @@ class RawTemplateInterface(object):
 @register_templater
 class PythonTemplateInterface(RawTemplateInterface):
     name = 'python'
-    _context_section = 'pythoncontext'
 
     def __init__(self, override_context=None, **kwargs):
         """ here we should load any initial config found in the root directory. The init
@@ -76,7 +76,8 @@ class PythonTemplateInterface(RawTemplateInterface):
         # TODO: The config loading should be done outside the templater code. Here
         # is a silly place.
         if config:
-            loaded_context = config.get_section(self._context_section) or {}
+            # This is now a nested section
+            loaded_context = config.get_section((self.templater_selector, self.name, 'context')) or {}
         else:
             loaded_context = {}
         live_context = {}
@@ -95,7 +96,6 @@ class PythonTemplateInterface(RawTemplateInterface):
 @register_templater
 class JinjaTemplateInterface(PythonTemplateInterface):
     name = 'jinja'
-    _context_section = 'jinjacontext'
 
     def _extract_macros_from_template(self, template, env):
         """

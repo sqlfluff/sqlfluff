@@ -251,4 +251,13 @@ class FluffConfig(object):
         return self._configs[section].get(val, None)
 
     def get_section(self, section):
-        return self._configs.get(section, None)
+        if isinstance(section, str):
+            return self._configs.get(section, None)
+        else:
+            # Try iterating
+            buff = self._configs
+            for sec in section:
+                buff = buff.get(sec, None)
+                if buff is None:
+                    return None
+            return buff
