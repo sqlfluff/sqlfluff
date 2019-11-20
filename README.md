@@ -63,7 +63,7 @@ about the architecture of sqlfluff, you can find [more here](https://sqlfluff.re
   - [x] Implement a context manager in the parse and match
         functions to avoid passing around so many variables.
   - [ ] Reenable disabled linter tests
-- [ ] Configurable linting
+- [x] Configurable linting
   - [x] Command line options for config
     - [x] Rough parity between command line and file based config
   - [x] Ability to read from config files
@@ -88,7 +88,7 @@ about the architecture of sqlfluff, you can find [more here](https://sqlfluff.re
   - [ ] Snowflake
   - [x] Detecting dialect from a config file of some kind
   - [x] jinja2 compatible linting (for dbt)
-    - [ ] a preconfigured default set of templating macros for dbt use which can be loaded
+    - [x] a preconfigured default set of templating macros for dbt use which can be loaded
           as config.
 - [ ] Documentation
   - [x] Basic architectural principles

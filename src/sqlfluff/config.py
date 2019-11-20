@@ -92,11 +92,46 @@ class ConfigLoader(object):
                     except ValueError:
                         if val in ['True', 'False']:
                             v = bool(val)
+                        elif val in ['None', 'none']:
+                            v = None
                         else:
                             v = val
                 # Add the name to the end of the key
                 buff.append((key + (name,), v))
         return buff
+
+    def _incorporate_vals(self, ctx, vals):
+        c = ctx
+        for k, v in vals:
+            # Keep a ref we can use for recursion
+            r = c
+            # Get the name of the variable
+            n = k[-1]
+            # Get the path
+            pth = k[:-1]
+            for dp in pth:
+                # Does this path exist?
+                if dp in r:
+                    if isinstance(r[dp], dict):
+                        r = r[dp]
+                    else:
+                        raise ValueError("Overriding config value with section! [{0}]".format(k))
+                else:
+                    r[dp] = {}
+                    r = r[dp]
+            # Deal with the value itself
+            r[n] = v
+        return c
+
+    def load_default_config_file(self):
+        """Load the default config file"""
+        elems = self._get_config_elems_from_file(
+            os.path.join(
+                os.path.dirname(__file__),
+                'default_config.cfg'
+            )
+        )
+        return self._incorporate_vals({}, elems)
 
     def load_config_at_path(self, path):
         # First check the cache
@@ -119,26 +154,7 @@ class ConfigLoader(object):
         for fname in filename_options:
             if fname in d:
                 elems = self._get_config_elems_from_file(os.path.join(p, fname))
-                # deal with elems
-                for k, v in elems:
-                    # Keep a ref we can use for recursion
-                    r = c
-                    # Get the name of the variable
-                    n = k[-1]
-                    # Get the path
-                    pth = k[:-1]
-                    for dp in pth:
-                        # Does this path exist?
-                        if dp in r:
-                            if isinstance(r[dp], dict):
-                                r = r[dp]
-                            else:
-                                raise ValueError("Overriding config value with section! [{0}]".format(k))
-                        else:
-                            r[dp] = {}
-                            r = r[dp]
-                    # Deal with the value itself
-                    r[n] = v
+                c = self._incorporate_vals(c, elems)
 
         # Store in the cache
         self._config_cache[str(path)] = c
@@ -191,20 +207,12 @@ class ConfigLoader(object):
 
 class FluffConfig(object):
     """ The class that actually gets passed around as a config object """
-    defaults = {'core': {
-        'verbose': 0,
-        'nocolor': False,
-        'dialect': 'ansi',
-        'templater': 'jinja',
-        'rules': None,
-        'exclude_rules': None,
-        'recurse': 0
-    }}
 
     def __init__(self, configs=None, overrides=None):
         self._overrides = overrides  # We only store this for child configs
+        defaults = ConfigLoader.get_global().load_default_config_file()
         self._configs = nested_combine(
-            self.defaults,
+            defaults,
             configs or {'core': {}},
             {'core': overrides or {}})
         # Some configs require special treatment
