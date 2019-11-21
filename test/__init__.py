@@ -1,1 +1,1 @@
-""" Init PY for tests """
+"""Init PY for tests."""
