@@ -1,5 +1,5 @@
 
-""" Contains SQL Dialects """
+""".Contains SQL Dialects."""
 
 from .dialect_ansi import ansi_dialect
 

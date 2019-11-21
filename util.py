@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 
-"""
-Utility strings for use during deployment.
+"""Utility strings for use during deployment.
 
 NB: This is not part of the core sqlfluff code.
 """
@@ -26,8 +25,7 @@ def cli():
 @cli.command()
 @click.option('--path', default='.test-reports')
 def clean_tests(path):
-    """
-    Clear up the tests directory.
+    """Clear up the tests directory.
 
     NB: Using scripts allows platform independence
     Makes a new one afterward

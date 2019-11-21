@@ -1,4 +1,4 @@
-""" The Test file for The New Parser (Marker Classes)"""
+"""The Test file for The New Parser (Grammar Classes)."""
 
 import pytest
 import logging
@@ -14,8 +14,11 @@ from sqlfluff.dialects import ansi_dialect
 
 
 def generate_test_segments(elems):
-    """ This function isn't totally robust, but good enough
-    for testing. Use with caution. """
+    """Roughly generate test segments.
+
+    This function isn't totally robust, but good enough
+    for testing. Use with caution.
+    """
     buff = []
     raw_buff = ''
     for elem in elems:
@@ -48,18 +51,20 @@ def generate_test_segments(elems):
 
 @pytest.fixture(scope="module")
 def seg_list():
+    """A preset list of segments for testing."""
     return generate_test_segments(['bar', ' \t ', 'foo', 'baar', ' \t '])
 
 
 @pytest.fixture(scope="module")
 def bracket_seg_list():
+    """Another preset list of segments for testing."""
     return generate_test_segments([
         'bar', ' \t ', '(', 'foo', '    ', ')', 'baar', ' \t ', 'foo'
     ])
 
 
 def test__parser__grammar__base__code_only_sensitive_match(seg_list):
-    """ Test the _code_only_sensitive_match method of the BaseGrammar """
+    """Test the _code_only_sensitive_match method of the BaseGrammar."""
     fs = KeywordSegment.make('foo')
     bs = KeywordSegment.make('bar')
     c = ParseContext()
@@ -78,7 +83,7 @@ def test__parser__grammar__base__code_only_sensitive_match(seg_list):
 
 
 def test__parser__grammar__base__look_ahead_match(seg_list):
-    """ Test the _look_ahead_match method of the BaseGrammar """
+    """Test the _look_ahead_match method of the BaseGrammar."""
     fs = KeywordSegment.make('foo')
     bs = KeywordSegment.make('bar')
     c = ParseContext()
@@ -102,7 +107,7 @@ def test__parser__grammar__base__look_ahead_match(seg_list):
 
 
 def test__parser__grammar__base__bracket_sensitive_look_ahead_match(bracket_seg_list):
-    """ Test the _bracket_sensitive_look_ahead_match method of the BaseGrammar """
+    """Test the _bracket_sensitive_look_ahead_match method of the BaseGrammar."""
     fs = KeywordSegment.make('foo')
     bs = KeywordSegment.make('bar')
     # We need a dialect here to do bracket matching
@@ -129,6 +134,7 @@ def test__parser__grammar__base__bracket_sensitive_look_ahead_match(bracket_seg_
 
 
 def test__parser__grammar_oneof(seg_list):
+    """Test the OneOf grammar."""
     fs = KeywordSegment.make('foo')
     bs = KeywordSegment.make('bar')
     g = OneOf(fs, bs, code_only=False)
@@ -141,6 +147,7 @@ def test__parser__grammar_oneof(seg_list):
 
 
 def test__parser__grammar_oneof_codeonly(seg_list, caplog):
+    """Test the OneOf grammar when using the code_only option."""
     fs = KeywordSegment.make('foo')
     bs = KeywordSegment.make('bar')
     g = OneOf(fs, bs)
@@ -155,6 +162,7 @@ def test__parser__grammar_oneof_codeonly(seg_list, caplog):
 
 
 def test__parser__grammar_sequence(seg_list, caplog):
+    """Test the Sequence grammar."""
     fs = KeywordSegment.make('foo')
     bs = KeywordSegment.make('bar')
     g = Sequence(bs, fs)
@@ -180,6 +188,7 @@ def test__parser__grammar_sequence(seg_list, caplog):
 
 
 def test__parser__grammar_sequence_nested(seg_list, caplog):
+    """Test the Sequence grammar when nested."""
     fs = KeywordSegment.make('foo')
     bs = KeywordSegment.make('bar')
     bas = KeywordSegment.make('baar')
@@ -201,6 +210,7 @@ def test__parser__grammar_sequence_nested(seg_list, caplog):
 
 
 def test__parser__grammar_delimited(caplog):
+    """Test the Delimited grammar."""
     seg_list = generate_test_segments(['bar', ' \t ', ',', '    ', 'bar', '    '])
     bs = KeywordSegment.make('bar')
     comma = KeywordSegment.make(',', name='comma')
@@ -232,6 +242,7 @@ def test__parser__grammar_delimited(caplog):
 
 
 def test__parser__grammar_delimited_not_code_only(caplog):
+    """Test the Delimited grammar when not code_only."""
     seg_list_a = generate_test_segments(['bar', ' \t ', '.', '    ', 'bar'])
     seg_list_b = generate_test_segments(['bar', '.', 'bar'])
     bs = KeywordSegment.make('bar')
@@ -249,8 +260,7 @@ def test__parser__grammar_delimited_not_code_only(caplog):
 
 
 def test__parser__grammar_greedyuntil(seg_list):
-    """ NB Greedy until should NOT match if the until
-    segment is present at all """
+    """Test the GreedyUntil grammar."""
     fs = KeywordSegment.make('foo')
     bs = KeywordSegment.make('bar')
     bas = KeywordSegment.make('baar')
@@ -267,8 +277,7 @@ def test__parser__grammar_greedyuntil(seg_list):
 
 
 def test__parser__grammar_greedyuntil_bracketed(bracket_seg_list):
-    """ NB Greedy until should NOT match if the until
-    segment is present at all """
+    """Test the GreedyUntil grammar with brackets."""
     fs = KeywordSegment.make('foo')
     g = GreedyUntil(fs, code_only=False)
     c = ParseContext(dialect=ansi_dialect)
@@ -277,6 +286,7 @@ def test__parser__grammar_greedyuntil_bracketed(bracket_seg_list):
 
 
 def test__parser__grammar_containsonly(seg_list):
+    """Test the ContainsOnly grammar."""
     fs = KeywordSegment.make('foo')
     bs = KeywordSegment.make('bar')
     bas = KeywordSegment.make('baar')

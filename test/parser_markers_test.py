@@ -1,9 +1,10 @@
-""" The Test file for The New Parser (Marker Classes)"""
+"""The Test file for The New Parser (Marker Classes)."""
 
 from sqlfluff.parser.markers import FilePositionMarker
 
 
 def test__parser__common_marker():
+    """Test construction and comparison of markers."""
     # test making one from fresh
     fp1 = FilePositionMarker.from_fresh()
     fp2 = fp1.advance_by('abc')
@@ -20,6 +21,7 @@ def test__parser__common_marker():
 
 
 def test__parser__common_marker_format():
+    """Test formatting of markers."""
     fp1 = FilePositionMarker(1, 2, 3, 0)
     # Check Formatting Style
     assert str(fp1) == "[0](1, 2, 3)"

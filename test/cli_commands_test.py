@@ -1,4 +1,4 @@
-""" The Test file for CLI (General) """
+"""The Test file for CLI (General)."""
 
 import configparser
 import tempfile
@@ -13,6 +13,7 @@ from sqlfluff.cli.commands import lint, version, rules, fix, parse
 
 
 def invoke_assert_code(ret_code=0, args=None, kwargs=None):
+    """Invoke a command and check return code."""
     args = args or []
     kwargs = kwargs or {}
     runner = CliRunner()
@@ -25,7 +26,7 @@ def invoke_assert_code(ret_code=0, args=None, kwargs=None):
 
 
 def test__cli__command_directed():
-    """ Basic checking of lint functionality """
+    """Basic checking of lint functionality."""
     result = invoke_assert_code(
         ret_code=65,
         args=[lint, ['-n', 'test/fixtures/linter/indentation_error_simple.sql']]
@@ -39,7 +40,7 @@ def test__cli__command_directed():
 
 
 def test__cli__command_dialect():
-    """ Check the script raises the right exception on an unknown dialect """
+    """Check the script raises the right exception on an unknown dialect."""
     # The dialect is unknown should be a non-zero exit code
     invoke_assert_code(
         ret_code=66,
@@ -48,11 +49,7 @@ def test__cli__command_dialect():
 
 
 def test__cli__command_lint_a():
-    """
-    Check basic commands on a simple script.
-    The subprocess command should exit without errors, as
-    no issues should be found.
-    """
+    """Check basic commands on a simple script."""
     # Not verbose
     invoke_assert_code(args=[lint, ['-n', 'test/fixtures/cli/passing_a.sql']])
     # Verbose
@@ -77,58 +74,37 @@ def test__cli__command_lint_stdin(command):
 
 
 def test__cli__command_lint_b():
-    """
-    Check basic commands on a more complicated script.
-    The subprocess command should exit without errors, as
-    no issues should be found.
-    """
+    """Check basic commands on a more complicated script."""
     invoke_assert_code(args=[lint, ['-n', 'test/fixtures/cli/passing_b.sql']])
 
 
 def test__cli__command_parse():
-    """
-    Check parse command
-    """
+    """Check parse command."""
     invoke_assert_code(args=[parse, ['-n', 'test/fixtures/cli/passing_b.sql']])
 
 
 def test__cli__command_lint_c_rules_single():
-    """
-    Check that only checking for a single specific rule using the cli works.
-    The subprocess command should exit without erros, as
-    no issues should be found.
-    """
+    """Check that only checking for a single specific rule using the cli works."""
     invoke_assert_code(args=[lint, ['-n', '--rules', 'L001', 'test/fixtures/linter/operator_errors.sql']])
 
 
 def test__cli__command_lint_c_rules_multi():
-    """
-    Check that only checking for multiple specific rules using the cli works.
-    The subprocess command should exit without erros, as
-    no issues should be found.
-    """
+    """Check that only checking for multiple specific rules using the cli works."""
     invoke_assert_code(args=[lint, ['-n', '--rules', 'L001,L002', 'test/fixtures/linter/operator_errors.sql']])
 
 
 def test__cli__command_lint_c_exclude_rules_single():
-    """
-    Check that only excluding a single specific rule using the cli works.
-    The subprocess command should exit without erros, as
-    no issues should be found.
-    """
+    """Check that only excluding a single specific rule using the cli works."""
     invoke_assert_code(args=[lint, ['-n', '--rules', 'L001,L006', '--exclude-rules', 'L006', 'test/fixtures/linter/operator_errors.sql']])
 
 
 def test__cli__command_lint_c_exclude_rules_multi():
-    """
-    Check that excluding multiple specific rules using the cli works.
-    The subprocess command should exit without erros, as
-    no issues should be found.
-    """
+    """Check that excluding multiple specific rules using the cli works."""
     invoke_assert_code(args=[lint, ['-n', '--exclude-rules', 'L006,L007', 'test/fixtures/linter/operator_errors.sql']])
 
 
 def test__cli__command_versioning():
+    """Check version command."""
     # Get the package version info
     pkg_version = sqlfluff.__version__
     # Get the version info from the config file
@@ -145,7 +121,7 @@ def test__cli__command_versioning():
 
 
 def test__cli__command_version():
-    """ Just check version command for exceptions """
+    """Just check version command for exceptions."""
     # Get the package version info
     pkg_version = sqlfluff.__version__
     runner = CliRunner()
@@ -159,12 +135,16 @@ def test__cli__command_version():
 
 
 def test__cli__command_rules():
-    """ Just check rules command for exceptions """
+    """Just check rules command for exceptions."""
     invoke_assert_code(args=[rules])
 
 
 def generic_roundtrip_test(source_file, rulestring):
-    """ A test for roundtrip testing, take a file buffer, lint, fix and lint """
+    """A test for roundtrip testing, take a file buffer, lint, fix and lint.
+
+    This is explicitly different from the linter version of this, in that
+    it uses the command line rather than the direct api.
+    """
     filename = 'tesing.sql'
     # Lets get the path of a file to use
     tempdir_path = tempfile.mkdtemp()
@@ -183,18 +163,18 @@ def generic_roundtrip_test(source_file, rulestring):
 
 
 def test__cli__command__fix_L001():
-    """ Test the round trip of detecting, fixing and then not detecting rule L001 """
+    """Test the round trip of detecting, fixing and then not detecting rule L001."""
     with open('test/fixtures/linter/indentation_errors.sql', mode='r') as f:
         generic_roundtrip_test(f, 'L001')
 
 
 def test__cli__command__fix_L008_a():
-    """ Test the round trip of detecting, fixing and then not detecting rule L001 """
+    """Test the round trip of detecting, fixing and then not detecting rule L001."""
     with open('test/fixtures/linter/whitespace_errors.sql', mode='r') as f:
         generic_roundtrip_test(f, 'L008')
 
 
 def test__cli__command__fix_L008_b():
-    """ Test the round trip of detecting, fixing and then not detecting rule L001 """
+    """Test the round trip of detecting, fixing and then not detecting rule L001."""
     with open('test/fixtures/linter/indentation_errors.sql', mode='r') as f:
         generic_roundtrip_test(f, 'L008')

@@ -1,4 +1,4 @@
-""" __init__.py for sqlfluff """
+"""Sqlfluff is a SQL linter for humans."""
 
 import configparser
 import pkg_resources

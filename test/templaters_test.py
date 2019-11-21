@@ -1,6 +1,4 @@
-"""
-Tests for templaters.
-"""
+"""Tests for templaters."""
 
 import pytest
 
@@ -11,6 +9,7 @@ from sqlfluff.config import FluffConfig
 
 
 def test__templater_selection():
+    """Test template selection by name."""
     assert templater_selector().__class__ is JinjaTemplateInterface
     assert templater_selector('raw').__class__ is RawTemplateInterface
     assert templater_selector('python').__class__ is PythonTemplateInterface
@@ -20,6 +19,7 @@ def test__templater_selection():
 
 
 def test__templater_raw():
+    """Test the raw templater."""
     t = RawTemplateInterface()
     instr = 'SELECT * FROM {{blah}}'
     outstr = t.process(instr)
@@ -27,6 +27,7 @@ def test__templater_raw():
 
 
 def test__templater_python():
+    """Test the python templater."""
     t = PythonTemplateInterface(override_context=dict(blah='foo'))
     instr = 'SELECT * FROM {blah}'
     outstr = t.process(instr)
@@ -34,7 +35,7 @@ def test__templater_python():
 
 
 def test__templater_jinja():
-    """ NB We're explicitly checking the final newline treatment too """
+    """Test jinja templating and the treatment of whitespace."""
     t = JinjaTemplateInterface(override_context=dict(blah='foo'))
     instr = 'SELECT * FROM {% for c in blah %}{{c}}{% if not loop.last %}, {% endif %}{% endfor %}\n\n'
     outstr = t.process(instr)
@@ -42,6 +43,7 @@ def test__templater_jinja():
 
 
 def assert_structure(yaml_loader, path, code_only=True):
+    """Check that a parsed sql file matches the yaml file with the same name."""
     lntr = Linter(config=FluffConfig())
     p = list(lntr.parse_path(path + '.sql'))
     parsed = p[0][0]
@@ -55,12 +57,15 @@ def assert_structure(yaml_loader, path, code_only=True):
 
 
 def test__templater_config_scalar(yaml_loader):
+    """Check basic jinja substitution works."""
     assert_structure(yaml_loader, 'test/fixtures/templater/jinja_a/jinja')
 
 
 def test__templater_config_macro(yaml_loader):
+    """Check that configurable macros work."""
     assert_structure(yaml_loader, 'test/fixtures/templater/jinja_b/jinja', code_only=False)
 
 
 def test__templater_config_dbt(yaml_loader):
+    """Check that the built in dbt macros work."""
     assert_structure(yaml_loader, 'test/fixtures/templater/jinja_c_dbt/dbt_builtins')
