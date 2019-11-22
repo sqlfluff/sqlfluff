@@ -18,7 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Fixed a bug which could cause potential infinite recursion in configuration
-
+- Changed how negative literals are handled, so that they're now a compound segment
+  rather than being identified at the lexing stage. This is to allow the parser
+  to resolve the potential ambiguity.
 
 ## [0.1.5] - 2019-11-11
 

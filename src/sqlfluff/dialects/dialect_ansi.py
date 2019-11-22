@@ -105,7 +105,8 @@ ansi_dialect.add(
     IntoKeywordSegment=KeywordSegment.make('into'),
     # Some more grammars:
     LiteralGrammar=OneOf(
-        Ref('QuotedLiteralSegment'), Ref('NumericLiteralSegment'), Ref('BooleanLiteralGrammar')
+        Ref('QuotedLiteralSegment'), Ref('NumericLiteralSegment'),
+        Ref('BooleanLiteralGrammar'), Ref('QualifiedNumericLiteralSegment')
     ),
 )
 
@@ -131,6 +132,20 @@ class ObjectReferenceSegment(BaseSegment):
 class AliasedObjectReferenceSegment(BaseSegment):
     type = 'object_reference'
     match_grammar = Sequence(Ref('ObjectReferenceSegment'), Ref('AliasExpressionGrammar'))
+
+
+@ansi_dialect.segment()
+class QualifiedNumericLiteralSegment(BaseSegment):
+    """The qualified numeric literal is a compound of a raw
+    literal and a plus/minus sign. We do it this way rather
+    than at the lexing step because the lexer doesn't deal
+    well with ambiguity."""
+
+    type = 'numeric_literal'
+    match_grammar = Sequence(
+        OneOf(Ref('PlusSegment'), Ref('MinusSegment')),
+        Ref('NumericLiteralSegment'),
+        code_only=False)
 
 
 @ansi_dialect.segment()

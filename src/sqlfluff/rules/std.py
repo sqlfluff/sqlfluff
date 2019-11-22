@@ -167,78 +167,65 @@ def L006_fix(segment, memory, parent_stack, **kwargs):
 
     # TODO: Check that the memory works in NESTED expressions
 
+    def _handle_previous_segments(segments_since_code, anchor, this_segment, fixes):
+        """Handle the list of previous segments and return the new anchor and fixes.
+
+        NB: This function mutates `fixes`.
+        """
+
+        WhitespaceSegment = RawSegment.make(' ', name='whitespace')
+
+        if len(segments_since_code) == 0:
+            fixes.append(
+                LintFix(
+                    'create', this_segment,
+                    WhitespaceSegment(raw=' ', pos_marker=this_segment.pos_marker))
+            )
+        elif len(segments_since_code) > 1:
+            # TODO: This is a case we should deal with, but there are probably
+            # some cases that SHOULDNT apply here (like comments and newlines)
+            # so let's deal with them later
+            anchor = None
+            pass
+        else:
+            # We know it's just one thing.
+            gap_seg = segments_since_code[-1]
+            if gap_seg.raw != ' ':
+                # It's not just a single space
+                anchor = gap_seg
+                fixes.append(
+                    LintFix(
+                        'edit', gap_seg,
+                        WhitespaceSegment(raw=' ', pos_marker=gap_seg.pos_marker))
+                )
+            else:
+                # We have just the right amount of whitespace!
+                # Unset our signal.
+                anchor = None
+                pass
+        return anchor, fixes
+
     # anchor is our signal as to whether there's a problem
     anchor = None
     fixes = []
-    WhitespaceSegment = RawSegment.make(' ', name='whitespace')
+
     # The parent stack tells us whether we're in an expression or not.
     if parent_stack and parent_stack[-1].type == 'expression':
         if segment.is_code:
             # This is code, what kind?
             if segment.type in ['binary_operator', 'comparison_operator']:
                 # It's an operator, we can evaluate whitespace before it.
-                anchor = segment
-                if len(memory['since_code']) == 0:
-                    fixes.append(
-                        LintFix(
-                            'create', segment,
-                            WhitespaceSegment(raw=' ', pos_marker=segment.pos_marker))
-                    )
-                elif len(memory['since_code']) > 1:
-                    # TODO: This is a case we should deal with, but there are probably
-                    # some cases that SHOULDNT apply here (like comments and newlines)
-                    # so let's deal with them later
-                    anchor = None
-                    pass
-                else:
-                    # We know it's just one thing.
-                    gap_seg = memory['since_code'][-1]
-                    if gap_seg.raw != ' ':
-                        # It's not just a single space
-                        anchor = gap_seg
-                        fixes.append(
-                            LintFix(
-                                'edit', gap_seg,
-                                WhitespaceSegment(raw=' ', pos_marker=gap_seg.pos_marker))
-                        )
-                    else:
-                        # We have just the right amount of whitespace!
-                        # Unset our signal.
-                        anchor = None
-                        pass
+                anchor, fixes = _handle_previous_segments(
+                    memory['since_code'], anchor=segment, this_segment=segment,
+                    fixes=fixes)
             else:
                 # It's not an operator, we can evaluate what happened after an
                 # operator if that's the last code we saw.
                 if memory['last_code'] and memory['last_code'].type in ['binary_operator', 'comparison_operator']:
                     # Evaluate whitespace AFTER the operator
-                    if len(memory['since_code']) == 0:
-                        fixes.append(
-                            LintFix(
-                                'create', segment,
-                                WhitespaceSegment(raw=' ', pos_marker=segment.pos_marker))
-                        )
-                    elif len(memory['since_code']) > 1:
-                        # TODO: This is a case we should deal with, but there are probably
-                        # some cases that SHOULDNT apply here (like comments and newlines)
-                        # so let's deal with them later
-                        anchor = None
-                        pass
-                    else:
-                        # We know it's just one thing.
-                        gap_seg = memory['since_code'][-1]
-                        if gap_seg.raw != ' ':
-                            # It's not just a single space
-                            anchor = gap_seg
-                            fixes.append(
-                                LintFix(
-                                    'edit', gap_seg,
-                                    WhitespaceSegment(raw=' ', pos_marker=gap_seg.pos_marker))
-                            )
-                        else:
-                            # We have just the right amount of whitespace!
-                            # Unset our signal.
-                            anchor = None
-                            pass
+                    anchor, fixes = _handle_previous_segments(
+                        memory['since_code'], anchor=memory['last_code'],
+                        this_segment=segment, fixes=fixes)
                 else:
                     # This isn't an operator, and the thing before it wasn't
                     # either. I don't think that's an issue for now.
