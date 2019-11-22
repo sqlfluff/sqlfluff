@@ -1,15 +1,19 @@
-""" Defines the base dialect class """
+"""Defines the base dialect class."""
 
 
 class Dialect(object):
-    """ Serves as the basis for runtime resolution of Grammar """
+    """Serves as the basis for runtime resolution of Grammar.
+
+    Args:
+        name (:obj:`str`): The name of the dialect, used for lookup.
+
+    """
     def __init__(self, name):
         self._library = {}
         self.name = name
 
     def segment(self):
-        """
-        This is the decorator for elements, it should be called as a method.
+        """This is the decorator for elements, it should be called as a method.
 
         e.g.
         @dialect.segment()
@@ -18,7 +22,7 @@ class Dialect(object):
 
         """
         def segment_wrap(cls):
-            """ This inner function is applied to classes to register them """
+            """Wrap a segment and register it against the dialect."""
             n = cls.__name__
             if n in self._library:
                 raise ValueError("{0!r} is already registered in {1!r}".format(n, self))
@@ -30,7 +34,8 @@ class Dialect(object):
         return segment_wrap
 
     def add(self, **kwargs):
-        """
+        """Add a segment to the dialect directly.
+
         This is the alternative to the decorator route, most useful for segments
         defined using `make`. Segments are passed in as kwargs.
 
@@ -47,8 +52,7 @@ class Dialect(object):
                 self._library[n] = kwargs[n]
 
     def ref(self, name):
-        """ Return an object which acts as a late binding reference to
-        the element named """
+        """Return an object which acts as a late binding reference to the element named."""
         if name in self._library:
             res = self._library[name]
             if res:
