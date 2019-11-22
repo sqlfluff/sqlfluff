@@ -1,3 +1,7 @@
+"""Implements the FilePositionMarker class.
+
+This class is a construct to keep track of positions within a file.
+"""
 
 from collections import namedtuple
 
@@ -5,7 +9,17 @@ protoFilePositionMarker = namedtuple('FilePositionMarker', ['statement_index', '
 
 
 class FilePositionMarker(protoFilePositionMarker):
+    """This class is a construct to keep track of positions within a file."""
+
     def advance_by(self, raw="", idx=0):
+        """Construct a new `FilePositionMarker` at a point ahead of this one.
+
+        Args:
+            raw (:obj:`str`): The string to indicate how we should advance
+                the position.
+            idx (:obj:`int`, optional): The statement index to advance by.
+
+        """
         stmt = self.statement_index
         line = self.line_no
         pos = self.line_pos
@@ -21,7 +35,11 @@ class FilePositionMarker(protoFilePositionMarker):
 
     @classmethod
     def from_fresh(cls):
-        # Defines what a fresh one of these looks like
+        """Construct a fresh position marker.
+
+        This should be the default way of creating a new postion marker, and
+        is where we define what the `start` of a file looks like.
+        """
         return cls(1, 1, 1, 0)
 
     def __str__(self):

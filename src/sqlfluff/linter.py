@@ -1,4 +1,4 @@
-""" Defines the linter class """
+"""Defines the linter class."""
 
 import os
 from collections import namedtuple
@@ -13,40 +13,59 @@ from .cli.formatters import format_linting_path, format_file_violations
 
 
 class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tree'])):
+    """A class to store the idea of a linted file."""
     __slots__ = ()
 
     def check_tuples(self):
-        return [v.check_tuple() for v in self.violations]
+        """Make a list of check_tuples.
+
+        This assumes that all the violations found are
+        linting violations (and therefore implement `check_tuple()`).
+        If they don't then this function raises that error.
+        """
+        vs = []
+        for v in self.violations:
+            if hasattr(v, 'check_tuple'):
+                vs.append(v.check_tuple())
+            else:
+                raise v
+        return vs
 
     def num_violations(self):
+        """Count the number of violations."""
         return len(self.violations)
 
     def is_clean(self):
+        """Return True if there are no violations."""
         return len(self.violations) == 0
 
     def persist_tree(self):
-        """ We don't validate here, we just apply corrections to a path """
+        """Persist changes to the given path."""
         with open(self.path, 'w') as f:
             # TODO: We should probably have a seperate function for checking what's
             # already there and doing a diff. For now we'll just go an overwrite.
             f.write(self.tree.raw)
         # TODO: Make this return value more interesting...
+        # TODO: Deal with templating and fixing elegantly.
         return True
 
 
 class LintedPath(object):
+    """A class to store the idea of a collection of linted files at a single start path."""
     def __init__(self, path):
         self.files = []
         self.path = path
 
     def add(self, file):
+        """Add a file to this path."""
         self.files.append(file)
 
     def check_tuples(self, by_path=False):
-        """
-        Just compress all the tuples into one list
+        """Compress all the tuples into one list.
+
         NB: This is a little crude, as you can't tell which
         file the violations are from. Good for testing though.
+        For more control set the `by_path` argument to true.
         """
         if by_path:
             return {file.path: file.check_tuples() for file in self.files}
@@ -57,12 +76,15 @@ class LintedPath(object):
             return tuple_buffer
 
     def num_violations(self):
+        """Count the number of violations in the path."""
         return sum([file.num_violations() for file in self.files])
 
     def violations(self):
+        """Return a dict of violations by file path."""
         return {file.path: file.violations for file in self.files}
 
     def stats(self):
+        """Return a dict containing linting stats about this path."""
         return dict(
             files=len(self.files),
             clean=sum([file.is_clean() for file in self.files]),
@@ -71,11 +93,18 @@ class LintedPath(object):
         )
 
     def persist_changes(self):
+        """Persist changes to files in the given path."""
         # Run all the fixes for all the files and return a dict
         return {file.path: file.persist_tree() for file in self.files}
 
 
 class LintingResult(object):
+    """A class to represent the result of a linting operation.
+
+    Notably this might be a collection of paths, all with multiple
+    potential files within them.
+    """
+
     def __init__(self, rule_whitelist=None):
         self.paths = []
         # Store the rules we're using
@@ -83,13 +112,13 @@ class LintingResult(object):
 
     @staticmethod
     def sum_dicts(d1, d2):
-        """ Take the keys of two dictionaries and add them """
+        """Take the keys of two dictionaries and add them."""
         keys = set(d1.keys()) | set(d2.keys())
         return {key: d1.get(key, 0) + d2.get(key, 0) for key in keys}
 
     @staticmethod
     def combine_dicts(*d):
-        """ Take any set of dictionaries and combine them """
+        """Take any set of dictionaries and combine them."""
         dict_buffer = {}
         for dct in d:
             dict_buffer.update(dct)
