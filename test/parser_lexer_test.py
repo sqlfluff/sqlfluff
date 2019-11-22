@@ -47,7 +47,9 @@ def assert_matches(instring, matcher, matchstring):
         ("abc # comment \nblah", ['abc', ' ', "# comment ", "\n", "blah"]),
         ("abc /* comment \nblah*/", ['abc', ' ', "/* comment \nblah*/"]),
         # Test Singletons
-        ("*-+bd/", ['*', '-', '+', 'bd', '/'])
+        ("*-+bd/", ['*', '-', '+', 'bd', '/']),
+        # Test Negatives and Minus
+        ("2+4 -5", ['2', '+', '4', ' ', '-', '5'])
     ]
 )
 def test__parser__lexer_obj(raw, res, caplog):

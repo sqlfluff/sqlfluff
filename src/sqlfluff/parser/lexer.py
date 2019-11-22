@@ -150,7 +150,8 @@ class Lexer(object):
             RegexMatcher.from_shorthand("single_quote", r"'[^']*'", is_code=True),
             RegexMatcher.from_shorthand("double_quote", r'"[^"]*"', is_code=True),
             RegexMatcher.from_shorthand("back_quote", r"`[^`]*`", is_code=True),
-            RegexMatcher.from_shorthand("numeric_literal", r"(-?[0-9]+(\.[0-9]+)?)", is_code=True),
+            # The numeric literal explicitly doesn't include the minus sign. We deal with that at parse.
+            RegexMatcher.from_shorthand("numeric_literal", r"([0-9]+(\.[0-9]+)?)", is_code=True),
             RegexMatcher.from_shorthand("greater_than_or_equal", r">=", is_code=True),
             RegexMatcher.from_shorthand("less_than_or_equal", r"<=", is_code=True),
             RegexMatcher.from_shorthand("newline", r"\r\n"),

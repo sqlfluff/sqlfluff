@@ -146,9 +146,15 @@ class FunctionSegment(BaseSegment):
     parse_grammar = Sequence(
         Ref('FunctionNameSegment'),
         Bracketed(
-            Delimited(
-                Ref('ExpressionSegment'),
-                delimiter=Ref('CommaSegment')
+            OneOf(
+                # Most functions will be using the delimited route
+                # but for COUNT(*) or similar we allow the star segment
+                # here.
+                Ref('StarSegment'),
+                Delimited(
+                    Ref('ExpressionSegment'),
+                    delimiter=Ref('CommaSegment')
+                )
             )
         ),
         code_only=False

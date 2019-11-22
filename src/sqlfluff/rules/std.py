@@ -147,7 +147,7 @@ def L005_fix(segment, raw_stack, **kwargs):
     # We need at least one segments behind us for this to work
     if len(raw_stack) >= 1:
         cm1 = raw_stack[-1]
-        if segment.name == 'comma' and cm1.name == 'whitespace':
+        if segment.name == 'comma' and cm1.name in ['whitespace', 'newline']:
             return LintResult(anchor=cm1, fixes=[LintFix('delete', cm1)])
 
 

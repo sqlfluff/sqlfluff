@@ -32,7 +32,7 @@ def test__linter__path_from_paths__file():
     assert normalise_paths(paths) == set(['test.fixtures.linter.indentation_errors.sql'])
 
 
-def test__linter__path_from_paths_dot():
+def test__linter__path_from_paths__dot():
     """Test extracting paths from a dot."""
     lntr = Linter(config=FluffConfig())
     paths = lntr.paths_from_path('.')
@@ -82,9 +82,9 @@ def test__linter__lint_file_whitespace():
     lntr = Linter(config=FluffConfig())
     lnt = lntr.lint_path('test/fixtures/linter/whitespace_errors.sql')
     violations = lnt.check_tuples()
-    # Check we get comma (with leading space) whitespace errors
-    # assert ('L005', 2, 8) in violations
-    # assert ('L005', 4, 0) in violations
+    # Check we get comma (with leading space/newline) whitespace errors
+    assert ('L005', 2, 9) in violations
+    assert ('L005', 3, 33) in violations
     # Check we get comma (with incorrect trailing space) whitespace errors
     assert ('L008', 3, 12) in violations
     # Check for no false positives on line 4 or 5
@@ -92,49 +92,49 @@ def test__linter__lint_file_whitespace():
     assert not any([v[1] == 5 for v in violations])
 
 
-# TODO: Renable these tests
-# def test__linter__lint_file_operators():
-#    lntr = Linter(config=FluffConfig())
-#    lnt = lntr.lint_path('test/fixtures/linter/operator_errors.sql')
-#    # Check the Num violations command while we're here
-#    assert lnt.num_violations() == 3
-#    violations = lnt.check_tuples()
-#    # Check we get comma whitespace errors
-#    assert ('L006', 3, 9) in violations
-#    assert ('L006', 4, 8) in violations
-#    assert ('L007', 5, 8) in violations
+def test__linter__lint_file_operators():
+    """Test linting operators."""
+    lntr = Linter(config=FluffConfig())
+    lnt = lntr.lint_path('test/fixtures/linter/operator_errors.sql')
+    # Check the Num violations command while we're here
+    assert lnt.num_violations() == 3
+    violations = lnt.check_tuples()
+    # Check we get comma whitespace errors
+    assert ('L006', 3, 9) in violations
+    assert ('L006', 4, 8) in violations
+    assert ('L007', 5, 8) in violations
 
 
-# def test__linter__lint_file_operators_paths():
-#    """ Same as the above test, but called via lint_paths """
-#    lntr = Linter(config=FluffConfig())
-#    lnt = lntr.lint_paths(['test/fixtures/linter/operator_errors.sql'])
-#    # Check the Num violations command while we're here
-#    assert lnt.num_violations() == 3
-#    violations = lnt.check_tuples()
-#    # Check we get comma whitespace errors
-#    assert ('L006', 3, 9) in violations
-#    assert ('L006', 4, 8) in violations
-#    assert ('L007', 5, 8) in violations
+def test__linter__lint_file_operators_paths():
+    """Test linting operators, but called via lint_paths."""
+    lntr = Linter(config=FluffConfig())
+    lnt = lntr.lint_paths(['test/fixtures/linter/operator_errors.sql'])
+    # Check the Num violations command while we're here
+    assert lnt.num_violations() == 3
+    violations = lnt.check_tuples()
+    # Check we get comma whitespace errors
+    assert ('L006', 3, 9) in violations
+    assert ('L006', 4, 8) in violations
+    assert ('L007', 5, 8) in violations
 
 
-# def test__linter__lint_file_operators_negative():
-#    lntr = Linter(config=FluffConfig())
-#    f = StringIO(u"SELECT\n    a  -  b as c,\n    -2 as d\n    a - b as e\nFROM tbl\n")
-#    lnt = lntr.lint_file(f)
-#    violations = lnt.check_tuples()
-#    # Check we only get one violation and it's the first
-#    assert violations == [('L006', 2, 7)]
+def test__linter__lint_file_operators_negative():
+    """Test that negative signs don't get linted wrongly."""
+    lntr = Linter(config=FluffConfig())
+    f = "SELECT\n    a  -  b as c,\n    -2 as d\n    a - b as e\n,\n    4-7 as f\nFROM tbl\n"
+    lnt = lntr.lint_string(f)
+    violations = lnt.check_tuples()
+    # Check we only get one violation and it's the first
+    assert violations == [('L006', 2, 7)]
 
 
-# def test__linter__lint_file_operators_star():
-#    """ Test the exception to the operator rule, allowing a star in brackets """
-#    lntr = Linter(config=FluffConfig())
-#    f = StringIO(u"SELECT COUNT(*) FROM tbl")
-#    lnt = lntr.lint_file(f)
-#    violations = lnt.check_tuples()
-#    # Check that this is allowed
-#    assert violations == []
+def test__linter__lint_file_operators_star():
+    """Test the exception to the operator rule, allowing a star in brackets."""
+    lntr = Linter(config=FluffConfig())
+    lnt = lntr.lint_string("SELECT COUNT(*) FROM tbl\n")
+    violations = lnt.check_tuples()
+    # Check that this is allowed
+    assert violations == []
 
 
 @pytest.mark.parametrize(
