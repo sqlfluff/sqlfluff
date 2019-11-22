@@ -144,7 +144,7 @@ L004 = BaseCrawler(
 
 
 def L005_fix(segment, raw_stack, **kwargs):
-    # We need at least one segments behind us for this to work
+    # We need at least one segment behind us for this to work
     if len(raw_stack) >= 1:
         cm1 = raw_stack[-1]
         if segment.name == 'comma' and cm1.name in ['whitespace', 'newline']:
@@ -155,6 +155,116 @@ L005 = BaseCrawler(
     'L005',
     'Commas should not have whitespace directly before them',
     evaluate_function=L005_fix
+)
+
+
+# L006 - Operators should be surrounded by a single whitespace
+
+
+def L006_fix(segment, memory, parent_stack, **kwargs):
+    # We use the memory to keep track of whitespace up to now, and
+    # whether the last code segment was an operator or not.
+
+    # TODO: Check that the memory works in NESTED expressions
+
+    # anchor is our signal as to whether there's a problem
+    anchor = None
+    fixes = []
+    WhitespaceSegment = RawSegment.make(' ', name='whitespace')
+    # The parent stack tells us whether we're in an expression or not.
+    if parent_stack and parent_stack[-1].type == 'expression':
+        if segment.is_code:
+            # This is code, what kind?
+            if segment.type in ['binary_operator', 'comparison_operator']:
+                # It's an operator, we can evaluate whitespace before it.
+                anchor = segment
+                if len(memory['since_code']) == 0:
+                    fixes.append(
+                        LintFix(
+                            'create', segment,
+                            WhitespaceSegment(raw=' ', pos_marker=segment.pos_marker))
+                    )
+                elif len(memory['since_code']) > 1:
+                    # TODO: This is a case we should deal with, but there are probably
+                    # some cases that SHOULDNT apply here (like comments and newlines)
+                    # so let's deal with them later
+                    anchor = None
+                    pass
+                else:
+                    # We know it's just one thing.
+                    gap_seg = memory['since_code'][-1]
+                    if gap_seg.raw != ' ':
+                        # It's not just a single space
+                        anchor = gap_seg
+                        fixes.append(
+                            LintFix(
+                                'edit', gap_seg,
+                                WhitespaceSegment(raw=' ', pos_marker=gap_seg.pos_marker))
+                        )
+                    else:
+                        # We have just the right amount of whitespace!
+                        # Unset our signal.
+                        anchor = None
+                        pass
+            else:
+                # It's not an operator, we can evaluate what happened after an
+                # operator if that's the last code we saw.
+                if memory['last_code'] and memory['last_code'].type in ['binary_operator', 'comparison_operator']:
+                    # Evaluate whitespace AFTER the operator
+                    if len(memory['since_code']) == 0:
+                        fixes.append(
+                            LintFix(
+                                'create', segment,
+                                WhitespaceSegment(raw=' ', pos_marker=segment.pos_marker))
+                        )
+                    elif len(memory['since_code']) > 1:
+                        # TODO: This is a case we should deal with, but there are probably
+                        # some cases that SHOULDNT apply here (like comments and newlines)
+                        # so let's deal with them later
+                        anchor = None
+                        pass
+                    else:
+                        # We know it's just one thing.
+                        gap_seg = memory['since_code'][-1]
+                        if gap_seg.raw != ' ':
+                            # It's not just a single space
+                            anchor = gap_seg
+                            fixes.append(
+                                LintFix(
+                                    'edit', gap_seg,
+                                    WhitespaceSegment(raw=' ', pos_marker=gap_seg.pos_marker))
+                            )
+                        else:
+                            # We have just the right amount of whitespace!
+                            # Unset our signal.
+                            anchor = None
+                            pass
+                else:
+                    # This isn't an operator, and the thing before it wasn't
+                    # either. I don't think that's an issue for now.
+                    pass
+            # Prepare memory for later
+            memory['last_code'] = segment
+            memory['since_code'] = []
+        else:
+            # This isn't a code segment...
+            # Prepare memory for later
+            memory['since_code'].append(segment)
+    else:
+        # Reset the memory if we're not in an expression
+        memory = {'last_code': None, 'since_code': []}
+
+    # Anchor is our signal as to whether there's a problem
+    if anchor:
+        return LintResult(anchor=anchor, memory=memory, fixes=fixes)
+    else:
+        return LintResult(memory=memory)
+
+
+L006 = BaseCrawler(
+    'L006',
+    'Operators should be surrounded by a single whitespace',
+    evaluate_function=L006_fix
 )
 
 
@@ -227,4 +337,4 @@ L009 = BaseCrawler(
 )
 
 
-standard_rule_set = [L001, L002, L003, L004, L005, L008, L009]
+standard_rule_set = [L001, L002, L003, L004, L005, L006, L008, L009]

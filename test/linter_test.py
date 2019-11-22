@@ -96,22 +96,22 @@ def test__linter__lint_file_operators():
     """Test linting operators."""
     lntr = Linter(config=FluffConfig())
     lnt = lntr.lint_path('test/fixtures/linter/operator_errors.sql')
-    # Check the Num violations command while we're here
-    assert lnt.num_violations() == 3
     violations = lnt.check_tuples()
-    # Check we get comma whitespace errors
-    assert ('L006', 3, 9) in violations
-    assert ('L006', 4, 8) in violations
-    assert ('L007', 5, 8) in violations
+    # Check we get operator whitespace errors
+    assert ('L006', 3, 8) in violations
+    assert ('L006', 4, 10) in violations
+    assert ('L007', 5, 8) in violations  # TODO: This one needs work
 
 
 def test__linter__lint_file_operators_negative():
     """Test that negative signs don't get linted wrongly."""
-    lntr = Linter(config=FluffConfig())
+    lntr = Linter(config=FluffConfig(overrides=dict(rules='L006')))
     lnt = lntr.lint_paths(['test/fixtures/linter/operator_errors_negative.sql'])
     violations = lnt.check_tuples()
-    # Check we only get one violation and it's the first
-    assert violations == [('L006', 2, 7)]
+    # Check we DO get a violation on line 2
+    assert ('L006', 2, 6) in violations
+    # Check we DON'T get a violation on line 3
+    assert not any([v[1] == 3 for v in violations])
 
 
 def test__linter__lint_file_operators_star():
