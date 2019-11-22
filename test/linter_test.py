@@ -105,24 +105,10 @@ def test__linter__lint_file_operators():
     assert ('L007', 5, 8) in violations
 
 
-def test__linter__lint_file_operators_paths():
-    """Test linting operators, but called via lint_paths."""
-    lntr = Linter(config=FluffConfig())
-    lnt = lntr.lint_paths(['test/fixtures/linter/operator_errors.sql'])
-    # Check the Num violations command while we're here
-    assert lnt.num_violations() == 3
-    violations = lnt.check_tuples()
-    # Check we get comma whitespace errors
-    assert ('L006', 3, 9) in violations
-    assert ('L006', 4, 8) in violations
-    assert ('L007', 5, 8) in violations
-
-
 def test__linter__lint_file_operators_negative():
     """Test that negative signs don't get linted wrongly."""
     lntr = Linter(config=FluffConfig())
-    f = "SELECT\n    a  -  b as c,\n    -2 as d\n    a - b as e\n,\n    4-7 as f\nFROM tbl\n"
-    lnt = lntr.lint_string(f)
+    lnt = lntr.lint_paths(['test/fixtures/linter/operator_errors_negative.sql'])
     violations = lnt.check_tuples()
     # Check we only get one violation and it's the first
     assert violations == [('L006', 2, 7)]
