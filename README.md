@@ -77,6 +77,8 @@ about the architecture of sqlfluff, you can find [more here](https://sqlfluff.re
   - [ ] Delta-configs for individual files printed before each above some
         level of verbosity.
   - [x] Work out a solution to templating *macros*.
+  - [ ] Allow configuration for *rules*, e.g. indentation multiplier for
+        L003 or the capitalisation for the keyword rule.
 - [x] Dialects
   - [ ] ANSI
     - [ ] Implement singleton matching for `::`, `:` and `||`.
@@ -93,3 +95,7 @@ about the architecture of sqlfluff, you can find [more here](https://sqlfluff.re
 - [ ] Documentation
   - [x] Basic architectural principles
   - [ ] Update CLI docs to match current state
+  - [ ] Auto-document Rules
+  - [ ] Auto-document Grammars
+  - [ ] Auto-document Templaters
+  - [ ] Auto-docuemnt Dialects

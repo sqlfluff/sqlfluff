@@ -1,4 +1,4 @@
-""" CLI helper utilities """
+"""CLI helper utilities."""
 
 from six import StringIO
 import sys
@@ -16,8 +16,11 @@ color_lookup = {
 }
 
 
-# American Spelling... :(
 def colorize(s, color=None):
+    """Use ANSI colour codes to colour a string.
+
+    The name of this function is in American. I'm sorry :(.
+    """
     if color:
         start_tag = color_lookup[color]
         end_tag = u"\u001b[0m"
@@ -27,22 +30,26 @@ def colorize(s, color=None):
 
 
 def get_python_version():
+    """Get the current python version as a string."""
     return "{0[0]}.{0[1]}.{0[2]}".format(sys.version_info)
 
 
 def get_package_version():
+    """Get the current version of the sqlfluff package."""
     return pkg_version
 
 
 def wrap_elem(s, width):
-    """ take a string, and attempt to wrap into a list of strings all less than <width> """
+    """Take a string, and attempt to wrap into a list of strings all less than <width>."""
     return textwrap.wrap(s, width=width)
 
 
 def wrap_field(label, val, width, max_label_width=10, sep_char=': '):
-    """
-    Wrap a field (label, val)
-    Return a dict of {label_list, val_list, sep_char, lines}
+    """Wrap a field (label, val).
+
+    Returns:
+        A dict of {label_list, val_list, sep_char, lines}
+
     """
     if len(label) > max_label_width:
         label_list = wrap_elem(label, width=max_label_width)
@@ -64,6 +71,7 @@ def wrap_field(label, val, width, max_label_width=10, sep_char=': '):
 
 
 def pad_line(s, width, align='left'):
+    """Pad a string with a given alignment to a specific width with spaces."""
     gap = width - len(s)
     if gap <= 0:
         return s
@@ -77,9 +85,7 @@ def pad_line(s, width, align='left'):
 
 def cli_table_row(fields, col_width, max_label_width=10, sep_char=': ', divider_char=' ',
                   label_color='lightgrey', val_align='right'):
-    """
-    Make a row of a CLI table, using wrapped values.
-    """
+    """Make a row of a CLI table, using wrapped values."""
     # Do some intel first
     cols = len(fields)
     last_col_idx = cols - 1
@@ -122,7 +128,7 @@ def cli_table_row(fields, col_width, max_label_width=10, sep_char=': ', divider_
 def cli_table(fields, col_width=20, cols=2, divider_char=' ', sep_char=': ',
               label_color='lightgrey', float_format="{0:.2f}", max_label_width=10,
               val_align='right'):
-    """ make a crude ascii table, assuming that `fields` is an iterable of (label, value) pairs """
+    """Make a crude ascii table, assuming that `fields` is an iterable of (label, value) pairs."""
     # First format all the values into strings
     formatted_fields = []
     for label, value in fields:

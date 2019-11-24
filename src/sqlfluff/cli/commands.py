@@ -15,7 +15,6 @@ from ..config import FluffConfig
 
 def common_options(f):
     """Add common options to commands via a decorator."""
-
     f = click.option('-v', '--verbose', count=True,
                      help=('Verbosity, how detailed should the output be. This is *stackable*, so `-vv`'
                            ' is more verbose than `-v`. For the most verbose option try `-vvvv` or `-vvvvv`.'))(f)
@@ -72,7 +71,7 @@ def get_linter(cfg):
 
 @click.group()
 def cli():
-    """sqlfluff is a modular sql linter for humans."""
+    """Sqlfluff is a modular sql linter for humans."""
     pass
 
 

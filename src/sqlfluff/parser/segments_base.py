@@ -1,5 +1,4 @@
-"""
-Base segment definitions
+"""Base segment definitions.
 
 Here we define:
 - BaseSegment. This is the root class for all segments, and is
@@ -10,7 +9,7 @@ Here we define:
   function failed on this block of segments and to prevent further
   analysis.
 
-These are the fundamental building blocks.
+These are the fundamental building blocks of the rest of the parser.
 """
 
 import logging
@@ -21,6 +20,7 @@ from ..errors import SQLLintError
 
 
 def verbosity_logger(msg, verbosity=0, level='info', v_level=3):
+    """Log or print based on configuration."""
     if verbosity >= v_level:
         print(msg)
     else:
@@ -29,6 +29,7 @@ def verbosity_logger(msg, verbosity=0, level='info', v_level=3):
 
 
 def parse_match_logging(grammar, func, msg, parse_context, v_level, **kwargs):
+    """Log in a particular consistent format for use while matching."""
     s = "[PD:{0} MD:{1}]\t{2:<50}\t{3:<20}".format(
         parse_context.parse_depth, parse_context.match_depth,
         ('.' * parse_context.match_depth) + str(parse_context.match_segment),
@@ -43,10 +44,12 @@ def parse_match_logging(grammar, func, msg, parse_context, v_level, **kwargs):
 
 
 def frame_msg(msg):
+    """Frame a message with hashes so that it covers five lines."""
     return "###\n#\n# {0}\n#\n###".format(msg)
 
 
 def check_still_complete(segments_in, matched_segments, unmatched_segments):
+    """Check that the segments in are the same as the segments out."""
     initial_str = join_segments_raw(segments_in)
     current_str = join_segments_raw(
         matched_segments + unmatched_segments
@@ -58,18 +61,22 @@ def check_still_complete(segments_in, matched_segments, unmatched_segments):
 
 
 class ParseContext(object):
-    """ We expect that an object (or copy of this object) will be passed
-    around rather than the individual variables as before """
+    """The context for parsing. It holds configuration and rough state.
+
+    We expect that an object (or copy of this object) will be passed
+    around rather than the individual variables for parse and match depth
+    as before.
+    """
 
     __slots__ = ['match_depth', 'parse_depth', 'verbosity', 'dialect', 'match_segment', 'recurse']
 
     def __init__(self, dialect=None, verbosity=0, match_depth=0, parse_depth=0, match_segment=None, recurse=True):
-        # Write all the variables in a DRY way. Yes it's a bit convoluted
+        # Write all the variables in a DRY way. Yes it's a bit convoluted. Sorry.
         for k in self.__slots__:
             setattr(self, k, locals()[k])
 
     def copy(self, incr=None, decr=None, **kwargs):
-        """ Make a copy of the parse context with some edited variables """
+        """Make a copy of the parse context, optionally with some edited variables."""
         current_vals = {k: getattr(self, k) for k in self.__slots__}
         current_vals.update(kwargs or {})
         # Increment
@@ -89,10 +96,28 @@ class ParseContext(object):
 
     @classmethod
     def from_config(cls, config):
+        """Construct a `ParseContext` from a `FluffConfig`."""
         return cls(dialect=config.get('dialect_obj'), recurse=config.get('recurse'))
 
 
 class BaseSegment(object):
+    """The base segment element.
+
+    This defines the base element which drives both Lexing, Parsing and Linting.
+    A large chunk of the logic which defines those three operations are centered
+    here. Much of what is defined in the BaseSegment is also used by it's many
+    subclasses rather than directly here.
+
+    For clarity, the `BaseSement` is mostly centered around a segment which contains
+    other subsegments. For segments which don't have *children*, refer to the `RawSegment`
+    class (which still inherits from this one).
+
+    Segments are used both as instances to hold chunks of text, but also as classes
+    themselves where they function a lot like grammars, and return instances of themselves
+    when they match. The many classmethods in this class are usually to serve their
+    purpose as a matcher.
+    """
+
     type = 'base'
     parse_grammar = None
     match_grammar = None
@@ -106,10 +131,17 @@ class BaseSegment(object):
 
     @property
     def name(self):
+        """The name of this segment.
+
+        The reason for two routes for names is that some subclasses
+        might want to overrise the name rather than just getting it
+        the class name.
+        """
         return self._name or self.__class__.__name__
 
     @property
     def is_expandable(self):
+        """Return true if it is meaningful to call `expand` on this segment."""
         if self._parse_grammar():
             return True
         else:
@@ -117,18 +149,26 @@ class BaseSegment(object):
 
     @property
     def is_code(self):
+        """Return True if this segment contains any code."""
         return any([seg.is_code for seg in self.segments])
 
     @property
     def is_comment(self):
+        """Return True if this is entirely made of comments."""
         return all([seg.is_comment for seg in self.segments])
 
     @classmethod
     def is_optional(cls):
+        """Return True if this segment is optional.
+
+        This is used primarily in sequence matching, where optional
+        segments can be skipped.
+        """
         return cls.optional
 
     @classmethod
     def _match_grammar(self):
+        """Return the `match_grammar` attribute if present, or the `grammar` attribute if not."""
         if self.match_grammar:
             return self.match_grammar
         else:
@@ -136,14 +176,14 @@ class BaseSegment(object):
 
     @classmethod
     def _parse_grammar(self):
-        # return self.parse_grammar
+        """Return the `parse_grammar` attribute if present, or the `grammar` attribute if not."""
         if self.parse_grammar:
             return self.parse_grammar
         else:
             return self.grammar
 
     def validate_segments(self, text="constructing"):
-        # Check elements of segments:
+        """Check the elements of the `segments` attribute are all themselves segments."""
         for elem in self.segments:
             if not isinstance(elem, BaseSegment):
                 raise TypeError(
@@ -193,15 +233,17 @@ class BaseSegment(object):
 
     @classmethod
     def from_raw(cls, raw):
+        """Instantiate a segment from a string. This is only implemented for the `FileSegment`."""
         raise NotImplementedError("from_raw is not implemented for {0}".format(cls.__name__))
 
     def parse(self, parse_context=None):
-        """ Use the parse kwarg for testing, mostly to check how deep to go.
-        True/False for yes or no, an integer allows a certain number of levels """
+        """Use the parse grammar to find subsegments within this segment.
 
-        # We should call the parse grammar on this segment, which calls
-        # the match grammar on all it's children.
+        A large chunk of the logic around this can be found in the `expand` method.
 
+        Use the parse setting in the context for testing, mostly to check how deep to go.
+        True/False for yes or no, an integer allows a certain number of levels.
+        """
         if not parse_context.dialect:
             raise RuntimeError("No dialect provided to {0!r}!".format(self))
 
@@ -289,17 +331,23 @@ class BaseSegment(object):
             self.pos_marker)
 
     def _reconstruct(self):
+        """Make a string from the segments of this segment."""
         return "".join([seg._reconstruct() for seg in self.segments])
 
     @property
     def raw(self):
+        """Make a string from the segments of this segment."""
         return self._reconstruct()
 
     def _suffix(self):
-        """ NB Override this for specific subclassesses if we want extra output """
+        """Return any extra output required at the end when logging.
+
+        NB Override this for specific subclassesses if we want extra output.
+        """
         return ""
 
     def _preface(self, ident, tabsize, pos_idx, raw_idx):
+        """Returns the preamble to any logging."""
         preface = (' ' * (ident * tabsize)) + self.__class__.__name__ + ":"
         preface = preface + (' ' * max(pos_idx - len(preface), 0)) + str(self.pos_marker)
         sfx = self._suffix()
@@ -310,13 +358,16 @@ class BaseSegment(object):
 
     @property
     def _comments(self):
+        """Returns only the comment elements of this segment."""
         return [seg for seg in self.segments if seg.type == 'comment']
 
     @property
     def _non_comments(self):
+        """Returns only the non-comment elements of this segment."""
         return [seg for seg in self.segments if seg.type != 'comment']
 
     def stringify(self, ident=0, tabsize=4, pos_idx=60, raw_idx=80):
+        """Use indentation to render this segment and it's children as a string."""
         buff = StringIO()
         preface = self._preface(ident=ident, tabsize=tabsize, pos_idx=pos_idx, raw_idx=raw_idx)
         buff.write(preface + '\n')
@@ -336,9 +387,11 @@ class BaseSegment(object):
 
     @staticmethod
     def segs_to_tuple(segs, **kwargs):
+        """Return a tuple structure from an iterable of segments."""
         return tuple([seg.to_tuple(**kwargs) for seg in segs])
 
     def to_tuple(self, **kwargs):
+        """Return a tuple structure from this segment."""
         # works for both base and raw
         code_only = kwargs.get('code_only', False)
         show_raw = kwargs.get('show_raw', False)
@@ -349,15 +402,17 @@ class BaseSegment(object):
         else:
             return (self.type, tuple([seg.to_tuple(**kwargs) for seg in self.segments]))
 
-    # Match for segments is done in the ABSTRACT.
-    # When dealing with concrete then we're always in parse.
-    # Parse is what happens during expand.
     @classmethod
     def match(cls, segments, parse_context):
-        """
-            Matching can be done from either the raw or the segments.
-            This raw function can be overridden, or a grammar defined
-            on the underlying class.
+        """Match a list of segments against this segment.
+
+        Note: Match for segments is done in the ABSTRACT.
+        When dealing with concrete then we're always in parse.
+        Parse is what happens during expand.
+
+        Matching can be done from either the raw or the segments.
+        This raw function can be overridden, or a grammar defined
+        on the underlying class.
         """
         if cls._match_grammar():
             # Call the private method
@@ -382,7 +437,7 @@ class BaseSegment(object):
 
     @classmethod
     def _match(cls, segments, parse_context):
-        """ A wrapper on the match function to do some basic validation and logging """
+        """A wrapper on the match function to do some basic validation and logging."""
         parse_match_logging(
             cls.__name__, '_match', 'IN', parse_context=parse_context,
             v_level=4, ls=len(segments))
@@ -417,6 +472,7 @@ class BaseSegment(object):
 
     @staticmethod
     def expand(segments, parse_context):
+        """Expand the list of child segments using their `parse` methods."""
         segs = tuple()
         for stmt in segments:
             try:
@@ -445,26 +501,26 @@ class BaseSegment(object):
         return segs
 
     def raw_list(self):
-        """ List of raw elements, mostly for testing or searching """
+        """Return a list of raw elements, mostly for testing or searching."""
         buff = []
         for s in self.segments:
             buff += s.raw_list()
         return buff
 
     def iter_raw_seg(self):
-        """ Iterate raw segments, mostly for searching """
+        """Iterate raw segments, mostly for searching."""
         for s in self.segments:
             for seg in s.iter_raw_seg():
                 yield seg
 
     def iter_unparsables(self):
-        """ Iterate through any unparsables this segment may contain """
+        """Iterate through any unparsables this segment may contain."""
         for s in self.segments:
             for u in s.iter_unparsables():
                 yield u
 
     def type_set(self):
-        """ A set of the types contained, mostly for testing """
+        """Return a set of the types contained, mostly for testing."""
         typs = set([self.type])
         for s in self.segments:
             typs |= s.type_set()
@@ -478,24 +534,31 @@ class BaseSegment(object):
                 and (self.pos_marker == other.pos_marker))
 
     def __len__(self):
-        """ implement a len method to make everyone's lives easier """
+        """Implement a len method to make everyone's lives easier."""
         return 1
 
     def is_raw(self):
+        """Return True if this segment has no children."""
         return len(self.segments) == 0
 
     @classmethod
     def expected_string(cls, dialect=None, called_from=None):
-        """ This is never going to be called on an _instance_
+        """Return the expected string for this segment.
+
+        This is never going to be called on an _instance_
         but rather on the class, as part of a grammar, and therefore
-        as part of the matching phase. So we use the match grammar."""
+        as part of the matching phase. So we use the match grammar.
+        """
         return cls._match_grammar().expected_string(dialect=dialect, called_from=called_from)
 
     @classmethod
     def as_optional(cls):
-        """ Used in constructing grammars, will make an identical class
+        """Construct a copy of this class, but with the optional flag set true.
+
+        Used in constructing grammars, will make an identical class
         but with the optional argument set to true. Used in constructing
-        sequences """
+        sequences.
+        """
         # Now lets make the classname (it indicates the mother class for clarity)
         classname = "Optional_{0}".format(cls.__name__)
         # This is the magic, we generate a new class! SORCERY
@@ -505,13 +568,16 @@ class BaseSegment(object):
         return newclass
 
     def apply_fixes(self, fixes):
-        """ Used in applying fixes if we're fixing linting errors.
-        If anything changes, this should return a new version of the segment
-        rather than mutating the original. """
-        # We need to have fixes to apply AND this must have children. In the case
-        # of raw segments, they will be replaced or removed by their parent and
-        # so this function should just return self.
+        """Apply an iterable of fixes to this segment.
 
+        Used in applying fixes if we're fixing linting errors.
+        If anything changes, this should return a new version of the segment
+        rather than mutating the original.
+
+        Note: We need to have fixes to apply AND this must have children. In the case
+        of raw segments, they will be replaced or removed by their parent and
+        so this function should just return self.
+        """
         # Let's check what we've been given.
         if fixes and isinstance(fixes[0], SQLLintError):
             logging.error("Transforming `fixes` from errors into a list of fixes")
@@ -587,15 +653,20 @@ class BaseSegment(object):
             return self, fixes
 
     def realign(self):
-        """ realign returns a copy of this class with the pos_markers realigned,
-        this is used mostly during fixes """
+        """Realign the positions in this segment.
 
-        # Realign is recursive. We will assume that the pos_marker of THIS segment is
-        # truthful, and that during recursion it will have been set by the parent.
+        Returns:
+            a copy of this class with the pos_markers realigned.
 
-        # This function will align the pos marker if it's direct children, we then
-        # recurse to realign their children.
+        Note: this is used mostly during fixes.
 
+        Realign is recursive. We will assume that the pos_marker of THIS segment is
+        truthful, and that during recursion it will have been set by the parent.
+
+        This function will align the pos marker if it's direct children, we then
+        recurse to realign their children.
+
+        """
         seg_buffer = []
         todo_buffer = list(self.segments)
         running_pos = self.pos_marker
@@ -642,9 +713,8 @@ class BaseSegment(object):
 
 
 class RawSegment(BaseSegment):
-    """ This is a segment without any subsegments,
-    it could be postprocessed later, but then it would be
-    a different class. """
+    """This is a segment without any subsegments."""
+
     type = 'raw'
     _is_code = False
     _is_comment = False
@@ -653,14 +723,17 @@ class RawSegment(BaseSegment):
 
     @property
     def is_expandable(self):
+        """Return true if it is meaningful to call `expand` on this segment."""
         return False
 
     @property
     def is_code(self):
+        """Return True if this segment is code."""
         return self._is_code
 
     @property
     def is_comment(self):
+        """Return True if this segment is a comment."""
         return self._is_comment
 
     def __init__(self, raw, pos_marker):
@@ -669,25 +742,28 @@ class RawSegment(BaseSegment):
         self.pos_marker = pos_marker
 
     def iter_raw_seg(self):
-        """ Iterate raw segments, mostly for searching """
+        """Iterate raw segments, mostly for searching."""
         yield self
 
     @property
     def segments(self):
-        """ in case we need to iterate """
+        """Return an empty list of child segments.
+
+        This is in case something tries to iterate on this segment.
+        """
         return []
-        # A Raw segments, has no segments, it's empty
-        # raise RuntimeError("Trying to iterate on a RawSegment!")
-        # return [self]
 
     def raw_list(self):
+        """Return a list of the raw content of this segment."""
         return [self.raw]
 
     @property
     def raw(self):
+        """Return a strong of the raw content of this segment."""
         return self._raw
 
     def _reconstruct(self):
+        """Return a strong of the raw content of this segment."""
         return self.raw
 
     def __repr__(self):
@@ -697,16 +773,20 @@ class RawSegment(BaseSegment):
             self.raw)
 
     def stringify(self, ident=0, tabsize=4, pos_idx=60, raw_idx=80):
+        """Use indentation to render this segment and it's children as a string."""
         preface = self._preface(ident=ident, tabsize=tabsize, pos_idx=pos_idx, raw_idx=raw_idx)
         return preface + '\n'
 
     def _suffix(self):
+        """Return any extra output required at the end when logging.
+
+        NB Override this for specific subclassesses if we want extra output.
+        """
         return "{0!r}".format(self.raw)
 
     @classmethod
-    def make(cls, template, case_sensitive=False, name=None,
-             # type=None, is_code=None. USE KWARGS FOR THESE
-             **kwargs):
+    def make(cls, template, case_sensitive=False, name=None, **kwargs):
+        """Make a subclass of the segment using a method."""
         # Let's deal with the template first
         if case_sensitive:
             _template = template
@@ -724,8 +804,14 @@ class RawSegment(BaseSegment):
         return newclass
 
     def edit(self, raw):
-        # Create a new segment, with exactly the same position.
-        # Return a copy with new contents
+        """Create a new segment, with exactly the same position but different content.
+
+        Returns:
+            A copy of this object with new contents.
+
+        Used mostly by fixes.
+
+        """
         return self.__class__(
             raw=raw,
             pos_marker=self.pos_marker
@@ -733,6 +819,8 @@ class RawSegment(BaseSegment):
 
 
 class UnparsableSegment(BaseSegment):
+    """This is a segment which can't be parsed. It indicates a error during parsing."""
+
     type = 'unparsable'
     # From here down, comments are printed seperately.
     comment_seperate = True
@@ -743,8 +831,15 @@ class UnparsableSegment(BaseSegment):
         super(UnparsableSegment, self).__init__(*args, **kwargs)
 
     def _suffix(self):
+        """Return any extra output required at the end when logging.
+
+        NB Override this for specific subclassesses if we want extra output.
+        """
         return "!! Expected: {0!r}".format(self._expected)
 
     def iter_unparsables(self):
-        """ As this is an unparsable, it should yield itself """
+        """Iterate through any unparsables.
+
+        As this is an unparsable, it should yield itself.
+        """
         yield self

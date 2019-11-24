@@ -1,4 +1,4 @@
-""" Definitions for Grammar """
+"""Definitions for Grammar."""
 import logging
 
 from .segments_base import (BaseSegment, check_still_complete, parse_match_logging)
@@ -8,14 +8,17 @@ from ..helpers import get_time
 
 
 class BaseGrammar(object):
-    """ Grammars are a way of composing match statements, any grammar
-    must implment the `match` function. Segments can also be passed to
-    most grammars. Segments implement `match` as a classmethod. Grammars
-    implement it as an instance method """
+    """Grammars are a way of composing match statements.
+
+    Any grammar must implment the `match` function. Segments can also be
+    passed to most grammars. Segments implement `match` as a classmethod. Grammars
+    implement it as an instance method.
+
+    """
     v_level = 3
 
     def __init__(self, *args, **kwargs):
-        """ Deal with kwargs common to all grammars """
+        """Deal with kwargs common to all grammars."""
         # We provide a common interface for any grammar that allows positional elements
         self._elements = args
         # Now we deal with the standard kwargs
@@ -30,19 +33,23 @@ class BaseGrammar(object):
             ))
 
     def is_optional(self):
-        # The optional attribute is set in the __init__ method
+        """Return whether this segment is optional.
+
+        The optional attribute is set in the __init__ method.
+        """
         return self.optional
 
     def match(self, segments, parse_context):
-        """
-            Matching can be done from either the raw or the segments.
-            This raw function can be overridden, or a grammar defined
-            on the underlying class.
+        """Match a list of segments against this segment.
+
+        Matching can be done from either the raw or the segments.
+        This raw function can be overridden, or a grammar defined
+        on the underlying class.
         """
         raise NotImplementedError("{0} has no match function implemented".format(self.__class__.__name__))
 
     def _match(self, segments, parse_context):
-        """ A wrapper on the match function to do some basic validation """
+        """A wrapper on the match function to do some basic validation."""
         t0 = get_time()
 
         if isinstance(segments, BaseSegment):
@@ -90,15 +97,14 @@ class BaseGrammar(object):
         return m
 
     def expected_string(self, dialect=None, called_from=None):
-        """ Return a String which is helpful to understand what this grammar expects """
+        """Return a String which is helpful to understand what this grammar expects."""
         raise NotImplementedError(
             "{0} does not implement expected_string!".format(
                 self.__class__.__name__))
 
     @classmethod
     def _code_only_sensitive_match(cls, segments, matcher, parse_context, code_only=True):
-        """ A Kind of wrapped version of _match which deals with
-        non-code elements at the start and end """
+        """Match, but also deal with leading and trailing non-code."""
         if code_only:
             seg_buff = segments
             pre_ws = []
@@ -140,14 +146,15 @@ class BaseGrammar(object):
 
     @classmethod
     def _longest_code_only_sensitive_match(cls, segments, matchers, parse_context, code_only=True):
-        """ A wrapper around the code sensitive match to find the *best* match
-        from a selection of matchers.
+        """Match like `_code_only_sensitive_match` but return longest match from a selection of matchers.
 
         Prioritise the first match, and if multiple match at the same point the longest.
         If two matches of the same length match at the same time, then it's the first in
         the iterable of matchers.
 
-        Return value is a tuple of (match_object, matcher)
+        Returns:
+            `tuple` of (match_object, matcher).
+
         """
         # Do some type munging
         matchers = list(matchers)
@@ -192,7 +199,8 @@ class BaseGrammar(object):
 
     @classmethod
     def _look_ahead_match(cls, segments, matchers, parse_context, code_only=True):
-        """
+        """Look ahead for matches beyond the first element of the segments list.
+
         Look ahead in a bracket sensitive way to find the next occurance of a particular
         matcher(s). When a match is found, it is returned, along with any preceeding
         (unmatched) segments, and a reference to the matcher which eventually matched it.
@@ -203,7 +211,9 @@ class BaseGrammar(object):
         If two matches of the same length match at the same time, then it's the first in
         the iterable of matchers.
 
-        Return value is a tuple of (unmatched_segments, match_object, matcher)
+        Returns:
+            `tuple` of (unmatched_segments, match_object, matcher).
+
         """
         # Do some type munging
         matchers = list(matchers)
@@ -240,9 +250,11 @@ class BaseGrammar(object):
 
     @classmethod
     def _bracket_sensitive_look_ahead_match(cls, segments, matchers, parse_context, code_only=True):
-        """
-        Same as above, the return value is a tuple of (unmatched_segments, match_object, matcher).
-        The difference is that under the hood it's also doing bracket counting.
+        """Same as `_look_ahead_match` but with bracket counting.
+
+        Returns:
+            `tuple` of (unmatched_segments, match_object, matcher).
+
         """
         # Type munging
         matchers = list(matchers)
@@ -352,12 +364,12 @@ class BaseGrammar(object):
 
 
 class Ref(BaseGrammar):
-    """ A kind of meta-grammar that allows other defined grammars to be referenced
-    at runtime from the dialect """
+    """A kind of meta-grammar that references other grammars by name at runtime."""
     # Log less for Ref
     v_level = 4
 
     def _get_ref(self):
+        """Get the name of the thing we're referencing."""
         # Unusually for a grammar we expect _elements to be a list of strings.
         # Notable ONE string for now.
         if len(self._elements) == 1:
@@ -369,6 +381,7 @@ class Ref(BaseGrammar):
                     self._elements))
 
     def _get_elem(self, dialect):
+        """Get the actual object we're referencing."""
         if dialect:
             # Use the dialect to retrieve the grammar it refers to.
             return dialect.ref(self._get_ref())
@@ -376,6 +389,12 @@ class Ref(BaseGrammar):
             raise ReferenceError("No Dialect has been provided to Ref grammar!")
 
     def match(self, segments, parse_context):
+        """Match a list of segments against this segment.
+
+        Matching can be done from either the raw or the segments.
+        This raw function can be overridden, or a grammar defined
+        on the underlying class.
+        """
         elem = self._get_elem(dialect=parse_context.dialect)
 
         if elem:
@@ -388,7 +407,7 @@ class Ref(BaseGrammar):
             raise ValueError("Null Element returned! _elements: {0!r}".format(self._elements))
 
     def expected_string(self, dialect=None, called_from=None):
-        """ pass through to the referenced method """
+        """Get the expected string from the referenced element."""
         elem = self._get_elem(dialect=dialect)
         if called_from and self._get_ref() in called_from:
             # This means we're in recursion so we should stop here.
@@ -407,28 +426,38 @@ class Ref(BaseGrammar):
 
 
 class Anything(BaseGrammar):
-    """ See the match method desription for the full details """
+    """Matches anything."""
+
     def match(self, segments, parse_context):
-        """
-        Matches... Anything. Most useful in match grammars, where
-        a later parse grammmar will work out what's inside.
+        """Matches... Anything.
+
+        Most useful in match grammars, where a later parse grammmar
+        will work out what's inside.
         """
         return MatchResult.from_matched(segments)
 
     def expected_string(self, dialect=None, called_from=None):
+        """A hint to the user on what this grammar expects."""
         return " <anything> "
 
 
 class OneOf(BaseGrammar):
-    """ Match any of the elements given once, if it matches
-    multiple, it returns the longest, and if any are the same
-    length it returns the first (unless we explicitly just match first)"""
+    """Match any of the elements given once.
+
+    If it matches multiple, it returns the longest, and if any are the same
+    length it returns the first (unless we explicitly just match first).
+    """
 
     def __init__(self, *args, **kwargs):
         self.mode = kwargs.pop('mode', 'longest')  # can be 'first' or 'longest'
         super(OneOf, self).__init__(*args, **kwargs)
 
     def match(self, segments, parse_context):
+        """Match any of the elements given once.
+
+        If it matches multiple, it returns the longest, and if any are the same
+        length it returns the first (unless we explicitly just match first).
+        """
         best_match = None
         # Match on each of the options
         for opt in self._elements:
@@ -512,22 +541,28 @@ class OneOf(BaseGrammar):
                         return MatchResult.from_unmatched(segments)
 
     def expected_string(self, dialect=None, called_from=None):
+        """Get the expected string from the referenced element."""
         return " | ".join([opt.expected_string(dialect=dialect, called_from=called_from) for opt in self._elements])
 
 
 class AnyNumberOf(BaseGrammar):
-    """ A more configurable version of OneOf """
+    """A more configurable version of OneOf."""
+
     def __init__(self, *args, **kwargs):
         self.max_times = kwargs.pop('max_times', None)
         self.min_times = kwargs.pop('min_times', 0)
         super(AnyNumberOf, self).__init__(*args, **kwargs)
 
     def is_optional(self):
-        # The optional attribute is set in the __init__ method,
-        # But also here, if min_times is zero then this is also optional
+        """Return whether this element is optional.
+
+        This is mostly set in the init method, but also in this
+        case, if min_times is zero then this is also optional.
+        """
         return self.optional or self.min_times == 0
 
     def match(self, segments, parse_context):
+        """Match against any of the elements any number of times."""
         # Match on each of the options
         matched_segments = MatchResult.from_empty()
         unmatched_segments = segments
@@ -577,17 +612,15 @@ class AnyNumberOf(BaseGrammar):
                     return MatchResult.from_unmatched(unmatched_segments)
 
     def expected_string(self, dialect=None, called_from=None):
+        """Get the expected string from the referenced element."""
         # TODO: Make something nice here
         return " !!TODO!! "
 
 
 class GreedyUntil(BaseGrammar):
-    """ See the match method desription for the full details """
+    """Matching for GreedyUntil works just how you'd expect."""
     def match(self, segments, parse_context):
-        """
-        Matching for GreedyUntil works just how you'd expect.
-        """
-
+        """Matching for GreedyUntil works just how you'd expect."""
         pre, mat, _ = self._bracket_sensitive_look_ahead_match(
             segments, self._elements, parse_context=parse_context.copy(incr='match_depth'),
             code_only=self.code_only)
@@ -601,21 +634,20 @@ class GreedyUntil(BaseGrammar):
             return MatchResult.from_matched(segments)
 
     def expected_string(self, dialect=None, called_from=None):
+        """Get the expected string from the referenced element."""
         return "..., " + " !( " + " | ".join(
             [opt.expected_string(dialect=dialect, called_from=called_from) for opt in self._elements]
         ) + " ) "
 
 
 class Sequence(BaseGrammar):
-    """ Match a specific sequence of elements """
+    """Match a specific sequence of elements."""
 
     def match(self, segments, parse_context):
-        # Rewrite of sequence. We should match FORWARD, this reduced duplication.
-        # Sub-matchers should be greedy and so we can jsut work forward with each one.
+        """Match a specific sequence of elements."""
         if isinstance(segments, BaseSegment):
             segments = tuple(segments)
-        # NB: We don't use seg_idx here because the submatchers may be mutating the length
-        # of the remaining segments
+
         matched_segments = MatchResult.from_empty()
         unmatched_segments = segments
 
@@ -687,13 +719,17 @@ class Sequence(BaseGrammar):
             return MatchResult(matched_segments.matched_segments, unmatched_segments)
 
     def expected_string(self, dialect=None, called_from=None):
+        """Get the expected string from the referenced element."""
         return ", ".join([opt.expected_string(dialect=dialect, called_from=called_from) for opt in self._elements])
 
 
 class Delimited(BaseGrammar):
-    """ Match an arbitrary number of elements seperated by a delimiter.
+    """Match an arbitrary number of elements seperated by a delimiter.
+
     Note that if there are multiple elements passed in that they will be treated
-    as different options of what can be delimited, rather than a sequence. """
+    as different options of what can be delimited, rather than a sequence.
+    """
+
     def __init__(self, *args, **kwargs):
         if 'delimiter' not in kwargs:
             raise ValueError("Delimited grammars require a `delimiter`")
@@ -705,6 +741,11 @@ class Delimited(BaseGrammar):
         super(Delimited, self).__init__(*args, **kwargs)
 
     def match(self, segments, parse_context):
+        """Match an arbitrary number of elements seperated by a delimiter.
+
+        Note that if there are multiple elements passed in that they will be treated
+        as different options of what can be delimited, rather than a sequence.
+        """
         # Type munging
         if isinstance(segments, BaseSegment):
             segments = [segments]
@@ -835,15 +876,21 @@ class Delimited(BaseGrammar):
                         return MatchResult.from_unmatched(segments)
 
     def expected_string(self, dialect=None, called_from=None):
+        """Get the expected string from the referenced element."""
         return " {0} ".format(
             self.delimiter.expected_string(dialect=dialect, called_from=called_from)).join(
                 [opt.expected_string(dialect=dialect, called_from=called_from) for opt in self._elements])
 
 
 class ContainsOnly(BaseGrammar):
-    """ match a sequence of segments which are only of the types,
-    or only match the grammars in the list """
+    """Match if the sequence contains only matches.
+
+    In this grammar we allow not just elements with a `match` method,
+    but also to match by name if a string is one of the elements. This
+    exists mostly as legacy functionality.
+    """
     def match(self, segments, parse_context):
+        """Match if the sequence contains segments that match an element."""
         matched_buffer = tuple()
         forward_buffer = segments
         while True:
@@ -874,6 +921,7 @@ class ContainsOnly(BaseGrammar):
                     return MatchResult.from_unmatched(segments)
 
     def expected_string(self, dialect=None, called_from=None):
+        """Get the expected string from the referenced element."""
         buff = []
         for opt in self._elements:
             if isinstance(opt, str):
@@ -884,14 +932,17 @@ class ContainsOnly(BaseGrammar):
 
 
 class StartsWith(BaseGrammar):
-    """ Match if the first element is the same, with configurable
-    whitespace and comment handling """
+    """Match if this sequence starts with a match.
+
+    This also has configurable whitespace and comment handling.
+    """
     def __init__(self, target, *args, **kwargs):
         self.target = target
         self.terminator = kwargs.pop('terminator', None)
         super(StartsWith, self).__init__(*args, **kwargs)
 
     def match(self, segments, parse_context):
+        """Match if this sequence starts with a match."""
         if self.code_only:
             first_code_idx = None
             # Work through to find the first code segment...
@@ -959,13 +1010,19 @@ class StartsWith(BaseGrammar):
             raise NotImplementedError("Not expecting to match StartsWith and also not just code!?")
 
     def expected_string(self, dialect=None, called_from=None):
+        """Get the expected string from the referenced element."""
         return self.target.expected_string(dialect=dialect, called_from=called_from) + ", ..."
 
 
 class Bracketed(BaseGrammar):
-    """ Bracketed works differently to sequence, although it used to. Note
-    that if multiple arguments are passed then the options will be considered
-    as options for what can be in the brackets rather than a sequence. """
+    """Match if this is a bracketed sequence, with content that matches one of the elements.
+
+    Bracketed works differently to sequence, although it used to work
+    the same. Note that if multiple arguments are passed then the options
+    will be considered as options for what can be in the brackets rather
+    than a sequence. The elements used for matching the brackets themselves
+    are taken directly from the dialect.
+    """
     def __init__(self, *args, **kwargs):
         # Start and end tokens
         # The details on how to match a bracket are stored in the dialect
@@ -974,16 +1031,17 @@ class Bracketed(BaseGrammar):
         super(Bracketed, self).__init__(*args, **kwargs)
 
     def match(self, segments, parse_context):
-        """ The match function for `bracketed` implements bracket counting. """
+        """Match if this is a bracketed sequence, with content that matches one of the elements.
 
-        # 1. work forwards to find the first bracket.
-        #    If we find something other that whitespace, then fail out.
-        # 2. Once we have the first bracket, we need to bracket count forward to find it's partner.
-        # 3. Assuming we find it's partner then we try and match what goes between them.
-        #    If we match, great. If not, then we return an empty match.
-        #    If we never find it's partner then we return an empty match but should probably
-        #    log a parsing warning, or error?
+        1. work forwards to find the first bracket.
+           If we find something other that whitespace, then fail out.
+        2. Once we have the first bracket, we need to bracket count forward to find it's partner.
+        3. Assuming we find it's partner then we try and match what goes between them.
+           If we match, great. If not, then we return an empty match.
+           If we never find it's partner then we return an empty match but should probably
+           log a parsing warning, or error?
 
+        """
         seg_buff = segments
         matched_segs = ()
 
@@ -1027,4 +1085,5 @@ class Bracketed(BaseGrammar):
             return MatchResult.from_unmatched(segments)
 
     def expected_string(self, dialect=None, called_from=None):
+        """Get the expected string from the referenced element."""
         return " ( {0} ) ".format(' | '.join([opt.expected_string(dialect=dialect, called_from=called_from) for opt in self._elements]))

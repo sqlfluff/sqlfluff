@@ -1,9 +1,15 @@
-"""
+"""The core ANSI dialect.
+
 This is the core SQL grammar. We'll probably extend this or make it pluggable
 for other dialects. Here we encode the structure of the language.
 
 There shouldn't be any underlying "machinery" here, that should all
 be defined elsewhere.
+
+A lot of the inspiration for this sql grammar is taken from the cockroach
+labs full sql grammar. In particular their way for dividing up the expression
+grammar. Check out their docs, they're awesome.
+https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 """
 
 from ..parser import (BaseSegment, KeywordSegment, ReSegment, NamedSegment,
@@ -11,23 +17,6 @@ from ..parser import (BaseSegment, KeywordSegment, ReSegment, NamedSegment,
                       OneOf, Delimited, Bracketed, AnyNumberOf, Ref,
                       Anything, LambdaSegment)
 from .base import Dialect
-
-# NOTE: There is a concept here, of parallel grammars.
-# We use one (slightly more permissive) grammar to MATCH
-# and then a more detailed one to PARSE. One is called first,
-# then the other - which allows sections of the file to be
-# parsed even when others won't.
-
-# Multi stage parser
-
-# First strip comments, potentially extracting special comments (which start with sqlfluff:)
-#   - this also makes comment sections, config sections (a subset of comments) and code sections
-
-# Note on SQL Grammar:
-# A lot of the inspiration for this sql grammar is taken from the cockroach
-# labs full sql grammar. In particular their way for dividing up the expression
-# grammar.
-# https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 
 
 ansi_dialect = Dialect('ansi')
@@ -113,12 +102,14 @@ ansi_dialect.add(
 
 @ansi_dialect.segment()
 class ColumnExpressionSegment(BaseSegment):
+    """A reference to a column."""
     type = 'column_expression'
     match_grammar = OneOf(Ref('SingleIdentifierGrammar'), code_only=False)  # QuotedIdentifierSegment
 
 
 @ansi_dialect.segment()
 class ObjectReferenceSegment(BaseSegment):
+    """A reference to an object."""
     type = 'object_reference'
     # match grammar (don't allow whitespace)
     match_grammar = Delimited(
@@ -130,16 +121,20 @@ class ObjectReferenceSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class AliasedObjectReferenceSegment(BaseSegment):
+    """A reference to an object with an `AS` clause."""
     type = 'object_reference'
     match_grammar = Sequence(Ref('ObjectReferenceSegment'), Ref('AliasExpressionGrammar'))
 
 
 @ansi_dialect.segment()
 class QualifiedNumericLiteralSegment(BaseSegment):
-    """The qualified numeric literal is a compound of a raw
+    """A numeric literal with a + or - sign preceeding.
+
+    The qualified numeric literal is a compound of a raw
     literal and a plus/minus sign. We do it this way rather
     than at the lexing step because the lexer doesn't deal
-    well with ambiguity."""
+    well with ambiguity.
+    """
 
     type = 'numeric_literal'
     match_grammar = Sequence(
@@ -150,6 +145,13 @@ class QualifiedNumericLiteralSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class FunctionSegment(BaseSegment):
+    """A scalar or aggregate function.
+
+    Maybe in the future we should distinguish between
+    aggregate functions and other functions. For now
+    we treat them the same because they look the same
+    for our purposes.
+    """
     type = 'function'
     match_grammar = Sequence(
         Ref('FunctionNameSegment'),
@@ -178,6 +180,7 @@ class FunctionSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class TableExpressionSegment(BaseSegment):
+    """A table expression."""
     type = 'table_expression'
     match_grammar = Sequence(
         OneOf(
@@ -190,6 +193,7 @@ class TableExpressionSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class SelectTargetElementSegment(BaseSegment):
+    """An element in the targets of a select statement."""
     type = 'select_target_element'
     # Important to split elements before parsing, otherwise debugging is really hard.
     match_grammar = GreedyUntil(Ref('CommaSegment'))
@@ -217,6 +221,7 @@ class SelectTargetElementSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class SelectTargetGroupStatementSegment(BaseSegment):
+    """A group of elements in a select target statement."""
     type = 'select_target_group'
     match_grammar = GreedyUntil(Ref('FromKeywordSegment'))
     # We should edit the parse grammar to deal with DISTINCT, ALL or similar
@@ -235,6 +240,7 @@ class SelectTargetGroupStatementSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class JoinClauseSegment(BaseSegment):
+    """Any number of join clauses, including the `JOIN` keyword."""
     type = 'join_clause'
     match_grammar = OneOf(
         # Types of join clause
@@ -287,6 +293,7 @@ class JoinClauseSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class FromClauseSegment(BaseSegment):
+    """A `FROM` clause like in `SELECT`."""
     type = 'from_clause'
     match_grammar = StartsWith(
         Ref('FromKeywordSegment'),
@@ -363,8 +370,11 @@ ansi_dialect.add(
 
 @ansi_dialect.segment()
 class ExpressionSegment(BaseSegment):
-    """ NB: This is potentially VERY recursive and
-    mostly uses the grammars above"""
+    """A expression, either arithmetic or boolean.
+
+    NB: This is potentially VERY recursive and
+    mostly uses the grammars above.
+    """
     type = 'expression'
     match_grammar = GreedyUntil(
         Ref('CommaSegment'),
@@ -375,6 +385,7 @@ class ExpressionSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class WhereClauseSegment(BaseSegment):
+    """A `WHERE` clause like in `SELECT` or `INSERT`."""
     type = 'where_clause'
     match_grammar = StartsWith(
         Ref('WhereKeywordSegment'),
@@ -393,6 +404,7 @@ class WhereClauseSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class OrderByClauseSegment(BaseSegment):
+    """A `ORDER BY` clause like in `SELECT`."""
     type = 'orderby_clause'
     match_grammar = StartsWith(
         Ref('OrderKeywordSegment'),
@@ -421,6 +433,7 @@ class OrderByClauseSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class ValuesClauseSegment(BaseSegment):
+    """A `VALUES` clause like in `INSERT`."""
     type = 'values_clause'
     match_grammar = Sequence(
         OneOf(
@@ -441,6 +454,7 @@ class ValuesClauseSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class SelectStatementSegment(BaseSegment):
+    """A `SELECT` statement."""
     type = 'select_statement'
     # match grammar. This one makes sense in the context of knowing that it's
     # definitely a statement, we just don't know what type yet.
@@ -457,6 +471,7 @@ class SelectStatementSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class WithCompoundStatementSegment(BaseSegment):
+    """A `SELECT` statement preceeded by a selection of `WITH` clauses."""
     type = 'with_compound_statement'
     # match grammar
     match_grammar = StartsWith(Ref('WithKeywordSegment'))
@@ -477,6 +492,7 @@ class WithCompoundStatementSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class InsertStatementSegment(BaseSegment):
+    """A `INSERT` statement."""
     type = 'insert_statement'
     match_grammar = StartsWith(Ref('InsertKeywordSegment'))
     parse_grammar = Sequence(
@@ -493,6 +509,7 @@ class InsertStatementSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class EmptyStatementSegment(BaseSegment):
+    """A placeholder for a statement containing nothing but whitespace and comments."""
     type = 'empty_statement'
     grammar = ContainsOnly('comment', 'newline')
     # TODO: At some point - we should lint that these are only
@@ -501,6 +518,10 @@ class EmptyStatementSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class StatementSegment(BaseSegment):
+    """A generic segment, to any of it's child subsegments.
+
+    NOTE: Should this actually be a grammar?
+    """
     type = 'statement'
     parse_grammar = OneOf(
         Ref('SelectStatementSegment'), Ref('InsertStatementSegment'),

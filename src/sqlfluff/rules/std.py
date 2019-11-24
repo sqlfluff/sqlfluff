@@ -1,4 +1,4 @@
-""" Standard SQL Linting Rules """
+"""Standard SQL Linting Rules."""
 
 from ..parser import RawSegment
 from .crawler import BaseCrawler, LintFix, LintResult
@@ -9,7 +9,7 @@ TAB_SPACE_SIZE = 4
 
 
 def L001_eval(segment, raw_stack, **kwargs):
-    """ We only care about the segment the preceeding segments """
+    """Uneccessary trailing whitespace."""
     # We only trigger on newlines
     if segment.name == 'newline' and len(raw_stack) > 0 and raw_stack[-1].name == 'whitespace':
         # If we find a newline, which is preceeded by whitespace, then bad
@@ -38,11 +38,9 @@ L001 = BaseCrawler(
 
 
 def L002_eval(segment, raw_stack, **kwargs):
-    # We can only trigger on whitespace which is either
-    # preceeded by nothing, a newline, or whitespace then either of the above.
-
+    """Mixed Tabs and Spaces."""
     def construct_response():
-        """ Make this generic so we can call it from a few places """
+        """Make this generic so we can call it from a few places."""
         return LintResult(
             anchor=segment,
             fixes=[
@@ -93,6 +91,7 @@ L002 = BaseCrawler(
 
 
 def L003_eval(segment, raw_stack, **kwargs):
+    """Indentation is not a multiple of four."""
     # We can only trigger on whitespace which is either
     # preceeded by nothing or a newline.
     if segment.name == 'whitespace':
@@ -117,6 +116,7 @@ L003 = BaseCrawler(
 
 
 def L004_eval(segment, raw_stack, memory, **kwargs):
+    """Mixed tab/space indentation found in file."""
     # We can only trigger on whitespace which is either
     # preceeded by nothing or a newline.
     indents_seen = memory.get('indents_seen', set())
@@ -144,6 +144,7 @@ L004 = BaseCrawler(
 
 
 def L005_fix(segment, raw_stack, **kwargs):
+    """Commas should not have whitespace directly before them."""
     # We need at least one segment behind us for this to work
     if len(raw_stack) >= 1:
         cm1 = raw_stack[-1]
@@ -162,17 +163,15 @@ L005 = BaseCrawler(
 
 
 def L006_fix(segment, memory, parent_stack, **kwargs):
+    """Operators should be surrounded by a single whitespace."""
     # We use the memory to keep track of whitespace up to now, and
     # whether the last code segment was an operator or not.
-
-    # TODO: Check that the memory works in NESTED expressions
 
     def _handle_previous_segments(segments_since_code, anchor, this_segment, fixes):
         """Handle the list of previous segments and return the new anchor and fixes.
 
         NB: This function mutates `fixes`.
         """
-
         WhitespaceSegment = RawSegment.make(' ', name='whitespace')
 
         if len(segments_since_code) == 0:
@@ -262,6 +261,7 @@ L006 = BaseCrawler(
 
 
 def L007_fix(segment, memory, parent_stack, **kwargs):
+    """Operators near newlines should be after, not before the newline."""
     # We use the memory to keep track of whitespace up to now, and
     # whether the last code segment was an operator or not.
     # Anchor is our signal as to whether there's a problem.
@@ -313,8 +313,11 @@ L007 = BaseCrawler(
 
 
 def L008_fix(segment, raw_stack, **kwargs):
-    """ This is a slightly odd one, because we'll almost always evaluate from a point a few places
-    after the problem site """
+    """Commas should be followed by a single whitespace unless followed by a comment.
+
+    This is a slightly odd one, because we'll almost always evaluate from a point a few places
+    after the problem site.
+    """
     # We need at least two segments behind us for this to work
     if len(raw_stack) < 2:
         return None
@@ -345,8 +348,11 @@ L008 = BaseCrawler(
 
 
 def L009_eval(segment, siblings_post, parent_stack, **kwargs):
-    """ We only care about the segment and the siblings which come after it
-    for this rule, we discard the others into the kwargs argument """
+    """Trailing Whitespace.
+
+    We only care about the segment and the siblings which come after it
+    for this rule, we discard the others into the kwargs argument.
+    """
     if len(siblings_post) > 0:
         # This can only fail on the last segment
         return None
