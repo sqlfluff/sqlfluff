@@ -1,6 +1,4 @@
-"""
-Common Test Fixtures
-"""
+"""Common Test Fixtures."""
 
 import pytest
 import oyaml
@@ -8,6 +6,7 @@ import six
 
 
 def process_struct(obj):
+    """Process a nested dict or dict-like into a check tuple."""
     if isinstance(obj, dict):
         return tuple(
             [(k, process_struct(obj[k])) for k in obj]
@@ -33,6 +32,7 @@ def process_struct(obj):
 
 
 def load_yaml(fpath):
+    """Load a yaml structure and process it into a tuple."""
     # Load raw file
     with open(fpath) as f:
         raw = f.read()
@@ -44,5 +44,6 @@ def load_yaml(fpath):
 
 @pytest.fixture()
 def yaml_loader():
+    """Return a yaml loading function."""
     # Return a function
     return load_yaml

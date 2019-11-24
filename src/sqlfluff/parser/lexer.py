@@ -1,4 +1,4 @@
-""" The code for the new lexer """
+"""The code for the Lexer."""
 
 from collections import namedtuple
 import re
@@ -11,42 +11,37 @@ from ..errors import SQLLexError
 LexMatch = namedtuple('LexMatch', ['new_string', 'new_pos', 'segments'])
 
 
-class BaseForwardMatcher(object):
+class SingletonMatcher(object):
+    """This singleton matcher matches single characters.
+
+    This is the simplest usable matcher, but it also defines some of the
+    mechanisms for more complicated matchers, which may simply override the
+    `_match` function rather than the public `match` function.  This acts as
+    the base class for matchers.
+    """
     def __init__(self, name, template, target_seg_class, *args, **kwargs):
         self.name = name
         self.template = template
         self.target_seg_class = target_seg_class
 
-    def match(self, forward_string, start_pos):
-        # match should return the remainder of the forward
-        # string, the new pos of that string and a list
-        # of segments.
-        raise NotImplementedError(
-            "{0} has no match function implmeneted".format(
-                self.__class__.__name__))
-
-    @classmethod
-    def from_shorthand(cls, name, template, **kwargs):
-        return cls(
-            name, template,
-            RawSegment.make(
-                template, name=name, **kwargs
-            )
-        )
-
-
-class SingletonMatcher(BaseForwardMatcher):
     def _match(self, forward_string):
+        """The private match function. Just look for a single character match."""
         if forward_string[0] == self.template:
             return forward_string[0]
         else:
             return None
 
     def match(self, forward_string, start_pos):
+        """Given a string, match what we can and return the rest.
+
+        Returns:
+            :obj:`LexMatch`
+
+        """
         if len(forward_string) == 0:
             raise ValueError("Unexpected empty string!")
         matched = self._match(forward_string)
-        # logging.debug("Matcher: {0} - {1}".format(forward_string, matched))
+
         if matched:
             new_pos = start_pos.advance_by(matched)
             return LexMatch(
@@ -61,8 +56,25 @@ class SingletonMatcher(BaseForwardMatcher):
         else:
             return LexMatch(forward_string, start_pos, tuple())
 
+    @classmethod
+    def from_shorthand(cls, name, template, **kwargs):
+        """A shorthand was of making new instances of this class.
+
+        This is the primary way of defining matchers. It is convenient
+        because several parameters of the matcher and the class of segment
+        to be returned are shared, and here we define both together.
+        """
+        return cls(
+            name, template,
+            RawSegment.make(
+                template, name=name, **kwargs
+            )
+        )
+
 
 class RegexMatcher(SingletonMatcher):
+    """This RegexMatcher matches based on regular expressions."""
+
     def __init__(self, *args, **kwargs):
         super(RegexMatcher, self).__init__(*args, **kwargs)
         # We might want to configure this at some point, but for now, newlines
@@ -70,8 +82,8 @@ class RegexMatcher(SingletonMatcher):
         flags = re.DOTALL
         self._compiled_regex = re.compile(self.template, flags)
 
-    """ Use regexes to match chunks """
     def _match(self, forward_string):
+        """Use regexes to match chunks."""
         match = self._compiled_regex.match(forward_string)
         if match:
             return match.group(0)
@@ -79,35 +91,21 @@ class RegexMatcher(SingletonMatcher):
             return None
 
 
-class StatefulMatcher(BaseForwardMatcher):
-    """
-    has a start and an end (if no start or end, then picks up the remainder)
-    contains potentially other matchers
-    is optionally flat or nested [maybe?] - probably just flat to start with
+class RepeatedMultiMatcher(SingletonMatcher):
+    """Uses other matchers in priority order.
 
-    stateful matcher if matching the start, will take hold and consume until it ends
-    """
+    Args:
+        *submatchers: An iterable of other matchers which can be tried
+            in turn. If none match a given forward looking string we simply
+            return the unmatched part as per any other matcher.
 
-    # NB the base matcher is probably stateful, in the `code` state, but will end up
-    # using the remainder segment liberally.
-    def __init__(self, name, submatchers, remainder_segment):
-        self.name = name  # The name of the state
-        self.submatchers = submatchers or []  # Could be empty?
-        self.remainder_segment = remainder_segment  # Required
-
-
-class RepeatedMultiMatcher(BaseForwardMatcher):
-    """
-    Uses other matchers in priority order
     """
 
-    # NB the base matcher is probably stateful, in the `code` state, but will end up
-    # using the remainder segment liberally.
     def __init__(self, *submatchers):
         self.submatchers = submatchers
-        # If we bottom out then return the rest of the string
 
     def match(self, forward_string, start_pos):
+        """Iteratively match strings using the selection of submatchers."""
         seg_buff = tuple()
         while True:
             if len(forward_string) == 0:
@@ -137,12 +135,14 @@ class RepeatedMultiMatcher(BaseForwardMatcher):
                 )
 
 
-default_config = {}
-
-
 class Lexer(object):
+    """The Lexer class actually does the lexing step.
+
+    This class is likely called directly from a top level segment
+    such as the `FileSegment`.
+    """
     def __init__(self, config=None):
-        self.config = config or default_config
+        self.config = config or {}
         self.matcher = RepeatedMultiMatcher(
             RegexMatcher.from_shorthand("whitespace", r"[\t ]*"),
             RegexMatcher.from_shorthand("inline_comment", r"(-- |#)[^\n]*", is_comment=True),
@@ -150,7 +150,8 @@ class Lexer(object):
             RegexMatcher.from_shorthand("single_quote", r"'[^']*'", is_code=True),
             RegexMatcher.from_shorthand("double_quote", r'"[^"]*"', is_code=True),
             RegexMatcher.from_shorthand("back_quote", r"`[^`]*`", is_code=True),
-            RegexMatcher.from_shorthand("numeric_literal", r"(-?[0-9]+(\.[0-9]+)?)", is_code=True),
+            # The numeric literal explicitly doesn't include the minus sign. We deal with that at parse.
+            RegexMatcher.from_shorthand("numeric_literal", r"([0-9]+(\.[0-9]+)?)", is_code=True),
             RegexMatcher.from_shorthand("greater_than_or_equal", r">=", is_code=True),
             RegexMatcher.from_shorthand("less_than_or_equal", r"<=", is_code=True),
             RegexMatcher.from_shorthand("newline", r"\r\n"),
@@ -174,6 +175,13 @@ class Lexer(object):
         )
 
     def lex(self, raw):
+        """Take a string and return segments.
+
+        If we fail to match the *whole* string, then we must have
+        found something that we cannot lex. This should raise a
+        `SQLLexError`, which we expect will be caught by whichever
+        CLI command launched this.
+        """
         start_pos = FilePositionMarker.from_fresh()
         res = self.matcher.match(raw, start_pos)
         if len(res.new_string) > 0:

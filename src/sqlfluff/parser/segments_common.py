@@ -1,5 +1,4 @@
-"""
-Common Segment Definitions
+"""Common Segment Definitions.
 
 Here we define:
 - KeywordSegment
@@ -20,10 +19,13 @@ from .match import MatchResult
 
 
 class KeywordSegment(RawSegment):
-    """ The Keyword Segment is a bit special, because while it
+    """A segment used for matching single words or entities.
+
+    The Keyword Segment is a bit special, because while it
     can be instantiated directly, we mostly generate them on the
     fly for convenience. The `make` method is defined on RawSegment
-    instead of here, but can be used here too. """
+    instead of here, but can be used here too.
+    """
 
     type = 'keyword'
     _is_code = True
@@ -32,7 +34,11 @@ class KeywordSegment(RawSegment):
 
     @classmethod
     def match(cls, segments, parse_context):
-        """ Keyword implements it's own matching function """
+        """Compare input segments for a match, return a `MatchResult`.
+
+        Note: For Keyword matching, we only consider the *first* element,
+        because we assume that a keyword can only span one raw segment.
+        """
         # If we've been passed the singular, make it a list
         if isinstance(segments, BaseSegment):
             segments = [segments]
@@ -56,17 +62,25 @@ class KeywordSegment(RawSegment):
 
     @classmethod
     def expected_string(cls, dialect=None, called_from=None):
+        """Return the expected string for this segment."""
         return cls._template
 
 
 class ReSegment(KeywordSegment):
-    """ A more flexible matching segment for use of regexes
-    USE WISELY """
+    """A more flexible matching segment which uses of regexes.
+
+    This is more flexible that the `KeywordSegment` but also more complicated
+    and so the `KeywordSegment` should be used instead wherever possible.
+    """
+
     @classmethod
     def match(cls, segments, parse_context):
-        """ ReSegment implements it's own matching function,
+        """Compare input segments for a match, return a `MatchResult`.
+
+        ReSegment implements it's own matching function where
         we assume that ._template is a r"" string, and is formatted
-        for use directly as a regex. This only matches on a single segment."""
+        for use directly as a regex. This only matches on a single segment.
+        """
         # If we've been passed the singular, make it a list
         if isinstance(segments, BaseSegment):
             segments = [segments]
@@ -94,17 +108,23 @@ class ReSegment(KeywordSegment):
 
     @classmethod
     def expected_string(cls, dialect=None, called_from=None):
+        """Return the expected string for this segment."""
         return cls.type
 
 
 class NamedSegment(KeywordSegment):
-    """ A segment which matches based on the `name` property
-    of segments. Useful for matching quoted segments.
-    USE WISELY """
+    """A segment which matches based on the `name` property of segments.
+
+    Useful for matching quoted segments, or anything else which
+    is largely identified by the Lexer.
+    """
     @classmethod
     def match(cls, segments, parse_context):
-        """ NamedSegment implements it's own matching function,
-        we assume that ._template is the `name` of a segment"""
+        """Compare input segments for a match, return a `MatchResult`.
+
+        NamedSegment implements it's own matching function where
+        we assume that ._template is the `name` of a segment.
+        """
         # If we've been passed the singular, make it a list
         if isinstance(segments, BaseSegment):
             segments = [segments]
@@ -127,15 +147,27 @@ class NamedSegment(KeywordSegment):
 
     @classmethod
     def expected_string(cls, dialect=None, called_from=None):
+        """Return the expected string for this segment."""
         return "[" + cls._template + "]"
 
 
 class LambdaSegment(BaseSegment):
-    """ A segment which when the given lambda is applied to it returns true """
+    """A segment which when the given lambda is applied to it returns true.
+
+    This is one of the more abstract segments, and which could be used to
+    implement version of most of the other kinds of segments indirectly.
+
+    It is also the most complicated and the most abstract and so should be
+    used thoughtfully.
+    """
+
     @classmethod
     def match(cls, segments, parse_context):
-        """ NamedSegment implements it's own matching function,
-        we assume that ._template is a function"""
+        """Compare input segments for a match, return a `MatchResult`.
+
+        NamedSegment implements it's own matching function,
+        we assume that ._template is a function.
+        """
         # If we've been passed the singular, make it a list
         if isinstance(segments, BaseSegment):
             segments = [segments]
@@ -159,11 +191,15 @@ class LambdaSegment(BaseSegment):
 
     @classmethod
     def expected_string(cls, dialect=None, called_from=None):
+        """Return the expected string for this segment."""
         return "!!TODO!!"
 
     @classmethod
     def make(cls, func, name, **kwargs):
-        """ This requires a custom make method, because it's a bit different """
+        """Make a subclass of the segment using a method.
+
+        Note: This requires a custom make method, because it's a bit different.
+        """
         # Now lets make the classname (it indicates the mother class for clarity)
         classname = "{0}_{1}".format(name, cls.__name__)
         # This is the magic, we generate a new class! SORCERY

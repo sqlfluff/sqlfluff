@@ -1,21 +1,28 @@
-""" Errors - these are closely linked to what used to be called violations """
+"""Errors - these are closely linked to what used to be called violations."""
 
 
 class SQLBaseError(ValueError):
-    def __init__(self, *args, **kwargs):
-        # Something about position, message and fix?
-        super(SQLBaseError, self).__init__(*args, **kwargs)
-
-    # We shoud be able to extract the info to format the exception in some consistent
-    # way here.
+    """Base Error Class for all violations."""
 
     def rule_code(self):
+        """Fetch the code of the rule which cause this error.
+
+        NB: This only returns a real code for some subclasses of
+        error, (the ones with a `rule` attribute), but otherwise
+        returns a placeholder value which can be used instead.
+        """
         if hasattr(self, 'rule'):
             return self.rule.code
         else:
             return '????'
 
     def desc(self):
+        """Fetch a description of this violation.
+
+        NB: For violations which don't directly implement a rule
+        this attempts to return the error message linked to whatever
+        caused the violation.
+        """
         if hasattr(self, 'rule'):
             return self.rule.description
         else:
@@ -28,6 +35,7 @@ class SQLBaseError(ValueError):
                 return self.__class__.__name__
 
     def line_no(self):
+        """Return the line number of the violation."""
         pm = self.pos_marker()
         if pm:
             return pm.line_no
@@ -35,6 +43,7 @@ class SQLBaseError(ValueError):
             return 0
 
     def line_pos(self):
+        """Return the line postion of the violation."""
         pm = self.pos_marker()
         if pm:
             return pm.line_pos
@@ -42,6 +51,7 @@ class SQLBaseError(ValueError):
             return 0
 
     def char_pos(self):
+        """Return the character position in file of the violation."""
         pm = self.pos_marker()
         if pm:
             return pm.char_pos
@@ -49,6 +59,14 @@ class SQLBaseError(ValueError):
             return 0
 
     def pos_marker(self):
+        """Get the position marker of the violation.
+
+        Returns:
+            The :obj:`PosMarker` of the segments if the violation has a segment,
+            the :obj:`PosMarker` directly stored in a `pos` attribute or None
+            if neither a present.
+
+        """
         if hasattr(self, 'segment'):
             # Linting and Parsing Errors
             return self.segment.pos_marker
@@ -59,20 +77,37 @@ class SQLBaseError(ValueError):
             return None
 
     def get_info_tuple(self):
+        """Get a tuple representation of this violation.
+
+        Returns:
+            A `tuple` of (code, line_no, line_pos, description)
+
+        """
         return self.rule_code(), self.line_no(), self.line_pos(), self.desc()
 
 
 class SQLTemplaterError(SQLBaseError):
-    # Templating Errors Just have position
-    # TODO: Work out how...?
+    """An error which occured during templating.
+
+    Args:
+        pos (:obj:`PosMarker`, optional): The position which the error
+            occured at.
+
+    """
+
     def __init__(self, *args, **kwargs):
-        # Store the segment on creation - we might need it later
         self.pos = kwargs.pop('pos', None)
         super(SQLTemplaterError, self).__init__(*args, **kwargs)
 
 
 class SQLLexError(SQLBaseError):
-    # Lexing errors just have position
+    """An error which occured during lexing.
+
+    Args:
+        pos (:obj:`PosMarker`, optional): The position which the error
+            occured at.
+
+    """
     def __init__(self, *args, **kwargs):
         # Store the segment on creation - we might need it later
         self.pos = kwargs.pop('pos', None)
@@ -80,7 +115,15 @@ class SQLLexError(SQLBaseError):
 
 
 class SQLParseError(SQLBaseError):
-    # Lex Errors are linked to unparsable segment
+    """An error which occured during parsing.
+
+    Args:
+        segment (:obj:`BaseSegment`, optional): The segment which is relevant
+            for the failure in parsing. This is likely to be a subclass of
+            `BaseSegment` rather than the parent class itself. This is mostly
+            used for logging and for referencing position.
+
+    """
     def __init__(self, *args, **kwargs):
         # Store the segment on creation - we might need it later
         self.segment = kwargs.pop('segment', None)
@@ -88,7 +131,18 @@ class SQLParseError(SQLBaseError):
 
 
 class SQLLintError(SQLBaseError):
-    # Linting errors are triggered by RULES. So we should reference the rule.
+    """An error which occured during linting.
+
+    In particular we reference the rule here to do extended logging based on
+    the rule in question which caused the fail.
+
+    Args:
+        segment (:obj:`BaseSegment`, optional): The segment which is relevant
+            for the failure in parsing. This is likely to be a subclass of
+            `BaseSegment` rather than the parent class itself. This is mostly
+            used for logging and for referencing position.
+
+    """
     def __init__(self, *args, **kwargs):
         # Something about position, message and fix?
         self.segment = kwargs.pop('segment', None)
@@ -97,7 +151,7 @@ class SQLLintError(SQLBaseError):
         super(SQLLintError, self).__init__(*args, **kwargs)
 
     def check_tuple(self):
-        """ This is used mostly in testing to easily example a linting result """
+        """Get a tuple representing this error. Mostly for testing."""
         return (self.rule.code, self.segment.pos_marker.line_no, self.segment.pos_marker.line_pos)
 
     def __repr__(self):

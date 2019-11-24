@@ -1,4 +1,4 @@
-""" The Test file for The New Parser (Marker Classes)"""
+"""The Test file for The New Parser (Marker Classes)."""
 
 import pytest
 
@@ -10,6 +10,7 @@ from sqlfluff.parser.segments_common import KeywordSegment
 
 @pytest.fixture(scope="module")
 def raw_seg_list():
+    """A generic list of raw segments to test against."""
     return [
         RawSegment(
             'bar',
@@ -27,7 +28,7 @@ def raw_seg_list():
 
 
 def test__parser__core_keyword(raw_seg_list):
-    """ Test the Mystical KeywordSegment """
+    """Test the Mystical KeywordSegment."""
     # First make a keyword
     FooKeyword = KeywordSegment.make('foo')
     context = ParseContext()

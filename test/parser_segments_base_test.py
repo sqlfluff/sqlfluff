@@ -1,4 +1,4 @@
-""" The Test file for The New Parser (Base Segment Classes) """
+"""The Test file for The New Parser (Base Segment Classes)."""
 
 import pytest
 
@@ -9,12 +9,14 @@ from sqlfluff.dialects import ansi_dialect
 
 @pytest.fixture(scope="module")
 def raw_seg():
+    """Construct a raw segment as a fixture."""
     fp = FilePositionMarker.from_fresh().advance_by('abc')
     return RawSegment('foobar', fp)
 
 
 @pytest.fixture(scope="module")
 def raw_seg_list(raw_seg):
+    """Construct a list of raw segments as a fixture."""
     return [
         raw_seg,
         RawSegment(
@@ -25,24 +27,23 @@ def raw_seg_list(raw_seg):
 
 
 class DummySegment(BaseSegment):
+    """A dummy segment for testing with no grammar."""
     type = 'dummy'
-    # NB: Don't define grammar at this stage. We'll
-    # test grammar elsewhere.
 
 
 class DummyAuxSegment(BaseSegment):
+    """A different dummy segment for testing with no grammar."""
     type = 'dummy_aux'
-    # NB: Don't define grammar at this stage. We'll
-    # test grammar elsewhere.
 
 
 def test__parser__base_segments_raw_init():
-    """ Test initialisation. Other tests just use the fixture """
+    """Test initialisation. Other tests just use the fixture."""
     fp = FilePositionMarker.from_fresh()
     RawSegment('foobar', fp)
 
 
 def test__parser__base_segments_raw(raw_seg):
+    """Test raw segments behave as expected."""
     # Check Segment Return
     assert raw_seg.segments == []
     assert raw_seg.raw == 'foobar'
@@ -57,6 +58,7 @@ def test__parser__base_segments_raw(raw_seg):
 
 
 def test__parser__base_segments_base(raw_seg_list):
+    """Test base segments behave as expected."""
     base_seg = DummySegment(raw_seg_list)
     context = ParseContext(dialect=ansi_dialect)
     # Check we assume the position correctly
@@ -82,6 +84,7 @@ def test__parser__base_segments_base(raw_seg_list):
 
 
 def test__parser__base_segments_raw_compare():
+    """Test comparison of raw segments."""
     fp1 = FilePositionMarker.from_fresh()
     fp2 = FilePositionMarker.from_fresh()
     rs1 = RawSegment('foobar', fp1)
@@ -90,6 +93,7 @@ def test__parser__base_segments_raw_compare():
 
 
 def test__parser__base_segments_base_compare():
+    """Test comparison of base segments."""
     fp1 = FilePositionMarker.from_fresh()
     fp2 = FilePositionMarker.from_fresh()
     rs1 = RawSegment('foobar', fp1)

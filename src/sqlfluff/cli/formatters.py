@@ -1,14 +1,14 @@
-""" Defines the formatters for the CLI """
+"""Defines the formatters for the CLI."""
 
 
 from six import StringIO
 
 from .helpers import colorize, cli_table, get_package_version, get_python_version
-
 from ..errors import SQLBaseError
 
 
 def format_filename(filename, success=False, verbose=0, success_text='PASS'):
+    """Format filenames."""
     status_string = colorize(
         success_text if success else 'FAIL',
         'green' if success else 'red')
@@ -19,10 +19,12 @@ def format_filename(filename, success=False, verbose=0, success_text='PASS'):
 
 
 def format_path(path):
+    """Format paths."""
     return '=== [ path: {0} ] ===\n'.format(colorize(path, 'lightgrey'))
 
 
 def format_violation(violation, verbose=0):
+    """Format a violation."""
     if isinstance(violation, SQLBaseError):
         code, line, pos, desc = violation.get_info_tuple()
     elif hasattr('chunk', violation):
@@ -42,6 +44,7 @@ def format_violation(violation, verbose=0):
 
 
 def format_fix(fix, verbose=0):
+    """Format a fix."""
     return (
         colorize(
             "L:{0:4d} | P:{1:4d} | {2} | ".format(
@@ -56,6 +59,7 @@ def format_fix(fix, verbose=0):
 
 
 def format_file_violations(fname, res, verbose=0):
+    """Format a set of violations in a `LintingResult`."""
     text_buffer = StringIO()
     # Success is having no violations
     success = len(res) == 0
@@ -80,6 +84,7 @@ def format_file_violations(fname, res, verbose=0):
 
 
 def format_path_violations(violations, verbose=0):
+    """Format a set of violations from a dict of paths and violations."""
     # Violations should be a dict
     keys = sorted(violations.keys())
     text_buffer = StringIO()
@@ -94,7 +99,7 @@ def format_path_violations(violations, verbose=0):
 
 
 def format_linting_stats(result, verbose=0):
-    """ Assume we're passed a LintingResult """
+    """Format a set of stats given a `LintingResult`."""
     text_buffer = StringIO()
     all_stats = result.stats()
     if verbose >= 1:
@@ -117,6 +122,7 @@ def format_linting_stats(result, verbose=0):
 
 
 def format_linting_path(p, verbose=0):
+    """Format a linting path."""
     text_buffer = StringIO()
     if verbose > 0:
         text_buffer.write(format_path(p))
@@ -131,7 +137,7 @@ def _format_path_linting_violations(result, verbose=0):
 
 
 def format_linting_violations(result, verbose=0):
-    """ Assume we're passed a LintingResult """
+    """Format a set of violations given a `LintingResult`."""
     text_buffer = StringIO()
     if hasattr(result, 'paths'):
         # We've got a full path
@@ -144,7 +150,7 @@ def format_linting_violations(result, verbose=0):
 
 
 def format_linting_result_header(verbose=0):
-    """ Assume we're passed a LintingResult """
+    """Format the header of a linting result output."""
     text_buffer = StringIO()
     if verbose >= 1:
         text_buffer.write("==== readout ====\n")
@@ -152,7 +158,7 @@ def format_linting_result_header(verbose=0):
 
 
 def format_linting_result_footer(result, verbose=0):
-    """ Assume we're passed a LintingResult """
+    """Format the footer of a linting result output given a `LintingResult`."""
     text_buffer = StringIO()
     text_buffer.write('\n')
     text_buffer.write(format_linting_stats(result, verbose=verbose))
@@ -160,7 +166,7 @@ def format_linting_result_footer(result, verbose=0):
 
 
 def format_linting_result(result, verbose=0):
-    """ Assume we're passed a LintingResult """
+    """Format the output of a `LintingResult`."""
     text_buffer = StringIO()
     text_buffer.write(format_linting_result_header(verbose=verbose))
     text_buffer.write(format_linting_violations(result, verbose=verbose))
@@ -169,6 +175,7 @@ def format_linting_result(result, verbose=0):
 
 
 def format_config(linter, verbose=0):
+    """Format the config of a `Linter`."""
     text_buffer = StringIO()
     # Only show version information if verbosity is high enough
     if verbose > 0:
@@ -187,6 +194,7 @@ def format_config(linter, verbose=0):
 
 
 def format_rules(linter, verbose=0):
+    """Format the a set of rules given a `Linter`."""
     text_buffer = StringIO()
     text_buffer.write("==== sqlfluff - rules ====\n")
     text_buffer.write(

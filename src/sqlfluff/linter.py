@@ -1,4 +1,4 @@
-""" Defines the linter class """
+"""Defines the linter class."""
 
 import os
 from collections import namedtuple
@@ -13,40 +13,59 @@ from .cli.formatters import format_linting_path, format_file_violations
 
 
 class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tree'])):
+    """A class to store the idea of a linted file."""
     __slots__ = ()
 
     def check_tuples(self):
-        return [v.check_tuple() for v in self.violations]
+        """Make a list of check_tuples.
+
+        This assumes that all the violations found are
+        linting violations (and therefore implement `check_tuple()`).
+        If they don't then this function raises that error.
+        """
+        vs = []
+        for v in self.violations:
+            if hasattr(v, 'check_tuple'):
+                vs.append(v.check_tuple())
+            else:
+                raise v
+        return vs
 
     def num_violations(self):
+        """Count the number of violations."""
         return len(self.violations)
 
     def is_clean(self):
+        """Return True if there are no violations."""
         return len(self.violations) == 0
 
     def persist_tree(self):
-        """ We don't validate here, we just apply corrections to a path """
+        """Persist changes to the given path."""
         with open(self.path, 'w') as f:
             # TODO: We should probably have a seperate function for checking what's
             # already there and doing a diff. For now we'll just go an overwrite.
             f.write(self.tree.raw)
         # TODO: Make this return value more interesting...
+        # TODO: Deal with templating and fixing elegantly.
         return True
 
 
 class LintedPath(object):
+    """A class to store the idea of a collection of linted files at a single start path."""
     def __init__(self, path):
         self.files = []
         self.path = path
 
     def add(self, file):
+        """Add a file to this path."""
         self.files.append(file)
 
     def check_tuples(self, by_path=False):
-        """
-        Just compress all the tuples into one list
+        """Compress all the tuples into one list.
+
         NB: This is a little crude, as you can't tell which
         file the violations are from. Good for testing though.
+        For more control set the `by_path` argument to true.
         """
         if by_path:
             return {file.path: file.check_tuples() for file in self.files}
@@ -57,12 +76,15 @@ class LintedPath(object):
             return tuple_buffer
 
     def num_violations(self):
+        """Count the number of violations in the path."""
         return sum([file.num_violations() for file in self.files])
 
     def violations(self):
+        """Return a dict of violations by file path."""
         return {file.path: file.violations for file in self.files}
 
     def stats(self):
+        """Return a dict containing linting stats about this path."""
         return dict(
             files=len(self.files),
             clean=sum([file.is_clean() for file in self.files]),
@@ -71,11 +93,18 @@ class LintedPath(object):
         )
 
     def persist_changes(self):
+        """Persist changes to files in the given path."""
         # Run all the fixes for all the files and return a dict
         return {file.path: file.persist_tree() for file in self.files}
 
 
 class LintingResult(object):
+    """A class to represent the result of a linting operation.
+
+    Notably this might be a collection of paths, all with multiple
+    potential files within them.
+    """
+
     def __init__(self, rule_whitelist=None):
         self.paths = []
         # Store the rules we're using
@@ -83,26 +112,30 @@ class LintingResult(object):
 
     @staticmethod
     def sum_dicts(d1, d2):
-        """ Take the keys of two dictionaries and add them """
+        """Take the keys of two dictionaries and add them."""
         keys = set(d1.keys()) | set(d2.keys())
         return {key: d1.get(key, 0) + d2.get(key, 0) for key in keys}
 
     @staticmethod
     def combine_dicts(*d):
-        """ Take any set of dictionaries and combine them """
+        """Take any set of dictionaries and combine them."""
         dict_buffer = {}
         for dct in d:
             dict_buffer.update(dct)
         return dict_buffer
 
     def add(self, path):
+        """Add a new `LintedPath` to this result."""
         self.paths.append(path)
 
     def check_tuples(self, by_path=False):
-        """
-        Just compress all the tuples into one list
-        NB: This is a little crude, as you can't tell which
-        file the violations are from. Good for testing though.
+        """Fetch all check_tuples from all contained `LintedPath` objects.
+
+        Args:
+            by_path (:obj:`bool`, optional): When False, all the check_tuples
+                are aggregated into one flat list. When True, we return a `dict`
+                of paths, each with it's own list of check_tuples. Defaults to False.
+
         """
         if by_path:
             buff = {}
@@ -116,12 +149,15 @@ class LintingResult(object):
             return tuple_buffer
 
     def num_violations(self):
+        """Count the number of violations in thie result."""
         return sum([path.num_violations() for path in self.paths])
 
     def violations(self):
+        """Return a dict of paths and violations."""
         return self.combine_dicts(path.violations() for path in self.paths)
 
     def stats(self):
+        """Return a stats dictionary of this result."""
         all_stats = dict(files=0, clean=0, unclean=0, violations=0)
         for path in self.paths:
             all_stats = self.sum_dicts(path.stats(), all_stats)
@@ -134,11 +170,13 @@ class LintingResult(object):
         return all_stats
 
     def persist_changes(self):
-        # Run all the fixes for all the files and return a dict
+        """Run all the fixes for all the files and return a dict."""
         return self.combine_dicts(*[path.persist_changes() for path in self.paths])
 
 
 class Linter(object):
+    """The interface class to interact with the linter."""
+
     def __init__(self, sql_exts=('.sql',), output_func=None,
                  config=None):
         if config is None:
@@ -156,6 +194,7 @@ class Linter(object):
         self.config = config
 
     def get_parse_context(self, config=None):
+        """Get a new parse context, optionally from a different config."""
         # Try to use a given config
         if config:
             return ParseContext.from_config(config)
@@ -166,15 +205,16 @@ class Linter(object):
             raise ValueError("No config object!")
 
     def log(self, msg):
+        """Log a message, using the common logging framework."""
         if self.output_func:
             # Check we've actually got a meaningful message
             if msg.strip(' \n\t'):
                 self.output_func(msg)
 
     def get_ruleset(self, config=None):
-        """
-        A way of getting hold of a set of rules.
-        We should probably extend this later for differing rules.
+        """Get hold of a set of rules.
+
+        TODO: We should probably extend this later for differing rules.
         """
         rs = standard_rule_set
         cfg = config or self.config
@@ -185,7 +225,7 @@ class Linter(object):
         return rs
 
     def rule_tuples(self):
-        """ A simple pass through to access the rule tuples of the rule set """
+        """A simple pass through to access the rule tuples of the rule set."""
         rs = self.get_ruleset()
         rt = [(rule.code, rule.description) for rule in rs]
 
@@ -195,6 +235,19 @@ class Linter(object):
             return rt
 
     def parse_string(self, s, fname=None, verbosity=0, recurse=True, config=None):
+        """Parse a string.
+
+        Returns:
+            `tuple` of (`parsed`, `violations`, `time_dict`).
+                `parsed` is a segment structure representing the parsed file. If
+                    parsing fails due to an inrecoverable violation then we will
+                    return None.
+                `violations` is a list of violations so far, which will either be
+                    templating, lexing or parsing violations at this stage.
+                `time_dict` is a dict containing timings for how long each step
+                    took in the process.
+
+        """
         violations = []
         t0 = get_time()
 
@@ -206,6 +259,8 @@ class Linter(object):
             violations.append(err)
             fs = None
             # NB: We'll carry on if we fail to template, it might still lex
+
+        t1 = get_time()
 
         if s:
             verbosity_logger("LEXING RAW ({0})".format(fname), verbosity=verbosity)
@@ -221,7 +276,7 @@ class Linter(object):
         if fs:
             verbosity_logger(fs.stringify(), verbosity=verbosity)
 
-        t1 = get_time()
+        t2 = get_time()
         verbosity_logger("PARSING ({0})".format(fname), verbosity=verbosity)
         # Parse the file and log any problems
         if fs:
@@ -238,13 +293,18 @@ class Linter(object):
         else:
             parsed = None
 
-        t2 = get_time()
-        time_dict = {'lexing': t1 - t0, 'parsing': t2 - t1}
+        t3 = get_time()
+        time_dict = {'templating': t1 - t0, 'lexing': t2 - t1, 'parsing': t3 - t2}
 
         return parsed, violations, time_dict
 
     def lint_string(self, s, fname='<string input>', verbosity=0, fix=False, config=None):
-        """ Lint a file object - fname is optional for testing """
+        """Lint a string.
+
+        Returns:
+            :obj:`LintedFile`: an object representing that linted file.
+
+        """
         # TODO: Tidy this up - it's a mess
         # Using the new parser, read the file object.
         parsed, vs, time_dict = self.parse_string(s=s, fname=fname, verbosity=verbosity, config=config)
@@ -329,7 +389,7 @@ class Linter(object):
         return res
 
     def paths_from_path(self, path):
-        # take a path (potentially a directory) and return just the sql files
+        """Return a set of sql file paths from a potentially more ambigious path string."""
         if not os.path.exists(path):
             raise IOError("Specified path does not exist")
         elif os.path.isdir(path):
@@ -347,7 +407,7 @@ class Linter(object):
             return set([path])
 
     def lint_string_wrapped(self, string, fname='<string input>', verbosity=0, fix=False):
-        """ Use to lint strings directly """
+        """Lint strings directly."""
         result = LintingResult(rule_whitelist=self.rule_whitelist)
         linted_path = LintedPath(fname)
         linted_path.add(
@@ -357,6 +417,7 @@ class Linter(object):
         return result
 
     def lint_path(self, path, verbosity=0, fix=False):
+        """Lint a path."""
         linted_path = LintedPath(path)
         self.log(format_linting_path(path, verbose=verbosity))
         for fname in self.paths_from_path(path):
@@ -366,6 +427,7 @@ class Linter(object):
         return linted_path
 
     def lint_paths(self, paths, verbosity=0, fix=False):
+        """Lint an iterable of paths."""
         # If no paths specified - assume local
         if len(paths) == 0:
             paths = (os.getcwd(),)
@@ -378,6 +440,11 @@ class Linter(object):
         return result
 
     def parse_path(self, path, verbosity=0, recurse=True):
+        """Parse a path of sql files.
+
+        NB: This a generator which will yield the result of each file
+        within the path iteratively.
+        """
         for fname in self.paths_from_path(path):
             self.log('=== [\u001b[30;1m{0}\u001b[0m] ==='.format(fname))
             config = self.config.make_child_from_path(fname)

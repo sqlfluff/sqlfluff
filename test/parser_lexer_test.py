@@ -1,4 +1,4 @@
-""" The Test file for The New Parser (Marker Classes)"""
+"""The Test file for The New Parser (Lexing steps)."""
 
 import pytest
 import logging
@@ -11,6 +11,13 @@ from sqlfluff.errors import SQLLexError
 
 
 def assert_matches(instring, matcher, matchstring):
+    """Assert that a matcher does or doesn't work on a string.
+
+    The optional `matchstring` argument, which can optionally
+    be None, allows to either test positive matching of a
+    particular string or negative matching (that it explicitly)
+    doesn't match.
+    """
     start_pos = FilePositionMarker.from_fresh()
     res = matcher.match(instring, start_pos)
     # Check we've got the right type
@@ -40,10 +47,13 @@ def assert_matches(instring, matcher, matchstring):
         ("abc # comment \nblah", ['abc', ' ', "# comment ", "\n", "blah"]),
         ("abc /* comment \nblah*/", ['abc', ' ', "/* comment \nblah*/"]),
         # Test Singletons
-        ("*-+bd/", ['*', '-', '+', 'bd', '/'])
+        ("*-+bd/", ['*', '-', '+', 'bd', '/']),
+        # Test Negatives and Minus
+        ("2+4 -5", ['2', '+', '4', ' ', '-', '5'])
     ]
 )
 def test__parser__lexer_obj(raw, res, caplog):
+    """Test the lexer splits as expected in a selection of cases."""
     lex = Lexer()
     with caplog.at_level(logging.DEBUG):
         assert [seg.raw for seg in lex.lex(raw)] == res
@@ -57,6 +67,7 @@ def test__parser__lexer_obj(raw, res, caplog):
     ]
 )
 def test__parser__lexer_singleton(raw, res):
+    """Test the SingletonMatcher."""
     matcher = SingletonMatcher(
         "dot", ".", RawSegment.make('.', name='dot', is_code=True)
     )
@@ -79,6 +90,7 @@ def test__parser__lexer_singleton(raw, res):
     ]
 )
 def test__parser__lexer_regex(raw, reg, res, caplog):
+    """Test the RegexMatcher."""
     matcher = RegexMatcher(
         "test", reg, RawSegment.make('test', name='test')
     )
@@ -87,6 +99,7 @@ def test__parser__lexer_regex(raw, reg, res, caplog):
 
 
 def test__parser__lexer_multimatcher(caplog):
+    """Test the RepeatedMultiMatcher."""
     matcher = RepeatedMultiMatcher(
         SingletonMatcher(
             "dot", ".", RawSegment.make('.', name='dot', is_code=True)
@@ -105,6 +118,7 @@ def test__parser__lexer_multimatcher(caplog):
 
 
 def test__parser__lexer_fail(caplog):
+    """Test the how the lexer fails and reports errors."""
     lex = Lexer()
     try:
         lex.lex("Select \u0394")

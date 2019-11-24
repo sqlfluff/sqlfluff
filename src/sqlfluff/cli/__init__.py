@@ -1,1 +1,1 @@
-""" init py for cli """
+"""init py for cli."""

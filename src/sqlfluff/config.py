@@ -1,4 +1,4 @@
-""" module for loading config """
+"""Module for loading config."""
 
 import configparser
 import os
@@ -7,12 +7,31 @@ from .dialects import dialect_selector
 from .templaters import templater_selector
 
 
-# We define a global loader, so that between calls to load config, we
-# can still cache appropriately
 global_loader = None
+""":obj:`ConfigLoader`: A variable to hold the single module loader when loaded.
+
+We define a global loader, so that between calls to load config, we
+can still cache appropriately
+"""
 
 
 def nested_combine(*dicts):
+    """Combine an iterable of dictionaries.
+
+    Each dictionary is combined into a result dictionary. For
+    each key in the first dictionary, it will be overwritten
+    by any same-named key in any later dictionaries in the
+    iterable. If the element at that key is a dictionary, rather
+    than just overwriting we use the same function to combine
+    those dictionaries.
+
+    Args:
+        *dicts: An iterable of dictionaries to be combined.
+
+    Returns:
+        `dict`: A combined dictionary from the input dictionaries.
+
+    """
     r = {}
     for d in dicts:
         for k in d:
@@ -27,6 +46,27 @@ def nested_combine(*dicts):
 
 
 def dict_diff(left, right):
+    """Work out the difference between to dictionaries.
+
+    Returns a dictionary which represents elements in the `left`
+    dictionary which aren't in the `right` or are different to
+    those in the `right`. If the element is a dictionary, we
+    recursively look for differences in those dictionaries,
+    likewise only returning the differing elements.
+
+    NOTE: If an element is in the `right` but not in the `left`
+    at all (i.e. an element has been *removed*) then it will
+    not show up in the comparison.
+
+    Args:
+        left (:obj:`dict`): The object containing the *new* elements
+            which will be compared against the other.
+        right (:obj:`dict`): The object to compare against.
+
+    Returns:
+        `dict`: A dictionary representing the difference.
+
+    """
     buff = {}
     for k in left:
         # Is the key there at all?
@@ -46,22 +86,21 @@ def dict_diff(left, right):
 
 
 class ConfigLoader(object):
-    """ the class for loading config files """
+    """The class for loading config files."""
     def __init__(self):
         # TODO: check that this cache implementation is actually useful
         self._config_cache = {}
 
     @classmethod
     def get_global(cls):
-        """ Get the singleton loader """
+        """Get the singleton loader."""
         global global_loader
         if not global_loader:
             global_loader = cls()
         return global_loader
 
     def _get_config_elems_from_file(self, fpath):
-        """
-        load a config from a file and return a list of tuples.
+        """Load a config from a file and return a list of tuples.
 
         The return value is a list of tuples, were each tuple has two elements,
         the first is a tuple of paths, the second is the value at that path.
@@ -101,6 +140,7 @@ class ConfigLoader(object):
         return buff
 
     def _incorporate_vals(self, ctx, vals):
+        """Take a list of tuples and incorporate it into a dictionary."""
         c = ctx
         for k, v in vals:
             # Keep a ref we can use for recursion
@@ -124,7 +164,7 @@ class ConfigLoader(object):
         return c
 
     def load_default_config_file(self):
-        """Load the default config file"""
+        """Load the default config file."""
         elems = self._get_config_elems_from_file(
             os.path.join(
                 os.path.dirname(__file__),
@@ -134,6 +174,7 @@ class ConfigLoader(object):
         return self._incorporate_vals({}, elems)
 
     def load_config_at_path(self, path):
+        """Load config from a given path."""
         # First check the cache
         if str(path) in self._config_cache:
             return self._config_cache[str(path)]
@@ -161,11 +202,12 @@ class ConfigLoader(object):
         return c
 
     def load_user_config(self):
+        """Load the config from the user's home directory."""
         user_home_path = os.path.expanduser("~")
         return self.load_config_at_path(user_home_path)
 
     def load_config_up_to_path(self, path):
-        """ an extention of the above which loads a selection of config files """
+        """Loads a selection of config files from both the path and it's parent paths."""
         user_config = self.load_user_config()
 
         working_path = os.getcwd()
@@ -206,7 +248,7 @@ class ConfigLoader(object):
 
 
 class FluffConfig(object):
-    """ The class that actually gets passed around as a config object """
+    """.The class that actually gets passed around as a config object."""
 
     def __init__(self, configs=None, overrides=None):
         self._overrides = overrides  # We only store this for child configs
@@ -235,31 +277,51 @@ class FluffConfig(object):
 
     @classmethod
     def from_root(cls, overrides=None):
-        """ loads a config object just based on the root directory """
+        """Loads a config object just based on the root directory."""
         loader = ConfigLoader.get_global()
         c = loader.load_user_config()
         return cls(configs=c, overrides=overrides)
 
     @classmethod
     def from_path(cls, path, overrides=None):
-        """ loads a config object given a particular path """
+        """Loads a config object given a particular path."""
         loader = ConfigLoader.get_global()
         c = loader.load_config_up_to_path(path=path)
         return cls(configs=c, overrides=overrides)
 
     def make_child_from_path(self, path):
-        """ Make a new child config at a path but pass on overrides """
+        """Make a new child config at a path but pass on overrides."""
         return self.from_path(path, overrides=self._overrides)
 
     def diff_to(self, other):
-        """ Returns a filtered dict of items in this config that are not in the other
-        or are different to the other """
+        """Compare this config to another.
+
+        Args:
+            other (:obj:`FluffConfig`): Another config object to compare
+                against. We will return keys from *this* object that are
+                not in `other` or are different to those in `other`.
+
+        Returns:
+            A filtered dict of items in this config that are not in the other
+            or are different to the other.
+
+        """
         return dict_diff(self._configs, other._configs)
 
     def get(self, val, section='core'):
+        """Get a particular value from the config."""
         return self._configs[section].get(val, None)
 
     def get_section(self, section):
+        """Return a whole section of config as a dict.
+
+        Args:
+            section: An iterable or string. If it's a string
+                we load that root section. If it's an iterable
+                of strings, then we treat it as a path within
+                the dictionary structure.
+
+        """
         if isinstance(section, str):
             return self._configs.get(section, None)
         else:

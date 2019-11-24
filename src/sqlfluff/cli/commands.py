@@ -1,4 +1,4 @@
-""" Contains the CLI """
+"""Contains the CLI."""
 
 import sys
 
@@ -14,6 +14,7 @@ from ..config import FluffConfig
 
 
 def common_options(f):
+    """Add common options to commands via a decorator."""
     f = click.option('-v', '--verbose', count=True,
                      help=('Verbosity, how detailed should the output be. This is *stackable*, so `-vv`'
                            ' is more verbose than `-v`. For the most verbose option try `-vvvv` or `-vvvvv`.'))(f)
@@ -41,6 +42,7 @@ def common_options(f):
 
 
 def get_config(**kwargs):
+    """Get a config object from kwargs."""
     if 'dialect' in kwargs:
         try:
             # We're just making sure it exists at this stage - it will be fetched properly in the linter
@@ -54,7 +56,7 @@ def get_config(**kwargs):
 
 
 def get_linter(cfg):
-    """ A generic way of getting hold of a linter """
+    """Get a linter object given a config."""
     try:
         # We're just making sure it exists at this stage - it will be fetched properly in the linter
         dialect_selector(cfg.get('dialect'))
@@ -69,14 +71,14 @@ def get_linter(cfg):
 
 @click.group()
 def cli():
-    """ sqlfluff is a modular sql linter for humans """
+    """Sqlfluff is a modular sql linter for humans."""
     pass
 
 
 @cli.command()
 @common_options
 def version(**kwargs):
-    """ Show the version of sqlfluff """
+    """Show the version of sqlfluff."""
     c = get_config(**kwargs)
     if c.get('verbose') > 0:
         # Instantiate the linter
@@ -89,7 +91,7 @@ def version(**kwargs):
 @cli.command()
 @common_options
 def rules(**kwargs):
-    """ Show the current rules is use """
+    """Show the current rules is use."""
     c = get_config(**kwargs)
     lnt = get_linter(c)
     click.echo(format_rules(lnt), color=c.get('color'))
@@ -146,8 +148,7 @@ def lint(paths, **kwargs):
                     'fixes. **Use this with caution.**'))
 @click.argument('paths', nargs=-1)
 def fix(force, paths, **kwargs):
-    """
-    Fix SQL files
+    """Fix SQL files.
 
     PATH is the path to a sql file or directory to lint. This can be either a
     file (`path/to/file.sql`), a path (`directory/of/sql/files`), a single (`-`)
@@ -212,8 +213,7 @@ def fix(force, paths, **kwargs):
 @click.argument('path', nargs=1)
 @click.option('--recurse', default=0, help='The depth to recursively parse to (0 for unlimited)')
 def parse(path, **kwargs):
-    """
-    Parse SQL files and just spit out the result
+    """Parse SQL files and just spit out the result.
 
     PATH is the path to a sql file or directory to lint. This can be either a
     file (`path/to/file.sql`), a path (`directory/of/sql/files`), a single (`-`)

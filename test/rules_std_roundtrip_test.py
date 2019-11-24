@@ -1,4 +1,4 @@
-""" The Test file for CLI (General) """
+"""Round trip tests for rules with a fix method."""
 
 import tempfile
 import os
@@ -10,7 +10,11 @@ from sqlfluff.cli.commands import lint, fix
 
 
 def generic_roundtrip_test(source_file, rulestring):
-    """ A test for roundtrip testing, take a file buffer, lint, fix and lint """
+    """Run a roundtrip test given a sql file and a rule.
+
+    We take a file buffer, lint, fix and lint, finally checking that
+    the file fails initially but not after fixing.
+    """
     filename = 'tesing.sql'
     # Lets get the path of a file to use
     tempdir_path = tempfile.mkdtemp()
@@ -33,18 +37,18 @@ def generic_roundtrip_test(source_file, rulestring):
 
 
 def test__cli__command__fix_L001():
-    """ Test the round trip of detecting, fixing and then not detecting rule L001 """
+    """Test the round trip of detecting, fixing and then not detecting rule L001."""
     with open('test/fixtures/linter/indentation_errors.sql', mode='r') as f:
         generic_roundtrip_test(f, 'L001')
 
 
 def test__cli__command__fix_L008_a():
-    """ Test the round trip of detecting, fixing and then not detecting rule L008 """
+    """Test the round trip of detecting, fixing and then not detecting rule L008."""
     with open('test/fixtures/linter/whitespace_errors.sql', mode='r') as f:
         generic_roundtrip_test(f, 'L008')
 
 
 def test__cli__command__fix_L008_b():
-    """ Test the round trip of detecting, fixing and then not detecting rule L008 """
+    """Test the round trip of detecting, fixing and then not detecting rule L008."""
     with open('test/fixtures/linter/indentation_errors.sql', mode='r') as f:
         generic_roundtrip_test(f, 'L008')

@@ -1,1 +1,1 @@
-""" init py for the new rules crawlers """
+"""init py for the new rules crawlers."""

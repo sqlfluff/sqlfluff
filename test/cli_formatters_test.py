@@ -1,4 +1,4 @@
-""" The Test file for CLI Formatters """
+"""The Test file for CLI Formatters."""
 
 import re
 
@@ -10,24 +10,28 @@ from sqlfluff.cli.formatters import format_filename, format_violation, format_pa
 
 
 def escape_ansi(line):
-    """ A helper function to remove ANSI color codes """
+    """Remove ANSI color codes for testing."""
     ansi_escape = re.compile(u'\u001b\\[[0-9]+(;[0-9]+)?m')
     return ansi_escape.sub('', line)
 
 
 def test__cli__formatters__filename_nocol():
+    """Test formatting filenames."""
     res = format_filename('blahblah', success=True, verbose=0)
     assert escape_ansi(res) == "== [blahblah] PASS"
 
 
 def test__cli__formatters__filename_col():
-    """ Explicity test color codes """
+    """Explicity test color codes."""
     res = format_filename('blah', success=False, verbose=0)
     assert res == u"== [\u001b[30;1mblah\u001b[0m] \u001b[31mFAIL\u001b[0m"
 
 
 def test__cli__formatters__violation():
-    """ NB Position is 1 + start_pos """
+    """Test formatting violations.
+
+    NB Position is 1 + start_pos.
+    """
     s = RawSegment('foobarbar', FilePositionMarker(0, 20, 11, 100))
     r = RuleGhost('A', 'DESC')
     v = SQLLintError(segment=s, rule=r)
@@ -36,7 +40,7 @@ def test__cli__formatters__violation():
 
 
 def test__cli__formatters__violations():
-    # check not just the formatting, but the ordering
+    """Test formatting and ordering of violations."""
     v = {
         'foo': [
             SQLLintError(

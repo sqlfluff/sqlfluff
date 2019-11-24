@@ -1,5 +1,4 @@
-"""
-Automated tests for all dialects.
+"""Automated tests for all dialects.
 
 Any files in the /tests/fixtures/parser directoy will be picked up
 and automatically tested against the appropriate dialect.
@@ -36,10 +35,12 @@ for d in os.listdir(os.path.join('test', 'fixtures', 'parser')):
 
 
 def make_dialect_path(dialect, fname):
+    """Work out how to find paths given a dialect and a file name."""
     return os.path.join('test', 'fixtures', 'parser', dialect, fname)
 
 
 def load_file(dialect, fname):
+    """Load a file."""
     with open(make_dialect_path(dialect, fname)) as f:
         raw = f.read()
     return raw
@@ -49,7 +50,8 @@ def load_file(dialect, fname):
     "dialect,file",
     parse_success_examples
 )
-def test__dialect__ansi__base_file_parse(dialect, file, caplog):
+def test__dialect__base_file_parse(dialect, file, caplog):
+    """For given test examples, check successful parsing."""
     raw = load_file(dialect, file)
     fs = FileSegment.from_raw(raw)
     # From just the initial parse, check we're all there
@@ -75,8 +77,8 @@ def test__dialect__ansi__base_file_parse(dialect, file, caplog):
     "dialect,sqlfile,yamlfile",
     parse_structure_examples
 )
-def test__dialect__ansi__base_parse_struct(dialect, sqlfile, yamlfile, caplog, yaml_loader):
-    """ Some simple statements to check full parsing structure """
+def test__dialect__base_parse_struct(dialect, sqlfile, yamlfile, caplog, yaml_loader):
+    """For given test examples, check parsed structure against yaml."""
     # Load the right dialect
     dia = dialect_selector(dialect)
     context = ParseContext(dialect=dia)

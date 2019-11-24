@@ -1,9 +1,4 @@
-"""
-Automated tests for all dialects.
-
-Any files in the /tests/fixtures/parser directoy will be picked up
-and automatically tested against the appropriate dialect.
-"""
+"""Tests for the configuration routines."""
 
 import os
 
@@ -14,6 +9,7 @@ config_a = {'core': {'testing_val': 'foobar', 'testing_int': 4}, 'bar': {'foo': 
 
 
 def test__config__nested_combine():
+    """Test combination of two config dicts."""
     a = {'a': {'b': {'c': 123, 'd': 456}}}
     b = {'b': {'b': {'c': 123, 'd': 456}}}
     c = {'a': {'b': {'c': 234, 'e': 456}}}
@@ -22,6 +18,7 @@ def test__config__nested_combine():
 
 
 def test__config__dict_diff():
+    """Test diffs between two config dicts."""
     a = {'a': {'b': {'c': 123, 'd': 456, 'f': 6}}}
     b = {'b': {'b': {'c': 123, 'd': 456}}}
     c = {'a': {'b': {'c': 234, 'e': 456, 'f': 6}}}
@@ -31,20 +28,23 @@ def test__config__dict_diff():
 
 
 def test__config__load_file_dir():
+    """Test loading config from a directory path."""
     c = ConfigLoader()
-    cfg = c.load_config_at_path(os.path.join('test', 'fixtures', 'config', 'inheritance_a'))
+    cfg = c.load_config_at_path(os.path.join(
+        'test', 'fixtures', 'config', 'inheritance_a'))
     assert cfg == config_a
 
 
 def test__config__load_file_f():
+    """Test loading config from a file path."""
     c = ConfigLoader()
-    cfg = c.load_config_at_path(os.path.join('test', 'fixtures', 'config', 'inheritance_a', 'testing.sql'))
+    cfg = c.load_config_at_path(os.path.join(
+        'test', 'fixtures', 'config', 'inheritance_a', 'testing.sql'))
     assert cfg == config_a
 
 
 def test__config__load_nested():
-    """ We're testing nested overwrite, but also the ordering of precedence of files in the
-    same directory """
+    """Test nested overwrite and order of precedence of config files in the same directory."""
     c = ConfigLoader()
     cfg = c.load_config_up_to_path(os.path.join('test', 'fixtures', 'config', 'inheritance_a', 'nested', 'blah.sql'))
     assert cfg == {
