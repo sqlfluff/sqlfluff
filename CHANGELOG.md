@@ -9,11 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Templating support (jinja2, python or raw)
-  - Variables + Macros
-- Config file support, including specifying context for the templater
+- Templating support (jinja2, python or raw).
+  - Variables + Macros.
+- Config file support, including specifying context for the templater.
 - Documentation via Sphinx and readthedocs.
-- Documentation LINTING (given we're a linting project) introduced in CI
+- Documentation LINTING (given we're a linting project) introduced in CI.
+- Reimplemented L006 & L007 which lint whitespace around operators.
 
 ### Changed
 

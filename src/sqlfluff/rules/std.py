@@ -176,6 +176,9 @@ def L006_fix(segment, memory, parent_stack, **kwargs):
         WhitespaceSegment = RawSegment.make(' ', name='whitespace')
 
         if len(segments_since_code) == 0:
+            # No whitespace, anchor is the segment AFTER where the whitespace
+            # should be.
+            anchor = this_segment
             fixes.append(
                 LintFix(
                     'create', this_segment,
@@ -255,6 +258,57 @@ L006 = BaseCrawler(
 )
 
 
+# L007 - Operators near newlines should be after, not before the newline.
+
+
+def L007_fix(segment, memory, parent_stack, **kwargs):
+    # We use the memory to keep track of whitespace up to now, and
+    # whether the last code segment was an operator or not.
+    # Anchor is our signal as to whether there's a problem.
+
+    # We only trigger if we have an operator FOLLOWED BY a newline
+    # before the next meaningful code segment.
+    anchor = None
+
+    # The parent stack tells us whether we're in an expression or not.
+    if parent_stack and parent_stack[-1].type == 'expression':
+        if segment.is_code:
+            # This is code, what kind?
+            if segment.type in ['binary_operator', 'comparison_operator']:
+                # We only trigger if the last was an operator, not if this is.
+                pass
+            elif memory['last_code'] and memory['last_code'].type in ['binary_operator', 'comparison_operator']:
+                # It's not an operator, but the last code was. Now check to see
+                # there is a newline between us and the last operator.
+                for s in memory['since_code']:
+                    if s.name == 'newline':
+                        anchor = memory['last_code']
+                        # TODO: Work out a nice fix for this.
+            # Prepare memory for later
+            memory['last_code'] = segment
+            memory['since_code'] = []
+        else:
+            # This isn't a code segment...
+            # Prepare memory for later
+            memory['since_code'].append(segment)
+    else:
+        # Reset the memory if we're not in an expression
+        memory = {'last_code': None, 'since_code': []}
+
+    # Anchor is our signal as to whether there's a problem
+    if anchor:
+        return LintResult(anchor=anchor, memory=memory)
+    else:
+        return LintResult(memory=memory)
+
+
+L007 = BaseCrawler(
+    'L007',
+    'Operators near newlines should be after, not before the newline.',
+    evaluate_function=L007_fix
+)
+
+
 # L008 - Commas should be followed by a single whitespace unless followed by a comment
 
 
@@ -324,4 +378,4 @@ L009 = BaseCrawler(
 )
 
 
-standard_rule_set = [L001, L002, L003, L004, L005, L006, L008, L009]
+standard_rule_set = [L001, L002, L003, L004, L005, L006, L007, L008, L009]

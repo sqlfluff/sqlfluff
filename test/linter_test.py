@@ -100,7 +100,14 @@ def test__linter__lint_file_operators():
     # Check we get operator whitespace errors
     assert ('L006', 3, 8) in violations
     assert ('L006', 4, 10) in violations
-    assert ('L007', 5, 8) in violations  # TODO: This one needs work
+    assert ('L007', 5, 9) in violations
+    # Check it works with brackets
+    assert ('L006', 7, 6) in violations
+    assert ('L006', 7, 7) in violations
+    assert ('L006', 7, 9) in violations
+    assert ('L006', 7, 10) in violations
+    assert ('L006', 7, 12) in violations
+    assert ('L006', 7, 13) in violations
 
 
 def test__linter__lint_file_operators_negative():
