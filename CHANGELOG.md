@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documentation via Sphinx and readthedocs.
 - Documentation LINTING (given we're a linting project) introduced in CI.
 - Reimplemented L006 & L007 which lint whitespace around operators.
+- Ability to configure rule behaviour direclty from the config file.
 
 ### Changed
 
@@ -22,6 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed how negative literals are handled, so that they're now a compound segment
   rather than being identified at the lexing stage. This is to allow the parser
   to resolve the potential ambiguity.
+- Restructure of rule definitions to be more streamlined and also enable
+  autodocumentation. This includes a more complete `RuleSet` class which now
+  holds the filtering code.
 
 ## [0.1.5] - 2019-11-11
 

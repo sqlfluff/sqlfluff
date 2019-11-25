@@ -188,8 +188,8 @@ def format_config(linter, verbose=0):
         ]
         text_buffer.write(cli_table(config_content))
         text_buffer.write("\n")
-        if linter.rule_whitelist:
-            text_buffer.write(cli_table([('rules', ', '.join(linter.rule_whitelist))], col_width=41))
+        if linter.config.get('rule_whitelist'):
+            text_buffer.write(cli_table([('rules', ', '.join(linter.config.get('rule_whitelist')))], col_width=41))
     return text_buffer.getvalue()
 
 
