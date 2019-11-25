@@ -14,6 +14,7 @@ should flag on the segment FOLLOWING, the place that the desired element is
 missing.
 """
 
+import logging
 from collections import namedtuple
 
 from ..errors import SQLLintError
@@ -92,21 +93,34 @@ class BaseCrawler(object):
             or exclusion.
         description (:obj:`str`): A human readable description of what this
             rule does. It will be displayed when any violations are found.
-        evaluate_function (:obj:`function` returning :obj:`LintResult`): A
-            callable which returns a `LintResult` or `None`, which indicate
-            whether a linting violation has occured and/or whether there is
-            something to remember from this evaluation.
-
-            Note that an evaluate function shoul always accept **kwargs, but
-            if it relies on any available kwargs, it should explicitly call
-            them out at definition.
 
     """
-    def __init__(self, code, description, evaluate_function):
+    def __init__(self, code, description, **kwargs):
         self.description = description
         self.code = code
-        # TODO: Document what options are available to the evaluation function.
-        self.evaluate_function = evaluate_function
+        # Any unused kwargs will just be ignored from here.
+
+    def _eval(self, **kwargs):
+        """A callable which returns a `LintResult` or `None`.
+
+        This should indicate whether a linting violation has occured and/or
+        whether there is something to remember from this evaluation.
+
+        Note that an evaluate function shoul always accept **kwargs, but
+        if it relies on any available kwargs, it should explicitly call
+        them out at definition.
+
+        The reason that this method is called `_eval` and not `eval` is
+        a bit of a hack with sphinx autodoc, to make it so that the rule
+        documentation auto-generates nicely.
+
+        """
+        raise NotImplementedError(
+            (
+                "{0} has not had it's `eval` function defined. This is a problem "
+                "with the rule setup."
+            ).format(self.__class__.__name__)
+        )
 
     def crawl(self, segment, parent_stack=None, siblings_pre=None, siblings_post=None, raw_stack=None, fix=False, memory=None):
         """Recursively perform the crawl operation on a given segment.
@@ -130,7 +144,8 @@ class BaseCrawler(object):
         memory = memory or {}
         vs = []
 
-        res = self.evaluate_function(
+        # TODO: Document what options are available to the evaluation function.
+        res = self._eval(
             segment=segment, parent_stack=parent_stack,
             siblings_pre=siblings_pre, siblings_post=siblings_post,
             raw_stack=raw_stack, memory=memory)
@@ -173,3 +188,135 @@ class BaseCrawler(object):
         # If we get here, then we're not returning any fixes (even if they've been
         # generated). So blank that out here.
         return vs, raw_stack, [], memory
+
+
+class RuleSet(object):
+    """Class to define a ruleset.
+
+    A rule set is instantiated on module load, but the references
+    to each of it's classes are instantiated at runtime. This means
+    that configuration values can be passed to those rules live
+    and be responsive to any changes in configuration from the
+    path that the file is in.
+
+    Rules should be fetched using the `get_rulelist` command which
+    also handles any filtering (i.e. whitelisting and blacklisting).
+
+    New rules should be added to the instance of this class using the
+    `register` decorator. That decorator registers the class, but also
+    performs basic type and name-convention checks.
+
+    @ruleset.register
+    class Rule_L001(BaseCrawler):
+        "Description of rule."
+
+        def eval(self, **kwargs):
+            return LintResult()
+
+
+    The code for the rule will be parsed from the name, the description
+    from the docstring. The eval function is assumed that it will be
+    overriden by the subclass, and the parent class raises an error on
+    this function if not overriden.
+
+    """
+
+    def __init__(self, name):
+        self.name = name
+        self._register = {}
+
+    def register(self, cls):
+        """Decorate a class with this to add it to the ruleset.
+
+        @ruleset.register
+        class Rule_L001(BaseCrawler):
+            "Description of rule."
+
+            def eval(self, **kwargs):
+                return LintResult()
+
+        We expect that rules are defined as classes with the name `Rule_XXXX`
+        where XXXX is of the form LNNN, where L is a letter (literally L for
+        *linting* by default) and N is a three digit number.
+
+        If this receives classes by any other name, then it will raise an
+        error.
+
+        """
+        elems = cls.__name__.split('_')
+        # Validate the name
+        if len(elems) != 2 or elems[0] != 'Rule' or len(elems[1]) != 4:
+            raise ValueError(
+                (
+                    "Tried to register rule on set {0!r} with unexpected "
+                    "format: {1}"
+                ).format(
+                    self.name,
+                    cls.__name__
+                )
+            )
+
+        code = elems[1]
+        # If the docstring is multiline, then we extract just summary.
+        description = cls.__doc__.split('\n')[0]
+
+        # Keep track of the *class* in the register. Don't instantiate yet.
+        if code in self._register:
+            raise ValueError(
+                "Rule {0!r} has already been registered on RuleSet {1!r}!".format(
+                    code, self.name))
+        self._register[code] = dict(code=code, description=description, cls=cls)
+
+        # Make sure we actually return the original class
+        return cls
+
+    def get_rulelist(self, config):
+        """Use the config to return the appropriate rules.
+
+        We use the config both for whitelisting and blacklisting, but also
+        for configuring the rules given the given config.
+        """
+        # default the whitelist to all the rules if not set
+        whitelist = config.get('rule_whitelist') or list(self._register.keys())
+        blacklist = config.get('rule_blacklist') or []
+
+        whitelisted_unknown_rule_codes = [r for r in whitelist if r not in self._register]
+        if any(whitelisted_unknown_rule_codes):
+            logging.warning(
+                "Tried to whitelist unknown rules: {0!r}".format(
+                    whitelisted_unknown_rule_codes))
+
+        blacklisted_unknown_rule_codes = [r for r in blacklist if r not in self._register]
+        if any(blacklisted_unknown_rule_codes):
+            logging.warning(
+                "Tried to blacklist unknown rules: {0!r}".format(
+                    blacklisted_unknown_rule_codes))
+
+        keylist = sorted(self._register.keys())
+        # First we filter the rules
+        keylist = [r for r in keylist if r in whitelist and r not in blacklist]
+
+        def merge_two_dicts(x, y):
+            """Given two dicts, merge them into a new dict as a shallow copy."""
+            z = x.copy()
+            if y:
+                z.update(y)
+            return z
+
+        # Construct the kwargs for instatiation before we actually do it.
+        rule_kwargs = {}
+        for k in keylist:
+            kwargs = {}
+            generic_rule_config = config.get_section('rules')
+            specific_rule_config = config.get_section(('rules', self._register[k]['code']))
+            if generic_rule_config:
+                kwargs.update(generic_rule_config)
+            if specific_rule_config:
+                kwargs.update(specific_rule_config)
+            kwargs['code'] = self._register[k]['code']
+            # Allow variable substitution in making the description
+            kwargs['description'] = self._register[k]['description'].format(**kwargs)
+            rule_kwargs[k] = kwargs
+
+        # Instantiate in the final step
+        return [self._register[k]['cls'](**rule_kwargs[k]) for k in keylist]

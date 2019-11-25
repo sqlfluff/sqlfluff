@@ -62,7 +62,7 @@ about the architecture of sqlfluff, you can find [more here](https://sqlfluff.re
   - [ ] Inconsistent capitalisation of unquoted identifiers
   - [x] Implement a context manager in the parse and match
         functions to avoid passing around so many variables.
-  - [ ] Reenable disabled linter tests
+  - [x] Reenable disabled linter tests
 - [x] Configurable linting
   - [x] Command line options for config
     - [x] Rough parity between command line and file based config
@@ -77,7 +77,7 @@ about the architecture of sqlfluff, you can find [more here](https://sqlfluff.re
   - [ ] Delta-configs for individual files printed before each above some
         level of verbosity.
   - [x] Work out a solution to templating *macros*.
-  - [ ] Allow configuration for *rules*, e.g. indentation multiplier for
+  - [x] Allow configuration for *rules*, e.g. indentation multiplier for
         L003 or the capitalisation for the keyword rule.
 - [x] Dialects
   - [ ] ANSI
@@ -95,7 +95,7 @@ about the architecture of sqlfluff, you can find [more here](https://sqlfluff.re
 - [ ] Documentation
   - [x] Basic architectural principles
   - [ ] Update CLI docs to match current state
-  - [ ] Auto-document Rules
+  - [x] Auto-document Rules
   - [ ] Auto-document Grammars
   - [ ] Auto-document Templaters
   - [ ] Auto-docuemnt Dialects

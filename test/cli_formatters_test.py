@@ -2,7 +2,7 @@
 
 import re
 
-from sqlfluff.rules.crawler import RuleGhost
+from sqlfluff.rules.base import RuleGhost
 from sqlfluff.parser import RawSegment
 from sqlfluff.parser.markers import FilePositionMarker
 from sqlfluff.errors import SQLLintError

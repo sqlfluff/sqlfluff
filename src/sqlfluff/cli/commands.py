@@ -163,7 +163,7 @@ def fix(force, paths, **kwargs):
     if len(config_string) > 0:
         lnt.log(config_string)
     # Check that if fix is specified, that we have picked only a subset of rules
-    if lnt.rule_whitelist is None:
+    if lnt.config.get('rule_whitelist') is None:
         lnt.log(("The fix option is only available in combination"
                  " with --rules. This is for your own safety!"))
         sys.exit(1)
@@ -173,11 +173,8 @@ def fix(force, paths, **kwargs):
 
     if result.num_violations() > 0:
         click.echo("==== fixing violations ====")
-        click.echo("{0} violations found of rule{1} {2}".format(
-            result.num_violations(),
-            "s" if len(result.rule_whitelist) > 1 else "",
-            ", ".join(result.rule_whitelist)
-        ))
+        click.echo("{0} violations found".format(
+            result.num_violations()))
         if force:
             click.echo('FORCE MODE: Attempting fixes...')
             result = lnt.lint_paths(paths, fix=True)

@@ -34,7 +34,7 @@ def test__cli__command_directed():
     # We should get a readout of what the error was
     check_a = "L:   2 | P:   1 | L003"
     # NB: Skip the number at the end because it's configurable
-    check_b = "Spaced indent is not a multiple of"
+    check_b = "Indentation length is not a multiple of"
     assert check_a in result.output
     assert check_b in result.output
 

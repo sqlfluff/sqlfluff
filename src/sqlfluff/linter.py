@@ -7,7 +7,9 @@ from .errors import SQLLexError, SQLParseError, SQLTemplaterError
 from .helpers import get_time
 from .parser.segments_file import FileSegment
 from .parser.segments_base import verbosity_logger, frame_msg, ParseContext
-from .rules.std import standard_rule_set
+# from .rules.std import standard_rule_set
+from .rules import get_ruleset
+
 
 from .cli.formatters import format_linting_path, format_file_violations
 
@@ -105,10 +107,8 @@ class LintingResult(object):
     potential files within them.
     """
 
-    def __init__(self, rule_whitelist=None):
+    def __init__(self):
         self.paths = []
-        # Store the rules we're using
-        self.rule_whitelist = rule_whitelist
 
     @staticmethod
     def sum_dicts(d1, d2):
@@ -184,10 +184,6 @@ class Linter(object):
         self.dialect = config.get('dialect_obj')
         self.templater = config.get('templater_obj')
         self.sql_exts = sql_exts
-        # restrict the search to only specific rules.
-        # assume that this is a list of rule codes
-        self.rule_whitelist = config.get('rule_whitelist')
-        self.rule_blacklist = config.get('rule_blacklist')
         # Used for logging as we go
         self.output_func = output_func
         # Store the config object
@@ -212,27 +208,15 @@ class Linter(object):
                 self.output_func(msg)
 
     def get_ruleset(self, config=None):
-        """Get hold of a set of rules.
-
-        TODO: We should probably extend this later for differing rules.
-        """
-        rs = standard_rule_set
+        """Get hold of a set of rules."""
+        rs = get_ruleset()
         cfg = config or self.config
-        # default the whitelist to all the rules if not set
-        whitelist = cfg.get('rule_whitelist') or [r.code for r in rs]
-        blacklist = cfg.get('rule_blacklist') or []
-        rs = [r for r in rs if r.code in whitelist and r.code not in blacklist]
-        return rs
+        return rs.get_rulelist(config=cfg)
 
     def rule_tuples(self):
         """A simple pass through to access the rule tuples of the rule set."""
         rs = self.get_ruleset()
-        rt = [(rule.code, rule.description) for rule in rs]
-
-        if self.rule_whitelist:
-            return [elem for elem in rt if elem[0] in self.rule_whitelist]
-        else:
-            return rt
+        return [(rule.code, rule.description) for rule in rs]
 
     def parse_string(self, s, fname=None, verbosity=0, recurse=True, config=None):
         """Parse a string.
@@ -408,7 +392,7 @@ class Linter(object):
 
     def lint_string_wrapped(self, string, fname='<string input>', verbosity=0, fix=False):
         """Lint strings directly."""
-        result = LintingResult(rule_whitelist=self.rule_whitelist)
+        result = LintingResult()
         linted_path = LintedPath(fname)
         linted_path.add(
             self.lint_string(string, fname=fname, verbosity=verbosity, fix=fix)
@@ -432,7 +416,7 @@ class Linter(object):
         if len(paths) == 0:
             paths = (os.getcwd(),)
         # Set up the result to hold what we get back
-        result = LintingResult(rule_whitelist=self.rule_whitelist)
+        result = LintingResult()
         for path in paths:
             # Iterate through files recursively in the specified directory (if it's a directory)
             # or read the file directly if it's not
