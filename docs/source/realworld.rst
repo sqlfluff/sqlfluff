@@ -1,7 +1,7 @@
 .. _realworldref:
 
-SQL in the Modern Data Stack
-============================
+SQL in the Wild
+===============
 
 SQL has been around for a long time, as a language for communicating
 with databases, like a communication protocol. More recently with the

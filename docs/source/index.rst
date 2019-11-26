@@ -1,5 +1,5 @@
-The SQL Linter for humans
-=========================
+📜 ✒️ ✨ The SQL Linter for humans
+===================================
 
 Bored of not having a good SQL linter that works with whichever dialiect
 you're working with? Fluff is an extensible and modular linter designed
