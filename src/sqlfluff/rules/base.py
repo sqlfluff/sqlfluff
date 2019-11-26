@@ -49,7 +49,7 @@ class LintResult(object):
         self.memory = memory
 
     def to_linting_error(self, rule):
-        """Convert a linting result to a `SQLLintError` if appropriate."""
+        """Convert a linting result to a :exc:`SQLLintError` if appropriate."""
         if self.anchor:
             return SQLLintError(rule=rule, segment=self.anchor, fixes=self.fixes)
         else:
@@ -101,16 +101,19 @@ class BaseCrawler(object):
         # Any unused kwargs will just be ignored from here.
 
     def _eval(self, **kwargs):
-        """A callable which returns a `LintResult` or `None`.
+        """Evaluate this rule against the current context.
 
         This should indicate whether a linting violation has occured and/or
         whether there is something to remember from this evaluation.
 
-        Note that an evaluate function shoul always accept **kwargs, but
+        Note that an evaluate function shoul always accept `**kwargs`, but
         if it relies on any available kwargs, it should explicitly call
         them out at definition.
 
-        The reason that this method is called `_eval` and not `eval` is
+        Returns:
+            :obj:`LintResult` or :obj:`None`.
+
+        The reason that this method is called :meth:`_eval` and not `eval` is
         a bit of a hack with sphinx autodoc, to make it so that the rule
         documentation auto-generates nicely.
 
@@ -199,20 +202,12 @@ class RuleSet(object):
     and be responsive to any changes in configuration from the
     path that the file is in.
 
-    Rules should be fetched using the `get_rulelist` command which
+    Rules should be fetched using the :meth:`get_rulelist` command which
     also handles any filtering (i.e. whitelisting and blacklisting).
 
     New rules should be added to the instance of this class using the
-    `register` decorator. That decorator registers the class, but also
+    :meth:`register` decorator. That decorator registers the class, but also
     performs basic type and name-convention checks.
-
-    @ruleset.register
-    class Rule_L001(BaseCrawler):
-        "Description of rule."
-
-        def eval(self, **kwargs):
-            return LintResult()
-
 
     The code for the rule will be parsed from the name, the description
     from the docstring. The eval function is assumed that it will be
@@ -228,19 +223,21 @@ class RuleSet(object):
     def register(self, cls):
         """Decorate a class with this to add it to the ruleset.
 
-        @ruleset.register
-        class Rule_L001(BaseCrawler):
-            "Description of rule."
+        .. code-block:: python
 
-            def eval(self, **kwargs):
-                return LintResult()
+           @myruleset.register
+           class Rule_L001(BaseCrawler):
+               "Description of rule."
+
+               def eval(self, **kwargs):
+                   return LintResult()
 
         We expect that rules are defined as classes with the name `Rule_XXXX`
-        where XXXX is of the form LNNN, where L is a letter (literally L for
+        where `XXXX` is of the form `LNNN`, where L is a letter (literally L for
         *linting* by default) and N is a three digit number.
 
-        If this receives classes by any other name, then it will raise an
-        error.
+        If this receives classes by any other name, then it will raise a
+        :exc:`ValueError`.
 
         """
         elems = cls.__name__.split('_')
@@ -275,6 +272,10 @@ class RuleSet(object):
 
         We use the config both for whitelisting and blacklisting, but also
         for configuring the rules given the given config.
+
+        Returns:
+            :obj:`list` of instantiated :obj:`BaseCrawler`.
+
         """
         # default the whitelist to all the rules if not set
         whitelist = config.get('rule_whitelist') or list(self._register.keys())
@@ -295,13 +296,6 @@ class RuleSet(object):
         keylist = sorted(self._register.keys())
         # First we filter the rules
         keylist = [r for r in keylist if r in whitelist and r not in blacklist]
-
-        def merge_two_dicts(x, y):
-            """Given two dicts, merge them into a new dict as a shallow copy."""
-            z = x.copy()
-            if y:
-                z.update(y)
-            return z
 
         # Construct the kwargs for instatiation before we actually do it.
         rule_kwargs = {}

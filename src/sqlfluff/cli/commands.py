@@ -104,8 +104,8 @@ def lint(paths, **kwargs):
     """Lint SQL files via passing a list of files or using stdin.
 
     PATH is the path to a sql file or directory to lint. This can be either a
-    file (`path/to/file.sql`), a path (`directory/of/sql/files`), a single (`-`)
-    character to indicate reading from `stdin` or a dot/blank (`.`/` `) which will
+    file ('path/to/file.sql'), a path ('directory/of/sql/files'), a single ('-')
+    character to indicate reading from *stdin* or a dot/blank ('.'/' ') which will
     be interpreted like passing the current working directory as a path argument.
 
     Linting SQL files:
@@ -151,8 +151,8 @@ def fix(force, paths, **kwargs):
     """Fix SQL files.
 
     PATH is the path to a sql file or directory to lint. This can be either a
-    file (`path/to/file.sql`), a path (`directory/of/sql/files`), a single (`-`)
-    character to indicate reading from `stdin` or a dot/blank (`.`/` `) which will
+    file ('path/to/file.sql'), a path ('directory/of/sql/files'), a single ('-')
+    character to indicate reading from *stdin* or a dot/blank ('.'/' ') which will
     be interpreted like passing the current working directory as a path argument.
     """
     c = get_config(**kwargs)
@@ -213,8 +213,8 @@ def parse(path, **kwargs):
     """Parse SQL files and just spit out the result.
 
     PATH is the path to a sql file or directory to lint. This can be either a
-    file (`path/to/file.sql`), a path (`directory/of/sql/files`), a single (`-`)
-    character to indicate reading from `stdin` or a dot/blank (`.`/` `) which will
+    file ('path/to/file.sql'), a path ('directory/of/sql/files'), a single ('-')
+    character to indicate reading from *stdin* or a dot/blank ('.'/' ') which will
     be interpreted like passing the current working directory as a path argument.
     """
     c = get_config(**kwargs)
