@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documentation LINTING (given we're a linting project) introduced in CI.
 - Reimplemented L006 & L007 which lint whitespace around operators.
 - Ability to configure rule behaviour direclty from the config file.
+- Implemented L010 to lint capitalisation of keywords.
 
 ### Changed
 
@@ -26,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Restructure of rule definitions to be more streamlined and also enable
   autodocumentation. This includes a more complete `RuleSet` class which now
   holds the filtering code.
+- Corrected logging in fix mode not to duplicate the reporting of errors.
 
 ## [0.1.5] - 2019-11-11
 

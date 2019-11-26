@@ -52,3 +52,9 @@ def test__cli__command__fix_L008_b():
     """Test the round trip of detecting, fixing and then not detecting rule L008."""
     with open('test/fixtures/linter/indentation_errors.sql', mode='r') as f:
         generic_roundtrip_test(f, 'L008')
+
+
+def test__cli__command__fix_L010():
+    """Test the round trip of detecting, fixing and then not detecting rule L008."""
+    with open('test/fixtures/linter/whitespace_errors.sql', mode='r') as f:
+        generic_roundtrip_test(f, 'L010')
