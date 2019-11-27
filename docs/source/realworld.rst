@@ -11,7 +11,7 @@ data and analysis - not just as a one off but as a form of
 `infrastructure as code`_.
 
 As *analytics* transitions from a profession of people doing one-offs,
-and moves to building stable and reuable pieces of analytics, more and
+and moves to building stable and reusable pieces of analytics, more and
 more principles from software engineering are moving in the analytics
 space. One of the best articulations of this is written in the
 `viewpoint section of the docs for the open-source tool dbt`_. Two of
@@ -24,9 +24,9 @@ Quality assurance
 The primary aim of `sqlfluff` as a project is in service of that first
 aim of `quality assurance`_. With larger and larger teams maintaining
 large bodies of SQL code, it becomes more and more important that the
-code is not just *valid* but also easily *comprehendable* by other users
-of the same codebase. One way to ensure readability is to enfore a
-`consistent style`_, and the tools used to to this are called `linters`_.
+code is not just *valid* but also easily *comprehensible* by other users
+of the same codebase. One way to ensure readability is to enforce a
+`consistent style`_, and the tools used to do this are called `linters`_.
 
 Some famous `linters`_ which are well known in the software community are
 `flake8`_ and `jslint`_ (the former is used to lint the `sqlfluff` project
@@ -66,13 +66,24 @@ this is done in the wild in one of the following ways:
 
 All of these templating tools are great for `modularity`_ but they also
 mean that the SQL files themselves are no longer valid SQL code, because
-they now contain these configured *placeholder* values, inteded to
+they now contain these configured *placeholder* values, intended to
 improve modularity.
 
 Sqlfluff allows limited templating using both of the methods outlined
 above, to allow you to still lint those SQL files as part of your CI/CD
 pipeline (which is great 🙌), rather than waiting until you're in production
 (which is bad 🤦, and maybe too late).
+
+During the CI/CD pipeline (or any time that we need to handle `templated`_
+code), Sqlfluff needs additional info in order to interpret your templates
+as valid SQL code. You do so by providing dummy parameters in Sqlfluff
+configuration files. When substituted into the template, these values should
+evaluate to valid SQL (so Sqlfluff can check its style, formatting, and
+correctness), but the values don't need to match actual values used in
+production. This means that you can use *much simpler* dummy values than
+what you would really use. The recommendation is to use *the simplest*
+possible dummy value that still allows your code to evaluate to valid SQL
+so that the configuration values can be a streamlined as possible.
 
 .. _`infrastructure as code`: https://en.wikipedia.org/wiki/Infrastructure_as_code
 .. _`viewpoint section of the docs for the open-source tool dbt`: https://docs.getdbt.com/docs/viewpoint
