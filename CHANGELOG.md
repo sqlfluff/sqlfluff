@@ -13,9 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Variables + Macros.
 - Config file support, including specifying context for the templater.
 - Documentation via Sphinx and readthedocs.
+  - Including a guide on the role of SQL in the real world.
+    Assisted by [@barrywhart](https://github.com/barrywhart).
 - Documentation LINTING (given we're a linting project) introduced in CI.
 - Reimplemented L006 & L007 which lint whitespace around operators.
-- Ability to configure rule behaviour direclty from the config file.
+- Ability to configure rule behaviour directly from the config file.
 
 ### Changed
 
@@ -131,7 +133,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added a `sqlfluff fix` as a command to implement auto-fixing of linting
   errors. For now only `L001` is implemented as a rule that can fix things.
-- Added a `rules` command to introspec the available rules.
+- Added a `rules` command to introspect the available rules.
 - Updated the cli table function to use the `testwrap` library and also
   deal a lot better with longer values.
 - Added a `--rules` argument to most of the commands to allow rule users
@@ -166,7 +168,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added operator regexes
-- Added a priority for matchers to resolve some abiguity
+- Added a priority for matchers to resolve some ambiguity
 - Added tests for operator regexes
 - Added ability to initialise the memory in rules
 
