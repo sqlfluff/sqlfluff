@@ -1,6 +1,6 @@
 SELECT
-    a  -  b as c,
-    -2 as d,
-    a - b as e,
-    4-7 as f
+    a  -  b AS c,
+    -2 AS d,
+    a - b AS e,
+    4-7 AS f
 FROM tbl

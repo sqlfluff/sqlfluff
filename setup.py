@@ -7,7 +7,10 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 import io
-import configparser
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
 from os.path import dirname
 from os.path import join
 
@@ -17,7 +20,7 @@ from setuptools import setup
 # Get the global config info as currently stated
 # (we use the config file to avoid actually loading any python here)
 config = configparser.ConfigParser()
-config.read_file(open('src/sqlfluff/config.ini'))
+config.read(['src/sqlfluff/config.ini'])
 version = config.get('sqlfluff', 'version')
 
 

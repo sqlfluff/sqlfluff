@@ -368,8 +368,9 @@ class Linter(object):
             vs += linting_errors
 
         res = LintedFile(fname, vs, time_dict, parsed)
-        # Do the logging as appropriate
-        self.log(format_file_violations(fname, res.violations, verbose=verbosity))
+        # Do the logging as appropriate (don't log if fixing...)
+        if not fix:
+            self.log(format_file_violations(fname, res.violations, verbose=verbosity))
         return res
 
     def paths_from_path(self, path):

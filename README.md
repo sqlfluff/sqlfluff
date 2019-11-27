@@ -58,7 +58,7 @@ about the architecture of sqlfluff, you can find [more here](https://sqlfluff.re
   - [ ] Indentation between lines and when to indent
   - [ ] Number of blank lines
   - [ ] Indentation of comments
-  - [ ] Inconsistent capitalisation of keywords
+  - [x] Inconsistent capitalisation of keywords
   - [ ] Inconsistent capitalisation of unquoted identifiers
   - [x] Implement a context manager in the parse and match
         functions to avoid passing around so many variables.

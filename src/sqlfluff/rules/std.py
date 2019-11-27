@@ -373,3 +373,100 @@ class Rule_L009(BaseCrawler):
         ins = nls(raw='\n', pos_marker=segment.pos_marker.advance_by(segment.raw))
         # We're going to make an edit because otherwise we would never get a match!
         return LintResult(anchor=segment, fixes=[LintFix('edit', segment, [segment, ins])])
+
+
+@std_rule_set.register
+class Rule_L010(BaseCrawler):
+    """Inconsistent capitalisation of keywords.
+
+    Args:
+        capitalisation_policy (:obj:`str`): The capitalisation policy to
+        enforce. One of 'consistent', 'upper', 'lower', 'capitalise'.
+
+    """
+
+    def __init__(self, capitalisation_policy='consistent', **kwargs):
+        """Initialise, extracting the capitalisation mode from the config."""
+        if capitalisation_policy not in ('consistent', 'upper', 'lower', 'capitalise'):
+            raise ValueError("Unexpected capitalisation_policy: {0!r}".format(capitalisation_policy))
+        self.capitalisation_policy = capitalisation_policy
+        super(Rule_L010, self).__init__(**kwargs)
+
+    def _eval(self, segment, raw_stack, memory, **kwargs):
+        """Inconsistent capitalisation of keywords.
+
+        We use the `memory` feature here to keep track of
+        what we've seen in the past.
+
+        """
+        cases_seen = memory.get('cases_seen', set())
+
+        if segment.type == 'keyword':
+            raw = segment.raw
+            uc = raw.upper()
+            lc = raw.lower()
+            cap = raw.capitalize()
+            seen_case = None
+            if uc == lc:
+                # Caseless
+                pass
+            elif raw == uc:
+                seen_case = "upper"
+            elif raw == lc:
+                seen_case = "lower"
+            elif raw == cap:
+                # NB: American spelling :(
+                seen_case = "capitalize"
+            else:
+                seen_case = "inconsistent"
+
+            # NOTE: We'll only add to cases_seen if we DONT
+            # also raise an error, so that we can focus in.
+
+            def make_replacement(seg, policy):
+                """Make a replacement segment, based on seen capitalisation."""
+                if policy == "lower":
+                    new_raw = seg.raw.lower()
+                elif policy == "upper":
+                    new_raw = seg.raw.upper()
+                elif policy == "capitalize":
+                    new_raw = seg.raw.capitalize()
+                elif policy == "consistent":
+                    if cases_seen:
+                        # Get an element from what we've already seen
+                        return make_replacement(seg, list(cases_seen)[0])
+                    else:
+                        # If we haven't seen anything yet, then let's default
+                        # to upper
+                        return make_replacement(seg, "upper")
+                else:
+                    raise ValueError("Unexpected capitalisation policy: {0!r}".format(policy))
+                # Make a new class and return it.
+                return seg.__class__(
+                    raw=new_raw, pos_marker=seg.pos_marker
+                )
+
+            if not seen_case:
+                # Skip this if we haven't seen anything good.
+                # No need to update memory
+                return LintResult(memory=memory)
+            elif (
+                (self.capitalisation_policy == "consistent" and cases_seen and seen_case not in cases_seen)
+                # Policy is either upper, lower or capitalize
+                or (self.capitalisation_policy != "consistent" and seen_case != self.capitalisation_policy)
+            ):
+                return LintResult(
+                    anchor=segment,
+                    fixes=[
+                        LintFix('edit', segment, make_replacement(
+                            segment, self.capitalisation_policy))
+                    ],
+                    memory=memory)
+            else:
+                # Update memory and carry on
+                cases_seen.add(seen_case)
+                memory['cases_seen'] = cases_seen
+                return LintResult(memory=memory)
+
+        # If it's not a keyword just carry on
+        return LintResult(memory=memory)
