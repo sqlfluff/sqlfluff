@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Ability to configure rule behaviour direclty from the config file.
 - Implemented L010 to lint capitalisation of keywords.
 - Allow casting in the parser using the `::` operator.
+- Implemented `GROUP BY`and `LIMIT`.
+- Added `ORDER BY` using indexes.
+- Added parsing of `CASE` statements.
 
 ### Changed
 

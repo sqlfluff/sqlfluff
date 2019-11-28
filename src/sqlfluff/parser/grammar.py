@@ -939,6 +939,7 @@ class StartsWith(BaseGrammar):
     def __init__(self, target, *args, **kwargs):
         self.target = target
         self.terminator = kwargs.pop('terminator', None)
+        self.include_terminator = kwargs.pop('include_terminator', False)
         super(StartsWith, self).__init__(*args, **kwargs)
 
     def match(self, segments, parse_context):
@@ -985,11 +986,16 @@ class StartsWith(BaseGrammar):
                     # Depending on whether we found a terminator or not we treat
                     # the result slightly differently. If no terminator was found,
                     # we just use the whole unmatched segment. If we did find one,
-                    # we match up until (but not including) that terminator.
+                    # we match up until (but not including [unless self.include_terminator
+                    # is true]) that terminator.
                     term_match = res[1]
                     if term_match:
-                        m_tail = res[0]
-                        u_tail = term_match.all_segments()
+                        if self.include_terminator:
+                            m_tail = res[0] + term_match.matched_segments
+                            u_tail = term_match.unmatched_segments
+                        else:
+                            m_tail = res[0]
+                            u_tail = term_match.all_segments()
                     else:
                         m_tail = term_match.unmatched_segments
                         u_tail = ()
