@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reimplemented L006 & L007 which lint whitespace around operators.
 - Ability to configure rule behaviour direclty from the config file.
 - Implemented L010 to lint capitalisation of keywords.
+- Allow casting in the parser using the `::` operator.
 
 ### Changed
 
@@ -30,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   autodocumentation. This includes a more complete `RuleSet` class which now
   holds the filtering code.
 - Corrected logging in fix mode not to duplicate the reporting of errors.
+- Now allows insert statements with a nested `with` clause.
 
 ## [0.1.5] - 2019-11-11
 
