@@ -33,6 +33,7 @@ ansi_dialect.add(
     DotSegment=KeywordSegment.make('.', name='dot', type='dot'),
     StarSegment=KeywordSegment.make('*', name='star'),
     TildeSegment=KeywordSegment.make('~', name='tilde'),
+    CastOperatorKeywordSegment=KeywordSegment.make('::', name='casting_operator', type='casting_operator'),
     PlusSegment=KeywordSegment.make('+', name='plus', type='binary_operator'),
     MinusSegment=KeywordSegment.make('-', name='minus', type='binary_operator'),
     DivideSegment=KeywordSegment.make('/', name='divide', type='binary_operator'),
@@ -45,6 +46,8 @@ ansi_dialect.add(
     # The strange regex here it to make sure we don't accidentally match numeric literals
     NakedIdentifierSegment=ReSegment.make(r"[A-Z0-9_]*[A-Z][A-Z0-9_]*", name='identifier', type='naked_identifier'),
     FunctionNameSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='function_name', type='function_name'),
+    # Maybe data types should be more restrictive?
+    DatatypeSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='data_type', type='data_type'),
     QuotedIdentifierSegment=NamedSegment.make('double_quote', name='identifier', type='quoted_identifier'),
     QuotedLiteralSegment=NamedSegment.make('single_quote', name='literal', type='quoted_literal'),
     NumericLiteralSegment=NamedSegment.make('numeric_literal', name='literal', type='numeric_literal'),
@@ -116,7 +119,10 @@ class ObjectReferenceSegment(BaseSegment):
     match_grammar = Delimited(
         Ref('SingleIdentifierGrammar'),
         delimiter=Ref('DotSegment'),
-        terminator=OneOf(Ref('_NonCodeSegment'), Ref('CommaSegment')),
+        terminator=OneOf(
+            Ref('_NonCodeSegment'), Ref('CommaSegment'),
+            Ref('CastOperatorKeywordSegment')
+        ),
         code_only=False)
 
 
@@ -125,6 +131,17 @@ class AliasedObjectReferenceSegment(BaseSegment):
     """A reference to an object with an `AS` clause."""
     type = 'object_reference'
     match_grammar = Sequence(Ref('ObjectReferenceSegment'), Ref('AliasExpressionGrammar'))
+
+
+@ansi_dialect.segment()
+class ShorthandCastSegment(BaseSegment):
+    """A casting operation using '::'."""
+    type = 'cast_expression'
+    match_grammar = Sequence(
+        Ref('CastOperatorKeywordSegment'),
+        Ref('DatatypeSegment'),
+        code_only=False
+    )
 
 
 @ansi_dialect.segment()
@@ -164,15 +181,19 @@ class FunctionSegment(BaseSegment):
     parse_grammar = Sequence(
         Ref('FunctionNameSegment'),
         Bracketed(
-            OneOf(
-                # Most functions will be using the delimited route
-                # but for COUNT(*) or similar we allow the star segment
-                # here.
-                Ref('StarSegment'),
-                Delimited(
-                    Ref('ExpressionSegment'),
-                    delimiter=Ref('CommaSegment')
-                )
+            Sequence(
+                # Allow an optional distinct keyword here.
+                Ref('DistinctKeywordSegment', optional=True),
+                OneOf(
+                    # Most functions will be using the delimited route
+                    # but for COUNT(*) or similar we allow the star segment
+                    # here.
+                    Ref('StarSegment'),
+                    Delimited(
+                        Ref('ExpressionSegment'),
+                        delimiter=Ref('CommaSegment')
+                    )
+                ),
             )
         ),
         code_only=False
@@ -358,13 +379,17 @@ ansi_dialect.add(
     ),
     Expression_B_Grammar=None,  # TODO
     Expression_C_Grammar=Ref('Expression_D_Grammar'),
-    Expression_D_Grammar=OneOf(
-        Ref('LiteralGrammar'),
-        Ref('ObjectReferenceSegment'),
-        Ref('FunctionSegment'),
-        Bracketed(
-            Ref('Expression_A_Grammar')
-        )
+    Expression_D_Grammar=Sequence(
+        OneOf(
+            Ref('LiteralGrammar'),
+            Ref('ObjectReferenceSegment'),
+            Ref('FunctionSegment'),
+            Bracketed(
+                Ref('Expression_A_Grammar')
+            ),
+        ),
+        Ref('ShorthandCastSegment', optional=True),
+        code_only=False
     ),
 )
 
