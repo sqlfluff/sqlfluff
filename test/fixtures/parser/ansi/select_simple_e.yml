@@ -1,0 +1,29 @@
+# Test that casting works as expected
+file:
+  statement:
+    select_statement:
+      keyword: SELECT
+      select_target_group:
+      - select_target_element:
+          expression:
+            object_reference:
+              naked_identifier: my_var
+            cast_expression:
+              casting_operator: '::'
+              data_type: date
+          keyword: as
+          naked_identifier: casted_variable
+      - keyword: ','
+      - select_target_element:
+          expression:
+            numeric_literal: 123
+            cast_expression:
+              casting_operator: '::'
+              data_type: bigint
+          keyword: as
+          naked_identifier: another_casted_number
+      from_clause:
+        keyword: FROM
+        table_expression:
+          object_reference:
+            naked_identifier: boo
