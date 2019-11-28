@@ -303,7 +303,7 @@ class Linter(object):
                 # so that we can use the common interface
                 vs.append(
                     SQLParseError(
-                        "Found unparsable segment @ {0},{1}: {2!r}".format(
+                        "Found unparsable segment @L{0:03d}P{1:03d}: {2!r}".format(
                             unparsable.pos_marker.line_no,
                             unparsable.pos_marker.line_pos,
                             unparsable.raw[:20] + "..."),
