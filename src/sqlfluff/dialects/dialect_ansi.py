@@ -79,6 +79,7 @@ ansi_dialect.add(
     GroupKeywordSegment=KeywordSegment.make('group'),
     OrderKeywordSegment=KeywordSegment.make('order'),
     HavingKeywordSegment=KeywordSegment.make('having'),
+    OverwriteKeywordSegment=KeywordSegment.make('overwrite'),
     ByKeywordSegment=KeywordSegment.make('by'),
     InKeywordSegment=KeywordSegment.make('in'),
     AndKeywordSegment=KeywordSegment.make('and', type='binary_operator'),
@@ -497,12 +498,14 @@ class InsertStatementSegment(BaseSegment):
     match_grammar = StartsWith(Ref('InsertKeywordSegment'))
     parse_grammar = Sequence(
         Ref('InsertKeywordSegment'),
+        Ref('OverwriteKeywordSegment', optional=True),  # Maybe this is just snowflake?
         Ref('IntoKeywordSegment', optional=True),
         Ref('ObjectReferenceSegment'),
         Bracketed(Delimited(Ref('ObjectReferenceSegment'), delimiter=Ref('CommaSegment')), optional=True),
         OneOf(
             Ref('SelectStatementSegment'),
-            Ref('ValuesClauseSegment')
+            Ref('ValuesClauseSegment'),
+            Ref('WithCompoundStatementSegment')
         )
     )
 
