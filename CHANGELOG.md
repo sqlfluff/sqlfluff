@@ -21,8 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implemented L010 to lint capitalisation of keywords.
 - Allow casting in the parser using the `::` operator.
 - Implemented `GROUP BY`and `LIMIT`.
-- Added `ORDER BY` using indexes.
+- Added `ORDER BY` using indexes and expressions.
 - Added parsing of `CASE` statements.
+- Support for window/aggregate functions.
 
 ### Changed
 
@@ -35,6 +36,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   holds the filtering code.
 - Corrected logging in fix mode not to duplicate the reporting of errors.
 - Now allows insert statements with a nested `with` clause.
+- Fixed verbose logging during parsing.
+- Allow the `Bracketed` grammar to optionally match empty brackets using
+  the optional keyword.
 
 ## [0.1.5] - 2019-11-11
 

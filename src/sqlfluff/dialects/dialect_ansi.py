@@ -71,6 +71,9 @@ ansi_dialect.add(
     FromKeywordSegment=KeywordSegment.make('from'),
     DistinctKeywordSegment=KeywordSegment.make('distinct'),
     ExistsKeywordSegment=KeywordSegment.make('exists'),
+    OverKeywordSegment=KeywordSegment.make('over'),
+    RowsKeywordSegment=KeywordSegment.make('rows'),
+    PartitionKeywordSegment=KeywordSegment.make('partition'),
     CaseKeywordSegment=KeywordSegment.make('case'),
     WhenKeywordSegment=KeywordSegment.make('when'),
     ThenKeywordSegment=KeywordSegment.make('then'),
@@ -178,32 +181,90 @@ class FunctionSegment(BaseSegment):
     """
     type = 'function'
     match_grammar = Sequence(
-        Ref('FunctionNameSegment'),
-        Bracketed(
-            Anything()
+        Sequence(
+            Ref('FunctionNameSegment'),
+            Bracketed(
+                Anything(optional=True)
+            ),
+            code_only=False
         ),
-        code_only=False
+        Sequence(
+            Ref('OverKeywordSegment'),
+            Bracketed(
+                Anything(optional=True)
+            ),
+            optional=True
+        )
     )
     parse_grammar = Sequence(
-        Ref('FunctionNameSegment'),
-        Bracketed(
-            Sequence(
-                # Allow an optional distinct keyword here.
-                Ref('DistinctKeywordSegment', optional=True),
-                OneOf(
-                    # Most functions will be using the delimited route
-                    # but for COUNT(*) or similar we allow the star segment
-                    # here.
-                    Ref('StarSegment'),
-                    Delimited(
-                        Ref('ExpressionSegment'),
-                        delimiter=Ref('CommaSegment')
-                    )
-                ),
-            )
+        Sequence(
+            Ref('FunctionNameSegment'),
+            Bracketed(
+                Sequence(
+                    # Allow an optional distinct keyword here.
+                    Ref('DistinctKeywordSegment', optional=True),
+                    OneOf(
+                        # Most functions will be using the delimited route
+                        # but for COUNT(*) or similar we allow the star segment
+                        # here.
+                        Ref('StarSegment'),
+                        Delimited(
+                            Ref('ExpressionSegment'),
+                            delimiter=Ref('CommaSegment')
+                        ),
+                    ),
+                    # The brackets might be empty for some functions...
+                    optional=True
+                )
+            ),
+            code_only=False
         ),
-        code_only=False
+        # Optional suffix for window functions.
+        # TODO: Should this be in a different dialect?
+        Sequence(
+            Ref('OverKeywordSegment'),
+            Bracketed(
+                Sequence(
+                    Ref('PartitionClauseSegment', optional=True),
+                    Ref('OrderByClauseSegment', optional=True),
+                    Ref('FrameClauseSegment', optional=True)
+                )
+            ),
+            optional=True
+        )
     )
+
+
+@ansi_dialect.segment()
+class PartitionClauseSegment(BaseSegment):
+    """A `PARTITION BY` for window functions."""
+    type = 'partitionby_clause'
+    match_grammar = StartsWith(
+        Ref('PartitionKeywordSegment'),
+        terminator=OneOf(
+            Ref('OrderKeywordSegment'),
+            Ref('RowsKeywordSegment')
+        )
+    )
+    parse_grammar = Sequence(
+        Ref('PartitionKeywordSegment'),
+        Ref('ByKeywordSegment'),
+        Ref('ExpressionSegment'),
+    )
+
+
+@ansi_dialect.segment()
+class FrameClauseSegment(BaseSegment):
+    """A frame clause for window functions."""
+    type = 'partitionby_clause'
+    match_grammar = StartsWith(
+        Ref('RowsKeywordSegment')
+    )
+    # parse_grammar = Sequence(
+    #    Ref('RowsKeywordSegment'),
+    #    Ref('ByKeywordSegment'),
+    #     Ref('ExpressionSegment'),
+    # )
 
 
 @ansi_dialect.segment()
@@ -445,7 +506,9 @@ class ExpressionSegment(BaseSegment):
     type = 'expression'
     match_grammar = GreedyUntil(
         Ref('CommaSegment'),
-        Ref('AsKeywordSegment')
+        Ref('AsKeywordSegment'),
+        Ref('AscKeywordSegment'),
+        Ref('DescKeywordSegment')
     )
     parse_grammar = Ref('Expression_A_Grammar')
 
@@ -498,7 +561,9 @@ class OrderByClauseSegment(BaseSegment):
         Ref('OrderKeywordSegment'),
         terminator=OneOf(
             Ref('LimitKeywordSegment'),
-            Ref('HavingKeywordSegment')
+            Ref('HavingKeywordSegment'),
+            # For window functions
+            Ref('RowsKeywordSegment')
         )
     )
     parse_grammar = Sequence(
@@ -509,7 +574,9 @@ class OrderByClauseSegment(BaseSegment):
                 OneOf(
                     Ref('ObjectReferenceSegment'),
                     # Can `ORDER BY 1`
-                    Ref('NumericLiteralSegment')
+                    Ref('NumericLiteralSegment'),
+                    # Can order by an expression
+                    Ref('ExpressionSegment')
                 ),
                 OneOf(
                     Ref('AscKeywordSegment'),

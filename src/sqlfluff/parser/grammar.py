@@ -1088,7 +1088,22 @@ class Bracketed(BaseGrammar):
                 + end_match.matched_segments,
                 end_match.unmatched_segments)
         else:
-            return MatchResult.from_unmatched(segments)
+            # Now if we've not matched there's a final option. If the content is optional
+            # and we allow non-code, then if the content is all non-code then it could be
+            # empty brackets and still match.
+            if (
+                all([e.is_optional() for e in self._elements])
+                and self.code_only
+                and all([not e.is_code for e in pre])
+            ):
+                # It worked!
+                return MatchResult(
+                    start_match.matched_segments
+                    + pre
+                    + end_match.matched_segments,
+                    end_match.unmatched_segments)
+            else:
+                return MatchResult.from_unmatched(segments)
 
     def expected_string(self, dialect=None, called_from=None):
         """Get the expected string from the referenced element."""
