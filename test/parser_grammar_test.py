@@ -4,7 +4,7 @@ import pytest
 import logging
 
 from sqlfluff.parser.grammar import (OneOf, Sequence, GreedyUntil, ContainsOnly,
-                                     Delimited, BaseGrammar)
+                                     Delimited, BaseGrammar, StartsWith)
 from sqlfluff.parser.markers import FilePositionMarker
 from sqlfluff.parser.segments_base import RawSegment, ParseContext
 from sqlfluff.parser.segments_common import KeywordSegment
@@ -159,6 +159,31 @@ def test__parser__grammar_oneof_codeonly(seg_list, caplog):
         m = g.match(seg_list[1:], parse_context=c)
         assert m
         assert m.matched_segments[1] == fs('foo', seg_list[2].pos_marker)
+
+
+def test__parser__grammar_startswith_a(seg_list, caplog):
+    """Test the StartsWith grammar simply."""
+    baar = KeywordSegment.make('baar')
+    bar = KeywordSegment.make('bar')
+    c = ParseContext(dialect=ansi_dialect)
+    with caplog.at_level(logging.DEBUG):
+        assert StartsWith(bar).match(seg_list, parse_context=c)
+    with caplog.at_level(logging.DEBUG):
+        assert not StartsWith(baar).match(seg_list, parse_context=c)
+
+
+def test__parser__grammar_startswith_b(seg_list, caplog):
+    """Test the StartsWith grammar with a terminator (included & exluded)."""
+    baar = KeywordSegment.make('baar')
+    bar = KeywordSegment.make('bar')
+    c = ParseContext(dialect=ansi_dialect)
+    with caplog.at_level(logging.DEBUG):
+        m = StartsWith(bar, terminator=baar).match(seg_list, parse_context=c)
+        assert len(m) == 3
+    with caplog.at_level(logging.DEBUG):
+        m = StartsWith(bar, terminator=baar, include_terminator=True).match(seg_list, parse_context=c)
+        # NB: We'll end up matching the terminating whitespace too
+        assert len(m) == 5
 
 
 def test__parser__grammar_sequence(seg_list, caplog):

@@ -70,6 +70,12 @@ ansi_dialect.add(
     AsKeywordSegment=KeywordSegment.make('as'),
     FromKeywordSegment=KeywordSegment.make('from'),
     DistinctKeywordSegment=KeywordSegment.make('distinct'),
+    ExistsKeywordSegment=KeywordSegment.make('exists'),
+    CaseKeywordSegment=KeywordSegment.make('case'),
+    WhenKeywordSegment=KeywordSegment.make('when'),
+    ThenKeywordSegment=KeywordSegment.make('then'),
+    ElseKeywordSegment=KeywordSegment.make('else'),
+    EndKeywordSegment=KeywordSegment.make('end'),
     AllKeywordSegment=KeywordSegment.make('all'),
     LimitKeywordSegment=KeywordSegment.make('limit'),
     OnKeywordSegment=KeywordSegment.make('on'),
@@ -337,6 +343,34 @@ class FromClauseSegment(BaseSegment):
     )
 
 
+@ansi_dialect.segment()
+class CaseExpressionSegment(BaseSegment):
+    """A `CASE WHEN` clause."""
+    type = 'case_expression'
+    match_grammar = StartsWith(
+        Ref('CaseKeywordSegment'),
+        terminator=Ref('EndKeywordSegment'),
+        include_terminator=True
+    )
+    parse_grammar = Sequence(
+        Ref('CaseKeywordSegment'),
+        AnyNumberOf(
+            Sequence(
+                Ref('WhenKeywordSegment'),
+                Ref('ExpressionSegment_TermThen'),
+                Ref('ThenKeywordSegment'),
+                Ref('ExpressionSegment_TermWhenElse')
+            )
+        ),
+        Sequence(
+            Ref('ElseKeywordSegment'),
+            Ref('ExpressionSegment_TermEnd'),
+            Ref('EndKeywordSegment'),
+            optional=True
+        )
+    )
+
+
 ansi_dialect.add(
     Expression_A_Grammar=Sequence(
         OneOf(
@@ -378,7 +412,14 @@ ansi_dialect.add(
         )
     ),
     Expression_B_Grammar=None,  # TODO
-    Expression_C_Grammar=Ref('Expression_D_Grammar'),
+    Expression_C_Grammar=OneOf(
+        Ref('Expression_D_Grammar'),
+        Ref('CaseExpressionSegment'),
+        Sequence(
+            Ref('ExistsKeywordSegment'),
+            Ref('SelectStatementSegment')
+        )
+    ),
     Expression_D_Grammar=Sequence(
         OneOf(
             Ref('LiteralGrammar'),
@@ -407,6 +448,27 @@ class ExpressionSegment(BaseSegment):
         Ref('AsKeywordSegment')
     )
     parse_grammar = Ref('Expression_A_Grammar')
+
+
+@ansi_dialect.segment()
+class ExpressionSegment_TermWhenElse(ExpressionSegment):
+    """Expression terminated by WHEN or ELSE."""
+    match_grammar = GreedyUntil(
+        Ref('WhenKeywordSegment'),
+        Ref('ElseKeywordSegment')
+    )
+
+
+@ansi_dialect.segment()
+class ExpressionSegment_TermThen(ExpressionSegment):
+    """Expression terminated by THEN."""
+    match_grammar = GreedyUntil(Ref('ThenKeywordSegment'))
+
+
+@ansi_dialect.segment()
+class ExpressionSegment_TermEnd(ExpressionSegment):
+    """Expression terminated by END."""
+    match_grammar = GreedyUntil(Ref('EndKeywordSegment'))
 
 
 @ansi_dialect.segment()
