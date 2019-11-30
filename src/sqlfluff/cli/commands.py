@@ -8,7 +8,7 @@ from ..dialects import dialect_selector
 from ..linter import Linter
 from .formatters import (format_config, format_rules,
                          format_violation, format_linting_result_header,
-                         format_linting_result_footer)
+                         format_linting_result_footer, colorize)
 from .helpers import cli_table, get_package_version
 from ..config import FluffConfig
 
@@ -135,7 +135,11 @@ def lint(paths, **kwargs):
     else:
         # Output the results as we go
         lnt.log(format_linting_result_header(verbose=verbose))
-        result = lnt.lint_paths(paths, verbosity=verbose)
+        try:
+            result = lnt.lint_paths(paths, verbosity=verbose)
+        except IOError:
+            click.echo(colorize('The path(s) {0!r} could not be accessed. Check it/they exist(s).'.format(paths), 'red'))
+            sys.exit(1)
         # Output the final stats
         lnt.log(format_linting_result_footer(result, verbose=verbose))
     sys.exit(result.stats()['exit code'])
@@ -169,7 +173,11 @@ def fix(force, paths, **kwargs):
         sys.exit(1)
     # Lint the paths (not with the fix argument at this stage), outputting as we go.
     lnt.log("==== finding violations ====")
-    result = lnt.lint_paths(paths, verbosity=verbose)
+    try:
+        result = lnt.lint_paths(paths, verbosity=verbose)
+    except IOError:
+        click.echo(colorize('The path(s) {0!r} could not be accessed. Check it/they exist(s).'.format(paths), 'red'))
+        sys.exit(1)
 
     if result.num_violations() > 0:
         click.echo("==== fixing violations ====")
@@ -223,19 +231,24 @@ def parse(path, **kwargs):
         lnt.log(config_string)
 
     nv = 0
-    # A single path must be specified for this command
-    for parsed, violations, time_dict in lnt.parse_path(path, verbosity=verbose, recurse=recurse):
-        if parsed:
-            lnt.log(parsed.stringify())
-        else:
-            # TODO: Make this prettier
-            lnt.log('...Failed to Parse...')
-        nv += len(violations)
-        for v in violations:
-            lnt.log(format_violation(v, verbose=verbose))
-        if verbose >= 2:
-            lnt.log("==== timings ====")
-            lnt.log(cli_table(time_dict.items()))
+    try:
+        # A single path must be specified for this command
+        for parsed, violations, time_dict in lnt.parse_path(path, verbosity=verbose, recurse=recurse):
+            if parsed:
+                lnt.log(parsed.stringify())
+            else:
+                # TODO: Make this prettier
+                lnt.log('...Failed to Parse...')
+            nv += len(violations)
+            for v in violations:
+                lnt.log(format_violation(v, verbose=verbose))
+            if verbose >= 2:
+                lnt.log("==== timings ====")
+                lnt.log(cli_table(time_dict.items()))
+    except IOError:
+        click.echo(colorize('The path {0!r} could not be accessed. Check it exists.'.format(path), 'red'))
+        sys.exit(1)
+
     if nv > 0:
         sys.exit(66)
     else:
