@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Templating support (jinja2, python or raw).
   - Variables + Macros.
+  - The `fix` command is also sensitive to fixing over templates
+    and will skip certain fixes if it feels that it's conflicted.
 - Config file support, including specifying context for the templater.
 - Documentation via Sphinx and readthedocs.
   - Including a guide on the role of SQL in the real world.

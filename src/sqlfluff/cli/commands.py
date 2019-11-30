@@ -180,8 +180,6 @@ def fix(force, paths, **kwargs):
             result = lnt.lint_paths(paths, fix=True)
             click.echo('Persisting Changes...')
             result.persist_changes()
-            # TODO: Make return value of persist_changes() a more interesting result and then format it
-            # click.echo(format_linting_fixes(result, verbose=verbose), color=color)
             click.echo('Done. Please check your files to confirm.')
         else:
             click.echo('Are you sure you wish to attempt to fix these? [Y/n] ', nl=False)
@@ -191,9 +189,7 @@ def fix(force, paths, **kwargs):
                 click.echo('Attempting fixes...')
                 result = lnt.lint_paths(paths, fix=True)
                 click.echo('Persisting Changes...')
-                result.persist_changes()
-                # TODO: Make return value of persist_changes() a more interesting result and then format it
-                # click.echo(format_linting_fixes(fixes, verbose=verbose), color=color)
+                result.persist_changes(verbosity=verbose)
                 click.echo('Done. Please check your files to confirm.')
             elif c == 'n':
                 click.echo('Aborting...')
