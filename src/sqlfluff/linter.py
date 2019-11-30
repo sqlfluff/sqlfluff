@@ -413,6 +413,8 @@ class Linter(object):
             try:
                 # Make a parse context and parse
                 context = self.get_parse_context()
+                context.verbosity = verbosity or context.verbosity
+                context.recurse = recurse or context.recurse
                 parsed = fs.parse(parse_context=context)
             except SQLParseError as err:
                 violations.append(err)
