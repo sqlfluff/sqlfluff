@@ -249,7 +249,10 @@ class PartitionClauseSegment(BaseSegment):
     parse_grammar = Sequence(
         Ref('PartitionKeywordSegment'),
         Ref('ByKeywordSegment'),
-        Ref('ExpressionSegment'),
+        Delimited(
+            Ref('ExpressionSegment'),
+            delimiter=Ref('CommaSegment')
+        )
     )
 
 
@@ -260,10 +263,11 @@ class FrameClauseSegment(BaseSegment):
     match_grammar = StartsWith(
         Ref('RowsKeywordSegment')
     )
+    # TODO: Expand a parse statement here properly to actually
+    # parse rather than assuming that it's good.
     # parse_grammar = Sequence(
     #    Ref('RowsKeywordSegment'),
-    #    Ref('ByKeywordSegment'),
-    #     Ref('ExpressionSegment'),
+    #    ...
     # )
 
 
