@@ -2,6 +2,7 @@
 
 import os
 from collections import namedtuple
+from difflib import SequenceMatcher
 
 from .errors import SQLLexError, SQLParseError, SQLTemplaterError
 from .helpers import get_time
@@ -14,7 +15,7 @@ from .rules import get_ruleset
 from .cli.formatters import format_linting_path, format_file_violations
 
 
-class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tree'])):
+class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tree', 'file_mask'])):
     """A class to store the idea of a linted file."""
     __slots__ = ()
 
@@ -41,14 +42,160 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
         """Return True if there are no violations."""
         return len(self.violations) == 0
 
-    def persist_tree(self):
-        """Persist changes to the given path."""
+    def persist_tree(self, verbosity=0):
+        """Persist changes to the given path.
+
+        We use the file_mask to do a safe merge, avoiding any templated
+        sections. First we need to detect where there have been changes
+        between the fixed and templated versions.
+
+        We use difflib.SequenceMatcher.get_opcodes
+        See: https://docs.python.org/3.7/library/difflib.html#difflib.SequenceMatcher.get_opcodes
+        It returns a list of tuples ('equal|replace', ia1, ia2, ib1, ib2).
+
+        """
+        verbosity_logger("Persisting file masks: {0}".format(self.file_mask), verbosity=verbosity)
+        # Compare Templated with Raw
+        diff_templ = SequenceMatcher(autojunk=None, a=self.file_mask[0], b=self.file_mask[1])
+        diff_templ_codes = diff_templ.get_opcodes()
+        verbosity_logger("Templater diff codes: {0}".format(diff_templ_codes), verbosity=verbosity)
+
+        # Compare Fixed with Templated
+        diff_fix = SequenceMatcher(autojunk=None, a=self.file_mask[1], b=self.file_mask[2])
+        # diff_fix = SequenceMatcher(autojunk=None, a=self.file_mask[1][0], b=self.file_mask[2][0])
+        diff_fix_codes = diff_fix.get_opcodes()
+        verbosity_logger("Fixing diff codes: {0}".format(diff_fix_codes), verbosity=verbosity)
+
+        # If diff_templ isn't the same then we should just keep the template. If there *was*
+        # a fix in that space, then we should raise an issue
+        # If it is the same, then we can apply fixes as expected.
+        write_buff = ''
+        fixed_block = None
+        templ_block = None
+        # index in raw, templ and fix
+        idx = (0, 0, 0)
+        loop_idx = 0
+        while True:
+            loop_idx += 1
+            verbosity_logger(
+                "{0:04d}: Write Loop: idx:{1}, buff:{2!r}".format(loop_idx, idx, write_buff),
+                verbosity=verbosity)
+
+            if templ_block is None:
+                if diff_templ_codes:
+                    templ_block = diff_templ_codes.pop(0)
+                # We've exhausted the template. Have we exhausted the fixes?
+                elif fixed_block is None:
+                    # Yes - excellent. DONE
+                    break
+                else:
+                    raise NotImplementedError("Fix Block left over! DOn't know how to handle this! aeflf8wh")
+            if fixed_block is None:
+                if diff_fix_codes:
+                    fixed_block = diff_fix_codes.pop(0)
+                else:
+                    raise NotImplementedError("Unexpectedly depleted the fixes. Panic!")
+            verbosity_logger(
+                "{0:04d}: Blocks: template:{1}, fix:{2}".format(loop_idx, templ_block, fixed_block),
+                verbosity=verbosity)
+
+            if templ_block[0] == 'equal':
+                if fixed_block[0] == 'equal':
+                    # No templating, no fixes, go with middle and advance indexes
+                    # Find out how far we can advance (we use the middle version because it's common)
+                    if templ_block[4] == fixed_block[2]:
+                        buff = self.file_mask[1][idx[1]:fixed_block[2]]
+                        # consume both blocks
+                        fixed_block = None
+                        templ_block = None
+                    elif templ_block[4] > fixed_block[2]:
+                        buff = self.file_mask[1][idx[1]:fixed_block[2]]
+                        # consume fixed block
+                        fixed_block = None
+                    elif templ_block[4] < fixed_block[2]:
+                        buff = self.file_mask[1][idx[1]:templ_block[4]]
+                        # consume templ block
+                        templ_block = None
+                    idx = (idx[0] + len(buff), idx[1] + len(buff), idx[2] + len(buff))
+                    write_buff += buff
+                    continue
+                elif fixed_block[0] == 'replace':
+                    # Consider how to apply fixes.
+                    # Can we implement the fix while staying in the equal segment?
+                    if fixed_block[2] <= templ_block[4]:
+                        # Yes! Write from the fixed version.
+                        write_buff += self.file_mask[2][idx[2]:fixed_block[4]]
+                        idx = (idx[0] + (fixed_block[2] - fixed_block[1]), fixed_block[2], fixed_block[4])
+                        # Consume the fixed block because we've written the whole thing.
+                        fixed_block = None
+                        continue
+                    else:
+                        raise NotImplementedError("DEF")
+                elif fixed_block[0] == 'delete':
+                    # We're deleting items, nothing to write but we can consume some
+                    # blocks and advance some indexes.
+                    idx = (idx[0] + (fixed_block[2] - fixed_block[1]), fixed_block[2], fixed_block[4])
+                    fixed_block = None
+                else:
+                    raise ValueError(
+                        ("Unexpected opcode {0} for fix block! Please report this "
+                         "issue on github with the query and rules you're trying to "
+                         "fix.").format(fixed_block[0]))
+            elif templ_block[0] == 'replace':
+                # We're in a templated section - we should write the templated version.
+                # we should consume the whole replce block and then deal with where
+                # we end up.
+                buff = self.file_mask[0][idx[0]:templ_block[2]]
+                new_templ_idx = templ_block[4]
+                while True:
+                    if fixed_block[2] > new_templ_idx >= fixed_block[1]:
+                        # this block contains the end point
+                        break
+                    else:
+                        if fixed_block[0] != 'equal':
+                            print("WARNING: Skipping edit block: {0}".format(fixed_block))
+                        fixed_block = None
+                # Are we exaclty on a join?
+                if new_templ_idx == fixed_block[1]:
+                    # GREAT - this makes things easy because we have an equality point already
+                    idx = (templ_block[2], new_templ_idx, fixed_block[3])
+                else:
+                    if fixed_block[0] == 'equal':
+                        # If it's in an equal block, we can use the same offset from the end.
+                        idx = (templ_block[2], new_templ_idx, fixed_block[3] + (new_templ_idx - fixed_block[1]))
+                    else:
+                        # TODO: We're trying to move through an templated section, but end up
+                        # in a fixed section. We've lost track of indexes.
+                        # We might need to panic if this happens...
+                        print("UMMMMMM!")
+                        print(new_templ_idx)
+                        print(fixed_block)
+                        raise NotImplementedError("ABC")
+                write_buff += buff
+                # consume template block
+                templ_block = None
+            elif templ_block[0] == 'delete':
+                # The comparison, things that the templater has deleted
+                # some characters. This is just a quirk of the differ.
+                # In reality this means we just write these characters
+                # and don't worry about advancing the other indexes.
+                buff = self.file_mask[0][idx[0]:templ_block[2]]
+                # consume templ block
+                templ_block = None
+                idx = (idx[0] + len(buff), idx[1], idx[2])
+                write_buff += buff
+            else:
+                raise ValueError(
+                    ("Unexpected opcode {0} for template block! Please report this "
+                     "issue on github with the query and rules you're trying to "
+                     "fix.").format(templ_block[0]))
+
+        # Actually write the file.
         with open(self.path, 'w') as f:
-            # TODO: We should probably have a seperate function for checking what's
-            # already there and doing a diff. For now we'll just go an overwrite.
-            f.write(self.tree.raw)
-        # TODO: Make this return value more interesting...
-        # TODO: Deal with templating and fixing elegantly.
+            f.write(write_buff)
+
+        # TODO: Make return value of persist_changes() a more interesting result and then format it
+        # click.echo(format_linting_fixes(result, verbose=verbose), color=color)
         return True
 
 
@@ -94,10 +241,10 @@ class LintedPath(object):
             violations=sum([file.num_violations() for file in self.files])
         )
 
-    def persist_changes(self):
+    def persist_changes(self, verbosity=0):
         """Persist changes to files in the given path."""
         # Run all the fixes for all the files and return a dict
-        return {file.path: file.persist_tree() for file in self.files}
+        return {file.path: file.persist_tree(verbosity=verbosity) for file in self.files}
 
 
 class LintingResult(object):
@@ -169,9 +316,9 @@ class LintingResult(object):
         all_stats['status'] = 'FAIL' if all_stats['violations'] > 0 else 'PASS'
         return all_stats
 
-    def persist_changes(self):
+    def persist_changes(self, verbosity=0):
         """Run all the fixes for all the files and return a dict."""
-        return self.combine_dicts(*[path.persist_changes() for path in self.paths])
+        return self.combine_dicts(*[path.persist_changes(verbosity=verbosity) for path in self.paths])
 
 
 class Linter(object):
@@ -236,7 +383,6 @@ class Linter(object):
         t0 = get_time()
 
         verbosity_logger("TEMPLATING RAW [{0}] ({1})".format(self.templater.name, fname), verbosity=verbosity)
-        # Lex the file and log any problems
         try:
             s = self.templater.process(s, fname=fname, config=config)
         except SQLTemplaterError as err:
@@ -289,11 +435,21 @@ class Linter(object):
             :obj:`LintedFile`: an object representing that linted file.
 
         """
+        # Before templating, we want to get a store of what's in the file
+        # so we can compare later. We iterate character by character because
+        # we don't want to miss anything.
+        raw_buff = s
+
         # TODO: Tidy this up - it's a mess
         # Using the new parser, read the file object.
         parsed, vs, time_dict = self.parse_string(s=s, fname=fname, verbosity=verbosity, config=config)
 
+        templ_buff = None
+        fixed_buff = None
         if parsed:
+            # Store the templated version
+            templ_buff = parsed.raw
+
             # Now extract all the unparsable segments
             for unparsable in parsed.iter_unparsables():
                 # # print("FOUND AN UNPARSABLE!")
@@ -366,8 +522,10 @@ class Linter(object):
             time_dict['linting'] = t1 - t0
 
             vs += linting_errors
+            fixed_buff = parsed.raw
 
-        res = LintedFile(fname, vs, time_dict, parsed)
+        file_mask = (raw_buff, templ_buff, fixed_buff)
+        res = LintedFile(fname, vs, time_dict, parsed, file_mask)
         # Do the logging as appropriate (don't log if fixing...)
         if not fix:
             self.log(format_file_violations(fname, res.violations, verbose=verbosity))

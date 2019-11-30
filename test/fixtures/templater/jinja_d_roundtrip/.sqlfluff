@@ -1,0 +1,3 @@
+[sqlfluff:templater:jinja:context]
+some_field=nothing_interesting
+my_table=another_table
