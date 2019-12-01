@@ -136,6 +136,11 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
                     # blocks and advance some indexes.
                     idx = (idx[0] + (fixed_block[2] - fixed_block[1]), fixed_block[2], fixed_block[4])
                     fixed_block = None
+                elif fixed_block[0] == 'insert':
+                    # We're inserting items, Write from the fix block, but only that index moves.
+                    write_buff += self.file_mask[2][idx[2]:fixed_block[4]]
+                    idx = (idx[0], idx[1], fixed_block[4])
+                    fixed_block = None
                 else:
                     raise ValueError(
                         ("Unexpected opcode {0} for fix block! Please report this "

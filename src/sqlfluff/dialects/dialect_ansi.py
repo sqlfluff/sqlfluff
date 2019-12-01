@@ -43,8 +43,11 @@ ansi_dialect.add(
     LessThanSegment=KeywordSegment.make('<', name='less_than', type='comparison_operator'),
     GreaterThanOrEqualToSegment=KeywordSegment.make('>=', name='greater_than_equal_to', type='comparison_operator'),
     LessThanOrEqualToSegment=KeywordSegment.make('<=', name='less_than_equal_to', type='comparison_operator'),
-    # The strange regex here it to make sure we don't accidentally match numeric literals
-    NakedIdentifierSegment=ReSegment.make(r"[A-Z0-9_]*[A-Z][A-Z0-9_]*", name='identifier', type='naked_identifier'),
+    # The strange regex here it to make sure we don't accidentally match numeric literals. We
+    # also use a regex to explicitly exclude disallowed keywords.
+    NakedIdentifierSegment=ReSegment.make(
+        r"[A-Z0-9_]*[A-Z][A-Z0-9_]*", name='identifier', type='naked_identifier',
+        _anti_template=r"(JOIN|ON|USING)"),
     FunctionNameSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='function_name', type='function_name'),
     # Maybe data types should be more restrictive?
     DatatypeSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='data_type', type='data_type'),
@@ -65,7 +68,6 @@ ansi_dialect.add(
     ComparisonOperatorGrammar=OneOf(
         Ref('EqualsSegment'), Ref('GreaterThanSegment'), Ref('LessThanSegment'),
         Ref('GreaterThanOrEqualToSegment'), Ref('LessThanOrEqualToSegment')),
-    AliasExpressionGrammar=Sequence(Ref('AsKeywordSegment'), Ref('SingleIdentifierGrammar')),
     # Keywords
     AsKeywordSegment=KeywordSegment.make('as'),
     FromKeywordSegment=KeywordSegment.make('from'),
@@ -139,7 +141,17 @@ class ObjectReferenceSegment(BaseSegment):
 class AliasedObjectReferenceSegment(BaseSegment):
     """A reference to an object with an `AS` clause."""
     type = 'object_reference'
-    match_grammar = Sequence(Ref('ObjectReferenceSegment'), Ref('AliasExpressionGrammar'))
+    match_grammar = Sequence(Ref('ObjectReferenceSegment'), Ref('AliasExpressionSegment'))
+
+
+@ansi_dialect.segment()
+class AliasExpressionSegment(BaseSegment):
+    """A reference to an object with an `AS` clause.
+
+    The optional AS keyword allows both implicit and explicit aliasing.
+    """
+    type = 'alias_expression'
+    match_grammar = Sequence(Ref('AsKeywordSegment', optional=True), Ref('SingleIdentifierGrammar'))
 
 
 @ansi_dialect.segment()
@@ -280,7 +292,7 @@ class TableExpressionSegment(BaseSegment):
             Ref('ObjectReferenceSegment'),
             # Values clause?
         ),
-        Ref('AliasExpressionGrammar', optional=True)
+        Ref('AliasExpressionSegment', optional=True)
     )
 
 
@@ -301,13 +313,13 @@ class SelectTargetElementSegment(BaseSegment):
                 Ref('LiteralGrammar'),
                 Ref('FunctionSegment')
             ),
-            Ref('AliasExpressionGrammar', optional=True)
+            Ref('AliasExpressionSegment', optional=True)
         ),
         Sequence(
             OneOf(
                 Ref('ExpressionSegment'),
             ),
-            Ref('AliasExpressionGrammar', optional=True)
+            Ref('AliasExpressionSegment', optional=True)
         ),
     )
 
@@ -378,7 +390,9 @@ class JoinClauseSegment(BaseSegment):
                         )
                     )
                 ),
-                max_times=1
+                # Unqualified joins *are* allowed. They just might not
+                # be a good idea.
+                max_times=0
             )
         )
     )

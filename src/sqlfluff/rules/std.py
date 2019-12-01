@@ -1,6 +1,6 @@
 """Standard SQL Linting Rules."""
 
-from ..parser import RawSegment
+from ..parser import RawSegment, KeywordSegment
 from .base import BaseCrawler, LintFix, LintResult, RuleSet
 
 
@@ -470,3 +470,114 @@ class Rule_L010(BaseCrawler):
 
         # If it's not a keyword just carry on
         return LintResult(memory=memory)
+
+
+@std_rule_set.register
+class Rule_L011(BaseCrawler):
+    """Implicit aliasing of table not allowed. Use explicit `AS` clause.
+
+    NB: This rule and L012 are very similar, but use seperate rules so
+    that they can be enabled/disabled seperately.
+    """
+
+    _target_elem = 'table_expression'
+
+    def _eval(self, segment, parent_stack, raw_stack, **kwargs):
+        """Implicit aliasing of table/column not allowed. Use explicit `AS` clause.
+
+        We look for the alias segment, and then evaluate it's parent and whether
+        it contains an AS keyword. This is the _eval function for both L011 and L012.
+
+        The use of `raw_stack` is just for working out how much whitespace to add.
+
+        """
+        if segment.type == 'alias_expression':
+            if parent_stack[-1].type == self._target_elem:
+                if not any([e.name.lower() == 'as' for e in segment.segments]):
+                    WhitespaceSegment = RawSegment.make(' ', name='whitespace')
+                    AsSegment = KeywordSegment.make('as')
+                    insert_buff = []
+                    insert_str = ''
+                    init_pos = segment.segments[0].pos_marker
+
+                    # Add intial whitespace if we need to...
+                    if raw_stack[-1].name not in ['whitespace', 'newline']:
+                        insert_buff.append(WhitespaceSegment(raw=' ', pos_marker=init_pos))
+                        insert_str += ' '
+
+                    # Add an AS (Uppercase for now, but could be corrected later)
+                    insert_buff.append(AsSegment(raw='AS', pos_marker=init_pos.advance_by(insert_str)))
+                    insert_str += 'AS'
+
+                    # Add a trailing whitespace if we need to
+                    if segment.segments[0].name not in ['whitespace', 'newline']:
+                        insert_buff.append(WhitespaceSegment(raw=' ', pos_marker=init_pos.advance_by(insert_str)))
+                        insert_str += ' '
+
+                    return LintResult(
+                        anchor=segment,
+                        fixes=[
+                            LintFix(
+                                'create', segment.segments[0],
+                                insert_buff
+                            )
+                        ]
+                    )
+
+
+@std_rule_set.register
+class Rule_L012(Rule_L011):
+    """Implicit aliasing of column not allowed. Use explicit `AS` clause.
+
+    NB: This rule and L011 are very similar, but use seperate rules so
+    that they can be enabled/disabled seperately.
+    """
+
+    _target_elem = 'select_target_element'
+
+
+@std_rule_set.register
+class Rule_L013(BaseCrawler):
+    """Column expression without alias. Use explicit `AS` clause.
+
+    Args:
+        allow_scalar (:obj:`bool`): If `True` then this rule will
+            not fail if there is only one element in the select
+            clause e.g. `SELECT 1 + 2 FROM blah`. It will still
+            fail if there are multiple columns. (Default `True`)
+
+    """
+
+    def __init__(self, allow_scalar=True, **kwargs):
+        """Initialise, extracting the allow_scalar mode from the config."""
+        self.allow_scalar = allow_scalar
+        super(Rule_L013, self).__init__(**kwargs)
+
+    def _eval(self, segment, parent_stack, **kwargs):
+        """Column expression without alias. Use explicit `AS` clause.
+
+        We look for the select_target_element segment, and then evaluate
+        whether it has an alias segment or not and whether the expression
+        is complicated enough. `parent_stack` is to assess how many other
+        elements there are.
+
+        """
+        if segment.type == 'select_target_element':
+            if not any([e.type == 'alias_expression' for e in segment.segments]):
+                types = set([e.type for e in segment.segments])
+                unallowed_types = types - set(['whitespace', 'newline', 'object_reference'])
+                if len(unallowed_types) > 0:
+                    # No fixes, because we don't know what the alias should be,
+                    # the user should document it themselves.
+                    if self.allow_scalar:
+                        # Check *how many* elements there are in the select
+                        # statement. If this is the only one, then we won't
+                        # report an error.
+                        num_elements = sum([e.type == 'select_target_element' for e in parent_stack[-1].segments])
+                        if num_elements > 1:
+                            return LintResult(anchor=segment)
+                        else:
+                            return None
+                    else:
+                        # Just erro if we don't care.
+                        return LintResult(anchor=segment)
