@@ -41,6 +41,12 @@ class Rule_L002(BaseCrawler):
 
     This rule will fail if a single section of whitespace
     contains both tabs and spaces.
+
+    Args:
+        tab_space_size (:obj:`int`): The number of spaces to consider
+            equal to one tab. Used in the fixing step of this rule.
+            Defaults to 4.
+
     """
 
     def __init__(self, tab_space_size=4, **kwargs):
@@ -100,7 +106,14 @@ class Rule_L002(BaseCrawler):
 
 @std_rule_set.register
 class Rule_L003(BaseCrawler):
-    """Indentation length is not a multiple of {tab_space_size}."""
+    """Indentation length is not a multiple of {tab_space_size}.
+
+    Args:
+        tab_space_size (:obj:`int`): The number of spaces to consider
+            equal to one tab. Used in the fixing step of this rule.
+            Defaults to 4.
+
+    """
 
     def __init__(self, tab_space_size=4, **kwargs):
         """Initialise, extracting the tab size from the config."""
@@ -381,7 +394,7 @@ class Rule_L010(BaseCrawler):
 
     Args:
         capitalisation_policy (:obj:`str`): The capitalisation policy to
-        enforce. One of 'consistent', 'upper', 'lower', 'capitalise'.
+            enforce. One of `consistent`, `upper`, `lower`, `capitalise`.
 
     """
 
@@ -476,8 +489,8 @@ class Rule_L010(BaseCrawler):
 class Rule_L011(BaseCrawler):
     """Implicit aliasing of table not allowed. Use explicit `AS` clause.
 
-    NB: This rule and L012 are very similar, but use seperate rules so
-    that they can be enabled/disabled seperately.
+    NB: Rule L011 and L012 have the same implementation but different targets
+    so they can seperately be turned on/off.
     """
 
     _target_elem = 'table_expression'
@@ -529,8 +542,8 @@ class Rule_L011(BaseCrawler):
 class Rule_L012(Rule_L011):
     """Implicit aliasing of column not allowed. Use explicit `AS` clause.
 
-    NB: This rule and L011 are very similar, but use seperate rules so
-    that they can be enabled/disabled seperately.
+    NB: Rule L011 and L012 have the same implementation but different targets
+    so they can seperately be turned on/off.
     """
 
     _target_elem = 'select_target_element'
