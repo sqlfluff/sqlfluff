@@ -5,6 +5,7 @@ import os
 import shutil
 import re
 import pytest
+from six import StringIO
 
 from click.testing import CliRunner
 
@@ -17,6 +18,11 @@ def generic_roundtrip_test(source_file, rulestring):
     We take a file buffer, lint, fix and lint, finally checking that
     the file fails initially but not after fixing.
     """
+    if isinstance(source_file, str):
+        # If it's a string, treat it as a path so lets load it.
+        with open(source_file, mode='r') as f:
+            source_file = StringIO(f.read())
+
     filename = 'tesing.sql'
     # Lets get the path of a file to use
     tempdir_path = tempfile.mkdtemp()
@@ -87,28 +93,17 @@ def jinja_roundtrip_test(source_path, rulestring, sqlfile='test.sql', cfgfile='.
     assert tags == new_tags
 
 
-def test__cli__command__fix_L001():
-    """Test the round trip of detecting, fixing and then not detecting rule L001."""
-    with open('test/fixtures/linter/indentation_errors.sql', mode='r') as f:
-        generic_roundtrip_test(f, 'L001')
-
-
-def test__cli__command__fix_L008_a():
-    """Test the round trip of detecting, fixing and then not detecting rule L008."""
-    with open('test/fixtures/linter/whitespace_errors.sql', mode='r') as f:
-        generic_roundtrip_test(f, 'L008')
-
-
-def test__cli__command__fix_L008_b():
-    """Test the round trip of detecting, fixing and then not detecting rule L008."""
-    with open('test/fixtures/linter/indentation_errors.sql', mode='r') as f:
-        generic_roundtrip_test(f, 'L008')
-
-
-def test__cli__command__fix_L010():
-    """Test the round trip of detecting, fixing and then not detecting rule L008."""
-    with open('test/fixtures/linter/whitespace_errors.sql', mode='r') as f:
-        generic_roundtrip_test(f, 'L010')
+@pytest.mark.parametrize("rule,path", [
+    ("L001", 'test/fixtures/linter/indentation_errors.sql'),
+    ("L008", 'test/fixtures/linter/whitespace_errors.sql'),
+    ("L008", 'test/fixtures/linter/indentation_errors.sql'),
+    ("L010", 'test/fixtures/linter/whitespace_errors.sql'),
+    ("L011", 'test/fixtures/parser/ansi/select_simple_i.sql'),
+    ("L012", 'test/fixtures/parser/ansi/select_simple_i.sql')
+])
+def test__cli__command__fix_L001(rule, path):
+    """Test the round trip of detecting, fixing and then not detecting given rule."""
+    generic_roundtrip_test(path, rule)
 
 
 @pytest.mark.parametrize("rule", ["L010", "L001"])

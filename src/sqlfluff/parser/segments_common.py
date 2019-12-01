@@ -73,6 +73,9 @@ class ReSegment(KeywordSegment):
     and so the `KeywordSegment` should be used instead wherever possible.
     """
 
+    _anti_template = None
+    """If `_anti_template` is set, then we exclude anything that matches it."""
+
     @classmethod
     def match(cls, segments, parse_context):
         """Compare input segments for a match, return a `MatchResult`.
@@ -102,8 +105,12 @@ class ReSegment(KeywordSegment):
             r = result.group(0)
             # Check that we've fully matched
             if r == sc:
-                m = cls(raw=s, pos_marker=segments[0].pos_marker),  # Return a tuple
-                return MatchResult(m, segments[1:])
+                # Check that the _anti_template (if set) hasn't also matched
+                if cls._anti_template and re.match(cls._anti_template, sc):
+                    return MatchResult.from_unmatched(segments)
+                else:
+                    m = cls(raw=s, pos_marker=segments[0].pos_marker),  # Return a tuple
+                    return MatchResult(m, segments[1:])
         return MatchResult.from_unmatched(segments)
 
     @classmethod

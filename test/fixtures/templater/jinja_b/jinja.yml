@@ -14,9 +14,10 @@ file:
           - raw: ' '
           - numeric_literal: 6
         - raw: ' '
-        - keyword: as
-        - raw: ' '
-        - naked_identifier: a
+        - alias_expression:
+          - keyword: as
+          - raw: ' '
+          - naked_identifier: a
       - keyword: ','
       - select_target_element:
         - expression:
@@ -26,9 +27,10 @@ file:
           - raw: ' '
           - numeric_literal: 14
         - raw: ' '
-        - keyword: as
-        - raw: ' '
-        - naked_identifier: b
+        - alias_expression:
+          - keyword: as
+          - raw: ' '
+          - naked_identifier: b
     - raw: "\n"
     - from_clause:
         keyword: FROM
