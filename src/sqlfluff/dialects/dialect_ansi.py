@@ -22,6 +22,38 @@ from .base import Dialect
 ansi_dialect = Dialect('ansi')
 
 
+ansi_dialect.set_lexer_struct([
+    # name, type, pattern, kwargs
+    ("whitespace", "regex", r"[\t ]*", None),
+    ("inline_comment", "regex", r"(-- |#)[^\n]*", dict(is_comment=True)),
+    ("block_comment", "regex", r"\/\*([^\*]|\*[^\/])*\*\/", dict(is_comment=True)),
+    ("single_quote", "regex", r"'[^']*'", dict(is_code=True)),
+    ("double_quote", "regex", r'"[^"]*"', dict(is_code=True)),
+    ("back_quote", "regex", r"`[^`]*`", dict(is_code=True)),
+    ("numeric_literal", "regex", r"([0-9]+(\.[0-9]+)?)", dict(is_code=True)),
+    ("greater_than_or_equal", "regex", r">=", dict(is_code=True)),
+    ("less_than_or_equal", "regex", r"<=", dict(is_code=True)),
+    ("newline", "regex", r"\r\n", None),
+    ("casting_operator", "regex", r"::", dict(is_code=True)),
+    ("not_equals", "regex", r"!=", dict(is_code=True)),
+    ("newline", "singleton", "\n", None),
+    ("equals", "singleton", "=", dict(is_code=True)),
+    ("greater_than", "singleton", ">", dict(is_code=True)),
+    ("less_than", "singleton", "<", dict(is_code=True)),
+    ("dot", "singleton", ".", dict(is_code=True)),
+    ("comma", "singleton", ",", dict(is_code=True)),
+    ("plus", "singleton", "+", dict(is_code=True)),
+    ("tilde", "singleton", "~", dict(is_code=True)),
+    ("minus", "singleton", "-", dict(is_code=True)),
+    ("divide", "singleton", "/", dict(is_code=True)),
+    ("star", "singleton", "*", dict(is_code=True)),
+    ("bracket_open", "singleton", "(", dict(is_code=True)),
+    ("bracket_close", "singleton", ")", dict(is_code=True)),
+    ("semicolon", "singleton", ";", dict(is_code=True)),
+    ("code", "regex", r"[0-9a-zA-Z_]*", dict(is_code=True))
+])
+
+
 ansi_dialect.add(
     # NB The NonCode Segment is not really for matching, mostly just for use as a terminator
     _NonCodeSegment=LambdaSegment.make(lambda x: not x.is_code, is_code=False, name='non_code'),

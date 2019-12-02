@@ -389,7 +389,7 @@ class Linter(object):
 
         verbosity_logger("TEMPLATING RAW [{0}] ({1})".format(self.templater.name, fname), verbosity=verbosity)
         try:
-            s = self.templater.process(s, fname=fname, config=config)
+            s = self.templater.process(s, fname=fname, config=config or self.config)
         except SQLTemplaterError as err:
             violations.append(err)
             fs = None
@@ -401,7 +401,7 @@ class Linter(object):
             verbosity_logger("LEXING RAW ({0})".format(fname), verbosity=verbosity)
             # Lex the file and log any problems
             try:
-                fs = FileSegment.from_raw(s)
+                fs = FileSegment.from_raw(s, config=config or self.config)
             except SQLLexError as err:
                 violations.append(err)
                 fs = None

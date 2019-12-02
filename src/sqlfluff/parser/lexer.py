@@ -158,46 +158,16 @@ class RepeatedMultiMatcher(SingletonMatcher):
         return cls(*matchers)
 
 
-lexer_struct = [
-    # name, type, pattern, kwargs
-    ("whitespace", "regex", r"[\t ]*", None),
-    ("inline_comment", "regex", r"(-- |#)[^\n]*", dict(is_comment=True)),
-    ("block_comment", "regex", r"\/\*([^\*]|\*[^\/])*\*\/", dict(is_comment=True)),
-    ("single_quote", "regex", r"'[^']*'", dict(is_code=True)),
-    ("double_quote", "regex", r'"[^"]*"', dict(is_code=True)),
-    ("back_quote", "regex", r"`[^`]*`", dict(is_code=True)),
-    ("numeric_literal", "regex", r"([0-9]+(\.[0-9]+)?)", dict(is_code=True)),
-    ("greater_than_or_equal", "regex", r">=", dict(is_code=True)),
-    ("less_than_or_equal", "regex", r"<=", dict(is_code=True)),
-    ("newline", "regex", r"\r\n", None),
-    ("casting_operator", "regex", r"::", dict(is_code=True)),
-    ("not_equals", "regex", r"!=", dict(is_code=True)),
-    ("newline", "singleton", "\n", None),
-    ("equals", "singleton", "=", dict(is_code=True)),
-    ("greater_than", "singleton", ">", dict(is_code=True)),
-    ("less_than", "singleton", "<", dict(is_code=True)),
-    ("dot", "singleton", ".", dict(is_code=True)),
-    ("comma", "singleton", ",", dict(is_code=True)),
-    ("plus", "singleton", "+", dict(is_code=True)),
-    ("tilde", "singleton", "~", dict(is_code=True)),
-    ("minus", "singleton", "-", dict(is_code=True)),
-    ("divide", "singleton", "/", dict(is_code=True)),
-    ("star", "singleton", "*", dict(is_code=True)),
-    ("bracket_open", "singleton", "(", dict(is_code=True)),
-    ("bracket_close", "singleton", ")", dict(is_code=True)),
-    ("semicolon", "singleton", ";", dict(is_code=True)),
-    ("code", "regex", r"[0-9a-zA-Z_]*", dict(is_code=True))
-]
-
-
 class Lexer(object):
     """The Lexer class actually does the lexing step.
 
     This class is likely called directly from a top level segment
     such as the `FileSegment`.
     """
-    def __init__(self, config=None):
-        self.config = config or {}
+    def __init__(self, config):
+        # config is required - we use it to get the dialect
+        self.config = config
+        lexer_struct = config.get('dialect_obj').get_lexer_struct()
         self.matcher = RepeatedMultiMatcher.from_struct(lexer_struct)
 
     def lex(self, raw):
