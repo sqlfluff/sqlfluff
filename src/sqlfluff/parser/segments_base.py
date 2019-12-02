@@ -232,7 +232,7 @@ class BaseSegment(object):
                         type(segments)))
 
     @classmethod
-    def from_raw(cls, raw):
+    def from_raw(cls, raw, config=None):
         """Instantiate a segment from a string. This is only implemented for the `FileSegment`."""
         raise NotImplementedError("from_raw is not implemented for {0}".format(cls.__name__))
 

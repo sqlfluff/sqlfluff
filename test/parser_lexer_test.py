@@ -8,6 +8,7 @@ from sqlfluff.parser.lexer import SingletonMatcher, LexMatch, RegexMatcher, Repe
 from sqlfluff.parser.segments_base import RawSegment
 from sqlfluff.parser.markers import FilePositionMarker
 from sqlfluff.errors import SQLLexError
+from sqlfluff.config import FluffConfig
 
 
 def assert_matches(instring, matcher, matchstring):
@@ -54,7 +55,7 @@ def assert_matches(instring, matcher, matchstring):
 )
 def test__parser__lexer_obj(raw, res, caplog):
     """Test the lexer splits as expected in a selection of cases."""
-    lex = Lexer()
+    lex = Lexer(config=FluffConfig())
     with caplog.at_level(logging.DEBUG):
         assert [seg.raw for seg in lex.lex(raw)] == res
 
@@ -119,7 +120,7 @@ def test__parser__lexer_multimatcher(caplog):
 
 def test__parser__lexer_fail(caplog):
     """Test the how the lexer fails and reports errors."""
-    lex = Lexer()
+    lex = Lexer(config=FluffConfig())
     try:
         lex.lex("Select \u0394")
     except SQLLexError as err:

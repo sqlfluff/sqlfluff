@@ -6,11 +6,14 @@ class Dialect(object):
 
     Args:
         name (:obj:`str`): The name of the dialect, used for lookup.
+        lexer_struct (iterable of :obj:`tuple`): A structure defining
+            the lexing config for this dialect.
 
     """
-    def __init__(self, name):
+    def __init__(self, name, lexer_struct=None):
         self._library = {}
         self.name = name
+        self.lexer_struct = lexer_struct
 
     def segment(self):
         """This is the decorator for elements, it should be called as a method.
@@ -65,3 +68,22 @@ class Dialect(object):
             raise RuntimeError(
                 "Grammar refers to {0!r} which was not found in the {1} dialect".format(
                     name, self.name))
+
+    def set_lexer_struct(self, lexer_struct):
+        """Set the lexer struct for the dialect.
+
+        This is what is used for base dialects. For derived dialects
+        (which don't exist yet) the assumption is that we'll introduce
+        some kind of *patch* function which could be used to mutate
+        an existing `lexer_struct`.
+        """
+        self.lexer_struct = lexer_struct
+
+    def get_lexer_struct(self):
+        """Fetch the lexer struct for this dialect."""
+        if self.lexer_struct:
+            return self.lexer_struct
+        else:
+            raise ValueError(
+                "Lexing struct has not been set for dialect {0}".format(
+                    self))

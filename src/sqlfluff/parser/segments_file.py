@@ -22,8 +22,10 @@ class FileSegment(BaseSegment):
     )
 
     @classmethod
-    def from_raw(cls, raw):
+    def from_raw(cls, raw, config=None):
         """Take Raw Text and Make a FileSegment using the Lexer."""
-        lexer = Lexer()
+        if config is None:
+            raise ValueError("Config is required for from_raw to fetch lexing dialect.")
+        lexer = Lexer(config=config)
         segments = lexer.lex(raw)
         return cls(segments=segments)
