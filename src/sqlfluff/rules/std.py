@@ -178,7 +178,13 @@ class Rule_L005(BaseCrawler):
         if len(raw_stack) >= 1:
             cm1 = raw_stack[-1]
             if segment.name == 'comma' and cm1.name in ['whitespace', 'newline']:
-                return LintResult(anchor=cm1, fixes=[LintFix('delete', cm1)])
+                # NB: if its a *newline*, then it's confusing to the user
+                # to report on the newline, so in that case we point at the comma
+                if cm1.name == 'newline':
+                    anchor = segment
+                else:
+                    anchor = cm1
+                return LintResult(anchor=anchor, fixes=[LintFix('delete', cm1)])
 
 
 @std_rule_set.register
@@ -398,6 +404,8 @@ class Rule_L010(BaseCrawler):
 
     """
 
+    _target_elem = 'keyword'
+
     def __init__(self, capitalisation_policy='consistent', **kwargs):
         """Initialise, extracting the capitalisation mode from the config."""
         if capitalisation_policy not in ('consistent', 'upper', 'lower', 'capitalise'):
@@ -414,7 +422,7 @@ class Rule_L010(BaseCrawler):
         """
         cases_seen = memory.get('cases_seen', set())
 
-        if segment.type == 'keyword':
+        if segment.type == self._target_elem:
             raw = segment.raw
             uc = raw.upper()
             lc = raw.lower()
@@ -487,11 +495,7 @@ class Rule_L010(BaseCrawler):
 
 @std_rule_set.register
 class Rule_L011(BaseCrawler):
-    """Implicit aliasing of table not allowed. Use explicit `AS` clause.
-
-    NB: Rule L011 and L012 have the same implementation but different targets
-    so they can seperately be turned on/off.
-    """
+    """Implicit aliasing of table not allowed. Use explicit `AS` clause."""
 
     _target_elem = 'table_expression'
 
@@ -542,8 +546,9 @@ class Rule_L011(BaseCrawler):
 class Rule_L012(Rule_L011):
     """Implicit aliasing of column not allowed. Use explicit `AS` clause.
 
-    NB: Rule L011 and L012 have the same implementation but different targets
-    so they can seperately be turned on/off.
+    NB: This rule inherits it's functionality from obj:`Rule_L011` but is
+    seperate so that they can be enabled and disabled seperately.
+
     """
 
     _target_elem = 'select_target_element'
@@ -594,3 +599,18 @@ class Rule_L013(BaseCrawler):
                     else:
                         # Just erro if we don't care.
                         return LintResult(anchor=segment)
+
+
+@std_rule_set.register
+class Rule_L014(Rule_L010):
+    """Inconsistent capitalisation of unquoted identifiers.
+
+    The functionality for this rule is inherited from :obj:`Rule_L010`.
+
+    Args:
+        capitalisation_policy (:obj:`str`): The capitalisation policy to
+        enforce. One of 'consistent', 'upper', 'lower', 'capitalise'.
+
+    """
+
+    _target_elem = 'naked_identifier'
