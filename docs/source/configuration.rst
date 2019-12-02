@@ -1,3 +1,5 @@
+.. _config:
+
 Configuration
 =============
 
@@ -29,15 +31,27 @@ Nesting
 -------
 
 **Sqlfluff** uses **nesting** in it's configuration files, with files
-closer to the file being parsed being favoured over other config. The
-following locations are checked:
+closer *overriding* (or *patching*, if you will) values from other files.
+That means you'll end up with a final config which will be a patchwork
+of all the values from the config files loaded up to that path.
+You don't **need** any config files to be present to make *sqlfluff*
+work. If you do want to override any values though sqlfluff will use
+files in the following locations in order, with values from later
+steps overriding those from earlier:
 
-1. The current user's home directory
-2. The current working directory
-3. *(if the file in question is in a subpath of the current working*
-   *directory)* every directory in between
-4. Any configuration passed at the command line is then used as a final
-    overlay.
+0. *[...and this one doesn't really count]* There's a default config as
+   part of the sqlfluff package. You can find this below, in the
+   :ref:`defaultconfig` section.
+1. It will look in the user's home directory (~), for any of the
+   filenames above in the main :ref:`config` section. If
+   multiple are present, they will *patch*/*override* eachother
+   in the order above.
+2. It will look for the same files in the current working directory.
+3. *[if parsing a file in a subdirectory of the current working directory]*
+   It will look for the same files in every subdirectory between the
+   current working dir and the file directory.
+4. It will look for the same files in the directory containing the file
+   being linted.
 
 This whole structure leads to efficient configuration, in particular
 in projects which utilise a lot of complicated templating.
@@ -165,6 +179,7 @@ projects. In particular it provides mock objects for:
 .. _`dbt`: https://www.getdbt.com/
 .. _`github`: https://www.github.com/alanmcruickshank/sqlfluff
 
+.. _defaultconfig:
 
 Default Configuration
 ---------------------
