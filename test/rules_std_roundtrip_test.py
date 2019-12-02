@@ -101,7 +101,7 @@ def jinja_roundtrip_test(source_path, rulestring, sqlfile='test.sql', cfgfile='.
     ("L011", 'test/fixtures/parser/ansi/select_simple_i.sql'),
     ("L012", 'test/fixtures/parser/ansi/select_simple_i.sql')
 ])
-def test__cli__command__fix_L001(rule, path):
+def test__cli__command__fix(rule, path):
     """Test the round trip of detecting, fixing and then not detecting given rule."""
     generic_roundtrip_test(path, rule)
 

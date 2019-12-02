@@ -2,7 +2,8 @@
 
 import os
 
-from sqlfluff.config import ConfigLoader, nested_combine, dict_diff
+from sqlfluff.config import ConfigLoader, nested_combine, dict_diff, FluffConfig
+from sqlfluff.linter import Linter
 
 
 config_a = {'core': {'testing_val': 'foobar', 'testing_int': 4}, 'bar': {'foo': 'barbar'}}
@@ -52,3 +53,23 @@ def test__config__load_nested():
         'bar': {'foo': 'foobar'},
         'fnarr': {'fnarr': {'foo': 'foobar'}}
     }
+
+
+def test__config__nested_config_tests():
+    """Test linting with overriden config in nested paths.
+
+    This looks like a linter test but it's actually a config
+    test.
+    """
+    lntr = Linter(config=FluffConfig(overrides=dict(exclude_rules='L002')))
+    lnt = lntr.lint_path('test/fixtures/config/inheritance_b')
+    violations = lnt.check_tuples(by_path=True)
+    for k in violations:
+        if k.endswith('nested\\example.sql'):
+            assert ('L003', 1, 1) in violations[k]
+            assert ('L009', 1, 12) in violations[k]
+            assert 'L002' not in [c[0] for c in violations[k]]
+        elif k.endswith('inheritance_b\\example.sql'):
+            assert ('L003', 1, 1) in violations[k]
+            assert 'L002' not in [c[0] for c in violations[k]]
+            assert 'L009' not in [c[0] for c in violations[k]]

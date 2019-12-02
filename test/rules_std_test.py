@@ -1,5 +1,7 @@
 """Tests for the standard set of rules."""
 
+import pytest
+
 from sqlfluff.rules.std import std_rule_set
 from sqlfluff.linter import Linter
 from sqlfluff.config import FluffConfig
@@ -52,42 +54,66 @@ def assert_rule_pass_in_sql(code, sql):
 
 
 # ############## STD RULES TESTS
-def test__rules__std__L001():
-    """Test L001 for missing newline at end of file."""
-    res = assert_rule_fail_in_sql('L001', 'SELECT 1     \n')
-    assert res == 'SELECT 1\n'
+@pytest.mark.parametrize("rule,pass_fail,qry,fixed", [
+    ("L001", 'fail', 'SELECT 1     \n', 'SELECT 1\n'),
+    ('L002', 'fail', '    \t    \t    SELECT 1', None),
+    ('L003', 'fail', '     SELECT 1', '    SELECT 1'),
+    ('L004', 'pass', '   \nSELECT 1', None),
+    ('L004', 'pass', '\t\tSELECT 1\n', None),
+    ('L004', 'fail', '   \n  \t \n  SELECT 1', None),
+    ('L005', 'fail', 'SELECT 1 ,4', 'SELECT 1,4'),
+    ('L008', 'pass', 'SELECT 1, 4', None),
+    ('L008', 'fail', 'SELECT 1,   4', 'SELECT 1, 4'),
+    ('L014', 'pass', 'SELECT a, b', None),
+    ('L014', 'pass', 'SELECT A, B', None),
+    # Test that fixes are consistent
+    ('L014', 'fail', 'SELECT a,   B', 'SELECT a,   b'),
+    ('L014', 'fail', 'SELECT B,   a', 'SELECT B,   A'),
+    # Test that we don't fail * operators in brackets
+    ('L006', 'pass', 'SELECT COUNT(*) FROM tbl\n', None)
+])
+def test__rules__std_string(rule, pass_fail, qry, fixed):
+    """Test that a rule passes/fails on a given string.
+
+    Optionally, also test the fixed string if provided.
+    """
+    if pass_fail == 'fail':
+        res = assert_rule_fail_in_sql(rule, qry)
+        # If a `fixed` value is provided then check it matches
+        if fixed:
+            assert res == fixed
+    elif pass_fail == 'pass':
+        assert_rule_pass_in_sql(rule, qry)
+    else:
+        raise ValueError(
+            "Test setup fail: Unexpected value for pass_fail: {0!r}".format(
+                pass_fail))
 
 
-def test__rules__std__L002():
-    """Test L002 for mixed indentation in line."""
-    assert_rule_fail_in_sql('L002', '    \t    \t    SELECT 1')
-
-
-def test__rules__std__L003():
-    """Test non-multiple indentation."""
-    assert_rule_fail_in_sql('L003', '     SELECT 1')
-
-
-def test__rules__std__L004():
-    """Test L004 for mixed indentation in file."""
-    assert_rule_pass_in_sql('L004', '   \nSELECT 1')
-    assert_rule_pass_in_sql('L004', '\t\tSELECT 1\n')
-    assert_rule_fail_in_sql('L004', '   \n  \t \n  SELECT 1')
-
-
-def test__rules__std__L005():
-    """Test L008 for spaces before commas."""
-    assert_rule_fail_in_sql('L005', 'SELECT 1 ,4')
-
-
-def test__rules__std__L008():
-    """Test L008 for spaces after commas."""
-    assert_rule_pass_in_sql('L008', 'SELECT 1, 4')
-    assert_rule_fail_in_sql('L008', 'SELECT 1,   4')
-
-
-def test__rules__std__L014():
-    """Test L014 for identifier capitalisation."""
-    assert_rule_pass_in_sql('L014', 'SELECT a, b')
-    assert_rule_pass_in_sql('L014', 'SELECT A, B')
-    assert_rule_fail_in_sql('L014', 'SELECT a,   B')
+@pytest.mark.parametrize("rule,path,violations", [
+    ('L001', 'test/fixtures/linter/indentation_errors.sql', [(4, 24)]),
+    ('L002', 'test/fixtures/linter/indentation_errors.sql', [(3, 1), (4, 1)]),
+    ('L003', 'test/fixtures/linter/indentation_errors.sql', [(2, 1), (3, 1)]),
+    ('L004', 'test/fixtures/linter/indentation_errors.sql', [(3, 1), (4, 1), (5, 1)]),
+    # Check we get comma (with leading space/newline) whitespace errors
+    # NB The newline before the comma, should report on the comma, not the newline for clarity.
+    ('L005', 'test/fixtures/linter/whitespace_errors.sql', [(2, 9), (4, 1)]),
+    # Check we get comma (with incorrect trailing space) whitespace errors,
+    # but also no false positives on line 4 or 5.
+    ('L008', 'test/fixtures/linter/whitespace_errors.sql', [(3, 12)]),
+    # Check we get operator whitespace errors and it works with brackets
+    ('L006', 'test/fixtures/linter/operator_errors.sql',
+     [(3, 8), (4, 10), (7, 6), (7, 7), (7, 9), (7, 10), (7, 12), (7, 13)]),
+    ('L007', 'test/fixtures/linter/operator_errors.sql', [(5, 9)]),
+    # Check we DO get a violation on line 2 but NOT on line 3
+    ('L006', 'test/fixtures/linter/operator_errors_negative.sql', [(2, 6), (2, 9), (5, 6), (5, 7)])
+])
+def test__rules__std_file(rule, path, violations):
+    """Test the linter finds the given errors in (and only in) the right places."""
+    # Use config to look for only the rule we care about.
+    lntr = Linter(config=FluffConfig(overrides=dict(rules=rule)))
+    lnt = lntr.lint_path(path)
+    # Reformat the test data to match the format we're expecting. We use
+    # sets because we really don't care about order and if one is missing,
+    # we don't care about the orders of the correct ones.
+    assert set(lnt.check_tuples()) == set([(rule, v[0], v[1]) for v in violations])

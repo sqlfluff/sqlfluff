@@ -165,7 +165,13 @@ class Rule_L005(BaseCrawler):
         if len(raw_stack) >= 1:
             cm1 = raw_stack[-1]
             if segment.name == 'comma' and cm1.name in ['whitespace', 'newline']:
-                return LintResult(anchor=cm1, fixes=[LintFix('delete', cm1)])
+                # NB: if its a *newline*, then it's confusing to the user
+                # to report on the newline, so in that case we point at the comma
+                if cm1.name == 'newline':
+                    anchor = segment
+                else:
+                    anchor = cm1
+                return LintResult(anchor=anchor, fixes=[LintFix('delete', cm1)])
 
 
 @std_rule_set.register
@@ -476,11 +482,7 @@ class Rule_L010(BaseCrawler):
 
 @std_rule_set.register
 class Rule_L011(BaseCrawler):
-    """Implicit aliasing of table not allowed. Use explicit `AS` clause.
-
-    NB: This rule and L012 are very similar, but use seperate rules so
-    that they can be enabled/disabled seperately.
-    """
+    """Implicit aliasing of table not allowed. Use explicit `AS` clause."""
 
     _target_elem = 'table_expression'
 
@@ -531,10 +533,10 @@ class Rule_L011(BaseCrawler):
 class Rule_L012(Rule_L011):
     """Implicit aliasing of column not allowed. Use explicit `AS` clause.
 
-    NB: This rule and L011 are very similar, but use seperate rules so
-    that they can be enabled/disabled seperately.
-    """
+    NB: This rule inherits it's functionality from obj:`Rule_L011` but is
+    seperate so that they can be enabled and disabled seperately.
 
+    """
     _target_elem = 'select_target_element'
 
 
