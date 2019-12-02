@@ -84,3 +84,10 @@ def test__rules__std__L008():
     """Test L008 for spaces after commas."""
     assert_rule_pass_in_sql('L008', 'SELECT 1, 4')
     assert_rule_fail_in_sql('L008', 'SELECT 1,   4')
+
+
+def test__rules__std__L014():
+    """Test L014 for identifier capitalisation."""
+    assert_rule_pass_in_sql('L014', 'SELECT a, b')
+    assert_rule_pass_in_sql('L014', 'SELECT A, B')
+    assert_rule_fail_in_sql('L014', 'SELECT a,   B')

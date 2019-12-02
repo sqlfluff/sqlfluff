@@ -385,6 +385,8 @@ class Rule_L010(BaseCrawler):
 
     """
 
+    _target_elem = 'keyword'
+
     def __init__(self, capitalisation_policy='consistent', **kwargs):
         """Initialise, extracting the capitalisation mode from the config."""
         if capitalisation_policy not in ('consistent', 'upper', 'lower', 'capitalise'):
@@ -401,7 +403,7 @@ class Rule_L010(BaseCrawler):
         """
         cases_seen = memory.get('cases_seen', set())
 
-        if segment.type == 'keyword':
+        if segment.type == self._target_elem:
             raw = segment.raw
             uc = raw.upper()
             lc = raw.lower()
@@ -581,3 +583,18 @@ class Rule_L013(BaseCrawler):
                     else:
                         # Just erro if we don't care.
                         return LintResult(anchor=segment)
+
+
+@std_rule_set.register
+class Rule_L014(Rule_L010):
+    """Inconsistent capitalisation of unquoted identifiers.
+
+    The functionality for this rule is inherited from :obj:`Rule_L010`.
+
+    Args:
+        capitalisation_policy (:obj:`str`): The capitalisation policy to
+        enforce. One of 'consistent', 'upper', 'lower', 'capitalise'.
+
+    """
+
+    _target_elem = 'naked_identifier'

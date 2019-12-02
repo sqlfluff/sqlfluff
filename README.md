@@ -59,7 +59,7 @@ about the architecture of sqlfluff, you can find [more here](https://sqlfluff.re
   - [ ] Number of blank lines
   - [ ] Indentation of comments
   - [x] Inconsistent capitalisation of keywords
-  - [ ] Inconsistent capitalisation of unquoted identifiers
+  - [x] Inconsistent capitalisation of unquoted identifiers
   - [x] Implement a context manager in the parse and match
         functions to avoid passing around so many variables.
   - [x] Reenable disabled linter tests
