@@ -134,6 +134,61 @@ class RepeatedMultiMatcher(SingletonMatcher):
                     seg_buff
                 )
 
+    @classmethod
+    def from_struct(cls, s):
+        """Creates a matcher from a lexer_struct.
+
+        Expects an iterable of :obj:`tuple`. Each tuple should be:
+        (name, type, pattern, kwargs).
+
+        """
+        matchers = []
+        for elem in s:
+            if elem[1] == "regex":
+                m_cls = RegexMatcher
+            elif elem[1] == "singleton":
+                m_cls = SingletonMatcher
+            else:
+                raise ValueError(
+                    "Unexpected matcher type in lexer struct: {0!r}".format(
+                        elem[1]))
+            k = elem[3] or {}
+            m = m_cls.from_shorthand(elem[0], elem[2], **k)
+            matchers.append(m)
+        return cls(*matchers)
+
+
+lexer_struct = [
+    # name, type, pattern, kwargs
+    ("whitespace", "regex", r"[\t ]*", None),
+    ("inline_comment", "regex", r"(-- |#)[^\n]*", dict(is_comment=True)),
+    ("block_comment", "regex", r"\/\*([^\*]|\*[^\/])*\*\/", dict(is_comment=True)),
+    ("single_quote", "regex", r"'[^']*'", dict(is_code=True)),
+    ("double_quote", "regex", r'"[^"]*"', dict(is_code=True)),
+    ("back_quote", "regex", r"`[^`]*`", dict(is_code=True)),
+    ("numeric_literal", "regex", r"([0-9]+(\.[0-9]+)?)", dict(is_code=True)),
+    ("greater_than_or_equal", "regex", r">=", dict(is_code=True)),
+    ("less_than_or_equal", "regex", r"<=", dict(is_code=True)),
+    ("newline", "regex", r"\r\n", None),
+    ("casting_operator", "regex", r"::", dict(is_code=True)),
+    ("not_equals", "regex", r"!=", dict(is_code=True)),
+    ("newline", "singleton", "\n", None),
+    ("equals", "singleton", "=", dict(is_code=True)),
+    ("greater_than", "singleton", ">", dict(is_code=True)),
+    ("less_than", "singleton", "<", dict(is_code=True)),
+    ("dot", "singleton", ".", dict(is_code=True)),
+    ("comma", "singleton", ",", dict(is_code=True)),
+    ("plus", "singleton", "+", dict(is_code=True)),
+    ("tilde", "singleton", "~", dict(is_code=True)),
+    ("minus", "singleton", "-", dict(is_code=True)),
+    ("divide", "singleton", "/", dict(is_code=True)),
+    ("star", "singleton", "*", dict(is_code=True)),
+    ("bracket_open", "singleton", "(", dict(is_code=True)),
+    ("bracket_close", "singleton", ")", dict(is_code=True)),
+    ("semicolon", "singleton", ";", dict(is_code=True)),
+    ("code", "regex", r"[0-9a-zA-Z_]*", dict(is_code=True))
+]
+
 
 class Lexer(object):
     """The Lexer class actually does the lexing step.
@@ -143,36 +198,7 @@ class Lexer(object):
     """
     def __init__(self, config=None):
         self.config = config or {}
-        self.matcher = RepeatedMultiMatcher(
-            RegexMatcher.from_shorthand("whitespace", r"[\t ]*"),
-            RegexMatcher.from_shorthand("inline_comment", r"(-- |#)[^\n]*", is_comment=True),
-            RegexMatcher.from_shorthand("block_comment", r"\/\*([^\*]|\*[^\/])*\*\/", is_comment=True),
-            RegexMatcher.from_shorthand("single_quote", r"'[^']*'", is_code=True),
-            RegexMatcher.from_shorthand("double_quote", r'"[^"]*"', is_code=True),
-            RegexMatcher.from_shorthand("back_quote", r"`[^`]*`", is_code=True),
-            # The numeric literal explicitly doesn't include the minus sign. We deal with that at parse.
-            RegexMatcher.from_shorthand("numeric_literal", r"([0-9]+(\.[0-9]+)?)", is_code=True),
-            RegexMatcher.from_shorthand("greater_than_or_equal", r">=", is_code=True),
-            RegexMatcher.from_shorthand("less_than_or_equal", r"<=", is_code=True),
-            RegexMatcher.from_shorthand("newline", r"\r\n"),
-            RegexMatcher.from_shorthand("casting_operator", r"::", is_code=True),
-            RegexMatcher.from_shorthand("not_equals", r"!=", is_code=True),
-            SingletonMatcher.from_shorthand("newline", "\n"),
-            SingletonMatcher.from_shorthand("equals", "=", is_code=True),
-            SingletonMatcher.from_shorthand("greater_than", ">", is_code=True),
-            SingletonMatcher.from_shorthand("less_than", "<", is_code=True),
-            SingletonMatcher.from_shorthand("dot", ".", is_code=True),
-            SingletonMatcher.from_shorthand("comma", ",", is_code=True),
-            SingletonMatcher.from_shorthand("plus", "+", is_code=True),
-            SingletonMatcher.from_shorthand("tilde", "~", is_code=True),
-            SingletonMatcher.from_shorthand("minus", "-", is_code=True),
-            SingletonMatcher.from_shorthand("divide", "/", is_code=True),
-            SingletonMatcher.from_shorthand("star", "*", is_code=True),
-            SingletonMatcher.from_shorthand("bracket_open", "(", is_code=True),
-            SingletonMatcher.from_shorthand("bracket_close", ")", is_code=True),
-            SingletonMatcher.from_shorthand("semicolon", ";", is_code=True),
-            RegexMatcher.from_shorthand("code", r"[0-9a-zA-Z_]*", is_code=True)
-        )
+        self.matcher = RepeatedMultiMatcher.from_struct(lexer_struct)
 
     def lex(self, raw):
         """Take a string and return segments.
