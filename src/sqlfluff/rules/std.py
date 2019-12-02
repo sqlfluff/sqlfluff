@@ -41,6 +41,12 @@ class Rule_L002(BaseCrawler):
 
     This rule will fail if a single section of whitespace
     contains both tabs and spaces.
+
+    Args:
+        tab_space_size (:obj:`int`): The number of spaces to consider
+            equal to one tab. Used in the fixing step of this rule.
+            Defaults to 4.
+
     """
 
     def __init__(self, tab_space_size=4, **kwargs):
@@ -100,7 +106,14 @@ class Rule_L002(BaseCrawler):
 
 @std_rule_set.register
 class Rule_L003(BaseCrawler):
-    """Indentation length is not a multiple of {tab_space_size}."""
+    """Indentation length is not a multiple of {tab_space_size}.
+
+    Args:
+        tab_space_size (:obj:`int`): The number of spaces to consider
+            equal to one tab. Used in the fixing step of this rule.
+            Defaults to 4.
+
+    """
 
     def __init__(self, tab_space_size=4, **kwargs):
         """Initialise, extracting the tab size from the config."""
@@ -387,7 +400,7 @@ class Rule_L010(BaseCrawler):
 
     Args:
         capitalisation_policy (:obj:`str`): The capitalisation policy to
-        enforce. One of 'consistent', 'upper', 'lower', 'capitalise'.
+            enforce. One of `consistent`, `upper`, `lower`, `capitalise`.
 
     """
 
@@ -535,6 +548,9 @@ class Rule_L012(Rule_L011):
 
     NB: This rule inherits it's functionality from obj:`Rule_L011` but is
     seperate so that they can be enabled and disabled seperately.
+
+    """
+
 
     """
     _target_elem = 'select_target_element'

@@ -92,7 +92,7 @@ about the architecture of sqlfluff, you can find [more here](https://sqlfluff.re
   - [x] jinja2 compatible linting (for dbt)
     - [x] a preconfigured default set of templating macros for dbt use which can be loaded
           as config.
-  - [ ] Move the configuration of the *lexer* into the dialect.
+  - [x] Move the configuration of the *lexer* into the dialect.
 - [ ] Documentation
   - [x] Basic architectural principles
   - [ ] Update CLI docs to match current state
