@@ -551,8 +551,6 @@ class Rule_L012(Rule_L011):
 
     """
 
-
-    """
     _target_elem = 'select_target_element'
 
 
