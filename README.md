@@ -99,4 +99,4 @@ about the architecture of sqlfluff, you can find [more here](https://sqlfluff.re
   - [x] Auto-document Rules
   - [ ] Auto-document Grammars
   - [ ] Auto-document Templaters
-  - [ ] Auto-docuemnt Dialects
+  - [ ] Auto-document Dialects
