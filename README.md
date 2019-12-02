@@ -39,64 +39,11 @@ L:   1 | P:  27 | L001 | Unnecessary trailing whitespace
 
 For more details on usage see the docs on readthedocs [here](http://sqlfluff.readthedocs.io).
 
-# Progress
+# Roadmap
 
 There's lots to do in this project, and we're just getting started. If you want to understand more
 about the architecture of sqlfluff, you can find [more here](https://sqlfluff.readthedocs.io/en/latest/architecture.html).
 
-- [x] Command line interface
-  - [x] Basic linting, both of paths and files
-  - [x] Version information
-  - [x] Nicely formatted readout of linting success or fail
-  - [x] Exit codes which reflect linting success or fail
-  - [x] Filtering to particular codes in the linting step
-  - [x] Allow basic correction of some linting codes
-- [x] Basic ANSI linting
-  - [x] Simple whitespace testing
-  - [x] Whitespace around operators
-  - [x] Indentation (size and mix of tabs and spaces)
-  - [ ] Indentation between lines and when to indent
-  - [ ] Number of blank lines
-  - [ ] Indentation of comments
-  - [x] Inconsistent capitalisation of keywords
-  - [x] Inconsistent capitalisation of unquoted identifiers
-  - [x] Implement a context manager in the parse and match
-        functions to avoid passing around so many variables.
-  - [x] Reenable disabled linter tests
-- [x] Configurable linting
-  - [x] Command line options for config
-    - [x] Rough parity between command line and file based config
-  - [x] Ability to read from config files
-    - [x] Documentation of the config loading system
-  - [ ] Ability to read config from block comment
-        sections in `.sql` files.
-  - [x] Ignore particular rules (blacklisting)
-  - [x] Specifying particlar dialects to use
-  - [x] Specifying particlar templaters to use
-  - [x] Preconfiguring verbosity
-  - [ ] Delta-configs for individual files printed before each above some
-        level of verbosity.
-  - [x] Work out a solution to templating *macros*.
-  - [x] Allow configuration for *rules*, e.g. indentation multiplier for
-        L003 or the capitalisation for the keyword rule.
-- [x] Dialects
-  - [ ] ANSI
-    - [ ] Implement singleton matching for `::`, `:` and `||`.
-    - [ ] Bring in a much wider selection of test queries to identify
-          next gaps.
-    - [x] Flesh out function coverage.
-  - [ ] MySQL 
-  - [ ] Redshift
-  - [ ] Snowflake
-  - [x] Detecting dialect from a config file of some kind
-  - [x] jinja2 compatible linting (for dbt)
-    - [x] a preconfigured default set of templating macros for dbt use which can be loaded
-          as config.
-  - [x] Move the configuration of the *lexer* into the dialect.
-- [ ] Documentation
-  - [x] Basic architectural principles
-  - [ ] Update CLI docs to match current state
-  - [x] Auto-document Rules
-  - [ ] Auto-document Grammars
-  - [ ] Auto-document Templaters
-  - [ ] Auto-document Dialects
+If you'd like to contribute, check out the
+[open issues on github](https://github.com/alanmcruickshank/sqlfluff/issues).
+You can also see the guide to [contributing](CONTRIBUTING.md).
