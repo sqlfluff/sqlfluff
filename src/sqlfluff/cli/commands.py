@@ -126,9 +126,6 @@ def lint(paths, **kwargs):
     config_string = format_config(lnt, verbose=verbose)
     if len(config_string) > 0:
         lnt.log(config_string)
-    # Lint the paths
-    if verbose > 1:
-        lnt.log("==== logging ====")
     # add stdin if specified via lone '-'
     if ('-',) == paths:
         result = lnt.lint_string_wrapped(sys.stdin.read(), fname='stdin', verbosity=verbose)
@@ -232,10 +229,16 @@ def parse(path, code_only, **kwargs):
     if len(config_string) > 0:
         lnt.log(config_string)
 
+    # TODO: do this better
+    print(c)
+
     nv = 0
     try:
         # A single path must be specified for this command
-        for parsed, violations, time_dict in lnt.parse_path(path, verbosity=verbose, recurse=recurse):
+        for parsed, violations, time_dict, config_diff in lnt.parse_path(path, verbosity=verbose, recurse=recurse):
+            if config_diff:
+                # TODO: Do this more elegantlt
+                print(config_diff)
             if parsed:
                 lnt.log(parsed.stringify(code_only=code_only))
             else:

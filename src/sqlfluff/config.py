@@ -249,6 +249,7 @@ class ConfigLoader(object):
 
 class FluffConfig(object):
     """.The class that actually gets passed around as a config object."""
+    private_vals = ['rule_blacklist', 'rule_whitelist', 'dialect_obj', 'templater_obj']
 
     def __init__(self, configs=None, overrides=None):
         self._overrides = overrides  # We only store this for child configs
@@ -332,3 +333,28 @@ class FluffConfig(object):
                 if buff is None:
                     return None
             return buff
+
+    def iter_vals(self, cfg=None):
+        """Return an iterable of tuples representing keys.
+
+        We show values before dicts, the tuple contains an indent
+        value to know what level of the dict we're in. Dict labels
+        will be returned as a blank value before their content.
+        """
+        cfg = cfg or self._configs
+
+        # Get keys and sort
+        keys = sorted(cfg.keys())
+        # First iterate values (alphabetically):
+        for k in keys:
+            if not isinstance(cfg[k], dict) and cfg[k] is not None and k not in self.private_vals:
+                yield (0, k, cfg[k])
+
+        # Then iterate dicts (alphabetically (but `core` comes first if it exists))
+        for k in keys:
+            if isinstance(cfg[k], dict):
+                # First yield the dict label
+                yield (0, k, '')
+                # Then yield it's content
+                for idnt, key, val in self.iter_vals(cfg=cfg[k]):
+                    yield (idnt + 1, key, val)
