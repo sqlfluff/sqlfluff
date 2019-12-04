@@ -31,11 +31,11 @@ ansi_dialect.set_lexer_struct([
     ("double_quote", "regex", r'"[^"]*"', dict(is_code=True)),
     ("back_quote", "regex", r"`[^`]*`", dict(is_code=True)),
     ("numeric_literal", "regex", r"([0-9]+(\.[0-9]+)?)", dict(is_code=True)),
+    ("not_equal", "regex", r"!=|<>", dict(is_code=True)),
     ("greater_than_or_equal", "regex", r">=", dict(is_code=True)),
     ("less_than_or_equal", "regex", r"<=", dict(is_code=True)),
     ("newline", "regex", r"\r\n", None),
     ("casting_operator", "regex", r"::", dict(is_code=True)),
-    ("not_equals", "regex", r"!=", dict(is_code=True)),
     ("newline", "singleton", "\n", None),
     ("equals", "singleton", "=", dict(is_code=True)),
     ("greater_than", "singleton", ">", dict(is_code=True)),
@@ -75,11 +75,13 @@ ansi_dialect.add(
     LessThanSegment=KeywordSegment.make('<', name='less_than', type='comparison_operator'),
     GreaterThanOrEqualToSegment=KeywordSegment.make('>=', name='greater_than_equal_to', type='comparison_operator'),
     LessThanOrEqualToSegment=KeywordSegment.make('<=', name='less_than_equal_to', type='comparison_operator'),
+    NotEqualToSegment_a=KeywordSegment.make('!=', name='not_equal_to', type='comparison_operator'),
+    NotEqualToSegment_b=KeywordSegment.make('<>', name='not_equal_to', type='comparison_operator'),
     # The strange regex here it to make sure we don't accidentally match numeric literals. We
     # also use a regex to explicitly exclude disallowed keywords.
     NakedIdentifierSegment=ReSegment.make(
         r"[A-Z0-9_]*[A-Z][A-Z0-9_]*", name='identifier', type='naked_identifier',
-        _anti_template=r"(JOIN|ON|USING)"),
+        _anti_template=r"(JOIN|ON|USING|CROSS|INNER|LEFT|RIGHT|OUTER)"),
     FunctionNameSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='function_name', type='function_name'),
     # Maybe data types should be more restrictive?
     DatatypeSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='data_type', type='data_type'),
@@ -99,7 +101,8 @@ ansi_dialect.add(
         Ref('AndKeywordSegment'), Ref('OrKeywordSegment')),
     ComparisonOperatorGrammar=OneOf(
         Ref('EqualsSegment'), Ref('GreaterThanSegment'), Ref('LessThanSegment'),
-        Ref('GreaterThanOrEqualToSegment'), Ref('LessThanOrEqualToSegment')),
+        Ref('GreaterThanOrEqualToSegment'), Ref('LessThanOrEqualToSegment'),
+        Ref('NotEqualToSegment_a'), Ref('NotEqualToSegment_b')),
     # Keywords
     AsKeywordSegment=KeywordSegment.make('as'),
     FromKeywordSegment=KeywordSegment.make('from'),

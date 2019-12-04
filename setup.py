@@ -75,7 +75,10 @@ setup(
     ],
     install_requires=[
         'click>=2.0',
-        'six>=1.0'
+        'six>=1.0',
+        'configparser',
+        'oyaml',
+        'Jinja2'
     ],
     extras_require={
         # eg:

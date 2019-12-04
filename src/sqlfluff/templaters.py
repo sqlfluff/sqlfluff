@@ -69,6 +69,13 @@ class RawTemplateInterface(object):
         """
         return in_str
 
+    def __eq__(self, other):
+        """Return true if `other` is of the same class as this one.
+
+        NB: This is useful in comparing configs.
+        """
+        return isinstance(other, self.__class__)
+
 
 @register_templater
 class PythonTemplateInterface(RawTemplateInterface):

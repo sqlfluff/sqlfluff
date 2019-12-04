@@ -12,7 +12,8 @@ from .parser.segments_base import verbosity_logger, frame_msg, ParseContext
 from .rules import get_ruleset
 
 
-from .cli.formatters import format_linting_path, format_file_violations
+from .cli.formatters import (format_linting_path, format_file_violations,
+                             format_filename, format_config_vals)
 
 
 class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tree', 'file_mask'])):
@@ -374,18 +375,29 @@ class Linter(object):
         """Parse a string.
 
         Returns:
-            `tuple` of (`parsed`, `violations`, `time_dict`).
+            `tuple` of (`parsed`, `violations`, `time_dict`, `config_diff`).
                 `parsed` is a segment structure representing the parsed file. If
                     parsing fails due to an inrecoverable violation then we will
                     return None.
-                `violations` is a list of violations so far, which will either be
+                `violations` is a :obj:`list` of violations so far, which will either be
                     templating, lexing or parsing violations at this stage.
-                `time_dict` is a dict containing timings for how long each step
+                `time_dict` is a :obj:`dict` containing timings for how long each step
                     took in the process.
 
         """
         violations = []
         t0 = get_time()
+
+        # Log the start of this process if we're in a more verbose mode.
+        if verbosity > 1:
+            self.log(format_filename(filename=fname, success='PARSING', verbose=verbosity))
+            # This is where we output config diffs if they exist.
+            if config:
+                # Only output config diffs if there is a config to diff to.
+                config_diff = config.diff_to(self.config)
+                if config_diff:
+                    self.log("   Config Diff:")
+                    self.log(format_config_vals(self.config.iter_vals(cfg=config_diff)))
 
         verbosity_logger("TEMPLATING RAW [{0}] ({1})".format(self.templater.name, fname), verbosity=verbosity)
         try:
@@ -532,9 +544,11 @@ class Linter(object):
             fixed_buff = parsed.raw
 
         file_mask = (raw_buff, templ_buff, fixed_buff)
-        res = LintedFile(fname, vs, time_dict, parsed, file_mask)
+        res = LintedFile(fname, vs, time_dict, parsed,
+                         file_mask=file_mask)
         # Do the logging as appropriate (don't log if fixing...)
         if not fix:
+            # This is the main command line output from linting.
             self.log(format_file_violations(fname, res.violations, verbose=verbosity))
         return res
 
@@ -573,7 +587,9 @@ class Linter(object):
         for fname in self.paths_from_path(path):
             config = self.config.make_child_from_path(fname)
             with open(fname, 'r') as f:
-                linted_path.add(self.lint_string(f.read(), fname=fname, verbosity=verbosity, fix=fix, config=config))
+                linted_path.add(
+                    self.lint_string(f.read(), fname=fname, verbosity=verbosity,
+                                     fix=fix, config=config))
         return linted_path
 
     def lint_paths(self, paths, verbosity=0, fix=False):

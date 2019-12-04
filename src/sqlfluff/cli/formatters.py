@@ -3,15 +3,18 @@
 
 from six import StringIO
 
-from .helpers import colorize, cli_table, get_package_version, get_python_version
+from .helpers import colorize, cli_table, get_package_version, get_python_version, pad_line
 from ..errors import SQLBaseError
 
 
 def format_filename(filename, success=False, verbose=0, success_text='PASS'):
     """Format filenames."""
-    status_string = colorize(
-        success_text if success else 'FAIL',
-        'green' if success else 'red')
+    if isinstance(success, str):
+        status_string = success
+    else:
+        status_string = colorize(
+            success_text if success else 'FAIL',
+            'green' if success else 'red')
     return (
         "== ["
         + colorize("{0}".format(filename), 'lightgrey')
@@ -174,6 +177,15 @@ def format_linting_result(result, verbose=0):
     return text_buffer.getvalue()
 
 
+def format_config_vals(config_vals):
+    """Format an iterable of config values from a config object."""
+    text_buffer = StringIO()
+    for i, k, v in config_vals:
+        val = '' if v is None else str(v)
+        text_buffer.write(("    " * i) + colorize(pad_line(str(k) + ':', 20, 'left'), color='lightgrey') + pad_line(val, 20, 'left') + '\n')
+    return text_buffer.getvalue()
+
+
 def format_config(linter, verbose=0):
     """Format the config of a `Linter`."""
     text_buffer = StringIO()
@@ -190,6 +202,9 @@ def format_config(linter, verbose=0):
         text_buffer.write("\n")
         if linter.config.get('rule_whitelist'):
             text_buffer.write(cli_table([('rules', ', '.join(linter.config.get('rule_whitelist')))], col_width=41))
+        if verbose > 1:
+            text_buffer.write("== Raw Config:\n")
+            text_buffer.write(format_config_vals(linter.config.iter_vals()))
     return text_buffer.getvalue()
 
 

@@ -1,0 +1,20 @@
+# Test that casting works as expected
+file:
+  statement:
+    select_statement:
+      keyword: SELECT
+      select_target_group:
+        select_target_element:
+          object_reference:
+            naked_identifier: count_correctly_substituted
+      from_clause:
+        keyword: FROM
+        table_expression:
+          object_reference:
+            naked_identifier: correctly_substituted
+        join_clause:
+        - keyword: CROSS
+        - keyword: JOIN
+        - table_expression:
+            object_reference:
+              naked_identifier: needs_substitution

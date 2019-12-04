@@ -366,23 +366,28 @@ class BaseSegment(object):
         """Returns only the non-comment elements of this segment."""
         return [seg for seg in self.segments if seg.type != 'comment']
 
-    def stringify(self, ident=0, tabsize=4, pos_idx=60, raw_idx=80):
+    def stringify(self, ident=0, tabsize=4, pos_idx=60, raw_idx=80, code_only=False):
         """Use indentation to render this segment and it's children as a string."""
         buff = StringIO()
         preface = self._preface(ident=ident, tabsize=tabsize, pos_idx=pos_idx, raw_idx=raw_idx)
         buff.write(preface + '\n')
-        if self.comment_seperate and len(self._comments) > 0:
+        if not code_only and self.comment_seperate and len(self._comments) > 0:
             if self._comments:
                 buff.write((' ' * ((ident + 1) * tabsize)) + 'Comments:' + '\n')
                 for seg in self._comments:
-                    buff.write(seg.stringify(ident=ident + 2, tabsize=tabsize, pos_idx=pos_idx, raw_idx=raw_idx))
+                    buff.write(seg.stringify(ident=ident + 2, tabsize=tabsize, pos_idx=pos_idx,
+                                             raw_idx=raw_idx, code_only=code_only))
             if self._non_comments:
                 buff.write((' ' * ((ident + 1) * tabsize)) + 'Code:' + '\n')
                 for seg in self._non_comments:
-                    buff.write(seg.stringify(ident=ident + 2, tabsize=tabsize, pos_idx=pos_idx, raw_idx=raw_idx))
+                    buff.write(seg.stringify(ident=ident + 2, tabsize=tabsize, pos_idx=pos_idx,
+                                             raw_idx=raw_idx, code_only=code_only))
         else:
             for seg in self.segments:
-                buff.write(seg.stringify(ident=ident + 1, tabsize=tabsize, pos_idx=pos_idx, raw_idx=raw_idx))
+                # If we're in code_only, only show the code segments, otherwise always true
+                if not code_only or seg.is_code:
+                    buff.write(seg.stringify(ident=ident + 1, tabsize=tabsize, pos_idx=pos_idx,
+                                             raw_idx=raw_idx, code_only=code_only))
         return buff.getvalue()
 
     @staticmethod
@@ -772,7 +777,7 @@ class RawSegment(BaseSegment):
             self.pos_marker,
             self.raw)
 
-    def stringify(self, ident=0, tabsize=4, pos_idx=60, raw_idx=80):
+    def stringify(self, ident=0, tabsize=4, pos_idx=60, raw_idx=80, code_only=False):
         """Use indentation to render this segment and it's children as a string."""
         preface = self._preface(ident=ident, tabsize=tabsize, pos_idx=pos_idx, raw_idx=raw_idx)
         return preface + '\n'
