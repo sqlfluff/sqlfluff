@@ -178,6 +178,7 @@ def format_linting_result(result, verbose=0):
 
 
 def format_config_vals(config_vals):
+    """Format an iterable of config values from a config object."""
     text_buffer = StringIO()
     for i, k, v in config_vals:
         val = '' if v is None else str(v)

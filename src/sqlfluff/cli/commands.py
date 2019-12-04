@@ -235,10 +235,7 @@ def parse(path, code_only, **kwargs):
     nv = 0
     try:
         # A single path must be specified for this command
-        for parsed, violations, time_dict, config_diff in lnt.parse_path(path, verbosity=verbose, recurse=recurse):
-            if config_diff:
-                # TODO: Do this more elegantlt
-                print(config_diff)
+        for parsed, violations, time_dict in lnt.parse_path(path, verbosity=verbose, recurse=recurse):
             if parsed:
                 lnt.log(parsed.stringify(code_only=code_only))
             else:
