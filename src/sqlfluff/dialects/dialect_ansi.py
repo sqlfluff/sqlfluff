@@ -81,7 +81,7 @@ ansi_dialect.add(
     # also use a regex to explicitly exclude disallowed keywords.
     NakedIdentifierSegment=ReSegment.make(
         r"[A-Z0-9_]*[A-Z][A-Z0-9_]*", name='identifier', type='naked_identifier',
-        _anti_template=r"(JOIN|ON|USING)"),
+        _anti_template=r"(JOIN|ON|USING|CROSS|INNER|LEFT|RIGHT|OUTER)"),
     FunctionNameSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='function_name', type='function_name'),
     # Maybe data types should be more restrictive?
     DatatypeSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='data_type', type='data_type'),
