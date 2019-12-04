@@ -73,34 +73,25 @@ def test__cli__command_lint_stdin(command):
     invoke_assert_code(args=[lint, command], kwargs=dict(input=sql))
 
 
-def test__cli__command_lint_b():
+@pytest.mark.parametrize('command', [
+    # Test basic linting
+    (lint, ['-n', 'test/fixtures/cli/passing_b.sql']),
+    # Check basic parsing
+    (parse, ['-n', 'test/fixtures/cli/passing_b.sql']),
+    # Check basic parsing, with the code only option
+    (parse, ['-n', 'test/fixtures/cli/passing_b.sql', '-c']),
+    # Check linting works in specifying rules
+    (lint, ['-n', '--rules', 'L001', 'test/fixtures/linter/operator_errors.sql']),
+    # Check linting works in specifying multiple rules
+    (lint, ['-n', '--rules', 'L001,L002', 'test/fixtures/linter/operator_errors.sql']),
+    # Check linting works with both included and excluded rules
+    (lint, ['-n', '--rules', 'L001,L006', '--exclude-rules', 'L006', 'test/fixtures/linter/operator_errors.sql']),
+    # Check linting works with just excluded rules
+    (lint, ['-n', '--exclude-rules', 'L006,L007', 'test/fixtures/linter/operator_errors.sql'])
+])
+def test__cli__command_lint_b(command):
     """Check basic commands on a more complicated script."""
-    invoke_assert_code(args=[lint, ['-n', 'test/fixtures/cli/passing_b.sql']])
-
-
-def test__cli__command_parse():
-    """Check parse command."""
-    invoke_assert_code(args=[parse, ['-n', 'test/fixtures/cli/passing_b.sql']])
-
-
-def test__cli__command_lint_c_rules_single():
-    """Check that only checking for a single specific rule using the cli works."""
-    invoke_assert_code(args=[lint, ['-n', '--rules', 'L001', 'test/fixtures/linter/operator_errors.sql']])
-
-
-def test__cli__command_lint_c_rules_multi():
-    """Check that only checking for multiple specific rules using the cli works."""
-    invoke_assert_code(args=[lint, ['-n', '--rules', 'L001,L002', 'test/fixtures/linter/operator_errors.sql']])
-
-
-def test__cli__command_lint_c_exclude_rules_single():
-    """Check that only excluding a single specific rule using the cli works."""
-    invoke_assert_code(args=[lint, ['-n', '--rules', 'L001,L006', '--exclude-rules', 'L006', 'test/fixtures/linter/operator_errors.sql']])
-
-
-def test__cli__command_lint_c_exclude_rules_multi():
-    """Check that excluding multiple specific rules using the cli works."""
-    invoke_assert_code(args=[lint, ['-n', '--exclude-rules', 'L006,L007', 'test/fixtures/linter/operator_errors.sql']])
+    invoke_assert_code(args=command)
 
 
 def test__cli__command_versioning():

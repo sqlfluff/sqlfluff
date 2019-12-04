@@ -213,7 +213,9 @@ def fix(force, paths, **kwargs):
 @common_options
 @click.argument('path', nargs=1)
 @click.option('--recurse', default=0, help='The depth to recursively parse to (0 for unlimited)')
-def parse(path, **kwargs):
+@click.option('-c', '--code-only', is_flag=True,
+              help='Output only the code elements of the parse tree.')
+def parse(path, code_only, **kwargs):
     """Parse SQL files and just spit out the result.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -235,7 +237,7 @@ def parse(path, **kwargs):
         # A single path must be specified for this command
         for parsed, violations, time_dict in lnt.parse_path(path, verbosity=verbose, recurse=recurse):
             if parsed:
-                lnt.log(parsed.stringify())
+                lnt.log(parsed.stringify(code_only=code_only))
             else:
                 # TODO: Make this prettier
                 lnt.log('...Failed to Parse...')
