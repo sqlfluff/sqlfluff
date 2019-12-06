@@ -558,17 +558,17 @@ class Linter(object):
             raise IOError("Specified path does not exist")
         elif os.path.isdir(path):
             # Then expand the path!
-            buffer = set()
+            buffer = []
             for dirpath, _, filenames in os.walk(path):
                 for fname in filenames:
                     for ext in self.sql_exts:
                         # is it a sql file?
                         if fname.endswith(ext):
                             # join the paths and normalise
-                            buffer.add(os.path.normpath(os.path.join(dirpath, fname)))
-            return buffer
+                            buffer.append(os.path.normpath(os.path.join(dirpath, fname)))
+            return sorted(buffer)
         else:
-            return set([path])
+            return [path]
 
     def lint_string_wrapped(self, string, fname='<string input>', verbosity=0, fix=False):
         """Lint strings directly."""

@@ -1,7 +1,9 @@
 """Module for loading config."""
 
-import configparser
 import os
+import sys
+
+from six.moves import configparser
 
 from .dialects import dialect_selector
 from .templaters import templater_selector
@@ -107,7 +109,10 @@ class ConfigLoader(object):
         """
         buff = []
         # Disable interpolation so we can load macros
-        config = configparser.ConfigParser(interpolation=None)
+        kw = {}
+        if sys.version_info >= (3, 0):
+            kw['interpolation'] = None
+        config = configparser.ConfigParser(**kw)
         config.read(fpath)
         for k in config.sections():
             if k == 'sqlfluff':
