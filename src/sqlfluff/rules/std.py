@@ -241,6 +241,7 @@ class Rule_L006(BaseCrawler):
         # anchor is our signal as to whether there's a problem
         anchor = None
         fixes = []
+        description = None
 
         # The parent stack tells us whether we're in an expression or not.
         if parent_stack and parent_stack[-1].type == 'expression':
@@ -251,6 +252,8 @@ class Rule_L006(BaseCrawler):
                     anchor, fixes = _handle_previous_segments(
                         memory['since_code'], anchor=segment, this_segment=segment,
                         fixes=fixes)
+                    if anchor:
+                        description = "Operators should be preceded by a space."
                 else:
                     # It's not an operator, we can evaluate what happened after an
                     # operator if that's the last code we saw.
@@ -259,6 +262,8 @@ class Rule_L006(BaseCrawler):
                         anchor, fixes = _handle_previous_segments(
                             memory['since_code'], anchor=memory['last_code'],
                             this_segment=segment, fixes=fixes)
+                        if anchor:
+                            description = "Operators should be followed by a space."
                     else:
                         # This isn't an operator, and the thing before it wasn't
                         # either. I don't think that's an issue for now.
@@ -276,7 +281,7 @@ class Rule_L006(BaseCrawler):
 
         # Anchor is our signal as to whether there's a problem
         if anchor:
-            return LintResult(anchor=anchor, memory=memory, fixes=fixes)
+            return LintResult(anchor=anchor, memory=memory, fixes=fixes, description=description)
         else:
             return LintResult(memory=memory)
 

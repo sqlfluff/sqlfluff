@@ -21,9 +21,14 @@ class SQLBaseError(ValueError):
 
         NB: For violations which don't directly implement a rule
         this attempts to return the error message linked to whatever
-        caused the violation.
+        caused the violation. Optionally some errors may have their
+        description set directly.
         """
-        if hasattr(self, 'rule'):
+        if hasattr(self, 'description') and self.description:
+            # This can only override if it's present AND
+            # if it's non-null.
+            return self.description
+        elif hasattr(self, 'rule'):
             return self.rule.description
         else:
             # Return the first element - probably a string message
@@ -148,6 +153,7 @@ class SQLLintError(SQLBaseError):
         self.segment = kwargs.pop('segment', None)
         self.rule = kwargs.pop('rule', None)
         self.fixes = kwargs.pop('fixes', [])
+        self.description = kwargs.pop('description', None)
         super(SQLLintError, self).__init__(*args, **kwargs)
 
     def check_tuple(self):
