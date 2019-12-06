@@ -37,21 +37,29 @@ class LintResult(object):
         memory (:obj:`dict`, optional): An object which stores any working
             memory for the crawler. The `memory` returned in any `LintResult`
             will be passed as an input to the next segment to be crawled.
+        description (:obj:`str`, optional): A description of the problem
+            identified as part of this result. This will override the
+            description of the rule as what gets reported to the user
+            with the problem if provided.
 
     """
 
-    def __init__(self, anchor=None, fixes=None, memory=None):
+    def __init__(self, anchor=None, fixes=None, memory=None, description=None):
         # An anchor of none, means no issue
         self.anchor = anchor
         # Fixes might be blank
         self.fixes = fixes or []
         # Memory is passed back in the linting result
         self.memory = memory
+        # store a description_override for later
+        self.description = description
 
     def to_linting_error(self, rule):
         """Convert a linting result to a :exc:`SQLLintError` if appropriate."""
         if self.anchor:
-            return SQLLintError(rule=rule, segment=self.anchor, fixes=self.fixes)
+            # Allow description override from the LintRestult
+            description = self.description or rule.description
+            return SQLLintError(rule=rule, segment=self.anchor, fixes=self.fixes, description=description)
         else:
             return None
 
