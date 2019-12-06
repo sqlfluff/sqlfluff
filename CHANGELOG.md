@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Linting and parsing of directories now reports files in alphabetical
   order. Thanks [@barrywhart](https://github.com/barrywhart).
 - Better python 2.7 stability. Thanks [@barrywhart](https://github.com/barrywhart).
+- Fixing parsing of `IN`/`NOT IN` and `IS`/`IS NOT`.
 
 ## [0.2.3] - 2019-12-02
 
