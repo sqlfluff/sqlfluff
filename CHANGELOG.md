@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - A `--code-only` option to the `parse` command to spit out a more
   simplified output with only the code elements.
+- Rules can now optionally override the description of the violation
+  and pass that back via the `LintingResult`.
 
 ### Changed
 
