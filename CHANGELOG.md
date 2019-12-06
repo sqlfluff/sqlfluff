@@ -19,6 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added more exclusions to identifier reserved words to fix cross joins.
 - At verbosity levels 2 or above, the root config is printed and then any
   diffs to that for specific files are also printed.
+- Linting and parsing of directories now reports files in alphabetical
+  order. Thanks [@barrywhart](https://github.com/barrywhart).
+- Better python 2.7 stability. Thanks [@barrywhart](https://github.com/barrywhart).
 
 ## [0.2.3] - 2019-12-02
 
