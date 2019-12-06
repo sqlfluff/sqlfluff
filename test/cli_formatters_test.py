@@ -45,20 +45,21 @@ def test__cli__formatters__violations():
         'foo': [
             SQLLintError(
                 segment=RawSegment('blah', FilePositionMarker(0, 25, 2, 26)),
-                rule=RuleGhost('A', 'DESC')),
+                rule=RuleGhost('A', 'DESCR')),
+            # Here we check the optional description override
             SQLLintError(
                 segment=RawSegment('blah', FilePositionMarker(0, 21, 3, 22)),
-                rule=RuleGhost('B', 'DESC'))],
+                rule=RuleGhost('B', 'DESCR'), description='foo')],
         'bar': [
             SQLLintError(
                 segment=RawSegment('blah', FilePositionMarker(0, 2, 11, 3)),
-                rule=RuleGhost('C', 'DESC'))]
+                rule=RuleGhost('C', 'DESCR'))]
     }
     f = format_path_violations(v)
     k = sorted(['foo', 'bar'])
     chk = {
-        'foo': ["L:  21 | P:   3 | B | DESC", "L:  25 | P:   2 | A | DESC"],
-        'bar': ["L:   2 | P:  11 | C | DESC"]
+        'foo': ["L:  21 | P:   3 | B | foo", "L:  25 | P:   2 | A | DESCR"],
+        'bar': ["L:   2 | P:  11 | C | DESCR"]
     }
     chk2 = []
     for elem in k:
