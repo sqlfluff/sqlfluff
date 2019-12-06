@@ -131,6 +131,9 @@ ansi_dialect.add(
     OverwriteKeywordSegment=KeywordSegment.make('overwrite'),
     ByKeywordSegment=KeywordSegment.make('by'),
     InKeywordSegment=KeywordSegment.make('in'),
+    IsKeywordSegment=KeywordSegment.make('is'),
+    NullKeywordSegment=KeywordSegment.make('null'),
+    NanKeywordSegment=KeywordSegment.make('nan'),
     AndKeywordSegment=KeywordSegment.make('and', type='binary_operator'),
     OrKeywordSegment=KeywordSegment.make('or', type='binary_operator'),
     NotKeywordSegment=KeywordSegment.make('not'),
@@ -511,6 +514,7 @@ ansi_dialect.add(
                     Ref('Expression_A_Grammar')
                 ),
                 Sequence(
+                    Ref('NotKeywordSegment', optional=True),
                     Ref('InKeywordSegment'),
                     Bracketed(
                         OneOf(
@@ -520,6 +524,19 @@ ansi_dialect.add(
                             ),
                             Ref('SelectStatementSegment')
                         )
+                    )
+                ),
+                Sequence(
+                    Ref('IsKeywordSegment'),
+                    Ref('NotKeywordSegment', optional=True),
+                    OneOf(
+                        Ref('NullKeywordSegment'),
+                        Ref('NanKeywordSegment'),
+                        # TODO: True and False might not be allowed here in some
+                        # dialects (e.g. snowflake) so we should probably
+                        # revisit this at some point. Perhaps abstract this clause
+                        # into an "is-statement grammar", which could be overridden.
+                        Ref('BooleanLiteralGrammar')
                     )
                 )
             )
