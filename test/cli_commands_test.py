@@ -5,9 +5,11 @@ import tempfile
 import os
 import shutil
 
+# Testing libraries
 import pytest
 from click.testing import CliRunner
 
+# We import the library directly here to get the version
 import sqlfluff
 from sqlfluff.cli.commands import lint, version, rules, fix, parse
 
@@ -153,19 +155,12 @@ def generic_roundtrip_test(source_file, rulestring):
     shutil.rmtree(tempdir_path)
 
 
-def test__cli__command__fix_L001():
+@pytest.mark.parametrize('rule,fname', [
+    ('L001', 'test/fixtures/linter/indentation_errors.sql'),
+    ('L008', 'test/fixtures/linter/whitespace_errors.sql'),
+    ('L008', 'test/fixtures/linter/indentation_errors.sql')
+])
+def test__cli__command__fix(rule, fname):
     """Test the round trip of detecting, fixing and then not detecting rule L001."""
-    with open('test/fixtures/linter/indentation_errors.sql', mode='r') as f:
-        generic_roundtrip_test(f, 'L001')
-
-
-def test__cli__command__fix_L008_a():
-    """Test the round trip of detecting, fixing and then not detecting rule L001."""
-    with open('test/fixtures/linter/whitespace_errors.sql', mode='r') as f:
-        generic_roundtrip_test(f, 'L008')
-
-
-def test__cli__command__fix_L008_b():
-    """Test the round trip of detecting, fixing and then not detecting rule L001."""
-    with open('test/fixtures/linter/indentation_errors.sql', mode='r') as f:
-        generic_roundtrip_test(f, 'L008')
+    with open(fname, mode='r') as f:
+        generic_roundtrip_test(f, rule)
