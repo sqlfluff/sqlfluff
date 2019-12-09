@@ -449,6 +449,10 @@ class Rule_L010(BaseCrawler):
             # NOTE: We'll only add to cases_seen if we DONT
             # also raise an error, so that we can focus in.
 
+            print("raw: {0!r}, cap: {1!r}".format(raw, cap))
+            print("seen_case: {0}".format(seen_case))
+            print("self.capitalisation_policy: {0}".format(self.capitalisation_policy))
+
             def make_replacement(seg, policy):
                 """Make a replacement segment, based on seen capitalisation."""
                 if policy == "lower":
@@ -458,9 +462,15 @@ class Rule_L010(BaseCrawler):
                 elif policy == "capitalize":
                     new_raw = seg.raw.capitalize()
                 elif policy == "consistent":
-                    if cases_seen:
-                        # Get an element from what we've already seen
-                        return make_replacement(seg, list(cases_seen)[0])
+                    # The only case we DONT allow here is "inconsistent",
+                    # because it doesn't actually help us.
+                    filtered_cases_seen = [c for c in cases_seen if c != "inconsistent"]
+                    if filtered_cases_seen:
+                        # Get an element from what we've already seen.
+                        return make_replacement(
+                            seg,
+                            list(filtered_cases_seen)[0]
+                        )
                     else:
                         # If we haven't seen anything yet, then let's default
                         # to upper
@@ -477,7 +487,15 @@ class Rule_L010(BaseCrawler):
                 # No need to update memory
                 return LintResult(memory=memory)
             elif (
-                (self.capitalisation_policy == "consistent" and cases_seen and seen_case not in cases_seen)
+                # Are we required to be consistent? (and this is inconsistent?)
+                (
+                    self.capitalisation_policy == "consistent" and (
+                        # Either because we've seen multiple
+                        (cases_seen and seen_case not in cases_seen)
+                        # Or just because this one is inconsistent internally
+                        or seen_case == "inconsistent")
+                )
+                # Are we just required to be specfic?
                 # Policy is either upper, lower or capitalize
                 or (self.capitalisation_policy != "consistent" and seen_case != self.capitalisation_policy)
             ):

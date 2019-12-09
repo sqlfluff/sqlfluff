@@ -24,13 +24,22 @@ def assert_rule_fail_in_sql(code, sql):
     lerrs, _, _, _ = r.crawl(parsed, fix=True)
     print("Errors Found: {0}".format(lerrs))
     assert any([v.rule.code == code for v in lerrs])
-    fixes = []
-    for e in lerrs:
-        fixes += e.fixes
-    print("Fixes to apply: {0}".format(fixes))
+    fixed = parsed  # use this as our buffer (yes it's a bit of misnomer right here)
     while True:
-        l_fixes = fixes
-        fixed, fixes = parsed.apply_fixes(fixes)
+        # We get the errors again, but this time skip the assertion
+        # because we're in the loop. If we asserted on every loop then
+        # we're stuffed.
+        lerrs, _, _, _ = r.crawl(fixed, fix=True)
+        print("Errors Found: {0}".format(lerrs))
+        fixes = []
+        for e in lerrs:
+            fixes += e.fixes
+        if not fixes:
+            print("Done")
+            break
+        print("Fixes to apply: {0}".format(fixes))
+        l_fixes = fixes  # Save the fixes to compare to later
+        fixed, fixes = fixed.apply_fixes(fixes)
         # iterate until all fixes applied
         if fixes:
             if fixes == l_fixes:
@@ -38,8 +47,6 @@ def assert_rule_fail_in_sql(code, sql):
                     "Fixes aren't being applied: {0!r}".format(fixes))
             else:
                 continue
-        else:
-            break
     return fixed.raw
 
 
@@ -70,7 +77,10 @@ def assert_rule_pass_in_sql(code, sql):
     ('L014', 'fail', 'SELECT a,   B', 'SELECT a,   b'),
     ('L014', 'fail', 'SELECT B,   a', 'SELECT B,   A'),
     # Test that we don't fail * operators in brackets
-    ('L006', 'pass', 'SELECT COUNT(*) FROM tbl\n', None)
+    ('L006', 'pass', 'SELECT COUNT(*) FROM tbl\n', None),
+    # Test that we don't have the "inconsistent" bug
+    ('L010', 'fail', 'SeLeCt 1', 'SELECT 1'),
+    ('L010', 'fail', 'SeLeCt 1 from blah', 'SELECT 1 FROM blah'),
 ])
 def test__rules__std_string(rule, pass_fail, qry, fixed):
     """Test that a rule passes/fails on a given string.
