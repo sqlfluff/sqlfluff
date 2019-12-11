@@ -118,6 +118,10 @@ ansi_dialect.add(
     EndKeywordSegment=KeywordSegment.make('end'),
     AllKeywordSegment=KeywordSegment.make('all'),
     LimitKeywordSegment=KeywordSegment.make('limit'),
+    UnionKeywordSegment=KeywordSegment.make('union'),
+    MinusKeywordSegment=KeywordSegment.make('minus'),
+    ExceptKeywordSegment=KeywordSegment.make('except'),
+    IntersectKeywordSegment=KeywordSegment.make('intersect'),
     OnKeywordSegment=KeywordSegment.make('on'),
     JoinKeywordSegment=KeywordSegment.make('join'),
     InnerKeywordSegment=KeywordSegment.make('inner'),
@@ -766,6 +770,41 @@ class WithCompoundStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class SetOperatorSegment(BaseSegment):
+    """A set operator such as Union, Minus, Exept or Intersect."""
+    type = 'set_operator'
+    match_grammar = OneOf(
+        Sequence(
+            Ref('UnionKeywordSegment'),
+            OneOf(
+                Ref('DistinctKeywordSegment'),
+                Ref('AllKeywordSegment'),
+                optional=True
+            )
+        ),
+        Ref('IntersectKeywordSegment'),
+        Ref('ExceptKeywordSegment'),
+        Ref('MinusKeywordSegment')
+    )
+
+
+@ansi_dialect.segment()
+class SetExpressionSegment(BaseSegment):
+    """A set expression with either Union, Minus, Exept or Intersect."""
+    type = 'set_expression'
+    # match grammar
+    match_grammar = Delimited(
+        OneOf(
+            Ref('SelectStatementSegment'),
+            Ref('ValuesClauseSegment'),
+            Ref('WithCompoundStatementSegment')
+        ),
+        delimiter=Ref('SetOperatorSegment'),
+        min_delimiters=1
+    )
+
+
+@ansi_dialect.segment()
 class InsertStatementSegment(BaseSegment):
     """A `INSERT` statement."""
     type = 'insert_statement'
@@ -801,6 +840,7 @@ class StatementSegment(BaseSegment):
     """
     type = 'statement'
     parse_grammar = OneOf(
+        Ref('SetExpressionSegment'),
         Ref('SelectStatementSegment'), Ref('InsertStatementSegment'),
         Ref('EmptyStatementSegment'), Ref('WithCompoundStatementSegment'))
     match_grammar = GreedyUntil(Ref('SemicolonSegment'))
