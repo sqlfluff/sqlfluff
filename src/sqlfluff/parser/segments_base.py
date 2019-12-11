@@ -13,7 +13,8 @@ These are the fundamental building blocks of the rest of the parser.
 """
 
 import logging
-from six import StringIO
+import oyaml as yaml
+from six import StringIO, string_types
 
 from .match import MatchResult, curtail_string, join_segments_raw
 from ..errors import SQLLintError
@@ -141,8 +142,14 @@ class BaseSegment(object):
 
     @property
     def is_expandable(self):
-        """Return true if it is meaningful to call `expand` on this segment."""
+        """Return true if it is meaningful to call `expand` on this segment.
+
+        We need to do this recursively because even if *this* segment doesn't
+        need expanding, maybe one of it's children does.
+        """
         if self._parse_grammar():
+            return True
+        elif self.segments and any([s.is_expandable for s in self.segments]):
             return True
         else:
             return False
@@ -255,49 +262,50 @@ class BaseSegment(object):
         # Get the Parse Grammar
         g = self._parse_grammar()
         if g is None:
-            logging.debug("{0}.parse: no grammar. returning".format(self.__class__.__name__))
-            return self
-        # Use the Parse Grammar (and the private method)
-        # NOTE: No match_depth kwarg, because this is the start of the matching.
-        m = g._match(
-            segments=self.segments,
-            parse_context=parse_context.copy(
-                match_segment=self.__class__.__name__
-            )
-        )
-
-        # Calling unify here, allows the MatchResult class to do all the type checking.
-        try:
-            m = MatchResult.unify(m)
-        except TypeError as err:
-            logging.error(
-                "[PD:{0}] {1}.parse. Error on unifying result of match grammar!".format(
-                    parse_context.parse_depth, self.__class__.__name__))
-            raise err
-
-        # Basic Validation, that we haven't dropped anything.
-        check_still_complete(self.segments, m.matched_segments, m.unmatched_segments)
-
-        if m.has_match():
-            if m.is_complete():
-                # Complete match, happy days!
-                self.segments = m.matched_segments
-            else:
-                # Incomplete match.
-                # For now this means the parsing has failed. Lets add the unmatched bit at the
-                # end as something unparsable.
-                # TODO: Do something more intelligent here.
-                self.segments = m.matched_segments + (UnparsableSegment(
-                    segments=m.unmatched_segments, expected="Nothing..."),)
+            # No parse grammar, go straight to expansion
+            logging.debug("{0}.parse: no grammar. Going straight to expansion".format(self.__class__.__name__))
         else:
-            # If there's no match at this stage, then it's unparsable. That's
-            # a problem at this stage so wrap it in an unparable segment and carry on.
-            self.segments = UnparsableSegment(
+            # Use the Parse Grammar (and the private method)
+            # NOTE: No match_depth kwarg, because this is the start of the matching.
+            m = g._match(
                 segments=self.segments,
-                expected=g.expected_string(dialect=parse_context.dialect)),  # NB: tuple
+                parse_context=parse_context.copy(
+                    match_segment=self.__class__.__name__
+                )
+            )
 
-        # Validate new segments
-        self.validate_segments(text="parsing")
+            # Calling unify here, allows the MatchResult class to do all the type checking.
+            try:
+                m = MatchResult.unify(m)
+            except TypeError as err:
+                logging.error(
+                    "[PD:{0}] {1}.parse. Error on unifying result of match grammar!".format(
+                        parse_context.parse_depth, self.__class__.__name__))
+                raise err
+
+            # Basic Validation, that we haven't dropped anything.
+            check_still_complete(self.segments, m.matched_segments, m.unmatched_segments)
+
+            if m.has_match():
+                if m.is_complete():
+                    # Complete match, happy days!
+                    self.segments = m.matched_segments
+                else:
+                    # Incomplete match.
+                    # For now this means the parsing has failed. Lets add the unmatched bit at the
+                    # end as something unparsable.
+                    # TODO: Do something more intelligent here.
+                    self.segments = m.matched_segments + (UnparsableSegment(
+                        segments=m.unmatched_segments, expected="Nothing..."),)
+            else:
+                # If there's no match at this stage, then it's unparsable. That's
+                # a problem at this stage so wrap it in an unparable segment and carry on.
+                self.segments = UnparsableSegment(
+                    segments=self.segments,
+                    expected=g.expected_string(dialect=parse_context.dialect)),  # NB: tuple
+
+            # Validate new segments
+            self.validate_segments(text="parsing")
 
         # Recurse if allowed (using the expand method to deal with the expansion)
         logging.debug(
@@ -407,6 +415,32 @@ class BaseSegment(object):
         else:
             return (self.type, tuple([seg.to_tuple(**kwargs) for seg in self.segments]))
 
+    def to_yaml(self, **kwargs):
+        """Return a yaml structure from this segment."""
+        tpl = self.to_tuple(**kwargs)
+
+        def _structural_simplify(elem):
+            """Simplify the structure recursively so it outputs nicely in yaml."""
+            if isinstance(elem, tuple):
+                # Does this look like an element?
+                if len(elem) == 2 and isinstance(elem[0], string_types):
+                    # This looks like a single element, make a dict
+                    elem = {elem[0]: _structural_simplify(elem[1])}
+                elif isinstance(elem[0], tuple):
+                    # This looks like a list of elements.
+                    keys = [e[0] for e in elem]
+                    # Any duplicate elements?
+                    if len(set(keys)) == len(keys):
+                        # No, we can use a mapping typle
+                        elem = {e[0]: _structural_simplify(e[1]) for e in elem}
+                    else:
+                        # Yes, this has to be a list :(
+                        elem = [_structural_simplify(e) for e in elem]
+            return elem
+
+        obj = _structural_simplify(tpl)
+        return yaml.dump(obj)
+
     @classmethod
     def match(cls, segments, parse_context):
         """Match a list of segments against this segment.
@@ -482,7 +516,9 @@ class BaseSegment(object):
         for stmt in segments:
             try:
                 if not stmt.is_expandable:
-                    logging.info("[PD:{0}] Skipping expansion of {1}...".format(parse_context.parse_depth, stmt))
+                    verbosity_logger(
+                        "[PD:{0}] Skipping expansion of {1}...".format(parse_context.parse_depth, stmt),
+                        verbosity=parse_context.verbosity)
                     segs += stmt,
                     continue
             except Exception as err:
