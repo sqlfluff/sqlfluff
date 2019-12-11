@@ -80,6 +80,9 @@ def test__cli__command_lint_stdin(command):
     (parse, ['-n', 'test/fixtures/cli/passing_b.sql']),
     # Check basic parsing, with the code only option
     (parse, ['-n', 'test/fixtures/cli/passing_b.sql', '-c']),
+    # Check basic parsing, with the yaml output
+    (parse, ['-n', 'test/fixtures/cli/passing_b.sql', '-c', '-f', 'yaml']),
+    (parse, ['-n', 'test/fixtures/cli/passing_b.sql', '--format', 'yaml']),
     # Check linting works in specifying rules
     (lint, ['-n', '--rules', 'L001', 'test/fixtures/linter/operator_errors.sql']),
     # Check linting works in specifying multiple rules
