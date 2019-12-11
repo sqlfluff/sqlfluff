@@ -29,14 +29,10 @@ class SQLFluffViolationReporter(BaseViolationReporter):
         return None
 
     @staticmethod
-    def name():
-        return 'sqlfluff'
-
-    @staticmethod
     def installed():
         return True
 
 
 @diff_cover.hookimpl
 def diff_cover_report_quality():
-    return 'sqlfluff', SQLFluffViolationReporter
+    return SQLFluffViolationReporter()
