@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed the "inconsistent" bug in L010. Thanks [@nolanbconaway](https://github.com/nolanbconaway)
 
+### Added
+
+- `--format` option to the `parse` command that allows a yaml output. This
+  is mostly to make test writing easier in the development process but
+  might also be useful for other things.
+- Parsing of set operations like `UNION`.
+
 ## [0.2.4] - 2019-12-06
 
 ### Added

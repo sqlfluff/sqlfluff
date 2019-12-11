@@ -1,5 +1,7 @@
 """The Test file for CLI helpers."""
 
+import pytest
+
 from sqlfluff.cli.helpers import colorize, cli_table, wrap_elem, wrap_field, pad_line
 
 
@@ -16,28 +18,19 @@ def test__cli__helpers__cli_table():
     assert txt == 'a:    3|b:    c\nd: 4.77|e:    9'
 
 
-def test__cli__helpers__wrap_elem_a():
-    """Test simple wrapping."""
-    str_list = wrap_elem('abc', 5)
-    assert str_list == ['abc']
-
-
-def test__cli__helpers__wrap_elem_b():
-    """Space wrap test."""
-    str_list = wrap_elem('how now brown cow', 10)
-    assert str_list == ['how now', 'brown cow']
-
-
-def test__cli__helpers__wrap_elem_c():
-    """Harder wrap test."""
-    str_list = wrap_elem('A hippopotamus came for tea', 10)
-    assert str_list == ['A hippopot', 'amus came', 'for tea']
-
-
-def test__cli__helpers__wrap_elem_d():
-    """Harder wrap test, with a newline."""
-    str_list = wrap_elem('A hippopotamus\ncame for tea', 10)
-    assert str_list == ['A hippopot', 'amus came', 'for tea']
+@pytest.mark.parametrize('in_str,length,res', [
+    ('abc', 5, ['abc']),
+    # Space wrap test
+    ('how now brown cow', 10, ['how now', 'brown cow']),
+    # Harder wrap test
+    ('A hippopotamus came for tea', 10, ['A hippopot', 'amus came', 'for tea']),
+    # Harder wrap test, with a newline.
+    ('A hippopotamus\ncame for tea', 10, ['A hippopot', 'amus came', 'for tea'])
+])
+def test__cli__helpers__wrap_elem(in_str, length, res):
+    """Test wrapping."""
+    str_list = wrap_elem(in_str, length)
+    assert str_list == res
 
 
 def test__cli__helpers__wrap_field_a():

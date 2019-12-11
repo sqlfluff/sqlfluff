@@ -55,7 +55,7 @@ def get_config(**kwargs):
     return FluffConfig.from_root(overrides=overrides)
 
 
-def get_linter(cfg):
+def get_linter(cfg, silent=False):
     """Get a linter object given a config."""
     try:
         # We're just making sure it exists at this stage - it will be fetched properly in the linter
@@ -64,9 +64,13 @@ def get_linter(cfg):
         click.echo("Error: Unknown dialect {0!r}".format(cfg.get('dialect')))
         sys.exit(66)
 
-    # Instantiate the linter and return (with an output function)
-    return Linter(config=cfg,
-                  output_func=lambda m: click.echo(m, color=cfg.get('color')))
+    if not silent:
+        # Instantiate the linter and return (with an output function)
+        return Linter(config=cfg,
+                      output_func=lambda m: click.echo(m, color=cfg.get('color')))
+    else:
+        # Instantiate the linter and return (with NO output function)
+        return Linter(config=cfg, output_func=lambda m: None)
 
 
 @click.group()
@@ -212,7 +216,10 @@ def fix(force, paths, **kwargs):
 @click.option('--recurse', default=0, help='The depth to recursively parse to (0 for unlimited)')
 @click.option('-c', '--code-only', is_flag=True,
               help='Output only the code elements of the parse tree.')
-def parse(path, code_only, **kwargs):
+@click.option('-f', '--format', default='human',
+              type=click.Choice(['human', 'yaml'], case_sensitive=False),
+              help='What format to return the parse result in.')
+def parse(path, code_only, format, **kwargs):
     """Parse SQL files and just spit out the result.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -221,7 +228,8 @@ def parse(path, code_only, **kwargs):
     be interpreted like passing the current working directory as a path argument.
     """
     c = get_config(**kwargs)
-    lnt = get_linter(c)
+    # We don't want anything else to be logged if we want a yaml output
+    lnt = get_linter(c, silent=True if format == 'yaml' else False)
     verbose = c.get('verbose')
     recurse = c.get('recurse')
 
@@ -230,14 +238,15 @@ def parse(path, code_only, **kwargs):
         lnt.log(config_string)
 
     # TODO: do this better
-    print(c)
-
     nv = 0
     try:
         # A single path must be specified for this command
         for parsed, violations, time_dict in lnt.parse_path(path, verbosity=verbose, recurse=recurse):
             if parsed:
-                lnt.log(parsed.stringify(code_only=code_only))
+                if format == 'human':
+                    lnt.log(parsed.stringify(code_only=code_only))
+                elif format == 'yaml':
+                    click.echo(parsed.to_yaml(code_only=code_only, show_raw=True))
             else:
                 # TODO: Make this prettier
                 lnt.log('...Failed to Parse...')
