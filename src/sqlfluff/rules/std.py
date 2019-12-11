@@ -449,10 +449,6 @@ class Rule_L010(BaseCrawler):
             # NOTE: We'll only add to cases_seen if we DONT
             # also raise an error, so that we can focus in.
 
-            print("raw: {0!r}, cap: {1!r}".format(raw, cap))
-            print("seen_case: {0}".format(seen_case))
-            print("self.capitalisation_policy: {0}".format(self.capitalisation_policy))
-
             def make_replacement(seg, policy):
                 """Make a replacement segment, based on seen capitalisation."""
                 if policy == "lower":
