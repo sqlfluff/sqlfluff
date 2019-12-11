@@ -8,7 +8,6 @@ class SQLFluffViolationReporter(BaseViolationReporter):
 
     def __init__(self):
         super(SQLFluffViolationReporter, self).__init__('sqlfluff')
-        self.driver = self
 
     def violations(self, src_path):
         linter = get_linter(get_config())
