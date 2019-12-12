@@ -79,7 +79,7 @@ setup(
         'configparser',
         'oyaml',
         'Jinja2',
-        'diff-cover>=2.4.1,<3.0',
+        'diff-cover>=2.5.0,<3.0',
     ],
     extras_require={
         # eg:

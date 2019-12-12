@@ -1,10 +1,10 @@
-import diff_cover
+from diff_cover.hook import hookimpl as diff_cover_hookimpl
 from diff_cover.violationsreporters.base import BaseViolationReporter, Violation
 
 from sqlfluff.cli.commands import get_config, get_linter
 
 class SQLFluffViolationReporter(BaseViolationReporter):
-    supported_extensions=['sql']
+    supported_extensions = ['sql']
 
     def __init__(self):
         super(SQLFluffViolationReporter, self).__init__('sqlfluff')
@@ -24,14 +24,11 @@ class SQLFluffViolationReporter(BaseViolationReporter):
             result.append(Violation(violation.line_no(), message))
         return result
 
-    def measured_lines(self, src_path):
-        return None
-
     @staticmethod
     def installed():
         return True
 
 
-@diff_cover.hookimpl
+@diff_cover_hookimpl
 def diff_cover_report_quality():
     return SQLFluffViolationReporter()
