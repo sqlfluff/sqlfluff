@@ -639,7 +639,7 @@ class Rule_L014(Rule_L010):
 class Rule_L015(BaseCrawler):
     """DISTINCT used with parentheses."""
 
-    def _eval(self, segment, raw_stack, memory, **kwargs):
+    def _eval(self, segment, raw_stack, **kwargs):
         """Uneccessary trailing whitespace.
 
         Look for DISTINCT keyword followed by parenthesis.
