@@ -75,6 +75,7 @@ setup(
     ],
     install_requires=[
         'click>=2.0',
+        "colorama>=0.3; python_version!='3.4'",
         'six>=1.0',
         'configparser',
         'oyaml',
