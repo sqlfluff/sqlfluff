@@ -63,6 +63,7 @@ def assert_rule_pass_in_sql(code, sql):
 # ############## STD RULES TESTS
 @pytest.mark.parametrize("rule,pass_fail,qry,fixed", [
     ("L001", 'fail', 'SELECT 1     \n', 'SELECT 1\n'),
+    ("L015", 'fail', 'SELECT DISTINCT(a)', None),
     ('L002', 'fail', '    \t    \t    SELECT 1', None),
     ('L003', 'fail', '     SELECT 1', '    SELECT 1'),
     ('L004', 'pass', '   \nSELECT 1', None),
