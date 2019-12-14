@@ -642,7 +642,7 @@ class Rule_L015(BaseCrawler):
     def _eval(self, segment, raw_stack, **kwargs):
         """Uneccessary trailing whitespace.
 
-        Look for DISTINCT keyword followed by parenthesis.
+        Look for DISTINCT keyword immediately followed by open parenthesis.
         """
         # We only trigger on start_bracket (open parenthesis)
         if segment.name == 'start_bracket' and len(raw_stack) > 0 and raw_stack[-1].name == 'DISTINCT':

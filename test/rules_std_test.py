@@ -63,7 +63,6 @@ def assert_rule_pass_in_sql(code, sql):
 # ############## STD RULES TESTS
 @pytest.mark.parametrize("rule,pass_fail,qry,fixed", [
     ("L001", 'fail', 'SELECT 1     \n', 'SELECT 1\n'),
-    ("L015", 'fail', 'SELECT DISTINCT(a)', None),
     ('L002', 'fail', '    \t    \t    SELECT 1', None),
     ('L003', 'fail', '     SELECT 1', '    SELECT 1'),
     ('L004', 'pass', '   \nSELECT 1', None),
@@ -74,6 +73,11 @@ def assert_rule_pass_in_sql(code, sql):
     ('L008', 'fail', 'SELECT 1,   4', 'SELECT 1, 4'),
     ('L014', 'pass', 'SELECT a, b', None),
     ('L014', 'pass', 'SELECT A, B', None),
+    ("L015", 'fail', 'SELECT DISTINCT(a)', None),
+    ("L015", 'fail', 'SELECT DISTINCT(a + b) * c', None),
+    # Space after DISTINCT makes it okay...
+    ("L015", 'pass', 'SELECT DISTINCT (a)', None), # A bit iffy...
+    ("L015", 'pass', 'SELECT DISTINCT (a + b) * c', None), # Definitely okay
     # Test that fixes are consistent
     ('L014', 'fail', 'SELECT a,   B', 'SELECT a,   b'),
     ('L014', 'fail', 'SELECT B,   a', 'SELECT B,   A'),
