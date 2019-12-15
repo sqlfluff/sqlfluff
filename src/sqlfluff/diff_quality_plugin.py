@@ -1,6 +1,4 @@
-"""
-This module integrates SQLFluff with diff_cover's "diff-quality" tool.
-"""
+"""This module integrates SQLFluff with diff_cover's "diff-quality" tool."""
 from diff_cover.hook import hookimpl as diff_cover_hookimpl
 from diff_cover.violationsreporters.base import BaseViolationReporter, Violation
 
@@ -14,13 +12,13 @@ class SQLFluffViolationReporter(BaseViolationReporter):
     supported_extensions = ['sql']
 
     def __init__(self):
-        """
-        Calls the base class constructor to set the object's name.
-        """
+        """Calls the base class constructor to set the object's name."""
         super(SQLFluffViolationReporter, self).__init__('sqlfluff')
 
     def violations(self, src_path):
         """
+        Return list of violations.
+
         Given the path to a .sql file, analyze it and return a list of
         violations (i.e. formatting or style issues).
 
@@ -45,6 +43,8 @@ class SQLFluffViolationReporter(BaseViolationReporter):
 @diff_cover_hookimpl
 def diff_cover_report_quality():
     """
+    Returns the SQLFluff plugin.
+    
     This function is registered as a diff_cover entry point. diff-quality calls
     it in order to "discover" the SQLFluff plugin.
 
