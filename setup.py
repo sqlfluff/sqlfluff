@@ -80,7 +80,7 @@ setup(
         'configparser',
         'oyaml',
         'Jinja2',
-        'diff-cover>=2.5.0,<3.0',
+        "diff-cover>=2.5.0,<3.0; python_version!='3.4'",
     ],
     extras_require={
         # eg:
