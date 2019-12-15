@@ -6,9 +6,7 @@ from sqlfluff.cli.commands import get_config, get_linter
 
 
 class SQLFluffViolationReporter(BaseViolationReporter):
-    """
-    Class that implements diff-quality integration.
-    """
+    """Class that implements diff-quality integration."""
     supported_extensions = ['sql']
 
     def __init__(self):
@@ -16,8 +14,7 @@ class SQLFluffViolationReporter(BaseViolationReporter):
         super(SQLFluffViolationReporter, self).__init__('sqlfluff')
 
     def violations(self, src_path):
-        """
-        Return list of violations.
+        """Return list of violations.
 
         Given the path to a .sql file, analyze it and return a list of
         violations (i.e. formatting or style issues).
@@ -42,9 +39,8 @@ class SQLFluffViolationReporter(BaseViolationReporter):
 
 @diff_cover_hookimpl
 def diff_cover_report_quality():
-    """
-    Returns the SQLFluff plugin.
-    
+    """Returns the SQLFluff plugin.
+
     This function is registered as a diff_cover entry point. diff-quality calls
     it in order to "discover" the SQLFluff plugin.
 
