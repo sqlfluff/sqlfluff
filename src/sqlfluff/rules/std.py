@@ -1,5 +1,7 @@
 """Standard SQL Linting Rules."""
 
+import six
+
 from ..parser import RawSegment, KeywordSegment
 from .base import BaseCrawler, LintFix, LintResult, RuleSet
 
@@ -128,12 +130,27 @@ class Rule_L003(BaseCrawler):
 
         We can only trigger on whitespace which is either
         preceeded by nothing or a newline.
+
         """
+        def round3(val):
+            """Round consistently with py3 even in py2."""
+            if six.PY2:
+                r = round(val)
+                # We want ties to nearest even, not ties away from zero
+                if val % 1 == 0.5 and r % 2 != 0:
+                    if val > r:
+                        r += 1
+                    else:
+                        r -= 1
+                return r
+            else:
+                return round(val)
+
         if segment.name == 'whitespace':
             ws_len = segment.raw.count(' ')
             if ws_len % self.tab_space_size != 0:
                 if len(raw_stack) == 0 or raw_stack[-1].name == 'newline':
-                    best_len = int(round(ws_len * 1.0 / self.tab_space_size)) * self.tab_space_size
+                    best_len = int(round3(ws_len * 1.0 / self.tab_space_size)) * self.tab_space_size
                     return LintResult(
                         anchor=segment,
                         fixes=[LintFix('edit', segment, segment.edit(' ' * best_len))]
