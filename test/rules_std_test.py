@@ -81,6 +81,8 @@ def assert_rule_pass_in_sql(code, sql):
     # Test that we don't have the "inconsistent" bug
     ('L010', 'fail', 'SeLeCt 1', 'SELECT 1'),
     ('L010', 'fail', 'SeLeCt 1 from blah', 'SELECT 1 FROM blah'),
+    # Gihub Bug #99. Python2 Issues with fixing L003
+    ('L003', 'fail', '  select 1 from tbl;', 'select 1 from tbl;')
 ])
 def test__rules__std_string(rule, pass_fail, qry, fixed):
     """Test that a rule passes/fails on a given string.
