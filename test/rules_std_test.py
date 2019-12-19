@@ -76,8 +76,8 @@ def assert_rule_pass_in_sql(code, sql):
     ("L015", 'fail', 'SELECT DISTINCT(a)', None),
     ("L015", 'fail', 'SELECT DISTINCT(a + b) * c', None),
     # Space after DISTINCT makes it okay...
-    ("L015", 'pass', 'SELECT DISTINCT (a)', None), # A bit iffy...
-    ("L015", 'pass', 'SELECT DISTINCT (a + b) * c', None), # Definitely okay
+    ("L015", 'pass', 'SELECT DISTINCT (a)', None),  # A bit iffy...
+    ("L015", 'pass', 'SELECT DISTINCT (a + b) * c', None),  # Definitely okay
     # Test that fixes are consistent
     ('L014', 'fail', 'SELECT a,   B', 'SELECT a,   b'),
     ('L014', 'fail', 'SELECT B,   a', 'SELECT B,   A'),
