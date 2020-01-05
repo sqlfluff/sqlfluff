@@ -172,6 +172,15 @@ def fix(force, paths, **kwargs):
         lnt.log(("The fix option is only available in combination"
                  " with --rules. This is for your own safety!"))
         sys.exit(1)
+
+    # handle stdin case. should output formatted sql to stdout and nothing else.
+    if ('-',) == paths:
+        stdin = sys.stdin.read()
+        result = lnt.lint_string_wrapped(stdin, fname='stdin', verbosity=verbose, fix=True)
+        stdout = result.paths[0].files[0].fix_string()
+        click.echo(stdout, nl=False)
+        sys.exit()
+
     # Lint the paths (not with the fix argument at this stage), outputting as we go.
     lnt.log("==== finding violations ====")
     try:

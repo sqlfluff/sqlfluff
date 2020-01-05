@@ -75,10 +75,12 @@ setup(
     ],
     install_requires=[
         'click>=2.0',
+        "colorama>=0.3; python_version!='3.4'",
         'six>=1.0',
         'configparser',
         'oyaml',
-        'Jinja2'
+        'Jinja2',
+        "diff-cover>=2.5.0,<3.0; python_version!='3.4'",
     ],
     extras_require={
         # eg:
@@ -88,7 +90,10 @@ setup(
     entry_points={
         'console_scripts': [
             'sqlfluff = sqlfluff.cli.commands:cli',
-        ]
+        ],
+        'diff_cover': [
+            'sqlfluff = sqlfluff.diff_quality_plugin'
+        ],
     },
     # Use datafiles to make sure the config versioning file is included
     data_files=[('', ['src/sqlfluff/config.ini', 'README.md', 'CHANGELOG.md', 'src/sqlfluff/default_config.cfg'])]
