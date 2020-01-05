@@ -36,7 +36,7 @@ def test__cli__formatters__violation():
     r = RuleGhost('A', 'DESC')
     v = SQLLintError(segment=s, rule=r)
     f = format_violation(v)
-    assert escape_ansi(f) == "L:  20 | P:  11 | A | DESC"
+    assert escape_ansi(f) == "L:  20 | P:  11 |    A | DESC"
 
 
 def test__cli__formatters__violations():
@@ -58,8 +58,8 @@ def test__cli__formatters__violations():
     f = format_path_violations(v)
     k = sorted(['foo', 'bar'])
     chk = {
-        'foo': ["L:  21 | P:   3 | B | foo", "L:  25 | P:   2 | A | DESCR"],
-        'bar': ["L:   2 | P:  11 | C | DESCR"]
+        'foo': ["L:  21 | P:   3 |    B | foo", "L:  25 | P:   2 |    A | DESCR"],
+        'bar': ["L:   2 | P:  11 |    C | DESCR"]
     }
     chk2 = []
     for elem in k:
