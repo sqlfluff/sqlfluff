@@ -650,3 +650,19 @@ class Rule_L014(Rule_L010):
     """
 
     _target_elem = 'naked_identifier'
+
+
+@std_rule_set.register
+class Rule_L015(BaseCrawler):
+    """DISTINCT used with parentheses."""
+
+    def _eval(self, segment, raw_stack, **kwargs):
+        """Uneccessary trailing whitespace.
+
+        Look for DISTINCT keyword immediately followed by open parenthesis.
+        """
+        # We only trigger on start_bracket (open parenthesis)
+        if segment.name == 'start_bracket' and len(raw_stack) > 0 and raw_stack[-1].name == 'DISTINCT':
+            # If we find DISTINCT followed by open_bracket, then bad.
+            return LintResult(anchor=segment)
+        return LintResult()
