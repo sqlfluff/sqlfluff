@@ -370,7 +370,12 @@ class SelectTargetElementSegment(BaseSegment):
 class SelectTargetGroupStatementSegment(BaseSegment):
     """A group of elements in a select target statement."""
     type = 'select_target_group'
-    match_grammar = GreedyUntil(Ref('FromKeywordSegment'))
+    match_grammar = GreedyUntil(
+        OneOf(
+            Ref('FromKeywordSegment'),
+            Ref('LimitKeywordSegment')
+        )
+    )
     # We should edit the parse grammar to deal with DISTINCT, ALL or similar
     parse_grammar = Sequence(
         OneOf(
