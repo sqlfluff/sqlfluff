@@ -557,12 +557,12 @@ ansi_dialect.add(
     ),
     Expression_D_Grammar=Sequence(
         OneOf(
-            Ref('LiteralGrammar'),
-            Ref('ObjectReferenceSegment'),
             Ref('FunctionSegment'),
             Bracketed(
                 Ref('Expression_A_Grammar')
             ),
+            Ref('LiteralGrammar'),
+            Ref('ObjectReferenceSegment')
         ),
         Ref('ShorthandCastSegment', optional=True),
         code_only=False

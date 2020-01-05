@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed the "inconsistent" bug in L010. Thanks [@nolanbconaway](https://github.com/nolanbconaway).
 - Updated logging of parsing and lexing errors to have more useful
   error codes.
+- Changed parsing of expressions to favour functions over identifiers
+  to [fix the expression bug](https://github.com/alanmcruickshank/sqlfluff/issues/96).
 
 ### Added
 
