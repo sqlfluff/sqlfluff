@@ -40,7 +40,7 @@ def format_violation(violation, verbose=0):
 
     return (
         colorize(
-            "L:{0:4d} | P:{1:4d} | {2} |".format(line, pos, code),
+            "L:{0:4d} | P:{1:4d} | {2} |".format(line, pos, code.rjust(4)),
             'blue')
         + " {0}".format(desc)
     )

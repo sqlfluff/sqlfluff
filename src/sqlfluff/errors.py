@@ -3,6 +3,7 @@
 
 class SQLBaseError(ValueError):
     """Base Error Class for all violations."""
+    _code = None
 
     def rule_code(self):
         """Fetch the code of the rule which cause this error.
@@ -14,7 +15,7 @@ class SQLBaseError(ValueError):
         if hasattr(self, 'rule'):
             return self.rule.code
         else:
-            return '????'
+            return self._code or '????'
 
     def desc(self):
         """Fetch a description of this violation.
@@ -99,6 +100,7 @@ class SQLTemplaterError(SQLBaseError):
             occured at.
 
     """
+    _code = 'TMP'
 
     def __init__(self, *args, **kwargs):
         self.pos = kwargs.pop('pos', None)
@@ -113,6 +115,8 @@ class SQLLexError(SQLBaseError):
             occured at.
 
     """
+    _code = 'LXR'
+
     def __init__(self, *args, **kwargs):
         # Store the segment on creation - we might need it later
         self.pos = kwargs.pop('pos', None)
@@ -129,6 +133,8 @@ class SQLParseError(SQLBaseError):
             used for logging and for referencing position.
 
     """
+    _code = 'PRS'
+
     def __init__(self, *args, **kwargs):
         # Store the segment on creation - we might need it later
         self.segment = kwargs.pop('segment', None)
