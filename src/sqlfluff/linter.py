@@ -43,8 +43,8 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
         """Return True if there are no violations."""
         return len(self.violations) == 0
 
-    def persist_tree(self, verbosity=0):
-        """Persist changes to the given path.
+    def fix_string(self, verbosity=0):
+        """Obtain the changes to a path as a string.
 
         We use the file_mask to do a safe merge, avoiding any templated
         sections. First we need to detect where there have been changes
@@ -195,6 +195,22 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
                     ("Unexpected opcode {0} for template block! Please report this "
                      "issue on github with the query and rules you're trying to "
                      "fix.").format(templ_block[0]))
+
+        return write_buff
+
+    def persist_tree(self, verbosity=0):
+        """Persist changes to the given path.
+
+        We use the file_mask to do a safe merge, avoiding any templated
+        sections. First we need to detect where there have been changes
+        between the fixed and templated versions.
+
+        We use difflib.SequenceMatcher.get_opcodes
+        See: https://docs.python.org/3.7/library/difflib.html#difflib.SequenceMatcher.get_opcodes
+        It returns a list of tuples ('equal|replace', ia1, ia2, ib1, ib2).
+
+        """
+        write_buff = self.fix_string(verbosity=verbosity)
 
         # Actually write the file.
         with open(self.path, 'w') as f:

@@ -167,3 +167,12 @@ def test__cli__command__fix(rule, fname):
     """Test the round trip of detecting, fixing and then not detecting rule L001."""
     with open(fname, mode='r') as f:
         generic_roundtrip_test(f, rule)
+
+
+def test__cli__command_fix_stdin(monkeypatch):
+    """Check stdin input for fix works."""
+    sql = 'select * from tbl'
+    expected = 'fixed sql!'
+    monkeypatch.setattr("sqlfluff.linter.LintedFile.fix_string", lambda x: expected)
+    result = invoke_assert_code(args=[fix, ('-', '--rules', 'L001')], kwargs=dict(input=sql))
+    assert result.output == expected

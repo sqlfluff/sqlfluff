@@ -15,6 +15,7 @@ dist
 env
 .tox
 venv
+.venv 
 
 # Ignore coverage reports
 .coverage
