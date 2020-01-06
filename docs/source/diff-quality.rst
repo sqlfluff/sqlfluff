@@ -2,8 +2,8 @@
 
 For projects with large amounts of (potentially imperfect) SQL code, the full
 SQLFluff output could be very large, which can be distracting -- perhaps the CI
-build for a one-line SQL change shouldn't encourage the developer to fix lots of
-unrelated quality issues.
+build for a one-line SQL change shouldn't encourage the developer to fix lots
+of unrelated quality issues.
 
 To support this use case, SQLFluff integrates with a quality checking tool
 called `diff-quality`. By running SQLFluff using `diff-quality` (rather than
@@ -33,6 +33,8 @@ Getting Started
 2. In your CI build script, run `diff-quality`, specifying SQLFluff as the
 underlying tool, e.g.
 
+.. code-block:: bash
+
     $ diff-quality --violations sqlfluff
     -------------
     Diff Quality
@@ -52,6 +54,7 @@ For more information on `diff-quality`, see the
 such as:
 
 * Generating HTML reports
-* Controlling which branch to compare against (i.e. to determine new/changed lines). The default is `origin/master`.
+* Controlling which branch to compare against (i.e. to determine new/changed
+  lines). The default is `origin/master`.
 * Configuring `diff-quality` to return an error code if the quality is too low
 * Troubleshooting
