@@ -31,25 +31,21 @@ Getting Started
 1. Set the current working directory to a ``git`` repository.
 
 2. In your CI build script, run `diff-quality`, specifying SQLFluff as the
-underlying tool:
+underlying tool, e.g.
 
-Example output:
-
-```
-$ diff-quality --violations sqlfluff
--------------
-Diff Quality
-Quality Report: sqlfluff
-Diff: origin/master...HEAD, staged and unstaged changes
--------------
-sql/audience_size_queries/constraints/_postcondition_check_gdpr_compliance.sql (0.0%):
-sql/audience_size_queries/constraints/_postcondition_check_gdpr_compliance.sql:5: Inconsistent capitalisation of unquoted identifiers.
--------------
-Total:   1 line
-Violations: 1 line
-% Quality: 0%
--------------
-```
+    $ diff-quality --violations sqlfluff
+    -------------
+    Diff Quality
+    Quality Report: sqlfluff
+    Diff: origin/master...HEAD, staged and unstaged changes
+    -------------
+    sql/audience_size_queries/constraints/_postcondition_check_gdpr_compliance.sql (0.0%):
+    sql/audience_size_queries/constraints/_postcondition_check_gdpr_compliance.sql:5: Inconsistent capitalisation of unquoted identifiers.
+    -------------
+    Total:   1 line
+    Violations: 1 line
+    % Quality: 0%
+    -------------
 
 For more information on `diff-quality`, see the
 [documentation](https://diff-cover.readthedocs.io/en/latest/). It covers topics
