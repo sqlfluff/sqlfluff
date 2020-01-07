@@ -13,29 +13,27 @@ in the branch (aka pull request or PR) containing the proposed changes.
 Currently, ``diff-quality`` requires that you are using ``git`` for version
 control.
 
-Installation
-------------
+NOTE: Installing SQLFluff automatically installs the `diff_cover` package that
+provides the `diff-quality` tool.
 
-To install the latest release of the `diff-quality` tool:
+Adding `diff-quality` to your builds
+------------------------------------
 
-.. code:: bash
+In your CI build script:
 
-    pip install diff_cover
+1. Set the current working directory to the ``git`` repository containing the
+SQL code to be checked.
 
-NOTE: In order to use the SQLFluff integration, you must install `diff_cover`
-version 2.5.0 or higher.
-
-Getting Started
----------------
-
-1. Set the current working directory to a ``git`` repository.
-
-2. In your CI build script, run `diff-quality`, specifying SQLFluff as the
-underlying tool, e.g.
+2. Run `diff-quality`, specifying SQLFluff as the underlying tool:
 
 .. code-block:: bash
 
-    $ diff-quality --violations sqlfluff
+    diff-quality --violations sqlfluff
+
+The output will look something like:
+
+.. code-block:: bash
+
     -------------
     Diff Quality
     Quality Report: sqlfluff
@@ -48,6 +46,11 @@ underlying tool, e.g.
     Violations: 1 line
     % Quality: 0%
     -------------
+
+These messages are basically the same as those provided directly by SQLFluff,
+although the format is a little different. Note that `diff-quality` only lists
+the line _numbers_, not the character position. If you need the character
+position, you will need to run SQLFluff directly.
 
 For more information on `diff-quality`, see the
 [documentation](https://diff-cover.readthedocs.io/en/latest/). It covers topics
