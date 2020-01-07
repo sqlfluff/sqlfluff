@@ -127,9 +127,6 @@ class PythonTemplateInterface(RawTemplateInterface):
             # TODO: Add a url here so people can get more help.
             raise SQLTemplaterError(
                 "Failure in Python templating: {0}. Have you configured your variables?".format(err))
-        except Exception as err:
-            raise SQLTemplaterError(
-                "Unexpected Failure in Python templating: {0}".format(err))
 
 
 @register_templater
