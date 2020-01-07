@@ -5,8 +5,7 @@ import logging
 
 from sqlfluff.parser.lexer import Lexer
 from sqlfluff.parser.lexer import SingletonMatcher, LexMatch, RegexMatcher, RepeatedMultiMatcher
-from sqlfluff.parser.segments_base import RawSegment
-from sqlfluff.parser.markers import FilePositionMarker
+from sqlfluff.parser import RawSegment, FileSegment, FilePositionMarker
 from sqlfluff.errors import SQLLexError
 from sqlfluff.config import FluffConfig
 
@@ -123,5 +122,13 @@ def test__parser__lexer_fail(caplog):
     lex = Lexer(config=FluffConfig())
     try:
         lex.lex("Select \u0394")
+    except SQLLexError as err:
+        assert err.pos_marker().char_pos == 7
+
+
+def test__parser__lexer_fail_via_parse(caplog):
+    """Test the how the parser fails and reports errors while lexing."""
+    try:
+        FileSegment.from_raw("Select \u0394", config=FluffConfig())
     except SQLLexError as err:
         assert err.pos_marker().char_pos == 7

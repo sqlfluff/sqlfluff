@@ -8,8 +8,7 @@ import pytest
 import logging
 import os
 
-from sqlfluff.parser.segments_base import ParseContext
-from sqlfluff.parser.segments_file import FileSegment
+from sqlfluff.parser import FileSegment, ParseContext
 from sqlfluff.config import FluffConfig
 
 
