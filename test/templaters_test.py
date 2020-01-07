@@ -6,6 +6,7 @@ from sqlfluff.templaters import (RawTemplateInterface, templater_selector,
                                  PythonTemplateInterface, JinjaTemplateInterface)
 from sqlfluff.linter import Linter
 from sqlfluff.config import FluffConfig
+from sqlfluff.errors import SQLTemplaterError
 
 
 def test__templater_selection():
@@ -26,20 +27,42 @@ def test__templater_raw():
     assert instr == outstr
 
 
+PYTHON_STRING = 'SELECT * FROM {blah}'
+
+
 def test__templater_python():
     """Test the python templater."""
     t = PythonTemplateInterface(override_context=dict(blah='foo'))
-    instr = 'SELECT * FROM {blah}'
+    instr = PYTHON_STRING
     outstr = t.process(instr)
     assert outstr == 'SELECT * FROM foo'
+
+
+def test__templater_python_error():
+    """Test error handling in the python templater."""
+    t = PythonTemplateInterface(override_context=dict(noblah='foo'))
+    instr = PYTHON_STRING
+    with pytest.raises(SQLTemplaterError):
+        t.process(instr)
+
+
+JINJA_STRING = 'SELECT * FROM {% for c in blah %}{{c}}{% if not loop.last %}, {% endif %}{% endfor %}\n\n'
 
 
 def test__templater_jinja():
     """Test jinja templating and the treatment of whitespace."""
     t = JinjaTemplateInterface(override_context=dict(blah='foo'))
-    instr = 'SELECT * FROM {% for c in blah %}{{c}}{% if not loop.last %}, {% endif %}{% endfor %}\n\n'
+    instr = JINJA_STRING
     outstr = t.process(instr)
     assert outstr == 'SELECT * FROM f, o, o\n\n'
+
+
+def test__templater_jinja_error():
+    """Test error handling in the jinja templater."""
+    t = JinjaTemplateInterface(override_context=dict(noblah='foo'))
+    instr = JINJA_STRING
+    with pytest.raises(SQLTemplaterError):
+        t.process(instr)
 
 
 def assert_structure(yaml_loader, path, code_only=True):
