@@ -121,7 +121,12 @@ class PythonTemplateInterface(RawTemplateInterface):
 
         """
         live_context = self.get_context(fname=fname, config=config)
-        return in_str.format(**live_context)
+        try:
+            return in_str.format(**live_context)
+        except KeyError as err:
+            # TODO: Add a url here so people can get more help.
+            raise SQLTemplaterError(
+                "Failure in Python templating: {0}. Have you configured your variables?".format(err))
 
 
 @register_templater

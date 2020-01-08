@@ -6,9 +6,9 @@ from difflib import SequenceMatcher
 
 from .errors import SQLLexError, SQLParseError, SQLTemplaterError
 from .helpers import get_time
-from .parser.segments_file import FileSegment
-from .parser.segments_base import verbosity_logger, frame_msg, ParseContext
-# from .rules.std import standard_rule_set
+from .parser import FileSegment, ParseContext
+# We should probably move verbosity logger to somewhere else?
+from .parser.segments_base import verbosity_logger, frame_msg
 from .rules import get_ruleset
 
 

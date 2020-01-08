@@ -3,7 +3,7 @@
 import pytest
 import logging
 
-from sqlfluff.parser.segments_file import FileSegment
+from sqlfluff.parser import FileSegment
 from sqlfluff.config import FluffConfig
 
 

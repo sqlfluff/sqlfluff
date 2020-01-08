@@ -30,11 +30,6 @@ def format_violation(violation, verbose=0):
     """Format a violation."""
     if isinstance(violation, SQLBaseError):
         code, line, pos, desc = violation.get_info_tuple()
-    elif hasattr('chunk', violation):
-        code = violation.rule.code
-        line = violation.chunk.line_no
-        pos = violation.chunk.start_pos + 1
-        desc = violation.rule.description
     else:
         raise ValueError("Unexpected violation format: {0}".format(violation))
 
@@ -132,26 +127,6 @@ def format_linting_path(p, verbose=0):
     return text_buffer.getvalue()
 
 
-def _format_path_linting_violations(result, verbose=0):
-    text_buffer = StringIO()
-    text_buffer.write(format_linting_path(result.path))
-    text_buffer.write(format_path_violations(result.violations(), verbose=verbose))
-    return text_buffer.getvalue()
-
-
-def format_linting_violations(result, verbose=0):
-    """Format a set of violations given a `LintingResult`."""
-    text_buffer = StringIO()
-    if hasattr(result, 'paths'):
-        # We've got a full path
-        for path in result.paths:
-            text_buffer.write(_format_path_linting_violations(path, verbose=verbose))
-    else:
-        # We've got an individual
-        text_buffer.write(_format_path_linting_violations(result, verbose=verbose))
-    return text_buffer.getvalue()
-
-
 def format_linting_result_header(verbose=0):
     """Format the header of a linting result output."""
     text_buffer = StringIO()
@@ -165,15 +140,6 @@ def format_linting_result_footer(result, verbose=0):
     text_buffer = StringIO()
     text_buffer.write('\n')
     text_buffer.write(format_linting_stats(result, verbose=verbose))
-    return text_buffer.getvalue()
-
-
-def format_linting_result(result, verbose=0):
-    """Format the output of a `LintingResult`."""
-    text_buffer = StringIO()
-    text_buffer.write(format_linting_result_header(verbose=verbose))
-    text_buffer.write(format_linting_violations(result, verbose=verbose))
-    text_buffer.write(format_linting_result_footer(result, verbose=verbose))
     return text_buffer.getvalue()
 
 

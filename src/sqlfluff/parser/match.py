@@ -47,13 +47,6 @@ class MatchResult(namedtuple('MatchResult', ['matched_segments', 'unmatched_segm
 
     """
 
-    def initial_match_pos_marker(self):
-        """Return the position marker of the first matched segment in this result."""
-        if self.has_match():
-            return self.matched_segments[0].pos_marker
-        else:
-            return None
-
     def all_segments(self):
         """Return a tuple of all the segments, matched or otherwise."""
         return self.matched_segments + self.unmatched_segments
