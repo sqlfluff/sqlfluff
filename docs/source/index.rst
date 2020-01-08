@@ -42,6 +42,7 @@ Contents
    configuration
    architecture
    cli
+   diff-quality
 
 
 Indices and tables
