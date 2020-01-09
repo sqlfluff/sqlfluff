@@ -274,14 +274,10 @@ class BaseSegment(object):
                 )
             )
 
-            # Calling unify here, allows the MatchResult class to do all the type checking.
-            try:
-                m = MatchResult.unify(m)
-            except TypeError as err:
-                logging.error(
-                    "[PD:{0}] {1}.parse. Error on unifying result of match grammar!".format(
-                        parse_context.parse_depth, self.__class__.__name__))
-                raise err
+            if not isinstance(m, MatchResult):
+                raise TypeError(
+                    "[PD:{0}] {1}.match. Result is {2}, not a MatchResult!".format(
+                        parse_context.parse_depth, self.__class__.__name__, type(m)))
 
             # Basic Validation, that we haven't dropped anything.
             check_still_complete(self.segments, m.matched_segments, m.unmatched_segments)
@@ -458,14 +454,11 @@ class BaseSegment(object):
             m = cls._match_grammar()._match(segments=segments, parse_context=parse_context.copy(incr='match_depth'))
 
             # Calling unify here, allows the MatchResult class to do all the type checking.
-            try:
-                m = MatchResult.unify(m)
-            except TypeError as err:
-                logging.error(
-                    "[PD:{0} MD:{1}] {2}.match. Error on unifying result of match grammar!".format(
-                        parse_context.parse_depth, parse_context.match_depth, cls.__name__))
-                raise err
-
+            if not isinstance(m, MatchResult):
+                raise TypeError(
+                    "[PD:{0} MD:{1}] {2}.match. Result is {3}, not a MatchResult!".format(
+                        parse_context.parse_depth, parse_context.match_depth, cls.__name__,
+                        type(m)))
             # Once unified we can deal with it just as a MatchResult
             if m.has_match():
                 return MatchResult((cls(segments=m.matched_segments),), m.unmatched_segments)
