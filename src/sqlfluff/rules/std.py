@@ -392,7 +392,7 @@ class Rule_L009(BaseCrawler):
         for this rule, we discard the others into the kwargs argument.
 
         """
-        if len(siblings_post) > 0:
+        if len(self.filter_meta(siblings_post)) > 0:
             # This can only fail on the last segment
             return None
         elif len(segment.segments) > 0:
@@ -400,6 +400,9 @@ class Rule_L009(BaseCrawler):
             return None
         elif segment.name == 'newline':
             # If this is the last segment, and it's a newline then we're good
+            return None
+        elif segment.is_meta:
+            # We can't fail on a meta segment
             return None
         else:
             # so this looks like the end of the file, but we
@@ -645,7 +648,7 @@ class Rule_L014(Rule_L010):
 
     Args:
         capitalisation_policy (:obj:`str`): The capitalisation policy to
-        enforce. One of 'consistent', 'upper', 'lower', 'capitalise'.
+            enforce. One of 'consistent', 'upper', 'lower', 'capitalise'.
 
     """
 
@@ -662,7 +665,125 @@ class Rule_L015(BaseCrawler):
         Look for DISTINCT keyword immediately followed by open parenthesis.
         """
         # We only trigger on start_bracket (open parenthesis)
-        if segment.name == 'start_bracket' and len(raw_stack) > 0 and raw_stack[-1].name == 'DISTINCT':
-            # If we find DISTINCT followed by open_bracket, then bad.
-            return LintResult(anchor=segment)
+        if segment.name == 'start_bracket':
+            filt_raw_stack = self.filter_meta(raw_stack)
+            if len(filt_raw_stack) > 0 and filt_raw_stack[-1].name == 'DISTINCT':
+                # If we find DISTINCT followed by open_bracket, then bad.
+                return LintResult(anchor=segment)
         return LintResult()
+
+
+@std_rule_set.register
+class Rule_L016(BaseCrawler):
+    """Line is too long.
+
+    Args:
+        max_line_length (:obj:`int`): The maximum length of a line
+            to allow without raising a violation.
+
+    """
+
+    def __init__(self, max_line_length=80, **kwargs):
+        """Initialise, getting the max line length."""
+        self.max_line_length = max_line_length
+        super(Rule_L016, self).__init__(**kwargs)
+
+    @classmethod
+    def get_parent_of(cls, segment, root_segment):
+        """Return the segment immediately containing segment.
+
+        NB: This is recursive.
+
+        Args:
+            segment: The segment to look for.
+            root_segment: Some known parent of the segment
+                we're looking for (although likely not the
+                direct parent in question).
+
+        """
+        if segment in root_segment.segments:
+            return root_segment
+        elif root_segment.segments:
+            # try each of the subsegments
+            for sub in root_segment.segments:
+                p = cls.get_parent_of(segment, sub)
+                if p:
+                    return p
+        # Not directly in the segment and
+        # no subsegments to check. Return None.
+        return None
+
+    def _eval(self, segment, raw_stack, parent_stack, **kwargs):
+        """Line is too long.
+
+        This only triggers on newline segments, evaluating the whole line.
+
+        """
+
+        if segment.name == 'newline':
+            # iterate to buffer the whole line up to this point
+            buff = []
+            idx = -1
+            while True:
+                if len(raw_stack) >= abs(idx):
+                    s = raw_stack[idx]
+                    if s.name == 'newline':
+                        break
+                    else:
+                        buff.insert(0, s)
+                        idx -= 1
+                else:
+                    break
+
+            # Now we can work out the line length and deal with the content
+            line_len = sum([len(s.raw) for s in buff])
+            if line_len > self.max_line_length:
+                # Problem, we'll be reporting a violation. The
+                # question is, can we fix it?
+
+                # TODO: Implement fixes: fixes=[LintFix('delete', cm1)]
+
+                # We'll need the indent, so let's get it for fixing.
+                line_indent = []
+                idx = 0
+                for s in buff:
+                    if s.type == 'whitespace':
+                        line_indent.append(s)
+                    else:
+                        break
+
+                # Does the line end in an inline comment that we can move back?
+                if buff[-1].name == 'inline_comment':
+                    # Set up to delete the original comment and the preceeding whitespace
+                    delete_buffer = [LintFix('delete', buff[-1])]
+                    idx = -2
+                    while True:
+                        if len(buff) >= abs(idx) and buff[-2].type == 'whitespace':
+                            delete_buffer.append(LintFix('delete', buff[idx]))
+                            idx -= 1
+                        else:
+                            break
+                    # Create a newline before this one with the existing comment, an
+                    # identical indent AND a terminating newline, copied from the current
+                    # target segment.
+                    create_buffer = [
+                        LintFix(
+                            'create', buff[0],
+                            line_indent + [buff[-1], segment]
+                        )
+                    ]
+                    return LintResult(anchor=segment, fixes=delete_buffer + create_buffer)
+
+                # Does the line contain keywords in the same segment which should be aligned?
+                for i in buff:
+                    p = self.get_parent_of(i, parent_stack[0])
+                    print(i, p)
+
+                # NB: Need a get_parent_of() method, probably as a static method on the base
+                # class. Might need to give it the whole tree (or maybe just the parent stack)
+
+                # Does the line contain a comma or binary operator that we can move to the line below?
+                return LintResult(anchor=segment)
+            else:
+                # All good
+                pass

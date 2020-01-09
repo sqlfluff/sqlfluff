@@ -15,7 +15,7 @@ https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 from ..parser import (BaseSegment, KeywordSegment, ReSegment, NamedSegment,
                       Sequence, GreedyUntil, StartsWith, ContainsOnly,
                       OneOf, Delimited, Bracketed, AnyNumberOf, Ref,
-                      Anything, LambdaSegment)
+                      Anything, LambdaSegment, Indent, Dedent)
 from .base import Dialect
 
 
@@ -367,9 +367,9 @@ class SelectTargetElementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
-class SelectTargetGroupStatementSegment(BaseSegment):
+class SelectClauseSegment(BaseSegment):
     """A group of elements in a select target statement."""
-    type = 'select_target_group'
+    type = 'select_clause'
     match_grammar = GreedyUntil(
         OneOf(
             Ref('FromKeywordSegment'),
@@ -378,15 +378,18 @@ class SelectTargetGroupStatementSegment(BaseSegment):
     )
     # We should edit the parse grammar to deal with DISTINCT, ALL or similar
     parse_grammar = Sequence(
+        Ref('SelectKeywordSegment'),
         OneOf(
             Ref('DistinctKeywordSegment'),
             Ref('AllKeywordSegment'),
             optional=True
         ),
+        Indent,
         Delimited(
             Ref('SelectTargetElementSegment'),
             delimiter=Ref('CommaSegment')
-        )
+        ),
+        Dedent
     )
 
 
@@ -742,8 +745,7 @@ class SelectStatementSegment(BaseSegment):
     # definitely a statement, we just don't know what type yet.
     match_grammar = StartsWith(Ref('SelectKeywordSegment'))
     parse_grammar = Sequence(
-        Ref('SelectKeywordSegment'),
-        Ref('SelectTargetGroupStatementSegment'),
+        Ref('SelectClauseSegment'),
         Ref('FromClauseSegment', optional=True),
         Ref('WhereClauseSegment', optional=True),
         Ref('GroupByClauseSegment', optional=True),

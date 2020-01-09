@@ -517,7 +517,7 @@ class Linter(object):
                 linting_errors = []
                 last_fixes = None
                 while True:
-                    for crawler in self.get_ruleset(config=config):
+                    for crawler in self.get_ruleset(config=config or self.config):
                         # fixes should be a dict {} with keys edit, delete, create
                         # delete is just a list of segments to delete
                         # edit and create are list of tuples. The first element is the
@@ -548,7 +548,7 @@ class Linter(object):
             else:
                 # Just get the violations
                 linting_errors = []
-                for crawler in self.get_ruleset(config=config):
+                for crawler in self.get_ruleset(config=config or self.config):
                     lerrs, _, _, _ = crawler.crawl(parsed)
                     linting_errors += lerrs
 

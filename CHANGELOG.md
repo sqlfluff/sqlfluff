@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   error codes.
 - Changed parsing of expressions to favour functions over identifiers
   to [fix the expression bug](https://github.com/alanmcruickshank/sqlfluff/issues/96).
+- Fixed the "inconsistent" bug in L010. Thanks [@nolanbconaway](https://github.com/nolanbconaway).
+- Moved where the `SELECT` keyword is parsed within a select statement,
+  so that it belongs as part of the newly renamed `select_clause` (renamed
+  from previously `select_target_group`).
 
 ### Added
 

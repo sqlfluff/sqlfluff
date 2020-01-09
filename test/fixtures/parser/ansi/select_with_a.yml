@@ -8,8 +8,8 @@ file:
     - keyword: as
     - start_bracket: (
     - select_statement:
-      - keyword: select
-      - select_target_group:
+      - select_clause:
+          keyword: select
           select_target_element:
             object_reference:
               naked_identifier: a
@@ -20,8 +20,8 @@ file:
               naked_identifier: tbla
     - end_bracket: )
     - select_statement:
-      - keyword: select
-      - select_target_group:
+      - select_clause:
+          keyword: select
           select_target_element:
             object_reference:
               naked_identifier: a

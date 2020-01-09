@@ -16,6 +16,7 @@ class BaseGrammar(object):
 
     """
     v_level = 3
+    is_meta = False
 
     def __init__(self, *args, **kwargs):
         """Deal with kwargs common to all grammars."""
@@ -653,6 +654,11 @@ class Sequence(BaseGrammar):
 
         for idx, elem in enumerate(self._elements):
             while True:
+                # Is it an indent or dedent?
+                if elem.is_meta:
+                    matched_segments += elem()
+                    break
+
                 if len(unmatched_segments) == 0:
                     # We've run our of sequence without matching everyting.
                     # Do only optional elements remain.

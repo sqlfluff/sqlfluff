@@ -2,8 +2,8 @@
 file:
   statement:
     select_statement:
-      keyword: SELECT
-      select_target_group:
+      select_clause:
+      - keyword: SELECT
       - select_target_element:
           expression:
             object_reference:

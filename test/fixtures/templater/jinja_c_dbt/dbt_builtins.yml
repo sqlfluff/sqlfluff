@@ -1,8 +1,8 @@
 file:
   statement:
     select_statement:
-      keyword: SELECT
-      select_target_group:
+      select_clause:
+      - keyword: SELECT
       - select_target_element:
           object_reference:
             naked_identifier: col1

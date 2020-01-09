@@ -1,7 +1,7 @@
 file:
   statement:
     select_statement:
-      keyword: select
-      select_target_group:
+      select_clause:
+        keyword: select
         select_target_element:
           numeric_literal: 1

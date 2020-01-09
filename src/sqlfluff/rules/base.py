@@ -214,6 +214,18 @@ class BaseCrawler(object):
         # generated). So blank that out here.
         return vs, raw_stack, [], memory
 
+    @staticmethod
+    def filter_meta(segments, keep_meta=False):
+        """Filter the segments to non-meta.
+
+        Or optionally the opposite if keep_meta is True.
+        """
+        buff = []
+        for elem in segments:
+            if elem.is_meta is keep_meta:
+                buff.append(elem)
+        return tuple(buff)
+
 
 class RuleSet(object):
     """Class to define a ruleset.

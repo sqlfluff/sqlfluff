@@ -38,6 +38,7 @@ Contents
    :caption: Documentation for sqlfluff:
 
    realworld
+   indentation
    rules
    production
    configuration

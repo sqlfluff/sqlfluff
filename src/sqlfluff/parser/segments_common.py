@@ -214,3 +214,57 @@ class LambdaSegment(BaseSegment):
                         dict(_func=func, _name=name, **kwargs))
         # Now we return that class in the abstract. NOT INSTANTIATED
         return newclass
+
+
+class Indent(RawSegment):
+    """A segment which is empty but indicates where an indent should be.
+
+    This segment is always empty, i.e. it's raw format is '', but it indicates
+    the position of a theoretical indent which will be used in linting
+    and reconstruction. Even if there is an *actual indent* that occurs
+    in the same place this intentionally *won't* capture it, they will just
+    be compared later.
+    """
+
+    type = 'indent'
+    _is_code = False
+    _template = '<unset>'
+    _case_sensitive = False
+    _indent_val = 1
+    is_meta = True
+
+    @classmethod
+    def match(cls, segments, parse_context):
+        """This will never be called. If it is then we're using it wrong."""
+        raise NotImplementedError(
+            "{0} has no match method, it should only be used in a Sequence!".format(
+                cls.__name__
+            )
+        )
+
+    @classmethod
+    def expected_string(cls, dialect=None, called_from=None):
+        """Return the expected string for this segment."""
+        return ''
+
+    def __init__(self):
+        """For the indent we override the init method.
+
+        For something without content, neither makes sense.
+        """
+        self._raw = ''
+        self.pos_marker = None
+
+
+class Dedent(Indent):
+    """A segment which is empty but indicates where an dedent should be.
+
+    This segment is always empty, i.e. it's raw format is '', but it indicates
+    the position of a theoretical dedent which will be used in linting
+    and reconstruction. Even if there is an *actual dedent* that occurs
+    in the same place this intentionally *won't* capture it, they will just
+    be compared later.
+
+    """
+
+    _indent_val = -1

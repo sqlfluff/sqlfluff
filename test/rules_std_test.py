@@ -7,19 +7,21 @@ from sqlfluff.linter import Linter
 from sqlfluff.config import FluffConfig
 
 
-def get_rule_from_set(code):
+def get_rule_from_set(code, config):
     """Fetch a rule from the rule set."""
-    for r in std_rule_set.get_rulelist(config=FluffConfig()):
+    for r in std_rule_set.get_rulelist(config=config):
         if r.code == code:
             return r
     else:
         raise ValueError("{0!r} not in {1!r}".format(code, std_rule_set))
 
 
-def assert_rule_fail_in_sql(code, sql):
+def assert_rule_fail_in_sql(code, sql, configs=None):
     """Assert that a given rule does fail on the given sql."""
-    r = get_rule_from_set(code)
-    parsed, _, _ = Linter(config=FluffConfig()).parse_string(sql)
+    # Configs allows overrides if we want to use them.
+    cfg = FluffConfig(configs=configs)
+    r = get_rule_from_set(code, config=cfg)
+    parsed, _, _ = Linter(config=cfg).parse_string(sql)
     print("Parsed:\n {0}".format(parsed.stringify()))
     lerrs, _, _, _ = r.crawl(parsed, fix=True)
     print("Errors Found: {0}".format(lerrs))
@@ -50,10 +52,12 @@ def assert_rule_fail_in_sql(code, sql):
     return fixed.raw
 
 
-def assert_rule_pass_in_sql(code, sql):
+def assert_rule_pass_in_sql(code, sql, configs=None):
     """Assert that a given rule doesn't fail on the given sql."""
-    r = get_rule_from_set(code)
-    parsed, _, _ = Linter(config=FluffConfig()).parse_string(sql)
+    # Configs allows overrides if we want to use them.
+    cfg = FluffConfig(configs=configs)
+    r = get_rule_from_set(code, config=cfg)
+    parsed, _, _ = Linter(config=cfg).parse_string(sql)
     print("Parsed:\n {0}".format(parsed.stringify()))
     lerrs, _, _, _ = r.crawl(parsed, fix=True)
     print("Errors Found: {0}".format(lerrs))
@@ -61,46 +65,53 @@ def assert_rule_pass_in_sql(code, sql):
 
 
 # ############## STD RULES TESTS
-@pytest.mark.parametrize("rule,pass_fail,qry,fixed", [
-    ("L001", 'fail', 'SELECT 1     \n', 'SELECT 1\n'),
-    ('L002', 'fail', '    \t    \t    SELECT 1', None),
-    ('L003', 'fail', '     SELECT 1', '    SELECT 1'),
-    ('L004', 'pass', '   \nSELECT 1', None),
-    ('L004', 'pass', '\t\tSELECT 1\n', None),
-    ('L004', 'fail', '   \n  \t \n  SELECT 1', None),
-    ('L005', 'fail', 'SELECT 1 ,4', 'SELECT 1,4'),
-    ('L008', 'pass', 'SELECT 1, 4', None),
-    ('L008', 'fail', 'SELECT 1,   4', 'SELECT 1, 4'),
-    ('L014', 'pass', 'SELECT a, b', None),
-    ('L014', 'pass', 'SELECT A, B', None),
-    ("L015", 'fail', 'SELECT DISTINCT(a)', None),
-    ("L015", 'fail', 'SELECT DISTINCT(a + b) * c', None),
+@pytest.mark.parametrize("rule,pass_fail,qry,fixed,configs", [
+    ("L001", 'fail', 'SELECT 1     \n', 'SELECT 1\n', None),
+    ('L002', 'fail', '    \t    \t    SELECT 1', None, None),
+    ('L003', 'fail', '     SELECT 1', '    SELECT 1', None),
+    ('L004', 'pass', '   \nSELECT 1', None, None),
+    ('L004', 'pass', '\t\tSELECT 1\n', None, None),
+    ('L004', 'fail', '   \n  \t \n  SELECT 1', None, None),
+    ('L005', 'fail', 'SELECT 1 ,4', 'SELECT 1,4', None),
+    ('L008', 'pass', 'SELECT 1, 4', None, None),
+    ('L008', 'fail', 'SELECT 1,   4', 'SELECT 1, 4', None),
+    ('L014', 'pass', 'SELECT a, b', None, None),
+    ('L014', 'pass', 'SELECT A, B', None, None),
+    # Check we get fails for using DISTINCT apparently incorrectly
+    ("L015", 'fail', 'SELECT DISTINCT(a)', None, None),
+    ("L015", 'fail', 'SELECT DISTINCT(a + b) * c', None, None),
     # Space after DISTINCT makes it okay...
-    ("L015", 'pass', 'SELECT DISTINCT (a)', None),  # A bit iffy...
-    ("L015", 'pass', 'SELECT DISTINCT (a + b) * c', None),  # Definitely okay
+    ("L015", 'pass', 'SELECT DISTINCT (a)', None, None),  # A bit iffy...
+    ("L015", 'pass', 'SELECT DISTINCT (a + b) * c', None, None),  # Definitely okay
     # Test that fixes are consistent
-    ('L014', 'fail', 'SELECT a,   B', 'SELECT a,   b'),
-    ('L014', 'fail', 'SELECT B,   a', 'SELECT B,   A'),
+    ('L014', 'fail', 'SELECT a,   B', 'SELECT a,   b', None),
+    ('L014', 'fail', 'SELECT B,   a', 'SELECT B,   A', None),
     # Test that we don't fail * operators in brackets
-    ('L006', 'pass', 'SELECT COUNT(*) FROM tbl\n', None),
+    ('L006', 'pass', 'SELECT COUNT(*) FROM tbl\n', None, None),
+    # Long lines (with config override)
+    ('L016', 'pass', 'SELECT COUNT(*) FROM tbl\n', None,
+     {'rules': {'max_line_length': 30}}),
+    ('L016', 'fail', 'SELECT COUNT(*) FROM tbl -- Some Comment\n',
+     'SELECT COUNT(*)\nFROM tbl\n-- Some Comment',
+     {'rules': {'max_line_length': 18}}),
     # Test that we don't have the "inconsistent" bug
-    ('L010', 'fail', 'SeLeCt 1', 'SELECT 1'),
-    ('L010', 'fail', 'SeLeCt 1 from blah', 'SELECT 1 FROM blah'),
+    ('L010', 'fail', 'SeLeCt 1', 'SELECT 1', None),
+    ('L010', 'fail', 'SeLeCt 1 from blah', 'SELECT 1 FROM blah', None),
     # Gihub Bug #99. Python2 Issues with fixing L003
-    ('L003', 'fail', '  select 1 from tbl;', 'select 1 from tbl;')
+    ('L003', 'fail', '  select 1 from tbl;', 'select 1 from tbl;', None)
 ])
-def test__rules__std_string(rule, pass_fail, qry, fixed):
+def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
     """Test that a rule passes/fails on a given string.
 
     Optionally, also test the fixed string if provided.
     """
     if pass_fail == 'fail':
-        res = assert_rule_fail_in_sql(rule, qry)
+        res = assert_rule_fail_in_sql(rule, qry, configs=configs)
         # If a `fixed` value is provided then check it matches
         if fixed:
             assert res == fixed
     elif pass_fail == 'pass':
-        assert_rule_pass_in_sql(rule, qry)
+        assert_rule_pass_in_sql(rule, qry, configs=configs)
     else:
         raise ValueError(
             "Test setup fail: Unexpected value for pass_fail: {0!r}".format(

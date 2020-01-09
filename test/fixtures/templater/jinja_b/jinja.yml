@@ -2,10 +2,10 @@
 file:
   statement:
     select_statement:
-    - keyword: SELECT
-    - raw: "\n"
-    - raw: '    '
-    - select_target_group:
+    - select_clause:
+      - keyword: SELECT
+      - raw: "\n"
+      - raw: '    '
       - select_target_element:
         - expression:
           - numeric_literal: 3
