@@ -39,10 +39,10 @@ Contents
 
    realworld
    rules
+   production
    configuration
    architecture
    cli
-   diff-quality
 
 
 Indices and tables
