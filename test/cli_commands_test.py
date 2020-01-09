@@ -52,7 +52,7 @@ def test__cli__command_dialect():
     )
 
 
-def test__cli__command_lint_a():
+def test__cli__command_lint():
     """Check basic commands on a simple script."""
     # Not verbose
     invoke_assert_code(args=[lint, ['-n', 'test/fixtures/cli/passing_a.sql']])
@@ -80,8 +80,12 @@ def test__cli__command_lint_stdin(command):
 @pytest.mark.parametrize('command', [
     # Test basic linting
     (lint, ['-n', 'test/fixtures/cli/passing_b.sql']),
+    # Test basic linting with very high verbosity
+    (lint, ['-n', 'test/fixtures/cli/passing_b.sql', '-vvvvvvvvvvv']),
     # Check basic parsing
     (parse, ['-n', 'test/fixtures/cli/passing_b.sql']),
+    # Test basic parsing with very high verbosity
+    (parse, ['-n', 'test/fixtures/cli/passing_b.sql', '-vvvvvvvvvvv']),
     # Check basic parsing, with the code only option
     (parse, ['-n', 'test/fixtures/cli/passing_b.sql', '-c']),
     # Check basic parsing, with the yaml output
@@ -96,7 +100,7 @@ def test__cli__command_lint_stdin(command):
     # Check linting works with just excluded rules
     (lint, ['-n', '--exclude-rules', 'L006,L007', 'test/fixtures/linter/operator_errors.sql'])
 ])
-def test__cli__command_lint_b(command):
+def test__cli__command_lint_parse(command):
     """Check basic commands on a more complicated script."""
     invoke_assert_code(args=command)
 
