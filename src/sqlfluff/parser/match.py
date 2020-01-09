@@ -3,6 +3,7 @@
 This should be the default response from any `match` method.
 """
 
+import logging
 from collections import namedtuple
 
 
@@ -97,12 +98,18 @@ class MatchResult(namedtuple('MatchResult', ['matched_segments', 'unmatched_segm
     @staticmethod
     def seg_to_tuple(segs):
         """Munge types to a tuple."""
+        # Is other iterable?
+        try:
+            iterator = iter(segs)
+        except TypeError:
+            is_iterable = False
+        else:
+            is_iterable = True
+
         if _is_segment(segs):
             return (segs,)
-        elif isinstance(segs, tuple):
-            return segs
-        elif isinstance(segs, list):
-            return tuple(segs)
+        elif is_iterable:
+            return tuple(iterator)
         else:
             raise TypeError("Unexpected input to `seg_to_tuple`: {0}".format(segs))
 
@@ -130,37 +137,24 @@ class MatchResult(namedtuple('MatchResult', ['matched_segments', 'unmatched_segm
 
     def __add__(self, other):
         """Override add for concatenating things onto this match."""
-        # Is other iterable?
-        try:
-            iterator = iter(other)
-        except TypeError:
-            is_iterable = False
-        else:
-            is_iterable = True
-
-        if _is_segment(other):
-            return self.__class__(
-                matched_segments=self.matched_segments + (other,),
-                unmatched_segments=self.unmatched_segments
-            )
-        elif isinstance(other, MatchResult):
+        if isinstance(other, MatchResult):
             return self.__class__(
                 matched_segments=self.matched_segments + other.matched_segments,
                 unmatched_segments=self.unmatched_segments
             )
-        elif is_iterable:
-            # This code handles lists and tuples but let's just treat
-            # them the same.
-            buff = tuple(iterator)
-            if len(buff) > 0 and not _is_segment(buff[0]):
+        else:
+            try:
+                other_tuple = self.seg_to_tuple(other)
+            except TypeError as err:
+                logging.error(
+                    "Unexpected type passed to MatchResult.__add__: {0}".format(
+                        type(other)))
+                raise err
+            if len(other_tuple) > 0 and not _is_segment(other_tuple[0]):
                 raise TypeError(
                     "Unexpected type passed to MatchResult.__add__: {2} of {0}.\n{1}".format(
-                        type(other[0]), buff, type(other)))
+                        type(other[0]), other_tuple, type(other)))
             return self.__class__(
-                matched_segments=self.matched_segments + buff,
+                matched_segments=self.matched_segments + other_tuple,
                 unmatched_segments=self.unmatched_segments
             )
-        else:
-            raise TypeError(
-                "Unexpected type passed to MatchResult.__add__: {0}".format(
-                    type(other)))
