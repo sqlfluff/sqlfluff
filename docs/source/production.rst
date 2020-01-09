@@ -21,8 +21,8 @@ more.
 
 .. _diff-quality:
 
-Using sqlfluff on changes using `diffquality`
----------------------------------------------
+Using sqlfluff on changes using `diff-quality`
+----------------------------------------------
 
 For projects with large amounts of (potentially imperfect) SQL code, the full
 SQLFluff output could be very large, which can be distracting -- perhaps the CI
