@@ -14,10 +14,12 @@ import sqlfluff
 from sqlfluff.cli.commands import lint, version, rules, fix, parse
 
 
-def invoke_assert_code(ret_code=0, args=None, kwargs=None):
+def invoke_assert_code(ret_code=0, args=None, kwargs=None, input=None):
     """Invoke a command and check return code."""
     args = args or []
     kwargs = kwargs or {}
+    if input:
+        kwargs['input'] = input
     runner = CliRunner()
     result = runner.invoke(*args, **kwargs)
     if ret_code == 0:
@@ -135,7 +137,7 @@ def test__cli__command_rules():
     invoke_assert_code(args=[rules])
 
 
-def generic_roundtrip_test(source_file, rulestring):
+def generic_roundtrip_test(source_file, rulestring, final_exit_code=0, force=True, fix_input=None):
     """A test for roundtrip testing, take a file buffer, lint, fix and lint.
 
     This is explicitly different from the linter version of this, in that
@@ -152,9 +154,13 @@ def generic_roundtrip_test(source_file, rulestring):
     # Check that we first detect the issue
     invoke_assert_code(ret_code=65, args=[lint, ['--rules', rulestring, filepath]])
     # Fix the file (in force mode)
-    invoke_assert_code(args=[fix, ['--rules', rulestring, '-f', filepath]])
+    if force:
+        fix_args = ['--rules', rulestring, '-f', filepath]
+    else:
+        fix_args = ['--rules', rulestring, filepath]
+    invoke_assert_code(args=[fix, fix_args], input=fix_input)
     # Now lint the file and check for exceptions
-    invoke_assert_code(args=[lint, ['--rules', rulestring, filepath]])
+    invoke_assert_code(ret_code=final_exit_code, args=[lint, ['--rules', rulestring, filepath]])
     shutil.rmtree(tempdir_path)
 
 
@@ -176,3 +182,15 @@ def test__cli__command_fix_stdin(monkeypatch):
     monkeypatch.setattr("sqlfluff.linter.LintedFile.fix_string", lambda x: expected)
     result = invoke_assert_code(args=[fix, ('-', '--rules', 'L001')], kwargs=dict(input=sql))
     assert result.output == expected
+
+
+@pytest.mark.parametrize('rule,fname,prompt,exit_code', [
+    ('L001', 'test/fixtures/linter/indentation_errors.sql', 'y', 0),
+    ('L001', 'test/fixtures/linter/indentation_errors.sql', 'n', 65)
+])
+def test__cli__command__fix_no_force(rule, fname, prompt, exit_code):
+    """Round trip test, using the prompts."""
+    with open(fname, mode='r') as f:
+        generic_roundtrip_test(
+            f, rule, force=False, final_exit_code=exit_code,
+            fix_input=prompt)
