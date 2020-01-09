@@ -128,24 +128,16 @@ class MatchResult(namedtuple('MatchResult', ['matched_segments', 'unmatched_segm
         return cls(unmatched_segments=(),
                    matched_segments=())
 
-    @classmethod
-    def unify(cls, other):
-        """A helper method for type munging into a `MatchResult`."""
-        # TODO: Do we need this?
-        if isinstance(other, cls):
-            # It's already a MatchResult
-            return other
-        elif other is None:
-            # It's none, equivalent to an empty match
-            return cls.from_empty()
-        else:
-            # It's something else, so lets assume a match.
-            # If we've been passed garbage, then seg_to_tuple will
-            # pick it up. If it fails it will raise a TypeError.
-            return cls.from_matched(other)
-
     def __add__(self, other):
         """Override add for concatenating things onto this match."""
+        # Is other iterable?
+        try:
+            iterator = iter(other)
+        except TypeError:
+            is_iterable = False
+        else:
+            is_iterable = True
+
         if _is_segment(other):
             return self.__class__(
                 matched_segments=self.matched_segments + (other,),
@@ -156,22 +148,16 @@ class MatchResult(namedtuple('MatchResult', ['matched_segments', 'unmatched_segm
                 matched_segments=self.matched_segments + other.matched_segments,
                 unmatched_segments=self.unmatched_segments
             )
-        elif isinstance(other, tuple):
-            if len(other) > 0 and not _is_segment(other[0]):
+        elif is_iterable:
+            # This code handles lists and tuples but let's just treat
+            # them the same.
+            buff = tuple(iterator)
+            if len(buff) > 0 and not _is_segment(buff[0]):
                 raise TypeError(
-                    "Unexpected type passed to MatchResult.__add__: tuple of {0}.\n{1}".format(
-                        type(other[0]), other))
+                    "Unexpected type passed to MatchResult.__add__: {2} of {0}.\n{1}".format(
+                        type(other[0]), buff, type(other)))
             return self.__class__(
-                matched_segments=self.matched_segments + other,
-                unmatched_segments=self.unmatched_segments
-            )
-        elif isinstance(other, list):
-            if len(other) > 0 and not _is_segment(other[0]):
-                raise TypeError(
-                    "Unexpected type passed to MatchResult.__add__: list of {0}".format(
-                        type(other[0])))
-            return self.__class__(
-                matched_segments=self.matched_segments + tuple(other),
+                matched_segments=self.matched_segments + buff,
                 unmatched_segments=self.unmatched_segments
             )
         else:
