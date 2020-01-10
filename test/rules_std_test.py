@@ -91,8 +91,21 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     # Long lines (with config override)
     ('L016', 'pass', 'SELECT COUNT(*) FROM tbl\n', None,
      {'rules': {'max_line_length': 30}}),
+    # Check we move comments correctly
+    ('L016', 'fail', 'SELECT 1 -- Some Comment\n',
+     '-- Some Comment\nSELECT 1\n',
+     {'rules': {'max_line_length': 18}}),
+    # Check we can add newlines after dedents (with an indent)
+    ('L016', 'fail', '    SELECT COUNT(*) FROM tbl\n',
+     '    SELECT COUNT(*)\n    FROM tbl\n',
+     {'rules': {'max_line_length': 20}}),
+    # Check we handle indents nicely
+    ('L016', 'fail', 'SELECT 12345\n',
+     'SELECT\n    12345\n',
+     {'rules': {'max_line_length': 10}}),
+    # Check priority of fixes
     ('L016', 'fail', 'SELECT COUNT(*) FROM tbl -- Some Comment\n',
-     'SELECT COUNT(*)\nFROM tbl\n-- Some Comment',
+     '-- Some Comment\nSELECT COUNT(*)\nFROM tbl\n',
      {'rules': {'max_line_length': 18}}),
     # Test that we don't have the "inconsistent" bug
     ('L010', 'fail', 'SeLeCt 1', 'SELECT 1', None),

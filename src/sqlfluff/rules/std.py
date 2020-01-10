@@ -683,9 +683,10 @@ class Rule_L016(BaseCrawler):
 
     """
 
-    def __init__(self, max_line_length=80, **kwargs):
+    def __init__(self, max_line_length=80, tab_space_size=4, **kwargs):
         """Initialise, getting the max line length."""
         self.max_line_length = max_line_length
+        self.tab_space_size = tab_space_size
         super(Rule_L016, self).__init__(**kwargs)
 
     @classmethod
@@ -717,12 +718,12 @@ class Rule_L016(BaseCrawler):
         """Line is too long.
 
         This only triggers on newline segments, evaluating the whole line.
+        The detection is simple, the fixing is much trickier.
 
         """
-
         if segment.name == 'newline':
             # iterate to buffer the whole line up to this point
-            buff = []
+            this_line = []
             idx = -1
             while True:
                 if len(raw_stack) >= abs(idx):
@@ -730,36 +731,34 @@ class Rule_L016(BaseCrawler):
                     if s.name == 'newline':
                         break
                     else:
-                        buff.insert(0, s)
+                        this_line.insert(0, s)
                         idx -= 1
                 else:
                     break
 
             # Now we can work out the line length and deal with the content
-            line_len = sum([len(s.raw) for s in buff])
+            line_len = sum([len(s.raw) for s in this_line])
             if line_len > self.max_line_length:
                 # Problem, we'll be reporting a violation. The
                 # question is, can we fix it?
 
-                # TODO: Implement fixes: fixes=[LintFix('delete', cm1)]
-
                 # We'll need the indent, so let's get it for fixing.
                 line_indent = []
                 idx = 0
-                for s in buff:
-                    if s.type == 'whitespace':
+                for s in this_line:
+                    if s.name == 'whitespace':
                         line_indent.append(s)
                     else:
                         break
 
                 # Does the line end in an inline comment that we can move back?
-                if buff[-1].name == 'inline_comment':
+                if this_line[-1].name == 'inline_comment':
                     # Set up to delete the original comment and the preceeding whitespace
-                    delete_buffer = [LintFix('delete', buff[-1])]
+                    delete_buffer = [LintFix('delete', this_line[-1])]
                     idx = -2
                     while True:
-                        if len(buff) >= abs(idx) and buff[-2].type == 'whitespace':
-                            delete_buffer.append(LintFix('delete', buff[idx]))
+                        if len(this_line) >= abs(idx) and this_line[idx].name == 'whitespace':
+                            delete_buffer.append(LintFix('delete', this_line[idx]))
                             idx -= 1
                         else:
                             break
@@ -768,21 +767,132 @@ class Rule_L016(BaseCrawler):
                     # target segment.
                     create_buffer = [
                         LintFix(
-                            'create', buff[0],
-                            line_indent + [buff[-1], segment]
+                            'create', this_line[0],
+                            line_indent + [this_line[-1], segment]
                         )
                     ]
                     return LintResult(anchor=segment, fixes=delete_buffer + create_buffer)
 
-                # Does the line contain keywords in the same segment which should be aligned?
-                for i in buff:
-                    p = self.get_parent_of(i, parent_stack[0])
-                    print(i, p)
+                # Does the line contain a place where an indent might be possible?
+                if any([elem.is_meta and elem._indent_val != 0 for elem in this_line]):
+                    # What's the net sum of them?
+                    indent_balance = sum([elem._indent_val for elem in this_line if elem.is_meta])
+                    # Yes, let's work out which is best.
+                    if indent_balance == 0:
+                        # It's even. We should break after the *last* dedent
+                        ws_pre = []
+                        ws_post = []
+                        running_balance = 0
+                        started = False
+                        found = False
+                        fix_buffer = None
+                        # Work through to find the right point
+                        for elem in this_line:
+                            if elem.name == 'whitespace':
+                                if found:
+                                    if fix_buffer is None:
+                                        # In this case we EDIT, because
+                                        # we want to remove the existing whitespace
+                                        # here. We need to remember the INDENT.
+                                        fix_buffer = [
+                                            LintFix(
+                                                'edit', elem,
+                                                [segment] + line_indent
+                                            )
+                                        ]
+                                    else:
+                                        # Store potentially unnecessary whitespace.
+                                        ws_post.append(elem)
+                                elif started:
+                                    # Store potentially unnecessary whitespace.
+                                    ws_pre.append(elem)
+                            elif elem.is_meta:
+                                running_balance += elem._indent_val
+                                started = True
+                                # Clear the buffer.
+                                ws_post = []
+                                if running_balance == 0:
+                                    found = True
+                            else:
+                                # Something that isn't a meta or whitespace
+                                if found:
+                                    if fix_buffer is None:
+                                        # In this case we create because we
+                                        # want to preserve what already exits
+                                        # here. We need to remember the INDENT.
+                                        fix_buffer = [
+                                            LintFix(
+                                                'create', elem,
+                                                [segment] + line_indent
+                                            )
+                                        ]
+                                    # We have all we need
+                                    break
+                                else:
+                                    # Clear the buffer.
+                                    ws_pre = []
+                        else:
+                            raise RuntimeError("We shouldn't get here!")
 
-                # NB: Need a get_parent_of() method, probably as a static method on the base
-                # class. Might need to give it the whole tree (or maybe just the parent stack)
+                        # Remove unnecessary whitespace
+                        for elem in ws_pre + ws_post:
+                            fix_buffer.append(
+                                LintFix(
+                                    'delete', elem
+                                )
+                            )
 
-                # Does the line contain a comma or binary operator that we can move to the line below?
+                        return LintResult(anchor=segment, fixes=fix_buffer)
+                    elif indent_balance > 0:
+                        # If it's positive, we have more indents than dedents.
+                        # Make sure the first unused indent is used.
+                        delete_buffer = []
+                        newline_anchor = None
+                        found = False
+                        for elem in this_line:
+                            if elem.name == 'whitespace':
+                                delete_buffer.append(elem)
+                            elif found:
+                                newline_anchor = elem
+                                break
+                            elif elem.is_meta:
+                                if elem._indent_val > 0:
+                                    found = True
+                                else:
+                                    pass
+                            else:
+                                # It's not meta, and not whitespace:
+                                # reset buffer
+                                delete_buffer = []
+                        else:
+                            raise RuntimeError("We shouldn't get here!")
+
+                        # Make a newline where it needs to be, with ONE EXTRA INDENT
+                        WhitespaceSegment = RawSegment.make(' ', name='whitespace')
+                        fix_buffer = [
+                            LintFix(
+                                'create', newline_anchor,
+                                # It's ok to use the current segment posmarker, because we're staying in the same statement (probably?)
+                                [segment] + line_indent + [WhitespaceSegment(raw=' ' * self.tab_space_size, pos_marker=segment.pos_marker)]
+                            )
+                        ]
+
+                        # Remove unnecessary whitespace
+                        for elem in delete_buffer:
+                            fix_buffer.append(
+                                LintFix(
+                                    'delete', elem
+                                )
+                            )
+
+                        return LintResult(anchor=segment, fixes=fix_buffer)
+                    else:
+                        # Don't know what to do here!
+                        raise NotImplementedError(
+                            ("Don't know what to do with negative "
+                             "indent balance ({0}).").format(
+                                indent_balance))
+
                 return LintResult(anchor=segment)
             else:
                 # All good
