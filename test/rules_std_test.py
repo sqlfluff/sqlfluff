@@ -147,7 +147,9 @@ def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
      [(3, 8), (4, 10), (7, 6), (7, 7), (7, 9), (7, 10), (7, 12), (7, 13)]),
     ('L007', 'test/fixtures/linter/operator_errors.sql', [(5, 9)]),
     # Check we DO get a violation on line 2 but NOT on line 3
-    ('L006', 'test/fixtures/linter/operator_errors_negative.sql', [(2, 6), (2, 9), (5, 6), (5, 7)])
+    ('L006', 'test/fixtures/linter/operator_errors_negative.sql', [(2, 6), (2, 9), (5, 6), (5, 7)]),
+    # Hard indentation errors
+    ('L003', 'test/fixtures/linter/indentation_error_hard.sql', [(2, 4), (6, 5), (9, 13), (14, 14), (19, 5), (20, 6)]),
 ])
 def test__rules__std_file(rule, path, violations):
     """Test the linter finds the given errors in (and only in) the right places."""
