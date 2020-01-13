@@ -68,7 +68,7 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
 @pytest.mark.parametrize("rule,pass_fail,qry,fixed,configs", [
     ("L001", 'fail', 'SELECT 1     \n', 'SELECT 1\n', None),
     ('L002', 'fail', '    \t    \t    SELECT 1', None, None),
-    ('L003', 'fail', '     SELECT 1', '    SELECT 1', None),
+    ('L003', 'fail', '     SELECT 1', 'SELECT 1', None),
     ('L004', 'pass', '   \nSELECT 1', None, None),
     ('L004', 'pass', '\t\tSELECT 1\n', None, None),
     ('L004', 'fail', '   \n  \t \n  SELECT 1', None, None),
@@ -134,7 +134,7 @@ def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
 @pytest.mark.parametrize("rule,path,violations", [
     ('L001', 'test/fixtures/linter/indentation_errors.sql', [(4, 24)]),
     ('L002', 'test/fixtures/linter/indentation_errors.sql', [(3, 1), (4, 1)]),
-    ('L003', 'test/fixtures/linter/indentation_errors.sql', [(2, 1), (3, 1)]),
+    ('L003', 'test/fixtures/linter/indentation_errors.sql', [(2, 4), (3, 4), (4, 6)]),
     ('L004', 'test/fixtures/linter/indentation_errors.sql', [(3, 1), (4, 1), (5, 1)]),
     # Check we get comma (with leading space/newline) whitespace errors
     # NB The newline before the comma, should report on the comma, not the newline for clarity.
@@ -158,3 +158,19 @@ def test__rules__std_file(rule, path, violations):
     # sets because we really don't care about order and if one is missing,
     # we don't care about the orders of the correct ones.
     assert set(lnt.check_tuples()) == set([(rule, v[0], v[1]) for v in violations])
+
+
+def test__rules__std_L003_process_raw_stack(generate_test_segments):
+    """Test the _process_raw_stack function.
+
+    Note: This test probably needs expanding. It doesn't
+    really check enough of the full functionality.
+
+    """
+    cfg = FluffConfig()
+    r = get_rule_from_set('L003', config=cfg)
+    test_stack = generate_test_segments(['bar', '\n', '     ', 'foo', 'baar', ' \t '])
+    res = r._process_raw_stack(test_stack)
+    print(res)
+    assert sorted(res.keys()) == [1, 2]
+    assert res[2]['indent_size'] == 5

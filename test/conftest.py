@@ -4,6 +4,9 @@ import pytest
 import oyaml
 import six
 
+from sqlfluff.parser.markers import FilePositionMarker
+from sqlfluff.parser.segments_base import RawSegment
+
 
 def process_struct(obj):
     """Process a nested dict or dict-like into a check tuple."""
@@ -47,3 +50,43 @@ def yaml_loader():
     """Return a yaml loading function."""
     # Return a function
     return load_yaml
+
+
+@pytest.fixture(scope="module")
+def generate_test_segments():
+    def generate_test_segments_func(elems):
+        """Roughly generate test segments.
+
+        This function isn't totally robust, but good enough
+        for testing. Use with caution.
+        """
+        buff = []
+        raw_buff = ''
+        for elem in elems:
+            if set(elem) <= set([' ', '\t']):
+                cls = RawSegment.make(' ', name='whitespace')
+            elif set(elem) <= set(['\n']):
+                cls = RawSegment.make('\n', name='newline')
+            elif elem == "(":
+                cls = RawSegment.make("(", name='bracket_open', _is_code=True)
+            elif elem == ")":
+                cls = RawSegment.make(")", name='bracket_close', _is_code=True)
+            elif elem.startswith('--'):
+                cls = RawSegment.make('--', name='inline_comment')
+            elif elem.startswith('"'):
+                cls = RawSegment.make('"', name='double_quote', _is_code=True)
+            elif elem.startswith("'"):
+                cls = RawSegment.make("'", name='single_quote', _is_code=True)
+            else:
+                cls = RawSegment.make('', _is_code=True)
+
+            buff.append(
+                cls(
+                    elem,
+                    FilePositionMarker.from_fresh().advance_by(raw_buff)
+                )
+            )
+            raw_buff += elem
+        return tuple(buff)  # Make sure we return a tuple
+    # Return the function
+    return generate_test_segments_func

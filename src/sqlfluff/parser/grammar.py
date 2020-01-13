@@ -2,6 +2,7 @@
 import logging
 
 from .segments_base import (BaseSegment, check_still_complete, parse_match_logging)
+from .segments_common import Indent, Dedent
 from .match import MatchResult, join_segments_raw_curtailed
 from ..errors import SQLParseError
 from ..helpers import get_time
@@ -1088,15 +1089,28 @@ class Bracketed(BaseGrammar):
 
         # We require a complete match for the content (hopefully for obvious reasons)
         if content_match.is_complete():
+            # We don't want to add metas if they're already there, so check
+            if content_match.matched_segments and content_match.matched_segments[0].is_meta:
+                pre_meta = ()
+            else:
+                pre_meta = (Indent(),)
+            if end_match.matched_segments and end_match.matched_segments[0].is_meta:
+                post_meta = ()
+            else:
+                post_meta = (Dedent(),)
+
             return MatchResult(
                 start_match.matched_segments
+                + pre_meta  # Add a meta indent here
                 + content_match.matched_segments
+                + post_meta  # Add a meta indent here
                 + end_match.matched_segments,
                 end_match.unmatched_segments)
         else:
             # Now if we've not matched there's a final option. If the content is optional
             # and we allow non-code, then if the content is all non-code then it could be
             # empty brackets and still match.
+            # NB: We don't add indents here, because there's nothing to indent
             if (
                 all([e.is_optional() for e in self._elements])
                 and self.code_only

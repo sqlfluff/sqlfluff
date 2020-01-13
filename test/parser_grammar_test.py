@@ -5,58 +5,21 @@ import logging
 
 from sqlfluff.parser.grammar import (OneOf, Sequence, GreedyUntil, ContainsOnly,
                                      Delimited, BaseGrammar, StartsWith)
-from sqlfluff.parser.markers import FilePositionMarker
-from sqlfluff.parser.segments_base import RawSegment, ParseContext
+from sqlfluff.parser.segments_base import ParseContext
 from sqlfluff.parser.segments_common import KeywordSegment
 from sqlfluff.dialects import ansi_dialect
 
 # NB: All of these tests depend somewhat on the KeywordSegment working as planned
 
 
-def generate_test_segments(elems):
-    """Roughly generate test segments.
-
-    This function isn't totally robust, but good enough
-    for testing. Use with caution.
-    """
-    buff = []
-    raw_buff = ''
-    for elem in elems:
-        if set(elem) <= set([' ', '\t']):
-            cls = RawSegment.make(' ', name='whitespace')
-        elif set(elem) <= set(['\n']):
-            cls = RawSegment.make('\n', name='newline')
-        elif elem == "(":
-            cls = RawSegment.make("(", name='bracket_open', _is_code=True)
-        elif elem == ")":
-            cls = RawSegment.make(")", name='bracket_close', _is_code=True)
-        elif elem.startswith('--'):
-            cls = RawSegment.make('--', name='inline_comment')
-        elif elem.startswith('"'):
-            cls = RawSegment.make('"', name='double_quote', _is_code=True)
-        elif elem.startswith("'"):
-            cls = RawSegment.make("'", name='single_quote', _is_code=True)
-        else:
-            cls = RawSegment.make('', _is_code=True)
-
-        buff.append(
-            cls(
-                elem,
-                FilePositionMarker.from_fresh().advance_by(raw_buff)
-            )
-        )
-        raw_buff += elem
-    return tuple(buff)  # Make sure we return a tuple
-
-
-@pytest.fixture(scope="module")
-def seg_list():
+@pytest.fixture(scope="function")
+def seg_list(generate_test_segments):
     """A preset list of segments for testing."""
     return generate_test_segments(['bar', ' \t ', 'foo', 'baar', ' \t '])
 
 
-@pytest.fixture(scope="module")
-def bracket_seg_list():
+@pytest.fixture(scope="function")
+def bracket_seg_list(generate_test_segments):
     """Another preset list of segments for testing."""
     return generate_test_segments([
         'bar', ' \t ', '(', 'foo', '    ', ')', 'baar', ' \t ', 'foo'
@@ -234,7 +197,7 @@ def test__parser__grammar_sequence_nested(seg_list, caplog):
         )
 
 
-def test__parser__grammar_delimited(caplog):
+def test__parser__grammar_delimited(caplog, generate_test_segments):
     """Test the Delimited grammar."""
     seg_list = generate_test_segments(['bar', ' \t ', ',', '    ', 'bar', '    '])
     bs = KeywordSegment.make('bar')
@@ -266,7 +229,7 @@ def test__parser__grammar_delimited(caplog):
         # We should have matched the trailing whitespace in this case.
 
 
-def test__parser__grammar_delimited_not_code_only(caplog):
+def test__parser__grammar_delimited_not_code_only(caplog, generate_test_segments):
     """Test the Delimited grammar when not code_only."""
     seg_list_a = generate_test_segments(['bar', ' \t ', '.', '    ', 'bar'])
     seg_list_b = generate_test_segments(['bar', '.', 'bar'])

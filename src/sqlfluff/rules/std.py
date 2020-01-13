@@ -108,28 +108,130 @@ class Rule_L002(BaseCrawler):
 
 @std_rule_set.register
 class Rule_L003(BaseCrawler):
-    """Indentation length is not a multiple of {tab_space_size}.
+    """Indentation not consistent with previous line.
 
     Args:
         tab_space_size (:obj:`int`): The number of spaces to consider
             equal to one tab. Used in the fixing step of this rule.
             Defaults to 4.
+        indent_unit (:obj:`str`): Whether to use tabs or spaces to
+            add new indents. Defaults to `space`.
+
+    Note:
+        This rule used to be _"Indentation length is not a multiple
+        of {tab_space_size}"_, but was changed to be much smarter.
 
     """
 
-    def __init__(self, tab_space_size=4, **kwargs):
+    def __init__(self, tab_space_size=4, indent_unit='space', **kwargs):
         """Initialise, extracting the tab size from the config."""
         self.tab_space_size = tab_space_size
+        self.indent_unit = indent_unit
         super(Rule_L003, self).__init__(**kwargs)
 
-    def _eval(self, segment, raw_stack, **kwargs):
-        """Indentation is not a multiple of a configured value.
+    def _make_indent(self, num=1, tab_space_size=None, indent_unit=None):
+        if (indent_unit or self.indent_unit) == 'tab':
+            base_unit = '\t'
+        elif (indent_unit or self.indent_unit) == 'space':
+            base_unit = ' ' * (tab_space_size or self.tab_space_size)
+        else:
+            raise ValueError("Unexpected value for `indent_unit`: {0!r}".format(
+                indent_unit or self.indent_unit))
+        return base_unit * num
+
+    def _indent_size(self, segments):
+        indent_size = 0
+        for elem in segments:
+            raw = elem.raw
+            # convert to spaces for convenience (and hanging indents)
+            raw = raw.replace('\t', ' ' * self.tab_space_size)
+            indent_size += len(raw)
+        return indent_size
+
+    def _process_raw_stack(self, raw_stack):
+        """Take the raw stack, split into lines and evaluate some stats."""
+        indent_balance = 0
+        line_no = 1
+        in_indent = True
+        indent_buffer = []
+        line_buffer = []
+        result_buffer = {}
+        indent_size = 0
+        line_indent_stack = []
+        this_indent_balance = 0
+
+        for elem in raw_stack:
+            line_buffer.append(elem)
+            if in_indent:
+                if elem.name == 'whitespace':
+                    indent_buffer.append(elem)
+                elif elem.is_meta and elem._indent_val != 0:
+                    indent_balance += elem._indent_val
+                else:
+                    in_indent = False
+                    this_indent_balance = indent_balance
+                    indent_size = self._indent_size(indent_buffer)
+            elif elem.name == 'newline':
+                result_buffer[line_no] = {
+                    'line_no': line_no,
+                    'line_buffer': line_buffer.copy(),
+                    'indent_buffer': indent_buffer,
+                    'indent_size': indent_size,
+                    'indent_balance': this_indent_balance,
+                    'hanging_indent': line_indent_stack.pop() if line_indent_stack else None
+                }
+                line_no += 1
+                indent_buffer = []
+                line_buffer = []
+                indent_size = 0
+                in_indent = True
+                line_indent_stack = []
+            elif elem.is_meta and elem._indent_val != 0:
+                indent_balance += elem._indent_val
+                if elem._indent_val > 0:
+                    # Keep track of the indent at the last ... indent
+                    line_indent_stack.append(
+                        self._indent_size(line_buffer)
+                    )
+                else:
+                    # this is a dedent, we could still have a hanging indent,
+                    # but only if there's enough on the stack
+                    if line_indent_stack:
+                        line_indent_stack.pop()
+
+        # If we get to the end, and still have a buffer, add it on
+        if line_buffer:
+            result_buffer[line_no] = {
+                'line_no': line_no,
+                'line_buffer': line_buffer,
+                'indent_buffer': indent_buffer,
+                'indent_size': indent_size,
+                'indent_balance': indent_balance,
+                'hanging_indent': line_indent_stack.pop() if line_indent_stack else None
+            }
+        return result_buffer
+
+    def _eval(self, segment, raw_stack, memory, **kwargs):
+        """Indentation not consistent with previous line.
 
         To set the default tab size, set the `tab_space_size` value
         in the appropriate configuration.
 
-        We can only trigger on whitespace which is either
-        preceeded by nothing or a newline.
+        We compare each line (first non-whitespace element of the
+        line), with the indentation of previous lines. The presence
+        (or lack) of indent or dedent meta-characters indicate whether
+        the indent is appropriate.
+
+        - Any line is assessed by the indent level at the first non
+          whitespace element.
+        - Any increase in indentation may be _up to_ the number of
+          indent characters.
+        - Any line must be in line with the previous line which had
+          the same indent balance at it's start.
+        - Apart from "whole" indents, a "hanging" indent is possible
+          if the line starts in line with either the indent of the
+          previous line or if it starts at the same indent as the *last*
+          indent meta segment in the previous line.
 
         """
         def round3(val):
@@ -146,15 +248,148 @@ class Rule_L003(BaseCrawler):
             else:
                 return round(val)
 
-        if segment.name == 'whitespace':
-            ws_len = segment.raw.count(' ')
-            if ws_len % self.tab_space_size != 0:
-                if len(raw_stack) == 0 or raw_stack[-1].name == 'newline':
-                    best_len = int(round3(ws_len * 1.0 / self.tab_space_size)) * self.tab_space_size
+        # Memory keeps track of what we just saw
+        if not memory:
+            memory = {
+                # in_indent keeps track of whether we're in an indent right now
+                'in_indent': True,
+                # problem_lines keeps track of lines with problems so that we
+                # don't compare to them.
+                'problem_lines': [],
+                # hanging_lines keeps track of hanging lines so that we don't
+                # compare to them when assessing indent.
+                'hanging_lines': []
+            }
+
+        if segment.name == 'newline':
+            memory['in_indent'] = True
+            # We're not going to flag on empty lines so we can safely proceed
+            return LintResult(memory=memory)
+        elif memory['in_indent']:
+            if segment.name == 'whitespace':
+                # it's whitespace, carry on
+                return LintResult(memory=memory)
+            elif segment.segments or segment.is_meta:
+                # it's not a raw segment. Carry on.
+                return LintResult(memory=memory)
+            else:
+                memory['in_indent'] = False
+                # we're found a non-whitespace element. This is out trigger,
+                # which we'll handle after this if-statement
+                pass
+        else:
+            # Not in indent and not a newline, don't trigger here.
+            return LintResult(memory=memory)
+
+        res = self._process_raw_stack(raw_stack + (segment,))
+        this_line_no = max(res.keys())
+        this_line = res.pop(this_line_no)
+
+        # Is it a hanging indent?
+        if len(res) > 0:
+            last_line_hanger_indent = res[this_line_no - 1]['hanging_indent']
+            # Let's just deal with hanging indents here.
+            if this_line['indent_size'] == last_line_hanger_indent:
+                # This is a HANGER
+                memory['hanging_lines'].append(this_line_no)
+                return LintResult(memory=memory)
+        # Is this an indented first line?
+        else:
+            if this_line['indent_size'] > 0:
+                return LintResult(
+                    anchor=segment,
+                    memory=memory,
+                    description="First line has unexpected indent",
+                    fixes=[LintFix('delete', elem) for elem in this_line['indent_buffer']]
+                )
+
+        # If not, check to see if we've got a whole number of multiples
+        if this_line['indent_size'] % self.tab_space_size != 0:
+            memory['problem_lines'].append(this_line_no)
+            return LintResult(
+                anchor=segment,
+                memory=memory,
+                description=(
+                    "Indentation not hanging or "
+                    "a multiple of {0} spaces").format(self.tab_space_size)
+                # TODO: fixes
+            )
+        else:
+            # We'll need this value later.
+            this_indent_num = this_line['indent_size'] // self.tab_space_size
+
+        # Assuming it's not a hanger, let's compare it to the other previous
+        # lines. We do it in reverse so that closer lines are more relevant.
+        for k in sorted(res.keys(), reverse=True):
+
+            # Is this a problem line?
+            if k in memory['problem_lines'] + memory['hanging_lines']:
+                # Skip it if it is
+                continue
+
+            # Is the indent balance the same?
+            if this_line['indent_balance'] == res[k]['indent_balance']:
+                if this_line['indent_size'] != res[k]['indent_size']:
+                    # Indents don't match even though balance is the same...
+                    memory['problem_lines'].append(this_line_no)
                     return LintResult(
                         anchor=segment,
-                        fixes=[LintFix('edit', segment, segment.edit(' ' * best_len))]
+                        memory=memory,
+                        description="Indentation not consistent with line #{0}".format(k)
+                        # TODO: fixes
                     )
+                else:
+                    # Indents match. And this is a line that it's ok to
+                    # compare with, we're fine.
+                    return LintResult(memory=memory)
+
+            # Are we at a deeper indent?
+            elif this_line['indent_balance'] > res[k]['indent_balance']:
+                # NB: We shouldn't need to deal with hanging indents
+                # here, they should already have been dealt with before.
+
+                # We know that the indent balance is higher, what actually is
+                # the difference in indent counts? It should be a whole number
+                # if we're still here.
+                comp_indent_num = res[k]['indent_size'] // self.tab_space_size
+
+                # The indent number should be at least 1, and can be UP TO
+                # and including the difference in the indent balance.
+                if comp_indent_num == this_indent_num:
+                    memory['problem_lines'].append(this_line_no)
+                    return LintResult(
+                        anchor=segment,
+                        memory=memory,
+                        description="Indent expected and not found"
+                        # TODO: fixes
+                    )
+                elif this_indent_num < comp_indent_num:
+                    memory['problem_lines'].append(this_line_no)
+                    return LintResult(
+                        anchor=segment,
+                        memory=memory,
+                        description="Line under-indented compared to line #{0}".format(k)
+                        # TODO: fixes
+                    )
+                elif this_indent_num > comp_indent_num + (this_line['indent_balance'] - res[k]['indent_balance']):
+                    memory['problem_lines'].append(this_line_no)
+                    return LintResult(
+                        anchor=segment,
+                        memory=memory,
+                        description="Line over-indented compared to line #{0}".format(k)
+                        # TODO: fixes
+                    )
+
+                # This was a valid comparison, so if it doesn't flag then
+                # we can assume that we're ok.
+                return LintResult(memory=memory)
+
+            # NB: At shallower indents, we don't check, we just check the
+            # previous lines with the same balance. Deeper indents can check
+            # themselves.
+
+        # If we get to here, then we're all good for now.
+        return LintResult(memory=memory)
 
 
 @std_rule_set.register
@@ -674,20 +909,27 @@ class Rule_L015(BaseCrawler):
 
 
 @std_rule_set.register
-class Rule_L016(BaseCrawler):
+class Rule_L016(Rule_L003):
     """Line is too long.
 
     Args:
         max_line_length (:obj:`int`): The maximum length of a line
             to allow without raising a violation.
+        tab_space_size (:obj:`int`): The number of spaces to consider
+            equal to one tab. Used in the fixing step of this rule.
+            Defaults to 4.
+        indent_unit (:obj:`str`): Whether to use tabs or spaces to
+            add new indents. Defaults to `space`.
 
     """
 
-    def __init__(self, max_line_length=80, tab_space_size=4, **kwargs):
+    def __init__(self, max_line_length=80, tab_space_size=4, indent_unit='space', **kwargs):
         """Initialise, getting the max line length."""
         self.max_line_length = max_line_length
-        self.tab_space_size = tab_space_size
-        super(Rule_L016, self).__init__(**kwargs)
+        # Call out tab_space_size and indent_unit to make it clear they're still options.
+        super(Rule_L016, self).__init__(
+            tab_space_size=tab_space_size, indent_unit=indent_unit,
+            **kwargs)
 
     @classmethod
     def get_parent_of(cls, segment, root_segment):
@@ -869,11 +1111,12 @@ class Rule_L016(BaseCrawler):
 
                         # Make a newline where it needs to be, with ONE EXTRA INDENT
                         WhitespaceSegment = RawSegment.make(' ', name='whitespace')
+                        new_indent = self._make_indent(1)
                         fix_buffer = [
                             LintFix(
                                 'create', newline_anchor,
                                 # It's ok to use the current segment posmarker, because we're staying in the same statement (probably?)
-                                [segment] + line_indent + [WhitespaceSegment(raw=' ' * self.tab_space_size, pos_marker=segment.pos_marker)]
+                                [segment] + line_indent + [WhitespaceSegment(raw=new_indent, pos_marker=segment.pos_marker)]
                             )
                         ]
 
