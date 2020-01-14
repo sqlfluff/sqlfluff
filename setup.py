@@ -7,10 +7,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 import io
-try:
-    import configparser
-except ImportError:
-    import ConfigParser as configparser
+import configparser
 from os.path import dirname
 from os.path import join
 
@@ -58,9 +55,7 @@ setup(
         'Operating System :: POSIX',
         'Operating System :: Microsoft :: Windows',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
@@ -75,12 +70,10 @@ setup(
     ],
     install_requires=[
         'click>=2.0',
-        "colorama>=0.3; python_version!='3.4'",
-        'six>=1.0',
-        'configparser',
+        "colorama>=0.3",
         'oyaml',
         'Jinja2',
-        "diff-cover>=2.5.0,<3.0; python_version!='3.4'",
+        "diff-cover>=2.5.0,<3.0",
     ],
     extras_require={
         # eg:

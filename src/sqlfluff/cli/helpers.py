@@ -1,6 +1,6 @@
 """CLI helper utilities."""
 
-from six import StringIO
+from io import StringIO
 import sys
 import textwrap
 

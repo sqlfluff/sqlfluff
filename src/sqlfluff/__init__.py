@@ -1,6 +1,6 @@
 """Sqlfluff is a SQL linter for humans."""
 import pkg_resources
-from six.moves import configparser
+import configparser
 
 # Get the current version
 config = configparser.ConfigParser()

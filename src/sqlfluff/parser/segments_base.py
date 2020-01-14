@@ -14,7 +14,7 @@ These are the fundamental building blocks of the rest of the parser.
 
 import logging
 import oyaml as yaml
-from six import StringIO, string_types
+from io import StringIO
 
 from .match import MatchResult, curtail_string, join_segments_raw
 from ..errors import SQLLintError
@@ -431,7 +431,7 @@ class BaseSegment(object):
             """Simplify the structure recursively so it outputs nicely in yaml."""
             if isinstance(elem, tuple):
                 # Does this look like an element?
-                if len(elem) == 2 and isinstance(elem[0], string_types):
+                if len(elem) == 2 and isinstance(elem[0], str):
                     # This looks like a single element, make a dict
                     elem = {elem[0]: _structural_simplify(elem[1])}
                 elif isinstance(elem[0], tuple):

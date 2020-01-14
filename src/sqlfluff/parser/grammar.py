@@ -1,11 +1,11 @@
 """Definitions for Grammar."""
 import logging
+import time
 
 from .segments_base import (BaseSegment, check_still_complete, parse_match_logging)
 from .segments_common import Indent, Dedent
 from .match import MatchResult, join_segments_raw_curtailed
 from ..errors import SQLParseError
-from ..helpers import get_time
 
 
 class BaseGrammar(object):
@@ -52,7 +52,7 @@ class BaseGrammar(object):
 
     def _match(self, segments, parse_context):
         """A wrapper on the match function to do some basic validation."""
-        t0 = get_time()
+        t0 = time.monotonic()
 
         if isinstance(segments, BaseSegment):
             segments = segments,  # Make into a tuple for compatability
@@ -82,7 +82,7 @@ class BaseGrammar(object):
                 "{0}.match, returned {1} rather than MatchResult".format(
                     self.__class__.__name__, type(m)))
 
-        dt = get_time() - t0
+        dt = time.monotonic() - t0
         if m.is_complete():
             msg = 'OUT ++'
         elif m:

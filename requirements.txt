@@ -1,8 +1,7 @@
 click>=2.0
-colorama>=0.3; python_version!='3.4'
-six>=1.0
+colorama>=0.3
 configparser
 # oyaml is like pyyaml but preserves orderings
 oyaml
 Jinja2
-diff-cover>=2.5.0,<3.0; python_version!='3.4'
+diff-cover>=2.5.0,<3.0

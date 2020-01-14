@@ -2,8 +2,7 @@
 
 import os
 import sys
-
-from six.moves import configparser
+import configparser
 
 from .dialects import dialect_selector
 from .templaters import templater_selector
