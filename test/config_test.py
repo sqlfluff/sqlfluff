@@ -66,10 +66,10 @@ def test__config__nested_config_tests():
     violations = lnt.check_tuples(by_path=True)
     for k in violations:
         if k.endswith('nested\\example.sql'):
-            assert ('L003', 1, 1) in violations[k]
+            assert ('L003', 1, 4) in violations[k]
             assert ('L009', 1, 12) in violations[k]
             assert 'L002' not in [c[0] for c in violations[k]]
         elif k.endswith('inheritance_b\\example.sql'):
-            assert ('L003', 1, 1) in violations[k]
+            assert ('L003', 1, 4) in violations[k]
             assert 'L002' not in [c[0] for c in violations[k]]
             assert 'L009' not in [c[0] for c in violations[k]]

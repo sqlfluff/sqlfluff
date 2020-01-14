@@ -22,6 +22,9 @@ def invoke_assert_code(ret_code=0, args=None, kwargs=None, input=None):
         kwargs['input'] = input
     runner = CliRunner()
     result = runner.invoke(*args, **kwargs)
+    # Output the CLI code for debugging
+    print(result.output)
+    # Check return codes
     if ret_code == 0:
         if result.exception:
             raise result.exception
@@ -36,9 +39,9 @@ def test__cli__command_directed():
         args=[lint, ['-n', 'test/fixtures/linter/indentation_error_simple.sql']]
     )
     # We should get a readout of what the error was
-    check_a = "L:   2 | P:   1 | L003"
+    check_a = "L:   2 | P:   4 | L003"
     # NB: Skip the number at the end because it's configurable
-    check_b = "Indentation length is not a multiple of"
+    check_b = "Indentation"
     assert check_a in result.output
     assert check_b in result.output
 
@@ -171,7 +174,9 @@ def generic_roundtrip_test(source_file, rulestring, final_exit_code=0, force=Tru
 @pytest.mark.parametrize('rule,fname', [
     ('L001', 'test/fixtures/linter/indentation_errors.sql'),
     ('L008', 'test/fixtures/linter/whitespace_errors.sql'),
-    ('L008', 'test/fixtures/linter/indentation_errors.sql')
+    ('L008', 'test/fixtures/linter/indentation_errors.sql'),
+    # Really stretching the ability of the fixer to re-indent a file
+    ('L003', 'test/fixtures/linter/indentation_error_hard.sql')
 ])
 def test__cli__command__fix(rule, fname):
     """Test the round trip of detecting, fixing and then not detecting rule L001."""

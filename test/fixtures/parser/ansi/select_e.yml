@@ -2,8 +2,8 @@ file:
     statement:
       set_expression:
       - select_statement:
-          keyword: SELECT
-          select_target_group:
+          select_clause:
+            keyword: SELECT
             select_target_element:
               object_reference:
                 naked_identifier: col_a
@@ -18,8 +18,8 @@ file:
       - set_operator:
           keyword: UNION
       - select_statement:
-          keyword: SELECT
-          select_target_group:
+          select_clause:
+            keyword: SELECT
             select_target_element:
               object_reference:
                 naked_identifier: col_b
@@ -35,8 +35,8 @@ file:
         - keyword: UNION
         - keyword: ALL
       - select_statement:
-          keyword: SELECT
-          select_target_group:
+          select_clause:
+            keyword: SELECT
             select_target_element:
               object_reference:
                 naked_identifier: col_c
@@ -51,8 +51,8 @@ file:
       - set_operator:
           keyword: INTERSECT
       - select_statement:
-          keyword: SELECT
-          select_target_group:
+          select_clause:
+            keyword: SELECT
             select_target_element:
               object_reference:
                 naked_identifier: col_d

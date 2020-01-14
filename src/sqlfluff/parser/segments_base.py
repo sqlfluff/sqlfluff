@@ -129,6 +129,7 @@ class BaseSegment(object):
     is_segment = True
     _name = None
     _func = None  # Available for use by subclasses (e.g. the LambdaSegment)
+    is_meta = False
 
     @property
     def name(self):
@@ -352,8 +353,15 @@ class BaseSegment(object):
 
     def _preface(self, ident, tabsize, pos_idx, raw_idx):
         """Returns the preamble to any logging."""
-        preface = (' ' * (ident * tabsize)) + self.__class__.__name__ + ":"
-        preface = preface + (' ' * max(pos_idx - len(preface), 0)) + str(self.pos_marker)
+        preface = (' ' * (ident * tabsize))
+        if self.is_meta:
+            preface += "[META] "
+        preface += self.__class__.__name__ + ":"
+        preface += (' ' * max(pos_idx - len(preface), 0))
+        if self.pos_marker:
+            preface += str(self.pos_marker)
+        else:
+            preface += '-'
         sfx = self._suffix()
         if sfx:
             return preface + (' ' * max(raw_idx - len(preface), 0)) + sfx
@@ -400,16 +408,20 @@ class BaseSegment(object):
         return tuple([seg.to_tuple(**kwargs) for seg in segs])
 
     def to_tuple(self, **kwargs):
-        """Return a tuple structure from this segment."""
+        """Return a tuple structure from this segment.
+
+        NB: If he segment is a meta segment, i.e. it's an indent or dedent,
+        then it will never be returned from here!
+        """
         # works for both base and raw
         code_only = kwargs.get('code_only', False)
         show_raw = kwargs.get('show_raw', False)
         if show_raw and not self.segments:
             return (self.type, self.raw)
         elif code_only:
-            return (self.type, tuple([seg.to_tuple(**kwargs) for seg in self.segments if seg.is_code]))
+            return (self.type, tuple([seg.to_tuple(**kwargs) for seg in self.segments if seg.is_code and not seg.is_meta]))
         else:
-            return (self.type, tuple([seg.to_tuple(**kwargs) for seg in self.segments]))
+            return (self.type, tuple([seg.to_tuple(**kwargs) for seg in self.segments if not seg.is_meta]))
 
     def to_yaml(self, **kwargs):
         """Return a yaml structure from this segment."""
@@ -712,6 +724,13 @@ class BaseSegment(object):
             else:
                 # Get the first off the buffer
                 seg = todo_buffer.pop(0)
+
+                # Is it a meta segment?
+                if seg.is_meta:
+                    # If so, just carry on.
+                    seg_buffer.append(seg)
+                    continue
+
                 # We'll preserve statement indexes so we should keep track of that.
                 # When recreating, we use the DELTA of the index so that's what matter...
                 idx = seg.pos_marker.statement_index - running_pos.statement_index

@@ -1,9 +1,9 @@
 file:
   statement:
     select_statement:
-      keyword: SELECT
-      select_target_group:
-      - select_target_element:
+      select_clause:
+        keyword: SELECT
+        select_target_element:
           numeric_literal: 56
       from_clause:
         keyword: FROM
