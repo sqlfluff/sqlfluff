@@ -54,6 +54,12 @@ def yaml_loader():
 
 @pytest.fixture(scope="module")
 def generate_test_segments():
+    """Roughly generate test segments.
+
+    This is a factory function so that it works as a fixture,
+    but when actually used, this will return the inner function
+    which is what you actually need.
+    """
     def generate_test_segments_func(elems):
         """Roughly generate test segments.
 

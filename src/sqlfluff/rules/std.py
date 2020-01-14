@@ -1,7 +1,5 @@
 """Standard SQL Linting Rules."""
 
-import six
-
 from ..parser import RawSegment, KeywordSegment
 from .base import BaseCrawler, LintFix, LintResult, RuleSet
 
@@ -108,7 +106,7 @@ class Rule_L002(BaseCrawler):
 
 @std_rule_set.register
 class Rule_L003(BaseCrawler):
-    """Indentation not consistent with previous line.
+    """Indentation not consistent with previous lines.
 
     Args:
         tab_space_size (:obj:`int`): The number of spaces to consider
@@ -177,7 +175,8 @@ class Rule_L003(BaseCrawler):
             elif elem.name == 'newline':
                 result_buffer[line_no] = {
                     'line_no': line_no,
-                    'line_buffer': line_buffer.copy(),
+                    # Using slicing to copy line_buffer here to by py2 compliant
+                    'line_buffer': line_buffer[:],
                     'indent_buffer': indent_buffer,
                     'indent_size': indent_size,
                     'indent_balance': this_indent_balance,
@@ -249,7 +248,7 @@ class Rule_L003(BaseCrawler):
         return fixes
 
     def _eval(self, segment, raw_stack, memory, **kwargs):
-        """Indentation not consistent with previous line.
+        """Indentation not consistent with previous lines.
 
         To set the default tab size, set the `tab_space_size` value
         in the appropriate configuration.
@@ -271,20 +270,6 @@ class Rule_L003(BaseCrawler):
           indent meta segment in the previous line.
 
         """
-        def round3(val):
-            """Round consistently with py3 even in py2."""
-            if six.PY2:
-                r = round(val)
-                # We want ties to nearest even, not ties away from zero
-                if val % 1 == 0.5 and r % 2 != 0:
-                    if val > r:
-                        r += 1
-                    else:
-                        r -= 1
-                return r
-            else:
-                return round(val)
-
         WhitespaceSegment = RawSegment.make(' ', name='whitespace')
 
         # Memory keeps track of what we just saw
@@ -1028,31 +1013,6 @@ class Rule_L016(Rule_L003):
         super(Rule_L016, self).__init__(
             tab_space_size=tab_space_size, indent_unit=indent_unit,
             **kwargs)
-
-    @classmethod
-    def get_parent_of(cls, segment, root_segment):
-        """Return the segment immediately containing segment.
-
-        NB: This is recursive.
-
-        Args:
-            segment: The segment to look for.
-            root_segment: Some known parent of the segment
-                we're looking for (although likely not the
-                direct parent in question).
-
-        """
-        if segment in root_segment.segments:
-            return root_segment
-        elif root_segment.segments:
-            # try each of the subsegments
-            for sub in root_segment.segments:
-                p = cls.get_parent_of(segment, sub)
-                if p:
-                    return p
-        # Not directly in the segment and
-        # no subsegments to check. Return None.
-        return None
 
     def _eval(self, segment, raw_stack, parent_stack, **kwargs):
         """Line is too long.

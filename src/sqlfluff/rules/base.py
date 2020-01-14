@@ -214,6 +214,8 @@ class BaseCrawler(object):
         # generated). So blank that out here.
         return vs, raw_stack, [], memory
 
+    # HELPER METHODS --------
+
     @staticmethod
     def filter_meta(segments, keep_meta=False):
         """Filter the segments to non-meta.
@@ -225,6 +227,31 @@ class BaseCrawler(object):
             if elem.is_meta is keep_meta:
                 buff.append(elem)
         return tuple(buff)
+
+    @classmethod
+    def get_parent_of(cls, segment, root_segment):
+        """Return the segment immediately containing segment.
+
+        NB: This is recursive.
+
+        Args:
+            segment: The segment to look for.
+            root_segment: Some known parent of the segment
+                we're looking for (although likely not the
+                direct parent in question).
+
+        """
+        if segment in root_segment.segments:
+            return root_segment
+        elif root_segment.segments:
+            # try each of the subsegments
+            for sub in root_segment.segments:
+                p = cls.get_parent_of(segment, sub)
+                if p:
+                    return p
+        # Not directly in the segment and
+        # no subsegments to check. Return None.
+        return None
 
 
 class RuleSet(object):
