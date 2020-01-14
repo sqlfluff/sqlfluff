@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Rule L003 is now significantly smarter in linting indentation
+  with support for hanging indents and comparison to the most
+  recent line which doesn't have an error. The old (more simple)
+  functionality of directly checking whether an indent was a
+  multiple of a preset value has been removed.
 - Fixed the "inconsistent" bug in L010. Thanks [@nolanbconaway](https://github.com/nolanbconaway).
 - Updated logging of parsing and lexing errors to have more useful
   error codes.
@@ -21,6 +26,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- *Meta segments* for indicating where things can be present in the parsed
+  tree. This is mostly illustrated using the `Indent` and `Dedent` segments
+  used for indicating the position of theoretical indents in the structure.
+  Several helper functions have been added across the codebase to handle
+  this increase in the kinds of segments which might be encountered by
+  various grammars.
+- Rule L016 has been added to lint long lines. In the `fix` phase of this
+  rule, there is enough logic to try and reconstruct a sensible place for
+  line breaks as re-flow the query. This will likely need further work
+  and may still encounter places where it doesn't fix all errors but should
+  be able to deal with the majority of simple cases.
 - `--format` option to the `parse` command that allows a yaml output. This
   is mostly to make test writing easier in the development process but
   might also be useful for other things.
