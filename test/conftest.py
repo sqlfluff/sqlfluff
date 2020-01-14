@@ -2,7 +2,6 @@
 
 import pytest
 import oyaml
-import six
 
 from sqlfluff.parser.markers import FilePositionMarker
 from sqlfluff.parser.segments_base import RawSegment
@@ -27,8 +26,8 @@ def process_struct(obj):
             raise TypeError(
                 "Did not expect a list of {0}: {1!r}".format(
                     type(obj[0]), obj[0]))
-    elif isinstance(obj, six.string_types) or isinstance(obj, six.integer_types) or isinstance(obj, float):
-        return six.u(str(obj))
+    elif isinstance(obj, str) or isinstance(obj, int) or isinstance(obj, float):
+        return str(obj)
     else:
         raise TypeError("Not sure how to deal with type {0}: {1!r}".format(
             type(obj), obj))

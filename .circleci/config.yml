@@ -68,18 +68,6 @@ jobs:
         environment:
           - TOXENV=doclinting
           - UPLOAD_COVERAGE=0
-  py27:
-    <<: *common
-    docker:
-      - image: circleci/python:2.7
-        environment:
-          TOXENV=py27
-  py34:
-    <<: *common
-    docker:
-      - image: circleci/python:3.4
-        environment:
-          TOXENV=py34
   py35:
     <<: *common
     docker:
@@ -113,8 +101,6 @@ workflows:
     jobs:
       - linting
       - doclinting
-      - py27
-      - py34
       - py35
       - py36
       - py37

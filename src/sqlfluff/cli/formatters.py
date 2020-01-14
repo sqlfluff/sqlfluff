@@ -1,7 +1,7 @@
 """Defines the formatters for the CLI."""
 
 
-from six import StringIO
+from io import StringIO
 
 from .helpers import colorize, cli_table, get_package_version, get_python_version, pad_line
 from ..errors import SQLBaseError

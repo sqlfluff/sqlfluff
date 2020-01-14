@@ -1,11 +1,11 @@
 """Defines the linter class."""
 
 import os
+import time
 from collections import namedtuple
 from difflib import SequenceMatcher
 
 from .errors import SQLLexError, SQLParseError, SQLTemplaterError
-from .helpers import get_time
 from .parser import FileSegment, ParseContext
 # We should probably move verbosity logger to somewhere else?
 from .parser.segments_base import verbosity_logger, frame_msg
@@ -402,7 +402,7 @@ class Linter(object):
 
         """
         violations = []
-        t0 = get_time()
+        t0 = time.monotonic()
 
         # Log the start of this process if we're in a more verbose mode.
         if verbosity > 1:
@@ -423,7 +423,7 @@ class Linter(object):
             fs = None
             # NB: We'll carry on if we fail to template, it might still lex
 
-        t1 = get_time()
+        t1 = time.monotonic()
 
         if s:
             verbosity_logger("LEXING RAW ({0})".format(fname), verbosity=verbosity)
@@ -439,7 +439,7 @@ class Linter(object):
         if fs:
             verbosity_logger(fs.stringify(), verbosity=verbosity)
 
-        t2 = get_time()
+        t2 = time.monotonic()
         verbosity_logger("PARSING ({0})".format(fname), verbosity=verbosity)
         # Parse the file and log any problems
         if fs:
@@ -458,7 +458,7 @@ class Linter(object):
         else:
             parsed = None
 
-        t3 = get_time()
+        t3 = time.monotonic()
         time_dict = {'templating': t1 - t0, 'lexing': t2 - t1, 'parsing': t3 - t2}
 
         return parsed, violations, time_dict
@@ -505,7 +505,7 @@ class Linter(object):
                     verbosity_logger("Found unparsable segment...", verbosity=verbosity)
                     verbosity_logger(unparsable.stringify(), verbosity=verbosity)
 
-            t0 = get_time()
+            t0 = time.monotonic()
             # At this point we should evaluate whether any parsing errors have occured
             if verbosity >= 2:
                 verbosity_logger("LINTING ({0})".format(fname), verbosity=verbosity)
@@ -553,7 +553,7 @@ class Linter(object):
                     linting_errors += lerrs
 
             # Update the timing dict
-            t1 = get_time()
+            t1 = time.monotonic()
             time_dict['linting'] = t1 - t0
 
             vs += linting_errors

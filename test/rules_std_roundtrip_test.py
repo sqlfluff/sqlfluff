@@ -5,7 +5,7 @@ import os
 import shutil
 import re
 import pytest
-from six import StringIO
+from io import StringIO
 
 from click.testing import CliRunner
 

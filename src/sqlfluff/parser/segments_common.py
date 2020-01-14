@@ -12,7 +12,6 @@ we use, and will be common between all of them.
 
 import logging
 import re
-import six
 
 from .segments_base import (BaseSegment, RawSegment)
 from .match import MatchResult
@@ -182,8 +181,8 @@ class LambdaSegment(BaseSegment):
         # We match as many of these as we can.
         seg_buff = segments
         matched_segs = ()
-        # We need to do a bit of python2/3 munging here.
-        f = six.get_unbound_function(cls._func)
+        # This used to be a problem in python 2. Easier in py3
+        f = cls._func
         while True:
             if len(seg_buff) == 0:
                 # No buffer to work with
