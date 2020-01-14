@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Deprecated python 2.7 and python 3.4 which are now both past
+  their maintenance horizon. The 0.2.x branch will remain available
+  for continued development for these versions.
 - Rule L003 is now significantly smarter in linting indentation
   with support for hanging indents and comparison to the most
   recent line which doesn't have an error. The old (more simple)
