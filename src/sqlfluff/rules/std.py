@@ -159,6 +159,7 @@ class Rule_L003(BaseCrawler):
         indent_size = 0
         line_indent_stack = []
         this_indent_balance = 0
+        clean_indent = False
 
         for elem in raw_stack:
             line_buffer.append(elem)
@@ -167,6 +168,8 @@ class Rule_L003(BaseCrawler):
                     indent_buffer.append(elem)
                 elif elem.is_meta and elem._indent_val != 0:
                     indent_balance += elem._indent_val
+                    if elem._indent_val > 0:
+                        clean_indent = True
                 else:
                     in_indent = False
                     this_indent_balance = indent_balance
@@ -178,7 +181,8 @@ class Rule_L003(BaseCrawler):
                     'indent_buffer': indent_buffer,
                     'indent_size': indent_size,
                     'indent_balance': this_indent_balance,
-                    'hanging_indent': line_indent_stack.pop() if line_indent_stack else None
+                    'hanging_indent': line_indent_stack.pop() if line_indent_stack else None,
+                    'clean_indent': clean_indent
                 }
                 line_no += 1
                 indent_buffer = []
@@ -186,6 +190,7 @@ class Rule_L003(BaseCrawler):
                 indent_size = 0
                 in_indent = True
                 line_indent_stack = []
+                clean_indent = False
             elif elem.is_meta and elem._indent_val != 0:
                 indent_balance += elem._indent_val
                 if elem._indent_val > 0:
@@ -207,9 +212,41 @@ class Rule_L003(BaseCrawler):
                 'indent_buffer': indent_buffer,
                 'indent_size': indent_size,
                 'indent_balance': indent_balance,
-                'hanging_indent': line_indent_stack.pop() if line_indent_stack else None
+                'hanging_indent': line_indent_stack.pop() if line_indent_stack else None,
+                'clean_indent': clean_indent
             }
         return result_buffer
+
+    def _coerce_indent_to(self, desired_indent, current_indent_buffer, current_anchor):
+        """Generate fixes to make an indent a certain size."""
+        WhitespaceSegment = RawSegment.make(' ', name='whitespace')
+
+        # If there shouldn't be an indent at all, just delete.
+        if len(desired_indent) == 0:
+            fixes = [
+                LintFix('delete', elem) for elem in current_indent_buffer
+            ]
+        # If we don't have any indent and we should, then add a single
+        elif len(''.join([elem.raw for elem in current_indent_buffer])) == 0:
+            fixes = [LintFix(
+                'create', current_anchor,
+                WhitespaceSegment(
+                    raw=desired_indent,
+                    pos_marker=current_anchor.pos_marker)
+            )]
+        # Otherwise edit the first element to be the right size and delete the rest
+        else:
+            # Edit the first element of this line's indent.
+            fixes = [LintFix(
+                'edit', current_indent_buffer[0],
+                WhitespaceSegment(
+                    raw=desired_indent,
+                    pos_marker=current_indent_buffer[0].pos_marker)
+            )]
+            # Remove the others.
+            for seg in current_indent_buffer[1:]:
+                fixes.append(LintFix('delete', seg))
+        return fixes
 
     def _eval(self, segment, raw_stack, memory, **kwargs):
         """Indentation not consistent with previous line.
@@ -247,6 +284,8 @@ class Rule_L003(BaseCrawler):
                 return r
             else:
                 return round(val)
+
+        WhitespaceSegment = RawSegment.make(' ', name='whitespace')
 
         # Memory keeps track of what we just saw
         if not memory:
@@ -303,21 +342,6 @@ class Rule_L003(BaseCrawler):
                     fixes=[LintFix('delete', elem) for elem in this_line['indent_buffer']]
                 )
 
-        # If not, check to see if we've got a whole number of multiples
-        if this_line['indent_size'] % self.tab_space_size != 0:
-            memory['problem_lines'].append(this_line_no)
-            return LintResult(
-                anchor=segment,
-                memory=memory,
-                description=(
-                    "Indentation not hanging or "
-                    "a multiple of {0} spaces").format(self.tab_space_size)
-                # TODO: fixes
-            )
-        else:
-            # We'll need this value later.
-            this_indent_num = this_line['indent_size'] // self.tab_space_size
-
         # Assuming it's not a hanger, let's compare it to the other previous
         # lines. We do it in reverse so that closer lines are more relevant.
         for k in sorted(res.keys(), reverse=True):
@@ -332,11 +356,28 @@ class Rule_L003(BaseCrawler):
                 if this_line['indent_size'] != res[k]['indent_size']:
                     # Indents don't match even though balance is the same...
                     memory['problem_lines'].append(this_line_no)
+
+                    # Work out desired indent
+                    if res[k]['indent_size'] == 0:
+                        desired_indent = ''
+                    elif this_line['indent_size'] == 0:
+                        desired_indent = self._make_indent()
+                    else:
+                        # The previous indent.
+                        desired_indent = ''.join([elem.raw for elem in res[k]['indent_buffer']])
+
+                    # Make fixes
+                    fixes = self._coerce_indent_to(
+                        desired_indent=desired_indent,
+                        current_indent_buffer=this_line['indent_buffer'],
+                        current_anchor=segment)
+
                     return LintResult(
                         anchor=segment,
                         memory=memory,
-                        description="Indentation not consistent with line #{0}".format(k)
-                        # TODO: fixes
+                        description="Indentation not consistent with line #{0}".format(k),
+                        # See above for logic
+                        fixes=fixes
                     )
                 else:
                     # Indents match. And this is a line that it's ok to
@@ -347,6 +388,42 @@ class Rule_L003(BaseCrawler):
             elif this_line['indent_balance'] > res[k]['indent_balance']:
                 # NB: We shouldn't need to deal with hanging indents
                 # here, they should already have been dealt with before.
+
+                # Check to see if we've got a whole number of multiples. If
+                # we do then record the number for later, otherwise raise
+                # an error. We do the comparison here so we have a reference
+                # point to do the repairs. We need a sensible previous line
+                # to base the repairs off.
+                if this_line['indent_size'] % self.tab_space_size != 0:
+                    memory['problem_lines'].append(this_line_no)
+
+                    # If we have a clean indent, we can just add a step, simples.
+                    # We can also do this if we've skipped a line. I think?
+                    if this_line['clean_indent'] or this_line_no - k > 1:
+                        desired_indent = ''.join([elem.raw for elem in res[k]['indent_buffer']]) + self._make_indent()
+                    # If we have the option of a hanging indent then use it.
+                    elif res[k]['hanging_indent']:
+                        desired_indent = ' ' * res[k]['hanging_indent']
+                    else:
+                        raise RuntimeError("Unexpected case, please report bug, inluding the query you are linting!")
+
+                    # Make fixes
+                    fixes = self._coerce_indent_to(
+                        desired_indent=desired_indent,
+                        current_indent_buffer=this_line['indent_buffer'],
+                        current_anchor=segment)
+
+                    return LintResult(
+                        anchor=segment,
+                        memory=memory,
+                        description=(
+                            "Indentation not hanging or "
+                            "a multiple of {0} spaces").format(self.tab_space_size),
+                        fixes=fixes
+                    )
+                else:
+                    # We'll need this value later.
+                    this_indent_num = this_line['indent_size'] // self.tab_space_size
 
                 # We know that the indent balance is higher, what actually is
                 # the difference in indent counts? It should be a whole number
@@ -360,24 +437,45 @@ class Rule_L003(BaseCrawler):
                     return LintResult(
                         anchor=segment,
                         memory=memory,
-                        description="Indent expected and not found"
-                        # TODO: fixes
+                        description="Indent expected and not found compared to line #{0}".format(k),
+                        # Add in an extra bit of whitespace for the indent
+                        fixes=[LintFix(
+                            'create', segment,
+                            WhitespaceSegment(
+                                raw=self._make_indent(),
+                                pos_marker=segment.pos_marker)
+                        )]
                     )
                 elif this_indent_num < comp_indent_num:
                     memory['problem_lines'].append(this_line_no)
                     return LintResult(
                         anchor=segment,
                         memory=memory,
-                        description="Line under-indented compared to line #{0}".format(k)
-                        # TODO: fixes
+                        description="Line under-indented compared to line #{0}".format(k),
+                        fixes=[LintFix(
+                            'create', segment,
+                            WhitespaceSegment(
+                                # Make the minimum indent for it to be ok.
+                                raw=self._make_indent(num=comp_indent_num - this_indent_num),
+                                pos_marker=segment.pos_marker)
+                        )]
                     )
                 elif this_indent_num > comp_indent_num + (this_line['indent_balance'] - res[k]['indent_balance']):
+                    # Calculate the lowest ok indent:
+                    desired_indent = self._make_indent(num=comp_indent_num - this_indent_num)
+
+                    # Make fixes
+                    fixes = self._coerce_indent_to(
+                        desired_indent=desired_indent,
+                        current_indent_buffer=this_line['indent_buffer'],
+                        current_anchor=segment)
+
                     memory['problem_lines'].append(this_line_no)
                     return LintResult(
                         anchor=segment,
                         memory=memory,
-                        description="Line over-indented compared to line #{0}".format(k)
-                        # TODO: fixes
+                        description="Line over-indented compared to line #{0}".format(k),
+                        fixes=fixes
                     )
 
                 # This was a valid comparison, so if it doesn't flag then

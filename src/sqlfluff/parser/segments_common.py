@@ -233,6 +233,13 @@ class Indent(RawSegment):
     _indent_val = 1
     is_meta = True
 
+    def _suffix(self):
+        """Return any extra output required at the end when logging.
+
+        Meta classess have not much to say here so just stay blank.
+        """
+        return ""
+
     @classmethod
     def match(cls, segments, parse_context):
         """This will never be called. If it is then we're using it wrong."""

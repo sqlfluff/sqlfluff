@@ -353,8 +353,15 @@ class BaseSegment(object):
 
     def _preface(self, ident, tabsize, pos_idx, raw_idx):
         """Returns the preamble to any logging."""
-        preface = (' ' * (ident * tabsize)) + self.__class__.__name__ + ":"
-        preface = preface + (' ' * max(pos_idx - len(preface), 0)) + str(self.pos_marker)
+        preface = (' ' * (ident * tabsize))
+        if self.is_meta:
+            preface += "[META] "
+        preface += self.__class__.__name__ + ":"
+        preface += (' ' * max(pos_idx - len(preface), 0))
+        if self.pos_marker:
+            preface += str(self.pos_marker)
+        else:
+            preface += '-'
         sfx = self._suffix()
         if sfx:
             return preface + (' ' * max(raw_idx - len(preface), 0)) + sfx
