@@ -26,6 +26,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Moved where the `SELECT` keyword is parsed within a select statement,
   so that it belongs as part of the newly renamed `select_clause` (renamed
   from previously `select_target_group`).
+- Clarified handling of the `type` and `name` properties of the BaseSegment
+  class and it's children. `name` should be specific to a particular kind
+  of segment, and `type` should express a wider group. Handling of the
+  `newline`, `whitespace` and `comma` segments has been updated so that
+  we use the `type` property for most use cases rather than `name`.
 
 ### Added
 
@@ -47,6 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for the `diff-cover` tool. Thanks [@barrywhart](https://github.com/barrywhart).
 - Enabled the `fix` command while using `stdin`. Thanks [@nolanbconaway](https://github.com/nolanbconaway).
 - Rule to detect incorrect use of `DISTINCT`. Thanks [@barrywhart](https://github.com/barrywhart).
+- Security fixes from DeepCover. Thanks [@sanketsaurav](https://github.com/sanketsaurav).
 
 ## [0.2.4] - 2019-12-06
 
