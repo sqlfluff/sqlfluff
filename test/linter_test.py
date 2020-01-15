@@ -12,7 +12,7 @@ def normalise_paths(paths):
     NB Paths on difference platforms might look different, so this
     makes them comparable.
     """
-    return set([pth.replace("/", '.').replace("\\", ".") for pth in paths])
+    return {pth.replace("/", '.').replace("\\", ".") for pth in paths}
 
 
 def test__linter__path_from_paths__dir():

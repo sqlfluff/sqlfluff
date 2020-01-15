@@ -167,10 +167,10 @@ class JinjaTemplateInterface(PythonTemplateInterface):
 
         # Iterate to load macros
         macro_ctx = {}
-        for key in loaded_context:
+        for value in loaded_context.values():
             macro_ctx.update(
                 self._extract_macros_from_template(
-                    loaded_context[key], env=env
+                    value, env=env
                 )
             )
         return macro_ctx

@@ -238,7 +238,7 @@ def parse(path, code_only, format, **kwargs):
     """
     c = get_config(**kwargs)
     # We don't want anything else to be logged if we want a yaml output
-    lnt = get_linter(c, silent=True if format == 'yaml' else False)
+    lnt = get_linter(c, silent=format == 'yaml')
     verbose = c.get('verbose')
     recurse = c.get('recurse')
 

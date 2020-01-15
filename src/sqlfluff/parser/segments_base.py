@@ -575,7 +575,7 @@ class BaseSegment(object):
     def __eq__(self, other):
         # Equal if type, content and pos are the same
         # NB: this should also work for RawSegment
-        return ((type(self) == type(other))
+        return (type(self) is type(other)
                 and (self.raw == other.raw)
                 and (self.pos_marker == other.pos_marker))
 
