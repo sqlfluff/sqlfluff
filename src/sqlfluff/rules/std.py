@@ -1,6 +1,5 @@
 """Standard SQL Linting Rules."""
 
-from ..parser import RawSegment, KeywordSegment
 from .base import BaseCrawler, LintFix, LintResult, RuleSet
 
 
@@ -18,12 +17,12 @@ class Rule_L001(BaseCrawler):
         it was preceeded by.
         """
         # We only trigger on newlines
-        if segment.name == 'newline' and len(raw_stack) > 0 and raw_stack[-1].name == 'whitespace':
+        if segment.type == 'newline' and len(raw_stack) > 0 and raw_stack[-1].type == 'whitespace':
             # If we find a newline, which is preceeded by whitespace, then bad
             deletions = []
             idx = -1
             while True:
-                if raw_stack[idx].name == 'whitespace':
+                if raw_stack[idx].type == 'whitespace':
                     deletions.append(raw_stack[idx])
                     idx -= 1
                 else:
@@ -74,14 +73,14 @@ class Rule_L002(BaseCrawler):
                 ]
             )
 
-        if segment.name == 'whitespace':
+        if segment.type == 'whitespace':
             if ' ' in segment.raw and '\t' in segment.raw:
-                if len(raw_stack) == 0 or raw_stack[-1].name == 'newline':
+                if len(raw_stack) == 0 or raw_stack[-1].type == 'newline':
                     # We've got a single whitespace at the beginning of a line.
                     # It's got a mix of spaces and tabs. Replace each tab with
                     # a multiple of spaces
                     return construct_response()
-                elif raw_stack[-1].name == 'whitespace':
+                elif raw_stack[-1].type == 'whitespace':
                     # It's preceeded by more whitespace!
                     # We shouldn't worry about correcting those
                     # segments, because those will be caught themselves, but we
@@ -90,13 +89,13 @@ class Rule_L002(BaseCrawler):
                     while True:
                         # pop something off the end
                         seg = buff.pop()
-                        if seg.name == 'whitespace':
+                        if seg.type == 'whitespace':
                             if len(buff) == 0:
                                 # Found start of file
                                 return construct_response()
                             else:
                                 continue
-                        elif seg.name == 'newline':
+                        elif seg.type == 'newline':
                             # we're at the start of a line
                             return construct_response()
                         else:
@@ -162,7 +161,7 @@ class Rule_L003(BaseCrawler):
         for elem in raw_stack:
             line_buffer.append(elem)
             if in_indent:
-                if elem.name == 'whitespace':
+                if elem.type == 'whitespace':
                     indent_buffer.append(elem)
                 elif elem.is_meta and elem._indent_val != 0:
                     indent_balance += elem._indent_val
@@ -172,7 +171,7 @@ class Rule_L003(BaseCrawler):
                     in_indent = False
                     this_indent_balance = indent_balance
                     indent_size = self._indent_size(indent_buffer)
-            elif elem.name == 'newline':
+            elif elem.type == 'newline':
                 result_buffer[line_no] = {
                     'line_no': line_no,
                     # Using slicing to copy line_buffer here to by py2 compliant
@@ -218,8 +217,6 @@ class Rule_L003(BaseCrawler):
 
     def _coerce_indent_to(self, desired_indent, current_indent_buffer, current_anchor):
         """Generate fixes to make an indent a certain size."""
-        WhitespaceSegment = RawSegment.make(' ', name='whitespace')
-
         # If there shouldn't be an indent at all, just delete.
         if len(desired_indent) == 0:
             fixes = [
@@ -229,7 +226,7 @@ class Rule_L003(BaseCrawler):
         elif len(''.join([elem.raw for elem in current_indent_buffer])) == 0:
             fixes = [LintFix(
                 'create', current_anchor,
-                WhitespaceSegment(
+                self.make_whitespace(
                     raw=desired_indent,
                     pos_marker=current_anchor.pos_marker)
             )]
@@ -238,7 +235,7 @@ class Rule_L003(BaseCrawler):
             # Edit the first element of this line's indent.
             fixes = [LintFix(
                 'edit', current_indent_buffer[0],
-                WhitespaceSegment(
+                self.make_whitespace(
                     raw=desired_indent,
                     pos_marker=current_indent_buffer[0].pos_marker)
             )]
@@ -270,8 +267,6 @@ class Rule_L003(BaseCrawler):
           indent meta segment in the previous line.
 
         """
-        WhitespaceSegment = RawSegment.make(' ', name='whitespace')
-
         # Memory keeps track of what we just saw
         if not memory:
             memory = {
@@ -285,12 +280,12 @@ class Rule_L003(BaseCrawler):
                 'hanging_lines': []
             }
 
-        if segment.name == 'newline':
+        if segment.type == 'newline':
             memory['in_indent'] = True
             # We're not going to flag on empty lines so we can safely proceed
             return LintResult(memory=memory)
         elif memory['in_indent']:
-            if segment.name == 'whitespace':
+            if segment.type == 'whitespace':
                 # it's whitespace, carry on
                 return LintResult(memory=memory)
             elif segment.segments or segment.is_meta:
@@ -426,7 +421,7 @@ class Rule_L003(BaseCrawler):
                         # Add in an extra bit of whitespace for the indent
                         fixes=[LintFix(
                             'create', segment,
-                            WhitespaceSegment(
+                            self.make_whitespace(
                                 raw=self._make_indent(),
                                 pos_marker=segment.pos_marker)
                         )]
@@ -439,7 +434,7 @@ class Rule_L003(BaseCrawler):
                         description="Line under-indented compared to line #{0}".format(k),
                         fixes=[LintFix(
                             'create', segment,
-                            WhitespaceSegment(
+                            self.make_whitespace(
                                 # Make the minimum indent for it to be ok.
                                 raw=self._make_indent(num=comp_indent_num - this_indent_num),
                                 pos_marker=segment.pos_marker)
@@ -487,8 +482,8 @@ class Rule_L004(BaseCrawler):
 
         """
         indents_seen = memory.get('indents_seen', set())
-        if segment.name == 'whitespace':
-            if len(raw_stack) == 0 or raw_stack[-1].name == 'newline':
+        if segment.type == 'whitespace':
+            if len(raw_stack) == 0 or raw_stack[-1].type == 'newline':
                 indents_here = set(segment.raw)
                 indents_union = indents_here | indents_seen
                 memory['indents_seen'] = indents_union
@@ -512,10 +507,10 @@ class Rule_L005(BaseCrawler):
         """
         if len(raw_stack) >= 1:
             cm1 = raw_stack[-1]
-            if segment.name == 'comma' and cm1.name in ['whitespace', 'newline']:
+            if segment.type == 'comma' and cm1.type in ['whitespace', 'newline']:
                 # NB: if its a *newline*, then it's confusing to the user
                 # to report on the newline, so in that case we point at the comma
-                if cm1.name == 'newline':
+                if cm1.type == 'newline':
                     anchor = segment
                 else:
                     anchor = cm1
@@ -538,8 +533,6 @@ class Rule_L006(BaseCrawler):
 
             NB: This function mutates `fixes`.
             """
-            WhitespaceSegment = RawSegment.make(' ', name='whitespace')
-
             if len(segments_since_code) == 0:
                 # No whitespace, anchor is the segment AFTER where the whitespace
                 # should be.
@@ -547,7 +540,7 @@ class Rule_L006(BaseCrawler):
                 fixes.append(
                     LintFix(
                         'create', this_segment,
-                        WhitespaceSegment(raw=' ', pos_marker=this_segment.pos_marker))
+                        self.make_whitespace(raw=' ', pos_marker=this_segment.pos_marker))
                 )
             elif len(segments_since_code) > 1:
                 # TODO: This is a case we should deal with, but there are probably
@@ -564,7 +557,7 @@ class Rule_L006(BaseCrawler):
                     fixes.append(
                         LintFix(
                             'edit', gap_seg,
-                            WhitespaceSegment(raw=' ', pos_marker=gap_seg.pos_marker))
+                            self.make_whitespace(raw=' ', pos_marker=gap_seg.pos_marker))
                     )
                 else:
                     # We have just the right amount of whitespace!
@@ -688,8 +681,7 @@ class Rule_L008(BaseCrawler):
             if cm2.name == 'comma':
                 if cm1.name not in ['whitespace', 'newline']:
                     # comma followed by something that isn't whitespace!
-                    ws = RawSegment.make(' ', name='whitespace')
-                    ins = ws(raw=' ', pos_marker=cm1.pos_marker)
+                    ins = self.make_whitespace(raw=' ', pos_marker=cm1.pos_marker)
                     return LintResult(anchor=cm1, fixes=[LintFix('create', cm1, ins)])
                 elif (cm1.raw != ' ' and cm1.name != 'newline') and not segment.is_comment:
                     repl = cm1.__class__(
@@ -731,8 +723,7 @@ class Rule_L009(BaseCrawler):
             if file_len != pos + len(segment.raw):
                 return None
 
-        nls = RawSegment.make('\n', name='newline')
-        ins = nls(raw='\n', pos_marker=segment.pos_marker.advance_by(segment.raw))
+        ins = self.make_newline(pos_marker=segment.pos_marker.advance_by(segment.raw))
         # We're going to make an edit because otherwise we would never get a match!
         return LintResult(anchor=segment, fixes=[LintFix('edit', segment, [segment, ins])])
 
@@ -868,24 +859,22 @@ class Rule_L011(BaseCrawler):
         if segment.type == 'alias_expression':
             if parent_stack[-1].type == self._target_elem:
                 if not any([e.name.lower() == 'as' for e in segment.segments]):
-                    WhitespaceSegment = RawSegment.make(' ', name='whitespace')
-                    AsSegment = KeywordSegment.make('as')
                     insert_buff = []
                     insert_str = ''
                     init_pos = segment.segments[0].pos_marker
 
                     # Add intial whitespace if we need to...
                     if raw_stack[-1].name not in ['whitespace', 'newline']:
-                        insert_buff.append(WhitespaceSegment(raw=' ', pos_marker=init_pos))
+                        insert_buff.append(self.make_whitespace(raw=' ', pos_marker=init_pos))
                         insert_str += ' '
 
                     # Add an AS (Uppercase for now, but could be corrected later)
-                    insert_buff.append(AsSegment(raw='AS', pos_marker=init_pos.advance_by(insert_str)))
+                    insert_buff.append(self.make_keyword(raw='AS', pos_marker=init_pos.advance_by(insert_str)))
                     insert_str += 'AS'
 
                     # Add a trailing whitespace if we need to
                     if segment.segments[0].name not in ['whitespace', 'newline']:
-                        insert_buff.append(WhitespaceSegment(raw=' ', pos_marker=init_pos.advance_by(insert_str)))
+                        insert_buff.append(self.make_whitespace(raw=' ', pos_marker=init_pos.advance_by(insert_str)))
                         insert_str += ' '
 
                     return LintResult(
@@ -1168,13 +1157,12 @@ class Rule_L016(Rule_L003):
                             raise RuntimeError("We shouldn't get here!")
 
                         # Make a newline where it needs to be, with ONE EXTRA INDENT
-                        WhitespaceSegment = RawSegment.make(' ', name='whitespace')
                         new_indent = self._make_indent(1)
                         fix_buffer = [
                             LintFix(
                                 'create', newline_anchor,
                                 # It's ok to use the current segment posmarker, because we're staying in the same statement (probably?)
-                                [segment] + line_indent + [WhitespaceSegment(raw=new_indent, pos_marker=segment.pos_marker)]
+                                [segment] + line_indent + [self.make_whitespace(raw=new_indent, pos_marker=segment.pos_marker)]
                             )
                         ]
 

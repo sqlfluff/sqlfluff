@@ -6,7 +6,7 @@ file:
       - select_target_element:
           object_reference:
             naked_identifier: col1
-      - keyword: ','
+      - comma: ','
       - select_target_element:
           object_reference:
             naked_identifier: col2

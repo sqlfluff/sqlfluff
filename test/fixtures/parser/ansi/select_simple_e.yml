@@ -14,7 +14,7 @@ file:
           alias_expression:
             keyword: as
             naked_identifier: casted_variable
-      - keyword: ','
+      - comma: ','
       - select_target_element:
           expression:
             numeric_literal: 123
