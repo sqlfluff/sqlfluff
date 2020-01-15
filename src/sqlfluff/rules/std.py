@@ -939,7 +939,7 @@ class Rule_L013(BaseCrawler):
         """
         if segment.type == 'select_target_element':
             if not any([e.type == 'alias_expression' for e in segment.segments]):
-                types = set([e.type for e in segment.segments])
+                types = {e.type for e in segment.segments}
                 unallowed_types = types - set(['whitespace', 'newline', 'object_reference'])
                 if len(unallowed_types) > 0:
                     # No fixes, because we don't know what the alias should be,
