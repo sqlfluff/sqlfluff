@@ -18,9 +18,15 @@ good SQL and catch errors and bad SQL before it hits your database.
 
 > **Sqlfluff** is still in an open alpha phase - expect the tool to change significantly
 > over the coming months, and expect potentially non-backward compatable api changes
-> to happen at any point. In particular moving from 0.0.x to 0.1.x introduced some
-> non backward compatible changes and potential loss in functionality. If you'd like to
-> help please consider [contributing](CONTRIBUTING.md).
+> to happen at any point. If you'd like to help please consider [contributing](CONTRIBUTING.md).
+
+* **0.1.x** involved a major re-write of the parser, completely changing
+  the behaviour of the tool with respect to complex parsing.
+* **0.2.x** added templating support and a big restructure of rules
+  and changed how users might interact with sqlfluff on templated code.
+* **0.3.x** drops support for python 2.7 and 3.4, and also reworks the
+  handling of indentation linting in a potentially not backward
+  compatable way.
 
 # Getting Started
 
