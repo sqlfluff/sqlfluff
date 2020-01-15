@@ -69,9 +69,9 @@ def generate_test_segments():
         raw_buff = ''
         for elem in elems:
             if set(elem) <= set([' ', '\t']):
-                cls = RawSegment.make(' ', name='whitespace')
+                cls = RawSegment.make(' ', name='whitespace', type='whitespace')
             elif set(elem) <= set(['\n']):
-                cls = RawSegment.make('\n', name='newline')
+                cls = RawSegment.make('\n', name='newline', type='newline')
             elif elem == "(":
                 cls = RawSegment.make("(", name='bracket_open', _is_code=True)
             elif elem == ")":

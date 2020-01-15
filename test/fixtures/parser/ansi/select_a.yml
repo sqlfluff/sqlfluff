@@ -7,11 +7,11 @@ file:
       - select_target_element:
           object_reference:
             naked_identifier: a
-      - keyword: ','
+      - comma: ','
       - select_target_element:
           object_reference:
             naked_identifier: b
-      - keyword: ','
+      - comma: ','
       - select_target_element:
           object_reference:
             naked_identifier: c

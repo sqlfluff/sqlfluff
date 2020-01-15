@@ -17,6 +17,7 @@ missing.
 import logging
 from collections import namedtuple
 
+from ..parser import RawSegment, KeywordSegment
 from ..errors import SQLLintError
 
 # The ghost of a rule (mostly used for testing)
@@ -252,6 +253,29 @@ class BaseCrawler(object):
         # Not directly in the segment and
         # no subsegments to check. Return None.
         return None
+
+    @classmethod
+    def make_whitespace(cls, raw, pos_marker):
+        """Make a whitespace segment."""
+        WhitespaceSegment = RawSegment.make(
+            ' ', name='whitespace', type='whitespace')
+        return WhitespaceSegment(raw=raw, pos_marker=pos_marker)
+
+    @classmethod
+    def make_newline(cls, pos_marker, raw=None):
+        """Make a newline segment."""
+        # Default the newline to \n
+        raw = raw or '\n'
+        nls = RawSegment.make('\n', name='newline', type='newline')
+        return nls(raw=raw, pos_marker=pos_marker)
+
+    @classmethod
+    def make_keyword(cls, raw, pos_marker):
+        """Make a keyword segment."""
+        # For the name of the segment, we force the string to lowercase.
+        kws = KeywordSegment.make(raw.lower())
+        # At the moment we let the rule dictate *case* here.
+        return kws(raw=raw, pos_marker=pos_marker)
 
 
 class RuleSet(object):

@@ -4,38 +4,38 @@ file:
     select_statement:
     - select_clause:
       - keyword: SELECT
-      - raw: "\n"
-      - raw: '    '
+      - newline: "\n"
+      - whitespace: '    '
       - select_target_element:
         - expression:
           - numeric_literal: 3
-          - raw: ' '
+          - whitespace: ' '
           - binary_operator: +
-          - raw: ' '
+          - whitespace: ' '
           - numeric_literal: 6
-        - raw: ' '
+        - whitespace: ' '
         - alias_expression:
           - keyword: as
-          - raw: ' '
+          - whitespace: ' '
           - naked_identifier: a
-      - keyword: ','
+      - comma: ','
       - select_target_element:
         - expression:
           - numeric_literal: 7
-          - raw: ' '
+          - whitespace: ' '
           - binary_operator: +
-          - raw: ' '
+          - whitespace: ' '
           - numeric_literal: 14
-        - raw: ' '
+        - whitespace: ' '
         - alias_expression:
           - keyword: as
-          - raw: ' '
+          - whitespace: ' '
           - naked_identifier: b
-    - raw: "\n"
+    - newline: "\n"
     - from_clause:
         keyword: FROM
-        raw: ' '
+        whitespace: ' '
         table_expression:
           object_reference:
-            naked_identifier: some_table
-          raw: "\n"
+          - naked_identifier: some_table
+          newline: "\n"

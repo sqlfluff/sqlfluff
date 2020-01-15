@@ -119,6 +119,7 @@ class BaseSegment(object):
     purpose as a matcher.
     """
 
+    # `type` should be the *category* of this kind of segment
     type = 'base'
     parse_grammar = None
     match_grammar = None
@@ -138,6 +139,11 @@ class BaseSegment(object):
         The reason for two routes for names is that some subclasses
         might want to overrise the name rather than just getting it
         the class name.
+
+        Name should be specific to this kind of segment, while `type`
+        should be a higher level descriptor of the kind of segment.
+        For example, the name of `+` is 'plus' but the type might be
+        'binary_operator'.
         """
         return self._name or self.__class__.__name__
 
