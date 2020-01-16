@@ -38,8 +38,12 @@ def parse_match_logging(grammar, func, msg, parse_context, v_level, **kwargs):
     )
     if kwargs:
         s += "\t[{0}]".format(
-            ', '.join(["{0}={1}".format(
-                k, repr(v) if isinstance(v, str) else v) for k, v in kwargs.items()])
+            ', '.join(
+                "{0}={1}".format(
+                    k,
+                    repr(v) if isinstance(v, str) else v
+                ) for k, v in kwargs.items()
+            )
         )
     verbosity_logger(s, parse_context.verbosity, v_level=v_level)
 
@@ -156,7 +160,7 @@ class BaseSegment:
         """
         if self._parse_grammar():
             return True
-        elif self.segments and any([s.is_expandable for s in self.segments]):
+        elif self.segments and any(s.is_expandable for s in self.segments):
             return True
         else:
             return False
@@ -164,12 +168,12 @@ class BaseSegment:
     @property
     def is_code(self):
         """Return True if this segment contains any code."""
-        return any([seg.is_code for seg in self.segments])
+        return any(seg.is_code for seg in self.segments)
 
     @property
     def is_comment(self):
         """Return True if this is entirely made of comments."""
-        return all([seg.is_comment for seg in self.segments])
+        return all(seg.is_comment for seg in self.segments)
 
     @classmethod
     def is_optional(cls):
@@ -343,7 +347,7 @@ class BaseSegment:
 
     def _reconstruct(self):
         """Make a string from the segments of this segment."""
-        return "".join([seg._reconstruct() for seg in self.segments])
+        return "".join(seg.raw for seg in self.segments)
 
     @property
     def raw(self):
@@ -412,7 +416,7 @@ class BaseSegment:
     @staticmethod
     def segs_to_tuple(segs, **kwargs):
         """Return a tuple structure from an iterable of segments."""
-        return tuple([seg.to_tuple(**kwargs) for seg in segs])
+        return tuple(seg.to_tuple(**kwargs) for seg in segs)
 
     def to_tuple(self, **kwargs):
         """Return a tuple structure from this segment.
@@ -426,9 +430,9 @@ class BaseSegment:
         if show_raw and not self.segments:
             return (self.type, self.raw)
         elif code_only:
-            return (self.type, tuple([seg.to_tuple(**kwargs) for seg in self.segments if seg.is_code and not seg.is_meta]))
+            return (self.type, tuple(seg.to_tuple(**kwargs) for seg in self.segments if seg.is_code and not seg.is_meta))
         else:
-            return (self.type, tuple([seg.to_tuple(**kwargs) for seg in self.segments if not seg.is_meta]))
+            return (self.type, tuple(seg.to_tuple(**kwargs) for seg in self.segments if not seg.is_meta))
 
     def to_yaml(self, **kwargs):
         """Return a yaml structure from this segment."""

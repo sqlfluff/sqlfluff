@@ -24,7 +24,7 @@ from ..errors import SQLLintError
 RuleGhost = namedtuple('RuleGhost', ['code', 'description'])
 
 
-class LintResult(object):
+class LintResult():
     """A class to hold the results of a crawl operation.
 
     Args:
@@ -97,7 +97,7 @@ class LintFix:
             if hasattr(self.edit, 'raw'):
                 new_detail = self.edit.raw
             else:
-                new_detail = ''.join([s.raw for s in self.edit])
+                new_detail = ''.join(s.raw for s in self.edit)
 
             if self.edit_type == 'edit':
                 detail = 'edt:{0!r}>{1!r}'.format(self.anchor.raw, new_detail)

@@ -229,7 +229,7 @@ class Indent(RawSegment):
     _is_code = False
     _template = '<unset>'
     _case_sensitive = False
-    _indent_val = 1
+    indent_val = 1
     is_meta = True
 
     @staticmethod
@@ -274,4 +274,4 @@ class Dedent(Indent):
 
     """
 
-    _indent_val = -1
+    indent_val = -1

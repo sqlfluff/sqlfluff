@@ -54,7 +54,6 @@ class RawTemplateInterface:
         to the linter at runtime from the cli - that would be the only time we would pass
         arguments in here.
         """
-        pass
 
     @staticmethod
     def process(in_str, fname=None, config=None):
@@ -93,7 +92,6 @@ class PythonTemplateInterface(RawTemplateInterface):
     def __init__(self, override_context=None, **kwargs):
         self.default_context = dict(test_value='__test__')
         self.override_context = override_context or {}
-        pass
 
     def get_context(self, fname=None, config=None):
         """Get the templating context from the config."""
@@ -191,7 +189,7 @@ class JinjaTemplateInterface(PythonTemplateInterface):
         # No need to import this unless we're using this templater
         from jinja2 import Environment, StrictUndefined  # noqa
         # We explicitly want to preserve newlines.
-        env = Environment(keep_trailing_newline=True, undefined=StrictUndefined)
+        env = Environment(keep_trailing_newline=True, undefined=StrictUndefined, autoescape=True)
 
         ctx = self._extract_macros_from_config(config=config, env=env)
         # Apply to globals
