@@ -25,7 +25,7 @@ def assert_rule_fail_in_sql(code, sql, configs=None):
     print("Parsed:\n {0}".format(parsed.stringify()))
     lerrs, _, _, _ = r.crawl(parsed, fix=True)
     print("Errors Found: {0}".format(lerrs))
-    assert any([v.rule.code == code for v in lerrs])
+    assert any(v.rule.code == code for v in lerrs)
     fixed = parsed  # use this as our buffer (yes it's a bit of misnomer right here)
     while True:
         # We get the errors again, but this time skip the assertion
@@ -60,7 +60,7 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     print("Parsed:\n {0}".format(parsed.stringify()))
     lerrs, _, _, _ = r.crawl(parsed, fix=True)
     print("Errors Found: {0}".format(lerrs))
-    assert not any([v.rule.code == code for v in lerrs])
+    assert not any(v.rule.code == code for v in lerrs)
 
 
 # ############## STD RULES TESTS

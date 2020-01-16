@@ -76,7 +76,6 @@ def get_linter(cfg, silent=False):
 @click.group()
 def cli():
     """Sqlfluff is a modular sql linter for humans."""
-    pass
 
 
 @cli.command()

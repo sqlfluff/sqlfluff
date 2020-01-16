@@ -163,9 +163,9 @@ class Rule_L003(BaseCrawler):
             if in_indent:
                 if elem.type == 'whitespace':
                     indent_buffer.append(elem)
-                elif elem.is_meta and elem._indent_val != 0:
-                    indent_balance += elem._indent_val
-                    if elem._indent_val > 0:
+                elif elem.is_meta and elem.indent_val != 0:
+                    indent_balance += elem.indent_val
+                    if elem.indent_val > 0:
                         clean_indent = True
                 else:
                     in_indent = False
@@ -189,9 +189,9 @@ class Rule_L003(BaseCrawler):
                 in_indent = True
                 line_indent_stack = []
                 clean_indent = False
-            elif elem.is_meta and elem._indent_val != 0:
-                indent_balance += elem._indent_val
-                if elem._indent_val > 0:
+            elif elem.is_meta and elem.indent_val != 0:
+                indent_balance += elem.indent_val
+                if elem.indent_val > 0:
                     # Keep track of the indent at the last ... indent
                     line_indent_stack.append(
                         self._indent_size(line_buffer)
@@ -223,7 +223,7 @@ class Rule_L003(BaseCrawler):
                 LintFix('delete', elem) for elem in current_indent_buffer
             ]
         # If we don't have any indent and we should, then add a single
-        elif len(''.join([elem.raw for elem in current_indent_buffer])) == 0:
+        elif len(''.join(elem.raw for elem in current_indent_buffer)) == 0:
             fixes = [LintFix(
                 'create', current_anchor,
                 self.make_whitespace(
@@ -293,9 +293,8 @@ class Rule_L003(BaseCrawler):
                 return LintResult(memory=memory)
             else:
                 memory['in_indent'] = False
-                # we're found a non-whitespace element. This is out trigger,
+                # we're found a non-whitespace element. This is our trigger,
                 # which we'll handle after this if-statement
-                pass
         else:
             # Not in indent and not a newline, don't trigger here.
             return LintResult(memory=memory)
@@ -344,7 +343,7 @@ class Rule_L003(BaseCrawler):
                         desired_indent = self._make_indent()
                     else:
                         # The previous indent.
-                        desired_indent = ''.join([elem.raw for elem in res[k]['indent_buffer']])
+                        desired_indent = ''.join(elem.raw for elem in res[k]['indent_buffer'])
 
                     # Make fixes
                     fixes = self._coerce_indent_to(
@@ -380,7 +379,7 @@ class Rule_L003(BaseCrawler):
                     # If we have a clean indent, we can just add a step, simples.
                     # We can also do this if we've skipped a line. I think?
                     if this_line['clean_indent'] or this_line_no - k > 1:
-                        desired_indent = ''.join([elem.raw for elem in res[k]['indent_buffer']]) + self._make_indent()
+                        desired_indent = ''.join(elem.raw for elem in res[k]['indent_buffer']) + self._make_indent()
                     # If we have the option of a hanging indent then use it.
                     elif res[k]['hanging_indent']:
                         desired_indent = ' ' * res[k]['hanging_indent']
@@ -549,7 +548,6 @@ class Rule_L006(BaseCrawler):
                 # some cases that SHOULDNT apply here (like comments and newlines)
                 # so let's deal with them later
                 anchor = None
-                pass
             else:
                 # We know it's just one thing.
                 gap_seg = segments_since_code[-1]
@@ -565,7 +563,6 @@ class Rule_L006(BaseCrawler):
                     # We have just the right amount of whitespace!
                     # Unset our signal.
                     anchor = None
-                    pass
             return anchor, fixes
 
         # anchor is our signal as to whether there's a problem
@@ -863,7 +860,7 @@ class Rule_L011(BaseCrawler):
         """
         if segment.type == 'alias_expression':
             if parent_stack[-1].type == self._target_elem:
-                if not any([e.name.lower() == 'as' for e in segment.segments]):
+                if not any(e.name.lower() == 'as' for e in segment.segments):
                     insert_buff = []
                     insert_str = ''
                     init_pos = segment.segments[0].pos_marker
@@ -933,7 +930,7 @@ class Rule_L013(BaseCrawler):
 
         """
         if segment.type == 'select_target_element':
-            if not any([e.type == 'alias_expression' for e in segment.segments]):
+            if not any(e.type == 'alias_expression' for e in segment.segments):
                 types = {e.type for e in segment.segments}
                 unallowed_types = types - {'whitespace', 'newline', 'object_reference'}
                 if len(unallowed_types) > 0:
@@ -943,7 +940,7 @@ class Rule_L013(BaseCrawler):
                         # Check *how many* elements there are in the select
                         # statement. If this is the only one, then we won't
                         # report an error.
-                        num_elements = sum([e.type == 'select_target_element' for e in parent_stack[-1].segments])
+                        num_elements = sum(e.type == 'select_target_element' for e in parent_stack[-1].segments)
                         if num_elements > 1:
                             return LintResult(anchor=segment)
                         else:
@@ -1033,7 +1030,7 @@ class Rule_L016(Rule_L003):
                     break
 
             # Now we can work out the line length and deal with the content
-            line_len = sum([len(s.raw) for s in this_line])
+            line_len = sum(len(s.raw) for s in this_line)
             if line_len > self.max_line_length:
                 # Problem, we'll be reporting a violation. The
                 # question is, can we fix it?
@@ -1070,9 +1067,9 @@ class Rule_L016(Rule_L003):
                     return LintResult(anchor=segment, fixes=delete_buffer + create_buffer)
 
                 # Does the line contain a place where an indent might be possible?
-                if any([elem.is_meta and elem._indent_val != 0 for elem in this_line]):
+                if any(elem.is_meta and elem.indent_val != 0 for elem in this_line):
                     # What's the net sum of them?
-                    indent_balance = sum([elem._indent_val for elem in this_line if elem.is_meta])
+                    indent_balance = sum(elem.indent_val for elem in this_line if elem.is_meta)
                     # Yes, let's work out which is best.
                     if indent_balance == 0:
                         # It's even. We should break after the *last* dedent
@@ -1103,7 +1100,7 @@ class Rule_L016(Rule_L003):
                                     # Store potentially unnecessary whitespace.
                                     ws_pre.append(elem)
                             elif elem.is_meta:
-                                running_balance += elem._indent_val
+                                running_balance += elem.indent_val
                                 started = True
                                 # Clear the buffer.
                                 ws_post = []
@@ -1152,7 +1149,7 @@ class Rule_L016(Rule_L003):
                                 newline_anchor = elem
                                 break
                             elif elem.is_meta:
-                                if elem._indent_val > 0:
+                                if elem.indent_val > 0:
                                     found = True
                                 else:
                                     pass

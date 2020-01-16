@@ -545,7 +545,7 @@ class OneOf(BaseGrammar):
 
     def expected_string(self, dialect=None, called_from=None):
         """Get the expected string from the referenced element."""
-        return " | ".join([opt.expected_string(dialect=dialect, called_from=called_from) for opt in self._elements])
+        return " | ".join(opt.expected_string(dialect=dialect, called_from=called_from) for opt in self._elements)
 
 
 class AnyNumberOf(BaseGrammar):
@@ -639,7 +639,7 @@ class GreedyUntil(BaseGrammar):
     def expected_string(self, dialect=None, called_from=None):
         """Get the expected string from the referenced element."""
         return "..., " + " !( " + " | ".join(
-            [opt.expected_string(dialect=dialect, called_from=called_from) for opt in self._elements]
+            opt.expected_string(dialect=dialect, called_from=called_from) for opt in self._elements
         ) + " ) "
 
 
