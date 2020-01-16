@@ -15,7 +15,7 @@ def raw_seg():
 
 # A set of generator functions to make thing to use Matches with
 input_funcs = [
-    lambda x: tuple([x]),               # tuple
+    lambda x: (x,),               # tuple
     lambda x: [x],                      # list
     lambda x: x,                        # segment
     lambda x: (elem for elem in [x])    # generator
@@ -52,7 +52,7 @@ def test__parser__match_add(input_func, raw_seg):
 
 @pytest.mark.parametrize(
     "fail_case",
-    ['string', ['list_of_string'], tuple(['tuple_of_string']), range(10)]
+    ['string', ['list_of_string'], ('tuple_of_string',), range(10)]
 )
 def test__parser__match_add_raises(fail_case, raw_seg):
     """Test construction of MatchResults."""

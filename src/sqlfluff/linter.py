@@ -221,7 +221,7 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
         return True
 
 
-class LintedPath(object):
+class LintedPath:
     """A class to store the idea of a collection of linted files at a single start path."""
     def __init__(self, path):
         self.files = []
@@ -269,7 +269,7 @@ class LintedPath(object):
         return {file.path: file.persist_tree(verbosity=verbosity) for file in self.files}
 
 
-class LintingResult(object):
+class LintingResult:
     """A class to represent the result of a linting operation.
 
     Notably this might be a collection of paths, all with multiple
@@ -343,7 +343,7 @@ class LintingResult(object):
         return self.combine_dicts(*[path.persist_changes(verbosity=verbosity) for path in self.paths])
 
 
-class Linter(object):
+class Linter:
     """The interface class to interact with the linter."""
 
     def __init__(self, sql_exts=('.sql',), output_func=None,
@@ -533,8 +533,8 @@ class Linter(object):
                                     ("Fixes appear to not have been applied, they are "
                                      "the same as last time! {0}").format(
                                         fixes))
-                            else:
-                                last_fixes = fixes
+
+                            last_fixes = fixes
                             working, fixes = working.apply_fixes(fixes)
                             break
                         else:
@@ -572,19 +572,20 @@ class Linter(object):
         """Return a set of sql file paths from a potentially more ambigious path string."""
         if not os.path.exists(path):
             raise IOError("Specified path does not exist")
-        elif os.path.isdir(path):
-            # Then expand the path!
-            buffer = []
-            for dirpath, _, filenames in os.walk(path):
-                for fname in filenames:
-                    for ext in self.sql_exts:
-                        # is it a sql file?
-                        if fname.endswith(ext):
-                            # join the paths and normalise
-                            buffer.append(os.path.normpath(os.path.join(dirpath, fname)))
-            return sorted(buffer)
-        else:
+
+        if not os.path.isdir(path):
             return [path]
+
+        # If it's a directory then expand the path!
+        buffer = []
+        for dirpath, _, filenames in os.walk(path):
+            for fname in filenames:
+                for ext in self.sql_exts:
+                    # is it a sql file?
+                    if fname.endswith(ext):
+                        # join the paths and normalise
+                        buffer.append(os.path.normpath(os.path.join(dirpath, fname)))
+        return sorted(buffer)
 
     def lint_string_wrapped(self, string, fname='<string input>', verbosity=0, fix=False):
         """Lint strings directly."""

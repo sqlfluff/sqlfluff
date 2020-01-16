@@ -86,7 +86,7 @@ def dict_diff(left, right):
     return buff
 
 
-class ConfigLoader(object):
+class ConfigLoader:
     """The class for loading config files."""
     def __init__(self):
         # TODO: check that this cache implementation is actually useful
@@ -100,7 +100,8 @@ class ConfigLoader(object):
             global_loader = cls()
         return global_loader
 
-    def _get_config_elems_from_file(self, fpath):
+    @staticmethod
+    def _get_config_elems_from_file(fpath):
         """Load a config from a file and return a list of tuples.
 
         The return value is a list of tuples, were each tuple has two elements,
@@ -143,7 +144,8 @@ class ConfigLoader(object):
                 buff.append((key + (name,), v))
         return buff
 
-    def _incorporate_vals(self, ctx, vals):
+    @staticmethod
+    def _incorporate_vals(ctx, vals):
         """Take a list of tuples and incorporate it into a dictionary."""
         c = ctx
         for k, v in vals:
@@ -251,7 +253,7 @@ class ConfigLoader(object):
         return nested_combine(user_config, *config_stack)
 
 
-class FluffConfig(object):
+class FluffConfig:
     """.The class that actually gets passed around as a config object."""
     private_vals = ['rule_blacklist', 'rule_whitelist', 'dialect_obj', 'templater_obj']
 

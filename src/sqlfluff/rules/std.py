@@ -515,6 +515,8 @@ class Rule_L005(BaseCrawler):
                 else:
                     anchor = cm1
                 return LintResult(anchor=anchor, fixes=[LintFix('delete', cm1)])
+        # Otherwise fine
+        return None
 
 
 @std_rule_set.register
@@ -675,20 +677,23 @@ class Rule_L008(BaseCrawler):
         """
         if len(raw_stack) < 2:
             return None
-        else:
-            cm1 = raw_stack[-1]
-            cm2 = raw_stack[-2]
-            if cm2.name == 'comma':
-                if cm1.name not in ['whitespace', 'newline']:
-                    # comma followed by something that isn't whitespace!
-                    ins = self.make_whitespace(raw=' ', pos_marker=cm1.pos_marker)
-                    return LintResult(anchor=cm1, fixes=[LintFix('create', cm1, ins)])
-                elif (cm1.raw != ' ' and cm1.name != 'newline') and not segment.is_comment:
-                    repl = cm1.__class__(
-                        raw=' ',
-                        pos_marker=cm1.pos_marker
-                    )
-                    return LintResult(anchor=cm1, fixes=[LintFix('edit', cm1, repl)])
+
+        cm1 = raw_stack[-1]
+        cm2 = raw_stack[-2]
+        if cm2.name == 'comma':
+            # comma followed by something that isn't whitespace?
+            if cm1.name not in ['whitespace', 'newline']:
+                ins = self.make_whitespace(raw=' ', pos_marker=cm1.pos_marker)
+                return LintResult(anchor=cm1, fixes=[LintFix('create', cm1, ins)])
+            # comma followed by too much whitespace?
+            if (cm1.raw != ' ' and cm1.name != 'newline') and not segment.is_comment:
+                repl = cm1.__class__(
+                    raw=' ',
+                    pos_marker=cm1.pos_marker
+                )
+                return LintResult(anchor=cm1, fixes=[LintFix('edit', cm1, repl)])
+        # Otherwise we're fine
+        return None
 
 
 @std_rule_set.register
@@ -747,7 +752,7 @@ class Rule_L010(BaseCrawler):
         self.capitalisation_policy = capitalisation_policy
         super(Rule_L010, self).__init__(**kwargs)
 
-    def _eval(self, segment, raw_stack, memory, **kwargs):
+    def _eval(self, segment, memory, **kwargs):
         """Inconsistent capitalisation of keywords.
 
         We use the `memory` feature here to keep track of
@@ -886,6 +891,7 @@ class Rule_L011(BaseCrawler):
                             )
                         ]
                     )
+        return None
 
 
 @std_rule_set.register
@@ -929,7 +935,7 @@ class Rule_L013(BaseCrawler):
         if segment.type == 'select_target_element':
             if not any([e.type == 'alias_expression' for e in segment.segments]):
                 types = {e.type for e in segment.segments}
-                unallowed_types = types - set(['whitespace', 'newline', 'object_reference'])
+                unallowed_types = types - {'whitespace', 'newline', 'object_reference'}
                 if len(unallowed_types) > 0:
                     # No fixes, because we don't know what the alias should be,
                     # the user should document it themselves.
@@ -945,6 +951,7 @@ class Rule_L013(BaseCrawler):
                     else:
                         # Just erro if we don't care.
                         return LintResult(anchor=segment)
+        return None
 
 
 @std_rule_set.register
@@ -1003,7 +1010,7 @@ class Rule_L016(Rule_L003):
             tab_space_size=tab_space_size, indent_unit=indent_unit,
             **kwargs)
 
-    def _eval(self, segment, raw_stack, parent_stack, **kwargs):
+    def _eval(self, segment, raw_stack, **kwargs):
         """Line is too long.
 
         This only triggers on newline segments, evaluating the whole line.
@@ -1183,6 +1190,5 @@ class Rule_L016(Rule_L003):
                                 indent_balance))
 
                 return LintResult(anchor=segment)
-            else:
-                # All good
-                pass
+        # Otherwise we're all good
+        return None

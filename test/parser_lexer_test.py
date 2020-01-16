@@ -117,7 +117,7 @@ def test__parser__lexer_multimatcher(caplog):
         assert res.segments[2].raw == '#..#'
 
 
-def test__parser__lexer_fail(caplog):
+def test__parser__lexer_fail():
     """Test the how the lexer fails and reports errors."""
     lex = Lexer(config=FluffConfig())
     try:
@@ -126,7 +126,7 @@ def test__parser__lexer_fail(caplog):
         assert err.pos_marker().char_pos == 7
 
 
-def test__parser__lexer_fail_via_parse(caplog):
+def test__parser__lexer_fail_via_parse():
     """Test the how the parser fails and reports errors while lexing."""
     try:
         FileSegment.from_raw("Select \u0394", config=FluffConfig())

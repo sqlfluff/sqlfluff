@@ -8,7 +8,7 @@ from .match import MatchResult, join_segments_raw_curtailed
 from ..errors import SQLParseError
 
 
-class BaseGrammar(object):
+class BaseGrammar:
     """Grammars are a way of composing match statements.
 
     Any grammar must implment the `match` function. Segments can also be
@@ -55,7 +55,7 @@ class BaseGrammar(object):
         t0 = time.monotonic()
 
         if isinstance(segments, BaseSegment):
-            segments = segments,  # Make into a tuple for compatability
+            segments = (segments,)  # Make into a tuple for compatability
         if not isinstance(segments, tuple):
             logging.warning(
                 "{0}.match, was passed {1} rather than tuple or segment".format(
@@ -247,7 +247,7 @@ class BaseGrammar(object):
                 return (pre_seg_buff, mat, m)
             else:
                 # If there aren't any matches, then advance the buffer and try again.
-                pre_seg_buff += seg_buff[0],
+                pre_seg_buff += (seg_buff[0],)
                 seg_buff = seg_buff[1:]
 
     @classmethod
@@ -359,10 +359,10 @@ class BaseGrammar(object):
                     raise SQLParseError(
                         "Couldn't find closing bracket for opening bracket.",
                         segment=bracket_stack.pop())
-                else:
-                    # We at the end but without a bracket left open. This is a
-                    # friendly unmatched return.
-                    return ((), MatchResult.from_unmatched(segments), None)
+
+                # We at the end but without a bracket left open. This is a
+                # friendly unmatched return.
+                return ((), MatchResult.from_unmatched(segments), None)
 
 
 class Ref(BaseGrammar):
@@ -483,7 +483,7 @@ class OneOf(BaseGrammar):
                                 break
                             else:
                                 # Append as tuple
-                                matched_segments += unmatched_segments[0],
+                                matched_segments += (unmatched_segments[0],)
                                 unmatched_segments = unmatched_segments[1:]
                         else:
                             break
@@ -513,10 +513,11 @@ class OneOf(BaseGrammar):
                         # We can't return a successful match on JUST whitespace
                         return MatchResult.from_unmatched(segments)
                     elif not unmatched_segs[0].is_code:
-                        matched_segs += unmatched_segs[0],
+                        matched_segs += (unmatched_segs[0],)
                         unmatched_segs = unmatched_segs[1:]
                     else:
                         break
+
                 # Now try and match
                 for opt in self._elements:
                     m = opt._match(unmatched_segs, parse_context=parse_context.copy(incr='match_depth'))
@@ -536,11 +537,11 @@ class OneOf(BaseGrammar):
                             self.__class__.__name__,
                             '_match', "Last-Ditch: Saving Match of Length {0}:  {1}".format(len(m), m),
                             parse_context=parse_context, v_level=self.v_level)
-                else:
-                    if best_match:
-                        return MatchResult(matched_segs + best_match.matched_segments, best_match.unmatched_segments)
-                    else:
-                        return MatchResult.from_unmatched(segments)
+                # if we've got something good, return it
+                if best_match:
+                    return MatchResult(matched_segs + best_match.matched_segments, best_match.unmatched_segments)
+            # Return unmatched otherwise
+            return MatchResult.from_unmatched(segments)
 
     def expected_string(self, dialect=None, called_from=None):
         """Get the expected string from the referenced element."""
@@ -586,7 +587,7 @@ class AnyNumberOf(BaseGrammar):
             # Is the next segment code?
             if self.code_only and not unmatched_segments[0].is_code:
                 # We should add this one to the match and carry on
-                matched_segments += unmatched_segments[0],
+                matched_segments += (unmatched_segments[0],)
                 unmatched_segments = unmatched_segments[1:]
                 check_still_complete(segments, matched_segments.matched_segments, unmatched_segments)
                 continue
@@ -675,7 +676,7 @@ class Sequence(BaseGrammar):
                     # We're not at the end, first detect whitespace and then try to match.
                     if self.code_only and not unmatched_segments[0].is_code:
                         # We should add this one to the match and carry on
-                        matched_segments += unmatched_segments[0],
+                        matched_segments += (unmatched_segments[0],)
                         unmatched_segments = unmatched_segments[1:]
                         check_still_complete(segments, matched_segments.matched_segments, unmatched_segments)
                         continue
@@ -716,7 +717,7 @@ class Sequence(BaseGrammar):
                         break
                     elif not unmatched_segments[0].is_code:
                         # We should add this one to the match and carry on
-                        matched_segments += unmatched_segments[0],
+                        matched_segments += (unmatched_segments[0],)
                         unmatched_segments = unmatched_segments[1:]
                         check_still_complete(segments, matched_segments.matched_segments, unmatched_segments)
                         continue
@@ -905,14 +906,14 @@ class ContainsOnly(BaseGrammar):
                 # We're all good
                 return MatchResult.from_matched(matched_buffer)
             elif self.code_only and not forward_buffer[0].is_code:
-                matched_buffer += forward_buffer[0],
+                matched_buffer += (forward_buffer[0],)
                 forward_buffer = forward_buffer[1:]
             else:
                 # Try and match it
                 for opt in self._elements:
                     if isinstance(opt, str):
                         if forward_buffer[0].type == opt:
-                            matched_buffer += forward_buffer[0],
+                            matched_buffer += (forward_buffer[0],)
                             forward_buffer = forward_buffer[1:]
                             break
                     else:

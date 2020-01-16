@@ -61,7 +61,7 @@ def check_still_complete(segments_in, matched_segments, unmatched_segments):
                 initial_str, current_str))
 
 
-class ParseContext(object):
+class ParseContext:
     """The context for parsing. It holds configuration and rough state.
 
     We expect that an object (or copy of this object) will be passed
@@ -101,7 +101,7 @@ class ParseContext(object):
         return cls(dialect=config.get('dialect_obj'), recurse=config.get('recurse'))
 
 
-class BaseSegment(object):
+class BaseSegment:
     """The base segment element.
 
     This defines the base element which drives both Lexing, Parsing and Linting.
@@ -181,20 +181,20 @@ class BaseSegment(object):
         return cls.optional
 
     @classmethod
-    def _match_grammar(self):
+    def _match_grammar(cls):
         """Return the `match_grammar` attribute if present, or the `grammar` attribute if not."""
-        if self.match_grammar:
-            return self.match_grammar
+        if cls.match_grammar:
+            return cls.match_grammar
         else:
-            return self.grammar
+            return cls.grammar
 
     @classmethod
-    def _parse_grammar(self):
+    def _parse_grammar(cls):
         """Return the `parse_grammar` attribute if present, or the `grammar` attribute if not."""
-        if self.parse_grammar:
-            return self.parse_grammar
+        if cls.parse_grammar:
+            return cls.parse_grammar
         else:
-            return self.grammar
+            return cls.grammar
 
     def validate_segments(self, text="constructing"):
         """Check the elements of the `segments` attribute are all themselves segments."""
@@ -303,9 +303,9 @@ class BaseSegment(object):
             else:
                 # If there's no match at this stage, then it's unparsable. That's
                 # a problem at this stage so wrap it in an unparable segment and carry on.
-                self.segments = UnparsableSegment(
+                self.segments = (UnparsableSegment(
                     segments=self.segments,
-                    expected=g.expected_string(dialect=parse_context.dialect)),  # NB: tuple
+                    expected=g.expected_string(dialect=parse_context.dialect)),)  # NB: tuple
 
             # Validate new segments
             self.validate_segments(text="parsing")
@@ -350,7 +350,8 @@ class BaseSegment(object):
         """Make a string from the segments of this segment."""
         return self._reconstruct()
 
-    def _suffix(self):
+    @staticmethod
+    def _suffix():
         """Return any extra output required at the end when logging.
 
         NB Override this for specific subclassesses if we want extra output.
@@ -493,7 +494,7 @@ class BaseSegment(object):
             v_level=4, ls=len(segments))
 
         if isinstance(segments, BaseSegment):
-            segments = segments,  # Make into a tuple for compatability
+            segments = (segments,)  # Make into a tuple for compatability
 
         if not isinstance(segments, tuple):
             logging.warning(
@@ -530,7 +531,7 @@ class BaseSegment(object):
                     verbosity_logger(
                         "[PD:{0}] Skipping expansion of {1}...".format(parse_context.parse_depth, stmt),
                         verbosity=parse_context.verbosity)
-                    segs += stmt,
+                    segs += (stmt,)
                     continue
             except Exception as err:
                 # raise ValueError("{0} has no attribute `is_expandable`. This segment appears poorly constructed.".format(stmt))
@@ -573,7 +574,7 @@ class BaseSegment(object):
 
     def type_set(self):
         """Return a set of the types contained, mostly for testing."""
-        typs = set([self.type])
+        typs = {self.type}
         for s in self.segments:
             typs |= s.type_set()
         return typs
