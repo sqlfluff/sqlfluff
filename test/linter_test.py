@@ -19,17 +19,18 @@ def test__linter__path_from_paths__dir():
     """Test extracting paths from directories."""
     lntr = Linter(config=FluffConfig())
     paths = lntr.paths_from_path('test/fixtures/lexer')
-    assert normalise_paths(paths) == set([
+    assert normalise_paths(paths) == {
         'test.fixtures.lexer.block_comment.sql',
         'test.fixtures.lexer.inline_comment.sql',
-        'test.fixtures.lexer.basic.sql'])
+        'test.fixtures.lexer.basic.sql'
+    }
 
 
 def test__linter__path_from_paths__file():
     """Test extracting paths from a file path."""
     lntr = Linter(config=FluffConfig())
     paths = lntr.paths_from_path('test/fixtures/linter/indentation_errors.sql')
-    assert normalise_paths(paths) == set(['test.fixtures.linter.indentation_errors.sql'])
+    assert normalise_paths(paths) == {'test.fixtures.linter.indentation_errors.sql'}
 
 
 def test__linter__path_from_paths__dot():
@@ -37,7 +38,11 @@ def test__linter__path_from_paths__dot():
     lntr = Linter(config=FluffConfig())
     paths = lntr.paths_from_path('.')
     # Use set theory to check that we get AT LEAST these files
-    assert normalise_paths(paths) >= set(['test.fixtures.lexer.block_comment.sql', 'test.fixtures.lexer.inline_comment.sql', 'test.fixtures.lexer.basic.sql'])
+    assert normalise_paths(paths) >= {
+        'test.fixtures.lexer.block_comment.sql',
+        'test.fixtures.lexer.inline_comment.sql',
+        'test.fixtures.lexer.basic.sql'
+    }
 
 
 @pytest.mark.parametrize(

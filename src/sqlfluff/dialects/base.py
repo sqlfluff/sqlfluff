@@ -1,7 +1,7 @@
 """Defines the base dialect class."""
 
 
-class Dialect(object):
+class Dialect:
     """Serves as the basis for runtime resolution of Grammar.
 
     Args:
@@ -29,8 +29,7 @@ class Dialect(object):
             n = cls.__name__
             if n in self._library:
                 raise ValueError("{0!r} is already registered in {1!r}".format(n, self))
-            else:
-                self._library[n] = cls
+            self._library[n] = cls
             # Pass it back after registering it
             return cls
         # return the wrapping function
@@ -51,8 +50,7 @@ class Dialect(object):
         for n in kwargs:
             if n in self._library:
                 raise ValueError("{0!r} is already registered in {1!r}".format(n, self))
-            else:
-                self._library[n] = kwargs[n]
+            self._library[n] = kwargs[n]
 
     def ref(self, name):
         """Return an object which acts as a late binding reference to the element named."""

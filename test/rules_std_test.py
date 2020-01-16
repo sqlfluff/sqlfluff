@@ -47,8 +47,7 @@ def assert_rule_fail_in_sql(code, sql, configs=None):
             if fixes == l_fixes:
                 raise RuntimeError(
                     "Fixes aren't being applied: {0!r}".format(fixes))
-            else:
-                continue
+
     return fixed.raw
 
 
@@ -159,7 +158,7 @@ def test__rules__std_file(rule, path, violations):
     # Reformat the test data to match the format we're expecting. We use
     # sets because we really don't care about order and if one is missing,
     # we don't care about the orders of the correct ones.
-    assert set(lnt.check_tuples()) == set([(rule, v[0], v[1]) for v in violations])
+    assert set(lnt.check_tuples()) == {(rule, v[0], v[1]) for v in violations}
 
 
 def test__rules__std_L003_process_raw_stack(generate_test_segments):

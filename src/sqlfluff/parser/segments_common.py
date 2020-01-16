@@ -53,7 +53,7 @@ class KeywordSegment(RawSegment):
             logging.debug("[PD:{0} MD:{1}] (KW) {2}.match considering {3!r} against {4!r}".format(
                 parse_context.parse_depth, parse_context.match_depth, cls.__name__, raw_comp, cls._template))
             if cls._template == raw_comp:
-                m = cls(raw=raw, pos_marker=pos),  # Return as a tuple
+                m = (cls(raw=raw, pos_marker=pos),)  # Return as a tuple
                 return MatchResult(m, segments[1:])
         else:
             logging.debug("{1} will not match sequence of length {0}".format(len(segments), cls.__name__))
@@ -108,7 +108,7 @@ class ReSegment(KeywordSegment):
                 if cls._anti_template and re.match(cls._anti_template, sc):
                     return MatchResult.from_unmatched(segments)
                 else:
-                    m = cls(raw=s, pos_marker=segments[0].pos_marker),  # Return a tuple
+                    m = (cls(raw=s, pos_marker=segments[0].pos_marker),)  # Return a tuple
                     return MatchResult(m, segments[1:])
         return MatchResult.from_unmatched(segments)
 
@@ -145,7 +145,7 @@ class NamedSegment(KeywordSegment):
             logging.debug("[PD:{0} MD:{1}] (KW) {2}.match considering {3!r} against {4!r}".format(
                 parse_context.parse_depth, parse_context.match_depth, cls.__name__, n, cls._template))
             if cls._template == n:
-                m = cls(raw=s.raw, pos_marker=segments[0].pos_marker),  # Return a tuple
+                m = (cls(raw=s.raw, pos_marker=segments[0].pos_marker),)  # Return a tuple
                 return MatchResult(m, segments[1:])
         else:
             logging.debug("{1} will not match sequence of length {0}".format(len(segments), cls.__name__))
@@ -189,7 +189,7 @@ class LambdaSegment(BaseSegment):
                 return MatchResult.from_matched(matched_segs)
             elif f(seg_buff[0]):
                 # Got a match
-                matched_segs += seg_buff[0],
+                matched_segs += (seg_buff[0],)
                 seg_buff = seg_buff[1:]
             else:
                 # Got buffer but no match
@@ -232,7 +232,8 @@ class Indent(RawSegment):
     _indent_val = 1
     is_meta = True
 
-    def _suffix(self):
+    @staticmethod
+    def _suffix():
         """Return any extra output required at the end when logging.
 
         Meta classess have not much to say here so just stay blank.

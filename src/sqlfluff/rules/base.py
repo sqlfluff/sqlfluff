@@ -65,7 +65,7 @@ class LintResult(object):
             return None
 
 
-class LintFix(object):
+class LintFix:
     """A class to hold a potential fix to a linting violation.
 
     Args:
@@ -108,7 +108,7 @@ class LintFix(object):
         return "<LintFix: {0} @{1} {2}>".format(self.edit_type, self.anchor.pos_marker, detail)
 
 
-class BaseCrawler(object):
+class BaseCrawler:
     """The base class for a crawler, of which all rules are derived from.
 
     Args:
@@ -163,10 +163,10 @@ class BaseCrawler(object):
         # If FIX is true, then we should start again at the start of the file.
         # TODO: Work out how to do this!
 
-        parent_stack = parent_stack or tuple([])
-        raw_stack = raw_stack or tuple([])
-        siblings_post = siblings_post or tuple([])
-        siblings_pre = siblings_pre or tuple([])
+        parent_stack = parent_stack or ()
+        raw_stack = raw_stack or ()
+        siblings_post = siblings_post or ()
+        siblings_pre = siblings_pre or ()
         memory = memory or {}
         vs = []
 
@@ -195,9 +195,9 @@ class BaseCrawler(object):
 
         # The raw stack only keeps track of the previous raw segments
         if len(segment.segments) == 0:
-            raw_stack += tuple([segment])
+            raw_stack += (segment,)
         # Parent stack keeps track of all the parent segments
-        parent_stack += tuple([segment])
+        parent_stack += (segment,)
 
         for idx, child in enumerate(segment.segments):
             dvs, raw_stack, fixes, memory = self.crawl(
@@ -278,7 +278,7 @@ class BaseCrawler(object):
         return kws(raw=raw, pos_marker=pos_marker)
 
 
-class RuleSet(object):
+class RuleSet:
     """Class to define a ruleset.
 
     A rule set is instantiated on module load, but the references

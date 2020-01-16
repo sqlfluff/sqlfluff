@@ -36,7 +36,7 @@ def register_templater(cls):
 
 
 @register_templater
-class RawTemplateInterface(object):
+class RawTemplateInterface:
     """A templater which does nothing.
 
     This also acts as the base templating class.
@@ -56,7 +56,8 @@ class RawTemplateInterface(object):
         """
         pass
 
-    def process(self, in_str, fname=None, config=None):
+    @staticmethod
+    def process(in_str, fname=None, config=None):
         """Process a string and return the new string.
 
         Args:
@@ -138,7 +139,8 @@ class JinjaTemplateInterface(PythonTemplateInterface):
 
     name = 'jinja'
 
-    def _extract_macros_from_template(self, template, env):
+    @staticmethod
+    def _extract_macros_from_template(template, env):
         """Take a template string and extract any macros from it.
 
         Lovingly inspired by http://codyaray.com/2015/05/auto-load-jinja2-macros

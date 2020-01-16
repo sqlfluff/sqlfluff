@@ -26,7 +26,7 @@ def process_struct(obj):
             raise TypeError(
                 "Did not expect a list of {0}: {1!r}".format(
                     type(obj[0]), obj[0]))
-    elif isinstance(obj, str) or isinstance(obj, int) or isinstance(obj, float):
+    elif isinstance(obj, (str, int, float)):
         return str(obj)
     else:
         raise TypeError("Not sure how to deal with type {0}: {1!r}".format(
@@ -68,9 +68,9 @@ def generate_test_segments():
         buff = []
         raw_buff = ''
         for elem in elems:
-            if set(elem) <= set([' ', '\t']):
+            if set(elem) <= {' ', '\t'}:
                 cls = RawSegment.make(' ', name='whitespace', type='whitespace')
-            elif set(elem) <= set(['\n']):
+            elif set(elem) <= {'\n'}:
                 cls = RawSegment.make('\n', name='newline', type='newline')
             elif elem == "(":
                 cls = RawSegment.make("(", name='bracket_open', _is_code=True)

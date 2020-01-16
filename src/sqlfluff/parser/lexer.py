@@ -11,7 +11,7 @@ from ..errors import SQLLexError
 LexMatch = namedtuple('LexMatch', ['new_string', 'new_pos', 'segments'])
 
 
-class SingletonMatcher(object):
+class SingletonMatcher:
     """This singleton matcher matches single characters.
 
     This is the simplest usable matcher, but it also defines some of the
@@ -47,11 +47,10 @@ class SingletonMatcher(object):
             return LexMatch(
                 forward_string[len(matched):],
                 new_pos,
-                tuple([
-                    self.target_seg_class(
-                        raw=matched,
-                        pos_marker=start_pos),
-                ])
+                # NB: Tuple literal
+                (self.target_seg_class(
+                    raw=matched,
+                    pos_marker=start_pos),)
             )
         else:
             return LexMatch(forward_string, start_pos, tuple())
@@ -158,7 +157,7 @@ class RepeatedMultiMatcher(SingletonMatcher):
         return cls(*matchers)
 
 
-class Lexer(object):
+class Lexer:
     """The Lexer class actually does the lexing step.
 
     This class is likely called directly from a top level segment
