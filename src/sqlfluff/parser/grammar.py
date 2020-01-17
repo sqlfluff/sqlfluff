@@ -461,6 +461,7 @@ class OneOf(BaseGrammar):
         length it returns the first (unless we explicitly just match first).
         """
         best_match = None
+
         # Match on each of the options
         for opt in self._elements:
             m = opt._match(
@@ -499,49 +500,53 @@ class OneOf(BaseGrammar):
                     self.__class__.__name__,
                     '_match', "Saving Match of Length {0}:  {1}".format(len(m), m),
                     parse_context=parse_context, v_level=self.v_level)
-        else:
-            # No full match from the first time round. If we've got a long partial match then return that.
-            if best_match:
-                return best_match
-            # Ok so no match at all from the elements. Small getout if we can match any whitespace
-            if self.code_only:
-                matched_segs = tuple()
-                unmatched_segs = segments
-                # Look for non-code up front
-                while True:
-                    if len(unmatched_segs) == 0:
-                        # We can't return a successful match on JUST whitespace
-                        return MatchResult.from_unmatched(segments)
-                    elif not unmatched_segs[0].is_code:
-                        matched_segs += (unmatched_segs[0],)
-                        unmatched_segs = unmatched_segs[1:]
-                    else:
-                        break
 
-                # Now try and match
-                for opt in self._elements:
-                    m = opt._match(unmatched_segs, parse_context=parse_context.copy(incr='match_depth'))
-                    # Once again, if it's complete - return, if not wait to see if we get a more complete one
-                    new_match = MatchResult(matched_segs + m.matched_segments, m.unmatched_segments)
-                    if m.is_complete():
-                        return new_match
-                    elif m:
-                        if best_match:
-                            if len(best_match) > len(m):
-                                best_match = m
-                            else:
-                                continue
-                        else:
+        # No full match from the first time round. If we've got a
+        # long partial match then return that.
+        if best_match:
+            return best_match
+        # Ok so no match at all from the elements. Small getout if
+        # we can match any whitespace
+        if self.code_only:
+            matched_segs = ()
+            unmatched_segs = segments
+            # Look for non-code up front
+            while True:
+                if len(unmatched_segs) == 0:
+                    # We can't return a successful match on JUST whitespace
+                    return MatchResult.from_unmatched(segments)
+                if unmatched_segs[0].is_code:
+                    break
+                matched_segs += (unmatched_segs[0],)
+                unmatched_segs = unmatched_segs[1:]
+
+            # Now try and match
+            for opt in self._elements:
+                m = opt._match(unmatched_segs, parse_context=parse_context.copy(incr='match_depth'))
+                # Once again, if it's complete - return, if not wait to see
+                # if we get a more complete one
+                new_match = MatchResult(matched_segs + m.matched_segments, m.unmatched_segments)
+                if m.is_complete():
+                    return new_match
+                # If we've got a match, even if not complete then we've
+                # still got options.
+                if m:
+                    if best_match:
+                        if len(best_match) > len(m):
                             best_match = m
-                        parse_match_logging(
-                            self.__class__.__name__,
-                            '_match', "Last-Ditch: Saving Match of Length {0}:  {1}".format(len(m), m),
-                            parse_context=parse_context, v_level=self.v_level)
-                # if we've got something good, return it
-                if best_match:
-                    return MatchResult(matched_segs + best_match.matched_segments, best_match.unmatched_segments)
-            # Return unmatched otherwise
-            return MatchResult.from_unmatched(segments)
+                        else:
+                            continue
+                    else:
+                        best_match = m
+                    parse_match_logging(
+                        self.__class__.__name__,
+                        '_match', "Last-Ditch: Saving Match of Length {0}:  {1}".format(len(m), m),
+                        parse_context=parse_context, v_level=self.v_level)
+            # if we've got something good, return it
+            if best_match:
+                return MatchResult(matched_segs + best_match.matched_segments, best_match.unmatched_segments)
+        # Return unmatched otherwise
+        return MatchResult.from_unmatched(segments)
 
     def expected_string(self, dialect=None, called_from=None):
         """Get the expected string from the referenced element."""
@@ -664,7 +669,7 @@ class Sequence(BaseGrammar):
                 if len(unmatched_segments) == 0:
                     # We've run our of sequence without matching everyting.
                     # Do only optional elements remain.
-                    if all([e.is_optional() for e in self._elements[idx:]]):
+                    if all(e.is_optional() for e in self._elements[idx:]):
                         # then it's ok, and we can return what we've got so far.
                         # No need to deal with anything left over because we're at the end.
                         return matched_segments
@@ -706,29 +711,23 @@ class Sequence(BaseGrammar):
                             break
                         else:
                             return MatchResult.from_unmatched(segments)
-        else:
-            # If we get to here, we've matched all of the elements (or skipped them)
-            # but still have some segments left (or perhaps have precisely zero left).
-            # In either case, we're golden. Return successfully, with any leftovers as
-            # the unmatched elements. UNLESS they're whitespace and we should be greedy.
-            if self.code_only:
-                while True:
-                    if len(unmatched_segments) == 0:
-                        break
-                    elif not unmatched_segments[0].is_code:
-                        # We should add this one to the match and carry on
-                        matched_segments += (unmatched_segments[0],)
-                        unmatched_segments = unmatched_segments[1:]
-                        check_still_complete(segments, matched_segments.matched_segments, unmatched_segments)
-                        continue
-                    else:
-                        break
 
-            return MatchResult(matched_segments.matched_segments, unmatched_segments)
+        # If we get to here, we've matched all of the elements (or skipped them)
+        # but still have some segments left (or perhaps have precisely zero left).
+        # In either case, we're golden. Return successfully, with any leftovers as
+        # the unmatched elements. UNLESS they're whitespace and we should be greedy.
+        if self.code_only:
+            while unmatched_segments and not unmatched_segments[0].is_code:
+                # We should add this one to the match and carry on
+                matched_segments += (unmatched_segments[0],)
+                unmatched_segments = unmatched_segments[1:]
+                check_still_complete(segments, matched_segments.matched_segments, unmatched_segments)
+
+        return MatchResult(matched_segments.matched_segments, unmatched_segments)
 
     def expected_string(self, dialect=None, called_from=None):
         """Get the expected string from the referenced element."""
-        return ", ".join([opt.expected_string(dialect=dialect, called_from=called_from) for opt in self._elements])
+        return ", ".join(opt.expected_string(dialect=dialect, called_from=called_from) for opt in self._elements)
 
 
 class Delimited(BaseGrammar):
@@ -776,7 +775,7 @@ class Delimited(BaseGrammar):
         # up to that point onto a list of slices. Carry on.
         while True:
             # Check to see whether we've exhausted the buffer (or it's all non-code)
-            if len(seg_buff) == 0 or (self.code_only and all([not s.is_code for s in seg_buff])):
+            if len(seg_buff) == 0 or (self.code_only and all(not s.is_code for s in seg_buff)):
                 # Append the remaining buffer in case we're in the not is_code case.
                 matched_segments += seg_buff
                 # Nothing left, this is potentially a trailling case?
@@ -886,8 +885,11 @@ class Delimited(BaseGrammar):
     def expected_string(self, dialect=None, called_from=None):
         """Get the expected string from the referenced element."""
         return " {0} ".format(
-            self.delimiter.expected_string(dialect=dialect, called_from=called_from)).join(
-                [opt.expected_string(dialect=dialect, called_from=called_from) for opt in self._elements])
+            self.delimiter.expected_string(dialect=dialect, called_from=called_from)
+        ).join(
+            opt.expected_string(dialect=dialect, called_from=called_from)
+            for opt in self._elements
+        )
 
 
 class ContainsOnly(BaseGrammar):
@@ -1113,9 +1115,9 @@ class Bracketed(BaseGrammar):
             # empty brackets and still match.
             # NB: We don't add indents here, because there's nothing to indent
             if (
-                all([e.is_optional() for e in self._elements])
+                all(e.is_optional() for e in self._elements)
                 and self.code_only
-                and all([not e.is_code for e in pre])
+                and all(not e.is_code for e in pre)
             ):
                 # It worked!
                 return MatchResult(
@@ -1128,4 +1130,9 @@ class Bracketed(BaseGrammar):
 
     def expected_string(self, dialect=None, called_from=None):
         """Get the expected string from the referenced element."""
-        return " ( {0} ) ".format(' | '.join([opt.expected_string(dialect=dialect, called_from=called_from) for opt in self._elements]))
+        return " ( {0} ) ".format(
+            ' | '.join(
+                opt.expected_string(dialect=dialect, called_from=called_from)
+                for opt in self._elements
+            )
+        )

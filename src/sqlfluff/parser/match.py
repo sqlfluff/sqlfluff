@@ -26,7 +26,7 @@ def curtail_string(s, length=20):
 
 def join_segments_raw(segments):
     """Make a string from the joined `raw` attributes of an iterable of segments."""
-    return ''.join([s.raw for s in segments])
+    return ''.join(s.raw for s in segments)
 
 
 def join_segments_raw_curtailed(segments, length=20):

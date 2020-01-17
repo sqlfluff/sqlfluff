@@ -248,7 +248,7 @@ class LintedPath:
 
     def num_violations(self):
         """Count the number of violations in the path."""
-        return sum([file.num_violations() for file in self.files])
+        return sum(file.num_violations() for file in self.files)
 
     def violations(self):
         """Return a dict of violations by file path."""
@@ -258,9 +258,9 @@ class LintedPath:
         """Return a dict containing linting stats about this path."""
         return dict(
             files=len(self.files),
-            clean=sum([file.is_clean() for file in self.files]),
-            unclean=sum([not file.is_clean() for file in self.files]),
-            violations=sum([file.num_violations() for file in self.files])
+            clean=sum(file.is_clean() for file in self.files),
+            unclean=sum(not file.is_clean() for file in self.files),
+            violations=sum(file.num_violations() for file in self.files)
         )
 
     def persist_changes(self, verbosity=0):
@@ -319,7 +319,7 @@ class LintingResult:
 
     def num_violations(self):
         """Count the number of violations in thie result."""
-        return sum([path.num_violations() for path in self.paths])
+        return sum(path.num_violations() for path in self.paths)
 
     def violations(self):
         """Return a dict of paths and violations."""
