@@ -53,7 +53,7 @@ def wrap_field(label, val, width, max_label_width=10, sep_char=': '):
     """
     if len(label) > max_label_width:
         label_list = wrap_elem(label, width=max_label_width)
-        label_width = max([len(line) for line in label_list])
+        label_width = max(len(line) for line in label_list)
     else:
         label_width = len(label)
         label_list = [label]
@@ -93,7 +93,7 @@ def cli_table_row(fields, col_width, max_label_width=10, sep_char=': ', divider_
         wrap_field(field[0], field[1], width=col_width, max_label_width=max_label_width,
                    sep_char=sep_char)
         for field in fields]
-    max_lines = max([fld['lines'] for fld in wrapped_fields])
+    max_lines = max(fld['lines'] for fld in wrapped_fields)
     last_line_idx = max_lines - 1
     # Make some text
     buff = StringIO()

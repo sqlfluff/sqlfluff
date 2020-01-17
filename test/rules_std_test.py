@@ -12,8 +12,7 @@ def get_rule_from_set(code, config):
     for r in std_rule_set.get_rulelist(config=config):
         if r.code == code:
             return r
-    else:
-        raise ValueError("{0!r} not in {1!r}".format(code, std_rule_set))
+    raise ValueError("{0!r} not in {1!r}".format(code, std_rule_set))
 
 
 def assert_rule_fail_in_sql(code, sql, configs=None):
