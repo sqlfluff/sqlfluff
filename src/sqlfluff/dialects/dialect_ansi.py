@@ -154,6 +154,11 @@ ansi_dialect.add(
     NoKeywordSegment=KeywordSegment.make('no'),
     ChainKeywordSegment=KeywordSegment.make('chain'),
     RollbackKeywordSegment=KeywordSegment.make('rollback'),
+    DropKeywordSegment=KeywordSegment.make('drop'),
+    TableKeywordSegment=KeywordSegment.make('table'),
+    ViewKeywordSegment=KeywordSegment.make('view'),
+    RestrictKeywordSegment=KeywordSegment.make('restrict'),
+    CascadeKeywordSegment=KeywordSegment.make('cascade'),
     # Some more grammars:
     LiteralGrammar=OneOf(
         Ref('QuotedLiteralSegment'), Ref('NumericLiteralSegment'),
@@ -876,6 +881,28 @@ class TransactionStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class DDLStatementSegment(BaseSegment):
+    """A `CREATE` or `DROP` statement."""
+    type = 'ddl_statement'
+    match_grammar = OneOf(
+        # DROP {TABLE | VIEW} <Table name> {RESTRICT | CASCADE}
+        Sequence(
+            Ref('DropKeywordSegment'),
+            OneOf(
+                Ref('TableKeywordSegment'),
+                Ref('ViewKeywordSegment'),
+            ),
+            Ref('ObjectReferenceSegment'),
+            OneOf(
+                Ref('RestrictKeywordSegment'),
+                Ref('CascadeKeywordSegment', optional=True),
+                optional=True
+            )
+        ),
+    )
+
+
+@ansi_dialect.segment()
 class StatementSegment(BaseSegment):
     """A generic segment, to any of it's child subsegments.
 
@@ -886,6 +913,6 @@ class StatementSegment(BaseSegment):
         Ref('SetExpressionSegment'),
         Ref('SelectStatementSegment'), Ref('InsertStatementSegment'),
         Ref('EmptyStatementSegment'), Ref('WithCompoundStatementSegment'),
-        Ref('TransactionStatementSegment')
+        Ref('TransactionStatementSegment'), Ref('DDLStatementSegment'),
     )
     match_grammar = GreedyUntil(Ref('SemicolonSegment'))
