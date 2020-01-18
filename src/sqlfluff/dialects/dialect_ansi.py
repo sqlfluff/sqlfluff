@@ -150,6 +150,9 @@ ansi_dialect.add(
     InsertKeywordSegment=KeywordSegment.make('insert'),
     IntoKeywordSegment=KeywordSegment.make('into'),
     CommitKeywordSegment=KeywordSegment.make('commit'),
+    WorkKeywordSegment=KeywordSegment.make('work'),
+    NoKeywordSegment=KeywordSegment.make('no'),
+    ChainKeywordSegment=KeywordSegment.make('chain'),
     RollbackKeywordSegment=KeywordSegment.make('rollback'),
     # Some more grammars:
     LiteralGrammar=OneOf(
@@ -846,8 +849,20 @@ class TransactionStatementSegment(BaseSegment):
     """A `COMMIT` or `ROLLBACK` statement."""
     type = 'transaction_statement'
     match_grammar = OneOf(
-        Ref('CommitKeywordSegment'),
-        Ref('RollbackKeywordSegment'),
+        # COMMIT [ WORK ] [ AND [ NO ] CHAIN ]
+        Sequence(
+            Ref('CommitKeywordSegment'),
+            Ref('WorkKeywordSegment', optional=True),
+            Sequence(
+                Ref('AndKeywordSegment'),
+                Ref('NoKeywordSegment', optional=True),
+                Ref('ChainKeywordSegment'),
+                optional=True
+            )
+        ),
+        Sequence(
+            Ref('RollbackKeywordSegment'),
+        ),
     )
 
 @ansi_dialect.segment()
