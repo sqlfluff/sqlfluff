@@ -149,6 +149,8 @@ ansi_dialect.add(
     WithKeywordSegment=KeywordSegment.make('with'),
     InsertKeywordSegment=KeywordSegment.make('insert'),
     IntoKeywordSegment=KeywordSegment.make('into'),
+    CommitKeywordSegment=KeywordSegment.make('commit'),
+    RollbackKeywordSegment=KeywordSegment.make('rollback'),
     # Some more grammars:
     LiteralGrammar=OneOf(
         Ref('QuotedLiteralSegment'), Ref('NumericLiteralSegment'),
@@ -840,6 +842,15 @@ class EmptyStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class TransactionStatementSegment(BaseSegment):
+    """A `COMMIT` or `ROLLBACK` statement."""
+    type = 'transaction_statement'
+    match_grammar = OneOf(
+        Ref('CommitKeywordSegment'),
+        Ref('RollbackKeywordSegment'),
+    )
+
+@ansi_dialect.segment()
 class StatementSegment(BaseSegment):
     """A generic segment, to any of it's child subsegments.
 
@@ -849,5 +860,7 @@ class StatementSegment(BaseSegment):
     parse_grammar = OneOf(
         Ref('SetExpressionSegment'),
         Ref('SelectStatementSegment'), Ref('InsertStatementSegment'),
-        Ref('EmptyStatementSegment'), Ref('WithCompoundStatementSegment'))
+        Ref('EmptyStatementSegment'), Ref('WithCompoundStatementSegment'),
+        Ref('TransactionStatementSegment')
+    )
     match_grammar = GreedyUntil(Ref('SemicolonSegment'))
