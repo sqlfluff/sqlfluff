@@ -860,8 +860,17 @@ class TransactionStatementSegment(BaseSegment):
                 optional=True
             )
         ),
+        # NOTE: "TO SAVEPOINT" is not yet supported
+        # ROLLBACK [ WORK ] [ AND [ NO ] CHAIN ]
         Sequence(
             Ref('RollbackKeywordSegment'),
+            Ref('WorkKeywordSegment', optional=True),
+            Sequence(
+                Ref('AndKeywordSegment'),
+                Ref('NoKeywordSegment', optional=True),
+                Ref('ChainKeywordSegment'),
+                optional=True
+            )
         ),
     )
 
