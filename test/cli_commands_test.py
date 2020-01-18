@@ -55,6 +55,13 @@ def test__cli__command_dialect():
     )
 
 
+def test__cli__fix_with_problems():
+    """Check the script doesn't raise an unexpected exception with badly formed files."""
+    invoke_assert_code(
+        args=[fix, ['--rules', 'L001', 'test/fixtures/cli/fail_many.sql', '-vvvvvvv'], 'y']
+    )
+
+
 def test__cli__command_lint():
     """Check basic commands on a simple script."""
     # Not verbose

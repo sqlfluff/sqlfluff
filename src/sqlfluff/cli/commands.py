@@ -11,6 +11,7 @@ from .formatters import (format_config, format_rules,
                          format_linting_result_footer, colorize)
 from .helpers import cli_table, get_package_version
 from ..config import FluffConfig
+from ..errors import SQLLintError
 
 
 def common_options(f):
@@ -145,6 +146,20 @@ def lint(paths, **kwargs):
     sys.exit(result.stats()['exit code'])
 
 
+def do_fixes(lnt, paths, **kwargs):
+    """Actually do the fixes."""
+    result = lnt.lint_paths(paths, fix=True)
+    click.echo('Persisting Changes...')
+    res = result.persist_changes(output_func=lnt.output_func, **kwargs)
+    if all(res.values()):
+        click.echo('Done. Please check your files to confirm.')
+        return True
+    else:
+        click.echo('Done. Some operations failed. Please check your files to confirm.')
+        click.echo('Some errors cannot be fixed or there is another error blocking it.')
+        return False
+
+
 @cli.command()
 @common_options
 @click.option('-f', '--force', is_flag=True,
@@ -188,33 +203,33 @@ def fix(force, paths, **kwargs):
         click.echo(colorize('The path(s) {0!r} could not be accessed. Check it/they exist(s).'.format(paths), 'red'))
         sys.exit(1)
 
-    if result.num_violations() > 0:
+    # NB: We filter to linting violations here, because they're
+    # the only ones which can be potentially fixed.
+    if result.num_violations(types=SQLLintError) > 0:
         click.echo("==== fixing violations ====")
-        click.echo("{0} violations found".format(
-            result.num_violations()))
+        click.echo("{0} linting violations found".format(
+            result.num_violations(types=SQLLintError)))
         if force:
             click.echo('FORCE MODE: Attempting fixes...')
-            result = lnt.lint_paths(paths, fix=True)
-            click.echo('Persisting Changes...')
-            result.persist_changes()
-            click.echo('Done. Please check your files to confirm.')
+            success = do_fixes(lnt, paths, types=SQLLintError)
+            if not success:
+                sys.exit(1)
         else:
             click.echo('Are you sure you wish to attempt to fix these? [Y/n] ', nl=False)
             c = click.getchar().lower()
             click.echo('...')
             if c == 'y':
                 click.echo('Attempting fixes...')
-                result = lnt.lint_paths(paths, fix=True)
-                click.echo('Persisting Changes...')
-                result.persist_changes(verbosity=verbose)
-                click.echo('Done. Please check your files to confirm.')
+                success = do_fixes(lnt, paths)
+                if not success:
+                    sys.exit(1)
             elif c == 'n':
                 click.echo('Aborting...')
             else:
                 click.echo('Invalid input :(')
                 click.echo('Aborting...')
     else:
-        click.echo("==== no violations found ====")
+        click.echo("==== no linting violations found ====")
     sys.exit(0)
 
 
