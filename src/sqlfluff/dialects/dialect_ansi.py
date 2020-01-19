@@ -947,7 +947,7 @@ class ColumnDefinitionSegment(BaseSegment):
 class TableConstraintSegment(BaseSegment):
     """A table constraint, e.g. for CREATE TABLE."""
     type = 'table_constraint_definition'
-    # TODO: CHECK constraint, others?
+    # Later add support for CHECK constraint, others?
     # e.g. CONSTRAINT constraint_1 PRIMARY KEY(column_1)
     match_grammar = Sequence(
         Sequence(  # [ CONSTRAINT <Constraint name> ]
@@ -964,7 +964,7 @@ class TableConstraintSegment(BaseSegment):
                         delimiter=Ref('CommaSegment')
                     ),
                 ),
-                # TODO: index_parameters
+                # Later add support for index_parameters?
             ),
             Sequence(  # PRIMARY KEY ( column_name [, ... ] ) index_parameters
                 Ref('PrimaryKeywordSegment'),
@@ -975,7 +975,7 @@ class TableConstraintSegment(BaseSegment):
                         delimiter=Ref('CommaSegment')
                     ),
                 ),
-                # TODO: index_parameters
+                # Later add support for index_parameters?
             ),
             Sequence(  # FOREIGN KEY ( column_name [, ... ] )
                        # REFERENCES reftable [ ( refcolumn [, ... ] ) ]
@@ -995,8 +995,8 @@ class TableConstraintSegment(BaseSegment):
                         delimiter=Ref('CommaSegment')
                     ),
                 ),
-                # TODO: [ MATCH FULL | MATCH PARTIAL | MATCH SIMPLE ]
-                # TODO: [ ON DELETE action ] [ ON UPDATE action ] }
+                # Later add support for [MATCH FULL/PARTIAL/SIMPLE] ?
+                # Later add support for [ ON DELETE/UPDATE action ] ?
             ),
         ),
     )
