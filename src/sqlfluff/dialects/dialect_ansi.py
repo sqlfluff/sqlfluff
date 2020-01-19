@@ -956,6 +956,7 @@ class AccessStatementSegment(BaseSegment):
         )
     )
 
+
 @ansi_dialect.segment()
 class StatementSegment(BaseSegment):
     """A generic segment, to any of it's child subsegments.
