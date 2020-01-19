@@ -921,15 +921,24 @@ class AccessStatementSegment(BaseSegment):
     match_grammar = OneOf(
         Sequence(
             Ref('GrantKeywordSegment'),
-            Delimited(
-                OneOf(
-                    Sequence(
-                        Ref('AllKeywordSegment'),
-                        Ref('PrivilegesKeywordSegment', optional=True)
+            Delimited(  # List of permission types
+                Sequence(
+                    OneOf(  # Permission type
+                        Sequence(
+                            Ref('AllKeywordSegment'),
+                            Ref('PrivilegesKeywordSegment', optional=True)
+                        ),
+                        Ref('SelectKeywordSegment'),
+                        Ref('UpdateKeywordSegment'),
+                        Ref('InsertKeywordSegment'),
                     ),
-                    Ref('SelectKeywordSegment'),
-                    Ref('UpdateKeywordSegment'),
-                    Ref('InsertKeywordSegment'),
+                    Bracketed(  # Optional list of column names
+                        Delimited(
+                            Ref('ObjectReferenceSegment'),
+                            delimiter=Ref('CommaSegment')
+                        ),
+                        optional=True
+                    )
                 ),
                 delimiter=Ref('CommaSegment')
             ),
