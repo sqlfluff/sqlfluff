@@ -900,7 +900,7 @@ class TransactionStatementSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class ColumnConstraintSegment(BaseSegment):
-    """A column constraint; each CREATE TABLE column can have 0 or more"""
+    """A column constraint; each CREATE TABLE column can have 0 or more."""
     type = 'column_constraint'
     # Column constraint from
     # https://www.postgresql.org/docs/12/sql-createtable.html
@@ -925,7 +925,7 @@ class ColumnConstraintSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class ColumnDefinitionSegment(BaseSegment):
-    """A column definition, e.g. for CREATE TABLE or ALTER TABLE"""
+    """A column definition, e.g. for CREATE TABLE or ALTER TABLE."""
     type = 'column_definition'
     match_grammar = Sequence(
         Ref('ObjectReferenceSegment'),  # Column name
@@ -938,13 +938,14 @@ class ColumnDefinitionSegment(BaseSegment):
         # * NULL DEFAULT 'a'
         # * NOT NULL DEFAULT NULL
         # Sequence(  # 0 or more column constraints, no delimiter
-            Ref('ColumnConstraintSegment', optional=True),
+        Ref('ColumnConstraintSegment', optional=True),
         # )
     )
 
+
 @ansi_dialect.segment()
 class TableConstraintSegment(BaseSegment):
-    """A table constraint, e.g. for CREATE TABLE"""
+    """A table constraint, e.g. for CREATE TABLE."""
     type = 'table_constraint_definition'
     # TODO: CHECK constraint, others?
     # e.g. CONSTRAINT constraint_1 PRIMARY KEY(column_1)
