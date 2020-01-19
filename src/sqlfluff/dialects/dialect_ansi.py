@@ -156,6 +156,7 @@ ansi_dialect.add(
     RollbackKeywordSegment=KeywordSegment.make('rollback'),
     DropKeywordSegment=KeywordSegment.make('drop'),
     TableKeywordSegment=KeywordSegment.make('table'),
+    IfKeywordSegment=KeywordSegment.make('if'),
     ViewKeywordSegment=KeywordSegment.make('view'),
     RestrictKeywordSegment=KeywordSegment.make('restrict'),
     CascadeKeywordSegment=KeywordSegment.make('cascade'),
@@ -885,12 +886,17 @@ class DDLStatementSegment(BaseSegment):
     """A `CREATE` or `DROP` statement."""
     type = 'ddl_statement'
     match_grammar = OneOf(
-        # DROP {TABLE | VIEW} <Table name> {RESTRICT | CASCADE}
+        # DROP {TABLE | VIEW} <Table name> [IF EXISTS} {RESTRICT | CASCADE}
         Sequence(
             Ref('DropKeywordSegment'),
             OneOf(
                 Ref('TableKeywordSegment'),
                 Ref('ViewKeywordSegment'),
+            ),
+            Sequence(
+                Ref('IfKeywordSegment'),
+                Ref('ExistsKeywordSegment'),
+                optional=True
             ),
             Ref('ObjectReferenceSegment'),
             OneOf(
