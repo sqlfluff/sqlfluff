@@ -161,6 +161,10 @@ ansi_dialect.add(
     RestrictKeywordSegment=KeywordSegment.make('restrict'),
     CascadeKeywordSegment=KeywordSegment.make('cascade'),
     GrantKeywordSegment=KeywordSegment.make('grant'),
+    RevokeKeywordSegment=KeywordSegment.make('revoke'),
+    TablesKeywordSegment=KeywordSegment.make('tables'),
+    SchemaKeywordSegment=KeywordSegment.make('schema'),
+    ForKeywordSegment=KeywordSegment.make('for'),
     ToKeywordSegment=KeywordSegment.make('to'),
     OptionKeywordSegment=KeywordSegment.make('option'),
     PrivilegesKeywordSegment=KeywordSegment.make('privileges'),
@@ -917,7 +921,7 @@ class DDLStatementSegment(BaseSegment):
 class AccessStatementSegment(BaseSegment):
     """A `GRANT` or `REVOKE` statement."""
     type = 'access_statement'
-    # GRANT select on mytable to public [ WITH GRANT OPTION ]
+    # Based on https://www.postgresql.org/docs/12/sql-grant.html
     match_grammar = OneOf(
         Sequence(
             Ref('GrantKeywordSegment'),
@@ -943,9 +947,21 @@ class AccessStatementSegment(BaseSegment):
                 delimiter=Ref('CommaSegment')
             ),
             Ref('OnKeywordSegment'),
-            Ref('TableKeywordSegment', optional=True),
-            Ref('ObjectReferenceSegment'),
+            OneOf(
+                Sequence(
+                    Ref('TableKeywordSegment', optional=True),
+                    Ref('ObjectReferenceSegment'),
+                ),
+                Sequence(
+                    Ref('AllKeywordSegment'),
+                    Ref('TablesKeywordSegment'),
+                    Ref('InKeywordSegment'),
+                    Ref('SchemaKeywordSegment'),
+                    Ref('ObjectReferenceSegment'),
+                )
+            ),
             Ref('ToKeywordSegment'),
+            Ref('GroupKeywordSegment', optional=True),
             Ref('ObjectReferenceSegment'),
             Sequence(
                 Ref('WithKeywordSegment'),
@@ -953,7 +969,60 @@ class AccessStatementSegment(BaseSegment):
                 Ref('OptionKeywordSegment'),
                 optional=True
             ),
-        )
+        ),
+        # Based on https://www.postgresql.org/docs/12/sql-revoke.html
+        Sequence(
+            Ref('RevokeKeywordSegment'),
+            Delimited(  # List of permission types
+                Sequence(
+                    Sequence(
+                        Ref('GrantKeywordSegment'),
+                        Ref('OptionKeywordSegment'),
+                        Ref('ForKeywordSegment'),
+                        optional=True
+                    ),
+                    OneOf(  # Permission type
+                        Sequence(
+                            Ref('AllKeywordSegment'),
+                            Ref('PrivilegesKeywordSegment', optional=True)
+                        ),
+                        Ref('SelectKeywordSegment'),
+                        Ref('UpdateKeywordSegment'),
+                        Ref('InsertKeywordSegment'),
+                    ),
+                    Bracketed(  # Optional list of column names
+                        Delimited(
+                            Ref('ObjectReferenceSegment'),
+                            delimiter=Ref('CommaSegment')
+                        ),
+                        optional=True
+                    )
+                ),
+                delimiter=Ref('CommaSegment')
+            ),
+            Ref('OnKeywordSegment'),
+            OneOf(
+                Sequence(
+                    Ref('TableKeywordSegment', optional=True),
+                    Ref('ObjectReferenceSegment'),
+                ),
+                Sequence(
+                    Ref('AllKeywordSegment'),
+                    Ref('TablesKeywordSegment'),
+                    Ref('InKeywordSegment'),
+                    Ref('SchemaKeywordSegment'),
+                    Ref('ObjectReferenceSegment'),
+                )
+            ),
+            Ref('FromKeywordSegment'),
+            Ref('GroupKeywordSegment', optional=True),
+            Ref('ObjectReferenceSegment'),
+            OneOf(
+                Ref('RestrictKeywordSegment'),
+                Ref('CascadeKeywordSegment', optional=True),
+                optional=True
+            )
+        ),
     )
 
 
