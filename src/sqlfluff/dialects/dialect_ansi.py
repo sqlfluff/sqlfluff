@@ -160,6 +160,11 @@ ansi_dialect.add(
     ViewKeywordSegment=KeywordSegment.make('view'),
     RestrictKeywordSegment=KeywordSegment.make('restrict'),
     CascadeKeywordSegment=KeywordSegment.make('cascade'),
+    GrantKeywordSegment=KeywordSegment.make('grant'),
+    ToKeywordSegment=KeywordSegment.make('to'),
+    OptionKeywordSegment=KeywordSegment.make('option'),
+    PrivilegesKeywordSegment=KeywordSegment.make('privileges'),
+    UpdateKeywordSegment=KeywordSegment.make('update'),
     # Some more grammars:
     LiteralGrammar=OneOf(
         Ref('QuotedLiteralSegment'), Ref('NumericLiteralSegment'),
@@ -909,6 +914,40 @@ class DDLStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class AccessStatementSegment(BaseSegment):
+    """A `GRANT` or `REVOKE` statement."""
+    type = 'access_statement'
+    # GRANT select on mytable to public [ WITH GRANT OPTION ]
+    match_grammar = OneOf(
+        Sequence(
+            Ref('GrantKeywordSegment'),
+            Delimited(
+                OneOf(
+                    Sequence(
+                        Ref('AllKeywordSegment'),
+                        Ref('PrivilegesKeywordSegment', optional=True)
+                    ),
+                    Ref('SelectKeywordSegment'),
+                    Ref('UpdateKeywordSegment'),
+                    Ref('InsertKeywordSegment'),
+                ),
+                delimiter=Ref('CommaSegment')
+            ),
+            Ref('OnKeywordSegment'),
+            Ref('TableKeywordSegment', optional=True),
+            Ref('ObjectReferenceSegment'),
+            Ref('ToKeywordSegment'),
+            Ref('ObjectReferenceSegment'),
+            Sequence(
+                Ref('WithKeywordSegment'),
+                Ref('GrantKeywordSegment'),
+                Ref('OptionKeywordSegment'),
+                optional=True
+            ),
+        )
+    )
+
+@ansi_dialect.segment()
 class StatementSegment(BaseSegment):
     """A generic segment, to any of it's child subsegments.
 
@@ -920,5 +959,6 @@ class StatementSegment(BaseSegment):
         Ref('SelectStatementSegment'), Ref('InsertStatementSegment'),
         Ref('EmptyStatementSegment'), Ref('WithCompoundStatementSegment'),
         Ref('TransactionStatementSegment'), Ref('DDLStatementSegment'),
+        Ref('AccessStatementSegment'),
     )
     match_grammar = GreedyUntil(Ref('SemicolonSegment'))
