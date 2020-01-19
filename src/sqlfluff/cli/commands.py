@@ -154,10 +154,10 @@ def do_fixes(lnt, paths, **kwargs):
     if all(res.values()):
         click.echo('Done. Please check your files to confirm.')
         return True
-    else:
-        click.echo('Done. Some operations failed. Please check your files to confirm.')
-        click.echo('Some errors cannot be fixed or there is another error blocking it.')
-        return False
+    # If some failed then return false
+    click.echo('Done. Some operations failed. Please check your files to confirm.')
+    click.echo('Some errors cannot be fixed or there is another error blocking it.')
+    return False
 
 
 @cli.command()

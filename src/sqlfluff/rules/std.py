@@ -1070,9 +1070,23 @@ class Rule_L016(Rule_L003):
                 if any(elem.is_meta and elem.indent_val != 0 for elem in this_line):
                     # What's the net sum of them?
                     indent_balance = sum(elem.indent_val for elem in this_line if elem.is_meta)
-                    # Yes, let's work out which is best.
+
                     if indent_balance == 0:
-                        # It's even. We should break after the *last* dedent
+                        # It's neutral. Let's split out a section...
+
+                        # We have options, either a hanging indent, indenting a subsection,
+                        # or splitting a list in some way.
+                        # We also have to consider whether one operation is enough to fix
+                        # this part or whether further surgery will be required. If that
+                        # is the case, we should fix the *outer* sections, and let
+                        # recursion deal with the inner sections.
+                        # For now, we will never *make* a hanging indent. We will always
+                        # indent a section if that is possible.
+
+                        # To do this we need to identify pairs of indent segments, and
+                        # whether they themselves contain other indentable sections. We
+                        # can then consider how to satisfy line length requirements with
+                        # the fewest additional indents.
                         ws_pre = []
                         ws_post = []
                         running_balance = 0
@@ -1125,7 +1139,13 @@ class Rule_L016(Rule_L003):
                                     # Clear the buffer.
                                     ws_pre = []
                         else:
-                            raise RuntimeError("We shouldn't get here!")
+                            # Ending here means we ended on either whitespace or a dedent.
+                            # That's only a problem if we haven't found the end.
+                            if not found:
+                                raise RuntimeError("We shouldn't get here! {0}".format(this_line))
+
+                            # Otherwise we're good.
+                            pass
 
                         # Remove unnecessary whitespace
                         for elem in ws_pre + ws_post:

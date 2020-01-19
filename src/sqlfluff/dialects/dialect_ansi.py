@@ -303,17 +303,19 @@ class PartitionClauseSegment(BaseSegment):
     parse_grammar = Sequence(
         Ref('PartitionKeywordSegment'),
         Ref('ByKeywordSegment'),
+        Indent,
         Delimited(
             Ref('ExpressionSegment'),
             delimiter=Ref('CommaSegment')
-        )
+        ),
+        Dedent,
     )
 
 
 @ansi_dialect.segment()
 class FrameClauseSegment(BaseSegment):
     """A frame clause for window functions."""
-    type = 'partitionby_clause'
+    type = 'frame_clause'
     match_grammar = StartsWith(
         Ref('RowsKeywordSegment')
     )
@@ -651,6 +653,7 @@ class OrderByClauseSegment(BaseSegment):
     parse_grammar = Sequence(
         Ref('OrderKeywordSegment'),
         Ref('ByKeywordSegment'),
+        Indent,
         Delimited(
             Sequence(
                 OneOf(
@@ -668,7 +671,8 @@ class OrderByClauseSegment(BaseSegment):
             ),
             delimiter=Ref('CommaSegment'),
             terminator=Ref('LimitKeywordSegment')
-        )
+        ),
+        Dedent
     )
 
 

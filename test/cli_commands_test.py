@@ -82,8 +82,8 @@ def test__cli__command_lint_stdin(command):
 
     The subprocess command should exit without errors, as no issues should be found.
     """
-    with open('test/fixtures/cli/passing_a.sql', 'r') as f:
-        sql = f.read()
+    with open('test/fixtures/cli/passing_a.sql', 'r') as test_file:
+        sql = test_file.read()
     invoke_assert_code(args=[lint, command], kwargs=dict(input=sql))
 
 
@@ -151,13 +151,13 @@ def test__cli__command_rules():
     invoke_assert_code(args=[rules])
 
 
-def generic_roundtrip_test(source_file, rulestring, final_exit_code=0, force=True, fix_input=None):
+def generic_roundtrip_test(source_file, rulestring, final_exit_code=0, force=True, fix_input=None, fix_exit_code=0):
     """A test for roundtrip testing, take a file buffer, lint, fix and lint.
 
     This is explicitly different from the linter version of this, in that
     it uses the command line rather than the direct api.
     """
-    filename = 'tesing.sql'
+    filename = 'testing.sql'
     # Lets get the path of a file to use
     tempdir_path = tempfile.mkdtemp()
     filepath = os.path.join(tempdir_path, filename)
@@ -172,7 +172,7 @@ def generic_roundtrip_test(source_file, rulestring, final_exit_code=0, force=Tru
         fix_args = ['--rules', rulestring, '-f', filepath]
     else:
         fix_args = ['--rules', rulestring, filepath]
-    invoke_assert_code(args=[fix, fix_args], input=fix_input)
+    invoke_assert_code(ret_code=fix_exit_code, args=[fix, fix_args], input=fix_input)
     # Now lint the file and check for exceptions
     invoke_assert_code(ret_code=final_exit_code, args=[lint, ['--rules', rulestring, filepath]])
     shutil.rmtree(tempdir_path)
@@ -186,9 +186,19 @@ def generic_roundtrip_test(source_file, rulestring, final_exit_code=0, force=Tru
     ('L003', 'test/fixtures/linter/indentation_error_hard.sql')
 ])
 def test__cli__command__fix(rule, fname):
-    """Test the round trip of detecting, fixing and then not detecting rule L001."""
-    with open(fname, mode='r') as f:
-        generic_roundtrip_test(f, rule)
+    """Test the round trip of detecting, fixing and then not detecting the rule."""
+    with open(fname, mode='r') as test_file:
+        generic_roundtrip_test(test_file, rule)
+
+
+@pytest.mark.parametrize('rule,fname', [
+    # NB: L004 currently has no fix routine.
+    ('L004', 'test/fixtures/linter/indentation_errors.sql')
+])
+def test__cli__command__fix_fail(rule, fname):
+    """Test the round trip of detecting, fixing and then still detecting the rule."""
+    with open(fname, mode='r') as test_file:
+        generic_roundtrip_test(test_file, rule, fix_exit_code=1, final_exit_code=65)
 
 
 def test__cli__command_fix_stdin(monkeypatch):
@@ -206,7 +216,7 @@ def test__cli__command_fix_stdin(monkeypatch):
 ])
 def test__cli__command__fix_no_force(rule, fname, prompt, exit_code):
     """Round trip test, using the prompts."""
-    with open(fname, mode='r') as f:
+    with open(fname, mode='r') as test_file:
         generic_roundtrip_test(
-            f, rule, force=False, final_exit_code=exit_code,
+            test_file, rule, force=False, final_exit_code=exit_code,
             fix_input=prompt)
