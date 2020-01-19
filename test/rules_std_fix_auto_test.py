@@ -103,15 +103,18 @@ def auto_fix_test(rules, dialect, folder):
         assert expected_vs == vs
 
     res = do_fixes(lnt, paths=[filepath])
-    shutil.rmtree(tempdir_path)
-    # Make sure we were successful
-    assert res
     # Read the fixed file
-    with open(src_filepath, mode='r') as source_file:
-        fixed_buff = source_file.read()
+    with open(filepath, mode='r') as fixed_file:
+        fixed_buff = fixed_file.read()
+    # Clearup once read
+    shutil.rmtree(tempdir_path)
     # Read the comparison file
     with open(cmp_filepath, mode='r') as comp_file:
         comp_buff = comp_file.read()
+
+    # Make sure we were successful
+    assert res
+    # Assert that we fixed as expected
     assert fixed_buff == comp_buff
 
 
