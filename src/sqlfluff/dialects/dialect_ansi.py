@@ -915,7 +915,7 @@ class ColumnConstraintSegment(BaseSegment):
                 Ref('NotKeywordSegment', optional=True),
                 Ref('NullKeywordSegment')
             ),
-            Sequence(  # DEFAULT
+            Sequence(  # DEFAULT <value>
                 Ref('DefaultKeywordSegment'),
                 Ref('LiteralGrammar'),
             ),
@@ -930,16 +930,9 @@ class ColumnDefinitionSegment(BaseSegment):
     match_grammar = Sequence(
         Ref('ObjectReferenceSegment'),  # Column name
         Ref('ObjectReferenceSegment'),  # Column type
-        # Here, we want to allow 0 or more column constraints with no real
-        # delimiiter (although whitespace, comma, or close parenthesis is sort
-        # of a delimiter, since that ends the surrounding column definition).
-        # HOW DO I DO THIS?
-        # For example:
-        # * NULL DEFAULT 'a'
-        # * NOT NULL DEFAULT NULL
-        # Sequence(  # 0 or more column constraints, no delimiter
-        Ref('ColumnConstraintSegment', optional=True),
-        # )
+        AnyNumberOf(
+            Ref('ColumnConstraintSegment', optional=True),
+        )
     )
 
 
