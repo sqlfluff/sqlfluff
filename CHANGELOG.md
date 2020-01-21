@@ -45,6 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   line breaks as re-flow the query. This will likely need further work
   and may still encounter places where it doesn't fix all errors but should
   be able to deal with the majority of simple cases.
+- BigQuery dialect, initially just for appropriate quoting.
 - Added parsing of DDL statements such as `COMMIT`, `DROP`, `GRANT`, `REVOKE`
   and `ROLLBACK`. Thanks [@barrywhart](https://github.com/barrywhart).
 - `--format` option to the `parse` command that allows a yaml output. This
