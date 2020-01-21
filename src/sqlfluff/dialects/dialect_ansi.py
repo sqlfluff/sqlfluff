@@ -149,6 +149,34 @@ ansi_dialect.add(
     WithKeywordSegment=KeywordSegment.make('with'),
     InsertKeywordSegment=KeywordSegment.make('insert'),
     IntoKeywordSegment=KeywordSegment.make('into'),
+    CommitKeywordSegment=KeywordSegment.make('commit'),
+    WorkKeywordSegment=KeywordSegment.make('work'),
+    NoKeywordSegment=KeywordSegment.make('no'),
+    ChainKeywordSegment=KeywordSegment.make('chain'),
+    RollbackKeywordSegment=KeywordSegment.make('rollback'),
+    CreateKeywordSegment=KeywordSegment.make('create'),
+    DropKeywordSegment=KeywordSegment.make('drop'),
+    TableKeywordSegment=KeywordSegment.make('table'),
+    ConstraintKeywordSegment=KeywordSegment.make('constraint'),
+    UniqueKeywordSegment=KeywordSegment.make('unique'),
+    PrimaryKeywordSegment=KeywordSegment.make('primary'),
+    ForeignKeywordSegment=KeywordSegment.make('foreign'),
+    KeyKeywordSegment=KeywordSegment.make('key'),
+    ReferencesKeywordSegment=KeywordSegment.make('references'),
+    DefaultKeywordSegment=KeywordSegment.make('default'),
+    IfKeywordSegment=KeywordSegment.make('if'),
+    ViewKeywordSegment=KeywordSegment.make('view'),
+    RestrictKeywordSegment=KeywordSegment.make('restrict'),
+    CascadeKeywordSegment=KeywordSegment.make('cascade'),
+    GrantKeywordSegment=KeywordSegment.make('grant'),
+    RevokeKeywordSegment=KeywordSegment.make('revoke'),
+    TablesKeywordSegment=KeywordSegment.make('tables'),
+    SchemaKeywordSegment=KeywordSegment.make('schema'),
+    ForKeywordSegment=KeywordSegment.make('for'),
+    ToKeywordSegment=KeywordSegment.make('to'),
+    OptionKeywordSegment=KeywordSegment.make('option'),
+    PrivilegesKeywordSegment=KeywordSegment.make('privileges'),
+    UpdateKeywordSegment=KeywordSegment.make('update'),
     # Some more grammars:
     LiteralGrammar=OneOf(
         Ref('QuotedLiteralSegment'), Ref('NumericLiteralSegment'),
@@ -840,6 +868,312 @@ class EmptyStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class TransactionStatementSegment(BaseSegment):
+    """A `COMMIT` or `ROLLBACK` statement."""
+    type = 'transaction_statement'
+    match_grammar = OneOf(
+        # COMMIT [ WORK ] [ AND [ NO ] CHAIN ]
+        Sequence(
+            Ref('CommitKeywordSegment'),
+            Ref('WorkKeywordSegment', optional=True),
+            Sequence(
+                Ref('AndKeywordSegment'),
+                Ref('NoKeywordSegment', optional=True),
+                Ref('ChainKeywordSegment'),
+                optional=True
+            )
+        ),
+        # NOTE: "TO SAVEPOINT" is not yet supported
+        # ROLLBACK [ WORK ] [ AND [ NO ] CHAIN ]
+        Sequence(
+            Ref('RollbackKeywordSegment'),
+            Ref('WorkKeywordSegment', optional=True),
+            Sequence(
+                Ref('AndKeywordSegment'),
+                Ref('NoKeywordSegment', optional=True),
+                Ref('ChainKeywordSegment'),
+                optional=True
+            )
+        ),
+    )
+
+
+@ansi_dialect.segment()
+class ColumnConstraintSegment(BaseSegment):
+    """A column constraint; each CREATE TABLE column can have 0 or more."""
+    type = 'column_constraint'
+    # Column constraint from
+    # https://www.postgresql.org/docs/12/sql-createtable.html
+    match_grammar = Sequence(
+        Sequence(
+            Ref('ConstraintKeywordSegment'),
+            Ref('ObjectReferenceSegment'),  # Constraint name
+            optional=True
+        ),
+        OneOf(
+            Sequence(  # NOT NULL or NULL
+                Ref('NotKeywordSegment', optional=True),
+                Ref('NullKeywordSegment')
+            ),
+            Sequence(  # DEFAULT <value>
+                Ref('DefaultKeywordSegment'),
+                Ref('LiteralGrammar'),
+            ),
+            Sequence(  # PRIMARY KEY
+                Ref('PrimaryKeywordSegment'),
+                Ref('KeyKeywordSegment'),
+            ),
+            Ref('UniqueKeywordSegment'),  # UNIQUE
+            Sequence(  # REFERENCES reftable [ ( refcolumn) ]
+                Ref('ReferencesKeywordSegment'),
+                Ref('ObjectReferenceSegment'),
+                Bracketed(  # Foreign columns making up FOREIGN KEY constraint
+                    Delimited(
+                        Ref('ObjectReferenceSegment'),
+                        delimiter=Ref('CommaSegment')
+                    ),
+                    optional=True
+                ),
+            ),
+        ),
+    )
+
+
+@ansi_dialect.segment()
+class ColumnDefinitionSegment(BaseSegment):
+    """A column definition, e.g. for CREATE TABLE or ALTER TABLE."""
+    type = 'column_definition'
+    match_grammar = Sequence(
+        Ref('ObjectReferenceSegment'),  # Column name
+        Ref('ObjectReferenceSegment'),  # Column type
+        AnyNumberOf(
+            Ref('ColumnConstraintSegment', optional=True),
+        )
+    )
+
+
+@ansi_dialect.segment()
+class TableConstraintSegment(BaseSegment):
+    """A table constraint, e.g. for CREATE TABLE."""
+    type = 'table_constraint_definition'
+    # Later add support for CHECK constraint, others?
+    # e.g. CONSTRAINT constraint_1 PRIMARY KEY(column_1)
+    match_grammar = Sequence(
+        Sequence(  # [ CONSTRAINT <Constraint name> ]
+            Ref('ConstraintKeywordSegment'),
+            Ref('ObjectReferenceSegment'),
+            optional=True
+        ),
+        OneOf(
+            Sequence(  # UNIQUE ( column_name [, ... ] )
+                Ref('UniqueKeywordSegment'),
+                Bracketed(  # Columns making up UNIQUE constraint
+                    Delimited(
+                        Ref('ObjectReferenceSegment'),
+                        delimiter=Ref('CommaSegment')
+                    ),
+                ),
+                # Later add support for index_parameters?
+            ),
+            Sequence(  # PRIMARY KEY ( column_name [, ... ] ) index_parameters
+                Ref('PrimaryKeywordSegment'),
+                Ref('KeyKeywordSegment'),
+                Bracketed(  # Columns making up PRIMARY KEY constraint
+                    Delimited(
+                        Ref('ObjectReferenceSegment'),
+                        delimiter=Ref('CommaSegment')
+                    ),
+                ),
+                # Later add support for index_parameters?
+            ),
+            Sequence(  # FOREIGN KEY ( column_name [, ... ] )
+                       # REFERENCES reftable [ ( refcolumn [, ... ] ) ]
+                Ref('ForeignKeywordSegment'),
+                Ref('KeyKeywordSegment'),
+                Bracketed(  # Local columns making up FOREIGN KEY constraint
+                    Delimited(
+                        Ref('ObjectReferenceSegment'),
+                        delimiter=Ref('CommaSegment')
+                    ),
+                ),
+                Ref('ReferencesKeywordSegment'),
+                Ref('ObjectReferenceSegment'),
+                Bracketed(  # Foreign columns making up FOREIGN KEY constraint
+                    Delimited(
+                        Ref('ObjectReferenceSegment'),
+                        delimiter=Ref('CommaSegment')
+                    ),
+                ),
+                # Later add support for [MATCH FULL/PARTIAL/SIMPLE] ?
+                # Later add support for [ ON DELETE/UPDATE action ] ?
+            ),
+        ),
+    )
+
+
+@ansi_dialect.segment()
+class CreateTableStatementSegment(BaseSegment):
+    """A `CREATE TABLE` statement."""
+    type = 'create_table_statement'
+    # https://crate.io/docs/sql-99/en/latest//chapters/18.html
+    # https://www.postgresql.org/docs/12/sql-createtable.html
+    match_grammar = Sequence(
+        Ref('CreateKeywordSegment'),
+        Ref('TableKeywordSegment'),
+        Sequence(
+            Ref('IfKeywordSegment'),
+            Ref('NotKeywordSegment'),
+            Ref('ExistsKeywordSegment'),
+            optional=True
+        ),
+        Ref('ObjectReferenceSegment'),
+        Bracketed(
+            Delimited(
+                OneOf(
+                    Ref('ColumnDefinitionSegment'),
+                    Ref('TableConstraintSegment'),
+                ),
+                delimiter=Ref('CommaSegment')
+            )
+        )
+    )
+
+
+@ansi_dialect.segment()
+class DropStatementSegment(BaseSegment):
+    """A `DROP` statement."""
+    type = 'drop_statement'
+    # DROP {TABLE | VIEW} <Table name> [IF EXISTS} {RESTRICT | CASCADE}
+    match_grammar = Sequence(
+        Ref('DropKeywordSegment'),
+        OneOf(
+            Ref('TableKeywordSegment'),
+            Ref('ViewKeywordSegment'),
+        ),
+        Sequence(
+            Ref('IfKeywordSegment'),
+            Ref('ExistsKeywordSegment'),
+            optional=True
+        ),
+        Ref('ObjectReferenceSegment'),
+        OneOf(
+            Ref('RestrictKeywordSegment'),
+            Ref('CascadeKeywordSegment', optional=True),
+            optional=True
+        )
+    )
+
+
+@ansi_dialect.segment()
+class AccessStatementSegment(BaseSegment):
+    """A `GRANT` or `REVOKE` statement."""
+    type = 'access_statement'
+    # Based on https://www.postgresql.org/docs/12/sql-grant.html
+    match_grammar = OneOf(
+        Sequence(
+            Ref('GrantKeywordSegment'),
+            Delimited(  # List of permission types
+                Sequence(
+                    OneOf(  # Permission type
+                        Sequence(
+                            Ref('AllKeywordSegment'),
+                            Ref('PrivilegesKeywordSegment', optional=True)
+                        ),
+                        Ref('SelectKeywordSegment'),
+                        Ref('UpdateKeywordSegment'),
+                        Ref('InsertKeywordSegment'),
+                    ),
+                    Bracketed(  # Optional list of column names
+                        Delimited(
+                            Ref('ObjectReferenceSegment'),
+                            delimiter=Ref('CommaSegment')
+                        ),
+                        optional=True
+                    )
+                ),
+                delimiter=Ref('CommaSegment')
+            ),
+            Ref('OnKeywordSegment'),
+            OneOf(
+                Sequence(
+                    Ref('TableKeywordSegment', optional=True),
+                    Ref('ObjectReferenceSegment'),
+                ),
+                Sequence(
+                    Ref('AllKeywordSegment'),
+                    Ref('TablesKeywordSegment'),
+                    Ref('InKeywordSegment'),
+                    Ref('SchemaKeywordSegment'),
+                    Ref('ObjectReferenceSegment'),
+                )
+            ),
+            Ref('ToKeywordSegment'),
+            Ref('GroupKeywordSegment', optional=True),
+            Ref('ObjectReferenceSegment'),
+            Sequence(
+                Ref('WithKeywordSegment'),
+                Ref('GrantKeywordSegment'),
+                Ref('OptionKeywordSegment'),
+                optional=True
+            ),
+        ),
+        # Based on https://www.postgresql.org/docs/12/sql-revoke.html
+        Sequence(
+            Ref('RevokeKeywordSegment'),
+            Delimited(  # List of permission types
+                Sequence(
+                    Sequence(
+                        Ref('GrantKeywordSegment'),
+                        Ref('OptionKeywordSegment'),
+                        Ref('ForKeywordSegment'),
+                        optional=True
+                    ),
+                    OneOf(  # Permission type
+                        Sequence(
+                            Ref('AllKeywordSegment'),
+                            Ref('PrivilegesKeywordSegment', optional=True)
+                        ),
+                        Ref('SelectKeywordSegment'),
+                        Ref('UpdateKeywordSegment'),
+                        Ref('InsertKeywordSegment'),
+                    ),
+                    Bracketed(  # Optional list of column names
+                        Delimited(
+                            Ref('ObjectReferenceSegment'),
+                            delimiter=Ref('CommaSegment')
+                        ),
+                        optional=True
+                    )
+                ),
+                delimiter=Ref('CommaSegment')
+            ),
+            Ref('OnKeywordSegment'),
+            OneOf(
+                Sequence(
+                    Ref('TableKeywordSegment', optional=True),
+                    Ref('ObjectReferenceSegment'),
+                ),
+                Sequence(
+                    Ref('AllKeywordSegment'),
+                    Ref('TablesKeywordSegment'),
+                    Ref('InKeywordSegment'),
+                    Ref('SchemaKeywordSegment'),
+                    Ref('ObjectReferenceSegment'),
+                )
+            ),
+            Ref('FromKeywordSegment'),
+            Ref('GroupKeywordSegment', optional=True),
+            Ref('ObjectReferenceSegment'),
+            OneOf(
+                Ref('RestrictKeywordSegment'),
+                Ref('CascadeKeywordSegment', optional=True),
+                optional=True
+            )
+        ),
+    )
+
+
+@ansi_dialect.segment()
 class StatementSegment(BaseSegment):
     """A generic segment, to any of it's child subsegments.
 
@@ -849,5 +1183,8 @@ class StatementSegment(BaseSegment):
     parse_grammar = OneOf(
         Ref('SetExpressionSegment'),
         Ref('SelectStatementSegment'), Ref('InsertStatementSegment'),
-        Ref('EmptyStatementSegment'), Ref('WithCompoundStatementSegment'))
+        Ref('EmptyStatementSegment'), Ref('WithCompoundStatementSegment'),
+        Ref('TransactionStatementSegment'), Ref('DropStatementSegment'),
+        Ref('AccessStatementSegment'), Ref('CreateTableStatementSegment'),
+    )
     match_grammar = GreedyUntil(Ref('SemicolonSegment'))
