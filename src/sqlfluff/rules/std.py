@@ -1308,12 +1308,16 @@ class Rule_L016(Rule_L003):
 
                 # We'll definitely have an up. It's possible that the *down*
                 # might not be on this line, so we have to allow for that case.
-                split_at = [
-                    # First up break
-                    (next(
-                        sec for sec in chunk_buff if sec.role == 'breakpoint'
-                        and sec.indent_balance == 0 and sec.indent_impulse > 0), 1)
+                upbreaks = [
+                    sec for sec in chunk_buff if sec.role == 'breakpoint'
+                    and sec.indent_balance == 0 and sec.indent_impulse > 0
                 ]
+                if not upbreaks:
+                    # No upbreaks?!
+                    # abort
+                    return []
+                # First up break
+                split_at = [(upbreaks[0], 1)]
                 downbreaks = [
                     sec for sec in chunk_buff if sec.role == 'breakpoint'
                     and sec.indent_balance + sec.indent_impulse == 0 and sec.indent_impulse < 0
