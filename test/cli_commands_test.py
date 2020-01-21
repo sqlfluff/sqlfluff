@@ -14,12 +14,12 @@ import sqlfluff
 from sqlfluff.cli.commands import lint, version, rules, fix, parse
 
 
-def invoke_assert_code(ret_code=0, args=None, kwargs=None, input=None):
+def invoke_assert_code(ret_code=0, args=None, kwargs=None, cli_input=None):
     """Invoke a command and check return code."""
     args = args or []
     kwargs = kwargs or {}
-    if input:
-        kwargs['input'] = input
+    if cli_input:
+        kwargs['input'] = cli_input
     runner = CliRunner()
     result = runner.invoke(*args, **kwargs)
     # Output the CLI code for debugging
@@ -84,7 +84,7 @@ def test__cli__command_lint_stdin(command):
     """
     with open('test/fixtures/cli/passing_a.sql', 'r') as test_file:
         sql = test_file.read()
-    invoke_assert_code(args=[lint, command], kwargs=dict(input=sql))
+    invoke_assert_code(args=[lint, command], cli_input=sql)
 
 
 @pytest.mark.parametrize('command', [
@@ -172,7 +172,7 @@ def generic_roundtrip_test(source_file, rulestring, final_exit_code=0, force=Tru
         fix_args = ['--rules', rulestring, '-f', filepath]
     else:
         fix_args = ['--rules', rulestring, filepath]
-    invoke_assert_code(ret_code=fix_exit_code, args=[fix, fix_args], input=fix_input)
+    invoke_assert_code(ret_code=fix_exit_code, args=[fix, fix_args], cli_input=fix_input)
     # Now lint the file and check for exceptions
     invoke_assert_code(ret_code=final_exit_code, args=[lint, ['--rules', rulestring, filepath]])
     shutil.rmtree(tempdir_path)
@@ -206,7 +206,7 @@ def test__cli__command_fix_stdin(monkeypatch):
     sql = 'select * from tbl'
     expected = 'fixed sql!'
     monkeypatch.setattr("sqlfluff.linter.LintedFile.fix_string", lambda x: expected)
-    result = invoke_assert_code(args=[fix, ('-', '--rules', 'L001')], kwargs=dict(input=sql))
+    result = invoke_assert_code(args=[fix, ('-', '--rules', 'L001')], cli_input=sql)
     assert result.output == expected
 
 

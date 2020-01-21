@@ -53,7 +53,7 @@ class SingletonMatcher:
                     pos_marker=start_pos),)
             )
         else:
-            return LexMatch(forward_string, start_pos, tuple())
+            return LexMatch(forward_string, start_pos, ())
 
     @classmethod
     def from_shorthand(cls, name, template, **kwargs):
@@ -105,7 +105,7 @@ class RepeatedMultiMatcher(SingletonMatcher):
 
     def match(self, forward_string, start_pos):
         """Iteratively match strings using the selection of submatchers."""
-        seg_buff = tuple()
+        seg_buff = ()
         while True:
             if len(forward_string) == 0:
                 return LexMatch(
