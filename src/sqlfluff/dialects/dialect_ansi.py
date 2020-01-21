@@ -524,9 +524,9 @@ class CaseExpressionSegment(BaseSegment):
         Sequence(
             Ref('ElseKeywordSegment'),
             Ref('ExpressionSegment_TermEnd'),
-            Ref('EndKeywordSegment'),
             optional=True
-        )
+        ),
+        Ref('EndKeywordSegment')
     )
 
 
@@ -627,10 +627,11 @@ class ExpressionSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class ExpressionSegment_TermWhenElse(ExpressionSegment):
-    """Expression terminated by WHEN or ELSE."""
+    """Expression terminated by WHEN, END or ELSE."""
     match_grammar = GreedyUntil(
         Ref('WhenKeywordSegment'),
-        Ref('ElseKeywordSegment')
+        Ref('ElseKeywordSegment'),
+        Ref('EndKeywordSegment')
     )
 
 
