@@ -45,6 +45,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   line breaks as re-flow the query. This will likely need further work
   and may still encounter places where it doesn't fix all errors but should
   be able to deal with the majority of simple cases.
+- Added parsing of DDL statements such as `COMMIT`, `DROP`, `GRANT`, `REVOKE`
+  and `ROLLBACK`. Thanks [@barrywhart](https://github.com/barrywhart).
 - `--format` option to the `parse` command that allows a yaml output. This
   is mostly to make test writing easier in the development process but
   might also be useful for other things.
