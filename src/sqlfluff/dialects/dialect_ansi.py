@@ -147,6 +147,7 @@ ansi_dialect.add(
     ValuesKeywordSegment=KeywordSegment.make('values'),
     SelectKeywordSegment=KeywordSegment.make('select'),
     WithKeywordSegment=KeywordSegment.make('with'),
+    OffsetKeywordSegment=KeywordSegment.make('offset'),
     InsertKeywordSegment=KeywordSegment.make('insert'),
     IntoKeywordSegment=KeywordSegment.make('into'),
     CommitKeywordSegment=KeywordSegment.make('commit'),
@@ -361,10 +362,26 @@ class TableExpressionSegment(BaseSegment):
     type = 'table_expression'
     match_grammar = Sequence(
         OneOf(
+            # Functions allowed here for table expressions.
+            # Perhaps this should just be in a dialect, but
+            # it seems sensible here for now.
+            Ref('FunctionSegment'),
             Ref('ObjectReferenceSegment'),
+            # Nested Selects
+            Bracketed(
+                Ref('SelectStatementSegment'),
+                Ref('WithCompoundStatementSegment')
+            )
             # Values clause?
         ),
-        Ref('AliasExpressionSegment', optional=True)
+        Ref('AliasExpressionSegment', optional=True),
+        Sequence(
+            Ref('WithKeywordSegment'),
+            Ref('OffsetKeywordSegment'),
+            Ref('AsKeywordSegment'),
+            Ref('SingleIdentifierGrammar'),
+            optional=True
+        ),
     )
 
 
