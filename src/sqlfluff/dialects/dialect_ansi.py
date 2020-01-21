@@ -919,6 +919,22 @@ class ColumnConstraintSegment(BaseSegment):
                 Ref('DefaultKeywordSegment'),
                 Ref('LiteralGrammar'),
             ),
+            Sequence(  # PRIMARY KEY
+                Ref('PrimaryKeywordSegment'),
+                Ref('KeyKeywordSegment'),
+            ),
+            Ref('UniqueKeywordSegment'),  # UNIQUE
+            Sequence(  # REFERENCES reftable [ ( refcolumn) ]
+                Ref('ReferencesKeywordSegment'),
+                Ref('ObjectReferenceSegment'),
+                Bracketed(  # Foreign columns making up FOREIGN KEY constraint
+                    Delimited(
+                        Ref('ObjectReferenceSegment'),
+                        delimiter=Ref('CommaSegment')
+                    ),
+                    optional=True
+                ),
+            ),
         ),
     )
 
