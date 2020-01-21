@@ -1,0 +1,4 @@
+SELECT
+    y AS woy
+FROM
+    UNNEST(GENERATE_ARRAY(1, 53)) AS y
