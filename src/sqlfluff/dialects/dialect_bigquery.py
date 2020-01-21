@@ -5,7 +5,6 @@ https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax
 """
 
 from ..parser import (NamedSegment, OneOf, Ref)
-from .base import Dialect
 
 from .dialect_ansi import ansi_dialect
 

@@ -16,6 +16,11 @@ class Dialect:
         self.lexer_struct = lexer_struct
 
     def copy_as(self, name):
+        """Copy this dialect and create a new one with a different name.
+
+        This is the primary method for inheritance, after which, the
+        `replace` method can be used to override particular rules.
+        """
         return self.__class__(
             name=name,
             library=self._library.copy(),
