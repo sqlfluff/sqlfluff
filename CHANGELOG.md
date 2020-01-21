@@ -56,6 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enabled the `fix` command while using `stdin`. Thanks [@nolanbconaway](https://github.com/nolanbconaway).
 - Rule to detect incorrect use of `DISTINCT`. Thanks [@barrywhart](https://github.com/barrywhart).
 - Security fixes from DeepCover. Thanks [@sanketsaurav](https://github.com/sanketsaurav).
+- Automatic fix testing, to help support the newer more complicated rules.
 
 ## [0.2.4] - 2019-12-06
 
