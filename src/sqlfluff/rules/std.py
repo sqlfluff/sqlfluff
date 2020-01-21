@@ -1372,6 +1372,9 @@ class Rule_L016(Rule_L003):
 
                 # Does the line end in an inline comment that we can move back?
                 if this_line[-1].name == 'inline_comment':
+                    # Is this line JUST COMMENT, if so, user will have to fix themselves
+                    if len(this_line) == 1:
+                        return LintResult(anchor=segment)
                     # Set up to delete the original comment and the preceeding whitespace
                     delete_buffer = [LintFix('delete', this_line[-1])]
                     idx = -2

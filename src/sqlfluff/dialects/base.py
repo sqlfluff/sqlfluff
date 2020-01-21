@@ -10,10 +10,22 @@ class Dialect:
             the lexing config for this dialect.
 
     """
-    def __init__(self, name, lexer_struct=None):
-        self._library = {}
+    def __init__(self, name, lexer_struct=None, library=None):
+        self._library = library or {}
         self.name = name
         self.lexer_struct = lexer_struct
+
+    def copy_as(self, name):
+        """Copy this dialect and create a new one with a different name.
+
+        This is the primary method for inheritance, after which, the
+        `replace` method can be used to override particular rules.
+        """
+        return self.__class__(
+            name=name,
+            library=self._library.copy(),
+            lexer_struct=self.lexer_struct.copy()
+        )
 
     def segment(self):
         """This is the decorator for elements, it should be called as a method.
@@ -50,6 +62,16 @@ class Dialect:
         for n in kwargs:
             if n in self._library:
                 raise ValueError("{0!r} is already registered in {1!r}".format(n, self))
+            self._library[n] = kwargs[n]
+
+    def replace(self, **kwargs):
+        """Override a segment on the dialect directly.
+
+        Usage is very similar to add, but elements specfied must already exist.
+        """
+        for n in kwargs:
+            if n not in self._library:
+                raise ValueError("{0!r} is not already registered in {1!r}".format(n, self))
             self._library[n] = kwargs[n]
 
     def ref(self, name):
