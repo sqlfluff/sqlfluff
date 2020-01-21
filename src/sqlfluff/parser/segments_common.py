@@ -254,13 +254,19 @@ class Indent(RawSegment):
         """Return the expected string for this segment."""
         return ''
 
-    def __init__(self):
+    def __init__(self, pos_marker):
         """For the indent we override the init method.
 
-        For something without content, neither makes sense.
+        For something without content, the content doesn't make
+        sense. The pos_marker, will be matched with the following
+        segment, but meta segments are ignored during fixes so it's
+        ok in this sense. We need the pos marker later for dealing
+        with repairs.
         """
         self._raw = ''
-        self.pos_marker = None
+        # TODO: Make sure that we DO actually skip meta segments
+        # during fixes.
+        self.pos_marker = pos_marker
 
 
 class Dedent(Indent):

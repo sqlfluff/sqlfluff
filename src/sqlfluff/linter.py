@@ -35,9 +35,25 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
                 raise v
         return vs
 
-    def num_violations(self):
-        """Count the number of violations."""
-        return len(self.violations)
+    def num_violations(self, rules=None, types=None):
+        """Count the number of violations.
+
+        Optionally now with filters.
+        """
+        violations = self.violations
+        if types:
+            try:
+                types = tuple(types)
+            except TypeError:
+                types = (types,)
+            violations = [v for v in violations if isinstance(v, types)]
+        if rules:
+            if isinstance(rules, str):
+                rules = (rules,)
+            else:
+                rules = tuple(rules)
+            violations = [v for v in violations if v.rule_code() in rules]
+        return len(violations)
 
     def is_clean(self):
         """Return True if there are no violations."""
@@ -48,13 +64,21 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
 
         We use the file_mask to do a safe merge, avoiding any templated
         sections. First we need to detect where there have been changes
-        between the fixed and templated versions.
+        between the fixed and templated versions. The file mask is of
+        the format: (raw_file, templated_file, fixed_file).
 
         We use difflib.SequenceMatcher.get_opcodes
         See: https://docs.python.org/3.7/library/difflib.html#difflib.SequenceMatcher.get_opcodes
         It returns a list of tuples ('equal|replace', ia1, ia2, ib1, ib2).
 
         """
+        # Do we have enough information to actually fix the file?
+        if any(elem is None for elem in self.file_mask):
+            verbosity_logger(
+                "Insufficient information to fix file: {0}".format(self.file_mask),
+                verbosity=verbosity)
+            return None, False
+
         verbosity_logger("Persisting file masks: {0}".format(self.file_mask), verbosity=verbosity)
         # Compare Templated with Raw
         diff_templ = SequenceMatcher(autojunk=None, a=self.file_mask[0], b=self.file_mask[1])
@@ -196,7 +220,8 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
                      "issue on github with the query and rules you're trying to "
                      "fix.").format(templ_block[0]))
 
-        return write_buff
+        # The success metric here is whether anything ACTUALLY changed.
+        return write_buff, write_buff != self.file_mask[0]
 
     def persist_tree(self, verbosity=0):
         """Persist changes to the given path.
@@ -210,15 +235,16 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
         It returns a list of tuples ('equal|replace', ia1, ia2, ib1, ib2).
 
         """
-        write_buff = self.fix_string(verbosity=verbosity)
+        write_buff, success = self.fix_string(verbosity=verbosity)
 
-        # Actually write the file.
-        with open(self.path, 'w') as f:
-            f.write(write_buff)
+        if success:
+            # Actually write the file.
+            with open(self.path, 'w') as f:
+                f.write(write_buff)
 
         # TODO: Make return value of persist_changes() a more interesting result and then format it
         # click.echo(format_linting_fixes(result, verbose=verbose), color=color)
-        return True
+        return success
 
 
 class LintedPath:
@@ -246,9 +272,9 @@ class LintedPath:
                 tuple_buffer += file.check_tuples()
             return tuple_buffer
 
-    def num_violations(self):
+    def num_violations(self, **kwargs):
         """Count the number of violations in the path."""
-        return sum(file.num_violations() for file in self.files)
+        return sum(file.num_violations(**kwargs) for file in self.files)
 
     def violations(self):
         """Return a dict of violations by file path."""
@@ -263,10 +289,29 @@ class LintedPath:
             violations=sum(file.num_violations() for file in self.files)
         )
 
-    def persist_changes(self, verbosity=0):
-        """Persist changes to files in the given path."""
+    def persist_changes(self, verbosity=0, output_func=None, **kwargs):
+        """Persist changes to files in the given path.
+
+        This also logs the output using the output_func if present.
+        """
         # Run all the fixes for all the files and return a dict
-        return {file.path: file.persist_tree(verbosity=verbosity) for file in self.files}
+        buffer = {}
+        for file in self.files:
+            if self.num_violations(**kwargs) > 0:
+                buffer[file.path] = file.persist_tree(verbosity=verbosity)
+                result = buffer[file.path]
+            else:
+                buffer[file.path] = True
+                result = 'SKIP'
+
+            if output_func:
+                output_func(
+                    format_filename(
+                        filename=file.path,
+                        success=result,
+                        verbose=verbosity)
+                )
+        return buffer
 
 
 class LintingResult:
@@ -317,9 +362,9 @@ class LintingResult:
                 tuple_buffer += path.check_tuples()
             return tuple_buffer
 
-    def num_violations(self):
+    def num_violations(self, **kwargs):
         """Count the number of violations in thie result."""
-        return sum(path.num_violations() for path in self.paths)
+        return sum(path.num_violations(**kwargs) for path in self.paths)
 
     def violations(self):
         """Return a dict of paths and violations."""
@@ -338,9 +383,14 @@ class LintingResult:
         all_stats['status'] = 'FAIL' if all_stats['violations'] > 0 else 'PASS'
         return all_stats
 
-    def persist_changes(self, verbosity=0):
+    def persist_changes(self, verbosity=0, output_func=None, **kwargs):
         """Run all the fixes for all the files and return a dict."""
-        return self.combine_dicts(*[path.persist_changes(verbosity=verbosity) for path in self.paths])
+        return self.combine_dicts(
+            *[
+                path.persist_changes(verbosity=verbosity, output_func=output_func, **kwargs)
+                for path in self.paths
+            ]
+        )
 
 
 class Linter:
