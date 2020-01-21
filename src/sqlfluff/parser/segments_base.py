@@ -569,7 +569,7 @@ class BaseSegment:
     @staticmethod
     def expand(segments, parse_context):
         """Expand the list of child segments using their `parse` methods."""
-        segs = tuple()
+        segs = ()
         for stmt in segments:
             try:
                 if not stmt.is_expandable:
@@ -595,7 +595,7 @@ class BaseSegment:
                 # We might get back an iterable of segments
                 segs += tuple(res)
         # Basic Validation
-        check_still_complete(segments, segs, tuple())
+        check_still_complete(segments, segs, ())
         return segs
 
     def raw_list(self):

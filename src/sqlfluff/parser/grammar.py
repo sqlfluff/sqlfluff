@@ -908,7 +908,7 @@ class ContainsOnly(BaseGrammar):
     """
     def match(self, segments, parse_context):
         """Match if the sequence contains segments that match an element."""
-        matched_buffer = tuple()
+        matched_buffer = ()
         forward_buffer = segments
         while True:
             if len(forward_buffer) == 0:
