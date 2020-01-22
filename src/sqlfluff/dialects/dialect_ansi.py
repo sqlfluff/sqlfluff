@@ -1105,6 +1105,7 @@ class CreateViewStatementSegment(BaseSegment):
         Ref('SelectStatementSegment'),
     )
 
+
 @ansi_dialect.segment()
 class DropStatementSegment(BaseSegment):
     """A `DROP` statement."""
