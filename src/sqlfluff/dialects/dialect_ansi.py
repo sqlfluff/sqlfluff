@@ -163,6 +163,8 @@ ansi_dialect.add(
     PrimaryKeywordSegment=KeywordSegment.make('primary'),
     ForeignKeywordSegment=KeywordSegment.make('foreign'),
     KeyKeywordSegment=KeywordSegment.make('key'),
+    AutoIncrementKeywordSegment=KeywordSegment.make('auto_increment'),
+    CommentKeywordSegment=KeywordSegment.make('comment'),
     ReferencesKeywordSegment=KeywordSegment.make('references'),
     DefaultKeywordSegment=KeywordSegment.make('default'),
     IfKeywordSegment=KeywordSegment.make('if'),
@@ -921,8 +923,8 @@ class TransactionStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
-class ColumnConstraintSegment(BaseSegment):
-    """A column constraint; each CREATE TABLE column can have 0 or more."""
+class ColumnOptionSegment(BaseSegment):
+    """A column option; each CREATE TABLE column can have 0 or more."""
     type = 'column_constraint'
     # Column constraint from
     # https://www.postgresql.org/docs/12/sql-createtable.html
@@ -946,6 +948,7 @@ class ColumnConstraintSegment(BaseSegment):
                 Ref('KeyKeywordSegment'),
             ),
             Ref('UniqueKeywordSegment'),  # UNIQUE
+            Ref('AutoIncrementKeywordSegment'),  # AUTO_INCREMENT (MySQL)
             Sequence(  # REFERENCES reftable [ ( refcolumn) ]
                 Ref('ReferencesKeywordSegment'),
                 Ref('ObjectReferenceSegment'),
@@ -957,6 +960,10 @@ class ColumnConstraintSegment(BaseSegment):
                     optional=True
                 ),
             ),
+            Sequence(  # [COMMENT 'string'] (MySQL)
+                Ref('CommentKeywordSegment'),
+                Ref('QuotedLiteralSegment'),
+            ),
         ),
     )
 
@@ -967,9 +974,12 @@ class ColumnDefinitionSegment(BaseSegment):
     type = 'column_definition'
     match_grammar = Sequence(
         Ref('ObjectReferenceSegment'),  # Column name
-        Ref('ObjectReferenceSegment'),  # Column type
+        Ref('DatatypeSegment'),  # Column type
+        Bracketed(  # For types like VARCHAR(100)
+            Anything(optional=True)
+        ),
         AnyNumberOf(
-            Ref('ColumnConstraintSegment', optional=True),
+            Ref('ColumnOptionSegment', optional=True),
         )
     )
 
@@ -1037,7 +1047,7 @@ class TableConstraintSegment(BaseSegment):
 class CreateTableStatementSegment(BaseSegment):
     """A `CREATE TABLE` statement."""
     type = 'create_table_statement'
-    # https://crate.io/docs/sql-99/en/latest//chapters/18.html
+    # https://crate.io/docs/sql-99/en/latest/chapters/18.html
     # https://www.postgresql.org/docs/12/sql-createtable.html
     match_grammar = Sequence(
         Ref('CreateKeywordSegment'),
@@ -1057,7 +1067,12 @@ class CreateTableStatementSegment(BaseSegment):
                 ),
                 delimiter=Ref('CommaSegment')
             )
-        )
+        ),
+        Sequence(  # [COMMENT 'string'] (MySQL)
+            Ref('CommentKeywordSegment'),
+            Ref('QuotedLiteralSegment'),
+            optional=True
+        ),
     )
 
 
@@ -1208,5 +1223,6 @@ class StatementSegment(BaseSegment):
         Ref('EmptyStatementSegment'), Ref('WithCompoundStatementSegment'),
         Ref('TransactionStatementSegment'), Ref('DropStatementSegment'),
         Ref('AccessStatementSegment'), Ref('CreateTableStatementSegment'),
+        Ref('CreateViewStatementSegment'),
     )
     match_grammar = GreedyUntil(Ref('SemicolonSegment'))
