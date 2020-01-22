@@ -147,6 +147,7 @@ ansi_dialect.add(
     ValuesKeywordSegment=KeywordSegment.make('values'),
     SelectKeywordSegment=KeywordSegment.make('select'),
     WithKeywordSegment=KeywordSegment.make('with'),
+    OffsetKeywordSegment=KeywordSegment.make('offset'),
     InsertKeywordSegment=KeywordSegment.make('insert'),
     IntoKeywordSegment=KeywordSegment.make('into'),
     CommitKeywordSegment=KeywordSegment.make('commit'),
@@ -331,17 +332,19 @@ class PartitionClauseSegment(BaseSegment):
     parse_grammar = Sequence(
         Ref('PartitionKeywordSegment'),
         Ref('ByKeywordSegment'),
+        Indent,
         Delimited(
             Ref('ExpressionSegment'),
             delimiter=Ref('CommaSegment')
-        )
+        ),
+        Dedent,
     )
 
 
 @ansi_dialect.segment()
 class FrameClauseSegment(BaseSegment):
     """A frame clause for window functions."""
-    type = 'partitionby_clause'
+    type = 'frame_clause'
     match_grammar = StartsWith(
         Ref('RowsKeywordSegment')
     )
@@ -359,10 +362,26 @@ class TableExpressionSegment(BaseSegment):
     type = 'table_expression'
     match_grammar = Sequence(
         OneOf(
+            # Functions allowed here for table expressions.
+            # Perhaps this should just be in a dialect, but
+            # it seems sensible here for now.
+            Ref('FunctionSegment'),
             Ref('ObjectReferenceSegment'),
+            # Nested Selects
+            Bracketed(
+                Ref('SelectStatementSegment'),
+                Ref('WithCompoundStatementSegment')
+            )
             # Values clause?
         ),
-        Ref('AliasExpressionSegment', optional=True)
+        Ref('AliasExpressionSegment', optional=True),
+        Sequence(
+            Ref('WithKeywordSegment'),
+            Ref('OffsetKeywordSegment'),
+            Ref('AsKeywordSegment'),
+            Ref('SingleIdentifierGrammar'),
+            optional=True
+        ),
     )
 
 
@@ -522,9 +541,9 @@ class CaseExpressionSegment(BaseSegment):
         Sequence(
             Ref('ElseKeywordSegment'),
             Ref('ExpressionSegment_TermEnd'),
-            Ref('EndKeywordSegment'),
             optional=True
-        )
+        ),
+        Ref('EndKeywordSegment')
     )
 
 
@@ -625,10 +644,11 @@ class ExpressionSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class ExpressionSegment_TermWhenElse(ExpressionSegment):
-    """Expression terminated by WHEN or ELSE."""
+    """Expression terminated by WHEN, END or ELSE."""
     match_grammar = GreedyUntil(
         Ref('WhenKeywordSegment'),
-        Ref('ElseKeywordSegment')
+        Ref('ElseKeywordSegment'),
+        Ref('EndKeywordSegment')
     )
 
 
@@ -679,6 +699,7 @@ class OrderByClauseSegment(BaseSegment):
     parse_grammar = Sequence(
         Ref('OrderKeywordSegment'),
         Ref('ByKeywordSegment'),
+        Indent,
         Delimited(
             Sequence(
                 OneOf(
@@ -696,7 +717,8 @@ class OrderByClauseSegment(BaseSegment):
             ),
             delimiter=Ref('CommaSegment'),
             terminator=Ref('LimitKeywordSegment')
-        )
+        ),
+        Dedent
     )
 
 

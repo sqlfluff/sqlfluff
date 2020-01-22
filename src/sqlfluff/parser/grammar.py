@@ -663,7 +663,14 @@ class Sequence(BaseGrammar):
             while True:
                 # Is it an indent or dedent?
                 if elem.is_meta:
-                    matched_segments += elem()
+                    # Work out how to find an appropriate pos_marker for
+                    # the meta segment.
+                    if matched_segments:
+                        last_matched = matched_segments.matched_segments[-1]
+                        meta_pos_marker = last_matched.get_end_pos_marker()
+                    else:
+                        meta_pos_marker = unmatched_segments[0].pos_marker
+                    matched_segments += elem(pos_marker=meta_pos_marker)
                     break
 
                 if len(unmatched_segments) == 0:
@@ -901,7 +908,7 @@ class ContainsOnly(BaseGrammar):
     """
     def match(self, segments, parse_context):
         """Match if the sequence contains segments that match an element."""
-        matched_buffer = tuple()
+        matched_buffer = ()
         forward_buffer = segments
         while True:
             if len(forward_buffer) == 0:
@@ -1092,15 +1099,21 @@ class Bracketed(BaseGrammar):
 
         # We require a complete match for the content (hopefully for obvious reasons)
         if content_match.is_complete():
-            # We don't want to add metas if they're already there, so check
+            # We don't want to add metas if they're already there, so check.
+            # We also only add indents if there *is* content.
             if content_match.matched_segments and content_match.matched_segments[0].is_meta:
                 pre_meta = ()
+            elif not content_match.matched_segments:
+                pre_meta = ()
             else:
-                pre_meta = (Indent(),)
+                pre_meta = (Indent(pos_marker=content_match.matched_segments[0].get_start_pos_marker()),)
+
             if end_match.matched_segments and end_match.matched_segments[0].is_meta:
                 post_meta = ()
+            elif not content_match.matched_segments:
+                post_meta = ()
             else:
-                post_meta = (Dedent(),)
+                post_meta = (Dedent(pos_marker=content_match.matched_segments[-1].get_end_pos_marker()),)
 
             return MatchResult(
                 start_match.matched_segments

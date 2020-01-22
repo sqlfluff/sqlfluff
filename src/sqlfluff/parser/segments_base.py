@@ -200,8 +200,18 @@ class BaseSegment:
         else:
             return cls.grammar
 
-    def validate_segments(self, text="constructing"):
-        """Check the elements of the `segments` attribute are all themselves segments."""
+    def validate_segments(self, text="constructing", validate=True):
+        """Validate the current set of segments.
+
+        Check the elements of the `segments` attribute are all
+        themselves segments, and that the positions match up.
+
+        `validate` confirms whether we should check contigiousness.
+        """
+        # Placeholder variables for positions
+        start_pos = None
+        end_pos = None
+        prev_seg = None
         for elem in self.segments:
             if not isinstance(elem, BaseSegment):
                 raise TypeError(
@@ -213,8 +223,39 @@ class BaseSegment:
                         elem,
                         self.segments
                     ))
+            # While applying fixes, we shouldn't validate here, because it will fail.
+            if validate:
+                # If we have a comparison point, validate that
+                if end_pos and elem.get_start_pos_marker() != end_pos:
+                    raise TypeError(
+                        "In {0} {1}, found an element of the segments tuple which"
+                        " isn't contigious with previous: {2} > {3}".format(
+                            text,
+                            type(self),
+                            prev_seg,
+                            elem
+                        ))
+                start_pos = elem.get_start_pos_marker()
+                end_pos = elem.get_end_pos_marker()
+                prev_seg = elem
+                if start_pos.advance_by(elem.raw) != end_pos:
+                    raise TypeError(
+                        "In {0} {1}, found an element of the segments tuple which"
+                        " isn't self consistent: {2}".format(
+                            text,
+                            type(self),
+                            elem
+                        ))
 
-    def __init__(self, segments, pos_marker=None):
+    def get_end_pos_marker(self):
+        """Return the pos marker at the end of this segment."""
+        return self.segments[-1].get_end_pos_marker()
+
+    def get_start_pos_marker(self):
+        """Return the pos marker at the start of this segment."""
+        return self.segments[0].get_start_pos_marker()
+
+    def __init__(self, segments, pos_marker=None, validate=True):
         if len(segments) == 0:
             raise RuntimeError(
                 "Setting {0} with a zero length segment set. This shouldn't happen.".format(
@@ -233,7 +274,7 @@ class BaseSegment:
                     type(segments)))
 
         # Check elements of segments:
-        self.validate_segments()
+        self.validate_segments(validate=validate)
 
         if pos_marker:
             self.pos_marker = pos_marker
@@ -528,7 +569,7 @@ class BaseSegment:
     @staticmethod
     def expand(segments, parse_context):
         """Expand the list of child segments using their `parse` methods."""
-        segs = tuple()
+        segs = ()
         for stmt in segments:
             try:
                 if not stmt.is_expandable:
@@ -554,7 +595,7 @@ class BaseSegment:
                 # We might get back an iterable of segments
                 segs += tuple(res)
         # Basic Validation
-        check_still_complete(segments, segs, tuple())
+        check_still_complete(segments, segs, ())
         return segs
 
     def raw_list(self):
@@ -658,8 +699,15 @@ class BaseSegment:
                     break
                 else:
                     seg = todo_buffer.pop(0)
+                    # We don't apply fixes to meta segments
+                    if seg.is_meta:
+                        seg_buffer.append(seg)
+                        continue
+
+                    fix_buff = fixes.copy()
                     unused_fixes = []
-                    for f in fixes:
+                    while fix_buff:
+                        f = fix_buff.pop()
                         if f.anchor == seg:
                             if f.edit_type == 'delete':
                                 # We're just getting rid of this segment.
@@ -688,7 +736,7 @@ class BaseSegment:
                     else:
                         seg_buffer.append(seg)
                 # Switch over the the unused list
-                fixes = unused_fixes
+                fixes = unused_fixes + fix_buff
 
             # Then recurse (i.e. deal with the children) (Requeueing)
             seg_queue = seg_buffer
@@ -700,7 +748,8 @@ class BaseSegment:
             # Reform into a new segment
             r = r.__class__(
                 segments=tuple(seg_buffer),
-                pos_marker=r.pos_marker
+                pos_marker=r.pos_marker,
+                validate=False
             )
 
             # Lastly, before returning, we should realign positions.
@@ -736,16 +785,15 @@ class BaseSegment:
                 # Get the first off the buffer
                 seg = todo_buffer.pop(0)
 
-                # Is it a meta segment?
-                if seg.is_meta:
-                    # If so, just carry on.
-                    seg_buffer.append(seg)
-                    continue
-
                 # We'll preserve statement indexes so we should keep track of that.
                 # When recreating, we use the DELTA of the index so that's what matter...
                 idx = seg.pos_marker.statement_index - running_pos.statement_index
-                if len(seg.segments) > 0:
+                if seg.is_meta:
+                    # It's a meta segment, just update the position
+                    seg = seg.__class__(
+                        pos_marker=running_pos
+                    )
+                elif len(seg.segments) > 0:
                     # It's a compound segment, so keep track of it's children
                     child_segs = seg.segments
                     # Create a new segment of the same type with the new position
@@ -880,6 +928,14 @@ class RawSegment(BaseSegment):
             raw=raw,
             pos_marker=self.pos_marker
         )
+
+    def get_end_pos_marker(self):
+        """Return the pos marker at the end of this segment."""
+        return self.pos_marker.advance_by(self.raw)
+
+    def get_start_pos_marker(self):
+        """Return the pos marker at the start of this segment."""
+        return self.pos_marker
 
 
 class UnparsableSegment(BaseSegment):

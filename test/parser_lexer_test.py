@@ -25,7 +25,7 @@ def assert_matches(instring, matcher, matchstring):
     if matchstring is None:
         assert res.new_string == instring
         assert res.new_pos == start_pos
-        assert res.segments == tuple()
+        assert res.segments == ()  # tuple
     else:
         new_pos = start_pos.advance_by(matchstring)
         assert res.new_string == instring[len(matchstring):]
