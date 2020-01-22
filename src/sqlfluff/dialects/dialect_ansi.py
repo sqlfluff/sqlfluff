@@ -169,6 +169,7 @@ ansi_dialect.add(
     DefaultKeywordSegment=KeywordSegment.make('default'),
     IfKeywordSegment=KeywordSegment.make('if'),
     ViewKeywordSegment=KeywordSegment.make('view'),
+    ReplaceKeywordSegment=KeywordSegment.make('replace'),
     RestrictKeywordSegment=KeywordSegment.make('restrict'),
     CascadeKeywordSegment=KeywordSegment.make('cascade'),
     GrantKeywordSegment=KeywordSegment.make('grant'),
@@ -1078,6 +1079,33 @@ class CreateTableStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class CreateViewStatementSegment(BaseSegment):
+    """A `CREATE VIEW` statement."""
+    type = 'create_view_statement'
+    # https://crate.io/docs/sql-99/en/latest/chapters/18.html#create-view-statement
+    # https://dev.mysql.com/doc/refman/8.0/en/create-view.html
+    # https://www.postgresql.org/docs/12/sql-createview.html
+    match_grammar = Sequence(
+        Ref('CreateKeywordSegment'),
+        Sequence(
+            Ref('OrKeywordSegment'),
+            Ref('ReplaceKeywordSegment'),
+            optional=True
+        ),
+        Ref('ViewKeywordSegment'),
+        Ref('ObjectReferenceSegment'),
+        Bracketed(  # Optional list of column names
+            Delimited(
+                Ref('ObjectReferenceSegment'),
+                delimiter=Ref('CommaSegment')
+            ),
+            optional=True
+        ),
+        Ref('AsKeywordSegment'),
+        Ref('SelectStatementSegment'),
+    )
+
+@ansi_dialect.segment()
 class DropStatementSegment(BaseSegment):
     """A `DROP` statement."""
     type = 'drop_statement'
@@ -1224,5 +1252,6 @@ class StatementSegment(BaseSegment):
         Ref('EmptyStatementSegment'), Ref('WithCompoundStatementSegment'),
         Ref('TransactionStatementSegment'), Ref('DropStatementSegment'),
         Ref('AccessStatementSegment'), Ref('CreateTableStatementSegment'),
+        Ref('CreateViewStatementSegment'),
     )
     match_grammar = GreedyUntil(Ref('SemicolonSegment'))
