@@ -976,7 +976,8 @@ class ColumnDefinitionSegment(BaseSegment):
         Ref('ObjectReferenceSegment'),  # Column name
         Ref('DatatypeSegment'),  # Column type
         Bracketed(  # For types like VARCHAR(100)
-            Anything(optional=True)
+            Anything(),
+            optional=True
         ),
         AnyNumberOf(
             Ref('ColumnOptionSegment', optional=True),
@@ -1223,6 +1224,5 @@ class StatementSegment(BaseSegment):
         Ref('EmptyStatementSegment'), Ref('WithCompoundStatementSegment'),
         Ref('TransactionStatementSegment'), Ref('DropStatementSegment'),
         Ref('AccessStatementSegment'), Ref('CreateTableStatementSegment'),
-        Ref('CreateViewStatementSegment'),
     )
     match_grammar = GreedyUntil(Ref('SemicolonSegment'))
