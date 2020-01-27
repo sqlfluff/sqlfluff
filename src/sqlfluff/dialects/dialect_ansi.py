@@ -418,10 +418,13 @@ class SelectTargetElementSegment(BaseSegment):
         ),
         Sequence(
             OneOf(
-                Ref('ExpressionSegment'),
+                # We use the unbound version here, so that we can optionally
+                # have space for our Alias at the end. This is potentially
+                # very slow. There's probably a better way for this, but
+                # it's not obvious what that is right now.
+                Ref('ExpressionSegment_NoMatch'),
             ),
-            Ref('AliasExpressionSegment', optional=True),
-            reverse_match=True
+            Ref('AliasExpressionSegment', optional=True)
         ),
     )
 
@@ -564,9 +567,9 @@ ansi_dialect.add(
             Ref('Expression_C_Grammar'),
             Sequence(
                 OneOf(
-                    Ref('PlusSegment'),
-                    Ref('MinusSegment'),
-                    Ref('TildeSegment'),
+                    # Ref('PlusSegment'),
+                    # Ref('MinusSegment'),
+                    # Ref('TildeSegment'),
                     Ref('NotKeywordSegment')
                 ),
                 Ref('Expression_A_Grammar')
@@ -658,6 +661,18 @@ class ExpressionSegment(BaseSegment):
         Ref('OrderKeywordSegment'),
     )
     parse_grammar = Ref('Expression_A_Grammar')
+
+
+@ansi_dialect.segment()
+class ExpressionSegment_NoMatch(BaseSegment):
+    """A expression, either arithmetic or boolean.
+
+    NB: This is potentially VERY recursive and
+    mostly uses the grammars above. This version
+    also doesn't bound itself first, and so is potentially
+    VERY SLOW. I don't really like this solution.
+    """
+    match_grammar = Ref('Expression_A_Grammar')
 
 
 @ansi_dialect.segment()
