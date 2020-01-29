@@ -664,15 +664,22 @@ class ExpressionSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
-class ExpressionSegment_NoMatch(BaseSegment):
+class ExpressionSegment_NoMatch(ExpressionSegment):
     """A expression, either arithmetic or boolean.
 
     NB: This is potentially VERY recursive and
     mostly uses the grammars above. This version
     also doesn't bound itself first, and so is potentially
     VERY SLOW. I don't really like this solution.
+
+    The purpose of this particular version of the segment
+    is so that we can make sure we don't swallow a potential
+    alias following the epxression. The other expression
+    segments are more efficient but potentially parse
+    alias expressions incorrectly if no AS keyword is used.
     """
     match_grammar = Ref('Expression_A_Grammar')
+    parse_grammar = None
 
 
 @ansi_dialect.segment()
