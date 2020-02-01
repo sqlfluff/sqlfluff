@@ -81,10 +81,12 @@ ansi_dialect.add(
     # also use a regex to explicitly exclude disallowed keywords.
     NakedIdentifierSegment=ReSegment.make(
         r"[A-Z0-9_]*[A-Z][A-Z0-9_]*", name='identifier', type='naked_identifier',
-        _anti_template=r"(JOIN|ON|USING|CROSS|INNER|LEFT|RIGHT|OUTER)"),
+        _anti_template=r"(JOIN|ON|USING|CROSS|INNER|LEFT|RIGHT|OUTER|INTERVAL|CASE|FULL)"),
     FunctionNameSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='function_name', type='function_name'),
     # Maybe data types should be more restrictive?
     DatatypeSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='data_type', type='data_type'),
+    # Maybe date parts should be more restrictive
+    DatepartSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='date_part', type='date_part'),
     QuotedIdentifierSegment=NamedSegment.make('double_quote', name='identifier', type='quoted_identifier'),
     QuotedLiteralSegment=NamedSegment.make('single_quote', name='literal', type='quoted_literal'),
     NumericLiteralSegment=NamedSegment.make('numeric_literal', name='literal', type='numeric_literal'),
@@ -124,6 +126,7 @@ ansi_dialect.add(
     IntersectKeywordSegment=KeywordSegment.make('intersect'),
     OnKeywordSegment=KeywordSegment.make('on'),
     JoinKeywordSegment=KeywordSegment.make('join'),
+    FullKeywordSegment=KeywordSegment.make('full'),
     InnerKeywordSegment=KeywordSegment.make('inner'),
     LeftKeywordSegment=KeywordSegment.make('left'),
     CrossKeywordSegment=KeywordSegment.make('cross'),
@@ -136,6 +139,7 @@ ansi_dialect.add(
     ByKeywordSegment=KeywordSegment.make('by'),
     InKeywordSegment=KeywordSegment.make('in'),
     IsKeywordSegment=KeywordSegment.make('is'),
+    BetweenKeywordSegment=KeywordSegment.make('between'),
     NullKeywordSegment=KeywordSegment.make('null'),
     NanKeywordSegment=KeywordSegment.make('nan'),
     AndKeywordSegment=KeywordSegment.make('and', type='binary_operator'),
@@ -182,9 +186,19 @@ ansi_dialect.add(
     PrivilegesKeywordSegment=KeywordSegment.make('privileges'),
     UpdateKeywordSegment=KeywordSegment.make('update'),
     # Some more grammars:
+    IntervalKeywordSegment=KeywordSegment.make('interval'),
+    IntervalLiteralGrammar=Sequence(
+        Ref('IntervalKeywordSegment'),
+        Ref('NumericLiteralSegment'),
+        OneOf(
+            Ref('QuotedLiteralSegment'),
+            Ref('DatepartSegment')
+        )
+    ),
     LiteralGrammar=OneOf(
         Ref('QuotedLiteralSegment'), Ref('NumericLiteralSegment'),
-        Ref('BooleanLiteralGrammar'), Ref('QualifiedNumericLiteralSegment')
+        Ref('BooleanLiteralGrammar'), Ref('QualifiedNumericLiteralSegment'),
+        Ref('IntervalLiteralGrammar')
     ),
 )
 
@@ -409,7 +423,11 @@ class SelectTargetElementSegment(BaseSegment):
         ),
         Sequence(
             OneOf(
-                Ref('ExpressionSegment'),
+                # We use the unbound version here, so that we can optionally
+                # have space for our Alias at the end. This is potentially
+                # very slow. There's probably a better way for this, but
+                # it's not obvious what that is right now.
+                Ref('ExpressionSegment_NoMatch'),
             ),
             Ref('AliasExpressionSegment', optional=True)
         ),
@@ -460,6 +478,7 @@ class JoinClauseSegment(BaseSegment):
         Sequence(
             # NB These qualifiers are optional
             AnyNumberOf(
+                Ref('FullKeywordSegment'),
                 Ref('InnerKeywordSegment'),
                 Ref('LeftKeywordSegment'),
                 Ref('CrossKeywordSegment'),
@@ -473,11 +492,9 @@ class JoinClauseSegment(BaseSegment):
                 # ON clause
                 Sequence(
                     Ref('OnKeywordSegment'),
-                    Bracketed(
-                        # this is the lazy option for now. Perhaps we should even
-                        # allow ON conditions without brackets?
-                        # TODO: Do that.
-                        Anything()
+                    OneOf(
+                        Ref('ExpressionSegment'),
+                        Bracketed(Ref('ExpressionSegment'))
                     )
                 ),
                 # USING clause
@@ -556,9 +573,9 @@ ansi_dialect.add(
             Ref('Expression_C_Grammar'),
             Sequence(
                 OneOf(
-                    Ref('PlusSegment'),
-                    Ref('MinusSegment'),
-                    Ref('TildeSegment'),
+                    # Ref('PlusSegment'),
+                    # Ref('MinusSegment'),
+                    # Ref('TildeSegment'),
                     Ref('NotKeywordSegment')
                 ),
                 Ref('Expression_A_Grammar')
@@ -600,6 +617,13 @@ ansi_dialect.add(
                         # into an "is-statement grammar", which could be overridden.
                         Ref('BooleanLiteralGrammar')
                     )
+                ),
+                Sequence(
+                    Ref('NotKeywordSegment', optional=True),
+                    Ref('BetweenKeywordSegment'),
+                    Ref('Expression_C_Grammar'),
+                    Ref('AndKeywordSegment'),
+                    Ref('Expression_C_Grammar')
                 )
             )
         )
@@ -618,6 +642,9 @@ ansi_dialect.add(
             Ref('FunctionSegment'),
             Bracketed(
                 Ref('Expression_A_Grammar')
+            ),
+            Bracketed(
+                Ref('SelectStatementSegment')
             ),
             Ref('LiteralGrammar'),
             Ref('ObjectReferenceSegment')
@@ -640,9 +667,32 @@ class ExpressionSegment(BaseSegment):
         Ref('CommaSegment'),
         Ref('AsKeywordSegment'),
         Ref('AscKeywordSegment'),
-        Ref('DescKeywordSegment')
+        Ref('DescKeywordSegment'),
+        Ref('JoinKeywordSegment'),
+        Ref('WhereKeywordSegment'),
+        Ref('GroupKeywordSegment'),
+        Ref('OrderKeywordSegment'),
     )
     parse_grammar = Ref('Expression_A_Grammar')
+
+
+@ansi_dialect.segment()
+class ExpressionSegment_NoMatch(ExpressionSegment):
+    """A expression, either arithmetic or boolean.
+
+    NB: This is potentially VERY recursive and
+    mostly uses the grammars above. This version
+    also doesn't bound itself first, and so is potentially
+    VERY SLOW. I don't really like this solution.
+
+    The purpose of this particular version of the segment
+    is so that we can make sure we don't swallow a potential
+    alias following the epxression. The other expression
+    segments are more efficient but potentially parse
+    alias expressions incorrectly if no AS keyword is used.
+    """
+    match_grammar = Ref('Expression_A_Grammar')
+    parse_grammar = None
 
 
 @ansi_dialect.segment()
