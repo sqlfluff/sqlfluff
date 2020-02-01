@@ -290,11 +290,6 @@ class BaseSegment:
                     "Unexpected type passed to BaseSegment: {0}".format(
                         type(segments)))
 
-    @classmethod
-    def from_raw(cls, raw, config=None):
-        """Instantiate a segment from a string. This is only implemented for the `FileSegment`."""
-        raise NotImplementedError("from_raw is not implemented for {0}".format(cls.__name__))
-
     def parse(self, parse_context=None):
         """Use the parse grammar to find subsegments within this segment.
 
