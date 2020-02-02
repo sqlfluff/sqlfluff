@@ -300,17 +300,31 @@ class FunctionSegment(BaseSegment):
         Sequence(
             Ref('FunctionNameSegment'),
             Bracketed(
-                Sequence(
-                    # Allow an optional distinct keyword here.
-                    Ref('DistinctKeywordSegment', optional=True),
-                    OneOf(
-                        # Most functions will be using the delimited route
-                        # but for COUNT(*) or similar we allow the star segment
-                        # here.
-                        Ref('StarSegment'),
-                        Delimited(
-                            Ref('ExpressionSegment'),
-                            delimiter=Ref('CommaSegment')
+                OneOf(
+                    # A Cast-like function
+                    Sequence(
+                        Ref('ExpressionSegment'),
+                        Ref('AsKeywordSegment'),
+                        Ref('DatatypeSegment')
+                    ),
+                    # An extract-like function
+                    Sequence(
+                        Ref('DatepartSegment'),
+                        Ref('FromKeywordSegment'),
+                        Ref('ExpressionSegment')
+                    ),
+                    Sequence(
+                        # Allow an optional distinct keyword here.
+                        Ref('DistinctKeywordSegment', optional=True),
+                        OneOf(
+                            # Most functions will be using the delimited route
+                            # but for COUNT(*) or similar we allow the star segment
+                            # here.
+                            Ref('StarSegment'),
+                            Delimited(
+                                Ref('ExpressionSegment'),
+                                delimiter=Ref('CommaSegment')
+                            ),
                         ),
                     ),
                     # The brackets might be empty for some functions...
