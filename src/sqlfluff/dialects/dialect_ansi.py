@@ -222,7 +222,8 @@ class ObjectReferenceSegment(BaseSegment):
             Ref('_NonCodeSegment'), Ref('CommaSegment'),
             Ref('CastOperatorKeywordSegment')
         ),
-        code_only=False)
+        code_only=False
+    )
 
 
 @ansi_dialect.segment()
@@ -479,53 +480,48 @@ class SelectClauseSegment(BaseSegment):
 class JoinClauseSegment(BaseSegment):
     """Any number of join clauses, including the `JOIN` keyword."""
     type = 'join_clause'
-    match_grammar = OneOf(
-        # Types of join clause
-
-        # Old School Comma style clause
-        Sequence(
-            Ref('CommaSegment'),
-            Ref('TableExpressionSegment')
+    match_grammar = Sequence(
+        # NB These qualifiers are optional
+        AnyNumberOf(
+            Ref('FullKeywordSegment'),
+            Ref('InnerKeywordSegment'),
+            Ref('LeftKeywordSegment'),
+            Ref('CrossKeywordSegment'),
+            max_times=1,
+            optional=True
         ),
-
-        # New style Join clauses
-        Sequence(
-            # NB These qualifiers are optional
-            AnyNumberOf(
-                Ref('FullKeywordSegment'),
-                Ref('InnerKeywordSegment'),
-                Ref('LeftKeywordSegment'),
-                Ref('CrossKeywordSegment'),
-                max_times=1,
-                optional=True
+        Ref('JoinKeywordSegment'),
+        Indent,
+        Ref('TableExpressionSegment'),
+        # NB: this is optional
+        AnyNumberOf(
+            # ON clause
+            Sequence(
+                Ref('OnKeywordSegment'),
+                Indent,
+                OneOf(
+                    Ref('ExpressionSegment'),
+                    Bracketed(Ref('ExpressionSegment'))
+                ),
+                Dedent
             ),
-            Ref('JoinKeywordSegment'),
-            Ref('TableExpressionSegment'),
-            # NB: this is optional
-            AnyNumberOf(
-                # ON clause
-                Sequence(
-                    Ref('OnKeywordSegment'),
-                    OneOf(
-                        Ref('ExpressionSegment'),
-                        Bracketed(Ref('ExpressionSegment'))
+            # USING clause
+            Sequence(
+                Ref('UsingKeywordSegment'),
+                Indent,
+                Bracketed(
+                    Delimited(
+                        Ref('SingleIdentifierGrammar'),
+                        delimiter=Ref('CommaSegment')
                     )
                 ),
-                # USING clause
-                Sequence(
-                    Ref('UsingKeywordSegment'),
-                    Bracketed(
-                        Delimited(
-                            Ref('SingleIdentifierGrammar'),
-                            delimiter=Ref('CommaSegment')
-                        )
-                    )
-                ),
-                # Unqualified joins *are* allowed. They just might not
-                # be a good idea.
-                max_times=0
-            )
-        )
+                Dedent
+            ),
+            # Unqualified joins *are* allowed. They just might not
+            # be a good idea.
+            min_times=0
+        ),
+        Dedent
     )
 
 
@@ -545,11 +541,24 @@ class FromClauseSegment(BaseSegment):
     )
     parse_grammar = Sequence(
         Ref('FromKeywordSegment'),
-        Ref('TableExpressionSegment'),
+        Indent,
+        Delimited(
+            # Optional old school delimited joins
+            Ref('TableExpressionSegment'),
+            delimiter=Ref('CommaSegment'),
+            terminator=OneOf(
+                Ref('JoinKeywordSegment'),
+                Ref('CrossKeywordSegment'),
+                Ref('InnerKeywordSegment'),
+                Ref('LeftKeywordSegment'),
+                Ref('FullKeywordSegment')
+            )
+        ),
+        Dedent,
         AnyNumberOf(
             Ref('JoinClauseSegment'),
             optional=True
-        )
+        ),
     )
 
 
@@ -564,19 +573,25 @@ class CaseExpressionSegment(BaseSegment):
     )
     parse_grammar = Sequence(
         Ref('CaseKeywordSegment'),
+        Indent,
         AnyNumberOf(
             Sequence(
                 Ref('WhenKeywordSegment'),
+                Indent,
                 Ref('ExpressionSegment_TermThen'),
                 Ref('ThenKeywordSegment'),
-                Ref('ExpressionSegment_TermWhenElse')
+                Ref('ExpressionSegment_TermWhenElse'),
+                Dedent
             )
         ),
         Sequence(
             Ref('ElseKeywordSegment'),
+            Indent,
             Ref('ExpressionSegment_TermEnd'),
+            Dedent,
             optional=True
         ),
+        Dedent,
         Ref('EndKeywordSegment')
     )
 
@@ -746,7 +761,9 @@ class WhereClauseSegment(BaseSegment):
     )
     parse_grammar = Sequence(
         Ref('WhereKeywordSegment'),
-        Ref('ExpressionSegment')
+        Indent,
+        Ref('ExpressionSegment'),
+        Dedent
     )
 
 
@@ -807,6 +824,7 @@ class GroupByClauseSegment(BaseSegment):
     parse_grammar = Sequence(
         Ref('GroupKeywordSegment'),
         Ref('ByKeywordSegment'),
+        Indent,
         Delimited(
             OneOf(
                 Ref('ObjectReferenceSegment'),
@@ -819,7 +837,8 @@ class GroupByClauseSegment(BaseSegment):
                 Ref('LimitKeywordSegment'),
                 Ref('HavingKeywordSegment')
             )
-        )
+        ),
+        Dedent
     )
 
 
@@ -880,6 +899,7 @@ class WithCompoundStatementSegment(BaseSegment):
     match_grammar = StartsWith(Ref('WithKeywordSegment'))
     parse_grammar = Sequence(
         Ref('WithKeywordSegment'),
+        Indent,
         Delimited(
             Sequence(
                 Ref('ObjectReferenceSegment'),
@@ -889,6 +909,7 @@ class WithCompoundStatementSegment(BaseSegment):
             delimiter=Ref('CommaSegment'),
             terminator=Ref('SelectKeywordSegment')
         ),
+        Dedent,
         Ref('SelectStatementSegment')
     )
 

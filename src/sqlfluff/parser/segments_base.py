@@ -229,11 +229,14 @@ class BaseSegment:
                 if end_pos and elem.get_start_pos_marker() != end_pos:
                     raise TypeError(
                         "In {0} {1}, found an element of the segments tuple which"
-                        " isn't contigious with previous: {2} > {3}".format(
+                        " isn't contigious with previous: {2} > {3}. End pos: {4}."
+                        " Prev String: {5!r}".format(
                             text,
                             type(self),
                             prev_seg,
-                            elem
+                            elem,
+                            end_pos,
+                            prev_seg.raw
                         ))
                 start_pos = elem.get_start_pos_marker()
                 end_pos = elem.get_end_pos_marker()
