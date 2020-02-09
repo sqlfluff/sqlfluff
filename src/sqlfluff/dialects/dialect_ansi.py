@@ -554,11 +554,13 @@ class FromClauseSegment(BaseSegment):
                 Ref('FullKeywordSegment')
             )
         ),
-        Dedent,
+        # NB: The JOIN clause is *part of* the FROM clause
+        # and so should be on a sub-indent of it.
         AnyNumberOf(
             Ref('JoinClauseSegment'),
             optional=True
         ),
+        Dedent,
     )
 
 
