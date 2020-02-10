@@ -185,6 +185,9 @@ ansi_dialect.add(
     OptionKeywordSegment=KeywordSegment.make('option'),
     PrivilegesKeywordSegment=KeywordSegment.make('privileges'),
     UpdateKeywordSegment=KeywordSegment.make('update'),
+    LikeKeywordSegment=KeywordSegment.make('like'),
+    ILikeKeywordSegment=KeywordSegment.make('ilike'),
+    RLikeKeywordSegment=KeywordSegment.make('rlike'),
     # Some more grammars:
     IntervalKeywordSegment=KeywordSegment.make('interval'),
     LiteralGrammar=OneOf(
@@ -487,53 +490,48 @@ class SelectClauseSegment(BaseSegment):
 class JoinClauseSegment(BaseSegment):
     """Any number of join clauses, including the `JOIN` keyword."""
     type = 'join_clause'
-    match_grammar = OneOf(
-        # Types of join clause
-
-        # Old School Comma style clause
-        Sequence(
-            Ref('CommaSegment'),
-            Ref('TableExpressionSegment')
+    match_grammar = Sequence(
+        # NB These qualifiers are optional
+        AnyNumberOf(
+            Ref('FullKeywordSegment'),
+            Ref('InnerKeywordSegment'),
+            Ref('LeftKeywordSegment'),
+            Ref('CrossKeywordSegment'),
+            max_times=1,
+            optional=True
         ),
-
-        # New style Join clauses
-        Sequence(
-            # NB These qualifiers are optional
-            AnyNumberOf(
-                Ref('FullKeywordSegment'),
-                Ref('InnerKeywordSegment'),
-                Ref('LeftKeywordSegment'),
-                Ref('CrossKeywordSegment'),
-                max_times=1,
-                optional=True
+        Ref('JoinKeywordSegment'),
+        Indent,
+        Ref('TableExpressionSegment'),
+        # NB: this is optional
+        AnyNumberOf(
+            # ON clause
+            Sequence(
+                Ref('OnKeywordSegment'),
+                Indent,
+                OneOf(
+                    Ref('ExpressionSegment'),
+                    Bracketed(Ref('ExpressionSegment'))
+                ),
+                Dedent
             ),
-            Ref('JoinKeywordSegment'),
-            Ref('TableExpressionSegment'),
-            # NB: this is optional
-            AnyNumberOf(
-                # ON clause
-                Sequence(
-                    Ref('OnKeywordSegment'),
-                    OneOf(
-                        Ref('ExpressionSegment'),
-                        Bracketed(Ref('ExpressionSegment'))
+            # USING clause
+            Sequence(
+                Ref('UsingKeywordSegment'),
+                Indent,
+                Bracketed(
+                    Delimited(
+                        Ref('SingleIdentifierGrammar'),
+                        delimiter=Ref('CommaSegment')
                     )
                 ),
-                # USING clause
-                Sequence(
-                    Ref('UsingKeywordSegment'),
-                    Bracketed(
-                        Delimited(
-                            Ref('SingleIdentifierGrammar'),
-                            delimiter=Ref('CommaSegment')
-                        )
-                    )
-                ),
-                # Unqualified joins *are* allowed. They just might not
-                # be a good idea.
-                max_times=0
-            )
-        )
+                Dedent
+            ),
+            # Unqualified joins *are* allowed. They just might not
+            # be a good idea.
+            min_times=0
+        ),
+        Dedent
     )
 
 
@@ -553,11 +551,31 @@ class FromClauseSegment(BaseSegment):
     )
     parse_grammar = Sequence(
         Ref('FromKeywordSegment'),
-        Ref('TableExpressionSegment'),
+        Indent,
+        Delimited(
+            # Optional old school delimited joins
+            Ref('TableExpressionSegment'),
+            delimiter=Ref('CommaSegment'),
+            terminator=OneOf(
+                Ref('JoinKeywordSegment'),
+                Ref('CrossKeywordSegment'),
+                Ref('InnerKeywordSegment'),
+                Ref('LeftKeywordSegment'),
+                Ref('FullKeywordSegment')
+            )
+        ),
+        # NB: The JOIN clause is *part of* the FROM clause
+        # and so should be on a sub-indent of it. That isn't
+        # common practice however, so for now it will be assumed
+        # to be on the same level as the FROM clause. To change
+        # this behaviour, the Dedent would come after the AnyNumberOf
+        # rather than before. TODO: In future this might be
+        # configurable.
+        Dedent,
         AnyNumberOf(
             Ref('JoinClauseSegment'),
             optional=True
-        )
+        ),
     )
 
 
@@ -574,6 +592,7 @@ class CaseExpressionSegment(BaseSegment):
     # )
     match_grammar = Sequence(
         Ref('CaseKeywordSegment'),
+        Indent,
         AnyNumberOf(
             Sequence(
                 # We use the unbound version of Expression here, so that we
@@ -581,16 +600,21 @@ class CaseExpressionSegment(BaseSegment):
                 # parsing gets confused by which WHERE and END goes with
                 # which CASE. TODO: Come up with a better solution for this.
                 Ref('WhenKeywordSegment'),
+                Indent,
                 Ref('ExpressionSegment_NoMatch'),
                 Ref('ThenKeywordSegment'),
                 Ref('ExpressionSegment_NoMatch'),
+                Dedent
             )
         ),
         Sequence(
             Ref('ElseKeywordSegment'),
+            Indent,
             Ref('ExpressionSegment_NoMatch'),
+            Dedent,
             optional=True
         ),
+        Dedent,
         Ref('EndKeywordSegment')
     )
 
@@ -615,7 +639,15 @@ ansi_dialect.add(
                     OneOf(
                         Ref('ArithmeticBinaryOperatorGrammar'),
                         Ref('ComparisonOperatorGrammar'),
-                        Ref('BooleanBinaryOperatorGrammar')
+                        Ref('BooleanBinaryOperatorGrammar'),
+                        Sequence(
+                            Ref('NotKeywordSegment', optional=True),
+                            OneOf(
+                                Ref('LikeKeywordSegment'),
+                                Ref('RLikeKeywordSegment'),
+                                Ref('ILikeKeywordSegment')
+                            )
+                        )
                         # We need to add a lot more here...
                     ),
                     Ref('Expression_A_Grammar')
@@ -763,7 +795,9 @@ class WhereClauseSegment(BaseSegment):
     )
     parse_grammar = Sequence(
         Ref('WhereKeywordSegment'),
-        Ref('ExpressionSegment')
+        Indent,
+        Ref('ExpressionSegment'),
+        Dedent
     )
 
 
@@ -824,6 +858,7 @@ class GroupByClauseSegment(BaseSegment):
     parse_grammar = Sequence(
         Ref('GroupKeywordSegment'),
         Ref('ByKeywordSegment'),
+        Indent,
         Delimited(
             OneOf(
                 Ref('ObjectReferenceSegment'),
@@ -836,7 +871,8 @@ class GroupByClauseSegment(BaseSegment):
                 Ref('LimitKeywordSegment'),
                 Ref('HavingKeywordSegment')
             )
-        )
+        ),
+        Dedent
     )
 
 
@@ -897,6 +933,7 @@ class WithCompoundStatementSegment(BaseSegment):
     match_grammar = StartsWith(Ref('WithKeywordSegment'))
     parse_grammar = Sequence(
         Ref('WithKeywordSegment'),
+        Indent,
         Delimited(
             Sequence(
                 Ref('ObjectReferenceSegment'),
@@ -911,6 +948,7 @@ class WithCompoundStatementSegment(BaseSegment):
             delimiter=Ref('CommaSegment'),
             terminator=Ref('SelectKeywordSegment')
         ),
+        Dedent,
         Ref('SelectStatementSegment')
     )
 

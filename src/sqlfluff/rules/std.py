@@ -162,18 +162,7 @@ class Rule_L003(BaseCrawler):
 
         for elem in raw_stack:
             line_buffer.append(elem)
-            if in_indent:
-                if elem.type == 'whitespace':
-                    indent_buffer.append(elem)
-                elif elem.is_meta and elem.indent_val != 0:
-                    indent_balance += elem.indent_val
-                    if elem.indent_val > 0:
-                        clean_indent = True
-                else:
-                    in_indent = False
-                    this_indent_balance = indent_balance
-                    indent_size = self._indent_size(indent_buffer)
-            elif elem.type == 'newline':
+            if elem.type == 'newline':
                 result_buffer[line_no] = {
                     'line_no': line_no,
                     # Using slicing to copy line_buffer here to by py2 compliant
@@ -191,6 +180,17 @@ class Rule_L003(BaseCrawler):
                 in_indent = True
                 line_indent_stack = []
                 clean_indent = False
+            elif in_indent:
+                if elem.type == 'whitespace':
+                    indent_buffer.append(elem)
+                elif elem.is_meta and elem.indent_val != 0:
+                    indent_balance += elem.indent_val
+                    if elem.indent_val > 0:
+                        clean_indent = True
+                else:
+                    in_indent = False
+                    this_indent_balance = indent_balance
+                    indent_size = self._indent_size(indent_buffer)
             elif elem.is_meta and elem.indent_val != 0:
                 indent_balance += elem.indent_val
                 if elem.indent_val > 0:
