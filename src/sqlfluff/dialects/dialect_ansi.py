@@ -884,7 +884,12 @@ class WithCompoundStatementSegment(BaseSegment):
             Sequence(
                 Ref('ObjectReferenceSegment'),
                 Ref('AsKeywordSegment'),
-                Bracketed(Ref('SelectStatementSegment'))
+                Bracketed(
+                    OneOf(
+                        Ref('SetExpressionSegment'),
+                        Ref('SelectStatementSegment')
+                    )
+                )
             ),
             delimiter=Ref('CommaSegment'),
             terminator=Ref('SelectKeywordSegment')
