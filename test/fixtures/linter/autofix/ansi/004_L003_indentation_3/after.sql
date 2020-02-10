@@ -28,7 +28,7 @@ SELECT
     END AS size_bucket
 FROM
     audience_counts
-    JOIN
-        gdpr_safe_users
-        USING
-            (user_id)
+JOIN
+    gdpr_safe_users
+    USING
+        (user_id)

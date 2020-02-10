@@ -555,12 +555,17 @@ class FromClauseSegment(BaseSegment):
             )
         ),
         # NB: The JOIN clause is *part of* the FROM clause
-        # and so should be on a sub-indent of it.
+        # and so should be on a sub-indent of it. That isn't
+        # common practice however, so for now it will be assumed
+        # to be on the same level as the FROM clause. To change
+        # this behaviour, the Dedent would come after the AnyNumberOf
+        # rather than before. TODO: In future this might be
+        # configurable.
+        Dedent,
         AnyNumberOf(
             Ref('JoinClauseSegment'),
             optional=True
         ),
-        Dedent,
     )
 
 
