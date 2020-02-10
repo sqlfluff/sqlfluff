@@ -297,7 +297,6 @@ class FunctionSegment(BaseSegment):
             Bracketed(
                 Anything(optional=True)
             ),
-            code_only=False
         ),
         Sequence(
             Ref('OverKeywordSegment'),
