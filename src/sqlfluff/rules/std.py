@@ -1405,3 +1405,47 @@ class Rule_L016(Rule_L003):
                 return LintResult(anchor=segment)
         # Otherwise we're all good
         return None
+
+
+@std_rule_set.register
+class Rule_L017(BaseCrawler):
+    """Function name not immediately followed by bracket."""
+
+    def _eval(self, segment, raw_stack, **kwargs):
+        """Function name not immediately followed by bracket.
+
+        Look for Function Segment with anything other than the
+        function name before brackets
+        """
+        # We only trigger on start_bracket (open parenthesis)
+        if segment.type == 'function':
+            # Look for the function name
+            for fname_idx, seg in enumerate(segment.segments):
+                if seg.type == 'function_name':
+                    break
+            else:
+                # This shouldn't happen, but let's not worry
+                # about it if it does.
+                return LintResult()
+
+            # Look for the start bracket
+            for bracket_idx, seg in enumerate(segment.segments):
+                if seg.name == 'start_bracket':
+                    break
+            else:
+                # This shouldn't happen, but let's not worry
+                # about it if it does.
+                return LintResult()
+
+            if bracket_idx < fname_idx:
+                # This is a result which shouldn't happen. Ignore it.
+                return LintResult()
+
+            if bracket_idx != fname_idx + 1:
+                return LintResult(
+                    anchor=segment.segments[fname_idx + 1],
+                    fixes=[
+                        LintFix('delete', segment.segments[idx])
+                        for idx in range(fname_idx + 1, bracket_idx)
+                    ])
+        return LintResult()

@@ -490,7 +490,7 @@ class OneOf(BaseGrammar):
                             break
                     m = MatchResult(matched_segments, unmatched_segments)
                 if best_match:
-                    if len(m) > len(best_match):
+                    if len(m.raw_matched()) > len(best_match.raw_matched()):
                         best_match = m
                     else:
                         continue
@@ -498,7 +498,7 @@ class OneOf(BaseGrammar):
                     best_match = m
                 parse_match_logging(
                     self.__class__.__name__,
-                    '_match', "Saving Match of Length {0}:  {1}".format(len(m), m),
+                    '_match', "Saving Match of Length {0}:  {1}".format(len(m.raw_matched()), m),
                     parse_context=parse_context, v_level=self.v_level)
 
         # No full match from the first time round. If we've got a
@@ -532,7 +532,7 @@ class OneOf(BaseGrammar):
                 # still got options.
                 if m:
                     if best_match:
-                        if len(best_match) > len(m):
+                        if len(best_match.raw_matched()) > len(m.raw_matched()):
                             best_match = m
                         else:
                             continue
@@ -540,7 +540,7 @@ class OneOf(BaseGrammar):
                         best_match = m
                     parse_match_logging(
                         self.__class__.__name__,
-                        '_match', "Last-Ditch: Saving Match of Length {0}:  {1}".format(len(m), m),
+                        '_match', "Last-Ditch: Saving Match of Length {0}:  {1}".format(len(m.raw_matched()), m),
                         parse_context=parse_context, v_level=self.v_level)
             # if we've got something good, return it
             if best_match:

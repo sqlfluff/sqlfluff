@@ -42,6 +42,22 @@ def test__dialect__ansi__file_from_raw(raw, res, caplog):
         ("ExpressionSegment",
          ("CASE WHEN id = 1 THEN CASE WHEN true THEN 'something' "
           "ELSE 'nothing' END ELSE 'test' END")),
+        # Casting expressions
+        # https://github.com/alanmcruickshank/sqlfluff/issues/161
+        ("ExpressionSegment",
+         "CAST(ROUND(online_sales / 1000.0) AS varchar)"),
+        # Like expressions
+        # https://github.com/alanmcruickshank/sqlfluff/issues/170
+        ("ExpressionSegment",
+         "name NOT LIKE '%y'"),
+        # Functions with a space
+        # https://github.com/alanmcruickshank/sqlfluff/issues/171
+        ("SelectTargetElementSegment",
+         "MIN (test.id) AS min_test_id"),
+        # Interval literals
+        # https://github.com/alanmcruickshank/sqlfluff/issues/148
+        ("ExpressionSegment",
+         "DATE_ADD(CURRENT_DATE('America/New_York'), INTERVAL 1 year)")
     ]
 )
 def test__dialect__ansi_specific_segment_parses(segmentref, raw, caplog):

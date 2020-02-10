@@ -297,7 +297,6 @@ class FunctionSegment(BaseSegment):
             Bracketed(
                 Anything(optional=True)
             ),
-            code_only=False
         ),
         Sequence(
             Ref('OverKeywordSegment'),
@@ -342,7 +341,6 @@ class FunctionSegment(BaseSegment):
                     optional=True
                 )
             ),
-            code_only=False
         ),
         # Optional suffix for window functions.
         # TODO: Should this be in a different dialect?
@@ -440,9 +438,9 @@ class SelectTargetElementSegment(BaseSegment):
         Sequence(Ref('SingleIdentifierGrammar'), Ref('DotSegment'), Ref('StarSegment'), code_only=False),
         Sequence(
             OneOf(
-                Ref('ObjectReferenceSegment'),
                 Ref('LiteralGrammar'),
-                Ref('FunctionSegment')
+                Ref('FunctionSegment'),
+                Ref('ObjectReferenceSegment')
             ),
             Ref('AliasExpressionSegment', optional=True)
         ),
