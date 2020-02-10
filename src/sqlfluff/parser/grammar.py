@@ -666,20 +666,31 @@ class Sequence(BaseGrammar):
                     # Work out how to find an appropriate pos_marker for
                     # the meta segment.
                     if matched_segments:
+                        # Get from end of last
                         last_matched = matched_segments.matched_segments[-1]
                         meta_pos_marker = last_matched.get_end_pos_marker()
                     else:
+                        # Get from start of next
                         meta_pos_marker = unmatched_segments[0].pos_marker
                     matched_segments += elem(pos_marker=meta_pos_marker)
                     break
 
                 if len(unmatched_segments) == 0:
                     # We've run our of sequence without matching everyting.
-                    # Do only optional elements remain.
-                    if all(e.is_optional() for e in self._elements[idx:]):
+                    # Do only optional or meta elements remain?
+                    if all(e.is_optional() or e.is_meta for e in self._elements[idx:]):
                         # then it's ok, and we can return what we've got so far.
-                        # No need to deal with anything left over because we're at the end.
-                        return matched_segments
+                        # No need to deal with anything left over because we're at the end,
+                        # unless it's a meta segment.
+
+                        # Get hold of the last thing to be matched, so we've got an anchor.
+                        last_matched = matched_segments.matched_segments[-1]
+                        meta_pos_marker = last_matched.get_end_pos_marker()
+                        return matched_segments + tuple(
+                            e(pos_marker=meta_pos_marker)
+                            for e in self._elements[idx:]
+                            if e.is_meta
+                        )
                     else:
                         # we've got to the end of the sequence without matching all
                         # required elements.
@@ -782,6 +793,7 @@ class Delimited(BaseGrammar):
         # up to that point onto a list of slices. Carry on.
         while True:
             # Check to see whether we've exhausted the buffer (or it's all non-code)
+            # USE A CONTINIUE STATEMENT
             if len(seg_buff) == 0 or (self.code_only and all(not s.is_code for s in seg_buff)):
                 # Append the remaining buffer in case we're in the not is_code case.
                 matched_segments += seg_buff
@@ -790,7 +802,7 @@ class Delimited(BaseGrammar):
                     # It is! (nothing left so no unmatched segments to append)
                     return matched_segments
                 else:
-                    MatchResult.from_unmatched(segments)
+                    return MatchResult.from_unmatched(segments)
 
             # We rely on _bracket_sensitive_look_ahead_match to do the bracket counting
             # element of this now. We look ahead to find a delimiter or terminator.
