@@ -185,6 +185,9 @@ ansi_dialect.add(
     OptionKeywordSegment=KeywordSegment.make('option'),
     PrivilegesKeywordSegment=KeywordSegment.make('privileges'),
     UpdateKeywordSegment=KeywordSegment.make('update'),
+    LikeKeywordSegment=KeywordSegment.make('like'),
+    ILikeKeywordSegment=KeywordSegment.make('ilike'),
+    RLikeKeywordSegment=KeywordSegment.make('rlike'),
     # Some more grammars:
     IntervalKeywordSegment=KeywordSegment.make('interval'),
     IntervalLiteralGrammar=Sequence(
@@ -601,7 +604,15 @@ ansi_dialect.add(
                     OneOf(
                         Ref('ArithmeticBinaryOperatorGrammar'),
                         Ref('ComparisonOperatorGrammar'),
-                        Ref('BooleanBinaryOperatorGrammar')
+                        Ref('BooleanBinaryOperatorGrammar'),
+                        Sequence(
+                            Ref('NotKeywordSegment', optional=True),
+                            OneOf(
+                                Ref('LikeKeywordSegment'),
+                                Ref('RLikeKeywordSegment'),
+                                Ref('ILikeKeywordSegment')
+                            )
+                        )
                         # We need to add a lot more here...
                     ),
                     Ref('Expression_A_Grammar')
