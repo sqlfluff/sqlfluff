@@ -19,6 +19,6 @@ bigquery_dialect.replace(
     QuotedIdentifierSegment=NamedSegment.make('back_quote', name='identifier', type='quoted_identifier'),
     LiteralGrammar=OneOf(
         Ref('QuotedLiteralSegment'), Ref('DoubleQuotedLiteralSegment'), Ref('NumericLiteralSegment'),
-        Ref('BooleanLiteralGrammar'), Ref('QualifiedNumericLiteralSegment'), Ref('IntervalLiteralGrammar')
+        Ref('BooleanLiteralGrammar'), Ref('QualifiedNumericLiteralSegment'), Ref('IntervalLiteralSegment')
     ),
 )

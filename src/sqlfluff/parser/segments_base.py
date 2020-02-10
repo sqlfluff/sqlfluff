@@ -864,14 +864,9 @@ class RawSegment(BaseSegment):
         """Return a list of the raw content of this segment."""
         return [self.raw]
 
-    @property
-    def raw(self):
-        """Return a strong of the raw content of this segment."""
-        return self._raw
-
     def _reconstruct(self):
-        """Return a strong of the raw content of this segment."""
-        return self.raw
+        """Return a string of the raw content of this segment."""
+        return self._raw
 
     def __repr__(self):
         return "<{0}: ({1}) {2!r}>".format(

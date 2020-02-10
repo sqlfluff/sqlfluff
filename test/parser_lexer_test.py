@@ -3,7 +3,7 @@
 import pytest
 import logging
 
-from sqlfluff.parser.lexer import Lexer
+from sqlfluff.parser import Lexer
 from sqlfluff.parser.lexer import SingletonMatcher, LexMatch, RegexMatcher, RepeatedMultiMatcher
 from sqlfluff.parser import RawSegment, FileSegment, FilePositionMarker
 from sqlfluff.errors import SQLLexError

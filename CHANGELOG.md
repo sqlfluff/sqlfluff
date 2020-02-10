@@ -58,6 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Security fixes from DeepCover. Thanks [@sanketsaurav](https://github.com/sanketsaurav).
 - Automatic fix testing, to help support the newer more complicated rules.
 - Interval literals
+- Support for the `source` macro from dbt. Thanks [@Dandandan](https://github.com/Dandandan)
 
 ## [0.2.4] - 2019-12-06
 

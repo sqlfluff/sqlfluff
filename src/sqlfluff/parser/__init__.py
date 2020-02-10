@@ -10,3 +10,4 @@ from .grammar import (Sequence, GreedyUntil, StartsWith, ContainsOnly,
                       Anything)
 from .segments_file import FileSegment
 from .markers import FilePositionMarker
+from .lexer import Lexer
