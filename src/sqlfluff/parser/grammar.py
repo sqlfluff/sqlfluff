@@ -269,9 +269,17 @@ class BaseGrammar:
 
         # Get hold of the bracket matchers from the dialect, and append them
         # to the list of matchers.
-        start_bracket = parse_context.dialect.ref('StartBracketSegment')
-        end_bracket = parse_context.dialect.ref('EndBracketSegment')
-        bracket_matchers = [start_bracket, end_bracket]
+        # TODO: Potentially have error handling here for dialects without
+        # square brackets.
+        start_brackets = [
+            parse_context.dialect.ref('StartBracketSegment'),
+            parse_context.dialect.ref('StartSquareBracketSegment')
+        ]
+        end_brackets = [
+            parse_context.dialect.ref('EndBracketSegment'),
+            parse_context.dialect.ref('EndSquareBracketSegment')
+        ]
+        bracket_matchers = start_brackets + end_brackets
         matchers += bracket_matchers
 
         # Make some buffers
@@ -293,14 +301,14 @@ class BaseGrammar:
                         code_only=code_only)
 
                     if match:
-                        if matcher is start_bracket:
+                        if matcher in start_brackets:
                             # Same procedure as below in finding brackets.
                             bracket_stack.append(match.matched_segments[0])
                             pre_seg_buff += pre
                             pre_seg_buff += match.matched_segments
                             seg_buff = match.unmatched_segments
                             continue
-                        elif matcher is end_bracket:
+                        elif matcher in end_brackets:
                             # We've found an end bracket, remove it from the
                             # stack and carry on.
                             bracket_stack.pop()
@@ -323,7 +331,7 @@ class BaseGrammar:
                         code_only=code_only)
 
                     if match:
-                        if matcher is start_bracket:
+                        if matcher in start_brackets:
                             # We've found the start of a bracket segment.
                             # NB: It might not *Actually* be the bracket itself,
                             # but could be some non-code element preceeding it.
@@ -337,7 +345,7 @@ class BaseGrammar:
                             pre_seg_buff += match.matched_segments
                             seg_buff = match.unmatched_segments
                             continue
-                        elif matcher is end_bracket:
+                        elif matcher in end_brackets:
                             # We've found an unexpected end bracket!
                             raise SQLParseError(
                                 "Found unexpected end bracket!",
@@ -1059,10 +1067,15 @@ class Bracketed(BaseGrammar):
     are taken directly from the dialect.
     """
     def __init__(self, *args, **kwargs):
+        self.square = kwargs.pop('square', False)
         # Start and end tokens
         # The details on how to match a bracket are stored in the dialect
-        self.start_bracket = Ref('StartBracketSegment')
-        self.end_bracket = Ref('EndBracketSegment')
+        if self.square:
+            self.start_bracket = Ref('StartSquareBracketSegment')
+            self.end_bracket = Ref('EndSquareBracketSegment')
+        else:
+            self.start_bracket = Ref('StartBracketSegment')
+            self.end_bracket = Ref('EndBracketSegment')
         super(Bracketed, self).__init__(*args, **kwargs)
 
     def match(self, segments, parse_context):

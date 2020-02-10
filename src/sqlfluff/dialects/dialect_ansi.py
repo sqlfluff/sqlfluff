@@ -49,6 +49,9 @@ ansi_dialect.set_lexer_struct([
     ("star", "singleton", "*", dict(is_code=True)),
     ("bracket_open", "singleton", "(", dict(is_code=True)),
     ("bracket_close", "singleton", ")", dict(is_code=True)),
+    ("sq_bracket_open", "singleton", "[", dict(is_code=True)),
+    ("sq_bracket_close", "singleton", "]", dict(is_code=True)),
+    ("colon", "singleton", ":", dict(is_code=True)),
     ("semicolon", "singleton", ";", dict(is_code=True)),
     ("code", "regex", r"[0-9a-zA-Z_]*", dict(is_code=True))
 ])
@@ -59,8 +62,11 @@ ansi_dialect.add(
     _NonCodeSegment=LambdaSegment.make(lambda x: not x.is_code, is_code=False, name='non_code'),
     # Real segments
     SemicolonSegment=KeywordSegment.make(';', name="semicolon"),
+    SliceSegment=KeywordSegment.make(':', name="slice"),
     StartBracketSegment=KeywordSegment.make('(', name='start_bracket', type='start_bracket'),
     EndBracketSegment=KeywordSegment.make(')', name='end_bracket', type='end_bracket'),
+    StartSquareBracketSegment=KeywordSegment.make('[', name='start_square_bracket', type='start_square_bracket'),
+    EndSquareBracketSegment=KeywordSegment.make(']', name='end_square_bracket', type='end_square_bracket'),
     CommaSegment=KeywordSegment.make(',', name='comma', type='comma'),
     DotSegment=KeywordSegment.make('.', name='dot', type='dot'),
     StarSegment=KeywordSegment.make('*', name='star'),
@@ -233,6 +239,26 @@ class ObjectReferenceSegment(BaseSegment):
         ),
         min_delimiters=0,
         code_only=False
+    )
+
+
+@ansi_dialect.segment()
+class ArrayAccessorSegment(BaseSegment):
+    """An array accessor e.g. [3:4]."""
+    type = 'array_accessor'
+    # match grammar (don't allow whitespace)
+    match_grammar = Bracketed(
+        Sequence(
+            Ref('ExpressionSegment'),
+            # Optional slice expression
+            Sequence(
+                Ref('ColonSegment'),
+                Ref('ExpressionSegment'),
+                optional=True
+            ),
+        ),
+        # Use square brackets
+        square=True
     )
 
 
@@ -706,6 +732,9 @@ ansi_dialect.add(
             ),
             Ref('LiteralGrammar'),
             Ref('ObjectReferenceSegment')
+        ),
+        AnyNumberOf(
+            Ref('ArrayAccessorSegment')
         ),
         Ref('ShorthandCastSegment', optional=True),
         code_only=False
