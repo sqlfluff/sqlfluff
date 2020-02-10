@@ -537,9 +537,6 @@ class Linter:
 
             # Now extract all the unparsable segments
             for unparsable in parsed.iter_unparsables():
-                # # print("FOUND AN UNPARSABLE!")
-                # # print(unparsable)
-                # # print(unparsable.stringify())
                 # No exception has been raised explicitly, but we still create one here
                 # so that we can use the common interface
                 vs.append(

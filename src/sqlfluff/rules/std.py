@@ -337,24 +337,17 @@ class Rule_L003(BaseCrawler):
                 if this_line['indent_size'] != res[k]['indent_size']:
                     # Indents don't match even though balance is the same...
                     memory['problem_lines'].append(this_line_no)
-                    print(this_line_no, k, this_line['indent_balance'], res[k]['indent_balance'])
-                    for r in res:
-                        print(r, res[r]['indent_balance'], res[r]['indent_size'])
 
                     # Work out desired indent
                     if res[k]['indent_size'] == 0:
-                        print("A")
                         desired_indent = ''
                     elif this_line['indent_size'] == 0:
-                        print("B")
                         desired_indent = self._make_indent()
                     else:
-                        print("C")
                         # The previous indent.
                         desired_indent = ''.join(elem.raw for elem in res[k]['indent_buffer'])
 
                     # Make fixes
-                    print(repr(desired_indent))
                     fixes = self._coerce_indent_to(
                         desired_indent=desired_indent,
                         current_indent_buffer=this_line['indent_buffer'],
