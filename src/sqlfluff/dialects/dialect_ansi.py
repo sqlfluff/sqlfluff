@@ -229,7 +229,8 @@ class ObjectReferenceSegment(BaseSegment):
             Ref('CastOperatorKeywordSegment')
         ),
         min_delimiters=0,
-        code_only=False)
+        code_only=False
+    )
 
 
 @ansi_dialect.segment()
