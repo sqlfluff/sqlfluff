@@ -5,7 +5,6 @@ and automatically tested against the appropriate dialect.
 """
 
 import pytest
-import logging
 import os
 
 from sqlfluff.parser import FileSegment, ParseContext
@@ -49,7 +48,7 @@ def load_file(dialect, fname):
     "dialect,file",
     parse_success_examples
 )
-def test__dialect__base_file_parse(dialect, file, caplog):
+def test__dialect__base_file_parse(dialect, file):
     """For given test examples, check successful parsing."""
     raw = load_file(dialect, file)
     # Load the right dialect
@@ -58,13 +57,15 @@ def test__dialect__base_file_parse(dialect, file, caplog):
     fs = FileSegment.from_raw(raw, config=config)
     # From just the initial parse, check we're all there
     assert fs.raw == raw
-    # Do the parse with lots of logging
-    with caplog.at_level(logging.DEBUG):
-        logging.debug("Pre-parse structure: {0}".format(fs.to_tuple(show_raw=True)))
-        logging.debug("Pre-parse structure: {0}".format(fs.stringify()))
-        parsed = fs.parse(parse_context=context)  # Optional: set recurse=1 to limit recursion
-        logging.debug("Post-parse structure: {0}".format(fs.to_tuple(show_raw=True)))
-        logging.debug("Post-parse structure: {0}".format(fs.stringify()))
+    # Do the parse WITHOUT lots of logging
+    # The logs get too long here to be useful. We should use
+    # specfic segment tests if we want to debug logs.
+    # with caplog.at_level(logging.DEBUG):
+    print("Pre-parse structure: {0}".format(fs.to_tuple(show_raw=True)))
+    print("Pre-parse structure: {0}".format(fs.stringify()))
+    parsed = fs.parse(parse_context=context)  # Optional: set recurse=1 to limit recursion
+    print("Post-parse structure: {0}".format(fs.to_tuple(show_raw=True)))
+    print("Post-parse structure: {0}".format(fs.stringify()))
     # Check we're all there.
     assert parsed.raw == raw
     # Check that there's nothing un parsable
@@ -76,7 +77,7 @@ def test__dialect__base_file_parse(dialect, file, caplog):
     "dialect,sqlfile,yamlfile",
     parse_structure_examples
 )
-def test__dialect__base_parse_struct(dialect, sqlfile, yamlfile, caplog, yaml_loader):
+def test__dialect__base_parse_struct(dialect, sqlfile, yamlfile, yaml_loader):
     """For given test examples, check parsed structure against yaml."""
     # Load the right dialect
     config = FluffConfig(overrides=dict(dialect=dialect))
@@ -86,6 +87,6 @@ def test__dialect__base_parse_struct(dialect, sqlfile, yamlfile, caplog, yaml_lo
     fs = FileSegment.from_raw(raw, config=config)
     # Load the YAML
     res = yaml_loader(make_dialect_path(dialect, yamlfile))
-    with caplog.at_level(logging.DEBUG):
-        parsed = fs.parse(parse_context=context)
+    # with caplog.at_level(logging.DEBUG):
+    parsed = fs.parse(parse_context=context)
     assert parsed.to_tuple(code_only=True, show_raw=True) == res

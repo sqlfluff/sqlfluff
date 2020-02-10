@@ -81,7 +81,7 @@ ansi_dialect.add(
     # also use a regex to explicitly exclude disallowed keywords.
     NakedIdentifierSegment=ReSegment.make(
         r"[A-Z0-9_]*[A-Z][A-Z0-9_]*", name='identifier', type='naked_identifier',
-        _anti_template=r"(JOIN|ON|USING|CROSS|INNER|LEFT|RIGHT|OUTER|INTERVAL|CASE|FULL)"),
+        _anti_template=r"^(JOIN|ON|USING|CROSS|INNER|LEFT|RIGHT|OUTER|INTERVAL|CASE|FULL)$"),
     FunctionNameSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='function_name', type='function_name'),
     # Maybe data types should be more restrictive?
     DatatypeSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='data_type', type='data_type'),
@@ -190,20 +190,26 @@ ansi_dialect.add(
     RLikeKeywordSegment=KeywordSegment.make('rlike'),
     # Some more grammars:
     IntervalKeywordSegment=KeywordSegment.make('interval'),
-    IntervalLiteralGrammar=Sequence(
+    LiteralGrammar=OneOf(
+        Ref('QuotedLiteralSegment'), Ref('NumericLiteralSegment'),
+        Ref('BooleanLiteralGrammar'), Ref('QualifiedNumericLiteralSegment'),
+        Ref('IntervalLiteralSegment')
+    ),
+)
+
+
+@ansi_dialect.segment()
+class IntervalLiteralSegment(BaseSegment):
+    """An interval literal segment."""
+    type = 'interval_literal'
+    match_grammar = Sequence(
         Ref('IntervalKeywordSegment'),
         Ref('NumericLiteralSegment'),
         OneOf(
             Ref('QuotedLiteralSegment'),
             Ref('DatepartSegment')
         )
-    ),
-    LiteralGrammar=OneOf(
-        Ref('QuotedLiteralSegment'), Ref('NumericLiteralSegment'),
-        Ref('BooleanLiteralGrammar'), Ref('QualifiedNumericLiteralSegment'),
-        Ref('IntervalLiteralGrammar')
-    ),
-)
+    )
 
 
 @ansi_dialect.segment()
@@ -225,6 +231,7 @@ class ObjectReferenceSegment(BaseSegment):
             Ref('_NonCodeSegment'), Ref('CommaSegment'),
             Ref('CastOperatorKeywordSegment')
         ),
+        min_delimiters=0,
         code_only=False
     )
 
@@ -576,28 +583,34 @@ class FromClauseSegment(BaseSegment):
 class CaseExpressionSegment(BaseSegment):
     """A `CASE WHEN` clause."""
     type = 'case_expression'
-    match_grammar = StartsWith(
-        Ref('CaseKeywordSegment'),
-        terminator=Ref('EndKeywordSegment'),
-        include_terminator=True
-    )
-    parse_grammar = Sequence(
+    # This method of matching doesn't work with nested case statements.
+    # TODO: Develop something more powerful for this.
+    # match_grammar = StartsWith(
+    #     Ref('CaseKeywordSegment'),
+    #     terminator=Ref('EndKeywordSegment'),
+    #     include_terminator=True
+    # )
+    match_grammar = Sequence(
         Ref('CaseKeywordSegment'),
         Indent,
         AnyNumberOf(
             Sequence(
+                # We use the unbound version of Expression here, so that we
+                # deal with potentially nested case statements where the
+                # parsing gets confused by which WHERE and END goes with
+                # which CASE. TODO: Come up with a better solution for this.
                 Ref('WhenKeywordSegment'),
                 Indent,
-                Ref('ExpressionSegment_TermThen'),
+                Ref('ExpressionSegment_NoMatch'),
                 Ref('ThenKeywordSegment'),
-                Ref('ExpressionSegment_TermWhenElse'),
+                Ref('ExpressionSegment_NoMatch'),
                 Dedent
             )
         ),
         Sequence(
             Ref('ElseKeywordSegment'),
             Indent,
-            Ref('ExpressionSegment_TermEnd'),
+            Ref('ExpressionSegment_NoMatch'),
             Dedent,
             optional=True
         ),
