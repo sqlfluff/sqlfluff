@@ -59,6 +59,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Automatic fix testing, to help support the newer more complicated rules.
 - Interval literals
 - Support for the `source` macro from dbt. Thanks [@Dandandan](https://github.com/Dandandan)
+- Support for functions with spaces between the function name and the brackets
+  and a linting rule `L017` to catch this.
 
 ## [0.2.4] - 2019-12-06
 
