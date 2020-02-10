@@ -875,6 +875,30 @@ class GroupByClauseSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class HavingClauseSegment(BaseSegment):
+    """A `HAVING` clause like in `SELECT`."""
+    type = 'having_clause'
+    match_grammar = StartsWith(
+        Ref('HavingKeywordSegment'),
+        terminator=OneOf(
+            Ref('OrderKeywordSegment'),
+            Ref('LimitKeywordSegment')
+        )
+    )
+    parse_grammar = Sequence(
+        Ref('HavingKeywordSegment'),
+        Indent,
+        OneOf(
+            Bracketed(
+                Ref('ExpressionSegment'),
+            ),
+            Ref('ExpressionSegment')
+        ),
+        Dedent
+    )
+
+
+@ansi_dialect.segment()
 class LimitClauseSegment(BaseSegment):
     """A `LIMIT` clause like in `SELECT`."""
     type = 'limit_clause'
@@ -917,6 +941,7 @@ class SelectStatementSegment(BaseSegment):
         Ref('FromClauseSegment', optional=True),
         Ref('WhereClauseSegment', optional=True),
         Ref('GroupByClauseSegment', optional=True),
+        Ref('HavingClauseSegment', optional=True),
         Ref('OrderByClauseSegment', optional=True),
         Ref('LimitClauseSegment', optional=True)
         # GreedyUntil(KeywordSegment.make('limit'), optional=True)
