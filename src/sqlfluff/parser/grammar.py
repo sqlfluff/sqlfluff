@@ -413,29 +413,29 @@ class Ref(BaseGrammar):
         """
         elem = self._get_elem(dialect=parse_context.dialect)
 
-        if elem:
-            # First check against the efficiency Cache.
-            # Make a tuple of the incoming segments
-            seg_tuple = BaseSegment.segs_to_tuple(segments, show_raw=True)
-            self_name = self._get_ref()
-            if parse_context.blacklist.check(self_name, seg_tuple):
-                # This has been tried before.
-                parse_match_logging(
-                    self.__class__.__name__,
-                    'match', "SKIP",
-                    parse_context=parse_context, v_level=3, self_name=self_name)
-                return MatchResult.from_unmatched(segments)
-
-            # Match against that. NB We're not incrementing the match_depth here.
-            # References shouldn't relly count as a depth of match.
-            resp = elem._match(
-                segments=segments,
-                parse_context=parse_context.copy(match_segment=self._get_ref()))
-            if not resp:
-                parse_context.blacklist.mark(self_name, seg_tuple)
-            return resp
-        else:
+        if not elem:
             raise ValueError("Null Element returned! _elements: {0!r}".format(self._elements))
+
+        # First check against the efficiency Cache.
+        # Make a tuple of the incoming segments
+        seg_tuple = BaseSegment.segs_to_tuple(segments, show_raw=True)
+        self_name = self._get_ref()
+        if parse_context.blacklist.check(self_name, seg_tuple):
+            # This has been tried before.
+            parse_match_logging(
+                self.__class__.__name__,
+                'match', "SKIP",
+                parse_context=parse_context, v_level=3, self_name=self_name)
+            return MatchResult.from_unmatched(segments)
+
+        # Match against that. NB We're not incrementing the match_depth here.
+        # References shouldn't relly count as a depth of match.
+        resp = elem._match(
+            segments=segments,
+            parse_context=parse_context.copy(match_segment=self._get_ref()))
+        if not resp:
+            parse_context.blacklist.mark(self_name, seg_tuple)
+        return resp
 
     def expected_string(self, dialect=None, called_from=None):
         """Get the expected string from the referenced element."""
