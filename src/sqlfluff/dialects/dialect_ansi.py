@@ -246,8 +246,12 @@ class ObjectReferenceSegment(BaseSegment):
 class ArrayAccessorSegment(BaseSegment):
     """An array accessor e.g. [3:4]."""
     type = 'array_accessor'
-    # match grammar (don't allow whitespace)
     match_grammar = Bracketed(
+        Anything(),
+        # Use square brackets
+        square=True
+    )
+    parse_grammar = Bracketed(
         Sequence(
             Ref('ExpressionSegment'),
             # Optional slice expression
