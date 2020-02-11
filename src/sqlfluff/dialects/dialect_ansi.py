@@ -252,14 +252,16 @@ class ArrayAccessorSegment(BaseSegment):
         square=True
     )
     parse_grammar = Bracketed(
-        Sequence(
-            Ref('ExpressionSegment'),
-            # Optional slice expression
-            Sequence(
-                Ref('ColonSegment'),
-                Ref('ExpressionSegment'),
-                optional=True
+        Delimited(
+            # We use the no-match version here so we get the correct
+            # handling of the potential colon. We also use Delimited
+            # so that we look for the colon FIRST, because we should
+            # know to expect one and the parser gets confused otherwise.
+            OneOf(
+                Ref('NumericLiteralSegment'),
+                Ref('ExpressionSegment_NoMatch')
             ),
+            delimiter=Ref('SliceSegment')
         ),
         # Use square brackets
         square=True
