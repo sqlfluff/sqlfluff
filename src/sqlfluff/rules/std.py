@@ -165,7 +165,7 @@ class Rule_L003(BaseCrawler):
             if elem.type == 'newline':
                 result_buffer[line_no] = {
                     'line_no': line_no,
-                    # Using slicing to copy line_buffer here to by py2 compliant
+                    # Using slicing to copy line_buffer here to be py2 compliant
                     'line_buffer': line_buffer[:],
                     'indent_buffer': indent_buffer,
                     'indent_size': indent_size,
@@ -330,6 +330,11 @@ class Rule_L003(BaseCrawler):
             # Is this a problem line?
             if k in memory['problem_lines'] + memory['hanging_lines']:
                 # Skip it if it is
+                continue
+
+            # Is this an empty line?
+            if not any(elem.is_code for elem in res[k]['line_buffer']):
+                # Skip if it is
                 continue
 
             # Is the indent balance the same?
