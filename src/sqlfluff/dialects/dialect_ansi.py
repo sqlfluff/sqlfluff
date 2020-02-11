@@ -236,7 +236,8 @@ class ObjectReferenceSegment(BaseSegment):
         terminator=OneOf(
             Ref('_NonCodeSegment'), Ref('CommaSegment'),
             Ref('CastOperatorKeywordSegment'), Ref('StartSquareBracketSegment'),
-            Ref('StartBracketSegment')
+            Ref('StartBracketSegment'), Ref('ArithmeticBinaryOperatorGrammar'),
+            Ref('ComparisonOperatorGrammar')
         ),
         code_only=False
     )

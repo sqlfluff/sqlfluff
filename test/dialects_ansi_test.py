@@ -71,7 +71,11 @@ def test__dialect__ansi__file_from_raw(raw, res, caplog):
          "count_18_24 * bits[OFFSET(0)] + count_25_34"),
         ("SelectTargetElementSegment",
          ("(count_18_24 * bits[OFFSET(0)] + count_25_34)"
-          " / audience_size AS relative_abundance"))
+          " / audience_size AS relative_abundance")),
+        # Dense math expressions
+        # https://github.com/alanmcruickshank/sqlfluff/issues/178
+        # https://github.com/alanmcruickshank/sqlfluff/issues/179
+        ("SelectStatementSegment", "SELECT t.val/t.id FROM test WHERE id*1.0/id > 0.8"),
     ]
 )
 def test__dialect__ansi_specific_segment_parses(segmentref, raw, caplog):
