@@ -84,15 +84,18 @@ class BaseGrammar:
 
         dt = time.monotonic() - t0
         if m.is_complete():
-            msg = 'OUT ++'
+            msg = 'OUT'
+            symbol = '++'
         elif m:
-            msg = 'OUT -'
+            msg = 'OUT'
+            symbol = '+'
         else:
             msg = 'OUT'
+            symbol = ''
 
         parse_match_logging(
             self.__class__.__name__, '_match', msg,
-            parse_context=parse_context, v_level=self.v_level, dt=dt, m=m)
+            parse_context=parse_context, v_level=self.v_level, dt=dt, m=m, symbol=symbol)
 
         # Basic Validation
         check_still_complete(segments, m.matched_segments, m.unmatched_segments)
@@ -404,15 +407,33 @@ class Ref(BaseGrammar):
         Matching can be done from either the raw or the segments.
         This raw function can be overridden, or a grammar defined
         on the underlying class.
+
+        The match element of Ref, also implements the caching
+        using the parse_context `blacklist` methods.
         """
         elem = self._get_elem(dialect=parse_context.dialect)
 
         if elem:
+            # First check against the efficiency Cache.
+            # Make a tuple of the incoming segments
+            seg_tuple = BaseSegment.segs_to_tuple(segments, show_raw=True)
+            self_name = self._get_ref()
+            if parse_context.blacklist.check(self_name, seg_tuple):
+                # This has been tried before.
+                parse_match_logging(
+                    self.__class__.__name__,
+                    'match', "SKIP",
+                    parse_context=parse_context, v_level=3, self_name=self_name)
+                return MatchResult.from_unmatched(segments)
+
             # Match against that. NB We're not incrementing the match_depth here.
             # References shouldn't relly count as a depth of match.
-            return elem._match(
+            resp = elem._match(
                 segments=segments,
                 parse_context=parse_context.copy(match_segment=self._get_ref()))
+            if not resp:
+                parse_context.blacklist.mark(self_name, seg_tuple)
+            return resp
         else:
             raise ValueError("Null Element returned! _elements: {0!r}".format(self._elements))
 
@@ -506,8 +527,9 @@ class OneOf(BaseGrammar):
                     best_match = m
                 parse_match_logging(
                     self.__class__.__name__,
-                    '_match', "Saving Match of Length {0}:  {1}".format(len(m.raw_matched()), m),
-                    parse_context=parse_context, v_level=self.v_level)
+                    '_match', "SAVE",
+                    parse_context=parse_context, v_level=self.v_level,
+                    match_length=len(m.raw_matched()), m=m)
 
         # No full match from the first time round. If we've got a
         # long partial match then return that.

@@ -13,7 +13,7 @@ we use, and will be common between all of them.
 import logging
 import re
 
-from .segments_base import (BaseSegment, RawSegment)
+from .segments_base import (BaseSegment, RawSegment, parse_match_logging)
 from .match import MatchResult
 
 
@@ -50,8 +50,10 @@ class KeywordSegment(RawSegment):
                 raw_comp = raw
             else:
                 raw_comp = raw.upper()
-            logging.debug("[PD:{0} MD:{1}] (KW) {2}.match considering {3!r} against {4!r}".format(
-                parse_context.parse_depth, parse_context.match_depth, cls.__name__, raw_comp, cls._template))
+
+            parse_match_logging(
+                cls.__name__[:10], 'match', 'KW',
+                parse_context=parse_context, v_level=4, pattern=cls._template, test=raw_comp, name=cls.__name__)
             if cls._template == raw_comp:
                 m = (cls(raw=raw, pos_marker=pos),)  # Return as a tuple
                 return MatchResult(m, segments[1:])
@@ -96,8 +98,9 @@ class ReSegment(KeywordSegment):
             sc = s
         if len(s) == 0:
             raise ValueError("Zero length string passed to ReSegment!?")
-        logging.debug("[PD:{0} MD:{1}] (RE) {2}.match considering {3!r} against {4!r}".format(
-            parse_context.parse_depth, parse_context.match_depth, cls.__name__, sc, cls._template))
+        parse_match_logging(
+            cls.__name__[:10], 'match', 'RE',
+            parse_context=parse_context, v_level=4, pattern=cls._template, test=sc, name=cls.__name__)
         # Try the regex
         result = re.match(cls._template, sc)
         if result:
@@ -142,8 +145,9 @@ class NamedSegment(KeywordSegment):
                 n = s.name.upper()
             else:
                 n = s.name
-            logging.debug("[PD:{0} MD:{1}] (KW) {2}.match considering {3!r} against {4!r}".format(
-                parse_context.parse_depth, parse_context.match_depth, cls.__name__, n, cls._template))
+            parse_match_logging(
+                cls.__name__[:10], 'match', 'NM',
+                parse_context=parse_context, v_level=4, pattern=cls._template, test=n, name=cls.__name__)
             if cls._template == n:
                 m = (cls(raw=s.raw, pos_marker=segments[0].pos_marker),)  # Return a tuple
                 return MatchResult(m, segments[1:])
