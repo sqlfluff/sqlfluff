@@ -235,9 +235,9 @@ class ObjectReferenceSegment(BaseSegment):
         delimiter=Ref('DotSegment'),
         terminator=OneOf(
             Ref('_NonCodeSegment'), Ref('CommaSegment'),
-            Ref('CastOperatorKeywordSegment')
+            Ref('CastOperatorKeywordSegment'), Ref('StartSquareBracketSegment'),
+            Ref('StartBracketSegment')
         ),
-        min_delimiters=0,
         code_only=False
     )
 
