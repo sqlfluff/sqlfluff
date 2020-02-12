@@ -107,3 +107,23 @@ class Dialect:
             raise ValueError(
                 "Lexing struct has not been set for dialect {0}".format(
                     self))
+
+    def patch_lexer_struct(self, lexer_patch):
+        """Patch an existing lexer struct.
+
+        Used to edit the lexer of a sub-dialect.
+        """
+        buff = []
+        if not self.lexer_struct:
+            raise ValueError("Lexer struct must be defined before it can be patched!")
+
+        # Make a new data struct for lookups
+        patch_dict = {elem[0]: elem for elem in lexer_patch}
+
+        for elem in self.lexer_struct:
+            if elem[0] in patch_dict:
+                buff.append(patch_dict[elem[0]])
+            else:
+                buff.append(elem)
+        # Overwrite with the buffer once we're done
+        self.lexer_struct = buff
