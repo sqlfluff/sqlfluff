@@ -18,7 +18,8 @@ SELECT
     CASE
         WHEN audience > 0 AND audience <= 200 THEN '< 200'
         WHEN audience > 200
-        AND audience <= 2000 THEN '200 - 2,000'
+             -- NB: This one is a hanging indent!
+             AND audience <= 2000 THEN '200 - 2,000'
         WHEN audience > 2000 AND audience <= 10000 THEN '2,000 - 10,000'
         WHEN audience > 10000
         AND audience <= 50000 THEN '10,000 - 50,000'

@@ -159,6 +159,7 @@ class Rule_L003(BaseCrawler):
         line_indent_stack = []
         this_indent_balance = 0
         clean_indent = False
+        hanger_pos = None
 
         for elem in raw_stack:
             line_buffer.append(elem)
@@ -170,7 +171,7 @@ class Rule_L003(BaseCrawler):
                     'indent_buffer': indent_buffer,
                     'indent_size': indent_size,
                     'indent_balance': this_indent_balance,
-                    'hanging_indent': line_indent_stack.pop() if line_indent_stack else None,
+                    'hanging_indent': hanger_pos if line_indent_stack else None,
                     'clean_indent': clean_indent
                 }
                 line_no += 1
@@ -179,6 +180,7 @@ class Rule_L003(BaseCrawler):
                 indent_size = 0
                 in_indent = True
                 line_indent_stack = []
+                hanger_pos = None
                 # Assume an unclean indent, but if the last line
                 # ended with an indent then we might be ok.
                 clean_indent = False
@@ -210,11 +212,14 @@ class Rule_L003(BaseCrawler):
                     line_indent_stack.append(
                         self._indent_size(line_buffer)
                     )
+                    hanger_pos = None
                 else:
                     # this is a dedent, we could still have a hanging indent,
                     # but only if there's enough on the stack
                     if line_indent_stack:
                         line_indent_stack.pop()
+            elif elem.is_code and hanger_pos is None:
+                hanger_pos = self._indent_size(line_buffer[:-1])
 
         # If we get to the end, and still have a buffer, add it on
         if line_buffer:
@@ -322,6 +327,8 @@ class Rule_L003(BaseCrawler):
             last_line_hanger_indent = res[this_line_no - 1]['hanging_indent']
             # Let's just deal with hanging indents here.
             if this_line['indent_size'] == last_line_hanger_indent:
+                # NB: Hangers are only allowed if there was content after the last
+                # indent on the previous line. Otherwise it's just an indent.
                 # This is a HANGER
                 memory['hanging_lines'].append(this_line_no)
                 return LintResult(memory=memory)
@@ -348,6 +355,10 @@ class Rule_L003(BaseCrawler):
             if not any(elem.is_code for elem in res[k]['line_buffer']):
                 # Skip if it is
                 continue
+
+            #print(this_line_no, k)
+            #print(this_line)
+            #print(res[k])
 
             # Is the indent balance the same?
             indent_diff = this_line['indent_balance'] - res[k]['indent_balance']
