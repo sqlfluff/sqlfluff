@@ -159,6 +159,7 @@ class Rule_L003(BaseCrawler):
         line_indent_stack = []
         this_indent_balance = 0
         clean_indent = False
+        hanger_pos = None
 
         for elem in raw_stack:
             line_buffer.append(elem)
@@ -170,7 +171,7 @@ class Rule_L003(BaseCrawler):
                     'indent_buffer': indent_buffer,
                     'indent_size': indent_size,
                     'indent_balance': this_indent_balance,
-                    'hanging_indent': line_indent_stack.pop() if line_indent_stack else None,
+                    'hanging_indent': hanger_pos if line_indent_stack else None,
                     'clean_indent': clean_indent
                 }
                 line_no += 1
@@ -179,6 +180,7 @@ class Rule_L003(BaseCrawler):
                 indent_size = 0
                 in_indent = True
                 line_indent_stack = []
+                hanger_pos = None
                 # Assume an unclean indent, but if the last line
                 # ended with an indent then we might be ok.
                 clean_indent = False
@@ -210,11 +212,14 @@ class Rule_L003(BaseCrawler):
                     line_indent_stack.append(
                         self._indent_size(line_buffer)
                     )
+                    hanger_pos = None
                 else:
                     # this is a dedent, we could still have a hanging indent,
                     # but only if there's enough on the stack
                     if line_indent_stack:
                         line_indent_stack.pop()
+            elif elem.is_code and hanger_pos is None:
+                hanger_pos = self._indent_size(line_buffer[:-1])
 
         # If we get to the end, and still have a buffer, add it on
         if line_buffer:
@@ -321,7 +326,17 @@ class Rule_L003(BaseCrawler):
         if len(res) > 0:
             last_line_hanger_indent = res[this_line_no - 1]['hanging_indent']
             # Let's just deal with hanging indents here.
-            if this_line['indent_size'] == last_line_hanger_indent:
+            if (
+                # NB: Hangers are only allowed if there was content after the last
+                # indent on the previous line. Otherwise it's just an indent.
+                this_line['indent_size'] == last_line_hanger_indent
+                # Or they're if the indent balance is the same and the indent is the
+                # same
+                or (
+                    this_line['indent_size'] == res[this_line_no - 1]['indent_size']
+                    and this_line['indent_balance'] == res[this_line_no - 1]['indent_balance']
+                )
+            ):
                 # This is a HANGER
                 memory['hanging_lines'].append(this_line_no)
                 return LintResult(memory=memory)
@@ -1469,4 +1484,110 @@ class Rule_L017(BaseCrawler):
                         LintFix('delete', segment.segments[idx])
                         for idx in range(fname_idx + 1, bracket_idx)
                     ])
+        return LintResult()
+
+
+@std_rule_set.register
+class Rule_L018(BaseCrawler):
+    """WITH clause closing bracket should be aligned with WITH keyword."""
+
+    def __init__(self, tab_space_size=4, **kwargs):
+        """Initialise, extracting the tab size from the config.
+
+        We need to know the tab size for reconstruction.
+        """
+        self.tab_space_size = tab_space_size
+        super(Rule_L018, self).__init__(**kwargs)
+
+    def _eval(self, segment, raw_stack, **kwargs):
+        """WITH clause closing bracket should be aligned with WITH keyword.
+
+        Look for a with clause and evaluate the position of closing brackets.
+        """
+        # We only trigger on start_bracket (open parenthesis)
+        if segment.type == 'with_compound_statement':
+            raw_stack_buff = list(raw_stack)
+            # Look for the with keyword
+            for seg in segment.segments:
+                if seg.name.lower() == 'with':
+                    seg_line_no = seg.pos_marker.line_no
+                    break
+                else:
+                    raw_stack_buff.append(seg)
+            else:
+                raise RuntimeError("Didn't find WITH keyword!")
+
+            def indent_size_up_to(segs):
+                seg_buff = []
+                # Get any segments running up to the WITH
+                for elem in reversed(segs):
+                    if elem.type == 'newline':
+                        break
+                    elif elem.is_meta:
+                        continue
+                    else:
+                        seg_buff.append(elem)
+                # reverse the indent if we have one
+                if seg_buff:
+                    seg_buff = list(reversed(seg_buff))
+                indent_str = ''.join(
+                    seg.raw for seg in seg_buff
+                ).replace('\t', ' ' * self.tab_space_size)
+                indent_size = len(indent_str)
+                return indent_size, indent_str
+
+            balance = 0
+            with_indent, with_indent_str = indent_size_up_to(raw_stack_buff)
+            for seg in segment.segments:
+                if seg.name == 'start_bracket':
+                    balance += 1
+                elif seg.name == 'end_bracket':
+                    balance -= 1
+                    if balance == 0:
+                        closing_bracket_indent, _ = indent_size_up_to(raw_stack_buff)
+                        indent_diff = closing_bracket_indent - with_indent
+                        # Is indent of closing bracket not the same as
+                        # indent of WITH keyword.
+                        if seg.pos_marker.line_no == seg_line_no:
+                            # Skip if it's the one-line version. That's ok
+                            pass
+                        elif indent_diff < 0:
+                            return LintResult(
+                                anchor=seg, fixes=[
+                                    LintFix(
+                                        'create', seg,
+                                        self.make_whitespace(' ' * (-indent_diff), seg.pos_marker)
+                                    )
+                                ]
+                            )
+                        elif indent_diff > 0:
+                            # Is it all whitespace before the bracket on this line?
+                            prev_segs_on_line = [
+                                elem for elem in segment.segments
+                                if elem.pos_marker.line_no == seg.pos_marker.line_no
+                                and elem.pos_marker.line_pos < seg.pos_marker.line_pos
+                            ]
+                            if all(elem.type == 'whitespace' for elem in prev_segs_on_line):
+                                # We can move it back, it's all whitespace
+                                fixes = (
+                                    [LintFix('create', seg, [self.make_whitespace(
+                                        with_indent_str, seg.pos_marker.advance_by('\n'))])]
+                                    + [LintFix('delete', elem) for elem in prev_segs_on_line]
+                                )
+                            else:
+                                # We have to move it to a newline
+                                fixes = [
+                                    LintFix(
+                                        'create', seg,
+                                        [
+                                            self.make_newline(pos_marker=seg.pos_marker),
+                                            self.make_whitespace(
+                                                with_indent_str, seg.pos_marker.advance_by('\n')
+                                            )
+                                        ]
+                                    )
+                                ]
+                            return LintResult(anchor=seg, fixes=fixes)
+                else:
+                    raw_stack_buff.append(seg)
         return LintResult()

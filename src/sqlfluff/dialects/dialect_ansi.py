@@ -956,7 +956,6 @@ class WithCompoundStatementSegment(BaseSegment):
     match_grammar = StartsWith(Ref('WithKeywordSegment'))
     parse_grammar = Sequence(
         Ref('WithKeywordSegment'),
-        Indent,
         Delimited(
             Sequence(
                 Ref('ObjectReferenceSegment'),
@@ -971,7 +970,6 @@ class WithCompoundStatementSegment(BaseSegment):
             delimiter=Ref('CommaSegment'),
             terminator=Ref('SelectKeywordSegment')
         ),
-        Dedent,
         Ref('SelectStatementSegment')
     )
 
