@@ -326,9 +326,17 @@ class Rule_L003(BaseCrawler):
         if len(res) > 0:
             last_line_hanger_indent = res[this_line_no - 1]['hanging_indent']
             # Let's just deal with hanging indents here.
-            if this_line['indent_size'] == last_line_hanger_indent:
+            if (
                 # NB: Hangers are only allowed if there was content after the last
                 # indent on the previous line. Otherwise it's just an indent.
+                this_line['indent_size'] == last_line_hanger_indent
+                # Or they're if the indent balance is the same and the indent is the
+                # same
+                or (
+                    this_line['indent_size'] == res[this_line_no - 1]['indent_size']
+                    and this_line['indent_balance'] == res[this_line_no - 1]['indent_balance']
+                )
+            ):
                 # This is a HANGER
                 memory['hanging_lines'].append(this_line_no)
                 return LintResult(memory=memory)
@@ -355,10 +363,6 @@ class Rule_L003(BaseCrawler):
             if not any(elem.is_code for elem in res[k]['line_buffer']):
                 # Skip if it is
                 continue
-
-            #print(this_line_no, k)
-            #print(this_line)
-            #print(res[k])
 
             # Is the indent balance the same?
             indent_diff = this_line['indent_balance'] - res[k]['indent_balance']
