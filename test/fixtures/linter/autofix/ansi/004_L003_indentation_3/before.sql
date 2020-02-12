@@ -1,5 +1,4 @@
-WITH
-    audience_counts AS (
+WITH audience_counts AS (
         SELECT
             user_id,
             list_id,

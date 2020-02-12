@@ -1,16 +1,15 @@
-WITH
-    audience_counts AS (
-        SELECT
-            user_id,
-            list_id,
-            COUNT(email_id) AS audience
-        FROM
-            lists_emails AS list_emails
-        WHERE
-            list_emails.active != 'D'
-        GROUP BY
-            user_id,
-            list_id)
+WITH audience_counts AS (
+    SELECT
+        user_id,
+        list_id,
+        COUNT(email_id) AS audience
+    FROM
+        lists_emails AS list_emails
+    WHERE
+        list_emails.active != 'D'
+    GROUP BY
+        user_id,
+        list_id)
 
 SELECT
     user_id,
