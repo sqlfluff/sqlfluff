@@ -165,7 +165,7 @@ class Rule_L003(BaseCrawler):
             if elem.type == 'newline':
                 result_buffer[line_no] = {
                     'line_no': line_no,
-                    # Using slicing to copy line_buffer here to by py2 compliant
+                    # Using slicing to copy line_buffer here to be py2 compliant
                     'line_buffer': line_buffer[:],
                     'indent_buffer': indent_buffer,
                     'indent_size': indent_size,
@@ -179,13 +179,25 @@ class Rule_L003(BaseCrawler):
                 indent_size = 0
                 in_indent = True
                 line_indent_stack = []
+                # Assume an unclean indent, but if the last line
+                # ended with an indent then we might be ok.
                 clean_indent = False
+                # did the last line end with an indent?
+                for search_elem in reversed(result_buffer[line_no - 1]['line_buffer']):
+                    if search_elem.type in ('newline', 'whitespace'):
+                        continue
+                    elif search_elem.is_meta and search_elem.indent_val > 0:
+                        clean_indent = True
+                    break
             elif in_indent:
                 if elem.type == 'whitespace':
                     indent_buffer.append(elem)
                 elif elem.is_meta and elem.indent_val != 0:
                     indent_balance += elem.indent_val
                     if elem.indent_val > 0:
+                        # a "clean" indent is one where it contains
+                        # an increase in indentation? Can't quite
+                        # remember the logic here. Let's go with that.
                         clean_indent = True
                 else:
                     in_indent = False
@@ -332,8 +344,14 @@ class Rule_L003(BaseCrawler):
                 # Skip it if it is
                 continue
 
+            # Is this an empty line?
+            if not any(elem.is_code for elem in res[k]['line_buffer']):
+                # Skip if it is
+                continue
+
             # Is the indent balance the same?
-            if this_line['indent_balance'] == res[k]['indent_balance']:
+            indent_diff = this_line['indent_balance'] - res[k]['indent_balance']
+            if indent_diff == 0:
                 if this_line['indent_size'] != res[k]['indent_size']:
                     # Indents don't match even though balance is the same...
                     memory['problem_lines'].append(this_line_no)
@@ -366,7 +384,7 @@ class Rule_L003(BaseCrawler):
                     return LintResult(memory=memory)
 
             # Are we at a deeper indent?
-            elif this_line['indent_balance'] > res[k]['indent_balance']:
+            elif indent_diff > 0:
                 # NB: We shouldn't need to deal with hanging indents
                 # here, they should already have been dealt with before.
 
@@ -378,10 +396,13 @@ class Rule_L003(BaseCrawler):
                 if this_line['indent_size'] % self.tab_space_size != 0:
                     memory['problem_lines'].append(this_line_no)
 
-                    # If we have a clean indent, we can just add a step, simples.
+                    # If we have a clean indent, we can just add steps in line
+                    # with the difference in the indent buffers. simples.
                     # We can also do this if we've skipped a line. I think?
                     if this_line['clean_indent'] or this_line_no - k > 1:
-                        desired_indent = ''.join(elem.raw for elem in res[k]['indent_buffer']) + self._make_indent()
+                        desired_indent = (
+                            ''.join(elem.raw for elem in res[k]['indent_buffer'])
+                            + (self._make_indent() * indent_diff))
                     # If we have the option of a hanging indent then use it.
                     elif res[k]['hanging_indent']:
                         desired_indent = ' ' * res[k]['hanging_indent']
@@ -441,7 +462,7 @@ class Rule_L003(BaseCrawler):
                                 pos_marker=segment.pos_marker)
                         )]
                     )
-                elif this_indent_num > comp_indent_num + (this_line['indent_balance'] - res[k]['indent_balance']):
+                elif this_indent_num > comp_indent_num + indent_diff:
                     # Calculate the lowest ok indent:
                     desired_indent = self._make_indent(num=comp_indent_num - this_indent_num)
 
