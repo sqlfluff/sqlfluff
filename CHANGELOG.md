@@ -61,6 +61,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for the `source` macro from dbt. Thanks [@Dandandan](https://github.com/Dandandan)
 - Support for functions with spaces between the function name and the brackets
   and a linting rule `L017` to catch this.
+- Efficiency cache for faster pruning of the parse tree.
+- Parsing of array notation as using in BigQuery and Postgres.
 
 ## [0.2.4] - 2019-12-06
 

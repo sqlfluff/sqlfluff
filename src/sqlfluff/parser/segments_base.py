@@ -31,10 +31,12 @@ def verbosity_logger(msg, verbosity=0, level='info', v_level=3):
 
 def parse_match_logging(grammar, func, msg, parse_context, v_level, **kwargs):
     """Log in a particular consistent format for use while matching."""
-    s = "[PD:{0} MD:{1}]\t{2:<50}\t{3:<20}".format(
+    symbol = kwargs.pop('symbol', '')
+    s = "[PD:{0} MD:{1}]\t{2:<50}\t{3:<20}\t{4:<4}".format(
         parse_context.parse_depth, parse_context.match_depth,
         ('.' * parse_context.match_depth) + str(parse_context.match_segment),
-        "{0}.{1} {2}".format(grammar, func, msg)
+        "{0}.{1} {2}".format(grammar, func, msg),
+        symbol
     )
     if kwargs:
         s += "\t[{0}]".format(
@@ -65,6 +67,36 @@ def check_still_complete(segments_in, matched_segments, unmatched_segments):
                 initial_str, current_str))
 
 
+class ParseBlacklist:
+    """Acts as a cache to stop unnecessary matching."""
+    def __init__(self):
+        self._blacklist_struct = {}
+
+    def _hashed_version(self):
+        return {
+            k: {hash(e) for e in self._blacklist_struct[k]}
+            for k in self._blacklist_struct
+        }
+
+    def check(self, seg_name, seg_tuple):
+        """Check this seg_tuple against this seg_name.
+
+        Has this seg_tuple already been matched
+        unsuccessfully against this segment name.
+        """
+        if seg_name in self._blacklist_struct:
+            if seg_tuple in self._blacklist_struct[seg_name]:
+                return True
+        return False
+
+    def mark(self, seg_name, seg_tuple):
+        """Mark this seg_tuple as not a match with this seg_name."""
+        if seg_name in self._blacklist_struct:
+            self._blacklist_struct[seg_name].add(seg_tuple)
+        else:
+            self._blacklist_struct[seg_name] = {seg_tuple}
+
+
 class ParseContext:
     """The context for parsing. It holds configuration and rough state.
 
@@ -73,12 +105,15 @@ class ParseContext:
     as before.
     """
 
-    __slots__ = ['match_depth', 'parse_depth', 'verbosity', 'dialect', 'match_segment', 'recurse']
+    __slots__ = ['match_depth', 'parse_depth', 'verbosity', 'dialect', 'match_segment', 'recurse', 'blacklist']
 
-    def __init__(self, dialect=None, verbosity=0, match_depth=0, parse_depth=0, match_segment=None, recurse=True):
+    def __init__(self, dialect=None, verbosity=0, match_depth=0, parse_depth=0, match_segment=None, recurse=True, blacklist=None):
         # Write all the variables in a DRY way. Yes it's a bit convoluted. Sorry.
         for k in self.__slots__:
             setattr(self, k, locals()[k])
+        # Initialise a blacklist struct if one is not present.
+        if getattr(self, 'blacklist') is None:
+            setattr(self, 'blacklist', ParseBlacklist())
 
     def copy(self, incr=None, decr=None, **kwargs):
         """Make a copy of the parse context, optionally with some edited variables."""
@@ -533,7 +568,7 @@ class BaseSegment:
     def _match(cls, segments, parse_context):
         """A wrapper on the match function to do some basic validation and logging."""
         parse_match_logging(
-            cls.__name__, '_match', 'IN', parse_context=parse_context,
+            cls.__name__[:10], '_match', 'IN', parse_context=parse_context,
             v_level=4, ls=len(segments))
 
         if isinstance(segments, BaseSegment):
@@ -558,7 +593,7 @@ class BaseSegment:
                     cls.__name__, type(m)))
 
         parse_match_logging(
-            cls.__name__, '_match', 'OUT',
+            cls.__name__[:10], '_match', 'OUT',
             parse_context=parse_context, v_level=4, m=m)
         # Basic Validation
         check_still_complete(segments, m.matched_segments, m.unmatched_segments)

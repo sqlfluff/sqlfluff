@@ -84,15 +84,18 @@ class BaseGrammar:
 
         dt = time.monotonic() - t0
         if m.is_complete():
-            msg = 'OUT ++'
+            msg = 'OUT'
+            symbol = '++'
         elif m:
-            msg = 'OUT -'
+            msg = 'OUT'
+            symbol = '+'
         else:
             msg = 'OUT'
+            symbol = ''
 
         parse_match_logging(
             self.__class__.__name__, '_match', msg,
-            parse_context=parse_context, v_level=self.v_level, dt=dt, m=m)
+            parse_context=parse_context, v_level=self.v_level, dt=dt, m=m, symbol=symbol)
 
         # Basic Validation
         check_still_complete(segments, m.matched_segments, m.unmatched_segments)
@@ -269,9 +272,17 @@ class BaseGrammar:
 
         # Get hold of the bracket matchers from the dialect, and append them
         # to the list of matchers.
-        start_bracket = parse_context.dialect.ref('StartBracketSegment')
-        end_bracket = parse_context.dialect.ref('EndBracketSegment')
-        bracket_matchers = [start_bracket, end_bracket]
+        # TODO: Potentially have error handling here for dialects without
+        # square brackets.
+        start_brackets = [
+            parse_context.dialect.ref('StartBracketSegment'),
+            parse_context.dialect.ref('StartSquareBracketSegment')
+        ]
+        end_brackets = [
+            parse_context.dialect.ref('EndBracketSegment'),
+            parse_context.dialect.ref('EndSquareBracketSegment')
+        ]
+        bracket_matchers = start_brackets + end_brackets
         matchers += bracket_matchers
 
         # Make some buffers
@@ -293,14 +304,14 @@ class BaseGrammar:
                         code_only=code_only)
 
                     if match:
-                        if matcher is start_bracket:
+                        if matcher in start_brackets:
                             # Same procedure as below in finding brackets.
                             bracket_stack.append(match.matched_segments[0])
                             pre_seg_buff += pre
                             pre_seg_buff += match.matched_segments
                             seg_buff = match.unmatched_segments
                             continue
-                        elif matcher is end_bracket:
+                        elif matcher in end_brackets:
                             # We've found an end bracket, remove it from the
                             # stack and carry on.
                             bracket_stack.pop()
@@ -323,7 +334,7 @@ class BaseGrammar:
                         code_only=code_only)
 
                     if match:
-                        if matcher is start_bracket:
+                        if matcher in start_brackets:
                             # We've found the start of a bracket segment.
                             # NB: It might not *Actually* be the bracket itself,
                             # but could be some non-code element preceeding it.
@@ -337,7 +348,7 @@ class BaseGrammar:
                             pre_seg_buff += match.matched_segments
                             seg_buff = match.unmatched_segments
                             continue
-                        elif matcher is end_bracket:
+                        elif matcher in end_brackets:
                             # We've found an unexpected end bracket!
                             raise SQLParseError(
                                 "Found unexpected end bracket!",
@@ -396,17 +407,35 @@ class Ref(BaseGrammar):
         Matching can be done from either the raw or the segments.
         This raw function can be overridden, or a grammar defined
         on the underlying class.
+
+        The match element of Ref, also implements the caching
+        using the parse_context `blacklist` methods.
         """
         elem = self._get_elem(dialect=parse_context.dialect)
 
-        if elem:
-            # Match against that. NB We're not incrementing the match_depth here.
-            # References shouldn't relly count as a depth of match.
-            return elem._match(
-                segments=segments,
-                parse_context=parse_context.copy(match_segment=self._get_ref()))
-        else:
+        if not elem:
             raise ValueError("Null Element returned! _elements: {0!r}".format(self._elements))
+
+        # First check against the efficiency Cache.
+        # Make a tuple of the incoming segments
+        seg_tuple = BaseSegment.segs_to_tuple(segments, show_raw=True)
+        self_name = self._get_ref()
+        if parse_context.blacklist.check(self_name, seg_tuple):
+            # This has been tried before.
+            parse_match_logging(
+                self.__class__.__name__,
+                'match', "SKIP",
+                parse_context=parse_context, v_level=3, self_name=self_name)
+            return MatchResult.from_unmatched(segments)
+
+        # Match against that. NB We're not incrementing the match_depth here.
+        # References shouldn't relly count as a depth of match.
+        resp = elem._match(
+            segments=segments,
+            parse_context=parse_context.copy(match_segment=self._get_ref()))
+        if not resp:
+            parse_context.blacklist.mark(self_name, seg_tuple)
+        return resp
 
     def expected_string(self, dialect=None, called_from=None):
         """Get the expected string from the referenced element."""
@@ -498,8 +527,9 @@ class OneOf(BaseGrammar):
                     best_match = m
                 parse_match_logging(
                     self.__class__.__name__,
-                    '_match', "Saving Match of Length {0}:  {1}".format(len(m.raw_matched()), m),
-                    parse_context=parse_context, v_level=self.v_level)
+                    '_match', "SAVE",
+                    parse_context=parse_context, v_level=self.v_level,
+                    match_length=len(m.raw_matched()), m=m)
 
         # No full match from the first time round. If we've got a
         # long partial match then return that.
@@ -1059,10 +1089,15 @@ class Bracketed(BaseGrammar):
     are taken directly from the dialect.
     """
     def __init__(self, *args, **kwargs):
+        self.square = kwargs.pop('square', False)
         # Start and end tokens
         # The details on how to match a bracket are stored in the dialect
-        self.start_bracket = Ref('StartBracketSegment')
-        self.end_bracket = Ref('EndBracketSegment')
+        if self.square:
+            self.start_bracket = Ref('StartSquareBracketSegment')
+            self.end_bracket = Ref('EndSquareBracketSegment')
+        else:
+            self.start_bracket = Ref('StartBracketSegment')
+            self.end_bracket = Ref('EndBracketSegment')
         super(Bracketed, self).__init__(*args, **kwargs)
 
     def match(self, segments, parse_context):
