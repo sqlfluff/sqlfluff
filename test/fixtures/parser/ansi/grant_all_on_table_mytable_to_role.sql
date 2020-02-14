@@ -1,1 +1,1 @@
-grant all on table mytable to role
+grant all on table mytable to myrole
