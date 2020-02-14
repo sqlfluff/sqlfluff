@@ -131,6 +131,7 @@ ansi_dialect.add(
     ExceptKeywordSegment=KeywordSegment.make('except'),
     IntersectKeywordSegment=KeywordSegment.make('intersect'),
     OnKeywordSegment=KeywordSegment.make('on'),
+    OuterKeywordSegment=KeywordSegment.make('outer'),
     JoinKeywordSegment=KeywordSegment.make('join'),
     FullKeywordSegment=KeywordSegment.make('full'),
     InnerKeywordSegment=KeywordSegment.make('inner'),
@@ -531,6 +532,7 @@ class JoinClauseSegment(BaseSegment):
             max_times=1,
             optional=True
         ),
+        Ref('OuterKeywordSegment', optional=True),
         Ref('JoinKeywordSegment'),
         Indent,
         Ref('TableExpressionSegment'),
