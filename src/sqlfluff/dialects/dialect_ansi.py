@@ -195,6 +195,8 @@ ansi_dialect.add(
     LikeKeywordSegment=KeywordSegment.make('like'),
     ILikeKeywordSegment=KeywordSegment.make('ilike'),
     RLikeKeywordSegment=KeywordSegment.make('rlike'),
+    RoleKeywordSegment=KeywordSegment.make('role'),
+    UserKeywordSegment=KeywordSegment.make('user'),
     # Some more grammars:
     IntervalKeywordSegment=KeywordSegment.make('interval'),
     LiteralGrammar=OneOf(
@@ -1360,7 +1362,12 @@ class AccessStatementSegment(BaseSegment):
                 )
             ),
             Ref('ToKeywordSegment'),
-            Ref('GroupKeywordSegment', optional=True),
+            OneOf(
+                Ref('GroupKeywordSegment'),
+                Ref('UserKeywordSegment'),
+                Ref('RoleKeywordSegment'),
+                optional=True
+            ),
             Ref('ObjectReferenceSegment'),
             Sequence(
                 Ref('WithKeywordSegment'),
@@ -1414,7 +1421,12 @@ class AccessStatementSegment(BaseSegment):
                 )
             ),
             Ref('FromKeywordSegment'),
-            Ref('GroupKeywordSegment', optional=True),
+            OneOf(
+                Ref('GroupKeywordSegment'),
+                Ref('UserKeywordSegment'),
+                Ref('RoleKeywordSegment'),
+                optional=True
+            ),
             Ref('ObjectReferenceSegment'),
             OneOf(
                 Ref('RestrictKeywordSegment'),
