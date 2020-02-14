@@ -6,5 +6,5 @@ SELECT
     a.a AS bad_3,
     2+(3+6)+7 AS bad_4,
     a.b
-    and a.a AS good_4
+    AND a.a AS good_4
 FROM tbl AS a
