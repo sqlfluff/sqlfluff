@@ -63,6 +63,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and a linting rule `L017` to catch this.
 - Efficiency cache for faster pruning of the parse tree.
 - Parsing of array notation as using in BigQuery and Postgres.
+- Enable the `ignore` parameter on linting and fixing commands to ignore
+  particular kinds of violations.
 
 ## [0.2.4] - 2019-12-06
 
