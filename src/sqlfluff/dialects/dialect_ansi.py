@@ -90,7 +90,7 @@ ansi_dialect.add(
         _anti_template=r"^(SELECT|JOIN|ON|USING|CROSS|INNER|LEFT|RIGHT|OUTER|INTERVAL|CASE|FULL)$"),
     FunctionNameSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='function_name', type='function_name'),
     # Maybe data types should be more restrictive?
-    DatatypeSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='data_type', type='data_type'),
+    DatatypeIdentifierSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='data_type_identifier', type='data_type_identifier'),
     # Maybe date parts should be more restrictive
     DatepartSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='date_part', type='date_part'),
     QuotedIdentifierSegment=NamedSegment.make('double_quote', name='identifier', type='quoted_identifier'),
@@ -217,6 +217,27 @@ class IntervalLiteralSegment(BaseSegment):
         OneOf(
             Ref('QuotedLiteralSegment'),
             Ref('DatepartSegment')
+        )
+    )
+
+
+@ansi_dialect.segment()
+class DatatypeSegment(BaseSegment):
+    """A data type segment."""
+    type = 'data_type'
+    match_grammar = Sequence(
+        Ref('DatatypeIdentifierSegment'),
+        Bracketed(
+            OneOf(
+                Delimited(
+                    Ref('ExpressionSegment'),
+                    delimiter=Ref('CommaSegment')
+                ),
+                # The brackets might be empty for some cases...
+                optional=True
+            ),
+            # There may be no brackets for some data types
+            optional=True
         )
     )
 
