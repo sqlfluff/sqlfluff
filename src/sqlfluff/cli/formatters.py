@@ -33,10 +33,14 @@ def format_violation(violation, verbose=0):
     else:
         raise ValueError("Unexpected violation format: {0}".format(violation))
 
+    if violation.ignore:
+        desc = 'IGNORE: ' + desc
+
     return (
         colorize(
             "L:{0:4d} | P:{1:4d} | {2} |".format(line, pos, code.rjust(4)),
-            'blue')
+            # Grey out the violation if we're ignoring it.
+            'lightgrey' if violation.ignore else 'blue')
         + " {0}".format(desc)
     )
 
@@ -59,8 +63,8 @@ def format_fix(fix, verbose=0):
 def format_file_violations(fname, res, verbose=0):
     """Format a set of violations in a `LintingResult`."""
     text_buffer = StringIO()
-    # Success is having no violations
-    success = len(res) == 0
+    # Success is having no violations (which aren't ignored)
+    success = sum(int(not violation.ignore) for violation in res) == 0
 
     # Only print the filename if it's either a failure or verbosity > 1
     if verbose > 1 or not success:

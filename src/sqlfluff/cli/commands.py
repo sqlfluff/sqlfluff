@@ -39,6 +39,11 @@ def common_options(f):
                            'Multiple rules can be specified with commas e.g. '
                            '`--exclude-rules L001,L002` will exclude violations of rule '
                            '`L001` and rule `L002`.'))(f)
+    f = click.option('--ignore', default=None,
+                     help=("Ignore particular families of errors so that they don't cause a failed "
+                           "run. For example `--ignore parsing` would mean that any parsing errors "
+                           "are ignored and don't influence the success or fail of a run. Multiple "
+                           "options are possible if comma seperated e.g. `--ignore parsing,templating`."))(f)
     return f
 
 

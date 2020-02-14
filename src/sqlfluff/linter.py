@@ -606,6 +606,10 @@ class Linter:
             vs += linting_errors
             fixed_buff = parsed.raw
 
+        # We process the ignore config here if appropriate
+        for violation in vs:
+            violation.ignore_if_in(config.get('ignore'))
+
         file_mask = (raw_buff, templ_buff, fixed_buff)
         res = LintedFile(fname, vs, time_dict, parsed,
                          file_mask=file_mask)
