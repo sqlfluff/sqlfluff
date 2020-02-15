@@ -473,7 +473,7 @@ class Linter:
             s = self.templater.process(s, fname=fname, config=config or self.config)
         except SQLTemplaterError as err:
             violations.append(err)
-            fs = None
+            file_segment = None
             # NB: We'll carry on if we fail to template, it might still lex
 
         t1 = time.monotonic()
@@ -482,28 +482,28 @@ class Linter:
             verbosity_logger("LEXING RAW ({0})".format(fname), verbosity=verbosity)
             # Lex the file and log any problems
             try:
-                fs, lex_vs = FileSegment.from_raw(s, config=config or self.config)
+                file_segment, lex_vs = FileSegment.from_raw(s, config=config or self.config)
                 # We might just get the violations as a list
                 violations += lex_vs
             except SQLLexError as err:
                 violations.append(err)
-                fs = None
+                file_segment = None
         else:
-            fs = None
+            file_segment = None
 
-        if fs:
-            verbosity_logger(fs.stringify(), verbosity=verbosity)
+        if file_segment:
+            verbosity_logger(file_segment.stringify(), verbosity=verbosity)
 
         t2 = time.monotonic()
         verbosity_logger("PARSING ({0})".format(fname), verbosity=verbosity)
         # Parse the file and log any problems
-        if fs:
+        if file_segment:
             try:
                 # Make a parse context and parse
                 context = self.get_parse_context()
                 context.verbosity = verbosity or context.verbosity
                 context.recurse = recurse or context.recurse
-                parsed = fs.parse(parse_context=context)
+                parsed = file_segment.parse(parse_context=context)
             except SQLParseError as err:
                 violations.append(err)
                 parsed = None
@@ -661,9 +661,10 @@ class Linter:
         for fname in self.paths_from_path(path):
             config = self.config.make_child_from_path(fname)
             # Handle unicode issues gracefully
-            with open(fname, 'r', encoding='utf8', errors='backslashreplace') as f:
+            with open(fname, 'r', encoding='utf8', errors='backslashreplace') as target_file:
                 linted_path.add(
-                    self.lint_string(f.read(), fname=fname, verbosity=verbosity,
+                    self.lint_string(target_file.read(), fname=fname,
+                                     verbosity=verbosity,
                                      fix=fix, config=config))
         return linted_path
 

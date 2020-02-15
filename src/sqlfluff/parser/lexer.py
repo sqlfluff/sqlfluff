@@ -199,10 +199,10 @@ class Lexer:
                 if not resort_res:
                     # If we STILL can't match, then just panic out.
                     raise violations[-1]
-                else:
-                    raw = resort_res.new_string
-                    start_pos = resort_res.new_pos
-                    segment_buff += resort_res.segments
+
+                raw = resort_res.new_string
+                start_pos = resort_res.new_pos
+                segment_buff += resort_res.segments
             else:
                 break
         return segment_buff, violations
