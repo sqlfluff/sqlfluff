@@ -1,4 +1,4 @@
 # Requirements for building docs
-sphinx==2.3.1
+sphinx==2.4.1
 sphinx-click
 doc8
