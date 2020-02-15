@@ -90,7 +90,7 @@ ansi_dialect.add(
         _anti_template=r"^(SELECT|JOIN|ON|USING|CROSS|INNER|LEFT|RIGHT|OUTER|INTERVAL|CASE|FULL)$"),
     FunctionNameSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='function_name', type='function_name'),
     # Maybe data types should be more restrictive?
-    DatatypeSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='data_type', type='data_type'),
+    DatatypeIdentifierSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='data_type_identifier', type='data_type_identifier'),
     # Maybe date parts should be more restrictive
     DatepartSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='date_part', type='date_part'),
     QuotedIdentifierSegment=NamedSegment.make('double_quote', name='identifier', type='quoted_identifier'),
@@ -131,6 +131,7 @@ ansi_dialect.add(
     ExceptKeywordSegment=KeywordSegment.make('except'),
     IntersectKeywordSegment=KeywordSegment.make('intersect'),
     OnKeywordSegment=KeywordSegment.make('on'),
+    OuterKeywordSegment=KeywordSegment.make('outer'),
     JoinKeywordSegment=KeywordSegment.make('join'),
     FullKeywordSegment=KeywordSegment.make('full'),
     InnerKeywordSegment=KeywordSegment.make('inner'),
@@ -194,6 +195,8 @@ ansi_dialect.add(
     LikeKeywordSegment=KeywordSegment.make('like'),
     ILikeKeywordSegment=KeywordSegment.make('ilike'),
     RLikeKeywordSegment=KeywordSegment.make('rlike'),
+    RoleKeywordSegment=KeywordSegment.make('role'),
+    UserKeywordSegment=KeywordSegment.make('user'),
     # Some more grammars:
     IntervalKeywordSegment=KeywordSegment.make('interval'),
     LiteralGrammar=OneOf(
@@ -214,6 +217,27 @@ class IntervalLiteralSegment(BaseSegment):
         OneOf(
             Ref('QuotedLiteralSegment'),
             Ref('DatepartSegment')
+        )
+    )
+
+
+@ansi_dialect.segment()
+class DatatypeSegment(BaseSegment):
+    """A data type segment."""
+    type = 'data_type'
+    match_grammar = Sequence(
+        Ref('DatatypeIdentifierSegment'),
+        Bracketed(
+            OneOf(
+                Delimited(
+                    Ref('ExpressionSegment'),
+                    delimiter=Ref('CommaSegment')
+                ),
+                # The brackets might be empty for some cases...
+                optional=True
+            ),
+            # There may be no brackets for some data types
+            optional=True
         )
     )
 
@@ -531,6 +555,7 @@ class JoinClauseSegment(BaseSegment):
             max_times=1,
             optional=True
         ),
+        Ref('OuterKeywordSegment', optional=True),
         Ref('JoinKeywordSegment'),
         Indent,
         Ref('TableExpressionSegment'),
@@ -1358,7 +1383,12 @@ class AccessStatementSegment(BaseSegment):
                 )
             ),
             Ref('ToKeywordSegment'),
-            Ref('GroupKeywordSegment', optional=True),
+            OneOf(
+                Ref('GroupKeywordSegment'),
+                Ref('UserKeywordSegment'),
+                Ref('RoleKeywordSegment'),
+                optional=True
+            ),
             Ref('ObjectReferenceSegment'),
             Sequence(
                 Ref('WithKeywordSegment'),
@@ -1412,7 +1442,12 @@ class AccessStatementSegment(BaseSegment):
                 )
             ),
             Ref('FromKeywordSegment'),
-            Ref('GroupKeywordSegment', optional=True),
+            OneOf(
+                Ref('GroupKeywordSegment'),
+                Ref('UserKeywordSegment'),
+                Ref('RoleKeywordSegment'),
+                optional=True
+            ),
             Ref('ObjectReferenceSegment'),
             OneOf(
                 Ref('RestrictKeywordSegment'),

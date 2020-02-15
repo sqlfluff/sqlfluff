@@ -10,7 +10,8 @@ file:
               naked_identifier: my_var
             cast_expression:
               casting_operator: '::'
-              data_type: date
+              data_type:
+                data_type_identifier: date
           alias_expression:
             keyword: as
             naked_identifier: casted_variable
@@ -20,7 +21,8 @@ file:
             numeric_literal: 123
             cast_expression:
               casting_operator: '::'
-              data_type: bigint
+              data_type:
+                data_type_identifier: bigint
           alias_expression:
             keyword: as
             naked_identifier: another_casted_number

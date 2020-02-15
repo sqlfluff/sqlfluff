@@ -56,7 +56,8 @@ def test__parser__lexer_obj(raw, res, caplog):
     """Test the lexer splits as expected in a selection of cases."""
     lex = Lexer(config=FluffConfig())
     with caplog.at_level(logging.DEBUG):
-        assert [seg.raw for seg in lex.lex(raw)] == res
+        lexing_segments, _ = lex.lex(raw)
+        assert [seg.raw for seg in lexing_segments] == res
 
 
 @pytest.mark.parametrize(
@@ -120,15 +121,20 @@ def test__parser__lexer_multimatcher(caplog):
 def test__parser__lexer_fail():
     """Test the how the lexer fails and reports errors."""
     lex = Lexer(config=FluffConfig())
-    try:
-        lex.lex("Select \u0394")
-    except SQLLexError as err:
-        assert err.pos_marker().char_pos == 7
+
+    _, vs = lex.lex("Select \u0394")
+
+    assert len(vs) == 1
+    err = vs[0]
+    assert isinstance(err, SQLLexError)
+    assert err.pos_marker().char_pos == 7
 
 
 def test__parser__lexer_fail_via_parse():
     """Test the how the parser fails and reports errors while lexing."""
-    try:
-        FileSegment.from_raw("Select \u0394", config=FluffConfig())
-    except SQLLexError as err:
-        assert err.pos_marker().char_pos == 7
+    _, vs = FileSegment.from_raw("Select \u0394", config=FluffConfig())
+    assert vs
+    assert len(vs) == 1
+    err = vs[0]
+    assert isinstance(err, SQLLexError)
+    assert err.pos_marker().char_pos == 7

@@ -266,6 +266,11 @@ class FluffConfig:
             {'core': overrides or {}})
         # Some configs require special treatment
         self._configs['core']['color'] = False if self._configs['core'].get('nocolor', False) else None
+        # Deal with potential ignore parameters
+        if self._configs['core'].get('ignore', None):
+            self._configs['core']['ignore'] = self._configs['core']['ignore'].split(',')
+        else:
+            self._configs['core']['ignore'] = []
         # Whitelists and blacklists
         if self._configs['core'].get('rules', None):
             self._configs['core']['rule_whitelist'] = self._configs['core']['rules'].split(',')

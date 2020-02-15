@@ -27,5 +27,5 @@ class FileSegment(BaseSegment):
         if config is None:
             raise ValueError("Config is required for from_raw to fetch lexing dialect.")
         lexer = Lexer(config=config)
-        segments = lexer.lex(raw)
-        return cls(segments=segments)
+        segments, violations = lexer.lex(raw)
+        return cls(segments=segments), violations

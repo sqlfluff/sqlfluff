@@ -35,7 +35,7 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
                 raise v
         return vs
 
-    def num_violations(self, rules=None, types=None):
+    def num_violations(self, rules=None, types=None, filter_ignore=True):
         """Count the number of violations.
 
         Optionally now with filters.
@@ -53,11 +53,14 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
             else:
                 rules = tuple(rules)
             violations = [v for v in violations if v.rule_code() in rules]
+        # Filter ignorable violations
+        if filter_ignore:
+            violations = [v for v in violations if not v.ignore]
         return len(violations)
 
     def is_clean(self):
-        """Return True if there are no violations."""
-        return len(self.violations) == 0
+        """Return True if there are no ignorable violations."""
+        return not any(not v.ignore for v in self.violations)
 
     def fix_string(self, verbosity=0):
         """Obtain the changes to a path as a string.
@@ -470,7 +473,7 @@ class Linter:
             s = self.templater.process(s, fname=fname, config=config or self.config)
         except SQLTemplaterError as err:
             violations.append(err)
-            fs = None
+            file_segment = None
             # NB: We'll carry on if we fail to template, it might still lex
 
         t1 = time.monotonic()
@@ -479,26 +482,28 @@ class Linter:
             verbosity_logger("LEXING RAW ({0})".format(fname), verbosity=verbosity)
             # Lex the file and log any problems
             try:
-                fs = FileSegment.from_raw(s, config=config or self.config)
+                file_segment, lex_vs = FileSegment.from_raw(s, config=config or self.config)
+                # We might just get the violations as a list
+                violations += lex_vs
             except SQLLexError as err:
                 violations.append(err)
-                fs = None
+                file_segment = None
         else:
-            fs = None
+            file_segment = None
 
-        if fs:
-            verbosity_logger(fs.stringify(), verbosity=verbosity)
+        if file_segment:
+            verbosity_logger(file_segment.stringify(), verbosity=verbosity)
 
         t2 = time.monotonic()
         verbosity_logger("PARSING ({0})".format(fname), verbosity=verbosity)
         # Parse the file and log any problems
-        if fs:
+        if file_segment:
             try:
                 # Make a parse context and parse
                 context = self.get_parse_context()
                 context.verbosity = verbosity or context.verbosity
                 context.recurse = recurse or context.recurse
-                parsed = fs.parse(parse_context=context)
+                parsed = file_segment.parse(parse_context=context)
             except SQLParseError as err:
                 violations.append(err)
                 parsed = None
@@ -606,6 +611,11 @@ class Linter:
             vs += linting_errors
             fixed_buff = parsed.raw
 
+        # We process the ignore config here if appropriate
+        if config:
+            for violation in vs:
+                violation.ignore_if_in(config.get('ignore'))
+
         file_mask = (raw_buff, templ_buff, fixed_buff)
         res = LintedFile(fname, vs, time_dict, parsed,
                          file_mask=file_mask)
@@ -650,9 +660,11 @@ class Linter:
         self.log(format_linting_path(path, verbose=verbosity))
         for fname in self.paths_from_path(path):
             config = self.config.make_child_from_path(fname)
-            with open(fname, 'r') as f:
+            # Handle unicode issues gracefully
+            with open(fname, 'r', encoding='utf8', errors='backslashreplace') as target_file:
                 linted_path.add(
-                    self.lint_string(f.read(), fname=fname, verbosity=verbosity,
+                    self.lint_string(target_file.read(), fname=fname,
+                                     verbosity=verbosity,
                                      fix=fix, config=config))
         return linted_path
 

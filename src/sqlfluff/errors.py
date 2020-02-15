@@ -4,6 +4,11 @@
 class SQLBaseError(ValueError):
     """Base Error Class for all violations."""
     _code = None
+    _identifier = 'base'
+
+    def __init__(self, *args, **kwargs):
+        self.ignore = kwargs.pop('ignore', False)
+        super(SQLBaseError, self).__init__(*args, **kwargs)
 
     def rule_code(self):
         """Fetch the code of the rule which cause this error.
@@ -91,6 +96,15 @@ class SQLBaseError(ValueError):
         """
         return self.rule_code(), self.line_no(), self.line_pos(), self.desc()
 
+    def ignore_if_in(self, ignore_iterable):
+        """Ignore this violation if it matches the iterable."""
+        # Type conversion
+        if isinstance(ignore_iterable, str):
+            ignore_iterable = []
+        # Ignoring
+        if self._identifier in ignore_iterable:
+            self.ignore = True
+
 
 class SQLTemplaterError(SQLBaseError):
     """An error which occured during templating.
@@ -101,6 +115,7 @@ class SQLTemplaterError(SQLBaseError):
 
     """
     _code = 'TMP'
+    _identifier = 'templating'
 
     def __init__(self, *args, **kwargs):
         self.pos = kwargs.pop('pos', None)
@@ -116,6 +131,7 @@ class SQLLexError(SQLBaseError):
 
     """
     _code = 'LXR'
+    _identifier = 'lexing'
 
     def __init__(self, *args, **kwargs):
         # Store the segment on creation - we might need it later
@@ -134,6 +150,7 @@ class SQLParseError(SQLBaseError):
 
     """
     _code = 'PRS'
+    _identifier = 'parsing'
 
     def __init__(self, *args, **kwargs):
         # Store the segment on creation - we might need it later
@@ -154,6 +171,8 @@ class SQLLintError(SQLBaseError):
             used for logging and for referencing position.
 
     """
+    _identifier = 'linting'
+
     def __init__(self, *args, **kwargs):
         # Something about position, message and fix?
         self.segment = kwargs.pop('segment', None)

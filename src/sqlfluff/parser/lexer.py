@@ -163,26 +163,46 @@ class Lexer:
     This class is likely called directly from a top level segment
     such as the `FileSegment`.
     """
-    def __init__(self, config):
+    def __init__(self, config, last_resort_lexer=None):
         # config is required - we use it to get the dialect
         self.config = config
         lexer_struct = config.get('dialect_obj').get_lexer_struct()
         self.matcher = RepeatedMultiMatcher.from_struct(lexer_struct)
+        self.last_resort_lexer = last_resort_lexer or RegexMatcher.from_shorthand(
+            '<unlexable>', r'[^\t\n\,\.\ \-\+\*\\\/\'\"\;\:\[\]\(\)\|]*',
+            is_code=True
+        )
 
     def lex(self, raw):
         """Take a string and return segments.
 
         If we fail to match the *whole* string, then we must have
-        found something that we cannot lex. This should raise a
-        `SQLLexError`, which we expect will be caught by whichever
-        CLI command launched this.
+        found something that we cannot lex. If that happens we should
+        package it up as unlexable and keep track of the exceptions.
         """
         start_pos = FilePositionMarker.from_fresh()
-        res = self.matcher.match(raw, start_pos)
-        if len(res.new_string) > 0:
-            raise SQLLexError(
-                "Unable to lex characters: '{0!r}...'".format(
-                    res.new_string[:10]),
-                pos=res.new_pos
-            )
-        return res.segments
+        segment_buff = ()
+        violations = []
+
+        while True:
+            res = self.matcher.match(raw, start_pos)
+            segment_buff += res.segments
+            if len(res.new_string) > 0:
+                violations.append(SQLLexError(
+                    "Unable to lex characters: '{0!r}...'".format(
+                        res.new_string[:10]),
+                    pos=res.new_pos
+                ))
+                resort_res = self.last_resort_lexer.match(
+                    res.new_string, res.new_pos
+                )
+                if not resort_res:
+                    # If we STILL can't match, then just panic out.
+                    raise violations[-1]
+
+                raw = resort_res.new_string
+                start_pos = resort_res.new_pos
+                segment_buff += resort_res.segments
+            else:
+                break
+        return segment_buff, violations

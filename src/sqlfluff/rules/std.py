@@ -778,12 +778,17 @@ class Rule_L010(BaseCrawler):
 
     """
 
-    _target_elem = 'keyword'
+    # Binary operators behave like keywords too.
+    _target_elems = ('keyword', 'binary_operator')
 
     def __init__(self, capitalisation_policy='consistent', **kwargs):
         """Initialise, extracting the capitalisation mode from the config."""
-        if capitalisation_policy not in ('consistent', 'upper', 'lower', 'capitalise'):
-            raise ValueError("Unexpected capitalisation_policy: {0!r}".format(capitalisation_policy))
+        capitalisation_options = ('consistent', 'upper', 'lower', 'capitalise')
+        if capitalisation_policy not in capitalisation_options:
+            raise ValueError(
+                ("Unexpected capitalisation_policy for rule {1}: {0!r}\nShould "
+                 "be one of: {2!r}").format(capitalisation_policy, self.__class__.__name__,
+                                            capitalisation_options))
         self.capitalisation_policy = capitalisation_policy
         super(Rule_L010, self).__init__(**kwargs)
 
@@ -796,7 +801,7 @@ class Rule_L010(BaseCrawler):
         """
         cases_seen = memory.get('cases_seen', set())
 
-        if segment.type == self._target_elem:
+        if segment.type in self._target_elems:
             raw = segment.raw
             uc = raw.upper()
             lc = raw.lower()
@@ -885,7 +890,7 @@ class Rule_L010(BaseCrawler):
 class Rule_L011(BaseCrawler):
     """Implicit aliasing of table not allowed. Use explicit `AS` clause."""
 
-    _target_elem = 'table_expression'
+    _target_elems = ('table_expression',)
 
     def _eval(self, segment, parent_stack, raw_stack, **kwargs):
         """Implicit aliasing of table/column not allowed. Use explicit `AS` clause.
@@ -897,7 +902,7 @@ class Rule_L011(BaseCrawler):
 
         """
         if segment.type == 'alias_expression':
-            if parent_stack[-1].type == self._target_elem:
+            if parent_stack[-1].type in self._target_elems:
                 if not any(e.name.lower() == 'as' for e in segment.segments):
                     insert_buff = []
                     insert_str = ''
@@ -938,7 +943,7 @@ class Rule_L012(Rule_L011):
 
     """
 
-    _target_elem = 'select_target_element'
+    _target_elems = ('select_target_element',)
 
 
 @std_rule_set.register
@@ -1001,7 +1006,7 @@ class Rule_L014(Rule_L010):
 
     """
 
-    _target_elem = 'naked_identifier'
+    _target_elems = ('naked_identifier',)
 
 
 @std_rule_set.register
