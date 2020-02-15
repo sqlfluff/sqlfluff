@@ -35,7 +35,7 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
                 raise v
         return vs
 
-    def num_violations(self, rules=None, types=None):
+    def num_violations(self, rules=None, types=None, filter_ignore=True):
         """Count the number of violations.
 
         Optionally now with filters.
@@ -53,11 +53,14 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
             else:
                 rules = tuple(rules)
             violations = [v for v in violations if v.rule_code() in rules]
+        # Filter ignorable violations
+        if filter_ignore:
+            violations = [v for v in violations if not v.ignore]
         return len(violations)
 
     def is_clean(self):
-        """Return True if there are no violations."""
-        return len(self.violations) == 0
+        """Return True if there are no ignorable violations."""
+        return not any(not v.ignore for v in self.violations)
 
     def fix_string(self, verbosity=0):
         """Obtain the changes to a path as a string.
@@ -479,7 +482,9 @@ class Linter:
             verbosity_logger("LEXING RAW ({0})".format(fname), verbosity=verbosity)
             # Lex the file and log any problems
             try:
-                fs = FileSegment.from_raw(s, config=config or self.config)
+                fs, lex_vs = FileSegment.from_raw(s, config=config or self.config)
+                # We might just get the violations as a list
+                violations += lex_vs
             except SQLLexError as err:
                 violations.append(err)
                 fs = None
@@ -655,7 +660,8 @@ class Linter:
         self.log(format_linting_path(path, verbose=verbosity))
         for fname in self.paths_from_path(path):
             config = self.config.make_child_from_path(fname)
-            with open(fname, 'r') as f:
+            # Handle unicode issues gracefully
+            with open(fname, 'r', encoding='utf8', errors='backslashreplace') as f:
                 linted_path.add(
                     self.lint_string(f.read(), fname=fname, verbosity=verbosity,
                                      fix=fix, config=config))

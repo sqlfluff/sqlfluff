@@ -20,7 +20,7 @@ def test__dialect__ansi__file_from_raw(raw, res, caplog):
     """Test we don't drop bits on simple examples."""
     config = FluffConfig(overrides=dict(dialect='ansi'))
     with caplog.at_level(logging.DEBUG):
-        fs = FileSegment.from_raw(raw, config=config)
+        fs, _ = FileSegment.from_raw(raw, config=config)
     # From just the initial parse, check we're all there
     assert fs.raw == raw
     assert fs.raw_list() == res
@@ -99,7 +99,9 @@ def test__dialect__ansi_specific_segment_parses(segmentref, raw, caplog):
     # Lex the string for matching. For a good test, this would
     # arguably happen as a fixture, but it's easier to pass strings
     # as parameters than pre-lexed segment strings.
-    seg_list = lex.lex(raw)
+    seg_list, vs = lex.lex(raw)
+    assert not vs
+
     print(seg_list)
     # Get the segment class for matching
     Seg = config.get('dialect_obj').ref(segmentref)

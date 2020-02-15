@@ -54,9 +54,12 @@ def test__dialect__base_file_parse(dialect, file):
     # Load the right dialect
     config = FluffConfig(overrides=dict(dialect=dialect))
     context = ParseContext.from_config(config)
-    fs = FileSegment.from_raw(raw, config=config)
+    fs, lex_vs = FileSegment.from_raw(raw, config=config)
     # From just the initial parse, check we're all there
     assert fs.raw == raw
+    # Check we don't have lexing issues
+    assert not lex_vs
+
     # Do the parse WITHOUT lots of logging
     # The logs get too long here to be useful. We should use
     # specfic segment tests if we want to debug logs.
@@ -84,7 +87,7 @@ def test__dialect__base_parse_struct(dialect, sqlfile, yamlfile, yaml_loader):
     context = ParseContext.from_config(config)
     # Load the SQL
     raw = load_file(dialect, sqlfile)
-    fs = FileSegment.from_raw(raw, config=config)
+    fs, _ = FileSegment.from_raw(raw, config=config)
     # Load the YAML
     res = yaml_loader(make_dialect_path(dialect, yamlfile))
     # with caplog.at_level(logging.DEBUG):

@@ -55,25 +55,6 @@ def test__cli__command_dialect():
     )
 
 
-def test__cli__fix_with_problems():
-    """Check the script doesn't raise an unexpected exception with badly formed files."""
-    invoke_assert_code(
-        args=[fix, ['--rules', 'L001', 'test/fixtures/cli/fail_many.sql', '-vvvvvvv'], 'y']
-    )
-
-
-def test__cli__command_lint():
-    """Check basic commands on a simple script."""
-    # Not verbose
-    invoke_assert_code(args=[lint, ['-n', 'test/fixtures/cli/passing_a.sql']])
-    # Verbose
-    invoke_assert_code(args=[lint, ['-n', '-v', 'test/fixtures/cli/passing_a.sql']])
-    # Very Verbose
-    invoke_assert_code(args=[lint, ['-n', '-vvvv', 'test/fixtures/cli/passing_a.sql']])
-    # Very Verbose (Colored)
-    invoke_assert_code(args=[lint, ['-vvvv', 'test/fixtures/cli/passing_a.sql']])
-
-
 @pytest.mark.parametrize('command', [
     ('-', '-n', ), ('-', '-n', '-v',), ('-', '-n', '-vv',), ('-', '-vv',),
 ])
@@ -90,6 +71,11 @@ def test__cli__command_lint_stdin(command):
 @pytest.mark.parametrize('command', [
     # Test basic linting
     (lint, ['-n', 'test/fixtures/cli/passing_b.sql']),
+    # Original tests from test__cli__command_lint
+    (lint, ['-n', 'test/fixtures/cli/passing_a.sql']),
+    (lint, ['-n', '-v', 'test/fixtures/cli/passing_a.sql']),
+    (lint, ['-n', '-vvvv', 'test/fixtures/cli/passing_a.sql']),
+    (lint, ['-vvvv', 'test/fixtures/cli/passing_a.sql']),
     # Test basic linting with very high verbosity
     (lint, ['-n', 'test/fixtures/cli/passing_b.sql', '-vvvvvvvvvvv']),
     # Check basic parsing
@@ -108,7 +94,11 @@ def test__cli__command_lint_stdin(command):
     # Check linting works with both included and excluded rules
     (lint, ['-n', '--rules', 'L001,L006', '--exclude-rules', 'L006', 'test/fixtures/linter/operator_errors.sql']),
     # Check linting works with just excluded rules
-    (lint, ['-n', '--exclude-rules', 'L006,L007', 'test/fixtures/linter/operator_errors.sql'])
+    (lint, ['-n', '--exclude-rules', 'L006,L007', 'test/fixtures/linter/operator_errors.sql']),
+    # Check the script doesn't raise an unexpected exception with badly formed files.
+    (fix, ['--rules', 'L001', 'test/fixtures/cli/fail_many.sql', '-vvvvvvv'], 'y'),
+    # Check that ignoring works (also checks that unicode files parse).
+    (lint, ['-n', '--exclude-rules', 'L003,L009', '--ignore', 'parsing,lexing', 'test/fixtures/linter/parse_lex_error.sql']),
 ])
 def test__cli__command_lint_parse(command):
     """Check basic commands on a more complicated script."""
