@@ -491,8 +491,15 @@ class SelectTargetElementSegment(BaseSegment):
     parse_grammar = OneOf(
         # *
         Ref('StarSegment'),
-        # blah.*
-        Sequence(Ref('SingleIdentifierGrammar'), Ref('DotSegment'), Ref('StarSegment'), code_only=False),
+        # blah.* + blah.blah.*
+        Sequence(
+            Ref('SingleIdentifierGrammar'), Ref('DotSegment'),
+            Sequence(
+                Ref('SingleIdentifierGrammar'), Ref('DotSegment'),
+                optional=True
+            ),
+            Ref('StarSegment'), code_only=False
+        ),
         Sequence(
             OneOf(
                 Ref('LiteralGrammar'),

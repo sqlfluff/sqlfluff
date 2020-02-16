@@ -81,7 +81,10 @@ def test__dialect__ansi__file_from_raw(raw, res, caplog):
          "CAST(num AS INT64)"),
         # Casting as datatype with arguments
         ("SelectTargetElementSegment",
-         "CAST(num AS numeric(8,4))")
+         "CAST(num AS numeric(8,4))"),
+        # Wildcard field selection
+        ("SelectTargetElementSegment", "a.*"),
+        ("SelectTargetElementSegment", "a.b.*")
     ]
 )
 def test__dialect__ansi_specific_segment_parses(segmentref, raw, caplog):
