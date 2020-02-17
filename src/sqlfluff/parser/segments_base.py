@@ -31,6 +31,10 @@ def verbosity_logger(msg, verbosity=0, level='info', v_level=3):
 
 def parse_match_logging(grammar, func, msg, parse_context, v_level, **kwargs):
     """Log in a particular consistent format for use while matching."""
+    # If we can avoid this, bank the performance increase
+    if parse_context.verbosity <= 1:
+        return
+    # Otherwise carry on...
     symbol = kwargs.pop('symbol', '')
     s = "[PD:{0} MD:{1}]\t{2:<50}\t{3:<20}\t{4:<4}".format(
         parse_context.parse_depth, parse_context.match_depth,
@@ -95,6 +99,10 @@ class ParseBlacklist:
             self._blacklist_struct[seg_name].add(seg_tuple)
         else:
             self._blacklist_struct[seg_name] = {seg_tuple}
+
+    def clear(self):
+        """Clear the blacklist struct."""
+        self._blacklist_struct = {}
 
 
 class ParseContext:
@@ -339,6 +347,10 @@ class BaseSegment:
         if not parse_context.dialect:
             raise RuntimeError("No dialect provided to {0!r}!".format(self))
 
+        # Clear the blacklist cache so avoid missteps
+        if parse_context:
+            parse_context.blacklist.clear()
+
         # the parse_depth and recurse kwargs control how deep we will recurse for testing.
         if not self.segments:
             # This means we're a root segment, just return an unmutated self
@@ -501,12 +513,14 @@ class BaseSegment:
         # works for both base and raw
         code_only = kwargs.get('code_only', False)
         show_raw = kwargs.get('show_raw', False)
+
         if show_raw and not self.segments:
-            return (self.type, self.raw)
+            result = (self.type, self.raw)
         elif code_only:
-            return (self.type, tuple(seg.to_tuple(**kwargs) for seg in self.segments if seg.is_code and not seg.is_meta))
+            result = (self.type, tuple(seg.to_tuple(**kwargs) for seg in self.segments if seg.is_code and not seg.is_meta))
         else:
-            return (self.type, tuple(seg.to_tuple(**kwargs) for seg in self.segments if not seg.is_meta))
+            result = (self.type, tuple(seg.to_tuple(**kwargs) for seg in self.segments if not seg.is_meta))
+        return result
 
     def to_yaml(self, **kwargs):
         """Return a yaml structure from this segment."""
@@ -595,8 +609,9 @@ class BaseSegment:
         parse_match_logging(
             cls.__name__[:10], '_match', 'OUT',
             parse_context=parse_context, v_level=4, m=m)
-        # Basic Validation
-        check_still_complete(segments, m.matched_segments, m.unmatched_segments)
+        # Validation is skipped at a match level. For performance reasons
+        # we match at the parse level only
+        # check_still_complete(segments, m.matched_segments, m.unmatched_segments)
         return m
 
     @staticmethod
