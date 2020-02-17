@@ -3,6 +3,9 @@
 import sys
 
 import click
+# For the profiler
+import pstats
+from io import StringIO
 
 from ..dialects import dialect_selector
 from ..linter import Linter
@@ -247,7 +250,9 @@ def fix(force, paths, **kwargs):
 @click.option('-f', '--format', default='human',
               type=click.Choice(['human', 'yaml'], case_sensitive=False),
               help='What format to return the parse result in.')
-def parse(path, code_only, format, **kwargs):
+@click.option('--profiler', is_flag=True,
+              help='Set this flag to engage the python profiler.')
+def parse(path, code_only, format, profiler, **kwargs):
     """Parse SQL files and just spit out the result.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -267,6 +272,15 @@ def parse(path, code_only, format, **kwargs):
 
     # TODO: do this better
     nv = 0
+    if profiler:
+        # Set up the profiler if required
+        try:
+            import cProfile
+        except ImportError:
+            lnt.log('The cProfiler is not available on your platform.')
+            sys.exit(1)
+        pr = cProfile.Profile()
+        pr.enable()
     try:
         # A single path must be specified for this command
         for parsed, violations, time_dict in lnt.parse_path(path, verbosity=verbose, recurse=recurse):
@@ -287,6 +301,16 @@ def parse(path, code_only, format, **kwargs):
     except IOError:
         click.echo(colorize('The path {0!r} could not be accessed. Check it exists.'.format(path), 'red'))
         sys.exit(1)
+
+    if profiler:
+        pr.disable()
+        profiler_buffer = StringIO()
+        ps = pstats.Stats(
+            pr, stream=profiler_buffer
+        ).sort_stats('cumulative')
+        ps.print_stats()
+        lnt.log("==== profiler stats ====")
+        lnt.log(profiler_buffer.getvalue())
 
     if nv > 0:
         sys.exit(66)
