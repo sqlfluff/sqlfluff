@@ -422,8 +422,11 @@ class Ref(BaseGrammar):
             raise ValueError("Null Element returned! _elements: {0!r}".format(self._elements))
 
         # First check against the efficiency Cache.
-        # Make a tuple of the incoming segments
-        seg_tuple = BaseSegment.segs_to_tuple(segments, show_raw=True)
+        # We used to use seg_to_tuple here, but it was too slow,
+        # so instead we rely on segments not being mutated within a given
+        # match cycle and so the ids should continue to refer to unchanged
+        # objects.
+        seg_tuple = (id(seg) for seg in segments)
         self_name = self._get_ref()
         if parse_context.blacklist.check(self_name, seg_tuple):
             # This has been tried before.
