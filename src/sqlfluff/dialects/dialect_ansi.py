@@ -494,7 +494,8 @@ class SelectTargetElementSegment(BaseSegment):
             AnyNumberOf(
                 Sequence(
                     Ref('SingleIdentifierGrammar'),
-                    Ref('DotSegment')
+                    Ref('DotSegment'),
+                    code_only=True
                 )
             ),
             Ref('StarSegment'), code_only=False
