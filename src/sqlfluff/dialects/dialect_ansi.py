@@ -489,14 +489,14 @@ class SelectTargetElementSegment(BaseSegment):
     # Important to split elements before parsing, otherwise debugging is really hard.
     match_grammar = GreedyUntil(Ref('CommaSegment'))
     parse_grammar = OneOf(
-        # *
-        Ref('StarSegment'),
-        # blah.* + blah.blah.*
+        # *, blah.*, blah.blah.*, etc.
         Sequence(
-            Ref('SingleIdentifierGrammar'), Ref('DotSegment'),
-            Sequence(
-                Ref('SingleIdentifierGrammar'), Ref('DotSegment'),
-                optional=True
+            AnyNumberOf(
+                Sequence(
+                    Ref('SingleIdentifierGrammar'),
+                    Ref('DotSegment'),
+                    code_only=True
+                )
             ),
             Ref('StarSegment'), code_only=False
         ),
