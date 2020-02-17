@@ -690,5 +690,7 @@ class Linter:
         for fname in self.paths_from_path(path):
             self.log('=== [\u001b[30;1m{0}\u001b[0m] ==='.format(fname))
             config = self.config.make_child_from_path(fname)
-            with open(fname, 'r') as f:
-                yield self.parse_string(f.read(), fname=fname, verbosity=verbosity, recurse=recurse, config=config)
+            # Handle unicode issues gracefully
+            with open(fname, 'r', encoding='utf8', errors='backslashreplace') as target_file:
+                yield self.parse_string(target_file.read(), fname=fname, verbosity=verbosity,
+                                        recurse=recurse, config=config)
