@@ -100,6 +100,10 @@ class ParseBlacklist:
         else:
             self._blacklist_struct[seg_name] = {seg_tuple}
 
+    def clear(self):
+        """Clear the blacklist struct."""
+        self._blacklist_struct = {}
+
 
 class ParseContext:
     """The context for parsing. It holds configuration and rough state.
@@ -343,6 +347,10 @@ class BaseSegment:
         if not parse_context.dialect:
             raise RuntimeError("No dialect provided to {0!r}!".format(self))
 
+        # Clear the blacklist cache so avoid missteps
+        if parse_context:
+            parse_context.blacklist.clear()
+
         # the parse_depth and recurse kwargs control how deep we will recurse for testing.
         if not self.segments:
             # This means we're a root segment, just return an unmutated self
@@ -505,12 +513,14 @@ class BaseSegment:
         # works for both base and raw
         code_only = kwargs.get('code_only', False)
         show_raw = kwargs.get('show_raw', False)
+
         if show_raw and not self.segments:
-            return (self.type, self.raw)
+            result = (self.type, self.raw)
         elif code_only:
-            return (self.type, tuple(seg.to_tuple(**kwargs) for seg in self.segments if seg.is_code and not seg.is_meta))
+            result = (self.type, tuple(seg.to_tuple(**kwargs) for seg in self.segments if seg.is_code and not seg.is_meta))
         else:
-            return (self.type, tuple(seg.to_tuple(**kwargs) for seg in self.segments if not seg.is_meta))
+            result = (self.type, tuple(seg.to_tuple(**kwargs) for seg in self.segments if not seg.is_meta))
+        return result
 
     def to_yaml(self, **kwargs):
         """Return a yaml structure from this segment."""
