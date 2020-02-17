@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- For the `parse` command the `--profiler` option to help debugging
+  performance issues.
+
+### Changed
+
+- Validation of the match results of grammars has been reduced. In
+  production cases the validation will still be done, but only on
+  *parse* and not on *match*.
+- At low verbosities, python level logging is also reduced.
+
 ## [0.3.1] - 2020-02-17
 
 ### Added
