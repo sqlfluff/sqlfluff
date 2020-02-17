@@ -31,6 +31,10 @@ def verbosity_logger(msg, verbosity=0, level='info', v_level=3):
 
 def parse_match_logging(grammar, func, msg, parse_context, v_level, **kwargs):
     """Log in a particular consistent format for use while matching."""
+    # If we can avoid this, bank the performance increase
+    if parse_context.verbosity <= 1:
+        return
+    # Otherwise carry on...
     symbol = kwargs.pop('symbol', '')
     s = "[PD:{0} MD:{1}]\t{2:<50}\t{3:<20}\t{4:<4}".format(
         parse_context.parse_depth, parse_context.match_depth,
@@ -595,8 +599,9 @@ class BaseSegment:
         parse_match_logging(
             cls.__name__[:10], '_match', 'OUT',
             parse_context=parse_context, v_level=4, m=m)
-        # Basic Validation
-        check_still_complete(segments, m.matched_segments, m.unmatched_segments)
+        # Validation is skipped at a match level. For performance reasons
+        # we match at the parse level only
+        # check_still_complete(segments, m.matched_segments, m.unmatched_segments)
         return m
 
     @staticmethod

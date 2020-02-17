@@ -68,12 +68,15 @@ class BaseGrammar:
             logging.info("{0}.match, was passed zero length segments list. NB: {0} contains {1!r}".format(
                 self.__class__.__name__, self._elements))
 
-        # Work out the raw representation and curtail if long
-        parse_match_logging(
-            self.__class__.__name__, '_match', 'IN', parse_context=parse_context,
-            v_level=self.v_level,
-            le=len(self._elements), ls=len(segments),
-            seg=join_segments_raw_curtailed(segments))
+        # If we can avoid this, bank the performance increase.
+        if parse_context.verbosity > 1:
+            # Logging to help with debugging.
+            # Work out the raw representation and curtail if long.
+            parse_match_logging(
+                self.__class__.__name__, '_match', 'IN', parse_context=parse_context,
+                v_level=self.v_level,
+                le=len(self._elements), ls=len(segments),
+                seg=join_segments_raw_curtailed(segments))
 
         m = self.match(segments, parse_context=parse_context)
 
@@ -93,12 +96,14 @@ class BaseGrammar:
             msg = 'OUT'
             symbol = ''
 
-        parse_match_logging(
-            self.__class__.__name__, '_match', msg,
-            parse_context=parse_context, v_level=self.v_level, dt=dt, m=m, symbol=symbol)
+        # If we can avoid this, bank the performance increase.
+        if parse_context.verbosity > 1:
+            parse_match_logging(
+                self.__class__.__name__, '_match', msg,
+                parse_context=parse_context, v_level=self.v_level, dt=dt, m=m, symbol=symbol)
 
-        # Basic Validation
-        check_still_complete(segments, m.matched_segments, m.unmatched_segments)
+        # Basic Validation, skipped here because it still happens in the parse commands.
+        # check_still_complete(segments, m.matched_segments, m.unmatched_segments)
         return m
 
     def expected_string(self, dialect=None, called_from=None):
