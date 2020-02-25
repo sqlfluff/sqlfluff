@@ -17,6 +17,7 @@ import click
 import time
 import subprocess
 import sys
+import oyaml as yaml
 
 
 @click.group()
@@ -47,10 +48,18 @@ def clean_tests(path):
 
 @cli.command()
 @click.argument('cmd', nargs=-1)
-def benchmark(cmd):
+@click.option('--from-file', '-f', default=None)
+def benchmark(cmd, from_file=None):
     """Benchmark how long it takes to run a particular command."""
-    if not cmd:
-        click.echo("No command specified!")
+    if from_file:
+        with open(from_file, 'r') as yaml_file:
+            parsed = yaml.load(yaml_file.read(), Loader=yaml.FullLoader)
+            benchmarks = parsed['benchmarks']
+            click.echo(repr(benchmarks))
+    elif cmd:
+        benchmarks = [{'name': str(hash(cmd)), 'cmd': cmd}]
+    else:
+        click.echo("No command or file specified!")
         sys.exit(1)
 
     # Try and detect a CI environment
@@ -59,16 +68,18 @@ def benchmark(cmd):
         available_vars = [var for var in os.environ.keys() if var.startswith('CIRCLE')]
         click.echo("Available keys: {0!r}".format(available_vars))
 
-    t0 = time.monotonic()
-    click.echo("===START PROCESS OUTPUT===")
-    process = subprocess.run(cmd)
-    click.echo("===END PROCESS OUTPUT===")
-    t1 = time.monotonic()
-    if process.returncode != 0:
-        click.echo("Command failed with return code: {0}".format(process.returncode))
-        sys.exit(process.returncode)
-    else:
-        click.echo("Process completed in {0:.4f}s".format(t1 - t0))
+    for benchmark in benchmarks:
+        click.echo("Starting bechmark: {0!r}".format(benchmark['name']))
+        t0 = time.monotonic()
+        click.echo("===START PROCESS OUTPUT===")
+        process = subprocess.run(benchmark['cmd'])
+        click.echo("===END PROCESS OUTPUT===")
+        t1 = time.monotonic()
+        if process.returncode != 0:
+            click.echo("Command failed with return code: {0}".format(process.returncode))
+            sys.exit(process.returncode)
+        else:
+            click.echo("Process completed in {0:.4f}s".format(t1 - t0))
 
 
 if __name__ == '__main__':
