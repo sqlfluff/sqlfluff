@@ -1,6 +1,8 @@
 click>=2.0
 colorama>=0.3
 configparser
+# bench-it is used while profiling
+bench-it
 # oyaml is like pyyaml but preserves orderings
 oyaml
 Jinja2

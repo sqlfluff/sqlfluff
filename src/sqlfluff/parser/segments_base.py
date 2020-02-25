@@ -15,6 +15,7 @@ These are the fundamental building blocks of the rest of the parser.
 import logging
 import oyaml as yaml
 from io import StringIO
+from benchit import BenchIt
 
 from .match import MatchResult, curtail_string, join_segments_raw
 from ..errors import SQLLintError
@@ -399,6 +400,9 @@ class BaseSegment:
 
             # Validate new segments
             self.validate_segments(text="parsing")
+
+        bencher = BenchIt()  # starts the timer
+        bencher("Parse complete of {0!r}".format(self.__class__.__name__))
 
         # Recurse if allowed (using the expand method to deal with the expansion)
         logging.debug(

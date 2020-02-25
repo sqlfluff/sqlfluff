@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- For the `parse` command the `--profiler` option to help debugging
-  performance issues.
+- For the `parse` command, added the `--profiler` and `--bench` options
+  to help debugging performance issues.
 
 ### Changed
 
