@@ -238,6 +238,13 @@ class BaseGrammar:
         seg_buff = segments
         pre_seg_buff = ()  # NB: Tuple
 
+        # We need a faster route here. Most of the time in this cycle
+        # happens in loops looking for simple matchers which we should
+        # be able to find a shortcut for.
+        # TODO: Work here. Assess the matchers passed in, if any are
+        # "simple", then we use some kind of hash lookup across the
+        # content of segments to do faster lookups.
+
         # Loop
         while True:
             # Do we have anything left to match on?
