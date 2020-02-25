@@ -458,7 +458,11 @@ class Linter:
         violations = []
         t0 = time.monotonic()
         bencher = BenchIt()  # starts the timer
-        short_fname = fname.replace('\\', '/').split('/')[-1]
+        if fname:
+            short_fname = fname.replace('\\', '/').split('/')[-1]
+        else:
+            # this handles to potential case of a null fname
+            short_fname = fname
         bencher("Staring parse_string for {0!r}".format(short_fname))
 
         # Log the start of this process if we're in a more verbose mode.
