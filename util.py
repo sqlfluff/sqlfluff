@@ -14,6 +14,9 @@ from __future__ import print_function
 import shutil
 import os
 import click
+import time
+import subprocess
+import sys
 
 
 @click.group()
@@ -40,6 +43,25 @@ def clean_tests(path):
 
     os.mkdir(path)
     click.echo("Created {0!r}".format(path))
+
+
+@cli.command()
+@click.argument('cmd', nargs=-1)
+def benchmark(cmd):
+    """Benchmark how long it takes to run a particular command."""
+    if not cmd:
+        click.echo("No command specified!")
+        sys.exit(1)
+    t0 = time.monotonic()
+    click.echo("===START PROCESS OUTPUT===")
+    process = subprocess.run(cmd)
+    click.echo("===END PROCESS OUTPUT===")
+    t1 = time.monotonic()
+    if process.returncode != 0:
+        click.echo("Command failed with return code: {0}".format(process.returncode))
+        sys.exit(process.returncode)
+    else:
+        click.echo("Process completed in {0:.4f}s".format(t1 - t0))
 
 
 if __name__ == '__main__':
