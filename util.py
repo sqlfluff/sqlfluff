@@ -52,6 +52,13 @@ def benchmark(cmd):
     if not cmd:
         click.echo("No command specified!")
         sys.exit(1)
+
+    # Try and detect a CI environment
+    if 'CIRCLECI' in os.environ:
+        click.echo("Circle CI detected!")
+        available_vars = [var for var in os.environ.keys() if var.startswith('CIRCLE')]
+        click.echo("Available keys: {0!r}".format(available_vars))
+
     t0 = time.monotonic()
     click.echo("===START PROCESS OUTPUT===")
     process = subprocess.run(cmd)
