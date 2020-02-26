@@ -16,6 +16,7 @@ env
 .tox
 venv
 .venv 
+.python-version
 
 # Ignore coverage reports
 .coverage

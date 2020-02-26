@@ -1,6 +1,7 @@
 """Contains the CLI."""
 
 import sys
+import json
 
 import click
 # For the profiler
@@ -111,8 +112,11 @@ def rules(**kwargs):
 
 @cli.command()
 @common_options
+@click.option('-f', '--format', 'format', default='human',
+              type=click.Choice(['human', 'json'], case_sensitive=False),
+              help='What format to return the lint result in.')
 @click.argument('paths', nargs=-1)
-def lint(paths, **kwargs):
+def lint(paths, format, **kwargs):
     """Lint SQL files via passing a list of files or using stdin.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -132,12 +136,13 @@ def lint(paths, **kwargs):
 
     """
     c = get_config(**kwargs)
-    lnt = get_linter(c)
+    lnt = get_linter(c, silent=format == 'json')
     verbose = c.get('verbose')
 
     config_string = format_config(lnt, verbose=verbose)
     if len(config_string) > 0:
         lnt.log(config_string)
+
     # add stdin if specified via lone '-'
     if ('-',) == paths:
         result = lnt.lint_string_wrapped(sys.stdin.read(), fname='stdin', verbosity=verbose)
@@ -151,6 +156,10 @@ def lint(paths, **kwargs):
             sys.exit(1)
         # Output the final stats
         lnt.log(format_linting_result_footer(result, verbose=verbose))
+
+    if format == 'json':
+        click.echo(json.dumps(result.as_records()))
+
     sys.exit(result.stats()['exit code'])
 
 
