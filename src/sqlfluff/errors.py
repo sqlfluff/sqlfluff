@@ -98,6 +98,7 @@ class SQLBaseError(ValueError):
 
     def get_info_dict(self):
         """Get a dictionary representation of this violation.
+
         Returns:
             A `dictionary` with keys (code, line_no, line_pos, description)
         """
