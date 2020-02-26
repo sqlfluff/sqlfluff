@@ -96,6 +96,16 @@ class SQLBaseError(ValueError):
         """
         return self.rule_code(), self.line_no(), self.line_pos(), self.desc()
 
+    def get_info_dict(self):
+        """Get a dictionary representation of this violation.
+        Returns:
+            A `dictionary` with keys (code, line_no, line_pos, description)
+        """
+        return dict(zip(
+            ('code', 'line_no', 'line_pos', 'description'),
+            self.get_info_tuple()
+        ))
+
     def ignore_if_in(self, ignore_iterable):
         """Ignore this violation if it matches the iterable."""
         # Type conversion
