@@ -386,6 +386,20 @@ class LintingResult:
         all_stats['status'] = 'FAIL' if all_stats['violations'] > 0 else 'PASS'
         return all_stats
 
+    def as_records(self):
+        """Return the result as a list of dictionaries.
+
+        Each record contains a key specifying the filepath, and a list of violations. This
+        method is useful for serialization as all objects will be builtin python types
+        (ints, strs).
+        """
+        return [
+            {'filepath': path, 'violations': [v.get_info_dict() for v in violations]}
+            for lintedpath in self.paths
+            for path, violations in lintedpath.violations().items()
+            if violations
+        ]
+
     def persist_changes(self, verbosity=0, output_func=None, **kwargs):
         """Run all the fixes for all the files and return a dict."""
         return self.combine_dicts(

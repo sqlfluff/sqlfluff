@@ -4,6 +4,7 @@ import configparser
 import tempfile
 import os
 import shutil
+import json
 
 # Testing libraries
 import pytest
@@ -210,3 +211,44 @@ def test__cli__command__fix_no_force(rule, fname, prompt, exit_code):
         generic_roundtrip_test(
             test_file, rule, force=False, final_exit_code=exit_code,
             fix_input=prompt)
+
+
+@pytest.mark.parametrize('sql,expected,exit_code', [
+    ('select * from tbl', [], 0),  # empty list if no violations
+    (
+        'SElect * from tbl',
+        [{
+            "filepath": "stdin",
+            "violations": [
+                {
+                    "code": "L010",
+                    "line_no": 1,
+                    "line_pos": 1,
+                    "description": "Inconsistent capitalisation of keywords."
+                }
+            ]
+        }],
+        65
+    )
+])
+def test__cli__command_lint_json_from_stdin(sql, expected, exit_code):
+    """Check an explicit JSON return value for a single error."""
+    result = invoke_assert_code(
+        args=[lint, ('-', '--rules', 'L010', '--format', 'json')],
+        cli_input=sql,
+        ret_code=exit_code
+    )
+    assert json.loads(result.output) == expected
+
+
+def test__cli__command_lint_json_multiple_files():
+    """Check the general format of JSON output for multiple files."""
+    fpath = 'test/fixtures/linter/indentation_errors.sql'
+
+    # note the file is in here twice. two files = two payloads.
+    result = invoke_assert_code(
+        args=[lint, (fpath, fpath, '--format', 'json')],
+        ret_code=65,
+    )
+    result = json.loads(result.output)
+    assert len(result) == 2
