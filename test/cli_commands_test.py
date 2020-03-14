@@ -5,6 +5,7 @@ import tempfile
 import os
 import shutil
 import json
+import subprocess
 
 # Testing libraries
 import pytest
@@ -252,3 +253,9 @@ def test__cli__command_lint_json_multiple_files():
     )
     result = json.loads(result.output)
     assert len(result) == 2
+
+
+def test___main___help():
+    """Test that the CLI can be access via __main__."""
+    # nonzero exit is good enough
+    subprocess.check_output(['python', '-m', 'sqlfluff', '--help'])
