@@ -4,6 +4,7 @@ import configparser
 import tempfile
 import os
 import shutil
+import subprocess
 
 # Testing libraries
 import pytest
@@ -210,3 +211,9 @@ def test__cli__command__fix_no_force(rule, fname, prompt, exit_code):
         generic_roundtrip_test(
             test_file, rule, force=False, final_exit_code=exit_code,
             fix_input=prompt)
+
+
+def test___main___help():
+    """Test that the CLI can be access via __main__."""
+    # nonzero exit is good enough
+    subprocess.check_output(['python', '-m', 'sqlfluff', '--help'])
