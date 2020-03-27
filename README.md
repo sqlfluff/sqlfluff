@@ -13,6 +13,8 @@
 [![ReadTheDocs](https://img.shields.io/readthedocs/sqlfluff?style=flat-square&logo=Read%20the%20Docs)](https://sqlfluff.readthedocs.io)
 [![DeepSource](https://static.deepsource.io/deepsource-badge-light-mini.svg)](https://deepsource.io/gh/alanmcruickshank/sqlfluff/?ref=repository-badge)
 
+[![codecov](https://img.shields.io/codeclimate/maintainability/alanmcruickshank/sqlfluff.svg?style=flat-square&logo=Code%20Climate)](https://codeclimate.com/github/alanmcruickshank/sqlfluff/maintainability)
+
 Bored of not having a good SQL linter that works with whichever dialiect you're
 working with? Fluff is an extensible and modular linter designed to help you write
 good SQL and catch errors and bad SQL before it hits your database.
