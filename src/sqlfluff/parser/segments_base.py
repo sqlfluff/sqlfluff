@@ -209,6 +209,11 @@ class BaseSegment:
         else:
             return False
 
+    @classmethod
+    def simple(cls, parse_context):
+        """Does this matcher support a lowercase hash matching route?"""
+        return False
+
     @property
     def is_code(self):
         """Return True if this segment contains any code."""
@@ -443,6 +448,11 @@ class BaseSegment:
     def raw(self):
         """Make a string from the segments of this segment."""
         return self._reconstruct()
+
+    @property
+    def raw_upper(self):
+        """Make an uppercase string from the segments of this segment."""
+        return self._reconstruct().upper()
 
     @staticmethod
     def _suffix():
@@ -884,6 +894,7 @@ class RawSegment(BaseSegment):
     _is_comment = False
     _template = '<unset>'
     _case_sensitive = False
+    _raw_upper = None
 
     @property
     def is_expandable(self):
@@ -902,8 +913,14 @@ class RawSegment(BaseSegment):
 
     def __init__(self, raw, pos_marker):
         self._raw = raw
+        self._raw_upper = raw.upper()
         # pos marker is required here
         self.pos_marker = pos_marker
+
+    @property
+    def raw_upper(self):
+        """Make an uppercase string from the segments of this segment."""
+        return self._raw_upper
 
     def iter_raw_seg(self):
         """Iterate raw segments, mostly for searching."""

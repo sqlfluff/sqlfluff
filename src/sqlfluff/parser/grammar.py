@@ -112,6 +112,10 @@ class BaseGrammar:
             "{0} does not implement expected_string!".format(
                 self.__class__.__name__))
 
+    def simple(self, parse_context):
+        """Does this matcher support a lowercase hash matching route?"""
+        return False
+
     @classmethod
     def _code_only_sensitive_match(cls, segments, matcher, parse_context, code_only=True):
         """Match, but also deal with leading and trailing non-code."""
@@ -143,7 +147,7 @@ class BaseGrammar:
                 # we don't need to worry about the unmatched.
                 return MatchResult.from_matched(tuple(pre_ws) + m.matched_segments + tuple(post_ws))
             elif m:
-                # Incomplete matches, just get it added to the end of the unmatched
+                # Incomplete matches, just get it added to the end of the unmatched.
                 return MatchResult(
                     matched_segments=tuple(pre_ws) + m.matched_segments,
                     unmatched_segments=m.unmatched_segments + tuple(post_ws))
@@ -234,16 +238,67 @@ class BaseGrammar:
         if len(segments) == 0:
             return ((), MatchResult.from_empty(), None)
 
-        # Make some buffers
-        seg_buff = segments
-        pre_seg_buff = ()  # NB: Tuple
-
         # We need a faster route here. Most of the time in this cycle
         # happens in loops looking for simple matchers which we should
         # be able to find a shortcut for.
         # TODO: Work here. Assess the matchers passed in, if any are
         # "simple", then we use some kind of hash lookup across the
         # content of segments to do faster lookups.
+        simpleness = [m.simple(parse_context=parse_context) for m in matchers]
+        if all(simpleness):
+            # if they're all simple we can use a hash match to identify the first one.
+            str_buff = [s.raw_upper for s in segments]
+            m_pos = []
+            m_first = None
+            for m in matchers:
+                simple = m.simple(parse_context=parse_context)
+                try:
+                    buff_pos = str_buff.index(simple)
+                    mat = (m, buff_pos, simple)
+                    if m_first is None or m_first[1] > mat[1]:
+                        m_first = mat
+                except ValueError:
+                    mat = (m, None, simple)
+                m_pos.append(mat)
+            if m_first:
+                # We've managed to match. We can shortcut home.
+                # ASSUME THAT ALL SIMPLE MATCHERS MATCH A SINGLE
+                # NB: We may still need to deal with whitespace.
+                matcher = m_first[0]
+                match = matcher._match(segments[m_first[1]:], parse_context)
+                pre_segments = segments[:m_first[1]]
+                if code_only:
+                    # Pick up any non-code segments as necessary
+                    # ...from the start
+                    while True:
+                        if not pre_segments or pre_segments[-1].is_code:
+                            break
+                        else:
+                            match = MatchResult((pre_segments[-1],) + match.matched_segments, match.unmatched_segments)
+                            pre_segments = pre_segments[:-1]
+                    # ...from the end (but only if it's the whole of the rest,
+                    # otherwise assume the next matcher will pick it up)
+                    if all(not elem.is_code for elem in match.unmatched_segments):
+                        match = MatchResult.from_matched(
+                            match.matched_segments + match.unmatched_segments
+                        )
+                return (
+                    pre_segments,
+                    match,
+                    m_first[0])
+            else:
+                # All segments are simple, but none have matched.
+                return ((), MatchResult.from_unmatched(segments), None)
+        else:
+            # Shortcut not possible for all of the matchers, could be possible
+            # for some?
+            # TODO: Allow simple matchers to shortcut, even if others require
+            # the long route.
+            pass
+
+        # Make some buffers
+        seg_buff = segments
+        pre_seg_buff = ()  # NB: Tuple
 
         # Loop
         while True:
@@ -392,6 +447,15 @@ class Ref(BaseGrammar):
     """A kind of meta-grammar that references other grammars by name at runtime."""
     # Log less for Ref
     v_level = 4
+
+    def simple(self, parse_context):
+        """Does this matcher support a lowercase hash matching route?
+
+        A ref is simple, if the thing it references is simple.
+        """
+        return self._get_elem(
+            dialect=parse_context.dialect
+        ).simple(parse_context=parse_context)
 
     def _get_ref(self):
         """Get the name of the thing we're referencing."""

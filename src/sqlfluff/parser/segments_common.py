@@ -32,6 +32,17 @@ class KeywordSegment(RawSegment):
     _case_sensitive = False
 
     @classmethod
+    def simple(cls, parse_context):
+        """Does this matcher support a lowercase hash matching route?
+
+        The keyword segment DOES, provided that it is not case sensitive.
+        """
+        if not cls._case_sensitive:
+            # NB: We go UPPER on make, so no need to convert here
+            return cls._template
+        return False
+
+    @classmethod
     def match(cls, segments, parse_context):
         """Compare input segments for a match, return a `MatchResult`.
 
@@ -76,6 +87,14 @@ class ReSegment(KeywordSegment):
 
     _anti_template = None
     """If `_anti_template` is set, then we exclude anything that matches it."""
+
+    @classmethod
+    def simple(cls, parse_context):
+        """Does this matcher support a lowercase hash matching route?
+
+        Regex segment does NOT for now. We might need to later for efficiency.
+        """
+        return False
 
     @classmethod
     def match(cls, segments, parse_context):
