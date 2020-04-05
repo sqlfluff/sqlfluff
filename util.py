@@ -50,7 +50,8 @@ def clean_tests(path):
 @cli.command()
 @click.argument('cmd', nargs=-1)
 @click.option('--from-file', '-f', default=None)
-def benchmark(cmd, from_file=None):
+@click.option('--runs', default=3, show_default=True)
+def benchmark(cmd, runs, from_file):
     """Benchmark how long it takes to run a particular command."""
     if from_file:
         with open(from_file, 'r') as yaml_file:
@@ -74,36 +75,38 @@ def benchmark(cmd, from_file=None):
         post_results = True
         click.echo("Commit hash is: {0!r}".format(commit_hash))
 
-    results = {}
-    for benchmark in benchmarks:
-        # Iterate through benchmarks
-        click.echo("Starting bechmark: {0!r}".format(benchmark['name']))
-        t0 = time.monotonic()
-        click.echo("===START PROCESS OUTPUT===")
-        process = subprocess.run(benchmark['cmd'])
-        click.echo("===END PROCESS OUTPUT===")
-        t1 = time.monotonic()
-        if process.returncode != 0:
-            click.echo("Command failed with return code: {0}".format(process.returncode))
-            sys.exit(process.returncode)
-        else:
-            duration = t1 - t0
-            click.echo("Process completed in {0:.4f}s".format(duration))
-            results[benchmark['name']] = duration
+    for run_no in range(runs):
+        click.echo("===== Run #{0} =====".format(run_no + 1))
+        results = {}
+        for benchmark in benchmarks:
+            # Iterate through benchmarks
+            click.echo("Starting bechmark: {0!r}".format(benchmark['name']))
+            t0 = time.monotonic()
+            click.echo("===START PROCESS OUTPUT===")
+            process = subprocess.run(benchmark['cmd'])
+            click.echo("===END PROCESS OUTPUT===")
+            t1 = time.monotonic()
+            if process.returncode != 0:
+                click.echo("Command failed with return code: {0}".format(process.returncode))
+                sys.exit(process.returncode)
+            else:
+                duration = t1 - t0
+                click.echo("Process completed in {0:.4f}s".format(duration))
+                results[benchmark['name']] = duration
 
-    if post_results:
-        click.echo("Posting results: {0}".format(results))
-        resp = requests.post(
-            'https://f32cvv8yh3.execute-api.eu-west-1.amazonaws.com/gh/{repo}'.format(
-                repo='alanmcruickshank/sqlfluff'
-            ),
-            params={
-                'commit': commit_hash,
-                'key': 'mtqTC1fVVebVQ5BVREP7jYrKwgjaO0IfRILzyZt'
-            },
-            json=results
-        )
-        click.echo(resp.text)
+        if post_results:
+            click.echo("Posting results: {0}".format(results))
+            resp = requests.post(
+                'https://f32cvv8yh3.execute-api.eu-west-1.amazonaws.com/gh/{repo}'.format(
+                    repo='alanmcruickshank/sqlfluff'
+                ),
+                params={
+                    'commit': commit_hash,
+                    'key': 'mtqTC1fVVebVQ5BVREP7jYrKwgjaO0IfRILzyZt'
+                },
+                json=results
+            )
+            click.echo(resp.text)
 
 
 if __name__ == '__main__':
