@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - For the `parse` command, added the `--profiler` and `--bench` options
   to help debugging performance issues.
+- Proper parsing of the concatenate operator (`||`).
+- Logging and benchmarking of parse performance as part of the CI pipeline.
 
 ### Changed
 
@@ -18,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   production cases the validation will still be done, but only on
   *parse* and not on *match*.
 - At low verbosities, python level logging is also reduced.
+- Some matcher rules in the parser can now be classified as _simple_
+  which allows them to shortcut some of the matching routines.
 
 ## [0.3.1] - 2020-02-17
 
