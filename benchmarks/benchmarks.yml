@@ -1,0 +1,5 @@
+benchmarks:
+    - name: 004_L003_indentation_3
+      cmd: ['sqlfluff', 'parse', '--bench', 'test/fixtures/linter/autofix/ansi/004_L003_indentation_3/before.sql']
+    - name: B_001_package
+      cmd: ['sqlfluff', 'parse', '--bench', 'benchmarks/bench_001_package.sql']

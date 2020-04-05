@@ -112,6 +112,10 @@ class BaseGrammar:
             "{0} does not implement expected_string!".format(
                 self.__class__.__name__))
 
+    def simple(self, parse_context):
+        """Does this matcher support a lowercase hash matching route?"""
+        return False
+
     @classmethod
     def _code_only_sensitive_match(cls, segments, matcher, parse_context, code_only=True):
         """Match, but also deal with leading and trailing non-code."""
@@ -143,7 +147,7 @@ class BaseGrammar:
                 # we don't need to worry about the unmatched.
                 return MatchResult.from_matched(tuple(pre_ws) + m.matched_segments + tuple(post_ws))
             elif m:
-                # Incomplete matches, just get it added to the end of the unmatched
+                # Incomplete matches, just get it added to the end of the unmatched.
                 return MatchResult(
                     matched_segments=tuple(pre_ws) + m.matched_segments,
                     unmatched_segments=m.unmatched_segments + tuple(post_ws))
@@ -234,6 +238,69 @@ class BaseGrammar:
         if len(segments) == 0:
             return ((), MatchResult.from_empty(), None)
 
+        # We need a faster route here. Most of the time in this cycle
+        # happens in loops looking for simple matchers which we should
+        # be able to find a shortcut for.
+        # TODO: Work here. Assess the matchers passed in, if any are
+        # "simple", then we use some kind of hash lookup across the
+        # content of segments to do faster lookups.
+        simple_matchers = [m for m in matchers if m.simple(parse_context=parse_context)]
+        non_simple_matchers = [m for m in matchers if not m.simple(parse_context=parse_context)]
+        best_simple_match = None
+        if simple_matchers:
+            # if they're all simple we can use a hash match to identify the first one.
+            str_buff = [s.raw_upper for s in segments]
+            m_pos = []
+            m_first = None
+            for m in simple_matchers:
+                simple = m.simple(parse_context=parse_context)
+                # Simple may have options
+                if isinstance(simple, str):
+                    # convert to tuple if not
+                    simple = simple,
+                for simple_option in simple:
+                    try:
+                        buff_pos = str_buff.index(simple_option)
+                        mat = (m, buff_pos, simple_option)
+                        if m_first is None or m_first[1] > mat[1]:
+                            m_first = mat
+                    except ValueError:
+                        mat = (m, None, simple_option)
+                    m_pos.append(mat)
+            if m_first:
+                # We've managed to match. We can shortcut home.
+                # ASSUME THAT ALL SIMPLE MATCHERS MATCH A SINGLE
+                # NB: We may still need to deal with whitespace.
+                matcher = m_first[0]
+                match = matcher._match(segments[m_first[1]:], parse_context)
+                pre_segments = segments[:m_first[1]]
+                if code_only:
+                    # Pick up any non-code segments as necessary
+                    # ...from the start
+                    while True:
+                        if not pre_segments or pre_segments[-1].is_code:
+                            break
+                        else:
+                            match = MatchResult((pre_segments[-1],) + match.matched_segments, match.unmatched_segments)
+                            pre_segments = pre_segments[:-1]
+                    # ...from the end (but only if it's the whole of the rest,
+                    # otherwise assume the next matcher will pick it up)
+                    if all(not elem.is_code for elem in match.unmatched_segments):
+                        match = MatchResult.from_matched(
+                            match.matched_segments + match.unmatched_segments
+                        )
+                best_simple_match = (
+                    pre_segments,
+                    match,
+                    m_first[0])
+
+        if not non_simple_matchers:
+            # There are no other matchers, we can just shortcut now.
+            if best_simple_match:
+                return best_simple_match
+            else:
+                return ((), MatchResult.from_unmatched(segments), None)
+
         # Make some buffers
         seg_buff = segments
         pre_seg_buff = ()  # NB: Tuple
@@ -248,15 +315,48 @@ class BaseGrammar:
                 # We've got to the end without a match, return empty
                 return ((), MatchResult.from_unmatched(segments), None)
 
+            # We only check the NON-simple ones here for brevity.
             mat, m = cls._longest_code_only_sensitive_match(
-                seg_buff, matchers, parse_context=parse_context, code_only=code_only)
+                seg_buff, non_simple_matchers, parse_context=parse_context, code_only=code_only)
 
-            if mat:
+            if mat and not best_simple_match:
                 return (pre_seg_buff, mat, m)
+            elif mat:
+                # It will be earlier than the simple one if we've even checked,
+                # but there's a chance that this might be *longer*, or just FIRST.
+                pre_lengths = (len(pre_seg_buff), len(best_simple_match[0]))
+                mat_lengths = (len(mat), len(best_simple_match[1]))
+                mat_indexes = (matchers.index(m), matchers.index(best_simple_match[2]))
+                if (
+                    (pre_lengths[0] < pre_lengths[1])
+                    or (
+                        pre_lengths[0] == pre_lengths[1]
+                        and mat_lengths[0] > mat_lengths[1]
+                    )
+                    or (
+                        pre_lengths[0] == pre_lengths[1]
+                        and mat_lengths[0] == mat_lengths[1]
+                        and mat_indexes[0] < mat_indexes[1]
+                    )
+                ):
+                    return (pre_seg_buff, mat, m)
+                else:
+                    return best_simple_match
             else:
                 # If there aren't any matches, then advance the buffer and try again.
+                # Two improvements:
+                # 1) if we get as far as the first simple match, then return that.
+                # 2) be eager in consuming non-code segments if allowed
+                if best_simple_match and len(pre_seg_buff) >= len(best_simple_match[0]):
+                    return best_simple_match
+
                 pre_seg_buff += (seg_buff[0],)
                 seg_buff = seg_buff[1:]
+
+                if code_only:
+                    while seg_buff and not seg_buff[0].is_code:
+                        pre_seg_buff += (seg_buff[0],)
+                        seg_buff = seg_buff[1:]
 
     @classmethod
     def _bracket_sensitive_look_ahead_match(cls, segments, matchers, parse_context, code_only=True):
@@ -386,6 +486,15 @@ class Ref(BaseGrammar):
     # Log less for Ref
     v_level = 4
 
+    def simple(self, parse_context):
+        """Does this matcher support a uppercase hash matching route?
+
+        A ref is simple, if the thing it references is simple.
+        """
+        return self._get_elem(
+            dialect=parse_context.dialect
+        ).simple(parse_context=parse_context)
+
     def _get_ref(self):
         """Get the name of the thing we're referencing."""
         # Unusually for a grammar we expect _elements to be a list of strings.
@@ -490,6 +599,21 @@ class OneOf(BaseGrammar):
     def __init__(self, *args, **kwargs):
         self.mode = kwargs.pop('mode', 'longest')  # can be 'first' or 'longest'
         super(OneOf, self).__init__(*args, **kwargs)
+
+    def simple(self, parse_context):
+        """Does this matcher support a uppercase hash matching route?
+
+        OneOf does provide this, as long as all the elements *also* do.
+        """
+        simple_buff = ()
+        for opt in self._elements:
+            simple = opt.simple(parse_context=parse_context)
+            if not simple:
+                return False
+            elif isinstance(simple, str):
+                simple = simple,
+            simple_buff += simple
+        return simple_buff
 
     def match(self, segments, parse_context):
         """Match any of the elements given once.

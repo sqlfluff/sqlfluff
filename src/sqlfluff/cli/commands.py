@@ -9,6 +9,7 @@ import click
 # For the profiler
 import pstats
 from io import StringIO
+from benchit import BenchIt
 
 from ..dialects import dialect_selector
 from ..linter import Linter
@@ -265,7 +266,9 @@ def fix(force, paths, **kwargs):
               help='What format to return the parse result in.')
 @click.option('--profiler', is_flag=True,
               help='Set this flag to engage the python profiler.')
-def parse(path, code_only, format, profiler, **kwargs):
+@click.option('--bench', is_flag=True,
+              help='Set this flag to engage the benchmarking tool output.')
+def parse(path, code_only, format, profiler, bench, **kwargs):
     """Parse SQL files and just spit out the result.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -273,6 +276,8 @@ def parse(path, code_only, format, profiler, **kwargs):
     character to indicate reading from *stdin* or a dot/blank ('.'/' ') which will
     be interpreted like passing the current working directory as a path argument.
     """
+    # Initialise the benchmarker
+    bencher = BenchIt()  # starts the timer
     c = get_config(**kwargs)
     # We don't want anything else to be logged if we want a yaml output
     lnt = get_linter(c, silent=format in ('json', 'yaml'))
@@ -295,6 +300,7 @@ def parse(path, code_only, format, profiler, **kwargs):
         pr = cProfile.Profile()
         pr.enable()
 
+    bencher("Parse setup")
     try:
         # handle stdin if specified via lone '-'
         if '-' == path:
@@ -325,6 +331,7 @@ def parse(path, code_only, format, profiler, **kwargs):
                 if verbose >= 2:
                     lnt.log("==== timings ====")
                     lnt.log(cli_table(time_dict.items()))
+                bencher("Output details for file")
         else:
             # collect result and print as single payload
             # will need to zip in the file paths
@@ -341,7 +348,6 @@ def parse(path, code_only, format, profiler, **kwargs):
                 click.echo(yaml.dump(result))
             elif format == 'json':
                 click.echo(json.dumps(result))
-
     except IOError:
         click.echo(colorize('The path {0!r} could not be accessed. Check it exists.'.format(path), 'red'))
         sys.exit(1)
@@ -354,7 +360,12 @@ def parse(path, code_only, format, profiler, **kwargs):
         ).sort_stats('cumulative')
         ps.print_stats()
         lnt.log("==== profiler stats ====")
-        lnt.log(profiler_buffer.getvalue())
+        # Only print the first 50 lines of it
+        lnt.log('\n'.join(profiler_buffer.getvalue().split('\n')[:50]))
+
+    if bench:
+        lnt.log("\n\n==== bencher stats ====")
+        bencher.display()
 
     if nv > 0:
         sys.exit(66)

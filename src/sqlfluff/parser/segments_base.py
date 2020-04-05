@@ -15,6 +15,7 @@ These are the fundamental building blocks of the rest of the parser.
 import logging
 
 from io import StringIO
+from benchit import BenchIt
 
 from .match import MatchResult, curtail_string, join_segments_raw
 from ..errors import SQLLintError
@@ -208,6 +209,11 @@ class BaseSegment:
         else:
             return False
 
+    @classmethod
+    def simple(cls, parse_context):
+        """Does this matcher support an uppercase hash matching route?"""
+        return False
+
     @property
     def is_code(self):
         """Return True if this segment contains any code."""
@@ -400,6 +406,9 @@ class BaseSegment:
             # Validate new segments
             self.validate_segments(text="parsing")
 
+        bencher = BenchIt()  # starts the timer
+        bencher("Parse complete of {0!r}".format(self.__class__.__name__))
+
         # Recurse if allowed (using the expand method to deal with the expansion)
         logging.debug(
             "{0}.parse: Done Parse. Plotting Recursion. Recurse={1!r}".format(
@@ -439,6 +448,11 @@ class BaseSegment:
     def raw(self):
         """Make a string from the segments of this segment."""
         return self._reconstruct()
+
+    @property
+    def raw_upper(self):
+        """Make an uppercase string from the segments of this segment."""
+        return self._reconstruct().upper()
 
     @staticmethod
     def _suffix():
@@ -882,6 +896,7 @@ class RawSegment(BaseSegment):
     _is_comment = False
     _template = '<unset>'
     _case_sensitive = False
+    _raw_upper = None
 
     @property
     def is_expandable(self):
@@ -900,8 +915,14 @@ class RawSegment(BaseSegment):
 
     def __init__(self, raw, pos_marker):
         self._raw = raw
+        self._raw_upper = raw.upper()
         # pos marker is required here
         self.pos_marker = pos_marker
+
+    @property
+    def raw_upper(self):
+        """Make an uppercase string from the segments of this segment."""
+        return self._raw_upper
 
     def iter_raw_seg(self):
         """Iterate raw segments, mostly for searching."""

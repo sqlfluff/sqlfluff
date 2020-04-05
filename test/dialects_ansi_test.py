@@ -76,6 +76,7 @@ def test__dialect__ansi__file_from_raw(raw, res, caplog):
         # https://github.com/alanmcruickshank/sqlfluff/issues/178
         # https://github.com/alanmcruickshank/sqlfluff/issues/179
         ("SelectStatementSegment", "SELECT t.val/t.id FROM test WHERE id*1.0/id > 0.8"),
+        ("SelectTargetElementSegment", "t.val/t.id"),
         # Issue with casting raise as part of PR #177
         ("SelectTargetElementSegment",
          "CAST(num AS INT64)"),

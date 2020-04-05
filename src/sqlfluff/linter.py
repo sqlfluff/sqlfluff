@@ -4,6 +4,7 @@ import os
 import time
 from collections import namedtuple
 from difflib import SequenceMatcher
+from benchit import BenchIt
 
 from .errors import SQLLexError, SQLParseError, SQLTemplaterError
 from .parser import FileSegment, ParseContext
@@ -470,6 +471,13 @@ class Linter:
         """
         violations = []
         t0 = time.monotonic()
+        bencher = BenchIt()  # starts the timer
+        if fname:
+            short_fname = fname.replace('\\', '/').split('/')[-1]
+        else:
+            # this handles to potential case of a null fname
+            short_fname = fname
+        bencher("Staring parse_string for {0!r}".format(short_fname))
 
         # Log the start of this process if we're in a more verbose mode.
         if verbosity > 1:
@@ -491,6 +499,7 @@ class Linter:
             # NB: We'll carry on if we fail to template, it might still lex
 
         t1 = time.monotonic()
+        bencher("Templating {0!r}".format(short_fname))
 
         if s:
             verbosity_logger("LEXING RAW ({0})".format(fname), verbosity=verbosity)
@@ -509,6 +518,7 @@ class Linter:
             verbosity_logger(file_segment.stringify(), verbosity=verbosity)
 
         t2 = time.monotonic()
+        bencher("Lexing {0!r}".format(short_fname))
         verbosity_logger("PARSING ({0})".format(fname), verbosity=verbosity)
         # Parse the file and log any problems
         if file_segment:
@@ -529,7 +539,7 @@ class Linter:
 
         t3 = time.monotonic()
         time_dict = {'templating': t1 - t0, 'lexing': t2 - t1, 'parsing': t3 - t2}
-
+        bencher("Finish parsing {0!r}".format(short_fname))
         return parsed, violations, time_dict
 
     def lint_string(self, s, fname='<string input>', verbosity=0, fix=False, config=None):

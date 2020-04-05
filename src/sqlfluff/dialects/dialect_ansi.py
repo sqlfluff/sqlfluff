@@ -36,6 +36,7 @@ ansi_dialect.set_lexer_struct([
     ("less_than_or_equal", "regex", r"<=", dict(is_code=True)),
     ("newline", "regex", r"\r\n", dict(type='newline')),
     ("casting_operator", "regex", r"::", dict(is_code=True)),
+    ("concat_operator", "regex", r"\|\|", dict(is_code=True)),
     ("newline", "singleton", "\n", dict(type='newline')),
     ("equals", "singleton", "=", dict(is_code=True)),
     ("greater_than", "singleton", ">", dict(is_code=True)),
@@ -76,6 +77,7 @@ ansi_dialect.add(
     MinusSegment=KeywordSegment.make('-', name='minus', type='binary_operator'),
     DivideSegment=KeywordSegment.make('/', name='divide', type='binary_operator'),
     MultiplySegment=KeywordSegment.make('*', name='multiply', type='binary_operator'),
+    ConcatSegment=KeywordSegment.make('||', name='concatenate', type='binary_operator'),
     EqualsSegment=KeywordSegment.make('=', name='equals', type='comparison_operator'),
     GreaterThanSegment=KeywordSegment.make('>', name='greater_than', type='comparison_operator'),
     LessThanSegment=KeywordSegment.make('<', name='less_than', type='comparison_operator'),
@@ -105,6 +107,8 @@ ansi_dialect.add(
     # if some dialects have different available operators
     ArithmeticBinaryOperatorGrammar=OneOf(
         Ref('PlusSegment'), Ref('MinusSegment'), Ref('DivideSegment'), Ref('MultiplySegment')),
+    StringBinaryOperatorGrammar=OneOf(
+        Ref('ConcatSegment')),
     BooleanBinaryOperatorGrammar=OneOf(
         Ref('AndKeywordSegment'), Ref('OrKeywordSegment')),
     ComparisonOperatorGrammar=OneOf(
@@ -261,6 +265,7 @@ class ObjectReferenceSegment(BaseSegment):
             Ref('_NonCodeSegment'), Ref('CommaSegment'),
             Ref('CastOperatorKeywordSegment'), Ref('StartSquareBracketSegment'),
             Ref('StartBracketSegment'), Ref('ArithmeticBinaryOperatorGrammar'),
+            Ref('StringBinaryOperatorGrammar'),
             Ref('ComparisonOperatorGrammar')
         ),
         code_only=False
@@ -701,6 +706,7 @@ ansi_dialect.add(
                 Sequence(
                     OneOf(
                         Ref('ArithmeticBinaryOperatorGrammar'),
+                        Ref('StringBinaryOperatorGrammar'),
                         Ref('ComparisonOperatorGrammar'),
                         Ref('BooleanBinaryOperatorGrammar'),
                         Sequence(
