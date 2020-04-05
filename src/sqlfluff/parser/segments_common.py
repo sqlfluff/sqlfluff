@@ -33,13 +33,14 @@ class KeywordSegment(RawSegment):
 
     @classmethod
     def simple(cls, parse_context):
-        """Does this matcher support a lowercase hash matching route?
+        """Does this matcher support a uppercase hash matching route?
 
-        The keyword segment DOES, provided that it is not case sensitive.
+        The keyword segment DOES, provided that it is not case sensitive,
+        we return a tuple in case there is more than one option.
         """
         if not cls._case_sensitive:
             # NB: We go UPPER on make, so no need to convert here
-            return cls._template
+            return (cls._template,)
         return False
 
     @classmethod
@@ -90,7 +91,7 @@ class ReSegment(KeywordSegment):
 
     @classmethod
     def simple(cls, parse_context):
-        """Does this matcher support a lowercase hash matching route?
+        """Does this matcher support a uppercase hash matching route?
 
         Regex segment does NOT for now. We might need to later for efficiency.
         """

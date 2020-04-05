@@ -252,14 +252,19 @@ class BaseGrammar:
             m_first = None
             for m in matchers:
                 simple = m.simple(parse_context=parse_context)
-                try:
-                    buff_pos = str_buff.index(simple)
-                    mat = (m, buff_pos, simple)
-                    if m_first is None or m_first[1] > mat[1]:
-                        m_first = mat
-                except ValueError:
-                    mat = (m, None, simple)
-                m_pos.append(mat)
+                # Simple may have options
+                if isinstance(simple, str):
+                    # convert to tuple if not
+                    simple = simple,
+                for simple_option in simple:
+                    try:
+                        buff_pos = str_buff.index(simple_option)
+                        mat = (m, buff_pos, simple_option)
+                        if m_first is None or m_first[1] > mat[1]:
+                            m_first = mat
+                    except ValueError:
+                        mat = (m, None, simple_option)
+                    m_pos.append(mat)
             if m_first:
                 # We've managed to match. We can shortcut home.
                 # ASSUME THAT ALL SIMPLE MATCHERS MATCH A SINGLE
@@ -449,7 +454,7 @@ class Ref(BaseGrammar):
     v_level = 4
 
     def simple(self, parse_context):
-        """Does this matcher support a lowercase hash matching route?
+        """Does this matcher support a uppercase hash matching route?
 
         A ref is simple, if the thing it references is simple.
         """
@@ -561,6 +566,21 @@ class OneOf(BaseGrammar):
     def __init__(self, *args, **kwargs):
         self.mode = kwargs.pop('mode', 'longest')  # can be 'first' or 'longest'
         super(OneOf, self).__init__(*args, **kwargs)
+
+    def simple(self, parse_context):
+        """Does this matcher support a uppercase hash matching route?
+
+        OneOf does provide this, as long as all the elements *also* do.
+        """
+        simple_buff = ()
+        for opt in self._elements:
+            simple = opt.simple(parse_context=parse_context)
+            if not simple:
+                return False
+            elif isinstance(simple, str):
+                simple = simple,
+            simple_buff += simple
+        return simple_buff
 
     def match(self, segments, parse_context):
         """Match any of the elements given once.
