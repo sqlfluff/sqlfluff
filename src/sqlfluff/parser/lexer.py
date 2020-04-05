@@ -9,7 +9,9 @@ from ..errors import SQLLexError
 
 
 class LexMatch(namedtuple('LexMatch', ['new_string', 'new_pos', 'segments'])):
+    """A class to hold matches from the Lexer."""
     def __bool__(self):
+        """A LexMatch is truthy if it contains a non-zero number of matched segments."""
         return len(self.segments) > 0
 
 

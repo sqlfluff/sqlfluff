@@ -75,6 +75,7 @@ def benchmark(cmd, runs, from_file):
         post_results = True
         click.echo("Commit hash is: {0!r}".format(commit_hash))
 
+    all_results = {}
     for run_no in range(runs):
         click.echo("===== Run #{0} =====".format(run_no + 1))
         results = {}
@@ -107,6 +108,15 @@ def benchmark(cmd, runs, from_file):
                 json=results
             )
             click.echo(resp.text)
+        all_results[run_no] = results
+    click.echo("===== Done =====")
+    for run_no in all_results:
+        click.echo(
+            "Run {0:>5}: {1}".format(
+                "#{0}".format(run_no),
+                all_results[run_no]
+            )
+        )
 
 
 if __name__ == '__main__':
