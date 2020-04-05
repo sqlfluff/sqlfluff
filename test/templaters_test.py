@@ -94,3 +94,8 @@ def test__templater_config_macro(yaml_loader):
 def test__templater_config_dbt(yaml_loader):
     """Check that the built in dbt macros work."""
     assert_structure(yaml_loader, 'test/fixtures/templater/jinja_c_dbt/dbt_builtins')
+
+
+def test__templater_do(yaml_loader):
+    """Check that the do directive works."""
+    assert_structure(yaml_loader, 'test/fixtures/templater/jinja_e/jinja')
