@@ -13,7 +13,7 @@ These are the fundamental building blocks of the rest of the parser.
 """
 
 import logging
-import oyaml as yaml
+
 from io import StringIO
 from benchit import BenchIt
 
@@ -536,31 +536,33 @@ class BaseSegment:
             result = (self.type, tuple(seg.to_tuple(**kwargs) for seg in self.segments if not seg.is_meta))
         return result
 
-    def to_yaml(self, **kwargs):
-        """Return a yaml structure from this segment."""
-        tpl = self.to_tuple(**kwargs)
+    @classmethod
+    def structural_simplify(cls, elem):
+        """Simplify the structure recursively so it serializes nicely in json/yaml."""
+        if isinstance(elem, tuple):
+            # Does this look like an element?
+            if len(elem) == 2 and isinstance(elem[0], str):
+                # This looks like a single element, make a dict
+                elem = {elem[0]: cls.structural_simplify(elem[1])}
+            elif isinstance(elem[0], tuple):
+                # This looks like a list of elements.
+                keys = [e[0] for e in elem]
+                # Any duplicate elements?
+                if len(set(keys)) == len(keys):
+                    # No, we can use a mapping typle
+                    elem = {e[0]: cls.structural_simplify(e[1]) for e in elem}
+                else:
+                    # Yes, this has to be a list :(
+                    elem = [cls.structural_simplify(e) for e in elem]
+        return elem
 
-        def _structural_simplify(elem):
-            """Simplify the structure recursively so it outputs nicely in yaml."""
-            if isinstance(elem, tuple):
-                # Does this look like an element?
-                if len(elem) == 2 and isinstance(elem[0], str):
-                    # This looks like a single element, make a dict
-                    elem = {elem[0]: _structural_simplify(elem[1])}
-                elif isinstance(elem[0], tuple):
-                    # This looks like a list of elements.
-                    keys = [e[0] for e in elem]
-                    # Any duplicate elements?
-                    if len(set(keys)) == len(keys):
-                        # No, we can use a mapping typle
-                        elem = {e[0]: _structural_simplify(e[1]) for e in elem}
-                    else:
-                        # Yes, this has to be a list :(
-                        elem = [_structural_simplify(e) for e in elem]
-            return elem
+    def as_record(self, **kwargs):
+        """Return the segment as a structurally simplified record.
 
-        obj = _structural_simplify(tpl)
-        return yaml.dump(obj)
+        This is useful for serialization to yaml or json.
+        kwargs passed to to_tuple
+        """
+        return self.structural_simplify(self.to_tuple(**kwargs))
 
     @classmethod
     def match(cls, segments, parse_context):

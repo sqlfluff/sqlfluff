@@ -1,6 +1,9 @@
 """Contains the CLI."""
 
 import sys
+import json
+
+import oyaml as yaml
 
 import click
 # For the profiler
@@ -112,8 +115,11 @@ def rules(**kwargs):
 
 @cli.command()
 @common_options
+@click.option('-f', '--format', 'format', default='human',
+              type=click.Choice(['human', 'json', 'yaml'], case_sensitive=False),
+              help='What format to return the lint result in.')
 @click.argument('paths', nargs=-1)
-def lint(paths, **kwargs):
+def lint(paths, format, **kwargs):
     """Lint SQL files via passing a list of files or using stdin.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -133,12 +139,13 @@ def lint(paths, **kwargs):
 
     """
     c = get_config(**kwargs)
-    lnt = get_linter(c)
+    lnt = get_linter(c, silent=format in ('json', 'yaml'))
     verbose = c.get('verbose')
 
     config_string = format_config(lnt, verbose=verbose)
     if len(config_string) > 0:
         lnt.log(config_string)
+
     # add stdin if specified via lone '-'
     if ('-',) == paths:
         result = lnt.lint_string_wrapped(sys.stdin.read(), fname='stdin', verbosity=verbose)
@@ -152,6 +159,12 @@ def lint(paths, **kwargs):
             sys.exit(1)
         # Output the final stats
         lnt.log(format_linting_result_footer(result, verbose=verbose))
+
+    if format == 'json':
+        click.echo(json.dumps(result.as_records()))
+    elif format == 'yaml':
+        click.echo(yaml.dump(result.as_records()))
+
     sys.exit(result.stats()['exit code'])
 
 
@@ -249,7 +262,7 @@ def fix(force, paths, **kwargs):
 @click.option('-c', '--code-only', is_flag=True,
               help='Output only the code elements of the parse tree.')
 @click.option('-f', '--format', default='human',
-              type=click.Choice(['human', 'yaml'], case_sensitive=False),
+              type=click.Choice(['human', 'json', 'yaml'], case_sensitive=False),
               help='What format to return the parse result in.')
 @click.option('--profiler', is_flag=True,
               help='Set this flag to engage the python profiler.')
@@ -267,7 +280,7 @@ def parse(path, code_only, format, profiler, bench, **kwargs):
     bencher = BenchIt()  # starts the timer
     c = get_config(**kwargs)
     # We don't want anything else to be logged if we want a yaml output
-    lnt = get_linter(c, silent=format == 'yaml')
+    lnt = get_linter(c, silent=format in ('json', 'yaml'))
     verbose = c.get('verbose')
     recurse = c.get('recurse')
 
@@ -289,23 +302,52 @@ def parse(path, code_only, format, profiler, bench, **kwargs):
 
     bencher("Parse setup")
     try:
-        # A single path must be specified for this command
-        for parsed, violations, time_dict in lnt.parse_path(path, verbosity=verbose, recurse=recurse):
-            if parsed:
-                if format == 'human':
+        # handle stdin if specified via lone '-'
+        if '-' == path:
+            # put the parser result in a list to iterate later
+            config = lnt.config.make_child_from_path('stdin')
+            result = [lnt.parse_string(
+                sys.stdin.read(),
+                'stdin',
+                verbosity=verbose,
+                recurse=recurse,
+                config=config
+            )]
+        else:
+            # A single path must be specified for this command
+            result = lnt.parse_path(path, verbosity=verbose, recurse=recurse)
+
+        # iterative print for human readout
+        if format == 'human':
+            for parsed, violations, time_dict in result:
+                if parsed:
                     lnt.log(parsed.stringify(code_only=code_only))
-                elif format == 'yaml':
-                    click.echo(parsed.to_yaml(code_only=code_only, show_raw=True))
-            else:
-                # TODO: Make this prettier
-                lnt.log('...Failed to Parse...')
-            nv += len(violations)
-            for v in violations:
-                lnt.log(format_violation(v, verbose=verbose))
-            if verbose >= 2:
-                lnt.log("==== timings ====")
-                lnt.log(cli_table(time_dict.items()))
-            bencher("Output details for file")
+                else:
+                    # TODO: Make this prettier
+                    lnt.log('...Failed to Parse...')
+                nv += len(violations)
+                for v in violations:
+                    lnt.log(format_violation(v, verbose=verbose))
+                if verbose >= 2:
+                    lnt.log("==== timings ====")
+                    lnt.log(cli_table(time_dict.items()))
+                bencher("Output details for file")
+        else:
+            # collect result and print as single payload
+            # will need to zip in the file paths
+            filepaths = ['stdin'] if '-' == path else lnt.paths_from_path(path)
+            result = [
+                dict(
+                    filepath=filepath,
+                    segments=parsed.as_record(code_only=code_only, show_raw=True)
+                )
+                for filepath, (parsed, _, _) in zip(filepaths, result)
+            ]
+
+            if format == 'yaml':
+                click.echo(yaml.dump(result))
+            elif format == 'json':
+                click.echo(json.dumps(result))
     except IOError:
         click.echo(colorize('The path {0!r} could not be accessed. Check it exists.'.format(path), 'red'))
         sys.exit(1)

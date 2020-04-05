@@ -4,6 +4,9 @@ import configparser
 import tempfile
 import os
 import shutil
+import json
+import oyaml as yaml
+import subprocess
 
 # Testing libraries
 import pytest
@@ -210,3 +213,84 @@ def test__cli__command__fix_no_force(rule, fname, prompt, exit_code):
         generic_roundtrip_test(
             test_file, rule, force=False, final_exit_code=exit_code,
             fix_input=prompt)
+
+
+@pytest.mark.parametrize('serialize', ['yaml', 'json'])
+def test__cli__command_parse_serialize_from_stdin(serialize):
+    """Check that the parser serialized output option is working.
+
+    Not going to test for the content of the output as that is subject to change.
+    """
+    result = invoke_assert_code(
+        args=[parse, ('-', '--format', serialize)],
+        cli_input='select * from tbl',
+    )
+    if serialize == 'json':
+        result = json.loads(result.output)
+    elif serialize == 'yaml':
+        result = yaml.load(result.output)
+    else:
+        raise Exception
+    result = result[0]  # only one file
+    assert result['filepath'] == 'stdin'
+
+
+@pytest.mark.parametrize('serialize', ['yaml', 'json'])
+@pytest.mark.parametrize('sql,expected,exit_code', [
+    ('select * from tbl', [], 0),  # empty list if no violations
+    (
+        'SElect * from tbl',
+        [{
+            "filepath": "stdin",
+            "violations": [
+                {
+                    "code": "L010",
+                    "line_no": 1,
+                    "line_pos": 1,
+                    "description": "Inconsistent capitalisation of keywords."
+                }
+            ]
+        }],
+        65
+    )
+])
+def test__cli__command_lint_serialize_from_stdin(serialize, sql, expected, exit_code):
+    """Check an explicit serialized return value for a single error."""
+    result = invoke_assert_code(
+        args=[lint, ('-', '--rules', 'L010', '--format', serialize)],
+        cli_input=sql,
+        ret_code=exit_code
+    )
+
+    if serialize == 'json':
+        assert json.loads(result.output) == expected
+    elif serialize == 'yaml':
+        assert yaml.load(result.output) == expected
+    else:
+        raise Exception
+
+
+@pytest.mark.parametrize('serialize', ['yaml', 'json'])
+def test__cli__command_lint_serialize_multiple_files(serialize):
+    """Check the general format of JSON output for multiple files."""
+    fpath = 'test/fixtures/linter/indentation_errors.sql'
+
+    # note the file is in here twice. two files = two payloads.
+    result = invoke_assert_code(
+        args=[lint, (fpath, fpath, '--format', serialize)],
+        ret_code=65,
+    )
+
+    if serialize == 'json':
+        result = json.loads(result.output)
+    elif serialize == 'yaml':
+        result = yaml.load(result.output)
+    else:
+        raise Exception
+    assert len(result) == 2
+
+
+def test___main___help():
+    """Test that the CLI can be access via __main__."""
+    # nonzero exit is good enough
+    subprocess.check_output(['python', '-m', 'sqlfluff', '--help'])
