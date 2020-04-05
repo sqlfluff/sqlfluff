@@ -244,13 +244,15 @@ class BaseGrammar:
         # TODO: Work here. Assess the matchers passed in, if any are
         # "simple", then we use some kind of hash lookup across the
         # content of segments to do faster lookups.
-        simpleness = [m.simple(parse_context=parse_context) for m in matchers]
-        if all(simpleness):
+        simple_matchers = [m for m in matchers if m.simple(parse_context=parse_context)]
+        non_simple_matchers = [m for m in matchers if not m.simple(parse_context=parse_context)]
+        best_simple_match = None
+        if simple_matchers:
             # if they're all simple we can use a hash match to identify the first one.
             str_buff = [s.raw_upper for s in segments]
             m_pos = []
             m_first = None
-            for m in matchers:
+            for m in simple_matchers:
                 simple = m.simple(parse_context=parse_context)
                 # Simple may have options
                 if isinstance(simple, str):
@@ -287,19 +289,17 @@ class BaseGrammar:
                         match = MatchResult.from_matched(
                             match.matched_segments + match.unmatched_segments
                         )
-                return (
+                best_simple_match = (
                     pre_segments,
                     match,
                     m_first[0])
+
+        if not non_simple_matchers:
+            # There are no other matchers, we can just shortcut now.
+            if best_simple_match:
+                return best_simple_match
             else:
-                # All segments are simple, but none have matched.
                 return ((), MatchResult.from_unmatched(segments), None)
-        else:
-            # Shortcut not possible for all of the matchers, could be possible
-            # for some?
-            # TODO: Allow simple matchers to shortcut, even if others require
-            # the long route.
-            pass
 
         # Make some buffers
         seg_buff = segments
@@ -315,15 +315,48 @@ class BaseGrammar:
                 # We've got to the end without a match, return empty
                 return ((), MatchResult.from_unmatched(segments), None)
 
+            # We only check the NON-simple ones here for brevity.
             mat, m = cls._longest_code_only_sensitive_match(
-                seg_buff, matchers, parse_context=parse_context, code_only=code_only)
+                seg_buff, non_simple_matchers, parse_context=parse_context, code_only=code_only)
 
-            if mat:
+            if mat and not best_simple_match:
                 return (pre_seg_buff, mat, m)
+            elif mat:
+                # It will be earlier than the simple one if we've even checked,
+                # but there's a chance that this might be *longer*, or just FIRST.
+                pre_lengths = (len(pre_seg_buff), len(best_simple_match[0]))
+                mat_lengths = (len(mat), len(best_simple_match[1]))
+                mat_indexes = (matchers.index(m), matchers.index(best_simple_match[2]))
+                if (
+                    (pre_lengths[0] < pre_lengths[1])
+                    or (
+                        pre_lengths[0] == pre_lengths[1]
+                        and mat_lengths[0] > mat_lengths[1]
+                    )
+                    or (
+                        pre_lengths[0] == pre_lengths[1]
+                        and mat_lengths[0] == mat_lengths[1]
+                        and mat_indexes[0] < mat_indexes[1]
+                    )
+                ):
+                    return (pre_seg_buff, mat, m)
+                else:
+                    return best_simple_match
             else:
                 # If there aren't any matches, then advance the buffer and try again.
+                # Two improvements:
+                # 1) if we get as far as the first simple match, then return that.
+                # 2) be eager in consuming non-code segments if allowed
+                if best_simple_match and len(pre_seg_buff) >= len(best_simple_match[0]):
+                    return best_simple_match
+
                 pre_seg_buff += (seg_buff[0],)
                 seg_buff = seg_buff[1:]
+
+                if code_only:
+                    while seg_buff and not seg_buff[0].is_code:
+                        pre_seg_buff += (seg_buff[0],)
+                        seg_buff = seg_buff[1:]
 
     @classmethod
     def _bracket_sensitive_look_ahead_match(cls, segments, matchers, parse_context, code_only=True):
