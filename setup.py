@@ -10,6 +10,7 @@ import io
 import configparser
 from os.path import dirname
 from os.path import join
+from os.path import abspath
 
 from setuptools import setup
 
@@ -23,8 +24,9 @@ version = config.get('sqlfluff', 'version')
 
 def read(*names, **kwargs):
     """Read a file and return the contents as a string."""
+    here = abspath(dirname(__file__))
     return io.open(
-        join(dirname(__file__), *names),
+        join(here, *names),
         encoding=kwargs.get('encoding', 'utf8')
     ).read()
 
