@@ -211,7 +211,7 @@ class BaseSegment:
 
     @classmethod
     def simple(cls, parse_context):
-        """Does this matcher support a lowercase hash matching route?"""
+        """Does this matcher support an uppercase hash matching route?"""
         return False
 
     @property
