@@ -6,6 +6,7 @@ import os
 import shutil
 import json
 import oyaml as yaml
+import subprocess
 
 # Testing libraries
 import pytest
@@ -287,3 +288,9 @@ def test__cli__command_lint_serialize_multiple_files(serialize):
     else:
         raise Exception
     assert len(result) == 2
+
+
+def test___main___help():
+    """Test that the CLI can be access via __main__."""
+    # nonzero exit is good enough
+    subprocess.check_output(['python', '-m', 'sqlfluff', '--help'])
