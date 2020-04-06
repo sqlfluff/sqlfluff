@@ -117,6 +117,30 @@ class BaseGrammar:
         return False
 
     @classmethod
+    def _trim_non_code(self, segments, code_only=True):
+        """Take segments and split of preceding non-code segments as appropriate."""
+        pre_buff = ()
+        seg_buff = segments
+        post_buff = ()
+
+        if code_only and seg_buff:
+            pre_buff = ()
+            seg_buff = segments
+            post_buff = ()
+
+            # Trim the start
+            while seg_buff and not seg_buff[0].is_code:
+                pre_buff = pre_buff + (seg_buff[0],)
+                seg_buff = seg_buff[1:]
+
+            # Trim the end
+            while seg_buff and not seg_buff[-1].is_code:
+                post_buff = (seg_buff[-1],) + post_buff
+                seg_buff = seg_buff[:-1]
+
+        return pre_buff, seg_buff, post_buff
+
+    @classmethod
     def _code_only_sensitive_match(cls, segments, matcher, parse_context, code_only=True):
         """Match, but also deal with leading and trailing non-code."""
         if code_only:
