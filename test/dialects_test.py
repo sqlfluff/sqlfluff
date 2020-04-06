@@ -27,9 +27,14 @@ for d in os.listdir(os.path.join('test', 'fixtures', 'parser')):
             root = f[:-4]
             # only look for sql files
             parse_success_examples.append((d, f))
+            # Look for the code_only version of the structure
             y = root + '.yml'
             if y in dirlist:
-                parse_structure_examples.append((d, f, y))
+                parse_structure_examples.append((d, f, True, y))
+            # Look for the whitespace inlcuded version of the structure
+            y = root + '_ws.yml'
+            if y in dirlist:
+                parse_structure_examples.append((d, f, False, y))
 
 
 def make_dialect_path(dialect, fname):
@@ -77,10 +82,10 @@ def test__dialect__base_file_parse(dialect, file):
 
 
 @pytest.mark.parametrize(
-    "dialect,sqlfile,yamlfile",
+    "dialect,sqlfile,code_only,yamlfile",
     parse_structure_examples
 )
-def test__dialect__base_parse_struct(dialect, sqlfile, yamlfile, yaml_loader):
+def test__dialect__base_parse_struct(dialect, sqlfile, code_only, yamlfile, yaml_loader):
     """For given test examples, check parsed structure against yaml."""
     # Load the right dialect
     config = FluffConfig(overrides=dict(dialect=dialect))
@@ -92,4 +97,4 @@ def test__dialect__base_parse_struct(dialect, sqlfile, yamlfile, yaml_loader):
     res = yaml_loader(make_dialect_path(dialect, yamlfile))
     # with caplog.at_level(logging.DEBUG):
     parsed = fs.parse(parse_context=context)
-    assert parsed.to_tuple(code_only=True, show_raw=True) == res
+    assert parsed.to_tuple(code_only=code_only, show_raw=True) == res
