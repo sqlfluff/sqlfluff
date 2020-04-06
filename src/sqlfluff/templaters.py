@@ -189,7 +189,7 @@ class JinjaTemplateInterface(PythonTemplateInterface):
         # No need to import this unless we're using this templater
         from jinja2 import Environment, StrictUndefined  # noqa
         # We explicitly want to preserve newlines.
-        env = Environment(keep_trailing_newline=True, undefined=StrictUndefined, autoescape=True)
+        env = Environment(keep_trailing_newline=True, undefined=StrictUndefined, autoescape=False)
 
         ctx = self._extract_macros_from_config(config=config, env=env)
         # Apply to globals
