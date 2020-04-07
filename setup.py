@@ -22,33 +22,24 @@ config.read(['src/sqlfluff/config.ini'])
 version = config.get('sqlfluff', 'version')
 
 
-def read(*names, **kwargs):
-    """Read a file and return the contents as a string."""
+def read(name, **kwargs):
+    """Read a file and return the contents as a string.
+
+    If permission is denied, we catch the EnvironmentError
+    and instead return just the filename. This shoul only
+    happen for certain OS configurations and will mean that
+    package information is curtailed, but he package should
+    still function.
+    """
     here = abspath(dirname(__file__))
-
-    # DEBUGING CODE: TO REMOVE LATER
-    from os import listdir
-
     try:
-        def_content = listdir()
-    except:
-        def_content = '<ERROR>'
-
-    try:
-        here_content = listdir(path=here)
-    except:
-        here_content = '<ERROR>'
-
-    raise ValueError(
-        ("Intentional error for debugging. here: {here!r}, "
-         "def_content: {def_content!r}, "
-         "here_content: {here_content!r}.").format(here=here, def_content=def_content,
-                                                   here_content=here_content))
-
-    return io.open(
-        join(here, *names),
-        encoding=kwargs.get('encoding', 'utf8')
-    ).read()
+        content = io.open(
+            join(here, name),
+            encoding=kwargs.get('encoding', 'utf8')
+        ).read()
+    except EnvironmentError:
+        content = name
+    return content
 
 
 setup(
