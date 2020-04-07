@@ -14,9 +14,9 @@ from .dialect_ansi import ansi_dialect
 bigquery_dialect = ansi_dialect.copy_as('bigquery')
 
 bigquery_dialect.patch_lexer_struct([
-    # Quoted literals can have r or b (case insensitive) prefixes, in any order, to 
+    # Quoted literals can have r or b (case insensitive) prefixes, in any order, to
     # indicate a raw/regex string or byte sequence, respectively.  Allow escaped quote
-    # characters inside strings by allowing \" with an optional even multiple of 
+    # characters inside strings by allowing \" with an optional even multiple of
     # backslashes in front of it.
     ("single_quote", "regex", r"([rR]?[bB]?|[bB]?[rR]?)?'((?<!\\)(\\{2})*\\'|[^'])*(?<!\\)(\\{2})*'", dict(is_code=True)),
     ("double_quote", "regex", r'([rR]?[bB]?|[bB]?[rR]?)?"((?<!\\)(\\{2})*\\"|[^"])*(?<!\\)(\\{2})*"', dict(is_code=True))
