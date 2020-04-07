@@ -89,6 +89,4 @@ setup(
             'sqlfluff = sqlfluff.diff_quality_plugin'
         ],
     },
-    # Use datafiles to make sure the config versioning file is included
-    data_files=[('', ['src/sqlfluff/config.ini', 'README.md', 'CHANGELOG.md', 'src/sqlfluff/default_config.cfg'])]
 )
