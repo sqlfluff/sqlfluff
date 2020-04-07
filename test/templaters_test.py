@@ -46,15 +46,17 @@ def test__templater_python_error():
         t.process(instr)
 
 
-JINJA_STRING = 'SELECT * FROM {% for c in blah %}{{c}}{% if not loop.last %}, {% endif %}{% endfor %}\n\n'
+JINJA_STRING = 'SELECT * FROM {% for c in blah %}{{c}}{% if not loop.last %}, {% endif %}{% endfor %} WHERE {{condition}}\n\n'
 
 
 def test__templater_jinja():
     """Test jinja templating and the treatment of whitespace."""
-    t = JinjaTemplateInterface(override_context=dict(blah='foo'))
+    t = JinjaTemplateInterface(override_context=dict(
+        blah='foo',
+        condition='a < 10'))
     instr = JINJA_STRING
     outstr = t.process(instr)
-    assert outstr == 'SELECT * FROM f, o, o\n\n'
+    assert outstr == 'SELECT * FROM f, o, o WHERE a < 10\n\n'
 
 
 def test__templater_jinja_error():
