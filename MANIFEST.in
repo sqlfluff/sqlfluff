@@ -1,0 +1,3 @@
+include README.md LICENSE.md CHANGELOG.md
+include src/sqlfluff/config.ini
+include src/sqlfluff/default_config.cfg
