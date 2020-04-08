@@ -1,0 +1,28 @@
+-- Examples from https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and_bytes_literals
+SELECT
+    "",
+    '',
+    "abc",
+    "it's",
+    'it\'s',
+    'Title: "Boy"',
+    "test \"escaped\"",
+    'test \'escaped\'',
+    "test \\\"escaped",
+    "test \"escaped\\\"",
+    r"",
+    r'',
+    r"abc+",
+    R"abc+",
+    r'abc+',
+    R'abc+',
+    r'f\(abc, (.*),def\)',
+    r"f\(abc, (.*),def\)",
+    b'abc',
+    B"abc",
+    rb"abc*",
+    rB"abc*",
+    Rb'abc*',
+    br'abc+',
+    RB"abc+"
+FROM dummy
