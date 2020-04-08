@@ -72,6 +72,7 @@ setup(
         'bench-it',
         'click>=2.0',
         "colorama>=0.3",
+        'configparser',
         'oyaml',
         'Jinja2',
         "diff-cover>=2.5.0,<3.0",
