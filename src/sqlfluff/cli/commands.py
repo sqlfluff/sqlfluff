@@ -56,7 +56,7 @@ def common_options(f):
 
 def get_config(**kwargs):
     """Get a config object from kwargs."""
-    if 'dialect' in kwargs:
+    if kwargs.get('dialect', None):
         try:
             # We're just making sure it exists at this stage - it will be fetched properly in the linter
             dialect_selector(kwargs['dialect'])

@@ -291,7 +291,7 @@ class FluffConfig:
     def from_root(cls, overrides=None):
         """Loads a config object just based on the root directory."""
         loader = ConfigLoader.get_global()
-        c = loader.load_user_config()
+        c = loader.load_config_up_to_path(path='.')
         return cls(configs=c, overrides=overrides)
 
     @classmethod
