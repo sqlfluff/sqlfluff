@@ -38,4 +38,4 @@ file:
         table_expression:
           object_reference:
           - naked_identifier: some_table
-        newline: "\n"
+  newline: "\n"
