@@ -1,0 +1,4 @@
+[sqlfluff:templater:jinja:context]
+project=marketing_segmentation
+dataset=dataset
+label_prob_threshold=0.8

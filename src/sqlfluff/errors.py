@@ -101,6 +101,7 @@ class SQLBaseError(ValueError):
 
         Returns:
             A `dictionary` with keys (code, line_no, line_pos, description)
+
         """
         return dict(zip(
             ('code', 'line_no', 'line_pos', 'description'),
