@@ -31,8 +31,8 @@ for d in os.listdir(os.path.join('test', 'fixtures', 'parser')):
             y = root + '.yml'
             if y in dirlist:
                 parse_structure_examples.append((d, f, True, y))
-            # Look for the whitespace inlcuded version of the structure
-            y = root + '_ws.yml'
+            # Look for the non-code included version of the structure
+            y = root + '_nc.yml'
             if y in dirlist:
                 parse_structure_examples.append((d, f, False, y))
 
