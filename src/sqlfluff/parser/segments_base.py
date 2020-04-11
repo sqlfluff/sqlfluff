@@ -364,17 +364,6 @@ class BaseSegment:
             # This means we're a root segment, just return an unmutated self
             return self
 
-        # For debugging purposes. Ensure that we don't have non-code elements
-        # at the start or end of the segments. They should always in the middle,
-        # or in the parent expression.
-        if not self._can_start_end_non_code and False:
-            if not self.segments[0].is_code:
-                raise ValueError("Segment {0} starts with non code segment: {1!r}.\n{2!r}".format(
-                    self, self.segments[0].raw, self.segments))
-            if not self.segments[-1].is_code:
-                raise ValueError("Segment {0} ends with non code segment: {1!r}.\n{2!r}".format(
-                    self, self.segments[-1].raw, self.segments))
-
         # Get the Parse Grammar
         g = self._parse_grammar()
         if g is None:
@@ -382,6 +371,18 @@ class BaseSegment:
             logging.debug("{0}.parse: no grammar. Going straight to expansion".format(self.__class__.__name__))
         else:
             # Use the Parse Grammar (and the private method)
+
+            # For debugging purposes. Ensure that we don't have non-code elements
+            # at the start or end of the segments. They should always in the middle,
+            # or in the parent expression.
+            if not self._can_start_end_non_code:
+                if (not self.segments[0].is_code) and (not self.segments[0].is_meta):
+                    raise ValueError("Segment {0} starts with non code segment: {1!r}.\n{2!r}".format(
+                        self, self.segments[0].raw, self.segments))
+                if (not self.segments[-1].is_code) and (not self.segments[-1].is_meta):
+                    raise ValueError("Segment {0} ends with non code segment: {1!r}.\n{2!r}".format(
+                        self, self.segments[-1].raw, self.segments))
+
             # NOTE: No match_depth kwarg, because this is the start of the matching.
             m = g._match(
                 segments=self.segments,

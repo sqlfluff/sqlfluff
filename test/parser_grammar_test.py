@@ -103,32 +103,28 @@ def test__parser__grammar__base__bracket_sensitive_look_ahead_match(bracket_seg_
     assert m[1].matched_segments == (bracket_seg_list[7], fs('foo', bracket_seg_list[8].pos_marker))
 
 
-def test__parser__grammar_oneof(seg_list):
-    """Test the OneOf grammar."""
+@pytest.mark.parametrize(
+    "code_only",
+    [
+        True,
+        False
+    ]
+)
+def test__parser__grammar_oneof(seg_list, code_only):
+    """Test the OneOf grammar.
+
+    NB: Should behave the same regardless of code_only.
+
+    """
     fs = KeywordSegment.make('foo')
     bs = KeywordSegment.make('bar')
-    g = OneOf(fs, bs, code_only=False)
+    g = OneOf(fs, bs, code_only=code_only)
     c = ParseContext()
     # Check directly
     assert g.match(seg_list, parse_context=c).matched_segments == (bs('bar', seg_list[0].pos_marker),)
     # Check with a bit of whitespace
     m = g.match(seg_list[1:], parse_context=c)
     assert not m
-
-
-def test__parser__grammar_oneof_codeonly(seg_list, caplog):
-    """Test the OneOf grammar when using the code_only option."""
-    fs = KeywordSegment.make('foo')
-    bs = KeywordSegment.make('bar')
-    g = OneOf(fs, bs)
-    c = ParseContext()
-    with caplog.at_level(logging.DEBUG):
-        # Check directly
-        assert g.match(seg_list, parse_context=c).matched_segments == (bs('bar', seg_list[0].pos_marker), seg_list[1])
-        # Check with a bit of whitespace
-        m = g.match(seg_list[1:], parse_context=c)
-        assert m
-        assert m.matched_segments[1] == fs('foo', seg_list[2].pos_marker)
 
 
 def test__parser__grammar_startswith_a(seg_list, caplog):
@@ -199,8 +195,8 @@ def test__parser__grammar_sequence_nested(seg_list, caplog):
             bs('bar', seg_list[0].pos_marker),
             seg_list[1],  # This will be the whitespace segment
             fs('foo', seg_list[2].pos_marker),
-            bas('baar', seg_list[3].pos_marker),
-            seg_list[4]  # This will be the whitespace segment
+            bas('baar', seg_list[3].pos_marker)
+            # NB: No whitespace at the end, this shouldn't be consumed.
         )
 
 

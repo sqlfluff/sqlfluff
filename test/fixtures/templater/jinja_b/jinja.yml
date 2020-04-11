@@ -13,7 +13,7 @@ file:
           - binary_operator: +
           - whitespace: ' '
           - numeric_literal: 6
-          - whitespace: ' '
+        - whitespace: ' '
         - alias_expression:
           - keyword: as
           - whitespace: ' '
@@ -26,7 +26,7 @@ file:
           - binary_operator: +
           - whitespace: ' '
           - numeric_literal: 14
-          - whitespace: ' '
+        - whitespace: ' '
         - alias_expression:
           - keyword: as
           - whitespace: ' '
