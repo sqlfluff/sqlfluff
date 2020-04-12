@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Refactor of whitespace and non-code handling so that segments are
+  less greedy and default to not holding whitespace on ends. This allows
+  more consistent linting rule application.
 - Validation of the match results of grammars has been reduced. In
   production cases the validation will still be done, but only on
   *parse* and not on *match*.
@@ -23,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Some matcher rules in the parser can now be classified as _simple_
   which allows them to shortcut some of the matching routines.
 - Yaml output now double quotes values with newlines or tab characters.
+- Several bugfixes.
 
 ## [0.3.1] - 2020-02-17
 
