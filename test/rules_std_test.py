@@ -84,6 +84,9 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     # Test that fixes are consistent
     ('L014', 'fail', 'SELECT a,   B', 'SELECT a,   b', None),
     ('L014', 'fail', 'SELECT B,   a', 'SELECT B,   A', None),
+    # Test that NULL is classed as a keyword and not an identifier
+    ('L014', 'pass', 'SELECT NULL,   a', None, None),
+    ('L010', 'fail', 'SELECT null,   a', 'SELECT NULL,   a', None),
     # Test that we don't fail * operators in brackets
     ('L006', 'pass', 'SELECT COUNT(*) FROM tbl\n', None, None),
     # Long lines (with config override)

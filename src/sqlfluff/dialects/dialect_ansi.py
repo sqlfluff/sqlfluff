@@ -89,7 +89,7 @@ ansi_dialect.add(
     # also use a regex to explicitly exclude disallowed keywords.
     NakedIdentifierSegment=ReSegment.make(
         r"[A-Z0-9_]*[A-Z][A-Z0-9_]*", name='identifier', type='naked_identifier',
-        _anti_template=r"^(SELECT|JOIN|ON|USING|CROSS|INNER|LEFT|RIGHT|OUTER|INTERVAL|CASE|FULL)$"),
+        _anti_template=r"^(SELECT|JOIN|ON|USING|CROSS|INNER|LEFT|RIGHT|OUTER|INTERVAL|CASE|FULL|NULL)$"),
     FunctionNameSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='function_name', type='function_name'),
     # Maybe data types should be more restrictive?
     DatatypeIdentifierSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='data_type_identifier', type='data_type_identifier'),
@@ -206,7 +206,10 @@ ansi_dialect.add(
     LiteralGrammar=OneOf(
         Ref('QuotedLiteralSegment'), Ref('NumericLiteralSegment'),
         Ref('BooleanLiteralGrammar'), Ref('QualifiedNumericLiteralSegment'),
-        Ref('IntervalLiteralSegment')
+        Ref('IntervalLiteralSegment'),
+        # NB: Null is included in the literals, because it is a keyword which
+        # can otherwise be easily mistaken for an identifier.
+        Ref('NullKeywordSegment')
     ),
 )
 
