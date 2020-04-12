@@ -217,10 +217,17 @@ class IntervalLiteralSegment(BaseSegment):
     type = 'interval_literal'
     match_grammar = Sequence(
         Ref('IntervalKeywordSegment'),
-        Ref('NumericLiteralSegment'),
         OneOf(
+            # The Numeric Version
+            Sequence(
+                Ref('NumericLiteralSegment'),
+                OneOf(
+                    Ref('QuotedLiteralSegment'),
+                    Ref('DatepartSegment')
+                )
+            ),
+            # The String version
             Ref('QuotedLiteralSegment'),
-            Ref('DatepartSegment')
         )
     )
 
