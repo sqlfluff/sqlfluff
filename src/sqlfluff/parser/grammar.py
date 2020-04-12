@@ -282,10 +282,7 @@ class BaseGrammar:
             m_first = None
             for m in simple_matchers:
                 simple = m.simple(parse_context=parse_context)
-                # Simple may have options
-                if isinstance(simple, str):
-                    # convert to tuple if not
-                    simple = simple,
+                # Simple will be a tuple of options
                 for simple_option in simple:
                     try:
                         buff_pos = str_buff.index(simple_option)
@@ -634,15 +631,13 @@ class OneOf(BaseGrammar):
     def simple(self, parse_context):
         """Does this matcher support a uppercase hash matching route?
 
-        OneOf does provide this, as long as all the elements *also* do.
+        OneOf does provide this, as long as *all* the elements *also* do.
         """
         simple_buff = ()
         for opt in self._elements:
             simple = opt.simple(parse_context=parse_context)
             if not simple:
                 return False
-            elif isinstance(simple, str):
-                simple = simple,
             simple_buff += simple
         return simple_buff
 
@@ -697,6 +692,19 @@ class AnyNumberOf(BaseGrammar):
         self.max_times = kwargs.pop('max_times', None)
         self.min_times = kwargs.pop('min_times', 0)
         super(AnyNumberOf, self).__init__(*args, **kwargs)
+
+    def simple(self, parse_context):
+        """Does this matcher support a uppercase hash matching route?
+
+        AnyNumberOf does provide this, as long as *all* the elements *also* do.
+        """
+        simple_buff = ()
+        for opt in self._elements:
+            simple = opt.simple(parse_context=parse_context)
+            if not simple:
+                return False
+            simple_buff += simple
+        return simple_buff
 
     def is_optional(self):
         """Return whether this element is optional.
@@ -781,6 +789,25 @@ class GreedyUntil(BaseGrammar):
 
 class Sequence(BaseGrammar):
     """Match a specific sequence of elements."""
+
+    def simple(self, parse_context):
+        """Does this matcher support a uppercase hash matching route?
+
+        Sequence does provide this, as long as the *first* non-optional
+        element does, *AND* and optional elements which preceed it also do.
+        """
+        simple_buff = ()
+        for opt in self._elements:
+            simple = opt.simple(parse_context=parse_context)
+            if not simple:
+                return False
+            simple_buff += simple
+
+            if not opt.is_optional():
+                # We found our first non-optional element!
+                return simple_buff
+        # If *all* elements are optional AND simple, I guess it's also simple.
+        return simple_buff
 
     def match(self, segments, parse_context):
         """Match a specific sequence of elements."""
