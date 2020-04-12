@@ -87,6 +87,8 @@ def test__dialect__ansi__file_from_raw(raw, res, caplog):
         ("SelectTargetElementSegment", "a.*"),
         ("SelectTargetElementSegment", "a.b.*"),
         ("SelectTargetElementSegment", "a.b.c.*"),
+        # Default Element Syntax
+        ("ObjectReferenceSegment", "a..c.*")
     ]
 )
 def test__dialect__ansi_specific_segment_parses(segmentref, raw, caplog):

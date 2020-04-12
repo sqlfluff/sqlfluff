@@ -260,7 +260,12 @@ class ObjectReferenceSegment(BaseSegment):
     # match grammar (don't allow whitespace)
     match_grammar = Delimited(
         Ref('SingleIdentifierGrammar'),
-        delimiter=Ref('DotSegment'),
+        delimiter=OneOf(
+            Ref('DotSegment'),
+            Sequence(
+                Ref('DotSegment')
+            )
+        ),
         terminator=OneOf(
             Ref('_NonCodeSegment'), Ref('CommaSegment'),
             Ref('CastOperatorKeywordSegment'), Ref('StartSquareBracketSegment'),

@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Proper parsing of the concatenate operator (`||`).
 - Proper indent handling of closing brackets.
 - Logging and benchmarking of parse performance as part of the CI pipeline.
+- Parsing of object references with defaults like `my_db..my_table`.
 
 ### Changed
 
