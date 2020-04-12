@@ -73,7 +73,7 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
 
         We use difflib.SequenceMatcher.get_opcodes
         See: https://docs.python.org/3.7/library/difflib.html#difflib.SequenceMatcher.get_opcodes
-        It returns a list of tuples ('equal|replace', ia1, ia2, ib1, ib2).
+        It returns a list of tuples ('equal|replace|delete|insert', ia1, ia2, ib1, ib2).
 
         """
         # Do we have enough information to actually fix the file?
@@ -114,11 +114,16 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
                 if diff_templ_codes:
                     templ_block = diff_templ_codes.pop(0)
                 # We've exhausted the template. Have we exhausted the fixes?
-                elif fixed_block is None:
+                elif fixed_block is None and not diff_fix_codes:
                     # Yes - excellent. DONE
                     break
+                # Deal with the case that we only have inserts left.
+                elif all(elem[0] == 'insert' for elem in diff_fix_codes):
+                    for fixed_block in diff_fix_codes:
+                        write_buff += self.file_mask[2][fixed_block[3]:fixed_block[4]]
+                    break
                 else:
-                    raise NotImplementedError("Fix Block left over! DOn't know how to handle this! aeflf8wh")
+                    raise NotImplementedError("Fix Block(s) left over! Don't know how to handle this! aeflf8wh")
             if fixed_block is None:
                 if diff_fix_codes:
                     fixed_block = diff_fix_codes.pop(0)
@@ -171,25 +176,32 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
                     idx = (idx[0], idx[1], fixed_block[4])
                     fixed_block = None
                 else:
-                    raise ValueError(
+                    raise NotImplementedError(
                         ("Unexpected opcode {0} for fix block! Please report this "
                          "issue on github with the query and rules you're trying to "
                          "fix.").format(fixed_block[0]))
             elif templ_block[0] == 'replace':
                 # We're in a templated section - we should write the templated version.
-                # we should consume the whole replce block and then deal with where
+                # we should consume the whole replace block and then deal with where
                 # we end up.
                 buff = self.file_mask[0][idx[0]:templ_block[2]]
                 new_templ_idx = templ_block[4]
+
+                # Fast forward through fix blocks until we catch up. We're not implementing
+                # any changes in a templated section.
                 while True:
                     if fixed_block[2] > new_templ_idx >= fixed_block[1]:
                         # this block contains the end point
                         break
                     else:
+                        # We're not at the end point yet, continue to fast forward through.
                         if fixed_block[0] != 'equal':
                             print("WARNING: Skipping edit block: {0}".format(fixed_block))
-                        fixed_block = None
-                # Are we exaclty on a join?
+                        if diff_fix_codes:
+                            fixed_block = diff_fix_codes.pop(0)
+                        else:
+                            raise NotImplementedError("Unexpectedly depleted the fixes. Panic!")
+                # Are we exactly on a join?
                 if new_templ_idx == fixed_block[1]:
                     # GREAT - this makes things easy because we have an equality point already
                     idx = (templ_block[2], new_templ_idx, fixed_block[3])
@@ -218,8 +230,39 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
                 templ_block = None
                 idx = (idx[0] + len(buff), idx[1], idx[2])
                 write_buff += buff
+            elif templ_block[0] == 'insert':
+                # The templater has inserted something here. We don't need
+                # to write anything here (because whatever we're looking at
+                # was inserted by the templater), but we do need to keep
+                # track of what happened to the rest of the section we're in.
+                # If nothing was fixed then it's easy because the indices
+                # will be the same. Otherwise... great question...
+
+                # For now let's just deal with the happy case where the fixed
+                # block is equal
+                if fixed_block[0] == 'equal':
+                    # Let's make sure we can consume enough to get through the
+                    # templ block and not get to the end of the fix block.
+                    if templ_block[4] <= fixed_block[2]:
+                        insert_len = templ_block[4] - templ_block[3]
+                        idx = (idx[0], idx[1] + insert_len, idx[2] + insert_len)
+                        # if things matched up perfectly, consume the fixed block
+                        if templ_block[4] == fixed_block[2]:
+                            fixed_block = None
+                        # always consume templ block in this case
+                        templ_block = None
+                    else:
+                        raise NotImplementedError(
+                            ("Unexpected scenario during insert opcode! Please report "
+                             "this issue on github with the query and rules you're trying "
+                             "to fix."))
+                else:
+                    raise NotImplementedError(
+                        ("Unexpected opcode {0} for fix block! Please report this "
+                         "issue on github with the query and rules you're trying to "
+                         "fix.").format(fixed_block[0]))
             else:
-                raise ValueError(
+                raise NotImplementedError(
                     ("Unexpected opcode {0} for template block! Please report this "
                      "issue on github with the query and rules you're trying to "
                      "fix.").format(templ_block[0]))

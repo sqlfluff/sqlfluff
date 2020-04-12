@@ -68,9 +68,11 @@ def auto_fix_test(rules, dialect, folder):
     # Lets get the path of a file to use
     tempdir_path = tempfile.mkdtemp()
     filepath = os.path.join(tempdir_path, filename)
+    cfgpath = os.path.join(tempdir_path, '.sqlfluff')
     src_filepath = os.path.join(*base_auto_fix_path, dialect, folder, 'before.sql')
     cmp_filepath = os.path.join(*base_auto_fix_path, dialect, folder, 'after.sql')
     vio_filepath = os.path.join(*base_auto_fix_path, dialect, folder, 'violations.json')
+    cfg_filepath = os.path.join(*base_auto_fix_path, dialect, folder, '.sqlfluff')
     # Open the example file and write the content to it
     print_buff = ''
     with open(filepath, mode='w') as dest_file:
@@ -78,6 +80,15 @@ def auto_fix_test(rules, dialect, folder):
             for line in source_file:
                 dest_file.write(line)
                 print_buff += line
+    # Copy the config file too
+    try:
+        with open(cfgpath, mode='w') as dest_file:
+            with open(cfg_filepath, mode='r') as source_file:
+                for line in source_file:
+                    dest_file.write(line)
+    except FileNotFoundError:
+        # No config file? No biggie
+        pass
     print("## Input file:\n{0}".format(print_buff))
     # Do we need to do a violations check?
     try:
