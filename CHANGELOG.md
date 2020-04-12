@@ -12,10 +12,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - For the `parse` command, added the `--profiler` and `--bench` options
   to help debugging performance issues.
 - Proper parsing of the concatenate operator (`||`).
+- Proper indent handling of closing brackets.
 - Logging and benchmarking of parse performance as part of the CI pipeline.
 
 ### Changed
 
+- Refactor of whitespace and non-code handling so that segments are
+  less greedy and default to not holding whitespace on ends. This allows
+  more consistent linting rule application.
 - Validation of the match results of grammars has been reduced. In
   production cases the validation will still be done, but only on
   *parse* and not on *match*.
@@ -23,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Some matcher rules in the parser can now be classified as _simple_
   which allows them to shortcut some of the matching routines.
 - Yaml output now double quotes values with newlines or tab characters.
+- Better handling on hanging and closing indents when linting rule L003.
+- Several bugfixes.
 
 ## [0.3.1] - 2020-02-17
 

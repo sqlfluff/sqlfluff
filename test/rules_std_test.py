@@ -156,6 +156,8 @@ def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
     ('L006', 'test/fixtures/linter/operator_errors_negative.sql', [(2, 6), (2, 9), (5, 6), (5, 7)]),
     # Hard indentation errors
     ('L003', 'test/fixtures/linter/indentation_error_hard.sql', [(2, 4), (6, 5), (9, 13), (14, 14), (19, 5), (20, 6)]),
+    # Check bracket handling with closing brackets and contained indents works.
+    ('L003', 'test/fixtures/linter/indentation_error_contained.sql', []),
 ])
 def test__rules__std_file(rule, path, violations):
     """Test the linter finds the given errors in (and only in) the right places."""
