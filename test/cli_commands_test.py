@@ -228,7 +228,7 @@ def test__cli__command_parse_serialize_from_stdin(serialize):
     if serialize == 'json':
         result = json.loads(result.output)
     elif serialize == 'yaml':
-        result = yaml.load(result.output)
+        result = yaml.safe_load(result.output)
     else:
         raise Exception
     result = result[0]  # only one file
@@ -265,7 +265,7 @@ def test__cli__command_lint_serialize_from_stdin(serialize, sql, expected, exit_
     if serialize == 'json':
         assert json.loads(result.output) == expected
     elif serialize == 'yaml':
-        assert yaml.load(result.output) == expected
+        assert yaml.safe_load(result.output) == expected
     else:
         raise Exception
 
@@ -284,7 +284,7 @@ def test__cli__command_lint_serialize_multiple_files(serialize):
     if serialize == 'json':
         result = json.loads(result.output)
     elif serialize == 'yaml':
-        result = yaml.load(result.output)
+        result = yaml.safe_load(result.output)
     else:
         raise Exception
     assert len(result) == 2
