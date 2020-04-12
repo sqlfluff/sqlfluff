@@ -331,11 +331,15 @@ class Rule_L003(BaseCrawler):
                 # indent on the previous line. Otherwise it's just an indent.
                 this_line['indent_size'] == last_line_hanger_indent
                 # Or they're if the indent balance is the same and the indent is the
-                # same
+                # same AND the previous line was a hanger
                 or (
                     this_line['indent_size'] == res[this_line_no - 1]['indent_size']
                     and this_line['indent_balance'] == res[this_line_no - 1]['indent_balance']
+                    and this_line_no - 1 in memory['hanging_lines']
                 )
+            ) and (
+                # There MUST also be a non-zero indent. Otherwise we're just on the baseline.
+                this_line['indent_size'] > 0
             ):
                 # This is a HANGER
                 memory['hanging_lines'].append(this_line_no)
