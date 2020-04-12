@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - At low verbosities, python level logging is also reduced.
 - Some matcher rules in the parser can now be classified as _simple_
   which allows them to shortcut some of the matching routines.
+- Yaml output now double quotes values with newlines or tab characters.
 
 ## [0.3.1] - 2020-02-17
 

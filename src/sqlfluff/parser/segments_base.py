@@ -179,6 +179,8 @@ class BaseSegment:
     _name = None
     _func = None  # Available for use by subclasses (e.g. the LambdaSegment)
     is_meta = False
+    # Are we able to have non-code at the start or end?
+    _can_start_end_non_code = False
 
     @property
     def name(self):
@@ -369,6 +371,18 @@ class BaseSegment:
             logging.debug("{0}.parse: no grammar. Going straight to expansion".format(self.__class__.__name__))
         else:
             # Use the Parse Grammar (and the private method)
+
+            # For debugging purposes. Ensure that we don't have non-code elements
+            # at the start or end of the segments. They should always in the middle,
+            # or in the parent expression.
+            if not self._can_start_end_non_code:
+                if (not self.segments[0].is_code) and (not self.segments[0].is_meta):
+                    raise ValueError("Segment {0} starts with non code segment: {1!r}.\n{2!r}".format(
+                        self, self.segments[0].raw, self.segments))
+                if (not self.segments[-1].is_code) and (not self.segments[-1].is_meta):
+                    raise ValueError("Segment {0} ends with non code segment: {1!r}.\n{2!r}".format(
+                        self, self.segments[-1].raw, self.segments))
+
             # NOTE: No match_depth kwarg, because this is the start of the matching.
             m = g._match(
                 segments=self.segments,

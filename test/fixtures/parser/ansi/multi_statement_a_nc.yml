@@ -1,0 +1,44 @@
+# Here we're testing the whitespace capture between segments
+file:
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          whitespace: ' '
+          select_target_element:
+            object_reference:
+              naked_identifier: a
+        whitespace: ' '
+        from_clause:
+          keyword: from
+          whitespace: ' '
+          table_expression:
+            object_reference:
+              naked_identifier: tbl1
+  - whitespace: '  '
+  - comment: /*comment here*/
+  - whitespace: ' '
+  - keyword: ;
+  - whitespace: '  '
+  - comment: /*and here*/
+  - whitespace: '  '
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          whitespace: ' '
+          select_target_element:
+            object_reference:
+              naked_identifier: b
+        whitespace: ' '
+        from_clause:
+          keyword: from
+          whitespace: ' '
+          table_expression:
+            object_reference:
+              naked_identifier: tbl2
+  - keyword: ;
+  - whitespace: '   '
+  - comment: -- trailling ending comment
+  - newline: "\n"
+  - whitespace: "\t\t"

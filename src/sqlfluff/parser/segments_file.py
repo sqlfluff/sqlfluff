@@ -14,10 +14,13 @@ class FileSegment(BaseSegment):
     is also the point at which the lexer is called.
     """
     type = 'file'
+    # The file segment is the only one which can start or end with non-code
+    _can_start_end_non_code = True
+
     grammar = Delimited(
         Ref('StatementSegment'),
         delimiter=Ref('SemicolonSegment'),
-        code_only=False,
+        code_only=True,
         allow_trailing=True
     )
 

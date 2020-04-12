@@ -25,8 +25,8 @@ ansi_dialect = Dialect('ansi')
 ansi_dialect.set_lexer_struct([
     # name, type, pattern, kwargs
     ("whitespace", "regex", r"[\t ]*", dict(type='whitespace')),
-    ("inline_comment", "regex", r"(--|#)[^\n]*", dict(is_comment=True)),
-    ("block_comment", "regex", r"\/\*([^\*]|\*[^\/])*\*\/", dict(is_comment=True)),
+    ("inline_comment", "regex", r"(--|#)[^\n]*", dict(is_comment=True, type='comment')),
+    ("block_comment", "regex", r"\/\*([^\*]|\*[^\/])*\*\/", dict(is_comment=True, type='comment')),
     ("single_quote", "regex", r"'[^']*'", dict(is_code=True)),
     ("double_quote", "regex", r'"[^"]*"', dict(is_code=True)),
     ("back_quote", "regex", r"`[^`]*`", dict(is_code=True)),

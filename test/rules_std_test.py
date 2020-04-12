@@ -108,8 +108,16 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     # Test that we don't have the "inconsistent" bug
     ('L010', 'fail', 'SeLeCt 1', 'SELECT 1', None),
     ('L010', 'fail', 'SeLeCt 1 from blah', 'SELECT 1 FROM blah', None),
-    # Gihub Bug #99. Python2 Issues with fixing L003
-    ('L003', 'fail', '  select 1 from tbl;', 'select 1 from tbl;', None)
+    # Github Bug #99. Python2 Issues with fixing L003
+    ('L003', 'fail', '  select 1 from tbl;', 'select 1 from tbl;', None),
+    # Github Bug #207
+    ('L006', 'pass', "select\n    field,\n    date(field_1) - date(field_2) as diff\nfrom table", None, None),
+    # Github Bug #203
+    ('L003', 'pass', "SELECT\n    -- Compute the thing\n    (a + b) AS c\nFROM\n    acceptable_buckets", None, None),
+    ('L003', 'pass',
+     ("SELECT\n    user_id\nFROM\n    age_data\nJOIN\n    audience_size\n    USING (user_id, list_id)\n"
+      "-- We LEFT JOIN because blah\nLEFT JOIN\n    verts\n    USING\n        (user_id)"),
+     None, None)
 ])
 def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
     """Test that a rule passes/fails on a given string.

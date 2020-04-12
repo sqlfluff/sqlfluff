@@ -116,6 +116,30 @@ class BaseGrammar:
         """Does this matcher support a lowercase hash matching route?"""
         return False
 
+    @staticmethod
+    def _trim_non_code(segments, code_only=True):
+        """Take segments and split of preceding non-code segments as appropriate."""
+        pre_buff = ()
+        seg_buff = segments
+        post_buff = ()
+
+        if code_only and seg_buff:
+            pre_buff = ()
+            seg_buff = segments
+            post_buff = ()
+
+            # Trim the start
+            while seg_buff and not seg_buff[0].is_code:
+                pre_buff = pre_buff + (seg_buff[0],)
+                seg_buff = seg_buff[1:]
+
+            # Trim the end
+            while seg_buff and not seg_buff[-1].is_code:
+                post_buff = (seg_buff[-1],) + post_buff
+                seg_buff = seg_buff[:-1]
+
+        return pre_buff, seg_buff, post_buff
+
     @classmethod
     def _code_only_sensitive_match(cls, segments, matcher, parse_context, code_only=True):
         """Match, but also deal with leading and trailing non-code."""
@@ -221,6 +245,9 @@ class BaseGrammar:
 
         The intent is that this will become part of the bracket matching routines.
 
+        This function also contains the performance improved hash-matching approach to
+        searching for matches, which should significantly improve performance.
+
         Prioritise the first match, and if multiple match at the same point the longest.
         If two matches of the same length match at the same time, then it's the first in
         the iterable of matchers.
@@ -238,12 +265,13 @@ class BaseGrammar:
         if len(segments) == 0:
             return ((), MatchResult.from_empty(), None)
 
-        # We need a faster route here. Most of the time in this cycle
+        # Here we enable a performance optimisation.Most of the time in this cycle
         # happens in loops looking for simple matchers which we should
         # be able to find a shortcut for.
-        # TODO: Work here. Assess the matchers passed in, if any are
-        # "simple", then we use some kind of hash lookup across the
-        # content of segments to do faster lookups.
+        # First: Assess the matchers passed in, if any are
+        # "simple", then we effectively use a hash lookup across the
+        # content of segments to quickly evaluate if the segment is present.
+        # Matchers which aren't "simple" still take a slower route.
         simple_matchers = [m for m in matchers if m.simple(parse_context=parse_context)]
         non_simple_matchers = [m for m in matchers if not m.simple(parse_context=parse_context)]
         best_simple_match = None
@@ -361,6 +389,9 @@ class BaseGrammar:
     @classmethod
     def _bracket_sensitive_look_ahead_match(cls, segments, matchers, parse_context, code_only=True):
         """Same as `_look_ahead_match` but with bracket counting.
+
+        NB: Given we depend on `_look_ahead_match` we can also utilise
+        the same performance optimisations which are implemented there.
 
         Returns:
             `tuple` of (unmatched_segments, match_object, matcher).
@@ -635,21 +666,6 @@ class OneOf(BaseGrammar):
                 # this will return on the *first* complete match
                 return m
             elif m:
-                if self.code_only:
-                    # Attempt to consume whitespace if we can
-                    matched_segments = m.matched_segments
-                    unmatched_segments = m.unmatched_segments
-                    while True:
-                        if len(unmatched_segments) > 0:
-                            if unmatched_segments[0].is_code:
-                                break
-                            else:
-                                # Append as tuple
-                                matched_segments += (unmatched_segments[0],)
-                                unmatched_segments = unmatched_segments[1:]
-                        else:
-                            break
-                    m = MatchResult(matched_segments, unmatched_segments)
                 if best_match:
                     if len(m.raw_matched()) > len(best_match.raw_matched()):
                         best_match = m
@@ -667,47 +683,6 @@ class OneOf(BaseGrammar):
         # long partial match then return that.
         if best_match:
             return best_match
-        # Ok so no match at all from the elements. Small getout if
-        # we can match any whitespace
-        if self.code_only:
-            matched_segs = ()
-            unmatched_segs = segments
-            # Look for non-code up front
-            while True:
-                if len(unmatched_segs) == 0:
-                    # We can't return a successful match on JUST whitespace
-                    return MatchResult.from_unmatched(segments)
-                if unmatched_segs[0].is_code:
-                    break
-                matched_segs += (unmatched_segs[0],)
-                unmatched_segs = unmatched_segs[1:]
-
-            # Now try and match
-            for opt in self._elements:
-                m = opt._match(unmatched_segs, parse_context=parse_context.copy(incr='match_depth'))
-                # Once again, if it's complete - return, if not wait to see
-                # if we get a more complete one
-                new_match = MatchResult(matched_segs + m.matched_segments, m.unmatched_segments)
-                if m.is_complete():
-                    return new_match
-                # If we've got a match, even if not complete then we've
-                # still got options.
-                if m:
-                    if best_match:
-                        if len(best_match.raw_matched()) > len(m.raw_matched()):
-                            best_match = m
-                        else:
-                            continue
-                    else:
-                        best_match = m
-                    parse_match_logging(
-                        self.__class__.__name__,
-                        '_match', "Last-Ditch: Saving Match of Length {0}:  {1}".format(len(m.raw_matched()), m),
-                        parse_context=parse_context, v_level=self.v_level)
-            # if we've got something good, return it
-            if best_match:
-                return MatchResult(matched_segs + best_match.matched_segments, best_match.unmatched_segments)
-        # Return unmatched otherwise
         return MatchResult.from_unmatched(segments)
 
     def expected_string(self, dialect=None, called_from=None):
@@ -751,22 +726,16 @@ class AnyNumberOf(BaseGrammar):
                     # We didn't meet the hurdle
                     return MatchResult.from_unmatched(unmatched_segments)
 
-            # Is the next segment code?
-            if self.code_only and not unmatched_segments[0].is_code:
-                # We should add this one to the match and carry on
-                matched_segments += (unmatched_segments[0],)
-                unmatched_segments = unmatched_segments[1:]
-                check_still_complete(segments, matched_segments.matched_segments, unmatched_segments)
-                continue
+            pre_seg, mid_seg, post_seg = self._trim_non_code(unmatched_segments, code_only=self.code_only)
 
             # Try the possibilities
             for opt in self._elements:
                 m = opt._match(
-                    unmatched_segments,
+                    mid_seg + post_seg,
                     parse_context=parse_context.copy(incr='match_depth')
                 )
                 if m.has_match():
-                    matched_segments += m.matched_segments
+                    matched_segments += pre_seg + m.matched_segments
                     unmatched_segments = m.unmatched_segments
                     n_matches += 1
                     # Break out of the for loop which cycles us round
@@ -837,7 +806,11 @@ class Sequence(BaseGrammar):
                     matched_segments += elem(pos_marker=meta_pos_marker)
                     break
 
-                if len(unmatched_segments) == 0:
+                # Consume non-code if appropriate
+                pre_nc, mid_seg, post_nc = self._trim_non_code(
+                    unmatched_segments, code_only=self.code_only)
+
+                if len(pre_nc + mid_seg + post_nc) == 0:
                     # We've run our of sequence without matching everyting.
                     # Do only optional or meta elements remain?
                     if all(e.is_optional() or e.is_meta for e in self._elements[idx:]):
@@ -858,23 +831,15 @@ class Sequence(BaseGrammar):
                         # required elements.
                         return MatchResult.from_unmatched(segments)
                 else:
-                    # We're not at the end, first detect whitespace and then try to match.
-                    if self.code_only and not unmatched_segments[0].is_code:
-                        # We should add this one to the match and carry on
-                        matched_segments += (unmatched_segments[0],)
-                        unmatched_segments = unmatched_segments[1:]
-                        check_still_complete(segments, matched_segments.matched_segments, unmatched_segments)
-                        continue
-
-                    # It's not whitespace, so carry on to matching
+                    # We've already dealt with potential whitespace above, so carry on to matching
                     elem_match = elem._match(
-                        unmatched_segments, parse_context=parse_context.copy(incr='match_depth'))
+                        mid_seg, parse_context=parse_context.copy(incr='match_depth'))
 
                     if elem_match.has_match():
                         # We're expecting mostly partial matches here, but complete
-                        # matches are possible.
-                        matched_segments += elem_match.matched_segments
-                        unmatched_segments = elem_match.unmatched_segments
+                        # matches are possible. Don't be greedy with whitespace!
+                        matched_segments += pre_nc + elem_match.matched_segments
+                        unmatched_segments = elem_match.unmatched_segments + post_nc
                         # Each time we do this, we do a sense check to make sure we haven't
                         # dropped anything. (Because it's happened before!).
                         check_still_complete(segments, matched_segments.matched_segments, unmatched_segments)
@@ -895,14 +860,7 @@ class Sequence(BaseGrammar):
         # If we get to here, we've matched all of the elements (or skipped them)
         # but still have some segments left (or perhaps have precisely zero left).
         # In either case, we're golden. Return successfully, with any leftovers as
-        # the unmatched elements. UNLESS they're whitespace and we should be greedy.
-        if self.code_only:
-            while unmatched_segments and not unmatched_segments[0].is_code:
-                # We should add this one to the match and carry on
-                matched_segments += (unmatched_segments[0],)
-                unmatched_segments = unmatched_segments[1:]
-                check_still_complete(segments, matched_segments.matched_segments, unmatched_segments)
-
+        # the unmatched elements.
         return MatchResult(matched_segments.matched_segments, unmatched_segments)
 
     def expected_string(self, dialect=None, called_from=None):
@@ -947,6 +905,9 @@ class Delimited(BaseGrammar):
         # delimiters is a list of tuples containing delimiter segments as we find them.
         delimiters = []
 
+        # We should hoover non-code from the ends here if we can.
+        pre_seg_nc, seg_buff, post_seg_nc = self._trim_non_code(segments, code_only=self.code_only)
+
         # First iterate through all the segments, looking for the delimiter.
         # Second, split the list on each of the delimiters, and ensure that
         # each sublist in turn matches one of the elements.
@@ -954,15 +915,17 @@ class Delimited(BaseGrammar):
         # In more detail, match against delimiter, if we match, put a slice
         # up to that point onto a list of slices. Carry on.
         while True:
-            # Check to see whether we've exhausted the buffer (or it's all non-code)
-            # USE A CONTINIUE STATEMENT
-            if len(seg_buff) == 0 or (self.code_only and all(not s.is_code for s in seg_buff)):
+            # Check to see whether we've exhausted the buffer, either by iterating through it,
+            # or by consuming all the non-code segments already.
+            # NB: If we're here then we've already tried matching the remaining segments against
+            # the content, so we must be in a trailing case.
+            if len(seg_buff) == 0:
                 # Append the remaining buffer in case we're in the not is_code case.
                 matched_segments += seg_buff
                 # Nothing left, this is potentially a trailling case?
                 if self.allow_trailing and (self.min_delimiters is None or len(delimiters) >= self.min_delimiters):
                     # It is! (nothing left so no unmatched segments to append)
-                    return matched_segments
+                    return MatchResult.from_matched(pre_seg_nc + matched_segments.matched_segments + post_seg_nc)
                 else:
                     return MatchResult.from_unmatched(segments)
 
@@ -971,38 +934,43 @@ class Delimited(BaseGrammar):
             matchers = [self.delimiter]
             if self.terminator:
                 matchers.append(self.terminator)
-            pre, mat, m = self._bracket_sensitive_look_ahead_match(
+            pre_content, delimiter_match, m = self._bracket_sensitive_look_ahead_match(
                 seg_buff, matchers, parse_context=parse_context.copy(incr='match_depth'),
-                # NB: We don't want whitespace at this stage, that should default to
-                # being passed to the elements in between.
+                # NB: We don't want whitespace at this stage, we'll deal with that
+                # seperately.
                 code_only=False)
 
             # Have we found a delimiter or terminator looking forward?
-            if mat:
+            if delimiter_match:
                 if m is self.delimiter:
                     # Yes. Store it and then match the contents up to now.
-                    delimiters.append(mat.matched_segments)
+                    delimiters.append(delimiter_match.matched_segments)
+
+                # Let's split off the non-code portions. We should consume them rather
+                # then passing them through.
+                pre_content_pre_nc, pre_content, pre_content_postnc = self._trim_non_code(pre_content, code_only=self.code_only)
+
                 # We now test the intervening section as to whether it matches one
                 # of the things we're looking for. NB: If it's of zero length then
                 # we return without trying it.
-                if len(pre) > 0:
+                if len(pre_content) > 0:
                     for elem in self._elements:
                         # We use the whitespace padded match to hoover up whitespace if enabled.
                         elem_match = self._code_only_sensitive_match(
-                            pre, elem, parse_context=parse_context.copy(incr='match_depth'),
+                            pre_content, elem, parse_context=parse_context.copy(incr='match_depth'),
                             # This is where the configured code_only behaviour kicks in.
                             code_only=self.code_only)
 
                         if elem_match.is_complete():
                             # First add the segment up to the delimiter to the matched segments
-                            matched_segments += elem_match
+                            matched_segments += pre_content_pre_nc + elem_match.matched_segments + pre_content_postnc
                             # Then it depends what we matched.
                             # Delimiter
                             if m is self.delimiter:
                                 # Then add the delimiter to the matched segments
-                                matched_segments += mat.matched_segments
+                                matched_segments += delimiter_match.matched_segments
                                 # Break this for loop and move on, looking for the next delimiter
-                                seg_buff = mat.unmatched_segments
+                                seg_buff = delimiter_match.unmatched_segments
                                 # Still got some buffer left. Carry on.
                                 break
                             # Terminator
@@ -1015,8 +983,9 @@ class Delimited(BaseGrammar):
                                     return MatchResult.from_unmatched(segments)
                                 else:
                                     return MatchResult(
-                                        matched_segments.matched_segments,
-                                        mat.all_segments())
+                                        # NB: With PRECEEDING whitespace, NOT following.
+                                        pre_seg_nc + matched_segments.matched_segments,
+                                        delimiter_match.all_segments())
                             else:
                                 raise RuntimeError(
                                     ("I don't know how I got here. Matched instead on {0}, which "
@@ -1031,7 +1000,8 @@ class Delimited(BaseGrammar):
                         # None of them matched, return unmatched.
                         return MatchResult.from_unmatched(segments)
                 else:
-                    # Zero length section between delimiters. Return unmatched.
+                    # Zero length section between delimiters, or zero code
+                    # elements if appropriate. Return unmatched.
                     return MatchResult.from_unmatched(segments)
             else:
                 # No match for a delimiter looking forward, this means we're
@@ -1044,6 +1014,7 @@ class Delimited(BaseGrammar):
                 if self.min_delimiters and len(delimiters) < self.min_delimiters:
                     return MatchResult.from_unmatched(segments)
 
+                pre_term_nc, seg_buff, post_term_nc = self._trim_non_code(seg_buff, code_only=self.code_only)
                 # We use the whitespace padded match to hoover up whitespace if enabled,
                 # and default to the longest matcher. We don't care which one matches.
                 mat, _ = self._longest_code_only_sensitive_match(
@@ -1051,15 +1022,24 @@ class Delimited(BaseGrammar):
                     code_only=self.code_only)
                 if mat:
                     # We've got something at the end. Return!
-                    return MatchResult(
-                        matched_segments.matched_segments + mat.matched_segments,
-                        mat.unmatched_segments
-                    )
+                    if mat.unmatched_segments:
+                        # We have something unmatched and so we should let it also have the trailing elements
+                        return MatchResult(
+                            pre_seg_nc + matched_segments.matched_segments + pre_term_nc + mat.matched_segments,
+                            mat.unmatched_segments + post_term_nc + post_seg_nc
+                        )
+                    else:
+                        # If there's nothing unmatched in the most recent match, then we can consume the trailing
+                        # non code segments
+                        return MatchResult.from_matched(
+                            pre_seg_nc + matched_segments.matched_segments + pre_term_nc
+                            + mat.matched_segments + post_term_nc + post_seg_nc,
+                        )
                 else:
                     # No match at the end, are we allowed to trail? If we are then return,
                     # otherwise we fail because we can't match the last element.
                     if self.allow_trailing:
-                        return MatchResult(matched_segments.matched_segments, seg_buff)
+                        return MatchResult(matched_segments.matched_segments, pre_term_nc + seg_buff + post_term_nc)
                     else:
                         return MatchResult.from_unmatched(segments)
 
