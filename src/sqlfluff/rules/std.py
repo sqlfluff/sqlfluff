@@ -158,6 +158,8 @@ class Rule_L003(BaseCrawler):
         indent_size = 0
         line_indent_stack = []
         this_indent_balance = 0
+        indent_content = 0
+        pending_indent_content = 0
         clean_indent = False
         hanger_pos = None
 
@@ -170,7 +172,12 @@ class Rule_L003(BaseCrawler):
                     'line_buffer': line_buffer[:],
                     'indent_buffer': indent_buffer,
                     'indent_size': indent_size,
+                    # Indent balance is the indent at the start of the first content
                     'indent_balance': this_indent_balance,
+                    # Indent content is the indent diff *after* the first content
+                    # and NOT in any trailing whitespace. This essentially marks
+                    # any UNUSED indent.
+                    'indent_content': indent_content,
                     'hanging_indent': hanger_pos if line_indent_stack else None,
                     'clean_indent': clean_indent
                 }
@@ -178,6 +185,8 @@ class Rule_L003(BaseCrawler):
                 indent_buffer = []
                 line_buffer = []
                 indent_size = 0
+                indent_content = 0
+                pending_indent_content = 0
                 in_indent = True
                 line_indent_stack = []
                 hanger_pos = None
@@ -203,10 +212,12 @@ class Rule_L003(BaseCrawler):
                         clean_indent = True
                 else:
                     in_indent = False
+                    indent_content = 0
                     this_indent_balance = indent_balance
                     indent_size = self._indent_size(indent_buffer)
             elif elem.is_meta and elem.indent_val != 0:
                 indent_balance += elem.indent_val
+                pending_indent_content += elem.indent_val
                 if elem.indent_val > 0:
                     # Keep track of the indent at the last ... indent
                     line_indent_stack.append(
@@ -218,8 +229,12 @@ class Rule_L003(BaseCrawler):
                     # but only if there's enough on the stack
                     if line_indent_stack:
                         line_indent_stack.pop()
-            elif elem.is_code and hanger_pos is None:
-                hanger_pos = self._indent_size(line_buffer[:-1])
+            elif elem.is_code:
+                # We've found a code element, bank any indent content
+                indent_content += pending_indent_content
+                pending_indent_content = 0
+                if hanger_pos is None:
+                    hanger_pos = self._indent_size(line_buffer[:-1])
 
         # If we get to the end, and still have a buffer, add it on
         if line_buffer:
@@ -229,6 +244,7 @@ class Rule_L003(BaseCrawler):
                 'indent_buffer': indent_buffer,
                 'indent_size': indent_size,
                 'indent_balance': indent_balance,
+                'indent_content': indent_content,
                 'hanging_indent': line_indent_stack.pop() if line_indent_stack else None,
                 'clean_indent': clean_indent
             }
@@ -454,6 +470,43 @@ class Rule_L003(BaseCrawler):
                 # The indent number should be at least 1, and can be UP TO
                 # and including the difference in the indent balance.
                 if comp_indent_num == this_indent_num:
+                    # We have two lines indented the same, but with a different starting
+                    # indent balance. This is either a problem OR a sign that one of the
+                    # opening indents wasn't used. We account for the latter and then
+                    # have a violation if that wasn't the case.
+
+                    # Does the comparison line have enough unused indent to get us back
+                    # to where we need to be? NB: This should only be applied if this is
+                    # a CLOSING bracket.
+
+                    # First work out if we have some closing brackets, and if so, how many.
+                    b_idx = 0
+                    b_num = 0
+                    while True:
+                        if len(this_line['line_buffer'][b_idx:]) == 0:
+                            break
+                        
+                        elem = this_line['line_buffer'][b_idx]
+                        if not elem.is_code:
+                            b_idx += 1
+                            continue
+                        else:
+                            if elem.type in ['end_bracket', 'end_square_bracket']:
+                                b_idx += 1
+                                b_num += 1
+                                continue
+                            break
+
+                    if (
+                        indent_diff == res[k]['indent_content']
+                        and b_num >= indent_diff
+                    ):
+                        #print("GREAT! {0}".format(b_num))
+                        # It does. This line is fine.
+                        return LintResult(memory=memory)
+
+                    # It doesn't. That means we *should* have an indent when compared to
+                    # this line and we DON'T.
                     memory['problem_lines'].append(this_line_no)
                     return LintResult(
                         anchor=segment,
