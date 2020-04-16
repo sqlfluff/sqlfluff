@@ -6,12 +6,13 @@ Let's talk about indentation
 If there is one part of building a linter that is going to be controversial
 it's going to be **indentation** (closely followed by **cApiTaLiSaTiOn** 😁).
 
-*Sqlfluff* aims to be *opinionated* here, but also *configurable*. The tool
-will have a default viewpoint and will aim to have views on all of the
-important aspects of SQL layout, but if you (or your organisation) don't
-like those views then we aim to allow enough configuration that you can lint
-in line with your views, and still use *sqlfluff*. For more information on
-how to configure rules to your own viewpoint see :ref:`config`.
+*Sqlfluff* aims to be *opinionated* here, but also *configurable* (see
+:ref:`indentconfig`). The tool will have a default viewpoint and will aim
+to have views on all of the important aspects of SQL layout, but if you
+(or your organisation) don't like those views then we aim to allow enough
+configuration that you can lint in line with your views, and still use
+*sqlfluff*. For more information on how to configure rules to your own
+viewpoint see :ref:`config`.
 
 So, without further ado, here are the principles we think apply to indentation:
 
@@ -145,4 +146,61 @@ So, without further ado, here are the principles we think apply to indentation:
          to the elements of code which they come *before*, not *after*.
 
 
+.. _indentconfig:
+
+Configuring Indentation
+^^^^^^^^^^^^^^^^^^^^^^^
+
+How indentation is linted is controlled in the rules, but what indentation
+is expected to be present is controlled by the parser, and therefore
+configured seperately. One of the key areas for this is the indentation
+of the :code:`JOIN` expression.
+
+Semantically, a :code:`JOIN` expression is part of the :code:`FROM` expression
+and therefore would be expected to be indented. However according to many
+of the most common SQL style guides (including the `fishtown SQL style guide`_
+and the `Mozilla SQL style guide`_) the :code:`JOIN` keyword is expected to at
+the same indent as the :code:`FROM` keyword. By default, *sqlfluff* sides with
+the current consensus, which is to *not* indent the :code:`JOIN` keyword,
+however this is one element which is configurable.
+
+By setting values in the :code:`sqlfluff:indentation` section of your config
+file you can control how this is parsed, for example you may work with an
+indentation similar to that of `Baron Schwartz`_.
+
+By setting your config file to:
+
+.. code-block:: cfg
+
+   [sqlfluff:indentation]
+   indented_joins = True
+
+Then the expected indentation will be:
+
+.. code-block:: sql
+
+   SELECT
+      a, b, c
+   FROM my_table
+      JOIN another_table
+         USING(a)
+
+However if no value for :code:`indented_joins` is set, or if it is set to
+:code:`false` then then following indentation will be expected:
+
+.. code-block:: sql
+
+   SELECT
+      a, b, c
+   FROM my_table
+   JOIN another_table
+      USING(a)
+
+By default, *sqlfluff* aims to follow the indentation most common approach
+to indentation. However, if you have other versions of indentation which are
+supported by published style guides, then please submit an issue on github
+to have that variation supported by *sqlfluff*.
+
 .. _`fishtown SQL style guide`: https://github.com/fishtown-analytics/corp/blob/master/dbt_coding_conventions.md#sql-style-guide
+.. _`Mozilla SQL style guide`: https://docs.telemetry.mozilla.org/concepts/sql_style.html#joins
+.. _`Baron Schwartz`: https://www.xaprb.com/blog/2006/04/26/sql-coding-standards/

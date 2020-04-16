@@ -120,7 +120,26 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     ('L003', 'pass',
      ("SELECT\n    user_id\nFROM\n    age_data\nJOIN\n    audience_size\n    USING (user_id, list_id)\n"
       "-- We LEFT JOIN because blah\nLEFT JOIN\n    verts\n    USING\n        (user_id)"),
-     None, None)
+     None, None),
+    # Configurable indents work.
+    # a) default
+    ('L003', 'pass', 'SELECT a, b, c\nFROM my_tbl\nLEFT JOIN another_tbl USING(a)', None, None),
+    # b) specific
+    ('L003', 'pass', 'SELECT a, b, c\nFROM my_tbl\nLEFT JOIN another_tbl USING(a)', None,
+     {'indentation': {'indented_joins': False}}),
+    # c) specific True, but passing
+    ('L003', 'pass', 'SELECT a, b, c\nFROM my_tbl\n    LEFT JOIN another_tbl USING(a)', None,
+     {'indentation': {'indented_joins': True}}),
+    # d) specific True, but failing
+    ('L003', 'fail',
+     'SELECT a, b, c\nFROM my_tbl\nLEFT JOIN another_tbl USING(a)',
+     'SELECT a, b, c\nFROM my_tbl\n    LEFT JOIN another_tbl USING(a)',
+     {'indentation': {'indented_joins': True}}),
+    # e) specific False, and failing
+    ('L003', 'fail',
+     'SELECT a, b, c\nFROM my_tbl\n    LEFT JOIN another_tbl USING(a)',
+     'SELECT a, b, c\nFROM my_tbl\nLEFT JOIN another_tbl USING(a)',
+     {'indentation': {'indented_joins': False}})
 ])
 def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
     """Test that a rule passes/fails on a given string.
