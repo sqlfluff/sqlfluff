@@ -24,9 +24,16 @@ ansi_dialect = Dialect('ansi')
 
 ansi_dialect.set_lexer_struct([
     # name, type, pattern, kwargs
-    ("whitespace", "regex", r"[\t ]*", dict(type='whitespace')),
+    ("whitespace", "regex", r"[\t ]+", dict(type='whitespace')),
     ("inline_comment", "regex", r"(--|#)[^\n]*", dict(is_comment=True, type='comment')),
-    ("block_comment", "regex", r"\/\*([^\*]|\*[^\/])*\*\/", dict(is_comment=True, type='comment')),
+    (
+        "block_comment", "regex", r"\/\*([^\*]|\*[^\/])*\*\/",
+        dict(
+            is_comment=True, type='comment',
+            subdivide=dict(type='newline', name='newline', regex=r"\r\n|\n"),
+            trim_post_subdivide=dict(type='whitespace', name='whitespace', regex=r"[\t ]+")
+        )
+    ),
     ("single_quote", "regex", r"'[^']*'", dict(is_code=True)),
     ("double_quote", "regex", r'"[^"]*"', dict(is_code=True)),
     ("back_quote", "regex", r"`[^`]*`", dict(is_code=True)),
@@ -34,10 +41,9 @@ ansi_dialect.set_lexer_struct([
     ("not_equal", "regex", r"!=|<>", dict(is_code=True)),
     ("greater_than_or_equal", "regex", r">=", dict(is_code=True)),
     ("less_than_or_equal", "regex", r"<=", dict(is_code=True)),
-    ("newline", "regex", r"\r\n", dict(type='newline')),
+    ("newline", "regex", r"\r\n|\n", dict(type='newline')),
     ("casting_operator", "regex", r"::", dict(is_code=True)),
     ("concat_operator", "regex", r"\|\|", dict(is_code=True)),
-    ("newline", "singleton", "\n", dict(type='newline')),
     ("equals", "singleton", "=", dict(is_code=True)),
     ("greater_than", "singleton", ">", dict(is_code=True)),
     ("less_than", "singleton", "<", dict(is_code=True)),

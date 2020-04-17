@@ -31,6 +31,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   which allows them to shortcut some of the matching routines.
 - Yaml output now double quotes values with newlines or tab characters.
 - Better handling on hanging and closing indents when linting rule L003.
+- More capable handline of multi-line comments so that indentation
+  and line length parsing works. This involves some deep changes to the
+  lexer.
 - Several bugfixes.
 
 ## [0.3.1] - 2020-02-17
