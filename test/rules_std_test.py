@@ -120,7 +120,17 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     ('L003', 'pass',
      ("SELECT\n    user_id\nFROM\n    age_data\nJOIN\n    audience_size\n    USING (user_id, list_id)\n"
       "-- We LEFT JOIN because blah\nLEFT JOIN\n    verts\n    USING\n        (user_id)"),
-     None, None)
+     None, None),
+    # Leading commas
+    ('L019', 'fail', 'SELECT\n    a\n    , b\n    FROM c', None,
+     {'rules': {'L019': {'comma_style': 'trailing'}}}),
+    ('L019', 'pass', 'SELECT\n    a\n    , b\n    FROM c', None,
+     {'rules': {'L019': {'comma_style': 'leading'}}}),
+    # Trailing commas
+    ('L019', 'fail', 'SELECT\n    a,\n    b\n    FROM c', None,
+     {'rules': {'L019': {'comma_style': 'leading'}}}),
+    ('L019', 'pass', 'SELECT\n    a,\n    b\n    FROM c', None,
+     {'rules': {'L019': {'comma_style': 'trailing'}}}),
 ])
 def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
     """Test that a rule passes/fails on a given string.
@@ -147,7 +157,8 @@ def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
     ('L004', 'test/fixtures/linter/indentation_errors.sql', [(3, 1), (4, 1), (5, 1)]),
     # Check we get comma (with leading space/newline) whitespace errors
     # NB The newline before the comma, should report on the comma, not the newline for clarity.
-    ('L005', 'test/fixtures/linter/whitespace_errors.sql', [(2, 9), (4, 1)]),
+    ('L005', 'test/fixtures/linter/whitespace_errors.sql', [(2, 9)]),
+    ('L019', 'test/fixtures/linter/whitespace_errors.sql', [(4, 1)]),
     # Check we get comma (with incorrect trailing space) whitespace errors,
     # but also no false positives on line 4 or 5.
     ('L008', 'test/fixtures/linter/whitespace_errors.sql', [(3, 12)]),

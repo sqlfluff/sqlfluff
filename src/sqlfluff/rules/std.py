@@ -573,7 +573,11 @@ class Rule_L004(BaseCrawler):
 
 @std_rule_set.register
 class Rule_L005(BaseCrawler):
-    """Commas should not have whitespace directly before them."""
+    """Commas should not have whitespace directly before them.
+
+    Unless it's an indent.We deal with trailing/leading commas
+    in a different rule.
+    """
 
     def _eval(self, segment, raw_stack, **kwargs):
         """Commas should not have whitespace directly before them.
@@ -583,13 +587,8 @@ class Rule_L005(BaseCrawler):
         """
         if len(raw_stack) >= 1:
             cm1 = raw_stack[-1]
-            if segment.type == 'comma' and cm1.type in ['whitespace', 'newline']:
-                # NB: if its a *newline*, then it's confusing to the user
-                # to report on the newline, so in that case we point at the comma
-                if cm1.type == 'newline':
-                    anchor = segment
-                else:
-                    anchor = cm1
+            if segment.type == 'comma' and cm1.type == 'whitespace' and cm1.pos_marker.line_pos > 1:
+                anchor = cm1
                 return LintResult(anchor=anchor, fixes=[LintFix('delete', cm1)])
         # Otherwise fine
         return None
@@ -1635,3 +1634,52 @@ class Rule_L018(BaseCrawler):
                 else:
                     raw_stack_buff.append(seg)
         return LintResult()
+
+
+@std_rule_set.register
+class Rule_L019(BaseCrawler):
+    """Leading/Trailing comma enforcement."""
+
+    def __init__(self, comma_style='trailing', **kwargs):
+        """Initialise, extracting the comma_style from the config."""
+        if comma_style not in ['trailing', 'leading']:
+            raise ValueError("Unexpected `comma_style`: {0!r}".format(comma_style))
+        self.comma_style = comma_style
+        super(Rule_L019, self).__init__(**kwargs)
+
+    def _last_code_seg(self, raw_stack, idx=-1):
+        while True:
+            if -idx > len(raw_stack):
+                return None
+            if raw_stack[idx].is_code or raw_stack[idx].type == 'newline':
+                return raw_stack[idx]
+            idx -= 1
+
+    def _eval(self, segment, raw_stack, **kwargs):
+        """Enforce comma placement.
+
+        If want leading commas, we're looking for trailing commas, so
+        we look for newline segments. If we want trailing commas then
+        we're looking for leading commas, so we look for the comma itself.
+        """
+        if len(raw_stack) >= 1:
+            if self.comma_style == 'leading':
+                if segment.type == 'newline':
+                    # work back and find the last code segment, was it a comma?
+                    last_seg = self._last_code_seg(raw_stack)
+                    if last_seg.type == 'comma':
+                        return LintResult(
+                            anchor=last_seg,
+                            description="Found trailing comma. Expected only leading."
+                        )
+            elif self.comma_style == 'trailing':
+                if segment.type == 'comma':
+                    # work back and find the last interesting thing, is the comma the first element?
+                    last_seg = self._last_code_seg(raw_stack)
+                    if last_seg.type == 'newline':
+                        return LintResult(
+                            anchor=segment,
+                            description="Found leading comma. Expected only trailing."
+                        )
+        # Otherwise fine
+        return None

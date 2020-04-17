@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Logging and benchmarking of parse performance as part of the CI pipeline.
 - Parsing of object references with defaults like `my_db..my_table`.
 - Support for the `INTERVAL '4 days'` style interval expression.
+- Configurable trailing or leading comma linting.
 
 ### Changed
 
