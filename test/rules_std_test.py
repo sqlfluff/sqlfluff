@@ -161,6 +161,9 @@ def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
     ('L003', 'test/fixtures/linter/indentation_error_hard.sql', [(2, 4), (6, 5), (9, 13), (14, 14), (19, 5), (20, 6)]),
     # Check bracket handling with closing brackets and contained indents works.
     ('L003', 'test/fixtures/linter/indentation_error_contained.sql', []),
+    # Check we handle block comments as expect. Github #236
+    ('L003', 'test/fixtures/linter/block_comment_errors.sql', [(3, 1)]),
+    ('L016', 'test/fixtures/linter/block_comment_errors.sql', [(1, 121), (2, 99), (4, 88)]),
 ])
 def test__rules__std_file(rule, path, violations):
     """Test the linter finds the given errors in (and only in) the right places."""
