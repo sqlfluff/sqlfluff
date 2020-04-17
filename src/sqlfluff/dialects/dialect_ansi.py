@@ -1289,6 +1289,11 @@ class CreateTableStatementSegment(BaseSegment):
     # https://www.postgresql.org/docs/12/sql-createtable.html
     match_grammar = Sequence(
         Ref('CreateKeywordSegment'),
+        Sequence(
+            Ref('OrKeywordSegment'),
+            Ref('ReplaceKeywordSegment'),
+            optional=True
+        ),
         Ref('TableKeywordSegment'),
         Sequence(
             Ref('IfKeywordSegment'),
@@ -1297,20 +1302,38 @@ class CreateTableStatementSegment(BaseSegment):
             optional=True
         ),
         Ref('ObjectReferenceSegment'),
-        Bracketed(
-            Delimited(
-                OneOf(
-                    Ref('ColumnDefinitionSegment'),
-                    Ref('TableConstraintSegment'),
+        OneOf(
+            # Columns and comment syntax:
+            Sequence(
+                Bracketed(
+                    Delimited(
+                        OneOf(
+                            Ref('ColumnDefinitionSegment'),
+                            Ref('TableConstraintSegment'),
+                        ),
+                        delimiter=Ref('CommaSegment')
+                    )
                 ),
-                delimiter=Ref('CommaSegment')
+                Sequence(  # [COMMENT 'string'] (MySQL)
+                    Ref('CommentKeywordSegment'),
+                    Ref('QuotedLiteralSegment'),
+                    optional=True
+                )
+            ),
+            # Create AS syntax:
+            Sequence(
+                Ref('AsKeywordSegment'),
+                OneOf(
+                    Ref('SelectStatementSegment'),
+                    Ref('WithCompoundStatementSegment')
+                )
+            ),
+            # Create like syntax
+            Sequence(
+                Ref('LikeKeywordSegment'),
+                Ref('ObjectReferenceSegment')
             )
-        ),
-        Sequence(  # [COMMENT 'string'] (MySQL)
-            Ref('CommentKeywordSegment'),
-            Ref('QuotedLiteralSegment'),
-            optional=True
-        ),
+        )
     )
 
 
