@@ -122,6 +122,8 @@ class Rule_L003(BaseCrawler):
 
     """
 
+    _works_on_unparsable = False
+
     def __init__(self, tab_space_size=4, indent_unit='space', **kwargs):
         """Initialise, extracting the tab size from the config."""
         self.tab_space_size = tab_space_size

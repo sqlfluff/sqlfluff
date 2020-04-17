@@ -118,6 +118,9 @@ class BaseCrawler:
             rule does. It will be displayed when any violations are found.
 
     """
+
+    _works_on_unparsable = True
+
     def __init__(self, code, description, **kwargs):
         self.description = description
         self.code = code
@@ -169,6 +172,12 @@ class BaseCrawler:
         siblings_pre = siblings_pre or ()
         memory = memory or {}
         vs = []
+
+        # First, check whether we're looking at an unparsable and whether
+        # this rule will still operate on that.
+        if not self._works_on_unparsable and segment.type == 'unparsable':
+            # Abort here if it doesn't. Otherwise we'll get odd results.
+            return vs, raw_stack, [], memory
 
         # TODO: Document what options are available to the evaluation function.
         res = self._eval(
