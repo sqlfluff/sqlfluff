@@ -1420,7 +1420,7 @@ class Rule_L016(Rule_L003):
         return fixes
 
     @staticmethod
-    def gen_line_so_far(raw_stack, initial_buff=None):
+    def _gen_line_so_far(raw_stack, initial_buff=None):
         """Work out from the raw stack what the elements on this line are.
 
         Returns:
@@ -1450,7 +1450,7 @@ class Rule_L016(Rule_L003):
         """
         if segment.name == 'newline':
             # iterate to buffer the whole line up to this point
-            this_line = self.gen_line_so_far(raw_stack, [])
+            this_line = self._gen_line_so_far(raw_stack, [])
         else:
             # Otherwise we're all good
             return None
