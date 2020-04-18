@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactor of whitespace and non-code handling so that segments are
   less greedy and default to not holding whitespace on ends. This allows
   more consistent linting rule application.
+- Change config file reading to *case-sensitive* to support case
+  sensitivity in jinja templating.
+- Non-string values (including lists) now function in the python
+  and jinja templating libraries.
 - Validation of the match results of grammars has been reduced. In
   production cases the validation will still be done, but only on
   *parse* and not on *match*.

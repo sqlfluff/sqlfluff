@@ -1,0 +1,141 @@
+file:
+  statement:
+    select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_target_element:
+          object_reference:
+            naked_identifier: job_id
+      - comma: ','
+      - select_target_element:
+          function:
+            function_name: MAX
+            start_bracket: (
+            expression:
+              case_expression:
+              - keyword: CASE
+              - keyword: WHEN
+              - expression:
+                - object_reference:
+                    naked_identifier: word
+                - comparison_operator: '='
+                - quoted_literal: '''shop'''
+              - keyword: THEN
+              - expression:
+                  numeric_literal: '1'
+              - keyword: ELSE
+              - expression:
+                  numeric_literal: '0'
+              - keyword: END
+            end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: shop_word
+      - comma: ','
+      - select_target_element:
+          function:
+            function_name: MAX
+            start_bracket: (
+            expression:
+              case_expression:
+              - keyword: CASE
+              - keyword: WHEN
+              - expression:
+                - object_reference:
+                    naked_identifier: word
+                - comparison_operator: '='
+                - quoted_literal: '''products'''
+              - keyword: THEN
+              - expression:
+                  numeric_literal: '1'
+              - keyword: ELSE
+              - expression:
+                  numeric_literal: '0'
+              - keyword: END
+            end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: products_word
+      - comma: ','
+      - select_target_element:
+          function:
+            function_name: MAX
+            start_bracket: (
+            expression:
+              case_expression:
+              - keyword: CASE
+              - keyword: WHEN
+              - expression:
+                - object_reference:
+                    naked_identifier: word
+                - comparison_operator: '='
+                - quoted_literal: '''code'''
+              - keyword: THEN
+              - expression:
+                  numeric_literal: '1'
+              - keyword: ELSE
+              - expression:
+                  numeric_literal: '0'
+              - keyword: END
+            end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: code_word
+      - comma: ','
+      - select_target_element:
+          function:
+          - function_name: safe_cast
+          - start_bracket: (
+          - expression:
+              object_reference:
+                naked_identifier: vector_array
+              array_accessor:
+                start_square_bracket: '['
+                expression:
+                  function:
+                    function_name: ORDINAL
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '0'
+                    end_bracket: )
+                end_square_bracket: ']'
+          - keyword: AS
+          - data_type:
+              data_type_identifier: FLOAT64
+          - end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: v0
+      - comma: ','
+      - select_target_element:
+          function:
+          - function_name: safe_cast
+          - start_bracket: (
+          - expression:
+              object_reference:
+                naked_identifier: vector_array
+              array_accessor:
+                start_square_bracket: '['
+                expression:
+                  function:
+                    function_name: ORDINAL
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '1'
+                    end_bracket: )
+                end_square_bracket: ']'
+          - keyword: AS
+          - data_type:
+              data_type_identifier: FLOAT64
+          - end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: v1
+    - from_clause:
+        keyword: FROM
+        table_expression:
+          object_reference:
+            naked_identifier: tbl
+    - limit_clause:
+        keyword: LIMIT
+        numeric_literal: '1'

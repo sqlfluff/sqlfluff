@@ -81,21 +81,18 @@ def assert_structure(yaml_loader, path, code_only=True):
     assert tpl == expected
 
 
-def test__templater_config_scalar(yaml_loader):
-    """Check basic jinja substitution works."""
-    assert_structure(yaml_loader, 'test/fixtures/templater/jinja_a/jinja')
-
-
-def test__templater_config_macro(yaml_loader):
-    """Check that configurable macros work."""
-    assert_structure(yaml_loader, 'test/fixtures/templater/jinja_b/jinja', code_only=False)
-
-
-def test__templater_config_dbt(yaml_loader):
-    """Check that the built in dbt macros work."""
-    assert_structure(yaml_loader, 'test/fixtures/templater/jinja_c_dbt/dbt_builtins')
-
-
-def test__templater_do(yaml_loader):
-    """Check that the do directive works."""
-    assert_structure(yaml_loader, 'test/fixtures/templater/jinja_e/jinja')
+@pytest.mark.parametrize("subpath,code_only", [
+    # Config Scalar
+    ('jinja_a/jinja', True),
+    # Macros
+    ('jinja_b/jinja', False),
+    # dbt builting
+    ('jinja_c_dbt/dbt_builtins', True),
+    # do directive
+    ('jinja_e/jinja', True),
+    # case sensitivity and python literals
+    ('jinja_f/jinja', True),
+])
+def test__templater_full(subpath, code_only, yaml_loader):
+    """Check structure can be parsed from jinja templated files."""
+    assert_structure(yaml_loader, 'test/fixtures/templater/' + subpath, code_only=code_only)
