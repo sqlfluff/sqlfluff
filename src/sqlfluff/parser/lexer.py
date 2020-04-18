@@ -307,7 +307,6 @@ class Lexer:
             res = self.matcher.match(raw, start_pos)
             segment_buff += res.segments
             if len(res.new_string) > 0:
-                # print(repr(res.new_string))
                 violations.append(SQLLexError(
                     "Unable to lex characters: '{0!r}...'".format(
                         res.new_string[:10]),
@@ -319,7 +318,6 @@ class Lexer:
                 if not resort_res:
                     # If we STILL can't match, then just panic out.
                     raise violations[-1]
-                # print(resort_res)
 
                 raw = resort_res.new_string
                 start_pos = resort_res.new_pos

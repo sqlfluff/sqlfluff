@@ -104,6 +104,37 @@ For example, if passed the following *.sql* file:
     and this will appear as a violation without a line number, quoting
     the name of the variable that couldn't be found.
 
+Complex Variable Templating
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Two more advanced features of variable templating are *case sensitivity*
+and *native python types*. Both are illustrated in the following example:
+
+.. code-block:: cfg
+
+    [sqlfluff:templater:jinja:context]
+    my_list=['a', 'b', 'c']
+    MY_LIST=("d", "e", "f")
+
+.. code-block:: jinja
+
+    SELECT
+        {% for elem in MY_LIST %}
+            '{{elem}}' {% if not loop.last %}||{% endif %}
+        {% endfor %} as concatenated_list
+    FROM tbl
+
+...will render as...
+
+.. code-block:: sql
+
+    SELECT
+        'd' || 'e' || 'f' as concatenated_list
+    FROM tbl
+
+Note that the variable was replaced in a case sensitive way and that the
+settings in the config file were interpreted as native python types.
+
 Macro Templating
 ^^^^^^^^^^^^^^^^
 

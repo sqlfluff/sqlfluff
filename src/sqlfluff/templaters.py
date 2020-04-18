@@ -1,5 +1,7 @@
 """Defines the templaters."""
 
+import ast
+
 from .errors import SQLTemplaterError
 
 _templater_lookup = {}
@@ -93,6 +95,19 @@ class PythonTemplateInterface(RawTemplateInterface):
         self.default_context = dict(test_value='__test__')
         self.override_context = override_context or {}
 
+    @staticmethod
+    def infer_type(s):
+        """Infer a python type from a string ans convert.
+
+        Given a string value, convert it to a more specific built-in Python type
+        (e.g. int, float, list, dictionary) if possible.
+
+        """
+        try:
+            return ast.literal_eval(s)
+        except (SyntaxError, ValueError):
+            return s
+
     def get_context(self, fname=None, config=None):
         """Get the templating context from the config."""
         # TODO: The config loading should be done outside the templater code. Here
@@ -106,6 +121,10 @@ class PythonTemplateInterface(RawTemplateInterface):
         live_context.update(self.default_context)
         live_context.update(loaded_context)
         live_context.update(self.override_context)
+
+        # Infer types
+        for k in loaded_context:
+            live_context[k] = self.infer_type(live_context[k])
         return live_context
 
     def process(self, in_str, fname=None, config=None):
