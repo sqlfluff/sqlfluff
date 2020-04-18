@@ -34,7 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - More capable handline of multi-line comments so that indentation
   and line length parsing works. This involves some deep changes to the
   lexer.
-- Several bugfixes.
+- Several bugfixes, including catching potential infinite regress during
+  fixing of files, if one fix would re-introduce a problem with another.
 
 ## [0.3.1] - 2020-02-17
 
