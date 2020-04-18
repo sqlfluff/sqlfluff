@@ -637,9 +637,12 @@ class Linter:
             if fix:
                 # If we're in fix mode, then we need to progressively call and reconstruct
                 working = parsed
+                # Keep a set of previous versions to catch infinite loops.
+                previous_versions = {working.raw}
                 linting_errors = []
                 last_fixes = None
                 while True:
+                    changed = False
                     for crawler in self.get_ruleset(config=config or self.config):
                         # fixes should be a dict {} with keys edit, delete, create
                         # delete is just a list of segments to delete
@@ -658,13 +661,18 @@ class Linter:
                                         fixes))
 
                             last_fixes = fixes
-                            working, fixes = working.apply_fixes(fixes)
-                            break
-                        else:
-                            # No fixes, move on to next crawler
-                            continue
-                    else:
-                        # No more fixes to apply
+                            new_working, fixes = working.apply_fixes(fixes)
+
+                            # Check for infinite loops
+                            if new_working.raw not in previous_versions:
+                                working = new_working
+                                previous_versions.add(working.raw)
+                                changed = True
+                            else:
+                                print(("WARNING: One fix for {0} not applied, it would re-cause "
+                                       "a previously fixed error.").format(crawler.code))
+                    if not changed:
+                        # The file is clean :)
                         break
                 # Set things up to return the altered version
                 parsed = working
