@@ -118,7 +118,7 @@ class Rule_L003(BaseCrawler):
 
     Note:
         This rule used to be _"Indentation length is not a multiple
-        of {tab_space_size}"_, but was changed to be much smarter.
+        of `tab_space_size`"_, but was changed to be much smarter.
 
     """
 
@@ -1638,7 +1638,14 @@ class Rule_L018(BaseCrawler):
 
 @std_rule_set.register
 class Rule_L019(BaseCrawler):
-    """Leading/Trailing comma enforcement."""
+    """Leading/Trailing comma enforcement.
+
+    Args:
+        comma_style (:obj:`str`): The comma style to to
+            enforce. One of `trailing`, `leading` (default
+            is `trailing`).
+
+    """
 
     def __init__(self, comma_style='trailing', **kwargs):
         """Initialise, extracting the comma_style from the config."""
