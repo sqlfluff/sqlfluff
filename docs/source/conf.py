@@ -75,7 +75,7 @@ html_theme_options = {
     # Github Fork button
     'github_banner': True,
     # Github link button
-    'github_button' : True,
+    'github_button': True,
     # Codecov button
     'codecov_button': True
 }
