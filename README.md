@@ -1,4 +1,5 @@
-# SqlFluff :scroll: :black_nib: :sparkles:
+![SQLfluff](/images/sqlfluff-wide.png)
+
 ## The SQL Linter for humans
 
 [![PyPi Version](https://img.shields.io/pypi/v/sqlfluff.svg?style=flat-square&logo=PyPi)](https://pypi.org/project/sqlfluff/)
