@@ -150,9 +150,12 @@ class ConfigLoader:
                     try:
                         v = float(val)
                     except ValueError:
-                        if val in ['True', 'False']:
-                            v = bool(val)
-                        elif val in ['None', 'none']:
+                        cleaned_val = val.strip().lower()
+                        if cleaned_val in ['true']:
+                            v = True
+                        elif cleaned_val in ['false']:
+                            v = False
+                        elif cleaned_val in ['none']:
                             v = None
                         else:
                             v = val

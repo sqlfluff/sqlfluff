@@ -114,9 +114,10 @@ class ParseContext:
     as before.
     """
 
-    __slots__ = ['match_depth', 'parse_depth', 'verbosity', 'dialect', 'match_segment', 'recurse', 'blacklist']
+    __slots__ = ['match_depth', 'parse_depth', 'verbosity', 'dialect', 'match_segment', 'recurse', 'blacklist', 'indentation_config']
 
-    def __init__(self, dialect=None, verbosity=0, match_depth=0, parse_depth=0, match_segment=None, recurse=True, blacklist=None):
+    def __init__(self, dialect=None, verbosity=0, match_depth=0, parse_depth=0,
+                 match_segment=None, recurse=True, blacklist=None, indentation_config=None):
         # Write all the variables in a DRY way. Yes it's a bit convoluted. Sorry.
         for k in self.__slots__:
             setattr(self, k, locals()[k])
@@ -146,7 +147,14 @@ class ParseContext:
     @classmethod
     def from_config(cls, config):
         """Construct a `ParseContext` from a `FluffConfig`."""
-        return cls(dialect=config.get('dialect_obj'), recurse=config.get('recurse'))
+        indentation_config = config.get_section('indentation') or {}
+        try:
+            indentation_config = {k: bool(v) for k, v in indentation_config.items()}
+        except TypeError:
+            raise TypeError(
+                "One of the configuration keys in the `indentation` section is not True or False: {0!r}".format(
+                    indentation_config))
+        return cls(dialect=config.get('dialect_obj'), recurse=config.get('recurse'), indentation_config=indentation_config)
 
 
 class BaseSegment:

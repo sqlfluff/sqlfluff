@@ -255,6 +255,47 @@ class Indent(RawSegment):
     _case_sensitive = False
     indent_val = 1
     is_meta = True
+    _config_rules = None
+
+    @classmethod
+    def when(cls, **kwargs):
+        """Configure whether this indent/dedent is available given certain rules.
+
+        All we do is override the _config_rules parameter
+        for the class.
+
+        _config_rules should be an iterable of tuples (config, True|False)
+        which determine whether this class is enabled or not. Later elements
+        override earlier ones.
+        """
+        if len(kwargs) > 1:
+            raise ValueError("More than one condition specified for {0!r}. [{1!r}]".format(
+                cls, kwargs))
+        # Sorcery (but less to than on KeywordSegment)
+        return type(
+            cls.__name__,
+            (cls, ),
+            dict(_config_rules=kwargs)
+        )
+
+    @classmethod
+    def is_enabled(cls, parse_context):
+        """Given a certain parse context, determine if this segment is enabled.
+
+        All rules are assumed to be False if not present in the parse_context,
+        and later rules in the config override previous ones.
+        """
+        # All rules are assumed to be False if not present
+        if cls._config_rules is not None:
+            config = parse_context.indentation_config or {}
+            # This looks like an iteration, but there should only be one.
+            for rule, val in cls._config_rules.items():
+                conf_val = config.get(rule, False)
+                if val == conf_val:
+                    return True
+                else:
+                    return False
+        return True
 
     @staticmethod
     def _suffix():
