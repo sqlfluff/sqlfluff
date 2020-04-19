@@ -18,12 +18,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Parsing of object references with defaults like `my_db..my_table`.
 - Support for the `INTERVAL '4 days'` style interval expression.
 - Configurable trailing or leading comma linting.
+- Configurable indentation for `JOIN` clauses.
 
 ### Changed
 
 - Refactor of whitespace and non-code handling so that segments are
   less greedy and default to not holding whitespace on ends. This allows
   more consistent linting rule application.
+- Change config file reading to *case-sensitive* to support case
+  sensitivity in jinja templating.
+- Non-string values (including lists) now function in the python
+  and jinja templating libraries.
 - Validation of the match results of grammars has been reduced. In
   production cases the validation will still be done, but only on
   *parse* and not on *match*.
@@ -32,7 +37,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   which allows them to shortcut some of the matching routines.
 - Yaml output now double quotes values with newlines or tab characters.
 - Better handling on hanging and closing indents when linting rule L003.
-- Several bugfixes.
+- More capable handline of multi-line comments so that indentation
+  and line length parsing works. This involves some deep changes to the
+  lexer.
+- Several bugfixes, including catching potential infinite regress during
+  fixing of files, if one fix would re-introduce a problem with another.
 
 ## [0.3.1] - 2020-02-17
 

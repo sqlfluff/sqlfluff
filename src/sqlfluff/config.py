@@ -87,7 +87,14 @@ def dict_diff(left, right):
 
 
 class ConfigLoader:
-    """The class for loading config files."""
+    """The class for loading config files.
+
+    Note:
+        Unlike most cfg file readers, sqlfluff is case-sensitive in how
+        it reads config files. This is to ensure we support the case
+        sensitivity of jinja.
+
+    """
     def __init__(self):
         # TODO: check that this cache implementation is actually useful
         self._config_cache = {}
@@ -106,6 +113,11 @@ class ConfigLoader:
 
         The return value is a list of tuples, were each tuple has two elements,
         the first is a tuple of paths, the second is the value at that path.
+
+        Note:
+            Unlike most cfg file readers, sqlfluff is case-sensitive in how
+            it reads config files.
+
         """
         buff = []
         # Disable interpolation so we can load macros
@@ -113,6 +125,10 @@ class ConfigLoader:
         if sys.version_info >= (3, 0):
             kw['interpolation'] = None
         config = configparser.ConfigParser(**kw)
+        # NB: We want to be case sensitive in how we read from files,
+        # because jinja is also case sensitive. To do this we override
+        # the optionxform attribute.
+        config.optionxform = lambda option: option
         config.read(fpath)
         for k in config.sections():
             if k == 'sqlfluff':
@@ -134,9 +150,12 @@ class ConfigLoader:
                     try:
                         v = float(val)
                     except ValueError:
-                        if val in ['True', 'False']:
-                            v = bool(val)
-                        elif val in ['None', 'none']:
+                        cleaned_val = val.strip().lower()
+                        if cleaned_val in ['true']:
+                            v = True
+                        elif cleaned_val in ['false']:
+                            v = False
+                        elif cleaned_val in ['none']:
                             v = None
                         else:
                             v = val

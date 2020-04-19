@@ -122,6 +122,8 @@ class Rule_L003(BaseCrawler):
 
     """
 
+    _works_on_unparsable = False
+
     def __init__(self, tab_space_size=4, indent_unit='space', **kwargs):
         """Initialise, extracting the tab size from the config."""
         self.tab_space_size = tab_space_size
@@ -1416,6 +1418,28 @@ class Rule_L016(Rule_L003):
 
         return fixes
 
+    @staticmethod
+    def _gen_line_so_far(raw_stack, initial_buff=None):
+        """Work out from the raw stack what the elements on this line are.
+
+        Returns:
+            :obj:`list` of segments
+
+        """
+        working_buff = initial_buff or []
+        idx = -1
+        while True:
+            if len(raw_stack) >= abs(idx):
+                s = raw_stack[idx]
+                if s.name == 'newline':
+                    break
+                else:
+                    working_buff.insert(0, s)
+                    idx -= 1
+            else:
+                break
+        return working_buff
+
     def _eval(self, segment, raw_stack, **kwargs):
         """Line is too long.
 
@@ -1425,65 +1449,55 @@ class Rule_L016(Rule_L003):
         """
         if segment.name == 'newline':
             # iterate to buffer the whole line up to this point
-            this_line = []
-            idx = -1
-            while True:
-                if len(raw_stack) >= abs(idx):
-                    s = raw_stack[idx]
-                    if s.name == 'newline':
-                        break
-                    else:
-                        this_line.insert(0, s)
-                        idx -= 1
+            this_line = self._gen_line_so_far(raw_stack, [])
+        else:
+            # Otherwise we're all good
+            return None
+
+        # Now we can work out the line length and deal with the content
+        line_len = sum(len(s.raw) for s in this_line)
+        if line_len > self.max_line_length:
+            # Problem, we'll be reporting a violation. The
+            # question is, can we fix it?
+
+            # We'll need the indent, so let's get it for fixing.
+            line_indent = []
+            idx = 0
+            for s in this_line:
+                if s.name == 'whitespace':
+                    line_indent.append(s)
                 else:
                     break
 
-            # Now we can work out the line length and deal with the content
-            line_len = sum(len(s.raw) for s in this_line)
-            if line_len > self.max_line_length:
-                # Problem, we'll be reporting a violation. The
-                # question is, can we fix it?
-
-                # We'll need the indent, so let's get it for fixing.
-                line_indent = []
-                idx = 0
-                for s in this_line:
-                    if s.name == 'whitespace':
-                        line_indent.append(s)
+            # Does the line end in an inline comment that we can move back?
+            if this_line[-1].name == 'inline_comment':
+                # Is this line JUST COMMENT, if so, user will have to fix themselves
+                if len(this_line) == 1:
+                    return LintResult(anchor=segment)
+                # Set up to delete the original comment and the preceeding whitespace
+                delete_buffer = [LintFix('delete', this_line[-1])]
+                idx = -2
+                while True:
+                    if len(this_line) >= abs(idx) and this_line[idx].name == 'whitespace':
+                        delete_buffer.append(LintFix('delete', this_line[idx]))
+                        idx -= 1
                     else:
                         break
+                # Create a newline before this one with the existing comment, an
+                # identical indent AND a terminating newline, copied from the current
+                # target segment.
+                create_buffer = [
+                    LintFix(
+                        'create', this_line[0],
+                        line_indent + [this_line[-1], segment]
+                    )
+                ]
+                return LintResult(anchor=segment, fixes=delete_buffer + create_buffer)
 
-                # Does the line end in an inline comment that we can move back?
-                if this_line[-1].name == 'inline_comment':
-                    # Is this line JUST COMMENT, if so, user will have to fix themselves
-                    if len(this_line) == 1:
-                        return LintResult(anchor=segment)
-                    # Set up to delete the original comment and the preceeding whitespace
-                    delete_buffer = [LintFix('delete', this_line[-1])]
-                    idx = -2
-                    while True:
-                        if len(this_line) >= abs(idx) and this_line[idx].name == 'whitespace':
-                            delete_buffer.append(LintFix('delete', this_line[idx]))
-                            idx -= 1
-                        else:
-                            break
-                    # Create a newline before this one with the existing comment, an
-                    # identical indent AND a terminating newline, copied from the current
-                    # target segment.
-                    create_buffer = [
-                        LintFix(
-                            'create', this_line[0],
-                            line_indent + [this_line[-1], segment]
-                        )
-                    ]
-                    return LintResult(anchor=segment, fixes=delete_buffer + create_buffer)
-
-                fixes = self._eval_line_for_breaks(this_line)
-                if fixes:
-                    return LintResult(anchor=segment, fixes=fixes)
-                return LintResult(anchor=segment)
-        # Otherwise we're all good
-        return None
+            fixes = self._eval_line_for_breaks(this_line)
+            if fixes:
+                return LintResult(anchor=segment, fixes=fixes)
+            return LintResult(anchor=segment)
 
 
 @std_rule_set.register

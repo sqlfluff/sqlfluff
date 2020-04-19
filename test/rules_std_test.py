@@ -131,6 +131,25 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
      {'rules': {'L019': {'comma_style': 'leading'}}}),
     ('L019', 'pass', 'SELECT\n    a,\n    b\n    FROM c', None,
      {'rules': {'L019': {'comma_style': 'trailing'}}}),
+    # Configurable indents work.
+    # a) default
+    ('L003', 'pass', 'SELECT a, b, c\nFROM my_tbl\nLEFT JOIN another_tbl USING(a)', None, None),
+    # b) specific
+    ('L003', 'pass', 'SELECT a, b, c\nFROM my_tbl\nLEFT JOIN another_tbl USING(a)', None,
+     {'indentation': {'indented_joins': False}}),
+    # c) specific True, but passing
+    ('L003', 'pass', 'SELECT a, b, c\nFROM my_tbl\n    LEFT JOIN another_tbl USING(a)', None,
+     {'indentation': {'indented_joins': True}}),
+    # d) specific True, but failing
+    ('L003', 'fail',
+     'SELECT a, b, c\nFROM my_tbl\nLEFT JOIN another_tbl USING(a)',
+     'SELECT a, b, c\nFROM my_tbl\n    LEFT JOIN another_tbl USING(a)',
+     {'indentation': {'indented_joins': True}}),
+    # e) specific False, and failing
+    ('L003', 'fail',
+     'SELECT a, b, c\nFROM my_tbl\n    LEFT JOIN another_tbl USING(a)',
+     'SELECT a, b, c\nFROM my_tbl\nLEFT JOIN another_tbl USING(a)',
+     {'indentation': {'indented_joins': False}})
 ])
 def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
     """Test that a rule passes/fails on a given string.
@@ -172,6 +191,9 @@ def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
     ('L003', 'test/fixtures/linter/indentation_error_hard.sql', [(2, 4), (6, 5), (9, 13), (14, 14), (19, 5), (20, 6)]),
     # Check bracket handling with closing brackets and contained indents works.
     ('L003', 'test/fixtures/linter/indentation_error_contained.sql', []),
+    # Check we handle block comments as expect. Github #236
+    ('L003', 'test/fixtures/linter/block_comment_errors.sql', [(3, 1)]),
+    ('L016', 'test/fixtures/linter/block_comment_errors.sql', [(1, 121), (2, 99), (4, 88)]),
 ])
 def test__rules__std_file(rule, path, violations):
     """Test the linter finds the given errors in (and only in) the right places."""

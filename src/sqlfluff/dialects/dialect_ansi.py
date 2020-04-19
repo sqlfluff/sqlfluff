@@ -24,9 +24,16 @@ ansi_dialect = Dialect('ansi')
 
 ansi_dialect.set_lexer_struct([
     # name, type, pattern, kwargs
-    ("whitespace", "regex", r"[\t ]*", dict(type='whitespace')),
+    ("whitespace", "regex", r"[\t ]+", dict(type='whitespace')),
     ("inline_comment", "regex", r"(--|#)[^\n]*", dict(is_comment=True, type='comment')),
-    ("block_comment", "regex", r"\/\*([^\*]|\*[^\/])*\*\/", dict(is_comment=True, type='comment')),
+    (
+        "block_comment", "regex", r"\/\*([^\*]|\*[^\/])*\*\/",
+        dict(
+            is_comment=True, type='comment',
+            subdivide=dict(type='newline', name='newline', regex=r"\r\n|\n"),
+            trim_post_subdivide=dict(type='whitespace', name='whitespace', regex=r"[\t ]+")
+        )
+    ),
     ("single_quote", "regex", r"'[^']*'", dict(is_code=True)),
     ("double_quote", "regex", r'"[^"]*"', dict(is_code=True)),
     ("back_quote", "regex", r"`[^`]*`", dict(is_code=True)),
@@ -34,10 +41,9 @@ ansi_dialect.set_lexer_struct([
     ("not_equal", "regex", r"!=|<>", dict(is_code=True)),
     ("greater_than_or_equal", "regex", r">=", dict(is_code=True)),
     ("less_than_or_equal", "regex", r"<=", dict(is_code=True)),
-    ("newline", "regex", r"\r\n", dict(type='newline')),
+    ("newline", "regex", r"\r\n|\n", dict(type='newline')),
     ("casting_operator", "regex", r"::", dict(is_code=True)),
     ("concat_operator", "regex", r"\|\|", dict(is_code=True)),
-    ("newline", "singleton", "\n", dict(type='newline')),
     ("equals", "singleton", "=", dict(is_code=True)),
     ("greater_than", "singleton", ">", dict(is_code=True)),
     ("less_than", "singleton", "<", dict(is_code=True)),
@@ -651,14 +657,14 @@ class FromClauseSegment(BaseSegment):
         # and so should be on a sub-indent of it. That isn't
         # common practice however, so for now it will be assumed
         # to be on the same level as the FROM clause. To change
-        # this behaviour, the Dedent would come after the AnyNumberOf
-        # rather than before. TODO: In future this might be
-        # configurable.
-        Dedent,
+        # this behaviour, set the `indented_joins` config value
+        # to True.
+        Dedent.when(indented_joins=False),
         AnyNumberOf(
             Ref('JoinClauseSegment'),
             optional=True
         ),
+        Dedent.when(indented_joins=True)
     )
 
 
@@ -1289,6 +1295,11 @@ class CreateTableStatementSegment(BaseSegment):
     # https://www.postgresql.org/docs/12/sql-createtable.html
     match_grammar = Sequence(
         Ref('CreateKeywordSegment'),
+        Sequence(
+            Ref('OrKeywordSegment'),
+            Ref('ReplaceKeywordSegment'),
+            optional=True
+        ),
         Ref('TableKeywordSegment'),
         Sequence(
             Ref('IfKeywordSegment'),
@@ -1297,20 +1308,38 @@ class CreateTableStatementSegment(BaseSegment):
             optional=True
         ),
         Ref('ObjectReferenceSegment'),
-        Bracketed(
-            Delimited(
-                OneOf(
-                    Ref('ColumnDefinitionSegment'),
-                    Ref('TableConstraintSegment'),
+        OneOf(
+            # Columns and comment syntax:
+            Sequence(
+                Bracketed(
+                    Delimited(
+                        OneOf(
+                            Ref('ColumnDefinitionSegment'),
+                            Ref('TableConstraintSegment'),
+                        ),
+                        delimiter=Ref('CommaSegment')
+                    )
                 ),
-                delimiter=Ref('CommaSegment')
+                Sequence(  # [COMMENT 'string'] (MySQL)
+                    Ref('CommentKeywordSegment'),
+                    Ref('QuotedLiteralSegment'),
+                    optional=True
+                )
+            ),
+            # Create AS syntax:
+            Sequence(
+                Ref('AsKeywordSegment'),
+                OneOf(
+                    Ref('SelectStatementSegment'),
+                    Ref('WithCompoundStatementSegment')
+                )
+            ),
+            # Create like syntax
+            Sequence(
+                Ref('LikeKeywordSegment'),
+                Ref('ObjectReferenceSegment')
             )
-        ),
-        Sequence(  # [COMMENT 'string'] (MySQL)
-            Ref('CommentKeywordSegment'),
-            Ref('QuotedLiteralSegment'),
-            optional=True
-        ),
+        )
     )
 
 

@@ -821,6 +821,9 @@ class Sequence(BaseGrammar):
             while True:
                 # Is it an indent or dedent?
                 if elem.is_meta:
+                    # Is it actually enabled?
+                    if not elem.is_enabled(parse_context=parse_context):
+                        break
                     # Work out how to find an appropriate pos_marker for
                     # the meta segment.
                     if matched_segments:
@@ -851,7 +854,7 @@ class Sequence(BaseGrammar):
                         return matched_segments + tuple(
                             e(pos_marker=meta_pos_marker)
                             for e in self._elements[idx:]
-                            if e.is_meta
+                            if e.is_meta and e.is_enabled(parse_context=parse_context)
                         )
                     else:
                         # we've got to the end of the sequence without matching all
@@ -1287,14 +1290,14 @@ class Bracketed(BaseGrammar):
         if content_match.is_complete():
             # We don't want to add metas if they're already there, so check.
             # We also only add indents if there *is* content.
-            if content_match.matched_segments and content_match.matched_segments[0].is_meta:
+            if content_match.matched_segments and content_match.matched_segments[0].is_meta and content_match.matched_segments[0].is_enabled(parse_context=parse_context):
                 pre_meta = ()
             elif not content_match.matched_segments:
                 pre_meta = ()
             else:
                 pre_meta = (Indent(pos_marker=content_match.matched_segments[0].get_start_pos_marker()),)
 
-            if end_match.matched_segments and end_match.matched_segments[0].is_meta:
+            if end_match.matched_segments and end_match.matched_segments[0].is_meta and end_match.matched_segments[0].is_enabled(parse_context=parse_context):
                 post_meta = ()
             elif not content_match.matched_segments:
                 post_meta = ()

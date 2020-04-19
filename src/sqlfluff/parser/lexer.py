@@ -23,10 +23,12 @@ class SingletonMatcher:
     `_match` function rather than the public `match` function.  This acts as
     the base class for matchers.
     """
-    def __init__(self, name, template, target_seg_class, *args, **kwargs):
+    def __init__(self, name, template, target_seg_class, subdivide=None, trim_post_subdivide=None, *args, **kwargs):
         self.name = name
         self.template = template
         self.target_seg_class = target_seg_class
+        self.subdivide = subdivide
+        self.trim_post_subdivide = trim_post_subdivide
 
     def _match(self, forward_string):
         """The private match function. Just look for a single character match."""
@@ -34,6 +36,112 @@ class SingletonMatcher:
             return forward_string[0]
         else:
             return None
+
+    def _trim(self, matched, start_pos):
+        """Given a string, trim if we are allowed to.
+
+        Returns:
+            :obj:`tuple` of segments
+
+        """
+        seg_buff = ()
+        cont_buff = matched
+        cont_pos_buff = start_pos
+        idx = 0
+
+        if self.trim_post_subdivide:
+            trimmer = re.compile(self.trim_post_subdivide['regex'], re.DOTALL)
+            TrimClass = RawSegment.make(
+                self.trim_post_subdivide['regex'],
+                name=self.trim_post_subdivide['name'],
+                type=self.trim_post_subdivide['type']
+            )
+
+            for trim_mat in trimmer.finditer(matched):
+                trim_span = trim_mat.span()
+                # Is it at the start?
+                if trim_span[0] == 0:
+                    seg_buff += (
+                        TrimClass(
+                            raw=matched[:trim_span[1]],
+                            pos_marker=cont_pos_buff
+                        ),
+                    )
+                    idx = trim_span[1]
+                    cont_pos_buff = cont_pos_buff.advance_by(matched[:trim_span[1]])
+                # Is it at the end?
+                if trim_span[1] == len(matched):
+                    seg_buff += (
+                        self.target_seg_class(
+                            raw=matched[idx:trim_span[0]],
+                            pos_marker=cont_pos_buff
+                        ),
+                        TrimClass(
+                            raw=matched[trim_span[0]:trim_span[1]],
+                            pos_marker=cont_pos_buff.advance_by(cont_buff[idx:trim_span[0]])
+                        ),
+                    )
+                    idx = len(matched)
+
+        # Do we have anything left? (or did nothing happen)
+        if idx < len(matched):
+            seg_buff += (
+                self.target_seg_class(
+                    raw=matched[idx:],
+                    pos_marker=cont_pos_buff
+                ),
+            )
+
+        return seg_buff
+
+    def _subdivide(self, matched, start_pos):
+        """Given a string, subdivide if we area allowed to.
+
+        Returns:
+            :obj:`tuple` of segments
+
+        """
+        # Can we have to subdivide?
+        if self.subdivide:
+            # Yes subdivision
+            seg_buff = ()
+            str_buff = matched
+            pos_buff = start_pos
+            divider = re.compile(self.subdivide['regex'], re.DOTALL)
+            DividerClass = RawSegment.make(
+                self.subdivide['regex'],
+                name=self.subdivide['name'],
+                type=self.subdivide['type']
+            )
+
+            while True:
+                # Iterate through subdividing as appropriate
+                mat = divider.search(str_buff)
+                if mat:
+                    # Found a division
+                    span = mat.span()
+                    trimmed_segments = self._trim(str_buff[:span[0]], pos_buff)
+                    div_seg = DividerClass(
+                        raw=str_buff[span[0]:span[1]],
+                        pos_marker=pos_buff.advance_by(str_buff[:span[0]])
+                    )
+                    seg_buff += trimmed_segments + (div_seg,)
+                    pos_buff = pos_buff.advance_by(str_buff[:span[1]])
+                    str_buff = str_buff[span[1]:]
+                else:
+                    # No more division matches. Trim?
+                    trimmed_segments = self._trim(str_buff, pos_buff)
+                    seg_buff += trimmed_segments
+                    pos_buff = pos_buff.advance_by(str_buff)
+                    break
+            return seg_buff
+        else:
+            # NB: Tuple literal
+            return (
+                self.target_seg_class(
+                    raw=matched,
+                    pos_marker=start_pos),
+            )
 
     def match(self, forward_string, start_pos):
         """Given a string, match what we can and return the rest.
@@ -47,14 +155,12 @@ class SingletonMatcher:
         matched = self._match(forward_string)
 
         if matched:
-            new_pos = start_pos.advance_by(matched)
+            # Handle potential subdivision elsewhere.
+            new_segments = self._subdivide(matched, start_pos)
             return LexMatch(
                 forward_string[len(matched):],
-                new_pos,
-                # NB: Tuple literal
-                (self.target_seg_class(
-                    raw=matched,
-                    pos_marker=start_pos),)
+                new_segments[-1].get_end_pos_marker(),
+                new_segments
             )
         else:
             return LexMatch(forward_string, start_pos, ())
@@ -67,11 +173,20 @@ class SingletonMatcher:
         because several parameters of the matcher and the class of segment
         to be returned are shared, and here we define both together.
         """
+        # Some kwargs get consumed by the class, the rest
+        # are passed to the raw segment.
+        class_kwargs = {}
+        possible_class_kwargs = ['subdivide', 'trim_post_subdivide']
+        for k in possible_class_kwargs:
+            if k in kwargs:
+                class_kwargs[k] = kwargs.pop(k)
+
         return cls(
             name, template,
             RawSegment.make(
                 template, name=name, **kwargs
-            )
+            ),
+            **class_kwargs
         )
 
 
@@ -192,7 +307,6 @@ class Lexer:
             res = self.matcher.match(raw, start_pos)
             segment_buff += res.segments
             if len(res.new_string) > 0:
-                print(repr(res.new_string))
                 violations.append(SQLLexError(
                     "Unable to lex characters: '{0!r}...'".format(
                         res.new_string[:10]),
@@ -204,7 +318,6 @@ class Lexer:
                 if not resort_res:
                     # If we STILL can't match, then just panic out.
                     raise violations[-1]
-                print(resort_res)
 
                 raw = resort_res.new_string
                 start_pos = resort_res.new_pos
