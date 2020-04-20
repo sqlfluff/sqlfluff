@@ -221,8 +221,19 @@ class BaseSegment:
 
     @classmethod
     def simple(cls, parse_context):
-        """Does this matcher support an uppercase hash matching route?"""
-        return False
+        """Does this matcher support an uppercase hash matching route?
+
+        This should be true if the MATCH grammar is simple. Most more
+        complicated segments will be assumed to overwrite this method
+        if they wish to be considered simple.
+        """
+        match_grammar = cls._match_grammar()
+        if match_grammar:
+            return match_grammar.simple(parse_context=parse_context)
+        else:
+            # Other segments will either override this method, or aren't
+            # simple.
+            return False
 
     @property
     def is_code(self):

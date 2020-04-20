@@ -1548,6 +1548,8 @@ class Rule_L017(BaseCrawler):
 class Rule_L018(BaseCrawler):
     """WITH clause closing bracket should be aligned with WITH keyword."""
 
+    _works_on_unparsable = False
+
     def __init__(self, tab_space_size=4, **kwargs):
         """Initialise, extracting the tab size from the config.
 
@@ -1572,6 +1574,12 @@ class Rule_L018(BaseCrawler):
                 else:
                     raw_stack_buff.append(seg)
             else:
+                # This *could* happen if the with statement is unparsable,
+                # in which case then the user will have to fix that first.
+                if any(s.type == 'unparsable' for s in segment.segments):
+                    return LintResult()
+                # If it's parsable but we still didn't find a with, then
+                # we should raise that.
                 raise RuntimeError("Didn't find WITH keyword!")
 
             def indent_size_up_to(segs):
