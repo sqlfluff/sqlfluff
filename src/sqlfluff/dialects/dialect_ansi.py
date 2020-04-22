@@ -27,7 +27,7 @@ ansi_dialect.set_lexer_struct([
     ("whitespace", "regex", r"[\t ]+", dict(type='whitespace')),
     ("inline_comment", "regex", r"(--|#)[^\n]*", dict(is_comment=True, type='comment')),
     (
-        "block_comment", "regex", r"\/\*([^\*]|\*[^\/])*\*\/",
+        "block_comment", "regex", r"\/\*([^\*]|\*(?!\/))*\*\/",
         dict(
             is_comment=True, type='comment',
             subdivide=dict(type='newline', name='newline', regex=r"\r\n|\n"),
