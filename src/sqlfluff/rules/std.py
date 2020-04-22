@@ -1508,7 +1508,7 @@ class Rule_L016(Rule_L003):
 class Rule_L017(BaseCrawler):
     """Function name not immediately followed by bracket."""
 
-    def _eval(self, segment, raw_stack, **kwargs):
+    def _eval(self, segment, **kwargs):
         """Function name not immediately followed by bracket.
 
         Look for Function Segment with anything other than the
@@ -1862,7 +1862,7 @@ class Rule_L023(BaseCrawler):
                 if seg.is_code:
                     if seg.type == 'start_bracket' and last_code.name == 'AS':
                         # Do we actually have the right amount of whitespace?
-                        if not ''.join(s.raw for s in mid_segs) == ' ':
+                        if ''.join(s.raw for s in mid_segs) != ' ':
                             if not mid_segs:
                                 # There's nothing between. Just add a whitespace
                                 fixes = [LintFix(
