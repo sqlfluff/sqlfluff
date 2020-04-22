@@ -195,6 +195,8 @@ def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
     ('L003', 'test/fixtures/linter/block_comment_errors.sql', [(3, 1)]),
     ('L016', 'test/fixtures/linter/block_comment_errors.sql', [(1, 121), (2, 99), (4, 88)]),
     ('L016', 'test/fixtures/linter/block_comment_errors_2.sql', [(1, 85), (2, 86)]),
+    # Column references
+    ('L020', 'test/fixtures/linter/column_references.sql', [(1, 8), (1, 11)]),
 ])
 def test__rules__std_file(rule, path, violations):
     """Test the linter finds the given errors in (and only in) the right places."""

@@ -920,6 +920,34 @@ class BaseSegment:
             pos_marker=self.pos_marker
         )
 
+    def get_child(self, seg_type):
+        """Retrieve the first of the children of this segment with matching type."""
+        for seg in self.segments:
+            if seg.type == seg_type:
+                return seg
+        else:
+            return None
+
+    def get_children(self, seg_type):
+        """Retrieve the all of the children of this segment with matching type."""
+        buff = []
+        for seg in self.segments:
+            if seg.type == seg_type:
+                buff.append(seg)
+        return buff
+
+    def recursive_crawl(self, seg_type):
+        """Recursively crawl for segments of a given type."""
+        buff = []
+        # Check this segment
+        if self.type == seg_type:
+            buff.append(self)
+        # Recurse
+        for seg in self.segments:
+            buff += seg.recursive_crawl(seg_type=seg_type)
+        # Return
+        return buff
+
 
 class RawSegment(BaseSegment):
     """This is a segment without any subsegments."""

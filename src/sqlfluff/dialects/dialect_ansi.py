@@ -94,16 +94,16 @@ ansi_dialect.add(
     # The strange regex here it to make sure we don't accidentally match numeric literals. We
     # also use a regex to explicitly exclude disallowed keywords.
     NakedIdentifierSegment=ReSegment.make(
-        r"[A-Z0-9_]*[A-Z][A-Z0-9_]*", name='identifier', type='naked_identifier',
+        r"[A-Z0-9_]*[A-Z][A-Z0-9_]*", name='naked_identifier', type='identifier',
         _anti_template=r"^(SELECT|JOIN|ON|USING|CROSS|INNER|LEFT|RIGHT|OUTER|INTERVAL|CASE|FULL|NULL)$"),
     FunctionNameSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='function_name', type='function_name'),
     # Maybe data types should be more restrictive?
     DatatypeIdentifierSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='data_type_identifier', type='data_type_identifier'),
     # Maybe date parts should be more restrictive
     DatepartSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='date_part', type='date_part'),
-    QuotedIdentifierSegment=NamedSegment.make('double_quote', name='identifier', type='quoted_identifier'),
-    QuotedLiteralSegment=NamedSegment.make('single_quote', name='literal', type='quoted_literal'),
-    NumericLiteralSegment=NamedSegment.make('numeric_literal', name='literal', type='numeric_literal'),
+    QuotedIdentifierSegment=NamedSegment.make('double_quote', name='quoted_identifier', type='identifier'),
+    QuotedLiteralSegment=NamedSegment.make('single_quote', name='quoted_literal', type='literal'),
+    NumericLiteralSegment=NamedSegment.make('numeric_literal', name='numeric_literal', type='literal'),
     TrueSegment=KeywordSegment.make('true', name='true', type='boolean_literal'),
     FalseSegment=KeywordSegment.make('false', name='false', type='boolean_literal'),
     # We use a GRAMMAR here not a Segment. Otherwise we get an unecessary layer
@@ -291,6 +291,14 @@ class ObjectReferenceSegment(BaseSegment):
         ),
         code_only=False
     )
+
+    def reference_elements(self):
+        """Return a list of reference segments."""
+        return self.recursive_crawl('identifier')
+
+    def is_qualified(self):
+        """Return if there is more than one element to the reference."""
+        return len(self.reference_elements()) > 1
 
 
 @ansi_dialect.segment()
@@ -507,6 +515,21 @@ class TableExpressionSegment(BaseSegment):
         ),
     )
 
+    def get_eventual_alias(self):
+        """Return the eventual table name referred to by this table expression."""
+        alias_expression = self.get_child('alias_expression')
+        if alias_expression:
+            # If it has an alias, return that
+            return alias_expression.get_child('identifier')
+        else:
+            # If not return the object name (or None if there isn't one)
+            ref = self.get_child('object_reference')
+            if ref:
+                # Return the last element of the reference
+                return ref.reference_elements()[-1]
+            else:
+                return None
+
 
 @ansi_dialect.segment()
 class SelectTargetElementSegment(BaseSegment):
@@ -623,6 +646,11 @@ class JoinClauseSegment(BaseSegment):
         Dedent
     )
 
+    def get_eventual_alias(self):
+        """Return the eventual table name referred to by this join clause."""
+        table_expression = self.get_child('table_expression')
+        return table_expression.get_eventual_alias()
+
 
 @ansi_dialect.segment()
 class FromClauseSegment(BaseSegment):
@@ -666,6 +694,17 @@ class FromClauseSegment(BaseSegment):
         ),
         Dedent.when(indented_joins=True)
     )
+
+    def get_eventual_aliases(self):
+        """List the eventual aliases of this from clause."""
+        buff = []
+        direct_table_children = self.get_children('table_expression')
+        for tc in direct_table_children:
+            buff.append(tc.get_eventual_alias())
+        join_clauses = self.get_children('join_clause')
+        for jc in join_clauses:
+            buff.append(jc.get_eventual_alias())
+        return buff
 
 
 @ansi_dialect.segment()

@@ -5,13 +5,13 @@ file:
       - keyword: SELECT
       - select_target_element:
           object_reference:
-            naked_identifier: col1
+            identifier: col1
       - comma: ','
       - select_target_element:
           object_reference:
-            naked_identifier: col2
+            identifier: col2
       from_clause:
         keyword: FROM
         table_expression:
           object_reference:
-            naked_identifier: my_table
+            identifier: my_table

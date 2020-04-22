@@ -10,4 +10,4 @@ file:
         keyword: from
         table_expression:
           object_reference:
-            naked_identifier: blah
+            identifier: blah

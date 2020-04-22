@@ -1,6 +1,7 @@
 """Standard SQL Linting Rules."""
 
 import logging
+import itertools
 
 from .base import BaseCrawler, LintFix, LintResult, RuleSet
 
@@ -819,7 +820,7 @@ class Rule_L010(BaseCrawler):
     """
 
     # Binary operators behave like keywords too.
-    _target_elems = ('keyword', 'binary_operator')
+    _target_elems = (('type', 'keyword'), ('type', 'binary_operator'))
 
     def __init__(self, capitalisation_policy='consistent', **kwargs):
         """Initialise, extracting the capitalisation mode from the config."""
@@ -841,7 +842,10 @@ class Rule_L010(BaseCrawler):
         """
         cases_seen = memory.get('cases_seen', set())
 
-        if segment.type in self._target_elems:
+        if (
+            ('type', segment.type) in self._target_elems
+            or ('name', segment.name) in self._target_elems
+        ):
             raw = segment.raw
             uc = raw.upper()
             lc = raw.lower()
@@ -1046,7 +1050,7 @@ class Rule_L014(Rule_L010):
 
     """
 
-    _target_elems = ('naked_identifier',)
+    _target_elems = (('name', 'naked_identifier'),)
 
 
 @std_rule_set.register
@@ -1711,4 +1715,69 @@ class Rule_L019(BaseCrawler):
                             description="Found leading comma. Expected only trailing."
                         )
         # Otherwise fine
+        return None
+
+
+@std_rule_set.register
+class Rule_L020(BaseCrawler):
+    """References should be qualified if ambiguous."""
+
+    def _eval(self, segment, raw_stack, **kwargs):
+        """Enforce comma placement.
+
+        If want leading commas, we're looking for trailing commas, so
+        we look for newline segments. If we want trailing commas then
+        we're looking for leading commas, so we look for the comma itself.
+        """
+        if segment.type == 'select_statement':
+            # A buffer to keep any violations.
+            violation_buff = []
+
+            # Is this a table with multiple potential joins
+            fc = segment.get_child('from_clause')
+            if not fc:
+                # If there's no from clause then just abort.
+                return None
+
+            aliases = fc.get_eventual_aliases()
+            # Are any of the aliases the same?
+            for a1, a2 in itertools.combinations(aliases, 2):
+                if a1.raw == a2.raw and a1:
+                    # If there are any, then the rest of the code
+                    # won't make sense so just return here.
+                    return LintResult(
+                        anchor=a2,
+                        description=("Duplicate table alias {0!r}. Table "
+                                     "aliases should be unique.").format(a2.raw)
+                    )
+            # Do we have more than one? If so, all references should be qualified.
+            enforce_qualified = len(aliases) > 1
+
+            # Iterate through all the references and check them
+            sc = segment.get_child('select_clause')
+            refs = sc.recursive_crawl('object_reference')
+            for r in refs:
+                if enforce_qualified and not r.is_qualified():
+                    violation_buff.append(
+                        LintResult(
+                            anchor=r,
+                            description="Unqualified reference {0!r} found in select with more than one table.".format(r.raw)
+                        )
+                    )
+
+                ref_elems = r.reference_elements()
+                if len(ref_elems) >= 2:
+                    tbl_ref = ref_elems[-2]
+                    if tbl_ref.raw not in [a.raw for a in aliases]:
+                        violation_buff.append(
+                            LintResult(
+                                anchor=tbl_ref,
+                                description="Reference {0!r} refers to table/view {1!r} not found in the FROM clause.".format(r.raw, tbl_ref.raw)
+                            )
+                        )
+
+            if violation_buff:
+                return violation_buff
+            else:
+                return None
         return None
