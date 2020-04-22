@@ -98,11 +98,11 @@ def benchmark(cmd, runs, from_file):
         if post_results:
             click.echo("Posting results: {0}".format(results))
             resp = requests.post(
-                'https://f32cvv8yh3.execute-api.eu-west-1.amazonaws.com/gh/{repo}'.format(
-                    repo='alanmcruickshank/sqlfluff'
+                'https://f32cvv8yh3.execute-api.eu-west-1.amazonaws.com/result/gh/{repo}/{commit}'.format(
+                    repo='alanmcruickshank/sqlfluff',
+                    commit=commit_hash
                 ),
                 params={
-                    'commit': commit_hash,
                     'key': 'mtqTC1fVVebVQ5BVREP7jYrKwgjaO0IfRILzyZt'
                 },
                 json=results
