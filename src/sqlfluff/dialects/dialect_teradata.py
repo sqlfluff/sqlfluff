@@ -275,6 +275,7 @@ class TdCreateTableOptions(BaseSegment):
         ),
     )
 
+
 @teradata_dialect.segment()
 class TdColumnDefinitionSegment(BaseSegment):
     """A column definition, e.g. for CREATE TABLE or ALTER TABLE."""
