@@ -25,7 +25,8 @@ Getting Started
 ^^^^^^^^^^^^^^^
 
 To get started just install the package, make a sql file and then run
-sqlfluff and point it at the file.
+sqlfluff and point it at the file. For more details or if you don't
+have python or pip already installed see :ref:`gettingstartedref`.
 
 .. code-block:: bash
 
@@ -44,6 +45,7 @@ Contents
    :maxdepth: 3
    :caption: Documentation for sqlfluff:
 
+   gettingstarted
    realworld
    indentation
    rules
