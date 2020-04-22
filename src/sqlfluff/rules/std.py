@@ -1680,7 +1680,8 @@ class Rule_L019(BaseCrawler):
         self.comma_style = comma_style
         super(Rule_L019, self).__init__(**kwargs)
 
-    def _last_code_seg(self, raw_stack, idx=-1):
+    @staticmethod
+    def _last_code_seg(raw_stack, idx=-1):
         while True:
             if -idx > len(raw_stack):
                 return None
