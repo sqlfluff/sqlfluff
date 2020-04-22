@@ -207,6 +207,7 @@ ansi_dialect.add(
     RLikeKeywordSegment=KeywordSegment.make('rlike'),
     RoleKeywordSegment=KeywordSegment.make('role'),
     UserKeywordSegment=KeywordSegment.make('user'),
+    DeleteKeywordSegment=KeywordSegment.make('delete'),
     # Some more grammars:
     IntervalKeywordSegment=KeywordSegment.make('interval'),
     LiteralGrammar=OneOf(
@@ -1516,6 +1517,23 @@ class AccessStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class DeleteStatementSegment(BaseSegment):
+    """A `DELETE` statement.
+
+    DELETE FROM <table name> [ WHERE <search condition> ]
+    """
+    type = 'delete_statement'
+    # match grammar. This one makes sense in the context of knowing that it's
+    # definitely a statement, we just don't know what type yet.
+    match_grammar = StartsWith(Ref('DeleteKeywordSegment'))
+    parse_grammar = Sequence(
+        Ref('DeleteKeywordSegment'),
+        Ref('FromClauseSegment'),
+        Ref('WhereClauseSegment', optional=True),
+    )
+
+
+@ansi_dialect.segment()
 class StatementSegment(BaseSegment):
     """A generic segment, to any of it's child subsegments.
 
@@ -1529,5 +1547,6 @@ class StatementSegment(BaseSegment):
         Ref('TransactionStatementSegment'), Ref('DropStatementSegment'),
         Ref('AccessStatementSegment'), Ref('CreateTableStatementSegment'),
         Ref('CreateViewStatementSegment'),
+        Ref('DeleteStatementSegment'),
     )
     match_grammar = GreedyUntil(Ref('SemicolonSegment'))

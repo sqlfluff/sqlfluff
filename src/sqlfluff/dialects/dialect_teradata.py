@@ -217,33 +217,61 @@ class TdFunctionSegment(BaseSegment):
 class TdCreateTableOptions(BaseSegment):
     """CreateTableOptions.
 
-    , NO FALLBACK, NO BEFORE JOURNAL, NO AFTER JOURNAL
+    , NO FALLBACK, NO BEFORE JOURNAL, NO AFTER JOURNAL, CHECKSUM = DEFAULT, DEFAULT MERGEBLOCKRATIO
     """
     type = 'create_table_options_statement'
     match_grammar = AnyNumberOf(
-        # , [ NO ] FALLBACK [ PROTECTION ]
-        Sequence(
-            Ref('CommaSegment'),
-            Ref('NoKeywordSegment', optional=True),
-            Ref('FallbackKeywordSegment'),
-            Ref('ProtectionKeywordSegment', optional=True),
-        ),
-        # , [NO | DUAL | LOCAL |NOT LOCAL] [AFTER | BEFORE] JOURNAL
         Sequence(
             Ref('CommaSegment'),
             OneOf(
-                Ref('NoKeywordSegment'),
-                Ref('DualKeywordSegment'),
-                Ref('LocalKeywordSegment'),
-                Sequence(Ref('NotKeywordSegment'), Ref('LocalKeywordSegment')),
-                optional=True
+                # [ NO ] FALLBACK [ PROTECTION ]
+                Sequence(
+                    Ref('NoKeywordSegment', optional=True),
+                    Ref('FallbackKeywordSegment'),
+                    Ref('ProtectionKeywordSegment', optional=True),
+                ),
+                # [NO | DUAL | LOCAL |NOT LOCAL] [AFTER | BEFORE] JOURNAL
+                Sequence(
+                    OneOf(
+                        Ref('NoKeywordSegment'),
+                        Ref('DualKeywordSegment'),
+                        Ref('LocalKeywordSegment'),
+                        Sequence(Ref('NotKeywordSegment'), Ref('LocalKeywordSegment')),
+                        optional=True
+                    ),
+                    OneOf(
+                        Ref('BeforeKeywordSegment'),
+                        Ref('AfterKeywordSegment'),
+                        optional=True
+                    ),
+                    Ref('JournalKeywordSegment'),
+                ),
+                # CHECKSUM = (ON|OFF|DEFAULT)
+                Sequence(
+                    Ref('ChecksumKeywordSegment'),
+                    Ref('EqualsSegment'),
+                    OneOf(
+                        Ref('OnKeywordSegment'),
+                        Ref('OffKeywordSegment'),
+                        Ref('DefaultKeywordSegment'),
+                    ),
+                ),
+                # (NO|Default) MergeBlockRatio
+                Sequence(
+                    OneOf(
+                        Ref('DefaultKeywordSegment'),
+                        Ref('NoKeywordSegment'),
+                    ),
+                    Ref('MergeBlockRatioKeywordSegment'),
+                ),
+                # MergeBlockRatio = integer [PERCENT]
+                Sequence(
+                    Ref('MergeBlockRatioKeywordSegment'),
+                    Ref('EqualsSegment'),
+                    Ref('NumericLiteralSegment'),
+                    Ref('PercentKeywordSegment', optional=True),
+                ),
             ),
-            OneOf(
-                Ref('BeforeKeywordSegment'),
-                Ref('AfterKeywordSegment'),
-                optional=True
-            ),
-            Ref('JournalKeywordSegment'),
         ),
     )
 
@@ -458,6 +486,10 @@ teradata_dialect.add(
     CompressKeywordSegment=KeywordSegment.make('compress'),
     IndexKeywordSegment=KeywordSegment.make('index'),
     FormatKeywordSegment=KeywordSegment.make('format'),
+    ChecksumKeywordSegment=KeywordSegment.make('checksum'),
+    OffKeywordSegment=KeywordSegment.make('off'),
+    MergeBlockRatioKeywordSegment=KeywordSegment.make('mergeblockratio'),
+    PercentKeywordSegment=KeywordSegment.make('percent'),
     # Collect Statistics Keywords:
     CollectKeywordSegment=KeywordSegment.make('collect'),
     SummaryKeywordSegment=KeywordSegment.make('summary'),
