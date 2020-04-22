@@ -1817,17 +1817,12 @@ class Rule_L022(BaseCrawler):
             fix_point = None
             for seg in segment.segments:
                 if seg.type in ('end_bracket', 'comma'):
-                    print("a", seg)
                     expecting_blank_line = True
                     blank_line_found = False
                     blank_line_started = False
                 elif seg.is_code:
-                    print("b")
                     if expecting_blank_line:
-                        print("c")
                         if not blank_line_found:
-                            print(blank_line_started, blank_line_found)
-                            print(fix_point)
                             fix_point = fix_point or seg
                             fixes = [LintFix(
                                 'create', fix_point,
@@ -1843,7 +1838,6 @@ class Rule_L022(BaseCrawler):
                         blank_line_started = False
                         fix_point = None
                 elif seg.type == 'newline':
-                    print("d")
                     if not blank_line_found:
                         if blank_line_started:
                             blank_line_found = True
