@@ -1781,3 +1781,24 @@ class Rule_L020(BaseCrawler):
             else:
                 return None
         return None
+
+
+@std_rule_set.register
+class Rule_L021(BaseCrawler):
+    """Ambiguous use of DISTINCT in select statement with GROUP BY."""
+
+    def _eval(self, segment, raw_stack, **kwargs):
+        """Ambiguous use of DISTINCT in select statement with GROUP BY."""
+        if segment.type == 'select_statement':
+            # Do we have a group by clause
+            group_clause = segment.get_child('groupby_clause')
+            if not group_clause:
+                return None
+
+            # Do we have the "DISTINCT" keyword in the select clause
+            select_clause = segment.get_child('select_clause')
+            select_keywords = select_clause.get_children('keyword')
+            for kw in select_keywords:
+                if kw.name == 'DISTINCT':
+                    return LintResult(anchor=kw)
+        return None
