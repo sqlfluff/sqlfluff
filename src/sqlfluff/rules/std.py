@@ -1845,10 +1845,44 @@ class Rule_L022(BaseCrawler):
                 elif seg.type == 'newline':
                     print("d")
                     if not blank_line_found:
-                        if blank_line_started :
+                        if blank_line_started:
                             blank_line_found = True
                         else:
                             blank_line_started = True
                             blank_line_found = False
                             fix_point = seg
+        return error_buffer or None
+
+
+@std_rule_set.register
+class Rule_L023(BaseCrawler):
+    """Single whitespace expected after AS in WITH clause."""
+
+    def _eval(self, segment, **kwargs):
+        """Single whitespace expected after AS in WITH clause."""
+        error_buffer = []
+        if segment.type == 'with_compound_statement':
+            last_code = None
+            mid_segs = []
+            for seg in segment.segments:
+                if seg.is_code:
+                    if seg.type == 'start_bracket' and last_code.name == 'AS':
+                        # Do we actually have the right amount of whitespace?
+                        if not ''.join(s.raw for s in mid_segs) == ' ':
+                            if not mid_segs:
+                                # There's nothing between. Just add a whitespace
+                                fixes = [LintFix(
+                                    'create', seg,
+                                    [self.make_whitespace(raw=' ', pos_marker=seg.pos_marker)])]
+                            else:
+                                # Don't otherwise suggest a fix for now.
+                                # TODO: Enable more complex fixing here.
+                                fixes = None
+                            error_buffer.append(
+                                LintResult(anchor=last_code, fixes=fixes)
+                            )
+                    mid_segs = []
+                    last_code = seg
+                else:
+                    mid_segs.append(seg)
         return error_buffer or None
