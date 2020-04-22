@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Support for the Teradata dialect Thanks [@Katzmann1983](https://github.com/Katzmann1983)!
 - For the `parse` command, added the `--profiler` and `--bench` options
   to help debugging performance issues.
 - Proper parsing of the concatenate operator (`||`).
