@@ -1801,3 +1801,54 @@ class Rule_L021(BaseCrawler):
                 if kw.name == 'DISTINCT':
                     return LintResult(anchor=kw)
         return None
+
+
+@std_rule_set.register
+class Rule_L022(BaseCrawler):
+    """Blank line expected but not found after CTE definition."""
+
+    def _eval(self, segment, **kwargs):
+        """Blank line expected but not found after CTE definition."""
+        error_buffer = []
+        if segment.type == 'with_compound_statement':
+            expecting_blank_line = False
+            blank_line_found = False
+            blank_line_started = False
+            fix_point = None
+            for seg in segment.segments:
+                if seg.type in ('end_bracket', 'comma'):
+                    print("a", seg)
+                    expecting_blank_line = True
+                    blank_line_found = False
+                    blank_line_started = False
+                elif seg.is_code:
+                    print("b")
+                    if expecting_blank_line:
+                        print("c")
+                        if not blank_line_found:
+                            print(blank_line_started, blank_line_found)
+                            print(fix_point)
+                            fix_point = fix_point or seg
+                            fixes = [LintFix(
+                                'create', fix_point,
+                                [self.make_newline(pos_marker=fix_point.pos_marker)]
+                                # Two newlines if there isn't one at all, otherwise one.
+                                * (1 if blank_line_started else 2)
+                            )]
+                            error_buffer.append(
+                                LintResult(anchor=seg, fixes=fixes)
+                            )
+                        expecting_blank_line = False
+                        blank_line_found = False
+                        blank_line_started = False
+                        fix_point = None
+                elif seg.type == 'newline':
+                    print("d")
+                    if not blank_line_found:
+                        if blank_line_started :
+                            blank_line_found = True
+                        else:
+                            blank_line_started = True
+                            blank_line_found = False
+                            fix_point = seg
+        return error_buffer or None
