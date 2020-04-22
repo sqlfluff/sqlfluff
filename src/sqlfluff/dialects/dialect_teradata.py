@@ -23,18 +23,12 @@ EXPORT − Specifies the output file path and initiates the export.
 
 """
 
-
-from ..parser import (BaseSegment, KeywordSegment, ReSegment, NamedSegment,
-                      Sequence, GreedyUntil, StartsWith, ContainsOnly,
-                      OneOf, Delimited, Bracketed, AnyNumberOf, Ref,
-                      Anything, LambdaSegment, Indent, Dedent)
-from .base import Dialect
-
 from .dialect_ansi import ansi_dialect
-
+from ..parser import (BaseSegment, KeywordSegment, Sequence, GreedyUntil, StartsWith, OneOf, Delimited, Bracketed,
+                      AnyNumberOf, Ref,
+                      Anything)
 
 teradata_dialect = ansi_dialect.copy_as('teradata')
-
 
 teradata_dialect.patch_lexer_struct([
     # name, type, pattern, kwargs, so it also matches 1.
@@ -42,14 +36,12 @@ teradata_dialect.patch_lexer_struct([
 ])
 
 
-"""
-BteqStatementSegment 
-# Create BTEQ Statement as Segment
-# Add BTEQ Statement to the empyt statements
-"""
-
 @teradata_dialect.segment()
 class BteqKeyWordSegment(BaseSegment):
+    """Bteq Keywords.
+
+    Often stsrting with a dot, sometimes followed by a Literal
+    """
     type = 'bteq_key_word_segment'
     match_grammar = Sequence(
         Ref('DotSegment', optional=True),
@@ -72,10 +64,12 @@ class BteqKeyWordSegment(BaseSegment):
         Ref('LiteralGrammar', optional=True),
     )
 
+
 @teradata_dialect.segment()
 class BteqStatementSegment(BaseSegment):
-    """
-    Bteq statements start with a dot, followed by a Keyword and are terminated by ;
+    """Bteq statements start with a dot, followed by a Keyword.
+
+    Non exhaustive and maybe catching too many statements?
     """
     type = 'bteq_statement'
     match_grammar = StartsWith(Ref('DotSegment'))
@@ -95,14 +89,10 @@ class BteqStatementSegment(BaseSegment):
     )
 
 
-"""
-CollectStatisticStatementSegment
-COLLECT STATISTICS COLUMN ( IND_TIPO_TARJETA ) ON DB_1.TABLE_1;
-"""
 @teradata_dialect.segment()
 class TdCollectStatisticsStatementSegment(BaseSegment):
-    """
-    A `COLLECT STATISTICS (Optimizer Form)` statement
+    """A `COLLECT STATISTICS (Optimizer Form)` statement.
+
     # TODO: Make complete
     COLLECT [SUMMARY] (STATISTICS|STAT) [[COLUMN| [UNIQUE] INDEX] (expression (, expression ...)] ON TABLENAME
     """
@@ -142,12 +132,9 @@ class TdCollectStatisticsStatementSegment(BaseSegment):
 
 @teradata_dialect.segment()
 class TdFunctionSegment(BaseSegment):
-    """A scalar or aggregate function.
+    """A copy paste from FunctionSegment.
 
-    Maybe in the future we should distinguish between
-    aggregate functions and other functions. For now
-    we treat them the same because they look the same
-    for our purposes.
+    Only added function for Teradata
     """
     type = 'function'
     match_grammar = Sequence(
@@ -179,7 +166,7 @@ class TdFunctionSegment(BaseSegment):
                             Ref('DatatypeSegment'),
                             Sequence(
                                 Ref('DatatypeSegment'),
-                                KeywordSegment.make('format'),
+                                Ref('FormatKeywordSegment'),
                                 Ref('QuotedLiteralSegment')
                             ),
                             optional=False
@@ -228,7 +215,10 @@ class TdFunctionSegment(BaseSegment):
 
 @teradata_dialect.segment()
 class TdCreateTableOptions(BaseSegment):
-    """# , NO FALLBACK, NO BEFORE JOURNAL, NO AFTER JOURNAL """
+    """CreateTableOptions.
+
+    , NO FALLBACK, NO BEFORE JOURNAL, NO AFTER JOURNAL
+    """
     type = 'create_table_options_statement'
     match_grammar = AnyNumberOf(
         # , [ NO ] FALLBACK [ PROTECTION ]
@@ -278,7 +268,10 @@ class TdColumnDefinitionSegment(BaseSegment):
 
 @teradata_dialect.segment()
 class TdColumnOptionSegment(BaseSegment):
-    """Teradata specific column attributes, e.g. CHARACTER SET LATIN or [NOT] CASESPECIFIC """
+    """Teradata specific column attributes.
+
+    e.g. CHARACTER SET LATIN or [NOT] CASESPECIFIC
+    """
     type = 'td_column_attribute_constraint'
     match_grammar = Sequence(
         OneOf(
@@ -296,8 +289,8 @@ class TdColumnOptionSegment(BaseSegment):
                 OneOf(
                     Bracketed(
                         Delimited(
-                                Ref('LiteralGrammar'),
-                                delimiter=Ref('CommaSegment')
+                            Ref('LiteralGrammar'),
+                            delimiter=Ref('CommaSegment')
                         )
                     ),
                     Ref('LiteralGrammar'),
@@ -315,7 +308,9 @@ class TdColumnOptionSegment(BaseSegment):
 
 @teradata_dialect.segment()
 class TdTableConstraints(BaseSegment):
-    """Teradata specific table attributes, e.g.
+    """Teradata specific table attributes.
+
+    e.g.
         UNIQUE PRIMARY INDEX Column_name | ( Column_name, ... )
         NO PRIMARY INDEX
         ...
