@@ -69,6 +69,10 @@ class SingletonMatcher:
                     )
                     idx = trim_span[1]
                     cont_pos_buff = cont_pos_buff.advance_by(matched[:trim_span[1]])
+                    # Have we consumed the whole string? This avoids us having
+                    # an empty string on the end.
+                    if idx == len(matched):
+                        break
                 # Is it at the end?
                 if trim_span[1] == len(matched):
                     seg_buff += (

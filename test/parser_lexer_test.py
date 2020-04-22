@@ -46,8 +46,9 @@ def assert_matches(instring, matcher, matchstring):
         ("abc -- comment \nblah", ['abc', ' ', "-- comment ", "\n", "blah"]),
         ("abc # comment \nblah", ['abc', ' ', "# comment ", "\n", "blah"]),
         # Note the more complicated parsing of block comments.
-        # This tests subdivision and trimming
+        # This tests subdivision and trimming (incl the empty case)
         ("abc /* comment \nblah*/", ['abc', ' ', "/* comment", " ", "\n", "blah*/"]),
+        ("abc /*\n\t\n*/", ['abc', ' ', "/*", "\n", "\t", "\n", "*/"]),
         # Test Singletons
         ("*-+bd/", ['*', '-', '+', 'bd', '/']),
         # Test Negatives and Minus
