@@ -571,7 +571,7 @@ class Linter:
         if file_segment:
             try:
                 # Make a parse context and parse
-                context = self.get_parse_context()
+                context = self.get_parse_context(config=config or self.config)
                 context.verbosity = verbosity or context.verbosity
                 context.recurse = recurse or context.recurse
                 parsed = file_segment.parse(parse_context=context)
