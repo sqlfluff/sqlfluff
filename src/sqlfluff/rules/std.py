@@ -10,10 +10,10 @@ std_rule_set = RuleSet(name='standard')
 
 @std_rule_set.register
 class Rule_L001(BaseCrawler):
-    """Uneccessary trailing whitespace."""
+    """Unneccessary trailing whitespace."""
 
     def _eval(self, segment, raw_stack, **kwargs):
-        """Uneccessary trailing whitespace.
+        """Unneccessary trailing whitespace.
 
         Look for newline segments, and then evaluate what
         it was preceeded by.

@@ -4,6 +4,7 @@
 from .dialect_ansi import ansi_dialect
 from .dialect_bigquery import bigquery_dialect
 from .dialect_mysql import mysql_dialect
+from .dialect_teradata import teradata_dialect
 
 
 def dialect_selector(s):
@@ -12,6 +13,7 @@ def dialect_selector(s):
     lookup = {
         'ansi': ansi_dialect,
         'bigquery': bigquery_dialect,
-        'mysql': mysql_dialect
+        'mysql': mysql_dialect,
+        'teradata': teradata_dialect
     }
     return lookup[s]
