@@ -1722,7 +1722,7 @@ class Rule_L019(BaseCrawler):
 class Rule_L020(BaseCrawler):
     """References should be qualified if ambiguous."""
 
-    def _eval(self, segment, raw_stack, **kwargs):
+    def _eval(self, segment, **kwargs):
         """Enforce comma placement.
 
         If want leading commas, we're looking for trailing commas, so
@@ -1778,8 +1778,6 @@ class Rule_L020(BaseCrawler):
 
             if violation_buff:
                 return violation_buff
-            else:
-                return None
         return None
 
 
@@ -1787,7 +1785,7 @@ class Rule_L020(BaseCrawler):
 class Rule_L021(BaseCrawler):
     """Ambiguous use of DISTINCT in select statement with GROUP BY."""
 
-    def _eval(self, segment, raw_stack, **kwargs):
+    def _eval(self, segment, **kwargs):
         """Ambiguous use of DISTINCT in select statement with GROUP BY."""
         if segment.type == 'select_statement':
             # Do we have a group by clause

@@ -925,8 +925,7 @@ class BaseSegment:
         for seg in self.segments:
             if seg.type == seg_type:
                 return seg
-        else:
-            return None
+        return None
 
     def get_children(self, seg_type):
         """Retrieve the all of the children of this segment with matching type."""

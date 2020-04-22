@@ -521,14 +521,14 @@ class TableExpressionSegment(BaseSegment):
         if alias_expression:
             # If it has an alias, return that
             return alias_expression.get_child('identifier')
-        else:
-            # If not return the object name (or None if there isn't one)
-            ref = self.get_child('object_reference')
-            if ref:
-                # Return the last element of the reference
-                return ref.reference_elements()[-1]
-            else:
-                return None
+
+        # If not return the object name (or None if there isn't one)
+        ref = self.get_child('object_reference')
+        if ref:
+            # Return the last element of the reference
+            return ref.reference_elements()[-1]
+        # No references or alias, return None
+        return None
 
 
 @ansi_dialect.segment()
