@@ -1541,8 +1541,6 @@ class UpdateStatementSegment(BaseSegment):
     UPDATE <table name> SET <set clause list> [ WHERE <search condition> ]
     """
     type = 'delete_statement'
-    # match grammar. This one makes sense in the context of knowing that it's
-    # definitely a statement, we just don't know what type yet.
     match_grammar = StartsWith(Ref('UpdateKeywordSegment'))
     parse_grammar = Sequence(
         Ref('UpdateKeywordSegment'),
