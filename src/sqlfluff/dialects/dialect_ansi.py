@@ -208,6 +208,7 @@ ansi_dialect.add(
     RoleKeywordSegment=KeywordSegment.make('role'),
     UserKeywordSegment=KeywordSegment.make('user'),
     DeleteKeywordSegment=KeywordSegment.make('delete'),
+    SetKeywordSegment=KeywordSegment.make('set'),
     # Some more grammars:
     IntervalKeywordSegment=KeywordSegment.make('interval'),
     LiteralGrammar=OneOf(
@@ -1534,6 +1535,88 @@ class DeleteStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class UpdateStatementSegment(BaseSegment):
+    """A `Update` statement.
+
+    UPDATE <table name> SET <set clause list> [ WHERE <search condition> ]
+    """
+    type = 'delete_statement'
+    # match grammar. This one makes sense in the context of knowing that it's
+    # definitely a statement, we just don't know what type yet.
+    match_grammar = StartsWith(Ref('UpdateKeywordSegment'))
+    parse_grammar = Sequence(
+        Ref('UpdateKeywordSegment'),
+        Ref('SingleIdentifierGrammar'),
+        Ref('SetClauseListSegment'),
+        Ref('WhereClauseSegment', optional=True),
+    )
+
+
+@ansi_dialect.segment()
+class SetClauseListSegment(BaseSegment):
+    """SQL 1992 set clause list.
+
+    <set clause list> ::=
+              <set clause> [ { <comma> <set clause> }... ]
+
+         <set clause> ::=
+              <object column> <equals operator> <update source>
+
+         <update source> ::=
+                <value expression>
+              | <null specification>
+              | DEFAULT
+
+         <object column> ::= <column name>
+    """
+    type = 'set_clause_list'
+    match_grammar = Sequence(
+        Ref('SetKeywordSegment'),
+        Indent,
+        OneOf(
+            Ref('SetClauseSegment'),
+            # set clause
+            AnyNumberOf(
+                Delimited(
+                    Ref('SetClauseSegment'),
+                    delimiter=Ref('CommaSegment')
+                ),
+            ),
+        ),
+        Dedent
+    )
+
+
+@ansi_dialect.segment()
+class SetClauseSegment(BaseSegment):
+    """SQL 1992 set clause.
+
+    <set clause> ::=
+              <object column> <equals operator> <update source>
+
+         <update source> ::=
+                <value expression>
+              | <null specification>
+              | DEFAULT
+
+         <object column> ::= <column name>
+    """
+    type = 'set_clause'
+
+    match_grammar = Sequence(
+        Ref('ColumnExpressionSegment'),
+        Ref('EqualsSegment'),
+        OneOf(
+            Ref('LiteralGrammar'),
+            Ref('FunctionSegment'),
+            Ref('ObjectReferenceSegment'),
+            Ref('NullKeywordSegment'),
+            Ref('DefaultKeywordSegment'),
+        )
+    )
+
+
+@ansi_dialect.segment()
 class StatementSegment(BaseSegment):
     """A generic segment, to any of it's child subsegments.
 
@@ -1547,6 +1630,6 @@ class StatementSegment(BaseSegment):
         Ref('TransactionStatementSegment'), Ref('DropStatementSegment'),
         Ref('AccessStatementSegment'), Ref('CreateTableStatementSegment'),
         Ref('CreateViewStatementSegment'),
-        Ref('DeleteStatementSegment'),
+        Ref('DeleteStatementSegment'), Ref('UpdateStatementSegment'),
     )
     match_grammar = GreedyUntil(Ref('SemicolonSegment'))

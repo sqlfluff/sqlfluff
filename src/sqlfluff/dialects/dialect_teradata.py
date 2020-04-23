@@ -460,6 +460,7 @@ class TdStatementSegment(BaseSegment):
         Ref('TransactionStatementSegment'), Ref('DropStatementSegment'),
         Ref('AccessStatementSegment'), Ref('CreateTableStatementSegment'),
         Ref('CreateViewStatementSegment'),
+        Ref('DeleteStatementSegment'), Ref('UpdateStatementSegment'),
         # Teradata Specific Statements
         Ref('TdCollectStatisticsStatementSegment'),
         Ref('BteqStatementSegment'),
@@ -469,7 +470,6 @@ class TdStatementSegment(BaseSegment):
 
 
 teradata_dialect.add(
-    SetKeywordSegment=KeywordSegment.make('set'),
     MultiSetKeywordSegment=KeywordSegment.make('multiset'),
     TemporaryKeywordSegment=KeywordSegment.make('temporary'),
     GlobalKeywordSegment=KeywordSegment.make('global'),
