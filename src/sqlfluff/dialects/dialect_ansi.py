@@ -214,7 +214,6 @@ ansi_dialect.add(
     LiteralGrammar=OneOf(
         Ref('QuotedLiteralSegment'), Ref('NumericLiteralSegment'),
         Ref('BooleanLiteralGrammar'), Ref('QualifiedNumericLiteralSegment'),
-        Ref('IntervalLiteralSegment'),
         # NB: Null is included in the literals, because it is a keyword which
         # can otherwise be easily mistaken for an identifier.
         Ref('NullKeywordSegment')
@@ -223,9 +222,9 @@ ansi_dialect.add(
 
 
 @ansi_dialect.segment()
-class IntervalLiteralSegment(BaseSegment):
-    """An interval literal segment."""
-    type = 'interval_literal'
+class IntervalExpressionSegment(BaseSegment):
+    """An interval expression segment."""
+    type = 'interval_expression'
     match_grammar = Sequence(
         Ref('IntervalKeywordSegment'),
         OneOf(
@@ -532,6 +531,7 @@ class SelectTargetElementSegment(BaseSegment):
             OneOf(
                 Ref('LiteralGrammar'),
                 Ref('FunctionSegment'),
+                Ref('IntervalExpressionSegment'),
                 Ref('ObjectReferenceSegment')
             ),
             Ref('AliasExpressionSegment', optional=True)
@@ -751,6 +751,7 @@ ansi_dialect.add(
                         OneOf(
                             Delimited(
                                 Ref('LiteralGrammar'),
+                                Ref('IntervalExpressionSegment'),
                                 delimiter=Ref('CommaSegment')
                             ),
                             Ref('SelectStatementSegment')
@@ -801,6 +802,7 @@ ansi_dialect.add(
             # Allow potential select statement without brackets
             Ref('SelectStatementSegment'),
             Ref('LiteralGrammar'),
+            Ref('IntervalExpressionSegment'),
             Ref('ObjectReferenceSegment')
         ),
         AnyNumberOf(
@@ -1020,6 +1022,7 @@ class ValuesClauseSegment(BaseSegment):
             Bracketed(
                 Delimited(
                     Ref('LiteralGrammar'),
+                    Ref('IntervalExpressionSegment'),
                     delimiter=Ref('CommaSegment')
                 )
             ),
@@ -1187,6 +1190,7 @@ class ColumnOptionSegment(BaseSegment):
             Sequence(  # DEFAULT <value>
                 Ref('DefaultKeywordSegment'),
                 Ref('LiteralGrammar'),
+                # ?? Ref('IntervalExpressionSegment')
             ),
             Sequence(  # PRIMARY KEY
                 Ref('PrimaryKeywordSegment'),
