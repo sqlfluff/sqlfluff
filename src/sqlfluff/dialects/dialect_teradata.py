@@ -24,9 +24,9 @@ EXPORT − Specifies the output file path and initiates the export.
 """
 
 from .dialect_ansi import ansi_dialect
-from ..parser import (BaseSegment, KeywordSegment, Sequence, GreedyUntil, StartsWith, OneOf, Delimited, Bracketed,
-                      AnyNumberOf, Ref, Indent, Dedent,
-                      Anything)
+from ..parser import (BaseSegment, KeywordSegment, Sequence, GreedyUntil,
+                      StartsWith, OneOf, Delimited, Bracketed,
+                      AnyNumberOf, Ref, Anything)
 
 teradata_dialect = ansi_dialect.copy_as('teradata')
 
@@ -405,11 +405,11 @@ class TdUpdateStatementSegment(BaseSegment):
         Ref('UpdateKeywordSegment'),
         OneOf(
             Ref('ObjectReferenceSegment'),
-            Ref('FromClauseSegment'),
+            Ref('FromUpdateClauseSegment'),
             Sequence(
                 Ref('ObjectReferenceSegment'),
-                Ref('FromClauseSegment'),
-            )
+                Ref('FromUpdateClauseSegment'),
+            ),
         ),
         Ref('SetClauseListSegment'),
         Ref('WhereClauseSegment', optional=True),
