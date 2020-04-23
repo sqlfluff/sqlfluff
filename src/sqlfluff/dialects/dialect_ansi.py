@@ -1544,7 +1544,7 @@ class UpdateStatementSegment(BaseSegment):
     match_grammar = StartsWith(Ref('UpdateKeywordSegment'))
     parse_grammar = Sequence(
         Ref('UpdateKeywordSegment'),
-        Ref('SingleIdentifierGrammar'),
+        Ref('ObjectReferenceSegment'),
         Ref('SetClauseListSegment'),
         Ref('WhereClauseSegment', optional=True),
     )
@@ -1581,7 +1581,7 @@ class SetClauseListSegment(BaseSegment):
                 ),
             ),
         ),
-        Dedent
+        Dedent,
     )
 
 

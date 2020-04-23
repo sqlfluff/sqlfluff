@@ -25,7 +25,7 @@ EXPORT − Specifies the output file path and initiates the export.
 
 from .dialect_ansi import ansi_dialect
 from ..parser import (BaseSegment, KeywordSegment, Sequence, GreedyUntil, StartsWith, OneOf, Delimited, Bracketed,
-                      AnyNumberOf, Ref,
+                      AnyNumberOf, Ref, Indent, Dedent,
                       Anything)
 
 teradata_dialect = ansi_dialect.copy_as('teradata')
@@ -36,7 +36,7 @@ teradata_dialect.patch_lexer_struct([
 ])
 
 
-# BTEQ
+# BTEQ statement
 @teradata_dialect.segment()
 class BteqKeyWordSegment(BaseSegment):
     """Bteq Keywords.
@@ -90,7 +90,7 @@ class BteqStatementSegment(BaseSegment):
     )
 
 
-# Collect Statistics
+# Collect Statistics statement
 @teradata_dialect.segment()
 class TdCollectStatisticsStatementSegment(BaseSegment):
     """A `COLLECT STATISTICS (Optimizer Form)` statement.
@@ -159,7 +159,63 @@ class TdDatatypeSegment(BaseSegment):
     )
 
 
-# Create Table
+# Adding Teradata specific column definitions
+@teradata_dialect.segment()
+class TdColumnDefinitionSegment(BaseSegment):
+    """A column definition, e.g. for CREATE TABLE or ALTER TABLE."""
+    type = 'column_definition'
+    match_grammar = Sequence(
+        Ref('ObjectReferenceSegment'),  # Column name
+        Ref('DatatypeSegment'),  # Column type
+        Bracketed(  # For types like VARCHAR(100)
+            Anything(),
+            optional=True
+        ),
+        AnyNumberOf(
+            Ref('ColumnOptionSegment', optional=True),
+            # Adding Teradata specific column definitions
+            Ref('TdColumnOptionSegment', optional=True),
+        )
+    )
+
+
+@teradata_dialect.segment()
+class TdColumnOptionSegment(BaseSegment):
+    """Teradata specific column attributes.
+
+    e.g. CHARACTER SET LATIN or [NOT] CASESPECIFIC
+    """
+    type = 'td_column_attribute_constraint'
+    match_grammar = Sequence(
+        OneOf(
+            Sequence(  # CHARACTER SET LATIN
+                Ref('CharacterKeywordSegment'),
+                Ref('SetKeywordSegment'),
+                Ref('SingleIdentifierGrammar')
+            ),
+            Sequence(  # [NOT] CASESPECIFIC
+                Ref('NotKeywordSegment', optional=True),
+                Ref('CasespecificKeywordSegment'),
+            ),
+            Sequence(  # COMPRESS [(1.,3.) | 3. | NULL],
+                Ref('CompressKeywordSegment'),
+                OneOf(
+                    Bracketed(
+                        Delimited(
+                            Ref('LiteralGrammar'),
+                            delimiter=Ref('CommaSegment')
+                        )
+                    ),
+                    Ref('LiteralGrammar'),
+                    Ref('NullKeywordSegment'),
+                    optional=True
+                )
+            ),
+        ),
+    )
+
+
+# Create Teradata Create Table Statement
 @teradata_dialect.segment()
 class TdCreateTableOptions(BaseSegment):
     """CreateTableOptions.
@@ -218,60 +274,6 @@ class TdCreateTableOptions(BaseSegment):
                     Ref('NumericLiteralSegment'),
                     Ref('PercentKeywordSegment', optional=True),
                 ),
-            ),
-        ),
-    )
-
-
-@teradata_dialect.segment()
-class TdColumnDefinitionSegment(BaseSegment):
-    """A column definition, e.g. for CREATE TABLE or ALTER TABLE."""
-    type = 'column_definition'
-    match_grammar = Sequence(
-        Ref('ObjectReferenceSegment'),  # Column name
-        Ref('DatatypeSegment'),  # Column type
-        Bracketed(  # For types like VARCHAR(100)
-            Anything(),
-            optional=True
-        ),
-        AnyNumberOf(
-            Ref('ColumnOptionSegment', optional=True),
-            Ref('TdColumnOptionSegment', optional=True),
-        )
-    )
-
-
-@teradata_dialect.segment()
-class TdColumnOptionSegment(BaseSegment):
-    """Teradata specific column attributes.
-
-    e.g. CHARACTER SET LATIN or [NOT] CASESPECIFIC
-    """
-    type = 'td_column_attribute_constraint'
-    match_grammar = Sequence(
-        OneOf(
-            Sequence(  # CHARACTER SET LATIN
-                Ref('CharacterKeywordSegment'),
-                Ref('SetKeywordSegment'),
-                Ref('SingleIdentifierGrammar')
-            ),
-            Sequence(  # [NOT] CASESPECIFIC
-                Ref('NotKeywordSegment', optional=True),
-                Ref('CasespecificKeywordSegment'),
-            ),
-            Sequence(  # COMPRESS [(1.,3.) | 3. | NULL],
-                Ref('CompressKeywordSegment'),
-                OneOf(
-                    Bracketed(
-                        Delimited(
-                            Ref('LiteralGrammar'),
-                            delimiter=Ref('CommaSegment')
-                        )
-                    ),
-                    Ref('LiteralGrammar'),
-                    Ref('NullKeywordSegment'),
-                    optional=True
-                )
             ),
         ),
     )
@@ -389,6 +391,50 @@ class TdCreateTableStatementSegment(BaseSegment):
     )
 
 
+# Update
+@teradata_dialect.segment()
+class TdUpdateStatementSegment(BaseSegment):
+    """A `Update from` statement.
+
+    The UPDATE statement FROM clause is a Teradata extension to the ANSI SQL:2011 standard.
+    UPDATE (<table name> | FROM Statement) SET <set clause list> [ WHERE <search condition> ]
+    """
+    type = 'delete_statement'
+    match_grammar = StartsWith(Ref('UpdateKeywordSegment'))
+    parse_grammar = Sequence(
+        Ref('UpdateKeywordSegment'),
+        OneOf(
+            Ref('ObjectReferenceSegment'),
+            Ref('FromClauseSegment'),
+            Sequence(
+                Ref('ObjectReferenceSegment'),
+                Ref('FromClauseSegment'),
+            )
+        ),
+        Ref('SetClauseListSegment'),
+        Ref('WhereClauseSegment', optional=True),
+    )
+
+
+@teradata_dialect.segment()
+class FromUpdateClauseSegment(BaseSegment):
+    """A `FROM` clause like in `SELECT` but terminated by SET."""
+    type = 'from_in_update_clause'
+    match_grammar = StartsWith(
+        Ref('FromKeywordSegment'),
+        terminator=Ref('SetKeywordSegment')
+    )
+    parse_grammar = Sequence(
+        Ref('FromKeywordSegment'),
+        Delimited(
+            # Optional old school delimited joins
+            Ref('TableExpressionSegment'),
+            delimiter=Ref('CommaSegment')
+        ),
+    )
+
+
+# Adding Teradata specific statements
 @teradata_dialect.segment()
 class TdStatementSegment(BaseSegment):
     """A generic segment, to any of it's child subsegments.
@@ -404,10 +450,11 @@ class TdStatementSegment(BaseSegment):
         Ref('AccessStatementSegment'), Ref('CreateTableStatementSegment'),
         Ref('CreateViewStatementSegment'),
         Ref('DeleteStatementSegment'), Ref('UpdateStatementSegment'),
-        # Teradata Specific Statements
+        # Teradata specific statements
         Ref('TdCollectStatisticsStatementSegment'),
         Ref('BteqStatementSegment'),
         Ref('TdCreateTableStatementSegment'),
+        Ref('TdUpdateStatementSegment'),
     )
     match_grammar = GreedyUntil(Ref('SemicolonSegment'))
 
@@ -457,4 +504,5 @@ teradata_dialect.replace(
     DatatypeSegment=Ref('TdDatatypeSegment'),
     ColumnDefinitionSegment=Ref('TdColumnDefinitionSegment'),
     StatementSegment=Ref('TdStatementSegment'),
+    UpdateStatementSegment=Ref('TdUpdateStatementSegment'),
 )
