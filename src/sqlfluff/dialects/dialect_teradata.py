@@ -36,6 +36,7 @@ teradata_dialect.patch_lexer_struct([
 ])
 
 
+# BTEQ
 @teradata_dialect.segment()
 class BteqKeyWordSegment(BaseSegment):
     """Bteq Keywords.
@@ -89,6 +90,7 @@ class BteqStatementSegment(BaseSegment):
     )
 
 
+# Collect Statistics
 @teradata_dialect.segment()
 class TdCollectStatisticsStatementSegment(BaseSegment):
     """A `COLLECT STATISTICS (Optimizer Form)` statement.
@@ -130,89 +132,34 @@ class TdCollectStatisticsStatementSegment(BaseSegment):
     )
 
 
+# Adding Teradata specific DATE FORMAT 'YYYYMM'
 @teradata_dialect.segment()
-class TdFunctionSegment(BaseSegment):
-    """A copy paste from FunctionSegment.
-
-    Only added function for Teradata
-    """
-    type = 'function'
+class TdDatatypeSegment(BaseSegment):
+    """A data type segment."""
+    type = 'data_type'
     match_grammar = Sequence(
-        Sequence(
-            Ref('FunctionNameSegment'),
-            Bracketed(
-                Anything(optional=True)
+        Ref('DatatypeIdentifierSegment'),
+        Bracketed(
+            OneOf(
+                Delimited(
+                    Ref('ExpressionSegment'),
+                    delimiter=Ref('CommaSegment')
+                ),
+                # The brackets might be empty for some cases...
+                optional=True
             ),
-        ),
-        Sequence(
-            Ref('OverKeywordSegment'),
-            Bracketed(
-                Anything(optional=True)
-            ),
+            # There may be no brackets for some data types
             optional=True
-        )
-    )
-    parse_grammar = Sequence(
-        Sequence(
-            Ref('FunctionNameSegment'),
-            Bracketed(
-                OneOf(
-                    # A Cast-like function
-                    # Adding Teradata specific CAST('200010' AS DATE FORMAT 'YYYYMM'),
-                    Sequence(
-                        Ref('ExpressionSegment'),
-                        Ref('AsKeywordSegment'),
-                        OneOf(
-                            Ref('DatatypeSegment'),
-                            Sequence(
-                                Ref('DatatypeSegment'),
-                                Ref('FormatKeywordSegment'),
-                                Ref('QuotedLiteralSegment')
-                            ),
-                            optional=False
-                        )
-                    ),
-                    # An extract-like function
-                    Sequence(
-                        Ref('DatepartSegment'),
-                        Ref('FromKeywordSegment'),
-                        Ref('ExpressionSegment')
-                    ),
-                    Sequence(
-                        # Allow an optional distinct keyword here.
-                        Ref('DistinctKeywordSegment', optional=True),
-                        OneOf(
-                            # Most functions will be using the delimited route
-                            # but for COUNT(*) or similar we allow the star segment
-                            # here.
-                            Ref('StarSegment'),
-                            Delimited(
-                                Ref('ExpressionSegment'),
-                                delimiter=Ref('CommaSegment')
-                            ),
-                        ),
-                    ),
-                    # The brackets might be empty for some functions...
-                    optional=True
-                )
-            ),
         ),
-        # Optional suffix for window functions.
-        # TODO: Should this be in a different dialect?
-        Sequence(
-            Ref('OverKeywordSegment'),
-            Bracketed(
-                Sequence(
-                    Ref('PartitionClauseSegment', optional=True),
-                    Ref('OrderByClauseSegment', optional=True),
-                    Ref('FrameClauseSegment', optional=True)
-                )
-            ),
+        Sequence(  # FORMAT 'YYYY-MM-DD',
+            Ref('FormatKeywordSegment'),
+            Ref('QuotedLiteralSegment'),
             optional=True
-        )
+        ),
     )
 
 
+# Create Table
 @teradata_dialect.segment()
 class TdCreateTableOptions(BaseSegment):
     """CreateTableOptions.
@@ -325,10 +272,6 @@ class TdColumnOptionSegment(BaseSegment):
                     Ref('NullKeywordSegment'),
                     optional=True
                 )
-            ),
-            Sequence(  # FORMAT 'YYYY-MM-DD',
-                Ref('FormatKeywordSegment'),
-                Ref('QuotedLiteralSegment'),
             ),
         ),
     )
@@ -511,7 +454,7 @@ teradata_dialect.add(
 )
 
 teradata_dialect.replace(
-    FunctionSegment=Ref('TdFunctionSegment'),
+    DatatypeSegment=Ref('TdDatatypeSegment'),
     ColumnDefinitionSegment=Ref('TdColumnDefinitionSegment'),
     StatementSegment=Ref('TdStatementSegment'),
 )
