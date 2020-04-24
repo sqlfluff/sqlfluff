@@ -37,6 +37,8 @@ def test__dialect__ansi__file_from_raw(raw, res, caplog):
         ("IntervalExpressionSegment", "INTERVAL 1 YEAR"),
         ("ExpressionSegment",
          "CASE WHEN id = 1 THEN 'nothing' ELSE 'test' END"),
+        ("ExpressionSegment",
+         "CASE WHEN A.B IS NULL THEN DATE'9999-12-31' A.C END AS D"),
         # Nested Case Expressions
         # https://github.com/alanmcruickshank/sqlfluff/issues/172
         ("ExpressionSegment",

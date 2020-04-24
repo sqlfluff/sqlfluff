@@ -280,6 +280,98 @@ class TdCreateTableOptions(BaseSegment):
 
 
 @teradata_dialect.segment()
+class TdColumnDefinitionSegment(BaseSegment):
+    """A column definition, e.g. for CREATE TABLE or ALTER TABLE."""
+    type = 'column_definition'
+    match_grammar = Sequence(
+        Ref('ObjectReferenceSegment'),  # Column name
+        Ref('DatatypeSegment'),  # Column type
+        Bracketed(  # For types like VARCHAR(100)
+            Anything(),
+            optional=True
+        ),
+        AnyNumberOf(
+            Ref('ColumnOptionSegment', optional=True),
+            Ref('TdColumnOptionSegment', optional=True),
+        )
+    )
+
+
+@teradata_dialect.segment()
+class TdColumnOptionSegment(BaseSegment):
+    """Teradata specific column attributes.
+
+    e.g. CHARACTER SET LATIN or [NOT] CASESPECIFIC
+    """
+    type = 'td_column_attribute_constraint'
+    match_grammar = Sequence(
+        OneOf(
+            Sequence(  # CHARACTER SET LATIN
+                Ref('CharacterKeywordSegment'),
+                Ref('SetKeywordSegment'),
+                Ref('SingleIdentifierGrammar')
+            ),
+            Sequence(  # [NOT] CASESPECIFIC
+                Ref('NotKeywordSegment', optional=True),
+                Ref('CasespecificKeywordSegment'),
+            ),
+            Sequence(  # COMPRESS [(1.,3.) | 3. | NULL],
+                Ref('CompressKeywordSegment'),
+                OneOf(
+                    Bracketed(
+                        Delimited(
+                            Ref('LiteralGrammar'),
+                            delimiter=Ref('CommaSegment')
+                        )
+                    ),
+                    Ref('LiteralGrammar'),
+                    Ref('NullKeywordSegment'),
+                    optional=True
+                )
+            ),
+            Sequence(  # FORMAT 'YYYY-MM-DD',
+                Ref('FormatKeywordSegment'),
+                Ref('QuotedLiteralSegment'),
+            ),
+        ),
+    )
+
+
+@teradata_dialect.segment()
+class TdTablePartitioningLevel(BaseSegment):
+    """Partitioning Level.
+
+    https://docs.teradata.com/reader/eWpPpcMoLGQcZEoyt5AjEg/e0GX8Iw16u1SCwYvc5qXzg
+
+    partition_expression or
+    COLUMN [[NO] AUTO COMPRESS] [[ALL BUT] column_partition] [ADD constant]
+
+    column_partition := ([COLUMN|ROW] column_name (, column_name2, ...) NO AUTOCOMPRESS
+
+    partition_expression := CASE_N, RANGE_N, EXTRACT, expression and in case of multi-level in parenthesis
+    """
+    type = 'td_partitioning_level'
+    match_grammar = OneOf(
+        Sequence(
+            Ref('FunctionNameSegment'),
+            Bracketed(
+                Anything(optional=True)
+            ),
+        ),
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref('FunctionNameSegment'),
+                    Bracketed(
+                        Anything(optional=True)
+                    ),
+                ),
+                delimiter=Ref('CommaSegment')
+            ),
+        ),
+    )
+
+@teradata_dialect.segment()
 class TdTableConstraints(BaseSegment):
     """Teradata specific table attributes.
 
@@ -290,27 +382,49 @@ class TdTableConstraints(BaseSegment):
     """
     type = 'td_table_constraint'
     match_grammar = Sequence(
-        OneOf(
-            Sequence(  # PRIMARY Index
-                Ref('UniqueKeywordSegment', optional=True),
-                Ref('PrimaryKeywordSegment'),
-                Ref('IndexKeywordSegment'),
-                OneOf(
-                    Bracketed(
-                        Delimited(
-                            Ref('SingleIdentifierGrammar'),
-                            delimiter=Ref('CommaSegment')
-                        )
+        AnyNumberOf(
+            # PRIMARY Index
+            OneOf(
+                Sequence(  # UNIQUE PRIMARY INDEX Column_name | ( Column_name, ... )
+                    Ref('UniqueKeywordSegment', optional=True),
+                    Ref('PrimaryKeywordSegment'),
+                    Ref('IndexKeywordSegment'),
+                    OneOf(
+                        Bracketed(
+                            Delimited(
+                                Ref('SingleIdentifierGrammar'),
+                                delimiter=Ref('CommaSegment')
+                            )
+                        ),
+                        Ref('SingleIdentifierGrammar'),
                     ),
-                    Ref('SingleIdentifierGrammar'),
+                ),
+                Sequence(  # NO PRIMARY INDEX
+                    Ref('NoKeywordSegment'),
+                    Ref('PrimaryKeywordSegment'),
+                    Ref('IndexKeywordSegment')
                 ),
             ),
-            Sequence(  # PRIMARY Index
-                Ref('NoKeywordSegment'),
-                Ref('PrimaryKeywordSegment'),
-                Ref('IndexKeywordSegment')
+            # PARTITION BY ...
+            Sequence(  # INDEX HOPR_TRN_TRAV_SIN_MP_I ( IND_TIPO_TARJETA );
+                Ref('PartitionKeywordSegment'),
+                Ref('ByKeywordSegment'),
+                Ref('TdTablePartitioningLevel'),
             ),
-        ),
+            # Index
+            Sequence(  # INDEX HOPR_TRN_TRAV_SIN_MP_I ( IND_TIPO_TARJETA );
+                Ref('UniqueKeywordSegment', optional=True),
+                Ref('IndexKeywordSegment'),
+                Ref('ObjectReferenceSegment'),  # Index name
+                Ref('AllKeywordSegment', optional=True),
+                Bracketed(  # Columns making up  constraint
+                    Delimited(
+                        Ref('ObjectReferenceSegment'),
+                        delimiter=Ref('CommaSegment')
+                    ),
+                ),
+            ),
+        )
     )
 
 
@@ -396,8 +510,11 @@ class TdCreateTableStatementSegment(BaseSegment):
 class TdUpdateStatementSegment(BaseSegment):
     """A `Update from` statement.
 
-    The UPDATE statement FROM clause is a Teradata extension to the ANSI SQL:2011 standard.
-    UPDATE (<table name> | FROM Statement) SET <set clause list> [ WHERE <search condition> ]
+    The UPDATE statement FROM clause is a Teradata extension to the
+    ANSI SQL:2011 standard.
+
+    UPDATE (<table name> | FROM Statement)
+    SET <set clause list> [ WHERE <search condition> ]
     """
     type = 'delete_statement'
     match_grammar = StartsWith(Ref('UpdateKeywordSegment'))
