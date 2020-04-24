@@ -34,7 +34,7 @@ def test__dialect__ansi__file_from_raw(raw, res, caplog):
         ("NakedIdentifierSegment", "online_sales"),
         ("NumericLiteralSegment", "1000.0"),
         ("ExpressionSegment", "online_sales / 1000.0"),
-        ("IntervalLiteralSegment", "INTERVAL 1 YEAR"),
+        ("IntervalExpressionSegment", "INTERVAL 1 YEAR"),
         ("ExpressionSegment",
          "CASE WHEN id = 1 THEN 'nothing' ELSE 'test' END"),
         # Nested Case Expressions

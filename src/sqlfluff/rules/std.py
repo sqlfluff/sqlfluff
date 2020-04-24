@@ -175,6 +175,8 @@ class Rule_L003(BaseCrawler):
                     # Indent balance is the indent at the start of the first content
                     'indent_balance': this_indent_balance,
                     'hanging_indent': hanger_pos if line_indent_stack else None,
+                    # Clean indent is true if the line *ends* win an indent
+                    # or has an indent in the initial whitespace.
                     'clean_indent': clean_indent
                 }
                 line_no += 1
@@ -187,9 +189,9 @@ class Rule_L003(BaseCrawler):
                 # Assume an unclean indent, but if the last line
                 # ended with an indent then we might be ok.
                 clean_indent = False
-                # did the last line end with an indent?
+                # Was there an indent after the last code element of the previous line?
                 for search_elem in reversed(result_buffer[line_no - 1]['line_buffer']):
-                    if search_elem.type in ('newline', 'whitespace'):
+                    if not search_elem.is_code and not search_elem.is_meta:
                         continue
                     elif search_elem.is_meta and search_elem.indent_val > 0:
                         clean_indent = True
