@@ -1852,18 +1852,27 @@ class Rule_L022(BaseCrawler):
 class Rule_L023(BaseCrawler):
     """Single whitespace expected after AS in WITH clause."""
 
+    expected_mother_segment_type = 'with_compound_statement'
+    pre_segment_identifier = ('name', 'AS')
+    post_segment_identifier = ('type', 'start_bracket')
+
     def _eval(self, segment, **kwargs):
-        """Single whitespace expected after AS in WITH clause."""
+        """Single whitespace expected in mother segment between pre and post segments."""
         error_buffer = []
-        if segment.type == 'with_compound_statement':
+        if segment.type == self.expected_mother_segment_type:
             last_code = None
             mid_segs = []
             for seg in segment.segments:
                 if seg.is_code:
-                    if seg.type == 'start_bracket' and last_code.name == 'AS':
+                    if (
+                        last_code
+                        and getattr(last_code, self.pre_segment_identifier[0]) == self.pre_segment_identifier[1]
+                        and getattr(seg, self.post_segment_identifier[0]) == self.post_segment_identifier[1]
+                    ):
                         # Do we actually have the right amount of whitespace?
-                        if ''.join(s.raw for s in mid_segs) != ' ':
-                            if not mid_segs:
+                        raw_inner = ''.join(s.raw for s in mid_segs)
+                        if raw_inner != ' ':
+                            if not raw_inner:
                                 # There's nothing between. Just add a whitespace
                                 fixes = [LintFix(
                                     'create', seg,
@@ -1876,7 +1885,17 @@ class Rule_L023(BaseCrawler):
                                 LintResult(anchor=last_code, fixes=fixes)
                             )
                     mid_segs = []
-                    last_code = seg
+                    if not seg.is_meta:
+                        last_code = seg
                 else:
                     mid_segs.append(seg)
         return error_buffer or None
+
+
+@std_rule_set.register
+class Rule_L024(Rule_L023):
+    """Single whitespace expected after USING in JOIN clause."""
+
+    expected_mother_segment_type = 'join_clause'
+    pre_segment_identifier = ('name', 'USING')
+    post_segment_identifier = ('type', 'start_bracket')

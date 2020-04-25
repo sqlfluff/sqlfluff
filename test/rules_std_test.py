@@ -149,7 +149,10 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     ('L003', 'fail',
      'SELECT a, b, c\nFROM my_tbl\n    LEFT JOIN another_tbl USING(a)',
      'SELECT a, b, c\nFROM my_tbl\nLEFT JOIN another_tbl USING(a)',
-     {'indentation': {'indented_joins': False}})
+     {'indentation': {'indented_joins': False}}),
+    # Check fixing of single space rules
+    ('L023', 'fail', 'WITH a AS(select 1) select * from a', 'WITH a AS (select 1) select * from a', None),
+    ('L024', 'fail', 'select * from a JOIN b USING(x)', 'select * from a JOIN b USING (x)', None),
 ])
 def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
     """Test that a rule passes/fails on a given string.
