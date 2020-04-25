@@ -242,7 +242,7 @@ def fix(force, paths, **kwargs):
             click.echo('...')
             if c == 'y':
                 click.echo('Attempting fixes...')
-                success = do_fixes(lnt, paths)
+                success = do_fixes(lnt, paths, types=SQLLintError)
                 if not success:
                     sys.exit(1)
             elif c == 'n':
