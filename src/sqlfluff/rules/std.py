@@ -1762,7 +1762,7 @@ class Rule_L020(BaseCrawler):
                     violation_buff.append(
                         LintResult(
                             anchor=r,
-                            description="Unqualified reference {0!r} found in select with more than one table.".format(r.raw)
+                            description="Unqualified reference {0!r} found in select with more than one referenced table/view.".format(r.raw)
                         )
                     )
 
