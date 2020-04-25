@@ -597,22 +597,42 @@ class SelectClauseSegment(BaseSegment):
     )
 
 
+# We define the grammar seperately here because it's used in both the
+# parsing and matching routines of the JoinClauseSegment.
+InitialJoinGrammar = Sequence(
+    # NB These qualifiers are optional
+    AnyNumberOf(
+        Ref('FullKeywordSegment'),
+        Ref('InnerKeywordSegment'),
+        Ref('LeftKeywordSegment'),
+        Ref('CrossKeywordSegment'),
+        max_times=1,
+        optional=True
+    ),
+    Ref('OuterKeywordSegment', optional=True),
+    Ref('JoinKeywordSegment')
+)
+
+
 @ansi_dialect.segment()
 class JoinClauseSegment(BaseSegment):
     """Any number of join clauses, including the `JOIN` keyword."""
     type = 'join_clause'
-    match_grammar = Sequence(
-        # NB These qualifiers are optional
-        AnyNumberOf(
-            Ref('FullKeywordSegment'),
-            Ref('InnerKeywordSegment'),
-            Ref('LeftKeywordSegment'),
-            Ref('CrossKeywordSegment'),
-            max_times=1,
-            optional=True
-        ),
-        Ref('OuterKeywordSegment', optional=True),
-        Ref('JoinKeywordSegment'),
+    match_grammar = StartsWith(
+        InitialJoinGrammar,
+        terminator=OneOf(
+            # Can be terminated by the start on another join clause
+            # or one of a selection of other keywords.
+            InitialJoinGrammar,
+            Ref('LimitKeywordSegment'),
+            Ref('GroupKeywordSegment'),
+            Ref('OrderKeywordSegment'),
+            Ref('HavingKeywordSegment')
+        )
+    )
+
+    parse_grammar = Sequence(
+        InitialJoinGrammar,
         Indent,
         Ref('TableExpressionSegment'),
         # NB: this is optional
@@ -678,7 +698,8 @@ class FromClauseSegment(BaseSegment):
                 Ref('CrossKeywordSegment'),
                 Ref('InnerKeywordSegment'),
                 Ref('LeftKeywordSegment'),
-                Ref('FullKeywordSegment')
+                Ref('FullKeywordSegment'),
+                Ref('OuterKeywordSegment')
             )
         ),
         # NB: The JOIN clause is *part of* the FROM clause
