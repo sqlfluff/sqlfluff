@@ -152,6 +152,7 @@ class TdRenameStatementSegment(BaseSegment):
         Ref('ObjectReferenceSegment'),
     )
 
+
 # Adding Teradata specific DATE FORMAT 'YYYYMM'
 @teradata_dialect.segment()
 class TdDatatypeSegment(BaseSegment):
@@ -617,10 +618,12 @@ teradata_dialect.add(
                                            Ref('TimestampKeywordSegment')),
                                      Ref('ExpressionSegment')),
     TdSingleIdentifierGrammar=OneOf(
-        Ref('NakedIdentifierSegment'), Ref('QuotedIdentifierSegment'), Ref('TdCastIdentifierSegment')),
+        Ref('NakedIdentifierSegment'), Ref('QuotedIdentifierSegment'),
+        Ref('TdCastIdentifierSegment')),
     TdNakedIdentifierSegment=ReSegment.make(
-            r"[A-Z0-9_]*[A-Z][A-Z0-9_]*", name='identifier', type='naked_identifier',
-            _anti_template=r"^(SELECT|JOIN|ON|USING|CROSS|INNER|LEFT|RIGHT|OUTER|UNION|INTERVAL|CASE|FULL|NULL|TIMESTAMP|DATE)$"),
+        r"[A-Z0-9_]*[A-Z][A-Z0-9_]*", name='identifier', type='naked_identifier',
+        _anti_template=r"^(SELECT|JOIN|ON|USING|CROSS|INNER|LEFT|RIGHT|"
+                       + r"OUTER|UNION|INTERVAL|CASE|FULL|NULL|TIMESTAMP|DATE)$"),
 )
 
 teradata_dialect.replace(
