@@ -1,4 +1,4 @@
-
+-- Testing of the specific create table end options
 CREATE MULTISET TABLE NUM_LTR_DESVINCULADOS_ADH
 (
     DES_EVENTO VARCHAR(255) CHARACTER SET LATIN NOT CASESPECIFIC COMPRESS ('Cambio de bandera', 'Cierre'),

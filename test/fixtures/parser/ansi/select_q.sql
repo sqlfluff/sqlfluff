@@ -1,13 +1,13 @@
 -- Unexpected Join Fail
 -- https://github.com/alanmcruickshank/sqlfluff/issues/163
 SELECT
-    data.id
+    data1.id1
 FROM
-    data
+    data1
 JOIN
     data_max
 ON
-    data.event_id = data_max.event_id
+    data1.event_id = data_max.event_id
 LEFT JOIN
     "other_db"."other_data" AS od
 ON

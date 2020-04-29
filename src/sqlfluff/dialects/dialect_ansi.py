@@ -22,10 +22,13 @@ from .ansi_keywords import ansi_keywords
 
 ansi_dialect = Dialect('ansi')
 
+
+anti_template = []
 for n in ansi_keywords.split('\n'):
     n = n.strip()
     name = n[0].upper() + n[1:].lower() + 'KeywordSegment'
     ansi_dialect.add(**{name: KeywordSegment.make(n.lower())})
+    anti_template += [n.upper()]
 
 
 ansi_dialect.set_lexer_struct([
@@ -97,20 +100,21 @@ ansi_dialect.add(
     LessThanOrEqualToSegment=KeywordSegment.make('<=', name='less_than_equal_to', type='comparison_operator'),
     NotEqualToSegment_a=KeywordSegment.make('!=', name='not_equal_to', type='comparison_operator'),
     NotEqualToSegment_b=KeywordSegment.make('<>', name='not_equal_to', type='comparison_operator'),
-    # Keywords:
+    # Keywords # TODO Check if ANSI compliant:
     NanKeywordSegment=KeywordSegment.make('nan'),
     OverwriteKeywordSegment=KeywordSegment.make('overwrite'),
-
+    ValueKeywordSegment=KeywordSegment.make('value'),
     # The strange regex here it to make sure we don't accidentally match numeric literals. We
     # also use a regex to explicitly exclude disallowed keywords.
     NakedIdentifierSegment=ReSegment.make(
         r"[A-Z0-9_]*[A-Z][A-Z0-9_]*", name='identifier', type='naked_identifier',
-        _anti_template=r"^(SELECT|JOIN|ON|USING|CROSS|INNER|LEFT|RIGHT|OUTER|INTERVAL|CASE|FULL|NULL)$"),
+        _anti_template=r"^(" + '|'.join(anti_template) + ")$"),
     FunctionNameSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='function_name', type='function_name'),
     # Maybe data types should be more restrictive?
     DatatypeIdentifierSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='data_type_identifier', type='data_type_identifier'),
-    # Maybe date parts should be more restrictive
-    DatepartSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='date_part', type='date_part'),
+    # Ansi Intervals
+    IntervalSegment=ReSegment.make(r"^(DAY|DAYOFYEAR|HOUR|MILLISECOND|MINUTE|MONTH|QUARTER|SECOND|WEEK|WEEKDAY|YEAR)$",
+                                   name='date_part', type='date_part'),
     QuotedIdentifierSegment=NamedSegment.make('double_quote', name='identifier', type='quoted_identifier'),
     QuotedLiteralSegment=NamedSegment.make('single_quote', name='literal', type='quoted_literal'),
     NumericLiteralSegment=NamedSegment.make('numeric_literal', name='literal', type='numeric_literal'),
@@ -160,7 +164,7 @@ class IntervalExpressionSegment(BaseSegment):
                 Ref('NumericLiteralSegment'),
                 OneOf(
                     Ref('QuotedLiteralSegment'),
-                    Ref('DatepartSegment')
+                    Ref('IntervalSegment')
                 )
             ),
             # The String version
@@ -330,7 +334,7 @@ class FunctionSegment(BaseSegment):
                     ),
                     # An extract-like function
                     Sequence(
-                        Ref('DatepartSegment'),
+                        Ref('IntervalSegment'),
                         Ref('FromKeywordSegment'),
                         Ref('ExpressionSegment')
                     ),
@@ -733,7 +737,8 @@ ansi_dialect.add(
             Ref('SelectStatementSegment'),
             Ref('LiteralGrammar'),
             Ref('IntervalExpressionSegment'),
-            Ref('ObjectReferenceSegment')
+            Ref('ObjectReferenceSegment'),
+            Ref('DatatypeIdentifierSegment')
         ),
         AnyNumberOf(
             Ref('ArrayAccessorSegment')
@@ -1382,7 +1387,10 @@ class AccessStatementSegment(BaseSegment):
                 Ref('RoleKeywordSegment'),
                 optional=True
             ),
-            Ref('ObjectReferenceSegment'),
+            OneOf(
+                Ref('ObjectReferenceSegment'),
+                Ref('PublicKeywordSegment'),
+            ),
             Sequence(
                 Ref('WithKeywordSegment'),
                 Ref('GrantKeywordSegment'),

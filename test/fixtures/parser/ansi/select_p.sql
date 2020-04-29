@@ -3,6 +3,6 @@
 SELECT
     CAST(25.65 AS int),
     SAFE_CAST(NULL AS STRING) AS age_label,
-    EXTRACT(day FROM end_time) AS day
+    EXTRACT(day FROM end_time) AS day1
 FROM
     benchmark_with_performance

@@ -574,6 +574,7 @@ teradata_dialect.add(
     ActivitycountKeywordSegment=KeywordSegment.make('activitycount'),
     AutoincrementKeywordSegment=KeywordSegment.make('autoincrement'),
     CasespecificKeywordSegment=KeywordSegment.make('casespecific'),
+    DualKeywordSegment=KeywordSegment.make('dual'),
     ErrorcodeKeywordSegment=KeywordSegment.make('errorcode'),
     ExportKeywordSegment=KeywordSegment.make('export'),
     FallbackKeywordSegment=KeywordSegment.make('fallback'),
