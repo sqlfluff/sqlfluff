@@ -17,9 +17,18 @@ from ..parser import (BaseSegment, KeywordSegment, ReSegment, NamedSegment,
                       OneOf, Delimited, Bracketed, AnyNumberOf, Ref,
                       Anything, LambdaSegment, Indent, Dedent)
 from .base import Dialect
+from .ansi_keywords import ansi_keywords
 
 
 ansi_dialect = Dialect('ansi')
+
+
+anti_template = []
+for n in ansi_keywords.split('\n'):
+    n = n.strip()
+    name = n[0].upper() + n[1:].lower() + 'KeywordSegment'
+    ansi_dialect.add(**{name: KeywordSegment.make(n.lower())})
+    anti_template += [n.upper()]
 
 
 ansi_dialect.set_lexer_struct([
@@ -91,16 +100,21 @@ ansi_dialect.add(
     LessThanOrEqualToSegment=KeywordSegment.make('<=', name='less_than_equal_to', type='comparison_operator'),
     NotEqualToSegment_a=KeywordSegment.make('!=', name='not_equal_to', type='comparison_operator'),
     NotEqualToSegment_b=KeywordSegment.make('<>', name='not_equal_to', type='comparison_operator'),
+    # Keywords # TODO Check if ANSI compliant:
+    NanKeywordSegment=KeywordSegment.make('nan'),
+    OverwriteKeywordSegment=KeywordSegment.make('overwrite'),
+    ValueKeywordSegment=KeywordSegment.make('value'),
     # The strange regex here it to make sure we don't accidentally match numeric literals. We
     # also use a regex to explicitly exclude disallowed keywords.
     NakedIdentifierSegment=ReSegment.make(
         r"[A-Z0-9_]*[A-Z][A-Z0-9_]*", name='identifier', type='naked_identifier',
-        _anti_template=r"^(SELECT|JOIN|ON|USING|CROSS|INNER|LEFT|RIGHT|OUTER|INTERVAL|CASE|FULL|NULL)$"),
+        _anti_template=r"^(" + '|'.join(anti_template) + ")$"),
     FunctionNameSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='function_name', type='function_name'),
     # Maybe data types should be more restrictive?
     DatatypeIdentifierSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='data_type_identifier', type='data_type_identifier'),
-    # Maybe date parts should be more restrictive
-    DatepartSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='date_part', type='date_part'),
+    # Ansi Intervals
+    IntervalSegment=ReSegment.make(r"^(DAY|DAYOFYEAR|HOUR|MILLISECOND|MINUTE|MONTH|QUARTER|SECOND|WEEK|WEEKDAY|YEAR)$",
+                                   name='date_part', type='date_part'),
     QuotedIdentifierSegment=NamedSegment.make('double_quote', name='identifier', type='quoted_identifier'),
     QuotedLiteralSegment=NamedSegment.make('single_quote', name='literal', type='quoted_literal'),
     NumericLiteralSegment=NamedSegment.make('numeric_literal', name='literal', type='numeric_literal'),
@@ -121,96 +135,6 @@ ansi_dialect.add(
         Ref('EqualsSegment'), Ref('GreaterThanSegment'), Ref('LessThanSegment'),
         Ref('GreaterThanOrEqualToSegment'), Ref('LessThanOrEqualToSegment'),
         Ref('NotEqualToSegment_a'), Ref('NotEqualToSegment_b')),
-    # Keywords
-    AsKeywordSegment=KeywordSegment.make('as'),
-    FromKeywordSegment=KeywordSegment.make('from'),
-    DistinctKeywordSegment=KeywordSegment.make('distinct'),
-    ExistsKeywordSegment=KeywordSegment.make('exists'),
-    OverKeywordSegment=KeywordSegment.make('over'),
-    RowsKeywordSegment=KeywordSegment.make('rows'),
-    PartitionKeywordSegment=KeywordSegment.make('partition'),
-    CaseKeywordSegment=KeywordSegment.make('case'),
-    WhenKeywordSegment=KeywordSegment.make('when'),
-    ThenKeywordSegment=KeywordSegment.make('then'),
-    ElseKeywordSegment=KeywordSegment.make('else'),
-    EndKeywordSegment=KeywordSegment.make('end'),
-    AllKeywordSegment=KeywordSegment.make('all'),
-    LimitKeywordSegment=KeywordSegment.make('limit'),
-    UnionKeywordSegment=KeywordSegment.make('union'),
-    MinusKeywordSegment=KeywordSegment.make('minus'),
-    ExceptKeywordSegment=KeywordSegment.make('except'),
-    IntersectKeywordSegment=KeywordSegment.make('intersect'),
-    OnKeywordSegment=KeywordSegment.make('on'),
-    OuterKeywordSegment=KeywordSegment.make('outer'),
-    JoinKeywordSegment=KeywordSegment.make('join'),
-    FullKeywordSegment=KeywordSegment.make('full'),
-    InnerKeywordSegment=KeywordSegment.make('inner'),
-    LeftKeywordSegment=KeywordSegment.make('left'),
-    CrossKeywordSegment=KeywordSegment.make('cross'),
-    UsingKeywordSegment=KeywordSegment.make('using'),
-    WhereKeywordSegment=KeywordSegment.make('where'),
-    GroupKeywordSegment=KeywordSegment.make('group'),
-    OrderKeywordSegment=KeywordSegment.make('order'),
-    HavingKeywordSegment=KeywordSegment.make('having'),
-    OverwriteKeywordSegment=KeywordSegment.make('overwrite'),
-    ByKeywordSegment=KeywordSegment.make('by'),
-    InKeywordSegment=KeywordSegment.make('in'),
-    IsKeywordSegment=KeywordSegment.make('is'),
-    BetweenKeywordSegment=KeywordSegment.make('between'),
-    NullKeywordSegment=KeywordSegment.make('null'),
-    NanKeywordSegment=KeywordSegment.make('nan'),
-    AndKeywordSegment=KeywordSegment.make('and', type='binary_operator'),
-    OrKeywordSegment=KeywordSegment.make('or', type='binary_operator'),
-    NotKeywordSegment=KeywordSegment.make('not'),
-    AscKeywordSegment=KeywordSegment.make('asc'),
-    DescKeywordSegment=KeywordSegment.make('desc'),
-    ValueKeywordSegment=KeywordSegment.make('value'),
-    ValuesKeywordSegment=KeywordSegment.make('values'),
-    SelectKeywordSegment=KeywordSegment.make('select'),
-    WithKeywordSegment=KeywordSegment.make('with'),
-    OffsetKeywordSegment=KeywordSegment.make('offset'),
-    InsertKeywordSegment=KeywordSegment.make('insert'),
-    IntoKeywordSegment=KeywordSegment.make('into'),
-    CommitKeywordSegment=KeywordSegment.make('commit'),
-    WorkKeywordSegment=KeywordSegment.make('work'),
-    NoKeywordSegment=KeywordSegment.make('no'),
-    ChainKeywordSegment=KeywordSegment.make('chain'),
-    RollbackKeywordSegment=KeywordSegment.make('rollback'),
-    CreateKeywordSegment=KeywordSegment.make('create'),
-    DropKeywordSegment=KeywordSegment.make('drop'),
-    TableKeywordSegment=KeywordSegment.make('table'),
-    ConstraintKeywordSegment=KeywordSegment.make('constraint'),
-    UniqueKeywordSegment=KeywordSegment.make('unique'),
-    PrimaryKeywordSegment=KeywordSegment.make('primary'),
-    ForeignKeywordSegment=KeywordSegment.make('foreign'),
-    KeyKeywordSegment=KeywordSegment.make('key'),
-    AutoIncrementKeywordSegment=KeywordSegment.make('auto_increment'),
-    CommentKeywordSegment=KeywordSegment.make('comment'),
-    ReferencesKeywordSegment=KeywordSegment.make('references'),
-    DefaultKeywordSegment=KeywordSegment.make('default'),
-    IfKeywordSegment=KeywordSegment.make('if'),
-    ViewKeywordSegment=KeywordSegment.make('view'),
-    ReplaceKeywordSegment=KeywordSegment.make('replace'),
-    RestrictKeywordSegment=KeywordSegment.make('restrict'),
-    CascadeKeywordSegment=KeywordSegment.make('cascade'),
-    GrantKeywordSegment=KeywordSegment.make('grant'),
-    RevokeKeywordSegment=KeywordSegment.make('revoke'),
-    TablesKeywordSegment=KeywordSegment.make('tables'),
-    SchemaKeywordSegment=KeywordSegment.make('schema'),
-    ForKeywordSegment=KeywordSegment.make('for'),
-    ToKeywordSegment=KeywordSegment.make('to'),
-    OptionKeywordSegment=KeywordSegment.make('option'),
-    PrivilegesKeywordSegment=KeywordSegment.make('privileges'),
-    UpdateKeywordSegment=KeywordSegment.make('update'),
-    LikeKeywordSegment=KeywordSegment.make('like'),
-    ILikeKeywordSegment=KeywordSegment.make('ilike'),
-    RLikeKeywordSegment=KeywordSegment.make('rlike'),
-    RoleKeywordSegment=KeywordSegment.make('role'),
-    UserKeywordSegment=KeywordSegment.make('user'),
-    DeleteKeywordSegment=KeywordSegment.make('delete'),
-    SetKeywordSegment=KeywordSegment.make('set'),
-    # Some more grammars:
-    IntervalKeywordSegment=KeywordSegment.make('interval'),
     LiteralGrammar=OneOf(
         Ref('QuotedLiteralSegment'), Ref('NumericLiteralSegment'),
         Ref('BooleanLiteralGrammar'), Ref('QualifiedNumericLiteralSegment'),
@@ -218,6 +142,13 @@ ansi_dialect.add(
         # can otherwise be easily mistaken for an identifier.
         Ref('NullKeywordSegment')
     ),
+)
+
+
+ansi_dialect.replace(
+    # Binary Keywords
+    AndKeywordSegment=KeywordSegment.make('and', type='binary_operator'),
+    OrKeywordSegment=KeywordSegment.make('or', type='binary_operator'),
 )
 
 
@@ -233,7 +164,7 @@ class IntervalExpressionSegment(BaseSegment):
                 Ref('NumericLiteralSegment'),
                 OneOf(
                     Ref('QuotedLiteralSegment'),
-                    Ref('DatepartSegment')
+                    Ref('IntervalSegment')
                 )
             ),
             # The String version
@@ -403,7 +334,7 @@ class FunctionSegment(BaseSegment):
                     ),
                     # An extract-like function
                     Sequence(
-                        Ref('DatepartSegment'),
+                        Ref('IntervalSegment'),
                         Ref('FromKeywordSegment'),
                         Ref('ExpressionSegment')
                     ),
@@ -739,8 +670,8 @@ ansi_dialect.add(
                             Ref('NotKeywordSegment', optional=True),
                             OneOf(
                                 Ref('LikeKeywordSegment'),
-                                Ref('RLikeKeywordSegment'),
-                                Ref('ILikeKeywordSegment')
+                                Ref('RlikeKeywordSegment'),
+                                Ref('IlikeKeywordSegment')
                             )
                         )
                         # We need to add a lot more here...
@@ -806,7 +737,8 @@ ansi_dialect.add(
             Ref('SelectStatementSegment'),
             Ref('LiteralGrammar'),
             Ref('IntervalExpressionSegment'),
-            Ref('ObjectReferenceSegment')
+            Ref('ObjectReferenceSegment'),
+            Ref('DatatypeIdentifierSegment')
         ),
         AnyNumberOf(
             Ref('ArrayAccessorSegment')
@@ -1200,7 +1132,7 @@ class ColumnOptionSegment(BaseSegment):
                 Ref('KeyKeywordSegment'),
             ),
             Ref('UniqueKeywordSegment'),  # UNIQUE
-            Ref('AutoIncrementKeywordSegment'),  # AUTO_INCREMENT (MySQL)
+            Ref('Auto_incrementKeywordSegment'),  # AUTO_INCREMENT (MySQL)
             Sequence(  # REFERENCES reftable [ ( refcolumn) ]
                 Ref('ReferencesKeywordSegment'),
                 Ref('ObjectReferenceSegment'),
@@ -1455,7 +1387,10 @@ class AccessStatementSegment(BaseSegment):
                 Ref('RoleKeywordSegment'),
                 optional=True
             ),
-            Ref('ObjectReferenceSegment'),
+            OneOf(
+                Ref('ObjectReferenceSegment'),
+                Ref('PublicKeywordSegment'),
+            ),
             Sequence(
                 Ref('WithKeywordSegment'),
                 Ref('GrantKeywordSegment'),

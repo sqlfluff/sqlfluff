@@ -1,6 +1,6 @@
 -- Union All in a With
 -- https://github.com/alanmcruickshank/sqlfluff/issues/162
-WITH result AS (
+WITH result_set AS (
     SELECT
         customer
     FROM sales_eu AS s
@@ -10,4 +10,4 @@ WITH result AS (
     FROM sales_us AS s2
 )
 
-SELECT * FROM result
+SELECT * FROM result_set
