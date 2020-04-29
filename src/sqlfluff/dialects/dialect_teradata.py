@@ -437,7 +437,7 @@ class TdCreateTableStatementSegment(BaseSegment):
         # Adding Teradata specific [MULTISET| SET]
         OneOf(
             Ref('SetKeywordSegment'),
-            Ref('MultiSetKeywordSegment'),
+            Ref('MultisetKeywordSegment'),
             optional=True
         ),
         OneOf(
@@ -571,49 +571,24 @@ class TdStatementSegment(BaseSegment):
 
 
 teradata_dialect.add(
-    MultiSetKeywordSegment=KeywordSegment.make('multiset'),
-    TemporaryKeywordSegment=KeywordSegment.make('temporary'),
-    GlobalKeywordSegment=KeywordSegment.make('global'),
-    VolatileKeywordSegment=KeywordSegment.make('volatile'),
-    FallbackKeywordSegment=KeywordSegment.make('fallback'),
-    ProtectionKeywordSegment=KeywordSegment.make('protection'),
-    DualKeywordSegment=KeywordSegment.make('dual'),
-    BeforeKeywordSegment=KeywordSegment.make('before'),
-    AfterKeywordSegment=KeywordSegment.make('after'),
-    JournalKeywordSegment=KeywordSegment.make('journal'),
-    LocalKeywordSegment=KeywordSegment.make('local'),
-    CharacterKeywordSegment=KeywordSegment.make('character'),
-    CasespecificKeywordSegment=KeywordSegment.make('casespecific'),
-    CompressKeywordSegment=KeywordSegment.make('compress'),
-    IndexKeywordSegment=KeywordSegment.make('index'),
-    FormatKeywordSegment=KeywordSegment.make('format'),
-    ChecksumKeywordSegment=KeywordSegment.make('checksum'),
-    OffKeywordSegment=KeywordSegment.make('off'),
-    MergeBlockRatioKeywordSegment=KeywordSegment.make('mergeblockratio'),
-    PercentKeywordSegment=KeywordSegment.make('percent'),
-    # Collect Statistics Keywords:
-    CollectKeywordSegment=KeywordSegment.make('collect'),
-    SummaryKeywordSegment=KeywordSegment.make('summary'),
-    StatisticsKeywordSegment=KeywordSegment.make('statistics'),
-    StatKeywordSegment=KeywordSegment.make('stat'),
-    ColumnKeywordSegment=KeywordSegment.make('column'),
-    # Rename Table Keywords:
-    RenameKeywordSegment=KeywordSegment.make('rename'),
-    # BTEQ Keywords
-    LogonKeywordSegment=KeywordSegment.make('logon'),
     ActivitycountKeywordSegment=KeywordSegment.make('activitycount'),
+    AutoincrementKeywordSegment=KeywordSegment.make('autoincrement'),
+    CasespecificKeywordSegment=KeywordSegment.make('casespecific'),
     ErrorcodeKeywordSegment=KeywordSegment.make('errorcode'),
-    DatabaseKeywordSegment=KeywordSegment.make('database'),
-    LabelKeywordSegment=KeywordSegment.make('label'),
-    GotoKeywordSegment=KeywordSegment.make('goto'),
-    LogoffKeywordSegment=KeywordSegment.make('logoff'),
-    ImportKeywordSegment=KeywordSegment.make('import'),
     ExportKeywordSegment=KeywordSegment.make('export'),
-    RunKeywordSegment=KeywordSegment.make('run'),
+    FallbackKeywordSegment=KeywordSegment.make('fallback'),
+    FormatKeywordSegment=KeywordSegment.make('format'),
+    ImportKeywordSegment=KeywordSegment.make('import'),
+    JournalKeywordSegment=KeywordSegment.make('journal'),
+    LabelKeywordSegment=KeywordSegment.make('label'),
+    LogonKeywordSegment=KeywordSegment.make('logon'),
+    LogoffKeywordSegment=KeywordSegment.make('logoff'),
+    MergeBlockRatioKeywordSegment=KeywordSegment.make('mergeblockratio'),
+    ProtectionKeywordSegment=KeywordSegment.make('protection'),
     QuitKeywordSegment=KeywordSegment.make('quit'),
-    # Remove Date and Timestamp to get them for Teradata casting
-    DateKeywordSegment=KeywordSegment.make('date'),
-    TimestampKeywordSegment=KeywordSegment.make('timestamp'),
+    RunKeywordSegment=KeywordSegment.make('run'),
+    StatKeywordSegment=KeywordSegment.make('stat'),
+    SummaryKeywordSegment=KeywordSegment.make('summary'),
     TdCastIdentifierSegment=Sequence(OneOf(Ref('DateKeywordSegment'),
                                            Ref('TimestampKeywordSegment')),
                                      Ref('ExpressionSegment')),
@@ -628,6 +603,7 @@ teradata_dialect.add(
 
 teradata_dialect.replace(
     NakedIdentifierSegment=Ref('TdNakedIdentifierSegment'),
+    Auto_incrementKeywordSegment=Ref('AutoincrementKeywordSegment'),
     DatatypeSegment=Ref('TdDatatypeSegment'),
     ShorthandCastSegment=Ref('TdShorthandCastSegment'),
     ColumnDefinitionSegment=Ref('TdColumnDefinitionSegment'),
