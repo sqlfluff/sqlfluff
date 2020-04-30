@@ -104,8 +104,8 @@ ansi_dialect.add(
     QuotedIdentifierSegment=NamedSegment.make('double_quote', name='quoted_identifier', type='identifier'),
     QuotedLiteralSegment=NamedSegment.make('single_quote', name='quoted_literal', type='literal'),
     NumericLiteralSegment=NamedSegment.make('numeric_literal', name='numeric_literal', type='literal'),
-    TrueSegment=KeywordSegment.make('true', name='true', type='boolean_literal'),
-    FalseSegment=KeywordSegment.make('false', name='false', type='boolean_literal'),
+    TrueSegment=KeywordSegment.make('true', name='boolean_literal', type='literal'),
+    FalseSegment=KeywordSegment.make('false', name='boolean_literal', type='literal'),
     # We use a GRAMMAR here not a Segment. Otherwise we get an unecessary layer
     SingleIdentifierGrammar=OneOf(Ref('NakedIdentifierSegment'), Ref('QuotedIdentifierSegment')),
     BooleanLiteralGrammar=OneOf(Ref('TrueSegment'), Ref('FalseSegment')),
