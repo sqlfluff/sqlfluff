@@ -1743,11 +1743,13 @@ class Rule_L020(BaseCrawler):
             aliases = fc.get_eventual_aliases()
             # Are any of the aliases the same?
             for a1, a2 in itertools.combinations(aliases, 2):
-                if a1.raw == a2.raw and a1:
+                # Compare the strings
+                if a1[0] == a2[0] and a1[0]:
                     # If there are any, then the rest of the code
                     # won't make sense so just return here.
                     return LintResult(
-                        anchor=a2,
+                        # Reference the element, not the string.
+                        anchor=a2[1],
                         description=("Duplicate table alias {0!r}. Table "
                                      "aliases should be unique.").format(a2.raw)
                     )
@@ -1756,8 +1758,7 @@ class Rule_L020(BaseCrawler):
 
             # Iterate through all the references and check them
             sc = segment.get_child('select_clause')
-            refs = sc.recursive_crawl('object_reference')
-            for r in refs:
+            for r in sc.recursive_crawl('object_reference'):
                 if enforce_qualified and not r.is_qualified():
                     violation_buff.append(
                         LintResult(
@@ -1766,14 +1767,16 @@ class Rule_L020(BaseCrawler):
                         )
                     )
 
-                ref_elems = r.reference_elements()
+                ref_elems = list(r.iter_raw_references())
                 if len(ref_elems) >= 2:
                     tbl_ref = ref_elems[-2]
-                    if tbl_ref.raw not in [a.raw for a in aliases]:
+                    # Check whether the string in the list of strings
+                    if tbl_ref[0] not in [a[0] for a in aliases]:
                         violation_buff.append(
                             LintResult(
-                                anchor=tbl_ref,
-                                description="Reference {0!r} refers to table/view {1!r} not found in the FROM clause.".format(r.raw, tbl_ref.raw)
+                                # Return the segment rather than the string
+                                anchor=tbl_ref[1],
+                                description="Reference {0!r} refers to table/view {1!r} not found in the FROM clause.".format(r.raw, tbl_ref)
                             )
                         )
 

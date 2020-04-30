@@ -189,6 +189,8 @@ class BaseSegment:
     is_meta = False
     # Are we able to have non-code at the start or end?
     _can_start_end_non_code = False
+    # What should we trim off the ends to get to content
+    trim_chars = None
 
     @property
     def name(self):
@@ -937,15 +939,12 @@ class BaseSegment:
 
     def recursive_crawl(self, seg_type):
         """Recursively crawl for segments of a given type."""
-        buff = []
         # Check this segment
         if self.type == seg_type:
-            buff.append(self)
+            yield self
         # Recurse
         for seg in self.segments:
-            buff += seg.recursive_crawl(seg_type=seg_type)
-        # Return
-        return buff
+            yield from seg.recursive_crawl(seg_type=seg_type)
 
 
 class RawSegment(BaseSegment):
@@ -995,6 +994,22 @@ class RawSegment(BaseSegment):
         This is in case something tries to iterate on this segment.
         """
         return []
+
+    def raw_trimmed(self):
+        """Return a trimmed version of the raw content."""
+        if self.trim_chars:
+            raw_buff = self.raw
+            # for each thing to trim
+            for seq in self.trim_chars:
+                # trim start
+                while raw_buff.startswith(seq):
+                    raw_buff = raw_buff[len(seq):]
+                # trim end
+                while raw_buff.endswith(seq):
+                    raw_buff = raw_buff[:-len(seq)]
+            return raw_buff
+        else:
+            return self.raw
 
     def raw_list(self):
         """Return a list of the raw content of this segment."""

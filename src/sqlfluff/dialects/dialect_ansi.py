@@ -101,8 +101,8 @@ ansi_dialect.add(
     DatatypeIdentifierSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='data_type_identifier', type='data_type_identifier'),
     # Maybe date parts should be more restrictive
     DatepartSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='date_part', type='date_part'),
-    QuotedIdentifierSegment=NamedSegment.make('double_quote', name='quoted_identifier', type='identifier'),
-    QuotedLiteralSegment=NamedSegment.make('single_quote', name='quoted_literal', type='literal'),
+    QuotedIdentifierSegment=NamedSegment.make('double_quote', name='quoted_identifier', type='identifier', trim_chars=('"',)),
+    QuotedLiteralSegment=NamedSegment.make('single_quote', name='quoted_literal', type='literal', trim_chars=("'",)),
     NumericLiteralSegment=NamedSegment.make('numeric_literal', name='numeric_literal', type='literal'),
     TrueSegment=KeywordSegment.make('true', name='boolean_literal', type='literal'),
     FalseSegment=KeywordSegment.make('false', name='boolean_literal', type='literal'),
@@ -292,13 +292,22 @@ class ObjectReferenceSegment(BaseSegment):
         code_only=False
     )
 
-    def reference_elements(self):
-        """Return a list of reference segments."""
-        return self.recursive_crawl('identifier')
+    def iter_raw_references(self):
+        """Generate a list of reference strings and elements.
+
+        Each element is a tuple of (str, segment). If some are
+        split, then a segment may appear twice, but the substring
+        will only appear once.
+        """
+        # Extract the references from those identifiers (because some may be quoted)
+        for elem in self.recursive_crawl('identifier'):
+            # trim on quotes and split out any dots.
+            for part in elem.raw_trimmed().split('.'):
+                yield part, elem
 
     def is_qualified(self):
         """Return if there is more than one element to the reference."""
-        return len(self.reference_elements()) > 1
+        return len(list(self.iter_raw_references())) > 1
 
 
 @ansi_dialect.segment()
@@ -516,17 +525,26 @@ class TableExpressionSegment(BaseSegment):
     )
 
     def get_eventual_alias(self):
-        """Return the eventual table name referred to by this table expression."""
+        """Return the eventual table name referred to by this table expression.
+
+        Returns:
+            :obj:`tuple` of (:obj:`str`, :obj:`BaseSegment`) containing
+                a string representation of the alias, and a reference to the
+                segment containing it.
+
+        """
         alias_expression = self.get_child('alias_expression')
         if alias_expression:
             # If it has an alias, return that
-            return alias_expression.get_child('identifier')
+            segment = alias_expression.get_child('identifier')
+            return (segment.raw, segment)
 
         # If not return the object name (or None if there isn't one)
         ref = self.get_child('object_reference')
         if ref:
-            # Return the last element of the reference
-            return ref.reference_elements()[-1]
+            # Return the last element of the reference, which
+            # will already be a tuple.
+            return list(ref.iter_raw_references())[-1]
         # No references or alias, return None
         return None
 
@@ -710,7 +728,10 @@ class FromClauseSegment(BaseSegment):
     )
 
     def get_eventual_aliases(self):
-        """List the eventual aliases of this from clause."""
+        """List the eventual aliases of this from clause.
+
+        Comes as a list of tuples (string, segment).
+        """
         buff = []
         direct_table_children = self.get_children('table_expression')
         for tc in direct_table_children:
