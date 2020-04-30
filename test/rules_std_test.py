@@ -153,6 +153,9 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     # Check fixing of single space rules
     ('L023', 'fail', 'WITH a AS(select 1) select * from a', 'WITH a AS (select 1) select * from a', None),
     ('L024', 'fail', 'select * from a JOIN b USING(x)', 'select * from a JOIN b USING (x)', None),
+    # References in quotes in biquery
+    ('L020', 'pass', 'SELECT bar.user_id FROM `foo.far.bar`', None, {'core': {'dialect': 'bigquery'}}),
+    ('L020', 'fail', 'SELECT foo.user_id FROM `foo.far.bar`', None, {'core': {'dialect': 'bigquery'}})
 ])
 def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
     """Test that a rule passes/fails on a given string.

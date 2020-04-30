@@ -1776,7 +1776,7 @@ class Rule_L020(BaseCrawler):
                             LintResult(
                                 # Return the segment rather than the string
                                 anchor=tbl_ref[1],
-                                description="Reference {0!r} refers to table/view {1!r} not found in the FROM clause.".format(r.raw, tbl_ref)
+                                description="Reference {0!r} refers to table/view {1!r} not found in the FROM clause.".format(r.raw, tbl_ref[0])
                             )
                         )
 
