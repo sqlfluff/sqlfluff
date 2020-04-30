@@ -693,14 +693,7 @@ class FromClauseSegment(BaseSegment):
             # Optional old school delimited joins
             Ref('TableExpressionSegment'),
             delimiter=Ref('CommaSegment'),
-            terminator=OneOf(
-                Ref('JoinKeywordSegment'),
-                Ref('CrossKeywordSegment'),
-                Ref('InnerKeywordSegment'),
-                Ref('LeftKeywordSegment'),
-                Ref('FullKeywordSegment'),
-                Ref('OuterKeywordSegment')
-            )
+            terminator=Ref('JoinClauseSegment')
         ),
         # NB: The JOIN clause is *part of* the FROM clause
         # and so should be on a sub-indent of it. That isn't
