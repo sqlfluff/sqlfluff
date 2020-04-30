@@ -735,11 +735,14 @@ class FromClauseSegment(BaseSegment):
         """
         buff = []
         direct_table_children = self.get_children('table_expression')
-        for tc in direct_table_children:
-            buff.append(tc.get_eventual_alias())
         join_clauses = self.get_children('join_clause')
-        for jc in join_clauses:
-            buff.append(jc.get_eventual_alias())
+        # Iterate through the potential sources of aliases
+        for clause in (*direct_table_children, *join_clauses):
+            ref = clause.get_eventual_alias()
+            # Only append if non null. A None reference, may
+            # indicate a generator expression or similar.
+            if ref:
+                buff.append(ref)
         return buff
 
 
