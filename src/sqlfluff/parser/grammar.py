@@ -1152,6 +1152,13 @@ class StartsWith(BaseGrammar):
         self.include_terminator = kwargs.pop('include_terminator', False)
         super(StartsWith, self).__init__(*args, **kwargs)
 
+    def simple(self, parse_context):
+        """Does this matcher support a uppercase hash matching route?
+
+        `StartsWith` is simple, if the thing it starts with is also simple.
+        """
+        return self.target.simple(parse_context=parse_context)
+
     def match(self, segments, parse_context):
         """Match if this sequence starts with a match."""
         if self.code_only:
