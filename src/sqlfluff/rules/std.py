@@ -1721,14 +1721,28 @@ class Rule_L019(BaseCrawler):
 
 @std_rule_set.register
 class Rule_L020(BaseCrawler):
-    """References should be qualified if ambiguous."""
+    """References should be qualified if ambiguous.
+
+    Args:
+        single_table_references (:obj:`str`): The expectation for references
+            in single-table select. One of `qualified`, `unqualified`,
+            `consistent` (default is `consistent`).
+
+    """
+
+    def __init__(self, single_table_references='consistent', **kwargs):
+        """Initialise, extracting `single_table_references` from the config."""
+        if single_table_references not in ['qualified', 'unqualified', 'consistent']:
+            raise ValueError("Unexpected `single_table_references`: {0!r}".format(
+                single_table_references))
+        self.single_table_references = single_table_references
+        super(Rule_L020, self).__init__(**kwargs)
 
     def _eval(self, segment, **kwargs):
-        """Enforce comma placement.
+        """References should be qualified if ambiguous.
 
-        If want leading commas, we're looking for trailing commas, so
-        we look for newline segments. If we want trailing commas then
-        we're looking for leading commas, so we look for the comma itself.
+        This rule covers a lot of potential cases of odd usages of
+        references, see the code for each of the potential cases.
         """
         if segment.type == 'select_statement':
             # A buffer to keep any violations.
@@ -1756,16 +1770,49 @@ class Rule_L020(BaseCrawler):
             # Do we have more than one? If so, all references should be qualified.
             enforce_qualified = len(aliases) > 1
 
-            # Iterate through all the references and check them
+            # Iterate through all the references, both in the select clause, but also
+            # potential others.
             sc = segment.get_child('select_clause')
-            for r in sc.recursive_crawl('object_reference'):
-                if enforce_qualified and not r.is_qualified():
+            reference_buffer = list(sc.recursive_crawl('object_reference'))
+            for potential_clause in ('where_clause', 'groupby_clause', 'having_clause', 'orderby_clause'):
+                clause = segment.get_child(potential_clause)
+                if clause:
+                    reference_buffer += list(clause.recursive_crawl('object_reference'))
+
+            # Check all the references that we have.
+            seen_ref_types = set()
+            for r in reference_buffer:
+                this_ref_type = 'qualified' if r.is_qualified() else 'unqualified'
+                if enforce_qualified and this_ref_type == 'unqualified':
                     violation_buff.append(
                         LintResult(
                             anchor=r,
                             description="Unqualified reference {0!r} found in select with more than one referenced table/view.".format(r.raw)
                         )
                     )
+                elif self.single_table_references == 'consistent':
+                    if seen_ref_types and this_ref_type not in seen_ref_types:
+                        violation_buff.append(
+                            LintResult(
+                                anchor=r,
+                                description="{0} reference {1!r} found in single table select which is inconsistent with previous references.".format(
+                                    this_ref_type.capitalize(),
+                                    r.raw
+                                )
+                            )
+                        )
+                elif self.single_table_references != this_ref_type:
+                    violation_buff.append(
+                        LintResult(
+                            anchor=r,
+                            description="{0} reference {1!r} found in single table select.".format(
+                                this_ref_type.capitalize(),
+                                r.raw
+                            )
+                        )
+                    )
+
+                seen_ref_types.add(this_ref_type)
 
                 ref_elems = list(r.iter_raw_references())
                 if len(ref_elems) >= 2:
@@ -1777,6 +1824,16 @@ class Rule_L020(BaseCrawler):
                                 # Return the segment rather than the string
                                 anchor=tbl_ref[1],
                                 description="Reference {0!r} refers to table/view {1!r} not found in the FROM clause.".format(r.raw, tbl_ref[0])
+                            )
+                        )
+
+            if 'qualified' not in seen_ref_types:
+                for ref_str, seg, aliased in aliases:
+                    if aliased:
+                        violation_buff.append(
+                            LintResult(
+                                anchor=seg,
+                                description="Alias {0!r} is never used in SELECT statement.".format(ref_str)
                             )
                         )
 

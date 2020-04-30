@@ -528,23 +528,24 @@ class TableExpressionSegment(BaseSegment):
         """Return the eventual table name referred to by this table expression.
 
         Returns:
-            :obj:`tuple` of (:obj:`str`, :obj:`BaseSegment`) containing
-                a string representation of the alias, and a reference to the
-                segment containing it.
+            :obj:`tuple` of (:obj:`str`, :obj:`BaseSegment`, :obj:`bool`) containing
+                a string representation of the alias, a reference to the
+                segment containing it, and whether it's an alias.
 
         """
         alias_expression = self.get_child('alias_expression')
         if alias_expression:
             # If it has an alias, return that
             segment = alias_expression.get_child('identifier')
-            return (segment.raw, segment)
+            return (segment.raw, segment, True)
 
         # If not return the object name (or None if there isn't one)
         ref = self.get_child('object_reference')
         if ref:
             # Return the last element of the reference, which
             # will already be a tuple.
-            return list(ref.iter_raw_references())[-1]
+            penultimate_ref = list(ref.iter_raw_references())[-1]
+            return (*penultimate_ref, False)
         # No references or alias, return None
         return None
 
