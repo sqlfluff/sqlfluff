@@ -36,8 +36,8 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
                 raise v
         return vs
 
-    def num_violations(self, rules=None, types=None, filter_ignore=True):
-        """Count the number of violations.
+    def get_violations(self, rules=None, types=None, filter_ignore=True):
+        """Get a list of violations, respecting filters and ignore options.
 
         Optionally now with filters.
         """
@@ -57,11 +57,19 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
         # Filter ignorable violations
         if filter_ignore:
             violations = [v for v in violations if not v.ignore]
+        return violations
+
+    def num_violations(self, **kwargs):
+        """Count the number of violations.
+
+        Optionally now with filters.
+        """
+        violations = self.get_violations(**kwargs)
         return len(violations)
 
     def is_clean(self):
         """Return True if there are no ignorable violations."""
-        return not any(not v.ignore for v in self.violations)
+        return not any(self.get_violations(filter_ignore=True))
 
     def fix_string(self, verbosity=0):
         """Obtain the changes to a path as a string.
@@ -323,9 +331,16 @@ class LintedPath:
         """Count the number of violations in the path."""
         return sum(file.num_violations(**kwargs) for file in self.files)
 
-    def violations(self):
+    def get_violations(self, **kwargs):
+        """Return a list of violations in the path."""
+        buff = []
+        for file in self.files:
+            buff += file.get_violations(**kwargs)
+        return buff
+
+    def violation_dict(self, **kwargs):
         """Return a dict of violations by file path."""
-        return {file.path: file.violations for file in self.files}
+        return {file.path: file.get_violations(**kwargs) for file in self.files}
 
     def stats(self):
         """Return a dict containing linting stats about this path."""
@@ -410,12 +425,19 @@ class LintingResult:
             return tuple_buffer
 
     def num_violations(self, **kwargs):
-        """Count the number of violations in thie result."""
+        """Count the number of violations in the result."""
         return sum(path.num_violations(**kwargs) for path in self.paths)
 
-    def violations(self):
+    def get_violations(self, **kwargs):
+        """Return a list of violations in the result."""
+        buff = []
+        for path in self.paths:
+            buff += path.get_violations(**kwargs)
+        return buff
+
+    def violation_dict(self, **kwargs):
         """Return a dict of paths and violations."""
-        return self.combine_dicts(path.violations() for path in self.paths)
+        return self.combine_dicts(path.violation_dict(**kwargs) for path in self.paths)
 
     def stats(self):
         """Return a stats dictionary of this result."""
@@ -444,7 +466,7 @@ class LintingResult:
         return [
             {'filepath': path, 'violations': [v.get_info_dict() for v in violations]}
             for lintedpath in self.paths
-            for path, violations in lintedpath.violations().items()
+            for path, violations in lintedpath.violation_dict().items()
             if violations
         ]
 
