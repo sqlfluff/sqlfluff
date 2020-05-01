@@ -493,9 +493,12 @@ class TableExpressionSegment(BaseSegment):
             Ref('ObjectReferenceSegment'),
             # Nested Selects
             Bracketed(
-                Ref('SelectStatementSegment'),
+                OneOf(
+                    Ref('SetExpressionSegment'),
+                    Ref('SelectStatementSegment')
+                ),
                 Ref('WithCompoundStatementSegment')
-            )
+            ),
             # Values clause?
         ),
         Ref('AliasExpressionSegment', optional=True),
@@ -1045,7 +1048,7 @@ class SelectStatementSegment(BaseSegment):
         Ref('GroupByClauseSegment', optional=True),
         Ref('HavingClauseSegment', optional=True),
         Ref('OrderByClauseSegment', optional=True),
-        Ref('LimitClauseSegment', optional=True)
+        Ref('LimitClauseSegment', optional=True),
         # GreedyUntil(KeywordSegment.make('limit'), optional=True)
     )
 
