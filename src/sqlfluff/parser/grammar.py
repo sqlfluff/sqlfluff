@@ -617,6 +617,26 @@ class Anything(BaseGrammar):
         return " <anything> "
 
 
+class Nothing(BaseGrammar):
+    """Matches nothing.
+
+    Useful for placeholders which might be overwritten by other
+    dialects.
+    """
+
+    def match(self, segments, parse_context):
+        """Matches... nothing.
+
+        Useful for placeholders which might be overwritten by other
+        dialects.
+        """
+        return MatchResult.from_unmatched(segments)
+
+    def expected_string(self, dialect=None, called_from=None):
+        """A hint to the user on what this grammar expects."""
+        return " <nothing> "
+
+
 class OneOf(BaseGrammar):
     """Match any of the elements given once.
 
