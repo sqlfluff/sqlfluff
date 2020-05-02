@@ -107,6 +107,21 @@ class LintFix:
             detail = ''
         return "<LintFix: {0} @{1} {2}>".format(self.edit_type, self.anchor.pos_marker, detail)
 
+    def __eq__(self, other):
+        """Compare equality with another fix.
+
+        A fix is equal to another if is in the same place (position), with the
+        same type and (if appropriate) the same edit values.
+
+        """
+        if not self.edit_type == other.edit_type:
+            return False
+        if not self.anchor == other.anchor:
+            return False
+        if not self.edit == other.edit:
+            return False
+        return True
+
 
 class BaseCrawler:
     """The base class for a crawler, of which all rules are derived from.

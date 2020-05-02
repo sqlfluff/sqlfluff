@@ -688,23 +688,22 @@ class Linter:
                         linting_errors += lerrs
                         if fixes:
                             verbosity_logger("Applying Fixes: {0}".format(fixes), verbosity=verbosity)
-                            if fixes == last_fixes:
-                                raise RuntimeError(
-                                    ("Fixes appear to not have been applied, they are "
-                                     "the same as last time! {0}").format(
-                                        fixes))
 
-                            last_fixes = fixes
-                            new_working, fixes = working.apply_fixes(fixes)
-
-                            # Check for infinite loops
-                            if new_working.raw not in previous_versions:
-                                working = new_working
-                                previous_versions.add(working.raw)
-                                changed = True
-                            else:
+                            if last_fixes and fixes == last_fixes:
                                 print(("WARNING: One fix for {0} not applied, it would re-cause "
-                                       "a previously fixed error.").format(crawler.code))
+                                       "the same error.").format(crawler.code))
+                            else:
+                                last_fixes = fixes
+                                new_working, fixes = working.apply_fixes(fixes)
+
+                                # Check for infinite loops
+                                if new_working.raw not in previous_versions:
+                                    working = new_working
+                                    previous_versions.add(working.raw)
+                                    changed = True
+                                else:
+                                    print(("WARNING: One fix for {0} not applied, it would re-cause "
+                                           "a previously fixed error.").format(crawler.code))
                     if not changed:
                         # The file is clean :)
                         break
