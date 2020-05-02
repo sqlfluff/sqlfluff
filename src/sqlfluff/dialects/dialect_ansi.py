@@ -733,9 +733,9 @@ ansi_dialect.add(
             Ref('Expression_C_Grammar'),
             Sequence(
                 OneOf(
-                    # Ref('PlusSegment'),
-                    # Ref('MinusSegment'),
-                    # Ref('TildeSegment'),
+                    Ref('PlusSegment'),
+                    Ref('MinusSegment'),
+                    Ref('TildeSegment'),
                     Ref('NotKeywordSegment')
                 ),
                 Ref('Expression_A_Grammar')
