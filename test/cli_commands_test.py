@@ -198,7 +198,11 @@ def test__cli__command_fix_stdin(monkeypatch):
     """Check stdin input for fix works."""
     sql = 'select * from tbl'
     expected = 'fixed sql!'
-    monkeypatch.setattr("sqlfluff.linter.LintedFile.fix_string", lambda x: expected)
+
+    def _patched_fix(self, verbosity=0):
+        return expected
+
+    monkeypatch.setattr("sqlfluff.linter.LintedFile.fix_string", _patched_fix)
     result = invoke_assert_code(args=[fix, ('-', '--rules', 'L001')], cli_input=sql)
     assert result.output == expected
 

@@ -212,7 +212,7 @@ def fix(force, paths, **kwargs):
     if ('-',) == paths:
         stdin = sys.stdin.read()
         result = lnt.lint_string_wrapped(stdin, fname='stdin', verbosity=verbose, fix=True)
-        stdout = result.paths[0].files[0].fix_string()
+        stdout = result.paths[0].files[0].fix_string(verbosity=verbose)
         click.echo(stdout, nl=False)
         sys.exit()
 
@@ -232,7 +232,7 @@ def fix(force, paths, **kwargs):
             result.num_violations(types=SQLLintError)))
         if force:
             click.echo('FORCE MODE: Attempting fixes...')
-            success = do_fixes(lnt, result, types=SQLLintError)
+            success = do_fixes(lnt, result, verbosity=verbose, types=SQLLintError)
             if not success:
                 sys.exit(1)
         else:
@@ -241,7 +241,7 @@ def fix(force, paths, **kwargs):
             click.echo('...')
             if c == 'y':
                 click.echo('Attempting fixes...')
-                success = do_fixes(lnt, result, types=SQLLintError)
+                success = do_fixes(lnt, result, verbosity=verbose, types=SQLLintError)
                 if not success:
                     sys.exit(1)
             elif c == 'n':
