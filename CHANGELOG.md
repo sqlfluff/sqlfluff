@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for the `INTERVAL '4 days'` style interval expression.
 - Configurable trailing or leading comma linting.
 - Configurable indentation for `JOIN` clauses.
+- Rules now have their own logging interface to improve debugging ability.
+- Snowflake and Postgres dialects.
 
 ### Changed
 
