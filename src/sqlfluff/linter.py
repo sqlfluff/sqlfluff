@@ -3,6 +3,8 @@
 import os
 import time
 from collections import namedtuple
+import logging
+
 from difflib import SequenceMatcher
 from benchit import BenchIt
 
@@ -10,7 +12,7 @@ from .errors import SQLLexError, SQLParseError, SQLTemplaterError
 from .parser import FileSegment, ParseContext
 # We should probably move verbosity logger to somewhere else?
 from .parser.segments_base import verbosity_logger, frame_msg
-from .rules import get_ruleset
+from .rules import get_ruleset, rules_logger
 
 
 from .cli.formatters import (format_linting_path, format_file_violations,
@@ -659,6 +661,11 @@ class Linter:
             # At this point we should evaluate whether any parsing errors have occured
             if verbosity >= 2:
                 verbosity_logger("LINTING ({0})".format(fname), verbosity=verbosity)
+                # Also set up logging from the rules logger
+                if verbosity >= 3:
+                    rules_logger.setLevel(logging.DEBUG)
+                else:
+                    rules_logger.setLevel(logging.INFO)
 
             # Get the initial violations
             linting_errors = []
