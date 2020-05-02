@@ -655,7 +655,14 @@ class Linter:
             if verbosity >= 2:
                 verbosity_logger("LINTING ({0})".format(fname), verbosity=verbosity)
 
-            # NOW APPLY EACH LINTER
+            # Get the initial violations
+            linting_errors = []
+            for crawler in self.get_ruleset(config=config or self.config):
+                lerrs, _, _, _ = crawler.crawl(parsed)
+                linting_errors += lerrs
+            initial_linting_errors = linting_errors
+
+            # If we're in fix mode, iteratively apply fixes until done, or we can't make a move.
             if fix:
                 # If we're in fix mode, then we need to progressively call and reconstruct
                 working = parsed
@@ -698,18 +705,14 @@ class Linter:
                         break
                 # Set things up to return the altered version
                 parsed = working
-            else:
-                # Just get the violations
-                linting_errors = []
-                for crawler in self.get_ruleset(config=config or self.config):
-                    lerrs, _, _, _ = crawler.crawl(parsed)
-                    linting_errors += lerrs
 
             # Update the timing dict
             t1 = time.monotonic()
             time_dict['linting'] = t1 - t0
 
-            vs += linting_errors
+            # We're only going to return the *initial* errors, rather
+            # than any generated during the fixing cycle.
+            vs += initial_linting_errors
             fixed_buff = parsed.raw
 
         # We process the ignore config here if appropriate
@@ -720,10 +723,9 @@ class Linter:
         file_mask = (raw_buff, templ_buff, fixed_buff)
         res = LintedFile(fname, vs, time_dict, parsed,
                          file_mask=file_mask)
-        # Do the logging as appropriate (don't log if fixing...)
-        if not fix:
-            # This is the main command line output from linting.
-            self.log(format_file_violations(fname, res.violations, verbose=verbosity))
+
+        # This is the main command line output from linting.
+        self.log(format_file_violations(fname, res.violations, verbose=verbosity))
         return res
 
     def paths_from_path(self, path):

@@ -168,9 +168,8 @@ def lint(paths, format, **kwargs):
     sys.exit(result.stats()['exit code'])
 
 
-def do_fixes(lnt, paths, **kwargs):
+def do_fixes(lnt, result, **kwargs):
     """Actually do the fixes."""
-    result = lnt.lint_paths(paths, fix=True)
     click.echo('Persisting Changes...')
     res = result.persist_changes(output_func=lnt.output_func, **kwargs)
     if all(res.values()):
@@ -220,7 +219,7 @@ def fix(force, paths, **kwargs):
     # Lint the paths (not with the fix argument at this stage), outputting as we go.
     lnt.log("==== finding violations ====")
     try:
-        result = lnt.lint_paths(paths, verbosity=verbose)
+        result = lnt.lint_paths(paths, verbosity=verbose, fix=True)
     except IOError:
         click.echo(colorize('The path(s) {0!r} could not be accessed. Check it/they exist(s).'.format(paths), 'red'))
         sys.exit(1)
@@ -233,7 +232,7 @@ def fix(force, paths, **kwargs):
             result.num_violations(types=SQLLintError)))
         if force:
             click.echo('FORCE MODE: Attempting fixes...')
-            success = do_fixes(lnt, paths, types=SQLLintError)
+            success = do_fixes(lnt, result, types=SQLLintError)
             if not success:
                 sys.exit(1)
         else:
@@ -242,7 +241,7 @@ def fix(force, paths, **kwargs):
             click.echo('...')
             if c == 'y':
                 click.echo('Attempting fixes...')
-                success = do_fixes(lnt, paths, types=SQLLintError)
+                success = do_fixes(lnt, result, types=SQLLintError)
                 if not success:
                     sys.exit(1)
             elif c == 'n':
