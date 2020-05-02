@@ -38,24 +38,30 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
                 raise v
         return vs
 
-    def get_violations(self, rules=None, types=None, filter_ignore=True):
+    def get_violations(self, rules=None, types=None, filter_ignore=True, fixable=None):
         """Get a list of violations, respecting filters and ignore options.
 
         Optionally now with filters.
         """
         violations = self.violations
+        # Filter types
         if types:
             try:
                 types = tuple(types)
             except TypeError:
                 types = (types,)
             violations = [v for v in violations if isinstance(v, types)]
+        # Filter rules
         if rules:
             if isinstance(rules, str):
                 rules = (rules,)
             else:
                 rules = tuple(rules)
             violations = [v for v in violations if v.rule_code() in rules]
+        # Filter fixable
+        if fixable is not None:
+            # Assume that fixable is true or false if not None
+            violations = [v for v in violations if v.fixable is fixable]
         # Filter ignorable violations
         if filter_ignore:
             violations = [v for v in violations if not v.ignore]
@@ -366,7 +372,7 @@ class LintedPath:
         # Run all the fixes for all the files and return a dict
         buffer = {}
         for file in self.files:
-            if self.num_violations(**kwargs) > 0:
+            if file.num_violations(fixable=True, **kwargs) > 0:
                 buffer[file.path] = file.persist_tree(verbosity=verbosity)
                 result = buffer[file.path]
             else:
@@ -374,12 +380,14 @@ class LintedPath:
                 result = 'SKIP'
 
             if output_func:
-                output_func(
-                    format_filename(
-                        filename=file.path,
-                        success=result,
-                        verbose=verbosity)
-                )
+                # Only show the skip records at higher levels of verbosity
+                if verbosity >= 2 or result != 'SKIP':
+                    output_func(
+                        format_filename(
+                            filename=file.path,
+                            success=result,
+                            verbose=verbosity)
+                    )
         return buffer
 
 
@@ -736,7 +744,12 @@ class Linter:
                          file_mask=file_mask)
 
         # This is the main command line output from linting.
-        self.log(format_file_violations(fname, res.violations, verbose=verbosity))
+        self.log(
+            format_file_violations(
+                fname, res.get_violations(fixable=True if fix else None),
+                verbose=verbosity
+            )
+        )
         return res
 
     def paths_from_path(self, path):

@@ -184,14 +184,17 @@ def test__cli__command__fix(rule, fname):
         generic_roundtrip_test(test_file, rule)
 
 
-@pytest.mark.parametrize('rule,fname', [
-    # NB: L004 currently has no fix routine.
-    ('L004', 'test/fixtures/linter/indentation_errors.sql')
-])
-def test__cli__command__fix_fail(rule, fname):
-    """Test the round trip of detecting, fixing and then still detecting the rule."""
-    with open(fname, mode='r') as test_file:
-        generic_roundtrip_test(test_file, rule, fix_exit_code=1, final_exit_code=65)
+# Test case disabled because there isn't a good example of where to test this.
+# This *should* test the case where a rule DOES have a proposed fix, but for
+# some reason when we try to apply it, there's a failure.
+# @pytest.mark.parametrize('rule,fname', [
+#     # NB: L004 currently has no fix routine.
+#     ('L004', 'test/fixtures/linter/indentation_errors.sql')
+# ])
+# def test__cli__command__fix_fail(rule, fname):
+#     """Test the round trip of detecting, fixing and then still detecting the rule."""
+#     with open(fname, mode='r') as test_file:
+#         generic_roundtrip_test(test_file, rule, fix_exit_code=1, final_exit_code=65)
 
 
 def test__cli__command_fix_stdin(monkeypatch):
