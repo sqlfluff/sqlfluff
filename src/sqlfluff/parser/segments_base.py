@@ -191,6 +191,7 @@ class BaseSegment:
     _can_start_end_non_code = False
     # What should we trim off the ends to get to content
     trim_chars = None
+    trim_start = None
 
     @property
     def name(self):
@@ -997,6 +998,11 @@ class RawSegment(BaseSegment):
 
     def raw_trimmed(self):
         """Return a trimmed version of the raw content."""
+        raw_buff = self.raw
+        if self.trim_start:
+            for seq in self.trim_start:
+                if raw_buff.startswith(seq):
+                    raw_buff = raw_buff[len(seq):]
         if self.trim_chars:
             raw_buff = self.raw
             # for each thing to trim
@@ -1008,8 +1014,7 @@ class RawSegment(BaseSegment):
                 while raw_buff.endswith(seq):
                     raw_buff = raw_buff[:-len(seq)]
             return raw_buff
-        else:
-            return self.raw
+        return raw_buff
 
     def raw_list(self):
         """Return a list of the raw content of this segment."""

@@ -19,7 +19,7 @@ from .cli.formatters import (format_linting_path, format_file_violations,
                              format_filename, format_config_vals)
 
 
-class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tree', 'file_mask'])):
+class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tree', 'file_mask', 'ignore_mask'])):
     """A class to store the idea of a linted file."""
     __slots__ = ()
 
@@ -31,7 +31,7 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
         If they don't then this function raises that error.
         """
         vs = []
-        for v in self.violations:
+        for v in self.get_violations():
             if hasattr(v, 'check_tuple'):
                 vs.append(v.check_tuple())
             else:
@@ -65,6 +65,16 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
         # Filter ignorable violations
         if filter_ignore:
             violations = [v for v in violations if not v.ignore]
+            # Ignore any rules in the ignore mask
+            if self.ignore_mask:
+                for line_no, rules in self.ignore_mask:
+                    violations = [
+                        v for v in violations
+                        if not (
+                            v.line_no() == line_no
+                            and (rules is None or v.rule_code() in rules)
+                        )
+                    ]
         return violations
 
     def num_violations(self, **kwargs):
@@ -626,6 +636,27 @@ class Linter:
         bencher("Finish parsing {0!r}".format(short_fname))
         return parsed, violations, time_dict
 
+    @staticmethod
+    def extract_ignore_from_comment(comment):
+        """Extract ignore mask entries from a comment segment."""
+        # Also trim any whitespace afterward
+        comment_content = comment.raw_trimmed().strip()
+        if comment_content.startswith('noqa'):
+            # This is an ignore identifier
+            comment_remainder = comment_content[4:]
+            if comment_remainder:
+                if not comment_remainder.startswith(':'):
+                    return SQLParseError(
+                        "Malformed 'noqa' section. Expected 'noqa: <rule>[,...]",
+                        segment=comment
+                    )
+                comment_remainder = comment_remainder[1:]
+                rules = [r.strip() for r in comment_remainder.split(',')]
+                return (comment.pos_marker.line_no, tuple(rules))
+            else:
+                return (comment.pos_marker.line_no, None)
+        return None
+
     def lint_string(self, s, fname='<string input>', verbosity=0, fix=False, config=None):
         """Lint a string.
 
@@ -641,6 +672,20 @@ class Linter:
         # TODO: Tidy this up - it's a mess
         # Using the new parser, read the file object.
         parsed, vs, time_dict = self.parse_string(s=s, fname=fname, verbosity=verbosity, config=config)
+
+        # Look for comment segments which might indicate lines to ignore.
+        ignore_buff = []
+        for comment in parsed.recursive_crawl('comment'):
+            if comment.name == 'inline_comment':
+                ignore_entry = self.extract_ignore_from_comment(comment)
+                if isinstance(ignore_entry, SQLParseError):
+                    vs.append(ignore_entry)
+                elif ignore_entry:
+                    ignore_buff.append(ignore_entry)
+        if ignore_buff and verbosity >= 2:
+            verbosity_logger(
+                "Parsed noqa directives from file: {0!r}".format(ignore_buff),
+                verbosity=verbosity)
 
         templ_buff = None
         fixed_buff = None
@@ -741,7 +786,7 @@ class Linter:
 
         file_mask = (raw_buff, templ_buff, fixed_buff)
         res = LintedFile(fname, vs, time_dict, parsed,
-                         file_mask=file_mask)
+                         file_mask=file_mask, ignore_mask=ignore_buff)
 
         # This is the main command line output from linting.
         self.log(

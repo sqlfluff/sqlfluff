@@ -215,6 +215,8 @@ def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
     ('L020', 'test/fixtures/linter/column_references.sql', [(1, 8), (1, 11)]),
     # Distinct and Group by
     ('L021', 'test/fixtures/linter/select_distinct_group_by.sql', [(1, 8)]),
+    # Make sure that ignoring works as expected
+    ('L006', 'test/fixtures/linter/operator_errors_ignore.sql', [(10, 8), (10, 9)]),
 ])
 def test__rules__std_file(rule, path, violations):
     """Test the linter finds the given errors in (and only in) the right places."""
