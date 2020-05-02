@@ -147,6 +147,19 @@ class NamedSegment(KeywordSegment):
     Useful for matching quoted segments, or anything else which
     is largely identified by the Lexer.
     """
+
+    @classmethod
+    def simple(cls, parse_context):
+        """Does this matcher support a uppercase hash matching route?
+
+        NamedSegment segment does NOT for now. We might need to later for efficiency.
+
+        There is a way that this *could* be enabled, by allowing *another*
+        shortcut route, to look ahead at the names of upcoming segments,
+        rather than their content.
+        """
+        return False
+
     @classmethod
     def match(cls, segments, parse_context):
         """Compare input segments for a match, return a `MatchResult`.
