@@ -34,7 +34,7 @@ def test__dialect__ansi__file_from_raw(raw, res, caplog):
         ("NakedIdentifierSegment", "online_sales"),
         ("NumericLiteralSegment", "1000.0"),
         ("ExpressionSegment", "online_sales / 1000.0"),
-        ("IntervalLiteralSegment", "INTERVAL 1 YEAR"),
+        ("IntervalExpressionSegment", "INTERVAL 1 YEAR"),
         ("ExpressionSegment",
          "CASE WHEN id = 1 THEN 'nothing' ELSE 'test' END"),
         # Nested Case Expressions
@@ -88,7 +88,10 @@ def test__dialect__ansi__file_from_raw(raw, res, caplog):
         ("SelectTargetElementSegment", "a.b.*"),
         ("SelectTargetElementSegment", "a.b.c.*"),
         # Default Element Syntax
-        ("ObjectReferenceSegment", "a..c.*")
+        ("ObjectReferenceSegment", "a..c.*"),
+        # Negative Elements
+        ("SelectTargetElementSegment", "-some_variable"),
+        ("SelectTargetElementSegment", "- some_variable")
     ]
 )
 def test__dialect__ansi_specific_segment_parses(segmentref, raw, caplog):

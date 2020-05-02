@@ -23,6 +23,17 @@ from ..errors import SQLLintError
 # The ghost of a rule (mostly used for testing)
 RuleGhost = namedtuple('RuleGhost', ['code', 'description'])
 
+# Instantiate the rules logger
+rules_logger = logging.getLogger('sqlfluff.rules')
+
+
+class RuleLoggingAdapter(logging.LoggerAdapter):
+    """A LoggingAdapter for rules which adds the code of the rule to it."""
+
+    def process(self, msg, kwargs):
+        """Add the code element to the logging message before emit."""
+        return '[%s] %s' % (self.extra['code'], msg), kwargs
+
 
 class LintResult():
     """A class to hold the results of a crawl operation.
@@ -107,6 +118,21 @@ class LintFix:
             detail = ''
         return "<LintFix: {0} @{1} {2}>".format(self.edit_type, self.anchor.pos_marker, detail)
 
+    def __eq__(self, other):
+        """Compare equality with another fix.
+
+        A fix is equal to another if is in the same place (position), with the
+        same type and (if appropriate) the same edit values.
+
+        """
+        if not self.edit_type == other.edit_type:
+            return False
+        if not self.anchor == other.anchor:
+            return False
+        if not self.edit == other.edit:
+            return False
+        return True
+
 
 class BaseCrawler:
     """The base class for a crawler, of which all rules are derived from.
@@ -125,6 +151,10 @@ class BaseCrawler:
         self.description = description
         self.code = code
         # Any unused kwargs will just be ignored from here.
+
+        # We also define a custom logger here, which also includes the code
+        # of the rule in the logging.
+        self.logger = RuleLoggingAdapter(rules_logger, {'code': code})
 
     def _eval(self, **kwargs):
         """Evaluate this rule against the current context.
@@ -393,13 +423,13 @@ class RuleSet:
 
         whitelisted_unknown_rule_codes = [r for r in whitelist if r not in self._register]
         if any(whitelisted_unknown_rule_codes):
-            logging.warning(
+            rules_logger.warning(
                 "Tried to whitelist unknown rules: {0!r}".format(
                     whitelisted_unknown_rule_codes))
 
         blacklisted_unknown_rule_codes = [r for r in blacklist if r not in self._register]
         if any(blacklisted_unknown_rule_codes):
-            logging.warning(
+            rules_logger.warning(
                 "Tried to blacklist unknown rules: {0!r}".format(
                     blacklisted_unknown_rule_codes))
 

@@ -101,10 +101,10 @@ def auto_fix_test(rules, dialect, folder):
     # Run the fix command
     cfg = FluffConfig.from_root(overrides=dict(rules=rules, dialect=dialect))
     lnt = Linter(config=cfg, output_func=lambda m: None)
+    res = lnt.lint_path(filepath, fix=True)
 
     # If we have a violations structure, let's enforce it.
     if violations:
-        res = lnt.lint_path(filepath)
         vs = set(res.check_tuples())
         # Format the violations file
         expected_vs = set()
@@ -113,7 +113,8 @@ def auto_fix_test(rules, dialect, folder):
                 expected_vs.add((rule_key, *elem))
         assert expected_vs == vs
 
-    res = do_fixes(lnt, paths=[filepath])
+    # Actually do the fixes
+    res = do_fixes(lnt, res)
     # Read the fixed file
     with open(filepath, mode='r') as fixed_file:
         fixed_buff = fixed_file.read()

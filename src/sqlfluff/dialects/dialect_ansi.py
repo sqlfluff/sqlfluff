@@ -15,7 +15,7 @@ https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 from ..parser import (BaseSegment, KeywordSegment, ReSegment, NamedSegment,
                       Sequence, GreedyUntil, StartsWith, ContainsOnly,
                       OneOf, Delimited, Bracketed, AnyNumberOf, Ref,
-                      Anything, LambdaSegment, Indent, Dedent)
+                      Anything, LambdaSegment, Indent, Dedent, Nothing)
 from .base import Dialect
 
 
@@ -69,6 +69,7 @@ ansi_dialect.add(
     _NonCodeSegment=LambdaSegment.make(lambda x: not x.is_code, is_code=False, name='non_code'),
     # Real segments
     SemicolonSegment=KeywordSegment.make(';', name="semicolon"),
+    ColonSegment=KeywordSegment.make(':', name="colon"),
     SliceSegment=KeywordSegment.make(':', name="slice"),
     StartBracketSegment=KeywordSegment.make('(', name='start_bracket', type='start_bracket'),
     EndBracketSegment=KeywordSegment.make(')', name='end_bracket', type='end_bracket'),
@@ -207,23 +208,26 @@ ansi_dialect.add(
     RLikeKeywordSegment=KeywordSegment.make('rlike'),
     RoleKeywordSegment=KeywordSegment.make('role'),
     UserKeywordSegment=KeywordSegment.make('user'),
+    DeleteKeywordSegment=KeywordSegment.make('delete'),
+    SetKeywordSegment=KeywordSegment.make('set'),
     # Some more grammars:
     IntervalKeywordSegment=KeywordSegment.make('interval'),
     LiteralGrammar=OneOf(
         Ref('QuotedLiteralSegment'), Ref('NumericLiteralSegment'),
         Ref('BooleanLiteralGrammar'), Ref('QualifiedNumericLiteralSegment'),
-        Ref('IntervalLiteralSegment'),
         # NB: Null is included in the literals, because it is a keyword which
         # can otherwise be easily mistaken for an identifier.
         Ref('NullKeywordSegment')
     ),
+    # This is a placeholder for other dialects.
+    PreTableFunctionKeywordsGrammar=Nothing(),
 )
 
 
 @ansi_dialect.segment()
-class IntervalLiteralSegment(BaseSegment):
-    """An interval literal segment."""
-    type = 'interval_literal'
+class IntervalExpressionSegment(BaseSegment):
+    """An interval expression segment."""
+    type = 'interval_expression'
     match_grammar = Sequence(
         Ref('IntervalKeywordSegment'),
         OneOf(
@@ -287,7 +291,8 @@ class ObjectReferenceSegment(BaseSegment):
             Ref('CastOperatorKeywordSegment'), Ref('StartSquareBracketSegment'),
             Ref('StartBracketSegment'), Ref('ArithmeticBinaryOperatorGrammar'),
             Ref('StringBinaryOperatorGrammar'),
-            Ref('ComparisonOperatorGrammar')
+            Ref('ComparisonOperatorGrammar'), Ref('ColonSegment'),
+            Ref('SemicolonSegment')
         ),
         code_only=False
     )
@@ -381,6 +386,41 @@ class QualifiedNumericLiteralSegment(BaseSegment):
         code_only=False)
 
 
+ansi_dialect.add(
+    # FunctionContentsExpressionGrammar intended as a hook to override
+    # in other dialects
+    FunctionContentsExpressionGrammar=Ref('ExpressionSegment'),
+    FunctionContentsGrammar=OneOf(
+        # A Cast-like function
+        Sequence(
+            Ref('ExpressionSegment'),
+            Ref('AsKeywordSegment'),
+            Ref('DatatypeSegment')
+        ),
+        # An extract-like function
+        Sequence(
+            Ref('DatepartSegment'),
+            Ref('FromKeywordSegment'),
+            Ref('ExpressionSegment')
+        ),
+        Sequence(
+            # Allow an optional distinct keyword here.
+            Ref('DistinctKeywordSegment', optional=True),
+            OneOf(
+                # Most functions will be using the delimited route
+                # but for COUNT(*) or similar we allow the star segment
+                # here.
+                Ref('StarSegment'),
+                Delimited(
+                    Ref('FunctionContentsExpressionGrammar'),
+                    delimiter=Ref('CommaSegment')
+                ),
+            ),
+        )
+    )
+)
+
+
 @ansi_dialect.segment()
 class FunctionSegment(BaseSegment):
     """A scalar or aggregate function.
@@ -410,36 +450,10 @@ class FunctionSegment(BaseSegment):
         Sequence(
             Ref('FunctionNameSegment'),
             Bracketed(
-                OneOf(
-                    # A Cast-like function
-                    Sequence(
-                        Ref('ExpressionSegment'),
-                        Ref('AsKeywordSegment'),
-                        Ref('DatatypeSegment')
-                    ),
-                    # An extract-like function
-                    Sequence(
-                        Ref('DatepartSegment'),
-                        Ref('FromKeywordSegment'),
-                        Ref('ExpressionSegment')
-                    ),
-                    Sequence(
-                        # Allow an optional distinct keyword here.
-                        Ref('DistinctKeywordSegment', optional=True),
-                        OneOf(
-                            # Most functions will be using the delimited route
-                            # but for COUNT(*) or similar we allow the star segment
-                            # here.
-                            Ref('StarSegment'),
-                            Delimited(
-                                Ref('ExpressionSegment'),
-                                delimiter=Ref('CommaSegment')
-                            ),
-                        ),
-                    ),
+                Ref(
+                    'FunctionContentsGrammar',
                     # The brackets might be empty for some functions...
-                    optional=True
-                )
+                    optional=True)
             ),
         ),
         # Optional suffix for window functions.
@@ -501,6 +515,7 @@ class TableExpressionSegment(BaseSegment):
     """A table expression."""
     type = 'table_expression'
     match_grammar = Sequence(
+        Ref('PreTableFunctionKeywordsGrammar', optional=True),
         OneOf(
             # Functions allowed here for table expressions.
             # Perhaps this should just be in a dialect, but
@@ -509,9 +524,12 @@ class TableExpressionSegment(BaseSegment):
             Ref('ObjectReferenceSegment'),
             # Nested Selects
             Bracketed(
-                Ref('SelectStatementSegment'),
+                OneOf(
+                    Ref('SetExpressionSegment'),
+                    Ref('SelectStatementSegment')
+                ),
                 Ref('WithCompoundStatementSegment')
-            )
+            ),
             # Values clause?
         ),
         Ref('AliasExpressionSegment', optional=True),
@@ -572,6 +590,7 @@ class SelectTargetElementSegment(BaseSegment):
             OneOf(
                 Ref('LiteralGrammar'),
                 Ref('FunctionSegment'),
+                Ref('IntervalExpressionSegment'),
                 Ref('ObjectReferenceSegment')
             ),
             Ref('AliasExpressionSegment', optional=True)
@@ -792,9 +811,9 @@ ansi_dialect.add(
             Ref('Expression_C_Grammar'),
             Sequence(
                 OneOf(
-                    # Ref('PlusSegment'),
-                    # Ref('MinusSegment'),
-                    # Ref('TildeSegment'),
+                    Ref('PlusSegment'),
+                    Ref('MinusSegment'),
+                    Ref('TildeSegment'),
                     Ref('NotKeywordSegment')
                 ),
                 Ref('Expression_A_Grammar')
@@ -827,6 +846,7 @@ ansi_dialect.add(
                         OneOf(
                             Delimited(
                                 Ref('LiteralGrammar'),
+                                Ref('IntervalExpressionSegment'),
                                 delimiter=Ref('CommaSegment')
                             ),
                             Ref('SelectStatementSegment')
@@ -877,14 +897,16 @@ ansi_dialect.add(
             # Allow potential select statement without brackets
             Ref('SelectStatementSegment'),
             Ref('LiteralGrammar'),
+            Ref('IntervalExpressionSegment'),
             Ref('ObjectReferenceSegment')
         ),
-        AnyNumberOf(
-            Ref('ArrayAccessorSegment')
-        ),
+        Ref('Accessor_Grammar', optional=True),
         Ref('ShorthandCastSegment', optional=True),
         code_only=False
     ),
+    Accessor_Grammar=AnyNumberOf(
+        Ref('ArrayAccessorSegment')
+    )
 )
 
 
@@ -1096,6 +1118,7 @@ class ValuesClauseSegment(BaseSegment):
             Bracketed(
                 Delimited(
                     Ref('LiteralGrammar'),
+                    Ref('IntervalExpressionSegment'),
                     delimiter=Ref('CommaSegment')
                 )
             ),
@@ -1118,7 +1141,7 @@ class SelectStatementSegment(BaseSegment):
         Ref('GroupByClauseSegment', optional=True),
         Ref('HavingClauseSegment', optional=True),
         Ref('OrderByClauseSegment', optional=True),
-        Ref('LimitClauseSegment', optional=True)
+        Ref('LimitClauseSegment', optional=True),
         # GreedyUntil(KeywordSegment.make('limit'), optional=True)
     )
 
@@ -1263,6 +1286,7 @@ class ColumnOptionSegment(BaseSegment):
             Sequence(  # DEFAULT <value>
                 Ref('DefaultKeywordSegment'),
                 Ref('LiteralGrammar'),
+                # ?? Ref('IntervalExpressionSegment')
             ),
             Sequence(  # PRIMARY KEY
                 Ref('PrimaryKeywordSegment'),
@@ -1594,6 +1618,103 @@ class AccessStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class DeleteStatementSegment(BaseSegment):
+    """A `DELETE` statement.
+
+    DELETE FROM <table name> [ WHERE <search condition> ]
+    """
+    type = 'delete_statement'
+    # match grammar. This one makes sense in the context of knowing that it's
+    # definitely a statement, we just don't know what type yet.
+    match_grammar = StartsWith(Ref('DeleteKeywordSegment'))
+    parse_grammar = Sequence(
+        Ref('DeleteKeywordSegment'),
+        Ref('FromClauseSegment'),
+        Ref('WhereClauseSegment', optional=True),
+    )
+
+
+@ansi_dialect.segment()
+class UpdateStatementSegment(BaseSegment):
+    """A `Update` statement.
+
+    UPDATE <table name> SET <set clause list> [ WHERE <search condition> ]
+    """
+    type = 'delete_statement'
+    match_grammar = StartsWith(Ref('UpdateKeywordSegment'))
+    parse_grammar = Sequence(
+        Ref('UpdateKeywordSegment'),
+        Ref('ObjectReferenceSegment'),
+        Ref('SetClauseListSegment'),
+        Ref('WhereClauseSegment', optional=True),
+    )
+
+
+@ansi_dialect.segment()
+class SetClauseListSegment(BaseSegment):
+    """SQL 1992 set clause list.
+
+    <set clause list> ::=
+              <set clause> [ { <comma> <set clause> }... ]
+
+         <set clause> ::=
+              <object column> <equals operator> <update source>
+
+         <update source> ::=
+                <value expression>
+              | <null specification>
+              | DEFAULT
+
+         <object column> ::= <column name>
+    """
+    type = 'set_clause_list'
+    match_grammar = Sequence(
+        Ref('SetKeywordSegment'),
+        Indent,
+        OneOf(
+            Ref('SetClauseSegment'),
+            # set clause
+            AnyNumberOf(
+                Delimited(
+                    Ref('SetClauseSegment'),
+                    delimiter=Ref('CommaSegment')
+                ),
+            ),
+        ),
+        Dedent,
+    )
+
+
+@ansi_dialect.segment()
+class SetClauseSegment(BaseSegment):
+    """SQL 1992 set clause.
+
+    <set clause> ::=
+              <object column> <equals operator> <update source>
+
+         <update source> ::=
+                <value expression>
+              | <null specification>
+              | DEFAULT
+
+         <object column> ::= <column name>
+    """
+    type = 'set_clause'
+
+    match_grammar = Sequence(
+        Ref('ColumnExpressionSegment'),
+        Ref('EqualsSegment'),
+        OneOf(
+            Ref('LiteralGrammar'),
+            Ref('FunctionSegment'),
+            Ref('ObjectReferenceSegment'),
+            Ref('NullKeywordSegment'),
+            Ref('DefaultKeywordSegment'),
+        )
+    )
+
+
+@ansi_dialect.segment()
 class StatementSegment(BaseSegment):
     """A generic segment, to any of it's child subsegments.
 
@@ -1607,5 +1728,6 @@ class StatementSegment(BaseSegment):
         Ref('TransactionStatementSegment'), Ref('DropStatementSegment'),
         Ref('AccessStatementSegment'), Ref('CreateTableStatementSegment'),
         Ref('CreateViewStatementSegment'),
+        Ref('DeleteStatementSegment'), Ref('UpdateStatementSegment'),
     )
     match_grammar = GreedyUntil(Ref('SemicolonSegment'))

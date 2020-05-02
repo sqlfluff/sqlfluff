@@ -7,7 +7,7 @@ from .segments_common import (KeywordSegment, ReSegment, NamedSegment,
                               LambdaSegment, Indent, Dedent)
 from .grammar import (Sequence, GreedyUntil, StartsWith, ContainsOnly,
                       OneOf, Delimited, Bracketed, AnyNumberOf, Ref,
-                      Anything)
+                      Anything, Nothing)
 from .segments_file import FileSegment
 from .markers import FilePositionMarker
 from .lexer import Lexer
