@@ -1,0 +1,112 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_target_element:
+          object_reference:
+            naked_identifier: ticket_id
+      - comma: ','
+      - select_target_element:
+          expression:
+            object_reference:
+              naked_identifier: value
+            snowflake_semi_structured_expression:
+              keyword: ':'
+              semi_structured_element: value
+          alias_expression:
+            keyword: AS
+            naked_identifier: uncasted
+      - comma: ','
+      - select_target_element:
+          expression:
+            object_reference:
+              naked_identifier: value
+            snowflake_semi_structured_expression:
+              keyword: ':'
+              semi_structured_element: id
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: bigint
+          alias_expression:
+            keyword: AS
+            naked_identifier: field_id
+      - comma: ','
+      - select_target_element:
+          expression:
+            object_reference:
+              naked_identifier: value
+            snowflake_semi_structured_expression:
+              keyword: ':'
+              semi_structured_element: value
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: STRING
+          alias_expression:
+            keyword: AS
+            naked_identifier: field_val
+      - comma: ','
+      - select_target_element:
+          expression:
+            object_reference:
+              naked_identifier: value
+            snowflake_semi_structured_expression:
+            - keyword: ':'
+            - semi_structured_element: thing
+            - array_accessor:
+                start_square_bracket: '['
+                numeric_literal: '4'
+                end_square_bracket: ']'
+            - dot: .
+            - semi_structured_element: foo
+          alias_expression:
+            keyword: AS
+            naked_identifier: another_val
+      - comma: ','
+      - select_target_element:
+          expression:
+            object_reference:
+              naked_identifier: value
+            snowflake_semi_structured_expression:
+            - keyword: ':'
+            - semi_structured_element: thing
+            - array_accessor:
+                start_square_bracket: '['
+                numeric_literal: '4'
+                end_square_bracket: ']'
+            - dot: .
+            - semi_structured_element: bar
+            - dot: .
+            - semi_structured_element: baz
+            - array_accessor:
+                start_square_bracket: '['
+                numeric_literal: '0'
+                end_square_bracket: ']'
+            - dot: .
+            - semi_structured_element: foo
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: bigint
+          alias_expression:
+            keyword: AS
+            naked_identifier: another_val
+      from_clause:
+      - keyword: FROM
+      - table_expression:
+          object_reference:
+            naked_identifier: raw_tickets
+      - comma: ','
+      - table_expression:
+          keyword: lateral
+          function:
+            function_name: flatten
+            start_bracket: (
+            snowflake_keyword_expression:
+              keyword_name: INPUT
+              keyword: =>
+              object_reference:
+                naked_identifier: custom_fields
+            end_bracket: )
