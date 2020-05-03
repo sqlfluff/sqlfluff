@@ -1723,7 +1723,7 @@ class Rule_L019(BaseCrawler):
 class Rule_L020(BaseCrawler):
     """Table aliases should be unique within each clause."""
 
-    def _lint_references_and_aliases(self, aliases, references):
+    def _lint_references_and_aliases(self, aliases, references, using_cols):
         """Check whether any aliases are duplicates.
 
         NB: Subclasses of this error should override this function.
@@ -1760,6 +1760,22 @@ class Rule_L020(BaseCrawler):
                 return None
             aliases = fc.get_eventual_aliases()
 
+            # Get any columns referred to in a using clause
+            using_cols = []
+            for join_clause in fc.recursive_crawl('join_clause'):
+                in_using_brackets = False
+                seen_using = False
+                for seg in join_clause.segments:
+                    if seg.type == 'keyword' and seg.name == 'USING':
+                        seen_using = True
+                    elif seen_using and seg.type == 'start_bracket':
+                        in_using_brackets = True
+                    elif seen_using and seg.type == 'end_bracket':
+                        in_using_brackets = False
+                        seen_using = False
+                    elif in_using_brackets and seg.type == 'identifier':
+                        using_cols.append(seg.raw)
+
             # Iterate through all the references, both in the select clause, but also
             # potential others.
             sc = segment.get_child('select_clause')
@@ -1771,7 +1787,7 @@ class Rule_L020(BaseCrawler):
 
             # Pass them all to the function that does all the work.
             # NB: Subclasses of this rules should override the function below
-            return self._lint_references_and_aliases(aliases, reference_buffer)
+            return self._lint_references_and_aliases(aliases, reference_buffer, using_cols)
         return None
 
 
@@ -1916,7 +1932,7 @@ class Rule_L025(Rule_L020):
             tbl_ref = None
         return this_ref_type, tbl_ref
 
-    def _lint_references_and_aliases(self, aliases, references):
+    def _lint_references_and_aliases(self, aliases, references, using_cols):
         """Check all aliased references against tables referenced in the query."""
         # A buffer to keep any violations.
         violation_buff = []
@@ -1942,7 +1958,7 @@ class Rule_L025(Rule_L020):
 class Rule_L026(Rule_L025):
     """References cannot reference objects not present in FROM clause."""
 
-    def _lint_references_and_aliases(self, aliases, references):
+    def _lint_references_and_aliases(self, aliases, references, using_cols):
         # A buffer to keep any violations.
         violation_buff = []
 
@@ -1966,21 +1982,19 @@ class Rule_L027(Rule_L025):
     """References should be qualified if select has more than one referenced table/view.
 
     NB: Except if they're present in a USING clause.
-    TODO: Actually do this.
 
     """
 
-    def _lint_references_and_aliases(self, aliases, references):
+    def _lint_references_and_aliases(self, aliases, references, using_cols):
         # Do we have more than one? If so, all references should be qualified.
         if len(aliases) <= 1:
             return None
-
         # A buffer to keep any violations.
         violation_buff = []
         # Check all the references that we have.
         for r in references:
             this_ref_type, _ = self._extract_type_tbl_reference(r)
-            if this_ref_type == 'unqualified':
+            if this_ref_type == 'unqualified' and r.raw not in using_cols:
                 violation_buff.append(
                     LintResult(
                         anchor=r,
@@ -2010,7 +2024,7 @@ class Rule_L028(Rule_L025):
         self.single_table_references = single_table_references
         super().__init__(**kwargs)
 
-    def _lint_references_and_aliases(self, aliases, references):
+    def _lint_references_and_aliases(self, aliases, references, using_cols):
         """Iterate through references and check consistency."""
         # How many aliases are there? If more than one then abort.
         if len(aliases) > 1:
