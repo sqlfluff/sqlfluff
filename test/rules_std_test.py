@@ -156,18 +156,18 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     # Check L024 passes if there's a newline between
     ('L024', 'pass', 'select * from a JOIN b USING\n(x)', None, None),
     # References in quotes in biquery
-    ('L020', 'pass', 'SELECT bar.user_id FROM `foo.far.bar`', None, {'core': {'dialect': 'bigquery'}}),
-    ('L020', 'fail', 'SELECT foo.user_id FROM `foo.far.bar`', None, {'core': {'dialect': 'bigquery'}}),
+    ('L026', 'pass', 'SELECT bar.user_id FROM `foo.far.bar`', None, {'core': {'dialect': 'bigquery'}}),
+    ('L026', 'fail', 'SELECT foo.user_id FROM `foo.far.bar`', None, {'core': {'dialect': 'bigquery'}}),
     # Mixed qualification of references.
-    ('L020', 'fail', 'SELECT my_tbl.bar, baz FROM my_tbl', None, None),
-    ('L020', 'pass', 'SELECT bar FROM my_tbl', None, None),
-    ('L020', 'pass', 'SELECT my_tbl.bar FROM my_tbl', None, None),
-    ('L020', 'fail', 'SELECT my_tbl.bar FROM my_tbl', None, {'rules': {'L020': {'single_table_references': 'unqualified'}}}),
-    ('L020', 'fail', 'SELECT bar FROM my_tbl', None, {'rules': {'L020': {'single_table_references': 'qualified'}}}),
+    ('L028', 'fail', 'SELECT my_tbl.bar, baz FROM my_tbl', None, None),
+    ('L028', 'pass', 'SELECT bar FROM my_tbl', None, None),
+    ('L028', 'pass', 'SELECT my_tbl.bar FROM my_tbl', None, None),
+    ('L028', 'fail', 'SELECT my_tbl.bar FROM my_tbl', None, {'rules': {'L028': {'single_table_references': 'unqualified'}}}),
+    ('L028', 'fail', 'SELECT bar FROM my_tbl', None, {'rules': {'L028': {'single_table_references': 'qualified'}}}),
     # References in WHERE clause
-    ('L020', 'fail', 'SELECT * FROM my_tbl WHERE foo.bar > 0', None, None),
+    ('L026', 'fail', 'SELECT * FROM my_tbl WHERE foo.bar > 0', None, None),
     # Aliases not referenced.
-    ('L020', 'fail', 'SELECT * FROM my_tbl AS foo', None, None)
+    ('L025', 'fail', 'SELECT * FROM my_tbl AS foo', None, None)
 ])
 def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
     """Test that a rule passes/fails on a given string.
@@ -214,7 +214,9 @@ def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
     ('L016', 'test/fixtures/linter/block_comment_errors.sql', [(1, 121), (2, 99), (4, 88)]),
     ('L016', 'test/fixtures/linter/block_comment_errors_2.sql', [(1, 85), (2, 86)]),
     # Column references
-    ('L020', 'test/fixtures/linter/column_references.sql', [(1, 8), (1, 11)]),
+    ('L027', 'test/fixtures/linter/column_references.sql', [(1, 8)]),
+    ('L026', 'test/fixtures/linter/column_references.sql', [(1, 11)]),
+    ('L025', 'test/fixtures/linter/column_references.sql', [(2, 11)]),
     # Distinct and Group by
     ('L021', 'test/fixtures/linter/select_distinct_group_by.sql', [(1, 8)]),
 ])

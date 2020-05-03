@@ -1721,54 +1721,44 @@ class Rule_L019(BaseCrawler):
 
 @std_rule_set.register
 class Rule_L020(BaseCrawler):
-    """References should be qualified if ambiguous.
+    """Table aliases should be unique within each clause."""
 
-    Args:
-        single_table_references (:obj:`str`): The expectation for references
-            in single-table select. One of `qualified`, `unqualified`,
-            `consistent` (default is `consistent`).
+    def _lint_references_and_aliases(self, aliases, references):
+        """Check whether any aliases are duplicates.
 
-    """
+        NB: Subclasses of this error should override this function.
 
-    def __init__(self, single_table_references='consistent', **kwargs):
-        """Initialise, extracting `single_table_references` from the config."""
-        if single_table_references not in ['qualified', 'unqualified', 'consistent']:
-            raise ValueError("Unexpected `single_table_references`: {0!r}".format(
-                single_table_references))
-        self.single_table_references = single_table_references
-        super(Rule_L020, self).__init__(**kwargs)
+        """
+        # Are any of the aliases the same?
+        for a1, a2 in itertools.combinations(aliases, 2):
+            # Compare the strings
+            if a1[0] == a2[0] and a1[0]:
+                # If there are any, then the rest of the code
+                # won't make sense so just return here.
+                return [LintResult(
+                    # Reference the element, not the string.
+                    anchor=a2[1],
+                    description=("Duplicate table alias {0!r}. Table "
+                                 "aliases should be unique.").format(a2.raw)
+                )]
+        return None
 
     def _eval(self, segment, **kwargs):
-        """References should be qualified if ambiguous.
+        """Get References and Aliases and allow linting.
 
         This rule covers a lot of potential cases of odd usages of
         references, see the code for each of the potential cases.
+
+        Subclasses of this rule should override the
+        `_lint_references_and_aliases` method.
         """
         if segment.type == 'select_statement':
-            # A buffer to keep any violations.
-            violation_buff = []
-
-            # Is this a table with multiple potential joins
+            # Get the aliases referred to in the clause
             fc = segment.get_child('from_clause')
             if not fc:
                 # If there's no from clause then just abort.
                 return None
-
             aliases = fc.get_eventual_aliases()
-            # Are any of the aliases the same?
-            for a1, a2 in itertools.combinations(aliases, 2):
-                # Compare the strings
-                if a1[0] == a2[0] and a1[0]:
-                    # If there are any, then the rest of the code
-                    # won't make sense so just return here.
-                    return LintResult(
-                        # Reference the element, not the string.
-                        anchor=a2[1],
-                        description=("Duplicate table alias {0!r}. Table "
-                                     "aliases should be unique.").format(a2.raw)
-                    )
-            # Do we have more than one? If so, all references should be qualified.
-            enforce_qualified = len(aliases) > 1
 
             # Iterate through all the references, both in the select clause, but also
             # potential others.
@@ -1779,66 +1769,9 @@ class Rule_L020(BaseCrawler):
                 if clause:
                     reference_buffer += list(clause.recursive_crawl('object_reference'))
 
-            # Check all the references that we have.
-            seen_ref_types = set()
-            for r in reference_buffer:
-                this_ref_type = 'qualified' if r.is_qualified() else 'unqualified'
-                if enforce_qualified and this_ref_type == 'unqualified':
-                    violation_buff.append(
-                        LintResult(
-                            anchor=r,
-                            description="Unqualified reference {0!r} found in select with more than one referenced table/view.".format(r.raw)
-                        )
-                    )
-                elif self.single_table_references == 'consistent':
-                    if seen_ref_types and this_ref_type not in seen_ref_types:
-                        violation_buff.append(
-                            LintResult(
-                                anchor=r,
-                                description="{0} reference {1!r} found in single table select which is inconsistent with previous references.".format(
-                                    this_ref_type.capitalize(),
-                                    r.raw
-                                )
-                            )
-                        )
-                elif self.single_table_references != this_ref_type:
-                    violation_buff.append(
-                        LintResult(
-                            anchor=r,
-                            description="{0} reference {1!r} found in single table select.".format(
-                                this_ref_type.capitalize(),
-                                r.raw
-                            )
-                        )
-                    )
-
-                seen_ref_types.add(this_ref_type)
-
-                ref_elems = list(r.iter_raw_references())
-                if len(ref_elems) >= 2:
-                    tbl_ref = ref_elems[-2]
-                    # Check whether the string in the list of strings
-                    if tbl_ref[0] not in [a[0] for a in aliases]:
-                        violation_buff.append(
-                            LintResult(
-                                # Return the segment rather than the string
-                                anchor=tbl_ref[1],
-                                description="Reference {0!r} refers to table/view {1!r} not found in the FROM clause.".format(r.raw, tbl_ref[0])
-                            )
-                        )
-
-            if 'qualified' not in seen_ref_types:
-                for ref_str, seg, aliased in aliases:
-                    if aliased:
-                        violation_buff.append(
-                            LintResult(
-                                anchor=seg,
-                                description="Alias {0!r} is never used in SELECT statement.".format(ref_str)
-                            )
-                        )
-
-            if violation_buff:
-                return violation_buff
+            # Pass them all to the function that does all the work.
+            # NB: Subclasses of this rules should override the function below
+            return self._lint_references_and_aliases(aliases, reference_buffer)
         return None
 
 
@@ -1961,3 +1894,154 @@ class Rule_L024(Rule_L023):
     pre_segment_identifier = ('name', 'USING')
     post_segment_identifier = ('type', 'start_bracket')
     allow_newline = True
+
+
+@std_rule_set.register
+class Rule_L025(Rule_L020):
+    """Tables should not be aliased if that alias is not used."""
+
+    @staticmethod
+    def _extract_type_tbl_reference(reference):
+        """Extract the type of reference and the referenced alias.
+
+        Returns:
+            :obj:`tuple` of (alias_type, alias)
+
+        """
+        this_ref_type = 'qualified' if reference.is_qualified() else 'unqualified'
+        ref_elems = list(reference.iter_raw_references())
+        if len(ref_elems) >= 2:
+            tbl_ref = ref_elems[-2]
+        else:
+            tbl_ref = None
+        return this_ref_type, tbl_ref
+
+    def _lint_references_and_aliases(self, aliases, references):
+        """Check all aliased references against tables referenced in the query."""
+        # A buffer to keep any violations.
+        violation_buff = []
+        # Check all the references that we have, keep track of which aliases we refer to.
+        tbl_refs = set()
+        for r in references:
+            _, tbl_ref = self._extract_type_tbl_reference(r)
+            if tbl_ref:
+                tbl_refs.add(tbl_ref[0])
+
+        for ref_str, seg, aliased in aliases:
+            if aliased and ref_str not in tbl_refs:
+                violation_buff.append(
+                    LintResult(
+                        anchor=seg,
+                        description="Alias {0!r} is never used in SELECT statement.".format(ref_str)
+                    )
+                )
+        return violation_buff or None
+
+
+@std_rule_set.register
+class Rule_L026(Rule_L025):
+    """References cannot reference objects not present in FROM clause."""
+
+    def _lint_references_and_aliases(self, aliases, references):
+        # A buffer to keep any violations.
+        violation_buff = []
+
+        # Check all the references that we have, do they reference present aliases?
+        for r in references:
+            _, tbl_ref = self._extract_type_tbl_reference(r)
+            # Check whether the string in the list of strings
+            if tbl_ref and tbl_ref[0] not in [a[0] for a in aliases]:
+                violation_buff.append(
+                    LintResult(
+                        # Return the segment rather than the string
+                        anchor=tbl_ref[1],
+                        description="Reference {0!r} refers to table/view {1!r} not found in the FROM clause.".format(r.raw, tbl_ref[0])
+                    )
+                )
+        return violation_buff or None
+
+
+@std_rule_set.register
+class Rule_L027(Rule_L025):
+    """References should be qualified if select has more than one referenced table/view.
+
+    NB: Except if they're present in a USING clause.
+    TODO: Actually do this.
+
+    """
+
+    def _lint_references_and_aliases(self, aliases, references):
+        # Do we have more than one? If so, all references should be qualified.
+        if len(aliases) <= 1:
+            return None
+
+        # A buffer to keep any violations.
+        violation_buff = []
+        # Check all the references that we have.
+        for r in references:
+            this_ref_type, _ = self._extract_type_tbl_reference(r)
+            if this_ref_type == 'unqualified':
+                violation_buff.append(
+                    LintResult(
+                        anchor=r,
+                        description="Unqualified reference {0!r} found in select with more than one referenced table/view.".format(r.raw)
+                    )
+                )
+
+        return violation_buff or None
+
+
+@std_rule_set.register
+class Rule_L028(Rule_L025):
+    """References should be consistent in statements with a single table.
+
+    Args:
+        single_table_references (:obj:`str`): The expectation for references
+            in single-table select. One of `qualified`, `unqualified`,
+            `consistent` (default is `consistent`).
+
+    """
+
+    def __init__(self, single_table_references='consistent', **kwargs):
+        """Initialise, extracting `single_table_references` from the config."""
+        if single_table_references not in ['qualified', 'unqualified', 'consistent']:
+            raise ValueError("Unexpected `single_table_references`: {0!r}".format(
+                single_table_references))
+        self.single_table_references = single_table_references
+        super().__init__(**kwargs)
+
+    def _lint_references_and_aliases(self, aliases, references):
+        """Iterate through references and check consistency."""
+        # How many aliases are there? If more than one then abort.
+        if len(aliases) > 1:
+            return None
+        # A buffer to keep any violations.
+        violation_buff = []
+        # Check all the references that we have.
+        seen_ref_types = set()
+        for r in references:
+            this_ref_type, _ = self._extract_type_tbl_reference(r)
+            if self.single_table_references == 'consistent':
+                if seen_ref_types and this_ref_type not in seen_ref_types:
+                    violation_buff.append(
+                        LintResult(
+                            anchor=r,
+                            description="{0} reference {1!r} found in single table select which is inconsistent with previous references.".format(
+                                this_ref_type.capitalize(),
+                                r.raw
+                            )
+                        )
+                    )
+            elif self.single_table_references != this_ref_type:
+                violation_buff.append(
+                    LintResult(
+                        anchor=r,
+                        description="{0} reference {1!r} found in single table select.".format(
+                            this_ref_type.capitalize(),
+                            r.raw
+                        )
+                    )
+                )
+            seen_ref_types.add(this_ref_type)
+
+        return violation_buff or None
