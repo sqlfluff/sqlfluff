@@ -1915,6 +1915,7 @@ class Rule_L023(BaseCrawler):
     expected_mother_segment_type = 'with_compound_statement'
     pre_segment_identifier = ('name', 'AS')
     post_segment_identifier = ('type', 'start_bracket')
+    allow_newline = False
 
     def _eval(self, segment, **kwargs):
         """Single whitespace expected in mother segment between pre and post segments."""
@@ -1931,7 +1932,7 @@ class Rule_L023(BaseCrawler):
                     ):
                         # Do we actually have the right amount of whitespace?
                         raw_inner = ''.join(s.raw for s in mid_segs)
-                        if raw_inner != ' ':
+                        if raw_inner != ' ' and not (self.allow_newline and any(s.name == 'newline' for s in mid_segs)):
                             if not raw_inner:
                                 # There's nothing between. Just add a whitespace
                                 fixes = [LintFix(
@@ -1959,3 +1960,4 @@ class Rule_L024(Rule_L023):
     expected_mother_segment_type = 'join_clause'
     pre_segment_identifier = ('name', 'USING')
     post_segment_identifier = ('type', 'start_bracket')
+    allow_newline = True
