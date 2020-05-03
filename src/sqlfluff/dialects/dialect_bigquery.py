@@ -39,7 +39,7 @@ class IntervalExpressionSegment(BaseSegment):
         ),
         OneOf(
             Ref('QuotedLiteralSegment'),
-            Ref('IntervalSegment')
+            Ref('DatetimeUnitSegment')
         )
     )
 

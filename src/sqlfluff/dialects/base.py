@@ -1,6 +1,25 @@
 """Defines the base dialect class."""
 
 
+class LateBoundDialectObject:
+    """Defines a late-bound dialect object.
+
+    These are defined using a callable, which is only called
+    once everything else is defined. Very useful for template
+    inheritance.
+    """
+    def __init__(self, func):
+        self.func = func
+
+    def expand(self, dialect):
+        """Expand this object into it's true dialect object.
+
+        The inner function is passed an instance of the current dialect
+        and so has access to the current sets of that dialect.
+        """
+        return self.func(dialect)
+
+
 class Dialect:
     """Serves as the basis for runtime resolution of Grammar.
 
@@ -10,10 +29,39 @@ class Dialect:
             the lexing config for this dialect.
 
     """
-    def __init__(self, name, lexer_struct=None, library=None):
+    def __init__(self, name, lexer_struct=None, library=None, sets=None):
         self._library = library or {}
         self.name = name
         self.lexer_struct = lexer_struct
+        self.expanded = False
+        self._sets = sets or {}
+
+    def expand(self):
+        """Expand any callable references to concrete ones.
+
+        This must be called before using the dialect. But
+        allows more flexible definitions to happen at runtime.
+
+        """
+        # Expand any callable elements of the dialect.
+        for key in self._library:
+            if isinstance(self._library[key], LateBoundDialectObject):
+                # If the element is callable, call it passing the current
+                # dialect and store the result it it's place.
+                self._library[key] = self._library[key].expand(self)
+        self.expanded = True
+
+    def sets(self, label):
+        """Allows access to sets belonging to this dialect.
+
+        These sets belong to the dialect and are copied for sub
+        dialects. These are used in combination with late-bound
+        dialect objects to create some of the bulk-produced rules.
+
+        """
+        if label not in self._sets:
+            self._sets[label] = set()
+        return self._sets[label]
 
     def copy_as(self, name):
         """Copy this dialect and create a new one with a different name.
@@ -21,10 +69,16 @@ class Dialect:
         This is the primary method for inheritance, after which, the
         `replace` method can be used to override particular rules.
         """
+        # Copy sets if they are passed, so they can be mutated independently
+        new_sets = {}
+        for label in self._sets:
+            new_sets[label] = self._sets[label].copy()
+
         return self.__class__(
             name=name,
             library=self._library.copy(),
-            lexer_struct=self.lexer_struct.copy()
+            lexer_struct=self.lexer_struct.copy(),
+            sets=new_sets
         )
 
     def segment(self):
@@ -75,7 +129,14 @@ class Dialect:
             self._library[n] = kwargs[n]
 
     def ref(self, name):
-        """Return an object which acts as a late binding reference to the element named."""
+        """Return an object which acts as a late binding reference to the element named.
+
+        NB: This requires the dialect to be expanded.
+
+        """
+        if not self.expanded:
+            raise RuntimeError("Dialect must be expanded before use.")
+
         if name in self._library:
             res = self._library[name]
             if res:

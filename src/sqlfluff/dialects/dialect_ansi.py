@@ -16,7 +16,7 @@ from ..parser import (BaseSegment, KeywordSegment, ReSegment, NamedSegment,
                       Sequence, GreedyUntil, StartsWith, ContainsOnly,
                       OneOf, Delimited, Bracketed, AnyNumberOf, Ref,
                       Anything, LambdaSegment, Indent, Dedent)
-from .base import Dialect
+from .base import Dialect, LateBoundDialectObject
 from .ansi_keywords import ansi_keywords
 
 
@@ -72,6 +72,11 @@ ansi_dialect.set_lexer_struct([
     ("code", "regex", r"[0-9a-zA-Z_]*", dict(is_code=True))
 ])
 
+# Set the datetime units
+ansi_dialect.sets('datetime_units').update([
+    'DAY', 'DAYOFYEAR', 'HOUR', 'MILLISECOND', 'MINUTE', 'MONTH',
+    'QUARTER', 'SECOND', 'WEEK', 'WEEKDAY', 'YEAR'
+])
 
 ansi_dialect.add(
     # NB The NonCode Segment is not really for matching, mostly just for use as a terminator
@@ -113,8 +118,11 @@ ansi_dialect.add(
     # Maybe data types should be more restrictive?
     DatatypeIdentifierSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='data_type_identifier', type='data_type_identifier'),
     # Ansi Intervals
-    IntervalSegment=ReSegment.make(r"^(DAY|DAYOFYEAR|HOUR|MILLISECOND|MINUTE|MONTH|QUARTER|SECOND|WEEK|WEEKDAY|YEAR)$",
-                                   name='date_part', type='date_part'),
+    DatetimeUnitSegment=LateBoundDialectObject(
+        lambda dialect: ReSegment.make(
+            r"^(" + r"|".join(dialect.sets('datetime_units')) + r")$",
+            name='date_part', type='date_part')
+    ),
     QuotedIdentifierSegment=NamedSegment.make('double_quote', name='identifier', type='quoted_identifier'),
     QuotedLiteralSegment=NamedSegment.make('single_quote', name='literal', type='quoted_literal'),
     NumericLiteralSegment=NamedSegment.make('numeric_literal', name='literal', type='numeric_literal'),
@@ -164,7 +172,7 @@ class IntervalExpressionSegment(BaseSegment):
                 Ref('NumericLiteralSegment'),
                 OneOf(
                     Ref('QuotedLiteralSegment'),
-                    Ref('IntervalSegment')
+                    Ref('DatetimeUnitSegment')
                 )
             ),
             # The String version
@@ -334,7 +342,7 @@ class FunctionSegment(BaseSegment):
                     ),
                     # An extract-like function
                     Sequence(
-                        Ref('IntervalSegment'),
+                        Ref('DatetimeUnitSegment'),
                         Ref('FromKeywordSegment'),
                         Ref('ExpressionSegment')
                     ),
