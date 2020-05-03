@@ -11,6 +11,11 @@ from ..parser import (BaseSegment, NamedSegment, OneOf, Ref, Sequence, AnyNumber
 
 snowflake_dialect = postgres_dialect.copy_as('snowflake')
 
+snowflake_dialect.patch_lexer_struct([
+    # In snowflake, a double single quote resolves as a single quote in the string.
+    # https://docs.snowflake.com/en/sql-reference/data-types-text.html#single-quoted-string-constants
+    ("single_quote", "regex", r"'([^']|'')*'", dict(is_code=True)),
+])
 
 snowflake_dialect.insert_lexer_struct(
     # Keyword assigner needed for keyword functions.
