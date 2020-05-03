@@ -16,20 +16,35 @@ from ..parser import (BaseSegment, KeywordSegment, ReSegment, NamedSegment,
                       Sequence, GreedyUntil, StartsWith, ContainsOnly,
                       OneOf, Delimited, Bracketed, AnyNumberOf, Ref,
                       Anything, LambdaSegment, Indent, Dedent)
-from .base import Dialect, LateBoundDialectObject
-from .ansi_keywords import ansi_keywords
+from .base import Dialect, LateBoundDialectObject, LateBoundDialectModule
+from .ansi_keywords import ansi_reserved_keywords, ansi_unreserved_keywords
 
 
 ansi_dialect = Dialect('ansi')
 
 
-anti_template = []
-for n in ansi_keywords.split('\n'):
-    n = n.strip()
-    name = n[0].upper() + n[1:].lower() + 'KeywordSegment'
-    ansi_dialect.add(**{name: KeywordSegment.make(n.lower())})
-    anti_template += [n.upper()]
+class NonReservedKeyworkModule(LateBoundDialectModule):
+    """Generates Non-Reserved Keywords."""
+    _set_name = 'unreserved_keywords'
 
+    def call(self, dialect):
+        """Generate Keyword segments from the relevant set."""
+        for kw in dialect.sets(self._set_name):
+            yield (
+                kw.capitalize() + 'KeywordSegment',
+                KeywordSegment.make(kw.lower())
+            )
+
+
+class ReservedKeyworkModule(NonReservedKeyworkModule):
+    """Generates Reserved Keywords."""
+    _set_name = 'reserved_keywords'
+
+
+ansi_dialect.register_modules(
+    NonReservedKeyworkModule(),
+    ReservedKeyworkModule()
+)
 
 ansi_dialect.set_lexer_struct([
     # name, type, pattern, kwargs
@@ -78,6 +93,14 @@ ansi_dialect.sets('datetime_units').update([
     'QUARTER', 'SECOND', 'WEEK', 'WEEKDAY', 'YEAR'
 ])
 
+# Set Keywords
+ansi_dialect.sets('unreserved_keywords').update(
+    [n.strip().upper() for n in ansi_unreserved_keywords.split('\n')]
+)
+ansi_dialect.sets('reserved_keywords').update(
+    [n.strip().upper() for n in ansi_reserved_keywords.split('\n')]
+)
+
 ansi_dialect.add(
     # NB The NonCode Segment is not really for matching, mostly just for use as a terminator
     _NonCodeSegment=LambdaSegment.make(lambda x: not x.is_code, is_code=False, name='non_code'),
@@ -111,9 +134,12 @@ ansi_dialect.add(
     ValueKeywordSegment=KeywordSegment.make('value'),
     # The strange regex here it to make sure we don't accidentally match numeric literals. We
     # also use a regex to explicitly exclude disallowed keywords.
-    NakedIdentifierSegment=ReSegment.make(
-        r"[A-Z0-9_]*[A-Z][A-Z0-9_]*", name='identifier', type='naked_identifier',
-        _anti_template=r"^(" + '|'.join(anti_template) + ")$"),
+    NakedIdentifierSegment=LateBoundDialectObject(
+        # Generate the anti template from the set of reserved keywords
+        lambda dialect: ReSegment.make(
+            r"[A-Z0-9_]*[A-Z][A-Z0-9_]*", name='identifier', type='naked_identifier',
+            _anti_template=r"^(" + r'|'.join(dialect.sets('reserved_keywords')) + r")$")
+    ),
     FunctionNameSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='function_name', type='function_name'),
     # Maybe data types should be more restrictive?
     DatatypeIdentifierSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='data_type_identifier', type='data_type_identifier'),
@@ -150,13 +176,8 @@ ansi_dialect.add(
         # can otherwise be easily mistaken for an identifier.
         Ref('NullKeywordSegment')
     ),
-)
-
-
-ansi_dialect.replace(
-    # Binary Keywords
     AndKeywordSegment=KeywordSegment.make('and', type='binary_operator'),
-    OrKeywordSegment=KeywordSegment.make('or', type='binary_operator'),
+    OrKeywordSegment=KeywordSegment.make('or', type='binary_operator')
 )
 
 
