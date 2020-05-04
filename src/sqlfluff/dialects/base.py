@@ -1,5 +1,7 @@
 """Defines the base dialect class."""
 
+from ..parser import KeywordSegment
+
 
 class LateBoundDialectObject:
     """Defines a late-bound dialect object.
@@ -64,22 +66,15 @@ class Dialect:
             the lexing config for this dialect.
 
     """
-    def __init__(self, name, lexer_struct=None, library=None, sets=None, modules=None):
+    def __init__(self, name, lexer_struct=None, library=None, sets=None):
         self._library = library or {}
         self.name = name
         self.lexer_struct = lexer_struct
         self.expanded = False
         self._sets = sets or {}
-        self._modules = modules or []
 
     def __repr__(self):
         return "<Dialect: {0}>".format(self.name)
-
-    def register_modules(self, *modules):
-        """Register a module on the dialect."""
-        for module in modules:
-            assert isinstance(module, LateBoundDialectModule)
-            self._modules.append(module)
 
     def expand(self):
         """Expand any callable references to concrete ones.
@@ -98,11 +93,12 @@ class Dialect:
                 # dialect and store the result it it's place.
                 # Use the .replace() method for it's error handling.
                 self.replace(**{key: self._library[key].expand(self)})
-        # Expand any loaded modules
-        for module in self._modules:
-            for name, elem in module.expand(self):
-                # Use the .add() method to use it's error handling.
-                self.add(**{name: elem})
+        # Expand any sets as keywords:
+        for labeled_set in self._sets.values():  # e.g. reserved_keywords, (JOIN, ...)
+            # Make sure the values are available as KeywordSegments
+            for kw in labeled_set:
+                n = kw.capitalize() + 'KeywordSegment'
+                self._library[n] = KeywordSegment.make(kw.lower())
         self.expanded = True
 
     def sets(self, label):
@@ -133,8 +129,6 @@ class Dialect:
             library=self._library.copy(),
             lexer_struct=self.lexer_struct.copy(),
             sets=new_sets,
-            # No need to copy modules, as they have no state.
-            modules=self._modules
         )
 
     def segment(self, replace=False):

@@ -16,35 +16,12 @@ from ..parser import (BaseSegment, KeywordSegment, ReSegment, NamedSegment,
                       Sequence, GreedyUntil, StartsWith, ContainsOnly,
                       OneOf, Delimited, Bracketed, AnyNumberOf, Ref,
                       Anything, LambdaSegment, Indent, Dedent)
-from .base import Dialect, LateBoundDialectObject, LateBoundDialectModule
+from .base import Dialect, LateBoundDialectObject
 from .ansi_keywords import ansi_reserved_keywords, ansi_unreserved_keywords
 
 
 ansi_dialect = Dialect('ansi')
 
-
-class NonReservedKeyworkModule(LateBoundDialectModule):
-    """Generates Non-Reserved Keywords."""
-    _set_name = 'unreserved_keywords'
-
-    def call(self, dialect):
-        """Generate Keyword segments from the relevant set."""
-        for kw in dialect.sets(self._set_name):
-            yield (
-                kw.capitalize() + 'KeywordSegment',
-                KeywordSegment.make(kw.lower())
-            )
-
-
-class ReservedKeyworkModule(NonReservedKeyworkModule):
-    """Generates Reserved Keywords."""
-    _set_name = 'reserved_keywords'
-
-
-ansi_dialect.register_modules(
-    NonReservedKeyworkModule(),
-    ReservedKeyworkModule()
-)
 
 ansi_dialect.set_lexer_struct([
     # name, type, pattern, kwargs
@@ -87,6 +64,7 @@ ansi_dialect.set_lexer_struct([
     ("code", "regex", r"[0-9a-zA-Z_]*", dict(is_code=True))
 ])
 
+
 # Set the datetime units
 ansi_dialect.sets('datetime_units').update([
     'DAY', 'DAYOFYEAR', 'HOUR', 'MILLISECOND', 'MINUTE', 'MONTH',
@@ -97,6 +75,7 @@ ansi_dialect.sets('datetime_units').update([
 ansi_dialect.sets('unreserved_keywords').update(
     [n.strip().upper() for n in ansi_unreserved_keywords.split('\n')]
 )
+
 ansi_dialect.sets('reserved_keywords').update(
     [n.strip().upper() for n in ansi_reserved_keywords.split('\n')]
 )

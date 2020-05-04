@@ -20,7 +20,7 @@ teradata_dialect.patch_lexer_struct([
     ("numeric_literal", "regex", r"([0-9]+(\.[0-9]*)?)", dict(is_code=True)),
 ])
 
-# Remove unused keywrods from the dialect.
+# Remove unused keywords from the dialect.
 teradata_dialect.sets('unreserved_keywords').difference_update([
     # 'auto_increment',
     # The following are moved to being reserved keywords
