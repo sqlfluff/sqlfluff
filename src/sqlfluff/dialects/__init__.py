@@ -16,4 +16,7 @@ def dialect_selector(s):
         'mysql': mysql_dialect,
         'teradata': teradata_dialect
     }
-    return lookup[s]
+    dialect = lookup[s]
+    # Expand any callable references at this point.
+    dialect.expand()
+    return dialect
