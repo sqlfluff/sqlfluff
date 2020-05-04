@@ -40,6 +40,14 @@ setup(
     author='Alan Cruickshank',
     author_email='alan@designingoverload.com',
     url='https://github.com/alanmcruickshank/sqlfluff',
+    python_requires=">=3.5",
+    keywords=['sqlfluff', 'sql', 'linter'],
+    project_urls={
+        # Homepage not ready yet.
+        # 'Homepage': 'https://www.sqlfluff.com'
+        'Documentation': 'https://docs.sqlfluff.com',
+        'Source': 'https://github.com/alanmcruickshank/sqlfluff',
+    },
     # Specify all the seperate packages, modules come automatically
     packages=['sqlfluff', 'sqlfluff.cli', 'sqlfluff.dialects', 'sqlfluff.parser', 'sqlfluff.rules'],
     package_dir={"": "src"},
@@ -60,13 +68,11 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
         'Topic :: Utilities',
         'Topic :: Software Development :: Quality Assurance'
-    ],
-    keywords=[
-        # eg: 'keyword1', 'keyword2', 'keyword3',
     ],
     install_requires=[
         'bench-it',
