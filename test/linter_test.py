@@ -48,6 +48,24 @@ def test__linter__path_from_paths__dot():
 @pytest.mark.parametrize(
     "path",
     [
+        'test/fixtures/linter/sqlfluffignore',
+        'test/fixtures/linter/sqlfluffignore/',
+        'test/fixtures/linter/sqlfluffignore/.'
+    ]
+)
+def test__linter__path_from_paths__ignore(path):
+    """Test extracting paths from a dot."""
+    lntr = Linter(config=FluffConfig())
+    paths = lntr.paths_from_path(path)
+    # We should only get query_b, because of the sqlfluffignore files.
+    assert normalise_paths(paths) == {
+        'test.fixtures.linter.sqlfluffignore.path_b.query_b.sql'
+    }
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
         'test/fixtures/linter/indentation_errors.sql',
         'test/fixtures/linter/whitespace_errors.sql'
     ]

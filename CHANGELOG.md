@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Configurable indentation for `JOIN` clauses.
 - Rules now have their own logging interface to improve debugging ability.
 - Snowflake and Postgres dialects.
+- Support for a `.sqlfluffignore` file to ignore certain paths.
 
 ### Changed
 
