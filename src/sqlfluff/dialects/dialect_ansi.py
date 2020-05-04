@@ -15,7 +15,7 @@ https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 from ..parser import (BaseSegment, KeywordSegment, ReSegment, NamedSegment,
                       Sequence, GreedyUntil, StartsWith, ContainsOnly,
                       OneOf, Delimited, Bracketed, AnyNumberOf, Ref,
-                      Anything, LambdaSegment, Indent, Dedent)
+                      Anything, LambdaSegment, Indent, Dedent, Nothing)
 from .base import Dialect, LateBoundDialectObject
 from .ansi_keywords import ansi_reserved_keywords, ansi_unreserved_keywords
 
@@ -85,6 +85,7 @@ ansi_dialect.add(
     _NonCodeSegment=LambdaSegment.make(lambda x: not x.is_code, is_code=False, name='non_code'),
     # Real segments
     SemicolonSegment=KeywordSegment.make(';', name="semicolon"),
+    ColonSegment=KeywordSegment.make(':', name="colon"),
     SliceSegment=KeywordSegment.make(':', name="slice"),
     StartBracketSegment=KeywordSegment.make('(', name='start_bracket', type='start_bracket'),
     EndBracketSegment=KeywordSegment.make(')', name='end_bracket', type='end_bracket'),
@@ -156,7 +157,9 @@ ansi_dialect.add(
         Ref('NullKeywordSegment')
     ),
     AndKeywordSegment=KeywordSegment.make('and', type='binary_operator'),
-    OrKeywordSegment=KeywordSegment.make('or', type='binary_operator')
+    OrKeywordSegment=KeywordSegment.make('or', type='binary_operator'),
+    # This is a placeholder for other dialects.
+    PreTableFunctionKeywordsGrammar=Nothing(),
 )
 
 
@@ -227,7 +230,8 @@ class ObjectReferenceSegment(BaseSegment):
             Ref('CastOperatorKeywordSegment'), Ref('StartSquareBracketSegment'),
             Ref('StartBracketSegment'), Ref('ArithmeticBinaryOperatorGrammar'),
             Ref('StringBinaryOperatorGrammar'),
-            Ref('ComparisonOperatorGrammar')
+            Ref('ComparisonOperatorGrammar'), Ref('ColonSegment'),
+            Ref('SemicolonSegment')
         ),
         code_only=False
     )
@@ -304,6 +308,41 @@ class QualifiedNumericLiteralSegment(BaseSegment):
         code_only=False)
 
 
+ansi_dialect.add(
+    # FunctionContentsExpressionGrammar intended as a hook to override
+    # in other dialects
+    FunctionContentsExpressionGrammar=Ref('ExpressionSegment'),
+    FunctionContentsGrammar=OneOf(
+        # A Cast-like function
+        Sequence(
+            Ref('ExpressionSegment'),
+            Ref('AsKeywordSegment'),
+            Ref('DatatypeSegment')
+        ),
+        # An extract-like function
+        Sequence(
+            Ref('DatetimeUnitSegment'),
+            Ref('FromKeywordSegment'),
+            Ref('ExpressionSegment')
+        ),
+        Sequence(
+            # Allow an optional distinct keyword here.
+            Ref('DistinctKeywordSegment', optional=True),
+            OneOf(
+                # Most functions will be using the delimited route
+                # but for COUNT(*) or similar we allow the star segment
+                # here.
+                Ref('StarSegment'),
+                Delimited(
+                    Ref('FunctionContentsExpressionGrammar'),
+                    delimiter=Ref('CommaSegment')
+                ),
+            ),
+        )
+    )
+)
+
+
 @ansi_dialect.segment()
 class FunctionSegment(BaseSegment):
     """A scalar or aggregate function.
@@ -333,36 +372,10 @@ class FunctionSegment(BaseSegment):
         Sequence(
             Ref('FunctionNameSegment'),
             Bracketed(
-                OneOf(
-                    # A Cast-like function
-                    Sequence(
-                        Ref('ExpressionSegment'),
-                        Ref('AsKeywordSegment'),
-                        Ref('DatatypeSegment')
-                    ),
-                    # An extract-like function
-                    Sequence(
-                        Ref('DatetimeUnitSegment'),
-                        Ref('FromKeywordSegment'),
-                        Ref('ExpressionSegment')
-                    ),
-                    Sequence(
-                        # Allow an optional distinct keyword here.
-                        Ref('DistinctKeywordSegment', optional=True),
-                        OneOf(
-                            # Most functions will be using the delimited route
-                            # but for COUNT(*) or similar we allow the star segment
-                            # here.
-                            Ref('StarSegment'),
-                            Delimited(
-                                Ref('ExpressionSegment'),
-                                delimiter=Ref('CommaSegment')
-                            ),
-                        ),
-                    ),
+                Ref(
+                    'FunctionContentsGrammar',
                     # The brackets might be empty for some functions...
-                    optional=True
-                )
+                    optional=True)
             ),
         ),
         # Optional suffix for window functions.
@@ -424,6 +437,7 @@ class TableExpressionSegment(BaseSegment):
     """A table expression."""
     type = 'table_expression'
     match_grammar = Sequence(
+        Ref('PreTableFunctionKeywordsGrammar', optional=True),
         OneOf(
             # Functions allowed here for table expressions.
             # Perhaps this should just be in a dialect, but
@@ -658,9 +672,9 @@ ansi_dialect.add(
             Ref('Expression_C_Grammar'),
             Sequence(
                 OneOf(
-                    # Ref('PlusSegment'),
-                    # Ref('MinusSegment'),
-                    # Ref('TildeSegment'),
+                    Ref('PlusSegment'),
+                    Ref('MinusSegment'),
+                    Ref('TildeSegment'),
                     Ref('NotKeywordSegment')
                 ),
                 Ref('Expression_A_Grammar')
@@ -748,12 +762,13 @@ ansi_dialect.add(
             Ref('ObjectReferenceSegment'),
             Ref('DatatypeIdentifierSegment')
         ),
-        AnyNumberOf(
-            Ref('ArrayAccessorSegment')
-        ),
+        Ref('Accessor_Grammar', optional=True),
         Ref('ShorthandCastSegment', optional=True),
         code_only=False
     ),
+    Accessor_Grammar=AnyNumberOf(
+        Ref('ArrayAccessorSegment')
+    )
 )
 
 

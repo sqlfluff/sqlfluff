@@ -543,6 +543,12 @@ class Ref(BaseGrammar):
         else:
             raise ReferenceError("No Dialect has been provided to Ref grammar!")
 
+    def __str__(self):
+        return repr(self)
+
+    def __repr__(self):
+        return "<Ref: {0}>".format(", ".join(self._elements))
+
     def match(self, segments, parse_context):
         """Match a list of segments against this segment.
 
@@ -617,6 +623,26 @@ class Anything(BaseGrammar):
         return " <anything> "
 
 
+class Nothing(BaseGrammar):
+    """Matches nothing.
+
+    Useful for placeholders which might be overwritten by other
+    dialects.
+    """
+
+    def match(self, segments, parse_context):
+        """Matches... nothing.
+
+        Useful for placeholders which might be overwritten by other
+        dialects.
+        """
+        return MatchResult.from_unmatched(segments)
+
+    def expected_string(self, dialect=None, called_from=None):
+        """A hint to the user on what this grammar expects."""
+        return " <nothing> "
+
+
 class OneOf(BaseGrammar):
     """Match any of the elements given once.
 
@@ -649,8 +675,47 @@ class OneOf(BaseGrammar):
         """
         best_match = None
 
-        # Match on each of the options
+        # For efficiency, we'll be pruning options if we can
+        # based on their simpleness. this provides a short cut
+        # to return earlier if we can.
+        str_buff = [s.raw_upper for s in segments]
+        available_options = []
+        prune_buff = []
         for opt in self._elements:
+            simple = opt.simple(parse_context=parse_context)
+            if simple is False:
+                # This element is not simple, we have to do a
+                # full match with it...
+                available_options.append(opt)
+                continue
+            # Otherwise we have a simple option, so let's use
+            # it for pruning.
+            for simple_opt in simple:
+                if simple_opt in str_buff:
+                    available_options.append(opt)
+                    break
+            else:
+                # Ditch this option, the simple match has failed
+                prune_buff.append(opt)
+                continue
+
+        # If we've pruned all the options, return unmatched (with some logging).
+        if not available_options:
+            parse_match_logging(
+                self.__class__.__name__,
+                '_match', "PRN",
+                parse_context=parse_context, v_level=self.v_level,
+                pruned="ALL")
+            return MatchResult.from_unmatched(segments)
+        else:
+            parse_match_logging(
+                self.__class__.__name__,
+                '_match', "PRN",
+                parse_context=parse_context, v_level=self.v_level,
+                pruned=prune_buff)
+
+        # Match on each of the options still left.
+        for opt in available_options:
             m = opt._match(
                 segments,
                 parse_context=parse_context.copy(incr='match_depth')

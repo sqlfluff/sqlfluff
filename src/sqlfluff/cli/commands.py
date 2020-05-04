@@ -168,9 +168,8 @@ def lint(paths, format, **kwargs):
     sys.exit(result.stats()['exit code'])
 
 
-def do_fixes(lnt, paths, **kwargs):
+def do_fixes(lnt, result, **kwargs):
     """Actually do the fixes."""
-    result = lnt.lint_paths(paths, fix=True)
     click.echo('Persisting Changes...')
     res = result.persist_changes(output_func=lnt.output_func, **kwargs)
     if all(res.values()):
@@ -213,27 +212,27 @@ def fix(force, paths, **kwargs):
     if ('-',) == paths:
         stdin = sys.stdin.read()
         result = lnt.lint_string_wrapped(stdin, fname='stdin', verbosity=verbose, fix=True)
-        stdout = result.paths[0].files[0].fix_string()
+        stdout = result.paths[0].files[0].fix_string(verbosity=verbose)
         click.echo(stdout, nl=False)
         sys.exit()
 
     # Lint the paths (not with the fix argument at this stage), outputting as we go.
-    lnt.log("==== finding violations ====")
+    lnt.log("==== finding fixable violations ====")
     try:
-        result = lnt.lint_paths(paths, verbosity=verbose)
+        result = lnt.lint_paths(paths, verbosity=verbose, fix=True)
     except IOError:
         click.echo(colorize('The path(s) {0!r} could not be accessed. Check it/they exist(s).'.format(paths), 'red'))
         sys.exit(1)
 
     # NB: We filter to linting violations here, because they're
     # the only ones which can be potentially fixed.
-    if result.num_violations(types=SQLLintError) > 0:
+    if result.num_violations(types=SQLLintError, fixable=True) > 0:
         click.echo("==== fixing violations ====")
-        click.echo("{0} linting violations found".format(
-            result.num_violations(types=SQLLintError)))
+        click.echo("{0} fixable linting violations found".format(
+            result.num_violations(types=SQLLintError, fixable=True)))
         if force:
             click.echo('FORCE MODE: Attempting fixes...')
-            success = do_fixes(lnt, paths, types=SQLLintError)
+            success = do_fixes(lnt, result, verbosity=verbose, types=SQLLintError)
             if not success:
                 sys.exit(1)
         else:
@@ -242,7 +241,7 @@ def fix(force, paths, **kwargs):
             click.echo('...')
             if c == 'y':
                 click.echo('Attempting fixes...')
-                success = do_fixes(lnt, paths)
+                success = do_fixes(lnt, result, verbosity=verbose, types=SQLLintError)
                 if not success:
                     sys.exit(1)
             elif c == 'n':
@@ -251,7 +250,7 @@ def fix(force, paths, **kwargs):
                 click.echo('Invalid input :(')
                 click.echo('Aborting...')
     else:
-        click.echo("==== no linting violations found ====")
+        click.echo("==== no fixable linting violations found ====")
     sys.exit(0)
 
 

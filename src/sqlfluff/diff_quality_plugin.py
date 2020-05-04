@@ -27,7 +27,7 @@ class SQLFluffViolationReporter(BaseViolationReporter):
         linter.output_func = None
         linted_path = linter.lint_path(src_path)
         result = []
-        for violation in linted_path.files[0].violations:
+        for violation in linted_path.get_violations():
             try:
                 # Normal SQLFluff warnings
                 message = violation.description
