@@ -24,39 +24,6 @@ class LateBoundDialectObject:
         return self.func(dialect)
 
 
-class LateBoundDialectModule:
-    """Defines a late-bound dialect module.
-
-    It returns an iterable of (name, dialectobject) tuples.
-
-    These are defined using a callable, which is only called
-    once everything else is defined. Very useful for template
-    inheritance.
-    """
-    def __init__(self, func=None):
-        self.func = func
-
-    def call(self, dialect):
-        """The call point to override when subclassing."""
-        if self.func:
-            return self.func(dialect)
-        raise NotImplementedError(
-            "{0} does not have a `call` or `func` method defined!".format(
-                self.__class__.__name__))
-
-    def expand(self, dialect):
-        """Expand this object into it's contained dialect objects.
-
-        This function also provides some basic validation.
-
-        The inner function is passed an instance of the current dialect
-        and so has access to the current sets of that dialect.
-        """
-        for name, elem in self.call(dialect):
-            assert isinstance(name, str)
-            yield name, elem
-
-
 class Dialect:
     """Serves as the basis for runtime resolution of Grammar.
 
