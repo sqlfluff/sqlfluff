@@ -248,3 +248,28 @@ class Dialect:
                 buff.append(elem)
         # Overwrite with the buffer once we're done
         self.lexer_struct = buff
+
+    def insert_lexer_struct(self, lexer_patch, before):
+        """Insert new records into an existing lexer struct.
+
+        Used to edit the lexer of a sub-dialect. The patch is
+        inserted *before* whichever element is named in `before`.
+        """
+        buff = []
+        found = False
+        if not self.lexer_struct:
+            raise ValueError("Lexer struct must be defined before it can be patched!")
+
+        for elem in self.lexer_struct:
+            if elem[0] == before:
+                found = True
+                for patch in lexer_patch:
+                    buff.append(patch)
+                buff.append(elem)
+            else:
+                buff.append(elem)
+
+        if not found:
+            raise ValueError("Lexer struct insert before '%s' failed because tag never found.")
+        # Overwrite with the buffer once we're done
+        self.lexer_struct = buff

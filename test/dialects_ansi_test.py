@@ -88,7 +88,10 @@ def test__dialect__ansi__file_from_raw(raw, res, caplog):
         ("SelectTargetElementSegment", "a.b.*"),
         ("SelectTargetElementSegment", "a.b.c.*"),
         # Default Element Syntax
-        ("ObjectReferenceSegment", "a..c.*")
+        ("ObjectReferenceSegment", "a..c.*"),
+        # Negative Elements
+        ("SelectTargetElementSegment", "-some_variable"),
+        ("SelectTargetElementSegment", "- some_variable")
     ]
 )
 def test__dialect__ansi_specific_segment_parses(segmentref, raw, caplog):

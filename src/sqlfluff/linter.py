@@ -3,6 +3,8 @@
 import os
 import time
 from collections import namedtuple
+import logging
+
 from difflib import SequenceMatcher
 from benchit import BenchIt
 
@@ -10,7 +12,7 @@ from .errors import SQLLexError, SQLParseError, SQLTemplaterError
 from .parser import FileSegment, ParseContext
 # We should probably move verbosity logger to somewhere else?
 from .parser.segments_base import verbosity_logger, frame_msg
-from .rules import get_ruleset
+from .rules import get_ruleset, rules_logger
 
 
 from .cli.formatters import (format_linting_path, format_file_violations,
@@ -36,32 +38,46 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
                 raise v
         return vs
 
-    def num_violations(self, rules=None, types=None, filter_ignore=True):
-        """Count the number of violations.
+    def get_violations(self, rules=None, types=None, filter_ignore=True, fixable=None):
+        """Get a list of violations, respecting filters and ignore options.
 
         Optionally now with filters.
         """
         violations = self.violations
+        # Filter types
         if types:
             try:
                 types = tuple(types)
             except TypeError:
                 types = (types,)
             violations = [v for v in violations if isinstance(v, types)]
+        # Filter rules
         if rules:
             if isinstance(rules, str):
                 rules = (rules,)
             else:
                 rules = tuple(rules)
             violations = [v for v in violations if v.rule_code() in rules]
+        # Filter fixable
+        if fixable is not None:
+            # Assume that fixable is true or false if not None
+            violations = [v for v in violations if v.fixable is fixable]
         # Filter ignorable violations
         if filter_ignore:
             violations = [v for v in violations if not v.ignore]
+        return violations
+
+    def num_violations(self, **kwargs):
+        """Count the number of violations.
+
+        Optionally now with filters.
+        """
+        violations = self.get_violations(**kwargs)
         return len(violations)
 
     def is_clean(self):
         """Return True if there are no ignorable violations."""
-        return not any(not v.ignore for v in self.violations)
+        return not any(self.get_violations(filter_ignore=True))
 
     def fix_string(self, verbosity=0):
         """Obtain the changes to a path as a string.
@@ -127,6 +143,11 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
             if fixed_block is None:
                 if diff_fix_codes:
                     fixed_block = diff_fix_codes.pop(0)
+                # One case is that we just consumed the last block of both, so check indexes
+                # to see if we're at the end of the raw file.
+                elif idx[0] >= len(self.file_mask[0]):
+                    # Yep we're at the end
+                    break
                 else:
                     raise NotImplementedError("Unexpectedly depleted the fixes. Panic!")
             verbosity_logger(
@@ -323,9 +344,16 @@ class LintedPath:
         """Count the number of violations in the path."""
         return sum(file.num_violations(**kwargs) for file in self.files)
 
-    def violations(self):
+    def get_violations(self, **kwargs):
+        """Return a list of violations in the path."""
+        buff = []
+        for file in self.files:
+            buff += file.get_violations(**kwargs)
+        return buff
+
+    def violation_dict(self, **kwargs):
         """Return a dict of violations by file path."""
-        return {file.path: file.violations for file in self.files}
+        return {file.path: file.get_violations(**kwargs) for file in self.files}
 
     def stats(self):
         """Return a dict containing linting stats about this path."""
@@ -344,7 +372,7 @@ class LintedPath:
         # Run all the fixes for all the files and return a dict
         buffer = {}
         for file in self.files:
-            if self.num_violations(**kwargs) > 0:
+            if file.num_violations(fixable=True, **kwargs) > 0:
                 buffer[file.path] = file.persist_tree(verbosity=verbosity)
                 result = buffer[file.path]
             else:
@@ -352,12 +380,14 @@ class LintedPath:
                 result = 'SKIP'
 
             if output_func:
-                output_func(
-                    format_filename(
-                        filename=file.path,
-                        success=result,
-                        verbose=verbosity)
-                )
+                # Only show the skip records at higher levels of verbosity
+                if verbosity >= 2 or result != 'SKIP':
+                    output_func(
+                        format_filename(
+                            filename=file.path,
+                            success=result,
+                            verbose=verbosity)
+                    )
         return buffer
 
 
@@ -410,12 +440,19 @@ class LintingResult:
             return tuple_buffer
 
     def num_violations(self, **kwargs):
-        """Count the number of violations in thie result."""
+        """Count the number of violations in the result."""
         return sum(path.num_violations(**kwargs) for path in self.paths)
 
-    def violations(self):
+    def get_violations(self, **kwargs):
+        """Return a list of violations in the result."""
+        buff = []
+        for path in self.paths:
+            buff += path.get_violations(**kwargs)
+        return buff
+
+    def violation_dict(self, **kwargs):
         """Return a dict of paths and violations."""
-        return self.combine_dicts(path.violations() for path in self.paths)
+        return self.combine_dicts(path.violation_dict(**kwargs) for path in self.paths)
 
     def stats(self):
         """Return a stats dictionary of this result."""
@@ -444,7 +481,7 @@ class LintingResult:
         return [
             {'filepath': path, 'violations': [v.get_info_dict() for v in violations]}
             for lintedpath in self.paths
-            for path, violations in lintedpath.violations().items()
+            for path, violations in lintedpath.violation_dict().items()
             if violations
         ]
 
@@ -632,8 +669,20 @@ class Linter:
             # At this point we should evaluate whether any parsing errors have occured
             if verbosity >= 2:
                 verbosity_logger("LINTING ({0})".format(fname), verbosity=verbosity)
+                # Also set up logging from the rules logger
+                if verbosity >= 3:
+                    rules_logger.setLevel(logging.DEBUG)
+                else:
+                    rules_logger.setLevel(logging.INFO)
 
-            # NOW APPLY EACH LINTER
+            # Get the initial violations
+            linting_errors = []
+            for crawler in self.get_ruleset(config=config or self.config):
+                lerrs, _, _, _ = crawler.crawl(parsed)
+                linting_errors += lerrs
+            initial_linting_errors = linting_errors
+
+            # If we're in fix mode, iteratively apply fixes until done, or we can't make a move.
             if fix:
                 # If we're in fix mode, then we need to progressively call and reconstruct
                 working = parsed
@@ -654,40 +703,35 @@ class Linter:
                         linting_errors += lerrs
                         if fixes:
                             verbosity_logger("Applying Fixes: {0}".format(fixes), verbosity=verbosity)
-                            if fixes == last_fixes:
-                                raise RuntimeError(
-                                    ("Fixes appear to not have been applied, they are "
-                                     "the same as last time! {0}").format(
-                                        fixes))
 
-                            last_fixes = fixes
-                            new_working, fixes = working.apply_fixes(fixes)
-
-                            # Check for infinite loops
-                            if new_working.raw not in previous_versions:
-                                working = new_working
-                                previous_versions.add(working.raw)
-                                changed = True
-                            else:
+                            if last_fixes and fixes == last_fixes:
                                 print(("WARNING: One fix for {0} not applied, it would re-cause "
-                                       "a previously fixed error.").format(crawler.code))
+                                       "the same error.").format(crawler.code))
+                            else:
+                                last_fixes = fixes
+                                new_working, fixes = working.apply_fixes(fixes)
+
+                                # Check for infinite loops
+                                if new_working.raw not in previous_versions:
+                                    working = new_working
+                                    previous_versions.add(working.raw)
+                                    changed = True
+                                else:
+                                    print(("WARNING: One fix for {0} not applied, it would re-cause "
+                                           "a previously fixed error.").format(crawler.code))
                     if not changed:
                         # The file is clean :)
                         break
                 # Set things up to return the altered version
                 parsed = working
-            else:
-                # Just get the violations
-                linting_errors = []
-                for crawler in self.get_ruleset(config=config or self.config):
-                    lerrs, _, _, _ = crawler.crawl(parsed)
-                    linting_errors += lerrs
 
             # Update the timing dict
             t1 = time.monotonic()
             time_dict['linting'] = t1 - t0
 
-            vs += linting_errors
+            # We're only going to return the *initial* errors, rather
+            # than any generated during the fixing cycle.
+            vs += initial_linting_errors
             fixed_buff = parsed.raw
 
         # We process the ignore config here if appropriate
@@ -698,10 +742,14 @@ class Linter:
         file_mask = (raw_buff, templ_buff, fixed_buff)
         res = LintedFile(fname, vs, time_dict, parsed,
                          file_mask=file_mask)
-        # Do the logging as appropriate (don't log if fixing...)
-        if not fix:
-            # This is the main command line output from linting.
-            self.log(format_file_violations(fname, res.violations, verbose=verbosity))
+
+        # This is the main command line output from linting.
+        self.log(
+            format_file_violations(
+                fname, res.get_violations(fixable=True if fix else None),
+                verbose=verbosity
+            )
+        )
         return res
 
     def paths_from_path(self, path):

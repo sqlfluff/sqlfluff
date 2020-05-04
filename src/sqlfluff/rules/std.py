@@ -1,7 +1,5 @@
 """Standard SQL Linting Rules."""
 
-import logging
-
 from .base import BaseCrawler, LintFix, LintResult, RuleSet
 
 
@@ -1355,9 +1353,9 @@ class Rule_L016(Rule_L003):
             )
         )
 
-        logging.info("Rule L016: Sections")
+        self.logger.info("Sections:")
         for sec in chunk_buff:
-            logging.info(sec)
+            self.logger.info(sec)
 
         # How do we prioritise where to work?
         # First, do we ever go through a negative breakpoint?
@@ -1410,13 +1408,13 @@ class Rule_L016(Rule_L003):
                     split_at.append((downbreaks[0], 0))
                 # If no downbreaks then the corresponding downbreak isn't on this line.
 
-        logging.info("Split at: {0}".format(split_at))
+        self.logger.info("Split at: %s", split_at)
 
         fixes = []
         for split, indent in split_at:
             fixes += split.generate_fixes_to_coerce(segments, indent_section, self, indent)
 
-        logging.info("Fixes: {0}".format(fixes))
+        self.logger.info("Fixes: %s", fixes)
 
         return fixes
 
@@ -1473,9 +1471,13 @@ class Rule_L016(Rule_L003):
 
             # Does the line end in an inline comment that we can move back?
             if this_line[-1].name == 'inline_comment':
-                # Is this line JUST COMMENT, if so, user will have to fix themselves
-                if len(this_line) == 1:
+                # Is this line JUST COMMENT (with optional predeeding whitespace) if
+                # so, user will have to fix themselves.
+                if len(this_line) == 1 or all(elem.name == 'whitespace' or elem.is_meta for elem in this_line[:-1]):
+                    self.logger.info("Unfixable inline comment, alone on line: %s", this_line[-1])
                     return LintResult(anchor=segment)
+
+                self.logger.info("Attempting move of inline comment at end of line: %s", this_line[-1])
                 # Set up to delete the original comment and the preceeding whitespace
                 delete_buffer = [LintFix('delete', this_line[-1])]
                 idx = -2
