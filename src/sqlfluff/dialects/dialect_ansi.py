@@ -178,7 +178,7 @@ ansi_dialect.add(
         Ref('NullKeywordSegment')
     ),
     AndKeywordSegment=KeywordSegment.make('and', type='binary_operator'),
-    OrKeywordSegment=KeywordSegment.make('or', type='binary_operator')
+    OrKeywordSegment=KeywordSegment.make('or', type='binary_operator'),
     # This is a placeholder for other dialects.
     PreTableFunctionKeywordsGrammar=Nothing(),
 )
