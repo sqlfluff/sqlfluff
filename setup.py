@@ -69,13 +69,18 @@ setup(
         # eg: 'keyword1', 'keyword2', 'keyword3',
     ],
     install_requires=[
-        'bench-it',
+        # Core
         'click>=2.0',
         "colorama>=0.3",
         'configparser',
         'oyaml',
         'Jinja2',
+        # Used for diffcover plugin
         "diff-cover>=2.5.0,<3.0",
+        # Used for performance profiling
+        'bench-it',
+        # Used for .sqlfluffignore
+        "pathspec"
     ],
     extras_require={
         # eg:
