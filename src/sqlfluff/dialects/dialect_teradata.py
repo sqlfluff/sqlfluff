@@ -6,27 +6,12 @@ Teradata Database SQL Data Definition Language Syntax and Examples
     Release Number 15.10
     Release Date December 2015
 
-# BTEQ commands
-.if errorcode > 0 then .quit 2
-.IF ACTIVITYCOUNT = 0 THEN .QUIT
-
-LOGON − Used to log into Teradata system.
-ACTIVITYCOUNT − Returns the number of rows affected by the previous query.
-ERRORCODE − Returns the status code of the previous query.
-DATABASE − Sets the default database.
-LABEL − Assigns a label to a set of SQL commands.
-RUN FILE − Executes the query contained in a file.
-GOTO − Transfers control to a label.
-LOGOFF − Logs off from database and terminates all sessions.
-IMPORT − Specifies the input file path.
-EXPORT − Specifies the output file path and initiates the export.
-
 """
 
 from .dialect_ansi import ansi_dialect
-from ..parser import (BaseSegment, KeywordSegment, Sequence, GreedyUntil, StartsWith, OneOf, Delimited, Bracketed,
-                      AnyNumberOf, Ref,
-                      Anything)
+from ..parser import (BaseSegment, KeywordSegment, ReSegment, Sequence, GreedyUntil,
+                      StartsWith, OneOf, Delimited, Bracketed,
+                      AnyNumberOf, Ref, Anything, )
 
 teradata_dialect = ansi_dialect.copy_as('teradata')
 
@@ -36,11 +21,23 @@ teradata_dialect.patch_lexer_struct([
 ])
 
 
+# BTEQ statement
 @teradata_dialect.segment()
 class BteqKeyWordSegment(BaseSegment):
     """Bteq Keywords.
 
-    Often stsrting with a dot, sometimes followed by a Literal
+    Often a string with a dot, sometimes followed by a Literal
+
+    LOGON - Used to log into Teradata system.
+    ACTIVITYCOUNT - Returns the number of rows affected by the previous query.
+    ERRORCODE - Returns the status code of the previous query.
+    DATABASE - Sets the default database.
+    LABEL - Assigns a label to a set of SQL commands.
+    RUN FILE - Executes the query contained in a file.
+    GOTO - Transfers control to a label.
+    LOGOFF - Logs off from database and terminates all sessions.
+    IMPORT - Specifies the input file path.
+    EXPORT - Specifies the output file path and initiates the export.
     """
     type = 'bteq_key_word_segment'
     match_grammar = Sequence(
@@ -70,6 +67,10 @@ class BteqStatementSegment(BaseSegment):
     """Bteq statements start with a dot, followed by a Keyword.
 
     Non exhaustive and maybe catching too many statements?
+
+    # BTEQ commands
+    .if errorcode > 0 then .quit 2
+    .IF ACTIVITYCOUNT = 0 THEN .QUIT
     """
     type = 'bteq_statement'
     match_grammar = StartsWith(Ref('DotSegment'))
@@ -89,6 +90,7 @@ class BteqStatementSegment(BaseSegment):
     )
 
 
+# Collect Statistics statement
 @teradata_dialect.segment()
 class TdCollectStatisticsStatementSegment(BaseSegment):
     """A `COLLECT STATISTICS (Optimizer Form)` statement.
@@ -130,124 +132,86 @@ class TdCollectStatisticsStatementSegment(BaseSegment):
     )
 
 
+# Rename table statement
 @teradata_dialect.segment()
-class TdFunctionSegment(BaseSegment):
-    """A copy paste from FunctionSegment.
+class TdRenameStatementSegment(BaseSegment):
+    """A `COLLECT STATISTICS (Optimizer Form)` statement.
 
-    Only added function for Teradata
+    https://docs.teradata.com/reader/eWpPpcMoLGQcZEoyt5AjEg/Kl~F4lxPauOELYJVuFLjag
+    RENAME TABLE OLD_TABLENAME (TO|AS) NEW_TABLENAME
     """
-    type = 'function'
+    type = 'collect_statistics_statement'
     match_grammar = Sequence(
-        Sequence(
-            Ref('FunctionNameSegment'),
-            Bracketed(
-                Anything(optional=True)
-            ),
+        Ref('RenameKeywordSegment'),
+        Ref('TableKeywordSegment'),
+        Ref('ObjectReferenceSegment'),
+        OneOf(
+            Ref('ToKeywordSegment'),
+            Ref('AsKeywordSegment'),
         ),
-        Sequence(
-            Ref('OverKeywordSegment'),
-            Bracketed(
-                Anything(optional=True)
-            ),
-            optional=True
-        )
+        Ref('ObjectReferenceSegment'),
     )
-    parse_grammar = Sequence(
-        Sequence(
-            Ref('FunctionNameSegment'),
-            Bracketed(
-                OneOf(
-                    # A Cast-like function
-                    # Adding Teradata specific CAST('200010' AS DATE FORMAT 'YYYYMM'),
-                    Sequence(
-                        Ref('ExpressionSegment'),
-                        Ref('AsKeywordSegment'),
-                        OneOf(
-                            Ref('DatatypeSegment'),
-                            Sequence(
-                                Ref('DatatypeSegment'),
-                                Ref('FormatKeywordSegment'),
-                                Ref('QuotedLiteralSegment')
-                            ),
-                            optional=False
-                        )
-                    ),
-                    # An extract-like function
-                    Sequence(
-                        Ref('DatepartSegment'),
-                        Ref('FromKeywordSegment'),
-                        Ref('ExpressionSegment')
-                    ),
-                    Sequence(
-                        # Allow an optional distinct keyword here.
-                        Ref('DistinctKeywordSegment', optional=True),
-                        OneOf(
-                            # Most functions will be using the delimited route
-                            # but for COUNT(*) or similar we allow the star segment
-                            # here.
-                            Ref('StarSegment'),
-                            Delimited(
-                                Ref('ExpressionSegment'),
-                                delimiter=Ref('CommaSegment')
-                            ),
-                        ),
-                    ),
-                    # The brackets might be empty for some functions...
-                    optional=True
-                )
+
+
+# Adding Teradata specific DATE FORMAT 'YYYYMM'
+@teradata_dialect.segment()
+class TdDatatypeSegment(BaseSegment):
+    """A data type segment.
+
+    DATE FORMAT 'YYYY-MM-DD'
+    """
+    type = 'td_internal_data_type'
+    match_grammar = Sequence(
+        Ref('DatatypeIdentifierSegment'),
+        Bracketed(
+            OneOf(
+                Delimited(
+                    Ref('ExpressionSegment'),
+                    delimiter=Ref('CommaSegment')
+                ),
+                # The brackets might be empty for some cases...
+                optional=True
             ),
-        ),
-        # Optional suffix for window functions.
-        # TODO: Should this be in a different dialect?
-        Sequence(
-            Ref('OverKeywordSegment'),
-            Bracketed(
-                Sequence(
-                    Ref('PartitionClauseSegment', optional=True),
-                    Ref('OrderByClauseSegment', optional=True),
-                    Ref('FrameClauseSegment', optional=True)
-                )
-            ),
+            # There may be no brackets for some data types
             optional=True
-        )
+        ),
+        Sequence(  # FORMAT 'YYYY-MM-DD',
+            Ref('FormatKeywordSegment'),
+            Ref('QuotedLiteralSegment'),
+            optional=True
+        ),
     )
 
 
 @teradata_dialect.segment()
-class TdCreateTableOptions(BaseSegment):
-    """CreateTableOptions.
+class TdShorthandCastSegment(BaseSegment):
+    """A casting operation using Teradata conversion syntax.
 
-    , NO FALLBACK, NO BEFORE JOURNAL, NO AFTER JOURNAL
+    https://docs.teradata.com/reader/kmuOwjp1zEYg98JsB8fu_A/ypGGhd87xi3E2E7SlNS1Xg
+    # Teradata Conversion Syntax in Explicit Data Type Conversions
+    expression ([data_attribute,] data_type [, data_attribute])
+    with
+
+    data_type := a data type declaration such as INTEGER or DATE
+    data_attribute := a data attribute such as FORMAT, NAMED or  TITLE
+
+    e.g.
+        '9999-12-31' (DATE),
+        '9999-12-31' (DATE FORMAT 'YYYY-MM-DD')
+        '100000' (SMALLINT)
+         DATE FORMAT 'E4,BM4BDD,BY4'
+         DATE '2007-01-01'
     """
-    type = 'create_table_options_statement'
-    match_grammar = AnyNumberOf(
-        # , [ NO ] FALLBACK [ PROTECTION ]
-        Sequence(
-            Ref('CommaSegment'),
-            Ref('NoKeywordSegment', optional=True),
-            Ref('FallbackKeywordSegment'),
-            Ref('ProtectionKeywordSegment', optional=True),
-        ),
-        # , [NO | DUAL | LOCAL |NOT LOCAL] [AFTER | BEFORE] JOURNAL
-        Sequence(
-            Ref('CommaSegment'),
-            OneOf(
-                Ref('NoKeywordSegment'),
-                Ref('DualKeywordSegment'),
-                Ref('LocalKeywordSegment'),
-                Sequence(Ref('NotKeywordSegment'), Ref('LocalKeywordSegment')),
-                optional=True
-            ),
-            OneOf(
-                Ref('BeforeKeywordSegment'),
-                Ref('AfterKeywordSegment'),
-                optional=True
-            ),
-            Ref('JournalKeywordSegment'),
+    type = 'cast_expression'
+    match_grammar = OneOf(
+        # '100000' (SMALLINT)
+        Bracketed(
+            Ref('DatatypeSegment')
         ),
     )
 
 
+# Adding Teradata specific column definitions
 @teradata_dialect.segment()
 class TdColumnDefinitionSegment(BaseSegment):
     """A column definition, e.g. for CREATE TABLE or ALTER TABLE."""
@@ -261,6 +225,7 @@ class TdColumnDefinitionSegment(BaseSegment):
         ),
         AnyNumberOf(
             Ref('ColumnOptionSegment', optional=True),
+            # Adding Teradata specific column definitions
             Ref('TdColumnOptionSegment', optional=True),
         )
     )
@@ -298,9 +263,104 @@ class TdColumnOptionSegment(BaseSegment):
                     optional=True
                 )
             ),
-            Sequence(  # FORMAT 'YYYY-MM-DD',
-                Ref('FormatKeywordSegment'),
-                Ref('QuotedLiteralSegment'),
+        ),
+    )
+
+
+# Create Teradata Create Table Statement
+@teradata_dialect.segment()
+class TdCreateTableOptions(BaseSegment):
+    """CreateTableOptions.
+
+    , NO FALLBACK, NO BEFORE JOURNAL, NO AFTER JOURNAL, CHECKSUM = DEFAULT, DEFAULT MERGEBLOCKRATIO
+    """
+    type = 'create_table_options_statement'
+    match_grammar = AnyNumberOf(
+        Sequence(
+            Ref('CommaSegment'),
+            OneOf(
+                # [ NO ] FALLBACK [ PROTECTION ]
+                Sequence(
+                    Ref('NoKeywordSegment', optional=True),
+                    Ref('FallbackKeywordSegment'),
+                    Ref('ProtectionKeywordSegment', optional=True),
+                ),
+                # [NO | DUAL | LOCAL |NOT LOCAL] [AFTER | BEFORE] JOURNAL
+                Sequence(
+                    OneOf(
+                        Ref('NoKeywordSegment'),
+                        Ref('DualKeywordSegment'),
+                        Ref('LocalKeywordSegment'),
+                        Sequence(Ref('NotKeywordSegment'), Ref('LocalKeywordSegment')),
+                        optional=True
+                    ),
+                    OneOf(
+                        Ref('BeforeKeywordSegment'),
+                        Ref('AfterKeywordSegment'),
+                        optional=True
+                    ),
+                    Ref('JournalKeywordSegment'),
+                ),
+                # CHECKSUM = (ON|OFF|DEFAULT)
+                Sequence(
+                    Ref('ChecksumKeywordSegment'),
+                    Ref('EqualsSegment'),
+                    OneOf(
+                        Ref('OnKeywordSegment'),
+                        Ref('OffKeywordSegment'),
+                        Ref('DefaultKeywordSegment'),
+                    ),
+                ),
+                # (NO|Default) MergeBlockRatio
+                Sequence(
+                    OneOf(
+                        Ref('DefaultKeywordSegment'),
+                        Ref('NoKeywordSegment'),
+                    ),
+                    Ref('MergeBlockRatioKeywordSegment'),
+                ),
+                # MergeBlockRatio = integer [PERCENT]
+                Sequence(
+                    Ref('MergeBlockRatioKeywordSegment'),
+                    Ref('EqualsSegment'),
+                    Ref('NumericLiteralSegment'),
+                    Ref('PercentKeywordSegment', optional=True),
+                ),
+            ),
+        ),
+    )
+
+
+@teradata_dialect.segment()
+class TdTablePartitioningLevel(BaseSegment):
+    """Partitioning Level.
+
+    https://docs.teradata.com/reader/eWpPpcMoLGQcZEoyt5AjEg/e0GX8Iw16u1SCwYvc5qXzg
+
+    partition_expression or
+    COLUMN [[NO] AUTO COMPRESS] [[ALL BUT] column_partition] [ADD constant]
+
+    column_partition := ([COLUMN|ROW] column_name (, column_name2, ...) NO AUTOCOMPRESS
+
+    partition_expression := CASE_N, RANGE_N, EXTRACT, expression and in case of multi-level in parenthesis
+    """
+    type = 'td_partitioning_level'
+    match_grammar = OneOf(
+        Sequence(
+            Ref('FunctionNameSegment'),
+            Bracketed(
+                Anything(optional=True)
+            ),
+        ),
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref('FunctionNameSegment'),
+                    Bracketed(
+                        Anything(optional=True)
+                    ),
+                ),
+                delimiter=Ref('CommaSegment')
             ),
         ),
     )
@@ -317,27 +377,49 @@ class TdTableConstraints(BaseSegment):
     """
     type = 'td_table_constraint'
     match_grammar = Sequence(
-        OneOf(
-            Sequence(  # PRIMARY Index
-                Ref('UniqueKeywordSegment', optional=True),
-                Ref('PrimaryKeywordSegment'),
-                Ref('IndexKeywordSegment'),
-                OneOf(
-                    Bracketed(
-                        Delimited(
-                            Ref('SingleIdentifierGrammar'),
-                            delimiter=Ref('CommaSegment')
-                        )
+        AnyNumberOf(
+            # PRIMARY Index
+            OneOf(
+                Sequence(  # UNIQUE PRIMARY INDEX Column_name | ( Column_name, ... )
+                    Ref('UniqueKeywordSegment', optional=True),
+                    Ref('PrimaryKeywordSegment'),
+                    Ref('IndexKeywordSegment'),
+                    OneOf(
+                        Bracketed(
+                            Delimited(
+                                Ref('SingleIdentifierGrammar'),
+                                delimiter=Ref('CommaSegment')
+                            )
+                        ),
+                        Ref('SingleIdentifierGrammar'),
                     ),
-                    Ref('SingleIdentifierGrammar'),
+                ),
+                Sequence(  # NO PRIMARY INDEX
+                    Ref('NoKeywordSegment'),
+                    Ref('PrimaryKeywordSegment'),
+                    Ref('IndexKeywordSegment')
                 ),
             ),
-            Sequence(  # PRIMARY Index
-                Ref('NoKeywordSegment'),
-                Ref('PrimaryKeywordSegment'),
-                Ref('IndexKeywordSegment')
+            # PARTITION BY ...
+            Sequence(  # INDEX HOPR_TRN_TRAV_SIN_MP_I ( IND_TIPO_TARJETA );
+                Ref('PartitionKeywordSegment'),
+                Ref('ByKeywordSegment'),
+                Ref('TdTablePartitioningLevel'),
             ),
-        ),
+            # Index
+            Sequence(  # INDEX HOPR_TRN_TRAV_SIN_MP_I ( IND_TIPO_TARJETA );
+                Ref('UniqueKeywordSegment', optional=True),
+                Ref('IndexKeywordSegment'),
+                Ref('ObjectReferenceSegment'),  # Index name
+                Ref('AllKeywordSegment', optional=True),
+                Bracketed(  # Columns making up  constraint
+                    Delimited(
+                        Ref('ObjectReferenceSegment'),
+                        delimiter=Ref('CommaSegment')
+                    ),
+                ),
+            ),
+        )
     )
 
 
@@ -418,6 +500,53 @@ class TdCreateTableStatementSegment(BaseSegment):
     )
 
 
+# Update
+@teradata_dialect.segment()
+class TdUpdateStatementSegment(BaseSegment):
+    """A `Update from` statement.
+
+    The UPDATE statement FROM clause is a Teradata extension to the
+    ANSI SQL:2011 standard.
+
+    UPDATE (<table name> | FROM Statement)
+    SET <set clause list> [ WHERE <search condition> ]
+    """
+    type = 'delete_statement'
+    match_grammar = StartsWith(Ref('UpdateKeywordSegment'))
+    parse_grammar = Sequence(
+        Ref('UpdateKeywordSegment'),
+        OneOf(
+            Ref('ObjectReferenceSegment'),
+            Ref('FromUpdateClauseSegment'),
+            Sequence(
+                Ref('ObjectReferenceSegment'),
+                Ref('FromUpdateClauseSegment'),
+            ),
+        ),
+        Ref('SetClauseListSegment'),
+        Ref('WhereClauseSegment', optional=True),
+    )
+
+
+@teradata_dialect.segment()
+class FromUpdateClauseSegment(BaseSegment):
+    """A `FROM` clause like in `SELECT` but terminated by SET."""
+    type = 'from_in_update_clause'
+    match_grammar = StartsWith(
+        Ref('FromKeywordSegment'),
+        terminator=Ref('SetKeywordSegment')
+    )
+    parse_grammar = Sequence(
+        Ref('FromKeywordSegment'),
+        Delimited(
+            # Optional old school delimited joins
+            Ref('TableExpressionSegment'),
+            delimiter=Ref('CommaSegment')
+        ),
+    )
+
+
+# Adding Teradata specific statements
 @teradata_dialect.segment()
 class TdStatementSegment(BaseSegment):
     """A generic segment, to any of it's child subsegments.
@@ -432,16 +561,16 @@ class TdStatementSegment(BaseSegment):
         Ref('TransactionStatementSegment'), Ref('DropStatementSegment'),
         Ref('AccessStatementSegment'), Ref('CreateTableStatementSegment'),
         Ref('CreateViewStatementSegment'),
-        # Teradata Specific Statements
+        Ref('DeleteStatementSegment'), Ref('UpdateStatementSegment'),
+        # Teradata specific statements
         Ref('TdCollectStatisticsStatementSegment'),
         Ref('BteqStatementSegment'),
-        Ref('TdCreateTableStatementSegment'),
+        Ref('TdUpdateStatementSegment'), Ref('TdRenameStatementSegment'),
     )
     match_grammar = GreedyUntil(Ref('SemicolonSegment'))
 
 
 teradata_dialect.add(
-    SetKeywordSegment=KeywordSegment.make('set'),
     MultiSetKeywordSegment=KeywordSegment.make('multiset'),
     TemporaryKeywordSegment=KeywordSegment.make('temporary'),
     GlobalKeywordSegment=KeywordSegment.make('global'),
@@ -458,12 +587,18 @@ teradata_dialect.add(
     CompressKeywordSegment=KeywordSegment.make('compress'),
     IndexKeywordSegment=KeywordSegment.make('index'),
     FormatKeywordSegment=KeywordSegment.make('format'),
+    ChecksumKeywordSegment=KeywordSegment.make('checksum'),
+    OffKeywordSegment=KeywordSegment.make('off'),
+    MergeBlockRatioKeywordSegment=KeywordSegment.make('mergeblockratio'),
+    PercentKeywordSegment=KeywordSegment.make('percent'),
     # Collect Statistics Keywords:
     CollectKeywordSegment=KeywordSegment.make('collect'),
     SummaryKeywordSegment=KeywordSegment.make('summary'),
     StatisticsKeywordSegment=KeywordSegment.make('statistics'),
     StatKeywordSegment=KeywordSegment.make('stat'),
     ColumnKeywordSegment=KeywordSegment.make('column'),
+    # Rename Table Keywords:
+    RenameKeywordSegment=KeywordSegment.make('rename'),
     # BTEQ Keywords
     LogonKeywordSegment=KeywordSegment.make('logon'),
     ActivitycountKeywordSegment=KeywordSegment.make('activitycount'),
@@ -476,10 +611,28 @@ teradata_dialect.add(
     ExportKeywordSegment=KeywordSegment.make('export'),
     RunKeywordSegment=KeywordSegment.make('run'),
     QuitKeywordSegment=KeywordSegment.make('quit'),
+    # Remove Date and Timestamp to get them for Teradata casting
+    DateKeywordSegment=KeywordSegment.make('date'),
+    TimestampKeywordSegment=KeywordSegment.make('timestamp'),
+    TdCastIdentifierSegment=Sequence(OneOf(Ref('DateKeywordSegment'),
+                                           Ref('TimestampKeywordSegment')),
+                                     Ref('ExpressionSegment')),
+    TdSingleIdentifierGrammar=OneOf(
+        Ref('NakedIdentifierSegment'), Ref('QuotedIdentifierSegment'),
+        Ref('TdCastIdentifierSegment')),
+    TdNakedIdentifierSegment=ReSegment.make(
+        r"[A-Z0-9_]*[A-Z][A-Z0-9_]*", name='identifier', type='naked_identifier',
+        _anti_template=r"^(SELECT|JOIN|ON|USING|CROSS|INNER|LEFT|RIGHT|"
+                       + r"OUTER|UNION|INTERVAL|CASE|FULL|NULL|TIMESTAMP|DATE)$"),
 )
 
 teradata_dialect.replace(
-    FunctionSegment=Ref('TdFunctionSegment'),
+    NakedIdentifierSegment=Ref('TdNakedIdentifierSegment'),
+    DatatypeSegment=Ref('TdDatatypeSegment'),
+    ShorthandCastSegment=Ref('TdShorthandCastSegment'),
     ColumnDefinitionSegment=Ref('TdColumnDefinitionSegment'),
     StatementSegment=Ref('TdStatementSegment'),
+    UpdateStatementSegment=Ref('TdUpdateStatementSegment'),
+    CreateTableStatementSegment=Ref('TdCreateTableStatementSegment'),
+    SingleIdentifierGrammar=Ref('TdSingleIdentifierGrammar'),
 )

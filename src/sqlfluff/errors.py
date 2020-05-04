@@ -10,6 +10,11 @@ class SQLBaseError(ValueError):
         self.ignore = kwargs.pop('ignore', False)
         super(SQLBaseError, self).__init__(*args, **kwargs)
 
+    @property
+    def fixable(self):
+        """Should this error be considered fixable?"""
+        return False
+
     def rule_code(self):
         """Fetch the code of the rule which cause this error.
 
@@ -192,6 +197,13 @@ class SQLLintError(SQLBaseError):
         self.fixes = kwargs.pop('fixes', [])
         self.description = kwargs.pop('description', None)
         super(SQLLintError, self).__init__(*args, **kwargs)
+
+    @property
+    def fixable(self):
+        """Should this error be considered fixable?"""
+        if self.fixes:
+            return True
+        return False
 
     def check_tuple(self):
         """Get a tuple representing this error. Mostly for testing."""
