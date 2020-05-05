@@ -606,6 +606,19 @@ class Ref(BaseGrammar):
                 called_from = {self._get_ref()}
             return elem.expected_string(dialect=dialect, called_from=called_from)
 
+    @classmethod
+    def keyword(cls, keyword, **kwargs):
+        """Generate a reference to a keyword by name.
+
+        This function is entirely syntactic sugar, and designed
+        for more readable dialects.
+
+        Ref.keyword('select') == Ref('SelectKeywordSegment')
+
+        """
+        name = keyword.capitalize() + 'KeywordSegment'
+        return cls(name, **kwargs)
+
 
 class Anything(BaseGrammar):
     """Matches anything."""

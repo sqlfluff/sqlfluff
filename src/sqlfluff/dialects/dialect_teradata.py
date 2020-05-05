@@ -80,20 +80,20 @@ class BteqKeyWordSegment(BaseSegment):
     match_grammar = Sequence(
         Ref('DotSegment', optional=True),
         OneOf(
-            Ref('IfKeywordSegment'),
-            Ref('ThenKeywordSegment'),
-            Ref('LogonKeywordSegment'),
-            Ref('ActivitycountKeywordSegment'),
-            Ref('ErrorcodeKeywordSegment'),
-            Ref('DatabaseKeywordSegment'),
-            Ref('LabelKeywordSegment'),
-            Ref('GotoKeywordSegment'),
-            Ref('LogoffKeywordSegment'),
-            Ref('ImportKeywordSegment'),
-            Ref('ExportKeywordSegment'),
-            Ref('RunKeywordSegment'),
-            Ref('QuitKeywordSegment'),
-            Ref('ActivitycountKeywordSegment'),
+            Ref.keyword('IF'),
+            Ref.keyword('THEN'),
+            Ref.keyword('LOGON'),
+            Ref.keyword('ACTIVITYCOUNT'),
+            Ref.keyword('ERRORCODE'),
+            Ref.keyword('DATABASE'),
+            Ref.keyword('LABEL'),
+            Ref.keyword('GOTO'),
+            Ref.keyword('LOGOFF'),
+            Ref.keyword('IMPORT'),
+            Ref.keyword('EXPORT'),
+            Ref.keyword('RUN'),
+            Ref.keyword('QUIT'),
+            Ref.keyword('ACTIVITYCOUNT'),
         ),
         Ref('LiteralGrammar', optional=True),
     )
@@ -137,19 +137,19 @@ class TdCollectStatisticsStatementSegment(BaseSegment):
     """
     type = 'collect_statistics_statement'
     match_grammar = Sequence(
-        Ref('CollectKeywordSegment'),
-        Ref('SummaryKeywordSegment', optional=True),
+        Ref.keyword('COLLECT'),
+        Ref.keyword('SUMMARY', optional=True),
         OneOf(
-            Ref('StatisticsKeywordSegment'),
-            Ref('StatKeywordSegment')
+            Ref.keyword('STATISTICS'),
+            Ref.keyword('STAT')
         ),
         OneOf(
             Sequence(
                 OneOf(
-                    Ref('ColumnKeywordSegment'),
+                    Ref.keyword('COLUMN'),
                     Sequence(
-                        Ref('UniqueKeywordSegment', optional=True),
-                        Ref('IndexKeywordSegment'),
+                        Ref.keyword('UNIQUE', optional=True),
+                        Ref.keyword('INDEX'),
                     )
                 ),
                 OneOf(
@@ -164,7 +164,7 @@ class TdCollectStatisticsStatementSegment(BaseSegment):
             ),
             optional=True
         ),
-        Ref('OnKeywordSegment'),
+        Ref.keyword('ON'),
         Ref('ObjectReferenceSegment'),
     )
 
@@ -179,12 +179,12 @@ class TdRenameStatementSegment(BaseSegment):
     """
     type = 'collect_statistics_statement'
     match_grammar = Sequence(
-        Ref('RenameKeywordSegment'),
-        Ref('TableKeywordSegment'),
+        Ref.keyword('RENAME'),
+        Ref.keyword('TABLE'),
         Ref('ObjectReferenceSegment'),
         OneOf(
-            Ref('ToKeywordSegment'),
-            Ref('AsKeywordSegment'),
+            Ref.keyword('TO'),
+            Ref.keyword('AS'),
         ),
         Ref('ObjectReferenceSegment'),
     )
@@ -213,7 +213,7 @@ class DatatypeSegment(BaseSegment):
             optional=True
         ),
         Sequence(  # FORMAT 'YYYY-MM-DD',
-            Ref('FormatKeywordSegment'),
+            Ref.keyword('FORMAT'),
             Ref('QuotedLiteralSegment'),
             optional=True
         ),
@@ -278,16 +278,16 @@ class TdColumnOptionSegment(BaseSegment):
     match_grammar = Sequence(
         OneOf(
             Sequence(  # CHARACTER SET LATIN
-                Ref('CharacterKeywordSegment'),
-                Ref('SetKeywordSegment'),
+                Ref.keyword('CHARACTER'),
+                Ref.keyword('SET'),
                 Ref('SingleIdentifierGrammar')
             ),
             Sequence(  # [NOT] CASESPECIFIC
-                Ref('NotKeywordSegment', optional=True),
-                Ref('CasespecificKeywordSegment'),
+                Ref.keyword('NOT', optional=True),
+                Ref.keyword('CASESPECIFIC'),
             ),
             Sequence(  # COMPRESS [(1.,3.) | 3. | NULL],
-                Ref('CompressKeywordSegment'),
+                Ref.keyword('COMPRESS'),
                 OneOf(
                     Bracketed(
                         Delimited(
@@ -296,7 +296,7 @@ class TdColumnOptionSegment(BaseSegment):
                         )
                     ),
                     Ref('LiteralGrammar'),
-                    Ref('NullKeywordSegment'),
+                    Ref.keyword('NULL'),
                     optional=True
                 )
             ),
@@ -318,50 +318,50 @@ class TdCreateTableOptions(BaseSegment):
             OneOf(
                 # [ NO ] FALLBACK [ PROTECTION ]
                 Sequence(
-                    Ref('NoKeywordSegment', optional=True),
-                    Ref('FallbackKeywordSegment'),
-                    Ref('ProtectionKeywordSegment', optional=True),
+                    Ref.keyword('NO', optional=True),
+                    Ref.keyword('FALLBACK'),
+                    Ref.keyword('PROTECTION', optional=True),
                 ),
                 # [NO | DUAL | LOCAL |NOT LOCAL] [AFTER | BEFORE] JOURNAL
                 Sequence(
                     OneOf(
-                        Ref('NoKeywordSegment'),
-                        Ref('DualKeywordSegment'),
-                        Ref('LocalKeywordSegment'),
-                        Sequence(Ref('NotKeywordSegment'), Ref('LocalKeywordSegment')),
+                        Ref.keyword('NO'),
+                        Ref.keyword('DUAL'),
+                        Ref.keyword('LOCAL'),
+                        Sequence(Ref.keyword('NOT'), Ref.keyword('LOCAL')),
                         optional=True
                     ),
                     OneOf(
-                        Ref('BeforeKeywordSegment'),
-                        Ref('AfterKeywordSegment'),
+                        Ref.keyword('BEFORE'),
+                        Ref.keyword('AFTER'),
                         optional=True
                     ),
-                    Ref('JournalKeywordSegment'),
+                    Ref.keyword('JOURNAL'),
                 ),
                 # CHECKSUM = (ON|OFF|DEFAULT)
                 Sequence(
-                    Ref('ChecksumKeywordSegment'),
+                    Ref.keyword('CHECKSUM'),
                     Ref('EqualsSegment'),
                     OneOf(
-                        Ref('OnKeywordSegment'),
-                        Ref('OffKeywordSegment'),
-                        Ref('DefaultKeywordSegment'),
+                        Ref.keyword('ON'),
+                        Ref.keyword('OFF'),
+                        Ref.keyword('DEFAULT'),
                     ),
                 ),
                 # (NO|Default) MergeBlockRatio
                 Sequence(
                     OneOf(
-                        Ref('DefaultKeywordSegment'),
-                        Ref('NoKeywordSegment'),
+                        Ref.keyword('DEFAULT'),
+                        Ref.keyword('NO'),
                     ),
-                    Ref('MergeblockratioKeywordSegment'),
+                    Ref.keyword('MERGEBLOCKRATIO'),
                 ),
                 # MergeBlockRatio = integer [PERCENT]
                 Sequence(
-                    Ref('MergeblockratioKeywordSegment'),
+                    Ref.keyword('MERGEBLOCKRATIO'),
                     Ref('EqualsSegment'),
                     Ref('NumericLiteralSegment'),
-                    Ref('PercentKeywordSegment', optional=True),
+                    Ref.keyword('PERCENT', optional=True),
                 ),
             ),
         ),
@@ -418,9 +418,9 @@ class TdTableConstraints(BaseSegment):
             # PRIMARY Index
             OneOf(
                 Sequence(  # UNIQUE PRIMARY INDEX Column_name | ( Column_name, ... )
-                    Ref('UniqueKeywordSegment', optional=True),
-                    Ref('PrimaryKeywordSegment'),
-                    Ref('IndexKeywordSegment'),
+                    Ref.keyword('UNIQUE', optional=True),
+                    Ref.keyword('PRIMARY'),
+                    Ref.keyword('INDEX'),
                     OneOf(
                         Bracketed(
                             Delimited(
@@ -432,23 +432,23 @@ class TdTableConstraints(BaseSegment):
                     ),
                 ),
                 Sequence(  # NO PRIMARY INDEX
-                    Ref('NoKeywordSegment'),
-                    Ref('PrimaryKeywordSegment'),
-                    Ref('IndexKeywordSegment')
+                    Ref.keyword('NO'),
+                    Ref.keyword('PRIMARY'),
+                    Ref.keyword('INDEX')
                 ),
             ),
             # PARTITION BY ...
             Sequence(  # INDEX HOPR_TRN_TRAV_SIN_MP_I ( IND_TIPO_TARJETA );
-                Ref('PartitionKeywordSegment'),
-                Ref('ByKeywordSegment'),
+                Ref.keyword('PARTITION'),
+                Ref.keyword('BY'),
                 Ref('TdTablePartitioningLevel'),
             ),
             # Index
             Sequence(  # INDEX HOPR_TRN_TRAV_SIN_MP_I ( IND_TIPO_TARJETA );
-                Ref('UniqueKeywordSegment', optional=True),
-                Ref('IndexKeywordSegment'),
+                Ref.keyword('UNIQUE', optional=True),
+                Ref.keyword('INDEX'),
                 Ref('ObjectReferenceSegment'),  # Index name
-                Ref('AllKeywordSegment', optional=True),
+                Ref.keyword('ALL', optional=True),
                 Bracketed(  # Columns making up  constraint
                     Delimited(
                         Ref('ObjectReferenceSegment'),
@@ -465,30 +465,30 @@ class CreateTableStatementSegment(BaseSegment):
     """A `CREATE [MULTISET| SET] TABLE` statement."""
     type = 'create_table_statement'
     match_grammar = Sequence(
-        Ref('CreateKeywordSegment'),
+        Ref.keyword('CREATE'),
         Sequence(
-            Ref('OrKeywordSegment'),
-            Ref('ReplaceKeywordSegment'),
+            Ref.keyword('OR'),
+            Ref.keyword('REPLACE'),
             optional=True
         ),
         # Adding Teradata specific [MULTISET| SET]
         OneOf(
-            Ref('SetKeywordSegment'),
-            Ref('MultisetKeywordSegment'),
+            Ref.keyword('SET'),
+            Ref.keyword('MULTISET'),
             optional=True
         ),
         OneOf(
             Sequence(
-                Ref('GlobalKeywordSegment'), Ref('TemporaryKeywordSegment')
+                Ref.keyword('GLOBAL'), Ref.keyword('TEMPORARY')
             ),
-            Ref('VolatileKeywordSegment'),
+            Ref.keyword('VOLATILE'),
             optional=True
         ),
-        Ref('TableKeywordSegment'),
+        Ref.keyword('TABLE'),
         Sequence(
-            Ref('IfKeywordSegment'),
-            Ref('NotKeywordSegment'),
-            Ref('ExistsKeywordSegment'),
+            Ref.keyword('IF'),
+            Ref.keyword('NOT'),
+            Ref.keyword('EXISTS'),
             optional=True
         ),
         Ref('ObjectReferenceSegment'),
@@ -510,14 +510,14 @@ class CreateTableStatementSegment(BaseSegment):
                     )
                 ),
                 Sequence(  # [COMMENT 'string'] (MySQL)
-                    Ref('CommentKeywordSegment'),
+                    Ref.keyword('COMMENT'),
                     Ref('QuotedLiteralSegment'),
                     optional=True
                 )
             ),
             # Create AS syntax:
             Sequence(
-                Ref('AsKeywordSegment'),
+                Ref.keyword('AS'),
                 OneOf(
                     Ref('SelectStatementSegment'),
                     Ref('WithCompoundStatementSegment')
@@ -525,7 +525,7 @@ class CreateTableStatementSegment(BaseSegment):
             ),
             # Create like syntax
             Sequence(
-                Ref('LikeKeywordSegment'),
+                Ref.keyword('LIKE'),
                 Ref('ObjectReferenceSegment')
             )
         ),
@@ -549,9 +549,9 @@ class UpdateStatementSegment(BaseSegment):
     SET <set clause list> [ WHERE <search condition> ]
     """
     type = 'delete_statement'
-    match_grammar = StartsWith(Ref('UpdateKeywordSegment'))
+    match_grammar = StartsWith(Ref.keyword('UPDATE'))
     parse_grammar = Sequence(
-        Ref('UpdateKeywordSegment'),
+        Ref.keyword('UPDATE'),
         OneOf(
             Ref('ObjectReferenceSegment'),
             Ref('FromUpdateClauseSegment'),
@@ -570,11 +570,11 @@ class FromUpdateClauseSegment(BaseSegment):
     """A `FROM` clause like in `SELECT` but terminated by SET."""
     type = 'from_in_update_clause'
     match_grammar = StartsWith(
-        Ref('FromKeywordSegment'),
-        terminator=Ref('SetKeywordSegment')
+        Ref.keyword('FROM'),
+        terminator=Ref.keyword('SET')
     )
     parse_grammar = Sequence(
-        Ref('FromKeywordSegment'),
+        Ref.keyword('FROM'),
         Delimited(
             # Optional old school delimited joins
             Ref('TableExpressionSegment'),
@@ -610,8 +610,8 @@ class StatementSegment(BaseSegment):
 teradata_dialect.add(
     TdCastIdentifierSegment=Sequence(
         OneOf(
-            Ref('DateKeywordSegment'),
-            Ref('TimestampKeywordSegment')
+            Ref.keyword('DATE'),
+            Ref.keyword('TIMESTAMP')
         ),
         Ref('ExpressionSegment')
     ),

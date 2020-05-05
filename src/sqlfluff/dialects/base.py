@@ -39,10 +39,10 @@ class Dialect:
                 # dialect and store the result it it's place.
                 # Use the .replace() method for it's error handling.
                 self.replace(**{key: self._library[key].expand(self)})
-        # Expand any sets as keywords:
-        for labeled_set in self._sets.values():  # e.g. reserved_keywords, (JOIN, ...)
+        # Expand any keyword sets.
+        for keyword_set in ['unreserved_keywords', 'reserved_keywords']:  # e.g. reserved_keywords, (JOIN, ...)
             # Make sure the values are available as KeywordSegments
-            for kw in labeled_set:
+            for kw in self.sets(keyword_set):
                 n = kw.capitalize() + 'KeywordSegment'
                 if n not in self._library:
                     self._library[n] = KeywordSegment.make(kw.lower())
