@@ -758,8 +758,7 @@ ansi_dialect.add(
             Ref('SelectStatementSegment'),
             Ref('LiteralGrammar'),
             Ref('IntervalExpressionSegment'),
-            Ref('ObjectReferenceSegment'),
-            Ref('DatatypeIdentifierSegment')
+            Ref('ObjectReferenceSegment')
         ),
         Ref('Accessor_Grammar', optional=True),
         Ref('ShorthandCastSegment', optional=True),
@@ -1017,7 +1016,7 @@ class WithCompoundStatementSegment(BaseSegment):
         Ref('WithKeywordSegment'),
         Delimited(
             Sequence(
-                Ref('ObjectReferenceSegment'),
+                Ref('SingleIdentifierGrammar'),
                 Ref('AsKeywordSegment'),
                 Bracketed(
                     OneOf(
@@ -1179,7 +1178,7 @@ class ColumnDefinitionSegment(BaseSegment):
     """A column definition, e.g. for CREATE TABLE or ALTER TABLE."""
     type = 'column_definition'
     match_grammar = Sequence(
-        Ref('ObjectReferenceSegment'),  # Column name
+        Ref('SingleIdentifierGrammar'),  # Column name
         Ref('DatatypeSegment'),  # Column type
         Bracketed(  # For types like VARCHAR(100)
             Anything(),

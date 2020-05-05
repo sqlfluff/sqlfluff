@@ -22,7 +22,7 @@ def assert_rule_fail_in_sql(code, sql, configs=None):
     r = get_rule_from_set(code, config=cfg)
     parsed, _, _ = Linter(config=cfg).parse_string(sql)
     print("Parsed:\n {0}".format(parsed.stringify()))
-    lerrs, _, _, _ = r.crawl(parsed, fix=True)
+    lerrs, _, _, _ = r.crawl(parsed, dialect=cfg.get('dialect_obj'), fix=True)
     print("Errors Found: {0}".format(lerrs))
     assert any(v.rule.code == code for v in lerrs)
     fixed = parsed  # use this as our buffer (yes it's a bit of misnomer right here)
@@ -30,7 +30,7 @@ def assert_rule_fail_in_sql(code, sql, configs=None):
         # We get the errors again, but this time skip the assertion
         # because we're in the loop. If we asserted on every loop then
         # we're stuffed.
-        lerrs, _, _, _ = r.crawl(fixed, fix=True)
+        lerrs, _, _, _ = r.crawl(fixed, dialect=cfg.get('dialect_obj'), fix=True)
         print("Errors Found: {0}".format(lerrs))
         fixes = []
         for e in lerrs:
@@ -57,7 +57,7 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     r = get_rule_from_set(code, config=cfg)
     parsed, _, _ = Linter(config=cfg).parse_string(sql)
     print("Parsed:\n {0}".format(parsed.stringify()))
-    lerrs, _, _, _ = r.crawl(parsed, fix=True)
+    lerrs, _, _, _ = r.crawl(parsed, dialect=cfg.get('dialect_obj'), fix=True)
     print("Errors Found: {0}".format(lerrs))
     assert not any(v.rule.code == code for v in lerrs)
 
@@ -149,7 +149,13 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     ('L003', 'fail',
      'SELECT a, b, c\nFROM my_tbl\n    LEFT JOIN another_tbl USING(a)',
      'SELECT a, b, c\nFROM my_tbl\nLEFT JOIN another_tbl USING(a)',
-     {'indentation': {'indented_joins': False}})
+     {'indentation': {'indented_joins': False}}),
+    # Test cases for L029
+    ('L029', 'pass', 'CREATE TABLE artist(artist_name TEXT)', None, None),
+    ('L029', 'fail', 'CREATE TABLE artist(create TEXT)', None, None),
+    ('L029', 'fail', 'SELECT 1 as parameter', None, None),
+    ('L029', 'pass', 'SELECT parameter', None, None),  # should pass on default config as not alias
+    ('L029', 'fail', 'SELECT parameter', None, {'rules': {'L029': {'only_aliases': False}}}),
 ])
 def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
     """Test that a rule passes/fails on a given string.
