@@ -44,7 +44,8 @@ class Dialect:
             # Make sure the values are available as KeywordSegments
             for kw in labeled_set:
                 n = kw.capitalize() + 'KeywordSegment'
-                self._library[n] = KeywordSegment.make(kw.lower())
+                if n not in self._library:
+                    self._library[n] = KeywordSegment.make(kw.lower())
         self.expanded = True
 
     def sets(self, label):
