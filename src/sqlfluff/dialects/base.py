@@ -1,27 +1,6 @@
 """Defines the base dialect class."""
 
-from ..parser import KeywordSegment
-
-
-class LateBoundDialectObject:
-    """Defines a late-bound dialect object.
-
-    It returns a single dialect object on expansion.
-
-    These are defined using a callable, which is only called
-    once everything else is defined. Very useful for template
-    inheritance.
-    """
-    def __init__(self, func):
-        self.func = func
-
-    def expand(self, dialect):
-        """Expand this object into it's true dialect object.
-
-        The inner function is passed an instance of the current dialect
-        and so has access to the current sets of that dialect.
-        """
-        return self.func(dialect)
+from ..parser import KeywordSegment, SegmentGenerator
 
 
 class Dialect:
@@ -55,7 +34,7 @@ class Dialect:
             return
         # Expand any callable elements of the dialect.
         for key in self._library:
-            if isinstance(self._library[key], LateBoundDialectObject):
+            if isinstance(self._library[key], SegmentGenerator):
                 # If the element is callable, call it passing the current
                 # dialect and store the result it it's place.
                 # Use the .replace() method for it's error handling.

@@ -14,9 +14,9 @@ https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 
 from ..parser import (BaseSegment, KeywordSegment, ReSegment, NamedSegment,
                       Sequence, GreedyUntil, StartsWith, ContainsOnly,
-                      OneOf, Delimited, Bracketed, AnyNumberOf, Ref,
+                      OneOf, Delimited, Bracketed, AnyNumberOf, Ref, SegmentGenerator,
                       Anything, LambdaSegment, Indent, Dedent, Nothing)
-from .base import Dialect, LateBoundDialectObject
+from .base import Dialect
 from .ansi_keywords import ansi_reserved_keywords, ansi_unreserved_keywords
 
 
@@ -63,7 +63,6 @@ ansi_dialect.set_lexer_struct([
     ("semicolon", "singleton", ";", dict(is_code=True)),
     ("code", "regex", r"[0-9a-zA-Z_]*", dict(is_code=True))
 ])
-
 
 # Set the datetime units
 ansi_dialect.sets('datetime_units').update([
@@ -114,7 +113,7 @@ ansi_dialect.add(
     ValueKeywordSegment=KeywordSegment.make('value'),
     # The strange regex here it to make sure we don't accidentally match numeric literals. We
     # also use a regex to explicitly exclude disallowed keywords.
-    NakedIdentifierSegment=LateBoundDialectObject(
+    NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: ReSegment.make(
             r"[A-Z0-9_]*[A-Z][A-Z0-9_]*", name='identifier', type='naked_identifier',
@@ -124,7 +123,7 @@ ansi_dialect.add(
     # Maybe data types should be more restrictive?
     DatatypeIdentifierSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='data_type_identifier', type='data_type_identifier'),
     # Ansi Intervals
-    DatetimeUnitSegment=LateBoundDialectObject(
+    DatetimeUnitSegment=SegmentGenerator(
         lambda dialect: ReSegment.make(
             r"^(" + r"|".join(dialect.sets('datetime_units')) + r")$",
             name='date_part', type='date_part')
