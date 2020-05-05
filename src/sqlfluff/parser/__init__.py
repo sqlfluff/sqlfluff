@@ -5,6 +5,7 @@
 from .segments_base import BaseSegment, RawSegment, ParseContext
 from .segments_common import (KeywordSegment, ReSegment, NamedSegment,
                               LambdaSegment, Indent, Dedent)
+from .segment_generator import SegmentGenerator
 from .grammar import (Sequence, GreedyUntil, StartsWith, ContainsOnly,
                       OneOf, Delimited, Bracketed, AnyNumberOf, Ref,
                       Anything, Nothing)

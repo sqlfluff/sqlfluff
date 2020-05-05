@@ -1,5 +1,7 @@
 """Defines the base dialect class."""
 
+from ..parser import KeywordSegment, SegmentGenerator
+
 
 class Dialect:
     """Serves as the basis for runtime resolution of Grammar.
@@ -10,10 +12,53 @@ class Dialect:
             the lexing config for this dialect.
 
     """
-    def __init__(self, name, lexer_struct=None, library=None):
+    def __init__(self, name, lexer_struct=None, library=None, sets=None):
         self._library = library or {}
         self.name = name
         self.lexer_struct = lexer_struct
+        self.expanded = False
+        self._sets = sets or {}
+
+    def __repr__(self):
+        return "<Dialect: {0}>".format(self.name)
+
+    def expand(self):
+        """Expand any callable references to concrete ones.
+
+        This must be called before using the dialect. But
+        allows more flexible definitions to happen at runtime.
+
+        """
+        # Are we already expanded?
+        if self.expanded:
+            return
+        # Expand any callable elements of the dialect.
+        for key in self._library:
+            if isinstance(self._library[key], SegmentGenerator):
+                # If the element is callable, call it passing the current
+                # dialect and store the result it it's place.
+                # Use the .replace() method for it's error handling.
+                self.replace(**{key: self._library[key].expand(self)})
+        # Expand any sets as keywords:
+        for labeled_set in self._sets.values():  # e.g. reserved_keywords, (JOIN, ...)
+            # Make sure the values are available as KeywordSegments
+            for kw in labeled_set:
+                n = kw.capitalize() + 'KeywordSegment'
+                if n not in self._library:
+                    self._library[n] = KeywordSegment.make(kw.lower())
+        self.expanded = True
+
+    def sets(self, label):
+        """Allows access to sets belonging to this dialect.
+
+        These sets belong to the dialect and are copied for sub
+        dialects. These are used in combination with late-bound
+        dialect objects to create some of the bulk-produced rules.
+
+        """
+        if label not in self._sets:
+            self._sets[label] = set()
+        return self._sets[label]
 
     def copy_as(self, name):
         """Copy this dialect and create a new one with a different name.
@@ -21,13 +66,19 @@ class Dialect:
         This is the primary method for inheritance, after which, the
         `replace` method can be used to override particular rules.
         """
+        # Copy sets if they are passed, so they can be mutated independently
+        new_sets = {}
+        for label in self._sets:
+            new_sets[label] = self._sets[label].copy()
+
         return self.__class__(
             name=name,
             library=self._library.copy(),
-            lexer_struct=self.lexer_struct.copy()
+            lexer_struct=self.lexer_struct.copy(),
+            sets=new_sets,
         )
 
-    def segment(self):
+    def segment(self, replace=False):
         """This is the decorator for elements, it should be called as a method.
 
         e.g.
@@ -39,8 +90,12 @@ class Dialect:
         def segment_wrap(cls):
             """Wrap a segment and register it against the dialect."""
             n = cls.__name__
-            if n in self._library:
-                raise ValueError("{0!r} is already registered in {1!r}".format(n, self))
+            if replace:
+                if n not in self._library:
+                    raise ValueError("{0!r} is not already registered in {1!r}".format(n, self))
+            else:
+                if n in self._library:
+                    raise ValueError("{0!r} is already registered in {1!r}".format(n, self))
             self._library[n] = cls
             # Pass it back after registering it
             return cls
@@ -75,7 +130,14 @@ class Dialect:
             self._library[n] = kwargs[n]
 
     def ref(self, name):
-        """Return an object which acts as a late binding reference to the element named."""
+        """Return an object which acts as a late binding reference to the element named.
+
+        NB: This requires the dialect to be expanded.
+
+        """
+        if not self.expanded:
+            raise RuntimeError("Dialect must be expanded before use.")
+
         if name in self._library:
             res = self._library[name]
             if res:

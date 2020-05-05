@@ -20,4 +20,7 @@ def dialect_selector(s):
         'postgres': postgres_dialect,
         'snowflake': snowflake_dialect
     }
-    return lookup[s]
+    dialect = lookup[s]
+    # Expand any callable references at this point.
+    dialect.expand()
+    return dialect

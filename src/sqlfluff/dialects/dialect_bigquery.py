@@ -26,6 +26,11 @@ bigquery_dialect.add(
     DoubleQuotedLiteralSegment=NamedSegment.make('double_quote', name='literal', type='quoted_literal')
 )
 
+# Add the microsecond unit
+bigquery_dialect.sets('datetime_units').add('MICROSECOND')
+# Add the ISO date parts
+bigquery_dialect.sets('datetime_units').update(['ISOWEEK', 'ISOYEAR'])
+
 
 # BigQuery allows functions in INTERVAL
 class IntervalExpressionSegment(BaseSegment):
@@ -39,7 +44,7 @@ class IntervalExpressionSegment(BaseSegment):
         ),
         OneOf(
             Ref('QuotedLiteralSegment'),
-            Ref('DatepartSegment')
+            Ref('DatetimeUnitSegment')
         )
     )
 
