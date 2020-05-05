@@ -1,4 +1,4 @@
 -- Thanks @mrshu for this query, it tests nested functions
 SELECT
-    SPLIT(LOWER(text1), ' ') AS text1
+    SPLIT(LOWER(text), ' ') AS text
 FROM "database"."sample_table"

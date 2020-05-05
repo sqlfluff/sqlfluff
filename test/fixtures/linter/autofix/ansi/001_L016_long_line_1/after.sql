@@ -11,7 +11,7 @@ WITH all_upstream_matches AS (
                 size_label DESC,
                 gender_label DESC,
                 age_label DESC
-        ) AS rownum1,
+        ) AS rownum,
         business_type
     FROM
         acceptable_buckets

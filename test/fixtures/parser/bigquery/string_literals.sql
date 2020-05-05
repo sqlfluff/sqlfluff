@@ -25,4 +25,4 @@ SELECT
     Rb'abc*',
     br'abc+',
     RB"abc+"
-FROM dummy1
+FROM dummy

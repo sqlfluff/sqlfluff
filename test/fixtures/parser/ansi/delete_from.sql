@@ -1,2 +1,2 @@
-DELETE FROM table1
+DELETE FROM table_name
 WHERE a > 0;
