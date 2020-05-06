@@ -2086,7 +2086,7 @@ class Rule_L029(BaseCrawler):
 
     def _eval(self, segment, dialect, parent_stack, **kwargs):
         """Keywords should not be used as identifiers."""
-        if segment.type == 'naked_identifier':
+        if segment.name == 'naked_identifier':
             # If self.only_aliases is true, we're a bit pickier here
             if self.only_aliases:
                 # Aliases are ok (either directly, or in column definitions or in with statements)

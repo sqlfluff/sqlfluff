@@ -851,40 +851,7 @@ class ExpressionSegment(BaseSegment):
     other bugs.
     """
     type = 'expression'
-    match_grammar = GreedyUntil(
-        Ref('CommaSegment'),
-        Ref('AsKeywordSegment'),
-        Ref('AscKeywordSegment'),
-        Ref('DescKeywordSegment'),
-        Ref('InnerKeywordSegment'),
-        Ref('LeftKeywordSegment'),
-        Ref('CrossKeywordSegment'),
-        Ref('JoinKeywordSegment'),
-        Ref('WhereKeywordSegment'),
-        Ref('GroupKeywordSegment'),
-        Ref('OrderKeywordSegment'),
-    )
-    parse_grammar = Ref('Expression_A_Grammar')
-
-
-@ansi_dialect.segment()
-class ExpressionSegment_NoMatch(ExpressionSegment):
-    """A expression, either arithmetic or boolean.
-
-    NB: This is potentially VERY recursive and
-    mostly uses the grammars above. This version
-    also doesn't bound itself first, and so is potentially
-    VERY SLOW. I don't really like this solution.
-
-    We rely on elements of the expression to bound
-    themselves rather than bounding at the expression
-    level. Trying to bound the ExpressionSegment itself
-    has been too unstable and not resilient enough to
-    other bugs.
-    """
-    type = 'expression'
     match_grammar = Ref('Expression_A_Grammar')
-    parse_grammar = None
 
 
 @ansi_dialect.segment()
