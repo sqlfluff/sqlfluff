@@ -74,7 +74,8 @@ class KeywordExpressionSegment(BaseSegment):
         Ref('KeywordAssignerSegment'),
         OneOf(
             Ref('LiteralGrammar'),
-            Ref('ObjectReferenceSegment')
+            Ref('ObjectReferenceSegment'),
+            Ref('ExpressionSegment')
         )
     )
 
@@ -95,13 +96,21 @@ class SemiStructuredAccessorSegment(BaseSegment):
         Ref('ArrayAccessorSegment', optional=True),
         AnyNumberOf(
             Sequence(
-                Ref('DotSegment'),
+                OneOf(
+                    # Can be delimited by dots or colons
+                    Ref('DotSegment'),
+                    Ref('ColonSegment'),
+                ),
                 OneOf(
                     Ref('NakedSemiStructuredElementSegment'),
                     Ref('QuotedSemiStructuredElementSegment')
                 ),
-                Ref('ArrayAccessorSegment', optional=True)
-            )
+                Ref('ArrayAccessorSegment', optional=True),
+                # No extra whitespace
+                code_only=False
+            ),
+            # No extra whitespace
+            code_only=False
         ),
         # No extra whitespace
         code_only=False
