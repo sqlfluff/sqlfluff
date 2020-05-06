@@ -19,10 +19,37 @@ class BaseGrammar:
     v_level = 3
     is_meta = False
 
+    @staticmethod
+    def _resolve_ref(elem):
+        """Resolve potential string references to things we can match against."""
+        initialisers = [
+            # t: instance / f: class, ref, func
+            (True, str, Ref.keyword),
+            (True, BaseGrammar, lambda x: x),
+            (False, BaseSegment, lambda x: x)
+        ]
+        # Getout clause for None
+        if elem is None:
+            return None
+
+        for instance, init_type, init_func in initialisers:
+            if (instance and isinstance(elem, init_type)) or (not instance and issubclass(elem, init_type)):
+                return init_func(elem)
+        raise TypeError("Grammar element [{0!r}] was found of unexpected type [{1}] was found.".format(
+            elem, type(elem)))
+
     def __init__(self, *args, **kwargs):
         """Deal with kwargs common to all grammars."""
-        # We provide a common interface for any grammar that allows positional elements
-        self._elements = args
+        # We provide a common interface for any grammar that allows positional elements.
+        # If *any* for the elements are a string and not a grammar, then this is a shortcut
+        # to the Ref.keyword grammar by default.
+        if kwargs.pop('resolve_refs', True):
+            self._elements = []
+            for elem in args:
+                self._elements.append(self._resolve_ref(elem))
+        else:
+            self._elements = args
+
         # Now we deal with the standard kwargs
         for var, default in [('code_only', True), ('optional', False)]:
             setattr(self, var, kwargs.pop(var, default))
@@ -514,6 +541,12 @@ class Ref(BaseGrammar):
     # Log less for Ref
     v_level = 4
 
+    def __init__(self, *args, **kwargs):
+        """Initialise, but don't resolve refs in this case."""
+        # Don't resolve refs here, otherwise bad recursion.
+        kwargs['resolve_refs'] = False
+        super().__init__(*args, **kwargs)
+
     def simple(self, parse_context):
         """Does this matcher support a uppercase hash matching route?
 
@@ -605,6 +638,19 @@ class Ref(BaseGrammar):
             else:
                 called_from = {self._get_ref()}
             return elem.expected_string(dialect=dialect, called_from=called_from)
+
+    @classmethod
+    def keyword(cls, keyword, **kwargs):
+        """Generate a reference to a keyword by name.
+
+        This function is entirely syntactic sugar, and designed
+        for more readable dialects.
+
+        Ref.keyword('select') == Ref('SelectKeywordSegment')
+
+        """
+        name = keyword.capitalize() + 'KeywordSegment'
+        return cls(name, **kwargs)
 
 
 class Anything(BaseGrammar):
@@ -973,9 +1019,9 @@ class Delimited(BaseGrammar):
     def __init__(self, *args, **kwargs):
         if 'delimiter' not in kwargs:
             raise ValueError("Delimited grammars require a `delimiter`")
-        self.delimiter = kwargs.pop('delimiter')
+        self.delimiter = self._resolve_ref(kwargs.pop('delimiter'))
         self.allow_trailing = kwargs.pop('allow_trailing', False)
-        self.terminator = kwargs.pop('terminator', None)
+        self.terminator = self._resolve_ref(kwargs.pop('terminator', None))
         # Setting min delimiters means we have to match at least this number
         self.min_delimiters = kwargs.pop('min_delimiters', None)
         super(Delimited, self).__init__(*args, **kwargs)
@@ -1164,6 +1210,16 @@ class ContainsOnly(BaseGrammar):
     but also to match by name if a string is one of the elements. This
     exists mostly as legacy functionality.
     """
+
+    def __init__(self, *args, **kwargs):
+        """Initialise, but don't resolve refs in this case.
+
+        For ContainsOnly, the references could be types.
+
+        """
+        kwargs['resolve_refs'] = False
+        super().__init__(*args, **kwargs)
+
     def match(self, segments, parse_context):
         """Match if the sequence contains segments that match an element."""
         matched_buffer = ()
@@ -1212,8 +1268,8 @@ class StartsWith(BaseGrammar):
     This also has configurable whitespace and comment handling.
     """
     def __init__(self, target, *args, **kwargs):
-        self.target = target
-        self.terminator = kwargs.pop('terminator', None)
+        self.target = self._resolve_ref(target)
+        self.terminator = self._resolve_ref(kwargs.pop('terminator', None))
         self.include_terminator = kwargs.pop('include_terminator', False)
         super(StartsWith, self).__init__(*args, **kwargs)
 

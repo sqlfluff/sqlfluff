@@ -2064,3 +2064,37 @@ class Rule_L028(Rule_L025):
             seen_ref_types.add(this_ref_type)
 
         return violation_buff or None
+
+
+@std_rule_set.register
+class Rule_L029(BaseCrawler):
+    """Keywords should not be used as identifiers.
+
+    Args:
+        only_aliases (:obj:`bool`): Should this rule only raise
+            issues for aiases. By default this is true, and therefore
+            only flags violations for alias expressions (which are
+            directly in control of the sql writer). When set to false
+            this rule flags issues for *all* unquoted identifiers.
+
+    """
+
+    def __init__(self, only_aliases=True, **kwargs):
+        """Initialise, extracting the only_aliases from the config."""
+        self.only_aliases = only_aliases
+        super(Rule_L029, self).__init__(**kwargs)
+
+    def _eval(self, segment, dialect, parent_stack, **kwargs):
+        """Keywords should not be used as identifiers."""
+        if segment.type == 'naked_identifier':
+            # If self.only_aliases is true, we're a bit pickier here
+            if self.only_aliases:
+                # Aliases are ok (either directly, or in column definitions or in with statements)
+                if parent_stack[-1].type in ('alias_expression', 'column_definition', 'with_compound_statement'):
+                    pass
+                # All other references may not be at the discretion of the developer, so leave them out
+                else:
+                    return None
+            # Actually lint
+            if segment.raw.upper() in dialect.sets('unreserved_keywords'):
+                return LintResult(anchor=segment)
