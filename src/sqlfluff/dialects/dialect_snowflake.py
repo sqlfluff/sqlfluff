@@ -23,12 +23,15 @@ snowflake_dialect.insert_lexer_struct(
     before='not_equal'
 )
 
+snowflake_dialect.sets('unreserved_keywords').update([
+    'LATERAL'
+])
+
 
 snowflake_dialect.add(
     # In snowflake, these are case sensitive even though they're not quoted
     # so they need a different `name` and `type` so they're not picked up
     # by other rules.
-    LateralKeywordSegment=KeywordSegment.make('lateral'),
     KeywordAssignerSegment=KeywordSegment.make('=>', name="keyword_assigner"),
     KeywordNameSegment=ReSegment.make(
         r"[A-Z][A-Z0-9_]*", name='keyword_name',
