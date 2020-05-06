@@ -21,8 +21,28 @@ class BaseGrammar:
 
     def __init__(self, *args, **kwargs):
         """Deal with kwargs common to all grammars."""
-        # We provide a common interface for any grammar that allows positional elements
-        self._elements = args
+        # We provide a common interface for any grammar that allows positional elements.
+        # If *any* for the elements are a string and not a grammar, then this is a shortcut
+        # to the Ref.keyword grammar by default.
+        if kwargs.pop('resolve_refs', True):
+            initialisers = [
+                # t: instance / f: class, ref, func
+                (True, str, Ref.keyword),
+                (True, BaseGrammar, lambda x: x),
+                (False, BaseSegment, lambda x: x)
+            ]
+            self._elements = []
+            for elem in args:
+                for instance, init_type, init_func in initialisers:
+                    if (instance and isinstance(elem, init_type)) or (not instance and issubclass(elem, init_type)):
+                        self._elements.append(init_func(elem))
+                        break
+                else:
+                    raise TypeError("Grammar element [{0!r}] was found of unexpected type [{1}] was found in {2}.".format(
+                        elem, type(elem), self))
+        else:
+            self._elements = args
+
         # Now we deal with the standard kwargs
         for var, default in [('code_only', True), ('optional', False)]:
             setattr(self, var, kwargs.pop(var, default))
@@ -513,6 +533,12 @@ class Ref(BaseGrammar):
     """A kind of meta-grammar that references other grammars by name at runtime."""
     # Log less for Ref
     v_level = 4
+
+    def __init__(self, *args, **kwargs):
+        """Initialise, but don't resolve refs in this case."""
+        # Don't resolve refs here, otherwise bad recursion.
+        kwargs['resolve_refs'] = False
+        super().__init__(*args, **kwargs)
 
     def simple(self, parse_context):
         """Does this matcher support a uppercase hash matching route?
@@ -1168,6 +1194,16 @@ class ContainsOnly(BaseGrammar):
     but also to match by name if a string is one of the elements. This
     exists mostly as legacy functionality.
     """
+
+    def __init__(self, *args, **kwargs):
+        """Initialise, but don't resolve refs in this case.
+
+        For ContainsOnly, the references could be types.
+
+        """
+        kwargs['resolve_refs'] = False
+        super().__init__(*args, **kwargs)
+
     def match(self, segments, parse_context):
         """Match if the sequence contains segments that match an element."""
         matched_buffer = ()
