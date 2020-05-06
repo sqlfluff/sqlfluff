@@ -6,7 +6,9 @@ Based on https://docs.snowflake.com/en/sql-reference-commands.html
 """
 
 from .dialect_postgres import postgres_dialect
-from ..parser import (BaseSegment, NamedSegment, OneOf, Ref, Sequence, AnyNumberOf, ReSegment, KeywordSegment)
+from ..parser import (BaseSegment, NamedSegment, OneOf, Ref, Sequence,
+                      AnyNumberOf, ReSegment, KeywordSegment, Bracketed,
+                      Anything)
 
 
 snowflake_dialect = postgres_dialect.copy_as('snowflake')
@@ -58,7 +60,135 @@ snowflake_dialect.replace(
         Ref('KeywordExpressionSegment'),
         Ref('ExpressionSegment')
     ),
+    PostTableExpressionGrammar=Ref('SamplingExpressionSegment'),
+    JoinLikeClauseGrammar=OneOf(
+        Ref('FromAtExpressionSegment'),
+        Ref('FromBeforeExpressionSegment'),
+        Ref('FromPivotExpressionSegment'),
+        Ref('FromUnpivotExpressionSegment')
+    )
 )
+
+
+@snowflake_dialect.segment()
+class FromAtExpressionSegment(BaseSegment):
+    """An AT expression."""
+    type = 'from_at_expression'
+    match_grammar = Sequence(
+        'AT',
+        Bracketed(
+            Anything()
+        )
+    )
+
+    parse_grammar = Sequence(
+        'AT',
+        Bracketed(
+            OneOf('TIMESTAMP', 'OFFSET', 'STATEMENT'),
+            Ref('KeywordAssignerSegment'),
+            Ref('ExpressionSegment')
+        )
+    )
+
+
+@snowflake_dialect.segment()
+class FromBeforeExpressionSegment(BaseSegment):
+    """A BEFORE expression."""
+    type = 'from_before_expression'
+    match_grammar = Sequence(
+        'BEFORE',
+        Bracketed(
+            Anything()
+        )
+    )
+
+    parse_grammar = Sequence(
+        'BEFORE',
+        Bracketed(
+            'STATEMENT',
+            Ref('KeywordAssignerSegment'),
+            Ref('StringLiteral')
+        )
+    )
+
+
+@snowflake_dialect.segment()
+class FromPivotExpressionSegment(BaseSegment):
+    """A PIVOT expression."""
+    type = 'from_pivot_expression'
+    match_grammar = Sequence(
+        'PIVOT',
+        Bracketed(
+            Anything()
+        )
+    )
+
+    parse_grammar = Sequence(
+        'PIVOT',
+        Bracketed(
+            Ref('FunctionNameSegment'),
+            Bracketed(
+                Ref('SingleIdentifierGrammar'),
+            ),
+            'FOR',
+            Ref('SingleIdentifierGrammar'),
+            'IN',
+            Bracketed(
+                Delimited(
+                    Ref('SingleIdentifierGrammar'),
+                    delimiter=Ref('CommaSegment')
+                )
+            )
+        )
+    )
+
+
+@snowflake_dialect.segment()
+class FromUnpivotExpressionSegment(BaseSegment):
+    """An UNPIVOT expression."""
+    type = 'from_unpivot_expression'
+    match_grammar = Sequence(
+        'UNPIVOT',
+        Bracketed(
+            Anything()
+        )
+    )
+
+    parse_grammar = Sequence(
+        'UNPIVOT',
+        Bracketed(
+            Ref('SingleIdentifierGrammar'),
+            'FOR',
+            Ref('SingleIdentifierGrammar'),
+            'IN',
+            Bracketed(
+                Delimited(
+                    Ref('SingleIdentifierGrammar'),
+                    delimiter=Ref('CommaSegment')
+                )
+            )
+        )
+    )
+
+
+@snowflake_dialect.segment()
+class SamplingExpressionSegment(BaseSegment):
+    """A sampling expression."""
+    type = 'snowflake_sample_expression'
+    match_grammar = Sequence(
+        OneOf('SAMPLE', 'TABLESAMPLE'),
+        OneOf('BERNOILLI', 'ROW', 'SYSTEM', 'BLOCK', optional=True),
+        Bracketed(
+            Ref('NumericLiteralSegment'),
+            Ref.keyword('ROWS', optional=True)
+        ),
+        Sequence(
+            OneOf('REPEATABLE', 'SEED'),
+            Bracketed(
+                Ref('NumericLiteralSegment')
+            )
+        )
+    )
 
 
 @snowflake_dialect.segment()

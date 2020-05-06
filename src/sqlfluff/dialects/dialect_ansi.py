@@ -444,6 +444,17 @@ class FrameClauseSegment(BaseSegment):
     # )
 
 
+ansi_dialect.add(
+    # This is a hook point to allow subclassing for other dialects
+    PostTableExpressionGrammar=Sequence(
+        Ref('WithKeywordSegment'),
+        Ref('OffsetKeywordSegment'),
+        Ref('AsKeywordSegment'),
+        Ref('SingleIdentifierGrammar'),
+    ),
+)
+
+
 @ansi_dialect.segment()
 class TableExpressionSegment(BaseSegment):
     """A table expression."""
@@ -467,13 +478,7 @@ class TableExpressionSegment(BaseSegment):
             # Values clause?
         ),
         Ref('AliasExpressionSegment', optional=True),
-        Sequence(
-            Ref('WithKeywordSegment'),
-            Ref('OffsetKeywordSegment'),
-            Ref('AsKeywordSegment'),
-            Ref('SingleIdentifierGrammar'),
-            optional=True
-        ),
+        Ref('PostTableExpressionGrammar', optional=True)
     )
 
     def get_eventual_alias(self):
@@ -640,6 +645,12 @@ class JoinClauseSegment(BaseSegment):
         return table_expression.get_eventual_alias()
 
 
+ansi_dialect.add(
+    # This is a hook point to allow subclassing for other dialects
+    JoinLikeClauseGrammar=Nothing()
+)
+
+
 @ansi_dialect.segment()
 class FromClauseSegment(BaseSegment):
     """A `FROM` clause like in `SELECT`."""
@@ -672,6 +683,7 @@ class FromClauseSegment(BaseSegment):
         Dedent.when(indented_joins=False),
         AnyNumberOf(
             Ref('JoinClauseSegment'),
+            Ref('JoinLikeClauseGrammar'),
             optional=True
         ),
         Dedent.when(indented_joins=True)
