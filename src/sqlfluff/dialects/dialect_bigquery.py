@@ -37,7 +37,7 @@ class IntervalExpressionSegment(BaseSegment):
     """An interval with a function as value segment."""
     type = 'interval_expression'
     match_grammar = Sequence(
-        Ref('IntervalKeywordSegment'),
+        'INTERVAL',
         OneOf(
             Ref('NumericLiteralSegment'),
             Ref('FunctionSegment')

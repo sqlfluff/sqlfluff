@@ -3,8 +3,7 @@ file:
   statement:
     with_compound_statement:
     - keyword: WITH
-    - object_reference:
-        naked_identifier: cte
+    - naked_identifier: cte
     - keyword: as
     - start_bracket: (
     - select_statement:
