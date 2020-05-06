@@ -8,7 +8,7 @@ Based on https://docs.snowflake.com/en/sql-reference-commands.html
 from .dialect_postgres import postgres_dialect
 from ..parser import (BaseSegment, NamedSegment, OneOf, Ref, Sequence,
                       AnyNumberOf, ReSegment, KeywordSegment, Bracketed,
-                      Anything)
+                      Anything, Delimited)
 
 
 snowflake_dialect = postgres_dialect.copy_as('snowflake')
@@ -60,7 +60,10 @@ snowflake_dialect.replace(
         Ref('KeywordExpressionSegment'),
         Ref('ExpressionSegment')
     ),
-    PostTableExpressionGrammar=Ref('SamplingExpressionSegment'),
+    PostTableExpressionGrammar=Sequence(
+        Ref('SamplingExpressionSegment', optional=True),
+        Ref('TableAliasExpressionSegment', optional=True)
+    ),
     JoinLikeClauseGrammar=OneOf(
         Ref('FromAtExpressionSegment'),
         Ref('FromBeforeExpressionSegment'),
@@ -68,6 +71,26 @@ snowflake_dialect.replace(
         Ref('FromUnpivotExpressionSegment')
     )
 )
+
+
+@snowflake_dialect.segment()
+class TableAliasExpressionSegment(BaseSegment):
+    """A reference to an object with an `AS` clause.
+
+    The optional AS keyword allows both implicit and explicit aliasing.
+    """
+    type = 'table_alias_expression'
+    match_grammar = Sequence(
+        Ref('AliasExpressionSegment'),
+        # Optional column aliases too.
+        Bracketed(
+            Delimited(
+                Ref('SingleIdentifierGrammar'),
+                delimiter=Ref('CommaSegment')
+            ),
+            optional=True
+        )
+    )
 
 
 @snowflake_dialect.segment()
