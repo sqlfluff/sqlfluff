@@ -264,13 +264,9 @@ class ArrayAccessorSegment(BaseSegment):
     )
     parse_grammar = Bracketed(
         Delimited(
-            # We use the no-match version here so we get the correct
-            # handling of the potential colon. We also use Delimited
-            # so that we look for the colon FIRST, because we should
-            # know to expect one and the parser gets confused otherwise.
             OneOf(
                 Ref('NumericLiteralSegment'),
-                Ref('ExpressionSegment_NoMatch')
+                Ref('ExpressionSegment')
             ),
             delimiter=Ref('SliceSegment')
         ),
@@ -326,7 +322,7 @@ class QualifiedNumericLiteralSegment(BaseSegment):
 
 ansi_dialect.add(
     # FunctionContentsExpressionGrammar intended as a hook to override
-    # in other dialects
+    # in other dialects.
     FunctionContentsExpressionGrammar=Ref('ExpressionSegment'),
     FunctionContentsGrammar=OneOf(
         # A Cast-like function
@@ -535,11 +531,7 @@ class SelectTargetElementSegment(BaseSegment):
         ),
         Sequence(
             OneOf(
-                # We use the unbound version here, so that we can optionally
-                # have space for our Alias at the end. This is potentially
-                # very slow. There's probably a better way for this, but
-                # it's not obvious what that is right now.
-                Ref('ExpressionSegment_NoMatch'),
+                Ref('ExpressionSegment'),
             ),
             Ref('AliasExpressionSegment', optional=True)
         ),
@@ -707,34 +699,23 @@ class FromClauseSegment(BaseSegment):
 class CaseExpressionSegment(BaseSegment):
     """A `CASE WHEN` clause."""
     type = 'case_expression'
-    # This method of matching doesn't work with nested case statements.
-    # TODO: Develop something more powerful for this.
-    # match_grammar = StartsWith(
-    #     Ref('CaseKeywordSegment'),
-    #     terminator=Ref('EndKeywordSegment'),
-    #     include_terminator=True
-    # )
     match_grammar = Sequence(
         Ref('CaseKeywordSegment'),
         Indent,
         AnyNumberOf(
             Sequence(
-                # We use the unbound version of Expression here, so that we
-                # deal with potentially nested case statements where the
-                # parsing gets confused by which WHERE and END goes with
-                # which CASE. TODO: Come up with a better solution for this.
                 Ref('WhenKeywordSegment'),
                 Indent,
-                Ref('ExpressionSegment_NoMatch'),
+                Ref('ExpressionSegment'),
                 Ref('ThenKeywordSegment'),
-                Ref('ExpressionSegment_NoMatch'),
+                Ref('ExpressionSegment'),
                 Dedent
             )
         ),
         Sequence(
             Ref('ElseKeywordSegment'),
             Indent,
-            Ref('ExpressionSegment_NoMatch'),
+            Ref('ExpressionSegment'),
             Dedent,
             optional=True
         ),
@@ -854,64 +835,19 @@ class ExpressionSegment(BaseSegment):
     """A expression, either arithmetic or boolean.
 
     NB: This is potentially VERY recursive and
-    mostly uses the grammars above.
-    """
-    type = 'expression'
-    match_grammar = GreedyUntil(
-        Ref('CommaSegment'),
-        Ref('AsKeywordSegment'),
-        Ref('AscKeywordSegment'),
-        Ref('DescKeywordSegment'),
-        Ref('InnerKeywordSegment'),
-        Ref('LeftKeywordSegment'),
-        Ref('CrossKeywordSegment'),
-        Ref('JoinKeywordSegment'),
-        Ref('WhereKeywordSegment'),
-        Ref('GroupKeywordSegment'),
-        Ref('OrderKeywordSegment'),
-    )
-    parse_grammar = Ref('Expression_A_Grammar')
-
-
-@ansi_dialect.segment()
-class ExpressionSegment_NoMatch(ExpressionSegment):
-    """A expression, either arithmetic or boolean.
-
-    NB: This is potentially VERY recursive and
     mostly uses the grammars above. This version
     also doesn't bound itself first, and so is potentially
     VERY SLOW. I don't really like this solution.
 
-    The purpose of this particular version of the segment
-    is so that we can make sure we don't swallow a potential
-    alias following the epxression. The other expression
-    segments are more efficient but potentially parse
-    alias expressions incorrectly if no AS keyword is used.
+    We rely on elements of the expression to bound
+    themselves rather than bounding at the expression
+    level. Trying to bound the ExpressionSegment itself
+    has been too unstable and not resilient enough to
+    other bugs.
     """
+    type = 'expression'
     match_grammar = Ref('Expression_A_Grammar')
     parse_grammar = None
-
-
-@ansi_dialect.segment()
-class ExpressionSegment_TermWhenElse(ExpressionSegment):
-    """Expression terminated by WHEN, END or ELSE."""
-    match_grammar = GreedyUntil(
-        Ref('WhenKeywordSegment'),
-        Ref('ElseKeywordSegment'),
-        Ref('EndKeywordSegment')
-    )
-
-
-@ansi_dialect.segment()
-class ExpressionSegment_TermThen(ExpressionSegment):
-    """Expression terminated by THEN."""
-    match_grammar = GreedyUntil(Ref('ThenKeywordSegment'))
-
-
-@ansi_dialect.segment()
-class ExpressionSegment_TermEnd(ExpressionSegment):
-    """Expression terminated by END."""
-    match_grammar = GreedyUntil(Ref('EndKeywordSegment'))
 
 
 @ansi_dialect.segment()
