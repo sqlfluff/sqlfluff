@@ -25,8 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Snowflake and Postgres dialects.
 - More generic interfaces for managing keywords in dialects, including `set`
   interfaces for managing and creating keywords and the `Ref.keyword()` method
-  to refer to them. Includes `SegmentGenerator` objects to bind dialect objects
-  at runtime from sets. Thanks [@Katzmann1983](https://github.com/Katzmann1983)!
+  to refer to them, and the ability to refer directly to keyword names in
+  most grammars using strings directly. Includes `SegmentGenerator` objects
+  to bind dialect objects at runtime from sets. Thanks [@Katzmann1983](https://github.com/Katzmann1983)!
 - Rule `L029` for using unreserved keywords as variable names.
 
 ### Changed
