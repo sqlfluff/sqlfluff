@@ -611,6 +611,18 @@ class BaseSegment:
         This raw function can be overridden, or a grammar defined
         on the underlying class.
         """
+        # Edge case, but it's possible that we have *already matched* on
+        # a previous cycle. Do should first check whether this is a case
+        # of that.
+        if len(segments) == 1 and isinstance(segments[0], cls):
+            # This has already matched. Winner.
+            parse_match_logging(cls.__name__[:10], '_match', 'SELF', parse_context=parse_context, v_level=3, symbol='+++')
+            return MatchResult.from_matched(segments)
+        elif len(segments) > 1 and isinstance(segments[0], cls):
+            parse_match_logging(cls.__name__[:10], '_match', 'SELF', parse_context=parse_context, v_level=3, symbol='+++')
+            # This has already matched, but only partially.
+            return MatchResult((segments[0],), segments[1:])
+
         if cls._match_grammar():
             # Call the private method
             m = cls._match_grammar()._match(segments=segments, parse_context=parse_context.copy(incr='match_depth'))
@@ -707,14 +719,12 @@ class BaseSegment:
     def iter_raw_seg(self):
         """Iterate raw segments, mostly for searching."""
         for s in self.segments:
-            for seg in s.iter_raw_seg():
-                yield seg
+            yield from s.iter_raw_seg()
 
     def iter_unparsables(self):
         """Iterate through any unparsables this segment may contain."""
         for s in self.segments:
-            for u in s.iter_unparsables():
-                yield u
+            yield from s.iter_unparsables()
 
     def type_set(self):
         """Return a set of the types contained, mostly for testing."""
