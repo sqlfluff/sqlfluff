@@ -724,7 +724,12 @@ class OneOf(BaseGrammar):
         # For efficiency, we'll be pruning options if we can
         # based on their simpleness. this provides a short cut
         # to return earlier if we can.
-        str_buff = [s.raw_upper for s in segments]
+        # `segments` may already be nested so we need to break out
+        # the raw segments within it.
+        str_buff = []
+        for upper_segment in segments:
+            for inner_segment in upper_segment.iter_raw_seg():
+                str_buff.append(inner_segment.raw_upper)
         available_options = []
         prune_buff = []
         for opt in self._elements:
@@ -1080,6 +1085,9 @@ class Delimited(BaseGrammar):
                 # NB: We don't want whitespace at this stage, we'll deal with that
                 # seperately.
                 code_only=False)
+            # Keep track of the *lenght* of this pre-content section before we start
+            # to change it later. We need this for dealing with terminators.
+            pre_content_len = len(pre_content)
 
             # Have we found a delimiter or terminator looking forward?
             if delimiter_match:
@@ -1117,7 +1125,10 @@ class Delimited(BaseGrammar):
                             # Terminator
                             elif m is self.terminator:
                                 # We just return straight away here. We don't add the terminator to
-                                # this match, it should go with the unmatched parts.
+                                # this match, it should go with the unmatched parts. The terminator
+                                # may also have mutated the returned segments so we also DON'T want
+                                # the mutated version, it can do that itself (so we return `seg_buff`
+                                # and not `delimiter_match.all_segments()``)
 
                                 # First check we've had enough delimiters
                                 if self.min_delimiters and len(delimiters) < self.min_delimiters:
@@ -1126,7 +1137,10 @@ class Delimited(BaseGrammar):
                                     return MatchResult(
                                         # NB: With PRECEEDING whitespace, NOT following.
                                         pre_seg_nc + matched_segments.matched_segments,
-                                        delimiter_match.all_segments())
+                                        # Return the part of the seg_buff which isn't in the
+                                        # pre-content.
+                                        seg_buff[pre_content_len:]
+                                    )
                             else:
                                 raise RuntimeError(
                                     ("I don't know how I got here. Matched instead on {0}, which "
@@ -1263,6 +1277,13 @@ class StartsWith(BaseGrammar):
         self.terminator = self._resolve_ref(kwargs.pop('terminator', None))
         self.include_terminator = kwargs.pop('include_terminator', False)
         super(StartsWith, self).__init__(*args, **kwargs)
+
+    def simple(self, parse_context):
+        """Does this matcher support a uppercase hash matching route?
+
+        `StartsWith` is simple, if the thing it starts with is also simple.
+        """
+        return self.target.simple(parse_context=parse_context)
 
     def match(self, segments, parse_context):
         """Match if this sequence starts with a match."""

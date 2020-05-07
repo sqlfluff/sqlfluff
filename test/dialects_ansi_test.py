@@ -91,7 +91,9 @@ def test__dialect__ansi__file_from_raw(raw, res, caplog):
         ("ObjectReferenceSegment", "a..c.*"),
         # Negative Elements
         ("SelectTargetElementSegment", "-some_variable"),
-        ("SelectTargetElementSegment", "- some_variable")
+        ("SelectTargetElementSegment", "- some_variable"),
+        # Complex Functions
+        ("ExpressionSegment", "concat(left(uaid, 2), '|', right(concat('0000000', SPLIT_PART(uaid, '|', 4)), 10), '|', '00000000')")
     ]
 )
 def test__dialect__ansi_specific_segment_parses(segmentref, raw, caplog):

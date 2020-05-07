@@ -15,10 +15,10 @@ For file based configuration *sqlfluff* will look for the following
 files in order. Later files will (if found) will be used to overwrite
 any vales read from earlier files.
 
-- *setup.cfg*
-- *tox.ini*
-- *pep8.ini*
-- *.sqlfluff*
+- :code:`setup.cfg`
+- :code:`tox.ini`
+- :code:`pep8.ini`
+- :code:`.sqlfluff`
 
 Within these files, they will be read like an `cfg file`_, and *sqlfluff*
 will look for sections which start with *sqlfluff*, and where subsections
@@ -211,6 +211,40 @@ projects. In particular it provides mock objects for:
 .. _`github`: https://www.github.com/alanmcruickshank/sqlfluff
 
 .. _defaultconfig:
+
+
+.sqlfluffignore
+---------------
+
+Similar to `Git's`_ :code:`.gitignore` and `Docker's`_ :code:`.dockerignore`,
+sqlfluff supports a :code:`.sqfluffignore` file to control which files are and
+aren't linted. Under the hood we use the python `pathspec library`_ which also
+has a brief tutorial in their documentation.
+
+An example of a potential :code:`.sqfluffignore` placed in the root of your
+project would be:
+
+.. code-block:: cfg
+
+    # Comments start with a hash.
+
+    # Ignore anything in the "temp" path
+    /path/
+
+    # Ignore anything called "testing.sql"
+    tesing.sql
+
+    # Ignore any ".tsql" files
+    *.tsql
+
+Ignore files can also be placed in subdirectories of a path which is being
+linted and the sub files will also be applied within that subdirectory.
+
+
+.. _`Git's`: https://git-scm.com/docs/gitignore#_pattern_format
+.. _`Docker's`: https://docs.docker.com/engine/reference/builder/#dockerignore-file
+.. _`pathspec library`: https://python-path-specification.readthedocs.io/
+
 
 Default Configuration
 ---------------------
