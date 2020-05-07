@@ -6,15 +6,15 @@ file:
             keyword: SELECT
             select_target_element:
               object_reference:
-                naked_identifier: col_a
+                identifier: col_a
               alias_expression:
                 keyword: as
-                naked_identifier: foo
+                identifier: foo
           from_clause:
             keyword: FROM
             table_expression:
               object_reference:
-                naked_identifier: some_table
+                identifier: some_table
       - set_operator:
           keyword: UNION
       - select_statement:
@@ -22,15 +22,15 @@ file:
             keyword: SELECT
             select_target_element:
               object_reference:
-                naked_identifier: col_b
+                identifier: col_b
               alias_expression:
                 keyword: as
-                naked_identifier: foo
+                identifier: foo
           from_clause:
             keyword: FROM
             table_expression:
               object_reference:
-                naked_identifier: another_table
+                identifier: another_table
       - set_operator:
         - keyword: UNION
         - keyword: ALL
@@ -39,15 +39,15 @@ file:
             keyword: SELECT
             select_target_element:
               object_reference:
-                naked_identifier: col_c
+                identifier: col_c
               alias_expression:
                 keyword: as
-                naked_identifier: foo
+                identifier: foo
           from_clause:
             keyword: FROM
             table_expression:
               object_reference:
-                naked_identifier: this_other_table
+                identifier: this_other_table
       - set_operator:
           keyword: INTERSECT
       - select_statement:
@@ -55,12 +55,12 @@ file:
             keyword: SELECT
             select_target_element:
               object_reference:
-                naked_identifier: col_d
+                identifier: col_d
               alias_expression:
                 keyword: as
-                naked_identifier: foo
+                identifier: foo
           from_clause:
             keyword: FROM
             table_expression:
               object_reference:
-                naked_identifier: the_last_table
+                identifier: the_last_table

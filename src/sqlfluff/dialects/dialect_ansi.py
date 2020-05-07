@@ -112,7 +112,7 @@ ansi_dialect.add(
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: ReSegment.make(
-            r"[A-Z0-9_]*[A-Z][A-Z0-9_]*", name='identifier', type='naked_identifier',
+            r"[A-Z0-9_]*[A-Z][A-Z0-9_]*", name='naked_identifier', type='identifier',
             _anti_template=r"^(" + r'|'.join(dialect.sets('reserved_keywords')) + r")$")
     ),
     FunctionNameSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='function_name', type='function_name'),
@@ -124,11 +124,11 @@ ansi_dialect.add(
             r"^(" + r"|".join(dialect.sets('datetime_units')) + r")$",
             name='date_part', type='date_part')
     ),
-    QuotedIdentifierSegment=NamedSegment.make('double_quote', name='identifier', type='quoted_identifier'),
-    QuotedLiteralSegment=NamedSegment.make('single_quote', name='literal', type='quoted_literal'),
-    NumericLiteralSegment=NamedSegment.make('numeric_literal', name='literal', type='numeric_literal'),
-    TrueSegment=KeywordSegment.make('true', name='true', type='boolean_literal'),
-    FalseSegment=KeywordSegment.make('false', name='false', type='boolean_literal'),
+    QuotedIdentifierSegment=NamedSegment.make('double_quote', name='quoted_identifier', type='identifier'),
+    QuotedLiteralSegment=NamedSegment.make('single_quote', name='quoted_literal', type='literal'),
+    NumericLiteralSegment=NamedSegment.make('numeric_literal', name='numeric_literal', type='literal'),
+    TrueSegment=KeywordSegment.make('true', name='boolean_literal', type='literal'),
+    FalseSegment=KeywordSegment.make('false', name='boolean_literal', type='literal'),
     # We use a GRAMMAR here not a Segment. Otherwise we get an unecessary layer
     SingleIdentifierGrammar=OneOf(Ref('NakedIdentifierSegment'), Ref('QuotedIdentifierSegment')),
     BooleanLiteralGrammar=OneOf(Ref('TrueSegment'), Ref('FalseSegment')),
@@ -230,6 +230,23 @@ class ObjectReferenceSegment(BaseSegment):
         ),
         code_only=False
     )
+
+    def iter_raw_references(self):
+        """Generate a list of reference strings and elements.
+
+        Each element is a tuple of (str, segment). If some are
+        split, then a segment may appear twice, but the substring
+        will only appear once.
+        """
+        # Extract the references from those identifiers (because some may be quoted)
+        for elem in self.recursive_crawl('identifier'):
+            # trim on quotes and split out any dots.
+            for part in elem.raw_trimmed().split('.'):
+                yield part, elem
+
+    def is_qualified(self):
+        """Return if there is more than one element to the reference."""
+        return len(list(self.iter_raw_references())) > 1
 
 
 @ansi_dialect.segment()
@@ -459,6 +476,31 @@ class TableExpressionSegment(BaseSegment):
         ),
     )
 
+    def get_eventual_alias(self):
+        """Return the eventual table name referred to by this table expression.
+
+        Returns:
+            :obj:`tuple` of (:obj:`str`, :obj:`BaseSegment`, :obj:`bool`) containing
+                a string representation of the alias, a reference to the
+                segment containing it, and whether it's an alias.
+
+        """
+        alias_expression = self.get_child('alias_expression')
+        if alias_expression:
+            # If it has an alias, return that
+            segment = alias_expression.get_child('identifier')
+            return (segment.raw, segment, True)
+
+        # If not return the object name (or None if there isn't one)
+        ref = self.get_child('object_reference')
+        if ref:
+            # Return the last element of the reference, which
+            # will already be a tuple.
+            penultimate_ref = list(ref.iter_raw_references())[-1]
+            return (*penultimate_ref, False)
+        # No references or alias, return None
+        return None
+
 
 @ansi_dialect.segment()
 class SelectTargetElementSegment(BaseSegment):
@@ -527,6 +569,23 @@ class SelectClauseSegment(BaseSegment):
     )
 
 
+# We define the grammar seperately here because it's used in both the
+# parsing and matching routines of the JoinClauseSegment.
+InitialJoinGrammar = Sequence(
+    # NB These qualifiers are optional
+    AnyNumberOf(
+        Ref('FullKeywordSegment'),
+        Ref('InnerKeywordSegment'),
+        Ref('LeftKeywordSegment'),
+        Ref('CrossKeywordSegment'),
+        max_times=1,
+        optional=True
+    ),
+    Ref('OuterKeywordSegment', optional=True),
+    Ref('JoinKeywordSegment')
+)
+
+
 @ansi_dialect.segment()
 class JoinClauseSegment(BaseSegment):
     """Any number of join clauses, including the `JOIN` keyword."""
@@ -576,6 +635,11 @@ class JoinClauseSegment(BaseSegment):
         Dedent
     )
 
+    def get_eventual_alias(self):
+        """Return the eventual table name referred to by this join clause."""
+        table_expression = self.get_child('table_expression')
+        return table_expression.get_eventual_alias()
+
 
 @ansi_dialect.segment()
 class FromClauseSegment(BaseSegment):
@@ -598,13 +662,7 @@ class FromClauseSegment(BaseSegment):
             # Optional old school delimited joins
             Ref('TableExpressionSegment'),
             delimiter=Ref('CommaSegment'),
-            terminator=OneOf(
-                'JOIN',
-                'CROSS',
-                'INNER',
-                'LEFT',
-                'FULL'
-            )
+            terminator=Ref('JoinClauseSegment')
         ),
         # NB: The JOIN clause is *part of* the FROM clause
         # and so should be on a sub-indent of it. That isn't
@@ -619,6 +677,23 @@ class FromClauseSegment(BaseSegment):
         ),
         Dedent.when(indented_joins=True)
     )
+
+    def get_eventual_aliases(self):
+        """List the eventual aliases of this from clause.
+
+        Comes as a list of tuples (string, segment).
+        """
+        buff = []
+        direct_table_children = self.get_children('table_expression')
+        join_clauses = self.get_children('join_clause')
+        # Iterate through the potential sources of aliases
+        for clause in (*direct_table_children, *join_clauses):
+            ref = clause.get_eventual_alias()
+            # Only append if non null. A None reference, may
+            # indicate a generator expression or similar.
+            if ref:
+                buff.append(ref)
+        return buff
 
 
 @ansi_dialect.segment()

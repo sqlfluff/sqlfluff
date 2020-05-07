@@ -229,6 +229,22 @@ class BaseCrawler:
             if res.fixes and fix:
                 # Return straight away so the fixes can be applied.
                 return vs, raw_stack, res.fixes, memory
+        elif isinstance(res, list) and all(isinstance(elem, LintResult) for elem in res):
+            # Extract any memory from the *last* one, assuming
+            # it was the last to be added
+            memory = res[-1].memory
+            fix_buff = []
+            for elem in res:
+                lerr = elem.to_linting_error(rule=self)
+                if lerr:
+                    vs.append(lerr)
+                # We need fixes and to be in fix mode to invoke this...
+                if elem.fixes and fix:
+                    fix_buff += elem.fixes
+
+            if fix and fix_buff:
+                # Return straight away so the fixes can be applied.
+                return vs, raw_stack, fix_buff, memory
         else:
             raise TypeError(
                 "Got unexpected result [{0!r}] back from linting rule: {1!r}".format(res, self.code))
