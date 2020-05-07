@@ -756,8 +756,11 @@ class Linter:
 
     def paths_from_path(self, path, ignore_non_existent_files=False):
         """Return a set of sql file paths from a potentially more ambigious path string."""
-        if not ignore_non_existent_files and not os.path.exists(path):
-            raise IOError("Specified path does not exist")
+        if not os.path.exists(path):
+            if ignore_non_existent_files:
+                return []
+            else:
+                raise IOError("Specified path does not exist")
 
         if not os.path.isdir(path):
             return [path]

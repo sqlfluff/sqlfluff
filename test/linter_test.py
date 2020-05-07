@@ -33,6 +33,20 @@ def test__linter__path_from_paths__file():
     assert normalise_paths(paths) == {'test.fixtures.linter.indentation_errors.sql'}
 
 
+def test__linter__path_from_paths__not_exist():
+    """Test extracting paths from a file path."""
+    lntr = Linter(config=FluffConfig())
+    with pytest.raises(IOError):
+        lntr.paths_from_path('asflekjfhsakuefhse')
+
+
+def test__linter__path_from_paths__not_exist_ignore():
+    """Test extracting paths from a file path."""
+    lntr = Linter(config=FluffConfig())
+    paths = lntr.paths_from_path('asflekjfhsakuefhse', ignore_non_existent_files=True)
+    assert len(paths) == 0
+
+
 def test__linter__path_from_paths__dot():
     """Test extracting paths from a dot."""
     lntr = Linter(config=FluffConfig())
