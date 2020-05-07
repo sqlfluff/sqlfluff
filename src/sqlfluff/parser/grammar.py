@@ -724,7 +724,12 @@ class OneOf(BaseGrammar):
         # For efficiency, we'll be pruning options if we can
         # based on their simpleness. this provides a short cut
         # to return earlier if we can.
-        str_buff = [s.raw_upper for s in segments]
+        # `segments` may already be nested so we need to break out
+        # the raw segments within it.
+        str_buff = []
+        for upper_segment in segments:
+            for inner_segment in upper_segment.iter_raw_seg():
+                str_buff.append(inner_segment.raw_upper)
         available_options = []
         prune_buff = []
         for opt in self._elements:

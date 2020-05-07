@@ -347,8 +347,35 @@ ansi_dialect.add(
                 ),
             ),
         )
-    )
+    ),
+    # Optional OVER suffix for window functions.
+    # This is supported in biquery & postgres (and it's derivatives)
+    # and so is included here for now.
+    PostFunctionGrammar=Ref('OverClauseSegment')
 )
+
+
+@ansi_dialect.segment()
+class OverClauseSegment(BaseSegment):
+    """An OVER clause for window functions."""
+    type = 'over_clause'
+    match_grammar = Sequence(
+        'OVER',
+        Bracketed(
+            Anything(optional=True)
+        ),
+    )
+
+    parse_grammar = Sequence(
+        'OVER',
+        Bracketed(
+            Sequence(
+                Ref('PartitionClauseSegment', optional=True),
+                Ref('OrderByClauseSegment', optional=True),
+                Ref('FrameClauseSegment', optional=True)
+            )
+        ),
+    )
 
 
 @ansi_dialect.segment()
@@ -368,14 +395,9 @@ class FunctionSegment(BaseSegment):
                 Anything(optional=True)
             ),
         ),
-        Sequence(
-            'OVER',
-            Bracketed(
-                Anything(optional=True)
-            ),
-            optional=True
-        )
+        Ref('PostFunctionGrammar', optional=True)
     )
+
     parse_grammar = Sequence(
         Sequence(
             Ref('FunctionNameSegment'),
@@ -386,19 +408,7 @@ class FunctionSegment(BaseSegment):
                     optional=True)
             ),
         ),
-        # Optional suffix for window functions.
-        # TODO: Should this be in a different dialect?
-        Sequence(
-            'OVER',
-            Bracketed(
-                Sequence(
-                    Ref('PartitionClauseSegment', optional=True),
-                    Ref('OrderByClauseSegment', optional=True),
-                    Ref('FrameClauseSegment', optional=True)
-                )
-            ),
-            optional=True
-        )
+        Ref('PostFunctionGrammar', optional=True)
     )
 
 
