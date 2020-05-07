@@ -94,7 +94,7 @@ ansi_dialect.add(
     DotSegment=KeywordSegment.make('.', name='dot', type='dot'),
     StarSegment=KeywordSegment.make('*', name='star'),
     TildeSegment=KeywordSegment.make('~', name='tilde'),
-    CastOperatorKeywordSegment=KeywordSegment.make('::', name='casting_operator', type='casting_operator'),
+    CastOperatorSegment=KeywordSegment.make('::', name='casting_operator', type='casting_operator'),
     PlusSegment=KeywordSegment.make('+', name='plus', type='binary_operator'),
     MinusSegment=KeywordSegment.make('-', name='minus', type='binary_operator'),
     DivideSegment=KeywordSegment.make('/', name='divide', type='binary_operator'),
@@ -107,10 +107,6 @@ ansi_dialect.add(
     LessThanOrEqualToSegment=KeywordSegment.make('<=', name='less_than_equal_to', type='comparison_operator'),
     NotEqualToSegment_a=KeywordSegment.make('!=', name='not_equal_to', type='comparison_operator'),
     NotEqualToSegment_b=KeywordSegment.make('<>', name='not_equal_to', type='comparison_operator'),
-    # Keywords # TODO Check if ANSI compliant:
-    NanKeywordSegment=KeywordSegment.make('nan'),
-    OverwriteKeywordSegment=KeywordSegment.make('overwrite'),
-    ValueKeywordSegment=KeywordSegment.make('value'),
     # The strange regex here it to make sure we don't accidentally match numeric literals. We
     # also use a regex to explicitly exclude disallowed keywords.
     NakedIdentifierSegment=SegmentGenerator(
@@ -167,7 +163,7 @@ class IntervalExpressionSegment(BaseSegment):
     """An interval expression segment."""
     type = 'interval_expression'
     match_grammar = Sequence(
-        Ref('IntervalKeywordSegment'),
+        'INTERVAL',
         OneOf(
             # The Numeric Version
             Sequence(
@@ -226,7 +222,7 @@ class ObjectReferenceSegment(BaseSegment):
         ),
         terminator=OneOf(
             Ref('_NonCodeSegment'), Ref('CommaSegment'),
-            Ref('CastOperatorKeywordSegment'), Ref('StartSquareBracketSegment'),
+            Ref('CastOperatorSegment'), Ref('StartSquareBracketSegment'),
             Ref('StartBracketSegment'), Ref('ArithmeticBinaryOperatorGrammar'),
             Ref('StringBinaryOperatorGrammar'),
             Ref('ComparisonOperatorGrammar'), Ref('ColonSegment'),
@@ -293,7 +289,7 @@ class AliasExpressionSegment(BaseSegment):
     The optional AS keyword allows both implicit and explicit aliasing.
     """
     type = 'alias_expression'
-    match_grammar = Sequence(Ref('AsKeywordSegment', optional=True), Ref('SingleIdentifierGrammar'))
+    match_grammar = Sequence(Ref.keyword('AS', optional=True), Ref('SingleIdentifierGrammar'))
 
 
 @ansi_dialect.segment()
@@ -301,7 +297,7 @@ class ShorthandCastSegment(BaseSegment):
     """A casting operation using '::'."""
     type = 'cast_expression'
     match_grammar = Sequence(
-        Ref('CastOperatorKeywordSegment'),
+        Ref('CastOperatorSegment'),
         Ref('DatatypeSegment'),
         code_only=False
     )
@@ -332,18 +328,18 @@ ansi_dialect.add(
         # A Cast-like function
         Sequence(
             Ref('ExpressionSegment'),
-            Ref('AsKeywordSegment'),
+            'AS',
             Ref('DatatypeSegment')
         ),
         # An extract-like function
         Sequence(
             Ref('DatetimeUnitSegment'),
-            Ref('FromKeywordSegment'),
+            'FROM',
             Ref('ExpressionSegment')
         ),
         Sequence(
             # Allow an optional distinct keyword here.
-            Ref('DistinctKeywordSegment', optional=True),
+            Ref.keyword('DISTINCT', optional=True),
             OneOf(
                 # Most functions will be using the delimited route
                 # but for COUNT(*) or similar we allow the star segment
@@ -377,7 +373,7 @@ class FunctionSegment(BaseSegment):
             ),
         ),
         Sequence(
-            Ref('OverKeywordSegment'),
+            'OVER',
             Bracketed(
                 Anything(optional=True)
             ),
@@ -397,7 +393,7 @@ class FunctionSegment(BaseSegment):
         # Optional suffix for window functions.
         # TODO: Should this be in a different dialect?
         Sequence(
-            Ref('OverKeywordSegment'),
+            'OVER',
             Bracketed(
                 Sequence(
                     Ref('PartitionClauseSegment', optional=True),
@@ -415,15 +411,15 @@ class PartitionClauseSegment(BaseSegment):
     """A `PARTITION BY` for window functions."""
     type = 'partitionby_clause'
     match_grammar = StartsWith(
-        Ref('PartitionKeywordSegment'),
+        'PARTITION',
         terminator=OneOf(
-            Ref('OrderKeywordSegment'),
-            Ref('RowsKeywordSegment')
+            'ORDER',
+            'ROWS'
         )
     )
     parse_grammar = Sequence(
-        Ref('PartitionKeywordSegment'),
-        Ref('ByKeywordSegment'),
+        'PARTITION',
+        'BY',
         Indent,
         Delimited(
             Ref('ExpressionSegment'),
@@ -438,12 +434,12 @@ class FrameClauseSegment(BaseSegment):
     """A frame clause for window functions."""
     type = 'frame_clause'
     match_grammar = StartsWith(
-        Ref('RowsKeywordSegment')
+        'ROWS'
     )
     # TODO: Expand a parse statement here properly to actually
     # parse rather than assuming that it's good.
     # parse_grammar = Sequence(
-    #    Ref('RowsKeywordSegment'),
+    #    'ROWS',
     #    ...
     # )
 
@@ -472,9 +468,9 @@ class TableExpressionSegment(BaseSegment):
         ),
         Ref('AliasExpressionSegment', optional=True),
         Sequence(
-            Ref('WithKeywordSegment'),
-            Ref('OffsetKeywordSegment'),
-            Ref('AsKeywordSegment'),
+            'WITH',
+            'OFFSET',
+            'AS',
             Ref('SingleIdentifierGrammar'),
             optional=True
         ),
@@ -552,16 +548,16 @@ class SelectClauseSegment(BaseSegment):
     type = 'select_clause'
     match_grammar = GreedyUntil(
         OneOf(
-            Ref('FromKeywordSegment'),
-            Ref('LimitKeywordSegment')
+            'FROM',
+            'LIMIT'
         )
     )
     # We should edit the parse grammar to deal with DISTINCT, ALL or similar
     parse_grammar = Sequence(
-        Ref('SelectKeywordSegment'),
+        'SELECT',
         OneOf(
-            Ref('DistinctKeywordSegment'),
-            Ref('AllKeywordSegment'),
+            'DISTINCT',
+            'ALL',
             optional=True
         ),
         Indent,
@@ -594,28 +590,25 @@ InitialJoinGrammar = Sequence(
 class JoinClauseSegment(BaseSegment):
     """Any number of join clauses, including the `JOIN` keyword."""
     type = 'join_clause'
-    match_grammar = StartsWith(
-        InitialJoinGrammar,
-        terminator=OneOf(
-            # Can be terminated by the start on another join clause
-            # or one of a selection of other keywords.
-            InitialJoinGrammar,
-            Ref('LimitKeywordSegment'),
-            Ref('GroupKeywordSegment'),
-            Ref('OrderKeywordSegment'),
-            Ref('HavingKeywordSegment')
-        )
-    )
-
-    parse_grammar = Sequence(
-        InitialJoinGrammar,
+    match_grammar = Sequence(
+        # NB These qualifiers are optional
+        AnyNumberOf(
+            'FULL',
+            'INNER',
+            'LEFT',
+            'CROSS',
+            max_times=1,
+            optional=True
+        ),
+        Ref.keyword('OUTER', optional=True),
+        'JOIN',
         Indent,
         Ref('TableExpressionSegment'),
         # NB: this is optional
         AnyNumberOf(
             # ON clause
             Sequence(
-                Ref('OnKeywordSegment'),
+                'ON',
                 Indent,
                 OneOf(
                     Ref('ExpressionSegment'),
@@ -625,7 +618,7 @@ class JoinClauseSegment(BaseSegment):
             ),
             # USING clause
             Sequence(
-                Ref('UsingKeywordSegment'),
+                'USING',
                 Indent,
                 Bracketed(
                     Delimited(
@@ -653,17 +646,17 @@ class FromClauseSegment(BaseSegment):
     """A `FROM` clause like in `SELECT`."""
     type = 'from_clause'
     match_grammar = StartsWith(
-        Ref('FromKeywordSegment'),
+        'FROM',
         terminator=OneOf(
-            Ref('WhereKeywordSegment'),
-            Ref('LimitKeywordSegment'),
-            Ref('GroupKeywordSegment'),
-            Ref('OrderKeywordSegment'),
-            Ref('HavingKeywordSegment')
+            'WHERE',
+            'LIMIT',
+            'GROUP',
+            'ORDER',
+            'HAVING'
         )
     )
     parse_grammar = Sequence(
-        Ref('FromKeywordSegment'),
+        'FROM',
         Indent,
         Delimited(
             # Optional old school delimited joins
@@ -710,12 +703,12 @@ class CaseExpressionSegment(BaseSegment):
     # This method of matching doesn't work with nested case statements.
     # TODO: Develop something more powerful for this.
     # match_grammar = StartsWith(
-    #     Ref('CaseKeywordSegment'),
-    #     terminator=Ref('EndKeywordSegment'),
+    #     'CASE',
+    #     terminator='ED'),
     #     include_terminator=True
     # )
     match_grammar = Sequence(
-        Ref('CaseKeywordSegment'),
+        'CASE',
         Indent,
         AnyNumberOf(
             Sequence(
@@ -723,23 +716,23 @@ class CaseExpressionSegment(BaseSegment):
                 # deal with potentially nested case statements where the
                 # parsing gets confused by which WHERE and END goes with
                 # which CASE. TODO: Come up with a better solution for this.
-                Ref('WhenKeywordSegment'),
+                'WHEN',
                 Indent,
                 Ref('ExpressionSegment_NoMatch'),
-                Ref('ThenKeywordSegment'),
+                'THEN',
                 Ref('ExpressionSegment_NoMatch'),
                 Dedent
             )
         ),
         Sequence(
-            Ref('ElseKeywordSegment'),
+            'ELSE',
             Indent,
             Ref('ExpressionSegment_NoMatch'),
             Dedent,
             optional=True
         ),
         Dedent,
-        Ref('EndKeywordSegment')
+        'END'
     )
 
 
@@ -752,7 +745,7 @@ ansi_dialect.add(
                     Ref('PlusSegment'),
                     Ref('MinusSegment'),
                     Ref('TildeSegment'),
-                    Ref('NotKeywordSegment')
+                    'NOT'
                 ),
                 Ref('Expression_A_Grammar')
             )
@@ -766,11 +759,11 @@ ansi_dialect.add(
                         Ref('ComparisonOperatorGrammar'),
                         Ref('BooleanBinaryOperatorGrammar'),
                         Sequence(
-                            Ref('NotKeywordSegment', optional=True),
+                            Ref.keyword('NOT', optional=True),
                             OneOf(
-                                Ref('LikeKeywordSegment'),
-                                Ref('RlikeKeywordSegment'),
-                                Ref('IlikeKeywordSegment')
+                                'LIKE',
+                                'RLIKE',
+                                'ILIKE'
                             )
                         )
                         # We need to add a lot more here...
@@ -778,8 +771,8 @@ ansi_dialect.add(
                     Ref('Expression_A_Grammar')
                 ),
                 Sequence(
-                    Ref('NotKeywordSegment', optional=True),
-                    Ref('InKeywordSegment'),
+                    Ref.keyword('NOT', optional=True),
+                    'IN',
                     Bracketed(
                         OneOf(
                             Delimited(
@@ -792,11 +785,11 @@ ansi_dialect.add(
                     )
                 ),
                 Sequence(
-                    Ref('IsKeywordSegment'),
-                    Ref('NotKeywordSegment', optional=True),
+                    'IS',
+                    Ref.keyword('NOT', optional=True),
                     OneOf(
-                        Ref('NullKeywordSegment'),
-                        Ref('NanKeywordSegment'),
+                        'NULL',
+                        'NAN',
                         # TODO: True and False might not be allowed here in some
                         # dialects (e.g. snowflake) so we should probably
                         # revisit this at some point. Perhaps abstract this clause
@@ -805,10 +798,10 @@ ansi_dialect.add(
                     )
                 ),
                 Sequence(
-                    Ref('NotKeywordSegment', optional=True),
-                    Ref('BetweenKeywordSegment'),
+                    Ref.keyword('NOT', optional=True),
+                    'BETWEEN',
                     Ref('Expression_C_Grammar'),
-                    Ref('AndKeywordSegment'),
+                    'AND',
                     Ref('Expression_C_Grammar')
                 )
             )
@@ -819,7 +812,7 @@ ansi_dialect.add(
         Ref('Expression_D_Grammar'),
         Ref('CaseExpressionSegment'),
         Sequence(
-            Ref('ExistsKeywordSegment'),
+            'EXISTS',
             Ref('SelectStatementSegment')
         )
     ),
@@ -836,8 +829,7 @@ ansi_dialect.add(
             Ref('SelectStatementSegment'),
             Ref('LiteralGrammar'),
             Ref('IntervalExpressionSegment'),
-            Ref('ObjectReferenceSegment'),
-            Ref('DatatypeIdentifierSegment')
+            Ref('ObjectReferenceSegment')
         ),
         Ref('Accessor_Grammar', optional=True),
         Ref('ShorthandCastSegment', optional=True),
@@ -859,16 +851,16 @@ class ExpressionSegment(BaseSegment):
     type = 'expression'
     match_grammar = GreedyUntil(
         Ref('CommaSegment'),
-        Ref('AsKeywordSegment'),
-        Ref('AscKeywordSegment'),
-        Ref('DescKeywordSegment'),
-        Ref('InnerKeywordSegment'),
-        Ref('LeftKeywordSegment'),
-        Ref('CrossKeywordSegment'),
-        Ref('JoinKeywordSegment'),
-        Ref('WhereKeywordSegment'),
-        Ref('GroupKeywordSegment'),
-        Ref('OrderKeywordSegment'),
+        'AS',
+        'ASC',
+        'DESC',
+        'INNER',
+        'LEFT',
+        'CROSS',
+        'JOIN',
+        'WHERE',
+        'GROUP',
+        'ORDER',
     )
     parse_grammar = Ref('Expression_A_Grammar')
 
@@ -896,22 +888,22 @@ class ExpressionSegment_NoMatch(ExpressionSegment):
 class ExpressionSegment_TermWhenElse(ExpressionSegment):
     """Expression terminated by WHEN, END or ELSE."""
     match_grammar = GreedyUntil(
-        Ref('WhenKeywordSegment'),
-        Ref('ElseKeywordSegment'),
-        Ref('EndKeywordSegment')
+        'WHEN',
+        'ELSE',
+        'END'
     )
 
 
 @ansi_dialect.segment()
 class ExpressionSegment_TermThen(ExpressionSegment):
     """Expression terminated by THEN."""
-    match_grammar = GreedyUntil(Ref('ThenKeywordSegment'))
+    match_grammar = GreedyUntil('THEN')
 
 
 @ansi_dialect.segment()
 class ExpressionSegment_TermEnd(ExpressionSegment):
     """Expression terminated by END."""
-    match_grammar = GreedyUntil(Ref('EndKeywordSegment'))
+    match_grammar = GreedyUntil('END')
 
 
 @ansi_dialect.segment()
@@ -919,16 +911,16 @@ class WhereClauseSegment(BaseSegment):
     """A `WHERE` clause like in `SELECT` or `INSERT`."""
     type = 'where_clause'
     match_grammar = StartsWith(
-        Ref('WhereKeywordSegment'),
+        'WHERE',
         terminator=OneOf(
-            Ref('LimitKeywordSegment'),
-            Ref('GroupKeywordSegment'),
-            Ref('OrderKeywordSegment'),
-            Ref('HavingKeywordSegment')
+            'LIMIT',
+            'GROUP',
+            'ORDER',
+            'HAVING'
         )
     )
     parse_grammar = Sequence(
-        Ref('WhereKeywordSegment'),
+        'WHERE',
         Indent,
         Ref('ExpressionSegment'),
         Dedent
@@ -940,17 +932,17 @@ class OrderByClauseSegment(BaseSegment):
     """A `ORDER BY` clause like in `SELECT`."""
     type = 'orderby_clause'
     match_grammar = StartsWith(
-        Ref('OrderKeywordSegment'),
+        'ORDER',
         terminator=OneOf(
-            Ref('LimitKeywordSegment'),
-            Ref('HavingKeywordSegment'),
+            'LIMIT',
+            'HAVING',
             # For window functions
-            Ref('RowsKeywordSegment')
+            'ROWS'
         )
     )
     parse_grammar = Sequence(
-        Ref('OrderKeywordSegment'),
-        Ref('ByKeywordSegment'),
+        'ORDER',
+        'BY',
         Indent,
         Delimited(
             Sequence(
@@ -962,13 +954,13 @@ class OrderByClauseSegment(BaseSegment):
                     Ref('ExpressionSegment')
                 ),
                 OneOf(
-                    Ref('AscKeywordSegment'),
-                    Ref('DescKeywordSegment'),
+                    'ASC',
+                    'DESC',
                     optional=True
                 ),
             ),
             delimiter=Ref('CommaSegment'),
-            terminator=Ref('LimitKeywordSegment')
+            terminator=Ref.keyword('LIMIT')
         ),
         Dedent
     )
@@ -980,18 +972,18 @@ class GroupByClauseSegment(BaseSegment):
     type = 'groupby_clause'
     match_grammar = StartsWith(
         Sequence(
-            Ref('GroupKeywordSegment'),
-            Ref('ByKeywordSegment')
+            'GROUP',
+            'BY'
         ),
         terminator=OneOf(
-            Ref('OrderKeywordSegment'),
-            Ref('LimitKeywordSegment'),
-            Ref('HavingKeywordSegment')
+            'ORDER',
+            'LIMIT',
+            'HAVING'
         )
     )
     parse_grammar = Sequence(
-        Ref('GroupKeywordSegment'),
-        Ref('ByKeywordSegment'),
+        'GROUP',
+        'BY',
         Indent,
         Delimited(
             OneOf(
@@ -1001,9 +993,9 @@ class GroupByClauseSegment(BaseSegment):
             ),
             delimiter=Ref('CommaSegment'),
             terminator=OneOf(
-                Ref('OrderKeywordSegment'),
-                Ref('LimitKeywordSegment'),
-                Ref('HavingKeywordSegment')
+                'ORDER',
+                'LIMIT',
+                'HAVING'
             )
         ),
         Dedent
@@ -1015,14 +1007,14 @@ class HavingClauseSegment(BaseSegment):
     """A `HAVING` clause like in `SELECT`."""
     type = 'having_clause'
     match_grammar = StartsWith(
-        Ref('HavingKeywordSegment'),
+        'HAVING',
         terminator=OneOf(
-            Ref('OrderKeywordSegment'),
-            Ref('LimitKeywordSegment')
+            'ORDER',
+            'LIMIT'
         )
     )
     parse_grammar = Sequence(
-        Ref('HavingKeywordSegment'),
+        'HAVING',
         Indent,
         OneOf(
             Bracketed(
@@ -1039,7 +1031,7 @@ class LimitClauseSegment(BaseSegment):
     """A `LIMIT` clause like in `SELECT`."""
     type = 'limit_clause'
     match_grammar = Sequence(
-        Ref('LimitKeywordSegment'),
+        'LIMIT',
         Ref('NumericLiteralSegment')
     )
 
@@ -1050,8 +1042,8 @@ class ValuesClauseSegment(BaseSegment):
     type = 'values_clause'
     match_grammar = Sequence(
         OneOf(
-            Ref('ValueKeywordSegment'),
-            Ref('ValuesKeywordSegment')
+            'VALUE',
+            'VALUES'
         ),
         Delimited(
             Bracketed(
@@ -1072,7 +1064,7 @@ class SelectStatementSegment(BaseSegment):
     type = 'select_statement'
     # match grammar. This one makes sense in the context of knowing that it's
     # definitely a statement, we just don't know what type yet.
-    match_grammar = StartsWith(Ref('SelectKeywordSegment'))
+    match_grammar = StartsWith('SELECT')
     parse_grammar = Sequence(
         Ref('SelectClauseSegment'),
         Ref('FromClauseSegment', optional=True),
@@ -1081,7 +1073,7 @@ class SelectStatementSegment(BaseSegment):
         Ref('HavingClauseSegment', optional=True),
         Ref('OrderByClauseSegment', optional=True),
         Ref('LimitClauseSegment', optional=True),
-        # GreedyUntil(KeywordSegment.make('limit'), optional=True)
+        # GreedyUnt.keywordil(.make('limit'), optional=True)
     )
 
 
@@ -1090,13 +1082,13 @@ class WithCompoundStatementSegment(BaseSegment):
     """A `SELECT` statement preceeded by a selection of `WITH` clauses."""
     type = 'with_compound_statement'
     # match grammar
-    match_grammar = StartsWith(Ref('WithKeywordSegment'))
+    match_grammar = StartsWith('WITH')
     parse_grammar = Sequence(
-        Ref('WithKeywordSegment'),
+        'WITH',
         Delimited(
             Sequence(
-                Ref('ObjectReferenceSegment'),
-                Ref('AsKeywordSegment'),
+                Ref('SingleIdentifierGrammar'),
+                'AS',
                 Bracketed(
                     OneOf(
                         Ref('SetExpressionSegment'),
@@ -1105,7 +1097,7 @@ class WithCompoundStatementSegment(BaseSegment):
                 )
             ),
             delimiter=Ref('CommaSegment'),
-            terminator=Ref('SelectKeywordSegment')
+            terminator=Ref.keyword('SELECT')
         ),
         Ref('SelectStatementSegment')
     )
@@ -1117,16 +1109,16 @@ class SetOperatorSegment(BaseSegment):
     type = 'set_operator'
     match_grammar = OneOf(
         Sequence(
-            Ref('UnionKeywordSegment'),
+            'UNION',
             OneOf(
-                Ref('DistinctKeywordSegment'),
-                Ref('AllKeywordSegment'),
+                'DISTINCT',
+                'ALL',
                 optional=True
             )
         ),
-        Ref('IntersectKeywordSegment'),
-        Ref('ExceptKeywordSegment'),
-        Ref('MinusKeywordSegment')
+        'INTERSECT',
+        'EXCEPT',
+        'MINUS'
     )
 
 
@@ -1150,11 +1142,11 @@ class SetExpressionSegment(BaseSegment):
 class InsertStatementSegment(BaseSegment):
     """A `INSERT` statement."""
     type = 'insert_statement'
-    match_grammar = StartsWith(Ref('InsertKeywordSegment'))
+    match_grammar = StartsWith('INSERT')
     parse_grammar = Sequence(
-        Ref('InsertKeywordSegment'),
-        Ref('OverwriteKeywordSegment', optional=True),  # Maybe this is just snowflake?
-        Ref('IntoKeywordSegment', optional=True),
+        'INSERT',
+        Ref.keyword('OVERWRITE', optional=True),  # Maybe this is just snowflake?
+        Ref.keyword('INTO', optional=True),
         Ref('ObjectReferenceSegment'),
         Bracketed(Delimited(Ref('ObjectReferenceSegment'), delimiter=Ref('CommaSegment')), optional=True),
         OneOf(
@@ -1181,24 +1173,24 @@ class TransactionStatementSegment(BaseSegment):
     match_grammar = OneOf(
         # COMMIT [ WORK ] [ AND [ NO ] CHAIN ]
         Sequence(
-            Ref('CommitKeywordSegment'),
-            Ref('WorkKeywordSegment', optional=True),
+            'COMMIT',
+            Ref.keyword('WORK', optional=True),
             Sequence(
-                Ref('AndKeywordSegment'),
-                Ref('NoKeywordSegment', optional=True),
-                Ref('ChainKeywordSegment'),
+                'AND',
+                Ref.keyword('NO', optional=True),
+                'CHAIN',
                 optional=True
             )
         ),
         # NOTE: "TO SAVEPOINT" is not yet supported
         # ROLLBACK [ WORK ] [ AND [ NO ] CHAIN ]
         Sequence(
-            Ref('RollbackKeywordSegment'),
-            Ref('WorkKeywordSegment', optional=True),
+            'ROLLBACK',
+            Ref.keyword('WORK', optional=True),
             Sequence(
-                Ref('AndKeywordSegment'),
-                Ref('NoKeywordSegment', optional=True),
-                Ref('ChainKeywordSegment'),
+                'AND',
+                Ref.keyword('NO', optional=True),
+                'CHAIN',
                 optional=True
             )
         ),
@@ -1213,28 +1205,28 @@ class ColumnOptionSegment(BaseSegment):
     # https://www.postgresql.org/docs/12/sql-createtable.html
     match_grammar = Sequence(
         Sequence(
-            Ref('ConstraintKeywordSegment'),
+            'CONSTRAINT',
             Ref('ObjectReferenceSegment'),  # Constraint name
             optional=True
         ),
         OneOf(
             Sequence(  # NOT NULL or NULL
-                Ref('NotKeywordSegment', optional=True),
-                Ref('NullKeywordSegment')
+                Ref.keyword('NOT', optional=True),
+                'NULL'
             ),
             Sequence(  # DEFAULT <value>
-                Ref('DefaultKeywordSegment'),
+                'DEFAULT',
                 Ref('LiteralGrammar'),
                 # ?? Ref('IntervalExpressionSegment')
             ),
             Sequence(  # PRIMARY KEY
-                Ref('PrimaryKeywordSegment'),
-                Ref('KeyKeywordSegment'),
+                'PRIMARY',
+                'KEY',
             ),
-            Ref('UniqueKeywordSegment'),  # UNIQUE
-            Ref('Auto_incrementKeywordSegment'),  # AUTO_INCREMENT (MySQL)
+            'UNIQUE',  # UNIQUE
+            'AUTO_INCREMENT',  # AUTO_INCREMENT (MySQL)
             Sequence(  # REFERENCES reftable [ ( refcolumn) ]
-                Ref('ReferencesKeywordSegment'),
+                'REFERENCES',
                 Ref('ObjectReferenceSegment'),
                 Bracketed(  # Foreign columns making up FOREIGN KEY constraint
                     Delimited(
@@ -1245,7 +1237,7 @@ class ColumnOptionSegment(BaseSegment):
                 ),
             ),
             Sequence(  # [COMMENT 'string'] (MySQL)
-                Ref('CommentKeywordSegment'),
+                'COMMENT',
                 Ref('QuotedLiteralSegment'),
             ),
         ),
@@ -1257,7 +1249,7 @@ class ColumnDefinitionSegment(BaseSegment):
     """A column definition, e.g. for CREATE TABLE or ALTER TABLE."""
     type = 'column_definition'
     match_grammar = Sequence(
-        Ref('ObjectReferenceSegment'),  # Column name
+        Ref('SingleIdentifierGrammar'),  # Column name
         Ref('DatatypeSegment'),  # Column type
         Bracketed(  # For types like VARCHAR(100)
             Anything(),
@@ -1277,13 +1269,13 @@ class TableConstraintSegment(BaseSegment):
     # e.g. CONSTRAINT constraint_1 PRIMARY KEY(column_1)
     match_grammar = Sequence(
         Sequence(  # [ CONSTRAINT <Constraint name> ]
-            Ref('ConstraintKeywordSegment'),
+            'CONSTRAINT',
             Ref('ObjectReferenceSegment'),
             optional=True
         ),
         OneOf(
             Sequence(  # UNIQUE ( column_name [, ... ] )
-                Ref('UniqueKeywordSegment'),
+                'UNIQUE',
                 Bracketed(  # Columns making up UNIQUE constraint
                     Delimited(
                         Ref('ObjectReferenceSegment'),
@@ -1293,8 +1285,8 @@ class TableConstraintSegment(BaseSegment):
                 # Later add support for index_parameters?
             ),
             Sequence(  # PRIMARY KEY ( column_name [, ... ] ) index_parameters
-                Ref('PrimaryKeywordSegment'),
-                Ref('KeyKeywordSegment'),
+                'PRIMARY',
+                'KEY',
                 Bracketed(  # Columns making up PRIMARY KEY constraint
                     Delimited(
                         Ref('ObjectReferenceSegment'),
@@ -1305,15 +1297,15 @@ class TableConstraintSegment(BaseSegment):
             ),
             Sequence(  # FOREIGN KEY ( column_name [, ... ] )
                        # REFERENCES reftable [ ( refcolumn [, ... ] ) ]
-                Ref('ForeignKeywordSegment'),
-                Ref('KeyKeywordSegment'),
+                'FOREIGN',
+                'KEY',
                 Bracketed(  # Local columns making up FOREIGN KEY constraint
                     Delimited(
                         Ref('ObjectReferenceSegment'),
                         delimiter=Ref('CommaSegment')
                     ),
                 ),
-                Ref('ReferencesKeywordSegment'),
+                'REFERENCES',
                 Ref('ObjectReferenceSegment'),
                 Bracketed(  # Foreign columns making up FOREIGN KEY constraint
                     Delimited(
@@ -1335,17 +1327,17 @@ class CreateTableStatementSegment(BaseSegment):
     # https://crate.io/docs/sql-99/en/latest/chapters/18.html
     # https://www.postgresql.org/docs/12/sql-createtable.html
     match_grammar = Sequence(
-        Ref('CreateKeywordSegment'),
+        'CREATE',
         Sequence(
-            Ref('OrKeywordSegment'),
-            Ref('ReplaceKeywordSegment'),
+            'OR',
+            'REPLACE',
             optional=True
         ),
-        Ref('TableKeywordSegment'),
+        'TABLE',
         Sequence(
-            Ref('IfKeywordSegment'),
-            Ref('NotKeywordSegment'),
-            Ref('ExistsKeywordSegment'),
+            'IF',
+            'NOT',
+            'EXISTS',
             optional=True
         ),
         Ref('ObjectReferenceSegment'),
@@ -1362,14 +1354,14 @@ class CreateTableStatementSegment(BaseSegment):
                     )
                 ),
                 Sequence(  # [COMMENT 'string'] (MySQL)
-                    Ref('CommentKeywordSegment'),
+                    'COMMENT',
                     Ref('QuotedLiteralSegment'),
                     optional=True
                 )
             ),
             # Create AS syntax:
             Sequence(
-                Ref('AsKeywordSegment'),
+                'AS',
                 OneOf(
                     Ref('SelectStatementSegment'),
                     Ref('WithCompoundStatementSegment')
@@ -1377,7 +1369,7 @@ class CreateTableStatementSegment(BaseSegment):
             ),
             # Create like syntax
             Sequence(
-                Ref('LikeKeywordSegment'),
+                'LIKE',
                 Ref('ObjectReferenceSegment')
             )
         )
@@ -1392,13 +1384,13 @@ class CreateViewStatementSegment(BaseSegment):
     # https://dev.mysql.com/doc/refman/8.0/en/create-view.html
     # https://www.postgresql.org/docs/12/sql-createview.html
     match_grammar = Sequence(
-        Ref('CreateKeywordSegment'),
+        'CREATE',
         Sequence(
-            Ref('OrKeywordSegment'),
-            Ref('ReplaceKeywordSegment'),
+            'OR',
+            'REPLACE',
             optional=True
         ),
-        Ref('ViewKeywordSegment'),
+        'VIEW',
         Ref('ObjectReferenceSegment'),
         Bracketed(  # Optional list of column names
             Delimited(
@@ -1407,7 +1399,7 @@ class CreateViewStatementSegment(BaseSegment):
             ),
             optional=True
         ),
-        Ref('AsKeywordSegment'),
+        'AS',
         Ref('SelectStatementSegment'),
     )
 
@@ -1418,20 +1410,20 @@ class DropStatementSegment(BaseSegment):
     type = 'drop_statement'
     # DROP {TABLE | VIEW} <Table name> [IF EXISTS} {RESTRICT | CASCADE}
     match_grammar = Sequence(
-        Ref('DropKeywordSegment'),
+        'DROP',
         OneOf(
-            Ref('TableKeywordSegment'),
-            Ref('ViewKeywordSegment'),
+            'TABLE',
+            'VIEW',
         ),
         Sequence(
-            Ref('IfKeywordSegment'),
-            Ref('ExistsKeywordSegment'),
+            'IF',
+            'EXISTS',
             optional=True
         ),
         Ref('ObjectReferenceSegment'),
         OneOf(
-            Ref('RestrictKeywordSegment'),
-            Ref('CascadeKeywordSegment', optional=True),
+            'RESTRICT',
+            Ref.keyword('CASCADE', optional=True),
             optional=True
         )
     )
@@ -1444,17 +1436,17 @@ class AccessStatementSegment(BaseSegment):
     # Based on https://www.postgresql.org/docs/12/sql-grant.html
     match_grammar = OneOf(
         Sequence(
-            Ref('GrantKeywordSegment'),
+            'GRANT',
             Delimited(  # List of permission types
                 Sequence(
                     OneOf(  # Permission type
                         Sequence(
-                            Ref('AllKeywordSegment'),
-                            Ref('PrivilegesKeywordSegment', optional=True)
+                            'ALL',
+                            Ref.keyword('PRIVILEGES', optional=True)
                         ),
-                        Ref('SelectKeywordSegment'),
-                        Ref('UpdateKeywordSegment'),
-                        Ref('InsertKeywordSegment'),
+                        'SELECT',
+                        'UPDATE',
+                        'INSERT',
                     ),
                     Bracketed(  # Optional list of column names
                         Delimited(
@@ -1466,57 +1458,57 @@ class AccessStatementSegment(BaseSegment):
                 ),
                 delimiter=Ref('CommaSegment')
             ),
-            Ref('OnKeywordSegment'),
+            'ON',
             OneOf(
                 Sequence(
-                    Ref('TableKeywordSegment', optional=True),
+                    Ref.keyword('TABLE', optional=True),
                     Ref('ObjectReferenceSegment'),
                 ),
                 Sequence(
-                    Ref('AllKeywordSegment'),
-                    Ref('TablesKeywordSegment'),
-                    Ref('InKeywordSegment'),
-                    Ref('SchemaKeywordSegment'),
+                    'ALL',
+                    'TABLES',
+                    'IN',
+                    'SCHEMA',
                     Ref('ObjectReferenceSegment'),
                 )
             ),
-            Ref('ToKeywordSegment'),
+            'TO',
             OneOf(
-                Ref('GroupKeywordSegment'),
-                Ref('UserKeywordSegment'),
-                Ref('RoleKeywordSegment'),
+                'GROUP',
+                'USER',
+                'ROLE',
                 optional=True
             ),
             OneOf(
                 Ref('ObjectReferenceSegment'),
-                Ref('PublicKeywordSegment'),
+                'PUBLIC',
             ),
             Sequence(
-                Ref('WithKeywordSegment'),
-                Ref('GrantKeywordSegment'),
-                Ref('OptionKeywordSegment'),
+                'WITH',
+                'GRANT',
+                'OPTION',
                 optional=True
             ),
         ),
         # Based on https://www.postgresql.org/docs/12/sql-revoke.html
         Sequence(
-            Ref('RevokeKeywordSegment'),
+            'REVOKE',
             Delimited(  # List of permission types
                 Sequence(
                     Sequence(
-                        Ref('GrantKeywordSegment'),
-                        Ref('OptionKeywordSegment'),
-                        Ref('ForKeywordSegment'),
+                        'GRANT',
+                        'OPTION',
+                        'FOR',
                         optional=True
                     ),
                     OneOf(  # Permission type
                         Sequence(
-                            Ref('AllKeywordSegment'),
-                            Ref('PrivilegesKeywordSegment', optional=True)
+                            'ALL',
+                            Ref.keyword('PRIVILEGES', optional=True)
                         ),
-                        Ref('SelectKeywordSegment'),
-                        Ref('UpdateKeywordSegment'),
-                        Ref('InsertKeywordSegment'),
+                        'SELECT',
+                        'UPDATE',
+                        'INSERT',
                     ),
                     Bracketed(  # Optional list of column names
                         Delimited(
@@ -1528,31 +1520,31 @@ class AccessStatementSegment(BaseSegment):
                 ),
                 delimiter=Ref('CommaSegment')
             ),
-            Ref('OnKeywordSegment'),
+            'ON',
             OneOf(
                 Sequence(
-                    Ref('TableKeywordSegment', optional=True),
+                    Ref.keyword('TABLE', optional=True),
                     Ref('ObjectReferenceSegment'),
                 ),
                 Sequence(
-                    Ref('AllKeywordSegment'),
-                    Ref('TablesKeywordSegment'),
-                    Ref('InKeywordSegment'),
-                    Ref('SchemaKeywordSegment'),
+                    'ALL',
+                    'TABLES',
+                    'IN',
+                    'SCHEMA',
                     Ref('ObjectReferenceSegment'),
                 )
             ),
-            Ref('FromKeywordSegment'),
+            'FROM',
             OneOf(
-                Ref('GroupKeywordSegment'),
-                Ref('UserKeywordSegment'),
-                Ref('RoleKeywordSegment'),
+                'GROUP',
+                'USER',
+                'ROLE',
                 optional=True
             ),
             Ref('ObjectReferenceSegment'),
             OneOf(
-                Ref('RestrictKeywordSegment'),
-                Ref('CascadeKeywordSegment', optional=True),
+                'RESTRICT',
+                Ref.keyword('CASCADE', optional=True),
                 optional=True
             )
         ),
@@ -1568,9 +1560,9 @@ class DeleteStatementSegment(BaseSegment):
     type = 'delete_statement'
     # match grammar. This one makes sense in the context of knowing that it's
     # definitely a statement, we just don't know what type yet.
-    match_grammar = StartsWith(Ref('DeleteKeywordSegment'))
+    match_grammar = StartsWith('DELETE')
     parse_grammar = Sequence(
-        Ref('DeleteKeywordSegment'),
+        'DELETE',
         Ref('FromClauseSegment'),
         Ref('WhereClauseSegment', optional=True),
     )
@@ -1583,9 +1575,9 @@ class UpdateStatementSegment(BaseSegment):
     UPDATE <table name> SET <set clause list> [ WHERE <search condition> ]
     """
     type = 'delete_statement'
-    match_grammar = StartsWith(Ref('UpdateKeywordSegment'))
+    match_grammar = StartsWith('UPDATE')
     parse_grammar = Sequence(
-        Ref('UpdateKeywordSegment'),
+        'UPDATE',
         Ref('ObjectReferenceSegment'),
         Ref('SetClauseListSegment'),
         Ref('WhereClauseSegment', optional=True),
@@ -1611,7 +1603,7 @@ class SetClauseListSegment(BaseSegment):
     """
     type = 'set_clause_list'
     match_grammar = Sequence(
-        Ref('SetKeywordSegment'),
+        'SET',
         Indent,
         OneOf(
             Ref('SetClauseSegment'),
@@ -1650,8 +1642,8 @@ class SetClauseSegment(BaseSegment):
             Ref('LiteralGrammar'),
             Ref('FunctionSegment'),
             Ref('ObjectReferenceSegment'),
-            Ref('NullKeywordSegment'),
-            Ref('DefaultKeywordSegment'),
+            'NULL',
+            'DEFAULT',
         )
     )
 
