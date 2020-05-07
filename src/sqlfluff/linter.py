@@ -801,7 +801,7 @@ class Linter:
         return res
 
     def paths_from_path(self, path, ignore_file_name='.sqlfluffignore', ignore_non_existent_files=False):
-        """Return a set of sql file paths from a potentially more ambigious path string."""
+        """Return a set of sql file paths from a potentially more ambigious path string.
 
         Here we also deal with the .sqlfluffignore file if present.
 
