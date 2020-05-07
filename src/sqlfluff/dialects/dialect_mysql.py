@@ -10,5 +10,5 @@ mysql_dialect = ansi_dialect.copy_as('mysql')
 
 mysql_dialect.patch_lexer_struct([
     # name, type, pattern, kwargs
-    ("inline_comment", "regex", r"(-- |#)[^\n]*", dict(is_comment=True))
+    ("inline_comment", "regex", r"(-- |#)[^\n]*", dict(is_comment=True, type="comment", trim_start=('-- ', '#')))
 ])
