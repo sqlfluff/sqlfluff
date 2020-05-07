@@ -7,14 +7,14 @@ file:
           whitespace: ' '
           select_target_element:
             object_reference:
-              naked_identifier: a
+              identifier: a
         whitespace: ' '
         from_clause:
           keyword: from
           whitespace: ' '
           table_expression:
             object_reference:
-              naked_identifier: tbl1
+              identifier: tbl1
   - whitespace: '  '
   - comment: /*comment here*/
   - whitespace: ' '
@@ -29,14 +29,14 @@ file:
           whitespace: ' '
           select_target_element:
             object_reference:
-              naked_identifier: b
+              identifier: b
         whitespace: ' '
         from_clause:
           keyword: from
           whitespace: ' '
           table_expression:
             object_reference:
-              naked_identifier: tbl2
+              identifier: tbl2
   - keyword: ;
   - whitespace: '   '
   - comment: -- trailling ending comment

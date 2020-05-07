@@ -1,5 +1,7 @@
 """Standard SQL Linting Rules."""
 
+import itertools
+
 from .base import BaseCrawler, LintFix, LintResult, RuleSet
 
 
@@ -819,7 +821,7 @@ class Rule_L010(BaseCrawler):
     """
 
     # Binary operators behave like keywords too.
-    _target_elems = ('keyword', 'binary_operator')
+    _target_elems = (('type', 'keyword'), ('type', 'binary_operator'))
 
     def __init__(self, capitalisation_policy='consistent', **kwargs):
         """Initialise, extracting the capitalisation mode from the config."""
@@ -841,7 +843,10 @@ class Rule_L010(BaseCrawler):
         """
         cases_seen = memory.get('cases_seen', set())
 
-        if segment.type in self._target_elems:
+        if (
+            ('type', segment.type) in self._target_elems
+            or ('name', segment.name) in self._target_elems
+        ):
             raw = segment.raw
             uc = raw.upper()
             lc = raw.lower()
@@ -1046,7 +1051,7 @@ class Rule_L014(Rule_L010):
 
     """
 
-    _target_elems = ('naked_identifier',)
+    _target_elems = (('name', 'naked_identifier'),)
 
 
 @std_rule_set.register
@@ -1508,7 +1513,7 @@ class Rule_L016(Rule_L003):
 class Rule_L017(BaseCrawler):
     """Function name not immediately followed by bracket."""
 
-    def _eval(self, segment, raw_stack, **kwargs):
+    def _eval(self, segment, **kwargs):
         """Function name not immediately followed by bracket.
 
         Look for Function Segment with anything other than the
@@ -1680,7 +1685,8 @@ class Rule_L019(BaseCrawler):
         self.comma_style = comma_style
         super(Rule_L019, self).__init__(**kwargs)
 
-    def _last_code_seg(self, raw_stack, idx=-1):
+    @staticmethod
+    def _last_code_seg(raw_stack, idx=-1):
         while True:
             if -idx > len(raw_stack):
                 return None
@@ -1716,3 +1722,379 @@ class Rule_L019(BaseCrawler):
                         )
         # Otherwise fine
         return None
+
+
+@std_rule_set.register
+class Rule_L020(BaseCrawler):
+    """Table aliases should be unique within each clause."""
+
+    def _lint_references_and_aliases(self, aliases, references, using_cols):
+        """Check whether any aliases are duplicates.
+
+        NB: Subclasses of this error should override this function.
+
+        """
+        # Are any of the aliases the same?
+        for a1, a2 in itertools.combinations(aliases, 2):
+            # Compare the strings
+            if a1[0] == a2[0] and a1[0]:
+                # If there are any, then the rest of the code
+                # won't make sense so just return here.
+                return [LintResult(
+                    # Reference the element, not the string.
+                    anchor=a2[1],
+                    description=("Duplicate table alias {0!r}. Table "
+                                 "aliases should be unique.").format(a2.raw)
+                )]
+        return None
+
+    def _eval(self, segment, **kwargs):
+        """Get References and Aliases and allow linting.
+
+        This rule covers a lot of potential cases of odd usages of
+        references, see the code for each of the potential cases.
+
+        Subclasses of this rule should override the
+        `_lint_references_and_aliases` method.
+        """
+        if segment.type == 'select_statement':
+            # Get the aliases referred to in the clause
+            fc = segment.get_child('from_clause')
+            if not fc:
+                # If there's no from clause then just abort.
+                return None
+            aliases = fc.get_eventual_aliases()
+
+            # Get any columns referred to in a using clause
+            using_cols = []
+            for join_clause in fc.recursive_crawl('join_clause'):
+                in_using_brackets = False
+                seen_using = False
+                for seg in join_clause.segments:
+                    if seg.type == 'keyword' and seg.name == 'USING':
+                        seen_using = True
+                    elif seen_using and seg.type == 'start_bracket':
+                        in_using_brackets = True
+                    elif seen_using and seg.type == 'end_bracket':
+                        in_using_brackets = False
+                        seen_using = False
+                    elif in_using_brackets and seg.type == 'identifier':
+                        using_cols.append(seg.raw)
+
+            # Iterate through all the references, both in the select clause, but also
+            # potential others.
+            sc = segment.get_child('select_clause')
+            reference_buffer = list(sc.recursive_crawl('object_reference'))
+            for potential_clause in ('where_clause', 'groupby_clause', 'having_clause', 'orderby_clause'):
+                clause = segment.get_child(potential_clause)
+                if clause:
+                    reference_buffer += list(clause.recursive_crawl('object_reference'))
+
+            # Pass them all to the function that does all the work.
+            # NB: Subclasses of this rules should override the function below
+            return self._lint_references_and_aliases(aliases, reference_buffer, using_cols)
+        return None
+
+
+@std_rule_set.register
+class Rule_L021(BaseCrawler):
+    """Ambiguous use of DISTINCT in select statement with GROUP BY."""
+
+    def _eval(self, segment, **kwargs):
+        """Ambiguous use of DISTINCT in select statement with GROUP BY."""
+        if segment.type == 'select_statement':
+            # Do we have a group by clause
+            group_clause = segment.get_child('groupby_clause')
+            if not group_clause:
+                return None
+
+            # Do we have the "DISTINCT" keyword in the select clause
+            select_clause = segment.get_child('select_clause')
+            select_keywords = select_clause.get_children('keyword')
+            for kw in select_keywords:
+                if kw.name == 'DISTINCT':
+                    return LintResult(anchor=kw)
+        return None
+
+
+@std_rule_set.register
+class Rule_L022(BaseCrawler):
+    """Blank line expected but not found after CTE definition."""
+
+    def _eval(self, segment, **kwargs):
+        """Blank line expected but not found after CTE definition."""
+        error_buffer = []
+        if segment.type == 'with_compound_statement':
+            expecting_blank_line = False
+            blank_line_found = False
+            blank_line_started = False
+            fix_point = None
+            for seg in segment.segments:
+                if seg.type in ('end_bracket', 'comma'):
+                    expecting_blank_line = True
+                    blank_line_found = False
+                    blank_line_started = False
+                elif seg.is_code:
+                    if expecting_blank_line:
+                        if not blank_line_found:
+                            fix_point = fix_point or seg
+                            fixes = [LintFix(
+                                'create', fix_point,
+                                [self.make_newline(pos_marker=fix_point.pos_marker)]
+                                # Two newlines if there isn't one at all, otherwise one.
+                                * (1 if blank_line_started else 2)
+                            )]
+                            error_buffer.append(
+                                LintResult(anchor=seg, fixes=fixes)
+                            )
+                        expecting_blank_line = False
+                        blank_line_found = False
+                        blank_line_started = False
+                        fix_point = None
+                elif seg.type == 'newline':
+                    if not blank_line_found:
+                        if blank_line_started:
+                            blank_line_found = True
+                        else:
+                            blank_line_started = True
+                            blank_line_found = False
+                            fix_point = seg
+        return error_buffer or None
+
+
+@std_rule_set.register
+class Rule_L023(BaseCrawler):
+    """Single whitespace expected after AS in WITH clause."""
+
+    expected_mother_segment_type = 'with_compound_statement'
+    pre_segment_identifier = ('name', 'AS')
+    post_segment_identifier = ('type', 'start_bracket')
+    allow_newline = False
+
+    def _eval(self, segment, **kwargs):
+        """Single whitespace expected in mother segment between pre and post segments."""
+        error_buffer = []
+        if segment.type == self.expected_mother_segment_type:
+            last_code = None
+            mid_segs = []
+            for seg in segment.segments:
+                if seg.is_code:
+                    if (
+                        last_code
+                        and getattr(last_code, self.pre_segment_identifier[0]) == self.pre_segment_identifier[1]
+                        and getattr(seg, self.post_segment_identifier[0]) == self.post_segment_identifier[1]
+                    ):
+                        # Do we actually have the right amount of whitespace?
+                        raw_inner = ''.join(s.raw for s in mid_segs)
+                        if raw_inner != ' ' and not (self.allow_newline and any(s.name == 'newline' for s in mid_segs)):
+                            if not raw_inner:
+                                # There's nothing between. Just add a whitespace
+                                fixes = [LintFix(
+                                    'create', seg,
+                                    [self.make_whitespace(raw=' ', pos_marker=seg.pos_marker)])]
+                            else:
+                                # Don't otherwise suggest a fix for now.
+                                # TODO: Enable more complex fixing here.
+                                fixes = None
+                            error_buffer.append(
+                                LintResult(anchor=last_code, fixes=fixes)
+                            )
+                    mid_segs = []
+                    if not seg.is_meta:
+                        last_code = seg
+                else:
+                    mid_segs.append(seg)
+        return error_buffer or None
+
+
+@std_rule_set.register
+class Rule_L024(Rule_L023):
+    """Single whitespace expected after USING in JOIN clause."""
+
+    expected_mother_segment_type = 'join_clause'
+    pre_segment_identifier = ('name', 'USING')
+    post_segment_identifier = ('type', 'start_bracket')
+    allow_newline = True
+
+
+@std_rule_set.register
+class Rule_L025(Rule_L020):
+    """Tables should not be aliased if that alias is not used."""
+
+    @staticmethod
+    def _extract_type_tbl_reference(reference):
+        """Extract the type of reference and the referenced alias.
+
+        Returns:
+            :obj:`tuple` of (alias_type, alias)
+
+        """
+        this_ref_type = 'qualified' if reference.is_qualified() else 'unqualified'
+        ref_elems = list(reference.iter_raw_references())
+        if len(ref_elems) >= 2:
+            tbl_ref = ref_elems[-2]
+        else:
+            tbl_ref = None
+        return this_ref_type, tbl_ref
+
+    def _lint_references_and_aliases(self, aliases, references, using_cols):
+        """Check all aliased references against tables referenced in the query."""
+        # A buffer to keep any violations.
+        violation_buff = []
+        # Check all the references that we have, keep track of which aliases we refer to.
+        tbl_refs = set()
+        for r in references:
+            _, tbl_ref = self._extract_type_tbl_reference(r)
+            if tbl_ref:
+                tbl_refs.add(tbl_ref[0])
+
+        for ref_str, seg, aliased in aliases:
+            if aliased and ref_str not in tbl_refs:
+                violation_buff.append(
+                    LintResult(
+                        anchor=seg,
+                        description="Alias {0!r} is never used in SELECT statement.".format(ref_str)
+                    )
+                )
+        return violation_buff or None
+
+
+@std_rule_set.register
+class Rule_L026(Rule_L025):
+    """References cannot reference objects not present in FROM clause."""
+
+    def _lint_references_and_aliases(self, aliases, references, using_cols):
+        # A buffer to keep any violations.
+        violation_buff = []
+
+        # Check all the references that we have, do they reference present aliases?
+        for r in references:
+            _, tbl_ref = self._extract_type_tbl_reference(r)
+            # Check whether the string in the list of strings
+            if tbl_ref and tbl_ref[0] not in [a[0] for a in aliases]:
+                violation_buff.append(
+                    LintResult(
+                        # Return the segment rather than the string
+                        anchor=tbl_ref[1],
+                        description="Reference {0!r} refers to table/view {1!r} not found in the FROM clause.".format(r.raw, tbl_ref[0])
+                    )
+                )
+        return violation_buff or None
+
+
+@std_rule_set.register
+class Rule_L027(Rule_L025):
+    """References should be qualified if select has more than one referenced table/view.
+
+    NB: Except if they're present in a USING clause.
+
+    """
+
+    def _lint_references_and_aliases(self, aliases, references, using_cols):
+        # Do we have more than one? If so, all references should be qualified.
+        if len(aliases) <= 1:
+            return None
+        # A buffer to keep any violations.
+        violation_buff = []
+        # Check all the references that we have.
+        for r in references:
+            this_ref_type, _ = self._extract_type_tbl_reference(r)
+            if this_ref_type == 'unqualified' and r.raw not in using_cols:
+                violation_buff.append(
+                    LintResult(
+                        anchor=r,
+                        description="Unqualified reference {0!r} found in select with more than one referenced table/view.".format(r.raw)
+                    )
+                )
+
+        return violation_buff or None
+
+
+@std_rule_set.register
+class Rule_L028(Rule_L025):
+    """References should be consistent in statements with a single table.
+
+    Args:
+        single_table_references (:obj:`str`): The expectation for references
+            in single-table select. One of `qualified`, `unqualified`,
+            `consistent` (default is `consistent`).
+
+    """
+
+    def __init__(self, single_table_references='consistent', **kwargs):
+        """Initialise, extracting `single_table_references` from the config."""
+        if single_table_references not in ['qualified', 'unqualified', 'consistent']:
+            raise ValueError("Unexpected `single_table_references`: {0!r}".format(
+                single_table_references))
+        self.single_table_references = single_table_references
+        super().__init__(**kwargs)
+
+    def _lint_references_and_aliases(self, aliases, references, using_cols):
+        """Iterate through references and check consistency."""
+        # How many aliases are there? If more than one then abort.
+        if len(aliases) > 1:
+            return None
+        # A buffer to keep any violations.
+        violation_buff = []
+        # Check all the references that we have.
+        seen_ref_types = set()
+        for r in references:
+            this_ref_type, _ = self._extract_type_tbl_reference(r)
+            if self.single_table_references == 'consistent':
+                if seen_ref_types and this_ref_type not in seen_ref_types:
+                    violation_buff.append(
+                        LintResult(
+                            anchor=r,
+                            description="{0} reference {1!r} found in single table select which is inconsistent with previous references.".format(
+                                this_ref_type.capitalize(),
+                                r.raw
+                            )
+                        )
+                    )
+            elif self.single_table_references != this_ref_type:
+                violation_buff.append(
+                    LintResult(
+                        anchor=r,
+                        description="{0} reference {1!r} found in single table select.".format(
+                            this_ref_type.capitalize(),
+                            r.raw
+                        )
+                    )
+                )
+            seen_ref_types.add(this_ref_type)
+
+        return violation_buff or None
+
+
+@std_rule_set.register
+class Rule_L029(BaseCrawler):
+    """Keywords should not be used as identifiers.
+
+    Args:
+        only_aliases (:obj:`bool`): Should this rule only raise
+            issues for aiases. By default this is true, and therefore
+            only flags violations for alias expressions (which are
+            directly in control of the sql writer). When set to false
+            this rule flags issues for *all* unquoted identifiers.
+
+    """
+
+    def __init__(self, only_aliases=True, **kwargs):
+        """Initialise, extracting the only_aliases from the config."""
+        self.only_aliases = only_aliases
+        super(Rule_L029, self).__init__(**kwargs)
+
+    def _eval(self, segment, dialect, parent_stack, **kwargs):
+        """Keywords should not be used as identifiers."""
+        if segment.name == 'naked_identifier':
+            # If self.only_aliases is true, we're a bit pickier here
+            if self.only_aliases:
+                # Aliases are ok (either directly, or in column definitions or in with statements)
+                if parent_stack[-1].type in ('alias_expression', 'column_definition', 'with_compound_statement'):
+                    pass
+                # All other references may not be at the discretion of the developer, so leave them out
+                else:
+                    return None
+            # Actually lint
+            if segment.raw.upper() in dialect.sets('unreserved_keywords'):
+                return LintResult(anchor=segment)

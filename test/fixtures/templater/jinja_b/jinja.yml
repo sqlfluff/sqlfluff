@@ -8,34 +8,34 @@ file:
       - whitespace: '    '
       - select_target_element:
         - expression:
-          - numeric_literal: 3
+          - literal: 3
           - whitespace: ' '
           - binary_operator: +
           - whitespace: ' '
-          - numeric_literal: 6
+          - literal: 6
         - whitespace: ' '
         - alias_expression:
           - keyword: as
           - whitespace: ' '
-          - naked_identifier: a
+          - identifier: a
       - comma: ','
       - select_target_element:
         - expression:
-          - numeric_literal: 7
+          - literal: 7
           - whitespace: ' '
           - binary_operator: +
           - whitespace: ' '
-          - numeric_literal: 14
+          - literal: 14
         - whitespace: ' '
         - alias_expression:
           - keyword: as
           - whitespace: ' '
-          - naked_identifier: b
+          - identifier: b
     - newline: "\n"
     - from_clause:
         keyword: FROM
         whitespace: ' '
         table_expression:
           object_reference:
-          - naked_identifier: some_table
+          - identifier: some_table
   newline: "\n"

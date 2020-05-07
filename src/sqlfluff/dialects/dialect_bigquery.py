@@ -23,8 +23,13 @@ bigquery_dialect.patch_lexer_struct([
 ])
 
 bigquery_dialect.add(
-    DoubleQuotedLiteralSegment=NamedSegment.make('double_quote', name='literal', type='quoted_literal')
+    DoubleQuotedLiteralSegment=NamedSegment.make('double_quote', name='quoted_literal', type='literal', trim_chars=('"',))
 )
+
+# Add the microsecond unit
+bigquery_dialect.sets('datetime_units').add('MICROSECOND')
+# Add the ISO date parts
+bigquery_dialect.sets('datetime_units').update(['ISOWEEK', 'ISOYEAR'])
 
 
 # BigQuery allows functions in INTERVAL
@@ -32,20 +37,20 @@ class IntervalExpressionSegment(BaseSegment):
     """An interval with a function as value segment."""
     type = 'interval_expression'
     match_grammar = Sequence(
-        Ref('IntervalKeywordSegment'),
+        'INTERVAL',
         OneOf(
             Ref('NumericLiteralSegment'),
             Ref('FunctionSegment')
         ),
         OneOf(
             Ref('QuotedLiteralSegment'),
-            Ref('DatepartSegment')
+            Ref('DatetimeUnitSegment')
         )
     )
 
 
 bigquery_dialect.replace(
-    QuotedIdentifierSegment=NamedSegment.make('back_quote', name='identifier', type='quoted_identifier'),
+    QuotedIdentifierSegment=NamedSegment.make('back_quote', name='quoted_identifier', type='identifier', trim_chars=('`',)),
     IntervalExpressionSegment=IntervalExpressionSegment,
     LiteralGrammar=OneOf(
         Ref('QuotedLiteralSegment'), Ref('DoubleQuotedLiteralSegment'), Ref('NumericLiteralSegment'),

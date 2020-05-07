@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Support for the Teradata dialect Thanks [@Katzmann1983](https://github.com/Katzmann1983)!
+- Support for the Teradata dialect. Thanks [@Katzmann1983](https://github.com/Katzmann1983)!
 - A much more detailed getting started guide in the docs.
 - For the `parse` command, added the `--profiler` and `--bench` options
   to help debugging performance issues.
@@ -24,6 +24,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rules now have their own logging interface to improve debugging ability.
 - Snowflake and Postgres dialects.
 - Support for a `.sqlfluffignore` file to ignore certain paths.
+- More generic interfaces for managing keywords in dialects, including `set`
+  interfaces for managing and creating keywords and the `Ref.keyword()` method
+  to refer to them, and the ability to refer directly to keyword names in
+  most grammars using strings directly. Includes `SegmentGenerator` objects
+  to bind dialect objects at runtime from sets. Thanks [@Katzmann1983](https://github.com/Katzmann1983)!
+- Rule `L029` for using unreserved keywords as variable names.
 
 ### Changed
 

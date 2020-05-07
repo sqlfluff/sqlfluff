@@ -181,7 +181,8 @@ class BaseCrawler:
             ).format(self.__class__.__name__)
         )
 
-    def crawl(self, segment, parent_stack=None, siblings_pre=None, siblings_post=None, raw_stack=None, fix=False, memory=None):
+    def crawl(self, segment, dialect, parent_stack=None, siblings_pre=None, siblings_post=None,
+              raw_stack=None, fix=False, memory=None):
         """Recursively perform the crawl operation on a given segment.
 
         Returns:
@@ -213,7 +214,7 @@ class BaseCrawler:
         res = self._eval(
             segment=segment, parent_stack=parent_stack,
             siblings_pre=siblings_pre, siblings_post=siblings_post,
-            raw_stack=raw_stack, memory=memory)
+            raw_stack=raw_stack, memory=memory, dialect=dialect)
 
         if res is None:
             # Assume this means no problems (also means no memory)
@@ -228,6 +229,22 @@ class BaseCrawler:
             if res.fixes and fix:
                 # Return straight away so the fixes can be applied.
                 return vs, raw_stack, res.fixes, memory
+        elif isinstance(res, list) and all(isinstance(elem, LintResult) for elem in res):
+            # Extract any memory from the *last* one, assuming
+            # it was the last to be added
+            memory = res[-1].memory
+            fix_buff = []
+            for elem in res:
+                lerr = elem.to_linting_error(rule=self)
+                if lerr:
+                    vs.append(lerr)
+                # We need fixes and to be in fix mode to invoke this...
+                if elem.fixes and fix:
+                    fix_buff += elem.fixes
+
+            if fix and fix_buff:
+                # Return straight away so the fixes can be applied.
+                return vs, raw_stack, fix_buff, memory
         else:
             raise TypeError(
                 "Got unexpected result [{0!r}] back from linting rule: {1!r}".format(res, self.code))
@@ -240,10 +257,11 @@ class BaseCrawler:
 
         for idx, child in enumerate(segment.segments):
             dvs, raw_stack, fixes, memory = self.crawl(
-                child, parent_stack=parent_stack,
+                segment=child, parent_stack=parent_stack,
                 siblings_pre=segment.segments[:idx],
                 siblings_post=segment.segments[idx + 1:],
-                raw_stack=raw_stack, fix=fix, memory=memory)
+                raw_stack=raw_stack, fix=fix, memory=memory,
+                dialect=dialect)
             vs += dvs
 
             if fixes and fix:

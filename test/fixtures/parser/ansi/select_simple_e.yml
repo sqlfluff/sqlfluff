@@ -7,27 +7,27 @@ file:
       - select_target_element:
           expression:
             object_reference:
-              naked_identifier: my_var
+              identifier: my_var
             cast_expression:
               casting_operator: '::'
               data_type:
                 data_type_identifier: date
           alias_expression:
             keyword: as
-            naked_identifier: casted_variable
+            identifier: casted_variable
       - comma: ','
       - select_target_element:
           expression:
-            numeric_literal: 123
+            literal: 123
             cast_expression:
               casting_operator: '::'
               data_type:
                 data_type_identifier: bigint
           alias_expression:
             keyword: as
-            naked_identifier: another_casted_number
+            identifier: another_casted_number
       from_clause:
         keyword: FROM
         table_expression:
           object_reference:
-            naked_identifier: boo
+            identifier: boo

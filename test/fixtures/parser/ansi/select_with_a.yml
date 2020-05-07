@@ -3,8 +3,7 @@ file:
   statement:
     with_compound_statement:
     - keyword: WITH
-    - object_reference:
-        naked_identifier: cte
+    - identifier: cte
     - keyword: as
     - start_bracket: (
     - select_statement:
@@ -12,21 +11,21 @@ file:
           keyword: select
           select_target_element:
             object_reference:
-              naked_identifier: a
+              identifier: a
       - from_clause:
           keyword: from
           table_expression:
             object_reference:
-              naked_identifier: tbla
+              identifier: tbla
     - end_bracket: )
     - select_statement:
       - select_clause:
           keyword: select
           select_target_element:
             object_reference:
-              naked_identifier: a
+              identifier: a
       - from_clause:
           keyword: from
           table_expression:
             object_reference:
-              naked_identifier: cte
+              identifier: cte

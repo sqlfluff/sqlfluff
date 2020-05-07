@@ -4,11 +4,11 @@ file:
       select_clause:
         keyword: SELECT
         select_target_element:
-          numeric_literal: 56
+          literal: 56
       from_clause:
         keyword: FROM
         table_expression:
           object_reference:
-          - naked_identifier: sch1
+          - identifier: sch1
           - dot: '.'
-          - naked_identifier: tbl2
+          - identifier: tbl2

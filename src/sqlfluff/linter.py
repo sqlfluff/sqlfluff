@@ -639,7 +639,9 @@ class Linter:
         # we don't want to miss anything.
         raw_buff = s
 
-        # TODO: Tidy this up - it's a mess
+        # Sort out config, defaulting to the built in config if no override
+        config = config or self.config
+
         # Using the new parser, read the file object.
         parsed, vs, time_dict = self.parse_string(s=s, fname=fname, verbosity=verbosity, config=config)
 
@@ -678,8 +680,8 @@ class Linter:
 
             # Get the initial violations
             linting_errors = []
-            for crawler in self.get_ruleset(config=config or self.config):
-                lerrs, _, _, _ = crawler.crawl(parsed)
+            for crawler in self.get_ruleset(config=config):
+                lerrs, _, _, _ = crawler.crawl(parsed, dialect=config.get('dialect_obj'))
                 linting_errors += lerrs
             initial_linting_errors = linting_errors
 
@@ -693,14 +695,14 @@ class Linter:
                 last_fixes = None
                 while True:
                     changed = False
-                    for crawler in self.get_ruleset(config=config or self.config):
+                    for crawler in self.get_ruleset(config=config):
                         # fixes should be a dict {} with keys edit, delete, create
                         # delete is just a list of segments to delete
                         # edit and create are list of tuples. The first element is the
                         # "anchor", the segment to look for either to edit or to insert BEFORE.
                         # The second is the element to insert or create.
 
-                        lerrs, _, fixes, _ = crawler.crawl(working, fix=True)
+                        lerrs, _, fixes, _ = crawler.crawl(working, dialect=config.get('dialect_obj'), fix=True)
                         linting_errors += lerrs
                         if fixes:
                             verbosity_logger("Applying Fixes: {0}".format(fixes), verbosity=verbosity)
