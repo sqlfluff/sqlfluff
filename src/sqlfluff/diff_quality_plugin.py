@@ -25,7 +25,7 @@ class SQLFluffViolationReporter(BaseViolationReporter):
         """
         linter = get_linter(get_config())
         linter.output_func = None
-        linted_path = linter.lint_path(src_path)
+        linted_path = linter.lint_path(src_path, ignore_non_existent_files=True)
         result = []
         for violation in linted_path.get_violations():
             try:

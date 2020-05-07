@@ -153,7 +153,7 @@ def lint(paths, format, **kwargs):
         # Output the results as we go
         lnt.log(format_linting_result_header(verbose=verbose))
         try:
-            result = lnt.lint_paths(paths, verbosity=verbose)
+            result = lnt.lint_paths(paths, verbosity=verbose, ignore_non_existent_files=False)
         except IOError:
             click.echo(colorize('The path(s) {0!r} could not be accessed. Check it/they exist(s).'.format(paths), 'red'))
             sys.exit(1)
@@ -219,7 +219,7 @@ def fix(force, paths, **kwargs):
     # Lint the paths (not with the fix argument at this stage), outputting as we go.
     lnt.log("==== finding fixable violations ====")
     try:
-        result = lnt.lint_paths(paths, verbosity=verbose, fix=True)
+        result = lnt.lint_paths(paths, verbosity=verbose, fix=True, ignore_non_existent_files=False)
     except IOError:
         click.echo(colorize('The path(s) {0!r} could not be accessed. Check it/they exist(s).'.format(paths), 'red'))
         sys.exit(1)
