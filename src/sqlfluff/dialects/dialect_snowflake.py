@@ -11,6 +11,11 @@ from ..parser import (BaseSegment, NamedSegment, OneOf, Ref, Sequence, AnyNumber
 
 snowflake_dialect = postgres_dialect.copy_as('snowflake')
 
+snowflake_dialect.patch_lexer_struct([
+    # In snowflake, a double single quote resolves as a single quote in the string.
+    # https://docs.snowflake.com/en/sql-reference/data-types-text.html#single-quoted-string-constants
+    ("single_quote", "regex", r"'([^']|'')*'", dict(is_code=True)),
+])
 
 snowflake_dialect.insert_lexer_struct(
     # Keyword assigner needed for keyword functions.
@@ -18,14 +23,17 @@ snowflake_dialect.insert_lexer_struct(
     before='not_equal'
 )
 
+snowflake_dialect.sets('unreserved_keywords').update([
+    'LATERAL'
+])
+
 
 snowflake_dialect.add(
     # In snowflake, these are case sensitive even though they're not quoted
     # so they need a different `name` and `type` so they're not picked up
     # by other rules.
-    LateralKeywordSegment=KeywordSegment.make('lateral'),
-    KeywordAssignerSegment=KeywordSegment.make('=>', name="keyword_assigner"),
-    KeywordNameSegment=ReSegment.make(
+    ParameterAssignerSegment=KeywordSegment.make('=>', name="keyword_assigner"),
+    ParameterNameSegment=ReSegment.make(
         r"[A-Z][A-Z0-9_]*", name='keyword_name',
         type='keyword_name'),
     NakedSemiStructuredElementSegment=ReSegment.make(
@@ -47,14 +55,14 @@ snowflake_dialect.replace(
         Ref('LateralKeywordSegment')
     ),
     FunctionContentsExpressionGrammar=OneOf(
-        Ref('KeywordExpressionSegment'),
+        Ref('NamedParameterExpressionSegment'),
         Ref('ExpressionSegment')
     ),
 )
 
 
 @snowflake_dialect.segment()
-class KeywordExpressionSegment(BaseSegment):
+class NamedParameterExpressionSegment(BaseSegment):
     """A keyword expression.
 
     e.g. 'input => custom_fields'
@@ -62,8 +70,8 @@ class KeywordExpressionSegment(BaseSegment):
     """
     type = 'snowflake_keyword_expression'
     match_grammar = Sequence(
-        Ref('KeywordNameSegment'),
-        Ref('KeywordAssignerSegment'),
+        Ref('ParameterNameSegment'),
+        Ref('ParameterAssignerSegment'),
         OneOf(
             Ref('LiteralGrammar'),
             Ref('ObjectReferenceSegment')

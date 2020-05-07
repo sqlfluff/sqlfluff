@@ -181,7 +181,8 @@ class BaseCrawler:
             ).format(self.__class__.__name__)
         )
 
-    def crawl(self, segment, parent_stack=None, siblings_pre=None, siblings_post=None, raw_stack=None, fix=False, memory=None):
+    def crawl(self, segment, dialect, parent_stack=None, siblings_pre=None, siblings_post=None,
+              raw_stack=None, fix=False, memory=None):
         """Recursively perform the crawl operation on a given segment.
 
         Returns:
@@ -213,7 +214,7 @@ class BaseCrawler:
         res = self._eval(
             segment=segment, parent_stack=parent_stack,
             siblings_pre=siblings_pre, siblings_post=siblings_post,
-            raw_stack=raw_stack, memory=memory)
+            raw_stack=raw_stack, memory=memory, dialect=dialect)
 
         if res is None:
             # Assume this means no problems (also means no memory)
@@ -256,10 +257,11 @@ class BaseCrawler:
 
         for idx, child in enumerate(segment.segments):
             dvs, raw_stack, fixes, memory = self.crawl(
-                child, parent_stack=parent_stack,
+                segment=child, parent_stack=parent_stack,
                 siblings_pre=segment.segments[:idx],
                 siblings_post=segment.segments[idx + 1:],
-                raw_stack=raw_stack, fix=fix, memory=memory)
+                raw_stack=raw_stack, fix=fix, memory=memory,
+                dialect=dialect)
             vs += dvs
 
             if fixes and fix:
