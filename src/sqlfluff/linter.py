@@ -7,6 +7,7 @@ import logging
 
 from difflib import SequenceMatcher
 from benchit import BenchIt
+import pathspec
 
 from .errors import SQLLexError, SQLParseError, SQLTemplaterError
 from .parser import FileSegment, ParseContext
@@ -754,24 +755,53 @@ class Linter:
         )
         return res
 
-    def paths_from_path(self, path):
-        """Return a set of sql file paths from a potentially more ambigious path string."""
+    def paths_from_path(self, path, ignore_file_name='.sqlfluffignore'):
+        """Return a set of sql file paths from a potentially more ambigious path string.
+
+        Here we also deal with the .sqlfluffignore file if present.
+
+        """
         if not os.path.exists(path):
             raise IOError("Specified path does not exist")
 
+        # Files referred to exactly are never ignored.
         if not os.path.isdir(path):
             return [path]
 
         # If it's a directory then expand the path!
+        ignore_set = set()
         buffer = []
         for dirpath, _, filenames in os.walk(path):
             for fname in filenames:
+                fpath = os.path.join(dirpath, fname)
+                # Handle potential .sqlfluffignore files
+                if fname == ignore_file_name:
+                    with open(fpath, 'r') as fh:
+                        spec = pathspec.PathSpec.from_lines('gitwildmatch', fh)
+                    matches = spec.match_tree(dirpath)
+                    for m in matches:
+                        ignore_path = os.path.join(dirpath, m)
+                        ignore_set.add(ignore_path)
+                    # We don't need to process the ignore file any futher
+                    continue
+
+                # We won't purge files *here* because there's an edge case
+                # that the ignore file is processed after the sql file.
+
+                # Scan for remaining files
                 for ext in self.sql_exts:
                     # is it a sql file?
                     if fname.endswith(ext):
-                        # join the paths and normalise
-                        buffer.append(os.path.normpath(os.path.join(dirpath, fname)))
-        return sorted(buffer)
+                        buffer.append(fpath)
+
+        # Check the buffer for ignore items and normalise the rest.
+        filtered_buffer = []
+        for fpath in buffer:
+            if fpath not in ignore_set:
+                filtered_buffer.append(os.path.normpath(fpath))
+
+        # Return
+        return sorted(filtered_buffer)
 
     def lint_string_wrapped(self, string, fname='<string input>', verbosity=0, fix=False):
         """Lint strings directly."""
