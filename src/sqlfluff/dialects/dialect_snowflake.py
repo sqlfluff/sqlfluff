@@ -26,7 +26,18 @@ snowflake_dialect.insert_lexer_struct(
 )
 
 snowflake_dialect.sets('unreserved_keywords').update([
-    'LATERAL'
+    'LATERAL',
+    'BERNOILLI',
+    'BLOCK',
+    'SEED'
+])
+
+
+snowflake_dialect.sets('reserved_keywords').update([
+    'SAMPLE',
+    'TABLESAMPLE',
+    'PIVOT',
+    'UNPIVOT',
 ])
 
 
@@ -60,25 +71,22 @@ snowflake_dialect.replace(
         Ref('NamedParameterExpressionSegment'),
         Ref('ExpressionSegment')
     ),
-    PostTableExpressionGrammar=Sequence(
+    JoinLikeClauseGrammar=Sequence(
+        OneOf(
+            Ref('FromAtExpressionSegment'),
+            Ref('FromBeforeExpressionSegment'),
+            Ref('FromPivotExpressionSegment'),
+            Ref('FromUnpivotExpressionSegment')
+        ),
         Ref('SamplingExpressionSegment', optional=True),
         Ref('TableAliasExpressionSegment', optional=True)
-    ),
-    JoinLikeClauseGrammar=OneOf(
-        Ref('FromAtExpressionSegment'),
-        Ref('FromBeforeExpressionSegment'),
-        Ref('FromPivotExpressionSegment'),
-        Ref('FromUnpivotExpressionSegment')
     )
 )
 
 
 @snowflake_dialect.segment()
 class TableAliasExpressionSegment(BaseSegment):
-    """A reference to an object with an `AS` clause.
-
-    The optional AS keyword allows both implicit and explicit aliasing.
-    """
+    """A reference to an object with an `AS` clause, optionally with column aliasing."""
     type = 'table_alias_expression'
     match_grammar = Sequence(
         Ref('AliasExpressionSegment'),
@@ -107,9 +115,11 @@ class FromAtExpressionSegment(BaseSegment):
     parse_grammar = Sequence(
         'AT',
         Bracketed(
-            OneOf('TIMESTAMP', 'OFFSET', 'STATEMENT'),
-            Ref('KeywordAssignerSegment'),
-            Ref('ExpressionSegment')
+            Sequence(
+                OneOf('TIMESTAMP', 'OFFSET', 'STATEMENT'),
+                Ref('KeywordAssignerSegment'),
+                Ref('ExpressionSegment')
+            )
         )
     )
 
@@ -128,9 +138,11 @@ class FromBeforeExpressionSegment(BaseSegment):
     parse_grammar = Sequence(
         'BEFORE',
         Bracketed(
-            'STATEMENT',
-            Ref('KeywordAssignerSegment'),
-            Ref('StringLiteral')
+            Sequence(
+                'STATEMENT',
+                Ref('KeywordAssignerSegment'),
+                Ref('StringLiteral')
+            )
         )
     )
 
@@ -149,17 +161,16 @@ class FromPivotExpressionSegment(BaseSegment):
     parse_grammar = Sequence(
         'PIVOT',
         Bracketed(
-            Ref('FunctionNameSegment'),
-            Bracketed(
+            Sequence(
+                Ref('FunctionSegment'),
+                'FOR',
                 Ref('SingleIdentifierGrammar'),
-            ),
-            'FOR',
-            Ref('SingleIdentifierGrammar'),
-            'IN',
-            Bracketed(
-                Delimited(
-                    Ref('SingleIdentifierGrammar'),
-                    delimiter=Ref('CommaSegment')
+                'IN',
+                Bracketed(
+                    Delimited(
+                        Ref('LiteralGrammar'),
+                        delimiter=Ref('CommaSegment')
+                    )
                 )
             )
         )
@@ -180,14 +191,16 @@ class FromUnpivotExpressionSegment(BaseSegment):
     parse_grammar = Sequence(
         'UNPIVOT',
         Bracketed(
-            Ref('SingleIdentifierGrammar'),
-            'FOR',
-            Ref('SingleIdentifierGrammar'),
-            'IN',
-            Bracketed(
-                Delimited(
-                    Ref('SingleIdentifierGrammar'),
-                    delimiter=Ref('CommaSegment')
+            Sequence(
+                Ref('SingleIdentifierGrammar'),
+                'FOR',
+                Ref('SingleIdentifierGrammar'),
+                'IN',
+                Bracketed(
+                    Delimited(
+                        Ref('SingleIdentifierGrammar'),
+                        delimiter=Ref('CommaSegment')
+                    )
                 )
             )
         )
