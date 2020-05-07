@@ -800,14 +800,17 @@ class Linter:
         )
         return res
 
-    def paths_from_path(self, path, ignore_file_name='.sqlfluffignore'):
+    def paths_from_path(self, path, ignore_file_name='.sqlfluffignore', ignore_non_existent_files=False):
         """Return a set of sql file paths from a potentially more ambigious path string.
 
         Here we also deal with the .sqlfluffignore file if present.
 
         """
         if not os.path.exists(path):
-            raise IOError("Specified path does not exist")
+            if ignore_non_existent_files:
+                return []
+            else:
+                raise IOError("Specified path does not exist")
 
         # Files referred to exactly are never ignored.
         if not os.path.isdir(path):
@@ -858,11 +861,11 @@ class Linter:
         result.add(linted_path)
         return result
 
-    def lint_path(self, path, verbosity=0, fix=False):
+    def lint_path(self, path, verbosity=0, fix=False, ignore_non_existent_files=False):
         """Lint a path."""
         linted_path = LintedPath(path)
         self.log(format_linting_path(path, verbose=verbosity))
-        for fname in self.paths_from_path(path):
+        for fname in self.paths_from_path(path, ignore_non_existent_files=ignore_non_existent_files):
             config = self.config.make_child_from_path(fname)
             # Handle unicode issues gracefully
             with open(fname, 'r', encoding='utf8', errors='backslashreplace') as target_file:
@@ -872,7 +875,7 @@ class Linter:
                                      fix=fix, config=config))
         return linted_path
 
-    def lint_paths(self, paths, verbosity=0, fix=False):
+    def lint_paths(self, paths, verbosity=0, fix=False, ignore_non_existent_files=False):
         """Lint an iterable of paths."""
         # If no paths specified - assume local
         if len(paths) == 0:
@@ -882,7 +885,8 @@ class Linter:
         for path in paths:
             # Iterate through files recursively in the specified directory (if it's a directory)
             # or read the file directly if it's not
-            result.add(self.lint_path(path, verbosity=verbosity, fix=fix))
+            result.add(self.lint_path(path, verbosity=verbosity, fix=fix,
+                                      ignore_non_existent_files=ignore_non_existent_files))
         return result
 
     def parse_path(self, path, verbosity=0, recurse=True):
