@@ -6,7 +6,9 @@ Based on https://docs.snowflake.com/en/sql-reference-commands.html
 """
 
 from .dialect_postgres import postgres_dialect
-from ..parser import (BaseSegment, NamedSegment, OneOf, Ref, Sequence, AnyNumberOf, ReSegment, KeywordSegment)
+from ..parser import (BaseSegment, NamedSegment, OneOf, Ref, Sequence,
+                      AnyNumberOf, ReSegment, KeywordSegment, Bracketed,
+                      Anything, Delimited)
 
 
 snowflake_dialect = postgres_dialect.copy_as('snowflake')
@@ -24,7 +26,18 @@ snowflake_dialect.insert_lexer_struct(
 )
 
 snowflake_dialect.sets('unreserved_keywords').update([
-    'LATERAL'
+    'LATERAL',
+    'BERNOILLI',
+    'BLOCK',
+    'SEED'
+])
+
+
+snowflake_dialect.sets('reserved_keywords').update([
+    'SAMPLE',
+    'TABLESAMPLE',
+    'PIVOT',
+    'UNPIVOT',
 ])
 
 
@@ -58,7 +71,160 @@ snowflake_dialect.replace(
         Ref('NamedParameterExpressionSegment'),
         Ref('ExpressionSegment')
     ),
+    JoinLikeClauseGrammar=Sequence(
+        OneOf(
+            Ref('FromAtExpressionSegment'),
+            Ref('FromBeforeExpressionSegment'),
+            Ref('FromPivotExpressionSegment'),
+            Ref('FromUnpivotExpressionSegment')
+        ),
+        Ref('SamplingExpressionSegment', optional=True),
+        Ref('TableAliasExpressionSegment', optional=True)
+    )
 )
+
+
+@snowflake_dialect.segment()
+class TableAliasExpressionSegment(BaseSegment):
+    """A reference to an object with an `AS` clause, optionally with column aliasing."""
+    type = 'table_alias_expression'
+    match_grammar = Sequence(
+        Ref('AliasExpressionSegment'),
+        # Optional column aliases too.
+        Bracketed(
+            Delimited(
+                Ref('SingleIdentifierGrammar'),
+                delimiter=Ref('CommaSegment')
+            ),
+            optional=True
+        )
+    )
+
+
+@snowflake_dialect.segment()
+class FromAtExpressionSegment(BaseSegment):
+    """An AT expression."""
+    type = 'from_at_expression'
+    match_grammar = Sequence(
+        'AT',
+        Bracketed(
+            Anything()
+        )
+    )
+
+    parse_grammar = Sequence(
+        'AT',
+        Bracketed(
+            Sequence(
+                OneOf('TIMESTAMP', 'OFFSET', 'STATEMENT'),
+                Ref('KeywordAssignerSegment'),
+                Ref('ExpressionSegment')
+            )
+        )
+    )
+
+
+@snowflake_dialect.segment()
+class FromBeforeExpressionSegment(BaseSegment):
+    """A BEFORE expression."""
+    type = 'from_before_expression'
+    match_grammar = Sequence(
+        'BEFORE',
+        Bracketed(
+            Anything()
+        )
+    )
+
+    parse_grammar = Sequence(
+        'BEFORE',
+        Bracketed(
+            Sequence(
+                'STATEMENT',
+                Ref('KeywordAssignerSegment'),
+                Ref('StringLiteral')
+            )
+        )
+    )
+
+
+@snowflake_dialect.segment()
+class FromPivotExpressionSegment(BaseSegment):
+    """A PIVOT expression."""
+    type = 'from_pivot_expression'
+    match_grammar = Sequence(
+        'PIVOT',
+        Bracketed(
+            Anything()
+        )
+    )
+
+    parse_grammar = Sequence(
+        'PIVOT',
+        Bracketed(
+            Sequence(
+                Ref('FunctionSegment'),
+                'FOR',
+                Ref('SingleIdentifierGrammar'),
+                'IN',
+                Bracketed(
+                    Delimited(
+                        Ref('LiteralGrammar'),
+                        delimiter=Ref('CommaSegment')
+                    )
+                )
+            )
+        )
+    )
+
+
+@snowflake_dialect.segment()
+class FromUnpivotExpressionSegment(BaseSegment):
+    """An UNPIVOT expression."""
+    type = 'from_unpivot_expression'
+    match_grammar = Sequence(
+        'UNPIVOT',
+        Bracketed(
+            Anything()
+        )
+    )
+
+    parse_grammar = Sequence(
+        'UNPIVOT',
+        Bracketed(
+            Sequence(
+                Ref('SingleIdentifierGrammar'),
+                'FOR',
+                Ref('SingleIdentifierGrammar'),
+                'IN',
+                Bracketed(
+                    Delimited(
+                        Ref('SingleIdentifierGrammar'),
+                        delimiter=Ref('CommaSegment')
+                    )
+                )
+            )
+        )
+    )
+
+
+@snowflake_dialect.segment()
+class SamplingExpressionSegment(BaseSegment):
+    """A sampling expression."""
+    type = 'snowflake_sample_expression'
+    match_grammar = Sequence(
+        OneOf('SAMPLE', 'TABLESAMPLE'),
+        OneOf('BERNOILLI', 'ROW', 'SYSTEM', 'BLOCK', optional=True),
+        Bracketed(
+            Ref('NumericLiteralSegment'),
+            Ref.keyword('ROWS', optional=True)
+        ),
+        Sequence(
+            OneOf('REPEATABLE', 'SEED'),
+            Bracketed(
+                Ref('NumericLiteralSegment')
+            )
+        )
+    )
 
 
 @snowflake_dialect.segment()
@@ -74,7 +240,8 @@ class NamedParameterExpressionSegment(BaseSegment):
         Ref('ParameterAssignerSegment'),
         OneOf(
             Ref('LiteralGrammar'),
-            Ref('ObjectReferenceSegment')
+            Ref('ObjectReferenceSegment'),
+            Ref('ExpressionSegment')
         )
     )
 
@@ -95,13 +262,21 @@ class SemiStructuredAccessorSegment(BaseSegment):
         Ref('ArrayAccessorSegment', optional=True),
         AnyNumberOf(
             Sequence(
-                Ref('DotSegment'),
+                OneOf(
+                    # Can be delimited by dots or colons
+                    Ref('DotSegment'),
+                    Ref('ColonSegment'),
+                ),
                 OneOf(
                     Ref('NakedSemiStructuredElementSegment'),
                     Ref('QuotedSemiStructuredElementSegment')
                 ),
-                Ref('ArrayAccessorSegment', optional=True)
-            )
+                Ref('ArrayAccessorSegment', optional=True),
+                # No extra whitespace
+                code_only=False
+            ),
+            # No extra whitespace
+            code_only=False
         ),
         # No extra whitespace
         code_only=False
