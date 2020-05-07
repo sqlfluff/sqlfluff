@@ -22,7 +22,10 @@ postgres_dialect.sets('reserved_keywords').add('WITHIN')
 
 @postgres_dialect.segment()
 class WithinGroupClauseSegment(BaseSegment):
-    """An WITHIN GROUP clause for window functions."""
+    """An WITHIN GROUP clause for window functions.
+
+    https://www.postgresql.org/docs/current/functions-aggregate.html.
+    """
     type = 'withingroup_clause'
     match_grammar = Sequence(
         'WITHIN', 'GROUP',
