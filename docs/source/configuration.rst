@@ -185,9 +185,10 @@ macros folder must be specified in the config file to function as below:
 
 In this case, sqlfluff will load macros from any :code:`.sql` file found at the
 path specified on this variable. The path is interpreted *relative to the
-config file*, and therefore if the config file above was found at :code:`/home/my_project/.sqlfluff`
-then sqlfluff will look for macros in the folder :code:`/home/my_project/my_macros/`.
-Alternatively the path can also be a :code:`.sql` itself.
+config file*, and therefore if the config file above was found at
+:code:`/home/my_project/.sqlfluff` then sqlfluff will look for macros in the
+folder :code:`/home/my_project/my_macros/`. Alternatively the path can also
+be a :code:`.sql` itself.
 
 
 .. note::
