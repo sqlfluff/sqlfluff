@@ -57,6 +57,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   fixing of files, if one fix would re-introduce a problem with another.
 - Behaviour of the `Bracketed` grammar has been changed to treat it's
   content as a `Sequence` rather than a `OneOf`.
+- Move to `SandboxedEnvironment` rather than `Environment` for jinja
+  templating for security.
 
 ## [0.3.1] - 2020-02-17
 
