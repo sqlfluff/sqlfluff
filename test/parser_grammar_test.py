@@ -262,7 +262,7 @@ def test__parser__grammar_greedyuntil(seg_list):
     # Greedy matching until the first item should return none
     assert not g0.match(seg_list, parse_context=c)
     # Greedy matching up to foo should return bar (as a raw!)
-    assert g1.match(seg_list, parse_context=c).matched_segments == seg_list[:2]
+    assert g1.match(seg_list, parse_context=c).matched_segments == seg_list[:1]
     # Greedy matching up to baar should return bar, foo  (as a raw!)
     assert g2.match(seg_list, parse_context=c).matched_segments == seg_list[:3]
 
@@ -273,7 +273,7 @@ def test__parser__grammar_greedyuntil_bracketed(bracket_seg_list):
     g = GreedyUntil(fs, code_only=False)
     c = ParseContext(dialect=ansi_dialect)
     # Check that we can make it past the brackets
-    assert len(g.match(bracket_seg_list, parse_context=c)) == 8
+    assert len(g.match(bracket_seg_list, parse_context=c)) == 7
 
 
 def test__parser__grammar_containsonly(seg_list):

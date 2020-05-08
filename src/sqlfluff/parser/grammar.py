@@ -881,20 +881,64 @@ class AnyNumberOf(BaseGrammar):
 
 
 class GreedyUntil(BaseGrammar):
-    """Matching for GreedyUntil works just how you'd expect."""
+    """Matching for GreedyUntil works just how you'd expect.
+
+    Args:
+        enforce_whitespace_preceeding (:obj:`bool`): Should the GreedyUntil
+            match only match the content if it's preceeded by whitespace?
+            (defaults to False). This is useful for some keywords which may
+            have false alarms on some array accessors.
+
+    """
+
+    def __init__(self, *args, **kwargs):
+        self.enforce_whitespace_preceeding = kwargs.pop('enforce_whitespace_preceeding', False)
+        super(GreedyUntil, self).__init__(*args, **kwargs)
+
     def match(self, segments, parse_context):
         """Matching for GreedyUntil works just how you'd expect."""
-        pre, mat, _ = self._bracket_sensitive_look_ahead_match(
-            segments, self._elements, parse_context=parse_context.copy(incr='match_depth'),
-            code_only=self.code_only)
+        seg_buff = segments
+        seg_bank = tuple()
+        while True:
+            pre, mat, _ = self._bracket_sensitive_look_ahead_match(
+                seg_buff, self._elements, parse_context=parse_context.copy(incr='match_depth'),
+                code_only=self.code_only)
 
-        # Do we have a match?
-        if mat:
-            # Return everything up to the match
-            return MatchResult(pre, mat.all_segments())
-        else:
-            # Return everything
-            return MatchResult.from_matched(segments)
+            # Do we have a match?
+            if mat:
+                # Do we need to enfore whitespace preceeding?
+                if self.enforce_whitespace_preceeding:
+                    idx = -1
+                    while True:
+                        if len(pre) < abs(idx):
+                            # If we're at the start, it's ok
+                            allow = True
+                            break
+                        if pre[idx].is_meta:
+                            idx -= 1
+                            continue
+                        elif pre[idx].type in ('whitespace', 'newline'):
+                            allow = True
+                            break
+                        else:
+                            # No whitespace before. Not allowed.
+                            allow = False
+                            break
+
+                    if not allow:
+                        # Update our buffers and continue onward
+                        seg_bank = pre + mat.matched_segments
+                        seg_buff = mat.unmatched_segments
+                        # Loop around, don't return yet
+                        continue
+
+                # Return everything up to the match.
+                # We can't claim any non-code segments however, so we trim them off the end.
+                leading_nc, pre_seg_mid, trailing_nc = self._trim_non_code(seg_bank + pre)
+                return MatchResult(leading_nc + pre_seg_mid, trailing_nc + mat.all_segments())
+            else:
+                # Return everything
+                return MatchResult.from_matched(segments)
 
     def expected_string(self, dialect=None, called_from=None):
         """Get the expected string from the referenced element."""
