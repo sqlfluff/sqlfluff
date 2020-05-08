@@ -2101,3 +2101,18 @@ class Rule_L029(BaseCrawler):
             # Actually lint
             if segment.raw.upper() in dialect.sets('unreserved_keywords'):
                 return LintResult(anchor=segment)
+
+
+@std_rule_set.register
+class Rule_L030(Rule_L010):
+    """Inconsistent capitalisation of function names.
+
+    The functionality for this rule is inherited from :obj:`Rule_L010`.
+
+    Args:
+        capitalisation_policy (:obj:`str`): The capitalisation policy to
+            enforce. One of 'consistent', 'upper', 'lower', 'capitalise'.
+
+    """
+
+    _target_elems = (('name', 'function_name'),)

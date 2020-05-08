@@ -174,6 +174,10 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     ('L029', 'fail', 'SELECT 1 as parameter', None, None),
     ('L029', 'pass', 'SELECT parameter', None, None),  # should pass on default config as not alias
     ('L029', 'fail', 'SELECT parameter', None, {'rules': {'L029': {'only_aliases': False}}}),
+    # Inconsistent capitalisation of functions
+    ('L030', 'fail', 'SELECT MAX(id), min(id) from table', 'SELECT MAX(id), MIN(id) from table', None),
+    ('L030', 'fail', 'SELECT MAX(id), min(id) from table', 'SELECT max(id), min(id) from table',
+     {'rules': {'L030': {'capitalisation_policy': 'lower'}}})
 ])
 def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
     """Test that a rule passes/fails on a given string.
