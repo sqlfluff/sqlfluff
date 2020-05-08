@@ -881,20 +881,64 @@ class AnyNumberOf(BaseGrammar):
 
 
 class GreedyUntil(BaseGrammar):
-    """Matching for GreedyUntil works just how you'd expect."""
+    """Matching for GreedyUntil works just how you'd expect.
+
+    Args:
+        enforce_whitespace_preceeding (:obj:`bool`): Should the GreedyUntil
+            match only match the content if it's preceeded by whitespace?
+            (defaults to False). This is useful for some keywords which may
+            have false alarms on some array accessors.
+
+    """
+
+    def __init__(self, *args, **kwargs):
+        self.enforce_whitespace_preceeding = kwargs.pop('enforce_whitespace_preceeding', False)
+        super(GreedyUntil, self).__init__(*args, **kwargs)
+
     def match(self, segments, parse_context):
         """Matching for GreedyUntil works just how you'd expect."""
-        pre, mat, _ = self._bracket_sensitive_look_ahead_match(
-            segments, self._elements, parse_context=parse_context.copy(incr='match_depth'),
-            code_only=self.code_only)
+        seg_buff = segments
+        seg_bank = tuple()
+        while True:
+            pre, mat, _ = self._bracket_sensitive_look_ahead_match(
+                seg_buff, self._elements, parse_context=parse_context.copy(incr='match_depth'),
+                code_only=self.code_only)
 
-        # Do we have a match?
-        if mat:
-            # Return everything up to the match
-            return MatchResult(pre, mat.all_segments())
-        else:
-            # Return everything
-            return MatchResult.from_matched(segments)
+            # Do we have a match?
+            if mat:
+                # Do we need to enfore whitespace preceeding?
+                if self.enforce_whitespace_preceeding:
+                    idx = -1
+                    while True:
+                        if len(pre) < abs(idx):
+                            # If we're at the start, it's ok
+                            allow = True
+                            break
+                        if pre[idx].is_meta:
+                            idx -= 1
+                            continue
+                        elif pre[idx].type in ('whitespace', 'newline'):
+                            allow = True
+                            break
+                        else:
+                            # No whitespace before. Not allowed.
+                            allow = False
+                            break
+
+                    if not allow:
+                        # Update our buffers and continue onward
+                        seg_bank = pre + mat.matched_segments
+                        seg_buff = mat.unmatched_segments
+                        # Loop around, don't return yet
+                        continue
+
+                # Return everything up to the match.
+                # We can't claim any non-code segments however, so we trim them off the end.
+                leading_nc, pre_seg_mid, trailing_nc = self._trim_non_code(seg_bank + pre)
+                return MatchResult(leading_nc + pre_seg_mid, trailing_nc + mat.all_segments())
+            else:
+                # Return everything
+                return MatchResult.from_matched(segments)
 
     def expected_string(self, dialect=None, called_from=None):
         """Get the expected string from the referenced element."""
@@ -1030,6 +1074,20 @@ class Delimited(BaseGrammar):
         # Setting min delimiters means we have to match at least this number
         self.min_delimiters = kwargs.pop('min_delimiters', None)
         super(Delimited, self).__init__(*args, **kwargs)
+
+    def simple(self, parse_context):
+        """Does this matcher support a uppercase hash matching route?
+
+        Delimited does provide this, as long as *all* the elements *also* do.
+        This code is identical to OneOf.
+        """
+        simple_buff = ()
+        for opt in self._elements:
+            simple = opt.simple(parse_context=parse_context)
+            if not simple:
+                return False
+            simple_buff += simple
+        return simple_buff
 
     def match(self, segments, parse_context):
         """Match an arbitrary number of elements seperated by a delimiter.
@@ -1390,6 +1448,13 @@ class Bracketed(Sequence):
             self.start_bracket = Ref('StartBracketSegment')
             self.end_bracket = Ref('EndBracketSegment')
         super(Bracketed, self).__init__(*args, **kwargs)
+
+    def simple(self, parse_context):
+        """Does this matcher support a uppercase hash matching route?
+
+        Bracketed does this easily, we just look for the bracket.
+        """
+        return self.start_bracket.simple(parse_context=parse_context)
 
     def match(self, segments, parse_context):
         """Match if this is a bracketed sequence, with content that matches one of the elements.

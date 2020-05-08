@@ -565,8 +565,12 @@ class SelectClauseSegment(BaseSegment):
     match_grammar = GreedyUntil(
         OneOf(
             'FROM',
-            'LIMIT'
-        )
+            'LIMIT',
+            code_only=False
+        ),
+        # Make sure there's whitespace before the keywords.
+        enforce_whitespace_preceeding=True,
+        code_only=False
     )
 
     parse_grammar = Sequence(
