@@ -24,5 +24,7 @@ SELECT
     rB"abc*",
     Rb'abc*',
     br'abc+',
-    RB"abc+"
+    RB"abc+",
+    r''' as foo ''  bar ''',
+    B""" triple ''' quoted '' "" string are """ as hard
 FROM dummy

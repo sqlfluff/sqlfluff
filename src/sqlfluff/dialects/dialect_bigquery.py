@@ -18,8 +18,11 @@ bigquery_dialect.patch_lexer_struct([
     # indicate a raw/regex string or byte sequence, respectively.  Allow escaped quote
     # characters inside strings by allowing \" with an optional even multiple of
     # backslashes in front of it.
-    ("single_quote", "regex", r"([rR]?[bB]?|[bB]?[rR]?)?'((?<!\\)(\\{2})*\\'|[^'])*(?<!\\)(\\{2})*'", dict(is_code=True)),
-    ("double_quote", "regex", r'([rR]?[bB]?|[bB]?[rR]?)?"((?<!\\)(\\{2})*\\"|[^"])*(?<!\\)(\\{2})*"', dict(is_code=True))
+    # https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and_bytes_literals
+
+    # Triple quoted variant first, then single quoted
+    ("single_quote", "regex", r"([rR]?[bB]?|[bB]?[rR]?)?('''((?<!\\)(\\{2})*\\'|'{,2}(?!')|[^'])*(?<!\\)(\\{2})*'''|'((?<!\\)(\\{2})*\\'|[^'])*(?<!\\)(\\{2})*')", dict(is_code=True)),
+    ("double_quote", "regex", r'([rR]?[bB]?|[bB]?[rR]?)?(\"\"\"((?<!\\)(\\{2})*\\\"|\"{,2}(?!\")|[^\"])*(?<!\\)(\\{2})*\"\"\"|"((?<!\\)(\\{2})*\\"|[^"])*(?<!\\)(\\{2})*")', dict(is_code=True))
 ])
 
 bigquery_dialect.add(
