@@ -325,6 +325,8 @@ def parse(path, code_only, format, profiler, bench, **kwargs):
                     # TODO: Make this prettier
                     lnt.log('...Failed to Parse...')
                 nv += len(violations)
+                if violations:
+                    lnt.log("==== parsing violations ====")
                 for v in violations:
                     lnt.log(format_violation(v, verbose=verbose))
                 if verbose >= 2:

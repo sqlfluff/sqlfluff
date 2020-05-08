@@ -629,6 +629,20 @@ class Linter:
             if parsed:
                 verbosity_logger(frame_msg("Parsed Tree:"), verbosity=verbosity)
                 verbosity_logger(parsed.stringify(), verbosity=verbosity)
+            # We may succeed parsing, but still have unparsable segments. Extract them here.
+            for unparsable in parsed.iter_unparsables():
+                # No exception has been raised explicitly, but we still create one here
+                # so that we can use the common interface
+                violations.append(
+                    SQLParseError(
+                        "Found unparsable section: {0!r}".format(
+                            unparsable.raw if len(unparsable.raw) < 40 else unparsable.raw[:40] + "..."),
+                        segment=unparsable
+                    )
+                )
+                if verbosity >= 2:
+                    verbosity_logger("Found unparsable segment...", verbosity=verbosity)
+                    verbosity_logger(unparsable.stringify(), verbosity=verbosity)
         else:
             parsed = None
 
@@ -696,26 +710,8 @@ class Linter:
         if parsed:
             # Store the templated version
             templ_buff = parsed.raw
-
-            # Now extract all the unparsable segments
-            for unparsable in parsed.iter_unparsables():
-                # No exception has been raised explicitly, but we still create one here
-                # so that we can use the common interface
-                vs.append(
-                    SQLParseError(
-                        "Found unparsable segment @L{0:03d}P{1:03d}: {2!r}".format(
-                            unparsable.pos_marker.line_no,
-                            unparsable.pos_marker.line_pos,
-                            unparsable.raw[:20] + "..."),
-                        segment=unparsable
-                    )
-                )
-                if verbosity >= 2:
-                    verbosity_logger("Found unparsable segment...", verbosity=verbosity)
-                    verbosity_logger(unparsable.stringify(), verbosity=verbosity)
-
             t0 = time.monotonic()
-            # At this point we should evaluate whether any parsing errors have occured
+
             if verbosity >= 2:
                 verbosity_logger("LINTING ({0})".format(fname), verbosity=verbosity)
                 # Also set up logging from the rules logger
