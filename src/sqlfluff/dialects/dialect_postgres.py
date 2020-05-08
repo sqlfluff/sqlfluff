@@ -37,8 +37,6 @@ class WithinGroupClauseSegment(BaseSegment):
     parse_grammar = Sequence(
         'WITHIN', 'GROUP',
         Bracketed(
-            Sequence(
-                Ref('OrderByClauseSegment', optional=True)
-            )
+            Ref('OrderByClauseSegment', optional=True)
         ),
     )

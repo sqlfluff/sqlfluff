@@ -1363,14 +1363,21 @@ class StartsWith(BaseGrammar):
         return self.target.expected_string(dialect=dialect, called_from=called_from) + ", ..."
 
 
-class Bracketed(BaseGrammar):
+class Bracketed(Sequence):
     """Match if this is a bracketed sequence, with content that matches one of the elements.
 
-    Bracketed works differently to sequence, although it used to work
-    the same. Note that if multiple arguments are passed then the options
-    will be considered as options for what can be in the brackets rather
-    than a sequence. The elements used for matching the brackets themselves
-    are taken directly from the dialect.
+    Note that the contents of the Bracketed Expression are treated as an expected sequence.
+
+    Changelog:
+    - Post 0.3.2: Bracketed inherits from Sequence and anything within
+      the the `Bracketed()` expression is treated as a sequence. For the
+      content of the Brackets, we call the `match()` method of the sequence
+      grammar.
+    - Post 0.1.0: Bracketed was seperate from sequence, and the content
+      of the expression were treated as options (like OneOf).
+    - Pre 0.1.0: Bracketed inherited from Sequence and simply added
+      brackets to that sequence,
+
     """
     def __init__(self, *args, **kwargs):
         self.square = kwargs.pop('square', False)
@@ -1390,7 +1397,8 @@ class Bracketed(BaseGrammar):
         1. work forwards to find the first bracket.
            If we find something other that whitespace, then fail out.
         2. Once we have the first bracket, we need to bracket count forward to find it's partner.
-        3. Assuming we find it's partner then we try and match what goes between them.
+        3. Assuming we find it's partner then we try and match what goes between them
+           using the match method of Sequence.
            If we match, great. If not, then we return an empty match.
            If we never find it's partner then we return an empty match but should probably
            log a parsing warning, or error?
@@ -1420,57 +1428,51 @@ class Bracketed(BaseGrammar):
                 "Couldn't find closing bracket for opening bracket.",
                 segment=matched_segs)
 
-        # Match the content now we've confirmed the brackets. We use the
-        # _longest helper function mostly just because it deals with multiple
-        # matchers.
-        content_match, _ = self._longest_code_only_sensitive_match(
-            pre, self._elements,
-            parse_context=parse_context.copy(incr='match_depth'),
-            code_only=self.code_only)
+        # Match the content now we've confirmed the brackets.
 
-        # We require a complete match for the content (hopefully for obvious reasons)
-        if content_match.is_complete():
-            # We don't want to add metas if they're already there, so check.
-            # We also only add indents if there *is* content.
-            if content_match.matched_segments and content_match.matched_segments[0].is_meta and content_match.matched_segments[0].is_enabled(parse_context=parse_context):
-                pre_meta = ()
-            elif not content_match.matched_segments:
-                pre_meta = ()
-            else:
-                pre_meta = (Indent(pos_marker=content_match.matched_segments[0].get_start_pos_marker()),)
-
-            if end_match.matched_segments and end_match.matched_segments[0].is_meta and end_match.matched_segments[0].is_enabled(parse_context=parse_context):
-                post_meta = ()
-            elif not content_match.matched_segments:
-                post_meta = ()
-            else:
-                post_meta = (Dedent(pos_marker=content_match.matched_segments[-1].get_end_pos_marker()),)
-
-            return MatchResult(
-                start_match.matched_segments
-                + pre_meta  # Add a meta indent here
-                + content_match.matched_segments
-                + post_meta  # Add a meta indent here
-                + end_match.matched_segments,
-                end_match.unmatched_segments)
-        else:
-            # Now if we've not matched there's a final option. If the content is optional
-            # and we allow non-code, then if the content is all non-code then it could be
-            # empty brackets and still match.
-            # NB: We don't add indents here, because there's nothing to indent
-            if (
-                all(e.is_optional() for e in self._elements)
-                and self.code_only
-                and all(not e.is_code for e in pre)
-            ):
-                # It worked!
+        # First deal with the case of TOTALLY EMPTY BRACKETS e.g. "()"
+        if not pre:
+            if not self._elements or all(e.is_optional() for e in self._elements):
                 return MatchResult(
                     start_match.matched_segments
-                    + pre
                     + end_match.matched_segments,
                     end_match.unmatched_segments)
             else:
                 return MatchResult.from_unmatched(segments)
+
+        # Then trim whitespace and deal with the case of no code content e.g. "(   )"
+        pre_nc, content_segs, post_nc = self._trim_non_code(pre, code_only=self.code_only)
+        # Do we have anything left to match on?
+        if not content_segs:
+            if not self._elements or (all(e.is_optional() for e in self._elements) and self.code_only):
+                return MatchResult(
+                    start_match.matched_segments
+                    + pre_nc + post_nc + end_match.matched_segments,
+                    end_match.unmatched_segments)
+            else:
+                return MatchResult.from_unmatched(segments)
+
+        # Match using super. Sequence will interpret the content of the elements.
+        content_match = super().match(content_segs, parse_context=parse_context.copy(incr='match_depth'))
+
+        # We require a complete match for the content (hopefully for obvious reasons)
+        if content_match.is_complete():
+            # Append some indent and dedent tokens at the start and the end.
+            pre_meta = (Indent(pos_marker=content_match.matched_segments[0].get_start_pos_marker()),)
+            post_meta = (Dedent(pos_marker=content_match.matched_segments[-1].get_end_pos_marker()),)
+            return MatchResult(
+                # NB: The nc segments go *outside* the indents.
+                start_match.matched_segments
+                + pre_nc
+                + pre_meta  # Add a meta indent here
+                + content_match.matched_segments
+                + post_meta  # Add a meta indent here
+                + post_nc
+                + end_match.matched_segments,
+                end_match.unmatched_segments)
+        # No complete match. Fail.
+        else:
+            return MatchResult.from_unmatched(segments)
 
     def expected_string(self, dialect=None, called_from=None):
         """Get the expected string from the referenced element."""

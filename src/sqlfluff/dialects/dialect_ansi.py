@@ -369,11 +369,9 @@ class OverClauseSegment(BaseSegment):
     parse_grammar = Sequence(
         'OVER',
         Bracketed(
-            Sequence(
-                Ref('PartitionClauseSegment', optional=True),
-                Ref('OrderByClauseSegment', optional=True),
-                Ref('FrameClauseSegment', optional=True)
-            )
+            Ref('PartitionClauseSegment', optional=True),
+            Ref('OrderByClauseSegment', optional=True),
+            Ref('FrameClauseSegment', optional=True)
         ),
     )
 
@@ -477,9 +475,9 @@ class TableExpressionSegment(BaseSegment):
             Bracketed(
                 OneOf(
                     Ref('SetExpressionSegment'),
-                    Ref('SelectStatementSegment')
+                    Ref('SelectStatementSegment'),
+                    Ref('WithCompoundStatementSegment')
                 ),
-                Ref('WithCompoundStatementSegment')
             ),
             # Values clause?
         ),
