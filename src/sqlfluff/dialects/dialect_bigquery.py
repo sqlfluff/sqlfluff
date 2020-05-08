@@ -6,7 +6,7 @@ and
 https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and_bytes_literals
 """
 
-from ..parser import (BaseSegment, NamedSegment, OneOf, Ref, Sequence)
+from ..parser import (BaseSegment, NamedSegment, OneOf, Ref, Sequence, Bracketed, Delimited, AnyNumberOf)
 
 from .dialect_ansi import ansi_dialect
 
@@ -55,5 +55,40 @@ bigquery_dialect.replace(
     LiteralGrammar=OneOf(
         Ref('QuotedLiteralSegment'), Ref('DoubleQuotedLiteralSegment'), Ref('NumericLiteralSegment'),
         Ref('BooleanLiteralGrammar'), Ref('QualifiedNumericLiteralSegment')
+    ),
+    WildcardSelectTargetElementGrammar=Sequence(
+        # *, blah.*, blah.blah.*, etc.
+        Sequence(
+            AnyNumberOf(
+                Sequence(
+                    Ref('SingleIdentifierGrammar'),
+                    Ref('DotSegment'),
+                    code_only=True
+                )
+            ),
+            Ref('StarSegment'), code_only=False
+        ),
+        # Optional EXCEPT or REPLACE clause
+        # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#select_replace
+        Sequence(
+            'EXCEPT',
+            Bracketed(
+                Delimited(
+                    Ref('SingleIdentifierGrammar'),
+                    delimiter=Ref('CommaSegment')
+                )
+            ),
+            optional=True
+        ),
+        Sequence(
+            'REPLACE',
+            Bracketed(
+                Delimited(
+                    Ref('AliasedObjectReferenceSegment'),
+                    delimiter=Ref('CommaSegment')
+                )
+            ),
+            optional=True
+        )
     ),
 )

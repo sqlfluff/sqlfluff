@@ -513,6 +513,22 @@ class TableExpressionSegment(BaseSegment):
         return None
 
 
+ansi_dialect.add(
+    # This is a hook point to allow subclassing for other dialects
+    WildcardSelectTargetElementGrammar=Sequence(
+        # *, blah.*, blah.blah.*, etc.
+        AnyNumberOf(
+            Sequence(
+                Ref('SingleIdentifierGrammar'),
+                Ref('DotSegment'),
+                code_only=True
+            )
+        ),
+        Ref('StarSegment'), code_only=False
+    ),
+)
+
+
 @ansi_dialect.segment()
 class SelectTargetElementSegment(BaseSegment):
     """An element in the targets of a select statement."""
@@ -521,28 +537,14 @@ class SelectTargetElementSegment(BaseSegment):
     match_grammar = GreedyUntil(Ref('CommaSegment'))
     parse_grammar = OneOf(
         # *, blah.*, blah.blah.*, etc.
-        Sequence(
-            AnyNumberOf(
-                Sequence(
-                    Ref('SingleIdentifierGrammar'),
-                    Ref('DotSegment'),
-                    code_only=True
-                )
-            ),
-            Ref('StarSegment'), code_only=False
-        ),
+        Ref('WildcardSelectTargetElementGrammar'),
         Sequence(
             OneOf(
                 Ref('LiteralGrammar'),
                 Ref('FunctionSegment'),
                 Ref('IntervalExpressionSegment'),
-                Ref('ObjectReferenceSegment')
-            ),
-            Ref('AliasExpressionSegment', optional=True)
-        ),
-        Sequence(
-            OneOf(
-                Ref('ExpressionSegment'),
+                Ref('ObjectReferenceSegment'),
+                Ref('ExpressionSegment')
             ),
             Ref('AliasExpressionSegment', optional=True)
         ),
@@ -559,7 +561,7 @@ class SelectClauseSegment(BaseSegment):
             'LIMIT'
         )
     )
-    # We should edit the parse grammar to deal with DISTINCT, ALL or similar
+
     parse_grammar = Sequence(
         'SELECT',
         OneOf(
