@@ -56,7 +56,7 @@ class SQLBaseError(ValueError):
         if pm:
             return pm.line_no
         else:
-            return 0
+            return None
 
     def line_pos(self):
         """Return the line postion of the violation."""
@@ -64,7 +64,7 @@ class SQLBaseError(ValueError):
         if pm:
             return pm.line_pos
         else:
-            return 0
+            return None
 
     def char_pos(self):
         """Return the character position in file of the violation."""

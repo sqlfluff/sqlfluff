@@ -59,6 +59,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   content as a `Sequence` rather than a `OneOf`.
 - Move to `SandboxedEnvironment` rather than `Environment` for jinja
   templating for security.
+- Improve reporting of templating issues, especially for the jinja templater
+  so that missing variables are rendered as blanks, but still reported as
+  templating violations.
 
 ## [0.3.1] - 2020-02-17
 

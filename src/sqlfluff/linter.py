@@ -9,7 +9,7 @@ from difflib import SequenceMatcher
 from benchit import BenchIt
 import pathspec
 
-from .errors import SQLLexError, SQLParseError, SQLTemplaterError
+from .errors import SQLLexError, SQLParseError
 from .parser import FileSegment, ParseContext
 # We should probably move verbosity logger to somewhere else?
 from .parser.segments_base import verbosity_logger, frame_msg
@@ -586,12 +586,12 @@ class Linter:
                     self.log(format_config_vals(self.config.iter_vals(cfg=config_diff)))
 
         verbosity_logger("TEMPLATING RAW [{0}] ({1})".format(self.templater.name, fname), verbosity=verbosity)
-        try:
-            s = self.templater.process(s, fname=fname, config=config or self.config)
-        except SQLTemplaterError as err:
-            violations.append(err)
+        s, templater_violations = self.templater.process(s, fname=fname, config=config or self.config)
+        violations += templater_violations
+        # Detect the case of a catastrophic templater fail. In this case
+        # we don't continue. We'll just bow out now.
+        if not s:
             file_segment = None
-            # NB: We'll carry on if we fail to template, it might still lex
 
         t1 = time.monotonic()
         bencher("Templating {0!r}".format(short_fname))
@@ -678,17 +678,18 @@ class Linter:
 
         # Look for comment segments which might indicate lines to ignore.
         ignore_buff = []
-        for comment in parsed.recursive_crawl('comment'):
-            if comment.name == 'inline_comment':
-                ignore_entry = self.extract_ignore_from_comment(comment)
-                if isinstance(ignore_entry, SQLParseError):
-                    vs.append(ignore_entry)
-                elif ignore_entry:
-                    ignore_buff.append(ignore_entry)
-        if ignore_buff and verbosity >= 2:
-            verbosity_logger(
-                "Parsed noqa directives from file: {0!r}".format(ignore_buff),
-                verbosity=verbosity)
+        if parsed:
+            for comment in parsed.recursive_crawl('comment'):
+                if comment.name == 'inline_comment':
+                    ignore_entry = self.extract_ignore_from_comment(comment)
+                    if isinstance(ignore_entry, SQLParseError):
+                        vs.append(ignore_entry)
+                    elif ignore_entry:
+                        ignore_buff.append(ignore_entry)
+            if ignore_buff and verbosity >= 2:
+                verbosity_logger(
+                    "Parsed noqa directives from file: {0!r}".format(ignore_buff),
+                    verbosity=verbosity)
 
         templ_buff = None
         fixed_buff = None

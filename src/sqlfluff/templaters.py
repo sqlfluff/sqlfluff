@@ -3,6 +3,7 @@
 import ast
 
 from .errors import SQLTemplaterError
+from .parser import FilePositionMarker
 
 _templater_lookup = {}
 
@@ -69,7 +70,7 @@ class RawTemplateInterface:
                 templating operation. Only necessary for some templaters.
 
         """
-        return in_str
+        return in_str, []
 
     def __eq__(self, other):
         """Return true if `other` is of the same class as this one.
@@ -140,7 +141,7 @@ class PythonTemplateInterface(RawTemplateInterface):
         """
         live_context = self.get_context(fname=fname, config=config)
         try:
-            return in_str.format(**live_context)
+            return in_str.format(**live_context), []
         except KeyError as err:
             # TODO: Add a url here so people can get more help.
             raise SQLTemplaterError(
@@ -206,11 +207,12 @@ class JinjaTemplateInterface(PythonTemplateInterface):
 
         """
         # No need to import this unless we're using this templater
-        from jinja2 import StrictUndefined  # noqa
-        from jinja2.sandbox import SandboxedEnvironment  # noqa 
+        from jinja2.sandbox import SandboxedEnvironment  # noqa
+        from jinja2 import meta  # noqa
+        import jinja2.nodes  # noqa 
         # We explicitly want to preserve newlines.
         env = SandboxedEnvironment(
-            keep_trailing_newline=True, undefined=StrictUndefined,
+            keep_trailing_newline=True,
             # The do extension allows the "do" directive
             autoescape=False, extensions=['jinja2.ext.do']
         )
@@ -221,10 +223,55 @@ class JinjaTemplateInterface(PythonTemplateInterface):
 
         template = env.from_string(in_str)
         live_context = self.get_context(fname=fname, config=config)
+
+        violations = []
+
+        # Attempt to identify any undeclared variables
         try:
-            out_str = template.render(**live_context)
-            return out_str
+            ast = env.parse(in_str)
+            undefined_variables = meta.find_undeclared_variables(ast)
         except Exception as err:
             # TODO: Add a url here so people can get more help.
             raise SQLTemplaterError(
-                "Failure in Jinja templating: {0}. Have you configured your variables?".format(err))
+                "Failure in identifying Jinja variables: {0}.".format(err))
+
+        # Get rid of any that *are* actually defined.
+        for val in live_context:
+            if val in undefined_variables:
+                undefined_variables.remove(val)
+
+        if undefined_variables:
+            # Lets go through and find out where they are:
+            def _crawl_tree(tree, variable_names, raw):
+                """Crawl the tree looking for occurances of the undeclared values."""
+                for elem in tree.iter_child_nodes():
+                    yield from _crawl_tree(elem, variable_names, raw)
+                else:
+                    if isinstance(tree, jinja2.nodes.Name) and tree.name in variable_names:
+                        line_no = tree.lineno
+                        line = raw.split('\n')[line_no - 1]
+                        pos = line.index(tree.name) + 1
+                        # Generate the charpos. +1 is for the newline characters themselves
+                        charpos = sum(len(raw_line) + 1 for raw_line in raw.split('\n')[:line_no - 1]) + pos
+                        # NB: The positions returned here will be *inconsistent* with those
+                        # from the linter at the moment, because these are references to the
+                        # structure of the file *before* templating.
+                        yield SQLTemplaterError(
+                            "Undefined jinja template variable: {0!r}".format(tree.name),
+                            pos=FilePositionMarker(None, line_no, pos, charpos)
+                        )
+
+            for val in _crawl_tree(ast, undefined_variables, in_str):
+                violations.append(val)
+
+        try:
+            out_str = template.render(**live_context)
+            return out_str, violations
+        except Exception as err:
+            # TODO: Add a url here so people can get more help.
+            violations.append(
+                SQLTemplaterError(
+                    ("Unrecoverable failure in Jinja templating: {0}. Have you configured "
+                     "your variables? https://docs.sqlfluff.com/en/latest/configuration.html").format(err))
+            )
+            return None, violations

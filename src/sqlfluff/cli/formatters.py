@@ -26,38 +26,60 @@ def format_path(path):
     return '=== [ path: {0} ] ===\n'.format(colorize(path, 'lightgrey'))
 
 
-def format_violation(violation, verbose=0):
+def split_string_on_spaces(s, line_length=100):
+    """Split a string into lines based on whitespace."""
+    line_buff = []
+    str_buff = ""
+    for token in s.split():
+        # Can we put this token on this line without going over?
+        if str_buff:
+            if len(str_buff) + len(token) > line_length:
+                line_buff.append(str_buff)
+                str_buff = token
+            else:
+                str_buff += ' ' + token
+        else:
+            # In the case that the buffer is already empty, add it without checking,
+            # otherwise there might be things that we might never.
+            str_buff = token
+    # If we have left over buff, add it in
+    if str_buff:
+        line_buff.append(str_buff)
+    return line_buff
+
+
+def format_violation(violation, verbose=0, max_desc_line_length=100):
     """Format a violation."""
     if isinstance(violation, SQLBaseError):
         code, line, pos, desc = violation.get_info_tuple()
+        if line is not None:
+            line_elem = '{0:4d}'.format(line)
+        else:
+            line_elem = '   -'
+        if pos is not None:
+            pos_elem = '{0:4d}'.format(pos)
+        else:
+            pos_elem = '   -'
     else:
         raise ValueError("Unexpected violation format: {0}".format(violation))
 
     if violation.ignore:
         desc = 'IGNORE: ' + desc
 
-    return (
-        colorize(
-            "L:{0:4d} | P:{1:4d} | {2} |".format(line, pos, code.rjust(4)),
-            # Grey out the violation if we're ignoring it.
-            'lightgrey' if violation.ignore else 'blue')
-        + " {0}".format(desc)
-    )
+    split_desc = split_string_on_spaces(desc, line_length=max_desc_line_length)
 
-
-def format_fix(fix, verbose=0):
-    """Format a fix."""
-    return (
-        colorize(
-            "L:{0:4d} | P:{1:4d} | {2} | ".format(
-                fix.violation.chunk.line_no,
-                fix.violation.chunk.start_pos + 1,
-                fix.violation.rule.code),
-            'blue')
-        + (colorize("SUCCESS", 'green') if fix.success else colorize("FAIL", 'red'))
-        + " | "
-        + " {0}".format(fix.detail or "")
-    )
+    out_buff = ""
+    for idx, line in enumerate(split_desc):
+        if idx == 0:
+            out_buff += colorize(
+                "L:{0} | P:{1} | {2} | ".format(line_elem, pos_elem, code.rjust(4)),
+                # Grey out the violation if we're ignoring it.
+                'lightgrey' if violation.ignore else 'blue'
+            )
+        else:
+            out_buff += '\n' + (' ' * 23) + colorize("| ", 'lightgrey' if violation.ignore else 'blue')
+        out_buff += line
+    return out_buff
 
 
 def format_file_violations(fname, res, verbose=0):
