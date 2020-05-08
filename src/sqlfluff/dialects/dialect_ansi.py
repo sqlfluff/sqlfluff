@@ -574,23 +574,6 @@ class SelectClauseSegment(BaseSegment):
     )
 
 
-# We define the grammar seperately here because it's used in both the
-# parsing and matching routines of the JoinClauseSegment.
-InitialJoinGrammar = Sequence(
-    # NB These qualifiers are optional
-    AnyNumberOf(
-        Ref('FullKeywordSegment'),
-        Ref('InnerKeywordSegment'),
-        Ref('LeftKeywordSegment'),
-        Ref('CrossKeywordSegment'),
-        max_times=1,
-        optional=True
-    ),
-    Ref('OuterKeywordSegment', optional=True),
-    Ref('JoinKeywordSegment')
-)
-
-
 @ansi_dialect.segment()
 class JoinClauseSegment(BaseSegment):
     """Any number of join clauses, including the `JOIN` keyword."""
@@ -601,6 +584,7 @@ class JoinClauseSegment(BaseSegment):
             'FULL',
             'INNER',
             'LEFT',
+            'RIGHT',
             'CROSS',
             max_times=1,
             optional=True
