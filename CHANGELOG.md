@@ -30,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   most grammars using strings directly. Includes `SegmentGenerator` objects
   to bind dialect objects at runtime from sets. Thanks [@Katzmann1983](https://github.com/Katzmann1983)!
 - Rule `L029` for using unreserved keywords as variable names.
+- The jinja templater now allows macros loaded from files, and the
+  hydration of variables ending in `_path` in the config files.
 
 ### Changed
 

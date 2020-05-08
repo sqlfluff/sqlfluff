@@ -1,6 +1,7 @@
 """Module for loading config."""
 
 import os
+import os.path
 import sys
 import configparser
 
@@ -118,6 +119,11 @@ class ConfigLoader:
             Unlike most cfg file readers, sqlfluff is case-sensitive in how
             it reads config files.
 
+        Note:
+            Any variable names ending with `_path`, will be attempted to be
+            resolved as relative paths to this config file. If that fails the
+            string value will remain.
+
         """
         buff = []
         # Disable interpolation so we can load macros
@@ -159,6 +165,16 @@ class ConfigLoader:
                             v = None
                         else:
                             v = val
+
+                # Attempt to resolve paths
+                if name.lower().endswith('_path'):
+                    # Try to resolve the path.
+                    # Make the referenced path.
+                    ref_path = os.path.join(os.path.dirname(fpath), val)
+                    # Check if it exists, and if it does, replace the value with the path.
+                    if os.path.exists(ref_path):
+                        v = ref_path
+
                 # Add the name to the end of the key
                 buff.append((key + (name,), v))
         return buff
@@ -345,6 +361,10 @@ class FluffConfig:
 
     def get_section(self, section):
         """Return a whole section of config as a dict.
+
+        If the element found at the address is a value and not
+        a section, it is still returned and so this can be used
+        as a more advanced from of the basic `get` method.
 
         Args:
             section: An iterable or string. If it's a string

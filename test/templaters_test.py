@@ -55,7 +55,7 @@ def test__templater_jinja():
         blah='foo',
         condition='a < 10'))
     instr = JINJA_STRING
-    outstr, _ = t.process(instr)
+    outstr, _ = t.process(instr, config=FluffConfig())
     assert outstr == 'SELECT * FROM f, o, o WHERE a < 10\n\n'
 
 
@@ -63,7 +63,7 @@ def test__templater_jinja_error():
     """Test error handling in the jinja templater."""
     t = JinjaTemplateInterface(override_context=dict(blah='foo'))
     instr = JINJA_STRING
-    outstr, vs = t.process(instr)
+    outstr, vs = t.process(instr, config=FluffConfig())
     assert outstr == 'SELECT * FROM f, o, o WHERE \n\n'
     # Check we have violations.
     assert len(vs) > 0
@@ -73,7 +73,7 @@ def test__templater_jinja_error_catatrophic():
     """Test error handling in the jinja templater."""
     t = JinjaTemplateInterface(override_context=dict(blah=7))
     instr = JINJA_STRING
-    outstr, vs = t.process(instr)
+    outstr, vs = t.process(instr, config=FluffConfig())
     assert not outstr
     assert len(vs) > 0
 
