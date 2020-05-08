@@ -173,6 +173,23 @@ overwritten by other configuration files downsteam as required. Some such
 blocks are provided by default as `Builtin Macro Blocks`_ to assist with
 common use cases.
 
+In addition to macros specified in the config file, macros can also be
+loaded from a file or folder (this particularly useful for `dbt`_ users,
+who may already have a macros folder in their project). The path to this
+macros folder must be specified in the config file to function as below:
+
+.. code-block:: cfg
+
+    [sqlfluff:templater:jinja]
+    load_macros_from_path=my_macros
+
+In this case, sqlfluff will load macros from any :code:`.sql` file found at the
+path specified on this variable. The path is interpreted *relative to the
+config file*, and therefore if the config file above was found at :code:`/home/my_project/.sqlfluff`
+then sqlfluff will look for macros in the folder :code:`/home/my_project/my_macros/`.
+Alternatively the path can also be a :code:`.sql` itself.
+
+
 .. note::
 
     Throughout the templating process **whitespace** will still be treated
