@@ -28,6 +28,8 @@ def process_struct(obj):
                     type(obj[0]), obj[0]))
     elif isinstance(obj, (str, int, float)):
         return str(obj)
+    elif obj is None:
+        raise TypeError("Found a null value in dict. This is probably a misconfiguration.")
     else:
         raise TypeError("Not sure how to deal with type {0}: {1!r}".format(
             type(obj), obj))

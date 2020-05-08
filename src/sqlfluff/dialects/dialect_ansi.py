@@ -155,6 +155,12 @@ ansi_dialect.add(
     OrKeywordSegment=KeywordSegment.make('or', type='binary_operator'),
     # This is a placeholder for other dialects.
     PreTableFunctionKeywordsGrammar=Nothing(),
+    BinaryOperatorGramar=OneOf(
+        Ref('ArithmeticBinaryOperatorGrammar'),
+        Ref('StringBinaryOperatorGrammar'),
+        Ref('BooleanBinaryOperatorGrammar'),
+        Ref('ComparisonOperatorGrammar')
+    )
 )
 
 
@@ -223,9 +229,7 @@ class ObjectReferenceSegment(BaseSegment):
         terminator=OneOf(
             Ref('_NonCodeSegment'), Ref('CommaSegment'),
             Ref('CastOperatorSegment'), Ref('StartSquareBracketSegment'),
-            Ref('StartBracketSegment'), Ref('ArithmeticBinaryOperatorGrammar'),
-            Ref('StringBinaryOperatorGrammar'),
-            Ref('ComparisonOperatorGrammar'), Ref('ColonSegment'),
+            Ref('StartBracketSegment'), Ref('BinaryOperatorGramar'), Ref('ColonSegment'),
             Ref('SemicolonSegment')
         ),
         code_only=False
@@ -545,6 +549,16 @@ class SelectTargetElementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class SelectClauseModifierSegment(BaseSegment):
+    """Things that come after SELECT but before the columns."""
+    type = 'select_clause_modifier'
+    match_grammar = OneOf(
+        'DISTINCT',
+        'ALL',
+    )
+
+
+@ansi_dialect.segment()
 class SelectClauseSegment(BaseSegment):
     """A group of elements in a select target statement."""
     type = 'select_clause'
@@ -557,11 +571,7 @@ class SelectClauseSegment(BaseSegment):
 
     parse_grammar = Sequence(
         'SELECT',
-        OneOf(
-            'DISTINCT',
-            'ALL',
-            optional=True
-        ),
+        Ref('SelectClauseModifierSegment', optional=True),
         Indent,
         Delimited(
             Ref('SelectTargetElementSegment'),
@@ -736,10 +746,7 @@ ansi_dialect.add(
             OneOf(
                 Sequence(
                     OneOf(
-                        Ref('ArithmeticBinaryOperatorGrammar'),
-                        Ref('StringBinaryOperatorGrammar'),
-                        Ref('ComparisonOperatorGrammar'),
-                        Ref('BooleanBinaryOperatorGrammar'),
+                        Ref('BinaryOperatorGramar'),
                         Sequence(
                             Ref.keyword('NOT', optional=True),
                             OneOf(

@@ -1,0 +1,10 @@
+[sqlfluff]
+dialect=postgres
+
+[sqlfluff:templater:jinja]
+load_macros_from_path=macros
+
+[sqlfluff:templater:jinja:context]
+top_words=['shop', 'products', 'code']
+NUM_EMBEDDING_COMPONENTS=2
+num_embedding_components=4

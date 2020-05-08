@@ -225,6 +225,32 @@ class JinjaTemplateInterface(PythonTemplateInterface):
             )
         return macro_ctx
 
+    @staticmethod
+    def _generate_dbt_builtins():
+        """Generate the dbt builtins which are injected in the context."""
+        # This feels a bit wrong defining these here, they should probably
+        # be configurable somewhere sensible. But for now they're not.
+        # TODO: Come up with a better solution.
+
+        class ThisEmulator:
+            """A class which emulates the `this` class from dbt."""
+            name = 'this_model'
+            schema = 'this_schema'
+            database = 'this_database'
+
+            def __str__(self):
+                return self.name
+
+        dbt_builtins = {
+            # `is_incremental()` renders as False, always in this case.
+            # TODO: This means we'll never parse the other part of the query,
+            # so we should find a solution to that. Perhaps forcing the file
+            # to be parsed TWICE if it uses this variable.
+            'is_incremental': lambda: False,
+            'this': ThisEmulator()
+        }
+        return dbt_builtins
+
     def process(self, in_str, fname=None, config=None):
         """Process a string and return the new string.
 
@@ -258,16 +284,7 @@ class JinjaTemplateInterface(PythonTemplateInterface):
             # This feels a bit wrong defining these here, they should probably
             # be configurable somewhere sensible. But for now they're not.
             # TODO: Come up with a better solution.
-            this_fname = fname or 'this_model'
-            dbt_builtins = {
-                # `is_incremental()` renders as False, always in this case.
-                # TODO: This means we'll never parse the other part of the query,
-                # so we should find a solution to that. Perhaps forcing the file
-                # to be parsed TWICE if it uses this variable.
-                'is_incremental': lambda: False,
-                # Bring through `this` as the first part of the filename
-                'this': this_fname.split('.')[0]
-            }
+            dbt_builtins = self._generate_dbt_builtins()
             for name in dbt_builtins:
                 # Only apply if it hasn't already been set at this stage.
                 if name not in live_context:
