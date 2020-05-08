@@ -452,12 +452,7 @@ class FrameClauseSegment(BaseSegment):
 
 ansi_dialect.add(
     # This is a hook point to allow subclassing for other dialects
-    PostTableExpressionGrammar=Sequence(
-        'WITH',
-        'OFFSET',
-        'AS',
-        Ref('SingleIdentifierGrammar'),
-    ),
+    PostTableExpressionGrammar=Nothing()
 )
 
 

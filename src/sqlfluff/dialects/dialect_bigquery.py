@@ -34,6 +34,9 @@ bigquery_dialect.sets('datetime_units').add('MICROSECOND')
 # Add the ISO date parts
 bigquery_dialect.sets('datetime_units').update(['ISOWEEK', 'ISOYEAR'])
 
+# Unreserved Keywords
+bigquery_dialect.sets('unreserved_keywords').add('SYSTEM_TIME')
+
 
 # BigQuery allows functions in INTERVAL
 class IntervalExpressionSegment(BaseSegment):
@@ -58,6 +61,20 @@ bigquery_dialect.replace(
     LiteralGrammar=OneOf(
         Ref('QuotedLiteralSegment'), Ref('DoubleQuotedLiteralSegment'), Ref('NumericLiteralSegment'),
         Ref('BooleanLiteralGrammar'), Ref('QualifiedNumericLiteralSegment')
+    ),
+    PostTableExpressionGrammar=Sequence(
+        Sequence(
+            'FOR', 'SYSTEM_TIME', 'AS', 'OF',
+            Ref('ExpressionSegment'),
+            optional=True
+        ),
+        Sequence(
+            'WITH',
+            'OFFSET',
+            'AS',
+            Ref('SingleIdentifierGrammar'),
+            optional=True
+        )
     ),
     WildcardSelectTargetElementGrammar=Sequence(
         # *, blah.*, blah.blah.*, etc.
