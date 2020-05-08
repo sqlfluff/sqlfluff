@@ -206,9 +206,10 @@ class JinjaTemplateInterface(PythonTemplateInterface):
 
         """
         # No need to import this unless we're using this templater
-        from jinja2 import Environment, StrictUndefined  # noqa
+        from jinja2 import StrictUndefined  # noqa
+        from jinja2.sandbox import SandboxedEnvironment  # noqa 
         # We explicitly want to preserve newlines.
-        env = Environment(
+        env = SandboxedEnvironment(
             keep_trailing_newline=True, undefined=StrictUndefined,
             # The do extension allows the "do" directive
             autoescape=False, extensions=['jinja2.ext.do']
