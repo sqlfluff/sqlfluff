@@ -115,11 +115,9 @@ class FromAtExpressionSegment(BaseSegment):
     parse_grammar = Sequence(
         'AT',
         Bracketed(
-            Sequence(
-                OneOf('TIMESTAMP', 'OFFSET', 'STATEMENT'),
-                Ref('KeywordAssignerSegment'),
-                Ref('ExpressionSegment')
-            )
+            OneOf('TIMESTAMP', 'OFFSET', 'STATEMENT'),
+            Ref('KeywordAssignerSegment'),
+            Ref('ExpressionSegment')
         )
     )
 
@@ -138,11 +136,9 @@ class FromBeforeExpressionSegment(BaseSegment):
     parse_grammar = Sequence(
         'BEFORE',
         Bracketed(
-            Sequence(
-                'STATEMENT',
-                Ref('KeywordAssignerSegment'),
-                Ref('StringLiteral')
-            )
+            'STATEMENT',
+            Ref('KeywordAssignerSegment'),
+            Ref('StringLiteral')
         )
     )
 
@@ -161,16 +157,14 @@ class FromPivotExpressionSegment(BaseSegment):
     parse_grammar = Sequence(
         'PIVOT',
         Bracketed(
-            Sequence(
-                Ref('FunctionSegment'),
-                'FOR',
-                Ref('SingleIdentifierGrammar'),
-                'IN',
-                Bracketed(
-                    Delimited(
-                        Ref('LiteralGrammar'),
-                        delimiter=Ref('CommaSegment')
-                    )
+            Ref('FunctionSegment'),
+            'FOR',
+            Ref('SingleIdentifierGrammar'),
+            'IN',
+            Bracketed(
+                Delimited(
+                    Ref('LiteralGrammar'),
+                    delimiter=Ref('CommaSegment')
                 )
             )
         )
@@ -191,16 +185,14 @@ class FromUnpivotExpressionSegment(BaseSegment):
     parse_grammar = Sequence(
         'UNPIVOT',
         Bracketed(
-            Sequence(
-                Ref('SingleIdentifierGrammar'),
-                'FOR',
-                Ref('SingleIdentifierGrammar'),
-                'IN',
-                Bracketed(
-                    Delimited(
-                        Ref('SingleIdentifierGrammar'),
-                        delimiter=Ref('CommaSegment')
-                    )
+            Ref('SingleIdentifierGrammar'),
+            'FOR',
+            Ref('SingleIdentifierGrammar'),
+            'IN',
+            Bracketed(
+                Delimited(
+                    Ref('SingleIdentifierGrammar'),
+                    delimiter=Ref('CommaSegment')
                 )
             )
         )
