@@ -1810,7 +1810,10 @@ class Rule_L021(BaseCrawler):
 
             # Do we have the "DISTINCT" keyword in the select clause
             select_clause = segment.get_child('select_clause')
-            select_keywords = select_clause.get_children('keyword')
+            select_modifier = select_clause.get_child('select_clause_modifier')
+            if not select_modifier:
+                return None
+            select_keywords = select_modifier.get_children('keyword')
             for kw in select_keywords:
                 if kw.name == 'DISTINCT':
                     return LintResult(anchor=kw)

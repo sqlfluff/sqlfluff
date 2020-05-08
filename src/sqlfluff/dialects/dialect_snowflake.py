@@ -273,3 +273,18 @@ class SemiStructuredAccessorSegment(BaseSegment):
         # No extra whitespace
         code_only=False
     )
+
+
+@snowflake_dialect.segment(replace=True)
+class SelectClauseModifierSegment(BaseSegment):
+    """Things that come after SELECT but before the columns.
+
+    In snowflake we go back to similar functionality as the ANSI
+    version in the root dialect, without the things added in
+    postgres.
+    """
+    type = 'select_clause_modifier'
+    match_grammar = OneOf(
+        'DISTINCT',
+        'ALL',
+    )

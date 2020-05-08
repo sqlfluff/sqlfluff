@@ -325,6 +325,8 @@ def parse(path, code_only, format, profiler, bench, **kwargs):
                     # TODO: Make this prettier
                     lnt.log('...Failed to Parse...')
                 nv += len(violations)
+                if violations:
+                    lnt.log("==== parsing violations ====")
                 for v in violations:
                     lnt.log(format_violation(v, verbose=verbose))
                 if verbose >= 2:
@@ -347,7 +349,7 @@ def parse(path, code_only, format, profiler, bench, **kwargs):
                 # For yaml dumping always dump double quoted strings if they contain tabs or newlines.
                 def quoted_presenter(dumper, data):
                     """Representer which always double quotes string values needing escapes."""
-                    if '\n' in data or '\t' in data:
+                    if '\n' in data or '\t' in data or "'" in data:
                         return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='"')
                     else:
                         return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='')

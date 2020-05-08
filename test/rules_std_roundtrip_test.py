@@ -80,6 +80,13 @@ def jinja_roundtrip_test(source_path, rulestring, sqlfile='test.sql', cfgfile='.
     assert result.exit_code == 0
     # Now lint the file and check for exceptions
     result = runner.invoke(lint, ['--rules', rulestring, sql_filepath])
+    if result.exit_code != 0:
+        # Output the file content for debugging
+        print("File content:")
+        with open(sql_filepath, mode='r') as f:
+            print(repr(f.read()))
+        print("Command output:")
+        print(result.output)
     assert result.exit_code == 0
 
     with open(sql_filepath, mode='r') as f:

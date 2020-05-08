@@ -23,7 +23,7 @@ def test__templater_raw():
     """Test the raw templater."""
     t = RawTemplateInterface()
     instr = 'SELECT * FROM {{blah}}'
-    outstr = t.process(instr)
+    outstr, _ = t.process(instr)
     assert instr == outstr
 
 
@@ -34,7 +34,7 @@ def test__templater_python():
     """Test the python templater."""
     t = PythonTemplateInterface(override_context=dict(blah='foo'))
     instr = PYTHON_STRING
-    outstr = t.process(instr)
+    outstr, _ = t.process(instr)
     assert outstr == 'SELECT * FROM foo'
 
 
@@ -55,16 +55,27 @@ def test__templater_jinja():
         blah='foo',
         condition='a < 10'))
     instr = JINJA_STRING
-    outstr = t.process(instr)
+    outstr, _ = t.process(instr, config=FluffConfig())
     assert outstr == 'SELECT * FROM f, o, o WHERE a < 10\n\n'
 
 
 def test__templater_jinja_error():
     """Test error handling in the jinja templater."""
-    t = JinjaTemplateInterface(override_context=dict(noblah='foo'))
+    t = JinjaTemplateInterface(override_context=dict(blah='foo'))
     instr = JINJA_STRING
-    with pytest.raises(SQLTemplaterError):
-        t.process(instr)
+    outstr, vs = t.process(instr, config=FluffConfig())
+    assert outstr == 'SELECT * FROM f, o, o WHERE \n\n'
+    # Check we have violations.
+    assert len(vs) > 0
+
+
+def test__templater_jinja_error_catatrophic():
+    """Test error handling in the jinja templater."""
+    t = JinjaTemplateInterface(override_context=dict(blah=7))
+    instr = JINJA_STRING
+    outstr, vs = t.process(instr, config=FluffConfig())
+    assert not outstr
+    assert len(vs) > 0
 
 
 def assert_structure(yaml_loader, path, code_only=True):
@@ -77,6 +88,10 @@ def assert_structure(yaml_loader, path, code_only=True):
         raise RuntimeError(p[0][1])
     # Whitespace is important here to test how that's treated
     tpl = parsed.to_tuple(code_only=code_only, show_raw=True)
+    # Check nothing unparsable
+    if 'unparsable' in parsed.type_set():
+        print(parsed.stringify())
+        raise ValueError("Input file is contains unparsable.")
     expected = yaml_loader(path + '.yml')
     assert tpl == expected
 
@@ -92,6 +107,8 @@ def assert_structure(yaml_loader, path, code_only=True):
     ('jinja_e/jinja', True),
     # case sensitivity and python literals
     ('jinja_f/jinja', True),
+    # Macro loading from a folder
+    ('jinja_g_macros/jinja', True)
 ])
 def test__templater_full(subpath, code_only, yaml_loader):
     """Check structure can be parsed from jinja templated files."""
