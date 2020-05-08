@@ -1075,6 +1075,20 @@ class Delimited(BaseGrammar):
         self.min_delimiters = kwargs.pop('min_delimiters', None)
         super(Delimited, self).__init__(*args, **kwargs)
 
+    def simple(self, parse_context):
+        """Does this matcher support a uppercase hash matching route?
+
+        Delimited does provide this, as long as *all* the elements *also* do.
+        This code is identical to OneOf.
+        """
+        simple_buff = ()
+        for opt in self._elements:
+            simple = opt.simple(parse_context=parse_context)
+            if not simple:
+                return False
+            simple_buff += simple
+        return simple_buff
+
     def match(self, segments, parse_context):
         """Match an arbitrary number of elements seperated by a delimiter.
 
@@ -1434,6 +1448,13 @@ class Bracketed(Sequence):
             self.start_bracket = Ref('StartBracketSegment')
             self.end_bracket = Ref('EndBracketSegment')
         super(Bracketed, self).__init__(*args, **kwargs)
+
+    def simple(self, parse_context):
+        """Does this matcher support a uppercase hash matching route?
+
+        Bracketed does this easily, we just look for the bracket.
+        """
+        return self.start_bracket.simple(parse_context=parse_context)
 
     def match(self, segments, parse_context):
         """Match if this is a bracketed sequence, with content that matches one of the elements.
