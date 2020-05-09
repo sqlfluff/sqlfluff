@@ -259,6 +259,9 @@ def fix(force, paths, **kwargs):
                 click.echo('Aborting...')
     else:
         click.echo("==== no fixable linting violations found ====")
+        if result.num_violations(types=SQLLintError, fixable=False) > 0:
+            click.echo("  [{0} unfixable linting violations found]".format(
+                result.num_violations(types=SQLLintError, fixable=False)))
     sys.exit(0)
 
 
