@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added the `--nofail` option to `parse` and `lint` commands to assist
   rollout.
+- Added the `--version` option to complement the `version` option already
+  available on the cli.
 
 ## [0.3.2] - 2020-05-08
 
