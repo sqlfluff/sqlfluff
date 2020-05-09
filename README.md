@@ -1,4 +1,4 @@
-![SQLfluff](/images/sqlfluff-wide.png)
+![SQLfluff](https://github.com/alanmcruickshank/sqlfluff/blob/master/images/sqlfluff-wide.png)
 
 ## The SQL Linter for humans
 
@@ -12,9 +12,6 @@
 [![Requirements Status](https://img.shields.io/requires/github/alanmcruickshank/sqlfluff.svg?style=flat-square)](https://requires.io/github/alanmcruickshank/sqlfluff/requirements/?branch=master)
 [![CircleCI](https://img.shields.io/circleci/build/gh/alanmcruickshank/sqlfluff/master?style=flat-square&logo=CircleCI)](https://circleci.com/gh/alanmcruickshank/sqlfluff/tree/master)
 [![ReadTheDocs](https://img.shields.io/readthedocs/sqlfluff?style=flat-square&logo=Read%20the%20Docs)](https://sqlfluff.readthedocs.io)
-[![DeepSource](https://static.deepsource.io/deepsource-badge-light-mini.svg)](https://deepsource.io/gh/alanmcruickshank/sqlfluff/?ref=repository-badge)
-
-[![codecov](https://img.shields.io/codeclimate/maintainability/alanmcruickshank/sqlfluff.svg?style=flat-square&logo=Code%20Climate)](https://codeclimate.com/github/alanmcruickshank/sqlfluff/maintainability)
 
 Bored of not having a good SQL linter that works with whichever dialiect you're
 working with? Fluff is an extensible and modular linter designed to help you write

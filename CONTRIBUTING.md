@@ -7,11 +7,22 @@ tool in anger and then to submit bugs and features through github.
 In particular, in helping to develop the parser, examples of queries
 which don't parse as expected are especially helpful.
 
-:star2: **Third** - if you're so inclined - pull requests are always welcome.
-Bear in mind that all the tests should pass, and test coverage should
-not decrease unduly as part of the changes which you make. You may find it
-useful to familiarise yourself with the [architectural principles here](ARCHITECTURE.md),
-and with the [current documentation here](DOCS.md).
+:star2: **Third** - making sure that our documentation is up to date and useful
+for new users is really important. If you're a new user, you're in precisely
+the best position to do this. Familiarise yourself with the tool (as per step
+2 above) and familiarise yourself with the current documentation (live version
+at [docs.sqlfluff.com](https://docs.sqlfluff.com) and the source can be found
+in the [docs/source](https://github.com/alanmcruickshank/sqlfluff/tree/master/docs/source)
+folder of the repo). Pull requests are always welcome with documentation
+improvements. Keep in mind that there are linting checks in palce for good
+formatting so keep an eye on the tests whenever submitting a PR.
+
+:star2: **Fourth** - if you're so inclined - pull requests on the core codebase
+are always welcome. Bear in mind that all the tests should pass, and test
+coverage should not decrease unduly as part of the changes which you make.
+You may find it useful to familiarise yourself with the
+[architectural principles here](https://docs.sqlfluff.com/en/latest/architecture.html)
+and with the [current documentation here](https://docs.sqlfluff.com).
 
 ## Nerdy Details
 ### Testing
