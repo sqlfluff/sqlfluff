@@ -1,4 +1,4 @@
-![SQLfluff](https://github.com/alanmcruickshank/sqlfluff/blob/master/images/sqlfluff-wide.png)
+![SQLfluff](https://raw.githubusercontent.com/alanmcruickshank/sqlfluff/master/images/sqlfluff-wide.png)
 
 ## The SQL Linter for humans
 
