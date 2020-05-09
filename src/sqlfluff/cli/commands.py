@@ -23,6 +23,7 @@ from ..errors import SQLLintError
 
 def common_options(f):
     """Add common options to commands via a decorator."""
+    f = click.version_option()(f)
     f = click.option('-v', '--verbose', count=True,
                      help=('Verbosity, how detailed should the output be. This is *stackable*, so `-vv`'
                            ' is more verbose than `-v`. For the most verbose option try `-vvvv` or `-vvvvv`.'))(f)
@@ -87,6 +88,7 @@ def get_linter(cfg, silent=False):
 
 
 @click.group()
+@click.version_option()
 def cli():
     """Sqlfluff is a modular sql linter for humans."""
 
@@ -118,8 +120,11 @@ def rules(**kwargs):
 @click.option('-f', '--format', 'format', default='human',
               type=click.Choice(['human', 'json', 'yaml'], case_sensitive=False),
               help='What format to return the lint result in.')
+@click.option('--nofail', is_flag=True,
+              help=('If set, the exit code will always be zero, regardless of violations '
+                    'found. This is potentially useful during rollout.'))
 @click.argument('paths', nargs=-1)
-def lint(paths, format, **kwargs):
+def lint(paths, format, nofail, **kwargs):
     """Lint SQL files via passing a list of files or using stdin.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -165,7 +170,10 @@ def lint(paths, format, **kwargs):
     elif format == 'yaml':
         click.echo(yaml.dump(result.as_records()))
 
-    sys.exit(result.stats()['exit code'])
+    if not nofail:
+        sys.exit(result.stats()['exit code'])
+    else:
+        sys.exit(0)
 
 
 def do_fixes(lnt, result, **kwargs):
@@ -267,7 +275,10 @@ def fix(force, paths, **kwargs):
               help='Set this flag to engage the python profiler.')
 @click.option('--bench', is_flag=True,
               help='Set this flag to engage the benchmarking tool output.')
-def parse(path, code_only, format, profiler, bench, **kwargs):
+@click.option('--nofail', is_flag=True,
+              help=('If set, the exit code will always be zero, regardless of violations '
+                    'found. This is potentially useful during rollout.'))
+def parse(path, code_only, format, profiler, bench, nofail, **kwargs):
     """Parse SQL files and just spit out the result.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -378,7 +389,7 @@ def parse(path, code_only, format, profiler, bench, **kwargs):
         lnt.log("\n\n==== bencher stats ====")
         bencher.display()
 
-    if nv > 0:
+    if nv > 0 and not nofail:
         sys.exit(66)
     else:
         sys.exit(0)

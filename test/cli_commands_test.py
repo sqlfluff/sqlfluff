@@ -102,6 +102,8 @@ def test__cli__command_lint_stdin(command):
     (fix, ['--rules', 'L001', 'test/fixtures/cli/fail_many.sql', '-vvvvvvv'], 'y'),
     # Check that ignoring works (also checks that unicode files parse).
     (lint, ['-n', '--exclude-rules', 'L003,L009', '--ignore', 'parsing,lexing', 'test/fixtures/linter/parse_lex_error.sql']),
+    # Check nofail works
+    (lint, ['--nofail', 'test/fixtures/linter/parse_lex_error.sql']),
 ])
 def test__cli__command_lint_parse(command):
     """Check basic commands on a more complicated script."""
