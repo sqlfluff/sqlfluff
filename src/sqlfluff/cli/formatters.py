@@ -190,7 +190,7 @@ def format_config(linter, verbose=0):
             ('dialect', linter.dialect.name),
             ('verbosity', verbose)
         ]
-        text_buffer.write(cli_table(config_content))
+        text_buffer.write(cli_table(config_content, col_width=25))
         text_buffer.write("\n")
         if linter.config.get('rule_whitelist'):
             text_buffer.write(cli_table([('rules', ', '.join(linter.config.get('rule_whitelist')))], col_width=41))
