@@ -48,7 +48,7 @@ def split_string_on_spaces(s, line_length=100):
     return line_buff
 
 
-def format_violation(violation, verbose=0, max_desc_line_length=100):
+def format_violation(violation, verbose=0, max_desc_line_length=60):
     """Format a violation."""
     if isinstance(violation, SQLBaseError):
         code, line, pos, desc = violation.get_info_tuple()
