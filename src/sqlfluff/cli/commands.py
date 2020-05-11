@@ -15,7 +15,8 @@ from ..dialects import dialect_selector
 from ..linter import Linter
 from .formatters import (format_config, format_rules,
                          format_violation, format_linting_result_header,
-                         format_linting_result_footer, colorize)
+                         format_linting_result_footer, colorize,
+                         format_dialect_warning)
 from .helpers import cli_table, get_package_version
 from ..config import FluffConfig
 from ..errors import SQLLintError
@@ -319,12 +320,14 @@ def parse(path, code_only, format, profiler, bench, nofail, **kwargs):
         if '-' == path:
             # put the parser result in a list to iterate later
             config = lnt.config.make_child_from_path('stdin')
-            result = [lnt.parse_string(
-                sys.stdin.read(),
-                'stdin',
-                verbosity=verbose,
-                recurse=recurse,
-                config=config
+            result = [(
+                *lnt.parse_string(
+                    sys.stdin.read(),
+                    'stdin',
+                    verbosity=verbose,
+                    recurse=recurse,
+                    config=config),
+                config
             )]
         else:
             # A single path must be specified for this command
@@ -332,7 +335,7 @@ def parse(path, code_only, format, profiler, bench, nofail, **kwargs):
 
         # iterative print for human readout
         if format == 'human':
-            for parsed, violations, time_dict in result:
+            for parsed, violations, time_dict, f_cfg in result:
                 if parsed:
                     lnt.log(parsed.stringify(code_only=code_only))
                 else:
@@ -343,6 +346,8 @@ def parse(path, code_only, format, profiler, bench, nofail, **kwargs):
                     lnt.log("==== parsing violations ====")
                 for v in violations:
                     lnt.log(format_violation(v, verbose=verbose))
+                if violations and f_cfg.get('dialect') == 'ansi':
+                    lnt.log(format_dialect_warning())
                 if verbose >= 2:
                     lnt.log("==== timings ====")
                     lnt.log(cli_table(time_dict.items()))
@@ -356,7 +361,7 @@ def parse(path, code_only, format, profiler, bench, nofail, **kwargs):
                     filepath=filepath,
                     segments=parsed.as_record(code_only=code_only, show_raw=True)
                 )
-                for filepath, (parsed, _, _) in zip(filepaths, result)
+                for filepath, (parsed, _, _, _) in zip(filepaths, result)
             ]
 
             if format == 'yaml':
