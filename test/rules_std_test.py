@@ -168,6 +168,7 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     ('L026', 'fail', 'SELECT * FROM my_tbl WHERE foo.bar > 0', None, None),
     # Aliases not referenced.
     ('L025', 'fail', 'SELECT * FROM my_tbl AS foo', None, None),
+    ('L025', 'pass', 'SELECT * FROM my_tbl AS foo JOIN other_tbl on other_tbl.x = foo.x', None, None),
     # Test cases for L029
     ('L029', 'pass', 'CREATE TABLE artist(artist_name TEXT)', None, None),
     ('L029', 'fail', 'CREATE TABLE artist(create TEXT)', None, None),
@@ -177,7 +178,12 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     # Inconsistent capitalisation of functions
     ('L030', 'fail', 'SELECT MAX(id), min(id) from table', 'SELECT MAX(id), MIN(id) from table', None),
     ('L030', 'fail', 'SELECT MAX(id), min(id) from table', 'SELECT max(id), min(id) from table',
-     {'rules': {'L030': {'capitalisation_policy': 'lower'}}})
+     {'rules': {'L030': {'capitalisation_policy': 'lower'}}}),
+    # Check we don't get false alarms with newlines, or sign indicators.
+    ('L006', 'pass', 'SELECT 1\n+ 2', None, None),
+    ('L006', 'pass', 'SELECT 1\n\t+ 2', None, None),
+    ('L006', 'pass', 'SELECT 1\n    + 2', None, None),
+    ('L006', 'pass', 'SELECT 1, +2, -4', None, None)
 ])
 def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
     """Test that a rule passes/fails on a given string.

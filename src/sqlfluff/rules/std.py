@@ -623,7 +623,7 @@ class Rule_L006(BaseCrawler):
                         'create', this_segment,
                         self.make_whitespace(raw=' ', pos_marker=this_segment.pos_marker))
                 )
-            elif len(segments_since_code) > 1:
+            elif len(segments_since_code) > 1 or any(elem.type == 'newline' for elem in segments_since_code):
                 # TODO: This is a case we should deal with, but there are probably
                 # some cases that SHOULDNT apply here (like comments and newlines)
                 # so let's deal with them later
@@ -1765,22 +1765,6 @@ class Rule_L020(BaseCrawler):
                 return None
             aliases = fc.get_eventual_aliases()
 
-            # Get any columns referred to in a using clause
-            using_cols = []
-            for join_clause in fc.recursive_crawl('join_clause'):
-                in_using_brackets = False
-                seen_using = False
-                for seg in join_clause.segments:
-                    if seg.type == 'keyword' and seg.name == 'USING':
-                        seen_using = True
-                    elif seen_using and seg.type == 'start_bracket':
-                        in_using_brackets = True
-                    elif seen_using and seg.type == 'end_bracket':
-                        in_using_brackets = False
-                        seen_using = False
-                    elif in_using_brackets and seg.type == 'identifier':
-                        using_cols.append(seg.raw)
-
             # Iterate through all the references, both in the select clause, but also
             # potential others.
             sc = segment.get_child('select_clause')
@@ -1789,6 +1773,29 @@ class Rule_L020(BaseCrawler):
                 clause = segment.get_child(potential_clause)
                 if clause:
                     reference_buffer += list(clause.recursive_crawl('object_reference'))
+
+            # Get any columns referred to in a using clause, and extract anything
+            # from ON clauses.
+            using_cols = []
+            for join_clause in fc.recursive_crawl('join_clause'):
+                in_using_brackets = False
+                seen_using = False
+                seen_on = False
+                for seg in join_clause.segments:
+                    if seg.type == 'keyword' and seg.name == 'USING':
+                        seen_using = True
+                    elif seg.type == 'keyword' and seg.name == 'ON':
+                        seen_on = True
+                    elif seen_using and seg.type == 'start_bracket':
+                        in_using_brackets = True
+                    elif seen_using and seg.type == 'end_bracket':
+                        in_using_brackets = False
+                        seen_using = False
+                    elif in_using_brackets and seg.type == 'identifier':
+                        using_cols.append(seg.raw)
+                    elif seen_on and seg.type == 'expression':
+                        # Deal with expressions
+                        reference_buffer += list(seg.recursive_crawl('object_reference'))
 
             # Pass them all to the function that does all the work.
             # NB: Subclasses of this rules should override the function below
