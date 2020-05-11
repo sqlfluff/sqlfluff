@@ -792,7 +792,7 @@ class Linter:
         self.log(
             format_file_violations(
                 fname, res.get_violations(fixable=True if fix else None),
-                verbose=verbosity
+                verbose=verbosity, max_line_length=config.get('output_line_length')
             )
         )
         return res
