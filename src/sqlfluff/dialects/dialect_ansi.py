@@ -97,6 +97,8 @@ ansi_dialect.add(
     CastOperatorSegment=KeywordSegment.make('::', name='casting_operator', type='casting_operator'),
     PlusSegment=KeywordSegment.make('+', name='plus', type='binary_operator'),
     MinusSegment=KeywordSegment.make('-', name='minus', type='binary_operator'),
+    PositiveSegment=KeywordSegment.make('+', name='positive', type='sign_indicator'),
+    NegativeSegment=KeywordSegment.make('-', name='negative', type='sign_indicator'),
     DivideSegment=KeywordSegment.make('/', name='divide', type='binary_operator'),
     MultiplySegment=KeywordSegment.make('*', name='multiply', type='binary_operator'),
     ConcatSegment=KeywordSegment.make('||', name='concatenate', type='binary_operator'),
@@ -741,9 +743,9 @@ ansi_dialect.add(
             Ref('Expression_C_Grammar'),
             Sequence(
                 OneOf(
-                    Ref('PlusSegment'),
-                    Ref('MinusSegment'),
-                    Ref('TildeSegment'),
+                    Ref('PositiveSegment'),
+                    Ref('NegativeSegment'),
+                    # Ref('TildeSegment'),
                     'NOT'
                 ),
                 Ref('Expression_A_Grammar')
