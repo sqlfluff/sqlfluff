@@ -168,6 +168,7 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     ('L026', 'fail', 'SELECT * FROM my_tbl WHERE foo.bar > 0', None, None),
     # Aliases not referenced.
     ('L025', 'fail', 'SELECT * FROM my_tbl AS foo', None, None),
+    ('L025', 'pass', 'SELECT * FROM my_tbl AS foo JOIN other_tbl on other_tbl.x = foo.x', None, None),
     # Test cases for L029
     ('L029', 'pass', 'CREATE TABLE artist(artist_name TEXT)', None, None),
     ('L029', 'fail', 'CREATE TABLE artist(create TEXT)', None, None),
