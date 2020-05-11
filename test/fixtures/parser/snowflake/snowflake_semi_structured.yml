@@ -105,8 +105,8 @@ file:
             function_name: flatten
             start_bracket: (
             snowflake_keyword_expression:
-              keyword_name: INPUT
-              keyword: =>
+              parameter: INPUT
+              parameter_assigner: =>
               object_reference:
                 identifier: custom_fields
             end_bracket: )

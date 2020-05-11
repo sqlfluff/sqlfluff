@@ -21,6 +21,15 @@ def format_filename(filename, success=False, verbose=0, success_text='PASS'):
         + "] " + status_string)
 
 
+def format_dialect_warning():
+    """Output a warning for parsing errors found on the ansi dialect."""
+    return colorize(
+        ("WARNING: Parsing errors found and dialect is set to "
+         "'ansi'. Have you configured your dialect?"),
+        'lightgrey'
+    )
+
+
 def format_path(path):
     """Format paths."""
     return '=== [ path: {0} ] ===\n'.format(colorize(path, 'lightgrey'))

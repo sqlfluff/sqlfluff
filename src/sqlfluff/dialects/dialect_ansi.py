@@ -115,6 +115,9 @@ ansi_dialect.add(
             r"[A-Z0-9_]*[A-Z][A-Z0-9_]*", name='naked_identifier', type='identifier',
             _anti_template=r"^(" + r'|'.join(dialect.sets('reserved_keywords')) + r")$")
     ),
+    ParameterNameSegment=ReSegment.make(
+        r"[A-Z][A-Z0-9_]*", name='parameter',
+        type='parameter'),
     FunctionNameSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='function_name', type='function_name'),
     # Maybe data types should be more restrictive?
     DatatypeIdentifierSegment=ReSegment.make(r"[A-Z][A-Z0-9_]*", name='data_type_identifier', type='data_type_identifier'),
@@ -1325,6 +1328,51 @@ class CreateTableStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class AlterTableStatementSegment(BaseSegment):
+    """An `ALTER TABLE` statement."""
+    type = 'alter_table_statement'
+    # Based loosely on:
+    # https://dev.mysql.com/doc/refman/8.0/en/alter-table.html
+    # TODO: Flesh this out with more detail.
+    match_grammar = Sequence(
+        'ALTER',
+        'TABLE',
+        Ref('ObjectReferenceSegment'),
+        Delimited(
+            OneOf(
+                # Table options
+                Sequence(
+                    Ref('ParameterNameSegment'),
+                    Ref('EqualsSegment', optional=True),
+                    OneOf(Ref('LiteralGrammar'), Ref('NakedIdentifierSegment'))
+                ),
+                # Add things
+                Sequence(
+                    OneOf('ADD', 'MODIFY'),
+                    Ref.keyword('COLUMN', optional=True),
+                    Ref('ColumnDefinitionSegment'),
+                    OneOf(
+                        Sequence(
+                            OneOf('FIRST', 'AFTER'),
+                            Ref('ObjectReferenceSegment')
+                        ),
+                        # Bracketed Version of the same
+                        Bracketed(
+                            Delimited(
+                                Ref('ObjectReferenceSegment'),
+                                delimiter=Ref('CommaSegment')
+                            ),
+                        ),
+                        optional=True
+                    )
+                )
+            ),
+            delimiter=Ref('CommaSegment')
+        )
+    )
+
+
+@ansi_dialect.segment()
 class CreateViewStatementSegment(BaseSegment):
     """A `CREATE VIEW` statement."""
     type = 'create_view_statement'
@@ -1609,6 +1657,7 @@ class StatementSegment(BaseSegment):
         Ref('EmptyStatementSegment'), Ref('WithCompoundStatementSegment'),
         Ref('TransactionStatementSegment'), Ref('DropStatementSegment'),
         Ref('AccessStatementSegment'), Ref('CreateTableStatementSegment'),
+        Ref('AlterTableStatementSegment'),
         Ref('CreateViewStatementSegment'),
         Ref('DeleteStatementSegment'), Ref('UpdateStatementSegment'),
     )

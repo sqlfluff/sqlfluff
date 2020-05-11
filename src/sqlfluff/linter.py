@@ -17,7 +17,8 @@ from .rules import get_ruleset, rules_logger
 
 
 from .cli.formatters import (format_linting_path, format_file_violations,
-                             format_filename, format_config_vals)
+                             format_filename, format_config_vals,
+                             format_dialect_warning)
 
 
 class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tree', 'file_mask', 'ignore_mask'])):
@@ -795,6 +796,10 @@ class Linter:
                 verbose=verbosity, max_line_length=config.get('output_line_length')
             )
         )
+        # Safety flag for unset dialects
+        if config.get('dialect') == 'ansi' and res.get_violations(fixable=True if fix else None, types=SQLParseError):
+            self.log(format_dialect_warning())
+
         return res
 
     def paths_from_path(self, path, ignore_file_name='.sqlfluffignore', ignore_non_existent_files=False):
@@ -897,5 +902,9 @@ class Linter:
             config = self.config.make_child_from_path(fname)
             # Handle unicode issues gracefully
             with open(fname, 'r', encoding='utf8', errors='backslashreplace') as target_file:
-                yield self.parse_string(target_file.read(), fname=fname, verbosity=verbosity,
-                                        recurse=recurse, config=config)
+                yield (
+                    *self.parse_string(target_file.read(), fname=fname, verbosity=verbosity,
+                                       recurse=recurse, config=config),
+                    # Also yield the config
+                    config
+                )

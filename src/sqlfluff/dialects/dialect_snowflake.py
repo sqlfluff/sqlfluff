@@ -45,10 +45,7 @@ snowflake_dialect.add(
     # In snowflake, these are case sensitive even though they're not quoted
     # so they need a different `name` and `type` so they're not picked up
     # by other rules.
-    ParameterAssignerSegment=KeywordSegment.make('=>', name="keyword_assigner"),
-    ParameterNameSegment=ReSegment.make(
-        r"[A-Z][A-Z0-9_]*", name='keyword_name',
-        type='keyword_name'),
+    ParameterAssignerSegment=KeywordSegment.make('=>', name="parameter_assigner", type="parameter_assigner"),
     NakedSemiStructuredElementSegment=ReSegment.make(
         r"[A-Z][A-Z0-9_]*", name='naked_semi_structured_element',
         type='semi_structured_element'),

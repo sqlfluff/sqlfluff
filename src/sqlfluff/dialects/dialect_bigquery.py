@@ -60,7 +60,7 @@ bigquery_dialect.replace(
     IntervalExpressionSegment=IntervalExpressionSegment,
     LiteralGrammar=OneOf(
         Ref('QuotedLiteralSegment'), Ref('DoubleQuotedLiteralSegment'), Ref('NumericLiteralSegment'),
-        Ref('BooleanLiteralGrammar'), Ref('QualifiedNumericLiteralSegment')
+        Ref('BooleanLiteralGrammar'), Ref('QualifiedNumericLiteralSegment'), Ref('NullKeywordSegment')
     ),
     PostTableExpressionGrammar=Sequence(
         Sequence(

@@ -27,3 +27,6 @@ coverage.xml
 # Ignore test reports
 .test-reports
 test-reports
+
+# Ignore root testing sql files
+/test*.sql
