@@ -623,7 +623,7 @@ class Rule_L006(BaseCrawler):
                         'create', this_segment,
                         self.make_whitespace(raw=' ', pos_marker=this_segment.pos_marker))
                 )
-            elif len(segments_since_code) > 1:
+            elif len(segments_since_code) > 1 or any(elem.type == 'newline' for elem in segments_since_code):
                 # TODO: This is a case we should deal with, but there are probably
                 # some cases that SHOULDNT apply here (like comments and newlines)
                 # so let's deal with them later

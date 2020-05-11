@@ -177,7 +177,11 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     # Inconsistent capitalisation of functions
     ('L030', 'fail', 'SELECT MAX(id), min(id) from table', 'SELECT MAX(id), MIN(id) from table', None),
     ('L030', 'fail', 'SELECT MAX(id), min(id) from table', 'SELECT max(id), min(id) from table',
-     {'rules': {'L030': {'capitalisation_policy': 'lower'}}})
+     {'rules': {'L030': {'capitalisation_policy': 'lower'}}}),
+    # Check we don't get false alarms with newlines
+    ('L006', 'pass', 'SELECT 1\n+ 2', None, None),
+    ('L006', 'pass', 'SELECT 1\n\t+ 2', None, None),
+    ('L006', 'pass', 'SELECT 1\n    + 2', None, None)
 ])
 def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
     """Test that a rule passes/fails on a given string.
