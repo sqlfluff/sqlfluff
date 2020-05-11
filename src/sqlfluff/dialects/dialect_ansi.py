@@ -1645,6 +1645,54 @@ class SetClauseSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class CreateModelStatementSegment(BaseSegment):
+    """A BigQuery `CREATE MODEL` statement."""
+    type = 'create_model_statement'
+    # https://cloud.google.com/bigquery-ml/docs/reference/standard-sql/bigqueryml-syntax-create
+    match_grammar = Sequence(
+        'CREATE',
+        Sequence(
+            'OR',
+            'REPLACE',
+            optional=True
+        ),
+        'MODEL',
+        Sequence(
+            'IF',
+            'NOT',
+            'EXISTS',
+            optional=True
+        ),
+        Ref('ObjectReferenceSegment'),
+        Sequence(
+            'OPTIONS',
+            Bracketed(
+                Delimited(
+                    Ref('NakedIdentifierSegment'),
+                    Ref('EqualsSegment'),
+                    OneOf(
+                        # This covers many but not all the extensive list of
+                        # possible 'CREATE MODEL' optiona.
+                        Ref('LiteralGrammar'),  # Single value
+                        Bracketed(  # E.g. input_label_cols: list of column names
+                            Delimited(
+                                Ref('ObjectReferenceSegment'),
+                                delimiter=Ref('CommaSegment')
+                            ),
+                            square=True,
+                            optional=True
+                        ),
+                    ),
+                    delimiter=Ref('CommaSegment')
+                )
+            )
+        ),
+        'AS',
+        Ref('SelectStatementSegment')
+    )
+
+
+@ansi_dialect.segment()
 class StatementSegment(BaseSegment):
     """A generic segment, to any of it's child subsegments.
 
@@ -1660,5 +1708,6 @@ class StatementSegment(BaseSegment):
         Ref('AlterTableStatementSegment'),
         Ref('CreateViewStatementSegment'),
         Ref('DeleteStatementSegment'), Ref('UpdateStatementSegment'),
+        Ref('CreateModelStatementSegment'),
     )
     match_grammar = GreedyUntil(Ref('SemicolonSegment'))
