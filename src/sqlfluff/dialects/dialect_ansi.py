@@ -1668,24 +1668,15 @@ class CreateModelStatementSegment(BaseSegment):
             'OPTIONS',
             Bracketed(
                 Delimited(
-                    Ref('NakedIdentifierSegment'),
-                    Ref('EqualsSegment'),
-                    OneOf(
-                        # This covers many but not all the extensive list of
-                        # possible 'CREATE MODEL' optiona.
+                    Sequence(
+                        Ref('ObjectReferenceSegment'),
+                        Ref('EqualsSegment'),
                         Ref('LiteralGrammar'),  # Single value
-                        Bracketed(  # E.g. input_label_cols: list of column names
-                            Delimited(
-                                Ref('ObjectReferenceSegment'),
-                                delimiter=Ref('CommaSegment')
-                            ),
-                            square=True,
-                            optional=True
-                        ),
                     ),
                     delimiter=Ref('CommaSegment')
                 )
-            )
+            ),
+            optional=True
         ),
         'AS',
         Ref('SelectStatementSegment')
