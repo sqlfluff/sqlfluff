@@ -26,6 +26,27 @@ def test__dialect__ansi__file_from_raw(raw, res, caplog):
     assert fs.raw_list() == res
 
 
+def lex(raw, config):
+    """Basic parsing for the tests below."""
+    # Set up the lexer
+    lex = Lexer(config=config)
+    # Lex the string for matching. For a good test, this would
+    # arguably happen as a fixture, but it's easier to pass strings
+    # as parameters than pre-lexed segment strings.
+    seg_list, vs = lex.lex(raw)
+    assert not vs
+    print(seg_list)
+    return seg_list
+
+
+def validate_segment(segmentref, config):
+    """Get and validate segment for tests below."""
+    Seg = config.get('dialect_obj').ref(segmentref)
+    if not issubclass(Seg, BaseSegment):
+        raise TypeError("{0} is not of type Segment. Test is invalid.".format(segmentref))
+    return Seg
+
+
 # Develop test to check specific elements against specific grammars.
 @pytest.mark.parametrize(
     "segmentref,raw",
@@ -104,21 +125,10 @@ def test__dialect__ansi_specific_segment_parses(segmentref, raw, caplog):
     function of SUBSECTIONS will be tested if present. The match
     function of the parent will not be tested.
     """
-    # Set up the lexer
     config = FluffConfig(overrides=dict(dialect='ansi'))
-    lex = Lexer(config=config)
+    seg_list = lex(raw, config=config)
+    Seg = validate_segment(segmentref, config=config)
     c = ParseContext.from_config(config)
-    # Lex the string for matching. For a good test, this would
-    # arguably happen as a fixture, but it's easier to pass strings
-    # as parameters than pre-lexed segment strings.
-    seg_list, vs = lex.lex(raw)
-    assert not vs
-
-    print(seg_list)
-    # Get the segment class for matching
-    Seg = config.get('dialect_obj').ref(segmentref)
-    if not issubclass(Seg, BaseSegment):
-        raise TypeError("{0} is not of type Segment. Test is invalid.".format(segmentref))
 
     # This test is different if we're working with RawSegment
     # derivatives or not.
@@ -151,3 +161,27 @@ def test__dialect__ansi_specific_segment_parses(segmentref, raw, caplog):
     # Check that there's nothing un parsable
     typs = parsed.type_set()
     assert 'unparsable' not in typs
+
+
+@pytest.mark.parametrize(
+    "segmentref,raw",
+    [
+        # Check we don't match empty whitespace as a reference
+        ("ObjectReferenceSegment", "\n     ")
+    ]
+)
+def test__dialect__ansi_specific_segment_not_match(segmentref, raw, caplog):
+    """Test that specific segments do not match.
+
+    NB: We're testing the MATCH function not the PARSE function.
+    This is the opposite to the above.
+    """
+    config = FluffConfig(overrides=dict(dialect='ansi'))
+    seg_list = lex(raw, config=config)
+    Seg = validate_segment(segmentref, config=config)
+    c = ParseContext.from_config(config)
+
+    with caplog.at_level(logging.DEBUG):
+        match = Seg.match(segments=seg_list, parse_context=c)
+
+    assert not match
