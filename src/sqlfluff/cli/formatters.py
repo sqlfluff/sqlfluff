@@ -48,7 +48,7 @@ def split_string_on_spaces(s, line_length=100):
     return line_buff
 
 
-def format_violation(violation, verbose=0, max_desc_line_length=100):
+def format_violation(violation, verbose=0, max_line_length=90):
     """Format a violation."""
     if isinstance(violation, SQLBaseError):
         code, line, pos, desc = violation.get_info_tuple()
@@ -66,7 +66,7 @@ def format_violation(violation, verbose=0, max_desc_line_length=100):
     if violation.ignore:
         desc = 'IGNORE: ' + desc
 
-    split_desc = split_string_on_spaces(desc, line_length=max_desc_line_length)
+    split_desc = split_string_on_spaces(desc, line_length=max_line_length - 25)
 
     out_buff = ""
     for idx, line in enumerate(split_desc):
@@ -82,7 +82,7 @@ def format_violation(violation, verbose=0, max_desc_line_length=100):
     return out_buff
 
 
-def format_file_violations(fname, res, verbose=0):
+def format_file_violations(fname, res, verbose=0, max_line_length=90):
     """Format a set of violations in a `LintingResult`."""
     text_buffer = StringIO()
     # Success is having no violations (which aren't ignored)
@@ -98,7 +98,10 @@ def format_file_violations(fname, res, verbose=0):
         # sort by position in file
         s = sorted(res, key=lambda v: v.char_pos())
         for violation in s:
-            text_buffer.write(format_violation(violation, verbose=verbose))
+            text_buffer.write(
+                format_violation(
+                    violation, verbose=verbose,
+                    max_line_length=max_line_length))
             text_buffer.write('\n')
     str_buffer = text_buffer.getvalue()
     # Remove the trailing newline if there is one
