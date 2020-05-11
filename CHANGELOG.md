@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   rollout.
 - Added the `--version` option to complement the `version` option already
   available on the cli.
+- Parsing for `ALTER TABLE`.
+- Warning for unset dialects when getting parsing errors.
+- Configurable line lengths for output.
 
 ## [0.3.2] - 2020-05-08
 
