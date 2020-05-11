@@ -1671,7 +1671,20 @@ class CreateModelStatementSegment(BaseSegment):
                     Sequence(
                         Ref('ObjectReferenceSegment'),
                         Ref('EqualsSegment'),
-                        Ref('LiteralGrammar'),  # Single value
+                        OneOf(
+                            # This covers many but not all the extensive list of
+                            # possible 'CREATE MODEL' optiona.
+                            Ref('LiteralGrammar'),  # Single value
+                            Bracketed(
+                                # E.g. input_label_cols: list of column names
+                                Delimited(
+                                    Ref('QuotedLiteralSegment'),
+                                    delimiter=Ref('CommaSegment')
+                                ),
+                                square=True,
+                                optional=True
+                            ),
+                        )
                     ),
                     delimiter=Ref('CommaSegment')
                 )
