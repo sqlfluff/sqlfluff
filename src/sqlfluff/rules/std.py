@@ -1728,7 +1728,7 @@ class Rule_L019(BaseCrawler):
 class Rule_L020(BaseCrawler):
     """Table aliases should be unique within each clause."""
 
-    def _lint_references_and_aliases(self, aliases, references, using_cols):
+    def _lint_references_and_aliases(self, aliases, references, using_cols, parent_select):
         """Check whether any aliases are duplicates.
 
         NB: Subclasses of this error should override this function.
@@ -1748,7 +1748,16 @@ class Rule_L020(BaseCrawler):
                 )]
         return None
 
-    def _eval(self, segment, **kwargs):
+    @staticmethod
+    def _get_aliases_from_select(segment):
+        # Get the aliases referred to in the clause
+        fc = segment.get_child('from_clause')
+        if not fc:
+            # If there's no from clause then just abort.
+            return None
+        return fc.get_eventual_aliases()
+
+    def _eval(self, segment, parent_stack, **kwargs):
         """Get References and Aliases and allow linting.
 
         This rule covers a lot of potential cases of odd usages of
@@ -1758,12 +1767,9 @@ class Rule_L020(BaseCrawler):
         `_lint_references_and_aliases` method.
         """
         if segment.type == 'select_statement':
-            # Get the aliases referred to in the clause
-            fc = segment.get_child('from_clause')
-            if not fc:
-                # If there's no from clause then just abort.
+            aliases = self._get_aliases_from_select(segment)
+            if not aliases:
                 return None
-            aliases = fc.get_eventual_aliases()
 
             # Iterate through all the references, both in the select clause, but also
             # potential others.
@@ -1783,6 +1789,7 @@ class Rule_L020(BaseCrawler):
             # Get any columns referred to in a using clause, and extract anything
             # from ON clauses.
             using_cols = []
+            fc = segment.get_child('from_clause')
             for join_clause in fc.recursive_crawl('join_clause'):
                 in_using_brackets = False
                 seen_using = False
@@ -1803,9 +1810,16 @@ class Rule_L020(BaseCrawler):
                         # Deal with expressions
                         reference_buffer += list(seg.recursive_crawl('object_reference'))
 
+            # Work out if we have a parent select function
+            parent_select = None
+            for seg in reversed(parent_stack):
+                if seg.type == 'select_statement':
+                    parent_select = seg
+                    break
+
             # Pass them all to the function that does all the work.
             # NB: Subclasses of this rules should override the function below
-            return self._lint_references_and_aliases(aliases, reference_buffer, using_cols)
+            return self._lint_references_and_aliases(aliases, reference_buffer, using_cols, parent_select)
         return None
 
 
@@ -1953,7 +1967,7 @@ class Rule_L025(Rule_L020):
             tbl_ref = None
         return this_ref_type, tbl_ref
 
-    def _lint_references_and_aliases(self, aliases, references, using_cols):
+    def _lint_references_and_aliases(self, aliases, references, using_cols, parent_select):
         """Check all aliased references against tables referenced in the query."""
         # A buffer to keep any violations.
         violation_buff = []
@@ -1979,7 +1993,7 @@ class Rule_L025(Rule_L020):
 class Rule_L026(Rule_L025):
     """References cannot reference objects not present in FROM clause."""
 
-    def _lint_references_and_aliases(self, aliases, references, using_cols):
+    def _lint_references_and_aliases(self, aliases, references, using_cols, parent_select):
         # A buffer to keep any violations.
         violation_buff = []
 
@@ -1988,11 +2002,17 @@ class Rule_L026(Rule_L025):
             _, tbl_ref = self._extract_type_tbl_reference(r)
             # Check whether the string in the list of strings
             if tbl_ref and tbl_ref[0] not in [a[0] for a in aliases]:
+                # Last check, this *might* be a correlated subquery reference.
+                if parent_select:
+                    parent_aliases = self._get_aliases_from_select(parent_select)
+                    if parent_aliases and tbl_ref[0] in [a[0] for a in parent_aliases]:
+                        continue
+
                 violation_buff.append(
                     LintResult(
                         # Return the segment rather than the string
                         anchor=tbl_ref[1],
-                        description="Reference {0!r} refers to table/view {1!r} not found in the FROM clause.".format(r.raw, tbl_ref[0])
+                        description="Reference {0!r} refers to table/view {1!r} not found in the FROM clause or found in parent subquery.".format(r.raw, tbl_ref[0])
                     )
                 )
         return violation_buff or None
@@ -2006,7 +2026,7 @@ class Rule_L027(Rule_L025):
 
     """
 
-    def _lint_references_and_aliases(self, aliases, references, using_cols):
+    def _lint_references_and_aliases(self, aliases, references, using_cols, parent_select):
         # Do we have more than one? If so, all references should be qualified.
         if len(aliases) <= 1:
             return None
@@ -2045,7 +2065,7 @@ class Rule_L028(Rule_L025):
         self.single_table_references = single_table_references
         super().__init__(**kwargs)
 
-    def _lint_references_and_aliases(self, aliases, references, using_cols):
+    def _lint_references_and_aliases(self, aliases, references, using_cols, parent_select):
         """Iterate through references and check consistency."""
         # How many aliases are there? If more than one then abort.
         if len(aliases) > 1:

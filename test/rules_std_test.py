@@ -187,6 +187,7 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     # Catch issues with subqueries properly
     ('L028', 'pass', 'SELECT * FROM db.sc.tbl2\nWHERE a NOT IN (SELECT a FROM db.sc.tbl1)\n', None, None),
     ('L026', 'pass', 'SELECT * FROM db.sc.tbl2\nWHERE a NOT IN (SELECT a FROM db.sc.tbl1)\n', None, None),
+    ('L026', 'pass', 'SELECT * FROM db.sc.tbl2\nWHERE a NOT IN (SELECT tbl2.a FROM db.sc.tbl1)\n', None, None),  # Correlated subquery.
 ])
 def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
     """Test that a rule passes/fails on a given string.
