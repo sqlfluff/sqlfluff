@@ -1672,7 +1672,7 @@ class CreateModelStatementSegment(BaseSegment):
             Bracketed(
                 Delimited(
                     Sequence(
-                        Ref('ObjectReferenceSegment'),
+                        Ref('ParameterNameSegment'),
                         Ref('EqualsSegment'),
                         OneOf(
                             # This covers many but not all the extensive list of
