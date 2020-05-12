@@ -1730,6 +1730,15 @@ class MLTableExpressionSegment(BaseSegment):
             Sequence(
                 'MODEL',
                 Ref('ObjectReferenceSegment')
+            ),
+            OneOf(
+                Sequence(
+                    Ref('CommaSegment'),
+                    Bracketed(
+                        Ref('SelectStatementSegment')
+                    )
+                ),
+                optional=True
             )
         )
     )
