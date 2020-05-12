@@ -188,6 +188,9 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     ('L028', 'pass', 'SELECT * FROM db.sc.tbl2\nWHERE a NOT IN (SELECT a FROM db.sc.tbl1)\n', None, None),
     ('L026', 'pass', 'SELECT * FROM db.sc.tbl2\nWHERE a NOT IN (SELECT a FROM db.sc.tbl1)\n', None, None),
     ('L026', 'pass', 'SELECT * FROM db.sc.tbl2\nWHERE a NOT IN (SELECT tbl2.a FROM db.sc.tbl1)\n', None, None),  # Correlated subquery.
+    # Make sure comments are aligned properly
+    ('L003', 'pass', 'SELECT *\nFROM\n    t1\n-- Comment\nJOIN t2 USING (user_id)', None, None),
+    ('L003', 'fail', 'SELECT *\nFROM\n    t1\n    -- Comment\nJOIN t2 USING (user_id)', 'SELECT *\nFROM\n    t1\n-- Comment\nJOIN t2 USING (user_id)', None)
 ])
 def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
     """Test that a rule passes/fails on a given string.
@@ -230,7 +233,6 @@ def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
     # Check bracket handling with closing brackets and contained indents works.
     ('L003', 'test/fixtures/linter/indentation_error_contained.sql', []),
     # Check we handle block comments as expect. Github #236
-    ('L003', 'test/fixtures/linter/block_comment_errors.sql', [(3, 1)]),
     ('L016', 'test/fixtures/linter/block_comment_errors.sql', [(1, 121), (2, 99), (4, 88)]),
     ('L016', 'test/fixtures/linter/block_comment_errors_2.sql', [(1, 85), (2, 86)]),
     # Column references

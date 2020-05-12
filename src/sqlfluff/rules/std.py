@@ -302,7 +302,9 @@ class Rule_L003(BaseCrawler):
                 'problem_lines': [],
                 # hanging_lines keeps track of hanging lines so that we don't
                 # compare to them when assessing indent.
-                'hanging_lines': []
+                'hanging_lines': [],
+                # comment_lines keeps track of lines which are all comment.
+                'comment_lines': []
             }
 
         if segment.type == 'newline':
@@ -328,9 +330,22 @@ class Rule_L003(BaseCrawler):
         this_line_no = max(res.keys())
         this_line = res.pop(this_line_no)
 
+        # Is this line just comments?
+        if set(seg.type for seg in this_line['line_buffer'] if not seg.is_meta) <= {'whitespace', 'comment'}:
+            # Comment line, deal with it later.
+            memory['comment_lines'].append(this_line_no)
+            return LintResult(memory=memory)
+
         # Is it a hanging indent?
-        if len(res) > 0:
-            last_line_hanger_indent = res[this_line_no - 1]['hanging_indent']
+        # Find last meaningful line indent.
+        last_code_line = None
+        for k in sorted(res.keys(), reverse=True):
+            if any(seg.is_code for seg in res[k]['line_buffer']):
+                last_code_line = k
+                break
+
+        if len(res) > 0 and last_code_line:
+            last_line_hanger_indent = res[last_code_line]['hanging_indent']
             # Let's just deal with hanging indents here.
             if (
                 # NB: Hangers are only allowed if there was content after the last
@@ -339,9 +354,9 @@ class Rule_L003(BaseCrawler):
                 # Or they're if the indent balance is the same and the indent is the
                 # same AND the previous line was a hanger
                 or (
-                    this_line['indent_size'] == res[this_line_no - 1]['indent_size']
-                    and this_line['indent_balance'] == res[this_line_no - 1]['indent_balance']
-                    and this_line_no - 1 in memory['hanging_lines']
+                    this_line['indent_size'] == res[last_code_line]['indent_size']
+                    and this_line['indent_balance'] == res[last_code_line]['indent_balance']
+                    and last_code_line in memory['hanging_lines']
                 )
             ) and (
                 # There MUST also be a non-zero indent. Otherwise we're just on the baseline.
@@ -351,7 +366,7 @@ class Rule_L003(BaseCrawler):
                 memory['hanging_lines'].append(this_line_no)
                 return LintResult(memory=memory)
         # Is this an indented first line?
-        else:
+        elif len(res) == 0:
             if this_line['indent_size'] > 0:
                 return LintResult(
                     anchor=segment,
@@ -374,9 +389,13 @@ class Rule_L003(BaseCrawler):
                 # Skip if it is
                 continue
 
-            # Is the indent balance the same?
+            # Work out the difference in indent
             indent_diff = this_line['indent_balance'] - res[k]['indent_balance']
-            if indent_diff == 0:
+            # If we're comparing to a previous, more deeply indented line, then skip and keep looking.
+            if indent_diff < 0:
+                continue
+            # Is the indent balance the same?
+            elif indent_diff == 0:
                 if this_line['indent_size'] != res[k]['indent_size']:
                     # Indents don't match even though balance is the same...
                     memory['problem_lines'].append(this_line_no)
@@ -406,7 +425,7 @@ class Rule_L003(BaseCrawler):
                 else:
                     # Indents match. And this is a line that it's ok to
                     # compare with, we're fine.
-                    return LintResult(memory=memory)
+                    pass
 
             # Are we at a deeper indent?
             elif indent_diff > 0:
@@ -489,23 +508,23 @@ class Rule_L003(BaseCrawler):
 
                     if b_num >= indent_diff:
                         # It does. This line is fine.
-                        return LintResult(memory=memory)
-
-                    # It doesn't. That means we *should* have an indent when compared to
-                    # this line and we DON'T.
-                    memory['problem_lines'].append(this_line_no)
-                    return LintResult(
-                        anchor=segment,
-                        memory=memory,
-                        description="Indent expected and not found compared to line #{0}".format(k),
-                        # Add in an extra bit of whitespace for the indent
-                        fixes=[LintFix(
-                            'create', segment,
-                            self.make_whitespace(
-                                raw=self._make_indent(),
-                                pos_marker=segment.pos_marker)
-                        )]
-                    )
+                        pass
+                    else:
+                        # It doesn't. That means we *should* have an indent when compared to
+                        # this line and we DON'T.
+                        memory['problem_lines'].append(this_line_no)
+                        return LintResult(
+                            anchor=segment,
+                            memory=memory,
+                            description="Indent expected and not found compared to line #{0}".format(k),
+                            # Add in an extra bit of whitespace for the indent
+                            fixes=[LintFix(
+                                'create', segment,
+                                self.make_whitespace(
+                                    raw=self._make_indent(),
+                                    pos_marker=segment.pos_marker)
+                            )]
+                        )
                 elif this_indent_num < comp_indent_num:
                     memory['problem_lines'].append(this_line_no)
                     return LintResult(
@@ -538,9 +557,41 @@ class Rule_L003(BaseCrawler):
                         fixes=fixes
                     )
 
-                # This was a valid comparison, so if it doesn't flag then
-                # we can assume that we're ok.
-                return LintResult(memory=memory)
+            # This was a valid comparison, so if it doesn't flag then
+            # we can assume that we're ok.
+
+            # Given that this line is ok, consider if the previous line is a comment.
+            # If it is, lint the indentation of that comment.
+            if this_line_no - 1 in memory['comment_lines']:
+                # The previous line WAS as comment.
+                prev_line = res[this_line_no - 1]
+                if this_line['indent_size'] != prev_line['indent_size']:
+                    # It's not aligned.
+                    # Find the anchor first.
+                    anchor = None
+                    for seg in prev_line['line_buffer']:
+                        if seg.type == 'comment':
+                            anchor = seg
+                            break
+                    # Check we found a comment, bail out if not.
+                    if not anchor:
+                        return LintResult(memory=memory)
+                    # Make fixes.
+                    fixes = self._coerce_indent_to(
+                        desired_indent=''.join(elem.raw for elem in this_line['indent_buffer']),
+                        current_indent_buffer=prev_line['indent_buffer'],
+                        current_anchor=anchor)
+
+                    memory['problem_lines'].append(this_line_no - 1)
+                    return LintResult(
+                        anchor=anchor,
+                        memory=memory,
+                        description="Comment not aligned with following line.",
+                        fixes=fixes
+                    )
+
+            # Otherwise all good.
+            return LintResult(memory=memory)
 
             # NB: At shallower indents, we don't check, we just check the
             # previous lines with the same balance. Deeper indents can check
