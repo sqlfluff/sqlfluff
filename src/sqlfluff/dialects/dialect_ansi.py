@@ -668,8 +668,11 @@ class FromClauseSegment(BaseSegment):
         'FROM',
         Indent,
         Delimited(
-            # Optional old school delimited joins
-            Ref('TableExpressionSegment'),
+            OneOf(
+                # Optional old school delimited joins
+                Ref('TableExpressionSegment'),
+                Ref('MLTableExpressionSegment'),
+            ),
             delimiter=Ref('CommaSegment'),
             terminator=Ref('JoinClauseSegment')
         ),
@@ -1712,6 +1715,25 @@ class DropModelStatementSegment(BaseSegment):
         ),
         Ref('ObjectReferenceSegment')
     )
+
+
+@ansi_dialect.segment()
+class MLTableExpressionSegment(BaseSegment):
+    """An ML table expression."""
+    type = 'ml_table_expression'
+    # E.g. ML.WEIGHTS(MODEL `project.dataset.model`)
+    match_grammar = Sequence(
+        'ML',
+        Ref('DotSegment'),
+        Ref('SingleIdentifierGrammar'),
+        Bracketed(
+            Sequence(
+                'MODEL',
+                Ref('ObjectReferenceSegment')
+            )
+        )
+    )
+
 
 @ansi_dialect.segment()
 class StatementSegment(BaseSegment):
