@@ -957,6 +957,33 @@ class BaseSegment:
         for seg in self.segments:
             yield from seg.recursive_crawl(seg_type=seg_type)
 
+    def path_to(self, other):
+        """Given a segment which is assumed within self, get the intermediate segments.
+
+        Returns:
+            :obj:`list` of segments, including the segment we're looking for.
+            None if not found.
+
+        """
+        # Return self if we've found the segment.
+        if self is other:
+            return [self]
+
+        # Are we in the right ballpark?
+        if not self.get_start_pos_marker() <= other.get_start_pos_marker() <= self.get_end_pos_marker():
+            return None
+
+        # Do we have any child segments at all?
+        if not self.segments:
+            return None
+
+        # Check through each of the child segments
+        for seg in self.segments:
+            res = seg.path_to(other)
+            if res:
+                return [self] + res
+        return None
+
 
 class RawSegment(BaseSegment):
     """This is a segment without any subsegments."""

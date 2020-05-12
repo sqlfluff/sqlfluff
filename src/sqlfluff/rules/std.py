@@ -1773,6 +1773,12 @@ class Rule_L020(BaseCrawler):
                 clause = segment.get_child(potential_clause)
                 if clause:
                     reference_buffer += list(clause.recursive_crawl('object_reference'))
+            # PURGE any references which are in nested select statements
+            for ref in reference_buffer.copy():
+                ref_path = segment.path_to(ref)
+                # is it in a subselect? i.e. a select which isn't this one.
+                if any(seg.type == 'select_statement' and seg is not segment for seg in ref_path):
+                    reference_buffer.remove(ref)
 
             # Get any columns referred to in a using clause, and extract anything
             # from ON clauses.
