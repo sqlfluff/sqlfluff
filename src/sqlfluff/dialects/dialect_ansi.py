@@ -1679,9 +1679,9 @@ class CreateFunctionStatementSegment(BaseSegment):
         Bracketed(  # Function parameter list
             Delimited(
                 Sequence(
-                    Ref('SingleIdentifierGrammar'),  # Parameter name
+                    Ref('ParameterNameSegment'),  # Parameter name
                     OneOf(  # Parameter type
-                        Ref('SingleIdentifierGrammar'),
+                        Ref('ParameterNameSegment'),
                         Sequence(  # SQL UDFs can specify this "type"
                             'ANY',
                             'TYPE'
@@ -1696,9 +1696,19 @@ class CreateFunctionStatementSegment(BaseSegment):
             Ref('SingleIdentifierGrammar'),
             optional=True,
         ),
-        'AS',
-        Bracketed(
-            Ref('ExpressionSegment')
+        OneOf(
+            Sequence(  # SQL UDF
+                'AS',
+                Bracketed(
+                    Ref('ExpressionSegment')
+                )
+            ),
+            Sequence(  # JavaScript UDF
+                'LANGUAGE',
+                Ref('ParameterNameSegment'),  # For now, should always be "js"
+                'AS',
+                Ref('DoubleQuotedLiteralSegment')
+            )
         )
     )
 
