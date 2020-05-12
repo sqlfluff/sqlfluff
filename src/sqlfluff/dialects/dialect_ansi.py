@@ -1697,6 +1697,23 @@ class CreateModelStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class DropModelStatementSegment(BaseSegment):
+    """A `DROP MODEL` statement."""
+    type = 'drop_MODELstatement'
+    # DROP MODEL <Model name> [IF EXISTS}
+    # https://cloud.google.com/bigquery-ml/docs/reference/standard-sql/bigqueryml-syntax-drop-model
+    match_grammar = Sequence(
+        'DROP',
+        'MODEL',
+        Sequence(
+            'IF',
+            'EXISTS',
+            optional=True
+        ),
+        Ref('ObjectReferenceSegment')
+    )
+
+@ansi_dialect.segment()
 class StatementSegment(BaseSegment):
     """A generic segment, to any of it's child subsegments.
 
@@ -1712,6 +1729,6 @@ class StatementSegment(BaseSegment):
         Ref('AlterTableStatementSegment'),
         Ref('CreateViewStatementSegment'),
         Ref('DeleteStatementSegment'), Ref('UpdateStatementSegment'),
-        Ref('CreateModelStatementSegment'),
+        Ref('CreateModelStatementSegment'), Ref('DropModelStatementSegment'),
     )
     match_grammar = GreedyUntil(Ref('SemicolonSegment'))
