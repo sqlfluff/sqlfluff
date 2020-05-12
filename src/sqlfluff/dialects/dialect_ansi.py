@@ -1680,7 +1680,13 @@ class CreateFunctionStatementSegment(BaseSegment):
             Delimited(
                 Sequence(
                     Ref('SingleIdentifierGrammar'),  # Parameter name
-                    Ref('SingleIdentifierGrammar'),  # Parameter type
+                    OneOf(  # Parameter type
+                        Ref('SingleIdentifierGrammar'),
+                        Sequence(  # SQL UDFs can specify this "type"
+                            'ANY',
+                            'TYPE'
+                        )
+                    )
                 ),
                 delimiter=Ref('CommaSegment')
             )
@@ -1690,11 +1696,10 @@ class CreateFunctionStatementSegment(BaseSegment):
             Ref('SingleIdentifierGrammar'),
             optional=True,
         ),
-        # 'AS',
-        # OneOf(  # Apparently this can be a simple expression or a SELECT?
-        #     Ref('SelectStatementSegment'),
-        #     Ref('ExpressionSegment')
-        # )
+        'AS',
+        Bracketed(
+            Ref('ExpressionSegment')
+        )
     )
 
 
