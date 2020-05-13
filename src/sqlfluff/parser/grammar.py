@@ -436,11 +436,13 @@ class BaseGrammar:
         # square brackets.
         start_brackets = [
             parse_context.dialect.ref('StartBracketSegment'),
-            parse_context.dialect.ref('StartSquareBracketSegment')
+            parse_context.dialect.ref('StartSquareBracketSegment'),
+            parse_context.dialect.ref('LessThanSegment')
         ]
         end_brackets = [
             parse_context.dialect.ref('EndBracketSegment'),
-            parse_context.dialect.ref('EndSquareBracketSegment')
+            parse_context.dialect.ref('EndSquareBracketSegment'),
+            parse_context.dialect.ref('GreaterThanSegment')
         ]
         bracket_matchers = start_brackets + end_brackets
         matchers += bracket_matchers
@@ -1439,11 +1441,15 @@ class Bracketed(Sequence):
     """
     def __init__(self, *args, **kwargs):
         self.square = kwargs.pop('square', False)
+        self.angle = kwargs.pop('angle', False)
         # Start and end tokens
         # The details on how to match a bracket are stored in the dialect
         if self.square:
             self.start_bracket = Ref('StartSquareBracketSegment')
             self.end_bracket = Ref('EndSquareBracketSegment')
+        elif self.angle:
+            self.start_bracket = Ref('LessThanSegment')
+            self.end_bracket = Ref('GreaterThanSegment')
         else:
             self.start_bracket = Ref('StartBracketSegment')
             self.end_bracket = Ref('EndBracketSegment')

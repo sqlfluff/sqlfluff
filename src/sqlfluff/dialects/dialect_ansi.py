@@ -1833,16 +1833,17 @@ class UDFParameterTypeSegment(BaseSegment):
         ),
         Sequence(
             'STRUCT',
-            Ref('LessThanSegment'),
-            Delimited(  # Comma-separated list of field names/types
-                Sequence(
-                    Ref('ParameterNameSegment'),
-                    Ref('UDFParameterTypeSegment')
+            Bracketed(
+                Delimited(  # Comma-separated list of field names/types
+                    Sequence(
+                        Ref('ParameterNameSegment'),
+                        Ref('UDFParameterTypeSegment')
+                    ),
+                    delimiter=Ref('CommaSegment')
                 ),
-                delimiter=Ref('CommaSegment')
+                angle=True
             ),
-            Ref('GreaterThanSegment')
-        ),
+        )
     )
 
 
