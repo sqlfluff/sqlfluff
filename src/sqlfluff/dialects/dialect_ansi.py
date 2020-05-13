@@ -914,6 +914,14 @@ class OrderByClauseSegment(BaseSegment):
                     'DESC',
                     optional=True
                 ),
+                # NB: This isn't really ANSI, and isn't supported in Mysql, but
+                # is supported in enough other dialects for it to make sense here
+                # for now.
+                Sequence(
+                    'NULLS',
+                    OneOf('FIRST', 'LAST'),
+                    optional=True
+                )
             ),
             delimiter=Ref('CommaSegment'),
             terminator=Ref.keyword('LIMIT')
