@@ -411,7 +411,7 @@ class BaseGrammar:
                         seg_buff = seg_buff[1:]
 
     @classmethod
-    def _bracket_sensitive_look_ahead_match(cls, segments, matchers, parse_context, code_only=True):
+    def _bracket_sensitive_look_ahead_match(cls, segments, matchers, parse_context, code_only=True, extra_bracket_like_segments=None):
         """Same as `_look_ahead_match` but with bracket counting.
 
         NB: Given we depend on `_look_ahead_match` we can also utilise
@@ -437,13 +437,14 @@ class BaseGrammar:
         start_brackets = [
             parse_context.dialect.ref('StartBracketSegment'),
             parse_context.dialect.ref('StartSquareBracketSegment'),
-            parse_context.dialect.ref('LessThanSegment')
         ]
         end_brackets = [
             parse_context.dialect.ref('EndBracketSegment'),
             parse_context.dialect.ref('EndSquareBracketSegment'),
-            parse_context.dialect.ref('GreaterThanSegment')
         ]
+        if extra_bracket_like_segments:
+            start_brackets += extra_bracket_like_segments['start']
+            end_brackets += extra_bracket_like_segments['end']
         bracket_matchers = start_brackets + end_brackets
         matchers += bracket_matchers
 
@@ -1448,8 +1449,8 @@ class Bracketed(Sequence):
             self.start_bracket = Ref('StartSquareBracketSegment')
             self.end_bracket = Ref('EndSquareBracketSegment')
         elif self.angle:
-            self.start_bracket = Ref('LessThanSegment')
-            self.end_bracket = Ref('GreaterThanSegment')
+            self.start_bracket = Ref('StartAngleBracketSegment')
+            self.end_bracket = Ref('EndAngleBracketSegment')
         else:
             self.start_bracket = Ref('StartBracketSegment')
             self.end_bracket = Ref('EndBracketSegment')
@@ -1490,9 +1491,14 @@ class Bracketed(Sequence):
             return MatchResult.from_unmatched(segments)
 
         # Look for the closing bracket
+        extra_bracket_like_segments = dict(start=[], end=[])
+        if self.angle:
+            extra_bracket_like_segments['start'].append(self.start_bracket)
+            extra_bracket_like_segments['end'].append(self.end_bracket)
         pre, end_match, _ = self._bracket_sensitive_look_ahead_match(
             segments=seg_buff, matchers=[self.end_bracket],
-            parse_context=parse_context, code_only=self.code_only
+            parse_context=parse_context, code_only=self.code_only,
+            extra_bracket_like_segments=extra_bracket_like_segments
         )
         if not end_match:
             raise SQLParseError(

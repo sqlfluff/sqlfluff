@@ -90,6 +90,8 @@ ansi_dialect.add(
     EndBracketSegment=KeywordSegment.make(')', name='end_bracket', type='end_bracket'),
     StartSquareBracketSegment=KeywordSegment.make('[', name='start_square_bracket', type='start_square_bracket'),
     EndSquareBracketSegment=KeywordSegment.make(']', name='end_square_bracket', type='end_square_bracket'),
+    StartAngleBracketSegment=KeywordSegment.make('<', name='start_angle_bracket', type='start_angle_bracket'),
+    EndAngleBracketSegment=KeywordSegment.make('>', name='end_angle_bracket', type='end_angle_bracket'),
     CommaSegment=KeywordSegment.make(',', name='comma', type='comma'),
     DotSegment=KeywordSegment.make('.', name='dot', type='dot'),
     StarSegment=KeywordSegment.make('*', name='star'),
@@ -1827,9 +1829,10 @@ class UDFParameterTypeSegment(BaseSegment):
         ),
         Sequence(
             'ARRAY',
-            Ref('LessThanSegment'),
-            Ref('UDFParameterTypeSegment'),
-            Ref('GreaterThanSegment')
+            Bracketed(
+                Ref('UDFParameterTypeSegment'),
+                angle=True
+            )
         ),
         Sequence(
             'STRUCT',
