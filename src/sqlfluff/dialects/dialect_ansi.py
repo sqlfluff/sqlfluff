@@ -1680,13 +1680,7 @@ class CreateFunctionStatementSegment(BaseSegment):
             Delimited(
                 Sequence(
                     Ref('ParameterNameSegment'),  # Parameter name
-                    OneOf(  # Parameter type
-                        Ref('ParameterNameSegment'),
-                        Sequence(  # SQL UDFs can specify this "type"
-                            'ANY',
-                            'TYPE'
-                        )
-                    )
+                    Ref('UDFParameterTypeSegment')
                 ),
                 delimiter=Ref('CommaSegment')
             )
@@ -1710,6 +1704,37 @@ class CreateFunctionStatementSegment(BaseSegment):
                 Ref('DoubleQuotedLiteralSegment')
             )
         )
+    )
+
+
+@ansi_dialect.segment()
+class UDFParameterTypeSegment(BaseSegment):
+    """A reference to an object with an `AS` clause."""
+    type = 'udf_parameter_type'
+    match_grammar = OneOf(  # Parameter type
+        Ref('ParameterNameSegment'),  # Simple type
+        Sequence(  # SQL UDFs can specify this "type"
+            'ANY',
+            'TYPE'
+        ),
+        Sequence(
+            'ARRAY',
+            Ref('LessThanSegment'),
+            Ref('UDFParameterTypeSegment'),
+            Ref('GreaterThanSegment')
+        ),
+        Sequence(
+            'STRUCT',
+            Ref('LessThanSegment'),
+            Delimited(  # Comma-separated list of field names/types
+                Sequence(
+                    Ref('ParameterNameSegment'),
+                    Ref('UDFParameterTypeSegment')
+                ),
+                delimiter=Ref('CommaSegment')
+            ),
+            Ref('GreaterThanSegment')
+        ),
     )
 
 
