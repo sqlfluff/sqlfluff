@@ -630,20 +630,20 @@ class Linter:
             if parsed:
                 verbosity_logger(frame_msg("Parsed Tree:"), verbosity=verbosity)
                 verbosity_logger(parsed.stringify(), verbosity=verbosity)
-            # We may succeed parsing, but still have unparsable segments. Extract them here.
-            for unparsable in parsed.iter_unparsables():
-                # No exception has been raised explicitly, but we still create one here
-                # so that we can use the common interface
-                violations.append(
-                    SQLParseError(
-                        "Found unparsable section: {0!r}".format(
-                            unparsable.raw if len(unparsable.raw) < 40 else unparsable.raw[:40] + "..."),
-                        segment=unparsable
+                # We may succeed parsing, but still have unparsable segments. Extract them here.
+                for unparsable in parsed.iter_unparsables():
+                    # No exception has been raised explicitly, but we still create one here
+                    # so that we can use the common interface
+                    violations.append(
+                        SQLParseError(
+                            "Found unparsable section: {0!r}".format(
+                                unparsable.raw if len(unparsable.raw) < 40 else unparsable.raw[:40] + "..."),
+                            segment=unparsable
+                        )
                     )
-                )
-                if verbosity >= 2:
-                    verbosity_logger("Found unparsable segment...", verbosity=verbosity)
-                    verbosity_logger(unparsable.stringify(), verbosity=verbosity)
+                    if verbosity >= 2:
+                        verbosity_logger("Found unparsable segment...", verbosity=verbosity)
+                        verbosity_logger(unparsable.stringify(), verbosity=verbosity)
         else:
             parsed = None
 

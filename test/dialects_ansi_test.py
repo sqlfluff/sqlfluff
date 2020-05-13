@@ -6,6 +6,7 @@ import logging
 from sqlfluff.config import FluffConfig
 from sqlfluff.parser import Lexer, FileSegment, ParseContext, BaseSegment, RawSegment
 from sqlfluff.parser.match import MatchResult
+from sqlfluff.linter import Linter
 
 
 @pytest.mark.parametrize(
@@ -185,3 +186,21 @@ def test__dialect__ansi_specific_segment_not_match(segmentref, raw, caplog):
         match = Seg.match(segments=seg_list, parse_context=c)
 
     assert not match
+
+
+@pytest.mark.parametrize(
+    "raw,err_locations",
+    [
+        # Missing Closing bracket. Error should be raised
+        # on the starting bracket.
+        ("SELECT 1 + (2 ", [(1, 12)])
+    ]
+)
+def test__dialect__ansi_specific_segment_not_parse(raw, err_locations, caplog):
+    """Test queries do not parse, with parsing errors raised properly."""
+    config = FluffConfig(overrides=dict(dialect='ansi'))
+    lnt = Linter(config=config)
+    _, vs, _ = lnt.parse_string(raw)
+    assert len(vs) > 0
+    locs = [(v.line_no(), v.line_pos()) for v in vs]
+    assert locs == err_locations

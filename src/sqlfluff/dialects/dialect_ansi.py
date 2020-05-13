@@ -670,8 +670,11 @@ class FromClauseSegment(BaseSegment):
         'FROM',
         Indent,
         Delimited(
-            # Optional old school delimited joins
-            Ref('TableExpressionSegment'),
+            OneOf(
+                # Optional old school delimited joins
+                Ref('TableExpressionSegment'),
+                Ref('MLTableExpressionSegment'),
+            ),
             delimiter=Ref('CommaSegment'),
             terminator=Ref('JoinClauseSegment')
         ),
@@ -911,6 +914,14 @@ class OrderByClauseSegment(BaseSegment):
                     'DESC',
                     optional=True
                 ),
+                # NB: This isn't really ANSI, and isn't supported in Mysql, but
+                # is supported in enough other dialects for it to make sense here
+                # for now.
+                Sequence(
+                    'NULLS',
+                    OneOf('FIRST', 'LAST'),
+                    optional=True
+                )
             ),
             delimiter=Ref('CommaSegment'),
             terminator=Ref.keyword('LIMIT')
@@ -1647,6 +1658,103 @@ class SetClauseSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class CreateModelStatementSegment(BaseSegment):
+    """A BigQuery `CREATE MODEL` statement."""
+    type = 'create_model_statement'
+    # https://cloud.google.com/bigquery-ml/docs/reference/standard-sql/bigqueryml-syntax-create
+    match_grammar = Sequence(
+        'CREATE',
+        Sequence(
+            'OR',
+            'REPLACE',
+            optional=True
+        ),
+        'MODEL',
+        Sequence(
+            'IF',
+            'NOT',
+            'EXISTS',
+            optional=True
+        ),
+        Ref('ObjectReferenceSegment'),
+        Sequence(
+            'OPTIONS',
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref('ParameterNameSegment'),
+                        Ref('EqualsSegment'),
+                        OneOf(
+                            # This covers many but not all the extensive list of
+                            # possible 'CREATE MODEL' optiona.
+                            Ref('LiteralGrammar'),  # Single value
+                            Bracketed(
+                                # E.g. input_label_cols: list of column names
+                                Delimited(
+                                    Ref('QuotedLiteralSegment'),
+                                    delimiter=Ref('CommaSegment')
+                                ),
+                                square=True,
+                                optional=True
+                            ),
+                        )
+                    ),
+                    delimiter=Ref('CommaSegment')
+                )
+            ),
+            optional=True
+        ),
+        'AS',
+        Ref('SelectStatementSegment')
+    )
+
+
+@ansi_dialect.segment()
+class DropModelStatementSegment(BaseSegment):
+    """A `DROP MODEL` statement."""
+    type = 'drop_MODELstatement'
+    # DROP MODEL <Model name> [IF EXISTS}
+    # https://cloud.google.com/bigquery-ml/docs/reference/standard-sql/bigqueryml-syntax-drop-model
+    match_grammar = Sequence(
+        'DROP',
+        'MODEL',
+        Sequence(
+            'IF',
+            'EXISTS',
+            optional=True
+        ),
+        Ref('ObjectReferenceSegment')
+    )
+
+
+@ansi_dialect.segment()
+class MLTableExpressionSegment(BaseSegment):
+    """An ML table expression."""
+    type = 'ml_table_expression'
+    # E.g. ML.WEIGHTS(MODEL `project.dataset.model`)
+    match_grammar = Sequence(
+        'ML',
+        Ref('DotSegment'),
+        Ref('SingleIdentifierGrammar'),
+        Bracketed(
+            Sequence(
+                'MODEL',
+                Ref('ObjectReferenceSegment')
+            ),
+            OneOf(
+                Sequence(
+                    Ref('CommaSegment'),
+                    Bracketed(
+                        Ref('SelectStatementSegment')
+                    )
+                ),
+                optional=True
+            )
+        )
+    )
+
+
+@ansi_dialect.segment()
 class CreateFunctionStatementSegment(BaseSegment):
     """A BigQuery `CREATE FUNCTION` statement."""
     type = 'create_function_statement'
@@ -1754,6 +1862,7 @@ class StatementSegment(BaseSegment):
         Ref('AlterTableStatementSegment'),
         Ref('CreateViewStatementSegment'),
         Ref('DeleteStatementSegment'), Ref('UpdateStatementSegment'),
+        Ref('CreateModelStatementSegment'), Ref('DropModelStatementSegment'),
         Ref('CreateFunctionStatementSegment'),
     )
     match_grammar = GreedyUntil(Ref('SemicolonSegment'))
