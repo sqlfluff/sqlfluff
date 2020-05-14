@@ -9,7 +9,7 @@ Teradata Database SQL Data Definition Language Syntax and Examples
 """
 
 from .dialect_ansi import ansi_dialect
-from ..parser import (BaseSegment, Sequence, GreedyUntil,
+from ..parser import (BaseSegment, Sequence,
                       StartsWith, OneOf, Delimited, Bracketed,
                       AnyNumberOf, Ref, Anything, )
 
@@ -583,30 +583,6 @@ class FromUpdateClauseSegment(BaseSegment):
     )
 
 
-# Adding Teradata specific statements
-@teradata_dialect.segment(replace=True)
-class StatementSegment(BaseSegment):
-    """A generic segment, to any of it's child subsegments.
-
-    NOTE: Should this actually be a grammar?
-    """
-    type = 'statement'
-    parse_grammar = OneOf(
-        Ref('SetExpressionSegment'),
-        Ref('SelectStatementSegment'), Ref('InsertStatementSegment'),
-        Ref('EmptyStatementSegment'), Ref('WithCompoundStatementSegment'),
-        Ref('TransactionStatementSegment'), Ref('DropStatementSegment'),
-        Ref('AccessStatementSegment'), Ref('CreateTableStatementSegment'),
-        Ref('CreateViewStatementSegment'),
-        Ref('DeleteStatementSegment'), Ref('UpdateStatementSegment'),
-        # Teradata specific statements
-        Ref('TdCollectStatisticsStatementSegment'),
-        Ref('BteqStatementSegment'),
-        Ref('TdRenameStatementSegment'),
-    )
-    match_grammar = GreedyUntil(Ref('SemicolonSegment'))
-
-
 teradata_dialect.add(
     TdCastIdentifierSegment=Sequence(
         OneOf(
@@ -621,5 +597,10 @@ teradata_dialect.replace(
     SingleIdentifierGrammar=OneOf(
         Ref('NakedIdentifierSegment'), Ref('QuotedIdentifierSegment'),
         Ref('TdCastIdentifierSegment')
+    ),
+    DialectSpecificStatementsGrammar=OneOf(
+        Ref('TdCollectStatisticsStatementSegment'),
+        Ref('BteqStatementSegment'),
+        Ref('TdRenameStatementSegment')
     )
 )
