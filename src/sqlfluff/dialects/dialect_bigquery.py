@@ -43,6 +43,11 @@ bigquery_dialect.sets('unreserved_keywords').remove('FOR')
 # Reserved Keywords
 bigquery_dialect.sets('reserved_keywords').add('FOR')
 
+# Bracket pairs (a set of tuples)
+bigquery_dialect.sets('bracket_pairs').update([
+    ('angle', 'StartAngleBracketSegment', 'EndAngleBracketSegment')
+])
+
 
 # BigQuery allows functions in INTERVAL
 @bigquery_dialect.segment(replace=True)
@@ -194,8 +199,7 @@ class BigqueryCompositeDatatypeSegment(BaseSegment):
     type = 'composite_datatype'
     match_grammar = Bracketed(
         Anything(),
-        start_bracket=Ref('StartAngleBracketSegment'),
-        end_bracket=Ref('EndAngleBracketSegment')
+        bracket_type='angle'
     )
 
     parse_grammar = Bracketed(
@@ -207,6 +211,5 @@ class BigqueryCompositeDatatypeSegment(BaseSegment):
             ),
             delimiter=Ref('CommaSegment')
         ),
-        start_bracket=Ref('StartAngleBracketSegment'),
-        end_bracket=Ref('EndAngleBracketSegment')
+        bracket_type='angle'
     )

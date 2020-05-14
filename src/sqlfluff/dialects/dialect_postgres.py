@@ -29,7 +29,7 @@ postgres_dialect.sets('bracket_pairs').update([
     # It's important that this is here as it can contain a semicolon.
     # We don't import angle brackets here because they can't contain
     # semicolons.
-    ('plSQLDelimiterSegment', 'plSQLDelimiterSegment')
+    ('postgres_$$', 'plSQLDelimiterSegment', 'plSQLDelimiterSegment')
 ])
 
 
@@ -149,6 +149,5 @@ class FunctionSQLCodeSegment(BaseSegment):
     type = 'function_code'
     match_grammar = Bracketed(
         Anything(optional=True),
-        start_bracket=Ref('plSQLDelimiterSegment'),
-        end_bracket=Ref('plSQLDelimiterSegment')
+        bracket_type='postgres_$$'
     )

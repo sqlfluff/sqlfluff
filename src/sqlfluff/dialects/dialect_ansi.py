@@ -79,10 +79,11 @@ ansi_dialect.sets('reserved_keywords').update(
     [n.strip().upper() for n in ansi_reserved_keywords.split('\n')]
 )
 
-# Bracket pairs (a set of tuples)
+# Bracket pairs (a set of tuples).
+# (name, startref, endref)
 ansi_dialect.sets('bracket_pairs').update([
-    ('StartBracketSegment', 'EndBracketSegment'),
-    ('StartSquareBracketSegment', 'EndSquareBracketSegment')
+    ('round', 'StartBracketSegment', 'EndBracketSegment'),
+    ('square', 'StartSquareBracketSegment', 'EndSquareBracketSegment')
 ])
 
 ansi_dialect.add(
@@ -271,7 +272,7 @@ class ArrayAccessorSegment(BaseSegment):
     match_grammar = Bracketed(
         Anything(),
         # Use square brackets
-        square=True
+        bracket_type='square'
     )
     parse_grammar = Bracketed(
         Delimited(
@@ -282,7 +283,7 @@ class ArrayAccessorSegment(BaseSegment):
             delimiter=Ref('SliceSegment')
         ),
         # Use square brackets
-        square=True
+        bracket_type='square'
     )
 
 
@@ -1700,7 +1701,7 @@ class CreateModelStatementSegment(BaseSegment):
                                     Ref('QuotedLiteralSegment'),
                                     delimiter=Ref('CommaSegment')
                                 ),
-                                square=True,
+                                bracket_type='square',
                                 optional=True
                             ),
                         )
