@@ -48,6 +48,59 @@ def validate_segment(segmentref, config):
     return Seg
 
 
+def check_query_parse(raw, dialect):
+    """Parse a raw string in a dialect and return the parsing errors."""
+    config = FluffConfig(overrides=dict(dialect=dialect))
+    lnt = Linter(config=config)
+    _, vs, _ = lnt.parse_string(raw)
+    assert len(vs) > 0
+    locs = [(v.line_no(), v.line_pos()) for v in vs]
+    return locs
+
+
+def check_parse_match(raw, segment_ref, caplog, dialect='ansi', mode='parse'):
+    """Parse or match raw against a given segment, or file if None."""
+    # Set up the config
+    config = FluffConfig(overrides=dict(dialect='ansi'))
+    c = ParseContext.from_config(config)
+    # Lex and validate
+    seg_list = lex(raw, config=config)
+    # Get and validate segment
+    Seg = validate_segment(segment_ref, config=config)
+
+    # For match mode we always match
+    if mode == 'match':
+        print("Match route...")
+        with caplog.at_level(logging.DEBUG):
+            match = Seg.match(segments=seg_list, parse_context=c)
+        return match
+    # For parse mode, it depends on what kind of segment this is.
+    # This test is different if we're working with RawSegment
+    # derivatives or not.
+    if issubclass(Seg, RawSegment):
+        print("Raw route...")
+        with caplog.at_level(logging.DEBUG):
+            parsed = Seg.match(segments=seg_list, parse_context=c)
+        assert isinstance(parsed, MatchResult)
+        assert len(parsed.matched_segments) == 1
+        print(parsed)
+        parsed = parsed.matched_segments[0]
+        print(parsed)
+    else:
+        print("Base route...")
+        # Construct an unparsed segment
+        seg = Seg(seg_list, pos_marker=seg_list[0].pos_marker)
+        # Perform the match (THIS IS THE MEAT OF THE TEST)
+        with caplog.at_level(logging.DEBUG):
+            parsed = seg.parse(parse_context=c)
+        print(parsed)
+        assert isinstance(parsed, Seg)
+
+    # Check we're all there.
+    assert parsed.raw == raw
+    return parsed
+
+
 # Develop test to check specific elements against specific grammars.
 @pytest.mark.parametrize(
     "segmentref,raw",
@@ -126,39 +179,7 @@ def test__dialect__ansi_specific_segment_parses(segmentref, raw, caplog):
     function of SUBSECTIONS will be tested if present. The match
     function of the parent will not be tested.
     """
-    config = FluffConfig(overrides=dict(dialect='ansi'))
-    seg_list = lex(raw, config=config)
-    Seg = validate_segment(segmentref, config=config)
-    c = ParseContext.from_config(config)
-
-    # This test is different if we're working with RawSegment
-    # derivatives or not.
-    if issubclass(Seg, RawSegment):
-        print("Raw route...")
-        with caplog.at_level(logging.DEBUG):
-            parsed = Seg.match(segments=seg_list, parse_context=c)
-        assert isinstance(parsed, MatchResult)
-        assert len(parsed.matched_segments) == 1
-        print(parsed)
-        parsed = parsed.matched_segments[0]
-        print(parsed)
-    else:
-        print("Base route...")
-        # Construct an unparsed segment
-        seg = Seg(seg_list, pos_marker=seg_list[0].pos_marker)
-        # Perform the match (THIS IS THE MEAT OF THE TEST)
-        with caplog.at_level(logging.DEBUG):
-            parsed = seg.parse(parse_context=c)
-        print(parsed)
-        assert isinstance(parsed, Seg)
-
-    # Check we get a good response
-    print(parsed)
-    print(type(parsed))
-    # print(type(parsed._reconstruct()))
-    print(type(parsed.raw))
-    # Check we're all there.
-    assert parsed.raw == raw
+    parsed = check_parse_match(raw, segmentref, caplog, dialect='ansi')
     # Check that there's nothing un parsable
     typs = parsed.type_set()
     assert 'unparsable' not in typs
@@ -177,14 +198,7 @@ def test__dialect__ansi_specific_segment_not_match(segmentref, raw, caplog):
     NB: We're testing the MATCH function not the PARSE function.
     This is the opposite to the above.
     """
-    config = FluffConfig(overrides=dict(dialect='ansi'))
-    seg_list = lex(raw, config=config)
-    Seg = validate_segment(segmentref, config=config)
-    c = ParseContext.from_config(config)
-
-    with caplog.at_level(logging.DEBUG):
-        match = Seg.match(segments=seg_list, parse_context=c)
-
+    match = check_parse_match(raw, segmentref, caplog, dialect='ansi', mode='match')
     assert not match
 
 
@@ -198,9 +212,4 @@ def test__dialect__ansi_specific_segment_not_match(segmentref, raw, caplog):
 )
 def test__dialect__ansi_specific_segment_not_parse(raw, err_locations, caplog):
     """Test queries do not parse, with parsing errors raised properly."""
-    config = FluffConfig(overrides=dict(dialect='ansi'))
-    lnt = Linter(config=config)
-    _, vs, _ = lnt.parse_string(raw)
-    assert len(vs) > 0
-    locs = [(v.line_no(), v.line_pos()) for v in vs]
-    assert locs == err_locations
+    assert check_query_parse(raw, 'ansi') == err_locations
