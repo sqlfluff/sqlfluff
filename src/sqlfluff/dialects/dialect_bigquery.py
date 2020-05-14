@@ -6,7 +6,8 @@ and
 https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and_bytes_literals
 """
 
-from ..parser import (BaseSegment, NamedSegment, OneOf, Ref, Sequence, Bracketed, Delimited, AnyNumberOf, Anything)
+from ..parser import (BaseSegment, NamedSegment, OneOf, Ref, Sequence, Bracketed,
+                      Delimited, AnyNumberOf, Anything, KeywordSegment)
 
 from .dialect_ansi import ansi_dialect
 
@@ -26,7 +27,9 @@ bigquery_dialect.patch_lexer_struct([
 ])
 
 bigquery_dialect.add(
-    DoubleQuotedLiteralSegment=NamedSegment.make('double_quote', name='quoted_literal', type='literal', trim_chars=('"',))
+    DoubleQuotedLiteralSegment=NamedSegment.make('double_quote', name='quoted_literal', type='literal', trim_chars=('"',)),
+    StartAngleBracketSegment=KeywordSegment.make('<', name='start_angle_bracket', type='start_angle_bracket'),
+    EndAngleBracketSegment=KeywordSegment.make('>', name='end_angle_bracket', type='end_angle_bracket')
 )
 
 # Add the microsecond unit
@@ -138,7 +141,16 @@ bigquery_dialect.replace(
             # There is some syntax not implemented here,
             Sequence(
                 'AS',
-                Ref('QuotedLiteralSegment')
+                OneOf(
+                    Ref('DoubleQuotedLiteralSegment'),
+                    Ref('QuotedLiteralSegment'),
+                    Bracketed(
+                        OneOf(
+                            Ref('ExpressionSegment'),
+                            Ref('SelectStatementSegment')
+                        )
+                    )
+                ),
             )
         )
     )
@@ -170,7 +182,8 @@ class DatatypeSegment(BaseSegment):
             ),
             # Add STRUCT like HERE.
             # <integer> syntax
-            Ref('BigqueryCompositeDatatypeSegment')
+            Ref('BigqueryCompositeDatatypeSegment'),
+            optional=True
         )
     )
 
@@ -181,7 +194,8 @@ class BigqueryCompositeDatatypeSegment(BaseSegment):
     type = 'composite_datatype'
     match_grammar = Bracketed(
         Anything(),
-        angle=True
+        start_bracket=Ref('StartAngleBracketSegment'),
+        end_bracket=Ref('EndAngleBracketSegment')
     )
 
     parse_grammar = Bracketed(
@@ -193,5 +207,6 @@ class BigqueryCompositeDatatypeSegment(BaseSegment):
             ),
             delimiter=Ref('CommaSegment')
         ),
-        angle=True
+        start_bracket=Ref('StartAngleBracketSegment'),
+        end_bracket=Ref('EndAngleBracketSegment')
     )

@@ -9,8 +9,12 @@ postgres_dialect = ansi_dialect.copy_as('postgres')
 
 
 postgres_dialect.insert_lexer_struct(
-    # JSON Operators: https://www.postgresql.org/docs/9.5/functions-json.html
-    [("json_operator", "regex", r"->>|#>>|->|#>|@>|<@|\?\||\?|\?&|#-", dict(is_code=True))],
+    [
+        # JSON Operators: https://www.postgresql.org/docs/9.5/functions-json.html
+        ("json_operator", "regex", r"->>|#>>|->|#>|@>|<@|\?\||\?|\?&|#-", dict(is_code=True)),
+        # The double $$ delimiter for plsql definitions.
+        ("plsql_delimiter", "regex", r"\$\$", dict(is_code=True))
+    ],
     before='not_equal'
 )
 
@@ -22,6 +26,7 @@ postgres_dialect.sets('reserved_keywords').add('WITHIN')
 
 postgres_dialect.add(
     JsonOperatorSegment=NamedSegment.make('json_operator', name='json_operator', type='binary_operator'),
+    plSQLDelimiterSegment=NamedSegment.make('plsql_delimiter', name='plsql_delimiter', type='code_section_delimiter'),
 )
 
 
@@ -62,7 +67,10 @@ postgres_dialect.replace(
             # There is some syntax not implemented here,
             Sequence(
                 'AS',
-                Ref('QuotedLiteralSegment')
+                OneOf(
+                    Ref('QuotedLiteralSegment'),
+                    Ref('FunctionSQLCodeSegment')
+                )
             )
         )
     )
@@ -122,4 +130,15 @@ class WithinGroupClauseSegment(BaseSegment):
         Bracketed(
             Ref('OrderByClauseSegment', optional=True)
         ),
+    )
+
+
+@postgres_dialect.segment()
+class FunctionSQLCodeSegment(BaseSegment):
+    """A SQL code segment delimited by $$."""
+    type = 'function_code'
+    match_grammar = Bracketed(
+        Anything(optional=True),
+        start_bracket=Ref('plSQLDelimiterSegment'),
+        end_bracket=Ref('plSQLDelimiterSegment')
     )

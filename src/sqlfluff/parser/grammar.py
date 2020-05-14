@@ -411,7 +411,7 @@ class BaseGrammar:
                         seg_buff = seg_buff[1:]
 
     @classmethod
-    def _bracket_sensitive_look_ahead_match(cls, segments, matchers, parse_context, code_only=True, extra_bracket_like_segments=None):
+    def _bracket_sensitive_look_ahead_match(cls, segments, matchers, parse_context, code_only=True, start_bracket=None, end_bracket=None):
         """Same as `_look_ahead_match` but with bracket counting.
 
         NB: Given we depend on `_look_ahead_match` we can also utilise
@@ -437,16 +437,13 @@ class BaseGrammar:
         start_brackets = [
             parse_context.dialect.ref('StartBracketSegment'),
             parse_context.dialect.ref('StartSquareBracketSegment'),
-        ]
+        ] + ([start_bracket] if start_bracket else [])
         end_brackets = [
             parse_context.dialect.ref('EndBracketSegment'),
             parse_context.dialect.ref('EndSquareBracketSegment'),
-        ]
-        if extra_bracket_like_segments:
-            start_brackets += extra_bracket_like_segments['start']
-            end_brackets += extra_bracket_like_segments['end']
+        ] + ([end_bracket] if end_bracket else [])
+
         bracket_matchers = start_brackets + end_brackets
-        matchers += bracket_matchers
 
         # Make some buffers
         seg_buff = segments
@@ -493,11 +490,15 @@ class BaseGrammar:
                     # No, we're open to more opening brackets or the thing(s)
                     # that we're otherwise looking for.
                     pre, match, matcher = cls._look_ahead_match(
-                        seg_buff, matchers, parse_context=parse_context,
+                        seg_buff, matchers + bracket_matchers, parse_context=parse_context,
                         code_only=code_only)
 
                     if match:
-                        if matcher in start_brackets:
+                        if matcher in matchers:
+                            # It's one of the things we were looking for!
+                            # Return.
+                            return (pre_seg_buff + pre, match, matcher)
+                        elif matcher in start_brackets:
                             # We've found the start of a bracket segment.
                             # NB: It might not *Actually* be the bracket itself,
                             # but could be some non-code element preceeding it.
@@ -517,9 +518,8 @@ class BaseGrammar:
                                 "Found unexpected end bracket!",
                                 segment=match.matched_segments[0])
                         else:
-                            # It's one of the things we were looking for!
-                            # Return.
-                            return (pre_seg_buff + pre, match, matcher)
+                            # This shouldn't happen!?
+                            raise NotImplementedError("This shouldn't happen. Panic in _bracket_sensitive_look_ahead_match.")
                     else:
                         # Not in a bracket stack, but no match. This is a happy
                         # unmatched exit.
@@ -1442,18 +1442,15 @@ class Bracketed(Sequence):
     """
     def __init__(self, *args, **kwargs):
         self.square = kwargs.pop('square', False)
-        self.angle = kwargs.pop('angle', False)
         # Start and end tokens
         # The details on how to match a bracket are stored in the dialect
         if self.square:
             self.start_bracket = Ref('StartSquareBracketSegment')
             self.end_bracket = Ref('EndSquareBracketSegment')
-        elif self.angle:
-            self.start_bracket = Ref('StartAngleBracketSegment')
-            self.end_bracket = Ref('EndAngleBracketSegment')
         else:
-            self.start_bracket = Ref('StartBracketSegment')
-            self.end_bracket = Ref('EndBracketSegment')
+            # Allow overriding of the start and end bracket
+            self.start_bracket = kwargs.pop('start_bracket', None) or Ref('StartBracketSegment')
+            self.end_bracket = kwargs.pop('end_bracket', None) or Ref('EndBracketSegment')
         super(Bracketed, self).__init__(*args, **kwargs)
 
     def simple(self, parse_context):
@@ -1490,20 +1487,15 @@ class Bracketed(Sequence):
             # Can't find the opening bracket. No Match.
             return MatchResult.from_unmatched(segments)
 
-        # Look for the closing bracket
-        extra_bracket_like_segments = dict(start=[], end=[])
-        if self.angle:
-            extra_bracket_like_segments['start'].append(self.start_bracket)
-            extra_bracket_like_segments['end'].append(self.end_bracket)
         pre, end_match, _ = self._bracket_sensitive_look_ahead_match(
             segments=seg_buff, matchers=[self.end_bracket],
             parse_context=parse_context, code_only=self.code_only,
-            extra_bracket_like_segments=extra_bracket_like_segments
+            start_bracket=self.start_bracket, end_bracket=self.end_bracket
         )
         if not end_match:
             raise SQLParseError(
                 "Couldn't find closing bracket for opening bracket.",
-                segment=matched_segs)
+                segment=start_match.matched_segments[0])
 
         # Match the content now we've confirmed the brackets.
 

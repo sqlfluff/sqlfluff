@@ -90,8 +90,6 @@ ansi_dialect.add(
     EndBracketSegment=KeywordSegment.make(')', name='end_bracket', type='end_bracket'),
     StartSquareBracketSegment=KeywordSegment.make('[', name='start_square_bracket', type='start_square_bracket'),
     EndSquareBracketSegment=KeywordSegment.make(']', name='end_square_bracket', type='end_square_bracket'),
-    StartAngleBracketSegment=KeywordSegment.make('<', name='start_angle_bracket', type='start_angle_bracket'),
-    EndAngleBracketSegment=KeywordSegment.make('>', name='end_angle_bracket', type='end_angle_bracket'),
     CommaSegment=KeywordSegment.make(',', name='comma', type='comma'),
     DotSegment=KeywordSegment.make('.', name='dot', type='dot'),
     StarSegment=KeywordSegment.make('*', name='star'),
@@ -1761,7 +1759,13 @@ ansi_dialect.add(
     # In the ANSI dialect this is designed to be a basic starting point.
     FunctionDefinitionGrammar=Sequence(
         'AS',
-        Ref('QuotedLiteralSegment')
+        Ref('QuotedLiteralSegment'),
+        Sequence(
+            'LANGUAGE',
+            # Not really a parameter, but best fit for now.
+            Ref('ParameterNameSegment'),
+            optional=True
+        ),
     )
 )
 
@@ -1793,6 +1797,22 @@ class CreateFunctionStatementSegment(BaseSegment):
             optional=True
         ),
         'FUNCTION',
+        Anything()
+    )
+
+    parse_grammar = Sequence(
+        'CREATE',
+        Sequence(
+            'OR',
+            'REPLACE',
+            optional=True
+        ),
+        OneOf(
+            'TEMPORARY',
+            'TEMP',
+            optional=True
+        ),
+        'FUNCTION',
         Sequence(
             'IF',
             'NOT',
@@ -1806,9 +1826,8 @@ class CreateFunctionStatementSegment(BaseSegment):
                 Sequence(
                     Ref('ParameterNameSegment', optional=True),
                     OneOf(
-                        Ref('DatatypeSegment'),
-                        'ANY',
-                        'TYPE'
+                        Sequence('ANY', 'TYPE'),
+                        Ref('DatatypeSegment')
                     )
                 ),
                 delimiter=Ref('CommaSegment')
