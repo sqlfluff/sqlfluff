@@ -1756,14 +1756,30 @@ class MLTableExpressionSegment(BaseSegment):
     )
 
 
+ansi_dialect.add(
+    # This is a hook point to allow subclassing for other dialects.
+    # In the ANSI dialect this is designed to be a basic starting point.
+    FunctionDefinitionGrammar=Sequence(
+        'AS',
+        Ref('QuotedLiteralSegment')
+    )
+)
+
+
 @ansi_dialect.segment()
 class CreateFunctionStatementSegment(BaseSegment):
-    """A BigQuery `CREATE FUNCTION` statement."""
+    """A `CREATE FUNCTION` statement.
+
+    This version in the ANSI dialect should be a "common subset" of the
+    structure of the code for those dialects.
+
+    postgres: https://www.postgresql.org/docs/9.1/sql-createfunction.html
+    snowflake: https://docs.snowflake.com/en/sql-reference/sql/create-function.html
+    bigquery: https://cloud.google.com/bigquery/docs/reference/standard-sql/user-defined-functions
+
+    """
     type = 'create_function_statement'
-    # https://cloud.google.com/bigquery/docs/reference/standard-sql/user-defined-functions
-    # CREATE [OR REPLACE] {TEMPORARY | TEMP} FUNCTION [IF NOT EXISTS]
-    # ([named_parameter[, ...]])
-    # [RETURNS data_type]
+
     match_grammar = Sequence(
         'CREATE',
         Sequence(
@@ -1771,11 +1787,9 @@ class CreateFunctionStatementSegment(BaseSegment):
             'REPLACE',
             optional=True
         ),
-        Sequence(
-            OneOf(
-                'TEMPORARY',
-                'TEMP'
-            ),
+        OneOf(
+            'TEMPORARY',
+            'TEMP',
             optional=True
         ),
         'FUNCTION',
@@ -1785,68 +1799,27 @@ class CreateFunctionStatementSegment(BaseSegment):
             'EXISTS',
             optional=True
         ),
-        Ref('ObjectReferenceSegment'),  # Function name
-        Bracketed(  # Function parameter list
+        Ref('FunctionNameSegment'),
+        # Function parameter list
+        Bracketed(
             Delimited(
                 Sequence(
-                    Ref('ParameterNameSegment'),  # Parameter name
-                    Ref('UDFParameterTypeSegment')
+                    Ref('ParameterNameSegment', optional=True),
+                    OneOf(
+                        Ref('DatatypeSegment'),
+                        'ANY',
+                        'TYPE'
+                    )
                 ),
                 delimiter=Ref('CommaSegment')
             )
         ),
         Sequence(  # Optional function return type
             'RETURNS',
-            Ref('SingleIdentifierGrammar'),
+            Ref('DatatypeSegment'),
             optional=True,
         ),
-        OneOf(
-            Sequence(  # SQL UDF
-                'AS',
-                Bracketed(
-                    Ref('ExpressionSegment')
-                )
-            ),
-            Sequence(  # JavaScript UDF
-                'LANGUAGE',
-                Ref('ParameterNameSegment'),  # For now, should always be "js"
-                'AS',
-                Ref('DoubleQuotedLiteralSegment')
-            )
-        )
-    )
-
-
-@ansi_dialect.segment()
-class UDFParameterTypeSegment(BaseSegment):
-    """A reference to an object with an `AS` clause."""
-    type = 'udf_parameter_type'
-    match_grammar = OneOf(  # Parameter type
-        Ref('ParameterNameSegment'),  # Simple type
-        Sequence(  # SQL UDFs can specify this "type"
-            'ANY',
-            'TYPE'
-        ),
-        Sequence(
-            'ARRAY',
-            Bracketed(
-                Ref('UDFParameterTypeSegment'),
-                angle=True
-            )
-        ),
-        Sequence(
-            'STRUCT',
-            Bracketed(
-                Delimited(  # Comma-separated list of field names/types
-                    Sequence(
-                        Ref('ParameterNameSegment'),
-                        Ref('UDFParameterTypeSegment')
-                    ),
-                    delimiter=Ref('CommaSegment')
-                ),
-                angle=True
-            ),
-        )
+        Ref('FunctionDefinitionGrammar')
     )
 
 

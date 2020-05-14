@@ -1,6 +1,6 @@
 """The PostgreSQL dialect."""
 
-from ..parser import (OneOf, Ref, Sequence, Bracketed, Anything, BaseSegment, NamedSegment, Delimited)
+from ..parser import (OneOf, Ref, Sequence, Bracketed, Anything, BaseSegment, NamedSegment, Delimited, AnyNumberOf)
 
 from .dialect_ansi import ansi_dialect
 
@@ -37,6 +37,34 @@ postgres_dialect.replace(
         Ref('ComparisonOperatorGrammar'),
         # Add JSON operators
         Ref('JsonOperatorSegment')
+    ),
+    # This is a hook point to allow subclassing for other dialects.
+    # In the ANSI dialect this is designed to be a basic starting point.
+    FunctionDefinitionGrammar=Sequence(
+        AnyNumberOf(
+            Sequence(
+                'LANGUAGE',
+                # Not really a parameter, but best fit for now.
+                Ref('ParameterNameSegment')
+            ),
+            'WINDOW',
+            'IMMUTABLE',
+            'STABLE',
+            'VOLATILE',
+            'STRICT',
+            Sequence('CALLED', 'ON', 'INPUT'),
+            Sequence('RETURNS', 'NULL', 'ON', 'NULL', 'INPUT'),
+            Sequence(
+                Ref.keyword('EXTERNAL', optional=True),
+                'SECURITY',
+                OneOf('INVOKER', 'DEFINER')
+            ),
+            # There is some syntax not implemented here,
+            Sequence(
+                'AS',
+                Ref('QuotedLiteralSegment')
+            )
+        )
     )
 )
 
