@@ -38,7 +38,7 @@ bigquery_dialect.sets('datetime_units').add('MICROSECOND')
 bigquery_dialect.sets('datetime_units').update(['ISOWEEK', 'ISOYEAR'])
 
 # Unreserved Keywords
-bigquery_dialect.sets('unreserved_keywords').add('SYSTEM_TIME')
+bigquery_dialect.sets('unreserved_keywords').update(['SYSTEM_TIME', 'STRUCT'])
 bigquery_dialect.sets('unreserved_keywords').remove('FOR')
 # Reserved Keywords
 bigquery_dialect.sets('reserved_keywords').add('FOR')

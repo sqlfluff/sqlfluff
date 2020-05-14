@@ -13,6 +13,7 @@ from .dialects_ansi_test import check_parse_match
         ("DatatypeSegment", "INT64"),
         ("DatatypeSegment", "ARRAY<INT64>"),
         ("DatatypeSegment", "STRUCT<product_id INT64, user_id INT64>"),
+        ("DatatypeSegment", "ARRAY<STRUCT<product_id INT64, rating FLOAT64>>"),
     ]
 )
 def test__dialect__bigquery_specific_segment_parses(segmentref, raw, caplog):
