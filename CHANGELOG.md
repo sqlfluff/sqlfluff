@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `CREATE FUNCTION` syntax for postgres and for bigquery. Thanks [@barrywhart](https://github.com/barrywhart).
+- `CREATE MODEL` syntax for bigquery. Thanks [@barrywhart](https://github.com/barrywhart).
+
+### Changed
+
+- `Bracketed` segment now obtains it's brackets directly from the dialect
+  using a set named `bracket_pairs`. This now enables better configuration
+  of brackets between dialects.
+
+
 ## [0.3.4] - 2020-05-13
 
 ### Changed
