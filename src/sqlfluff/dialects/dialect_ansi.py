@@ -655,7 +655,8 @@ class JoinClauseSegment(BaseSegment):
 
 ansi_dialect.add(
     # This is a hook point to allow subclassing for other dialects
-    JoinLikeClauseGrammar=Nothing()
+    JoinLikeClauseGrammar=Nothing(),
+    DialectSpecificTableExpressionGrammar=Nothing()
 )
 
 
@@ -680,7 +681,7 @@ class FromClauseSegment(BaseSegment):
             OneOf(
                 # Optional old school delimited joins
                 Ref('TableExpressionSegment'),
-                Ref('MLTableExpressionSegment'),
+                Ref('DialectSpecificTableExpressionGrammar')
             ),
             delimiter=Ref('CommaSegment'),
             terminator=Ref('JoinClauseSegment')
@@ -1664,103 +1665,6 @@ class SetClauseSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
-class CreateModelStatementSegment(BaseSegment):
-    """A BigQuery `CREATE MODEL` statement."""
-    type = 'create_model_statement'
-    # https://cloud.google.com/bigquery-ml/docs/reference/standard-sql/bigqueryml-syntax-create
-    match_grammar = Sequence(
-        'CREATE',
-        Sequence(
-            'OR',
-            'REPLACE',
-            optional=True
-        ),
-        'MODEL',
-        Sequence(
-            'IF',
-            'NOT',
-            'EXISTS',
-            optional=True
-        ),
-        Ref('ObjectReferenceSegment'),
-        Sequence(
-            'OPTIONS',
-            Bracketed(
-                Delimited(
-                    Sequence(
-                        Ref('ParameterNameSegment'),
-                        Ref('EqualsSegment'),
-                        OneOf(
-                            # This covers many but not all the extensive list of
-                            # possible 'CREATE MODEL' optiona.
-                            Ref('LiteralGrammar'),  # Single value
-                            Bracketed(
-                                # E.g. input_label_cols: list of column names
-                                Delimited(
-                                    Ref('QuotedLiteralSegment'),
-                                    delimiter=Ref('CommaSegment')
-                                ),
-                                bracket_type='square',
-                                optional=True
-                            ),
-                        )
-                    ),
-                    delimiter=Ref('CommaSegment')
-                )
-            ),
-            optional=True
-        ),
-        'AS',
-        Ref('SelectStatementSegment')
-    )
-
-
-@ansi_dialect.segment()
-class DropModelStatementSegment(BaseSegment):
-    """A `DROP MODEL` statement."""
-    type = 'drop_MODELstatement'
-    # DROP MODEL <Model name> [IF EXISTS}
-    # https://cloud.google.com/bigquery-ml/docs/reference/standard-sql/bigqueryml-syntax-drop-model
-    match_grammar = Sequence(
-        'DROP',
-        'MODEL',
-        Sequence(
-            'IF',
-            'EXISTS',
-            optional=True
-        ),
-        Ref('ObjectReferenceSegment')
-    )
-
-
-@ansi_dialect.segment()
-class MLTableExpressionSegment(BaseSegment):
-    """An ML table expression."""
-    type = 'ml_table_expression'
-    # E.g. ML.WEIGHTS(MODEL `project.dataset.model`)
-    match_grammar = Sequence(
-        'ML',
-        Ref('DotSegment'),
-        Ref('SingleIdentifierGrammar'),
-        Bracketed(
-            Sequence(
-                'MODEL',
-                Ref('ObjectReferenceSegment')
-            ),
-            OneOf(
-                Sequence(
-                    Ref('CommaSegment'),
-                    Bracketed(
-                        Ref('SelectStatementSegment')
-                    )
-                ),
-                optional=True
-            )
-        )
-    )
-
-
 ansi_dialect.add(
     # This is a hook point to allow subclassing for other dialects.
     # In the ANSI dialect this is designed to be a basic starting point.
@@ -1773,7 +1677,9 @@ ansi_dialect.add(
             Ref('ParameterNameSegment'),
             optional=True
         ),
-    )
+    ),
+    # Hook point for other dialects to define new kinds of statement
+    DialectSpecificStatementsGrammar=Nothing()
 )
 
 
@@ -1858,10 +1764,7 @@ class CreateFunctionStatementSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class StatementSegment(BaseSegment):
-    """A generic segment, to any of it's child subsegments.
-
-    NOTE: Should this actually be a grammar?
-    """
+    """A generic segment, to any of it's child subsegments."""
     type = 'statement'
     parse_grammar = OneOf(
         Ref('SetExpressionSegment'),
@@ -1872,7 +1775,7 @@ class StatementSegment(BaseSegment):
         Ref('AlterTableStatementSegment'),
         Ref('CreateViewStatementSegment'),
         Ref('DeleteStatementSegment'), Ref('UpdateStatementSegment'),
-        Ref('CreateModelStatementSegment'), Ref('DropModelStatementSegment'),
         Ref('CreateFunctionStatementSegment'),
+        Ref('DialectSpecificStatementsGrammar')
     )
     match_grammar = GreedyUntil(Ref('SemicolonSegment'))
