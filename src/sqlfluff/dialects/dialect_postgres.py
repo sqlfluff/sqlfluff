@@ -1,6 +1,7 @@
 """The PostgreSQL dialect."""
 
-from ..parser import (OneOf, Ref, Sequence, Bracketed, Anything, BaseSegment, NamedSegment, Delimited, AnyNumberOf)
+from ..parser import (OneOf, Ref, Sequence, Bracketed, Anything, BaseSegment,
+                      NamedSegment, Delimited, AnyNumberOf, KeywordSegment)
 
 from .dialect_ansi import ansi_dialect
 
@@ -23,10 +24,19 @@ postgres_dialect.insert_lexer_struct(
 postgres_dialect.sets('unreserved_keywords').remove('WITHIN')
 postgres_dialect.sets('reserved_keywords').add('WITHIN')
 
+# Bracket pairs (a set of tuples)
+postgres_dialect.sets('bracket_pairs').update([
+    # It's important that this is here as it can contain a semicolon.
+    # We don't import angle brackets here because they can't contain
+    # semicolons.
+    ('plSQLDelimiterSegment', 'plSQLDelimiterSegment')
+])
+
 
 postgres_dialect.add(
     JsonOperatorSegment=NamedSegment.make('json_operator', name='json_operator', type='binary_operator'),
-    plSQLDelimiterSegment=NamedSegment.make('plsql_delimiter', name='plsql_delimiter', type='code_section_delimiter'),
+    # We use the keyword segment here for performance reasons. It has a shortcut but Named Segment does not (or not yet anyway).
+    plSQLDelimiterSegment=KeywordSegment.make('$$', name='plsql_delimiter', type='code_section_delimiter'),
 )
 
 

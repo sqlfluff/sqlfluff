@@ -431,17 +431,17 @@ class BaseGrammar:
             return ((), MatchResult.from_unmatched(segments), None)
 
         # Get hold of the bracket matchers from the dialect, and append them
-        # to the list of matchers.
-        # TODO: Potentially have error handling here for dialects without
-        # square brackets.
-        start_brackets = [
-            parse_context.dialect.ref('StartBracketSegment'),
-            parse_context.dialect.ref('StartSquareBracketSegment'),
-        ] + ([start_bracket] if start_bracket else [])
-        end_brackets = [
-            parse_context.dialect.ref('EndBracketSegment'),
-            parse_context.dialect.ref('EndSquareBracketSegment'),
-        ] + ([end_bracket] if end_bracket else [])
+        # to the list of matchers. We get them from the relevant set on the
+        # dialect. We use zip twice to "unzip" them
+        start_brackets, end_brackets = zip(*parse_context.dialect.sets('bracket_pairs'))
+        # These are currently strings which need rehydrating
+        start_brackets = [parse_context.dialect.ref(seg_ref) for seg_ref in start_brackets]
+        end_brackets = [parse_context.dialect.ref(seg_ref) for seg_ref in end_brackets]
+        # Any any bracket-like things passed as arguments
+        if start_bracket:
+            start_brackets += [start_bracket]
+        if end_bracket:
+            end_brackets += [end_bracket]
 
         bracket_matchers = start_brackets + end_brackets
 
@@ -464,7 +464,10 @@ class BaseGrammar:
                         code_only=code_only)
 
                     if match:
-                        if matcher in start_brackets:
+                        # NB: We can only consider this as a nested bracket if the start
+                        # and end tokens are not the same. If a matcher is both a start and
+                        # end token we cannot deepen the bracket stack.
+                        if matcher in start_brackets and matcher not in end_brackets:
                             # Same procedure as below in finding brackets.
                             bracket_stack.append(match.matched_segments[0])
                             pre_seg_buff += pre
@@ -1474,7 +1477,6 @@ class Bracketed(Sequence):
 
         """
         seg_buff = segments
-        matched_segs = ()
 
         # Look for the first bracket
         start_match = self._code_only_sensitive_match(

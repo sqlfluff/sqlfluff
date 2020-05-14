@@ -79,6 +79,12 @@ ansi_dialect.sets('reserved_keywords').update(
     [n.strip().upper() for n in ansi_reserved_keywords.split('\n')]
 )
 
+# Bracket pairs (a set of tuples)
+ansi_dialect.sets('bracket_pairs').update([
+    ('StartBracketSegment', 'EndBracketSegment'),
+    ('StartSquareBracketSegment', 'EndSquareBracketSegment')
+])
+
 ansi_dialect.add(
     # NB The NonCode Segment is not really for matching, mostly just for use as a terminator
     _NonCodeSegment=LambdaSegment.make(lambda x: not x.is_code, is_code=False, name='non_code'),
