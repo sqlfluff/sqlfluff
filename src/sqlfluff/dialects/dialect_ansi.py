@@ -1823,8 +1823,15 @@ class CreateFunctionStatementSegment(BaseSegment):
         # Function parameter list
         Bracketed(
             Delimited(
-                Sequence(
-                    Ref('ParameterNameSegment', optional=True),
+                # Odd syntax, but prevents eager parameters being confused for data types
+                OneOf(
+                    Sequence(
+                        Ref('ParameterNameSegment', optional=True),
+                        OneOf(
+                            Sequence('ANY', 'TYPE'),
+                            Ref('DatatypeSegment')
+                        )
+                    ),
                     OneOf(
                         Sequence('ANY', 'TYPE'),
                         Ref('DatatypeSegment')
