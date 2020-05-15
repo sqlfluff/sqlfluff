@@ -13,6 +13,7 @@ INTERVAL
 CASE
 FULL
 NULL
+UNION
 """
 
 ansi_unreserved_keywords = """ABORT
