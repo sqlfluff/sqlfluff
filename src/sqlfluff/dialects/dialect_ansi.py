@@ -532,7 +532,16 @@ class SelectTargetElementSegment(BaseSegment):
     """An element in the targets of a select statement."""
     type = 'select_target_element'
     # Important to split elements before parsing, otherwise debugging is really hard.
-    match_grammar = GreedyUntil(Ref('CommaSegment'))
+    match_grammar = OneOf(
+        # *, blah.*, blah.blah.*, etc.
+        Ref('WildcardSelectTargetElementGrammar'),
+        GreedyUntil(
+            'FROM', 'LIMIT',
+            Ref('CommaSegment'),
+            Ref('SetOperatorSegment')
+        )
+    )
+
     parse_grammar = OneOf(
         # *, blah.*, blah.blah.*, etc.
         Ref('WildcardSelectTargetElementGrammar'),
@@ -564,8 +573,11 @@ class SelectClauseSegment(BaseSegment):
     """A group of elements in a select target statement."""
     type = 'select_clause'
     match_grammar = StartsWith(
-        'SELECT',
-        terminator=OneOf('FROM', 'LIMIT')
+        Sequence(
+            'SELECT',
+            Ref('WildcardSelectTargetElementGrammar', optional=True)
+        ),
+        terminator=OneOf('FROM', 'LIMIT', Ref('SetOperatorSegment'))
     )
 
     parse_grammar = Sequence(

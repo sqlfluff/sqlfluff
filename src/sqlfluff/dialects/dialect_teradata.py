@@ -518,10 +518,7 @@ class CreateTableStatementSegment(BaseSegment):
             # Create AS syntax:
             Sequence(
                 'AS',
-                OneOf(
-                    Ref('SelectStatementSegment'),
-                    Ref('WithCompoundStatementSegment')
-                )
+                Ref('SelectableGrammar')
             ),
             # Create like syntax
             Sequence(
@@ -586,15 +583,11 @@ class FromUpdateClauseSegment(BaseSegment):
 # Adding Teradata specific statements
 @teradata_dialect.segment(replace=True)
 class StatementSegment(BaseSegment):
-    """A generic segment, to any of it's child subsegments.
-
-    NOTE: Should this actually be a grammar?
-    """
+    """A generic segment, to any of it's child subsegments."""
     type = 'statement'
     parse_grammar = OneOf(
-        Ref('SetExpressionSegment'),
-        Ref('SelectStatementSegment'), Ref('InsertStatementSegment'),
-        Ref('EmptyStatementSegment'), Ref('WithCompoundStatementSegment'),
+        Ref('SelectableGrammar'), Ref('InsertStatementSegment'),
+        Ref('EmptyStatementSegment'),
         Ref('TransactionStatementSegment'), Ref('DropStatementSegment'),
         Ref('AccessStatementSegment'), Ref('CreateTableStatementSegment'),
         Ref('CreateViewStatementSegment'),

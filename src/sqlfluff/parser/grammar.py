@@ -283,6 +283,14 @@ class BaseGrammar:
             `tuple` of (unmatched_segments, match_object, matcher).
 
         """
+        if parse_context.verbosity > 4:
+            parse_match_logging(
+                cls.__name__, '_look_ahead_match', 'IN', parse_context=parse_context,
+                v_level=cls.v_level,
+                ls=len(segments),
+                seg=join_segments_raw_curtailed(segments),
+                m=matchers)
+
         # Do some type munging
         matchers = list(matchers)
         if isinstance(segments, BaseSegment):
@@ -303,14 +311,23 @@ class BaseGrammar:
         non_simple_matchers = [m for m in matchers if not m.simple(parse_context=parse_context)]
         best_simple_match = None
         if simple_matchers:
-            # if they're all simple we can use a hash match to identify the first one.
-            str_buff = [s.raw_upper for s in segments]
+            # If they're all simple we can use a hash match to identify the first one.
+            # Build a buffer of all the upper case raw segments ahead of us.
+            str_buff = []
+            seg_idx_buf = []  # This is a way of mapping indexes in the str_buff back to indexes in `segments`
+            for idx, seg in enumerate(segments):
+                delta_seg_raw = [s.raw_upper for s in seg.iter_raw_seg()]
+                str_buff += delta_seg_raw
+                seg_idx_buf += [idx] * len(delta_seg_raw)
             m_pos = []
             m_first = None
+            _simple_opts = []  # just for logging
+
             for m in simple_matchers:
                 simple = m.simple(parse_context=parse_context)
                 # Simple will be a tuple of options
                 for simple_option in simple:
+                    _simple_opts.append(simple_option)  # just for logging
                     try:
                         buff_pos = str_buff.index(simple_option)
                         mat = (m, buff_pos, simple_option)
@@ -319,13 +336,20 @@ class BaseGrammar:
                     except ValueError:
                         mat = (m, None, simple_option)
                     m_pos.append(mat)
+
+            if parse_context.verbosity > 4:
+                parse_match_logging(
+                    cls.__name__, '_look_ahead_match', 'SI', parse_context=parse_context,
+                    v_level=cls.v_level,
+                    _so=_simple_opts, fm=m_first, sb=repr(str_buff))
+
             if m_first:
                 # We've managed to match. We can shortcut home.
-                # ASSUME THAT ALL SIMPLE MATCHERS MATCH A SINGLE
                 # NB: We may still need to deal with whitespace.
+                segments_index = seg_idx_buf[m_first[1]]  # map back into indexes in `segments`
                 matcher = m_first[0]
-                match = matcher._match(segments[m_first[1]:], parse_context)
-                pre_segments = segments[:m_first[1]]
+                match = matcher._match(segments[segments_index:], parse_context)
+                pre_segments = segments[:segments_index]
                 if code_only:
                     # Pick up any non-code segments as necessary
                     # ...from the start
@@ -348,6 +372,14 @@ class BaseGrammar:
 
         if not non_simple_matchers:
             # There are no other matchers, we can just shortcut now.
+
+            if parse_context.verbosity > 4:
+                parse_match_logging(
+                    cls.__name__, '_look_ahead_match', 'SC', parse_context=parse_context,
+                    v_level=cls.v_level,
+                    bsm=None if not best_simple_match else (len(best_simple_match[0]), len(best_simple_match[1]), best_simple_match[2])
+                )
+
             if best_simple_match:
                 return best_simple_match
             else:
