@@ -1,0 +1,12 @@
+CREATE TEMP FUNCTION
+qs(
+    foo1 INT64,
+    foo2 ARRAY<STRING>,
+    foo3 STRUCT<x INT64>,
+    foo4 STRUCT<x INT64, y INT64>,
+    foo5 STRUCT<a ARRAY<FLOAT>, b STRUCT<x INT64, y INT64>>
+)
+RETURNS STRUCT<product_id ARRAY<INT64>>
+LANGUAGE js AS """
+    CODE GOES HERE
+"""

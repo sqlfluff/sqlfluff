@@ -174,48 +174,32 @@ class DatatypeSegment(BaseSegment):
     the STRUCT datatypes.
     """
     type = 'data_type'
-    match_grammar = Sequence(
-        Ref('DatatypeIdentifierSegment'),
-        OneOf(
-            Bracketed(
-                OneOf(
-                    Delimited(
-                        Ref('ExpressionSegment'),
-                        delimiter=Ref('CommaSegment')
-                    ),
-                    # The brackets might be empty for some cases...
-                    optional=True
-                ),
-                # There may be no brackets for some data types
-                optional=True
-            ),
-            # Add STRUCT like HERE.
-            # <integer> syntax
-            Ref('BigqueryCompositeDatatypeSegment'),
-            optional=True
-        )
-    )
-
-
-@bigquery_dialect.segment()
-class BigqueryCompositeDatatypeSegment(BaseSegment):
-    """<integer, integer> syntax."""
-    type = 'composite_datatype'
-    match_grammar = Bracketed(
-        Anything(),
-        bracket_type='angle'
-    )
-
-    parse_grammar = Bracketed(
-        Delimited(  # Comma-separated list of field names/types
-            Sequence(
-                Ref('ParameterNameSegment'),
-                # NB: DatatypeSegment can be self referential back to this.
-                Ref('DatatypeSegment')
-            ),
-            delimiter=Ref('CommaSegment')
+    match_grammar = OneOf(  # Parameter type
+        Ref('ParameterNameSegment'),  # Simple type
+        Sequence(  # SQL UDFs can specify this "type"
+            'ANY',
+            'TYPE'
         ),
-        bracket_type='angle'
+        Sequence(
+            'ARRAY',
+            Bracketed(
+                Ref('DatatypeSegment'),
+                bracket_type='angle'
+            )
+        ),
+        Sequence(
+            'STRUCT',
+            Bracketed(
+                Delimited(  # Comma-separated list of field names/types
+                    Sequence(
+                        Ref('ParameterNameSegment'),
+                        Ref('DatatypeSegment')
+                    ),
+                    delimiter=Ref('CommaSegment')
+                ),
+                bracket_type='angle'
+            ),
+        )
     )
 
 
