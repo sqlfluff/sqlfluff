@@ -198,6 +198,19 @@ class IntervalExpressionSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class ArrayLiteralSegment(BaseSegment):
+    """A data type segment."""
+    type = 'array_literal_type'
+    match_grammar = Bracketed(
+        Delimited(
+            Ref('ExpressionSegment'),
+            delimiter=Ref('CommaSegment')
+        ),
+        bracket_type='square'
+    )
+
+
+@ansi_dialect.segment()
 class DatatypeSegment(BaseSegment):
     """A data type segment."""
     type = 'data_type'
@@ -838,7 +851,8 @@ ansi_dialect.add(
             Ref('SelectStatementSegment'),
             Ref('LiteralGrammar'),
             Ref('IntervalExpressionSegment'),
-            Ref('ObjectReferenceSegment')
+            Ref('ObjectReferenceSegment'),
+            Ref('ArrayLiteralSegment'),
         ),
         Ref('Accessor_Grammar', optional=True),
         Ref('ShorthandCastSegment', optional=True),
