@@ -29,7 +29,7 @@ postgres_dialect.sets('bracket_pairs').update([
     # It's important that this is here as it can contain a semicolon.
     # We don't import angle brackets here because they can't contain
     # semicolons.
-    ('postgres_$$', 'plSQLDelimiterSegment', 'plSQLDelimiterSegment')
+    ('postgres_$$', 'plSQLDelimiterSegment', 'plSQLDelimiterSegment', True)
 ])
 
 

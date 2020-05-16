@@ -45,7 +45,8 @@ bigquery_dialect.sets('reserved_keywords').add('FOR')
 
 # Bracket pairs (a set of tuples)
 bigquery_dialect.sets('bracket_pairs').update([
-    ('angle', 'StartAngleBracketSegment', 'EndAngleBracketSegment')
+    # NB: Angle brackets can be mistaken, so False
+    ('angle', 'StartAngleBracketSegment', 'EndAngleBracketSegment', False)
 ])
 
 
