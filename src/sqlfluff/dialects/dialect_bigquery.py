@@ -145,18 +145,6 @@ bigquery_dialect.replace(
                     optional=True
                 )
             ),
-            'WINDOW',
-            'IMMUTABLE',
-            'STABLE',
-            'VOLATILE',
-            'STRICT',
-            Sequence('CALLED', 'ON', 'INPUT'),
-            Sequence('RETURNS', 'NULL', 'ON', 'NULL', 'INPUT'),
-            Sequence(
-                Ref.keyword('EXTERNAL', optional=True),
-                'SECURITY',
-                OneOf('INVOKER', 'DEFINER')
-            ),
             # There is some syntax not implemented here,
             Sequence(
                 'AS',
