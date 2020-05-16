@@ -105,11 +105,18 @@ bigquery_dialect.replace(
         ),
         Sequence(
             'REPLACE',
-            Bracketed(
-                Delimited(
-                    Ref('AliasedObjectReferenceSegment'),
-                    delimiter=Ref('CommaSegment')
-                )
+            OneOf(
+                # Multiple replace in brackets
+                Bracketed(
+                    Delimited(
+                        # Not *really* a select target element. It behaves exactly
+                        # the same way however.
+                        Ref('SelectTargetElementSegment'),
+                        delimiter=Ref('CommaSegment')
+                    )
+                ),
+                # Single replace not in brackets.
+                Ref('SelectTargetElementSegment')
             ),
             optional=True
         )
