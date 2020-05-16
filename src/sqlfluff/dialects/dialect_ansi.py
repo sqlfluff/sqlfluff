@@ -497,11 +497,7 @@ class TableExpressionSegment(BaseSegment):
             Ref('ObjectReferenceSegment'),
             # Nested Selects
             Bracketed(
-                OneOf(
-                    Ref('SetExpressionSegment'),
-                    Ref('SelectStatementSegment'),
-                    Ref('WithCompoundStatementSegment')
-                ),
+                Ref('SelectableGrammar')
             ),
             # Values clause?
         ),
@@ -556,7 +552,16 @@ class SelectTargetElementSegment(BaseSegment):
     """An element in the targets of a select statement."""
     type = 'select_target_element'
     # Important to split elements before parsing, otherwise debugging is really hard.
-    match_grammar = GreedyUntil(Ref('CommaSegment'))
+    match_grammar = OneOf(
+        # *, blah.*, blah.blah.*, etc.
+        Ref('WildcardSelectTargetElementGrammar'),
+        GreedyUntil(
+            'FROM', 'LIMIT',
+            Ref('CommaSegment'),
+            Ref('SetOperatorSegment')
+        )
+    )
+
     parse_grammar = OneOf(
         # *, blah.*, blah.blah.*, etc.
         Ref('WildcardSelectTargetElementGrammar'),
@@ -587,15 +592,12 @@ class SelectClauseModifierSegment(BaseSegment):
 class SelectClauseSegment(BaseSegment):
     """A group of elements in a select target statement."""
     type = 'select_clause'
-    match_grammar = GreedyUntil(
-        OneOf(
-            'FROM',
-            'LIMIT',
-            code_only=False
+    match_grammar = StartsWith(
+        Sequence(
+            'SELECT',
+            Ref('WildcardSelectTargetElementGrammar', optional=True)
         ),
-        # Make sure there's whitespace before the keywords.
-        enforce_whitespace_preceeding=True,
-        code_only=False
+        terminator=OneOf('FROM', 'LIMIT', Ref('SetOperatorSegment'))
     )
 
     parse_grammar = Sequence(
@@ -684,7 +686,8 @@ class FromClauseSegment(BaseSegment):
             'LIMIT',
             'GROUP',
             'ORDER',
-            'HAVING'
+            'HAVING',
+            Ref('SetOperatorSegment')
         )
     )
     parse_grammar = Sequence(
@@ -802,7 +805,7 @@ ansi_dialect.add(
                                 Ref('IntervalExpressionSegment'),
                                 delimiter=Ref('CommaSegment')
                             ),
-                            Ref('SelectStatementSegment')
+                            Ref('SelectableGrammar')
                         )
                     )
                 ),
@@ -845,7 +848,7 @@ ansi_dialect.add(
                 Ref('Expression_A_Grammar')
             ),
             Bracketed(
-                Ref('SelectStatementSegment')
+                Ref('SelectableGrammar')
             ),
             # Allow potential select statement without brackets
             Ref('SelectStatementSegment'),
@@ -1050,7 +1053,15 @@ class SelectStatementSegment(BaseSegment):
     type = 'select_statement'
     # match grammar. This one makes sense in the context of knowing that it's
     # definitely a statement, we just don't know what type yet.
-    match_grammar = StartsWith('SELECT')
+    match_grammar = StartsWith(
+        # NB: In bigquery, the select clause may include an EXCEPT, which
+        # will also match the set operator, but by starting with the whole
+        # select clause rather than just the SELECT keyword, we mitigate that
+        # here.
+        Ref('SelectClauseSegment'),
+        terminator=Ref('SetOperatorSegment')
+    )
+
     parse_grammar = Sequence(
         Ref('SelectClauseSegment'),
         Ref('FromClauseSegment', optional=True),
@@ -1059,8 +1070,26 @@ class SelectStatementSegment(BaseSegment):
         Ref('HavingClauseSegment', optional=True),
         Ref('OrderByClauseSegment', optional=True),
         Ref('LimitClauseSegment', optional=True),
-        # GreedyUnt.keywordil(.make('limit'), optional=True)
     )
+
+
+ansi_dialect.add(
+    # Things that behave like select statements
+    SelectableGrammar=OneOf(
+        Ref('WithCompoundStatementSegment'),
+        Ref('NonWithSelectableGrammar')
+    ),
+    # Things that behave like select statements, which can form part of with expressions.
+    NonWithSelectableGrammar=OneOf(
+        Ref('SetExpressionSegment'),
+        Ref('NonSetSelectableGrammar')
+    ),
+    # Things that behave like select statements, which can form part of set expressions.
+    NonSetSelectableGrammar=OneOf(
+        Ref('SelectStatementSegment'),
+        Ref('ValuesClauseSegment')
+    )
+)
 
 
 @ansi_dialect.segment()
@@ -1076,16 +1105,13 @@ class WithCompoundStatementSegment(BaseSegment):
                 Ref('SingleIdentifierGrammar'),
                 'AS',
                 Bracketed(
-                    OneOf(
-                        Ref('SetExpressionSegment'),
-                        Ref('SelectStatementSegment')
-                    )
+                    Ref('NonWithSelectableGrammar')
                 )
             ),
             delimiter=Ref('CommaSegment'),
             terminator=Ref.keyword('SELECT')
         ),
-        Ref('SelectStatementSegment')
+        Ref('NonWithSelectableGrammar')
     )
 
 
@@ -1113,14 +1139,15 @@ class SetExpressionSegment(BaseSegment):
     """A set expression with either Union, Minus, Exept or Intersect."""
     type = 'set_expression'
     # match grammar
-    match_grammar = Delimited(
-        OneOf(
-            Ref('SelectStatementSegment'),
-            Ref('ValuesClauseSegment'),
-            Ref('WithCompoundStatementSegment')
-        ),
-        delimiter=Ref('SetOperatorSegment'),
-        min_delimiters=1
+    match_grammar = Sequence(
+        Ref('NonSetSelectableGrammar'),
+        AnyNumberOf(
+            Sequence(
+                Ref('SetOperatorSegment'),
+                Ref('NonSetSelectableGrammar')
+            ),
+            min_times=1
+        )
     )
 
 
@@ -1135,11 +1162,7 @@ class InsertStatementSegment(BaseSegment):
         Ref.keyword('INTO', optional=True),
         Ref('ObjectReferenceSegment'),
         Bracketed(Delimited(Ref('ObjectReferenceSegment'), delimiter=Ref('CommaSegment')), optional=True),
-        OneOf(
-            Ref('SelectStatementSegment'),
-            Ref('ValuesClauseSegment'),
-            Ref('WithCompoundStatementSegment')
-        )
+        Ref('SelectableGrammar')
     )
 
 
@@ -1348,10 +1371,7 @@ class CreateTableStatementSegment(BaseSegment):
             # Create AS syntax:
             Sequence(
                 'AS',
-                OneOf(
-                    Ref('SelectStatementSegment'),
-                    Ref('WithCompoundStatementSegment')
-                )
+                Ref('SelectableGrammar'),
             ),
             # Create like syntax
             Sequence(
@@ -1431,7 +1451,7 @@ class CreateViewStatementSegment(BaseSegment):
             optional=True
         ),
         'AS',
-        Ref('SelectStatementSegment'),
+        Ref('SelectableGrammar'),
     )
 
 
@@ -1780,10 +1800,12 @@ class CreateFunctionStatementSegment(BaseSegment):
 class StatementSegment(BaseSegment):
     """A generic segment, to any of it's child subsegments."""
     type = 'statement'
+    match_grammar = GreedyUntil(Ref('SemicolonSegment'))
+
     parse_grammar = OneOf(
-        Ref('SetExpressionSegment'),
-        Ref('SelectStatementSegment'), Ref('InsertStatementSegment'),
-        Ref('EmptyStatementSegment'), Ref('WithCompoundStatementSegment'),
+        Ref('SelectableGrammar'),
+        Ref('InsertStatementSegment'),
+        Ref('EmptyStatementSegment'),
         Ref('TransactionStatementSegment'), Ref('DropStatementSegment'),
         Ref('AccessStatementSegment'), Ref('CreateTableStatementSegment'),
         Ref('AlterTableStatementSegment'),
@@ -1792,4 +1814,3 @@ class StatementSegment(BaseSegment):
         Ref('CreateFunctionStatementSegment'),
         Ref('DialectSpecificStatementsGrammar')
     )
-    match_grammar = GreedyUntil(Ref('SemicolonSegment'))

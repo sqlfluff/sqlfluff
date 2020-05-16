@@ -199,17 +199,14 @@ def test__cli__command__fix(rule, fname):
 #         generic_roundtrip_test(test_file, rule, fix_exit_code=1, final_exit_code=65)
 
 
-def test__cli__command_fix_stdin(monkeypatch):
+@pytest.mark.parametrize('stdin,rules,stdout', [
+    ('select * from t', 'L003', 'select * from t'),  # no change
+    (' select * from t', 'L003', 'select * from t'),  # fix preceding whitespace
+])
+def test__cli__command_fix_stdin(stdin, rules, stdout):
     """Check stdin input for fix works."""
-    sql = 'select * from tbl'
-    expected = 'fixed sql!'
-
-    def _patched_fix(self, verbosity=0):
-        return expected
-
-    monkeypatch.setattr("sqlfluff.linter.LintedFile.fix_string", _patched_fix)
-    result = invoke_assert_code(args=[fix, ('-', '--rules', 'L001')], cli_input=sql)
-    assert result.output == expected
+    result = invoke_assert_code(args=[fix, ('-', '--rules', rules)], cli_input=stdin)
+    assert result.output == stdout
 
 
 @pytest.mark.parametrize('rule,fname,prompt,exit_code', [

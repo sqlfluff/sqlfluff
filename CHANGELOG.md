@@ -17,7 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Bracketed` segment now obtains it's brackets directly from the dialect
   using a set named `bracket_pairs`. This now enables better configuration
   of brackets between dialects.
-
+- Deep bugfixes in the parser to handle simple matching better for a few
+  edge cases. Also added some logging deeper in the parser.
+- Added in the `SelectableGrammar` and some related segments to make it
+  easier to refer to _select-like_ things in other grammars.
 
 ## [0.3.4] - 2020-05-13
 

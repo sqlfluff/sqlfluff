@@ -518,10 +518,7 @@ class CreateTableStatementSegment(BaseSegment):
             # Create AS syntax:
             Sequence(
                 'AS',
-                OneOf(
-                    Ref('SelectStatementSegment'),
-                    Ref('WithCompoundStatementSegment')
-                )
+                Ref('SelectableGrammar')
             ),
             # Create like syntax
             Sequence(

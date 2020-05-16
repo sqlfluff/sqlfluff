@@ -205,7 +205,7 @@ def fix(force, paths, **kwargs):
     be interpreted like passing the current working directory as a path argument.
     """
     c = get_config(**kwargs)
-    lnt = get_linter(c)
+    lnt = get_linter(c, silent=('-',) == paths)
     verbose = c.get('verbose')
 
     config_string = format_config(lnt, verbose=verbose)
@@ -221,7 +221,7 @@ def fix(force, paths, **kwargs):
     if ('-',) == paths:
         stdin = sys.stdin.read()
         result = lnt.lint_string_wrapped(stdin, fname='stdin', verbosity=verbose, fix=True)
-        stdout = result.paths[0].files[0].fix_string(verbosity=verbose)
+        stdout = result.paths[0].files[0].fix_string(verbosity=verbose)[0]
         click.echo(stdout, nl=False)
         sys.exit()
 
