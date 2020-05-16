@@ -129,7 +129,21 @@ bigquery_dialect.replace(
             Sequence(
                 'LANGUAGE',
                 # Not really a parameter, but best fit for now.
-                Ref('ParameterNameSegment')
+                Ref('ParameterNameSegment'),
+                Sequence(
+                    'OPTIONS',
+                    Bracketed(
+                        Delimited(
+                            Sequence(
+                                Ref('ParameterNameSegment'),
+                                Ref('EqualsSegment'),
+                                Anything()
+                            ),
+                            delimiter=Ref('CommaSegment')
+                        )
+                    ),
+                    optional=True
+                )
             ),
             'WINDOW',
             'IMMUTABLE',
