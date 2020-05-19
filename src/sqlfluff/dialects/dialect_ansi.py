@@ -789,6 +789,11 @@ ansi_dialect.add(
                     )
                 ),
                 Sequence(
+                    Ref.keyword('NOT', optional=True),
+                    'IN',
+                    Ref('FunctionSegment'),  # E.g. UNNEST()
+                ),
+                Sequence(
                     'IS',
                     Ref.keyword('NOT', optional=True),
                     OneOf(
