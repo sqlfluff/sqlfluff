@@ -586,7 +586,8 @@ class SelectClauseSegment(BaseSegment):
         Indent,
         Delimited(
             Ref('SelectTargetElementSegment'),
-            delimiter=Ref('CommaSegment')
+            delimiter=Ref('CommaSegment'),
+            allow_trailing=True
         ),
         Dedent
     )
