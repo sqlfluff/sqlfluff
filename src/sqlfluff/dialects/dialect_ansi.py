@@ -719,28 +719,56 @@ class FromClauseSegment(BaseSegment):
 class CaseExpressionSegment(BaseSegment):
     """A `CASE WHEN` clause."""
     type = 'case_expression'
-    match_grammar = Sequence(
-        'CASE',
-        Indent,
-        AnyNumberOf(
+    match_grammar = OneOf(
+        Sequence(
+            'CASE',
+            Indent,
+            AnyNumberOf(
+                Sequence(
+                    'WHEN',
+                    Indent,
+                    Ref('ExpressionSegment'),
+                    'THEN',
+                    Ref('ExpressionSegment'),
+                    Dedent
+                )
+            ),
             Sequence(
-                'WHEN',
+                'ELSE',
                 Indent,
                 Ref('ExpressionSegment'),
-                'THEN',
-                Ref('ExpressionSegment'),
-                Dedent
-            )
+                Dedent,
+                optional=True
+            ),
+            Dedent,
+            'END'
         ),
         Sequence(
-            'ELSE',
+            'CASE',
+            OneOf(
+                Ref('ExpressionSegment')
+            ),
             Indent,
-            Ref('ExpressionSegment'),
+            AnyNumberOf(
+                Sequence(
+                    'WHEN',
+                    Indent,
+                    Ref('ExpressionSegment'),
+                    'THEN',
+                    Ref('ExpressionSegment'),
+                    Dedent
+                )
+            ),
+            Sequence(
+                'ELSE',
+                Indent,
+                Ref('ExpressionSegment'),
+                Dedent,
+                optional=True
+            ),
             Dedent,
-            optional=True
-        ),
-        Dedent,
-        'END'
+            'END'
+        )
     )
 
 
