@@ -14,7 +14,7 @@ the best position to do this. Familiarise yourself with the tool (as per step
 at [docs.sqlfluff.com](https://docs.sqlfluff.com) and the source can be found
 in the [docs/source](https://github.com/alanmcruickshank/sqlfluff/tree/master/docs/source)
 folder of the repo). Pull requests are always welcome with documentation
-improvements. Keep in mind that there are linting checks in palce for good
+improvements. Keep in mind that there are linting checks in place for good
 formatting so keep an eye on the tests whenever submitting a PR.
 
 :star2: **Fourth** - if you're so inclined - pull requests on the core codebase
