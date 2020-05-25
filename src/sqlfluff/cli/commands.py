@@ -110,7 +110,7 @@ def version(**kwargs):
 @cli.command()
 @common_options
 def rules(**kwargs):
-    """Show the current rules is use."""
+    """Show the current rules in use."""
     c = get_config(**kwargs)
     lnt = get_linter(c)
     click.echo(format_rules(lnt), color=c.get('color'))
