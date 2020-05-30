@@ -1,4 +1,4 @@
 SELECT
-    COALESCE(id, -1) AS id
+    COALESCE(id, 1)
 FROM some_table
-GROUP BY COALESCE(id, -1)
+GROUP BY COALESCE(id, 1)

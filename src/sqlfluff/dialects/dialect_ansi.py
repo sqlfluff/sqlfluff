@@ -963,7 +963,7 @@ class GroupByClauseSegment(BaseSegment):
                 Ref('ObjectReferenceSegment'),
                 # Can `GROUP BY 1`
                 Ref('NumericLiteralSegment'),
-                # Can GROUP BY coalesce(col, 1)
+                # Can `GROUP BY coalesce(col, 1)`
                 Ref('ExpressionSegment')
             ),
             delimiter=Ref('CommaSegment'),
