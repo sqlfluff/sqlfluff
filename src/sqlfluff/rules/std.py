@@ -10,7 +10,26 @@ std_rule_set = RuleSet(name='standard')
 
 @std_rule_set.register
 class Rule_L001(BaseCrawler):
-    """Unneccessary trailing whitespace."""
+    """Unneccessary trailing whitespace.
+
+    | **Anti-pattern**
+    | The • character represents a space.
+
+    .. code-block:: sql
+
+        SELECT
+            a
+        FROM foo••
+
+    | **Best practice**
+    | Remove trailing spaces.
+
+    .. code-block:: sql
+
+        SELECT
+            a
+        FROM foo
+    """
 
     def _eval(self, segment, raw_stack, **kwargs):
         """Unneccessary trailing whitespace.
@@ -47,6 +66,26 @@ class Rule_L002(BaseCrawler):
         tab_space_size (:obj:`int`): The number of spaces to consider
             equal to one tab. Used in the fixing step of this rule.
             Defaults to 4.
+
+
+    | **Anti-pattern**
+    | The • character represents a space and the → character represents a tab.
+    | In this example, the second line contains two spaces and one tab.
+
+    .. code-block:: sql
+
+        SELECT
+        ••→a
+        FROM foo
+
+    | **Best practice**
+    | Change the line to use spaces only.
+
+    .. code-block:: sql
+
+        SELECT
+        ••••a
+        FROM foo
 
     """
 
@@ -119,6 +158,28 @@ class Rule_L003(BaseCrawler):
     Note:
         This rule used to be _"Indentation length is not a multiple
         of `tab_space_size`"_, but was changed to be much smarter.
+
+    | **Anti-pattern**
+    | The • character represents a space.
+    | In this example, the third line contains five spaces instead of four.
+
+    .. code-block:: sql
+
+        SELECT
+        ••••a,
+        •••••b
+        FROM foo
+
+
+    | **Best practice**
+    | Change the indentation to use a multiple of four spaces.
+
+    .. code-block:: sql
+
+        SELECT
+        ••••a,
+        ••••b
+        FROM foo
 
     """
 
@@ -603,7 +664,29 @@ class Rule_L003(BaseCrawler):
 
 @std_rule_set.register
 class Rule_L004(BaseCrawler):
-    """Mixed Tab and Space indentation found in file."""
+    """Mixed Tab and Space indentation found in file.
+
+    | **Anti-pattern**
+    | The • character represents a space and the → character represents a tab.
+    | In this example, the second line is indented with spaces and the third one with tab.
+
+    .. code-block:: sql
+
+        SELECT
+        ••••a,
+        →   b
+        FROM foo
+
+    | **Best practice**
+    | Change the line to use spaces only.
+
+    .. code-block:: sql
+
+        SELECT
+        ••••a,
+        ••••b
+        FROM foo
+    """
 
     def _eval(self, segment, raw_stack, memory, **kwargs):
         """Mixed Tab and Space indentation found in file.
@@ -632,6 +715,27 @@ class Rule_L005(BaseCrawler):
 
     Unless it's an indent.We deal with trailing/leading commas
     in a different rule.
+
+    | **Anti-pattern**
+    | The • character represents a space.
+    | There is an extra space in line two before the comma.
+
+    .. code-block:: sql
+
+        SELECT
+            a•,
+            b
+        FROM foo
+
+    | **Best practice**
+    | Remove the space before the comma.
+
+    .. code-block:: sql
+
+        SELECT
+            a,
+            b
+        FROM foo
     """
 
     def _eval(self, segment, raw_stack, **kwargs):
@@ -651,7 +755,28 @@ class Rule_L005(BaseCrawler):
 
 @std_rule_set.register
 class Rule_L006(BaseCrawler):
-    """Operators should be surrounded by a single whitespace."""
+    """Operators should be surrounded by a single whitespace.
+
+    | **Anti-pattern**
+    | The • character represents a space.
+    | In this example, there is a space missing space between the operator and 'b'.
+
+    .. code-block:: sql
+
+        SELECT
+            a +b
+        FROM foo
+
+
+    | **Best practice**
+    | Keep a single space.
+
+    .. code-block:: sql
+
+        SELECT
+            a + b
+        FROM foo
+    """
 
     def _eval(self, segment, memory, parent_stack, **kwargs):
         """Operators should be surrounded by a single whitespace.
@@ -746,7 +871,30 @@ class Rule_L006(BaseCrawler):
 
 @std_rule_set.register
 class Rule_L007(BaseCrawler):
-    """Operators near newlines should be after, not before the newline."""
+    """Operators near newlines should be after, not before the newline.
+
+    | **Anti-pattern**
+    | The • character represents a space.
+    | In this example, the operator '+' should not be at the end of the second line.
+
+    .. code-block:: sql
+
+        SELECT
+            a +
+            b
+        FROM foo
+
+
+    | **Best practice**
+    | Place the operator after the newline.
+
+    .. code-block:: sql
+
+        SELECT
+            a
+            + b
+        FROM foo
+    """
 
     def _eval(self, segment, memory, parent_stack, **kwargs):
         """Operators near newlines should be after, not before the newline.
@@ -795,7 +943,28 @@ class Rule_L007(BaseCrawler):
 
 @std_rule_set.register
 class Rule_L008(BaseCrawler):
-    """Commas should be followed by a single whitespace unless followed by a comment."""
+    """Commas should be followed by a single whitespace unless followed by a comment.
+
+    | **Anti-pattern**
+    | The • character represents a space.
+    | In this example, there is no space between the comma and 'zoo'.
+
+    .. code-block:: sql
+        SELECT
+            *
+        FROM foo
+        WHERE a IN ('plop','zoo')
+
+    | **Best practice**
+    | Keep a single space after the comma.
+
+    .. code-block:: sql
+
+        SELECT
+            *
+        FROM foo
+        WHERE a IN ('plop',•'zoo')
+    """
 
     def _eval(self, segment, raw_stack, **kwargs):
         """Commas should be followed by a single whitespace unless followed by a comment.
@@ -869,6 +1038,28 @@ class Rule_L010(BaseCrawler):
         capitalisation_policy (:obj:`str`): The capitalisation policy to
             enforce. One of `consistent`, `upper`, `lower`, `capitalise`.
 
+    | **Anti-pattern**
+    | In this example, 'select 'is in lower-case whereas 'FROM' is in upper-case.
+
+    .. code-block:: sql
+        select
+            a
+        FROM foo
+
+    | **Best practice**
+    | Make all keywords either in upper-case or in lower-case
+
+    .. code-block:: sql
+
+        SELECT
+            a
+        FROM foo
+
+        -- Also good
+
+        select
+            a
+        from foo
     """
 
     # Binary operators behave like keywords too.
@@ -984,7 +1175,26 @@ class Rule_L010(BaseCrawler):
 
 @std_rule_set.register
 class Rule_L011(BaseCrawler):
-    """Implicit aliasing of table not allowed. Use explicit `AS` clause."""
+    """Implicit aliasing of table not allowed. Use explicit `AS` clause.
+
+    | **Anti-pattern**
+    | In this example, the alias 'voo' is implicit.
+
+    .. code-block:: sql
+            SELECT
+                voo.a
+            FROM foo voo
+
+    | **Best practice**
+    | Add `AS` to make it explicit.
+
+    .. code-block:: sql
+
+        SELECT
+            voo.a
+        FROM foo AS voo
+
+    """
 
     _target_elems = ('table_expression',)
 
@@ -1052,6 +1262,25 @@ class Rule_L013(BaseCrawler):
             clause e.g. `SELECT 1 + 2 FROM blah`. It will still
             fail if there are multiple columns. (Default `True`)
 
+    | **Anti-pattern**
+    | In this example, there is no alias for both sums.
+
+    .. code-block:: sql
+            SELECT
+                sum(a),
+                sum(b)
+            FROM foo
+
+    | **Best practice**
+    | Add aliases.
+
+    .. code-block:: sql
+
+        SELECT
+            sum(a) AS a_sum,
+            sum(b) AS b_sum
+        FROM foo
+
     """
 
     def __init__(self, allow_scalar=True, **kwargs):
@@ -1107,7 +1336,22 @@ class Rule_L014(Rule_L010):
 
 @std_rule_set.register
 class Rule_L015(BaseCrawler):
-    """DISTINCT used with parentheses."""
+    """DISTINCT used with parentheses.
+
+    | **Anti-pattern**
+    | In this example, parenthesis are not needed.
+
+    .. code-block:: sql
+            SELECT DISTINCT(a) FROM foo
+
+    | **Best practice**
+    | Remove parenthesis.
+
+    .. code-block:: sql
+
+        SELECT DISTINCT a FROM foo
+
+    """
 
     def _eval(self, segment, raw_stack, **kwargs):
         """Uneccessary trailing whitespace.
@@ -1562,7 +1806,26 @@ class Rule_L016(Rule_L003):
 
 @std_rule_set.register
 class Rule_L017(BaseCrawler):
-    """Function name not immediately followed by bracket."""
+    """Function name not immediately followed by bracket.
+
+    | **Anti-pattern**
+    | In this example, there is a space between the function and the parenthesis.
+
+    .. code-block:: sql
+        SELECT
+            sum (a)
+        FROM foo
+
+    | **Best practice**
+    | Remove the space between the function and the parenthesis.
+
+    .. code-block:: sql
+
+         SELECT
+             sum(a)
+         FROM foo
+
+    """
 
     def _eval(self, segment, **kwargs):
         """Function name not immediately followed by bracket.
@@ -1606,7 +1869,32 @@ class Rule_L017(BaseCrawler):
 
 @std_rule_set.register
 class Rule_L018(BaseCrawler):
-    """WITH clause closing bracket should be aligned with WITH keyword."""
+    """WITH clause closing bracket should be aligned with WITH keyword.
+
+    | **Anti-pattern**
+    | The • character represents a space.
+    | In this example, the closing bracket is not aligned with WITH keyword.
+
+    .. code-block:: sql
+
+        WITH zoo AS (
+            SELECT a FROM foo
+        ••••)
+
+        SELECT * FROM zoo
+
+    | **Best practice**
+    | Remove the spaces to align the WITH keyword with the closing bracket.
+
+    .. code-block:: sql
+
+        WITH zoo AS (
+            SELECT a FROM foo
+        )
+
+        SELECT * FROM zoo
+
+    """
 
     _works_on_unparsable = False
 
@@ -1726,6 +2014,27 @@ class Rule_L019(BaseCrawler):
         comma_style (:obj:`str`): The comma style to to
             enforce. One of `trailing`, `leading` (default
             is `trailing`).
+
+    | **Anti-pattern**
+    | There is a leading comma, by default trailing comma are expected.
+
+    .. code-block:: sql
+
+        SELECT
+            a
+            , b
+        FROM foo
+
+    | **Best practice**
+    | Replace the leading comma by a trailing comma.
+
+    .. code-block:: sql
+
+        SELECT
+            a,
+            b
+        FROM foo
+
 
     """
 
@@ -1876,7 +2185,27 @@ class Rule_L020(BaseCrawler):
 
 @std_rule_set.register
 class Rule_L021(BaseCrawler):
-    """Ambiguous use of DISTINCT in select statement with GROUP BY."""
+    """Ambiguous use of DISTINCT in select statement with GROUP BY.
+
+    | **Anti-pattern**
+    | DISTINCT and GROUP BY are conflicting.
+
+    .. code-block:: sql
+
+        SELECT DISTINCT
+            a
+        FROM foo
+        GROUP BY a
+
+    | **Best practice**
+    | Remove DISTINCT or GROUP BY. In our case, removing GROUP BY is better.
+
+    .. code-block:: sql
+
+        SELECT DISTINCT
+            a
+        FROM foo
+    """
 
     def _eval(self, segment, **kwargs):
         """Ambiguous use of DISTINCT in select statement with GROUP BY."""
@@ -1900,7 +2229,30 @@ class Rule_L021(BaseCrawler):
 
 @std_rule_set.register
 class Rule_L022(BaseCrawler):
-    """Blank line expected but not found after CTE definition."""
+    """Blank line expected but not found after CTE definition.
+
+    | **Anti-pattern**
+    | There is no blank line after the CTE.
+
+    .. code-block:: sql
+
+        WITH plop AS (
+            SELECT * FROM foo
+        )
+        SELECT a FROM plop
+
+    | **Best practice**
+    | Add a blank line.
+
+    .. code-block:: sql
+
+        WITH plop AS (
+            SELECT * FROM foo
+        )
+
+        SELECT a FROM plop
+
+    """
 
     def _eval(self, segment, **kwargs):
         """Blank line expected but not found after CTE definition."""
@@ -1945,7 +2297,31 @@ class Rule_L022(BaseCrawler):
 
 @std_rule_set.register
 class Rule_L023(BaseCrawler):
-    """Single whitespace expected after AS in WITH clause."""
+    """Single whitespace expected after AS in WITH clause.
+
+    | **Anti-pattern**
+
+    .. code-block:: sql
+
+        WITH plop AS(
+            SELECT * FROM foo
+        )
+
+        SELECT a FROM plop
+
+
+    | **Best practice**
+    | The • character represents a space.
+    | Add a space after AS.
+
+    .. code-block:: sql
+
+        WITH plop AS•(
+            SELECT * FROM foo
+        )
+
+        SELECT a FROM plop
+    """
 
     expected_mother_segment_type = 'with_compound_statement'
     pre_segment_identifier = ('name', 'AS')
@@ -1990,7 +2366,27 @@ class Rule_L023(BaseCrawler):
 
 @std_rule_set.register
 class Rule_L024(Rule_L023):
-    """Single whitespace expected after USING in JOIN clause."""
+    """Single whitespace expected after USING in JOIN clause.
+
+    | **Anti-pattern**
+
+    .. code-block:: sql
+
+        SELECT b
+        FROM foo
+        LEFT JOIN zoo USING(a)
+
+    | **Best practice**
+    | The • character represents a space.
+    | Add a space after AS.
+
+    .. code-block:: sql
+
+        SELECT b
+        FROM foo
+        LEFT JOIN zoo USING•(a)
+
+    """
 
     expected_mother_segment_type = 'join_clause'
     pre_segment_identifier = ('name', 'USING')
@@ -2000,7 +2396,26 @@ class Rule_L024(Rule_L023):
 
 @std_rule_set.register
 class Rule_L025(Rule_L020):
-    """Tables should not be aliased if that alias is not used."""
+    """Tables should not be aliased if that alias is not used.
+
+    | **Anti-pattern**
+
+    .. code-block:: sql
+
+        SELECT
+            a
+        FROM foo AS zoo
+
+    | **Best practice**
+    | Use the alias or remove it.
+
+    .. code-block:: sql
+
+        SELECT
+            zoo.a
+        FROM foo AS zoo
+
+    """
 
     @staticmethod
     def _extract_type_tbl_reference(reference):
@@ -2042,7 +2457,27 @@ class Rule_L025(Rule_L020):
 
 @std_rule_set.register
 class Rule_L026(Rule_L025):
-    """References cannot reference objects not present in FROM clause."""
+    """References cannot reference objects not present in FROM clause.
+
+    | **Anti-pattern**
+    | In this example, the reference 'vee' has not been declared.
+
+    .. code-block:: sql
+
+        SELECT
+            vee.a
+        FROM foo
+
+    | **Best practice**
+    |  Remove the reference.
+
+    .. code-block:: sql
+
+        SELECT
+            a
+        FROM foo
+
+    """
 
     def _lint_references_and_aliases(self, aliases, references, using_cols, parent_select):
         # A buffer to keep any violations.
@@ -2075,6 +2510,23 @@ class Rule_L027(Rule_L025):
 
     NB: Except if they're present in a USING clause.
 
+    | **Anti-pattern**
+    | In this example, the reference 'vee' has not been declared.
+
+    .. code-block:: sql
+
+        SELECT a, b
+        FROM foo
+        LEFT JOIN vee ON vee.a = foo.a
+
+    | **Best practice**
+    |  Add the references.
+
+    .. code-block:: sql
+
+        SELECT foo.a, vee.b
+        FROM foo
+        LEFT JOIN vee ON vee.a = foo.a
     """
 
     def _lint_references_and_aliases(self, aliases, references, using_cols, parent_select):
@@ -2105,6 +2557,33 @@ class Rule_L028(Rule_L025):
         single_table_references (:obj:`str`): The expectation for references
             in single-table select. One of `qualified`, `unqualified`,
             `consistent` (default is `consistent`).
+
+    | **Anti-pattern**
+    | In this example, only the field `b` is referenced.
+
+    .. code-block:: sql
+
+        SELECT
+            a,
+            foo.b
+        FROM foo
+
+    | **Best practice**
+    |  Remove all the reference or reference all the fields.
+
+    .. code-block:: sql
+
+        SELECT
+            a,
+            b
+        FROM foo
+
+        -- Also good
+
+        SELECT
+            foo.a,
+            foo.b
+        FROM foo
 
     """
 
@@ -2159,10 +2638,28 @@ class Rule_L029(BaseCrawler):
 
     Args:
         only_aliases (:obj:`bool`): Should this rule only raise
-            issues for aiases. By default this is true, and therefore
+            issues for aliases. By default this is true, and therefore
             only flags violations for alias expressions (which are
             directly in control of the sql writer). When set to false
             this rule flags issues for *all* unquoted identifiers.
+
+    | **Anti-pattern**
+    | In this example, SUM function is used as an alias.
+
+    .. code-block:: sql
+
+        SELECT
+            sum.a
+        FROM foo AS sum
+
+    | **Best practice**
+    |  Avoid keywords as the name of an alias.
+
+    .. code-block:: sql
+
+        SELECT
+            vee.a
+        FROM foo AS vee
 
     """
 
@@ -2196,6 +2693,26 @@ class Rule_L030(Rule_L010):
     Args:
         capitalisation_policy (:obj:`str`): The capitalisation policy to
             enforce. One of 'consistent', 'upper', 'lower', 'capitalise'.
+
+    | **Anti-pattern**
+    | In this example, the two SUM functions don't have the same capitalisation.
+
+    .. code-block:: sql
+
+    SELECT
+        sum(a) AS aa,
+        SUM(b) AS bb
+    FROM foo
+
+    | **Best practice**
+    |  Make the case consistent.
+
+    .. code-block:: sql
+
+    SELECT
+        sum(a) AS aa,
+        sum(b) AS bb
+    FROM foo
 
     """
 
