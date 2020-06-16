@@ -265,7 +265,7 @@ class JinjaTemplateInterface(PythonTemplateInterface):
         # No need to import this unless we're using this templater
         from jinja2.sandbox import SandboxedEnvironment  # noqa
         from jinja2 import meta  # noqa
-        import jinja2.nodes  # noqa 
+        import jinja2.nodes  # noqa
         # We explicitly want to preserve newlines.
         env = SandboxedEnvironment(
             keep_trailing_newline=True,
@@ -298,6 +298,7 @@ class JinjaTemplateInterface(PythonTemplateInterface):
             ctx.update(self._extract_macros_from_path(macros_path, env=env, ctx=live_context))
         live_context.update(ctx)
 
+        import ipdb; ipdb.set_trace()
         # Load the template, passing the global context.
         template = env.from_string(in_str, globals=live_context)
         violations = []
@@ -341,7 +342,8 @@ class JinjaTemplateInterface(PythonTemplateInterface):
 
         try:
             # NB: Passing no context. Everything is loaded when the template is loaded.
-            out_str = template.render()
+            import ipdb; ipdb.set_trace()
+            out_str = template.render(live_context)
             return out_str, violations
         except Exception as err:
             # TODO: Add a url here so people can get more help.

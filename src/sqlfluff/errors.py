@@ -135,6 +135,7 @@ class SQLTemplaterError(SQLBaseError):
     _identifier = 'templating'
 
     def __init__(self, *args, **kwargs):
+        import ipdb; ipdb.set_trace()
         self.pos = kwargs.pop('pos', None)
         super(SQLTemplaterError, self).__init__(*args, **kwargs)
 

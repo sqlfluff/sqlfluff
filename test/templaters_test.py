@@ -113,3 +113,12 @@ def assert_structure(yaml_loader, path, code_only=True):
 def test__templater_full(subpath, code_only, yaml_loader):
     """Check structure can be parsed from jinja templated files."""
     assert_structure(yaml_loader, 'test/fixtures/templater/' + subpath, code_only=code_only)
+
+
+@pytest.mark.parametrize("subpath,code_only", [
+    # Macro loading from a folder
+    ('jinja_h_nested_macros/jinja', True)
+])
+def test__templater_nested_dbt_builtin_functions(subpath, code_only, yaml_loader):
+    """Check structure can be parsed from jinja templated files."""
+    assert_structure(yaml_loader, 'test/fixtures/templater/' + subpath, code_only=code_only)
