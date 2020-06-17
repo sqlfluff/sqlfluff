@@ -721,6 +721,7 @@ class CaseExpressionSegment(BaseSegment):
     type = 'case_expression'
     match_grammar = Sequence(
         'CASE',
+        Ref('ExpressionSegment', optional=True),
         Indent,
         AnyNumberOf(
             Sequence(
