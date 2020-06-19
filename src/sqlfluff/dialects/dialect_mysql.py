@@ -7,6 +7,7 @@ https://dev.mysql.com/doc/refman/8.0/en/differences-from-ansi.html
 from ..parser import NamedSegment, OneOf, Ref
 
 from .dialect_ansi import ansi_dialect
+from .ansi_keywords import ansi_unreserved_keywords
 
 mysql_dialect = ansi_dialect.copy_as('mysql')
 
