@@ -47,6 +47,7 @@ Contents
 
    gettingstarted
    realworld
+   vision
    indentation
    rules
    production
