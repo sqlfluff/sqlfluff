@@ -744,6 +744,36 @@ class CaseExpressionSegment(BaseSegment):
     )
 
 
+@ansi_dialect.segment()
+class SimpleCaseExpressionSegment(BaseSegment):
+    """A `CASE foo WHEN` clause."""
+    type = 'simple_case_expression'
+    match_grammar = Sequence(
+        'CASE',
+        Ref('ExpressionSegment'),
+        Indent,
+        AnyNumberOf(
+            Sequence(
+                'WHEN',
+                Indent,
+                Ref('ExpressionSegment'),
+                'THEN',
+                Ref('ExpressionSegment'),
+                Dedent
+            )
+        ),
+        Sequence(
+            'ELSE',
+            Indent,
+            Ref('ExpressionSegment'),
+            Dedent,
+            optional=True
+        ),
+        Dedent,
+        'END'
+    )
+
+
 ansi_dialect.add(
     Expression_A_Grammar=Sequence(
         OneOf(
@@ -821,6 +851,7 @@ ansi_dialect.add(
     Expression_C_Grammar=OneOf(
         Ref('Expression_D_Grammar'),
         Ref('CaseExpressionSegment'),
+        Ref('SimpleCaseExpressionSegment'),
         Sequence(
             'EXISTS',
             Ref('SelectStatementSegment')
