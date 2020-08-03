@@ -950,6 +950,7 @@ class Rule_L008(BaseCrawler):
     | In this example, there is no space between the comma and 'zoo'.
 
     .. code-block:: sql
+
         SELECT
             *
         FROM foo
@@ -1042,6 +1043,7 @@ class Rule_L010(BaseCrawler):
     | In this example, 'select 'is in lower-case whereas 'FROM' is in upper-case.
 
     .. code-block:: sql
+
         select
             a
         FROM foo
@@ -1181,6 +1183,7 @@ class Rule_L011(BaseCrawler):
     | In this example, the alias 'voo' is implicit.
 
     .. code-block:: sql
+
             SELECT
                 voo.a
             FROM foo voo
@@ -1266,6 +1269,7 @@ class Rule_L013(BaseCrawler):
     | In this example, there is no alias for both sums.
 
     .. code-block:: sql
+
             SELECT
                 sum(a),
                 sum(b)
@@ -1342,7 +1346,8 @@ class Rule_L015(BaseCrawler):
     | In this example, parenthesis are not needed.
 
     .. code-block:: sql
-            SELECT DISTINCT(a) FROM foo
+
+        SELECT DISTINCT(a) FROM foo
 
     | **Best practice**
     | Remove parenthesis.
@@ -1812,6 +1817,7 @@ class Rule_L017(BaseCrawler):
     | In this example, there is a space between the function and the parenthesis.
 
     .. code-block:: sql
+
         SELECT
             sum (a)
         FROM foo
@@ -1821,9 +1827,9 @@ class Rule_L017(BaseCrawler):
 
     .. code-block:: sql
 
-         SELECT
-             sum(a)
-         FROM foo
+        SELECT
+            sum(a)
+        FROM foo
 
     """
 
@@ -2699,20 +2705,20 @@ class Rule_L030(Rule_L010):
 
     .. code-block:: sql
 
-    SELECT
-        sum(a) AS aa,
-        SUM(b) AS bb
-    FROM foo
+        SELECT
+            sum(a) AS aa,
+            SUM(b) AS bb
+        FROM foo
 
     | **Best practice**
     |  Make the case consistent.
 
     .. code-block:: sql
 
-    SELECT
-        sum(a) AS aa,
-        sum(b) AS bb
-    FROM foo
+        SELECT
+            sum(a) AS aa,
+            sum(b) AS bb
+        FROM foo
 
     """
 
