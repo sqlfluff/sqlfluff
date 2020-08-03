@@ -5,7 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.3.5] - 2020-08-03
+
+### Added
+
+- Patterns and Anti-patterns in documentation. Thanks [@flpezet](https://github.com/flpezet).
+- Functions in `GROUP BY`. Thanks [@flpezet](https://github.com/flpezet).
 
 ### Changed
 
@@ -13,6 +18,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   edge cases. Also added some logging deeper in the parser.
 - Added in the `SelectableGrammar` and some related segments to make it
   easier to refer to _select-like_ things in other grammars.
+- Fixes to `CASE` statement parsing. Thanks [@azhard](https://github.com/azhard).
+- Fix to snowflake `SAMPLE` implementation. Thanks [@rkm3](https://github.com/rkm3).
+- Numerous docs fixes. Thanks [@SimonStJG](https://github.com/SimonStJG),
+  [@flpezet](https://github.com/flpezet), [@s-pace](https://github.com/s-pace),
+  [@nolanbconaway](https://github.com/nolanbconaway).
 
 ## [0.3.4] - 2020-05-13
 
