@@ -1,4 +1,11 @@
-"""Standard SQL Linting Rules."""
+"""Standard SQL Linting Rules.
+
+NB: In docstrings, when marking whitespace, do not use code highlighting
+in any of the examples for that rule. Lexing with fail when encontering the
+explicit '•' amd '->' characters (space and tab respectively) and so
+highglighting will ail for those examples. For consistency, any passing
+examples in the same rule should also be un-highlighted.
+"""
 
 import itertools
 
@@ -15,7 +22,7 @@ class Rule_L001(BaseCrawler):
     | **Anti-pattern**
     | The • character represents a space.
 
-    .. code-block:: sql
+    .. code-block::
 
         SELECT
             a
@@ -24,7 +31,7 @@ class Rule_L001(BaseCrawler):
     | **Best practice**
     | Remove trailing spaces.
 
-    .. code-block:: sql
+    .. code-block::
 
         SELECT
             a
@@ -72,7 +79,7 @@ class Rule_L002(BaseCrawler):
     | The • character represents a space and the → character represents a tab.
     | In this example, the second line contains two spaces and one tab.
 
-    .. code-block:: sql
+    .. code-block::
 
         SELECT
         ••→a
@@ -81,7 +88,7 @@ class Rule_L002(BaseCrawler):
     | **Best practice**
     | Change the line to use spaces only.
 
-    .. code-block:: sql
+    .. code-block::
 
         SELECT
         ••••a
@@ -163,7 +170,7 @@ class Rule_L003(BaseCrawler):
     | The • character represents a space.
     | In this example, the third line contains five spaces instead of four.
 
-    .. code-block:: sql
+    .. code-block::
 
         SELECT
         ••••a,
@@ -174,7 +181,7 @@ class Rule_L003(BaseCrawler):
     | **Best practice**
     | Change the indentation to use a multiple of four spaces.
 
-    .. code-block:: sql
+    .. code-block::
 
         SELECT
         ••••a,
@@ -670,7 +677,7 @@ class Rule_L004(BaseCrawler):
     | The • character represents a space and the → character represents a tab.
     | In this example, the second line is indented with spaces and the third one with tab.
 
-    .. code-block:: sql
+    .. code-block::
 
         SELECT
         ••••a,
@@ -680,7 +687,7 @@ class Rule_L004(BaseCrawler):
     | **Best practice**
     | Change the line to use spaces only.
 
-    .. code-block:: sql
+    .. code-block::
 
         SELECT
         ••••a,
@@ -720,7 +727,7 @@ class Rule_L005(BaseCrawler):
     | The • character represents a space.
     | There is an extra space in line two before the comma.
 
-    .. code-block:: sql
+    .. code-block::
 
         SELECT
             a•,
@@ -730,7 +737,7 @@ class Rule_L005(BaseCrawler):
     | **Best practice**
     | Remove the space before the comma.
 
-    .. code-block:: sql
+    .. code-block::
 
         SELECT
             a,
@@ -949,7 +956,7 @@ class Rule_L008(BaseCrawler):
     | The • character represents a space.
     | In this example, there is no space between the comma and 'zoo'.
 
-    .. code-block:: sql
+    .. code-block::
 
         SELECT
             *
@@ -959,7 +966,7 @@ class Rule_L008(BaseCrawler):
     | **Best practice**
     | Keep a single space after the comma.
 
-    .. code-block:: sql
+    .. code-block::
 
         SELECT
             *
@@ -1184,9 +1191,9 @@ class Rule_L011(BaseCrawler):
 
     .. code-block:: sql
 
-            SELECT
-                voo.a
-            FROM foo voo
+        SELECT
+            voo.a
+        FROM foo voo
 
     | **Best practice**
     | Add `AS` to make it explicit.
@@ -1270,10 +1277,10 @@ class Rule_L013(BaseCrawler):
 
     .. code-block:: sql
 
-            SELECT
-                sum(a),
-                sum(b)
-            FROM foo
+        SELECT
+            sum(a),
+            sum(b)
+        FROM foo
 
     | **Best practice**
     | Add aliases.
@@ -1884,7 +1891,7 @@ class Rule_L018(BaseCrawler):
     | The • character represents a space.
     | In this example, the closing bracket is not aligned with WITH keyword.
 
-    .. code-block:: sql
+    .. code-block::
 
         WITH zoo AS (
             SELECT a FROM foo
@@ -1895,7 +1902,7 @@ class Rule_L018(BaseCrawler):
     | **Best practice**
     | Remove the spaces to align the WITH keyword with the closing bracket.
 
-    .. code-block:: sql
+    .. code-block::
 
         WITH zoo AS (
             SELECT a FROM foo
@@ -2324,7 +2331,7 @@ class Rule_L023(BaseCrawler):
 
     | **Anti-pattern**
 
-    .. code-block:: sql
+    .. code-block::
 
         WITH plop AS(
             SELECT * FROM foo
@@ -2338,7 +2345,7 @@ class Rule_L023(BaseCrawler):
     | Add a space after AS, to avoid confusing
     | it for a function.
 
-    .. code-block:: sql
+    .. code-block::
 
         WITH plop AS•(
             SELECT * FROM foo
@@ -2394,7 +2401,7 @@ class Rule_L024(Rule_L023):
 
     | **Anti-pattern**
 
-    .. code-block:: sql
+    .. code-block::
 
         SELECT b
         FROM foo
@@ -2405,7 +2412,7 @@ class Rule_L024(Rule_L023):
     | Add a space after USING, to avoid confusing it
     | for a function.
 
-    .. code-block:: sql
+    .. code-block::
 
         SELECT b
         FROM foo
