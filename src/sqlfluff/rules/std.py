@@ -713,7 +713,7 @@ class Rule_L004(BaseCrawler):
 class Rule_L005(BaseCrawler):
     """Commas should not have whitespace directly before them.
 
-    Unless it's an indent.We deal with trailing/leading commas
+    Unless it's an indent. Trailing/leading commas are dealt with
     in a different rule.
 
     | **Anti-pattern**
@@ -1343,18 +1343,21 @@ class Rule_L015(BaseCrawler):
     """DISTINCT used with parentheses.
 
     | **Anti-pattern**
-    | In this example, parenthesis are not needed.
+    | In this example, parenthesis are not needed and confuse
+    | DISTINCT with a function. The parethesis can also be misleading
+    | in which columns they apply to.
 
     .. code-block:: sql
 
-        SELECT DISTINCT(a) FROM foo
+        SELECT DISTINCT(a), b FROM foo
 
     | **Best practice**
-    | Remove parenthesis.
+    | Remove parenthesis to be clear that the DISTINCT applies to
+    | both columns.
 
     .. code-block:: sql
 
-        SELECT DISTINCT a FROM foo
+        SELECT DISTINCT a, b FROM foo
 
     """
 
@@ -2022,23 +2025,36 @@ class Rule_L019(BaseCrawler):
             is `trailing`).
 
     | **Anti-pattern**
-    | There is a leading comma, by default trailing comma are expected.
+    | There is a mixture of leading and trailing commas.
 
     .. code-block:: sql
 
         SELECT
             a
-            , b
+            , b,
+            c
         FROM foo
 
     | **Best practice**
-    | Replace the leading comma by a trailing comma.
+    | By default sqlfluff prefers trailing commas, however it
+    | is configurable for leading commas. Whichever option you chose
+    | it does expect you to be consistent.
 
     .. code-block:: sql
 
         SELECT
             a,
-            b
+            b,
+            c
+        FROM foo
+
+        -- Alternatively, set the configuration file to 'leading'
+        -- and then the following would be acceptable:
+
+        SELECT
+            a
+            , b
+            , c
         FROM foo
 
 
@@ -2238,7 +2254,8 @@ class Rule_L022(BaseCrawler):
     """Blank line expected but not found after CTE definition.
 
     | **Anti-pattern**
-    | There is no blank line after the CTE.
+    | There is no blank line after the CTE. In queries with many
+    | CTEs this hinders readability.
 
     .. code-block:: sql
 
@@ -2318,7 +2335,8 @@ class Rule_L023(BaseCrawler):
 
     | **Best practice**
     | The • character represents a space.
-    | Add a space after AS.
+    | Add a space after AS, to avoid confusing
+    | it for a function.
 
     .. code-block:: sql
 
@@ -2384,7 +2402,8 @@ class Rule_L024(Rule_L023):
 
     | **Best practice**
     | The • character represents a space.
-    | Add a space after AS.
+    | Add a space after USING, to avoid confusing it
+    | for a function.
 
     .. code-block:: sql
 
@@ -2413,13 +2432,20 @@ class Rule_L025(Rule_L020):
         FROM foo AS zoo
 
     | **Best practice**
-    | Use the alias or remove it.
+    | Use the alias or remove it. An usused alias makes code
+    | harder to read without changing any functionality.
 
     .. code-block:: sql
 
         SELECT
             zoo.a
         FROM foo AS zoo
+
+        -- Alternatively...
+
+        SELECT
+            a
+        FROM foo
 
     """
 
@@ -2517,7 +2543,8 @@ class Rule_L027(Rule_L025):
     NB: Except if they're present in a USING clause.
 
     | **Anti-pattern**
-    | In this example, the reference 'vee' has not been declared.
+    | In this example, the reference 'vee' has not been declared
+    | and the variables 'a' and 'b' are potentially ambiguous.
 
     .. code-block:: sql
 
