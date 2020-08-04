@@ -27,7 +27,7 @@ snowflake_dialect.insert_lexer_struct(
 
 snowflake_dialect.sets('unreserved_keywords').update([
     'LATERAL',
-    'BERNOILLI',
+    'BERNOULLI',
     'BLOCK',
     'SEED'
 ])
@@ -202,7 +202,7 @@ class SamplingExpressionSegment(BaseSegment):
     type = 'snowflake_sample_expression'
     match_grammar = Sequence(
         OneOf('SAMPLE', 'TABLESAMPLE'),
-        OneOf('BERNOILLI', 'ROW', 'SYSTEM', 'BLOCK', optional=True),
+        OneOf('BERNOULLI', 'ROW', 'SYSTEM', 'BLOCK', optional=True),
         Bracketed(
             Ref('NumericLiteralSegment'),
             Ref.keyword('ROWS', optional=True)

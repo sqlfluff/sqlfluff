@@ -217,7 +217,7 @@ From here, there are several more things to explore.
   with passing sqlfluff directories rather than just single files.
   Try running :code:`sqlfluff lint .` (to lint every sql file in the
   current folder) or :code:`sqlfluff lint path/to/my/sqlfiles`.
-* To find out more about which ruels are available, see :ref:`ruleref`.
+* To find out more about which rules are available, see :ref:`ruleref`.
 * To find out more about configuring *sqlfluff* and what other options
   are available, see :ref:`config`.
 

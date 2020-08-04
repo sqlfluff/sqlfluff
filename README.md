@@ -46,6 +46,7 @@ L:   1 | P:  27 | L001 | Unnecessary trailing whitespace
 # Usage
 
 For more details on usage see the docs on readthedocs [here](http://sqlfluff.readthedocs.io).
+You can also explore fluff using the [SQLFluff online](https://sqlfluff-online.herokuapp.com/) website.
 
 # Roadmap
 

@@ -586,7 +586,8 @@ class SelectClauseSegment(BaseSegment):
         Indent,
         Delimited(
             Ref('SelectTargetElementSegment'),
-            delimiter=Ref('CommaSegment')
+            delimiter=Ref('CommaSegment'),
+            allow_trailing=True
         ),
         Dedent
     )
@@ -718,28 +719,56 @@ class FromClauseSegment(BaseSegment):
 class CaseExpressionSegment(BaseSegment):
     """A `CASE WHEN` clause."""
     type = 'case_expression'
-    match_grammar = Sequence(
-        'CASE',
-        Indent,
-        AnyNumberOf(
+    match_grammar = OneOf(
+        Sequence(
+            'CASE',
+            Indent,
+            AnyNumberOf(
+                Sequence(
+                    'WHEN',
+                    Indent,
+                    Ref('ExpressionSegment'),
+                    'THEN',
+                    Ref('ExpressionSegment'),
+                    Dedent
+                )
+            ),
             Sequence(
-                'WHEN',
+                'ELSE',
                 Indent,
                 Ref('ExpressionSegment'),
-                'THEN',
-                Ref('ExpressionSegment'),
-                Dedent
-            )
+                Dedent,
+                optional=True
+            ),
+            Dedent,
+            'END'
         ),
         Sequence(
-            'ELSE',
+            'CASE',
+            OneOf(
+                Ref('ExpressionSegment')
+            ),
             Indent,
-            Ref('ExpressionSegment'),
+            AnyNumberOf(
+                Sequence(
+                    'WHEN',
+                    Indent,
+                    Ref('ExpressionSegment'),
+                    'THEN',
+                    Ref('ExpressionSegment'),
+                    Dedent
+                )
+            ),
+            Sequence(
+                'ELSE',
+                Indent,
+                Ref('ExpressionSegment'),
+                Dedent,
+                optional=True
+            ),
             Dedent,
-            optional=True
-        ),
-        Dedent,
-        'END'
+            'END'
+        )
     )
 
 
@@ -787,6 +816,11 @@ ansi_dialect.add(
                             Ref('SelectableGrammar')
                         )
                     )
+                ),
+                Sequence(
+                    Ref.keyword('NOT', optional=True),
+                    'IN',
+                    Ref('FunctionSegment'),  # E.g. UNNEST()
                 ),
                 Sequence(
                     'IS',
@@ -956,7 +990,9 @@ class GroupByClauseSegment(BaseSegment):
             OneOf(
                 Ref('ObjectReferenceSegment'),
                 # Can `GROUP BY 1`
-                Ref('NumericLiteralSegment')
+                Ref('NumericLiteralSegment'),
+                # Can `GROUP BY coalesce(col, 1)`
+                Ref('ExpressionSegment')
             ),
             delimiter=Ref('CommaSegment'),
             terminator=OneOf(

@@ -1,0 +1,4 @@
+SELECT
+    COALESCE(id, 1)
+FROM some_table
+GROUP BY COALESCE(id, 1)
