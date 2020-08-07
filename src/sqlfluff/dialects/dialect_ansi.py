@@ -336,9 +336,9 @@ ansi_dialect.add(
             'AS',
             Ref('DatatypeSegment')
         ),
-        # An extract-like function
+        # An extract-like or substring-like function
         Sequence(
-            Ref('DatetimeUnitSegment'),
+            OneOf(Ref('DatetimeUnitSegment'), Ref('ExpressionSegment')),
             'FROM',
             Ref('ExpressionSegment')
         ),
