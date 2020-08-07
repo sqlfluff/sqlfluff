@@ -27,6 +27,7 @@ to.
 
 .. rubric:: Notes
 
-.. [#f1] Credit to `this article`_ for highlighting the importance of a good vision.
+.. [#f1] Credit to `this article`_ for highlighting the importance of a
+   good vision.
 
 .. _`this article`: https://opensource.com/business/16/6/bad-practice-foss-projects-management
