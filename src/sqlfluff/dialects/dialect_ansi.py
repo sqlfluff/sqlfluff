@@ -1119,7 +1119,7 @@ class WithCompoundStatementSegment(BaseSegment):
                 Ref('SingleIdentifierGrammar'),
                 'AS',
                 Bracketed(
-                    Ref('NonWithSelectableGrammar')
+                    Ref('SelectableGrammar')
                 )
             ),
             delimiter=Ref('CommaSegment'),
