@@ -10,8 +10,6 @@ import appdirs
 from .dialects import dialect_selector
 from .templaters import templater_selector
 
-
-
 global_loader = None
 """:obj:`ConfigLoader`: A variable to hold the single module loader when loaded.
 
@@ -252,8 +250,7 @@ class ConfigLoader:
         user_config_dir_path = appdirs.user_config_dir(appname, appauthor)
         if os.path.exists(user_config_dir_path):
             return self.load_config_at_path(user_config_dir_path)
-        else:
-            return {}
+        return {}
 
     def load_user_config(self):
         """Load the config from the user's home directory."""
