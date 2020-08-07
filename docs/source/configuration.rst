@@ -42,15 +42,17 @@ steps overriding those from earlier:
 0. *[...and this one doesn't really count]* There's a default config as
    part of the sqlfluff package. You can find this below, in the
    :ref:`defaultconfig` section.
-1. It will look in the user's home directory (~), for any of the
-   filenames above in the main :ref:`config` section. If
-   multiple are present, they will *patch*/*override* eachother
-   in the order above.
-2. It will look for the same files in the current working directory.
-3. *[if parsing a file in a subdirectory of the current working directory]*
+1. It will look in the user's os-specific app config directory. On OSX this is
+   `~/Library/Preferences/sqlfluff`, Unix is `~/.config/sqlfluff`, Windows is
+   `<home>\AppData\Local\alanmcruickshank\sqlfluff`, for any of the filenames
+   above in the main :ref:`config` section. If multiple are present, they will
+   *patch*/*override* eachother in the order above.
+2. It will look for the same files in the user's home directory (~).
+3. It will look for the same files in the current working directory.
+4. *[if parsing a file in a subdirectory of the current working directory]*
    It will look for the same files in every subdirectory between the
    current working dir and the file directory.
-4. It will look for the same files in the directory containing the file
+5. It will look for the same files in the directory containing the file
    being linted.
 
 This whole structure leads to efficient configuration, in particular

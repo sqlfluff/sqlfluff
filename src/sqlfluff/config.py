@@ -5,8 +5,11 @@ import os.path
 import sys
 import configparser
 
+import appdirs
+
 from .dialects import dialect_selector
 from .templaters import templater_selector
+
 
 
 global_loader = None
@@ -242,6 +245,13 @@ class ConfigLoader:
         self._config_cache[str(path)] = c
         return c
 
+    def load_user_appdir_config(self):
+        """Load the config from the user's OS specific appdir config directory."""
+        appname = 'sqlfluff'
+        appauthor = 'alanmcruickshank'
+        user_config_dir_path = appdirs.user_config_dir(appname, appauthor)
+        return self.load_config_at_path(user_config_dir_path)
+
     def load_user_config(self):
         """Load the config from the user's home directory."""
         user_home_path = os.path.expanduser("~")
@@ -249,6 +259,7 @@ class ConfigLoader:
 
     def load_config_up_to_path(self, path):
         """Loads a selection of config files from both the path and it's parent paths."""
+        user_appdir_config = self.load_user_appdir_config()
         user_config = self.load_user_config()
 
         working_path = os.getcwd()
@@ -283,9 +294,9 @@ class ConfigLoader:
             # we have divergent paths, we can only load config for that path and global
             config_stack.append(self.load_config_at_path(given_path))
 
-        # The lowest priority is the user config, then increasingly the configs closest
-        # to the file being directly linted.
-        return nested_combine(user_config, *config_stack)
+        # The lowest priority is the user appdir config, then home dir config,
+        # then increasingly the configs closest to the file being directly linted.
+        return nested_combine(user_appdir_config, user_config, *config_stack)
 
 
 class FluffConfig:

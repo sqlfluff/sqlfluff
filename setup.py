@@ -86,7 +86,9 @@ setup(
         # Used for performance profiling
         'bench-it',
         # Used for .sqlfluffignore
-        "pathspec"
+        "pathspec",
+        # Used for finding os-specific application config dirs
+        "appdirs"
     ],
     extras_require={
         # eg:
