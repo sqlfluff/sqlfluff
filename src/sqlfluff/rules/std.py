@@ -2133,7 +2133,7 @@ class Rule_L020(BaseCrawler):
                     # Reference the element, not the string.
                     anchor=a2[1],
                     description=("Duplicate table alias {0!r}. Table "
-                                 "aliases should be unique.").format(a2.raw)
+                                 "aliases should be unique.").format(a2[0])
                 )]
         return None
 
