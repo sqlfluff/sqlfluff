@@ -250,7 +250,10 @@ class ConfigLoader:
         appname = 'sqlfluff'
         appauthor = 'alanmcruickshank'
         user_config_dir_path = appdirs.user_config_dir(appname, appauthor)
-        return self.load_config_at_path(user_config_dir_path)
+        if os.path.exists(user_config_dir_path):
+            return self.load_config_at_path(user_config_dir_path)
+        else:
+            return {}
 
     def load_user_config(self):
         """Load the config from the user's home directory."""
