@@ -195,8 +195,9 @@ def do_fixes(lnt, result, **kwargs):
 @click.option('-f', '--force', is_flag=True,
               help=('skip the confirmation prompt and go straight to applying '
                     'fixes. **Use this with caution.**'))
+@click.option('--fixed-suffix', default=None, help='An optional suffix to add to fixed files.')
 @click.argument('paths', nargs=-1)
-def fix(force, paths, **kwargs):
+def fix(force, paths, fixed_suffix='', **kwargs):
     """Fix SQL files.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -241,7 +242,8 @@ def fix(force, paths, **kwargs):
             result.num_violations(types=SQLLintError, fixable=True)))
         if force:
             click.echo('FORCE MODE: Attempting fixes...')
-            success = do_fixes(lnt, result, verbosity=verbose, types=SQLLintError)
+            success = do_fixes(lnt, result, verbosity=verbose, types=SQLLintError,
+                               fixed_file_suffix=fixed_suffix)
             if not success:
                 sys.exit(1)
         else:
@@ -250,7 +252,8 @@ def fix(force, paths, **kwargs):
             click.echo('...')
             if c == 'y':
                 click.echo('Attempting fixes...')
-                success = do_fixes(lnt, result, verbosity=verbose, types=SQLLintError)
+                success = do_fixes(lnt, result, verbosity=verbose, types=SQLLintError,
+                                   fixed_file_suffix=fixed_suffix)
                 if not success:
                     sys.exit(1)
             elif c == 'n':

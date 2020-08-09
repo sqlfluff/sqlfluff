@@ -303,7 +303,7 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
         # The success metric here is whether anything ACTUALLY changed.
         return write_buff, write_buff != self.file_mask[0]
 
-    def persist_tree(self, verbosity=0):
+    def persist_tree(self, verbosity=0, suffix=''):
         """Persist changes to the given path.
 
         We use the file_mask to do a safe merge, avoiding any templated
@@ -318,8 +318,13 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
         write_buff, success = self.fix_string(verbosity=verbosity)
 
         if success:
+            fname = self.path
+            # If there is a suffix specified, then use it.s
+            if suffix:
+                root, ext = os.path.splitext(fname)
+                fname = root + suffix + ext
             # Actually write the file.
-            with open(self.path, 'w') as f:
+            with open(fname, 'w') as f:
                 f.write(write_buff)
 
         # TODO: Make return value of persist_changes() a more interesting result and then format it
@@ -376,7 +381,8 @@ class LintedPath:
             violations=sum(file.num_violations() for file in self.files)
         )
 
-    def persist_changes(self, verbosity=0, output_func=None, **kwargs):
+    def persist_changes(self, verbosity=0, output_func=None, fixed_file_suffix='',
+                        **kwargs):
         """Persist changes to files in the given path.
 
         This also logs the output using the output_func if present.
@@ -385,7 +391,8 @@ class LintedPath:
         buffer = {}
         for file in self.files:
             if file.num_violations(fixable=True, **kwargs) > 0:
-                buffer[file.path] = file.persist_tree(verbosity=verbosity)
+                buffer[file.path] = file.persist_tree(
+                    verbosity=verbosity, suffix=fixed_file_suffix)
                 result = buffer[file.path]
             else:
                 buffer[file.path] = True
