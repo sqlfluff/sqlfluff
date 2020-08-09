@@ -38,7 +38,7 @@ ansi_dialect.set_lexer_struct([
     ("single_quote", "regex", r"'[^']*'", dict(is_code=True)),
     ("double_quote", "regex", r'"[^"]*"', dict(is_code=True)),
     ("back_quote", "regex", r"`[^`]*`", dict(is_code=True)),
-    ("numeric_literal", "regex", r"([0-9]+(\.[0-9]+)?)", dict(is_code=True)),
+    ("numeric_literal", "regex", r"([0-9]+(\.[0-9]+)?)|(\.[0-9]+)", dict(is_code=True)),
     ("not_equal", "regex", r"!=|<>", dict(is_code=True)),
     ("greater_than_or_equal", "regex", r">=", dict(is_code=True)),
     ("less_than_or_equal", "regex", r"<=", dict(is_code=True)),
