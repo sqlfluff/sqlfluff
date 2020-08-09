@@ -4,5 +4,5 @@ benchmarks:
     - name: B_001_package
       cmd: ['sqlfluff', 'parse', '--bench', 'benchmarks/bench_001_package.sql']
     - name: B_002_pearson
-      cmd: ['sqlfluff', 'fix', '--rules', 'L001,L003,L006,L008,L010,L011,L016,L018,L019,L022,L023,L030',
-            'benchmarks/bench_002/bench_002_pearson.sql']
+      cmd: ['sqlfluff', 'fix', '-f', '--rules', 'L001,L003,L006,L008,L010,L011,L016,L018,L019,L022,L023,L030',
+            '--fixed-suffix', '_fix', 'benchmarks/bench_002/bench_002_pearson.sql']
