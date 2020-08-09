@@ -53,6 +53,8 @@ def common_options(f):
                            "run. For example `--ignore parsing` would mean that any parsing errors "
                            "are ignored and don't influence the success or fail of a run. Multiple "
                            "options are possible if comma seperated e.g. `--ignore parsing,templating`."))(f)
+    f = click.option('--bench', is_flag=True,
+                     help='Set this flag to engage the benchmarking tool output.')(f)
     return f
 
 
@@ -196,8 +198,10 @@ def do_fixes(lnt, result, **kwargs):
               help=('skip the confirmation prompt and go straight to applying '
                     'fixes. **Use this with caution.**'))
 @click.option('--fixed-suffix', default=None, help='An optional suffix to add to fixed files.')
+@click.option('-s', '--no-safety', is_flag=True,
+              help=('Disable the safety of requiring --rules to be specified. **Use this with caution.**'))
 @click.argument('paths', nargs=-1)
-def fix(force, paths, fixed_suffix='', **kwargs):
+def fix(force, paths, bench=False, fixed_suffix='', no_safety=False, **kwargs):
     """Fix SQL files.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -209,13 +213,18 @@ def fix(force, paths, fixed_suffix='', **kwargs):
     lnt = get_linter(c, silent=('-',) == paths)
     verbose = c.get('verbose')
 
+    bencher = BenchIt()
+
     config_string = format_config(lnt, verbose=verbose)
     if len(config_string) > 0:
         lnt.log(config_string)
     # Check that if fix is specified, that we have picked only a subset of rules
-    if lnt.config.get('rule_whitelist') is None:
+    if no_safety:
+        click.echo(colorize('NO SAFETY', 'red') + ': Attempting fixes for all enabled rules.')
+    elif lnt.config.get('rule_whitelist') is None:
         lnt.log(("The fix option is only available in combination"
-                 " with --rules. This is for your own safety!"))
+                 " with --rules. This is for your own safety! To"
+                 " disable this safety feature use --no-safety or --s."))
         sys.exit(1)
 
     # handle stdin case. should output formatted sql to stdout and nothing else.
@@ -241,7 +250,7 @@ def fix(force, paths, fixed_suffix='', **kwargs):
         click.echo("{0} fixable linting violations found".format(
             result.num_violations(types=SQLLintError, fixable=True)))
         if force:
-            click.echo('FORCE MODE: Attempting fixes...')
+            click.echo(colorize('FORCE MODE', 'red') + ': Attempting fixes...')
             success = do_fixes(lnt, result, verbosity=verbose, types=SQLLintError,
                                fixed_file_suffix=fixed_suffix)
             if not success:
@@ -266,6 +275,11 @@ def fix(force, paths, fixed_suffix='', **kwargs):
         if result.num_violations(types=SQLLintError, fixable=False) > 0:
             click.echo("  [{0} unfixable linting violations found]".format(
                 result.num_violations(types=SQLLintError, fixable=False)))
+
+    if bench:
+        lnt.log("\n\n==== bencher stats ====")
+        bencher.display()
+
     sys.exit(0)
 
 
@@ -280,8 +294,6 @@ def fix(force, paths, fixed_suffix='', **kwargs):
               help='What format to return the parse result in.')
 @click.option('--profiler', is_flag=True,
               help='Set this flag to engage the python profiler.')
-@click.option('--bench', is_flag=True,
-              help='Set this flag to engage the benchmarking tool output.')
 @click.option('--nofail', is_flag=True,
               help=('If set, the exit code will always be zero, regardless of violations '
                     'found. This is potentially useful during rollout.'))

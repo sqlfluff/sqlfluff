@@ -5,7 +5,13 @@ import time
 from collections import namedtuple
 import logging
 
-from difflib import SequenceMatcher
+# Attempt to use the C version for a speedup on comparisons
+# if it's present. If not just use the normal one.
+try:
+    from cdifflib import CSequenceMatcher as SequenceMatcher
+except ImportError:
+    from difflib import SequenceMatcher
+
 from benchit import BenchIt
 import pathspec
 
@@ -104,6 +110,9 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
         It returns a list of tuples ('equal|replace|delete|insert', ia1, ia2, ib1, ib2).
 
         """
+        bencher = BenchIt()
+        bencher("fix_string: start")
+
         # Do we have enough information to actually fix the file?
         if any(elem is None for elem in self.file_mask):
             verbosity_logger(
@@ -114,14 +123,18 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
         verbosity_logger("Persisting file masks: {0}".format(self.file_mask), verbosity=verbosity)
         # Compare Templated with Raw
         diff_templ = SequenceMatcher(autojunk=None, a=self.file_mask[0], b=self.file_mask[1])
+        bencher("fix_string: Match 0&1")
         diff_templ_codes = diff_templ.get_opcodes()
         verbosity_logger("Templater diff codes: {0}".format(diff_templ_codes), verbosity=verbosity)
 
+        bencher("fix_string: Got Opcodes 0&1")
         # Compare Fixed with Templated
         diff_fix = SequenceMatcher(autojunk=None, a=self.file_mask[1], b=self.file_mask[2])
+        bencher("fix_string: Matched 1&2")
         # diff_fix = SequenceMatcher(autojunk=None, a=self.file_mask[1][0], b=self.file_mask[2][0])
         diff_fix_codes = diff_fix.get_opcodes()
         verbosity_logger("Fixing diff codes: {0}".format(diff_fix_codes), verbosity=verbosity)
+        bencher("fix_string: Got Opcodes 1&2")
 
         # If diff_templ isn't the same then we should just keep the template. If there *was*
         # a fix in that space, then we should raise an issue
@@ -132,7 +145,9 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
         # index in raw, templ and fix
         idx = (0, 0, 0)
         loop_idx = 0
+        bencher("fix_string: Loop Setup")
         while True:
+            # TODO: Remove. Slowdown is BEFORE here.
             loop_idx += 1
             verbosity_logger(
                 "{0:04d}: Write Loop: idx:{1}, buff:{2!r}".format(loop_idx, idx, write_buff),
@@ -300,6 +315,7 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
                      "issue on github with the query and rules you're trying to "
                      "fix.").format(templ_block[0]))
 
+        bencher("fix_string: Fixing loop done")
         # The success metric here is whether anything ACTUALLY changed.
         return write_buff, write_buff != self.file_mask[0]
 
