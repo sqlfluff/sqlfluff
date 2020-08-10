@@ -73,6 +73,9 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     ('L005', 'fail', 'SELECT 1 ,4', 'SELECT 1,4', None),
     ('L008', 'pass', 'SELECT 1, 4', None, None),
     ('L008', 'fail', 'SELECT 1,   4', 'SELECT 1, 4', None),
+    ('L013', 'pass', 'SELECT *, foo from blah', None, None),
+    ('L013', 'fail', 'SELECT upper(foo), bar from blah', None, None),
+    ('L013', 'pass', 'SELECT upper(foo) as foo_up, bar from blah', None, None),
     ('L014', 'pass', 'SELECT a, b', None, None),
     ('L014', 'pass', 'SELECT A, B', None, None),
     # Check we get fails for using DISTINCT apparently incorrectly
