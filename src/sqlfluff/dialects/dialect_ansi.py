@@ -360,7 +360,14 @@ ansi_dialect.add(
     # Optional OVER suffix for window functions.
     # This is supported in biquery & postgres (and it's derivatives)
     # and so is included here for now.
-    PostFunctionGrammar=Ref('OverClauseSegment')
+    PostFunctionGrammar=Sequence(
+        Sequence(
+            OneOf('IGNORE', 'RESPECT'),
+            'NULLS',
+            optional=True
+        ),
+        Ref('OverClauseSegment')
+    )
 )
 
 
