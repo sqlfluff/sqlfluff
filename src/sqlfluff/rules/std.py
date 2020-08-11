@@ -1310,7 +1310,7 @@ class Rule_L013(BaseCrawler):
         """
         if segment.type == 'select_target_element':
             if not any(e.type == 'alias_expression' for e in segment.segments):
-                types = {e.type for e in segment.segments}
+                types = {e.type for e in segment.segments if e.name != 'star'}
                 unallowed_types = types - {'whitespace', 'newline', 'object_reference'}
                 if len(unallowed_types) > 0:
                     # No fixes, because we don't know what the alias should be,
@@ -1325,7 +1325,7 @@ class Rule_L013(BaseCrawler):
                         else:
                             return None
                     else:
-                        # Just erro if we don't care.
+                        # Just error if we don't care.
                         return LintResult(anchor=segment)
         return None
 
