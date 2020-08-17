@@ -2576,7 +2576,7 @@ class Rule_L027(Rule_L025):
         LEFT JOIN vee ON vee.a = foo.a
     """
 
-    def _lint_references_and_aliases(self, aliases, references, using_cols, parent_select):
+    def _lint_references_and_aliases(self, aliases, references, col_aliases, using_cols, parent_select):
         # Do we have more than one? If so, all references should be qualified.
         if len(aliases) <= 1:
             return None
@@ -2585,7 +2585,11 @@ class Rule_L027(Rule_L025):
         # Check all the references that we have.
         for r in references:
             this_ref_type, _ = self._extract_type_tbl_reference(r)
-            if this_ref_type == 'unqualified' and r.raw not in using_cols:
+            if (
+                this_ref_type == 'unqualified'
+                and r.raw not in col_aliases
+                and r.raw not in using_cols
+                ):
                 violation_buff.append(
                     LintResult(
                         anchor=r,
