@@ -2479,7 +2479,7 @@ class Rule_L025(Rule_L020):
             tbl_ref = None
         return this_ref_type, tbl_ref
 
-    def _lint_references_and_aliases(self, aliases, references, using_cols, parent_select):
+    def _lint_references_and_aliases(self, aliases, references, col_aliases, using_cols, parent_select):
         """Check all aliased references against tables referenced in the query."""
         # A buffer to keep any violations.
         violation_buff = []
@@ -2525,7 +2525,7 @@ class Rule_L026(Rule_L025):
 
     """
 
-    def _lint_references_and_aliases(self, aliases, references, using_cols, parent_select):
+    def _lint_references_and_aliases(self, aliases, references, col_aliases, using_cols, parent_select):
         # A buffer to keep any violations.
         violation_buff = []
 
@@ -2646,7 +2646,7 @@ class Rule_L028(Rule_L025):
         self.single_table_references = single_table_references
         super().__init__(**kwargs)
 
-    def _lint_references_and_aliases(self, aliases, references, using_cols, parent_select):
+    def _lint_references_and_aliases(self, aliases, references, col_aliases, using_cols, parent_select):
         """Iterate through references and check consistency."""
         # How many aliases are there? If more than one then abort.
         if len(aliases) > 1:
