@@ -2117,7 +2117,7 @@ class Rule_L019(BaseCrawler):
 class Rule_L020(BaseCrawler):
     """Table aliases should be unique within each clause."""
 
-    def _lint_references_and_aliases(self, aliases, references, using_cols, parent_select):
+    def _lint_references_and_aliases(self, aliases, references, col_aliases, using_cols, parent_select):
         """Check whether any aliases are duplicates.
 
         NB: Subclasses of this error should override this function.
@@ -2199,6 +2199,13 @@ class Rule_L020(BaseCrawler):
                         # Deal with expressions
                         reference_buffer += list(seg.recursive_crawl('object_reference'))
 
+            # Get all column aliases
+            col_aliases = []
+            for column_segment in list(sc.recursive_crawl('alias_expression')):
+                for segment in column_segment.segments:
+                    if segment.type == "identifier":
+                        col_aliases.append(segment.raw)
+
             # Work out if we have a parent select function
             parent_select = None
             for seg in reversed(parent_stack):
@@ -2208,7 +2215,7 @@ class Rule_L020(BaseCrawler):
 
             # Pass them all to the function that does all the work.
             # NB: Subclasses of this rules should override the function below
-            return self._lint_references_and_aliases(aliases, reference_buffer, using_cols, parent_select)
+            return self._lint_references_and_aliases(aliases, reference_buffer, col_aliases, using_cols, parent_select)
         return None
 
 
