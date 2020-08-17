@@ -2589,7 +2589,7 @@ class Rule_L027(Rule_L025):
                 this_ref_type == 'unqualified'
                 and r.raw not in col_aliases
                 and r.raw not in using_cols
-                ):
+            ):
                 violation_buff.append(
                     LintResult(
                         anchor=r,
