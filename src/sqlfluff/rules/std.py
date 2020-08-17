@@ -2175,6 +2175,13 @@ class Rule_L020(BaseCrawler):
                 if any(seg.type == 'select_statement' and seg is not segment for seg in ref_path):
                     reference_buffer.remove(ref)
 
+            # Get all column aliases
+            col_aliases = []
+            for col_seg in list(sc.recursive_crawl('alias_expression')):
+                for seg in col_seg.segments:
+                    if seg.type == "identifier":
+                        col_aliases.append(seg.raw)
+
             # Get any columns referred to in a using clause, and extract anything
             # from ON clauses.
             using_cols = []
@@ -2198,13 +2205,6 @@ class Rule_L020(BaseCrawler):
                     elif seen_on and seg.type == 'expression':
                         # Deal with expressions
                         reference_buffer += list(seg.recursive_crawl('object_reference'))
-
-            # Get all column aliases
-            col_aliases = []
-            for column_segment in list(sc.recursive_crawl('alias_expression')):
-                for segment in column_segment.segments:
-                    if segment.type == "identifier":
-                        col_aliases.append(segment.raw)
 
             # Work out if we have a parent select function
             parent_select = None
