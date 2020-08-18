@@ -2,11 +2,34 @@
 
 import os.path
 import ast
+from fnmatch import fnmatch
+from copy import deepcopy
+import collections
 
 from .errors import SQLTemplaterError
 from .parser import FilePositionMarker
+from .exceptions import MacroExtractError
+from jinja2.exceptions import TemplateError
 
 _templater_lookup = {}
+
+
+def update_macro_context(ctx, updated_ctx):
+    """
+        Update 2 macro contexts by overwriting the first
+        context with the second for all keys except
+        for top-level dictionaries which are merged
+
+        This is to support dbt_modules
+
+        inspired from https://gist.github.com/angstwad/bf22d1822c38a92ec0a9
+    """
+    for k, v in updated_ctx.items():
+        if (k in ctx and isinstance(ctx[k], dict)
+                and isinstance(updated_ctx[k], collections.Mapping)):
+            ctx[k].update(updated_ctx[k])
+        else:
+            ctx[k] = updated_ctx[k]
 
 
 def templater_selector(s=None, **kwargs):
@@ -120,9 +143,9 @@ class PythonTemplateInterface(RawTemplateInterface):
         else:
             loaded_context = {}
         live_context = {}
-        live_context.update(self.default_context)
-        live_context.update(loaded_context)
-        live_context.update(self.override_context)
+        update_macro_context(live_context, self.default_context)
+        update_macro_context(live_context, loaded_context)
+        update_macro_context(live_context, self.override_context)
 
         # Infer types
         for k in loaded_context:
@@ -159,7 +182,7 @@ class JinjaTemplateInterface(PythonTemplateInterface):
     name = 'jinja'
 
     @staticmethod
-    def _extract_macros_from_template(template, env, ctx):
+    def _extract_macros_from_template(template, env, ctx, dbt_project=None):
         """Take a template string and extract any macros from it.
 
         Lovingly inspired by http://codyaray.com/2015/05/auto-load-jinja2-macros
@@ -169,17 +192,22 @@ class JinjaTemplateInterface(PythonTemplateInterface):
         # Iterate through keys exported from the loaded template string
         context = {}
         macro_template = env.from_string(template, globals=ctx)
+        if dbt_project:
+            context[dbt_project] =  {}
         # This is kind of low level and hacky but it works
         for k in macro_template.module.__dict__:
             attr = getattr(macro_template.module, k)
             # Is it a macro? If so install it at the name of the macro
             if isinstance(attr, Macro):
-                context[k] = attr
+                if dbt_project:
+                    context[dbt_project][k] = attr
+                else:
+                    context[k] = attr
         # Return the context
         return context
 
     @classmethod
-    def _extract_macros_from_path(cls, path, env, ctx):
+    def _extract_macros_from_path(cls, path, exclude_path_patterns, env, ctx, dbt_project=None):
         """Take a path and extract macros from it."""
         # Does the path exist? It should as this check was done on config load.
         if not os.path.exists(path):
@@ -191,20 +219,34 @@ class JinjaTemplateInterface(PythonTemplateInterface):
             with open(path, 'r') as opened_file:
                 template = opened_file.read()
             # Update the context with macros from the file.
-            macro_ctx.update(
-                cls._extract_macros_from_template(
-                    template, env=env, ctx=ctx
+            try:
+                update_macro_context(
+                    macro_ctx,
+                    cls._extract_macros_from_template(
+                        template, env=env, ctx=ctx, dbt_project=dbt_project
+                    ),
                 )
-            )
+            except TemplateError as te:
+                raise MacroExtractError(f"Extracting macros from file {path} failed, current context is: {ctx}") from te
         else:
+            current_dbt_project = None
             # It's a directory. Iterate through files in it and extract from them.
             for dirpath, _, files in os.walk(path):
-                for fname in files:
-                    if fname.endswith('.sql'):
-                        macro_ctx.update(cls._extract_macros_from_path(
-                            os.path.join(dirpath, fname),
-                            env=env, ctx=ctx
-                        ))
+                # Check that the directory shouldn't be excluded
+                if not any(fnmatch(dirpath, pattern) for pattern in exclude_path_patterns):
+                    for fname in files:
+                        # Check that the directory is a dbt project
+                        if fname.endswith('dbt_project.yml'):
+                            current_dbt_project = os.path.basename(os.path.normpath(dirpath))
+                        if fname.endswith('.sql'):
+                            update_macro_context(
+                                macro_ctx,
+                                cls._extract_macros_from_path(
+                                    os.path.join(dirpath, fname),
+                                    exclude_path_patterns=exclude_path_patterns,
+                                    env=env, ctx=ctx, dbt_project=current_dbt_project
+                                )
+                            )
         return macro_ctx
 
     def _extract_macros_from_config(self, config, env, ctx):
@@ -218,7 +260,8 @@ class JinjaTemplateInterface(PythonTemplateInterface):
         # Iterate to load macros
         macro_ctx = {}
         for value in loaded_context.values():
-            macro_ctx.update(
+            update_macro_context(
+                macro_ctx,
                 self._extract_macros_from_template(
                     value, env=env, ctx=ctx
                 )
@@ -292,11 +335,29 @@ class JinjaTemplateInterface(PythonTemplateInterface):
 
         # Load config macros
         ctx = self._extract_macros_from_config(config=config, env=env, ctx=live_context)
-        # Load macros from path (if applicable)
-        macros_path = config.get_section((self.templater_selector, self.name, 'load_macros_from_path'))
-        if macros_path:
-            ctx.update(self._extract_macros_from_path(macros_path, env=env, ctx=live_context))
-        live_context.update(ctx)
+        # Load macros from path(s) (if applicable)
+        macros_paths = config.get_section((self.templater_selector, self.name, 'load_macros_from_path'))
+        macros_exclude_path_patterns = config.get_section((self.templater_selector, self.name, 'load_macros_exclude_path_patterns'))
+
+        if macros_exclude_path_patterns:
+            macros_exclude_path_patterns = macros_exclude_path_patterns.split(',')
+        else:
+            macros_exclude_path_patterns = []
+
+        if macros_paths:
+            macros_paths = macros_paths.split(',')
+
+            for macros_path in macros_paths:
+                update_macro_context(
+                    ctx,
+                    self._extract_macros_from_path(
+                        macros_path,
+                        exclude_path_patterns=macros_exclude_path_patterns,
+                        env=env,
+                        ctx=live_context
+                    )
+                )
+                update_macro_context(live_context, ctx)
 
         # Load the template, passing the global context.
         template = env.from_string(in_str, globals=live_context)
