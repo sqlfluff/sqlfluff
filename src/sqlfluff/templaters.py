@@ -3,7 +3,6 @@
 import os.path
 import ast
 from fnmatch import fnmatch
-from copy import deepcopy
 import collections
 
 from .errors import SQLTemplaterError
@@ -15,14 +14,14 @@ _templater_lookup = {}
 
 
 def update_macro_context(ctx, updated_ctx):
-    """
-        Update 2 macro contexts by overwriting the first
-        context with the second for all keys except
-        for top-level dictionaries which are merged
+    """Merge 2 macro contexts.
 
-        This is to support dbt_modules
+    Overwrites the first context with the second for all keys except
+    for top-level dictionaries which are merged
 
-        inspired from https://gist.github.com/angstwad/bf22d1822c38a92ec0a9
+    This is to support dbt_modules
+
+    inspired from https://gist.github.com/angstwad/bf22d1822c38a92ec0a9
     """
     for k, v in updated_ctx.items():
         if (k in ctx and isinstance(ctx[k], dict)
@@ -193,7 +192,7 @@ class JinjaTemplateInterface(PythonTemplateInterface):
         context = {}
         macro_template = env.from_string(template, globals=ctx)
         if dbt_project:
-            context[dbt_project] =  {}
+            context[dbt_project] = {}
         # This is kind of low level and hacky but it works
         for k in macro_template.module.__dict__:
             attr = getattr(macro_template.module, k)
