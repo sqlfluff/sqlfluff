@@ -109,6 +109,10 @@ ansi_dialect.add(
     LessThanOrEqualToSegment=KeywordSegment.make('<=', name='less_than_equal_to', type='comparison_operator'),
     NotEqualToSegment_a=KeywordSegment.make('!=', name='not_equal_to', type='comparison_operator'),
     NotEqualToSegment_b=KeywordSegment.make('<>', name='not_equal_to', type='comparison_operator'),
+    # The following functions can be called without parentheses per ANSI specification
+    BareFunctionSegment=ReSegment.make(
+        r"current_timestamp|current_time|current_date", name="bare_function", type="bare_function"
+    ),
     # The strange regex here it to make sure we don't accidentally match numeric literals. We
     # also use a regex to explicitly exclude disallowed keywords.
     NakedIdentifierSegment=SegmentGenerator(
@@ -480,6 +484,7 @@ class TableExpressionSegment(BaseSegment):
             # Functions allowed here for table expressions.
             # Perhaps this should just be in a dialect, but
             # it seems sensible here for now.
+            Ref('BareFunctionSegment'),
             Ref('FunctionSegment'),
             Ref('ObjectReferenceSegment'),
             # Nested Selects
@@ -555,6 +560,7 @@ class SelectTargetElementSegment(BaseSegment):
         Sequence(
             OneOf(
                 Ref('LiteralGrammar'),
+                Ref('BareFunctionSegment'),
                 Ref('FunctionSegment'),
                 Ref('IntervalExpressionSegment'),
                 Ref('ObjectReferenceSegment'),
@@ -863,6 +869,7 @@ ansi_dialect.add(
     ),
     Expression_D_Grammar=Sequence(
         OneOf(
+            Ref('BareFunctionSegment'),
             Ref('FunctionSegment'),
             Bracketed(
                 Ref('Expression_A_Grammar')
@@ -1712,6 +1719,7 @@ class SetClauseSegment(BaseSegment):
         Ref('EqualsSegment'),
         OneOf(
             Ref('LiteralGrammar'),
+            Ref('BareFunctionSegment'),
             Ref('FunctionSegment'),
             Ref('ObjectReferenceSegment'),
             'NULL',
