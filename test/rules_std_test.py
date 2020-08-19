@@ -240,7 +240,7 @@ def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
     ('L016', 'test/fixtures/linter/block_comment_errors_2.sql', [(1, 85), (2, 86)]),
     # Column references
     ('L027', 'test/fixtures/linter/column_references.sql', [(1, 8)]),
-    ('L027', 'test/fixtures/linter/column_references_bare_function.sql', [(1, 2)]),
+    ('L027', 'test/fixtures/linter/column_references_bare_function.sql', []),
     ('L026', 'test/fixtures/linter/column_references.sql', [(1, 11)]),
     ('L025', 'test/fixtures/linter/column_references.sql', [(2, 11)]),
     # Distinct and Group by

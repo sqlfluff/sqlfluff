@@ -54,6 +54,8 @@ def validate_segment(segmentref, config):
     [
         ("SelectKeywordSegment", "select"),
         ("NakedIdentifierSegment", "online_sales"),
+        ("BareFunctionSegment", "current_timestamp"),
+        ("FunctionSegment", "current_timestamp()"),
         ("NumericLiteralSegment", "1000.0"),
         ("ExpressionSegment", "online_sales / 1000.0"),
         ("IntervalExpressionSegment", "INTERVAL 1 YEAR"),
