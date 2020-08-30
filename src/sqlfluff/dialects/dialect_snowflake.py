@@ -6,6 +6,7 @@ Based on https://docs.snowflake.com/en/sql-reference-commands.html
 """
 
 from .dialect_postgres import postgres_dialect
+from .dialect_ansi import SelectClauseSegment as ansi_SelectClauseSegment
 from ..parser import (BaseSegment, NamedSegment, OneOf, Ref, Sequence,
                       AnyNumberOf, ReSegment, KeywordSegment, Bracketed,
                       Anything, Delimited)
@@ -284,4 +285,22 @@ class SelectClauseModifierSegment(BaseSegment):
     match_grammar = OneOf(
         'DISTINCT',
         'ALL',
+    )
+
+
+@snowflake_dialect.segment(replace=True)
+class SelectStatementSegment(ansi_SelectClauseSegment):
+    """A snowflake `SELECT` statement including optional Qualify.
+    
+    https://docs.snowflake.com/en/sql-reference/constructs/qualify.html
+    """
+
+    parse_grammar = Sequence(
+        Ref('SelectClauseSegment'),
+        Ref('FromClauseSegment', optional=True),
+        Ref('WhereClauseSegment', optional=True),
+        Ref('GroupByClauseSegment', optional=True),
+        Ref('HavingClauseSegment', optional=True),
+        Ref('OrderByClauseSegment', optional=True),
+        Ref('LimitClauseSegment', optional=True),
     )
