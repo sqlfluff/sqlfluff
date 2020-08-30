@@ -2117,7 +2117,7 @@ class Rule_L019(BaseCrawler):
 class Rule_L020(BaseCrawler):
     """Table aliases should be unique within each clause."""
 
-    def _lint_references_and_aliases(self, aliases, references, using_cols, parent_select):
+    def _lint_references_and_aliases(self, aliases, references, col_aliases, using_cols, parent_select):
         """Check whether any aliases are duplicates.
 
         NB: Subclasses of this error should override this function.
@@ -2175,6 +2175,13 @@ class Rule_L020(BaseCrawler):
                 if any(seg.type == 'select_statement' and seg is not segment for seg in ref_path):
                     reference_buffer.remove(ref)
 
+            # Get all column aliases
+            col_aliases = []
+            for col_seg in list(sc.recursive_crawl('alias_expression')):
+                for seg in col_seg.segments:
+                    if seg.type == "identifier":
+                        col_aliases.append(seg.raw)
+
             # Get any columns referred to in a using clause, and extract anything
             # from ON clauses.
             using_cols = []
@@ -2208,7 +2215,7 @@ class Rule_L020(BaseCrawler):
 
             # Pass them all to the function that does all the work.
             # NB: Subclasses of this rules should override the function below
-            return self._lint_references_and_aliases(aliases, reference_buffer, using_cols, parent_select)
+            return self._lint_references_and_aliases(aliases, reference_buffer, col_aliases, using_cols, parent_select)
         return None
 
 
@@ -2472,7 +2479,7 @@ class Rule_L025(Rule_L020):
             tbl_ref = None
         return this_ref_type, tbl_ref
 
-    def _lint_references_and_aliases(self, aliases, references, using_cols, parent_select):
+    def _lint_references_and_aliases(self, aliases, references, col_aliases, using_cols, parent_select):
         """Check all aliased references against tables referenced in the query."""
         # A buffer to keep any violations.
         violation_buff = []
@@ -2518,7 +2525,7 @@ class Rule_L026(Rule_L025):
 
     """
 
-    def _lint_references_and_aliases(self, aliases, references, using_cols, parent_select):
+    def _lint_references_and_aliases(self, aliases, references, col_aliases, using_cols, parent_select):
         # A buffer to keep any violations.
         violation_buff = []
 
@@ -2569,7 +2576,7 @@ class Rule_L027(Rule_L025):
         LEFT JOIN vee ON vee.a = foo.a
     """
 
-    def _lint_references_and_aliases(self, aliases, references, using_cols, parent_select):
+    def _lint_references_and_aliases(self, aliases, references, col_aliases, using_cols, parent_select):
         # Do we have more than one? If so, all references should be qualified.
         if len(aliases) <= 1:
             return None
@@ -2578,7 +2585,11 @@ class Rule_L027(Rule_L025):
         # Check all the references that we have.
         for r in references:
             this_ref_type, _ = self._extract_type_tbl_reference(r)
-            if this_ref_type == 'unqualified' and r.raw not in using_cols:
+            if (
+                this_ref_type == 'unqualified'
+                and r.raw not in col_aliases
+                and r.raw not in using_cols
+            ):
                 violation_buff.append(
                     LintResult(
                         anchor=r,
@@ -2635,7 +2646,7 @@ class Rule_L028(Rule_L025):
         self.single_table_references = single_table_references
         super().__init__(**kwargs)
 
-    def _lint_references_and_aliases(self, aliases, references, using_cols, parent_select):
+    def _lint_references_and_aliases(self, aliases, references, col_aliases, using_cols, parent_select):
         """Iterate through references and check consistency."""
         # How many aliases are there? If more than one then abort.
         if len(aliases) > 1:
