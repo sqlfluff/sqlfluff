@@ -100,6 +100,8 @@ def test__cli__command_lint_stdin(command):
     (lint, ['-n', '--exclude-rules', 'L006,L007', 'test/fixtures/linter/operator_errors.sql']),
     # Check the script doesn't raise an unexpected exception with badly formed files.
     (fix, ['--rules', 'L001', 'test/fixtures/cli/fail_many.sql', '-vvvvvvv'], 'y'),
+    # Fix with a suffixs
+    (fix, ['--rules', 'L001', '--fixed-suffix', '_fix', 'test/fixtures/cli/fail_many.sql']),
     # Check that ignoring works (also checks that unicode files parse).
     (lint, ['-n', '--exclude-rules', 'L003,L009', '--ignore', 'parsing,lexing', 'test/fixtures/linter/parse_lex_error.sql']),
     # Check nofail works

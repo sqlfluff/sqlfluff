@@ -17,7 +17,7 @@ missing.
 import logging
 from collections import namedtuple
 
-from ..parser import RawSegment, KeywordSegment
+from ..parser import RawSegment, KeywordSegment, BaseSegment
 from ..errors import SQLLintError
 
 # The ghost of a rule (mostly used for testing)
@@ -61,6 +61,8 @@ class LintResult():
         self.anchor = anchor
         # Fixes might be blank
         self.fixes = fixes or []
+        # When instantiating the result, we filter any fixes which are "trivial".
+        self.fixes = [f for f in self.fixes if not f.is_trivial()]
         # Memory is passed back in the linting result
         self.memory = memory
         # store a description_override for later
@@ -100,6 +102,25 @@ class LintFix:
         self.edit_type = edit_type
         self.anchor = anchor
         self.edit = edit
+
+    def is_trivial(self):
+        """Return true if the fix is trivial.
+
+        Trivial edits are:
+        - Anything of zero length.
+        - Any edits which result in themselves.
+
+        Removing these makes the routines which process fixes much faster.
+        """
+        if self.edit_type == 'create':
+            if isinstance(self.edit, BaseSegment):
+                if len(self.edit.raw) == 0:
+                    return True
+            elif all(len(elem.raw) == 0 for elem in self.edit):
+                return True
+        elif self.edit_type == 'edit' and self.edit == self.anchor:
+            return True
+        return False
 
     def __repr__(self):
         if self.edit_type == 'delete':
@@ -194,15 +215,13 @@ class BaseCrawler:
         # crawlers, should evalutate on segments FIRST, before evaulating on their
         # children. They should also return a list of violations.
 
-        # If FIX is true, then we should start again at the start of the file.
-        # TODO: Work out how to do this!
-
         parent_stack = parent_stack or ()
         raw_stack = raw_stack or ()
         siblings_post = siblings_post or ()
         siblings_pre = siblings_pre or ()
         memory = memory or {}
         vs = []
+        fixes = []
 
         # First, check whether we're looking at an unparsable and whether
         # this rule will still operate on that.
@@ -225,26 +244,16 @@ class BaseCrawler:
             lerr = res.to_linting_error(rule=self)
             if lerr:
                 vs.append(lerr)
-            # We need fixes and to be in fix mode to invoke this...
-            if res.fixes and fix:
-                # Return straight away so the fixes can be applied.
-                return vs, raw_stack, res.fixes, memory
+            fixes += res.fixes
         elif isinstance(res, list) and all(isinstance(elem, LintResult) for elem in res):
             # Extract any memory from the *last* one, assuming
             # it was the last to be added
             memory = res[-1].memory
-            fix_buff = []
             for elem in res:
                 lerr = elem.to_linting_error(rule=self)
                 if lerr:
                     vs.append(lerr)
-                # We need fixes and to be in fix mode to invoke this...
-                if elem.fixes and fix:
-                    fix_buff += elem.fixes
-
-            if fix and fix_buff:
-                # Return straight away so the fixes can be applied.
-                return vs, raw_stack, fix_buff, memory
+                fixes += elem.fixes
         else:
             raise TypeError(
                 "Got unexpected result [{0!r}] back from linting rule: {1!r}".format(res, self.code))
@@ -256,21 +265,15 @@ class BaseCrawler:
         parent_stack += (segment,)
 
         for idx, child in enumerate(segment.segments):
-            dvs, raw_stack, fixes, memory = self.crawl(
+            dvs, raw_stack, child_fixes, memory = self.crawl(
                 segment=child, parent_stack=parent_stack,
                 siblings_pre=segment.segments[:idx],
                 siblings_post=segment.segments[idx + 1:],
                 raw_stack=raw_stack, fix=fix, memory=memory,
                 dialect=dialect)
             vs += dvs
-
-            if fixes and fix:
-                # If we have a fix then return immediately so it can be applied
-                return vs, raw_stack, fixes, memory
-
-        # If we get here, then we're not returning any fixes (even if they've been
-        # generated). So blank that out here.
-        return vs, raw_stack, [], memory
+            fixes += child_fixes
+        return vs, raw_stack, fixes, memory
 
     # HELPER METHODS --------
 
