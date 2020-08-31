@@ -3,6 +3,10 @@
 import os.path
 import ast
 
+from jinja2.sandbox import SandboxedEnvironment
+from jinja2 import meta
+import jinja2.nodes
+
 from .errors import SQLTemplaterError
 from .parser import FilePositionMarker
 
@@ -251,6 +255,27 @@ class JinjaTemplateInterface(PythonTemplateInterface):
         }
         return dbt_builtins
 
+    @classmethod
+    def _crawl_tree(cls, tree, variable_names, raw):
+        """Crawl the tree looking for occurances of the undeclared values."""
+        # First iterate through children
+        for elem in tree.iter_child_nodes():
+            yield from cls._crawl_tree(elem, variable_names, raw)
+        # Then assess self
+        if isinstance(tree, jinja2.nodes.Name) and tree.name in variable_names:
+            line_no = tree.lineno
+            line = raw.split('\n')[line_no - 1]
+            pos = line.index(tree.name) + 1
+            # Generate the charpos. +1 is for the newline characters themselves
+            charpos = sum(len(raw_line) + 1 for raw_line in raw.split('\n')[:line_no - 1]) + pos
+            # NB: The positions returned here will be *inconsistent* with those
+            # from the linter at the moment, because these are references to the
+            # structure of the file *before* templating.
+            yield SQLTemplaterError(
+                "Undefined jinja template variable: {0!r}".format(tree.name),
+                pos=FilePositionMarker(None, line_no, pos, charpos)
+            )
+
     def process(self, in_str, fname=None, config=None):
         """Process a string and return the new string.
 
@@ -262,10 +287,6 @@ class JinjaTemplateInterface(PythonTemplateInterface):
                 templating operation. Only necessary for some templaters.
 
         """
-        # No need to import this unless we're using this templater
-        from jinja2.sandbox import SandboxedEnvironment  # noqa
-        from jinja2 import meta  # noqa
-        import jinja2.nodes  # noqa 
         # We explicitly want to preserve newlines.
         env = SandboxedEnvironment(
             keep_trailing_newline=True,
@@ -318,25 +339,7 @@ class JinjaTemplateInterface(PythonTemplateInterface):
 
         if undefined_variables:
             # Lets go through and find out where they are:
-            def _crawl_tree(tree, variable_names, raw):
-                """Crawl the tree looking for occurances of the undeclared values."""
-                for elem in tree.iter_child_nodes():
-                    yield from _crawl_tree(elem, variable_names, raw)
-                else:
-                    if isinstance(tree, jinja2.nodes.Name) and tree.name in variable_names:
-                        line_no = tree.lineno
-                        line = raw.split('\n')[line_no - 1]
-                        pos = line.index(tree.name) + 1
-                        # Generate the charpos. +1 is for the newline characters themselves
-                        charpos = sum(len(raw_line) + 1 for raw_line in raw.split('\n')[:line_no - 1]) + pos
-                        # NB: The positions returned here will be *inconsistent* with those
-                        # from the linter at the moment, because these are references to the
-                        # structure of the file *before* templating.
-                        yield SQLTemplaterError(
-                            "Undefined jinja template variable: {0!r}".format(tree.name),
-                            pos=FilePositionMarker(None, line_no, pos, charpos)
-                        )
-            for val in _crawl_tree(ast, undefined_variables, in_str):
+            for val in self._crawl_tree(ast, undefined_variables, in_str):
                 violations.append(val)
 
         try:
