@@ -930,7 +930,7 @@ class GreedyUntil(BaseGrammar):
     def match(self, segments, parse_context):
         """Matching for GreedyUntil works just how you'd expect."""
         seg_buff = segments
-        seg_bank = tuple()
+        seg_bank = ()  # Empty tuple
         while True:
             pre, mat, _ = self._bracket_sensitive_look_ahead_match(
                 seg_buff, self._elements, parse_context=parse_context.copy(incr='match_depth'),
