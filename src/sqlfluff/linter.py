@@ -147,7 +147,6 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
         loop_idx = 0
         bencher("fix_string: Loop Setup")
         while True:
-            # TODO: Remove. Slowdown is BEFORE here.
             loop_idx += 1
             verbosity_logger(
                 "{0:04d}: Write Loop: idx:{1}, buff:{2!r}".format(loop_idx, idx, write_buff),
