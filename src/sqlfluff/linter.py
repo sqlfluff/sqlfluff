@@ -169,13 +169,6 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
             if fixed_block is None:
                 if diff_fix_codes:
                     fixed_block = diff_fix_codes.pop(0)
-                # One case is that we just consumed the last block of both, so check indexes
-                # to see if we're at the end of the raw file.
-                elif idx[0] >= len(self.file_mask[0]):
-                    # Yep we're at the end
-                    break
-                else:
-                    raise NotImplementedError("Unexpectedly depleted the fixes. Panic!")
             verbosity_logger(
                 "{0:04d}: Blocks: template:{1}, fix:{2}".format(loop_idx, templ_block, fixed_block),
                 verbosity=verbosity)
