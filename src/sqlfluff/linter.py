@@ -169,6 +169,12 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
             if fixed_block is None:
                 if diff_fix_codes:
                     fixed_block = diff_fix_codes.pop(0)
+                elif templ_block[0] != 'delete':
+                    # We need another fixed_block for the cases where templ_block[0] is not 'delete'
+                    raise NotImplementedError(
+                        "A {} template block remains with no more diff_fix_codes left".format(templ_block[0])
+                    )
+
             verbosity_logger(
                 "{0:04d}: Blocks: template:{1}, fix:{2}".format(loop_idx, templ_block, fixed_block),
                 verbosity=verbosity)
