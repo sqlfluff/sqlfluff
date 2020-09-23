@@ -12,12 +12,13 @@ class Dialect:
             the lexing config for this dialect.
 
     """
-    def __init__(self, name, lexer_struct=None, library=None, sets=None):
+    def __init__(self, name, lexer_struct=None, library=None, sets=None, inherits_from=None):
         self._library = library or {}
         self.name = name
         self.lexer_struct = lexer_struct
         self.expanded = False
         self._sets = sets or {}
+        self.inherits_from = inherits_from
 
     def __repr__(self):
         return "<Dialect: {0}>".format(self.name)
@@ -76,6 +77,7 @@ class Dialect:
             library=self._library.copy(),
             lexer_struct=self.lexer_struct.copy(),
             sets=new_sets,
+            inherits_from=self.name
         )
 
     def segment(self, replace=False):
