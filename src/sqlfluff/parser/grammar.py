@@ -266,12 +266,6 @@ class BaseGrammar:
     def _look_ahead_match(cls, segments, matchers, parse_context, code_only=True):
         """Look ahead for matches beyond the first element of the segments list.
 
-        Look ahead in a bracket sensitive way to find the next occurance of a particular
-        matcher(s). When a match is found, it is returned, along with any preceeding
-        (unmatched) segments, and a reference to the matcher which eventually matched it.
-
-        The intent is that this will become part of the bracket matching routines.
-
         This function also contains the performance improved hash-matching approach to
         searching for matches, which should significantly improve performance.
 
@@ -298,9 +292,10 @@ class BaseGrammar:
 
         # Have we been passed an empty list?
         if len(segments) == 0:
+            print("e")
             return ((), MatchResult.from_empty(), None)
 
-        # Here we enable a performance optimisation.Most of the time in this cycle
+        # Here we enable a performance optimisation. Most of the time in this cycle
         # happens in loops looking for simple matchers which we should
         # be able to find a shortcut for.
         # First: Assess the matchers passed in, if any are
@@ -315,8 +310,14 @@ class BaseGrammar:
             # Build a buffer of all the upper case raw segments ahead of us.
             str_buff = []
             seg_idx_buf = []  # This is a way of mapping indexes in the str_buff back to indexes in `segments`
+            # For existing compound segments, we should assume that within
+            # that segment, things are internally consistent, that means
+            # rather than enumerating all the individual segments of a longer
+            # one we just dump out the whole segment. This is a) faster and
+            # also b) prevents some really horrible bugs with bracket matching.
+            # See https://github.com/alanmcruickshank/sqlfluff/issues/433
             for idx, seg in enumerate(segments):
-                delta_seg_raw = [s.raw_upper for s in seg.iter_raw_seg()]
+                delta_seg_raw = [seg.raw_upper]
                 str_buff += delta_seg_raw
                 seg_idx_buf += [idx] * len(delta_seg_raw)
             m_pos = []
@@ -347,8 +348,13 @@ class BaseGrammar:
                 # We've managed to match. We can shortcut home.
                 # NB: We may still need to deal with whitespace.
                 segments_index = seg_idx_buf[m_first[1]]  # map back into indexes in `segments`
+                # Here we do the actual transform to the new segment.
                 matcher = m_first[0]
                 match = matcher._match(segments[segments_index:], parse_context)
+                if not match:
+                    raise ValueError(
+                        "Segment matched in simple parsing, but failed later. Report this."
+                    )
                 pre_segments = segments[:segments_index]
                 if code_only:
                     # Pick up any non-code segments as necessary
