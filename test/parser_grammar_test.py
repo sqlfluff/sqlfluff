@@ -26,6 +26,14 @@ def bracket_seg_list(generate_test_segments):
     ])
 
 
+@pytest.fixture(scope="function")
+def fresh_ansi_dialect():
+    """Expand the ansi dialect for use."""
+    dialect = ansi_dialect
+    dialect.expand()
+    return dialect
+
+
 def test__parser__grammar__base__code_only_sensitive_match(seg_list):
     """Test the _code_only_sensitive_match method of the BaseGrammar."""
     fs = KeywordSegment.make('foo')
@@ -76,12 +84,12 @@ def test__parser__grammar__base__look_ahead_match(seg_list):
     assert m[1].matched_segments == (seg_list[1], fs('foo', seg_list[2].pos_marker))
 
 
-def test__parser__grammar__base__bracket_sensitive_look_ahead_match(bracket_seg_list):
+def test__parser__grammar__base__bracket_sensitive_look_ahead_match(bracket_seg_list, fresh_ansi_dialect):
     """Test the _bracket_sensitive_look_ahead_match method of the BaseGrammar."""
     fs = KeywordSegment.make('foo')
     bs = KeywordSegment.make('bar')
     # We need a dialect here to do bracket matching
-    c = ParseContext(dialect=ansi_dialect)
+    c = ParseContext(dialect=fresh_ansi_dialect)
 
     # Basic version, we should find bar first
     m = BaseGrammar._bracket_sensitive_look_ahead_match(bracket_seg_list, [fs, bs], c)
@@ -127,22 +135,22 @@ def test__parser__grammar_oneof(seg_list, code_only):
     assert not m
 
 
-def test__parser__grammar_startswith_a(seg_list, caplog):
+def test__parser__grammar_startswith_a(seg_list, fresh_ansi_dialect, caplog):
     """Test the StartsWith grammar simply."""
     baar = KeywordSegment.make('baar')
     bar = KeywordSegment.make('bar')
-    c = ParseContext(dialect=ansi_dialect)
+    c = ParseContext(dialect=fresh_ansi_dialect)
     with caplog.at_level(logging.DEBUG):
         assert StartsWith(bar).match(seg_list, parse_context=c)
     with caplog.at_level(logging.DEBUG):
         assert not StartsWith(baar).match(seg_list, parse_context=c)
 
 
-def test__parser__grammar_startswith_b(seg_list, caplog):
+def test__parser__grammar_startswith_b(seg_list, fresh_ansi_dialect, caplog):
     """Test the StartsWith grammar with a terminator (included & exluded)."""
     baar = KeywordSegment.make('baar')
     bar = KeywordSegment.make('bar')
-    c = ParseContext(dialect=ansi_dialect)
+    c = ParseContext(dialect=fresh_ansi_dialect)
     with caplog.at_level(logging.DEBUG):
         m = StartsWith(bar, terminator=baar).match(seg_list, parse_context=c)
         assert len(m) == 3
@@ -200,7 +208,7 @@ def test__parser__grammar_sequence_nested(seg_list, caplog):
         )
 
 
-def test__parser__grammar_delimited(caplog, generate_test_segments):
+def test__parser__grammar_delimited(caplog, generate_test_segments, fresh_ansi_dialect):
     """Test the Delimited grammar."""
     seg_list = generate_test_segments(['bar', ' \t ', ',', '    ', 'bar', '    '])
     bs = KeywordSegment.make('bar')
@@ -215,7 +223,7 @@ def test__parser__grammar_delimited(caplog, generate_test_segments):
     )
     g = Delimited(bs, delimiter=comma)
     gt = Delimited(bs, delimiter=comma, allow_trailing=True)
-    c = ParseContext(dialect=ansi_dialect)
+    c = ParseContext(dialect=fresh_ansi_dialect)
     with caplog.at_level(logging.DEBUG):
         # Matching not quite the full list shouldn't work
         logging.info("#### TEST 1")
@@ -232,14 +240,14 @@ def test__parser__grammar_delimited(caplog, generate_test_segments):
         # We should have matched the trailing whitespace in this case.
 
 
-def test__parser__grammar_delimited_not_code_only(caplog, generate_test_segments):
+def test__parser__grammar_delimited_not_code_only(caplog, generate_test_segments, fresh_ansi_dialect):
     """Test the Delimited grammar when not code_only."""
     seg_list_a = generate_test_segments(['bar', ' \t ', '.', '    ', 'bar'])
     seg_list_b = generate_test_segments(['bar', '.', 'bar'])
     bs = KeywordSegment.make('bar')
     dot = KeywordSegment.make('.', name='dot')
     g = Delimited(bs, delimiter=dot, code_only=False)
-    c = ParseContext(dialect=ansi_dialect)
+    c = ParseContext(dialect=fresh_ansi_dialect)
     with caplog.at_level(logging.DEBUG):
         # Matching with whitespace shouldn't match
         # TODO: dots should be parsed out EARLY
@@ -250,7 +258,7 @@ def test__parser__grammar_delimited_not_code_only(caplog, generate_test_segments
         assert g.match(seg_list_b, parse_context=c) is not None
 
 
-def test__parser__grammar_greedyuntil(seg_list):
+def test__parser__grammar_greedyuntil(seg_list, fresh_ansi_dialect):
     """Test the GreedyUntil grammar."""
     fs = KeywordSegment.make('foo')
     bs = KeywordSegment.make('bar')
@@ -258,7 +266,7 @@ def test__parser__grammar_greedyuntil(seg_list):
     g0 = GreedyUntil(bs)
     g1 = GreedyUntil(fs, code_only=False)
     g2 = GreedyUntil(bas)
-    c = ParseContext(dialect=ansi_dialect)
+    c = ParseContext(dialect=fresh_ansi_dialect)
     # Greedy matching until the first item should return none
     assert not g0.match(seg_list, parse_context=c)
     # Greedy matching up to foo should return bar (as a raw!)
@@ -267,11 +275,11 @@ def test__parser__grammar_greedyuntil(seg_list):
     assert g2.match(seg_list, parse_context=c).matched_segments == seg_list[:3]
 
 
-def test__parser__grammar_greedyuntil_bracketed(bracket_seg_list):
+def test__parser__grammar_greedyuntil_bracketed(bracket_seg_list, fresh_ansi_dialect):
     """Test the GreedyUntil grammar with brackets."""
     fs = KeywordSegment.make('foo')
     g = GreedyUntil(fs, code_only=False)
-    c = ParseContext(dialect=ansi_dialect)
+    c = ParseContext(dialect=fresh_ansi_dialect)
     # Check that we can make it past the brackets
     assert len(g.match(bracket_seg_list, parse_context=c)) == 7
 
