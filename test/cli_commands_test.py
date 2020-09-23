@@ -14,7 +14,7 @@ from click.testing import CliRunner
 
 # We import the library directly here to get the version
 import sqlfluff
-from sqlfluff.cli.commands import lint, version, rules, fix, parse
+from sqlfluff.cli.commands import lint, version, rules, fix, parse, dialects
 
 
 def invoke_assert_code(ret_code=0, args=None, kwargs=None, cli_input=None):
@@ -144,8 +144,13 @@ def test__cli__command_version():
 
 
 def test__cli__command_rules():
-    """Just check rules command for exceptions."""
+    """Check rules command for exceptions."""
     invoke_assert_code(args=[rules])
+
+
+def test__cli__command_dialects():
+    """Check dialects command for exceptions."""
+    invoke_assert_code(args=[dialects])
 
 
 def generic_roundtrip_test(source_file, rulestring, final_exit_code=0, force=True, fix_input=None, fix_exit_code=0):

@@ -221,3 +221,15 @@ def format_rules(linter, verbose=0):
             linter.rule_tuples(), col_width=80,
             cols=1, label_color='blue', val_align='left'))
     return text_buffer.getvalue()
+
+
+def format_dialects(dialect_readout, verbose=0):
+    """Format the dialects yielded by `dialect_readout`."""
+    text_buffer = StringIO()
+    text_buffer.write("==== sqlfluff - dialects ====\n")
+    readouts = [(d['label'], "{name} dialect [inherits from '{inherits_from}']".format(**d)) for d in dialect_readout()]
+    text_buffer.write(
+        cli_table(
+            readouts, col_width=60,
+            cols=1, label_color='blue', val_align='right'))
+    return text_buffer.getvalue()

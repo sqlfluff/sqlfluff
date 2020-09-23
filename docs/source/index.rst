@@ -53,6 +53,7 @@ Contents
    vision
    indentation
    rules
+   dialects
    production
    configuration
    architecture
