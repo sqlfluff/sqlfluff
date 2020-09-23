@@ -15,7 +15,7 @@ current dialects available on your installation of sqlfluff.
 .. note::
 
     For technical users looking to add new dialects or add new features
-    to existing ones; the dependent nature of how dialects have been
+    to existing ones, the dependent nature of how dialects have been
     implemented is to try and reduce the amount of repetition in how
     different elements are defined. As an example, when we say that
     the :ref:`snowflake_dialect_ref` dialect *inherits* from the
@@ -47,7 +47,7 @@ isn't specifically implemented by sqlfluff, using this dialect is a good
 place to start.
 
 This dialect doesn't intend to be brutal in adhering to (and only to) the
-ANSI SQL spec *(mostly because ANSI charge for access to that spec)*. It aims
+ANSI SQL spec *(mostly because ANSI charges for access to that spec)*. It aims
 to be a representation of vanilla SQL before any other project adds their
 spin to it, and so may contain a slightly wider set of functions than actually
 available in true ANSI SQL.
@@ -99,7 +99,7 @@ The dialect for `Google BigQuery`_.
 Snowflake
 ---------
 
-The dialect for `Snowflake`_, which has much of it's syntax
+The dialect for `Snowflake`_, which has much of its syntax
 inherited from :ref:`postgres_dialect_ref`.
 
 .. _`Snowflake`: https://docs.snowflake.com/en/sql-reference.html
