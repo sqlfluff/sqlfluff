@@ -439,7 +439,8 @@ class PartitionClauseSegment(BaseSegment):
         terminator=OneOf(
             'ORDER',
             'ROWS'
-        )
+        ),
+        enforce_whitespace_preceeding_terminator=True
     )
     parse_grammar = Sequence(
         'PARTITION',
@@ -550,7 +551,8 @@ class SelectTargetElementSegment(BaseSegment):
         GreedyUntil(
             'FROM', 'LIMIT',
             Ref('CommaSegment'),
-            Ref('SetOperatorSegment')
+            Ref('SetOperatorSegment'),
+            enforce_whitespace_preceeding_terminator=True
         )
     )
 
@@ -590,7 +592,8 @@ class SelectClauseSegment(BaseSegment):
             'SELECT',
             Ref('WildcardSelectTargetElementGrammar', optional=True)
         ),
-        terminator=OneOf('FROM', 'LIMIT', Ref('SetOperatorSegment'))
+        terminator=OneOf('FROM', 'LIMIT', Ref('SetOperatorSegment')),
+        enforce_whitespace_preceeding_terminator=True
     )
 
     parse_grammar = Sequence(
@@ -681,7 +684,8 @@ class FromClauseSegment(BaseSegment):
             'ORDER',
             'HAVING',
             Ref('SetOperatorSegment')
-        )
+        ),
+        enforce_whitespace_preceeding_terminator=True
     )
     parse_grammar = Sequence(
         'FROM',
@@ -924,7 +928,8 @@ class WhereClauseSegment(BaseSegment):
             'GROUP',
             'ORDER',
             'HAVING'
-        )
+        ),
+        enforce_whitespace_preceeding_terminator=True
     )
     parse_grammar = Sequence(
         'WHERE',
@@ -994,7 +999,8 @@ class GroupByClauseSegment(BaseSegment):
             'ORDER',
             'LIMIT',
             'HAVING'
-        )
+        ),
+        enforce_whitespace_preceeding_terminator=True
     )
     parse_grammar = Sequence(
         'GROUP',
@@ -1028,7 +1034,8 @@ class HavingClauseSegment(BaseSegment):
         terminator=OneOf(
             'ORDER',
             'LIMIT'
-        )
+        ),
+        enforce_whitespace_preceeding_terminator=True
     )
     parse_grammar = Sequence(
         'HAVING',
@@ -1087,7 +1094,8 @@ class SelectStatementSegment(BaseSegment):
         # select clause rather than just the SELECT keyword, we mitigate that
         # here.
         Ref('SelectClauseSegment'),
-        terminator=Ref('SetOperatorSegment')
+        terminator=Ref('SetOperatorSegment'),
+        enforce_whitespace_preceeding_terminator=True
     )
 
     parse_grammar = Sequence(
