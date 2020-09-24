@@ -57,8 +57,7 @@ snowflake_dialect.add(
 
 snowflake_dialect.replace(
     Accessor_Grammar=AnyNumberOf(
-        # Snowflake doesn't support arrays, so they come out.
-        # Ref('ArrayAccessorSegment')
+        Ref('ArrayAccessorSegment'),
         # Add in semi structured expressions
         Ref('SemiStructuredAccessorSegment')
     ),
