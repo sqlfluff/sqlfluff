@@ -29,10 +29,12 @@ bigquery_dialect.add(
     DoubleQuotedLiteralSegment=NamedSegment.make('double_quote', name='quoted_literal', type='literal', trim_chars=('"',))
 )
 
-# Add the microsecond unit
-bigquery_dialect.sets('datetime_units').add('MICROSECOND')
-# Add the ISO date parts
-bigquery_dialect.sets('datetime_units').update(['ISOWEEK', 'ISOYEAR'])
+# Add additional datetime units
+# https://cloud.google.com/bigquery/docs/reference/standard-sql/date_functions#extract
+bigquery_dialect.sets('datetime_units').update([
+    'MICROSECOND', 'DAYOFWEEK', 'ISOWEEK', 'ISOYEAR', 'DATE',
+    'DATETIME', 'TIME'
+])
 
 # Unreserved Keywords
 bigquery_dialect.sets('unreserved_keywords').add('SYSTEM_TIME')
