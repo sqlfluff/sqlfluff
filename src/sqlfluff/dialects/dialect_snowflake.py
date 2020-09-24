@@ -9,7 +9,7 @@ from .dialect_postgres import postgres_dialect
 from .dialect_ansi import SelectClauseSegment as ansi_SelectClauseSegment
 from ..parser import (BaseSegment, NamedSegment, OneOf, Ref, Sequence,
                       AnyNumberOf, ReSegment, KeywordSegment, Bracketed,
-                      Anything, Delimited)
+                      Anything, Delimited, StartsWith, Indent, Dedent)
 
 
 snowflake_dialect = postgres_dialect.copy_as('snowflake')
@@ -288,12 +288,49 @@ class SelectClauseModifierSegment(BaseSegment):
     )
 
 
+@snowflake_dialect.segment()
+class QualifyClauseSegment(BaseSegment):
+    """A `QUALIFY` clause like in `SELECT`.
+
+    https://docs.snowflake.com/en/sql-reference/constructs/qualify.html
+    """
+    type = 'having_clause'
+    match_grammar = StartsWith(
+        'QUALIFY',
+        terminator=OneOf(
+            'ORDER',
+            'LIMIT',
+        )
+    )
+    parse_grammar = Sequence(
+        'QUALIFY',
+        Indent,
+        OneOf(
+            Bracketed(
+                Ref('ExpressionSegment'),
+            ),
+            Ref('ExpressionSegment')
+        ),
+        Dedent
+    )
+
+
 @snowflake_dialect.segment(replace=True)
 class SelectStatementSegment(ansi_SelectClauseSegment):
     """A snowflake `SELECT` statement including optional Qualify.
-    
+
     https://docs.snowflake.com/en/sql-reference/constructs/qualify.html
     """
+    type = 'select_statement'
+    match_grammar = StartsWith(
+        # NB: In bigquery, the select clause may include an EXCEPT, which
+        # will also match the set operator, but by starting with the whole
+        # select clause rather than just the SELECT keyword, we normally
+        # mitigate that here. But this isn't BigQuery! So we can be more
+        # efficient and just just the keyword.
+        'SELECT',
+        terminator=Ref('SetOperatorSegment')
+    )
 
     parse_grammar = Sequence(
         Ref('SelectClauseSegment'),
@@ -301,6 +338,7 @@ class SelectStatementSegment(ansi_SelectClauseSegment):
         Ref('WhereClauseSegment', optional=True),
         Ref('GroupByClauseSegment', optional=True),
         Ref('HavingClauseSegment', optional=True),
+        Ref('QualifyClauseSegment', optional=True),
         Ref('OrderByClauseSegment', optional=True),
         Ref('LimitClauseSegment', optional=True),
     )
