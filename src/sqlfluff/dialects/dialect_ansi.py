@@ -683,6 +683,7 @@ class FromClauseSegment(BaseSegment):
             'GROUP',
             'ORDER',
             'HAVING',
+            'QUALIFY',
             Ref('SetOperatorSegment')
         ),
         enforce_whitespace_preceeding_terminator=True
@@ -927,7 +928,8 @@ class WhereClauseSegment(BaseSegment):
             'LIMIT',
             'GROUP',
             'ORDER',
-            'HAVING'
+            'HAVING',
+            'QUALIFY'
         ),
         enforce_whitespace_preceeding_terminator=True
     )
@@ -948,6 +950,7 @@ class OrderByClauseSegment(BaseSegment):
         terminator=OneOf(
             'LIMIT',
             'HAVING',
+            'QUALIFY',
             # For window functions
             'ROWS'
         )
@@ -998,7 +1001,8 @@ class GroupByClauseSegment(BaseSegment):
         terminator=OneOf(
             'ORDER',
             'LIMIT',
-            'HAVING'
+            'HAVING',
+            'QUALIFY'
         ),
         enforce_whitespace_preceeding_terminator=True
     )
@@ -1018,7 +1022,8 @@ class GroupByClauseSegment(BaseSegment):
             terminator=OneOf(
                 'ORDER',
                 'LIMIT',
-                'HAVING'
+                'HAVING',
+                'QUALIFY'
             )
         ),
         Dedent
@@ -1033,7 +1038,8 @@ class HavingClauseSegment(BaseSegment):
         'HAVING',
         terminator=OneOf(
             'ORDER',
-            'LIMIT'
+            'LIMIT',
+            'QUALIFY'
         ),
         enforce_whitespace_preceeding_terminator=True
     )
