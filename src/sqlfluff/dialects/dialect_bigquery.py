@@ -93,32 +93,44 @@ bigquery_dialect.replace(
         ),
         # Optional EXCEPT or REPLACE clause
         # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#select_replace
-        Sequence(
-            'EXCEPT',
+        Ref('ExceptClauseSegment', optional=True),
+        Ref('ReplaceClauseSegment', optional=True)
+    ),
+)
+
+
+@bigquery_dialect.segment()
+class ExceptClauseSegment(BaseSegment):
+    """SELECT EXCEPT clause."""
+    type = 'select_except_clause'
+    match_grammar = Sequence(
+        'EXCEPT',
+        Bracketed(
+            Delimited(
+                Ref('SingleIdentifierGrammar'),
+                delimiter=Ref('CommaSegment')
+            )
+        ),
+    )
+
+
+@bigquery_dialect.segment()
+class ReplaceClauseSegment(BaseSegment):
+    """SELECT REPLACE clause."""
+    type = 'select_replace_clause'
+    match_grammar = Sequence(
+        'REPLACE',
+        OneOf(
+            # Multiple replace in brackets
             Bracketed(
                 Delimited(
-                    Ref('SingleIdentifierGrammar'),
+                    # Not *really* a select target element. It behaves exactly
+                    # the same way however.
+                    Ref('SelectTargetElementSegment'),
                     delimiter=Ref('CommaSegment')
                 )
             ),
-            optional=True
+            # Single replace not in brackets.
+            Ref('SelectTargetElementSegment')
         ),
-        Sequence(
-            'REPLACE',
-            OneOf(
-                # Multiple replace in brackets
-                Bracketed(
-                    Delimited(
-                        # Not *really* a select target element. It behaves exactly
-                        # the same way however.
-                        Ref('SelectTargetElementSegment'),
-                        delimiter=Ref('CommaSegment')
-                    )
-                ),
-                # Single replace not in brackets.
-                Ref('SelectTargetElementSegment')
-            ),
-            optional=True
-        )
-    ),
-)
+    )

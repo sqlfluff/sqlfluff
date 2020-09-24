@@ -147,7 +147,6 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
         loop_idx = 0
         bencher("fix_string: Loop Setup")
         while True:
-            # TODO: Remove. Slowdown is BEFORE here.
             loop_idx += 1
             verbosity_logger(
                 "{0:04d}: Write Loop: idx:{1}, buff:{2!r}".format(loop_idx, idx, write_buff),
@@ -170,13 +169,12 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
             if fixed_block is None:
                 if diff_fix_codes:
                     fixed_block = diff_fix_codes.pop(0)
-                # One case is that we just consumed the last block of both, so check indexes
-                # to see if we're at the end of the raw file.
-                elif idx[0] >= len(self.file_mask[0]):
-                    # Yep we're at the end
-                    break
-                else:
-                    raise NotImplementedError("Unexpectedly depleted the fixes. Panic!")
+                elif templ_block[0] != 'delete':
+                    # We need another fixed_block for the cases where templ_block[0] is not 'delete'
+                    raise NotImplementedError(
+                        "A {} template block remains with no more diff_fix_codes left".format(templ_block[0])
+                    )
+
             verbosity_logger(
                 "{0:04d}: Blocks: template:{1}, fix:{2}".format(loop_idx, templ_block, fixed_block),
                 verbosity=verbosity)

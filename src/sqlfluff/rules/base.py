@@ -116,7 +116,7 @@ class LintFix:
             if isinstance(self.edit, BaseSegment):
                 if len(self.edit.raw) == 0:
                     return True
-            elif all([len(elem.raw) == 0 for elem in self.edit]):
+            elif all(len(elem.raw) == 0 for elem in self.edit):
                 return True
         elif self.edit_type == 'edit' and self.edit == self.anchor:
             return True

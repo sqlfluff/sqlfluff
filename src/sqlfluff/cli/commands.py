@@ -11,12 +11,12 @@ import pstats
 from io import StringIO
 from benchit import BenchIt
 
-from ..dialects import dialect_selector
+from ..dialects import dialect_selector, dialect_readout
 from ..linter import Linter
 from .formatters import (format_config, format_rules,
                          format_violation, format_linting_result_header,
                          format_linting_result_footer, colorize,
-                         format_dialect_warning)
+                         format_dialect_warning, format_dialects)
 from .helpers import cli_table, get_package_version
 from ..config import FluffConfig
 from ..errors import SQLLintError
@@ -116,6 +116,14 @@ def rules(**kwargs):
     c = get_config(**kwargs)
     lnt = get_linter(c)
     click.echo(format_rules(lnt), color=c.get('color'))
+
+
+@cli.command()
+@common_options
+def dialects(**kwargs):
+    """Show the current dialects available."""
+    c = get_config(**kwargs)
+    click.echo(format_dialects(dialect_readout), color=c.get('color'))
 
 
 @cli.command()

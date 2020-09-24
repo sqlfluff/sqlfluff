@@ -27,8 +27,15 @@ postgres_dialect.add(
 
 postgres_dialect.replace(
     PostFunctionGrammar=OneOf(
-        Ref('OverClauseSegment'),
-        Ref('WithinGroupClauseSegment')
+        Ref('WithinGroupClauseSegment'),
+        Sequence(
+            Sequence(
+                OneOf('IGNORE', 'RESPECT'),
+                'NULLS',
+                optional=True
+            ),
+            Ref('OverClauseSegment')
+        )
     ),
     BinaryOperatorGramar=OneOf(
         Ref('ArithmeticBinaryOperatorGrammar'),

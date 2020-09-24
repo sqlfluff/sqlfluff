@@ -266,12 +266,6 @@ class BaseGrammar:
     def _look_ahead_match(cls, segments, matchers, parse_context, code_only=True):
         """Look ahead for matches beyond the first element of the segments list.
 
-        Look ahead in a bracket sensitive way to find the next occurance of a particular
-        matcher(s). When a match is found, it is returned, along with any preceeding
-        (unmatched) segments, and a reference to the matcher which eventually matched it.
-
-        The intent is that this will become part of the bracket matching routines.
-
         This function also contains the performance improved hash-matching approach to
         searching for matches, which should significantly improve performance.
 
@@ -298,9 +292,10 @@ class BaseGrammar:
 
         # Have we been passed an empty list?
         if len(segments) == 0:
+            print("e")
             return ((), MatchResult.from_empty(), None)
 
-        # Here we enable a performance optimisation.Most of the time in this cycle
+        # Here we enable a performance optimisation. Most of the time in this cycle
         # happens in loops looking for simple matchers which we should
         # be able to find a shortcut for.
         # First: Assess the matchers passed in, if any are
@@ -315,8 +310,14 @@ class BaseGrammar:
             # Build a buffer of all the upper case raw segments ahead of us.
             str_buff = []
             seg_idx_buf = []  # This is a way of mapping indexes in the str_buff back to indexes in `segments`
+            # For existing compound segments, we should assume that within
+            # that segment, things are internally consistent, that means
+            # rather than enumerating all the individual segments of a longer
+            # one we just dump out the whole segment. This is a) faster and
+            # also b) prevents some really horrible bugs with bracket matching.
+            # See https://github.com/alanmcruickshank/sqlfluff/issues/433
             for idx, seg in enumerate(segments):
-                delta_seg_raw = [s.raw_upper for s in seg.iter_raw_seg()]
+                delta_seg_raw = [seg.raw_upper]
                 str_buff += delta_seg_raw
                 seg_idx_buf += [idx] * len(delta_seg_raw)
             m_pos = []
@@ -347,8 +348,13 @@ class BaseGrammar:
                 # We've managed to match. We can shortcut home.
                 # NB: We may still need to deal with whitespace.
                 segments_index = seg_idx_buf[m_first[1]]  # map back into indexes in `segments`
+                # Here we do the actual transform to the new segment.
                 matcher = m_first[0]
                 match = matcher._match(segments[segments_index:], parse_context)
+                if not match:
+                    raise ValueError(
+                        "Segment matched in simple parsing, but failed later. Report this."
+                    )
                 pre_segments = segments[:segments_index]
                 if code_only:
                     # Pick up any non-code segments as necessary
@@ -924,38 +930,71 @@ class GreedyUntil(BaseGrammar):
     """
 
     def __init__(self, *args, **kwargs):
-        self.enforce_whitespace_preceeding = kwargs.pop('enforce_whitespace_preceeding', False)
+        self.enforce_whitespace_preceeding_terminator = kwargs.pop(
+            'enforce_whitespace_preceeding_terminator', False)
         super(GreedyUntil, self).__init__(*args, **kwargs)
 
     def match(self, segments, parse_context):
         """Matching for GreedyUntil works just how you'd expect."""
+        return self.greedy_match(
+            segments, parse_context, matchers=self._elements, code_only=self.code_only,
+            enforce_whitespace_preceeding_terminator=self.enforce_whitespace_preceeding_terminator,
+            include_terminator=False
+        )
+
+    @classmethod
+    def greedy_match(cls, segments, parse_context, matchers, code_only,
+                     enforce_whitespace_preceeding_terminator, include_terminator=False):
+        """Matching for GreedyUntil works just how you'd expect."""
         seg_buff = segments
-        seg_bank = tuple()
+        seg_bank = ()  # Empty tuple
+        # If no terminators then just return the whole thing.
+        if matchers == [None]:
+            return MatchResult.from_matched(segments)
+
         while True:
-            pre, mat, _ = self._bracket_sensitive_look_ahead_match(
-                seg_buff, self._elements, parse_context=parse_context.copy(incr='match_depth'),
-                code_only=self.code_only)
+            pre, mat, _ = cls._bracket_sensitive_look_ahead_match(
+                seg_buff, matchers, parse_context=parse_context.copy(incr='match_depth'),
+                code_only=code_only)
 
             # Do we have a match?
             if mat:
                 # Do we need to enfore whitespace preceeding?
-                if self.enforce_whitespace_preceeding:
-                    idx = -1
+                if enforce_whitespace_preceeding_terminator:
+                    # Does the match include some whitespace already?
+                    # Work forward
+                    idx = 0
                     while True:
-                        if len(pre) < abs(idx):
-                            # If we're at the start, it's ok
-                            allow = True
-                            break
-                        if pre[idx].is_meta:
-                            idx -= 1
+                        elem = mat.matched_segments[idx]
+                        if elem.is_meta:
+                            idx += 1
                             continue
-                        elif pre[idx].type in ('whitespace', 'newline'):
+                        elif elem.type in ('whitespace', 'newline'):
                             allow = True
                             break
                         else:
                             # No whitespace before. Not allowed.
                             allow = False
                             break
+
+                    # If we're not ok yet, work backward to the preceeding sections.
+                    if not allow:
+                        idx = -1
+                        while True:
+                            if len(pre) < abs(idx):
+                                # If we're at the start, it's ok
+                                allow = True
+                                break
+                            if pre[idx].is_meta:
+                                idx -= 1
+                                continue
+                            elif pre[idx].type in ('whitespace', 'newline'):
+                                allow = True
+                                break
+                            else:
+                                # No whitespace before. Not allowed.
+                                allow = False
+                                break
 
                     if not allow:
                         # Update our buffers and continue onward
@@ -964,10 +1003,27 @@ class GreedyUntil(BaseGrammar):
                         # Loop around, don't return yet
                         continue
 
-                # Return everything up to the match.
-                # We can't claim any non-code segments however, so we trim them off the end.
-                leading_nc, pre_seg_mid, trailing_nc = self._trim_non_code(seg_bank + pre)
-                return MatchResult(leading_nc + pre_seg_mid, trailing_nc + mat.all_segments())
+                # Depending on whether we found a terminator or not we treat
+                # the result slightly differently. If no terminator was found,
+                # we just use the whole unmatched segment. If we did find one,
+                # we match up until (but not including [unless self.include_terminator
+                # is true]) that terminator.
+                if mat:
+                    # Return everything up to the match.
+                    if include_terminator:
+                        return MatchResult(
+                            seg_bank + pre + mat.matched_segments,
+                            mat.unmatched_segments,
+                        )
+
+                    # We can't claim any non-code segments, so we trim them off the end.
+                    leading_nc, pre_seg_mid, trailing_nc = cls._trim_non_code(seg_bank + pre)
+                    return MatchResult(
+                        leading_nc + pre_seg_mid,
+                        trailing_nc + mat.all_segments(),
+                    )
+                # No terminator, just return the whole thing.
+                return MatchResult.from_matched(mat.unmatched_segments)
             else:
                 # Return everything
                 return MatchResult.from_matched(segments)
@@ -1357,7 +1413,7 @@ class ContainsOnly(BaseGrammar):
         return " ( " + " | ".join(buff) + " | + )"
 
 
-class StartsWith(BaseGrammar):
+class StartsWith(GreedyUntil):
     """Match if this sequence starts with a match.
 
     This also has configurable whitespace and comment handling.
@@ -1403,46 +1459,16 @@ class StartsWith(BaseGrammar):
                 # of a partial match, given that we're only interested in what it STARTS
                 # with, then we can still used the unmatched parts on the end.
                 # We still need to deal with any non-code segments at the start.
-                if self.terminator:
-                    # We have an optional terminator. We should only match up to when
-                    # this matches. This should also respect bracket counting.
-                    match_segments = match.matched_segments
-                    trailing_segments = match.unmatched_segments
-
-                    # Given a set of segments, iterate through looking for
-                    # a terminator.
-                    res = self._bracket_sensitive_look_ahead_match(
-                        segments=trailing_segments, matchers=[self.terminator],
-                        parse_context=parse_context
-                    )
-
-                    # Depending on whether we found a terminator or not we treat
-                    # the result slightly differently. If no terminator was found,
-                    # we just use the whole unmatched segment. If we did find one,
-                    # we match up until (but not including [unless self.include_terminator
-                    # is true]) that terminator.
-                    term_match = res[1]
-                    if term_match:
-                        if self.include_terminator:
-                            m_tail = res[0] + term_match.matched_segments
-                            u_tail = term_match.unmatched_segments
-                        else:
-                            m_tail = res[0]
-                            u_tail = term_match.all_segments()
-                    else:
-                        m_tail = term_match.unmatched_segments
-                        u_tail = ()
-
-                    return MatchResult(
-                        segments[:first_code_idx]
-                        + match_segments
-                        + m_tail,
-                        u_tail,
-                    )
-                else:
-                    return MatchResult.from_matched(
-                        segments[:first_code_idx]
-                        + match.all_segments())
+                greedy_match = self.greedy_match(
+                    match.unmatched_segments, parse_context, matchers=[self.terminator], code_only=self.code_only,
+                    enforce_whitespace_preceeding_terminator=self.enforce_whitespace_preceeding_terminator,
+                    include_terminator=self.include_terminator
+                )
+                # Combine the results.
+                return MatchResult(
+                    match.matched_segments + greedy_match.matched_segments,
+                    greedy_match.unmatched_segments
+                )
             else:
                 return MatchResult.from_unmatched(segments)
         else:

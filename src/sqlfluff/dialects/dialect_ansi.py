@@ -38,7 +38,7 @@ ansi_dialect.set_lexer_struct([
     ("single_quote", "regex", r"'[^']*'", dict(is_code=True)),
     ("double_quote", "regex", r'"[^"]*"', dict(is_code=True)),
     ("back_quote", "regex", r"`[^`]*`", dict(is_code=True)),
-    ("numeric_literal", "regex", r"([0-9]+(\.[0-9]+)?)", dict(is_code=True)),
+    ("numeric_literal", "regex", r"([0-9]+(\.[0-9]+)?)|(\.[0-9]+)", dict(is_code=True)),
     ("not_equal", "regex", r"!=|<>", dict(is_code=True)),
     ("greater_than_or_equal", "regex", r">=", dict(is_code=True)),
     ("less_than_or_equal", "regex", r"<=", dict(is_code=True)),
@@ -109,6 +109,10 @@ ansi_dialect.add(
     LessThanOrEqualToSegment=KeywordSegment.make('<=', name='less_than_equal_to', type='comparison_operator'),
     NotEqualToSegment_a=KeywordSegment.make('!=', name='not_equal_to', type='comparison_operator'),
     NotEqualToSegment_b=KeywordSegment.make('<>', name='not_equal_to', type='comparison_operator'),
+    # The following functions can be called without parentheses per ANSI specification
+    BareFunctionSegment=ReSegment.make(
+        r"current_timestamp|current_time|current_date", name="bare_function", type="bare_function"
+    ),
     # The strange regex here it to make sure we don't accidentally match numeric literals. We
     # also use a regex to explicitly exclude disallowed keywords.
     NakedIdentifierSegment=SegmentGenerator(
@@ -360,7 +364,14 @@ ansi_dialect.add(
     # Optional OVER suffix for window functions.
     # This is supported in biquery & postgres (and it's derivatives)
     # and so is included here for now.
-    PostFunctionGrammar=Ref('OverClauseSegment')
+    PostFunctionGrammar=Sequence(
+        Sequence(
+            OneOf('IGNORE', 'RESPECT'),
+            'NULLS',
+            optional=True
+        ),
+        Ref('OverClauseSegment')
+    )
 )
 
 
@@ -428,7 +439,8 @@ class PartitionClauseSegment(BaseSegment):
         terminator=OneOf(
             'ORDER',
             'ROWS'
-        )
+        ),
+        enforce_whitespace_preceeding_terminator=True
     )
     parse_grammar = Sequence(
         'PARTITION',
@@ -473,6 +485,7 @@ class TableExpressionSegment(BaseSegment):
             # Functions allowed here for table expressions.
             # Perhaps this should just be in a dialect, but
             # it seems sensible here for now.
+            Ref('BareFunctionSegment'),
             Ref('FunctionSegment'),
             Ref('ObjectReferenceSegment'),
             # Nested Selects
@@ -538,7 +551,8 @@ class SelectTargetElementSegment(BaseSegment):
         GreedyUntil(
             'FROM', 'LIMIT',
             Ref('CommaSegment'),
-            Ref('SetOperatorSegment')
+            Ref('SetOperatorSegment'),
+            enforce_whitespace_preceeding_terminator=True
         )
     )
 
@@ -548,6 +562,7 @@ class SelectTargetElementSegment(BaseSegment):
         Sequence(
             OneOf(
                 Ref('LiteralGrammar'),
+                Ref('BareFunctionSegment'),
                 Ref('FunctionSegment'),
                 Ref('IntervalExpressionSegment'),
                 Ref('ObjectReferenceSegment'),
@@ -577,7 +592,8 @@ class SelectClauseSegment(BaseSegment):
             'SELECT',
             Ref('WildcardSelectTargetElementGrammar', optional=True)
         ),
-        terminator=OneOf('FROM', 'LIMIT', Ref('SetOperatorSegment'))
+        terminator=OneOf('FROM', 'LIMIT', Ref('SetOperatorSegment')),
+        enforce_whitespace_preceeding_terminator=True
     )
 
     parse_grammar = Sequence(
@@ -669,7 +685,8 @@ class FromClauseSegment(BaseSegment):
             'HAVING',
             'QUALIFY',
             Ref('SetOperatorSegment')
-        )
+        ),
+        enforce_whitespace_preceeding_terminator=True
     )
     parse_grammar = Sequence(
         'FROM',
@@ -857,6 +874,7 @@ ansi_dialect.add(
     ),
     Expression_D_Grammar=Sequence(
         OneOf(
+            Ref('BareFunctionSegment'),
             Ref('FunctionSegment'),
             Bracketed(
                 Ref('Expression_A_Grammar')
@@ -912,7 +930,8 @@ class WhereClauseSegment(BaseSegment):
             'ORDER',
             'HAVING',
             'QUALIFY'
-        )
+        ),
+        enforce_whitespace_preceeding_terminator=True
     )
     parse_grammar = Sequence(
         'WHERE',
@@ -984,7 +1003,8 @@ class GroupByClauseSegment(BaseSegment):
             'LIMIT',
             'HAVING',
             'QUALIFY'
-        )
+        ),
+        enforce_whitespace_preceeding_terminator=True
     )
     parse_grammar = Sequence(
         'GROUP',
@@ -1020,7 +1040,8 @@ class HavingClauseSegment(BaseSegment):
             'ORDER',
             'LIMIT',
             'QUALIFY'
-        )
+        ),
+        enforce_whitespace_preceeding_terminator=True
     )
     parse_grammar = Sequence(
         'HAVING',
@@ -1079,7 +1100,8 @@ class SelectStatementSegment(BaseSegment):
         # select clause rather than just the SELECT keyword, we mitigate that
         # here.
         Ref('SelectClauseSegment'),
-        terminator=Ref('SetOperatorSegment')
+        terminator=Ref('SetOperatorSegment'),
+        enforce_whitespace_preceeding_terminator=True
     )
 
     parse_grammar = Sequence(
@@ -1711,6 +1733,7 @@ class SetClauseSegment(BaseSegment):
         Ref('EqualsSegment'),
         OneOf(
             Ref('LiteralGrammar'),
+            Ref('BareFunctionSegment'),
             Ref('FunctionSegment'),
             Ref('ObjectReferenceSegment'),
             'NULL',
