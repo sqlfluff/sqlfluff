@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.6] - 2020-09-24
+
+### Added
+
+- `sqlfluff dialects` command to get a readout of available
+  dialects [+ associated docs].
+- More helpful error messages when trying to run in Python2.
+- Window functions now parse with `IGNORE`/`RESPECT` `NULLS`.
+- Parsing of `current_timestamp` and similar functions. Thanks [@dmateusp](https://github.com/dmateusp).
+- Snowflake `QUALIFY` clause.
+
+### Changed
+
+- Respect user config directories. Thanks [@sethwoodworth](https://github.com/sethwoodworth).
+- Fix incorrect reporting of L013 with `*`. Thanks [@dmateusp](https://github.com/dmateusp).
+- Fix incorrect reporting of L027 with column aliases. Thanks [@pwildenhain](https://github.com/pwildenhain).
+- Simplification of application of fixes and correction of
+  a case where fixes could be depleted. Thanks [@NiallRees](https://github.com/NiallRees).
+- Fix functions with a similar structure to `SUBSTRING`.
+- Refactor BigQuery `REPLACE` and `EXCEPT` clauses.
+- Bigquery date parts corrected.
+- Snowflake array accessors.
+- Psotgres `NOTNULL` and `ISNULL`.
+- Bugfix in snowflake for keywords used in semistructured
+  queries.
+- Nested `WITH` statements now parse.
+- Performance improvements in the `fix` command.
+- Numeric literals starting with a decimal now parse.
+- Refactor the jinja templater.
+
 ## [0.3.5] - 2020-08-03
 
 ### Added
