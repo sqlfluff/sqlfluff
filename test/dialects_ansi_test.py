@@ -117,7 +117,11 @@ def validate_segment(segmentref, config):
         ("SelectTargetElementSegment", "-some_variable"),
         ("SelectTargetElementSegment", "- some_variable"),
         # Complex Functions
-        ("ExpressionSegment", "concat(left(uaid, 2), '|', right(concat('0000000', SPLIT_PART(uaid, '|', 4)), 10), '|', '00000000')")
+        ("ExpressionSegment", "concat(left(uaid, 2), '|', right(concat('0000000', SPLIT_PART(uaid, '|', 4)), 10), '|', '00000000')"),
+        # Notnull and Isnull
+        ("ExpressionSegment", "c notnull"),
+        ("ExpressionSegment", "c is null"),
+        ("ExpressionSegment", "c isnull"),
     ]
 )
 def test__dialect__ansi_specific_segment_parses(segmentref, raw, caplog):
