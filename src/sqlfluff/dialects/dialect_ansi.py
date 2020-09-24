@@ -846,6 +846,8 @@ ansi_dialect.add(
                     OneOf(
                         'NULL',
                         'NAN',
+                        'NOTNULL',
+                        'ISNULL',
                         # TODO: True and False might not be allowed here in some
                         # dialects (e.g. snowflake) so we should probably
                         # revisit this at some point. Perhaps abstract this clause
