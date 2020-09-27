@@ -54,6 +54,7 @@ ansi_dialect.set_lexer_struct([
     ("tilde", "singleton", "~", dict(is_code=True)),
     ("minus", "singleton", "-", dict(is_code=True)),
     ("divide", "singleton", "/", dict(is_code=True)),
+    ("percent", "singleton", "%", dict(is_code=True)),
     ("star", "singleton", "*", dict(is_code=True)),
     ("bracket_open", "singleton", "(", dict(is_code=True)),
     ("bracket_close", "singleton", ")", dict(is_code=True)),
@@ -101,6 +102,7 @@ ansi_dialect.add(
     NegativeSegment=KeywordSegment.make('-', name='negative', type='sign_indicator'),
     DivideSegment=KeywordSegment.make('/', name='divide', type='binary_operator'),
     MultiplySegment=KeywordSegment.make('*', name='multiply', type='binary_operator'),
+    ModuloSegment=KeywordSegment.make('%', name='modulo', type='binary_operator'),
     ConcatSegment=KeywordSegment.make('||', name='concatenate', type='binary_operator'),
     EqualsSegment=KeywordSegment.make('=', name='equals', type='comparison_operator'),
     GreaterThanSegment=KeywordSegment.make('>', name='greater_than', type='comparison_operator'),
@@ -144,7 +146,7 @@ ansi_dialect.add(
     # We specifically define a group of arithmetic operators to make it easier to override this
     # if some dialects have different available operators
     ArithmeticBinaryOperatorGrammar=OneOf(
-        Ref('PlusSegment'), Ref('MinusSegment'), Ref('DivideSegment'), Ref('MultiplySegment')),
+        Ref('PlusSegment'), Ref('MinusSegment'), Ref('DivideSegment'), Ref('MultiplySegment'), Ref('ModuloSegment')),
     StringBinaryOperatorGrammar=OneOf(
         Ref('ConcatSegment')),
     BooleanBinaryOperatorGrammar=OneOf(
