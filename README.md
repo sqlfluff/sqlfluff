@@ -1,4 +1,4 @@
-![SQLfluff](https://raw.githubusercontent.com/alanmcruickshank/sqlfluff/master/images/sqlfluff-wide.png)
+![SQLfluff](https://raw.githubusercontent.com/sqlfluff/sqlfluff/master/images/sqlfluff-wide.png)
 
 ## The SQL Linter for humans
 
@@ -8,9 +8,9 @@
 [![PyPi Status](https://img.shields.io/pypi/status/sqlfluff.svg?style=flat-square)](https://pypi.org/project/sqlfluff/)
 [![PyPi Downloads](https://img.shields.io/pypi/dm/sqlfluff?style=flat-square)](https://pypi.org/project/sqlfluff/)
 
-[![codecov](https://img.shields.io/codecov/c/gh/alanmcruickshank/sqlfluff.svg?style=flat-square&logo=Codecov)](https://codecov.io/gh/alanmcruickshank/sqlfluff)
-[![Requirements Status](https://img.shields.io/requires/github/alanmcruickshank/sqlfluff.svg?style=flat-square)](https://requires.io/github/alanmcruickshank/sqlfluff/requirements/?branch=master)
-[![CircleCI](https://img.shields.io/circleci/build/gh/alanmcruickshank/sqlfluff/master?style=flat-square&logo=CircleCI)](https://circleci.com/gh/alanmcruickshank/sqlfluff/tree/master)
+[![codecov](https://img.shields.io/codecov/c/gh/sqlfluff/sqlfluff.svg?style=flat-square&logo=Codecov)](https://codecov.io/gh/sqlfluff/sqlfluff)
+[![Requirements Status](https://img.shields.io/requires/github/sqlfluff/sqlfluff.svg?style=flat-square)](https://requires.io/github/sqlfluff/sqlfluff/requirements/?branch=master)
+[![CircleCI](https://img.shields.io/circleci/build/gh/sqlfluff/sqlfluff/master?style=flat-square&logo=CircleCI)](https://circleci.com/gh/sqlfluff/sqlfluff/tree/master)
 [![ReadTheDocs](https://img.shields.io/readthedocs/sqlfluff?style=flat-square&logo=Read%20the%20Docs)](https://sqlfluff.readthedocs.io)
 
 Bored of not having a good SQL linter that works with whichever dialiect you're
@@ -54,5 +54,5 @@ There's lots to do in this project, and we're just getting started. If you want 
 about the architecture of sqlfluff, you can find [more here](https://sqlfluff.readthedocs.io/en/latest/architecture.html).
 
 If you'd like to contribute, check out the
-[open issues on github](https://github.com/alanmcruickshank/sqlfluff/issues).
+[open issues on github](https://github.com/sqlfluff/sqlfluff/issues).
 You can also see the guide to [contributing](CONTRIBUTING.md).

@@ -99,6 +99,7 @@ def benchmark(cmd, runs, from_file):
             click.echo("Posting results: {0}".format(results))
             resp = requests.post(
                 'https://f32cvv8yh3.execute-api.eu-west-1.amazonaws.com/result/gh/{repo}/{commit}'.format(
+                    # TODO: update the stats collector eventually to allow the new repo path
                     repo='alanmcruickshank/sqlfluff',
                     commit=commit_hash
                 ),

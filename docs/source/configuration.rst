@@ -44,7 +44,7 @@ steps overriding those from earlier:
    :ref:`defaultconfig` section.
 1. It will look in the user's os-specific app config directory. On OSX this is
    `~/Library/Preferences/sqlfluff`, Unix is `~/.config/sqlfluff`, Windows is
-   `<home>\AppData\Local\alanmcruickshank\sqlfluff`, for any of the filenames
+   `<home>\AppData\Local\sqlfluff\sqlfluff`, for any of the filenames
    above in the main :ref:`config` section. If multiple are present, they will
    *patch*/*override* eachother in the order above.
 2. It will look for the same files in the user's home directory (~).
@@ -228,7 +228,7 @@ projects. In particular it provides mock objects for:
     consider submitting the idea (or even better a pull request) on `github`_.
 
 .. _`dbt`: https://www.getdbt.com/
-.. _`github`: https://www.github.com/alanmcruickshank/sqlfluff
+.. _`github`: https://www.github.com/sqlfluff/sqlfluff
 
 .. _defaultconfig:
 

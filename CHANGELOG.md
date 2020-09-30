@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support for modulo (`%`) operator.
 
+### Changed
+
+- Created new Github Organisation (https://github.com/sqlfluff) and
+  migrated from https://github.com/alanmcruickshank/sqlfluff to
+  https://github.com/sqlfluff/sqlfluff.
+
 ## [0.3.6] - 2020-09-24
 
 ### Added
@@ -166,7 +172,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated logging of parsing and lexing errors to have more useful
   error codes.
 - Changed parsing of expressions to favour functions over identifiers
-  to [fix the expression bug](https://github.com/alanmcruickshank/sqlfluff/issues/96).
+  to [fix the expression bug](https://github.com/sqlfluff/sqlfluff/issues/96).
 - Fixed the "inconsistent" bug in L010. Thanks [@nolanbconaway](https://github.com/nolanbconaway).
 - Moved where the `SELECT` keyword is parsed within a select statement,
   so that it belongs as part of the newly renamed `select_clause` (renamed

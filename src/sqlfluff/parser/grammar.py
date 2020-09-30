@@ -315,7 +315,7 @@ class BaseGrammar:
             # rather than enumerating all the individual segments of a longer
             # one we just dump out the whole segment. This is a) faster and
             # also b) prevents some really horrible bugs with bracket matching.
-            # See https://github.com/alanmcruickshank/sqlfluff/issues/433
+            # See https://github.com/sqlfluff/sqlfluff/issues/433
             for idx, seg in enumerate(segments):
                 delta_seg_raw = [seg.raw_upper]
                 str_buff += delta_seg_raw
