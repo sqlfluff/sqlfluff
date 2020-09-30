@@ -44,14 +44,14 @@ setup(
     long_description_content_type='text/markdown',
     author='Alan Cruickshank',
     author_email='alan@designingoverload.com',
-    url='https://github.com/alanmcruickshank/sqlfluff',
+    url='https://github.com/sqlfluff/sqlfluff',
     python_requires=">=3.5",
     keywords=['sqlfluff', 'sql', 'linter'],
     project_urls={
         # Homepage not ready yet.
         # 'Homepage': 'https://www.sqlfluff.com'
         'Documentation': 'https://docs.sqlfluff.com',
-        'Source': 'https://github.com/alanmcruickshank/sqlfluff',
+        'Source': 'https://github.com/sqlfluff/sqlfluff',
     },
     # Specify all the seperate packages, modules come automatically
     packages=['sqlfluff', 'sqlfluff.cli', 'sqlfluff.dialects', 'sqlfluff.parser', 'sqlfluff.rules'],

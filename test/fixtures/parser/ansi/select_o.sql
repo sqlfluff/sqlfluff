@@ -1,5 +1,5 @@
 -- Between and Not Between
--- https://github.com/alanmcruickshank/sqlfluff/issues/142
+-- https://github.com/sqlfluff/sqlfluff/issues/142
 SELECT
     business_type
 FROM

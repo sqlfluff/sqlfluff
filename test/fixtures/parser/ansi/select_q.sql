@@ -1,5 +1,5 @@
 -- Unexpected Join Fail
--- https://github.com/alanmcruickshank/sqlfluff/issues/163
+-- https://github.com/sqlfluff/sqlfluff/issues/163
 SELECT
     data.id
 FROM

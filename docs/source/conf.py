@@ -70,7 +70,7 @@ html_theme_options = {
     'logo': 'images/sqlfluff-lrg.png',
     # Icon for iOS shortcuts
     'touch_icon': 'images/sqlfluff-sm2-sq.png',
-    'github_user': 'alanmcruickshank',
+    'github_user': 'sqlfluff',
     'github_repo': 'sqlfluff',
     # Github Fork button
     'github_banner': True,

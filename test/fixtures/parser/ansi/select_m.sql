@@ -1,5 +1,5 @@
 -- On clause without brackets
--- https://github.com/alanmcruickshank/sqlfluff/issues/146
+-- https://github.com/sqlfluff/sqlfluff/issues/146
 SELECT
     a
 FROM

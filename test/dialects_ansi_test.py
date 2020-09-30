@@ -62,24 +62,24 @@ def validate_segment(segmentref, config):
         ("ExpressionSegment",
          "CASE WHEN id = 1 THEN 'nothing' ELSE 'test' END"),
         # Nested Case Expressions
-        # https://github.com/alanmcruickshank/sqlfluff/issues/172
+        # https://github.com/sqlfluff/sqlfluff/issues/172
         ("ExpressionSegment",
          ("CASE WHEN id = 1 THEN CASE WHEN true THEN 'something' "
           "ELSE 'nothing' END ELSE 'test' END")),
         # Casting expressions
-        # https://github.com/alanmcruickshank/sqlfluff/issues/161
+        # https://github.com/sqlfluff/sqlfluff/issues/161
         ("ExpressionSegment",
          "CAST(ROUND(online_sales / 1000.0) AS varchar)"),
         # Like expressions
-        # https://github.com/alanmcruickshank/sqlfluff/issues/170
+        # https://github.com/sqlfluff/sqlfluff/issues/170
         ("ExpressionSegment",
          "name NOT LIKE '%y'"),
         # Functions with a space
-        # https://github.com/alanmcruickshank/sqlfluff/issues/171
+        # https://github.com/sqlfluff/sqlfluff/issues/171
         ("SelectTargetElementSegment",
          "MIN (test.id) AS min_test_id"),
         # Interval literals
-        # https://github.com/alanmcruickshank/sqlfluff/issues/148
+        # https://github.com/sqlfluff/sqlfluff/issues/148
         ("ExpressionSegment",
          "DATE_ADD(CURRENT_DATE('America/New_York'), INTERVAL 1 year)"),
         # Array accessors
@@ -97,8 +97,8 @@ def validate_segment(segmentref, config):
          ("(count_18_24 * bits[OFFSET(0)] + count_25_34)"
           " / audience_size AS relative_abundance")),
         # Dense math expressions
-        # https://github.com/alanmcruickshank/sqlfluff/issues/178
-        # https://github.com/alanmcruickshank/sqlfluff/issues/179
+        # https://github.com/sqlfluff/sqlfluff/issues/178
+        # https://github.com/sqlfluff/sqlfluff/issues/179
         ("SelectStatementSegment", "SELECT t.val/t.id FROM test WHERE id*1.0/id > 0.8"),
         ("SelectTargetElementSegment", "t.val/t.id"),
         # Issue with casting raise as part of PR #177

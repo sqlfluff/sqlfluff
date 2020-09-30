@@ -228,4 +228,4 @@ github`_ where the maintainers of the project can work out what to do with
 it. The project is in active development and so updates and fixes may
 come out regularly.
 
-.. _`post the issue on github`: https://github.com/alanmcruickshank/sqlfluff/issues
+.. _`post the issue on github`: https://github.com/sqlfluff/sqlfluff/issues
