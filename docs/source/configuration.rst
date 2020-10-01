@@ -117,6 +117,7 @@ and *native python types*. Both are illustrated in the following example:
     [sqlfluff:templater:jinja:context]
     my_list=['a', 'b', 'c']
     MY_LIST=("d", "e", "f")
+    my_where_dict={"field_1": 1, "field_2": 2}
 
 .. code-block:: jinja
 
@@ -125,6 +126,10 @@ and *native python types*. Both are illustrated in the following example:
             '{{elem}}' {% if not loop.last %}||{% endif %}
         {% endfor %} as concatenated_list
     FROM tbl
+    WHERE
+        {% for field, value in my_where_dict.items() %}
+            {{field}} = {{value}} {% if not loop.last %}and{% endif %}
+        {% endfor %}
 
 ...will render as...
 
@@ -133,6 +138,8 @@ and *native python types*. Both are illustrated in the following example:
     SELECT
         'd' || 'e' || 'f' as concatenated_list
     FROM tbl
+    WHERE
+        field_1 = 1 and field_2 = 2
 
 Note that the variable was replaced in a case sensitive way and that the
 settings in the config file were interpreted as native python types.
@@ -230,8 +237,31 @@ projects. In particular it provides mock objects for:
 .. _`dbt`: https://www.getdbt.com/
 .. _`github`: https://www.github.com/sqlfluff/sqlfluff
 
-.. _defaultconfig:
+CLI Arguments
+-------------
 
+You already know you can pass arguments (:code:`--verbose`,
+:code:`--exclude_rules`, etc.) through the CLI commands (:code:`lint`,
+:code:`fix`, etc.):
+
+.. code-block:: console
+
+    $ sqfluff lint my_code.sql -v -exclude_rules L022,L027
+
+You might have arguments that you pass through every time, e.g rules you
+*always* want to ignore. These can also be configured:
+
+.. code-block:: cfg
+
+    [sqlfluff]
+    verbose = 1
+    exclude_rules = L022,L027
+
+Note that while the :code:`exclude_rules` config looks similiar to the
+above example, the :code:`verbose` config has an integer value. This is
+because :code:`verbose` is *stackable* meaning there are multiple levels
+of verbosity that are available for configuration. See :ref:`cliref` for
+more details about the available CLI arguments.
 
 .sqlfluffignore
 ---------------
@@ -265,6 +295,7 @@ linted and the sub files will also be applied within that subdirectory.
 .. _`Docker's`: https://docs.docker.com/engine/reference/builder/#dockerignore-file
 .. _`pathspec library`: https://python-path-specification.readthedocs.io/
 
+.. _defaultconfig:
 
 Default Configuration
 ---------------------
