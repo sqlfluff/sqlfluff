@@ -117,6 +117,7 @@ and *native python types*. Both are illustrated in the following example:
     [sqlfluff:templater:jinja:context]
     my_list=['a', 'b', 'c']
     MY_LIST=("d", "e", "f")
+    my_where_dict={"field_1": 1, "field_2": 2}
 
 .. code-block:: jinja
 
@@ -125,7 +126,10 @@ and *native python types*. Both are illustrated in the following example:
             '{{elem}}' {% if not loop.last %}||{% endif %}
         {% endfor %} as concatenated_list
     FROM tbl
-
+    WHERE
+        {% for field, value in my_where_dict.items() %}
+            {{field}} = {{value}} {% if not loop.last %}and{% endif %}
+        {% endfor %}
 ...will render as...
 
 .. code-block:: sql
@@ -133,6 +137,8 @@ and *native python types*. Both are illustrated in the following example:
     SELECT
         'd' || 'e' || 'f' as concatenated_list
     FROM tbl
+    WHERE
+        field_1 = 1 and field_2 = 2
 
 Note that the variable was replaced in a case sensitive way and that the
 settings in the config file were interpreted as native python types.
