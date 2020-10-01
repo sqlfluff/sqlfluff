@@ -130,6 +130,7 @@ and *native python types*. Both are illustrated in the following example:
         {% for field, value in my_where_dict.items() %}
             {{field}} = {{value}} {% if not loop.last %}and{% endif %}
         {% endfor %}
+
 ...will render as...
 
 .. code-block:: sql
@@ -239,10 +240,12 @@ projects. In particular it provides mock objects for:
 CLI Arguments
 -------------
 
-You already know you can pass arguments (:code:`--verbose`, :code:`--exclude_rules`, etc.)
-through the CLI commands (:code:`lint`, :code:`fix`, etc.):
+You already know you can pass arguments (:code:`--verbose`,
+:code:`--exclude_rules`, etc.) through the CLI commands (:code:`lint`,
+:code:`fix`, etc.):
 
 .. code-block:: console
+
     $ sqfluff lint my_code.sql -v -exclude_rules L022,L027
 
 You might have arguments that you pass through every time, e.g rules you
@@ -255,10 +258,10 @@ You might have arguments that you pass through every time, e.g rules you
     exclude_rules = L022,L027
 
 Note that while the :code:`exclude_rules` config looks similiar to the
-above example, the :code:`verbose` config has an integer value. This is because
-:code:`verbose` is *stackable* meaning there are multiple levels of verbosity that
-are available for configuration. See :ref:`cliref` for more details about the available
-CLI arguments.
+above example, the :code:`verbose` config has an integer value. This is
+because :code:`verbose` is *stackable* meaning there are multiple levels
+of verbosity that are available for configuration. See :ref:`cliref` for
+more details about the available CLI arguments.
 
 .sqlfluffignore
 ---------------
