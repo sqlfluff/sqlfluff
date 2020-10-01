@@ -236,7 +236,29 @@ projects. In particular it provides mock objects for:
 .. _`dbt`: https://www.getdbt.com/
 .. _`github`: https://www.github.com/alanmcruickshank/sqlfluff
 
+CLI Arguments
+-------------
 
+You already know you can pass arguments (:code:`--verbose`, :code:`--exclude_rules`, etc.)
+through the CLI commands (:code:`lint`, :code:`fix`, etc.):
+
+.. code-block:: console
+    $ sqfluff lint my_code.sql -v -exclude_rules L022,L027
+
+You might have arguments that you pass through every time, e.g rules you
+*always* want to ignore. These can also be configured:
+
+.. code-block:: cfg
+
+    [sqlfluff]
+    verbose = 1
+    exclude_rules = L022,L027
+
+Note that while the :code:`exclude_rules` config looks similiar to the
+above example, the :code:`verbose` config has an integer value. This is because
+:code:`verbose` is *stackable* meaning there are multiple levels of verbosity that
+are available for configuration. See :ref:`cliref` for more details about the available
+CLI arguments.
 
 .sqlfluffignore
 ---------------
