@@ -236,7 +236,6 @@ projects. In particular it provides mock objects for:
 .. _`dbt`: https://www.getdbt.com/
 .. _`github`: https://www.github.com/alanmcruickshank/sqlfluff
 
-.. _defaultconfig:
 
 
 .sqlfluffignore
@@ -271,6 +270,7 @@ linted and the sub files will also be applied within that subdirectory.
 .. _`Docker's`: https://docs.docker.com/engine/reference/builder/#dockerignore-file
 .. _`pathspec library`: https://python-path-specification.readthedocs.io/
 
+.. _defaultconfig:
 
 Default Configuration
 ---------------------
