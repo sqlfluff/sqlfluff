@@ -953,7 +953,8 @@ class BaseSegment:
 
         Args:
             seg_type: :obj:`str` or :obj:`tuple` of :obj:`str`: which specifies
-                the type of elements to look for."""
+                the type of elements to look for.
+        """
         # Check this segment
         if isinstance(seg_type, str) and self.type == seg_type:
             yield self
