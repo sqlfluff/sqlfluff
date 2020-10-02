@@ -6,7 +6,7 @@ and
 https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and_bytes_literals
 """
 
-from ..parser import (BaseSegment, NamedSegment, OneOf, Ref, Sequence, Bracketed, Delimited, AnyNumberOf)
+from ..parser import (BaseSegment, NamedSegment, OneOf, Ref, Sequence, Bracketed, Delimited)
 
 from .dialect_ansi import ansi_dialect
 
@@ -80,25 +80,22 @@ bigquery_dialect.replace(
             Ref('SingleIdentifierGrammar'),
             optional=True
         )
-    ),
-    WildcardSelectTargetElementGrammar=Sequence(
+    )
+)
+
+
+@bigquery_dialect.segment(replace=True)
+class WildcardExpressionSegment(BaseSegment):
+    """An extension of the star expression for Bigquery."""
+    type = 'wildcard_expression'
+    match_grammar = Sequence(
         # *, blah.*, blah.blah.*, etc.
-        Sequence(
-            AnyNumberOf(
-                Sequence(
-                    Ref('SingleIdentifierGrammar'),
-                    Ref('DotSegment'),
-                    code_only=True
-                )
-            ),
-            Ref('StarSegment'), code_only=False
-        ),
+        Ref('WildcardIdentifierSegment'),
         # Optional EXCEPT or REPLACE clause
         # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#select_replace
         Ref('ExceptClauseSegment', optional=True),
         Ref('ReplaceClauseSegment', optional=True)
-    ),
-)
+    )
 
 
 @bigquery_dialect.segment()

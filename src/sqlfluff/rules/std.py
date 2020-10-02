@@ -1311,7 +1311,7 @@ class Rule_L013(BaseCrawler):
         if segment.type == 'select_target_element':
             if not any(e.type == 'alias_expression' for e in segment.segments):
                 types = {e.type for e in segment.segments if e.name != 'star'}
-                unallowed_types = types - {'whitespace', 'newline', 'object_reference'}
+                unallowed_types = types - {'whitespace', 'newline', 'object_reference', 'wildcard_expression'}
                 if len(unallowed_types) > 0:
                     # No fixes, because we don't know what the alias should be,
                     # the user should document it themselves.
@@ -2164,6 +2164,8 @@ class Rule_L020(BaseCrawler):
             # potential others.
             sc = segment.get_child('select_clause')
             reference_buffer = list(sc.recursive_crawl('object_reference'))
+            # Add any wildcard references
+            reference_buffer += list(sc.recursive_crawl('wildcard_identifier'))
             for potential_clause in ('where_clause', 'groupby_clause', 'having_clause', 'orderby_clause'):
                 clause = segment.get_child(potential_clause)
                 if clause:
@@ -2463,22 +2465,6 @@ class Rule_L025(Rule_L020):
 
     """
 
-    @staticmethod
-    def _extract_type_tbl_reference(reference):
-        """Extract the type of reference and the referenced alias.
-
-        Returns:
-            :obj:`tuple` of (alias_type, alias)
-
-        """
-        this_ref_type = 'qualified' if reference.is_qualified() else 'unqualified'
-        ref_elems = list(reference.iter_raw_references())
-        if len(ref_elems) >= 2:
-            tbl_ref = ref_elems[-2]
-        else:
-            tbl_ref = None
-        return this_ref_type, tbl_ref
-
     def _lint_references_and_aliases(self, aliases, references, col_aliases, using_cols, parent_select):
         """Check all aliased references against tables referenced in the query."""
         # A buffer to keep any violations.
@@ -2486,7 +2472,7 @@ class Rule_L025(Rule_L020):
         # Check all the references that we have, keep track of which aliases we refer to.
         tbl_refs = set()
         for r in references:
-            _, tbl_ref = self._extract_type_tbl_reference(r)
+            tbl_ref = r.extract_reference(level=2)
             if tbl_ref:
                 tbl_refs.add(tbl_ref[0])
 
@@ -2531,7 +2517,7 @@ class Rule_L026(Rule_L025):
 
         # Check all the references that we have, do they reference present aliases?
         for r in references:
-            _, tbl_ref = self._extract_type_tbl_reference(r)
+            tbl_ref = r.extract_reference(level=2)
             # Check whether the string in the list of strings
             if tbl_ref and tbl_ref[0] not in [a[0] for a in aliases]:
                 # Last check, this *might* be a correlated subquery reference.
@@ -2584,7 +2570,7 @@ class Rule_L027(Rule_L025):
         violation_buff = []
         # Check all the references that we have.
         for r in references:
-            this_ref_type, _ = self._extract_type_tbl_reference(r)
+            this_ref_type = r.qualification()
             if (
                 this_ref_type == 'unqualified'
                 and r.raw not in col_aliases
@@ -2656,7 +2642,10 @@ class Rule_L028(Rule_L025):
         # Check all the references that we have.
         seen_ref_types = set()
         for r in references:
-            this_ref_type, _ = self._extract_type_tbl_reference(r)
+            # We skip any unqualified wildcard references (i.e. *). They shouldn't count.
+            if not r.is_qualified() and r.type == 'wildcard_reference':
+                continue
+            this_ref_type = r.qualification()
             if self.single_table_references == 'consistent':
                 if seen_ref_types and this_ref_type not in seen_ref_types:
                     violation_buff.append(

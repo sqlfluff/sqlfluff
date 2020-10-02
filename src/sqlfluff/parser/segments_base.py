@@ -949,9 +949,15 @@ class BaseSegment:
         return buff
 
     def recursive_crawl(self, seg_type):
-        """Recursively crawl for segments of a given type."""
+        """Recursively crawl for segments of a given type.
+
+        Args:
+            seg_type: :obj:`str` or :obj:`tuple` of :obj:`str`: which specifies
+                the type of elements to look for."""
         # Check this segment
-        if self.type == seg_type:
+        if isinstance(seg_type, str) and self.type == seg_type:
+            yield self
+        elif isinstance(seg_type, tuple) and self.type in seg_type:
             yield self
         # Recurse
         for seg in self.segments:
