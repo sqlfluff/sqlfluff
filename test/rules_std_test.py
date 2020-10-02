@@ -129,6 +129,19 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
      {'rules': {'L019': {'comma_style': 'trailing'}}}),
     ('L019', 'pass', 'SELECT\n    a\n    , b\n    FROM c', None,
      {'rules': {'L019': {'comma_style': 'leading'}}}),
+    # Leading commas in with statement
+    ('L019', 'fail', (
+        'WITH cte_1 as (\n    SELECT *\n    FROM table_1\n)\n\n'
+        ', cte_2 as (\n    SELECT *\n    FROM table_2\n)\n\n'
+        'SELECT * FROM table_3'
+        ), None,
+     {'rules': {'L019': {'comma_style': 'trailing'}}}),
+    ('L019', 'pass', (
+        'WITH cte_1 as (\n    SELECT *\n    FROM table_1\n)\n\n'
+        ', cte_2 as (\n    SELECT *\n    FROM table_2\n)\n\n'
+        'SELECT * FROM table_3'
+        ), None,
+     {'rules': {'L019': {'comma_style': 'leading'}}}),
     # Trailing commas
     ('L019', 'fail', 'SELECT\n    a,\n    b\n    FROM c', None,
      {'rules': {'L019': {'comma_style': 'leading'}}}),
