@@ -2291,6 +2291,13 @@ class Rule_L022(BaseCrawler):
 
     """
 
+    def __init__(self, comma_style='trailing', **kwargs):
+        """Initialise, extracting the comma_style from the config."""
+        if comma_style not in ['trailing', 'leading']:
+            raise ValueError("Unexpected `comma_style`: {0!r}".format(comma_style))
+        self.comma_style = comma_style
+        super(Rule_L022, self).__init__(**kwargs)
+
     def _eval(self, segment, **kwargs):
         """Blank line expected but not found after CTE definition."""
         error_buffer = []
@@ -2299,8 +2306,9 @@ class Rule_L022(BaseCrawler):
             blank_line_found = False
             blank_line_started = False
             fix_point = None
+            cte_end_segments = ('end_bracket', 'comma') if self.comma_style == "trailing" else ('end_bracket')
             for seg in segment.segments:
-                if seg.type in ('end_bracket', 'comma'):
+                if seg.type in cte_end_segments:
                     expecting_blank_line = True
                     blank_line_found = False
                     blank_line_started = False
