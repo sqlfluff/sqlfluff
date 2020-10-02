@@ -24,7 +24,10 @@ def assert_rule_fail_in_sql(code, sql, configs=None):
     print("Parsed:\n {0}".format(parsed.stringify()))
     lerrs, _, _, _ = r.crawl(parsed, dialect=cfg.get('dialect_obj'), fix=True)
     print("Errors Found: {0}".format(lerrs))
-    assert any(v.rule.code == code for v in lerrs)
+    if not any(v.rule.code == code for v in lerrs):
+        pytest.fail(
+            "No {0} failures found in query which should fail.".format(code),
+            pytrace=False)
     fixed = parsed  # use this as our buffer (yes it's a bit of misnomer right here)
     while True:
         # We get the errors again, but this time skip the assertion
@@ -46,7 +49,6 @@ def assert_rule_fail_in_sql(code, sql, configs=None):
             if fixes == l_fixes:
                 raise RuntimeError(
                     "Fixes aren't being applied: {0!r}".format(fixes))
-
     return fixed.raw
 
 
@@ -59,7 +61,10 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     print("Parsed:\n {0}".format(parsed.stringify()))
     lerrs, _, _, _ = r.crawl(parsed, dialect=cfg.get('dialect_obj'), fix=True)
     print("Errors Found: {0}".format(lerrs))
-    assert not any(v.rule.code == code for v in lerrs)
+    if any(v.rule.code == code for v in lerrs):
+        pytest.fail(
+            "Found {0} failures in query which should pass.".format(code),
+            pytrace=False)
 
 
 # ############## STD RULES TESTS
@@ -193,7 +198,10 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     ('L026', 'pass', 'SELECT * FROM db.sc.tbl2\nWHERE a NOT IN (SELECT tbl2.a FROM db.sc.tbl1)\n', None, None),  # Correlated subquery.
     # Make sure comments are aligned properly
     ('L003', 'pass', 'SELECT *\nFROM\n    t1\n-- Comment\nJOIN t2 USING (user_id)', None, None),
-    ('L003', 'fail', 'SELECT *\nFROM\n    t1\n    -- Comment\nJOIN t2 USING (user_id)', 'SELECT *\nFROM\n    t1\n-- Comment\nJOIN t2 USING (user_id)', None)
+    ('L003', 'fail', 'SELECT *\nFROM\n    t1\n    -- Comment\nJOIN t2 USING (user_id)', 'SELECT *\nFROM\n    t1\n-- Comment\nJOIN t2 USING (user_id)', None),
+    # L013 & L025 Fixes with https://github.com/sqlfluff/sqlfluff/issues/449
+    ('L013', 'pass', 'select ps.*, pandgs.blah from ps join pandgs using(moo)', None, None),
+    ('L025', 'pass', 'select ps.*, pandgs.blah from ps join pandgs using(moo)', None, None)
 ])
 def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
     """Test that a rule passes/fails on a given string.

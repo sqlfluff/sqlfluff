@@ -4,24 +4,26 @@ file:
       select_clause:
         keyword: SELECT
         select_target_element:
-          keyword: '*'
-          select_replace_clause:
-            keyword: REPLACE
-            start_bracket: (
-            select_target_element:
-              function:
-                function_name: CAST
-                start_bracket: (
-                expression:
-                  literal: '1'
-                keyword: AS
-                data_type:
-                  data_type_identifier: BOOLEAN
-                end_bracket: )
-              alias_expression:
-                keyword: AS
-                identifier: foo
-            end_bracket: )
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+            select_replace_clause:
+              keyword: REPLACE
+              start_bracket: (
+              select_target_element:
+                function:
+                  function_name: CAST
+                  start_bracket: (
+                  expression:
+                    literal: '1'
+                  keyword: AS
+                  data_type:
+                    data_type_identifier: BOOLEAN
+                  end_bracket: )
+                alias_expression:
+                  keyword: AS
+                  identifier: foo
+              end_bracket: )
       from_clause:
         keyword: FROM
         table_expression:

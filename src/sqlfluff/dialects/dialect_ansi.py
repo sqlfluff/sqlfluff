@@ -93,7 +93,7 @@ ansi_dialect.add(
     EndSquareBracketSegment=KeywordSegment.make(']', name='end_square_bracket', type='end_square_bracket'),
     CommaSegment=KeywordSegment.make(',', name='comma', type='comma'),
     DotSegment=KeywordSegment.make('.', name='dot', type='dot'),
-    StarSegment=KeywordSegment.make('*', name='star'),
+    StarSegment=KeywordSegment.make('*', name='star', type='star'),
     TildeSegment=KeywordSegment.make('~', name='tilde'),
     CastOperatorSegment=KeywordSegment.make('::', name='casting_operator', type='casting_operator'),
     PlusSegment=KeywordSegment.make('+', name='plus', type='binary_operator'),
@@ -246,6 +246,13 @@ class ObjectReferenceSegment(BaseSegment):
         code_only=False
     )
 
+    @staticmethod
+    def _iter_reference_parts(elem):
+        """Extract the elements of a reference and yield."""
+        # trim on quotes and split out any dots.
+        for part in elem.raw_trimmed().split('.'):
+            yield part, elem
+
     def iter_raw_references(self):
         """Generate a list of reference strings and elements.
 
@@ -255,13 +262,28 @@ class ObjectReferenceSegment(BaseSegment):
         """
         # Extract the references from those identifiers (because some may be quoted)
         for elem in self.recursive_crawl('identifier'):
-            # trim on quotes and split out any dots.
-            for part in elem.raw_trimmed().split('.'):
-                yield part, elem
+            yield from self._iter_reference_parts(elem)
 
     def is_qualified(self):
         """Return if there is more than one element to the reference."""
         return len(list(self.iter_raw_references())) > 1
+
+    def qualification(self):
+        """Return the qualification type of this reference."""
+        return 'qualified' if self.is_qualified() else 'unqualified'
+
+    def extract_reference(self, level):
+        """Extract a reference of a given level.
+
+        e.g. level 1 = the object.
+        level 2 = the table
+        level 3 = the schema
+        etc...
+        """
+        refs = list(self.iter_raw_references())
+        if len(refs) >= level:
+            return refs[-level]
+        return None
 
 
 @ansi_dialect.segment()
@@ -526,9 +548,15 @@ class TableExpressionSegment(BaseSegment):
         return None
 
 
-ansi_dialect.add(
-    # This is a hook point to allow subclassing for other dialects
-    WildcardSelectTargetElementGrammar=Sequence(
+@ansi_dialect.segment()
+class WildcardIdentifierSegment(ObjectReferenceSegment):
+    """Any identifier of the form a.b.*.
+
+    This inherits iter_raw_references from the
+    ObjectReferenceSegment.
+    """
+    type = "wildcard_identifier"
+    match_grammar = Sequence(
         # *, blah.*, blah.blah.*, etc.
         AnyNumberOf(
             Sequence(
@@ -538,8 +566,33 @@ ansi_dialect.add(
             )
         ),
         Ref('StarSegment'), code_only=False
-    ),
-)
+    )
+
+    def iter_raw_references(self):
+        """Generate a list of reference strings and elements.
+
+        Each element is a tuple of (str, segment). If some are
+        split, then a segment may appear twice, but the substring
+        will only appear once.
+        """
+        # Extract the references from those identifiers (because some may be quoted)
+        for elem in self.recursive_crawl(('identifier', 'star')):
+            yield from self._iter_reference_parts(elem)
+
+
+@ansi_dialect.segment()
+class WildcardExpressionSegment(BaseSegment):
+    """A star (*) expression for a SELECT clause.
+
+    This is seperate from the identifier to allow for
+    some dialects which extend this logic to allow
+    REPLACE, EXCEPT or similar clauses e.g. BigQuery.
+    """
+    type = "wildcard_expression"
+    match_grammar = Sequence(
+        # *, blah.*, blah.blah.*, etc.
+        Ref('WildcardIdentifierSegment')
+    )
 
 
 @ansi_dialect.segment()
@@ -549,7 +602,7 @@ class SelectTargetElementSegment(BaseSegment):
     # Important to split elements before parsing, otherwise debugging is really hard.
     match_grammar = OneOf(
         # *, blah.*, blah.blah.*, etc.
-        Ref('WildcardSelectTargetElementGrammar'),
+        Ref('WildcardExpressionSegment'),
         GreedyUntil(
             'FROM', 'LIMIT',
             Ref('CommaSegment'),
@@ -560,7 +613,7 @@ class SelectTargetElementSegment(BaseSegment):
 
     parse_grammar = OneOf(
         # *, blah.*, blah.blah.*, etc.
-        Ref('WildcardSelectTargetElementGrammar'),
+        Ref('WildcardExpressionSegment'),
         Sequence(
             OneOf(
                 Ref('LiteralGrammar'),
@@ -592,7 +645,7 @@ class SelectClauseSegment(BaseSegment):
     match_grammar = StartsWith(
         Sequence(
             'SELECT',
-            Ref('WildcardSelectTargetElementGrammar', optional=True)
+            Ref('WildcardExpressionSegment', optional=True)
         ),
         terminator=OneOf('FROM', 'LIMIT', Ref('SetOperatorSegment')),
         enforce_whitespace_preceeding_terminator=True

@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Created new Github Organisation (https://github.com/sqlfluff) and
   migrated from https://github.com/alanmcruickshank/sqlfluff to
   https://github.com/sqlfluff/sqlfluff.
+- Changed the handling of `*` and `a.b.*` expressions to have their
+  own expressions. Any dependencies on this structure downstream
+  will be broken. This also fixes the linting of both kinds of expressions
+  with regard to L013 and L025.
 
 ## [0.3.6] - 2020-09-24
 
