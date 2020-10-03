@@ -289,6 +289,7 @@ def test__rules__std_L003_process_raw_stack(generate_test_segments):
     {'rules': {"L010": {"capitalisation_policy": "blah"}}}
 ])
 def test_improper_configs_are_rejected(config):
+    """Ensure that unsupported configs raise a ValueError"""
     config = FluffConfig(configs=config)
     with pytest.raises(ValueError):
         std_rule_set.get_rulelist(config=config)
