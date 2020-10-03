@@ -2,6 +2,8 @@
 
 import pytest
 
+import sqlfluff.rules.std as std_rules
+
 from sqlfluff.rules.std import std_rule_set
 from sqlfluff.linter import Linter
 from sqlfluff.config import FluffConfig
@@ -284,12 +286,13 @@ def test__rules__std_L003_process_raw_stack(generate_test_segments):
     assert res[2]['indent_size'] == 5
 
 
-@pytest.mark.parametrize("config", [
-    {'rules': {"comma_style": "blah"}},
-    {'rules': {"L010": {"capitalisation_policy": "blah"}}}
+@pytest.mark.parametrize("rule,rule_init", [
+    ("L010", {"capitalisation_policy": "blah"}),
+    ("L019", {"comma_style": "blah"}),
+    ("L022", {"comma_style": "blah"})
 ])
-def test_improper_configs_are_rejected(config):
+def test_improper_configs_are_rejected(rule, rule_init):
     """Ensure that unsupported configs raise a ValueError."""
-    config = FluffConfig(configs=config)
+    rule_class = getattr(std_rules, "Rule_{}".format(rule))
     with pytest.raises(ValueError):
-        std_rule_set.get_rulelist(config=config)
+        rule_class(**rule_init)
