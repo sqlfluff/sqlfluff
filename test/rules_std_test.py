@@ -282,3 +282,13 @@ def test__rules__std_L003_process_raw_stack(generate_test_segments):
     print(res)
     assert sorted(res.keys()) == [1, 2]
     assert res[2]['indent_size'] == 5
+
+
+@pytest.mark.parametrize("config", [
+    {'rules': {"comma_style": "blah"}},
+    {'rules': {"L010": {"capitalisation_policy": "blah"}}}
+])
+def test_improper_configs_are_rejected(config):
+    config = FluffConfig(configs=config)
+    with pytest.raises(ValueError):
+        std_rule_set.get_rulelist(config=config)
