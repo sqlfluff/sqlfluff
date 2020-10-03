@@ -1670,7 +1670,7 @@ class Rule_L016(Rule_L003):
 
         self.logger.info("Sections:")
         for idx, sec in enumerate(chunk_buff):
-            self.logger.info("    {0}: {1!r}".format(idx,sec))
+            self.logger.info("    {0}: {1!r}".format(idx, sec))
 
         # How do we prioritise where to work?
         # First, do we ever go through a negative breakpoint?

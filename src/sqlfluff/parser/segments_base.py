@@ -72,91 +72,6 @@ def check_still_complete(segments_in, matched_segments, unmatched_segments):
                 initial_str, current_str))
 
 
-class ParseBlacklist:
-    """Acts as a cache to stop unnecessary matching."""
-    def __init__(self):
-        self._blacklist_struct = {}
-
-    def _hashed_version(self):
-        return {
-            k: {hash(e) for e in self._blacklist_struct[k]}
-            for k in self._blacklist_struct
-        }
-
-    def check(self, seg_name, seg_tuple):
-        """Check this seg_tuple against this seg_name.
-
-        Has this seg_tuple already been matched
-        unsuccessfully against this segment name.
-        """
-        if seg_name in self._blacklist_struct:
-            if seg_tuple in self._blacklist_struct[seg_name]:
-                return True
-        return False
-
-    def mark(self, seg_name, seg_tuple):
-        """Mark this seg_tuple as not a match with this seg_name."""
-        if seg_name in self._blacklist_struct:
-            self._blacklist_struct[seg_name].add(seg_tuple)
-        else:
-            self._blacklist_struct[seg_name] = {seg_tuple}
-
-    def clear(self):
-        """Clear the blacklist struct."""
-        self._blacklist_struct = {}
-
-
-class ParseContext:
-    """The context for parsing. It holds configuration and rough state.
-
-    We expect that an object (or copy of this object) will be passed
-    around rather than the individual variables for parse and match depth
-    as before.
-    """
-
-    __slots__ = ['match_depth', 'parse_depth', 'verbosity', 'dialect', 'match_segment', 'recurse', 'blacklist', 'indentation_config']
-
-    def __init__(self, dialect=None, verbosity=0, match_depth=0, parse_depth=0,
-                 match_segment=None, recurse=True, blacklist=None, indentation_config=None):
-        # Write all the variables in a DRY way. Yes it's a bit convoluted. Sorry.
-        for k in self.__slots__:
-            setattr(self, k, locals()[k])
-        # Initialise a blacklist struct if one is not present.
-        if getattr(self, 'blacklist') is None:
-            setattr(self, 'blacklist', ParseBlacklist())
-
-    def copy(self, incr=None, decr=None, **kwargs):
-        """Make a copy of the parse context, optionally with some edited variables."""
-        current_vals = {k: getattr(self, k) for k in self.__slots__}
-        current_vals.update(kwargs or {})
-        # Increment
-        if isinstance(incr, str):
-            current_vals[incr] += 1
-        elif incr:
-            for k in incr:
-                current_vals[k] += 1
-        # Decrement
-        if isinstance(decr, str):
-            current_vals[decr] -= 1
-        elif decr:
-            for k in decr:
-                current_vals[k] -= 1
-        # Return
-        return self.__class__(**current_vals)
-
-    @classmethod
-    def from_config(cls, config):
-        """Construct a `ParseContext` from a `FluffConfig`."""
-        indentation_config = config.get_section('indentation') or {}
-        try:
-            indentation_config = {k: bool(v) for k, v in indentation_config.items()}
-        except TypeError:
-            raise TypeError(
-                "One of the configuration keys in the `indentation` section is not True or False: {0!r}".format(
-                    indentation_config))
-        return cls(dialect=config.get('dialect_obj'), recurse=config.get('recurse'), indentation_config=indentation_config)
-
-
 class BaseSegment:
     """The base segment element.
 
@@ -406,12 +321,8 @@ class BaseSegment:
                         self, self.segments[-1].raw, self.segments))
 
             # NOTE: No match_depth kwarg, because this is the start of the matching.
-            m = g._match(
-                segments=self.segments,
-                parse_context=parse_context.copy(
-                    match_segment=self.__class__.__name__
-                )
-            )
+            with parse_context.matching_segment(self.__class__.__name__) as ctx:
+                m = g._match(segments=self.segments, parse_context=ctx)
 
             if not isinstance(m, MatchResult):
                 raise TypeError(
@@ -451,21 +362,10 @@ class BaseSegment:
                 self.__class__.__name__, parse_context.recurse))
         parse_depth_msg = "###\n#\n# Beginning Parse Depth {0}: {1}\n#\n###\nInitial Structure:\n{2}".format(
             parse_context.parse_depth + 1, self.__class__.__name__, self.stringify())
-        if parse_context.recurse is True:
+        if parse_context.may_recurse():
             logging.debug(parse_depth_msg)
-            self.segments = self.expand(
-                self.segments,
-                parse_context=parse_context.copy(
-                    incr='parse_depth', match_depth=0, recurse=True
-                )
-            )
-        elif isinstance(parse_context.recurse, int):
-            if parse_context.recurse > 1:
-                logging.debug(parse_depth_msg)
-                self.segments = self.expand(
-                    self.segments,
-                    parse_context=parse_context.copy(decr='recurse', incr='parse_depth')
-                )
+            with parse_context.deeper_parse() as ctx:
+                self.segments = self.expand(self.segments, parse_context=ctx)
         # Validate new segments
         self.validate_segments(text="expanding")
 
@@ -626,7 +526,8 @@ class BaseSegment:
 
         if cls._match_grammar():
             # Call the private method
-            m = cls._match_grammar()._match(segments=segments, parse_context=parse_context.copy(incr='match_depth'))
+            with parse_context.deeper_match() as ctx:
+                m = cls._match_grammar()._match(segments=segments, parse_context=ctx)
 
             # Calling unify here, allows the MatchResult class to do all the type checking.
             if not isinstance(m, MatchResult):

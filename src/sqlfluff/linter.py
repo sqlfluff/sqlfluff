@@ -16,7 +16,7 @@ from benchit import BenchIt
 import pathspec
 
 from .errors import SQLLexError, SQLParseError
-from .parser import FileSegment, ParseContext
+from .parser import FileSegment, RootParseContext
 # We should probably move verbosity logger to somewhere else?
 from .parser.segments_base import verbosity_logger, frame_msg
 from .rules import get_ruleset, rules_logger
@@ -543,17 +543,6 @@ class Linter:
         # Store the config object
         self.config = config
 
-    def get_parse_context(self, config=None):
-        """Get a new parse context, optionally from a different config."""
-        # Try to use a given config
-        if config:
-            return ParseContext.from_config(config)
-        # Default to the instance config
-        elif self.config:
-            return ParseContext.from_config(self.config)
-        else:
-            raise ValueError("No config object!")
-
     def log(self, msg):
         """Log a message, using the common logging framework."""
         if self.output_func:
@@ -641,10 +630,8 @@ class Linter:
         if file_segment:
             try:
                 # Make a parse context and parse
-                context = self.get_parse_context(config=config or self.config)
-                context.verbosity = verbosity or context.verbosity
-                context.recurse = recurse or context.recurse
-                parsed = file_segment.parse(parse_context=context)
+                with RootParseContext.from_config(config=config or self.config, verbosity=verbosity, recurse=recurse) as ctx:
+                    parsed = file_segment.parse(parse_context=ctx)
             except SQLParseError as err:
                 violations.append(err)
                 parsed = None

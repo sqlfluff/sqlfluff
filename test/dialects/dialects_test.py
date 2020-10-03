@@ -7,7 +7,7 @@ and automatically tested against the appropriate dialect.
 import pytest
 import os
 
-from sqlfluff.parser import FileSegment, ParseContext
+from sqlfluff.parser import FileSegment, RootParseContext
 from sqlfluff.config import FluffConfig
 
 
@@ -58,7 +58,6 @@ def test__dialect__base_file_parse(dialect, file):
     raw = load_file(dialect, file)
     # Load the right dialect
     config = FluffConfig(overrides=dict(dialect=dialect))
-    context = ParseContext.from_config(config)
     fs, lex_vs = FileSegment.from_raw(raw, config=config)
     # From just the initial parse, check we're all there
     assert fs.raw == raw
@@ -71,7 +70,8 @@ def test__dialect__base_file_parse(dialect, file):
     # with caplog.at_level(logging.DEBUG):
     print("Pre-parse structure: {0}".format(fs.to_tuple(show_raw=True)))
     print("Pre-parse structure: {0}".format(fs.stringify()))
-    parsed = fs.parse(parse_context=context)  # Optional: set recurse=1 to limit recursion
+    with RootParseContext.from_config(config) as ctx:  # Optional: set recurse=1 to limit recursion
+        parsed = fs.parse(parse_context=ctx)
     print("Post-parse structure: {0}".format(fs.to_tuple(show_raw=True)))
     print("Post-parse structure: {0}".format(fs.stringify()))
     # Check we're all there.
@@ -89,12 +89,11 @@ def test__dialect__base_parse_struct(dialect, sqlfile, code_only, yamlfile, yaml
     """For given test examples, check parsed structure against yaml."""
     # Load the right dialect
     config = FluffConfig(overrides=dict(dialect=dialect))
-    context = ParseContext.from_config(config)
     # Load the SQL
     raw = load_file(dialect, sqlfile)
     fs, _ = FileSegment.from_raw(raw, config=config)
     # Load the YAML
     res = yaml_loader(make_dialect_path(dialect, yamlfile))
-    # with caplog.at_level(logging.DEBUG):
-    parsed = fs.parse(parse_context=context)
+    with RootParseContext.from_config(config) as ctx:
+        parsed = fs.parse(parse_context=ctx)
     assert parsed.to_tuple(code_only=code_only, show_raw=True) == res

@@ -4,7 +4,7 @@ import pytest
 import logging
 
 from sqlfluff.config import FluffConfig
-from sqlfluff.parser import Lexer, FileSegment, ParseContext, BaseSegment, RawSegment
+from sqlfluff.parser import Lexer, FileSegment, RootParseContext, BaseSegment, RawSegment
 from sqlfluff.parser.match import MatchResult
 from sqlfluff.linter import Linter
 
@@ -135,14 +135,14 @@ def test__dialect__ansi_specific_segment_parses(segmentref, raw, caplog):
     config = FluffConfig(overrides=dict(dialect='ansi'))
     seg_list = lex(raw, config=config)
     Seg = validate_segment(segmentref, config=config)
-    c = ParseContext.from_config(config)
 
     # This test is different if we're working with RawSegment
     # derivatives or not.
     if issubclass(Seg, RawSegment):
         print("Raw route...")
-        with caplog.at_level(logging.DEBUG):
-            parsed = Seg.match(segments=seg_list, parse_context=c)
+        with RootParseContext.from_config(config) as ctx:
+            with caplog.at_level(logging.DEBUG):
+                parsed = Seg.match(segments=seg_list, parse_context=ctx)
         assert isinstance(parsed, MatchResult)
         assert len(parsed.matched_segments) == 1
         print(parsed)
@@ -153,8 +153,9 @@ def test__dialect__ansi_specific_segment_parses(segmentref, raw, caplog):
         # Construct an unparsed segment
         seg = Seg(seg_list, pos_marker=seg_list[0].pos_marker)
         # Perform the match (THIS IS THE MEAT OF THE TEST)
-        with caplog.at_level(logging.DEBUG):
-            parsed = seg.parse(parse_context=c)
+        with RootParseContext.from_config(config) as ctx:
+            with caplog.at_level(logging.DEBUG):
+                parsed = seg.parse(parse_context=ctx)
         print(parsed)
         assert isinstance(parsed, Seg)
 
@@ -186,10 +187,10 @@ def test__dialect__ansi_specific_segment_not_match(segmentref, raw, caplog):
     config = FluffConfig(overrides=dict(dialect='ansi'))
     seg_list = lex(raw, config=config)
     Seg = validate_segment(segmentref, config=config)
-    c = ParseContext.from_config(config)
 
-    with caplog.at_level(logging.DEBUG):
-        match = Seg.match(segments=seg_list, parse_context=c)
+    with RootParseContext.from_config(config) as ctx:
+        with caplog.at_level(logging.DEBUG):
+            match = Seg.match(segments=seg_list, parse_context=ctx)
 
     assert not match
 
