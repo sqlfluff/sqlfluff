@@ -105,7 +105,6 @@ jobs:
       - image: circleci/python:3.8
         environment:
           TOXENV=bench
-  # Benchmarking task
   mypy:
     <<: *common
     docker:

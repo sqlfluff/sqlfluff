@@ -10,7 +10,7 @@ import jinja2.nodes
 from .errors import SQLTemplaterError
 from .parser import FilePositionMarker
 
-_templater_lookup = {}
+_templater_lookup = {} # type: ignore
 
 
 def templater_selector(s=None, **kwargs):
