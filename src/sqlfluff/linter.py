@@ -543,7 +543,7 @@ class Linter:
         rs = self.get_ruleset()
         return [(rule.code, rule.description) for rule in rs]
 
-    def parse_string(self, s, fname=None, verbosity=0, recurse=True, config=None):
+    def parse_string(self, s, fname=None, recurse=True, config=None):
         """Parse a string.
 
         Returns:
@@ -605,7 +605,7 @@ class Linter:
         if file_segment:
             try:
                 # Make a parse context and parse
-                with RootParseContext.from_config(config=config or self.config, verbosity=verbosity, recurse=recurse) as ctx:
+                with RootParseContext.from_config(config=config or self.config, recurse=recurse) as ctx:
                     parsed = file_segment.parse(parse_context=ctx)
             except SQLParseError as err:
                 violations.append(err)
@@ -655,7 +655,7 @@ class Linter:
                 return (comment.pos_marker.line_no, None)
         return None
 
-    def lint_string(self, s, fname='<string input>', verbosity=0, fix=False, config=None):
+    def lint_string(self, s, fname='<string input>', fix=False, config=None):
         """Lint a string.
 
         Returns:
@@ -671,7 +671,7 @@ class Linter:
         config = config or self.config
 
         # Using the new parser, read the file object.
-        parsed, vs, time_dict = self.parse_string(s=s, fname=fname, verbosity=verbosity, config=config)
+        parsed, vs, time_dict = self.parse_string(s=s, fname=fname, config=config)
 
         # Look for comment segments which might indicate lines to ignore.
         ignore_buff = []
@@ -825,17 +825,17 @@ class Linter:
         # Return
         return sorted(filtered_buffer)
 
-    def lint_string_wrapped(self, string, fname='<string input>', verbosity=0, fix=False):
+    def lint_string_wrapped(self, string, fname='<string input>', fix=False):
         """Lint strings directly."""
         result = LintingResult()
         linted_path = LintedPath(fname)
         linted_path.add(
-            self.lint_string(string, fname=fname, verbosity=verbosity, fix=fix)
+            self.lint_string(string, fname=fname, fix=fix)
         )
         result.add(linted_path)
         return result
 
-    def lint_path(self, path, verbosity=0, fix=False, ignore_non_existent_files=False):
+    def lint_path(self, path, fix=False, ignore_non_existent_files=False):
         """Lint a path."""
         linted_path = LintedPath(path)
         if self.formatter:
@@ -846,11 +846,10 @@ class Linter:
             with open(fname, 'r', encoding='utf8', errors='backslashreplace') as target_file:
                 linted_path.add(
                     self.lint_string(target_file.read(), fname=fname,
-                                     verbosity=verbosity,
                                      fix=fix, config=config))
         return linted_path
 
-    def lint_paths(self, paths, verbosity=0, fix=False, ignore_non_existent_files=False):
+    def lint_paths(self, paths, fix=False, ignore_non_existent_files=False):
         """Lint an iterable of paths."""
         # If no paths specified - assume local
         if len(paths) == 0:
@@ -860,11 +859,11 @@ class Linter:
         for path in paths:
             # Iterate through files recursively in the specified directory (if it's a directory)
             # or read the file directly if it's not
-            result.add(self.lint_path(path, verbosity=verbosity, fix=fix,
+            result.add(self.lint_path(path, fix=fix,
                                       ignore_non_existent_files=ignore_non_existent_files))
         return result
 
-    def parse_path(self, path, verbosity=0, recurse=True):
+    def parse_path(self, path, recurse=True):
         """Parse a path of sql files.
 
         NB: This a generator which will yield the result of each file
@@ -877,7 +876,7 @@ class Linter:
             # Handle unicode issues gracefully
             with open(fname, 'r', encoding='utf8', errors='backslashreplace') as target_file:
                 yield (
-                    *self.parse_string(target_file.read(), fname=fname, verbosity=verbosity,
+                    *self.parse_string(target_file.read(), fname=fname,
                                        recurse=recurse, config=config),
                     # Also yield the config
                     config

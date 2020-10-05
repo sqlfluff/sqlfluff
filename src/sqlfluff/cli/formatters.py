@@ -44,7 +44,7 @@ def split_string_on_spaces(s, line_length=100):
     return line_buff
 
 
-def format_violation(violation, verbose=0, max_line_length=90):
+def format_violation(violation, max_line_length=90):
     """Format a violation."""
     if isinstance(violation, SQLBaseError):
         code, line, pos, desc = violation.get_info_tuple()
@@ -270,8 +270,7 @@ class CallbackFormatter():
             for violation in s:
                 text_buffer.write(
                     format_violation(
-                        violation, verbose=self._verbosity,
-                        max_line_length=self.output_line_length))
+                        violation, max_line_length=self.output_line_length))
                 text_buffer.write('\n')
         str_buffer = text_buffer.getvalue()
         # Remove the trailing newline if there is one

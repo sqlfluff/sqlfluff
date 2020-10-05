@@ -241,13 +241,13 @@ def lint(paths, format, nofail, logger=None, **kwargs):
     # add stdin if specified via lone '-'
     if ('-',) == paths:
         # TODO: Remove verbose
-        result = lnt.lint_string_wrapped(sys.stdin.read(), fname='stdin', verbosity=verbose)
+        result = lnt.lint_string_wrapped(sys.stdin.read(), fname='stdin')
     else:
         # Output the results as we go
         lnt.log(format_linting_result_header(verbose=verbose))
         try:
             # TODO: Remove verbose
-            result = lnt.lint_paths(paths, verbosity=verbose, ignore_non_existent_files=False)
+            result = lnt.lint_paths(paths, ignore_non_existent_files=False)
         except IOError:
             click.echo(colorize('The path(s) {0!r} could not be accessed. Check it/they exist(s).'.format(paths), 'red'))
             sys.exit(1)
@@ -320,7 +320,7 @@ def fix(force, paths, bench=False, fixed_suffix='', no_safety=False, logger=None
     if ('-',) == paths:
         stdin = sys.stdin.read()
         # TODO: Remove verbose
-        result = lnt.lint_string_wrapped(stdin, fname='stdin', verbosity=verbose, fix=True)
+        result = lnt.lint_string_wrapped(stdin, fname='stdin', fix=True)
         stdout = result.paths[0].files[0].fix_string()[0]
         click.echo(stdout, nl=False)
         sys.exit()
@@ -328,7 +328,7 @@ def fix(force, paths, bench=False, fixed_suffix='', no_safety=False, logger=None
     # Lint the paths (not with the fix argument at this stage), outputting as we go.
     lnt.log("==== finding fixable violations ====")
     try:
-        result = lnt.lint_paths(paths, verbosity=verbose, fix=True, ignore_non_existent_files=False)
+        result = lnt.lint_paths(paths, fix=True, ignore_non_existent_files=False)
     except IOError:
         click.echo(colorize('The path(s) {0!r} could not be accessed. Check it/they exist(s).'.format(paths), 'red'))
         sys.exit(1)
@@ -432,7 +432,6 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
                 *lnt.parse_string(
                     sys.stdin.read(),
                     'stdin',
-                    verbosity=verbose,
                     recurse=recurse,
                     config=config),
                 config
@@ -440,7 +439,7 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
         else:
             # A single path must be specified for this command
             # TODO: Remove verbose
-            result = lnt.parse_path(path, verbosity=verbose, recurse=recurse)
+            result = lnt.parse_path(path, recurse=recurse)
 
         # iterative print for human readout
         if format == 'human':
@@ -454,7 +453,7 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
                 if violations:
                     lnt.log("==== parsing violations ====")
                 for v in violations:
-                    lnt.log(format_violation(v, verbose=verbose))
+                    lnt.log(format_violation(v))
                 if violations and f_cfg.get('dialect') == 'ansi':
                     lnt.log(format_dialect_warning())
                 if verbose >= 2:
