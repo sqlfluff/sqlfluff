@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Big refactor of logging internally. `Linter` is now decoupled from
+  logging so that it can be imported directly by subprojects without
+  needing to worry about wierd output or without the log handing getting
+  in the way of your project.
 - Created new Github Organisation (https://github.com/sqlfluff) and
   migrated from https://github.com/alanmcruickshank/sqlfluff to
   https://github.com/sqlfluff/sqlfluff.
