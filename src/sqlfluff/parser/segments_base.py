@@ -16,22 +16,9 @@ from io import StringIO
 from benchit import BenchIt
 
 from .match import MatchResult, curtail_string, join_segments_raw
-from ..errors import SQLLintError
 
 
-
-
-# This function does two things:
-# - formatting
-# - Handling when to log based on the v_level.
-
-# The former should be handled vial logging and a late binding object which constructs the message when __str__ is called.
-# The latter should be handled outside of this, with the object only determining whether it reports at INFO or DEBUG.
-
-
-# Extract the first, first. Then the latter.
-
-
+## TODO: Should this live elsewhere?
 class ParseMatchLogObject():
     """A late binding log object for parse_match_logging."""
     def __init__(self, parse_depth, match_depth, match_segment, grammar, func, msg, **kwargs):
@@ -42,14 +29,15 @@ class ParseMatchLogObject():
         self.func = func
         self.msg = msg
         self.kwargs = kwargs
-    
+
     @classmethod
     def from_context(cls, parse_context, grammar, func, msg, **kwargs):
+        """Create a ParseMatchLogObject given a parse_context."""
         return cls(
             parse_context.parse_depth, parse_context.match_depth, parse_context.match_segment,
             grammar, func, msg, **kwargs
         )
-    
+
     def __str__(self):
         """Actually materialise the string."""
         symbol = self.kwargs.pop('symbol', '')
@@ -712,16 +700,6 @@ class BaseSegment:
         of raw segments, they will be replaced or removed by their parent and
         so this function should just return self.
         """
-        # Let's check what we've been given.
-        if fixes and isinstance(fixes[0], SQLLintError):
-            parse_context.logger.error("Transforming `fixes` from errors into a list of fixes")
-            # We've got linting errors, let's aggregate them into a list of fixes
-            buff = []
-            for err in fixes:
-                buff += err.fixes
-            # Overwrite fixes
-            fixes = buff
-
         if fixes and not self.is_raw():
             # Get a reference to self to start with, but this will rapidly
             # become a working copy.

@@ -8,20 +8,11 @@ to common configuration and dialects, logging and also the parse
 and match depth of the current operation.
 """
 
-
 import logging
 
-# Instantiate the parser logger
+# Get the parser logger
 parser_logger = logging.getLogger('sqlfluff.parser')
 
-
-# class ParserLoggingAdapter(logging.LoggerAdapter):
-#     """A LoggingAdapter for the parser which adds details to it."""
-
-#     def process(self, msg, kwargs):
-#         """Add the code element to the logging message before emit."""
-#         return '[PD:%s MD:%s %s] %s' % (self.extra['parse_depth'], self.extra['match_depth'], self.extra['match_segment'], msg), kwargs
-    
 
 class RootParseContext():
     """Object to handle the context at hand during parsing.
@@ -44,8 +35,8 @@ class RootParseContext():
         self.indentation_config = indentation_config or {}
         # Initialise the blacklist
         self.blacklist = ParseBlacklist()
-        # Set up the logger
-        self.logger = parser_logger #ParserLoggingAdapter(parser_logger, extra={})
+        # This is the logger that child objects will latch onto.
+        self.logger = parser_logger
 
     @classmethod
     def from_config(cls, config, **overrides):
@@ -102,38 +93,19 @@ class ParseContext():
 
     # We create a destroy many ParseContexts so we limit the slots
     # to improve performance.
-    __slots__ = ['match_depth', 'parse_depth', 'match_segment', 'recurse', '_root_ctx', 'logger']
+    __slots__ = ['match_depth', 'parse_depth', 'match_segment', 'recurse', '_root_ctx']
 
     def __init__(self, root_ctx, recurse=True):
         self._root_ctx = root_ctx
         self.recurse = recurse
         # The following attributes are only accessible via a copy
-        # not in the init method.
+        # and not in the init method.
         self.match_segment = None
         self.match_depth = 0
         self.parse_depth = 0
-        # Set up the logger
-        self.configure_logger()
-
-    def configure_logger(self):
-        """Configure Logger."""
-        self.logger = parser_logger
-        #ParserLoggingAdapter(
-        #    parser_logger,
-        #    extra={'match_depth': self.match_depth, 'parse_depth': self.match_depth,
-        #           'match_segment': self.match_segment})
 
     def __getattr__(self, name):
         """If the attribute doesn't exist on this, revert to the root."""
-        # TODO: Remove this eventually.
-        # All of the logging level control should come from outside the parser.
-        # It should just log at whatever level it sees fit.
-        # This means we *could* use custom level. Just not rename them?
-        # Not a bad idea - length would be the same.
-
-        # Within the parser, we just log.
-        ###if name == 'verbosity':
-        ###   self.logger.warning("Using `verbosity` from parse_context!")
         try:
             return getattr(self._root_ctx, name)
         except AttributeError:
@@ -164,8 +136,6 @@ class ParseContext():
         """Return a copy with an incremented match depth."""
         ctx = self._copy()
         ctx.match_depth += 1
-        # Set up the logger
-        self.configure_logger()
         return ctx
 
     def deeper_parse(self):
@@ -175,8 +145,6 @@ class ParseContext():
             ctx.recurse -= 1
         ctx.parse_depth += 1
         ctx.match_depth = 0
-        # Set up the logger
-        self.configure_logger()
         return ctx
 
     def may_recurse(self):
@@ -188,8 +156,6 @@ class ParseContext():
         ctx = self._copy()
         ctx.match_depth = 0
         ctx.match_segment = name
-        # Set up the logger
-        self.configure_logger()
         return ctx
 
 

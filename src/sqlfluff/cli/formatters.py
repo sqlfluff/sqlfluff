@@ -4,6 +4,7 @@
 from io import StringIO
 
 from .helpers import colorize, cli_table, get_package_version, get_python_version, pad_line
+
 from ..errors import SQLBaseError
 
 
@@ -239,7 +240,7 @@ class CallbackFormatter():
         self._callback = callback
         self._verbosity = verbosity
         self._filter_empty = filter_empty
-    
+
     def _dispatch(self, s):
         """Dispatch a string to the callback.
 
@@ -269,14 +270,13 @@ class CallbackFormatter():
                 text_buffer.write("== Raw Config:\n")
                 text_buffer.write(format_config_vals(linter.config.iter_vals()))
         return text_buffer.getvalue()
-    
+
     def dispatch_config(self, linter):
         """Dispatch configuration output appropriately."""
         return self._dispatch(self._format_config(linter))
-    
+
     def dispatch_persist_filename(self, filename, result):
         """Dispatch filenames during a persist operation."""
         # Only show the skip records at higher levels of verbosity
         if self._verbosity >= 2 or result != 'SKIP':
             self._dispatch(format_filename(filename=filename, success=result))
-        

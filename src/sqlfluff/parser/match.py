@@ -144,7 +144,7 @@ class MatchResult(namedtuple('MatchResult', ['matched_segments', 'unmatched_segm
         else:
             try:
                 other_tuple = self.seg_to_tuple(other)
-            except TypeError as err:
+            except TypeError:
                 raise TypeError(
                     "Unexpected type passed to MatchResult.__add__: {0}".format(
                         type(other)))

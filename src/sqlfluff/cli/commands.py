@@ -12,14 +12,15 @@ import pstats
 from io import StringIO
 from benchit import BenchIt
 
-from ..dialects import dialect_selector, dialect_readout
-from ..linter import Linter
 from .formatters import (format_rules,
                          format_violation, format_linting_result_header,
                          format_linting_result_footer, colorize,
                          format_dialect_warning, format_dialects,
                          CallbackFormatter)
 from .helpers import cli_table, get_package_version
+
+from ..dialects import dialect_selector, dialect_readout
+from ..linter import Linter
 from ..config import FluffConfig
 from ..errors import SQLLintError
 
@@ -54,7 +55,7 @@ def set_logging_level(verbosity, logger=None):
 
     ## Eventually this should be part of the Formatter.
     ## Maybe to make warnings RED too.
-    
+
     # NB: We treat the parser logger slightly differently because it's noiser.
     # It's important that we set levels for all each time so
     # that we don't break tests by changing the granularity
@@ -76,7 +77,7 @@ def set_logging_level(verbosity, logger=None):
 
 def common_options(f):
     """Add common options to commands via a decorator.
-    
+
     These are applied to all of the cli commands.
     """
     f = click.version_option()(f)
@@ -90,7 +91,7 @@ def common_options(f):
 
 def core_options(f):
     """Add core operation options to commands via a decorator.
-    
+
     These are applied to the main (but not all) cli commands like
     `parse`, `lint` and `fix`.
     """

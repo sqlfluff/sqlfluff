@@ -12,42 +12,6 @@ from sqlfluff.dialects import ansi_dialect
 # NB: All of these tests depend somewhat on the KeywordSegment working as planned
 
 
-
-
-
-# TODO: For all the caplog functions here we should specify the logger once
-# that's set up properly: https://docs.pytest.org/en/stable/logging.html
-# e.g. with caplog.at_level(logging.CRITICAL, logger="root.baz"):
-
-
-
-# Could we also set up filers in the logger itself to only filter within
-# the type of grammar we want to see?
-
-
-
-
-# Should probably make a note that passing the verbostiy around is not relevant for the parser and makes it much harder to control the library seperately.
-# It should be the CLI which deals with outputting the logs according to the verbosity.
-
-
-
-
-
-
-
-# Do I need to document this anywhere else?
-        # TODO: Tidy this up. NB: Parser running lower than rules
-        # Translate verbosity into a logging level.
-        # We could make custom logging levels, but this is advised as
-        # a BAD IDEA: https://docs.python.org/3/howto/logging.html#custom-levels
-
-
-
-# Probably need a formatter object that is passed to the linter to do the formatting.
-
-
-
 @pytest.fixture(scope="function")
 def seg_list(generate_test_segments):
     """A preset list of segments for testing."""
@@ -174,7 +138,7 @@ def test__parser__grammar_startswith_a(seg_list, fresh_ansi_dialect, caplog):
     baar = KeywordSegment.make('baar')
     bar = KeywordSegment.make('bar')
     with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
-        with caplog.at_level(logging.DEBUG):
+        with caplog.at_level(logging.DEBUG, logger="sqluff.parser"):
             assert StartsWith(bar).match(seg_list, parse_context=ctx)
             assert not StartsWith(baar).match(seg_list, parse_context=ctx)
 
@@ -184,7 +148,7 @@ def test__parser__grammar_startswith_b(seg_list, fresh_ansi_dialect, caplog):
     baar = KeywordSegment.make('baar')
     bar = KeywordSegment.make('bar')
     with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
-        with caplog.at_level(logging.DEBUG):
+        with caplog.at_level(logging.DEBUG, logger="sqluff.parser"):
             m = StartsWith(bar, terminator=baar).match(seg_list, parse_context=ctx)
             assert len(m) == 3
             m = StartsWith(bar, terminator=baar, include_terminator=True).match(seg_list, parse_context=ctx)
@@ -199,7 +163,7 @@ def test__parser__grammar_sequence(seg_list, caplog):
     g = Sequence(bs, fs)
     gc = Sequence(bs, fs, code_only=False)
     with RootParseContext(dialect=None) as ctx:
-        with caplog.at_level(logging.DEBUG):
+        with caplog.at_level(logging.DEBUG, logger="sqluff.parser"):
             # Should be able to match the list using the normal matcher
             logging.info("#### TEST 1")
             m = g.match(seg_list, parse_context=ctx)
@@ -225,7 +189,7 @@ def test__parser__grammar_sequence_nested(seg_list, caplog):
     bas = KeywordSegment.make('baar')
     g = Sequence(Sequence(bs, fs), bas)
     with RootParseContext(dialect=None) as ctx:
-        with caplog.at_level(logging.DEBUG):
+        with caplog.at_level(logging.DEBUG, logger="sqluff.parser"):
             # Matching the start of the list shouldn't work
             logging.info("#### TEST 1")
             assert not g.match(seg_list[:2], parse_context=ctx)
@@ -256,7 +220,7 @@ def test__parser__grammar_delimited(caplog, generate_test_segments, fresh_ansi_d
     g = Delimited(bs, delimiter=comma)
     gt = Delimited(bs, delimiter=comma, allow_trailing=True)
     with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
-        with caplog.at_level(logging.DEBUG):
+        with caplog.at_level(logging.DEBUG, logger="sqluff.parser"):
             # Matching not quite the full list shouldn't work
             logging.info("#### TEST 1")
             assert not g.match(seg_list[:4], parse_context=ctx)
@@ -280,7 +244,7 @@ def test__parser__grammar_delimited_not_code_only(caplog, generate_test_segments
     dot = KeywordSegment.make('.', name='dot')
     g = Delimited(bs, delimiter=dot, code_only=False)
     with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
-        with caplog.at_level(logging.DEBUG):
+        with caplog.at_level(logging.DEBUG, logger="sqluff.parser"):
             # Matching with whitespace shouldn't match
             # TODO: dots should be parsed out EARLY
             logging.info("#### TEST 1")
