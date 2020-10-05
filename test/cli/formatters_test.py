@@ -6,7 +6,7 @@ from sqlfluff.rules.base import RuleGhost
 from sqlfluff.parser import RawSegment
 from sqlfluff.parser.markers import FilePositionMarker
 from sqlfluff.errors import SQLLintError
-from sqlfluff.cli.formatters import format_filename, format_violation, format_path_violations
+from sqlfluff.cli.formatters import format_filename, format_violation
 
 
 def escape_ansi(line):
@@ -37,32 +37,3 @@ def test__cli__formatters__violation():
     v = SQLLintError(segment=s, rule=r)
     f = format_violation(v)
     assert escape_ansi(f) == "L:  20 | P:  11 |    A | DESC"
-
-
-def test__cli__formatters__violations():
-    """Test formatting and ordering of violations."""
-    v = {
-        'foo': [
-            SQLLintError(
-                segment=RawSegment('blah', FilePositionMarker(0, 25, 2, 26)),
-                rule=RuleGhost('A', 'DESCR')),
-            # Here we check the optional description override
-            SQLLintError(
-                segment=RawSegment('blah', FilePositionMarker(0, 21, 3, 22)),
-                rule=RuleGhost('B', 'DESCR'), description='foo')],
-        'bar': [
-            SQLLintError(
-                segment=RawSegment('blah', FilePositionMarker(0, 2, 11, 3)),
-                rule=RuleGhost('C', 'DESCR'))]
-    }
-    f = format_path_violations(v)
-    k = sorted(['foo', 'bar'])
-    chk = {
-        'foo': ["L:  21 | P:   3 |    B | foo", "L:  25 | P:   2 |    A | DESCR"],
-        'bar': ["L:   2 | P:  11 |    C | DESCR"]
-    }
-    chk2 = []
-    for elem in k:
-        chk2 = chk2 + [format_filename(elem)] + chk[elem]
-    chk2 = '\n'.join(chk2)
-    assert escape_ansi(f) == escape_ansi(chk2)

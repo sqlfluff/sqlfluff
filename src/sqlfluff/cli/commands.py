@@ -152,7 +152,7 @@ def get_linter_and_formatter(cfg, silent=False):
         # Instantiate the linter and return (with an output function)
         formatter = CallbackFormatter(
             callback=lambda m: click.echo(m, color=cfg.get('color')),
-            verbosity=cfg.get('verbose')
+            verbosity=cfg.get('verbose'), output_line_length=cfg.get('output_line_length')
         )
         return Linter(config=cfg, formatter=formatter), formatter
     else:

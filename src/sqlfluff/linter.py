@@ -20,14 +20,6 @@ from .parser import FileSegment, RootParseContext
 from .rules import get_ruleset
 
 
-# Having formatters here feels wrong.
-# TODO: Find a better solution.
-####
-from .cli.formatters import (format_linting_path, format_file_violations,
-                             format_filename, format_config_vals,
-                             format_dialect_warning)
-
-
 # Instantiate the linter logger
 linter_logger = logging.getLogger('sqlfluff.linter')
 
@@ -575,16 +567,9 @@ class Linter:
             short_fname = fname
         bencher("Staring parse_string for {0!r}".format(short_fname))
 
-        # Log the start of this process if we're in a more verbose mode.
-        if verbosity > 1:
-            self.log(format_filename(filename=fname, success='PARSING'))
-            # This is where we output config diffs if they exist.
-            if config:
-                # Only output config diffs if there is a config to diff to.
-                config_diff = config.diff_to(self.config)
-                if config_diff:
-                    self.log("   Config Diff:")
-                    self.log(format_config_vals(self.config.iter_vals(cfg=config_diff)))
+        # Dispatch the output for the parse header (including the config diff)
+        if self.formatter:
+            self.formatter.dispatch_parse_header(fname, self.config, config)
 
         linter_logger.info("TEMPLATING RAW [%s] (%s)", self.templater.name, fname)
         s, templater_violations = self.templater.process(s, fname=fname, config=config or self.config)
@@ -775,21 +760,19 @@ class Linter:
                 violation.ignore_if_in(config.get('ignore'))
 
         file_mask = (raw_buff, templ_buff, fixed_buff)
-        res = LintedFile(fname, vs, time_dict, parsed,
-                         file_mask=file_mask, ignore_mask=ignore_buff)
+        linted_file = LintedFile(fname, vs, time_dict, parsed,
+                                 file_mask=file_mask, ignore_mask=ignore_buff)
 
         # This is the main command line output from linting.
-        self.log(
-            format_file_violations(
-                fname, res.get_violations(fixable=True if fix else None),
-                verbose=verbosity, max_line_length=config.get('output_line_length')
-            )
-        )
-        # Safety flag for unset dialects
-        if config.get('dialect') == 'ansi' and res.get_violations(fixable=True if fix else None, types=SQLParseError):
-            self.log(format_dialect_warning())
+        if self.formatter:
+            self.formatter.dispatch_file_violations(fname, linted_file, only_fixable=fix)
 
-        return res
+        # Safety flag for unset dialects
+        if config.get('dialect') == 'ansi' and linted_file.get_violations(fixable=True if fix else None, types=SQLParseError):
+            if self.formatter:
+                self.formatter.dispatch_dialect_warning()
+
+        return linted_file
 
     def paths_from_path(self, path, ignore_file_name='.sqlfluffignore', ignore_non_existent_files=False):
         """Return a set of sql file paths from a potentially more ambigious path string.
@@ -855,7 +838,8 @@ class Linter:
     def lint_path(self, path, verbosity=0, fix=False, ignore_non_existent_files=False):
         """Lint a path."""
         linted_path = LintedPath(path)
-        self.log(format_linting_path(path, verbose=verbosity))
+        if self.formatter:
+            self.formatter.dispatch_path(path)
         for fname in self.paths_from_path(path, ignore_non_existent_files=ignore_non_existent_files):
             config = self.config.make_child_from_path(fname)
             # Handle unicode issues gracefully
@@ -887,7 +871,8 @@ class Linter:
         within the path iteratively.
         """
         for fname in self.paths_from_path(path):
-            self.log('=== [\u001b[30;1m{0}\u001b[0m] ==='.format(fname))
+            if self.formatter:
+                self.formatter.dispatch_path(path)
             config = self.config.make_child_from_path(fname)
             # Handle unicode issues gracefully
             with open(fname, 'r', encoding='utf8', errors='backslashreplace') as target_file:
