@@ -2,7 +2,8 @@
 from diff_cover.hook import hookimpl as diff_cover_hookimpl
 from diff_cover.violationsreporters.base import BaseViolationReporter, Violation
 
-from sqlfluff.cli.commands import get_config, get_linter_and_formatter
+from .config import FluffConfig
+from .linter import Linter
 
 
 class SQLFluffViolationReporter(BaseViolationReporter):
@@ -23,10 +24,7 @@ class SQLFluffViolationReporter(BaseViolationReporter):
         :param src_path:
         :return: list of Violation
         """
-        ## This feels too closely coupled.
-        # TODO: Rework to be better structured.
-        linter, _ = get_linter_and_formatter(get_config())
-        linter.output_func = None
+        linter = Linter(config=FluffConfig())
         linted_path = linter.lint_path(src_path, ignore_non_existent_files=True)
         result = []
         for violation in linted_path.get_violations():
