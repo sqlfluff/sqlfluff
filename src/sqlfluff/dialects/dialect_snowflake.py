@@ -62,7 +62,7 @@ snowflake_dialect.add(
         type='semi_structured_element'),
     ColumnIndexIdentifierSegment=ReSegment.make(
         r"\$[0-9]+", name='column_index_identifier_segment',
-        type='column_index_identifier'),
+        type='identifier'),
 )
 
 snowflake_dialect.replace(
