@@ -26,6 +26,13 @@ snowflake_dialect.insert_lexer_struct(
     before='not_equal'
 )
 
+snowflake_dialect.insert_lexer_struct(
+    # Column selector
+    # https://docs.snowflake.com/en/sql-reference/sql/select.html#parameters
+    [("column_selector", "regex", r"\$[0-9]+", dict(is_code=True))],
+    before='not_equal'
+)
+
 snowflake_dialect.sets('unreserved_keywords').update([
     'LATERAL',
     'BERNOULLI',
@@ -53,6 +60,9 @@ snowflake_dialect.add(
     QuotedSemiStructuredElementSegment=NamedSegment.make(
         'double_quote', name='quoted_semi_structured_element',
         type='semi_structured_element'),
+    ColumnIndexIdentifierSegment=ReSegment.make(
+        r"\$[0-9]+", name='column_index_identifier_segment',
+        type='identifier'),
 )
 
 snowflake_dialect.replace(
@@ -77,7 +87,12 @@ snowflake_dialect.replace(
         ),
         Ref('SamplingExpressionSegment', optional=True),
         Ref('TableAliasExpressionSegment', optional=True)
-    )
+    ),
+    SingleIdentifierGrammar=OneOf(
+        Ref('NakedIdentifierSegment'),
+        Ref('QuotedIdentifierSegment'),
+        Ref('ColumnIndexIdentifierSegment')
+    ),
 )
 
 

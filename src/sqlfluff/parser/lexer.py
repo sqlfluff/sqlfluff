@@ -198,7 +198,7 @@ class RegexMatcher(SingletonMatcher):
     """This RegexMatcher matches based on regular expressions."""
 
     def __init__(self, *args, **kwargs):
-        super(RegexMatcher, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         # We might want to configure this at some point, but for now, newlines
         # do get matched by .
         flags = re.DOTALL
