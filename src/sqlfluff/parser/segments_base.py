@@ -15,13 +15,16 @@ These are the fundamental building blocks of the rest of the parser.
 import logging
 
 from io import StringIO
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from benchit import BenchIt
 
-from .grammar import BaseGrammar
 from .match import MatchResult, curtail_string, join_segments_raw
 from ..errors import SQLLintError
+
+
+if TYPE_CHECKING:
+    from .grammar import BaseGrammar
 
 
 def verbosity_logger(msg, verbosity=0, level='info', v_level=3):
@@ -180,9 +183,9 @@ class BaseSegment:
 
     # `type` should be the *category* of this kind of segment
     type = 'base'
-    parse_grammar: Optional[BaseGrammar] = None
-    match_grammar: Optional[BaseGrammar] = None
-    grammar: Optional[BaseGrammar] = None
+    parse_grammar: Optional['BaseGrammar'] = None
+    match_grammar: Optional['BaseGrammar'] = None
+    grammar: Optional['BaseGrammar'] = None
     comment_seperate = False
     is_whitespace = False
     optional = False  # NB: See the seguence grammar for details

@@ -2,6 +2,7 @@
 
 import os.path
 import ast
+from typing import Dict
 
 from jinja2.sandbox import SandboxedEnvironment
 from jinja2 import meta
@@ -10,7 +11,7 @@ import jinja2.nodes
 from .errors import SQLTemplaterError
 from .parser import FilePositionMarker
 
-_templater_lookup = {} # type: ignore
+_templater_lookup: Dict[str, 'RawTemplateInterface'] = {}
 
 
 def templater_selector(s=None, **kwargs):
