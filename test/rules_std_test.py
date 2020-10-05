@@ -2,6 +2,8 @@
 
 import pytest
 
+import sqlfluff.rules.std as std_rules
+
 from sqlfluff.rules.std import std_rule_set
 from sqlfluff.linter import Linter
 from sqlfluff.config import FluffConfig
@@ -134,6 +136,15 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
      {'rules': {'L019': {'comma_style': 'trailing'}}}),
     ('L019', 'pass', 'SELECT\n    a\n    , b\n    FROM c', None,
      {'rules': {'L019': {'comma_style': 'leading'}}}),
+    # Leading commas in with statement
+    ('L019', 'fail', ('WITH cte_1 as (\n    SELECT *\n    FROM table_1\n)\n\n'
+                      ', cte_2 as (\n    SELECT *\n    FROM table_2\n)\n\n'
+                      'SELECT * FROM table_3'), None,
+        {'rules': {'L019': {'comma_style': 'trailing'}}}),
+    ('L019', 'pass', ('WITH cte_1 as (\n    SELECT *\n    FROM table_1\n)\n\n'
+                      ', cte_2 as (\n    SELECT *\n    FROM table_2\n)\n\n'
+                      'SELECT * FROM table_3'), None,
+        {'rules': {'L019': {'comma_style': 'leading'}}}),
     # Trailing commas
     ('L019', 'fail', 'SELECT\n    a,\n    b\n    FROM c', None,
      {'rules': {'L019': {'comma_style': 'leading'}}}),
@@ -281,3 +292,15 @@ def test__rules__std_L003_process_raw_stack(generate_test_segments):
     print(res)
     assert sorted(res.keys()) == [1, 2]
     assert res[2]['indent_size'] == 5
+
+
+@pytest.mark.parametrize("rule,rule_init", [
+    ("L010", {"capitalisation_policy": "blah"}),
+    ("L019", {"comma_style": "blah"}),
+    ("L022", {"comma_style": "blah"})
+])
+def test_improper_configs_are_rejected(rule, rule_init):
+    """Ensure that unsupported configs raise a ValueError."""
+    rule_class = getattr(std_rules, "Rule_{}".format(rule))
+    with pytest.raises(ValueError):
+        rule_class(**rule_init)
