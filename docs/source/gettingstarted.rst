@@ -204,7 +204,8 @@ file has been fixed accordingly.
     select a + b  as foo,
       c as bar from my_table
 
-For a full list of configuration options check out :code:`.sqlfluff` :ref:`defaultconfig`
+For a full list of configuration options check out
+:code:`.sqlfluff` :ref:`defaultconfig`
 
 Going further
 -------------
