@@ -7,7 +7,7 @@ from .helpers import colorize, cli_table, get_package_version, get_python_versio
 from ..errors import SQLBaseError
 
 
-def format_filename(filename, success=False, verbose=0, success_text='PASS'):
+def format_filename(filename, success=False, success_text='PASS'):
     """Format filenames."""
     if isinstance(success, str):
         status_string = success
@@ -99,7 +99,7 @@ def format_file_violations(fname, res, verbose=0, max_line_length=90):
 
     # Only print the filename if it's either a failure or verbosity > 1
     if verbose > 1 or not success:
-        text_buffer.write(format_filename(fname, success=success, verbose=verbose))
+        text_buffer.write(format_filename(fname, success=success))
         text_buffer.write('\n')
 
     # If we have violations, print them
@@ -190,28 +190,6 @@ def format_config_vals(config_vals):
     return text_buffer.getvalue()
 
 
-def format_config(linter, verbose=0):
-    """Format the config of a `Linter`."""
-    text_buffer = StringIO()
-    # Only show version information if verbosity is high enough
-    if verbose > 0:
-        text_buffer.write("==== sqlfluff ====\n")
-        config_content = [
-            ('sqlfluff', get_package_version()),
-            ('python', get_python_version()),
-            ('dialect', linter.dialect.name),
-            ('verbosity', verbose)
-        ]
-        text_buffer.write(cli_table(config_content, col_width=25))
-        text_buffer.write("\n")
-        if linter.config.get('rule_whitelist'):
-            text_buffer.write(cli_table([('rules', ', '.join(linter.config.get('rule_whitelist')))], col_width=41))
-        if verbose > 1:
-            text_buffer.write("== Raw Config:\n")
-            text_buffer.write(format_config_vals(linter.config.iter_vals()))
-    return text_buffer.getvalue()
-
-
 def format_rules(linter, verbose=0):
     """Format the a set of rules given a `Linter`."""
     text_buffer = StringIO()
@@ -233,3 +211,72 @@ def format_dialects(dialect_readout, verbose=0):
             readouts, col_width=60,
             cols=1, label_color='blue', val_align='right'))
     return text_buffer.getvalue()
+
+
+class CallbackFormatter():
+    """Formatter which uses a callback to output information.
+
+    On instantiation, this formatter accepts a function to
+    dispatch messages. Each public method accepts an object
+    or data in a common format, with this class handling the
+    formatting and output.
+
+    This class is designed to be subclassed if we eventually
+    want to provide other methods of surfacing output.
+
+
+    Args:
+        callback (:obj:`callable`): A callable which can be
+            be called with a string to be output.
+        verbosity (:obj:`int`): An integer specifying how
+            verbose the output should be.
+        filter_empty (:obj:`bool`): If True, empty messages
+            will not be dispatched.
+
+    """
+
+    def __init__(self, callback, verbosity=0, filter_empty=True):
+        self._callback = callback
+        self._verbosity = verbosity
+        self._filter_empty = filter_empty
+    
+    def _dispatch(self, s):
+        """Dispatch a string to the callback.
+
+        This method is designed as a point for subclassing.
+        """
+        # The strip here is to filter out any empty messages
+        if (not self._filter_empty) or s.strip(' \n\t'):
+            return self._callback(s)
+
+    def _format_config(self, linter):
+        """Format the config of a `Linter`."""
+        text_buffer = StringIO()
+        # Only show version information if verbosity is high enough
+        if self._verbosity > 0:
+            text_buffer.write("==== sqlfluff ====\n")
+            config_content = [
+                ('sqlfluff', get_package_version()),
+                ('python', get_python_version()),
+                ('dialect', linter.dialect.name),
+                ('verbosity', self._verbosity)
+            ]
+            text_buffer.write(cli_table(config_content, col_width=25))
+            text_buffer.write("\n")
+            if linter.config.get('rule_whitelist'):
+                text_buffer.write(cli_table([('rules', ', '.join(linter.config.get('rule_whitelist')))], col_width=41))
+            if self._verbosity > 1:
+                text_buffer.write("== Raw Config:\n")
+                text_buffer.write(format_config_vals(linter.config.iter_vals()))
+        return text_buffer.getvalue()
+    
+    def dispatch_config(self, linter):
+        """Dispatch configuration output appropriately."""
+        return self._dispatch(self._format_config(linter))
+    
+    def dispatch_persist_filename(self, filename, result):
+        """Dispatch filenames during a persist operation."""
+        # Only show the skip records at higher levels of verbosity
+        if self._verbosity >= 2 or result != 'SKIP':
+            self._dispatch(format_filename(filename=filename, success=result))
+        

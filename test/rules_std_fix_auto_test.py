@@ -100,7 +100,7 @@ def auto_fix_test(rules, dialect, folder):
 
     # Run the fix command
     cfg = FluffConfig.from_root(overrides=dict(rules=rules, dialect=dialect))
-    lnt = Linter(config=cfg, output_func=lambda m: None)
+    lnt = Linter(config=cfg)
     res = lnt.lint_path(filepath, fix=True)
 
     # If we have a violations structure, let's enforce it.

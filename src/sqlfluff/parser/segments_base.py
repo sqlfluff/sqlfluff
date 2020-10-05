@@ -12,8 +12,6 @@ Here we define:
 These are the fundamental building blocks of the rest of the parser.
 """
 
-import logging
-
 from io import StringIO
 from benchit import BenchIt
 
@@ -21,43 +19,72 @@ from .match import MatchResult, curtail_string, join_segments_raw
 from ..errors import SQLLintError
 
 
-def verbosity_logger(msg, verbosity=0, level='info', v_level=3):
-    """Log or print based on configuration."""
-    if verbosity >= v_level:
-        print(msg)
-    else:
-        # Should be mostly equivalent to logging.info(msg)
-        getattr(logging, level)(msg)
+
+
+# This function does two things:
+# - formatting
+# - Handling when to log based on the v_level.
+
+# The former should be handled vial logging and a late binding object which constructs the message when __str__ is called.
+# The latter should be handled outside of this, with the object only determining whether it reports at INFO or DEBUG.
+
+
+# Extract the first, first. Then the latter.
+
+
+class ParseMatchLogObject():
+    """A late binding log object for parse_match_logging."""
+    def __init__(self, parse_depth, match_depth, match_segment, grammar, func, msg, **kwargs):
+        self.parse_depth = parse_depth
+        self.match_depth = match_depth
+        self.match_segment = match_segment
+        self.grammar = grammar
+        self.func = func
+        self.msg = msg
+        self.kwargs = kwargs
+    
+    @classmethod
+    def from_context(cls, parse_context, grammar, func, msg, **kwargs):
+        return cls(
+            parse_context.parse_depth, parse_context.match_depth, parse_context.match_segment,
+            grammar, func, msg, **kwargs
+        )
+    
+    def __str__(self):
+        """Actually materialise the string."""
+        symbol = self.kwargs.pop('symbol', '')
+        s = "[PD:{0} MD:{1}]\t{2:<50}\t{3:<20}\t{4:<4}".format(
+            self.parse_depth, self.match_depth,
+            ('.' * self.match_depth) + str(self.match_segment),
+            "{0}.{1} {2}".format(self.grammar, self.func, self.msg),
+            symbol
+        )
+        if self.kwargs:
+            s += "\t[{0}]".format(
+                ', '.join(
+                    "{0}={1}".format(
+                        k,
+                        repr(v) if isinstance(v, str) else v
+                    ) for k, v in self.kwargs.items()
+                )
+            )
+        return s
 
 
 def parse_match_logging(grammar, func, msg, parse_context, v_level, **kwargs):
     """Log in a particular consistent format for use while matching."""
-    # If we can avoid this, bank the performance increase
-    if parse_context.verbosity <= 1:
-        return
+    # Make a late bound log object so we only do the string manipulation when we need to.
+    log_obj = ParseMatchLogObject.from_context(parse_context, grammar, func, msg, **kwargs)
     # Otherwise carry on...
-    symbol = kwargs.pop('symbol', '')
-    s = "[PD:{0} MD:{1}]\t{2:<50}\t{3:<20}\t{4:<4}".format(
-        parse_context.parse_depth, parse_context.match_depth,
-        ('.' * parse_context.match_depth) + str(parse_context.match_segment),
-        "{0}.{1} {2}".format(grammar, func, msg),
-        symbol
-    )
-    if kwargs:
-        s += "\t[{0}]".format(
-            ', '.join(
-                "{0}={1}".format(
-                    k,
-                    repr(v) if isinstance(v, str) else v
-                ) for k, v in kwargs.items()
-            )
-        )
-    verbosity_logger(s, parse_context.verbosity, v_level=v_level)
+    if v_level == 3:
+        parse_context.logger.info(log_obj)
+    elif v_level == 4:
+        parse_context.logger.debug(log_obj)
 
 
 def frame_msg(msg):
     """Frame a message with hashes so that it covers five lines."""
-    return "###\n#\n# {0}\n#\n###".format(msg)
+    return "\n###\n#\n# {0}\n#\n###".format(msg)
 
 
 def check_still_complete(segments_in, matched_segments, unmatched_segments):
@@ -305,7 +332,7 @@ class BaseSegment:
         g = self._parse_grammar()
         if g is None:
             # No parse grammar, go straight to expansion
-            logging.debug("{0}.parse: no grammar. Going straight to expansion".format(self.__class__.__name__))
+            parse_context.logger.debug("{0}.parse: no grammar. Going straight to expansion".format(self.__class__.__name__))
         else:
             # Use the Parse Grammar (and the private method)
 
@@ -357,13 +384,13 @@ class BaseSegment:
         bencher("Parse complete of {0!r}".format(self.__class__.__name__))
 
         # Recurse if allowed (using the expand method to deal with the expansion)
-        logging.debug(
+        parse_context.logger.debug(
             "{0}.parse: Done Parse. Plotting Recursion. Recurse={1!r}".format(
                 self.__class__.__name__, parse_context.recurse))
         parse_depth_msg = "###\n#\n# Beginning Parse Depth {0}: {1}\n#\n###\nInitial Structure:\n{2}".format(
             parse_context.parse_depth + 1, self.__class__.__name__, self.stringify())
         if parse_context.may_recurse():
-            logging.debug(parse_depth_msg)
+            parse_context.logger.debug(parse_depth_msg)
             with parse_context.deeper_parse() as ctx:
                 self.segments = self.expand(self.segments, parse_context=ctx)
         # Validate new segments
@@ -554,7 +581,7 @@ class BaseSegment:
             segments = (segments,)  # Make into a tuple for compatability
 
         if not isinstance(segments, tuple):
-            logging.warning(
+            parse_context.logger.warning(
                 "{0}.match, was passed {1} rather than tuple or segment".format(
                     cls.__name__, type(segments)))
             if isinstance(segments, list):
@@ -562,12 +589,12 @@ class BaseSegment:
                 segments = tuple(segments)
 
         if len(segments) == 0:
-            logging.info("{0}._match, was passed zero length segments list".format(cls.__name__))
+            parse_context.logger.info("{0}._match, was passed zero length segments list".format(cls.__name__))
 
         m = cls.match(segments, parse_context=parse_context)
 
         if not isinstance(m, tuple) and m is not None:
-            logging.warning(
+            parse_context.logger.warning(
                 "{0}.match, returned {1} rather than tuple".format(
                     cls.__name__, type(m)))
 
@@ -586,21 +613,19 @@ class BaseSegment:
         for stmt in segments:
             try:
                 if not stmt.is_expandable:
-                    verbosity_logger(
-                        "[PD:{0}] Skipping expansion of {1}...".format(parse_context.parse_depth, stmt),
-                        verbosity=parse_context.verbosity)
+                    parse_context.logger.info("[PD:%s] Skipping expansion of %s...", parse_context.parse_depth, stmt)
                     segs += (stmt,)
                     continue
             except Exception as err:
                 # raise ValueError("{0} has no attribute `is_expandable`. This segment appears poorly constructed.".format(stmt))
-                logging.error("{0} has no attribute `is_expandable`. This segment appears poorly constructed.".format(stmt))
+                parse_context.logger.error("%s has no attribute `is_expandable`. This segment appears poorly constructed.", stmt)
                 raise err
             if not hasattr(stmt, 'parse'):
                 raise ValueError("{0} has no method `parse`. This segment appears poorly constructed.".format(stmt))
             parse_depth_msg = "Parse Depth {0}. Expanding: {1}: {2!r}".format(
                 parse_context.parse_depth, stmt.__class__.__name__,
                 curtail_string(stmt.raw, length=40))
-            verbosity_logger(frame_msg(parse_depth_msg), verbosity=parse_context.verbosity)
+            parse_context.logger.info(frame_msg(parse_depth_msg))
             res = stmt.parse(parse_context=parse_context)
             if isinstance(res, BaseSegment):
                 segs += (res,)
@@ -689,7 +714,7 @@ class BaseSegment:
         """
         # Let's check what we've been given.
         if fixes and isinstance(fixes[0], SQLLintError):
-            logging.error("Transforming `fixes` from errors into a list of fixes")
+            parse_context.logger.error("Transforming `fixes` from errors into a list of fixes")
             # We've got linting errors, let's aggregate them into a list of fixes
             buff = []
             for err in fixes:

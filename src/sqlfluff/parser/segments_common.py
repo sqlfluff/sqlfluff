@@ -10,7 +10,6 @@ these segments have meaning regardless of what dialect
 we use, and will be common between all of them.
 """
 
-import logging
 import re
 
 from .segments_base import (BaseSegment, RawSegment, parse_match_logging)
@@ -70,7 +69,7 @@ class KeywordSegment(RawSegment):
                 m = (cls(raw=raw, pos_marker=pos),)  # Return as a tuple
                 return MatchResult(m, segments[1:])
         else:
-            logging.debug("{1} will not match sequence of length {0}".format(len(segments), cls.__name__))
+            parse_context.logger.debug("{1} will not match sequence of length {0}".format(len(segments), cls.__name__))
         return MatchResult.from_unmatched(segments)
 
     @classmethod
@@ -185,7 +184,7 @@ class NamedSegment(KeywordSegment):
                 m = (cls(raw=s.raw, pos_marker=segments[0].pos_marker),)  # Return a tuple
                 return MatchResult(m, segments[1:])
         else:
-            logging.debug("{1} will not match sequence of length {0}".format(len(segments), cls.__name__))
+            parse_context.logger.debug("{1} will not match sequence of length {0}".format(len(segments), cls.__name__))
         return MatchResult.from_unmatched(segments)
 
     @classmethod

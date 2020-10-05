@@ -17,14 +17,25 @@ import pathspec
 
 from .errors import SQLLexError, SQLParseError
 from .parser import FileSegment, RootParseContext
-# We should probably move verbosity logger to somewhere else?
-from .parser.segments_base import verbosity_logger, frame_msg
-from .rules import get_ruleset, rules_logger
+from .rules import get_ruleset
 
 
+# Having formatters here feels wrong.
+# TODO: Find a better solution.
+####
 from .cli.formatters import (format_linting_path, format_file_violations,
                              format_filename, format_config_vals,
                              format_dialect_warning)
+
+
+# Instantiate the linter logger
+linter_logger = logging.getLogger('sqlfluff.linter')
+
+
+def frame_msg(msg):
+    """Frame a message with hashes so that it covers five lines."""
+    ###linter_logger.warning("Usage of `linter.frame_msg`, this needs a better solution.")
+    return "\n###\n#\n# {0}\n#\n###".format(msg)
 
 
 class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tree', 'file_mask', 'ignore_mask'])):
@@ -97,7 +108,7 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
         """Return True if there are no ignorable violations."""
         return not any(self.get_violations(filter_ignore=True))
 
-    def fix_string(self, verbosity=0):
+    def fix_string(self):
         """Obtain the changes to a path as a string.
 
         We use the file_mask to do a safe merge, avoiding any templated
@@ -115,17 +126,15 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
 
         # Do we have enough information to actually fix the file?
         if any(elem is None for elem in self.file_mask):
-            verbosity_logger(
-                "Insufficient information to fix file: {0}".format(self.file_mask),
-                verbosity=verbosity)
+            linter_logger.warning("Insufficient information to fix file: %s", self.file_mask)
             return None, False
 
-        verbosity_logger("Persisting file masks: {0}".format(self.file_mask), verbosity=verbosity)
+        linter_logger.info("Persisting file masks: %s", self.file_mask)
         # Compare Templated with Raw
         diff_templ = SequenceMatcher(autojunk=None, a=self.file_mask[0], b=self.file_mask[1])
         bencher("fix_string: Match 0&1")
         diff_templ_codes = diff_templ.get_opcodes()
-        verbosity_logger("Templater diff codes: {0}".format(diff_templ_codes), verbosity=verbosity)
+        linter_logger.debug("Templater diff codes: %s", diff_templ_codes)
 
         bencher("fix_string: Got Opcodes 0&1")
         # Compare Fixed with Templated
@@ -133,7 +142,7 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
         bencher("fix_string: Matched 1&2")
         # diff_fix = SequenceMatcher(autojunk=None, a=self.file_mask[1][0], b=self.file_mask[2][0])
         diff_fix_codes = diff_fix.get_opcodes()
-        verbosity_logger("Fixing diff codes: {0}".format(diff_fix_codes), verbosity=verbosity)
+        linter_logger.debug("Fixing diff codes: %s", diff_fix_codes)
         bencher("fix_string: Got Opcodes 1&2")
 
         # If diff_templ isn't the same then we should just keep the template. If there *was*
@@ -148,10 +157,7 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
         bencher("fix_string: Loop Setup")
         while True:
             loop_idx += 1
-            verbosity_logger(
-                "{0:04d}: Write Loop: idx:{1}, buff:{2!r}".format(loop_idx, idx, write_buff),
-                verbosity=verbosity)
-
+            linter_logger.debug("%04d: Write Loop: idx:%s, buff:%r", loop_idx, idx, write_buff)
             if templ_block is None:
                 if diff_templ_codes:
                     templ_block = diff_templ_codes.pop(0)
@@ -175,10 +181,7 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
                         "A {} template block remains with no more diff_fix_codes left".format(templ_block[0])
                     )
 
-            verbosity_logger(
-                "{0:04d}: Blocks: template:{1}, fix:{2}".format(loop_idx, templ_block, fixed_block),
-                verbosity=verbosity)
-
+            linter_logger.debug("%04d: Blocks: template:%s, fix:%s", loop_idx, templ_block, fixed_block)
             if templ_block[0] == 'equal':
                 if fixed_block[0] == 'equal':
                     # No templating, no fixes, go with middle and advance indexes
@@ -317,7 +320,7 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
         # The success metric here is whether anything ACTUALLY changed.
         return write_buff, write_buff != self.file_mask[0]
 
-    def persist_tree(self, verbosity=0, suffix=''):
+    def persist_tree(self, suffix=''):
         """Persist changes to the given path.
 
         We use the file_mask to do a safe merge, avoiding any templated
@@ -329,7 +332,7 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
         It returns a list of tuples ('equal|replace', ia1, ia2, ib1, ib2).
 
         """
-        write_buff, success = self.fix_string(verbosity=verbosity)
+        write_buff, success = self.fix_string()
 
         if success:
             fname = self.path
@@ -340,9 +343,6 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
             # Actually write the file.
             with open(fname, 'w') as f:
                 f.write(write_buff)
-
-        # TODO: Make return value of persist_changes() a more interesting result and then format it
-        # click.echo(format_linting_fixes(result, verbose=verbose), color=color)
         return success
 
 
@@ -395,32 +395,23 @@ class LintedPath:
             violations=sum(file.num_violations() for file in self.files)
         )
 
-    def persist_changes(self, verbosity=0, output_func=None, fixed_file_suffix='',
-                        **kwargs):
+    def persist_changes(self, formatter=None, fixed_file_suffix='', **kwargs):
         """Persist changes to files in the given path.
 
-        This also logs the output using the output_func if present.
+        This also logs the output as we go using the formatter if present.
         """
         # Run all the fixes for all the files and return a dict
         buffer = {}
         for file in self.files:
             if file.num_violations(fixable=True, **kwargs) > 0:
-                buffer[file.path] = file.persist_tree(
-                    verbosity=verbosity, suffix=fixed_file_suffix)
+                buffer[file.path] = file.persist_tree(suffix=fixed_file_suffix)
                 result = buffer[file.path]
             else:
                 buffer[file.path] = True
                 result = 'SKIP'
 
-            if output_func:
-                # Only show the skip records at higher levels of verbosity
-                if verbosity >= 2 or result != 'SKIP':
-                    output_func(
-                        format_filename(
-                            filename=file.path,
-                            success=result,
-                            verbose=verbosity)
-                    )
+            if formatter:
+                formatter.dispatch_persist_filename(filename=file.path, result=result)
         return buffer
 
 
@@ -518,11 +509,11 @@ class LintingResult:
             if violations
         ]
 
-    def persist_changes(self, verbosity=0, output_func=None, **kwargs):
+    def persist_changes(self, formatter=None, **kwargs):
         """Run all the fixes for all the files and return a dict."""
         return self.combine_dicts(
             *[
-                path.persist_changes(verbosity=verbosity, output_func=output_func, **kwargs)
+                path.persist_changes(formatter=formatter, **kwargs)
                 for path in self.paths
             ]
         )
@@ -531,24 +522,23 @@ class LintingResult:
 class Linter:
     """The interface class to interact with the linter."""
 
-    def __init__(self, sql_exts=('.sql',), output_func=None,
-                 config=None):
+    def __init__(self, sql_exts=('.sql',),
+                 config=None, formatter=None):
         if config is None:
             raise ValueError("No config object provided to linter!")
         self.dialect = config.get('dialect_obj')
         self.templater = config.get('templater_obj')
         self.sql_exts = sql_exts
-        # Used for logging as we go
-        self.output_func = output_func
         # Store the config object
         self.config = config
+        # Store the formatter for output
+        self.formatter = formatter
 
     def log(self, msg):
         """Log a message, using the common logging framework."""
-        if self.output_func:
-            # Check we've actually got a meaningful message
-            if msg.strip(' \n\t'):
-                self.output_func(msg)
+        ##NB: I don't think we should do this EITHER. But it's better than before.
+        if self.formatter:
+            self.formatter._dispatch(msg)
 
     def get_ruleset(self, config=None):
         """Get hold of a set of rules."""
@@ -587,7 +577,7 @@ class Linter:
 
         # Log the start of this process if we're in a more verbose mode.
         if verbosity > 1:
-            self.log(format_filename(filename=fname, success='PARSING', verbose=verbosity))
+            self.log(format_filename(filename=fname, success='PARSING'))
             # This is where we output config diffs if they exist.
             if config:
                 # Only output config diffs if there is a config to diff to.
@@ -596,7 +586,7 @@ class Linter:
                     self.log("   Config Diff:")
                     self.log(format_config_vals(self.config.iter_vals(cfg=config_diff)))
 
-        verbosity_logger("TEMPLATING RAW [{0}] ({1})".format(self.templater.name, fname), verbosity=verbosity)
+        linter_logger.info("TEMPLATING RAW [%s] (%s)", self.templater.name, fname)
         s, templater_violations = self.templater.process(s, fname=fname, config=config or self.config)
         violations += templater_violations
         # Detect the case of a catastrophic templater fail. In this case
@@ -608,7 +598,7 @@ class Linter:
         bencher("Templating {0!r}".format(short_fname))
 
         if s:
-            verbosity_logger("LEXING RAW ({0})".format(fname), verbosity=verbosity)
+            linter_logger.info("LEXING RAW (%s)", fname)
             # Lex the file and log any problems
             try:
                 file_segment, lex_vs = FileSegment.from_raw(s, config=config or self.config)
@@ -621,11 +611,11 @@ class Linter:
             file_segment = None
 
         if file_segment:
-            verbosity_logger(file_segment.stringify(), verbosity=verbosity)
+            linter_logger.info(file_segment.stringify())
 
         t2 = time.monotonic()
         bencher("Lexing {0!r}".format(short_fname))
-        verbosity_logger("PARSING ({0})".format(fname), verbosity=verbosity)
+        linter_logger.info("PARSING (%s)", fname)
         # Parse the file and log any problems
         if file_segment:
             try:
@@ -636,8 +626,8 @@ class Linter:
                 violations.append(err)
                 parsed = None
             if parsed:
-                verbosity_logger(frame_msg("Parsed Tree:"), verbosity=verbosity)
-                verbosity_logger(parsed.stringify(), verbosity=verbosity)
+                linter_logger.info(frame_msg("Parsed Tree:"))
+                linter_logger.info("\n" + parsed.stringify())
                 # We may succeed parsing, but still have unparsable segments. Extract them here.
                 for unparsable in parsed.iter_unparsables():
                     # No exception has been raised explicitly, but we still create one here
@@ -649,9 +639,8 @@ class Linter:
                             segment=unparsable
                         )
                     )
-                    if verbosity >= 2:
-                        verbosity_logger("Found unparsable segment...", verbosity=verbosity)
-                        verbosity_logger(unparsable.stringify(), verbosity=verbosity)
+                    linter_logger.info("Found unparsable segment...")
+                    linter_logger.info(unparsable.stringify())
         else:
             parsed = None
 
@@ -709,10 +698,8 @@ class Linter:
                         vs.append(ignore_entry)
                     elif ignore_entry:
                         ignore_buff.append(ignore_entry)
-            if ignore_buff and verbosity >= 2:
-                verbosity_logger(
-                    "Parsed noqa directives from file: {0!r}".format(ignore_buff),
-                    verbosity=verbosity)
+            if ignore_buff:
+                linter_logger.info("Parsed noqa directives from file: %r", ignore_buff)
 
         templ_buff = None
         fixed_buff = None
@@ -720,15 +707,7 @@ class Linter:
             # Store the templated version
             templ_buff = parsed.raw
             t0 = time.monotonic()
-
-            if verbosity >= 2:
-                verbosity_logger("LINTING ({0})".format(fname), verbosity=verbosity)
-                # Also set up logging from the rules logger
-                if verbosity >= 3:
-                    rules_logger.setLevel(logging.DEBUG)
-                else:
-                    rules_logger.setLevel(logging.INFO)
-
+            linter_logger.info("LINTING (%s)", fname)
             # Get the initial violations
             linting_errors = []
             for crawler in self.get_ruleset(config=config):
@@ -756,11 +735,12 @@ class Linter:
                         lerrs, _, fixes, _ = crawler.crawl(working, dialect=config.get('dialect_obj'), fix=True)
                         linting_errors += lerrs
                         if fixes:
-                            verbosity_logger("Applying Fixes: {0}".format(fixes), verbosity=verbosity)
+                            linter_logger.info("Applying Fixes: %s", fixes)
 
                             if last_fixes and fixes == last_fixes:
-                                print(("WARNING: One fix for {0} not applied, it would re-cause "
-                                       "the same error.").format(crawler.code))
+                                linter_logger.warning(
+                                    "One fix for %s not applied, it would re-cause the same error.",
+                                    crawler.code)
                             else:
                                 last_fixes = fixes
                                 new_working, fixes = working.apply_fixes(fixes)
@@ -771,8 +751,9 @@ class Linter:
                                     previous_versions.add(working.raw)
                                     changed = True
                                 else:
-                                    print(("WARNING: One fix for {0} not applied, it would re-cause "
-                                           "a previously fixed error.").format(crawler.code))
+                                    linter_logger.warning(
+                                        "One fix for %s not applied, it would re-cause the same error.",
+                                        crawler.code)
                     if not changed:
                         # The file is clean :)
                         break

@@ -21,6 +21,30 @@ from sqlfluff.dialects import ansi_dialect
 
 
 
+# Could we also set up filers in the logger itself to only filter within
+# the type of grammar we want to see?
+
+
+
+
+# Should probably make a note that passing the verbostiy around is not relevant for the parser and makes it much harder to control the library seperately.
+# It should be the CLI which deals with outputting the logs according to the verbosity.
+
+
+
+
+
+
+
+# Do I need to document this anywhere else?
+        # TODO: Tidy this up. NB: Parser running lower than rules
+        # Translate verbosity into a logging level.
+        # We could make custom logging levels, but this is advised as
+        # a BAD IDEA: https://docs.python.org/3/howto/logging.html#custom-levels
+
+
+
+# Probably need a formatter object that is passed to the linter to do the formatting.
 
 
 
