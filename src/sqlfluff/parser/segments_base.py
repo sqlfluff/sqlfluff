@@ -19,7 +19,11 @@ from .match import MatchResult, curtail_string, join_segments_raw
 
 
 class ParseMatchLogObject():
-    """A late binding log object for parse_match_logging."""
+    """A late binding log object for parse_match_logging.
+
+    This allows us to defer the string manipulation involved
+    until actually required by the logger.
+    """
     def __init__(self, parse_depth, match_depth, match_segment, grammar, func, msg, **kwargs):
         self.parse_depth = parse_depth
         self.match_depth = match_depth
@@ -43,7 +47,7 @@ class ParseMatchLogObject():
         s = "[PD:{0} MD:{1}]\t{2:<50}\t{3:<20}\t{4:<4}".format(
             self.parse_depth, self.match_depth,
             ('.' * self.match_depth) + str(self.match_segment),
-            "{0}.{1} {2}".format(self.grammar, self.func, self.msg),
+            "{0:.5}.{1} {2}".format(self.grammar, self.func, self.msg),
             symbol
         )
         if self.kwargs:
@@ -51,7 +55,7 @@ class ParseMatchLogObject():
                 ', '.join(
                     "{0}={1}".format(
                         k,
-                        repr(v) if isinstance(v, str) else v
+                        repr(v) if isinstance(v, str) else str(v)
                     ) for k, v in self.kwargs.items()
                 )
             )
@@ -531,10 +535,10 @@ class BaseSegment:
         # of that.
         if len(segments) == 1 and isinstance(segments[0], cls):
             # This has already matched. Winner.
-            parse_match_logging(cls.__name__[:10], '_match', 'SELF', parse_context=parse_context, v_level=3, symbol='+++')
+            parse_match_logging(cls.__name__, '_match', 'SELF', parse_context=parse_context, v_level=3, symbol='+++')
             return MatchResult.from_matched(segments)
         elif len(segments) > 1 and isinstance(segments[0], cls):
-            parse_match_logging(cls.__name__[:10], '_match', 'SELF', parse_context=parse_context, v_level=3, symbol='+++')
+            parse_match_logging(cls.__name__, '_match', 'SELF', parse_context=parse_context, v_level=3, symbol='+++')
             # This has already matched, but only partially.
             return MatchResult((segments[0],), segments[1:])
 
@@ -561,7 +565,7 @@ class BaseSegment:
     def _match(cls, segments, parse_context):
         """A wrapper on the match function to do some basic validation and logging."""
         parse_match_logging(
-            cls.__name__[:10], '_match', 'IN', parse_context=parse_context,
+            cls.__name__, '_match', 'IN', parse_context=parse_context,
             v_level=4, ls=len(segments))
 
         if isinstance(segments, BaseSegment):
@@ -586,7 +590,7 @@ class BaseSegment:
                     cls.__name__, type(m)))
 
         parse_match_logging(
-            cls.__name__[:10], '_match', 'OUT',
+            cls.__name__, '_match', 'OUT',
             parse_context=parse_context, v_level=4, m=m)
         # Validation is skipped at a match level. For performance reasons
         # we match at the parse level only

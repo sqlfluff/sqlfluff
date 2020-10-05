@@ -7,6 +7,19 @@ from .match import MatchResult, join_segments_raw_curtailed
 from ..errors import SQLParseError
 
 
+class _LateBoundJoinSegmentsCurtailed():
+    """Object to delay `join_segments_raw_curtailed` until later.
+
+    This allows us to defer the string manipulation involved
+    until actually required by the logger.
+    """
+    def __init__(self, segments):
+        self.segments = segments
+
+    def __str__(self):
+        return join_segments_raw_curtailed(self.segments)
+
+
 class BaseGrammar:
     """Grammars are a way of composing match statements.
 
@@ -100,7 +113,7 @@ class BaseGrammar:
             self.__class__.__name__, '_match', 'IN', parse_context=parse_context,
             v_level=self.v_level,
             le=len(self._elements), ls=len(segments),
-            seg=join_segments_raw_curtailed(segments))
+            seg=_LateBoundJoinSegmentsCurtailed(segments))
 
         m = self.match(segments, parse_context=parse_context)
 
@@ -276,7 +289,7 @@ class BaseGrammar:
             cls.__name__, '_look_ahead_match', 'IN', parse_context=parse_context,
             v_level=4,
             ls=len(segments),
-            seg=join_segments_raw_curtailed(segments),
+            seg=_LateBoundJoinSegmentsCurtailed(segments),
             m=matchers)
 
         # Do some type munging

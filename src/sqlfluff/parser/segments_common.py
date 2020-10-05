@@ -63,7 +63,7 @@ class KeywordSegment(RawSegment):
                 raw_comp = raw.upper()
 
             parse_match_logging(
-                cls.__name__[:10], 'match', 'KW',
+                cls.__name__, 'match', 'KW',
                 parse_context=parse_context, v_level=4, pattern=cls._template, test=raw_comp, name=cls.__name__)
             if cls._template == raw_comp:
                 m = (cls(raw=raw, pos_marker=pos),)  # Return as a tuple
@@ -118,7 +118,7 @@ class ReSegment(KeywordSegment):
         if len(s) == 0:
             raise ValueError("Zero length string passed to ReSegment!?")
         parse_match_logging(
-            cls.__name__[:10], 'match', 'RE',
+            cls.__name__, 'match', 'RE',
             parse_context=parse_context, v_level=4, pattern=cls._template, test=sc, name=cls.__name__)
         # Try the regex
         result = re.match(cls._template, sc)
@@ -178,7 +178,7 @@ class NamedSegment(KeywordSegment):
             else:
                 n = s.name
             parse_match_logging(
-                cls.__name__[:10], 'match', 'NM',
+                cls.__name__, 'match', 'NM',
                 parse_context=parse_context, v_level=4, pattern=cls._template, test=n, name=cls.__name__)
             if cls._template == n:
                 m = (cls(raw=s.raw, pos_marker=segments[0].pos_marker),)  # Return a tuple
