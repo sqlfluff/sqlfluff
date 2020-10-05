@@ -18,7 +18,6 @@ from benchit import BenchIt
 from .match import MatchResult, curtail_string, join_segments_raw
 
 
-## TODO: Should this live elsewhere?
 class ParseMatchLogObject():
     """A late binding log object for parse_match_logging."""
     def __init__(self, parse_depth, match_depth, match_segment, grammar, func, msg, **kwargs):

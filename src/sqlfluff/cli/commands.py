@@ -44,17 +44,12 @@ def set_logging_level(verbosity, logger=None):
 
     # Set up the log handler to log to stdout
     handler = logging.StreamHandler(stream=sys.stdout)
+    handler.setFormatter(logging.Formatter('%(levelname)-10s %(message)s'))
     if logger:
         focus_logger = logging.getLogger('sqlfluff.{0}'.format(logger))
         focus_logger.addHandler(handler)
     else:
         fluff_logger.addHandler(handler)
-
-    # TODO: Below
-    ##PROBABLY NEED A LOG FORMATTER (which isn't the default.)
-
-    ## Eventually this should be part of the Formatter.
-    ## Maybe to make warnings RED too.
 
     # NB: We treat the parser logger slightly differently because it's noiser.
     # It's important that we set levels for all each time so
@@ -244,7 +239,7 @@ def lint(paths, format, nofail, logger=None, **kwargs):
         result = lnt.lint_string_wrapped(sys.stdin.read(), fname='stdin')
     else:
         # Output the results as we go
-        lnt.log(format_linting_result_header(verbose=verbose))
+        click.echo(format_linting_result_header(verbose=verbose))
         try:
             # TODO: Remove verbose
             result = lnt.lint_paths(paths, ignore_non_existent_files=False)
@@ -252,7 +247,7 @@ def lint(paths, format, nofail, logger=None, **kwargs):
             click.echo(colorize('The path(s) {0!r} could not be accessed. Check it/they exist(s).'.format(paths), 'red'))
             sys.exit(1)
         # Output the final stats
-        lnt.log(format_linting_result_footer(result, verbose=verbose))
+        click.echo(format_linting_result_footer(result, verbose=verbose))
 
     if format == 'json':
         click.echo(json.dumps(result.as_records()))
@@ -311,9 +306,9 @@ def fix(force, paths, bench=False, fixed_suffix='', no_safety=False, logger=None
     if no_safety:
         click.echo(colorize('NO SAFETY', 'red') + ': Attempting fixes for all enabled rules.')
     elif lnt.config.get('rule_whitelist') is None:
-        lnt.log(("The fix option is only available in combination"
-                 " with --rules. This is for your own safety! To"
-                 " disable this safety feature use --no-safety or --s."))
+        click.echo(("The fix option is only available in combination"
+                    " with --rules. This is for your own safety! To"
+                    " disable this safety feature use --no-safety or --s."))
         sys.exit(1)
 
     # handle stdin case. should output formatted sql to stdout and nothing else.
@@ -326,7 +321,7 @@ def fix(force, paths, bench=False, fixed_suffix='', no_safety=False, logger=None
         sys.exit()
 
     # Lint the paths (not with the fix argument at this stage), outputting as we go.
-    lnt.log("==== finding fixable violations ====")
+    click.echo("==== finding fixable violations ====")
     try:
         result = lnt.lint_paths(paths, fix=True, ignore_non_existent_files=False)
     except IOError:
@@ -367,7 +362,7 @@ def fix(force, paths, bench=False, fixed_suffix='', no_safety=False, logger=None
                 result.num_violations(types=SQLLintError, fixable=False)))
 
     if bench:
-        lnt.log("\n\n==== bencher stats ====")
+        click.echo("\n\n==== bencher stats ====")
         bencher.display()
 
     sys.exit(0)
@@ -416,7 +411,7 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
         try:
             import cProfile
         except ImportError:
-            lnt.log('The cProfiler is not available on your platform.')
+            click.echo('The cProfiler is not available on your platform.')
             sys.exit(1)
         pr = cProfile.Profile()
         pr.enable()
@@ -445,20 +440,20 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
         if format == 'human':
             for parsed, violations, time_dict, f_cfg in result:
                 if parsed:
-                    lnt.log(parsed.stringify(code_only=code_only))
+                    click.echo(parsed.stringify(code_only=code_only))
                 else:
                     # TODO: Make this prettier
-                    lnt.log('...Failed to Parse...')
+                    click.echo('...Failed to Parse...')
                 nv += len(violations)
                 if violations:
-                    lnt.log("==== parsing violations ====")
+                    click.echo("==== parsing violations ====")
                 for v in violations:
-                    lnt.log(format_violation(v))
+                    click.echo(format_violation(v))
                 if violations and f_cfg.get('dialect') == 'ansi':
-                    lnt.log(format_dialect_warning())
+                    click.echo(format_dialect_warning())
                 if verbose >= 2:
-                    lnt.log("==== timings ====")
-                    lnt.log(cli_table(time_dict.items()))
+                    click.echo("==== timings ====")
+                    click.echo(cli_table(time_dict.items()))
                 bencher("Output details for file")
         else:
             # collect result and print as single payload
@@ -497,12 +492,12 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
             pr, stream=profiler_buffer
         ).sort_stats('cumulative')
         ps.print_stats()
-        lnt.log("==== profiler stats ====")
+        click.echo("==== profiler stats ====")
         # Only print the first 50 lines of it
-        lnt.log('\n'.join(profiler_buffer.getvalue().split('\n')[:50]))
+        click.echo('\n'.join(profiler_buffer.getvalue().split('\n')[:50]))
 
     if bench:
-        lnt.log("\n\n==== bencher stats ====")
+        click.echo("\n\n==== bencher stats ====")
         bencher.display()
 
     if nv > 0 and not nofail:

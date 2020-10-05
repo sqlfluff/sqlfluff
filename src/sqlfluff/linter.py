@@ -24,12 +24,6 @@ from .rules import get_ruleset
 linter_logger = logging.getLogger('sqlfluff.linter')
 
 
-def frame_msg(msg):
-    """Frame a message with hashes so that it covers five lines."""
-    ###linter_logger.warning("Usage of `linter.frame_msg`, this needs a better solution.")
-    return "\n###\n#\n# {0}\n#\n###".format(msg)
-
-
 class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tree', 'file_mask', 'ignore_mask'])):
     """A class to store the idea of a linted file."""
     __slots__ = ()
@@ -526,12 +520,6 @@ class Linter:
         # Store the formatter for output
         self.formatter = formatter
 
-    def log(self, msg):
-        """Log a message, using the common logging framework."""
-        ##NB: I don't think we should do this EITHER. But it's better than before.
-        if self.formatter:
-            self.formatter._dispatch(msg)
-
     def get_ruleset(self, config=None):
         """Get hold of a set of rules."""
         rs = get_ruleset()
@@ -611,7 +599,7 @@ class Linter:
                 violations.append(err)
                 parsed = None
             if parsed:
-                linter_logger.info(frame_msg("Parsed Tree:"))
+                linter_logger.info("\n###\n#\n# {0}\n#\n###".format("Parsed Tree:"))
                 linter_logger.info("\n" + parsed.stringify())
                 # We may succeed parsing, but still have unparsable segments. Extract them here.
                 for unparsable in parsed.iter_unparsables():
