@@ -42,7 +42,7 @@ that's actually useful for the community.
   incompatible changes. As some of these features may require significant
   coordination, discussion or development work, there is a process for each
   major release to work out what features will fit into that release.
-  - Each major release will have it's own github issue. For example the link
+  - Each major release will have its own github issue. For example the link
     to the issue for [0.4.0 is here](https://github.com/sqlfluff/sqlfluff/issues/470).
   - Features or issues are organised into a _shortlist_. During the initial
     discussion for the release, each feature is vetted for enough clarity
