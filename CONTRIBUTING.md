@@ -33,7 +33,7 @@ SQLfluff is maintained by a community of volunteers, which means we have a
 few processes in place to allow everyone to contribute at a level that suits
 them and at a time that suits them. These aren't meant to be a way of restricting
 development, but a way of allowing the community to agree what to focus on
-and then effectively direct it's focus toward that. Anyone can pipe up in these
+and then effectively direct its focus toward that. Anyone can pipe up in these
 discussions, and the more we hear from users the more we can build a tool
 that's actually useful for the community.
 
