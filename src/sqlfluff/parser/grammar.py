@@ -1,6 +1,4 @@
 """Definitions for Grammar."""
-import time
-
 from .segments_base import (BaseSegment, check_still_complete, parse_match_logging)
 from .segments_common import Indent, Dedent
 from .match import MatchResult, join_segments_raw_curtailed
@@ -91,8 +89,6 @@ class BaseGrammar:
 
     def _match(self, segments, parse_context):
         """A wrapper on the match function to do some basic validation."""
-        t0 = time.monotonic()
-
         if isinstance(segments, BaseSegment):
             segments = (segments,)  # Make into a tuple for compatability
         if not isinstance(segments, tuple):
@@ -122,7 +118,6 @@ class BaseGrammar:
                 "{0}.match, returned {1} rather than MatchResult".format(
                     self.__class__.__name__, type(m)))
 
-        dt = time.monotonic() - t0
         if m.is_complete():
             msg = 'OUT'
             symbol = '++'
@@ -135,7 +130,7 @@ class BaseGrammar:
 
         parse_match_logging(
             self.__class__.__name__, '_match', msg,
-            parse_context=parse_context, v_level=self.v_level, dt=dt, m=m, symbol=symbol)
+            parse_context=parse_context, v_level=self.v_level, m=m, symbol=symbol)
 
         # Basic Validation, skipped here because it still happens in the parse commands.
         # check_still_complete(segments, m.matched_segments, m.unmatched_segments)
@@ -289,8 +284,8 @@ class BaseGrammar:
             cls.__name__, '_look_ahead_match', 'IN', parse_context=parse_context,
             v_level=4,
             ls=len(segments),
-            seg=_LateBoundJoinSegmentsCurtailed(segments),
-            m=matchers)
+            seg=_LateBoundJoinSegmentsCurtailed(segments)
+        )
 
         # Do some type munging
         matchers = list(matchers)

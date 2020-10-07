@@ -24,6 +24,8 @@ class ParseMatchLogObject():
     This allows us to defer the string manipulation involved
     until actually required by the logger.
     """
+    __slots__ = ['parse_depth', 'match_depth', 'match_segment', 'grammar', 'func', 'msg', 'kwargs']
+
     def __init__(self, parse_depth, match_depth, match_segment, grammar, func, msg, **kwargs):
         self.parse_depth = parse_depth
         self.match_depth = match_depth
