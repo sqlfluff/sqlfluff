@@ -3,7 +3,6 @@
 This should be the default response from any `match` method.
 """
 
-import logging
 from collections import namedtuple
 
 
@@ -145,11 +144,10 @@ class MatchResult(namedtuple('MatchResult', ['matched_segments', 'unmatched_segm
         else:
             try:
                 other_tuple = self.seg_to_tuple(other)
-            except TypeError as err:
-                logging.error(
+            except TypeError:
+                raise TypeError(
                     "Unexpected type passed to MatchResult.__add__: {0}".format(
                         type(other)))
-                raise err
             if len(other_tuple) > 0 and not _is_segment(other_tuple[0]):
                 raise TypeError(
                     "Unexpected type passed to MatchResult.__add__: {2} of {0}.\n{1}".format(

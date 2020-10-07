@@ -12,52 +12,72 @@ Here we define:
 These are the fundamental building blocks of the rest of the parser.
 """
 
-import logging
-
 from io import StringIO
 from benchit import BenchIt
 
 from .match import MatchResult, curtail_string, join_segments_raw
-from ..errors import SQLLintError
 
 
-def verbosity_logger(msg, verbosity=0, level='info', v_level=3):
-    """Log or print based on configuration."""
-    if verbosity >= v_level:
-        print(msg)
-    else:
-        # Should be mostly equivalent to logging.info(msg)
-        getattr(logging, level)(msg)
+class ParseMatchLogObject():
+    """A late binding log object for parse_match_logging.
+
+    This allows us to defer the string manipulation involved
+    until actually required by the logger.
+    """
+    __slots__ = ['parse_depth', 'match_depth', 'match_segment', 'grammar', 'func', 'msg', 'kwargs']
+
+    def __init__(self, parse_depth, match_depth, match_segment, grammar, func, msg, **kwargs):
+        self.parse_depth = parse_depth
+        self.match_depth = match_depth
+        self.match_segment = match_segment
+        self.grammar = grammar
+        self.func = func
+        self.msg = msg
+        self.kwargs = kwargs
+
+    @classmethod
+    def from_context(cls, parse_context, grammar, func, msg, **kwargs):
+        """Create a ParseMatchLogObject given a parse_context."""
+        return cls(
+            parse_context.parse_depth, parse_context.match_depth, parse_context.match_segment,
+            grammar, func, msg, **kwargs
+        )
+
+    def __str__(self):
+        """Actually materialise the string."""
+        symbol = self.kwargs.pop('symbol', '')
+        s = "[PD:{0} MD:{1}]\t{2:<50}\t{3:<20}\t{4:<4}".format(
+            self.parse_depth, self.match_depth,
+            ('.' * self.match_depth) + str(self.match_segment),
+            "{0:.5}.{1} {2}".format(self.grammar, self.func, self.msg),
+            symbol
+        )
+        if self.kwargs:
+            s += "\t[{0}]".format(
+                ', '.join(
+                    "{0}={1}".format(
+                        k,
+                        repr(v) if isinstance(v, str) else str(v)
+                    ) for k, v in self.kwargs.items()
+                )
+            )
+        return s
 
 
 def parse_match_logging(grammar, func, msg, parse_context, v_level, **kwargs):
     """Log in a particular consistent format for use while matching."""
-    # If we can avoid this, bank the performance increase
-    if parse_context.verbosity <= 1:
-        return
+    # Make a late bound log object so we only do the string manipulation when we need to.
+    log_obj = ParseMatchLogObject.from_context(parse_context, grammar, func, msg, **kwargs)
     # Otherwise carry on...
-    symbol = kwargs.pop('symbol', '')
-    s = "[PD:{0} MD:{1}]\t{2:<50}\t{3:<20}\t{4:<4}".format(
-        parse_context.parse_depth, parse_context.match_depth,
-        ('.' * parse_context.match_depth) + str(parse_context.match_segment),
-        "{0}.{1} {2}".format(grammar, func, msg),
-        symbol
-    )
-    if kwargs:
-        s += "\t[{0}]".format(
-            ', '.join(
-                "{0}={1}".format(
-                    k,
-                    repr(v) if isinstance(v, str) else v
-                ) for k, v in kwargs.items()
-            )
-        )
-    verbosity_logger(s, parse_context.verbosity, v_level=v_level)
+    if v_level == 3:
+        parse_context.logger.info(log_obj)
+    elif v_level == 4:
+        parse_context.logger.debug(log_obj)
 
 
 def frame_msg(msg):
     """Frame a message with hashes so that it covers five lines."""
-    return "###\n#\n# {0}\n#\n###".format(msg)
+    return "\n###\n#\n# {0}\n#\n###".format(msg)
 
 
 def check_still_complete(segments_in, matched_segments, unmatched_segments):
@@ -70,91 +90,6 @@ def check_still_complete(segments_in, matched_segments, unmatched_segments):
         raise RuntimeError(
             "Dropped elements in sequence matching! {0!r} != {1!r}".format(
                 initial_str, current_str))
-
-
-class ParseBlacklist:
-    """Acts as a cache to stop unnecessary matching."""
-    def __init__(self):
-        self._blacklist_struct = {}
-
-    def _hashed_version(self):
-        return {
-            k: {hash(e) for e in self._blacklist_struct[k]}
-            for k in self._blacklist_struct
-        }
-
-    def check(self, seg_name, seg_tuple):
-        """Check this seg_tuple against this seg_name.
-
-        Has this seg_tuple already been matched
-        unsuccessfully against this segment name.
-        """
-        if seg_name in self._blacklist_struct:
-            if seg_tuple in self._blacklist_struct[seg_name]:
-                return True
-        return False
-
-    def mark(self, seg_name, seg_tuple):
-        """Mark this seg_tuple as not a match with this seg_name."""
-        if seg_name in self._blacklist_struct:
-            self._blacklist_struct[seg_name].add(seg_tuple)
-        else:
-            self._blacklist_struct[seg_name] = {seg_tuple}
-
-    def clear(self):
-        """Clear the blacklist struct."""
-        self._blacklist_struct = {}
-
-
-class ParseContext:
-    """The context for parsing. It holds configuration and rough state.
-
-    We expect that an object (or copy of this object) will be passed
-    around rather than the individual variables for parse and match depth
-    as before.
-    """
-
-    __slots__ = ['match_depth', 'parse_depth', 'verbosity', 'dialect', 'match_segment', 'recurse', 'blacklist', 'indentation_config']
-
-    def __init__(self, dialect=None, verbosity=0, match_depth=0, parse_depth=0,
-                 match_segment=None, recurse=True, blacklist=None, indentation_config=None):
-        # Write all the variables in a DRY way. Yes it's a bit convoluted. Sorry.
-        for k in self.__slots__:
-            setattr(self, k, locals()[k])
-        # Initialise a blacklist struct if one is not present.
-        if getattr(self, 'blacklist') is None:
-            setattr(self, 'blacklist', ParseBlacklist())
-
-    def copy(self, incr=None, decr=None, **kwargs):
-        """Make a copy of the parse context, optionally with some edited variables."""
-        current_vals = {k: getattr(self, k) for k in self.__slots__}
-        current_vals.update(kwargs or {})
-        # Increment
-        if isinstance(incr, str):
-            current_vals[incr] += 1
-        elif incr:
-            for k in incr:
-                current_vals[k] += 1
-        # Decrement
-        if isinstance(decr, str):
-            current_vals[decr] -= 1
-        elif decr:
-            for k in decr:
-                current_vals[k] -= 1
-        # Return
-        return self.__class__(**current_vals)
-
-    @classmethod
-    def from_config(cls, config):
-        """Construct a `ParseContext` from a `FluffConfig`."""
-        indentation_config = config.get_section('indentation') or {}
-        try:
-            indentation_config = {k: bool(v) for k, v in indentation_config.items()}
-        except TypeError:
-            raise TypeError(
-                "One of the configuration keys in the `indentation` section is not True or False: {0!r}".format(
-                    indentation_config))
-        return cls(dialect=config.get('dialect_obj'), recurse=config.get('recurse'), indentation_config=indentation_config)
 
 
 class BaseSegment:
@@ -390,7 +325,7 @@ class BaseSegment:
         g = self._parse_grammar()
         if g is None:
             # No parse grammar, go straight to expansion
-            logging.debug("{0}.parse: no grammar. Going straight to expansion".format(self.__class__.__name__))
+            parse_context.logger.debug("{0}.parse: no grammar. Going straight to expansion".format(self.__class__.__name__))
         else:
             # Use the Parse Grammar (and the private method)
 
@@ -406,12 +341,8 @@ class BaseSegment:
                         self, self.segments[-1].raw, self.segments))
 
             # NOTE: No match_depth kwarg, because this is the start of the matching.
-            m = g._match(
-                segments=self.segments,
-                parse_context=parse_context.copy(
-                    match_segment=self.__class__.__name__
-                )
-            )
+            with parse_context.matching_segment(self.__class__.__name__) as ctx:
+                m = g._match(segments=self.segments, parse_context=ctx)
 
             if not isinstance(m, MatchResult):
                 raise TypeError(
@@ -446,26 +377,15 @@ class BaseSegment:
         bencher("Parse complete of {0!r}".format(self.__class__.__name__))
 
         # Recurse if allowed (using the expand method to deal with the expansion)
-        logging.debug(
+        parse_context.logger.debug(
             "{0}.parse: Done Parse. Plotting Recursion. Recurse={1!r}".format(
                 self.__class__.__name__, parse_context.recurse))
         parse_depth_msg = "###\n#\n# Beginning Parse Depth {0}: {1}\n#\n###\nInitial Structure:\n{2}".format(
             parse_context.parse_depth + 1, self.__class__.__name__, self.stringify())
-        if parse_context.recurse is True:
-            logging.debug(parse_depth_msg)
-            self.segments = self.expand(
-                self.segments,
-                parse_context=parse_context.copy(
-                    incr='parse_depth', match_depth=0, recurse=True
-                )
-            )
-        elif isinstance(parse_context.recurse, int):
-            if parse_context.recurse > 1:
-                logging.debug(parse_depth_msg)
-                self.segments = self.expand(
-                    self.segments,
-                    parse_context=parse_context.copy(decr='recurse', incr='parse_depth')
-                )
+        if parse_context.may_recurse():
+            parse_context.logger.debug(parse_depth_msg)
+            with parse_context.deeper_parse() as ctx:
+                self.segments = self.expand(self.segments, parse_context=ctx)
         # Validate new segments
         self.validate_segments(text="expanding")
 
@@ -617,16 +537,17 @@ class BaseSegment:
         # of that.
         if len(segments) == 1 and isinstance(segments[0], cls):
             # This has already matched. Winner.
-            parse_match_logging(cls.__name__[:10], '_match', 'SELF', parse_context=parse_context, v_level=3, symbol='+++')
+            parse_match_logging(cls.__name__, '_match', 'SELF', parse_context=parse_context, v_level=3, symbol='+++')
             return MatchResult.from_matched(segments)
         elif len(segments) > 1 and isinstance(segments[0], cls):
-            parse_match_logging(cls.__name__[:10], '_match', 'SELF', parse_context=parse_context, v_level=3, symbol='+++')
+            parse_match_logging(cls.__name__, '_match', 'SELF', parse_context=parse_context, v_level=3, symbol='+++')
             # This has already matched, but only partially.
             return MatchResult((segments[0],), segments[1:])
 
         if cls._match_grammar():
             # Call the private method
-            m = cls._match_grammar()._match(segments=segments, parse_context=parse_context.copy(incr='match_depth'))
+            with parse_context.deeper_match() as ctx:
+                m = cls._match_grammar()._match(segments=segments, parse_context=ctx)
 
             # Calling unify here, allows the MatchResult class to do all the type checking.
             if not isinstance(m, MatchResult):
@@ -646,14 +567,14 @@ class BaseSegment:
     def _match(cls, segments, parse_context):
         """A wrapper on the match function to do some basic validation and logging."""
         parse_match_logging(
-            cls.__name__[:10], '_match', 'IN', parse_context=parse_context,
+            cls.__name__, '_match', 'IN', parse_context=parse_context,
             v_level=4, ls=len(segments))
 
         if isinstance(segments, BaseSegment):
             segments = (segments,)  # Make into a tuple for compatability
 
         if not isinstance(segments, tuple):
-            logging.warning(
+            parse_context.logger.warning(
                 "{0}.match, was passed {1} rather than tuple or segment".format(
                     cls.__name__, type(segments)))
             if isinstance(segments, list):
@@ -661,17 +582,17 @@ class BaseSegment:
                 segments = tuple(segments)
 
         if len(segments) == 0:
-            logging.info("{0}._match, was passed zero length segments list".format(cls.__name__))
+            parse_context.logger.info("{0}._match, was passed zero length segments list".format(cls.__name__))
 
         m = cls.match(segments, parse_context=parse_context)
 
         if not isinstance(m, tuple) and m is not None:
-            logging.warning(
+            parse_context.logger.warning(
                 "{0}.match, returned {1} rather than tuple".format(
                     cls.__name__, type(m)))
 
         parse_match_logging(
-            cls.__name__[:10], '_match', 'OUT',
+            cls.__name__, '_match', 'OUT',
             parse_context=parse_context, v_level=4, m=m)
         # Validation is skipped at a match level. For performance reasons
         # we match at the parse level only
@@ -685,21 +606,19 @@ class BaseSegment:
         for stmt in segments:
             try:
                 if not stmt.is_expandable:
-                    verbosity_logger(
-                        "[PD:{0}] Skipping expansion of {1}...".format(parse_context.parse_depth, stmt),
-                        verbosity=parse_context.verbosity)
+                    parse_context.logger.info("[PD:%s] Skipping expansion of %s...", parse_context.parse_depth, stmt)
                     segs += (stmt,)
                     continue
             except Exception as err:
                 # raise ValueError("{0} has no attribute `is_expandable`. This segment appears poorly constructed.".format(stmt))
-                logging.error("{0} has no attribute `is_expandable`. This segment appears poorly constructed.".format(stmt))
+                parse_context.logger.error("%s has no attribute `is_expandable`. This segment appears poorly constructed.", stmt)
                 raise err
             if not hasattr(stmt, 'parse'):
                 raise ValueError("{0} has no method `parse`. This segment appears poorly constructed.".format(stmt))
             parse_depth_msg = "Parse Depth {0}. Expanding: {1}: {2!r}".format(
                 parse_context.parse_depth, stmt.__class__.__name__,
                 curtail_string(stmt.raw, length=40))
-            verbosity_logger(frame_msg(parse_depth_msg), verbosity=parse_context.verbosity)
+            parse_context.logger.info(frame_msg(parse_depth_msg))
             res = stmt.parse(parse_context=parse_context)
             if isinstance(res, BaseSegment):
                 segs += (res,)
@@ -786,16 +705,6 @@ class BaseSegment:
         of raw segments, they will be replaced or removed by their parent and
         so this function should just return self.
         """
-        # Let's check what we've been given.
-        if fixes and isinstance(fixes[0], SQLLintError):
-            logging.error("Transforming `fixes` from errors into a list of fixes")
-            # We've got linting errors, let's aggregate them into a list of fixes
-            buff = []
-            for err in fixes:
-                buff += err.fixes
-            # Overwrite fixes
-            fixes = buff
-
         if fixes and not self.is_raw():
             # Get a reference to self to start with, but this will rapidly
             # become a working copy.

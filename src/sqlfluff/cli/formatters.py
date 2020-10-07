@@ -4,10 +4,11 @@
 from io import StringIO
 
 from .helpers import colorize, cli_table, get_package_version, get_python_version, pad_line
+
 from ..errors import SQLBaseError
 
 
-def format_filename(filename, success=False, verbose=0, success_text='PASS'):
+def format_filename(filename, success=False, success_text='PASS'):
     """Format filenames."""
     if isinstance(success, str):
         status_string = success
@@ -19,20 +20,6 @@ def format_filename(filename, success=False, verbose=0, success_text='PASS'):
         "== ["
         + colorize("{0}".format(filename), 'lightgrey')
         + "] " + status_string)
-
-
-def format_dialect_warning():
-    """Output a warning for parsing errors found on the ansi dialect."""
-    return colorize(
-        ("WARNING: Parsing errors found and dialect is set to "
-         "'ansi'. Have you configured your dialect?"),
-        'lightgrey'
-    )
-
-
-def format_path(path):
-    """Format paths."""
-    return '=== [ path: {0} ] ===\n'.format(colorize(path, 'lightgrey'))
 
 
 def split_string_on_spaces(s, line_length=100):
@@ -57,7 +44,7 @@ def split_string_on_spaces(s, line_length=100):
     return line_buff
 
 
-def format_violation(violation, verbose=0, max_line_length=90):
+def format_violation(violation, max_line_length=90):
     """Format a violation."""
     if isinstance(violation, SQLBaseError):
         code, line, pos, desc = violation.get_info_tuple()
@@ -91,49 +78,6 @@ def format_violation(violation, verbose=0, max_line_length=90):
     return out_buff
 
 
-def format_file_violations(fname, res, verbose=0, max_line_length=90):
-    """Format a set of violations in a `LintingResult`."""
-    text_buffer = StringIO()
-    # Success is having no violations (which aren't ignored)
-    success = sum(int(not violation.ignore) for violation in res) == 0
-
-    # Only print the filename if it's either a failure or verbosity > 1
-    if verbose > 1 or not success:
-        text_buffer.write(format_filename(fname, success=success, verbose=verbose))
-        text_buffer.write('\n')
-
-    # If we have violations, print them
-    if not success:
-        # sort by position in file
-        s = sorted(res, key=lambda v: v.char_pos())
-        for violation in s:
-            text_buffer.write(
-                format_violation(
-                    violation, verbose=verbose,
-                    max_line_length=max_line_length))
-            text_buffer.write('\n')
-    str_buffer = text_buffer.getvalue()
-    # Remove the trailing newline if there is one
-    if len(str_buffer) > 0 and str_buffer[-1] == '\n':
-        str_buffer = str_buffer[:-1]
-    return str_buffer
-
-
-def format_path_violations(violations, verbose=0):
-    """Format a set of violations from a dict of paths and violations."""
-    # Violations should be a dict
-    keys = sorted(violations.keys())
-    text_buffer = StringIO()
-    for key in keys:
-        text_buffer.write(format_file_violations(key, violations[key], verbose=verbose))
-        text_buffer.write('\n')
-    str_buffer = text_buffer.getvalue()
-    # Remove the trailing newline if there is one
-    if len(str_buffer) > 0 and str_buffer[-1] == '\n':
-        str_buffer = str_buffer[:-1]
-    return str_buffer
-
-
 def format_linting_stats(result, verbose=0):
     """Format a set of stats given a `LintingResult`."""
     text_buffer = StringIO()
@@ -154,14 +98,6 @@ def format_linting_stats(result, verbose=0):
                 else all_stats[key]) for key in output_fields]
         # Render it all as a table
         text_buffer.write(cli_table(summary_content, max_label_width=14))
-    return text_buffer.getvalue()
-
-
-def format_linting_path(p, verbose=0):
-    """Format a linting path."""
-    text_buffer = StringIO()
-    if verbose > 0:
-        text_buffer.write(format_path(p))
     return text_buffer.getvalue()
 
 
@@ -190,28 +126,6 @@ def format_config_vals(config_vals):
     return text_buffer.getvalue()
 
 
-def format_config(linter, verbose=0):
-    """Format the config of a `Linter`."""
-    text_buffer = StringIO()
-    # Only show version information if verbosity is high enough
-    if verbose > 0:
-        text_buffer.write("==== sqlfluff ====\n")
-        config_content = [
-            ('sqlfluff', get_package_version()),
-            ('python', get_python_version()),
-            ('dialect', linter.dialect.name),
-            ('verbosity', verbose)
-        ]
-        text_buffer.write(cli_table(config_content, col_width=25))
-        text_buffer.write("\n")
-        if linter.config.get('rule_whitelist'):
-            text_buffer.write(cli_table([('rules', ', '.join(linter.config.get('rule_whitelist')))], col_width=41))
-        if verbose > 1:
-            text_buffer.write("== Raw Config:\n")
-            text_buffer.write(format_config_vals(linter.config.iter_vals()))
-    return text_buffer.getvalue()
-
-
 def format_rules(linter, verbose=0):
     """Format the a set of rules given a `Linter`."""
     text_buffer = StringIO()
@@ -233,3 +147,138 @@ def format_dialects(dialect_readout, verbose=0):
             readouts, col_width=60,
             cols=1, label_color='blue', val_align='right'))
     return text_buffer.getvalue()
+
+
+def format_dialect_warning():
+    """Output a warning for parsing errors found on the ansi dialect."""
+    return colorize(
+        ("WARNING: Parsing errors found and dialect is set to "
+         "'ansi'. Have you configured your dialect?"),
+        'lightgrey'
+    )
+
+
+class CallbackFormatter():
+    """Formatter which uses a callback to output information.
+
+    On instantiation, this formatter accepts a function to
+    dispatch messages. Each public method accepts an object
+    or data in a common format, with this class handling the
+    formatting and output.
+
+    This class is designed to be subclassed if we eventually
+    want to provide other methods of surfacing output.
+
+
+    Args:
+        callback (:obj:`callable`): A callable which can be
+            be called with a string to be output.
+        verbosity (:obj:`int`): An integer specifying how
+            verbose the output should be.
+        filter_empty (:obj:`bool`): If True, empty messages
+            will not be dispatched.
+
+    """
+
+    def __init__(self, callback, verbosity=0, filter_empty=True, output_line_length=80):
+        self._callback = callback
+        self._verbosity = verbosity
+        self._filter_empty = filter_empty
+        self.output_line_length = output_line_length
+
+    def _dispatch(self, s):
+        """Dispatch a string to the callback.
+
+        This method is designed as a point for subclassing.
+        """
+        # The strip here is to filter out any empty messages
+        if (not self._filter_empty) or s.strip(' \n\t'):
+            return self._callback(s)
+
+    def _format_config(self, linter):
+        """Format the config of a `Linter`."""
+        text_buffer = StringIO()
+        # Only show version information if verbosity is high enough
+        if self._verbosity > 0:
+            text_buffer.write("==== sqlfluff ====\n")
+            config_content = [
+                ('sqlfluff', get_package_version()),
+                ('python', get_python_version()),
+                ('dialect', linter.dialect.name),
+                ('verbosity', self._verbosity)
+            ]
+            text_buffer.write(cli_table(config_content, col_width=25))
+            text_buffer.write("\n")
+            if linter.config.get('rule_whitelist'):
+                text_buffer.write(cli_table([('rules', ', '.join(linter.config.get('rule_whitelist')))], col_width=41))
+            if self._verbosity > 1:
+                text_buffer.write("== Raw Config:\n")
+                text_buffer.write(format_config_vals(linter.config.iter_vals()))
+        return text_buffer.getvalue()
+
+    def dispatch_config(self, linter):
+        """Dispatch configuration output appropriately."""
+        return self._dispatch(self._format_config(linter))
+
+    def dispatch_persist_filename(self, filename, result):
+        """Dispatch filenames during a persist operation."""
+        # Only show the skip records at higher levels of verbosity
+        if self._verbosity >= 2 or result != 'SKIP':
+            self._dispatch(format_filename(filename=filename, success=result))
+
+    @staticmethod
+    def _format_path(path):
+        """Format paths."""
+        return '=== [ path: {0} ] ===\n'.format(colorize(path, 'lightgrey'))
+
+    def dispatch_path(self, path):
+        """Dispatch paths for display."""
+        if self._verbosity > 0:
+            self._dispatch(self._format_path(path))
+
+    def dispatch_parse_header(self, fname, linter_config, file_config):
+        """Dispatch the header displayed before parsing."""
+        if self._verbosity > 1:
+            self._dispatch(format_filename(filename=fname, success='PARSING'))
+            # This is where we output config diffs if they exist.
+            if file_config:
+                # Only output config diffs if there is a config to diff to.
+                config_diff = file_config.diff_to(linter_config)
+                if config_diff:
+                    self._dispatch("   Config Diff:")
+                    self._dispatch(format_config_vals(linter_config.iter_vals(cfg=config_diff)))
+
+    def dispatch_dialect_warning(self):
+        """Dispatch a warning for dialects."""
+        self._dispatch(format_dialect_warning())
+
+    def _format_file_violations(self, fname, violations):
+        """Format a set of violations in a `LintingResult`."""
+        text_buffer = StringIO()
+        # Success is having no violations (which aren't ignored)
+        success = sum(int(not violation.ignore) for violation in violations) == 0
+
+        # Only print the filename if it's either a failure or verbosity > 1
+        if self._verbosity > 1 or not success:
+            text_buffer.write(format_filename(fname, success=success))
+            text_buffer.write('\n')
+
+        # If we have violations, print them
+        if not success:
+            # sort by position in file
+            s = sorted(violations, key=lambda v: v.char_pos())
+            for violation in s:
+                text_buffer.write(
+                    format_violation(
+                        violation, max_line_length=self.output_line_length))
+                text_buffer.write('\n')
+        str_buffer = text_buffer.getvalue()
+        # Remove the trailing newline if there is one
+        if len(str_buffer) > 0 and str_buffer[-1] == '\n':
+            str_buffer = str_buffer[:-1]
+        return str_buffer
+
+    def dispatch_file_violations(self, fname, linted_file, only_fixable):
+        """Dispatch any violations found in a file."""
+        s = self._format_file_violations(fname, linted_file.get_violations(fixable=True if only_fixable else None))
+        self._dispatch(s)

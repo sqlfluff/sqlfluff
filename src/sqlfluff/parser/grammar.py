@@ -1,11 +1,21 @@
 """Definitions for Grammar."""
-import logging
-import time
-
 from .segments_base import (BaseSegment, check_still_complete, parse_match_logging)
 from .segments_common import Indent, Dedent
 from .match import MatchResult, join_segments_raw_curtailed
 from ..errors import SQLParseError
+
+
+class _LateBoundJoinSegmentsCurtailed():
+    """Object to delay `join_segments_raw_curtailed` until later.
+
+    This allows us to defer the string manipulation involved
+    until actually required by the logger.
+    """
+    def __init__(self, segments):
+        self.segments = segments
+
+    def __str__(self):
+        return join_segments_raw_curtailed(self.segments)
 
 
 class BaseGrammar:
@@ -79,12 +89,10 @@ class BaseGrammar:
 
     def _match(self, segments, parse_context):
         """A wrapper on the match function to do some basic validation."""
-        t0 = time.monotonic()
-
         if isinstance(segments, BaseSegment):
             segments = (segments,)  # Make into a tuple for compatability
         if not isinstance(segments, tuple):
-            logging.warning(
+            parse_context.logger.warning(
                 "{0}.match, was passed {1} rather than tuple or segment".format(
                     self.__class__.__name__, type(segments)))
             if isinstance(segments, list):
@@ -92,27 +100,24 @@ class BaseGrammar:
                 segments = tuple(segments)
 
         if len(segments) == 0:
-            logging.info("{0}.match, was passed zero length segments list. NB: {0} contains {1!r}".format(
+            parse_context.logger.info("{0}.match, was passed zero length segments list. NB: {0} contains {1!r}".format(
                 self.__class__.__name__, self._elements))
 
-        # If we can avoid this, bank the performance increase.
-        if parse_context.verbosity > 1:
-            # Logging to help with debugging.
-            # Work out the raw representation and curtail if long.
-            parse_match_logging(
-                self.__class__.__name__, '_match', 'IN', parse_context=parse_context,
-                v_level=self.v_level,
-                le=len(self._elements), ls=len(segments),
-                seg=join_segments_raw_curtailed(segments))
+        # Logging to help with debugging.
+        # Work out the raw representation and curtail if long.
+        parse_match_logging(
+            self.__class__.__name__, '_match', 'IN', parse_context=parse_context,
+            v_level=self.v_level,
+            le=len(self._elements), ls=len(segments),
+            seg=_LateBoundJoinSegmentsCurtailed(segments))
 
         m = self.match(segments, parse_context=parse_context)
 
         if not isinstance(m, MatchResult):
-            logging.warning(
+            parse_context.logger.warning(
                 "{0}.match, returned {1} rather than MatchResult".format(
                     self.__class__.__name__, type(m)))
 
-        dt = time.monotonic() - t0
         if m.is_complete():
             msg = 'OUT'
             symbol = '++'
@@ -123,11 +128,9 @@ class BaseGrammar:
             msg = 'OUT'
             symbol = ''
 
-        # If we can avoid this, bank the performance increase.
-        if parse_context.verbosity > 1:
-            parse_match_logging(
-                self.__class__.__name__, '_match', msg,
-                parse_context=parse_context, v_level=self.v_level, dt=dt, m=m, symbol=symbol)
+        parse_match_logging(
+            self.__class__.__name__, '_match', msg,
+            parse_context=parse_context, v_level=self.v_level, m=m, symbol=symbol)
 
         # Basic Validation, skipped here because it still happens in the parse commands.
         # check_still_complete(segments, m.matched_segments, m.unmatched_segments)
@@ -277,13 +280,12 @@ class BaseGrammar:
             `tuple` of (unmatched_segments, match_object, matcher).
 
         """
-        if parse_context.verbosity > 4:
-            parse_match_logging(
-                cls.__name__, '_look_ahead_match', 'IN', parse_context=parse_context,
-                v_level=cls.v_level,
-                ls=len(segments),
-                seg=join_segments_raw_curtailed(segments),
-                m=matchers)
+        parse_match_logging(
+            cls.__name__, '_look_ahead_match', 'IN', parse_context=parse_context,
+            v_level=4,
+            ls=len(segments),
+            seg=_LateBoundJoinSegmentsCurtailed(segments)
+        )
 
         # Do some type munging
         matchers = list(matchers)
@@ -338,11 +340,10 @@ class BaseGrammar:
                         mat = (m, None, simple_option)
                     m_pos.append(mat)
 
-            if parse_context.verbosity > 4:
-                parse_match_logging(
-                    cls.__name__, '_look_ahead_match', 'SI', parse_context=parse_context,
-                    v_level=cls.v_level,
-                    _so=_simple_opts, fm=m_first, sb=repr(str_buff))
+            parse_match_logging(
+                cls.__name__, '_look_ahead_match', 'SI', parse_context=parse_context,
+                v_level=4,
+                _so=_simple_opts, fm=m_first, sb=repr(str_buff))
 
             if m_first:
                 # We've managed to match. We can shortcut home.
@@ -379,12 +380,11 @@ class BaseGrammar:
         if not non_simple_matchers:
             # There are no other matchers, we can just shortcut now.
 
-            if parse_context.verbosity > 4:
-                parse_match_logging(
-                    cls.__name__, '_look_ahead_match', 'SC', parse_context=parse_context,
-                    v_level=cls.v_level,
-                    bsm=None if not best_simple_match else (len(best_simple_match[0]), len(best_simple_match[1]), best_simple_match[2])
-                )
+            parse_match_logging(
+                cls.__name__, '_look_ahead_match', 'SC', parse_context=parse_context,
+                v_level=4,
+                bsm=None if not best_simple_match else (len(best_simple_match[0]), len(best_simple_match[1]), best_simple_match[2])
+            )
 
             if best_simple_match:
                 return best_simple_match
@@ -652,9 +652,8 @@ class Ref(BaseGrammar):
 
         # Match against that. NB We're not incrementing the match_depth here.
         # References shouldn't relly count as a depth of match.
-        resp = elem._match(
-            segments=segments,
-            parse_context=parse_context.copy(match_segment=self._get_ref()))
+        with parse_context.matching_segment(self._get_ref()) as ctx:
+            resp = elem._match(segments=segments, parse_context=ctx)
         if not resp:
             parse_context.blacklist.mark(self_name, seg_tuple)
         return resp
@@ -805,10 +804,8 @@ class OneOf(BaseGrammar):
 
         # Match on each of the options still left.
         for opt in available_options:
-            m = opt._match(
-                segments,
-                parse_context=parse_context.copy(incr='match_depth')
-            )
+            with parse_context.deeper_match() as ctx:
+                m = opt._match(segments, parse_context=ctx)
             # If we get a complete match, just return it. If it's incomplete, then check to
             # see if it's all non-code if that allowed and match it
             if m.is_complete():
@@ -892,10 +889,8 @@ class AnyNumberOf(BaseGrammar):
 
             # Try the possibilities
             for opt in self._elements:
-                m = opt._match(
-                    mid_seg + post_seg,
-                    parse_context=parse_context.copy(incr='match_depth')
-                )
+                with parse_context.deeper_match() as ctx:
+                    m = opt._match(mid_seg + post_seg, parse_context=ctx)
                 if m.has_match():
                     matched_segments += pre_seg + m.matched_segments
                     unmatched_segments = m.unmatched_segments
@@ -953,9 +948,10 @@ class GreedyUntil(BaseGrammar):
             return MatchResult.from_matched(segments)
 
         while True:
-            pre, mat, _ = cls._bracket_sensitive_look_ahead_match(
-                seg_buff, matchers, parse_context=parse_context.copy(incr='match_depth'),
-                code_only=code_only)
+            with parse_context.deeper_match() as ctx:
+                pre, mat, _ = cls._bracket_sensitive_look_ahead_match(
+                    seg_buff, matchers, parse_context=ctx,
+                    code_only=code_only)
 
             # Do we have a match?
             if mat:
@@ -1110,8 +1106,9 @@ class Sequence(BaseGrammar):
                         return MatchResult.from_unmatched(segments)
                 else:
                     # We've already dealt with potential whitespace above, so carry on to matching
-                    elem_match = elem._match(
-                        mid_seg, parse_context=parse_context.copy(incr='match_depth'))
+                    with parse_context.deeper_match() as ctx:
+                        elem_match = elem._match(
+                            mid_seg, parse_context=ctx)
 
                     if elem_match.has_match():
                         # We're expecting mostly partial matches here, but complete
@@ -1226,11 +1223,12 @@ class Delimited(BaseGrammar):
             matchers = [self.delimiter]
             if self.terminator:
                 matchers.append(self.terminator)
-            pre_content, delimiter_match, m = self._bracket_sensitive_look_ahead_match(
-                seg_buff, matchers, parse_context=parse_context.copy(incr='match_depth'),
-                # NB: We don't want whitespace at this stage, we'll deal with that
-                # seperately.
-                code_only=False)
+            with parse_context.deeper_match() as ctx:
+                pre_content, delimiter_match, m = self._bracket_sensitive_look_ahead_match(
+                    seg_buff, matchers, parse_context=ctx,
+                    # NB: We don't want whitespace at this stage, we'll deal with that
+                    # seperately.
+                    code_only=False)
             # Keep track of the *lenght* of this pre-content section before we start
             # to change it later. We need this for dealing with terminators.
             pre_content_len = len(pre_content)
@@ -1251,10 +1249,11 @@ class Delimited(BaseGrammar):
                 if len(pre_content) > 0:
                     for elem in self._elements:
                         # We use the whitespace padded match to hoover up whitespace if enabled.
-                        elem_match = self._code_only_sensitive_match(
-                            pre_content, elem, parse_context=parse_context.copy(incr='match_depth'),
-                            # This is where the configured code_only behaviour kicks in.
-                            code_only=self.code_only)
+                        with parse_context.deeper_match() as ctx:
+                            elem_match = self._code_only_sensitive_match(
+                                pre_content, elem, parse_context=ctx,
+                                # This is where the configured code_only behaviour kicks in.
+                                code_only=self.code_only)
 
                         if elem_match.is_complete():
                             # First add the segment up to the delimiter to the matched segments
@@ -1318,9 +1317,10 @@ class Delimited(BaseGrammar):
                 pre_term_nc, seg_buff, post_term_nc = self._trim_non_code(seg_buff, code_only=self.code_only)
                 # We use the whitespace padded match to hoover up whitespace if enabled,
                 # and default to the longest matcher. We don't care which one matches.
-                mat, _ = self._longest_code_only_sensitive_match(
-                    seg_buff, self._elements, parse_context=parse_context.copy(incr='match_depth'),
-                    code_only=self.code_only)
+                with parse_context.deeper_match() as ctx:
+                    mat, _ = self._longest_code_only_sensitive_match(
+                        seg_buff, self._elements, parse_context=ctx,
+                        code_only=self.code_only)
                 if mat:
                     # We've got something at the end. Return!
                     if mat.unmatched_segments:
@@ -1391,8 +1391,8 @@ class ContainsOnly(BaseGrammar):
                             forward_buffer = forward_buffer[1:]
                             break
                     else:
-                        m = opt._match(
-                            forward_buffer, parse_context=parse_context.copy(incr='match_depth'))
+                        with parse_context.deeper_match() as ctx:
+                            m = opt._match(forward_buffer, parse_context=ctx)
                         if m:
                             matched_buffer += m.matched_segments
                             forward_buffer = m.unmatched_segments
@@ -1444,10 +1444,10 @@ class StartsWith(GreedyUntil):
                 # We've trying to match on a sequence of segments which contain no code.
                 # That means this isn't a match.
                 return MatchResult.from_unmatched(segments)
-
-            match = self.target._match(
-                segments=segments[first_code_idx:],
-                parse_context=parse_context.copy(incr='match_depth'))
+            with parse_context.deeper_match() as ctx:
+                match = self.target._match(
+                    segments=segments[first_code_idx:],
+                    parse_context=ctx)
             if match:
                 # The match will probably have returned a mutated version rather
                 # that the raw segment sent for matching. We need to reinsert it
@@ -1531,10 +1531,10 @@ class Bracketed(Sequence):
         matched_segs = ()
 
         # Look for the first bracket
-        start_match = self._code_only_sensitive_match(
-            seg_buff, self.start_bracket,
-            parse_context=parse_context.copy(incr='match_depth'),
-            code_only=self.code_only)
+        with parse_context.deeper_match() as ctx:
+            start_match = self._code_only_sensitive_match(
+                seg_buff, self.start_bracket,
+                parse_context=ctx, code_only=self.code_only)
         if start_match:
             seg_buff = start_match.unmatched_segments
         else:
@@ -1576,7 +1576,8 @@ class Bracketed(Sequence):
                 return MatchResult.from_unmatched(segments)
 
         # Match using super. Sequence will interpret the content of the elements.
-        content_match = super().match(content_segs, parse_context=parse_context.copy(incr='match_depth'))
+        with parse_context.deeper_match() as ctx:
+            content_match = super().match(content_segs, parse_context=ctx)
 
         # We require a complete match for the content (hopefully for obvious reasons)
         if content_match.is_complete():
