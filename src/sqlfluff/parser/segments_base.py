@@ -309,9 +309,6 @@ class BaseSegment:
         Use the parse setting in the context for testing, mostly to check how deep to go.
         True/False for yes or no, an integer allows a certain number of levels.
         """
-        if not parse_context.dialect:
-            raise RuntimeError("No dialect provided to {0!r}!".format(self))
-
         # Clear the blacklist cache so avoid missteps
         if parse_context:
             parse_context.blacklist.clear()

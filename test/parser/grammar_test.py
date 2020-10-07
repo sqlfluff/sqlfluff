@@ -133,6 +133,18 @@ def test__parser__grammar_oneof(seg_list, code_only):
         assert not g.match(seg_list[1:], parse_context=ctx)
 
 
+def test__parser__grammar_oneof_exclude(seg_list):
+    """Test the OneOf grammar exclude option."""
+    fs = KeywordSegment.make('foo')
+    bs = KeywordSegment.make('bar')
+    g = OneOf(bs, exclude=Sequence(bs, fs))
+    with RootParseContext(dialect=None) as ctx:
+        # Just against the first alone
+        assert g.match(seg_list[:1], parse_context=ctx)
+        # Now with the bit to exclude invluded
+        assert not g.match(seg_list, parse_context=ctx)
+
+
 def test__parser__grammar_startswith_a(seg_list, fresh_ansi_dialect, caplog):
     """Test the StartsWith grammar simply."""
     baar = KeywordSegment.make('baar')

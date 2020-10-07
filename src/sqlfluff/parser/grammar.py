@@ -322,8 +322,7 @@ class BaseGrammar:
                 delta_seg_raw = [seg.raw_upper]
                 str_buff += delta_seg_raw
                 seg_idx_buf += [idx] * len(delta_seg_raw)
-            m_pos = []
-            m_first = None
+            match_queue = []
             _simple_opts = []  # just for logging
 
             for m in simple_matchers:
@@ -334,18 +333,21 @@ class BaseGrammar:
                     try:
                         buff_pos = str_buff.index(simple_option)
                         mat = (m, buff_pos, simple_option)
-                        if m_first is None or m_first[1] > mat[1]:
-                            m_first = mat
+                        match_queue.append(mat)
                     except ValueError:
-                        mat = (m, None, simple_option)
-                    m_pos.append(mat)
+                        pass
+
+            # Sort the match queue. First to process AT THE END.
+            # That means we pop from the end.
+            match_queue = sorted(match_queue, key=lambda x: x[1])
 
             parse_match_logging(
                 cls.__name__, '_look_ahead_match', 'SI', parse_context=parse_context,
                 v_level=4,
-                _so=_simple_opts, fm=m_first, sb=repr(str_buff))
+                _so=_simple_opts, mq=match_queue, sb=str_buff)
 
-            if m_first:
+            while match_queue:
+                m_first = match_queue.pop()
                 # We've managed to match. We can shortcut home.
                 # NB: We may still need to deal with whitespace.
                 segments_index = seg_idx_buf[m_first[1]]  # map back into indexes in `segments`
@@ -353,9 +355,13 @@ class BaseGrammar:
                 matcher = m_first[0]
                 match = matcher._match(segments[segments_index:], parse_context)
                 if not match:
-                    raise ValueError(
-                        "Segment matched in simple parsing, but failed later. Report this."
-                    )
+                    # We've had something match in simple matching, but then later excluded.
+                    # Log but then move on to the next item on the list.
+                    parse_match_logging(
+                        cls.__name__, '_look_ahead_match', 'NM', parse_context=parse_context,
+                        v_level=4,
+                        _so=m_first[2])
+                    continue
                 pre_segments = segments[:segments_index]
                 if code_only:
                     # Pick up any non-code segments as necessary
@@ -735,6 +741,8 @@ class OneOf(BaseGrammar):
 
     def __init__(self, *args, **kwargs):
         self.mode = kwargs.pop('mode', 'longest')  # can be 'first' or 'longest'
+        # Any patterns to _prevent_ a match.
+        self.exclude = kwargs.pop('exclude', None)
         super(OneOf, self).__init__(*args, **kwargs)
 
     def simple(self, parse_context):
@@ -757,6 +765,13 @@ class OneOf(BaseGrammar):
         length it returns the first (unless we explicitly just match first).
         """
         best_match = None
+
+        # First if we have an *exclude* option, we should check that
+        # which would prevent the rest of this grammar from matching.
+        if self.exclude:
+            with parse_context.deeper_match() as ctx:
+                if self.exclude._match(segments, parse_context=ctx):
+                    return MatchResult.from_unmatched(segments)
 
         # For efficiency, we'll be pruning options if we can
         # based on their simpleness. this provides a short cut

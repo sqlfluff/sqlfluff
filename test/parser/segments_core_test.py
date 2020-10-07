@@ -51,10 +51,9 @@ def test__parser__core_keyword(raw_seg_list):
         assert FooKeyword.match(raw_seg_list[1:], parse_context=ctx)
 
 
-def test__parser__core_keyword(raw_seg_list):
+def test__parser__core_checkpoint(raw_seg_list):
     """Test the Mystical KeywordSegment."""
     # First make a keyword
-    FooKeyword = KeywordSegment.make('foo')
     BarKeyword = KeywordSegment.make('bar')
 
     checkpoint = Checkpoint.make(

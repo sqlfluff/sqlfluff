@@ -371,7 +371,7 @@ class Checkpoint(BaseSegment):
 
     def parse(self, parse_context):
         """Use the parse grammar to find subsegments within this segment.
-        
+
         Return the content of the result, rather than itself.
         """
         # Call the ususal parse function
@@ -381,8 +381,11 @@ class Checkpoint(BaseSegment):
 
     @classmethod
     def expected_string(cls, dialect=None, called_from=None):
-        """Return the expected string for this segment."""
-        return "!!TODO!!"
+        """Return the expected string for this segment.
+
+        In this case it's just the expected string of the match grammar.
+        """
+        return cls.match_grammar.expected_string(dialect=None, called_from=None)
 
     @classmethod
     def make(cls, match_grammar, parse_grammar, name):
