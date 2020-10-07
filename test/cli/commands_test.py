@@ -81,6 +81,8 @@ def test__cli__command_lint_stdin(command):
     (lint, ['-vvvv', 'test/fixtures/cli/passing_a.sql']),
     # Test basic linting with very high verbosity
     (lint, ['-n', 'test/fixtures/cli/passing_b.sql', '-vvvvvvvvvvv']),
+    # Test basic linting with specific logger
+    (lint, ['-n', 'test/fixtures/cli/passing_b.sql', '-vvv', '--logger', 'parser']),
     # Check basic parsing
     (parse, ['-n', 'test/fixtures/cli/passing_b.sql']),
     # Test basic parsing with very high verbosity
@@ -90,6 +92,9 @@ def test__cli__command_lint_stdin(command):
     # Check basic parsing, with the yaml output
     (parse, ['-n', 'test/fixtures/cli/passing_b.sql', '-c', '-f', 'yaml']),
     (parse, ['-n', 'test/fixtures/cli/passing_b.sql', '--format', 'yaml']),
+    # Check the profiler and benching commands
+    (parse, ['-n', 'test/fixtures/cli/passing_b.sql', '--profiler']),
+    (parse, ['-n', 'test/fixtures/cli/passing_b.sql', '--bench']),
     # Check linting works in specifying rules
     (lint, ['-n', '--rules', 'L001', 'test/fixtures/linter/operator_errors.sql']),
     # Check linting works in specifying multiple rules
@@ -102,6 +107,8 @@ def test__cli__command_lint_stdin(command):
     (fix, ['--rules', 'L001', 'test/fixtures/cli/fail_many.sql', '-vvvvvvv'], 'y'),
     # Fix with a suffixs
     (fix, ['--rules', 'L001', '--fixed-suffix', '_fix', 'test/fixtures/cli/fail_many.sql']),
+    # Fix without safety
+    (fix, ['--no-safety', '--fixed-suffix', '_fix', 'test/fixtures/cli/fail_many.sql']),
     # Check that ignoring works (also checks that unicode files parse).
     (lint, ['-n', '--exclude-rules', 'L003,L009', '--ignore', 'parsing,lexing', 'test/fixtures/linter/parse_lex_error.sql']),
     # Check nofail works
@@ -281,6 +288,19 @@ def test__cli__command_lint_serialize_from_stdin(serialize, sql, expected, exit_
         assert yaml.safe_load(result.output) == expected
     else:
         raise Exception
+
+
+@pytest.mark.parametrize('command', [
+    [lint, ('this_file_does_not_exist.sql')],
+    [fix, ('this_file_does_not_exist.sql', '--no-safety')]
+])
+def test__cli__command_fail_nice_not_found(command):
+    """Check commands fail as expected when then don't find files."""
+    result = invoke_assert_code(
+        args=command,
+        ret_code=1
+    )
+    assert 'could not be accessed' in result.output
 
 
 @pytest.mark.parametrize('serialize', ['yaml', 'json'])
