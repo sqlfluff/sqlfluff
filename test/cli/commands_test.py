@@ -216,6 +216,11 @@ def test__cli__command__fix(rule, fname):
 @pytest.mark.parametrize('stdin,rules,stdout', [
     ('select * from t', 'L003', 'select * from t'),  # no change
     (' select * from t', 'L003', 'select * from t'),  # fix preceding whitespace
+    ('SELECT u.id, c.first_name, c.last_name, COUNT(o.user_id) FROM users as u '
+     'JOIN customers as c on u.id = c.user_id JOIN orders as o on u.id = o.user_id;',
+     'L031',
+     'SELECT u.id, customers.first_name, customers.last_name, COUNT(orders.user_id) FROM users as u '
+     'JOIN customers on u.id = customers.user_id JOIN orders on u.id = orders.user_id;'),  # fix aliases in joins
 ])
 def test__cli__command_fix_stdin(stdin, rules, stdout):
     """Check stdin input for fix works."""

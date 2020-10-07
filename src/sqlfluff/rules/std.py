@@ -2765,3 +2765,78 @@ class Rule_L030(Rule_L010):
     """
 
     _target_elems = (('name', 'function_name'),)
+
+
+@std_rule_set.register
+class Rule_L031(BaseCrawler):
+    """TODO."""
+
+    def _eval(self, segment, **kwargs):
+        """TODO."""
+        if segment.type == 'select_statement':
+            # A buffer for all table expressions in join conditions
+            table_expressions_in_join = []
+            expressions_in_join = []
+
+            fc = segment.get_child('from_clause')
+
+            if not fc:
+                return None
+
+            for join_clause in fc.recursive_crawl('join_clause'):
+                for seg in join_clause.segments:
+                    if seg.type == 'table_expression':
+                        table_expressions_in_join.append(seg)
+                    elif seg.type == 'expression':
+                        expressions_in_join.append(seg)
+
+            return self._lint_table_expressions_in_join(table_expressions_in_join, expressions_in_join, segment) or None
+        return None
+
+    def _lint_table_expressions_in_join(self, table_expressions_in_join, expressions_in_join, segment):
+        """TODO."""
+        # A buffer to keep any violations.
+        violation_buff = []
+
+        for table_exp in table_expressions_in_join:
+            table_ref = table_exp.get_child('object_reference')
+
+            whitespace_ref = table_exp.get_child('whitespace')
+
+            alias_exp_ref = table_exp.get_child('alias_expression')
+            if alias_exp_ref is None:
+                continue
+
+            alias_identifier_ref = alias_exp_ref.get_child('identifier')
+            select_clause = segment.get_child("select_clause")
+
+            ids_refs = []
+
+            # Find all references to alias in select clause
+            for alias_with_column in select_clause.recursive_crawl("object_reference"):
+                used_alias_ref = alias_with_column.get_child("identifier")
+                if used_alias_ref.raw == alias_identifier_ref.raw:
+                    ids_refs.append(used_alias_ref)
+
+            # Find all references to alias in join clauses
+            for exp_ref in expressions_in_join:
+                for alias_ref_in_join in exp_ref.recursive_crawl("object_reference"):
+                    used_alias_ref = alias_ref_in_join.get_child("identifier")
+                    if used_alias_ref.raw == alias_identifier_ref.raw:
+                        ids_refs.append(used_alias_ref)
+
+            # Fixes for deleting ` as sth` and for editing references to aliased tables
+            fixes = [
+                *[LintFix('delete', d) for d in [alias_exp_ref, whitespace_ref]],
+                *[LintFix('edit', alias, alias.edit(table_ref.raw)) for alias in [alias_identifier_ref, *ids_refs]]
+            ]
+
+            violation_buff.append(
+                LintResult(
+                    anchor=alias_identifier_ref,
+                    description="Avoid using aliases in join condition",
+                    fixes=fixes
+                )
+            )
+
+        return violation_buff or None
