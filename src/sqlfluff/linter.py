@@ -696,7 +696,15 @@ class Linter:
                 previous_versions = {working.raw}
                 linting_errors = []
                 last_fixes = None
+                fix_loop_idx = 0
+                loop_limit = 20
                 while True:
+                    fix_loop_idx += 1
+                    if fix_loop_idx > loop_limit:
+                        linter_logger.warning(
+                            "Loop limit on fixes reached [%s]. Some fixes may be overdone.",
+                            loop_limit)
+                        break
                     changed = False
                     for crawler in self.get_ruleset(config=config):
                         # fixes should be a dict {} with keys edit, delete, create
