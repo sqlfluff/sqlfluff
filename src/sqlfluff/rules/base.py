@@ -367,7 +367,10 @@ class RuleSet:
         self._register = {}
 
     def _validate_config_options(self, config, rule=None):
-        """Ensure that all config options are valid"""
+        """Ensure that all config options are valid.
+
+        Config options can also be checked for a specific rule e.g L010.
+        """
         rule_config = config.get_section("rules")
 
         for config_name, valid_options in self.validators.items():
