@@ -361,9 +361,27 @@ class RuleSet:
 
     """
 
-    def __init__(self, name):
+    def __init__(self, name, validators):
         self.name = name
+        self.validators = validators
         self._register = {}
+
+    def _validate_config_options(self, config, rule=None):
+        """Ensure that all config options are valid"""
+        rule_config = config.get_section("rules")
+
+        for config_name, valid_options in self.validators.items():
+            config_option = rule_config.get(config_name) if not rule else rule_config.get(rule).get(config_name)
+            if config_option not in valid_options and config_option is not None:
+                raise ValueError(
+                    (
+                        "Invalid option '{0}' for {1} configuration. Must be one of {2}"
+                    ).format(
+                        config_option,
+                        config_name,
+                        valid_options,
+                    )
+                )
 
     def register(self, cls):
         """Decorate a class with this to add it to the ruleset.
@@ -422,6 +440,8 @@ class RuleSet:
             :obj:`list` of instantiated :obj:`BaseCrawler`.
 
         """
+        # Validate all generic rule configs
+        self._validate_config_options(config)
         # default the whitelist to all the rules if not set
         whitelist = config.get('rule_whitelist') or list(self._register.keys())
         blacklist = config.get('rule_blacklist') or []
@@ -451,6 +471,8 @@ class RuleSet:
             if generic_rule_config:
                 kwargs.update(generic_rule_config)
             if specific_rule_config:
+                # Validate specific rule config before adding
+                self._validate_config_options(config, self._register[k]['code'])
                 kwargs.update(specific_rule_config)
             kwargs['code'] = self._register[k]['code']
             # Allow variable substitution in making the description
