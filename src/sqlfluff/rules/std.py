@@ -2783,6 +2783,13 @@ class Rule_L031(BaseCrawler):
             if not fc:
                 return None
 
+            table_expression = fc.get_child('table_expression')
+
+            # Find base table
+            base_table = None
+            if table_expression:
+                base_table = table_expression.get_child('object_reference')
+
             for join_clause in fc.recursive_crawl('join_clause'):
                 for seg in join_clause.segments:
                     if seg.type == 'table_expression':
@@ -2790,10 +2797,10 @@ class Rule_L031(BaseCrawler):
                     elif seg.type == 'expression':
                         expressions_in_join.append(seg)
 
-            return self._lint_table_expressions_in_join(table_expressions_in_join, expressions_in_join, segment) or None
+            return self._lint_aliases_in_join(base_table, table_expressions_in_join, expressions_in_join, segment) or None
         return None
 
-    def _lint_table_expressions_in_join(self, table_expressions_in_join, expressions_in_join, segment):
+    def _lint_aliases_in_join(self, base_table, table_expressions_in_join, expressions_in_join, segment):
         """TODO."""
         # A buffer to keep any violations.
         violation_buff = []
@@ -2801,8 +2808,13 @@ class Rule_L031(BaseCrawler):
         for table_exp in table_expressions_in_join:
             table_ref = table_exp.get_child('object_reference')
 
+            # If this is self-join - skip it
+            if base_table.raw == table_ref.raw:
+                continue
+
             whitespace_ref = table_exp.get_child('whitespace')
 
+            # If there's no alias expression - skip it
             alias_exp_ref = table_exp.get_child('alias_expression')
             if alias_exp_ref is None:
                 continue

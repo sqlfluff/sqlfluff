@@ -212,7 +212,14 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     ('L003', 'fail', 'SELECT *\nFROM\n    t1\n    -- Comment\nJOIN t2 USING (user_id)', 'SELECT *\nFROM\n    t1\n-- Comment\nJOIN t2 USING (user_id)', None),
     # L013 & L025 Fixes with https://github.com/sqlfluff/sqlfluff/issues/449
     ('L013', 'pass', 'select ps.*, pandgs.blah from ps join pandgs using(moo)', None, None),
-    ('L025', 'pass', 'select ps.*, pandgs.blah from ps join pandgs using(moo)', None, None)
+    ('L025', 'pass', 'select ps.*, pandgs.blah from ps join pandgs using(moo)', None, None),
+    # L031 Allow self-joins
+    ('L031', 'pass', 'select x.a, x_2.b from x left join x as x_2 on x.foreign_key = x.foreign_key', None, None),
+    # L031 fixes issues
+    ('L031',
+     'fail',
+     'SELECT u.id, c.first_name, c.last_name, COUNT(o.user_id) FROM users as u JOIN customers as c on u.id = c.user_id JOIN orders as o on u.id = o.user_id;',
+     'SELECT u.id, customers.first_name, customers.last_name, COUNT(orders.user_id) FROM users as u JOIN customers on u.id = customers.user_id JOIN orders on u.id = orders.user_id;', None)
 ])
 def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
     """Test that a rule passes/fails on a given string.
