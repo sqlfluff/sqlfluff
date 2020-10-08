@@ -2,7 +2,6 @@
 
 import pytest
 
-import sqlfluff.rules.std as std_rules
 
 from sqlfluff.rules.std import std_rule_set
 from sqlfluff.linter import Linter
