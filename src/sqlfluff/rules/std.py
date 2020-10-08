@@ -2769,10 +2769,48 @@ class Rule_L030(Rule_L010):
 
 @std_rule_set.register
 class Rule_L031(BaseCrawler):
-    """TODO."""
+    """Avoid table aliases in join conditions (especially initialisms).
+
+    | **Anti-pattern**
+    | In this example, alias 'c' is used for 'customers' table.
+
+    .. code-block:: sql
+
+        SELECT
+            COUNT(o.customer_id) as order_amount,
+            c.name
+        FROM orders as o
+        JOIN customers as c on o.id = c.user_id
+
+
+    | **Best practice**
+    |  Avoid table aliases in join conditions.
+
+    .. code-block:: sql
+
+        SELECT
+            COUNT(o.customer_id) as order_amount,
+            customers.name
+        FROM orders as o
+        JOIN customers on o.id = customers.user_id
+
+        -- Self-join will not raise issue
+
+        SELECT
+            table.a,
+            table_alias.b,
+        FROM
+            table
+            LEFT JOIN table AS table_alias ON table.foreign_key = table_alias.foreign_key
+
+    """
 
     def _eval(self, segment, **kwargs):
-        """TODO."""
+        """Aliases in join conditions.
+
+        Find base table, table expressions in join, and other expressions in select clause
+        and decide if it's needed to report them.
+        """
         if segment.type == 'select_statement':
             # A buffer for all table expressions in join conditions
             table_expressions_in_join = []
@@ -2801,7 +2839,7 @@ class Rule_L031(BaseCrawler):
         return None
 
     def _lint_aliases_in_join(self, base_table, table_expressions_in_join, expressions_in_join, segment):
-        """TODO."""
+        """Lint and fix all aliases in joins - except for self-joins."""
         # A buffer to keep any violations.
         violation_buff = []
 
