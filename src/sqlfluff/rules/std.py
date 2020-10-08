@@ -12,7 +12,19 @@ import itertools
 from .base import BaseCrawler, LintFix, LintResult, RuleSet
 
 
-std_rule_set = RuleSet(name='standard')
+std_rule_set = RuleSet(
+    name='standard',
+    validators={
+        "tab_space_size": range(100),
+        "max_line_length": range(10000),
+        "indent_unit": ["space", "tab"],
+        "comma_style": ["leading", "trailing"],
+        "allow_scalar": [True, False],
+        "single_table_references": ["consistent", "qualified", "unqualified"],
+        "only_aliases": [True, False],
+        "capitalisation_policy": ["consistent", "upper", "lower", "capitalise"]
+    },
+)
 
 
 @std_rule_set.register

@@ -305,13 +305,20 @@ def test__rules__std_L003_process_raw_stack(generate_test_segments):
     assert res[2]['indent_size'] == 5
 
 
-@pytest.mark.parametrize("rule,rule_init", [
-    ("L010", {"capitalisation_policy": "blah"}),
-    ("L019", {"comma_style": "blah"}),
-    ("L022", {"comma_style": "blah"})
+@pytest.mark.parametrize("rule_config_dict", [
+    {"tab_space_size": "blah"},
+    {"max_line_length": "blah"},
+    {"indent_unit": "blah"},
+    {"comma_style": "blah"},
+    {"allow_scalar": "blah"},
+    {"single_table_references": "blah"},
+    {"only_aliases": "blah"},
+    {"L010": {"capitalisation_policy": "blah"}},
+    {"L014": {"capitalisation_policy": "blah"}},
+    {"L030": {"capitalisation_policy": "blah"}},
 ])
-def test_improper_configs_are_rejected(rule, rule_init):
+def test_improper_configs_are_rejected(rule_config_dict):
     """Ensure that unsupported configs raise a ValueError."""
-    rule_class = getattr(std_rules, "Rule_{}".format(rule))
+    config = FluffConfig(configs={"rules": rule_config_dict})
     with pytest.raises(ValueError):
-        rule_class(**rule_init)
+        std_rule_set.get_rulelist(config)
