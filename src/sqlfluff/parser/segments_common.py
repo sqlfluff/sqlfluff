@@ -358,3 +358,45 @@ class Dedent(Indent):
     """
 
     indent_val = -1
+
+
+class Checkpoint(BaseSegment):
+    """A segment which acts like a normal segment, but is ephemeral.
+
+    This segment allows grammars to behave like segments. It behaves like
+    a normal segment except that during the `parse` step, it returns its
+    contents rather than itself. This means in the final parsed structure
+    it no longer exists.
+    """
+
+    def parse(self, parse_context):
+        """Use the parse grammar to find subsegments within this segment.
+
+        Return the content of the result, rather than itself.
+        """
+        # Call the ususal parse function
+        new_self = super().parse(parse_context)
+        # Return the content of that result rather than self
+        return new_self.segments
+
+    @classmethod
+    def expected_string(cls, dialect=None, called_from=None):
+        """Return the expected string for this segment.
+
+        In this case it's just the expected string of the match grammar.
+        """
+        return cls.match_grammar.expected_string(dialect=None, called_from=None)
+
+    @classmethod
+    def make(cls, match_grammar, parse_grammar, name):
+        """Make a subclass of the segment using a method.
+
+        Note: This requires a custom make method, because it's a bit different.
+        """
+        # Now lets make the classname (it indicates the mother class for clarity)
+        classname = "Checkpoint_{name}".format(name=name)
+        # This is the magic, we generate a new class! SORCERY
+        newclass = type(classname, (cls, ),
+                        dict(match_grammar=match_grammar, parse_grammar=parse_grammar))
+        # Now we return that class in the abstract. NOT INSTANTIATED
+        return newclass

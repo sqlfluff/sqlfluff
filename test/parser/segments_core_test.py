@@ -2,7 +2,8 @@
 
 import pytest
 
-from sqlfluff.parser import RootParseContext, FilePositionMarker, RawSegment, KeywordSegment
+from sqlfluff.parser import (RootParseContext, FilePositionMarker, RawSegment,
+                             KeywordSegment, Checkpoint)
 
 
 @pytest.fixture(scope="module")
@@ -48,3 +49,29 @@ def test__parser__core_keyword(raw_seg_list):
         assert FooKeyword.match([raw_seg_list[1]], parse_context=ctx)
         # Match it against a list slice and check it still works
         assert FooKeyword.match(raw_seg_list[1:], parse_context=ctx)
+
+
+def test__parser__core_checkpoint(raw_seg_list):
+    """Test the Mystical KeywordSegment."""
+    # First make a keyword
+    BarKeyword = KeywordSegment.make('bar')
+
+    checkpoint = Checkpoint.make(
+        match_grammar=BarKeyword,
+        parse_grammar=BarKeyword,
+        name='foobar'
+    )
+
+    with RootParseContext(dialect=None) as ctx:
+        # Test on a slice containing only the first element
+        m = checkpoint.match(raw_seg_list[:1], parse_context=ctx)
+        assert m
+        # Make sure that it matches as an instance of checkpoint
+        elem = m.matched_segments[0]
+        assert isinstance(elem, checkpoint)
+        # Parse it and make sure we don't get a checkpoint back
+        res = elem.parse(ctx)
+        assert isinstance(res, tuple)
+        elem = res[0]
+        assert not isinstance(elem, checkpoint)
+        assert isinstance(elem, BarKeyword)

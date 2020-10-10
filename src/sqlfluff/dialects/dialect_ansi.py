@@ -15,7 +15,8 @@ https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 from ..parser import (BaseSegment, KeywordSegment, ReSegment, NamedSegment,
                       Sequence, GreedyUntil, StartsWith, ContainsOnly,
                       OneOf, Delimited, Bracketed, AnyNumberOf, Ref, SegmentGenerator,
-                      Anything, LambdaSegment, Indent, Dedent, Nothing)
+                      Anything, LambdaSegment, Indent, Dedent, Nothing,
+                      Checkpoint)
 from .base import Dialect
 from .ansi_keywords import ansi_reserved_keywords, ansi_unreserved_keywords
 
@@ -600,15 +601,11 @@ class SelectTargetElementSegment(BaseSegment):
     """An element in the targets of a select statement."""
     type = 'select_target_element'
     # Important to split elements before parsing, otherwise debugging is really hard.
-    match_grammar = OneOf(
-        # *, blah.*, blah.blah.*, etc.
-        Ref('WildcardExpressionSegment'),
-        GreedyUntil(
-            'FROM', 'LIMIT',
-            Ref('CommaSegment'),
-            Ref('SetOperatorSegment'),
-            enforce_whitespace_preceeding_terminator=True
-        )
+    match_grammar = GreedyUntil(
+        'FROM', 'LIMIT',
+        Ref('CommaSegment'),
+        Ref('SetOperatorSegment'),
+        enforce_whitespace_preceeding_terminator=True
     )
 
     parse_grammar = OneOf(
@@ -1204,7 +1201,12 @@ class WithCompoundStatementSegment(BaseSegment):
                 Ref('SingleIdentifierGrammar'),
                 'AS',
                 Bracketed(
-                    Ref('SelectableGrammar')
+                    # Checkpoint here to subdivide the query.
+                    Checkpoint.make(
+                        match_grammar=Anything(),
+                        parse_grammar=Ref('SelectableGrammar'),
+                        name='SelectableGrammar'
+                    )
                 )
             ),
             delimiter=Ref('CommaSegment'),
@@ -1229,7 +1231,10 @@ class SetOperatorSegment(BaseSegment):
         ),
         'INTERSECT',
         'EXCEPT',
-        'MINUS'
+        'MINUS',
+        exclude=Sequence(
+            'EXCEPT', Bracketed(Anything())
+        )
     )
 
 
