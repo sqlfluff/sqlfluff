@@ -212,7 +212,10 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     ('L003', 'fail', 'SELECT *\nFROM\n    t1\n    -- Comment\nJOIN t2 USING (user_id)', 'SELECT *\nFROM\n    t1\n-- Comment\nJOIN t2 USING (user_id)', None),
     # L013 & L025 Fixes with https://github.com/sqlfluff/sqlfluff/issues/449
     ('L013', 'pass', 'select ps.*, pandgs.blah from ps join pandgs using(moo)', None, None),
-    ('L025', 'pass', 'select ps.*, pandgs.blah from ps join pandgs using(moo)', None, None)
+    ('L025', 'pass', 'select ps.*, pandgs.blah from ps join pandgs using(moo)', None, None),
+    # Fix for https://github.com/sqlfluff/sqlfluff/issues/476
+    ('L010', 'fail', 'SELECT * FROM MOO ORDER BY dt DESC',
+     'select * from MOO order by dt desc', {'rules': {'L010': {'capitalisation_policy': 'lower'}}})
 ])
 def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
     """Test that a rule passes/fails on a given string.
