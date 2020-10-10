@@ -213,6 +213,13 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     # L013 & L025 Fixes with https://github.com/sqlfluff/sqlfluff/issues/449
     ('L013', 'pass', 'select ps.*, pandgs.blah from ps join pandgs using(moo)', None, None),
     ('L025', 'pass', 'select ps.*, pandgs.blah from ps join pandgs using(moo)', None, None),
+    # L031 Allow self-joins
+    ('L031', 'pass', 'select x.a, x_2.b from x left join x as x_2 on x.foreign_key = x.foreign_key', None, None),
+    # L031 fixes issues
+    ('L031',
+     'fail',
+     'SELECT u.id, c.first_name, c.last_name, COUNT(o.user_id) FROM users as u JOIN customers as c on u.id = c.user_id JOIN orders as o on u.id = o.user_id;',
+     'SELECT u.id, customers.first_name, customers.last_name, COUNT(orders.user_id) FROM users as u JOIN customers on u.id = customers.user_id JOIN orders on u.id = orders.user_id;', None),
     # Fix for https://github.com/sqlfluff/sqlfluff/issues/476
     ('L010', 'fail', 'SELECT * FROM MOO ORDER BY dt DESC',
      'select * from MOO order by dt desc', {'rules': {'L010': {'capitalisation_policy': 'lower'}}})
@@ -269,6 +276,7 @@ def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
     ('L021', 'test/fixtures/linter/select_distinct_group_by.sql', [(1, 8)]),
     # Make sure that ignoring works as expected
     ('L006', 'test/fixtures/linter/operator_errors_ignore.sql', [(10, 8), (10, 9)]),
+    ('L031', 'test/fixtures/linter/aliases_in_join_error.sql', [(7, 19), (8, 16)]),
 ])
 def test__rules__std_file(rule, path, violations):
     """Test the linter finds the given errors in (and only in) the right places."""
