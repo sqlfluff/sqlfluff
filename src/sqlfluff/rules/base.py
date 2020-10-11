@@ -171,11 +171,27 @@ class BaseCrawler:
     def __init__(self, code, description, **kwargs):
         self.description = description
         self.code = code
-        # Any unused kwargs will just be ignored from here.
+        # kwargs represents the config passed to the crawler. Add all kwargs as class attributes
+        # so they can be accessed in rules which inherit from this class
+        for key, value in kwargs.items():
+            self.__dict__[key] = value
 
         # We also define a custom logger here, which also includes the code
         # of the rule in the logging.
         self.logger = RuleLoggingAdapter(rules_logger, {'code': code})
+        # Validate that declared configuration options exist
+        try:
+            for keyword in self.config_keywords:
+                if keyword not in kwargs.keys():
+                    raise ValueError(
+                        (
+                            "Unrecognized config '{0}' for Rule {1}. If this "
+                            "is a new option, please add it to "
+                            "`default_config.ini`"
+                        ).format(keyword, code)
+                    )
+        except AttributeError:
+            self.logger.info("No config_keywords defined for {0}".format(code))
 
     def _eval(self, **kwargs):
         """Evaluate this rule against the current context.
