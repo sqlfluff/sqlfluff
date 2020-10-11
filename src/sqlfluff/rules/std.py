@@ -108,13 +108,7 @@ class Rule_L002(BaseCrawler):
 
     """
 
-    def __init__(self, tab_space_size=4, **kwargs):
-        """Initialise, extracting the tab size from the config.
-
-        We need to know the tab size for reconstruction.
-        """
-        self.tab_space_size = tab_space_size
-        super(Rule_L002, self).__init__(**kwargs)
+    config_keywords = ["tab_space_size"]
 
     def _eval(self, segment, raw_stack, **kwargs):
         """Mixed Tabs and Spaces in single whitespace.
@@ -203,12 +197,7 @@ class Rule_L003(BaseCrawler):
     """
 
     _works_on_unparsable = False
-
-    def __init__(self, tab_space_size=4, indent_unit='space', **kwargs):
-        """Initialise, extracting the tab size from the config."""
-        self.tab_space_size = tab_space_size
-        self.indent_unit = indent_unit
-        super(Rule_L003, self).__init__(**kwargs)
+    config_keywords = ["tab_space_size", "indent_unit"]
 
     def _make_indent(self, num=1, tab_space_size=None, indent_unit=None):
         if (indent_unit or self.indent_unit) == 'tab':
@@ -1085,17 +1074,7 @@ class Rule_L010(BaseCrawler):
 
     # Binary operators behave like keywords too.
     _target_elems = (('type', 'keyword'), ('type', 'binary_operator'))
-
-    def __init__(self, capitalisation_policy='consistent', **kwargs):
-        """Initialise, extracting the capitalisation mode from the config."""
-        capitalisation_options = ('consistent', 'upper', 'lower', 'capitalise')
-        if capitalisation_policy not in capitalisation_options:
-            raise ValueError(
-                ("Unexpected capitalisation_policy for rule {1}: {0!r}\nShould "
-                 "be one of: {2!r}").format(capitalisation_policy, self.__class__.__name__,
-                                            capitalisation_options))
-        self.capitalisation_policy = capitalisation_policy
-        super(Rule_L010, self).__init__(**kwargs)
+    config_keywords = ["capitalisation_policy"]
 
     def _eval(self, segment, memory, **kwargs):
         """Inconsistent capitalisation of keywords.
@@ -1306,10 +1285,7 @@ class Rule_L013(BaseCrawler):
 
     """
 
-    def __init__(self, allow_scalar=True, **kwargs):
-        """Initialise, extracting the allow_scalar mode from the config."""
-        self.allow_scalar = allow_scalar
-        super(Rule_L013, self).__init__(**kwargs)
+    config_keywords = ["allow_scalar"]
 
     def _eval(self, segment, parent_stack, **kwargs):
         """Column expression without alias. Use explicit `AS` clause.
@@ -1409,13 +1385,7 @@ class Rule_L016(Rule_L003):
 
     """
 
-    def __init__(self, max_line_length=80, tab_space_size=4, indent_unit='space', **kwargs):
-        """Initialise, getting the max line length."""
-        self.max_line_length = max_line_length
-        # Call out tab_space_size and indent_unit to make it clear they're still options.
-        super(Rule_L016, self).__init__(
-            tab_space_size=tab_space_size, indent_unit=indent_unit,
-            **kwargs)
+    config_keywords = ["max_line_length", "tab_space_size", "indent_unit"]
 
     def _eval_line_for_breaks(self, segments):
         """Evaluate the line for break points.
@@ -1925,14 +1895,7 @@ class Rule_L018(BaseCrawler):
     """
 
     _works_on_unparsable = False
-
-    def __init__(self, tab_space_size=4, **kwargs):
-        """Initialise, extracting the tab size from the config.
-
-        We need to know the tab size for reconstruction.
-        """
-        self.tab_space_size = tab_space_size
-        super(Rule_L018, self).__init__(**kwargs)
+    config_keywords = ["tab_space_size"]
 
     def _eval(self, segment, raw_stack, **kwargs):
         """WITH clause closing bracket should be aligned with WITH keyword.
@@ -2079,12 +2042,7 @@ class Rule_L019(BaseCrawler):
 
     """
 
-    def __init__(self, comma_style='trailing', **kwargs):
-        """Initialise, extracting the comma_style from the config."""
-        if comma_style not in ['trailing', 'leading']:
-            raise ValueError("Unexpected `comma_style`: {0!r}".format(comma_style))
-        self.comma_style = comma_style
-        super(Rule_L019, self).__init__(**kwargs)
+    config_keywords = ["comma_style"]
 
     @staticmethod
     def _last_code_seg(raw_stack, idx=-1):
@@ -2305,12 +2263,7 @@ class Rule_L022(BaseCrawler):
 
     """
 
-    def __init__(self, comma_style='trailing', **kwargs):
-        """Initialise, extracting the comma_style from the config."""
-        if comma_style not in ['trailing', 'leading']:
-            raise ValueError("Unexpected `comma_style`: {0!r}".format(comma_style))
-        self.comma_style = comma_style
-        super(Rule_L022, self).__init__(**kwargs)
+    config_keywords = ["comma_style"]
 
     def _eval(self, segment, **kwargs):
         """Blank line expected but not found after CTE definition."""
@@ -2644,13 +2597,7 @@ class Rule_L028(Rule_L025):
 
     """
 
-    def __init__(self, single_table_references='consistent', **kwargs):
-        """Initialise, extracting `single_table_references` from the config."""
-        if single_table_references not in ['qualified', 'unqualified', 'consistent']:
-            raise ValueError("Unexpected `single_table_references`: {0!r}".format(
-                single_table_references))
-        self.single_table_references = single_table_references
-        super().__init__(**kwargs)
+    config_keywords = ["single_table_references"]
 
     def _lint_references_and_aliases(self, aliases, references, col_aliases, using_cols, parent_select):
         """Iterate through references and check consistency."""
@@ -2723,10 +2670,7 @@ class Rule_L029(BaseCrawler):
 
     """
 
-    def __init__(self, only_aliases=True, **kwargs):
-        """Initialise, extracting the only_aliases from the config."""
-        self.only_aliases = only_aliases
-        super(Rule_L029, self).__init__(**kwargs)
+    config_keywords = ["only_aliases"]
 
     def _eval(self, segment, dialect, parent_stack, **kwargs):
         """Keywords should not be used as identifiers."""
