@@ -5,7 +5,7 @@ import sys
 if sys.version_info[0] < 3:
     raise Exception("Sqlfluff does not support Python 2. Please upgrade to Python 3.")
 # Check minor python version
-elif sys.version[1] < 6:
+elif sys.version_info[1] < 6:
     raise Exception(
         (
             "Sqlfluff 0.4.0 only supports Python 3.6 and beyond. "
