@@ -2,8 +2,9 @@
 
 import pytest
 
-
+from sqlfluff.rules.base import BaseCrawler
 from sqlfluff.rules.std import std_rule_set
+from sqlfluff.rules.config import document_configuration
 from sqlfluff.linter import Linter
 from sqlfluff.config import FluffConfig
 
@@ -310,3 +311,27 @@ def test_improper_configs_are_rejected(rule_config_dict):
     config = FluffConfig(configs={"rules": rule_config_dict})
     with pytest.raises(ValueError):
         std_rule_set.get_rulelist(config)
+
+
+def test_rules_must_be_instantiated_without_declared_configs():
+    """Ensure that new rules must be instantiated with config values."""
+    class NewRule(BaseCrawler):
+        config_keywords = ["comma_style"]
+
+    new_rule = NewRule(code="L000", description="", comma_style="trailing")
+    assert new_rule.comma_style == "trailing"
+    # Error is thrown since "comma_style" is defined in class,
+    # but not upon instantiation
+    with pytest.raises(ValueError):
+        new_rule = NewRule(code="L000", description="")
+
+
+def test_rules_configs_are_dynamically_documented():
+    """Ensure that rule configurations are added to the class docstring."""
+    @document_configuration
+    class NewRule(BaseCrawler):
+        """A new rule."""
+        config_keywords = ["comma_style", "only_aliases"]
+
+    assert "comma_style" in NewRule.__doc__
+    assert "only_aliases" in NewRule.__doc__
