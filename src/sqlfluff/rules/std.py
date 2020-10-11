@@ -10,19 +10,13 @@ examples in the same rule should also be un-highlighted.
 import itertools
 
 from .base import BaseCrawler, LintFix, LintResult, RuleSet
-
+from .config import CONFIG_INFO_DICT, document_configuration
 
 std_rule_set = RuleSet(
     name='standard',
     validators={
-        "tab_space_size": range(100),
-        "max_line_length": range(10000),
-        "indent_unit": ["space", "tab"],
-        "comma_style": ["leading", "trailing"],
-        "allow_scalar": [True, False],
-        "single_table_references": ["consistent", "qualified", "unqualified"],
-        "only_aliases": [True, False],
-        "capitalisation_policy": ["consistent", "upper", "lower", "capitalise"]
+        config: info_dict["validation"]
+        for config, info_dict in CONFIG_INFO_DICT.items()
     },
 )
 
@@ -74,18 +68,13 @@ class Rule_L001(BaseCrawler):
         return LintResult()
 
 
+@document_configuration
 @std_rule_set.register
 class Rule_L002(BaseCrawler):
     """Mixed Tabs and Spaces in single whitespace.
 
     This rule will fail if a single section of whitespace
     contains both tabs and spaces.
-
-    Args:
-        tab_space_size (:obj:`int`): The number of spaces to consider
-            equal to one tab. Used in the fixing step of this rule.
-            Defaults to 4.
-
 
     | **Anti-pattern**
     | The • character represents a space and the → character represents a tab.
@@ -157,16 +146,10 @@ class Rule_L002(BaseCrawler):
                             break
 
 
+@document_configuration
 @std_rule_set.register
 class Rule_L003(BaseCrawler):
     """Indentation not consistent with previous lines.
-
-    Args:
-        tab_space_size (:obj:`int`): The number of spaces to consider
-            equal to one tab. Used in the fixing step of this rule.
-            Defaults to 4.
-        indent_unit (:obj:`str`): Whether to use tabs or spaces to
-            add new indents. Defaults to `space`.
 
     Note:
         This rule used to be _"Indentation length is not a multiple
@@ -1039,13 +1022,10 @@ class Rule_L009(BaseCrawler):
         return LintResult(anchor=segment, fixes=[LintFix('edit', segment, [segment, ins])])
 
 
+@document_configuration
 @std_rule_set.register
 class Rule_L010(BaseCrawler):
     """Inconsistent capitalisation of keywords.
-
-    Args:
-        capitalisation_policy (:obj:`str`): The capitalisation policy to
-            enforce. One of `consistent`, `upper`, `lower`, `capitalise`.
 
     | **Anti-pattern**
     | In this example, 'select 'is in lower-case whereas 'FROM' is in upper-case.
@@ -1253,15 +1233,10 @@ class Rule_L012(Rule_L011):
     _target_elems = ('select_target_element',)
 
 
+@document_configuration
 @std_rule_set.register
 class Rule_L013(BaseCrawler):
     """Column expression without alias. Use explicit `AS` clause.
-
-    Args:
-        allow_scalar (:obj:`bool`): If `True` then this rule will
-            not fail if there is only one element in the select
-            clause e.g. `SELECT 1 + 2 FROM blah`. It will still
-            fail if there are multiple columns. (Default `True`)
 
     | **Anti-pattern**
     | In this example, there is no alias for both sums.
@@ -1318,16 +1293,12 @@ class Rule_L013(BaseCrawler):
         return None
 
 
+@document_configuration
 @std_rule_set.register
 class Rule_L014(Rule_L010):
     """Inconsistent capitalisation of unquoted identifiers.
 
     The functionality for this rule is inherited from :obj:`Rule_L010`.
-
-    Args:
-        capitalisation_policy (:obj:`str`): The capitalisation policy to
-            enforce. One of 'consistent', 'upper', 'lower', 'capitalise'.
-
     """
 
     _target_elems = (('name', 'naked_identifier'),)
@@ -1370,20 +1341,10 @@ class Rule_L015(BaseCrawler):
         return LintResult()
 
 
+@document_configuration
 @std_rule_set.register
 class Rule_L016(Rule_L003):
-    """Line is too long.
-
-    Args:
-        max_line_length (:obj:`int`): The maximum length of a line
-            to allow without raising a violation.
-        tab_space_size (:obj:`int`): The number of spaces to consider
-            equal to one tab. Used in the fixing step of this rule.
-            Defaults to 4.
-        indent_unit (:obj:`str`): Whether to use tabs or spaces to
-            add new indents. Defaults to `space`.
-
-    """
+    """Line is too long."""
 
     config_keywords = ["max_line_length", "tab_space_size", "indent_unit"]
 
@@ -1997,14 +1958,10 @@ class Rule_L018(BaseCrawler):
         return LintResult()
 
 
+@document_configuration
 @std_rule_set.register
 class Rule_L019(BaseCrawler):
     """Leading/Trailing comma enforcement.
-
-    Args:
-        comma_style (:obj:`str`): The comma style to to
-            enforce. One of `trailing`, `leading` (default
-            is `trailing`).
 
     | **Anti-pattern**
     | There is a mixture of leading and trailing commas.
@@ -2559,14 +2516,10 @@ class Rule_L027(Rule_L025):
         return violation_buff or None
 
 
+@document_configuration
 @std_rule_set.register
 class Rule_L028(Rule_L025):
     """References should be consistent in statements with a single table.
-
-    Args:
-        single_table_references (:obj:`str`): The expectation for references
-            in single-table select. One of `qualified`, `unqualified`,
-            `consistent` (default is `consistent`).
 
     | **Anti-pattern**
     | In this example, only the field `b` is referenced.
@@ -2639,16 +2592,10 @@ class Rule_L028(Rule_L025):
         return violation_buff or None
 
 
+@document_configuration
 @std_rule_set.register
 class Rule_L029(BaseCrawler):
     """Keywords should not be used as identifiers.
-
-    Args:
-        only_aliases (:obj:`bool`): Should this rule only raise
-            issues for aliases. By default this is true, and therefore
-            only flags violations for alias expressions (which are
-            directly in control of the sql writer). When set to false
-            this rule flags issues for *all* unquoted identifiers.
 
     | **Anti-pattern**
     | In this example, SUM function is used as an alias.
@@ -2688,15 +2635,12 @@ class Rule_L029(BaseCrawler):
                 return LintResult(anchor=segment)
 
 
+@document_configuration
 @std_rule_set.register
 class Rule_L030(Rule_L010):
     """Inconsistent capitalisation of function names.
 
     The functionality for this rule is inherited from :obj:`Rule_L010`.
-
-    Args:
-        capitalisation_policy (:obj:`str`): The capitalisation policy to
-            enforce. One of 'consistent', 'upper', 'lower', 'capitalise'.
 
     | **Anti-pattern**
     | In this example, the two SUM functions don't have the same capitalisation.
