@@ -7,9 +7,9 @@ def test__parser__common_marker():
     """Test construction and comparison of markers."""
     # test making one from fresh
     fp1 = FilePositionMarker.from_fresh()
-    fp2 = fp1.advance_by('abc')
-    fp3 = fp2.advance_by('def\nghi\njlk')
-    fp4 = fp3.advance_by('mno', idx=1)
+    fp2 = fp1.advance_by("abc")
+    fp3 = fp2.advance_by("def\nghi\njlk")
+    fp4 = fp3.advance_by("mno", idx=1)
     # check comparisons
     assert fp1 == FilePositionMarker(1, 1, 1, 0)
     assert fp4 > fp3 > fp2 > fp1
