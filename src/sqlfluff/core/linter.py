@@ -943,7 +943,6 @@ class Linter:
                     continue
         return ignore_set
 
-
     def paths_from_path(self, path, ignore_file_name='.sqlfluffignore', ignore_non_existent_files=False, ignore_files=True, current_dir=Path.cwd()):
         """Return a set of sql file paths from a potentially more ambigious path string.
 
