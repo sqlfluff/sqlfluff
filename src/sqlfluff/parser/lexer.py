@@ -8,8 +8,9 @@ from .segments_base import RawSegment
 from ..errors import SQLLexError
 
 
-class LexMatch(namedtuple('LexMatch', ['new_string', 'new_pos', 'segments'])):
+class LexMatch(namedtuple("LexMatch", ["new_string", "new_pos", "segments"])):
     """A class to hold matches from the Lexer."""
+
     def __bool__(self):
         """A LexMatch is truthy if it contains a non-zero number of matched segments."""
         return len(self.segments) > 0
@@ -23,7 +24,17 @@ class SingletonMatcher:
     `_match` function rather than the public `match` function.  This acts as
     the base class for matchers.
     """
-    def __init__(self, name, template, target_seg_class, subdivide=None, trim_post_subdivide=None, *args, **kwargs):
+
+    def __init__(
+        self,
+        name,
+        template,
+        target_seg_class,
+        subdivide=None,
+        trim_post_subdivide=None,
+        *args,
+        **kwargs
+    ):
         self.name = name
         self.template = template
         self.target_seg_class = target_seg_class
@@ -50,11 +61,11 @@ class SingletonMatcher:
         idx = 0
 
         if self.trim_post_subdivide:
-            trimmer = re.compile(self.trim_post_subdivide['regex'], re.DOTALL)
+            trimmer = re.compile(self.trim_post_subdivide["regex"], re.DOTALL)
             TrimClass = RawSegment.make(
-                self.trim_post_subdivide['regex'],
-                name=self.trim_post_subdivide['name'],
-                type=self.trim_post_subdivide['type']
+                self.trim_post_subdivide["regex"],
+                name=self.trim_post_subdivide["name"],
+                type=self.trim_post_subdivide["type"],
             )
 
             for trim_mat in trimmer.finditer(matched):
@@ -63,12 +74,11 @@ class SingletonMatcher:
                 if trim_span[0] == 0:
                     seg_buff += (
                         TrimClass(
-                            raw=matched[:trim_span[1]],
-                            pos_marker=cont_pos_buff
+                            raw=matched[: trim_span[1]], pos_marker=cont_pos_buff
                         ),
                     )
                     idx = trim_span[1]
-                    cont_pos_buff = cont_pos_buff.advance_by(matched[:trim_span[1]])
+                    cont_pos_buff = cont_pos_buff.advance_by(matched[: trim_span[1]])
                     # Have we consumed the whole string? This avoids us having
                     # an empty string on the end.
                     if idx == len(matched):
@@ -77,12 +87,13 @@ class SingletonMatcher:
                 if trim_span[1] == len(matched):
                     seg_buff += (
                         self.target_seg_class(
-                            raw=matched[idx:trim_span[0]],
-                            pos_marker=cont_pos_buff
+                            raw=matched[idx : trim_span[0]], pos_marker=cont_pos_buff
                         ),
                         TrimClass(
-                            raw=matched[trim_span[0]:trim_span[1]],
-                            pos_marker=cont_pos_buff.advance_by(cont_buff[idx:trim_span[0]])
+                            raw=matched[trim_span[0] : trim_span[1]],
+                            pos_marker=cont_pos_buff.advance_by(
+                                cont_buff[idx : trim_span[0]]
+                            ),
                         ),
                     )
                     idx = len(matched)
@@ -90,10 +101,7 @@ class SingletonMatcher:
         # Do we have anything left? (or did nothing happen)
         if idx < len(matched):
             seg_buff += (
-                self.target_seg_class(
-                    raw=matched[idx:],
-                    pos_marker=cont_pos_buff
-                ),
+                self.target_seg_class(raw=matched[idx:], pos_marker=cont_pos_buff),
             )
 
         return seg_buff
@@ -111,11 +119,11 @@ class SingletonMatcher:
             seg_buff = ()
             str_buff = matched
             pos_buff = start_pos
-            divider = re.compile(self.subdivide['regex'], re.DOTALL)
+            divider = re.compile(self.subdivide["regex"], re.DOTALL)
             DividerClass = RawSegment.make(
-                self.subdivide['regex'],
-                name=self.subdivide['name'],
-                type=self.subdivide['type']
+                self.subdivide["regex"],
+                name=self.subdivide["name"],
+                type=self.subdivide["type"],
             )
 
             while True:
@@ -124,14 +132,14 @@ class SingletonMatcher:
                 if mat:
                     # Found a division
                     span = mat.span()
-                    trimmed_segments = self._trim(str_buff[:span[0]], pos_buff)
+                    trimmed_segments = self._trim(str_buff[: span[0]], pos_buff)
                     div_seg = DividerClass(
-                        raw=str_buff[span[0]:span[1]],
-                        pos_marker=pos_buff.advance_by(str_buff[:span[0]])
+                        raw=str_buff[span[0] : span[1]],
+                        pos_marker=pos_buff.advance_by(str_buff[: span[0]]),
                     )
                     seg_buff += trimmed_segments + (div_seg,)
-                    pos_buff = pos_buff.advance_by(str_buff[:span[1]])
-                    str_buff = str_buff[span[1]:]
+                    pos_buff = pos_buff.advance_by(str_buff[: span[1]])
+                    str_buff = str_buff[span[1] :]
                 else:
                     # No more division matches. Trim?
                     trimmed_segments = self._trim(str_buff, pos_buff)
@@ -141,11 +149,7 @@ class SingletonMatcher:
             return seg_buff
         else:
             # NB: Tuple literal
-            return (
-                self.target_seg_class(
-                    raw=matched,
-                    pos_marker=start_pos),
-            )
+            return (self.target_seg_class(raw=matched, pos_marker=start_pos),)
 
     def match(self, forward_string, start_pos):
         """Given a string, match what we can and return the rest.
@@ -162,9 +166,9 @@ class SingletonMatcher:
             # Handle potential subdivision elsewhere.
             new_segments = self._subdivide(matched, start_pos)
             return LexMatch(
-                forward_string[len(matched):],
+                forward_string[len(matched) :],
                 new_segments[-1].get_end_pos_marker(),
-                new_segments
+                new_segments,
             )
         else:
             return LexMatch(forward_string, start_pos, ())
@@ -180,16 +184,15 @@ class SingletonMatcher:
         # Some kwargs get consumed by the class, the rest
         # are passed to the raw segment.
         class_kwargs = {}
-        possible_class_kwargs = ['subdivide', 'trim_post_subdivide']
+        possible_class_kwargs = ["subdivide", "trim_post_subdivide"]
         for k in possible_class_kwargs:
             if k in kwargs:
                 class_kwargs[k] = kwargs.pop(k)
 
         return cls(
-            name, template,
-            RawSegment.make(
-                template, name=name, **kwargs
-            ),
+            name,
+            template,
+            RawSegment.make(template, name=name, **kwargs),
             **class_kwargs
         )
 
@@ -231,11 +234,7 @@ class RepeatedMultiMatcher(SingletonMatcher):
         seg_buff = ()
         while True:
             if len(forward_string) == 0:
-                return LexMatch(
-                    forward_string,
-                    start_pos,
-                    seg_buff
-                )
+                return LexMatch(forward_string, start_pos, seg_buff)
             for matcher in self.submatchers:
                 res = matcher.match(forward_string, start_pos)
                 if res.segments:
@@ -250,11 +249,7 @@ class RepeatedMultiMatcher(SingletonMatcher):
                     continue
             else:
                 # We've got so far, but now can't match. Return
-                return LexMatch(
-                    forward_string,
-                    start_pos,
-                    seg_buff
-                )
+                return LexMatch(forward_string, start_pos, seg_buff)
 
     @classmethod
     def from_struct(cls, s):
@@ -272,8 +267,8 @@ class RepeatedMultiMatcher(SingletonMatcher):
                 m_cls = SingletonMatcher
             else:
                 raise ValueError(
-                    "Unexpected matcher type in lexer struct: {0!r}".format(
-                        elem[1]))
+                    "Unexpected matcher type in lexer struct: {0!r}".format(elem[1])
+                )
             k = elem[3] or {}
             m = m_cls.from_shorthand(elem[0], elem[2], **k)
             matchers.append(m)
@@ -286,14 +281,14 @@ class Lexer:
     This class is likely called directly from a top level segment
     such as the `FileSegment`.
     """
+
     def __init__(self, config, last_resort_lexer=None):
         # config is required - we use it to get the dialect
         self.config = config
-        lexer_struct = config.get('dialect_obj').get_lexer_struct()
+        lexer_struct = config.get("dialect_obj").get_lexer_struct()
         self.matcher = RepeatedMultiMatcher.from_struct(lexer_struct)
         self.last_resort_lexer = last_resort_lexer or RegexMatcher.from_shorthand(
-            '<unlexable>', r'[^\t\n\,\.\ \-\+\*\\\/\'\"\;\:\[\]\(\)\|]*',
-            is_code=True
+            "<unlexable>", r"[^\t\n\,\.\ \-\+\*\\\/\'\"\;\:\[\]\(\)\|]*", is_code=True
         )
 
     def lex(self, raw):
@@ -311,14 +306,15 @@ class Lexer:
             res = self.matcher.match(raw, start_pos)
             segment_buff += res.segments
             if len(res.new_string) > 0:
-                violations.append(SQLLexError(
-                    "Unable to lex characters: '{0!r}...'".format(
-                        res.new_string[:10]),
-                    pos=res.new_pos
-                ))
-                resort_res = self.last_resort_lexer.match(
-                    res.new_string, res.new_pos
+                violations.append(
+                    SQLLexError(
+                        "Unable to lex characters: '{0!r}...'".format(
+                            res.new_string[:10]
+                        ),
+                        pos=res.new_pos,
+                    )
                 )
+                resort_res = self.last_resort_lexer.match(res.new_string, res.new_pos)
                 if not resort_res:
                     # If we STILL can't match, then just panic out.
                     raise violations[-1]

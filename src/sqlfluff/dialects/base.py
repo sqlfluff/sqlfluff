@@ -12,7 +12,10 @@ class Dialect:
             the lexing config for this dialect.
 
     """
-    def __init__(self, name, lexer_struct=None, library=None, sets=None, inherits_from=None):
+
+    def __init__(
+        self, name, lexer_struct=None, library=None, sets=None, inherits_from=None
+    ):
         self._library = library or {}
         self.name = name
         self.lexer_struct = lexer_struct
@@ -41,10 +44,13 @@ class Dialect:
                 # Use the .replace() method for it's error handling.
                 self.replace(**{key: self._library[key].expand(self)})
         # Expand any keyword sets.
-        for keyword_set in ['unreserved_keywords', 'reserved_keywords']:  # e.g. reserved_keywords, (JOIN, ...)
+        for keyword_set in [
+            "unreserved_keywords",
+            "reserved_keywords",
+        ]:  # e.g. reserved_keywords, (JOIN, ...)
             # Make sure the values are available as KeywordSegments
             for kw in self.sets(keyword_set):
-                n = kw.capitalize() + 'KeywordSegment'
+                n = kw.capitalize() + "KeywordSegment"
                 if n not in self._library:
                     self._library[n] = KeywordSegment.make(kw.lower())
         self.expanded = True
@@ -77,7 +83,7 @@ class Dialect:
             library=self._library.copy(),
             lexer_struct=self.lexer_struct.copy(),
             sets=new_sets,
-            inherits_from=self.name
+            inherits_from=self.name,
         )
 
     def segment(self, replace=False):
@@ -89,18 +95,24 @@ class Dialect:
             blah blah blah
 
         """
+
         def segment_wrap(cls):
             """Wrap a segment and register it against the dialect."""
             n = cls.__name__
             if replace:
                 if n not in self._library:
-                    raise ValueError("{0!r} is not already registered in {1!r}".format(n, self))
+                    raise ValueError(
+                        "{0!r} is not already registered in {1!r}".format(n, self)
+                    )
             else:
                 if n in self._library:
-                    raise ValueError("{0!r} is already registered in {1!r}".format(n, self))
+                    raise ValueError(
+                        "{0!r} is already registered in {1!r}".format(n, self)
+                    )
             self._library[n] = cls
             # Pass it back after registering it
             return cls
+
         # return the wrapping function
         return segment_wrap
 
@@ -128,7 +140,9 @@ class Dialect:
         """
         for n in kwargs:
             if n not in self._library:
-                raise ValueError("{0!r} is not already registered in {1!r}".format(n, self))
+                raise ValueError(
+                    "{0!r} is not already registered in {1!r}".format(n, self)
+                )
             self._library[n] = kwargs[n]
 
     def ref(self, name):
@@ -147,11 +161,15 @@ class Dialect:
             else:
                 raise ValueError(
                     "Unexpected Null response while fetching {0!r} from {1}".format(
-                        name, self.name))
+                        name, self.name
+                    )
+                )
         else:
             raise RuntimeError(
                 "Grammar refers to {0!r} which was not found in the {1} dialect".format(
-                    name, self.name))
+                    name, self.name
+                )
+            )
 
     def set_lexer_struct(self, lexer_struct):
         """Set the lexer struct for the dialect.
@@ -169,8 +187,8 @@ class Dialect:
             return self.lexer_struct
         else:
             raise ValueError(
-                "Lexing struct has not been set for dialect {0}".format(
-                    self))
+                "Lexing struct has not been set for dialect {0}".format(self)
+            )
 
     def patch_lexer_struct(self, lexer_patch):
         """Patch an existing lexer struct.
@@ -213,6 +231,8 @@ class Dialect:
                 buff.append(elem)
 
         if not found:
-            raise ValueError("Lexer struct insert before '%s' failed because tag never found.")
+            raise ValueError(
+                "Lexer struct insert before '%s' failed because tag never found."
+            )
         # Overwrite with the buffer once we're done
         self.lexer_struct = buff

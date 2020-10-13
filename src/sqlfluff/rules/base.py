@@ -21,10 +21,10 @@ from ..parser import RawSegment, KeywordSegment, BaseSegment
 from ..errors import SQLLintError
 
 # The ghost of a rule (mostly used for testing)
-RuleGhost = namedtuple('RuleGhost', ['code', 'description'])
+RuleGhost = namedtuple("RuleGhost", ["code", "description"])
 
 # Instantiate the rules logger
-rules_logger = logging.getLogger('sqlfluff.rules')
+rules_logger = logging.getLogger("sqlfluff.rules")
 
 
 class RuleLoggingAdapter(logging.LoggerAdapter):
@@ -32,10 +32,10 @@ class RuleLoggingAdapter(logging.LoggerAdapter):
 
     def process(self, msg, kwargs):
         """Add the code element to the logging message before emit."""
-        return '[%s] %s' % (self.extra['code'], msg), kwargs
+        return "[%s] %s" % (self.extra["code"], msg), kwargs
 
 
-class LintResult():
+class LintResult:
     """A class to hold the results of a crawl operation.
 
     Args:
@@ -73,7 +73,12 @@ class LintResult():
         if self.anchor:
             # Allow description override from the LintRestult
             description = self.description or rule.description
-            return SQLLintError(rule=rule, segment=self.anchor, fixes=self.fixes, description=description)
+            return SQLLintError(
+                rule=rule,
+                segment=self.anchor,
+                fixes=self.fixes,
+                description=description,
+            )
         else:
             return None
 
@@ -97,7 +102,7 @@ class LintFix:
     """
 
     def __init__(self, edit_type, anchor, edit=None):
-        if edit_type not in ['create', 'edit', 'delete']:
+        if edit_type not in ["create", "edit", "delete"]:
             raise ValueError("Unexpected edit_type: {0}".format(edit_type))
         self.edit_type = edit_type
         self.anchor = anchor
@@ -112,32 +117,34 @@ class LintFix:
 
         Removing these makes the routines which process fixes much faster.
         """
-        if self.edit_type == 'create':
+        if self.edit_type == "create":
             if isinstance(self.edit, BaseSegment):
                 if len(self.edit.raw) == 0:
                     return True
             elif all(len(elem.raw) == 0 for elem in self.edit):
                 return True
-        elif self.edit_type == 'edit' and self.edit == self.anchor:
+        elif self.edit_type == "edit" and self.edit == self.anchor:
             return True
         return False
 
     def __repr__(self):
-        if self.edit_type == 'delete':
-            detail = 'del:{0!r}'.format(self.anchor.raw)
-        elif self.edit_type in ('edit', 'create'):
-            if hasattr(self.edit, 'raw'):
+        if self.edit_type == "delete":
+            detail = "del:{0!r}".format(self.anchor.raw)
+        elif self.edit_type in ("edit", "create"):
+            if hasattr(self.edit, "raw"):
                 new_detail = self.edit.raw
             else:
-                new_detail = ''.join(s.raw for s in self.edit)
+                new_detail = "".join(s.raw for s in self.edit)
 
-            if self.edit_type == 'edit':
-                detail = 'edt:{0!r}>{1!r}'.format(self.anchor.raw, new_detail)
+            if self.edit_type == "edit":
+                detail = "edt:{0!r}>{1!r}".format(self.anchor.raw, new_detail)
             else:
-                detail = 'crt:{0!r}'.format(new_detail)
+                detail = "crt:{0!r}".format(new_detail)
         else:
-            detail = ''
-        return "<LintFix: {0} @{1} {2}>".format(self.edit_type, self.anchor.pos_marker, detail)
+            detail = ""
+        return "<LintFix: {0} @{1} {2}>".format(
+            self.edit_type, self.anchor.pos_marker, detail
+        )
 
     def __eq__(self, other):
         """Compare equality with another fix.
@@ -175,7 +182,7 @@ class BaseCrawler:
 
         # We also define a custom logger here, which also includes the code
         # of the rule in the logging.
-        self.logger = RuleLoggingAdapter(rules_logger, {'code': code})
+        self.logger = RuleLoggingAdapter(rules_logger, {"code": code})
 
     def _eval(self, **kwargs):
         """Evaluate this rule against the current context.
@@ -202,8 +209,17 @@ class BaseCrawler:
             ).format(self.__class__.__name__)
         )
 
-    def crawl(self, segment, dialect, parent_stack=None, siblings_pre=None, siblings_post=None,
-              raw_stack=None, fix=False, memory=None):
+    def crawl(
+        self,
+        segment,
+        dialect,
+        parent_stack=None,
+        siblings_pre=None,
+        siblings_post=None,
+        raw_stack=None,
+        fix=False,
+        memory=None,
+    ):
         """Recursively perform the crawl operation on a given segment.
 
         Returns:
@@ -225,15 +241,20 @@ class BaseCrawler:
 
         # First, check whether we're looking at an unparsable and whether
         # this rule will still operate on that.
-        if not self._works_on_unparsable and segment.type == 'unparsable':
+        if not self._works_on_unparsable and segment.type == "unparsable":
             # Abort here if it doesn't. Otherwise we'll get odd results.
             return vs, raw_stack, [], memory
 
         # TODO: Document what options are available to the evaluation function.
         res = self._eval(
-            segment=segment, parent_stack=parent_stack,
-            siblings_pre=siblings_pre, siblings_post=siblings_post,
-            raw_stack=raw_stack, memory=memory, dialect=dialect)
+            segment=segment,
+            parent_stack=parent_stack,
+            siblings_pre=siblings_pre,
+            siblings_post=siblings_post,
+            raw_stack=raw_stack,
+            memory=memory,
+            dialect=dialect,
+        )
 
         if res is None:
             # Assume this means no problems (also means no memory)
@@ -245,7 +266,9 @@ class BaseCrawler:
             if lerr:
                 vs.append(lerr)
             fixes += res.fixes
-        elif isinstance(res, list) and all(isinstance(elem, LintResult) for elem in res):
+        elif isinstance(res, list) and all(
+            isinstance(elem, LintResult) for elem in res
+        ):
             # Extract any memory from the *last* one, assuming
             # it was the last to be added
             memory = res[-1].memory
@@ -256,7 +279,10 @@ class BaseCrawler:
                 fixes += elem.fixes
         else:
             raise TypeError(
-                "Got unexpected result [{0!r}] back from linting rule: {1!r}".format(res, self.code))
+                "Got unexpected result [{0!r}] back from linting rule: {1!r}".format(
+                    res, self.code
+                )
+            )
 
         # The raw stack only keeps track of the previous raw segments
         if len(segment.segments) == 0:
@@ -266,11 +292,15 @@ class BaseCrawler:
 
         for idx, child in enumerate(segment.segments):
             dvs, raw_stack, child_fixes, memory = self.crawl(
-                segment=child, parent_stack=parent_stack,
+                segment=child,
+                parent_stack=parent_stack,
                 siblings_pre=segment.segments[:idx],
-                siblings_post=segment.segments[idx + 1:],
-                raw_stack=raw_stack, fix=fix, memory=memory,
-                dialect=dialect)
+                siblings_post=segment.segments[idx + 1 :],
+                raw_stack=raw_stack,
+                fix=fix,
+                memory=memory,
+                dialect=dialect,
+            )
             vs += dvs
             fixes += child_fixes
         return vs, raw_stack, fixes, memory
@@ -317,16 +347,15 @@ class BaseCrawler:
     @classmethod
     def make_whitespace(cls, raw, pos_marker):
         """Make a whitespace segment."""
-        WhitespaceSegment = RawSegment.make(
-            ' ', name='whitespace', type='whitespace')
+        WhitespaceSegment = RawSegment.make(" ", name="whitespace", type="whitespace")
         return WhitespaceSegment(raw=raw, pos_marker=pos_marker)
 
     @classmethod
     def make_newline(cls, pos_marker, raw=None):
         """Make a newline segment."""
         # Default the newline to \n
-        raw = raw or '\n'
-        nls = RawSegment.make('\n', name='newline', type='newline')
+        raw = raw or "\n"
+        nls = RawSegment.make("\n", name="newline", type="newline")
         return nls(raw=raw, pos_marker=pos_marker)
 
     @classmethod
@@ -385,28 +414,26 @@ class RuleSet:
         :exc:`ValueError`.
 
         """
-        elems = cls.__name__.split('_')
+        elems = cls.__name__.split("_")
         # Validate the name
-        if len(elems) != 2 or elems[0] != 'Rule' or len(elems[1]) != 4:
+        if len(elems) != 2 or elems[0] != "Rule" or len(elems[1]) != 4:
             raise ValueError(
                 (
-                    "Tried to register rule on set {0!r} with unexpected "
-                    "format: {1}"
-                ).format(
-                    self.name,
-                    cls.__name__
-                )
+                    "Tried to register rule on set {0!r} with unexpected " "format: {1}"
+                ).format(self.name, cls.__name__)
             )
 
         code = elems[1]
         # If the docstring is multiline, then we extract just summary.
-        description = cls.__doc__.split('\n')[0]
+        description = cls.__doc__.split("\n")[0]
 
         # Keep track of the *class* in the register. Don't instantiate yet.
         if code in self._register:
             raise ValueError(
                 "Rule {0!r} has already been registered on RuleSet {1!r}!".format(
-                    code, self.name))
+                    code, self.name
+                )
+            )
         self._register[code] = dict(code=code, description=description, cls=cls)
 
         # Make sure we actually return the original class
@@ -423,20 +450,28 @@ class RuleSet:
 
         """
         # default the whitelist to all the rules if not set
-        whitelist = config.get('rule_whitelist') or list(self._register.keys())
-        blacklist = config.get('rule_blacklist') or []
+        whitelist = config.get("rule_whitelist") or list(self._register.keys())
+        blacklist = config.get("rule_blacklist") or []
 
-        whitelisted_unknown_rule_codes = [r for r in whitelist if r not in self._register]
+        whitelisted_unknown_rule_codes = [
+            r for r in whitelist if r not in self._register
+        ]
         if any(whitelisted_unknown_rule_codes):
             rules_logger.warning(
                 "Tried to whitelist unknown rules: {0!r}".format(
-                    whitelisted_unknown_rule_codes))
+                    whitelisted_unknown_rule_codes
+                )
+            )
 
-        blacklisted_unknown_rule_codes = [r for r in blacklist if r not in self._register]
+        blacklisted_unknown_rule_codes = [
+            r for r in blacklist if r not in self._register
+        ]
         if any(blacklisted_unknown_rule_codes):
             rules_logger.warning(
                 "Tried to blacklist unknown rules: {0!r}".format(
-                    blacklisted_unknown_rule_codes))
+                    blacklisted_unknown_rule_codes
+                )
+            )
 
         keylist = sorted(self._register.keys())
         # First we filter the rules
@@ -446,16 +481,18 @@ class RuleSet:
         rule_kwargs = {}
         for k in keylist:
             kwargs = {}
-            generic_rule_config = config.get_section('rules')
-            specific_rule_config = config.get_section(('rules', self._register[k]['code']))
+            generic_rule_config = config.get_section("rules")
+            specific_rule_config = config.get_section(
+                ("rules", self._register[k]["code"])
+            )
             if generic_rule_config:
                 kwargs.update(generic_rule_config)
             if specific_rule_config:
                 kwargs.update(specific_rule_config)
-            kwargs['code'] = self._register[k]['code']
+            kwargs["code"] = self._register[k]["code"]
             # Allow variable substitution in making the description
-            kwargs['description'] = self._register[k]['description'].format(**kwargs)
+            kwargs["description"] = self._register[k]["description"].format(**kwargs)
             rule_kwargs[k] = kwargs
 
         # Instantiate in the final step
-        return [self._register[k]['cls'](**rule_kwargs[k]) for k in keylist]
+        return [self._register[k]["cls"](**rule_kwargs[k]) for k in keylist]

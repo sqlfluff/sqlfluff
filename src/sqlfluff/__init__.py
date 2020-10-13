@@ -9,6 +9,6 @@ import configparser
 
 # Get the current version
 config = configparser.ConfigParser()
-config.read([pkg_resources.resource_filename('sqlfluff', 'config.ini')])
+config.read([pkg_resources.resource_filename("sqlfluff", "config.ini")])
 
-__version__ = config.get('sqlfluff', 'version')
+__version__ = config.get("sqlfluff", "version")

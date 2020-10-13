@@ -18,15 +18,26 @@ from benchit import BenchIt
 from .match import MatchResult, curtail_string, join_segments_raw
 
 
-class ParseMatchLogObject():
+class ParseMatchLogObject:
     """A late binding log object for parse_match_logging.
 
     This allows us to defer the string manipulation involved
     until actually required by the logger.
     """
-    __slots__ = ['parse_depth', 'match_depth', 'match_segment', 'grammar', 'func', 'msg', 'kwargs']
 
-    def __init__(self, parse_depth, match_depth, match_segment, grammar, func, msg, **kwargs):
+    __slots__ = [
+        "parse_depth",
+        "match_depth",
+        "match_segment",
+        "grammar",
+        "func",
+        "msg",
+        "kwargs",
+    ]
+
+    def __init__(
+        self, parse_depth, match_depth, match_segment, grammar, func, msg, **kwargs
+    ):
         self.parse_depth = parse_depth
         self.match_depth = match_depth
         self.match_segment = match_segment
@@ -39,26 +50,30 @@ class ParseMatchLogObject():
     def from_context(cls, parse_context, grammar, func, msg, **kwargs):
         """Create a ParseMatchLogObject given a parse_context."""
         return cls(
-            parse_context.parse_depth, parse_context.match_depth, parse_context.match_segment,
-            grammar, func, msg, **kwargs
+            parse_context.parse_depth,
+            parse_context.match_depth,
+            parse_context.match_segment,
+            grammar,
+            func,
+            msg,
+            **kwargs
         )
 
     def __str__(self):
         """Actually materialise the string."""
-        symbol = self.kwargs.pop('symbol', '')
+        symbol = self.kwargs.pop("symbol", "")
         s = "[PD:{0} MD:{1}]\t{2:<50}\t{3:<20}\t{4:<4}".format(
-            self.parse_depth, self.match_depth,
-            ('.' * self.match_depth) + str(self.match_segment),
+            self.parse_depth,
+            self.match_depth,
+            ("." * self.match_depth) + str(self.match_segment),
             "{0:.5}.{1} {2}".format(self.grammar, self.func, self.msg),
-            symbol
+            symbol,
         )
         if self.kwargs:
             s += "\t[{0}]".format(
-                ', '.join(
-                    "{0}={1}".format(
-                        k,
-                        repr(v) if isinstance(v, str) else str(v)
-                    ) for k, v in self.kwargs.items()
+                ", ".join(
+                    "{0}={1}".format(k, repr(v) if isinstance(v, str) else str(v))
+                    for k, v in self.kwargs.items()
                 )
             )
         return s
@@ -67,7 +82,9 @@ class ParseMatchLogObject():
 def parse_match_logging(grammar, func, msg, parse_context, v_level, **kwargs):
     """Log in a particular consistent format for use while matching."""
     # Make a late bound log object so we only do the string manipulation when we need to.
-    log_obj = ParseMatchLogObject.from_context(parse_context, grammar, func, msg, **kwargs)
+    log_obj = ParseMatchLogObject.from_context(
+        parse_context, grammar, func, msg, **kwargs
+    )
     # Otherwise carry on...
     if v_level == 3:
         parse_context.logger.info(log_obj)
@@ -83,13 +100,13 @@ def frame_msg(msg):
 def check_still_complete(segments_in, matched_segments, unmatched_segments):
     """Check that the segments in are the same as the segments out."""
     initial_str = join_segments_raw(segments_in)
-    current_str = join_segments_raw(
-        matched_segments + unmatched_segments
-    )
+    current_str = join_segments_raw(matched_segments + unmatched_segments)
     if initial_str != current_str:
         raise RuntimeError(
             "Dropped elements in sequence matching! {0!r} != {1!r}".format(
-                initial_str, current_str))
+                initial_str, current_str
+            )
+        )
 
 
 class BaseSegment:
@@ -111,7 +128,7 @@ class BaseSegment:
     """
 
     # `type` should be the *category* of this kind of segment
-    type = 'base'
+    type = "base"
     parse_grammar = None
     match_grammar = None
     grammar = None
@@ -225,12 +242,9 @@ class BaseSegment:
                 raise TypeError(
                     "In {0} {1}, found an element of the segments tuple which"
                     " isn't a segment. Instead found element of type {2}.\nFound: {3}\nFull segments:{4}".format(
-                        text,
-                        type(self),
-                        type(elem),
-                        elem,
-                        self.segments
-                    ))
+                        text, type(self), type(elem), elem, self.segments
+                    )
+                )
             # While applying fixes, we shouldn't validate here, because it will fail.
             if validate:
                 # If we have a comparison point, validate that
@@ -239,24 +253,17 @@ class BaseSegment:
                         "In {0} {1}, found an element of the segments tuple which"
                         " isn't contigious with previous: {2} > {3}. End pos: {4}."
                         " Prev String: {5!r}".format(
-                            text,
-                            type(self),
-                            prev_seg,
-                            elem,
-                            end_pos,
-                            prev_seg.raw
-                        ))
+                            text, type(self), prev_seg, elem, end_pos, prev_seg.raw
+                        )
+                    )
                 start_pos = elem.get_start_pos_marker()
                 end_pos = elem.get_end_pos_marker()
                 prev_seg = elem
                 if start_pos.advance_by(elem.raw) != end_pos:
                     raise TypeError(
                         "In {0} {1}, found an element of the segments tuple which"
-                        " isn't self consistent: {2}".format(
-                            text,
-                            type(self),
-                            elem
-                        ))
+                        " isn't self consistent: {2}".format(text, type(self), elem)
+                    )
 
     def get_end_pos_marker(self):
         """Return the pos marker at the end of this segment."""
@@ -270,9 +277,11 @@ class BaseSegment:
         if len(segments) == 0:
             raise RuntimeError(
                 "Setting {0} with a zero length segment set. This shouldn't happen.".format(
-                    self.__class__))
+                    self.__class__
+                )
+            )
 
-        if hasattr(segments, 'matched_segments'):
+        if hasattr(segments, "matched_segments"):
             # Safely extract segments from a match
             self.segments = segments.matched_segments
         elif isinstance(segments, tuple):
@@ -281,8 +290,8 @@ class BaseSegment:
             self.segments = tuple(segments)
         else:
             raise TypeError(
-                "Unexpected type passed to BaseSegment: {0}".format(
-                    type(segments)))
+                "Unexpected type passed to BaseSegment: {0}".format(type(segments))
+            )
 
         # Check elements of segments:
         self.validate_segments(validate=validate)
@@ -292,14 +301,14 @@ class BaseSegment:
         else:
             # If no pos given, it's the pos of the first segment
             # Work out if we're dealing with a match result...
-            if hasattr(segments, 'initial_match_pos_marker'):
+            if hasattr(segments, "initial_match_pos_marker"):
                 self.pos_marker = segments.initial_match_pos_marker()
             elif isinstance(segments, (tuple, list)):
                 self.pos_marker = segments[0].pos_marker
             else:
                 raise TypeError(
-                    "Unexpected type passed to BaseSegment: {0}".format(
-                        type(segments)))
+                    "Unexpected type passed to BaseSegment: {0}".format(type(segments))
+                )
 
     def parse(self, parse_context=None):
         """Use the parse grammar to find subsegments within this segment.
@@ -322,7 +331,11 @@ class BaseSegment:
         g = self._parse_grammar()
         if g is None:
             # No parse grammar, go straight to expansion
-            parse_context.logger.debug("{0}.parse: no grammar. Going straight to expansion".format(self.__class__.__name__))
+            parse_context.logger.debug(
+                "{0}.parse: no grammar. Going straight to expansion".format(
+                    self.__class__.__name__
+                )
+            )
         else:
             # Use the Parse Grammar (and the private method)
 
@@ -331,11 +344,17 @@ class BaseSegment:
             # or in the parent expression.
             if not self._can_start_end_non_code:
                 if (not self.segments[0].is_code) and (not self.segments[0].is_meta):
-                    raise ValueError("Segment {0} starts with non code segment: {1!r}.\n{2!r}".format(
-                        self, self.segments[0].raw, self.segments))
+                    raise ValueError(
+                        "Segment {0} starts with non code segment: {1!r}.\n{2!r}".format(
+                            self, self.segments[0].raw, self.segments
+                        )
+                    )
                 if (not self.segments[-1].is_code) and (not self.segments[-1].is_meta):
-                    raise ValueError("Segment {0} ends with non code segment: {1!r}.\n{2!r}".format(
-                        self, self.segments[-1].raw, self.segments))
+                    raise ValueError(
+                        "Segment {0} ends with non code segment: {1!r}.\n{2!r}".format(
+                            self, self.segments[-1].raw, self.segments
+                        )
+                    )
 
             # NOTE: No match_depth kwarg, because this is the start of the matching.
             with parse_context.matching_segment(self.__class__.__name__) as ctx:
@@ -344,10 +363,14 @@ class BaseSegment:
             if not isinstance(m, MatchResult):
                 raise TypeError(
                     "[PD:{0}] {1}.match. Result is {2}, not a MatchResult!".format(
-                        parse_context.parse_depth, self.__class__.__name__, type(m)))
+                        parse_context.parse_depth, self.__class__.__name__, type(m)
+                    )
+                )
 
             # Basic Validation, that we haven't dropped anything.
-            check_still_complete(self.segments, m.matched_segments, m.unmatched_segments)
+            check_still_complete(
+                self.segments, m.matched_segments, m.unmatched_segments
+            )
 
             if m.has_match():
                 if m.is_complete():
@@ -358,14 +381,20 @@ class BaseSegment:
                     # For now this means the parsing has failed. Lets add the unmatched bit at the
                     # end as something unparsable.
                     # TODO: Do something more intelligent here.
-                    self.segments = m.matched_segments + (UnparsableSegment(
-                        segments=m.unmatched_segments, expected="Nothing..."),)
+                    self.segments = m.matched_segments + (
+                        UnparsableSegment(
+                            segments=m.unmatched_segments, expected="Nothing..."
+                        ),
+                    )
             else:
                 # If there's no match at this stage, then it's unparsable. That's
                 # a problem at this stage so wrap it in an unparable segment and carry on.
-                self.segments = (UnparsableSegment(
-                    segments=self.segments,
-                    expected=g.expected_string(dialect=parse_context.dialect)),)  # NB: tuple
+                self.segments = (
+                    UnparsableSegment(
+                        segments=self.segments,
+                        expected=g.expected_string(dialect=parse_context.dialect),
+                    ),
+                )  # NB: tuple
 
             # Validate new segments
             self.validate_segments(text="parsing")
@@ -376,9 +405,12 @@ class BaseSegment:
         # Recurse if allowed (using the expand method to deal with the expansion)
         parse_context.logger.debug(
             "{0}.parse: Done Parse. Plotting Recursion. Recurse={1!r}".format(
-                self.__class__.__name__, parse_context.recurse))
+                self.__class__.__name__, parse_context.recurse
+            )
+        )
         parse_depth_msg = "###\n#\n# Beginning Parse Depth {0}: {1}\n#\n###\nInitial Structure:\n{2}".format(
-            parse_context.parse_depth + 1, self.__class__.__name__, self.stringify())
+            parse_context.parse_depth + 1, self.__class__.__name__, self.stringify()
+        )
         if parse_context.may_recurse():
             parse_context.logger.debug(parse_depth_msg)
             with parse_context.deeper_parse() as ctx:
@@ -389,9 +421,7 @@ class BaseSegment:
         return self
 
     def __repr__(self):
-        return "<{0}: ({1})>".format(
-            self.__class__.__name__,
-            self.pos_marker)
+        return "<{0}: ({1})>".format(self.__class__.__name__, self.pos_marker)
 
     def _reconstruct(self):
         """Make a string from the segments of this segment."""
@@ -417,53 +447,76 @@ class BaseSegment:
 
     def _preface(self, ident, tabsize, pos_idx, raw_idx):
         """Returns the preamble to any logging."""
-        preface = (' ' * (ident * tabsize))
+        preface = " " * (ident * tabsize)
         if self.is_meta:
             preface += "[META] "
         preface += self.__class__.__name__ + ":"
-        preface += (' ' * max(pos_idx - len(preface), 0))
+        preface += " " * max(pos_idx - len(preface), 0)
         if self.pos_marker:
             preface += str(self.pos_marker)
         else:
-            preface += '-'
+            preface += "-"
         sfx = self._suffix()
         if sfx:
-            return preface + (' ' * max(raw_idx - len(preface), 0)) + sfx
+            return preface + (" " * max(raw_idx - len(preface), 0)) + sfx
         else:
             return preface
 
     @property
     def _comments(self):
         """Returns only the comment elements of this segment."""
-        return [seg for seg in self.segments if seg.type == 'comment']
+        return [seg for seg in self.segments if seg.type == "comment"]
 
     @property
     def _non_comments(self):
         """Returns only the non-comment elements of this segment."""
-        return [seg for seg in self.segments if seg.type != 'comment']
+        return [seg for seg in self.segments if seg.type != "comment"]
 
     def stringify(self, ident=0, tabsize=4, pos_idx=60, raw_idx=80, code_only=False):
         """Use indentation to render this segment and it's children as a string."""
         buff = StringIO()
-        preface = self._preface(ident=ident, tabsize=tabsize, pos_idx=pos_idx, raw_idx=raw_idx)
-        buff.write(preface + '\n')
+        preface = self._preface(
+            ident=ident, tabsize=tabsize, pos_idx=pos_idx, raw_idx=raw_idx
+        )
+        buff.write(preface + "\n")
         if not code_only and self.comment_seperate and len(self._comments) > 0:
             if self._comments:
-                buff.write((' ' * ((ident + 1) * tabsize)) + 'Comments:' + '\n')
+                buff.write((" " * ((ident + 1) * tabsize)) + "Comments:" + "\n")
                 for seg in self._comments:
-                    buff.write(seg.stringify(ident=ident + 2, tabsize=tabsize, pos_idx=pos_idx,
-                                             raw_idx=raw_idx, code_only=code_only))
+                    buff.write(
+                        seg.stringify(
+                            ident=ident + 2,
+                            tabsize=tabsize,
+                            pos_idx=pos_idx,
+                            raw_idx=raw_idx,
+                            code_only=code_only,
+                        )
+                    )
             if self._non_comments:
-                buff.write((' ' * ((ident + 1) * tabsize)) + 'Code:' + '\n')
+                buff.write((" " * ((ident + 1) * tabsize)) + "Code:" + "\n")
                 for seg in self._non_comments:
-                    buff.write(seg.stringify(ident=ident + 2, tabsize=tabsize, pos_idx=pos_idx,
-                                             raw_idx=raw_idx, code_only=code_only))
+                    buff.write(
+                        seg.stringify(
+                            ident=ident + 2,
+                            tabsize=tabsize,
+                            pos_idx=pos_idx,
+                            raw_idx=raw_idx,
+                            code_only=code_only,
+                        )
+                    )
         else:
             for seg in self.segments:
                 # If we're in code_only, only show the code segments, otherwise always true
                 if not code_only or seg.is_code:
-                    buff.write(seg.stringify(ident=ident + 1, tabsize=tabsize, pos_idx=pos_idx,
-                                             raw_idx=raw_idx, code_only=code_only))
+                    buff.write(
+                        seg.stringify(
+                            ident=ident + 1,
+                            tabsize=tabsize,
+                            pos_idx=pos_idx,
+                            raw_idx=raw_idx,
+                            code_only=code_only,
+                        )
+                    )
         return buff.getvalue()
 
     @staticmethod
@@ -478,15 +531,27 @@ class BaseSegment:
         then it will never be returned from here!
         """
         # works for both base and raw
-        code_only = kwargs.get('code_only', False)
-        show_raw = kwargs.get('show_raw', False)
+        code_only = kwargs.get("code_only", False)
+        show_raw = kwargs.get("show_raw", False)
 
         if show_raw and not self.segments:
             result = (self.type, self.raw)
         elif code_only:
-            result = (self.type, tuple(seg.to_tuple(**kwargs) for seg in self.segments if seg.is_code and not seg.is_meta))
+            result = (
+                self.type,
+                tuple(
+                    seg.to_tuple(**kwargs)
+                    for seg in self.segments
+                    if seg.is_code and not seg.is_meta
+                ),
+            )
         else:
-            result = (self.type, tuple(seg.to_tuple(**kwargs) for seg in self.segments if not seg.is_meta))
+            result = (
+                self.type,
+                tuple(
+                    seg.to_tuple(**kwargs) for seg in self.segments if not seg.is_meta
+                ),
+            )
         return result
 
     @classmethod
@@ -534,10 +599,24 @@ class BaseSegment:
         # of that.
         if len(segments) == 1 and isinstance(segments[0], cls):
             # This has already matched. Winner.
-            parse_match_logging(cls.__name__, '_match', 'SELF', parse_context=parse_context, v_level=3, symbol='+++')
+            parse_match_logging(
+                cls.__name__,
+                "_match",
+                "SELF",
+                parse_context=parse_context,
+                v_level=3,
+                symbol="+++",
+            )
             return MatchResult.from_matched(segments)
         elif len(segments) > 1 and isinstance(segments[0], cls):
-            parse_match_logging(cls.__name__, '_match', 'SELF', parse_context=parse_context, v_level=3, symbol='+++')
+            parse_match_logging(
+                cls.__name__,
+                "_match",
+                "SELF",
+                parse_context=parse_context,
+                v_level=3,
+                symbol="+++",
+            )
             # This has already matched, but only partially.
             return MatchResult((segments[0],), segments[1:])
 
@@ -550,22 +629,35 @@ class BaseSegment:
             if not isinstance(m, MatchResult):
                 raise TypeError(
                     "[PD:{0} MD:{1}] {2}.match. Result is {3}, not a MatchResult!".format(
-                        parse_context.parse_depth, parse_context.match_depth, cls.__name__,
-                        type(m)))
+                        parse_context.parse_depth,
+                        parse_context.match_depth,
+                        cls.__name__,
+                        type(m),
+                    )
+                )
             # Once unified we can deal with it just as a MatchResult
             if m.has_match():
-                return MatchResult((cls(segments=m.matched_segments),), m.unmatched_segments)
+                return MatchResult(
+                    (cls(segments=m.matched_segments),), m.unmatched_segments
+                )
             else:
                 return MatchResult.from_unmatched(segments)
         else:
-            raise NotImplementedError("{0} has no match function implemented".format(cls.__name__))
+            raise NotImplementedError(
+                "{0} has no match function implemented".format(cls.__name__)
+            )
 
     @classmethod
     def _match(cls, segments, parse_context):
         """A wrapper on the match function to do some basic validation and logging."""
         parse_match_logging(
-            cls.__name__, '_match', 'IN', parse_context=parse_context,
-            v_level=4, ls=len(segments))
+            cls.__name__,
+            "_match",
+            "IN",
+            parse_context=parse_context,
+            v_level=4,
+            ls=len(segments),
+        )
 
         if isinstance(segments, BaseSegment):
             segments = (segments,)  # Make into a tuple for compatability
@@ -573,24 +665,30 @@ class BaseSegment:
         if not isinstance(segments, tuple):
             parse_context.logger.warning(
                 "{0}.match, was passed {1} rather than tuple or segment".format(
-                    cls.__name__, type(segments)))
+                    cls.__name__, type(segments)
+                )
+            )
             if isinstance(segments, list):
                 # Let's make it a tuple for compatibility
                 segments = tuple(segments)
 
         if len(segments) == 0:
-            parse_context.logger.info("{0}._match, was passed zero length segments list".format(cls.__name__))
+            parse_context.logger.info(
+                "{0}._match, was passed zero length segments list".format(cls.__name__)
+            )
 
         m = cls.match(segments, parse_context=parse_context)
 
         if not isinstance(m, tuple) and m is not None:
             parse_context.logger.warning(
                 "{0}.match, returned {1} rather than tuple".format(
-                    cls.__name__, type(m)))
+                    cls.__name__, type(m)
+                )
+            )
 
         parse_match_logging(
-            cls.__name__, '_match', 'OUT',
-            parse_context=parse_context, v_level=4, m=m)
+            cls.__name__, "_match", "OUT", parse_context=parse_context, v_level=4, m=m
+        )
         # Validation is skipped at a match level. For performance reasons
         # we match at the parse level only
         # check_still_complete(segments, m.matched_segments, m.unmatched_segments)
@@ -603,18 +701,31 @@ class BaseSegment:
         for stmt in segments:
             try:
                 if not stmt.is_expandable:
-                    parse_context.logger.info("[PD:%s] Skipping expansion of %s...", parse_context.parse_depth, stmt)
+                    parse_context.logger.info(
+                        "[PD:%s] Skipping expansion of %s...",
+                        parse_context.parse_depth,
+                        stmt,
+                    )
                     segs += (stmt,)
                     continue
             except Exception as err:
                 # raise ValueError("{0} has no attribute `is_expandable`. This segment appears poorly constructed.".format(stmt))
-                parse_context.logger.error("%s has no attribute `is_expandable`. This segment appears poorly constructed.", stmt)
+                parse_context.logger.error(
+                    "%s has no attribute `is_expandable`. This segment appears poorly constructed.",
+                    stmt,
+                )
                 raise err
-            if not hasattr(stmt, 'parse'):
-                raise ValueError("{0} has no method `parse`. This segment appears poorly constructed.".format(stmt))
+            if not hasattr(stmt, "parse"):
+                raise ValueError(
+                    "{0} has no method `parse`. This segment appears poorly constructed.".format(
+                        stmt
+                    )
+                )
             parse_depth_msg = "Parse Depth {0}. Expanding: {1}: {2!r}".format(
-                parse_context.parse_depth, stmt.__class__.__name__,
-                curtail_string(stmt.raw, length=40))
+                parse_context.parse_depth,
+                stmt.__class__.__name__,
+                curtail_string(stmt.raw, length=40),
+            )
             parse_context.logger.info(frame_msg(parse_depth_msg))
             res = stmt.parse(parse_context=parse_context)
             if isinstance(res, BaseSegment):
@@ -653,9 +764,11 @@ class BaseSegment:
     def __eq__(self, other):
         # Equal if type, content and pos are the same
         # NB: this should also work for RawSegment
-        return (type(self) is type(other)
-                and (self.raw == other.raw)
-                and (self.pos_marker == other.pos_marker))
+        return (
+            type(self) is type(other)
+            and (self.raw == other.raw)
+            and (self.pos_marker == other.pos_marker)
+        )
 
     def __len__(self):
         """Implement a len method to make everyone's lives easier."""
@@ -673,7 +786,9 @@ class BaseSegment:
         but rather on the class, as part of a grammar, and therefore
         as part of the matching phase. So we use the match grammar.
         """
-        return cls._match_grammar().expected_string(dialect=dialect, called_from=called_from)
+        return cls._match_grammar().expected_string(
+            dialect=dialect, called_from=called_from
+        )
 
     @classmethod
     def as_optional(cls):
@@ -686,8 +801,7 @@ class BaseSegment:
         # Now lets make the classname (it indicates the mother class for clarity)
         classname = "Optional_{0}".format(cls.__name__)
         # This is the magic, we generate a new class! SORCERY
-        newclass = type(classname, (cls, ),
-                        dict(optional=True))
+        newclass = type(classname, (cls,), dict(optional=True))
         # Now we return that class in the abstract. NOT INSTANTIATED
         return newclass
 
@@ -725,10 +839,10 @@ class BaseSegment:
                     while fix_buff:
                         f = fix_buff.pop()
                         if f.anchor == seg:
-                            if f.edit_type == 'delete':
+                            if f.edit_type == "delete":
                                 # We're just getting rid of this segment.
                                 seg = None
-                            elif f.edit_type in ('edit', 'create'):
+                            elif f.edit_type in ("edit", "create"):
                                 # We're doing a replacement (it could be a single segment or an iterable)
                                 if isinstance(f.edit, BaseSegment):
                                     seg_buffer.append(f.edit)
@@ -736,13 +850,15 @@ class BaseSegment:
                                     for s in f.edit:
                                         seg_buffer.append(s)
 
-                                if f.edit_type == 'create':
+                                if f.edit_type == "create":
                                     # in the case of a creation, also add this segment on the end
                                     seg_buffer.append(seg)
                             else:
                                 raise ValueError(
                                     "Unexpected edit_type: {0!r} in {1!r}".format(
-                                        f.edit_type, f))
+                                        f.edit_type, f
+                                    )
+                                )
                             # We've applied a fix here. Move on, this also consumes the fix
                             # TODO: Maybe deal with overlapping fixes later.
                             break
@@ -763,9 +879,7 @@ class BaseSegment:
 
             # Reform into a new segment
             r = r.__class__(
-                segments=tuple(seg_buffer),
-                pos_marker=r.pos_marker,
-                validate=False
+                segments=tuple(seg_buffer), pos_marker=r.pos_marker, validate=False
             )
 
             # Lastly, before returning, we should realign positions.
@@ -806,38 +920,25 @@ class BaseSegment:
                 idx = seg.pos_marker.statement_index - running_pos.statement_index
                 if seg.is_meta:
                     # It's a meta segment, just update the position
-                    seg = seg.__class__(
-                        pos_marker=running_pos
-                    )
+                    seg = seg.__class__(pos_marker=running_pos)
                 elif len(seg.segments) > 0:
                     # It's a compound segment, so keep track of it's children
                     child_segs = seg.segments
                     # Create a new segment of the same type with the new position
-                    seg = seg.__class__(
-                        segments=child_segs,
-                        pos_marker=running_pos
-                    )
+                    seg = seg.__class__(segments=child_segs, pos_marker=running_pos)
                     # Realign the children of that class
                     seg = seg.realign()
                 else:
                     # It's a raw segment...
                     # Create a new segment of the same type with the new position
-                    seg = seg.__class__(
-                        raw=seg.raw,
-                        pos_marker=running_pos
-                    )
+                    seg = seg.__class__(raw=seg.raw, pos_marker=running_pos)
                 # Update the running position with the content of that segment
-                running_pos = running_pos.advance_by(
-                    raw=seg.raw, idx=idx
-                )
+                running_pos = running_pos.advance_by(raw=seg.raw, idx=idx)
                 # Add the buffer to my new segment
                 seg_buffer.append(seg)
 
         # Create a new version of this class with the new details
-        return self.__class__(
-            segments=tuple(seg_buffer),
-            pos_marker=self.pos_marker
-        )
+        return self.__class__(segments=tuple(seg_buffer), pos_marker=self.pos_marker)
 
     def get_child(self, seg_type):
         """Retrieve the first of the children of this segment with matching type."""
@@ -883,7 +984,11 @@ class BaseSegment:
             return [self]
 
         # Are we in the right ballpark?
-        if not self.get_start_pos_marker() <= other.get_start_pos_marker() <= self.get_end_pos_marker():
+        if (
+            not self.get_start_pos_marker()
+            <= other.get_start_pos_marker()
+            <= self.get_end_pos_marker()
+        ):
             return None
 
         # Do we have any child segments at all?
@@ -901,10 +1006,10 @@ class BaseSegment:
 class RawSegment(BaseSegment):
     """This is a segment without any subsegments."""
 
-    type = 'raw'
+    type = "raw"
     _is_code = False
     _is_comment = False
-    _template = '<unset>'
+    _template = "<unset>"
     _case_sensitive = False
     _raw_upper = None
 
@@ -952,17 +1057,17 @@ class RawSegment(BaseSegment):
         if self.trim_start:
             for seq in self.trim_start:
                 if raw_buff.startswith(seq):
-                    raw_buff = raw_buff[len(seq):]
+                    raw_buff = raw_buff[len(seq) :]
         if self.trim_chars:
             raw_buff = self.raw
             # for each thing to trim
             for seq in self.trim_chars:
                 # trim start
                 while raw_buff.startswith(seq):
-                    raw_buff = raw_buff[len(seq):]
+                    raw_buff = raw_buff[len(seq) :]
                 # trim end
                 while raw_buff.endswith(seq):
-                    raw_buff = raw_buff[:-len(seq)]
+                    raw_buff = raw_buff[: -len(seq)]
             return raw_buff
         return raw_buff
 
@@ -976,14 +1081,15 @@ class RawSegment(BaseSegment):
 
     def __repr__(self):
         return "<{0}: ({1}) {2!r}>".format(
-            self.__class__.__name__,
-            self.pos_marker,
-            self.raw)
+            self.__class__.__name__, self.pos_marker, self.raw
+        )
 
     def stringify(self, ident=0, tabsize=4, pos_idx=60, raw_idx=80, code_only=False):
         """Use indentation to render this segment and it's children as a string."""
-        preface = self._preface(ident=ident, tabsize=tabsize, pos_idx=pos_idx, raw_idx=raw_idx)
-        return preface + '\n'
+        preface = self._preface(
+            ident=ident, tabsize=tabsize, pos_idx=pos_idx, raw_idx=raw_idx
+        )
+        return preface + "\n"
 
     def _suffix(self):
         """Return any extra output required at the end when logging.
@@ -1005,9 +1111,16 @@ class RawSegment(BaseSegment):
         # Now lets make the classname (it indicates the mother class for clarity)
         classname = "{0}_{1}".format(name, cls.__name__)
         # This is the magic, we generate a new class! SORCERY
-        newclass = type(classname, (cls, ),
-                        dict(_template=_template, _case_sensitive=case_sensitive,
-                             _name=name, **kwargs))
+        newclass = type(
+            classname,
+            (cls,),
+            dict(
+                _template=_template,
+                _case_sensitive=case_sensitive,
+                _name=name,
+                **kwargs
+            ),
+        )
         # Now we return that class in the abstract. NOT INSTANTIATED
         return newclass
 
@@ -1020,10 +1133,7 @@ class RawSegment(BaseSegment):
         Used mostly by fixes.
 
         """
-        return self.__class__(
-            raw=raw,
-            pos_marker=self.pos_marker
-        )
+        return self.__class__(raw=raw, pos_marker=self.pos_marker)
 
     def get_end_pos_marker(self):
         """Return the pos marker at the end of this segment."""
@@ -1037,13 +1147,13 @@ class RawSegment(BaseSegment):
 class UnparsableSegment(BaseSegment):
     """This is a segment which can't be parsed. It indicates a error during parsing."""
 
-    type = 'unparsable'
+    type = "unparsable"
     # From here down, comments are printed seperately.
     comment_seperate = True
     _expected = ""
 
     def __init__(self, *args, **kwargs):
-        self._expected = kwargs.pop('expected', "")
+        self._expected = kwargs.pop("expected", "")
         super(UnparsableSegment, self).__init__(*args, **kwargs)
 
     def _suffix(self):
