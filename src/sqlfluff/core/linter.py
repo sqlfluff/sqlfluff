@@ -935,7 +935,7 @@ class Linter:
                 if f.name == ignore_file_name:
                     with open(str(f), 'r') as fh:
                         spec = pathspec.PathSpec.from_lines('gitwildmatch', fh)
-                    matches = spec.match_tree(abs_dir)
+                    matches = spec.match_tree(str(abs_dir))
                     for m in matches:
                         ignore_path = abs_dir / m
                         ignore_set.add(str(ignore_path))
