@@ -2890,3 +2890,46 @@ class Rule_L031(BaseCrawler):
             )
 
         return violation_buff or None
+
+
+@std_rule_set.register
+class Rule_L032(BaseCrawler):
+    """Prefer specifying join keys instead of using "USING"
+
+    | **Anti-pattern**
+
+    .. code-block:: sql
+
+        SELECT
+            table_a.field_1,
+            table_b.field_2
+        FROM
+            table_a
+        INNER JOIN table_b USING (id)
+
+    | **Best practice**
+    |  Specify the keys directly
+
+    .. code-block:: sql
+
+        SELECT
+            table_a.field_1,
+            table_b.field_2
+        FROM
+            table_a
+        INNER JOIN table_b
+            ON table_a.id = table_b.id
+
+    """
+
+    def _eval(self, segment, **kwargs):
+        """Look for USING in a join clause."""
+        if segment.type == 'join_clause':
+            for seg in segment.segments:
+                if seg.type == 'keyword' and seg.name == 'USING':
+                    return [LintResult(
+                        # Reference the element, not the string.
+                        anchor=seg,
+                        description=("Specified join keys expected instead of USING.")
+                    )]
+        return None
