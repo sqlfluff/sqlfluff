@@ -328,16 +328,15 @@ def test_rules_cannot_be_instantiated_without_declared_configs():
 def test_rules_configs_are_dynamically_documented():
     """Ensure that rule configurations are added to the class docstring."""
     @std_rule_set.document_configuration
-    class Rule_L998(BaseCrawler):
+    class RuleWithConfig(BaseCrawler):
         """A new rule with configuration."""
         config_keywords = ["comma_style", "only_aliases"]
 
-    assert "comma_style" in Rule_L998.__doc__
-    assert "only_aliases" in Rule_L998.__doc__
+    assert "comma_style" in RuleWithConfig.__doc__
+    assert "only_aliases" in RuleWithConfig.__doc__
 
     @std_rule_set.document_configuration
-    class Rule_L999(BaseCrawler):
+    class RuleWithoutConfig(BaseCrawler):
         """A new rule without configuration."""
         pass
-    print(Rule_L999.__doc__)
-    assert "Configuration" not in Rule_L999.__doc__
+    assert "Configuration" not in RuleWithoutConfig.__doc__
