@@ -10,15 +10,9 @@ examples in the same rule should also be un-highlighted.
 import itertools
 
 from .base import BaseCrawler, LintFix, LintResult, RuleSet
-from .config import CONFIG_INFO_DICT, document_configuration
+from .config_info import STANDARD_CONFIG_INFO_DICT
 
-std_rule_set = RuleSet(
-    name='standard',
-    validators={
-        config: info_dict["validation"]
-        for config, info_dict in CONFIG_INFO_DICT.items()
-    },
-)
+std_rule_set = RuleSet(name='standard', config_info=STANDARD_CONFIG_INFO_DICT)
 
 
 @std_rule_set.register
