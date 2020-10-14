@@ -62,7 +62,7 @@ class Rule_L001(BaseCrawler):
         return LintResult()
 
 
-@document_configuration
+@std_rule_set.document_configuration
 @std_rule_set.register
 class Rule_L002(BaseCrawler):
     """Mixed Tabs and Spaces in single whitespace.
@@ -140,7 +140,7 @@ class Rule_L002(BaseCrawler):
                             break
 
 
-@document_configuration
+@std_rule_set.document_configuration
 @std_rule_set.register
 class Rule_L003(BaseCrawler):
     """Indentation not consistent with previous lines.
@@ -1016,7 +1016,7 @@ class Rule_L009(BaseCrawler):
         return LintResult(anchor=segment, fixes=[LintFix('edit', segment, [segment, ins])])
 
 
-@document_configuration
+@std_rule_set.document_configuration
 @std_rule_set.register
 class Rule_L010(BaseCrawler):
     """Inconsistent capitalisation of keywords.
@@ -1227,7 +1227,7 @@ class Rule_L012(Rule_L011):
     _target_elems = ('select_target_element',)
 
 
-@document_configuration
+@std_rule_set.document_configuration
 @std_rule_set.register
 class Rule_L013(BaseCrawler):
     """Column expression without alias. Use explicit `AS` clause.
@@ -1287,7 +1287,7 @@ class Rule_L013(BaseCrawler):
         return None
 
 
-@document_configuration
+@std_rule_set.document_configuration
 @std_rule_set.register
 class Rule_L014(Rule_L010):
     """Inconsistent capitalisation of unquoted identifiers.
@@ -1335,7 +1335,7 @@ class Rule_L015(BaseCrawler):
         return LintResult()
 
 
-@document_configuration
+@std_rule_set.document_configuration
 @std_rule_set.register
 class Rule_L016(Rule_L003):
     """Line is too long."""
@@ -1952,7 +1952,7 @@ class Rule_L018(BaseCrawler):
         return LintResult()
 
 
-@document_configuration
+@std_rule_set.document_configuration
 @std_rule_set.register
 class Rule_L019(BaseCrawler):
     """Leading/Trailing comma enforcement.
@@ -2510,7 +2510,7 @@ class Rule_L027(Rule_L025):
         return violation_buff or None
 
 
-@document_configuration
+@std_rule_set.document_configuration
 @std_rule_set.register
 class Rule_L028(Rule_L025):
     """References should be consistent in statements with a single table.
@@ -2586,7 +2586,7 @@ class Rule_L028(Rule_L025):
         return violation_buff or None
 
 
-@document_configuration
+@std_rule_set.document_configuration
 @std_rule_set.register
 class Rule_L029(BaseCrawler):
     """Keywords should not be used as identifiers.
@@ -2629,7 +2629,7 @@ class Rule_L029(BaseCrawler):
                 return LintResult(anchor=segment)
 
 
-@document_configuration
+@std_rule_set.document_configuration
 @std_rule_set.register
 class Rule_L030(Rule_L010):
     """Inconsistent capitalisation of function names.
