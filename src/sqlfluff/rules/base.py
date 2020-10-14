@@ -377,9 +377,9 @@ class RuleSet:
 
     """
 
-    def __init__(self, name, validators):
+    def __init__(self, name, config_info):
         self.name = name
-        self.validators = validators
+        self.config_info = config_info
         self._register = {}
 
     def _validate_config_options(self, config, rule=None):
@@ -389,8 +389,9 @@ class RuleSet:
         """
         rule_config = config.get_section("rules")
 
-        for config_name, valid_options in self.validators.items():
+        for config_name, info_dict in self.config_info.items():
             config_option = rule_config.get(config_name) if not rule else rule_config.get(rule).get(config_name)
+            valid_options = info_dict["validation"]
             if config_option not in valid_options and config_option is not None:
                 raise ValueError(
                     (
