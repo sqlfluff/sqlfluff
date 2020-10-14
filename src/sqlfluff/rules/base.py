@@ -406,7 +406,7 @@ class RuleSet:
     def document_configuration(self, cls):
         """Add a 'Configuration' section to a Rule docstring.
 
-        Utilize the the metadata in the global CONFIG_INFO_DICT to dynamically
+        Utilize the the metadata in config_info to dynamically
         document the configuration options for a given rule.
 
         This is a little hacky, but it allows us to propogate configuration
