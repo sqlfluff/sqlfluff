@@ -2930,6 +2930,6 @@ class Rule_L032(BaseCrawler):
                     return [LintResult(
                         # Reference the element, not the string.
                         anchor=seg,
-                        description=("Specified join keys expected instead of USING.")
+                        description=("Found USING statement. Expected only ON statements.")
                     )]
         return None
