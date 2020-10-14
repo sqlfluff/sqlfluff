@@ -2894,7 +2894,7 @@ class Rule_L031(BaseCrawler):
 
 @std_rule_set.register
 class Rule_L032(BaseCrawler):
-    """Prefer specifying join keys instead of using "USING"
+    """Prefer specifying join keys instead of using "USING".
 
     | **Anti-pattern**
 
