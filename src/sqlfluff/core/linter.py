@@ -933,7 +933,7 @@ class Linter:
             for f in files:
                 # Handle potential .sqlfluffignore files
                 if f.name == ignore_file_name:
-                    with open(f, 'r') as fh:
+                    with open(str(f), 'r') as fh:
                         spec = pathspec.PathSpec.from_lines('gitwildmatch', fh)
                     matches = spec.match_tree(abs_dir)
                     for m in matches:
