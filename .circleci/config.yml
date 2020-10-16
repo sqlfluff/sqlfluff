@@ -68,12 +68,6 @@ jobs:
         environment:
           - TOXENV=doclinting
           - UPLOAD_COVERAGE=0
-  py35:
-    <<: *common
-    docker:
-      - image: circleci/python:3.5
-        environment:
-          TOXENV=py35
   py36:
     <<: *common
     docker:
@@ -95,7 +89,7 @@ jobs:
   py39:
     <<: *common
     docker:
-      - image: circleci/python:3.9-rc
+      - image: circleci/python:3.9
         environment:
           TOXENV=py39
   # Benchmarking task
@@ -114,7 +108,6 @@ workflows:
     jobs:
       - linting
       - doclinting
-      - py35
       - py36
       - py37
       - py38
