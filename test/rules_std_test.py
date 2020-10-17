@@ -221,7 +221,10 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
      'SELECT u.id, customers.first_name, customers.last_name, COUNT(orders.user_id) FROM users as u JOIN customers on u.id = customers.user_id JOIN orders on u.id = orders.user_id;', None),
     # Fix for https://github.com/sqlfluff/sqlfluff/issues/476
     ('L010', 'fail', 'SELECT * FROM MOO ORDER BY dt DESC',
-     'select * from MOO order by dt desc', {'rules': {'L010': {'capitalisation_policy': 'lower'}}})
+     'select * from MOO order by dt desc', {'rules': {'L010': {'capitalisation_policy': 'lower'}}}),
+    ('L032', 'pass', 'select x.a from x inner join y on x.id = y.id', None, None),
+    ('L032', 'fail', 'select x.a from x inner join y using (id)', None, None),
+    ('L032', 'fail', 'select x.a from x inner join y on x.id = y.id inner join z using (id)', None, None),
 ])
 def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
     """Test that a rule passes/fails on a given string.
