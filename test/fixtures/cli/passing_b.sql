@@ -8,7 +8,7 @@ SELECT
     d.something,    -- Which a comment after it
     a.foo
 FROM tbl AS a
-INNER JOIN b USING (common_id)
+INNER JOIN b ON (a.common_id = b.common_id)
 JOIN c ON (a.id = c.id)
 LEFT JOIN d ON (a.id = d.other_id)
 ORDER BY a.name ASC
