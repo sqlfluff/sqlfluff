@@ -225,6 +225,8 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     ('L032', 'pass', 'select x.a from x inner join y on x.id = y.id', None, None),
     ('L032', 'fail', 'select x.a from x inner join y using (id)', None, None),
     ('L032', 'fail', 'select x.a from x inner join y on x.id = y.id inner join z using (id)', None, None),
+    ('L033', 'pass', 'SELECT a, b FROM tbl UNION ALL SELECT c, d FROM tbl1', None, None),
+    ('L033', 'fail', 'SELECT a, b FROM tbl UNION SELECT c, d FROM tbl1', None, None),
 ])
 def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
     """Test that a rule passes/fails on a given string.

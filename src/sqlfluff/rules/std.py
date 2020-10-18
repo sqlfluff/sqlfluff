@@ -2827,3 +2827,35 @@ class Rule_L032(BaseCrawler):
                         description=("Found USING statement. Expected only ON statements.")
                     )]
         return None
+
+@std_rule_set.register
+class Rule_L033(BaseCrawler):
+    """UNION ALL is preferred over UNION.
+
+    | **Anti-pattern**
+    | In this example, UNION ALL should be preferred over UNION
+
+    .. code-block:: sql
+
+        SELECT a, b FROM table_1 UNION SELECT a, b FROM table_2
+
+    | **Best practice**
+    | Replace UNION with UNION ALL
+
+    .. code-block:: sql
+
+        SELECT a, b FROM table_1 UNION ALL SELECT a, b FROM table_2
+
+    """
+
+    def _eval(self, segment, raw_stack, **kwargs):
+        """Look for UNION keyword not immediately followed by ALL keyword.
+
+        The function does this by checking if there's an ALL keyword between
+        a UNION keyword and a SELECT keyword
+        """
+        if segment.type == 'keyword' and segment.name == 'SELECT':
+            filt_raw_stack = self.filter_meta(raw_stack)
+            if len(filt_raw_stack) > 1 and filt_raw_stack[-2].name == 'UNION':
+                return LintResult(anchor=segment)
+        return LintResult()
