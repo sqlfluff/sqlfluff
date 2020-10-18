@@ -1,6 +1,9 @@
 """Definitions for Grammar."""
+
+import copy
+
 from .segments_base import (BaseSegment, check_still_complete, parse_match_logging)
-from .segments_common import Indent, Dedent
+from .segments_common import Indent, Dedent, Checkpoint
 from .match import MatchResult, join_segments_raw_curtailed
 from ..errors import SQLParseError
 
@@ -48,12 +51,12 @@ class BaseGrammar:
         raise TypeError("Grammar element [{0!r}] was found of unexpected type [{1}] was found.".format(
             elem, type(elem)))
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, resolve_refs=True, code_only=True, optional=False, checkpoint_name=None):
         """Deal with kwargs common to all grammars."""
         # We provide a common interface for any grammar that allows positional elements.
         # If *any* for the elements are a string and not a grammar, then this is a shortcut
         # to the Ref.keyword grammar by default.
-        if kwargs.pop('resolve_refs', True):
+        if resolve_refs:
             self._elements = []
             for elem in args:
                 self._elements.append(self._resolve_ref(elem))
@@ -61,15 +64,23 @@ class BaseGrammar:
             self._elements = args
 
         # Now we deal with the standard kwargs
-        for var, default in [('code_only', True), ('optional', False)]:
-            setattr(self, var, kwargs.pop(var, default))
-        # optional, only really makes sense in the context of a sequence.
-        # If a grammar is optional, then a sequence can continue without it.
-        if kwargs:
-            raise ValueError("Unconsumed kwargs is creation of grammar: {0}\nExcess: {1}".format(
-                self.__class__.__name__,
-                kwargs
-            ))
+        self.code_only = code_only
+        self.optional = optional
+        self.checkpoint = None
+        # Set up the checkpoint if name is specified.
+        if checkpoint_name:
+            # Make the checkpoint class. This is effectively syntactic sugar
+            # to allow us to avoid specifying a checkpoint directly in a dialect.
+
+            # Copy self (*before* making the checkpoint, but with everything else in place)
+            parse_grammar = copy.copy(self)
+            # Add the checkpoint to self.
+            self.checkpoint = Checkpoint.make(
+                match_grammar=None,
+                # Pass in the copy without the checkpoint
+                parse_grammar=parse_grammar,
+                name=checkpoint_name
+            )
 
     def is_optional(self):
         """Return whether this segment is optional.
@@ -103,15 +114,28 @@ class BaseGrammar:
             parse_context.logger.info("{0}.match, was passed zero length segments list. NB: {0} contains {1!r}".format(
                 self.__class__.__name__, self._elements))
 
-        # Logging to help with debugging.
-        # Work out the raw representation and curtail if long.
-        parse_match_logging(
-            self.__class__.__name__, '_match', 'IN', parse_context=parse_context,
-            v_level=self.v_level,
-            le=len(self._elements), ls=len(segments),
-            seg=_LateBoundJoinSegmentsCurtailed(segments))
+        # If we checkpoint here, then we don't actually call the match grammar
+        # and instead just return straight away with the checkpoint made earlier.
+        # We don't use the `match` method of Checkpoint, but instead instantiate
+        # it directly.
+        if self.checkpoint:
+            parse_match_logging(
+                self.__class__.__name__, '_match', 'CHK',
+                parse_context=parse_context,
+                v_level=self.v_level
+            )
+            # We're going to return as though it's a full match, similar to Anything().
+            m = MatchResult.from_matched(self.checkpoint(segments=segments),)
+        else:
+            # Logging to help with debugging.
+            # Work out the raw representation and curtail if long.
+            parse_match_logging(
+                self.__class__.__name__, '_match', 'IN', parse_context=parse_context,
+                v_level=self.v_level,
+                le=len(self._elements), ls=len(segments),
+                seg=_LateBoundJoinSegmentsCurtailed(segments))
 
-        m = self.match(segments, parse_context=parse_context)
+            m = self.match(segments, parse_context=parse_context)
 
         if not isinstance(m, MatchResult):
             parse_context.logger.warning(
@@ -133,7 +157,6 @@ class BaseGrammar:
             parse_context=parse_context, v_level=self.v_level, m=m, symbol=symbol)
 
         # Basic Validation, skipped here because it still happens in the parse commands.
-        # check_still_complete(segments, m.matched_segments, m.unmatched_segments)
         return m
 
     def expected_string(self, dialect=None, called_from=None):
