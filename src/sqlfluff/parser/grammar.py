@@ -527,10 +527,10 @@ class BaseGrammar:
             self.__class__.__name__,
             curtail_string(
                 ", ".join(
-                    curtail_string(repr(elem), 15)
+                    curtail_string(repr(elem), 40)
                     for elem in self._elements
                 ),
-                50
+                100
             )
         )
 
@@ -574,7 +574,10 @@ class Ref(BaseGrammar):
             raise ReferenceError("No Dialect has been provided to Ref grammar!")
 
     def __repr__(self):
-        return "<Ref: {0}>".format(", ".join(self._elements))
+        return "<Ref: {0}{1}>".format(
+            ", ".join(self._elements),
+            " [opt]" if self.is_optional() else ""
+        )
 
     @match_wrapper(v_level=4)  # Log less for Ref
     def match(self, segments, parse_context):
@@ -736,22 +739,45 @@ class OneOf(BaseGrammar):
                 str_buff.append(inner_segment.raw_upper)
         available_options = []
         prune_buff = []
+        non_simple = 0
+        pruned_simple = 0
+        matched_simple = 0
         for opt in self._elements:
             simple = opt.simple(parse_context=parse_context)
             if simple is False:
                 # This element is not simple, we have to do a
                 # full match with it...
                 available_options.append(opt)
+                non_simple += 1
                 continue
             # Otherwise we have a simple option, so let's use
             # it for pruning.
             for simple_opt in simple:
+                # We want to know if the first meaningful element of the str_buff
+                # matches the option.
                 if simple_opt in str_buff:
+                    # Additionally if the option is non-whitespace, then it has to
+                    # match the FIRST non-whitespace element of the list.
+                    if simple_opt.strip():
+                        first_elem = None
+                        for elem in str_buff:
+                            if elem.strip():
+                                first_elem = elem
+                                break
+                        else:
+                            raise RuntimeError("This shouldn't happen.")
+                        if first_elem != simple_opt:
+                            # No match, carry on.
+                            continue
+                    # If we get here, it's either a whitespace option, or it's matched
+                    # the FIRST element of the string buffer.
                     available_options.append(opt)
+                    matched_simple += 1
                     break
             else:
                 # Ditch this option, the simple match has failed
                 prune_buff.append(opt)
+                pruned_simple += 1
                 continue
 
         # If we've pruned all the options, return unmatched (with some logging).
@@ -767,7 +793,8 @@ class OneOf(BaseGrammar):
                 self.__class__.__name__,
                 '_match', "PRN",
                 parse_context=parse_context, v_level=3,
-                pruned=prune_buff)
+                ns=non_simple, ps=pruned_simple, ms=matched_simple,
+                pruned=prune_buff, opts=available_options)
 
         # Match on each of the options still left.
         for opt in available_options:
