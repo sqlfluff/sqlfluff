@@ -197,6 +197,10 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
                         idx = (idx[0] + (fixed_block[2] - fixed_block[1]), fixed_block[2], fixed_block[4])
                         # Consume the fixed block because we've written the whole thing.
                         fixed_block = None
+                        if not diff_templ_codes and not diff_fix_codes:
+                            # If we just just used the last fixed_block and were using the last templ_block
+                            # then consume the templ_block
+                            templ_block = None
                         continue
                     else:
                         raise NotImplementedError("DEF")

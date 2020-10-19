@@ -361,7 +361,7 @@ class Dedent(Indent):
 
 
 class Checkpoint(BaseSegment):
-    """A segment acts like a normal segment, but is ephemeral.
+    """A segment which acts like a normal segment, but is ephemeral.
 
     This segment allows grammars to behave like segments. It behaves like
     a normal segment except that during the `parse` step, it returns its

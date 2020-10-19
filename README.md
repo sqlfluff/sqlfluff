@@ -28,6 +28,7 @@ good SQL and catch errors and bad SQL before it hits your database.
 * **0.3.x** drops support for python 2.7 and 3.4, and also reworks the
   handling of indentation linting in a potentially not backward
   compatable way.
+* **0.4.x** (ongoing development) drops support for python 3.5, and more...
 
 # Getting Started
 

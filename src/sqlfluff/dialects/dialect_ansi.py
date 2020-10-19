@@ -172,7 +172,19 @@ ansi_dialect.add(
         Ref('StringBinaryOperatorGrammar'),
         Ref('BooleanBinaryOperatorGrammar'),
         Ref('ComparisonOperatorGrammar')
-    )
+    ),
+    # This pattern is used in a lot of places.
+    # Defined here to avoid repetition.
+    BracketedColumnReferenceListGrammar=Bracketed(
+        Checkpoint.make(
+            match_grammar=Anything(),
+            parse_grammar=Delimited(
+                Ref('ObjectReferenceSegment'),
+                delimiter=Ref('CommaSegment')
+            ),
+            name='ColumnReferenceList'
+        )
+    ),
 )
 
 
@@ -688,7 +700,13 @@ class JoinClauseSegment(BaseSegment):
                 Indent,
                 OneOf(
                     Ref('ExpressionSegment'),
-                    Bracketed(Ref('ExpressionSegment'))
+                    Bracketed(
+                        Checkpoint.make(
+                            match_grammar=Anything(),
+                            parse_grammar=Ref('ExpressionSegment'),
+                            name="JoinCondition"
+                        )
+                    )
                 ),
                 Dedent
             ),
@@ -697,9 +715,16 @@ class JoinClauseSegment(BaseSegment):
                 'USING',
                 Indent,
                 Bracketed(
-                    Delimited(
-                        Ref('SingleIdentifierGrammar'),
-                        delimiter=Ref('CommaSegment')
+                    # NB: We don't use BracketedColumnReferenceListGrammar
+                    # here because we're just using SingleIdentifierGrammar,
+                    # rather than ObjectReferenceSegment.
+                    Checkpoint.make(
+                        match_grammar=Anything(),
+                        parse_grammar=Delimited(
+                            Ref('SingleIdentifierGrammar'),
+                            delimiter=Ref('CommaSegment')
+                        ),
+                        name="UsingClauseContents"
                     )
                 ),
                 Dedent
@@ -877,13 +902,17 @@ ansi_dialect.add(
                     Ref.keyword('NOT', optional=True),
                     'IN',
                     Bracketed(
-                        OneOf(
-                            Delimited(
-                                Ref('LiteralGrammar'),
-                                Ref('IntervalExpressionSegment'),
-                                delimiter=Ref('CommaSegment')
+                        Checkpoint.make(
+                            match_grammar=Anything(),
+                            parse_grammar=OneOf(
+                                Delimited(
+                                    Ref('LiteralGrammar'),
+                                    Ref('IntervalExpressionSegment'),
+                                    delimiter=Ref('CommaSegment')
+                                ),
+                                Ref('SelectableGrammar')
                             ),
-                            Ref('SelectableGrammar')
+                            name="InExpression"
                         )
                     )
                 ),
@@ -1131,10 +1160,14 @@ class ValuesClauseSegment(BaseSegment):
         ),
         Delimited(
             Bracketed(
-                Delimited(
-                    Ref('LiteralGrammar'),
-                    Ref('IntervalExpressionSegment'),
-                    delimiter=Ref('CommaSegment')
+                Checkpoint.make(
+                    match_grammar=Anything(),
+                    parse_grammar=Delimited(
+                        Ref('LiteralGrammar'),
+                        Ref('IntervalExpressionSegment'),
+                        delimiter=Ref('CommaSegment')
+                    ),
+                    name="ValuesClauseElements"
                 )
             ),
             delimiter=Ref('CommaSegment')
@@ -1265,7 +1298,7 @@ class InsertStatementSegment(BaseSegment):
         Ref.keyword('OVERWRITE', optional=True),  # Maybe this is just snowflake?
         Ref.keyword('INTO', optional=True),
         Ref('ObjectReferenceSegment'),
-        Bracketed(Delimited(Ref('ObjectReferenceSegment'), delimiter=Ref('CommaSegment')), optional=True),
+        Ref('BracketedColumnReferenceListGrammar', optional=True),
         Ref('SelectableGrammar')
     )
 
@@ -1341,13 +1374,8 @@ class ColumnOptionSegment(BaseSegment):
             Sequence(  # REFERENCES reftable [ ( refcolumn) ]
                 'REFERENCES',
                 Ref('ObjectReferenceSegment'),
-                Bracketed(  # Foreign columns making up FOREIGN KEY constraint
-                    Delimited(
-                        Ref('ObjectReferenceSegment'),
-                        delimiter=Ref('CommaSegment')
-                    ),
-                    optional=True
-                ),
+                # Foreign columns making up FOREIGN KEY constraint
+                Ref('BracketedColumnReferenceListGrammar', optional=True),
             ),
             Sequence(  # [COMMENT 'string'] (MySQL)
                 'COMMENT',
@@ -1389,43 +1417,26 @@ class TableConstraintSegment(BaseSegment):
         OneOf(
             Sequence(  # UNIQUE ( column_name [, ... ] )
                 'UNIQUE',
-                Bracketed(  # Columns making up UNIQUE constraint
-                    Delimited(
-                        Ref('ObjectReferenceSegment'),
-                        delimiter=Ref('CommaSegment')
-                    ),
-                ),
+                Ref('BracketedColumnReferenceListGrammar'),
                 # Later add support for index_parameters?
             ),
             Sequence(  # PRIMARY KEY ( column_name [, ... ] ) index_parameters
                 'PRIMARY',
                 'KEY',
-                Bracketed(  # Columns making up PRIMARY KEY constraint
-                    Delimited(
-                        Ref('ObjectReferenceSegment'),
-                        delimiter=Ref('CommaSegment')
-                    ),
-                ),
+                # Columns making up PRIMARY KEY constraint
+                Ref('BracketedColumnReferenceListGrammar'),
                 # Later add support for index_parameters?
             ),
             Sequence(  # FOREIGN KEY ( column_name [, ... ] )
                        # REFERENCES reftable [ ( refcolumn [, ... ] ) ]
                 'FOREIGN',
                 'KEY',
-                Bracketed(  # Local columns making up FOREIGN KEY constraint
-                    Delimited(
-                        Ref('ObjectReferenceSegment'),
-                        delimiter=Ref('CommaSegment')
-                    ),
-                ),
+                # Local columns making up FOREIGN KEY constraint
+                Ref('BracketedColumnReferenceListGrammar'),
                 'REFERENCES',
                 Ref('ObjectReferenceSegment'),
-                Bracketed(  # Foreign columns making up FOREIGN KEY constraint
-                    Delimited(
-                        Ref('ObjectReferenceSegment'),
-                        delimiter=Ref('CommaSegment')
-                    ),
-                ),
+                # Foreign columns making up FOREIGN KEY constraint
+                Ref('BracketedColumnReferenceListGrammar'),
                 # Later add support for [MATCH FULL/PARTIAL/SIMPLE] ?
                 # Later add support for [ ON DELETE/UPDATE action ] ?
             ),
@@ -1516,12 +1527,7 @@ class AlterTableStatementSegment(BaseSegment):
                             Ref('ObjectReferenceSegment')
                         ),
                         # Bracketed Version of the same
-                        Bracketed(
-                            Delimited(
-                                Ref('ObjectReferenceSegment'),
-                                delimiter=Ref('CommaSegment')
-                            ),
-                        ),
+                        Ref('BracketedColumnReferenceListGrammar'),
                         optional=True
                     )
                 )
@@ -1547,13 +1553,8 @@ class CreateViewStatementSegment(BaseSegment):
         ),
         'VIEW',
         Ref('ObjectReferenceSegment'),
-        Bracketed(  # Optional list of column names
-            Delimited(
-                Ref('ObjectReferenceSegment'),
-                delimiter=Ref('CommaSegment')
-            ),
-            optional=True
-        ),
+        # Optional list of column names
+        Ref('BracketedColumnReferenceListGrammar', optional=True),
         'AS',
         Ref('SelectableGrammar'),
     )
@@ -1603,13 +1604,8 @@ class AccessStatementSegment(BaseSegment):
                         'UPDATE',
                         'INSERT',
                     ),
-                    Bracketed(  # Optional list of column names
-                        Delimited(
-                            Ref('ObjectReferenceSegment'),
-                            delimiter=Ref('CommaSegment')
-                        ),
-                        optional=True
-                    )
+                    # Optional list of column names
+                    Ref('BracketedColumnReferenceListGrammar', optional=True)
                 ),
                 delimiter=Ref('CommaSegment')
             ),
@@ -1665,13 +1661,8 @@ class AccessStatementSegment(BaseSegment):
                         'UPDATE',
                         'INSERT',
                     ),
-                    Bracketed(  # Optional list of column names
-                        Delimited(
-                            Ref('ObjectReferenceSegment'),
-                            delimiter=Ref('CommaSegment')
-                        ),
-                        optional=True
-                    )
+                    # Optional list of column names
+                    Ref('BracketedColumnReferenceListGrammar', optional=True)
                 ),
                 delimiter=Ref('CommaSegment')
             ),

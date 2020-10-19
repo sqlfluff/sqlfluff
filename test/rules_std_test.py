@@ -2,8 +2,7 @@
 
 import pytest
 
-import sqlfluff.rules.std as std_rules
-
+from sqlfluff.rules.base import BaseCrawler
 from sqlfluff.rules.std import std_rule_set
 from sqlfluff.linter import Linter
 from sqlfluff.config import FluffConfig
@@ -212,7 +211,20 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     ('L003', 'fail', 'SELECT *\nFROM\n    t1\n    -- Comment\nJOIN t2 USING (user_id)', 'SELECT *\nFROM\n    t1\n-- Comment\nJOIN t2 USING (user_id)', None),
     # L013 & L025 Fixes with https://github.com/sqlfluff/sqlfluff/issues/449
     ('L013', 'pass', 'select ps.*, pandgs.blah from ps join pandgs using(moo)', None, None),
-    ('L025', 'pass', 'select ps.*, pandgs.blah from ps join pandgs using(moo)', None, None)
+    ('L025', 'pass', 'select ps.*, pandgs.blah from ps join pandgs using(moo)', None, None),
+    # L031 Allow self-joins
+    ('L031', 'pass', 'select x.a, x_2.b from x left join x as x_2 on x.foreign_key = x.foreign_key', None, None),
+    # L031 fixes issues
+    ('L031',
+     'fail',
+     'SELECT u.id, c.first_name, c.last_name, COUNT(o.user_id) FROM users as u JOIN customers as c on u.id = c.user_id JOIN orders as o on u.id = o.user_id;',
+     'SELECT u.id, customers.first_name, customers.last_name, COUNT(orders.user_id) FROM users as u JOIN customers on u.id = customers.user_id JOIN orders on u.id = orders.user_id;', None),
+    # Fix for https://github.com/sqlfluff/sqlfluff/issues/476
+    ('L010', 'fail', 'SELECT * FROM MOO ORDER BY dt DESC',
+     'select * from MOO order by dt desc', {'rules': {'L010': {'capitalisation_policy': 'lower'}}}),
+    ('L032', 'pass', 'select x.a from x inner join y on x.id = y.id', None, None),
+    ('L032', 'fail', 'select x.a from x inner join y using (id)', None, None),
+    ('L032', 'fail', 'select x.a from x inner join y on x.id = y.id inner join z using (id)', None, None),
 ])
 def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
     """Test that a rule passes/fails on a given string.
@@ -266,6 +278,7 @@ def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
     ('L021', 'test/fixtures/linter/select_distinct_group_by.sql', [(1, 8)]),
     # Make sure that ignoring works as expected
     ('L006', 'test/fixtures/linter/operator_errors_ignore.sql', [(10, 8), (10, 9)]),
+    ('L031', 'test/fixtures/linter/aliases_in_join_error.sql', [(7, 19), (8, 16)]),
 ])
 def test__rules__std_file(rule, path, violations):
     """Test the linter finds the given errors in (and only in) the right places."""
@@ -294,13 +307,50 @@ def test__rules__std_L003_process_raw_stack(generate_test_segments):
     assert res[2]['indent_size'] == 5
 
 
-@pytest.mark.parametrize("rule,rule_init", [
-    ("L010", {"capitalisation_policy": "blah"}),
-    ("L019", {"comma_style": "blah"}),
-    ("L022", {"comma_style": "blah"})
+@pytest.mark.parametrize("rule_config_dict", [
+    {"tab_space_size": "blah"},
+    {"max_line_length": "blah"},
+    {"indent_unit": "blah"},
+    {"comma_style": "blah"},
+    {"allow_scalar": "blah"},
+    {"single_table_references": "blah"},
+    {"only_aliases": "blah"},
+    {"L010": {"capitalisation_policy": "blah"}},
+    {"L014": {"capitalisation_policy": "blah"}},
+    {"L030": {"capitalisation_policy": "blah"}},
 ])
-def test_improper_configs_are_rejected(rule, rule_init):
+def test_improper_configs_are_rejected(rule_config_dict):
     """Ensure that unsupported configs raise a ValueError."""
-    rule_class = getattr(std_rules, "Rule_{}".format(rule))
+    config = FluffConfig(configs={"rules": rule_config_dict})
     with pytest.raises(ValueError):
-        rule_class(**rule_init)
+        std_rule_set.get_rulelist(config)
+
+
+def test_rules_cannot_be_instantiated_without_declared_configs():
+    """Ensure that new rules must be instantiated with config values."""
+    class NewRule(BaseCrawler):
+        config_keywords = ["comma_style"]
+
+    new_rule = NewRule(code="L000", description="", comma_style="trailing")
+    assert new_rule.comma_style == "trailing"
+    # Error is thrown since "comma_style" is defined in class,
+    # but not upon instantiation
+    with pytest.raises(ValueError):
+        new_rule = NewRule(code="L000", description="")
+
+
+def test_rules_configs_are_dynamically_documented():
+    """Ensure that rule configurations are added to the class docstring."""
+    @std_rule_set.document_configuration
+    class RuleWithConfig(BaseCrawler):
+        """A new rule with configuration."""
+        config_keywords = ["comma_style", "only_aliases"]
+
+    assert "comma_style" in RuleWithConfig.__doc__
+    assert "only_aliases" in RuleWithConfig.__doc__
+
+    @std_rule_set.document_configuration
+    class RuleWithoutConfig(BaseCrawler):
+        """A new rule without configuration."""
+        pass
+    assert "Configuration" not in RuleWithoutConfig.__doc__

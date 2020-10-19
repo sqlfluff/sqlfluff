@@ -45,7 +45,7 @@ setup(
     author='Alan Cruickshank',
     author_email='alan@designingoverload.com',
     url='https://github.com/sqlfluff/sqlfluff',
-    python_requires=">=3.5",
+    python_requires=">=3.6",
     keywords=['sqlfluff', 'sql', 'linter'],
     project_urls={
         # Homepage not ready yet.

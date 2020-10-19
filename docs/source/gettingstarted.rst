@@ -204,6 +204,10 @@ file has been fixed accordingly.
     select a + b  as foo,
       c as bar from my_table
 
+For a full list of configuration options check out :ref:`defaultconfig`.
+To see how these options apply to specific rules check out the
+"Configuration" section within each rule's documentation in :ref:`ruleref`.
+
 Going further
 -------------
 
