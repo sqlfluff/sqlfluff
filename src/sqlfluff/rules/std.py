@@ -2228,7 +2228,7 @@ class Rule_L022(BaseCrawler):
             for idx, seg in enumerate(segment.segments):
                 if seg.type == 'end_bracket':
                     bracket_indices.append(idx)
-            
+
             # Work through each point and deal with it individually
             for bracket_idx in bracket_indices:
                 forward_slice = segment.segments[bracket_idx:]
@@ -2239,6 +2239,8 @@ class Rule_L022(BaseCrawler):
                 comma_line_idx = None
                 line_blank = False
                 comma_style = None
+                line_starts = {}
+                comment_lines = []
 
                 self.logger.info(
                     "## CTE closing bracket found at %s, idx: %s. Forward slice: %.20r",
@@ -2255,9 +2257,11 @@ class Rule_L022(BaseCrawler):
                             blank_lines += 1
                         line_blank = True
                         line_idx += 1
+                        line_starts[line_idx] = seg_idx + 1
                     elif forward_slice[seg_idx].type == 'comment':
                         # Lines with comments aren't blank
                         line_blank = False
+                        comment_lines.append(line_idx)
                     elif forward_slice[seg_idx].type == 'comma':
                         # Keep track of where the comma is.
                         # We'll evaluate it later.
@@ -2281,8 +2285,12 @@ class Rule_L022(BaseCrawler):
 
                 # Readout of findings
                 self.logger.info(
-                    "blank_lines: %s, comma_line_idx: %s. final_line_idx: %s, final_seg_idx: %s, comma_style: %r",
-                    blank_lines, comma_line_idx, line_idx, seg_idx, comma_style
+                    "blank_lines: %s, comma_line_idx: %s. final_line_idx: %s, final_seg_idx: %s",
+                    blank_lines, comma_line_idx, line_idx, seg_idx
+                )
+                self.logger.info(
+                    "comma_style: %r, line_starts: %r, comment_lines: %r",
+                    comma_style, line_starts, comment_lines
                 )
 
                 if blank_lines < 1:
@@ -2290,36 +2298,56 @@ class Rule_L022(BaseCrawler):
                     self.logger.info(
                         "!! Found CTE without enough blank lines.",
                     )
-                    
+
                     # Based on the current location of the comma we insert newlines
                     # to correct the issue.
+                    fix_type = 'create'  # In most cases we just insert newlines.
                     if comma_style == 'oneline':
                         # Here we respect the target comma style to insert at the relevant point.
                         if self.comma_style == 'trailing':
                             # Add a blank line after the comma
                             fix_point = forward_slice[comma_seg_idx + 1]
+                            # Optionally here, if the segment we've landed on is
+                            # whitespace then we REPLACE it rather than inserting.
+                            if forward_slice[comma_seg_idx + 1].type == 'whitespace':
+                                fix_type = 'edit'
                         elif self.comma_style == 'leading':
                             # Add a blank line before the comma
                             fix_point = forward_slice[comma_seg_idx]
                         # In both cases it's a double newline.
                         num_newlines = 2
-                    elif comma_style in ('trailing', 'final', 'floating'):
-                        # Detected an existing trailing comma or it's a final CTE,
-                        # OR the comma isn't leading or trailing.
-                        # Add a single newline before the end content.
-                        fix_point = forward_slice[seg_idx]
+                    else:
+                        # In the following cases we only care which one we're in
+                        # when comments don't get in the way. If they *do*, then
+                        # we just work around them.
+                        if not comment_lines or line_idx - 1 not in comment_lines:
+                            self.logger.info("Comment routines not applicable")
+                            if comma_style in ('trailing', 'final', 'floating'):
+                                # Detected an existing trailing comma or it's a final CTE,
+                                # OR the comma isn't leading or trailing.
+                                # If the preceeding segment is whitespace, replace it
+                                if forward_slice[seg_idx - 1].type == 'whitespace':
+                                    fix_point = forward_slice[seg_idx - 1]
+                                    fix_type = 'edit'
+                                else:
+                                    # Otherwise add a single newline before the end content.
+                                    fix_point = forward_slice[seg_idx]
+                            elif comma_style == 'leading':
+                                # Detected an existing leading comma.
+                                fix_point = forward_slice[comma_seg_idx]
+                        else:
+                            self.logger.info("Handling preceeding comments")
+                            offset = 1
+                            while line_idx - offset in comment_lines:
+                                offset += 1
+                            fix_point = forward_slice[line_starts[line_idx - (offset - 1)]]
                         # Note: There is an edge case where this isn't enough, if
                         # comments are in strange places, but we'll catch them on
                         # the next iteration.
                         num_newlines = 1
-                    elif comma_style == 'leading':
-                        # Detected an existing leading comma.
-                        # Add a single newline before the comma.
-                        fix_point = forward_slice[comma_seg_idx]
-                        num_newlines = 1
 
                     fixes = [LintFix(
-                        'create', fix_point,
+                        fix_type, fix_point,
                         [self.make_newline(pos_marker=fix_point.pos_marker)] * num_newlines
                     )]
                     # Create a result, anchored on the start of the next content.
