@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Support for modulo (`%`) operator.
+- A limit in the internal fix routines to catch any infinite loops.
 
 ### Changed
 
@@ -24,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   own expressions. Any dependencies on this structure downstream
   will be broken. This also fixes the linting of both kinds of expressions
   with regard to L013 and L025.
+- Refactor of L022 to handle poorly formatted CTEs better.
 
 ## [0.3.6] - 2020-09-24
 
