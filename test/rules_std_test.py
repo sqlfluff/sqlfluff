@@ -240,6 +240,12 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     ),
     (
         'L022', 'fail',
+        'with my_cte as (\n    select 1\n),\n-- Comment\nother_cte as (\n    select 1\n)\n\nselect * from my_cte cross join other_cte',
+        'with my_cte as (\n    select 1\n),\n\n-- Comment\nother_cte as (\n    select 1\n)\n\nselect * from my_cte cross join other_cte',
+        None
+    ),
+    (
+        'L022', 'fail',
         'with my_cte as (\n    select 1\n),\n\nother_cte as (\n    select 1\n)\nselect * from my_cte cross join other_cte',
         'with my_cte as (\n    select 1\n),\n\nother_cte as (\n    select 1\n)\n\nselect * from my_cte cross join other_cte',
         None
