@@ -2,7 +2,7 @@
 
 import pytest
 
-from sqlfluff.parser.match import MatchResult
+from sqlfluff.parser.match_result import MatchResult
 from sqlfluff.parser import RawSegment, FilePositionMarker
 
 

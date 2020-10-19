@@ -241,7 +241,7 @@ def test__parser__grammar_delimited(caplog, generate_test_segments, fresh_ansi_d
             assert gt.match(seg_list[:4], parse_context=ctx)
             # Matching up to 'bar' should
             logging.info("#### TEST 3")
-            assert g._match(seg_list[:5], parse_context=ctx).matched_segments == expectation[:5]
+            assert g.match(seg_list[:5], parse_context=ctx).matched_segments == expectation[:5]
             # Matching the full list ALSO should, because it's just whitespace
             logging.info("#### TEST 4")
             assert g.match(seg_list, parse_context=ctx).matched_segments == expectation[:6]

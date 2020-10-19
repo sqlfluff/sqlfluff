@@ -5,7 +5,7 @@ import logging
 
 from sqlfluff.config import FluffConfig
 from sqlfluff.parser import Lexer, FileSegment, RootParseContext, BaseSegment, RawSegment
-from sqlfluff.parser.match import MatchResult
+from sqlfluff.parser.match_result import MatchResult
 from sqlfluff.linter import Linter
 
 

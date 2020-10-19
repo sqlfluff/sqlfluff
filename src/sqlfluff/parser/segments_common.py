@@ -12,8 +12,10 @@ we use, and will be common between all of them.
 
 import re
 
-from .segments_base import (BaseSegment, RawSegment, parse_match_logging)
-from .match import MatchResult
+from .segments_base import BaseSegment, RawSegment
+from .match_result import MatchResult
+from .match_logging import parse_match_logging
+from .match_wrapper import match_wrapper
 
 
 class KeywordSegment(RawSegment):
@@ -43,6 +45,7 @@ class KeywordSegment(RawSegment):
         return False
 
     @classmethod
+    @match_wrapper(v_level=4)
     def match(cls, segments, parse_context):
         """Compare input segments for a match, return a `MatchResult`.
 
@@ -97,6 +100,7 @@ class ReSegment(KeywordSegment):
         return False
 
     @classmethod
+    @match_wrapper(v_level=4)
     def match(cls, segments, parse_context):
         """Compare input segments for a match, return a `MatchResult`.
 
@@ -160,6 +164,7 @@ class NamedSegment(KeywordSegment):
         return False
 
     @classmethod
+    @match_wrapper(v_level=4)
     def match(cls, segments, parse_context):
         """Compare input segments for a match, return a `MatchResult`.
 
@@ -204,6 +209,7 @@ class LambdaSegment(BaseSegment):
     """
 
     @classmethod
+    @match_wrapper(v_level=4)
     def match(cls, segments, parse_context):
         """Compare input segments for a match, return a `MatchResult`.
 
@@ -318,6 +324,7 @@ class Indent(RawSegment):
         return ""
 
     @classmethod
+    @match_wrapper()
     def match(cls, segments, parse_context):
         """This will never be called. If it is then we're using it wrong."""
         raise NotImplementedError(
