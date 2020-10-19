@@ -152,9 +152,11 @@ class ParseContext():
         return self.recurse > 1 or self.recurse is True
 
     def matching_segment(self, name):
-        """Set the name of the current matching segment."""
+        """Set the name of the current matching segment.
+
+        NB: We don't reset the match depth here.
+        """
         ctx = self._copy()
-        ctx.match_depth = 0
         ctx.match_segment = name
         return ctx
 
