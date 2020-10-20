@@ -2867,9 +2867,8 @@ class Rule_L034(BaseCrawler):
             self.violation_buff.append(
                 LintResult(
                     anchor=segment,
-                    # fixes=[LintFix('create', segment, earliest_bad_element),
-                    #        LintFix('delete', earliest_bad_element)
-                    #        ]
+                    # fixes=[LintFix('create', earliest_bad_element, segment),
+                    #        LintFix('delete', segment)]
                 )
             )
         self.current_element_band = i
