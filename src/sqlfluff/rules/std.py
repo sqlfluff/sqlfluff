@@ -3071,7 +3071,9 @@ class Rule_L034(BaseCrawler):
 
     def _validate(self, i, segment):
         # Check if we've seen a more complex select target element already
-        if self.seen_element_band[i + 1::] != [None] * len(self.seen_element_band[i + 1::]):
+        if self.seen_element_band[i + 1 : :] != [None] * len(
+            self.seen_element_band[i + 1 : :]
+        ):
             # Not quite worked out the fix
             # earliest_bad_element = next(el for el in self.seen_element_band[i+1::] if el is not None)
             self.violation_buff.append(
@@ -3091,15 +3093,17 @@ class Rule_L034(BaseCrawler):
         self.violation_buff = []
         # Bands of select targets in order to be enforced
         select_element_order_preference = (
-            ('wildcard_expression',),
-            ('object_reference', 'literal', 'cast_expression', ('function', 'cast')),
+            ("wildcard_expression",),
+            ("object_reference", "literal", "cast_expression", ("function", "cast")),
         )
         # Track which bands have been seen, with additional None to track 'other' elements
         # If we find a matching target element, we add the element to the corresponding index
-        self.seen_element_band = [None for i in select_element_order_preference] + [None]
+        self.seen_element_band = [None for i in select_element_order_preference] + [
+            None
+        ]
 
-        if segment.type == 'select_clause':
-            select_target_elements = segment.get_children('select_target_element')
+        if segment.type == "select_clause":
+            select_target_elements = segment.get_children("select_target_element")
             if not select_target_elements:
                 return None
 
@@ -3111,10 +3115,17 @@ class Rule_L034(BaseCrawler):
                     for e in band:
                         # Identify function type select target
                         if type(e) == tuple:
-                            if e[0] == 'function':
-                                if segment.get_child('function'):
-                                    if segment.get_child('function').get_child('function_name'):
-                                        if segment.get_child('function').get_child('function_name').raw == e[1]:
+                            if e[0] == "function":
+                                if segment.get_child("function"):
+                                    if segment.get_child("function").get_child(
+                                        "function_name"
+                                    ):
+                                        if (
+                                            segment.get_child("function")
+                                            .get_child("function_name")
+                                            .raw
+                                            == e[1]
+                                        ):
                                             self._validate(i, segment)
                         # Identify simple select target
                         elif segment.get_child(e):
