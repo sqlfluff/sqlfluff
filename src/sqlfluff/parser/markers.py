@@ -5,7 +5,9 @@ This class is a construct to keep track of positions within a file.
 
 from collections import namedtuple
 
-protoFilePositionMarker = namedtuple('FilePositionMarker', ['statement_index', 'line_no', 'line_pos', 'char_pos'])
+protoFilePositionMarker = namedtuple(
+    "FilePositionMarker", ["statement_index", "line_no", "line_pos", "char_pos"]
+)
 
 
 class FilePositionMarker(protoFilePositionMarker):
@@ -26,7 +28,7 @@ class FilePositionMarker(protoFilePositionMarker):
         char_pos = self.char_pos
         for elem in raw:
             char_pos += 1
-            if elem == '\n':
+            if elem == "\n":
                 line += 1
                 pos = 1
             else:
@@ -44,7 +46,8 @@ class FilePositionMarker(protoFilePositionMarker):
 
     def __str__(self):
         return "[{0}]({1}, {2}, {3})".format(
-            self.char_pos, self.statement_index, self.line_no, self.line_pos)
+            self.char_pos, self.statement_index, self.line_no, self.line_pos
+        )
 
     def __gt__(self, other):
         return self.char_pos > other.char_pos
@@ -53,7 +56,9 @@ class FilePositionMarker(protoFilePositionMarker):
         return self.char_pos < other.char_pos
 
     def __eq__(self, other):
-        return ((self.statement_index == other.statement_index)
-                and (self.line_no == other.line_no)
-                and (self.line_pos == other.line_pos)
-                and (self.char_pos == other.char_pos))
+        return (
+            (self.statement_index == other.statement_index)
+            and (self.line_no == other.line_no)
+            and (self.line_pos == other.line_pos)
+            and (self.char_pos == other.char_pos)
+        )

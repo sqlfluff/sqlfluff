@@ -21,11 +21,17 @@ from .rules import get_ruleset
 
 
 # Instantiate the linter logger
-linter_logger = logging.getLogger('sqlfluff.linter')
+linter_logger = logging.getLogger("sqlfluff.linter")
 
 
-class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tree', 'file_mask', 'ignore_mask'])):
+class LintedFile(
+    namedtuple(
+        "ProtoFile",
+        ["path", "violations", "time_dict", "tree", "file_mask", "ignore_mask"],
+    )
+):
     """A class to store the idea of a linted file."""
+
     __slots__ = ()
 
     def check_tuples(self):
@@ -37,7 +43,7 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
         """
         vs = []
         for v in self.get_violations():
-            if hasattr(v, 'check_tuple'):
+            if hasattr(v, "check_tuple"):
                 vs.append(v.check_tuple())
             else:
                 raise v
@@ -74,7 +80,8 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
             if self.ignore_mask:
                 for line_no, rules in self.ignore_mask:
                     violations = [
-                        v for v in violations
+                        v
+                        for v in violations
                         if not (
                             v.line_no() == line_no
                             and (rules is None or v.rule_code() in rules)
@@ -112,19 +119,25 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
 
         # Do we have enough information to actually fix the file?
         if any(elem is None for elem in self.file_mask):
-            linter_logger.warning("Insufficient information to fix file: %s", self.file_mask)
+            linter_logger.warning(
+                "Insufficient information to fix file: %s", self.file_mask
+            )
             return None, False
 
         linter_logger.info("Persisting file masks: %s", self.file_mask)
         # Compare Templated with Raw
-        diff_templ = SequenceMatcher(autojunk=None, a=self.file_mask[0], b=self.file_mask[1])
+        diff_templ = SequenceMatcher(
+            autojunk=None, a=self.file_mask[0], b=self.file_mask[1]
+        )
         bencher("fix_string: Match 0&1")
         diff_templ_codes = diff_templ.get_opcodes()
         linter_logger.debug("Templater diff codes: %s", diff_templ_codes)
 
         bencher("fix_string: Got Opcodes 0&1")
         # Compare Fixed with Templated
-        diff_fix = SequenceMatcher(autojunk=None, a=self.file_mask[1], b=self.file_mask[2])
+        diff_fix = SequenceMatcher(
+            autojunk=None, a=self.file_mask[1], b=self.file_mask[2]
+        )
         bencher("fix_string: Matched 1&2")
         # diff_fix = SequenceMatcher(autojunk=None, a=self.file_mask[1][0], b=self.file_mask[2][0])
         diff_fix_codes = diff_fix.get_opcodes()
@@ -134,7 +147,7 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
         # If diff_templ isn't the same then we should just keep the template. If there *was*
         # a fix in that space, then we should raise an issue
         # If it is the same, then we can apply fixes as expected.
-        write_buff = ''
+        write_buff = ""
         fixed_block = None
         templ_block = None
         # index in raw, templ and fix
@@ -143,7 +156,9 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
         bencher("fix_string: Loop Setup")
         while True:
             loop_idx += 1
-            linter_logger.debug("%04d: Write Loop: idx:%s, buff:%r", loop_idx, idx, write_buff)
+            linter_logger.debug(
+                "%04d: Write Loop: idx:%s, buff:%r", loop_idx, idx, write_buff
+            )
             if templ_block is None:
                 if diff_templ_codes:
                     templ_block = diff_templ_codes.pop(0)
@@ -152,49 +167,59 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
                     # Yes - excellent. DONE
                     break
                 # Deal with the case that we only have inserts left.
-                elif all(elem[0] == 'insert' for elem in diff_fix_codes):
+                elif all(elem[0] == "insert" for elem in diff_fix_codes):
                     for fixed_block in diff_fix_codes:
-                        write_buff += self.file_mask[2][fixed_block[3]:fixed_block[4]]
+                        write_buff += self.file_mask[2][fixed_block[3] : fixed_block[4]]
                     break
                 else:
-                    raise NotImplementedError("Fix Block(s) left over! Don't know how to handle this! aeflf8wh")
+                    raise NotImplementedError(
+                        "Fix Block(s) left over! Don't know how to handle this! aeflf8wh"
+                    )
             if fixed_block is None:
                 if diff_fix_codes:
                     fixed_block = diff_fix_codes.pop(0)
-                elif templ_block[0] != 'delete':
+                elif templ_block[0] != "delete":
                     # We need another fixed_block for the cases where templ_block[0] is not 'delete'
                     raise NotImplementedError(
-                        "A {} template block remains with no more diff_fix_codes left".format(templ_block[0])
+                        "A {} template block remains with no more diff_fix_codes left".format(
+                            templ_block[0]
+                        )
                     )
 
-            linter_logger.debug("%04d: Blocks: template:%s, fix:%s", loop_idx, templ_block, fixed_block)
-            if templ_block[0] == 'equal':
-                if fixed_block[0] == 'equal':
+            linter_logger.debug(
+                "%04d: Blocks: template:%s, fix:%s", loop_idx, templ_block, fixed_block
+            )
+            if templ_block[0] == "equal":
+                if fixed_block[0] == "equal":
                     # No templating, no fixes, go with middle and advance indexes
                     # Find out how far we can advance (we use the middle version because it's common)
                     if templ_block[4] == fixed_block[2]:
-                        buff = self.file_mask[1][idx[1]:fixed_block[2]]
+                        buff = self.file_mask[1][idx[1] : fixed_block[2]]
                         # consume both blocks
                         fixed_block = None
                         templ_block = None
                     elif templ_block[4] > fixed_block[2]:
-                        buff = self.file_mask[1][idx[1]:fixed_block[2]]
+                        buff = self.file_mask[1][idx[1] : fixed_block[2]]
                         # consume fixed block
                         fixed_block = None
                     elif templ_block[4] < fixed_block[2]:
-                        buff = self.file_mask[1][idx[1]:templ_block[4]]
+                        buff = self.file_mask[1][idx[1] : templ_block[4]]
                         # consume templ block
                         templ_block = None
                     idx = (idx[0] + len(buff), idx[1] + len(buff), idx[2] + len(buff))
                     write_buff += buff
                     continue
-                elif fixed_block[0] == 'replace':
+                elif fixed_block[0] == "replace":
                     # Consider how to apply fixes.
                     # Can we implement the fix while staying in the equal segment?
                     if fixed_block[2] <= templ_block[4]:
                         # Yes! Write from the fixed version.
-                        write_buff += self.file_mask[2][idx[2]:fixed_block[4]]
-                        idx = (idx[0] + (fixed_block[2] - fixed_block[1]), fixed_block[2], fixed_block[4])
+                        write_buff += self.file_mask[2][idx[2] : fixed_block[4]]
+                        idx = (
+                            idx[0] + (fixed_block[2] - fixed_block[1]),
+                            fixed_block[2],
+                            fixed_block[4],
+                        )
                         # Consume the fixed block because we've written the whole thing.
                         fixed_block = None
                         if not diff_templ_codes and not diff_fix_codes:
@@ -204,26 +229,33 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
                         continue
                     else:
                         raise NotImplementedError("DEF")
-                elif fixed_block[0] == 'delete':
+                elif fixed_block[0] == "delete":
                     # We're deleting items, nothing to write but we can consume some
                     # blocks and advance some indexes.
-                    idx = (idx[0] + (fixed_block[2] - fixed_block[1]), fixed_block[2], fixed_block[4])
+                    idx = (
+                        idx[0] + (fixed_block[2] - fixed_block[1]),
+                        fixed_block[2],
+                        fixed_block[4],
+                    )
                     fixed_block = None
-                elif fixed_block[0] == 'insert':
+                elif fixed_block[0] == "insert":
                     # We're inserting items, Write from the fix block, but only that index moves.
-                    write_buff += self.file_mask[2][idx[2]:fixed_block[4]]
+                    write_buff += self.file_mask[2][idx[2] : fixed_block[4]]
                     idx = (idx[0], idx[1], fixed_block[4])
                     fixed_block = None
                 else:
                     raise NotImplementedError(
-                        ("Unexpected opcode {0} for fix block! Please report this "
-                         "issue on github with the query and rules you're trying to "
-                         "fix.").format(fixed_block[0]))
-            elif templ_block[0] == 'replace':
+                        (
+                            "Unexpected opcode {0} for fix block! Please report this "
+                            "issue on github with the query and rules you're trying to "
+                            "fix."
+                        ).format(fixed_block[0])
+                    )
+            elif templ_block[0] == "replace":
                 # We're in a templated section - we should write the templated version.
                 # we should consume the whole replace block and then deal with where
                 # we end up.
-                buff = self.file_mask[0][idx[0]:templ_block[2]]
+                buff = self.file_mask[0][idx[0] : templ_block[2]]
                 new_templ_idx = templ_block[4]
 
                 # Fast forward through fix blocks until we catch up. We're not implementing
@@ -234,20 +266,28 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
                         break
                     else:
                         # We're not at the end point yet, continue to fast forward through.
-                        if fixed_block[0] != 'equal':
-                            print("WARNING: Skipping edit block: {0}".format(fixed_block))
+                        if fixed_block[0] != "equal":
+                            print(
+                                "WARNING: Skipping edit block: {0}".format(fixed_block)
+                            )
                         if diff_fix_codes:
                             fixed_block = diff_fix_codes.pop(0)
                         else:
-                            raise NotImplementedError("Unexpectedly depleted the fixes. Panic!")
+                            raise NotImplementedError(
+                                "Unexpectedly depleted the fixes. Panic!"
+                            )
                 # Are we exactly on a join?
                 if new_templ_idx == fixed_block[1]:
                     # GREAT - this makes things easy because we have an equality point already
                     idx = (templ_block[2], new_templ_idx, fixed_block[3])
                 else:
-                    if fixed_block[0] == 'equal':
+                    if fixed_block[0] == "equal":
                         # If it's in an equal block, we can use the same offset from the end.
-                        idx = (templ_block[2], new_templ_idx, fixed_block[3] + (new_templ_idx - fixed_block[1]))
+                        idx = (
+                            templ_block[2],
+                            new_templ_idx,
+                            fixed_block[3] + (new_templ_idx - fixed_block[1]),
+                        )
                     else:
                         # TODO: We're trying to move through an templated section, but end up
                         # in a fixed section. We've lost track of indexes.
@@ -259,17 +299,17 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
                 write_buff += buff
                 # consume template block
                 templ_block = None
-            elif templ_block[0] == 'delete':
+            elif templ_block[0] == "delete":
                 # The comparison, things that the templater has deleted
                 # some characters. This is just a quirk of the differ.
                 # In reality this means we just write these characters
                 # and don't worry about advancing the other indexes.
-                buff = self.file_mask[0][idx[0]:templ_block[2]]
+                buff = self.file_mask[0][idx[0] : templ_block[2]]
                 # consume templ block
                 templ_block = None
                 idx = (idx[0] + len(buff), idx[1], idx[2])
                 write_buff += buff
-            elif templ_block[0] == 'insert':
+            elif templ_block[0] == "insert":
                 # The templater has inserted something here. We don't need
                 # to write anything here (because whatever we're looking at
                 # was inserted by the templater), but we do need to keep
@@ -279,7 +319,7 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
 
                 # For now let's just deal with the happy case where the fixed
                 # block is equal
-                if fixed_block[0] == 'equal':
+                if fixed_block[0] == "equal":
                     # Let's make sure we can consume enough to get through the
                     # templ block and not get to the end of the fix block.
                     if templ_block[4] <= fixed_block[2]:
@@ -292,25 +332,34 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
                         templ_block = None
                     else:
                         raise NotImplementedError(
-                            ("Unexpected scenario during insert opcode! Please report "
-                             "this issue on github with the query and rules you're trying "
-                             "to fix."))
+                            (
+                                "Unexpected scenario during insert opcode! Please report "
+                                "this issue on github with the query and rules you're trying "
+                                "to fix."
+                            )
+                        )
                 else:
                     raise NotImplementedError(
-                        ("Unexpected opcode {0} for fix block! Please report this "
-                         "issue on github with the query and rules you're trying to "
-                         "fix.").format(fixed_block[0]))
+                        (
+                            "Unexpected opcode {0} for fix block! Please report this "
+                            "issue on github with the query and rules you're trying to "
+                            "fix."
+                        ).format(fixed_block[0])
+                    )
             else:
                 raise NotImplementedError(
-                    ("Unexpected opcode {0} for template block! Please report this "
-                     "issue on github with the query and rules you're trying to "
-                     "fix.").format(templ_block[0]))
+                    (
+                        "Unexpected opcode {0} for template block! Please report this "
+                        "issue on github with the query and rules you're trying to "
+                        "fix."
+                    ).format(templ_block[0])
+                )
 
         bencher("fix_string: Fixing loop done")
         # The success metric here is whether anything ACTUALLY changed.
         return write_buff, write_buff != self.file_mask[0]
 
-    def persist_tree(self, suffix=''):
+    def persist_tree(self, suffix=""):
         """Persist changes to the given path.
 
         We use the file_mask to do a safe merge, avoiding any templated
@@ -331,13 +380,14 @@ class LintedFile(namedtuple('ProtoFile', ['path', 'violations', 'time_dict', 'tr
                 root, ext = os.path.splitext(fname)
                 fname = root + suffix + ext
             # Actually write the file.
-            with open(fname, 'w') as f:
+            with open(fname, "w") as f:
                 f.write(write_buff)
         return success
 
 
 class LintedPath:
     """A class to store the idea of a collection of linted files at a single start path."""
+
     def __init__(self, path):
         self.files = []
         self.path = path
@@ -382,10 +432,10 @@ class LintedPath:
             files=len(self.files),
             clean=sum(file.is_clean() for file in self.files),
             unclean=sum(not file.is_clean() for file in self.files),
-            violations=sum(file.num_violations() for file in self.files)
+            violations=sum(file.num_violations() for file in self.files),
         )
 
-    def persist_changes(self, formatter=None, fixed_file_suffix='', **kwargs):
+    def persist_changes(self, formatter=None, fixed_file_suffix="", **kwargs):
         """Persist changes to files in the given path.
 
         This also logs the output as we go using the formatter if present.
@@ -398,7 +448,7 @@ class LintedPath:
                 result = buffer[file.path]
             else:
                 buffer[file.path] = True
-                result = 'SKIP'
+                result = "SKIP"
 
             if formatter:
                 formatter.dispatch_persist_filename(filename=file.path, result=result)
@@ -473,16 +523,18 @@ class LintingResult:
         all_stats = dict(files=0, clean=0, unclean=0, violations=0)
         for path in self.paths:
             all_stats = self.sum_dicts(path.stats(), all_stats)
-        if all_stats['files'] > 0:
-            all_stats['avg per file'] = all_stats['violations'] * 1.0 / all_stats['files']
-            all_stats['unclean rate'] = all_stats['unclean'] * 1.0 / all_stats['files']
+        if all_stats["files"] > 0:
+            all_stats["avg per file"] = (
+                all_stats["violations"] * 1.0 / all_stats["files"]
+            )
+            all_stats["unclean rate"] = all_stats["unclean"] * 1.0 / all_stats["files"]
         else:
-            all_stats['avg per file'] = 0
-            all_stats['unclean rate'] = 0
-        all_stats['clean files'] = all_stats['clean']
-        all_stats['unclean files'] = all_stats['unclean']
-        all_stats['exit code'] = 65 if all_stats['violations'] > 0 else 0
-        all_stats['status'] = 'FAIL' if all_stats['violations'] > 0 else 'PASS'
+            all_stats["avg per file"] = 0
+            all_stats["unclean rate"] = 0
+        all_stats["clean files"] = all_stats["clean"]
+        all_stats["unclean files"] = all_stats["unclean"]
+        all_stats["exit code"] = 65 if all_stats["violations"] > 0 else 0
+        all_stats["status"] = "FAIL" if all_stats["violations"] > 0 else "PASS"
         return all_stats
 
     def as_records(self):
@@ -493,7 +545,7 @@ class LintingResult:
         (ints, strs).
         """
         return [
-            {'filepath': path, 'violations': [v.get_info_dict() for v in violations]}
+            {"filepath": path, "violations": [v.get_info_dict() for v in violations]}
             for lintedpath in self.paths
             for path, violations in lintedpath.violation_dict().items()
             if violations
@@ -512,12 +564,11 @@ class LintingResult:
 class Linter:
     """The interface class to interact with the linter."""
 
-    def __init__(self, sql_exts=('.sql',),
-                 config=None, formatter=None):
+    def __init__(self, sql_exts=(".sql",), config=None, formatter=None):
         if config is None:
             raise ValueError("No config object provided to linter!")
-        self.dialect = config.get('dialect_obj')
-        self.templater = config.get('templater_obj')
+        self.dialect = config.get("dialect_obj")
+        self.templater = config.get("templater_obj")
         self.sql_exts = sql_exts
         # Store the config object
         self.config = config
@@ -553,7 +604,7 @@ class Linter:
         t0 = time.monotonic()
         bencher = BenchIt()  # starts the timer
         if fname:
-            short_fname = fname.replace('\\', '/').split('/')[-1]
+            short_fname = fname.replace("\\", "/").split("/")[-1]
         else:
             # this handles to potential case of a null fname
             short_fname = fname
@@ -564,7 +615,9 @@ class Linter:
             self.formatter.dispatch_parse_header(fname, self.config, config)
 
         linter_logger.info("TEMPLATING RAW [%s] (%s)", self.templater.name, fname)
-        s, templater_violations = self.templater.process(s, fname=fname, config=config or self.config)
+        s, templater_violations = self.templater.process(
+            s, fname=fname, config=config or self.config
+        )
         violations += templater_violations
         # Detect the case of a catastrophic templater fail. In this case
         # we don't continue. We'll just bow out now.
@@ -578,7 +631,9 @@ class Linter:
             linter_logger.info("LEXING RAW (%s)", fname)
             # Lex the file and log any problems
             try:
-                file_segment, lex_vs = FileSegment.from_raw(s, config=config or self.config)
+                file_segment, lex_vs = FileSegment.from_raw(
+                    s, config=config or self.config
+                )
                 # We might just get the violations as a list
                 violations += lex_vs
             except SQLLexError as err:
@@ -597,7 +652,9 @@ class Linter:
         if file_segment:
             try:
                 # Make a parse context and parse
-                with RootParseContext.from_config(config=config or self.config, recurse=recurse) as ctx:
+                with RootParseContext.from_config(
+                    config=config or self.config, recurse=recurse
+                ) as ctx:
                     parsed = file_segment.parse(parse_context=ctx)
             except SQLParseError as err:
                 violations.append(err)
@@ -612,8 +669,11 @@ class Linter:
                     violations.append(
                         SQLParseError(
                             "Found unparsable section: {0!r}".format(
-                                unparsable.raw if len(unparsable.raw) < 40 else unparsable.raw[:40] + "..."),
-                            segment=unparsable
+                                unparsable.raw
+                                if len(unparsable.raw) < 40
+                                else unparsable.raw[:40] + "..."
+                            ),
+                            segment=unparsable,
                         )
                     )
                     linter_logger.info("Found unparsable segment...")
@@ -622,7 +682,7 @@ class Linter:
             parsed = None
 
         t3 = time.monotonic()
-        time_dict = {'templating': t1 - t0, 'lexing': t2 - t1, 'parsing': t3 - t2}
+        time_dict = {"templating": t1 - t0, "lexing": t2 - t1, "parsing": t3 - t2}
         bencher("Finish parsing {0!r}".format(short_fname))
         return parsed, violations, time_dict
 
@@ -631,23 +691,23 @@ class Linter:
         """Extract ignore mask entries from a comment segment."""
         # Also trim any whitespace afterward
         comment_content = comment.raw_trimmed().strip()
-        if comment_content.startswith('noqa'):
+        if comment_content.startswith("noqa"):
             # This is an ignore identifier
             comment_remainder = comment_content[4:]
             if comment_remainder:
-                if not comment_remainder.startswith(':'):
+                if not comment_remainder.startswith(":"):
                     return SQLParseError(
                         "Malformed 'noqa' section. Expected 'noqa: <rule>[,...]",
-                        segment=comment
+                        segment=comment,
                     )
                 comment_remainder = comment_remainder[1:]
-                rules = [r.strip() for r in comment_remainder.split(',')]
+                rules = [r.strip() for r in comment_remainder.split(",")]
                 return (comment.pos_marker.line_no, tuple(rules))
             else:
                 return (comment.pos_marker.line_no, None)
         return None
 
-    def lint_string(self, s, fname='<string input>', fix=False, config=None):
+    def lint_string(self, s, fname="<string input>", fix=False, config=None):
         """Lint a string.
 
         Returns:
@@ -668,8 +728,8 @@ class Linter:
         # Look for comment segments which might indicate lines to ignore.
         ignore_buff = []
         if parsed:
-            for comment in parsed.recursive_crawl('comment'):
-                if comment.name == 'inline_comment':
+            for comment in parsed.recursive_crawl("comment"):
+                if comment.name == "inline_comment":
                     ignore_entry = self.extract_ignore_from_comment(comment)
                     if isinstance(ignore_entry, SQLParseError):
                         vs.append(ignore_entry)
@@ -688,7 +748,9 @@ class Linter:
             # Get the initial violations
             linting_errors = []
             for crawler in self.get_ruleset(config=config):
-                lerrs, _, _, _ = crawler.crawl(parsed, dialect=config.get('dialect_obj'))
+                lerrs, _, _, _ = crawler.crawl(
+                    parsed, dialect=config.get("dialect_obj")
+                )
                 linting_errors += lerrs
             initial_linting_errors = linting_errors
 
@@ -709,7 +771,9 @@ class Linter:
                         # "anchor", the segment to look for either to edit or to insert BEFORE.
                         # The second is the element to insert or create.
 
-                        lerrs, _, fixes, _ = crawler.crawl(working, dialect=config.get('dialect_obj'), fix=True)
+                        lerrs, _, fixes, _ = crawler.crawl(
+                            working, dialect=config.get("dialect_obj"), fix=True
+                        )
                         linting_errors += lerrs
                         if fixes:
                             linter_logger.info("Applying Fixes: %s", fixes)
@@ -717,7 +781,8 @@ class Linter:
                             if last_fixes and fixes == last_fixes:
                                 linter_logger.warning(
                                     "One fix for %s not applied, it would re-cause the same error.",
-                                    crawler.code)
+                                    crawler.code,
+                                )
                             else:
                                 last_fixes = fixes
                                 new_working, fixes = working.apply_fixes(fixes)
@@ -730,7 +795,8 @@ class Linter:
                                 else:
                                     linter_logger.warning(
                                         "One fix for %s not applied, it would re-cause the same error.",
-                                        crawler.code)
+                                        crawler.code,
+                                    )
                     if not changed:
                         # The file is clean :)
                         break
@@ -739,7 +805,7 @@ class Linter:
 
             # Update the timing dict
             t1 = time.monotonic()
-            time_dict['linting'] = t1 - t0
+            time_dict["linting"] = t1 - t0
 
             # We're only going to return the *initial* errors, rather
             # than any generated during the fixing cycle.
@@ -749,24 +815,31 @@ class Linter:
         # We process the ignore config here if appropriate
         if config:
             for violation in vs:
-                violation.ignore_if_in(config.get('ignore'))
+                violation.ignore_if_in(config.get("ignore"))
 
         file_mask = (raw_buff, templ_buff, fixed_buff)
-        linted_file = LintedFile(fname, vs, time_dict, parsed,
-                                 file_mask=file_mask, ignore_mask=ignore_buff)
+        linted_file = LintedFile(
+            fname, vs, time_dict, parsed, file_mask=file_mask, ignore_mask=ignore_buff
+        )
 
         # This is the main command line output from linting.
         if self.formatter:
-            self.formatter.dispatch_file_violations(fname, linted_file, only_fixable=fix)
+            self.formatter.dispatch_file_violations(
+                fname, linted_file, only_fixable=fix
+            )
 
         # Safety flag for unset dialects
-        if config.get('dialect') == 'ansi' and linted_file.get_violations(fixable=True if fix else None, types=SQLParseError):
+        if config.get("dialect") == "ansi" and linted_file.get_violations(
+            fixable=True if fix else None, types=SQLParseError
+        ):
             if self.formatter:
                 self.formatter.dispatch_dialect_warning()
 
         return linted_file
 
-    def paths_from_path(self, path, ignore_file_name='.sqlfluffignore', ignore_non_existent_files=False):
+    def paths_from_path(
+        self, path, ignore_file_name=".sqlfluffignore", ignore_non_existent_files=False
+    ):
         """Return a set of sql file paths from a potentially more ambigious path string.
 
         Here we also deal with the .sqlfluffignore file if present.
@@ -790,8 +863,8 @@ class Linter:
                 fpath = os.path.join(dirpath, fname)
                 # Handle potential .sqlfluffignore files
                 if fname == ignore_file_name:
-                    with open(fpath, 'r') as fh:
-                        spec = pathspec.PathSpec.from_lines('gitwildmatch', fh)
+                    with open(fpath, "r") as fh:
+                        spec = pathspec.PathSpec.from_lines("gitwildmatch", fh)
                     matches = spec.match_tree(dirpath)
                     for m in matches:
                         ignore_path = os.path.join(dirpath, m)
@@ -817,13 +890,11 @@ class Linter:
         # Return
         return sorted(filtered_buffer)
 
-    def lint_string_wrapped(self, string, fname='<string input>', fix=False):
+    def lint_string_wrapped(self, string, fname="<string input>", fix=False):
         """Lint strings directly."""
         result = LintingResult()
         linted_path = LintedPath(fname)
-        linted_path.add(
-            self.lint_string(string, fname=fname, fix=fix)
-        )
+        linted_path.add(self.lint_string(string, fname=fname, fix=fix))
         result.add(linted_path)
         return result
 
@@ -832,13 +903,19 @@ class Linter:
         linted_path = LintedPath(path)
         if self.formatter:
             self.formatter.dispatch_path(path)
-        for fname in self.paths_from_path(path, ignore_non_existent_files=ignore_non_existent_files):
+        for fname in self.paths_from_path(
+            path, ignore_non_existent_files=ignore_non_existent_files
+        ):
             config = self.config.make_child_from_path(fname)
             # Handle unicode issues gracefully
-            with open(fname, 'r', encoding='utf8', errors='backslashreplace') as target_file:
+            with open(
+                fname, "r", encoding="utf8", errors="backslashreplace"
+            ) as target_file:
                 linted_path.add(
-                    self.lint_string(target_file.read(), fname=fname,
-                                     fix=fix, config=config))
+                    self.lint_string(
+                        target_file.read(), fname=fname, fix=fix, config=config
+                    )
+                )
         return linted_path
 
     def lint_paths(self, paths, fix=False, ignore_non_existent_files=False):
@@ -851,8 +928,11 @@ class Linter:
         for path in paths:
             # Iterate through files recursively in the specified directory (if it's a directory)
             # or read the file directly if it's not
-            result.add(self.lint_path(path, fix=fix,
-                                      ignore_non_existent_files=ignore_non_existent_files))
+            result.add(
+                self.lint_path(
+                    path, fix=fix, ignore_non_existent_files=ignore_non_existent_files
+                )
+            )
         return result
 
     def parse_path(self, path, recurse=True):
@@ -866,10 +946,13 @@ class Linter:
                 self.formatter.dispatch_path(path)
             config = self.config.make_child_from_path(fname)
             # Handle unicode issues gracefully
-            with open(fname, 'r', encoding='utf8', errors='backslashreplace') as target_file:
+            with open(
+                fname, "r", encoding="utf8", errors="backslashreplace"
+            ) as target_file:
                 yield (
-                    *self.parse_string(target_file.read(), fname=fname,
-                                       recurse=recurse, config=config),
+                    *self.parse_string(
+                        target_file.read(), fname=fname, recurse=recurse, config=config
+                    ),
                     # Also yield the config
-                    config
+                    config,
                 )
