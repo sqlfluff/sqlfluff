@@ -8,11 +8,12 @@ from .linter import Linter
 
 class SQLFluffViolationReporter(BaseViolationReporter):
     """Class that implements diff-quality integration."""
-    supported_extensions = ['sql']
+
+    supported_extensions = ["sql"]
 
     def __init__(self):
         """Calls the base class constructor to set the object's name."""
-        super(SQLFluffViolationReporter, self).__init__('sqlfluff')
+        super(SQLFluffViolationReporter, self).__init__("sqlfluff")
 
     @staticmethod
     def violations(src_path):

@@ -9,16 +9,16 @@ from sqlfluff.parser import RawSegment, FilePositionMarker
 @pytest.fixture(scope="module")
 def raw_seg():
     """Construct a raw segment as a fixture."""
-    fp = FilePositionMarker.from_fresh().advance_by('abc')
-    return RawSegment('foobar', fp)
+    fp = FilePositionMarker.from_fresh().advance_by("abc")
+    return RawSegment("foobar", fp)
 
 
 # A set of generator functions to make thing to use Matches with
 input_funcs = [
-    lambda x: (x,),               # tuple
-    lambda x: [x],                      # list
-    lambda x: x,                        # segment
-    lambda x: (elem for elem in [x])    # generator
+    lambda x: (x,),  # tuple
+    lambda x: [x],  # list
+    lambda x: x,  # segment
+    lambda x: (elem for elem in [x]),  # generator
 ]
 
 
@@ -51,8 +51,7 @@ def test__parser__match_add(input_func, raw_seg):
 
 
 @pytest.mark.parametrize(
-    "fail_case",
-    ['string', ['list_of_string'], ('tuple_of_string',), range(10)]
+    "fail_case", ["string", ["list_of_string"], ("tuple_of_string",), range(10)]
 )
 def test__parser__match_add_raises(fail_case, raw_seg):
     """Test construction of MatchResults."""
