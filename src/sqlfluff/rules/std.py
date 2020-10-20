@@ -2830,7 +2830,7 @@ class Rule_L032(BaseCrawler):
 
 @std_rule_set.register
 class Rule_L034(BaseCrawler):
-    """Prefer wildcards then simple select targets before calculations and aggregates.
+    """Use wildcards then simple select targets before calculations and aggregates.
 
     | **Anti-pattern**
 
@@ -2856,18 +2856,35 @@ class Rule_L034(BaseCrawler):
             row_number() over (partition by id order by date) as y
         from x
 
-    
+  
     """
 
+    def _validate(self, i, segment):
+        if self.seen_element_band[i+1::] != [None] * len(self.seen_element_band[i+1::]):
+            # Not quite worked out the fix
+            # earliest_bad_element = next(el for el in self.seen_element_band[i+1::] if el is not None)
+            self.violation_buff.append(
+                LintResult(
+                    anchor=segment,
+                    # fixes=[LintFix('create', segment, earliest_bad_element),
+                    #        LintFix('delete', earliest_bad_element)
+                    #        ]
+                )
+            )
+        self.current_element_band = i
+        if not self.seen_element_band[i]:
+            self.seen_element_band[i] = segment
+
     def _eval(self, segment, **kwargs):
-        
-        violation_buff = []
+
+        self.violation_buff = []
+        # Bands of select targets in order to be enforced
         select_element_order_preference = (
             ('wildcard_expression',),
             ('object_reference', 'literal', 'cast_expression', ('function', 'cast')),
         )
-        # Memory to track which bands have been seen, with additional False to track other elements
-        seen_element_band = [False for i in select_element_order_preference] + [False]
+        # Memory to track which bands have been seen, with additional None to track other elements
+        self.seen_element_band = [None for i in select_element_order_preference] + [None]
 
         if segment.type == 'select_clause':
             select_target_elements = segment.get_children('select_target_element')
@@ -2876,28 +2893,23 @@ class Rule_L034(BaseCrawler):
 
             for segment in select_target_elements:
                 # The band index of the current segment in select_element_order_preference
-                current_element_band = None
+                self.current_element_band = None
+                # Identify target elements that are in select_element_order_preference
                 for i, band in enumerate(select_element_order_preference):
                     for e in band:
+                        # Identify function type select target
                         if type(e) == tuple:
                             if e[0] == 'function':
                                 if segment.get_child('function'):
                                     if segment.get_child('function').get_child('function_name'):
                                         if segment.get_child('function').get_child('function_name').raw == e[1]:
-                                            if True in seen_element_band[i+1::]:
-                                                violation_buff.append(
-                                                    LintResult(anchor=segment)
-                                                )
-                                            current_element_band = i
-                                            seen_element_band[i] = True
+                                            self._validate(i, segment)
+                        # Identify simple select target
                         elif segment.get_child(e):
-                            if True in seen_element_band[i+1::]:
-                                violation_buff.append(
-                                    LintResult(anchor=segment)
-                                )
-                            current_element_band = i
-                            seen_element_band[i] = True
-                if current_element_band is None:
-                    seen_element_band[-1] = True
+                            self._validate(i, segment)
+                # If the target doesn't exist in select_element_order_preference then it is 'complex' and must go last
+                if self.current_element_band is None:
+                    if not self.seen_element_band[-1]:
+                        self.seen_element_band[-1] = segment
                 
-        return violation_buff or None
+        return self.violation_buff or None
