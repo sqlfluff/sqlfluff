@@ -2828,6 +2828,7 @@ class Rule_L032(BaseCrawler):
                     )]
         return None
 
+
 @std_rule_set.register
 class Rule_L034(BaseCrawler):
     """Use wildcards then simple select targets before calculations and aggregates.
@@ -2856,11 +2857,11 @@ class Rule_L034(BaseCrawler):
             row_number() over (partition by id order by date) as y
         from x
 
-  
     """
 
     def _validate(self, i, segment):
-        if self.seen_element_band[i+1::] != [None] * len(self.seen_element_band[i+1::]):
+        # Check if we've seen a more complex select target element already
+        if self.seen_element_band[i + 1::] != [None] * len(self.seen_element_band[i + 1::]):
             # Not quite worked out the fix
             # earliest_bad_element = next(el for el in self.seen_element_band[i+1::] if el is not None)
             self.violation_buff.append(
@@ -2873,6 +2874,7 @@ class Rule_L034(BaseCrawler):
             )
         self.current_element_band = i
         if not self.seen_element_band[i]:
+            # If it's the first time we've seen this target element add it to the seen_element_band list
             self.seen_element_band[i] = segment
 
     def _eval(self, segment, **kwargs):
@@ -2883,7 +2885,8 @@ class Rule_L034(BaseCrawler):
             ('wildcard_expression',),
             ('object_reference', 'literal', 'cast_expression', ('function', 'cast')),
         )
-        # Memory to track which bands have been seen, with additional None to track other elements
+        # Track which bands have been seen, with additional None to track 'other' elements
+        # If we find a matching target element, we add the element to the corresponding index
         self.seen_element_band = [None for i in select_element_order_preference] + [None]
 
         if segment.type == 'select_clause':
@@ -2911,5 +2914,5 @@ class Rule_L034(BaseCrawler):
                 if self.current_element_band is None:
                     if not self.seen_element_band[-1]:
                         self.seen_element_band[-1] = segment
-                
+
         return self.violation_buff or None
