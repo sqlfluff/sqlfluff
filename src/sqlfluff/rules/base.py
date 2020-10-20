@@ -178,11 +178,27 @@ class BaseCrawler:
     def __init__(self, code, description, **kwargs):
         self.description = description
         self.code = code
-        # Any unused kwargs will just be ignored from here.
+        # kwargs represents the config passed to the crawler. Add all kwargs as class attributes
+        # so they can be accessed in rules which inherit from this class
+        for key, value in kwargs.items():
+            self.__dict__[key] = value
 
         # We also define a custom logger here, which also includes the code
         # of the rule in the logging.
-        self.logger = RuleLoggingAdapter(rules_logger, {"code": code})
+        self.logger = RuleLoggingAdapter(rules_logger, {'code': code})
+        # Validate that declared configuration options exist
+        try:
+            for keyword in self.config_keywords:
+                if keyword not in kwargs.keys():
+                    raise ValueError(
+                        (
+                            "Unrecognized config '{0}' for Rule {1}. If this "
+                            "is a new option, please add it to "
+                            "`default_config.ini`"
+                        ).format(keyword, code)
+                    )
+        except AttributeError:
+            self.logger.info("No config_keywords defined for {0}".format(code))
 
     def _eval(self, **kwargs):
         """Evaluate this rule against the current context.
@@ -390,9 +406,62 @@ class RuleSet:
 
     """
 
-    def __init__(self, name):
+    def __init__(self, name, config_info):
         self.name = name
+        self.config_info = config_info
         self._register = {}
+
+    def _validate_config_options(self, config, rule=None):
+        """Ensure that all config options are valid.
+
+        Config options can also be checked for a specific rule e.g L010.
+        """
+        rule_config = config.get_section("rules")
+
+        for config_name, info_dict in self.config_info.items():
+            config_option = rule_config.get(config_name) if not rule else rule_config.get(rule).get(config_name)
+            valid_options = info_dict["validation"]
+            if config_option not in valid_options and config_option is not None:
+                raise ValueError(
+                    (
+                        "Invalid option '{0}' for {1} configuration. Must be one of {2}"
+                    ).format(
+                        config_option,
+                        config_name,
+                        valid_options,
+                    )
+                )
+
+    def document_configuration(self, cls):
+        """Add a 'Configuration' section to a Rule docstring.
+
+        Utilize the the metadata in config_info to dynamically
+        document the configuration options for a given rule.
+
+        This is a little hacky, but it allows us to propogate configuration
+        options in the docs, from a single source of truth.
+        """
+        config_doc = "\n    | **Configuration**"
+        try:
+            for keyword in cls.config_keywords:
+                info_dict = self.config_info[keyword]
+                config_doc += "\n    |     `{0}`: {1}. Must be one of {2}.".format(
+                    keyword, info_dict["definition"], info_dict["validation"]
+                )
+                config_doc += "\n    |"
+        except AttributeError:
+            rules_logger.info("No config_keywords defined for {0}".format(cls.__name__))
+            return cls
+        # Add final blank line
+        config_doc += "\n"
+        # Add the configuration section immediately after the class description
+        # docstring by inserting after the first line break, or first period,
+        # if there is no line break.
+        end_of_class_description = "." if "\n" not in cls.__doc__ else "\n"
+        cls.__doc__ = cls.__doc__.replace(
+            end_of_class_description, ".\n" + config_doc, 1
+        )
+        return cls
 
     def register(self, cls):
         """Decorate a class with this to add it to the ruleset.
@@ -449,6 +518,8 @@ class RuleSet:
             :obj:`list` of instantiated :obj:`BaseCrawler`.
 
         """
+        # Validate all generic rule configs
+        self._validate_config_options(config)
         # default the whitelist to all the rules if not set
         whitelist = config.get("rule_whitelist") or list(self._register.keys())
         blacklist = config.get("rule_blacklist") or []
@@ -488,6 +559,8 @@ class RuleSet:
             if generic_rule_config:
                 kwargs.update(generic_rule_config)
             if specific_rule_config:
+                # Validate specific rule config before adding
+                self._validate_config_options(config, self._register[k]['code'])
                 kwargs.update(specific_rule_config)
             kwargs["code"] = self._register[k]["code"]
             # Allow variable substitution in making the description
