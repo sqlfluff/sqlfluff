@@ -185,7 +185,7 @@ class BaseCrawler:
 
         # We also define a custom logger here, which also includes the code
         # of the rule in the logging.
-        self.logger = RuleLoggingAdapter(rules_logger, {'code': code})
+        self.logger = RuleLoggingAdapter(rules_logger, {"code": code})
         # Validate that declared configuration options exist
         try:
             for keyword in self.config_keywords:
@@ -419,7 +419,11 @@ class RuleSet:
         rule_config = config.get_section("rules")
 
         for config_name, info_dict in self.config_info.items():
-            config_option = rule_config.get(config_name) if not rule else rule_config.get(rule).get(config_name)
+            config_option = (
+                rule_config.get(config_name)
+                if not rule
+                else rule_config.get(rule).get(config_name)
+            )
             valid_options = info_dict["validation"]
             if config_option not in valid_options and config_option is not None:
                 raise ValueError(
@@ -560,7 +564,7 @@ class RuleSet:
                 kwargs.update(generic_rule_config)
             if specific_rule_config:
                 # Validate specific rule config before adding
-                self._validate_config_options(config, self._register[k]['code'])
+                self._validate_config_options(config, self._register[k]["code"])
                 kwargs.update(specific_rule_config)
             kwargs["code"] = self._register[k]["code"]
             # Allow variable substitution in making the description

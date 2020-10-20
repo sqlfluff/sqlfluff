@@ -40,12 +40,12 @@ setup(
     description="Modular SQL Linting for Humans",
     long_description=read("README.md") + "\n\n---\n\n" + read("CHANGELOG.md"),
     # Make sure pypi is expecting markdown!
-    long_description_content_type='text/markdown',
-    author='Alan Cruickshank',
-    author_email='alan@designingoverload.com',
-    url='https://github.com/sqlfluff/sqlfluff',
+    long_description_content_type="text/markdown",
+    author="Alan Cruickshank",
+    author_email="alan@designingoverload.com",
+    url="https://github.com/sqlfluff/sqlfluff",
     python_requires=">=3.6",
-    keywords=['sqlfluff', 'sql', 'linter'],
+    keywords=["sqlfluff", "sql", "linter"],
     project_urls={
         # Homepage not ready yet.
         # 'Homepage': 'https://www.sqlfluff.com'

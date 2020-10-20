@@ -266,10 +266,10 @@ ansi_dialect.add(
     # This is a placeholder for other dialects.
     PreTableFunctionKeywordsGrammar=Nothing(),
     BinaryOperatorGramar=OneOf(
-        Ref('ArithmeticBinaryOperatorGrammar'),
-        Ref('StringBinaryOperatorGrammar'),
-        Ref('BooleanBinaryOperatorGrammar'),
-        Ref('ComparisonOperatorGrammar')
+        Ref("ArithmeticBinaryOperatorGrammar"),
+        Ref("StringBinaryOperatorGrammar"),
+        Ref("BooleanBinaryOperatorGrammar"),
+        Ref("ComparisonOperatorGrammar"),
     ),
     # This pattern is used in a lot of places.
     # Defined here to avoid repetition.
@@ -277,10 +277,9 @@ ansi_dialect.add(
         Checkpoint.make(
             match_grammar=Anything(),
             parse_grammar=Delimited(
-                Ref('ObjectReferenceSegment'),
-                delimiter=Ref('CommaSegment')
+                Ref("ObjectReferenceSegment"), delimiter=Ref("CommaSegment")
             ),
-            name='ColumnReferenceList'
+            name="ColumnReferenceList",
         )
     ),
 )
@@ -779,16 +778,16 @@ class JoinClauseSegment(BaseSegment):
                 "ON",
                 Indent,
                 OneOf(
-                    Ref('ExpressionSegment'),
+                    Ref("ExpressionSegment"),
                     Bracketed(
                         Checkpoint.make(
                             match_grammar=Anything(),
-                            parse_grammar=Ref('ExpressionSegment'),
-                            name="JoinCondition"
+                            parse_grammar=Ref("ExpressionSegment"),
+                            name="JoinCondition",
                         )
-                    )
+                    ),
                 ),
-                Dedent
+                Dedent,
             ),
             # USING clause
             Sequence(
@@ -801,10 +800,10 @@ class JoinClauseSegment(BaseSegment):
                     Checkpoint.make(
                         match_grammar=Anything(),
                         parse_grammar=Delimited(
-                            Ref('SingleIdentifierGrammar'),
-                            delimiter=Ref('CommaSegment')
+                            Ref("SingleIdentifierGrammar"),
+                            delimiter=Ref("CommaSegment"),
                         ),
-                        name="UsingClauseContents"
+                        name="UsingClauseContents",
                     )
                 ),
                 Dedent,
@@ -968,13 +967,13 @@ ansi_dialect.add(
                             match_grammar=Anything(),
                             parse_grammar=OneOf(
                                 Delimited(
-                                    Ref('LiteralGrammar'),
-                                    Ref('IntervalExpressionSegment'),
-                                    delimiter=Ref('CommaSegment')
+                                    Ref("LiteralGrammar"),
+                                    Ref("IntervalExpressionSegment"),
+                                    delimiter=Ref("CommaSegment"),
                                 ),
-                                Ref('SelectableGrammar')
+                                Ref("SelectableGrammar"),
                             ),
-                            name="InExpression"
+                            name="InExpression",
                         )
                     ),
                 ),
@@ -1181,11 +1180,11 @@ class ValuesClauseSegment(BaseSegment):
                 Checkpoint.make(
                     match_grammar=Anything(),
                     parse_grammar=Delimited(
-                        Ref('LiteralGrammar'),
-                        Ref('IntervalExpressionSegment'),
-                        delimiter=Ref('CommaSegment')
+                        Ref("LiteralGrammar"),
+                        Ref("IntervalExpressionSegment"),
+                        delimiter=Ref("CommaSegment"),
                     ),
-                    name="ValuesClauseElements"
+                    name="ValuesClauseElements",
                 )
             ),
             delimiter=Ref("CommaSegment"),
@@ -1302,12 +1301,12 @@ class InsertStatementSegment(BaseSegment):
     type = "insert_statement"
     match_grammar = StartsWith("INSERT")
     parse_grammar = Sequence(
-        'INSERT',
-        Ref.keyword('OVERWRITE', optional=True),  # Maybe this is just snowflake?
-        Ref.keyword('INTO', optional=True),
-        Ref('ObjectReferenceSegment'),
-        Ref('BracketedColumnReferenceListGrammar', optional=True),
-        Ref('SelectableGrammar')
+        "INSERT",
+        Ref.keyword("OVERWRITE", optional=True),  # Maybe this is just snowflake?
+        Ref.keyword("INTO", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Ref("SelectableGrammar"),
     )
 
 
@@ -1370,10 +1369,10 @@ class ColumnOptionSegment(BaseSegment):
             "UNIQUE",  # UNIQUE
             "AUTO_INCREMENT",  # AUTO_INCREMENT (MySQL)
             Sequence(  # REFERENCES reftable [ ( refcolumn) ]
-                'REFERENCES',
-                Ref('ObjectReferenceSegment'),
+                "REFERENCES",
+                Ref("ObjectReferenceSegment"),
                 # Foreign columns making up FOREIGN KEY constraint
-                Ref('BracketedColumnReferenceListGrammar', optional=True),
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
             ),
             Sequence(  # [COMMENT 'string'] (MySQL)
                 "COMMENT",
@@ -1411,27 +1410,27 @@ class TableConstraintSegment(BaseSegment):
         ),
         OneOf(
             Sequence(  # UNIQUE ( column_name [, ... ] )
-                'UNIQUE',
-                Ref('BracketedColumnReferenceListGrammar'),
+                "UNIQUE",
+                Ref("BracketedColumnReferenceListGrammar"),
                 # Later add support for index_parameters?
             ),
             Sequence(  # PRIMARY KEY ( column_name [, ... ] ) index_parameters
-                'PRIMARY',
-                'KEY',
+                "PRIMARY",
+                "KEY",
                 # Columns making up PRIMARY KEY constraint
-                Ref('BracketedColumnReferenceListGrammar'),
+                Ref("BracketedColumnReferenceListGrammar"),
                 # Later add support for index_parameters?
             ),
             Sequence(  # FOREIGN KEY ( column_name [, ... ] )
-                       # REFERENCES reftable [ ( refcolumn [, ... ] ) ]
-                'FOREIGN',
-                'KEY',
+                # REFERENCES reftable [ ( refcolumn [, ... ] ) ]
+                "FOREIGN",
+                "KEY",
                 # Local columns making up FOREIGN KEY constraint
-                Ref('BracketedColumnReferenceListGrammar'),
-                'REFERENCES',
-                Ref('ObjectReferenceSegment'),
+                Ref("BracketedColumnReferenceListGrammar"),
+                "REFERENCES",
+                Ref("ObjectReferenceSegment"),
                 # Foreign columns making up FOREIGN KEY constraint
-                Ref('BracketedColumnReferenceListGrammar'),
+                Ref("BracketedColumnReferenceListGrammar"),
                 # Later add support for [MATCH FULL/PARTIAL/SIMPLE] ?
                 # Later add support for [ ON DELETE/UPDATE action ] ?
             ),
@@ -1509,10 +1508,10 @@ class AlterTableStatementSegment(BaseSegment):
                             OneOf("FIRST", "AFTER"), Ref("ObjectReferenceSegment")
                         ),
                         # Bracketed Version of the same
-                        Ref('BracketedColumnReferenceListGrammar'),
-                        optional=True
-                    )
-                )
+                        Ref("BracketedColumnReferenceListGrammar"),
+                        optional=True,
+                    ),
+                ),
             ),
             delimiter=Ref("CommaSegment"),
         ),
@@ -1528,18 +1527,14 @@ class CreateViewStatementSegment(BaseSegment):
     # https://dev.mysql.com/doc/refman/8.0/en/create-view.html
     # https://www.postgresql.org/docs/12/sql-createview.html
     match_grammar = Sequence(
-        'CREATE',
-        Sequence(
-            'OR',
-            'REPLACE',
-            optional=True
-        ),
-        'VIEW',
-        Ref('ObjectReferenceSegment'),
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        "VIEW",
+        Ref("ObjectReferenceSegment"),
         # Optional list of column names
-        Ref('BracketedColumnReferenceListGrammar', optional=True),
-        'AS',
-        Ref('SelectableGrammar'),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        "AS",
+        Ref("SelectableGrammar"),
     )
 
 
@@ -1579,7 +1574,7 @@ class AccessStatementSegment(BaseSegment):
                         "INSERT",
                     ),
                     # Optional list of column names
-                    Ref('BracketedColumnReferenceListGrammar', optional=True)
+                    Ref("BracketedColumnReferenceListGrammar", optional=True),
                 ),
                 delimiter=Ref("CommaSegment"),
             ),
@@ -1618,7 +1613,7 @@ class AccessStatementSegment(BaseSegment):
                         "INSERT",
                     ),
                     # Optional list of column names
-                    Ref('BracketedColumnReferenceListGrammar', optional=True)
+                    Ref("BracketedColumnReferenceListGrammar", optional=True),
                 ),
                 delimiter=Ref("CommaSegment"),
             ),

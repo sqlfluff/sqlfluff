@@ -12,7 +12,7 @@ import itertools
 from .base import BaseCrawler, LintFix, LintResult, RuleSet
 from .config_info import STANDARD_CONFIG_INFO_DICT
 
-std_rule_set = RuleSet(name='standard', config_info=STANDARD_CONFIG_INFO_DICT)
+std_rule_set = RuleSet(name="standard", config_info=STANDARD_CONFIG_INFO_DICT)
 
 
 @std_rule_set.register
@@ -1128,7 +1128,7 @@ class Rule_L010(BaseCrawler):
     """
 
     # Binary operators behave like keywords too.
-    _target_elems = (('type', 'keyword'), ('type', 'binary_operator'))
+    _target_elems = (("type", "keyword"), ("type", "binary_operator"))
     config_keywords = ["capitalisation_policy"]
 
     def _eval(self, segment, memory, **kwargs):
@@ -3024,12 +3024,16 @@ class Rule_L032(BaseCrawler):
 
     def _eval(self, segment, **kwargs):
         """Look for USING in a join clause."""
-        if segment.type == 'join_clause':
+        if segment.type == "join_clause":
             for seg in segment.segments:
-                if seg.type == 'keyword' and seg.name == 'USING':
-                    return [LintResult(
-                        # Reference the element, not the string.
-                        anchor=seg,
-                        description=("Found USING statement. Expected only ON statements.")
-                    )]
+                if seg.type == "keyword" and seg.name == "USING":
+                    return [
+                        LintResult(
+                            # Reference the element, not the string.
+                            anchor=seg,
+                            description=(
+                                "Found USING statement. Expected only ON statements."
+                            ),
+                        )
+                    ]
         return None
