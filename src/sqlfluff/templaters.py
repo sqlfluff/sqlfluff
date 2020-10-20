@@ -15,7 +15,7 @@ _templater_lookup = {}
 
 def templater_selector(s=None, **kwargs):
     """Instantitate a new templater by name."""
-    s = s or 'jinja'  # default to jinja
+    s = s or "jinja"  # default to jinja
     try:
         cls = _templater_lookup[s]
         # Instantiate here, optionally with kwargs
@@ -23,8 +23,9 @@ def templater_selector(s=None, **kwargs):
     except KeyError:
         raise ValueError(
             "Requested templater {0!r} which is not currently available. Try one of {1}".format(
-                s, ', '.join(_templater_lookup.keys())
-            ))
+                s, ", ".join(_templater_lookup.keys())
+            )
+        )
 
 
 def register_templater(cls):
@@ -50,8 +51,8 @@ class RawTemplateInterface:
     This also acts as the base templating class.
     """
 
-    name = 'raw'
-    templater_selector = 'templater'
+    name = "raw"
+    templater_selector = "templater"
 
     def __init__(self, **kwargs):
         """Placeholder init function.
@@ -95,10 +96,10 @@ class PythonTemplateInterface(RawTemplateInterface):
     a good way of doing it securely. Use the jinja templater for this.
     """
 
-    name = 'python'
+    name = "python"
 
     def __init__(self, override_context=None, **kwargs):
-        self.default_context = dict(test_value='__test__')
+        self.default_context = dict(test_value="__test__")
         self.override_context = override_context or {}
 
     @staticmethod
@@ -120,7 +121,10 @@ class PythonTemplateInterface(RawTemplateInterface):
         # is a silly place.
         if config:
             # This is now a nested section
-            loaded_context = config.get_section((self.templater_selector, self.name, 'context')) or {}
+            loaded_context = (
+                config.get_section((self.templater_selector, self.name, "context"))
+                or {}
+            )
         else:
             loaded_context = {}
         live_context = {}
@@ -150,7 +154,10 @@ class PythonTemplateInterface(RawTemplateInterface):
         except KeyError as err:
             # TODO: Add a url here so people can get more help.
             raise SQLTemplaterError(
-                "Failure in Python templating: {0}. Have you configured your variables?".format(err))
+                "Failure in Python templating: {0}. Have you configured your variables?".format(
+                    err
+                )
+            )
 
 
 @register_templater
@@ -160,7 +167,7 @@ class JinjaTemplateInterface(PythonTemplateInterface):
     See: https://jinja.palletsprojects.com/
     """
 
-    name = 'jinja'
+    name = "jinja"
 
     @staticmethod
     def _extract_macros_from_template(template, env, ctx):
@@ -192,30 +199,31 @@ class JinjaTemplateInterface(PythonTemplateInterface):
         macro_ctx = {}
         if os.path.isfile(path):
             # It's a file. Extract macros from it.
-            with open(path, 'r') as opened_file:
+            with open(path, "r") as opened_file:
                 template = opened_file.read()
             # Update the context with macros from the file.
             macro_ctx.update(
-                cls._extract_macros_from_template(
-                    template, env=env, ctx=ctx
-                )
+                cls._extract_macros_from_template(template, env=env, ctx=ctx)
             )
         else:
             # It's a directory. Iterate through files in it and extract from them.
             for dirpath, _, files in os.walk(path):
                 for fname in files:
-                    if fname.endswith('.sql'):
-                        macro_ctx.update(cls._extract_macros_from_path(
-                            os.path.join(dirpath, fname),
-                            env=env, ctx=ctx
-                        ))
+                    if fname.endswith(".sql"):
+                        macro_ctx.update(
+                            cls._extract_macros_from_path(
+                                os.path.join(dirpath, fname), env=env, ctx=ctx
+                            )
+                        )
         return macro_ctx
 
     def _extract_macros_from_config(self, config, env, ctx):
         """Take a config and load any macros from it."""
         if config:
             # This is now a nested section
-            loaded_context = config.get_section((self.templater_selector, self.name, 'macros')) or {}
+            loaded_context = (
+                config.get_section((self.templater_selector, self.name, "macros")) or {}
+            )
         else:
             loaded_context = {}
 
@@ -223,9 +231,7 @@ class JinjaTemplateInterface(PythonTemplateInterface):
         macro_ctx = {}
         for value in loaded_context.values():
             macro_ctx.update(
-                self._extract_macros_from_template(
-                    value, env=env, ctx=ctx
-                )
+                self._extract_macros_from_template(value, env=env, ctx=ctx)
             )
         return macro_ctx
 
@@ -238,9 +244,10 @@ class JinjaTemplateInterface(PythonTemplateInterface):
 
         class ThisEmulator:
             """A class which emulates the `this` class from dbt."""
-            name = 'this_model'
-            schema = 'this_schema'
-            database = 'this_database'
+
+            name = "this_model"
+            schema = "this_schema"
+            database = "this_database"
 
             def __str__(self):
                 return self.name
@@ -250,8 +257,8 @@ class JinjaTemplateInterface(PythonTemplateInterface):
             # TODO: This means we'll never parse the other part of the query,
             # so we should find a solution to that. Perhaps forcing the file
             # to be parsed TWICE if it uses this variable.
-            'is_incremental': lambda: False,
-            'this': ThisEmulator()
+            "is_incremental": lambda: False,
+            "this": ThisEmulator(),
         }
         return dbt_builtins
 
@@ -264,16 +271,19 @@ class JinjaTemplateInterface(PythonTemplateInterface):
         # Then assess self
         if isinstance(tree, jinja2.nodes.Name) and tree.name in variable_names:
             line_no = tree.lineno
-            line = raw.split('\n')[line_no - 1]
+            line = raw.split("\n")[line_no - 1]
             pos = line.index(tree.name) + 1
             # Generate the charpos. +1 is for the newline characters themselves
-            charpos = sum(len(raw_line) + 1 for raw_line in raw.split('\n')[:line_no - 1]) + pos
+            charpos = (
+                sum(len(raw_line) + 1 for raw_line in raw.split("\n")[: line_no - 1])
+                + pos
+            )
             # NB: The positions returned here will be *inconsistent* with those
             # from the linter at the moment, because these are references to the
             # structure of the file *before* templating.
             yield SQLTemplaterError(
                 "Undefined jinja template variable: {0!r}".format(tree.name),
-                pos=FilePositionMarker(None, line_no, pos, charpos)
+                pos=FilePositionMarker(None, line_no, pos, charpos),
             )
 
     def process(self, in_str, fname=None, config=None):
@@ -291,16 +301,21 @@ class JinjaTemplateInterface(PythonTemplateInterface):
         env = SandboxedEnvironment(
             keep_trailing_newline=True,
             # The do extension allows the "do" directive
-            autoescape=False, extensions=['jinja2.ext.do']
+            autoescape=False,
+            extensions=["jinja2.ext.do"],
         )
 
         if not config:
-            raise ValueError("For the jinja templater, the `process()` method requires a config object.")
+            raise ValueError(
+                "For the jinja templater, the `process()` method requires a config object."
+            )
 
         # Load the context
         live_context = self.get_context(fname=fname, config=config)
         # Apply dbt builtin functions if we're allowed.
-        apply_dbt_builtins = config.get_section((self.templater_selector, self.name, 'apply_dbt_builtins'))
+        apply_dbt_builtins = config.get_section(
+            (self.templater_selector, self.name, "apply_dbt_builtins")
+        )
         if apply_dbt_builtins:
             # This feels a bit wrong defining these here, they should probably
             # be configurable somewhere sensible. But for now they're not.
@@ -314,9 +329,13 @@ class JinjaTemplateInterface(PythonTemplateInterface):
         # Load config macros
         ctx = self._extract_macros_from_config(config=config, env=env, ctx=live_context)
         # Load macros from path (if applicable)
-        macros_path = config.get_section((self.templater_selector, self.name, 'load_macros_from_path'))
+        macros_path = config.get_section(
+            (self.templater_selector, self.name, "load_macros_from_path")
+        )
         if macros_path:
-            ctx.update(self._extract_macros_from_path(macros_path, env=env, ctx=live_context))
+            ctx.update(
+                self._extract_macros_from_path(macros_path, env=env, ctx=live_context)
+            )
         live_context.update(ctx)
 
         # Load the template, passing the global context.
@@ -330,7 +349,8 @@ class JinjaTemplateInterface(PythonTemplateInterface):
         except Exception as err:
             # TODO: Add a url here so people can get more help.
             raise SQLTemplaterError(
-                "Failure in identifying Jinja variables: {0}.".format(err))
+                "Failure in identifying Jinja variables: {0}.".format(err)
+            )
 
         # Get rid of any that *are* actually defined.
         for val in live_context:
@@ -350,7 +370,10 @@ class JinjaTemplateInterface(PythonTemplateInterface):
             # TODO: Add a url here so people can get more help.
             violations.append(
                 SQLTemplaterError(
-                    ("Unrecoverable failure in Jinja templating: {0}. Have you configured "
-                     "your variables? https://docs.sqlfluff.com/en/latest/configuration.html").format(err))
+                    (
+                        "Unrecoverable failure in Jinja templating: {0}. Have you configured "
+                        "your variables? https://docs.sqlfluff.com/en/latest/configuration.html"
+                    ).format(err)
+                )
             )
             return None, violations

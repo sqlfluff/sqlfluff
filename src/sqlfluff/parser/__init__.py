@@ -4,12 +4,29 @@
 
 from .context import RootParseContext, parser_logger
 from .segments_base import BaseSegment, RawSegment
-from .segments_common import (KeywordSegment, ReSegment, NamedSegment,
-                              LambdaSegment, Indent, Dedent, Checkpoint)
+from .segments_common import (
+    KeywordSegment,
+    ReSegment,
+    NamedSegment,
+    LambdaSegment,
+    Indent,
+    Dedent,
+    Checkpoint,
+)
 from .segment_generator import SegmentGenerator
-from .grammar import (Sequence, GreedyUntil, StartsWith, ContainsOnly,
-                      OneOf, Delimited, Bracketed, AnyNumberOf, Ref,
-                      Anything, Nothing)
+from .grammar import (
+    Sequence,
+    GreedyUntil,
+    StartsWith,
+    ContainsOnly,
+    OneOf,
+    Delimited,
+    Bracketed,
+    AnyNumberOf,
+    Ref,
+    Anything,
+    Nothing,
+)
 from .segments_file import FileSegment
 from .markers import FilePositionMarker
 from .lexer import Lexer
