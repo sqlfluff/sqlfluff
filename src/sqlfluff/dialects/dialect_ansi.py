@@ -178,7 +178,7 @@ ansi_dialect.add(
         Delimited(
             Ref('ObjectReferenceSegment'),
             delimiter=Ref('CommaSegment'),
-            checkpoint_name="ColumnReferenceList"
+            ephemeral_name="ColumnReferenceList"
         )
     ),
 )
@@ -306,7 +306,7 @@ class ArrayAccessorSegment(BaseSegment):
                 Ref('ExpressionSegment')
             ),
             delimiter=Ref('SliceSegment'),
-            checkpoint_name="ArrayAccessorContent"
+            ephemeral_name="ArrayAccessorContent"
         ),
         # Use square brackets
         square=True
@@ -416,7 +416,7 @@ class OverClauseSegment(BaseSegment):
                 Ref('OrderByClauseSegment', optional=True),
                 Ref('FrameClauseSegment', optional=True),
                 optional=True,
-                checkpoint_name="OverClauseContent"
+                ephemeral_name="OverClauseContent"
             )
         ),
     )
@@ -440,7 +440,7 @@ class FunctionSegment(BaseSegment):
                     'FunctionContentsGrammar',
                     # The brackets might be empty for some functions...
                     optional=True,
-                    checkpoint_name='FunctionContentsGrammar'
+                    ephemeral_name='FunctionContentsGrammar'
                 )
             ),
         ),
@@ -682,7 +682,7 @@ class JoinClauseSegment(BaseSegment):
                 OneOf(
                     Ref('ExpressionSegment'),
                     Bracketed(
-                        Ref('ExpressionSegment', checkpoint_name="JoinCondition")
+                        Ref('ExpressionSegment', ephemeral_name="JoinCondition")
                     )
                 ),
                 Dedent
@@ -698,7 +698,7 @@ class JoinClauseSegment(BaseSegment):
                     Delimited(
                         Ref('SingleIdentifierGrammar'),
                         delimiter=Ref('CommaSegment'),
-                        checkpoint_name="UsingClauseContents"
+                        ephemeral_name="UsingClauseContents"
                     )
                 ),
                 Dedent
@@ -883,7 +883,7 @@ ansi_dialect.add(
                                 delimiter=Ref('CommaSegment')
                             ),
                             Ref('SelectableGrammar'),
-                            checkpoint_name="InExpression"
+                            ephemeral_name="InExpression"
                         )
                     )
                 ),
@@ -1135,7 +1135,7 @@ class ValuesClauseSegment(BaseSegment):
                     Ref('LiteralGrammar'),
                     Ref('IntervalExpressionSegment'),
                     delimiter=Ref('CommaSegment'),
-                    checkpoint_name="ValuesClauseElements"
+                    ephemeral_name="ValuesClauseElements"
                 )
             ),
             delimiter=Ref('CommaSegment')
@@ -1203,7 +1203,7 @@ class WithCompoundStatementSegment(BaseSegment):
                 'AS',
                 Bracketed(
                     # Checkpoint here to subdivide the query.
-                    Ref('SelectableGrammar', checkpoint_name="SelectableGrammar")
+                    Ref('SelectableGrammar', ephemeral_name="SelectableGrammar")
                 )
             ),
             delimiter=Ref('CommaSegment'),

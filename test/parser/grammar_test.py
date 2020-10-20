@@ -6,7 +6,7 @@ import logging
 from sqlfluff.parser import RootParseContext
 from sqlfluff.parser.grammar import (OneOf, Sequence, GreedyUntil, ContainsOnly,
                                      Delimited, BaseGrammar, StartsWith)
-from sqlfluff.parser.segments_common import KeywordSegment, Checkpoint
+from sqlfluff.parser.segments_common import KeywordSegment, EphemeralSegment
 from sqlfluff.dialects import ansi_dialect
 
 # NB: All of these tests depend somewhat on the KeywordSegment working as planned
@@ -86,12 +86,12 @@ def test__parser__grammar__base__look_ahead_match(seg_list):
 
 def test__parser__grammar__base__checkpoing(seg_list):
     """Test the _look_ahead_match method of the BaseGrammar."""
-    g = BaseGrammar(checkpoint_name='TestGrammar')
+    g = BaseGrammar(ephemeral_name='TestGrammar')
 
     with RootParseContext(dialect=None) as ctx:
         m = g._match(seg_list, ctx)
-        # Check we get a checkpoint
-        assert isinstance(m.matched_segments[0], Checkpoint)
+        # Check we get an ephemeral segment
+        assert isinstance(m.matched_segments[0], EphemeralSegment)
         chkpoint = m.matched_segments[0]
         # Check it's got the same content.
         assert chkpoint.segments == seg_list

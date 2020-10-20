@@ -3,7 +3,7 @@
 import copy
 
 from .segments_base import (BaseSegment, check_still_complete, parse_match_logging)
-from .segments_common import Indent, Dedent, Checkpoint
+from .segments_common import Indent, Dedent, EphemeralSegment
 from .match import MatchResult, join_segments_raw_curtailed
 from ..errors import SQLParseError
 
@@ -51,7 +51,7 @@ class BaseGrammar:
         raise TypeError("Grammar element [{0!r}] was found of unexpected type [{1}] was found.".format(
             elem, type(elem)))
 
-    def __init__(self, *args, resolve_refs=True, code_only=True, optional=False, checkpoint_name=None):
+    def __init__(self, *args, resolve_refs=True, code_only=True, optional=False, ephemeral_name=None):
         """Deal with kwargs common to all grammars."""
         # We provide a common interface for any grammar that allows positional elements.
         # If *any* for the elements are a string and not a grammar, then this is a shortcut
@@ -66,20 +66,20 @@ class BaseGrammar:
         # Now we deal with the standard kwargs
         self.code_only = code_only
         self.optional = optional
-        self.checkpoint = None
-        # Set up the checkpoint if name is specified.
-        if checkpoint_name:
-            # Make the checkpoint class. This is effectively syntactic sugar
-            # to allow us to avoid specifying a checkpoint directly in a dialect.
+        self.ephemeral_segment = None
+        # Set up the ephemeral_segment if name is specified.
+        if ephemeral_name:
+            # Make the EphemeralSegment class. This is effectively syntactic sugar
+            # to allow us to avoid specifying a EphemeralSegment directly in a dialect.
 
-            # Copy self (*before* making the checkpoint, but with everything else in place)
+            # Copy self (*before* making the EphemeralSegment, but with everything else in place)
             parse_grammar = copy.copy(self)
-            # Add the checkpoint to self.
-            self.checkpoint = Checkpoint.make(
+            # Add the EphemeralSegment to self.
+            self.ephemeral_segment = EphemeralSegment.make(
                 match_grammar=None,
-                # Pass in the copy without the checkpoint
+                # Pass in the copy without the EphemeralSegment
                 parse_grammar=parse_grammar,
-                name=checkpoint_name
+                name=ephemeral_name
             )
 
     def is_optional(self):
@@ -114,18 +114,18 @@ class BaseGrammar:
             parse_context.logger.info("{0}.match, was passed zero length segments list. NB: {0} contains {1!r}".format(
                 self.__class__.__name__, self._elements))
 
-        # If we checkpoint here, then we don't actually call the match grammar
-        # and instead just return straight away with the checkpoint made earlier.
-        # We don't use the `match` method of Checkpoint, but instead instantiate
+        # If we have an EphemeralSegment, then we don't actually call the match grammar
+        # and instead just return straight away with the EphemeralSegment made earlier.
+        # We don't use the `match` method of EphemeralSegment, but instead instantiate
         # it directly.
-        if self.checkpoint:
+        if self.ephemeral_segment:
             parse_match_logging(
                 self.__class__.__name__, '_match', 'CHK',
                 parse_context=parse_context,
                 v_level=self.v_level
             )
             # We're going to return as though it's a full match, similar to Anything().
-            m = MatchResult.from_matched(self.checkpoint(segments=segments),)
+            m = MatchResult.from_matched(self.ephemeral_segment(segments=segments),)
         else:
             # Logging to help with debugging.
             # Work out the raw representation and curtail if long.
