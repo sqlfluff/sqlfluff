@@ -2827,3 +2827,77 @@ class Rule_L032(BaseCrawler):
                         description=("Found USING statement. Expected only ON statements.")
                     )]
         return None
+
+@std_rule_set.register
+class Rule_L034(BaseCrawler):
+    """Prefer wildcards then simple select targets before calculations and aggregates.
+
+    | **Anti-pattern**
+
+    .. code-block:: sql
+
+        select
+            a,
+            *,
+            row_number() over (partition by id order by date) as y,
+            b
+        from x
+
+
+    | **Best practice**
+    |  Order "select" targets in ascending complexity
+
+    .. code-block:: sql
+
+        select
+            *,
+            a,
+            b,
+            row_number() over (partition by id order by date) as y
+        from x
+
+    
+    """
+
+    def _eval(self, segment, **kwargs):
+        
+        violation_buff = []
+        select_element_order_preference = (
+            ('wildcard_expression',),
+            ('object_reference', 'literal', 'cast_expression', ('function', 'cast')),
+        )
+        # Memory to track which bands have been seen, with additional False to track other elements
+        seen_element_band = [False for i in select_element_order_preference] + [False]
+
+        if segment.type == 'select_clause':
+            select_target_elements = segment.get_children('select_target_element')
+            if not select_target_elements:
+                return None
+
+            for segment in select_target_elements:
+                # The band index of the current segment in select_element_order_preference
+                current_element_band = None
+                for i, band in enumerate(select_element_order_preference):
+                    for e in band:
+                        if type(e) == tuple:
+                            if e[0] == 'function':
+                                if segment.get_child('function'):
+                                    if segment.get_child('function').get_child('function_name'):
+                                        if segment.get_child('function').get_child('function_name').raw == e[1]:
+                                            if True in seen_element_band[i+1::]:
+                                                violation_buff.append(
+                                                    LintResult(anchor=segment)
+                                                )
+                                            current_element_band = i
+                                            seen_element_band[i] = True
+                        elif segment.get_child(e):
+                            if True in seen_element_band[i+1::]:
+                                violation_buff.append(
+                                    LintResult(anchor=segment)
+                                )
+                            current_element_band = i
+                            seen_element_band[i] = True
+                if current_element_band is None:
+                    seen_element_band[-1] = True
+                
+        return violation_buff or None
