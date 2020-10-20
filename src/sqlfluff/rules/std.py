@@ -2412,7 +2412,10 @@ class Rule_L022(BaseCrawler):
                 )
 
                 # Work forward to map out the following segments.
-                while True:
+                while (
+                    forward_slice[seg_idx].type == 'comma'
+                    or not forward_slice[seg_idx].is_code
+                ):
                     if forward_slice[seg_idx].type == "newline":
                         if line_blank:
                             # It's a blank line!
@@ -2429,8 +2432,6 @@ class Rule_L022(BaseCrawler):
                         # We'll evaluate it later.
                         comma_line_idx = line_idx
                         comma_seg_idx = seg_idx
-                    elif forward_slice[seg_idx].is_code:
-                        break
                     seg_idx += 1
 
                 # Infer the comma style (NB this could be different for each case!)
