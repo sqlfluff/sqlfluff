@@ -2,8 +2,12 @@
 
 import pytest
 
-from sqlfluff.parser import (RootParseContext, FilePositionMarker, RawSegment,
-                             KeywordSegment)
+from sqlfluff.parser import (
+    RootParseContext,
+    FilePositionMarker,
+    RawSegment,
+    KeywordSegment,
+)
 from sqlfluff.parser.segments_common import EphemeralSegment
 
 
@@ -11,29 +15,20 @@ from sqlfluff.parser.segments_common import EphemeralSegment
 def raw_seg_list():
     """A generic list of raw segments to test against."""
     return [
-        RawSegment(
-            'bar',
-            FilePositionMarker.from_fresh()
-        ),
-        RawSegment(
-            'foo',
-            FilePositionMarker.from_fresh().advance_by('bar')
-        ),
-        RawSegment(
-            'bar',
-            FilePositionMarker.from_fresh().advance_by('barfoo')
-        )
+        RawSegment("bar", FilePositionMarker.from_fresh()),
+        RawSegment("foo", FilePositionMarker.from_fresh().advance_by("bar")),
+        RawSegment("bar", FilePositionMarker.from_fresh().advance_by("barfoo")),
     ]
 
 
 def test__parser__core_keyword(raw_seg_list):
     """Test the Mystical KeywordSegment."""
     # First make a keyword
-    FooKeyword = KeywordSegment.make('foo')
+    FooKeyword = KeywordSegment.make("foo")
     # Check it looks as expected
     assert issubclass(FooKeyword, KeywordSegment)
     assert FooKeyword.__name__ == "FOO_KeywordSegment"
-    assert FooKeyword._template == 'FOO'
+    assert FooKeyword._template == "FOO"
     with RootParseContext(dialect=None) as ctx:
         # Match it against a list and check it doesn't match
         assert not FooKeyword.match(raw_seg_list, parse_context=ctx)
@@ -44,7 +39,7 @@ def test__parser__core_keyword(raw_seg_list):
         # Match it against the final element (returns tuple)
         m = FooKeyword.match(raw_seg_list[1], parse_context=ctx)
         assert m
-        assert m.matched_segments[0].raw == 'foo'
+        assert m.matched_segments[0].raw == "foo"
         assert isinstance(m.matched_segments[0], FooKeyword)
         # Match it against the final element as a list
         assert FooKeyword.match([raw_seg_list[1]], parse_context=ctx)
@@ -55,12 +50,10 @@ def test__parser__core_keyword(raw_seg_list):
 def test__parser__core_ephemeral_segment(raw_seg_list):
     """Test the Mystical KeywordSegment."""
     # First make a keyword
-    BarKeyword = KeywordSegment.make('bar')
+    BarKeyword = KeywordSegment.make("bar")
 
     ephemeral_segment = EphemeralSegment.make(
-        match_grammar=BarKeyword,
-        parse_grammar=BarKeyword,
-        name='foobar'
+        match_grammar=BarKeyword, parse_grammar=BarKeyword, name="foobar"
     )
 
     with RootParseContext(dialect=None) as ctx:

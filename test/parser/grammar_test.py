@@ -103,7 +103,7 @@ def test__parser__grammar__base__look_ahead_match(seg_list):
 
 def test__parser__grammar__base__checkpoing(seg_list):
     """Test the _look_ahead_match method of the BaseGrammar."""
-    g = BaseGrammar(ephemeral_name='TestGrammar')
+    g = BaseGrammar(ephemeral_name="TestGrammar")
 
     with RootParseContext(dialect=None) as ctx:
         m = g._match(seg_list, ctx)

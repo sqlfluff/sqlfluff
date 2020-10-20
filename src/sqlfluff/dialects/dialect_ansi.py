@@ -274,9 +274,9 @@ ansi_dialect.add(
     # Defined here to avoid repetition.
     BracketedColumnReferenceListGrammar=Bracketed(
         Delimited(
-            Ref('ObjectReferenceSegment'),
-            delimiter=Ref('CommaSegment'),
-            ephemeral_name="ColumnReferenceList"
+            Ref("ObjectReferenceSegment"),
+            delimiter=Ref("CommaSegment"),
+            ephemeral_name="ColumnReferenceList",
         )
     ),
 )
@@ -399,12 +399,9 @@ class ArrayAccessorSegment(BaseSegment):
     type = "array_accessor"
     match_grammar = Bracketed(
         Delimited(
-            OneOf(
-                Ref('NumericLiteralSegment'),
-                Ref('ExpressionSegment')
-            ),
-            delimiter=Ref('SliceSegment'),
-            ephemeral_name="ArrayAccessorContent"
+            OneOf(Ref("NumericLiteralSegment"), Ref("ExpressionSegment")),
+            delimiter=Ref("SliceSegment"),
+            ephemeral_name="ArrayAccessorContent",
         ),
         # Use square brackets
         square=True,
@@ -506,14 +503,14 @@ class OverClauseSegment(BaseSegment):
 
     type = "over_clause"
     match_grammar = Sequence(
-        'OVER',
+        "OVER",
         Bracketed(
             Sequence(
-                Ref('PartitionClauseSegment', optional=True),
-                Ref('OrderByClauseSegment', optional=True),
-                Ref('FrameClauseSegment', optional=True),
+                Ref("PartitionClauseSegment", optional=True),
+                Ref("OrderByClauseSegment", optional=True),
+                Ref("FrameClauseSegment", optional=True),
                 optional=True,
-                ephemeral_name="OverClauseContent"
+                ephemeral_name="OverClauseContent",
             )
         ),
     )
@@ -532,13 +529,13 @@ class FunctionSegment(BaseSegment):
     type = "function"
     match_grammar = Sequence(
         Sequence(
-            Ref('FunctionNameSegment'),
+            Ref("FunctionNameSegment"),
             Bracketed(
                 Ref(
                     "FunctionContentsGrammar",
                     # The brackets might be empty for some functions...
                     optional=True,
-                    ephemeral_name='FunctionContentsGrammar'
+                    ephemeral_name="FunctionContentsGrammar",
                 )
             ),
         ),
@@ -767,9 +764,7 @@ class JoinClauseSegment(BaseSegment):
                 Indent,
                 OneOf(
                     Ref("ExpressionSegment"),
-                    Bracketed(
-                        Ref('ExpressionSegment', ephemeral_name="JoinCondition")
-                    )
+                    Bracketed(Ref("ExpressionSegment", ephemeral_name="JoinCondition")),
                 ),
                 Dedent,
             ),
@@ -782,9 +777,9 @@ class JoinClauseSegment(BaseSegment):
                     # here because we're just using SingleIdentifierGrammar,
                     # rather than ObjectReferenceSegment.
                     Delimited(
-                        Ref('SingleIdentifierGrammar'),
-                        delimiter=Ref('CommaSegment'),
-                        ephemeral_name="UsingClauseContents"
+                        Ref("SingleIdentifierGrammar"),
+                        delimiter=Ref("CommaSegment"),
+                        ephemeral_name="UsingClauseContents",
                     )
                 ),
                 Dedent,
@@ -946,12 +941,12 @@ ansi_dialect.add(
                     Bracketed(
                         OneOf(
                             Delimited(
-                                Ref('LiteralGrammar'),
-                                Ref('IntervalExpressionSegment'),
-                                delimiter=Ref('CommaSegment')
+                                Ref("LiteralGrammar"),
+                                Ref("IntervalExpressionSegment"),
+                                delimiter=Ref("CommaSegment"),
                             ),
-                            Ref('SelectableGrammar'),
-                            ephemeral_name="InExpression"
+                            Ref("SelectableGrammar"),
+                            ephemeral_name="InExpression",
                         )
                     ),
                 ),
@@ -1156,10 +1151,10 @@ class ValuesClauseSegment(BaseSegment):
         Delimited(
             Bracketed(
                 Delimited(
-                    Ref('LiteralGrammar'),
-                    Ref('IntervalExpressionSegment'),
-                    delimiter=Ref('CommaSegment'),
-                    ephemeral_name="ValuesClauseElements"
+                    Ref("LiteralGrammar"),
+                    Ref("IntervalExpressionSegment"),
+                    delimiter=Ref("CommaSegment"),
+                    ephemeral_name="ValuesClauseElements",
                 )
             ),
             delimiter=Ref("CommaSegment"),
@@ -1226,8 +1221,8 @@ class WithCompoundStatementSegment(BaseSegment):
                 "AS",
                 Bracketed(
                     # Checkpoint here to subdivide the query.
-                    Ref('SelectableGrammar', ephemeral_name="SelectableGrammar")
-                )
+                    Ref("SelectableGrammar", ephemeral_name="SelectableGrammar")
+                ),
             ),
             delimiter=Ref("CommaSegment"),
             terminator=Ref.keyword("SELECT"),

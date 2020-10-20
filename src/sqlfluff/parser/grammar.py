@@ -58,7 +58,14 @@ class BaseGrammar:
             )
         )
 
-    def __init__(self, *args, resolve_refs=True, code_only=True, optional=False, ephemeral_name=None):
+    def __init__(
+        self,
+        *args,
+        resolve_refs=True,
+        code_only=True,
+        optional=False,
+        ephemeral_name=None
+    ):
         """Deal with kwargs common to all grammars."""
         # We provide a common interface for any grammar that allows positional elements.
         # If *any* for the elements are a string and not a grammar, then this is a shortcut
@@ -86,7 +93,7 @@ class BaseGrammar:
                 match_grammar=None,
                 # Pass in the copy without the EphemeralSegment
                 parse_grammar=parse_grammar,
-                name=ephemeral_name
+                name=ephemeral_name,
             )
 
     def is_optional(self):
@@ -134,20 +141,29 @@ class BaseGrammar:
         # it directly.
         if self.ephemeral_segment:
             parse_match_logging(
-                self.__class__.__name__, '_match', 'CHK',
+                self.__class__.__name__,
+                "_match",
+                "CHK",
                 parse_context=parse_context,
-                v_level=self.v_level
+                v_level=self.v_level,
             )
             # We're going to return as though it's a full match, similar to Anything().
-            m = MatchResult.from_matched(self.ephemeral_segment(segments=segments),)
+            m = MatchResult.from_matched(
+                self.ephemeral_segment(segments=segments),
+            )
         else:
             # Logging to help with debugging.
             # Work out the raw representation and curtail if long.
             parse_match_logging(
-                self.__class__.__name__, '_match', 'IN', parse_context=parse_context,
+                self.__class__.__name__,
+                "_match",
+                "IN",
+                parse_context=parse_context,
                 v_level=self.v_level,
-                le=len(self._elements), ls=len(segments),
-                seg=_LateBoundJoinSegmentsCurtailed(segments))
+                le=len(self._elements),
+                ls=len(segments),
+                seg=_LateBoundJoinSegmentsCurtailed(segments),
+            )
 
             m = self.match(segments, parse_context=parse_context)
 
