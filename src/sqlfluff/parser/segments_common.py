@@ -391,7 +391,7 @@ class Dedent(Indent):
     indent_val = -1
 
 
-class Checkpoint(BaseSegment):
+class EphemeralSegment(BaseSegment):
     """A segment which acts like a normal segment, but is ephemeral.
 
     This segment allows grammars to behave like segments. It behaves like
@@ -425,7 +425,7 @@ class Checkpoint(BaseSegment):
         Note: This requires a custom make method, because it's a bit different.
         """
         # Now lets make the classname (it indicates the mother class for clarity)
-        classname = "Checkpoint_{name}".format(name=name)
+        classname = "EphemeralSegment_{name}".format(name=name)
         # This is the magic, we generate a new class! SORCERY
         newclass = type(
             classname,

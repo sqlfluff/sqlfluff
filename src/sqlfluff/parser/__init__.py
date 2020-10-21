@@ -11,7 +11,6 @@ from .segments_common import (
     LambdaSegment,
     Indent,
     Dedent,
-    Checkpoint,
 )
 from .segment_generator import SegmentGenerator
 from .grammar import (

@@ -7,8 +7,8 @@ from sqlfluff.parser import (
     FilePositionMarker,
     RawSegment,
     KeywordSegment,
-    Checkpoint,
 )
+from sqlfluff.parser.segments_common import EphemeralSegment
 
 
 @pytest.fixture(scope="module")
@@ -47,25 +47,25 @@ def test__parser__core_keyword(raw_seg_list):
         assert FooKeyword.match(raw_seg_list[1:], parse_context=ctx)
 
 
-def test__parser__core_checkpoint(raw_seg_list):
+def test__parser__core_ephemeral_segment(raw_seg_list):
     """Test the Mystical KeywordSegment."""
     # First make a keyword
     BarKeyword = KeywordSegment.make("bar")
 
-    checkpoint = Checkpoint.make(
+    ephemeral_segment = EphemeralSegment.make(
         match_grammar=BarKeyword, parse_grammar=BarKeyword, name="foobar"
     )
 
     with RootParseContext(dialect=None) as ctx:
         # Test on a slice containing only the first element
-        m = checkpoint.match(raw_seg_list[:1], parse_context=ctx)
+        m = ephemeral_segment.match(raw_seg_list[:1], parse_context=ctx)
         assert m
-        # Make sure that it matches as an instance of checkpoint
+        # Make sure that it matches as an instance of EphemeralSegment
         elem = m.matched_segments[0]
-        assert isinstance(elem, checkpoint)
-        # Parse it and make sure we don't get a checkpoint back
+        assert isinstance(elem, ephemeral_segment)
+        # Parse it and make sure we don't get an EphemeralSegment back
         res = elem.parse(ctx)
         assert isinstance(res, tuple)
         elem = res[0]
-        assert not isinstance(elem, checkpoint)
+        assert not isinstance(elem, ephemeral_segment)
         assert isinstance(elem, BarKeyword)

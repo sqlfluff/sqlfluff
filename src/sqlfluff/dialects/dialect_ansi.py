@@ -32,7 +32,6 @@ from ..parser import (
     Indent,
     Dedent,
     Nothing,
-    Checkpoint,
 )
 from .base import Dialect
 from .ansi_keywords import ansi_reserved_keywords, ansi_unreserved_keywords
@@ -274,12 +273,10 @@ ansi_dialect.add(
     # This pattern is used in a lot of places.
     # Defined here to avoid repetition.
     BracketedColumnReferenceListGrammar=Bracketed(
-        Checkpoint.make(
-            match_grammar=Anything(),
-            parse_grammar=Delimited(
-                Ref("ObjectReferenceSegment"), delimiter=Ref("CommaSegment")
-            ),
-            name="ColumnReferenceList",
+        Delimited(
+            Ref("ObjectReferenceSegment"),
+            delimiter=Ref("CommaSegment"),
+            ephemeral_name="ColumnReferenceList",
         )
     ),
 )
@@ -401,14 +398,10 @@ class ArrayAccessorSegment(BaseSegment):
 
     type = "array_accessor"
     match_grammar = Bracketed(
-        Anything(),
-        # Use square brackets
-        square=True,
-    )
-    parse_grammar = Bracketed(
         Delimited(
             OneOf(Ref("NumericLiteralSegment"), Ref("ExpressionSegment")),
             delimiter=Ref("SliceSegment"),
+            ephemeral_name="ArrayAccessorContent",
         ),
         # Use square brackets
         square=True,
@@ -511,15 +504,14 @@ class OverClauseSegment(BaseSegment):
     type = "over_clause"
     match_grammar = Sequence(
         "OVER",
-        Bracketed(Anything(optional=True)),
-    )
-
-    parse_grammar = Sequence(
-        "OVER",
         Bracketed(
-            Ref("PartitionClauseSegment", optional=True),
-            Ref("OrderByClauseSegment", optional=True),
-            Ref("FrameClauseSegment", optional=True),
+            Sequence(
+                Ref("PartitionClauseSegment", optional=True),
+                Ref("OrderByClauseSegment", optional=True),
+                Ref("FrameClauseSegment", optional=True),
+                optional=True,
+                ephemeral_name="OverClauseContent",
+            )
         ),
     )
 
@@ -538,19 +530,12 @@ class FunctionSegment(BaseSegment):
     match_grammar = Sequence(
         Sequence(
             Ref("FunctionNameSegment"),
-            Bracketed(Anything(optional=True)),
-        ),
-        Ref("PostFunctionGrammar", optional=True),
-    )
-
-    parse_grammar = Sequence(
-        Sequence(
-            Ref("FunctionNameSegment"),
             Bracketed(
                 Ref(
                     "FunctionContentsGrammar",
                     # The brackets might be empty for some functions...
                     optional=True,
+                    ephemeral_name="FunctionContentsGrammar",
                 )
             ),
         ),
@@ -779,13 +764,7 @@ class JoinClauseSegment(BaseSegment):
                 Indent,
                 OneOf(
                     Ref("ExpressionSegment"),
-                    Bracketed(
-                        Checkpoint.make(
-                            match_grammar=Anything(),
-                            parse_grammar=Ref("ExpressionSegment"),
-                            name="JoinCondition",
-                        )
-                    ),
+                    Bracketed(Ref("ExpressionSegment", ephemeral_name="JoinCondition")),
                 ),
                 Dedent,
             ),
@@ -797,13 +776,10 @@ class JoinClauseSegment(BaseSegment):
                     # NB: We don't use BracketedColumnReferenceListGrammar
                     # here because we're just using SingleIdentifierGrammar,
                     # rather than ObjectReferenceSegment.
-                    Checkpoint.make(
-                        match_grammar=Anything(),
-                        parse_grammar=Delimited(
-                            Ref("SingleIdentifierGrammar"),
-                            delimiter=Ref("CommaSegment"),
-                        ),
-                        name="UsingClauseContents",
+                    Delimited(
+                        Ref("SingleIdentifierGrammar"),
+                        delimiter=Ref("CommaSegment"),
+                        ephemeral_name="UsingClauseContents",
                     )
                 ),
                 Dedent,
@@ -963,17 +939,14 @@ ansi_dialect.add(
                     Ref.keyword("NOT", optional=True),
                     "IN",
                     Bracketed(
-                        Checkpoint.make(
-                            match_grammar=Anything(),
-                            parse_grammar=OneOf(
-                                Delimited(
-                                    Ref("LiteralGrammar"),
-                                    Ref("IntervalExpressionSegment"),
-                                    delimiter=Ref("CommaSegment"),
-                                ),
-                                Ref("SelectableGrammar"),
+                        OneOf(
+                            Delimited(
+                                Ref("LiteralGrammar"),
+                                Ref("IntervalExpressionSegment"),
+                                delimiter=Ref("CommaSegment"),
                             ),
-                            name="InExpression",
+                            Ref("SelectableGrammar"),
+                            ephemeral_name="InExpression",
                         )
                     ),
                 ),
@@ -1177,14 +1150,11 @@ class ValuesClauseSegment(BaseSegment):
         OneOf("VALUE", "VALUES"),
         Delimited(
             Bracketed(
-                Checkpoint.make(
-                    match_grammar=Anything(),
-                    parse_grammar=Delimited(
-                        Ref("LiteralGrammar"),
-                        Ref("IntervalExpressionSegment"),
-                        delimiter=Ref("CommaSegment"),
-                    ),
-                    name="ValuesClauseElements",
+                Delimited(
+                    Ref("LiteralGrammar"),
+                    Ref("IntervalExpressionSegment"),
+                    delimiter=Ref("CommaSegment"),
+                    ephemeral_name="ValuesClauseElements",
                 )
             ),
             delimiter=Ref("CommaSegment"),
@@ -1251,11 +1221,7 @@ class WithCompoundStatementSegment(BaseSegment):
                 "AS",
                 Bracketed(
                     # Checkpoint here to subdivide the query.
-                    Checkpoint.make(
-                        match_grammar=Anything(),
-                        parse_grammar=Ref("SelectableGrammar"),
-                        name="SelectableGrammar",
-                    )
+                    Ref("SelectableGrammar", ephemeral_name="SelectableGrammar")
                 ),
             ),
             delimiter=Ref("CommaSegment"),

@@ -13,7 +13,7 @@ from sqlfluff.parser.grammar import (
     BaseGrammar,
     StartsWith,
 )
-from sqlfluff.parser.segments_common import KeywordSegment
+from sqlfluff.parser.segments_common import KeywordSegment, EphemeralSegment
 from sqlfluff.dialects import ansi_dialect
 
 # NB: All of these tests depend somewhat on the KeywordSegment working as planned
@@ -99,6 +99,19 @@ def test__parser__grammar__base__look_ahead_match(seg_list):
         # Allow leading whitespace
         m = BaseGrammar._look_ahead_match(seg_list, [fs], ctx, code_only=True)
         assert m[1].matched_segments == (seg_list[1], fs("foo", seg_list[2].pos_marker))
+
+
+def test__parser__grammar__base__checkpoing(seg_list):
+    """Test the _look_ahead_match method of the BaseGrammar."""
+    g = BaseGrammar(ephemeral_name="TestGrammar")
+
+    with RootParseContext(dialect=None) as ctx:
+        m = g._match(seg_list, ctx)
+        # Check we get an ephemeral segment
+        assert isinstance(m.matched_segments[0], EphemeralSegment)
+        chkpoint = m.matched_segments[0]
+        # Check it's got the same content.
+        assert chkpoint.segments == seg_list
 
 
 def test__parser__grammar__base__bracket_sensitive_look_ahead_match(
