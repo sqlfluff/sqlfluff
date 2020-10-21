@@ -906,7 +906,9 @@ class Linter:
 
         return linted_file
 
-    def _get_potential_ignore_file_locations_for_file(self, path, ignore_file_name='.sqlfluffignore', current_dir=Path.cwd()):
+    def _get_potential_ignore_file_locations_for_file(
+        self, path, ignore_file_name=".sqlfluffignore", current_dir=Path.cwd()
+    ):
         """Returns a set of potential paths for ignore files based on file to be linted.
 
         When a path to a file to be linted is explicitly passed
@@ -933,8 +935,8 @@ class Linter:
             for f in files:
                 # Handle potential .sqlfluffignore files
                 if f.name == ignore_file_name:
-                    with open(f, 'r') as fh:
-                        spec = pathspec.PathSpec.from_lines('gitwildmatch', fh)
+                    with open(f, "r") as fh:
+                        spec = pathspec.PathSpec.from_lines("gitwildmatch", fh)
                     matches = spec.match_tree(abs_dir)
                     for m in matches:
                         ignore_path = abs_dir / m
@@ -943,7 +945,14 @@ class Linter:
                     continue
         return ignore_set
 
-    def paths_from_path(self, path, ignore_file_name='.sqlfluffignore', ignore_non_existent_files=False, ignore_files=True, current_dir=Path.cwd()):
+    def paths_from_path(
+        self,
+        path,
+        ignore_file_name=".sqlfluffignore",
+        ignore_non_existent_files=False,
+        ignore_files=True,
+        current_dir=Path.cwd(),
+    ):
         """Return a set of sql file paths from a potentially more ambigious path string.
 
         Here we also deal with the .sqlfluffignore file if present.
@@ -963,9 +972,7 @@ class Linter:
         if is_exact_file:
             dirpath = os.path.dirname(path)
             files = [os.path.basename(path)]
-            path_walk = [
-                (dirpath, None, files)
-            ]
+            path_walk = [(dirpath, None, files)]
             ignore_set = self._get_potential_ignore_file_locations_for_file(
                 path=path,
                 ignore_file_name=ignore_file_name,
@@ -981,8 +988,8 @@ class Linter:
                 fpath = os.path.join(dirpath, fname)
                 # Handle potential .sqlfluffignore files
                 if ignore_files and fname == ignore_file_name:
-                    with open(fpath, 'r') as fh:
-                        spec = pathspec.PathSpec.from_lines('gitwildmatch', fh)
+                    with open(fpath, "r") as fh:
+                        spec = pathspec.PathSpec.from_lines("gitwildmatch", fh)
                     matches = spec.match_tree(dirpath)
                     for m in matches:
                         ignore_path = os.path.join(dirpath, m)
@@ -1013,7 +1020,8 @@ class Linter:
                     "WARNING: Exact file path %s was given but "
                     "it was ignored by a %s pattern, "
                     "re-run with `--not-ignore-files` to "
-                    "skip %s" % (
+                    "skip %s"
+                    % (
                         path,
                         ignore_file_name,
                         ignore_file_name,
@@ -1031,12 +1039,18 @@ class Linter:
         result.add(linted_path)
         return result
 
-    def lint_path(self, path, fix=False, ignore_non_existent_files=False, ignore_files=True):
+    def lint_path(
+        self, path, fix=False, ignore_non_existent_files=False, ignore_files=True
+    ):
         """Lint a path."""
         linted_path = LintedPath(path)
         if self.formatter:
             self.formatter.dispatch_path(path)
-        for fname in self.paths_from_path(path, ignore_non_existent_files=ignore_non_existent_files, ignore_files=ignore_files):
+        for fname in self.paths_from_path(
+            path,
+            ignore_non_existent_files=ignore_non_existent_files,
+            ignore_files=ignore_files,
+        ):
             config = self.config.make_child_from_path(fname)
             # Handle unicode issues gracefully
             with open(
@@ -1049,7 +1063,9 @@ class Linter:
                 )
         return linted_path
 
-    def lint_paths(self, paths, fix=False, ignore_non_existent_files=False, ignore_files=True):
+    def lint_paths(
+        self, paths, fix=False, ignore_non_existent_files=False, ignore_files=True
+    ):
         """Lint an iterable of paths."""
         # If no paths specified - assume local
         if len(paths) == 0:
@@ -1059,8 +1075,14 @@ class Linter:
         for path in paths:
             # Iterate through files recursively in the specified directory (if it's a directory)
             # or read the file directly if it's not
-            result.add(self.lint_path(path, fix=fix,
-                                      ignore_non_existent_files=ignore_non_existent_files, ignore_files=ignore_files))
+            result.add(
+                self.lint_path(
+                    path,
+                    fix=fix,
+                    ignore_non_existent_files=ignore_non_existent_files,
+                    ignore_files=ignore_files,
+                )
+            )
         return result
 
     def parse_path(self, path, recurse=True):

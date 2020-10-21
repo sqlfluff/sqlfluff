@@ -210,10 +210,14 @@ def test__cli__command_lint_parse(command):
 def test__cli__command_lint_warning_explicit_file_ignored():
     """Check ignoring file works when passed explicitly and ignore file is in the same directory."""
     runner = CliRunner()
-    result = runner.invoke(lint, ['test/fixtures/linter/sqlfluffignore/path_b/query_c.sql'])
+    result = runner.invoke(
+        lint, ["test/fixtures/linter/sqlfluffignore/path_b/query_c.sql"]
+    )
     assert result.exit_code == 0
-    assert ("WARNING: Exact file path test/fixtures/linter/sqlfluffignore/path_b/query_c.sql "
-            "was given but it was ignored") in result.output.strip()
+    assert (
+        "WARNING: Exact file path test/fixtures/linter/sqlfluffignore/path_b/query_c.sql "
+        "was given but it was ignored"
+    ) in result.output.strip()
 
 
 def test__cli__command_lint_skip_ignore_files():
@@ -222,9 +226,10 @@ def test__cli__command_lint_skip_ignore_files():
     result = runner.invoke(
         lint,
         [
-            'test/fixtures/linter/sqlfluffignore/path_b/query_c.sql',
-            '--not-ignore-files'
-        ])
+            "test/fixtures/linter/sqlfluffignore/path_b/query_c.sql",
+            "--not-ignore-files",
+        ],
+    )
     assert result.exit_code == 65
     assert "L009" in result.output.strip()
 

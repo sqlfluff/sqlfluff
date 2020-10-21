@@ -274,8 +274,11 @@ def dialects(**kwargs):
         "found. This is potentially useful during rollout."
     ),
 )
-@click.option('--not-ignore-files', is_flag=True,
-              help=('If set, files will not be ignored by configuration files'))
+@click.option(
+    "--not-ignore-files",
+    is_flag=True,
+    help=("If set, files will not be ignored by configuration files"),
+)
 @click.argument("paths", nargs=-1)
 def lint(paths, format, nofail, not_ignore_files, logger=None, **kwargs):
     """Lint SQL files via passing a list of files or using stdin.
