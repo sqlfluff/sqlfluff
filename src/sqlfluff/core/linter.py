@@ -1,7 +1,6 @@
 """Defines the linter class."""
 
 import os
-from pathlib import Path
 import time
 from collections import namedtuple
 import logging
@@ -943,7 +942,7 @@ class Linter:
             ignore_file_paths = loader.find_ignore_config_files(
                 path=path, working_path=working_path, ignore_file_name=ignore_file_name
             )
-            path_walk = [(dirpath, None, files),] + [
+            path_walk_ignore_file = [
                 (
                     os.path.dirname(ignore_file_path),
                     None,
@@ -951,6 +950,7 @@ class Linter:
                 )
                 for ignore_file_path in ignore_file_paths
             ]
+            path_walk = [(dirpath, None, files)] + path_walk_ignore_file
         else:
             path_walk = os.walk(path)
 

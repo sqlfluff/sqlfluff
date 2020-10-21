@@ -283,7 +283,6 @@ class ConfigLoader:
 
     def find_config_up_to_path(self, path, working_path=os.getcwd()):
         """Finds files from both the path and it's parent paths."""
-
         given_path = os.path.abspath(path)
         working_path = os.path.abspath(working_path)
 

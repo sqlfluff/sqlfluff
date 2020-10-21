@@ -2,8 +2,8 @@
 
 import pytest
 
-from sqlfluff.core import Linter
-from sqlfluff.core.linter import LintingResult
+from sqlfluff.linter import Linter, LintingResult
+from sqlfluff.config import FluffConfig
 from pathlib import Path
 
 
