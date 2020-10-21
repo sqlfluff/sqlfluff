@@ -263,9 +263,30 @@ class ConfigLoader:
         """Loads a selection of config files from both the path and it's parent paths."""
         user_appdir_config = self.load_user_appdir_config()
         user_config = self.load_user_config()
+        config_paths = self.find_config_up_to_path(path)
+        config_stack = [self.load_config_at_path(p) for p in config_paths]
+        return nested_combine(user_appdir_config, user_config, *config_stack)
 
-        working_path = os.getcwd()
+    def find_ignore_config_files(
+        self, path, working_path=os.getcwd(), ignore_file_name=".sqlfluffignore"
+    ):
+        """Finds sqlfluff ignore files from both the path and its parent paths."""
+        return set(
+            filter(
+                os.path.isfile,
+                map(
+                    lambda x: os.path.join(x, ignore_file_name),
+                    self.find_config_up_to_path(path=path, working_path=working_path),
+                ),
+            )
+        )
+
+    def find_config_up_to_path(self, path, working_path=os.getcwd()):
+        """Finds files from both the path and it's parent paths."""
+
         given_path = os.path.abspath(path)
+        working_path = os.path.abspath(working_path)
+
         # If we've been passed a file and not a directory,
         # then go straight to the directory.
         if not os.path.isdir(given_path):
@@ -282,7 +303,7 @@ class ConfigLoader:
             # we have a sub path! We can load nested paths
             last_path = given_path
             while True:
-                config_stack.insert(0, self.load_config_at_path(last_path))
+                config_stack.insert(0, last_path)
                 if last_path == working_path:
                     break
                 # iterate up the directories
@@ -291,14 +312,14 @@ class ConfigLoader:
                     # [prevent infinite loop]
                     break
                 last_path = os.path.dirname(last_path)
-            config_stack.insert(0, self.load_config_at_path(working_path))
+            config_stack.insert(0, working_path)
         else:
             # we have divergent paths, we can only load config for that path and global
-            config_stack.append(self.load_config_at_path(given_path))
+            config_stack.append(given_path)
 
         # The lowest priority is the user appdir config, then home dir config,
         # then increasingly the configs closest to the file being directly linted.
-        return nested_combine(user_appdir_config, user_config, *config_stack)
+        return config_stack
 
 
 class FluffConfig:

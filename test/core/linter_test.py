@@ -55,7 +55,7 @@ def test__linter__path_from_paths__explicit_ignore():
         "test/fixtures/linter/sqlfluffignore/path_a/query_a.sql",
         ignore_non_existent_files=True,
         ignore_files=True,
-        current_dir=Path("test/fixtures/linter/sqlfluffignore/"),
+        working_path="test/fixtures/linter/sqlfluffignore/",
     )
     assert len(paths) == 0
 

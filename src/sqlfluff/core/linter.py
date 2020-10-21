@@ -906,10 +906,17 @@ class Linter:
 
         return linted_file
 
-    def _get_potential_ignore_file_locations_for_file(
-        self, path, ignore_file_name=".sqlfluffignore", current_dir=Path.cwd()
+    def paths_from_path(
+        self,
+        path,
+        ignore_file_name=".sqlfluffignore",
+        ignore_non_existent_files=False,
+        ignore_files=True,
+        working_path=os.getcwd(),
     ):
-        """Returns a set of potential paths for ignore files based on file to be linted.
+        """Return a set of sql file paths from a potentially more ambigious path string.
+
+        Here we also deal with the .sqlfluffignore file if present.
 
         When a path to a file to be linted is explicitly passed
         we look for ignore files in all directories that are parents of the file,
@@ -917,45 +924,6 @@ class Linter:
 
         If the current directory is not a parent of the file we only
         look for an ignore file in the direct parent of the file.
-
-        """
-        path = Path(path)
-
-        ignore_set = set()
-        if current_dir in path.parents:
-            parents = path.relative_to(current_dir).parents
-            root = current_dir
-        else:
-            parents = [path.parent.relative_to(path.root)]
-            root = path.root
-
-        for directory in parents:
-            abs_dir = root / directory
-            files = [x for x in abs_dir.iterdir() if x.is_file()]
-            for f in files:
-                # Handle potential .sqlfluffignore files
-                if f.name == ignore_file_name:
-                    with open(f, "r") as fh:
-                        spec = pathspec.PathSpec.from_lines("gitwildmatch", fh)
-                    matches = spec.match_tree(abs_dir)
-                    for m in matches:
-                        ignore_path = abs_dir / m
-                        ignore_set.add(str(ignore_path))
-                    # We don't need to process the ignore file any futher
-                    continue
-        return ignore_set
-
-    def paths_from_path(
-        self,
-        path,
-        ignore_file_name=".sqlfluffignore",
-        ignore_non_existent_files=False,
-        ignore_files=True,
-        current_dir=Path.cwd(),
-    ):
-        """Return a set of sql file paths from a potentially more ambigious path string.
-
-        Here we also deal with the .sqlfluffignore file if present.
 
         """
         if not os.path.exists(path):
@@ -968,21 +936,27 @@ class Linter:
         # matched, but we warn the users when that happens
         is_exact_file = not os.path.isdir(path)
 
-        ignore_set = set()
         if is_exact_file:
             dirpath = os.path.dirname(path)
             files = [os.path.basename(path)]
-            path_walk = [(dirpath, None, files)]
-            ignore_set = self._get_potential_ignore_file_locations_for_file(
-                path=path,
-                ignore_file_name=ignore_file_name,
-                current_dir=current_dir,
+            loader = ConfigLoader.get_global()
+            ignore_file_paths = loader.find_ignore_config_files(
+                path=path, working_path=working_path, ignore_file_name=ignore_file_name
             )
+            path_walk = [(dirpath, None, files),] + [
+                (
+                    os.path.dirname(ignore_file_path),
+                    None,
+                    [os.path.basename(ignore_file_path)],
+                )
+                for ignore_file_path in ignore_file_paths
+            ]
         else:
             path_walk = os.walk(path)
 
         # If it's a directory then expand the path!
         buffer = []
+        ignore_set = set()
         for dirpath, _, filenames in path_walk:
             for fname in filenames:
                 fpath = os.path.join(dirpath, fname)
@@ -993,7 +967,7 @@ class Linter:
                     matches = spec.match_tree(dirpath)
                     for m in matches:
                         ignore_path = os.path.join(dirpath, m)
-                        ignore_set.add(ignore_path)
+                        ignore_set.add(os.path.abspath(ignore_path))
                     # We don't need to process the ignore file any futher
                     continue
 
@@ -1013,7 +987,7 @@ class Linter:
         filtered_buffer = []
 
         for fpath in buffer:
-            if fpath not in ignore_set:
+            if os.path.abspath(fpath) not in ignore_set:
                 filtered_buffer.append(os.path.normpath(fpath))
             elif is_exact_file:
                 print(
