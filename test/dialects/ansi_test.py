@@ -4,7 +4,13 @@ import pytest
 import logging
 
 from sqlfluff.config import FluffConfig
-from sqlfluff.parser import Lexer, FileSegment, RootParseContext, BaseSegment, RawSegment
+from sqlfluff.parser import (
+    Lexer,
+    FileSegment,
+    RootParseContext,
+    BaseSegment,
+    RawSegment,
+)
 from sqlfluff.parser.match_result import MatchResult
 from sqlfluff.linter import Linter
 
@@ -12,14 +18,14 @@ from sqlfluff.linter import Linter
 @pytest.mark.parametrize(
     "raw,res",
     [
-        ("a b", ['a', ' ', 'b']),
-        ("b.c", ['b', '.', 'c']),
-        ("abc \n \t def  ;blah", ['abc', ' ', '\n', ' \t ', 'def', '  ', ';', 'blah'])
-    ]
+        ("a b", ["a", " ", "b"]),
+        ("b.c", ["b", ".", "c"]),
+        ("abc \n \t def  ;blah", ["abc", " ", "\n", " \t ", "def", "  ", ";", "blah"]),
+    ],
 )
 def test__dialect__ansi__file_from_raw(raw, res, caplog):
     """Test we don't drop bits on simple examples."""
-    config = FluffConfig(overrides=dict(dialect='ansi'))
+    config = FluffConfig(overrides=dict(dialect="ansi"))
     with caplog.at_level(logging.DEBUG):
         fs, _ = FileSegment.from_raw(raw, config=config)
     # From just the initial parse, check we're all there
@@ -42,9 +48,11 @@ def lex(raw, config):
 
 def validate_segment(segmentref, config):
     """Get and validate segment for tests below."""
-    Seg = config.get('dialect_obj').ref(segmentref)
+    Seg = config.get("dialect_obj").ref(segmentref)
     if not issubclass(Seg, BaseSegment):
-        raise TypeError("{0} is not of type Segment. Test is invalid.".format(segmentref))
+        raise TypeError(
+            "{0} is not of type Segment. Test is invalid.".format(segmentref)
+        )
     return Seg
 
 
@@ -59,54 +67,61 @@ def validate_segment(segmentref, config):
         ("NumericLiteralSegment", "1000.0"),
         ("ExpressionSegment", "online_sales / 1000.0"),
         ("IntervalExpressionSegment", "INTERVAL 1 YEAR"),
-        ("ExpressionSegment",
-         "CASE WHEN id = 1 THEN 'nothing' ELSE 'test' END"),
+        ("ExpressionSegment", "CASE WHEN id = 1 THEN 'nothing' ELSE 'test' END"),
         # Nested Case Expressions
         # https://github.com/sqlfluff/sqlfluff/issues/172
-        ("ExpressionSegment",
-         ("CASE WHEN id = 1 THEN CASE WHEN true THEN 'something' "
-          "ELSE 'nothing' END ELSE 'test' END")),
+        (
+            "ExpressionSegment",
+            (
+                "CASE WHEN id = 1 THEN CASE WHEN true THEN 'something' "
+                "ELSE 'nothing' END ELSE 'test' END"
+            ),
+        ),
         # Casting expressions
         # https://github.com/sqlfluff/sqlfluff/issues/161
-        ("ExpressionSegment",
-         "CAST(ROUND(online_sales / 1000.0) AS varchar)"),
+        ("ExpressionSegment", "CAST(ROUND(online_sales / 1000.0) AS varchar)"),
         # Like expressions
         # https://github.com/sqlfluff/sqlfluff/issues/170
-        ("ExpressionSegment",
-         "name NOT LIKE '%y'"),
+        ("ExpressionSegment", "name NOT LIKE '%y'"),
         # Functions with a space
         # https://github.com/sqlfluff/sqlfluff/issues/171
-        ("SelectTargetElementSegment",
-         "MIN (test.id) AS min_test_id"),
+        ("SelectTargetElementSegment", "MIN (test.id) AS min_test_id"),
         # Interval literals
         # https://github.com/sqlfluff/sqlfluff/issues/148
-        ("ExpressionSegment",
-         "DATE_ADD(CURRENT_DATE('America/New_York'), INTERVAL 1 year)"),
+        (
+            "ExpressionSegment",
+            "DATE_ADD(CURRENT_DATE('America/New_York'), INTERVAL 1 year)",
+        ),
         # Array accessors
         ("ExpressionSegment", "my_array[1]"),
         ("ExpressionSegment", "my_array[OFFSET(1)]"),
         ("ExpressionSegment", "my_array[5:8]"),
         ("ExpressionSegment", "4 + my_array[OFFSET(1)]"),
         ("ExpressionSegment", "bits[OFFSET(0)] + 7"),
-        ("SelectTargetElementSegment",
-         ("(count_18_24 * bits[OFFSET(0)])"
-          " / audience_size AS relative_abundance")),
-        ("ExpressionSegment",
-         "count_18_24 * bits[OFFSET(0)] + count_25_34"),
-        ("SelectTargetElementSegment",
-         ("(count_18_24 * bits[OFFSET(0)] + count_25_34)"
-          " / audience_size AS relative_abundance")),
+        (
+            "SelectTargetElementSegment",
+            (
+                "(count_18_24 * bits[OFFSET(0)])"
+                " / audience_size AS relative_abundance"
+            ),
+        ),
+        ("ExpressionSegment", "count_18_24 * bits[OFFSET(0)] + count_25_34"),
+        (
+            "SelectTargetElementSegment",
+            (
+                "(count_18_24 * bits[OFFSET(0)] + count_25_34)"
+                " / audience_size AS relative_abundance"
+            ),
+        ),
         # Dense math expressions
         # https://github.com/sqlfluff/sqlfluff/issues/178
         # https://github.com/sqlfluff/sqlfluff/issues/179
         ("SelectStatementSegment", "SELECT t.val/t.id FROM test WHERE id*1.0/id > 0.8"),
         ("SelectTargetElementSegment", "t.val/t.id"),
         # Issue with casting raise as part of PR #177
-        ("SelectTargetElementSegment",
-         "CAST(num AS INT64)"),
+        ("SelectTargetElementSegment", "CAST(num AS INT64)"),
         # Casting as datatype with arguments
-        ("SelectTargetElementSegment",
-         "CAST(num AS numeric(8,4))"),
+        ("SelectTargetElementSegment", "CAST(num AS numeric(8,4))"),
         # Wildcard field selection
         ("SelectTargetElementSegment", "a.*"),
         ("SelectTargetElementSegment", "a.b.*"),
@@ -117,12 +132,15 @@ def validate_segment(segmentref, config):
         ("SelectTargetElementSegment", "-some_variable"),
         ("SelectTargetElementSegment", "- some_variable"),
         # Complex Functions
-        ("ExpressionSegment", "concat(left(uaid, 2), '|', right(concat('0000000', SPLIT_PART(uaid, '|', 4)), 10), '|', '00000000')"),
+        (
+            "ExpressionSegment",
+            "concat(left(uaid, 2), '|', right(concat('0000000', SPLIT_PART(uaid, '|', 4)), 10), '|', '00000000')",
+        ),
         # Notnull and Isnull
         ("ExpressionSegment", "c notnull"),
         ("ExpressionSegment", "c is null"),
         ("ExpressionSegment", "c isnull"),
-    ]
+    ],
 )
 def test__dialect__ansi_specific_segment_parses(segmentref, raw, caplog):
     """Test that specific segments parse as expected.
@@ -132,7 +150,7 @@ def test__dialect__ansi_specific_segment_parses(segmentref, raw, caplog):
     function of SUBSECTIONS will be tested if present. The match
     function of the parent will not be tested.
     """
-    config = FluffConfig(overrides=dict(dialect='ansi'))
+    config = FluffConfig(overrides=dict(dialect="ansi"))
     seg_list = lex(raw, config=config)
     Seg = validate_segment(segmentref, config=config)
 
@@ -168,7 +186,7 @@ def test__dialect__ansi_specific_segment_parses(segmentref, raw, caplog):
     assert parsed.raw == raw
     # Check that there's nothing un parsable
     typs = parsed.type_set()
-    assert 'unparsable' not in typs
+    assert "unparsable" not in typs
 
 
 @pytest.mark.parametrize(
@@ -176,7 +194,7 @@ def test__dialect__ansi_specific_segment_parses(segmentref, raw, caplog):
     [
         # Check we don't match empty whitespace as a reference
         ("ObjectReferenceSegment", "\n     ")
-    ]
+    ],
 )
 def test__dialect__ansi_specific_segment_not_match(segmentref, raw, caplog):
     """Test that specific segments do not match.
@@ -184,7 +202,7 @@ def test__dialect__ansi_specific_segment_not_match(segmentref, raw, caplog):
     NB: We're testing the MATCH function not the PARSE function.
     This is the opposite to the above.
     """
-    config = FluffConfig(overrides=dict(dialect='ansi'))
+    config = FluffConfig(overrides=dict(dialect="ansi"))
     seg_list = lex(raw, config=config)
     Seg = validate_segment(segmentref, config=config)
 
@@ -201,11 +219,11 @@ def test__dialect__ansi_specific_segment_not_match(segmentref, raw, caplog):
         # Missing Closing bracket. Error should be raised
         # on the starting bracket.
         ("SELECT 1 + (2 ", [(1, 12)])
-    ]
+    ],
 )
 def test__dialect__ansi_specific_segment_not_parse(raw, err_locations, caplog):
     """Test queries do not parse, with parsing errors raised properly."""
-    config = FluffConfig(overrides=dict(dialect='ansi'))
+    config = FluffConfig(overrides=dict(dialect="ansi"))
     lnt = Linter(config=config)
     _, vs, _ = lnt.parse_string(raw)
     assert len(vs) > 0

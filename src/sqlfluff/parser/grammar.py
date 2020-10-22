@@ -1,6 +1,6 @@
 """Definitions for Grammar."""
 from .segments_base import BaseSegment, check_still_complete
-from .segments_common import Indent, Dedent
+from .segments_common import Indent, Dedent, EphemeralSegment
 from .match_result import MatchResult
 from .match_logging import parse_match_logging, LateBoundJoinSegmentsCurtailed, curtail_string
 from .match_wrapper import match_wrapper
@@ -24,24 +24,36 @@ class BaseGrammar:
             # t: instance / f: class, ref, func
             (True, str, Ref.keyword),
             (True, BaseGrammar, lambda x: x),
-            (False, BaseSegment, lambda x: x)
+            (False, BaseSegment, lambda x: x),
         ]
         # Getout clause for None
         if elem is None:
             return None
 
         for instance, init_type, init_func in initialisers:
-            if (instance and isinstance(elem, init_type)) or (not instance and issubclass(elem, init_type)):
+            if (instance and isinstance(elem, init_type)) or (
+                not instance and issubclass(elem, init_type)
+            ):
                 return init_func(elem)
-        raise TypeError("Grammar element [{0!r}] was found of unexpected type [{1}] was found.".format(
-            elem, type(elem)))
+        raise TypeError(
+            "Grammar element [{0!r}] was found of unexpected type [{1}] was found.".format(
+                elem, type(elem)
+            )
+        )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(
+        self,
+        *args,
+        resolve_refs=True,
+        code_only=True,
+        optional=False,
+        ephemeral_name=None
+    ):
         """Deal with kwargs common to all grammars."""
         # We provide a common interface for any grammar that allows positional elements.
         # If *any* for the elements are a string and not a grammar, then this is a shortcut
         # to the Ref.keyword grammar by default.
-        if kwargs.pop('resolve_refs', True):
+        if resolve_refs:
             self._elements = []
             for elem in args:
                 self._elements.append(self._resolve_ref(elem))
@@ -49,15 +61,23 @@ class BaseGrammar:
             self._elements = args
 
         # Now we deal with the standard kwargs
-        for var, default in [('code_only', True), ('optional', False)]:
-            setattr(self, var, kwargs.pop(var, default))
-        # optional, only really makes sense in the context of a sequence.
-        # If a grammar is optional, then a sequence can continue without it.
-        if kwargs:
-            raise ValueError("Unconsumed kwargs is creation of grammar: {0}\nExcess: {1}".format(
-                self.__class__.__name__,
-                kwargs
-            ))
+        self.code_only = code_only
+        self.optional = optional
+        self.ephemeral_segment = None
+        # Set up the ephemeral_segment if name is specified.
+        if ephemeral_name:
+            # Make the EphemeralSegment class. This is effectively syntactic sugar
+            # to allow us to avoid specifying a EphemeralSegment directly in a dialect.
+
+            # Copy self (*before* making the EphemeralSegment, but with everything else in place)
+            parse_grammar = copy.copy(self)
+            # Add the EphemeralSegment to self.
+            self.ephemeral_segment = EphemeralSegment.make(
+                match_grammar=None,
+                # Pass in the copy without the EphemeralSegment
+                parse_grammar=parse_grammar,
+                name=ephemeral_name,
+            )
 
     def is_optional(self):
         """Return whether this segment is optional.
@@ -74,13 +94,15 @@ class BaseGrammar:
         This raw function can be overridden, or a grammar
         on the underlying class.
         """
-        raise NotImplementedError("{0} has no match function implemented".format(self.__class__.__name__))
+        raise NotImplementedError(
+            "{0} has no match function implemented".format(self.__class__.__name__)
+        )
 
     def expected_string(self, dialect=None, called_from=None):
         """Return a String which is helpful to understand what this grammar expects."""
         raise NotImplementedError(
-            "{0} does not implement expected_string!".format(
-                self.__class__.__name__))
+            "{0} does not implement expected_string!".format(self.__class__.__name__)
+        )
 
     def simple(self, parse_context):
         """Does this matcher support a lowercase hash matching route?"""
@@ -111,7 +133,9 @@ class BaseGrammar:
         return pre_buff, seg_buff, post_buff
 
     @classmethod
-    def _code_only_sensitive_match(cls, segments, matcher, parse_context, code_only=True):
+    def _code_only_sensitive_match(
+        cls, segments, matcher, parse_context, code_only=True
+    ):
         """Match, but also deal with leading and trailing non-code."""
         if code_only:
             seg_buff = segments
@@ -139,12 +163,15 @@ class BaseGrammar:
             if m.is_complete():
                 # We need to do more to complete matches. It's complete so
                 # we don't need to worry about the unmatched.
-                return MatchResult.from_matched(tuple(pre_ws) + m.matched_segments + tuple(post_ws))
+                return MatchResult.from_matched(
+                    tuple(pre_ws) + m.matched_segments + tuple(post_ws)
+                )
             elif m:
                 # Incomplete matches, just get it added to the end of the unmatched.
                 return MatchResult(
                     matched_segments=tuple(pre_ws) + m.matched_segments,
-                    unmatched_segments=m.unmatched_segments + tuple(post_ws))
+                    unmatched_segments=m.unmatched_segments + tuple(post_ws),
+                )
             else:
                 # No match, just return unmatched
                 return MatchResult.from_unmatched(segments)
@@ -153,7 +180,9 @@ class BaseGrammar:
             return matcher.match(segments, parse_context)
 
     @classmethod
-    def _longest_code_only_sensitive_match(cls, segments, matchers, parse_context, code_only=True):
+    def _longest_code_only_sensitive_match(
+        cls, segments, matchers, parse_context, code_only=True
+    ):
         """Match like `_code_only_sensitive_match` but return longest match from a selection of matchers.
 
         Prioritise the first match, and if multiple match at the same point the longest.
@@ -177,8 +206,8 @@ class BaseGrammar:
         # iterate at this position across all the matchers
         for m in matchers:
             res_match = cls._code_only_sensitive_match(
-                segments, m, parse_context=parse_context,
-                code_only=code_only)
+                segments, m, parse_context=parse_context, code_only=code_only
+            )
             if res_match.is_complete():
                 # Just return it! (WITH THE RIGHT OTHER STUFF)
                 return res_match, m
@@ -221,7 +250,10 @@ class BaseGrammar:
 
         """
         parse_match_logging(
-            cls.__name__, '_look_ahead_match', 'IN', parse_context=parse_context,
+            cls.__name__,
+            "_look_ahead_match",
+            "IN",
+            parse_context=parse_context,
             v_level=4,
             ls=len(segments),
             seg=LateBoundJoinSegmentsCurtailed(segments)
@@ -245,13 +277,17 @@ class BaseGrammar:
         # content of segments to quickly evaluate if the segment is present.
         # Matchers which aren't "simple" still take a slower route.
         simple_matchers = [m for m in matchers if m.simple(parse_context=parse_context)]
-        non_simple_matchers = [m for m in matchers if not m.simple(parse_context=parse_context)]
+        non_simple_matchers = [
+            m for m in matchers if not m.simple(parse_context=parse_context)
+        ]
         best_simple_match = None
         if simple_matchers:
             # If they're all simple we can use a hash match to identify the first one.
             # Build a buffer of all the upper case raw segments ahead of us.
             str_buff = []
-            seg_idx_buf = []  # This is a way of mapping indexes in the str_buff back to indexes in `segments`
+            seg_idx_buf = (
+                []
+            )  # This is a way of mapping indexes in the str_buff back to indexes in `segments`
             # For existing compound segments, we should assume that within
             # that segment, things are internally consistent, that means
             # rather than enumerating all the individual segments of a longer
@@ -282,15 +318,23 @@ class BaseGrammar:
             match_queue = sorted(match_queue, key=lambda x: x[1])
 
             parse_match_logging(
-                cls.__name__, '_look_ahead_match', 'SI', parse_context=parse_context,
+                cls.__name__,
+                "_look_ahead_match",
+                "SI",
+                parse_context=parse_context,
                 v_level=4,
-                _so=_simple_opts, mq=match_queue, sb=str_buff)
+                _so=_simple_opts,
+                mq=match_queue,
+                sb=str_buff,
+            )
 
             while match_queue:
                 m_first = match_queue.pop()
                 # We've managed to match. We can shortcut home.
                 # NB: We may still need to deal with whitespace.
-                segments_index = seg_idx_buf[m_first[1]]  # map back into indexes in `segments`
+                segments_index = seg_idx_buf[
+                    m_first[1]
+                ]  # map back into indexes in `segments`
                 # Here we do the actual transform to the new segment.
                 matcher = m_first[0]
                 match = matcher.match(segments[segments_index:], parse_context)
@@ -298,9 +342,13 @@ class BaseGrammar:
                     # We've had something match in simple matching, but then later excluded.
                     # Log but then move on to the next item on the list.
                     parse_match_logging(
-                        cls.__name__, '_look_ahead_match', 'NM', parse_context=parse_context,
+                        cls.__name__,
+                        "_look_ahead_match",
+                        "NM",
+                        parse_context=parse_context,
                         v_level=4,
-                        _so=m_first[2])
+                        _so=m_first[2],
+                    )
                     continue
                 pre_segments = segments[:segments_index]
                 if code_only:
@@ -310,7 +358,10 @@ class BaseGrammar:
                         if not pre_segments or pre_segments[-1].is_code:
                             break
                         else:
-                            match = MatchResult((pre_segments[-1],) + match.matched_segments, match.unmatched_segments)
+                            match = MatchResult(
+                                (pre_segments[-1],) + match.matched_segments,
+                                match.unmatched_segments,
+                            )
                             pre_segments = pre_segments[:-1]
                     # ...from the end (but only if it's the whole of the rest,
                     # otherwise assume the next matcher will pick it up)
@@ -318,18 +369,24 @@ class BaseGrammar:
                         match = MatchResult.from_matched(
                             match.matched_segments + match.unmatched_segments
                         )
-                best_simple_match = (
-                    pre_segments,
-                    match,
-                    m_first[0])
+                best_simple_match = (pre_segments, match, m_first[0])
 
         if not non_simple_matchers:
             # There are no other matchers, we can just shortcut now.
 
             parse_match_logging(
-                cls.__name__, '_look_ahead_match', 'SC', parse_context=parse_context,
+                cls.__name__,
+                "_look_ahead_match",
+                "SC",
+                parse_context=parse_context,
                 v_level=4,
-                bsm=None if not best_simple_match else (len(best_simple_match[0]), len(best_simple_match[1]), best_simple_match[2])
+                bsm=None
+                if not best_simple_match
+                else (
+                    len(best_simple_match[0]),
+                    len(best_simple_match[1]),
+                    best_simple_match[2],
+                ),
             )
 
             if best_simple_match:
@@ -353,7 +410,11 @@ class BaseGrammar:
 
             # We only check the NON-simple ones here for brevity.
             mat, m = cls._longest_code_only_sensitive_match(
-                seg_buff, non_simple_matchers, parse_context=parse_context, code_only=code_only)
+                seg_buff,
+                non_simple_matchers,
+                parse_context=parse_context,
+                code_only=code_only,
+            )
 
             if mat and not best_simple_match:
                 return (pre_seg_buff, mat, m)
@@ -395,7 +456,9 @@ class BaseGrammar:
                         seg_buff = seg_buff[1:]
 
     @classmethod
-    def _bracket_sensitive_look_ahead_match(cls, segments, matchers, parse_context, code_only=True):
+    def _bracket_sensitive_look_ahead_match(
+        cls, segments, matchers, parse_context, code_only=True
+    ):
         """Same as `_look_ahead_match` but with bracket counting.
 
         NB: Given we depend on `_look_ahead_match` we can also utilise
@@ -419,12 +482,12 @@ class BaseGrammar:
         # TODO: Potentially have error handling here for dialects without
         # square brackets.
         start_brackets = [
-            parse_context.dialect.ref('StartBracketSegment'),
-            parse_context.dialect.ref('StartSquareBracketSegment')
+            parse_context.dialect.ref("StartBracketSegment"),
+            parse_context.dialect.ref("StartSquareBracketSegment"),
         ]
         end_brackets = [
-            parse_context.dialect.ref('EndBracketSegment'),
-            parse_context.dialect.ref('EndSquareBracketSegment')
+            parse_context.dialect.ref("EndBracketSegment"),
+            parse_context.dialect.ref("EndSquareBracketSegment"),
         ]
         bracket_matchers = start_brackets + end_brackets
         matchers += bracket_matchers
@@ -444,8 +507,11 @@ class BaseGrammar:
                     # Yes, we're just looking for the closing bracket, or
                     # another opening bracket.
                     pre, match, matcher = cls._look_ahead_match(
-                        seg_buff, bracket_matchers, parse_context=parse_context,
-                        code_only=code_only)
+                        seg_buff,
+                        bracket_matchers,
+                        parse_context=parse_context,
+                        code_only=code_only,
+                    )
 
                     if match:
                         if matcher in start_brackets:
@@ -469,13 +535,17 @@ class BaseGrammar:
                         # No match and we're in a bracket stack. Raise an error
                         raise SQLParseError(
                             "Couldn't find closing bracket for opening bracket.",
-                            segment=bracket_stack.pop())
+                            segment=bracket_stack.pop(),
+                        )
                 else:
                     # No, we're open to more opening brackets or the thing(s)
                     # that we're otherwise looking for.
                     pre, match, matcher = cls._look_ahead_match(
-                        seg_buff, matchers, parse_context=parse_context,
-                        code_only=code_only)
+                        seg_buff,
+                        matchers,
+                        parse_context=parse_context,
+                        code_only=code_only,
+                    )
 
                     if match:
                         if matcher in start_brackets:
@@ -496,7 +566,8 @@ class BaseGrammar:
                             # We've found an unexpected end bracket!
                             raise SQLParseError(
                                 "Found unexpected end bracket!",
-                                segment=match.matched_segments[0])
+                                segment=match.matched_segments[0],
+                            )
                         else:
                             # It's one of the things we were looking for!
                             # Return.
@@ -513,7 +584,8 @@ class BaseGrammar:
                     # TODO: Format this better
                     raise SQLParseError(
                         "Couldn't find closing bracket for opening bracket.",
-                        segment=bracket_stack.pop())
+                        segment=bracket_stack.pop(),
+                    )
 
                 # We at the end but without a bracket left open. This is a
                 # friendly unmatched return.
@@ -541,7 +613,7 @@ class Ref(BaseGrammar):
     def __init__(self, *args, **kwargs):
         """Initialise, but don't resolve refs in this case."""
         # Don't resolve refs here, otherwise bad recursion.
-        kwargs['resolve_refs'] = False
+        kwargs["resolve_refs"] = False
         super().__init__(*args, **kwargs)
 
     def simple(self, parse_context):
@@ -549,9 +621,9 @@ class Ref(BaseGrammar):
 
         A ref is simple, if the thing it references is simple.
         """
-        return self._get_elem(
-            dialect=parse_context.dialect
-        ).simple(parse_context=parse_context)
+        return self._get_elem(dialect=parse_context.dialect).simple(
+            parse_context=parse_context
+        )
 
     def _get_ref(self):
         """Get the name of the thing we're referencing."""
@@ -563,7 +635,9 @@ class Ref(BaseGrammar):
         else:
             raise ValueError(
                 "Ref grammar can only deal with precisely one element for now. Instead found {0!r}".format(
-                    self._elements))
+                    self._elements
+                )
+            )
 
     def _get_elem(self, dialect):
         """Get the actual object we're referencing."""
@@ -590,7 +664,9 @@ class Ref(BaseGrammar):
         elem = self._get_elem(dialect=parse_context.dialect)
 
         if not elem:
-            raise ValueError("Null Element returned! _elements: {0!r}".format(self._elements))
+            raise ValueError(
+                "Null Element returned! _elements: {0!r}".format(self._elements)
+            )
 
         # First check against the efficiency Cache.
         # We used to use seg_to_tuple here, but it was too slow,
@@ -603,8 +679,12 @@ class Ref(BaseGrammar):
             # This has been tried before.
             parse_match_logging(
                 self.__class__.__name__,
-                'match', "SKIP",
-                parse_context=parse_context, v_level=3, self_name=self_name)
+                "match",
+                "SKIP",
+                parse_context=parse_context,
+                v_level=3,
+                self_name=self_name,
+            )
             return MatchResult.from_unmatched(segments)
 
         # Match against that. NB We're not incrementing the match_depth here.
@@ -643,7 +723,7 @@ class Ref(BaseGrammar):
         Ref.keyword('select') == Ref('SelectKeywordSegment')
 
         """
-        name = keyword.capitalize() + 'KeywordSegment'
+        name = keyword.capitalize() + "KeywordSegment"
         return cls(name, **kwargs)
 
 
@@ -691,9 +771,9 @@ class OneOf(BaseGrammar):
     """
 
     def __init__(self, *args, **kwargs):
-        self.mode = kwargs.pop('mode', 'longest')  # can be 'first' or 'longest'
+        self.mode = kwargs.pop("mode", "longest")  # can be 'first' or 'longest'
         # Any patterns to _prevent_ a match.
-        self.exclude = kwargs.pop('exclude', None)
+        self.exclude = kwargs.pop("exclude", None)
         super(OneOf, self).__init__(*args, **kwargs)
 
     def simple(self, parse_context):
@@ -800,15 +880,18 @@ class OneOf(BaseGrammar):
 
     def expected_string(self, dialect=None, called_from=None):
         """Get the expected string from the referenced element."""
-        return " | ".join(opt.expected_string(dialect=dialect, called_from=called_from) for opt in self._elements)
+        return " | ".join(
+            opt.expected_string(dialect=dialect, called_from=called_from)
+            for opt in self._elements
+        )
 
 
 class AnyNumberOf(BaseGrammar):
     """A more configurable version of OneOf."""
 
     def __init__(self, *args, **kwargs):
-        self.max_times = kwargs.pop('max_times', None)
-        self.min_times = kwargs.pop('min_times', 0)
+        self.max_times = kwargs.pop("max_times", None)
+        self.min_times = kwargs.pop("min_times", 0)
         super(AnyNumberOf, self).__init__(*args, **kwargs)
 
     def simple(self, parse_context):
@@ -842,18 +925,24 @@ class AnyNumberOf(BaseGrammar):
         while True:
             if self.max_times and n_matches >= self.max_times:
                 # We've matched as many times as we can
-                return MatchResult(matched_segments.matched_segments, unmatched_segments)
+                return MatchResult(
+                    matched_segments.matched_segments, unmatched_segments
+                )
 
             # Is there anything left to match?
             if len(unmatched_segments) == 0:
                 # No...
                 if n_matches >= self.min_times:
-                    return MatchResult(matched_segments.matched_segments, unmatched_segments)
+                    return MatchResult(
+                        matched_segments.matched_segments, unmatched_segments
+                    )
                 else:
                     # We didn't meet the hurdle
                     return MatchResult.from_unmatched(unmatched_segments)
 
-            pre_seg, mid_seg, post_seg = self._trim_non_code(unmatched_segments, code_only=self.code_only)
+            pre_seg, mid_seg, post_seg = self._trim_non_code(
+                unmatched_segments, code_only=self.code_only
+            )
 
             # Try the possibilities
             for opt in self._elements:
@@ -870,7 +959,9 @@ class AnyNumberOf(BaseGrammar):
                 # unmatched segments are meaningful, i.e. they're not what we're
                 # looking for.
                 if n_matches >= self.min_times:
-                    return MatchResult(matched_segments.matched_segments, unmatched_segments)
+                    return MatchResult(
+                        matched_segments.matched_segments, unmatched_segments
+                    )
                 else:
                     # We didn't meet the hurdle
                     return MatchResult.from_unmatched(unmatched_segments)
@@ -894,21 +985,32 @@ class GreedyUntil(BaseGrammar):
 
     def __init__(self, *args, **kwargs):
         self.enforce_whitespace_preceeding_terminator = kwargs.pop(
-            'enforce_whitespace_preceeding_terminator', False)
+            "enforce_whitespace_preceeding_terminator", False
+        )
         super(GreedyUntil, self).__init__(*args, **kwargs)
 
     @match_wrapper()
     def match(self, segments, parse_context):
         """Matching for GreedyUntil works just how you'd expect."""
         return self.greedy_match(
-            segments, parse_context, matchers=self._elements, code_only=self.code_only,
+            segments,
+            parse_context,
+            matchers=self._elements,
+            code_only=self.code_only,
             enforce_whitespace_preceeding_terminator=self.enforce_whitespace_preceeding_terminator,
-            include_terminator=False
+            include_terminator=False,
         )
 
     @classmethod
-    def greedy_match(cls, segments, parse_context, matchers, code_only,
-                     enforce_whitespace_preceeding_terminator, include_terminator=False):
+    def greedy_match(
+        cls,
+        segments,
+        parse_context,
+        matchers,
+        code_only,
+        enforce_whitespace_preceeding_terminator,
+        include_terminator=False,
+    ):
         """Matching for GreedyUntil works just how you'd expect."""
         seg_buff = segments
         seg_bank = ()  # Empty tuple
@@ -919,8 +1021,8 @@ class GreedyUntil(BaseGrammar):
         while True:
             with parse_context.deeper_match() as ctx:
                 pre, mat, _ = cls._bracket_sensitive_look_ahead_match(
-                    seg_buff, matchers, parse_context=ctx,
-                    code_only=code_only)
+                    seg_buff, matchers, parse_context=ctx, code_only=code_only
+                )
 
             # Do we have a match?
             if mat:
@@ -934,7 +1036,7 @@ class GreedyUntil(BaseGrammar):
                         if elem.is_meta:
                             idx += 1
                             continue
-                        elif elem.type in ('whitespace', 'newline'):
+                        elif elem.type in ("whitespace", "newline"):
                             allow = True
                             break
                         else:
@@ -953,7 +1055,7 @@ class GreedyUntil(BaseGrammar):
                             if pre[idx].is_meta:
                                 idx -= 1
                                 continue
-                            elif pre[idx].type in ('whitespace', 'newline'):
+                            elif pre[idx].type in ("whitespace", "newline"):
                                 allow = True
                                 break
                             else:
@@ -982,7 +1084,9 @@ class GreedyUntil(BaseGrammar):
                         )
 
                     # We can't claim any non-code segments, so we trim them off the end.
-                    leading_nc, pre_seg_mid, trailing_nc = cls._trim_non_code(seg_bank + pre)
+                    leading_nc, pre_seg_mid, trailing_nc = cls._trim_non_code(
+                        seg_bank + pre
+                    )
                     return MatchResult(
                         leading_nc + pre_seg_mid,
                         trailing_nc + mat.all_segments(),
@@ -995,9 +1099,15 @@ class GreedyUntil(BaseGrammar):
 
     def expected_string(self, dialect=None, called_from=None):
         """Get the expected string from the referenced element."""
-        return "..., " + " !( " + " | ".join(
-            opt.expected_string(dialect=dialect, called_from=called_from) for opt in self._elements
-        ) + " ) "
+        return (
+            "..., "
+            + " !( "
+            + " | ".join(
+                opt.expected_string(dialect=dialect, called_from=called_from)
+                for opt in self._elements
+            )
+            + " ) "
+        )
 
 
 class Sequence(BaseGrammar):
@@ -1052,7 +1162,8 @@ class Sequence(BaseGrammar):
 
                 # Consume non-code if appropriate
                 pre_nc, mid_seg, post_nc = self._trim_non_code(
-                    unmatched_segments, code_only=self.code_only)
+                    unmatched_segments, code_only=self.code_only
+                )
 
                 if len(pre_nc + mid_seg + post_nc) == 0:
                     # We've run our of sequence without matching everyting.
@@ -1087,7 +1198,11 @@ class Sequence(BaseGrammar):
                         unmatched_segments = elem_match.unmatched_segments + post_nc
                         # Each time we do this, we do a sense check to make sure we haven't
                         # dropped anything. (Because it's happened before!).
-                        check_still_complete(segments, matched_segments.matched_segments, unmatched_segments)
+                        check_still_complete(
+                            segments,
+                            matched_segments.matched_segments,
+                            unmatched_segments,
+                        )
 
                         # Break out of the while loop and move to the next element.
                         break
@@ -1110,7 +1225,10 @@ class Sequence(BaseGrammar):
 
     def expected_string(self, dialect=None, called_from=None):
         """Get the expected string from the referenced element."""
-        return ", ".join(opt.expected_string(dialect=dialect, called_from=called_from) for opt in self._elements)
+        return ", ".join(
+            opt.expected_string(dialect=dialect, called_from=called_from)
+            for opt in self._elements
+        )
 
 
 class Delimited(BaseGrammar):
@@ -1121,13 +1239,13 @@ class Delimited(BaseGrammar):
     """
 
     def __init__(self, *args, **kwargs):
-        if 'delimiter' not in kwargs:
+        if "delimiter" not in kwargs:
             raise ValueError("Delimited grammars require a `delimiter`")
-        self.delimiter = self._resolve_ref(kwargs.pop('delimiter'))
-        self.allow_trailing = kwargs.pop('allow_trailing', False)
-        self.terminator = self._resolve_ref(kwargs.pop('terminator', None))
+        self.delimiter = self._resolve_ref(kwargs.pop("delimiter"))
+        self.allow_trailing = kwargs.pop("allow_trailing", False)
+        self.terminator = self._resolve_ref(kwargs.pop("terminator", None))
         # Setting min delimiters means we have to match at least this number
-        self.min_delimiters = kwargs.pop('min_delimiters', None)
+        self.min_delimiters = kwargs.pop("min_delimiters", None)
         super(Delimited, self).__init__(*args, **kwargs)
 
     def simple(self, parse_context):
@@ -1166,7 +1284,9 @@ class Delimited(BaseGrammar):
         delimiters = []
 
         # We should hoover non-code from the ends here if we can.
-        pre_seg_nc, seg_buff, post_seg_nc = self._trim_non_code(segments, code_only=self.code_only)
+        pre_seg_nc, seg_buff, post_seg_nc = self._trim_non_code(
+            segments, code_only=self.code_only
+        )
 
         # First iterate through all the segments, looking for the delimiter.
         # Second, split the list on each of the delimiters, and ensure that
@@ -1183,9 +1303,14 @@ class Delimited(BaseGrammar):
                 # Append the remaining buffer in case we're in the not is_code case.
                 matched_segments += seg_buff
                 # Nothing left, this is potentially a trailling case?
-                if self.allow_trailing and (self.min_delimiters is None or len(delimiters) >= self.min_delimiters):
+                if self.allow_trailing and (
+                    self.min_delimiters is None
+                    or len(delimiters) >= self.min_delimiters
+                ):
                     # It is! (nothing left so no unmatched segments to append)
-                    return MatchResult.from_matched(pre_seg_nc + matched_segments.matched_segments + post_seg_nc)
+                    return MatchResult.from_matched(
+                        pre_seg_nc + matched_segments.matched_segments + post_seg_nc
+                    )
                 else:
                     return MatchResult.from_unmatched(segments)
 
@@ -1195,11 +1320,18 @@ class Delimited(BaseGrammar):
             if self.terminator:
                 matchers.append(self.terminator)
             with parse_context.deeper_match() as ctx:
-                pre_content, delimiter_match, m = self._bracket_sensitive_look_ahead_match(
-                    seg_buff, matchers, parse_context=ctx,
+                (
+                    pre_content,
+                    delimiter_match,
+                    m,
+                ) = self._bracket_sensitive_look_ahead_match(
+                    seg_buff,
+                    matchers,
+                    parse_context=ctx,
                     # NB: We don't want whitespace at this stage, we'll deal with that
                     # seperately.
-                    code_only=False)
+                    code_only=False,
+                )
             # Keep track of the *lenght* of this pre-content section before we start
             # to change it later. We need this for dealing with terminators.
             pre_content_len = len(pre_content)
@@ -1212,7 +1344,11 @@ class Delimited(BaseGrammar):
 
                 # Let's split off the non-code portions. We should consume them rather
                 # then passing them through.
-                pre_content_pre_nc, pre_content, pre_content_postnc = self._trim_non_code(pre_content, code_only=self.code_only)
+                (
+                    pre_content_pre_nc,
+                    pre_content,
+                    pre_content_postnc,
+                ) = self._trim_non_code(pre_content, code_only=self.code_only)
 
                 # We now test the intervening section as to whether it matches one
                 # of the things we're looking for. NB: If it's of zero length then
@@ -1222,13 +1358,20 @@ class Delimited(BaseGrammar):
                         # We use the whitespace padded match to hoover up whitespace if enabled.
                         with parse_context.deeper_match() as ctx:
                             elem_match = self._code_only_sensitive_match(
-                                pre_content, elem, parse_context=ctx,
+                                pre_content,
+                                elem,
+                                parse_context=ctx,
                                 # This is where the configured code_only behaviour kicks in.
-                                code_only=self.code_only)
+                                code_only=self.code_only,
+                            )
 
                         if elem_match.is_complete():
                             # First add the segment up to the delimiter to the matched segments
-                            matched_segments += pre_content_pre_nc + elem_match.matched_segments + pre_content_postnc
+                            matched_segments += (
+                                pre_content_pre_nc
+                                + elem_match.matched_segments
+                                + pre_content_postnc
+                            )
                             # Then it depends what we matched.
                             # Delimiter
                             if m is self.delimiter:
@@ -1247,7 +1390,10 @@ class Delimited(BaseGrammar):
                                 # and not `delimiter_match.all_segments()``)
 
                                 # First check we've had enough delimiters
-                                if self.min_delimiters and len(delimiters) < self.min_delimiters:
+                                if (
+                                    self.min_delimiters
+                                    and len(delimiters) < self.min_delimiters
+                                ):
                                     return MatchResult.from_unmatched(segments)
                                 else:
                                     return MatchResult(
@@ -1255,12 +1401,15 @@ class Delimited(BaseGrammar):
                                         pre_seg_nc + matched_segments.matched_segments,
                                         # Return the part of the seg_buff which isn't in the
                                         # pre-content.
-                                        seg_buff[pre_content_len:]
+                                        seg_buff[pre_content_len:],
                                     )
                             else:
                                 raise RuntimeError(
-                                    ("I don't know how I got here. Matched instead on {0}, which "
-                                     "doesn't appear to be delimiter or terminator").format(m))
+                                    (
+                                        "I don't know how I got here. Matched instead on {0}, which "
+                                        "doesn't appear to be delimiter or terminator"
+                                    ).format(m)
+                                )
                         else:
                             # We REQUIRE a complete match here between delimiters or up to a
                             # terminator. If it's only partial then we don't want it.
@@ -1285,33 +1434,48 @@ class Delimited(BaseGrammar):
                 if self.min_delimiters and len(delimiters) < self.min_delimiters:
                     return MatchResult.from_unmatched(segments)
 
-                pre_term_nc, seg_buff, post_term_nc = self._trim_non_code(seg_buff, code_only=self.code_only)
+                pre_term_nc, seg_buff, post_term_nc = self._trim_non_code(
+                    seg_buff, code_only=self.code_only
+                )
                 # We use the whitespace padded match to hoover up whitespace if enabled,
                 # and default to the longest matcher. We don't care which one matches.
                 with parse_context.deeper_match() as ctx:
                     mat, _ = self._longest_code_only_sensitive_match(
-                        seg_buff, self._elements, parse_context=ctx,
-                        code_only=self.code_only)
+                        seg_buff,
+                        self._elements,
+                        parse_context=ctx,
+                        code_only=self.code_only,
+                    )
                 if mat:
                     # We've got something at the end. Return!
                     if mat.unmatched_segments:
                         # We have something unmatched and so we should let it also have the trailing elements
                         return MatchResult(
-                            pre_seg_nc + matched_segments.matched_segments + pre_term_nc + mat.matched_segments,
-                            mat.unmatched_segments + post_term_nc + post_seg_nc
+                            pre_seg_nc
+                            + matched_segments.matched_segments
+                            + pre_term_nc
+                            + mat.matched_segments,
+                            mat.unmatched_segments + post_term_nc + post_seg_nc,
                         )
                     else:
                         # If there's nothing unmatched in the most recent match, then we can consume the trailing
                         # non code segments
                         return MatchResult.from_matched(
-                            pre_seg_nc + matched_segments.matched_segments + pre_term_nc
-                            + mat.matched_segments + post_term_nc + post_seg_nc,
+                            pre_seg_nc
+                            + matched_segments.matched_segments
+                            + pre_term_nc
+                            + mat.matched_segments
+                            + post_term_nc
+                            + post_seg_nc,
                         )
                 else:
                     # No match at the end, are we allowed to trail? If we are then return,
                     # otherwise we fail because we can't match the last element.
                     if self.allow_trailing:
-                        return MatchResult(matched_segments.matched_segments, pre_term_nc + seg_buff + post_term_nc)
+                        return MatchResult(
+                            matched_segments.matched_segments,
+                            pre_term_nc + seg_buff + post_term_nc,
+                        )
                     else:
                         return MatchResult.from_unmatched(segments)
 
@@ -1339,7 +1503,7 @@ class ContainsOnly(BaseGrammar):
         For ContainsOnly, the references could be types.
 
         """
-        kwargs['resolve_refs'] = False
+        kwargs["resolve_refs"] = False
         super().__init__(*args, **kwargs)
 
     @match_wrapper()
@@ -1381,7 +1545,9 @@ class ContainsOnly(BaseGrammar):
             if isinstance(opt, str):
                 buff.append(opt)
             else:
-                buff.append(opt.expected_string(dialect=dialect, called_from=called_from))
+                buff.append(
+                    opt.expected_string(dialect=dialect, called_from=called_from)
+                )
         return " ( " + " | ".join(buff) + " | + )"
 
 
@@ -1390,10 +1556,11 @@ class StartsWith(GreedyUntil):
 
     This also has configurable whitespace and comment handling.
     """
+
     def __init__(self, target, *args, **kwargs):
         self.target = self._resolve_ref(target)
-        self.terminator = self._resolve_ref(kwargs.pop('terminator', None))
-        self.include_terminator = kwargs.pop('include_terminator', False)
+        self.terminator = self._resolve_ref(kwargs.pop("terminator", None))
+        self.include_terminator = kwargs.pop("include_terminator", False)
         super(StartsWith, self).__init__(*args, **kwargs)
 
     def simple(self, parse_context):
@@ -1433,23 +1600,31 @@ class StartsWith(GreedyUntil):
                 # with, then we can still used the unmatched parts on the end.
                 # We still need to deal with any non-code segments at the start.
                 greedy_match = self.greedy_match(
-                    match.unmatched_segments, parse_context, matchers=[self.terminator], code_only=self.code_only,
+                    match.unmatched_segments,
+                    parse_context,
+                    matchers=[self.terminator],
+                    code_only=self.code_only,
                     enforce_whitespace_preceeding_terminator=self.enforce_whitespace_preceeding_terminator,
-                    include_terminator=self.include_terminator
+                    include_terminator=self.include_terminator,
                 )
                 # Combine the results.
                 return MatchResult(
                     match.matched_segments + greedy_match.matched_segments,
-                    greedy_match.unmatched_segments
+                    greedy_match.unmatched_segments,
                 )
             else:
                 return MatchResult.from_unmatched(segments)
         else:
-            raise NotImplementedError("Not expecting to match StartsWith and also not just code!?")
+            raise NotImplementedError(
+                "Not expecting to match StartsWith and also not just code!?"
+            )
 
     def expected_string(self, dialect=None, called_from=None):
         """Get the expected string from the referenced element."""
-        return self.target.expected_string(dialect=dialect, called_from=called_from) + ", ..."
+        return (
+            self.target.expected_string(dialect=dialect, called_from=called_from)
+            + ", ..."
+        )
 
 
 class Bracketed(Sequence):
@@ -1468,16 +1643,17 @@ class Bracketed(Sequence):
       brackets to that sequence,
 
     """
+
     def __init__(self, *args, **kwargs):
-        self.square = kwargs.pop('square', False)
+        self.square = kwargs.pop("square", False)
         # Start and end tokens
         # The details on how to match a bracket are stored in the dialect
         if self.square:
-            self.start_bracket = Ref('StartSquareBracketSegment')
-            self.end_bracket = Ref('EndSquareBracketSegment')
+            self.start_bracket = Ref("StartSquareBracketSegment")
+            self.end_bracket = Ref("EndSquareBracketSegment")
         else:
-            self.start_bracket = Ref('StartBracketSegment')
-            self.end_bracket = Ref('EndBracketSegment')
+            self.start_bracket = Ref("StartBracketSegment")
+            self.end_bracket = Ref("EndBracketSegment")
         super(Bracketed, self).__init__(*args, **kwargs)
 
     def simple(self, parse_context):
@@ -1507,8 +1683,11 @@ class Bracketed(Sequence):
         # Look for the first bracket
         with parse_context.deeper_match() as ctx:
             start_match = self._code_only_sensitive_match(
-                seg_buff, self.start_bracket,
-                parse_context=ctx, code_only=self.code_only)
+                seg_buff,
+                self.start_bracket,
+                parse_context=ctx,
+                code_only=self.code_only,
+            )
         if start_match:
             seg_buff = start_match.unmatched_segments
         else:
@@ -1517,13 +1696,16 @@ class Bracketed(Sequence):
 
         # Look for the closing bracket
         pre, end_match, _ = self._bracket_sensitive_look_ahead_match(
-            segments=seg_buff, matchers=[self.end_bracket],
-            parse_context=parse_context, code_only=self.code_only
+            segments=seg_buff,
+            matchers=[self.end_bracket],
+            parse_context=parse_context,
+            code_only=self.code_only,
         )
         if not end_match:
             raise SQLParseError(
                 "Couldn't find closing bracket for opening bracket.",
-                segment=matched_segs)
+                segment=matched_segs,
+            )
 
         # Match the content now we've confirmed the brackets.
 
@@ -1531,21 +1713,28 @@ class Bracketed(Sequence):
         if not pre:
             if not self._elements or all(e.is_optional() for e in self._elements):
                 return MatchResult(
-                    start_match.matched_segments
-                    + end_match.matched_segments,
-                    end_match.unmatched_segments)
+                    start_match.matched_segments + end_match.matched_segments,
+                    end_match.unmatched_segments,
+                )
             else:
                 return MatchResult.from_unmatched(segments)
 
         # Then trim whitespace and deal with the case of no code content e.g. "(   )"
-        pre_nc, content_segs, post_nc = self._trim_non_code(pre, code_only=self.code_only)
+        pre_nc, content_segs, post_nc = self._trim_non_code(
+            pre, code_only=self.code_only
+        )
         # Do we have anything left to match on?
         if not content_segs:
-            if not self._elements or (all(e.is_optional() for e in self._elements) and self.code_only):
+            if not self._elements or (
+                all(e.is_optional() for e in self._elements) and self.code_only
+            ):
                 return MatchResult(
                     start_match.matched_segments
-                    + pre_nc + post_nc + end_match.matched_segments,
-                    end_match.unmatched_segments)
+                    + pre_nc
+                    + post_nc
+                    + end_match.matched_segments,
+                    end_match.unmatched_segments,
+                )
             else:
                 return MatchResult.from_unmatched(segments)
 
@@ -1556,8 +1745,16 @@ class Bracketed(Sequence):
         # We require a complete match for the content (hopefully for obvious reasons)
         if content_match.is_complete():
             # Append some indent and dedent tokens at the start and the end.
-            pre_meta = (Indent(pos_marker=content_match.matched_segments[0].get_start_pos_marker()),)
-            post_meta = (Dedent(pos_marker=content_match.matched_segments[-1].get_end_pos_marker()),)
+            pre_meta = (
+                Indent(
+                    pos_marker=content_match.matched_segments[0].get_start_pos_marker()
+                ),
+            )
+            post_meta = (
+                Dedent(
+                    pos_marker=content_match.matched_segments[-1].get_end_pos_marker()
+                ),
+            )
             return MatchResult(
                 # NB: The nc segments go *outside* the indents.
                 start_match.matched_segments
@@ -1567,7 +1764,8 @@ class Bracketed(Sequence):
                 + post_meta  # Add a meta indent here
                 + post_nc
                 + end_match.matched_segments,
-                end_match.unmatched_segments)
+                end_match.unmatched_segments,
+            )
         # No complete match. Fail.
         else:
             return MatchResult.from_unmatched(segments)
@@ -1575,7 +1773,7 @@ class Bracketed(Sequence):
     def expected_string(self, dialect=None, called_from=None):
         """Get the expected string from the referenced element."""
         return " ( {0} ) ".format(
-            ' | '.join(
+            " | ".join(
                 opt.expected_string(dialect=dialect, called_from=called_from)
                 for opt in self._elements
             )
