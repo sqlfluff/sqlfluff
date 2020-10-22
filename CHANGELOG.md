@@ -24,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   own expressions. Any dependencies on this structure downstream
   will be broken. This also fixes the linting of both kinds of expressions
   with regard to L013 and L025.
+- Internally added an `EphemeralSegment` to aid with parsing efficiency
+  without altering the end structure of the query.
 
 ## [0.3.6] - 2020-09-24
 

@@ -11,10 +11,10 @@ and match depth of the current operation.
 import logging
 
 # Get the parser logger
-parser_logger = logging.getLogger('sqlfluff.parser')
+parser_logger = logging.getLogger("sqlfluff.parser")
 
 
-class RootParseContext():
+class RootParseContext:
     """Object to handle the context at hand during parsing.
 
     The root context holds the persistent config which stays
@@ -41,14 +41,20 @@ class RootParseContext():
     @classmethod
     def from_config(cls, config, **overrides):
         """Construct a `RootParseContext` from a `FluffConfig`."""
-        indentation_config = config.get_section('indentation') or {}
+        indentation_config = config.get_section("indentation") or {}
         try:
             indentation_config = {k: bool(v) for k, v in indentation_config.items()}
         except TypeError:
             raise TypeError(
                 "One of the configuration keys in the `indentation` section is not True or False: {0!r}".format(
-                    indentation_config))
-        ctx = cls(dialect=config.get('dialect_obj'), recurse=config.get('recurse'), indentation_config=indentation_config)
+                    indentation_config
+                )
+            )
+        ctx = cls(
+            dialect=config.get("dialect_obj"),
+            recurse=config.get("recurse"),
+            indentation_config=indentation_config,
+        )
         # Set any overrides in the creation
         for key in overrides:
             if overrides[key] is not None:
@@ -74,7 +80,7 @@ class RootParseContext():
         pass
 
 
-class ParseContext():
+class ParseContext:
     """Object to handle the context at hand during parsing.
 
     Holds two tiers of references.
@@ -93,7 +99,7 @@ class ParseContext():
 
     # We create a destroy many ParseContexts so we limit the slots
     # to improve performance.
-    __slots__ = ['match_depth', 'parse_depth', 'match_segment', 'recurse', '_root_ctx']
+    __slots__ = ["match_depth", "parse_depth", "match_segment", "recurse", "_root_ctx"]
 
     def __init__(self, root_ctx, recurse=True):
         self._root_ctx = root_ctx
@@ -111,7 +117,9 @@ class ParseContext():
         except AttributeError:
             raise AttributeError(
                 "Attribute {0!r} not found in {1!r} or {2!r}".format(
-                    name, type(self).__name__, type(self._root_ctx).__name__))
+                    name, type(self).__name__, type(self._root_ctx).__name__
+                )
+            )
 
     def _copy(self):
         """Mimic the copy.copy() method but restrict only to local vars."""
@@ -163,6 +171,7 @@ class ParseContext():
 
 class ParseBlacklist:
     """Acts as a cache to stop unnecessary matching."""
+
     def __init__(self):
         self._blacklist_struct = {}
 

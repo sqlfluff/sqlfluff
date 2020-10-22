@@ -14,6 +14,7 @@ class SegmentGenerator:
     once everything else is defined. Very useful for template
     inheritance.
     """
+
     def __init__(self, func):
         self.func = func
 

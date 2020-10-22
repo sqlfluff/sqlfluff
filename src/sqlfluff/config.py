@@ -42,7 +42,11 @@ def nested_combine(*dicts):
                 if isinstance(d[k], dict):
                     r[k] = nested_combine(r[k], d[k])
                 else:
-                    raise ValueError("Key {0!r} is a dict in one config but not another! PANIC: {1!r}".format(k, d[k]))
+                    raise ValueError(
+                        "Key {0!r} is a dict in one config but not another! PANIC: {1!r}".format(
+                            k, d[k]
+                        )
+                    )
             else:
                 r[k] = d[k]
     return r
@@ -97,6 +101,7 @@ class ConfigLoader:
         sensitivity of jinja.
 
     """
+
     def __init__(self):
         # TODO: check that this cache implementation is actually useful
         self._config_cache = {}
@@ -130,7 +135,7 @@ class ConfigLoader:
         # Disable interpolation so we can load macros
         kw = {}
         if sys.version_info >= (3, 0):
-            kw['interpolation'] = None
+            kw["interpolation"] = None
         config = configparser.ConfigParser(**kw)
         # NB: We want to be case sensitive in how we read from files,
         # because jinja is also case sensitive. To do this we override
@@ -138,11 +143,11 @@ class ConfigLoader:
         config.optionxform = lambda option: option
         config.read(fpath)
         for k in config.sections():
-            if k == 'sqlfluff':
-                key = ('core',)
-            elif k.startswith('sqlfluff:'):
+            if k == "sqlfluff":
+                key = ("core",)
+            elif k.startswith("sqlfluff:"):
                 # Return a tuple of nested values
-                key = tuple(k[len('sqlfluff:'):].split(':'))
+                key = tuple(k[len("sqlfluff:") :].split(":"))
             else:
                 # if it doesn't start with sqlfluff, then don't go
                 # further on this iteration
@@ -158,17 +163,17 @@ class ConfigLoader:
                         v = float(val)
                     except ValueError:
                         cleaned_val = val.strip().lower()
-                        if cleaned_val in ['true']:
+                        if cleaned_val in ["true"]:
                             v = True
-                        elif cleaned_val in ['false']:
+                        elif cleaned_val in ["false"]:
                             v = False
-                        elif cleaned_val in ['none']:
+                        elif cleaned_val in ["none"]:
                             v = None
                         else:
                             v = val
 
                 # Attempt to resolve paths
-                if name.lower().endswith('_path'):
+                if name.lower().endswith("_path"):
                     # Try to resolve the path.
                     # Make the referenced path.
                     ref_path = os.path.join(os.path.dirname(fpath), val)
@@ -197,7 +202,9 @@ class ConfigLoader:
                     if isinstance(r[dp], dict):
                         r = r[dp]
                     else:
-                        raise ValueError("Overriding config value with section! [{0}]".format(k))
+                        raise ValueError(
+                            "Overriding config value with section! [{0}]".format(k)
+                        )
                 else:
                     r[dp] = {}
                     r = r[dp]
@@ -208,10 +215,7 @@ class ConfigLoader:
     def load_default_config_file(self):
         """Load the default config file."""
         elems = self._get_config_elems_from_file(
-            os.path.join(
-                os.path.dirname(__file__),
-                'default_config.cfg'
-            )
+            os.path.join(os.path.dirname(__file__), "default_config.cfg")
         )
         return self._incorporate_vals({}, elems)
 
@@ -223,7 +227,7 @@ class ConfigLoader:
 
         # The potential filenames we would look for at this path.
         # NB: later in this list overwrites earlier
-        filename_options = ['setup.cfg', 'tox.ini', 'pep8.ini', '.sqlfluff']
+        filename_options = ["setup.cfg", "tox.ini", "pep8.ini", ".sqlfluff"]
 
         c = {}
 
@@ -245,8 +249,8 @@ class ConfigLoader:
 
     def load_user_appdir_config(self):
         """Load the config from the user's OS specific appdir config directory."""
-        appname = 'sqlfluff'
-        appauthor = 'sqlfluff'
+        appname = "sqlfluff"
+        appauthor = "sqlfluff"
         user_config_dir_path = appdirs.user_config_dir(appname, appauthor)
         if os.path.exists(user_config_dir_path):
             return self.load_config_at_path(user_config_dir_path)
@@ -270,7 +274,7 @@ class ConfigLoader:
             given_path = os.path.dirname(given_path)
         config_stack = []
 
-        if hasattr(os.path, 'commonpath'):
+        if hasattr(os.path, "commonpath"):
             common_path = os.path.commonpath([working_path, given_path])
         else:
             # Compatabilty with pre python 3.5
@@ -301,43 +305,53 @@ class ConfigLoader:
 
 class FluffConfig:
     """.The class that actually gets passed around as a config object."""
-    private_vals = ['rule_blacklist', 'rule_whitelist', 'dialect_obj', 'templater_obj']
+
+    private_vals = ["rule_blacklist", "rule_whitelist", "dialect_obj", "templater_obj"]
 
     def __init__(self, configs=None, overrides=None):
         self._overrides = overrides  # We only store this for child configs
         defaults = ConfigLoader.get_global().load_default_config_file()
         self._configs = nested_combine(
-            defaults,
-            configs or {'core': {}},
-            {'core': overrides or {}})
+            defaults, configs or {"core": {}}, {"core": overrides or {}}
+        )
         # Some configs require special treatment
-        self._configs['core']['color'] = False if self._configs['core'].get('nocolor', False) else None
+        self._configs["core"]["color"] = (
+            False if self._configs["core"].get("nocolor", False) else None
+        )
         # Deal with potential ignore parameters
-        if self._configs['core'].get('ignore', None):
-            self._configs['core']['ignore'] = self._configs['core']['ignore'].split(',')
+        if self._configs["core"].get("ignore", None):
+            self._configs["core"]["ignore"] = self._configs["core"]["ignore"].split(",")
         else:
-            self._configs['core']['ignore'] = []
+            self._configs["core"]["ignore"] = []
         # Whitelists and blacklists
-        if self._configs['core'].get('rules', None):
-            self._configs['core']['rule_whitelist'] = self._configs['core']['rules'].split(',')
+        if self._configs["core"].get("rules", None):
+            self._configs["core"]["rule_whitelist"] = self._configs["core"][
+                "rules"
+            ].split(",")
         else:
-            self._configs['core']['rule_whitelist'] = None
-        if self._configs['core'].get('exclude_rules', None):
-            self._configs['core']['rule_blacklist'] = self._configs['core']['exclude_rules'].split(',')
+            self._configs["core"]["rule_whitelist"] = None
+        if self._configs["core"].get("exclude_rules", None):
+            self._configs["core"]["rule_blacklist"] = self._configs["core"][
+                "exclude_rules"
+            ].split(",")
         else:
-            self._configs['core']['rule_blacklist'] = None
+            self._configs["core"]["rule_blacklist"] = None
         # Configure Recursion
-        if self._configs['core'].get('recurse', 0) == 0:
-            self._configs['core']['recurse'] = True
+        if self._configs["core"].get("recurse", 0) == 0:
+            self._configs["core"]["recurse"] = True
         # Dialect and Template selection
-        self._configs['core']['dialect_obj'] = dialect_selector(self._configs['core']['dialect'])
-        self._configs['core']['templater_obj'] = templater_selector(self._configs['core']['templater'])
+        self._configs["core"]["dialect_obj"] = dialect_selector(
+            self._configs["core"]["dialect"]
+        )
+        self._configs["core"]["templater_obj"] = templater_selector(
+            self._configs["core"]["templater"]
+        )
 
     @classmethod
     def from_root(cls, overrides=None):
         """Loads a config object just based on the root directory."""
         loader = ConfigLoader.get_global()
-        c = loader.load_config_up_to_path(path='.')
+        c = loader.load_config_up_to_path(path=".")
         return cls(configs=c, overrides=overrides)
 
     @classmethod
@@ -366,7 +380,7 @@ class FluffConfig:
         """
         return dict_diff(self._configs, other._configs)
 
-    def get(self, val, section='core'):
+    def get(self, val, section="core"):
         """Get a particular value from the config."""
         return self._configs[section].get(val, None)
 
@@ -408,14 +422,18 @@ class FluffConfig:
         keys = sorted(cfg.keys())
         # First iterate values (alphabetically):
         for k in keys:
-            if not isinstance(cfg[k], dict) and cfg[k] is not None and k not in self.private_vals:
+            if (
+                not isinstance(cfg[k], dict)
+                and cfg[k] is not None
+                and k not in self.private_vals
+            ):
                 yield (0, k, cfg[k])
 
         # Then iterate dicts (alphabetically (but `core` comes first if it exists))
         for k in keys:
             if isinstance(cfg[k], dict):
                 # First yield the dict label
-                yield (0, k, '')
+                yield (0, k, "")
                 # Then yield it's content
                 for idnt, key, val in self.iter_vals(cfg=cfg[k]):
                     yield (idnt + 1, key, val)
