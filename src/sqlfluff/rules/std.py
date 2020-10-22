@@ -2413,7 +2413,7 @@ class Rule_L022(BaseCrawler):
 
                 # Work forward to map out the following segments.
                 while (
-                    forward_slice[seg_idx].type == 'comma'
+                    forward_slice[seg_idx].type == "comma"
                     or not forward_slice[seg_idx].is_code
                 ):
                     if forward_slice[seg_idx].type == "newline":

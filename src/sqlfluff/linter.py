@@ -769,7 +769,8 @@ class Linter:
                     if fix_loop_idx > loop_limit:
                         linter_logger.warning(
                             "Loop limit on fixes reached [%s]. Some fixes may be overdone.",
-                            loop_limit)
+                            loop_limit,
+                        )
                         break
                     changed = False
                     for crawler in self.get_ruleset(config=config):
