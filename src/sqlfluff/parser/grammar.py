@@ -606,7 +606,8 @@ class BaseGrammar:
         return "<{0}: [{1}]>".format(
             self.__class__.__name__,
             curtail_string(
-                ", ".join(curtail_string(repr(elem), 40) for elem in self._elements), 100
+                ", ".join(curtail_string(repr(elem), 40) for elem in self._elements),
+                100
             ),
         )
 
@@ -884,11 +885,10 @@ class OneOf(BaseGrammar):
                 v_level=3,
                 ns=non_simple,
                 ps=pruned_simple,
-                ms=matched_simple,             
+                ms=matched_simple,
                 pruned=prune_buff,
                 opts=available_options
             )
-
 
         # Match on each of the options still left.
         for opt in available_options:

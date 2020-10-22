@@ -971,27 +971,27 @@ ansi_dialect.add(
                     ),
                 ),
                 Sequence(
-                    Ref.keyword('NOT', optional=True),
-                    'BETWEEN',
+                    Ref.keyword("NOT", optional=True),
+                    "BETWEEN",
                     # In a between expression, we're restricted to arithmetic operations
                     # which means we can look for some binary operations without worrying
                     # about the binary ones (and therefore AND).
-                    Ref('Expression_C_Grammar'),
+                    Ref("Expression_C_Grammar"),
                     AnyNumberOf(
                         Sequence(
-                            Ref('ArithmeticBinaryOperatorGrammar'),
-                            Ref('Expression_C_Grammar')
+                            Ref("ArithmeticBinaryOperatorGrammar"),
+                            Ref("Expression_C_Grammar"),
                         )
                     ),
-                    'AND',
-                    Ref('Expression_C_Grammar'),
+                    "AND",
+                    Ref("Expression_C_Grammar"),
                     AnyNumberOf(
                         Sequence(
-                            Ref('ArithmeticBinaryOperatorGrammar'),
-                            Ref('Expression_C_Grammar')
+                            Ref("ArithmeticBinaryOperatorGrammar"),
+                            Ref("Expression_C_Grammar"),
                         )
-                    )
-                )
+                    ),
+                ),
             )
         ),
     ),
