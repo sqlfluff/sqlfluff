@@ -292,8 +292,12 @@ class LintedFile(
                         # TODO: We're trying to move through an templated section, but end up
                         # in a fixed section. We've lost track of indexes.
                         # We might need to panic if this happens...
-                        linter_logger.warning("UMMMMMM!\n%s\n%s", new_templ_idx, fixed_block)
-                        raise NotImplementedError("PANIC. Index position confused. Report this error.")
+                        linter_logger.warning(
+                            "UMMMMMM!\n%s\n%s", new_templ_idx, fixed_block
+                        )
+                        raise NotImplementedError(
+                            "PANIC. Index position confused. Report this error."
+                        )
                 write_buff += buff
                 # consume template block
                 templ_block = None
