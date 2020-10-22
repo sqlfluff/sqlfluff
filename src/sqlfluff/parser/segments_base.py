@@ -15,81 +15,9 @@ These are the fundamental building blocks of the rest of the parser.
 from io import StringIO
 from benchit import BenchIt
 
-from .match import MatchResult, curtail_string, join_segments_raw
-
-
-class ParseMatchLogObject:
-    """A late binding log object for parse_match_logging.
-
-    This allows us to defer the string manipulation involved
-    until actually required by the logger.
-    """
-
-    __slots__ = [
-        "parse_depth",
-        "match_depth",
-        "match_segment",
-        "grammar",
-        "func",
-        "msg",
-        "kwargs",
-    ]
-
-    def __init__(
-        self, parse_depth, match_depth, match_segment, grammar, func, msg, **kwargs
-    ):
-        self.parse_depth = parse_depth
-        self.match_depth = match_depth
-        self.match_segment = match_segment
-        self.grammar = grammar
-        self.func = func
-        self.msg = msg
-        self.kwargs = kwargs
-
-    @classmethod
-    def from_context(cls, parse_context, grammar, func, msg, **kwargs):
-        """Create a ParseMatchLogObject given a parse_context."""
-        return cls(
-            parse_context.parse_depth,
-            parse_context.match_depth,
-            parse_context.match_segment,
-            grammar,
-            func,
-            msg,
-            **kwargs
-        )
-
-    def __str__(self):
-        """Actually materialise the string."""
-        symbol = self.kwargs.pop("symbol", "")
-        s = "[PD:{0} MD:{1}]\t{2:<50}\t{3:<20}\t{4:<4}".format(
-            self.parse_depth,
-            self.match_depth,
-            ("." * self.match_depth) + str(self.match_segment),
-            "{0:.5}.{1} {2}".format(self.grammar, self.func, self.msg),
-            symbol,
-        )
-        if self.kwargs:
-            s += "\t[{0}]".format(
-                ", ".join(
-                    "{0}={1}".format(k, repr(v) if isinstance(v, str) else str(v))
-                    for k, v in self.kwargs.items()
-                )
-            )
-        return s
-
-
-def parse_match_logging(grammar, func, msg, parse_context, v_level, **kwargs):
-    """Log in a particular consistent format for use while matching."""
-    # Make a late bound log object so we only do the string manipulation when we need to.
-    log_obj = ParseMatchLogObject.from_context(
-        parse_context, grammar, func, msg, **kwargs
-    )
-    # Otherwise carry on...
-    if v_level == 3:
-        parse_context.logger.info(log_obj)
-    elif v_level == 4:
-        parse_context.logger.debug(log_obj)
+from .match_result import MatchResult
+from .match_logging import parse_match_logging, curtail_string, join_segments_raw
+from .match_wrapper import match_wrapper
 
 
 def frame_msg(msg):
@@ -134,7 +62,7 @@ class BaseSegment:
     grammar = None
     comment_seperate = False
     is_whitespace = False
-    optional = False  # NB: See the seguence grammar for details
+    optional = False  # NB: See the sequence grammar for details
     is_segment = True
     _name = None
     _func = None  # Available for use by subclasses (e.g. the LambdaSegment)
@@ -358,7 +286,7 @@ class BaseSegment:
 
             # NOTE: No match_depth kwarg, because this is the start of the matching.
             with parse_context.matching_segment(self.__class__.__name__) as ctx:
-                m = g._match(segments=self.segments, parse_context=ctx)
+                m = g.match(segments=self.segments, parse_context=ctx)
 
             if not isinstance(m, MatchResult):
                 raise TypeError(
@@ -583,6 +511,7 @@ class BaseSegment:
         return self.structural_simplify(self.to_tuple(**kwargs))
 
     @classmethod
+    @match_wrapper(v_level=4)
     def match(cls, segments, parse_context):
         """Match a list of segments against this segment.
 
@@ -623,7 +552,7 @@ class BaseSegment:
         if cls._match_grammar():
             # Call the private method
             with parse_context.deeper_match() as ctx:
-                m = cls._match_grammar()._match(segments=segments, parse_context=ctx)
+                m = cls._match_grammar().match(segments=segments, parse_context=ctx)
 
             # Calling unify here, allows the MatchResult class to do all the type checking.
             if not isinstance(m, MatchResult):
@@ -646,53 +575,6 @@ class BaseSegment:
             raise NotImplementedError(
                 "{0} has no match function implemented".format(cls.__name__)
             )
-
-    @classmethod
-    def _match(cls, segments, parse_context):
-        """A wrapper on the match function to do some basic validation and logging."""
-        parse_match_logging(
-            cls.__name__,
-            "_match",
-            "IN",
-            parse_context=parse_context,
-            v_level=4,
-            ls=len(segments),
-        )
-
-        if isinstance(segments, BaseSegment):
-            segments = (segments,)  # Make into a tuple for compatability
-
-        if not isinstance(segments, tuple):
-            parse_context.logger.warning(
-                "{0}.match, was passed {1} rather than tuple or segment".format(
-                    cls.__name__, type(segments)
-                )
-            )
-            if isinstance(segments, list):
-                # Let's make it a tuple for compatibility
-                segments = tuple(segments)
-
-        if len(segments) == 0:
-            parse_context.logger.info(
-                "{0}._match, was passed zero length segments list".format(cls.__name__)
-            )
-
-        m = cls.match(segments, parse_context=parse_context)
-
-        if not isinstance(m, tuple) and m is not None:
-            parse_context.logger.warning(
-                "{0}.match, returned {1} rather than tuple".format(
-                    cls.__name__, type(m)
-                )
-            )
-
-        parse_match_logging(
-            cls.__name__, "_match", "OUT", parse_context=parse_context, v_level=4, m=m
-        )
-        # Validation is skipped at a match level. For performance reasons
-        # we match at the parse level only
-        # check_still_complete(segments, m.matched_segments, m.unmatched_segments)
-        return m
 
     @staticmethod
     def expand(segments, parse_context):

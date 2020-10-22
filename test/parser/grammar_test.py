@@ -101,12 +101,17 @@ def test__parser__grammar__base__look_ahead_match(seg_list):
         assert m[1].matched_segments == (seg_list[1], fs("foo", seg_list[2].pos_marker))
 
 
-def test__parser__grammar__base__checkpoing(seg_list):
-    """Test the _look_ahead_match method of the BaseGrammar."""
+def test__parser__grammar__base__ephemeral_segment(seg_list):
+    """Test the ephemeral features BaseGrammar.
+
+    Normally you cant call .match() on a BaseGrammar, but
+    if things are set up right, then it should be possible
+    in the case that the ephemeral_name is set.
+    """
     g = BaseGrammar(ephemeral_name="TestGrammar")
 
     with RootParseContext(dialect=None) as ctx:
-        m = g._match(seg_list, ctx)
+        m = g.match(seg_list, ctx)
         # Check we get an ephemeral segment
         assert isinstance(m.matched_segments[0], EphemeralSegment)
         chkpoint = m.matched_segments[0]
@@ -279,7 +284,7 @@ def test__parser__grammar_delimited(caplog, generate_test_segments, fresh_ansi_d
             # Matching up to 'bar' should
             logging.info("#### TEST 3")
             assert (
-                g._match(seg_list[:5], parse_context=ctx).matched_segments
+                g.match(seg_list[:5], parse_context=ctx).matched_segments
                 == expectation[:5]
             )
             # Matching the full list ALSO should, because it's just whitespace

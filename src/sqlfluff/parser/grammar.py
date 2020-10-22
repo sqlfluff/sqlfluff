@@ -2,24 +2,16 @@
 
 import copy
 
-from .segments_base import BaseSegment, check_still_complete, parse_match_logging
+from .segments_base import BaseSegment, check_still_complete
 from .segments_common import Indent, Dedent, EphemeralSegment
-from .match import MatchResult, join_segments_raw_curtailed
+from .match_result import MatchResult
+from .match_logging import (
+    parse_match_logging,
+    LateBoundJoinSegmentsCurtailed,
+    curtail_string,
+)
+from .match_wrapper import match_wrapper
 from ..errors import SQLParseError
-
-
-class _LateBoundJoinSegmentsCurtailed:
-    """Object to delay `join_segments_raw_curtailed` until later.
-
-    This allows us to defer the string manipulation involved
-    until actually required by the logger.
-    """
-
-    def __init__(self, segments):
-        self.segments = segments
-
-    def __str__(self):
-        return join_segments_raw_curtailed(self.segments)
 
 
 class BaseGrammar:
@@ -31,7 +23,6 @@ class BaseGrammar:
 
     """
 
-    v_level = 3
     is_meta = False
 
     @staticmethod
@@ -103,6 +94,7 @@ class BaseGrammar:
         """
         return self.optional
 
+    @match_wrapper()
     def match(self, segments, parse_context):
         """Match a list of segments against this segment.
 
@@ -113,89 +105,6 @@ class BaseGrammar:
         raise NotImplementedError(
             "{0} has no match function implemented".format(self.__class__.__name__)
         )
-
-    def _match(self, segments, parse_context):
-        """A wrapper on the match function to do some basic validation."""
-        if isinstance(segments, BaseSegment):
-            segments = (segments,)  # Make into a tuple for compatability
-        if not isinstance(segments, tuple):
-            parse_context.logger.warning(
-                "{0}.match, was passed {1} rather than tuple or segment".format(
-                    self.__class__.__name__, type(segments)
-                )
-            )
-            if isinstance(segments, list):
-                # Let's make it a tuple for compatibility
-                segments = tuple(segments)
-
-        if len(segments) == 0:
-            parse_context.logger.info(
-                "{0}.match, was passed zero length segments list. NB: {0} contains {1!r}".format(
-                    self.__class__.__name__, self._elements
-                )
-            )
-
-        # If we have an EphemeralSegment, then we don't actually call the match grammar
-        # and instead just return straight away with the EphemeralSegment made earlier.
-        # We don't use the `match` method of EphemeralSegment, but instead instantiate
-        # it directly.
-        if self.ephemeral_segment:
-            parse_match_logging(
-                self.__class__.__name__,
-                "_match",
-                "CHK",
-                parse_context=parse_context,
-                v_level=self.v_level,
-            )
-            # We're going to return as though it's a full match, similar to Anything().
-            m = MatchResult.from_matched(
-                self.ephemeral_segment(segments=segments),
-            )
-        else:
-            # Logging to help with debugging.
-            # Work out the raw representation and curtail if long.
-            parse_match_logging(
-                self.__class__.__name__,
-                "_match",
-                "IN",
-                parse_context=parse_context,
-                v_level=self.v_level,
-                le=len(self._elements),
-                ls=len(segments),
-                seg=_LateBoundJoinSegmentsCurtailed(segments),
-            )
-
-            m = self.match(segments, parse_context=parse_context)
-
-        if not isinstance(m, MatchResult):
-            parse_context.logger.warning(
-                "{0}.match, returned {1} rather than MatchResult".format(
-                    self.__class__.__name__, type(m)
-                )
-            )
-
-        if m.is_complete():
-            msg = "OUT"
-            symbol = "++"
-        elif m:
-            msg = "OUT"
-            symbol = "+"
-        else:
-            msg = "OUT"
-            symbol = ""
-
-        parse_match_logging(
-            self.__class__.__name__,
-            "_match",
-            msg,
-            parse_context=parse_context,
-            v_level=self.v_level,
-            m=m,
-            symbol=symbol,
-        )
-
-        # Basic Validation, skipped here because it still happens in the parse commands.
-        return m
 
     def expected_string(self, dialect=None, called_from=None):
         """Return a String which is helpful to understand what this grammar expects."""
@@ -258,7 +167,7 @@ class BaseGrammar:
                     seg_buff = seg_buff[:-1]
                 else:
                     break
-            m = matcher._match(seg_buff, parse_context)
+            m = matcher.match(seg_buff, parse_context)
             if m.is_complete():
                 # We need to do more to complete matches. It's complete so
                 # we don't need to worry about the unmatched.
@@ -276,7 +185,7 @@ class BaseGrammar:
                 return MatchResult.from_unmatched(segments)
         else:
             # Code only not enabled, so just carry on
-            return matcher._match(segments, parse_context)
+            return matcher.match(segments, parse_context)
 
     @classmethod
     def _longest_code_only_sensitive_match(
@@ -355,7 +264,7 @@ class BaseGrammar:
             parse_context=parse_context,
             v_level=4,
             ls=len(segments),
-            seg=_LateBoundJoinSegmentsCurtailed(segments),
+            seg=LateBoundJoinSegmentsCurtailed(segments),
         )
 
         # Do some type munging
@@ -436,7 +345,7 @@ class BaseGrammar:
                 ]  # map back into indexes in `segments`
                 # Here we do the actual transform to the new segment.
                 matcher = m_first[0]
-                match = matcher._match(segments[segments_index:], parse_context)
+                match = matcher.match(segments[segments_index:], parse_context)
                 if not match:
                     # We've had something match in simple matching, but then later excluded.
                     # Log but then move on to the next item on the list.
@@ -690,12 +599,20 @@ class BaseGrammar:
                 # friendly unmatched return.
                 return ((), MatchResult.from_unmatched(segments), None)
 
+    def __str__(self):
+        return repr(self)
+
+    def __repr__(self):
+        return "<{0}: [{1}]>".format(
+            self.__class__.__name__,
+            curtail_string(
+                ", ".join(curtail_string(repr(elem), 15) for elem in self._elements), 50
+            ),
+        )
+
 
 class Ref(BaseGrammar):
     """A kind of meta-grammar that references other grammars by name at runtime."""
-
-    # Log less for Ref
-    v_level = 4
 
     def __init__(self, *args, **kwargs):
         """Initialise, but don't resolve refs in this case."""
@@ -734,12 +651,10 @@ class Ref(BaseGrammar):
         else:
             raise ReferenceError("No Dialect has been provided to Ref grammar!")
 
-    def __str__(self):
-        return repr(self)
-
     def __repr__(self):
         return "<Ref: {0}>".format(", ".join(self._elements))
 
+    @match_wrapper(v_level=4)  # Log less for Ref
     def match(self, segments, parse_context):
         """Match a list of segments against this segment.
 
@@ -779,7 +694,7 @@ class Ref(BaseGrammar):
         # Match against that. NB We're not incrementing the match_depth here.
         # References shouldn't relly count as a depth of match.
         with parse_context.matching_segment(self._get_ref()) as ctx:
-            resp = elem._match(segments=segments, parse_context=ctx)
+            resp = elem.match(segments=segments, parse_context=ctx)
         if not resp:
             parse_context.blacklist.mark(self_name, seg_tuple)
         return resp
@@ -878,6 +793,7 @@ class OneOf(BaseGrammar):
             simple_buff += simple
         return simple_buff
 
+    @match_wrapper()
     def match(self, segments, parse_context):
         """Match any of the elements given once.
 
@@ -890,7 +806,7 @@ class OneOf(BaseGrammar):
         # which would prevent the rest of this grammar from matching.
         if self.exclude:
             with parse_context.deeper_match() as ctx:
-                if self.exclude._match(segments, parse_context=ctx):
+                if self.exclude.match(segments, parse_context=ctx):
                     return MatchResult.from_unmatched(segments)
 
         # For efficiency, we'll be pruning options if we can
@@ -929,7 +845,7 @@ class OneOf(BaseGrammar):
                 "_match",
                 "PRN",
                 parse_context=parse_context,
-                v_level=self.v_level,
+                v_level=3,
                 pruned="ALL",
             )
             return MatchResult.from_unmatched(segments)
@@ -939,14 +855,14 @@ class OneOf(BaseGrammar):
                 "_match",
                 "PRN",
                 parse_context=parse_context,
-                v_level=self.v_level,
+                v_level=3,
                 pruned=prune_buff,
             )
 
         # Match on each of the options still left.
         for opt in available_options:
             with parse_context.deeper_match() as ctx:
-                m = opt._match(segments, parse_context=ctx)
+                m = opt.match(segments, parse_context=ctx)
             # If we get a complete match, just return it. If it's incomplete, then check to
             # see if it's all non-code if that allowed and match it
             if m.is_complete():
@@ -965,7 +881,7 @@ class OneOf(BaseGrammar):
                     "_match",
                     "SAVE",
                     parse_context=parse_context,
-                    v_level=self.v_level,
+                    v_level=3,
                     match_length=len(m.raw_matched()),
                     m=m,
                 )
@@ -1013,6 +929,7 @@ class AnyNumberOf(BaseGrammar):
         """
         return self.optional or self.min_times == 0
 
+    @match_wrapper()
     def match(self, segments, parse_context):
         """Match against any of the elements any number of times."""
         # Match on each of the options
@@ -1044,7 +961,7 @@ class AnyNumberOf(BaseGrammar):
             # Try the possibilities
             for opt in self._elements:
                 with parse_context.deeper_match() as ctx:
-                    m = opt._match(mid_seg + post_seg, parse_context=ctx)
+                    m = opt.match(mid_seg + post_seg, parse_context=ctx)
                 if m.has_match():
                     matched_segments += pre_seg + m.matched_segments
                     unmatched_segments = m.unmatched_segments
@@ -1086,6 +1003,7 @@ class GreedyUntil(BaseGrammar):
         )
         super(GreedyUntil, self).__init__(*args, **kwargs)
 
+    @match_wrapper()
     def match(self, segments, parse_context):
         """Matching for GreedyUntil works just how you'd expect."""
         return self.greedy_match(
@@ -1228,6 +1146,7 @@ class Sequence(BaseGrammar):
         # If *all* elements are optional AND simple, I guess it's also simple.
         return simple_buff
 
+    @match_wrapper()
     def match(self, segments, parse_context):
         """Match a specific sequence of elements."""
         if isinstance(segments, BaseSegment):
@@ -1283,7 +1202,7 @@ class Sequence(BaseGrammar):
                 else:
                     # We've already dealt with potential whitespace above, so carry on to matching
                     with parse_context.deeper_match() as ctx:
-                        elem_match = elem._match(mid_seg, parse_context=ctx)
+                        elem_match = elem.match(mid_seg, parse_context=ctx)
 
                     if elem_match.has_match():
                         # We're expecting mostly partial matches here, but complete
@@ -1356,6 +1275,7 @@ class Delimited(BaseGrammar):
             simple_buff += simple
         return simple_buff
 
+    @match_wrapper()
     def match(self, segments, parse_context):
         """Match an arbitrary number of elements seperated by a delimiter.
 
@@ -1599,6 +1519,7 @@ class ContainsOnly(BaseGrammar):
         kwargs["resolve_refs"] = False
         super().__init__(*args, **kwargs)
 
+    @match_wrapper()
     def match(self, segments, parse_context):
         """Match if the sequence contains segments that match an element."""
         matched_buffer = ()
@@ -1620,7 +1541,7 @@ class ContainsOnly(BaseGrammar):
                             break
                     else:
                         with parse_context.deeper_match() as ctx:
-                            m = opt._match(forward_buffer, parse_context=ctx)
+                            m = opt.match(forward_buffer, parse_context=ctx)
                         if m:
                             matched_buffer += m.matched_segments
                             forward_buffer = m.unmatched_segments
@@ -1662,6 +1583,7 @@ class StartsWith(GreedyUntil):
         """
         return self.target.simple(parse_context=parse_context)
 
+    @match_wrapper()
     def match(self, segments, parse_context):
         """Match if this sequence starts with a match."""
         if self.code_only:
@@ -1676,7 +1598,7 @@ class StartsWith(GreedyUntil):
                 # That means this isn't a match.
                 return MatchResult.from_unmatched(segments)
             with parse_context.deeper_match() as ctx:
-                match = self.target._match(
+                match = self.target.match(
                     segments=segments[first_code_idx:], parse_context=ctx
                 )
             if match:
@@ -1754,6 +1676,7 @@ class Bracketed(Sequence):
         """
         return self.start_bracket.simple(parse_context=parse_context)
 
+    @match_wrapper()
     def match(self, segments, parse_context):
         """Match if this is a bracketed sequence, with content that matches one of the elements.
 
