@@ -607,7 +607,7 @@ class BaseGrammar:
             self.__class__.__name__,
             curtail_string(
                 ", ".join(curtail_string(repr(elem), 40) for elem in self._elements),
-                100
+                100,
             ),
         )
 
@@ -654,8 +654,7 @@ class Ref(BaseGrammar):
 
     def __repr__(self):
         return "<Ref: {0}{1}>".format(
-            ", ".join(self._elements),
-            " [opt]" if self.is_optional() else ""
+            ", ".join(self._elements), " [opt]" if self.is_optional() else ""
         )
 
     @match_wrapper(v_level=4)  # Log less for Ref
@@ -887,7 +886,7 @@ class OneOf(BaseGrammar):
                 ps=pruned_simple,
                 ms=matched_simple,
                 pruned=prune_buff,
-                opts=available_options
+                opts=available_options,
             )
 
         # Match on each of the options still left.
