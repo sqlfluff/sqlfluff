@@ -16,7 +16,7 @@ def get_rule_from_set(code, config):
     raise ValueError("{0!r} not in {1!r}".format(code, std_rule_set))
 
 
-def assert_rule_fail_in_sql(code, sql, configs=None):
+def assert_rule_fail_in_sql(code, sql, configs=None, runaway_limit=20):
     """Assert that a given rule does fail on the given sql."""
     # Configs allows overrides if we want to use them.
     cfg = FluffConfig(configs=configs)
@@ -31,7 +31,8 @@ def assert_rule_fail_in_sql(code, sql, configs=None):
             pytrace=False,
         )
     fixed = parsed  # use this as our buffer (yes it's a bit of misnomer right here)
-    while True:
+    loop_idx = 0
+    while loop_idx < runaway_limit:
         # We get the errors again, but this time skip the assertion
         # because we're in the loop. If we asserted on every loop then
         # we're stuffed.
@@ -50,6 +51,11 @@ def assert_rule_fail_in_sql(code, sql, configs=None):
         if fixes:
             if fixes == l_fixes:
                 raise RuntimeError("Fixes aren't being applied: {0!r}".format(fixes))
+        loop_idx += 1
+    else:
+        raise ValueError(
+            "Runaway loop limit reached for rule! This example never stabilises."
+        )
     return fixed.raw
 
 
@@ -447,6 +453,49 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
             "fail",
             "select x.a from x inner join y on x.id = y.id inner join z using (id)",
             None,
+            None,
+        ),
+        # Test cases for L022, both leading and trailing commas.
+        (
+            "L022",
+            "pass",
+            "with my_cte as (\n    select 1\n),\n\nother_cte as (\n    select 1\n)\n\nselect * from my_cte cross join other_cte",
+            None,
+            None,
+        ),
+        (
+            "L022",
+            "pass",
+            "with my_cte as (\n    select 1\n)\n\n, other_cte as (\n    select 1\n)\n\nselect * from my_cte cross join other_cte",
+            None,
+            None,
+        ),
+        (
+            "L022",
+            "fail",
+            "with my_cte as (\n    select 1\n),\nother_cte as (\n    select 1\n)\n\nselect * from my_cte cross join other_cte",
+            "with my_cte as (\n    select 1\n),\n\nother_cte as (\n    select 1\n)\n\nselect * from my_cte cross join other_cte",
+            None,
+        ),
+        (
+            "L022",
+            "fail",
+            "with my_cte as (\n    select 1\n),\n-- Comment\nother_cte as (\n    select 1\n)\n\nselect * from my_cte cross join other_cte",
+            "with my_cte as (\n    select 1\n),\n\n-- Comment\nother_cte as (\n    select 1\n)\n\nselect * from my_cte cross join other_cte",
+            None,
+        ),
+        (
+            "L022",
+            "fail",
+            "with my_cte as (\n    select 1\n),\n\nother_cte as (\n    select 1\n)\nselect * from my_cte cross join other_cte",
+            "with my_cte as (\n    select 1\n),\n\nother_cte as (\n    select 1\n)\n\nselect * from my_cte cross join other_cte",
+            None,
+        ),
+        (
+            "L022",
+            "fail",
+            "with my_cte as (\n    select 1\n)\n, other_cte as (\n    select 1\n)\nselect * from my_cte cross join other_cte",
+            "with my_cte as (\n    select 1\n)\n\n, other_cte as (\n    select 1\n)\n\nselect * from my_cte cross join other_cte",
             None,
         ),
     ],
