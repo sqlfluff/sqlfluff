@@ -101,12 +101,12 @@ def test__parser__grammar__base__look_ahead_match(seg_list):
         assert m[1].matched_segments == (seg_list[1], fs("foo", seg_list[2].pos_marker))
 
 
-def test__parser__grammar__base__checkpoing(seg_list):
+def test__parser__grammar__base__ephemeral_segment(seg_list):
     """Test the _look_ahead_match method of the BaseGrammar."""
     g = BaseGrammar(ephemeral_name="TestGrammar")
 
     with RootParseContext(dialect=None) as ctx:
-        m = g._match(seg_list, ctx)
+        m = g.match(seg_list, ctx)
         # Check we get an ephemeral segment
         assert isinstance(m.matched_segments[0], EphemeralSegment)
         chkpoint = m.matched_segments[0]
