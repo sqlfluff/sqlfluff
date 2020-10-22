@@ -99,7 +99,7 @@ class BaseGrammar:
         """Match a list of segments against this segment.
 
         Matching can be done from either the raw or the segments.
-        This raw function can be overridden, or a grammar
+        This raw function can be overridden, or a grammar defined
         on the underlying class.
         """
         raise NotImplementedError(

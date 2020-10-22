@@ -102,7 +102,12 @@ def test__parser__grammar__base__look_ahead_match(seg_list):
 
 
 def test__parser__grammar__base__ephemeral_segment(seg_list):
-    """Test the _look_ahead_match method of the BaseGrammar."""
+    """Test the ephemeral features BaseGrammar.
+
+    Normally you cant call .match() on a BaseGrammar, but
+    if things are set up right, then it should be possible
+    in the case that the ephemeral_name is set.
+    """
     g = BaseGrammar(ephemeral_name="TestGrammar")
 
     with RootParseContext(dialect=None) as ctx:

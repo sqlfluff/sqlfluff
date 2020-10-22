@@ -36,20 +36,35 @@ def match_wrapper(v_level=3):
                     )
                 )
 
-            # Log what we're matching.
-            # Work out the raw representation and curtail if long.
-            parse_match_logging(
-                func.__qualname__,
-                "_match",
-                "IN",
-                parse_context=parse_context,
-                v_level=v_level,
-                ls=len(segments),
-                seg=LateBoundJoinSegmentsCurtailed(segments),
-            )
+            # Use the ephemeral_segment if present. This should only
+            # be the case for grammars where `ephemeral_name` is defined.
+            ephemeral_segment = getattr(self_cls, "ephemeral_segment", None)
+            if ephemeral_segment:
+                parse_match_logging(
+                    func.__qualname__,
+                    "_match",
+                    "EPH",
+                    parse_context=parse_context,
+                    v_level=v_level,
+                )
+                # We're going to return as though it's a full match, similar to Anything().
+                m = MatchResult.from_matched(ephemeral_segment(segments=segments))
+            else:
+                # Otherwise carry on through with wrapping the function.
+                parse_match_logging(
+                    func.__qualname__,
+                    "_match",
+                    "IN",
+                    parse_context=parse_context,
+                    v_level=v_level,
+                    ls=len(segments),
+                    # Log what we're matching.
+                    # Work out the raw representation and curtail if long.
+                    seg=LateBoundJoinSegmentsCurtailed(segments),
+                )
 
-            # Perform the inner matching operation.
-            m = func(self_cls, segments, parse_context=parse_context)
+                # Perform the inner matching operation.
+                m = func(self_cls, segments, parse_context=parse_context)
 
             # Validate result
             if not isinstance(m, MatchResult):
