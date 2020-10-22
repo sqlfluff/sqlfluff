@@ -31,6 +31,16 @@ from ..config import FluffConfig
 from ..errors import SQLLintError
 
 
+class RedWarningsFilter(logging.Filter):
+    """This filter makes all warnings or above red."""
+
+    def filter(self, record):
+        """Filter any warnings (or above) to turn them red."""
+        if record.levelno >= logging.WARNING:
+            record.msg = colorize(record.msg, "red")
+        return True
+
+
 def set_logging_level(verbosity, logger=None):
     """Set up logging for the CLI.
 
@@ -51,6 +61,8 @@ def set_logging_level(verbosity, logger=None):
     # Set up the log handler to log to stdout
     handler = logging.StreamHandler(stream=sys.stdout)
     handler.setFormatter(logging.Formatter("%(levelname)-10s %(message)s"))
+    # Set up a handler to colour warnings red.
+    handler.addFilter(RedWarningsFilter())
     if logger:
         focus_logger = logging.getLogger("sqlfluff.{0}".format(logger))
         focus_logger.addHandler(handler)
