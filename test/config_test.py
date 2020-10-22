@@ -6,52 +6,64 @@ from sqlfluff.config import ConfigLoader, nested_combine, dict_diff, FluffConfig
 from sqlfluff.linter import Linter
 
 
-config_a = {'core': {'testing_val': 'foobar', 'testing_int': 4}, 'bar': {'foo': 'barbar'}}
+config_a = {
+    "core": {"testing_val": "foobar", "testing_int": 4},
+    "bar": {"foo": "barbar"},
+}
 
 
 def test__config__nested_combine():
     """Test combination of two config dicts."""
-    a = {'a': {'b': {'c': 123, 'd': 456}}}
-    b = {'b': {'b': {'c': 123, 'd': 456}}}
-    c = {'a': {'b': {'c': 234, 'e': 456}}}
+    a = {"a": {"b": {"c": 123, "d": 456}}}
+    b = {"b": {"b": {"c": 123, "d": 456}}}
+    c = {"a": {"b": {"c": 234, "e": 456}}}
     r = nested_combine(a, b, c)
-    assert r == {'a': {'b': {'c': 234, 'e': 456, 'd': 456}}, 'b': {'b': {'c': 123, 'd': 456}}}
+    assert r == {
+        "a": {"b": {"c": 234, "e": 456, "d": 456}},
+        "b": {"b": {"c": 123, "d": 456}},
+    }
 
 
 def test__config__dict_diff():
     """Test diffs between two config dicts."""
-    a = {'a': {'b': {'c': 123, 'd': 456, 'f': 6}}}
-    b = {'b': {'b': {'c': 123, 'd': 456}}}
-    c = {'a': {'b': {'c': 234, 'e': 456, 'f': 6}}}
+    a = {"a": {"b": {"c": 123, "d": 456, "f": 6}}}
+    b = {"b": {"b": {"c": 123, "d": 456}}}
+    c = {"a": {"b": {"c": 234, "e": 456, "f": 6}}}
     assert dict_diff(a, b) == a
-    assert dict_diff(a, c) == {'a': {'b': {'c': 123, 'd': 456}}}
-    assert dict_diff(c, a) == {'a': {'b': {'c': 234, 'e': 456}}}
+    assert dict_diff(a, c) == {"a": {"b": {"c": 123, "d": 456}}}
+    assert dict_diff(c, a) == {"a": {"b": {"c": 234, "e": 456}}}
 
 
 def test__config__load_file_dir():
     """Test loading config from a directory path."""
     c = ConfigLoader()
-    cfg = c.load_config_at_path(os.path.join(
-        'test', 'fixtures', 'config', 'inheritance_a'))
+    cfg = c.load_config_at_path(
+        os.path.join("test", "fixtures", "config", "inheritance_a")
+    )
     assert cfg == config_a
 
 
 def test__config__load_file_f():
     """Test loading config from a file path."""
     c = ConfigLoader()
-    cfg = c.load_config_at_path(os.path.join(
-        'test', 'fixtures', 'config', 'inheritance_a', 'testing.sql'))
+    cfg = c.load_config_at_path(
+        os.path.join("test", "fixtures", "config", "inheritance_a", "testing.sql")
+    )
     assert cfg == config_a
 
 
 def test__config__load_nested():
     """Test nested overwrite and order of precedence of config files in the same directory."""
     c = ConfigLoader()
-    cfg = c.load_config_up_to_path(os.path.join('test', 'fixtures', 'config', 'inheritance_a', 'nested', 'blah.sql'))
+    cfg = c.load_config_up_to_path(
+        os.path.join(
+            "test", "fixtures", "config", "inheritance_a", "nested", "blah.sql"
+        )
+    )
     assert cfg == {
-        'core': {'testing_val': 'foobar', 'testing_int': 6, 'testing_bar': 7.698},
-        'bar': {'foo': 'foobar'},
-        'fnarr': {'fnarr': {'foo': 'foobar'}}
+        "core": {"testing_val": "foobar", "testing_int": 6, "testing_bar": 7.698},
+        "bar": {"foo": "foobar"},
+        "fnarr": {"fnarr": {"foo": "foobar"}},
     }
 
 
@@ -61,15 +73,15 @@ def test__config__nested_config_tests():
     This looks like a linter test but it's actually a config
     test.
     """
-    lntr = Linter(config=FluffConfig(overrides=dict(exclude_rules='L002')))
-    lnt = lntr.lint_path('test/fixtures/config/inheritance_b')
+    lntr = Linter(config=FluffConfig(overrides=dict(exclude_rules="L002")))
+    lnt = lntr.lint_path("test/fixtures/config/inheritance_b")
     violations = lnt.check_tuples(by_path=True)
     for k in violations:
-        if k.endswith('nested\\example.sql'):
-            assert ('L003', 1, 4) in violations[k]
-            assert ('L009', 1, 12) in violations[k]
-            assert 'L002' not in [c[0] for c in violations[k]]
-        elif k.endswith('inheritance_b\\example.sql'):
-            assert ('L003', 1, 4) in violations[k]
-            assert 'L002' not in [c[0] for c in violations[k]]
-            assert 'L009' not in [c[0] for c in violations[k]]
+        if k.endswith("nested\\example.sql"):
+            assert ("L003", 1, 4) in violations[k]
+            assert ("L009", 1, 12) in violations[k]
+            assert "L002" not in [c[0] for c in violations[k]]
+        elif k.endswith("inheritance_b\\example.sql"):
+            assert ("L003", 1, 4) in violations[k]
+            assert "L002" not in [c[0] for c in violations[k]]
+            assert "L009" not in [c[0] for c in violations[k]]

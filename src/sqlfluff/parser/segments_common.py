@@ -12,8 +12,10 @@ we use, and will be common between all of them.
 
 import re
 
-from .segments_base import (BaseSegment, RawSegment, parse_match_logging)
-from .match import MatchResult
+from .segments_base import BaseSegment, RawSegment
+from .match_result import MatchResult
+from .match_logging import parse_match_logging
+from .match_wrapper import match_wrapper
 
 
 class KeywordSegment(RawSegment):
@@ -25,9 +27,9 @@ class KeywordSegment(RawSegment):
     instead of here, but can be used here too.
     """
 
-    type = 'keyword'
+    type = "keyword"
     _is_code = True
-    _template = '<unset>'
+    _template = "<unset>"
     _case_sensitive = False
 
     @classmethod
@@ -43,6 +45,7 @@ class KeywordSegment(RawSegment):
         return False
 
     @classmethod
+    @match_wrapper(v_level=4)
     def match(cls, segments, parse_context):
         """Compare input segments for a match, return a `MatchResult`.
 
@@ -63,13 +66,24 @@ class KeywordSegment(RawSegment):
                 raw_comp = raw.upper()
 
             parse_match_logging(
-                cls.__name__, 'match', 'KW',
-                parse_context=parse_context, v_level=4, pattern=cls._template, test=raw_comp, name=cls.__name__)
+                cls.__name__,
+                "match",
+                "KW",
+                parse_context=parse_context,
+                v_level=4,
+                pattern=cls._template,
+                test=raw_comp,
+                name=cls.__name__,
+            )
             if cls._template == raw_comp:
                 m = (cls(raw=raw, pos_marker=pos),)  # Return as a tuple
                 return MatchResult(m, segments[1:])
         else:
-            parse_context.logger.debug("{1} will not match sequence of length {0}".format(len(segments), cls.__name__))
+            parse_context.logger.debug(
+                "{1} will not match sequence of length {0}".format(
+                    len(segments), cls.__name__
+                )
+            )
         return MatchResult.from_unmatched(segments)
 
     @classmethod
@@ -97,6 +111,7 @@ class ReSegment(KeywordSegment):
         return False
 
     @classmethod
+    @match_wrapper(v_level=4)
     def match(cls, segments, parse_context):
         """Compare input segments for a match, return a `MatchResult`.
 
@@ -118,8 +133,15 @@ class ReSegment(KeywordSegment):
         if len(s) == 0:
             raise ValueError("Zero length string passed to ReSegment!?")
         parse_match_logging(
-            cls.__name__, 'match', 'RE',
-            parse_context=parse_context, v_level=4, pattern=cls._template, test=sc, name=cls.__name__)
+            cls.__name__,
+            "match",
+            "RE",
+            parse_context=parse_context,
+            v_level=4,
+            pattern=cls._template,
+            test=sc,
+            name=cls.__name__,
+        )
         # Try the regex
         result = re.match(cls._template, sc)
         if result:
@@ -130,7 +152,9 @@ class ReSegment(KeywordSegment):
                 if cls._anti_template and re.match(cls._anti_template, sc):
                     return MatchResult.from_unmatched(segments)
                 else:
-                    m = (cls(raw=s, pos_marker=segments[0].pos_marker),)  # Return a tuple
+                    m = (
+                        cls(raw=s, pos_marker=segments[0].pos_marker),
+                    )  # Return a tuple
                     return MatchResult(m, segments[1:])
         return MatchResult.from_unmatched(segments)
 
@@ -160,6 +184,7 @@ class NamedSegment(KeywordSegment):
         return False
 
     @classmethod
+    @match_wrapper(v_level=4)
     def match(cls, segments, parse_context):
         """Compare input segments for a match, return a `MatchResult`.
 
@@ -178,13 +203,26 @@ class NamedSegment(KeywordSegment):
             else:
                 n = s.name
             parse_match_logging(
-                cls.__name__, 'match', 'NM',
-                parse_context=parse_context, v_level=4, pattern=cls._template, test=n, name=cls.__name__)
+                cls.__name__,
+                "match",
+                "NM",
+                parse_context=parse_context,
+                v_level=4,
+                pattern=cls._template,
+                test=n,
+                name=cls.__name__,
+            )
             if cls._template == n:
-                m = (cls(raw=s.raw, pos_marker=segments[0].pos_marker),)  # Return a tuple
+                m = (
+                    cls(raw=s.raw, pos_marker=segments[0].pos_marker),
+                )  # Return a tuple
                 return MatchResult(m, segments[1:])
         else:
-            parse_context.logger.debug("{1} will not match sequence of length {0}".format(len(segments), cls.__name__))
+            parse_context.logger.debug(
+                "{1} will not match sequence of length {0}".format(
+                    len(segments), cls.__name__
+                )
+            )
         return MatchResult.from_unmatched(segments)
 
     @classmethod
@@ -204,6 +242,7 @@ class LambdaSegment(BaseSegment):
     """
 
     @classmethod
+    @match_wrapper(v_level=4)
     def match(cls, segments, parse_context):
         """Compare input segments for a match, return a `MatchResult`.
 
@@ -245,8 +284,7 @@ class LambdaSegment(BaseSegment):
         # Now lets make the classname (it indicates the mother class for clarity)
         classname = "{0}_{1}".format(name, cls.__name__)
         # This is the magic, we generate a new class! SORCERY
-        newclass = type(classname, (cls, ),
-                        dict(_func=func, _name=name, **kwargs))
+        newclass = type(classname, (cls,), dict(_func=func, _name=name, **kwargs))
         # Now we return that class in the abstract. NOT INSTANTIATED
         return newclass
 
@@ -261,9 +299,9 @@ class Indent(RawSegment):
     be compared later.
     """
 
-    type = 'indent'
+    type = "indent"
     _is_code = False
-    _template = '<unset>'
+    _template = "<unset>"
     _case_sensitive = False
     indent_val = 1
     is_meta = True
@@ -281,14 +319,13 @@ class Indent(RawSegment):
         override earlier ones.
         """
         if len(kwargs) > 1:
-            raise ValueError("More than one condition specified for {0!r}. [{1!r}]".format(
-                cls, kwargs))
+            raise ValueError(
+                "More than one condition specified for {0!r}. [{1!r}]".format(
+                    cls, kwargs
+                )
+            )
         # Sorcery (but less to than on KeywordSegment)
-        return type(
-            cls.__name__,
-            (cls, ),
-            dict(_config_rules=kwargs)
-        )
+        return type(cls.__name__, (cls,), dict(_config_rules=kwargs))
 
     @classmethod
     def is_enabled(cls, parse_context):
@@ -318,6 +355,7 @@ class Indent(RawSegment):
         return ""
 
     @classmethod
+    @match_wrapper()
     def match(cls, segments, parse_context):
         """This will never be called. If it is then we're using it wrong."""
         raise NotImplementedError(
@@ -329,7 +367,7 @@ class Indent(RawSegment):
     @classmethod
     def expected_string(cls, dialect=None, called_from=None):
         """Return the expected string for this segment."""
-        return ''
+        return ""
 
     def __init__(self, pos_marker):
         """For the indent we override the init method.
@@ -340,7 +378,7 @@ class Indent(RawSegment):
         ok in this sense. We need the pos marker later for dealing
         with repairs.
         """
-        self._raw = ''
+        self._raw = ""
         # TODO: Make sure that we DO actually skip meta segments
         # during fixes.
         self.pos_marker = pos_marker
@@ -360,7 +398,7 @@ class Dedent(Indent):
     indent_val = -1
 
 
-class Checkpoint(BaseSegment):
+class EphemeralSegment(BaseSegment):
     """A segment which acts like a normal segment, but is ephemeral.
 
     This segment allows grammars to behave like segments. It behaves like
@@ -394,9 +432,12 @@ class Checkpoint(BaseSegment):
         Note: This requires a custom make method, because it's a bit different.
         """
         # Now lets make the classname (it indicates the mother class for clarity)
-        classname = "Checkpoint_{name}".format(name=name)
+        classname = "EphemeralSegment_{name}".format(name=name)
         # This is the magic, we generate a new class! SORCERY
-        newclass = type(classname, (cls, ),
-                        dict(match_grammar=match_grammar, parse_grammar=parse_grammar))
+        newclass = type(
+            classname,
+            (cls,),
+            dict(match_grammar=match_grammar, parse_grammar=parse_grammar),
+        )
         # Now we return that class in the abstract. NOT INSTANTIATED
         return newclass

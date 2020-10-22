@@ -53,9 +53,7 @@ def assert_rule_fail_in_sql(code, sql, configs=None, runaway_limit=20):
                 raise RuntimeError("Fixes aren't being applied: {0!r}".format(fixes))
         loop_idx += 1
     else:
-        raise ValueError(
-            "Runaway loop limit reached for rule! This example never stabilises."
-        )
+        raise ValueError("Runaway loop limit reached for rule! This example never stabilises.")
     return fixed.raw
 
 

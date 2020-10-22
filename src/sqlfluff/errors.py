@@ -3,11 +3,12 @@
 
 class SQLBaseError(ValueError):
     """Base Error Class for all violations."""
+
     _code = None
-    _identifier = 'base'
+    _identifier = "base"
 
     def __init__(self, *args, **kwargs):
-        self.ignore = kwargs.pop('ignore', False)
+        self.ignore = kwargs.pop("ignore", False)
         super(SQLBaseError, self).__init__(*args, **kwargs)
 
     @property
@@ -22,10 +23,10 @@ class SQLBaseError(ValueError):
         error, (the ones with a `rule` attribute), but otherwise
         returns a placeholder value which can be used instead.
         """
-        if hasattr(self, 'rule'):
+        if hasattr(self, "rule"):
             return self.rule.code
         else:
-            return self._code or '????'
+            return self._code or "????"
 
     def desc(self):
         """Fetch a description of this violation.
@@ -35,11 +36,11 @@ class SQLBaseError(ValueError):
         caused the violation. Optionally some errors may have their
         description set directly.
         """
-        if hasattr(self, 'description') and self.description:
+        if hasattr(self, "description") and self.description:
             # This can only override if it's present AND
             # if it's non-null.
             return self.description
-        elif hasattr(self, 'rule'):
+        elif hasattr(self, "rule"):
             return self.rule.description
         else:
             # Return the first element - probably a string message
@@ -83,10 +84,10 @@ class SQLBaseError(ValueError):
             if neither a present.
 
         """
-        if hasattr(self, 'segment'):
+        if hasattr(self, "segment"):
             # Linting and Parsing Errors
             return self.segment.pos_marker
-        elif hasattr(self, 'pos'):
+        elif hasattr(self, "pos"):
             # Lexing errors
             return self.pos
         else:
@@ -108,10 +109,9 @@ class SQLBaseError(ValueError):
             A `dictionary` with keys (code, line_no, line_pos, description)
 
         """
-        return dict(zip(
-            ('code', 'line_no', 'line_pos', 'description'),
-            self.get_info_tuple()
-        ))
+        return dict(
+            zip(("code", "line_no", "line_pos", "description"), self.get_info_tuple())
+        )
 
     def ignore_if_in(self, ignore_iterable):
         """Ignore this violation if it matches the iterable."""
@@ -131,11 +131,12 @@ class SQLTemplaterError(SQLBaseError):
             occured at.
 
     """
-    _code = 'TMP'
-    _identifier = 'templating'
+
+    _code = "TMP"
+    _identifier = "templating"
 
     def __init__(self, *args, **kwargs):
-        self.pos = kwargs.pop('pos', None)
+        self.pos = kwargs.pop("pos", None)
         super(SQLTemplaterError, self).__init__(*args, **kwargs)
 
 
@@ -147,12 +148,13 @@ class SQLLexError(SQLBaseError):
             occured at.
 
     """
-    _code = 'LXR'
-    _identifier = 'lexing'
+
+    _code = "LXR"
+    _identifier = "lexing"
 
     def __init__(self, *args, **kwargs):
         # Store the segment on creation - we might need it later
-        self.pos = kwargs.pop('pos', None)
+        self.pos = kwargs.pop("pos", None)
         super(SQLLexError, self).__init__(*args, **kwargs)
 
 
@@ -166,12 +168,13 @@ class SQLParseError(SQLBaseError):
             used for logging and for referencing position.
 
     """
-    _code = 'PRS'
-    _identifier = 'parsing'
+
+    _code = "PRS"
+    _identifier = "parsing"
 
     def __init__(self, *args, **kwargs):
         # Store the segment on creation - we might need it later
-        self.segment = kwargs.pop('segment', None)
+        self.segment = kwargs.pop("segment", None)
         super(SQLParseError, self).__init__(*args, **kwargs)
 
 
@@ -188,14 +191,15 @@ class SQLLintError(SQLBaseError):
             used for logging and for referencing position.
 
     """
-    _identifier = 'linting'
+
+    _identifier = "linting"
 
     def __init__(self, *args, **kwargs):
         # Something about position, message and fix?
-        self.segment = kwargs.pop('segment', None)
-        self.rule = kwargs.pop('rule', None)
-        self.fixes = kwargs.pop('fixes', [])
-        self.description = kwargs.pop('description', None)
+        self.segment = kwargs.pop("segment", None)
+        self.rule = kwargs.pop("rule", None)
+        self.fixes = kwargs.pop("fixes", [])
+        self.description = kwargs.pop("description", None)
         super(SQLLintError, self).__init__(*args, **kwargs)
 
     @property
@@ -207,8 +211,13 @@ class SQLLintError(SQLBaseError):
 
     def check_tuple(self):
         """Get a tuple representing this error. Mostly for testing."""
-        return (self.rule.code, self.segment.pos_marker.line_no, self.segment.pos_marker.line_pos)
+        return (
+            self.rule.code,
+            self.segment.pos_marker.line_no,
+            self.segment.pos_marker.line_pos,
+        )
 
     def __repr__(self):
         return "<SQLLintError: rule {0} pos:{1!r}, #fixes: {2}>".format(
-            self.rule_code(), self.pos_marker(), len(self.fixes))
+            self.rule_code(), self.pos_marker(), len(self.fixes)
+        )

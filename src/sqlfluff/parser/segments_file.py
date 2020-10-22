@@ -13,15 +13,16 @@ class FileSegment(BaseSegment):
     and probably defines structure a little further down than it should. It
     is also the point at which the lexer is called.
     """
-    type = 'file'
+
+    type = "file"
     # The file segment is the only one which can start or end with non-code
     _can_start_end_non_code = True
 
     grammar = Delimited(
-        Ref('StatementSegment'),
-        delimiter=Ref('SemicolonSegment'),
+        Ref("StatementSegment"),
+        delimiter=Ref("SemicolonSegment"),
         code_only=True,
-        allow_trailing=True
+        allow_trailing=True,
     )
 
     @classmethod

@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   will be broken. This also fixes the linting of both kinds of expressions
   with regard to L013 and L025.
 - Refactor of L022 to handle poorly formatted CTEs better.
+- Internally added an `EphemeralSegment` to aid with parsing efficiency
+  without altering the end structure of the query.
 
 ## [0.3.6] - 2020-09-24
 
