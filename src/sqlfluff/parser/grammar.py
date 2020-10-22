@@ -365,7 +365,6 @@ class BaseGrammar:
 
         # Have we been passed an empty list?
         if len(segments) == 0:
-            print("e")
             return ((), MatchResult.from_empty(), None)
 
         # Here we enable a performance optimisation. Most of the time in this cycle

@@ -267,8 +267,8 @@ class LintedFile(
                     else:
                         # We're not at the end point yet, continue to fast forward through.
                         if fixed_block[0] != "equal":
-                            print(
-                                "WARNING: Skipping edit block: {0}".format(fixed_block)
+                            linter_logger.warning(
+                                "Skipping edit block: {0}".format(fixed_block)
                             )
                         if diff_fix_codes:
                             fixed_block = diff_fix_codes.pop(0)
@@ -292,10 +292,8 @@ class LintedFile(
                         # TODO: We're trying to move through an templated section, but end up
                         # in a fixed section. We've lost track of indexes.
                         # We might need to panic if this happens...
-                        print("UMMMMMM!")
-                        print(new_templ_idx)
-                        print(fixed_block)
-                        raise NotImplementedError("ABC")
+                        linter_logger.warning("UMMMMMM!\n%s\n%s", new_templ_idx, fixed_block)
+                        raise NotImplementedError("PANIC. Index position confused. Report this error.")
                 write_buff += buff
                 # consume template block
                 templ_block = None
