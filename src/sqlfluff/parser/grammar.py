@@ -1,8 +1,15 @@
 """Definitions for Grammar."""
+
+import copy
+
 from .segments_base import BaseSegment, check_still_complete
 from .segments_common import Indent, Dedent, EphemeralSegment
 from .match_result import MatchResult
-from .match_logging import parse_match_logging, LateBoundJoinSegmentsCurtailed, curtail_string
+from .match_logging import (
+    parse_match_logging,
+    LateBoundJoinSegmentsCurtailed,
+    curtail_string,
+)
 from .match_wrapper import match_wrapper
 from ..errors import SQLParseError
 
@@ -15,6 +22,7 @@ class BaseGrammar:
     implement it as an instance method.
 
     """
+
     is_meta = False
 
     @staticmethod
@@ -256,7 +264,7 @@ class BaseGrammar:
             parse_context=parse_context,
             v_level=4,
             ls=len(segments),
-            seg=LateBoundJoinSegmentsCurtailed(segments)
+            seg=LateBoundJoinSegmentsCurtailed(segments),
         )
 
         # Do some type munging
@@ -598,12 +606,8 @@ class BaseGrammar:
         return "<{0}: [{1}]>".format(
             self.__class__.__name__,
             curtail_string(
-                ", ".join(
-                    curtail_string(repr(elem), 15)
-                    for elem in self._elements
-                ),
-                50
-            )
+                ", ".join(curtail_string(repr(elem), 15) for elem in self._elements), 50
+            ),
         )
 
 
@@ -838,16 +842,22 @@ class OneOf(BaseGrammar):
         if not available_options:
             parse_match_logging(
                 self.__class__.__name__,
-                '_match', "PRN",
-                parse_context=parse_context, v_level=3,
-                pruned="ALL")
+                "_match",
+                "PRN",
+                parse_context=parse_context,
+                v_level=3,
+                pruned="ALL",
+            )
             return MatchResult.from_unmatched(segments)
         else:
             parse_match_logging(
                 self.__class__.__name__,
-                '_match', "PRN",
-                parse_context=parse_context, v_level=3,
-                pruned=prune_buff)
+                "_match",
+                "PRN",
+                parse_context=parse_context,
+                v_level=3,
+                pruned=prune_buff,
+            )
 
         # Match on each of the options still left.
         for opt in available_options:
@@ -868,9 +878,13 @@ class OneOf(BaseGrammar):
                     best_match = m
                 parse_match_logging(
                     self.__class__.__name__,
-                    '_match', "SAVE",
-                    parse_context=parse_context, v_level=3,
-                    match_length=len(m.raw_matched()), m=m)
+                    "_match",
+                    "SAVE",
+                    parse_context=parse_context,
+                    v_level=3,
+                    match_length=len(m.raw_matched()),
+                    m=m,
+                )
 
         # No full match from the first time round. If we've got a
         # long partial match then return that.
@@ -1188,8 +1202,7 @@ class Sequence(BaseGrammar):
                 else:
                     # We've already dealt with potential whitespace above, so carry on to matching
                     with parse_context.deeper_match() as ctx:
-                        elem_match = elem.match(
-                            mid_seg, parse_context=ctx)
+                        elem_match = elem.match(mid_seg, parse_context=ctx)
 
                     if elem_match.has_match():
                         # We're expecting mostly partial matches here, but complete
@@ -1586,8 +1599,8 @@ class StartsWith(GreedyUntil):
                 return MatchResult.from_unmatched(segments)
             with parse_context.deeper_match() as ctx:
                 match = self.target.match(
-                    segments=segments[first_code_idx:],
-                    parse_context=ctx)
+                    segments=segments[first_code_idx:], parse_context=ctx
+                )
             if match:
                 # The match will probably have returned a mutated version rather
                 # that the raw segment sent for matching. We need to reinsert it
