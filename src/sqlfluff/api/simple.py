@@ -13,7 +13,7 @@ def _unify_str_or_file(sql):
     return sql
 
 
-def lint(sql, dialect="ansi"):
+def lint(sql, dialect="ansi", rules=None):
     """Lint a sql string or file.
 
     Args:
@@ -21,12 +21,14 @@ def lint(sql, dialect="ansi"):
             either as a string or a subclass of :obj:`TextIOBase`.
         dialect (:obj:`str`, optional): A reference to the dialect of the sql
             to be linted. Defaults to `ansi`.
+        rules (:obj:`str` or iterable of :obj:`str`, optional): A subset of rule
+            reference to lint for.
 
     Returns:
         :obj:`list` of :obj:`dict` for each violation found.
     """
     sql = _unify_str_or_file(sql)
-    linter = Linter(dialect=dialect)
+    linter = Linter(dialect=dialect, rules=rules)
 
     result = linter.lint_string_wrapped(sql)
     result_records = result.as_records()
@@ -34,7 +36,7 @@ def lint(sql, dialect="ansi"):
     return result_records[0]["violations"]
 
 
-def fix(sql, dialect="ansi"):
+def fix(sql, dialect="ansi", rules=None):
     """Fix a sql string or file.
 
     Args:
@@ -42,12 +44,14 @@ def fix(sql, dialect="ansi"):
             either as a string or a subclass of :obj:`TextIOBase`.
         dialect (:obj:`str`, optional): A reference to the dialect of the sql
             to be linted. Defaults to `ansi`.
+        rules (:obj:`str` or iterable of :obj:`str`, optional): A subset of rule
+            reference to lint for.
 
     Returns:
         :obj:`str` for the fixed sql if possible.
     """
     sql = _unify_str_or_file(sql)
-    linter = Linter(dialect=dialect)
+    linter = Linter(dialect=dialect, rules=rules)
 
     result = linter.lint_string_wrapped(sql, fix=True)
     fixed_string = result.paths[0].files[0].fix_string()[0]

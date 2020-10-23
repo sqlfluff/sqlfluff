@@ -19,5 +19,12 @@ result = sqlfluff.lint(my_bad_query, dialect="bigquery")
 
 # Fix the given string and get a string back which has been fixed.
 result = sqlfluff.fix(my_bad_query, dialect="bigquery")
-
 # result = 'SELECT  *, 1, blah AS  foo  FROM mytable\n'
+
+# We can also fix just specific rules.
+result = sqlfluff.fix(my_bad_query, rules="L010")
+# result = 'SELECT  *, 1, blah AS  fOO  FROM myTable'
+
+# Or a subset of rules...
+result = sqlfluff.fix(my_bad_query, rules=["L010", "L014"])
+# result = 'SELECT  *, 1, blah AS  fOO  FROM mytable'

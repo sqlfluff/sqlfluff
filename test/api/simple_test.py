@@ -5,12 +5,12 @@ These tests should also test the imports, not just the functionality.
 
 import sqlfluff
 
+my_bad_query = "SeLEct  *, 1, blah as  fOO  from myTable"
+
 
 def test__api__lint_string():
     """Basic checking of lint functionality."""
-    my_bad_query = "SeLEct  *, 1, blah as  fOO  from myTable"
     result = sqlfluff.lint(my_bad_query)
-
     # Check return types.
     assert isinstance(result, list)
     assert all(isinstance(elem, dict) for elem in result)
@@ -49,14 +49,25 @@ def test__api__lint_string():
     ]
 
 
+def test__api__lint_string_specific():
+    """Basic checking of lint functionality."""
+    rules = ["L014", "L009"]
+    result = sqlfluff.lint(my_bad_query, rules=rules)
+    # Check which rules are found
+    assert all(elem["code"] in rules for elem in result)
+
+
 def test__api__fix_string():
     """Basic checking of lint functionality."""
-    import sqlfluff
-
-    my_bad_query = "SeLEct  *, 1, blah as  fOO  from myTable"
     result = sqlfluff.fix(my_bad_query)
-
     # Check return types.
     assert isinstance(result, str)
     # Check actual result
     assert result == "SELECT  *, 1, blah AS  foo  FROM mytable\n"
+
+
+def test__api__fix_string_specific():
+    """Basic checking of lint functionality with a specific rule."""
+    result = sqlfluff.fix(my_bad_query, rules="L010")
+    # Check actual result
+    assert result == "SELECT  *, 1, blah AS  fOO  FROM myTable"

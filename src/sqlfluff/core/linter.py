@@ -573,18 +573,25 @@ class LintingResult:
 class Linter:
     """The interface class to interact with the linter."""
 
-    def __init__(self, sql_exts=(".sql",), config=None, formatter=None, dialect=None):
-        if dialect and config:
+    def __init__(
+        self, sql_exts=(".sql",), config=None, formatter=None, dialect=None, rules=None
+    ):
+        if (dialect or rules) and config:
             raise ValueError(
-                "Cannot specify `dialect` and `config`. Any config object "
-                "specifies its own dialect."
+                "Cannot specify `config` with `dialect` or `rules`. Any config object "
+                "specifies its own dialect and rules."
             )
         elif config is None:
+            overrides = {}
             if dialect:
-                config = FluffConfig(overrides=dict(dialect=dialect))
-            else:
-                # If it's not specified it will work it out from the context
-                config = FluffConfig()
+                overrides["dialect"] = dialect
+            if rules:
+                # If it's a string, make it a list
+                if isinstance(rules, str):
+                    rules = [rules]
+                # Make a comma seperated string to pass in as override
+                overrides["rules"] = ",".join(rules)
+            config = FluffConfig(overrides=overrides)
 
         self.dialect = config.get("dialect_obj")
         self.templater = config.get("templater_obj")
