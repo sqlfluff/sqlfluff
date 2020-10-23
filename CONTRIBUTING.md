@@ -118,16 +118,16 @@ source .venv/bin/activate
 Once you're in a virtual environment, run:
 
 ```shell
-pip install -r requirements.txt
-pip install -r requirements_dev.txt -c requirements.txt
+pip install -Ur requirements.txt -Ur requirements_dev.txt
 python setup.py develop
 ```
 
 > `setup.py develop` installs the package using a link to the source code so that any changes
 > which you make will immediately be available for use.
 >
-> `pip install -r requirements_dev.txt -c requirements.txt` installs the dependencies needed
-> to run linting, formatting, and testing commands constrained by the main project dependencies.
+> `pip install -Ur requirements.txt -Ur requirements_dev.txt` installs the project dependencies
+> as well as the dependencies needed to run linting, formatting, and testing commands. This will
+> install the most up-to-date package versions for all dependencies.
 
 ## Building Package
 
