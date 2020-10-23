@@ -545,7 +545,15 @@ class LintingResult:
         (ints, strs).
         """
         return [
-            {"filepath": path, "violations": [v.get_info_dict() for v in violations]}
+            {
+                "filepath": path,
+                "violations": sorted(
+                    # Sort violations by line and then position
+                    [v.get_info_dict() for v in violations],
+                    # The tuple allows sorting by line number, then position, then code
+                    key=lambda v: (v["line_no"], v["line_pos"], v["code"]),
+                ),
+            }
             for lintedpath in self.paths
             for path, violations in lintedpath.violation_dict().items()
             if violations

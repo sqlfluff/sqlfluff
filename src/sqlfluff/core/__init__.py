@@ -9,7 +9,13 @@ from .config import FluffConfig
 from .linter import Linter
 
 # All of the errors.
-from .errors import SQLBaseError, SQLTemplaterError, SQLLexError, SQLParseError, SQLLintError
+from .errors import (
+    SQLBaseError,
+    SQLTemplaterError,
+    SQLLexError,
+    SQLParseError,
+    SQLLintError,
+)
 
 # Dialect introspection.
 # TODO: This feels untidy, maybe refactor into a class.

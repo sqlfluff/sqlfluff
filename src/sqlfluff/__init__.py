@@ -1,6 +1,10 @@
 """Sqlfluff is a SQL linter for humans."""
 import sys
 
+# Expose the public API.
+
+from .api import lint  # noqa: F401
+
 # Check major python version
 if sys.version_info[0] < 3:
     raise Exception("Sqlfluff does not support Python 2. Please upgrade to Python 3.")
@@ -13,6 +17,7 @@ elif sys.version_info[1] < 6:
         )
     )
 
+# Set the version attribute of the library
 import pkg_resources
 import configparser
 
