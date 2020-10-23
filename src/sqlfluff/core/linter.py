@@ -577,7 +577,7 @@ class Linter:
         if dialect and config:
             raise ValueError(
                 "Cannot specify `dialect` and `config`. Any config object "
-                "specifies it's own dialect."
+                "specifies its own dialect."
             )
         elif config is None:
             if dialect:

@@ -3,11 +3,11 @@
 These tests should also test the imports, not just the functionality.
 """
 
+import sqlfluff
+
 
 def test__api__lint_string():
     """Basic checking of lint functionality."""
-    import sqlfluff
-
     my_bad_query = "SeLEct  *, 1, blah as  fOO  from myTable"
     result = sqlfluff.lint(my_bad_query)
 

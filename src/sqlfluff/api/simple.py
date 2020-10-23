@@ -3,7 +3,7 @@
 from ..core import Linter
 
 
-def _unfiy_str_or_file(sql):
+def _unify_str_or_file(sql):
     """Unify string and files in the same format."""
     if not isinstance(sql, str):
         try:
@@ -25,7 +25,7 @@ def lint(sql, dialect="ansi"):
     Returns:
         :obj:`list` of :obj:`dict` for each violation found.
     """
-    sql = _unfiy_str_or_file(sql)
+    sql = _unify_str_or_file(sql)
     linter = Linter(dialect=dialect)
 
     result = linter.lint_string_wrapped(sql)
@@ -46,7 +46,7 @@ def fix(sql, dialect="ansi"):
     Returns:
         :obj:`str` for the fixed sql if possible.
     """
-    sql = _unfiy_str_or_file(sql)
+    sql = _unify_str_or_file(sql)
     linter = Linter(dialect=dialect)
 
     result = linter.lint_string_wrapped(sql, fix=True)

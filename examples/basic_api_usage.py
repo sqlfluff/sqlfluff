@@ -1,4 +1,4 @@
-"""This is an exmaple of how to use the simple sqlfluff api."""
+"""This is an example of how to use the simple sqlfluff api."""
 
 import sqlfluff
 
