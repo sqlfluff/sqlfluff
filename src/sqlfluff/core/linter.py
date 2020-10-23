@@ -580,7 +580,11 @@ class Linter:
                 "specifies it's own dialect."
             )
         elif config is None:
-            config = FluffConfig(overrides=dict(dialect=dialect or "ansi"))
+            if dialect:
+                config = FluffConfig(overrides=dict(dialect=dialect))
+            else:
+                # If it's not specified it will work it out from the context
+                config = FluffConfig()
 
         self.dialect = config.get("dialect_obj")
         self.templater = config.get("templater_obj")
