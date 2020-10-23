@@ -2,8 +2,7 @@
 import sys
 
 # Expose the public API.
-
-from .api import lint  # noqa: F401
+from .api import lint, fix  # noqa: F401
 
 # Check major python version
 if sys.version_info[0] < 3:

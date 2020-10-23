@@ -3,7 +3,24 @@
 from ..core import Linter, FluffConfig
 
 
-def lint(sql, dialect="ansi", fname="passed string"):
+def _unfiy_str_or_file(sql):
+    """Unify string and files in the same format."""
+    if not isinstance(sql, str):
+        try:
+            sql = sql.read()
+        except AttributeError:
+            raise TypeError("Value passed as sql is not a string or a readable object.")
+    return sql
+
+
+def _get_linter(dialect="ansi"):
+    """Get a linter based on a given dialect."""
+    # TODO: This pattern seems to repeat a lot, maybe we should have a sensible default?
+    config = FluffConfig(overrides=dict(dialect=dialect))
+    return Linter(config=config)
+
+
+def lint(sql, dialect="ansi"):
     """Lint a sql string or file.
 
     Args:
@@ -11,22 +28,36 @@ def lint(sql, dialect="ansi", fname="passed string"):
             either as a string or a subclass of :obj:`TextIOBase`.
         dialect (:obj:`str`, optional): A reference to the dialect of the sql
             to be linted. Defaults to `ansi`.
-        fname (:obj:`str`, optional): The name of the file to be assigned in
-            the results object.
+
+    Returns:
+        :obj:`list` of :obj:`dict` for each violation found.
     """
-    # Make sure that whatever we're passed is an appropriate object.
-    if not isinstance(sql, str):
-        try:
-            sql = sql.read()
-        except AttributeError:
-            raise TypeError("Value passed as sql is not a string or a readable object.")
 
-    # TODO: This pattern seems to repeat a lot, maybe we should have a sensible default?
-    config = FluffConfig(overrides=dict(dialect=dialect))
-    linter = Linter(config=config)
+    sql = _unfiy_str_or_file(sql)
+    linter = _get_linter(dialect=dialect)
 
-    # Use the linter
-    result = linter.lint_string_wrapped(sql, fname=fname)
+    result = linter.lint_string_wrapped(sql)
     result_records = result.as_records()
     # Return just the violations for this file
     return result_records[0]["violations"]
+
+
+def fix(sql, dialect="ansi"):
+    """Fix a sql string or file.
+
+    Args:
+        sql (:obj:`str` or file-like object): The sql to be linted
+            either as a string or a subclass of :obj:`TextIOBase`.
+        dialect (:obj:`str`, optional): A reference to the dialect of the sql
+            to be linted. Defaults to `ansi`.
+
+    Returns:
+        :obj:`str` for the fixed sql if possible.
+    """
+
+    sql = _unfiy_str_or_file(sql)
+    linter = _get_linter(dialect=dialect)
+
+    result = linter.lint_string_wrapped(sql, fix=True)
+    fixed_string = result.paths[0].files[0].fix_string()[0]
+    return fixed_string

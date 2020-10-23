@@ -47,3 +47,16 @@ def test__api__lint_string():
             "description": "Inconsistent capitalisation of unquoted identifiers.",
         },
     ]
+
+
+def test__api__fix_string():
+    """Basic checking of lint functionality."""
+    import sqlfluff
+
+    my_bad_query = "SeLEct  *, 1, blah as  fOO  from myTable"
+    result = sqlfluff.fix(my_bad_query)
+
+    # Check return types.
+    assert isinstance(result, str)
+    # Check actual result
+    assert result == "SELECT  *, 1, blah AS  foo  FROM mytable\n"
