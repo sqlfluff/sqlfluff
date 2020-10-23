@@ -974,8 +974,9 @@ ansi_dialect.add(
                     Ref.keyword("NOT", optional=True),
                     "BETWEEN",
                     # In a between expression, we're restricted to arithmetic operations
-                    # which means we can look for some binary operations without worrying
-                    # about the binary ones (and therefore AND).
+                    # because if we look for all binary operators then we would match AND
+                    # as both an operator and also as the delimiter within the BETWEEN
+                    # expression.
                     Ref("Expression_C_Grammar"),
                     AnyNumberOf(
                         Sequence(
