@@ -17,6 +17,6 @@ Simple API commands
 -------------------
 
 
-.. automodule:: sqlfluff.api.simple
-   :members:
+.. automodule:: sqlfluff
+   :members: lint, fix
    :member-order: alphabetical
