@@ -80,7 +80,7 @@ def test__templater_jinja_error_catatrophic():
 
 def assert_structure(yaml_loader, path, code_only=True):
     """Check that a parsed sql file matches the yaml file with the same name."""
-    lntr = Linter(config=FluffConfig())
+    lntr = Linter()
     p = list(lntr.parse_path(path + ".sql"))
     parsed = p[0][0]
     if parsed is None:

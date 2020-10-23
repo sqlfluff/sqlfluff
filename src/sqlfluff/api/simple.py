@@ -1,6 +1,6 @@
 """The simple public API methods."""
 
-from ..core import Linter, FluffConfig
+from ..core import Linter
 
 
 def _unfiy_str_or_file(sql):
@@ -11,13 +11,6 @@ def _unfiy_str_or_file(sql):
         except AttributeError:
             raise TypeError("Value passed as sql is not a string or a readable object.")
     return sql
-
-
-def _get_linter(dialect="ansi"):
-    """Get a linter based on a given dialect."""
-    # TODO: This pattern seems to repeat a lot, maybe we should have a sensible default?
-    config = FluffConfig(overrides=dict(dialect=dialect))
-    return Linter(config=config)
 
 
 def lint(sql, dialect="ansi"):
@@ -32,9 +25,8 @@ def lint(sql, dialect="ansi"):
     Returns:
         :obj:`list` of :obj:`dict` for each violation found.
     """
-
     sql = _unfiy_str_or_file(sql)
-    linter = _get_linter(dialect=dialect)
+    linter = Linter(dialect=dialect)
 
     result = linter.lint_string_wrapped(sql)
     result_records = result.as_records()
@@ -54,9 +46,8 @@ def fix(sql, dialect="ansi"):
     Returns:
         :obj:`str` for the fixed sql if possible.
     """
-
     sql = _unfiy_str_or_file(sql)
-    linter = _get_linter(dialect=dialect)
+    linter = Linter(dialect=dialect)
 
     result = linter.lint_string_wrapped(sql, fix=True)
     fixed_string = result.paths[0].files[0].fix_string()[0]

@@ -18,6 +18,7 @@ import pathspec
 from .errors import SQLLexError, SQLParseError
 from .parser import FileSegment, RootParseContext
 from .rules import get_ruleset
+from .config import FluffConfig
 
 
 # Instantiate the linter logger
@@ -572,9 +573,15 @@ class LintingResult:
 class Linter:
     """The interface class to interact with the linter."""
 
-    def __init__(self, sql_exts=(".sql",), config=None, formatter=None):
-        if config is None:
-            raise ValueError("No config object provided to linter!")
+    def __init__(self, sql_exts=(".sql",), config=None, formatter=None, dialect=None):
+        if dialect and config:
+            raise ValueError(
+                "Cannot specify `dialect` and `config`. Any config object "
+                "specifies it's own dialect."
+            )
+        elif config is None:
+            config = FluffConfig(overrides=dict(dialect=dialect or "ansi"))
+
         self.dialect = config.get("dialect_obj")
         self.templater = config.get("templater_obj")
         self.sql_exts = sql_exts

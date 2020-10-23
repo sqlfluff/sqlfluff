@@ -24,7 +24,7 @@ class SQLFluffViolationReporter(BaseViolationReporter):
         :param src_path:
         :return: list of Violation
         """
-        linter = Linter(config=FluffConfig())
+        linter = Linter(config=FluffConfig.from_root())
         linted_path = linter.lint_path(src_path, ignore_non_existent_files=True)
         result = []
         for violation in linted_path.get_violations():
