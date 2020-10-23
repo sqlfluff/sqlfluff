@@ -25,10 +25,8 @@ from .formatters import (
 )
 from .helpers import cli_table, get_package_version
 
-from ..dialects import dialect_selector, dialect_readout
-from ..linter import Linter
-from ..config import FluffConfig
-from ..errors import SQLLintError
+# Import from sqlfluff core.
+from ..core import Linter, FluffConfig, SQLLintError, dialect_selector, dialect_readout
 
 
 def set_logging_level(verbosity, logger=None):

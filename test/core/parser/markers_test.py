@@ -1,6 +1,6 @@
 """The Test file for The New Parser (Marker Classes)."""
 
-from sqlfluff.parser.markers import FilePositionMarker
+from sqlfluff.core.parser.markers import FilePositionMarker
 
 
 def test__parser__common_marker():

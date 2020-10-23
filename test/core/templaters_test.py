@@ -2,15 +2,13 @@
 
 import pytest
 
-from sqlfluff.templaters import (
+from sqlfluff.core.templaters import (
     RawTemplateInterface,
     templater_selector,
     PythonTemplateInterface,
     JinjaTemplateInterface,
 )
-from sqlfluff.linter import Linter
-from sqlfluff.config import FluffConfig
-from sqlfluff.errors import SQLTemplaterError
+from sqlfluff.core import Linter, FluffConfig, SQLTemplaterError
 
 
 def test__templater_selection():

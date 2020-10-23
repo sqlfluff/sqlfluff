@@ -3,16 +3,15 @@
 import pytest
 import logging
 
-from sqlfluff.config import FluffConfig
-from sqlfluff.parser import (
+from sqlfluff.core import FluffConfig, Linter
+from sqlfluff.core.parser import (
     Lexer,
     FileSegment,
     RootParseContext,
     BaseSegment,
     RawSegment,
 )
-from sqlfluff.parser.match_result import MatchResult
-from sqlfluff.linter import Linter
+from sqlfluff.core.parser.match_result import MatchResult
 
 
 @pytest.mark.parametrize(

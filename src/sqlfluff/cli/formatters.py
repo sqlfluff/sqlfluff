@@ -11,7 +11,7 @@ from .helpers import (
     pad_line,
 )
 
-from ..errors import SQLBaseError
+from ..core import SQLBaseError
 
 
 def format_filename(filename, success=False, success_text="PASS"):

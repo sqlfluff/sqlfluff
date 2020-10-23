@@ -2,10 +2,9 @@
 
 import pytest
 
-from sqlfluff.rules.base import BaseCrawler
-from sqlfluff.rules.std import std_rule_set
-from sqlfluff.linter import Linter
-from sqlfluff.config import FluffConfig
+from sqlfluff.core import Linter, FluffConfig
+from sqlfluff.core.rules.base import BaseCrawler
+from sqlfluff.core.rules.std import std_rule_set
 
 
 def get_rule_from_set(code, config):

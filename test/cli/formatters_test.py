@@ -2,10 +2,10 @@
 
 import re
 
-from sqlfluff.rules.base import RuleGhost
-from sqlfluff.parser import RawSegment
-from sqlfluff.parser.markers import FilePositionMarker
-from sqlfluff.errors import SQLLintError
+from sqlfluff.core.rules.base import RuleGhost
+from sqlfluff.core.parser import RawSegment
+from sqlfluff.core.parser.markers import FilePositionMarker
+from sqlfluff.core.errors import SQLLintError
 from sqlfluff.cli.formatters import format_filename, format_violation
 
 
