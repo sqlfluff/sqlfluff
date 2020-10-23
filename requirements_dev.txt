@@ -1,10 +1,11 @@
 # code linting and formatting
-flake8>=3.8.3
-flake8-docstrings>=1.5.0
-flake8-black>=0.2.1
+flake8
+flake8-docstrings
+flake8-black
 # documentation checks
-doc8>==0.8.1
-Pygments>=2.7.1
+doc8
+Pygments
 # testing
-coverage>=5.3
-pytest>=6.1.0
+coverage
+pytest
+pytest-cov
