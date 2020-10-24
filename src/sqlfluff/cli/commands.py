@@ -17,7 +17,7 @@ from .formatters import (
     format_rules,
     format_violation,
     format_linting_result_header,
-    format_linting_result_footer,
+    format_linting_stats,
     colorize,
     format_dialect_warning,
     format_dialects,
@@ -294,14 +294,14 @@ def lint(paths, format, nofail, logger=None, **kwargs):
 
     # Set up logging.
     set_logging_level(verbosity=verbose, logger=logger)
-
     # add stdin if specified via lone '-'
     if ("-",) == paths:
         # TODO: Remove verbose
         result = lnt.lint_string_wrapped(sys.stdin.read(), fname="stdin")
     else:
         # Output the results as we go
-        click.echo(format_linting_result_header(verbose=verbose))
+        if verbose >= 1:
+            click.echo(format_linting_result_header())
         try:
             # TODO: Remove verbose
             result = lnt.lint_paths(paths, ignore_non_existent_files=False)
@@ -316,7 +316,8 @@ def lint(paths, format, nofail, logger=None, **kwargs):
             )
             sys.exit(1)
         # Output the final stats
-        click.echo(format_linting_result_footer(result, verbose=verbose))
+        if verbose >= 1:
+            click.echo(format_linting_stats(result, verbose=verbose))
 
     if format == "json":
         click.echo(json.dumps(result.as_records()))
