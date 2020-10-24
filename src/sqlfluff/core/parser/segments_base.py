@@ -373,22 +373,20 @@ class BaseSegment:
         """
         return ""
 
-    def _preface(self, ident, tabsize, pos_idx, raw_idx):
+    def _preface(self, ident, tabsize):
         """Returns the preamble to any logging."""
-        preface = " " * (ident * tabsize)
-        if self.is_meta:
-            preface += "[META] "
-        preface += self.__class__.__name__ + ":"
-        preface += " " * max(pos_idx - len(preface), 0)
-        if self.pos_marker:
-            preface += str(self.pos_marker)
-        else:
-            preface += "-"
-        sfx = self._suffix()
-        if sfx:
-            return preface + (" " * max(raw_idx - len(preface), 0)) + sfx
-        else:
-            return preface
+        padded_type = "{padding}{modifier}{type}".format(
+            padding=" " * (ident * tabsize),
+            modifier="[META] " if self.is_meta else "",
+            type=self.type + ":",
+        )
+        preface = "{pos:17}|{padded_type:60}  {suffix}".format(
+            pos=str(self.pos_marker) if self.pos_marker else "-",
+            padded_type=padded_type,
+            suffix=self._suffix() or "",
+        )
+        # Trim unnecessary whitespace before returning
+        return preface.rstrip()
 
     @property
     def _comments(self):
@@ -400,12 +398,10 @@ class BaseSegment:
         """Returns only the non-comment elements of this segment."""
         return [seg for seg in self.segments if seg.type != "comment"]
 
-    def stringify(self, ident=0, tabsize=4, pos_idx=60, raw_idx=80, code_only=False):
+    def stringify(self, ident=0, tabsize=4, code_only=False):
         """Use indentation to render this segment and it's children as a string."""
         buff = StringIO()
-        preface = self._preface(
-            ident=ident, tabsize=tabsize, pos_idx=pos_idx, raw_idx=raw_idx
-        )
+        preface = self._preface(ident=ident, tabsize=tabsize)
         buff.write(preface + "\n")
         if not code_only and self.comment_seperate and len(self._comments) > 0:
             if self._comments:
@@ -415,8 +411,6 @@ class BaseSegment:
                         seg.stringify(
                             ident=ident + 2,
                             tabsize=tabsize,
-                            pos_idx=pos_idx,
-                            raw_idx=raw_idx,
                             code_only=code_only,
                         )
                     )
@@ -427,8 +421,6 @@ class BaseSegment:
                         seg.stringify(
                             ident=ident + 2,
                             tabsize=tabsize,
-                            pos_idx=pos_idx,
-                            raw_idx=raw_idx,
                             code_only=code_only,
                         )
                     )
@@ -440,8 +432,6 @@ class BaseSegment:
                         seg.stringify(
                             ident=ident + 1,
                             tabsize=tabsize,
-                            pos_idx=pos_idx,
-                            raw_idx=raw_idx,
                             code_only=code_only,
                         )
                     )
@@ -966,11 +956,9 @@ class RawSegment(BaseSegment):
             self.__class__.__name__, self.pos_marker, self.raw
         )
 
-    def stringify(self, ident=0, tabsize=4, pos_idx=60, raw_idx=80, code_only=False):
+    def stringify(self, ident=0, tabsize=4, code_only=False):
         """Use indentation to render this segment and it's children as a string."""
-        preface = self._preface(
-            ident=ident, tabsize=tabsize, pos_idx=pos_idx, raw_idx=raw_idx
-        )
+        preface = self._preface(ident=ident, tabsize=tabsize)
         return preface + "\n"
 
     def _suffix(self):
