@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   information.
 - Support for modulo (`%`) operator.
 - A limit in the internal fix routines to catch any infinite loops.
+- Added the `.istype()` method on segments to more intelligently
+  deal with type matching in rules when inheritance is at play.
 
 ### Changed
 
@@ -32,6 +34,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactor of L022 to handle poorly formatted CTEs better.
 - Internally added an `EphemeralSegment` to aid with parsing efficiency
   without altering the end structure of the query.
+- Split `ObjectReference` into `ColumnReference` and `TableReference`
+  for more useful API access to the underlying structure.
+- `KeywordSegment` and the new `SymbolSegment` both now inherit
+  from `_ProtoKeywordSegment` which allows symbols to match in a very
+  similar way to keywords without later appearing with the `type` of
+  `keyword`.
 
 ## [0.3.6] - 2020-09-24
 
