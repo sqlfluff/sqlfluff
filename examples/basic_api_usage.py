@@ -30,6 +30,12 @@ result = sqlfluff.fix(my_bad_query, rules=["L010", "L014"])
 # result = 'SELECT  *, 1, blah AS  fOO  FROM mytable'
 
 #  -------- PARSING ----------
+# NOTE: sqlfluff is still in a relatively early phase of it's
+# development and so until version 1.0.0 will offer no guarantee
+# that the names and structure of the objects returned by these
+# parse commands won't change between releases. Use with care
+# and keep updated with the changelog for the project for any
+# changes in this space.
 
 parsed = sqlfluff.parse(my_bad_query)
 

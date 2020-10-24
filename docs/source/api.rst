@@ -10,7 +10,6 @@ for each of the methods below.
 
 .. literalinclude:: ../../examples/basic_api_usage.py
    :language: python
-   :linenos:
 
 
 Simple API commands
@@ -18,5 +17,4 @@ Simple API commands
 
 
 .. automodule:: sqlfluff
-   :members: lint, fix
-   :member-order: alphabetical
+   :members: lint, fix, parse
