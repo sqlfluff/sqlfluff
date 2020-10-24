@@ -6,6 +6,7 @@ from .context import RootParseContext, parser_logger
 from .segments_base import BaseSegment, RawSegment
 from .segments_common import (
     KeywordSegment,
+    SymbolSegment,
     ReSegment,
     NamedSegment,
     LambdaSegment,

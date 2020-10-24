@@ -15,6 +15,7 @@ https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 from ..parser import (
     BaseSegment,
     KeywordSegment,
+    SymbolSegment,
     ReSegment,
     NamedSegment,
     Sequence,
@@ -131,51 +132,53 @@ ansi_dialect.add(
         lambda x: not x.is_code, is_code=False, name="non_code"
     ),
     # Real segments
-    SemicolonSegment=KeywordSegment.make(";", name="semicolon"),
-    ColonSegment=KeywordSegment.make(":", name="colon"),
-    SliceSegment=KeywordSegment.make(":", name="slice"),
-    StartBracketSegment=KeywordSegment.make(
+    SemicolonSegment=SymbolSegment.make(
+        ";", name="semicolon", type="statement_terminator"
+    ),
+    ColonSegment=SymbolSegment.make(":", name="colon", type="colon"),
+    SliceSegment=SymbolSegment.make(":", name="slice", type="slice"),
+    StartBracketSegment=SymbolSegment.make(
         "(", name="start_bracket", type="start_bracket"
     ),
-    EndBracketSegment=KeywordSegment.make(")", name="end_bracket", type="end_bracket"),
-    StartSquareBracketSegment=KeywordSegment.make(
+    EndBracketSegment=SymbolSegment.make(")", name="end_bracket", type="end_bracket"),
+    StartSquareBracketSegment=SymbolSegment.make(
         "[", name="start_square_bracket", type="start_square_bracket"
     ),
-    EndSquareBracketSegment=KeywordSegment.make(
+    EndSquareBracketSegment=SymbolSegment.make(
         "]", name="end_square_bracket", type="end_square_bracket"
     ),
-    CommaSegment=KeywordSegment.make(",", name="comma", type="comma"),
-    DotSegment=KeywordSegment.make(".", name="dot", type="dot"),
-    StarSegment=KeywordSegment.make("*", name="star", type="star"),
-    TildeSegment=KeywordSegment.make("~", name="tilde"),
-    CastOperatorSegment=KeywordSegment.make(
+    CommaSegment=SymbolSegment.make(",", name="comma", type="comma"),
+    DotSegment=SymbolSegment.make(".", name="dot", type="dot"),
+    StarSegment=SymbolSegment.make("*", name="star", type="star"),
+    TildeSegment=SymbolSegment.make("~", name="tilde", type="tilde"),
+    CastOperatorSegment=SymbolSegment.make(
         "::", name="casting_operator", type="casting_operator"
     ),
-    PlusSegment=KeywordSegment.make("+", name="plus", type="binary_operator"),
-    MinusSegment=KeywordSegment.make("-", name="minus", type="binary_operator"),
-    PositiveSegment=KeywordSegment.make("+", name="positive", type="sign_indicator"),
-    NegativeSegment=KeywordSegment.make("-", name="negative", type="sign_indicator"),
-    DivideSegment=KeywordSegment.make("/", name="divide", type="binary_operator"),
-    MultiplySegment=KeywordSegment.make("*", name="multiply", type="binary_operator"),
-    ModuloSegment=KeywordSegment.make("%", name="modulo", type="binary_operator"),
-    ConcatSegment=KeywordSegment.make("||", name="concatenate", type="binary_operator"),
-    EqualsSegment=KeywordSegment.make("=", name="equals", type="comparison_operator"),
-    GreaterThanSegment=KeywordSegment.make(
+    PlusSegment=SymbolSegment.make("+", name="plus", type="binary_operator"),
+    MinusSegment=SymbolSegment.make("-", name="minus", type="binary_operator"),
+    PositiveSegment=SymbolSegment.make("+", name="positive", type="sign_indicator"),
+    NegativeSegment=SymbolSegment.make("-", name="negative", type="sign_indicator"),
+    DivideSegment=SymbolSegment.make("/", name="divide", type="binary_operator"),
+    MultiplySegment=SymbolSegment.make("*", name="multiply", type="binary_operator"),
+    ModuloSegment=SymbolSegment.make("%", name="modulo", type="binary_operator"),
+    ConcatSegment=SymbolSegment.make("||", name="concatenate", type="binary_operator"),
+    EqualsSegment=SymbolSegment.make("=", name="equals", type="comparison_operator"),
+    GreaterThanSegment=SymbolSegment.make(
         ">", name="greater_than", type="comparison_operator"
     ),
-    LessThanSegment=KeywordSegment.make(
+    LessThanSegment=SymbolSegment.make(
         "<", name="less_than", type="comparison_operator"
     ),
-    GreaterThanOrEqualToSegment=KeywordSegment.make(
+    GreaterThanOrEqualToSegment=SymbolSegment.make(
         ">=", name="greater_than_equal_to", type="comparison_operator"
     ),
-    LessThanOrEqualToSegment=KeywordSegment.make(
+    LessThanOrEqualToSegment=SymbolSegment.make(
         "<=", name="less_than_equal_to", type="comparison_operator"
     ),
-    NotEqualToSegment_a=KeywordSegment.make(
+    NotEqualToSegment_a=SymbolSegment.make(
         "!=", name="not_equal_to", type="comparison_operator"
     ),
-    NotEqualToSegment_b=KeywordSegment.make(
+    NotEqualToSegment_b=SymbolSegment.make(
         "<>", name="not_equal_to", type="comparison_operator"
     ),
     # The following functions can be called without parentheses per ANSI specification

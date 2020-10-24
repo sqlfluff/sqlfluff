@@ -12,7 +12,7 @@ file:
             object_reference:
               identifier: value
             snowflake_semi_structured_expression:
-              keyword: ':'
+              colon: ':'
               semi_structured_element: value
           alias_expression:
             keyword: AS
@@ -23,7 +23,7 @@ file:
             object_reference:
               identifier: value
             snowflake_semi_structured_expression:
-              keyword: ':'
+              colon: ':'
               semi_structured_element: id
             cast_expression:
               casting_operator: '::'
@@ -38,7 +38,7 @@ file:
             object_reference:
               identifier: value
             snowflake_semi_structured_expression:
-              keyword: ':'
+              colon: ':'
               semi_structured_element: value
             cast_expression:
               casting_operator: '::'
@@ -53,7 +53,7 @@ file:
             object_reference:
               identifier: value
             snowflake_semi_structured_expression:
-            - keyword: ':'
+            - colon: ':'
             - semi_structured_element: thing
             - array_accessor:
                 start_square_bracket: '['
@@ -70,7 +70,7 @@ file:
             object_reference:
               identifier: value
             snowflake_semi_structured_expression:
-            - keyword: ':'
+            - colon: ':'
             - semi_structured_element: thing
             - array_accessor:
                 start_square_bracket: '['

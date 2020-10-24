@@ -18,7 +18,7 @@ file:
   - whitespace: '  '
   - comment: /*comment here*/
   - whitespace: ' '
-  - keyword: ;
+  - statement_terminator: ;
   - whitespace: '  '
   - comment: /*and here*/
   - whitespace: '  '
@@ -37,7 +37,7 @@ file:
           table_expression:
             object_reference:
               identifier: tbl2
-  - keyword: ;
+  - statement_terminator: ;
   - whitespace: '   '
   - comment: -- trailling ending comment
   - newline: "\n"

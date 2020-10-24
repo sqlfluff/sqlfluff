@@ -84,9 +84,7 @@ class BaseSegment:
             return False
         # If not, check parent classes.
         else:
-            return any(
-                base_class.is_type(*seg_type) for base_class in cls.__bases__
-            )
+            return any(base_class.is_type(*seg_type) for base_class in cls.__bases__)
 
     @property
     def name(self):
