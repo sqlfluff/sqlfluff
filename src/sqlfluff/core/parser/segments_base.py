@@ -73,6 +73,21 @@ class BaseSegment:
     trim_chars = None
     trim_start = None
 
+    @classmethod
+    def is_type(cls, *reference_types):
+        """Is this segment (or it's parent) of the given type."""
+        # Do we match on the type of _this_ class.
+        if cls.type in reference_types:
+            return True
+        # Have we reached the bottom?
+        elif cls.type == "base":
+            return False
+        # If not, check parent classes.
+        else:
+            return any(
+                base_class.is_type(*reference_types) for base_class in cls.__bases__
+            )
+
     @property
     def name(self):
         """The name of this segment.
