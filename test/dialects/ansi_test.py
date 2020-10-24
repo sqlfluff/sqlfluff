@@ -11,7 +11,7 @@ from sqlfluff.parser import (
     BaseSegment,
     RawSegment,
 )
-from sqlfluff.parser.match import MatchResult
+from sqlfluff.parser.match_result import MatchResult
 from sqlfluff.linter import Linter
 
 

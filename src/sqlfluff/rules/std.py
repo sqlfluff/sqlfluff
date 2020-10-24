@@ -2382,46 +2382,153 @@ class Rule_L022(BaseCrawler):
         """Blank line expected but not found after CTE definition."""
         error_buffer = []
         if segment.type == "with_compound_statement":
-            expecting_blank_line = False
-            blank_line_found = False
-            blank_line_started = False
-            fix_point = None
-            cte_end_segments = (
-                ("end_bracket", "comma")
-                if self.comma_style == "trailing"
-                else ("end_bracket")
-            )
-            for seg in segment.segments:
-                if seg.type in cte_end_segments:
-                    expecting_blank_line = True
-                    blank_line_found = False
-                    blank_line_started = False
-                elif seg.is_code:
-                    if expecting_blank_line:
-                        if not blank_line_found:
-                            fix_point = fix_point or seg
-                            fixes = [
-                                LintFix(
-                                    "create",
-                                    fix_point,
-                                    [self.make_newline(pos_marker=fix_point.pos_marker)]
-                                    # Two newlines if there isn't one at all, otherwise one.
-                                    * (1 if blank_line_started else 2),
-                                )
-                            ]
-                            error_buffer.append(LintResult(anchor=seg, fixes=fixes))
-                        expecting_blank_line = False
-                        blank_line_found = False
-                        blank_line_started = False
-                        fix_point = None
-                elif seg.type == "newline":
-                    if not blank_line_found:
-                        if blank_line_started:
-                            blank_line_found = True
+            # First we need to find all the commas, the end brackets, the
+            # things that come after that and the blank lines in between.
+
+            # Find all the closing brackets. They are our anchor points.
+            bracket_indices = []
+            for idx, seg in enumerate(segment.segments):
+                if seg.type == "end_bracket":
+                    bracket_indices.append(idx)
+
+            # Work through each point and deal with it individually
+            for bracket_idx in bracket_indices:
+                forward_slice = segment.segments[bracket_idx:]
+                seg_idx = 1
+                line_idx = 0
+                comma_seg_idx = None
+                blank_lines = 0
+                comma_line_idx = None
+                line_blank = False
+                comma_style = None
+                line_starts = {}
+                comment_lines = []
+
+                self.logger.info(
+                    "## CTE closing bracket found at %s, idx: %s. Forward slice: %.20r",
+                    forward_slice[0].pos_marker,
+                    bracket_idx,
+                    "".join(elem.raw for elem in forward_slice),
+                )
+
+                # Work forward to map out the following segments.
+                while (
+                    forward_slice[seg_idx].type == "comma"
+                    or not forward_slice[seg_idx].is_code
+                ):
+                    if forward_slice[seg_idx].type == "newline":
+                        if line_blank:
+                            # It's a blank line!
+                            blank_lines += 1
+                        line_blank = True
+                        line_idx += 1
+                        line_starts[line_idx] = seg_idx + 1
+                    elif forward_slice[seg_idx].type == "comment":
+                        # Lines with comments aren't blank
+                        line_blank = False
+                        comment_lines.append(line_idx)
+                    elif forward_slice[seg_idx].type == "comma":
+                        # Keep track of where the comma is.
+                        # We'll evaluate it later.
+                        comma_line_idx = line_idx
+                        comma_seg_idx = seg_idx
+                    seg_idx += 1
+
+                # Infer the comma style (NB this could be different for each case!)
+                if comma_line_idx is None:
+                    comma_style = "final"
+                elif line_idx == 0:
+                    comma_style = "oneline"
+                elif comma_line_idx == 0:
+                    comma_style = "trailing"
+                elif comma_line_idx == line_idx:
+                    comma_style = "leading"
+                else:
+                    comma_style = "floating"
+
+                # Readout of findings
+                self.logger.info(
+                    "blank_lines: %s, comma_line_idx: %s. final_line_idx: %s, final_seg_idx: %s",
+                    blank_lines,
+                    comma_line_idx,
+                    line_idx,
+                    seg_idx,
+                )
+                self.logger.info(
+                    "comma_style: %r, line_starts: %r, comment_lines: %r",
+                    comma_style,
+                    line_starts,
+                    comment_lines,
+                )
+
+                if blank_lines < 1:
+                    # We've got an issue
+                    self.logger.info(
+                        "!! Found CTE without enough blank lines.",
+                    )
+
+                    # Based on the current location of the comma we insert newlines
+                    # to correct the issue.
+                    fix_type = "create"  # In most cases we just insert newlines.
+                    if comma_style == "oneline":
+                        # Here we respect the target comma style to insert at the relevant point.
+                        if self.comma_style == "trailing":
+                            # Add a blank line after the comma
+                            fix_point = forward_slice[comma_seg_idx + 1]
+                            # Optionally here, if the segment we've landed on is
+                            # whitespace then we REPLACE it rather than inserting.
+                            if forward_slice[comma_seg_idx + 1].type == "whitespace":
+                                fix_type = "edit"
+                        elif self.comma_style == "leading":
+                            # Add a blank line before the comma
+                            fix_point = forward_slice[comma_seg_idx]
+                        # In both cases it's a double newline.
+                        num_newlines = 2
+                    else:
+                        # In the following cases we only care which one we're in
+                        # when comments don't get in the way. If they *do*, then
+                        # we just work around them.
+                        if not comment_lines or line_idx - 1 not in comment_lines:
+                            self.logger.info("Comment routines not applicable")
+                            if comma_style in ("trailing", "final", "floating"):
+                                # Detected an existing trailing comma or it's a final CTE,
+                                # OR the comma isn't leading or trailing.
+                                # If the preceeding segment is whitespace, replace it
+                                if forward_slice[seg_idx - 1].type == "whitespace":
+                                    fix_point = forward_slice[seg_idx - 1]
+                                    fix_type = "edit"
+                                else:
+                                    # Otherwise add a single newline before the end content.
+                                    fix_point = forward_slice[seg_idx]
+                            elif comma_style == "leading":
+                                # Detected an existing leading comma.
+                                fix_point = forward_slice[comma_seg_idx]
                         else:
-                            blank_line_started = True
-                            blank_line_found = False
-                            fix_point = seg
+                            self.logger.info("Handling preceeding comments")
+                            offset = 1
+                            while line_idx - offset in comment_lines:
+                                offset += 1
+                            fix_point = forward_slice[
+                                line_starts[line_idx - (offset - 1)]
+                            ]
+                        # Note: There is an edge case where this isn't enough, if
+                        # comments are in strange places, but we'll catch them on
+                        # the next iteration.
+                        num_newlines = 1
+
+                    fixes = [
+                        LintFix(
+                            fix_type,
+                            fix_point,
+                            [self.make_newline(pos_marker=fix_point.pos_marker)]
+                            * num_newlines,
+                        )
+                    ]
+                    # Create a result, anchored on the start of the next content.
+                    error_buffer.append(
+                        LintResult(anchor=forward_slice[seg_idx], fixes=fixes)
+                    )
+        # Return the buffer if we have one.
         return error_buffer or None
 
 
