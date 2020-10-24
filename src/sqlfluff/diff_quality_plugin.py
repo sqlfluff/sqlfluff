@@ -2,17 +2,17 @@
 from diff_cover.hook import hookimpl as diff_cover_hookimpl
 from diff_cover.violationsreporters.base import BaseViolationReporter, Violation
 
-from .config import FluffConfig
-from .linter import Linter
+from .core import FluffConfig, Linter
 
 
 class SQLFluffViolationReporter(BaseViolationReporter):
     """Class that implements diff-quality integration."""
-    supported_extensions = ['sql']
+
+    supported_extensions = ["sql"]
 
     def __init__(self):
         """Calls the base class constructor to set the object's name."""
-        super(SQLFluffViolationReporter, self).__init__('sqlfluff')
+        super(SQLFluffViolationReporter, self).__init__("sqlfluff")
 
     @staticmethod
     def violations(src_path):
@@ -24,7 +24,7 @@ class SQLFluffViolationReporter(BaseViolationReporter):
         :param src_path:
         :return: list of Violation
         """
-        linter = Linter(config=FluffConfig())
+        linter = Linter(config=FluffConfig.from_root())
         linted_path = linter.lint_path(src_path, ignore_non_existent_files=True)
         result = []
         for violation in linted_path.get_violations():
