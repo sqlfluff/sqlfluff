@@ -1079,7 +1079,7 @@ class GreedyUntil(BaseGrammar):
                         if elem.is_meta:
                             idx += 1
                             continue
-                        elif elem.type in ("whitespace", "newline"):
+                        elif elem.is_type("whitespace", "newline"):
                             allow = True
                             break
                         else:
@@ -1098,7 +1098,7 @@ class GreedyUntil(BaseGrammar):
                             if pre[idx].is_meta:
                                 idx -= 1
                                 continue
-                            elif pre[idx].type in ("whitespace", "newline"):
+                            elif pre[idx].is_type("whitespace", "newline"):
                                 allow = True
                                 break
                             else:
@@ -1564,7 +1564,7 @@ class ContainsOnly(BaseGrammar):
                 # Try and match it
                 for opt in self._elements:
                     if isinstance(opt, str):
-                        if forward_buffer[0].type == opt:
+                        if forward_buffer[0].is_type(opt):
                             matched_buffer += (forward_buffer[0],)
                             forward_buffer = forward_buffer[1:]
                             break

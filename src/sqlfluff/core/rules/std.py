@@ -46,15 +46,15 @@ class Rule_L001(BaseCrawler):
         """
         # We only trigger on newlines
         if (
-            segment.type == "newline"
+            segment.is_type("newline")
             and len(raw_stack) > 0
-            and raw_stack[-1].type == "whitespace"
+            and raw_stack[-1].is_type("whitespace")
         ):
             # If we find a newline, which is preceeded by whitespace, then bad
             deletions = []
             idx = -1
             while True:
-                if raw_stack[idx].type == "whitespace":
+                if raw_stack[idx].is_type("whitespace"):
                     deletions.append(raw_stack[idx])
                     idx -= 1
                 else:
@@ -118,14 +118,14 @@ class Rule_L002(BaseCrawler):
                 ],
             )
 
-        if segment.type == "whitespace":
+        if segment.is_type("whitespace"):
             if " " in segment.raw and "\t" in segment.raw:
-                if len(raw_stack) == 0 or raw_stack[-1].type == "newline":
+                if len(raw_stack) == 0 or raw_stack[-1].is_type("newline"):
                     # We've got a single whitespace at the beginning of a line.
                     # It's got a mix of spaces and tabs. Replace each tab with
                     # a multiple of spaces
                     return construct_response()
-                elif raw_stack[-1].type == "whitespace":
+                elif raw_stack[-1].is_type("whitespace"):
                     # It's preceeded by more whitespace!
                     # We shouldn't worry about correcting those
                     # segments, because those will be caught themselves, but we
@@ -134,13 +134,13 @@ class Rule_L002(BaseCrawler):
                     while True:
                         # pop something off the end
                         seg = buff.pop()
-                        if seg.type == "whitespace":
+                        if seg.is_type("whitespace"):
                             if len(buff) == 0:
                                 # Found start of file
                                 return construct_response()
                             else:
                                 continue
-                        elif seg.type == "newline":
+                        elif seg.is_type("newline"):
                             # we're at the start of a line
                             return construct_response()
                         else:
@@ -222,7 +222,7 @@ class Rule_L003(BaseCrawler):
 
         for elem in raw_stack:
             line_buffer.append(elem)
-            if elem.type == "newline":
+            if elem.is_type("newline"):
                 result_buffer[line_no] = {
                     "line_no": line_no,
                     # Using slicing to copy line_buffer here to be py2 compliant
@@ -254,7 +254,7 @@ class Rule_L003(BaseCrawler):
                         clean_indent = True
                     break
             elif in_indent:
-                if elem.type == "whitespace":
+                if elem.is_type("whitespace"):
                     indent_buffer.append(elem)
                 elif elem.is_meta and elem.indent_val != 0:
                     indent_balance += elem.indent_val
@@ -369,12 +369,12 @@ class Rule_L003(BaseCrawler):
                 "comment_lines": [],
             }
 
-        if segment.type == "newline":
+        if segment.is_type("newline"):
             memory["in_indent"] = True
             # We're not going to flag on empty lines so we can safely proceed
             return LintResult(memory=memory)
         elif memory["in_indent"]:
-            if segment.type == "whitespace":
+            if segment.is_type("whitespace"):
                 # it's whitespace, carry on
                 return LintResult(memory=memory)
             elif segment.segments or segment.is_meta:
@@ -577,7 +577,7 @@ class Rule_L003(BaseCrawler):
                             b_idx += 1
                             continue
                         else:
-                            if elem.type in ["end_bracket", "end_square_bracket"]:
+                            if elem.is_type("end_bracket", "end_square_bracket"):
                                 b_idx += 1
                                 b_num += 1
                                 continue
@@ -666,7 +666,7 @@ class Rule_L003(BaseCrawler):
                     # Find the anchor first.
                     anchor = None
                     for seg in prev_line["line_buffer"]:
-                        if seg.type == "comment":
+                        if seg.is_type("comment"):
                             anchor = seg
                             break
                     # Check we found a comment, bail out if not.
@@ -734,8 +734,8 @@ class Rule_L004(BaseCrawler):
 
         """
         indents_seen = memory.get("indents_seen", set())
-        if segment.type == "whitespace":
-            if len(raw_stack) == 0 or raw_stack[-1].type == "newline":
+        if segment.is_type("whitespace"):
+            if len(raw_stack) == 0 or raw_stack[-1].is_type("newline"):
                 indents_here = set(segment.raw)
                 indents_union = indents_here | indents_seen
                 memory["indents_seen"] = indents_union
@@ -785,8 +785,8 @@ class Rule_L005(BaseCrawler):
         if len(raw_stack) >= 1:
             cm1 = raw_stack[-1]
             if (
-                segment.type == "comma"
-                and cm1.type == "whitespace"
+                segment.is_type("comma")
+                and cm1.is_type("whitespace")
                 and cm1.pos_marker.line_pos > 1
             ):
                 anchor = cm1
@@ -847,7 +847,7 @@ class Rule_L006(BaseCrawler):
                     )
                 )
             elif len(segments_since_code) > 1 or any(
-                elem.type == "newline" for elem in segments_since_code
+                elem.is_type("newline") for elem in segments_since_code
             ):
                 # TODO: This is a case we should deal with, but there are probably
                 # some cases that SHOULDNT apply here (like comments and newlines)
@@ -880,10 +880,10 @@ class Rule_L006(BaseCrawler):
         description = None
 
         # The parent stack tells us whether we're in an expression or not.
-        if parent_stack and parent_stack[-1].type == "expression":
+        if parent_stack and parent_stack[-1].is_type("expression"):
             if segment.is_code:
                 # This is code, what kind?
-                if segment.type in ["binary_operator", "comparison_operator"]:
+                if segment.is_type("binary_operator", "comparison_operator"):
                     # It's an operator, we can evaluate whitespace before it.
                     anchor, fixes = _handle_previous_segments(
                         memory["since_code"],
@@ -896,10 +896,10 @@ class Rule_L006(BaseCrawler):
                 else:
                     # It's not an operator, we can evaluate what happened after an
                     # operator if that's the last code we saw.
-                    if memory["last_code"] and memory["last_code"].type in [
+                    if memory["last_code"] and memory["last_code"].is_type(
                         "binary_operator",
                         "comparison_operator",
-                    ]:
+                    ):
                         # Evaluate whitespace AFTER the operator
                         anchor, fixes = _handle_previous_segments(
                             memory["since_code"],
@@ -974,16 +974,16 @@ class Rule_L007(BaseCrawler):
         anchor = None
 
         # The parent stack tells us whether we're in an expression or not.
-        if parent_stack and parent_stack[-1].type == "expression":
+        if parent_stack and parent_stack[-1].is_type("expression"):
             if segment.is_code:
                 # This is code, what kind?
-                if segment.type in ["binary_operator", "comparison_operator"]:
+                if segment.is_type("binary_operator", "comparison_operator"):
                     # We only trigger if the last was an operator, not if this is.
                     pass
-                elif memory["last_code"] and memory["last_code"].type in [
+                elif memory["last_code"] and memory["last_code"].is_type(
                     "binary_operator",
                     "comparison_operator",
-                ]:
+                ):
                     # It's not an operator, but the last code was. Now check to see
                     # there is a newline between us and the last operator.
                     for s in memory["since_code"]:
@@ -1269,8 +1269,8 @@ class Rule_L011(BaseCrawler):
         The use of `raw_stack` is just for working out how much whitespace to add.
 
         """
-        if segment.type == "alias_expression":
-            if parent_stack[-1].type in self._target_elems:
+        if segment.is_type("alias_expression"):
+            if parent_stack[-1].is_type(*self._target_elems):
                 if not any(e.name.lower() == "as" for e in segment.segments):
                     insert_buff = []
                     insert_str = ""
@@ -1357,8 +1357,8 @@ class Rule_L013(BaseCrawler):
         elements there are.
 
         """
-        if segment.type == "select_target_element":
-            if not any(e.type == "alias_expression" for e in segment.segments):
+        if segment.is_type("select_target_element"):
+            if not any(e.is_type("alias_expression") for e in segment.segments):
                 types = {e.type for e in segment.segments if e.name != "star"}
                 unallowed_types = types - {
                     "whitespace",
@@ -1374,7 +1374,7 @@ class Rule_L013(BaseCrawler):
                         # statement. If this is the only one, then we won't
                         # report an error.
                         num_elements = sum(
-                            e.type == "select_target_element"
+                            e.is_type("select_target_element")
                             for e in parent_stack[-1].segments
                         )
                         if num_elements > 1:
@@ -1543,14 +1543,14 @@ class Rule_L016(Rule_L003):
 
                     # NOTE: Deal with commas and binary operators differently here.
                     # Maybe only deal with commas to start with?
-                    if any(seg.type == "binary_operator" for seg in self.segments):
+                    if any(seg.is_type("binary_operator") for seg in self.segments):
                         raise NotImplementedError(
                             "Don't know how to deal with binary operators here yet!!"
                         )
 
                     # Remove any existing whitespace
                     for elem in self.segments:
-                        if not elem.is_meta and elem.type == "whitespace":
+                        if not elem.is_meta and elem.is_type("whitespace"):
                             fixes.append(LintFix("delete", elem))
 
                     # Create a newline and a similar indent
@@ -1600,7 +1600,7 @@ class Rule_L016(Rule_L003):
 
         for seg in segments:
             if indent_section is None:
-                if seg.type == "whitespace" or seg.is_meta:
+                if seg.is_type("whitespace") or seg.is_meta:
                     whitespace_buff += (seg,)
                 else:
                     indent_section = Section(
@@ -1611,7 +1611,7 @@ class Rule_L016(Rule_L003):
                     whitespace_buff = ()
                     segment_buff = (seg,)
             else:
-                if seg.type == "whitespace" or seg.is_meta:
+                if seg.is_type("whitespace") or seg.is_meta:
                     whitespace_buff += (seg,)
                     if seg.is_meta:
                         indent_impulse += seg.indent_val
@@ -1646,7 +1646,7 @@ class Rule_L016(Rule_L003):
                     # Did we think we were in a pause?
                     # TODO: Renable binary operator breaks some time in future.
                     if is_pause:
-                        if seg.name == "comma":  # or seg.type == 'binary_operator'
+                        if seg.name == "comma":  # or seg.is_type('binary_operator')
                             # Having a double comma/operator should be impossible
                             # but let's deal with that case regardless.
                             segment_buff += whitespace_buff + (seg,)
@@ -1667,7 +1667,7 @@ class Rule_L016(Rule_L003):
                             is_pause = False
                     else:
                         # We're not in a pause (or not in a pause yet)
-                        if seg.name == "comma":  # or seg.type == 'binary_operator'
+                        if seg.name == "comma":  # or seg.is_type('binary_operator')
                             if segment_buff:
                                 # End the previous section, start a comma/operator.
                                 # Any whitespace is added to the segment
@@ -1909,10 +1909,10 @@ class Rule_L017(BaseCrawler):
         function name before brackets
         """
         # We only trigger on start_bracket (open parenthesis)
-        if segment.type == "function":
+        if segment.is_type("function"):
             # Look for the function name
             for fname_idx, seg in enumerate(segment.segments):
-                if seg.type == "function_name":
+                if seg.is_type("function_name"):
                     break
             else:
                 # This shouldn't happen, but let's not worry
@@ -1981,7 +1981,7 @@ class Rule_L018(BaseCrawler):
         Look for a with clause and evaluate the position of closing brackets.
         """
         # We only trigger on start_bracket (open parenthesis)
-        if segment.type == "with_compound_statement":
+        if segment.is_type("with_compound_statement"):
             raw_stack_buff = list(raw_stack)
             # Look for the with keyword
             for seg in segment.segments:
@@ -1993,7 +1993,7 @@ class Rule_L018(BaseCrawler):
             else:
                 # This *could* happen if the with statement is unparsable,
                 # in which case then the user will have to fix that first.
-                if any(s.type == "unparsable" for s in segment.segments):
+                if any(s.is_type("unparsable") for s in segment.segments):
                     return LintResult()
                 # If it's parsable but we still didn't find a with, then
                 # we should raise that.
@@ -2003,7 +2003,7 @@ class Rule_L018(BaseCrawler):
                 seg_buff = []
                 # Get any segments running up to the WITH
                 for elem in reversed(segs):
-                    if elem.type == "newline":
+                    if elem.is_type("newline"):
                         break
                     elif elem.is_meta:
                         continue
@@ -2055,7 +2055,7 @@ class Rule_L018(BaseCrawler):
                                 and elem.pos_marker.line_pos < seg.pos_marker.line_pos
                             ]
                             if all(
-                                elem.type == "whitespace" for elem in prev_segs_on_line
+                                elem.is_type("whitespace") for elem in prev_segs_on_line
                             ):
                                 # We can move it back, it's all whitespace
                                 fixes = [
@@ -2144,7 +2144,7 @@ class Rule_L019(BaseCrawler):
         while True:
             if -idx > len(raw_stack):
                 return None
-            if raw_stack[idx].is_code or raw_stack[idx].type == "newline":
+            if raw_stack[idx].is_code or raw_stack[idx].is_type("newline"):
                 return raw_stack[idx]
             idx -= 1
 
@@ -2157,19 +2157,19 @@ class Rule_L019(BaseCrawler):
         """
         if len(raw_stack) >= 1:
             if self.comma_style == "leading":
-                if segment.type == "newline":
+                if segment.is_type("newline"):
                     # work back and find the last code segment, was it a comma?
                     last_seg = self._last_code_seg(raw_stack)
-                    if last_seg.type == "comma":
+                    if last_seg.is_type("comma"):
                         return LintResult(
                             anchor=last_seg,
                             description="Found trailing comma. Expected only leading.",
                         )
             elif self.comma_style == "trailing":
-                if segment.type == "comma":
+                if segment.is_type("comma"):
                     # work back and find the last interesting thing, is the comma the first element?
                     last_seg = self._last_code_seg(raw_stack)
-                    if last_seg.type == "newline":
+                    if last_seg.is_type("newline"):
                         return LintResult(
                             anchor=segment,
                             description="Found leading comma. Expected only trailing.",
@@ -2226,7 +2226,7 @@ class Rule_L020(BaseCrawler):
         Subclasses of this rule should override the
         `_lint_references_and_aliases` method.
         """
-        if segment.type == "select_statement":
+        if segment.is_type("select_statement"):
             aliases = self._get_aliases_from_select(segment)
             if not aliases:
                 return None
@@ -2251,7 +2251,7 @@ class Rule_L020(BaseCrawler):
                 ref_path = segment.path_to(ref)
                 # is it in a subselect? i.e. a select which isn't this one.
                 if any(
-                    seg.type == "select_statement" and seg is not segment
+                    seg.is_type("select_statement") and seg is not segment
                     for seg in ref_path
                 ):
                     reference_buffer.remove(ref)
@@ -2260,7 +2260,7 @@ class Rule_L020(BaseCrawler):
             col_aliases = []
             for col_seg in list(sc.recursive_crawl("alias_expression")):
                 for seg in col_seg.segments:
-                    if seg.type == "identifier":
+                    if seg.is_type("identifier"):
                         col_aliases.append(seg.raw)
 
             # Get any columns referred to in a using clause, and extract anything
@@ -2272,18 +2272,18 @@ class Rule_L020(BaseCrawler):
                 seen_using = False
                 seen_on = False
                 for seg in join_clause.segments:
-                    if seg.type == "keyword" and seg.name == "USING":
+                    if seg.is_type("keyword") and seg.name == "USING":
                         seen_using = True
-                    elif seg.type == "keyword" and seg.name == "ON":
+                    elif seg.is_type("keyword") and seg.name == "ON":
                         seen_on = True
-                    elif seen_using and seg.type == "start_bracket":
+                    elif seen_using and seg.is_type("start_bracket"):
                         in_using_brackets = True
-                    elif seen_using and seg.type == "end_bracket":
+                    elif seen_using and seg.is_type("end_bracket"):
                         in_using_brackets = False
                         seen_using = False
-                    elif in_using_brackets and seg.type == "identifier":
+                    elif in_using_brackets and seg.is_type("identifier"):
                         using_cols.append(seg.raw)
-                    elif seen_on and seg.type == "expression":
+                    elif seen_on and seg.is_type("expression"):
                         # Deal with expressions
                         reference_buffer += list(
                             seg.recursive_crawl("object_reference")
@@ -2292,7 +2292,7 @@ class Rule_L020(BaseCrawler):
             # Work out if we have a parent select function
             parent_select = None
             for seg in reversed(parent_stack):
-                if seg.type == "select_statement":
+                if seg.is_type("select_statement"):
                     parent_select = seg
                     break
 
@@ -2330,7 +2330,7 @@ class Rule_L021(BaseCrawler):
 
     def _eval(self, segment, **kwargs):
         """Ambiguous use of DISTINCT in select statement with GROUP BY."""
-        if segment.type == "select_statement":
+        if segment.is_type("select_statement"):
             # Do we have a group by clause
             group_clause = segment.get_child("groupby_clause")
             if not group_clause:
@@ -2381,14 +2381,14 @@ class Rule_L022(BaseCrawler):
     def _eval(self, segment, **kwargs):
         """Blank line expected but not found after CTE definition."""
         error_buffer = []
-        if segment.type == "with_compound_statement":
+        if segment.is_type("with_compound_statement"):
             # First we need to find all the commas, the end brackets, the
             # things that come after that and the blank lines in between.
 
             # Find all the closing brackets. They are our anchor points.
             bracket_indices = []
             for idx, seg in enumerate(segment.segments):
-                if seg.type == "end_bracket":
+                if seg.is_type("end_bracket"):
                     bracket_indices.append(idx)
 
             # Work through each point and deal with it individually
@@ -2413,21 +2413,21 @@ class Rule_L022(BaseCrawler):
 
                 # Work forward to map out the following segments.
                 while (
-                    forward_slice[seg_idx].type == "comma"
+                    forward_slice[seg_idx].is_type("comma")
                     or not forward_slice[seg_idx].is_code
                 ):
-                    if forward_slice[seg_idx].type == "newline":
+                    if forward_slice[seg_idx].is_type("newline"):
                         if line_blank:
                             # It's a blank line!
                             blank_lines += 1
                         line_blank = True
                         line_idx += 1
                         line_starts[line_idx] = seg_idx + 1
-                    elif forward_slice[seg_idx].type == "comment":
+                    elif forward_slice[seg_idx].is_type("comment"):
                         # Lines with comments aren't blank
                         line_blank = False
                         comment_lines.append(line_idx)
-                    elif forward_slice[seg_idx].type == "comma":
+                    elif forward_slice[seg_idx].is_type("comma"):
                         # Keep track of where the comma is.
                         # We'll evaluate it later.
                         comma_line_idx = line_idx
@@ -2477,7 +2477,7 @@ class Rule_L022(BaseCrawler):
                             fix_point = forward_slice[comma_seg_idx + 1]
                             # Optionally here, if the segment we've landed on is
                             # whitespace then we REPLACE it rather than inserting.
-                            if forward_slice[comma_seg_idx + 1].type == "whitespace":
+                            if forward_slice[comma_seg_idx + 1].is_type("whitespace"):
                                 fix_type = "edit"
                         elif self.comma_style == "leading":
                             # Add a blank line before the comma
@@ -2494,7 +2494,7 @@ class Rule_L022(BaseCrawler):
                                 # Detected an existing trailing comma or it's a final CTE,
                                 # OR the comma isn't leading or trailing.
                                 # If the preceeding segment is whitespace, replace it
-                                if forward_slice[seg_idx - 1].type == "whitespace":
+                                if forward_slice[seg_idx - 1].is_type("whitespace"):
                                     fix_point = forward_slice[seg_idx - 1]
                                     fix_type = "edit"
                                 else:
@@ -2569,7 +2569,7 @@ class Rule_L023(BaseCrawler):
     def _eval(self, segment, **kwargs):
         """Single whitespace expected in mother segment between pre and post segments."""
         error_buffer = []
-        if segment.type == self.expected_mother_segment_type:
+        if segment.is_type(self.expected_mother_segment_type):
             last_code = None
             mid_segs = []
             for seg in segment.segments:
@@ -2858,7 +2858,7 @@ class Rule_L028(Rule_L025):
         seen_ref_types = set()
         for r in references:
             # We skip any unqualified wildcard references (i.e. *). They shouldn't count.
-            if not r.is_qualified() and r.type == "wildcard_reference":
+            if not r.is_qualified() and r.is_type("wildcard_reference"):
                 continue
             this_ref_type = r.qualification()
             if self.single_table_references == "consistent":
@@ -2918,7 +2918,7 @@ class Rule_L029(BaseCrawler):
             # If self.only_aliases is true, we're a bit pickier here
             if self.only_aliases:
                 # Aliases are ok (either directly, or in column definitions or in with statements)
-                if parent_stack[-1].type in (
+                if parent_stack[-1].is_type(
                     "alias_expression",
                     "column_definition",
                     "with_compound_statement",
@@ -3008,7 +3008,7 @@ class Rule_L031(BaseCrawler):
         Find base table, table expressions in join, and other expressions in select clause
         and decide if it's needed to report them.
         """
-        if segment.type == "select_statement":
+        if segment.is_type("select_statement"):
             # A buffer for all table expressions in join conditions
             table_expressions_in_join = []
             expressions_in_join = []
@@ -3027,9 +3027,9 @@ class Rule_L031(BaseCrawler):
 
             for join_clause in fc.recursive_crawl("join_clause"):
                 for seg in join_clause.segments:
-                    if seg.type == "table_expression":
+                    if seg.is_type("table_expression"):
                         table_expressions_in_join.append(seg)
-                    elif seg.type == "expression":
+                    elif seg.is_type("expression"):
                         expressions_in_join.append(seg)
 
             return (
@@ -3131,9 +3131,9 @@ class Rule_L032(BaseCrawler):
 
     def _eval(self, segment, **kwargs):
         """Look for USING in a join clause."""
-        if segment.type == "join_clause":
+        if segment.is_type("join_clause"):
             for seg in segment.segments:
-                if seg.type == "keyword" and seg.name == "USING":
+                if seg.is_type("keyword") and seg.name == "USING":
                     return [
                         LintResult(
                             # Reference the element, not the string.

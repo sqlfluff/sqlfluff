@@ -408,12 +408,12 @@ class BaseSegment:
     @property
     def _comments(self):
         """Returns only the comment elements of this segment."""
-        return [seg for seg in self.segments if seg.type == "comment"]
+        return [seg for seg in self.segments if seg.is_type("comment")]
 
     @property
     def _non_comments(self):
         """Returns only the non-comment elements of this segment."""
-        return [seg for seg in self.segments if seg.type != "comment"]
+        return [seg for seg in self.segments if not seg.is_type("comment")]
 
     def stringify(self, ident=0, tabsize=4, pos_idx=60, raw_idx=80, code_only=False):
         """Use indentation to render this segment and it's children as a string."""
@@ -840,7 +840,7 @@ class BaseSegment:
     def get_child(self, seg_type):
         """Retrieve the first of the children of this segment with matching type."""
         for seg in self.segments:
-            if seg.type == seg_type:
+            if seg.is_type(seg_type):
                 return seg
         return None
 
@@ -848,7 +848,7 @@ class BaseSegment:
         """Retrieve the all of the children of this segment with matching type."""
         buff = []
         for seg in self.segments:
-            if seg.type == seg_type:
+            if seg.is_type(seg_type):
                 buff.append(seg)
         return buff
 
@@ -860,9 +860,9 @@ class BaseSegment:
                 the type of elements to look for.
         """
         # Check this segment
-        if isinstance(seg_type, str) and self.type == seg_type:
+        if isinstance(seg_type, str) and self.is_type(seg_type):
             yield self
-        elif isinstance(seg_type, tuple) and self.type in seg_type:
+        elif isinstance(seg_type, tuple) and self.is_type(*seg_type):
             yield self
         # Recurse
         for seg in self.segments:
