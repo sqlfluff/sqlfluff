@@ -74,10 +74,10 @@ class BaseSegment:
     trim_start = None
 
     @classmethod
-    def is_type(cls, *reference_types):
+    def is_type(cls, *seg_type):
         """Is this segment (or it's parent) of the given type."""
         # Do we match on the type of _this_ class.
-        if cls.type in reference_types:
+        if cls.type in seg_type:
             return True
         # Have we reached the bottom?
         elif cls.type == "base":
@@ -85,7 +85,7 @@ class BaseSegment:
         # If not, check parent classes.
         else:
             return any(
-                base_class.is_type(*reference_types) for base_class in cls.__bases__
+                base_class.is_type(*seg_type) for base_class in cls.__bases__
             )
 
     @property
@@ -837,18 +837,18 @@ class BaseSegment:
         # Create a new version of this class with the new details
         return self.__class__(segments=tuple(seg_buffer), pos_marker=self.pos_marker)
 
-    def get_child(self, seg_type):
+    def get_child(self, *seg_type):
         """Retrieve the first of the children of this segment with matching type."""
         for seg in self.segments:
-            if seg.is_type(seg_type):
+            if seg.is_type(*seg_type):
                 return seg
         return None
 
-    def get_children(self, seg_type):
+    def get_children(self, *seg_type):
         """Retrieve the all of the children of this segment with matching type."""
         buff = []
         for seg in self.segments:
-            if seg.is_type(seg_type):
+            if seg.is_type(*seg_type):
                 buff.append(seg)
         return buff
 
