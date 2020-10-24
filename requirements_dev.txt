@@ -1,3 +1,4 @@
+# Install with -U to keep all requirements up-to-date
 # code linting and formatting
 flake8
 flake8-docstrings
