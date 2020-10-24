@@ -13,6 +13,9 @@ import pstats
 from io import StringIO
 from benchit import BenchIt
 
+# To enable colour cross platform
+import colorama
+
 from .formatters import (
     format_rules,
     format_violation,
@@ -35,7 +38,7 @@ class RedWarningsFilter(logging.Filter):
     def filter(self, record):
         """Filter any warnings (or above) to turn them red."""
         if record.levelno >= logging.WARNING:
-            record.msg = colorize(record.msg, "red")
+            record.msg = colorize(record.msg, "red") + " "
         return True
 
 
@@ -56,9 +59,14 @@ def set_logging_level(verbosity, logger=None):
     # Don't propagate logging
     fluff_logger.propagate = False
 
+    # Enable colorama
+    colorama.init()
+
     # Set up the log handler to log to stdout
     handler = logging.StreamHandler(stream=sys.stdout)
-    handler.setFormatter(logging.Formatter("%(levelname)-10s %(message)s"))
+    # NB: the unicode character at the beginning is to squash any badly
+    # tamed ANSI colour statements, and return us to normality.
+    handler.setFormatter(logging.Formatter("\u001b[0m%(levelname)-10s %(message)s"))
     # Set up a handler to colour warnings red.
     handler.addFilter(RedWarningsFilter())
     if logger:
