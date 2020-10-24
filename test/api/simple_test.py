@@ -83,3 +83,13 @@ def test__api__fix_string_specific():
     result = sqlfluff.fix(my_bad_query, rules="L010")
     # Check actual result
     assert result == "SELECT  *, 1, blah AS  fOO  FROM myTable"
+
+
+def test__api__parse_string():
+    """Basic checking of parse functionality."""
+    parsed = sqlfluff.parse(my_bad_query)
+    # Check we can call `to_tuple` on the result
+    assert isinstance(parsed.to_tuple(), tuple)
+    # Check we can iterate objects within it
+    keywords = [keyword.raw for keyword in parsed.recursive_crawl("keyword")]
+    assert keywords == ["SeLEct", "as", "from"]

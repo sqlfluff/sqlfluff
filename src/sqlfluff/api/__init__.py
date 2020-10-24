@@ -3,4 +3,4 @@
 # flake8: noqa: F401
 
 # Expose the simple api
-from .simple import lint, fix
+from .simple import lint, fix, parse

@@ -28,3 +28,15 @@ result = sqlfluff.fix(my_bad_query, rules="L010")
 # Or a subset of rules...
 result = sqlfluff.fix(my_bad_query, rules=["L010", "L014"])
 # result = 'SELECT  *, 1, blah AS  fOO  FROM mytable'
+
+#  -------- PARSING ----------
+
+parsed = sqlfluff.parse(my_bad_query)
+
+# Get the structure of the query
+structure = parsed.to_tuple(show_raw=True, code_only=True)
+# structure = ('file', (('statement', (('select_statement', (('select_clause', (('keyword', 'SeLEct'), ...
+
+# Extract certain elements
+keywords = [keyword.raw for keyword in parsed.recursive_crawl("keyword")]
+# keywords = ['SeLEct', 'as', 'from']
