@@ -656,7 +656,7 @@ class WildcardIdentifierSegment(ObjectReferenceSegment):
         will only appear once.
         """
         # Extract the references from those identifiers (because some may be quoted)
-        for elem in self.recursive_crawl(("identifier", "star")):
+        for elem in self.recursive_crawl("identifier", "star"):
             yield from self._iter_reference_parts(elem)
 
 
