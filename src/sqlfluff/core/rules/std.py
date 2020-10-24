@@ -3173,6 +3173,6 @@ class Rule_L033(BaseCrawler):
         which has a UNION but no DISTINCT or ALL.
         """
         if segment.type == "set_operator":
-            if "UNION" in segment.raw and not ("ALL" in segment.raw or "DISTINCT" in segment.raw):
+            if ("UNION" in segment.raw and not ("ALL" in segment.raw or "DISTINCT" in segment.raw)):
                 return LintResult(anchor=segment)
         return LintResult()
