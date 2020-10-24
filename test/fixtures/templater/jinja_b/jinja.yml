@@ -36,6 +36,6 @@ file:
         keyword: FROM
         whitespace: ' '
         table_expression:
-          object_reference:
+          table_reference:
           - identifier: some_table
   newline: "\n"

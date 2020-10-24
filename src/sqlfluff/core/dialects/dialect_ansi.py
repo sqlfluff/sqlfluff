@@ -277,7 +277,7 @@ ansi_dialect.add(
     # Defined here to avoid repetition.
     BracketedColumnReferenceListGrammar=Bracketed(
         Delimited(
-            Ref("ObjectReferenceSegment"),
+            Ref("ColumnReferenceSegment"),
             delimiter=Ref("CommaSegment"),
             ephemeral_name="ColumnReferenceList",
         )
@@ -393,6 +393,20 @@ class ObjectReferenceSegment(BaseSegment):
         if len(refs) >= level:
             return refs[-level]
         return None
+
+
+@ansi_dialect.segment()
+class TableReferenceSegment(ObjectReferenceSegment):
+    """A reference to an table, CTE, subquery or alias."""
+
+    type = "table_reference"
+
+
+@ansi_dialect.segment()
+class ColumnReferenceSegment(ObjectReferenceSegment):
+    """A reference to column, field or alias."""
+
+    type = "column_reference"
 
 
 @ansi_dialect.segment()
@@ -598,7 +612,7 @@ class TableExpressionSegment(BaseSegment):
             # it seems sensible here for now.
             Ref("BareFunctionSegment"),
             Ref("FunctionSegment"),
-            Ref("ObjectReferenceSegment"),
+            Ref("TableReferenceSegment"),
             # Nested Selects
             Bracketed(Ref("SelectableGrammar")),
             # Values clause?
@@ -702,7 +716,7 @@ class SelectTargetElementSegment(BaseSegment):
                 Ref("BareFunctionSegment"),
                 Ref("FunctionSegment"),
                 Ref("IntervalExpressionSegment"),
-                Ref("ObjectReferenceSegment"),
+                Ref("ColumnReferenceSegment"),
                 Ref("ExpressionSegment"),
             ),
             Ref("AliasExpressionSegment", optional=True),
@@ -778,7 +792,10 @@ class JoinClauseSegment(BaseSegment):
                 Bracketed(
                     # NB: We don't use BracketedColumnReferenceListGrammar
                     # here because we're just using SingleIdentifierGrammar,
-                    # rather than ObjectReferenceSegment.
+                    # rather than ObjectReferenceSegment or ColumnReferenceSegment.
+                    # This is a) so that we don't lint it as a reference and
+                    # b) because the column will probably be returned anyway
+                    # during parsing.
                     Delimited(
                         Ref("SingleIdentifierGrammar"),
                         delimiter=Ref("CommaSegment"),
@@ -1015,7 +1032,7 @@ ansi_dialect.add(
             Ref("SelectStatementSegment"),
             Ref("LiteralGrammar"),
             Ref("IntervalExpressionSegment"),
-            Ref("ObjectReferenceSegment"),
+            Ref("ColumnReferenceSegment"),
         ),
         Ref("Accessor_Grammar", optional=True),
         Ref("ShorthandCastSegment", optional=True),
@@ -1081,7 +1098,7 @@ class OrderByClauseSegment(BaseSegment):
         Delimited(
             Sequence(
                 OneOf(
-                    Ref("ObjectReferenceSegment"),
+                    Ref("ColumnReferenceSegment"),
                     # Can `ORDER BY 1`
                     Ref("NumericLiteralSegment"),
                     # Can order by an expression
@@ -1116,7 +1133,7 @@ class GroupByClauseSegment(BaseSegment):
         Indent,
         Delimited(
             OneOf(
-                Ref("ObjectReferenceSegment"),
+                Ref("ColumnReferenceSegment"),
                 # Can `GROUP BY 1`
                 Ref("NumericLiteralSegment"),
                 # Can `GROUP BY coalesce(col, 1)`
@@ -1289,7 +1306,7 @@ class InsertStatementSegment(BaseSegment):
         "INSERT",
         Ref.keyword("OVERWRITE", optional=True),  # Maybe this is just snowflake?
         Ref.keyword("INTO", optional=True),
-        Ref("ObjectReferenceSegment"),
+        Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         Ref("SelectableGrammar"),
     )
@@ -1355,7 +1372,7 @@ class ColumnOptionSegment(BaseSegment):
             "AUTO_INCREMENT",  # AUTO_INCREMENT (MySQL)
             Sequence(  # REFERENCES reftable [ ( refcolumn) ]
                 "REFERENCES",
-                Ref("ObjectReferenceSegment"),
+                Ref("ColumnReferenceSegment"),
                 # Foreign columns making up FOREIGN KEY constraint
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
             ),
@@ -1413,7 +1430,7 @@ class TableConstraintSegment(BaseSegment):
                 # Local columns making up FOREIGN KEY constraint
                 Ref("BracketedColumnReferenceListGrammar"),
                 "REFERENCES",
-                Ref("ObjectReferenceSegment"),
+                Ref("ColumnReferenceSegment"),
                 # Foreign columns making up FOREIGN KEY constraint
                 Ref("BracketedColumnReferenceListGrammar"),
                 # Later add support for [MATCH FULL/PARTIAL/SIMPLE] ?
@@ -1435,7 +1452,7 @@ class CreateTableStatementSegment(BaseSegment):
         Sequence("OR", "REPLACE", optional=True),
         "TABLE",
         Sequence("IF", "NOT", "EXISTS", optional=True),
-        Ref("ObjectReferenceSegment"),
+        Ref("TableReferenceSegment"),
         OneOf(
             # Columns and comment syntax:
             Sequence(
@@ -1458,7 +1475,7 @@ class CreateTableStatementSegment(BaseSegment):
                 Ref("SelectableGrammar"),
             ),
             # Create like syntax
-            Sequence("LIKE", Ref("ObjectReferenceSegment")),
+            Sequence("LIKE", Ref("TableReferenceSegment")),
         ),
     )
 
@@ -1474,7 +1491,7 @@ class AlterTableStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "ALTER",
         "TABLE",
-        Ref("ObjectReferenceSegment"),
+        Ref("TableReferenceSegment"),
         Delimited(
             OneOf(
                 # Table options
@@ -1490,7 +1507,7 @@ class AlterTableStatementSegment(BaseSegment):
                     Ref("ColumnDefinitionSegment"),
                     OneOf(
                         Sequence(
-                            OneOf("FIRST", "AFTER"), Ref("ObjectReferenceSegment")
+                            OneOf("FIRST", "AFTER"), Ref("ColumnReferenceSegment")
                         ),
                         # Bracketed Version of the same
                         Ref("BracketedColumnReferenceListGrammar"),
@@ -1515,7 +1532,7 @@ class CreateViewStatementSegment(BaseSegment):
         "CREATE",
         Sequence("OR", "REPLACE", optional=True),
         "VIEW",
-        Ref("ObjectReferenceSegment"),
+        Ref("TableReferenceSegment"),
         # Optional list of column names
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         "AS",
@@ -1536,7 +1553,7 @@ class DropStatementSegment(BaseSegment):
             "VIEW",
         ),
         Sequence("IF", "EXISTS", optional=True),
-        Ref("ObjectReferenceSegment"),
+        Ref("TableReferenceSegment"),
         OneOf("RESTRICT", Ref.keyword("CASCADE", optional=True), optional=True),
     )
 
@@ -1567,7 +1584,7 @@ class AccessStatementSegment(BaseSegment):
             OneOf(
                 Sequence(
                     Ref.keyword("TABLE", optional=True),
-                    Ref("ObjectReferenceSegment"),
+                    Ref("TableReferenceSegment"),
                 ),
                 Sequence(
                     "ALL",
@@ -1606,7 +1623,7 @@ class AccessStatementSegment(BaseSegment):
             OneOf(
                 Sequence(
                     Ref.keyword("TABLE", optional=True),
-                    Ref("ObjectReferenceSegment"),
+                    Ref("TableReferenceSegment"),
                 ),
                 Sequence(
                     "ALL",
@@ -1653,7 +1670,7 @@ class UpdateStatementSegment(BaseSegment):
     match_grammar = StartsWith("UPDATE")
     parse_grammar = Sequence(
         "UPDATE",
-        Ref("ObjectReferenceSegment"),
+        Ref("TableReferenceSegment"),
         Ref("SetClauseListSegment"),
         Ref("WhereClauseSegment", optional=True),
     )
@@ -1716,7 +1733,7 @@ class SetClauseSegment(BaseSegment):
             Ref("LiteralGrammar"),
             Ref("BareFunctionSegment"),
             Ref("FunctionSegment"),
-            Ref("ObjectReferenceSegment"),
+            Ref("ColumnReferenceSegment"),
             "NULL",
             "DEFAULT",
         ),

@@ -225,7 +225,7 @@ class NamedParameterExpressionSegment(BaseSegment):
         Ref("ParameterAssignerSegment"),
         OneOf(
             Ref("LiteralGrammar"),
-            Ref("ObjectReferenceSegment"),
+            Ref("ColumnReferenceSegment"),
             Ref("ExpressionSegment"),
         ),
     )

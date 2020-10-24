@@ -1363,7 +1363,7 @@ class Rule_L013(BaseCrawler):
                 unallowed_types = types - {
                     "whitespace",
                     "newline",
-                    "object_reference",
+                    "column_reference",
                     "wildcard_expression",
                 }
                 if len(unallowed_types) > 0:
