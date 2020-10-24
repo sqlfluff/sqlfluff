@@ -3,8 +3,8 @@
 import pytest
 import oyaml
 
-from sqlfluff.parser.markers import FilePositionMarker
-from sqlfluff.parser.segments_base import RawSegment
+from sqlfluff.core.parser.markers import FilePositionMarker
+from sqlfluff.core.parser.segments_base import RawSegment
 
 
 def process_struct(obj):

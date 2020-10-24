@@ -3,16 +3,15 @@
 import pytest
 import logging
 
-from sqlfluff.parser import Lexer
-from sqlfluff.parser.lexer import (
+from sqlfluff.core.parser import Lexer
+from sqlfluff.core.parser.lexer import (
     SingletonMatcher,
     LexMatch,
     RegexMatcher,
     RepeatedMultiMatcher,
 )
-from sqlfluff.parser import RawSegment, FileSegment, FilePositionMarker
-from sqlfluff.errors import SQLLexError
-from sqlfluff.config import FluffConfig
+from sqlfluff.core.parser import RawSegment, FileSegment, FilePositionMarker
+from sqlfluff.core import SQLLexError, FluffConfig
 
 
 def assert_matches(instring, matcher, matchstring):

@@ -2,13 +2,13 @@
 
 import pytest
 
-from sqlfluff.parser import (
+from sqlfluff.core.parser import (
     RootParseContext,
     FilePositionMarker,
     RawSegment,
     KeywordSegment,
 )
-from sqlfluff.parser.segments_common import EphemeralSegment
+from sqlfluff.core.parser.segments_common import EphemeralSegment
 
 
 @pytest.fixture(scope="module")

@@ -58,6 +58,7 @@ Contents
    configuration
    architecture
    cli
+   api
    inthewild
 
 

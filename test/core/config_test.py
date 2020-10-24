@@ -2,8 +2,8 @@
 
 import os
 
-from sqlfluff.config import ConfigLoader, nested_combine, dict_diff, FluffConfig
-from sqlfluff.linter import Linter
+from sqlfluff.core.config import ConfigLoader, nested_combine, dict_diff
+from sqlfluff.core import Linter, FluffConfig
 
 
 config_a = {

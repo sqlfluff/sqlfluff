@@ -3,16 +3,15 @@
 import pytest
 import logging
 
-from sqlfluff.config import FluffConfig
-from sqlfluff.parser import (
+from sqlfluff.core import FluffConfig, Linter
+from sqlfluff.core.parser import (
     Lexer,
     FileSegment,
     RootParseContext,
     BaseSegment,
     RawSegment,
 )
-from sqlfluff.parser.match_result import MatchResult
-from sqlfluff.linter import Linter
+from sqlfluff.core.parser.match_result import MatchResult
 
 
 @pytest.mark.parametrize(
@@ -223,8 +222,7 @@ def test__dialect__ansi_specific_segment_not_match(segmentref, raw, caplog):
 )
 def test__dialect__ansi_specific_segment_not_parse(raw, err_locations, caplog):
     """Test queries do not parse, with parsing errors raised properly."""
-    config = FluffConfig(overrides=dict(dialect="ansi"))
-    lnt = Linter(config=config)
+    lnt = Linter()
     _, vs, _ = lnt.parse_string(raw)
     assert len(vs) > 0
     locs = [(v.line_no(), v.line_pos()) for v in vs]

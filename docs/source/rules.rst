@@ -12,7 +12,7 @@ for the rule itself, with all the other mechanics abstracted away.
 Specific Rules
 --------------
 
-.. automodule:: sqlfluff.rules.std
+.. automodule:: sqlfluff.core.rules.std
    :members:
    :member-order: alphabetical
 
@@ -20,17 +20,17 @@ Specific Rules
 Implementation
 --------------
 
-.. autoclass:: sqlfluff.rules.base.RuleSet
+.. autoclass:: sqlfluff.core.rules.base.RuleSet
    :members:
 
-.. autoclass:: sqlfluff.rules.base.BaseCrawler
+.. autoclass:: sqlfluff.core.rules.base.BaseCrawler
    :members:
    :private-members:
 
-.. autoclass:: sqlfluff.rules.base.LintResult
+.. autoclass:: sqlfluff.core.rules.base.LintResult
    :members:
 
-.. autoclass:: sqlfluff.rules.base.LintFix
+.. autoclass:: sqlfluff.core.rules.base.LintFix
    :members:
 
 

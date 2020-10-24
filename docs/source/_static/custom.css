@@ -1,0 +1,6 @@
+/* Overrides for spacing within autodoc */
+
+dl.py {
+    /* Spacing is normally far too tight, this makes a bit more space between elements */
+    padding-bottom: 30px;
+}

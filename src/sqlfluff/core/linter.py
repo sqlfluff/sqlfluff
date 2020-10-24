@@ -18,6 +18,7 @@ import pathspec
 from .errors import SQLLexError, SQLParseError
 from .parser import FileSegment, RootParseContext
 from .rules import get_ruleset
+from .config import FluffConfig
 
 
 # Instantiate the linter logger
@@ -547,7 +548,15 @@ class LintingResult:
         (ints, strs).
         """
         return [
-            {"filepath": path, "violations": [v.get_info_dict() for v in violations]}
+            {
+                "filepath": path,
+                "violations": sorted(
+                    # Sort violations by line and then position
+                    [v.get_info_dict() for v in violations],
+                    # The tuple allows sorting by line number, then position, then code
+                    key=lambda v: (v["line_no"], v["line_pos"], v["code"]),
+                ),
+            }
             for lintedpath in self.paths
             for path, violations in lintedpath.violation_dict().items()
             if violations
@@ -566,9 +575,26 @@ class LintingResult:
 class Linter:
     """The interface class to interact with the linter."""
 
-    def __init__(self, sql_exts=(".sql",), config=None, formatter=None):
-        if config is None:
-            raise ValueError("No config object provided to linter!")
+    def __init__(
+        self, sql_exts=(".sql",), config=None, formatter=None, dialect=None, rules=None
+    ):
+        if (dialect or rules) and config:
+            raise ValueError(
+                "Cannot specify `config` with `dialect` or `rules`. Any config object "
+                "specifies its own dialect and rules."
+            )
+        elif config is None:
+            overrides = {}
+            if dialect:
+                overrides["dialect"] = dialect
+            if rules:
+                # If it's a string, make it a list
+                if isinstance(rules, str):
+                    rules = [rules]
+                # Make a comma seperated string to pass in as override
+                overrides["rules"] = ",".join(rules)
+            config = FluffConfig(overrides=overrides)
+
         self.dialect = config.get("dialect_obj")
         self.templater = config.get("templater_obj")
         self.sql_exts = sql_exts
@@ -608,7 +634,7 @@ class Linter:
         if fname:
             short_fname = fname.replace("\\", "/").split("/")[-1]
         else:
-            # this handles to potential case of a null fname
+            # this handles the potential case of a null fname
             short_fname = fname
         bencher("Staring parse_string for {0!r}".format(short_fname))
 

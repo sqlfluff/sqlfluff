@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Public API to enable people to import `sqlfluff` as a python module
+  and call `parse`, `lint` and `fix` within their own projects. See
+  [the docs](https://docs.sqlfluff.com/en/latest/api.html) for more
+  information.
 - Support for modulo (`%`) operator.
 - A limit in the internal fix routines to catch any infinite loops.
 

@@ -7,8 +7,8 @@ and automatically tested against the appropriate dialect.
 import pytest
 import os
 
-from sqlfluff.parser import FileSegment, RootParseContext
-from sqlfluff.config import FluffConfig
+from sqlfluff.core.parser import FileSegment, RootParseContext
+from sqlfluff.core import FluffConfig
 
 
 # Construct the tests from the filepath

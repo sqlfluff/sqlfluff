@@ -2,13 +2,13 @@
 
 import pytest
 
-from sqlfluff.parser import (
+from sqlfluff.core.parser import (
     RootParseContext,
     FilePositionMarker,
     RawSegment,
     BaseSegment,
 )
-from sqlfluff.dialects import ansi_dialect
+from sqlfluff.core.dialects import ansi_dialect
 
 
 @pytest.fixture(scope="module")

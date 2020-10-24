@@ -3,8 +3,8 @@
 import pytest
 import logging
 
-from sqlfluff.parser import RootParseContext
-from sqlfluff.parser.grammar import (
+from sqlfluff.core.parser import RootParseContext
+from sqlfluff.core.parser.grammar import (
     OneOf,
     Sequence,
     GreedyUntil,
@@ -13,8 +13,8 @@ from sqlfluff.parser.grammar import (
     BaseGrammar,
     StartsWith,
 )
-from sqlfluff.parser.segments_common import KeywordSegment, EphemeralSegment
-from sqlfluff.dialects import ansi_dialect
+from sqlfluff.core.parser.segments_common import KeywordSegment, EphemeralSegment
+from sqlfluff.core.dialects import ansi_dialect
 
 # NB: All of these tests depend somewhat on the KeywordSegment working as planned
 

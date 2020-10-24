@@ -2,8 +2,8 @@
 
 import pytest
 
-from sqlfluff.parser.match_result import MatchResult
-from sqlfluff.parser import RawSegment, FilePositionMarker
+from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser import RawSegment, FilePositionMarker
 
 
 @pytest.fixture(scope="module")

@@ -56,9 +56,10 @@ setup(
     packages=[
         "sqlfluff",
         "sqlfluff.cli",
-        "sqlfluff.dialects",
-        "sqlfluff.parser",
-        "sqlfluff.rules",
+        "sqlfluff.core",
+        "sqlfluff.core.dialects",
+        "sqlfluff.core.parser",
+        "sqlfluff.core.rules",
     ],
     package_dir={"": "src"},
     include_package_data=True,

@@ -10,9 +10,8 @@ import tempfile
 import shutil
 import json
 
-from sqlfluff.config import FluffConfig
+from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.cli.commands import do_fixes
-from sqlfluff.linter import Linter
 
 
 # Construct the tests from the filepath

@@ -2,8 +2,8 @@
 
 import pytest
 
-from sqlfluff.linter import Linter, LintingResult
-from sqlfluff.config import FluffConfig
+from sqlfluff.core import Linter
+from sqlfluff.core.linter import LintingResult
 
 
 def normalise_paths(paths):
@@ -17,7 +17,7 @@ def normalise_paths(paths):
 
 def test__linter__path_from_paths__dir():
     """Test extracting paths from directories."""
-    lntr = Linter(config=FluffConfig())
+    lntr = Linter()
     paths = lntr.paths_from_path("test/fixtures/lexer")
     assert normalise_paths(paths) == {
         "test.fixtures.lexer.block_comment.sql",
@@ -28,28 +28,28 @@ def test__linter__path_from_paths__dir():
 
 def test__linter__path_from_paths__file():
     """Test extracting paths from a file path."""
-    lntr = Linter(config=FluffConfig())
+    lntr = Linter()
     paths = lntr.paths_from_path("test/fixtures/linter/indentation_errors.sql")
     assert normalise_paths(paths) == {"test.fixtures.linter.indentation_errors.sql"}
 
 
 def test__linter__path_from_paths__not_exist():
     """Test extracting paths from a file path."""
-    lntr = Linter(config=FluffConfig())
+    lntr = Linter()
     with pytest.raises(IOError):
         lntr.paths_from_path("asflekjfhsakuefhse")
 
 
 def test__linter__path_from_paths__not_exist_ignore():
     """Test extracting paths from a file path."""
-    lntr = Linter(config=FluffConfig())
+    lntr = Linter()
     paths = lntr.paths_from_path("asflekjfhsakuefhse", ignore_non_existent_files=True)
     assert len(paths) == 0
 
 
 def test__linter__path_from_paths__dot():
     """Test extracting paths from a dot."""
-    lntr = Linter(config=FluffConfig())
+    lntr = Linter()
     paths = lntr.paths_from_path(".")
     # Use set theory to check that we get AT LEAST these files
     assert normalise_paths(paths) >= {
@@ -69,7 +69,7 @@ def test__linter__path_from_paths__dot():
 )
 def test__linter__path_from_paths__ignore(path):
     """Test extracting paths from a dot."""
-    lntr = Linter(config=FluffConfig())
+    lntr = Linter()
     paths = lntr.paths_from_path(path)
     # We should only get query_b, because of the sqlfluffignore files.
     assert normalise_paths(paths) == {
@@ -88,7 +88,7 @@ def test__linter__lint_string_vs_file(path):
     """Test the linter finds the same things on strings and files."""
     with open(path, "r") as f:
         sql_str = f.read()
-    lntr = Linter(config=FluffConfig())
+    lntr = Linter()
     assert (
         lntr.lint_string(sql_str).check_tuples() == lntr.lint_path(path).check_tuples()
     )
