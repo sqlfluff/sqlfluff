@@ -2828,6 +2828,7 @@ class Rule_L032(BaseCrawler):
                     )]
         return None
 
+
 @std_rule_set.register
 class Rule_L033(BaseCrawler):
     """UNION ALL is preferred over UNION.
@@ -2849,13 +2850,12 @@ class Rule_L033(BaseCrawler):
     """
 
     def _eval(self, segment, raw_stack, **kwargs):
-        """Look for UNION keyword not immediately followed by ALL keyword.
-        Note that UNION DISTINCT is valid, rule only applies to bare UNION
+        """Look for UNION keyword not immediately followed by ALL keyword. Note that UNION DISTINCT is valid, rule only applies to bare UNION
 
         The function does this by looking for a segment of type set_operator
         which has a UNION but no DISTINCT or ALL
         """
         if segment.type == 'set_operator':
             if 'UNION' in segment.raw and not ('ALL' in segment.raw or 'DISTINCT' in segment.raw):
-                return LintResult(anchor=segment)       
+                return LintResult(anchor=segment)
         return LintResult()
