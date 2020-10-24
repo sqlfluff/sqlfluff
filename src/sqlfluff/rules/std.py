@@ -2850,12 +2850,12 @@ class Rule_L033(BaseCrawler):
 
     def _eval(self, segment, raw_stack, **kwargs):
         """Look for UNION keyword not immediately followed by ALL keyword.
+        Note that UNION DISTINCT is valid, rule only applies to bare UNION
 
-        The function does this by checking if there's an ALL keyword between
-        a UNION keyword and a SELECT keyword
+        The function does this by looking for a segment of type set_operator
+        which has a UNION but no DISTINCT or ALL
         """
-        if segment.type == 'keyword' and segment.name == 'SELECT':
-            filt_raw_stack = self.filter_meta(raw_stack)
-            if len(filt_raw_stack) > 1 and filt_raw_stack[-2].name == 'UNION':
-                return LintResult(anchor=segment)
+        if segment.type == 'set_operator':
+            if 'UNION' in segment.raw and not ('ALL' in segment.raw or 'DISTINCT' in segment.raw):
+                return LintResult(anchor=segment)       
         return LintResult()
