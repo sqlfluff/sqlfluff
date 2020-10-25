@@ -380,7 +380,7 @@ class BaseSegment:
             modifier="[META] " if self.is_meta else "",
             type=self.type + ":",
         )
-        preface = "{pos:17}|{padded_type:60}  {suffix}".format(
+        preface = "{pos:20}|{padded_type:60}  {suffix}".format(
             pos=str(self.pos_marker) if self.pos_marker else "-",
             padded_type=padded_type,
             suffix=self._suffix() or "",
