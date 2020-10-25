@@ -540,6 +540,13 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
             None,
             None,
         ),
+        (
+            "L033",
+            "fail",
+            "select a, b from tbl union distinct select c, d\nfrom tbl1 union select e, f from tbl2",
+            None,
+            None,
+        ),
     ],
 )
 def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
