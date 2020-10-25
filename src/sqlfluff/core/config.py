@@ -298,11 +298,7 @@ class ConfigLoader:
         if not given_path.is_dir():
             given_path = given_path.parent
 
-        if hasattr(os.path, "commonpath"):
-            common_path = Path(os.path.commonpath([working_path, given_path]))
-        else:
-            # Compatabilty with pre python 3.5
-            common_path = Path(os.path.commonprefix([working_path, given_path]))
+        common_path = Path(os.path.commonpath([working_path, given_path]))
 
         # we have a sub path! We can load nested paths
         path_to_visit = common_path
