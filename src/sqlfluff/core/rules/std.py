@@ -3215,12 +3215,12 @@ class Rule_L034(BaseCrawler):
             self.seen_element_band[i + 1 : :]
         ):
             # Not quite worked out the fix
-            # earliest_bad_element = next(el for el in self.seen_element_band[i+1::] if el is not None)
+            earliest_bad_element = next(el for el in self.seen_element_band[i + 1 : :] if el is not None)
             self.violation_buff.append(
                 LintResult(
                     anchor=segment,
-                    # fixes=[LintFix('create', earliest_bad_element, segment),
-                    #        LintFix('delete', segment)]
+                    fixes=[LintFix('edit', earliest_bad_element, segment),
+                           LintFix('edit', segment, earliest_bad_element)]
                 )
             )
         self.current_element_band = i

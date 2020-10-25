@@ -545,8 +545,14 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
             "L034",
             "fail",
             "select a, row_number() over (partition by id order by date) as y, b from x",
-            #  'select a, b, row_number() over (partition by id order by date) as y from x', Fix TODO
+            "select a, b, row_number() over (partition by id order by date) as y from x",
             None,
+        ),
+        (
+            "L034",
+            "fail",
+            "select row_number() over (partition by id order by date) as y, *, cast(b as int) as b_int from x",
+            "select *, cast(b as int) as b_int, row_number() over (partition by id order by date) as y from x",
             None,
         ),
     ],
