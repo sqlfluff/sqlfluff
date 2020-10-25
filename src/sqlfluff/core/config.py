@@ -268,8 +268,9 @@ class ConfigLoader:
         config_stack = [self.load_config_at_path(p) for p in config_paths]
         return nested_combine(user_appdir_config, user_config, *config_stack)
 
+    @classmethod
     def find_ignore_config_files(
-        self, path, working_path=os.getcwd(), ignore_file_name=".sqlfluffignore"
+        cls, path, working_path=os.getcwd(), ignore_file_name=".sqlfluffignore"
     ):
         """Finds sqlfluff ignore files from both the path and its parent paths."""
         return set(
@@ -277,14 +278,15 @@ class ConfigLoader:
                 os.path.isfile,
                 map(
                     lambda x: os.path.join(x, ignore_file_name),
-                    self.iter_config_locations_up_to_path(
+                    cls.iter_config_locations_up_to_path(
                         path=path, working_path=working_path
                     ),
                 ),
             )
         )
 
-    def iter_config_locations_up_to_path(self, path, working_path=Path.cwd()):
+    @staticmethod
+    def iter_config_locations_up_to_path(path, working_path=Path.cwd()):
         """Finds config locations from both the path and it's parent paths.
 
         The lowest priority is the user appdir, then home dir, then increasingly

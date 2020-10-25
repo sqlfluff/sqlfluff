@@ -938,8 +938,7 @@ class Linter:
         if is_exact_file:
             dirpath = os.path.dirname(path)
             files = [os.path.basename(path)]
-            loader = ConfigLoader.get_global()
-            ignore_file_paths = loader.find_ignore_config_files(
+            ignore_file_paths = ConfigLoader.find_ignore_config_files(
                 path=path, working_path=working_path, ignore_file_name=ignore_file_name
             )
             path_walk_ignore_file = [

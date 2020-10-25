@@ -91,8 +91,7 @@ def test__config__iter_config_paths_right_order():
 
 def test__config__find_sqlfluffignore_in_same_directory():
     """Test find ignore file in the same directory as sql file."""
-    c = ConfigLoader()
-    ignore_files = c.find_ignore_config_files(
+    ignore_files = ConfigLoader.find_ignore_config_files(
         path="test/fixtures/linter/sqlfluffignore/path_b/query_b.sql",
         working_path="test/fixtures/linter/sqlfluffignore/",
     )
