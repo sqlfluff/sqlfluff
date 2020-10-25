@@ -2,10 +2,10 @@
 
 import re
 
-from sqlfluff.rules.base import RuleGhost
-from sqlfluff.parser import RawSegment
-from sqlfluff.parser.markers import FilePositionMarker
-from sqlfluff.errors import SQLLintError
+from sqlfluff.core.rules.base import RuleGhost
+from sqlfluff.core.parser import RawSegment
+from sqlfluff.core.parser.markers import FilePositionMarker
+from sqlfluff.core.errors import SQLLintError
 from sqlfluff.cli.formatters import format_filename, format_violation
 
 
@@ -19,12 +19,6 @@ def test__cli__formatters__filename_nocol():
     """Test formatting filenames."""
     res = format_filename("blahblah", success=True)
     assert escape_ansi(res) == "== [blahblah] PASS"
-
-
-def test__cli__formatters__filename_col():
-    """Explicity test color codes."""
-    res = format_filename("blah", success=False)
-    assert res == u"== [\u001b[30;1mblah\u001b[0m] \u001b[31mFAIL\u001b[0m"
 
 
 def test__cli__formatters__violation():

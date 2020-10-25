@@ -303,6 +303,6 @@ Default Configuration
 The default configuration is as follows, note the `Builtin Macro Blocks`_ in
 section *[sqlfulff:templater:jinja:macros]* as referred to above.
 
-.. literalinclude:: ../../src/sqlfluff/default_config.cfg
+.. literalinclude:: ../../src/sqlfluff/core/default_config.cfg
    :language: cfg
    :linenos:

@@ -11,7 +11,7 @@ from .helpers import (
     pad_line,
 )
 
-from ..errors import SQLBaseError
+from ..core import SQLBaseError
 
 
 def format_filename(filename, success=False, success_text="PASS"):
@@ -89,50 +89,40 @@ def format_linting_stats(result, verbose=0):
     """Format a set of stats given a `LintingResult`."""
     text_buffer = StringIO()
     all_stats = result.stats()
-    if verbose >= 1:
-        text_buffer.write("==== summary ====\n")
-        if verbose >= 2:
-            output_fields = [
-                "files",
-                "violations",
-                "clean files",
-                "unclean files",
-                "avg per file",
-                "unclean rate",
-                "status",
-            ]
-            special_formats = {"unclean rate": "{0:.0%}"}
-        else:
-            output_fields = ["violations", "status"]
-            special_formats = {}
-        # Generate content tuples, applying special formats for some fields
-        summary_content = [
-            (
-                key,
-                special_formats[key].format(all_stats[key])
-                if key in special_formats
-                else all_stats[key],
-            )
-            for key in output_fields
+    text_buffer.write("==== summary ====\n")
+    if verbose >= 2:
+        output_fields = [
+            "files",
+            "violations",
+            "clean files",
+            "unclean files",
+            "avg per file",
+            "unclean rate",
+            "status",
         ]
-        # Render it all as a table
-        text_buffer.write(cli_table(summary_content, max_label_width=14))
+        special_formats = {"unclean rate": "{0:.0%}"}
+    else:
+        output_fields = ["violations", "status"]
+        special_formats = {}
+    # Generate content tuples, applying special formats for some fields
+    summary_content = [
+        (
+            key,
+            special_formats[key].format(all_stats[key])
+            if key in special_formats
+            else all_stats[key],
+        )
+        for key in output_fields
+    ]
+    # Render it all as a table
+    text_buffer.write(cli_table(summary_content, max_label_width=14))
     return text_buffer.getvalue()
 
 
-def format_linting_result_header(verbose=0):
+def format_linting_result_header():
     """Format the header of a linting result output."""
     text_buffer = StringIO()
-    if verbose >= 1:
-        text_buffer.write("==== readout ====\n")
-    return text_buffer.getvalue()
-
-
-def format_linting_result_footer(result, verbose=0):
-    """Format the footer of a linting result output given a `LintingResult`."""
-    text_buffer = StringIO()
-    text_buffer.write("\n")
-    text_buffer.write(format_linting_stats(result, verbose=verbose))
+    text_buffer.write("==== readout ====\n")
     return text_buffer.getvalue()
 
 

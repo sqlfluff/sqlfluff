@@ -13,11 +13,14 @@ import pstats
 from io import StringIO
 from benchit import BenchIt
 
+# To enable colour cross platform
+import colorama
+
 from .formatters import (
     format_rules,
     format_violation,
     format_linting_result_header,
-    format_linting_result_footer,
+    format_linting_stats,
     colorize,
     format_dialect_warning,
     format_dialects,
@@ -25,10 +28,18 @@ from .formatters import (
 )
 from .helpers import cli_table, get_package_version
 
-from ..dialects import dialect_selector, dialect_readout
-from ..linter import Linter
-from ..config import FluffConfig
-from ..errors import SQLLintError
+# Import from sqlfluff core.
+from ..core import Linter, FluffConfig, SQLLintError, dialect_selector, dialect_readout
+
+
+class RedWarningsFilter(logging.Filter):
+    """This filter makes all warnings or above red."""
+
+    def filter(self, record):
+        """Filter any warnings (or above) to turn them red."""
+        if record.levelno >= logging.WARNING:
+            record.msg = colorize(record.msg, "red") + " "
+        return True
 
 
 def set_logging_level(verbosity, logger=None):
@@ -48,9 +59,16 @@ def set_logging_level(verbosity, logger=None):
     # Don't propagate logging
     fluff_logger.propagate = False
 
+    # Enable colorama
+    colorama.init()
+
     # Set up the log handler to log to stdout
     handler = logging.StreamHandler(stream=sys.stdout)
-    handler.setFormatter(logging.Formatter("%(levelname)-10s %(message)s"))
+    # NB: the unicode character at the beginning is to squash any badly
+    # tamed ANSI colour statements, and return us to normality.
+    handler.setFormatter(logging.Formatter("\u001b[0m%(levelname)-10s %(message)s"))
+    # Set up a handler to colour warnings red.
+    handler.addFilter(RedWarningsFilter())
     if logger:
         focus_logger = logging.getLogger("sqlfluff.{0}".format(logger))
         focus_logger.addHandler(handler)
@@ -284,14 +302,14 @@ def lint(paths, format, nofail, logger=None, **kwargs):
 
     # Set up logging.
     set_logging_level(verbosity=verbose, logger=logger)
-
     # add stdin if specified via lone '-'
     if ("-",) == paths:
         # TODO: Remove verbose
         result = lnt.lint_string_wrapped(sys.stdin.read(), fname="stdin")
     else:
         # Output the results as we go
-        click.echo(format_linting_result_header(verbose=verbose))
+        if verbose >= 1:
+            click.echo(format_linting_result_header())
         try:
             # TODO: Remove verbose
             result = lnt.lint_paths(paths, ignore_non_existent_files=False)
@@ -306,7 +324,8 @@ def lint(paths, format, nofail, logger=None, **kwargs):
             )
             sys.exit(1)
         # Output the final stats
-        click.echo(format_linting_result_footer(result, verbose=verbose))
+        if verbose >= 1:
+            click.echo(format_linting_stats(result, verbose=verbose))
 
     if format == "json":
         click.echo(json.dumps(result.as_records()))
