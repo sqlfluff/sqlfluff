@@ -990,8 +990,8 @@ class Linter:
             if os.path.abspath(fpath) not in ignore_set:
                 filtered_buffer.append(os.path.normpath(fpath))
             elif is_exact_file:
-                print(
-                    "WARNING: Exact file path %s was given but "
+                linter_logger.warning(
+                    "Exact file path %s was given but "
                     "it was ignored by a %s pattern, "
                     "re-run with `--not-ignore-files` to "
                     "skip %s"
