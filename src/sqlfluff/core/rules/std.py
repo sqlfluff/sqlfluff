@@ -3145,6 +3145,7 @@ class Rule_L032(BaseCrawler):
                     ]
         return None
 
+
 @std_rule_set.register
 class Rule_L033(BaseCrawler):
     """UNION ALL is preferred over UNION.
@@ -3215,12 +3216,16 @@ class Rule_L034(BaseCrawler):
             self.seen_element_band[i + 1 : :]
         ):
             # Not quite worked out the fix
-            earliest_bad_element = next(el for el in self.seen_element_band[i + 1 : :] if el is not None)
+            earliest_bad_element = next(
+                el for el in self.seen_element_band[i + 1 : :] if el is not None
+            )
             self.violation_buff.append(
                 LintResult(
                     anchor=segment,
-                    fixes=[LintFix('edit', earliest_bad_element, segment),
-                           LintFix('edit', segment, earliest_bad_element)]
+                    fixes=[
+                        LintFix("edit", earliest_bad_element, segment),
+                        LintFix("edit", segment, earliest_bad_element),
+                    ],
                 )
             )
         self.current_element_band = i
@@ -3257,7 +3262,12 @@ class Rule_L034(BaseCrawler):
                         if type(e) == tuple and e[0] == "function":
                             # Try and except here because it's easier to read then a series of if 'segment.get_child's
                             try:
-                                if (segment.get_child("function").get_child("function_name").raw == e[1]):
+                                if (
+                                    segment.get_child("function")
+                                    .get_child("function_name")
+                                    .raw
+                                    == e[1]
+                                ):
                                     self._validate(i, segment)
                             except AttributeError:
                                 # If the segment doesn't match
