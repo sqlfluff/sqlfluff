@@ -18,7 +18,7 @@ import pathspec
 from .errors import SQLLexError, SQLParseError
 from .parser import Lexer, Parser
 from .rules import get_ruleset
-from .config import FluffConfig
+from .config import FluffConfig, ConfigLoader
 
 
 # Instantiate the linter logger
