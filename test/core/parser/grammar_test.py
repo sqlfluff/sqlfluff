@@ -3,7 +3,8 @@
 import pytest
 import logging
 
-from sqlfluff.core.parser import RootParseContext
+from sqlfluff.core.parser import RootParseContext, KeywordSegment
+from sqlfluff.core.parser.segments_common import EphemeralSegment
 from sqlfluff.core.parser.grammar import (
     OneOf,
     Sequence,
@@ -12,33 +13,11 @@ from sqlfluff.core.parser.grammar import (
     Delimited,
     BaseGrammar,
     StartsWith,
+    Anything,
+    Nothing,
 )
-from sqlfluff.core.parser.segments_common import KeywordSegment, EphemeralSegment
-from sqlfluff.core.dialects import ansi_dialect
 
 # NB: All of these tests depend somewhat on the KeywordSegment working as planned
-
-
-@pytest.fixture(scope="function")
-def seg_list(generate_test_segments):
-    """A preset list of segments for testing."""
-    return generate_test_segments(["bar", " \t ", "foo", "baar", " \t "])
-
-
-@pytest.fixture(scope="function")
-def bracket_seg_list(generate_test_segments):
-    """Another preset list of segments for testing."""
-    return generate_test_segments(
-        ["bar", " \t ", "(", "foo", "    ", ")", "baar", " \t ", "foo"]
-    )
-
-
-@pytest.fixture(scope="function")
-def fresh_ansi_dialect():
-    """Expand the ansi dialect for use."""
-    dialect = ansi_dialect
-    dialect.expand()
-    return dialect
 
 
 def test__parser__grammar__base__code_only_sensitive_match(seg_list):
@@ -365,3 +344,15 @@ def test__parser__grammar_containsonly(seg_list):
         )
         # When we consider mode than code then it shouldn't work
         assert not g3.match(seg_list, parse_context=ctx)
+
+
+def test__parser__grammar_anything(seg_list, fresh_ansi_dialect):
+    """Test the Anything grammar."""
+    with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
+        assert Anything().match(seg_list, parse_context=ctx)
+
+
+def test__parser__grammar_nothing(seg_list, fresh_ansi_dialect):
+    """Test the Nothing grammar."""
+    with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
+        assert not Nothing().match(seg_list, parse_context=ctx)

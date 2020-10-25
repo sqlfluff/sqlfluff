@@ -18,7 +18,9 @@ class FileSegment(BaseSegment):
     # The file segment is the only one which can start or end with non-code
     _can_start_end_non_code = True
 
-    grammar = Delimited(
+    # NB: We don't need a match_grammar here because we're
+    # going straight into instantiating it directly ususually.
+    parse_grammar = Delimited(
         Ref("StatementSegment"),
         delimiter=Ref("SemicolonSegment"),
         code_only=True,

@@ -59,7 +59,6 @@ class BaseSegment:
     type = "base"
     parse_grammar = None
     match_grammar = None
-    grammar = None
     comment_seperate = False
     is_whitespace = False
     optional = False  # NB: See the sequence grammar for details
@@ -95,7 +94,7 @@ class BaseSegment:
         We need to do this recursively because even if *this* segment doesn't
         need expanding, maybe one of it's children does.
         """
-        if self._parse_grammar():
+        if self.parse_grammar:
             return True
         elif self.segments and any(s.is_expandable for s in self.segments):
             return True
@@ -110,9 +109,8 @@ class BaseSegment:
         complicated segments will be assumed to overwrite this method
         if they wish to be considered simple.
         """
-        match_grammar = cls._match_grammar()
-        if match_grammar:
-            return match_grammar.simple(parse_context=parse_context)
+        if cls.match_grammar:
+            return cls.match_grammar.simple(parse_context=parse_context)
         else:
             # Other segments will either override this method, or aren't
             # simple.
@@ -136,22 +134,6 @@ class BaseSegment:
         segments can be skipped.
         """
         return cls.optional
-
-    @classmethod
-    def _match_grammar(cls):
-        """Return the `match_grammar` attribute if present, or the `grammar` attribute if not."""
-        if cls.match_grammar:
-            return cls.match_grammar
-        else:
-            return cls.grammar
-
-    @classmethod
-    def _parse_grammar(cls):
-        """Return the `parse_grammar` attribute if present, or the `grammar` attribute if not."""
-        if cls.parse_grammar:
-            return cls.parse_grammar
-        else:
-            return cls.grammar
 
     def validate_segments(self, text="constructing", validate=True):
         """Validate the current set of segments.
@@ -255,9 +237,8 @@ class BaseSegment:
             # This means we're a root segment, just return an unmutated self
             return self
 
-        # Get the Parse Grammar
-        g = self._parse_grammar()
-        if g is None:
+        # Check the Parse Grammar
+        if self.parse_grammar is None:
             # No parse grammar, go straight to expansion
             parse_context.logger.debug(
                 "{0}.parse: no grammar. Going straight to expansion".format(
@@ -265,8 +246,6 @@ class BaseSegment:
                 )
             )
         else:
-            # Use the Parse Grammar (and the private method)
-
             # For debugging purposes. Ensure that we don't have non-code elements
             # at the start or end of the segments. They should always in the middle,
             # or in the parent expression.
@@ -286,7 +265,7 @@ class BaseSegment:
 
             # NOTE: No match_depth kwarg, because this is the start of the matching.
             with parse_context.matching_segment(self.__class__.__name__) as ctx:
-                m = g.match(segments=self.segments, parse_context=ctx)
+                m = self.parse_grammar.match(segments=self.segments, parse_context=ctx)
 
             if not isinstance(m, MatchResult):
                 raise TypeError(
@@ -320,7 +299,9 @@ class BaseSegment:
                 self.segments = (
                     UnparsableSegment(
                         segments=self.segments,
-                        expected=g.expected_string(dialect=parse_context.dialect),
+                        expected=self.parse_grammar.expected_string(
+                            dialect=parse_context.dialect
+                        ),
                     ),
                 )  # NB: tuple
 
@@ -539,10 +520,10 @@ class BaseSegment:
             # This has already matched, but only partially.
             return MatchResult((segments[0],), segments[1:])
 
-        if cls._match_grammar():
+        if cls.match_grammar:
             # Call the private method
             with parse_context.deeper_match() as ctx:
-                m = cls._match_grammar().match(segments=segments, parse_context=ctx)
+                m = cls.match_grammar.match(segments=segments, parse_context=ctx)
 
             # Calling unify here, allows the MatchResult class to do all the type checking.
             if not isinstance(m, MatchResult):
@@ -658,7 +639,7 @@ class BaseSegment:
         but rather on the class, as part of a grammar, and therefore
         as part of the matching phase. So we use the match grammar.
         """
-        return cls._match_grammar().expected_string(
+        return cls.match_grammar.expected_string(
             dialect=dialect, called_from=called_from
         )
 

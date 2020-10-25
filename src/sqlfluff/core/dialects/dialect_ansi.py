@@ -1297,7 +1297,7 @@ class EmptyStatementSegment(BaseSegment):
     """A placeholder for a statement containing nothing but whitespace and comments."""
 
     type = "empty_statement"
-    grammar = ContainsOnly("comment", "newline")
+    match_grammar = ContainsOnly("comment", "newline")
     # TODO: At some point - we should lint that these are only
     # allowed at the END - otherwise it's probably a parsing error
 
