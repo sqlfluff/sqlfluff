@@ -35,11 +35,17 @@ def invoke_assert_code(ret_code=0, args=None, kwargs=None, cli_input=None):
     return result
 
 
+expected_output = """== [test/fixtures/linter/indentation_error_simple.sql] FAIL
+L:   2 | P:   4 | L003 | Indentation not hanging or a multiple of 4 spaces
+L:   5 | P:  10 | L010 | Inconsistent capitalisation of keywords.
+"""
+
+
 def test__cli__command_directed():
     """Basic checking of lint functionality."""
     result = invoke_assert_code(
         ret_code=65,
-        args=[lint, ["-n", "test/fixtures/linter/indentation_error_simple.sql"]],
+        args=[lint, ["test/fixtures/linter/indentation_error_simple.sql"]],
     )
     # We should get a readout of what the error was
     check_a = "L:   2 | P:   4 | L003"
@@ -47,6 +53,8 @@ def test__cli__command_directed():
     check_b = "Indentation"
     assert check_a in result.output
     assert check_b in result.output
+    # Finally check the WHOLE output to make sure that unexpected newlines are not added
+    assert result.output == expected_output
 
 
 def test__cli__command_dialect():

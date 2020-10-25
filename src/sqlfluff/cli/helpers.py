@@ -3,16 +3,17 @@
 from io import StringIO
 import sys
 import textwrap
+from colorama import Fore, Style
 
 from .. import __version__ as pkg_version
 
 
 color_lookup = {
     # Unicode literals here are important for PY2
-    "red": u"\u001b[31m",
-    "green": u"\u001b[32m",
-    "blue": u"\u001b[36m",
-    "lightgrey": u"\u001b[30;1m",
+    "red": Fore.RED,
+    "green": Fore.GREEN,
+    "blue": Fore.BLUE,
+    "lightgrey": Fore.BLACK + Style.BRIGHT,
 }
 
 
@@ -23,7 +24,7 @@ def colorize(s, color=None):
     """
     if color:
         start_tag = color_lookup[color]
-        end_tag = u"\u001b[0m"
+        end_tag = Style.RESET_ALL
         return start_tag + s + end_tag
     else:
         return s
