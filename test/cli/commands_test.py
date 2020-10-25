@@ -215,7 +215,7 @@ def test__cli__command_lint_warning_explicit_file_ignored():
     )
     assert result.exit_code == 0
     assert (
-        "WARNING: Exact file path test/fixtures/linter/sqlfluffignore/path_b/query_c.sql "
+        "Exact file path test/fixtures/linter/sqlfluffignore/path_b/query_c.sql "
         "was given but it was ignored"
     ) in result.output.strip()
 
