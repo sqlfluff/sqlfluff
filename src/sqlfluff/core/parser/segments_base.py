@@ -37,6 +37,30 @@ def check_still_complete(segments_in, matched_segments, unmatched_segments):
         )
 
 
+def trim_non_code(segments):
+    """Take segments and split off surrounding non-code segments as appropriate."""
+    pre_buff = ()
+    seg_buff = segments
+    post_buff = ()
+
+    if seg_buff:
+        pre_buff = ()
+        seg_buff = segments
+        post_buff = ()
+
+        # Trim the start
+        while seg_buff and not seg_buff[0].is_code:
+            pre_buff = pre_buff + (seg_buff[0],)
+            seg_buff = seg_buff[1:]
+
+        # Trim the end
+        while seg_buff and not seg_buff[-1].is_code:
+            post_buff = (seg_buff[-1],) + post_buff
+            seg_buff = seg_buff[:-1]
+
+    return pre_buff, seg_buff, post_buff
+
+
 class BaseSegment:
     """The base segment element.
 
@@ -68,6 +92,9 @@ class BaseSegment:
     is_meta = False
     # Are we able to have non-code at the start or end?
     _can_start_end_non_code = False
+    # Can we allow it to be empty? Usually used in combination
+    # with the _can_start_end_non_code.
+    allow_empty = False
     # What should we trim off the ends to get to content
     trim_chars = None
     trim_start = None
@@ -249,23 +276,28 @@ class BaseSegment:
             # For debugging purposes. Ensure that we don't have non-code elements
             # at the start or end of the segments. They should always in the middle,
             # or in the parent expression.
-            if not self._can_start_end_non_code:
-                if (not self.segments[0].is_code) and (not self.segments[0].is_meta):
+            segments = self.segments
+            if self._can_start_end_non_code:
+                pre_nc, segments, post_nc = trim_non_code(segments)
+            else:
+                pre_nc = ()
+                post_nc = ()
+                if (not segments[0].is_code) and (not segments[0].is_meta):
                     raise ValueError(
                         "Segment {0} starts with non code segment: {1!r}.\n{2!r}".format(
-                            self, self.segments[0].raw, self.segments
+                            self, segments[0].raw, segments
                         )
                     )
-                if (not self.segments[-1].is_code) and (not self.segments[-1].is_meta):
+                if (not segments[-1].is_code) and (not segments[-1].is_meta):
                     raise ValueError(
                         "Segment {0} ends with non code segment: {1!r}.\n{2!r}".format(
-                            self, self.segments[-1].raw, self.segments
+                            self, segments[-1].raw, segments
                         )
                     )
 
             # NOTE: No match_depth kwarg, because this is the start of the matching.
             with parse_context.matching_segment(self.__class__.__name__) as ctx:
-                m = self.parse_grammar.match(segments=self.segments, parse_context=ctx)
+                m = self.parse_grammar.match(segments=segments, parse_context=ctx)
 
             if not isinstance(m, MatchResult):
                 raise TypeError(
@@ -275,35 +307,45 @@ class BaseSegment:
                 )
 
             # Basic Validation, that we haven't dropped anything.
-            check_still_complete(
-                self.segments, m.matched_segments, m.unmatched_segments
-            )
+            check_still_complete(segments, m.matched_segments, m.unmatched_segments)
 
             if m.has_match():
                 if m.is_complete():
                     # Complete match, happy days!
-                    self.segments = m.matched_segments
+                    self.segments = pre_nc + m.matched_segments + post_nc
                 else:
                     # Incomplete match.
                     # For now this means the parsing has failed. Lets add the unmatched bit at the
                     # end as something unparsable.
                     # TODO: Do something more intelligent here.
-                    self.segments = m.matched_segments + (
-                        UnparsableSegment(
-                            segments=m.unmatched_segments, expected="Nothing..."
-                        ),
+                    self.segments = (
+                        pre_nc
+                        + m.matched_segments
+                        + (
+                            UnparsableSegment(
+                                segments=m.unmatched_segments + post_nc,
+                                expected="Nothing...",
+                            ),
+                        )
                     )
+            elif self.allow_empty and not segments:
+                # Very edge case, but some segments are allowed to be empty other than non-code
+                self.segments = pre_nc + post_nc
             else:
                 # If there's no match at this stage, then it's unparsable. That's
                 # a problem at this stage so wrap it in an unparable segment and carry on.
                 self.segments = (
-                    UnparsableSegment(
-                        segments=self.segments,
-                        expected=self.parse_grammar.expected_string(
-                            dialect=parse_context.dialect
-                        ),
-                    ),
-                )  # NB: tuple
+                    pre_nc
+                    + (
+                        UnparsableSegment(
+                            segments=segments,
+                            expected=self.parse_grammar.expected_string(
+                                dialect=parse_context.dialect
+                            ),
+                        ),  # NB: tuple
+                    )
+                    + post_nc
+                )
 
             # Validate new segments
             self.validate_segments(text="parsing")
@@ -1005,7 +1047,7 @@ class UnparsableSegment(BaseSegment):
 
     def __init__(self, *args, **kwargs):
         self._expected = kwargs.pop("expected", "")
-        super(UnparsableSegment, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def _suffix(self):
         """Return any extra output required at the end when logging.

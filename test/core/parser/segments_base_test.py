@@ -8,6 +8,7 @@ from sqlfluff.core.parser import (
     RawSegment,
     BaseSegment,
 )
+from sqlfluff.core.parser.segments_base import trim_non_code
 from sqlfluff.core.dialects import ansi_dialect
 
 
@@ -34,6 +35,16 @@ class DummyAuxSegment(BaseSegment):
     """A different dummy segment for testing with no grammar."""
 
     type = "dummy_aux"
+
+
+def test__parser__base_segments__trim_non_code(seg_list):
+    """Test the _trim_non_code method of the BaseGrammar."""
+    assert trim_non_code(seg_list) == ((), seg_list[:4], (seg_list[4],))
+    assert trim_non_code(seg_list[1:]) == (
+        (seg_list[1],),
+        seg_list[2:4],
+        (seg_list[4],),
+    )
 
 
 def test__parser__base_segments_raw_init():

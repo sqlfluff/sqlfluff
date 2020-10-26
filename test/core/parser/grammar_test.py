@@ -45,17 +45,6 @@ def test__parser__grammar__base__code_only_sensitive_match(seg_list):
         assert m.matched_segments == (bs("bar", seg_list[0].pos_marker), seg_list[1])
 
 
-def test__parser__grammar__base__trim_non_code(seg_list):
-    """Test the _trim_non_code method of the BaseGrammar."""
-    assert BaseGrammar._trim_non_code(seg_list) == ((), seg_list[:4], (seg_list[4],))
-    assert BaseGrammar._trim_non_code(seg_list, allow_gaps=False) == ((), seg_list, ())
-    assert BaseGrammar._trim_non_code(seg_list[1:]) == (
-        (seg_list[1],),
-        seg_list[2:4],
-        (seg_list[4],),
-    )
-
-
 def test__parser__grammar__base__look_ahead_match(seg_list):
     """Test the _look_ahead_match method of the BaseGrammar."""
     fs = KeywordSegment.make("foo")
