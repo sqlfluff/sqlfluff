@@ -479,11 +479,14 @@ class DbtTemplateInterface(PythonTemplateInterface):
         )
         results = [dbt_manifest.expect(uid) for uid in selected]
 
+        if not results:
+            raise RuntimeError("File %s was not found in dbt project" % fname)
+
         try:
             node = dbt_compiler.compile_node(
                 node=results[0],
                 manifest=dbt_manifest,
             )
-            return node.compiled_sql, []
+            return node.injected_sql, []
         except DbtCompilationException as e:
             return None, [e]

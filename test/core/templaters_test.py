@@ -1,12 +1,14 @@
 """Tests for templaters."""
 
 import pytest
+import os
 
 from sqlfluff.core.templaters import (
     RawTemplateInterface,
     templater_selector,
     PythonTemplateInterface,
     JinjaTemplateInterface,
+    DbtTemplateInterface,
 )
 from sqlfluff.core import Linter, FluffConfig, SQLTemplaterError
 
@@ -118,3 +120,24 @@ def test__templater_full(subpath, code_only, yaml_loader):
     assert_structure(
         yaml_loader, "test/fixtures/templater/" + subpath, code_only=code_only
     )
+
+
+def test__templater_dbt():
+    """Test Dbt templating."""
+    t = DbtTemplateInterface()
+    os.chdir("test/fixtures/dbt_project")
+    outstr, _ = t.process(
+        in_str="",
+        fname="models/my_new_project/use_dbt_utils.sql",
+        config=FluffConfig(
+            configs={
+                "templater": {
+                    "dbt": {
+                        "profiles_dir": "../dbt"
+                    }
+                }
+            }
+        )
+    )
+
+    assert outstr == open("../dbt/use_dbt_utils.sql").read()
