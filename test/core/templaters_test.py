@@ -125,11 +125,16 @@ def test__templater_full(subpath, code_only, yaml_loader):
 def test__templater_dbt():
     """Test Dbt templating."""
     t = DbtTemplateInterface()
+    pre_test_dir = os.getcwd()
     os.chdir("test/fixtures/dbt_project")
-    outstr, _ = t.process(
-        in_str="",
-        fname="models/my_new_project/use_dbt_utils.sql",
-        config=FluffConfig(configs={"templater": {"dbt": {"profiles_dir": "../dbt"}}}),
-    )
-
-    assert outstr == open("../dbt/use_dbt_utils.sql").read()
+    try:
+        outstr, _ = t.process(
+            in_str="",
+            fname="models/my_new_project/use_dbt_utils.sql",
+            config=FluffConfig(
+                configs={"templater": {"dbt": {"profiles_dir": "../dbt"}}}
+            ),
+        )
+        assert outstr == open("../dbt/use_dbt_utils.sql").read()
+    finally:
+        os.chdir(pre_test_dir)
