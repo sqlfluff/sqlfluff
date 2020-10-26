@@ -9,7 +9,6 @@ from sqlfluff.core.parser.grammar import (
     OneOf,
     Sequence,
     GreedyUntil,
-    ContainsOnly,
     Delimited,
     BaseGrammar,
     StartsWith,
@@ -307,32 +306,6 @@ def test__parser__grammar_greedyuntil_bracketed(bracket_seg_list, fresh_ansi_dia
     with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
         # Check that we can make it past the brackets
         assert len(g.match(bracket_seg_list, parse_context=ctx)) == 7
-
-
-def test__parser__grammar_containsonly(seg_list):
-    """Test the ContainsOnly grammar."""
-    fs = KeywordSegment.make("foo")
-    bs = KeywordSegment.make("bar")
-    bas = KeywordSegment.make("baar")
-    g0 = ContainsOnly(bs, bas)
-    g1 = ContainsOnly("raw")
-    g2 = ContainsOnly(fs, bas, bs)
-    g3 = ContainsOnly(fs, bas, bs, allow_gaps=False)
-    with RootParseContext(dialect=None) as ctx:
-        # Contains only, without matches for all shouldn't match
-        assert not g0.match(seg_list, parse_context=ctx)
-        # Contains only, with just the type should return the list as is
-        assert g1.match(seg_list, parse_context=ctx) == seg_list
-        # Contains only with matches for all should, as the matched versions
-        assert g2.match(seg_list, parse_context=ctx).matched_segments == (
-            bs("bar", seg_list[0].pos_marker),
-            seg_list[1],  # This will be the whitespace segment
-            fs("foo", seg_list[2].pos_marker),
-            bas("baar", seg_list[3].pos_marker),
-            seg_list[4],  # This will be the whitespace segment
-        )
-        # When we consider mode than code then it shouldn't work
-        assert not g3.match(seg_list, parse_context=ctx)
 
 
 def test__parser__grammar_anything(seg_list, fresh_ansi_dialect):

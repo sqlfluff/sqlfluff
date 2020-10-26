@@ -39,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   to `BaseSegment.match_grammar` and `BaseSegment.parse_grammar`.
 - Removed `EmptySegmentGrammar` and replaced with better non-code handling
   in the `FileSegment` itself.
+- Remove the `ContainsOnly` grammar as it remained only as an anti-pattern.
 
 ## [0.3.6] - 2020-09-24
 

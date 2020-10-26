@@ -20,7 +20,6 @@ from ..parser import (
     Sequence,
     GreedyUntil,
     StartsWith,
-    ContainsOnly,
     OneOf,
     Delimited,
     Bracketed,

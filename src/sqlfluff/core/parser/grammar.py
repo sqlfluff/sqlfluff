@@ -1513,62 +1513,6 @@ class Delimited(BaseGrammar):
         )
 
 
-class ContainsOnly(BaseGrammar):
-    """Match if the sequence contains only matches.
-
-    In this grammar we allow not just elements with a `match` method,
-    but also to match by name if a string is one of the elements. This
-    exists mostly as legacy functionality.
-    """
-
-    # For ContainsOnly, the references could be types.
-    allow_keyword_string_refs = False
-
-    @match_wrapper()
-    def match(self, segments, parse_context):
-        """Match if the sequence contains segments that match an element."""
-        matched_buffer = ()
-        forward_buffer = segments
-        while True:
-            if len(forward_buffer) == 0:
-                # We're all good
-                return MatchResult.from_matched(matched_buffer)
-            elif self.allow_gaps and not forward_buffer[0].is_code:
-                matched_buffer += (forward_buffer[0],)
-                forward_buffer = forward_buffer[1:]
-            else:
-                # Try and match it
-                for opt in self._elements:
-                    if isinstance(opt, str):
-                        if forward_buffer[0].type == opt:
-                            matched_buffer += (forward_buffer[0],)
-                            forward_buffer = forward_buffer[1:]
-                            break
-                    else:
-                        with parse_context.deeper_match() as ctx:
-                            m = opt.match(forward_buffer, parse_context=ctx)
-                        if m:
-                            matched_buffer += m.matched_segments
-                            forward_buffer = m.unmatched_segments
-                            break
-                else:
-                    # Unable to match the forward buffer. We must have found something
-                    # which isn't on our element list. Crash out.
-                    return MatchResult.from_unmatched(segments)
-
-    def expected_string(self, dialect=None, called_from=None):
-        """Get the expected string from the referenced element."""
-        buff = []
-        for opt in self._elements:
-            if isinstance(opt, str):
-                buff.append(opt)
-            else:
-                buff.append(
-                    opt.expected_string(dialect=dialect, called_from=called_from)
-                )
-        return " ( " + " | ".join(buff) + " | + )"
-
-
 class StartsWith(GreedyUntil):
     """Match if this sequence starts with a match.
 
