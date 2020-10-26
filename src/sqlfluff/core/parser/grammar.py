@@ -769,23 +769,20 @@ class Nothing(BaseGrammar):
         return " <nothing> "
 
 
-class OneOf(BaseGrammar):
-    """Match any of the elements given once.
-
-    If it matches multiple, it returns the longest, and if any are the same
-    length it returns the first (unless we explicitly just match first).
-    """
+class AnyNumberOf(BaseGrammar):
+    """A more configurable version of OneOf."""
 
     def __init__(self, *args, **kwargs):
-        self.mode = kwargs.pop("mode", "longest")  # can be 'first' or 'longest'
+        self.max_times = kwargs.pop("max_times", None)
+        self.min_times = kwargs.pop("min_times", 0)
         # Any patterns to _prevent_ a match.
         self.exclude = kwargs.pop("exclude", None)
-        super(OneOf, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def simple(self, parse_context):
         """Does this matcher support a uppercase hash matching route?
 
-        OneOf does provide this, as long as *all* the elements *also* do.
+        AnyNumberOf does provide this, as long as *all* the elements *also* do.
         """
         simple_buff = ()
         for opt in self._elements:
@@ -795,27 +792,16 @@ class OneOf(BaseGrammar):
             simple_buff += simple
         return simple_buff
 
-    @match_wrapper()
-    def match(self, segments, parse_context):
-        """Match any of the elements given once.
+    def is_optional(self):
+        """Return whether this element is optional.
 
-        If it matches multiple, it returns the longest, and if any are the same
-        length it returns the first (unless we explicitly just match first).
+        This is mostly set in the init method, but also in this
+        case, if min_times is zero then this is also optional.
         """
-        best_match = None
+        return self.optional or self.min_times == 0
 
-        # First if we have an *exclude* option, we should check that
-        # which would prevent the rest of this grammar from matching.
-        if self.exclude:
-            with parse_context.deeper_match() as ctx:
-                if self.exclude.match(segments, parse_context=ctx):
-                    return MatchResult.from_unmatched(segments)
-
-        # For efficiency, we'll be pruning options if we can
-        # based on their simpleness. this provides a short cut
-        # to return earlier if we can.
-        # `segments` may already be nested so we need to break out
-        # the raw segments within it.
+    def _prune_options(self, segments, parse_context):
+        """Use the simple matchers to prune which options to match on."""
         str_buff = []
         for upper_segment in segments:
             for inner_segment in upper_segment.iter_raw_seg():
@@ -863,32 +849,40 @@ class OneOf(BaseGrammar):
                 pruned_simple += 1
                 continue
 
+        parse_match_logging(
+            self.__class__.__name__,
+            "match",
+            "PRN",
+            parse_context=parse_context,
+            v_level=3,
+            ns=non_simple,
+            ps=pruned_simple,
+            ms=matched_simple,
+            pruned=prune_buff,
+            opts=available_options or "ALL",
+        )
+
+        return available_options
+
+    def _match_once(self, segments, parse_context):
+        """Match the forward segments against the available elements once.
+
+        This serves as the main body of OneOf, but also a building block
+        for AnyNumberOf.
+        """
+        # For efficiency, we'll be pruning options if we can
+        # based on their simpleness. this provides a short cut
+        # to return earlier if we can.
+        # `segments` may already be nested so we need to break out
+        # the raw segments within it.
+        available_options = self._prune_options(segments, parse_context=parse_context)
+
         # If we've pruned all the options, return unmatched (with some logging).
         if not available_options:
-            parse_match_logging(
-                self.__class__.__name__,
-                "match",
-                "PRN",
-                parse_context=parse_context,
-                v_level=3,
-                pruned="ALL",
-            )
             return MatchResult.from_unmatched(segments)
-        else:
-            parse_match_logging(
-                self.__class__.__name__,
-                "match",
-                "PRN",
-                parse_context=parse_context,
-                v_level=3,
-                ns=non_simple,
-                ps=pruned_simple,
-                ms=matched_simple,
-                pruned=prune_buff,
-                opts=available_options,
-            )
 
         # Match on each of the options still left.
+        best_match = None
         for opt in available_options:
             with parse_context.deeper_match() as ctx:
                 m = opt.match(segments, parse_context=ctx)
@@ -921,46 +915,20 @@ class OneOf(BaseGrammar):
             return best_match
         return MatchResult.from_unmatched(segments)
 
-    def expected_string(self, dialect=None, called_from=None):
-        """Get the expected string from the referenced element."""
-        return " | ".join(
-            opt.expected_string(dialect=dialect, called_from=called_from)
-            for opt in self._elements
-        )
-
-
-class AnyNumberOf(BaseGrammar):
-    """A more configurable version of OneOf."""
-
-    def __init__(self, *args, **kwargs):
-        self.max_times = kwargs.pop("max_times", None)
-        self.min_times = kwargs.pop("min_times", 0)
-        super(AnyNumberOf, self).__init__(*args, **kwargs)
-
-    def simple(self, parse_context):
-        """Does this matcher support a uppercase hash matching route?
-
-        AnyNumberOf does provide this, as long as *all* the elements *also* do.
-        """
-        simple_buff = ()
-        for opt in self._elements:
-            simple = opt.simple(parse_context=parse_context)
-            if not simple:
-                return False
-            simple_buff += simple
-        return simple_buff
-
-    def is_optional(self):
-        """Return whether this element is optional.
-
-        This is mostly set in the init method, but also in this
-        case, if min_times is zero then this is also optional.
-        """
-        return self.optional or self.min_times == 0
-
     @match_wrapper()
     def match(self, segments, parse_context):
-        """Match against any of the elements any number of times."""
+        """Match against any of the elements a relevant number of times.
+
+        If it matches multiple, it returns the longest, and if any are the same
+        length it returns the first (unless we explicitly just match first).
+        """
+        # First if we have an *exclude* option, we should check that
+        # which would prevent the rest of this grammar from matching.
+        if self.exclude:
+            with parse_context.deeper_match() as ctx:
+                if self.exclude.match(segments, parse_context=ctx):
+                    return MatchResult.from_unmatched(segments)
+
         # Match on each of the options
         matched_segments = MatchResult.from_empty()
         unmatched_segments = segments
@@ -983,27 +951,28 @@ class AnyNumberOf(BaseGrammar):
                     # We didn't meet the hurdle
                     return MatchResult.from_unmatched(unmatched_segments)
 
-            pre_seg, mid_seg, post_seg = self._trim_non_code(
-                unmatched_segments, code_only=self.code_only
-            )
+            # If we've already matched once...
+            if n_matches > 0:
+                # Consume any non-code if there is any
+                pre_seg, mid_seg, post_seg = self._trim_non_code(
+                    unmatched_segments, code_only=self.code_only
+                )
+                unmatched_segments = mid_seg + post_seg
+            else:
+                pre_seg = ()  # empty tuple
 
-            # Try the possibilities
-            for opt in self._elements:
-                with parse_context.deeper_match() as ctx:
-                    m = opt.match(mid_seg + post_seg, parse_context=ctx)
-                if m.has_match():
-                    matched_segments += pre_seg + m.matched_segments
-                    unmatched_segments = m.unmatched_segments
-                    n_matches += 1
-                    # Break out of the for loop which cycles us round
-                    break
+            match = self._match_once(unmatched_segments, parse_context=parse_context)
+            if match:
+                matched_segments += pre_seg + match.matched_segments
+                unmatched_segments = match.unmatched_segments
+                n_matches += 1
             else:
                 # If we get here, then we've not managed to match. And the next
                 # unmatched segments are meaningful, i.e. they're not what we're
                 # looking for.
                 if n_matches >= self.min_times:
                     return MatchResult(
-                        matched_segments.matched_segments, unmatched_segments
+                        matched_segments.matched_segments, pre_seg + unmatched_segments
                     )
                 else:
                     # We didn't meet the hurdle
@@ -1011,8 +980,21 @@ class AnyNumberOf(BaseGrammar):
 
     def expected_string(self, dialect=None, called_from=None):
         """Get the expected string from the referenced element."""
-        # TODO: Make something nice here
-        return " !!TODO!! "
+        return " | ".join(
+            opt.expected_string(dialect=dialect, called_from=called_from)
+            for opt in self._elements
+        )
+
+
+class OneOf(AnyNumberOf):
+    """Match any of the elements given once.
+
+    If it matches multiple, it returns the longest, and if any are the same
+    length it returns the first (unless we explicitly just match first).
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, max_times=1, min_times=1, **kwargs)
 
 
 class GreedyUntil(BaseGrammar):
