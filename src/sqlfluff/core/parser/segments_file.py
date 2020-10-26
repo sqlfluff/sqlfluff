@@ -16,7 +16,7 @@ class FileSegment(BaseSegment):
 
     type = "file"
     # The file segment is the only one which can start or end with non-code
-    _can_start_end_non_code = True
+    can_start_end_non_code = True
     # A file can be empty!
     allow_empty = True
 

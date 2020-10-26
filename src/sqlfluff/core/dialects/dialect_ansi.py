@@ -1293,16 +1293,6 @@ class InsertStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
-class EmptyStatementSegment(BaseSegment):
-    """A placeholder for a statement containing nothing but whitespace and comments."""
-
-    type = "empty_statement"
-    match_grammar = ContainsOnly("comment", "newline")
-    # TODO: At some point - we should lint that these are only
-    # allowed at the END - otherwise it's probably a parsing error
-
-
-@ansi_dialect.segment()
 class TransactionStatementSegment(BaseSegment):
     """A `COMMIT` or `ROLLBACK` statement."""
 
@@ -1814,7 +1804,6 @@ class StatementSegment(BaseSegment):
     parse_grammar = OneOf(
         Ref("SelectableGrammar"),
         Ref("InsertStatementSegment"),
-        Ref("EmptyStatementSegment"),
         Ref("TransactionStatementSegment"),
         Ref("DropStatementSegment"),
         Ref("AccessStatementSegment"),

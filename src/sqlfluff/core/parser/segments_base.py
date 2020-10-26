@@ -91,9 +91,9 @@ class BaseSegment:
     _func = None  # Available for use by subclasses (e.g. the LambdaSegment)
     is_meta = False
     # Are we able to have non-code at the start or end?
-    _can_start_end_non_code = False
+    can_start_end_non_code = False
     # Can we allow it to be empty? Usually used in combination
-    # with the _can_start_end_non_code.
+    # with the can_start_end_non_code.
     allow_empty = False
     # What should we trim off the ends to get to content
     trim_chars = None
@@ -277,7 +277,7 @@ class BaseSegment:
             # at the start or end of the segments. They should always in the middle,
             # or in the parent expression.
             segments = self.segments
-            if self._can_start_end_non_code:
+            if self.can_start_end_non_code:
                 pre_nc, segments, post_nc = trim_non_code(segments)
             else:
                 pre_nc = ()
