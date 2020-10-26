@@ -99,6 +99,69 @@ class BaseSegment:
     trim_chars = None
     trim_start = None
 
+    def __init__(self, segments, pos_marker=None, validate=True):
+        if len(segments) == 0:
+            raise RuntimeError(
+                "Setting {0} with a zero length segment set. This shouldn't happen.".format(
+                    self.__class__
+                )
+            )
+
+        if hasattr(segments, "matched_segments"):
+            # Safely extract segments from a match
+            self.segments = segments.matched_segments
+        elif isinstance(segments, tuple):
+            self.segments = segments
+        elif isinstance(segments, list):
+            self.segments = tuple(segments)
+        else:
+            raise TypeError(
+                "Unexpected type passed to BaseSegment: {0}".format(type(segments))
+            )
+
+        # Check elements of segments:
+        self.validate_segments(validate=validate)
+
+        if pos_marker:
+            self.pos_marker = pos_marker
+        else:
+            # If no pos given, it's the pos of the first segment
+            # Work out if we're dealing with a match result...
+            if hasattr(segments, "initial_match_pos_marker"):
+                self.pos_marker = segments.initial_match_pos_marker()
+            elif isinstance(segments, (tuple, list)):
+                self.pos_marker = segments[0].pos_marker
+            else:
+                raise TypeError(
+                    "Unexpected type passed to BaseSegment: {0}".format(type(segments))
+                )
+
+    def __eq__(self, other):
+        # Equal if type, content and pos are the same
+        # NB: this should also work for RawSegment
+        return (
+            type(self) is type(other)
+            and (self.raw == other.raw)
+            and (self.pos_marker == other.pos_marker)
+        )
+
+    def __repr__(self):
+        return "<{0}: ({1})>".format(self.__class__.__name__, self.pos_marker)
+
+    # ################ PRIVATE PROPERTIES
+
+    @property
+    def _comments(self):
+        """Returns only the comment elements of this segment."""
+        return [seg for seg in self.segments if seg.type == "comment"]
+
+    @property
+    def _non_comments(self):
+        """Returns only the non-comment elements of this segment."""
+        return [seg for seg in self.segments if seg.type != "comment"]
+
+    # ################ PUBLIC PROPERTIES
+
     @property
     def name(self):
         """The name of this segment.
@@ -128,6 +191,86 @@ class BaseSegment:
         else:
             return False
 
+    @property
+    def is_code(self):
+        """Return True if this segment contains any code."""
+        return any(seg.is_code for seg in self.segments)
+
+    @property
+    def is_comment(self):
+        """Return True if this is entirely made of comments."""
+        return all(seg.is_comment for seg in self.segments)
+
+    @property
+    def raw(self):
+        """Make a string from the segments of this segment."""
+        return self._reconstruct()
+
+    @property
+    def raw_upper(self):
+        """Make an uppercase string from the segments of this segment."""
+        return self._reconstruct().upper()
+
+    # ################ STATIC METHODS
+
+    @staticmethod
+    def segs_to_tuple(segs, **kwargs):
+        """Return a tuple structure from an iterable of segments."""
+        return tuple(seg.to_tuple(**kwargs) for seg in segs)
+
+    @staticmethod
+    def _suffix():
+        """Return any extra output required at the end when logging.
+
+        NB Override this for specific subclassesses if we want extra output.
+        """
+        return ""
+
+    @staticmethod
+    def expand(segments, parse_context):
+        """Expand the list of child segments using their `parse` methods."""
+        segs = ()
+        for stmt in segments:
+            try:
+                if not stmt.is_expandable:
+                    parse_context.logger.info(
+                        "[PD:%s] Skipping expansion of %s...",
+                        parse_context.parse_depth,
+                        stmt,
+                    )
+                    segs += (stmt,)
+                    continue
+            except Exception as err:
+                # raise ValueError("{0} has no attribute `is_expandable`. This segment appears poorly constructed.".format(stmt))
+                parse_context.logger.error(
+                    "%s has no attribute `is_expandable`. This segment appears poorly constructed.",
+                    stmt,
+                )
+                raise err
+            if not hasattr(stmt, "parse"):
+                raise ValueError(
+                    "{0} has no method `parse`. This segment appears poorly constructed.".format(
+                        stmt
+                    )
+                )
+            parse_depth_msg = "Parse Depth {0}. Expanding: {1}: {2!r}".format(
+                parse_context.parse_depth,
+                stmt.__class__.__name__,
+                curtail_string(stmt.raw, length=40),
+            )
+            parse_context.logger.info(frame_msg(parse_depth_msg))
+            res = stmt.parse(parse_context=parse_context)
+            if isinstance(res, BaseSegment):
+                segs += (res,)
+            else:
+                # We might get back an iterable of segments
+                segs += tuple(res)
+        # Basic Validation
+        check_still_complete(segments, segs, ())
+        return segs
+
+    # ################ CLASS METHODS
+
     @classmethod
     def simple(cls, parse_context):
         """Does this matcher support an uppercase hash matching route?
@@ -143,16 +286,6 @@ class BaseSegment:
             # simple.
             return False
 
-    @property
-    def is_code(self):
-        """Return True if this segment contains any code."""
-        return any(seg.is_code for seg in self.segments)
-
-    @property
-    def is_comment(self):
-        """Return True if this is entirely made of comments."""
-        return all(seg.is_comment for seg in self.segments)
-
     @classmethod
     def is_optional(cls):
         """Return True if this segment is optional.
@@ -161,6 +294,130 @@ class BaseSegment:
         segments can be skipped.
         """
         return cls.optional
+
+    @classmethod
+    def structural_simplify(cls, elem):
+        """Simplify the structure recursively so it serializes nicely in json/yaml."""
+        if isinstance(elem, tuple):
+            # Does this look like an element?
+            if len(elem) == 2 and isinstance(elem[0], str):
+                # This looks like a single element, make a dict
+                elem = {elem[0]: cls.structural_simplify(elem[1])}
+            elif isinstance(elem[0], tuple):
+                # This looks like a list of elements.
+                keys = [e[0] for e in elem]
+                # Any duplicate elements?
+                if len(set(keys)) == len(keys):
+                    # No, we can use a mapping typle
+                    elem = {e[0]: cls.structural_simplify(e[1]) for e in elem}
+                else:
+                    # Yes, this has to be a list :(
+                    elem = [cls.structural_simplify(e) for e in elem]
+        return elem
+
+    @classmethod
+    def as_optional(cls):
+        """Construct a copy of this class, but with the optional flag set true.
+
+        Used in constructing grammars, will make an identical class
+        but with the optional argument set to true. Used in constructing
+        sequences.
+        """
+        # Now lets make the classname (it indicates the mother class for clarity)
+        classname = "Optional_{0}".format(cls.__name__)
+        # This is the magic, we generate a new class! SORCERY
+        newclass = type(classname, (cls,), dict(optional=True))
+        # Now we return that class in the abstract. NOT INSTANTIATED
+        return newclass
+
+    @classmethod
+    @match_wrapper(v_level=4)
+    def match(cls, segments, parse_context):
+        """Match a list of segments against this segment.
+
+        Note: Match for segments is done in the ABSTRACT.
+        When dealing with concrete then we're always in parse.
+        Parse is what happens during expand.
+
+        Matching can be done from either the raw or the segments.
+        This raw function can be overridden, or a grammar defined
+        on the underlying class.
+        """
+        # Edge case, but it's possible that we have *already matched* on
+        # a previous cycle. Do should first check whether this is a case
+        # of that.
+        if len(segments) == 1 and isinstance(segments[0], cls):
+            # This has already matched. Winner.
+            parse_match_logging(
+                cls.__name__,
+                "_match",
+                "SELF",
+                parse_context=parse_context,
+                v_level=3,
+                symbol="+++",
+            )
+            return MatchResult.from_matched(segments)
+        elif len(segments) > 1 and isinstance(segments[0], cls):
+            parse_match_logging(
+                cls.__name__,
+                "_match",
+                "SELF",
+                parse_context=parse_context,
+                v_level=3,
+                symbol="+++",
+            )
+            # This has already matched, but only partially.
+            return MatchResult((segments[0],), segments[1:])
+
+        if cls.match_grammar:
+            # Call the private method
+            with parse_context.deeper_match() as ctx:
+                m = cls.match_grammar.match(segments=segments, parse_context=ctx)
+
+            # Calling unify here, allows the MatchResult class to do all the type checking.
+            if not isinstance(m, MatchResult):
+                raise TypeError(
+                    "[PD:{0} MD:{1}] {2}.match. Result is {3}, not a MatchResult!".format(
+                        parse_context.parse_depth,
+                        parse_context.match_depth,
+                        cls.__name__,
+                        type(m),
+                    )
+                )
+            # Once unified we can deal with it just as a MatchResult
+            if m.has_match():
+                return MatchResult(
+                    (cls(segments=m.matched_segments),), m.unmatched_segments
+                )
+            else:
+                return MatchResult.from_unmatched(segments)
+        else:
+            raise NotImplementedError(
+                "{0} has no match function implemented".format(cls.__name__)
+            )
+
+    # ################ PRIVATE INSTANCE METHODS
+
+    def _reconstruct(self):
+        """Make a string from the segments of this segment."""
+        return "".join(seg.raw for seg in self.segments)
+
+    def _preface(self, ident, tabsize):
+        """Returns the preamble to any logging."""
+        padded_type = "{padding}{modifier}{type}".format(
+            padding=" " * (ident * tabsize),
+            modifier="[META] " if self.is_meta else "",
+            type=self.type + ":",
+        )
+        preface = "{pos:20}|{padded_type:60}  {suffix}".format(
+            pos=str(self.pos_marker) if self.pos_marker else "-",
+            padded_type=padded_type,
+            suffix=self._suffix() or "",
+        )
+        # Trim unnecessary whitespace before returning
+        return preface.rstrip()
+
+    # ################ PUBLIC INSTANCE METHODS
 
     def validate_segments(self, text="constructing", validate=True):
         """Validate the current set of segments.
@@ -210,42 +467,172 @@ class BaseSegment:
         """Return the pos marker at the start of this segment."""
         return self.segments[0].get_start_pos_marker()
 
-    def __init__(self, segments, pos_marker=None, validate=True):
-        if len(segments) == 0:
-            raise RuntimeError(
-                "Setting {0} with a zero length segment set. This shouldn't happen.".format(
-                    self.__class__
-                )
-            )
-
-        if hasattr(segments, "matched_segments"):
-            # Safely extract segments from a match
-            self.segments = segments.matched_segments
-        elif isinstance(segments, tuple):
-            self.segments = segments
-        elif isinstance(segments, list):
-            self.segments = tuple(segments)
+    def stringify(self, ident=0, tabsize=4, code_only=False):
+        """Use indentation to render this segment and it's children as a string."""
+        buff = StringIO()
+        preface = self._preface(ident=ident, tabsize=tabsize)
+        buff.write(preface + "\n")
+        if not code_only and self.comment_seperate and len(self._comments) > 0:
+            if self._comments:
+                buff.write((" " * ((ident + 1) * tabsize)) + "Comments:" + "\n")
+                for seg in self._comments:
+                    buff.write(
+                        seg.stringify(
+                            ident=ident + 2,
+                            tabsize=tabsize,
+                            code_only=code_only,
+                        )
+                    )
+            if self._non_comments:
+                buff.write((" " * ((ident + 1) * tabsize)) + "Code:" + "\n")
+                for seg in self._non_comments:
+                    buff.write(
+                        seg.stringify(
+                            ident=ident + 2,
+                            tabsize=tabsize,
+                            code_only=code_only,
+                        )
+                    )
         else:
-            raise TypeError(
-                "Unexpected type passed to BaseSegment: {0}".format(type(segments))
+            for seg in self.segments:
+                # If we're in code_only, only show the code segments, otherwise always true
+                if not code_only or seg.is_code:
+                    buff.write(
+                        seg.stringify(
+                            ident=ident + 1,
+                            tabsize=tabsize,
+                            code_only=code_only,
+                        )
+                    )
+        return buff.getvalue()
+
+    def to_tuple(self, **kwargs):
+        """Return a tuple structure from this segment.
+
+        NB: If he segment is a meta segment, i.e. it's an indent or dedent,
+        then it will never be returned from here!
+        """
+        # works for both base and raw
+        code_only = kwargs.get("code_only", False)
+        show_raw = kwargs.get("show_raw", False)
+
+        if show_raw and not self.segments:
+            result = (self.type, self.raw)
+        elif code_only:
+            result = (
+                self.type,
+                tuple(
+                    seg.to_tuple(**kwargs)
+                    for seg in self.segments
+                    if seg.is_code and not seg.is_meta
+                ),
             )
-
-        # Check elements of segments:
-        self.validate_segments(validate=validate)
-
-        if pos_marker:
-            self.pos_marker = pos_marker
         else:
-            # If no pos given, it's the pos of the first segment
-            # Work out if we're dealing with a match result...
-            if hasattr(segments, "initial_match_pos_marker"):
-                self.pos_marker = segments.initial_match_pos_marker()
-            elif isinstance(segments, (tuple, list)):
-                self.pos_marker = segments[0].pos_marker
-            else:
-                raise TypeError(
-                    "Unexpected type passed to BaseSegment: {0}".format(type(segments))
-                )
+            result = (
+                self.type,
+                tuple(
+                    seg.to_tuple(**kwargs) for seg in self.segments if not seg.is_meta
+                ),
+            )
+        return result
+
+    def as_record(self, **kwargs):
+        """Return the segment as a structurally simplified record.
+
+        This is useful for serialization to yaml or json.
+        kwargs passed to to_tuple
+        """
+        return self.structural_simplify(self.to_tuple(**kwargs))
+
+    def raw_list(self):
+        """Return a list of raw elements, mostly for testing or searching."""
+        buff = []
+        for s in self.segments:
+            buff += s.raw_list()
+        return buff
+
+    def iter_raw_seg(self):
+        """Iterate raw segments, mostly for searching."""
+        for s in self.segments:
+            yield from s.iter_raw_seg()
+
+    def iter_unparsables(self):
+        """Iterate through any unparsables this segment may contain."""
+        for s in self.segments:
+            yield from s.iter_unparsables()
+
+    def type_set(self):
+        """Return a set of the types contained, mostly for testing."""
+        typs = {self.type}
+        for s in self.segments:
+            typs |= s.type_set()
+        return typs
+
+    def is_raw(self):
+        """Return True if this segment has no children."""
+        return len(self.segments) == 0
+
+    def get_child(self, seg_type):
+        """Retrieve the first of the children of this segment with matching type."""
+        for seg in self.segments:
+            if seg.type == seg_type:
+                return seg
+        return None
+
+    def get_children(self, seg_type):
+        """Retrieve the all of the children of this segment with matching type."""
+        buff = []
+        for seg in self.segments:
+            if seg.type == seg_type:
+                buff.append(seg)
+        return buff
+
+    def recursive_crawl(self, seg_type):
+        """Recursively crawl for segments of a given type.
+
+        Args:
+            seg_type: :obj:`str` or :obj:`tuple` of :obj:`str`: which specifies
+                the type of elements to look for.
+        """
+        # Check this segment
+        if isinstance(seg_type, str) and self.type == seg_type:
+            yield self
+        elif isinstance(seg_type, tuple) and self.type in seg_type:
+            yield self
+        # Recurse
+        for seg in self.segments:
+            yield from seg.recursive_crawl(seg_type=seg_type)
+
+    def path_to(self, other):
+        """Given a segment which is assumed within self, get the intermediate segments.
+
+        Returns:
+            :obj:`list` of segments, including the segment we're looking for.
+            None if not found.
+
+        """
+        # Return self if we've found the segment.
+        if self is other:
+            return [self]
+
+        # Are we in the right ballpark?
+        if (
+            not self.get_start_pos_marker()
+            <= other.get_start_pos_marker()
+            <= self.get_end_pos_marker()
+        ):
+            return None
+
+        # Do we have any child segments at all?
+        if not self.segments:
+            return None
+
+        # Check through each of the child segments
+        for seg in self.segments:
+            res = seg.path_to(other)
+            if res:
+                return [self] + res
+        return None
 
     def parse(self, parse_context=None):
         """Use the parse grammar to find subsegments within this segment.
@@ -368,323 +755,6 @@ class BaseSegment:
         self.validate_segments(text="expanding")
 
         return self
-
-    def __repr__(self):
-        return "<{0}: ({1})>".format(self.__class__.__name__, self.pos_marker)
-
-    def _reconstruct(self):
-        """Make a string from the segments of this segment."""
-        return "".join(seg.raw for seg in self.segments)
-
-    @property
-    def raw(self):
-        """Make a string from the segments of this segment."""
-        return self._reconstruct()
-
-    @property
-    def raw_upper(self):
-        """Make an uppercase string from the segments of this segment."""
-        return self._reconstruct().upper()
-
-    @staticmethod
-    def _suffix():
-        """Return any extra output required at the end when logging.
-
-        NB Override this for specific subclassesses if we want extra output.
-        """
-        return ""
-
-    def _preface(self, ident, tabsize):
-        """Returns the preamble to any logging."""
-        padded_type = "{padding}{modifier}{type}".format(
-            padding=" " * (ident * tabsize),
-            modifier="[META] " if self.is_meta else "",
-            type=self.type + ":",
-        )
-        preface = "{pos:20}|{padded_type:60}  {suffix}".format(
-            pos=str(self.pos_marker) if self.pos_marker else "-",
-            padded_type=padded_type,
-            suffix=self._suffix() or "",
-        )
-        # Trim unnecessary whitespace before returning
-        return preface.rstrip()
-
-    @property
-    def _comments(self):
-        """Returns only the comment elements of this segment."""
-        return [seg for seg in self.segments if seg.type == "comment"]
-
-    @property
-    def _non_comments(self):
-        """Returns only the non-comment elements of this segment."""
-        return [seg for seg in self.segments if seg.type != "comment"]
-
-    def stringify(self, ident=0, tabsize=4, code_only=False):
-        """Use indentation to render this segment and it's children as a string."""
-        buff = StringIO()
-        preface = self._preface(ident=ident, tabsize=tabsize)
-        buff.write(preface + "\n")
-        if not code_only and self.comment_seperate and len(self._comments) > 0:
-            if self._comments:
-                buff.write((" " * ((ident + 1) * tabsize)) + "Comments:" + "\n")
-                for seg in self._comments:
-                    buff.write(
-                        seg.stringify(
-                            ident=ident + 2,
-                            tabsize=tabsize,
-                            code_only=code_only,
-                        )
-                    )
-            if self._non_comments:
-                buff.write((" " * ((ident + 1) * tabsize)) + "Code:" + "\n")
-                for seg in self._non_comments:
-                    buff.write(
-                        seg.stringify(
-                            ident=ident + 2,
-                            tabsize=tabsize,
-                            code_only=code_only,
-                        )
-                    )
-        else:
-            for seg in self.segments:
-                # If we're in code_only, only show the code segments, otherwise always true
-                if not code_only or seg.is_code:
-                    buff.write(
-                        seg.stringify(
-                            ident=ident + 1,
-                            tabsize=tabsize,
-                            code_only=code_only,
-                        )
-                    )
-        return buff.getvalue()
-
-    @staticmethod
-    def segs_to_tuple(segs, **kwargs):
-        """Return a tuple structure from an iterable of segments."""
-        return tuple(seg.to_tuple(**kwargs) for seg in segs)
-
-    def to_tuple(self, **kwargs):
-        """Return a tuple structure from this segment.
-
-        NB: If he segment is a meta segment, i.e. it's an indent or dedent,
-        then it will never be returned from here!
-        """
-        # works for both base and raw
-        code_only = kwargs.get("code_only", False)
-        show_raw = kwargs.get("show_raw", False)
-
-        if show_raw and not self.segments:
-            result = (self.type, self.raw)
-        elif code_only:
-            result = (
-                self.type,
-                tuple(
-                    seg.to_tuple(**kwargs)
-                    for seg in self.segments
-                    if seg.is_code and not seg.is_meta
-                ),
-            )
-        else:
-            result = (
-                self.type,
-                tuple(
-                    seg.to_tuple(**kwargs) for seg in self.segments if not seg.is_meta
-                ),
-            )
-        return result
-
-    @classmethod
-    def structural_simplify(cls, elem):
-        """Simplify the structure recursively so it serializes nicely in json/yaml."""
-        if isinstance(elem, tuple):
-            # Does this look like an element?
-            if len(elem) == 2 and isinstance(elem[0], str):
-                # This looks like a single element, make a dict
-                elem = {elem[0]: cls.structural_simplify(elem[1])}
-            elif isinstance(elem[0], tuple):
-                # This looks like a list of elements.
-                keys = [e[0] for e in elem]
-                # Any duplicate elements?
-                if len(set(keys)) == len(keys):
-                    # No, we can use a mapping typle
-                    elem = {e[0]: cls.structural_simplify(e[1]) for e in elem}
-                else:
-                    # Yes, this has to be a list :(
-                    elem = [cls.structural_simplify(e) for e in elem]
-        return elem
-
-    def as_record(self, **kwargs):
-        """Return the segment as a structurally simplified record.
-
-        This is useful for serialization to yaml or json.
-        kwargs passed to to_tuple
-        """
-        return self.structural_simplify(self.to_tuple(**kwargs))
-
-    @classmethod
-    @match_wrapper(v_level=4)
-    def match(cls, segments, parse_context):
-        """Match a list of segments against this segment.
-
-        Note: Match for segments is done in the ABSTRACT.
-        When dealing with concrete then we're always in parse.
-        Parse is what happens during expand.
-
-        Matching can be done from either the raw or the segments.
-        This raw function can be overridden, or a grammar defined
-        on the underlying class.
-        """
-        # Edge case, but it's possible that we have *already matched* on
-        # a previous cycle. Do should first check whether this is a case
-        # of that.
-        if len(segments) == 1 and isinstance(segments[0], cls):
-            # This has already matched. Winner.
-            parse_match_logging(
-                cls.__name__,
-                "_match",
-                "SELF",
-                parse_context=parse_context,
-                v_level=3,
-                symbol="+++",
-            )
-            return MatchResult.from_matched(segments)
-        elif len(segments) > 1 and isinstance(segments[0], cls):
-            parse_match_logging(
-                cls.__name__,
-                "_match",
-                "SELF",
-                parse_context=parse_context,
-                v_level=3,
-                symbol="+++",
-            )
-            # This has already matched, but only partially.
-            return MatchResult((segments[0],), segments[1:])
-
-        if cls.match_grammar:
-            # Call the private method
-            with parse_context.deeper_match() as ctx:
-                m = cls.match_grammar.match(segments=segments, parse_context=ctx)
-
-            # Calling unify here, allows the MatchResult class to do all the type checking.
-            if not isinstance(m, MatchResult):
-                raise TypeError(
-                    "[PD:{0} MD:{1}] {2}.match. Result is {3}, not a MatchResult!".format(
-                        parse_context.parse_depth,
-                        parse_context.match_depth,
-                        cls.__name__,
-                        type(m),
-                    )
-                )
-            # Once unified we can deal with it just as a MatchResult
-            if m.has_match():
-                return MatchResult(
-                    (cls(segments=m.matched_segments),), m.unmatched_segments
-                )
-            else:
-                return MatchResult.from_unmatched(segments)
-        else:
-            raise NotImplementedError(
-                "{0} has no match function implemented".format(cls.__name__)
-            )
-
-    @staticmethod
-    def expand(segments, parse_context):
-        """Expand the list of child segments using their `parse` methods."""
-        segs = ()
-        for stmt in segments:
-            try:
-                if not stmt.is_expandable:
-                    parse_context.logger.info(
-                        "[PD:%s] Skipping expansion of %s...",
-                        parse_context.parse_depth,
-                        stmt,
-                    )
-                    segs += (stmt,)
-                    continue
-            except Exception as err:
-                # raise ValueError("{0} has no attribute `is_expandable`. This segment appears poorly constructed.".format(stmt))
-                parse_context.logger.error(
-                    "%s has no attribute `is_expandable`. This segment appears poorly constructed.",
-                    stmt,
-                )
-                raise err
-            if not hasattr(stmt, "parse"):
-                raise ValueError(
-                    "{0} has no method `parse`. This segment appears poorly constructed.".format(
-                        stmt
-                    )
-                )
-            parse_depth_msg = "Parse Depth {0}. Expanding: {1}: {2!r}".format(
-                parse_context.parse_depth,
-                stmt.__class__.__name__,
-                curtail_string(stmt.raw, length=40),
-            )
-            parse_context.logger.info(frame_msg(parse_depth_msg))
-            res = stmt.parse(parse_context=parse_context)
-            if isinstance(res, BaseSegment):
-                segs += (res,)
-            else:
-                # We might get back an iterable of segments
-                segs += tuple(res)
-        # Basic Validation
-        check_still_complete(segments, segs, ())
-        return segs
-
-    def raw_list(self):
-        """Return a list of raw elements, mostly for testing or searching."""
-        buff = []
-        for s in self.segments:
-            buff += s.raw_list()
-        return buff
-
-    def iter_raw_seg(self):
-        """Iterate raw segments, mostly for searching."""
-        for s in self.segments:
-            yield from s.iter_raw_seg()
-
-    def iter_unparsables(self):
-        """Iterate through any unparsables this segment may contain."""
-        for s in self.segments:
-            yield from s.iter_unparsables()
-
-    def type_set(self):
-        """Return a set of the types contained, mostly for testing."""
-        typs = {self.type}
-        for s in self.segments:
-            typs |= s.type_set()
-        return typs
-
-    def __eq__(self, other):
-        # Equal if type, content and pos are the same
-        # NB: this should also work for RawSegment
-        return (
-            type(self) is type(other)
-            and (self.raw == other.raw)
-            and (self.pos_marker == other.pos_marker)
-        )
-
-    def __len__(self):
-        """Implement a len method to make everyone's lives easier."""
-        return 1
-
-    def is_raw(self):
-        """Return True if this segment has no children."""
-        return len(self.segments) == 0
-
-    @classmethod
-    def as_optional(cls):
-        """Construct a copy of this class, but with the optional flag set true.
-
-        Used in constructing grammars, will make an identical class
-        but with the optional argument set to true. Used in constructing
-        sequences.
-        """
-        # Now lets make the classname (it indicates the mother class for clarity)
-        classname = "Optional_{0}".format(cls.__name__)
-        # This is the magic, we generate a new class! SORCERY
-        newclass = type(classname, (cls,), dict(optional=True))
-        # Now we return that class in the abstract. NOT INSTANTIATED
-        return newclass
 
     def apply_fixes(self, fixes):
         """Apply an iterable of fixes to this segment.
@@ -821,68 +891,6 @@ class BaseSegment:
         # Create a new version of this class with the new details
         return self.__class__(segments=tuple(seg_buffer), pos_marker=self.pos_marker)
 
-    def get_child(self, seg_type):
-        """Retrieve the first of the children of this segment with matching type."""
-        for seg in self.segments:
-            if seg.type == seg_type:
-                return seg
-        return None
-
-    def get_children(self, seg_type):
-        """Retrieve the all of the children of this segment with matching type."""
-        buff = []
-        for seg in self.segments:
-            if seg.type == seg_type:
-                buff.append(seg)
-        return buff
-
-    def recursive_crawl(self, seg_type):
-        """Recursively crawl for segments of a given type.
-
-        Args:
-            seg_type: :obj:`str` or :obj:`tuple` of :obj:`str`: which specifies
-                the type of elements to look for.
-        """
-        # Check this segment
-        if isinstance(seg_type, str) and self.type == seg_type:
-            yield self
-        elif isinstance(seg_type, tuple) and self.type in seg_type:
-            yield self
-        # Recurse
-        for seg in self.segments:
-            yield from seg.recursive_crawl(seg_type=seg_type)
-
-    def path_to(self, other):
-        """Given a segment which is assumed within self, get the intermediate segments.
-
-        Returns:
-            :obj:`list` of segments, including the segment we're looking for.
-            None if not found.
-
-        """
-        # Return self if we've found the segment.
-        if self is other:
-            return [self]
-
-        # Are we in the right ballpark?
-        if (
-            not self.get_start_pos_marker()
-            <= other.get_start_pos_marker()
-            <= self.get_end_pos_marker()
-        ):
-            return None
-
-        # Do we have any child segments at all?
-        if not self.segments:
-            return None
-
-        # Check through each of the child segments
-        for seg in self.segments:
-            res = seg.path_to(other)
-            if res:
-                return [self] + res
-        return None
-
 
 class RawSegment(BaseSegment):
     """This is a segment without any subsegments."""
@@ -893,6 +901,19 @@ class RawSegment(BaseSegment):
     _template = "<unset>"
     _case_sensitive = False
     _raw_upper = None
+
+    def __init__(self, raw, pos_marker):
+        self._raw = raw
+        self._raw_upper = raw.upper()
+        # pos marker is required here
+        self.pos_marker = pos_marker
+
+    def __repr__(self):
+        return "<{0}: ({1}) {2!r}>".format(
+            self.__class__.__name__, self.pos_marker, self.raw
+        )
+
+    # ################ PUBLIC PROPERTIES
 
     @property
     def is_expandable(self):
@@ -909,20 +930,10 @@ class RawSegment(BaseSegment):
         """Return True if this segment is a comment."""
         return self._is_comment
 
-    def __init__(self, raw, pos_marker):
-        self._raw = raw
-        self._raw_upper = raw.upper()
-        # pos marker is required here
-        self.pos_marker = pos_marker
-
     @property
     def raw_upper(self):
         """Make an uppercase string from the segments of this segment."""
         return self._raw_upper
-
-    def iter_raw_seg(self):
-        """Iterate raw segments, mostly for searching."""
-        yield self
 
     @property
     def segments(self):
@@ -931,6 +942,40 @@ class RawSegment(BaseSegment):
         This is in case something tries to iterate on this segment.
         """
         return []
+
+    # ################ CLASS METHODS
+
+    @classmethod
+    def make(cls, template, case_sensitive=False, name=None, **kwargs):
+        """Make a subclass of the segment using a method."""
+        # Let's deal with the template first
+        if case_sensitive:
+            _template = template
+        else:
+            _template = template.upper()
+        # Use the name if provided otherwise default to the template
+        name = name or _template
+        # Now lets make the classname (it indicates the mother class for clarity)
+        classname = "{0}_{1}".format(name, cls.__name__)
+        # This is the magic, we generate a new class! SORCERY
+        newclass = type(
+            classname,
+            (cls,),
+            dict(
+                _template=_template,
+                _case_sensitive=case_sensitive,
+                _name=name,
+                **kwargs
+            ),
+        )
+        # Now we return that class in the abstract. NOT INSTANTIATED
+        return newclass
+
+    # ################ INSTANCE METHODS
+
+    def iter_raw_seg(self):
+        """Iterate raw segments, mostly for searching."""
+        yield self
 
     def raw_trimmed(self):
         """Return a trimmed version of the raw content."""
@@ -960,11 +1005,6 @@ class RawSegment(BaseSegment):
         """Return a string of the raw content of this segment."""
         return self._raw
 
-    def __repr__(self):
-        return "<{0}: ({1}) {2!r}>".format(
-            self.__class__.__name__, self.pos_marker, self.raw
-        )
-
     def stringify(self, ident=0, tabsize=4, code_only=False):
         """Use indentation to render this segment and it's children as a string."""
         preface = self._preface(ident=ident, tabsize=tabsize)
@@ -976,32 +1016,6 @@ class RawSegment(BaseSegment):
         NB Override this for specific subclassesses if we want extra output.
         """
         return "{0!r}".format(self.raw)
-
-    @classmethod
-    def make(cls, template, case_sensitive=False, name=None, **kwargs):
-        """Make a subclass of the segment using a method."""
-        # Let's deal with the template first
-        if case_sensitive:
-            _template = template
-        else:
-            _template = template.upper()
-        # Use the name if provided otherwise default to the template
-        name = name or _template
-        # Now lets make the classname (it indicates the mother class for clarity)
-        classname = "{0}_{1}".format(name, cls.__name__)
-        # This is the magic, we generate a new class! SORCERY
-        newclass = type(
-            classname,
-            (cls,),
-            dict(
-                _template=_template,
-                _case_sensitive=case_sensitive,
-                _name=name,
-                **kwargs
-            ),
-        )
-        # Now we return that class in the abstract. NOT INSTANTIATED
-        return newclass
 
     def edit(self, raw):
         """Create a new segment, with exactly the same position but different content.
@@ -1031,8 +1045,8 @@ class UnparsableSegment(BaseSegment):
     comment_seperate = True
     _expected = ""
 
-    def __init__(self, *args, **kwargs):
-        self._expected = kwargs.pop("expected", "")
+    def __init__(self, *args, expected="", **kwargs):
+        self._expected = expected
         super().__init__(*args, **kwargs)
 
     def _suffix(self):
