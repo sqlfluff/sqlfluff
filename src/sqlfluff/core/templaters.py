@@ -497,6 +497,10 @@ class DbtTemplateInterface(PythonTemplateInterface):
             raise ValueError(
                 "For the dbt templater, the `process()` method requires a file name"
             )
+
+        self._check_dbt_installed()
+        from dbt.exceptions import CompilationException as DbtCompilationException
+
         # Load the user's DBT config
         self.dbt_config = self.dbt_config or self.load_dbt_config(config)
 
@@ -518,8 +522,6 @@ class DbtTemplateInterface(PythonTemplateInterface):
 
         if not results:
             raise RuntimeError("File %s was not found in dbt project" % fname)
-
-        from dbt.exceptions import CompilationException as DbtCompilationException
 
         try:
             node = dbt_compiler.compile_node(
