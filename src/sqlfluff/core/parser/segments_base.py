@@ -339,9 +339,7 @@ class BaseSegment:
                     + (
                         UnparsableSegment(
                             segments=segments,
-                            expected=self.parse_grammar.expected_string(
-                                dialect=parse_context.dialect
-                            ),
+                            expected=self.type,
                         ),  # NB: tuple
                     )
                     + post_nc
@@ -672,18 +670,6 @@ class BaseSegment:
     def is_raw(self):
         """Return True if this segment has no children."""
         return len(self.segments) == 0
-
-    @classmethod
-    def expected_string(cls, dialect=None, called_from=None):
-        """Return the expected string for this segment.
-
-        This is never going to be called on an _instance_
-        but rather on the class, as part of a grammar, and therefore
-        as part of the matching phase. So we use the match grammar.
-        """
-        return cls.match_grammar.expected_string(
-            dialect=dialect, called_from=called_from
-        )
 
     @classmethod
     def as_optional(cls):

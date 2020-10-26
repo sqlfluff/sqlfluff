@@ -128,12 +128,6 @@ class BaseGrammar:
             "{0} has no match function implemented".format(self.__class__.__name__)
         )
 
-    def expected_string(self, dialect=None, called_from=None):
-        """Return a String which is helpful to understand what this grammar expects."""
-        raise NotImplementedError(
-            "{0} does not implement expected_string!".format(self.__class__.__name__)
-        )
-
     def simple(self, parse_context):
         """Does this matcher support a lowercase hash matching route?"""
         return False
@@ -697,24 +691,6 @@ class Ref(BaseGrammar):
             parse_context.blacklist.mark(self_name, seg_tuple)
         return resp
 
-    def expected_string(self, dialect=None, called_from=None):
-        """Get the expected string from the referenced element."""
-        elem = self._get_elem(dialect=dialect)
-        if called_from and self._get_ref() in called_from:
-            # This means we're in recursion so we should stop here.
-            # At the moment this means we'll just insert in the name
-            # of the segment that we're looking for.
-            # Otherwise we get an infinite recursion error
-            # TODO: Make this more elegant
-            return self._get_ref()
-        else:
-            # Either add to set or make set
-            if called_from:
-                called_from.add(self._get_ref())
-            else:
-                called_from = {self._get_ref()}
-            return elem.expected_string(dialect=dialect, called_from=called_from)
-
     @classmethod
     def keyword(cls, keyword, **kwargs):
         """Generate a reference to a keyword by name.
@@ -740,10 +716,6 @@ class Anything(BaseGrammar):
         """
         return MatchResult.from_matched(segments)
 
-    def expected_string(self, dialect=None, called_from=None):
-        """A hint to the user on what this grammar expects."""
-        return " <anything> "
-
 
 class Nothing(BaseGrammar):
     """Matches nothing.
@@ -759,10 +731,6 @@ class Nothing(BaseGrammar):
         dialects.
         """
         return MatchResult.from_unmatched(segments)
-
-    def expected_string(self, dialect=None, called_from=None):
-        """A hint to the user on what this grammar expects."""
-        return " <nothing> "
 
 
 class AnyNumberOf(BaseGrammar):
@@ -972,13 +940,6 @@ class AnyNumberOf(BaseGrammar):
                     # We didn't meet the hurdle
                     return MatchResult.from_unmatched(unmatched_segments)
 
-    def expected_string(self, dialect=None, called_from=None):
-        """Get the expected string from the referenced element."""
-        return " | ".join(
-            opt.expected_string(dialect=dialect, called_from=called_from)
-            for opt in self._elements
-        )
-
 
 class OneOf(AnyNumberOf):
     """Match any of the elements given once.
@@ -1114,18 +1075,6 @@ class GreedyUntil(BaseGrammar):
                 # Return everything
                 return MatchResult.from_matched(segments)
 
-    def expected_string(self, dialect=None, called_from=None):
-        """Get the expected string from the referenced element."""
-        return (
-            "..., "
-            + " !( "
-            + " | ".join(
-                opt.expected_string(dialect=dialect, called_from=called_from)
-                for opt in self._elements
-            )
-            + " ) "
-        )
-
 
 class Sequence(BaseGrammar):
     """Match a specific sequence of elements."""
@@ -1241,13 +1190,6 @@ class Sequence(BaseGrammar):
         # In either case, we're golden. Return successfully, with any leftovers as
         # the unmatched elements.
         return MatchResult(matched_segments.matched_segments, unmatched_segments)
-
-    def expected_string(self, dialect=None, called_from=None):
-        """Get the expected string from the referenced element."""
-        return ", ".join(
-            opt.expected_string(dialect=dialect, called_from=called_from)
-            for opt in self._elements
-        )
 
 
 class Delimited(BaseGrammar):
@@ -1503,15 +1445,6 @@ class Delimited(BaseGrammar):
                     else:
                         return MatchResult.from_unmatched(segments)
 
-    def expected_string(self, dialect=None, called_from=None):
-        """Get the expected string from the referenced element."""
-        return " {0} ".format(
-            self.delimiter.expected_string(dialect=dialect, called_from=called_from)
-        ).join(
-            opt.expected_string(dialect=dialect, called_from=called_from)
-            for opt in self._elements
-        )
-
 
 class StartsWith(GreedyUntil):
     """Match if this sequence starts with a match.
@@ -1580,13 +1513,6 @@ class StartsWith(GreedyUntil):
             raise NotImplementedError(
                 "Not expecting to match StartsWith and also not just code!?"
             )
-
-    def expected_string(self, dialect=None, called_from=None):
-        """Get the expected string from the referenced element."""
-        return (
-            self.target.expected_string(dialect=dialect, called_from=called_from)
-            + ", ..."
-        )
 
 
 class Bracketed(Sequence):
@@ -1734,12 +1660,3 @@ class Bracketed(Sequence):
         # No complete match. Fail.
         else:
             return MatchResult.from_unmatched(segments)
-
-    def expected_string(self, dialect=None, called_from=None):
-        """Get the expected string from the referenced element."""
-        return " ( {0} ) ".format(
-            " | ".join(
-                opt.expected_string(dialect=dialect, called_from=called_from)
-                for opt in self._elements
-            )
-        )
