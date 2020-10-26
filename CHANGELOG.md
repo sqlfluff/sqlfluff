@@ -41,6 +41,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   similar way to keywords without later appearing with the `type` of
   `keyword`.
 
+### Removed
+
+- Removed `ColumnExpressionSegment` in favour of `ColumnReference`.
+
 ## [0.3.6] - 2020-09-24
 
 ### Added

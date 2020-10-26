@@ -324,16 +324,6 @@ class DatatypeSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
-class ColumnExpressionSegment(BaseSegment):
-    """A reference to a column."""
-
-    type = "column_expression"
-    match_grammar = OneOf(
-        Ref("SingleIdentifierGrammar"), code_only=False
-    )  # QuotedIdentifierSegment
-
-
-@ansi_dialect.segment()
 class ObjectReferenceSegment(BaseSegment):
     """A reference to an object."""
 
@@ -1727,7 +1717,7 @@ class SetClauseSegment(BaseSegment):
     type = "set_clause"
 
     match_grammar = Sequence(
-        Ref("ColumnExpressionSegment"),
+        Ref("ColumnReferenceSegment"),
         Ref("EqualsSegment"),
         OneOf(
             Ref("LiteralGrammar"),
