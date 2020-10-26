@@ -2,7 +2,8 @@
 
 import os.path
 import ast
-from typing import Dict
+from typing import Dict, Optional
+from dataclasses import dataclass
 
 from jinja2.sandbox import SandboxedEnvironment
 from jinja2 import meta
@@ -378,3 +379,111 @@ class JinjaTemplateInterface(PythonTemplateInterface):
                 )
             )
             return None, violations
+
+@dataclass
+class DbtConfigArgs:
+    project_dir: Optional[str] = None
+    profiles_dir: Optional[str] = None
+    profile: Optional[str] = None
+
+
+@register_templater
+class DbtTemplateInterface(PythonTemplateInterface):
+    """A templater using DBT
+    """
+
+    name = "dbt"
+
+    def _get_profiles_dir(self, config):
+        from dbt.config.profile import PROFILES_DIR
+        return config.get_section((self.templater_selector, self.name, "profiles_dir")) or PROFILES_DIR
+
+    def _get_project_dir(self, config):
+        return config.get_section((self.templater_selector, self.name, "project_dir"))
+
+    def _get_profile(self, config):
+        return config.get_section((self.templater_selector, self.name, "profile"))
+
+    def process(self, in_str, fname=None, config=None):
+        """Process a string and return the new string.
+
+        Args:
+            in_str (:obj:`str`): The input string.
+            fname (:obj:`str`, optional): The filename of this string. This is
+                mostly for loading config files at runtime.
+            config (:obj:`FluffConfig`): A specific config to use for this
+                templating operation. Only necessary for some templaters.
+
+        """
+        if not config:
+            raise ValueError(
+                "For the dbt templater, the `process()` method requires a config object."
+            )
+        if not fname:
+            raise ValueError(
+                "For the dbt templater, the `process()` method requires a file name"
+            )
+
+        # TODO: move me to "dbt templater module"
+        # Only import DBT dependencies if the DBT templater is used
+        try:
+            import dbt
+        except ModuleNotFoundError as e:
+            raise RuntimeError(
+                "Module dbt was not found while trying to use dbt templating, "
+                "please install dbt dependencies through `pip install sqlfluff[dbt]`"
+            ) from e
+
+        from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
+        from dbt.compilation import Compiler as DbtCompiler
+        from dbt.parser.manifest import load_macro_manifest, load_manifest
+        from dbt.adapters.factory import register_adapter
+        from dbt.node_types import NodeType
+        from dbt.exceptions import CompilationException as DbtCompilationException
+        from dbt.graph.selector_methods import (
+            MethodManager as DbtSelectorMethodManager,
+            MethodName as DbtMethodName,
+        )
+        # --
+
+        # Load the context
+        live_context = self.get_context(fname=fname, config=config)
+
+        # Load the user's DBT config
+        dbt_config = DbtRuntimeConfig.from_args(
+            DbtConfigArgs(
+                project_dir=self._get_project_dir(config),
+                profiles_dir=self._get_profiles_dir(config),
+                profile=self._get_profile(config),
+            )
+        )
+        register_adapter(dbt_config)
+
+        # Initialize the DBT compiler
+        dbt_compiler = DbtCompiler(dbt_config)
+
+        # Identity function used for macro hooks
+        def identity(x):
+            return x
+
+        # Initialize manifests
+        dbt_macros_manifest = load_macro_manifest(dbt_config, macro_hook=identity)
+        dbt_manifest = load_manifest(dbt_config, dbt_macros_manifest, macro_hook=identity)
+
+        # Select the nodes in the graph based on the path passed
+        selector_methods_manager = DbtSelectorMethodManager(dbt_manifest, previous_state=None)
+        selector_method = selector_methods_manager.get_method(DbtMethodName.Path, method_arguments=[])
+        selected = selector_method.search(
+            included_nodes=dbt_manifest.nodes,
+            selector=fname,
+        )
+        results = [dbt_manifest.expect(uid) for uid in selected]
+
+        try:
+            node = dbt_compiler.compile_node(
+                node=results[0],
+                manifest=dbt_manifest,
+            )
+            return node.compiled_sql, []
+        except DbtCompilationException as e:
+            return None, [e]
