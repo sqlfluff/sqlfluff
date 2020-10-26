@@ -42,6 +42,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove the `ContainsOnly` grammar as it remained only as an anti-pattern.
 - Removed the `expected_string()` functionality from grammars and segments
   as it was poorly supported.
+- Removed `BaseSegment.as_optional()` as now this functionality happens
+  mostly in grammars (including `Ref`).
 
 ## [0.3.6] - 2020-09-24
 

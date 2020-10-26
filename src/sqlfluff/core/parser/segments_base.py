@@ -316,21 +316,6 @@ class BaseSegment:
         return elem
 
     @classmethod
-    def as_optional(cls):
-        """Construct a copy of this class, but with the optional flag set true.
-
-        Used in constructing grammars, will make an identical class
-        but with the optional argument set to true. Used in constructing
-        sequences.
-        """
-        # Now lets make the classname (it indicates the mother class for clarity)
-        classname = "Optional_{0}".format(cls.__name__)
-        # This is the magic, we generate a new class! SORCERY
-        newclass = type(classname, (cls,), dict(optional=True))
-        # Now we return that class in the abstract. NOT INSTANTIATED
-        return newclass
-
-    @classmethod
     @match_wrapper(v_level=4)
     def match(cls, segments, parse_context):
         """Match a list of segments against this segment.
