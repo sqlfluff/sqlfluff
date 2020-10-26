@@ -380,6 +380,7 @@ class JinjaTemplateInterface(PythonTemplateInterface):
             )
             return None, violations
 
+
 @dataclass
 class DbtConfigArgs:
     project_dir: Optional[str] = None
@@ -389,14 +390,17 @@ class DbtConfigArgs:
 
 @register_templater
 class DbtTemplateInterface(PythonTemplateInterface):
-    """A templater using DBT
-    """
+    """A templater using DBT"""
 
     name = "dbt"
 
     def _get_profiles_dir(self, config):
         from dbt.config.profile import PROFILES_DIR
-        return config.get_section((self.templater_selector, self.name, "profiles_dir")) or PROFILES_DIR
+
+        return (
+            config.get_section((self.templater_selector, self.name, "profiles_dir"))
+            or PROFILES_DIR
+        )
 
     def _get_project_dir(self, config):
         return config.get_section((self.templater_selector, self.name, "project_dir"))
@@ -444,6 +448,7 @@ class DbtTemplateInterface(PythonTemplateInterface):
             MethodManager as DbtSelectorMethodManager,
             MethodName as DbtMethodName,
         )
+
         # --
 
         # Load the context
@@ -468,11 +473,17 @@ class DbtTemplateInterface(PythonTemplateInterface):
 
         # Initialize manifests
         dbt_macros_manifest = load_macro_manifest(dbt_config, macro_hook=identity)
-        dbt_manifest = load_manifest(dbt_config, dbt_macros_manifest, macro_hook=identity)
+        dbt_manifest = load_manifest(
+            dbt_config, dbt_macros_manifest, macro_hook=identity
+        )
 
         # Select the nodes in the graph based on the path passed
-        selector_methods_manager = DbtSelectorMethodManager(dbt_manifest, previous_state=None)
-        selector_method = selector_methods_manager.get_method(DbtMethodName.Path, method_arguments=[])
+        selector_methods_manager = DbtSelectorMethodManager(
+            dbt_manifest, previous_state=None
+        )
+        selector_method = selector_methods_manager.get_method(
+            DbtMethodName.Path, method_arguments=[]
+        )
         selected = selector_method.search(
             included_nodes=dbt_manifest.nodes,
             selector=fname,

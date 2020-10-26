@@ -129,15 +129,7 @@ def test__templater_dbt():
     outstr, _ = t.process(
         in_str="",
         fname="models/my_new_project/use_dbt_utils.sql",
-        config=FluffConfig(
-            configs={
-                "templater": {
-                    "dbt": {
-                        "profiles_dir": "../dbt"
-                    }
-                }
-            }
-        )
+        config=FluffConfig(configs={"templater": {"dbt": {"profiles_dir": "../dbt"}}}),
     )
 
     assert outstr == open("../dbt/use_dbt_utils.sql").read()
