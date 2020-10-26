@@ -383,6 +383,8 @@ class JinjaTemplateInterface(PythonTemplateInterface):
 
 @dataclass
 class DbtConfigArgs:
+    """Arguments to load Dbt runtime config."""
+
     project_dir: Optional[str] = None
     profiles_dir: Optional[str] = None
     profile: Optional[str] = None
@@ -390,9 +392,67 @@ class DbtConfigArgs:
 
 @register_templater
 class DbtTemplateInterface(PythonTemplateInterface):
-    """A templater using DBT"""
+    """A templater using DBT."""
 
     name = "dbt"
+
+    def __init__(self, **kwargs):
+        self.dbt_config = None
+        self.dbt_compiler = None
+        self.dbt_manifest = None
+        self.dbt_selector_method = None
+        super(DbtTemplateInterface).__init__(**kwargs)
+
+    def load_dbt_config(self, config):
+        """Loads the dbt config."""
+        from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
+        from dbt.adapters.factory import register_adapter
+
+        self.dbt_config = DbtRuntimeConfig.from_args(
+            DbtConfigArgs(
+                project_dir=self._get_project_dir(config),
+                profiles_dir=self._get_profiles_dir(config),
+                profile=self._get_profile(config),
+            )
+        )
+        register_adapter(self.dbt_config)
+        return self.dbt_config
+
+    def load_dbt_compiler(self):
+        """Loads the dbt compiler."""
+        from dbt.compilation import Compiler as DbtCompiler
+
+        self.dbt_compiler = DbtCompiler(self.dbt_config)
+        return self.dbt_compiler
+
+    def load_dbt_manifest(self):
+        """Loads the dbt manifest."""
+        from dbt.parser.manifest import load_macro_manifest, load_manifest
+
+        # Identity function used for macro hooks
+        def identity(x):
+            return x
+
+        dbt_macros_manifest = load_macro_manifest(self.dbt_config, macro_hook=identity)
+        self.dbt_manifest = load_manifest(
+            self.dbt_config, dbt_macros_manifest, macro_hook=identity
+        )
+        return self.dbt_manifest
+
+    def load_dbt_selector_method(self):
+        """Loads the dbt selector method."""
+        from dbt.graph.selector_methods import (
+            MethodManager as DbtSelectorMethodManager,
+            MethodName as DbtMethodName,
+        )
+
+        selector_methods_manager = DbtSelectorMethodManager(
+            self.dbt_manifest, previous_state=None
+        )
+        self.dbt_selector_method = selector_methods_manager.get_method(
+            DbtMethodName.Path, method_arguments=[]
+        )
+        return self.dbt_selector_method
 
     def _get_profiles_dir(self, config):
         from dbt.config.profile import PROFILES_DIR
@@ -407,6 +467,16 @@ class DbtTemplateInterface(PythonTemplateInterface):
 
     def _get_profile(self, config):
         return config.get_section((self.templater_selector, self.name, "profile"))
+
+    @staticmethod
+    def _check_dbt_installed():
+        try:
+            import dbt  # noqa: F401
+        except ModuleNotFoundError as e:
+            raise RuntimeError(
+                "Module dbt was not found while trying to use dbt templating, "
+                "please install dbt dependencies through `pip install sqlfluff[dbt]`"
+            ) from e
 
     def process(self, in_str, fname=None, config=None):
         """Process a string and return the new string.
@@ -427,64 +497,20 @@ class DbtTemplateInterface(PythonTemplateInterface):
             raise ValueError(
                 "For the dbt templater, the `process()` method requires a file name"
             )
-
-        # TODO: move me to "dbt templater module"
-        # Only import DBT dependencies if the DBT templater is used
-        try:
-            import dbt
-        except ModuleNotFoundError as e:
-            raise RuntimeError(
-                "Module dbt was not found while trying to use dbt templating, "
-                "please install dbt dependencies through `pip install sqlfluff[dbt]`"
-            ) from e
-
-        from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
-        from dbt.compilation import Compiler as DbtCompiler
-        from dbt.parser.manifest import load_macro_manifest, load_manifest
-        from dbt.adapters.factory import register_adapter
-        from dbt.node_types import NodeType
-        from dbt.exceptions import CompilationException as DbtCompilationException
-        from dbt.graph.selector_methods import (
-            MethodManager as DbtSelectorMethodManager,
-            MethodName as DbtMethodName,
-        )
-
-        # --
-
-        # Load the context
-        live_context = self.get_context(fname=fname, config=config)
-
         # Load the user's DBT config
-        dbt_config = DbtRuntimeConfig.from_args(
-            DbtConfigArgs(
-                project_dir=self._get_project_dir(config),
-                profiles_dir=self._get_profiles_dir(config),
-                profile=self._get_profile(config),
-            )
-        )
-        register_adapter(dbt_config)
+        self.dbt_config = self.dbt_config or self.load_dbt_config(config)
 
         # Initialize the DBT compiler
-        dbt_compiler = DbtCompiler(dbt_config)
-
-        # Identity function used for macro hooks
-        def identity(x):
-            return x
+        dbt_compiler = self.dbt_compiler or self.load_dbt_compiler()
 
         # Initialize manifests
-        dbt_macros_manifest = load_macro_manifest(dbt_config, macro_hook=identity)
-        dbt_manifest = load_manifest(
-            dbt_config, dbt_macros_manifest, macro_hook=identity
-        )
+        dbt_manifest = self.dbt_manifest or self.load_dbt_manifest()
 
         # Select the nodes in the graph based on the path passed
-        selector_methods_manager = DbtSelectorMethodManager(
-            dbt_manifest, previous_state=None
+        dbt_selector_method = (
+            self.dbt_selector_method or self.load_dbt_selector_method()
         )
-        selector_method = selector_methods_manager.get_method(
-            DbtMethodName.Path, method_arguments=[]
-        )
-        selected = selector_method.search(
+        selected = dbt_selector_method.search(
             included_nodes=dbt_manifest.nodes,
             selector=fname,
         )
@@ -492,6 +518,8 @@ class DbtTemplateInterface(PythonTemplateInterface):
 
         if not results:
             raise RuntimeError("File %s was not found in dbt project" % fname)
+
+        from dbt.exceptions import CompilationException as DbtCompilationException
 
         try:
             node = dbt_compiler.compile_node(
