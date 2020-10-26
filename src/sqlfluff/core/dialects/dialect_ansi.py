@@ -326,7 +326,7 @@ class ColumnExpressionSegment(BaseSegment):
 
     type = "column_expression"
     match_grammar = OneOf(
-        Ref("SingleIdentifierGrammar"), code_only=False
+        Ref("SingleIdentifierGrammar"), allow_gaps=False
     )  # QuotedIdentifierSegment
 
 
@@ -349,7 +349,7 @@ class ObjectReferenceSegment(BaseSegment):
             Ref("ColonSegment"),
             Ref("SemicolonSegment"),
         ),
-        code_only=False,
+        allow_gaps=False,
     )
 
     @staticmethod
@@ -437,7 +437,7 @@ class ShorthandCastSegment(BaseSegment):
 
     type = "cast_expression"
     match_grammar = Sequence(
-        Ref("CastOperatorSegment"), Ref("DatatypeSegment"), code_only=False
+        Ref("CastOperatorSegment"), Ref("DatatypeSegment"), allow_gaps=False
     )
 
 
@@ -455,7 +455,7 @@ class QualifiedNumericLiteralSegment(BaseSegment):
     match_grammar = Sequence(
         OneOf(Ref("PlusSegment"), Ref("MinusSegment")),
         Ref("NumericLiteralSegment"),
-        code_only=False,
+        allow_gaps=False,
     )
 
 
@@ -642,10 +642,10 @@ class WildcardIdentifierSegment(ObjectReferenceSegment):
     match_grammar = Sequence(
         # *, blah.*, blah.blah.*, etc.
         AnyNumberOf(
-            Sequence(Ref("SingleIdentifierGrammar"), Ref("DotSegment"), code_only=True)
+            Sequence(Ref("SingleIdentifierGrammar"), Ref("DotSegment"), allow_gaps=True)
         ),
         Ref("StarSegment"),
-        code_only=False,
+        allow_gaps=False,
     )
 
     def iter_raw_references(self):
@@ -1016,7 +1016,7 @@ ansi_dialect.add(
         ),
         Ref("Accessor_Grammar", optional=True),
         Ref("ShorthandCastSegment", optional=True),
-        code_only=False,
+        allow_gaps=False,
     ),
     Accessor_Grammar=AnyNumberOf(Ref("ArrayAccessorSegment")),
 )

@@ -23,7 +23,7 @@ class FileSegment(BaseSegment):
     parse_grammar = Delimited(
         Ref("StatementSegment"),
         delimiter=Ref("SemicolonSegment"),
-        code_only=True,
+        allow_gaps=True,
         allow_trailing=True,
     )
 

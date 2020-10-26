@@ -24,6 +24,9 @@ class BaseGrammar:
     """
 
     is_meta = False
+    # Are we allowed to refer to keywords as strings instead of only passing
+    # grammars or segments?
+    allow_keyword_string_refs = True
 
     @staticmethod
     def _resolve_ref(elem):
@@ -52,16 +55,35 @@ class BaseGrammar:
     def __init__(
         self,
         *args,
-        resolve_refs=True,
-        code_only=True,
+        allow_gaps=True,
         optional=False,
-        ephemeral_name=None
+        ephemeral_name=None,
     ):
-        """Deal with kwargs common to all grammars."""
+        """Deal with kwargs common to all grammars.
+
+        Args:
+            *args: Any number of elements which because the subjects
+                of this grammar.
+            allow_gaps (:obj:`bool`, optional): Does this instance of the
+                grammar allow gaps between the elements it matches? This
+                may be exhibited slightly differently in each grammar. See
+                that grammar for details. Defaults `True`.
+            optional (:obj:`bool`, optional): In the context of a sequence,
+                is this grammar *optional*, i.e. can it be skipped if no
+                match is found. Outside of a Sequence, this option does nothing.
+                Defaults `False`.
+            ephemeral_name (:obj:`str`, optional): If specified this allows
+                the grammar to match anything, and create an EphemeralSegment
+                with the given name in it's place. The content of this grammar
+                is passed to the segment, and will become the parse grammar
+                for it. If used widely this is an excellent way of breaking
+                up the parse process and also signposting the name of a given
+                chunk of code that might be parsed seperately.
+        """
         # We provide a common interface for any grammar that allows positional elements.
         # If *any* for the elements are a string and not a grammar, then this is a shortcut
         # to the Ref.keyword grammar by default.
-        if resolve_refs:
+        if self.allow_keyword_string_refs:
             self._elements = []
             for elem in args:
                 self._elements.append(self._resolve_ref(elem))
@@ -69,7 +91,7 @@ class BaseGrammar:
             self._elements = args
 
         # Now we deal with the standard kwargs
-        self.code_only = code_only
+        self.allow_gaps = allow_gaps
         self.optional = optional
         self.ephemeral_segment = None
         # Set up the ephemeral_segment if name is specified.
@@ -117,13 +139,13 @@ class BaseGrammar:
         return False
 
     @staticmethod
-    def _trim_non_code(segments, code_only=True):
+    def _trim_non_code(segments, allow_gaps=True):
         """Take segments and split of preceding non-code segments as appropriate."""
         pre_buff = ()
         seg_buff = segments
         post_buff = ()
 
-        if code_only and seg_buff:
+        if allow_gaps and seg_buff:
             pre_buff = ()
             seg_buff = segments
             post_buff = ()
@@ -142,10 +164,10 @@ class BaseGrammar:
 
     @classmethod
     def _code_only_sensitive_match(
-        cls, segments, matcher, parse_context, code_only=True
+        cls, segments, matcher, parse_context, allow_gaps=True
     ):
         """Match, but also deal with leading and trailing non-code."""
-        if code_only:
+        if allow_gaps:
             seg_buff = segments
             pre_ws = []
             post_ws = []
@@ -189,7 +211,7 @@ class BaseGrammar:
 
     @classmethod
     def _longest_code_only_sensitive_match(
-        cls, segments, matchers, parse_context, code_only=True
+        cls, segments, matchers, parse_context, allow_gaps=True
     ):
         """Match like `_code_only_sensitive_match` but return longest match from a selection of matchers.
 
@@ -214,7 +236,7 @@ class BaseGrammar:
         # iterate at this position across all the matchers
         for m in matchers:
             res_match = cls._code_only_sensitive_match(
-                segments, m, parse_context=parse_context, code_only=code_only
+                segments, m, parse_context=parse_context, allow_gaps=allow_gaps
             )
             if res_match.is_complete():
                 # Just return it! (WITH THE RIGHT OTHER STUFF)
@@ -243,7 +265,7 @@ class BaseGrammar:
             return MatchResult.from_unmatched(segments), None
 
     @classmethod
-    def _look_ahead_match(cls, segments, matchers, parse_context, code_only=True):
+    def _look_ahead_match(cls, segments, matchers, parse_context, allow_gaps=True):
         """Look ahead for matches beyond the first element of the segments list.
 
         This function also contains the performance improved hash-matching approach to
@@ -358,7 +380,7 @@ class BaseGrammar:
                     )
                     continue
                 pre_segments = segments[:segments_index]
-                if code_only:
+                if allow_gaps:
                     # Pick up any non-code segments as necessary
                     # ...from the start
                     while True:
@@ -420,7 +442,7 @@ class BaseGrammar:
                 seg_buff,
                 non_simple_matchers,
                 parse_context=parse_context,
-                code_only=code_only,
+                allow_gaps=allow_gaps,
             )
 
             if mat and not best_simple_match:
@@ -457,14 +479,14 @@ class BaseGrammar:
                 pre_seg_buff += (seg_buff[0],)
                 seg_buff = seg_buff[1:]
 
-                if code_only:
+                if allow_gaps:
                     while seg_buff and not seg_buff[0].is_code:
                         pre_seg_buff += (seg_buff[0],)
                         seg_buff = seg_buff[1:]
 
     @classmethod
     def _bracket_sensitive_look_ahead_match(
-        cls, segments, matchers, parse_context, code_only=True
+        cls, segments, matchers, parse_context, allow_gaps=True
     ):
         """Same as `_look_ahead_match` but with bracket counting.
 
@@ -517,7 +539,7 @@ class BaseGrammar:
                         seg_buff,
                         bracket_matchers,
                         parse_context=parse_context,
-                        code_only=code_only,
+                        allow_gaps=allow_gaps,
                     )
 
                     if match:
@@ -551,7 +573,7 @@ class BaseGrammar:
                         seg_buff,
                         matchers,
                         parse_context=parse_context,
-                        code_only=code_only,
+                        allow_gaps=allow_gaps,
                     )
 
                     if match:
@@ -614,11 +636,9 @@ class BaseGrammar:
 class Ref(BaseGrammar):
     """A kind of meta-grammar that references other grammars by name at runtime."""
 
-    def __init__(self, *args, **kwargs):
-        """Initialise, but don't resolve refs in this case."""
-        # Don't resolve refs here, otherwise bad recursion.
-        kwargs["resolve_refs"] = False
-        super().__init__(*args, **kwargs)
+    # We can't allow keyword refs here, because it doesn't make sense
+    # and it also causes infinite recursion.
+    allow_keyword_string_refs = False
 
     def simple(self, parse_context):
         """Does this matcher support a uppercase hash matching route?
@@ -955,7 +975,7 @@ class AnyNumberOf(BaseGrammar):
             if n_matches > 0:
                 # Consume any non-code if there is any
                 pre_seg, mid_seg, post_seg = self._trim_non_code(
-                    unmatched_segments, code_only=self.code_only
+                    unmatched_segments, allow_gaps=self.allow_gaps
                 )
                 unmatched_segments = mid_seg + post_seg
             else:
@@ -1021,7 +1041,7 @@ class GreedyUntil(BaseGrammar):
             segments,
             parse_context,
             matchers=self._elements,
-            code_only=self.code_only,
+            allow_gaps=self.allow_gaps,
             enforce_whitespace_preceeding_terminator=self.enforce_whitespace_preceeding_terminator,
             include_terminator=False,
         )
@@ -1032,7 +1052,7 @@ class GreedyUntil(BaseGrammar):
         segments,
         parse_context,
         matchers,
-        code_only,
+        allow_gaps,
         enforce_whitespace_preceeding_terminator,
         include_terminator=False,
     ):
@@ -1046,7 +1066,7 @@ class GreedyUntil(BaseGrammar):
         while True:
             with parse_context.deeper_match() as ctx:
                 pre, mat, _ = cls._bracket_sensitive_look_ahead_match(
-                    seg_buff, matchers, parse_context=ctx, code_only=code_only
+                    seg_buff, matchers, parse_context=ctx, allow_gaps=allow_gaps
                 )
 
             # Do we have a match?
@@ -1187,7 +1207,7 @@ class Sequence(BaseGrammar):
 
                 # Consume non-code if appropriate
                 pre_nc, mid_seg, post_nc = self._trim_non_code(
-                    unmatched_segments, code_only=self.code_only
+                    unmatched_segments, allow_gaps=self.allow_gaps
                 )
 
                 if len(pre_nc + mid_seg + post_nc) == 0:
@@ -1262,15 +1282,23 @@ class Delimited(BaseGrammar):
     as different options of what can be delimited, rather than a sequence.
     """
 
-    def __init__(self, *args, **kwargs):
-        if "delimiter" not in kwargs:
+    def __init__(
+        self,
+        *args,
+        delimiter=None,
+        allow_trailing=False,
+        terminator=None,
+        min_delimiters=None,
+        **kwargs,
+    ):
+        if delimiter is None:
             raise ValueError("Delimited grammars require a `delimiter`")
-        self.delimiter = self._resolve_ref(kwargs.pop("delimiter"))
-        self.allow_trailing = kwargs.pop("allow_trailing", False)
-        self.terminator = self._resolve_ref(kwargs.pop("terminator", None))
+        self.delimiter = self._resolve_ref(delimiter)
+        self.allow_trailing = allow_trailing
+        self.terminator = self._resolve_ref(terminator)
         # Setting min delimiters means we have to match at least this number
-        self.min_delimiters = kwargs.pop("min_delimiters", None)
-        super(Delimited, self).__init__(*args, **kwargs)
+        self.min_delimiters = min_delimiters
+        super().__init__(*args, **kwargs)
 
     def simple(self, parse_context):
         """Does this matcher support a uppercase hash matching route?
@@ -1309,7 +1337,7 @@ class Delimited(BaseGrammar):
 
         # We should hoover non-code from the ends here if we can.
         pre_seg_nc, seg_buff, post_seg_nc = self._trim_non_code(
-            segments, code_only=self.code_only
+            segments, allow_gaps=self.allow_gaps
         )
 
         # First iterate through all the segments, looking for the delimiter.
@@ -1354,7 +1382,7 @@ class Delimited(BaseGrammar):
                     parse_context=ctx,
                     # NB: We don't want whitespace at this stage, we'll deal with that
                     # seperately.
-                    code_only=False,
+                    allow_gaps=False,
                 )
             # Keep track of the *lenght* of this pre-content section before we start
             # to change it later. We need this for dealing with terminators.
@@ -1372,7 +1400,7 @@ class Delimited(BaseGrammar):
                     pre_content_pre_nc,
                     pre_content,
                     pre_content_postnc,
-                ) = self._trim_non_code(pre_content, code_only=self.code_only)
+                ) = self._trim_non_code(pre_content, allow_gaps=self.allow_gaps)
 
                 # We now test the intervening section as to whether it matches one
                 # of the things we're looking for. NB: If it's of zero length then
@@ -1386,7 +1414,7 @@ class Delimited(BaseGrammar):
                                 elem,
                                 parse_context=ctx,
                                 # This is where the configured code_only behaviour kicks in.
-                                code_only=self.code_only,
+                                allow_gaps=self.allow_gaps,
                             )
 
                         if elem_match.is_complete():
@@ -1459,7 +1487,7 @@ class Delimited(BaseGrammar):
                     return MatchResult.from_unmatched(segments)
 
                 pre_term_nc, seg_buff, post_term_nc = self._trim_non_code(
-                    seg_buff, code_only=self.code_only
+                    seg_buff, allow_gaps=self.allow_gaps
                 )
                 # We use the whitespace padded match to hoover up whitespace if enabled,
                 # and default to the longest matcher. We don't care which one matches.
@@ -1468,7 +1496,7 @@ class Delimited(BaseGrammar):
                         seg_buff,
                         self._elements,
                         parse_context=ctx,
-                        code_only=self.code_only,
+                        allow_gaps=self.allow_gaps,
                     )
                 if mat:
                     # We've got something at the end. Return!
@@ -1521,14 +1549,8 @@ class ContainsOnly(BaseGrammar):
     exists mostly as legacy functionality.
     """
 
-    def __init__(self, *args, **kwargs):
-        """Initialise, but don't resolve refs in this case.
-
-        For ContainsOnly, the references could be types.
-
-        """
-        kwargs["resolve_refs"] = False
-        super().__init__(*args, **kwargs)
+    # For ContainsOnly, the references could be types.
+    allow_keyword_string_refs = False
 
     @match_wrapper()
     def match(self, segments, parse_context):
@@ -1539,7 +1561,7 @@ class ContainsOnly(BaseGrammar):
             if len(forward_buffer) == 0:
                 # We're all good
                 return MatchResult.from_matched(matched_buffer)
-            elif self.code_only and not forward_buffer[0].is_code:
+            elif self.allow_gaps and not forward_buffer[0].is_code:
                 matched_buffer += (forward_buffer[0],)
                 forward_buffer = forward_buffer[1:]
             else:
@@ -1597,7 +1619,7 @@ class StartsWith(GreedyUntil):
     @match_wrapper()
     def match(self, segments, parse_context):
         """Match if this sequence starts with a match."""
-        if self.code_only:
+        if self.allow_gaps:
             first_code_idx = None
             # Work through to find the first code segment...
             for idx, seg in enumerate(segments):
@@ -1627,7 +1649,7 @@ class StartsWith(GreedyUntil):
                     match.unmatched_segments,
                     parse_context,
                     matchers=[self.terminator],
-                    code_only=self.code_only,
+                    allow_gaps=self.allow_gaps,
                     enforce_whitespace_preceeding_terminator=self.enforce_whitespace_preceeding_terminator,
                     include_terminator=self.include_terminator,
                 )
@@ -1710,7 +1732,7 @@ class Bracketed(Sequence):
                 seg_buff,
                 self.start_bracket,
                 parse_context=ctx,
-                code_only=self.code_only,
+                allow_gaps=self.allow_gaps,
             )
         if start_match:
             seg_buff = start_match.unmatched_segments
@@ -1723,7 +1745,7 @@ class Bracketed(Sequence):
             segments=seg_buff,
             matchers=[self.end_bracket],
             parse_context=parse_context,
-            code_only=self.code_only,
+            allow_gaps=self.allow_gaps,
         )
         if not end_match:
             raise SQLParseError(
@@ -1745,12 +1767,12 @@ class Bracketed(Sequence):
 
         # Then trim whitespace and deal with the case of no code content e.g. "(   )"
         pre_nc, content_segs, post_nc = self._trim_non_code(
-            pre, code_only=self.code_only
+            pre, allow_gaps=self.allow_gaps
         )
         # Do we have anything left to match on?
         if not content_segs:
             if not self._elements or (
-                all(e.is_optional() for e in self._elements) and self.code_only
+                all(e.is_optional() for e in self._elements) and self.allow_gaps
             ):
                 return MatchResult(
                     start_match.matched_segments

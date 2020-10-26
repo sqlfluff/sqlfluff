@@ -26,21 +26,21 @@ def test__parser__grammar__base__code_only_sensitive_match(seg_list):
     bs = KeywordSegment.make("bar")
     with RootParseContext(dialect=None) as ctx:
         # Matching the first element of the list
-        m = BaseGrammar._code_only_sensitive_match(seg_list, bs, ctx, code_only=False)
+        m = BaseGrammar._code_only_sensitive_match(seg_list, bs, ctx, allow_gaps=False)
         assert m.matched_segments == (bs("bar", seg_list[0].pos_marker),)
         # Matching with a bit of whitespace before
         m = BaseGrammar._code_only_sensitive_match(
-            seg_list[1:], fs, ctx, code_only=True
+            seg_list[1:], fs, ctx, allow_gaps=True
         )
         assert m.matched_segments == (seg_list[1], fs("foo", seg_list[2].pos_marker))
-        # Matching with a bit of whitespace before (not code_only)
+        # Matching with a bit of whitespace before (not allow_gaps)
         m = BaseGrammar._code_only_sensitive_match(
-            seg_list[1:], fs, ctx, code_only=False
+            seg_list[1:], fs, ctx, allow_gaps=False
         )
         assert not m
         # Matching with whitespace after
         m = BaseGrammar._code_only_sensitive_match(
-            seg_list[:2], bs, ctx, code_only=True
+            seg_list[:2], bs, ctx, allow_gaps=True
         )
         assert m.matched_segments == (bs("bar", seg_list[0].pos_marker), seg_list[1])
 
@@ -48,7 +48,7 @@ def test__parser__grammar__base__code_only_sensitive_match(seg_list):
 def test__parser__grammar__base__trim_non_code(seg_list):
     """Test the _trim_non_code method of the BaseGrammar."""
     assert BaseGrammar._trim_non_code(seg_list) == ((), seg_list[:4], (seg_list[4],))
-    assert BaseGrammar._trim_non_code(seg_list, code_only=False) == ((), seg_list, ())
+    assert BaseGrammar._trim_non_code(seg_list, allow_gaps=False) == ((), seg_list, ())
     assert BaseGrammar._trim_non_code(seg_list[1:]) == (
         (seg_list[1],),
         seg_list[2:4],
@@ -72,11 +72,11 @@ def test__parser__grammar__base__look_ahead_match(seg_list):
         assert m[1].matched_segments == (bs("bar", seg_list[0].pos_marker),)
 
         # Look ahead for foo
-        m = BaseGrammar._look_ahead_match(seg_list, [fs], ctx, code_only=False)
+        m = BaseGrammar._look_ahead_match(seg_list, [fs], ctx, allow_gaps=False)
         assert m[1].matched_segments == (fs("foo", seg_list[2].pos_marker),)
 
         # Allow leading whitespace
-        m = BaseGrammar._look_ahead_match(seg_list, [fs], ctx, code_only=True)
+        m = BaseGrammar._look_ahead_match(seg_list, [fs], ctx, allow_gaps=True)
         assert m[1].matched_segments == (seg_list[1], fs("foo", seg_list[2].pos_marker))
 
 
@@ -133,8 +133,8 @@ def test__parser__grammar__base__bracket_sensitive_look_ahead_match(
         )
 
 
-@pytest.mark.parametrize("code_only", [True, False])
-def test__parser__grammar_oneof(seg_list, code_only):
+@pytest.mark.parametrize("allow_gaps", [True, False])
+def test__parser__grammar_oneof(seg_list, allow_gaps):
     """Test the OneOf grammar.
 
     NB: Should behave the same regardless of code_only.
@@ -142,7 +142,7 @@ def test__parser__grammar_oneof(seg_list, code_only):
     """
     fs = KeywordSegment.make("foo")
     bs = KeywordSegment.make("bar")
-    g = OneOf(fs, bs, code_only=code_only)
+    g = OneOf(fs, bs, allow_gaps=allow_gaps)
     with RootParseContext(dialect=None) as ctx:
         # Check directly
         assert g.match(seg_list, parse_context=ctx).matched_segments == (
@@ -194,7 +194,7 @@ def test__parser__grammar_sequence(seg_list, caplog):
     fs = KeywordSegment.make("foo")
     bs = KeywordSegment.make("bar")
     g = Sequence(bs, fs)
-    gc = Sequence(bs, fs, code_only=False)
+    gc = Sequence(bs, fs, allow_gaps=False)
     with RootParseContext(dialect=None) as ctx:
         with caplog.at_level(logging.DEBUG, logger="sqluff.parser"):
             # Should be able to match the list using the normal matcher
@@ -207,7 +207,7 @@ def test__parser__grammar_sequence(seg_list, caplog):
                 seg_list[1],  # This will be the whitespace segment
                 fs("foo", seg_list[2].pos_marker),
             )
-            # Shouldn't with the code_only matcher
+            # Shouldn't with the allow_gaps matcher
             logging.info("#### TEST 2")
             assert not gc.match(seg_list, parse_context=ctx)
             # Shouldn't match even on the normal one if we don't start at the beginning
@@ -282,7 +282,7 @@ def test__parser__grammar_delimited_not_code_only(
     seg_list_b = generate_test_segments(["bar", ".", "bar"])
     bs = KeywordSegment.make("bar")
     dot = KeywordSegment.make(".", name="dot")
-    g = Delimited(bs, delimiter=dot, code_only=False)
+    g = Delimited(bs, delimiter=dot, allow_gaps=False)
     with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
         with caplog.at_level(logging.DEBUG, logger="sqluff.parser"):
             # Matching with whitespace shouldn't match
@@ -300,7 +300,7 @@ def test__parser__grammar_greedyuntil(seg_list, fresh_ansi_dialect):
     bs = KeywordSegment.make("bar")
     bas = KeywordSegment.make("baar")
     g0 = GreedyUntil(bs)
-    g1 = GreedyUntil(fs, code_only=False)
+    g1 = GreedyUntil(fs, allow_gaps=False)
     g2 = GreedyUntil(bas)
     with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
         # Greedy matching until the first item should return none
@@ -314,7 +314,7 @@ def test__parser__grammar_greedyuntil(seg_list, fresh_ansi_dialect):
 def test__parser__grammar_greedyuntil_bracketed(bracket_seg_list, fresh_ansi_dialect):
     """Test the GreedyUntil grammar with brackets."""
     fs = KeywordSegment.make("foo")
-    g = GreedyUntil(fs, code_only=False)
+    g = GreedyUntil(fs, allow_gaps=False)
     with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
         # Check that we can make it past the brackets
         assert len(g.match(bracket_seg_list, parse_context=ctx)) == 7
@@ -328,7 +328,7 @@ def test__parser__grammar_containsonly(seg_list):
     g0 = ContainsOnly(bs, bas)
     g1 = ContainsOnly("raw")
     g2 = ContainsOnly(fs, bas, bs)
-    g3 = ContainsOnly(fs, bas, bs, code_only=False)
+    g3 = ContainsOnly(fs, bas, bs, allow_gaps=False)
     with RootParseContext(dialect=None) as ctx:
         # Contains only, without matches for all shouldn't match
         assert not g0.match(seg_list, parse_context=ctx)
