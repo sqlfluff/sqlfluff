@@ -259,13 +259,13 @@ class SemiStructuredAccessorSegment(BaseSegment):
                 ),
                 Ref("ArrayAccessorSegment", optional=True),
                 # No extra whitespace
-                code_only=False,
+                allow_gaps=False,
             ),
             # No extra whitespace
-            code_only=False,
+            allow_gaps=False,
         ),
         # No extra whitespace
-        code_only=False,
+        allow_gaps=False,
     )
 
 

@@ -540,7 +540,6 @@ class StatementSegment(BaseSegment):
     parse_grammar = OneOf(
         Ref("SelectableGrammar"),
         Ref("InsertStatementSegment"),
-        Ref("EmptyStatementSegment"),
         Ref("TransactionStatementSegment"),
         Ref("DropStatementSegment"),
         Ref("AccessStatementSegment"),

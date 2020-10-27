@@ -21,12 +21,6 @@ def test__cli__formatters__filename_nocol():
     assert escape_ansi(res) == "== [blahblah] PASS"
 
 
-def test__cli__formatters__filename_col():
-    """Explicity test color codes."""
-    res = format_filename("blah", success=False)
-    assert res == u"== [\u001b[30;1mblah\u001b[0m] \u001b[31mFAIL\u001b[0m"
-
-
 def test__cli__formatters__violation():
     """Test formatting violations.
 

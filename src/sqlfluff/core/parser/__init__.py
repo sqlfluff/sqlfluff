@@ -18,7 +18,6 @@ from .grammar import (
     Sequence,
     GreedyUntil,
     StartsWith,
-    ContainsOnly,
     OneOf,
     Delimited,
     Bracketed,

@@ -91,11 +91,6 @@ class _ProtoKeywordSegment(RawSegment):
             )
         return MatchResult.from_unmatched(segments)
 
-    @classmethod
-    def expected_string(cls, dialect=None, called_from=None):
-        """Return the expected string for this segment."""
-        return cls._template
-
 
 class KeywordSegment(_ProtoKeywordSegment):
     """A segment used for matching single words.
@@ -185,11 +180,6 @@ class ReSegment(_ProtoKeywordSegment):
                     return MatchResult(m, segments[1:])
         return MatchResult.from_unmatched(segments)
 
-    @classmethod
-    def expected_string(cls, dialect=None, called_from=None):
-        """Return the expected string for this segment."""
-        return cls.type
-
 
 class NamedSegment(_ProtoKeywordSegment):
     """A segment which matches based on the `name` property of segments.
@@ -252,11 +242,6 @@ class NamedSegment(_ProtoKeywordSegment):
             )
         return MatchResult.from_unmatched(segments)
 
-    @classmethod
-    def expected_string(cls, dialect=None, called_from=None):
-        """Return the expected string for this segment."""
-        return "[" + cls._template + "]"
-
 
 class LambdaSegment(BaseSegment):
     """A segment which when the given lambda is applied to it returns true.
@@ -296,11 +281,6 @@ class LambdaSegment(BaseSegment):
             else:
                 # Got buffer but no match
                 return MatchResult(matched_segs, seg_buff)
-
-    @classmethod
-    def expected_string(cls, dialect=None, called_from=None):
-        """Return the expected string for this segment."""
-        return "!!TODO!!"
 
     @classmethod
     def make(cls, func, name, **kwargs):
@@ -391,11 +371,6 @@ class Indent(RawSegment):
             )
         )
 
-    @classmethod
-    def expected_string(cls, dialect=None, called_from=None):
-        """Return the expected string for this segment."""
-        return ""
-
     def __init__(self, pos_marker):
         """For the indent we override the init method.
 
@@ -443,14 +418,6 @@ class EphemeralSegment(BaseSegment):
         new_self = super().parse(parse_context)
         # Return the content of that result rather than self
         return new_self.segments
-
-    @classmethod
-    def expected_string(cls, dialect=None, called_from=None):
-        """Return the expected string for this segment.
-
-        In this case it's just the expected string of the match grammar.
-        """
-        return cls.match_grammar.expected_string(dialect=None, called_from=None)
 
     @classmethod
     def make(cls, match_grammar, parse_grammar, name):
