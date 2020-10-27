@@ -8,6 +8,7 @@ from sqlfluff.core.parser import (
     RawSegment,
     BaseSegment,
 )
+from sqlfluff.core.parser.segments_base import trim_non_code
 from sqlfluff.core.dialects import ansi_dialect
 
 
@@ -36,6 +37,16 @@ class DummyAuxSegment(BaseSegment):
     type = "dummy_aux"
 
 
+def test__parser__base_segments__trim_non_code(seg_list):
+    """Test the _trim_non_code method of the BaseGrammar."""
+    assert trim_non_code(seg_list) == ((), seg_list[:4], (seg_list[4],))
+    assert trim_non_code(seg_list[1:]) == (
+        (seg_list[1],),
+        seg_list[2:4],
+        (seg_list[4],),
+    )
+
+
 def test__parser__base_segments_raw_init():
     """Test initialisation. Other tests just use the fixture."""
     fp = FilePositionMarker.from_fresh()
@@ -51,7 +62,7 @@ def test__parser__base_segments_raw(raw_seg):
     assert str(raw_seg) == repr(raw_seg) == "<RawSegment: ([3](1, 1, 4)) 'foobar'>"
     assert (
         raw_seg.stringify(ident=1, tabsize=2)
-        == "[3](1, 1, 4)     |  raw:                                                        'foobar'\n"
+        == "[3](1, 1, 4)        |  raw:                                                        'foobar'\n"
     )
     # Check tuple
     assert raw_seg.to_tuple() == ("raw", ())
@@ -77,9 +88,9 @@ def test__parser__base_segments_base(raw_seg_list):
     # Check Formatting and Stringification
     assert str(base_seg) == repr(base_seg) == "<DummySegment: ([3](1, 1, 4))>"
     assert base_seg.stringify(ident=1, tabsize=2) == (
-        "[3](1, 1, 4)     |  dummy:\n"
-        "[3](1, 1, 4)     |    raw:                                                      'foobar'\n"
-        "[9](1, 1, 10)    |    raw:                                                      '.barfoo'\n"
+        "[3](1, 1, 4)        |  dummy:\n"
+        "[3](1, 1, 4)        |    raw:                                                      'foobar'\n"
+        "[9](1, 1, 10)       |    raw:                                                      '.barfoo'\n"
     )
 
 

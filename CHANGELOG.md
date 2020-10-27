@@ -33,6 +33,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Internally added an `EphemeralSegment` to aid with parsing efficiency
   without altering the end structure of the query.
 
+### Removed
+- Removed `BaseSegment.grammar`, `BaseSegment._match_grammar()` and
+  `BaseSegment._parse_grammar()` instead preferring references directly
+  to `BaseSegment.match_grammar` and `BaseSegment.parse_grammar`.
+- Removed `EmptySegmentGrammar` and replaced with better non-code handling
+  in the `FileSegment` itself.
+- Remove the `ContainsOnly` grammar as it remained only as an anti-pattern.
+- Removed the `expected_string()` functionality from grammars and segments
+  as it was poorly supported.
+- Removed `BaseSegment.as_optional()` as now this functionality happens
+  mostly in grammars (including `Ref`).
+
 ## [0.3.6] - 2020-09-24
 
 ### Added
