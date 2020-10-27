@@ -4,7 +4,7 @@ file:
     - select_clause:
       - keyword: SELECT
       - select_target_element:
-          object_reference:
+          column_reference:
             identifier: job_id
       - comma: ','
       - select_target_element:
@@ -16,7 +16,7 @@ file:
               - keyword: CASE
               - keyword: WHEN
               - expression:
-                - object_reference:
+                - column_reference:
                     identifier: word
                 - comparison_operator: '='
                 - literal: '''shop'''
@@ -41,7 +41,7 @@ file:
               - keyword: CASE
               - keyword: WHEN
               - expression:
-                - object_reference:
+                - column_reference:
                     identifier: word
                 - comparison_operator: '='
                 - literal: '''products'''
@@ -66,7 +66,7 @@ file:
               - keyword: CASE
               - keyword: WHEN
               - expression:
-                - object_reference:
+                - column_reference:
                     identifier: word
                 - comparison_operator: '='
                 - literal: '''code'''
@@ -87,7 +87,7 @@ file:
           - function_name: safe_cast
           - start_bracket: (
           - expression:
-              object_reference:
+              column_reference:
                 identifier: vector_array
               array_accessor:
                 start_square_bracket: '['
@@ -112,7 +112,7 @@ file:
           - function_name: safe_cast
           - start_bracket: (
           - expression:
-              object_reference:
+              column_reference:
                 identifier: vector_array
               array_accessor:
                 start_square_bracket: '['
@@ -134,7 +134,7 @@ file:
     - from_clause:
         keyword: FROM
         table_expression:
-          object_reference:
+          table_reference:
             identifier: tbl
     - limit_clause:
         keyword: LIMIT

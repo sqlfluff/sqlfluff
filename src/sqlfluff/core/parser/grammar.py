@@ -1016,7 +1016,7 @@ class GreedyUntil(BaseGrammar):
                         if elem.is_meta:
                             idx += 1
                             continue
-                        elif elem.type in ("whitespace", "newline"):
+                        elif elem.is_type("whitespace", "newline"):
                             allow = True
                             break
                         else:
@@ -1035,7 +1035,7 @@ class GreedyUntil(BaseGrammar):
                             if pre[idx].is_meta:
                                 idx -= 1
                                 continue
-                            elif pre[idx].type in ("whitespace", "newline"):
+                            elif pre[idx].is_type("whitespace", "newline"):
                                 allow = True
                                 break
                             else:

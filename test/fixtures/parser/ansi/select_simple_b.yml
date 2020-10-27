@@ -11,5 +11,5 @@ file:
       from_clause:
         keyword: from
         table_expression:
-          object_reference:
+          table_reference:
             identifier: blah

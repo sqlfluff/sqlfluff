@@ -296,6 +296,19 @@ class BaseSegment:
         return cls.optional
 
     @classmethod
+    def is_type(cls, *seg_type):
+        """Is this segment (or it's parent) of the given type."""
+        # Do we match on the type of _this_ class.
+        if cls.type in seg_type:
+            return True
+        # Have we reached the bottom?
+        elif cls.type == "base":
+            return False
+        # If not, check parent classes.
+        else:
+            return any(base_class.is_type(*seg_type) for base_class in cls.__bases__)
+
+    @classmethod
     def structural_simplify(cls, elem):
         """Simplify the structure recursively so it serializes nicely in json/yaml."""
         if isinstance(elem, tuple):
@@ -557,36 +570,34 @@ class BaseSegment:
         """Return True if this segment has no children."""
         return len(self.segments) == 0
 
-    def get_child(self, seg_type):
+    def get_child(self, *seg_type):
         """Retrieve the first of the children of this segment with matching type."""
         for seg in self.segments:
-            if seg.type == seg_type:
+            if seg.is_type(*seg_type):
                 return seg
         return None
 
-    def get_children(self, seg_type):
+    def get_children(self, *seg_type):
         """Retrieve the all of the children of this segment with matching type."""
         buff = []
         for seg in self.segments:
-            if seg.type == seg_type:
+            if seg.is_type(*seg_type):
                 buff.append(seg)
         return buff
 
-    def recursive_crawl(self, seg_type):
+    def recursive_crawl(self, *seg_type):
         """Recursively crawl for segments of a given type.
 
         Args:
-            seg_type: :obj:`str` or :obj:`tuple` of :obj:`str`: which specifies
-                the type of elements to look for.
+            seg_type: :obj:`str`: one or more type of segment
+                to look for.
         """
         # Check this segment
-        if isinstance(seg_type, str) and self.type == seg_type:
-            yield self
-        elif isinstance(seg_type, tuple) and self.type in seg_type:
+        if self.is_type(*seg_type):
             yield self
         # Recurse
         for seg in self.segments:
-            yield from seg.recursive_crawl(seg_type=seg_type)
+            yield from seg.recursive_crawl(*seg_type)
 
     def path_to(self, other):
         """Given a segment which is assumed within self, get the intermediate segments.

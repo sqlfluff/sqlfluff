@@ -8,7 +8,7 @@ file:
       from_clause:
         keyword: FROM
         table_expression:
-          object_reference:
+          table_reference:
           - identifier: sch1
           - dot: '.'
           - identifier: tbl2

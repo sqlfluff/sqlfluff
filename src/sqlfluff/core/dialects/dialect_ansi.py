@@ -15,6 +15,7 @@ https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 from ..parser import (
     BaseSegment,
     KeywordSegment,
+    SymbolSegment,
     ReSegment,
     NamedSegment,
     Sequence,
@@ -130,51 +131,53 @@ ansi_dialect.add(
         lambda x: not x.is_code, is_code=False, name="non_code"
     ),
     # Real segments
-    SemicolonSegment=KeywordSegment.make(";", name="semicolon"),
-    ColonSegment=KeywordSegment.make(":", name="colon"),
-    SliceSegment=KeywordSegment.make(":", name="slice"),
-    StartBracketSegment=KeywordSegment.make(
+    SemicolonSegment=SymbolSegment.make(
+        ";", name="semicolon", type="statement_terminator"
+    ),
+    ColonSegment=SymbolSegment.make(":", name="colon", type="colon"),
+    SliceSegment=SymbolSegment.make(":", name="slice", type="slice"),
+    StartBracketSegment=SymbolSegment.make(
         "(", name="start_bracket", type="start_bracket"
     ),
-    EndBracketSegment=KeywordSegment.make(")", name="end_bracket", type="end_bracket"),
-    StartSquareBracketSegment=KeywordSegment.make(
+    EndBracketSegment=SymbolSegment.make(")", name="end_bracket", type="end_bracket"),
+    StartSquareBracketSegment=SymbolSegment.make(
         "[", name="start_square_bracket", type="start_square_bracket"
     ),
-    EndSquareBracketSegment=KeywordSegment.make(
+    EndSquareBracketSegment=SymbolSegment.make(
         "]", name="end_square_bracket", type="end_square_bracket"
     ),
-    CommaSegment=KeywordSegment.make(",", name="comma", type="comma"),
-    DotSegment=KeywordSegment.make(".", name="dot", type="dot"),
-    StarSegment=KeywordSegment.make("*", name="star", type="star"),
-    TildeSegment=KeywordSegment.make("~", name="tilde"),
-    CastOperatorSegment=KeywordSegment.make(
+    CommaSegment=SymbolSegment.make(",", name="comma", type="comma"),
+    DotSegment=SymbolSegment.make(".", name="dot", type="dot"),
+    StarSegment=SymbolSegment.make("*", name="star", type="star"),
+    TildeSegment=SymbolSegment.make("~", name="tilde", type="tilde"),
+    CastOperatorSegment=SymbolSegment.make(
         "::", name="casting_operator", type="casting_operator"
     ),
-    PlusSegment=KeywordSegment.make("+", name="plus", type="binary_operator"),
-    MinusSegment=KeywordSegment.make("-", name="minus", type="binary_operator"),
-    PositiveSegment=KeywordSegment.make("+", name="positive", type="sign_indicator"),
-    NegativeSegment=KeywordSegment.make("-", name="negative", type="sign_indicator"),
-    DivideSegment=KeywordSegment.make("/", name="divide", type="binary_operator"),
-    MultiplySegment=KeywordSegment.make("*", name="multiply", type="binary_operator"),
-    ModuloSegment=KeywordSegment.make("%", name="modulo", type="binary_operator"),
-    ConcatSegment=KeywordSegment.make("||", name="concatenate", type="binary_operator"),
-    EqualsSegment=KeywordSegment.make("=", name="equals", type="comparison_operator"),
-    GreaterThanSegment=KeywordSegment.make(
+    PlusSegment=SymbolSegment.make("+", name="plus", type="binary_operator"),
+    MinusSegment=SymbolSegment.make("-", name="minus", type="binary_operator"),
+    PositiveSegment=SymbolSegment.make("+", name="positive", type="sign_indicator"),
+    NegativeSegment=SymbolSegment.make("-", name="negative", type="sign_indicator"),
+    DivideSegment=SymbolSegment.make("/", name="divide", type="binary_operator"),
+    MultiplySegment=SymbolSegment.make("*", name="multiply", type="binary_operator"),
+    ModuloSegment=SymbolSegment.make("%", name="modulo", type="binary_operator"),
+    ConcatSegment=SymbolSegment.make("||", name="concatenate", type="binary_operator"),
+    EqualsSegment=SymbolSegment.make("=", name="equals", type="comparison_operator"),
+    GreaterThanSegment=SymbolSegment.make(
         ">", name="greater_than", type="comparison_operator"
     ),
-    LessThanSegment=KeywordSegment.make(
+    LessThanSegment=SymbolSegment.make(
         "<", name="less_than", type="comparison_operator"
     ),
-    GreaterThanOrEqualToSegment=KeywordSegment.make(
+    GreaterThanOrEqualToSegment=SymbolSegment.make(
         ">=", name="greater_than_equal_to", type="comparison_operator"
     ),
-    LessThanOrEqualToSegment=KeywordSegment.make(
+    LessThanOrEqualToSegment=SymbolSegment.make(
         "<=", name="less_than_equal_to", type="comparison_operator"
     ),
-    NotEqualToSegment_a=KeywordSegment.make(
+    NotEqualToSegment_a=SymbolSegment.make(
         "!=", name="not_equal_to", type="comparison_operator"
     ),
-    NotEqualToSegment_b=KeywordSegment.make(
+    NotEqualToSegment_b=SymbolSegment.make(
         "<>", name="not_equal_to", type="comparison_operator"
     ),
     # The following functions can be called without parentheses per ANSI specification
@@ -273,7 +276,7 @@ ansi_dialect.add(
     # Defined here to avoid repetition.
     BracketedColumnReferenceListGrammar=Bracketed(
         Delimited(
-            Ref("ObjectReferenceSegment"),
+            Ref("ColumnReferenceSegment"),
             delimiter=Ref("CommaSegment"),
             ephemeral_name="ColumnReferenceList",
         )
@@ -317,16 +320,6 @@ class DatatypeSegment(BaseSegment):
             optional=True,
         ),
     )
-
-
-@ansi_dialect.segment()
-class ColumnExpressionSegment(BaseSegment):
-    """A reference to a column."""
-
-    type = "column_expression"
-    match_grammar = OneOf(
-        Ref("SingleIdentifierGrammar"), allow_gaps=False
-    )  # QuotedIdentifierSegment
 
 
 @ansi_dialect.segment()
@@ -389,6 +382,20 @@ class ObjectReferenceSegment(BaseSegment):
         if len(refs) >= level:
             return refs[-level]
         return None
+
+
+@ansi_dialect.segment()
+class TableReferenceSegment(ObjectReferenceSegment):
+    """A reference to an table, CTE, subquery or alias."""
+
+    type = "table_reference"
+
+
+@ansi_dialect.segment()
+class ColumnReferenceSegment(ObjectReferenceSegment):
+    """A reference to column, field or alias."""
+
+    type = "column_reference"
 
 
 @ansi_dialect.segment()
@@ -594,7 +601,7 @@ class TableExpressionSegment(BaseSegment):
             # it seems sensible here for now.
             Ref("BareFunctionSegment"),
             Ref("FunctionSegment"),
-            Ref("ObjectReferenceSegment"),
+            Ref("TableReferenceSegment"),
             # Nested Selects
             Bracketed(Ref("SelectableGrammar")),
             # Values clause?
@@ -655,7 +662,7 @@ class WildcardIdentifierSegment(ObjectReferenceSegment):
         will only appear once.
         """
         # Extract the references from those identifiers (because some may be quoted)
-        for elem in self.recursive_crawl(("identifier", "star")):
+        for elem in self.recursive_crawl("identifier", "star"):
             yield from self._iter_reference_parts(elem)
 
 
@@ -698,7 +705,7 @@ class SelectTargetElementSegment(BaseSegment):
                 Ref("BareFunctionSegment"),
                 Ref("FunctionSegment"),
                 Ref("IntervalExpressionSegment"),
-                Ref("ObjectReferenceSegment"),
+                Ref("ColumnReferenceSegment"),
                 Ref("ExpressionSegment"),
             ),
             Ref("AliasExpressionSegment", optional=True),
@@ -774,7 +781,10 @@ class JoinClauseSegment(BaseSegment):
                 Bracketed(
                     # NB: We don't use BracketedColumnReferenceListGrammar
                     # here because we're just using SingleIdentifierGrammar,
-                    # rather than ObjectReferenceSegment.
+                    # rather than ObjectReferenceSegment or ColumnReferenceSegment.
+                    # This is a) so that we don't lint it as a reference and
+                    # b) because the column will probably be returned anyway
+                    # during parsing.
                     Delimited(
                         Ref("SingleIdentifierGrammar"),
                         delimiter=Ref("CommaSegment"),
@@ -1011,7 +1021,7 @@ ansi_dialect.add(
             Ref("SelectStatementSegment"),
             Ref("LiteralGrammar"),
             Ref("IntervalExpressionSegment"),
-            Ref("ObjectReferenceSegment"),
+            Ref("ColumnReferenceSegment"),
         ),
         Ref("Accessor_Grammar", optional=True),
         Ref("ShorthandCastSegment", optional=True),
@@ -1077,7 +1087,7 @@ class OrderByClauseSegment(BaseSegment):
         Delimited(
             Sequence(
                 OneOf(
-                    Ref("ObjectReferenceSegment"),
+                    Ref("ColumnReferenceSegment"),
                     # Can `ORDER BY 1`
                     Ref("NumericLiteralSegment"),
                     # Can order by an expression
@@ -1112,7 +1122,7 @@ class GroupByClauseSegment(BaseSegment):
         Indent,
         Delimited(
             OneOf(
-                Ref("ObjectReferenceSegment"),
+                Ref("ColumnReferenceSegment"),
                 # Can `GROUP BY 1`
                 Ref("NumericLiteralSegment"),
                 # Can `GROUP BY coalesce(col, 1)`
@@ -1285,7 +1295,7 @@ class InsertStatementSegment(BaseSegment):
         "INSERT",
         Ref.keyword("OVERWRITE", optional=True),  # Maybe this is just snowflake?
         Ref.keyword("INTO", optional=True),
-        Ref("ObjectReferenceSegment"),
+        Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         Ref("SelectableGrammar"),
     )
@@ -1341,7 +1351,7 @@ class ColumnOptionSegment(BaseSegment):
             "AUTO_INCREMENT",  # AUTO_INCREMENT (MySQL)
             Sequence(  # REFERENCES reftable [ ( refcolumn) ]
                 "REFERENCES",
-                Ref("ObjectReferenceSegment"),
+                Ref("ColumnReferenceSegment"),
                 # Foreign columns making up FOREIGN KEY constraint
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
             ),
@@ -1399,7 +1409,7 @@ class TableConstraintSegment(BaseSegment):
                 # Local columns making up FOREIGN KEY constraint
                 Ref("BracketedColumnReferenceListGrammar"),
                 "REFERENCES",
-                Ref("ObjectReferenceSegment"),
+                Ref("ColumnReferenceSegment"),
                 # Foreign columns making up FOREIGN KEY constraint
                 Ref("BracketedColumnReferenceListGrammar"),
                 # Later add support for [MATCH FULL/PARTIAL/SIMPLE] ?
@@ -1421,7 +1431,7 @@ class CreateTableStatementSegment(BaseSegment):
         Sequence("OR", "REPLACE", optional=True),
         "TABLE",
         Sequence("IF", "NOT", "EXISTS", optional=True),
-        Ref("ObjectReferenceSegment"),
+        Ref("TableReferenceSegment"),
         OneOf(
             # Columns and comment syntax:
             Sequence(
@@ -1444,7 +1454,7 @@ class CreateTableStatementSegment(BaseSegment):
                 Ref("SelectableGrammar"),
             ),
             # Create like syntax
-            Sequence("LIKE", Ref("ObjectReferenceSegment")),
+            Sequence("LIKE", Ref("TableReferenceSegment")),
         ),
     )
 
@@ -1460,7 +1470,7 @@ class AlterTableStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "ALTER",
         "TABLE",
-        Ref("ObjectReferenceSegment"),
+        Ref("TableReferenceSegment"),
         Delimited(
             OneOf(
                 # Table options
@@ -1476,7 +1486,7 @@ class AlterTableStatementSegment(BaseSegment):
                     Ref("ColumnDefinitionSegment"),
                     OneOf(
                         Sequence(
-                            OneOf("FIRST", "AFTER"), Ref("ObjectReferenceSegment")
+                            OneOf("FIRST", "AFTER"), Ref("ColumnReferenceSegment")
                         ),
                         # Bracketed Version of the same
                         Ref("BracketedColumnReferenceListGrammar"),
@@ -1501,7 +1511,7 @@ class CreateViewStatementSegment(BaseSegment):
         "CREATE",
         Sequence("OR", "REPLACE", optional=True),
         "VIEW",
-        Ref("ObjectReferenceSegment"),
+        Ref("TableReferenceSegment"),
         # Optional list of column names
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         "AS",
@@ -1522,7 +1532,7 @@ class DropStatementSegment(BaseSegment):
             "VIEW",
         ),
         Sequence("IF", "EXISTS", optional=True),
-        Ref("ObjectReferenceSegment"),
+        Ref("TableReferenceSegment"),
         OneOf("RESTRICT", Ref.keyword("CASCADE", optional=True), optional=True),
     )
 
@@ -1553,7 +1563,7 @@ class AccessStatementSegment(BaseSegment):
             OneOf(
                 Sequence(
                     Ref.keyword("TABLE", optional=True),
-                    Ref("ObjectReferenceSegment"),
+                    Ref("TableReferenceSegment"),
                 ),
                 Sequence(
                     "ALL",
@@ -1592,7 +1602,7 @@ class AccessStatementSegment(BaseSegment):
             OneOf(
                 Sequence(
                     Ref.keyword("TABLE", optional=True),
-                    Ref("ObjectReferenceSegment"),
+                    Ref("TableReferenceSegment"),
                 ),
                 Sequence(
                     "ALL",
@@ -1639,7 +1649,7 @@ class UpdateStatementSegment(BaseSegment):
     match_grammar = StartsWith("UPDATE")
     parse_grammar = Sequence(
         "UPDATE",
-        Ref("ObjectReferenceSegment"),
+        Ref("TableReferenceSegment"),
         Ref("SetClauseListSegment"),
         Ref("WhereClauseSegment", optional=True),
     )
@@ -1696,13 +1706,13 @@ class SetClauseSegment(BaseSegment):
     type = "set_clause"
 
     match_grammar = Sequence(
-        Ref("ColumnExpressionSegment"),
+        Ref("ColumnReferenceSegment"),
         Ref("EqualsSegment"),
         OneOf(
             Ref("LiteralGrammar"),
             Ref("BareFunctionSegment"),
             Ref("FunctionSegment"),
-            Ref("ObjectReferenceSegment"),
+            Ref("ColumnReferenceSegment"),
             "NULL",
             "DEFAULT",
         ),

@@ -18,16 +18,21 @@ from .match_logging import parse_match_logging
 from .match_wrapper import match_wrapper
 
 
-class KeywordSegment(RawSegment):
+class _ProtoKeywordSegment(RawSegment):
     """A segment used for matching single words or entities.
 
-    The Keyword Segment is a bit special, because while it
+    The _ProtoKeywordSegment Segment is a bit special, because while it
     can be instantiated directly, we mostly generate them on the
     fly for convenience. The `make` method is defined on RawSegment
     instead of here, but can be used here too.
+
+    This is distinct from KeywordSegment so that we can inherit
+    from this class (which mostly provides common functionality)
+    without inheriting the type `keyword` which rules and modules
+    may depend on later.
     """
 
-    type = "keyword"
+    type = "_proto_keyword"
     _is_code = True
     _template = "<unset>"
     _case_sensitive = False
@@ -87,11 +92,33 @@ class KeywordSegment(RawSegment):
         return MatchResult.from_unmatched(segments)
 
 
-class ReSegment(KeywordSegment):
+class KeywordSegment(_ProtoKeywordSegment):
+    """A segment used for matching single words.
+
+    We rename the segment class here so that decendents of
+    _ProtoKeywordSegment can use the same functionality
+    but don't end up being labelled as a `keyword` later.
+    """
+
+    type = "keyword"
+
+
+class SymbolSegment(_ProtoKeywordSegment):
+    """A segment used for matching single entities which aren't keywords.
+
+    We rename the segment class here so that decendents of
+    _ProtoKeywordSegment can use the same functionality
+    but don't end up being labelled as a `keyword` later.
+    """
+
+    type = "symbol"
+
+
+class ReSegment(_ProtoKeywordSegment):
     """A more flexible matching segment which uses of regexes.
 
-    This is more flexible that the `KeywordSegment` but also more complicated
-    and so the `KeywordSegment` should be used instead wherever possible.
+    This is more flexible that the `_ProtoKeywordSegment` but also more complicated
+    and so the `_ProtoKeywordSegment` should be used instead wherever possible.
     """
 
     _anti_template = None
@@ -154,7 +181,7 @@ class ReSegment(KeywordSegment):
         return MatchResult.from_unmatched(segments)
 
 
-class NamedSegment(KeywordSegment):
+class NamedSegment(_ProtoKeywordSegment):
     """A segment which matches based on the `name` property of segments.
 
     Useful for matching quoted segments, or anything else which
@@ -304,7 +331,7 @@ class Indent(RawSegment):
                     cls, kwargs
                 )
             )
-        # Sorcery (but less to than on KeywordSegment)
+        # Sorcery (but less to than on _ProtoKeywordSegment)
         return type(cls.__name__, (cls,), dict(_config_rules=kwargs))
 
     @classmethod
