@@ -13,7 +13,7 @@ from .segments import (
     LambdaSegment,
     Indent,
     Dedent,
-    SegmentGenerator
+    SegmentGenerator,
 )
 from .grammar import (
     Sequence,
@@ -27,6 +27,6 @@ from .grammar import (
     Anything,
     Nothing,
 )
-from .segments_file import FileSegment
 from .markers import FilePositionMarker
 from .lexer import Lexer
+from .parser import Parser

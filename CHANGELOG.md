@@ -40,6 +40,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   from `_ProtoKeywordSegment` which allows symbols to match in a very
   similar way to keywords without later appearing with the `type` of
   `keyword`.
+- Introduced the `Parser` class to parse a lexed query rather than
+  relying on users to instantiate a `FileSegment` directly. As a result
+  the `FileSegment` has been moved from the core parser directly into
+  the dialects. Users can refer to it via the `get_root_segment()`
+  method of a dialect.
+
 
 ### Removed
 
