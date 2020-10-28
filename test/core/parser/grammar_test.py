@@ -273,27 +273,42 @@ def test__parser__grammar_delimited(
             assert len(m) == match_len
 
 
-def test__parser__grammar_greedyuntil(seg_list, fresh_ansi_dialect):
-    """Test the GreedyUntil grammar."""
-    fs = KeywordSegment.make("foo")
-    bs = KeywordSegment.make("bar")
-    bas = KeywordSegment.make("baar")
-    g0 = GreedyUntil(bs)
-    g1 = GreedyUntil(fs, allow_gaps=False)
-    g2 = GreedyUntil(bas)
-    with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
+@pytest.mark.parametrize(
+    "keyword,allow_gaps,enforce_ws,slice_len",
+    [
+        # Basic testing
+        ("foo", True, False, 1),
+        ("foo", False, False, 1),
         # Greedy matching until the first item should return none
-        assert not g0.match(seg_list, parse_context=ctx)
-        # Greedy matching up to foo should return bar (as a raw!)
-        assert g1.match(seg_list, parse_context=ctx).matched_segments == seg_list[:1]
-        # Greedy matching up to baar should return bar, foo  (as a raw!)
-        assert g2.match(seg_list, parse_context=ctx).matched_segments == seg_list[:3]
+        ("bar", True, False, 0),
+        # Greedy matching up to baar should return bar, foo...
+        ("baar", True, False, 3),
+        # ... except if we can't have gaps
+        ("baar", False, False, 1),
+        # ... except if whitespace is required to preceed it
+        ("baar", True, True, 5),
+    ],
+)
+def test__parser__grammar_greedyuntil(
+    keyword, allow_gaps, seg_list, enforce_ws, slice_len, fresh_ansi_dialect
+):
+    """Test the GreedyUntil grammar."""
+    grammar = GreedyUntil(
+        KeywordSegment.make(keyword),
+        allow_gaps=allow_gaps,
+        enforce_whitespace_preceeding_terminator=enforce_ws,
+    )
+    with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
+        assert (
+            grammar.match(seg_list, parse_context=ctx).matched_segments
+            == seg_list[:slice_len]
+        )
 
 
 def test__parser__grammar_greedyuntil_bracketed(bracket_seg_list, fresh_ansi_dialect):
     """Test the GreedyUntil grammar with brackets."""
     fs = KeywordSegment.make("foo")
-    g = GreedyUntil(fs, allow_gaps=False)
+    g = GreedyUntil(fs)
     with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
         # Check that we can make it past the brackets
         assert len(g.match(bracket_seg_list, parse_context=ctx)) == 7
