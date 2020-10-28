@@ -99,50 +99,24 @@ class Rule_L002(BaseCrawler):
         Only trigger from whitespace segments if they contain
         multiple kinds of whitespace.
         """
-
-        def construct_response():
-            """Make this generic so we can call it from a few places."""
-            return LintResult(
-                anchor=segment,
-                fixes=[
-                    LintFix(
-                        "edit",
-                        segment,
-                        segment.edit(
-                            segment.raw.replace("\t", " " * self.tab_space_size)
-                        ),
-                    )
-                ],
-            )
-
         if segment.is_type("whitespace"):
             if " " in segment.raw and "\t" in segment.raw:
                 if len(raw_stack) == 0 or raw_stack[-1].is_type("newline"):
                     # We've got a single whitespace at the beginning of a line.
                     # It's got a mix of spaces and tabs. Replace each tab with
                     # a multiple of spaces
-                    return construct_response()
-                elif raw_stack[-1].is_type("whitespace"):
-                    # It's preceeded by more whitespace!
-                    # We shouldn't worry about correcting those
-                    # segments, because those will be caught themselves, but we
-                    # do want to collect them together.
-                    buff = list(raw_stack)
-                    while True:
-                        # pop something off the end
-                        seg = buff.pop()
-                        if seg.is_type("whitespace"):
-                            if len(buff) == 0:
-                                # Found start of file
-                                return construct_response()
-                            else:
-                                continue
-                        elif seg.is_type("newline"):
-                            # we're at the start of a line
-                            return construct_response()
-                        else:
-                            # We're not at the start of a line
-                            break
+                    return LintResult(
+                        anchor=segment,
+                        fixes=[
+                            LintFix(
+                                "edit",
+                                segment,
+                                segment.edit(
+                                    segment.raw.replace("\t", " " * self.tab_space_size)
+                                ),
+                            )
+                        ],
+                    )
 
 
 @std_rule_set.document_configuration
