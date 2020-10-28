@@ -229,6 +229,14 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
             None,
             {"rules": {"L019": {"comma_style": "trailing"}}},
         ),
+        # Using tabs as indents works
+        (
+            "L003",
+            "fail",
+            "SELECT\n\ta,\nb\nFROM my_tbl",
+            "SELECT\n\ta,\n\tb\nFROM my_tbl",
+            {"rules": {"indent_unit": "tab"}},
+        ),
         # Configurable indents work.
         # a) default
         (

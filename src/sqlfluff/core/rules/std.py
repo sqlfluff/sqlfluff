@@ -160,12 +160,6 @@ class Rule_L003(BaseCrawler):
             base_unit = "\t"
         elif (indent_unit or self.indent_unit) == "space":
             base_unit = " " * (tab_space_size or self.tab_space_size)
-        else:
-            raise ValueError(
-                "Unexpected value for `indent_unit`: {0!r}".format(
-                    indent_unit or self.indent_unit
-                )
-            )
         return base_unit * num
 
     def _indent_size(self, segments):
