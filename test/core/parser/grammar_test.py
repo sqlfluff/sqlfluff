@@ -150,33 +150,47 @@ def test__parser__grammar_oneof_exclude(seg_list):
     with RootParseContext(dialect=None) as ctx:
         # Just against the first alone
         assert g.match(seg_list[:1], parse_context=ctx)
-        # Now with the bit to exclude invluded
+        # Now with the bit to exclude included
         assert not g.match(seg_list, parse_context=ctx)
 
 
-def test__parser__grammar_startswith_a(seg_list, fresh_ansi_dialect, caplog):
+@pytest.mark.parametrize(
+    "keyword,match_truthy",
+    [
+        ("baar", False),
+        ("bar", True),
+    ],
+)
+def test__parser__grammar_startswith_a(
+    keyword, match_truthy, seg_list, fresh_ansi_dialect, caplog
+):
     """Test the StartsWith grammar simply."""
-    baar = KeywordSegment.make("baar")
-    bar = KeywordSegment.make("bar")
+    Keyword = KeywordSegment.make(keyword)
+    grammar = StartsWith(Keyword)
     with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
         with caplog.at_level(logging.DEBUG, logger="sqluff.parser"):
-            assert StartsWith(bar).match(seg_list, parse_context=ctx)
-            assert not StartsWith(baar).match(seg_list, parse_context=ctx)
+            m = grammar.match(seg_list, parse_context=ctx)
+            assert bool(m) is match_truthy
 
 
-def test__parser__grammar_startswith_b(seg_list, fresh_ansi_dialect, caplog):
+@pytest.mark.parametrize(
+    "include_terminator,match_length",
+    [
+        (False, 3),
+        (True, 5),
+    ],
+)
+def test__parser__grammar_startswith_b(
+    include_terminator, match_length, seg_list, fresh_ansi_dialect, caplog
+):
     """Test the StartsWith grammar with a terminator (included & exluded)."""
     baar = KeywordSegment.make("baar")
     bar = KeywordSegment.make("bar")
+    grammar = StartsWith(bar, terminator=baar, include_terminator=include_terminator)
     with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
         with caplog.at_level(logging.DEBUG, logger="sqluff.parser"):
-            m = StartsWith(bar, terminator=baar).match(seg_list, parse_context=ctx)
-            assert len(m) == 3
-            m = StartsWith(bar, terminator=baar, include_terminator=True).match(
-                seg_list, parse_context=ctx
-            )
-            # NB: We'll end up matching the terminating whitespace too
-            assert len(m) == 5
+            m = grammar.match(seg_list, parse_context=ctx)
+            assert len(m) == match_length
 
 
 def test__parser__grammar_sequence(seg_list, caplog):
