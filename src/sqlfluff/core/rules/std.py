@@ -53,12 +53,9 @@ class Rule_L001(BaseCrawler):
             # If we find a newline, which is preceeded by whitespace, then bad
             deletions = []
             idx = -1
-            while True:
-                if raw_stack[idx].is_type("whitespace"):
-                    deletions.append(raw_stack[idx])
-                    idx -= 1
-                else:
-                    break
+            while raw_stack[idx].is_type("whitespace"):
+                deletions.append(raw_stack[idx])
+                idx -= 1
             return LintResult(
                 anchor=deletions[-1], fixes=[LintFix("delete", d) for d in deletions]
             )
