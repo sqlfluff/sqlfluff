@@ -14,7 +14,13 @@ class Dialect:
     """
 
     def __init__(
-        self, name, lexer_struct=None, library=None, sets=None, inherits_from=None
+        self,
+        name,
+        lexer_struct=None,
+        library=None,
+        sets=None,
+        inherits_from=None,
+        root_segment_name=None,
     ):
         self._library = library or {}
         self.name = name
@@ -22,6 +28,7 @@ class Dialect:
         self.expanded = False
         self._sets = sets or {}
         self.inherits_from = inherits_from
+        self.root_segment_name = root_segment_name
 
     def __repr__(self):
         return "<Dialect: {0}>".format(self.name)
@@ -84,6 +91,7 @@ class Dialect:
             lexer_struct=self.lexer_struct.copy(),
             sets=new_sets,
             inherits_from=self.name,
+            root_segment_name=self.root_segment_name,
         )
 
     def segment(self, replace=False):
@@ -236,3 +244,7 @@ class Dialect:
             )
         # Overwrite with the buffer once we're done
         self.lexer_struct = buff
+
+    def get_root_segment(self):
+        """Get the root segment of the dialect."""
+        return self.ref(self.root_segment_name)

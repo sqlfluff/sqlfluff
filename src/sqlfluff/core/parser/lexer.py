@@ -4,7 +4,7 @@ from collections import namedtuple
 import re
 
 from .markers import FilePositionMarker
-from .segments_base import RawSegment
+from .segments import RawSegment
 from ..errors import SQLLexError
 
 
@@ -276,11 +276,7 @@ class RepeatedMultiMatcher(SingletonMatcher):
 
 
 class Lexer:
-    """The Lexer class actually does the lexing step.
-
-    This class is likely called directly from a top level segment
-    such as the `FileSegment`.
-    """
+    """The Lexer class actually does the lexing step."""
 
     def __init__(self, config, last_resort_lexer=None):
         # config is required - we use it to get the dialect

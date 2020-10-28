@@ -1,5 +1,7 @@
 """Classes to help with match logging."""
 
+from .helpers import join_segments_raw_curtailed
+
 
 class ParseMatchLogObject:
     """A late binding log object for parse_match_logging.
@@ -73,24 +75,6 @@ def parse_match_logging(grammar, func, msg, parse_context, v_level, **kwargs):
         parse_context.logger.info(log_obj)
     elif v_level == 4:
         parse_context.logger.debug(log_obj)
-
-
-def curtail_string(s, length=20):
-    """Trim a string nicely to length."""
-    if len(s) > length:
-        return s[:length] + "..."
-    else:
-        return s
-
-
-def join_segments_raw(segments):
-    """Make a string from the joined `raw` attributes of an iterable of segments."""
-    return "".join(s.raw for s in segments)
-
-
-def join_segments_raw_curtailed(segments, length=20):
-    """Make a string up to a certain length from an iterable of segments."""
-    return curtail_string(join_segments_raw(segments), length=length)
 
 
 class LateBoundJoinSegmentsCurtailed:
