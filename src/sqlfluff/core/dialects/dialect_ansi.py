@@ -28,7 +28,6 @@ from ..parser import (
     Ref,
     SegmentGenerator,
     Anything,
-    LambdaSegment,
     Indent,
     Dedent,
     Nothing,
@@ -126,10 +125,6 @@ ansi_dialect.sets("reserved_keywords").update(
 )
 
 ansi_dialect.add(
-    # NB The NonCode Segment is not really for matching, mostly just for use as a terminator
-    _NonCodeSegment=LambdaSegment.make(
-        lambda x: not x.is_code, is_code=False, name="non_code"
-    ),
     # Real segments
     SemicolonSegment=SymbolSegment.make(
         ";", name="semicolon", type="statement_terminator"
@@ -357,7 +352,6 @@ class ObjectReferenceSegment(BaseSegment):
         Ref("SingleIdentifierGrammar"),
         delimiter=OneOf(Ref("DotSegment"), Sequence(Ref("DotSegment"))),
         terminator=OneOf(
-            Ref("_NonCodeSegment"),
             Ref("CommaSegment"),
             Ref("CastOperatorSegment"),
             Ref("StartSquareBracketSegment"),

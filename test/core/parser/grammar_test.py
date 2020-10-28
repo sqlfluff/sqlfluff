@@ -7,6 +7,7 @@ from sqlfluff.core.parser import KeywordSegment
 from sqlfluff.core.parser.context import RootParseContext
 from sqlfluff.core.parser.segments import EphemeralSegment
 from sqlfluff.core.parser.grammar.base import BaseGrammar
+from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
 from sqlfluff.core.parser.grammar import (
     OneOf,
     Sequence,
@@ -226,61 +227,50 @@ def test__parser__grammar_sequence_nested(seg_list, caplog):
             )
 
 
-def test__parser__grammar_delimited(caplog, generate_test_segments, fresh_ansi_dialect):
-    """Test the Delimited grammar."""
-    seg_list = generate_test_segments(["bar", " \t ", ",", "    ", "bar", "    "])
-    bs = KeywordSegment.make("bar")
-    comma = KeywordSegment.make(",", name="comma")
-    expectation = (
-        bs("bar", seg_list[0].pos_marker),
-        seg_list[1],  # This will be the whitespace segment
-        comma(",", seg_list[2].pos_marker),
-        seg_list[3],  # This will be the whitespace segment
-        bs("bar", seg_list[4].pos_marker),
-        seg_list[5],  # This will be the whitespace segment
-    )
-    g = Delimited(bs, delimiter=comma)
-    gt = Delimited(bs, delimiter=comma, allow_trailing=True)
-    with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
-        with caplog.at_level(logging.DEBUG, logger="sqluff.parser"):
-            # Matching not quite the full list shouldn't work
-            logging.info("#### TEST 1")
-            assert not g.match(seg_list[:4], parse_context=ctx)
-            # Matching not quite the full list should work if we allow trailing
-            logging.info("#### TEST 1")
-            assert gt.match(seg_list[:4], parse_context=ctx)
-            # Matching up to 'bar' should
-            logging.info("#### TEST 3")
-            assert (
-                g.match(seg_list[:5], parse_context=ctx).matched_segments
-                == expectation[:5]
-            )
-            # Matching the full list ALSO should, because it's just whitespace
-            logging.info("#### TEST 4")
-            assert (
-                g.match(seg_list, parse_context=ctx).matched_segments == expectation[:6]
-            )
-            # We should have matched the trailing whitespace in this case.
-
-
-def test__parser__grammar_delimited_not_code_only(
-    caplog, generate_test_segments, fresh_ansi_dialect
+@pytest.mark.parametrize(
+    "token_list,min_delimiters,allow_gaps,allow_trailing,match_len",
+    [
+        # Basic testing
+        (["bar", " \t ", ".", "    ", "bar"], None, True, False, 5),
+        (["bar", " \t ", ".", "    ", "bar", "    "], None, True, False, 6),
+        # Testing allow_trailing
+        (["bar", " \t ", ".", "   "], None, True, False, 0),
+        (["bar", " \t ", ".", "   "], None, True, True, 3),
+        # Testing the implications of allow_gaps
+        (["bar", " \t ", ".", "    ", "bar"], 0, True, False, 5),
+        (["bar", " \t ", ".", "    ", "bar"], 0, False, False, 1),
+        (["bar", " \t ", ".", "    ", "bar"], 1, True, False, 5),
+        (["bar", " \t ", ".", "    ", "bar"], 1, False, False, 0),
+        (["bar", ".", "bar"], None, True, False, 3),
+        (["bar", ".", "bar"], None, False, False, 3),
+        (["bar", ".", "bar"], 1, True, False, 3),
+        (["bar", ".", "bar"], 1, False, False, 3),
+    ],
+)
+def test__parser__grammar_delimited(
+    min_delimiters,
+    allow_gaps,
+    allow_trailing,
+    token_list,
+    match_len,
+    caplog,
+    generate_test_segments,
+    fresh_ansi_dialect,
 ):
     """Test the Delimited grammar when not code_only."""
-    seg_list_a = generate_test_segments(["bar", " \t ", ".", "    ", "bar"])
-    seg_list_b = generate_test_segments(["bar", ".", "bar"])
-    bs = KeywordSegment.make("bar")
-    dot = KeywordSegment.make(".", name="dot")
-    g = Delimited(bs, delimiter=dot, allow_gaps=False)
+    seg_list = generate_test_segments(token_list)
+    g = Delimited(
+        KeywordSegment.make("bar"),
+        delimiter=KeywordSegment.make(".", name="dot"),
+        allow_gaps=allow_gaps,
+        allow_trailing=allow_trailing,
+        min_delimiters=min_delimiters,
+    )
     with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
         with caplog.at_level(logging.DEBUG, logger="sqluff.parser"):
-            # Matching with whitespace shouldn't match
-            # TODO: dots should be parsed out EARLY
-            logging.info("#### TEST 1")
-            assert not g.match(seg_list_a, parse_context=ctx)
-            # Matching up to 'bar' should
-            logging.info("#### TEST 2")
-            assert g.match(seg_list_b, parse_context=ctx) is not None
+            # Matching with whitespace shouldn't match if we need at least one delimiter
+            m = g.match(seg_list, parse_context=ctx)
+            assert len(m) == match_len
 
 
 def test__parser__grammar_greedyuntil(seg_list, fresh_ansi_dialect):
@@ -319,3 +309,11 @@ def test__parser__grammar_nothing(seg_list, fresh_ansi_dialect):
     """Test the Nothing grammar."""
     with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
         assert not Nothing().match(seg_list, parse_context=ctx)
+
+
+def test__parser__grammar_noncode(seg_list, fresh_ansi_dialect):
+    """Test the NonCodeMatcher."""
+    with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
+        m = NonCodeMatcher().match(seg_list[1:], parse_context=ctx)
+    # We should match one and only one segment
+    assert len(m) == 1

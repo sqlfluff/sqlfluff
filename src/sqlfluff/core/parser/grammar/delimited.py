@@ -6,6 +6,7 @@ from ..match_result import MatchResult
 from ..match_wrapper import match_wrapper
 
 from .base import BaseGrammar
+from .noncode import NonCodeMatcher
 
 
 class Delimited(BaseGrammar):
@@ -97,6 +98,10 @@ class Delimited(BaseGrammar):
             matchers = [self.delimiter]
             if self.terminator:
                 matchers.append(self.terminator)
+            # If gaps aren't allowed, a gap (or non-code segment), acts like a terminator.
+            if not self.allow_gaps:
+                matchers.append(NonCodeMatcher())
+
             with parse_context.deeper_match() as ctx:
                 (
                     pre_content,
@@ -163,8 +168,8 @@ class Delimited(BaseGrammar):
                                 seg_buff = delimiter_match.unmatched_segments
                                 # Still got some buffer left. Carry on.
                                 break
-                            # Terminator
-                            elif m is self.terminator:
+                            # Terminator (or the gap terminator).
+                            elif m is self.terminator or isinstance(m, NonCodeMatcher):
                                 # We just return straight away here. We don't add the terminator to
                                 # this match, it should go with the unmatched parts. The terminator
                                 # may also have mutated the returned segments so we also DON'T want

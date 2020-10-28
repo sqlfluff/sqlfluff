@@ -46,11 +46,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the dialects. Users can refer to it via the `get_root_segment()`
   method of a dialect.
 
-
-### Removed
-
-- Removed `ColumnExpressionSegment` in favour of `ColumnReference`.
-
 ### Removed
 - Removed `BaseSegment.grammar`, `BaseSegment._match_grammar()` and
   `BaseSegment._parse_grammar()` instead preferring references directly
@@ -62,6 +57,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   as it was poorly supported.
 - Removed `BaseSegment.as_optional()` as now this functionality happens
   mostly in grammars (including `Ref`).
+- Removed `ColumnExpressionSegment` in favour of `ColumnReference`.
+- Removed the `LambdaSegment` feature, instead replacing with an internal
+  to the grammar module called `NonCodeMatcher`.
 
 ## [0.3.6] - 2020-09-24
 
