@@ -278,7 +278,7 @@ class Rule_L003(BaseCrawler):
                     ),
                 )
             ]
-        # Otherwise edit the first element to be the right size and delete the rest
+        # Otherwise edit the first element to be the right size
         else:
             # Edit the first element of this line's indent.
             fixes = [
@@ -291,9 +291,6 @@ class Rule_L003(BaseCrawler):
                     ),
                 )
             ]
-            # Remove the others.
-            for seg in current_indent_buffer[1:]:
-                fixes.append(LintFix("delete", seg))
         return fixes
 
     def _eval(self, segment, raw_stack, memory, **kwargs):
