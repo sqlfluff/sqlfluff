@@ -2,7 +2,6 @@
 
 # flake8: noqa: F401
 
-from .context import RootParseContext, parser_logger
 from .segments import (
     BaseSegment,
     RawSegment,

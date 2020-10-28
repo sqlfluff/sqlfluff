@@ -6,10 +6,10 @@ import logging
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.parser import (
     Lexer,
-    RootParseContext,
     BaseSegment,
     RawSegment,
 )
+from sqlfluff.core.parser.context import RootParseContext
 from sqlfluff.core.parser.match_result import MatchResult
 
 

@@ -2,7 +2,8 @@
 
 import logging
 
-from sqlfluff.core.parser import BaseSegment, KeywordSegment, Anything, RootParseContext
+from sqlfluff.core.parser import BaseSegment, KeywordSegment, Anything
+from sqlfluff.core.parser.context import RootParseContext
 
 BarKeyword = KeywordSegment.make("bar")
 

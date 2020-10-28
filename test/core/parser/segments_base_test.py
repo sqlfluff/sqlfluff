@@ -3,11 +3,11 @@
 import pytest
 
 from sqlfluff.core.parser import (
-    RootParseContext,
     FilePositionMarker,
     RawSegment,
     BaseSegment,
 )
+from sqlfluff.core.parser.context import RootParseContext
 from sqlfluff.core.parser.helpers import trim_non_code
 from sqlfluff.core.dialects import ansi_dialect
 

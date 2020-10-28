@@ -3,11 +3,11 @@
 import pytest
 
 from sqlfluff.core.parser import (
-    RootParseContext,
     FilePositionMarker,
     RawSegment,
     KeywordSegment,
 )
+from sqlfluff.core.parser.context import RootParseContext
 from sqlfluff.core.parser.segments import EphemeralSegment
 
 
