@@ -17,45 +17,19 @@ def get_rule_from_set(code, config):
 
 def assert_rule_fail_in_sql(code, sql, configs=None, runaway_limit=20):
     """Assert that a given rule does fail on the given sql."""
-    # Configs allows overrides if we want to use them.
-    cfg = FluffConfig(configs=configs)
-    r = get_rule_from_set(code, config=cfg)
-    parsed, _, _ = Linter(config=cfg).parse_string(sql)
-    print("Parsed:\n {0}".format(parsed.stringify()))
-    lerrs, _, _, _ = r.crawl(parsed, dialect=cfg.get("dialect_obj"), fix=True)
+    # Set up the config to only use the rule we are testing.
+    cfg = FluffConfig(configs=configs, overrides={"rules": code})
+    # Lint it using the current config (while in fix mode)
+    linted = Linter(config=cfg).lint_string(sql, fix=True)
+    lerrs = linted.get_violations()
     print("Errors Found: {0}".format(lerrs))
     if not any(v.rule.code == code for v in lerrs):
         pytest.fail(
             "No {0} failures found in query which should fail.".format(code),
             pytrace=False,
         )
-    fixed = parsed  # use this as our buffer (yes it's a bit of misnomer right here)
-    loop_idx = 0
-    while loop_idx < runaway_limit:
-        # We get the errors again, but this time skip the assertion
-        # because we're in the loop. If we asserted on every loop then
-        # we're stuffed.
-        lerrs, _, _, _ = r.crawl(fixed, dialect=cfg.get("dialect_obj"), fix=True)
-        print("Errors Found: {0}".format(lerrs))
-        fixes = []
-        for e in lerrs:
-            fixes += e.fixes
-        if not fixes:
-            print("Done")
-            break
-        print("Fixes to apply: {0}".format(fixes))
-        l_fixes = fixes  # Save the fixes to compare to later
-        fixed, fixes = fixed.apply_fixes(fixes)
-        # iterate until all fixes applied
-        if fixes:
-            if fixes == l_fixes:
-                raise RuntimeError("Fixes aren't being applied: {0!r}".format(fixes))
-        loop_idx += 1
-    else:
-        raise ValueError(
-            "Runaway loop limit reached for rule! This example never stabilises."
-        )
-    return fixed.raw
+    # The query should already have been fixed if possible so just return the raw.
+    return linted.tree.raw
 
 
 def assert_rule_pass_in_sql(code, sql, configs=None):
