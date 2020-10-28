@@ -1,6 +1,7 @@
 """Definitions for Grammar."""
 
-from ..segments_base import BaseSegment, trim_non_code
+from ..segments import BaseSegment
+from ..helpers import trim_non_code
 from ..match_result import MatchResult
 from ..match_wrapper import match_wrapper
 

@@ -4,7 +4,7 @@ from collections import namedtuple
 import re
 
 from .markers import FilePositionMarker
-from .segments_base import RawSegment
+from .segments import RawSegment
 from ..errors import SQLLexError
 
 

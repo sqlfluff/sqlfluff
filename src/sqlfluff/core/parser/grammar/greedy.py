@@ -1,6 +1,6 @@
 """GreedyUntil and StartsWith Grammars."""
 
-from ..segments_base import trim_non_code
+from ..helpers import trim_non_code
 from ..match_result import MatchResult
 from ..match_wrapper import match_wrapper
 

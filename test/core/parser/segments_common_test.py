@@ -8,7 +8,7 @@ from sqlfluff.core.parser import (
     RawSegment,
     KeywordSegment,
 )
-from sqlfluff.core.parser.segments_common import EphemeralSegment
+from sqlfluff.core.parser.segments import EphemeralSegment
 
 
 @pytest.fixture(scope="module")

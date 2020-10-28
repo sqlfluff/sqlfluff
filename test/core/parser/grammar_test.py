@@ -4,7 +4,7 @@ import pytest
 import logging
 
 from sqlfluff.core.parser import RootParseContext, KeywordSegment
-from sqlfluff.core.parser.segments_common import EphemeralSegment
+from sqlfluff.core.parser.segments import EphemeralSegment
 from sqlfluff.core.parser.grammar.base import BaseGrammar
 from sqlfluff.core.parser.grammar import (
     OneOf,

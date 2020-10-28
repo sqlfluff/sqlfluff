@@ -4,13 +4,12 @@ import copy
 
 from ...errors import SQLParseError
 
-from ..segments_base import BaseSegment
-from ..segments_common import EphemeralSegment
+from ..segments import BaseSegment, EphemeralSegment
+from ..helpers import curtail_string
 from ..match_result import MatchResult
 from ..match_logging import (
     parse_match_logging,
     LateBoundJoinSegmentsCurtailed,
-    curtail_string,
 )
 from ..match_wrapper import match_wrapper
 

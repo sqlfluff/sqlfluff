@@ -1,7 +1,7 @@
 """Code for parsing files."""
 
 
-from .segments_base import BaseSegment
+from .segments import BaseSegment
 from .lexer import Lexer
 from .grammar import Delimited, Ref
 

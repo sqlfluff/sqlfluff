@@ -1,6 +1,6 @@
 """AnyNumberOf and OneOf."""
 
-from ..segments_base import trim_non_code
+from ..helpers import trim_non_code
 from ..match_result import MatchResult
 from ..match_wrapper import match_wrapper
 from ..match_logging import parse_match_logging

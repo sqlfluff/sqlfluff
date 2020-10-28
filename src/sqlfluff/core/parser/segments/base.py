@@ -3,62 +3,18 @@
 Here we define:
 - BaseSegment. This is the root class for all segments, and is
   designed to hold other subsegments.
-- RawSegment. This is designed to be the root segment, without
-  any children, and the output of the lexer.
 - UnparsableSegment. A special wrapper to indicate that the parse
   function failed on this block of segments and to prevent further
   analysis.
-
-These are the fundamental building blocks of the rest of the parser.
 """
 
 from io import StringIO
 from benchit import BenchIt
 
-from .match_result import MatchResult
-from .match_logging import parse_match_logging, curtail_string, join_segments_raw
-from .match_wrapper import match_wrapper
-
-
-def frame_msg(msg):
-    """Frame a message with hashes so that it covers five lines."""
-    return "\n###\n#\n# {0}\n#\n###".format(msg)
-
-
-def check_still_complete(segments_in, matched_segments, unmatched_segments):
-    """Check that the segments in are the same as the segments out."""
-    initial_str = join_segments_raw(segments_in)
-    current_str = join_segments_raw(matched_segments + unmatched_segments)
-    if initial_str != current_str:
-        raise RuntimeError(
-            "Dropped elements in sequence matching! {0!r} != {1!r}".format(
-                initial_str, current_str
-            )
-        )
-
-
-def trim_non_code(segments):
-    """Take segments and split off surrounding non-code segments as appropriate."""
-    pre_buff = ()
-    seg_buff = segments
-    post_buff = ()
-
-    if seg_buff:
-        pre_buff = ()
-        seg_buff = segments
-        post_buff = ()
-
-        # Trim the start
-        while seg_buff and not seg_buff[0].is_code:
-            pre_buff = pre_buff + (seg_buff[0],)
-            seg_buff = seg_buff[1:]
-
-        # Trim the end
-        while seg_buff and not seg_buff[-1].is_code:
-            post_buff = (seg_buff[-1],) + post_buff
-            seg_buff = seg_buff[:-1]
-
-    return pre_buff, seg_buff, post_buff
+from ..match_result import MatchResult
+from ..match_logging import parse_match_logging
+from ..match_wrapper import match_wrapper
+from ..helpers import frame_msg, check_still_complete, trim_non_code, curtail_string
 
 
 class BaseSegment:
@@ -886,151 +842,6 @@ class BaseSegment:
 
         # Create a new version of this class with the new details
         return self.__class__(segments=tuple(seg_buffer), pos_marker=self.pos_marker)
-
-
-class RawSegment(BaseSegment):
-    """This is a segment without any subsegments."""
-
-    type = "raw"
-    _is_code = False
-    _is_comment = False
-    _template = "<unset>"
-    _case_sensitive = False
-    _raw_upper = None
-
-    def __init__(self, raw, pos_marker):
-        self._raw = raw
-        self._raw_upper = raw.upper()
-        # pos marker is required here
-        self.pos_marker = pos_marker
-
-    def __repr__(self):
-        return "<{0}: ({1}) {2!r}>".format(
-            self.__class__.__name__, self.pos_marker, self.raw
-        )
-
-    # ################ PUBLIC PROPERTIES
-
-    @property
-    def is_expandable(self):
-        """Return true if it is meaningful to call `expand` on this segment."""
-        return False
-
-    @property
-    def is_code(self):
-        """Return True if this segment is code."""
-        return self._is_code
-
-    @property
-    def is_comment(self):
-        """Return True if this segment is a comment."""
-        return self._is_comment
-
-    @property
-    def raw_upper(self):
-        """Make an uppercase string from the segments of this segment."""
-        return self._raw_upper
-
-    @property
-    def segments(self):
-        """Return an empty list of child segments.
-
-        This is in case something tries to iterate on this segment.
-        """
-        return []
-
-    # ################ CLASS METHODS
-
-    @classmethod
-    def make(cls, template, case_sensitive=False, name=None, **kwargs):
-        """Make a subclass of the segment using a method."""
-        # Let's deal with the template first
-        if case_sensitive:
-            _template = template
-        else:
-            _template = template.upper()
-        # Use the name if provided otherwise default to the template
-        name = name or _template
-        # Now lets make the classname (it indicates the mother class for clarity)
-        classname = "{0}_{1}".format(name, cls.__name__)
-        # This is the magic, we generate a new class! SORCERY
-        newclass = type(
-            classname,
-            (cls,),
-            dict(
-                _template=_template,
-                _case_sensitive=case_sensitive,
-                _name=name,
-                **kwargs
-            ),
-        )
-        # Now we return that class in the abstract. NOT INSTANTIATED
-        return newclass
-
-    # ################ INSTANCE METHODS
-
-    def iter_raw_seg(self):
-        """Iterate raw segments, mostly for searching."""
-        yield self
-
-    def raw_trimmed(self):
-        """Return a trimmed version of the raw content."""
-        raw_buff = self.raw
-        if self.trim_start:
-            for seq in self.trim_start:
-                if raw_buff.startswith(seq):
-                    raw_buff = raw_buff[len(seq) :]
-        if self.trim_chars:
-            raw_buff = self.raw
-            # for each thing to trim
-            for seq in self.trim_chars:
-                # trim start
-                while raw_buff.startswith(seq):
-                    raw_buff = raw_buff[len(seq) :]
-                # trim end
-                while raw_buff.endswith(seq):
-                    raw_buff = raw_buff[: -len(seq)]
-            return raw_buff
-        return raw_buff
-
-    def raw_list(self):
-        """Return a list of the raw content of this segment."""
-        return [self.raw]
-
-    def _reconstruct(self):
-        """Return a string of the raw content of this segment."""
-        return self._raw
-
-    def stringify(self, ident=0, tabsize=4, code_only=False):
-        """Use indentation to render this segment and it's children as a string."""
-        preface = self._preface(ident=ident, tabsize=tabsize)
-        return preface + "\n"
-
-    def _suffix(self):
-        """Return any extra output required at the end when logging.
-
-        NB Override this for specific subclassesses if we want extra output.
-        """
-        return "{0!r}".format(self.raw)
-
-    def edit(self, raw):
-        """Create a new segment, with exactly the same position but different content.
-
-        Returns:
-            A copy of this object with new contents.
-
-        Used mostly by fixes.
-
-        """
-        return self.__class__(raw=raw, pos_marker=self.pos_marker)
-
-    def get_end_pos_marker(self):
-        """Return the pos marker at the end of this segment."""
-        return self.pos_marker.advance_by(self.raw)
-
-    def get_start_pos_marker(self):
-        """Return the pos marker at the start of this segment."""
-        return self.pos_marker
 
 
 class UnparsableSegment(BaseSegment):

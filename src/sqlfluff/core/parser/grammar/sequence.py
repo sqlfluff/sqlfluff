@@ -2,8 +2,8 @@
 
 from ...errors import SQLParseError
 
-from ..segments_base import BaseSegment, trim_non_code, check_still_complete
-from ..segments_common import Indent, Dedent
+from ..segments import BaseSegment, Indent, Dedent
+from ..helpers import trim_non_code, check_still_complete
 from ..match_result import MatchResult
 from ..match_wrapper import match_wrapper
 
