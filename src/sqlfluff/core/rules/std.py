@@ -2047,8 +2047,6 @@ class Rule_L019(BaseCrawler):
     @staticmethod
     def _last_code_seg(raw_stack, idx=-1):
         while True:
-            if -idx > len(raw_stack):
-                return None
             if raw_stack[idx].is_code or raw_stack[idx].is_type("newline"):
                 return raw_stack[idx]
             idx -= 1
