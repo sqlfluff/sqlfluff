@@ -2,6 +2,7 @@
 
 Here we define:
 - KeywordSegment
+- SymbolSegment
 - ReSegment
 
 These depend on the base segments, and extend them
@@ -13,7 +14,6 @@ we use, and will be common between all of them.
 import re
 
 from ..match_result import MatchResult
-from ..match_logging import parse_match_logging
 from ..match_wrapper import match_wrapper
 
 from .base import BaseSegment
@@ -37,7 +37,6 @@ class _ProtoKeywordSegment(RawSegment):
     type = "_proto_keyword"
     _is_code = True
     _template = "<unset>"
-    _case_sensitive = False
 
     @classmethod
     def simple(cls, parse_context):
@@ -46,10 +45,8 @@ class _ProtoKeywordSegment(RawSegment):
         The keyword segment DOES, provided that it is not case sensitive,
         we return a tuple in case there is more than one option.
         """
-        if not cls._case_sensitive:
-            # NB: We go UPPER on make, so no need to convert here
-            return (cls._template,)
-        return False
+        # NB: We go UPPER on make, so no need to convert here
+        return (cls._template,)
 
     @classmethod
     @match_wrapper(v_level=4)
@@ -67,30 +64,11 @@ class _ProtoKeywordSegment(RawSegment):
         if len(segments) >= 1:
             raw = segments[0].raw
             pos = segments[0].pos_marker
-            if cls._case_sensitive:
-                raw_comp = raw
-            else:
-                raw_comp = raw.upper()
+            raw_comp = raw.upper()
 
-            parse_match_logging(
-                cls.__name__,
-                "match",
-                "KW",
-                parse_context=parse_context,
-                v_level=4,
-                pattern=cls._template,
-                test=raw_comp,
-                name=cls.__name__,
-            )
             if cls._template == raw_comp:
                 m = (cls(raw=raw, pos_marker=pos),)  # Return as a tuple
                 return MatchResult(m, segments[1:])
-        else:
-            parse_context.logger.debug(
-                "{1} will not match sequence of length {0}".format(
-                    len(segments), cls.__name__
-                )
-            )
         return MatchResult.from_unmatched(segments)
 
 
@@ -149,23 +127,10 @@ class ReSegment(_ProtoKeywordSegment):
         # Regardless of what we're passed, make a string.
         # NB: We only match on the first element of a set of segments.
         s = segments[0].raw
-        # Deal with case sentitivity
-        if not cls._case_sensitive:
-            sc = s.upper()
-        else:
-            sc = s
+        # Case sensitivity is not supported
+        sc = s.upper()
         if len(s) == 0:
             raise ValueError("Zero length string passed to ReSegment!?")
-        parse_match_logging(
-            cls.__name__,
-            "match",
-            "RE",
-            parse_context=parse_context,
-            v_level=4,
-            pattern=cls._template,
-            test=sc,
-            name=cls.__name__,
-        )
         # Try the regex
         result = re.match(cls._template, sc)
         if result:
@@ -217,29 +182,11 @@ class NamedSegment(_ProtoKeywordSegment):
         # We only match on the first element of a set of segments
         if len(segments) >= 1:
             s = segments[0]
-            if not cls._case_sensitive:
-                n = s.name.upper()
-            else:
-                n = s.name
-            parse_match_logging(
-                cls.__name__,
-                "match",
-                "NM",
-                parse_context=parse_context,
-                v_level=4,
-                pattern=cls._template,
-                test=n,
-                name=cls.__name__,
-            )
+            # Case sensitivity is not supported.
+            n = s.name.upper()
             if cls._template == n:
                 m = (
                     cls(raw=s.raw, pos_marker=segments[0].pos_marker),
                 )  # Return a tuple
                 return MatchResult(m, segments[1:])
-        else:
-            parse_context.logger.debug(
-                "{1} will not match sequence of length {0}".format(
-                    len(segments), cls.__name__
-                )
-            )
         return MatchResult.from_unmatched(segments)

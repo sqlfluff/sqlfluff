@@ -18,7 +18,6 @@ class Indent(RawSegment):
     type = "indent"
     _is_code = False
     _template = "<unset>"
-    _case_sensitive = False
     indent_val = 1
     is_meta = True
     _config_rules = None

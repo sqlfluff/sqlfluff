@@ -14,7 +14,6 @@ class RawSegment(BaseSegment):
     _is_code = False
     _is_comment = False
     _template = "<unset>"
-    _case_sensitive = False
     _raw_upper = None
 
     def __init__(self, raw, pos_marker):
@@ -76,12 +75,7 @@ class RawSegment(BaseSegment):
         newclass = type(
             classname,
             (cls,),
-            dict(
-                _template=_template,
-                _case_sensitive=case_sensitive,
-                _name=name,
-                **kwargs
-            ),
+            dict(_template=_template, _name=name, **kwargs),
         )
         # Now we return that class in the abstract. NOT INSTANTIATED
         return newclass
