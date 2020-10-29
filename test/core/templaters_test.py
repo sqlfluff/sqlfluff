@@ -125,13 +125,14 @@ def test__templater_full(subpath, code_only, yaml_loader):
 def test__templater_dbt_missing():
     """Check that a nice error is returned when dbt module is missing."""
     try:
-        import dbt
+        import dbt  # noqa: F401
+
         pytest.skip(msg="Dbt is installed")
-    except ModuleNotFoundError as e:
+    except ModuleNotFoundError:
         pass
 
     t = DbtTemplateInterface()
-    with pytest.raises(ModuleNotFoundError, match=r"pip install sqlfluff\[dbt\]") as e:
+    with pytest.raises(ModuleNotFoundError, match=r"pip install sqlfluff\[dbt\]"):
         t.process(
             in_str="",
             fname="models/my_new_project/test.sql",

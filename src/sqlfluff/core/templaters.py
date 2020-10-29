@@ -403,7 +403,6 @@ class DbtTemplateInterface(PythonTemplateInterface):
         self.dbt_selector_method = None
         super().__init__(**kwargs)
 
-
     def load_dbt_config(self, config):
         """Loads the dbt config."""
         from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
