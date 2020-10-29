@@ -1225,6 +1225,13 @@ class Rule_L011(BaseCrawler):
                     insert_str = ""
                     init_pos = segment.segments[0].pos_marker
 
+                    # Add intial whitespace if we need to...
+                    if raw_stack[-1].name not in ["whitespace", "newline"]:
+                        insert_buff.append(
+                            self.make_whitespace(raw=" ", pos_marker=init_pos)
+                        )
+                        insert_str += " "
+
                     # Add an AS (Uppercase for now, but could be corrected later)
                     insert_buff.append(
                         self.make_keyword(

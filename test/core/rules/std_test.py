@@ -520,7 +520,7 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
             "fail",
             "with my_cte as (select 1)\n,\nother_cte as (select 1)\nselect * from my_cte cross join other_cte",
             "with my_cte as (select 1)\n,\nother_cte as (select 1)\n\nselect * from my_cte cross join other_cte",
-            None
+            None,
         ),
         # Bare UNION without a DISTINCT or ALL
         (
@@ -617,6 +617,14 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
         # check if using select distinct and group by
         ("L021", "pass", "select a from b group by a", None, None),
         ("L021", "fail", "select distinct a from b group by a", None, None),
+        # Add whitespace when fixing implicit aliasing
+        (
+            "L011",
+            "fail",
+            "select foo.bar from (select 1 as bar)foo",
+            "select foo.bar from (select 1 as bar) AS foo",
+            None,
+        ),
     ],
 )
 def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
