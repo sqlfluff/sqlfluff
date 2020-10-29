@@ -576,9 +576,10 @@ def test__rules__user_rules():
 
 def test__rules__runaway_fail_catch():
     """Test that we catch runaway rules."""
+    runaway_limit = 5
     my_query = "SELECT * FROM foo"
     # Set up the config to only use the rule we are testing.
-    cfg = FluffConfig(overrides={"rules": "T001"})
+    cfg = FluffConfig(overrides={"rules": "T001", "runaway_limit": runaway_limit})
     # Lint it using the current config (while in fix mode)
     linter = Linter(config=cfg, user_rules=[Rule_T001])
     # In theory this step should result in an infinite
@@ -586,7 +587,7 @@ def test__rules__runaway_fail_catch():
     linted = linter.lint_string(my_query, fix=True)
     # We should have a lot of newlines in there.
     # The number should equal the runaway limit
-    assert linted.tree.raw.count("\n") == 10
+    assert linted.tree.raw.count("\n") == runaway_limit
 
 
 @pytest.mark.parametrize(

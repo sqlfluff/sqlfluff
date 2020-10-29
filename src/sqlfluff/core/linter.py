@@ -812,7 +812,7 @@ class Linter:
                 linting_errors = []
                 last_fixes = None
                 fix_loop_idx = 0
-                loop_limit = 10
+                loop_limit = config.get("runaway_limit")
                 while True:
                     fix_loop_idx += 1
                     if fix_loop_idx > loop_limit:
