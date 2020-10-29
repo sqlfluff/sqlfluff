@@ -1839,23 +1839,11 @@ class Rule_L017(BaseCrawler):
             for fname_idx, seg in enumerate(segment.segments):
                 if seg.is_type("function_name"):
                     break
-            else:
-                # This shouldn't happen, but let's not worry
-                # about it if it does.
-                return LintResult()
 
             # Look for the start bracket
             for bracket_idx, seg in enumerate(segment.segments):
                 if seg.name == "start_bracket":
                     break
-            else:
-                # This shouldn't happen, but let's not worry
-                # about it if it does.
-                return LintResult()
-
-            if bracket_idx < fname_idx:
-                # This is a result which shouldn't happen. Ignore it.
-                return LintResult()
 
             if bracket_idx != fname_idx + 1:
                 return LintResult(
