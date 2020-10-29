@@ -9,7 +9,6 @@ from .segments import (
     SymbolSegment,
     ReSegment,
     NamedSegment,
-    LambdaSegment,
     Indent,
     Dedent,
     SegmentGenerator,

@@ -12,5 +12,4 @@ from .keyword import (
     SymbolSegment,
     ReSegment,
     NamedSegment,
-    LambdaSegment,
 )

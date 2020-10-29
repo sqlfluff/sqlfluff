@@ -44,7 +44,6 @@ class BaseSegment:
     optional = False  # NB: See the sequence grammar for details
     is_segment = True
     _name = None
-    _func = None  # Available for use by subclasses (e.g. the LambdaSegment)
     is_meta = False
     # Are we able to have non-code at the start or end?
     can_start_end_non_code = False

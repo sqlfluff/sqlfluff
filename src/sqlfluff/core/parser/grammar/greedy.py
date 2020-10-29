@@ -5,6 +5,7 @@ from ..match_result import MatchResult
 from ..match_wrapper import match_wrapper
 
 from .base import BaseGrammar
+from .noncode import NonCodeMatcher
 
 
 class GreedyUntil(BaseGrammar):
@@ -49,13 +50,16 @@ class GreedyUntil(BaseGrammar):
         """Matching for GreedyUntil works just how you'd expect."""
         seg_buff = segments
         seg_bank = ()  # Empty tuple
+        # If we can't have gaps, then non-code is a terminator
+        if not allow_gaps:
+            matchers.append(NonCodeMatcher())
         # If no terminators then just return the whole thing.
         if matchers == [None]:
             return MatchResult.from_matched(segments)
 
         while True:
             with parse_context.deeper_match() as ctx:
-                pre, mat, _ = cls._bracket_sensitive_look_ahead_match(
+                pre, mat, matcher = cls._bracket_sensitive_look_ahead_match(
                     seg_buff, matchers, parse_context=ctx, allow_gaps=allow_gaps
                 )
 
@@ -111,8 +115,8 @@ class GreedyUntil(BaseGrammar):
                 # we match up until (but not including [unless self.include_terminator
                 # is true]) that terminator.
                 if mat:
-                    # Return everything up to the match.
-                    if include_terminator:
+                    # Return everything up to the match unless it's a gap matcher.
+                    if include_terminator and not isinstance(matcher, NonCodeMatcher):
                         return MatchResult(
                             seg_bank + pre + mat.matched_segments,
                             mat.unmatched_segments,
