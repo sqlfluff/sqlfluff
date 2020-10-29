@@ -3,7 +3,7 @@
 import pytest
 
 from sqlfluff.core import Linter, FluffConfig
-from sqlfluff.core.rules.base import BaseCrawler
+from sqlfluff.core.rules.base import BaseCrawler, LintResult, LintFix
 from sqlfluff.core.rules.std import std_rule_set
 
 
@@ -539,6 +539,54 @@ def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
         raise ValueError(
             "Test setup fail: Unexpected value for pass_fail: {0!r}".format(pass_fail)
         )
+
+
+class Rule_T042(BaseCrawler):
+    """A dummy rule."""
+
+    def _eval(self, segment, raw_stack, **kwargs):
+        pass
+
+
+class Rule_T001(BaseCrawler):
+    """A deliberately malicious rule."""
+
+    def _eval(self, segment, raw_stack, **kwargs):
+        """Stars make newlines."""
+        if segment.is_type("star"):
+            return LintResult(
+                anchor=segment,
+                fixes=[
+                    LintFix("create", segment, self.make_newline(segment.pos_marker))
+                ],
+            )
+
+
+def test__rules__user_rules():
+    """Test that can safely add user rules."""
+    # Set up a linter with the user rule
+    linter = Linter(user_rules=[Rule_T042])
+    # Make sure the new one is in there.
+    assert ("T042", "A dummy rule.") in linter.rule_tuples()
+    # Instantiate a second linter and check it's NOT in there.
+    # This tests that copying and isolation works.
+    linter = Linter()
+    assert not any(rule[0] == "T042" for rule in linter.rule_tuples())
+
+
+def test__rules__runaway_fail_catch():
+    """Test that we catch runaway rules."""
+    my_query = "SELECT * FROM foo"
+    # Set up the config to only use the rule we are testing.
+    cfg = FluffConfig(overrides={"rules": "T001"})
+    # Lint it using the current config (while in fix mode)
+    linter = Linter(config=cfg, user_rules=[Rule_T001])
+    # In theory this step should result in an infinite
+    # loop, but the loop limit should catch it.
+    linted = linter.lint_string(my_query, fix=True)
+    # We should have a lot of newlines in there.
+    # The number should equal the runaway limit
+    assert linted.tree.raw.count("\n") == 10
 
 
 @pytest.mark.parametrize(
