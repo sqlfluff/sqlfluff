@@ -2761,7 +2761,7 @@ class Rule_L028(Rule_L025):
         seen_ref_types = set()
         for ref in references:
             # We skip any unqualified wildcard references (i.e. *). They shouldn't count.
-            if not ref.is_qualified() and ref.is_type("wildcard_reference"):
+            if not ref.is_qualified() and ref.is_type("wildcard_identifier"):
                 continue
             this_ref_type = ref.qualification()
             if self.single_table_references == "consistent":
