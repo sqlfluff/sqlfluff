@@ -458,11 +458,6 @@ class Rule_L003(BaseCrawler):
                         # See above for logic
                         fixes=fixes,
                     )
-                else:
-                    # Indents match. And this is a line that it's ok to
-                    # compare with, we're fine.
-                    pass
-
             # Are we at a deeper indent?
             elif indent_diff > 0:
                 # NB: We shouldn't need to deal with hanging indents
@@ -631,9 +626,6 @@ class Rule_L003(BaseCrawler):
                         if seg.is_type("comment"):
                             anchor = seg
                             break
-                    # Check we found a comment, bail out if not.
-                    if not anchor:
-                        return LintResult(memory=memory)
                     # Make fixes.
                     fixes = self._coerce_indent_to(
                         desired_indent="".join(
