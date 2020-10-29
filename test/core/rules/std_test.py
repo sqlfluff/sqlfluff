@@ -106,6 +106,14 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
             "-- Some Comment\nSELECT 1\n",
             {"rules": {"max_line_length": 18}},
         ),
+        # Check long lines that are only comments are linted correctly
+        (
+            "L016",
+            "fail",
+            "-- Some really long comments on their own line\nSELECT 1",
+            None,
+            {"rules": {"max_line_length": 18}},
+        ),
         # Check we can add newlines after dedents (with an indent)
         (
             "L016",

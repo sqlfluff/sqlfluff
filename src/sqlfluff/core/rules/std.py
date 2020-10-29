@@ -1423,15 +1423,6 @@ class Rule_L016(Rule_L003):
             def raw(self):
                 return "".join(seg.raw for seg in self.segments)
 
-            def first(self):
-                # Return the first non meta segment
-                return next(seg for seg in self.segments if not seg.is_meta)
-
-            def others(self):
-                gen = (seg for seg in self.segments if not seg.is_meta)
-                next(gen)
-                return tuple(gen)
-
             @staticmethod
             def find_segment_at(segments, pos):
                 highest_pos = None
@@ -1440,10 +1431,6 @@ class Rule_L016(Rule_L003):
                         highest_pos = seg.pos_marker
                     if not seg.is_meta and seg.pos_marker == pos:
                         return seg
-                # are we at the end of the file?
-                if pos > highest_pos:
-                    return None
-                raise ValueError("Segment not found at position {0}".format(pos))
 
             def generate_fixes_to_coerce(
                 self, segments, indent_section, crawler, indent
@@ -1473,10 +1460,6 @@ class Rule_L016(Rule_L003):
                 create_anchor = self.find_segment_at(
                     segments, self.segments[-1].get_end_pos_marker()
                 )
-                if create_anchor is None:
-                    # If we're at the end of the file, there's no point
-                    # creating anything.
-                    return []
 
                 if self.role == "pausepoint":
                     # Assume that this means there isn't a breakpoint
