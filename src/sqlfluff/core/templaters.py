@@ -459,12 +459,17 @@ class DbtTemplateInterface(PythonTemplateInterface):
         from dbt.config.profile import PROFILES_DIR
 
         return (
-            config.get_section((self.templater_selector, self.name, "profiles_dir"))
+            os.path.expanduser(
+                config.get_section((self.templater_selector, self.name, "profiles_dir"))
+            )
             or PROFILES_DIR
         )
 
     def _get_project_dir(self, config):
-        return config.get_section((self.templater_selector, self.name, "project_dir"))
+        return os.path.expanduser(
+            config.get_section((self.templater_selector, self.name, "project_dir"))
+            or os.getcwd()
+        )
 
     def _get_profile(self, config):
         return config.get_section((self.templater_selector, self.name, "profile"))

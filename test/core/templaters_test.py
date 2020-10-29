@@ -138,3 +138,12 @@ def test__templater_dbt_utils():
         assert outstr == open("../dbt/use_dbt_utils.sql").read()
     finally:
         os.chdir(pre_test_dir)
+
+
+def test__templater_dbt_profiles_dir_expanded():
+    """Test Dbt templating."""
+    t = DbtTemplateInterface()
+    profiles_dir = t._get_profiles_dir(
+        FluffConfig(configs={"templater": {"dbt": {"profiles_dir": "~/.dbt"}}})
+    )
+    assert profiles_dir == os.path.expanduser("~/.dbt")
