@@ -2,6 +2,7 @@
 
 Here we define:
 - KeywordSegment
+- SymbolSegment
 - ReSegment
 
 These depend on the base segments, and extend them
@@ -13,7 +14,6 @@ we use, and will be common between all of them.
 import re
 
 from ..match_result import MatchResult
-from ..match_logging import parse_match_logging
 from ..match_wrapper import match_wrapper
 
 from .base import BaseSegment
@@ -66,25 +66,9 @@ class _ProtoKeywordSegment(RawSegment):
             pos = segments[0].pos_marker
             raw_comp = raw.upper()
 
-            parse_match_logging(
-                cls.__name__,
-                "match",
-                "KW",
-                parse_context=parse_context,
-                v_level=4,
-                pattern=cls._template,
-                test=raw_comp,
-                name=cls.__name__,
-            )
             if cls._template == raw_comp:
                 m = (cls(raw=raw, pos_marker=pos),)  # Return as a tuple
                 return MatchResult(m, segments[1:])
-        else:
-            parse_context.logger.debug(
-                "{1} will not match sequence of length {0}".format(
-                    len(segments), cls.__name__
-                )
-            )
         return MatchResult.from_unmatched(segments)
 
 
@@ -147,16 +131,6 @@ class ReSegment(_ProtoKeywordSegment):
         sc = s.upper()
         if len(s) == 0:
             raise ValueError("Zero length string passed to ReSegment!?")
-        parse_match_logging(
-            cls.__name__,
-            "match",
-            "RE",
-            parse_context=parse_context,
-            v_level=4,
-            pattern=cls._template,
-            test=sc,
-            name=cls.__name__,
-        )
         # Try the regex
         result = re.match(cls._template, sc)
         if result:
@@ -210,25 +184,9 @@ class NamedSegment(_ProtoKeywordSegment):
             s = segments[0]
             # Case sensitivity is not supported.
             n = s.name.upper()
-            parse_match_logging(
-                cls.__name__,
-                "match",
-                "NM",
-                parse_context=parse_context,
-                v_level=4,
-                pattern=cls._template,
-                test=n,
-                name=cls.__name__,
-            )
             if cls._template == n:
                 m = (
                     cls(raw=s.raw, pos_marker=segments[0].pos_marker),
                 )  # Return a tuple
                 return MatchResult(m, segments[1:])
-        else:
-            parse_context.logger.debug(
-                "{1} will not match sequence of length {0}".format(
-                    len(segments), cls.__name__
-                )
-            )
         return MatchResult.from_unmatched(segments)
