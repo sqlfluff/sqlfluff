@@ -1571,25 +1571,19 @@ class Rule_L016(Rule_L003):
                     # Did we think we were in a pause?
                     # TODO: Renable binary operator breaks some time in future.
                     if is_pause:
-                        if seg.name == "comma":  # or seg.is_type('binary_operator')
-                            # Having a double comma/operator should be impossible
-                            # but let's deal with that case regardless.
-                            segment_buff += whitespace_buff + (seg,)
-                            whitespace_buff = ()
-                        else:
-                            # We need to end the comma/operator
-                            # (taking any whitespace with it).
-                            chunk_buff.append(
-                                Section(
-                                    segments=segment_buff + whitespace_buff,
-                                    role="pausepoint",
-                                    indent_balance=indent_balance,
-                                )
+                        # We need to end the comma/operator
+                        # (taking any whitespace with it).
+                        chunk_buff.append(
+                            Section(
+                                segments=segment_buff + whitespace_buff,
+                                role="pausepoint",
+                                indent_balance=indent_balance,
                             )
-                            # Start the segment buffer off with this section.
-                            whitespace_buff = ()
-                            segment_buff = (seg,)
-                            is_pause = False
+                        )
+                        # Start the segment buffer off with this section.
+                        whitespace_buff = ()
+                        segment_buff = (seg,)
+                        is_pause = False
                     else:
                         # We're not in a pause (or not in a pause yet)
                         if seg.name == "comma":  # or seg.is_type('binary_operator')
