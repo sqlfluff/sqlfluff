@@ -122,8 +122,28 @@ def test__templater_full(subpath, code_only, yaml_loader):
     )
 
 
+def test__templater_dbt_missing():
+    """Check that a nice error is returned when dbt module is missing."""
+    try:
+        import dbt
+        pytest.skip(msg="Dbt is installed")
+    except ModuleNotFoundError as e:
+        pass
+
+    t = DbtTemplateInterface()
+    with pytest.raises(ModuleNotFoundError, match=r"pip install sqlfluff\[dbt\]") as e:
+        t.process(
+            in_str="",
+            fname="models/my_new_project/test.sql",
+            config=FluffConfig(
+                configs={"templater": {"dbt": {"profiles_dir": "../dbt"}}}
+            ),
+        )
+
+
+@pytest.mark.dbt
 def test__templater_dbt_utils():
-    """Test Dbt templating."""
+    """Test Dbt templating supports using dbt_utils (as a dbt dependency)."""
     t = DbtTemplateInterface()
     pre_test_dir = os.getcwd()
     os.chdir("test/fixtures/dbt_project")
@@ -140,8 +160,9 @@ def test__templater_dbt_utils():
         os.chdir(pre_test_dir)
 
 
+@pytest.mark.dbt
 def test__templater_dbt_profiles_dir_expanded():
-    """Test Dbt templating."""
+    """Check that the profiles_dir is expanded."""
     t = DbtTemplateInterface()
     profiles_dir = t._get_profiles_dir(
         FluffConfig(configs={"templater": {"dbt": {"profiles_dir": "~/.dbt"}}})

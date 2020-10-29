@@ -479,7 +479,7 @@ class DbtTemplateInterface(PythonTemplateInterface):
         try:
             import dbt  # noqa: F401
         except ModuleNotFoundError as e:
-            raise RuntimeError(
+            raise ModuleNotFoundError(
                 "Module dbt was not found while trying to use dbt templating, "
                 "please install dbt dependencies through `pip install sqlfluff[dbt]`"
             ) from e
