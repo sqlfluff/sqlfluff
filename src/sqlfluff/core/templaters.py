@@ -401,7 +401,8 @@ class DbtTemplateInterface(PythonTemplateInterface):
         self.dbt_compiler = None
         self.dbt_manifest = None
         self.dbt_selector_method = None
-        super(DbtTemplateInterface).__init__(**kwargs)
+        super().__init__(**kwargs)
+
 
     def load_dbt_config(self, config):
         """Loads the dbt config."""
