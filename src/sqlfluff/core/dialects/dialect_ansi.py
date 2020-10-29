@@ -1034,8 +1034,13 @@ ansi_dialect.add(
         OneOf(
             Ref("BareFunctionSegment"),
             Ref("FunctionSegment"),
-            Bracketed(Ref("Expression_A_Grammar")),
-            Bracketed(Ref("SelectableGrammar")),
+            Bracketed(
+                OneOf(
+                    Ref("Expression_A_Grammar"),
+                    Ref("SelectableGrammar"),
+                    ephemeral_name="BracketedExpression",
+                ),
+            ),
             # Allow potential select statement without brackets
             Ref("SelectStatementSegment"),
             Ref("LiteralGrammar"),
