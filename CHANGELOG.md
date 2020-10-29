@@ -62,6 +62,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed `ColumnExpressionSegment` in favour of `ColumnReference`.
 - Removed the `LambdaSegment` feature, instead replacing with an internal
   to the grammar module called `NonCodeMatcher`.
+- Case sensitivity as a feature for segment matching has been removed as
+  not required for existing dialects.
 
 ## [0.3.6] - 2020-09-24
 
