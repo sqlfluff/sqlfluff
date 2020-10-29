@@ -1111,8 +1111,7 @@ class Rule_L010(BaseCrawler):
             elif raw == lc:
                 seen_case = "lower"
             elif raw == cap:
-                # NB: American spelling :(
-                seen_case = "capitalize"
+                seen_case = "capitalise"
             else:
                 seen_case = "inconsistent"
 
@@ -1125,7 +1124,7 @@ class Rule_L010(BaseCrawler):
                     new_raw = seg.raw.lower()
                 elif policy == "upper":
                     new_raw = seg.raw.upper()
-                elif policy == "capitalize":
+                elif policy == "capitalise":
                     new_raw = seg.raw.capitalize()
                 elif policy == "consistent":
                     # The only case we DONT allow here is "inconsistent",
@@ -1138,10 +1137,6 @@ class Rule_L010(BaseCrawler):
                         # If we haven't seen anything yet, then let's default
                         # to upper
                         return make_replacement(seg, "upper")
-                else:
-                    raise ValueError(
-                        "Unexpected capitalisation policy: {0!r}".format(policy)
-                    )
                 # Make a new class and return it.
                 return seg.__class__(raw=new_raw, pos_marker=seg.pos_marker)
 

@@ -428,6 +428,14 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
             "select * from MOO order by dt desc",
             {"rules": {"L010": {"capitalisation_policy": "lower"}}},
         ),
+        # Test for capitalise casing
+        (
+            "L010",
+            "fail",
+            "SELECT * FROM MOO ORDER BY dt DESC",
+            "Select * From MOO Order By dt Desc",
+            {"rules": {"L010": {"capitalisation_policy": "capitalise"}}},
+        ),
         ("L032", "pass", "select x.a from x inner join y on x.id = y.id", None, None),
         ("L032", "fail", "select x.a from x inner join y using (id)", None, None),
         (
