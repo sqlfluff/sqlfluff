@@ -590,6 +590,14 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
         ),
         # still runs with unparsable with statement
         ("L018", "pass", "with (select 1)", None, None),
+        # duplicate aliases
+        (
+            "L020",
+            "fail",
+            "select 1 from table_1 as a join table_2 as a using(pk)",
+            None,
+            None,
+        ),
     ],
 )
 def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
