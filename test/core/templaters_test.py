@@ -122,7 +122,7 @@ def test__templater_full(subpath, code_only, yaml_loader):
     )
 
 
-def test__templater_dbt():
+def test__templater_dbt_utils():
     """Test Dbt templating."""
     t = DbtTemplateInterface()
     pre_test_dir = os.getcwd()
