@@ -1895,8 +1895,6 @@ class Rule_L018(BaseCrawler):
                 if seg.name.lower() == "with":
                     seg_line_no = seg.pos_marker.line_no
                     break
-                else:
-                    raw_stack_buff.append(seg)
             else:
                 # This *could* happen if the with statement is unparsable,
                 # in which case then the user will have to fix that first.
