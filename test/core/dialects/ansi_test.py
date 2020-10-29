@@ -6,11 +6,10 @@ import logging
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.parser import (
     Lexer,
-    FileSegment,
-    RootParseContext,
     BaseSegment,
     RawSegment,
 )
+from sqlfluff.core.parser.context import RootParseContext
 from sqlfluff.core.parser.match_result import MatchResult
 
 
@@ -22,14 +21,16 @@ from sqlfluff.core.parser.match_result import MatchResult
         ("abc \n \t def  ;blah", ["abc", " ", "\n", " \t ", "def", "  ", ";", "blah"]),
     ],
 )
-def test__dialect__ansi__file_from_raw(raw, res, caplog):
+def test__dialect__ansi__file_lex(raw, res, caplog):
     """Test we don't drop bits on simple examples."""
     config = FluffConfig(overrides=dict(dialect="ansi"))
+    lexer = Lexer(config=config)
     with caplog.at_level(logging.DEBUG):
-        fs, _ = FileSegment.from_raw(raw, config=config)
+        tokens, _ = lexer.lex(raw)
     # From just the initial parse, check we're all there
-    assert fs.raw == raw
-    assert fs.raw_list() == res
+    raw_list = [token.raw for token in tokens]
+    assert "".join(token.raw for token in tokens) == raw
+    assert raw_list == res
 
 
 def lex(raw, config):

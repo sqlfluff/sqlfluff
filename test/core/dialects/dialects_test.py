@@ -7,7 +7,7 @@ and automatically tested against the appropriate dialect.
 import pytest
 import os
 
-from sqlfluff.core.parser import FileSegment, RootParseContext
+from sqlfluff.core.parser import Parser, Lexer
 from sqlfluff.core import FluffConfig
 
 
@@ -55,24 +55,18 @@ def test__dialect__base_file_parse(dialect, file):
     raw = load_file(dialect, file)
     # Load the right dialect
     config = FluffConfig(overrides=dict(dialect=dialect))
-    fs, lex_vs = FileSegment.from_raw(raw, config=config)
+    tokens, lex_vs = Lexer(config=config).lex(raw)
     # From just the initial parse, check we're all there
-    assert fs.raw == raw
+    assert "".join(token.raw for token in tokens) == raw
     # Check we don't have lexing issues
     assert not lex_vs
 
     # Do the parse WITHOUT lots of logging
     # The logs get too long here to be useful. We should use
     # specfic segment tests if we want to debug logs.
-    # with caplog.at_level(logging.DEBUG):
-    print("Pre-parse structure: {0}".format(fs.to_tuple(show_raw=True)))
-    print("Pre-parse structure: {0}".format(fs.stringify()))
-    with RootParseContext.from_config(
-        config
-    ) as ctx:  # Optional: set recurse=1 to limit recursion
-        parsed = fs.parse(parse_context=ctx)
-    print("Post-parse structure: {0}".format(fs.to_tuple(show_raw=True)))
-    print("Post-parse structure: {0}".format(fs.stringify()))
+    parsed = Parser(config=config).parse(tokens)
+    print("Post-parse structure: {0}".format(parsed.to_tuple(show_raw=True)))
+    print("Post-parse structure: {0}".format(parsed.stringify()))
     # Check we're all there.
     assert parsed.raw == raw
     # Check that there's nothing un parsable
@@ -89,9 +83,9 @@ def test__dialect__base_parse_struct(
     config = FluffConfig(overrides=dict(dialect=dialect))
     # Load the SQL
     raw = load_file(dialect, sqlfile)
-    fs, _ = FileSegment.from_raw(raw, config=config)
+    # Lex and parse the file
+    tokens, _ = Lexer(config=config).lex(raw)
+    parsed = Parser(config=config).parse(tokens)
     # Load the YAML
     res = yaml_loader(make_dialect_path(dialect, yamlfile))
-    with RootParseContext.from_config(config) as ctx:
-        parsed = fs.parse(parse_context=ctx)
     assert parsed.to_tuple(code_only=code_only, show_raw=True) == res

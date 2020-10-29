@@ -28,7 +28,6 @@ from ..parser import (
     Ref,
     SegmentGenerator,
     Anything,
-    LambdaSegment,
     Indent,
     Dedent,
     Nothing,
@@ -37,7 +36,7 @@ from .base import Dialect
 from .ansi_keywords import ansi_reserved_keywords, ansi_unreserved_keywords
 
 
-ansi_dialect = Dialect("ansi")
+ansi_dialect = Dialect("ansi", root_segment_name="FileSegment")
 
 
 ansi_dialect.set_lexer_struct(
@@ -126,10 +125,6 @@ ansi_dialect.sets("reserved_keywords").update(
 )
 
 ansi_dialect.add(
-    # NB The NonCode Segment is not really for matching, mostly just for use as a terminator
-    _NonCodeSegment=LambdaSegment.make(
-        lambda x: not x.is_code, is_code=False, name="non_code"
-    ),
     # Real segments
     SemicolonSegment=SymbolSegment.make(
         ";", name="semicolon", type="statement_terminator"
@@ -285,6 +280,31 @@ ansi_dialect.add(
 
 
 @ansi_dialect.segment()
+class FileSegment(BaseSegment):
+    """A segment representing a whole file or script.
+
+    This is also the default "root" segment of the dialect,
+    and so is usually instantiated directly. It therefore
+    has no match_grammar.
+    """
+
+    type = "file"
+    # The file segment is the only one which can start or end with non-code
+    can_start_end_non_code = True
+    # A file can be empty!
+    allow_empty = True
+
+    # NB: We don't need a match_grammar here because we're
+    # going straight into instantiating it directly ususually.
+    parse_grammar = Delimited(
+        Ref("StatementSegment"),
+        delimiter=Ref("SemicolonSegment"),
+        allow_gaps=True,
+        allow_trailing=True,
+    )
+
+
+@ansi_dialect.segment()
 class IntervalExpressionSegment(BaseSegment):
     """An interval expression segment."""
 
@@ -332,7 +352,6 @@ class ObjectReferenceSegment(BaseSegment):
         Ref("SingleIdentifierGrammar"),
         delimiter=OneOf(Ref("DotSegment"), Sequence(Ref("DotSegment"))),
         terminator=OneOf(
-            Ref("_NonCodeSegment"),
             Ref("CommaSegment"),
             Ref("CastOperatorSegment"),
             Ref("StartSquareBracketSegment"),

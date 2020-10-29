@@ -10,7 +10,7 @@ from sqlfluff.core.parser.lexer import (
     RegexMatcher,
     RepeatedMultiMatcher,
 )
-from sqlfluff.core.parser import RawSegment, FileSegment, FilePositionMarker
+from sqlfluff.core.parser import RawSegment, FilePositionMarker
 from sqlfluff.core import SQLLexError, FluffConfig
 
 
@@ -137,7 +137,8 @@ def test__parser__lexer_fail():
 
 def test__parser__lexer_fail_via_parse():
     """Test the how the parser fails and reports errors while lexing."""
-    _, vs = FileSegment.from_raw("Select \u0394", config=FluffConfig())
+    lexer = Lexer(config=FluffConfig())
+    _, vs = lexer.lex("Select \u0394")
     assert vs
     assert len(vs) == 1
     err = vs[0]

@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A limit in the internal fix routines to catch any infinite loops.
 - Added the `.istype()` method on segments to more intelligently
   deal with type matching in rules when inheritance is at play.
+- Added the ability for the user to add their own rules when interacting
+  with the `Linter` directly using `user_rules`.
 
 ### Changed
 
@@ -40,10 +42,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   from `_ProtoKeywordSegment` which allows symbols to match in a very
   similar way to keywords without later appearing with the `type` of
   `keyword`.
-
-### Removed
-
-- Removed `ColumnExpressionSegment` in favour of `ColumnReference`.
+- Introduced the `Parser` class to parse a lexed query rather than
+  relying on users to instantiate a `FileSegment` directly. As a result
+  the `FileSegment` has been moved from the core parser directly into
+  the dialects. Users can refer to it via the `get_root_segment()`
+  method of a dialect.
 
 ### Removed
 - Removed `BaseSegment.grammar`, `BaseSegment._match_grammar()` and
@@ -56,6 +59,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   as it was poorly supported.
 - Removed `BaseSegment.as_optional()` as now this functionality happens
   mostly in grammars (including `Ref`).
+- Removed `ColumnExpressionSegment` in favour of `ColumnReference`.
+- Removed the `LambdaSegment` feature, instead replacing with an internal
+  to the grammar module called `NonCodeMatcher`.
 
 ## [0.3.6] - 2020-09-24
 

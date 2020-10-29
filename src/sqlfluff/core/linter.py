@@ -16,7 +16,7 @@ from benchit import BenchIt
 import pathspec
 
 from .errors import SQLLexError, SQLParseError
-from .parser import FileSegment, RootParseContext
+from .parser import Lexer, Parser
 from .rules import get_ruleset
 from .config import FluffConfig
 
@@ -571,12 +571,31 @@ class LintingResult:
             ]
         )
 
+    @property
+    def tree(self):
+        """A convenience method for when there is only one file and we want the tree."""
+        if len(self.paths) > 1:
+            raise ValueError(
+                ".tree() cannot be called when a LintingResult contains more than one path."
+            )
+        if len(self.paths[0].files) > 1:
+            raise ValueError(
+                ".tree() cannot be called when a LintingResult contains more than one file."
+            )
+        return self.paths[0].files[0].tree
+
 
 class Linter:
     """The interface class to interact with the linter."""
 
     def __init__(
-        self, sql_exts=(".sql",), config=None, formatter=None, dialect=None, rules=None
+        self,
+        sql_exts=(".sql",),
+        config=None,
+        formatter=None,
+        dialect=None,
+        rules=None,
+        user_rules=None,
     ):
         if (dialect or rules) and config:
             raise ValueError(
@@ -602,10 +621,15 @@ class Linter:
         self.config = config
         # Store the formatter for output
         self.formatter = formatter
+        # Store references to user rule classes
+        self.user_rules = user_rules or []
 
     def get_ruleset(self, config=None):
         """Get hold of a set of rules."""
         rs = get_ruleset()
+        # Register any user rules
+        for rule in self.user_rules:
+            rs.register(rule)
         cfg = config or self.config
         return rs.get_rulelist(config=cfg)
 
@@ -650,40 +674,37 @@ class Linter:
         # Detect the case of a catastrophic templater fail. In this case
         # we don't continue. We'll just bow out now.
         if not s:
-            file_segment = None
+            tokens = None
 
         t1 = time.monotonic()
         bencher("Templating {0!r}".format(short_fname))
 
         if s:
             linter_logger.info("LEXING RAW (%s)", fname)
+            # Get the lexer
+            lexer = Lexer(config=config or self.config)
             # Lex the file and log any problems
             try:
-                file_segment, lex_vs = FileSegment.from_raw(
-                    s, config=config or self.config
-                )
+                tokens, lex_vs = lexer.lex(s)
                 # We might just get the violations as a list
                 violations += lex_vs
             except SQLLexError as err:
                 violations.append(err)
-                file_segment = None
+                tokens = None
         else:
-            file_segment = None
+            tokens = None
 
-        if file_segment:
-            linter_logger.info(file_segment.stringify())
+        if tokens:
+            linter_logger.info("Lexed tokens: %s", [seg.raw for seg in tokens])
 
         t2 = time.monotonic()
         bencher("Lexing {0!r}".format(short_fname))
         linter_logger.info("PARSING (%s)", fname)
+        parser = Parser(config=config or self.config)
         # Parse the file and log any problems
-        if file_segment:
+        if tokens:
             try:
-                # Make a parse context and parse
-                with RootParseContext.from_config(
-                    config=config or self.config, recurse=recurse
-                ) as ctx:
-                    parsed = file_segment.parse(parse_context=ctx)
+                parsed = parser.parse(tokens, recurse=recurse)
             except SQLParseError as err:
                 violations.append(err)
                 parsed = None
@@ -791,7 +812,7 @@ class Linter:
                 linting_errors = []
                 last_fixes = None
                 fix_loop_idx = 0
-                loop_limit = 20
+                loop_limit = config.get("runaway_limit")
                 while True:
                     fix_loop_idx += 1
                     if fix_loop_idx > loop_limit:

@@ -5,7 +5,7 @@ This should be the default response from any `match` method.
 
 from collections import namedtuple
 
-from .match_logging import join_segments_raw
+from .helpers import join_segments_raw
 
 
 def is_segment(other):
