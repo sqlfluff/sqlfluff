@@ -15,7 +15,7 @@ def get_rule_from_set(code, config):
     raise ValueError("{0!r} not in {1!r}".format(code, std_rule_set))
 
 
-def assert_rule_fail_in_sql(code, sql, configs=None, runaway_limit=20):
+def assert_rule_fail_in_sql(code, sql, configs=None):
     """Assert that a given rule does fail on the given sql."""
     # Set up the config to only use the rule we are testing.
     cfg = FluffConfig(configs=configs, overrides={"rules": code})
