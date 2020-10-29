@@ -7,4 +7,5 @@ from .base import rules_logger  # noqa
 def get_ruleset(name="standard"):
     """Get a ruleset by name."""
     lookup = {std_rule_set.name: std_rule_set}
-    return lookup[name]
+    # Return a copy in case someone modifies the register.
+    return lookup[name].copy()

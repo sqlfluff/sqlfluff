@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A limit in the internal fix routines to catch any infinite loops.
 - Added the `.istype()` method on segments to more intelligently
   deal with type matching in rules when inheritance is at play.
+- Added the ability for the user to add their own rules when interacting
+  with the `Linter` directly using `user_rules`.
 
 ### Changed
 

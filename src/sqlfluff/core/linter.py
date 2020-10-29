@@ -571,12 +571,31 @@ class LintingResult:
             ]
         )
 
+    @property
+    def tree(self):
+        """A convenience method for when there is only one file and we want the tree."""
+        if len(self.paths) > 1:
+            raise ValueError(
+                ".tree() cannot be called when a LintingResult contains more than one path."
+            )
+        if len(self.paths[0].files) > 1:
+            raise ValueError(
+                ".tree() cannot be called when a LintingResult contains more than one file."
+            )
+        return self.paths[0].files[0].tree
+
 
 class Linter:
     """The interface class to interact with the linter."""
 
     def __init__(
-        self, sql_exts=(".sql",), config=None, formatter=None, dialect=None, rules=None
+        self,
+        sql_exts=(".sql",),
+        config=None,
+        formatter=None,
+        dialect=None,
+        rules=None,
+        user_rules=None,
     ):
         if (dialect or rules) and config:
             raise ValueError(
@@ -602,10 +621,15 @@ class Linter:
         self.config = config
         # Store the formatter for output
         self.formatter = formatter
+        # Store references to user rule classes
+        self.user_rules = user_rules or []
 
     def get_ruleset(self, config=None):
         """Get hold of a set of rules."""
         rs = get_ruleset()
+        # Register any user rules
+        for rule in self.user_rules:
+            rs.register(rule)
         cfg = config or self.config
         return rs.get_rulelist(config=cfg)
 
@@ -788,7 +812,7 @@ class Linter:
                 linting_errors = []
                 last_fixes = None
                 fix_loop_idx = 0
-                loop_limit = 20
+                loop_limit = config.get("runaway_limit")
                 while True:
                     fix_loop_idx += 1
                     if fix_loop_idx > loop_limit:

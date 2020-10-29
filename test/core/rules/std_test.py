@@ -3,7 +3,7 @@
 import pytest
 
 from sqlfluff.core import Linter, FluffConfig
-from sqlfluff.core.rules.base import BaseCrawler
+from sqlfluff.core.rules.base import BaseCrawler, LintResult, LintFix
 from sqlfluff.core.rules.std import std_rule_set
 
 
@@ -15,47 +15,21 @@ def get_rule_from_set(code, config):
     raise ValueError("{0!r} not in {1!r}".format(code, std_rule_set))
 
 
-def assert_rule_fail_in_sql(code, sql, configs=None, runaway_limit=20):
+def assert_rule_fail_in_sql(code, sql, configs=None):
     """Assert that a given rule does fail on the given sql."""
-    # Configs allows overrides if we want to use them.
-    cfg = FluffConfig(configs=configs)
-    r = get_rule_from_set(code, config=cfg)
-    parsed, _, _ = Linter(config=cfg).parse_string(sql)
-    print("Parsed:\n {0}".format(parsed.stringify()))
-    lerrs, _, _, _ = r.crawl(parsed, dialect=cfg.get("dialect_obj"), fix=True)
+    # Set up the config to only use the rule we are testing.
+    cfg = FluffConfig(configs=configs, overrides={"rules": code})
+    # Lint it using the current config (while in fix mode)
+    linted = Linter(config=cfg).lint_string(sql, fix=True)
+    lerrs = linted.get_violations()
     print("Errors Found: {0}".format(lerrs))
     if not any(v.rule.code == code for v in lerrs):
         pytest.fail(
             "No {0} failures found in query which should fail.".format(code),
             pytrace=False,
         )
-    fixed = parsed  # use this as our buffer (yes it's a bit of misnomer right here)
-    loop_idx = 0
-    while loop_idx < runaway_limit:
-        # We get the errors again, but this time skip the assertion
-        # because we're in the loop. If we asserted on every loop then
-        # we're stuffed.
-        lerrs, _, _, _ = r.crawl(fixed, dialect=cfg.get("dialect_obj"), fix=True)
-        print("Errors Found: {0}".format(lerrs))
-        fixes = []
-        for e in lerrs:
-            fixes += e.fixes
-        if not fixes:
-            print("Done")
-            break
-        print("Fixes to apply: {0}".format(fixes))
-        l_fixes = fixes  # Save the fixes to compare to later
-        fixed, fixes = fixed.apply_fixes(fixes)
-        # iterate until all fixes applied
-        if fixes:
-            if fixes == l_fixes:
-                raise RuntimeError("Fixes aren't being applied: {0!r}".format(fixes))
-        loop_idx += 1
-    else:
-        raise ValueError(
-            "Runaway loop limit reached for rule! This example never stabilises."
-        )
-    return fixed.raw
+    # The query should already have been fixed if possible so just return the raw.
+    return linted.tree.raw
 
 
 def assert_rule_pass_in_sql(code, sql, configs=None):
@@ -565,6 +539,55 @@ def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
         raise ValueError(
             "Test setup fail: Unexpected value for pass_fail: {0!r}".format(pass_fail)
         )
+
+
+class Rule_T042(BaseCrawler):
+    """A dummy rule."""
+
+    def _eval(self, segment, raw_stack, **kwargs):
+        pass
+
+
+class Rule_T001(BaseCrawler):
+    """A deliberately malicious rule."""
+
+    def _eval(self, segment, raw_stack, **kwargs):
+        """Stars make newlines."""
+        if segment.is_type("star"):
+            return LintResult(
+                anchor=segment,
+                fixes=[
+                    LintFix("create", segment, self.make_newline(segment.pos_marker))
+                ],
+            )
+
+
+def test__rules__user_rules():
+    """Test that can safely add user rules."""
+    # Set up a linter with the user rule
+    linter = Linter(user_rules=[Rule_T042])
+    # Make sure the new one is in there.
+    assert ("T042", "A dummy rule.") in linter.rule_tuples()
+    # Instantiate a second linter and check it's NOT in there.
+    # This tests that copying and isolation works.
+    linter = Linter()
+    assert not any(rule[0] == "T042" for rule in linter.rule_tuples())
+
+
+def test__rules__runaway_fail_catch():
+    """Test that we catch runaway rules."""
+    runaway_limit = 5
+    my_query = "SELECT * FROM foo"
+    # Set up the config to only use the rule we are testing.
+    cfg = FluffConfig(overrides={"rules": "T001", "runaway_limit": runaway_limit})
+    # Lint it using the current config (while in fix mode)
+    linter = Linter(config=cfg, user_rules=[Rule_T001])
+    # In theory this step should result in an infinite
+    # loop, but the loop limit should catch it.
+    linted = linter.lint_string(my_query, fix=True)
+    # We should have a lot of newlines in there.
+    # The number should equal the runaway limit
+    assert linted.tree.raw.count("\n") == runaway_limit
 
 
 @pytest.mark.parametrize(
