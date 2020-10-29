@@ -2759,27 +2759,27 @@ class Rule_L028(Rule_L025):
         violation_buff = []
         # Check all the references that we have.
         seen_ref_types = set()
-        for r in references:
+        for ref in references:
             # We skip any unqualified wildcard references (i.e. *). They shouldn't count.
-            if not r.is_qualified() and r.is_type("wildcard_reference"):
+            if not ref.is_qualified() and ref.is_type("wildcard_reference"):
                 continue
-            this_ref_type = r.qualification()
+            this_ref_type = ref.qualification()
             if self.single_table_references == "consistent":
                 if seen_ref_types and this_ref_type not in seen_ref_types:
                     violation_buff.append(
                         LintResult(
-                            anchor=r,
+                            anchor=ref,
                             description="{0} reference {1!r} found in single table select which is inconsistent with previous references.".format(
-                                this_ref_type.capitalize(), r.raw
+                                this_ref_type.capitalize(), ref.raw
                             ),
                         )
                     )
             elif self.single_table_references != this_ref_type:
                 violation_buff.append(
                     LintResult(
-                        anchor=r,
+                        anchor=ref,
                         description="{0} reference {1!r} found in single table select.".format(
-                            this_ref_type.capitalize(), r.raw
+                            this_ref_type.capitalize(), ref.raw
                         ),
                     )
                 )
