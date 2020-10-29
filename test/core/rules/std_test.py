@@ -598,6 +598,9 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
             None,
             None,
         ),
+        # check if using select distinct and group by
+        ("L021", "pass", "select a from b group by a", None, None),
+        ("L021", "fail", "select distinct a from b group by a", None, None),
     ],
 )
 def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
