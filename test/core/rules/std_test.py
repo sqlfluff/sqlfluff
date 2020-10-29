@@ -506,6 +506,22 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
             "with my_cte as (\n    select 1\n)\n\n, other_cte as (\n    select 1\n)\n\nselect * from my_cte cross join other_cte",
             None,
         ),
+        # Fixes oneline cte with leading comma style
+        (
+            "L022",
+            "fail",
+            "with my_cte as (select 1), other_cte as (select 1) select * from my_cte cross join other_cte",
+            "with my_cte as (select 1)\n\n, other_cte as (select 1)\n\nselect * from my_cte cross join other_cte",
+            {"rules": {"comma_style": "leading"}},
+        ),
+        # Fixes cte with a floating comma
+        (
+            "L022",
+            "fail",
+            "with my_cte as (select 1)\n,\nother_cte as (select 1)\nselect * from my_cte cross join other_cte",
+            "with my_cte as (select 1)\n,\nother_cte as (select 1)\n\nselect * from my_cte cross join other_cte",
+            None
+        ),
         # Bare UNION without a DISTINCT or ALL
         (
             "L033",
