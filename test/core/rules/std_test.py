@@ -556,6 +556,40 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
             None,
             None,
         ),
+        # with statement indentation
+        (
+            "L018",
+            "pass",
+            "with cte as (\n    select 1\n) select * from cte",
+            None,
+            None,
+        ),
+        # with statement oneline
+        (
+            "L018",
+            "pass",
+            "with cte as (select 1) select * from cte",
+            None,
+            None,
+        ),
+        # Fix with statement indentation
+        (
+            "L018",
+            "fail",
+            "with cte as (\n    select 1\n    ) select * from cte",
+            "with cte as (\n    select 1\n) select * from cte",
+            None,
+        ),
+        # Fix with statement that has negative indentation
+        (
+            "L018",
+            "fail",
+            "    with cte as (\n    select 1\n) select * from cte",
+            "    with cte as (\n    select 1\n    ) select * from cte",
+            None,
+        ),
+        # still runs with unparsable with statement
+        ("L018", "pass", "with (select 1)", None, None),
     ],
 )
 def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
