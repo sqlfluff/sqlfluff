@@ -60,8 +60,20 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
         ("L005", "fail", "SELECT 1 ,4", "SELECT 1,4", None),
         ("L008", "pass", "SELECT 1, 4", None, None),
         ("L008", "fail", "SELECT 1,   4", "SELECT 1, 4", None),
+        ("L008", "fail", "SELECT 1,4", "SELECT 1, 4", None),
         ("L013", "pass", "SELECT *, foo from blah", None, None),
         ("L013", "fail", "SELECT upper(foo), bar from blah", None, None),
+        ("L013", "pass", "SELECT *, foo from blah", None, None),
+        # Don't expect alias if allow_scalar = True (default)
+        ("L013", "pass", "SELECT 1 from blah", None, None),
+        # Expect alias if allow_scalar = False
+        (
+            "L013",
+            "fail",
+            "SELECT 1 from blah",
+            None,
+            {"rules": {"allow_scalar": False}},
+        ),
         ("L013", "pass", "SELECT upper(foo) as foo_up, bar from blah", None, None),
         ("L014", "pass", "SELECT a, b", None, None),
         ("L014", "pass", "SELECT A, B", None, None),
@@ -93,6 +105,14 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
             "fail",
             "SELECT 1 -- Some Comment\n",
             "-- Some Comment\nSELECT 1\n",
+            {"rules": {"max_line_length": 18}},
+        ),
+        # Check long lines that are only comments are linted correctly
+        (
+            "L016",
+            "fail",
+            "-- Some really long comments on their own line\nSELECT 1",
+            None,
             {"rules": {"max_line_length": 18}},
         ),
         # Check we can add newlines after dedents (with an indent)
@@ -202,6 +222,14 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
             "SELECT\n    a,\n    b\n    FROM c",
             None,
             {"rules": {"L019": {"comma_style": "trailing"}}},
+        ),
+        # Using tabs as indents works
+        (
+            "L003",
+            "fail",
+            "SELECT\n\ta,\nb\nFROM my_tbl",
+            "SELECT\n\ta,\n\tb\nFROM my_tbl",
+            {"rules": {"indent_unit": "tab"}},
         ),
         # Configurable indents work.
         # a) default
@@ -419,6 +447,14 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
             "select * from MOO order by dt desc",
             {"rules": {"L010": {"capitalisation_policy": "lower"}}},
         ),
+        # Test for capitalise casing
+        (
+            "L010",
+            "fail",
+            "SELECT * FROM MOO ORDER BY dt DESC",
+            "Select * From MOO Order By dt Desc",
+            {"rules": {"L010": {"capitalisation_policy": "capitalise"}}},
+        ),
         ("L032", "pass", "select x.a from x inner join y on x.id = y.id", None, None),
         ("L032", "fail", "select x.a from x inner join y using (id)", None, None),
         (
@@ -471,6 +507,22 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
             "with my_cte as (\n    select 1\n)\n\n, other_cte as (\n    select 1\n)\n\nselect * from my_cte cross join other_cte",
             None,
         ),
+        # Fixes oneline cte with leading comma style
+        (
+            "L022",
+            "fail",
+            "with my_cte as (select 1), other_cte as (select 1) select * from my_cte cross join other_cte",
+            "with my_cte as (select 1)\n\n, other_cte as (select 1)\n\nselect * from my_cte cross join other_cte",
+            {"rules": {"comma_style": "leading"}},
+        ),
+        # Fixes cte with a floating comma
+        (
+            "L022",
+            "fail",
+            "with my_cte as (select 1)\n,\nother_cte as (select 1)\nselect * from my_cte cross join other_cte",
+            "with my_cte as (select 1)\n,\nother_cte as (select 1)\n\nselect * from my_cte cross join other_cte",
+            None,
+        ),
         # Bare UNION without a DISTINCT or ALL
         (
             "L033",
@@ -519,6 +571,59 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
             "fail",
             "select a, b from tbl union distinct select c, d\nfrom tbl1 union select e, f from tbl2",
             None,
+            None,
+        ),
+        # with statement indentation
+        (
+            "L018",
+            "pass",
+            "with cte as (\n    select 1\n) select * from cte",
+            None,
+            None,
+        ),
+        # with statement oneline
+        (
+            "L018",
+            "pass",
+            "with cte as (select 1) select * from cte",
+            None,
+            None,
+        ),
+        # Fix with statement indentation
+        (
+            "L018",
+            "fail",
+            "with cte as (\n    select 1\n    ) select * from cte",
+            "with cte as (\n    select 1\n) select * from cte",
+            None,
+        ),
+        # Fix with statement that has negative indentation
+        (
+            "L018",
+            "fail",
+            "    with cte as (\n    select 1\n) select * from cte",
+            "    with cte as (\n    select 1\n    ) select * from cte",
+            None,
+        ),
+        # still runs with unparsable with statement
+        ("L018", "pass", "with (select 1)", None, None),
+        # duplicate aliases
+        (
+            "L020",
+            "fail",
+            "select 1 from table_1 as a join table_2 as a using(pk)",
+            None,
+            None,
+        ),
+        # check if using select distinct and group by
+        ("L021", "pass", "select a from b group by a", None, None),
+        ("L021", "fail", "select distinct a from b group by a", None, None),
+        # Add whitespace when fixing implicit aliasing
+        (
+            "L011",
+            "fail",
+            "select foo.bar from (select 1 as bar)foo",
+            "select foo.bar from (select 1 as bar) AS foo",
             None,
         ),
     ],

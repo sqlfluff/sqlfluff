@@ -53,12 +53,9 @@ class Rule_L001(BaseCrawler):
             # If we find a newline, which is preceeded by whitespace, then bad
             deletions = []
             idx = -1
-            while True:
-                if raw_stack[idx].is_type("whitespace"):
-                    deletions.append(raw_stack[idx])
-                    idx -= 1
-                else:
-                    break
+            while raw_stack[idx].is_type("whitespace"):
+                deletions.append(raw_stack[idx])
+                idx -= 1
             return LintResult(
                 anchor=deletions[-1], fixes=[LintFix("delete", d) for d in deletions]
             )
@@ -102,50 +99,24 @@ class Rule_L002(BaseCrawler):
         Only trigger from whitespace segments if they contain
         multiple kinds of whitespace.
         """
-
-        def construct_response():
-            """Make this generic so we can call it from a few places."""
-            return LintResult(
-                anchor=segment,
-                fixes=[
-                    LintFix(
-                        "edit",
-                        segment,
-                        segment.edit(
-                            segment.raw.replace("\t", " " * self.tab_space_size)
-                        ),
-                    )
-                ],
-            )
-
         if segment.is_type("whitespace"):
             if " " in segment.raw and "\t" in segment.raw:
                 if len(raw_stack) == 0 or raw_stack[-1].is_type("newline"):
                     # We've got a single whitespace at the beginning of a line.
                     # It's got a mix of spaces and tabs. Replace each tab with
                     # a multiple of spaces
-                    return construct_response()
-                elif raw_stack[-1].is_type("whitespace"):
-                    # It's preceeded by more whitespace!
-                    # We shouldn't worry about correcting those
-                    # segments, because those will be caught themselves, but we
-                    # do want to collect them together.
-                    buff = list(raw_stack)
-                    while True:
-                        # pop something off the end
-                        seg = buff.pop()
-                        if seg.is_type("whitespace"):
-                            if len(buff) == 0:
-                                # Found start of file
-                                return construct_response()
-                            else:
-                                continue
-                        elif seg.is_type("newline"):
-                            # we're at the start of a line
-                            return construct_response()
-                        else:
-                            # We're not at the start of a line
-                            break
+                    return LintResult(
+                        anchor=segment,
+                        fixes=[
+                            LintFix(
+                                "edit",
+                                segment,
+                                segment.edit(
+                                    segment.raw.replace("\t", " " * self.tab_space_size)
+                                ),
+                            )
+                        ],
+                    )
 
 
 @std_rule_set.document_configuration
@@ -189,12 +160,6 @@ class Rule_L003(BaseCrawler):
             base_unit = "\t"
         elif (indent_unit or self.indent_unit) == "space":
             base_unit = " " * (tab_space_size or self.tab_space_size)
-        else:
-            raise ValueError(
-                "Unexpected value for `indent_unit`: {0!r}".format(
-                    indent_unit or self.indent_unit
-                )
-            )
         return base_unit * num
 
     def _indent_size(self, segments):
@@ -313,7 +278,7 @@ class Rule_L003(BaseCrawler):
                     ),
                 )
             ]
-        # Otherwise edit the first element to be the right size and delete the rest
+        # Otherwise edit the first element to be the right size
         else:
             # Edit the first element of this line's indent.
             fixes = [
@@ -326,9 +291,6 @@ class Rule_L003(BaseCrawler):
                     ),
                 )
             ]
-            # Remove the others.
-            for seg in current_indent_buffer[1:]:
-                fixes.append(LintFix("delete", seg))
         return fixes
 
     def _eval(self, segment, raw_stack, memory, **kwargs):
@@ -496,11 +458,6 @@ class Rule_L003(BaseCrawler):
                         # See above for logic
                         fixes=fixes,
                     )
-                else:
-                    # Indents match. And this is a line that it's ok to
-                    # compare with, we're fine.
-                    pass
-
             # Are we at a deeper indent?
             elif indent_diff > 0:
                 # NB: We shouldn't need to deal with hanging indents
@@ -669,9 +626,6 @@ class Rule_L003(BaseCrawler):
                         if seg.is_type("comment"):
                             anchor = seg
                             break
-                    # Check we found a comment, bail out if not.
-                    if not anchor:
-                        return LintResult(memory=memory)
                     # Make fixes.
                     fixes = self._coerce_indent_to(
                         desired_indent="".join(
@@ -1157,8 +1111,7 @@ class Rule_L010(BaseCrawler):
             elif raw == lc:
                 seen_case = "lower"
             elif raw == cap:
-                # NB: American spelling :(
-                seen_case = "capitalize"
+                seen_case = "capitalise"
             else:
                 seen_case = "inconsistent"
 
@@ -1171,7 +1124,7 @@ class Rule_L010(BaseCrawler):
                     new_raw = seg.raw.lower()
                 elif policy == "upper":
                     new_raw = seg.raw.upper()
-                elif policy == "capitalize":
+                elif policy == "capitalise":
                     new_raw = seg.raw.capitalize()
                 elif policy == "consistent":
                     # The only case we DONT allow here is "inconsistent",
@@ -1184,10 +1137,6 @@ class Rule_L010(BaseCrawler):
                         # If we haven't seen anything yet, then let's default
                         # to upper
                         return make_replacement(seg, "upper")
-                else:
-                    raise ValueError(
-                        "Unexpected capitalisation policy: {0!r}".format(policy)
-                    )
                 # Make a new class and return it.
                 return seg.__class__(raw=new_raw, pos_marker=seg.pos_marker)
 
@@ -1481,15 +1430,6 @@ class Rule_L016(Rule_L003):
             def raw(self):
                 return "".join(seg.raw for seg in self.segments)
 
-            def first(self):
-                # Return the first non meta segment
-                return next(seg for seg in self.segments if not seg.is_meta)
-
-            def others(self):
-                gen = (seg for seg in self.segments if not seg.is_meta)
-                next(gen)
-                return tuple(gen)
-
             @staticmethod
             def find_segment_at(segments, pos):
                 highest_pos = None
@@ -1498,10 +1438,6 @@ class Rule_L016(Rule_L003):
                         highest_pos = seg.pos_marker
                     if not seg.is_meta and seg.pos_marker == pos:
                         return seg
-                # are we at the end of the file?
-                if pos > highest_pos:
-                    return None
-                raise ValueError("Segment not found at position {0}".format(pos))
 
             def generate_fixes_to_coerce(
                 self, segments, indent_section, crawler, indent
@@ -1531,10 +1467,6 @@ class Rule_L016(Rule_L003):
                 create_anchor = self.find_segment_at(
                     segments, self.segments[-1].get_end_pos_marker()
                 )
-                if create_anchor is None:
-                    # If we're at the end of the file, there's no point
-                    # creating anything.
-                    return []
 
                 if self.role == "pausepoint":
                     # Assume that this means there isn't a breakpoint
@@ -1646,25 +1578,19 @@ class Rule_L016(Rule_L003):
                     # Did we think we were in a pause?
                     # TODO: Renable binary operator breaks some time in future.
                     if is_pause:
-                        if seg.name == "comma":  # or seg.is_type('binary_operator')
-                            # Having a double comma/operator should be impossible
-                            # but let's deal with that case regardless.
-                            segment_buff += whitespace_buff + (seg,)
-                            whitespace_buff = ()
-                        else:
-                            # We need to end the comma/operator
-                            # (taking any whitespace with it).
-                            chunk_buff.append(
-                                Section(
-                                    segments=segment_buff + whitespace_buff,
-                                    role="pausepoint",
-                                    indent_balance=indent_balance,
-                                )
+                        # We need to end the comma/operator
+                        # (taking any whitespace with it).
+                        chunk_buff.append(
+                            Section(
+                                segments=segment_buff + whitespace_buff,
+                                role="pausepoint",
+                                indent_balance=indent_balance,
                             )
-                            # Start the segment buffer off with this section.
-                            whitespace_buff = ()
-                            segment_buff = (seg,)
-                            is_pause = False
+                        )
+                        # Start the segment buffer off with this section.
+                        whitespace_buff = ()
+                        segment_buff = (seg,)
+                        is_pause = False
                     else:
                         # We're not in a pause (or not in a pause yet)
                         if seg.name == "comma":  # or seg.is_type('binary_operator')
@@ -1914,23 +1840,11 @@ class Rule_L017(BaseCrawler):
             for fname_idx, seg in enumerate(segment.segments):
                 if seg.is_type("function_name"):
                     break
-            else:
-                # This shouldn't happen, but let's not worry
-                # about it if it does.
-                return LintResult()
 
             # Look for the start bracket
             for bracket_idx, seg in enumerate(segment.segments):
                 if seg.name == "start_bracket":
                     break
-            else:
-                # This shouldn't happen, but let's not worry
-                # about it if it does.
-                return LintResult()
-
-            if bracket_idx < fname_idx:
-                # This is a result which shouldn't happen. Ignore it.
-                return LintResult()
 
             if bracket_idx != fname_idx + 1:
                 return LintResult(
@@ -1988,8 +1902,6 @@ class Rule_L018(BaseCrawler):
                 if seg.name.lower() == "with":
                     seg_line_no = seg.pos_marker.line_no
                     break
-                else:
-                    raw_stack_buff.append(seg)
             else:
                 # This *could* happen if the with statement is unparsable,
                 # in which case then the user will have to fix that first.
@@ -2142,8 +2054,6 @@ class Rule_L019(BaseCrawler):
     @staticmethod
     def _last_code_seg(raw_stack, idx=-1):
         while True:
-            if -idx > len(raw_stack):
-                return None
             if raw_stack[idx].is_code or raw_stack[idx].is_type("newline"):
                 return raw_stack[idx]
             idx -= 1
@@ -2856,27 +2766,27 @@ class Rule_L028(Rule_L025):
         violation_buff = []
         # Check all the references that we have.
         seen_ref_types = set()
-        for r in references:
+        for ref in references:
             # We skip any unqualified wildcard references (i.e. *). They shouldn't count.
-            if not r.is_qualified() and r.is_type("wildcard_reference"):
+            if not ref.is_qualified() and ref.is_type("wildcard_identifier"):
                 continue
-            this_ref_type = r.qualification()
+            this_ref_type = ref.qualification()
             if self.single_table_references == "consistent":
                 if seen_ref_types and this_ref_type not in seen_ref_types:
                     violation_buff.append(
                         LintResult(
-                            anchor=r,
+                            anchor=ref,
                             description="{0} reference {1!r} found in single table select which is inconsistent with previous references.".format(
-                                this_ref_type.capitalize(), r.raw
+                                this_ref_type.capitalize(), ref.raw
                             ),
                         )
                     )
             elif self.single_table_references != this_ref_type:
                 violation_buff.append(
                     LintResult(
-                        anchor=r,
+                        anchor=ref,
                         description="{0} reference {1!r} found in single table select.".format(
-                            this_ref_type.capitalize(), r.raw
+                            this_ref_type.capitalize(), ref.raw
                         ),
                     )
                 )
