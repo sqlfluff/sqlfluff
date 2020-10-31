@@ -105,21 +105,21 @@ class MatchResult(
             raise TypeError("Unexpected input to `seg_to_tuple`: {0}".format(segs))
 
     @classmethod
-    def from_unmatched(cls, unmatched):
+    def from_unmatched(cls, unmatched) -> "MatchResult":
         """Construct a `MatchResult` from just unmatched segments."""
         return cls(matched_segments=(), unmatched_segments=cls.seg_to_tuple(unmatched))
 
     @classmethod
-    def from_matched(cls, matched):
+    def from_matched(cls, matched) -> "MatchResult":
         """Construct a `MatchResult` from just matched segments."""
         return cls(unmatched_segments=(), matched_segments=cls.seg_to_tuple(matched))
 
     @classmethod
-    def from_empty(cls):
+    def from_empty(cls) -> "MatchResult":
         """Construct an empty `MatchResult`."""
         return cls(unmatched_segments=(), matched_segments=())
 
-    def __add__(self, other):
+    def __add__(self, other) -> "MatchResult":
         """Override add for concatenating things onto this match."""
         if isinstance(other, MatchResult):
             return self.__class__(

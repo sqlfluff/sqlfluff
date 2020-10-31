@@ -4,8 +4,7 @@ import os
 import os.path
 import sys
 import configparser
-from typing import Dict, List, Tuple, Any, Optional, Union
-from collections.abc import Iterable
+from typing import Dict, List, Tuple, Any, Optional, Union, Iterable
 
 import appdirs
 
@@ -109,7 +108,7 @@ class ConfigLoader:
         self._config_cache: Dict = {}
 
     @classmethod
-    def get_global(cls) -> ConfigLoader:
+    def get_global(cls) -> "ConfigLoader":
         """Get the singleton loader."""
         global global_loader
         if not global_loader:
@@ -309,7 +308,9 @@ class FluffConfig:
 
     private_vals = "rule_blacklist", "rule_whitelist", "dialect_obj", "templater_obj"
 
-    def __init__(self, configs: Optional[Dict]=None, overrides: Optional[Dict]=None):
+    def __init__(
+        self, configs: Optional[Dict] = None, overrides: Optional[Dict] = None
+    ):
         self._overrides = overrides  # We only store this for child configs
         defaults = ConfigLoader.get_global().load_default_config_file()
         self._configs = nested_combine(
@@ -349,24 +350,24 @@ class FluffConfig:
         )
 
     @classmethod
-    def from_root(cls, overrides: Optional[Dict]=None) -> FluffConfig:
+    def from_root(cls, overrides: Optional[Dict] = None) -> "FluffConfig":
         """Loads a config object just based on the root directory."""
         loader = ConfigLoader.get_global()
         c = loader.load_config_up_to_path(path=".")
         return cls(configs=c, overrides=overrides)
 
     @classmethod
-    def from_path(cls, path: str, overrides: Optional[Dict]=None) -> FluffConfig:
+    def from_path(cls, path: str, overrides: Optional[Dict] = None) -> "FluffConfig":
         """Loads a config object given a particular path."""
         loader = ConfigLoader.get_global()
         c = loader.load_config_up_to_path(path=path)
         return cls(configs=c, overrides=overrides)
 
-    def make_child_from_path(self, path: str) -> FluffConfig:
+    def make_child_from_path(self, path: str) -> "FluffConfig":
         """Make a new child config at a path but pass on overrides."""
         return self.from_path(path, overrides=self._overrides)
 
-    def diff_to(self, other: FluffConfig) -> Dict:
+    def diff_to(self, other: "FluffConfig") -> Dict:
         """Compare this config to another.
 
         Args:
@@ -381,7 +382,7 @@ class FluffConfig:
         """
         return dict_diff(self._configs, other._configs)
 
-    def get(self, val: str, section: Union[str, Iterable[str]]="core"):
+    def get(self, val: str, section: Union[str, Iterable[str]] = "core"):
         """Get a particular value from the config."""
         return self._configs[section].get(val, None)
 
@@ -410,7 +411,7 @@ class FluffConfig:
                     return None
             return buff
 
-    def iter_vals(self, cfg: Optional[Dict]=None) -> Iterable[Tuple]:
+    def iter_vals(self, cfg: Optional[Dict] = None) -> Iterable[Tuple]:
         """Return an iterable of tuples representing keys.
 
         We show values before dicts, the tuple contains an indent

@@ -15,10 +15,10 @@ class Matchable(ABC):
         """Return whether this element is optional."""
         pass
 
-    def simple(self, parse_context: 'ParseContext'):
+    def simple(self, parse_context: "ParseContext"):
         """Try to obtain a simple response from the matcher."""
         pass
 
-    def match(self, segments: Tuple, parse_context: 'ParseContext'):
+    def match(self, segments: Tuple, parse_context: "ParseContext"):
         """Match against this matcher."""
         pass
