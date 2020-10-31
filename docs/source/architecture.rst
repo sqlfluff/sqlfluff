@@ -42,10 +42,10 @@ We recursively parse each of the elements, using their in built grammars.
 
    #. This first calls uses the :code:`parse_grammar` if that is present, on
       which we call :code:`.match()`. The *match* method of this grammar will
-      return a potentially refined structure of the segments within this segment
-      in greater detail than what was initially there. In the example of a
-      :code:`FileSegment`, it first divides up the query into statements and
-      then finishes.
+      return a potentially refined structure of the segments within this
+      segment in greater detail than what was initially there. In the example
+      of a :code:`FileSegment`, it first divides up the query into statements
+      and then finishes.
 
    #. The :code:`.match()` method of any grammar is naturally recursive, and
       is comprised of *segments* and *grammars*. The match step is still not
@@ -56,7 +56,7 @@ We recursively parse each of the elements, using their in built grammars.
       * *Segments* must implement a :code:`match_grammar` to be used in this
         way. When :code:`.match()` is called on a segment, this is the grammar
         which is used to decide whether there is a match.
-      
+
       * *Grammars* are objects which combine *segments* or other *grammars*
         together in a pre-defined way. For example the :code:`OneOf` grammar
         will match if any one of it's child elements match.
