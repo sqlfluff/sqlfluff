@@ -53,6 +53,8 @@ class BaseSegment:
     # What should we trim off the ends to get to content
     trim_chars = None
     trim_start = None
+    # A cache variable for expandable
+    _is_expandable = None
 
     def __init__(self, segments, pos_marker=None, validate=True):
         if len(segments) == 0:
@@ -138,12 +140,19 @@ class BaseSegment:
 
         We need to do this recursively because even if *this* segment doesn't
         need expanding, maybe one of it's children does.
+
+        Once a segment is *not* expandable, it can never become so, which is
+        why the variable is cached.
         """
-        if self.parse_grammar:
+        if self._is_expandable is False:
+            return self._is_expandable
+        elif self.parse_grammar:
             return True
         elif self.segments and any(s.is_expandable for s in self.segments):
             return True
         else:
+            # Cache the variable
+            self._is_expandable = False
             return False
 
     @property

@@ -132,6 +132,11 @@ class BaseGrammar:
         """Does this matcher support a lowercase hash matching route?"""
         return False
 
+    @staticmethod
+    def _iter_raw_segs(segments):
+        for segment in segments:
+            yield from segment.iter_raw_seg()
+
     @classmethod
     def _code_only_sensitive_match(
         cls, segments, matcher, parse_context, allow_gaps=True
@@ -284,27 +289,19 @@ class BaseGrammar:
             # If they're all simple we can use a hash match to identify the first one.
             # Build a buffer of all the upper case raw segments ahead of us.
             str_buff = []
-            seg_idx_buf = (
-                []
-            )  # This is a way of mapping indexes in the str_buff back to indexes in `segments`
             # For existing compound segments, we should assume that within
             # that segment, things are internally consistent, that means
             # rather than enumerating all the individual segments of a longer
             # one we just dump out the whole segment. This is a) faster and
             # also b) prevents some really horrible bugs with bracket matching.
             # See https://github.com/sqlfluff/sqlfluff/issues/433
-            for idx, seg in enumerate(segments):
-                delta_seg_raw = [seg.raw_upper]
-                str_buff += delta_seg_raw
-                seg_idx_buf += [idx] * len(delta_seg_raw)
+            str_buff = [seg.raw_upper for seg in segments]
             match_queue = []
-            _simple_opts = []  # just for logging
 
             for m in simple_matchers:
                 simple = m.simple(parse_context=parse_context)
                 # Simple will be a tuple of options
                 for simple_option in simple:
-                    _simple_opts.append(simple_option)  # just for logging
                     try:
                         buff_pos = str_buff.index(simple_option)
                         mat = (m, buff_pos, simple_option)
@@ -322,7 +319,6 @@ class BaseGrammar:
                 "SI",
                 parse_context=parse_context,
                 v_level=4,
-                _so=_simple_opts,
                 mq=match_queue,
                 sb=str_buff,
             )
@@ -331,9 +327,7 @@ class BaseGrammar:
                 m_first = match_queue.pop()
                 # We've managed to match. We can shortcut home.
                 # NB: We may still need to deal with whitespace.
-                segments_index = seg_idx_buf[
-                    m_first[1]
-                ]  # map back into indexes in `segments`
+                segments_index = m_first[1]
                 # Here we do the actual transform to the new segment.
                 matcher = m_first[0]
                 match = matcher.match(segments[segments_index:], parse_context)

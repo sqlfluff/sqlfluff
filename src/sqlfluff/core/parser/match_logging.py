@@ -47,7 +47,7 @@ class ParseMatchLogObject:
     def __str__(self):
         """Actually materialise the string."""
         symbol = self.kwargs.pop("symbol", "")
-        s = "[PD:{0} MD:{1}]\t{2:<50}\t{3:<20}\t{4:<4}".format(
+        s = "[PD:{0:<2} MD:{1:<2}]\t{2:<50}\t{3:<20}\t{4:<4}".format(
             self.parse_depth,
             self.match_depth,
             ("." * self.match_depth) + str(self.match_segment),
