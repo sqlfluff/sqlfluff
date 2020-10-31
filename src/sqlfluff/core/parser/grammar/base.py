@@ -132,6 +132,11 @@ class BaseGrammar:
         """Does this matcher support a lowercase hash matching route?"""
         return False
 
+    @staticmethod
+    def _iter_raw_segs(segments):
+        for segment in segments:
+            yield from segment.iter_raw_seg()
+
     @classmethod
     def _code_only_sensitive_match(
         cls, segments, matcher, parse_context, allow_gaps=True

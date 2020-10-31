@@ -41,10 +41,8 @@ class AnyNumberOf(BaseGrammar):
 
     def _prune_options(self, segments, parse_context):
         """Use the simple matchers to prune which options to match on."""
-        str_buff = []
-        for upper_segment in segments:
-            for inner_segment in upper_segment.iter_raw_seg():
-                str_buff.append(inner_segment.raw_upper)
+        str_buff = [segment.raw_upper for segment in self._iter_raw_segs(segments)]
+
         available_options = []
         prune_buff = []
         non_simple = 0
