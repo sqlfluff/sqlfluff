@@ -28,3 +28,4 @@ from .grammar import (
 from .markers import FilePositionMarker
 from .lexer import Lexer
 from .parser import Parser
+from .matchable import Matchable

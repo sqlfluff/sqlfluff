@@ -10,3 +10,5 @@ Pygments
 coverage
 pytest
 pytest-cov
+# MyPy
+mypy

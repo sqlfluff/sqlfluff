@@ -6,9 +6,10 @@ terminator or similar alongside other matchers.
 
 from ..match_wrapper import match_wrapper
 from ..match_result import MatchResult
+from ..matchable import Matchable
 
 
-class NonCodeMatcher:
+class NonCodeMatcher(Matchable):
     """An object which behaves like a matcher to match non-code."""
 
     def simple(self, parse_context):

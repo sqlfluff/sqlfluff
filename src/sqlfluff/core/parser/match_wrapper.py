@@ -1,7 +1,28 @@
 """Defined the `match_wrapper` which adds validation and logging to match methods."""
 
-from .match_logging import LateBoundJoinSegmentsCurtailed, parse_match_logging
+from .match_logging import ParseMatchLogObject
 from .match_result import MatchResult, is_segment
+from .helpers import join_segments_raw_curtailed
+
+
+class WrapParseMatchLogObject(ParseMatchLogObject):
+    """A specialised version of ParseMatchLogObject.
+
+    This defers some of the specialist handling to later.
+    """
+
+    def __init__(self, match, segments, **kwargs):
+        self.match = match
+        self.segments = segments
+        super().__init__(msg="OUT", **kwargs)
+
+    def __str__(self):
+        if self.match.is_complete():
+            self.kwargs["symbol"] = "++"
+        elif self.match:
+            self.kwargs["symbol"] = "+"
+        self.kwargs["seg"] = repr(join_segments_raw_curtailed(self.segments))
+        return super().__str__()
 
 
 def match_wrapper(v_level=3):
@@ -40,30 +61,10 @@ def match_wrapper(v_level=3):
             # be the case for grammars where `ephemeral_name` is defined.
             ephemeral_segment = getattr(self_cls, "ephemeral_segment", None)
             if ephemeral_segment:
-                parse_match_logging(
-                    func.__qualname__,
-                    "_match",
-                    "EPH",
-                    parse_context=parse_context,
-                    v_level=v_level,
-                )
                 # We're going to return as though it's a full match, similar to Anything().
                 m = MatchResult.from_matched(ephemeral_segment(segments=segments))
             else:
                 # Otherwise carry on through with wrapping the function.
-                parse_match_logging(
-                    func.__qualname__,
-                    "_match",
-                    "IN",
-                    parse_context=parse_context,
-                    v_level=v_level,
-                    ls=len(segments),
-                    # Log what we're matching.
-                    # Work out the raw representation and curtail if long.
-                    seg=LateBoundJoinSegmentsCurtailed(segments),
-                )
-
-                # Perform the inner matching operation.
                 m = func(self_cls, segments, parse_context=parse_context)
 
             # Validate result
@@ -75,24 +76,14 @@ def match_wrapper(v_level=3):
                 )
 
             # Log the result.
-            if m.is_complete():
-                msg = "OUT"
-                symbol = "++"
-            elif m:
-                msg = "OUT"
-                symbol = "+"
-            else:
-                msg = "OUT"
-                symbol = ""
-            parse_match_logging(
-                func.__qualname__,
-                "_match",
-                msg,
+            WrapParseMatchLogObject(
+                grammar=func.__qualname__,
+                func="match",
+                match=m,
                 parse_context=parse_context,
+                segments=segments,
                 v_level=v_level,
-                m=m,
-                symbol=symbol,
-            )
+            ).log()
             # Basic Validation, skipped here because it still happens in the parse commands.
             return m
 

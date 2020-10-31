@@ -10,11 +10,13 @@ Here we define:
 
 from io import StringIO
 from benchit import BenchIt
+from typing import Optional
 
 from ..match_result import MatchResult
 from ..match_logging import parse_match_logging
 from ..match_wrapper import match_wrapper
 from ..helpers import frame_msg, check_still_complete, trim_non_code, curtail_string
+from ..matchable import Matchable
 
 
 class BaseSegment:
@@ -37,8 +39,8 @@ class BaseSegment:
 
     # `type` should be the *category* of this kind of segment
     type = "base"
-    parse_grammar = None
-    match_grammar = None
+    parse_grammar: Optional[Matchable] = None
+    match_grammar: Optional[Matchable] = None
     comment_seperate = False
     is_whitespace = False
     optional = False  # NB: See the sequence grammar for details

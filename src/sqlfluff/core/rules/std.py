@@ -8,6 +8,7 @@ examples in the same rule should also be un-highlighted.
 """
 
 import itertools
+from typing import Tuple, List
 
 from .base import BaseCrawler, LintFix, LintResult, RuleSet
 from .config_info import STANDARD_CONFIG_INFO_DICT
@@ -1082,7 +1083,10 @@ class Rule_L010(BaseCrawler):
     """
 
     # Binary operators behave like keywords too.
-    _target_elems = (("type", "keyword"), ("type", "binary_operator"))
+    _target_elems: List[Tuple[str, str]] = [
+        ("type", "keyword"),
+        ("type", "binary_operator"),
+    ]
     config_keywords = ["capitalisation_policy"]
 
     def _eval(self, segment, memory, **kwargs):
@@ -1344,7 +1348,7 @@ class Rule_L014(Rule_L010):
     The functionality for this rule is inherited from :obj:`Rule_L010`.
     """
 
-    _target_elems = (("name", "naked_identifier"),)
+    _target_elems: List[Tuple[str, str]] = [("name", "naked_identifier")]
 
 
 @std_rule_set.register
@@ -2871,7 +2875,7 @@ class Rule_L030(Rule_L010):
 
     """
 
-    _target_elems = (("name", "function_name"),)
+    _target_elems: List[Tuple[str, str]] = [("name", "function_name")]
 
 
 @std_rule_set.register

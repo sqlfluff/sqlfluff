@@ -1,10 +1,11 @@
 """Errors - these are closely linked to what used to be called violations."""
+from typing import Optional
 
 
 class SQLBaseError(ValueError):
     """Base Error Class for all violations."""
 
-    _code = None
+    _code: Optional[str] = None
     _identifier = "base"
 
     def __init__(self, *args, **kwargs):

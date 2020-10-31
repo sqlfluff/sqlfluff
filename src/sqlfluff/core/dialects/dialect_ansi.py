@@ -13,6 +13,7 @@ https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 """
 
 from ..parser import (
+    Matchable,
     BaseSegment,
     KeywordSegment,
     SymbolSegment,
@@ -32,6 +33,7 @@ from ..parser import (
     Dedent,
     Nothing,
 )
+
 from .base import Dialect
 from .ansi_keywords import ansi_reserved_keywords, ansi_unreserved_keywords
 
@@ -348,7 +350,7 @@ class ObjectReferenceSegment(BaseSegment):
 
     type = "object_reference"
     # match grammar (don't allow whitespace)
-    match_grammar = Delimited(
+    match_grammar: Matchable = Delimited(
         Ref("SingleIdentifierGrammar"),
         delimiter=OneOf(Ref("DotSegment"), Sequence(Ref("DotSegment"))),
         terminator=OneOf(
