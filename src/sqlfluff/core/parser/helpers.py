@@ -48,23 +48,19 @@ def check_still_complete(
 
 def trim_non_code(segments: Tuple["BaseSegment", ...]):
     """Take segments and split off surrounding non-code segments as appropriate."""
-    pre_buff: Tuple["BaseSegment", ...] = ()
-    seg_buff: Tuple["BaseSegment", ...] = segments
-    post_buff: Tuple["BaseSegment", ...] = ()
+    pre_idx = 0
+    seg_len = len(segments)
+    post_idx = seg_len
 
-    if seg_buff:
-        pre_buff = ()
-        seg_buff = segments
-        post_buff = ()
+    if segments:
+        seg_len = len(segments)
 
         # Trim the start
-        while seg_buff and not seg_buff[0].is_code:
-            pre_buff = pre_buff + (seg_buff[0],)
-            seg_buff = seg_buff[1:]
+        while pre_idx < seg_len and not segments[pre_idx].is_code:
+            pre_idx += 1
 
         # Trim the end
-        while seg_buff and not seg_buff[-1].is_code:
-            post_buff = (seg_buff[-1],) + post_buff
-            seg_buff = seg_buff[:-1]
+        while post_idx > pre_idx and not segments[post_idx - 1].is_code:
+            post_idx -= 1
 
-    return pre_buff, seg_buff, post_buff
+    return segments[:pre_idx], segments[pre_idx:post_idx], segments[post_idx:]
