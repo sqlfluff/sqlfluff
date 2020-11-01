@@ -1,12 +1,12 @@
 """Base grammar, Ref, Anything and Nothing."""
 
 import copy
-from typing import List, Optional
+from typing import List, Optional, Union, Type, Tuple
 
 from ...errors import SQLParseError
 
 from ..segments import BaseSegment, EphemeralSegment
-from ..helpers import curtail_string
+from ..helpers import curtail_string, trim_non_code
 from ..match_result import MatchResult
 from ..match_logging import (
     parse_match_logging,
@@ -15,6 +15,9 @@ from ..match_logging import (
 from ..match_wrapper import match_wrapper
 from ..matchable import Matchable
 from ..context import ParseContext
+
+# Either a Grammar or a Segment CLASS
+MatchableType = Union[Matchable, Type[BaseSegment]]
 
 
 class BaseGrammar(Matchable):
@@ -120,7 +123,7 @@ class BaseGrammar(Matchable):
         return self.optional
 
     @match_wrapper()
-    def match(self, segments, parse_context):
+    def match(self, segments: Tuple["BaseSegment", ...], parse_context: ParseContext):
         """Match a list of segments against this segment.
 
         Matching can be done from either the raw or the segments.
@@ -141,57 +144,14 @@ class BaseGrammar(Matchable):
             yield from segment.iter_raw_seg()
 
     @classmethod
-    def _code_only_sensitive_match(
-        cls, segments, matcher, parse_context, allow_gaps=True
-    ):
-        """Match, but also deal with leading and trailing non-code."""
-        if allow_gaps:
-            seg_buff = segments
-            pre_ws = []
-            post_ws = []
-            # Trim whitespace at the start
-            while True:
-                if len(seg_buff) == 0:
-                    return MatchResult.from_unmatched(segments)
-                elif not seg_buff[0].is_code:
-                    pre_ws += [seg_buff[0]]
-                    seg_buff = seg_buff[1:]
-                else:
-                    break
-            # Trim whitespace at the end
-            while True:
-                if len(seg_buff) == 0:
-                    return MatchResult.from_unmatched(segments)
-                elif not seg_buff[-1].is_code:
-                    post_ws = [seg_buff[-1]] + post_ws
-                    seg_buff = seg_buff[:-1]
-                else:
-                    break
-            m = matcher.match(seg_buff, parse_context)
-            if m.is_complete():
-                # We need to do more to complete matches. It's complete so
-                # we don't need to worry about the unmatched.
-                return MatchResult.from_matched(
-                    tuple(pre_ws) + m.matched_segments + tuple(post_ws)
-                )
-            elif m:
-                # Incomplete matches, just get it added to the end of the unmatched.
-                return MatchResult(
-                    matched_segments=tuple(pre_ws) + m.matched_segments,
-                    unmatched_segments=m.unmatched_segments + tuple(post_ws),
-                )
-            else:
-                # No match, just return unmatched
-                return MatchResult.from_unmatched(segments)
-        else:
-            # Code only not enabled, so just carry on
-            return matcher.match(segments, parse_context)
-
-    @classmethod
-    def _longest_code_only_sensitive_match(
-        cls, segments, matchers, parse_context, allow_gaps=True
-    ):
-        """Match like `_code_only_sensitive_match` but return longest match from a selection of matchers.
+    def _longest_trimmed_match(
+        cls,
+        segments: Tuple["BaseSegment", ...],
+        matchers: List["MatchableType"],
+        parse_context: ParseContext,
+        allow_gaps=True,
+    ) -> Tuple[MatchResult, Optional["MatchableType"]]:
+        """Return longest match from a selection of matchers.
 
         Prioritise the first match, and if multiple match at the same point the longest.
         If two matches of the same length match at the same time, then it's the first in
@@ -201,46 +161,50 @@ class BaseGrammar(Matchable):
             `tuple` of (match_object, matcher).
 
         """
-        # Do some type munging
-        matchers = list(matchers)
-        if isinstance(segments, BaseSegment):
-            segments = [segments]
-
         # Have we been passed an empty list?
         if len(segments) == 0:
             return MatchResult.from_empty(), None
 
-        matches = []
+        # If gaps are allowed, trim the ends.
+        if allow_gaps:
+            pre_nc, segments, post_nc = trim_non_code(segments)
+
+        best_match_length = 0
         # iterate at this position across all the matchers
-        for m in matchers:
-            res_match = cls._code_only_sensitive_match(
-                segments, m, parse_context=parse_context, allow_gaps=allow_gaps
-            )
+        for matcher in matchers:
+            res_match = matcher.match(segments, parse_context=parse_context)
             if res_match.is_complete():
                 # Just return it! (WITH THE RIGHT OTHER STUFF)
-                return res_match, m
-            elif res_match:
-                # Add it to the buffer, make sure the buffer is processed
-                # and return the longest afterward.
-                matches.append((res_match, m))
-            else:
-                # Don't do much. Carry on.
-                pass
-
-        # If we get here, then there wasn't a complete match. Let's iterate
-        # through any other matches and return the longest if there is one.
-        if matches:
-            longest = None
-            for mat in matches:
-                if longest:
-                    # Compare the lengths of the matches
-                    if len(mat[0]) > len(longest[0]):
-                        longest = mat
+                if allow_gaps:
+                    return (
+                        MatchResult.from_matched(
+                            pre_nc + res_match.matched_segments + post_nc
+                        ),
+                        matcher,
+                    )
                 else:
-                    longest = mat
-            return longest
-        else:
-            return MatchResult.from_unmatched(segments), None
+                    return res_match, matcher
+            elif res_match:
+                # We've got an incomplete match, if it's the best so far keep it.
+                if res_match.matched_length > best_match_length:
+                    best_match = res_match, matcher
+                    best_match_length = res_match.matched_length
+
+        # If we get here, then there wasn't a complete match. If we
+        # has a best_match, return that.
+        if best_match_length > 0:
+            if allow_gaps:
+                return (
+                    MatchResult(
+                        pre_nc + best_match[0].matched_segments,
+                        best_match[0].unmatched_segments + post_nc,
+                    ),
+                    best_match[1],
+                )
+            else:
+                return best_match
+        # If no match at all, return nothing
+        return MatchResult.from_unmatched(segments), None
 
     @classmethod
     def _look_ahead_match(cls, segments, matchers, parse_context, allow_gaps=True):
@@ -405,7 +369,7 @@ class BaseGrammar(Matchable):
                 return ((), MatchResult.from_unmatched(segments), None)
 
             # We only check the NON-simple ones here for brevity.
-            mat, m = cls._longest_code_only_sensitive_match(
+            mat, m = cls._longest_trimmed_match(
                 seg_buff,
                 non_simple_matchers,
                 parse_context=parse_context,

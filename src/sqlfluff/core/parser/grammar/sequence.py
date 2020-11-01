@@ -1,6 +1,6 @@
 """Sequence and Bracketed Grammars."""
 
-from typing import Optional, List
+from typing import Optional, List, Tuple
 
 from ...errors import SQLParseError
 
@@ -166,7 +166,9 @@ class Bracketed(Sequence):
         return self.start_bracket.simple(parse_context=parse_context)
 
     @match_wrapper()
-    def match(self, segments, parse_context):
+    def match(
+        self, segments: Tuple["BaseSegment", ...], parse_context: ParseContext
+    ) -> MatchResult:
         """Match if this is a bracketed sequence, with content that matches one of the elements.
 
         1. work forwards to find the first bracket.
@@ -179,17 +181,15 @@ class Bracketed(Sequence):
            log a parsing warning, or error?
 
         """
-        seg_buff = segments
-        matched_segs = ()
+        # Trim ends if allowed.
+        if self.allow_gaps:
+            pre_nc, seg_buff, post_nc = trim_non_code(segments)
+        else:
+            seg_buff = segments
 
         # Look for the first bracket
         with parse_context.deeper_match() as ctx:
-            start_match = self._code_only_sensitive_match(
-                seg_buff,
-                self.start_bracket,
-                parse_context=ctx,
-                allow_gaps=self.allow_gaps,
-            )
+            start_match = self.start_bracket.match(seg_buff, parse_context=ctx)
         if start_match:
             seg_buff = start_match.unmatched_segments
         else:
@@ -206,18 +206,20 @@ class Bracketed(Sequence):
         if not end_match:
             raise SQLParseError(
                 "Couldn't find closing bracket for opening bracket.",
-                segment=matched_segs,
+                segment=start_match.matched_segments[0],
             )
 
         # Match the content now we've confirmed the brackets.
 
         # First deal with the case of TOTALLY EMPTY BRACKETS e.g. "()"
         if not content_segs:
+            # If it's allowed, return a match.
             if not self._elements or all(e.is_optional() for e in self._elements):
                 return MatchResult(
                     start_match.matched_segments + end_match.matched_segments,
                     end_match.unmatched_segments,
                 )
+            # If not, don't.
             else:
                 return MatchResult.from_unmatched(segments)
 
@@ -228,7 +230,7 @@ class Bracketed(Sequence):
             pre_nc = ()
             post_nc = ()
 
-        # Do we have anything left to match on?
+        # If we don't have anything left after trimming, act accordingly.
         if not content_segs:
             if not self._elements or (
                 all(e.is_optional() for e in self._elements) and self.allow_gaps

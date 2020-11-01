@@ -16,7 +16,7 @@ class WrapParseMatchLogObject(ParseMatchLogObject):
     def __init__(self, match, segments, **kwargs):
         self.match = match
         self.segments = segments
-        super().__init__(msg="OUT", **kwargs)
+        super().__init__(msg="OUT", match=match, **kwargs)
 
     def __str__(self):
         if self.match.is_complete():

@@ -8,9 +8,8 @@ from ..match_wrapper import match_wrapper
 from ..match_logging import parse_match_logging
 from ..context import ParseContext
 from ..segments import BaseSegment
-from ..matchable import Matchable
 
-from .base import BaseGrammar
+from .base import BaseGrammar, MatchableType
 
 
 class AnyNumberOf(BaseGrammar):
@@ -45,8 +44,8 @@ class AnyNumberOf(BaseGrammar):
         return self.optional or self.min_times == 0
 
     def _prune_options(
-        self, segments: Tuple[BaseSegment], parse_context: ParseContext
-    ) -> List[Matchable]:
+        self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
+    ) -> List[MatchableType]:
         """Use the simple matchers to prune which options to match on."""
         str_buff = [segment.raw_upper for segment in self._iter_raw_segs(segments)]
 
@@ -109,7 +108,7 @@ class AnyNumberOf(BaseGrammar):
         return available_options
 
     def _match_once(
-        self, segments: Tuple[BaseSegment], parse_context: ParseContext
+        self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
     ) -> MatchResult:
         """Match the forward segments against the available elements once.
 
@@ -127,43 +126,19 @@ class AnyNumberOf(BaseGrammar):
         if not available_options:
             return MatchResult.from_unmatched(segments)
 
-        # Match on each of the options still left.
-        best_match = None
-        for opt in available_options:
-            with parse_context.deeper_match() as ctx:
-                m = opt.match(segments, parse_context=ctx)
-            # If we get a complete match, just return it. If it's incomplete, then check to
-            # see if it's all non-code if that allowed and match it
-            if m.is_complete():
-                # this will return on the *first* complete match
-                return m
-            elif m:
-                if best_match:
-                    if len(m.raw_matched()) > len(best_match.raw_matched()):
-                        best_match = m
-                    else:
-                        continue
-                else:
-                    best_match = m
-                parse_match_logging(
-                    self.__class__.__name__,
-                    "match",
-                    "SAVE",
-                    parse_context=parse_context,
-                    v_level=3,
-                    match_length=len(m.raw_matched()),
-                    m=m,
-                )
-
-        # No full match from the first time round. If we've got a
-        # long partial match then return that.
-        if best_match:
-            return best_match
-        return MatchResult.from_unmatched(segments)
+        with parse_context.deeper_match() as ctx:
+            match, _ = self._longest_trimmed_match(
+                segments,
+                available_options,
+                parse_context=ctx,
+                allow_gaps=False,
+            )
+        parse_context.logger.warning("%s", match)####
+        return match
 
     @match_wrapper()
     def match(
-        self, segments: Tuple[BaseSegment], parse_context: ParseContext
+        self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
     ) -> MatchResult:
         """Match against any of the elements a relevant number of times.
 
@@ -178,8 +153,8 @@ class AnyNumberOf(BaseGrammar):
                     return MatchResult.from_unmatched(segments)
 
         # Match on each of the options
-        matched_segments = MatchResult.from_empty()
-        unmatched_segments = segments
+        matched_segments: MatchResult = MatchResult.from_empty()
+        unmatched_segments: Tuple[BaseSegment, ...] = segments
         n_matches = 0
         while True:
             if self.max_times and n_matches >= self.max_times:
