@@ -21,11 +21,12 @@ def test__parser__helper_trim_non_code(
     post_len,
     generate_test_segments,
 ):
+    """Test trim_non_code."""
     seg_list = generate_test_segments(token_list)
     pre, mid, post = trim_non_code(seg_list)
     # Assert lengths
     assert (len(pre), len(mid), len(post)) == (pre_len, mid_len, post_len)
     # Assert content
     assert [elem.raw for elem in pre] == list(token_list[:pre_len])
-    assert [elem.raw for elem in mid] == list(token_list[pre_len:pre_len+mid_len])
-    assert [elem.raw for elem in post] == list(token_list[len(seg_list)-post_len:])
+    assert [elem.raw for elem in mid] == list(token_list[pre_len : pre_len + mid_len])
+    assert [elem.raw for elem in post] == list(token_list[len(seg_list) - post_len :])
