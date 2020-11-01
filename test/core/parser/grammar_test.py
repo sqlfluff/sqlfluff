@@ -21,29 +21,50 @@ from sqlfluff.core.parser.grammar import (
 # NB: All of these tests depend somewhat on the KeywordSegment working as planned
 
 
-def test__parser__grammar__base__code_only_sensitive_match(seg_list):
-    """Test the _code_only_sensitive_match method of the BaseGrammar."""
+def test__parser__grammar__base__longest_trimmed_match__basic(seg_list):
+    """Test the _longest_trimmed_match method of the BaseGrammar."""
     fs = KeywordSegment.make("foo")
     bs = KeywordSegment.make("bar")
     with RootParseContext(dialect=None) as ctx:
         # Matching the first element of the list
-        m = BaseGrammar._code_only_sensitive_match(seg_list, bs, ctx, allow_gaps=False)
+        m, _ = BaseGrammar._longest_trimmed_match(seg_list, [bs], ctx, allow_gaps=False)
         assert m.matched_segments == (bs("bar", seg_list[0].pos_marker),)
         # Matching with a bit of whitespace before
-        m = BaseGrammar._code_only_sensitive_match(
-            seg_list[1:], fs, ctx, allow_gaps=True
-        )
+        m, _ = BaseGrammar._longest_trimmed_match(seg_list[1:], [fs], ctx, allow_gaps=True)
         assert m.matched_segments == (seg_list[1], fs("foo", seg_list[2].pos_marker))
         # Matching with a bit of whitespace before (not allow_gaps)
-        m = BaseGrammar._code_only_sensitive_match(
-            seg_list[1:], fs, ctx, allow_gaps=False
+        m, _ = BaseGrammar._longest_trimmed_match(
+            seg_list[1:], [fs], ctx, allow_gaps=False
         )
         assert not m
         # Matching with whitespace after
-        m = BaseGrammar._code_only_sensitive_match(
-            seg_list[:2], bs, ctx, allow_gaps=True
-        )
+        m, _ = BaseGrammar._longest_trimmed_match(seg_list[:2], [bs], ctx, allow_gaps=True)
         assert m.matched_segments == (bs("bar", seg_list[0].pos_marker), seg_list[1])
+
+
+def test__parser__grammar__base__longest_trimmed_match__adv(seg_list, caplog):
+    """Test the _longest_trimmed_match method of the BaseGrammar."""
+    bs = KeywordSegment.make("bar")
+    fs = KeywordSegment.make("foo")
+    matchers = [
+        bs,
+        fs,
+        Sequence(bs, fs), # This should be the winner.
+        OneOf(bs, fs),
+        Sequence(bs, fs),  # Another to check we return the first
+    ]
+    fs = KeywordSegment.make("foo")
+    bs = KeywordSegment.make("bar")
+    with RootParseContext(dialect=None) as ctx:
+        # Matching the first element of the list
+        with caplog.at_level(logging.DEBUG, logger="sqluff.parser"):
+            match, matcher = BaseGrammar._longest_trimmed_match(seg_list, matchers, ctx)
+    # Check we got a match
+    assert match
+    # Check we got the right one.
+    assert matcher is matchers[2]
+    # And it matched the first three segments
+    assert len(match) == 3
 
 
 def test__parser__grammar__base__look_ahead_match(seg_list):
