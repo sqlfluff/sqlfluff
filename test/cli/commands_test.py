@@ -333,6 +333,19 @@ def test__cli__command_fix_stdin(stdin, rules, stdout):
     assert result.output == stdout
 
 
+def test__cli__command_fix_stdin_safety():
+    """Check edge cases regarding safety when fixing stdin."""
+    perfect_sql = "select col from table"
+
+    # just prints the very same thing
+    result = invoke_assert_code(args=[fix, ("-",)], cli_input=perfect_sql)
+    assert result.output.strip() == perfect_sql
+
+    # still no warning if no safety specified unnecessarily
+    result = invoke_assert_code(args=[fix, ("-", "--no-safety")], cli_input=perfect_sql)
+    assert result.output.strip() == perfect_sql
+
+
 @pytest.mark.parametrize(
     "rule,fname,prompt,exit_code",
     [
