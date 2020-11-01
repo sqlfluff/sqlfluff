@@ -46,8 +46,15 @@ def check_still_complete(
     return True
 
 
-def trim_non_code(segments: Tuple["BaseSegment", ...]):
-    """Take segments and split off surrounding non-code segments as appropriate."""
+def trim_non_code(
+    segments: Tuple["BaseSegment", ...]
+) -> Tuple[
+    Tuple["BaseSegment", ...], Tuple["BaseSegment", ...], Tuple["BaseSegment", ...]
+]:
+    """Take segments and split off surrounding non-code segments as appropriate.
+
+    We use slices to avoid creating too many unnecessary tuples.
+    """
     pre_idx = 0
     seg_len = len(segments)
     post_idx = seg_len
