@@ -55,10 +55,13 @@ setup(
     # Specify all the seperate packages, modules come automatically
     packages=[
         "sqlfluff",
+        "sqlfluff.api",
         "sqlfluff.cli",
         "sqlfluff.core",
         "sqlfluff.core.dialects",
         "sqlfluff.core.parser",
+        "sqlfluff.core.parser.segments",
+        "sqlfluff.core.parser.grammar",
         "sqlfluff.core.rules",
     ],
     package_dir={"": "src"},

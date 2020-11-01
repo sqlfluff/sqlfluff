@@ -93,3 +93,9 @@ def test__api__parse_string():
     # Check we can iterate objects within it
     keywords = [keyword.raw for keyword in parsed.recursive_crawl("keyword")]
     assert keywords == ["SeLEct", "as", "from"]
+    # Check we can get columns from it
+    col_refs = [col_ref.raw for col_ref in parsed.recursive_crawl("column_reference")]
+    assert col_refs == ["blah"]
+    # Check we can get table from it
+    tbl_refs = [tbl_ref.raw for tbl_ref in parsed.recursive_crawl("table_reference")]
+    assert tbl_refs == ["myTable"]

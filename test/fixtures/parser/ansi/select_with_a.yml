@@ -1,4 +1,3 @@
-# Possibly the simplest query
 file:
   statement:
     with_compound_statement:
@@ -10,22 +9,22 @@ file:
       - select_clause:
           keyword: select
           select_target_element:
-            object_reference:
+            column_reference:
               identifier: a
       - from_clause:
           keyword: from
           table_expression:
-            object_reference:
+            table_reference:
               identifier: tbla
     - end_bracket: )
     - select_statement:
       - select_clause:
           keyword: select
           select_target_element:
-            object_reference:
+            column_reference:
               identifier: a
       - from_clause:
           keyword: from
           table_expression:
-            object_reference:
+            table_reference:
               identifier: cte

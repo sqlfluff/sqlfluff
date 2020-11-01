@@ -46,3 +46,5 @@ structure = parsed.to_tuple(show_raw=True, code_only=True)
 # Extract certain elements
 keywords = [keyword.raw for keyword in parsed.recursive_crawl("keyword")]
 # keywords = ['SeLEct', 'as', 'from']
+tbl_refs = [tbl_ref.raw for tbl_ref in parsed.recursive_crawl("table_reference")]
+# tbl_refs == ["myTable"]

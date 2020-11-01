@@ -225,7 +225,7 @@ class NamedParameterExpressionSegment(BaseSegment):
         Ref("ParameterAssignerSegment"),
         OneOf(
             Ref("LiteralGrammar"),
-            Ref("ObjectReferenceSegment"),
+            Ref("ColumnReferenceSegment"),
             Ref("ExpressionSegment"),
         ),
     )
@@ -259,13 +259,13 @@ class SemiStructuredAccessorSegment(BaseSegment):
                 ),
                 Ref("ArrayAccessorSegment", optional=True),
                 # No extra whitespace
-                code_only=False,
+                allow_gaps=False,
             ),
             # No extra whitespace
-            code_only=False,
+            allow_gaps=False,
         ),
         # No extra whitespace
-        code_only=False,
+        allow_gaps=False,
     )
 
 

@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   information.
 - Support for modulo (`%`) operator.
 - A limit in the internal fix routines to catch any infinite loops.
+- Added the `.istype()` method on segments to more intelligently
+  deal with type matching in rules when inheritance is at play.
+- Added the ability for the user to add their own rules when interacting
+  with the `Linter` directly using `user_rules`.
 
 ### Changed
 
@@ -32,6 +36,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactor of L022 to handle poorly formatted CTEs better.
 - Internally added an `EphemeralSegment` to aid with parsing efficiency
   without altering the end structure of the query.
+- Split `ObjectReference` into `ColumnReference` and `TableReference`
+  for more useful API access to the underlying structure.
+- `KeywordSegment` and the new `SymbolSegment` both now inherit
+  from `_ProtoKeywordSegment` which allows symbols to match in a very
+  similar way to keywords without later appearing with the `type` of
+  `keyword`.
+- Introduced the `Parser` class to parse a lexed query rather than
+  relying on users to instantiate a `FileSegment` directly. As a result
+  the `FileSegment` has been moved from the core parser directly into
+  the dialects. Users can refer to it via the `get_root_segment()`
+  method of a dialect.
+
+### Removed
+- Removed `BaseSegment.grammar`, `BaseSegment._match_grammar()` and
+  `BaseSegment._parse_grammar()` instead preferring references directly
+  to `BaseSegment.match_grammar` and `BaseSegment.parse_grammar`.
+- Removed `EmptySegmentGrammar` and replaced with better non-code handling
+  in the `FileSegment` itself.
+- Remove the `ContainsOnly` grammar as it remained only as an anti-pattern.
+- Removed the `expected_string()` functionality from grammars and segments
+  as it was poorly supported.
+- Removed `BaseSegment.as_optional()` as now this functionality happens
+  mostly in grammars (including `Ref`).
+- Removed `ColumnExpressionSegment` in favour of `ColumnReference`.
+- Removed the `LambdaSegment` feature, instead replacing with an internal
+  to the grammar module called `NonCodeMatcher`.
+- Case sensitivity as a feature for segment matching has been removed as
+  not required for existing dialects.
 
 ## [0.3.6] - 2020-09-24
 

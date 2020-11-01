@@ -190,12 +190,12 @@ class TdRenameStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "RENAME",
         "TABLE",
-        Ref("ObjectReferenceSegment"),
+        Ref("TableReferenceSegment"),
         OneOf(
             "TO",
             "AS",
         ),
-        Ref("ObjectReferenceSegment"),
+        Ref("TableReferenceSegment"),
     )
 
 
@@ -259,7 +259,7 @@ class ColumnDefinitionSegment(BaseSegment):
 
     type = "column_definition"
     match_grammar = Sequence(
-        Ref("ObjectReferenceSegment"),  # Column name
+        Ref("ColumnReferenceSegment"),  # Column name
         Ref("DatatypeSegment"),  # Column type
         Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
         AnyNumberOf(
@@ -436,7 +436,7 @@ class TdTableConstraints(BaseSegment):
                 Ref.keyword("ALL", optional=True),
                 Bracketed(  # Columns making up  constraint
                     Delimited(
-                        Ref("ObjectReferenceSegment"), delimiter=Ref("CommaSegment")
+                        Ref("ColumnReferenceSegment"), delimiter=Ref("CommaSegment")
                     ),
                 ),
             ),
@@ -457,7 +457,7 @@ class CreateTableStatementSegment(BaseSegment):
         OneOf(Sequence("GLOBAL", "TEMPORARY"), "VOLATILE", optional=True),
         "TABLE",
         Sequence("IF", "NOT", "EXISTS", optional=True),
-        Ref("ObjectReferenceSegment"),
+        Ref("TableReferenceSegment"),
         # , NO FALLBACK, NO BEFORE JOURNAL, NO AFTER JOURNAL
         OneOf(Ref("TdCreateTableOptions"), optional=True),
         OneOf(
@@ -479,7 +479,7 @@ class CreateTableStatementSegment(BaseSegment):
             # Create AS syntax:
             Sequence("AS", Ref("SelectableGrammar")),
             # Create like syntax
-            Sequence("LIKE", Ref("ObjectReferenceSegment")),
+            Sequence("LIKE", Ref("TableReferenceSegment")),
         ),
         # PRIMARY INDEX( COD_TARJETA, COD_EST, IND_TIPO_TARJETA, FEC_ANIO_MES )
         OneOf(Ref("TdTableConstraints"), optional=True),
@@ -498,15 +498,15 @@ class UpdateStatementSegment(BaseSegment):
     SET <set clause list> [ WHERE <search condition> ]
     """
 
-    type = "delete_statement"
+    type = "update_statement"
     match_grammar = StartsWith("UPDATE")
     parse_grammar = Sequence(
         "UPDATE",
         OneOf(
-            Ref("ObjectReferenceSegment"),
+            Ref("TableReferenceSegment"),
             Ref("FromUpdateClauseSegment"),
             Sequence(
-                Ref("ObjectReferenceSegment"),
+                Ref("TableReferenceSegment"),
                 Ref("FromUpdateClauseSegment"),
             ),
         ),
@@ -540,7 +540,6 @@ class StatementSegment(BaseSegment):
     parse_grammar = OneOf(
         Ref("SelectableGrammar"),
         Ref("InsertStatementSegment"),
-        Ref("EmptyStatementSegment"),
         Ref("TransactionStatementSegment"),
         Ref("DropStatementSegment"),
         Ref("AccessStatementSegment"),

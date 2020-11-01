@@ -14,6 +14,7 @@ should flag on the segment FOLLOWING, the place that the desired element is
 missing.
 """
 
+import copy
 import logging
 from collections import namedtuple
 
@@ -257,7 +258,7 @@ class BaseCrawler:
 
         # First, check whether we're looking at an unparsable and whether
         # this rule will still operate on that.
-        if not self._works_on_unparsable and segment.type == "unparsable":
+        if not self._works_on_unparsable and segment.is_type("unparsable"):
             # Abort here if it doesn't. Otherwise we'll get odd results.
             return vs, raw_stack, [], memory
 
@@ -573,3 +574,9 @@ class RuleSet:
 
         # Instantiate in the final step
         return [self._register[k]["cls"](**rule_kwargs[k]) for k in keylist]
+
+    def copy(self):
+        """Return a copy of self with a seperate register."""
+        new_ruleset = copy.copy(self)
+        new_ruleset._register = self._register.copy()
+        return new_ruleset
