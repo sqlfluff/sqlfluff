@@ -178,6 +178,11 @@ class BaseSegment:
         """Make an uppercase string from the segments of this segment."""
         return self._reconstruct().upper()
 
+    @property
+    def matched_length(self):
+        """Return the length of the segment in characters."""
+        return sum(seg.matched_length for seg in self.segments)
+
     # ################ STATIC METHODS
 
     @staticmethod
