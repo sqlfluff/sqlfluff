@@ -3212,26 +3212,13 @@ class Rule_L034(BaseCrawler):
 
     def _validate(self, i, segment):
         # Check if we've seen a more complex select target element already
-        if self.seen_element_band[i + 1 : :] != [None] * len(
-            self.seen_element_band[i + 1 : :]
+        if self.seen_band_elements[i + 1 : :] != [[]] * len(
+            self.seen_band_elements[i + 1 : :]
         ):
-            # Not quite worked out the fix
-            earliest_bad_element = next(
-                el for el in self.seen_element_band[i + 1 : :] if el is not None
-            )
-            self.violation_buff.append(
-                LintResult(
-                    anchor=segment,
-                    fixes=[
-                        LintFix("edit", earliest_bad_element, segment),
-                        LintFix("edit", segment, earliest_bad_element),
-                    ],
-                )
-            )
+            self.violation_buff.append(LintResult(anchor=segment))
+            # breakpoint()
         self.current_element_band = i
-        if not self.seen_element_band[i]:
-            # If it's the first time we've seen this target element add it to the seen_element_band list
-            self.seen_element_band[i] = segment
+        self.seen_band_elements[i].append(segment)
 
     def _eval(self, segment, **kwargs):
 
@@ -3241,11 +3228,10 @@ class Rule_L034(BaseCrawler):
             ("wildcard_expression",),
             ("object_reference", "literal", "cast_expression", ("function", "cast")),
         )
-        # Track which bands have been seen, with additional None to track 'other' elements
-        # If we find a matching target element, we add the element to the corresponding index
-        self.seen_element_band = [None for i in select_element_order_preference] + [
-            None
-        ]
+        # Track which bands have been seen, with additional empty list for the non-matching elements
+        # If we find a matching target element, we append the element to the corresponding index
+        self.seen_band_elements = [[] for i in select_element_order_preference] + [[]]
+        # breakpoint()
 
         if segment.type == "select_clause":
             select_target_elements = segment.get_children("select_target_element")
@@ -3277,7 +3263,27 @@ class Rule_L034(BaseCrawler):
                             self._validate(i, segment)
                 # If the target doesn't exist in select_element_order_preference then it is 'complex' and must go last
                 if self.current_element_band is None:
-                    if not self.seen_element_band[-1]:
-                        self.seen_element_band[-1] = segment
+                    self.seen_band_elements[-1].append(segment)
+
+            if self.violation_buff:
+                # Create a list of all the edit fixes
+                # We have to do this at the end of iterating through all the select_target_elements to get the order correct
+                # This means we can't add a lint fix to each individual LintResult as we go
+                ordered_select_target_elements = [
+                    segment for band in self.seen_band_elements for segment in band
+                ]
+                fixes = [
+                    LintFix(
+                        "edit",
+                        initial_select_target_element,
+                        replace_select_target_element,
+                    )
+                    for initial_select_target_element, replace_select_target_element in zip(
+                        select_target_elements, ordered_select_target_elements
+                    )
+                ]
+
+                # Add the set of fixes to the last lint result in the violation buffer
+                self.violation_buff[-1].fixes = fixes
 
         return self.violation_buff or None
