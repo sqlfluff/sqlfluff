@@ -582,6 +582,27 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
             None,
         ),
         (
+            "L034",
+            "fail",
+            "select row_number() over (partition by id order by date) as y, cast(b as int) as b_int, * from x",
+            "select *, cast(b as int) as b_int, row_number() over (partition by id order by date) as y from x",
+            None,
+        ),
+        (
+            "L034",
+            "fail",
+            "select row_number() over (partition by id order by date) as y, b::int, * from x",
+            "select *, b::int, row_number() over (partition by id order by date) as y from x",
+            None,
+        ),
+        (
+            "L034",
+            "fail",
+            "select row_number() over (partition by id order by date) as y, *, 2::int + 4 as sum, cast(b) as c from x",
+            "select *, cast(b) as c, row_number() over (partition by id order by date) as y, 2::int + 4 as sum from x",
+            None,
+        ),
+        (
             "L033",
             "fail",
             "select a, b from tbl union distinct select c, d\nfrom tbl1 union select e, f from tbl2",
