@@ -3134,7 +3134,13 @@ class Rule_L034(BaseCrawler):
         # Bands of select targets in order to be enforced
         select_element_order_preference = (
             ("wildcard_expression",),
-            ("object_reference", "literal", "cast_expression", ("function", "cast"), ("expression", "cast_expression")),
+            (
+                "object_reference",
+                "literal",
+                "cast_expression",
+                ("function", "cast"),
+                ("expression", "cast_expression"),
+            ),
         )
 
         # Track which bands have been seen, with additional empty list for the non-matching elements
@@ -3177,9 +3183,15 @@ class Rule_L034(BaseCrawler):
                             try:
                                 if (
                                     segment.get_child("expression").get_child(e[1])
-                                    and segment.get_child("expression").segments[0].type in ("column_reference", "object_reference", "literal")
+                                    and segment.get_child("expression").segments[0].type
+                                    in (
+                                        "column_reference",
+                                        "object_reference",
+                                        "literal",
+                                    )
                                     # len == 2 to ensure the expression is 'simple'
-                                    and len(segment.get_child("expression").segments) == 2
+                                    and len(segment.get_child("expression").segments)
+                                    == 2
                                 ):
                                     self._validate(i, segment)
                             except AttributeError:
