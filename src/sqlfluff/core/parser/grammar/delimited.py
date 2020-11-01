@@ -1,6 +1,6 @@
 """Definitions for Grammar."""
 
-from typing import Optional, Tuple, List
+from typing import Tuple, List
 
 from ..segments import BaseSegment
 from ..helpers import trim_non_code
@@ -8,11 +8,11 @@ from ..match_result import MatchResult
 from ..match_wrapper import match_wrapper
 from ..context import ParseContext
 
-from .base import BaseGrammar
 from .noncode import NonCodeMatcher
+from .anyof import OneOf
 
 
-class Delimited(BaseGrammar):
+class Delimited(OneOf):
     """Match an arbitrary number of elements seperated by a delimiter.
 
     Note that if there are multiple elements passed in that they will be treated
@@ -36,20 +36,6 @@ class Delimited(BaseGrammar):
         # Setting min delimiters means we have to match at least this number
         self.min_delimiters = min_delimiters
         super().__init__(*args, **kwargs)
-
-    def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
-        """Does this matcher support a uppercase hash matching route?
-
-        Delimited does provide this, as long as *all* the elements *also* do.
-        This code is identical to OneOf.
-        """
-        simple_buff = [
-            opt.simple(parse_context=parse_context) for opt in self._elements
-        ]
-        if any(elem is None for elem in simple_buff):
-            return None
-        # Flatten the list
-        return [inner for outer in simple_buff for inner in outer]
 
     @match_wrapper()
     def match(
