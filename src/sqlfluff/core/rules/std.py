@@ -3126,7 +3126,6 @@ class Rule_L034(BaseCrawler):
             self.seen_band_elements[i + 1 : :]
         ):
             self.violation_buff.append(LintResult(anchor=segment))
-            # breakpoint()
         self.current_element_band = i
         self.seen_band_elements[i].append(segment)
 
@@ -3141,17 +3140,17 @@ class Rule_L034(BaseCrawler):
         # Track which bands have been seen, with additional empty list for the non-matching elements
         # If we find a matching target element, we append the element to the corresponding index
         self.seen_band_elements = [[] for i in select_element_order_preference] + [[]]
-        # breakpoint()
 
         if segment.type == "select_clause":
             select_target_elements = segment.get_children("select_target_element")
             if not select_target_elements:
                 return None
 
+            # Iterate through all the select targets to identify their 'banding' against select_element_order_preference
             for segment in select_target_elements:
                 # The band index of the current segment in select_element_order_preference
                 self.current_element_band = None
-                # Identify target elements that are in select_element_order_preference
+                # Compare the segment to the bands in select_element_order_preference
                 for i, band in enumerate(select_element_order_preference):
                     for e in band:
                         # Identify function type select target
