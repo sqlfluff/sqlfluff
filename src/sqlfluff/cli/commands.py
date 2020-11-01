@@ -385,8 +385,12 @@ def fix(
     character to indicate reading from *stdin* or a dot/blank ('.'/' ') which will
     be interpreted like passing the current working directory as a path argument.
     """
+    # some quick checks
+    fixing_stdin = ("-",) == paths
+    no_safety = no_safety or fixing_stdin  # saftey not needed if fixing stdin
+
     c = get_config(**kwargs)
-    lnt, formatter = get_linter_and_formatter(c, silent=("-",) == paths)
+    lnt, formatter = get_linter_and_formatter(c, silent=fixing_stdin)
     verbose = c.get("verbose")
 
     bencher = BenchIt()
@@ -398,9 +402,11 @@ def fix(
 
     # Check that if fix is specified, that we have picked only a subset of rules
     if no_safety:
-        click.echo(
-            colorize("NO SAFETY", "red") + ": Attempting fixes for all enabled rules."
-        )
+        if not fixing_stdin:
+            click.echo(
+                colorize("NO SAFETY", "red")
+                + ": Attempting fixes for all enabled rules."
+            )
     elif lnt.config.get("rule_whitelist") is None:
         click.echo(
             (
@@ -412,7 +418,7 @@ def fix(
         sys.exit(1)
 
     # handle stdin case. should output formatted sql to stdout and nothing else.
-    if ("-",) == paths:
+    if fixing_stdin:
         stdin = sys.stdin.read()
         # TODO: Remove verbose
         result = lnt.lint_string_wrapped(stdin, fname="stdin", fix=True)
