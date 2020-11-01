@@ -12,9 +12,11 @@ we use, and will be common between all of them.
 """
 
 import re
+from typing import Optional, List
 
 from ..match_result import MatchResult
 from ..match_wrapper import match_wrapper
+from ..context import ParseContext
 
 from .base import BaseSegment
 from .raw import RawSegment
@@ -39,14 +41,14 @@ class _ProtoKeywordSegment(RawSegment):
     _template = "<unset>"
 
     @classmethod
-    def simple(cls, parse_context):
+    def simple(cls, parse_context: ParseContext) -> Optional[List[str]]:
         """Does this matcher support a uppercase hash matching route?
 
         The keyword segment DOES, provided that it is not case sensitive,
         we return a tuple in case there is more than one option.
         """
         # NB: We go UPPER on make, so no need to convert here
-        return (cls._template,)
+        return [cls._template]
 
     @classmethod
     @match_wrapper(v_level=4)
@@ -105,12 +107,12 @@ class ReSegment(_ProtoKeywordSegment):
     """If `_anti_template` is set, then we exclude anything that matches it."""
 
     @classmethod
-    def simple(cls, parse_context):
+    def simple(cls, parse_context: ParseContext) -> Optional[List[str]]:
         """Does this matcher support a uppercase hash matching route?
 
         Regex segment does NOT for now. We might need to later for efficiency.
         """
-        return False
+        return None
 
     @classmethod
     @match_wrapper(v_level=4)
@@ -156,7 +158,7 @@ class NamedSegment(_ProtoKeywordSegment):
     """
 
     @classmethod
-    def simple(cls, parse_context):
+    def simple(cls, parse_context: ParseContext) -> Optional[List[str]]:
         """Does this matcher support a uppercase hash matching route?
 
         NamedSegment segment does NOT for now. We might need to later for efficiency.
@@ -165,7 +167,7 @@ class NamedSegment(_ProtoKeywordSegment):
         shortcut route, to look ahead at the names of upcoming segments,
         rather than their content.
         """
-        return False
+        return None
 
     @classmethod
     @match_wrapper(v_level=4)

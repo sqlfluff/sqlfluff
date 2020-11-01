@@ -1,6 +1,7 @@
 """Base grammar, Ref, Anything and Nothing."""
 
 import copy
+from typing import List, Optional
 
 from ...errors import SQLParseError
 
@@ -13,6 +14,7 @@ from ..match_logging import (
 )
 from ..match_wrapper import match_wrapper
 from ..matchable import Matchable
+from ..context import ParseContext
 
 
 class BaseGrammar(Matchable):
@@ -129,9 +131,9 @@ class BaseGrammar(Matchable):
             "{0} has no match function implemented".format(self.__class__.__name__)
         )
 
-    def simple(self, parse_context):
+    def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
         """Does this matcher support a lowercase hash matching route?"""
-        return False
+        return None
 
     @staticmethod
     def _iter_raw_segs(segments):
@@ -281,10 +283,12 @@ class BaseGrammar(Matchable):
         # "simple", then we effectively use a hash lookup across the
         # content of segments to quickly evaluate if the segment is present.
         # Matchers which aren't "simple" still take a slower route.
-        simple_matchers = [m for m in matchers if m.simple(parse_context=parse_context)]
-        non_simple_matchers = [
-            m for m in matchers if not m.simple(parse_context=parse_context)
+        _matchers = [
+            (matcher, matcher.simple(parse_context=parse_context))
+            for matcher in matchers
         ]
+        simple_matchers = [matcher for matcher in _matchers if matcher[1]]
+        non_simple_matchers = [matcher[0] for matcher in _matchers if not matcher[1]]
         best_simple_match = None
         if simple_matchers:
             # If they're all simple we can use a hash match to identify the first one.
@@ -299,14 +303,12 @@ class BaseGrammar(Matchable):
             str_buff = [seg.raw_upper for seg in segments]
             match_queue = []
 
-            for m in simple_matchers:
-                simple = m.simple(parse_context=parse_context)
+            for matcher, simple in simple_matchers:
                 # Simple will be a tuple of options
                 for simple_option in simple:
                     try:
                         buff_pos = str_buff.index(simple_option)
-                        mat = (m, buff_pos, simple_option)
-                        match_queue.append(mat)
+                        match_queue.append((matcher, buff_pos, simple_option))
                     except ValueError:
                         pass
 
@@ -605,7 +607,7 @@ class Ref(BaseGrammar):
     # and it also causes infinite recursion.
     allow_keyword_string_refs = False
 
-    def simple(self, parse_context):
+    def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
         """Does this matcher support a uppercase hash matching route?
 
         A ref is simple, if the thing it references is simple.

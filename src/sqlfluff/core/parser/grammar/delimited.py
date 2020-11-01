@@ -1,9 +1,12 @@
 """Definitions for Grammar."""
 
+from typing import Optional, Tuple, List
+
 from ..segments import BaseSegment
 from ..helpers import trim_non_code
 from ..match_result import MatchResult
 from ..match_wrapper import match_wrapper
+from ..context import ParseContext
 
 from .base import BaseGrammar
 from .noncode import NonCodeMatcher
@@ -34,31 +37,29 @@ class Delimited(BaseGrammar):
         self.min_delimiters = min_delimiters
         super().__init__(*args, **kwargs)
 
-    def simple(self, parse_context):
+    def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
         """Does this matcher support a uppercase hash matching route?
 
         Delimited does provide this, as long as *all* the elements *also* do.
         This code is identical to OneOf.
         """
-        simple_buff = ()
-        for opt in self._elements:
-            simple = opt.simple(parse_context=parse_context)
-            if not simple:
-                return False
-            simple_buff += simple
-        return simple_buff
+        simple_buff = [
+            opt.simple(parse_context=parse_context) for opt in self._elements
+        ]
+        if any(elem is None for elem in simple_buff):
+            return None
+        # Flatten the list
+        return [inner for outer in simple_buff for inner in outer]
 
     @match_wrapper()
-    def match(self, segments, parse_context):
+    def match(
+        self, segments: Tuple[BaseSegment], parse_context: ParseContext
+    ) -> MatchResult:
         """Match an arbitrary number of elements seperated by a delimiter.
 
         Note that if there are multiple elements passed in that they will be treated
         as different options of what can be delimited, rather than a sequence.
         """
-        # Type munging
-        if isinstance(segments, BaseSegment):
-            segments = [segments]
-
         # Have we been passed an empty list?
         if len(segments) == 0:
             return MatchResult.from_empty()
@@ -67,7 +68,7 @@ class Delimited(BaseGrammar):
         seg_buff = segments
         matched_segments = MatchResult.from_empty()
         # delimiters is a list of tuples containing delimiter segments as we find them.
-        delimiters = []
+        delimiters: List[BaseSegment] = []
 
         # First iterate through all the segments, looking for the delimiter.
         # Second, split the list on each of the delimiters, and ensure that

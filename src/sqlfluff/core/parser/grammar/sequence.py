@@ -1,11 +1,14 @@
 """Sequence and Bracketed Grammars."""
 
+from typing import Optional, List
+
 from ...errors import SQLParseError
 
 from ..segments import BaseSegment, Indent, Dedent
 from ..helpers import trim_non_code, check_still_complete
 from ..match_result import MatchResult
 from ..match_wrapper import match_wrapper
+from ..context import ParseContext
 
 from .base import BaseGrammar, Ref
 
@@ -13,17 +16,17 @@ from .base import BaseGrammar, Ref
 class Sequence(BaseGrammar):
     """Match a specific sequence of elements."""
 
-    def simple(self, parse_context):
+    def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
         """Does this matcher support a uppercase hash matching route?
 
         Sequence does provide this, as long as the *first* non-optional
         element does, *AND* and optional elements which preceed it also do.
         """
-        simple_buff = ()
+        simple_buff = []
         for opt in self._elements:
             simple = opt.simple(parse_context=parse_context)
             if not simple:
-                return False
+                return None
             simple_buff += simple
 
             if not opt.is_optional():
@@ -155,7 +158,7 @@ class Bracketed(Sequence):
             self.end_bracket = Ref("EndBracketSegment")
         super(Bracketed, self).__init__(*args, **kwargs)
 
-    def simple(self, parse_context):
+    def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
         """Does this matcher support a uppercase hash matching route?
 
         Bracketed does this easily, we just look for the bracket.

@@ -10,13 +10,14 @@ Here we define:
 
 from io import StringIO
 from benchit import BenchIt
-from typing import Optional
+from typing import Optional, List
 
 from ..match_result import MatchResult
 from ..match_logging import parse_match_logging
 from ..match_wrapper import match_wrapper
 from ..helpers import frame_msg, check_still_complete, trim_non_code, curtail_string
 from ..matchable import Matchable
+from ..context import ParseContext
 
 
 class BaseSegment:
@@ -238,7 +239,7 @@ class BaseSegment:
     # ################ CLASS METHODS
 
     @classmethod
-    def simple(cls, parse_context):
+    def simple(cls, parse_context: ParseContext) -> Optional[List[str]]:
         """Does this matcher support an uppercase hash matching route?
 
         This should be true if the MATCH grammar is simple. Most more
@@ -250,7 +251,7 @@ class BaseSegment:
         else:
             # Other segments will either override this method, or aren't
             # simple.
-            return False
+            return None
 
     @classmethod
     def is_optional(cls):

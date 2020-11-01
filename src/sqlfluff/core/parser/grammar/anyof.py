@@ -1,9 +1,14 @@
 """AnyNumberOf and OneOf."""
 
+from typing import List, Optional, Tuple
+
 from ..helpers import trim_non_code
 from ..match_result import MatchResult
 from ..match_wrapper import match_wrapper
 from ..match_logging import parse_match_logging
+from ..context import ParseContext
+from ..segments import BaseSegment
+from ..matchable import Matchable
 
 from .base import BaseGrammar
 
@@ -18,20 +23,20 @@ class AnyNumberOf(BaseGrammar):
         self.exclude = kwargs.pop("exclude", None)
         super().__init__(*args, **kwargs)
 
-    def simple(self, parse_context):
+    def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
         """Does this matcher support a uppercase hash matching route?
 
         AnyNumberOf does provide this, as long as *all* the elements *also* do.
         """
-        simple_buff = ()
-        for opt in self._elements:
-            simple = opt.simple(parse_context=parse_context)
-            if not simple:
-                return False
-            simple_buff += simple
-        return simple_buff
+        simple_buff = [
+            opt.simple(parse_context=parse_context) for opt in self._elements
+        ]
+        if any(elem is None for elem in simple_buff):
+            return None
+        # Flatten the list
+        return [inner for outer in simple_buff for inner in outer]
 
-    def is_optional(self):
+    def is_optional(self) -> bool:
         """Return whether this element is optional.
 
         This is mostly set in the init method, but also in this
@@ -39,7 +44,9 @@ class AnyNumberOf(BaseGrammar):
         """
         return self.optional or self.min_times == 0
 
-    def _prune_options(self, segments, parse_context):
+    def _prune_options(
+        self, segments: Tuple[BaseSegment], parse_context: ParseContext
+    ) -> List[Matchable]:
         """Use the simple matchers to prune which options to match on."""
         str_buff = [segment.raw_upper for segment in self._iter_raw_segs(segments)]
 
@@ -50,7 +57,7 @@ class AnyNumberOf(BaseGrammar):
         matched_simple = 0
         for opt in self._elements:
             simple = opt.simple(parse_context=parse_context)
-            if simple is False:
+            if simple is None:
                 # This element is not simple, we have to do a
                 # full match with it...
                 available_options.append(opt)
@@ -101,7 +108,9 @@ class AnyNumberOf(BaseGrammar):
 
         return available_options
 
-    def _match_once(self, segments, parse_context):
+    def _match_once(
+        self, segments: Tuple[BaseSegment], parse_context: ParseContext
+    ) -> MatchResult:
         """Match the forward segments against the available elements once.
 
         This serves as the main body of OneOf, but also a building block
@@ -153,7 +162,9 @@ class AnyNumberOf(BaseGrammar):
         return MatchResult.from_unmatched(segments)
 
     @match_wrapper()
-    def match(self, segments, parse_context):
+    def match(
+        self, segments: Tuple[BaseSegment], parse_context: ParseContext
+    ) -> MatchResult:
         """Match against any of the elements a relevant number of times.
 
         If it matches multiple, it returns the longest, and if any are the same

@@ -1,8 +1,11 @@
 """GreedyUntil and StartsWith Grammars."""
 
+from typing import Optional, List
+
 from ..helpers import trim_non_code
 from ..match_result import MatchResult
 from ..match_wrapper import match_wrapper
+from ..context import ParseContext
 
 from .base import BaseGrammar
 from .noncode import NonCodeMatcher
@@ -147,7 +150,7 @@ class StartsWith(GreedyUntil):
         self.include_terminator = kwargs.pop("include_terminator", False)
         super(StartsWith, self).__init__(*args, **kwargs)
 
-    def simple(self, parse_context):
+    def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
         """Does this matcher support a uppercase hash matching route?
 
         `StartsWith` is simple, if the thing it starts with is also simple.
