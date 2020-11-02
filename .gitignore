@@ -29,5 +29,6 @@ htmlcov
 .test-reports
 test-reports
 
-# Ignore root testing sql files
+# Ignore root testing sql & python files
 /test*.sql
+/test*.py
