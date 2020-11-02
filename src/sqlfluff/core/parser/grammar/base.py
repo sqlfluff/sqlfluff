@@ -319,13 +319,11 @@ class BaseGrammar(Matchable):
             )
 
             while match_queue:
-                m_first = match_queue.pop()
                 # We've managed to match. We can shortcut home.
                 # NB: We may still need to deal with whitespace.
-                segments_index = m_first[1]
+                queued_matcher, queued_buff_pos, queued_option = match_queue.pop()
                 # Here we do the actual transform to the new segment.
-                matcher = m_first[0]
-                match = matcher.match(segments[segments_index:], parse_context)
+                match = queued_matcher.match(segments[queued_buff_pos:], parse_context)
                 if not match:
                     # We've had something match in simple matching, but then later excluded.
                     # Log but then move on to the next item on the list.
@@ -335,29 +333,28 @@ class BaseGrammar(Matchable):
                         "NM",
                         parse_context=parse_context,
                         v_level=4,
-                        _so=m_first[2],
+                        _so=queued_option,
                     )
                     continue
-                pre_segments = segments[:segments_index]
+                # Ok we have a match. Because we sorted the list, we'll take it!
+                # Before declaring victory, we have to handle potential whitespace.
+                pre_segments = segments[:queued_buff_pos]
                 if allow_gaps:
                     # Pick up any non-code segments as necessary
                     # ...from the start
-                    while True:
-                        if not pre_segments or pre_segments[-1].is_code:
-                            break
-                        else:
-                            match = MatchResult(
-                                (pre_segments[-1],) + match.matched_segments,
-                                match.unmatched_segments,
-                            )
-                            pre_segments = pre_segments[:-1]
+                    pre_nc, pre_segments, post_nc = trim_non_code(pre_segments)
+                    pre_segments = pre_nc + pre_segments
+                    match = MatchResult(
+                        post_nc + match.matched_segments,
+                        match.unmatched_segments,
+                    )
                     # ...from the end (but only if it's the whole of the rest,
                     # otherwise assume the next matcher will pick it up)
                     if all(not elem.is_code for elem in match.unmatched_segments):
                         match = MatchResult.from_matched(
                             match.matched_segments + match.unmatched_segments
                         )
-                best_simple_match = (pre_segments, match, m_first[0])
+                best_simple_match = (pre_segments, match, queued_matcher)
 
         if not non_simple_matchers:
             # There are no other matchers, we can just shortcut now.

@@ -101,7 +101,8 @@ class BaseSegment:
         # Equal if type, content and pos are the same
         # NB: this should also work for RawSegment
         return (
-            type(self) is type(other)
+            # Same class NAME. (could be constructed elsewhere)
+            self.__class__.__name__ == other.__class__.__name__
             and (self.raw == other.raw)
             and (self.pos_marker == other.pos_marker)
         )

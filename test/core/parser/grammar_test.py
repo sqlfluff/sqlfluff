@@ -21,29 +21,53 @@ from sqlfluff.core.parser.grammar import (
 # NB: All of these tests depend somewhat on the KeywordSegment working as planned
 
 
-def test__parser__grammar__base__longest_trimmed_match__basic(seg_list):
-    """Test the _longest_trimmed_match method of the BaseGrammar."""
-    fs = KeywordSegment.make("foo")
-    bs = KeywordSegment.make("bar")
-    with RootParseContext(dialect=None) as ctx:
+def make_result_tuple(result_slice, matcher_keywords, seg_list):
+    """Make a comparison tuple for test matching."""
+    # No result slice means no match.
+    if not result_slice:
+        return ()
+
+    return tuple(
+        KeywordSegment.make(elem.raw)(elem.raw, elem.pos_marker)
+        if elem.raw in matcher_keywords
+        else elem
+        for elem in seg_list[result_slice]
+    )
+
+
+@pytest.mark.parametrize(
+    "seg_list_slice,matcher_keywords,allow_gaps,result_slice",
+    [
         # Matching the first element of the list
-        m, _ = BaseGrammar._longest_trimmed_match(seg_list, [bs], ctx, allow_gaps=False)
-        assert m.matched_segments == (bs("bar", seg_list[0].pos_marker),)
+        (slice(None, None), ["bar"], False, slice(None, 1)),
         # Matching with a bit of whitespace before
-        m, _ = BaseGrammar._longest_trimmed_match(
-            seg_list[1:], [fs], ctx, allow_gaps=True
-        )
-        assert m.matched_segments == (seg_list[1], fs("foo", seg_list[2].pos_marker))
+        (slice(1, None), ["foo"], True, slice(1, 3)),
         # Matching with a bit of whitespace before (not allow_gaps)
-        m, _ = BaseGrammar._longest_trimmed_match(
-            seg_list[1:], [fs], ctx, allow_gaps=False
-        )
-        assert not m
+        (slice(1, None), ["foo"], False, None),
         # Matching with whitespace after
+        (slice(None, 2), ["bar"], True, slice(None, 2)),
+    ],
+)
+def test__parser__grammar__base__longest_trimmed_match__basic(
+    seg_list, seg_list_slice, matcher_keywords, allow_gaps, result_slice
+):
+    """Test the _longest_trimmed_match method of the BaseGrammar."""
+    # Make the matcher keywords
+    matchers = [KeywordSegment.make(keyword) for keyword in matcher_keywords]
+
+    with RootParseContext(dialect=None) as ctx:
         m, _ = BaseGrammar._longest_trimmed_match(
-            seg_list[:2], [bs], ctx, allow_gaps=True
+            seg_list[seg_list_slice], matchers, ctx, allow_gaps=allow_gaps
         )
-        assert m.matched_segments == (bs("bar", seg_list[0].pos_marker), seg_list[1])
+
+    # Make the check tuple
+    expected_result = make_result_tuple(
+        result_slice=result_slice,
+        matcher_keywords=matcher_keywords,
+        seg_list=seg_list,
+    )
+
+    assert m.matched_segments == expected_result
 
 
 def test__parser__grammar__base__longest_trimmed_match__adv(seg_list, caplog):
@@ -71,28 +95,63 @@ def test__parser__grammar__base__longest_trimmed_match__adv(seg_list, caplog):
     assert len(match) == 3
 
 
-def test__parser__grammar__base__look_ahead_match(seg_list):
+@pytest.mark.parametrize(
+    "seg_list_slice,matcher_keywords,allow_gaps,result_slice,winning_matcher,pre_match_slice",
+    [
+        # Basic version, we should find bar first
+        (slice(None, None), ["bar", "foo"], True, slice(None, 1), "bar", None),
+        # Look ahead for foo
+        (slice(None, None), ["foo"], False, slice(2, 3), "foo", slice(None, 2)),
+        # Allow leading whitespace
+        (slice(None, None), ["foo"], True, slice(1, 3), "foo", slice(None, 1)),
+    ],
+)
+def test__parser__grammar__base__look_ahead_match(
+    seg_list_slice,
+    matcher_keywords,
+    allow_gaps,
+    result_slice,
+    winning_matcher,
+    pre_match_slice,
+    seg_list,
+):
     """Test the _look_ahead_match method of the BaseGrammar."""
-    fs = KeywordSegment.make("foo")
-    bs = KeywordSegment.make("bar")
+    # Make the matcher keywords
+    matchers = [KeywordSegment.make(keyword) for keyword in matcher_keywords]
+    # Fetch the matching keyword from above by index
+    winning_matcher = matchers[matcher_keywords.index(winning_matcher)]
 
     with RootParseContext(dialect=None) as ctx:
-        # Basic version, we should find bar first
-        m = BaseGrammar._look_ahead_match(seg_list, [fs, bs], ctx)
-        assert isinstance(m, tuple)
-        assert len(m) == 3
-        assert m[0] == ()
-        assert m[2] == bs
-        # NB the middle element is a match object
-        assert m[1].matched_segments == (bs("bar", seg_list[0].pos_marker),)
+        m = BaseGrammar._look_ahead_match(
+            seg_list[seg_list_slice],
+            matchers,
+            ctx,
+            allow_gaps=allow_gaps,
+        )
 
-        # Look ahead for foo
-        m = BaseGrammar._look_ahead_match(seg_list, [fs], ctx, allow_gaps=False)
-        assert m[1].matched_segments == (fs("foo", seg_list[2].pos_marker),)
+    # Check structure of the response.
+    assert isinstance(m, tuple)
+    assert len(m) == 3
+    # Unpack
+    result_pre_match, result_match, result_matcher = m
 
-        # Allow leading whitespace
-        m = BaseGrammar._look_ahead_match(seg_list, [fs], ctx, allow_gaps=True)
-        assert m[1].matched_segments == (seg_list[1], fs("foo", seg_list[2].pos_marker))
+    # Check the right matcher won
+    assert result_matcher == winning_matcher
+
+    # Make check tuple for the pre-match section
+    if pre_match_slice:
+        pre_match_slice = seg_list[pre_match_slice]
+    else:
+        pre_match_slice = ()
+    assert result_pre_match == pre_match_slice
+
+    # Make the check tuple
+    expected_result = make_result_tuple(
+        result_slice=result_slice,
+        matcher_keywords=matcher_keywords,
+        seg_list=seg_list,
+    )
+    assert result_match.matched_segments == expected_result
 
 
 def test__parser__grammar__base__ephemeral_segment(seg_list):
