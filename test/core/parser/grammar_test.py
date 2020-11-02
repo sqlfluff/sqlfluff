@@ -30,7 +30,9 @@ def test__parser__grammar__base__longest_trimmed_match__basic(seg_list):
         m, _ = BaseGrammar._longest_trimmed_match(seg_list, [bs], ctx, allow_gaps=False)
         assert m.matched_segments == (bs("bar", seg_list[0].pos_marker),)
         # Matching with a bit of whitespace before
-        m, _ = BaseGrammar._longest_trimmed_match(seg_list[1:], [fs], ctx, allow_gaps=True)
+        m, _ = BaseGrammar._longest_trimmed_match(
+            seg_list[1:], [fs], ctx, allow_gaps=True
+        )
         assert m.matched_segments == (seg_list[1], fs("foo", seg_list[2].pos_marker))
         # Matching with a bit of whitespace before (not allow_gaps)
         m, _ = BaseGrammar._longest_trimmed_match(
@@ -38,7 +40,9 @@ def test__parser__grammar__base__longest_trimmed_match__basic(seg_list):
         )
         assert not m
         # Matching with whitespace after
-        m, _ = BaseGrammar._longest_trimmed_match(seg_list[:2], [bs], ctx, allow_gaps=True)
+        m, _ = BaseGrammar._longest_trimmed_match(
+            seg_list[:2], [bs], ctx, allow_gaps=True
+        )
         assert m.matched_segments == (bs("bar", seg_list[0].pos_marker), seg_list[1])
 
 
@@ -49,7 +53,7 @@ def test__parser__grammar__base__longest_trimmed_match__adv(seg_list, caplog):
     matchers = [
         bs,
         fs,
-        Sequence(bs, fs), # This should be the winner.
+        Sequence(bs, fs),  # This should be the winner.
         OneOf(bs, fs),
         Sequence(bs, fs),  # Another to check we return the first
     ]

@@ -172,7 +172,10 @@ class BaseGrammar(Matchable):
         best_match_length = 0
         # iterate at this position across all the matchers
         for matcher in matchers:
-            res_match = matcher.match(segments, parse_context=parse_context)
+            # MyPy seems to require a type hint here. Not quite sure why.
+            res_match: MatchResult = matcher.match(
+                segments, parse_context=parse_context
+            )
             if res_match.is_complete():
                 # Just return it! (WITH THE RIGHT OTHER STUFF)
                 if allow_gaps:

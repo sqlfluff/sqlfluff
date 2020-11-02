@@ -260,7 +260,7 @@ class ExpressionSegment(BaseSegment):
     type = "expression"
     match_grammar = Sequence(
         Ref("Expression_A_Grammar"),
-        Ref('TeradataCastSegment', optional=True),
+        Ref("TeradataCastSegment", optional=True),
     )
 
 

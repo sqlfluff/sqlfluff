@@ -10,7 +10,7 @@ Here we define:
 
 from io import StringIO
 from benchit import BenchIt
-from typing import Optional, List
+from typing import Optional, List, Tuple
 
 from ..match_result import MatchResult
 from ..match_logging import parse_match_logging
@@ -302,7 +302,9 @@ class BaseSegment:
 
     @classmethod
     @match_wrapper(v_level=4)
-    def match(cls, segments, parse_context):
+    def match(
+        cls, segments: Tuple["BaseSegment", ...], parse_context: ParseContext
+    ) -> MatchResult:
         """Match a list of segments against this segment.
 
         Note: Match for segments is done in the ABSTRACT.

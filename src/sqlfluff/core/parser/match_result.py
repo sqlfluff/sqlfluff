@@ -3,9 +3,13 @@
 This should be the default response from any `match` method.
 """
 
+from typing import Tuple, TYPE_CHECKING
 from collections import namedtuple
 
 from .helpers import join_segments_raw
+
+if TYPE_CHECKING:
+    from .segments import BaseSegment
 
 
 def is_segment(other):
@@ -31,36 +35,36 @@ class MatchResult(
     """
 
     @property
-    def matched_length(self):
+    def matched_length(self) -> int:
         """Return the length of the match in characters."""
         return sum(seg.matched_length for seg in self.matched_segments)
 
-    def all_segments(self):
+    def all_segments(self) -> Tuple["BaseSegment", ...]:
         """Return a tuple of all the segments, matched or otherwise."""
         return self.matched_segments + self.unmatched_segments
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.matched_segments)
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         """Return true if everything has matched.
 
         Note: An empty match is not a match so will return False.
         """
         return len(self.unmatched_segments) == 0 and len(self.matched_segments) > 0
 
-    def has_match(self):
+    def has_match(self) -> bool:
         """Return true if *anything* has matched."""
         return len(self) > 0
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return self.has_match()
 
-    def raw_matched(self):
+    def raw_matched(self) -> str:
         """Make a string from the raw matched segments."""
         return join_segments_raw(self.matched_segments)
 
-    def __str__(self):
+    def __str__(self) -> str:
         content = self.raw_matched()
         # Clip the content if it's long.
         # The ends are the important bits.
@@ -84,8 +88,6 @@ class MatchResult(
             )
         elif isinstance(other, tuple):
             return self.matched_segments == other
-        elif isinstance(other, list):
-            return self.matched_segments == tuple(other)
         else:
             raise TypeError(
                 "Unexpected equality comparison: type: {0}".format(type(other))

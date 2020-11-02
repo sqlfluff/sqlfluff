@@ -133,7 +133,7 @@ class AnyNumberOf(BaseGrammar):
                 parse_context=ctx,
                 allow_gaps=False,
             )
-        parse_context.logger.warning("%s", match)####
+
         return match
 
     @match_wrapper()
