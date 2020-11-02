@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   deal with type matching in rules when inheritance is at play.
 - Added the ability for the user to add their own rules when interacting
   with the `Linter` directly using `user_rules`.
+- MyPy type linting into a large proportion of the core library.
 
 ### Changed
 
@@ -47,6 +48,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the `FileSegment` has been moved from the core parser directly into
   the dialects. Users can refer to it via the `get_root_segment()`
   method of a dialect.
+- Several perfomance improvements through removing unused functionality,
+  sensible caching and optimising loops within functions.
 
 ### Removed
 - Removed `BaseSegment.grammar`, `BaseSegment._match_grammar()` and
@@ -64,6 +67,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   to the grammar module called `NonCodeMatcher`.
 - Case sensitivity as a feature for segment matching has been removed as
   not required for existing dialects.
+- Gap
 
 ## [0.3.6] - 2020-09-24
 
