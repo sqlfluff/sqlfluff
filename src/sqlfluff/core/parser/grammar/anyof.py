@@ -46,15 +46,24 @@ class AnyNumberOf(BaseGrammar):
 
     def _prune_options(
         self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
-    ) -> List[MatchableType]:
+    ) -> Tuple[List[MatchableType], List[str]]:
         """Use the simple matchers to prune which options to match on."""
         str_buff = [segment.raw_upper for segment in self._iter_raw_segs(segments)]
 
         available_options = []
+        simple_opts = []
         prune_buff = []
         non_simple = 0
         pruned_simple = 0
         matched_simple = 0
+
+        # Find the first code element to match against.
+        first_elem = None
+        for elem in str_buff:
+            if elem.strip():
+                first_elem = elem
+                break
+
         for opt in self._elements:
             simple = opt.simple(parse_context=parse_context)
             if simple is None:
@@ -66,25 +75,21 @@ class AnyNumberOf(BaseGrammar):
             # Otherwise we have a simple option, so let's use
             # it for pruning.
             for simple_opt in simple:
+                # Check it's not a whitespace option
+                if not simple_opt.strip():
+                    raise NotImplementedError(
+                        "_prune_options not supported for whitespace matching."
+                    )
                 # We want to know if the first meaningful element of the str_buff
                 # matches the option.
                 if simple_opt in str_buff:
-                    # Additionally if the option is non-whitespace, then it has to
                     # match the FIRST non-whitespace element of the list.
-                    if simple_opt.strip():
-                        first_elem = None
-                        for elem in str_buff:
-                            if elem.strip():
-                                first_elem = elem
-                                break
-                        else:
-                            raise RuntimeError("This shouldn't happen.")
-                        if first_elem != simple_opt:
-                            # No match, carry on.
-                            continue
-                    # If we get here, it's either a whitespace option, or it's matched
-                    # the FIRST element of the string buffer.
+                    if first_elem != simple_opt:
+                        # No match, carry on.
+                        continue
+                    # If we get here, it's matched the FIRST element of the string buffer.
                     available_options.append(opt)
+                    simple_opts.append(simple_opt)
                     matched_simple += 1
                     break
             else:
@@ -106,7 +111,7 @@ class AnyNumberOf(BaseGrammar):
             opts=available_options or "ALL",
         )
 
-        return available_options
+        return available_options, simple_opts
 
     def _match_once(
         self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
@@ -121,7 +126,9 @@ class AnyNumberOf(BaseGrammar):
         # to return earlier if we can.
         # `segments` may already be nested so we need to break out
         # the raw segments within it.
-        available_options = self._prune_options(segments, parse_context=parse_context)
+        available_options, _ = self._prune_options(
+            segments, parse_context=parse_context
+        )
 
         # If we've pruned all the options, return unmatched (with some logging).
         if not available_options:
