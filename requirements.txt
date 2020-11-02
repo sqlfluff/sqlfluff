@@ -1,6 +1,7 @@
 click>=7.1
 colorama>=0.3
 configparser
+cached-property
 # bench-it is used while profiling
 bench-it
 # oyaml is like pyyaml but preserves orderings

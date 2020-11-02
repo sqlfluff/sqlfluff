@@ -10,6 +10,7 @@ Here we define:
 
 from io import StringIO
 from benchit import BenchIt
+from cached_property import cached_property
 from typing import Optional, List, Tuple
 
 from ..match_result import MatchResult
@@ -158,27 +159,27 @@ class BaseSegment:
             self._is_expandable = False
             return False
 
-    @property
+    @cached_property
     def is_code(self):
         """Return True if this segment contains any code."""
         return any(seg.is_code for seg in self.segments)
 
-    @property
+    @cached_property
     def is_comment(self):
         """Return True if this is entirely made of comments."""
         return all(seg.is_comment for seg in self.segments)
 
-    @property
+    @cached_property
     def raw(self):
         """Make a string from the segments of this segment."""
         return self._reconstruct()
 
-    @property
+    @cached_property
     def raw_upper(self):
         """Make an uppercase string from the segments of this segment."""
         return self._reconstruct().upper()
 
-    @property
+    @cached_property
     def matched_length(self):
         """Return the length of the segment in characters."""
         return sum(seg.matched_length for seg in self.segments)
@@ -390,6 +391,18 @@ class BaseSegment:
         return preface.rstrip()
 
     # ################ PUBLIC INSTANCE METHODS
+
+    def invalidate_caches(self):
+        """Invalidate the cached properties.
+
+        This should be called whenever the segments within this
+        segment is mutated.
+        """
+        del self.__dict__['is_code']
+        del self.__dict__['is_comment']
+        del self.__dict__['raw']
+        del self.__dict__['raw_upper']
+        del self.__dict__['matched_length']
 
     def validate_segments(self, text="constructing", validate=True):
         """Validate the current set of segments.
@@ -790,6 +803,8 @@ class BaseSegment:
                         seg_buffer.append(seg)
                 # Switch over the the unused list
                 fixes = unused_fixes + fix_buff
+                # Invalidate any caches
+                self.invalidate_caches()
 
             # Then recurse (i.e. deal with the children) (Requeueing)
             seg_queue = seg_buffer
