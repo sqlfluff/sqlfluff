@@ -9,7 +9,7 @@ from ..match_logging import parse_match_logging
 from ..context import ParseContext
 from ..segments import BaseSegment
 
-from .base import BaseGrammar, MatchableType
+from .base import BaseGrammar, MatchableType, cached_method_for_parse_context
 
 
 class AnyNumberOf(BaseGrammar):
@@ -22,6 +22,7 @@ class AnyNumberOf(BaseGrammar):
         self.exclude = kwargs.pop("exclude", None)
         super().__init__(*args, **kwargs)
 
+    @cached_method_for_parse_context
     def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
         """Does this matcher support a uppercase hash matching route?
 

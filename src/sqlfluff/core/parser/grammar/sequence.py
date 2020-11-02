@@ -10,12 +10,13 @@ from ..match_result import MatchResult
 from ..match_wrapper import match_wrapper
 from ..context import ParseContext
 
-from .base import BaseGrammar, Ref
+from .base import BaseGrammar, Ref, cached_method_for_parse_context
 
 
 class Sequence(BaseGrammar):
     """Match a specific sequence of elements."""
 
+    @cached_method_for_parse_context
     def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
         """Does this matcher support a uppercase hash matching route?
 
@@ -158,6 +159,7 @@ class Bracketed(Sequence):
             self.end_bracket = Ref("EndBracketSegment")
         super(Bracketed, self).__init__(*args, **kwargs)
 
+    @cached_method_for_parse_context
     def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
         """Does this matcher support a uppercase hash matching route?
 

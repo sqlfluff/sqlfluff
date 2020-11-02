@@ -20,6 +20,30 @@ from ..context import ParseContext
 MatchableType = Union[Matchable, Type[BaseSegment]]
 
 
+def cached_method_for_parse_context(func):
+    """A decorator to cache the output of this method for a given parse context.
+
+    This cache automatically invalidates if the uuid
+    of the parse context changes. The value is store
+    in the __dict__ attribute of the class against a
+    key unique to that function.
+    """
+    cache_key = "__cache_" + func.__name__
+
+    def wrapped_method(self, parse_context: ParseContext):
+        """Cache the output of the method against a given parse context."""
+        cache_tuple: Tuple = self.__dict__.get(cache_key, (None, None))
+        # Do we currently have a cached value?
+        if cache_tuple[0] == parse_context.uuid:
+            return cache_tuple[1]
+        # Generate a new value, cache it and return
+        result = func(self, parse_context=parse_context)
+        self.__dict__[cache_key] = (parse_context.uuid, result)
+        return result
+
+    return wrapped_method
+
+
 class BaseGrammar(Matchable):
     """Grammars are a way of composing match statements.
 
@@ -134,6 +158,7 @@ class BaseGrammar(Matchable):
             "{0} has no match function implemented".format(self.__class__.__name__)
         )
 
+    @cached_method_for_parse_context
     def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
         """Does this matcher support a lowercase hash matching route?"""
         return None
@@ -574,6 +599,7 @@ class Ref(BaseGrammar):
     # and it also causes infinite recursion.
     allow_keyword_string_refs = False
 
+    @cached_method_for_parse_context
     def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
         """Does this matcher support a uppercase hash matching route?
 

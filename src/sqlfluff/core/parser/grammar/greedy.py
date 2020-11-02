@@ -7,7 +7,7 @@ from ..match_result import MatchResult
 from ..match_wrapper import match_wrapper
 from ..context import ParseContext
 
-from .base import BaseGrammar
+from .base import BaseGrammar, cached_method_for_parse_context
 from .noncode import NonCodeMatcher
 
 
@@ -150,6 +150,7 @@ class StartsWith(GreedyUntil):
         self.include_terminator = kwargs.pop("include_terminator", False)
         super(StartsWith, self).__init__(*args, **kwargs)
 
+    @cached_method_for_parse_context
     def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
         """Does this matcher support a uppercase hash matching route?
 

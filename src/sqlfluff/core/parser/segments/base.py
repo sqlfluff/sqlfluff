@@ -398,11 +398,8 @@ class BaseSegment:
         This should be called whenever the segments within this
         segment is mutated.
         """
-        del self.__dict__['is_code']
-        del self.__dict__['is_comment']
-        del self.__dict__['raw']
-        del self.__dict__['raw_upper']
-        del self.__dict__['matched_length']
+        for key in ["is_code", "is_comment", "raw", "raw_upper", "matched_length"]:
+            self.__dict__.pop(key, None)
 
     def validate_segments(self, text="constructing", validate=True):
         """Validate the current set of segments.
