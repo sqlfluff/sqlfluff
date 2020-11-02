@@ -235,7 +235,7 @@ class BaseGrammar(Matchable):
         return MatchResult.from_unmatched(segments), None
 
     @classmethod
-    def _look_ahead_match(cls, segments, matchers, parse_context, allow_gaps=True):
+    def _look_ahead_match(cls, segments, matchers, parse_context):
         """Look ahead for matches beyond the first element of the segments list.
 
         This function also contains the performance improved hash-matching approach to
@@ -337,24 +337,7 @@ class BaseGrammar(Matchable):
                     )
                     continue
                 # Ok we have a match. Because we sorted the list, we'll take it!
-                # Before declaring victory, we have to handle potential whitespace.
-                pre_segments = segments[:queued_buff_pos]
-                if allow_gaps:
-                    # Pick up any non-code segments as necessary
-                    # ...from the start
-                    pre_nc, pre_segments, post_nc = trim_non_code_segments(pre_segments)
-                    pre_segments = pre_nc + pre_segments
-                    match = MatchResult(
-                        post_nc + match.matched_segments,
-                        match.unmatched_segments,
-                    )
-                    # ...from the end (but only if it's the whole of the rest,
-                    # otherwise assume the next matcher will pick it up)
-                    if all(not elem.is_code for elem in match.unmatched_segments):
-                        match = MatchResult.from_matched(
-                            match.matched_segments + match.unmatched_segments
-                        )
-                best_simple_match = (pre_segments, match, queued_matcher)
+                best_simple_match = (segments[:queued_buff_pos], match, queued_matcher)
 
         if not non_simple_matchers:
             # There are no other matchers, we can just shortcut now.
@@ -398,7 +381,7 @@ class BaseGrammar(Matchable):
                 seg_buff,
                 non_simple_matchers,
                 parse_context=parse_context,
-                trim_noncode=allow_gaps,
+                trim_noncode=False,
             )
 
             if mat and not best_simple_match:
@@ -435,15 +418,8 @@ class BaseGrammar(Matchable):
                 pre_seg_buff += (seg_buff[0],)
                 seg_buff = seg_buff[1:]
 
-                if allow_gaps:
-                    while seg_buff and not seg_buff[0].is_code:
-                        pre_seg_buff += (seg_buff[0],)
-                        seg_buff = seg_buff[1:]
-
     @classmethod
-    def _bracket_sensitive_look_ahead_match(
-        cls, segments, matchers, parse_context, allow_gaps=True
-    ):
+    def _bracket_sensitive_look_ahead_match(cls, segments, matchers, parse_context):
         """Same as `_look_ahead_match` but with bracket counting.
 
         NB: Given we depend on `_look_ahead_match` we can also utilise
@@ -495,7 +471,6 @@ class BaseGrammar(Matchable):
                         seg_buff,
                         bracket_matchers,
                         parse_context=parse_context,
-                        allow_gaps=allow_gaps,
                     )
 
                     if match:
@@ -529,7 +504,6 @@ class BaseGrammar(Matchable):
                         seg_buff,
                         matchers,
                         parse_context=parse_context,
-                        allow_gaps=allow_gaps,
                     )
 
                     if match:

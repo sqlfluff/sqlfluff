@@ -97,11 +97,8 @@ class Delimited(OneOf):
                     seg_buff,
                     matchers,
                     parse_context=ctx,
-                    # NB: We don't want whitespace at this stage, we'll deal with that
-                    # seperately.
-                    allow_gaps=False,
                 )
-            # Keep track of the *lenght* of this pre-content section before we start
+            # Keep track of the *length* of this pre-content section before we start
             # to change it later. We need this for dealing with terminators.
             pre_content_len = len(pre_content)
 

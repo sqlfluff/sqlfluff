@@ -96,20 +96,17 @@ def test__parser__grammar__base__longest_trimmed_match__adv(seg_list, caplog):
 
 
 @pytest.mark.parametrize(
-    "seg_list_slice,matcher_keywords,allow_gaps,result_slice,winning_matcher,pre_match_slice",
+    "seg_list_slice,matcher_keywords,result_slice,winning_matcher,pre_match_slice",
     [
         # Basic version, we should find bar first
-        (slice(None, None), ["bar", "foo"], True, slice(None, 1), "bar", None),
+        (slice(None, None), ["bar", "foo"], slice(None, 1), "bar", None),
         # Look ahead for foo
-        (slice(None, None), ["foo"], False, slice(2, 3), "foo", slice(None, 2)),
-        # Allow leading whitespace
-        (slice(None, None), ["foo"], True, slice(1, 3), "foo", slice(None, 1)),
+        (slice(None, None), ["foo"], slice(2, 3), "foo", slice(None, 2)),
     ],
 )
 def test__parser__grammar__base__look_ahead_match(
     seg_list_slice,
     matcher_keywords,
-    allow_gaps,
     result_slice,
     winning_matcher,
     pre_match_slice,
@@ -126,7 +123,6 @@ def test__parser__grammar__base__look_ahead_match(
             seg_list[seg_list_slice],
             matchers,
             ctx,
-            allow_gaps=allow_gaps,
         )
 
     # Check structure of the response.
@@ -181,30 +177,24 @@ def test__parser__grammar__base__bracket_sensitive_look_ahead_match(
     # We need a dialect here to do bracket matching
     with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
         # Basic version, we should find bar first
-        m = BaseGrammar._bracket_sensitive_look_ahead_match(
+        pre_section, match, matcher = BaseGrammar._bracket_sensitive_look_ahead_match(
             bracket_seg_list, [fs, bs], ctx
         )
-        assert isinstance(m, tuple)
-        assert len(m) == 3
-        assert m[0] == ()
-        assert m[2] == bs
+        assert pre_section == ()
+        assert matcher == bs
         # NB the middle element is a match object
-        assert m[1].matched_segments == (bs("bar", bracket_seg_list[0].pos_marker),)
+        assert match.matched_segments == (bs("bar", bracket_seg_list[0].pos_marker),)
 
         # Look ahead for foo, we should find the one AFTER the brackets, not the
         # on IN the brackets.
-        m = BaseGrammar._bracket_sensitive_look_ahead_match(bracket_seg_list, [fs], ctx)
-        assert isinstance(m, tuple)
-        assert len(m) == 3
-        assert (
-            len(m[0]) == 7
-        )  # NB: The bracket segments will have been mutated, so we can't directly compare
-        assert m[2] == fs
-        # We'll end up matching the whitespace with the keyword
-        assert m[1].matched_segments == (
-            bracket_seg_list[7],
-            fs("foo", bracket_seg_list[8].pos_marker),
+        pre_section, match, matcher = BaseGrammar._bracket_sensitive_look_ahead_match(
+            bracket_seg_list, [fs], ctx
         )
+        # NB: The bracket segments will have been mutated, so we can't directly compare
+        assert len(pre_section) == 8
+        assert matcher == fs
+        # We shouldn't match the whitespace with the keyword
+        assert match.matched_segments == (fs("foo", bracket_seg_list[8].pos_marker),)
 
 
 @pytest.mark.parametrize("allow_gaps", [True, False])
@@ -261,7 +251,8 @@ def test__parser__grammar_startswith_a(
     "include_terminator,match_length",
     [
         (False, 3),
-        (True, 5),
+        # NB: In this case we still shouldn't match the trailing whitespace.
+        (True, 4),
     ],
 )
 def test__parser__grammar_startswith_b(
@@ -372,28 +363,24 @@ def test__parser__grammar_delimited(
 
 
 @pytest.mark.parametrize(
-    "keyword,allow_gaps,enforce_ws,slice_len",
+    "keyword,enforce_ws,slice_len",
     [
         # Basic testing
-        ("foo", True, False, 1),
-        ("foo", False, False, 1),
+        ("foo", False, 1),
         # Greedy matching until the first item should return none
-        ("bar", True, False, 0),
+        ("bar", False, 0),
         # Greedy matching up to baar should return bar, foo...
-        ("baar", True, False, 3),
-        # ... except if we can't have gaps
-        ("baar", False, False, 1),
+        ("baar", False, 3),
         # ... except if whitespace is required to preceed it
-        ("baar", True, True, 5),
+        ("baar", True, 5),
     ],
 )
 def test__parser__grammar_greedyuntil(
-    keyword, allow_gaps, seg_list, enforce_ws, slice_len, fresh_ansi_dialect
+    keyword, seg_list, enforce_ws, slice_len, fresh_ansi_dialect
 ):
     """Test the GreedyUntil grammar."""
     grammar = GreedyUntil(
         KeywordSegment.make(keyword),
-        allow_gaps=allow_gaps,
         enforce_whitespace_preceeding_terminator=enforce_ws,
     )
     with RootParseContext(dialect=fresh_ansi_dialect) as ctx:

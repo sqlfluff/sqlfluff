@@ -8,7 +8,6 @@ from ..match_wrapper import match_wrapper
 from ..context import ParseContext
 
 from .base import BaseGrammar, cached_method_for_parse_context
-from .noncode import NonCodeMatcher
 
 
 class GreedyUntil(BaseGrammar):
@@ -27,6 +26,10 @@ class GreedyUntil(BaseGrammar):
             "enforce_whitespace_preceeding_terminator", False
         )
         super(GreedyUntil, self).__init__(*args, **kwargs)
+        if not self.allow_gaps:
+            raise NotImplementedError(
+                "{0} does not support allow_gaps=False.".format(self.__class__)
+            )
 
     @match_wrapper()
     def match(self, segments, parse_context):
@@ -35,7 +38,6 @@ class GreedyUntil(BaseGrammar):
             segments,
             parse_context,
             matchers=self._elements,
-            allow_gaps=self.allow_gaps,
             enforce_whitespace_preceeding_terminator=self.enforce_whitespace_preceeding_terminator,
             include_terminator=False,
         )
@@ -46,16 +48,12 @@ class GreedyUntil(BaseGrammar):
         segments,
         parse_context,
         matchers,
-        allow_gaps,
         enforce_whitespace_preceeding_terminator,
         include_terminator=False,
     ):
         """Matching for GreedyUntil works just how you'd expect."""
         seg_buff = segments
         seg_bank = ()  # Empty tuple
-        # If we can't have gaps, then non-code is a terminator
-        if not allow_gaps:
-            matchers.append(NonCodeMatcher())
         # If no terminators then just return the whole thing.
         if matchers == [None]:
             return MatchResult.from_matched(segments)
@@ -63,7 +61,7 @@ class GreedyUntil(BaseGrammar):
         while True:
             with parse_context.deeper_match() as ctx:
                 pre, mat, matcher = cls._bracket_sensitive_look_ahead_match(
-                    seg_buff, matchers, parse_context=ctx, allow_gaps=allow_gaps
+                    seg_buff, matchers, parse_context=ctx
                 )
 
             # Do we have a match?
@@ -79,33 +77,35 @@ class GreedyUntil(BaseGrammar):
                             idx += 1
                             continue
                         elif elem.is_type("whitespace", "newline"):
-                            allow = True
+                            allowable_match = True
                             break
                         else:
                             # No whitespace before. Not allowed.
-                            allow = False
+                            allowable_match = False
                             break
 
                     # If we're not ok yet, work backward to the preceeding sections.
-                    if not allow:
+                    if not allowable_match:
                         idx = -1
                         while True:
                             if len(pre) < abs(idx):
                                 # If we're at the start, it's ok
-                                allow = True
+                                allowable_match = True
                                 break
                             if pre[idx].is_meta:
                                 idx -= 1
                                 continue
                             elif pre[idx].is_type("whitespace", "newline"):
-                                allow = True
+                                allowable_match = True
                                 break
                             else:
                                 # No whitespace before. Not allowed.
-                                allow = False
+                                allowable_match = False
                                 break
 
-                    if not allow:
+                    # If this match isn't preceeded by whitespace and that is
+                    # a requirement, then we can't use it. Carry on...
+                    if not allowable_match:
                         # Update our buffers and continue onward
                         seg_bank = pre + mat.matched_segments
                         seg_buff = mat.unmatched_segments
@@ -119,7 +119,7 @@ class GreedyUntil(BaseGrammar):
                 # is true]) that terminator.
                 if mat:
                     # Return everything up to the match unless it's a gap matcher.
-                    if include_terminator and not isinstance(matcher, NonCodeMatcher):
+                    if include_terminator:
                         return MatchResult(
                             seg_bank + pre + mat.matched_segments,
                             mat.unmatched_segments,
@@ -163,48 +163,50 @@ class StartsWith(GreedyUntil):
     @match_wrapper()
     def match(self, segments, parse_context):
         """Match if this sequence starts with a match."""
-        if self.allow_gaps:
-            first_code_idx = None
-            # Work through to find the first code segment...
-            for idx, seg in enumerate(segments):
-                if seg.is_code:
-                    first_code_idx = idx
-                    break
-            else:
-                # We've trying to match on a sequence of segments which contain no code.
-                # That means this isn't a match.
-                return MatchResult.from_unmatched(segments)
-            with parse_context.deeper_match() as ctx:
-                match = self.target.match(
-                    segments=segments[first_code_idx:], parse_context=ctx
-                )
-            if match:
-                # The match will probably have returned a mutated version rather
-                # that the raw segment sent for matching. We need to reinsert it
-                # back into the sequence in place of the raw one, but we can't
-                # just assign at the index because it's a tuple and not a list.
-                # to get around that we do this slightly more elaborate construction.
-
-                # NB: This match may be partial or full, either is cool. In the case
-                # of a partial match, given that we're only interested in what it STARTS
-                # with, then we can still used the unmatched parts on the end.
-                # We still need to deal with any non-code segments at the start.
-                greedy_match = self.greedy_match(
-                    match.unmatched_segments,
-                    parse_context,
-                    matchers=[self.terminator],
-                    allow_gaps=self.allow_gaps,
-                    enforce_whitespace_preceeding_terminator=self.enforce_whitespace_preceeding_terminator,
-                    include_terminator=self.include_terminator,
-                )
-                # Combine the results.
-                return MatchResult(
-                    match.matched_segments + greedy_match.matched_segments,
-                    greedy_match.unmatched_segments,
-                )
-            else:
-                return MatchResult.from_unmatched(segments)
+        first_code_idx = None
+        # Work through to find the first code segment...
+        for idx, seg in enumerate(segments):
+            if seg.is_code:
+                first_code_idx = idx
+                break
         else:
-            raise NotImplementedError(
-                "Not expecting to match StartsWith and also not just code!?"
+            # We've trying to match on a sequence of segments which contain no code.
+            # That means this isn't a match.
+            return MatchResult.from_unmatched(segments)
+        with parse_context.deeper_match() as ctx:
+            match = self.target.match(
+                segments=segments[first_code_idx:], parse_context=ctx
             )
+
+        if not match:
+            return MatchResult.from_unmatched(segments)
+
+        # The match will probably have returned a mutated version rather
+        # that the raw segment sent for matching. We need to reinsert it
+        # back into the sequence in place of the raw one, but we can't
+        # just assign at the index because it's a tuple and not a list.
+        # to get around that we do this slightly more elaborate construction.
+
+        # NB: This match may be partial or full, either is cool. In the case
+        # of a partial match, given that we're only interested in what it STARTS
+        # with, then we can still used the unmatched parts on the end.
+        # We still need to deal with any non-code segments at the start.
+        greedy_match = self.greedy_match(
+            match.unmatched_segments,
+            parse_context,
+            matchers=[self.terminator],
+            enforce_whitespace_preceeding_terminator=self.enforce_whitespace_preceeding_terminator,
+            include_terminator=self.include_terminator,
+        )
+
+        # NB: If all we matched in the greedy match was non-code then we can't
+        # claim it.
+        if not any(seg.is_code for seg in greedy_match.matched_segments):
+            # So just return the original match.
+            return match
+
+        # Otherise Combine the results.
+        return MatchResult(
+            match.matched_segments + greedy_match.matched_segments,
+            greedy_match.unmatched_segments,
+        )

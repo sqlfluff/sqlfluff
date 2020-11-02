@@ -85,6 +85,7 @@ class Sequence(BaseGrammar):
                         # Get hold of the last thing to be matched, so we've got an anchor.
                         last_matched = matched_segments.matched_segments[-1]
                         meta_pos_marker = last_matched.get_end_pos_marker()
+                        # NB: This complicated expression just adds indents as appropriate.
                         return matched_segments + tuple(
                             e(pos_marker=meta_pos_marker)
                             for e in self._elements[idx:]
@@ -205,7 +206,6 @@ class Bracketed(Sequence):
             segments=seg_buff,
             matchers=[self.end_bracket],
             parse_context=parse_context,
-            allow_gaps=self.allow_gaps,
         )
         if not end_match:
             raise SQLParseError(
