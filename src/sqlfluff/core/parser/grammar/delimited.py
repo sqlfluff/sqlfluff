@@ -38,7 +38,7 @@ class Delimited(OneOf):
 
     @match_wrapper()
     def match(
-        self, segments: Tuple[BaseSegment], parse_context: ParseContext
+        self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
     ) -> MatchResult:
         """Match an arbitrary number of elements seperated by a delimiter.
 

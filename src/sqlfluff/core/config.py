@@ -8,8 +8,6 @@ from typing import Dict, List, Tuple, Any, Optional, Union, Iterable
 
 import appdirs
 
-from .dialects import dialect_selector
-from .templaters import templater_selector
 
 global_loader = None
 """:obj:`ConfigLoader`: A variable to hold the single module loader when loaded.
@@ -341,7 +339,12 @@ class FluffConfig:
         # Configure Recursion
         if self._configs["core"].get("recurse", 0) == 0:
             self._configs["core"]["recurse"] = True
-        # Dialect and Template selection
+
+        # Dialect and Template selection.
+        # NB: We import here to avoid a circular references.
+        from .dialects import dialect_selector
+        from .templaters import templater_selector
+
         self._configs["core"]["dialect_obj"] = dialect_selector(
             self._configs["core"]["dialect"]
         )
@@ -362,6 +365,38 @@ class FluffConfig:
         loader = ConfigLoader.get_global()
         c = loader.load_config_up_to_path(path=path)
         return cls(configs=c, overrides=overrides)
+
+    @classmethod
+    def from_kwargs(
+        cls,
+        config: Optional["FluffConfig"] = None,
+        dialect: Optional[str] = None,
+        rules: Optional[Union[str, List[str]]] = None,
+    ) -> "FluffConfig":
+        """Instantiate a config from either an existing config or kwargs.
+
+        This is a convenience method for the ways that the public classes
+        like Linter(), Parser() and Lexer() can be instantiated with a
+        FluffConfig or with the convenience kwargs: dialect & rules.
+        """
+        if (dialect or rules) and config:
+            raise ValueError(
+                "Cannot specify `config` with `dialect` or `rules`. Any config object "
+                "specifies its own dialect and rules."
+            )
+        elif config:
+            return config
+
+        overrides = {}
+        if dialect:
+            overrides["dialect"] = dialect
+        if rules:
+            # If it's a string, make it a list
+            if isinstance(rules, str):
+                rules = [rules]
+            # Make a comma seperated string to pass in as override
+            overrides["rules"] = ",".join(rules)
+        return cls(overrides=overrides)
 
     def make_child_from_path(self, path: str) -> "FluffConfig":
         """Make a new child config at a path but pass on overrides."""

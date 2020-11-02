@@ -597,28 +597,14 @@ class Linter:
         rules=None,
         user_rules=None,
     ):
-        if (dialect or rules) and config:
-            raise ValueError(
-                "Cannot specify `config` with `dialect` or `rules`. Any config object "
-                "specifies its own dialect and rules."
-            )
-        elif config is None:
-            overrides = {}
-            if dialect:
-                overrides["dialect"] = dialect
-            if rules:
-                # If it's a string, make it a list
-                if isinstance(rules, str):
-                    rules = [rules]
-                # Make a comma seperated string to pass in as override
-                overrides["rules"] = ",".join(rules)
-            config = FluffConfig(overrides=overrides)
-
-        self.dialect = config.get("dialect_obj")
-        self.templater = config.get("templater_obj")
         self.sql_exts = sql_exts
         # Store the config object
-        self.config = config
+        self.config = FluffConfig.from_kwargs(
+            config=config, dialect=dialect, rules=rules
+        )
+        # Get the dialect and templater
+        self.dialect = self.config.get("dialect_obj")
+        self.templater = self.config.get("templater_obj")
         # Store the formatter for output
         self.formatter = formatter
         # Store references to user rule classes

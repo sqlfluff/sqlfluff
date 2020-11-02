@@ -31,3 +31,6 @@ can import the :code:`Linter()` and :code:`FluffConfig()` classes from
 future release. If you come to rely on the internals of sqlfluff, please
 post an issue on github to share what you're up to. This will help shape
 a more reliable, tidy and well documented public API for use.
+
+.. automodule:: sqlfluff.core
+   :members: Linter, Lexer, Parser, FluffConfig
