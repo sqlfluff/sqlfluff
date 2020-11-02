@@ -99,6 +99,12 @@ jobs:
       - image: circleci/python:3.8
         environment:
           TOXENV=bench
+  mypy:
+    <<: *common
+    docker:
+      - image: circleci/python:3.9
+        environment:
+          TOXENV=mypy
 
 
 ### Workflows which call the different tox jobs
@@ -108,6 +114,7 @@ workflows:
     jobs:
       - linting
       - doclinting
+      - mypy
       - py36
       - py37
       - py38

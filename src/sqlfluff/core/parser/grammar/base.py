@@ -12,9 +12,10 @@ from ..match_logging import (
     LateBoundJoinSegmentsCurtailed,
 )
 from ..match_wrapper import match_wrapper
+from ..matchable import Matchable
 
 
-class BaseGrammar:
+class BaseGrammar(Matchable):
     """Grammars are a way of composing match statements.
 
     Any grammar must implment the `match` function. Segments can also be
