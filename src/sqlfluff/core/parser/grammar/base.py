@@ -6,7 +6,7 @@ from typing import List, Optional, Union, Type, Tuple
 from ...errors import SQLParseError
 
 from ..segments import BaseSegment, EphemeralSegment
-from ..helpers import curtail_string, trim_non_code
+from ..helpers import curtail_string, trim_non_code_segments
 from ..match_result import MatchResult
 from ..match_logging import (
     parse_match_logging,
@@ -174,7 +174,7 @@ class BaseGrammar(Matchable):
         segments: Tuple["BaseSegment", ...],
         matchers: List["MatchableType"],
         parse_context: ParseContext,
-        allow_gaps=True,
+        trim_noncode=True,
     ) -> Tuple[MatchResult, Optional["MatchableType"]]:
         """Return longest match from a selection of matchers.
 
@@ -191,8 +191,8 @@ class BaseGrammar(Matchable):
             return MatchResult.from_empty(), None
 
         # If gaps are allowed, trim the ends.
-        if allow_gaps:
-            pre_nc, segments, post_nc = trim_non_code(segments)
+        if trim_noncode:
+            pre_nc, segments, post_nc = trim_non_code_segments(segments)
 
         best_match_length = 0
         # iterate at this position across all the matchers
@@ -203,7 +203,7 @@ class BaseGrammar(Matchable):
             )
             if res_match.is_complete():
                 # Just return it! (WITH THE RIGHT OTHER STUFF)
-                if allow_gaps:
+                if trim_noncode:
                     return (
                         MatchResult.from_matched(
                             pre_nc + res_match.matched_segments + post_nc
@@ -221,7 +221,7 @@ class BaseGrammar(Matchable):
         # If we get here, then there wasn't a complete match. If we
         # has a best_match, return that.
         if best_match_length > 0:
-            if allow_gaps:
+            if trim_noncode:
                 return (
                     MatchResult(
                         pre_nc + best_match[0].matched_segments,
@@ -342,7 +342,7 @@ class BaseGrammar(Matchable):
                 if allow_gaps:
                     # Pick up any non-code segments as necessary
                     # ...from the start
-                    pre_nc, pre_segments, post_nc = trim_non_code(pre_segments)
+                    pre_nc, pre_segments, post_nc = trim_non_code_segments(pre_segments)
                     pre_segments = pre_nc + pre_segments
                     match = MatchResult(
                         post_nc + match.matched_segments,
@@ -398,7 +398,7 @@ class BaseGrammar(Matchable):
                 seg_buff,
                 non_simple_matchers,
                 parse_context=parse_context,
-                allow_gaps=allow_gaps,
+                trim_noncode=allow_gaps,
             )
 
             if mat and not best_simple_match:

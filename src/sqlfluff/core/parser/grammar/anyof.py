@@ -2,7 +2,7 @@
 
 from typing import List, Optional, Tuple
 
-from ..helpers import trim_non_code
+from ..helpers import trim_non_code_segments
 from ..match_result import MatchResult
 from ..match_wrapper import match_wrapper
 from ..match_logging import parse_match_logging
@@ -132,7 +132,7 @@ class AnyNumberOf(BaseGrammar):
                 segments,
                 available_options,
                 parse_context=ctx,
-                allow_gaps=False,
+                trim_noncode=False,
             )
 
         return match
@@ -178,7 +178,7 @@ class AnyNumberOf(BaseGrammar):
             # If we've already matched once...
             if n_matches > 0 and self.allow_gaps:
                 # Consume any non-code if there is any
-                pre_seg, mid_seg, post_seg = trim_non_code(unmatched_segments)
+                pre_seg, mid_seg, post_seg = trim_non_code_segments(unmatched_segments)
                 unmatched_segments = mid_seg + post_seg
             else:
                 pre_seg = ()  # empty tuple

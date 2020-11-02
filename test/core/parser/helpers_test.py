@@ -2,7 +2,7 @@
 
 import pytest
 
-from sqlfluff.core.parser.helpers import trim_non_code
+from sqlfluff.core.parser.helpers import trim_non_code_segments
 
 
 @pytest.mark.parametrize(
@@ -14,16 +14,16 @@ from sqlfluff.core.parser.helpers import trim_non_code
         (["  ", "\n", "\t", "bar", ".", "bar", "  ", "\n", "\t"], 3, 3, 3),
     ],
 )
-def test__parser__helper_trim_non_code(
+def test__parser__helper_trim_non_code_segments(
     token_list,
     pre_len,
     mid_len,
     post_len,
     generate_test_segments,
 ):
-    """Test trim_non_code."""
+    """Test trim_non_code_segments."""
     seg_list = generate_test_segments(token_list)
-    pre, mid, post = trim_non_code(seg_list)
+    pre, mid, post = trim_non_code_segments(seg_list)
     # Assert lengths
     assert (len(pre), len(mid), len(post)) == (pre_len, mid_len, post_len)
     # Assert content

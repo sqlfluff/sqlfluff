@@ -16,7 +16,12 @@ from typing import Optional, List, Tuple
 from ..match_result import MatchResult
 from ..match_logging import parse_match_logging
 from ..match_wrapper import match_wrapper
-from ..helpers import frame_msg, check_still_complete, trim_non_code, curtail_string
+from ..helpers import (
+    frame_msg,
+    check_still_complete,
+    trim_non_code_segments,
+    curtail_string,
+)
 from ..matchable import Matchable
 from ..context import ParseContext
 
@@ -646,7 +651,7 @@ class BaseSegment:
             # or in the parent expression.
             segments = self.segments
             if self.can_start_end_non_code:
-                pre_nc, segments, post_nc = trim_non_code(segments)
+                pre_nc, segments, post_nc = trim_non_code_segments(segments)
             else:
                 pre_nc = ()
                 post_nc = ()

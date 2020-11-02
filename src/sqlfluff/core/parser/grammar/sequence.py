@@ -5,7 +5,7 @@ from typing import Optional, List, Tuple
 from ...errors import SQLParseError
 
 from ..segments import BaseSegment, Indent, Dedent
-from ..helpers import trim_non_code, check_still_complete
+from ..helpers import trim_non_code_segments, check_still_complete
 from ..match_result import MatchResult
 from ..match_wrapper import match_wrapper
 from ..context import ParseContext
@@ -66,7 +66,9 @@ class Sequence(BaseGrammar):
 
                 # Consume non-code if appropriate
                 if self.allow_gaps:
-                    pre_nc, mid_seg, post_nc = trim_non_code(unmatched_segments)
+                    pre_nc, mid_seg, post_nc = trim_non_code_segments(
+                        unmatched_segments
+                    )
                 else:
                     pre_nc = ()
                     mid_seg = unmatched_segments
@@ -185,7 +187,7 @@ class Bracketed(Sequence):
         """
         # Trim ends if allowed.
         if self.allow_gaps:
-            pre_nc, seg_buff, post_nc = trim_non_code(segments)
+            pre_nc, seg_buff, post_nc = trim_non_code_segments(segments)
         else:
             seg_buff = segments
 
@@ -227,7 +229,7 @@ class Bracketed(Sequence):
 
         # Then trim whitespace and deal with the case of no code content e.g. "(   )"
         if self.allow_gaps:
-            pre_nc, content_segs, post_nc = trim_non_code(content_segs)
+            pre_nc, content_segs, post_nc = trim_non_code_segments(content_segs)
         else:
             pre_nc = ()
             post_nc = ()

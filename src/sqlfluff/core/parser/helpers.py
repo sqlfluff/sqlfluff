@@ -46,7 +46,7 @@ def check_still_complete(
     return True
 
 
-def trim_non_code(
+def trim_non_code_segments(
     segments: Tuple["BaseSegment", ...]
 ) -> Tuple[
     Tuple["BaseSegment", ...], Tuple["BaseSegment", ...], Tuple["BaseSegment", ...]

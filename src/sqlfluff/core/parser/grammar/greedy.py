@@ -2,7 +2,7 @@
 
 from typing import Optional, List
 
-from ..helpers import trim_non_code
+from ..helpers import trim_non_code_segments
 from ..match_result import MatchResult
 from ..match_wrapper import match_wrapper
 from ..context import ParseContext
@@ -126,7 +126,9 @@ class GreedyUntil(BaseGrammar):
                         )
 
                     # We can't claim any non-code segments, so we trim them off the end.
-                    leading_nc, pre_seg_mid, trailing_nc = trim_non_code(seg_bank + pre)
+                    leading_nc, pre_seg_mid, trailing_nc = trim_non_code_segments(
+                        seg_bank + pre
+                    )
                     return MatchResult(
                         leading_nc + pre_seg_mid,
                         trailing_nc + mat.all_segments(),

@@ -120,7 +120,7 @@ class Delimited(OneOf):
                             segments=pre_content,
                             matchers=self._elements,
                             parse_context=ctx,
-                            allow_gaps=self.allow_gaps,
+                            trim_noncode=self.allow_gaps,
                         )
 
                     # No match, or an incomplete match: Not allowed
@@ -192,7 +192,7 @@ class Delimited(OneOf):
                         seg_buff,
                         self._elements,
                         parse_context=ctx,
-                        allow_gaps=self.allow_gaps,
+                        trim_noncode=self.allow_gaps,
                     )
                 if mat:
                     # We've got something at the end. Return!
