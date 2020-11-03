@@ -742,6 +742,15 @@ class Linter:
                 return (comment.pos_marker.line_no, None)
         return None
 
+    def lint(self, parsed, config=None):
+        """Lint a parsed file object."""
+        config = config or self.config
+        linting_errors = []
+        for crawler in self.get_ruleset(config=config):
+            lerrs, _, _, _ = crawler.crawl(parsed, dialect=config.get("dialect_obj"))
+            linting_errors += lerrs
+        return linting_errors
+
     def lint_string(self, s, fname="<string input>", fix=False, config=None):
         """Lint a string.
 
@@ -781,12 +790,7 @@ class Linter:
             t0 = time.monotonic()
             linter_logger.info("LINTING (%s)", fname)
             # Get the initial violations
-            linting_errors = []
-            for crawler in self.get_ruleset(config=config):
-                lerrs, _, _, _ = crawler.crawl(
-                    parsed, dialect=config.get("dialect_obj")
-                )
-                linting_errors += lerrs
+            linting_errors = self.lint(parsed, config=config)
             initial_linting_errors = linting_errors
 
             # If we're in fix mode, iteratively apply fixes until done, or we can't make a move.
