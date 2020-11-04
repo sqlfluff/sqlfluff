@@ -4,9 +4,9 @@ SELECT
     /*
     This is a block comment
     */
-    c.val + b.val / -2 AS a_calculation,
     d.something,    -- Which a comment after it
-    a.foo
+    a.foo,
+    c.val + b.val / -2 AS a_calculation
 FROM tbl AS a
 INNER JOIN b ON (a.common_id = b.common_id)
 JOIN c ON (a.id = c.id)
