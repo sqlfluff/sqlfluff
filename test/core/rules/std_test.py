@@ -790,7 +790,11 @@ def test__rules__runaway_fail_catch():
         ("L021", "test/fixtures/linter/select_distinct_group_by.sql", [(1, 8)]),
         # Make sure that ignoring works as expected
         ("L006", "test/fixtures/linter/operator_errors_ignore.sql", [(10, 8), (10, 9)]),
-        ("L031", "test/fixtures/linter/aliases_in_join_error.sql", [(6, 15), (7, 19), (8, 16)]),
+        (
+            "L031",
+            "test/fixtures/linter/aliases_in_join_error.sql",
+            [(6, 15), (7, 19), (8, 16)],
+        ),
     ],
 )
 def test__rules__std_file(rule, path, violations):
