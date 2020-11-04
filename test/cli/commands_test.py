@@ -38,6 +38,7 @@ def invoke_assert_code(ret_code=0, args=None, kwargs=None, cli_input=None):
 expected_output = """== [test/fixtures/linter/indentation_error_simple.sql] FAIL
 L:   2 | P:   4 | L003 | Indentation not hanging or a multiple of 4 spaces
 L:   5 | P:  10 | L010 | Inconsistent capitalisation of keywords.
+L:   5 | P:  13 | L031 | Avoid using aliases in join condition
 """
 
 
@@ -148,7 +149,7 @@ def test__cli__command_lint_stdin(command):
                 "--rules",
                 "L001,L006",
                 "--exclude-rules",
-                "L006",
+                "L006,L031",
                 "test/fixtures/linter/operator_errors.sql",
             ],
         ),
@@ -158,7 +159,7 @@ def test__cli__command_lint_stdin(command):
             [
                 "-n",
                 "--exclude-rules",
-                "L006,L007",
+                "L006,L007,L031",
                 "test/fixtures/linter/operator_errors.sql",
             ],
         ),
@@ -191,7 +192,7 @@ def test__cli__command_lint_stdin(command):
             [
                 "-n",
                 "--exclude-rules",
-                "L003,L009",
+                "L003,L009,L031",
                 "--ignore",
                 "parsing,lexing",
                 "test/fixtures/linter/parse_lex_error.sql",
