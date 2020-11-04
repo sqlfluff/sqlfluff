@@ -2938,6 +2938,8 @@ class Rule_L031(BaseCrawler):
             base_table = None
             if table_expression:
                 base_table = table_expression.get_child("object_reference")
+                # Add table_expression from from_clause per https://github.com/sqlfluff/sqlfluff/issues/479
+                table_expressions_in_join.append(table_expression)
 
             for join_clause in fc.recursive_crawl("join_clause"):
                 for seg in join_clause.segments:
@@ -2965,7 +2967,7 @@ class Rule_L031(BaseCrawler):
             table_ref = table_exp.get_child("object_reference")
 
             # If this is self-join - skip it
-            if base_table.raw == table_ref.raw:
+            if base_table.raw == table_ref.raw and base_table != table_ref:
                 continue
 
             whitespace_ref = table_exp.get_child("whitespace")
