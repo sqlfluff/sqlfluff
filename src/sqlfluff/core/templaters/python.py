@@ -2,7 +2,7 @@
 
 import ast
 from string import Formatter
-from typing import Iterable, Dict, Tuple, List, Iterator
+from typing import Iterable, Dict, Tuple, List, Iterator, Any
 
 from ..errors import SQLTemplaterError
 
@@ -164,3 +164,46 @@ class PythonTemplateInterface(RawTemplateInterface):
                 elems.append((constructed_token, "templated", in_idx))
                 in_idx += len(constructed_token)
         return elems
+
+    @staticmethod
+    def _split_invariants(raw_sliced: List[Tuple[str, str, int]], literals: List[str], raw_occurances: Dict[str, List[int]], templated_occurances: Dict[str, List[int]]) -> List[Tuple[str, slice, slice, Any]]:
+        """Split a sliced file on its invariant literals."""
+        # Calculate invariants
+        invariants = [literal for literal in literals if len(raw_occurances[literal]) == 1 and len(templated_occurances[literal]) == 1]
+        # Set up some buffers
+        split_buffer = []
+        buffer = []
+        idx = None
+        templ_tdx = 0
+        # Loop through
+        for raw, token_type, raw_pos in raw_sliced:
+            if raw in invariants:
+                if len(buffer) > 1:
+                    split_buffer.append((
+                        'compound',
+                        slice(idx, raw_pos),
+                        slice(templ_tdx, templated_occurances[raw][0]),
+                        buffer
+                    ))
+                elif len(buffer) == 1:
+                    split_buffer.append((
+                        'simple',
+                        slice(idx, raw_pos),
+                        slice(templ_tdx, templated_occurances[raw][0]),
+                        buffer[0]
+                    ))
+                buffer = []
+                idx = None
+                # NB: Longer tuple format here
+                split_buffer.append((
+                    'invariant',
+                    slice(raw_pos, raw_pos + len(raw)),
+                    slice(templated_occurances[raw][0], templated_occurances[raw][0] + len(raw)),
+                    (raw, token_type, templated_occurances[raw][0])
+                ))
+                templ_tdx = templated_occurances[raw][0] + len(raw)
+            else:
+                buffer.append((raw, token_type, raw_pos))
+                if not idx:
+                    idx = raw_pos
+        return split_buffer

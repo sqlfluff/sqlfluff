@@ -101,3 +101,24 @@ def test__templater_python_slice_python_template(test, result):
         idx += len(literal)
     # Check total result
     assert resp == result
+
+@pytest.mark.parametrize(
+    "raw_sliced,literals,raw_occurances,templated_occurances,result",
+    [
+        ([], [], {}, {}, []),
+        (
+            [("foo", "literal", 0)],
+            ["foo"],
+            {"foo": [0]},
+            {"foo": [0]},
+            [
+                ('invariant', slice(0, 3, None), slice(0, 3, None), ("foo", 'literal', 0))
+            ],
+        ),
+    ],
+)
+def test__templater_python_split_invariants(raw_sliced, literals, raw_occurances, templated_occurances, result):
+    """Test _findall."""
+    resp = PythonTemplateInterface._split_invariants(raw_sliced, literals, raw_occurances, templated_occurances)
+    # check result
+    assert resp == result
