@@ -298,6 +298,9 @@ class Lexer:
         segment_buff = ()
         violations = []
 
+        # Handle potential TemplatedFile for now
+        raw = str(raw)
+
         while True:
             res = self.matcher.match(raw, start_pos)
             segment_buff += res.segments

@@ -9,7 +9,7 @@ import jinja2.nodes
 from ..errors import SQLTemplaterError
 from ..parser import FilePositionMarker
 
-from .base import register_templater
+from .base import register_templater, TemplatedFile
 from .python import PythonTemplateInterface
 
 
@@ -218,7 +218,10 @@ class JinjaTemplateInterface(PythonTemplateInterface):
         try:
             # NB: Passing no context. Everything is loaded when the template is loaded.
             out_str = template.render()
-            return out_str, violations
+            return (
+                TemplatedFile(source_str=in_str, templated_str=out_str, fname=fname),
+                violations,
+            )
         except Exception as err:
             # TODO: Add a url here so people can get more help.
             violations.append(

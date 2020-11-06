@@ -36,6 +36,35 @@ def register_templater(cls):
     return cls
 
 
+class TemplatedFile:
+    """A templated SQL file.
+
+    This is the response of a templaters .process() method
+    and contains both references to the orginal file and also
+    the capability to split up that file when lexing.
+    """
+
+    def __init__(self, source_str, templated_str=None, fname=None):
+        """Initialise the TemplatedFile.
+
+        If no full_templated is provided then we assume that
+        the file is NOT templated and that the templated view
+        is the same as the source view.
+        """
+        self.source_str = source_str
+        self.templated_str = templated_str or source_str
+        # If no fname, we assume this is from a string or stdin.
+        self.fname = fname
+
+    def __bool__(self):
+        """Return true if there's a templated file."""
+        return bool(self.templated_str)
+
+    def __str__(self):
+        """Return the templated file if coerced to string."""
+        return self.templated_str
+
+
 @register_templater
 class RawTemplateInterface:
     """A templater which does nothing.
@@ -58,7 +87,7 @@ class RawTemplateInterface:
 
     @staticmethod
     def process(in_str, fname=None, config=None):
-        """Process a string and return the new string.
+        """Process a string and return a TemplatedFile.
 
         Args:
             in_str (:obj:`str`): The input string.
@@ -68,7 +97,7 @@ class RawTemplateInterface:
                 templating operation. Only necessary for some templaters.
 
         """
-        return in_str, []
+        return TemplatedFile(in_str, fname=fname), []
 
     def __eq__(self, other):
         """Return true if `other` is of the same class as this one.

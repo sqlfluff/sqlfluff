@@ -4,7 +4,7 @@ import ast
 
 from ..errors import SQLTemplaterError
 
-from .base import RawTemplateInterface, register_templater
+from .base import RawTemplateInterface, register_templater, TemplatedFile
 
 
 @register_templater
@@ -59,7 +59,7 @@ class PythonTemplateInterface(RawTemplateInterface):
         return live_context
 
     def process(self, in_str, fname=None, config=None):
-        """Process a string and return the new string.
+        """Process a string and return a TemplatedFile.
 
         Args:
             in_str (:obj:`str`): The input string.
@@ -71,7 +71,7 @@ class PythonTemplateInterface(RawTemplateInterface):
         """
         live_context = self.get_context(fname=fname, config=config)
         try:
-            return in_str.format(**live_context), []
+            new_str = in_str.format(**live_context)
         except KeyError as err:
             # TODO: Add a url here so people can get more help.
             raise SQLTemplaterError(
@@ -79,3 +79,4 @@ class PythonTemplateInterface(RawTemplateInterface):
                     err
                 )
             )
+        return TemplatedFile(source_str=in_str, templated_str=new_str, fname=fname), []

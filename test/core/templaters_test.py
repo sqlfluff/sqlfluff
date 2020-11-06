@@ -26,7 +26,7 @@ def test__templater_raw():
     t = RawTemplateInterface()
     instr = "SELECT * FROM {{blah}}"
     outstr, _ = t.process(instr)
-    assert instr == outstr
+    assert instr == str(outstr)
 
 
 PYTHON_STRING = "SELECT * FROM {blah}"
@@ -37,7 +37,7 @@ def test__templater_python():
     t = PythonTemplateInterface(override_context=dict(blah="foo"))
     instr = PYTHON_STRING
     outstr, _ = t.process(instr)
-    assert outstr == "SELECT * FROM foo"
+    assert str(outstr) == "SELECT * FROM foo"
 
 
 def test__templater_python_error():
@@ -56,7 +56,7 @@ def test__templater_jinja():
     t = JinjaTemplateInterface(override_context=dict(blah="foo", condition="a < 10"))
     instr = JINJA_STRING
     outstr, _ = t.process(instr, config=FluffConfig())
-    assert outstr == "SELECT * FROM f, o, o WHERE a < 10\n\n"
+    assert str(outstr) == "SELECT * FROM f, o, o WHERE a < 10\n\n"
 
 
 def test__templater_jinja_error():
@@ -64,7 +64,7 @@ def test__templater_jinja_error():
     t = JinjaTemplateInterface(override_context=dict(blah="foo"))
     instr = JINJA_STRING
     outstr, vs = t.process(instr, config=FluffConfig())
-    assert outstr == "SELECT * FROM f, o, o WHERE \n\n"
+    assert str(outstr) == "SELECT * FROM f, o, o WHERE \n\n"
     # Check we have violations.
     assert len(vs) > 0
 
