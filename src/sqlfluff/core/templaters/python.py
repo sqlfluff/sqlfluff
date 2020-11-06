@@ -1,6 +1,8 @@
 """Defines the templaters."""
 
 import ast
+from string import Formatter
+from typing import Iterable, Dict, Tuple, List, Iterator
 
 from ..errors import SQLTemplaterError
 
@@ -80,3 +82,85 @@ class PythonTemplateInterface(RawTemplateInterface):
                 )
             )
         return TemplatedFile(source_str=in_str, templated_str=new_str, fname=fname), []
+
+    @staticmethod
+    def _findall(substr: str, in_str: str) -> Iterator[int]:
+        """Yields all the positions sbstr within in_str.
+
+        https://stackoverflow.com/questions/4664850/how-to-find-all-occurrences-of-a-substring
+        """
+        # Return nothing if one of the inputs is trivial
+        if not substr or not in_str:
+            return
+        idx = in_str.find(substr)
+        while idx != -1:
+            yield idx
+            idx = in_str.find(substr, idx + 1)
+
+    @classmethod
+    def _substring_occurances(
+        cls, in_str: str, substrings: Iterable[str]
+    ) -> Dict[str, List[int]]:
+        """Find every occurance of the given substrings."""
+        occurances = {}
+        for substring in substrings:
+            occurances[substring] = list(cls._findall(substring, in_str))
+        return occurances
+
+    @staticmethod
+    def _sorted_occurance_tuples(
+        occurances: Dict[str, List[int]]
+    ) -> List[Tuple[str, int]]:
+        """Sort a dict of occurances into a sorted list of tuples."""
+        return sorted(
+            ((raw, idx) for raw in occurances.keys() for idx in occurances[raw]),
+            # Sort first by position, then by lexical (for stability)
+            key=lambda x: (x[1], x[0]),
+        )
+
+    @classmethod
+    def _slice_python_template(cls, in_str: str) -> List[Tuple[str, str, int]]:
+        """Slice a templated python string into token tuples.
+
+        This uses Formatter() as per:
+        https://docs.python.org/3/library/string.html#string.Formatter
+        """
+        fmt = Formatter()
+        elems = []
+        in_idx = 0
+        for literal_text, field_name, format_spec, conversion in fmt.parse(in_str):
+            if literal_text:
+                escape_chars = cls._sorted_occurance_tuples(
+                    cls._substring_occurances(literal_text, ["}", "{"])
+                )
+                idx = 0
+                while escape_chars:
+                    first_char = escape_chars.pop()
+                    # Is there a literal first?
+                    if first_char[1] > idx:
+                        elems.append(
+                            (literal_text[idx : first_char[1]], "literal", in_idx)
+                        )
+                        in_idx += first_char[1] - idx
+                    # Add the escaped
+                    idx = first_char[1] + len(first_char[0])
+                    elems.append(
+                        # We double them here to make the raw
+                        (literal_text[first_char[1] : idx] * 2, "escaped", in_idx)
+                    )
+                    # Will always be 2 in this case
+                    in_idx += 2
+                # Deal with last one (if present)
+                if literal_text[idx:]:
+                    elems.append((literal_text[idx:], "literal", in_idx))
+                    in_idx += len(literal_text) - idx
+            # Deal with fields
+            if field_name:
+                constructed_token = "{{{field_name}{conv}{spec}}}".format(
+                    field_name=field_name,
+                    conv="!{}".format(conversion) if conversion else "",
+                    spec=":{}".format(format_spec) if format_spec else "",
+                )
+                elems.append((constructed_token, "templated", in_idx))
+                in_idx += len(constructed_token)
+        return elems
