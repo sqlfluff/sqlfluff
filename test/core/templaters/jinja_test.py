@@ -2,50 +2,8 @@
 
 import pytest
 
-from sqlfluff.core.templaters import (
-    RawTemplateInterface,
-    templater_selector,
-    PythonTemplateInterface,
-    JinjaTemplateInterface,
-)
-from sqlfluff.core import Linter, FluffConfig, SQLTemplaterError
-
-
-def test__templater_selection():
-    """Test template selection by name."""
-    assert templater_selector().__class__ is JinjaTemplateInterface
-    assert templater_selector("raw").__class__ is RawTemplateInterface
-    assert templater_selector("python").__class__ is PythonTemplateInterface
-    assert templater_selector("jinja").__class__ is JinjaTemplateInterface
-    with pytest.raises(ValueError):
-        templater_selector("afefhlsakufe")
-
-
-def test__templater_raw():
-    """Test the raw templater."""
-    t = RawTemplateInterface()
-    instr = "SELECT * FROM {{blah}}"
-    outstr, _ = t.process(instr)
-    assert instr == str(outstr)
-
-
-PYTHON_STRING = "SELECT * FROM {blah}"
-
-
-def test__templater_python():
-    """Test the python templater."""
-    t = PythonTemplateInterface(override_context=dict(blah="foo"))
-    instr = PYTHON_STRING
-    outstr, _ = t.process(instr)
-    assert str(outstr) == "SELECT * FROM foo"
-
-
-def test__templater_python_error():
-    """Test error handling in the python templater."""
-    t = PythonTemplateInterface(override_context=dict(noblah="foo"))
-    instr = PYTHON_STRING
-    with pytest.raises(SQLTemplaterError):
-        t.process(instr)
+from sqlfluff.core.templaters import JinjaTemplateInterface
+from sqlfluff.core import Linter, FluffConfig
 
 
 JINJA_STRING = "SELECT * FROM {% for c in blah %}{{c}}{% if not loop.last %}, {% endif %}{% endfor %} WHERE {{condition}}\n\n"
