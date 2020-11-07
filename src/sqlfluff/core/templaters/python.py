@@ -276,10 +276,15 @@ class PythonTemplater(RawTemplater):
         split_file: List[Tuple[str, slice, slice, List[Tuple[str, str, int]]]],
         raw_occurances: Dict[str, List[int]],
         templ_occurances: Dict[str, List[int]],
-    ) -> Iterator[Tuple[str, Optional[slice], slice]]:
+    ) -> Iterator[Tuple[str, slice, slice]]:
         """Within each of the compound sections split on unique literals.
 
         For everything else we coalesce to the dominant type.
+
+        Returns:
+            Iterable of the type of segment, the slice in the raw file
+                and the slice in the templated file.
+
         """
         # A buffer to capture tail segments
         tail_buffer: List[Tuple[str, slice, slice]] = []
@@ -428,12 +433,30 @@ class PythonTemplater(RawTemplater):
                     # Yield the bit before this literal. We yield it
                     # all as a tuple, because if we could do any better
                     # we would have done it by now.
+
+                    # If it's the start, the slicing is easy
+                    if templ_start_idx == starts[1]:
+                        raw_slice = slice(starts[0], raw_idx)
+                    # If we are AFTER the previous in the template, then it's
+                    # also easy.
+                    elif raw_idx > last_raw_idx:
+                        raw_slice = slice(last_raw_idx, raw_idx)
+                    # Otherwise, it's the tricky case.
+                    else:
+                        # In this case we've found a literal, coming AFTER another
+                        # in the templated version, but BEFORE (or the same) in the
+                        # raw version. This only happens during loops, but it means
+                        # that identifying exaclty what the intervening bit refers
+                        # to is a bit arbitrary. In this case we're going to OVER
+                        # estimate and refer to the whole loop segment, by working
+                        # back to the previous loop block and working forward to the
+                        # following one.
+                        print(elem_buffer)
+                        raw_slice = None
+
                     yield (
                         "templated",
-                        # NB: No source slice (unless it's the first)
-                        slice(starts[0], raw_idx)
-                        if templ_start_idx == starts[1]
-                        else None,
+                        raw_slice,
                         slice(templ_start_idx, template_idx),
                     )
                 # Yield the literal
@@ -443,6 +466,7 @@ class PythonTemplater(RawTemplater):
                     slice(template_idx, template_idx + raw_len),
                 )
                 templ_start_idx = template_idx + raw_len
+                last_raw_idx = raw_idx + raw_len
             if templ_start_idx < stops[1]:
                 # Yield the end bit
                 yield (
