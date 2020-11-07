@@ -8,9 +8,9 @@ from sqlfluff.core.templaters import (
     templater_selector,
     PythonTemplateInterface,
     JinjaTemplateInterface,
-    DbtTemplateInterface,
 )
 from sqlfluff.core import Linter, FluffConfig, SQLTemplaterError
+from test.fixtures.dbt.templater import dbt_templater, in_dbt_project_dir
 
 
 def test__templater_selection():
@@ -122,7 +122,7 @@ def test__templater_full(subpath, code_only, yaml_loader):
     )
 
 
-def test__templater_dbt_missing():
+def test__templater_dbt_missing(dbt_templater):
     """Check that a nice error is returned when dbt module is missing."""
     try:
         import dbt  # noqa: F401
@@ -131,9 +131,8 @@ def test__templater_dbt_missing():
     except ModuleNotFoundError:
         pass
 
-    t = DbtTemplateInterface()
     with pytest.raises(ModuleNotFoundError, match=r"pip install sqlfluff\[dbt\]"):
-        t.process(
+        dbt_templater.process(
             in_str="",
             fname="models/my_new_project/test.sql",
             config=FluffConfig(
@@ -143,29 +142,35 @@ def test__templater_dbt_missing():
 
 
 @pytest.mark.dbt
-def test__templater_dbt_utils():
+def test__templater_dbt_utils(in_dbt_project_dir, dbt_templater):
     """Test Dbt templating supports using dbt_utils (as a dbt dependency)."""
-    t = DbtTemplateInterface()
-    pre_test_dir = os.getcwd()
-    os.chdir("test/fixtures/dbt_project")
-    try:
-        outstr, _ = t.process(
-            in_str="",
-            fname="models/my_new_project/use_dbt_utils.sql",
-            config=FluffConfig(
-                configs={"templater": {"dbt": {"profiles_dir": "../dbt"}}}
-            ),
-        )
-        assert outstr == open("../dbt/use_dbt_utils.sql").read()
-    finally:
-        os.chdir(pre_test_dir)
+    outstr, _ = dbt_templater.process(
+        in_str="",
+        fname="models/my_new_project/use_dbt_utils.sql",
+        config=FluffConfig(
+            configs={"templater": {"dbt": {"profiles_dir": "../dbt"}}}
+        ),
+    )
+    assert outstr == open("../dbt/use_dbt_utils.sql").read()
 
 
 @pytest.mark.dbt
-def test__templater_dbt_profiles_dir_expanded():
+def test__templater_dbt_profiles_dir_expanded(dbt_templater):
     """Check that the profiles_dir is expanded."""
-    t = DbtTemplateInterface()
-    profiles_dir = t._get_profiles_dir(
+    profiles_dir = dbt_templater._get_profiles_dir(
         FluffConfig(configs={"templater": {"dbt": {"profiles_dir": "~/.dbt"}}})
     )
     assert profiles_dir == os.path.expanduser("~/.dbt")
+
+
+@pytest.mark.dbt
+def test__templater_dbt_macro_in_macro(in_dbt_project_dir, dbt_templater):
+    """Check that a macro that calls another macro doesn't cause an error."""
+    outstr, _ = dbt_templater.process(
+        in_str="",
+        fname="models/my_new_project/macro_in_macro.sql",
+        config=FluffConfig(
+            configs={"templater": {"dbt": {"profiles_dir": "../dbt"}}}
+        ),
+    )
+    assert outstr == open("../dbt/macro_in_macro.sql").read()
