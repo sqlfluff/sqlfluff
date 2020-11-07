@@ -143,6 +143,27 @@ def test__templater_jinja_slice_template(test, result):
                 ("literal", slice(34, 49, None), slice(19, 34, None)),
             ],
         ),
+        # Example with loops
+        (
+            "SELECT {# A comment #} {{field}} {% for i in [1, 3, 7]%}, fld_{{i}}_x{% endfor %} FROM my_schema.{{my_table}} ",
+            "SELECT  foobar , fld_1_x, fld_3_x, fld_7_x FROM my_schema.barfoo ",
+            [
+                # NB: None on some raw slices, but only on templated ones.
+                ("literal", slice(0, 7, None), slice(0, 7, None)),
+                ("literal", slice(22, 23, None), slice(7, 8, None)),
+                ("templated", slice(23, 56, None), slice(8, 15, None)),
+                ("literal", slice(56, 62, None), slice(15, 21, None)),
+                ("templated", None, slice(21, 22, None)),
+                ("literal", slice(67, 69, None), slice(22, 24, None)),
+                ("literal", slice(56, 62, None), slice(24, 30, None)),
+                ("templated", None, slice(30, 31, None)),
+                ("literal", slice(67, 69, None), slice(31, 33, None)),
+                ("literal", slice(56, 62, None), slice(33, 39, None)),
+                ("templated", None, slice(39, 40, None)),
+                ("literal", slice(67, 69, None), slice(40, 42, None)),
+                ("literal", slice(81, 97, None), slice(42, 58, None)),
+            ],
+        ),
     ],
 )
 def test__templater_jinja_slice_file(raw_file, templated_file, result):
@@ -153,5 +174,15 @@ def test__templater_jinja_slice_file(raw_file, templated_file, result):
             templated_file,
         )
     )
+    # Check contigious on the TEMPLATED VERSION
+    prev_slice = None
+    for elem in resp:
+        if prev_slice:
+            assert elem[2].start == prev_slice.stop
+        prev_slice = elem[2]
+    # Check that all literal segments have a raw slice
+    for elem in resp:
+        if elem[0] == "literal":
+            assert elem[1] is not None
     # check result
     assert resp == result

@@ -2,7 +2,7 @@
 
 import ast
 from string import Formatter
-from typing import Iterable, Dict, Tuple, List, Iterator
+from typing import Iterable, Dict, Tuple, List, Iterator, Optional
 
 from ..errors import SQLTemplaterError
 
@@ -276,7 +276,7 @@ class PythonTemplater(RawTemplater):
         split_file: List[Tuple[str, slice, slice, List[Tuple[str, str, int]]]],
         raw_occurances: Dict[str, List[int]],
         templ_occurances: Dict[str, List[int]],
-    ) -> Iterator[Tuple[str, slice, slice]]:
+    ) -> Iterator[Tuple[str, Optional[slice], slice]]:
         """Within each of the compound sections split on unique literals.
 
         For everything else we coalesce to the dominant type.
@@ -409,34 +409,47 @@ class PythonTemplater(RawTemplater):
 
             # If we get here, then there ARE uniques, but they are only ONE WAY.
             # This means loops. Loops are tricksy.
+            # We're very unlikely to get here (impossible?) with just python
+            # formatting, but this class is also the base for the jinja templater
+            # (and others?) so it may be used there.
             # One way uniques give us landmarks to try and estimate what to do with them.
-            # We can also infer a little from the presence of block tags
-            print("LOOP DETECTED!")
-            print("elem:", elem_buffer)
-            print("uniques:", one_way_uniques)
-            print("Templ Occs:", templ_occs)
+            # We can probably also infer a little from the presence of block tags, but I'm
+            # not currently smart enough to do that :(
+            owu_templ_tuples = cls._sorted_occurance_tuples(
+                {key: templ_occs[key] for key in one_way_uniques}
+            )
 
-            pre_buffer = None
-            post_buffer = None
-            mid_buffers = []  # NB: This will be a list of lists.
-            temp_buff = []
-            # use `starts` for starts
-            for elem in elem_buffer:
-                if elem[0] in one_way_uniques:
-                    if temp_buff:
-                        buff_elem = (
-                            "compound",
-                            # Slicing is easy here, we have no choice
-                            ## 
-                            slice(starts[0], None),
-                            slice(starts[1], None),
-                            temp_buff,
-                        )
-                    pass
-                else:
-                    temp_buff.append(elem)
-
-            raise ValueError("Boo")
+            templ_start_idx = starts[1]
+            # Iterate through occurance tuples of the one-way uniques.
+            for raw, template_idx in owu_templ_tuples:
+                raw_idx = raw_occs[raw][0]
+                raw_len = len(raw)
+                if template_idx > templ_start_idx:
+                    # Yield the bit before this literal. We yield it
+                    # all as a tuple, because if we could do any better
+                    # we would have done it by now.
+                    yield (
+                        "templated",
+                        # NB: No source slice (unless it's the first)
+                        slice(starts[0], raw_idx)
+                        if templ_start_idx == starts[1]
+                        else None,
+                        slice(templ_start_idx, template_idx),
+                    )
+                # Yield the literal
+                yield (
+                    "literal",
+                    slice(raw_idx, raw_idx + raw_len),
+                    slice(template_idx, template_idx + raw_len),
+                )
+                templ_start_idx = template_idx + raw_len
+            if templ_start_idx < stops[1]:
+                # Yield the end bit
+                yield (
+                    "templated",
+                    slice(raw_idx + raw_len, stops[0]),
+                    slice(templ_start_idx, stops[1]),
+                )
 
         # Yield anything from the tail buffer
         if tail_buffer:
