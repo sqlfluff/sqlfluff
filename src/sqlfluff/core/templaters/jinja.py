@@ -270,6 +270,8 @@ class JinjaTemplater(PythonTemplater):
                         block_type = "block_end"
                     else:
                         block_type = "block_start"
-                yield (str_buff, block_type, idx)
+                # Don't yield comments
+                if block_type != "comment":
+                    yield (str_buff, block_type, idx)
                 idx += len(str_buff)
                 str_buff = ""

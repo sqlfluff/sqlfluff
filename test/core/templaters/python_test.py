@@ -117,7 +117,7 @@ def test__templater_python_slice_template(test, result):
                     "invariant",
                     slice(0, 3, None),
                     slice(0, 3, None),
-                    ("foo", "literal", 0),
+                    [("foo", "literal", 0)],
                 )
             ],
         ),
@@ -127,8 +127,10 @@ def test__templater_python_split_invariants(
     raw_sliced, literals, raw_occurances, templated_occurances, result
 ):
     """Test _findall."""
-    resp = PythonTemplater._split_invariants(
-        raw_sliced, literals, raw_occurances, templated_occurances
+    resp = list(
+        PythonTemplater._split_invariants(
+            raw_sliced, literals, raw_occurances, templated_occurances
+        )
     )
     # check result
     assert resp == result
@@ -144,7 +146,7 @@ def test__templater_python_split_invariants(
                     "invariant",
                     slice(0, 3, None),
                     slice(0, 3, None),
-                    ("foo", "literal", 0),
+                    [("foo", "literal", 0)],
                 )
             ],
             {"foo": [0]},
@@ -157,7 +159,7 @@ def test__templater_python_split_invariants(
                     "invariant",
                     slice(0, 7, None),
                     slice(0, 7, None),
-                    ("SELECT ", "literal", 0),
+                    [("SELECT ", "literal", 0)],
                 ),
                 (
                     "compound",
@@ -173,19 +175,19 @@ def test__templater_python_split_invariants(
                     "invariant",
                     slice(24, 33, None),
                     slice(22, 31, None),
-                    (" as foo, ", "literal", 22),
+                    [(" as foo, ", "literal", 22)],
                 ),
                 (
                     "simple",
                     slice(33, 38, None),
                     slice(31, 35, None),
-                    ("{bar}", "templated", 33),
+                    [("{bar}", "templated", 33)],
                 ),
                 (
                     "invariant",
                     slice(38, 41, None),
                     slice(35, 38, None),
-                    (", '", "literal", 35),
+                    [(", '", "literal", 35)],
                 ),
                 (
                     "compound",
@@ -197,7 +199,7 @@ def test__templater_python_split_invariants(
                     "invariant",
                     slice(45, 76, None),
                     slice(40, 71, None),
-                    ("' as convertable from something", "literal", 40),
+                    [("' as convertable from something", "literal", 40)],
                 ),
             ],
             {
@@ -220,7 +222,7 @@ def test__templater_python_split_invariants(
                 ("literal", slice(13, 15, None), slice(14, 16, None)),
                 ("templated", slice(15, 24, None), slice(16, 22, None)),
                 ("literal", slice(24, 33, None), slice(22, 31, None)),
-                ("literal", slice(33, 38, None), slice(31, 35, None)),
+                ("templated", slice(33, 38, None), slice(31, 35, None)),
                 ("literal", slice(38, 41, None), slice(35, 38, None)),
                 ("escaped", slice(41, 45, None), slice(38, 40, None)),
                 ("literal", slice(45, 76, None), slice(40, 71, None)),
@@ -264,7 +266,7 @@ def test__templater_python_split_uniques_coalesce_rest(
                 ("literal", slice(13, 15, None), slice(14, 16, None)),
                 ("templated", slice(15, 24, None), slice(16, 22, None)),
                 ("literal", slice(24, 33, None), slice(22, 31, None)),
-                ("literal", slice(33, 38, None), slice(31, 35, None)),
+                ("templated", slice(33, 38, None), slice(31, 35, None)),
                 ("literal", slice(38, 41, None), slice(35, 38, None)),
                 ("escaped", slice(41, 45, None), slice(38, 40, None)),
                 ("literal", slice(45, 76, None), slice(40, 71, None)),

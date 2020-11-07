@@ -95,7 +95,8 @@ def test__templater_full(subpath, code_only, yaml_loader):
             "SELECT {# A comment #} {{field}} {% for i in [1, 3]%}, fld_{{i}}{% endfor %} FROM my_schema.{{my_table}} ",
             [
                 ("SELECT ", "literal", 0),
-                ("{# A comment #}", "comment", 7),
+                # NB: Comments should be ignore from the slice.
+                # ("{# A comment #}", "comment", 7),
                 (" ", "literal", 22),
                 ("{{field}}", "templated", 23),
                 (" ", "literal", 32),
@@ -113,12 +114,13 @@ def test__templater_full(subpath, code_only, yaml_loader):
 def test__templater_jinja_slice_template(test, result):
     """Test _findall."""
     resp = list(JinjaTemplater._slice_template(test))
-    # check contigious
-    assert "".join(elem[0] for elem in resp) == test
-    # check indices
-    idx = 0
-    for literal, _, pos in resp:
-        assert pos == idx
-        idx += len(literal)
+    # check contigious (unless there's a comment in it)
+    if "{#" not in test:
+        assert "".join(elem[0] for elem in resp) == test
+        # check indices
+        idx = 0
+        for literal, _, pos in resp:
+            assert pos == idx
+            idx += len(literal)
     # Check total result
     assert resp == result
