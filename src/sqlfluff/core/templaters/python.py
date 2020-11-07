@@ -216,19 +216,12 @@ class PythonTemplater(RawTemplater):
         # Loop through
         for raw, token_type, raw_pos in raw_sliced:
             if raw in invariants:
-                if len(buffer) > 1:
+                if buffer:
                     yield (
                         "compound",
                         slice(idx, raw_pos),
                         slice(templ_tdx, templated_occurances[raw][0]),
                         buffer,
-                    )
-                elif len(buffer) == 1:
-                    yield (
-                        "simple",
-                        slice(idx, raw_pos),
-                        slice(templ_tdx, templated_occurances[raw][0]),
-                        [buffer[0]],
                     )
                 buffer = []
                 idx = None
@@ -297,7 +290,7 @@ class PythonTemplater(RawTemplater):
                 yield from tail_buffer
 
             # Yield anything simple
-            if elem[0] in ("simple", "invariant"):
+            if len(elem[3]) == 1:
                 yield (elem[3][0][1], elem[1], elem[2])
                 continue
 
@@ -370,9 +363,7 @@ class PythonTemplater(RawTemplater):
                             yield from cls._split_uniques_coalesce_rest(
                                 [
                                     (
-                                        "simple"
-                                        if len(sub_section) == 1
-                                        else "compound",
+                                        "compound",
                                         # slice up to this unique
                                         slice(starts[0], raw_occs[raw][0]),
                                         slice(starts[1], templ_occs[raw][0]),
@@ -402,7 +393,7 @@ class PythonTemplater(RawTemplater):
                     yield from cls._split_uniques_coalesce_rest(
                         [
                             (
-                                "simple" if len(sub_section) == 1 else "compound",
+                                "compound",
                                 # Slicing is easy here, we have no choice
                                 slice(starts[0], stops[0]),
                                 slice(starts[1], stops[1]),
@@ -417,11 +408,34 @@ class PythonTemplater(RawTemplater):
                 continue
 
             # If we get here, then there ARE uniques, but they are only ONE WAY.
-            # This means loops
-            # ## TODO: Deal with loops
+            # This means loops. Loops are tricksy.
+            # One way uniques give us landmarks to try and estimate what to do with them.
+            # We can also infer a little from the presence of block tags
             print("LOOP DETECTED!")
             print("elem:", elem_buffer)
             print("uniques:", one_way_uniques)
+            print("Templ Occs:", templ_occs)
+
+            pre_buffer = None
+            post_buffer = None
+            mid_buffers = []  # NB: This will be a list of lists.
+            temp_buff = []
+            # use `starts` for starts
+            for elem in elem_buffer:
+                if elem[0] in one_way_uniques:
+                    if temp_buff:
+                        buff_elem = (
+                            "compound",
+                            # Slicing is easy here, we have no choice
+                            ## 
+                            slice(starts[0], None),
+                            slice(starts[1], None),
+                            temp_buff,
+                        )
+                    pass
+                else:
+                    temp_buff.append(elem)
+
             raise ValueError("Boo")
 
         # Yield anything from the tail buffer
