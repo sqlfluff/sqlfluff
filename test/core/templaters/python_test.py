@@ -49,7 +49,7 @@ def test__templater_python_findall(mainstr, substr, positions):
     ],
 )
 def test__templater_python_substring_occurances(mainstr, substrings, positions):
-    """Test _findall."""
+    """Test _substring_occurances."""
     occurances = PythonTemplater._substring_occurances(mainstr, substrings)
     assert isinstance(occurances, dict)
     pos_test = [occurances[substring] for substring in substrings]
@@ -68,7 +68,7 @@ def test__templater_python_substring_occurances(mainstr, substrings, positions):
     ],
 )
 def test__templater_python_sorted_occurance_tuples(test, result):
-    """Test _findall."""
+    """Test _sorted_occurance_tuples."""
     assert PythonTemplater._sorted_occurance_tuples(test) == result
 
 
@@ -90,7 +90,7 @@ def test__templater_python_sorted_occurance_tuples(test, result):
     ],
 )
 def test__templater_python_slice_template(test, result):
-    """Test _findall."""
+    """Test _slice_template."""
     resp = list(PythonTemplater._slice_template(test))
     # check contigious
     assert "".join(elem[0] for elem in resp) == test
@@ -126,7 +126,7 @@ def test__templater_python_slice_template(test, result):
 def test__templater_python_split_invariants(
     raw_sliced, literals, raw_occurances, templated_occurances, result
 ):
-    """Test _findall."""
+    """Test _split_invariants."""
     resp = list(
         PythonTemplater._split_invariants(
             raw_sliced, literals, raw_occurances, templated_occurances
@@ -233,7 +233,7 @@ def test__templater_python_split_invariants(
 def test__templater_python_split_uniques_coalesce_rest(
     split_file, raw_occurances, templated_occurances, result
 ):
-    """Test _findall."""
+    """Test _split_uniques_coalesce_rest."""
     resp = list(
         PythonTemplater._split_uniques_coalesce_rest(
             split_file,
@@ -275,7 +275,7 @@ def test__templater_python_split_uniques_coalesce_rest(
     ],
 )
 def test__templater_python_slice_file(raw_file, templated_file, result):
-    """Test _findall."""
+    """Test slice_file."""
     resp = list(
         PythonTemplater.slice_file(
             raw_file,

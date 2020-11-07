@@ -292,7 +292,6 @@ class PythonTemplater(RawTemplater):
         tail_buffer: List[Tuple[str, slice, slice]] = []
 
         for elem in split_file:
-            # print("Start: ", elem)
             # Yield anything from the tail buffer
             if tail_buffer:
                 yield from tail_buffer
@@ -310,7 +309,7 @@ class PythonTemplater(RawTemplater):
             # Yield any leading literals.
             while len(elem_buffer) > 0 and elem_buffer[0][1] == "literal":
                 elem_len = len(elem_buffer[0][0])
-                new_starts = (starts[0] + elem_len, starts[0] + elem_len)
+                new_starts = (starts[0] + elem_len, starts[1] + elem_len)
                 yield (
                     "literal",
                     slice(starts[0], new_starts[0]),
@@ -322,7 +321,7 @@ class PythonTemplater(RawTemplater):
             # Store any trailing literals
             while len(elem_buffer) > 0 and elem_buffer[-1][1] == "literal":
                 elem_len = len(elem_buffer[-1][0])
-                new_stops = (stops[0] - elem_len, stops[0] - elem_len)
+                new_stops = (stops[0] - elem_len, stops[1] - elem_len)
                 tail_elem = (
                     "literal",
                     slice(new_stops[0], stops[0]),

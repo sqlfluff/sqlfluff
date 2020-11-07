@@ -112,7 +112,7 @@ def test__templater_full(subpath, code_only, yaml_loader):
     ],
 )
 def test__templater_jinja_slice_template(test, result):
-    """Test _findall."""
+    """Test _slice_template."""
     resp = list(JinjaTemplater._slice_template(test))
     # check contigious (unless there's a comment in it)
     if "{#" not in test:
@@ -123,4 +123,35 @@ def test__templater_jinja_slice_template(test, result):
             assert pos == idx
             idx += len(literal)
     # Check total result
+    assert resp == result
+
+
+@pytest.mark.parametrize(
+    "raw_file,templated_file,result",
+    [
+        ("", "", []),
+        ("foo", "foo", [("literal", slice(0, 3, None), slice(0, 3, None))]),
+        # Example with no loops
+        (
+            "SELECT {{blah}}, boo {# comment #} from something",
+            "SELECT foobar, boo  from something",
+            [
+                ("literal", slice(0, 7, None), slice(0, 7, None)),
+                ("templated", slice(7, 15, None), slice(7, 13, None)),
+                ("literal", slice(15, 21, None), slice(13, 19, None)),
+                # NB: Comment results in two literals
+                ("literal", slice(34, 49, None), slice(19, 34, None)),
+            ],
+        ),
+    ],
+)
+def test__templater_jinja_slice_file(raw_file, templated_file, result):
+    """Test slice_file."""
+    resp = list(
+        JinjaTemplater.slice_file(
+            raw_file,
+            templated_file,
+        )
+    )
+    # check result
     assert resp == result
