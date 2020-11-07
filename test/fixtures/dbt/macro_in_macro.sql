@@ -1,4 +1,4 @@
--- Inspired from issue #335
+-- Issue #335
 
     
 

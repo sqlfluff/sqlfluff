@@ -187,3 +187,16 @@ def test__templater_get_config(in_dbt_project_dir, dbt_templater):
         ),
     )
     assert outstr == open("../dbt/use_headers.sql").read()
+
+
+@pytest.mark.dbt
+def test__templater_use_var(in_dbt_project_dir, dbt_templater):
+    """Check that the var() function is supported"""
+    outstr, _ = dbt_templater.process(
+        in_str="",
+        fname="models/my_new_project/use_var.sql",
+        config=FluffConfig(
+            configs={"templater": {"dbt": {"profiles_dir": "../dbt"}}}
+        ),
+    )
+    assert outstr == open("../dbt/use_var.sql").read()

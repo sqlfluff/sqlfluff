@@ -1,4 +1,4 @@
--- Inspired from issue #516
+-- Issue #516
 {% macro my_headers() %}
     -- Materialization: {{ config.get('materialization') }}
 {% endmacro %}
