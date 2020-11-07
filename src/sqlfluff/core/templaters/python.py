@@ -84,7 +84,37 @@ class PythonTemplater(RawTemplater):
                     err
                 )
             )
-        return TemplatedFile(source_str=in_str, templated_str=new_str, fname=fname), []
+        sliced_file = self.slice_file(in_str, new_str)
+        return (
+            TemplatedFile(
+                source_str=in_str,
+                templated_str=new_str,
+                fname=fname,
+                sliced_file=sliced_file,
+            ),
+            [],
+        )
+
+    @classmethod
+    def slice_file(cls, raw_str, templated_str):
+        """Slice the file to determine regions where we can fix."""
+        # Slice the raw file
+        raw_sliced = cls._slice_python_template(raw_str)
+        # Find the literals
+        literals = [elem[0] for elem in raw_sliced if elem[1] == "literal"]
+        # Calculate occurances
+        raw_occurances = cls._substring_occurances(raw_str, literals)
+        templated_occurances = cls._substring_occurances(templated_str, literals)
+        # Split on invariants
+        split_sliced = cls._split_invariants(
+            raw_sliced, literals, raw_occurances, templated_occurances
+        )
+        # Deal with uniques and coalesce the rest
+        return list(
+            cls._split_uniques_coalesce_rest(
+                split_sliced, raw_occurances, templated_occurances
+            )
+        )
 
     @staticmethod
     def _findall(substr: str, in_str: str) -> Iterator[int]:
@@ -263,9 +293,9 @@ class PythonTemplater(RawTemplater):
     @classmethod
     def _split_uniques_coalesce_rest(
         cls,
+        split_file: List[Tuple[str, slice, slice, Any]],
         raw_occurances: Dict[str, List[int]],
         templ_occurances: Dict[str, List[int]],
-        split_file: List[Tuple[str, slice, slice, Any]],
     ) -> Iterator[Tuple[str, slice, slice]]:
         """Within each of the compound sections split on unique literals.
 

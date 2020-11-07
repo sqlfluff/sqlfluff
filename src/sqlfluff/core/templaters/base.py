@@ -44,7 +44,7 @@ class TemplatedFile:
     the capability to split up that file when lexing.
     """
 
-    def __init__(self, source_str, templated_str=None, fname=None):
+    def __init__(self, source_str, templated_str=None, fname=None, sliced_file=None):
         """Initialise the TemplatedFile.
 
         If no full_templated is provided then we assume that
@@ -55,6 +55,11 @@ class TemplatedFile:
         self.templated_str = templated_str or source_str
         # If no fname, we assume this is from a string or stdin.
         self.fname = fname
+        # Assume that no sliced_file, means the file is not templated
+        # TODO: Enable error handling.
+        # if not sliced_file and templated_str != source_str:
+        #     raise ValueError("Cannot instantiate a templated file unsliced!")
+        self.sliced_file = sliced_file
 
     def __bool__(self):
         """Return true if there's a templated file."""

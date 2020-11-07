@@ -234,9 +234,50 @@ def test__templater_python_split_uniques_coalesce_rest(
     """Test _findall."""
     resp = list(
         PythonTemplater._split_uniques_coalesce_rest(
+            split_file,
             raw_occurances,
             templated_occurances,
-            split_file,
+        )
+    )
+    # Check contigious
+    prev_slice = None
+    for elem in result:
+        if prev_slice:
+            assert elem[1].start == prev_slice[0].stop
+            assert elem[2].start == prev_slice[1].stop
+        prev_slice = (elem[1], elem[2])
+    # check result
+    assert resp == result
+
+
+@pytest.mark.parametrize(
+    "raw_file,templated_file,result",
+    [
+        ("", "", []),
+        ("foo", "foo", [("literal", slice(0, 3, None), slice(0, 3, None))]),
+        (
+            "SELECT {blah}, {foo:.2f} as foo, {bar}, '{{}}' as convertable from something",
+            "SELECT nothing, 435.24 as foo, spam, '{}' as convertable from something",
+            [
+                ("literal", slice(0, 7, None), slice(0, 7, None)),
+                ("templated", slice(7, 13, None), slice(7, 14, None)),
+                ("literal", slice(13, 15, None), slice(14, 16, None)),
+                ("templated", slice(15, 24, None), slice(16, 22, None)),
+                ("literal", slice(24, 33, None), slice(22, 31, None)),
+                ("literal", slice(33, 38, None), slice(31, 35, None)),
+                ("literal", slice(38, 41, None), slice(35, 38, None)),
+                ("escaped", slice(41, 45, None), slice(38, 40, None)),
+                ("literal", slice(45, 76, None), slice(40, 71, None)),
+            ],
+        ),
+    ],
+)
+def test__templater_python_slice_file(raw_file, templated_file, result):
+    """Test _findall."""
+    resp = list(
+        PythonTemplater.slice_file(
+            raw_file,
+            templated_file,
         )
     )
     # Check contigious
