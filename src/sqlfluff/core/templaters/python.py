@@ -99,7 +99,7 @@ class PythonTemplater(RawTemplater):
     def slice_file(cls, raw_str, templated_str):
         """Slice the file to determine regions where we can fix."""
         # Slice the raw file
-        raw_sliced = cls._slice_python_template(raw_str)
+        raw_sliced = list(cls._slice_template(raw_str))
         # Find the literals
         literals = [elem[0] for elem in raw_sliced if elem[1] == "literal"]
         # Calculate occurances
@@ -152,14 +152,13 @@ class PythonTemplater(RawTemplater):
         )
 
     @classmethod
-    def _slice_python_template(cls, in_str: str) -> List[Tuple[str, str, int]]:
+    def _slice_template(cls, in_str: str) -> Iterator[Tuple[str, str, int]]:
         """Slice a templated python string into token tuples.
 
         This uses Formatter() as per:
         https://docs.python.org/3/library/string.html#string.Formatter
         """
         fmt = Formatter()
-        elems = []
         in_idx = 0
         for literal_text, field_name, format_spec, conversion in fmt.parse(in_str):
             if literal_text:
@@ -171,21 +170,17 @@ class PythonTemplater(RawTemplater):
                     first_char = escape_chars.pop()
                     # Is there a literal first?
                     if first_char[1] > idx:
-                        elems.append(
-                            (literal_text[idx : first_char[1]], "literal", in_idx)
-                        )
+                        yield (literal_text[idx : first_char[1]], "literal", in_idx)
                         in_idx += first_char[1] - idx
                     # Add the escaped
                     idx = first_char[1] + len(first_char[0])
-                    elems.append(
-                        # We double them here to make the raw
-                        (literal_text[first_char[1] : idx] * 2, "escaped", in_idx)
-                    )
+                    # We double them here to make the raw
+                    yield (literal_text[first_char[1] : idx] * 2, "escaped", in_idx)
                     # Will always be 2 in this case
                     in_idx += 2
                 # Deal with last one (if present)
                 if literal_text[idx:]:
-                    elems.append((literal_text[idx:], "literal", in_idx))
+                    yield (literal_text[idx:], "literal", in_idx)
                     in_idx += len(literal_text) - idx
             # Deal with fields
             if field_name:
@@ -194,9 +189,8 @@ class PythonTemplater(RawTemplater):
                     conv="!{}".format(conversion) if conversion else "",
                     spec=":{}".format(format_spec) if format_spec else "",
                 )
-                elems.append((constructed_token, "templated", in_idx))
+                yield (constructed_token, "templated", in_idx)
                 in_idx += len(constructed_token)
-        return elems
 
     @staticmethod
     def _split_invariants(

@@ -1,6 +1,7 @@
 """Defines the templaters."""
 
 import os.path
+from typing import Iterator, Tuple
 
 from jinja2.sandbox import SandboxedEnvironment
 from jinja2 import meta
@@ -139,6 +140,17 @@ class JinjaTemplater(PythonTemplater):
                 pos=FilePositionMarker(None, line_no, pos, charpos),
             )
 
+    @staticmethod
+    def _get_jinja_env():
+        """Get a properly configured jinja environment."""
+        # We explicitly want to preserve newlines.
+        return SandboxedEnvironment(
+            keep_trailing_newline=True,
+            # The do extension allows the "do" directive
+            autoescape=False,
+            extensions=["jinja2.ext.do"],
+        )
+
     def process(self, in_str, fname=None, config=None):
         """Process a string and return the new string.
 
@@ -150,14 +162,6 @@ class JinjaTemplater(PythonTemplater):
                 templating operation. Only necessary for some templaters.
 
         """
-        # We explicitly want to preserve newlines.
-        env = SandboxedEnvironment(
-            keep_trailing_newline=True,
-            # The do extension allows the "do" directive
-            autoescape=False,
-            extensions=["jinja2.ext.do"],
-        )
-
         if not config:
             raise ValueError(
                 "For the jinja templater, the `process()` method requires a config object."
@@ -180,6 +184,7 @@ class JinjaTemplater(PythonTemplater):
                     live_context[name] = dbt_builtins[name]
 
         # Load config macros
+        env = self._get_jinja_env()
         ctx = self._extract_macros_from_config(config=config, env=env, ctx=live_context)
         # Load macros from path (if applicable)
         macros_path = config.get_section(
@@ -233,3 +238,29 @@ class JinjaTemplater(PythonTemplater):
                 )
             )
             return None, violations
+
+    @classmethod
+    def _slice_template(cls, in_str: str) -> Iterator[Tuple[str, str, int]]:
+        """Slice template in jinja.
+
+        NB: Starts and ends of blocks are not distinguished.
+        """
+        env = cls._get_jinja_env()
+        str_buff = ""
+        idx = 0
+        block_types = {
+            "variable_end": "templated",
+            "block_end": "block",
+            "comment_end": "comment",
+        }
+        # https://jinja.palletsprojects.com/en/2.11.x/api/#jinja2.Environment.lex
+        for _, elem_type, raw in env.lex(in_str):
+            if elem_type == "data":
+                yield (raw, "literal", idx)
+                idx += len(raw)
+                continue
+            str_buff += raw
+            if elem_type.endswith("_end"):
+                yield (str_buff, block_types[elem_type], idx)
+                idx += len(str_buff)
+                str_buff = ""

@@ -89,9 +89,9 @@ def test__templater_python_sorted_occurance_tuples(test, result):
         ),
     ],
 )
-def test__templater_python_slice_python_template(test, result):
+def test__templater_python_slice_template(test, result):
     """Test _findall."""
-    resp = PythonTemplater._slice_python_template(test)
+    resp = list(PythonTemplater._slice_template(test))
     # check contigious
     assert "".join(elem[0] for elem in resp) == test
     # check indices

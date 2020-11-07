@@ -76,3 +76,49 @@ def test__templater_full(subpath, code_only, yaml_loader):
     assert_structure(
         yaml_loader, "test/fixtures/templater/" + subpath, code_only=code_only
     )
+
+
+@pytest.mark.parametrize(
+    "test,result",
+    [
+        ("", []),
+        ("foo", [("foo", "literal", 0)]),
+        (
+            "foo {{bar}} z ",
+            [
+                ("foo ", "literal", 0),
+                ("{{bar}}", "templated", 4),
+                (" z ", "literal", 11),
+            ],
+        ),
+        (
+            "SELECT {# A comment #} {{field}} {% for i in [1, 3]%}, fld_{{i}}{% endfor %} FROM my_schema.{{my_table}} ",
+            [
+                ('SELECT ', 'literal', 0),
+                ('{# A comment #}', 'comment', 7),
+                (' ', 'literal', 22),
+                ('{{field}}', 'templated', 23),
+                (' ', 'literal', 32),
+                ('{% for i in [1, 3]%}', 'block', 33),
+                (', fld_', 'literal', 53),
+                ('{{i}}', 'templated', 59),
+                ('{% endfor %}', 'block', 64),
+                (' FROM my_schema.', 'literal', 76),
+                ('{{my_table}}', 'templated', 92),
+                (' ', 'literal', 104)
+            ],
+        ),
+    ],
+)
+def test__templater_jinja_slice_template(test, result):
+    """Test _findall."""
+    resp = list(JinjaTemplater._slice_template(test))
+    # check contigious
+    assert "".join(elem[0] for elem in resp) == test
+    # check indices
+    idx = 0
+    for literal, _, pos in resp:
+        assert pos == idx
+        idx += len(literal)
+    # Check total result
+    assert resp == result
