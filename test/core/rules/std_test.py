@@ -436,7 +436,7 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
             "L031",
             "fail",
             "SELECT u.id, c.first_name, c.last_name, COUNT(o.user_id) FROM users as u JOIN customers as c on u.id = c.user_id JOIN orders as o on u.id = o.user_id;",
-            "SELECT u.id, customers.first_name, customers.last_name, COUNT(orders.user_id) FROM users as u JOIN customers on u.id = customers.user_id JOIN orders on u.id = orders.user_id;",
+            "SELECT users.id, customers.first_name, customers.last_name, COUNT(orders.user_id) FROM users JOIN customers on users.id = customers.user_id JOIN orders on users.id = orders.user_id;",
             None,
         ),
         # Fix for https://github.com/sqlfluff/sqlfluff/issues/476
@@ -790,7 +790,11 @@ def test__rules__runaway_fail_catch():
         ("L021", "test/fixtures/linter/select_distinct_group_by.sql", [(1, 8)]),
         # Make sure that ignoring works as expected
         ("L006", "test/fixtures/linter/operator_errors_ignore.sql", [(10, 8), (10, 9)]),
-        ("L031", "test/fixtures/linter/aliases_in_join_error.sql", [(7, 19), (8, 16)]),
+        (
+            "L031",
+            "test/fixtures/linter/aliases_in_join_error.sql",
+            [(6, 15), (7, 19), (8, 16)],
+        ),
     ],
 )
 def test__rules__std_file(rule, path, violations):
