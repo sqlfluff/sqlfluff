@@ -10,3 +10,6 @@ default:
         dbname: jaffle_shop
         schema: dbt_alice
         threads: 4
+
+config:
+  send_anonymous_usage_stats: False
