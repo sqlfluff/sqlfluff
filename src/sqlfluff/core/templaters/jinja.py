@@ -261,6 +261,15 @@ class JinjaTemplater(PythonTemplater):
                 continue
             str_buff += raw
             if elem_type.endswith("_end"):
-                yield (str_buff, block_types[elem_type], idx)
+                block_type = block_types[elem_type]
+                # Handle starts and ends of blocks
+                if block_type == "block":
+                    # Trim off the brackets and then the whitespace
+                    trimmed_content = str_buff[2:-2].strip()
+                    if trimmed_content.startswith("end"):
+                        block_type = "block_end"
+                    else:
+                        block_type = "block_start"
+                yield (str_buff, block_type, idx)
                 idx += len(str_buff)
                 str_buff = ""
