@@ -17,6 +17,9 @@ class PythonTemplateInterface(RawTemplateInterface):
 
     For the python templater we don't allow functions or macros because there isn't
     a good way of doing it securely. Use the jinja templater for this.
+
+    The python templater also defines a lot of the logic for how
+    to allow fixing and translation in a templated file.
     """
 
     name = "python"
@@ -166,44 +169,166 @@ class PythonTemplateInterface(RawTemplateInterface):
         return elems
 
     @staticmethod
-    def _split_invariants(raw_sliced: List[Tuple[str, str, int]], literals: List[str], raw_occurances: Dict[str, List[int]], templated_occurances: Dict[str, List[int]]) -> List[Tuple[str, slice, slice, Any]]:
+    def _split_invariants(
+        raw_sliced: List[Tuple[str, str, int]],
+        literals: List[str],
+        raw_occurances: Dict[str, List[int]],
+        templated_occurances: Dict[str, List[int]],
+    ) -> List[Tuple[str, slice, slice, Any]]:
         """Split a sliced file on its invariant literals."""
         # Calculate invariants
-        invariants = [literal for literal in literals if len(raw_occurances[literal]) == 1 and len(templated_occurances[literal]) == 1]
+        invariants = [
+            literal
+            for literal in literals
+            if len(raw_occurances[literal]) == 1
+            and len(templated_occurances[literal]) == 1
+        ]
         # Set up some buffers
-        split_buffer = []
-        buffer = []
+        split_buffer: List[Tuple[str, slice, slice, Any]] = []
+        buffer: List[Tuple[str, str, int]] = []
         idx = None
         templ_tdx = 0
         # Loop through
         for raw, token_type, raw_pos in raw_sliced:
             if raw in invariants:
                 if len(buffer) > 1:
-                    split_buffer.append((
-                        'compound',
-                        slice(idx, raw_pos),
-                        slice(templ_tdx, templated_occurances[raw][0]),
-                        buffer
-                    ))
+                    split_buffer.append(
+                        (
+                            "compound",
+                            slice(idx, raw_pos),
+                            slice(templ_tdx, templated_occurances[raw][0]),
+                            buffer,
+                        )
+                    )
                 elif len(buffer) == 1:
-                    split_buffer.append((
-                        'simple',
-                        slice(idx, raw_pos),
-                        slice(templ_tdx, templated_occurances[raw][0]),
-                        buffer[0]
-                    ))
+                    split_buffer.append(
+                        (
+                            "simple",
+                            slice(idx, raw_pos),
+                            slice(templ_tdx, templated_occurances[raw][0]),
+                            buffer[0],
+                        )
+                    )
                 buffer = []
                 idx = None
                 # NB: Longer tuple format here
-                split_buffer.append((
-                    'invariant',
-                    slice(raw_pos, raw_pos + len(raw)),
-                    slice(templated_occurances[raw][0], templated_occurances[raw][0] + len(raw)),
-                    (raw, token_type, templated_occurances[raw][0])
-                ))
+                split_buffer.append(
+                    (
+                        "invariant",
+                        slice(raw_pos, raw_pos + len(raw)),
+                        slice(
+                            templated_occurances[raw][0],
+                            templated_occurances[raw][0] + len(raw),
+                        ),
+                        (raw, token_type, templated_occurances[raw][0]),
+                    )
+                )
                 templ_tdx = templated_occurances[raw][0] + len(raw)
             else:
                 buffer.append((raw, token_type, raw_pos))
                 if not idx:
                     idx = raw_pos
         return split_buffer
+
+    @staticmethod
+    def _filter_occurances(
+        file_slice: slice, occurances: Dict[str, List[int]]
+    ) -> Dict[str, List[int]]:
+        """Filter a dict of occurances to just those within a slice."""
+        filtered = {
+            key: [
+                pos
+                for pos in occurances[key]
+                if pos >= file_slice.start and pos < file_slice.stop
+            ]
+            for key in occurances.keys()
+        }
+        return {key: filtered[key] for key in filtered.keys() if filtered[key]}
+
+    @staticmethod
+    def _coalesce_types(elems: List[Tuple[str, str, int]]) -> str:
+        """Coalesce to the priority type."""
+        # Make a set of types
+        types = {elem[1] for elem in elems}
+        # Take the easy route if they're all the same type
+        if len(types) == 1:
+            return types.pop()
+        # Then deal with priority
+        priority = ["templated", "escaped", "literal"]
+        for p in priority:
+            if p in types:
+                return p
+        raise RuntimeError("Exhausted priorities in _coalesce_types!")
+
+    @classmethod
+    def _split_uniques_coalesce_rest(
+        cls,
+        raw_occurances: Dict[str, List[int]],
+        templ_occurances: Dict[str, List[int]],
+        split_file: List[Tuple[str, slice, slice, Any]],
+    ) -> Iterator[Tuple[str, slice, slice]]:
+        """Within each of the compound sections split on unique literals.
+
+        For everything else we coalesce to the dominant type.
+        """
+        for elem in split_file:
+            # Yield anything simple
+            if elem[0] in ("simple", "invariant"):
+                yield ("literal", elem[1], elem[2])
+                continue
+
+            raw_occs = cls._filter_occurances(elem[1], raw_occurances)
+            templ_occs = cls._filter_occurances(elem[2], templ_occurances)
+
+            # if we don't have anything to anchor on, then just return (coalescing types)
+            if not raw_occs or not templ_occs:
+                yield (cls._coalesce_types(elem[3]), elem[1], elem[2])
+                continue
+
+            # Do we have any uniques to split on?
+            uniques = [
+                key
+                for key in raw_occs.keys()
+                if len(raw_occs[key]) == 1 and len(templ_occs[key]) == 1
+            ]
+            if not uniques:
+                # Nope, just coalesce
+                yield (cls._coalesce_types(elem[3]), elem[1], elem[2])
+                continue
+
+            # Yield the uniques and coalesce anything between.
+            bookmark_idx = 0
+            last_end = (elem[1].start, elem[2].start)
+            for idx in range(len(elem[3])):
+                # Is this one a unique?
+                raw = elem[3][idx][0]
+                if raw in uniques:
+                    # Do we have anything before it to process?
+                    if idx > bookmark_idx:
+                        yield (
+                            cls._coalesce_types(elem[3][bookmark_idx:idx]),
+                            # slice up to this unique
+                            slice(last_end[0], raw_occs[raw][0]),
+                            slice(last_end[1], templ_occs[raw][0]),
+                        )
+                    # Process the value itself
+                    last_end = (
+                        raw_occs[raw][0] + len(raw),
+                        templ_occs[raw][0] + len(raw),
+                    )
+                    yield (
+                        elem[3][idx][1],
+                        # It's a literal so use its length
+                        slice(raw_occs[raw][0], last_end[0]),
+                        slice(templ_occs[raw][0], last_end[1]),
+                    )
+                    # Move the bookmark after this position
+                    bookmark_idx = idx + 1
+            # At the end of the loop deal with any hangover
+            if len(elem[3]) > bookmark_idx:
+                yield (
+                    cls._coalesce_types(elem[3][bookmark_idx : len(elem[3])]),
+                    # Slicing is easy here, we have no choice
+                    slice(last_end[0], elem[1].stop),
+                    slice(last_end[1], elem[2].stop),
+                )

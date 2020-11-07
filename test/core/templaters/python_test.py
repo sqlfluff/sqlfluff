@@ -102,6 +102,7 @@ def test__templater_python_slice_python_template(test, result):
     # Check total result
     assert resp == result
 
+
 @pytest.mark.parametrize(
     "raw_sliced,literals,raw_occurances,templated_occurances,result",
     [
@@ -112,13 +113,138 @@ def test__templater_python_slice_python_template(test, result):
             {"foo": [0]},
             {"foo": [0]},
             [
-                ('invariant', slice(0, 3, None), slice(0, 3, None), ("foo", 'literal', 0))
+                (
+                    "invariant",
+                    slice(0, 3, None),
+                    slice(0, 3, None),
+                    ("foo", "literal", 0),
+                )
             ],
         ),
     ],
 )
-def test__templater_python_split_invariants(raw_sliced, literals, raw_occurances, templated_occurances, result):
+def test__templater_python_split_invariants(
+    raw_sliced, literals, raw_occurances, templated_occurances, result
+):
     """Test _findall."""
-    resp = PythonTemplateInterface._split_invariants(raw_sliced, literals, raw_occurances, templated_occurances)
+    resp = PythonTemplateInterface._split_invariants(
+        raw_sliced, literals, raw_occurances, templated_occurances
+    )
+    # check result
+    assert resp == result
+
+
+@pytest.mark.parametrize(
+    "split_file,raw_occurances,templated_occurances,result",
+    [
+        ([], {}, {}, []),
+        (
+            [
+                (
+                    "invariant",
+                    slice(0, 3, None),
+                    slice(0, 3, None),
+                    ("foo", "literal", 0),
+                )
+            ],
+            {"foo": [0]},
+            {"foo": [0]},
+            [("literal", slice(0, 3, None), slice(0, 3, None))],
+        ),
+        (
+            [
+                (
+                    "invariant",
+                    slice(0, 7, None),
+                    slice(0, 7, None),
+                    ("SELECT ", "literal", 0),
+                ),
+                (
+                    "compound",
+                    slice(7, 24, None),
+                    slice(7, 22, None),
+                    [
+                        ("{blah}", "templated", 7),
+                        (", ", "literal", 13),
+                        ("{foo:.2f}", "templated", 15),
+                    ],
+                ),
+                (
+                    "invariant",
+                    slice(24, 33, None),
+                    slice(22, 31, None),
+                    (" as foo, ", "literal", 22),
+                ),
+                (
+                    "simple",
+                    slice(33, 38, None),
+                    slice(31, 35, None),
+                    ("{bar}", "templated", 33),
+                ),
+                (
+                    "invariant",
+                    slice(38, 41, None),
+                    slice(35, 38, None),
+                    (", '", "literal", 35),
+                ),
+                (
+                    "compound",
+                    slice(41, 45, None),
+                    slice(38, 40, None),
+                    [("{{", "escaped", 41), ("}}", "escaped", 43)],
+                ),
+                (
+                    "invariant",
+                    slice(45, 76, None),
+                    slice(40, 71, None),
+                    ("' as convertable from something", "literal", 40),
+                ),
+            ],
+            {
+                "SELECT ": [0],
+                ", ": [13, 31, 38],
+                " as foo, ": [24],
+                ", '": [38],
+                "' as convertable from something": [45],
+            },
+            {
+                "SELECT ": [0],
+                ", ": [14, 29, 35],
+                " as foo, ": [22],
+                ", '": [35],
+                "' as convertable from something": [40],
+            },
+            [
+                ("literal", slice(0, 7, None), slice(0, 7, None)),
+                ("templated", slice(7, 13, None), slice(7, 14, None)),
+                ("literal", slice(13, 15, None), slice(14, 16, None)),
+                ("templated", slice(15, 24, None), slice(16, 22, None)),
+                ("literal", slice(24, 33, None), slice(22, 31, None)),
+                ("literal", slice(33, 38, None), slice(31, 35, None)),
+                ("literal", slice(38, 41, None), slice(35, 38, None)),
+                ("escaped", slice(41, 45, None), slice(38, 40, None)),
+                ("literal", slice(45, 76, None), slice(40, 71, None)),
+            ],
+        ),
+    ],
+)
+def test__templater_python_split_uniques_coalesce_rest(
+    split_file, raw_occurances, templated_occurances, result
+):
+    """Test _findall."""
+    resp = list(
+        PythonTemplateInterface._split_uniques_coalesce_rest(
+            raw_occurances,
+            templated_occurances,
+            split_file,
+        )
+    )
+    # Check contigious
+    prev_slice = None
+    for elem in result:
+        if prev_slice:
+            assert elem[1].start == prev_slice[0].stop
+            assert elem[2].start == prev_slice[1].stop
+        prev_slice = (elem[1], elem[2])
     # check result
     assert resp == result
