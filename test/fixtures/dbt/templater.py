@@ -1,4 +1,6 @@
+
 from sqlfluff.core.templaters import DbtTemplateInterface
+from sqlfluff.core import FluffConfig
 import pytest
 import os
 
@@ -19,3 +21,10 @@ def in_dbt_project_dir():
     finally:
         os.chdir(pre_test_dir)
 
+
+@pytest.fixture()
+def fluff_config():
+    """Returns a default FluffConfig for dbt tests."""
+    return FluffConfig(
+        configs={"templater": {"dbt": {"profiles_dir": "../dbt"}}}
+    )

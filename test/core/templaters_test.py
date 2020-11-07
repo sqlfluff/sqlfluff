@@ -10,7 +10,7 @@ from sqlfluff.core.templaters import (
     JinjaTemplateInterface,
 )
 from sqlfluff.core import Linter, FluffConfig, SQLTemplaterError
-from test.fixtures.dbt.templater import dbt_templater, in_dbt_project_dir
+from test.fixtures.dbt.templater import dbt_templater, in_dbt_project_dir, fluff_config
 
 
 def test__templater_selection():
@@ -142,14 +142,12 @@ def test__templater_dbt_missing(dbt_templater):
 
 
 @pytest.mark.dbt
-def test__templater_dbt_utils(in_dbt_project_dir, dbt_templater):
+def test__templater_dbt_utils(in_dbt_project_dir, dbt_templater, fluff_config):
     """Test Dbt templating supports using dbt_utils (as a dbt dependency)."""
     outstr, _ = dbt_templater.process(
         in_str="",
         fname="models/my_new_project/use_dbt_utils.sql",
-        config=FluffConfig(
-            configs={"templater": {"dbt": {"profiles_dir": "../dbt"}}}
-        ),
+        config=fluff_config,
     )
     assert outstr == open("../dbt/use_dbt_utils.sql").read()
 
@@ -164,39 +162,33 @@ def test__templater_dbt_profiles_dir_expanded(dbt_templater):
 
 
 @pytest.mark.dbt
-def test__templater_dbt_macro_in_macro(in_dbt_project_dir, dbt_templater):
+def test__templater_dbt_macro_in_macro(in_dbt_project_dir, dbt_templater, fluff_config):
     """Check that a macro that calls another macro doesn't cause an error."""
     outstr, _ = dbt_templater.process(
         in_str="",
         fname="models/my_new_project/macro_in_macro.sql",
-        config=FluffConfig(
-            configs={"templater": {"dbt": {"profiles_dir": "../dbt"}}}
-        ),
+        config=fluff_config,
     )
     assert outstr == open("../dbt/macro_in_macro.sql").read()
 
 
 @pytest.mark.dbt
-def test__templater_get_config(in_dbt_project_dir, dbt_templater):
+def test__templater_get_config(in_dbt_project_dir, dbt_templater, fluff_config):
     """Check that a macro can access dbt config through config.get(..)."""
     outstr, _ = dbt_templater.process(
         in_str="",
         fname="models/my_new_project/use_headers.sql",
-        config=FluffConfig(
-            configs={"templater": {"dbt": {"profiles_dir": "../dbt"}}}
-        ),
+        config=fluff_config,
     )
     assert outstr == open("../dbt/use_headers.sql").read()
 
 
 @pytest.mark.dbt
-def test__templater_use_var(in_dbt_project_dir, dbt_templater):
+def test__templater_use_var(in_dbt_project_dir, dbt_templater, fluff_config):
     """Check that the var() function is supported"""
     outstr, _ = dbt_templater.process(
         in_str="",
         fname="models/my_new_project/use_var.sql",
-        config=FluffConfig(
-            configs={"templater": {"dbt": {"profiles_dir": "../dbt"}}}
-        ),
+        config=fluff_config,
     )
     assert outstr == open("../dbt/use_var.sql").read()
