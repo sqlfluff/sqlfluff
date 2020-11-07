@@ -10,11 +10,11 @@ from ..errors import SQLTemplaterError
 from ..parser import FilePositionMarker
 
 from .base import register_templater, TemplatedFile
-from .python import PythonTemplateInterface
+from .python import PythonTemplater
 
 
 @register_templater
-class JinjaTemplateInterface(PythonTemplateInterface):
+class JinjaTemplater(PythonTemplater):
     """A templater using the jinja2 library.
 
     See: https://jinja.palletsprojects.com/

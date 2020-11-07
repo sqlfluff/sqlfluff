@@ -2,7 +2,7 @@
 
 from typing import Dict
 
-_templater_lookup: Dict[str, "RawTemplateInterface"] = {}
+_templater_lookup: Dict[str, "RawTemplater"] = {}
 
 
 def templater_selector(s=None, **kwargs):
@@ -27,7 +27,7 @@ def register_templater(cls):
 
     e.g.
     @register_templater()
-    class RawTemplateInterface(BaseSegment):
+    class RawTemplater(BaseSegment):
         blah blah blah
 
     """
@@ -66,7 +66,7 @@ class TemplatedFile:
 
 
 @register_templater
-class RawTemplateInterface:
+class RawTemplater:
     """A templater which does nothing.
 
     This also acts as the base templating class.

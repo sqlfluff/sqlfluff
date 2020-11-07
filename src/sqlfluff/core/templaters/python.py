@@ -6,11 +6,11 @@ from typing import Iterable, Dict, Tuple, List, Iterator, Any
 
 from ..errors import SQLTemplaterError
 
-from .base import RawTemplateInterface, register_templater, TemplatedFile
+from .base import RawTemplater, register_templater, TemplatedFile
 
 
 @register_templater
-class PythonTemplateInterface(RawTemplateInterface):
+class PythonTemplater(RawTemplater):
     """A templater using python format strings.
 
     See: https://docs.python.org/3/library/string.html#format-string-syntax

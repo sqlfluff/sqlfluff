@@ -2,7 +2,7 @@
 
 import pytest
 
-from sqlfluff.core.templaters import PythonTemplateInterface
+from sqlfluff.core.templaters import PythonTemplater
 from sqlfluff.core import SQLTemplaterError
 
 
@@ -11,7 +11,7 @@ PYTHON_STRING = "SELECT * FROM {blah}"
 
 def test__templater_python():
     """Test the python templater."""
-    t = PythonTemplateInterface(override_context=dict(blah="foo"))
+    t = PythonTemplater(override_context=dict(blah="foo"))
     instr = PYTHON_STRING
     outstr, _ = t.process(instr)
     assert str(outstr) == "SELECT * FROM foo"
@@ -19,7 +19,7 @@ def test__templater_python():
 
 def test__templater_python_error():
     """Test error handling in the python templater."""
-    t = PythonTemplateInterface(override_context=dict(noblah="foo"))
+    t = PythonTemplater(override_context=dict(noblah="foo"))
     instr = PYTHON_STRING
     with pytest.raises(SQLTemplaterError):
         t.process(instr)
@@ -36,7 +36,7 @@ def test__templater_python_error():
 )
 def test__templater_python_findall(mainstr, substr, positions):
     """Test _findall."""
-    assert list(PythonTemplateInterface._findall(substr, mainstr)) == positions
+    assert list(PythonTemplater._findall(substr, mainstr)) == positions
 
 
 @pytest.mark.parametrize(
@@ -50,7 +50,7 @@ def test__templater_python_findall(mainstr, substr, positions):
 )
 def test__templater_python_substring_occurances(mainstr, substrings, positions):
     """Test _findall."""
-    occurances = PythonTemplateInterface._substring_occurances(mainstr, substrings)
+    occurances = PythonTemplater._substring_occurances(mainstr, substrings)
     assert isinstance(occurances, dict)
     pos_test = [occurances[substring] for substring in substrings]
     assert pos_test == positions
@@ -69,7 +69,7 @@ def test__templater_python_substring_occurances(mainstr, substrings, positions):
 )
 def test__templater_python_sorted_occurance_tuples(test, result):
     """Test _findall."""
-    assert PythonTemplateInterface._sorted_occurance_tuples(test) == result
+    assert PythonTemplater._sorted_occurance_tuples(test) == result
 
 
 @pytest.mark.parametrize(
@@ -91,7 +91,7 @@ def test__templater_python_sorted_occurance_tuples(test, result):
 )
 def test__templater_python_slice_python_template(test, result):
     """Test _findall."""
-    resp = PythonTemplateInterface._slice_python_template(test)
+    resp = PythonTemplater._slice_python_template(test)
     # check contigious
     assert "".join(elem[0] for elem in resp) == test
     # check indices
@@ -127,7 +127,7 @@ def test__templater_python_split_invariants(
     raw_sliced, literals, raw_occurances, templated_occurances, result
 ):
     """Test _findall."""
-    resp = PythonTemplateInterface._split_invariants(
+    resp = PythonTemplater._split_invariants(
         raw_sliced, literals, raw_occurances, templated_occurances
     )
     # check result
@@ -233,7 +233,7 @@ def test__templater_python_split_uniques_coalesce_rest(
 ):
     """Test _findall."""
     resp = list(
-        PythonTemplateInterface._split_uniques_coalesce_rest(
+        PythonTemplater._split_uniques_coalesce_rest(
             raw_occurances,
             templated_occurances,
             split_file,
