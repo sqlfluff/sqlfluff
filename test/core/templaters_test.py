@@ -174,3 +174,16 @@ def test__templater_dbt_macro_in_macro(in_dbt_project_dir, dbt_templater):
         ),
     )
     assert outstr == open("../dbt/macro_in_macro.sql").read()
+
+
+@pytest.mark.dbt
+def test__templater_get_config(in_dbt_project_dir, dbt_templater):
+    """Check that a macro can access dbt config through config.get(..)."""
+    outstr, _ = dbt_templater.process(
+        in_str="",
+        fname="models/my_new_project/use_headers.sql",
+        config=FluffConfig(
+            configs={"templater": {"dbt": {"profiles_dir": "../dbt"}}}
+        ),
+    )
+    assert outstr == open("../dbt/use_headers.sql").read()
