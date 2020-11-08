@@ -1,7 +1,5 @@
 """Defined the `match_wrapper` which adds validation and logging to match methods."""
 
-from typing import Tuple
-
 from .match_logging import ParseMatchLogObject
 from .match_result import MatchResult
 from .helpers import join_segments_raw_curtailed
@@ -45,7 +43,7 @@ def match_wrapper(v_level=3):
     def inner_match_wrapper(func):
         """Decorate a match function."""
 
-        def wrapped_match_method(self_cls, segments: Tuple, parse_context):
+        def wrapped_match_method(self_cls, segments: tuple, parse_context):
             """A wrapper on the match function to do some basic validation."""
             # Use the ephemeral_segment if present. This should only
             # be the case for grammars where `ephemeral_name` is defined.

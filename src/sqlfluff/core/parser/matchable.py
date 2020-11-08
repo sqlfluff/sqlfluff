@@ -1,7 +1,7 @@
 """The definition of a matchable interface."""
 
 from abc import ABC
-from typing import List, Optional, Tuple, TYPE_CHECKING
+from typing import List, Optional, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
@@ -18,5 +18,5 @@ class Matchable(ABC):
     def simple(self, parse_context: "ParseContext") -> Optional[List[str]]:
         """Try to obtain a simple response from the matcher."""
 
-    def match(self, segments: Tuple, parse_context: "ParseContext") -> "MatchResult":
+    def match(self, segments: tuple, parse_context: "ParseContext") -> "MatchResult":
         """Match against this matcher."""
