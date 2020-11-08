@@ -460,8 +460,8 @@ class DbtTemplateInterface(PythonTemplateInterface):
         return (
             os.path.expanduser(
                 config.get_section((self.templater_selector, self.name, "profiles_dir"))
+                or PROFILES_DIR
             )
-            or PROFILES_DIR
         )
 
     def _get_project_dir(self, config):
