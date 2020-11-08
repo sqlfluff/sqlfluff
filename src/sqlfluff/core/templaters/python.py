@@ -2,7 +2,7 @@
 
 import ast
 from string import Formatter
-from typing import Iterable, Dict, Tuple, List, Iterator, Optional
+from typing import Iterable, Dict, Tuple, List, Iterator
 
 from ..errors import SQLTemplaterError
 
@@ -425,6 +425,7 @@ class PythonTemplater(RawTemplater):
             )
 
             templ_start_idx = starts[1]
+            last_raw_idx = starts[0]
             # Iterate through occurance tuples of the one-way uniques.
             for raw, template_idx in owu_templ_tuples:
                 raw_idx = raw_occs[raw][0]
@@ -449,10 +450,40 @@ class PythonTemplater(RawTemplater):
                         # that identifying exaclty what the intervening bit refers
                         # to is a bit arbitrary. In this case we're going to OVER
                         # estimate and refer to the whole loop segment, by working
-                        # back to the previous loop block and working forward to the
-                        # following one.
-                        print(elem_buffer)
-                        raw_slice = None
+                        # back to the previous loop block [or unique literal] and
+                        # working forward to the following one.
+
+                        # First find where we are in the template
+                        cur_idx = next(
+                            idx
+                            for idx, val in enumerate(elem_buffer)
+                            if val[2] == raw_idx
+                        )
+                        # Work back to find a good starting point
+                        pre_offset = 0
+                        while (
+                            cur_idx - pre_offset > 0
+                            and elem_buffer[cur_idx - pre_offset - 1][0]
+                            not in one_way_uniques
+                            and elem_buffer[cur_idx - pre_offset - 1][1]
+                            not in "block_start"
+                        ):
+                            pre_offset += 1
+                        # Work forward to find a good ending point
+                        post_offset = 0
+                        while (
+                            cur_idx + post_offset + 1 < len(elem_buffer)
+                            and elem_buffer[cur_idx + post_offset + 1][0]
+                            not in one_way_uniques
+                            and elem_buffer[cur_idx + post_offset + 1][1]
+                            not in "block_end"
+                        ):
+                            post_offset += 1
+                        raw_slice = slice(
+                            elem_buffer[cur_idx - pre_offset][2],
+                            elem_buffer[cur_idx + post_offset][2]
+                            + len(elem_buffer[cur_idx + post_offset][0]),
+                        )
 
                     yield (
                         "templated",
