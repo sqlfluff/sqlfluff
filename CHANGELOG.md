@@ -19,6 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   deal with type matching in rules when inheritance is at play.
 - Added the ability for the user to add their own rules when interacting
   with the `Linter` directly using `user_rules`.
+- [466](https://github.com/sqlfluff/sqlfluff/issues/466) - Added L034
+  'Fields should be stated before aggregates / window functions' per
+  [dbt coding convenventions](https://github.com/fishtown-analytics/corp/blob/master/dbt_coding_conventions.md#sql-style-guide.)
 - MyPy type linting into a large proportion of the core library.
 
 ### Changed
