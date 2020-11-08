@@ -108,7 +108,7 @@ class PythonTemplater(RawTemplater):
         # Split on invariants
         split_sliced = list(
             cls._split_invariants(
-                raw_sliced, literals, raw_occurances, templated_occurances
+                raw_sliced, literals, raw_occurances, templated_occurances, len(templated_str)
             )
         )
         # Deal with uniques and coalesce the rest
@@ -200,6 +200,7 @@ class PythonTemplater(RawTemplater):
         literals: List[str],
         raw_occurances: Dict[str, List[int]],
         templated_occurances: Dict[str, List[int]],
+        templated_file_length: int,
     ) -> Iterator[Tuple[str, slice, slice, List[Tuple[str, str, int]]]]:
         """Split a sliced file on its invariant literals."""
         # Calculate invariants
@@ -212,7 +213,7 @@ class PythonTemplater(RawTemplater):
         # Set up some buffers
         buffer: List[Tuple[str, str, int]] = []
         idx = None
-        templ_tdx = 0
+        templ_idx = 0
         # Loop through
         for raw, token_type, raw_pos in raw_sliced:
             if raw in invariants:
@@ -220,7 +221,7 @@ class PythonTemplater(RawTemplater):
                     yield (
                         "compound",
                         slice(idx, raw_pos),
-                        slice(templ_tdx, templated_occurances[raw][0]),
+                        slice(templ_idx, templated_occurances[raw][0]),
                         buffer,
                     )
                 buffer = []
@@ -234,11 +235,19 @@ class PythonTemplater(RawTemplater):
                     ),
                     [(raw, token_type, templated_occurances[raw][0])],
                 )
-                templ_tdx = templated_occurances[raw][0] + len(raw)
+                templ_idx = templated_occurances[raw][0] + len(raw)
             else:
                 buffer.append((raw, token_type, raw_pos))
                 if not idx:
                     idx = raw_pos
+        # If we have a final buffer, yield it
+        if buffer:
+            yield (
+                "compound",
+                slice(idx, idx + sum(len(elem[0]) for elem in buffer)),
+                slice(templ_idx, templated_file_length),
+                buffer,
+            )
 
     @staticmethod
     def _filter_occurances(

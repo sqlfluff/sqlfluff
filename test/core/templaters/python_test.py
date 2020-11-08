@@ -104,14 +104,15 @@ def test__templater_python_slice_template(test, result):
 
 
 @pytest.mark.parametrize(
-    "raw_sliced,literals,raw_occurances,templated_occurances,result",
+    "raw_sliced,literals,raw_occurances,templated_occurances,templated_length,result",
     [
-        ([], [], {}, {}, []),
+        ([], [], {}, {}, 0, []),
         (
             [("foo", "literal", 0)],
             ["foo"],
             {"foo": [0]},
             {"foo": [0]},
+            3,
             [
                 (
                     "invariant",
@@ -124,12 +125,12 @@ def test__templater_python_slice_template(test, result):
     ],
 )
 def test__templater_python_split_invariants(
-    raw_sliced, literals, raw_occurances, templated_occurances, result
+    raw_sliced, literals, raw_occurances, templated_occurances, templated_length, result
 ):
     """Test _split_invariants."""
     resp = list(
         PythonTemplater._split_invariants(
-            raw_sliced, literals, raw_occurances, templated_occurances
+            raw_sliced, literals, raw_occurances, templated_occurances, templated_length
         )
     )
     # check result

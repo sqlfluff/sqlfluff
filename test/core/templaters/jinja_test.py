@@ -161,12 +161,14 @@ def test__templater_jinja_slice_template(test, result):
                 ("templated", slice(62, 67, None), slice(39, 40, None)),
                 ("literal", slice(67, 69, None), slice(40, 42, None)),
                 ("literal", slice(81, 97, None), slice(42, 58, None)),
+                ("templated", slice(97, 109, None), slice(58, 64, None)),
+                ("literal", slice(109, 110, None), slice(64, 65, None)),
             ],
         ),
         # Example with loops (and utilising the end slice code)
         (
             "SELECT {# A comment #} {{field}} {% for i in [1, 3, 7]%}, fld_{{i}}{% endfor %} FROM my_schema.{{my_table}} ",
-            "SELECT  foobar , fld_1, fld_3, fld_7 FROM my_schema.barfoo",
+            "SELECT  foobar , fld_1, fld_3, fld_7 FROM my_schema.barfoo ",
             [
                 ("literal", slice(0, 7, None), slice(0, 7, None)),
                 ("literal", slice(22, 23, None), slice(7, 8, None)),
@@ -178,8 +180,21 @@ def test__templater_jinja_slice_template(test, result):
                 ("literal", slice(56, 62, None), slice(29, 35, None)),
                 ("templated", slice(62, 79, None), slice(35, 36, None)),
                 ("literal", slice(79, 95, None), slice(36, 52, None)),
+                ("templated", slice(95, 107, None), slice(52, 58, None)),
+                ("literal", slice(107, 108, None), slice(58, 59, None)),
             ],
         ),
+        # Test a trailing split, and some variables which don't refer anything.
+        (
+            "{{ config(materialized='view') }}\n\nSELECT 1 FROM {{ source('finance', 'reconciled_cash_facts') }}\n\n",
+            "\n\nSELECT 1 FROM finance_reconciled_cash_facts\n\n",
+            [
+                ('templated', slice(0, 33, None), slice(0, 0, None)),
+                ('literal', slice(33, 151, None), slice(0, 118, None)),
+                ('templated', slice(151, 199, None), slice(118, 147, None)),
+                ('literal', slice(199, 201, None), slice(147, 149, None)),
+            ],
+        )
     ],
 )
 def test__templater_jinja_slice_file(raw_file, templated_file, result):

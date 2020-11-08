@@ -223,8 +223,10 @@ class JinjaTemplater(PythonTemplater):
         try:
             # NB: Passing no context. Everything is loaded when the template is loaded.
             out_str = template.render()
+            # Slice the file once rendered.
+            sliced_file = self.slice_file(in_str, out_str)
             return (
-                TemplatedFile(source_str=in_str, templated_str=out_str, fname=fname),
+                TemplatedFile(source_str=in_str, templated_str=out_str, fname=fname, sliced_file=sliced_file),
                 violations,
             )
         except Exception as err:

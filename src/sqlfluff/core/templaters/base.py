@@ -69,6 +69,58 @@ class TemplatedFile:
         """Return the templated file if coerced to string."""
         return self.templated_str
 
+    def template_slice_to_source_slice(self, template_slice):
+        """Convert a template slice to a source slice."""
+        if not self.sliced_file:
+            return template_slice, False
+
+        # Find the relevant slices.
+        start_idx = 0
+        for idx, elem in enumerate(self.sliced_file):
+            start_idx = idx
+            if elem[2].stop > template_slice.start:
+                break
+
+        stop_idx = 0
+        for idx, elem in enumerate(self.sliced_file[start_idx:]):
+            stop_idx = idx
+            if elem[2].stop >= template_slice.stop:
+                break
+        stop_idx += start_idx + 1
+
+        slices = self.sliced_file[start_idx:stop_idx]
+
+        # if it's a literal segment then we can get the exact position
+        # otherwise we're greedy.
+        is_literal = True
+        # Start.
+        if slices[0][0] == 'literal':
+            offset = template_slice.start - slices[0][2].start
+            source_start = slices[0][1].start + offset
+        else:
+            source_start = slices[0][1].start
+            is_literal = False
+        # Stop.
+        if slices[-1][0] == 'literal':
+            offset = slices[-1][2].stop - template_slice.stop
+            source_stop = slices[-1][1].stop - offset
+        else:
+            source_stop = slices[-1][1].stop
+            is_literal = False
+        
+        # Check any mid segments for whether they're literals
+        if any(elem[0] != 'literal' for elem in slices):
+            is_literal = False
+
+        # Deal with the unlikely event that the slice is the wrong
+        # way around.
+        if source_start > source_stop:
+            # If this happens, it's because one was templated and
+            # the other isn't.
+            raise NotImplementedError("I didn't *think* this was possible. Please report this.")
+
+        return slice(source_start, source_stop), is_literal
+
 
 @register_templater
 class RawTemplater:
