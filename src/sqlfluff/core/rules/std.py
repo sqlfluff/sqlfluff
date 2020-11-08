@@ -2924,46 +2924,46 @@ class Rule_L031(BaseCrawler):
         """
         if segment.is_type("select_statement"):
             # A buffer for all table expressions in join conditions
-            table_expressions_in_join = []
-            expressions_in_join = []
+            table_expression_segments = []
+            column_reference_segments = []
 
-            fc = segment.get_child("from_clause")
+            from_clause_segment = segment.get_child("from_clause")
 
-            if not fc:
+            if not from_clause_segment:
                 return None
 
-            table_expression = fc.get_child("table_expression")
+            table_expression = from_clause_segment.get_child("table_expression")
 
             # Find base table
             base_table = None
             if table_expression:
                 base_table = table_expression.get_child("object_reference")
-                # Add table_expression from from_clause per https://github.com/sqlfluff/sqlfluff/issues/479
-                table_expressions_in_join.append(table_expression)
 
-            for join_clause in fc.recursive_crawl("join_clause"):
-                for seg in join_clause.segments:
-                    if seg.is_type("table_expression"):
-                        table_expressions_in_join.append(seg)
-                    elif seg.is_type("expression"):
-                        expressions_in_join.append(seg)
+            from_clause_index = segment.segments.index(from_clause_segment)
+            from_clause_and_after = segment.segments[from_clause_index:]
+
+            for clause in from_clause_and_after:
+                for table_expression in clause.recursive_crawl("table_expression"):
+                    table_expression_segments.append(table_expression)
+                for column_reference in clause.recursive_crawl("column_reference"):
+                    column_reference_segments.append(column_reference)
 
             return (
                 self._lint_aliases_in_join(
-                    base_table, table_expressions_in_join, expressions_in_join, segment
+                    base_table, table_expression_segments, column_reference_segments, segment
                 )
                 or None
             )
         return None
 
     def _lint_aliases_in_join(
-        self, base_table, table_expressions_in_join, expressions_in_join, segment
+        self, base_table, table_expression_segments, column_reference_segments, segment
     ):
         """Lint and fix all aliases in joins - except for self-joins."""
         # A buffer to keep any violations.
         violation_buff = []
 
-        for table_exp in table_expressions_in_join:
+        for table_exp in table_expression_segments:
             table_ref = table_exp.get_child("object_reference")
 
             # If this is self-join - skip it
@@ -2989,11 +2989,10 @@ class Rule_L031(BaseCrawler):
                     ids_refs.append(used_alias_ref)
 
             # Find all references to alias in join clauses
-            for exp_ref in expressions_in_join:
-                for alias_ref_in_join in exp_ref.recursive_crawl("object_reference"):
-                    used_alias_ref = alias_ref_in_join.get_child("identifier")
-                    if used_alias_ref.raw == alias_identifier_ref.raw:
-                        ids_refs.append(used_alias_ref)
+            for exp_ref in column_reference_segments:
+                used_alias_ref = exp_ref.get_child("identifier")
+                if used_alias_ref.raw == alias_identifier_ref.raw:
+                    ids_refs.append(used_alias_ref)
 
             # Fixes for deleting ` as sth` and for editing references to aliased tables
             fixes = [
