@@ -2950,7 +2950,10 @@ class Rule_L031(BaseCrawler):
 
             return (
                 self._lint_aliases_in_join(
-                    base_table, table_expression_segments, column_reference_segments, segment
+                    base_table,
+                    table_expression_segments,
+                    column_reference_segments,
+                    segment,
                 )
                 or None
             )
