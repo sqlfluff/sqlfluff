@@ -439,12 +439,20 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
             "SELECT users.id, customers.first_name, customers.last_name, COUNT(orders.user_id) FROM users JOIN customers on users.id = customers.user_id JOIN orders on users.id = orders.user_id;",
             None,
         ),
-        # L031 bug
+        # L031 order by
         (
             "L031",
             "fail",
             "SELECT u.id, c.first_name, c.last_name, COUNT(o.user_id) FROM users as u JOIN customers as c on u.id = c.user_id JOIN orders as o on u.id = o.user_id order by o.user_id desc",
             "SELECT users.id, customers.first_name, customers.last_name, COUNT(orders.user_id) FROM users JOIN customers on users.id = customers.user_id JOIN orders on users.id = orders.user_id order by orders.user_id desc",
+            None,
+        ),
+        # L031 order by identifier which is the same raw as an alias but refers to a column
+        (
+            "L031",
+            "fail",
+            "SELECT u.id, c.first_name, c.last_name, COUNT(o.user_id) FROM users as u JOIN customers as c on u.id = c.user_id JOIN orders as o on u.id = o.user_id order by o desc",
+            "SELECT users.id, customers.first_name, customers.last_name, COUNT(orders.user_id) FROM users JOIN customers on users.id = customers.user_id JOIN orders on users.id = orders.user_id order by o desc",
             None,
         ),
         # Fix for https://github.com/sqlfluff/sqlfluff/issues/476

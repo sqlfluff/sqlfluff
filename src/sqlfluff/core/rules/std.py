@@ -2991,10 +2991,14 @@ class Rule_L031(BaseCrawler):
                 if used_alias_ref.raw == alias_identifier_ref.raw:
                     ids_refs.append(used_alias_ref)
 
-            # Find all references to alias in join clauses
+            # Find all references to alias in column references
             for exp_ref in column_reference_segments:
                 used_alias_ref = exp_ref.get_child("identifier")
-                if used_alias_ref.raw == alias_identifier_ref.raw:
+                # exp_ref.get_child('dot') ensures that the column reference includes a table reference
+                if (
+                    used_alias_ref.raw == alias_identifier_ref.raw
+                    and exp_ref.get_child("dot")
+                ):
                     ids_refs.append(used_alias_ref)
 
             # Fixes for deleting ` as sth` and for editing references to aliased tables
