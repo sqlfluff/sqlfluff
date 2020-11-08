@@ -2880,10 +2880,10 @@ class Rule_L030(Rule_L010):
 
 @std_rule_set.register
 class Rule_L031(BaseCrawler):
-    """Avoid table aliases in join conditions (especially initialisms).
+    """Avoid table aliases in from clauses and join conditions.
 
     | **Anti-pattern**
-    | In this example, alias 'c' is used for 'customers' table.
+    | In this example, alias 'o' is used for the orders table, and 'c' is used for 'customers' table.
 
     .. code-block:: sql
 
@@ -2895,15 +2895,15 @@ class Rule_L031(BaseCrawler):
 
 
     | **Best practice**
-    |  Avoid table aliases in join conditions.
+    |  Avoid aliases.
 
     .. code-block:: sql
 
         SELECT
-            COUNT(o.customer_id) as order_amount,
+            COUNT(orders.customer_id) as order_amount,
             customers.name
-        FROM orders as o
-        JOIN customers on o.id = customers.user_id
+        FROM orders
+        JOIN customers on orders.id = customers.user_id
 
         -- Self-join will not raise issue
 
@@ -2917,7 +2917,7 @@ class Rule_L031(BaseCrawler):
     """
 
     def _eval(self, segment, **kwargs):
-        """Aliases in join conditions.
+        """Identify aliases in from clause and join conditions.
 
         Find base table, table expressions in join, and other expressions in select clause
         and decide if it's needed to report them.
@@ -2938,6 +2938,8 @@ class Rule_L031(BaseCrawler):
             base_table = None
             if table_expression:
                 base_table = table_expression.get_child("object_reference")
+                # Add table_expression from from_clause per https://github.com/sqlfluff/sqlfluff/issues/479
+                table_expressions_in_join.append(table_expression)
 
             for join_clause in fc.recursive_crawl("join_clause"):
                 for seg in join_clause.segments:
@@ -2965,7 +2967,7 @@ class Rule_L031(BaseCrawler):
             table_ref = table_exp.get_child("object_reference")
 
             # If this is self-join - skip it
-            if base_table.raw == table_ref.raw:
+            if base_table.raw == table_ref.raw and base_table != table_ref:
                 continue
 
             whitespace_ref = table_exp.get_child("whitespace")
