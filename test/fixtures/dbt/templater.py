@@ -5,6 +5,9 @@ import pytest
 import os
 
 
+DBT_FLUFF_CONFIG = {"templater": {"dbt": {"profiles_dir": "../dbt"}}}
+
+
 @pytest.fixture()
 def dbt_templater():
     """Returns an instance of the DbtTemplater."""
@@ -20,11 +23,3 @@ def in_dbt_project_dir():
         yield  # test runs here
     finally:
         os.chdir(pre_test_dir)
-
-
-@pytest.fixture()
-def fluff_config():
-    """Returns a default FluffConfig for dbt tests."""
-    return FluffConfig(
-        configs={"templater": {"dbt": {"profiles_dir": "../dbt"}}}
-    )
