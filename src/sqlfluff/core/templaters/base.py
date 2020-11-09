@@ -1,6 +1,6 @@
 """Defines the templaters."""
 
-from typing import Dict
+from typing import Dict, Iterator, List, Tuple, Optional
 
 _templater_lookup: Dict[str, "RawTemplater"] = {}
 
@@ -36,19 +36,16 @@ def register_templater(cls):
     return cls
 
 
-def indices_of_newlines(raw_str):
+def iter_indices_of_newlines(raw_str: str) -> Iterator[int]:
+    """Find the indices of all newlines in a string."""
     init_idx = -1
-    positions = []
-    ## REFACTORTHIS 
-    ###### AND MAKE TESTS
     while True:
         nl_pos = raw_str.find("\n", init_idx + 1)
-        if nl_pos > 0:
-            positions.append(nl_pos)
+        if nl_pos >= 0:
+            yield nl_pos
             init_idx = nl_pos
         else:
             break
-    return positions
 
 
 class TemplatedFile:
@@ -59,7 +56,13 @@ class TemplatedFile:
     the capability to split up that file when lexing.
     """
 
-    def __init__(self, source_str, templated_str=None, fname=None, sliced_file=None):
+    def __init__(
+        self,
+        source_str: str,
+        templated_str: Optional[str] = None,
+        fname: Optional[str] = None,
+        sliced_file: Optional[List[Tuple[str, slice, slice]]] = None,
+    ):
         """Initialise the TemplatedFile.
 
         If no full_templated is provided then we assume that
@@ -76,8 +79,8 @@ class TemplatedFile:
         #     raise ValueError("Cannot instantiate a templated file unsliced!")
         self.sliced_file = sliced_file
         # Precalculate newlines, character positions.
-        self._source_newlines = indices_of_newlines(self.source_str)
-        self._templated_newlines = indices_of_newlines(self.templated_str)
+        self._source_newlines = list(iter_indices_of_newlines(self.source_str))
+        self._templated_newlines = list(iter_indices_of_newlines(self.templated_str))
 
     def __bool__(self):
         """Return true if there's a templated file."""
@@ -86,27 +89,38 @@ class TemplatedFile:
     def __str__(self):
         """Return the templated file if coerced to string."""
         return self.templated_str
-    
-    def get_line_pos_of_char_pos(self, char_pos, source=True):
-        ######MAKE TESTS
-        ## FIND index of highest line number that is LOWER than charpos. (then add two)
-        # IF NONE THEN ITS the first line.
+
+    def get_line_pos_of_char_pos(
+        self, char_pos: int, source: bool = True
+    ) -> Tuple[int, int]:
+        """Get the line number and position of a point in the source file.
+
+        Args:
+            char_pos: The character position in the relevant file.
+            source: Are we checking the source file (as opposed to the
+                templated file)
+
+        """
         nl_idx = -1
 
         if source:
             ref_str = self._source_newlines
         else:
-            red_str = self._templated_newlines
+            ref_str = self._templated_newlines
 
-        while ref_str[nl_idx + 1] < char_pos:
+        while nl_idx + 1 < len(ref_str) and ref_str[nl_idx + 1] < char_pos:
             nl_idx += 1
-        
+
+        # NB: +1 because character position is 0-indexed, but the character
+        # position is 1-indexed.
         if nl_idx >= 0:
             return nl_idx + 2, char_pos - ref_str[nl_idx]
         else:
-            return 1, char_pos
+            return 1, char_pos + 1
 
-    def template_slice_to_source_slice(self, template_slice):
+    def template_slice_to_source_slice(
+        self, template_slice: slice
+    ) -> Tuple[slice, bool]:
         """Convert a template slice to a source slice."""
         if not self.sliced_file:
             return template_slice, False
@@ -131,30 +145,34 @@ class TemplatedFile:
         # otherwise we're greedy.
         is_literal = True
         # Start.
-        if slices[0][0] == 'literal':
+        if slices[0][0] == "literal":
             offset = template_slice.start - slices[0][2].start
             source_start = slices[0][1].start + offset
         else:
             source_start = slices[0][1].start
             is_literal = False
         # Stop.
-        if slices[-1][0] == 'literal':
+        if slices[-1][0] == "literal":
             offset = slices[-1][2].stop - template_slice.stop
             source_stop = slices[-1][1].stop - offset
         else:
             source_stop = slices[-1][1].stop
             is_literal = False
-        
+
         # Check any mid segments for whether they're literals
-        if any(elem[0] != 'literal' for elem in slices):
+        if any(elem[0] != "literal" for elem in slices):
             is_literal = False
 
         # Deal with the unlikely event that the slice is the wrong
         # way around.
         if source_start > source_stop:
             # If this happens, it's because one was templated and
-            # the other isn't.
-            raise NotImplementedError("I didn't *think* this was possible. Please report this.")
+            # the other isn't, or because a loop means that the segments
+            # are in a different order.
+
+            # Take the widest possible span in this case.
+            source_start = min(elem[1].start for elem in slices)
+            source_stop = max(elem[1].stop for elem in slices)
 
         return slice(source_start, source_stop), is_literal
 
@@ -179,8 +197,9 @@ class RawTemplater:
         arguments in here.
         """
 
-    @staticmethod
-    def process(in_str, fname=None, config=None):
+    def process(
+        self, in_str: str, fname: Optional[str] = None, config=None
+    ) -> Tuple[Optional[TemplatedFile], list]:
         """Process a string and return a TemplatedFile.
 
         Args:

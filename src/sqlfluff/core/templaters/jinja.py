@@ -1,7 +1,7 @@
 """Defines the templaters."""
 
 import os.path
-from typing import Iterator, Tuple
+from typing import Iterator, Tuple, Optional
 
 from jinja2.sandbox import SandboxedEnvironment
 from jinja2 import meta
@@ -151,7 +151,9 @@ class JinjaTemplater(PythonTemplater):
             extensions=["jinja2.ext.do"],
         )
 
-    def process(self, in_str, fname=None, config=None):
+    def process(
+        self, in_str: str, fname: Optional[str] = None, config=None
+    ) -> Tuple[Optional[TemplatedFile], list]:
         """Process a string and return the new string.
 
         Args:
@@ -226,7 +228,12 @@ class JinjaTemplater(PythonTemplater):
             # Slice the file once rendered.
             sliced_file = self.slice_file(in_str, out_str)
             return (
-                TemplatedFile(source_str=in_str, templated_str=out_str, fname=fname, sliced_file=sliced_file),
+                TemplatedFile(
+                    source_str=in_str,
+                    templated_str=out_str,
+                    fname=fname,
+                    sliced_file=sliced_file,
+                ),
                 violations,
             )
         except Exception as err:

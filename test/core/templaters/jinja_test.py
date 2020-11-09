@@ -189,12 +189,12 @@ def test__templater_jinja_slice_template(test, result):
             "{{ config(materialized='view') }}\n\nSELECT 1 FROM {{ source('finance', 'reconciled_cash_facts') }}\n\n",
             "\n\nSELECT 1 FROM finance_reconciled_cash_facts\n\n",
             [
-                ('templated', slice(0, 33, None), slice(0, 0, None)),
-                ('literal', slice(33, 151, None), slice(0, 118, None)),
-                ('templated', slice(151, 199, None), slice(118, 147, None)),
-                ('literal', slice(199, 201, None), slice(147, 149, None)),
+                ("templated", slice(0, 33, None), slice(0, 0, None)),
+                ("literal", slice(33, 49, None), slice(0, 16, None)),
+                ("templated", slice(49, 97, None), slice(16, 45, None)),
+                ("literal", slice(97, 99, None), slice(45, 47, None)),
             ],
-        )
+        ),
     ],
 )
 def test__templater_jinja_slice_file(raw_file, templated_file, result):

@@ -2,7 +2,7 @@
 
 import ast
 from string import Formatter
-from typing import Iterable, Dict, Tuple, List, Iterator
+from typing import Iterable, Dict, Tuple, List, Iterator, Optional
 
 from ..errors import SQLTemplaterError
 
@@ -63,7 +63,9 @@ class PythonTemplater(RawTemplater):
             live_context[k] = self.infer_type(live_context[k])
         return live_context
 
-    def process(self, in_str, fname=None, config=None):
+    def process(
+        self, in_str: str, fname: Optional[str] = None, config=None
+    ) -> Tuple[Optional[TemplatedFile], list]:
         """Process a string and return a TemplatedFile.
 
         Args:
@@ -108,7 +110,11 @@ class PythonTemplater(RawTemplater):
         # Split on invariants
         split_sliced = list(
             cls._split_invariants(
-                raw_sliced, literals, raw_occurances, templated_occurances, len(templated_str)
+                raw_sliced,
+                literals,
+                raw_occurances,
+                templated_occurances,
+                len(templated_str),
             )
         )
         # Deal with uniques and coalesce the rest
@@ -212,7 +218,7 @@ class PythonTemplater(RawTemplater):
         ]
         # Set up some buffers
         buffer: List[Tuple[str, str, int]] = []
-        idx = None
+        idx: Optional[int] = None
         templ_idx = 0
         # Loop through
         for raw, token_type, raw_pos in raw_sliced:
@@ -238,13 +244,13 @@ class PythonTemplater(RawTemplater):
                 templ_idx = templated_occurances[raw][0] + len(raw)
             else:
                 buffer.append((raw, token_type, raw_pos))
-                if not idx:
+                if idx is None:
                     idx = raw_pos
         # If we have a final buffer, yield it
         if buffer:
             yield (
                 "compound",
-                slice(idx, idx + sum(len(elem[0]) for elem in buffer)),
+                slice((idx or 0), (idx or 0) + sum(len(elem[0]) for elem in buffer)),
                 slice(templ_idx, templated_file_length),
                 buffer,
             )

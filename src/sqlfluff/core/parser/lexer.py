@@ -324,7 +324,7 @@ class Lexer:
                 segment_buff += resort_res.segments
             else:
                 break
-        
+
         # Enrich the segments if we can using the templated file
         return self.enrich_segments(segment_buff, raw), violations
 
@@ -340,7 +340,29 @@ class Lexer:
             return segment_buff
 
         for segment in segment_buff:
-            segment.pos_marker = EnrichedFilePositionMarker.from_templated_file_and_pos(
-                templated_file, segment.pos_marker, len(segment.raw)
+            templated_slice = slice(
+                segment.pos_marker.char_pos,
+                segment.pos_marker.char_pos + len(segment.raw),
+            )
+            source_slice, is_literal = templated_file.template_slice_to_source_slice(
+                templated_slice
+            )
+            source_line, source_pos = templated_file.get_line_pos_of_char_pos(
+                source_slice.start
+            )
+            segment.pos_marker = EnrichedFilePositionMarker(
+                statement_index=segment.pos_marker.statement_index,
+                line_no=segment.pos_marker.line_no,
+                line_pos=segment.pos_marker.line_pos,
+                char_pos=segment.pos_marker.char_pos,
+                templated_slice=templated_slice,
+                source_slice=source_slice,
+                is_literal=is_literal,
+                source_pos_marker=FilePositionMarker(
+                    segment.pos_marker.statement_index,
+                    source_line,
+                    source_pos,
+                    source_slice.start,
+                ),
             )
         return segment_buff
