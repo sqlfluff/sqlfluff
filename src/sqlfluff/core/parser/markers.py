@@ -28,6 +28,12 @@ class FilePositionMarker:
     def __lt__(self, other):
         return self.char_pos < other.char_pos
 
+    def __ge__(self, other):
+        return self.char_pos >= other.char_pos
+
+    def __le__(self, other):
+        return self.char_pos <= other.char_pos
+
     def __eq__(self, other):
         return (
             (self.statement_index == other.statement_index)
