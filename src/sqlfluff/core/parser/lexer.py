@@ -3,9 +3,10 @@
 from collections import namedtuple
 import re
 
-from .markers import FilePositionMarker
+from .markers import FilePositionMarker, EnrichedFilePositionMarker
 from .segments import RawSegment
 from ..errors import SQLLexError
+from ..templaters import TemplatedFile
 
 
 class LexMatch(namedtuple("LexMatch", ["new_string", "new_pos", "segments"])):
@@ -288,7 +289,7 @@ class Lexer:
         )
 
     def lex(self, raw):
-        """Take a string and return segments.
+        """Take a string or TemplatedFile and return segments.
 
         If we fail to match the *whole* string, then we must have
         found something that we cannot lex. If that happens we should
@@ -299,10 +300,10 @@ class Lexer:
         violations = []
 
         # Handle potential TemplatedFile for now
-        raw = str(raw)
+        str_buff = str(raw)
 
         while True:
-            res = self.matcher.match(raw, start_pos)
+            res = self.matcher.match(str_buff, start_pos)
             segment_buff += res.segments
             if len(res.new_string) > 0:
                 violations.append(
@@ -318,9 +319,28 @@ class Lexer:
                     # If we STILL can't match, then just panic out.
                     raise violations[-1]
 
-                raw = resort_res.new_string
+                str_buff = resort_res.new_string
                 start_pos = resort_res.new_pos
                 segment_buff += resort_res.segments
             else:
                 break
-        return segment_buff, violations
+        
+        # Enrich the segments if we can using the templated file
+        return self.enrich_segments(segment_buff, raw), violations
+
+    @staticmethod
+    def enrich_segments(segment_buff, templated_file):
+        """Enrich the segments using the templated file.
+
+        We use the mapping in the template to provide positions
+        in the source file.
+        """
+        # Check this is actually a templated file.
+        if not isinstance(templated_file, TemplatedFile):
+            return segment_buff
+
+        for segment in segment_buff:
+            segment.pos_marker = EnrichedFilePositionMarker.from_templated_file_and_pos(
+                templated_file, segment.pos_marker, len(segment.raw)
+            )
+        return segment_buff

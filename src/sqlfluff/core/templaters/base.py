@@ -36,6 +36,21 @@ def register_templater(cls):
     return cls
 
 
+def indices_of_newlines(raw_str):
+    init_idx = -1
+    positions = []
+    ## REFACTORTHIS 
+    ###### AND MAKE TESTS
+    while True:
+        nl_pos = raw_str.find("\n", init_idx + 1)
+        if nl_pos > 0:
+            positions.append(nl_pos)
+            init_idx = nl_pos
+        else:
+            break
+    return positions
+
+
 class TemplatedFile:
     """A templated SQL file.
 
@@ -60,6 +75,9 @@ class TemplatedFile:
         # if not sliced_file and templated_str != source_str:
         #     raise ValueError("Cannot instantiate a templated file unsliced!")
         self.sliced_file = sliced_file
+        # Precalculate newlines, character positions.
+        self._source_newlines = indices_of_newlines(self.source_str)
+        self._templated_newlines = indices_of_newlines(self.templated_str)
 
     def __bool__(self):
         """Return true if there's a templated file."""
@@ -68,6 +86,25 @@ class TemplatedFile:
     def __str__(self):
         """Return the templated file if coerced to string."""
         return self.templated_str
+    
+    def get_line_pos_of_char_pos(self, char_pos, source=True):
+        ######MAKE TESTS
+        ## FIND index of highest line number that is LOWER than charpos. (then add two)
+        # IF NONE THEN ITS the first line.
+        nl_idx = -1
+
+        if source:
+            ref_str = self._source_newlines
+        else:
+            red_str = self._templated_newlines
+
+        while ref_str[nl_idx + 1] < char_pos:
+            nl_idx += 1
+        
+        if nl_idx >= 0:
+            return nl_idx + 2, char_pos - ref_str[nl_idx]
+        else:
+            return 1, char_pos
 
     def template_slice_to_source_slice(self, template_slice):
         """Convert a template slice to a source slice."""

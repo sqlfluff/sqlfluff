@@ -3,15 +3,47 @@
 This class is a construct to keep track of positions within a file.
 """
 
-from collections import namedtuple
-
-protoFilePositionMarker = namedtuple(
-    "FilePositionMarker", ["statement_index", "line_no", "line_pos", "char_pos"]
-)
+from typing import NamedTuple
 
 
-class FilePositionMarker(protoFilePositionMarker):
+class FilePositionMarker:
     """This class is a construct to keep track of positions within a file."""
+
+    slots = ["statement_index", "line_no", "line_pos", "char_pos"]
+
+    def __init__(self, statement_index:int , line_no:int , line_pos:int, char_pos:int):
+        self.statement_index = statement_index
+        self.line_no = line_no
+        self.line_pos = line_pos
+        self.char_pos = char_pos
+
+    def __str__(self):
+        return "[{0}]({1}, {2}, {3})".format(
+            self.char_pos, self.statement_index, self.line_no, self.line_pos
+        )
+
+    def __gt__(self, other):
+        return self.char_pos > other.char_pos
+
+    def __lt__(self, other):
+        return self.char_pos < other.char_pos
+
+    def __eq__(self, other):
+        return (
+            (self.statement_index == other.statement_index)
+            and (self.line_no == other.line_no)
+            and (self.line_pos == other.line_pos)
+            and (self.char_pos == other.char_pos)
+        )
+
+    @classmethod
+    def from_fresh(cls):
+        """Construct a fresh position marker.
+
+        This should be the default way of creating a new postion marker, and
+        is where we define what the `start` of a file looks like.
+        """
+        return cls(1, 1, 1, 0)
 
     def advance_by(self, raw="", idx=0):
         """Construct a new `FilePositionMarker` at a point ahead of this one.
@@ -35,30 +67,44 @@ class FilePositionMarker(protoFilePositionMarker):
                 pos += 1
         return FilePositionMarker(stmt + idx, line, pos, char_pos)
 
-    @classmethod
-    def from_fresh(cls):
-        """Construct a fresh position marker.
 
-        This should be the default way of creating a new postion marker, and
-        is where we define what the `start` of a file looks like.
-        """
-        return cls(1, 1, 1, 0)
+class EnrichedFilePositionMarker(FilePositionMarker):
+    """A more advanced file position marker which keeps track of source position."""
+
+    slots = ["templated_slice", "source_slice", "is_literal", "source_pos_marker"]
+
+    def __init__(self, statement_index:int, line_no:int, line_pos:int, char_pos:int, templated_slice:slice, source_slice:slice, is_literal:bool, source_pos_marker:FilePositionMarker):
+        super().__init__(statement_index, line_no, line_pos, char_pos)
+        self.templated_slice = templated_slice
+        self.source_slice = source_slice
+        self.is_literal = is_literal
+        self.source_pos_marker = source_pos_marker
 
     def __str__(self):
-        return "[{0}]({1}, {2}, {3})".format(
-            self.char_pos, self.statement_index, self.line_no, self.line_pos
-        )
+        return str(self.source_pos_marker)
 
-    def __gt__(self, other):
-        return self.char_pos > other.char_pos
+    @property
+    def _source_marker(self):
+        return self.source_pos_marker
 
-    def __lt__(self, other):
-        return self.char_pos < other.char_pos
-
-    def __eq__(self, other):
-        return (
-            (self.statement_index == other.statement_index)
-            and (self.line_no == other.line_no)
-            and (self.line_pos == other.line_pos)
-            and (self.char_pos == other.char_pos)
+    @classmethod
+    def from_templated_file_and_pos(cls, templated_file, pos_marker, seg_len):
+        ######TESTS AND DOCSTRINGS
+        templated_slice = slice(pos_marker.char_pos, pos_marker.char_pos + seg_len)
+        source_slice, is_literal = templated_file.template_slice_to_source_slice(templated_slice)
+        source_line, source_pos = templated_file.get_line_pos_of_char_pos(source_slice.start)
+        return cls(
+            statement_index=pos_marker.statement_index,
+            line_no=pos_marker.line_no,
+            line_pos=pos_marker.line_pos,
+            char_pos=pos_marker.char_pos,
+            templated_slice=templated_slice,
+            source_slice=source_slice,
+            is_literal=is_literal,
+            source_pos_marker=FilePositionMarker(
+                pos_marker.statement_index,
+                source_line,
+                source_pos,
+                source_slice.start,
+            )
         )
