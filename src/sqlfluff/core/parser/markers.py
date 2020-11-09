@@ -89,6 +89,10 @@ class FilePositionMarker:
             return others[0].pos_marker
         return others[0]
 
+    def strip(self):
+        """Strip back anything enriched from this position marker."""
+        return self
+
 
 class EnrichedFilePositionMarker(FilePositionMarker):
     """A more advanced file position marker which keeps track of source position."""
@@ -173,4 +177,13 @@ class EnrichedFilePositionMarker(FilePositionMarker):
             ),
             is_literal=all(getattr(other, "is_literal", True) for other in others),
             source_pos_marker=self.source_pos_marker,
+        )
+
+    def strip(self):
+        """Strip back anything enriched from this position marker."""
+        return FilePositionMarker(
+            statement_index=self.statement_index,
+            line_no=self.line_no,
+            line_pos=self.line_pos,
+            char_pos=self.char_pos,
         )

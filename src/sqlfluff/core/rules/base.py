@@ -107,7 +107,20 @@ class LintFix:
             raise ValueError("Unexpected edit_type: {0}".format(edit_type))
         self.edit_type = edit_type
         self.anchor = anchor
+        # Coerce to list
+        if isinstance(edit, BaseSegment):
+            edit = [edit]
         self.edit = edit
+        if self.edit:
+            # Copy all the elements of edit to stop contamination
+            self.edit = [copy.copy(elem) for elem in edit]
+            # Strip position markers of anything enriched, otherwise things can get blurry
+            for seg in self.edit:
+                seg.pos_marker = seg.pos_marker.strip()
+        # Once stripped, we can replace some of the markers with replacements.
+        if self.edit_type == "edit":
+            # The first of an edit, can inherit the full pos marker of the anchor.
+            self.edit[0].pos_marker = self.anchor.pos_marker
 
     def is_trivial(self):
         """Return true if the fix is trivial.

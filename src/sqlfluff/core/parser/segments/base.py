@@ -17,6 +17,7 @@ from ..match_logging import parse_match_logging
 from ..match_wrapper import match_wrapper
 from ..helpers import frame_msg, check_still_complete, trim_non_code, curtail_string
 from ..matchable import Matchable
+from ..markers import EnrichedFilePositionMarker
 
 
 class BaseSegment:
@@ -86,7 +87,17 @@ class BaseSegment:
         else:
             # If no pos given, it's the pos of the first segment.
             if isinstance(segments, (tuple, list)):
-                self.pos_marker = segments[0].pos_marker.combine(
+                # Find the first segment with an enriched position marker
+                first_enriched = next(
+                    (
+                        seg.pos_marker
+                        for seg in segments
+                        if isinstance(seg.pos_marker, EnrichedFilePositionMarker)
+                    ),
+                    # Default to the first un-enriched segment
+                    segments[0].pos_marker,
+                )
+                self.pos_marker = first_enriched.combine(
                     *(seg.pos_marker for seg in segments)
                 )
             else:

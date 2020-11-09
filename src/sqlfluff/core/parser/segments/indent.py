@@ -89,9 +89,9 @@ class Indent(RawSegment):
         with repairs.
         """
         self._raw = ""
-        # TODO: Make sure that we DO actually skip meta segments
-        # during fixes.
-        self.pos_marker = pos_marker
+        # We strip the position marker, so that when fixing it's
+        # skipped and not considered.
+        self.pos_marker = pos_marker.strip()
 
 
 class Dedent(Indent):

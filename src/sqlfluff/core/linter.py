@@ -13,6 +13,8 @@ from .parser import Lexer, Parser
 from .rules import get_ruleset
 from .config import FluffConfig
 
+from .parser.markers import EnrichedFilePositionMarker
+
 
 # Instantiate the linter logger
 linter_logger = logging.getLogger("sqlfluff.linter")
@@ -121,15 +123,97 @@ class LintedFile(
             )
             if matches:
                 return
-            # if it's a literal, then we don't need to recurse.
+
+            # If we're here, the segment doesn't match the original.
+
+            # If it's all literal, then we don't need to recurse.
             if seg.pos_marker.is_literal:
-                # Yeild the position in the source file and the patch
+                # Yield the position in the source file and the patch
                 yield (seg.pos_marker.source_slice, seg.raw)
             else:
                 # This segment isn't a literal, but has changed, we need to go deeper.
-                # This incidentally means we never yield patches for templated sections!
-                for segment in seg.segments:
+
+                # Iterate through the child segments
+                source_idx = seg.pos_marker.source_slice.start
+                insert_buff = ""
+                for seg_idx, segment in enumerate(seg.segments):
+                    # First check for insertions.
+                    # We know it is if the position marker is NOT ENRICHED.
+                    if not isinstance(segment.pos_marker, EnrichedFilePositionMarker):
+                        # Add it to the insertion buffer if it has length:
+                        if segment.raw:
+                            insert_buff += segment.raw
+                            linter_logger.debug(
+                                "Appending insertion buffer. %r", insert_buff
+                            )
+                        continue
+
+                    # If we get here, then we know it's an original.
+                    # Check for deletions at the before this segment (vs the SOURCE).
+                    start_diff = segment.pos_marker.source_slice.start - source_idx
+                    if start_diff > 0:
+                        linter_logger.debug(
+                            "Found an mid deletion point. %s, %s",
+                            seg.pos_marker.source_slice.start,
+                            source_idx,
+                        )
+                        # If we have an insert buffer, then it's an edit, otherwise a deletion.
+                        yield (
+                            slice(
+                                segment.pos_marker.source_slice.start - start_diff,
+                                segment.pos_marker.source_slice.start,
+                            ),
+                            insert_buff,
+                        )
+                        insert_buff = ""
+
+                    # If we still have an insertion buffer here, yield it.
+                    if insert_buff:
+                        yield (
+                            slice(
+                                segment.pos_marker.source_slice.start,
+                                segment.pos_marker.source_slice.start,
+                            ),
+                            insert_buff,
+                        )
+                        insert_buff = ""
+
+                    # Now we deal with any changes *within* the segment itself.
                     yield from iter_patches(segment)
+
+                    # Once we've dealt with any patches from the segment, update
+                    # our position markers.
+                    source_idx = segment.pos_marker.source_slice.stop
+
+                # After the loop, we check whether there's a trailing
+                # deletion or insert.
+                end_diff = seg.pos_marker.source_slice.stop - source_idx
+                if end_diff:
+                    linter_logger.debug(
+                        "Found an end deletion point. %s, %s",
+                        seg.pos_marker.source_slice.stop,
+                        source_idx,
+                    )
+                    # If we have an insert buffer, then it's an edit, otherwise a deletion.
+                    yield (
+                        slice(
+                            seg.pos_marker.source_slice.stop - end_diff,
+                            seg.pos_marker.source_slice.stop,
+                        ),
+                        insert_buff,
+                    )
+                    insert_buff = ""
+
+                # If we still have an insertion buffer here, yield it.
+                if insert_buff:
+                    yield (
+                        slice(
+                            seg.pos_marker.source_slice.stop,
+                            seg.pos_marker.source_slice.stop,
+                        ),
+                        insert_buff,
+                    )
+                    insert_buff = ""
 
         # Patches, sorted by start
         patches = sorted(list(iter_patches(self.tree)), key=lambda x: x[0].start)
@@ -635,6 +719,7 @@ class Linter:
                                 )
                             else:
                                 last_fixes = fixes
+
                                 new_working, fixes = working.apply_fixes(fixes)
 
                                 # Check for infinite loops
