@@ -84,12 +84,11 @@ class BaseSegment:
         if pos_marker:
             self.pos_marker = pos_marker
         else:
-            # If no pos given, it's the pos of the first segment
-            # Work out if we're dealing with a match result...
-            if hasattr(segments, "initial_match_pos_marker"):
-                self.pos_marker = segments.initial_match_pos_marker()
-            elif isinstance(segments, (tuple, list)):
-                self.pos_marker = segments[0].pos_marker
+            # If no pos given, it's the pos of the first segment.
+            if isinstance(segments, (tuple, list)):
+                self.pos_marker = segments[0].pos_marker.combine(
+                    *(seg.pos_marker for seg in segments)
+                )
             else:
                 raise TypeError(
                     "Unexpected type passed to BaseSegment: {0}".format(type(segments))
@@ -831,20 +830,21 @@ class BaseSegment:
                 # We'll preserve statement indexes so we should keep track of that.
                 # When recreating, we use the DELTA of the index so that's what matter...
                 idx = seg.pos_marker.statement_index - running_pos.statement_index
+                new_pos = seg.pos_marker.shift_to(running_pos)
                 if seg.is_meta:
                     # It's a meta segment, just update the position
-                    seg = seg.__class__(pos_marker=running_pos)
+                    seg = seg.__class__(pos_marker=new_pos)
                 elif len(seg.segments) > 0:
                     # It's a compound segment, so keep track of it's children
                     child_segs = seg.segments
                     # Create a new segment of the same type with the new position
-                    seg = seg.__class__(segments=child_segs, pos_marker=running_pos)
+                    seg = seg.__class__(segments=child_segs, pos_marker=new_pos)
                     # Realign the children of that class
                     seg = seg.realign()
                 else:
                     # It's a raw segment...
                     # Create a new segment of the same type with the new position
-                    seg = seg.__class__(raw=seg.raw, pos_marker=running_pos)
+                    seg = seg.__class__(raw=seg.raw, pos_marker=new_pos)
                 # Update the running position with the content of that segment
                 running_pos = running_pos.advance_by(raw=seg.raw, idx=idx)
                 # Add the buffer to my new segment

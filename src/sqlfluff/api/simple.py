@@ -73,7 +73,7 @@ def parse(sql, dialect="ansi"):
     """
     sql = _unify_str_or_file(sql)
     linter = Linter(dialect=dialect)
-    parsed, violations, _ = linter.parse_string(sql)
+    parsed, violations, _, _ = linter.parse_string(sql)
     # If we encounter any parsing errors, raise the first one we find.
     if violations:
         raise violations[0]

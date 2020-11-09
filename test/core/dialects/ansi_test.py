@@ -224,7 +224,7 @@ def test__dialect__ansi_specific_segment_not_match(segmentref, raw, caplog):
 def test__dialect__ansi_specific_segment_not_parse(raw, err_locations, caplog):
     """Test queries do not parse, with parsing errors raised properly."""
     lnt = Linter()
-    _, vs, _ = lnt.parse_string(raw)
+    _, vs, _, _ = lnt.parse_string(raw)
     assert len(vs) > 0
     locs = [(v.line_no(), v.line_pos()) for v in vs]
     assert locs == err_locations

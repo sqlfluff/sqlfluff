@@ -573,7 +573,6 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
             config = lnt.config.make_child_from_path("stdin")
             result = [
                 (
-                    # TODO: Remove verbose
                     *lnt.parse_string(
                         sys.stdin.read(), "stdin", recurse=recurse, config=config
                     ),
@@ -587,7 +586,7 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
 
         # iterative print for human readout
         if format == "human":
-            for parsed, violations, time_dict, f_cfg in result:
+            for parsed, violations, time_dict, _, f_cfg in result:
                 if parsed:
                     click.echo(parsed.stringify(code_only=code_only))
                 else:
@@ -613,7 +612,7 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
                     filepath=filepath,
                     segments=parsed.as_record(code_only=code_only, show_raw=True),
                 )
-                for filepath, (parsed, _, _, _) in zip(filepaths, result)
+                for filepath, (parsed, _, _, _, _) in zip(filepaths, result)
             ]
 
             if format == "yaml":

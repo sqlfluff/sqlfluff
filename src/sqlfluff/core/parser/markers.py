@@ -73,6 +73,22 @@ class FilePositionMarker:
                 pos += 1
         return FilePositionMarker(stmt + idx, line, pos, char_pos)
 
+    def shift_to(self, other):
+        """Shift the position of this marker to that of other.
+
+        The result is trivial for unenriched markers.
+        """
+        return other
+
+    def combine(self, *others):
+        """Work out a new position marker from that of the parent segments.
+
+        The result is trivial for unenriched markers.
+        """
+        if hasattr(others[0], "pos_marker"):
+            return others[0].pos_marker
+        return others[0]
+
 
 class EnrichedFilePositionMarker(FilePositionMarker):
     """A more advanced file position marker which keeps track of source position."""
@@ -102,3 +118,59 @@ class EnrichedFilePositionMarker(FilePositionMarker):
     @property
     def _source_marker(self):
         return self.source_pos_marker
+
+    def shift_to(self, other):
+        """Shift the position of this marker to that of other.
+
+        We keep the same references in the source file, and the templated
+        file, but update the references.
+        """
+        return EnrichedFilePositionMarker(
+            statement_index=other.statement_index,
+            line_no=other.line_no,
+            line_pos=other.line_pos,
+            char_pos=other.char_pos,
+            templated_slice=self.templated_slice,
+            source_slice=self.source_slice,
+            is_literal=self.is_literal,
+            source_pos_marker=self.source_pos_marker,
+        )
+
+    def combine(self, *others):
+        """Work out a new position marker from that of the parent segments.
+
+        We *combine* the spans.
+        """
+        # Make a list out of others, because we're going to use it a couple of times.
+        return EnrichedFilePositionMarker(
+            statement_index=self.statement_index,
+            line_no=self.line_no,
+            line_pos=self.line_pos,
+            char_pos=self.char_pos,
+            templated_slice=slice(
+                min(
+                    other.templated_slice.start
+                    for other in others
+                    if hasattr(other, "templated_slice")
+                ),
+                max(
+                    other.templated_slice.stop
+                    for other in others
+                    if hasattr(other, "templated_slice")
+                ),
+            ),
+            source_slice=slice(
+                min(
+                    other.source_slice.start
+                    for other in others
+                    if hasattr(other, "templated_slice")
+                ),
+                max(
+                    other.source_slice.stop
+                    for other in others
+                    if hasattr(other, "templated_slice")
+                ),
+            ),
+            is_literal=all(getattr(other, "is_literal", True) for other in others),
+            source_pos_marker=self.source_pos_marker,
+        )
