@@ -835,6 +835,7 @@ def test__rules__std_file(rule, path, violations):
     )
 
 
+@pytest.mark.dbt
 @pytest.mark.parametrize(
     "rule,path,violations",
     [

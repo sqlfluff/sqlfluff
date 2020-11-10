@@ -135,7 +135,7 @@ def test__templater_dbt_missing(dbt_templater):
         dbt_templater.process(
             in_str="",
             fname="models/my_new_project/test.sql",
-            config=FluffConfig(configs=DBT_FluffConfig(configs=DBT_FLUFF_CONFIG)),
+            config=FluffConfig(configs=DBT_FLUFF_CONFIG),
         )
 
 
