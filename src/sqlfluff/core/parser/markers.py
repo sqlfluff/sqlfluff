@@ -3,6 +3,8 @@
 This class is a construct to keep track of positions within a file.
 """
 
+from typing import Optional
+
 
 class FilePositionMarker:
     """This class is a construct to keep track of positions within a file."""
@@ -10,8 +12,16 @@ class FilePositionMarker:
     slots = ["statement_index", "line_no", "line_pos", "char_pos"]
 
     def __init__(
-        self, statement_index: int, line_no: int, line_pos: int, char_pos: int
+        self,
+        statement_index: Optional[int],
+        line_no: int,
+        line_pos: Optional[int],
+        char_pos: int,
     ):
+        # NB: statment_index and line_pos are optional so that
+        # we can use position markers to flag up errors which
+        # are specific to a line but we don't (or can't) know
+        # precisely where within that line the issue is.
         self.statement_index = statement_index
         self.line_no = line_no
         self.line_pos = line_pos

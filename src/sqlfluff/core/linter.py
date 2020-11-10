@@ -111,11 +111,30 @@ class LintedFile(
         bencher = BenchIt()
         bencher("fix_string: start")
 
+        linter_logger.debug("Oritinal Tree: %r", self.templated_file.templated_str)
+        linter_logger.debug("Fixed Tree: %r", self.tree.raw)
+
+        # The sliced file is contigious in the TEMPLATED space.
+        # NB: It has gaps and repeats in the source space.
+        for idx, file_slice in enumerate(self.templated_file.sliced_file):
+            linter_logger.debug("File slice: %s %r", idx, file_slice)
+
         original_source = self.templated_file.source_str
+
+        # Make sure no patches overlap and divide up the source file into slices.
+        # Any Template tags in the source file should be "untouchable".
+        untouchable_slices = self.templated_file.untouchable_slices()
+
+        linter_logger.debug("Untouchables: %s", untouchable_slices)
 
         # Generate the fix regions.
         def iter_patches(seg):
-            """Iterate through the segments generating fix patches."""
+            """Iterate through the segments generating fix patches.
+
+            The patches are generated in TEMPLATED space. This is important
+            so that we defer dealing with any loops until later. At this stage
+            everything *should* happen in templated order.
+            """
             # Does it match? If so we can ignore it.
             matches = (
                 seg.raw
@@ -129,12 +148,14 @@ class LintedFile(
             # If it's all literal, then we don't need to recurse.
             if seg.pos_marker.is_literal:
                 # Yield the position in the source file and the patch
-                yield (seg.pos_marker.source_slice, seg.raw)
+                patch = (seg.pos_marker.templated_slice, seg.raw)
+                linter_logger.debug("Yeilding literal patch: %r", patch)
+                yield patch
             else:
                 # This segment isn't a literal, but has changed, we need to go deeper.
 
                 # Iterate through the child segments
-                source_idx = seg.pos_marker.source_slice.start
+                templated_idx = seg.pos_marker.templated_slice.start
                 insert_buff = ""
                 for seg_idx, segment in enumerate(seg.segments):
                     # First check for insertions.
@@ -144,97 +165,115 @@ class LintedFile(
                         if segment.raw:
                             insert_buff += segment.raw
                             linter_logger.debug(
-                                "Appending insertion buffer. %r", insert_buff
+                                "Appending insertion buffer. %r @idx: %s",
+                                insert_buff,
+                                templated_idx,
                             )
                         continue
 
                     # If we get here, then we know it's an original.
-                    # Check for deletions at the before this segment (vs the SOURCE).
-                    start_diff = segment.pos_marker.source_slice.start - source_idx
-                    if start_diff > 0:
-                        linter_logger.debug(
-                            "Found an mid deletion point. %s, %s",
-                            seg.pos_marker.source_slice.start,
-                            source_idx,
-                        )
-                        # If we have an insert buffer, then it's an edit, otherwise a deletion.
-                        yield (
-                            slice(
-                                segment.pos_marker.source_slice.start - start_diff,
-                                segment.pos_marker.source_slice.start,
-                            ),
-                            insert_buff,
-                        )
-                        insert_buff = ""
+                    # Check for deletions at the before this segment (vs the TEMPLATED).
+                    start_diff = (
+                        segment.pos_marker.templated_slice.start - templated_idx
+                    )
 
-                    # If we still have an insertion buffer here, yield it.
-                    if insert_buff:
-                        yield (
+                    # Check to see whether there's a discontinuity before the current segment
+                    if start_diff > 0 or insert_buff:
+                        # If we have an insert buffer, then it's an edit, otherwise a deletion.
+                        patch = (
                             slice(
-                                segment.pos_marker.source_slice.start,
-                                segment.pos_marker.source_slice.start,
+                                segment.pos_marker.templated_slice.start - start_diff,
+                                segment.pos_marker.templated_slice.start,
                             ),
                             insert_buff,
                         )
                         insert_buff = ""
+                        linter_logger.debug(
+                            "Yielding at mid deletion (or insertion) point: %r",
+                            patch,
+                        )
+                        yield patch
 
                     # Now we deal with any changes *within* the segment itself.
                     yield from iter_patches(segment)
 
                     # Once we've dealt with any patches from the segment, update
                     # our position markers.
-                    source_idx = segment.pos_marker.source_slice.stop
+                    templated_idx = segment.pos_marker.templated_slice.stop
 
-                # After the loop, we check whether there's a trailing
-                # deletion or insert.
-                end_diff = seg.pos_marker.source_slice.stop - source_idx
-                if end_diff:
+                # After the loop, we check whether there's a trailing deletion
+                # or insert. Also valid if we still have an insertion buffer here.
+                end_diff = seg.pos_marker.templated_slice.stop - templated_idx
+                if end_diff or insert_buff:
+                    patch = (
+                        slice(
+                            seg.pos_marker.templated_slice.stop - end_diff,
+                            seg.pos_marker.templated_slice.stop,
+                        ),
+                        insert_buff,
+                    )
                     linter_logger.debug(
-                        "Found an end deletion point. %s, %s",
-                        seg.pos_marker.source_slice.stop,
-                        source_idx,
+                        "Yielding at end deletion (or insertion) point: %r",
+                        patch,
                     )
-                    # If we have an insert buffer, then it's an edit, otherwise a deletion.
-                    yield (
-                        slice(
-                            seg.pos_marker.source_slice.stop - end_diff,
-                            seg.pos_marker.source_slice.stop,
-                        ),
-                        insert_buff,
-                    )
-                    insert_buff = ""
-
-                # If we still have an insertion buffer here, yield it.
-                if insert_buff:
-                    yield (
-                        slice(
-                            seg.pos_marker.source_slice.stop,
-                            seg.pos_marker.source_slice.stop,
-                        ),
-                        insert_buff,
-                    )
-                    insert_buff = ""
+                    yield patch
 
         # Patches, sorted by start
         patches = sorted(list(iter_patches(self.tree)), key=lambda x: x[0].start)
+        linter_logger.debug("Templated-space patches: %s", patches)
 
-        # Make sure no patches overlap and divide up the source file into slices.
+        # We now convert enrich the patches into source space
+        patches = [
+            (self.templated_file.template_slice_to_source_slice(patch[0])[0], patch[1])
+            for patch in patches
+        ]
+        linter_logger.debug("Fresh source-space patches: %s", patches)
+
+        # Dedupe on source space
+        patches = [
+            patch for idx, patch in enumerate(patches) if patch not in patches[:idx]
+        ]
+        linter_logger.debug("Deduped source-space patches: %s", patches)
+
+        # We now slice up the file using the patches and any untouchables.
+        # This gives us regions to apply changes to.
         slice_buff = []
         source_idx = 0
         for patch in patches:
-            if patch[0].start < source_idx:
-                linter_logger.critical(
-                    "Error at Index %s, Patches: %s", source_idx, patches
-                )
-                raise NotImplementedError(
-                    "This shouldn't happen. It means an overlapping patch."
-                )
+            # Are there untouchables at or before the start of this patch?
+            while untouchable_slices and untouchable_slices[0].start < patch[0].start:
+                next_untouchable_slice = untouchable_slices.pop(0)
+                # Add a pre-slice before the next untouchable if needed.
+                if next_untouchable_slice.start > source_idx:
+                    slice_buff.append(slice(source_idx, next_untouchable_slice.start))
+                # Add the untouchable.
+                slice_buff.append(next_untouchable_slice)
+                source_idx = next_untouchable_slice.stop
+
+            # Is there a gap between current position and this patch?
             if patch[0].start > source_idx:
+                # Add a slice up to this patch.
                 slice_buff.append(slice(source_idx, patch[0].start))
+
+            # Is this patch covering an area we've already covered?
+            if patch[0].start < source_idx:
+                linter_logger.info(
+                    "Skipping overlapping patch at Index %s, Patch: %s, Patches: %s",
+                    source_idx,
+                    patch,
+                    patches,
+                )
+                # Ignore the patch for now...
+                continue
+
+            # Add this patch.
             slice_buff.append(patch[0])
             source_idx = patch[0].stop
+        # Add a tail slice.
         if source_idx < len(self.templated_file.source_str):
             slice_buff.append(slice(source_idx, len(self.templated_file.source_str)))
+
+        linter_logger.debug("Final slice buffer: %s", slice_buff)
 
         # Iterate through the patches, building up the new string.
         str_buff = ""
@@ -243,10 +282,21 @@ class LintedFile(
             for patch in patches:
                 if patch[0] == source_slice:
                     # Use the patched version
+                    linter_logger.debug(
+                        "Appending Patch:    %s %r > %r",
+                        patch[0],
+                        self.templated_file.source_str[patch[0]],
+                        patch[1],
+                    )
                     str_buff += patch[1]
                     break
             else:
                 # Use the raw string
+                linter_logger.debug(
+                    "Appending Raw:      %s %r",
+                    source_slice,
+                    self.templated_file.source_str[source_slice],
+                )
                 str_buff += self.templated_file.source_str[source_slice]
 
         bencher("fix_string: Fixing loop done")

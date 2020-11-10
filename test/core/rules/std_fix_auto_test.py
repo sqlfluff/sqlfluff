@@ -9,6 +9,7 @@ import os
 import tempfile
 import shutil
 import json
+import logging
 
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.cli.commands import do_fixes
@@ -59,7 +60,7 @@ def load_file(dialect, fname):
     return raw
 
 
-def auto_fix_test(rules, dialect, folder):
+def auto_fix_test(rules, dialect, folder, caplog):
     """A test for roundtrip testing, take a file buffer, lint, fix and lint.
 
     This is explicitly different from the linter version of this, in that
@@ -115,7 +116,8 @@ def auto_fix_test(rules, dialect, folder):
         assert expected_vs == vs
 
     # Actually do the fixes
-    res = do_fixes(lnt, res)
+    with caplog.at_level(logging.DEBUG, logger="sqlfluff.linter"):
+        res = do_fixes(lnt, res)
     # Read the fixed file
     with open(filepath, mode="r") as fixed_file:
         fixed_buff = fixed_file.read()
@@ -132,6 +134,6 @@ def auto_fix_test(rules, dialect, folder):
 
 
 @pytest.mark.parametrize("dialect,folder,rules", test_cases)
-def test__std_fix_auto(dialect, folder, rules):
+def test__std_fix_auto(dialect, folder, rules, caplog):
     """Automated Fixing Tests."""
-    auto_fix_test(rules=rules, dialect=dialect, folder=folder)
+    auto_fix_test(rules=rules, dialect=dialect, folder=folder, caplog=caplog)

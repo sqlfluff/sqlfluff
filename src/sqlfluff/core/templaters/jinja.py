@@ -4,7 +4,7 @@ import os.path
 from typing import Iterator, Tuple, Optional
 
 from jinja2.sandbox import SandboxedEnvironment
-from jinja2 import meta
+from jinja2 import meta, TemplateSyntaxError
 import jinja2.nodes
 
 from ..errors import SQLTemplaterError
@@ -199,10 +199,36 @@ class JinjaTemplater(PythonTemplater):
         live_context.update(ctx)
 
         # Load the template, passing the global context.
-        template = env.from_string(in_str, globals=live_context)
+        try:
+            template = env.from_string(in_str, globals=live_context)
+        except TemplateSyntaxError as err:
+            # Something in the template didn't parse, return the original
+            # and a violation around what happened.
+            (len(line) for line in in_str.split("\n")[: err.lineno])
+            return (
+                TemplatedFile(source_str=in_str, fname=fname),
+                [
+                    SQLTemplaterError(
+                        "Failure to parse jinja template: {0}.".format(err),
+                        pos=FilePositionMarker(
+                            None,
+                            err.lineno,
+                            None,
+                            # Calculate the charpos for sorting.
+                            sum(
+                                len(line)
+                                for line in in_str.split("\n")[: err.lineno - 1]
+                            ),
+                        ),
+                    )
+                ],
+            )
+
         violations = []
 
-        # Attempt to identify any undeclared variables
+        # Attempt to identify any undeclared variables. The majority
+        # will be found during the _crawl_tree step rather than this
+        # first Exception which serves only to catch catastrophic errors.
         try:
             syntax_tree = env.parse(in_str)
             undefined_variables = meta.find_undeclared_variables(syntax_tree)

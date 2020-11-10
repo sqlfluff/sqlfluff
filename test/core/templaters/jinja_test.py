@@ -17,14 +17,29 @@ def test__templater_jinja():
     assert str(outstr) == "SELECT * FROM f, o, o WHERE a < 10\n\n"
 
 
-def test__templater_jinja_error():
-    """Test error handling in the jinja templater."""
+def test__templater_jinja_error_variable():
+    """Test missing variable error handling in the jinja templater."""
     t = JinjaTemplater(override_context=dict(blah="foo"))
     instr = JINJA_STRING
     outstr, vs = t.process(instr, config=FluffConfig())
     assert str(outstr) == "SELECT * FROM f, o, o WHERE \n\n"
     # Check we have violations.
     assert len(vs) > 0
+    # Check one of them is a templating error on line 1
+    assert any(v.rule_code() == "TMP" and v.line_no() == 1 for v in vs)
+
+
+def test__templater_jinja_error_syntax():
+    """Test syntax problems in the jinja templater."""
+    t = JinjaTemplater()
+    instr = "SELECT {{foo} FROM jinja_error\n"
+    outstr, vs = t.process(instr, config=FluffConfig())
+    # Check we just skip templating.
+    assert str(outstr) == instr
+    # Check we have violations.
+    assert len(vs) > 0
+    # Check one of them is a templating error on line 1
+    assert any(v.rule_code() == "TMP" and v.line_no() == 1 for v in vs)
 
 
 def test__templater_jinja_error_catatrophic():

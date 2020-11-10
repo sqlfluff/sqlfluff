@@ -141,6 +141,31 @@ class TemplatedFile:
 
         slices = self.sliced_file[start_idx:stop_idx]
 
+        # We have an exception for zero length slices which should
+        # remain so when changing spaces.
+        if template_slice.start == template_slice.stop:
+            # NB: in this case slices should always be of length 1.
+            if template_slice.start == slices[0][2].start:
+                return slice(slices[0][1].start, slices[0][1].start), True
+            elif template_slice.start == slices[0][2].stop:
+                return slice(slices[0][1].stop, slices[0][1].stop), True
+            else:
+                # We're converting a single length slice WITHIN
+                # another slice!?
+                # If it's a literal that's easy, if it's within
+                # a templated slice then it's impossible, return
+                # an error.
+                if slices[0][0] == "literal":
+                    offset = template_slice.start - slices[0][2].start
+                    return (
+                        slice(slices[0][1].start + offset, slices[0][1].start + offset),
+                        True,
+                    )
+                else:
+                    raise ValueError(
+                        "Attempting a single length slice within a templated section!"
+                    )
+
         # if it's a literal segment then we can get the exact position
         # otherwise we're greedy.
         is_literal = True
@@ -175,6 +200,33 @@ class TemplatedFile:
             source_stop = max(elem[1].stop for elem in slices)
 
         return slice(source_start, source_stop), is_literal
+
+    def untouchable_slices(self):
+        """Return a list a slices which reference the "untouchable" parts.
+
+        The results are NECESSARILY sorted.
+        """
+        source_len = len(self.source_str)
+        running_source_idx = 0
+        chunk_buffer = []
+        for chunk in self.sliced_file:
+            if chunk[1].start > running_source_idx:
+                chunk_buffer.append(
+                    slice(
+                        running_source_idx,
+                        chunk[1].start,
+                    )
+                )
+            running_source_idx = chunk[1].stop
+        # Deal with the tail.
+        if running_source_idx < source_len:
+            chunk_buffer.append(
+                slice(
+                    running_source_idx,
+                    source_len,
+                )
+            )
+        return chunk_buffer
 
 
 @register_templater

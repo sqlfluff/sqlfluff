@@ -107,6 +107,19 @@ def test__templated_file_get_line_pos_of_char_pos(
             # NB: Same as SIMPLE_SLICED_FILE, but with different slice types.
             [("templated", elem[1], elem[2]) for elem in SIMPLE_SLICED_FILE],
         ),
+        # Handling single length slices
+        (
+            slice(10, 10),
+            slice(10, 10),
+            True,
+            SIMPLE_SLICED_FILE,
+        ),
+        (
+            slice(12, 12),
+            slice(17, 17),
+            True,
+            SIMPLE_SLICED_FILE,
+        ),
     ],
 )
 def test__templated_file_template_slice_to_source_slice(
@@ -117,3 +130,15 @@ def test__templated_file_template_slice_to_source_slice(
     source_slice, literal_test = file.template_slice_to_source_slice(in_slice)
     assert is_literal == literal_test
     assert source_slice == out_slice
+
+
+def test__templated_file_untouchable_slices():
+    """Test TemplatedFile.template_slice_to_source_slice."""
+    file = TemplatedFile(
+        source_str=" Dummy String again ",  # NB: has length 20
+        sliced_file=[
+            ("literal", slice(0, 10, None), slice(0, 10, None)),
+            ("literal", slice(17, 27, None), slice(10, 20, None)),
+        ],
+    )
+    assert file.untouchable_slices() == [slice(10, 17)]
