@@ -60,7 +60,7 @@ snowflake_dialect.sets("reserved_keywords").update(
         "TABLESAMPLE",
         "PIVOT",
         "UNPIVOT",
-        "WAREHOUSE"
+        "WAREHOUSE",
     ]
 )
 
@@ -114,6 +114,7 @@ snowflake_dialect.replace(
     ),
 )
 
+
 @snowflake_dialect.segment(replace=True)
 class StatementSegment(BaseSegment):
     """A generic segment, to any of it's child subsegments."""
@@ -136,6 +137,7 @@ class StatementSegment(BaseSegment):
         Ref("DropModelStatementSegment"),
         Ref("UseStatementSegment"),
     )
+
 
 @snowflake_dialect.segment()
 class TableAliasExpressionSegment(BaseSegment):
@@ -366,17 +368,16 @@ class SelectStatementSegment(ansi_SelectClauseSegment):
         Ref("LimitClauseSegment", optional=True),
     )
 
+
 @snowflake_dialect.segment()
 class UseStatementSegment(BaseSegment):
     """A snowflake `USE` statement.
-    
+
     https://docs.snowflake.com/en/sql-reference/sql/use.html
     """
 
     type = "use_statement"
-    match_grammar = StartsWith(
-        "USE"
-    )
+    match_grammar = StartsWith("USE")
 
     parse_grammar = Sequence(
         "USE",
