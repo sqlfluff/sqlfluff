@@ -5,7 +5,16 @@ import pytest
 import os
 
 
-DBT_FLUFF_CONFIG = {"templater": {"dbt": {"profiles_dir": "../dbt"}}}
+DBT_FLUFF_CONFIG = {
+    "core": {
+        "templater": "dbt",
+    },
+    "templater": {
+        "dbt": {
+            "profiles_dir": "../dbt",
+        },
+    },
+}
 
 
 @pytest.fixture()

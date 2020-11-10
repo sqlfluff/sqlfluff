@@ -5,6 +5,8 @@ import pytest
 from sqlfluff.core import Linter, FluffConfig
 from sqlfluff.core.rules.base import BaseCrawler, LintResult, LintFix
 from sqlfluff.core.rules.std import std_rule_set
+from test.fixtures.dbt.templater import in_dbt_project_dir, DBT_FLUFF_CONFIG, dbt_templater
+import os
 
 
 def get_rule_from_set(code, config):
@@ -45,6 +47,16 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
         pytest.fail(
             "Found {0} failures in query which should pass.".format(code), pytrace=False
         )
+
+
+def assert_rule_raises_violations_in_file(rule, fpath, violations, fluff_config):
+    """Assert that a given rule raises given errors in specific positions of a file."""
+    lntr = Linter(config=fluff_config)
+    lnt = lntr.lint_path(fpath)
+    # Reformat the test data to match the format we're expecting. We use
+    # sets because we really don't care about order and if one is missing,
+    # we don't care about the orders of the correct ones.
+    assert set(lnt.check_tuples()) == {(rule, v[0], v[1]) for v in violations}
 
 
 # ############## STD RULES TESTS
@@ -815,13 +827,29 @@ def test__rules__runaway_fail_catch():
 )
 def test__rules__std_file(rule, path, violations):
     """Test the linter finds the given errors in (and only in) the right places."""
-    # Use config to look for only the rule we care about.
-    lntr = Linter(config=FluffConfig(overrides=dict(rules=rule)))
-    lnt = lntr.lint_path(path)
-    # Reformat the test data to match the format we're expecting. We use
-    # sets because we really don't care about order and if one is missing,
-    # we don't care about the orders of the correct ones.
-    assert set(lnt.check_tuples()) == {(rule, v[0], v[1]) for v in violations}
+    assert_rule_raises_violations_in_file(
+        rule=rule,
+        fpath=path,
+        violations=violations,
+        fluff_config=FluffConfig(overrides=dict(rules=rule)),
+    )
+
+
+@pytest.mark.parametrize(
+    "rule,path,violations",
+    [
+        # Group By
+        ("L021", "models/my_new_project/select_distinct_group_by.sql", [(1, 8)]),
+    ]
+)
+def test__rules__std_file_dbt(rule, path, violations, in_dbt_project_dir):
+    """Test the linter finds the given errors in (and only in) the right places. (DBT)"""
+    assert_rule_raises_violations_in_file(
+        rule=rule,
+        fpath=path,
+        violations=violations,
+        fluff_config=FluffConfig(configs=DBT_FLUFF_CONFIG, overrides=dict(rules=rule)),
+    )
 
 
 def test__rules__std_L003_process_raw_stack(generate_test_segments):

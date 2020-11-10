@@ -1,0 +1,5 @@
+[core]
+templater = dbt
+
+[sqlfluff:templater:dbt]
+profiles_dir = ../dbt
