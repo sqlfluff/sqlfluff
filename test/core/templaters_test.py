@@ -10,7 +10,7 @@ from sqlfluff.core.templaters import (
     JinjaTemplateInterface,
 )
 from sqlfluff.core import Linter, FluffConfig, SQLTemplaterError
-from test.fixtures.dbt.templater import DBT_FLUFF_CONFIG
+from test.fixtures.dbt.templater import DBT_FLUFF_CONFIG, dbt_templater  # noqa
 
 
 def test__templater_selection():
@@ -122,7 +122,7 @@ def test__templater_full(subpath, code_only, yaml_loader):
     )
 
 
-def test__templater_dbt_missing(dbt_templater):
+def test__templater_dbt_missing(dbt_templater):  # noqa
     """Check that a nice error is returned when dbt module is missing."""
     try:
         import dbt  # noqa: F401
@@ -140,7 +140,7 @@ def test__templater_dbt_missing(dbt_templater):
 
 
 @pytest.mark.dbt
-def test__templater_dbt_profiles_dir_expanded(dbt_templater):
+def test__templater_dbt_profiles_dir_expanded(dbt_templater):  # noqa
     """Check that the profiles_dir is expanded."""
     profiles_dir = dbt_templater._get_profiles_dir(
         FluffConfig(configs={"templater": {"dbt": {"profiles_dir": "~/.dbt"}}})
@@ -163,7 +163,7 @@ def test__templater_dbt_profiles_dir_expanded(dbt_templater):
 )
 @pytest.mark.dbt
 def test__templater_dbt_templating_result(
-    in_dbt_project_dir, dbt_templater, in_fpath, out_fpath
+    in_dbt_project_dir, dbt_templater, in_fpath, out_fpath  # noqa
 ):
     """Test that input sql file gets templated into output sql file."""
     outstr, _ = dbt_templater.process(
