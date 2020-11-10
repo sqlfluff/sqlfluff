@@ -10,7 +10,7 @@ from sqlfluff.core.templaters import (
     JinjaTemplateInterface,
 )
 from sqlfluff.core import Linter, FluffConfig, SQLTemplaterError
-from test.fixtures.dbt.templater import dbt_templater, in_dbt_project_dir, DBT_FLUFF_CONFIG
+from test.fixtures.dbt.templater import DBT_FLUFF_CONFIG
 
 
 def test__templater_selection():
@@ -159,10 +159,12 @@ def test__templater_dbt_profiles_dir_expanded(dbt_templater):
         ("models/my_new_project/use_headers.sql", "../dbt/use_headers.sql"),
         # var(...)
         ("models/my_new_project/use_var.sql", "../dbt/use_var.sql"),
-    ]
+    ],
 )
 @pytest.mark.dbt
-def test__templater_dbt_templating_result(in_dbt_project_dir, dbt_templater, in_fpath, out_fpath):
+def test__templater_dbt_templating_result(
+    in_dbt_project_dir, dbt_templater, in_fpath, out_fpath
+):
     """Test that input sql file gets templated into output sql file."""
     outstr, _ = dbt_templater.process(
         in_str="",

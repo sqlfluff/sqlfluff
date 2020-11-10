@@ -1,6 +1,6 @@
+"""Fixtures for dbt templating tests."""
 
 from sqlfluff.core.templaters import DbtTemplateInterface
-from sqlfluff.core import FluffConfig
 import pytest
 import os
 
