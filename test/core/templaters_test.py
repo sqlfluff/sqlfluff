@@ -10,7 +10,7 @@ from sqlfluff.core.templaters import (
     JinjaTemplateInterface,
 )
 from sqlfluff.core import Linter, FluffConfig, SQLTemplaterError
-from test.fixtures.dbt.templater import DBT_FLUFF_CONFIG, dbt_templater  # noqa
+from test.fixtures.dbt.templater import DBT_FLUFF_CONFIG, dbt_templater, in_dbt_project_dir  # noqa
 
 
 def test__templater_selection():

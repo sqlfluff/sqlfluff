@@ -107,7 +107,7 @@ setup(
         "cached-property",
     ],
     extras_require={
-        "dbt": ["dbt>=0.18.1"],
+        "dbt": ["dbt>=0.17"],
         # eg:
         #   'rst': ['docutils>=0.11'],
         #   ':python_version=="2.6"': ['argparse'],
