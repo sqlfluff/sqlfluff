@@ -1,5 +1,6 @@
 """The code for the Lexer."""
 
+import logging
 from collections import namedtuple
 import re
 
@@ -7,6 +8,9 @@ from .markers import FilePositionMarker, EnrichedFilePositionMarker
 from .segments import RawSegment
 from ..errors import SQLLexError
 from ..templaters import TemplatedFile
+
+# Instantiate the lexer logger
+lexer_logger = logging.getLogger("sqlfluff.lexer")
 
 
 class LexMatch(namedtuple("LexMatch", ["new_string", "new_pos", "segments"])):
@@ -339,6 +343,16 @@ class Lexer:
         if not isinstance(templated_file, TemplatedFile):
             return segment_buff
 
+        # Make a new buffer to hold the enriched segments.
+        # We need a new buffer to hold the new meta segments
+        # introduced.
+        new_segment_buff = []
+        # Get the untouchables to re-insert tokens for them
+        untouchables = templated_file.untouchable_slices()
+
+        lexer_logger.info("Enriching Segments. Untouchables: %s", untouchables)
+
+        last_stop_idx = 0
         for segment in segment_buff:
             templated_slice = slice(
                 segment.pos_marker.char_pos,
@@ -350,6 +364,22 @@ class Lexer:
             source_line, source_pos = templated_file.get_line_pos_of_char_pos(
                 source_slice.start
             )
+            # If we match both start and end. Insert the untouchable segment.
+            # We also insert a configured indent or dedent if appropriate.
+            if source_slice.start != last_stop_idx:
+                # Look for an untouchable.
+                for ut_slice, ut_type in untouchables:
+                    if (
+                        ut_slice.start == last_stop_idx
+                        and ut_slice.stop == source_slice.start
+                    ):
+                        lexer_logger.debug(
+                            "Found untouchable slot! %s, %s, %s",
+                            ut_slice,
+                            ut_type,
+                            templated_slice.start,
+                        )
+
             segment.pos_marker = EnrichedFilePositionMarker(
                 statement_index=segment.pos_marker.statement_index,
                 line_no=segment.pos_marker.line_no,
@@ -365,4 +395,8 @@ class Lexer:
                     source_slice.start,
                 ),
             )
-        return segment_buff
+            new_segment_buff.append(segment)
+            # Update the position marker
+            last_stop_idx = source_slice.stop
+
+        return new_segment_buff

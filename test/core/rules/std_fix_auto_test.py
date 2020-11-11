@@ -66,6 +66,10 @@ def auto_fix_test(rules, dialect, folder, caplog):
     This is explicitly different from the linter version of this, in that
     it uses the command line rather than the direct api.
     """
+    # Log the templater and lexer throughout this test
+    caplog.set_level(logging.DEBUG, logger="sqlfluff.templater")
+    caplog.set_level(logging.DEBUG, logger="sqlfluff.lexer")
+
     filename = "testing.sql"
     # Lets get the path of a file to use
     tempdir_path = tempfile.mkdtemp()

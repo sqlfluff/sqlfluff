@@ -6,7 +6,7 @@ from typing import Iterable, Dict, Tuple, List, Iterator, Optional
 
 from ..errors import SQLTemplaterError
 
-from .base import RawTemplater, register_templater, TemplatedFile
+from .base import RawTemplater, register_templater, TemplatedFile, templater_logger
 
 
 @register_templater
@@ -86,24 +86,29 @@ class PythonTemplater(RawTemplater):
                     err
                 )
             )
-        sliced_file = self.slice_file(in_str, new_str)
+        raw_sliced, sliced_file = self.slice_file(in_str, new_str)
         return (
             TemplatedFile(
                 source_str=in_str,
                 templated_str=new_str,
                 fname=fname,
                 sliced_file=sliced_file,
+                raw_sliced=raw_sliced,
             ),
             [],
         )
 
     @classmethod
-    def slice_file(cls, raw_str, templated_str):
+    def slice_file(cls, raw_str: str, templated_str: str):
         """Slice the file to determine regions where we can fix."""
+        templater_logger.info("Slicing File Template")
+        templater_logger.debug("    Raw String: %r", raw_str)
+        templater_logger.debug("    Templated String: %r", templated_str)
         # Slice the raw file
         raw_sliced = list(cls._slice_template(raw_str))
         # Find the literals
         literals = [elem[0] for elem in raw_sliced if elem[1] == "literal"]
+        templater_logger.debug("    Literals: %s", literals)
         # Calculate occurances
         raw_occurances = cls._substring_occurances(raw_str, literals)
         templated_occurances = cls._substring_occurances(templated_str, literals)
@@ -114,13 +119,14 @@ class PythonTemplater(RawTemplater):
                 literals,
                 raw_occurances,
                 templated_occurances,
-                len(templated_str),
+                templated_str,
             )
         )
+        templater_logger.debug("    Split Sliced: %s", split_sliced)
         # Deal with uniques and coalesce the rest
-        return list(
+        return raw_sliced, list(
             cls._split_uniques_coalesce_rest(
-                split_sliced, raw_occurances, templated_occurances
+                split_sliced, raw_occurances, templated_occurances, templated_str
             )
         )
 
@@ -206,7 +212,7 @@ class PythonTemplater(RawTemplater):
         literals: List[str],
         raw_occurances: Dict[str, List[int]],
         templated_occurances: Dict[str, List[int]],
-        templated_file_length: int,
+        templated_str: int,
     ) -> Iterator[Tuple[str, slice, slice, List[Tuple[str, str, int]]]]:
         """Split a sliced file on its invariant literals."""
         # Calculate invariants
@@ -251,7 +257,7 @@ class PythonTemplater(RawTemplater):
             yield (
                 "compound",
                 slice((idx or 0), (idx or 0) + sum(len(elem[0]) for elem in buffer)),
-                slice(templ_idx, templated_file_length),
+                slice(templ_idx, len(templated_str)),
                 buffer,
             )
 
@@ -283,7 +289,9 @@ class PythonTemplater(RawTemplater):
         for p in priority:
             if p in types:
                 return p
-        raise RuntimeError("Exhausted priorities in _coalesce_types!")
+        raise RuntimeError(
+            "Exhausted priorities in _coalesce_types! {0!r}".format(types)
+        )
 
     @classmethod
     def _split_uniques_coalesce_rest(
@@ -291,6 +299,7 @@ class PythonTemplater(RawTemplater):
         split_file: List[Tuple[str, slice, slice, List[Tuple[str, str, int]]]],
         raw_occurances: Dict[str, List[int]],
         templ_occurances: Dict[str, List[int]],
+        templated_str: str,
     ) -> Iterator[Tuple[str, slice, slice]]:
         """Within each of the compound sections split on unique literals.
 
@@ -304,10 +313,16 @@ class PythonTemplater(RawTemplater):
         # A buffer to capture tail segments
         tail_buffer: List[Tuple[str, slice, slice]] = []
 
+        templater_logger.debug("    _split_uniques_coalesce_rest: %s", split_file)
+
         for elem in split_file:
             # Yield anything from the tail buffer
             if tail_buffer:
+                templater_logger.debug(
+                    "        Yielding Tail Buffer [start]: %s", tail_buffer
+                )
                 yield from tail_buffer
+                tail_buffer = []
 
             # Yield anything simple
             if len(elem[3]) == 1:
@@ -319,33 +334,87 @@ class PythonTemplater(RawTemplater):
             starts = (elem[1].start, elem[2].start)
             stops = (elem[1].stop, elem[2].stop)
 
-            # Yield any leading literals.
-            while len(elem_buffer) > 0 and elem_buffer[0][1] == "literal":
-                elem_len = len(elem_buffer[0][0])
-                new_starts = (starts[0] + elem_len, starts[1] + elem_len)
+            templater_logger.debug("        Elem Buffer: %s", elem)
+            templater_logger.debug("        Templated Str: %r", templated_str[elem[2]])
+
+            # Yield any leading literals, comments or blocks.
+            while len(elem_buffer) > 0 and elem_buffer[0][1] in (
+                "literal",
+                "block_start",
+                "block_end",
+                "comment",
+            ):
+                focus = elem_buffer[0]
+                templater_logger.debug("            Head Focus: %s", focus)
+                elem_len = len(focus[0])
+                # Is it a zero length item?
+                if focus[1] in ("block_start", "block_end", "comment"):
+                    # Only add the length in the source space.
+                    new_starts = (starts[0] + elem_len, starts[1])
+                else:
+                    # Assume it's a literal, check the literal actually matches.
+                    if templated_str[starts[1] : starts[1] + elem_len] != focus[0]:
+                        # It doesn't match, we can't use it. break
+                        templater_logger.debug("                Nope")
+                        break
+                    # It does match. Set up new starts.
+                    new_starts = (starts[0] + elem_len, starts[1] + elem_len)
+                # Consume
                 yield (
-                    "literal",
+                    focus[1],
                     slice(starts[0], new_starts[0]),
                     slice(starts[1], new_starts[1]),
                 )
                 starts = new_starts
                 elem_buffer.pop(0)
+                # If we just consumed a block start. Don't go further.
+                # We could break a loop.
+                if focus[1] == "block_start":
+                    break
 
-            # Store any trailing literals
-            while len(elem_buffer) > 0 and elem_buffer[-1][1] == "literal":
-                elem_len = len(elem_buffer[-1][0])
-                new_stops = (stops[0] - elem_len, stops[1] - elem_len)
+            # Store any trailing literals, comments or blocks.
+            while len(elem_buffer) > 0 and elem_buffer[-1][1] in (
+                "literal",
+                "block_start",
+                "block_end",
+                "comment",
+            ):
+                focus = elem_buffer[-1]
+                templater_logger.debug("            Tail Focus: %s", focus)
+                elem_len = len(focus[0])
+                # Is it a zero length item?
+                if focus[1] in ("block_start", "block_end", "comment"):
+                    # Only add the length in the source space.
+                    new_stops = (stops[0] - elem_len, stops[1])
+                else:
+                    # Assume it's a literal, check the literal actually matches.
+                    if templated_str[stops[1] - elem_len : stops[1]] != focus[0]:
+                        # It doesn't match, we can't use it. break
+                        templater_logger.debug("                Nope")
+                        break
+                    # It does match. Set up new starts.
+                    new_stops = (stops[0] - elem_len, stops[1] - elem_len)
+                # Consume
                 tail_elem = (
-                    "literal",
+                    focus[1],
                     slice(new_stops[0], stops[0]),
                     slice(new_stops[1], stops[1]),
                 )
                 tail_buffer = [tail_elem] + tail_buffer
                 stops = new_stops
                 elem_buffer.pop()
+                # If we just consumed a block end. Don't go further.
+                # We could break a loop.
+                if focus[1] == "block_end":
+                    break
+
+            # Check we still have an inner buffer:
+            if not elem_buffer:
+                continue
 
             # Deal with the inner segment itself.
             slices = (slice(starts[0], stops[0]), slice(starts[1], stops[1]))
+            templater_logger.debug("        Inner Buffer: %s, %s", slices, elem_buffer)
             raw_occs = cls._filter_occurances(slices[0], raw_occurances)
             templ_occs = cls._filter_occurances(slices[1], templ_occurances)
             # if we don't have anything to anchor on, then just return (coalescing types)
@@ -360,6 +429,8 @@ class PythonTemplater(RawTemplater):
             two_way_uniques = [
                 key for key in one_way_uniques if len(templ_occs[key]) == 1
             ]
+            templater_logger.debug("        One Way Uniques: %s", one_way_uniques)
+            templater_logger.debug("        Two Way Uniques: %s", two_way_uniques)
             # If there aren't any uniques, just crash out now.
             if not one_way_uniques:
                 # Nope, just coalesce
@@ -392,6 +463,7 @@ class PythonTemplater(RawTemplater):
                                 ],
                                 raw_occs,
                                 templ_occs,
+                                templated_str,
                             )
                         # Process the value itself
                         starts = (
@@ -422,6 +494,7 @@ class PythonTemplater(RawTemplater):
                         ],
                         raw_occs,
                         templ_occs,
+                        templated_str,
                     )
                 # We continue here because the buffer should be exhausted,
                 # and if there's more to do we'll do it in the recursion.
@@ -439,35 +512,87 @@ class PythonTemplater(RawTemplater):
                 {key: templ_occs[key] for key in one_way_uniques}
             )
 
+            templater_logger.debug(
+                "        Handling One Way Uniques: %s", owu_templ_tuples
+            )
+
             templ_start_idx = starts[1]
             last_raw_idx = starts[0]
+            this_owu_idx = None
+            last_owu_idx = None
             # Iterate through occurance tuples of the one-way uniques.
             for raw, template_idx in owu_templ_tuples:
                 raw_idx = raw_occs[raw][0]
                 raw_len = len(raw)
+                # Find the index of this owu in the elem_buffer, store the previous
+                last_owu_idx = this_owu_idx
+                this_owu_idx = next(
+                    idx for idx, elem in enumerate(elem_buffer) if elem[0] == raw
+                )
+
                 if template_idx > templ_start_idx:
                     # Yield the bit before this literal. We yield it
                     # all as a tuple, because if we could do any better
                     # we would have done it by now.
 
+                    raw_slice = None
                     # If it's the start, the slicing is easy
                     if templ_start_idx == starts[1]:
                         raw_slice = slice(starts[0], raw_idx)
+                        sub_section = elem_buffer[:this_owu_idx]
                     # If we are AFTER the previous in the template, then it's
-                    # also easy.
-                    elif raw_idx > last_raw_idx:
+                    # also easy. [assuming it's not the same owu]
+                    elif raw_idx > last_raw_idx and last_owu_idx != this_owu_idx:
                         raw_slice = slice(last_raw_idx, raw_idx)
+                        if last_owu_idx:
+                            sub_section = elem_buffer[last_owu_idx + 1 : this_owu_idx]
+                        else:
+                            sub_section = elem_buffer[:this_owu_idx]
+
+                    # If we succeeded in one of the above, we can also recurse
+                    # and be more intelligent with the other sections.
+                    if raw_slice:
+                        templater_logger.debug(
+                            "        Attempting Subsplit [pre]: %s, %r",
+                            sub_section,
+                            templated_str[slice(templ_start_idx, template_idx)],
+                        )
+                        yield from cls._split_uniques_coalesce_rest(
+                            [
+                                (
+                                    "compound",
+                                    # Slicing is easy here, we have no choice
+                                    raw_slice,
+                                    slice(templ_start_idx, template_idx),
+                                    sub_section,
+                                )
+                            ],
+                            raw_occs,
+                            templ_occs,
+                            templated_str,
+                        )
                     # Otherwise, it's the tricky case.
                     else:
                         # In this case we've found a literal, coming AFTER another
                         # in the templated version, but BEFORE (or the same) in the
                         # raw version. This only happens during loops, but it means
-                        # that identifying exaclty what the intervening bit refers
+                        # that identifying exactly what the intervening bit refers
                         # to is a bit arbitrary. In this case we're going to OVER
                         # estimate and refer to the whole loop segment, by working
                         # back to the previous loop block [or unique literal] and
                         # working forward to the following one.
 
+                        # TODO: Maybe this should make two chunks instead, one
+                        # working backward, and one working forward. But that's
+                        # a job for another day.
+
+                        templater_logger.debug(
+                            "        Tricky Case...: %s, %s, %s, %s",
+                            last_owu_idx,
+                            this_owu_idx,
+                            last_raw_idx,
+                            raw_idx,
+                        )
                         # First find where we are in the template
                         cur_idx = next(
                             idx
@@ -500,11 +625,17 @@ class PythonTemplater(RawTemplater):
                             + len(elem_buffer[cur_idx + post_offset][0]),
                         )
 
-                    yield (
-                        "templated",
-                        raw_slice,
-                        slice(templ_start_idx, template_idx),
-                    )
+                        yield (
+                            "templated",
+                            raw_slice,
+                            slice(templ_start_idx, template_idx),
+                        )
+                templater_logger.debug(
+                    "    Yielding Unique: %r, %s, %s",
+                    raw,
+                    slice(raw_idx, raw_idx + raw_len),
+                    slice(template_idx, template_idx + raw_len),
+                )
                 # Yield the literal
                 yield (
                     "literal",
@@ -513,14 +644,30 @@ class PythonTemplater(RawTemplater):
                 )
                 templ_start_idx = template_idx + raw_len
                 last_raw_idx = raw_idx + raw_len
+
             if templ_start_idx < stops[1]:
                 # Yield the end bit
-                yield (
-                    "templated",
-                    slice(raw_idx + raw_len, stops[0]),
-                    slice(templ_start_idx, stops[1]),
+                templater_logger.debug(
+                    "        Attempting Subsplit [post]: %s", sub_section
+                )
+                yield from cls._split_uniques_coalesce_rest(
+                    [
+                        (
+                            "compound",
+                            # Slicing is easy here, we have no choice
+                            slice(raw_idx + raw_len, stops[0]),
+                            slice(templ_start_idx, stops[1]),
+                            elem_buffer[last_owu_idx + 1 :],
+                        )
+                    ],
+                    raw_occs,
+                    templ_occs,
+                    templated_str,
                 )
 
         # Yield anything from the tail buffer
         if tail_buffer:
+            templater_logger.debug(
+                "        Yielding Tail Buffer [end]: %s", tail_buffer
+            )
             yield from tail_buffer

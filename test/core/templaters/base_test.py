@@ -136,9 +136,10 @@ def test__templated_file_untouchable_slices():
     """Test TemplatedFile.template_slice_to_source_slice."""
     file = TemplatedFile(
         source_str=" Dummy String again ",  # NB: has length 20
-        sliced_file=[
-            ("literal", slice(0, 10, None), slice(0, 10, None)),
-            ("literal", slice(17, 27, None), slice(10, 20, None)),
+        raw_sliced=[
+            ("a" * 10, "literal", 0),
+            ("b" * 7, "comment", 10),
+            ("a" * 10, "literal", 17),
         ],
     )
-    assert file.untouchable_slices() == [slice(10, 17)]
+    assert file.untouchable_slices() == [(slice(10, 17), "comment")]

@@ -138,9 +138,9 @@ def test__templater_python_split_invariants(
 
 
 @pytest.mark.parametrize(
-    "split_file,raw_occurances,templated_occurances,result",
+    "split_file,raw_occurances,templated_occurances,templated_str,result",
     [
-        ([], {}, {}, []),
+        ([], {}, {}, "", []),
         (
             [
                 (
@@ -152,6 +152,7 @@ def test__templater_python_split_invariants(
             ],
             {"foo": [0]},
             {"foo": [0]},
+            "foo",
             [("literal", slice(0, 3, None), slice(0, 3, None))],
         ),
         (
@@ -217,6 +218,7 @@ def test__templater_python_split_invariants(
                 ", '": [35],
                 "' as convertable from something": [40],
             },
+            "SELECT nothing, 435.24 as foo, spam, '{}' as convertable from something",
             [
                 ("literal", slice(0, 7, None), slice(0, 7, None)),
                 ("templated", slice(7, 13, None), slice(7, 14, None)),
@@ -232,7 +234,7 @@ def test__templater_python_split_invariants(
     ],
 )
 def test__templater_python_split_uniques_coalesce_rest(
-    split_file, raw_occurances, templated_occurances, result
+    split_file, raw_occurances, templated_occurances, templated_str, result
 ):
     """Test _split_uniques_coalesce_rest."""
     resp = list(
@@ -240,6 +242,7 @@ def test__templater_python_split_uniques_coalesce_rest(
             split_file,
             raw_occurances,
             templated_occurances,
+            templated_str,
         )
     )
     # Check contigious
@@ -277,11 +280,9 @@ def test__templater_python_split_uniques_coalesce_rest(
 )
 def test__templater_python_slice_file(raw_file, templated_file, result):
     """Test slice_file."""
-    resp = list(
-        PythonTemplater.slice_file(
-            raw_file,
-            templated_file,
-        )
+    _, resp = PythonTemplater.slice_file(
+        raw_file,
+        templated_file,
     )
     # Check contigious
     prev_slice = None

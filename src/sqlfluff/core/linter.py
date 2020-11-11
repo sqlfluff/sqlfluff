@@ -241,8 +241,10 @@ class LintedFile(
         source_idx = 0
         for patch in patches:
             # Are there untouchables at or before the start of this patch?
-            while untouchable_slices and untouchable_slices[0].start < patch[0].start:
-                next_untouchable_slice = untouchable_slices.pop(0)
+            while (
+                untouchable_slices and untouchable_slices[0][0].start < patch[0].start
+            ):
+                next_untouchable_slice = untouchable_slices.pop(0)[0]
                 # Add a pre-slice before the next untouchable if needed.
                 if next_untouchable_slice.start > source_idx:
                     slice_buff.append(slice(source_idx, next_untouchable_slice.start))

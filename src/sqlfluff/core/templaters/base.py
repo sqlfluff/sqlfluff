@@ -1,8 +1,12 @@
 """Defines the templaters."""
 
+import logging
 from typing import Dict, Iterator, List, Tuple, Optional
 
 _templater_lookup: Dict[str, "RawTemplater"] = {}
+
+# Instantiate the templater logger
+templater_logger = logging.getLogger("sqlfluff.templater")
 
 
 def templater_selector(s=None, **kwargs):
@@ -62,6 +66,7 @@ class TemplatedFile:
         templated_str: Optional[str] = None,
         fname: Optional[str] = None,
         sliced_file: Optional[List[Tuple[str, slice, slice]]] = None,
+        raw_sliced: Optional[List[Tuple[str, str, int]]] = None,
     ):
         """Initialise the TemplatedFile.
 
@@ -78,6 +83,7 @@ class TemplatedFile:
         # if not sliced_file and templated_str != source_str:
         #     raise ValueError("Cannot instantiate a templated file unsliced!")
         self.sliced_file = sliced_file
+        self.raw_sliced = raw_sliced
         # Precalculate newlines, character positions.
         self._source_newlines = list(iter_indices_of_newlines(self.source_str))
         self._templated_newlines = list(iter_indices_of_newlines(self.templated_str))
@@ -206,27 +212,11 @@ class TemplatedFile:
 
         The results are NECESSARILY sorted.
         """
-        source_len = len(self.source_str)
-        running_source_idx = 0
-        chunk_buffer = []
-        for chunk in self.sliced_file:
-            if chunk[1].start > running_source_idx:
-                chunk_buffer.append(
-                    slice(
-                        running_source_idx,
-                        chunk[1].start,
-                    )
-                )
-            running_source_idx = chunk[1].stop
-        # Deal with the tail.
-        if running_source_idx < source_len:
-            chunk_buffer.append(
-                slice(
-                    running_source_idx,
-                    source_len,
-                )
-            )
-        return chunk_buffer
+        ret_buff = []
+        for elem in self.raw_sliced:
+            if elem[1] in ("comment", "block_end", "block_start"):
+                ret_buff.append((slice(elem[2], elem[2] + len(elem[0])), elem[1]))
+        return ret_buff
 
 
 @register_templater

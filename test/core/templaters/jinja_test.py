@@ -1,6 +1,7 @@
 """Tests for templaters."""
 
 import pytest
+import logging
 
 from sqlfluff.core.templaters import JinjaTemplater
 from sqlfluff.core import Linter, FluffConfig
@@ -86,8 +87,12 @@ def assert_structure(yaml_loader, path, code_only=True):
         ("jinja_g_macros/jinja", True),
     ],
 )
-def test__templater_full(subpath, code_only, yaml_loader):
+def test__templater_full(subpath, code_only, yaml_loader, caplog):
     """Check structure can be parsed from jinja templated files."""
+    # Log the templater and lexer throughout this test
+    caplog.set_level(logging.DEBUG, logger="sqlfluff.templater")
+    caplog.set_level(logging.DEBUG, logger="sqlfluff.lexer")
+
     assert_structure(
         yaml_loader, "test/fixtures/templater/" + subpath, code_only=code_only
     )
@@ -110,8 +115,7 @@ def test__templater_full(subpath, code_only, yaml_loader):
             "SELECT {# A comment #} {{field}} {% for i in [1, 3]%}, fld_{{i}}{% endfor %} FROM my_schema.{{my_table}} ",
             [
                 ("SELECT ", "literal", 0),
-                # NB: Comments should be ignore from the slice.
-                # ("{# A comment #}", "comment", 7),
+                ("{# A comment #}", "comment", 7),
                 (" ", "literal", 22),
                 ("{{field}}", "templated", 23),
                 (" ", "literal", 32),
@@ -154,7 +158,7 @@ def test__templater_jinja_slice_template(test, result):
                 ("literal", slice(0, 7, None), slice(0, 7, None)),
                 ("templated", slice(7, 15, None), slice(7, 13, None)),
                 ("literal", slice(15, 21, None), slice(13, 19, None)),
-                # NB: Comment results in two literals
+                ("comment", slice(21, 34, None), slice(19, 19, None)),
                 ("literal", slice(34, 49, None), slice(19, 34, None)),
             ],
         ),
@@ -164,8 +168,11 @@ def test__templater_jinja_slice_template(test, result):
             "SELECT  foobar , fld_1_x, fld_3_x, fld_7_x FROM my_schema.barfoo ",
             [
                 ("literal", slice(0, 7, None), slice(0, 7, None)),
+                ("comment", slice(7, 22, None), slice(7, 7, None)),
                 ("literal", slice(22, 23, None), slice(7, 8, None)),
-                ("templated", slice(23, 56, None), slice(8, 15, None)),
+                ("templated", slice(23, 32, None), slice(8, 14, None)),
+                ("literal", slice(32, 33, None), slice(14, 15, None)),
+                ("block_start", slice(33, 56, None), slice(15, 15, None)),
                 ("literal", slice(56, 62, None), slice(15, 21, None)),
                 ("templated", slice(62, 67, None), slice(21, 22, None)),
                 ("literal", slice(67, 69, None), slice(22, 24, None)),
@@ -175,6 +182,7 @@ def test__templater_jinja_slice_template(test, result):
                 ("literal", slice(56, 62, None), slice(33, 39, None)),
                 ("templated", slice(62, 67, None), slice(39, 40, None)),
                 ("literal", slice(67, 69, None), slice(40, 42, None)),
+                ("block_end", slice(69, 81, None), slice(42, 42, None)),
                 ("literal", slice(81, 97, None), slice(42, 58, None)),
                 ("templated", slice(97, 109, None), slice(58, 64, None)),
                 ("literal", slice(109, 110, None), slice(64, 65, None)),
@@ -186,14 +194,18 @@ def test__templater_jinja_slice_template(test, result):
             "SELECT  foobar , fld_1, fld_3, fld_7 FROM my_schema.barfoo ",
             [
                 ("literal", slice(0, 7, None), slice(0, 7, None)),
+                ("comment", slice(7, 22, None), slice(7, 7, None)),
                 ("literal", slice(22, 23, None), slice(7, 8, None)),
-                ("templated", slice(23, 56, None), slice(8, 15, None)),
+                ("templated", slice(23, 32, None), slice(8, 14, None)),
+                ("literal", slice(32, 33, None), slice(14, 15, None)),
+                ("block_start", slice(33, 56, None), slice(15, 15, None)),
                 ("literal", slice(56, 62, None), slice(15, 21, None)),
                 ("templated", slice(56, 67, None), slice(21, 22, None)),
                 ("literal", slice(56, 62, None), slice(22, 28, None)),
                 ("templated", slice(56, 67, None), slice(28, 29, None)),
                 ("literal", slice(56, 62, None), slice(29, 35, None)),
-                ("templated", slice(62, 79, None), slice(35, 36, None)),
+                ("templated", slice(62, 67, None), slice(35, 36, None)),
+                ("block_end", slice(67, 79, None), slice(36, 36, None)),
                 ("literal", slice(79, 95, None), slice(36, 52, None)),
                 ("templated", slice(95, 107, None), slice(52, 58, None)),
                 ("literal", slice(107, 108, None), slice(58, 59, None)),
@@ -212,17 +224,18 @@ def test__templater_jinja_slice_template(test, result):
         ),
     ],
 )
-def test__templater_jinja_slice_file(raw_file, templated_file, result):
+def test__templater_jinja_slice_file(raw_file, templated_file, result, caplog):
     """Test slice_file."""
-    resp = list(
-        JinjaTemplater.slice_file(
+    with caplog.at_level(logging.DEBUG, logger="sqlfluff.templater"):
+        _, resp = JinjaTemplater.slice_file(
             raw_file,
             templated_file,
         )
-    )
     # Check contigious on the TEMPLATED VERSION
+    print(resp)
     prev_slice = None
     for elem in resp:
+        print(elem)
         if prev_slice:
             assert elem[2].start == prev_slice.stop
         prev_slice = elem[2]
