@@ -117,4 +117,5 @@ class NonCodePlaceholder(Indent):
     removed during linting.
     """
 
+    type = "placeholder"
     indent_val = 0

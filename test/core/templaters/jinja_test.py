@@ -222,6 +222,42 @@ def test__templater_jinja_slice_template(test, result):
                 ("literal", slice(97, 99, None), slice(45, 47, None)),
             ],
         ),
+        # Test splitting with a loop.
+        (
+            "SELECT\n    {% for i in [1, 2, 3] %}\n        , c_{{i}}+42 AS the_meaning_of_li{{ 'f' * i }}\n    {% endfor %}\nFROM my_table",
+            "SELECT\n    \n        , c_1+42 AS the_meaning_of_lif\n    \n        , c_2+42 AS the_meaning_of_liff\n    \n        , c_3+42 AS the_meaning_of_lifff\n    \nFROM my_table",
+            [
+                ("literal", slice(0, 11, None), slice(0, 11, None)),
+                ("block_start", slice(11, 35, None), slice(11, 11, None)),
+                ("literal", slice(35, 48, None), slice(11, 24, None)),
+                ("templated", slice(48, 53, None), slice(24, 25, None)),
+                ("literal", slice(53, 77, None), slice(25, 49, None)),
+                (
+                    "templated",
+                    slice(35, 53, None),
+                    slice(49, 55, None),
+                ),  # I DONT AGREE WITH THIS <-
+                ("literal", slice(35, 48, None), slice(55, 68, None)),
+                ("templated", slice(48, 53, None), slice(68, 69, None)),
+                ("literal", slice(53, 77, None), slice(69, 93, None)),
+                (
+                    "templated",
+                    slice(35, 53, None),
+                    slice(93, 100, None),
+                ),  # I DONT AGREE WITH THIS <-
+                ("literal", slice(35, 48, None), slice(100, 113, None)),
+                ("templated", slice(48, 53, None), slice(113, 114, None)),
+                ("literal", slice(53, 77, None), slice(114, 138, None)),
+                (
+                    "templated",
+                    slice(77, 90, None),
+                    slice(138, 141, None),
+                ),  # I DONT AGREE WITH THIS <-
+                ("literal", slice(90, 95, None), slice(141, 146, None)),
+                ("block_end", slice(95, 107, None), slice(146, 146, None)),
+                ("literal", slice(107, 121, None), slice(146, 160, None)),
+            ],
+        ),
     ],
 )
 def test__templater_jinja_slice_file(raw_file, templated_file, result, caplog):

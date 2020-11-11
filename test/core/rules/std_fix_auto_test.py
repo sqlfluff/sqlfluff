@@ -107,7 +107,8 @@ def auto_fix_test(rules, dialect, folder, caplog):
     # Run the fix command
     cfg = FluffConfig.from_root(overrides=dict(rules=rules, dialect=dialect))
     lnt = Linter(config=cfg)
-    res = lnt.lint_path(filepath, fix=True)
+    with caplog.at_level(logging.DEBUG, logger="sqlfluff.rules"):
+        res = lnt.lint_path(filepath, fix=True)
 
     # If we have a violations structure, let's enforce it.
     if violations:

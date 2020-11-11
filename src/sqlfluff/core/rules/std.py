@@ -340,8 +340,8 @@ class Rule_L003(BaseCrawler):
             if segment.is_type("whitespace"):
                 # it's whitespace, carry on
                 return LintResult(memory=memory)
-            elif segment.segments or segment.is_meta:
-                # it's not a raw segment. Carry on.
+            elif segment.segments or (segment.is_meta and segment.indent_val != 0):
+                # it's not a raw segment or placeholder. Carry on.
                 return LintResult(memory=memory)
             else:
                 memory["in_indent"] = False
@@ -354,14 +354,26 @@ class Rule_L003(BaseCrawler):
         res = self._process_raw_stack(raw_stack + (segment,))
         this_line_no = max(res.keys())
         this_line = res.pop(this_line_no)
+        self.logger.debug(
+            "Evaluating line #%s. %s",
+            this_line_no,
+            # Don't log the line or indent buffer, it's too noisy.
+            {
+                key: this_line[key]
+                for key in this_line
+                if key not in ("line_buffer", "indent_buffer")
+            },
+        )
 
         # Is this line just comments?
-        if set(seg.type for seg in this_line["line_buffer"] if not seg.is_meta) <= {
+        if set(seg.type for seg in this_line["line_buffer"]) <= {
             "whitespace",
             "comment",
+            "indent",
         }:
             # Comment line, deal with it later.
             memory["comment_lines"].append(this_line_no)
+            self.logger.debug("    Comment Line. #%s", this_line_no)
             return LintResult(memory=memory)
 
         # Is it a hanging indent?

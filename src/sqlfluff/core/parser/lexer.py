@@ -418,4 +418,9 @@ class Lexer:
             # Update the position marker
             last_stop_idx = source_slice.stop
 
+        lexer_logger.debug(
+            "Enriched Segments: %s",
+            new_segment_buff,
+        )
+
         return new_segment_buff

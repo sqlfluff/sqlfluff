@@ -124,11 +124,13 @@ class PythonTemplater(RawTemplater):
         )
         templater_logger.debug("    Split Sliced: %s", split_sliced)
         # Deal with uniques and coalesce the rest
-        return raw_sliced, list(
+        sliced_file = list(
             cls._split_uniques_coalesce_rest(
                 split_sliced, raw_occurances, templated_occurances, templated_str
             )
         )
+        templater_logger.debug("    Fully Sliced: %s", sliced_file)
+        return raw_sliced, sliced_file
 
     @staticmethod
     def _findall(substr: str, in_str: str) -> Iterator[int]:
@@ -326,7 +328,9 @@ class PythonTemplater(RawTemplater):
 
             # Yield anything simple
             if len(elem[3]) == 1:
-                yield (elem[3][0][1], elem[1], elem[2])
+                simple_elem = (elem[3][0][1], elem[1], elem[2])
+                templater_logger.debug("        Yielding Simple: %s", simple_elem)
+                yield simple_elem
                 continue
 
             # Buffer to start trimming ends.
@@ -529,6 +533,9 @@ class PythonTemplater(RawTemplater):
                 this_owu_idx = next(
                     idx for idx, elem in enumerate(elem_buffer) if elem[0] == raw
                 )
+                templater_logger.debug(
+                    "        Handling OWU: %r @%s", raw, template_idx
+                )
 
                 if template_idx > templ_start_idx:
                     # Yield the bit before this literal. We yield it
@@ -645,7 +652,7 @@ class PythonTemplater(RawTemplater):
                 templ_start_idx = template_idx + raw_len
                 last_raw_idx = raw_idx + raw_len
 
-            if templ_start_idx < stops[1] and last_owu_idx:
+            if templ_start_idx < stops[1] and last_owu_idx is not None:
                 # Yield the end bit
                 templater_logger.debug(
                     "        Attempting Subsplit [post]: %s", sub_section
