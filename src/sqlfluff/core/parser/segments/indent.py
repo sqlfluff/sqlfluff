@@ -106,3 +106,15 @@ class Dedent(Indent):
     """
 
     indent_val = -1
+
+
+class NonCodePlaceholder(Indent):
+    """A segment which is empty but indicates something should be.
+
+    This segment is always empty, i.e. it's raw format is '', but it indicates
+    the position of an element on a line which has been removed. This is used
+    to record the position of template blocks, so that their indents are not
+    removed during linting.
+    """
+
+    indent_val = 0

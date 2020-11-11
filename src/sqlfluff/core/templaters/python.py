@@ -212,7 +212,7 @@ class PythonTemplater(RawTemplater):
         literals: List[str],
         raw_occurances: Dict[str, List[int]],
         templated_occurances: Dict[str, List[int]],
-        templated_str: int,
+        templated_str: str,
     ) -> Iterator[Tuple[str, slice, slice, List[Tuple[str, str, int]]]]:
         """Split a sliced file on its invariant literals."""
         # Calculate invariants
@@ -516,10 +516,10 @@ class PythonTemplater(RawTemplater):
                 "        Handling One Way Uniques: %s", owu_templ_tuples
             )
 
-            templ_start_idx = starts[1]
-            last_raw_idx = starts[0]
-            this_owu_idx = None
-            last_owu_idx = None
+            templ_start_idx: int = starts[1]
+            last_raw_idx: int = starts[0]
+            this_owu_idx: Optional[int] = None
+            last_owu_idx: Optional[int] = None
             # Iterate through occurance tuples of the one-way uniques.
             for raw, template_idx in owu_templ_tuples:
                 raw_idx = raw_occs[raw][0]
@@ -645,7 +645,7 @@ class PythonTemplater(RawTemplater):
                 templ_start_idx = template_idx + raw_len
                 last_raw_idx = raw_idx + raw_len
 
-            if templ_start_idx < stops[1]:
+            if templ_start_idx < stops[1] and last_owu_idx:
                 # Yield the end bit
                 templater_logger.debug(
                     "        Attempting Subsplit [post]: %s", sub_section

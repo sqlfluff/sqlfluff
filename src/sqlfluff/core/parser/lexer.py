@@ -5,7 +5,7 @@ from collections import namedtuple
 import re
 
 from .markers import FilePositionMarker, EnrichedFilePositionMarker
-from .segments import RawSegment
+from .segments import RawSegment, Indent, Dedent, NonCodePlaceholder
 from ..errors import SQLLexError
 from ..templaters import TemplatedFile
 
@@ -379,6 +379,25 @@ class Lexer:
                             ut_type,
                             templated_slice.start,
                         )
+                        # Add segments as appropriate.
+                        # If it's a block end, add a dedent.
+                        if ut_type == "block_end":
+                            new_segment_buff.append(
+                                Dedent.when(template_blocks_indent=True)(
+                                    pos_marker=segment.pos_marker
+                                )
+                            )
+                        # Always add a placeholder
+                        new_segment_buff.append(
+                            NonCodePlaceholder(pos_marker=segment.pos_marker)
+                        )
+                        # If it's a block end, add a dedent.
+                        if ut_type == "block_start":
+                            new_segment_buff.append(
+                                Indent.when(template_blocks_indent=True)(
+                                    pos_marker=segment.pos_marker
+                                )
+                            )
 
             segment.pos_marker = EnrichedFilePositionMarker(
                 statement_index=segment.pos_marker.statement_index,
