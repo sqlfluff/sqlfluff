@@ -2074,24 +2074,26 @@ class Rule_L019(BaseCrawler):
         we're looking for leading commas, so we look for the comma itself.
         """
         if len(raw_stack) >= 1:
-            if self.comma_style == "leading":
-                if segment.is_type("newline"):
-                    # work back and find the last code segment, was it a comma?
-                    last_seg = self._last_code_seg(raw_stack)
-                    if last_seg.is_type("comma"):
-                        return LintResult(
-                            anchor=last_seg,
-                            description="Found trailing comma. Expected only leading.",
-                        )
-            elif self.comma_style == "trailing":
-                if segment.is_type("comma"):
-                    # work back and find the last interesting thing, is the comma the first element?
-                    last_seg = self._last_code_seg(raw_stack)
-                    if last_seg.is_type("newline"):
-                        return LintResult(
-                            anchor=segment,
-                            description="Found leading comma. Expected only trailing.",
-                        )
+            if self.comma_style == "trailing":
+                segment_trigger = "comma"
+                last_segment_trigger = "newline"
+                comma_violation_type = "leading"
+            else:
+                segment_trigger = "newline"
+                last_segment_trigger = "comma"
+                comma_violation_type = "trailing"
+
+            if segment.is_type(segment_trigger):
+                # work back and find the last code segment, is it not what it should be?
+                last_seg = self._last_code_seg(raw_stack)
+                if last_seg.is_type(last_segment_trigger):
+                    anchor = segment if self.comma_style == "trailing" else last_seg
+                    return LintResult(
+                        anchor=anchor,
+                        description="Found {0} comma. Expected only {1}.".format(
+                            comma_violation_type, self.comma_style
+                        ),
+                    )
         # Otherwise fine
         return None
 
