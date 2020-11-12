@@ -366,11 +366,13 @@ class Rule_L003(BaseCrawler):
         )
 
         # Is this line just comments?
-        if set(seg.type for seg in this_line["line_buffer"]) <= {
-            "whitespace",
-            "comment",
-            "indent",  # dedent is a subtype of indent
-        }:
+        if all(
+            seg.is_type(
+                "whitespace",
+                "comment",
+                "indent", # dedent is a subtype of indent
+            ) for seg in this_line["line_buffer"]
+        ):
             # Comment line, deal with it later.
             memory["comment_lines"].append(this_line_no)
             self.logger.debug("    Comment Line. #%s", this_line_no)
