@@ -482,7 +482,7 @@ class DbtTemplateInterface(PythonTemplateInterface):
             ) from e
 
     def process(self, in_str, fname=None, config=None):
-        """Process a string and return the new string.
+        """Process a file and return the output string
 
         Args:
             in_str (:obj:`str`): The input string.
@@ -490,8 +490,29 @@ class DbtTemplateInterface(PythonTemplateInterface):
                 mostly for loading config files at runtime.
             config (:obj:`FluffConfig`): A specific config to use for this
                 templating operation. Only necessary for some templaters.
-
         """
+        self._check_dbt_installed()
+        from dbt.exceptions import (
+            CompilationException as DbtCompilationException,
+            FailedToConnectException as DbtFailedToConnectException,
+        )
+
+        try:
+            return self._unsafe_process(in_str, fname, config)
+        except DbtCompilationException as e:
+            return None, [
+                SQLTemplaterError(f"DBT compilation error, {e.msg}")
+            ]
+        except DbtFailedToConnectException as e:
+            return None, [
+                SQLTemplaterError(
+                    "DBT tried to connect to the database and failed: "
+                    "you could use 'execute' https://docs.getdbt.com/reference/dbt-jinja-functions/execute/ "
+                    f"to skip the database calls. Error: {e.msg}"
+                )
+            ]
+
+    def _unsafe_process(self, in_str, fname, config=None):
         if not config:
             raise ValueError(
                 "For the dbt templater, the `process()` method requires a config object."
@@ -501,8 +522,6 @@ class DbtTemplateInterface(PythonTemplateInterface):
                 "For the dbt templater, the `process()` method requires a file name"
             )
 
-        self._check_dbt_installed()
-        from dbt.exceptions import CompilationException as DbtCompilationException
 
         # Load the user's DBT config
         self.dbt_config = self.dbt_config or self.load_dbt_config(config)
@@ -526,11 +545,8 @@ class DbtTemplateInterface(PythonTemplateInterface):
         if not results:
             raise RuntimeError("File %s was not found in dbt project" % fname)
 
-        try:
-            node = dbt_compiler.compile_node(
-                node=results[0],
-                manifest=dbt_manifest,
-            )
-            return node.injected_sql, []
-        except DbtCompilationException as e:
-            return None, [e]
+        node = dbt_compiler.compile_node(
+            node=results[0],
+            manifest=dbt_manifest,
+        )
+        return node.injected_sql, []

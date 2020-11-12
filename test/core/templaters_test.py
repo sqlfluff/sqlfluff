@@ -172,3 +172,23 @@ def test__templater_dbt_templating_result(
         config=FluffConfig(configs=DBT_FLUFF_CONFIG),
     )
     assert outstr == open(out_fpath).read()
+
+
+@pytest.mark.parametrize(
+    "in_fpath,exception_msg",
+    [
+        ("models/my_new_project/exception_connect_database.sql", "DBT tried to connect to the database")
+    ]
+)
+@pytest.mark.dbt
+def test__templater_dbt_handle_exceptions(
+    in_dbt_project_dir, dbt_templater, in_fpath, exception_msg  # noqa
+):
+    """Test that exceptions during compilation are returned as violation."""
+    _, violations = dbt_templater.process(
+        in_str="",
+        fname=in_fpath,
+        config=FluffConfig(configs=DBT_FLUFF_CONFIG),
+    )
+    assert violations
+    assert violations[0].desc().startswith(exception_msg)
