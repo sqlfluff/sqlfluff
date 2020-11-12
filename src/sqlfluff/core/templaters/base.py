@@ -125,7 +125,7 @@ class TemplatedFile:
             return 1, char_pos + 1
 
     def template_slice_to_source_slice(
-        self, template_slice: slice
+        self, template_slice: slice, post_placeholder_hint: Optional[int]=None
     ) -> Tuple[slice, bool]:
         """Convert a template slice to a source slice."""
         if not self.sliced_file:

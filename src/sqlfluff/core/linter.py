@@ -111,13 +111,15 @@ class LintedFile(
         bencher = BenchIt()
         bencher("fix_string: start")
 
-        linter_logger.debug("Oritinal Tree: %r", self.templated_file.templated_str)
+        linter_logger.debug("Original Tree: %r", self.templated_file.templated_str)
         linter_logger.debug("Fixed Tree: %r", self.tree.raw)
 
         # The sliced file is contigious in the TEMPLATED space.
         # NB: It has gaps and repeats in the source space.
+        # It's also not the FIXED file either.
+        linter_logger.debug("### Templated File.")
         for idx, file_slice in enumerate(self.templated_file.sliced_file):
-            linter_logger.debug("File slice: %s %r", idx, file_slice)
+            linter_logger.debug("    File slice: %s %r", idx, file_slice)
 
         original_source = self.templated_file.source_str
 
@@ -134,6 +136,9 @@ class LintedFile(
             The patches are generated in TEMPLATED space. This is important
             so that we defer dealing with any loops until later. At this stage
             everything *should* happen in templated order.
+
+            Occasionally we have an insertion around a placeholder, so we also
+            return a hint to deal with that.
             """
             # Does it match? If so we can ignore it.
             matches = (
@@ -148,7 +153,7 @@ class LintedFile(
             # If it's all literal, then we don't need to recurse.
             if seg.pos_marker.is_literal:
                 # Yield the position in the source file and the patch
-                patch = (seg.pos_marker.templated_slice, seg.raw)
+                patch = (seg.pos_marker.templated_slice, seg.raw, 0)
                 linter_logger.debug("Yeilding literal patch: %r", patch)
                 yield patch
             else:
@@ -157,7 +162,12 @@ class LintedFile(
                 # Iterate through the child segments
                 templated_idx = seg.pos_marker.templated_slice.start
                 insert_buff = ""
+                post_placeholder = 0
                 for seg_idx, segment in enumerate(seg.segments):
+                    # Keep track of whether we passed any placeholders so we sit in the right place relative to them.
+                    if segment.is_meta and segment.is_type("placeholder"):
+                        post_placeholder += 1
+
                     # First check for insertions.
                     # We know it is if the position marker is NOT ENRICHED.
                     if not isinstance(segment.pos_marker, EnrichedFilePositionMarker):
@@ -167,7 +177,7 @@ class LintedFile(
                             linter_logger.debug(
                                 "Appending insertion buffer. %r @idx: %s",
                                 insert_buff,
-                                templated_idx,
+                                templated_idx
                             )
                         continue
 
@@ -186,8 +196,10 @@ class LintedFile(
                                 segment.pos_marker.templated_slice.start,
                             ),
                             insert_buff,
+                            post_placeholder,
                         )
                         insert_buff = ""
+                        post_placeholder = 0
                         linter_logger.debug(
                             "Yielding at mid deletion (or insertion) point: %r",
                             patch,
@@ -211,6 +223,7 @@ class LintedFile(
                             seg.pos_marker.templated_slice.stop,
                         ),
                         insert_buff,
+                        0,
                     )
                     linter_logger.debug(
                         "Yielding at end deletion (or insertion) point: %r",
@@ -224,7 +237,10 @@ class LintedFile(
 
         # We now convert enrich the patches into source space
         patches = [
-            (self.templated_file.template_slice_to_source_slice(patch[0])[0], patch[1])
+            (self.templated_file.template_slice_to_source_slice(
+                patch[0],
+                post_placeholder_hint=patch[2],
+            )[0], patch[1])
             for patch in patches
         ]
         linter_logger.debug("Fresh source-space patches: %s", patches)
@@ -762,8 +778,6 @@ class Linter:
                         )
                         linting_errors += lerrs
                         if fixes:
-                            linter_logger.info("Applying Fixes: %s", fixes)
-
                             if last_fixes and fixes == last_fixes:
                                 linter_logger.warning(
                                     "One fix for %s not applied, it would re-cause the same error.",
@@ -771,8 +785,11 @@ class Linter:
                                 )
                             else:
                                 last_fixes = fixes
+                                linter_logger.debug("Applying Fixes [Loop %s]: %s", fix_loop_idx, fixes)
 
                                 new_working, fixes = working.apply_fixes(fixes)
+
+                                linter_logger.debug("Remainder Fixes [Loop %s]: %s", fix_loop_idx, fixes)
 
                                 # Check for infinite loops
                                 if new_working.raw not in previous_versions:
