@@ -369,7 +369,7 @@ class Rule_L003(BaseCrawler):
         if set(seg.type for seg in this_line["line_buffer"]) <= {
             "whitespace",
             "comment",
-            "indent",
+            "indent",  # dedent is a subtype of indent
         }:
             # Comment line, deal with it later.
             memory["comment_lines"].append(this_line_no)
@@ -406,10 +406,13 @@ class Rule_L003(BaseCrawler):
             ):
                 # This is a HANGER
                 memory["hanging_lines"].append(this_line_no)
+                self.logger.debug("    Hanger Line. #%s", this_line_no)
                 return LintResult(memory=memory)
+
         # Is this an indented first line?
         elif len(res) == 0:
             if this_line["indent_size"] > 0:
+                self.logger.debug("    Indented First Line. #%s", this_line_no)
                 return LintResult(
                     anchor=segment,
                     memory=memory,
@@ -440,6 +443,7 @@ class Rule_L003(BaseCrawler):
                 continue
             # Is the indent balance the same?
             elif indent_diff == 0:
+                self.logger.debug("    [same indent balance] Comparing to #%s", k)
                 if this_line["indent_size"] != res[k]["indent_size"]:
                     # Indents don't match even though balance is the same...
                     memory["problem_lines"].append(this_line_no)
@@ -461,7 +465,7 @@ class Rule_L003(BaseCrawler):
                         current_indent_buffer=this_line["indent_buffer"],
                         current_anchor=segment,
                     )
-
+                    self.logger.debug("    !! Indentation does not match #%s. Fixes: %s", k, fixes)
                     return LintResult(
                         anchor=segment,
                         memory=memory,
@@ -473,6 +477,7 @@ class Rule_L003(BaseCrawler):
                     )
             # Are we at a deeper indent?
             elif indent_diff > 0:
+                self.logger.debug("    [deeper indent balance] Comparing to #%s", k)
                 # NB: We shouldn't need to deal with hanging indents
                 # here, they should already have been dealt with before.
 
@@ -625,6 +630,7 @@ class Rule_L003(BaseCrawler):
 
             # This was a valid comparison, so if it doesn't flag then
             # we can assume that we're ok.
+            self.logger.debug("    Indent deemed ok comparing to #%s", k)
 
             # Given that this line is ok, consider if the previous line is a comment.
             # If it is, lint the indentation of that comment.
