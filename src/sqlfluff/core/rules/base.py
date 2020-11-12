@@ -151,7 +151,7 @@ class LintFix:
                 new_detail = "".join(s.raw for s in self.edit)
 
             if self.edit_type == "edit":
-                detail = "edt:{0!r}>{1!r}".format(self.anchor.raw, new_detail)
+                detail = "edt:{0!r}->{1!r}".format(self.anchor.raw, new_detail)
             else:
                 detail = "crt:{0!r}".format(new_detail)
         else:
