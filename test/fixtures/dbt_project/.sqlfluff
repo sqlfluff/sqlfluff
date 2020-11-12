@@ -1,4 +1,4 @@
-[core]
+[sqlfluff]
 templater = dbt
 
 [sqlfluff:templater:dbt]
