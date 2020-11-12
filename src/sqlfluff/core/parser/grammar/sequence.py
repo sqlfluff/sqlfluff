@@ -41,25 +41,17 @@ class Sequence(BaseGrammar):
         matched_segments = MatchResult.from_empty()
         unmatched_segments = segments
 
-        for idx, elem in enumerate(self._elements):
-            while True:
-                # Is it an indent or dedent?
-                if elem.is_meta:
-                    # Is it actually enabled?
-                    if not elem.is_enabled(parse_context=parse_context):
-                        break
-                    # Work out how to find an appropriate pos_marker for
-                    # the meta segment.
-                    if matched_segments:
-                        # Get from end of last
-                        last_matched = matched_segments.matched_segments[-1]
-                        meta_pos_marker = last_matched.get_end_pos_marker()
-                    else:
-                        # Get from start of next
-                        meta_pos_marker = unmatched_segments[0].pos_marker
-                    matched_segments += elem(pos_marker=meta_pos_marker)
-                    break
+        # Buffers of uninstantiated meta segments.
+        meta_pre_nc = ()
+        meta_post_nc = ()
+        early_break = False
 
+        for idx, elem in enumerate(self._elements):
+            # Check for an early break.
+            if early_break:
+                break
+
+            while True:
                 # Consume non-code if appropriate
                 if self.allow_gaps:
                     pre_nc, mid_seg, post_nc = trim_non_code(unmatched_segments)
@@ -68,6 +60,18 @@ class Sequence(BaseGrammar):
                     mid_seg = unmatched_segments
                     post_nc = ()
 
+                # Is it an indent or dedent?
+                if elem.is_meta:
+                    # Is it actually enabled?
+                    if elem.is_enabled(parse_context=parse_context):
+                        # Elements with a negative indent value come AFTER
+                        # the whitespace. Positive or neutral come BEFORE.
+                        if elem.indent_val < 0:
+                            meta_post_nc += (elem(),)
+                        else:
+                            meta_pre_nc += (elem(),)
+                    break
+
                 if len(pre_nc + mid_seg + post_nc) == 0:
                     # We've run our of sequence without matching everyting.
                     # Do only optional or meta elements remain?
@@ -75,15 +79,16 @@ class Sequence(BaseGrammar):
                         # then it's ok, and we can return what we've got so far.
                         # No need to deal with anything left over because we're at the end,
                         # unless it's a meta segment.
-
-                        # Get hold of the last thing to be matched, so we've got an anchor.
-                        last_matched = matched_segments.matched_segments[-1]
-                        meta_pos_marker = last_matched.get_end_pos_marker()
-                        return matched_segments + tuple(
-                            e(pos_marker=meta_pos_marker)
-                            for e in self._elements[idx:]
+                        
+                        # We'll add those meta segments afer any existing ones. So
+                        # the go on the meta_post_nc stack.
+                        meta_post_nc += tuple(
+                            e() for e in self._elements[idx:]
                             if e.is_meta and e.is_enabled(parse_context=parse_context)
                         )
+                        # Early break to exit via the happy match path.
+                        early_break = True
+                        break
                     else:
                         # we've got to the end of the sequence without matching all
                         # required elements.
@@ -96,7 +101,14 @@ class Sequence(BaseGrammar):
                     if elem_match.has_match():
                         # We're expecting mostly partial matches here, but complete
                         # matches are possible. Don't be greedy with whitespace!
-                        matched_segments += pre_nc + elem_match.matched_segments
+                        matched_segments += (
+                            meta_pre_nc
+                            + pre_nc
+                            + meta_post_nc
+                            + elem_match.matched_segments
+                        )
+                        meta_pre_nc = ()
+                        meta_post_nc = ()
                         unmatched_segments = elem_match.unmatched_segments + post_nc
                         # Each time we do this, we do a sense check to make sure we haven't
                         # dropped anything. (Because it's happened before!).
@@ -122,8 +134,15 @@ class Sequence(BaseGrammar):
         # If we get to here, we've matched all of the elements (or skipped them)
         # but still have some segments left (or perhaps have precisely zero left).
         # In either case, we're golden. Return successfully, with any leftovers as
-        # the unmatched elements.
-        return MatchResult(matched_segments.matched_segments, unmatched_segments)
+        # the unmatched elements. Meta all go at the end regardless of wny trailing
+        # whitespace.
+        return MatchResult(
+            BaseSegment._realign_segments(
+                matched_segments.matched_segments + meta_pre_nc + meta_post_nc,
+                meta_only=True,
+            ),
+            unmatched_segments
+        )
 
 
 class Bracketed(Sequence):
@@ -247,25 +266,21 @@ class Bracketed(Sequence):
         # We require a complete match for the content (hopefully for obvious reasons)
         if content_match.is_complete():
             # Append some indent and dedent tokens at the start and the end.
-            pre_meta = (
-                Indent(
-                    pos_marker=content_match.matched_segments[0].get_start_pos_marker()
-                ),
-            )
-            post_meta = (
-                Dedent(
-                    pos_marker=content_match.matched_segments[-1].get_end_pos_marker()
-                ),
-            )
             return MatchResult(
-                # NB: The nc segments go *outside* the indents.
-                start_match.matched_segments
-                + pre_nc
-                + pre_meta  # Add a meta indent here
-                + content_match.matched_segments
-                + post_meta  # Add a meta indent here
-                + post_nc
-                + end_match.matched_segments,
+                # We need to realign the meta segments so the pos markers are correct.
+                BaseSegment._realign_segments(
+                    (
+                        # NB: The nc segments go *outside* the indents.
+                        start_match.matched_segments
+                        + (Indent(),)  # Add a meta indent here
+                        + pre_nc
+                        + content_match.matched_segments
+                        + post_nc
+                        + (Dedent(),)  # Add a meta indent here
+                        + end_match.matched_segments
+                    ),
+                    meta_only=True,
+                ),
                 end_match.unmatched_segments,
             )
         # No complete match. Fail.

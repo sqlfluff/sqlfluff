@@ -11,6 +11,7 @@ Here we define:
 from io import StringIO
 from benchit import BenchIt
 from typing import Optional
+import logging
 
 from ..match_result import MatchResult
 from ..match_logging import parse_match_logging
@@ -18,6 +19,9 @@ from ..match_wrapper import match_wrapper
 from ..helpers import frame_msg, check_still_complete, trim_non_code, curtail_string
 from ..matchable import Matchable
 from ..markers import EnrichedFilePositionMarker
+
+# Instantiate the linter logger (only for use in methods involved with fixing.)
+linter_logger = logging.getLogger("sqlfluff.linter")
 
 
 class BaseSegment:
@@ -753,15 +757,16 @@ class BaseSegment:
                 else:
                     seg = todo_buffer.pop(0)
                     # We don't apply fixes to meta segments
-                    if seg.is_meta:
-                        seg_buffer.append(seg)
-                        continue
+                    # if seg.is_meta:
+                    #     seg_buffer.append(seg)
+                    #     continue
 
                     fix_buff = fixes.copy()
                     unused_fixes = []
                     while fix_buff:
                         f = fix_buff.pop()
                         if f.anchor == seg:
+                            linter_logger.debug("Matched fix against segment: %s -> %s", f, seg)
                             if f.edit_type == "delete":
                                 # We're just getting rid of this segment.
                                 seg = None
@@ -793,6 +798,7 @@ class BaseSegment:
                 # Switch over the the unused list
                 fixes = unused_fixes + fix_buff
 
+            linter_logger.debug("New Seg Buffer %s", seg_buffer)
             # Then recurse (i.e. deal with the children) (Requeueing)
             seg_queue = seg_buffer
             seg_buffer = []
@@ -811,6 +817,54 @@ class BaseSegment:
         else:
             return self, fixes
 
+    @staticmethod
+    def _realign_segments(segments, starting_pos=None, meta_only=False):
+        """Realign the positions in the provided segments."""
+        seg_buffer = []
+        todo_buffer = list(segments)
+        if not todo_buffer:
+            return ()
+        # If starting pos not provded, take it from the first of the buffer.
+        running_pos = starting_pos
+        if not running_pos:
+            for seg in todo_buffer:
+                if not seg.is_meta:
+                    running_pos = seg.pos_marker
+                    break
+            else:
+                raise ValueError("No starting pos provided and unable to infer.")
+
+        while len(todo_buffer) > 0:
+            # Get the first off the buffer
+            seg = todo_buffer.pop(0)
+
+            # We'll preserve statement indexes so we should keep track of that.
+            # When recreating, we use the DELTA of the index so that's what matter...
+            idx = seg.pos_marker.statement_index - running_pos.statement_index
+            new_pos = seg.pos_marker.shift_to(running_pos)
+            if seg.is_meta:
+                # It's a meta segment, just update the position
+                seg = seg.__class__(pos_marker=new_pos)
+            elif meta_only:
+                # Skip onward if we're only handling meta segments
+                pass
+            elif len(seg.segments) > 0:
+                # It's a compound segment, so keep track of it's children
+                child_segs = seg.segments
+                # Create a new segment of the same type with the new position
+                seg = seg.__class__(segments=child_segs, pos_marker=new_pos)
+                # Realign the children of that class
+                seg = seg.realign()
+            else:
+                # It's a raw segment...
+                # Create a new segment of the same type with the new position
+                seg = seg.__class__(raw=seg.raw, pos_marker=new_pos)
+            # Update the running position with the content of that segment
+            running_pos = running_pos.advance_by(raw=seg.raw, idx=idx)
+            # Add the buffer to my new segment
+            seg_buffer.append(seg)
+        return tuple(seg_buffer)
+
     def realign(self):
         """Realign the positions in this segment.
 
@@ -826,43 +880,8 @@ class BaseSegment:
         recurse to realign their children.
 
         """
-        seg_buffer = []
-        todo_buffer = list(self.segments)
-        running_pos = self.pos_marker
-
-        while True:
-            if len(todo_buffer) == 0:
-                # We're done.
-                break
-            else:
-                # Get the first off the buffer
-                seg = todo_buffer.pop(0)
-
-                # We'll preserve statement indexes so we should keep track of that.
-                # When recreating, we use the DELTA of the index so that's what matter...
-                idx = seg.pos_marker.statement_index - running_pos.statement_index
-                new_pos = seg.pos_marker.shift_to(running_pos)
-                if seg.is_meta:
-                    # It's a meta segment, just update the position
-                    seg = seg.__class__(pos_marker=new_pos)
-                elif len(seg.segments) > 0:
-                    # It's a compound segment, so keep track of it's children
-                    child_segs = seg.segments
-                    # Create a new segment of the same type with the new position
-                    seg = seg.__class__(segments=child_segs, pos_marker=new_pos)
-                    # Realign the children of that class
-                    seg = seg.realign()
-                else:
-                    # It's a raw segment...
-                    # Create a new segment of the same type with the new position
-                    seg = seg.__class__(raw=seg.raw, pos_marker=new_pos)
-                # Update the running position with the content of that segment
-                running_pos = running_pos.advance_by(raw=seg.raw, idx=idx)
-                # Add the buffer to my new segment
-                seg_buffer.append(seg)
-
         # Create a new version of this class with the new details
-        return self.__class__(segments=tuple(seg_buffer), pos_marker=self.pos_marker)
+        return self.__class__(segments=self._realign_segments(self.segments, self.pos_marker), pos_marker=self.pos_marker)
 
 
 class UnparsableSegment(BaseSegment):
