@@ -1,30 +1,24 @@
 """Indent and Dedent classes."""
 
 from ..match_wrapper import match_wrapper
+from ..markers import FilePositionMarker
 
 from .raw import RawSegment
 
 
-class Indent(RawSegment):
-    """A segment which is empty but indicates where an indent should be.
+class MetaSegment(RawSegment):
+    """A segment which is empty but indicates where something should be."""
 
-    This segment is always empty, i.e. it's raw format is '', but it indicates
-    the position of a theoretical indent which will be used in linting
-    and reconstruction. Even if there is an *actual indent* that occurs
-    in the same place this intentionally *won't* capture it, they will just
-    be compared later.
-    """
-
-    type = "indent"
+    type = "meta"
     _is_code = False
     _template = "<unset>"
-    indent_val = 1
+    indent_val = 0
     is_meta = True
     _config_rules = None
 
     @classmethod
     def when(cls, **kwargs):
-        """Configure whether this indent/dedent is available given certain rules.
+        """Configure whether this meta segment is available given certain rules.
 
         All we do is override the _config_rules parameter
         for the class.
@@ -79,8 +73,8 @@ class Indent(RawSegment):
             )
         )
 
-    def __init__(self, pos_marker):
-        """For the indent we override the init method.
+    def __init__(self, pos_marker=None):
+        """For the meta segment we override the init method.
 
         For something without content, the content doesn't make
         sense. The pos_marker, will be matched with the following
@@ -90,8 +84,27 @@ class Indent(RawSegment):
         """
         self._raw = ""
         # We strip the position marker, so that when fixing it's
-        # skipped and not considered.
-        self.pos_marker = pos_marker.strip()
+        # skipped and not considered. If no position marker is given
+        # then give it a fresh one - it will need to be realigned
+        # before it's useful.
+        if pos_marker:
+            self.pos_marker = pos_marker.strip()
+        else:
+            self.pos_marker = FilePositionMarker.from_fresh()
+
+
+class Indent(MetaSegment):
+    """A segment which is empty but indicates where an indent should be.
+
+    This segment is always empty, i.e. it's raw format is '', but it indicates
+    the position of a theoretical indent which will be used in linting
+    and reconstruction. Even if there is an *actual indent* that occurs
+    in the same place this intentionally *won't* capture it, they will just
+    be compared later.
+    """
+
+    type = "indent"
+    indent_val = 1
 
 
 class Dedent(Indent):
@@ -105,10 +118,11 @@ class Dedent(Indent):
 
     """
 
+    type = "dedent"
     indent_val = -1
 
 
-class NonCodePlaceholder(Indent):
+class NonCodePlaceholder(MetaSegment):
     """A segment which is empty but indicates something should be.
 
     This segment is always empty, i.e. it's raw format is '', but it indicates
@@ -118,4 +132,3 @@ class NonCodePlaceholder(Indent):
     """
 
     type = "placeholder"
-    indent_val = 0
