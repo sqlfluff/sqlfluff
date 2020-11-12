@@ -12,7 +12,6 @@ import json
 import logging
 
 from sqlfluff.core import FluffConfig, Linter
-from sqlfluff.cli.commands import do_fixes
 
 
 # Construct the tests from the filepath
@@ -69,6 +68,7 @@ def auto_fix_test(rules, dialect, folder, caplog):
     # Log the templater and lexer throughout this test
     caplog.set_level(logging.DEBUG, logger="sqlfluff.templater")
     caplog.set_level(logging.DEBUG, logger="sqlfluff.lexer")
+    caplog.set_level(logging.DEBUG, logger="sqlfluff.linter")
 
     filename = "testing.sql"
     # Lets get the path of a file to use
@@ -121,8 +121,7 @@ def auto_fix_test(rules, dialect, folder, caplog):
         assert expected_vs == vs
 
     # Actually do the fixes
-    with caplog.at_level(logging.DEBUG, logger="sqlfluff.linter"):
-        res = do_fixes(lnt, res)
+    res = res.persist_changes()
     # Read the fixed file
     with open(filepath, mode="r") as fixed_file:
         fixed_buff = fixed_file.read()
