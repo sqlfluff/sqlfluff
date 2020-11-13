@@ -358,46 +358,75 @@ class Lexer:
                 segment.pos_marker.char_pos,
                 segment.pos_marker.char_pos + len(segment.raw),
             )
-            source_slice, is_literal = templated_file.templated_slice_to_source_slice(
+            source_slice = templated_file.templated_slice_to_source_slice(
                 templated_slice
             )
+
+            # At this stage, untouchables will be INCLUDED in the source slice,
+            # so we should consider whether we've captured any. If we have then
+            # we need to re-evaluate whether it's a literal or not.
+
+            for ut_slice, ut_type in untouchables:
+                if ut_slice.start > source_slice.start:
+                    break
+                elif (
+                    ut_slice.start == source_slice.start
+                ):
+                    lexer_logger.debug(
+                        "Found untouchable slot! %s, %s, %s",
+                        ut_slice,
+                        ut_type,
+                        templated_slice.start,
+                    )
+                    # Adjust the source slice accordingly.
+                    source_slice = slice(ut_slice.stop, source_slice.stop)
+                    
+                    # Add segments as appropriate.
+                    # If it's a block end, add a dedent.
+                    if ut_type == "block_end":
+                        new_segment_buff.append(
+                            Dedent.when(template_blocks_indent=True)(
+                                pos_marker=segment.pos_marker
+                            )
+                        )
+                    # Always add a placeholder
+                    ut_line, ut_pos = templated_file.get_line_pos_of_char_pos(
+                        ut_slice.start
+                    )
+                    new_segment_buff.append(
+                        NonCodePlaceholder(
+                            pos_marker=segment.pos_marker
+                            #pos_marker=EnrichedFilePositionMarker(
+                            #    statement_index=segment.pos_marker.statement_index,
+                            #    line_no=segment.pos_marker.line_no,
+                            #    line_pos=segment.pos_marker.line_pos,
+                            #    char_pos=segment.pos_marker.char_pos,
+                            #    templated_slice=slice(templated_slice.start, templated_slice.start),
+                            #    source_slice=ut_slice,
+                            #    is_literal=False,
+                            #    source_pos_marker=FilePositionMarker(
+                            #        segment.pos_marker.statement_index,
+                            #        ut_line,
+                            #        ut_pos,
+                            #        ut_slice.start,
+                            #    ),    
+                            #)
+                        )
+                    )
+                    # If it's a block end, add a dedent.
+                    if ut_type == "block_start":
+                        new_segment_buff.append(
+                            Indent.when(template_blocks_indent=True)(
+                                pos_marker=segment.pos_marker
+                            )
+                        )
+
             source_line, source_pos = templated_file.get_line_pos_of_char_pos(
                 source_slice.start
             )
-            # If we match both start and end. Insert the untouchable segment.
-            # We also insert a configured indent or dedent if appropriate.
-            if source_slice.start != last_stop_idx:
-                # Look for an untouchable.
-                for ut_slice, ut_type in untouchables:
-                    if (
-                        ut_slice.start == last_stop_idx
-                        and ut_slice.stop == source_slice.start
-                    ):
-                        lexer_logger.debug(
-                            "Found untouchable slot! %s, %s, %s",
-                            ut_slice,
-                            ut_type,
-                            templated_slice.start,
-                        )
-                        # Add segments as appropriate.
-                        # If it's a block end, add a dedent.
-                        if ut_type == "block_end":
-                            new_segment_buff.append(
-                                Dedent.when(template_blocks_indent=True)(
-                                    pos_marker=segment.pos_marker
-                                )
-                            )
-                        # Always add a placeholder
-                        new_segment_buff.append(
-                            NonCodePlaceholder(pos_marker=segment.pos_marker)
-                        )
-                        # If it's a block end, add a dedent.
-                        if ut_type == "block_start":
-                            new_segment_buff.append(
-                                Indent.when(template_blocks_indent=True)(
-                                    pos_marker=segment.pos_marker
-                                )
-                            )
+
+            # Recalculate is_literal
+            is_literal = templated_file.is_source_slice_literal(source_slice)
 
             segment.pos_marker = EnrichedFilePositionMarker(
                 statement_index=segment.pos_marker.statement_index,

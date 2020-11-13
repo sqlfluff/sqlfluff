@@ -164,6 +164,7 @@ class LintedFile(
                 insert_buff = ""
                 post_placeholder = 0
                 for seg_idx, segment in enumerate(seg.segments):
+                    linter_logger.debug("Seg: %r", segment)
                     # Keep track of whether we passed any placeholders so we sit in the right place relative to them.
                     if segment.is_meta and segment.is_type("placeholder"):
                         post_placeholder += 1
@@ -237,10 +238,13 @@ class LintedFile(
 
         # We now convert enrich the patches into source space
         patches = [
-            (self.templated_file.templated_slice_to_source_slice(
-                patch[0],
-                post_placeholder_hint=patch[2],
-            )[0], patch[1])
+            (
+                self.templated_file.templated_slice_to_source_slice(
+                    patch[0],
+                    #post_placeholder_hint=patch[2],
+                ),
+                patch[1]
+            )
             for patch in patches
         ]
         linter_logger.debug("Fresh source-space patches: %s", patches)

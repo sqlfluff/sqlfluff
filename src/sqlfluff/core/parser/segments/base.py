@@ -798,7 +798,6 @@ class BaseSegment:
                 # Switch over the the unused list
                 fixes = unused_fixes + fix_buff
 
-            linter_logger.debug("New Seg Buffer %s", seg_buffer)
             # Then recurse (i.e. deal with the children) (Requeueing)
             seg_queue = seg_buffer
             seg_buffer = []
