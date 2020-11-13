@@ -237,7 +237,7 @@ class LintedFile(
 
         # We now convert enrich the patches into source space
         patches = [
-            (self.templated_file.template_slice_to_source_slice(
+            (self.templated_file.templated_slice_to_source_slice(
                 patch[0],
                 post_placeholder_hint=patch[2],
             )[0], patch[1])

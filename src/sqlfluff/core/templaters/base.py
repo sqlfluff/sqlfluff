@@ -124,86 +124,129 @@ class TemplatedFile:
         else:
             return 1, char_pos + 1
 
-    def template_slice_to_source_slice(
+    def _find_slice_indices_of_templated_pos(self, templated_pos:int, start_idx:Optional[int]=None) -> Tuple[int, int]:
+        """Find a subset of the sliced file which touch this point.
+
+        NB: the last_idx is exclusive, as the intent is to use this as a slice.
+        """
+        start_idx = start_idx or 0
+        first_idx = None
+        last_idx = None
+        for idx, elem in enumerate(self.sliced_file[start_idx:]):
+            last_idx = idx + start_idx
+            if elem[2].stop >= templated_pos:
+                if first_idx is None:
+                    first_idx = idx + start_idx
+                if elem[2].start > templated_pos:
+                    break
+        # If we got to the end add another index
+        else:
+            last_idx += 1
+        if first_idx is None or last_idx is None:
+            raise ValueError("Position Not Found")
+        return first_idx, last_idx 
+
+    def templated_slice_to_source_slice(
         self, template_slice: slice, post_placeholder_hint: Optional[int]=None
     ) -> Tuple[slice, bool]:
         """Convert a template slice to a source slice."""
         if not self.sliced_file:
             return template_slice, False
+        
+        ts_start_sf_start, ts_start_sf_stop = self._find_slice_indices_of_templated_pos(template_slice.start)
 
-        # Find the relevant slices.
-        start_idx = 0
-        for idx, elem in enumerate(self.sliced_file):
-            start_idx = idx
-            if elem[2].stop > template_slice.start:
-                break
+        ts_start_subsliced_file = self.sliced_file[ts_start_sf_start:ts_start_sf_stop]
 
-        stop_idx = 0
-        for idx, elem in enumerate(self.sliced_file[start_idx:]):
-            stop_idx = idx
-            if elem[2].stop >= template_slice.stop:
-                break
-        stop_idx += start_idx + 1
+        # Initialise as a set.
+        insertion_points = set()
+        for elem in ts_start_subsliced_file:
+            # Do slice starts and ends:
+            for slice_elem in ("start", "stop"):
+                if getattr(elem[2], slice_elem) == template_slice.start:
+                    insertion_points.add(getattr(elem[1], slice_elem))
+        # Turn into a sorted list.
+        insertion_points = sorted(insertion_points)
 
-        slices = self.sliced_file[start_idx:stop_idx]
+        # Work out the insertion point
+        insertion_point = -1
+        if insertion_points:
+            insertion_point = insertion_points[
+                min(post_placeholder_hint or 0, len(insertion_points) - 1)
+            ]
 
-        # We have an exception for zero length slices which should
-        # remain so when changing spaces.
+        # Zero length slice.
         if template_slice.start == template_slice.stop:
-            # NB: in this case slices should always be of length 1.
-            if template_slice.start == slices[0][2].start:
-                return slice(slices[0][1].start, slices[0][1].start), True
-            elif template_slice.start == slices[0][2].stop:
-                return slice(slices[0][1].stop, slices[0][1].stop), True
+            # Is it on a join?
+            if insertion_point >= 0:
+                return slice(insertion_point, insertion_point), True
+            # It's within a segment.
             else:
-                # We're converting a single length slice WITHIN
-                # another slice!?
-                # If it's a literal that's easy, if it's within
-                # a templated slice then it's impossible, return
-                # an error.
-                if slices[0][0] == "literal":
-                    offset = template_slice.start - slices[0][2].start
+                if ts_start_subsliced_file[0][0] == "literal":
+                    offset = template_slice.start - ts_start_subsliced_file[0][2].start
                     return (
-                        slice(slices[0][1].start + offset, slices[0][1].start + offset),
+                        slice(
+                            ts_start_subsliced_file[0][1].start + offset,
+                            ts_start_subsliced_file[0][1].start + offset
+                        ),
                         True,
                     )
                 else:
                     raise ValueError(
                         "Attempting a single length slice within a templated section!"
                     )
+        
+        # Otherwise it's a slice with length.
+        ts_stop_sf_start, ts_stop_sf_stop = self._find_slice_indices_of_templated_pos(template_slice.stop)
+
+        # Update starting position based on insertion point:
+        if insertion_point >= 0:
+            for elem in self.sliced_file[ts_start_sf_start:]:
+                if elem[1].start != insertion_point:
+                    ts_start_sf_start += 1
+                else:
+                    break
+
+        subslices = self.sliced_file[
+            # Ver inclusive slice
+            min(ts_start_sf_start, ts_stop_sf_start):max(ts_start_sf_stop, ts_stop_sf_stop)
+        ]
+        start_slices = self.sliced_file[ts_start_sf_start:ts_start_sf_stop]
+        stop_slices = self.sliced_file[ts_stop_sf_start:ts_stop_sf_stop]
 
         # if it's a literal segment then we can get the exact position
         # otherwise we're greedy.
         is_literal = True
         # Start.
-        if slices[0][0] == "literal":
-            offset = template_slice.start - slices[0][2].start
-            source_start = slices[0][1].start + offset
+        if insertion_point >= 0:
+            source_start = insertion_point
+        elif start_slices[0][0] == "literal":
+            offset = template_slice.start - start_slices[0][2].start
+            source_start = start_slices[0][1].start + offset
         else:
-            source_start = slices[0][1].start
+            source_start = start_slices[0][1].start
             is_literal = False
         # Stop.
-        if slices[-1][0] == "literal":
-            offset = slices[-1][2].stop - template_slice.stop
-            source_stop = slices[-1][1].stop - offset
+        if stop_slices[-1][0] == "literal":
+            offset = stop_slices[-1][2].stop - template_slice.stop
+            source_stop = stop_slices[-1][1].stop - offset
         else:
-            source_stop = slices[-1][1].stop
+            source_stop = stop_slices[-1][1].stop
             is_literal = False
 
         # Check any mid segments for whether they're literals
-        if any(elem[0] != "literal" for elem in slices):
+        if any(elem[0] != "literal" for elem in subslices):
             is_literal = False
 
-        # Deal with the unlikely event that the slice is the wrong
-        # way around.
+        # Does this slice go backward?
         if source_start > source_stop:
             # If this happens, it's because one was templated and
             # the other isn't, or because a loop means that the segments
             # are in a different order.
 
             # Take the widest possible span in this case.
-            source_start = min(elem[1].start for elem in slices)
-            source_stop = max(elem[1].stop for elem in slices)
+            source_start = min(elem[1].start for elem in subslices)
+            source_stop = max(elem[1].stop for elem in subslices)
+            is_literal = False
 
         return slice(source_start, source_stop), is_literal
 

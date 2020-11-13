@@ -358,7 +358,7 @@ class Lexer:
                 segment.pos_marker.char_pos,
                 segment.pos_marker.char_pos + len(segment.raw),
             )
-            source_slice, is_literal = templated_file.template_slice_to_source_slice(
+            source_slice, is_literal = templated_file.templated_slice_to_source_slice(
                 templated_slice
             )
             source_line, source_pos = templated_file.get_line_pos_of_char_pos(

@@ -53,6 +53,40 @@ SIMPLE_SLICED_FILE = [
     ("literal", slice(17, 25, None), slice(12, 20, None)),
 ]
 
+COMPLEX_SLICED_FILE = [
+    ('literal', slice(0, 13, None), slice(0, 13, None)),
+    ('comment', slice(13, 29, None), slice(13, 13, None)),
+    ('literal', slice(29, 44, None), slice(13, 28, None)),
+    ('block_start', slice(44, 68, None), slice(28, 28, None)),
+    ('literal', slice(68, 81, None), slice(28, 41, None)),
+    ('templated', slice(81, 86, None), slice(41, 42, None)),
+    ('literal', slice(86, 110, None), slice(42, 66, None)),
+    ('templated', slice(68, 86, None), slice(66, 76, None)),
+    ('literal', slice(68, 81, None), slice(76, 89, None)),
+    ('templated', slice(81, 86, None), slice(89, 90, None)),
+    ('literal', slice(86, 110, None), slice(90, 114, None)), #
+    ('templated', slice(68, 86, None), slice(114, 125, None)),
+    ('literal', slice(68, 81, None), slice(125, 138, None)), #
+    ('templated', slice(81, 86, None), slice(138, 139, None)),
+    ('literal', slice(86, 110, None), slice(139, 163, None)),
+    ('templated', slice(110, 123, None), slice(163, 166, None)),
+    ('literal', slice(123, 132, None), slice(166, 175, None)),
+    ('block_end', slice(132, 144, None), slice(175, 175, None)),
+    ('literal', slice(144, 155, None), slice(175, 186, None)),
+    ('block_start', slice(155, 179, None), slice(186, 186, None)),
+    ('literal', slice(179, 189, None), slice(186, 196, None)),
+    ('templated', slice(189, 194, None), slice(196, 197, None)),
+    ('literal', slice(194, 203, None), slice(197, 206, None)),
+    ('literal', slice(179, 189, None), slice(206, 216, None)),
+    ('templated', slice(189, 194, None), slice(216, 217, None)),
+    ('literal', slice(194, 203, None), slice(217, 226, None)),
+    ('literal', slice(179, 189, None), slice(226, 236, None)),
+    ('templated', slice(189, 194, None), slice(236, 237, None)),
+    ('literal', slice(194, 203, None), slice(237, 246, None)),
+    ('block_end', slice(203, 215, None), slice(246, 246, None)),
+    ('literal', slice(215, 230, None), slice(246, 261, None))
+]
+
 
 @pytest.mark.parametrize(
     "source_str,templated_str,file_slices,in_charpos,out_line_no,out_line_pos",
@@ -66,7 +100,7 @@ SIMPLE_SLICED_FILE = [
 def test__templated_file_get_line_pos_of_char_pos(
     source_str, templated_str, file_slices, in_charpos, out_line_no, out_line_pos
 ):
-    """Test TemplatedFile.template_slice_to_source_slice."""
+    """Test TemplatedFile.get_line_pos_of_char_pos."""
     file = TemplatedFile(
         source_str=source_str, templated_str=templated_str, sliced_file=file_slices
     )
@@ -76,12 +110,34 @@ def test__templated_file_get_line_pos_of_char_pos(
 
 
 @pytest.mark.parametrize(
-    "in_slice,out_slice,is_literal,file_slices",
+    "templated_position,file_slices,sliced_idx_start,sliced_idx_stop",
+    [
+        (100, COMPLEX_SLICED_FILE, 10, 11),
+        (13, COMPLEX_SLICED_FILE, 0, 3),
+        (28, COMPLEX_SLICED_FILE, 2, 5),
+        # Check end slicing.
+        (12, SIMPLE_SLICED_FILE, 1, 3),
+        (20, SIMPLE_SLICED_FILE, 2, 3),
+    ],
+)
+def test__templated_file_find_slice_indices_of_templated_pos(
+    templated_position, file_slices, sliced_idx_start, sliced_idx_stop
+):
+    """Test TemplatedFile._find_slice_indices_of_templated_pos."""
+    file = TemplatedFile(source_str="Dummy String", sliced_file=file_slices)
+    res_start, res_stop = file._find_slice_indices_of_templated_pos(templated_position)
+    assert res_start == sliced_idx_start
+    assert res_stop == sliced_idx_stop
+
+
+@pytest.mark.parametrize(
+    "in_slice,out_slice,post_placeholder_hint,is_literal,file_slices",
     [
         # Simple example
         (
             slice(5, 10),
             slice(5, 10),
+            0,
             True,
             [("literal", slice(0, 20, None), slice(0, 20, None))],
         ),
@@ -89,6 +145,7 @@ def test__templated_file_get_line_pos_of_char_pos(
         (
             slice(5, 10),
             slice(55, 60),
+            0,
             True,
             [("literal", slice(50, 70, None), slice(0, 20, None))],
         ),
@@ -96,6 +153,7 @@ def test__templated_file_get_line_pos_of_char_pos(
         (
             slice(5, 15),
             slice(5, 20),
+            0,
             False,
             SIMPLE_SLICED_FILE,
         ),
@@ -103,6 +161,7 @@ def test__templated_file_get_line_pos_of_char_pos(
         (
             slice(5, 15),
             slice(0, 25),
+            0,
             False,
             # NB: Same as SIMPLE_SLICED_FILE, but with different slice types.
             [("templated", elem[1], elem[2]) for elem in SIMPLE_SLICED_FILE],
@@ -111,29 +170,92 @@ def test__templated_file_get_line_pos_of_char_pos(
         (
             slice(10, 10),
             slice(10, 10),
+            0,
             True,
             SIMPLE_SLICED_FILE,
         ),
         (
             slice(12, 12),
             slice(17, 17),
+            0,
             True,
             SIMPLE_SLICED_FILE,
         ),
+        # Dealing with single length elements
+        (
+            slice(20, 20),
+            slice(25, 25),
+            0,
+            True,
+            SIMPLE_SLICED_FILE + [("comment", slice(25, 35, None), slice(20, 20, None))],
+        ),
+        (
+            slice(20, 20),
+            slice(35, 35),
+            1,
+            True,
+            SIMPLE_SLICED_FILE + [("comment", slice(25, 35, None), slice(20, 20, None))],
+        ),
+        # Just more test coverage
+        (
+            slice(43, 43),
+            slice(87, 87),  # out
+            0,
+            True,
+            COMPLEX_SLICED_FILE,
+        ),
+        (
+            slice(13, 13),
+            slice(13, 13),  # out
+            0,
+            True,
+            COMPLEX_SLICED_FILE,
+        ),
+        (
+            slice(13, 13),
+            slice(29, 29),  # out
+            1,
+            True,
+            COMPLEX_SLICED_FILE,
+        ),
+        (
+            slice(186, 186),
+            slice(155, 155),  # <- I think this used to come out as slice(179, 179) in V1.
+            0,
+            True,
+            COMPLEX_SLICED_FILE,
+        ),
+        (
+            slice(186, 186),
+            slice(179, 179),
+            1,
+            True,
+            COMPLEX_SLICED_FILE,
+        ),
+        # Backward slicing.
+        (
+            slice(100, 130),
+            # NB This actually woulf reference the wrong way around if we
+            # just take the points. Here we should handle it gracefully.
+            slice(68, 110),
+            0,
+            False,
+            COMPLEX_SLICED_FILE,
+        ),
     ],
 )
-def test__templated_file_template_slice_to_source_slice(
-    in_slice, out_slice, is_literal, file_slices
+def test__templated_file_templated_slice_to_source_slice(
+    in_slice, out_slice, post_placeholder_hint, is_literal, file_slices
 ):
-    """Test TemplatedFile.template_slice_to_source_slice."""
+    """Test TemplatedFile.templated_slice_to_source_slice."""
     file = TemplatedFile(source_str="Dummy String", sliced_file=file_slices)
-    source_slice, literal_test = file.template_slice_to_source_slice(in_slice)
+    source_slice, literal_test = file.templated_slice_to_source_slice(in_slice, post_placeholder_hint=post_placeholder_hint)
     assert is_literal == literal_test
     assert source_slice == out_slice
 
 
 def test__templated_file_untouchable_slices():
-    """Test TemplatedFile.template_slice_to_source_slice."""
+    """Test TemplatedFile.untouchable_slices."""
     file = TemplatedFile(
         source_str=" Dummy String again ",  # NB: has length 20
         raw_sliced=[
