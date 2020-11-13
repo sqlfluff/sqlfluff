@@ -1,11 +1,15 @@
 """AnyNumberOf and OneOf."""
 
-from ..helpers import trim_non_code
+from typing import List, Optional, Tuple
+
+from ..helpers import trim_non_code_segments
 from ..match_result import MatchResult
 from ..match_wrapper import match_wrapper
 from ..match_logging import parse_match_logging
+from ..context import ParseContext
+from ..segments import BaseSegment
 
-from .base import BaseGrammar
+from .base import BaseGrammar, MatchableType, cached_method_for_parse_context
 
 
 class AnyNumberOf(BaseGrammar):
@@ -18,20 +22,21 @@ class AnyNumberOf(BaseGrammar):
         self.exclude = kwargs.pop("exclude", None)
         super().__init__(*args, **kwargs)
 
-    def simple(self, parse_context):
+    @cached_method_for_parse_context
+    def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
         """Does this matcher support a uppercase hash matching route?
 
         AnyNumberOf does provide this, as long as *all* the elements *also* do.
         """
-        simple_buff = ()
-        for opt in self._elements:
-            simple = opt.simple(parse_context=parse_context)
-            if not simple:
-                return False
-            simple_buff += simple
-        return simple_buff
+        simple_buff = [
+            opt.simple(parse_context=parse_context) for opt in self._elements
+        ]
+        if any(elem is None for elem in simple_buff):
+            return None
+        # Flatten the list
+        return [inner for outer in simple_buff for inner in outer]
 
-    def is_optional(self):
+    def is_optional(self) -> bool:
         """Return whether this element is optional.
 
         This is mostly set in the init method, but also in this
@@ -39,18 +44,29 @@ class AnyNumberOf(BaseGrammar):
         """
         return self.optional or self.min_times == 0
 
-    def _prune_options(self, segments, parse_context):
+    def _prune_options(
+        self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
+    ) -> Tuple[List[MatchableType], List[str]]:
         """Use the simple matchers to prune which options to match on."""
         str_buff = [segment.raw_upper for segment in self._iter_raw_segs(segments)]
 
         available_options = []
+        simple_opts = []
         prune_buff = []
         non_simple = 0
         pruned_simple = 0
         matched_simple = 0
+
+        # Find the first code element to match against.
+        first_elem = None
+        for elem in str_buff:
+            if elem.strip():
+                first_elem = elem
+                break
+
         for opt in self._elements:
             simple = opt.simple(parse_context=parse_context)
-            if simple is False:
+            if simple is None:
                 # This element is not simple, we have to do a
                 # full match with it...
                 available_options.append(opt)
@@ -59,25 +75,21 @@ class AnyNumberOf(BaseGrammar):
             # Otherwise we have a simple option, so let's use
             # it for pruning.
             for simple_opt in simple:
+                # Check it's not a whitespace option
+                if not simple_opt.strip():
+                    raise NotImplementedError(
+                        "_prune_options not supported for whitespace matching."
+                    )
                 # We want to know if the first meaningful element of the str_buff
                 # matches the option.
                 if simple_opt in str_buff:
-                    # Additionally if the option is non-whitespace, then it has to
                     # match the FIRST non-whitespace element of the list.
-                    if simple_opt.strip():
-                        first_elem = None
-                        for elem in str_buff:
-                            if elem.strip():
-                                first_elem = elem
-                                break
-                        else:
-                            raise RuntimeError("This shouldn't happen.")
-                        if first_elem != simple_opt:
-                            # No match, carry on.
-                            continue
-                    # If we get here, it's either a whitespace option, or it's matched
-                    # the FIRST element of the string buffer.
+                    if first_elem != simple_opt:
+                        # No match, carry on.
+                        continue
+                    # If we get here, it's matched the FIRST element of the string buffer.
                     available_options.append(opt)
+                    simple_opts.append(simple_opt)
                     matched_simple += 1
                     break
             else:
@@ -99,9 +111,11 @@ class AnyNumberOf(BaseGrammar):
             opts=available_options or "ALL",
         )
 
-        return available_options
+        return available_options, simple_opts
 
-    def _match_once(self, segments, parse_context):
+    def _match_once(
+        self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
+    ) -> MatchResult:
         """Match the forward segments against the available elements once.
 
         This serves as the main body of OneOf, but also a building block
@@ -112,48 +126,28 @@ class AnyNumberOf(BaseGrammar):
         # to return earlier if we can.
         # `segments` may already be nested so we need to break out
         # the raw segments within it.
-        available_options = self._prune_options(segments, parse_context=parse_context)
+        available_options, _ = self._prune_options(
+            segments, parse_context=parse_context
+        )
 
         # If we've pruned all the options, return unmatched (with some logging).
         if not available_options:
             return MatchResult.from_unmatched(segments)
 
-        # Match on each of the options still left.
-        best_match = None
-        for opt in available_options:
-            with parse_context.deeper_match() as ctx:
-                m = opt.match(segments, parse_context=ctx)
-            # If we get a complete match, just return it. If it's incomplete, then check to
-            # see if it's all non-code if that allowed and match it
-            if m.is_complete():
-                # this will return on the *first* complete match
-                return m
-            elif m:
-                if best_match:
-                    if len(m.raw_matched()) > len(best_match.raw_matched()):
-                        best_match = m
-                    else:
-                        continue
-                else:
-                    best_match = m
-                parse_match_logging(
-                    self.__class__.__name__,
-                    "match",
-                    "SAVE",
-                    parse_context=parse_context,
-                    v_level=3,
-                    match_length=len(m.raw_matched()),
-                    m=m,
-                )
+        with parse_context.deeper_match() as ctx:
+            match, _ = self._longest_trimmed_match(
+                segments,
+                available_options,
+                parse_context=ctx,
+                trim_noncode=False,
+            )
 
-        # No full match from the first time round. If we've got a
-        # long partial match then return that.
-        if best_match:
-            return best_match
-        return MatchResult.from_unmatched(segments)
+        return match
 
     @match_wrapper()
-    def match(self, segments, parse_context):
+    def match(
+        self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
+    ) -> MatchResult:
         """Match against any of the elements a relevant number of times.
 
         If it matches multiple, it returns the longest, and if any are the same
@@ -167,8 +161,8 @@ class AnyNumberOf(BaseGrammar):
                     return MatchResult.from_unmatched(segments)
 
         # Match on each of the options
-        matched_segments = MatchResult.from_empty()
-        unmatched_segments = segments
+        matched_segments: MatchResult = MatchResult.from_empty()
+        unmatched_segments: Tuple[BaseSegment, ...] = segments
         n_matches = 0
         while True:
             if self.max_times and n_matches >= self.max_times:
@@ -191,7 +185,7 @@ class AnyNumberOf(BaseGrammar):
             # If we've already matched once...
             if n_matches > 0 and self.allow_gaps:
                 # Consume any non-code if there is any
-                pre_seg, mid_seg, post_seg = trim_non_code(unmatched_segments)
+                pre_seg, mid_seg, post_seg = trim_non_code_segments(unmatched_segments)
                 unmatched_segments = mid_seg + post_seg
             else:
                 pre_seg = ()  # empty tuple

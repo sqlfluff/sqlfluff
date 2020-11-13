@@ -225,8 +225,8 @@ class DatatypeSegment(BaseSegment):
     )
 
 
-@teradata_dialect.segment(replace=True)
-class ShorthandCastSegment(BaseSegment):
+@teradata_dialect.segment()
+class TeradataCastSegment(BaseSegment):
     """A casting operation using Teradata conversion syntax.
 
     https://docs.teradata.com/reader/kmuOwjp1zEYg98JsB8fu_A/ypGGhd87xi3E2E7SlNS1Xg
@@ -246,9 +246,21 @@ class ShorthandCastSegment(BaseSegment):
     """
 
     type = "cast_expression"
-    match_grammar = OneOf(
-        # '100000' (SMALLINT)
-        Bracketed(Ref("DatatypeSegment")),
+    match_grammar = Bracketed(Ref("DatatypeSegment"))
+
+
+@teradata_dialect.segment(replace=True)
+class ExpressionSegment(BaseSegment):
+    """A expression, either arithmetic or boolean.
+
+    We extend the expression segment in teradata to enable
+    casting.
+    """
+
+    type = "expression"
+    match_grammar = Sequence(
+        Ref("Expression_A_Grammar"),
+        Ref("TeradataCastSegment", optional=True),
     )
 
 

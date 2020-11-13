@@ -46,11 +46,10 @@ common: &common
           - ~/.local
           - ./eggs
         key: v3-deps-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}-{{ checksum "requirements.txt" }}
-    # Store test reports for circle
-    - store_test_results:
-        path: .test-reports
-    - store_artifacts:
-        path: .test-reports
+    # Don't store test reports for circle.
+    # According to https://discuss.circleci.com/t/junit-xml-results-from-pytest-are-not-captured-in-the-projects-insights/28673
+    # the store_test_results argument is only available for paid plans. As such this
+    # is not included.
 
 ### JOBS
 jobs:

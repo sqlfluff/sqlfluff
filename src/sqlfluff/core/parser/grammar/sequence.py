@@ -1,29 +1,33 @@
 """Sequence and Bracketed Grammars."""
 
+from typing import Optional, List, Tuple
+
 from ...errors import SQLParseError
 
 from ..segments import BaseSegment, Indent, Dedent
-from ..helpers import trim_non_code, check_still_complete
+from ..helpers import trim_non_code_segments, check_still_complete
 from ..match_result import MatchResult
 from ..match_wrapper import match_wrapper
+from ..context import ParseContext
 
-from .base import BaseGrammar, Ref
+from .base import BaseGrammar, Ref, cached_method_for_parse_context
 
 
 class Sequence(BaseGrammar):
     """Match a specific sequence of elements."""
 
-    def simple(self, parse_context):
+    @cached_method_for_parse_context
+    def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
         """Does this matcher support a uppercase hash matching route?
 
         Sequence does provide this, as long as the *first* non-optional
         element does, *AND* and optional elements which preceed it also do.
         """
-        simple_buff = ()
+        simple_buff = []
         for opt in self._elements:
             simple = opt.simple(parse_context=parse_context)
             if not simple:
-                return False
+                return None
             simple_buff += simple
 
             if not opt.is_optional():
@@ -54,7 +58,9 @@ class Sequence(BaseGrammar):
             while True:
                 # Consume non-code if appropriate
                 if self.allow_gaps:
-                    pre_nc, mid_seg, post_nc = trim_non_code(unmatched_segments)
+                    pre_nc, mid_seg, post_nc = trim_non_code_segments(
+                        unmatched_segments
+                    )
                 else:
                     pre_nc = ()
                     mid_seg = unmatched_segments
@@ -175,7 +181,8 @@ class Bracketed(Sequence):
             self.end_bracket = Ref("EndBracketSegment")
         super(Bracketed, self).__init__(*args, **kwargs)
 
-    def simple(self, parse_context):
+    @cached_method_for_parse_context
+    def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
         """Does this matcher support a uppercase hash matching route?
 
         Bracketed does this easily, we just look for the bracket.
@@ -183,7 +190,9 @@ class Bracketed(Sequence):
         return self.start_bracket.simple(parse_context=parse_context)
 
     @match_wrapper()
-    def match(self, segments, parse_context):
+    def match(
+        self, segments: Tuple["BaseSegment", ...], parse_context: ParseContext
+    ) -> MatchResult:
         """Match if this is a bracketed sequence, with content that matches one of the elements.
 
         1. work forwards to find the first bracket.
@@ -196,17 +205,15 @@ class Bracketed(Sequence):
            log a parsing warning, or error?
 
         """
-        seg_buff = segments
-        matched_segs = ()
+        # Trim ends if allowed.
+        if self.allow_gaps:
+            pre_nc, seg_buff, post_nc = trim_non_code_segments(segments)
+        else:
+            seg_buff = segments
 
         # Look for the first bracket
         with parse_context.deeper_match() as ctx:
-            start_match = self._code_only_sensitive_match(
-                seg_buff,
-                self.start_bracket,
-                parse_context=ctx,
-                allow_gaps=self.allow_gaps,
-            )
+            start_match = self.start_bracket.match(seg_buff, parse_context=ctx)
         if start_match:
             seg_buff = start_match.unmatched_segments
         else:
@@ -218,34 +225,35 @@ class Bracketed(Sequence):
             segments=seg_buff,
             matchers=[self.end_bracket],
             parse_context=parse_context,
-            allow_gaps=self.allow_gaps,
         )
         if not end_match:
             raise SQLParseError(
                 "Couldn't find closing bracket for opening bracket.",
-                segment=matched_segs,
+                segment=start_match.matched_segments[0],
             )
 
         # Match the content now we've confirmed the brackets.
 
         # First deal with the case of TOTALLY EMPTY BRACKETS e.g. "()"
         if not content_segs:
+            # If it's allowed, return a match.
             if not self._elements or all(e.is_optional() for e in self._elements):
                 return MatchResult(
                     start_match.matched_segments + end_match.matched_segments,
                     end_match.unmatched_segments,
                 )
+            # If not, don't.
             else:
                 return MatchResult.from_unmatched(segments)
 
         # Then trim whitespace and deal with the case of no code content e.g. "(   )"
         if self.allow_gaps:
-            pre_nc, content_segs, post_nc = trim_non_code(content_segs)
+            pre_nc, content_segs, post_nc = trim_non_code_segments(content_segs)
         else:
             pre_nc = ()
             post_nc = ()
 
-        # Do we have anything left to match on?
+        # If we don't have anything left after trimming, act accordingly.
         if not content_segs:
             if not self._elements or (
                 all(e.is_optional() for e in self._elements) and self.allow_gaps

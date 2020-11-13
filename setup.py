@@ -104,6 +104,8 @@ setup(
         "pathspec",
         # Used for finding os-specific application config dirs
         "appdirs",
+        # Cached property for performance gains
+        "cached-property",
     ],
     extras_require={
         # eg:

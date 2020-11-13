@@ -1,7 +1,7 @@
 """Defined the `match_wrapper` which adds validation and logging to match methods."""
 
 from .match_logging import ParseMatchLogObject
-from .match_result import MatchResult, is_segment
+from .match_result import MatchResult
 from .helpers import join_segments_raw_curtailed
 
 
@@ -14,7 +14,7 @@ class WrapParseMatchLogObject(ParseMatchLogObject):
     def __init__(self, match, segments, **kwargs):
         self.match = match
         self.segments = segments
-        super().__init__(msg="OUT", **kwargs)
+        super().__init__(msg="OUT", match=match, **kwargs)
 
     def __str__(self):
         if self.match.is_complete():
@@ -43,20 +43,8 @@ def match_wrapper(v_level=3):
     def inner_match_wrapper(func):
         """Decorate a match function."""
 
-        def wrapped_match_method(self_cls, segments, parse_context):
+        def wrapped_match_method(self_cls, segments: tuple, parse_context):
             """A wrapper on the match function to do some basic validation."""
-            # Type unification
-            if is_segment(segments):
-                segments = (segments,)
-            elif isinstance(segments, list):
-                segments = tuple(segments)
-            elif not isinstance(segments, tuple):
-                raise TypeError(
-                    "{0} passed unacceptable segments of type {1}: {2}".format(
-                        func.__qualname__, type(segments), segments
-                    )
-                )
-
             # Use the ephemeral_segment if present. This should only
             # be the case for grammars where `ephemeral_name` is defined.
             ephemeral_segment = getattr(self_cls, "ephemeral_segment", None)
@@ -84,6 +72,7 @@ def match_wrapper(v_level=3):
                 segments=segments,
                 v_level=v_level,
             ).log()
+
             # Basic Validation, skipped here because it still happens in the parse commands.
             return m
 

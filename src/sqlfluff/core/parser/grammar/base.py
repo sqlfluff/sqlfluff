@@ -1,11 +1,12 @@
 """Base grammar, Ref, Anything and Nothing."""
 
 import copy
+from typing import List, Optional, Union, Type, Tuple
 
 from ...errors import SQLParseError
 
 from ..segments import BaseSegment, EphemeralSegment
-from ..helpers import curtail_string
+from ..helpers import curtail_string, trim_non_code_segments
 from ..match_result import MatchResult
 from ..match_logging import (
     parse_match_logging,
@@ -13,6 +14,34 @@ from ..match_logging import (
 )
 from ..match_wrapper import match_wrapper
 from ..matchable import Matchable
+from ..context import ParseContext
+
+# Either a Grammar or a Segment CLASS
+MatchableType = Union[Matchable, Type[BaseSegment]]
+
+
+def cached_method_for_parse_context(func):
+    """A decorator to cache the output of this method for a given parse context.
+
+    This cache automatically invalidates if the uuid
+    of the parse context changes. The value is store
+    in the __dict__ attribute of the class against a
+    key unique to that function.
+    """
+    cache_key = "__cache_" + func.__name__
+
+    def wrapped_method(self, parse_context: ParseContext):
+        """Cache the output of the method against a given parse context."""
+        cache_tuple: Tuple = self.__dict__.get(cache_key, (None, None))
+        # Do we currently have a cached value?
+        if cache_tuple[0] == parse_context.uuid:
+            return cache_tuple[1]
+        # Generate a new value, cache it and return
+        result = func(self, parse_context=parse_context)
+        self.__dict__[cache_key] = (parse_context.uuid, result)
+        return result
+
+    return wrapped_method
 
 
 class BaseGrammar(Matchable):
@@ -118,7 +147,7 @@ class BaseGrammar(Matchable):
         return self.optional
 
     @match_wrapper()
-    def match(self, segments, parse_context):
+    def match(self, segments: Tuple["BaseSegment", ...], parse_context: ParseContext):
         """Match a list of segments against this segment.
 
         Matching can be done from either the raw or the segments.
@@ -129,9 +158,10 @@ class BaseGrammar(Matchable):
             "{0} has no match function implemented".format(self.__class__.__name__)
         )
 
-    def simple(self, parse_context):
+    @cached_method_for_parse_context
+    def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
         """Does this matcher support a lowercase hash matching route?"""
-        return False
+        return None
 
     @staticmethod
     def _iter_raw_segs(segments):
@@ -139,57 +169,14 @@ class BaseGrammar(Matchable):
             yield from segment.iter_raw_seg()
 
     @classmethod
-    def _code_only_sensitive_match(
-        cls, segments, matcher, parse_context, allow_gaps=True
-    ):
-        """Match, but also deal with leading and trailing non-code."""
-        if allow_gaps:
-            seg_buff = segments
-            pre_ws = []
-            post_ws = []
-            # Trim whitespace at the start
-            while True:
-                if len(seg_buff) == 0:
-                    return MatchResult.from_unmatched(segments)
-                elif not seg_buff[0].is_code:
-                    pre_ws += [seg_buff[0]]
-                    seg_buff = seg_buff[1:]
-                else:
-                    break
-            # Trim whitespace at the end
-            while True:
-                if len(seg_buff) == 0:
-                    return MatchResult.from_unmatched(segments)
-                elif not seg_buff[-1].is_code:
-                    post_ws = [seg_buff[-1]] + post_ws
-                    seg_buff = seg_buff[:-1]
-                else:
-                    break
-            m = matcher.match(seg_buff, parse_context)
-            if m.is_complete():
-                # We need to do more to complete matches. It's complete so
-                # we don't need to worry about the unmatched.
-                return MatchResult.from_matched(
-                    tuple(pre_ws) + m.matched_segments + tuple(post_ws)
-                )
-            elif m:
-                # Incomplete matches, just get it added to the end of the unmatched.
-                return MatchResult(
-                    matched_segments=tuple(pre_ws) + m.matched_segments,
-                    unmatched_segments=m.unmatched_segments + tuple(post_ws),
-                )
-            else:
-                # No match, just return unmatched
-                return MatchResult.from_unmatched(segments)
-        else:
-            # Code only not enabled, so just carry on
-            return matcher.match(segments, parse_context)
-
-    @classmethod
-    def _longest_code_only_sensitive_match(
-        cls, segments, matchers, parse_context, allow_gaps=True
-    ):
-        """Match like `_code_only_sensitive_match` but return longest match from a selection of matchers.
+    def _longest_trimmed_match(
+        cls,
+        segments: Tuple["BaseSegment", ...],
+        matchers: List["MatchableType"],
+        parse_context: ParseContext,
+        trim_noncode=True,
+    ) -> Tuple[MatchResult, Optional["MatchableType"]]:
+        """Return longest match from a selection of matchers.
 
         Prioritise the first match, and if multiple match at the same point the longest.
         If two matches of the same length match at the same time, then it's the first in
@@ -199,49 +186,56 @@ class BaseGrammar(Matchable):
             `tuple` of (match_object, matcher).
 
         """
-        # Do some type munging
-        matchers = list(matchers)
-        if isinstance(segments, BaseSegment):
-            segments = [segments]
-
         # Have we been passed an empty list?
         if len(segments) == 0:
             return MatchResult.from_empty(), None
 
-        matches = []
+        # If gaps are allowed, trim the ends.
+        if trim_noncode:
+            pre_nc, segments, post_nc = trim_non_code_segments(segments)
+
+        best_match_length = 0
         # iterate at this position across all the matchers
-        for m in matchers:
-            res_match = cls._code_only_sensitive_match(
-                segments, m, parse_context=parse_context, allow_gaps=allow_gaps
+        for matcher in matchers:
+            # MyPy seems to require a type hint here. Not quite sure why.
+            res_match: MatchResult = matcher.match(
+                segments, parse_context=parse_context
             )
             if res_match.is_complete():
                 # Just return it! (WITH THE RIGHT OTHER STUFF)
-                return res_match, m
-            elif res_match:
-                # Add it to the buffer, make sure the buffer is processed
-                # and return the longest afterward.
-                matches.append((res_match, m))
-            else:
-                # Don't do much. Carry on.
-                pass
-
-        # If we get here, then there wasn't a complete match. Let's iterate
-        # through any other matches and return the longest if there is one.
-        if matches:
-            longest = None
-            for mat in matches:
-                if longest:
-                    # Compare the lengths of the matches
-                    if len(mat[0]) > len(longest[0]):
-                        longest = mat
+                if trim_noncode:
+                    return (
+                        MatchResult.from_matched(
+                            pre_nc + res_match.matched_segments + post_nc
+                        ),
+                        matcher,
+                    )
                 else:
-                    longest = mat
-            return longest
-        else:
-            return MatchResult.from_unmatched(segments), None
+                    return res_match, matcher
+            elif res_match:
+                # We've got an incomplete match, if it's the best so far keep it.
+                if res_match.matched_length > best_match_length:
+                    best_match = res_match, matcher
+                    best_match_length = res_match.matched_length
+
+        # If we get here, then there wasn't a complete match. If we
+        # has a best_match, return that.
+        if best_match_length > 0:
+            if trim_noncode:
+                return (
+                    MatchResult(
+                        pre_nc + best_match[0].matched_segments,
+                        best_match[0].unmatched_segments + post_nc,
+                    ),
+                    best_match[1],
+                )
+            else:
+                return best_match
+        # If no match at all, return nothing
+        return MatchResult.from_unmatched(segments), None
 
     @classmethod
-    def _look_ahead_match(cls, segments, matchers, parse_context, allow_gaps=True):
+    def _look_ahead_match(cls, segments, matchers, parse_context):
         """Look ahead for matches beyond the first element of the segments list.
 
         This function also contains the performance improved hash-matching approach to
@@ -281,10 +275,12 @@ class BaseGrammar(Matchable):
         # "simple", then we effectively use a hash lookup across the
         # content of segments to quickly evaluate if the segment is present.
         # Matchers which aren't "simple" still take a slower route.
-        simple_matchers = [m for m in matchers if m.simple(parse_context=parse_context)]
-        non_simple_matchers = [
-            m for m in matchers if not m.simple(parse_context=parse_context)
+        _matchers = [
+            (matcher, matcher.simple(parse_context=parse_context))
+            for matcher in matchers
         ]
+        simple_matchers = [matcher for matcher in _matchers if matcher[1]]
+        non_simple_matchers = [matcher[0] for matcher in _matchers if not matcher[1]]
         best_simple_match = None
         if simple_matchers:
             # If they're all simple we can use a hash match to identify the first one.
@@ -299,14 +295,12 @@ class BaseGrammar(Matchable):
             str_buff = [seg.raw_upper for seg in segments]
             match_queue = []
 
-            for m in simple_matchers:
-                simple = m.simple(parse_context=parse_context)
+            for matcher, simple in simple_matchers:
                 # Simple will be a tuple of options
                 for simple_option in simple:
                     try:
                         buff_pos = str_buff.index(simple_option)
-                        mat = (m, buff_pos, simple_option)
-                        match_queue.append(mat)
+                        match_queue.append((matcher, buff_pos, simple_option))
                     except ValueError:
                         pass
 
@@ -325,13 +319,11 @@ class BaseGrammar(Matchable):
             )
 
             while match_queue:
-                m_first = match_queue.pop()
                 # We've managed to match. We can shortcut home.
                 # NB: We may still need to deal with whitespace.
-                segments_index = m_first[1]
+                queued_matcher, queued_buff_pos, queued_option = match_queue.pop()
                 # Here we do the actual transform to the new segment.
-                matcher = m_first[0]
-                match = matcher.match(segments[segments_index:], parse_context)
+                match = queued_matcher.match(segments[queued_buff_pos:], parse_context)
                 if not match:
                     # We've had something match in simple matching, but then later excluded.
                     # Log but then move on to the next item on the list.
@@ -341,29 +333,11 @@ class BaseGrammar(Matchable):
                         "NM",
                         parse_context=parse_context,
                         v_level=4,
-                        _so=m_first[2],
+                        _so=queued_option,
                     )
                     continue
-                pre_segments = segments[:segments_index]
-                if allow_gaps:
-                    # Pick up any non-code segments as necessary
-                    # ...from the start
-                    while True:
-                        if not pre_segments or pre_segments[-1].is_code:
-                            break
-                        else:
-                            match = MatchResult(
-                                (pre_segments[-1],) + match.matched_segments,
-                                match.unmatched_segments,
-                            )
-                            pre_segments = pre_segments[:-1]
-                    # ...from the end (but only if it's the whole of the rest,
-                    # otherwise assume the next matcher will pick it up)
-                    if all(not elem.is_code for elem in match.unmatched_segments):
-                        match = MatchResult.from_matched(
-                            match.matched_segments + match.unmatched_segments
-                        )
-                best_simple_match = (pre_segments, match, m_first[0])
+                # Ok we have a match. Because we sorted the list, we'll take it!
+                best_simple_match = (segments[:queued_buff_pos], match, queued_matcher)
 
         if not non_simple_matchers:
             # There are no other matchers, we can just shortcut now.
@@ -403,11 +377,11 @@ class BaseGrammar(Matchable):
                 return ((), MatchResult.from_unmatched(segments), None)
 
             # We only check the NON-simple ones here for brevity.
-            mat, m = cls._longest_code_only_sensitive_match(
+            mat, m = cls._longest_trimmed_match(
                 seg_buff,
                 non_simple_matchers,
                 parse_context=parse_context,
-                allow_gaps=allow_gaps,
+                trim_noncode=False,
             )
 
             if mat and not best_simple_match:
@@ -444,15 +418,8 @@ class BaseGrammar(Matchable):
                 pre_seg_buff += (seg_buff[0],)
                 seg_buff = seg_buff[1:]
 
-                if allow_gaps:
-                    while seg_buff and not seg_buff[0].is_code:
-                        pre_seg_buff += (seg_buff[0],)
-                        seg_buff = seg_buff[1:]
-
     @classmethod
-    def _bracket_sensitive_look_ahead_match(
-        cls, segments, matchers, parse_context, allow_gaps=True
-    ):
+    def _bracket_sensitive_look_ahead_match(cls, segments, matchers, parse_context):
         """Same as `_look_ahead_match` but with bracket counting.
 
         NB: Given we depend on `_look_ahead_match` we can also utilise
@@ -504,7 +471,6 @@ class BaseGrammar(Matchable):
                         seg_buff,
                         bracket_matchers,
                         parse_context=parse_context,
-                        allow_gaps=allow_gaps,
                     )
 
                     if match:
@@ -538,7 +504,6 @@ class BaseGrammar(Matchable):
                         seg_buff,
                         matchers,
                         parse_context=parse_context,
-                        allow_gaps=allow_gaps,
                     )
 
                     if match:
@@ -605,7 +570,8 @@ class Ref(BaseGrammar):
     # and it also causes infinite recursion.
     allow_keyword_string_refs = False
 
-    def simple(self, parse_context):
+    @cached_method_for_parse_context
+    def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
         """Does this matcher support a uppercase hash matching route?
 
         A ref is simple, if the thing it references is simple.

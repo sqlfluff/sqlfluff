@@ -1,6 +1,7 @@
 """The code for the Lexer."""
 
 import logging
+from typing import Optional, List, Tuple
 from collections import namedtuple
 import re
 
@@ -8,6 +9,7 @@ from .markers import FilePositionMarker, EnrichedFilePositionMarker
 from .segments import RawSegment, Indent, Dedent, NonCodePlaceholder
 from ..errors import SQLLexError
 from ..templaters import TemplatedFile
+from ..config import FluffConfig
 
 # Instantiate the lexer logger
 lexer_logger = logging.getLogger("sqlfluff.lexer")
@@ -283,16 +285,21 @@ class RepeatedMultiMatcher(SingletonMatcher):
 class Lexer:
     """The Lexer class actually does the lexing step."""
 
-    def __init__(self, config, last_resort_lexer=None):
-        # config is required - we use it to get the dialect
-        self.config = config
-        lexer_struct = config.get("dialect_obj").get_lexer_struct()
+    def __init__(
+        self,
+        config: Optional[FluffConfig] = None,
+        last_resort_lexer: Optional[SingletonMatcher] = None,
+        dialect: Optional[str] = None,
+    ):
+        # Allow optional config and dialect
+        self.config = FluffConfig.from_kwargs(config=config, dialect=dialect)
+        lexer_struct = self.config.get("dialect_obj").get_lexer_struct()
         self.matcher = RepeatedMultiMatcher.from_struct(lexer_struct)
         self.last_resort_lexer = last_resort_lexer or RegexMatcher.from_shorthand(
             "<unlexable>", r"[^\t\n\,\.\ \-\+\*\\\/\'\"\;\:\[\]\(\)\|]*", is_code=True
         )
 
-    def lex(self, raw):
+    def lex(self, raw: str) -> Tuple[Tuple[RawSegment, ...], List[SQLLexError]]:
         """Take a string or TemplatedFile and return segments.
 
         If we fail to match the *whole* string, then we must have

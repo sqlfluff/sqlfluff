@@ -140,6 +140,9 @@ def validate_segment(segmentref, config):
         ("ExpressionSegment", "c notnull"),
         ("ExpressionSegment", "c is null"),
         ("ExpressionSegment", "c isnull"),
+        # Shorthand casting
+        ("ExpressionSegment", "NULL::INT"),
+        ("SelectTargetElementSegment", "NULL::INT AS user_id"),
     ],
 )
 def test__dialect__ansi_specific_segment_parses(segmentref, raw, caplog):

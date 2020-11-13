@@ -30,6 +30,11 @@ class RawSegment(BaseSegment):
     # ################ PUBLIC PROPERTIES
 
     @property
+    def matched_length(self):
+        """Return the length of the segment in characters."""
+        return len(self._raw)
+
+    @property
     def is_expandable(self):
         """Return true if it is meaningful to call `expand` on this segment."""
         return False
