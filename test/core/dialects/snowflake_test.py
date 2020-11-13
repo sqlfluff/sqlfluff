@@ -21,7 +21,7 @@ from sqlfluff.core.dialects.dialect_snowflake import UseStatementSegment
 def test_snowflake_queries(segment_cls, raw, caplog):
     """Test snowflake specific queries parse."""
     lnt = Linter(dialect="snowflake")
-    parsed, vs, _ = lnt.parse_string(raw)
+    parsed, vs, _, _ = lnt.parse_string(raw)
     assert len(vs) == 0
 
     # Find any unparsable statements

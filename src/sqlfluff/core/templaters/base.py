@@ -70,7 +70,7 @@ class TemplatedFile:
     ):
         """Initialise the TemplatedFile.
 
-        If no full_templated is provided then we assume that
+        If no templated_str is provided then we assume that
         the file is NOT templated and that the templated view
         is the same as the source view.
         """

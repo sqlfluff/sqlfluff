@@ -30,7 +30,7 @@ class PythonTemplater(RawTemplater):
 
     @staticmethod
     def infer_type(s):
-        """Infer a python type from a string ans convert.
+        """Infer a python type from a string and convert.
 
         Given a string value, convert it to a more specific built-in Python type
         (e.g. int, float, list, dictionary) if possible.
@@ -109,15 +109,15 @@ class PythonTemplater(RawTemplater):
         # Find the literals
         literals = [elem[0] for elem in raw_sliced if elem[1] == "literal"]
         templater_logger.debug("    Literals: %s", literals)
-        # Calculate occurances
-        raw_occurances = cls._substring_occurances(raw_str, literals)
+        # Calculate occurrences
+        raw_occurrences = cls._substring_occurances(raw_str, literals)
         templated_occurances = cls._substring_occurances(templated_str, literals)
         # Split on invariants
         split_sliced = list(
             cls._split_invariants(
                 raw_sliced,
                 literals,
-                raw_occurances,
+                raw_occurrences,
                 templated_occurances,
                 templated_str,
             )
@@ -126,7 +126,7 @@ class PythonTemplater(RawTemplater):
         # Deal with uniques and coalesce the rest
         sliced_file = list(
             cls._split_uniques_coalesce_rest(
-                split_sliced, raw_occurances, templated_occurances, templated_str
+                split_sliced, raw_occurrences, templated_occurances, templated_str
             )
         )
         templater_logger.debug("    Fully Sliced: %s", sliced_file)
@@ -192,7 +192,9 @@ class PythonTemplater(RawTemplater):
                     idx = first_char[1] + len(first_char[0])
                     # We double them here to make the raw
                     yield (literal_text[first_char[1] : idx] * 2, "escaped", in_idx)
-                    # Will always be 2 in this case
+                    # Will always be 2 in this case.
+                    # This is because ALL escape sequences in the python formatter
+                    # are two characters which reduce to one.
                     in_idx += 2
                 # Deal with last one (if present)
                 if literal_text[idx:]:

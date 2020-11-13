@@ -56,7 +56,7 @@ class FilePositionMarker:
     def from_fresh(cls):
         """Construct a fresh position marker.
 
-        This should be the default way of creating a new postion marker, and
+        This should be the default way of creating a new position marker, and
         is where we define what the `start` of a file looks like.
         """
         return cls(1, 1, 1, 0)

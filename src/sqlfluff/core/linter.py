@@ -169,7 +169,7 @@ class LintedFile(
                         post_placeholder += 1
 
                     # First check for insertions.
-                    # We know it is if the position marker is NOT ENRICHED.
+                    # We know it is new if the position marker is NOT ENRICHED.
                     if not isinstance(segment.pos_marker, EnrichedFilePositionMarker):
                         # Add it to the insertion buffer if it has length:
                         if segment.raw:
