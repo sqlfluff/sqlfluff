@@ -740,70 +740,70 @@ class Linter:
             linter_logger.info("LINTING (%s)", fname)
             # Get the initial violations
             linting_errors = []
-            for crawler in self.get_ruleset(config=config):
-                lerrs, _, _, _ = crawler.crawl(
-                    parsed, dialect=config.get("dialect_obj")
-                )
-                linting_errors += lerrs
-            initial_linting_errors = linting_errors
 
-            # If we're in fix mode, iteratively apply fixes until done, or we can't make a move.
-            if fix:
-                # If we're in fix mode, then we need to progressively call and reconstruct
-                working = parsed
-                # Keep a set of previous versions to catch infinite loops.
-                previous_versions = {working.raw}
-                linting_errors = []
-                last_fixes = None
-                fix_loop_idx = 0
-                loop_limit = config.get("runaway_limit")
-                while True:
-                    fix_loop_idx += 1
-                    if fix_loop_idx > loop_limit:
-                        linter_logger.warning(
-                            "Loop limit on fixes reached [%s]. Some fixes may be overdone.",
-                            loop_limit,
-                        )
-                        break
-                    changed = False
-                    for crawler in self.get_ruleset(config=config):
-                        # fixes should be a dict {} with keys edit, delete, create
-                        # delete is just a list of segments to delete
-                        # edit and create are list of tuples. The first element is the
-                        # "anchor", the segment to look for either to edit or to insert BEFORE.
-                        # The second is the element to insert or create.
+            # If we're in fix mode, iteratively apply fixes until done, or we can't make
+            # a move. We need a buffer to progressively call and reconstruct
+            working = parsed
+            # Keep a set of previous versions to catch infinite loops.
+            previous_versions = {working.raw}
+            linting_errors = []
+            last_fixes = None
+            fix_loop_idx = 0
+            loop_limit = config.get("runaway_limit")
+            while True:
+                fix_loop_idx += 1
+                if fix_loop_idx > loop_limit:
+                    linter_logger.warning(
+                        "Loop limit on fixes reached [%s]. Some fixes may be overdone.",
+                        loop_limit,
+                    )
+                    break
+                changed = False
+                for crawler in self.get_ruleset(config=config):
+                    # fixes should be a dict {} with keys edit, delete, create
+                    # delete is just a list of segments to delete
+                    # edit and create are list of tuples. The first element is the
+                    # "anchor", the segment to look for either to edit or to insert BEFORE.
+                    # The second is the element to insert or create.
 
-                        lerrs, _, fixes, _ = crawler.crawl(
-                            working, dialect=config.get("dialect_obj"), fix=True
-                        )
-                        linting_errors += lerrs
-                        if fixes:
-                            if last_fixes and fixes == last_fixes:
+                    lerrs, _, fixes, _ = crawler.crawl(
+                        working, dialect=config.get("dialect_obj"), fix=fix
+                    )
+                    linting_errors += lerrs
+                    if fix and fixes:
+                        if last_fixes and fixes == last_fixes:
+                            linter_logger.warning(
+                                "One fix for %s not applied, it would re-cause the same error.",
+                                crawler.code,
+                            )
+                        else:
+                            last_fixes = fixes
+                            linter_logger.debug("Applying Fixes [Loop %s]: %s", fix_loop_idx, fixes)
+
+                            new_working, fixes = working.apply_fixes(fixes)
+
+                            linter_logger.debug("Remainder Fixes [Loop %s]: %s", fix_loop_idx, fixes)
+
+                            # Check for infinite loops
+                            if new_working.raw not in previous_versions:
+                                working = new_working
+                                previous_versions.add(working.raw)
+                                changed = True
+                            else:
                                 linter_logger.warning(
                                     "One fix for %s not applied, it would re-cause the same error.",
                                     crawler.code,
                                 )
-                            else:
-                                last_fixes = fixes
-                                linter_logger.debug("Applying Fixes [Loop %s]: %s", fix_loop_idx, fixes)
-
-                                new_working, fixes = working.apply_fixes(fixes)
-
-                                linter_logger.debug("Remainder Fixes [Loop %s]: %s", fix_loop_idx, fixes)
-
-                                # Check for infinite loops
-                                if new_working.raw not in previous_versions:
-                                    working = new_working
-                                    previous_versions.add(working.raw)
-                                    changed = True
-                                else:
-                                    linter_logger.warning(
-                                        "One fix for %s not applied, it would re-cause the same error.",
-                                        crawler.code,
-                                    )
-                    if not changed:
-                        # The file is clean :)
+                # Store a copy of initial errors if we're on round 1.
+                if fix_loop_idx == 1:
+                    initial_linting_errors = linting_errors.copy()
+                    # If we're not fixing, we only do round 1
+                    if not fix:
+                        parsed = working
                         break
+                if not changed:
+                    # The file is clean :)
+                    break
                 # Set things up to return the altered version
                 parsed = working
 
