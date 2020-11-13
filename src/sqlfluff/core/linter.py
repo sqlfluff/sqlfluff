@@ -719,6 +719,9 @@ class Linter:
         fix_loop_idx = 0
         # How many loops are we allowed
         loop_limit = config.get("runaway_limit")
+        # Keep track of the errors from round 1
+        linting_errors = []
+        initial_linting_errors = []
         # Enter into the main fix loop. Some fixes may introduce other
         # problems and so we loop around this until we reach stability
         # or we reach the limit.
@@ -735,6 +738,7 @@ class Linter:
                 lerrs, _, fixes, _ = crawler.crawl(
                     working, dialect=config.get("dialect_obj"), fix=True
                 )
+                linting_errors += lerrs
                 # Are there fixes to apply?
                 if fixes:
                     linter_logger.info("Applying Fixes: %s", fixes)
@@ -761,6 +765,9 @@ class Linter:
                             "One fix for %s not applied, it would re-cause the same error.",
                             crawler.code,
                         )
+            # Keep track of initial errors for reporting.
+            if fix_loop_idx == 1:
+                initial_linting_errors = linting_errors.copy()
             # We did not change the file. Either the file is clean (no fixes), or
             # any fixes which are present will take us back to a previous state.
             if not changed:
@@ -775,7 +782,7 @@ class Linter:
                 "Loop limit on fixes reached [%s]. Some fixes may be overdone.",
                 loop_limit,
             )
-        return working
+        return working, initial_linting_errors
 
     def lint_string(self, in_str, fname="<string input>", fix=False, config=None):
         """Lint a string.
@@ -808,15 +815,13 @@ class Linter:
         if parsed:
             t0 = time.monotonic()
             linter_logger.info("LINTING (%s)", fname)
-            # Get the initial violations
-            linting_errors = self.lint(parsed, config=config)
-            initial_linting_errors = linting_errors
-
             # If we're in fix mode, apply those fixes.
             # NB: We don't pass in the linting errors, because the fix function
             # regenerates them on each loop.
             if fix:
-                parsed = self.fix(parsed, config=config)
+                parsed, initial_linting_errors = self.fix(parsed, config=config)
+            else:
+                initial_linting_errors = self.lint(parsed, config=config)
 
             # Update the timing dict
             t1 = time.monotonic()

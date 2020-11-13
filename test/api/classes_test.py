@@ -32,5 +32,5 @@ def test__api__linter_fix():
     """Basic checking of parsing functionality."""
     tokens, _ = Lexer().lex(test_query)
     parsed = Parser().parse(tokens)
-    fixed = Linter().fix(parsed)
+    fixed, _ = Linter().fix(parsed)
     assert fixed.raw == "SELECT 1\n"
