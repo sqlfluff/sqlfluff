@@ -1,5 +1,4 @@
-"""Standard SQL Linting Rules.
-"""
+"""Standard SQL Linting Rules."""
 
 import itertools
 from typing import Tuple, List

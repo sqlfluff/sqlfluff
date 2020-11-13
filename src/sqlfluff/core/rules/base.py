@@ -470,8 +470,7 @@ class RuleSet:
         return cls
 
     def document_fix_compatible(self, cls):
-        """Mark the rule as fixable in the documentation
-        """
+        """Mark the rule as fixable in the documentation."""
         cls.__doc__ = "``sqlfluff fix`` compatible.\n\n\n" + cls.__doc__
         return cls
 
