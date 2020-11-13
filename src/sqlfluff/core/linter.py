@@ -597,28 +597,14 @@ class Linter:
         rules=None,
         user_rules=None,
     ):
-        if (dialect or rules) and config:
-            raise ValueError(
-                "Cannot specify `config` with `dialect` or `rules`. Any config object "
-                "specifies its own dialect and rules."
-            )
-        elif config is None:
-            overrides = {}
-            if dialect:
-                overrides["dialect"] = dialect
-            if rules:
-                # If it's a string, make it a list
-                if isinstance(rules, str):
-                    rules = [rules]
-                # Make a comma seperated string to pass in as override
-                overrides["rules"] = ",".join(rules)
-            config = FluffConfig(overrides=overrides)
-
-        self.dialect = config.get("dialect_obj")
-        self.templater = config.get("templater_obj")
         self.sql_exts = sql_exts
         # Store the config object
-        self.config = config
+        self.config = FluffConfig.from_kwargs(
+            config=config, dialect=dialect, rules=rules
+        )
+        # Get the dialect and templater
+        self.dialect = self.config.get("dialect_obj")
+        self.templater = self.config.get("templater_obj")
         # Store the formatter for output
         self.formatter = formatter
         # Store references to user rule classes
@@ -756,6 +742,87 @@ class Linter:
                 return (comment.pos_marker.line_no, None)
         return None
 
+    def lint(self, parsed, config=None):
+        """Lint a parsed file object."""
+        config = config or self.config
+        linting_errors = []
+        for crawler in self.get_ruleset(config=config):
+            lerrs, _, _, _ = crawler.crawl(parsed, dialect=config.get("dialect_obj"))
+            linting_errors += lerrs
+        return linting_errors
+
+    def fix(self, parsed, config=None):
+        """Fix a parsed file object."""
+        # Set up our config
+        config = config or self.config
+        # If we're in fix mode, then we need to progressively call and reconstruct
+        working = parsed
+        # Keep a set of previous versions to catch infinite loops.
+        previous_versions = {working.raw}
+        # A placeholder for the fixes we had on the previous loop
+        last_fixes = None
+        # How many loops have we had
+        fix_loop_idx = 0
+        # How many loops are we allowed
+        loop_limit = config.get("runaway_limit")
+        # Enter into the main fix loop. Some fixes may introduce other
+        # problems and so we loop around this until we reach stability
+        # or we reach the limit.
+        while fix_loop_idx < loop_limit:
+            fix_loop_idx += 1
+            changed = False
+            # Iterate through each rule.
+            for crawler in self.get_ruleset(config=config):
+                # fixes should be a dict {} with keys edit, delete, create
+                # delete is just a list of segments to delete
+                # edit and create are list of tuples. The first element is the
+                # "anchor", the segment to look for either to edit or to insert BEFORE.
+                # The second is the element to insert or create.
+                lerrs, _, fixes, _ = crawler.crawl(
+                    working, dialect=config.get("dialect_obj"), fix=True
+                )
+                # Are there fixes to apply?
+                if fixes:
+                    linter_logger.info("Applying Fixes: %s", fixes)
+                    # Do some sanity checks on the fixes before applying.
+                    if last_fixes and fixes == last_fixes:
+                        linter_logger.warning(
+                            "One fix for %s not applied, it would re-cause the same error.",
+                            crawler.code,
+                        )
+                    else:
+                        last_fixes = fixes
+                        # Actually apply fixes.
+                        new_working, _ = working.apply_fixes(fixes)
+                        # Check for infinite loops
+                        if new_working.raw not in previous_versions:
+                            # We've not seen this version of the file so far. Continue.
+                            working = new_working
+                            previous_versions.add(working.raw)
+                            changed = True
+                            continue
+                        # Applying these fixes took us back to a state which we've
+                        # seen before. Abort.
+                        linter_logger.warning(
+                            "One fix for %s not applied, it would re-cause the same error.",
+                            crawler.code,
+                        )
+            # We did not change the file. Either the file is clean (no fixes), or
+            # any fixes which are present will take us back to a previous state.
+            if not changed:
+                linter_logger.info(
+                    "Fix loop complete. Stability achieved after %s/%s loops.",
+                    fix_loop_idx,
+                    loop_limit,
+                )
+                break
+        else:
+            linter_logger.warning(
+                "Loop limit on fixes reached [%s]. Some fixes may be overdone.",
+                loop_limit,
+            )
+        return working
+
     def lint_string(self, s, fname="<string input>", fix=False, config=None):
         """Lint a string.
 
@@ -795,71 +862,14 @@ class Linter:
             t0 = time.monotonic()
             linter_logger.info("LINTING (%s)", fname)
             # Get the initial violations
-            linting_errors = []
-            for crawler in self.get_ruleset(config=config):
-                lerrs, _, _, _ = crawler.crawl(
-                    parsed, dialect=config.get("dialect_obj")
-                )
-                linting_errors += lerrs
+            linting_errors = self.lint(parsed, config=config)
             initial_linting_errors = linting_errors
 
-            # If we're in fix mode, iteratively apply fixes until done, or we can't make a move.
+            # If we're in fix mode, apply those fixes.
+            # NB: We don't pass in the linting errors, because the fix function
+            # regenerates them on each loop.
             if fix:
-                # If we're in fix mode, then we need to progressively call and reconstruct
-                working = parsed
-                # Keep a set of previous versions to catch infinite loops.
-                previous_versions = {working.raw}
-                linting_errors = []
-                last_fixes = None
-                fix_loop_idx = 0
-                loop_limit = config.get("runaway_limit")
-                while True:
-                    fix_loop_idx += 1
-                    if fix_loop_idx > loop_limit:
-                        linter_logger.warning(
-                            "Loop limit on fixes reached [%s]. Some fixes may be overdone.",
-                            loop_limit,
-                        )
-                        break
-                    changed = False
-                    for crawler in self.get_ruleset(config=config):
-                        # fixes should be a dict {} with keys edit, delete, create
-                        # delete is just a list of segments to delete
-                        # edit and create are list of tuples. The first element is the
-                        # "anchor", the segment to look for either to edit or to insert BEFORE.
-                        # The second is the element to insert or create.
-
-                        lerrs, _, fixes, _ = crawler.crawl(
-                            working, dialect=config.get("dialect_obj"), fix=True
-                        )
-                        linting_errors += lerrs
-                        if fixes:
-                            linter_logger.info("Applying Fixes: %s", fixes)
-
-                            if last_fixes and fixes == last_fixes:
-                                linter_logger.warning(
-                                    "One fix for %s not applied, it would re-cause the same error.",
-                                    crawler.code,
-                                )
-                            else:
-                                last_fixes = fixes
-                                new_working, fixes = working.apply_fixes(fixes)
-
-                                # Check for infinite loops
-                                if new_working.raw not in previous_versions:
-                                    working = new_working
-                                    previous_versions.add(working.raw)
-                                    changed = True
-                                else:
-                                    linter_logger.warning(
-                                        "One fix for %s not applied, it would re-cause the same error.",
-                                        crawler.code,
-                                    )
-                    if not changed:
-                        # The file is clean :)
-                        break
-                # Set things up to return the altered version
-                parsed = working
+                parsed = self.fix(parsed, config=config)
 
             # Update the timing dict
             t1 = time.monotonic()

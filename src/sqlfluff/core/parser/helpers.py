@@ -1,12 +1,17 @@
 """Helpers for the parser module."""
 
+from typing import Tuple, TYPE_CHECKING
 
-def frame_msg(msg):
+if TYPE_CHECKING:
+    from .segments import BaseSegment
+
+
+def frame_msg(msg: str) -> str:
     """Frame a message with hashes so that it covers five lines."""
     return "\n###\n#\n# {0}\n#\n###".format(msg)
 
 
-def curtail_string(s, length=20):
+def curtail_string(s: str, length=20) -> str:
     """Trim a string nicely to length."""
     if len(s) > length:
         return s[:length] + "..."
@@ -14,17 +19,21 @@ def curtail_string(s, length=20):
         return s
 
 
-def join_segments_raw(segments):
+def join_segments_raw(segments: Tuple["BaseSegment", ...]) -> str:
     """Make a string from the joined `raw` attributes of an iterable of segments."""
     return "".join(s.raw for s in segments)
 
 
-def join_segments_raw_curtailed(segments, length=20):
+def join_segments_raw_curtailed(segments: Tuple["BaseSegment", ...], length=20) -> str:
     """Make a string up to a certain length from an iterable of segments."""
     return curtail_string(join_segments_raw(segments), length=length)
 
 
-def check_still_complete(segments_in, matched_segments, unmatched_segments):
+def check_still_complete(
+    segments_in: Tuple["BaseSegment", ...],
+    matched_segments: Tuple["BaseSegment", ...],
+    unmatched_segments: Tuple["BaseSegment", ...],
+) -> bool:
     """Check that the segments in are the same as the segments out."""
     initial_str = join_segments_raw(segments_in)
     current_str = join_segments_raw(matched_segments + unmatched_segments)
@@ -34,27 +43,31 @@ def check_still_complete(segments_in, matched_segments, unmatched_segments):
                 initial_str, current_str
             )
         )
+    return True
 
 
-def trim_non_code(segments):
-    """Take segments and split off surrounding non-code segments as appropriate."""
-    pre_buff = ()
-    seg_buff = segments
-    post_buff = ()
+def trim_non_code_segments(
+    segments: Tuple["BaseSegment", ...]
+) -> Tuple[
+    Tuple["BaseSegment", ...], Tuple["BaseSegment", ...], Tuple["BaseSegment", ...]
+]:
+    """Take segments and split off surrounding non-code segments as appropriate.
 
-    if seg_buff:
-        pre_buff = ()
-        seg_buff = segments
-        post_buff = ()
+    We use slices to avoid creating too many unnecessary tuples.
+    """
+    pre_idx = 0
+    seg_len = len(segments)
+    post_idx = seg_len
+
+    if segments:
+        seg_len = len(segments)
 
         # Trim the start
-        while seg_buff and not seg_buff[0].is_code:
-            pre_buff = pre_buff + (seg_buff[0],)
-            seg_buff = seg_buff[1:]
+        while pre_idx < seg_len and not segments[pre_idx].is_code:
+            pre_idx += 1
 
         # Trim the end
-        while seg_buff and not seg_buff[-1].is_code:
-            post_buff = (seg_buff[-1],) + post_buff
-            seg_buff = seg_buff[:-1]
+        while post_idx > pre_idx and not segments[post_idx - 1].is_code:
+            post_idx -= 1
 
-    return pre_buff, seg_buff, post_buff
+    return segments[:pre_idx], segments[pre_idx:post_idx], segments[post_idx:]

@@ -7,6 +7,7 @@ from .config import FluffConfig
 
 # Public classes
 from .linter import Linter
+from .parser import Lexer, Parser
 
 # All of the errors.
 from .errors import (

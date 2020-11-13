@@ -10,13 +10,20 @@ Here we define:
 
 from io import StringIO
 from benchit import BenchIt
-from typing import Optional
+from cached_property import cached_property
+from typing import Optional, List, Tuple
 
 from ..match_result import MatchResult
 from ..match_logging import parse_match_logging
 from ..match_wrapper import match_wrapper
-from ..helpers import frame_msg, check_still_complete, trim_non_code, curtail_string
+from ..helpers import (
+    frame_msg,
+    check_still_complete,
+    trim_non_code_segments,
+    curtail_string,
+)
 from ..matchable import Matchable
+from ..context import ParseContext
 
 
 class BaseSegment:
@@ -99,7 +106,8 @@ class BaseSegment:
         # Equal if type, content and pos are the same
         # NB: this should also work for RawSegment
         return (
-            type(self) is type(other)
+            # Same class NAME. (could be constructed elsewhere)
+            self.__class__.__name__ == other.__class__.__name__
             and (self.raw == other.raw)
             and (self.pos_marker == other.pos_marker)
         )
@@ -157,25 +165,30 @@ class BaseSegment:
             self._is_expandable = False
             return False
 
-    @property
+    @cached_property
     def is_code(self):
         """Return True if this segment contains any code."""
         return any(seg.is_code for seg in self.segments)
 
-    @property
+    @cached_property
     def is_comment(self):
         """Return True if this is entirely made of comments."""
         return all(seg.is_comment for seg in self.segments)
 
-    @property
+    @cached_property
     def raw(self):
         """Make a string from the segments of this segment."""
         return self._reconstruct()
 
-    @property
+    @cached_property
     def raw_upper(self):
         """Make an uppercase string from the segments of this segment."""
         return self._reconstruct().upper()
+
+    @cached_property
+    def matched_length(self):
+        """Return the length of the segment in characters."""
+        return sum(seg.matched_length for seg in self.segments)
 
     # ################ STATIC METHODS
 
@@ -238,7 +251,7 @@ class BaseSegment:
     # ################ CLASS METHODS
 
     @classmethod
-    def simple(cls, parse_context):
+    def simple(cls, parse_context: ParseContext) -> Optional[List[str]]:
         """Does this matcher support an uppercase hash matching route?
 
         This should be true if the MATCH grammar is simple. Most more
@@ -250,7 +263,7 @@ class BaseSegment:
         else:
             # Other segments will either override this method, or aren't
             # simple.
-            return False
+            return None
 
     @classmethod
     def is_optional(cls):
@@ -296,7 +309,9 @@ class BaseSegment:
 
     @classmethod
     @match_wrapper(v_level=4)
-    def match(cls, segments, parse_context):
+    def match(
+        cls, segments: Tuple["BaseSegment", ...], parse_context: ParseContext
+    ) -> MatchResult:
         """Match a list of segments against this segment.
 
         Note: Match for segments is done in the ABSTRACT.
@@ -382,6 +397,15 @@ class BaseSegment:
         return preface.rstrip()
 
     # ################ PUBLIC INSTANCE METHODS
+
+    def invalidate_caches(self):
+        """Invalidate the cached properties.
+
+        This should be called whenever the segments within this
+        segment is mutated.
+        """
+        for key in ["is_code", "is_comment", "raw", "raw_upper", "matched_length"]:
+            self.__dict__.pop(key, None)
 
     def validate_segments(self, text="constructing", validate=True):
         """Validate the current set of segments.
@@ -627,7 +651,7 @@ class BaseSegment:
             # or in the parent expression.
             segments = self.segments
             if self.can_start_end_non_code:
-                pre_nc, segments, post_nc = trim_non_code(segments)
+                pre_nc, segments, post_nc = trim_non_code_segments(segments)
             else:
                 pre_nc = ()
                 post_nc = ()
@@ -782,6 +806,8 @@ class BaseSegment:
                         seg_buffer.append(seg)
                 # Switch over the the unused list
                 fixes = unused_fixes + fix_buff
+                # Invalidate any caches
+                self.invalidate_caches()
 
             # Then recurse (i.e. deal with the children) (Requeueing)
             seg_queue = seg_buffer

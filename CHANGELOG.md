@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [466](https://github.com/sqlfluff/sqlfluff/issues/466) - Added L034
   'Fields should be stated before aggregates / window functions' per
   [dbt coding convenventions](https://github.com/fishtown-analytics/corp/blob/master/dbt_coding_conventions.md#sql-style-guide.)
+- MyPy type linting into a large proportion of the core library.
 
 ### Changed
 
@@ -50,6 +51,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the `FileSegment` has been moved from the core parser directly into
   the dialects. Users can refer to it via the `get_root_segment()`
   method of a dialect.
+- Several perfomance improvements through removing unused functionality,
+  sensible caching and optimising loops within functions.
 
 ### Removed
 - Removed `BaseSegment.grammar`, `BaseSegment._match_grammar()` and
@@ -67,6 +70,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   to the grammar module called `NonCodeMatcher`.
 - Case sensitivity as a feature for segment matching has been removed as
   not required for existing dialects.
+- Gap
 
 ## [0.3.6] - 2020-09-24
 

@@ -9,6 +9,7 @@ and match depth of the current operation.
 """
 
 import logging
+import uuid
 
 # Get the parser logger
 parser_logger = logging.getLogger("sqlfluff.parser")
@@ -37,6 +38,8 @@ class RootParseContext:
         self.blacklist = ParseBlacklist()
         # This is the logger that child objects will latch onto.
         self.logger = parser_logger
+        # A uuid for this parse context to enable cache invalidation
+        self.uuid = uuid.uuid4()
 
     @classmethod
     def from_config(cls, config, **overrides):

@@ -1,7 +1,4 @@
-"""Tests for simple use cases of the public api.
-
-These tests should also test the imports, not just the functionality.
-"""
+"""Tests for simple use cases of the public api."""
 
 import io
 

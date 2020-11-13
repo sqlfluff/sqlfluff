@@ -4,11 +4,10 @@ import os
 import os.path
 import sys
 import configparser
+from typing import Dict, List, Tuple, Any, Optional, Union, Iterable
 
 import appdirs
 
-from .dialects import dialect_selector
-from .templaters import templater_selector
 
 global_loader = None
 """:obj:`ConfigLoader`: A variable to hold the single module loader when loaded.
@@ -18,7 +17,7 @@ can still cache appropriately
 """
 
 
-def nested_combine(*dicts):
+def nested_combine(*dicts: dict) -> dict:
     """Combine an iterable of dictionaries.
 
     Each dictionary is combined into a result dictionary. For
@@ -35,7 +34,7 @@ def nested_combine(*dicts):
         `dict`: A combined dictionary from the input dictionaries.
 
     """
-    r = {}
+    r: dict = {}
     for d in dicts:
         for k in d:
             if k in r and isinstance(r[k], dict):
@@ -52,7 +51,7 @@ def nested_combine(*dicts):
     return r
 
 
-def dict_diff(left, right):
+def dict_diff(left: dict, right: dict) -> dict:
     """Work out the difference between to dictionaries.
 
     Returns a dictionary which represents elements in the `left`
@@ -74,7 +73,7 @@ def dict_diff(left, right):
         `dict`: A dictionary representing the difference.
 
     """
-    buff = {}
+    buff: dict = {}
     for k in left:
         # Is the key there at all?
         if k not in right:
@@ -104,10 +103,10 @@ class ConfigLoader:
 
     def __init__(self):
         # TODO: check that this cache implementation is actually useful
-        self._config_cache = {}
+        self._config_cache: dict = {}
 
     @classmethod
-    def get_global(cls):
+    def get_global(cls) -> "ConfigLoader":
         """Get the singleton loader."""
         global global_loader
         if not global_loader:
@@ -115,7 +114,7 @@ class ConfigLoader:
         return global_loader
 
     @staticmethod
-    def _get_config_elems_from_file(fpath):
+    def _get_config_elems_from_file(fpath: str) -> List[Tuple[tuple, Any]]:
         """Load a config from a file and return a list of tuples.
 
         The return value is a list of tuples, were each tuple has two elements,
@@ -131,20 +130,20 @@ class ConfigLoader:
             string value will remain.
 
         """
-        buff = []
+        buff: List[Tuple[tuple, Any]] = []
         # Disable interpolation so we can load macros
-        kw = {}
+        kw: Dict = {}
         if sys.version_info >= (3, 0):
             kw["interpolation"] = None
         config = configparser.ConfigParser(**kw)
         # NB: We want to be case sensitive in how we read from files,
         # because jinja is also case sensitive. To do this we override
         # the optionxform attribute.
-        config.optionxform = lambda option: option
+        config.optionxform = lambda option: option  # type: ignore
         config.read(fpath)
         for k in config.sections():
             if k == "sqlfluff":
-                key = ("core",)
+                key: Tuple = ("core",)
             elif k.startswith("sqlfluff:"):
                 # Return a tuple of nested values
                 key = tuple(k[len("sqlfluff:") :].split(":"))
@@ -157,7 +156,7 @@ class ConfigLoader:
                 # Try to coerce it to a more specific type,
                 # otherwise just make it a string.
                 try:
-                    v = int(val)
+                    v: Any = int(val)
                 except ValueError:
                     try:
                         v = float(val)
@@ -186,12 +185,11 @@ class ConfigLoader:
         return buff
 
     @staticmethod
-    def _incorporate_vals(ctx, vals):
+    def _incorporate_vals(ctx: dict, vals: List[Tuple[Tuple[str, ...], Any]]) -> dict:
         """Take a list of tuples and incorporate it into a dictionary."""
-        c = ctx
         for k, v in vals:
             # Keep a ref we can use for recursion
-            r = c
+            r = ctx
             # Get the name of the variable
             n = k[-1]
             # Get the path
@@ -210,16 +208,16 @@ class ConfigLoader:
                     r = r[dp]
             # Deal with the value itself
             r[n] = v
-        return c
+        return ctx
 
-    def load_default_config_file(self):
+    def load_default_config_file(self) -> dict:
         """Load the default config file."""
         elems = self._get_config_elems_from_file(
             os.path.join(os.path.dirname(__file__), "default_config.cfg")
         )
         return self._incorporate_vals({}, elems)
 
-    def load_config_at_path(self, path):
+    def load_config_at_path(self, path: str) -> dict:
         """Load config from a given path."""
         # First check the cache
         if str(path) in self._config_cache:
@@ -229,7 +227,7 @@ class ConfigLoader:
         # NB: later in this list overwrites earlier
         filename_options = ["setup.cfg", "tox.ini", "pep8.ini", ".sqlfluff"]
 
-        c = {}
+        configs: dict = {}
 
         if os.path.isdir(path):
             p = path
@@ -241,13 +239,13 @@ class ConfigLoader:
         for fname in filename_options:
             if fname in d:
                 elems = self._get_config_elems_from_file(os.path.join(p, fname))
-                c = self._incorporate_vals(c, elems)
+                configs = self._incorporate_vals(configs, elems)
 
         # Store in the cache
-        self._config_cache[str(path)] = c
-        return c
+        self._config_cache[str(path)] = configs
+        return configs
 
-    def load_user_appdir_config(self):
+    def load_user_appdir_config(self) -> dict:
         """Load the config from the user's OS specific appdir config directory."""
         appname = "sqlfluff"
         appauthor = "sqlfluff"
@@ -256,12 +254,12 @@ class ConfigLoader:
             return self.load_config_at_path(user_config_dir_path)
         return {}
 
-    def load_user_config(self):
+    def load_user_config(self) -> dict:
         """Load the config from the user's home directory."""
         user_home_path = os.path.expanduser("~")
         return self.load_config_at_path(user_home_path)
 
-    def load_config_up_to_path(self, path):
+    def load_config_up_to_path(self, path: str) -> dict:
         """Loads a selection of config files from both the path and it's parent paths."""
         user_appdir_config = self.load_user_appdir_config()
         user_config = self.load_user_config()
@@ -272,7 +270,7 @@ class ConfigLoader:
         # then go straight to the directory.
         if not os.path.isdir(given_path):
             given_path = os.path.dirname(given_path)
-        config_stack = []
+        config_stack: List[Dict] = []
 
         if hasattr(os.path, "commonpath"):
             common_path = os.path.commonpath([working_path, given_path])
@@ -306,9 +304,11 @@ class ConfigLoader:
 class FluffConfig:
     """.The class that actually gets passed around as a config object."""
 
-    private_vals = ["rule_blacklist", "rule_whitelist", "dialect_obj", "templater_obj"]
+    private_vals = "rule_blacklist", "rule_whitelist", "dialect_obj", "templater_obj"
 
-    def __init__(self, configs=None, overrides=None):
+    def __init__(
+        self, configs: Optional[dict] = None, overrides: Optional[dict] = None
+    ):
         self._overrides = overrides  # We only store this for child configs
         defaults = ConfigLoader.get_global().load_default_config_file()
         self._configs = nested_combine(
@@ -339,7 +339,12 @@ class FluffConfig:
         # Configure Recursion
         if self._configs["core"].get("recurse", 0) == 0:
             self._configs["core"]["recurse"] = True
-        # Dialect and Template selection
+
+        # Dialect and Template selection.
+        # NB: We import here to avoid a circular references.
+        from .dialects import dialect_selector
+        from .templaters import templater_selector
+
         self._configs["core"]["dialect_obj"] = dialect_selector(
             self._configs["core"]["dialect"]
         )
@@ -348,24 +353,56 @@ class FluffConfig:
         )
 
     @classmethod
-    def from_root(cls, overrides=None):
+    def from_root(cls, overrides: Optional[dict] = None) -> "FluffConfig":
         """Loads a config object just based on the root directory."""
         loader = ConfigLoader.get_global()
         c = loader.load_config_up_to_path(path=".")
         return cls(configs=c, overrides=overrides)
 
     @classmethod
-    def from_path(cls, path, overrides=None):
+    def from_path(cls, path: str, overrides: Optional[dict] = None) -> "FluffConfig":
         """Loads a config object given a particular path."""
         loader = ConfigLoader.get_global()
         c = loader.load_config_up_to_path(path=path)
         return cls(configs=c, overrides=overrides)
 
-    def make_child_from_path(self, path):
+    @classmethod
+    def from_kwargs(
+        cls,
+        config: Optional["FluffConfig"] = None,
+        dialect: Optional[str] = None,
+        rules: Optional[Union[str, List[str]]] = None,
+    ) -> "FluffConfig":
+        """Instantiate a config from either an existing config or kwargs.
+
+        This is a convenience method for the ways that the public classes
+        like Linter(), Parser() and Lexer() can be instantiated with a
+        FluffConfig or with the convenience kwargs: dialect & rules.
+        """
+        if (dialect or rules) and config:
+            raise ValueError(
+                "Cannot specify `config` with `dialect` or `rules`. Any config object "
+                "specifies its own dialect and rules."
+            )
+        elif config:
+            return config
+
+        overrides = {}
+        if dialect:
+            overrides["dialect"] = dialect
+        if rules:
+            # If it's a string, make it a list
+            if isinstance(rules, str):
+                rules = [rules]
+            # Make a comma seperated string to pass in as override
+            overrides["rules"] = ",".join(rules)
+        return cls(overrides=overrides)
+
+    def make_child_from_path(self, path: str) -> "FluffConfig":
         """Make a new child config at a path but pass on overrides."""
         return self.from_path(path, overrides=self._overrides)
 
-    def diff_to(self, other):
+    def diff_to(self, other: "FluffConfig") -> dict:
         """Compare this config to another.
 
         Args:
@@ -380,11 +417,11 @@ class FluffConfig:
         """
         return dict_diff(self._configs, other._configs)
 
-    def get(self, val, section="core"):
+    def get(self, val: str, section: Union[str, Iterable[str]] = "core"):
         """Get a particular value from the config."""
         return self._configs[section].get(val, None)
 
-    def get_section(self, section):
+    def get_section(self, section: Union[str, Iterable[str]]) -> Union[dict, None]:
         """Return a whole section of config as a dict.
 
         If the element found at the address is a value and not
@@ -409,7 +446,7 @@ class FluffConfig:
                     return None
             return buff
 
-    def iter_vals(self, cfg=None):
+    def iter_vals(self, cfg: Optional[dict] = None) -> Iterable[tuple]:
         """Return an iterable of tuples representing keys.
 
         We show values before dicts, the tuple contains an indent
