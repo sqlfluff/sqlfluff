@@ -200,9 +200,9 @@ def test__templater_jinja_slice_template(test, result):
                 ("literal", slice(32, 33, None), slice(14, 15, None)),
                 ("block_start", slice(33, 56, None), slice(15, 15, None)),
                 ("literal", slice(56, 62, None), slice(15, 21, None)),
-                ("templated", slice(56, 67, None), slice(21, 22, None)),
+                ("templated", slice(62, 67, None), slice(21, 22, None)),
                 ("literal", slice(56, 62, None), slice(22, 28, None)),
-                ("templated", slice(56, 67, None), slice(28, 29, None)),
+                ("templated", slice(62, 67, None), slice(28, 29, None)),
                 ("literal", slice(56, 62, None), slice(29, 35, None)),
                 ("templated", slice(62, 67, None), slice(35, 36, None)),
                 ("block_end", slice(67, 79, None), slice(36, 36, None)),
@@ -233,12 +233,14 @@ def test__templater_jinja_slice_template(test, result):
                 ("templated", slice(48, 53, None), slice(24, 25, None)),
                 ("literal", slice(53, 77, None), slice(25, 49, None)),
                 # NB: A templated section which loops back, spans the whole section.
-                ("templated", slice(35, 95, None), slice(49, 55, None)),
+                # We get to match it more accurately here because we're lucky.
+                ("templated", slice(77, 95, None), slice(49, 55, None)),
                 ("literal", slice(35, 48, None), slice(55, 68, None)),
                 ("templated", slice(48, 53, None), slice(68, 69, None)),
                 ("literal", slice(53, 77, None), slice(69, 93, None)),
                 # NB: A templated section which loops back, spans the whole section.
-                ("templated", slice(35, 95, None), slice(93, 100, None)),
+                # We get to match it more accurately here because we're lucky.
+                ("templated", slice(77, 95, None), slice(93, 100, None)),
                 ("literal", slice(35, 48, None), slice(100, 113, None)),
                 ("templated", slice(48, 53, None), slice(113, 114, None)),
                 ("literal", slice(53, 77, None), slice(114, 138, None)),

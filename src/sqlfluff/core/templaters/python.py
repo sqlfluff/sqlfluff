@@ -534,7 +534,7 @@ class PythonTemplater(RawTemplater):
                     idx for idx, elem in enumerate(elem_buffer) if elem[0] == raw
                 )
                 templater_logger.debug(
-                    "        Handling OWU: %r @%s", raw, template_idx
+                    "        Handling OWU: %r @%s (raw @%s) [this_owu_idx: %s, last_owu_dx: %s]", raw, template_idx, raw_idx, this_owu_idx, last_owu_idx
                 )
 
                 if template_idx > templ_start_idx:
@@ -585,58 +585,80 @@ class PythonTemplater(RawTemplater):
                         # raw version. This only happens during loops, but it means
                         # that identifying exactly what the intervening bit refers
                         # to is a bit arbitrary. In this case we're going to OVER
-                        # estimate and refer to the whole loop segment, by working
-                        # back to the previous loop block [or unique literal] and
-                        # working forward to the following one.
+                        # estimate and refer to the whole loop segment.
 
                         # TODO: Maybe this should make two chunks instead, one
                         # working backward, and one working forward. But that's
                         # a job for another day.
 
                         templater_logger.debug(
-                            "        Tricky Case...: %s, %s, %s, %s",
+                            "        Tricky Case...: %s, %s, %s, %s, %s, %r, %s",
                             last_owu_idx,
                             this_owu_idx,
                             last_raw_idx,
                             raw_idx,
-                        )
-                        # First find where we are in the template
-                        cur_idx = next(
-                            idx
-                            for idx, val in enumerate(elem_buffer)
-                            if val[2] == raw_idx
-                        )
-                        # Work back to find a good starting point
-                        pre_offset = 0
-                        while (
-                            cur_idx - pre_offset > 0
-                            and elem_buffer[cur_idx - pre_offset - 1][0]
-                            not in one_way_uniques
-                            and elem_buffer[cur_idx - pre_offset - 1][1]
-                            not in "block_start"
-                        ):
-                            pre_offset += 1
-                        # Work forward to find a good ending point
-                        post_offset = 0
-                        while (
-                            cur_idx + post_offset + 1 < len(elem_buffer)
-                            and elem_buffer[cur_idx + post_offset + 1][0]
-                            not in one_way_uniques
-                            and elem_buffer[cur_idx + post_offset + 1][1]
-                            not in "block_end"
-                        ):
-                            post_offset += 1
-                        raw_slice = slice(
-                            elem_buffer[cur_idx - pre_offset][2],
-                            elem_buffer[cur_idx + post_offset][2]
-                            + len(elem_buffer[cur_idx + post_offset][0]),
+                            slice(templ_start_idx, template_idx),
+                            templated_str[slice(templ_start_idx, template_idx)],
+                            elem_buffer
                         )
 
-                        yield (
+                        # First find where we are starting this remainder
+                        # in the template (as an index in the buffer).
+                        # Any segments *after* cur_idx are involved.
+                        if last_owu_idx + 1 < len(elem_buffer):
+                            cur_idx = last_owu_idx + 1
+                        else:
+                            cur_idx = 0
+
+                        # We need to know how many block_ends are after this.
+                        block_ends = sum(elem[1] == 'block_end' for elem in elem_buffer[cur_idx:])
+                        # We can allow up to this number of preceeding block starts
+                        block_start_indices = [idx for idx, elem in enumerate(elem_buffer[:cur_idx]) if elem[1] == 'block_start']
+                        templater_logger.debug(
+                            "        Tricky Case Debug: %s, %s, %s, %s",
+                            block_ends, block_start_indices, cur_idx, elem_buffer
+                        )
+                        # Trim anything which we're not allowed to use.
+                        if len(block_start_indices) > block_ends:
+                            offset = block_start_indices[-1-block_ends] + 1
+                            elem_sub_buffer = elem_buffer[offset:]
+                            cur_idx -= offset
+                        else:
+                            elem_sub_buffer = elem_buffer
+
+                        # We also need to know whether any of the *starting*
+                        # segments are involved.
+                        # Anything up to start_idx (exclusive) is included.
+                        include_start = raw_idx > elem_sub_buffer[0][2]
+
+                        templater_logger.debug(
+                            "        Tricky Case Debug: %s, %s, %s, %s, %s",
+                            cur_idx, include_start, block_ends, block_start_indices, elem_sub_buffer
+                        )
+
+                        # The ending point of this slice, is already decided.
+                        end_point = elem_sub_buffer[-1][2] + len(elem_sub_buffer[-1][0])
+                        
+                        # If start_idx is None, we're in luck. We don't need to include the beginning.
+                        if include_start:
+                            start_point = elem_sub_buffer[0][2]
+                        # Otherwise we know it's looped round, we need to include the whole slice.
+                        else:
+                            start_point = elem_sub_buffer[cur_idx][2]
+
+                        tricky = (
                             "templated",
-                            raw_slice,
+                            slice(start_point, end_point),
                             slice(templ_start_idx, template_idx),
                         )
+
+                        templater_logger.debug(
+                            "        Yielding Tricky Case : %s",
+                            tricky,
+                        )
+
+                        yield tricky
+
                 templater_logger.debug(
                     "    Yielding Unique: %r, %s, %s",
                     raw,
