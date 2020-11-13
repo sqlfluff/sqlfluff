@@ -1,7 +1,7 @@
 """Defines the templaters."""
 
 import logging
-from typing import Dict, Iterator, List, Tuple, Optional
+from typing import Dict, Iterator, List, Tuple, Optional, Set
 
 _templater_lookup: Dict[str, "RawTemplater"] = {}
 
@@ -80,10 +80,15 @@ class TemplatedFile:
         self.fname = fname
         # Assume that no sliced_file, means the file is not templated
         # TODO: Enable error handling.
-        # if not sliced_file and templated_str != source_str:
-        #     raise ValueError("Cannot instantiate a templated file unsliced!")
-        self.sliced_file = sliced_file
-        self.raw_sliced = raw_sliced
+        if (not sliced_file) and self.templated_str != self.source_str:
+            raise ValueError("Cannot instantiate a templated file unsliced!")
+        # If we get here and we don't have sliced files, then it's raw, so create them.
+        self.sliced_file: List[Tuple[str, slice, slice]] = sliced_file or [
+            ("literal", slice(0, len(source_str)), slice(0, len(source_str)))
+        ]
+        self.raw_sliced: List[Tuple[str, str, int]] = raw_sliced or [
+            (source_str, "literal", 0)
+        ]
         # Precalculate newlines, character positions.
         self._source_newlines = list(iter_indices_of_newlines(self.source_str))
         self._templated_newlines = list(iter_indices_of_newlines(self.templated_str))
@@ -124,14 +129,19 @@ class TemplatedFile:
         else:
             return 1, char_pos + 1
 
-    def _find_slice_indices_of_templated_pos(self, templated_pos:int, start_idx:Optional[int]=None, inclusive:bool=True) -> Tuple[int, int]:
+    def _find_slice_indices_of_templated_pos(
+        self,
+        templated_pos: int,
+        start_idx: Optional[int] = None,
+        inclusive: bool = True,
+    ) -> Tuple[int, int]:
         """Find a subset of the sliced file which touch this point.
 
         NB: the last_idx is exclusive, as the intent is to use this as a slice.
         """
         start_idx = start_idx or 0
         first_idx = None
-        last_idx = None
+        last_idx = start_idx
         for idx, elem in enumerate(self.sliced_file[start_idx:]):
             last_idx = idx + start_idx
             if elem[2].stop >= templated_pos:
@@ -144,30 +154,32 @@ class TemplatedFile:
         # If we got to the end add another index
         else:
             last_idx += 1
-        if first_idx is None or last_idx is None:
+        if first_idx is None:
             raise ValueError("Position Not Found")
-        return first_idx, last_idx 
+        return first_idx, last_idx
 
     def templated_slice_to_source_slice(
-        self, template_slice: slice, post_placeholder_hint: Optional[int]=None
+        self, template_slice: slice, post_placeholder_hint: Optional[int] = None
     ) -> slice:
         """Convert a template slice to a source slice."""
         if not self.sliced_file:
-            return template_slice, False
-        
-        ts_start_sf_start, ts_start_sf_stop = self._find_slice_indices_of_templated_pos(template_slice.start)
+            return template_slice
+
+        ts_start_sf_start, ts_start_sf_stop = self._find_slice_indices_of_templated_pos(
+            template_slice.start
+        )
 
         ts_start_subsliced_file = self.sliced_file[ts_start_sf_start:ts_start_sf_stop]
 
         # Initialise as a set.
-        insertion_points = set()
+        insertion_set: Set[int] = set()
         for elem in ts_start_subsliced_file:
             # Do slice starts and ends:
             for slice_elem in ("start", "stop"):
                 if getattr(elem[2], slice_elem) == template_slice.start:
-                    insertion_points.add(getattr(elem[1], slice_elem))
+                    insertion_set.add(getattr(elem[1], slice_elem))
         # Turn into a sorted list.
-        insertion_points = sorted(insertion_points)
+        insertion_points: List[int] = sorted(insertion_set)
 
         # Work out the insertion point
         insertion_point = -1
@@ -187,17 +199,19 @@ class TemplatedFile:
                     offset = template_slice.start - ts_start_subsliced_file[0][2].start
                     return slice(
                         ts_start_subsliced_file[0][1].start + offset,
-                        ts_start_subsliced_file[0][1].start + offset
+                        ts_start_subsliced_file[0][1].start + offset,
                     )
                 else:
                     raise ValueError(
                         "Attempting a single length slice within a templated section!"
                     )
-        
+
         # Otherwise it's a slice with length.
 
         # Use a non inclusive match to get the end point.
-        ts_stop_sf_start, ts_stop_sf_stop = self._find_slice_indices_of_templated_pos(template_slice.stop, inclusive=False)
+        ts_stop_sf_start, ts_stop_sf_stop = self._find_slice_indices_of_templated_pos(
+            template_slice.stop, inclusive=False
+        )
 
         # Update starting position based on insertion point:
         if insertion_point >= 0:
@@ -209,7 +223,9 @@ class TemplatedFile:
 
         subslices = self.sliced_file[
             # Ver inclusive slice
-            min(ts_start_sf_start, ts_stop_sf_start):max(ts_start_sf_stop, ts_stop_sf_stop)
+            min(ts_start_sf_start, ts_stop_sf_start) : max(
+                ts_start_sf_stop, ts_stop_sf_stop
+            )
         ]
         start_slices = self.sliced_file[ts_start_sf_start:ts_start_sf_stop]
         stop_slices = self.sliced_file[ts_stop_sf_start:ts_stop_sf_stop]
@@ -241,12 +257,12 @@ class TemplatedFile:
             # Take the widest possible span in this case.
             source_start = min(elem[1].start for elem in subslices)
             source_stop = max(elem[1].stop for elem in subslices)
-        
+
         source_slice = slice(source_start, source_stop)
 
         return source_slice
-    
-    def is_source_slice_literal(self, source_slice:slice) -> bool:
+
+    def is_source_slice_literal(self, source_slice: slice) -> bool:
         """Work out whether a slice of the source file is a literal or not."""
         # No sliced file? Evenrything is literal
         if not self.raw_sliced:
@@ -256,19 +272,16 @@ class TemplatedFile:
             return True
         is_literal = True
         for _, seg_type, seg_idx in self.raw_sliced:
-            # Reset is_literal if we find the start bang on.
-            if seg_idx == source_slice.start:
-                is_literal = True
-            # Reset if we find a literal and we're not at the start
-            # yet, otherwise set false.
-            elif seg_idx < source_slice.start:
-                is_literal = seg_type == 'literal'
+            # Reset if we find a literal and we're up to the start
+            # otherwise set false.
+            if seg_idx <= source_slice.start:
+                is_literal = seg_type == "literal"
             elif seg_idx >= source_slice.stop:
                 # We've gone past the end. Break and Return.
                 break
             else:
                 # We're in the middle. Check type
-                if seg_type != 'literal':
+                if seg_type != "literal":
                     is_literal = False
         return is_literal
 

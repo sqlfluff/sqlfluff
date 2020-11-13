@@ -534,7 +534,12 @@ class PythonTemplater(RawTemplater):
                     idx for idx, elem in enumerate(elem_buffer) if elem[0] == raw
                 )
                 templater_logger.debug(
-                    "        Handling OWU: %r @%s (raw @%s) [this_owu_idx: %s, last_owu_dx: %s]", raw, template_idx, raw_idx, this_owu_idx, last_owu_idx
+                    "        Handling OWU: %r @%s (raw @%s) [this_owu_idx: %s, last_owu_dx: %s]",
+                    raw,
+                    template_idx,
+                    raw_idx,
+                    this_owu_idx,
+                    last_owu_idx,
                 )
 
                 if template_idx > templ_start_idx:
@@ -599,28 +604,37 @@ class PythonTemplater(RawTemplater):
                             raw_idx,
                             slice(templ_start_idx, template_idx),
                             templated_str[slice(templ_start_idx, template_idx)],
-                            elem_buffer
+                            elem_buffer,
                         )
 
                         # First find where we are starting this remainder
                         # in the template (as an index in the buffer).
                         # Any segments *after* cur_idx are involved.
-                        if last_owu_idx + 1 < len(elem_buffer):
-                            cur_idx = last_owu_idx + 1
-                        else:
+                        if last_owu_idx is None or last_owu_idx + 1 >= len(elem_buffer):
                             cur_idx = 0
+                        else:
+                            cur_idx = last_owu_idx + 1
 
                         # We need to know how many block_ends are after this.
-                        block_ends = sum(elem[1] == 'block_end' for elem in elem_buffer[cur_idx:])
+                        block_ends = sum(
+                            elem[1] == "block_end" for elem in elem_buffer[cur_idx:]
+                        )
                         # We can allow up to this number of preceeding block starts
-                        block_start_indices = [idx for idx, elem in enumerate(elem_buffer[:cur_idx]) if elem[1] == 'block_start']
+                        block_start_indices = [
+                            idx
+                            for idx, elem in enumerate(elem_buffer[:cur_idx])
+                            if elem[1] == "block_start"
+                        ]
                         templater_logger.debug(
                             "        Tricky Case Debug: %s, %s, %s, %s",
-                            block_ends, block_start_indices, cur_idx, elem_buffer
+                            block_ends,
+                            block_start_indices,
+                            cur_idx,
+                            elem_buffer,
                         )
                         # Trim anything which we're not allowed to use.
                         if len(block_start_indices) > block_ends:
-                            offset = block_start_indices[-1-block_ends] + 1
+                            offset = block_start_indices[-1 - block_ends] + 1
                             elem_sub_buffer = elem_buffer[offset:]
                             cur_idx -= offset
                         else:
@@ -633,12 +647,16 @@ class PythonTemplater(RawTemplater):
 
                         templater_logger.debug(
                             "        Tricky Case Debug: %s, %s, %s, %s, %s",
-                            cur_idx, include_start, block_ends, block_start_indices, elem_sub_buffer
+                            cur_idx,
+                            include_start,
+                            block_ends,
+                            block_start_indices,
+                            elem_sub_buffer,
                         )
 
                         # The ending point of this slice, is already decided.
                         end_point = elem_sub_buffer[-1][2] + len(elem_sub_buffer[-1][0])
-                        
+
                         # If start_idx is None, we're in luck. We don't need to include the beginning.
                         if include_start:
                             start_point = elem_sub_buffer[0][2]

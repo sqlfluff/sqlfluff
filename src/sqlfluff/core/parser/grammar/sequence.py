@@ -79,11 +79,12 @@ class Sequence(BaseGrammar):
                         # then it's ok, and we can return what we've got so far.
                         # No need to deal with anything left over because we're at the end,
                         # unless it's a meta segment.
-                        
+
                         # We'll add those meta segments afer any existing ones. So
                         # the go on the meta_post_nc stack.
                         meta_post_nc += tuple(
-                            e() for e in self._elements[idx:]
+                            e()
+                            for e in self._elements[idx:]
                             if e.is_meta and e.is_enabled(parse_context=parse_context)
                         )
                         # Early break to exit via the happy match path.
@@ -141,7 +142,7 @@ class Sequence(BaseGrammar):
                 matched_segments.matched_segments + meta_pre_nc + meta_post_nc,
                 meta_only=True,
             ),
-            unmatched_segments
+            unmatched_segments,
         )
 
 

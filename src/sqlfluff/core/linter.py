@@ -164,7 +164,6 @@ class LintedFile(
                 insert_buff = ""
                 post_placeholder = 0
                 for seg_idx, segment in enumerate(seg.segments):
-                    linter_logger.debug("Seg: %r", segment)
                     # Keep track of whether we passed any placeholders so we sit in the right place relative to them.
                     if segment.is_meta and segment.is_type("placeholder"):
                         post_placeholder += 1
@@ -178,7 +177,7 @@ class LintedFile(
                             linter_logger.debug(
                                 "Appending insertion buffer. %r @idx: %s",
                                 insert_buff,
-                                templated_idx
+                                templated_idx,
                             )
                         continue
 
@@ -241,9 +240,9 @@ class LintedFile(
             (
                 self.templated_file.templated_slice_to_source_slice(
                     patch[0],
-                    #post_placeholder_hint=patch[2],
+                    # post_placeholder_hint=patch[2],
                 ),
-                patch[1]
+                patch[1],
             )
             for patch in patches
         ]
@@ -782,11 +781,15 @@ class Linter:
                             )
                         else:
                             last_fixes = fixes
-                            linter_logger.debug("Applying Fixes [Loop %s]: %s", fix_loop_idx, fixes)
+                            linter_logger.debug(
+                                "Applying Fixes [Loop %s]: %s", fix_loop_idx, fixes
+                            )
 
                             new_working, fixes = working.apply_fixes(fixes)
 
-                            linter_logger.debug("Remainder Fixes [Loop %s]: %s", fix_loop_idx, fixes)
+                            linter_logger.debug(
+                                "Remainder Fixes [Loop %s]: %s", fix_loop_idx, fixes
+                            )
 
                             # Check for infinite loops
                             if new_working.raw not in previous_versions:

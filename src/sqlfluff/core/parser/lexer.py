@@ -352,7 +352,6 @@ class Lexer:
 
         lexer_logger.info("Enriching Segments. Untouchables: %s", untouchables)
 
-        last_stop_idx = 0
         for segment in segment_buff:
             templated_slice = slice(
                 segment.pos_marker.char_pos,
@@ -369,9 +368,7 @@ class Lexer:
             for ut_slice, ut_type in untouchables:
                 if ut_slice.start > source_slice.start:
                     break
-                elif (
-                    ut_slice.start == source_slice.start
-                ):
+                elif ut_slice.start == source_slice.start:
                     lexer_logger.debug(
                         "Found untouchable slot! %s, %s, %s",
                         ut_slice,
@@ -380,7 +377,7 @@ class Lexer:
                     )
                     # Adjust the source slice accordingly.
                     source_slice = slice(ut_slice.stop, source_slice.stop)
-                    
+
                     # Add segments as appropriate.
                     # If it's a block end, add a dedent.
                     if ut_type == "block_end":
@@ -394,24 +391,7 @@ class Lexer:
                         ut_slice.start
                     )
                     new_segment_buff.append(
-                        NonCodePlaceholder(
-                            pos_marker=segment.pos_marker
-                            #pos_marker=EnrichedFilePositionMarker(
-                            #    statement_index=segment.pos_marker.statement_index,
-                            #    line_no=segment.pos_marker.line_no,
-                            #    line_pos=segment.pos_marker.line_pos,
-                            #    char_pos=segment.pos_marker.char_pos,
-                            #    templated_slice=slice(templated_slice.start, templated_slice.start),
-                            #    source_slice=ut_slice,
-                            #    is_literal=False,
-                            #    source_pos_marker=FilePositionMarker(
-                            #        segment.pos_marker.statement_index,
-                            #        ut_line,
-                            #        ut_pos,
-                            #        ut_slice.start,
-                            #    ),    
-                            #)
-                        )
+                        NonCodePlaceholder(pos_marker=segment.pos_marker)
                     )
                     # If it's a block end, add a dedent.
                     if ut_type == "block_start":
@@ -444,8 +424,6 @@ class Lexer:
                 ),
             )
             new_segment_buff.append(segment)
-            # Update the position marker
-            last_stop_idx = source_slice.stop
 
         lexer_logger.debug(
             "Enriched Segments: %s",

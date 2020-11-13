@@ -370,8 +370,9 @@ class Rule_L003(BaseCrawler):
             seg.is_type(
                 "whitespace",
                 "comment",
-                "indent", # dedent is a subtype of indent
-            ) for seg in this_line["line_buffer"]
+                "indent",  # dedent is a subtype of indent
+            )
+            for seg in this_line["line_buffer"]
         ):
             # Comment line, deal with it later.
             memory["comment_lines"].append(this_line_no)
@@ -467,7 +468,9 @@ class Rule_L003(BaseCrawler):
                         current_indent_buffer=this_line["indent_buffer"],
                         current_anchor=segment,
                     )
-                    self.logger.debug("    !! Indentation does not match #%s. Fixes: %s", k, fixes)
+                    self.logger.debug(
+                        "    !! Indentation does not match #%s. Fixes: %s", k, fixes
+                    )
                     return LintResult(
                         anchor=segment,
                         memory=memory,

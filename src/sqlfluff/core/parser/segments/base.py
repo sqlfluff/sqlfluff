@@ -766,7 +766,9 @@ class BaseSegment:
                     while fix_buff:
                         f = fix_buff.pop()
                         if f.anchor == seg:
-                            linter_logger.debug("Matched fix against segment: %s -> %s", f, seg)
+                            linter_logger.debug(
+                                "Matched fix against segment: %s -> %s", f, seg
+                            )
                             if f.edit_type == "delete":
                                 # We're just getting rid of this segment.
                                 seg = None
@@ -880,7 +882,10 @@ class BaseSegment:
 
         """
         # Create a new version of this class with the new details
-        return self.__class__(segments=self._realign_segments(self.segments, self.pos_marker), pos_marker=self.pos_marker)
+        return self.__class__(
+            segments=self._realign_segments(self.segments, self.pos_marker),
+            pos_marker=self.pos_marker,
+        )
 
 
 class UnparsableSegment(BaseSegment):
