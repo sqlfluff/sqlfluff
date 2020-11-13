@@ -143,7 +143,7 @@ class LintFix:
 
     def __repr__(self):
         if self.edit_type == "delete":
-            detail = "del:{0!r}".format(self.anchor.raw)
+            detail = "delete:{0!r}".format(self.anchor.raw)
         elif self.edit_type in ("edit", "create"):
             if hasattr(self.edit, "raw"):
                 new_detail = self.edit.raw
@@ -153,7 +153,7 @@ class LintFix:
             if self.edit_type == "edit":
                 detail = "edt:{0!r}->{1!r}".format(self.anchor.raw, new_detail)
             else:
-                detail = "crt:{0!r}".format(new_detail)
+                detail = "create:{0!r}".format(new_detail)
         else:
             detail = ""
         return "<LintFix: {0} @{1} {2}>".format(

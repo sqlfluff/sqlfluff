@@ -22,6 +22,7 @@ from ..parser import (
     StartsWith,
     Indent,
     Dedent,
+    GreedyUntil,
 )
 
 
@@ -59,6 +60,7 @@ snowflake_dialect.sets("reserved_keywords").update(
         "TABLESAMPLE",
         "PIVOT",
         "UNPIVOT",
+        "WAREHOUSE",
     ]
 )
 
@@ -111,6 +113,30 @@ snowflake_dialect.replace(
         Ref("ColumnIndexIdentifierSegment"),
     ),
 )
+
+
+@snowflake_dialect.segment(replace=True)
+class StatementSegment(BaseSegment):
+    """A generic segment, to any of it's child subsegments."""
+
+    type = "statement"
+    match_grammar = GreedyUntil(Ref("SemicolonSegment"))
+
+    parse_grammar = OneOf(
+        Ref("SelectableGrammar"),
+        Ref("InsertStatementSegment"),
+        Ref("TransactionStatementSegment"),
+        Ref("DropStatementSegment"),
+        Ref("AccessStatementSegment"),
+        Ref("CreateTableStatementSegment"),
+        Ref("AlterTableStatementSegment"),
+        Ref("CreateViewStatementSegment"),
+        Ref("DeleteStatementSegment"),
+        Ref("UpdateStatementSegment"),
+        Ref("CreateModelStatementSegment"),
+        Ref("DropModelStatementSegment"),
+        Ref("UseStatementSegment"),
+    )
 
 
 @snowflake_dialect.segment()
@@ -340,4 +366,21 @@ class SelectStatementSegment(ansi_SelectClauseSegment):
         Ref("QualifyClauseSegment", optional=True),
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),
+    )
+
+
+@snowflake_dialect.segment()
+class UseStatementSegment(BaseSegment):
+    """A snowflake `USE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/use.html
+    """
+
+    type = "use_statement"
+    match_grammar = StartsWith("USE")
+
+    parse_grammar = Sequence(
+        "USE",
+        OneOf("ROLE", "WAREHOUSE", "DATABASE", "SCHEMA", optional=True),
+        Ref("ObjectReferenceSegment"),
     )
