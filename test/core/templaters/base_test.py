@@ -10,7 +10,7 @@ from sqlfluff.core.templaters import (
     TemplatedFile,
 )
 
-from sqlfluff.core.templaters.base import iter_indices_of_newlines
+from sqlfluff.core.templaters.base import iter_indices_of_newlines, RawFileSlice, TemplatedFileSlice
 
 
 @pytest.mark.parametrize(
@@ -48,68 +48,76 @@ def test__templater_raw():
 SIMPLE_SOURCE_STR = "01234\n6789{{foo}}fo\nbarss"
 SIMPLE_TEMPLATED_STR = "01234\n6789x\nfo\nbarfss"
 SIMPLE_SLICED_FILE = [
-    ("literal", slice(0, 10, None), slice(0, 10, None)),
-    ("templated", slice(10, 17, None), slice(10, 12, None)),
-    ("literal", slice(17, 25, None), slice(12, 20, None)),
+    TemplatedFileSlice(*args) for args in [
+        ("literal", slice(0, 10, None), slice(0, 10, None)),
+        ("templated", slice(10, 17, None), slice(10, 12, None)),
+        ("literal", slice(17, 25, None), slice(12, 20, None)),
+    ]
 ]
 SIMPLE_RAW_SLICED_FILE = [
-    ("x" * 10, "literal", 0),
-    ("x" * 7, "templated", 10),
-    ("x" * 8, "literal", 17),
+    RawFileSlice(*args) for args in [
+        ("x" * 10, "literal", 0),
+        ("x" * 7, "templated", 10),
+        ("x" * 8, "literal", 17),
+    ]
 ]
 
 COMPLEX_SLICED_FILE = [
-    ("literal", slice(0, 13, None), slice(0, 13, None)),
-    ("comment", slice(13, 29, None), slice(13, 13, None)),
-    ("literal", slice(29, 44, None), slice(13, 28, None)),
-    ("block_start", slice(44, 68, None), slice(28, 28, None)),
-    ("literal", slice(68, 81, None), slice(28, 41, None)),
-    ("templated", slice(81, 86, None), slice(41, 42, None)),
-    ("literal", slice(86, 110, None), slice(42, 66, None)),
-    ("templated", slice(68, 86, None), slice(66, 76, None)),
-    ("literal", slice(68, 81, None), slice(76, 89, None)),
-    ("templated", slice(81, 86, None), slice(89, 90, None)),
-    ("literal", slice(86, 110, None), slice(90, 114, None)),  #
-    ("templated", slice(68, 86, None), slice(114, 125, None)),
-    ("literal", slice(68, 81, None), slice(125, 138, None)),  #
-    ("templated", slice(81, 86, None), slice(138, 139, None)),
-    ("literal", slice(86, 110, None), slice(139, 163, None)),
-    ("templated", slice(110, 123, None), slice(163, 166, None)),
-    ("literal", slice(123, 132, None), slice(166, 175, None)),
-    ("block_end", slice(132, 144, None), slice(175, 175, None)),
-    ("literal", slice(144, 155, None), slice(175, 186, None)),
-    ("block_start", slice(155, 179, None), slice(186, 186, None)),
-    ("literal", slice(179, 189, None), slice(186, 196, None)),
-    ("templated", slice(189, 194, None), slice(196, 197, None)),
-    ("literal", slice(194, 203, None), slice(197, 206, None)),
-    ("literal", slice(179, 189, None), slice(206, 216, None)),
-    ("templated", slice(189, 194, None), slice(216, 217, None)),
-    ("literal", slice(194, 203, None), slice(217, 226, None)),
-    ("literal", slice(179, 189, None), slice(226, 236, None)),
-    ("templated", slice(189, 194, None), slice(236, 237, None)),
-    ("literal", slice(194, 203, None), slice(237, 246, None)),
-    ("block_end", slice(203, 215, None), slice(246, 246, None)),
-    ("literal", slice(215, 230, None), slice(246, 261, None)),
+    TemplatedFileSlice(*args) for args in [
+        ("literal", slice(0, 13, None), slice(0, 13, None)),
+        ("comment", slice(13, 29, None), slice(13, 13, None)),
+        ("literal", slice(29, 44, None), slice(13, 28, None)),
+        ("block_start", slice(44, 68, None), slice(28, 28, None)),
+        ("literal", slice(68, 81, None), slice(28, 41, None)),
+        ("templated", slice(81, 86, None), slice(41, 42, None)),
+        ("literal", slice(86, 110, None), slice(42, 66, None)),
+        ("templated", slice(68, 86, None), slice(66, 76, None)),
+        ("literal", slice(68, 81, None), slice(76, 89, None)),
+        ("templated", slice(81, 86, None), slice(89, 90, None)),
+        ("literal", slice(86, 110, None), slice(90, 114, None)),  #
+        ("templated", slice(68, 86, None), slice(114, 125, None)),
+        ("literal", slice(68, 81, None), slice(125, 138, None)),  #
+        ("templated", slice(81, 86, None), slice(138, 139, None)),
+        ("literal", slice(86, 110, None), slice(139, 163, None)),
+        ("templated", slice(110, 123, None), slice(163, 166, None)),
+        ("literal", slice(123, 132, None), slice(166, 175, None)),
+        ("block_end", slice(132, 144, None), slice(175, 175, None)),
+        ("literal", slice(144, 155, None), slice(175, 186, None)),
+        ("block_start", slice(155, 179, None), slice(186, 186, None)),
+        ("literal", slice(179, 189, None), slice(186, 196, None)),
+        ("templated", slice(189, 194, None), slice(196, 197, None)),
+        ("literal", slice(194, 203, None), slice(197, 206, None)),
+        ("literal", slice(179, 189, None), slice(206, 216, None)),
+        ("templated", slice(189, 194, None), slice(216, 217, None)),
+        ("literal", slice(194, 203, None), slice(217, 226, None)),
+        ("literal", slice(179, 189, None), slice(226, 236, None)),
+        ("templated", slice(189, 194, None), slice(236, 237, None)),
+        ("literal", slice(194, 203, None), slice(237, 246, None)),
+        ("block_end", slice(203, 215, None), slice(246, 246, None)),
+        ("literal", slice(215, 230, None), slice(246, 261, None)),
+    ]
 ]
 COMPLEX_RAW_SLICED_FILE = [
-    # All contain dummy strings for now.
-    ("x" * 13, "literal", 0),
-    ("x" * 16, "comment", 13),
-    ("x" * 15, "literal", 29),
-    ("x" * 24, "block_start", 44),
-    ("x" * 13, "literal", 68),
-    ("x" * 5, "templated", 81),
-    ("x" * 24, "literal", 86),
-    ("x" * 13, "templated", 110),
-    ("x" * 9, "literal", 123),
-    ("x" * 12, "block_end", 132),
-    ("x" * 11, "literal", 144),
-    ("x" * 24, "block_start", 155),
-    ("x" * 10, "literal", 179),
-    ("x" * 5, "templated", 189),
-    ("x" * 9, "literal", 194),
-    ("x" * 12, "block_end", 203),
-    ("x" * 15, "literal", 215),
+    RawFileSlice(*args) for args in [
+        # All contain dummy strings for now.
+        ("x" * 13, "literal", 0),
+        ("x" * 16, "comment", 13),
+        ("x" * 15, "literal", 29),
+        ("x" * 24, "block_start", 44),
+        ("x" * 13, "literal", 68),
+        ("x" * 5, "templated", 81),
+        ("x" * 24, "literal", 86),
+        ("x" * 13, "templated", 110),
+        ("x" * 9, "literal", 123),
+        ("x" * 12, "block_end", 132),
+        ("x" * 11, "literal", 144),
+        ("x" * 24, "block_start", 155),
+        ("x" * 10, "literal", 179),
+        ("x" * 5, "templated", 189),
+        ("x" * 9, "literal", 194),
+        ("x" * 12, "block_end", 203),
+        ("x" * 15, "literal", 215),
+    ]
 ]
 
 
@@ -168,8 +176,8 @@ def test__templated_file_find_slice_indices_of_templated_pos(
             slice(5, 10),
             0,
             True,
-            [("literal", slice(0, 20, None), slice(0, 20, None))],
-            [("x" * 20, "literal", 0)],
+            [TemplatedFileSlice("literal", slice(0, 20, None), slice(0, 20, None))],
+            [RawFileSlice("x" * 20, "literal", 0)],
         ),
         # Trimming the end of a literal (with things that follow).
         (
@@ -186,8 +194,8 @@ def test__templated_file_find_slice_indices_of_templated_pos(
             slice(55, 60),
             0,
             True,
-            [("literal", slice(50, 70, None), slice(0, 20, None))],
-            [("x" * 50, "literal", 0), ("x" * 20, "literal", 50)],
+            [TemplatedFileSlice("literal", slice(50, 70, None), slice(0, 20, None))],
+            [RawFileSlice("x" * 50, "literal", 0), ("x" * 20, "literal", 50)],
         ),
         # Spanning a template
         (
@@ -205,8 +213,8 @@ def test__templated_file_find_slice_indices_of_templated_pos(
             0,
             False,
             # NB: Same as SIMPLE_SLICED_FILE, but with different slice types.
-            [("templated", elem[1], elem[2]) for elem in SIMPLE_SLICED_FILE],
-            [(elem[0], "templated", elem[2]) for elem in SIMPLE_RAW_SLICED_FILE],
+            [TemplatedFileSlice("templated", slc.source_slice, slc.templated_slice) for slc in SIMPLE_SLICED_FILE],
+            [RawFileSlice(slc.raw, "templated", slc.source_idx) for slc in SIMPLE_RAW_SLICED_FILE],
         ),
         # Handling single length slices
         (
@@ -232,8 +240,8 @@ def test__templated_file_find_slice_indices_of_templated_pos(
             0,
             True,
             SIMPLE_SLICED_FILE
-            + [("comment", slice(25, 35, None), slice(20, 20, None))],
-            SIMPLE_RAW_SLICED_FILE + [("x" * 10, "comment", 25)],
+            + [TemplatedFileSlice("comment", slice(25, 35, None), slice(20, 20, None))],
+            SIMPLE_RAW_SLICED_FILE + [RawFileSlice("x" * 10, "comment", 25)],
         ),
         (
             slice(20, 20),
@@ -241,8 +249,8 @@ def test__templated_file_find_slice_indices_of_templated_pos(
             1,
             True,
             SIMPLE_SLICED_FILE
-            + [("comment", slice(25, 35, None), slice(20, 20, None))],
-            SIMPLE_RAW_SLICED_FILE + [("x" * 10, "comment", 25)],
+            + [TemplatedFileSlice("comment", slice(25, 35, None), slice(20, 20, None))],
+            SIMPLE_RAW_SLICED_FILE + [RawFileSlice("x" * 10, "comment", 25)],
         ),
         # Just more test coverage
         (
@@ -319,9 +327,9 @@ def test__templated_file_untouchable_slices():
     file = TemplatedFile(
         source_str=" Dummy String again ",  # NB: has length 20
         raw_sliced=[
-            ("a" * 10, "literal", 0),
-            ("b" * 7, "comment", 10),
-            ("a" * 10, "literal", 17),
+            RawFileSlice("a" * 10, "literal", 0),
+            RawFileSlice("b" * 7, "comment", 10),
+            RawFileSlice("a" * 10, "literal", 17),
         ],
     )
     assert file.untouchable_slices() == [(slice(10, 17), "comment")]

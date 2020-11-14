@@ -1,9 +1,13 @@
 """Tests for templaters."""
 
 import pytest
+import logging
 
 from sqlfluff.core.templaters import PythonTemplater
 from sqlfluff.core import SQLTemplaterError
+
+from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFileSlice
+from sqlfluff.core.templaters.python import IntermediateFileSlice
 
 
 PYTHON_STRING = "SELECT * FROM {blah}"
@@ -76,15 +80,15 @@ def test__templater_python_sorted_occurance_tuples(test, result):
     "test,result",
     [
         ("", []),
-        ("foo", [("foo", "literal", 0)]),
+        ("foo", [RawFileSlice("foo", "literal", 0)]),
         (
             "foo {bar} z {{ y",
             [
-                ("foo ", "literal", 0),
-                ("{bar}", "templated", 4),
-                (" z ", "literal", 9),
-                ("{{", "escaped", 12),
-                (" y", "literal", 14),
+                RawFileSlice("foo ", "literal", 0),
+                RawFileSlice("{bar}", "templated", 4),
+                RawFileSlice(" z ", "literal", 9),
+                RawFileSlice("{{", "escaped", 12),
+                RawFileSlice(" y", "literal", 14),
             ],
         ),
     ],
@@ -108,17 +112,17 @@ def test__templater_python_slice_template(test, result):
     [
         ([], [], {}, {}, 0, []),
         (
-            [("foo", "literal", 0)],
+            [RawFileSlice("foo", "literal", 0)],
             ["foo"],
             {"foo": [0]},
             {"foo": [0]},
             3,
             [
-                (
+                IntermediateFileSlice(
                     "invariant",
                     slice(0, 3, None),
                     slice(0, 3, None),
-                    [("foo", "literal", 0)],
+                    [RawFileSlice("foo", "literal", 0)],
                 )
             ],
         ),
@@ -143,65 +147,65 @@ def test__templater_python_split_invariants(
         ([], {}, {}, "", []),
         (
             [
-                (
+                IntermediateFileSlice(
                     "invariant",
                     slice(0, 3, None),
                     slice(0, 3, None),
-                    [("foo", "literal", 0)],
+                    [RawFileSlice("foo", "literal", 0)],
                 )
             ],
             {"foo": [0]},
             {"foo": [0]},
             "foo",
-            [("literal", slice(0, 3, None), slice(0, 3, None))],
+            [TemplatedFileSlice("literal", slice(0, 3, None), slice(0, 3, None))],
         ),
         (
             [
-                (
+                IntermediateFileSlice(
                     "invariant",
                     slice(0, 7, None),
                     slice(0, 7, None),
-                    [("SELECT ", "literal", 0)],
+                    [RawFileSlice("SELECT ", "literal", 0)],
                 ),
-                (
+                IntermediateFileSlice(
                     "compound",
                     slice(7, 24, None),
                     slice(7, 22, None),
                     [
-                        ("{blah}", "templated", 7),
-                        (", ", "literal", 13),
-                        ("{foo:.2f}", "templated", 15),
+                        RawFileSlice("{blah}", "templated", 7),
+                        RawFileSlice(", ", "literal", 13),
+                        RawFileSlice("{foo:.2f}", "templated", 15),
                     ],
                 ),
-                (
+                IntermediateFileSlice(
                     "invariant",
                     slice(24, 33, None),
                     slice(22, 31, None),
-                    [(" as foo, ", "literal", 22)],
+                    [RawFileSlice(" as foo, ", "literal", 22)],
                 ),
-                (
+                IntermediateFileSlice(
                     "simple",
                     slice(33, 38, None),
                     slice(31, 35, None),
-                    [("{bar}", "templated", 33)],
+                    [RawFileSlice("{bar}", "templated", 33)],
                 ),
-                (
+                IntermediateFileSlice(
                     "invariant",
                     slice(38, 41, None),
                     slice(35, 38, None),
-                    [(", '", "literal", 35)],
+                    [RawFileSlice(", '", "literal", 35)],
                 ),
-                (
+                IntermediateFileSlice(
                     "compound",
                     slice(41, 45, None),
                     slice(38, 40, None),
-                    [("{{", "escaped", 41), ("}}", "escaped", 43)],
+                    [RawFileSlice("{{", "escaped", 41), RawFileSlice("}}", "escaped", 43)],
                 ),
-                (
+                IntermediateFileSlice(
                     "invariant",
                     slice(45, 76, None),
                     slice(40, 71, None),
-                    [("' as convertable from something", "literal", 40)],
+                    [RawFileSlice("' as convertable from something", "literal", 40)],
                 ),
             ],
             {
@@ -220,31 +224,32 @@ def test__templater_python_split_invariants(
             },
             "SELECT nothing, 435.24 as foo, spam, '{}' as convertable from something",
             [
-                ("literal", slice(0, 7, None), slice(0, 7, None)),
-                ("templated", slice(7, 13, None), slice(7, 14, None)),
-                ("literal", slice(13, 15, None), slice(14, 16, None)),
-                ("templated", slice(15, 24, None), slice(16, 22, None)),
-                ("literal", slice(24, 33, None), slice(22, 31, None)),
-                ("templated", slice(33, 38, None), slice(31, 35, None)),
-                ("literal", slice(38, 41, None), slice(35, 38, None)),
-                ("escaped", slice(41, 45, None), slice(38, 40, None)),
-                ("literal", slice(45, 76, None), slice(40, 71, None)),
+                TemplatedFileSlice("literal", slice(0, 7, None), slice(0, 7, None)),
+                TemplatedFileSlice("templated", slice(7, 13, None), slice(7, 14, None)),
+                TemplatedFileSlice("literal", slice(13, 15, None), slice(14, 16, None)),
+                TemplatedFileSlice("templated", slice(15, 24, None), slice(16, 22, None)),
+                TemplatedFileSlice("literal", slice(24, 33, None), slice(22, 31, None)),
+                TemplatedFileSlice("templated", slice(33, 38, None), slice(31, 35, None)),
+                TemplatedFileSlice("literal", slice(38, 41, None), slice(35, 38, None)),
+                TemplatedFileSlice("escaped", slice(41, 45, None), slice(38, 40, None)),
+                TemplatedFileSlice("literal", slice(45, 76, None), slice(40, 71, None)),
             ],
         ),
     ],
 )
 def test__templater_python_split_uniques_coalesce_rest(
-    split_file, raw_occurances, templated_occurances, templated_str, result
+    split_file, raw_occurances, templated_occurances, templated_str, result, caplog
 ):
     """Test _split_uniques_coalesce_rest."""
-    resp = list(
-        PythonTemplater._split_uniques_coalesce_rest(
-            split_file,
-            raw_occurances,
-            templated_occurances,
-            templated_str,
+    with caplog.at_level(logging.DEBUG, logger="sqlfluff.templater"):
+        resp = list(
+            PythonTemplater._split_uniques_coalesce_rest(
+                split_file,
+                raw_occurances,
+                templated_occurances,
+                templated_str,
+            )
         )
-    )
     # Check contigious
     prev_slice = None
     for elem in result:
@@ -260,20 +265,20 @@ def test__templater_python_split_uniques_coalesce_rest(
     "raw_file,templated_file,result",
     [
         ("", "", []),
-        ("foo", "foo", [("literal", slice(0, 3, None), slice(0, 3, None))]),
+        ("foo", "foo", [TemplatedFileSlice("literal", slice(0, 3, None), slice(0, 3, None))]),
         (
             "SELECT {blah}, {foo:.2f} as foo, {bar}, '{{}}' as convertable from something",
             "SELECT nothing, 435.24 as foo, spam, '{}' as convertable from something",
             [
-                ("literal", slice(0, 7, None), slice(0, 7, None)),
-                ("templated", slice(7, 13, None), slice(7, 14, None)),
-                ("literal", slice(13, 15, None), slice(14, 16, None)),
-                ("templated", slice(15, 24, None), slice(16, 22, None)),
-                ("literal", slice(24, 33, None), slice(22, 31, None)),
-                ("templated", slice(33, 38, None), slice(31, 35, None)),
-                ("literal", slice(38, 41, None), slice(35, 38, None)),
-                ("escaped", slice(41, 45, None), slice(38, 40, None)),
-                ("literal", slice(45, 76, None), slice(40, 71, None)),
+                TemplatedFileSlice("literal", slice(0, 7, None), slice(0, 7, None)),
+                TemplatedFileSlice("templated", slice(7, 13, None), slice(7, 14, None)),
+                TemplatedFileSlice("literal", slice(13, 15, None), slice(14, 16, None)),
+                TemplatedFileSlice("templated", slice(15, 24, None), slice(16, 22, None)),
+                TemplatedFileSlice("literal", slice(24, 33, None), slice(22, 31, None)),
+                TemplatedFileSlice("templated", slice(33, 38, None), slice(31, 35, None)),
+                TemplatedFileSlice("literal", slice(38, 41, None), slice(35, 38, None)),
+                TemplatedFileSlice("escaped", slice(41, 45, None), slice(38, 40, None)),
+                TemplatedFileSlice("literal", slice(45, 76, None), slice(40, 71, None)),
             ],
         ),
     ],
@@ -286,10 +291,10 @@ def test__templater_python_slice_file(raw_file, templated_file, result):
     )
     # Check contigious
     prev_slice = None
-    for elem in result:
+    for templated_slice in resp:
         if prev_slice:
-            assert elem[1].start == prev_slice[0].stop
-            assert elem[2].start == prev_slice[1].stop
-        prev_slice = (elem[1], elem[2])
+            assert templated_slice.source_slice.start == prev_slice[0].stop
+            assert templated_slice.templated_slice.start == prev_slice[1].stop
+        prev_slice = (templated_slice.source_slice, templated_slice.templated_slice)
     # check result
     assert resp == result

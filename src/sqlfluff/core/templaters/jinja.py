@@ -10,7 +10,7 @@ import jinja2.nodes
 from ..errors import SQLTemplaterError
 from ..parser import FilePositionMarker
 
-from .base import register_templater, TemplatedFile
+from .base import register_templater, TemplatedFile, RawFileSlice
 from .python import PythonTemplater
 
 
@@ -276,7 +276,7 @@ class JinjaTemplater(PythonTemplater):
             return None, violations
 
     @classmethod
-    def _slice_template(cls, in_str: str) -> Iterator[Tuple[str, str, int]]:
+    def _slice_template(cls, in_str: str) -> Iterator[RawFileSlice]:
         """Slice template in jinja.
 
         NB: Starts and ends of blocks are not distinguished.
@@ -292,7 +292,7 @@ class JinjaTemplater(PythonTemplater):
         # https://jinja.palletsprojects.com/en/2.11.x/api/#jinja2.Environment.lex
         for _, elem_type, raw in env.lex(in_str):
             if elem_type == "data":
-                yield (raw, "literal", idx)
+                yield RawFileSlice(raw, "literal", idx)
                 idx += len(raw)
                 continue
             str_buff += raw
@@ -306,6 +306,6 @@ class JinjaTemplater(PythonTemplater):
                         block_type = "block_end"
                     else:
                         block_type = "block_start"
-                yield (str_buff, block_type, idx)
+                yield RawFileSlice(str_buff, block_type, idx)
                 idx += len(str_buff)
                 str_buff = ""

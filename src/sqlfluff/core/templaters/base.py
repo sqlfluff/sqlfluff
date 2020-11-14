@@ -1,7 +1,7 @@
 """Defines the templaters."""
 
 import logging
-from typing import Dict, Iterator, List, Tuple, Optional, Set
+from typing import Dict, Iterator, List, Tuple, Optional, Set, NamedTuple
 
 _templater_lookup: Dict[str, "RawTemplater"] = {}
 
@@ -52,6 +52,24 @@ def iter_indices_of_newlines(raw_str: str) -> Iterator[int]:
             break
 
 
+class RawFileSlice(NamedTuple):
+    """A slice referring to a raw file."""
+    raw: str
+    slice_type: str
+    source_idx: int
+
+    def end_source_idx(self):
+        """Return the closing index of this slice."""
+        return self.source_idx + len(self.raw)
+
+
+class TemplatedFileSlice(NamedTuple):
+    """A slice referring to a templated file."""
+    slice_type: str
+    source_slice: slice
+    templated_slice: slice
+
+
 class TemplatedFile:
     """A templated SQL file.
 
@@ -65,8 +83,8 @@ class TemplatedFile:
         source_str: str,
         templated_str: Optional[str] = None,
         fname: Optional[str] = None,
-        sliced_file: Optional[List[Tuple[str, slice, slice]]] = None,
-        raw_sliced: Optional[List[Tuple[str, str, int]]] = None,
+        sliced_file: Optional[List[TemplatedFileSlice]] = None,
+        raw_sliced: Optional[List[RawFileSlice]] = None,
     ):
         """Initialise the TemplatedFile.
 
@@ -83,11 +101,11 @@ class TemplatedFile:
         if (not sliced_file) and self.templated_str != self.source_str:
             raise ValueError("Cannot instantiate a templated file unsliced!")
         # If we get here and we don't have sliced files, then it's raw, so create them.
-        self.sliced_file: List[Tuple[str, slice, slice]] = sliced_file or [
-            ("literal", slice(0, len(source_str)), slice(0, len(source_str)))
+        self.sliced_file: List[TemplatedFileSlice] = sliced_file or [
+            TemplatedFileSlice("literal", slice(0, len(source_str)), slice(0, len(source_str)))
         ]
-        self.raw_sliced: List[Tuple[str, str, int]] = raw_sliced or [
-            (source_str, "literal", 0)
+        self.raw_sliced: List[RawFileSlice] = raw_sliced or [
+            RawFileSlice(source_str, "literal", 0)
         ]
         # Precalculate newlines, character positions.
         self._source_newlines = list(iter_indices_of_newlines(self.source_str))
