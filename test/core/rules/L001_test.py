@@ -1,16 +1,23 @@
+# flake8: noqa
+"""Tests for L001."""
 from .std_test import rules__test_helper
 
 
 test_cases = {
     "pass": [],
-    "fail":
-    [
+    "fail": [
         {
-            "query": "SELECT 1     \n",
-            "fixed": "SELECT 1\n",
+            "query":
+                """
+                SELECT 1     
+                """,
+            "fixed":
+                """
+                SELECT 1
+                """,
             "configs": None
         }
-    ]
+    ],
 }
 
 
