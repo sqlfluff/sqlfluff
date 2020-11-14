@@ -30,6 +30,115 @@ def test__templater_python_error():
 
 
 @pytest.mark.parametrize(
+    "int_slice,templated_str,head_test,tail_test,int_test",
+    [
+        # Test Invariante
+        (
+            IntermediateFileSlice(
+                "compound",
+                slice(0, 5),
+                slice(0, 5),
+                [RawFileSlice("{{i}}", "templated", 0)],
+            ),
+            "foo",
+            [],
+            [],
+            IntermediateFileSlice(
+                "compound",
+                slice(0, 5),
+                slice(0, 5),
+                [RawFileSlice("{{i}}", "templated", 0)],
+            ),
+        ),
+        # Test Complete Trimming
+        (
+            IntermediateFileSlice(
+                "compound",
+                slice(0, 3),
+                slice(0, 3),
+                [RawFileSlice("foo", "literal", 0)],
+            ),
+            "foo",
+            [TemplatedFileSlice("literal", slice(0, 3), slice(0, 3))],
+            [],
+            IntermediateFileSlice(
+                "compound",
+                slice(3, 3),
+                slice(3, 3),
+                [],
+            ),
+        ),
+        # Test Basic Trimming.
+        (
+            IntermediateFileSlice(
+                "compound",
+                slice(0, 11),
+                slice(0, 7),
+                [
+                    RawFileSlice("foo", "literal", 0),
+                    RawFileSlice("{{i}}", "templated", 3),
+                    RawFileSlice("bar", "literal", 8),
+                ],
+            ),
+            "foo1bar",
+            [TemplatedFileSlice("literal", slice(0, 3), slice(0, 3))],
+            [TemplatedFileSlice("literal", slice(8, 11), slice(4, 7))],
+            IntermediateFileSlice(
+                "compound",
+                slice(3, 8),
+                slice(3, 4),
+                [RawFileSlice("{{i}}", "templated", 3)],
+            ),
+        ),
+        # Test stopping at blocks.
+        (
+            IntermediateFileSlice(
+                "compound",
+                slice(0, 34),
+                slice(0, 24),
+                [
+                    RawFileSlice("foo", "literal", 0),
+                    RawFileSlice("{{for}}", "block_start", 3),
+                    RawFileSlice("foo", "literal", 10),
+                    RawFileSlice("{{i}}", "literal", 13),
+                    RawFileSlice("bar", "literal", 18),
+                    RawFileSlice("{{endfor}}", "block_end", 21),
+                    RawFileSlice("bar", "literal", 31),
+                ],
+            ),
+            "foofoofoobarfoofoobarbar",
+            [
+                TemplatedFileSlice("literal", slice(0, 3), slice(0, 3)),
+                TemplatedFileSlice("block_start", slice(3, 10), slice(3, 3)),
+            ],
+            [
+                TemplatedFileSlice("block_end", slice(21, 31), slice(21, 21)),
+                TemplatedFileSlice("literal", slice(31, 34), slice(21, 24)),
+            ],
+            IntermediateFileSlice(
+                "compound",
+                slice(10, 21),
+                slice(3, 21),
+                [
+                    RawFileSlice("foo", "literal", 10),
+                    RawFileSlice("{{i}}", "literal", 13),
+                    RawFileSlice("bar", "literal", 18),
+                ],
+            ),
+        ),
+    ],
+)
+def test__templater_python_intermediate__trim(
+    int_slice, templated_str, head_test, tail_test, int_test
+):
+    """Test trimming IntermediateFileSlice."""
+    h, i, t = int_slice.trim_ends(templated_str=templated_str)
+    assert h == head_test
+    assert t == tail_test
+    assert i == int_test
+
+
+@pytest.mark.parametrize(
     "mainstr,substr,positions",
     [
         ("", "", []),
@@ -199,7 +308,10 @@ def test__templater_python_split_invariants(
                     "compound",
                     slice(41, 45, None),
                     slice(38, 40, None),
-                    [RawFileSlice("{{", "escaped", 41), RawFileSlice("}}", "escaped", 43)],
+                    [
+                        RawFileSlice("{{", "escaped", 41),
+                        RawFileSlice("}}", "escaped", 43),
+                    ],
                 ),
                 IntermediateFileSlice(
                     "invariant",
@@ -227,9 +339,13 @@ def test__templater_python_split_invariants(
                 TemplatedFileSlice("literal", slice(0, 7, None), slice(0, 7, None)),
                 TemplatedFileSlice("templated", slice(7, 13, None), slice(7, 14, None)),
                 TemplatedFileSlice("literal", slice(13, 15, None), slice(14, 16, None)),
-                TemplatedFileSlice("templated", slice(15, 24, None), slice(16, 22, None)),
+                TemplatedFileSlice(
+                    "templated", slice(15, 24, None), slice(16, 22, None)
+                ),
                 TemplatedFileSlice("literal", slice(24, 33, None), slice(22, 31, None)),
-                TemplatedFileSlice("templated", slice(33, 38, None), slice(31, 35, None)),
+                TemplatedFileSlice(
+                    "templated", slice(33, 38, None), slice(31, 35, None)
+                ),
                 TemplatedFileSlice("literal", slice(38, 41, None), slice(35, 38, None)),
                 TemplatedFileSlice("escaped", slice(41, 45, None), slice(38, 40, None)),
                 TemplatedFileSlice("literal", slice(45, 76, None), slice(40, 71, None)),
@@ -265,7 +381,11 @@ def test__templater_python_split_uniques_coalesce_rest(
     "raw_file,templated_file,result",
     [
         ("", "", []),
-        ("foo", "foo", [TemplatedFileSlice("literal", slice(0, 3, None), slice(0, 3, None))]),
+        (
+            "foo",
+            "foo",
+            [TemplatedFileSlice("literal", slice(0, 3, None), slice(0, 3, None))],
+        ),
         (
             "SELECT {blah}, {foo:.2f} as foo, {bar}, '{{}}' as convertable from something",
             "SELECT nothing, 435.24 as foo, spam, '{}' as convertable from something",
@@ -273,9 +393,13 @@ def test__templater_python_split_uniques_coalesce_rest(
                 TemplatedFileSlice("literal", slice(0, 7, None), slice(0, 7, None)),
                 TemplatedFileSlice("templated", slice(7, 13, None), slice(7, 14, None)),
                 TemplatedFileSlice("literal", slice(13, 15, None), slice(14, 16, None)),
-                TemplatedFileSlice("templated", slice(15, 24, None), slice(16, 22, None)),
+                TemplatedFileSlice(
+                    "templated", slice(15, 24, None), slice(16, 22, None)
+                ),
                 TemplatedFileSlice("literal", slice(24, 33, None), slice(22, 31, None)),
-                TemplatedFileSlice("templated", slice(33, 38, None), slice(31, 35, None)),
+                TemplatedFileSlice(
+                    "templated", slice(33, 38, None), slice(31, 35, None)
+                ),
                 TemplatedFileSlice("literal", slice(38, 41, None), slice(35, 38, None)),
                 TemplatedFileSlice("escaped", slice(41, 45, None), slice(38, 40, None)),
                 TemplatedFileSlice("literal", slice(45, 76, None), slice(40, 71, None)),

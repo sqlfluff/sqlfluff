@@ -10,7 +10,11 @@ from sqlfluff.core.templaters import (
     TemplatedFile,
 )
 
-from sqlfluff.core.templaters.base import iter_indices_of_newlines, RawFileSlice, TemplatedFileSlice
+from sqlfluff.core.templaters.base import (
+    iter_indices_of_newlines,
+    RawFileSlice,
+    TemplatedFileSlice,
+)
 
 
 @pytest.mark.parametrize(
@@ -48,14 +52,16 @@ def test__templater_raw():
 SIMPLE_SOURCE_STR = "01234\n6789{{foo}}fo\nbarss"
 SIMPLE_TEMPLATED_STR = "01234\n6789x\nfo\nbarfss"
 SIMPLE_SLICED_FILE = [
-    TemplatedFileSlice(*args) for args in [
+    TemplatedFileSlice(*args)
+    for args in [
         ("literal", slice(0, 10, None), slice(0, 10, None)),
         ("templated", slice(10, 17, None), slice(10, 12, None)),
         ("literal", slice(17, 25, None), slice(12, 20, None)),
     ]
 ]
 SIMPLE_RAW_SLICED_FILE = [
-    RawFileSlice(*args) for args in [
+    RawFileSlice(*args)
+    for args in [
         ("x" * 10, "literal", 0),
         ("x" * 7, "templated", 10),
         ("x" * 8, "literal", 17),
@@ -63,7 +69,8 @@ SIMPLE_RAW_SLICED_FILE = [
 ]
 
 COMPLEX_SLICED_FILE = [
-    TemplatedFileSlice(*args) for args in [
+    TemplatedFileSlice(*args)
+    for args in [
         ("literal", slice(0, 13, None), slice(0, 13, None)),
         ("comment", slice(13, 29, None), slice(13, 13, None)),
         ("literal", slice(29, 44, None), slice(13, 28, None)),
@@ -98,7 +105,8 @@ COMPLEX_SLICED_FILE = [
     ]
 ]
 COMPLEX_RAW_SLICED_FILE = [
-    RawFileSlice(*args) for args in [
+    RawFileSlice(*args)
+    for args in [
         # All contain dummy strings for now.
         ("x" * 13, "literal", 0),
         ("x" * 16, "comment", 13),
@@ -213,8 +221,14 @@ def test__templated_file_find_slice_indices_of_templated_pos(
             0,
             False,
             # NB: Same as SIMPLE_SLICED_FILE, but with different slice types.
-            [TemplatedFileSlice("templated", slc.source_slice, slc.templated_slice) for slc in SIMPLE_SLICED_FILE],
-            [RawFileSlice(slc.raw, "templated", slc.source_idx) for slc in SIMPLE_RAW_SLICED_FILE],
+            [
+                TemplatedFileSlice("templated", slc.source_slice, slc.templated_slice)
+                for slc in SIMPLE_SLICED_FILE
+            ],
+            [
+                RawFileSlice(slc.raw, "templated", slc.source_idx)
+                for slc in SIMPLE_RAW_SLICED_FILE
+            ],
         ),
         # Handling single length slices
         (

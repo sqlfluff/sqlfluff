@@ -54,6 +54,7 @@ def iter_indices_of_newlines(raw_str: str) -> Iterator[int]:
 
 class RawFileSlice(NamedTuple):
     """A slice referring to a raw file."""
+
     raw: str
     slice_type: str
     source_idx: int
@@ -65,6 +66,7 @@ class RawFileSlice(NamedTuple):
 
 class TemplatedFileSlice(NamedTuple):
     """A slice referring to a templated file."""
+
     slice_type: str
     source_slice: slice
     templated_slice: slice
@@ -102,7 +104,9 @@ class TemplatedFile:
             raise ValueError("Cannot instantiate a templated file unsliced!")
         # If we get here and we don't have sliced files, then it's raw, so create them.
         self.sliced_file: List[TemplatedFileSlice] = sliced_file or [
-            TemplatedFileSlice("literal", slice(0, len(source_str)), slice(0, len(source_str)))
+            TemplatedFileSlice(
+                "literal", slice(0, len(source_str)), slice(0, len(source_str))
+            )
         ]
         self.raw_sliced: List[RawFileSlice] = raw_sliced or [
             RawFileSlice(source_str, "literal", 0)

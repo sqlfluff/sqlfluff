@@ -6,15 +6,122 @@ from typing import Iterable, Dict, Tuple, List, Iterator, Optional, NamedTuple
 
 from ..errors import SQLTemplaterError
 
-from .base import RawTemplater, register_templater, TemplatedFile, templater_logger, RawFileSlice, TemplatedFileSlice
+from .base import (
+    RawTemplater,
+    register_templater,
+    TemplatedFile,
+    templater_logger,
+    RawFileSlice,
+    TemplatedFileSlice,
+)
 
 
 class IntermediateFileSlice(NamedTuple):
     """An intermediate representation of a partially sliced File."""
+
     intermediate_type: str
     source_slice: slice
     templated_slice: slice
     slice_buffer: List[RawFileSlice]
+
+    def _trim_end(
+        self, templated_str: str, target_end: str = "head"
+    ) -> Tuple["IntermediateFileSlice", List[TemplatedFileSlice]]:
+        """Trim the ends of a intermediate segment."""
+        target_idx = 0 if target_end == "head" else -1
+        terminator_types = ("block_start") if target_end == "head" else ("block_end")
+        main_source_slice = self.source_slice
+        main_templated_slice = self.templated_slice
+        slice_buffer = self.slice_buffer
+
+        end_buffer = []
+
+        # Yield any leading literals, comments or blocks.
+        while len(slice_buffer) > 0 and slice_buffer[target_idx].slice_type in (
+            "literal",
+            "block_start",
+            "block_end",
+            "comment",
+        ):
+            focus = slice_buffer[target_idx]
+            templater_logger.debug("            %s Focus: %s", target_end, focus)
+            # Is it a zero length item?
+            if focus.slice_type in ("block_start", "block_end", "comment"):
+                # Only add the length in the source space.
+                templated_len = 0
+            else:
+                # Assume it's a literal, check the literal actually matches.
+                templated_len = len(focus.raw)
+                if target_end == "head":
+                    check_slice = slice(
+                        main_templated_slice.start,
+                        main_templated_slice.start + templated_len,
+                    )
+                else:
+                    check_slice = slice(
+                        main_templated_slice.stop - templated_len,
+                        main_templated_slice.stop,
+                    )
+
+                if templated_str[check_slice] != focus.raw:
+                    # It doesn't match, we can't use it. break
+                    templater_logger.debug("                Nope")
+                    break
+
+            # If it does match, set up the new slices
+            if target_end == "head":
+                division = (
+                    main_source_slice.start + len(focus.raw),
+                    main_templated_slice.start + templated_len,
+                )
+                new_slice = TemplatedFileSlice(
+                    focus.slice_type,
+                    slice(main_source_slice.start, division[0]),
+                    slice(main_templated_slice.start, division[1]),
+                )
+                end_buffer.append(new_slice)
+                main_source_slice = slice(division[0], main_source_slice.stop)
+                main_templated_slice = slice(division[1], main_templated_slice.stop)
+            else:
+                division = (
+                    main_source_slice.stop - len(focus.raw),
+                    main_templated_slice.stop - templated_len,
+                )
+                new_slice = TemplatedFileSlice(
+                    focus.slice_type,
+                    slice(division[0], main_source_slice.stop),
+                    slice(division[1], main_templated_slice.stop),
+                )
+                end_buffer.insert(0, new_slice)
+                main_source_slice = slice(main_source_slice.start, division[0])
+                main_templated_slice = slice(main_templated_slice.start, division[1])
+
+            slice_buffer.pop(target_idx)
+            if focus.slice_type in terminator_types:
+                break
+        # Return a new Intermediate slice and the buffer.
+        # NB: Don't check size of slice buffer here. We can do that later.
+        new_intermediate = self.__class__(
+            "compound", main_source_slice, main_templated_slice, slice_buffer
+        )
+        return new_intermediate, end_buffer
+
+    def trim_ends(
+        self, templated_str: str
+    ) -> Tuple[
+        List[TemplatedFileSlice], "IntermediateFileSlice", List[TemplatedFileSlice]
+    ]:
+        """Trim both ends of an intermediate slice."""
+        # Trim start:
+        new_slice, head_buffer = self._trim_end(
+            templated_str=templated_str, target_end="head"
+        )
+        # Trim end:
+        new_slice, tail_buffer = new_slice._trim_end(
+            templated_str=templated_str, target_end="tail"
+        )
+        # Return
+        return head_buffer, new_slice, tail_buffer
 
 
 @register_templater
@@ -107,8 +214,9 @@ class PythonTemplater(RawTemplater):
         )
 
     @classmethod
-    def slice_file(cls, raw_str: str, templated_str: str) -> Tuple[List[RawFileSlice], 
-List[TemplatedFileSlice]]:
+    def slice_file(
+        cls, raw_str: str, templated_str: str
+    ) -> Tuple[List[RawFileSlice], List[TemplatedFileSlice]]:
         """Slice the file to determine regions where we can fix."""
         templater_logger.info("Slicing File Template")
         templater_logger.debug("    Raw String: %r", raw_str)
@@ -116,7 +224,11 @@ List[TemplatedFileSlice]]:
         # Slice the raw file
         raw_sliced = list(cls._slice_template(raw_str))
         # Find the literals
-        literals = [raw_slice.raw for raw_slice in raw_sliced if raw_slice.slice_type == "literal"]
+        literals = [
+            raw_slice.raw
+            for raw_slice in raw_sliced
+            if raw_slice.slice_type == "literal"
+        ]
         templater_logger.debug("    Literals: %s", literals)
         # Calculate occurrences
         raw_occurrences = cls._substring_occurances(raw_str, literals)
@@ -195,12 +307,16 @@ List[TemplatedFileSlice]]:
                     first_char = escape_chars.pop()
                     # Is there a literal first?
                     if first_char[1] > idx:
-                        yield RawFileSlice(literal_text[idx : first_char[1]], "literal", in_idx)
+                        yield RawFileSlice(
+                            literal_text[idx : first_char[1]], "literal", in_idx
+                        )
                         in_idx += first_char[1] - idx
                     # Add the escaped
                     idx = first_char[1] + len(first_char[0])
                     # We double them here to make the raw
-                    yield RawFileSlice(literal_text[first_char[1] : idx] * 2, "escaped", in_idx)
+                    yield RawFileSlice(
+                        literal_text[first_char[1] : idx] * 2, "escaped", in_idx
+                    )
                     # Will always be 2 in this case.
                     # This is because ALL escape sequences in the python formatter
                     # are two characters which reduce to one.
@@ -339,102 +455,53 @@ List[TemplatedFileSlice]]:
 
             # Yield anything simple
             if len(int_file_slice.slice_buffer) == 1:
-                simple_elem = TemplatedFileSlice(int_file_slice.slice_buffer[0].slice_type, int_file_slice.source_slice, int_file_slice.templated_slice)
+                simple_elem = TemplatedFileSlice(
+                    int_file_slice.slice_buffer[0].slice_type,
+                    int_file_slice.source_slice,
+                    int_file_slice.templated_slice,
+                )
                 templater_logger.debug("        Yielding Simple: %s", simple_elem)
                 yield simple_elem
                 continue
 
-            # Buffer to start trimming ends.
-            slice_buffer: List[RawFileSlice] = int_file_slice.slice_buffer.copy()
-            starts = (int_file_slice.source_slice.start, int_file_slice.templated_slice.start)
-            stops = (int_file_slice.source_slice.stop, int_file_slice.templated_slice.stop)
+            templater_logger.debug("        Intermediate Slice: %s", int_file_slice)
+            templater_logger.debug(
+                "        Templated Str: %r",
+                templated_str[int_file_slice.templated_slice],
+            )
 
-            templater_logger.debug("        Elem Buffer: %s", slice_buffer)
-            templater_logger.debug("        Templated Str: %r", templated_str[int_file_slice.templated_slice])
-
-            # Yield any leading literals, comments or blocks.
-            while len(slice_buffer) > 0 and slice_buffer[0].slice_type in (
-                "literal",
-                "block_start",
-                "block_end",
-                "comment",
-            ):
-                focus = slice_buffer[0]
-                templater_logger.debug("            Head Focus: %s", focus)
-                elem_len = len(focus[0])
-                # Is it a zero length item?
-                if focus[1] in ("block_start", "block_end", "comment"):
-                    # Only add the length in the source space.
-                    new_starts = (starts[0] + elem_len, starts[1])
-                else:
-                    # Assume it's a literal, check the literal actually matches.
-                    if templated_str[starts[1] : starts[1] + elem_len] != focus[0]:
-                        # It doesn't match, we can't use it. break
-                        templater_logger.debug("                Nope")
-                        break
-                    # It does match. Set up new starts.
-                    new_starts = (starts[0] + elem_len, starts[1] + elem_len)
-                # Consume
-                yield TemplatedFileSlice(
-                    focus[1],
-                    slice(starts[0], new_starts[0]),
-                    slice(starts[1], new_starts[1]),
-                )
-                starts = new_starts
-                slice_buffer.pop(0)
-                # If we just consumed a block start. Don't go further.
-                # We could break a loop.
-                if focus[1] == "block_start":
-                    break
-
-            # Store any trailing literals, comments or blocks.
-            while len(slice_buffer) > 0 and slice_buffer[-1].slice_type in (
-                "literal",
-                "block_start",
-                "block_end",
-                "comment",
-            ):
-                focus = slice_buffer[-1]
-                templater_logger.debug("            Tail Focus: %s", focus)
-                elem_len = len(focus[0])
-                # Is it a zero length item?
-                if focus[1] in ("block_start", "block_end", "comment"):
-                    # Only add the length in the source space.
-                    new_stops = (stops[0] - elem_len, stops[1])
-                else:
-                    # Assume it's a literal, check the literal actually matches.
-                    if templated_str[stops[1] - elem_len : stops[1]] != focus[0]:
-                        # It doesn't match, we can't use it. break
-                        templater_logger.debug("                Nope")
-                        break
-                    # It does match. Set up new starts.
-                    new_stops = (stops[0] - elem_len, stops[1] - elem_len)
-                # Consume
-                tail_elem = TemplatedFileSlice(
-                    focus[1],
-                    slice(new_stops[0], stops[0]),
-                    slice(new_stops[1], stops[1]),
-                )
-                tail_buffer = [tail_elem] + tail_buffer
-                stops = new_stops
-                slice_buffer.pop()
-                # If we just consumed a block end. Don't go further.
-                # We could break a loop.
-                if focus[1] == "block_end":
-                    break
-
-            # Check we still have an inner buffer:
-            if not slice_buffer:
+            # Trim ends and overwrite the current working copy.
+            head_buffer, int_file_slice, tail_buffer = int_file_slice.trim_ends(
+                templated_str=templated_str
+            )
+            if head_buffer:
+                yield from head_buffer
+            # Have we consumed the whole thing?
+            if not int_file_slice.slice_buffer:
                 continue
+
+            slice_buffer: List[RawFileSlice] = int_file_slice.slice_buffer.copy()
+            starts = (
+                int_file_slice.source_slice.start,
+                int_file_slice.templated_slice.start,
+            )
+            stops = (
+                int_file_slice.source_slice.stop,
+                int_file_slice.templated_slice.stop,
+            )
 
             # Deal with the inner segment itself.
             slices = (slice(starts[0], stops[0]), slice(starts[1], stops[1]))
-            templater_logger.debug("        Inner Buffer: %s, %s", slices, slice_buffer)
+            templater_logger.debug(
+                "        Intermediate Slice [post trim]: %s", int_file_slice
+            )
             raw_occs = cls._filter_occurances(slices[0], raw_occurances)
             templ_occs = cls._filter_occurances(slices[1], templ_occurances)
             # if we don't have anything to anchor on, then just return (coalescing types)
             if not raw_occs or not templ_occs:
-                yield TemplatedFileSlice(cls._coalesce_types(slice_buffer), slices[0], slices[1])
+                yield TemplatedFileSlice(
+                    cls._coalesce_types(slice_buffer), slices[0], slices[1]
+                )
                 continue
 
             # Do we have any uniques to split on?
@@ -449,7 +516,9 @@ List[TemplatedFileSlice]]:
             # If there aren't any uniques, just crash out now.
             if not one_way_uniques:
                 # Nope, just coalesce
-                yield TemplatedFileSlice(cls._coalesce_types(slice_buffer), slices[0], slices[1])
+                yield TemplatedFileSlice(
+                    cls._coalesce_types(slice_buffer), slices[0], slices[1]
+                )
                 continue
 
             # Deal with two way uniques first, because they are easier.
@@ -621,7 +690,9 @@ List[TemplatedFileSlice]]:
                         # First find where we are starting this remainder
                         # in the template (as an index in the buffer).
                         # Any segments *after* cur_idx are involved.
-                        if last_owu_idx is None or last_owu_idx + 1 >= len(slice_buffer):
+                        if last_owu_idx is None or last_owu_idx + 1 >= len(
+                            slice_buffer
+                        ):
                             cur_idx = 0
                         else:
                             cur_idx = last_owu_idx + 1
