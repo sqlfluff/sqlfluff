@@ -51,7 +51,6 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
 @pytest.mark.parametrize(
     "rule,pass_fail,qry,fixed,configs",
     [
-        ("L001", "fail", "SELECT 1     \n", "SELECT 1\n", None),
         ("L002", "fail", "    \t    \t    SELECT 1", None, None),
         ("L003", "fail", "     SELECT 1", "SELECT 1", None),
         ("L004", "pass", "   \nSELECT 1", None, None),

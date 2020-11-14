@@ -8,13 +8,13 @@ test_cases = {
     "fail": [
         {
             "query":
-                """
-                SELECT 1     
-                """,
+"""
+SELECT 1     
+""",
             "fixed":
-                """
-                SELECT 1
-                """,
+"""
+SELECT 1
+""",
             "configs": None
         }
     ],
