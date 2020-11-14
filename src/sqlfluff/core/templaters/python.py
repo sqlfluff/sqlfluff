@@ -123,6 +123,18 @@ class IntermediateFileSlice(NamedTuple):
         # Return
         return head_buffer, new_slice, tail_buffer
 
+    def try_simple(self):
+        """Try to turn this intermediate slice into a simple slice."""
+        # Yield anything simple
+        if len(self.slice_buffer) == 1:
+            return TemplatedFileSlice(
+                self.slice_buffer[0].slice_type,
+                self.source_slice,
+                self.templated_slice,
+            )
+        else:
+            raise ValueError("IntermediateFileSlice is not simple!")
+
 
 @register_templater
 class PythonTemplater(RawTemplater):
@@ -454,21 +466,13 @@ class PythonTemplater(RawTemplater):
                 tail_buffer = []
 
             # Yield anything simple
-            if len(int_file_slice.slice_buffer) == 1:
-                simple_elem = TemplatedFileSlice(
-                    int_file_slice.slice_buffer[0].slice_type,
-                    int_file_slice.source_slice,
-                    int_file_slice.templated_slice,
-                )
+            try:
+                simple_elem = int_file_slice.try_simple()
                 templater_logger.debug("        Yielding Simple: %s", simple_elem)
                 yield simple_elem
                 continue
-
-            templater_logger.debug("        Intermediate Slice: %s", int_file_slice)
-            templater_logger.debug(
-                "        Templated Str: %r",
-                templated_str[int_file_slice.templated_slice],
-            )
+            except ValueError:
+                pass
 
             # Trim ends and overwrite the current working copy.
             head_buffer, int_file_slice, tail_buffer = int_file_slice.trim_ends(
@@ -479,6 +483,21 @@ class PythonTemplater(RawTemplater):
             # Have we consumed the whole thing?
             if not int_file_slice.slice_buffer:
                 continue
+
+            # Try to yield simply agin (post trim)
+            try:
+                simple_elem = int_file_slice.try_simple()
+                templater_logger.debug("        Yielding Simple: %s", simple_elem)
+                yield simple_elem
+                continue
+            except ValueError:
+                pass
+
+            templater_logger.debug("        Intermediate Slice: %s", int_file_slice)
+            templater_logger.debug(
+                "        Templated Str: %r",
+                templated_str[int_file_slice.templated_slice],
+            )
 
             slice_buffer: List[RawFileSlice] = int_file_slice.slice_buffer.copy()
             starts = (
