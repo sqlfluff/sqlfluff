@@ -40,3 +40,17 @@ and that the segment which finally "triggers" the error, should be the one
 that would be corrected OR if the rule relates to something that is missing,
 then it should flag on the segment FOLLOWING, the place that the desired
 element is missing.
+
+
+In-line Ignoring Errors
+-----------------------
+`sqlfluff` features in-line error ignoring. For example, the following will
+ignore the lack of whitespace surounding the ``*`` operator.
+
+.. code-block:: sql
+
+   a.a*a.b AS bad_3  -- noqa: L006
+
+Multiple rules can be ignored by placing them in a comma-delimited list.
+Should the need arise, not specifying specific rules to ignore will ignore
+all rules on the given line.
