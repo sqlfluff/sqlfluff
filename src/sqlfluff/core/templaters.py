@@ -67,7 +67,7 @@ class RawTemplateInterface:
         """
 
     @staticmethod
-    def process(in_str, fname=None, config=None):
+    def process(*, in_str, fname=None, config=None):
         """Process a string and return the new string.
 
         Args:
@@ -139,7 +139,7 @@ class PythonTemplateInterface(RawTemplateInterface):
             live_context[k] = self.infer_type(live_context[k])
         return live_context
 
-    def process(self, in_str, fname=None, config=None):
+    def process(self, *, in_str, fname=None, config=None):
         """Process a string and return the new string.
 
         Args:
@@ -288,7 +288,7 @@ class JinjaTemplateInterface(PythonTemplateInterface):
                 pos=FilePositionMarker(None, line_no, pos, charpos),
             )
 
-    def process(self, in_str, fname=None, config=None):
+    def process(self, *, in_str, fname=None, config=None):
         """Process a string and return the new string.
 
         Args:
@@ -481,14 +481,13 @@ class DbtTemplateInterface(PythonTemplateInterface):
                 "please install dbt dependencies through `pip install sqlfluff[dbt]`"
             ) from e
 
-    def process(self, in_str, fname=None, config=None):
-        """Process a file and return the output string
+    def process(self, *, fname, in_str=None, config=None):
+        """Compile a DBT model and return the compiled SQL.
 
         Args:
-            in_str (:obj:`str`): The input string.
-            fname (:obj:`str`, optional): The filename of this string. This is
-                mostly for loading config files at runtime.
-            config (:obj:`FluffConfig`): A specific config to use for this
+            fname (:obj:`str`): Path to DBT model(s)
+            in_str (:obj:`str`, optional): This is ignored for DBT
+            config (:obj:`FluffConfig`, optional): A specific config to use for this
                 templating operation. Only necessary for some templaters.
         """
         self._check_dbt_installed()
@@ -498,10 +497,12 @@ class DbtTemplateInterface(PythonTemplateInterface):
         )
 
         try:
-            return self._unsafe_process(in_str, fname, config)
+            return self._unsafe_process(fname, in_str, config)
         except DbtCompilationException as e:
             return None, [
-                SQLTemplaterError(f"DBT compilation error, {e.msg}")
+                SQLTemplaterError(
+                    f"DBT compilation error on file '{e.node.original_file_path}', {e.msg}"
+                )
             ]
         except DbtFailedToConnectException as e:
             return None, [
@@ -512,7 +513,7 @@ class DbtTemplateInterface(PythonTemplateInterface):
                 )
             ]
 
-    def _unsafe_process(self, in_str, fname, config=None):
+    def _unsafe_process(self, fname, in_str=None, config=None):
         if not config:
             raise ValueError(
                 "For the dbt templater, the `process()` method requires a config object."
@@ -521,7 +522,10 @@ class DbtTemplateInterface(PythonTemplateInterface):
             raise ValueError(
                 "For the dbt templater, the `process()` method requires a file name"
             )
-
+        elif fname == "stdin":
+            raise ValueError(
+                "The dbt templater does not support stdin input, provide a path instead"
+            )
 
         # Load the user's DBT config
         self.dbt_config = self.dbt_config or self.load_dbt_config(config)

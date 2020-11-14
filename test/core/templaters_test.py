@@ -27,7 +27,7 @@ def test__templater_raw():
     """Test the raw templater."""
     t = RawTemplateInterface()
     instr = "SELECT * FROM {{blah}}"
-    outstr, _ = t.process(instr)
+    outstr, _ = t.process(in_str=instr)
     assert instr == outstr
 
 
@@ -38,7 +38,7 @@ def test__templater_python():
     """Test the python templater."""
     t = PythonTemplateInterface(override_context=dict(blah="foo"))
     instr = PYTHON_STRING
-    outstr, _ = t.process(instr)
+    outstr, _ = t.process(in_str=instr)
     assert outstr == "SELECT * FROM foo"
 
 
@@ -47,7 +47,7 @@ def test__templater_python_error():
     t = PythonTemplateInterface(override_context=dict(noblah="foo"))
     instr = PYTHON_STRING
     with pytest.raises(SQLTemplaterError):
-        t.process(instr)
+        t.process(in_str=instr)
 
 
 JINJA_STRING = "SELECT * FROM {% for c in blah %}{{c}}{% if not loop.last %}, {% endif %}{% endfor %} WHERE {{condition}}\n\n"
@@ -57,7 +57,7 @@ def test__templater_jinja():
     """Test jinja templating and the treatment of whitespace."""
     t = JinjaTemplateInterface(override_context=dict(blah="foo", condition="a < 10"))
     instr = JINJA_STRING
-    outstr, _ = t.process(instr, config=FluffConfig())
+    outstr, _ = t.process(in_str=instr, config=FluffConfig())
     assert outstr == "SELECT * FROM f, o, o WHERE a < 10\n\n"
 
 
@@ -65,7 +65,7 @@ def test__templater_jinja_error():
     """Test error handling in the jinja templater."""
     t = JinjaTemplateInterface(override_context=dict(blah="foo"))
     instr = JINJA_STRING
-    outstr, vs = t.process(instr, config=FluffConfig())
+    outstr, vs = t.process(in_str=instr, config=FluffConfig())
     assert outstr == "SELECT * FROM f, o, o WHERE \n\n"
     # Check we have violations.
     assert len(vs) > 0
@@ -75,7 +75,7 @@ def test__templater_jinja_error_catatrophic():
     """Test error handling in the jinja templater."""
     t = JinjaTemplateInterface(override_context=dict(blah=7))
     instr = JINJA_STRING
-    outstr, vs = t.process(instr, config=FluffConfig())
+    outstr, vs = t.process(in_str=instr, config=FluffConfig())
     assert not outstr
     assert len(vs) > 0
 
@@ -149,46 +149,55 @@ def test__templater_dbt_profiles_dir_expanded(dbt_templater):  # noqa
 
 
 @pytest.mark.parametrize(
-    "in_fpath,out_fpath",
+    "fname",
     [
         # dbt_utils
-        ("models/my_new_project/use_dbt_utils.sql", "../dbt/use_dbt_utils.sql"),
+        ("use_dbt_utils.sql",),
         # macro calling another macro
-        ("models/my_new_project/macro_in_macro.sql", "../dbt/macro_in_macro.sql"),
+        ("macro_in_macro.sql",),
         # config.get(...)
-        ("models/my_new_project/use_headers.sql", "../dbt/use_headers.sql"),
+        ("use_headers.sql",),
         # var(...)
-        ("models/my_new_project/use_var.sql", "../dbt/use_var.sql"),
+        ("use_var.sql",),
     ],
 )
 @pytest.mark.dbt
 def test__templater_dbt_templating_result(
-    in_dbt_project_dir, dbt_templater, in_fpath, out_fpath  # noqa
+    in_dbt_project_dir, dbt_templater, fname  # noqa
 ):
     """Test that input sql file gets templated into output sql file."""
     outstr, _ = dbt_templater.process(
         in_str="",
-        fname=in_fpath,
+        fname="models/my_new_project/" + fname,
         config=FluffConfig(configs=DBT_FLUFF_CONFIG),
     )
-    assert outstr == open(out_fpath).read()
+    assert outstr == open("../dbt/" + fname).read()
 
 
 @pytest.mark.parametrize(
-    "in_fpath,exception_msg",
+    "fname,exception_msg",
     [
-        ("models/my_new_project/exception_connect_database.sql", "DBT tried to connect to the database")
+        ("compiler_error.sql", "DBT compilation error on file 'models/my_new_project/compiler_error.sql', Unexpected end of template. Jinja was looking for the following tags: 'endfor'"),
+        ("exception_connect_database.sql", "DBT tried to connect to the database"),
     ]
 )
 @pytest.mark.dbt
 def test__templater_dbt_handle_exceptions(
-    in_dbt_project_dir, dbt_templater, in_fpath, exception_msg  # noqa
+    in_dbt_project_dir, dbt_templater, fname, exception_msg  # noqa
 ):
     """Test that exceptions during compilation are returned as violation."""
-    _, violations = dbt_templater.process(
-        in_str="",
-        fname=in_fpath,
-        config=FluffConfig(configs=DBT_FLUFF_CONFIG),
-    )
+    src_fpath = "../dbt/error_models/" + fname
+    target_fpath = "models/my_new_project/" + fname
+    # We move the file that throws an error in and out of the project directory
+    # as DBT throws an error if a node fails to parse while computing the DAG
+    os.rename(src_fpath, target_fpath)
+    try:
+        _, violations = dbt_templater.process(
+            in_str="",
+            fname=target_fpath,
+            config=FluffConfig(configs=DBT_FLUFF_CONFIG),
+        )
+    finally:
+        os.rename(target_fpath, src_fpath)
     assert violations
     assert violations[0].desc().startswith(exception_msg)
