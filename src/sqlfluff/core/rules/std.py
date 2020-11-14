@@ -1,11 +1,4 @@
-"""Standard SQL Linting Rules.
-
-NB: In docstrings, when marking whitespace, do not use code highlighting
-in any of the examples for that rule. Lexing with fail when encontering the
-explicit '•' amd '->' characters (space and tab respectively) and so
-highglighting will ail for those examples. For consistency, any passing
-examples in the same rule should also be un-highlighted.
-"""
+"""Standard SQL Linting Rules."""
 
 import itertools
 from typing import Tuple, List
@@ -16,9 +9,10 @@ from .config_info import STANDARD_CONFIG_INFO_DICT
 std_rule_set = RuleSet(name="standard", config_info=STANDARD_CONFIG_INFO_DICT)
 
 
+@std_rule_set.document_fix_compatible
 @std_rule_set.register
 class Rule_L001(BaseCrawler):
-    """Unneccessary trailing whitespace.
+    """Unnecessary trailing whitespace.
 
     | **Anti-pattern**
     | The • character represents a space.
@@ -120,6 +114,7 @@ class Rule_L002(BaseCrawler):
                     )
 
 
+@std_rule_set.document_fix_compatible
 @std_rule_set.document_configuration
 @std_rule_set.register
 class Rule_L003(BaseCrawler):
@@ -310,7 +305,7 @@ class Rule_L003(BaseCrawler):
         - Any increase in indentation may be _up to_ the number of
           indent characters.
         - Any line must be in line with the previous line which had
-          the same indent balance at it's start.
+          the same indent balance at its start.
         - Apart from "whole" indents, a "hanging" indent is possible
           if the line starts in line with either the indent of the
           previous line or if it starts at the same indent as the *last*
@@ -702,6 +697,7 @@ class Rule_L004(BaseCrawler):
         return LintResult(memory=memory)
 
 
+@std_rule_set.document_fix_compatible
 @std_rule_set.register
 class Rule_L005(BaseCrawler):
     """Commas should not have whitespace directly before them.
@@ -750,6 +746,7 @@ class Rule_L005(BaseCrawler):
         return None
 
 
+@std_rule_set.document_fix_compatible
 @std_rule_set.register
 class Rule_L006(BaseCrawler):
     """Operators should be surrounded by a single whitespace.
@@ -963,6 +960,7 @@ class Rule_L007(BaseCrawler):
             return LintResult(memory=memory)
 
 
+@std_rule_set.document_fix_compatible
 @std_rule_set.register
 class Rule_L008(BaseCrawler):
     """Commas should be followed by a single whitespace unless followed by a comment.
@@ -1013,6 +1011,7 @@ class Rule_L008(BaseCrawler):
         return None
 
 
+@std_rule_set.document_fix_compatible
 @std_rule_set.register
 class Rule_L009(BaseCrawler):
     """Files must end with a trailing newline."""
@@ -1052,6 +1051,7 @@ class Rule_L009(BaseCrawler):
         )
 
 
+@std_rule_set.document_fix_compatible
 @std_rule_set.document_configuration
 @std_rule_set.register
 class Rule_L010(BaseCrawler):
@@ -1187,6 +1187,7 @@ class Rule_L010(BaseCrawler):
         return LintResult(memory=memory)
 
 
+@std_rule_set.document_fix_compatible
 @std_rule_set.register
 class Rule_L011(BaseCrawler):
     """Implicit aliasing of table not allowed. Use explicit `AS` clause.
@@ -1216,7 +1217,7 @@ class Rule_L011(BaseCrawler):
     def _eval(self, segment, parent_stack, raw_stack, **kwargs):
         """Implicit aliasing of table/column not allowed. Use explicit `AS` clause.
 
-        We look for the alias segment, and then evaluate it's parent and whether
+        We look for the alias segment, and then evaluate its parent and whether
         it contains an AS keyword. This is the _eval function for both L011 and L012.
 
         The use of `raw_stack` is just for working out how much whitespace to add.
@@ -1264,7 +1265,7 @@ class Rule_L011(BaseCrawler):
 class Rule_L012(Rule_L011):
     """Implicit aliasing of column not allowed. Use explicit `AS` clause.
 
-    NB: This rule inherits it's functionality from obj:`Rule_L011` but is
+    NB: This rule inherits its functionality from obj:`Rule_L011` but is
     seperate so that they can be enabled and disabled seperately.
 
     """
@@ -1388,6 +1389,7 @@ class Rule_L015(BaseCrawler):
         return LintResult()
 
 
+@std_rule_set.document_fix_compatible
 @std_rule_set.document_configuration
 @std_rule_set.register
 class Rule_L016(Rule_L003):
@@ -1808,6 +1810,7 @@ class Rule_L016(Rule_L003):
             return LintResult(anchor=segment)
 
 
+@std_rule_set.document_fix_compatible
 @std_rule_set.register
 class Rule_L017(BaseCrawler):
     """Function name not immediately followed by bracket.
@@ -1861,6 +1864,7 @@ class Rule_L017(BaseCrawler):
         return LintResult()
 
 
+@std_rule_set.document_fix_compatible
 @std_rule_set.register
 class Rule_L018(BaseCrawler):
     """WITH clause closing bracket should be aligned with WITH keyword.
@@ -2262,6 +2266,7 @@ class Rule_L021(BaseCrawler):
         return None
 
 
+@std_rule_set.document_fix_compatible
 @std_rule_set.register
 class Rule_L022(BaseCrawler):
     """Blank line expected but not found after CTE definition.
@@ -2446,6 +2451,7 @@ class Rule_L022(BaseCrawler):
         return error_buffer or None
 
 
+@std_rule_set.document_fix_compatible
 @std_rule_set.register
 class Rule_L023(BaseCrawler):
     """Single whitespace expected after AS in WITH clause.
@@ -2878,6 +2884,7 @@ class Rule_L030(Rule_L010):
     _target_elems: List[Tuple[str, str]] = [("name", "function_name")]
 
 
+@std_rule_set.document_fix_compatible
 @std_rule_set.register
 class Rule_L031(BaseCrawler):
     """Avoid table aliases in from clauses and join conditions.
@@ -3102,6 +3109,7 @@ class Rule_L033(BaseCrawler):
         return LintResult()
 
 
+@std_rule_set.document_fix_compatible
 @std_rule_set.register
 class Rule_L034(BaseCrawler):
     """Use wildcards then simple select targets before calculations and aggregates.

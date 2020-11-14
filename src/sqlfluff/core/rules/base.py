@@ -463,9 +463,15 @@ class RuleSet:
         # docstring by inserting after the first line break, or first period,
         # if there is no line break.
         end_of_class_description = "." if "\n" not in cls.__doc__ else "\n"
+
         cls.__doc__ = cls.__doc__.replace(
-            end_of_class_description, ".\n" + config_doc, 1
+            end_of_class_description, "\n" + config_doc, 1
         )
+        return cls
+
+    def document_fix_compatible(self, cls):
+        """Mark the rule as fixable in the documentation."""
+        cls.__doc__ = "``sqlfluff fix`` compatible.\n\n\n" + cls.__doc__
         return cls
 
     def register(self, cls):
