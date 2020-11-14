@@ -698,6 +698,19 @@ def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
         )
 
 
+def rules__test_helper(rule, test_cases):
+    """Test that a rule passes/fails on a set of test_cases.
+    Optionally, also test the fixed string if provided in the test case.
+    """
+    for test_case in test_cases["pass"]:
+        assert_rule_pass_in_sql(rule, test_case["query"], configs=test_case["configs"])
+    for test_case in test_cases["fail"]:
+        res = assert_rule_fail_in_sql(rule, test_case["query"], configs=test_case["configs"])
+        # If a `fixed` value is provided then check it matches
+        if test_case["fixed"]:
+            assert res == test_case["fixed"]
+
+
 class Rule_T042(BaseCrawler):
     """A dummy rule."""
 
