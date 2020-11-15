@@ -90,7 +90,7 @@ class MetaSegment(RawSegment):
         if pos_marker:
             self.pos_marker = pos_marker.strip()
         else:
-            self.pos_marker = FilePositionMarker.from_fresh()
+            self.pos_marker = FilePositionMarker()
 
 
 class Indent(MetaSegment):
@@ -129,6 +129,17 @@ class NonCodePlaceholder(MetaSegment):
     the position of an element on a line which has been removed. This is used
     to record the position of template blocks, so that their indents are not
     removed during linting.
+
+    This is used to hold a reference point for code from the source file
+    which is removed in the templated version such as loop blocks or comments.
+    On initialisation we optionally accept the source string as a kwarg in
+    case rules want to lint this down the line.
     """
 
     type = "placeholder"
+
+    def __init__(self, pos_marker=None, source_str=""):
+        """Initialise a placeholder with the source code embedded."""
+        self.source_str = source_str
+        # Call the super of the pos_marker.
+        super().__init__(pos_marker=pos_marker)

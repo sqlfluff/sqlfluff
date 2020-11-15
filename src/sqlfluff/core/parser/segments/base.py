@@ -835,10 +835,6 @@ class BaseSegment:
                     break
                 else:
                     seg = todo_buffer.pop(0)
-                    # We don't apply fixes to meta segments
-                    # if seg.is_meta:
-                    #     seg_buffer.append(seg)
-                    #     continue
 
                     fix_buff = fixes.copy()
                     unused_fixes = []

@@ -6,7 +6,7 @@ from sqlfluff.core.parser.markers import FilePositionMarker, EnrichedFilePositio
 def test__markers__common_marker():
     """Test construction and comparison of markers."""
     # test making one from fresh
-    fp1 = FilePositionMarker.from_fresh()
+    fp1 = FilePositionMarker()
     fp2 = fp1.advance_by("abc")
     fp3 = fp2.advance_by("def\nghi\njlk")
     fp4 = fp3.advance_by("mno", idx=1)

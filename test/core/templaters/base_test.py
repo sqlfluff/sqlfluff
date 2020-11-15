@@ -305,4 +305,4 @@ def test__templated_file_untouchable_slices():
             RawFileSlice("a" * 10, "literal", 17),
         ],
     )
-    assert file.untouchable_slices() == [(slice(10, 17), "comment")]
+    assert file.untouchable_slices() == [(slice(10, 17), "comment", "b" * 7)]

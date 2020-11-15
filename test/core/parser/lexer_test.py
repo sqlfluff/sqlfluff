@@ -22,7 +22,7 @@ def assert_matches(instring, matcher, matchstring):
     particular string or negative matching (that it explicitly)
     doesn't match.
     """
-    start_pos = FilePositionMarker.from_fresh()
+    start_pos = FilePositionMarker()
     res = matcher.match(instring, start_pos)
     # Check we've got the right type
     assert isinstance(res, LexMatch)
@@ -114,7 +114,7 @@ def test__parser__lexer_multimatcher(caplog):
         SingletonMatcher("dot", ".", RawSegment.make(".", name="dot", is_code=True)),
         RegexMatcher("test", r"#[^#]*#", RawSegment.make("test", name="test")),
     )
-    start_pos = FilePositionMarker.from_fresh()
+    start_pos = FilePositionMarker()
     with caplog.at_level(logging.DEBUG):
         res = matcher.match("..#..#..#", start_pos)
         assert res.new_string == "#"  # Should match right up to the final element

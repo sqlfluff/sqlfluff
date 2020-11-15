@@ -14,7 +14,7 @@ from sqlfluff.core.dialects import ansi_dialect
 @pytest.fixture(scope="module")
 def raw_seg():
     """Construct a raw segment as a fixture."""
-    fp = FilePositionMarker.from_fresh().advance_by("abc")
+    fp = FilePositionMarker().advance_by("abc")
     return RawSegment("foobar", fp)
 
 
@@ -38,8 +38,7 @@ class DummyAuxSegment(BaseSegment):
 
 def test__parser__base_segments_raw_init():
     """Test initialisation. Other tests just use the fixture."""
-    fp = FilePositionMarker.from_fresh()
-    RawSegment("foobar", fp)
+    RawSegment("foobar", FilePositionMarker())
 
 
 def test__parser__base_segments_type():
@@ -95,19 +94,15 @@ def test__parser__base_segments_base(raw_seg_list):
 
 def test__parser__base_segments_raw_compare():
     """Test comparison of raw segments."""
-    fp1 = FilePositionMarker.from_fresh()
-    fp2 = FilePositionMarker.from_fresh()
-    rs1 = RawSegment("foobar", fp1)
-    rs2 = RawSegment("foobar", fp2)
+    rs1 = RawSegment("foobar", FilePositionMarker())
+    rs2 = RawSegment("foobar", FilePositionMarker())
     assert rs1 == rs2
 
 
 def test__parser__base_segments_base_compare():
     """Test comparison of base segments."""
-    fp1 = FilePositionMarker.from_fresh()
-    fp2 = FilePositionMarker.from_fresh()
-    rs1 = RawSegment("foobar", fp1)
-    rs2 = RawSegment("foobar", fp2)
+    rs1 = RawSegment("foobar", FilePositionMarker())
+    rs2 = RawSegment("foobar", FilePositionMarker())
 
     ds1 = DummySegment([rs1])
     ds2 = DummySegment([rs2])

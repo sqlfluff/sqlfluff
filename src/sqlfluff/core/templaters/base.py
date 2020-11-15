@@ -311,8 +311,14 @@ class TemplatedFile:
         """
         ret_buff = []
         for elem in self.raw_sliced:
-            if elem[1] in ("comment", "block_end", "block_start"):
-                ret_buff.append((slice(elem[2], elem[2] + len(elem[0])), elem[1]))
+            if elem.slice_type in ("comment", "block_end", "block_start"):
+                ret_buff.append(
+                    (
+                        slice(elem.source_idx, elem.end_source_idx()),
+                        elem.slice_type,
+                        elem.raw,
+                    )
+                )
         return ret_buff
 
 

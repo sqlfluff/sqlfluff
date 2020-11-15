@@ -108,6 +108,13 @@ class LintedFile(
 
         NB: This is MUCH FASTER than the original approach
         using difflib in pre 0.4.0.
+
+        There is an important distinction here between Slices and
+        Segments. A Slice is a portion of a file which is determined
+        by the templater based on which portions of the source file
+        are templated or not, and therefore before Lexing and so is
+        completely dialect agnostic. A Segment is determined by the
+        Lexer from portions of strings after templating.
         """
         bencher = BenchIt()
         bencher("fix_string: start")
@@ -139,7 +146,7 @@ class LintedFile(
         )
         linter_logger.debug("Templated-space patches: %s", template_space_patches)
 
-        # We now convert enrich the patches into source space
+        # We now convert templated-space patches into source-space patches.
         source_space_patches = []
         for patch in template_space_patches:
             try:

@@ -13,10 +13,10 @@ class FilePositionMarker:
 
     def __init__(
         self,
-        statement_index: Optional[int],
-        line_no: int,
-        line_pos: Optional[int],
-        char_pos: int,
+        statement_index: Optional[int] = 1,
+        line_no: int = 1,
+        line_pos: Optional[int] = 1,
+        char_pos: int = 0,
     ):
         # NB: statment_index and line_pos are optional so that
         # we can use position markers to flag up errors which
@@ -51,15 +51,6 @@ class FilePositionMarker:
             and (self.line_pos == other.line_pos)
             and (self.char_pos == other.char_pos)
         )
-
-    @classmethod
-    def from_fresh(cls):
-        """Construct a fresh position marker.
-
-        This should be the default way of creating a new position marker, and
-        is where we define what the `start` of a file looks like.
-        """
-        return cls(1, 1, 1, 0)
 
     def advance_by(self, raw="", idx=0):
         """Construct a new `FilePositionMarker` at a point ahead of this one.

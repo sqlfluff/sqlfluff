@@ -6,7 +6,7 @@ from collections import namedtuple
 import re
 
 from .markers import FilePositionMarker, EnrichedFilePositionMarker
-from .segments import RawSegment, Indent, Dedent, NonCodePlaceholder
+from .segments import BaseSegment, RawSegment, Indent, Dedent, NonCodePlaceholder
 from ..errors import SQLLexError
 from ..templaters import TemplatedFile
 from ..config import FluffConfig
@@ -299,14 +299,14 @@ class Lexer:
             "<unlexable>", r"[^\t\n\,\.\ \-\+\*\\\/\'\"\;\:\[\]\(\)\|]*", is_code=True
         )
 
-    def lex(self, raw: str) -> Tuple[Tuple[RawSegment, ...], List[SQLLexError]]:
+    def lex(self, raw: str) -> Tuple[Tuple[BaseSegment, ...], List[SQLLexError]]:
         """Take a string or TemplatedFile and return segments.
 
         If we fail to match the *whole* string, then we must have
         found something that we cannot lex. If that happens we should
         package it up as unlexable and keep track of the exceptions.
         """
-        start_pos = FilePositionMarker.from_fresh()
+        start_pos = FilePositionMarker()
         segment_buff = ()
         violations = []
 
@@ -337,19 +337,20 @@ class Lexer:
                 break
 
         # Enrich the segments if we can using the templated file
-        return self.enrich_segments(segment_buff, raw), violations
+        if isinstance(raw, TemplatedFile):
+            return self.enrich_segments(segment_buff, raw), violations
+        else:
+            return segment_buff, violations
 
     @staticmethod
-    def enrich_segments(segment_buff, templated_file):
+    def enrich_segments(
+        segment_buff: Tuple[BaseSegment, ...], templated_file: TemplatedFile
+    ) -> Tuple[BaseSegment, ...]:
         """Enrich the segments using the templated file.
 
         We use the mapping in the template to provide positions
         in the source file.
         """
-        # Check this is actually a templated file.
-        if not isinstance(templated_file, TemplatedFile):
-            return segment_buff
-
         # Make a new buffer to hold the enriched segments.
         # We need a new buffer to hold the new meta segments
         # introduced.
@@ -372,12 +373,12 @@ class Lexer:
             # so we should consider whether we've captured any. If we have then
             # we need to re-evaluate whether it's a literal or not.
 
-            for ut_slice, ut_type in untouchables:
+            for ut_slice, ut_type, ut_raw in untouchables:
                 if ut_slice.start > source_slice.start:
                     break
                 elif ut_slice.start == source_slice.start:
                     lexer_logger.debug(
-                        "Found untouchable slot! %s, %s, %s",
+                        "Found untouchable section! %s, %s, %s",
                         ut_slice,
                         ut_type,
                         templated_slice.start,
@@ -398,7 +399,9 @@ class Lexer:
                         ut_slice.start
                     )
                     new_segment_buff.append(
-                        NonCodePlaceholder(pos_marker=segment.pos_marker)
+                        NonCodePlaceholder(
+                            pos_marker=segment.pos_marker, source_str=ut_raw
+                        )
                     )
                     # If it's a block end, add a dedent.
                     if ut_type == "block_start":
@@ -437,4 +440,4 @@ class Lexer:
             new_segment_buff,
         )
 
-        return new_segment_buff
+        return tuple(new_segment_buff)
