@@ -274,8 +274,13 @@ def dialects(**kwargs):
         "found. This is potentially useful during rollout."
     ),
 )
+@click.option(
+    "--disregard-sqlfluffignores",
+    is_flag=True,
+    help=("Perform the operation regardless of .sqlfluffignore configurations"),
+)
 @click.argument("paths", nargs=-1)
-def lint(paths, format, nofail, logger=None, **kwargs):
+def lint(paths, format, nofail, disregard_sqlfluffignores, logger=None, **kwargs):
     """Lint SQL files via passing a list of files or using stdin.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -312,7 +317,11 @@ def lint(paths, format, nofail, logger=None, **kwargs):
             click.echo(format_linting_result_header())
         try:
             # TODO: Remove verbose
-            result = lnt.lint_paths(paths, ignore_non_existent_files=False)
+            result = lnt.lint_paths(
+                paths,
+                ignore_non_existent_files=False,
+                ignore_files=not disregard_sqlfluffignores,
+            )
         except IOError:
             click.echo(
                 colorize(
