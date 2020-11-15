@@ -11,7 +11,6 @@ from sqlfluff.core.templaters import (
 )
 from sqlfluff.core import Linter, FluffConfig, SQLTemplaterError
 from test.fixtures.dbt.templater import DBT_FLUFF_CONFIG, dbt_templater, in_dbt_project_dir  # noqa
-from dbt.adapters.factory import get_adapter
 
 
 def test__templater_selection():
@@ -186,6 +185,8 @@ def test__templater_dbt_handle_exceptions(
     in_dbt_project_dir, dbt_templater, fname, exception_msg  # noqa
 ):
     """Test that exceptions during compilation are returned as violation."""
+    from dbt.adapters.factory import get_adapter
+
     src_fpath = "../dbt/error_models/" + fname
     target_fpath = "models/my_new_project/" + fname
     # We move the file that throws an error in and out of the project directory
