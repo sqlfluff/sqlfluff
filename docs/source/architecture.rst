@@ -16,8 +16,8 @@ at the next step if not dealt with here.
 .. _Dbt: https://docs.getdbt.com/
 
 Jinja_ is the default templater used by *sqlfluff*. Under the covers, Dbt_ also
-uses Jinja_ but in *sqlfluff* it is a separate templater which relies directly on
-the Dbt_ compiler.
+uses Jinja_ but in *sqlfluff* it is a separate templater which relies directly
+on the Dbt_ compiler.
 
 For more details on how to configure the templater see :ref:`templateconfig`.
 
