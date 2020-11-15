@@ -22,6 +22,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [466](https://github.com/sqlfluff/sqlfluff/issues/466) - Added L034
   'Fields should be stated before aggregates / window functions' per
   [dbt coding convenventions](https://github.com/fishtown-analytics/corp/blob/master/dbt_coding_conventions.md#sql-style-guide.)
+- Templating tags, such as `{{ variables }}`, `{# comments #}` and
+  `{% loops %}` (in jinja) now have placeholders in the parsed
+  structure. Rule L003 (indentation), also now respects these
+  placeholders so that their indentation is linted accordingly.
+  For loop or block tags, they also generate an `Indent` and
+  `Dedent` tag accordingly (which can be enabled or disabled)
+  with a configuration value so that indentation around these
+  functions can be linted accordingly.
 - MyPy type linting into a large proportion of the core library.
 
 ### Changed
@@ -30,6 +38,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   logging so that it can be imported directly by subprojects without
   needing to worry about wierd output or without the log handing getting
   in the way of your project.
+- Linting errors in the final file are now reported with their position
+  in the source file rather than in the templated file. This means
+  when using sqlfluff as a plugabble library within an IDE, the
+  references match the file which is being edited.
 - Created new Github Organisation (https://github.com/sqlfluff) and
   migrated from https://github.com/alanmcruickshank/sqlfluff to
   https://github.com/sqlfluff/sqlfluff.
@@ -70,7 +82,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   to the grammar module called `NonCodeMatcher`.
 - Case sensitivity as a feature for segment matching has been removed as
   not required for existing dialects.
-- Gap
+- Dependency on `difflib` or `cdifflib`, by relying on source mapping
+  instead to apply fixes.
 
 ## [0.3.6] - 2020-09-24
 
