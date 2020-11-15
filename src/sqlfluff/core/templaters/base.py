@@ -1,7 +1,7 @@
 """Defines the templaters."""
 
 import logging
-from typing import Dict, Iterator, List, Tuple, Optional, Set, NamedTuple
+from typing import Dict, Iterator, List, Tuple, Optional, NamedTuple
 
 _templater_lookup: Dict[str, "RawTemplater"] = {}
 
@@ -181,7 +181,8 @@ class TemplatedFile:
         return first_idx, last_idx
 
     def templated_slice_to_source_slice(
-        self, template_slice: slice, post_placeholder_hint: Optional[int] = None
+        self,
+        template_slice: slice,
     ) -> slice:
         """Convert a template slice to a source slice."""
         if not self.sliced_file:
@@ -193,22 +194,18 @@ class TemplatedFile:
 
         ts_start_subsliced_file = self.sliced_file[ts_start_sf_start:ts_start_sf_stop]
 
-        # Initialise as a set.
-        insertion_set: Set[int] = set()
+        # Work out the insertion point
+        insertion_point = -1
         for elem in ts_start_subsliced_file:
             # Do slice starts and ends:
             for slice_elem in ("start", "stop"):
                 if getattr(elem[2], slice_elem) == template_slice.start:
-                    insertion_set.add(getattr(elem[1], slice_elem))
-        # Turn into a sorted list.
-        insertion_points: List[int] = sorted(insertion_set)
-
-        # Work out the insertion point
-        insertion_point = -1
-        if insertion_points:
-            insertion_point = insertion_points[
-                min(post_placeholder_hint or 0, len(insertion_points) - 1)
-            ]
+                    # Store the lowest.
+                    point = getattr(elem[1], slice_elem)
+                    if insertion_point < 0 or point < insertion_point:
+                        insertion_point = point
+                    # We don't break here, because we might find ANOTHER
+                    # later which is actually earlier.
 
         # Zero length slice.
         if template_slice.start == template_slice.stop:

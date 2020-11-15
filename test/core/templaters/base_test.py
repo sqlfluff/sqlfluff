@@ -176,13 +176,12 @@ def test__templated_file_find_slice_indices_of_templated_pos(
 
 
 @pytest.mark.parametrize(
-    "in_slice,out_slice,post_placeholder_hint,is_literal,file_slices,raw_slices",
+    "in_slice,out_slice,is_literal,file_slices,raw_slices",
     [
         # Simple example
         (
             slice(5, 10),
             slice(5, 10),
-            0,
             True,
             [TemplatedFileSlice("literal", slice(0, 20, None), slice(0, 20, None))],
             [RawFileSlice("x" * 20, "literal", 0)],
@@ -191,7 +190,6 @@ def test__templated_file_find_slice_indices_of_templated_pos(
         (
             slice(10, 13),
             slice(10, 13),
-            0,
             True,
             COMPLEX_SLICED_FILE,
             COMPLEX_RAW_SLICED_FILE,
@@ -200,7 +198,6 @@ def test__templated_file_find_slice_indices_of_templated_pos(
         (
             slice(5, 10),
             slice(55, 60),
-            0,
             True,
             [TemplatedFileSlice("literal", slice(50, 70, None), slice(0, 20, None))],
             [RawFileSlice("x" * 50, "literal", 0), ("x" * 20, "literal", 50)],
@@ -209,7 +206,6 @@ def test__templated_file_find_slice_indices_of_templated_pos(
         (
             slice(5, 15),
             slice(5, 20),
-            0,
             False,
             SIMPLE_SLICED_FILE,
             SIMPLE_RAW_SLICED_FILE,
@@ -218,7 +214,6 @@ def test__templated_file_find_slice_indices_of_templated_pos(
         (
             slice(5, 15),
             slice(0, 25),
-            0,
             False,
             # NB: Same as SIMPLE_SLICED_FILE, but with different slice types.
             [
@@ -234,7 +229,6 @@ def test__templated_file_find_slice_indices_of_templated_pos(
         (
             slice(10, 10),
             slice(10, 10),
-            0,
             True,
             SIMPLE_SLICED_FILE,
             SIMPLE_RAW_SLICED_FILE,
@@ -242,7 +236,6 @@ def test__templated_file_find_slice_indices_of_templated_pos(
         (
             slice(12, 12),
             slice(17, 17),
-            0,
             True,
             SIMPLE_SLICED_FILE,
             SIMPLE_RAW_SLICED_FILE,
@@ -251,16 +244,6 @@ def test__templated_file_find_slice_indices_of_templated_pos(
         (
             slice(20, 20),
             slice(25, 25),
-            0,
-            True,
-            SIMPLE_SLICED_FILE
-            + [TemplatedFileSlice("comment", slice(25, 35, None), slice(20, 20, None))],
-            SIMPLE_RAW_SLICED_FILE + [RawFileSlice("x" * 10, "comment", 25)],
-        ),
-        (
-            slice(20, 20),
-            slice(35, 35),
-            1,
             True,
             SIMPLE_SLICED_FILE
             + [TemplatedFileSlice("comment", slice(25, 35, None), slice(20, 20, None))],
@@ -269,42 +252,21 @@ def test__templated_file_find_slice_indices_of_templated_pos(
         # Just more test coverage
         (
             slice(43, 43),
-            slice(87, 87),  # out
-            0,
+            slice(87, 87),
             True,
             COMPLEX_SLICED_FILE,
             COMPLEX_RAW_SLICED_FILE,
         ),
         (
             slice(13, 13),
-            slice(13, 13),  # out
-            0,
-            True,
-            COMPLEX_SLICED_FILE,
-            COMPLEX_RAW_SLICED_FILE,
-        ),
-        (
             slice(13, 13),
-            slice(29, 29),  # out
-            1,
             True,
             COMPLEX_SLICED_FILE,
             COMPLEX_RAW_SLICED_FILE,
         ),
         (
             slice(186, 186),
-            slice(
-                155, 155
-            ),  # <- I think this used to come out as slice(179, 179) in V1.
-            0,
-            True,
-            COMPLEX_SLICED_FILE,
-            COMPLEX_RAW_SLICED_FILE,
-        ),
-        (
-            slice(186, 186),
-            slice(179, 179),
-            1,
+            slice(155, 155),
             True,
             COMPLEX_SLICED_FILE,
             COMPLEX_RAW_SLICED_FILE,
@@ -315,7 +277,6 @@ def test__templated_file_find_slice_indices_of_templated_pos(
             # NB This actually would reference the wrong way around if we
             # just take the points. Here we should handle it gracefully.
             slice(68, 110),
-            0,
             False,
             COMPLEX_SLICED_FILE,
             COMPLEX_RAW_SLICED_FILE,
@@ -323,15 +284,13 @@ def test__templated_file_find_slice_indices_of_templated_pos(
     ],
 )
 def test__templated_file_templated_slice_to_source_slice(
-    in_slice, out_slice, post_placeholder_hint, is_literal, file_slices, raw_slices
+    in_slice, out_slice, is_literal, file_slices, raw_slices
 ):
     """Test TemplatedFile.templated_slice_to_source_slice."""
     file = TemplatedFile(
         source_str="Dummy String", sliced_file=file_slices, raw_sliced=raw_slices
     )
-    source_slice = file.templated_slice_to_source_slice(
-        in_slice, post_placeholder_hint=post_placeholder_hint
-    )
+    source_slice = file.templated_slice_to_source_slice(in_slice)
     literal_test = file.is_source_slice_literal(source_slice)
     assert (is_literal, source_slice) == (literal_test, out_slice)
 

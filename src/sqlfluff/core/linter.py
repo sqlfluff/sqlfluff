@@ -4,6 +4,7 @@ import os
 import time
 from collections import namedtuple
 import logging
+from typing import List
 
 from benchit import BenchIt
 import pathspec
@@ -13,7 +14,6 @@ from .parser import Lexer, Parser
 from .rules import get_ruleset
 from .config import FluffConfig
 
-from .parser.markers import EnrichedFilePositionMarker
 from .parser.segments.base import FixPatch
 
 
@@ -132,8 +132,10 @@ class LintedFile(
 
         # Patches, sorted by start
         template_space_patches: List[FixPatch] = sorted(
-            list(self.tree.iter_patches(templated_str=self.templated_file.templated_str)),
-            key=lambda x: x[0].start
+            list(
+                self.tree.iter_patches(templated_str=self.templated_file.templated_str)
+            ),
+            key=lambda x: x[0].start,
         )
         linter_logger.debug("Templated-space patches: %s", template_space_patches)
 
@@ -151,7 +153,9 @@ class LintedFile(
 
         # Dedupe on source space
         source_space_patches = [
-            patch for idx, patch in enumerate(source_space_patches) if patch not in source_space_patches[:idx]
+            patch
+            for idx, patch in enumerate(source_space_patches)
+            if patch not in source_space_patches[:idx]
         ]
         linter_logger.debug("Deduped source-space patches: %s", source_space_patches)
 

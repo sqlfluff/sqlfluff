@@ -919,7 +919,7 @@ class BaseSegment:
             segments=self._realign_segments(self.segments, self.pos_marker),
             pos_marker=self.pos_marker,
         )
-    
+
     def iter_patches(self, templated_str: str) -> Iterator[FixPatch]:
         """Iterate through the segments generating fix patches.
 
@@ -931,10 +931,7 @@ class BaseSegment:
         return a hint to deal with that.
         """
         # Does it match? If so we can ignore it.
-        matches = (
-            self.raw
-            == templated_str[self.pos_marker.templated_slice]
-        )
+        matches = self.raw == templated_str[self.pos_marker.templated_slice]
         if matches:
             return
 
@@ -969,9 +966,7 @@ class BaseSegment:
 
                 # If we get here, then we know it's an original.
                 # Check for deletions at the before this segment (vs the TEMPLATED).
-                start_diff = (
-                    segment.pos_marker.templated_slice.start - templated_idx
-                )
+                start_diff = segment.pos_marker.templated_slice.start - templated_idx
 
                 # Check to see whether there's a discontinuity before the current segment
                 if start_diff > 0 or insert_buff:
@@ -984,7 +979,6 @@ class BaseSegment:
                         insert_buff,
                     )
                     insert_buff = ""
-                    post_placeholder = 0
                     linter_logger.debug(
                         "Yielding at mid deletion (or insertion) point: %r",
                         patch,
