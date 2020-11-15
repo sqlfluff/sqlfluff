@@ -40,11 +40,11 @@ result = sqlfluff.fix(my_bad_query, rules=["L010", "L014"])
 parsed = sqlfluff.parse(my_bad_query)
 
 # Get the structure of the query
-structure = parsed.to_tuple(show_raw=True, code_only=True)
+structure = parsed.tree.to_tuple(show_raw=True, code_only=True)
 # structure = ('file', (('statement', (('select_statement', (('select_clause', (('keyword', 'SeLEct'), ...
 
 # Extract certain elements
-keywords = [keyword.raw for keyword in parsed.recursive_crawl("keyword")]
+keywords = [keyword.raw for keyword in parsed.tree.recursive_crawl("keyword")]
 # keywords = ['SeLEct', 'as', 'from']
-tbl_refs = [tbl_ref.raw for tbl_ref in parsed.recursive_crawl("table_reference")]
+tbl_refs = [tbl_ref.raw for tbl_ref in parsed.tree.recursive_crawl("table_reference")]
 # tbl_refs == ["myTable"]

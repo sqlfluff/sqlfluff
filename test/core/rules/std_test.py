@@ -37,9 +37,9 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     # Configs allows overrides if we want to use them.
     cfg = FluffConfig(configs=configs)
     r = get_rule_from_set(code, config=cfg)
-    parsed, _, _, _ = Linter(config=cfg).parse_string(sql)
-    print("Parsed:\n {0}".format(parsed.stringify()))
-    lerrs, _, _, _ = r.crawl(parsed, dialect=cfg.get("dialect_obj"), fix=True)
+    parsed = Linter(config=cfg).parse_string(sql)
+    print("Parsed:\n {0}".format(parsed.tree.stringify()))
+    lerrs, _, _, _ = r.crawl(parsed.tree, dialect=cfg.get("dialect_obj"), fix=True)
     print("Errors Found: {0}".format(lerrs))
     if any(v.rule.code == code for v in lerrs):
         pytest.fail(

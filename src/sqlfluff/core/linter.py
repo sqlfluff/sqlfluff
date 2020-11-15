@@ -2,34 +2,44 @@
 
 import os
 import time
-from collections import namedtuple
 import logging
-from typing import List
+from typing import List, NamedTuple
 
 from benchit import BenchIt
 import pathspec
 
-from .errors import SQLLexError, SQLParseError
+from .errors import SQLLexError, SQLParseError, SQLBaseError
 from .parser import Lexer, Parser
+from .templaters import TemplatedFile
 from .rules import get_ruleset
 from .config import FluffConfig
 
-from .parser.segments.base import FixPatch
+from .parser.segments.base import FixPatch, BaseSegment
 
 
 # Instantiate the linter logger
 linter_logger = logging.getLogger("sqlfluff.linter")
 
 
-class LintedFile(
-    namedtuple(
-        "ProtoFile",
-        ["path", "violations", "time_dict", "tree", "ignore_mask", "templated_file"],
-    )
-):
+class ParsedString(NamedTuple):
+    """An object to store the result of parsing a string."""
+
+    tree: BaseSegment
+    violations: List[SQLBaseError]
+    time_dict: dict
+    templated_file: TemplatedFile
+    config: FluffConfig
+
+
+class LintedFile(NamedTuple):
     """A class to store the idea of a linted file."""
 
-    __slots__ = ()
+    path: str
+    violations: list
+    time_dict: dict
+    tree: BaseSegment
+    ignore_mask: list
+    templated_file: TemplatedFile
 
     def check_tuples(self):
         """Make a list of check_tuples.
@@ -494,7 +504,7 @@ class Linter:
         """Parse a string.
 
         Returns:
-            `tuple` of (`parsed`, `violations`, `time_dict`, `templated_file`).
+            `ParsedString` of (`parsed`, `violations`, `time_dict`, `templated_file`).
                 `parsed` is a segment structure representing the parsed file. If
                     parsing fails due to an inrecoverable violation then we will
                     return None.
@@ -592,7 +602,9 @@ class Linter:
         t3 = time.monotonic()
         time_dict = {"templating": t1 - t0, "lexing": t2 - t1, "parsing": t3 - t2}
         bencher("Finish parsing {0!r}".format(short_fname))
-        return parsed, violations, time_dict, templated_file
+        return ParsedString(
+            parsed, violations, time_dict, templated_file, config or self.config
+        )
 
     @staticmethod
     def extract_ignore_from_comment(comment):
@@ -714,14 +726,15 @@ class Linter:
         config = config or self.config
 
         # Using the new parser, read the file object.
-        parsed, vs, time_dict, templated_file = self.parse_string(
-            in_str=in_str, fname=fname, config=config
-        )
+        parsed = self.parse_string(in_str=in_str, fname=fname, config=config)
+        time_dict = parsed.time_dict
+        vs = parsed.violations
+        tree = parsed.tree
 
         # Look for comment segments which might indicate lines to ignore.
         ignore_buff = []
-        if parsed:
-            for comment in parsed.recursive_crawl("comment"):
+        if tree:
+            for comment in tree.recursive_crawl("comment"):
                 if comment.name == "inline_comment":
                     ignore_entry = self.extract_ignore_from_comment(comment)
                     if isinstance(ignore_entry, SQLParseError):
@@ -731,16 +744,16 @@ class Linter:
             if ignore_buff:
                 linter_logger.info("Parsed noqa directives from file: %r", ignore_buff)
 
-        if parsed:
+        if tree:
             t0 = time.monotonic()
             linter_logger.info("LINTING (%s)", fname)
             # If we're in fix mode, apply those fixes.
             # NB: We don't pass in the linting errors, because the fix function
             # regenerates them on each loop.
             if fix:
-                parsed, initial_linting_errors = self.fix(parsed, config=config)
+                tree, initial_linting_errors = self.fix(tree, config=config)
             else:
-                initial_linting_errors = self.lint(parsed, config=config)
+                initial_linting_errors = self.lint(tree, config=config)
 
             # Update the timing dict
             t1 = time.monotonic()
@@ -759,9 +772,9 @@ class Linter:
             fname,
             vs,
             time_dict,
-            parsed,
+            tree,
             ignore_mask=ignore_buff,
-            templated_file=templated_file,
+            templated_file=parsed.templated_file,
         )
 
         # This is the main command line output from linting.
@@ -891,10 +904,6 @@ class Linter:
             with open(
                 fname, "r", encoding="utf8", errors="backslashreplace"
             ) as target_file:
-                yield (
-                    *self.parse_string(
-                        target_file.read(), fname=fname, recurse=recurse, config=config
-                    ),
-                    # Also yield the config
-                    config,
+                yield self.parse_string(
+                    target_file.read(), fname=fname, recurse=recurse, config=config
                 )
