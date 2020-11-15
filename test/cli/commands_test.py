@@ -221,13 +221,13 @@ def test__cli__command_lint_warning_explicit_file_ignored():
 
 
 def test__cli__command_lint_skip_ignore_files():
-    """Check "ignore file" is skipped when --not-ignore-files flag is set."""
+    """Check "ignore file" is skipped when --disregard-sqlfluffignores flag is set."""
     runner = CliRunner()
     result = runner.invoke(
         lint,
         [
             "test/fixtures/linter/sqlfluffignore/path_b/query_c.sql",
-            "--not-ignore-files",
+            "--disregard-sqlfluffignores",
         ],
     )
     assert result.exit_code == 65

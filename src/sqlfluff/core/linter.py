@@ -1000,7 +1000,7 @@ class Linter:
                 linter_logger.warning(
                     "Exact file path %s was given but "
                     "it was ignored by a %s pattern, "
-                    "re-run with `--not-ignore-files` to "
+                    "re-run with `--disregard-sqlfluffignores` to "
                     "skip %s"
                     % (
                         path,

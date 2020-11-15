@@ -275,12 +275,12 @@ def dialects(**kwargs):
     ),
 )
 @click.option(
-    "--not-ignore-files",
+    "--disregard-sqlfluffignores",
     is_flag=True,
-    help=("If set, files will not be ignored by configuration files"),
+    help=("Perform the operation regardless of .sqlfluffignore configurations"),
 )
 @click.argument("paths", nargs=-1)
-def lint(paths, format, nofail, not_ignore_files, logger=None, **kwargs):
+def lint(paths, format, nofail, disregard_sqlfluffignores, logger=None, **kwargs):
     """Lint SQL files via passing a list of files or using stdin.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -320,7 +320,7 @@ def lint(paths, format, nofail, not_ignore_files, logger=None, **kwargs):
             result = lnt.lint_paths(
                 paths,
                 ignore_non_existent_files=False,
-                ignore_files=not not_ignore_files,
+                ignore_files=not disregard_sqlfluffignores,
             )
         except IOError:
             click.echo(
