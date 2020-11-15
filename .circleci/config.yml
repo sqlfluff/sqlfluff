@@ -22,7 +22,7 @@ common: &common
         command: pip install --user tox
     - run:
         name: run tox
-        command: ~/.local/bin/tox
+        command: ~/.local/bin/tox $TOX_ARGS
     - run:
         name: upload coverage report
         command: |
@@ -109,13 +109,15 @@ jobs:
     docker:
       - image: circleci/python:3.9
         environment:
-          TOXENV=dbt017-py39
+          - TOXENV=dbt017-py39
+          - TOX_ARGS='-m "dbt"'
   dbt018-py39:
     <<: *common
     docker:
       - image: circleci/python:3.9
         environment:
-          TOXENV=dbt018-py39
+          - TOXENV=dbt018-py39
+          - TOX_ARGS='-m "dbt"'
 
 
 ### Workflows which call the different tox jobs
