@@ -519,6 +519,7 @@ class Linter:
         # Detect the case of a catastrophic templater fail. In this case
         # we don't continue. We'll just bow out now.
         if not templated_file:
+            linter_logger.info("TEMPLATING FAILED: %s", templater_violations)
             tokens = None
 
         t1 = time.monotonic()
@@ -534,6 +535,7 @@ class Linter:
                 # We might just get the violations as a list
                 violations += lex_vs
             except SQLLexError as err:
+                linter_logger.info("LEXING FAILED! (%s): %s", fname, err)
                 violations.append(err)
                 tokens = None
         else:
@@ -541,6 +543,8 @@ class Linter:
 
         if tokens:
             linter_logger.info("Lexed tokens: %s", [seg.raw for seg in tokens])
+        else:
+            linter_logger.info("NO LEXED TOKENS!")
 
         t2 = time.monotonic()
         bencher("Lexing {0!r}".format(short_fname))
@@ -551,6 +555,7 @@ class Linter:
             try:
                 parsed = parser.parse(tokens, recurse=recurse)
             except SQLParseError as err:
+                linter_logger.info("PARSING FAILED! (%s): %s", fname, err)
                 violations.append(err)
                 parsed = None
             if parsed:
