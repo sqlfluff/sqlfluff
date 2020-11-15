@@ -11,7 +11,7 @@ Here we define:
 from io import StringIO
 from benchit import BenchIt
 from cached_property import cached_property
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, NamedTuple, Iterator
 import logging
 
 from ..match_result import MatchResult
@@ -29,6 +29,13 @@ from ..context import ParseContext
 
 # Instantiate the linter logger (only for use in methods involved with fixing.)
 linter_logger = logging.getLogger("sqlfluff.linter")
+
+
+class FixPatch(NamedTuple):
+    """An edit patch for a file."""
+
+    templated_slice: slice
+    fixed_raw: str
 
 
 class BaseSegment:
@@ -261,6 +268,54 @@ class BaseSegment:
         # Basic Validation
         check_still_complete(segments, segs, ())
         return segs
+
+    @staticmethod
+    def _realign_segments(segments, starting_pos=None, meta_only=False):
+        """Realign the positions in the provided segments."""
+        seg_buffer = []
+        todo_buffer = list(segments)
+        if not todo_buffer:
+            return ()
+        # If starting pos not provded, take it from the first of the buffer.
+        running_pos = starting_pos
+        if not running_pos:
+            for seg in todo_buffer:
+                if not seg.is_meta:
+                    running_pos = seg.pos_marker
+                    break
+            else:
+                raise ValueError("No starting pos provided and unable to infer.")
+
+        while len(todo_buffer) > 0:
+            # Get the first off the buffer
+            seg = todo_buffer.pop(0)
+
+            # We'll preserve statement indexes so we should keep track of that.
+            # When recreating, we use the DELTA of the index so that's what matter...
+            idx = seg.pos_marker.statement_index - running_pos.statement_index
+            new_pos = seg.pos_marker.shift_to(running_pos)
+            if seg.is_meta:
+                # It's a meta segment, just update the position
+                seg = seg.__class__(pos_marker=new_pos)
+            elif meta_only:
+                # Skip onward if we're only handling meta segments
+                pass
+            elif len(seg.segments) > 0:
+                # It's a compound segment, so keep track of it's children
+                child_segs = seg.segments
+                # Create a new segment of the same type with the new position
+                seg = seg.__class__(segments=child_segs, pos_marker=new_pos)
+                # Realign the children of that class
+                seg = seg.realign()
+            else:
+                # It's a raw segment...
+                # Create a new segment of the same type with the new position
+                seg = seg.__class__(raw=seg.raw, pos_marker=new_pos)
+            # Update the running position with the content of that segment
+            running_pos = running_pos.advance_by(raw=seg.raw, idx=idx)
+            # Add the buffer to my new segment
+            seg_buffer.append(seg)
+        return tuple(seg_buffer)
 
     # ################ CLASS METHODS
 
@@ -844,54 +899,6 @@ class BaseSegment:
         else:
             return self, fixes
 
-    @staticmethod
-    def _realign_segments(segments, starting_pos=None, meta_only=False):
-        """Realign the positions in the provided segments."""
-        seg_buffer = []
-        todo_buffer = list(segments)
-        if not todo_buffer:
-            return ()
-        # If starting pos not provded, take it from the first of the buffer.
-        running_pos = starting_pos
-        if not running_pos:
-            for seg in todo_buffer:
-                if not seg.is_meta:
-                    running_pos = seg.pos_marker
-                    break
-            else:
-                raise ValueError("No starting pos provided and unable to infer.")
-
-        while len(todo_buffer) > 0:
-            # Get the first off the buffer
-            seg = todo_buffer.pop(0)
-
-            # We'll preserve statement indexes so we should keep track of that.
-            # When recreating, we use the DELTA of the index so that's what matter...
-            idx = seg.pos_marker.statement_index - running_pos.statement_index
-            new_pos = seg.pos_marker.shift_to(running_pos)
-            if seg.is_meta:
-                # It's a meta segment, just update the position
-                seg = seg.__class__(pos_marker=new_pos)
-            elif meta_only:
-                # Skip onward if we're only handling meta segments
-                pass
-            elif len(seg.segments) > 0:
-                # It's a compound segment, so keep track of it's children
-                child_segs = seg.segments
-                # Create a new segment of the same type with the new position
-                seg = seg.__class__(segments=child_segs, pos_marker=new_pos)
-                # Realign the children of that class
-                seg = seg.realign()
-            else:
-                # It's a raw segment...
-                # Create a new segment of the same type with the new position
-                seg = seg.__class__(raw=seg.raw, pos_marker=new_pos)
-            # Update the running position with the content of that segment
-            running_pos = running_pos.advance_by(raw=seg.raw, idx=idx)
-            # Add the buffer to my new segment
-            seg_buffer.append(seg)
-        return tuple(seg_buffer)
-
     def realign(self):
         """Realign the positions in this segment.
 
@@ -912,6 +919,101 @@ class BaseSegment:
             segments=self._realign_segments(self.segments, self.pos_marker),
             pos_marker=self.pos_marker,
         )
+    
+    def iter_patches(self, templated_str: str) -> Iterator[FixPatch]:
+        """Iterate through the segments generating fix patches.
+
+        The patches are generated in TEMPLATED space. This is important
+        so that we defer dealing with any loops until later. At this stage
+        everything *should* happen in templated order.
+
+        Occasionally we have an insertion around a placeholder, so we also
+        return a hint to deal with that.
+        """
+        # Does it match? If so we can ignore it.
+        matches = (
+            self.raw
+            == templated_str[self.pos_marker.templated_slice]
+        )
+        if matches:
+            return
+
+        # If we're here, the segment doesn't match the original.
+
+        # If it's all literal, then we don't need to recurse.
+        if self.pos_marker.is_literal:
+            # Yield the position in the source file and the patch
+            patch = FixPatch(self.pos_marker.templated_slice, self.raw)
+            linter_logger.debug("Yeilding literal patch: %r", patch)
+            yield patch
+        else:
+            # This segment isn't a literal, but has changed, we need to go deeper.
+
+            # Iterate through the child segments
+            templated_idx = self.pos_marker.templated_slice.start
+            insert_buff = ""
+            for seg_idx, segment in enumerate(self.segments):
+
+                # First check for insertions.
+                # We know it is new if the position marker is NOT ENRICHED.
+                if not isinstance(segment.pos_marker, EnrichedFilePositionMarker):
+                    # Add it to the insertion buffer if it has length:
+                    if segment.raw:
+                        insert_buff += segment.raw
+                        linter_logger.debug(
+                            "Appending insertion buffer. %r @idx: %s",
+                            insert_buff,
+                            templated_idx,
+                        )
+                    continue
+
+                # If we get here, then we know it's an original.
+                # Check for deletions at the before this segment (vs the TEMPLATED).
+                start_diff = (
+                    segment.pos_marker.templated_slice.start - templated_idx
+                )
+
+                # Check to see whether there's a discontinuity before the current segment
+                if start_diff > 0 or insert_buff:
+                    # If we have an insert buffer, then it's an edit, otherwise a deletion.
+                    patch = FixPatch(
+                        slice(
+                            segment.pos_marker.templated_slice.start - start_diff,
+                            segment.pos_marker.templated_slice.start,
+                        ),
+                        insert_buff,
+                    )
+                    insert_buff = ""
+                    post_placeholder = 0
+                    linter_logger.debug(
+                        "Yielding at mid deletion (or insertion) point: %r",
+                        patch,
+                    )
+                    yield patch
+
+                # Now we deal with any changes *within* the segment itself.
+                yield from segment.iter_patches(templated_str=templated_str)
+
+                # Once we've dealt with any patches from the segment, update
+                # our position markers.
+                templated_idx = segment.pos_marker.templated_slice.stop
+
+            # After the loop, we check whether there's a trailing deletion
+            # or insert. Also valid if we still have an insertion buffer here.
+            end_diff = self.pos_marker.templated_slice.stop - templated_idx
+            if end_diff or insert_buff:
+                patch = FixPatch(
+                    slice(
+                        self.pos_marker.templated_slice.stop - end_diff,
+                        self.pos_marker.templated_slice.stop,
+                    ),
+                    insert_buff,
+                )
+                linter_logger.debug(
+                    "Yielding at end deletion (or insertion) point: %r",
+                    patch,
+                )
+                yield patch
 
 
 class UnparsableSegment(BaseSegment):

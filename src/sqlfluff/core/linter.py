@@ -14,6 +14,7 @@ from .rules import get_ruleset
 from .config import FluffConfig
 
 from .parser.markers import EnrichedFilePositionMarker
+from .parser.segments.base import FixPatch
 
 
 # Instantiate the linter logger
@@ -129,136 +130,36 @@ class LintedFile(
 
         linter_logger.debug("Untouchables: %s", untouchable_slices)
 
-        # Generate the fix regions.
-        def iter_patches(seg):
-            """Iterate through the segments generating fix patches.
-
-            The patches are generated in TEMPLATED space. This is important
-            so that we defer dealing with any loops until later. At this stage
-            everything *should* happen in templated order.
-
-            Occasionally we have an insertion around a placeholder, so we also
-            return a hint to deal with that.
-            """
-            # Does it match? If so we can ignore it.
-            matches = (
-                seg.raw
-                == self.templated_file.templated_str[seg.pos_marker.templated_slice]
-            )
-            if matches:
-                return
-
-            # If we're here, the segment doesn't match the original.
-
-            # If it's all literal, then we don't need to recurse.
-            if seg.pos_marker.is_literal:
-                # Yield the position in the source file and the patch
-                patch = (seg.pos_marker.templated_slice, seg.raw, 0)
-                linter_logger.debug("Yeilding literal patch: %r", patch)
-                yield patch
-            else:
-                # This segment isn't a literal, but has changed, we need to go deeper.
-
-                # Iterate through the child segments
-                templated_idx = seg.pos_marker.templated_slice.start
-                insert_buff = ""
-                post_placeholder = 0
-                for seg_idx, segment in enumerate(seg.segments):
-                    # Keep track of whether we passed any placeholders so we sit in the right place relative to them.
-                    if segment.is_meta and segment.is_type("placeholder"):
-                        post_placeholder += 1
-
-                    # First check for insertions.
-                    # We know it is new if the position marker is NOT ENRICHED.
-                    if not isinstance(segment.pos_marker, EnrichedFilePositionMarker):
-                        # Add it to the insertion buffer if it has length:
-                        if segment.raw:
-                            insert_buff += segment.raw
-                            linter_logger.debug(
-                                "Appending insertion buffer. %r @idx: %s",
-                                insert_buff,
-                                templated_idx,
-                            )
-                        continue
-
-                    # If we get here, then we know it's an original.
-                    # Check for deletions at the before this segment (vs the TEMPLATED).
-                    start_diff = (
-                        segment.pos_marker.templated_slice.start - templated_idx
-                    )
-
-                    # Check to see whether there's a discontinuity before the current segment
-                    if start_diff > 0 or insert_buff:
-                        # If we have an insert buffer, then it's an edit, otherwise a deletion.
-                        patch = (
-                            slice(
-                                segment.pos_marker.templated_slice.start - start_diff,
-                                segment.pos_marker.templated_slice.start,
-                            ),
-                            insert_buff,
-                            post_placeholder,
-                        )
-                        insert_buff = ""
-                        post_placeholder = 0
-                        linter_logger.debug(
-                            "Yielding at mid deletion (or insertion) point: %r",
-                            patch,
-                        )
-                        yield patch
-
-                    # Now we deal with any changes *within* the segment itself.
-                    yield from iter_patches(segment)
-
-                    # Once we've dealt with any patches from the segment, update
-                    # our position markers.
-                    templated_idx = segment.pos_marker.templated_slice.stop
-
-                # After the loop, we check whether there's a trailing deletion
-                # or insert. Also valid if we still have an insertion buffer here.
-                end_diff = seg.pos_marker.templated_slice.stop - templated_idx
-                if end_diff or insert_buff:
-                    patch = (
-                        slice(
-                            seg.pos_marker.templated_slice.stop - end_diff,
-                            seg.pos_marker.templated_slice.stop,
-                        ),
-                        insert_buff,
-                        0,
-                    )
-                    linter_logger.debug(
-                        "Yielding at end deletion (or insertion) point: %r",
-                        patch,
-                    )
-                    yield patch
-
         # Patches, sorted by start
-        patches = sorted(list(iter_patches(self.tree)), key=lambda x: x[0].start)
-        linter_logger.debug("Templated-space patches: %s", patches)
+        template_space_patches: List[FixPatch] = sorted(
+            list(self.tree.iter_patches(templated_str=self.templated_file.templated_str)),
+            key=lambda x: x[0].start
+        )
+        linter_logger.debug("Templated-space patches: %s", template_space_patches)
 
         # We now convert enrich the patches into source space
-        patches = [
+        source_space_patches = [
             (
                 self.templated_file.templated_slice_to_source_slice(
-                    patch[0],
-                    # post_placeholder_hint=patch[2],
+                    patch.templated_slice,
                 ),
-                patch[1],
+                patch.fixed_raw,
             )
-            for patch in patches
+            for patch in template_space_patches
         ]
-        linter_logger.debug("Fresh source-space patches: %s", patches)
+        linter_logger.debug("Fresh source-space patches: %s", source_space_patches)
 
         # Dedupe on source space
-        patches = [
-            patch for idx, patch in enumerate(patches) if patch not in patches[:idx]
+        source_space_patches = [
+            patch for idx, patch in enumerate(source_space_patches) if patch not in source_space_patches[:idx]
         ]
-        linter_logger.debug("Deduped source-space patches: %s", patches)
+        linter_logger.debug("Deduped source-space patches: %s", source_space_patches)
 
         # We now slice up the file using the patches and any untouchables.
         # This gives us regions to apply changes to.
         slice_buff = []
         source_idx = 0
-        for patch in patches:
+        for patch in source_space_patches:
             # Are there untouchables at or before the start of this patch?
             while (
                 untouchable_slices and untouchable_slices[0][0].start < patch[0].start
@@ -282,7 +183,7 @@ class LintedFile(
                     "Skipping overlapping patch at Index %s, Patch: %s, Patches: %s",
                     source_idx,
                     patch,
-                    patches,
+                    source_space_patches,
                 )
                 # Ignore the patch for now...
                 continue
@@ -300,7 +201,7 @@ class LintedFile(
         str_buff = ""
         for source_slice in slice_buff:
             # Is it one in the patch buffer:
-            for patch in patches:
+            for patch in source_space_patches:
                 if patch[0] == source_slice:
                     # Use the patched version
                     linter_logger.debug(
