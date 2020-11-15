@@ -4,6 +4,7 @@ import os.path
 import ast
 from typing import Dict, Optional
 from dataclasses import dataclass
+from cached_property import cached_property
 
 from jinja2.sandbox import SandboxedEnvironment
 from jinja2 import meta
@@ -397,35 +398,35 @@ class DbtTemplateInterface(PythonTemplateInterface):
     name = "dbt"
 
     def __init__(self, **kwargs):
-        self.dbt_config = None
-        self.dbt_compiler = None
-        self.dbt_manifest = None
-        self.dbt_selector_method = None
+        self.sqlfluff_config = None
         super().__init__(**kwargs)
 
-    def load_dbt_config(self, config):
+    @cached_property
+    def dbt_config(self):
         """Loads the dbt config."""
         from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
         from dbt.adapters.factory import register_adapter
 
         self.dbt_config = DbtRuntimeConfig.from_args(
             DbtConfigArgs(
-                project_dir=self._get_project_dir(config),
-                profiles_dir=self._get_profiles_dir(config),
-                profile=self._get_profile(config),
+                project_dir=self._get_project_dir(),
+                profiles_dir=self._get_profiles_dir(),
+                profile=self._get_profile(),
             )
         )
         register_adapter(self.dbt_config)
         return self.dbt_config
 
-    def load_dbt_compiler(self):
+    @cached_property
+    def dbt_compiler(self):
         """Loads the dbt compiler."""
         from dbt.compilation import Compiler as DbtCompiler
 
         self.dbt_compiler = DbtCompiler(self.dbt_config)
         return self.dbt_compiler
 
-    def load_dbt_manifest(self):
+    @cached_property
+    def dbt_manifest(self):
         """Loads the dbt manifest."""
         from dbt.parser.manifest import load_macro_manifest, load_manifest
 
@@ -439,7 +440,8 @@ class DbtTemplateInterface(PythonTemplateInterface):
         )
         return self.dbt_manifest
 
-    def load_dbt_selector_method(self):
+    @cached_property
+    def dbt_selector_method(self):
         """Loads the dbt selector method."""
         from dbt.graph.selector_methods import (
             MethodManager as DbtSelectorMethodManager,
@@ -454,22 +456,28 @@ class DbtTemplateInterface(PythonTemplateInterface):
         )
         return self.dbt_selector_method
 
-    def _get_profiles_dir(self, config):
+    def _get_profiles_dir(self):
         from dbt.config.profile import PROFILES_DIR
 
         return os.path.expanduser(
-            config.get_section((self.templater_selector, self.name, "profiles_dir"))
+            self.sqlfluff_config.get_section(
+                (self.templater_selector, self.name, "profiles_dir")
+            )
             or PROFILES_DIR
         )
 
-    def _get_project_dir(self, config):
+    def _get_project_dir(self):
         return os.path.expanduser(
-            config.get_section((self.templater_selector, self.name, "project_dir"))
+            self.sqlfluff_config.get_section(
+                (self.templater_selector, self.name, "project_dir")
+            )
             or os.getcwd()
         )
 
-    def _get_profile(self, config):
-        return config.get_section((self.templater_selector, self.name, "profile"))
+    def _get_profile(self):
+        return self.sqlfluff_config.get_section(
+            (self.templater_selector, self.name, "profile")
+        )
 
     @staticmethod
     def _check_dbt_installed():
@@ -526,31 +534,19 @@ class DbtTemplateInterface(PythonTemplateInterface):
             raise ValueError(
                 "The dbt templater does not support stdin input, provide a path instead"
             )
+        self.sqlfluff_config = config
 
-        # Load the user's DBT config
-        self.dbt_config = self.dbt_config or self.load_dbt_config(config)
-
-        # Initialize the DBT compiler
-        dbt_compiler = self.dbt_compiler or self.load_dbt_compiler()
-
-        # Initialize manifests
-        dbt_manifest = self.dbt_manifest or self.load_dbt_manifest()
-
-        # Select the nodes in the graph based on the path passed
-        dbt_selector_method = (
-            self.dbt_selector_method or self.load_dbt_selector_method()
-        )
-        selected = dbt_selector_method.search(
-            included_nodes=dbt_manifest.nodes,
+        selected = self.dbt_selector_method.search(
+            included_nodes=self.dbt_manifest.nodes,
             selector=fname,
         )
-        results = [dbt_manifest.expect(uid) for uid in selected]
+        results = [self.dbt_manifest.expect(uid) for uid in selected]
 
         if not results:
             raise RuntimeError("File %s was not found in dbt project" % fname)
 
-        node = dbt_compiler.compile_node(
+        node = self.dbt_compiler.compile_node(
             node=results[0],
-            manifest=dbt_manifest,
+            manifest=self.dbt_manifest,
         )
         return node.injected_sql, []

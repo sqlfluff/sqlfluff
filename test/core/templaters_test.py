@@ -142,9 +142,8 @@ def test__templater_dbt_missing(dbt_templater):  # noqa
 @pytest.mark.dbt
 def test__templater_dbt_profiles_dir_expanded(dbt_templater):  # noqa
     """Check that the profiles_dir is expanded."""
-    profiles_dir = dbt_templater._get_profiles_dir(
-        FluffConfig(configs={"templater": {"dbt": {"profiles_dir": "~/.dbt"}}})
-    )
+    dbt_templater.sqlfluff_config = FluffConfig(configs={"templater": {"dbt": {"profiles_dir": "~/.dbt"}}})
+    profiles_dir = dbt_templater._get_profiles_dir()
     assert profiles_dir == os.path.expanduser("~/.dbt")
 
 
@@ -152,13 +151,13 @@ def test__templater_dbt_profiles_dir_expanded(dbt_templater):  # noqa
     "fname",
     [
         # dbt_utils
-        ("use_dbt_utils.sql",),
+        "use_dbt_utils.sql",
         # macro calling another macro
-        ("macro_in_macro.sql",),
+        "macro_in_macro.sql",
         # config.get(...)
-        ("use_headers.sql",),
+        "use_headers.sql",
         # var(...)
-        ("use_var.sql",),
+        "use_var.sql",
     ],
 )
 @pytest.mark.dbt
