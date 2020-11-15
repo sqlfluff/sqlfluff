@@ -522,7 +522,7 @@ class PythonTemplater(RawTemplater):
             # if we don't have anything to anchor on, then just return (coalescing types)
             if not raw_occs or not templ_occs or not one_way_uniques:
                 templater_logger.debug(
-                    "        No Anchors or Uniques. Yielding Whole", coalesced
+                    "        No Anchors or Uniques. Yielding Whole: %s", coalesced
                 )
                 yield coalesced
                 continue

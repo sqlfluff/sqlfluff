@@ -69,6 +69,7 @@ def auto_fix_test(rules, dialect, folder, caplog):
     caplog.set_level(logging.DEBUG, logger="sqlfluff.templater")
     caplog.set_level(logging.DEBUG, logger="sqlfluff.lexer")
     caplog.set_level(logging.DEBUG, logger="sqlfluff.linter")
+    caplog.set_level(logging.DEBUG, logger="sqlfluff.rules")
 
     filename = "testing.sql"
     # Lets get the path of a file to use
@@ -107,12 +108,13 @@ def auto_fix_test(rules, dialect, folder, caplog):
     # Run the fix command
     cfg = FluffConfig.from_root(overrides=dict(rules=rules, dialect=dialect))
     lnt = Linter(config=cfg)
-    with caplog.at_level(logging.DEBUG, logger="sqlfluff.rules"):
-        res = lnt.lint_path(filepath, fix=True)
+    res = lnt.lint_path(filepath, fix=True)
 
+    # We call the check_tuples here, even to makes sure any non-linting
+    # violations are raised, and the test fails.
+    vs = set(res.check_tuples())
     # If we have a violations structure, let's enforce it.
     if violations:
-        vs = set(res.check_tuples())
         # Format the violations file
         expected_vs = set()
         for rule_key in violations["violations"]["linting"]:

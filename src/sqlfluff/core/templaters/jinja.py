@@ -1,10 +1,11 @@
 """Defines the templaters."""
 
 import os.path
+import logging
 from typing import Iterator, Tuple, Optional
 
 from jinja2.sandbox import SandboxedEnvironment
-from jinja2 import meta, TemplateSyntaxError
+from jinja2 import meta, TemplateSyntaxError, TemplateError
 import jinja2.nodes
 
 from ..errors import SQLTemplaterError
@@ -12,6 +13,9 @@ from ..parser import FilePositionMarker
 
 from .base import register_templater, TemplatedFile, RawFileSlice
 from .python import PythonTemplater
+
+# Instantiate the templater logger
+templater_logger = logging.getLogger("sqlfluff.templater")
 
 
 @register_templater
@@ -263,8 +267,8 @@ class JinjaTemplater(PythonTemplater):
                 ),
                 violations,
             )
-        except Exception as err:
-            # TODO: Add a url here so people can get more help.
+        except (TemplateError, TypeError) as err:
+            templater_logger.info("Unrecoverable Jinja Error: %s", err)
             violations.append(
                 SQLTemplaterError(
                     (
