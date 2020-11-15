@@ -69,8 +69,8 @@ mean that the SQL files themselves are no longer valid SQL code, because
 they now contain these configured *placeholder* values, intended to
 improve modularity.
 
-Sqlfluff allows limited templating using both of the methods outlined
-above, to allow you to still lint those SQL files as part of your CI/CD
+Sqlfluff supports both of the templating methods outlined above, as well as `dbt`_
+projects, to allow you to still lint these "dynamic" SQL files as part of your CI/CD
 pipeline (which is great 🙌), rather than waiting until you're in production
 (which is bad 🤦, and maybe too late).
 

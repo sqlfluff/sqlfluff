@@ -60,10 +60,10 @@ in projects which utilise a lot of complicated templating.
 
 .. _templateconfig:
 
-Templating Configuration
-------------------------
+Jinja Templating Configuration
+------------------------------
 
-When thinking about templating there are two different kinds of things
+When thinking about Jinja templating there are two different kinds of things
 that a user might want to fill into a templated file, *variables* and
 *functions/macros*. Currently *functions* aren't implemented in any
 of the templaters.
@@ -178,14 +178,11 @@ Note that in the code block above, the variable name in the config is
 Broadly this is accurate, however within the configuration loader this will
 still be used to overwrite previous *values* in other config files. As such
 this introduces the idea of config *blocks* which could be selectively
-overwritten by other configuration files downsteam as required. Some such
-blocks are provided by default as `Builtin Macro Blocks`_ to assist with
-common use cases.
+overwritten by other configuration files downsteam as required.
 
 In addition to macros specified in the config file, macros can also be
-loaded from a file or folder (this particularly useful for `dbt`_ users,
-who may already have a macros folder in their project). The path to this
-macros folder must be specified in the config file to function as below:
+loaded from a file or folder. The path to this macros folder must be
+specified in the config file to function as below:
 
 .. code-block:: cfg
 
@@ -212,30 +209,29 @@ be a :code:`.sql` itself.
     be a requirement that the *templating* is accurate - only so far as that
     is required to enable the *parsing* and *linting* to be helpful.
 
-Builtin Macro Blocks
-^^^^^^^^^^^^^^^^^^^^
+Dbt Project Configuration
+-------------------------
 
-One of the main use cases which inspired *sqlfluff* as a a project was `dbt`_.
-It uses jinja templating extensively and leads to some users maintaining large
-repositories of sql files which could potentially benefit from some linting.
+Dbt is not the default templater for *sqlfluff* (it is Jinja). In order
+to get started using *sqlfluff* with a Dbt project you will need the following
+configuration:
 
-*Sqlfluff* anticipates this use case and provides some built in macro blocks
-in the `Default Configuration`_ which assist in getting started with `dbt`_
-projects. In particular it provides mock objects for:
+In *.sqlfluff*:
 
-* *ref*: The mock version of this provided simply returns the model reference
-  as the name of the table. In most cases this is sufficient.
-* *config*: A regularly used macro in `dbt`_ to set configuration values. For
-  linting purposes, this makes no difference and so the provided macro simply
-  returns nothing.
+.. code-block:: cfg
 
-.. note::
+    [sqlfluff]
+    templater = dbt
+    # DBT templating does not keep trailing new lines (L009)
+    exclude_rules = L009
 
-    If there are other builtin macros which would make your life easier,
-    consider submitting the idea (or even better a pull request) on `github`_.
+In *.sqlfluffignore*:
 
-.. _`dbt`: https://www.getdbt.com/
-.. _`github`: https://www.github.com/sqlfluff/sqlfluff
+.. code-block::
+
+    target/
+    dbt_modules/
+    macros/
 
 CLI Arguments
 -------------
