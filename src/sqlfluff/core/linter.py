@@ -132,10 +132,10 @@ class LintedFile(
         original_source = self.templated_file.source_str
 
         # Make sure no patches overlap and divide up the source file into slices.
-        # Any Template tags in the source file should be "untouchable".
-        untouchable_slices = self.templated_file.untouchable_slices()
+        # Any Template tags in the source file are off limits.
+        source_only_slices = self.templated_file.source_only_slices()
 
-        linter_logger.debug("Untouchables: %s", untouchable_slices)
+        linter_logger.debug("Source-only slices: %s", source_only_slices)
 
         # Patches, sorted by start
         template_space_patches: List[FixPatch] = sorted(
@@ -168,22 +168,22 @@ class LintedFile(
         ]
         linter_logger.debug("Deduped source-space patches: %s", source_space_patches)
 
-        # We now slice up the file using the patches and any untouchables.
+        # We now slice up the file using the patches and any source only slices.
         # This gives us regions to apply changes to.
         slice_buff = []
         source_idx = 0
         for patch in source_space_patches:
-            # Are there untouchables at or before the start of this patch?
+            # Are there templated slices at or before the start of this patch?
             while (
-                untouchable_slices and untouchable_slices[0][0].start < patch[0].start
+                source_only_slices and source_only_slices[0].source_idx < patch[0].start
             ):
-                next_untouchable_slice = untouchable_slices.pop(0)[0]
-                # Add a pre-slice before the next untouchable if needed.
-                if next_untouchable_slice.start > source_idx:
-                    slice_buff.append(slice(source_idx, next_untouchable_slice.start))
-                # Add the untouchable.
-                slice_buff.append(next_untouchable_slice)
-                source_idx = next_untouchable_slice.stop
+                next_so_slice = source_only_slices.pop(0).source_slice()
+                # Add a pre-slice before the next templated slices if needed.
+                if next_so_slice.start > source_idx:
+                    slice_buff.append(slice(source_idx, next_so_slice.start))
+                # Add the templated slice.
+                slice_buff.append(next_so_slice)
+                source_idx = next_so_slice.stop
 
             # Is there a gap between current position and this patch?
             if patch[0].start > source_idx:

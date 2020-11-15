@@ -122,7 +122,7 @@ class Dedent(Indent):
     indent_val = -1
 
 
-class NonCodePlaceholder(MetaSegment):
+class TemplateSegment(MetaSegment):
     """A segment which is empty but indicates something should be.
 
     This segment is always empty, i.e. it's raw format is '', but it indicates
@@ -138,8 +138,13 @@ class NonCodePlaceholder(MetaSegment):
 
     type = "placeholder"
 
-    def __init__(self, pos_marker=None, source_str=""):
+    def __init__(self, pos_marker=None, source_str="", block_type=""):
         """Initialise a placeholder with the source code embedded."""
         self.source_str = source_str
+        self.block_type = block_type
         # Call the super of the pos_marker.
         super().__init__(pos_marker=pos_marker)
+
+    def _suffix(self):
+        """Also output what it's a placeholder for."""
+        return "[Type: {0!r}, Raw: {1!r}]".format(self.block_type, self.source_str)

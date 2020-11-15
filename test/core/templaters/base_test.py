@@ -295,8 +295,8 @@ def test__templated_file_templated_slice_to_source_slice(
     assert (is_literal, source_slice) == (literal_test, out_slice)
 
 
-def test__templated_file_untouchable_slices():
-    """Test TemplatedFile.untouchable_slices."""
+def test__templated_file_source_only_slices():
+    """Test TemplatedFile.source_only_slices."""
     file = TemplatedFile(
         source_str=" Dummy String again ",  # NB: has length 20
         raw_sliced=[
@@ -305,4 +305,4 @@ def test__templated_file_untouchable_slices():
             RawFileSlice("a" * 10, "literal", 17),
         ],
     )
-    assert file.untouchable_slices() == [(slice(10, 17), "comment", "b" * 7)]
+    assert file.source_only_slices() == [RawFileSlice("b" * 7, "comment", 10)]

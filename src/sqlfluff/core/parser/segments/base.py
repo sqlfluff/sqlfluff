@@ -9,6 +9,7 @@ Here we define:
 """
 
 from io import StringIO
+import copy
 from benchit import BenchIt
 from cached_property import cached_property
 from typing import Optional, List, Tuple, NamedTuple, Iterator
@@ -294,23 +295,17 @@ class BaseSegment:
             # When recreating, we use the DELTA of the index so that's what matter...
             idx = seg.pos_marker.statement_index - running_pos.statement_index
             new_pos = seg.pos_marker.shift_to(running_pos)
-            if seg.is_meta:
-                # It's a meta segment, just update the position
-                seg = seg.__class__(pos_marker=new_pos)
-            elif meta_only:
-                # Skip onward if we're only handling meta segments
-                pass
-            elif len(seg.segments) > 0:
-                # It's a compound segment, so keep track of it's children
-                child_segs = seg.segments
-                # Create a new segment of the same type with the new position
-                seg = seg.__class__(segments=child_segs, pos_marker=new_pos)
-                # Realign the children of that class
-                seg = seg.realign()
-            else:
-                # It's a raw segment...
-                # Create a new segment of the same type with the new position
-                seg = seg.__class__(raw=seg.raw, pos_marker=new_pos)
+
+            if not meta_only or seg.is_meta:
+                # Copy the segment
+                seg_copy = copy.copy(seg)
+                # Update the position
+                seg_copy.pos_marker = new_pos
+                # Realign the children of that class if required.
+                if len(seg_copy.segments) > 0:
+                    seg_copy = seg_copy.realign()
+                seg = seg_copy
+
             # Update the running position with the content of that segment
             running_pos = running_pos.advance_by(raw=seg.raw, idx=idx)
             # Add the buffer to my new segment

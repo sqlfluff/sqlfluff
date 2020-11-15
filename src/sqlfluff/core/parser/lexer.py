@@ -6,7 +6,7 @@ from collections import namedtuple
 import re
 
 from .markers import FilePositionMarker, EnrichedFilePositionMarker
-from .segments import BaseSegment, RawSegment, Indent, Dedent, NonCodePlaceholder
+from .segments import BaseSegment, RawSegment, Indent, Dedent, TemplateSegment
 from ..errors import SQLLexError
 from ..templaters import TemplatedFile
 from ..config import FluffConfig
@@ -357,10 +357,12 @@ class Lexer:
         # We need a new buffer to hold the new meta segments
         # introduced.
         new_segment_buff = []
-        # Get the untouchables to re-insert tokens for them
-        untouchables = templated_file.untouchable_slices()
+        # Get the templated slices to re-insert tokens for them
+        source_only_slices = templated_file.source_only_slices()
 
-        lexer_logger.info("Enriching Segments. Untouchables: %s", untouchables)
+        lexer_logger.info(
+            "Enriching Segments. Source-only slices: %s", source_only_slices
+        )
 
         for segment in segment_buff:
             templated_slice = slice(
@@ -371,42 +373,44 @@ class Lexer:
                 templated_slice
             )
 
-            # At this stage, untouchables will be INCLUDED in the source slice,
+            # At this stage, templated slices will be INCLUDED in the source slice,
             # so we should consider whether we've captured any. If we have then
             # we need to re-evaluate whether it's a literal or not.
 
-            for ut_slice, ut_type, ut_raw in untouchables:
-                if ut_slice.start > source_slice.start:
+            for source_only_slice in source_only_slices:
+                if source_only_slice.source_idx > source_slice.start:
                     break
-                elif ut_slice.start == source_slice.start:
+                elif source_only_slice.source_idx == source_slice.start:
                     lexer_logger.debug(
-                        "Found untouchable section! %s, %s, %s",
-                        ut_slice,
-                        ut_type,
+                        "Found templated section! %s, %s, %s",
+                        source_only_slice.source_slice(),
+                        source_only_slice.slice_type,
                         templated_slice.start,
                     )
                     # Adjust the source slice accordingly.
-                    source_slice = slice(ut_slice.stop, source_slice.stop)
+                    source_slice = slice(
+                        source_only_slice.end_source_idx(), source_slice.stop
+                    )
 
                     # Add segments as appropriate.
                     # If it's a block end, add a dedent.
-                    if ut_type == "block_end":
+                    if source_only_slice.slice_type == "block_end":
                         new_segment_buff.append(
                             Dedent.when(template_blocks_indent=True)(
                                 pos_marker=segment.pos_marker
                             )
                         )
                     # Always add a placeholder
-                    ut_line, ut_pos = templated_file.get_line_pos_of_char_pos(
-                        ut_slice.start
-                    )
+                    print(source_only_slice)
                     new_segment_buff.append(
-                        NonCodePlaceholder(
-                            pos_marker=segment.pos_marker, source_str=ut_raw
+                        TemplateSegment(
+                            pos_marker=segment.pos_marker,
+                            source_str=source_only_slice.raw,
+                            block_type=source_only_slice.slice_type,
                         )
                     )
                     # If it's a block end, add a dedent.
-                    if ut_type == "block_start":
+                    if source_only_slice.slice_type == "block_start":
                         new_segment_buff.append(
                             Indent.when(template_blocks_indent=True)(
                                 pos_marker=segment.pos_marker

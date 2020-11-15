@@ -63,6 +63,10 @@ class RawFileSlice(NamedTuple):
         """Return the closing index of this slice."""
         return self.source_idx + len(self.raw)
 
+    def source_slice(self):
+        """Return the a slice object for this slice."""
+        return slice(self.source_idx, self.end_source_idx())
+
 
 class TemplatedFileSlice(NamedTuple):
     """A slice referring to a templated file."""
@@ -304,21 +308,18 @@ class TemplatedFile:
                     is_literal = False
         return is_literal
 
-    def untouchable_slices(self):
-        """Return a list a slices which reference the "untouchable" parts.
+    def source_only_slices(self) -> List[RawFileSlice]:
+        """Return a list a slices which reference the parts only in the source.
+
+        All of these slices should be expected to have zero-length
+        in the templated file.
 
         The results are NECESSARILY sorted.
         """
         ret_buff = []
         for elem in self.raw_sliced:
             if elem.slice_type in ("comment", "block_end", "block_start"):
-                ret_buff.append(
-                    (
-                        slice(elem.source_idx, elem.end_source_idx()),
-                        elem.slice_type,
-                        elem.raw,
-                    )
-                )
+                ret_buff.append(elem)
         return ret_buff
 
 
