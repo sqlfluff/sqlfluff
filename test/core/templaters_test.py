@@ -11,6 +11,7 @@ from sqlfluff.core.templaters import (
 )
 from sqlfluff.core import Linter, FluffConfig, SQLTemplaterError
 from test.fixtures.dbt.templater import DBT_FLUFF_CONFIG, dbt_templater, in_dbt_project_dir  # noqa
+from dbt.adapters.factory import get_adapter
 
 
 def test__templater_selection():
@@ -197,6 +198,7 @@ def test__templater_dbt_handle_exceptions(
             config=FluffConfig(configs=DBT_FLUFF_CONFIG),
         )
     finally:
+        get_adapter(dbt_templater.dbt_config).connections.release()
         os.rename(target_fpath, src_fpath)
     assert violations
     assert violations[0].desc().startswith(exception_msg)
