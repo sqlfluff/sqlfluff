@@ -299,7 +299,7 @@ class Lexer:
             "<unlexable>", r"[^\t\n\,\.\ \-\+\*\\\/\'\"\;\:\[\]\(\)\|]*", is_code=True
         )
 
-    def lex(self, raw: str) -> Tuple[Tuple[RawSegment, ...], List[SQLLexError]]:
+    def lex(self, raw: Union[str, TemplatedFile]) -> Tuple[Tuple[RawSegment, ...], List[SQLLexError]]:
         """Take a string or TemplatedFile and return segments.
 
         If we fail to match the *whole* string, then we must have
