@@ -25,15 +25,13 @@ def get_rule_from_set(code, config):
     raise ValueError("{0!r} not in {1!r}".format(code, std_rule_set))
 
 
-def assert_rule_fail_in_sql(code, sql, configs=None, test_desc=None):
+def assert_rule_fail_in_sql(code, sql, configs=None):
     """Assert that a given rule does fail on the given sql."""
     # Set up the config to only use the rule we are testing.
     cfg = FluffConfig(configs=configs, overrides={"rules": code})
     # Lint it using the current config (while in fix mode)
     linted = Linter(config=cfg).lint_string(sql, fix=True)
     lerrs = linted.get_violations()
-    if test_desc:
-        print(f"Test description: {test_desc}")
     print("Errors Found: {0}".format(lerrs))
     if not any(v.rule.code == code for v in lerrs):
         pytest.fail(
@@ -44,14 +42,12 @@ def assert_rule_fail_in_sql(code, sql, configs=None, test_desc=None):
     return linted.tree.raw
 
 
-def assert_rule_pass_in_sql(code, sql, configs=None, test_desc=None):
+def assert_rule_pass_in_sql(code, sql, configs=None):
     """Assert that a given rule doesn't fail on the given sql."""
     # Configs allows overrides if we want to use them.
     cfg = FluffConfig(configs=configs)
     r = get_rule_from_set(code, config=cfg)
     parsed, _, _ = Linter(config=cfg).parse_string(sql)
-    if test_desc:
-        print(f"Test description: {test_desc}")
     print("Parsed:\n {0}".format(parsed.stringify()))
     lerrs, _, _, _ = r.crawl(parsed, dialect=cfg.get("dialect_obj"), fix=True)
     print("Errors Found: {0}".format(lerrs))
@@ -721,14 +717,12 @@ def rules__test_helper(rule, test_case):
             rule,
             test_case.pass_str,
             configs=test_case.configs,
-            test_desc=test_case.desc,
         )
     if test_case.fail_str:
         res = assert_rule_fail_in_sql(
             rule,
             test_case.fail_str,
             configs=test_case.configs,
-            test_desc=test_case.desc,
         )
         # If a `fixed` value is provided then check it matches
         if test_case.fix_str:
