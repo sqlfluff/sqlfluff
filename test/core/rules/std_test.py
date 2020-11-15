@@ -8,8 +8,9 @@ from sqlfluff.core.rules.base import BaseCrawler, LintResult, LintFix
 from sqlfluff.core.rules.std import std_rule_set
 
 
-# RuleTestCase is imported by rule tests
 class RuleTestCase(NamedTuple):
+    """Used like a dataclass by rule tests."""
+
     desc: str = None
     pass_str: str = None
     fail_str: str = None
