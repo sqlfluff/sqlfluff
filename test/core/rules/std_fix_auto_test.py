@@ -90,10 +90,12 @@ def auto_fix_test(rules, dialect, folder, caplog):
     try:
         with open(cfgpath, mode="w") as dest_file:
             with open(cfg_filepath, mode="r") as source_file:
+                print("## Config File Found.")
                 for line in source_file:
                     dest_file.write(line)
     except FileNotFoundError:
         # No config file? No biggie
+        print("## No Config File Found.")
         pass
     print("## Input file:\n{0}".format(print_buff))
     # Do we need to do a violations check?
