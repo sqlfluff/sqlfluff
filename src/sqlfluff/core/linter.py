@@ -140,15 +140,17 @@ class LintedFile(
         linter_logger.debug("Templated-space patches: %s", template_space_patches)
 
         # We now convert enrich the patches into source space
-        source_space_patches = [
-            (
-                self.templated_file.templated_slice_to_source_slice(
+        source_space_patches = []
+        for patch in template_space_patches:
+            try:
+                source_slice = self.templated_file.templated_slice_to_source_slice(
                     patch.templated_slice,
-                ),
-                patch.fixed_raw,
-            )
-            for patch in template_space_patches
-        ]
+                )
+            except ValueError:
+                # If we try and slice within a templated section, then we may fail
+                # in which case, we should skip this edit.
+                continue
+            source_space_patches.append((source_slice, patch.fixed_raw))
         linter_logger.debug("Fresh source-space patches: %s", source_space_patches)
 
         # Dedupe on source space
