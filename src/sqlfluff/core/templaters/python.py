@@ -253,7 +253,11 @@ class PythonTemplater(RawTemplater):
         # Calculate occurrences
         raw_occurrences = cls._substring_occurances(raw_str, literals)
         templated_occurances = cls._substring_occurances(templated_str, literals)
-        templater_logger.debug("    Occurances: Raw: %s, Templated: %s", raw_occurrences, templated_occurances)
+        templater_logger.debug(
+            "    Occurances: Raw: %s, Templated: %s",
+            raw_occurrences,
+            templated_occurances,
+        )
         # Split on invariants
         split_sliced = list(
             cls._split_invariants(
@@ -518,7 +522,9 @@ class PythonTemplater(RawTemplater):
             # that because of an if statement, something is in the source, but
             # not in the templated at all. In that case, we shouldn't use it.
             one_way_uniques = [
-                key for key in raw_occs.keys() if len(raw_occs[key]) == 1 and len(templ_occs.get(key, [])) >= 1
+                key
+                for key in raw_occs.keys()
+                if len(raw_occs[key]) == 1 and len(templ_occs.get(key, [])) >= 1
             ]
             two_way_uniques = [
                 key for key in one_way_uniques if len(templ_occs[key]) == 1
