@@ -1,5 +1,5 @@
 """Tests for the standard set of rules."""
-from collections import namedtuple
+from typing import NamedTuple
 
 import pytest
 
@@ -9,8 +9,12 @@ from sqlfluff.core.rules.std import std_rule_set
 
 
 # RuleTestCase is imported by rule tests
-fields = ("desc", "pass_str", "fail_str", "fix_str", "configs")
-RuleTestCase = namedtuple("RuleTestCase", fields, defaults=(None,) * len(fields))
+class RuleTestCase(NamedTuple):
+    desc: str = None
+    pass_str: str = None
+    fail_str: str = None
+    fix_str: str = None
+    configs: dict = None
 
 
 def get_rule_from_set(code, config):
