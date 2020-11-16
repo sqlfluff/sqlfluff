@@ -13,11 +13,11 @@ at the next step if not dealt with here.
 *sqlfluff* supports 2 templating engines:
 
 .. _Jinja: https://jinja.palletsprojects.com/
-.. _Dbt: https://docs.getdbt.com/
+.. _dbt: https://docs.getdbt.com/
 
 Jinja_ is the default templater used by *sqlfluff*. Under the covers, Dbt_ also
 uses Jinja_ but in *sqlfluff* it is a separate templater which relies directly
-on the Dbt_ compiler.
+on the dbt_ compiler.
 
 For more details on how to configure the templater see :ref:`templateconfig`.
 

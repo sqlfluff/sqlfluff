@@ -212,7 +212,7 @@ be a :code:`.sql` itself.
 Dbt Project Configuration
 -------------------------
 
-Dbt is not the default templater for *sqlfluff* (it is Jinja). In order
+dbt is not the default templater for *sqlfluff* (it is Jinja). In order
 to get started using *sqlfluff* with a Dbt project you will need the following
 configuration:
 
