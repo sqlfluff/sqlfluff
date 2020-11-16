@@ -483,6 +483,14 @@ class DbtTemplateInterface(PythonTemplateInterface):
         return self.dbt_selector_method
 
     def _get_profiles_dir(self):
+        """Get the dbt profiles directory from the configuration.
+
+        The default is `~/.dbt` in 0.17 but we use the
+        PROFILES_DIR variable from the dbt library to
+        support a change of default in the future, as well
+        as to support the same overwriting mechanism as
+        dbt (currently an environment variable).
+        """
         from dbt.config.profile import PROFILES_DIR
 
         return os.path.expanduser(
@@ -493,6 +501,10 @@ class DbtTemplateInterface(PythonTemplateInterface):
         )
 
     def _get_project_dir(self):
+        """Get the dbt project directory from the configuration.
+
+        Defaults to the working directory.
+        """
         return os.path.expanduser(
             self.sqlfluff_config.get_section(
                 (self.templater_selector, self.name, "project_dir")
@@ -501,6 +513,7 @@ class DbtTemplateInterface(PythonTemplateInterface):
         )
 
     def _get_profile(self):
+        """Get a dbt profile name from the configuration."""
         return self.sqlfluff_config.get_section(
             (self.templater_selector, self.name, "profile")
         )
