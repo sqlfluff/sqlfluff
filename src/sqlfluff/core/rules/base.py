@@ -195,7 +195,7 @@ class BaseCrawler:
                         (
                             "Unrecognized config '{0}' for Rule {1}. If this "
                             "is a new option, please add it to "
-                            "`default_config.ini`"
+                            "`default_config.cfg`"
                         ).format(keyword, code)
                     )
         except AttributeError:
