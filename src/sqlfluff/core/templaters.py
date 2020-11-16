@@ -5,6 +5,7 @@ import ast
 from typing import Dict, Optional
 from dataclasses import dataclass
 from cached_property import cached_property
+from functools import partial
 
 from jinja2.sandbox import SandboxedEnvironment
 from jinja2 import meta
@@ -402,6 +403,14 @@ class DbtTemplateInterface(PythonTemplateInterface):
         super().__init__(**kwargs)
 
     @cached_property
+    def dbt_version(self):
+        """Gets the dbt version."""
+        from dbt.version import get_installed_version
+
+        self.dbt_version = get_installed_version().to_version_string()
+        return self.dbt_version
+
+    @cached_property
     def dbt_config(self):
         """Loads the dbt config."""
         from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
@@ -428,13 +437,24 @@ class DbtTemplateInterface(PythonTemplateInterface):
     @cached_property
     def dbt_manifest(self):
         """Loads the dbt manifest."""
-        from dbt.parser.manifest import load_macro_manifest, load_manifest
-
         # Identity function used for macro hooks
         def identity(x):
             return x
 
-        dbt_macros_manifest = load_macro_manifest(self.dbt_config, macro_hook=identity)
+        if "0.17" in self.dbt_version:
+            from dbt.parser.manifest import (
+                load_internal_manifest as load_macro_manifest,
+                load_manifest,
+            )
+        else:
+            from dbt.parser.manifest import (
+                load_macro_manifest,
+                load_manifest,
+            )
+
+            load_macro_manifest = partial(load_macro_manifest, macro_hook=identity)
+
+        dbt_macros_manifest = load_macro_manifest(self.dbt_config)
         self.dbt_manifest = load_manifest(
             self.dbt_config, dbt_macros_manifest, macro_hook=identity
         )
@@ -443,17 +463,23 @@ class DbtTemplateInterface(PythonTemplateInterface):
     @cached_property
     def dbt_selector_method(self):
         """Loads the dbt selector method."""
-        from dbt.graph.selector_methods import (
-            MethodManager as DbtSelectorMethodManager,
-            MethodName as DbtMethodName,
-        )
+        if "0.17" in self.dbt_version:
+            from dbt.graph.selector import PathSelector
 
-        selector_methods_manager = DbtSelectorMethodManager(
-            self.dbt_manifest, previous_state=None
-        )
-        self.dbt_selector_method = selector_methods_manager.get_method(
-            DbtMethodName.Path, method_arguments=[]
-        )
+            self.dbt_selector_method = PathSelector(self.dbt_manifest)
+        else:
+            from dbt.graph.selector_methods import (
+                MethodManager as DbtSelectorMethodManager,
+                MethodName as DbtMethodName,
+            )
+
+            selector_methods_manager = DbtSelectorMethodManager(
+                self.dbt_manifest, previous_state=None
+            )
+            self.dbt_selector_method = selector_methods_manager.get_method(
+                DbtMethodName.Path, method_arguments=[]
+            )
+
         return self.dbt_selector_method
 
     def _get_profiles_dir(self):
