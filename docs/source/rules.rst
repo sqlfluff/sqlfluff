@@ -42,15 +42,31 @@ then it should flag on the segment FOLLOWING, the place that the desired
 element is missing.
 
 
-In-line Ignoring Errors
+Inline Ignoring Errors
 -----------------------
-`sqlfluff` features in-line error ignoring. For example, the following will
-ignore the lack of whitespace surounding the ``*`` operator.
+`sqlfluff` features inline error ignoring. For example, the following will
+ignore the lack of whitespace surrounding the ``*`` operator.
 
 .. code-block:: sql
 
-   a.a*a.b AS bad_3  -- noqa: L006
+   a.a*a.b AS bad_1  -- noqa: L006
 
 Multiple rules can be ignored by placing them in a comma-delimited list.
+
+.. code-block:: sql
+
+   a.a *  a.b AS bad_2,  -- noqa: L007, L006
+
+It is also possible to ignore non-rule based errors, and instead opt to
+ignore templating (``TMP``) & parsing (``PRS``) errors.
+
+.. code-block:: sql
+
+   WHERE dt >= DATE_ADD(CURRENT_DATE(), INTERVAL -2 DAY) -- noqa: PRS
+
 Should the need arise, not specifying specific rules to ignore will ignore
 all rules on the given line.
+
+.. code-block:: sql
+
+   a.a*a.b AS bad_3  -- noqa
