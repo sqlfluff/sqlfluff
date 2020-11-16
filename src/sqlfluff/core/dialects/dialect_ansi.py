@@ -64,8 +64,9 @@ ansi_dialect.set_lexer_struct(
                 ),
             ),
         ),
-        ("single_quote", "regex", r"'[^']*'", dict(is_code=True)),
-        ("double_quote", "regex", r'"[^"]*"', dict(is_code=True)),
+        # Matches 0 or more characters surrounded by quotes that (aren't a quote or backslash) or is a backslash followed by any character, aka an escaped character.
+        ("single_quote", "regex", r"'([^'\\]|\\.)*'", dict(is_code=True)),
+        ("double_quote", "regex", r'"([^"\\]|\\.)*"', dict(is_code=True)),
         ("back_quote", "regex", r"`[^`]*`", dict(is_code=True)),
         (
             "numeric_literal",
