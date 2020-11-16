@@ -11,17 +11,4 @@ select
     c,
     count(*) as occurences
 from orders
-
-
-  group by
-    
-      1
-       , 
-   
-      2
-       , 
-   
-      3
-      
-   
-
+group by 1,2,3

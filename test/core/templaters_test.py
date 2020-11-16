@@ -170,7 +170,8 @@ def test__templater_dbt_templating_result(
         fname="models/my_new_project/" + fname,
         config=FluffConfig(configs=DBT_FLUFF_CONFIG),
     )
-    assert outstr == open("../dbt/" + fname).read()
+    # the dbt compiler gets rid of new lines
+    assert outstr + "\n" == open("../dbt/" + fname).read()
 
 
 @pytest.mark.parametrize(
