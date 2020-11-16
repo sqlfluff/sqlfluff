@@ -38,7 +38,7 @@ For full CLI usage, see the docs.
 
 # Documentation
 
-For full documentation visit [SQLFluff on readthedocs.io](http://sqlfluff.readthedocs.io).
+For full documentation visit [docs.sqlfluff.com](https://docs.sqlfluff.com/en/stable/).
 
 # Releases
 
@@ -57,7 +57,7 @@ For full documentation visit [SQLFluff on readthedocs.io](http://sqlfluff.readth
 # Contributing
 
 There's lots to do in this project, and we're just getting started. If you want to understand more
-about the architecture of SQLFluff, you can find [more here](https://sqlfluff.readthedocs.io/en/latest/architecture.html).
+about the architecture of SQLFluff, you can find [more here](https://docs.sqlfluff.com/en/latest/architecture.html).
 
 If you'd like to contribute, check out the
 [open issues on GitHub](https://github.com/sqlfluff/sqlfluff/issues).
