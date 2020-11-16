@@ -75,7 +75,13 @@ changes.
 ## Nerdy Details
 ### Testing
 
-To test locally, sqlfluff uses `tox`. You can build locally using...
+To test locally, sqlfluff uses `tox`.
+
+**For Windows users**: the tox environment depends on `make` to set up the dbt test folders.
+To do that we recommend using _chocolatey_. You can find the instructions to install chocolately here: https://chocolatey.org/install.
+Once chocolatey is installed you can use `choco install make` to install `make`.
+
+Then you can build locally using...
 
 ```shell
 pip install tox
@@ -100,6 +106,12 @@ tox -e cov-init,py36,cov-report,linting
 > NB: The `cov-init` task clears the previous test results, the `py36` environment
 > generates the results for tests in that python version and the `cov-report` environment
 > actually reports those results out to you.
+
+To run the dbt-related tests you will have to explicitly include these tests:
+
+```shell
+tox -e dbt018-py38 -- -m "dbt"
+```
 
 ### Using your local version
 
