@@ -213,7 +213,7 @@ Dbt Project Configuration
 -------------------------
 
 dbt is not the default templater for *sqlfluff* (it is Jinja). In order
-to get started using *sqlfluff* with a Dbt project you will need the following
+to get started using *sqlfluff* with a dbt project you will need the following
 configuration:
 
 In *.sqlfluff*:
@@ -222,7 +222,7 @@ In *.sqlfluff*:
 
     [sqlfluff]
     templater = dbt
-    # DBT templating does not keep trailing new lines (L009)
+    # dbt templating does not keep trailing new lines (L009)
     exclude_rules = L009
 
 In *.sqlfluffignore*:

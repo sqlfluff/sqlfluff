@@ -177,8 +177,8 @@ def test__templater_dbt_templating_result(
 @pytest.mark.parametrize(
     "fname,exception_msg",
     [
-        ("compiler_error.sql", "DBT compilation error on file 'models/my_new_project/compiler_error.sql', Unexpected end of template. Jinja was looking for the following tags: 'endfor'"),
-        ("exception_connect_database.sql", "DBT tried to connect to the database"),
+        ("compiler_error.sql", "dbt compilation error on file 'models/my_new_project/compiler_error.sql', Unexpected end of template. Jinja was looking for the following tags: 'endfor'"),
+        ("exception_connect_database.sql", "dbt tried to connect to the database"),
     ]
 )
 @pytest.mark.dbt
@@ -191,7 +191,7 @@ def test__templater_dbt_handle_exceptions(
     src_fpath = "../dbt/error_models/" + fname
     target_fpath = "models/my_new_project/" + fname
     # We move the file that throws an error in and out of the project directory
-    # as DBT throws an error if a node fails to parse while computing the DAG
+    # as dbt throws an error if a node fails to parse while computing the DAG
     os.rename(src_fpath, target_fpath)
     try:
         _, violations = dbt_templater.process(

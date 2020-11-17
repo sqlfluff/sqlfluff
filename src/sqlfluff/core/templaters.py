@@ -385,7 +385,7 @@ class JinjaTemplateInterface(PythonTemplateInterface):
 
 @dataclass
 class DbtConfigArgs:
-    """Arguments to load Dbt runtime config."""
+    """Arguments to load dbt runtime config."""
 
     project_dir: Optional[str] = None
     profiles_dir: Optional[str] = None
@@ -394,7 +394,7 @@ class DbtConfigArgs:
 
 @register_templater
 class DbtTemplateInterface(PythonTemplateInterface):
-    """A templater using DBT."""
+    """A templater using dbt."""
 
     name = "dbt"
 
@@ -529,11 +529,11 @@ class DbtTemplateInterface(PythonTemplateInterface):
             ) from e
 
     def process(self, *, fname, in_str=None, config=None):
-        """Compile a DBT model and return the compiled SQL.
+        """Compile a dbt model and return the compiled SQL.
 
         Args:
-            fname (:obj:`str`): Path to DBT model(s)
-            in_str (:obj:`str`, optional): This is ignored for DBT
+            fname (:obj:`str`): Path to dbt model(s)
+            in_str (:obj:`str`, optional): This is ignored for dbt
             config (:obj:`FluffConfig`, optional): A specific config to use for this
                 templating operation. Only necessary for some templaters.
         """
@@ -548,13 +548,13 @@ class DbtTemplateInterface(PythonTemplateInterface):
         except DbtCompilationException as e:
             return None, [
                 SQLTemplaterError(
-                    f"DBT compilation error on file '{e.node.original_file_path}', {e.msg}"
+                    f"dbt compilation error on file '{e.node.original_file_path}', {e.msg}"
                 )
             ]
         except DbtFailedToConnectException as e:
             return None, [
                 SQLTemplaterError(
-                    "DBT tried to connect to the database and failed: "
+                    "dbt tried to connect to the database and failed: "
                     "you could use 'execute' https://docs.getdbt.com/reference/dbt-jinja-functions/execute/ "
                     f"to skip the database calls. Error: {e.msg}"
                 )
