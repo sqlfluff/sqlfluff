@@ -16,7 +16,8 @@
 
 Bored of not having a good SQL linter that works with whichever dialect you're
 working with? SQLFluff is an extensible and modular linter designed to help you write
-good SQL and catch errors before it hits your database.
+good SQL and catch errors before it hits your database. SQLFluff can auto-fix most linting
+errors too.
 
 # Getting Started
 
@@ -34,7 +35,7 @@ L:   1 | P:  27 | L001 | Unnecessary trailing whitespace
 
 You can also have a play using [SQLFluff online](https://sqlfluff-online.herokuapp.com/).
 
-For full CLI usage, see the docs.
+For full CLI usage and rules reference, see the docs.
 
 # Documentation
 
