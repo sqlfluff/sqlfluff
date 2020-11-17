@@ -105,6 +105,8 @@ setup(
         "appdirs",
         # Cached property for performance gains
         "cached-property",
+        # dataclasses backport for python 3.6
+        "dataclasses",
     ],
     extras_require={
         "dbt": ["dbt>=0.17"],
