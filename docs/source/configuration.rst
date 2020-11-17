@@ -209,6 +209,37 @@ be a :code:`.sql` itself.
     be a requirement that the *templating* is accurate - only so far as that
     is required to enable the *parsing* and *linting* to be helpful.
 
+Builtin Macro Blocks
+^^^^^^^^^^^^^^^^^^^^
+
+One of the main use cases which inspired *sqlfluff* as a project was `dbt`_.
+It uses jinja templating extensively and leads to some users maintaining large
+repositories of sql files which could potentially benefit from some linting.
+
+.. note::
+    *sqlfluff* has now a tighter integration with dbt through the "dbt" templater.
+    It is the recommended templater for dbt projects and removes the need for the
+    overwrites described in this section.
+
+    To use the dbt templater, go to `Dbt Project Configuration`_.
+
+*Sqlfluff* anticipates this use case and provides some built in macro blocks
+in the `Default Configuration`_ which assist in getting started with `dbt`_
+projects. In particular it provides mock objects for:
+
+* *ref*: The mock version of this provided simply returns the model reference
+  as the name of the table. In most cases this is sufficient.
+* *config*: A regularly used macro in `dbt`_ to set configuration values. For
+  linting purposes, this makes no difference and so the provided macro simply
+  returns nothing.
+
+.. note::
+    If there are other builtin macros which would make your life easier,
+    consider submitting the idea (or even better a pull request) on `github`_.
+
+.. _`dbt`: https://www.getdbt.com/
+.. _`github`: https://www.github.com/sqlfluff/sqlfluff
+
 Dbt Project Configuration
 -------------------------
 
