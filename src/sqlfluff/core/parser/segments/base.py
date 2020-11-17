@@ -15,14 +15,17 @@ from cached_property import cached_property
 from typing import Optional, List, Tuple, NamedTuple, Iterator
 import logging
 
+from ...string_helpers import (
+    frame_msg,
+    curtail_string,
+)
+
 from ..match_result import MatchResult
 from ..match_logging import parse_match_logging
 from ..match_wrapper import match_wrapper
 from ..helpers import (
-    frame_msg,
     check_still_complete,
     trim_non_code_segments,
-    curtail_string,
 )
 from ..matchable import Matchable
 from ..markers import EnrichedFilePositionMarker

@@ -10,6 +10,7 @@ import pathspec
 
 from .errors import SQLLexError, SQLParseError, SQLBaseError
 from .parser import Lexer, Parser
+from .string_helpers import findall
 from .templaters import TemplatedFile
 from .rules import get_ruleset
 from .config import FluffConfig
@@ -167,7 +168,14 @@ class LintedFile(NamedTuple):
                 # If we try and slice within a templated section, then we may fail
                 # in which case, we should skip this edit.
                 continue
-            source_space_patches.append((source_slice, patch.fixed_raw))
+            # Add the templated string (pre-fix) for comparison later in case we need
+            # to isolate templated sections.
+            source_space_patches.append((
+                source_slice,
+                patch.fixed_raw,
+                self.templated_file.templated_str[patch.templated_slice],
+                self.templated_file.source_str[source_slice]
+            ))
         linter_logger.debug("Fresh source-space patches: %s", source_space_patches)
 
         # Dedupe on source space
@@ -178,11 +186,63 @@ class LintedFile(NamedTuple):
         ]
         linter_logger.debug("Deduped source-space patches: %s", source_space_patches)
 
+        # We now evaluate patches in the source-space for whether they overlap
+        # or disrupt any templated sections.
+        # The intent here is that unless explicity stated, a fix should never
+        # disrupt a templated section.
+        # NOTE: We rely here on the patches being sorted.
+        # TODO: Implement a mechanism for doing templated section fixes. For
+        # now it's just not allowed.
+        filtered_source_patches = []
+        raw_slice_idx = 0
+        for patch in source_space_patches:
+            # Move the raw pointer forward to the start of this patch
+            while raw_slice_idx + 1 < len(self.templated_file.raw_sliced) and self.templated_file.raw_sliced[raw_slice_idx + 1].source_idx <= patch[0].start:
+                raw_slice_idx += 1
+            # Find slice index of the end of this patch.
+            slice_span = 1
+            while raw_slice_idx + slice_span < len(self.templated_file.raw_sliced) and self.templated_file.raw_sliced[raw_slice_idx + slice_span].source_idx < patch[0].stop:
+                slice_span += 1
+            
+            slices = self.templated_file.raw_sliced[raw_slice_idx: raw_slice_idx + slice_span]
+            type_list = [source_slice.slice_type for source_slice in slices]
+
+            # Deal with the easy case of only literals
+            if set(type_list) == {'literal'}:
+                linter_logger.debug("    Keeping patch on literal-only section: %s", patch)
+                filtered_source_patches.append(patch)
+            # Is it a zero length pathch.
+            elif patch[0].start == patch[0].stop and patch[0].start == slices[0].source_idx:
+                linter_logger.debug("    Keeping insertion patch on slice boundary: %s", patch)
+                filtered_source_patches.append(patch)
+            # If it's ONLY templated then we should skip it.
+            elif 'literal' not in type_list:
+                linter_logger.debug("    - Skipping patch over templated section: %s", patch)
+            # If we span more than two slices then we should just skip it. Too Hard.
+            elif len(slices) > 2:
+                linter_logger.debug("    - Skipping patch over more than two raw slices: %s", patch)
+            # If it's an insertion (i.e. the string in the pre-fix template is '') then we
+            # won't be able to place it, so skip.
+            elif not patch[2]:
+                linter_logger.debug("    - Skipping insertion patch in templated section: %s", patch)
+            # If the string from the templated version isn't in the source, then we can't fix it.
+            elif patch[2] not in patch[3]:
+                linter_logger.debug("    - Skipping edit patch on templated content: %s", patch)
+            else:
+                # Identify all the places the string appears in the source content.
+                positions = list(findall(patch[2], patch[3]))
+                if len(positions) != 1:
+                    linter_logger.debug("    - Skipping edit patch on non-unique templated content: %s", patch)
+                    continue
+                linter_logger.error("Patch: %s. Type List: %s", patch, type_list)
+                linter_logger.error("Slices: %s", slices)
+                raise ValueError("Difficult Case!!!")
+
         # We now slice up the file using the patches and any source only slices.
         # This gives us regions to apply changes to.
         slice_buff = []
         source_idx = 0
-        for patch in source_space_patches:
+        for patch in filtered_source_patches:
             # Are there templated slices at or before the start of this patch?
             while (
                 source_only_slices and source_only_slices[0].source_idx < patch[0].start
@@ -203,10 +263,9 @@ class LintedFile(NamedTuple):
             # Is this patch covering an area we've already covered?
             if patch[0].start < source_idx:
                 linter_logger.info(
-                    "Skipping overlapping patch at Index %s, Patch: %s, Patches: %s",
+                    "Skipping overlapping patch at Index %s, Patch: %s",
                     source_idx,
                     patch,
-                    source_space_patches,
                 )
                 # Ignore the patch for now...
                 continue
@@ -224,7 +283,7 @@ class LintedFile(NamedTuple):
         str_buff = ""
         for source_slice in slice_buff:
             # Is it one in the patch buffer:
-            for patch in source_space_patches:
+            for patch in filtered_source_patches:
                 if patch[0] == source_slice:
                     # Use the patched version
                     linter_logger.debug(
@@ -332,6 +391,15 @@ class LintedPath:
             if formatter:
                 formatter.dispatch_persist_filename(filename=file.path, result=result)
         return buffer
+
+    @property
+    def tree(self):
+        """A convenience method for when there is only one file and we want the tree."""
+        if len(self.files) > 1:
+            raise ValueError(
+                ".tree() cannot be called when a LintedPath contains more than one file."
+            )
+        return self.files[0].tree
 
 
 class LintingResult:
@@ -454,11 +522,7 @@ class LintingResult:
             raise ValueError(
                 ".tree() cannot be called when a LintingResult contains more than one path."
             )
-        if len(self.paths[0].files) > 1:
-            raise ValueError(
-                ".tree() cannot be called when a LintingResult contains more than one file."
-            )
-        return self.paths[0].files[0].tree
+        return self.paths[0].tree
 
 
 class Linter:

@@ -1,22 +1,8 @@
 """Helpers for the parser module."""
 
-from typing import Tuple, TYPE_CHECKING
+from typing import Tuple, TYPE_CHECKING, Iterator
 
-if TYPE_CHECKING:
-    from .segments import BaseSegment
-
-
-def frame_msg(msg: str) -> str:
-    """Frame a message with hashes so that it covers five lines."""
-    return "\n###\n#\n# {0}\n#\n###".format(msg)
-
-
-def curtail_string(s: str, length=20) -> str:
-    """Trim a string nicely to length."""
-    if len(s) > length:
-        return s[:length] + "..."
-    else:
-        return s
+from ..string_helpers import curtail_string
 
 
 def join_segments_raw(segments: Tuple["BaseSegment", ...]) -> str:

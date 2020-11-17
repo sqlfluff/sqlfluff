@@ -139,20 +139,6 @@ def test__templater_python_intermediate__trim(
 
 
 @pytest.mark.parametrize(
-    "mainstr,substr,positions",
-    [
-        ("", "", []),
-        ("a", "a", [0]),
-        ("foobar", "o", [1, 2]),
-        ("bar bar bar bar", "bar", [0, 4, 8, 12]),
-    ],
-)
-def test__templater_python_findall(mainstr, substr, positions):
-    """Test _findall."""
-    assert list(PythonTemplater._findall(substr, mainstr)) == positions
-
-
-@pytest.mark.parametrize(
     "mainstr,substrings,positions",
     [
         ("", [], []),

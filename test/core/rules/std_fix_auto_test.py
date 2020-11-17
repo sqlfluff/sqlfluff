@@ -112,6 +112,8 @@ def auto_fix_test(rules, dialect, folder, caplog):
     lnt = Linter(config=cfg)
     res = lnt.lint_path(filepath, fix=True)
 
+    print("## Templated file:\n{0}".format(res.tree.raw))
+
     # We call the check_tuples here, even to makes sure any non-linting
     # violations are raised, and the test fails.
     vs = set(res.check_tuples())

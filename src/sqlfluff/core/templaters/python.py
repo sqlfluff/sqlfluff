@@ -5,6 +5,7 @@ from string import Formatter
 from typing import Iterable, Dict, Tuple, List, Iterator, Optional, NamedTuple
 
 from ..errors import SQLTemplaterError
+from ..string_helpers import findall
 
 from .base import (
     RawTemplater,
@@ -278,20 +279,6 @@ class PythonTemplater(RawTemplater):
         templater_logger.debug("    Fully Sliced: %s", sliced_file)
         return raw_sliced, sliced_file
 
-    @staticmethod
-    def _findall(substr: str, in_str: str) -> Iterator[int]:
-        """Yields all the positions sbstr within in_str.
-
-        https://stackoverflow.com/questions/4664850/how-to-find-all-occurrences-of-a-substring
-        """
-        # Return nothing if one of the inputs is trivial
-        if not substr or not in_str:
-            return
-        idx = in_str.find(substr)
-        while idx != -1:
-            yield idx
-            idx = in_str.find(substr, idx + 1)
-
     @classmethod
     def _substring_occurances(
         cls, in_str: str, substrings: Iterable[str]
@@ -299,7 +286,7 @@ class PythonTemplater(RawTemplater):
         """Find every occurance of the given substrings."""
         occurances = {}
         for substring in substrings:
-            occurances[substring] = list(cls._findall(substring, in_str))
+            occurances[substring] = list(findall(substring, in_str))
         return occurances
 
     @staticmethod
@@ -647,13 +634,24 @@ class PythonTemplater(RawTemplater):
             for raw, template_idx in owu_templ_tuples:
                 raw_idx = raw_occs[raw][0]
                 raw_len = len(raw)
+
                 # Find the index of this owu in the slice_buffer, store the previous
                 last_owu_idx = this_owu_idx
-                this_owu_idx = next(
-                    idx
-                    for idx, slc in enumerate(int_file_slice.slice_buffer)
-                    if slc.raw == raw
-                )
+                try:
+                    this_owu_idx = next(
+                        idx
+                        for idx, slc in enumerate(int_file_slice.slice_buffer)
+                        if slc.raw == raw
+                    )
+                except StopIteration:
+                    # This can happen if the unique was detected, but was introduced
+                    # by a templater step. This is a false positive. Skip and move on.
+                    templater_logger.info(
+                        "One Way Unique %r not found in slice buffer. Skipping...",
+                        raw
+                    )
+                    continue
+
                 templater_logger.debug(
                     "        Handling OWU: %r @%s (raw @%s) [this_owu_idx: %s, last_owu_dx: %s]",
                     raw,
