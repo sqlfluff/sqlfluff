@@ -4,7 +4,7 @@
   language: python
   description: 'Lints sql files with `sqlfluff`'
   types: [sql]
-  require_serial: false
+  require_serial: true
   additional_dependencies: []
 
 - id: sqlfluff-fix
@@ -13,5 +13,5 @@
   language: python
   description: 'Fixes sql lint errors with `sqlfluff`'
   types: [sql]
-  require_serial: false
+  require_serial: true
   additional_dependencies: []
