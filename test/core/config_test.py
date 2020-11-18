@@ -5,6 +5,8 @@ import os
 from sqlfluff.core.config import ConfigLoader, nested_combine, dict_diff
 from sqlfluff.core import Linter, FluffConfig
 
+from pathlib import Path
+
 
 config_a = {
     "core": {"testing_val": "foobar", "testing_int": 4},
@@ -65,6 +67,42 @@ def test__config__load_nested():
         "bar": {"foo": "foobar"},
         "fnarr": {"fnarr": {"foo": "foobar"}},
     }
+
+
+def test__config__iter_config_paths_right_order():
+    """Test that config paths are fetched ordered by priority."""
+    c = ConfigLoader()
+    cfg_paths = c.iter_config_locations_up_to_path(
+        os.path.join(
+            "test", "fixtures", "config", "inheritance_a", "nested", "blah.sql"
+        ),
+        working_path="test/fixtures",
+    )
+    assert list(cfg_paths) == [
+        str(Path(p).resolve())
+        for p in [
+            "test/fixtures",
+            "test/fixtures/config",
+            "test/fixtures/config/inheritance_a",
+            "test/fixtures/config/inheritance_a/nested",
+        ]
+    ]
+
+
+def test__config__find_sqlfluffignore_in_same_directory():
+    """Test find ignore file in the same directory as sql file."""
+    ignore_files = ConfigLoader.find_ignore_config_files(
+        path="test/fixtures/linter/sqlfluffignore/path_b/query_b.sql",
+        working_path="test/fixtures/linter/sqlfluffignore/",
+    )
+    assert ignore_files == set(
+        [
+            os.path.abspath(
+                "test/fixtures/linter/sqlfluffignore/path_b/.sqlfluffignore"
+            ),
+            os.path.abspath("test/fixtures/linter/sqlfluffignore/.sqlfluffignore"),
+        ]
+    )
 
 
 def test__config__nested_config_tests():
