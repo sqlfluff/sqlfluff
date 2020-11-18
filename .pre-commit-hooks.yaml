@@ -1,0 +1,20 @@
+
+- id: sqlfluff-lint
+  name: sqlfluff-lint
+  entry: sqlfluff
+  language: python
+  description: 'Lints sql files with `sqlfluff`'
+  types: [sql]
+  args: [lint]
+  require_serial: false
+  additional_dependencies: []
+
+- id: sqlfluff-fix
+  name: sqlfluff-fix
+  entry: sqlfluff
+  language: python
+  description: 'Fixes sql lint errors with `sqlfluff`'
+  types: [sql]
+  args: [fix]
+  require_serial: false
+  additional_dependencies: []
