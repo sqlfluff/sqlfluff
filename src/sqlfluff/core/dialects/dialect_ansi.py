@@ -264,7 +264,7 @@ ansi_dialect.add(
     OrKeywordSegment=KeywordSegment.make("or", type="binary_operator"),
     # This is a placeholder for other dialects.
     PreTableFunctionKeywordsGrammar=Nothing(),
-    BinaryOperatorGramar=OneOf(
+    BinaryOperatorGrammar=OneOf(
         Ref("ArithmeticBinaryOperatorGrammar"),
         Ref("StringBinaryOperatorGrammar"),
         Ref("BooleanBinaryOperatorGrammar"),
@@ -359,7 +359,7 @@ class ObjectReferenceSegment(BaseSegment):
             Ref("CastOperatorSegment"),
             Ref("StartSquareBracketSegment"),
             Ref("StartBracketSegment"),
-            Ref("BinaryOperatorGramar"),
+            Ref("BinaryOperatorGrammar"),
             Ref("ColonSegment"),
             Ref("SemicolonSegment"),
         ),
@@ -957,7 +957,7 @@ ansi_dialect.add(
             OneOf(
                 Sequence(
                     OneOf(
-                        Ref("BinaryOperatorGramar"),
+                        Ref("BinaryOperatorGrammar"),
                         Sequence(
                             Ref.keyword("NOT", optional=True),
                             OneOf("LIKE", "RLIKE", "ILIKE"),
@@ -965,6 +965,11 @@ ansi_dialect.add(
                         # We need to add a lot more here...
                     ),
                     Ref("Expression_A_Grammar"),
+                    Sequence(
+                        Ref.keyword("ESCAPE"),
+                        Ref("Expression_A_Grammar"),
+                        optional=True,
+                    ),
                 ),
                 Sequence(
                     Ref.keyword("NOT", optional=True),
