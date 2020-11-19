@@ -941,6 +941,12 @@ class BaseSegment:
             yield FixPatch(
                 self.pos_marker.templated_slice, self.raw, patch_type="literal"
             )
+        # Can we go deeper?
+        elif not self.segments:
+            # It's not literal, but it's also a raw segment. If were going
+            # to yield a change, we would have done it from the parent, so
+            # we just abort from here.
+            return
         else:
             # This segment isn't a literal, but has changed, we need to go deeper.
 
