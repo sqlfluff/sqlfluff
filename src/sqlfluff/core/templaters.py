@@ -577,7 +577,8 @@ class DbtTemplateInterface(PythonTemplateInterface):
 
         selected = self.dbt_selector_method.search(
             included_nodes=self.dbt_manifest.nodes,
-            selector=fname,
+            # Selector needs to be a relative path
+            selector=os.path.relpath(fname, start=os.getcwd()),
         )
         results = [self.dbt_manifest.expect(uid) for uid in selected]
 

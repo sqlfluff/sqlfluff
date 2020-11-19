@@ -174,6 +174,21 @@ def test__templater_dbt_templating_result(
     assert outstr + "\n" == open("../dbt/" + fname).read()
 
 
+@pytest.mark.dbt
+def test__templater_dbt_templating_absolute_path(
+    in_dbt_project_dir, dbt_templater  # noqa
+):
+    """Test that absolute path of input path does not cause RuntimeError."""
+    try:
+        dbt_templater.process(
+            in_str="",
+            fname=os.path.abspath("models/my_new_project/use_var.sql"),
+            config=FluffConfig(configs=DBT_FLUFF_CONFIG),
+        )
+    except Exception as e:
+        pytest.fail(f"Unexpected RuntimeError: {e}")
+
+
 @pytest.mark.parametrize(
     "fname,exception_msg",
     [
