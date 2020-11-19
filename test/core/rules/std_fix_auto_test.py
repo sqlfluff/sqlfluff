@@ -10,6 +10,7 @@ import tempfile
 import shutil
 import json
 import logging
+import yaml
 
 from sqlfluff.core import FluffConfig, Linter
 
@@ -26,23 +27,12 @@ for dialect in os.listdir(os.path.join(*base_auto_fix_path)):
     # assume that d is now the name of a dialect
     dirlist = os.listdir(os.path.join(*base_auto_fix_path, dialect))
     for test_case in dirlist:
-        spl = test_case.split("_")
-        rules = spl[1]
-        rule_list = []
-        if len(rules) % 4 != 0:
-            raise ValueError(
-                "Test case {0!r} is incorrectly formatted!".format(test_case)
-            )
-        for idx in range(0, len(rules) // 4):
-            rule_list.append(rules[idx * 4 : (idx + 1) * 4])
         test_cases.append(
             (
                 # The dialect
                 dialect,
                 # The directory name
                 test_case,
-                # Rules
-                ",".join(rule_list),
             )
         )
 
@@ -59,15 +49,19 @@ def load_file(dialect, fname):
     return raw
 
 
-def auto_fix_test(rules, dialect, folder, caplog):
+def auto_fix_test(dialect, folder, caplog):
     """A test for roundtrip testing, take a file buffer, lint, fix and lint.
 
     This is explicitly different from the linter version of this, in that
     it uses the command line rather than the direct api.
     """
-    # Log the templater and lexer throughout this test
-    caplog.set_level(logging.DEBUG, logger="sqlfluff.templater")
-    caplog.set_level(logging.DEBUG, logger="sqlfluff.lexer")
+    # Log just the rules logger for this test.
+    # NOTE: In debugging it may be instructive to enable some of
+    # the other loggers listed here to debug particular issues.
+    # Enabling all of them results in very long logs so use
+    # wisely.
+    # caplog.set_level(logging.DEBUG, logger="sqlfluff.templater")
+    # caplog.set_level(logging.DEBUG, logger="sqlfluff.lexer")
     caplog.set_level(logging.DEBUG, logger="sqlfluff.linter")
     caplog.set_level(logging.DEBUG, logger="sqlfluff.rules")
 
@@ -80,6 +74,14 @@ def auto_fix_test(rules, dialect, folder, caplog):
     cmp_filepath = os.path.join(*base_auto_fix_path, dialect, folder, "after.sql")
     vio_filepath = os.path.join(*base_auto_fix_path, dialect, folder, "violations.json")
     cfg_filepath = os.path.join(*base_auto_fix_path, dialect, folder, ".sqlfluff")
+    test_conf_filepath = os.path.join(*base_auto_fix_path, dialect, folder, "test-config.yml")
+
+    # Load the config file for the test:
+    with open(test_conf_filepath) as cfg_file:
+        cfg = yaml.safe_load(cfg_file)
+    print("## Config: ", cfg)
+    rules = ','.join(cfg['test-config']['rules'])
+
     # Open the example file and write the content to it
     print_buff = ""
     with open(filepath, mode="w") as dest_file:
@@ -143,7 +145,7 @@ def auto_fix_test(rules, dialect, folder, caplog):
     assert fixed_buff == comp_buff
 
 
-@pytest.mark.parametrize("dialect,folder,rules", test_cases)
-def test__std_fix_auto(dialect, folder, rules, caplog):
+@pytest.mark.parametrize("dialect,folder", test_cases)
+def test__std_fix_auto(dialect, folder, caplog):
     """Automated Fixing Tests."""
-    auto_fix_test(rules=rules, dialect=dialect, folder=folder, caplog=caplog)
+    auto_fix_test(dialect=dialect, folder=folder, caplog=caplog)

@@ -15,21 +15,21 @@ raw_effect_sizes AS (
     GROUP BY
         {{corr_states}}
 ),
-  
+
 {% for action in considered_actions %}
-{{action}}_raw_effect_sizes AS (
-    SELECT
-        COUNT(1) AS campaign_count_{{action}},
-        {{corr_states}}
-        , SAFE_DIVIDE(SAFE_MULTIPLY(CORR({{metric}}_rate_su, {{action}}), STDDEV_POP({{metric}}_rate_su)),
-            STDDEV_POP({{action}})) AS {{metric}}_{{action}}
-    FROM
-        `{{gcp_project}}.{{dataset}}.global_actions_states`
-    WHERE
-        {{action}} != -1
-    GROUP BY
-        {{corr_states}}
-),
+    {{action}}_raw_effect_sizes AS (
+        SELECT
+            COUNT(1) AS campaign_count_{{action}},
+            {{corr_states}}
+            , SAFE_DIVIDE(SAFE_MULTIPLY(CORR({{metric}}_rate_su, {{action}}), STDDEV_POP({{metric}}_rate_su)),
+                STDDEV_POP({{action}})) AS {{metric}}_{{action}}
+        FROM
+            `{{gcp_project}}.{{dataset}}.global_actions_states`
+        WHERE
+            {{action}} != -1
+        GROUP BY
+            {{corr_states}}
+    ),
 {% endfor %}
   
 new_raw_effect_sizes AS (
@@ -73,7 +73,8 @@ action_states AS (
     SELECT 
         {{action_states}}
     FROM `{{gcp_project}}.{{dataset}}.global_state_space`
-    GROUP BY {{action_states}})
+    GROUP BY {{action_states}}
+)
 
 SELECT
     imputed_effect_sizes.*,
