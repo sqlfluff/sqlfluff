@@ -156,7 +156,13 @@ class LintedFile(NamedTuple):
         # It's also not the FIXED file either.
         linter_logger.debug("### Templated File.")
         for idx, file_slice in enumerate(self.templated_file.sliced_file):
-            linter_logger.debug("    File slice: %s %r", idx, file_slice)
+            t_str = self.templated_file.templated_str[file_slice.templated_slice]
+            s_str = self.templated_file.source_str[file_slice.source_slice]
+            if t_str == s_str:
+                linter_logger.debug("    File slice: %s %r [invariant]", idx, file_slice)
+            else:
+                linter_logger.debug("    File slice: %s %r", idx, file_slice)
+                linter_logger.debug("    \t\t\ttemplated: %r\tsource: %r", t_str, s_str)
 
         original_source = self.templated_file.source_str
 
