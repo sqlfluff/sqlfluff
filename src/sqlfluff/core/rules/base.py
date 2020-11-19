@@ -120,10 +120,9 @@ class LintFix:
             # Strip position markers of anything enriched, otherwise things can get blurry
             for seg in self.edit:
                 seg.pos_marker = seg.pos_marker.strip()
-        # Once stripped, we can replace some of the markers with replacements.
-        if self.edit_type == "edit":
-            # The first of an edit, can inherit the full pos marker of the anchor.
-            self.edit[0].pos_marker = self.anchor.pos_marker
+        # Once stripped, we shouldn't replace any markers because
+        # later code may rely on them being accurate, which we
+        # can't guarantee with edits.
 
     def is_trivial(self):
         """Return true if the fix is trivial.

@@ -294,6 +294,11 @@ class BaseSegment:
             else:
                 raise ValueError("No starting pos provided and unable to infer.")
 
+        # Strip the starting position regardless. This means
+        # we don't accidentally contaminate any inserted initial
+        # segments.
+        running_pos = running_pos.strip()
+
         while len(todo_buffer) > 0:
             # Get the first off the buffer
             seg = todo_buffer.pop(0)
@@ -313,7 +318,7 @@ class BaseSegment:
                     seg_copy = seg_copy.realign()
                 seg = seg_copy
 
-            # Update the running position with the content of that segment
+            # Update the running position with the content of that segment.
             running_pos = running_pos.advance_by(raw=seg.raw, idx=idx)
             # Add the buffer to my new segment
             seg_buffer.append(seg)
@@ -977,7 +982,7 @@ class BaseSegment:
                     # If we have an insert buffer, then it's an edit, otherwise a deletion.
                     yield FixPatch(
                         slice(
-                            segment.pos_marker.templated_slice.start - start_diff,
+                            segment.pos_marker.templated_slice.start - max(start_diff, 0),
                             segment.pos_marker.templated_slice.start,
                         ),
                         insert_buff,

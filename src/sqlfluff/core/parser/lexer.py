@@ -441,9 +441,13 @@ class Lexer:
             )
             new_segment_buff.append(segment)
 
-        lexer_logger.debug(
-            "Enriched Segments: %s",
-            new_segment_buff,
-        )
+        lexer_logger.debug("Enriched Segments:")
+        for seg in new_segment_buff:
+            lexer_logger.debug(
+                "\tTmp: %s\tSrc: %s\tSeg: %s",
+                getattr(seg.pos_marker, "templated_slice", None),
+                getattr(seg.pos_marker, "source_slice", None),
+                seg
+            )
 
         return tuple(new_segment_buff)
