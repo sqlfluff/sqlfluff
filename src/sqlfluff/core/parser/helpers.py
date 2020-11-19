@@ -1,8 +1,11 @@
 """Helpers for the parser module."""
 
-from typing import Tuple, TYPE_CHECKING, Iterator
+from typing import Tuple, TYPE_CHECKING
 
 from ..string_helpers import curtail_string
+
+if TYPE_CHECKING:
+    from .segments import BaseSegment
 
 
 def join_segments_raw(segments: Tuple["BaseSegment", ...]) -> str:

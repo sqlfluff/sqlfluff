@@ -184,6 +184,27 @@ class TemplatedFile:
             raise ValueError("Position Not Found")
         return first_idx, last_idx
 
+    def raw_slices_spanning_source_slice(self, source_slice: slice):
+        """Return a list of the raw slices spanning a set of indices."""
+        # First find the start index
+        raw_slice_idx = 0
+        # Move the raw pointer forward to the start of this patch
+        while (
+            raw_slice_idx + 1 < len(self.raw_sliced)
+            and self.raw_sliced[raw_slice_idx + 1].source_idx <= source_slice.start
+        ):
+            raw_slice_idx += 1
+        # Find slice index of the end of this patch.
+        slice_span = 1
+        while (
+            raw_slice_idx + slice_span < len(self.raw_sliced)
+            and self.raw_sliced[raw_slice_idx + slice_span].source_idx
+            < source_slice.stop
+        ):
+            slice_span += 1
+        # Return the raw slices:
+        return self.raw_sliced[raw_slice_idx : raw_slice_idx + slice_span]
+
     def templated_slice_to_source_slice(
         self,
         template_slice: slice,

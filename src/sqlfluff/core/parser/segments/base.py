@@ -36,10 +36,14 @@ linter_logger = logging.getLogger("sqlfluff.linter")
 
 
 class FixPatch(NamedTuple):
-    """An edit patch for a file."""
+    """An edit patch for a templated file."""
 
     templated_slice: slice
     fixed_raw: str
+    # The patch type, functions mostly for debugging and explanation
+    # than for function. It allows tracability of *why* this patch was
+    # generated.
+    patch_type: str
 
 
 class BaseSegment:
@@ -934,9 +938,9 @@ class BaseSegment:
         # If it's all literal, then we don't need to recurse.
         if self.pos_marker.is_literal:
             # Yield the position in the source file and the patch
-            patch = FixPatch(self.pos_marker.templated_slice, self.raw)
-            linter_logger.debug("Yeilding literal patch: %r", patch)
-            yield patch
+            yield FixPatch(
+                self.pos_marker.templated_slice, self.raw, patch_type="literal"
+            )
         else:
             # This segment isn't a literal, but has changed, we need to go deeper.
 
@@ -965,19 +969,15 @@ class BaseSegment:
                 # Check to see whether there's a discontinuity before the current segment
                 if start_diff > 0 or insert_buff:
                     # If we have an insert buffer, then it's an edit, otherwise a deletion.
-                    patch = FixPatch(
+                    yield FixPatch(
                         slice(
                             segment.pos_marker.templated_slice.start - start_diff,
                             segment.pos_marker.templated_slice.start,
                         ),
                         insert_buff,
+                        patch_type="mid_point",
                     )
                     insert_buff = ""
-                    linter_logger.debug(
-                        "Yielding at mid deletion (or insertion) point: %r",
-                        patch,
-                    )
-                    yield patch
 
                 # Now we deal with any changes *within* the segment itself.
                 yield from segment.iter_patches(templated_str=templated_str)
@@ -990,18 +990,14 @@ class BaseSegment:
             # or insert. Also valid if we still have an insertion buffer here.
             end_diff = self.pos_marker.templated_slice.stop - templated_idx
             if end_diff or insert_buff:
-                patch = FixPatch(
+                yield FixPatch(
                     slice(
                         self.pos_marker.templated_slice.stop - end_diff,
                         self.pos_marker.templated_slice.stop,
                     ),
                     insert_buff,
+                    patch_type="end_point",
                 )
-                linter_logger.debug(
-                    "Yielding at end deletion (or insertion) point: %r",
-                    patch,
-                )
-                yield patch
 
 
 class UnparsableSegment(BaseSegment):

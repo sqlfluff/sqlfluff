@@ -647,8 +647,7 @@ class PythonTemplater(RawTemplater):
                     # This can happen if the unique was detected, but was introduced
                     # by a templater step. This is a false positive. Skip and move on.
                     templater_logger.info(
-                        "One Way Unique %r not found in slice buffer. Skipping...",
-                        raw
+                        "One Way Unique %r not found in slice buffer. Skipping...", raw
                     )
                     continue
 
