@@ -895,3 +895,18 @@ def test_rules_configs_are_dynamically_documented():
         pass
 
     assert "Configuration" not in RuleWithoutConfig.__doc__
+
+
+def test_rule_exception_is_caught_to_validation():
+    """Assert that a rule that throws an exception on _eval returns it as a validation."""
+
+    @std_rule_set.register
+    class Rule_LXXX(BaseCrawler):
+        """Rule that throws an exception."""
+
+        def _eval(self, segment, parent_stack, **kwargs):
+            raise Exception("Catch me or I'll deny any linting results from you")
+
+    linter = Linter(config=FluffConfig(overrides=dict(rules="LXXX")))
+
+    assert linter.lint_string("select 1").check_tuples() == [("LXXX", 1, 1)]
