@@ -394,7 +394,7 @@ class Lexer:
 
                     # Add segments as appropriate.
                     # If it's a block end, add a dedent.
-                    if source_only_slice.slice_type == "block_end":
+                    if source_only_slice.slice_type in ("block_end", "block_mid"):
                         new_segment_buff.append(
                             Dedent.when(template_blocks_indent=True)(
                                 pos_marker=segment.pos_marker
@@ -409,7 +409,7 @@ class Lexer:
                         )
                     )
                     # If it's a block end, add a dedent.
-                    if source_only_slice.slice_type == "block_start":
+                    if source_only_slice.slice_type in ("block_start", "block_mid"):
                         new_segment_buff.append(
                             Indent.when(template_blocks_indent=True)(
                                 pos_marker=segment.pos_marker

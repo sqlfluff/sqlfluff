@@ -339,7 +339,7 @@ class TemplatedFile:
         """
         ret_buff = []
         for elem in self.raw_sliced:
-            if elem.slice_type in ("comment", "block_end", "block_start"):
+            if elem.slice_type in ("comment", "block_end", "block_start", "block_mid"):
                 ret_buff.append(elem)
         return ret_buff
 

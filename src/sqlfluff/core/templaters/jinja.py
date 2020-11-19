@@ -308,6 +308,9 @@ class JinjaTemplater(PythonTemplater):
                     trimmed_content = str_buff[2:-2].strip()
                     if trimmed_content.startswith("end"):
                         block_type = "block_end"
+                    elif trimmed_content.startswith("el"):
+                        # else, elif
+                        block_type = "block_mid"
                     else:
                         block_type = "block_start"
                 yield RawFileSlice(str_buff, block_type, idx)

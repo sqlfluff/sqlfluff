@@ -1,4 +1,8 @@
 -- A subset of the hairy test.
+-- NOTE: This is not perfect, but reflects
+-- functionality as at Nov 2020. In future
+-- the logic should be updated to lit this
+-- better.
 SELECT
     {{corr_states}}
     {% for action in considered_actions %}
