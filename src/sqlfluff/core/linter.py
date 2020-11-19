@@ -246,7 +246,7 @@ class LintedFile(NamedTuple):
 
             # Deal with the easy case of only literals
             if set(local_type_list) == {"literal"}:
-                linter_logger.debug(
+                linter_logger.info(
                     "      * Keeping patch on literal-only section: %s", enriched_patch
                 )
                 filtered_source_patches.append(enriched_patch)
@@ -299,7 +299,7 @@ class LintedFile(NamedTuple):
                     continue
                 # We have a single occurances of the thing we want to patch. This
                 # means we can use it's position to place our patch.
-                new_source_slice = slice(positions[0], positions[0]+len(enriched_patch.templated_str))
+                new_source_slice = slice(enriched_patch.source_slice.start + positions[0], enriched_patch.source_slice.start + positions[0] + len(enriched_patch.templated_str))
                 enriched_patch = EnrichedFixPatch(
                     source_slice=new_source_slice,
                     templated_slice=enriched_patch.templated_slice,
@@ -307,6 +307,12 @@ class LintedFile(NamedTuple):
                     fixed_raw=enriched_patch.fixed_raw,
                     templated_str=enriched_patch.templated_str,
                     source_str=enriched_patch.source_str,
+                )
+                linter_logger.debug(
+                    "      * Keeping Tricky Case. Positions: %s, New Slice: %s, Patch: %s",
+                    positions,
+                    new_source_slice,
+                    enriched_patch,
                 )
                 filtered_source_patches.append(enriched_patch)
                 dedupe_buffer.append(enriched_patch.dedupe_tuple())
