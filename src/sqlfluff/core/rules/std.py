@@ -1398,7 +1398,7 @@ class Rule_L015(BaseCrawler):
     """
 
     def _eval(self, segment, raw_stack, **kwargs):
-        """Uneccessary trailing whitespace.
+        """Looking for DISTINCT before a bracket.
 
         Look for DISTINCT keyword immediately followed by open parenthesis.
         """

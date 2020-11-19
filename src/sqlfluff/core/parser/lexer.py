@@ -401,7 +401,6 @@ class Lexer:
                             )
                         )
                     # Always add a placeholder
-                    print(source_only_slice)
                     new_segment_buff.append(
                         TemplateSegment(
                             pos_marker=segment.pos_marker,
