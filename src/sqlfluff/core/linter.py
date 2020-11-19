@@ -210,7 +210,7 @@ class LintedFile(NamedTuple):
                     patch.templated_slice,
                 )
             except ValueError:
-                linter_logger.info("      - Skipping. Source space Value Error.")
+                linter_logger.info("      - Skipping. Source space Value Error. i.e. attempted insertion within templated section.")
                 # If we try and slice within a templated section, then we may fail
                 # in which case, we should skip this patch.
                 continue
@@ -297,11 +297,20 @@ class LintedFile(NamedTuple):
                         enriched_patch,
                     )
                     continue
-                linter_logger.error(
-                    "        Patch: %s. Type List: %s", enriched_patch, local_type_list
+                # We have a single occurances of the thing we want to patch. This
+                # means we can use it's position to place our patch.
+                new_source_slice = slice(positions[0], positions[0]+len(enriched_patch.templated_str))
+                enriched_patch = EnrichedFixPatch(
+                    source_slice=new_source_slice,
+                    templated_slice=enriched_patch.templated_slice,
+                    patch_type=enriched_patch.patch_type,
+                    fixed_raw=enriched_patch.fixed_raw,
+                    templated_str=enriched_patch.templated_str,
+                    source_str=enriched_patch.source_str,
                 )
-                linter_logger.error("        Slices: %s", local_raw_slices)
-                raise ValueError("Difficult Case!!!")
+                filtered_source_patches.append(enriched_patch)
+                dedupe_buffer.append(enriched_patch.dedupe_tuple())
+                continue
 
         # Sort the patches before building up the file.
         filtered_source_patches = sorted(
