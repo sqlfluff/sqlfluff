@@ -216,8 +216,9 @@ class LintedFile(NamedTuple):
                 continue
 
             # Check for duplicates
-            if (source_slice, patch.fixed_raw) in dedupe_buffer:
-                linter_logger.info("      - Skipping. Source space Duplicate.")
+            dedupe_tuple = (source_slice, patch.fixed_raw)
+            if dedupe_tuple in dedupe_buffer:
+                linter_logger.info("      - Skipping. Source space Duplicate: %s", dedupe_tuple)
                 continue
 
             # We now evaluate patches in the source-space for whether they overlap
