@@ -263,15 +263,37 @@ class BaseCrawler:
             return vs, raw_stack, [], memory
 
         # TODO: Document what options are available to the evaluation function.
-        res = self._eval(
-            segment=segment,
-            parent_stack=parent_stack,
-            siblings_pre=siblings_pre,
-            siblings_post=siblings_post,
-            raw_stack=raw_stack,
-            memory=memory,
-            dialect=dialect,
-        )
+        try:
+            res = self._eval(
+                segment=segment,
+                parent_stack=parent_stack,
+                siblings_pre=siblings_pre,
+                siblings_post=siblings_post,
+                raw_stack=raw_stack,
+                memory=memory,
+                dialect=dialect,
+            )
+        # Any exception at this point would halt the linter and
+        # cause the user to get no results
+        except Exception as e:
+            self.logger.critical(
+                f"Applying rule {self.code} threw and Exception: {e}", exc_info=True
+            )
+            vs.append(
+                SQLLintError(
+                    rule=self,
+                    segment=segment,
+                    fixes=[],
+                    description=(
+                        f"""Unexpected exception: {str(e)};
+                        Could you open an issue at https://github.com/sqlfluff/sqlfluff/issues ?
+                        You can ignore this exception for now, by adding '--noqa: {self.code}' at the end
+                        of line {segment.pos_marker.line_no}
+                        """
+                    ),
+                )
+            )
+            return vs, raw_stack, fixes, memory
 
         if res is None:
             # Assume this means no problems (also means no memory)
