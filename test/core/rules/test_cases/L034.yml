@@ -1,7 +1,7 @@
 rule: L034
 
 test_1:
-  pass_str: |
+  fix_str: |
     select
       a,
       cast(b as int) as b,
@@ -46,7 +46,7 @@ test_4:
       *
     from x
 
-  pass_str: |
+  fix_str: |
     select
       *,
       cast(b as int) as b_int,
@@ -61,7 +61,7 @@ test_5:
       *
     from x
 
-  pass_str: |
+  fix_str: |
     select
       *,
       b::int,
@@ -77,7 +77,7 @@ test_6:
       cast(b) as c
     from x
 
-  pass_str: |
+  fix_str: |
     select
       *,
       cast(b) as c,

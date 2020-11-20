@@ -13,7 +13,8 @@ test_cases = []
 test_cases_path = os.path.join(
     os.path.abspath(os.path.dirname(__file__)), "test_cases", "*.yml"
 )
-for path in glob.glob(test_cases_path):
+
+for path in sorted(glob.glob(test_cases_path)):
     with open(path) as f:
         raw = f.read()
 
