@@ -1,0 +1,8 @@
+rule: L001
+
+test_1:
+  fail_str: |
+    SELECT 1     
+
+  fix_str: |
+    SELECT 1

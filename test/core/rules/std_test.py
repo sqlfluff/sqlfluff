@@ -11,6 +11,7 @@ from sqlfluff.core.rules.std import std_rule_set
 class RuleTestCase(NamedTuple):
     """Used like a dataclass by rule tests."""
 
+    rule: str = None
     desc: str = None
     pass_str: str = None
     fail_str: str = None
@@ -708,20 +709,20 @@ def test__rules__std_string(rule, pass_fail, qry, fixed, configs):
         )
 
 
-def rules__test_helper(rule, test_case):
+def rules__test_helper(test_case):
     """Test that a rule passes/fails on a set of test_cases.
 
     Optionally, also test the fixed string if provided in the test case.
     """
     if test_case.pass_str:
         assert_rule_pass_in_sql(
-            rule,
+            test_case.rule,
             test_case.pass_str,
             configs=test_case.configs,
         )
     if test_case.fail_str:
         res = assert_rule_fail_in_sql(
-            rule,
+            test_case.rule,
             test_case.fail_str,
             configs=test_case.configs,
         )
