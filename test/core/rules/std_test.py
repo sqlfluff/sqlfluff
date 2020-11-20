@@ -63,7 +63,6 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
 @pytest.mark.parametrize(
     "rule,pass_fail,qry,fixed,configs",
     [
-        ("L002", "fail", "    \t    \t    SELECT 1", None, None),
         ("L003", "fail", "     SELECT 1", "SELECT 1", None),
         ("L004", "pass", "   \nSELECT 1", None, None),
         ("L004", "pass", "\t\tSELECT 1\n", None, None),
@@ -591,42 +590,6 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
             "fail",
             "SELECT a, b FROM tbl UNION DISTINCT SELECT c, d\nFROM tbl1 UNION SELECT e, f FROM tbl2",
             None,
-            None,
-        ),
-        ("L034", "pass", "select a, cast(b as int) as b, c from x", None, None),
-        (
-            "L034",
-            "fail",
-            "select a, row_number() over (partition by id order by date) as y, b from x",
-            "select a, b, row_number() over (partition by id order by date) as y from x",
-            None,
-        ),
-        (
-            "L034",
-            "fail",
-            "select row_number() over (partition by id order by date) as y, *, cast(b as int) as b_int from x",
-            "select *, cast(b as int) as b_int, row_number() over (partition by id order by date) as y from x",
-            None,
-        ),
-        (
-            "L034",
-            "fail",
-            "select row_number() over (partition by id order by date) as y, cast(b as int) as b_int, * from x",
-            "select *, cast(b as int) as b_int, row_number() over (partition by id order by date) as y from x",
-            None,
-        ),
-        (
-            "L034",
-            "fail",
-            "select row_number() over (partition by id order by date) as y, b::int, * from x",
-            "select *, b::int, row_number() over (partition by id order by date) as y from x",
-            None,
-        ),
-        (
-            "L034",
-            "fail",
-            "select row_number() over (partition by id order by date) as y, *, 2::int + 4 as sum, cast(b) as c from x",
-            "select *, cast(b) as c, row_number() over (partition by id order by date) as y, 2::int + 4 as sum from x",
             None,
         ),
         (
