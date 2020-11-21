@@ -1,9 +1,51 @@
 rule: L016
-
 test_1:
-  pass_str: |
-    SELECT COUNT(*) FROM tbl
+  pass_str: 'SELECT COUNT(*) FROM tbl
 
-  configs: 
-    rules: 
+    '
+  configs:
+    rules:
       max_line_length: 30
+test_2:
+  fail_str: 'SELECT 1 -- Some Comment
+
+    '
+  fix_str: '-- Some Comment
+
+    SELECT 1
+
+    '
+  configs:
+    rules:
+      max_line_length: 18
+test_3:
+  fail_str: '-- Some really long comments on their own line
+
+    SELECT 1'
+  configs:
+    rules:
+      max_line_length: 18
+test_4:
+  fail_str: '    SELECT COUNT(*) FROM tbl
+
+    '
+  fix_str: "    SELECT\n        COUNT(*)\n    FROM tbl\n"
+  configs:
+    rules:
+      max_line_length: 20
+test_5:
+  fail_str: 'SELECT 12345
+
+    '
+  fix_str: "SELECT\n    12345\n"
+  configs:
+    rules:
+      max_line_length: 10
+test_6:
+  fail_str: 'SELECT COUNT(*) FROM tbl -- Some Comment
+
+    '
+  fix_str: "-- Some Comment\nSELECT\n    COUNT(*)\nFROM tbl\n"
+  configs:
+    rules:
+      max_line_length: 18

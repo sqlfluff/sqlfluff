@@ -1,0 +1,39 @@
+rule: L019
+test_1:
+  fail_str: "SELECT\n    a\n    , b\n    FROM c"
+  configs:
+    rules:
+      L019:
+        comma_style: trailing
+test_2:
+  pass_str: "SELECT\n    a\n    , b\n    FROM c"
+  configs:
+    rules:
+      L019:
+        comma_style: leading
+test_3:
+  fail_str: "WITH cte_1 as (\n    SELECT *\n    FROM table_1\n)\n\n, cte_2 as (\n\
+    \    SELECT *\n    FROM table_2\n)\n\nSELECT * FROM table_3"
+  configs:
+    rules:
+      L019:
+        comma_style: trailing
+test_4:
+  pass_str: "WITH cte_1 as (\n    SELECT *\n    FROM table_1\n)\n\n, cte_2 as (\n\
+    \    SELECT *\n    FROM table_2\n)\n\nSELECT * FROM table_3"
+  configs:
+    rules:
+      L019:
+        comma_style: leading
+test_5:
+  fail_str: "SELECT\n    a,\n    b\n    FROM c"
+  configs:
+    rules:
+      L019:
+        comma_style: leading
+test_6:
+  pass_str: "SELECT\n    a,\n    b\n    FROM c"
+  configs:
+    rules:
+      L019:
+        comma_style: trailing

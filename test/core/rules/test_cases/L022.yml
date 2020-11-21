@@ -1,0 +1,56 @@
+rule: L022
+test_1:
+  pass_str: "with my_cte as (\n    select 1\n),\n\nother_cte as (\n    select 1\n\
+    )\n\nselect * from my_cte cross join other_cte"
+test_2:
+  pass_str: "with my_cte as (\n    select 1\n)\n\n, other_cte as (\n    select 1\n\
+    )\n\nselect * from my_cte cross join other_cte"
+test_3:
+  fail_str: "with my_cte as (\n    select 1\n),\nother_cte as (\n    select 1\n)\n\
+    \nselect * from my_cte cross join other_cte"
+  fix_str: "with my_cte as (\n    select 1\n),\n\nother_cte as (\n    select 1\n)\n\
+    \nselect * from my_cte cross join other_cte"
+test_4:
+  fail_str: "with my_cte as (\n    select 1\n),\n-- Comment\nother_cte as (\n    select\
+    \ 1\n)\n\nselect * from my_cte cross join other_cte"
+  fix_str: "with my_cte as (\n    select 1\n),\n\n-- Comment\nother_cte as (\n   \
+    \ select 1\n)\n\nselect * from my_cte cross join other_cte"
+test_5:
+  fail_str: "with my_cte as (\n    select 1\n),\n\nother_cte as (\n    select 1\n\
+    )\nselect * from my_cte cross join other_cte"
+  fix_str: "with my_cte as (\n    select 1\n),\n\nother_cte as (\n    select 1\n)\n\
+    \nselect * from my_cte cross join other_cte"
+test_6:
+  fail_str: "with my_cte as (\n    select 1\n)\n, other_cte as (\n    select 1\n)\n\
+    select * from my_cte cross join other_cte"
+  fix_str: "with my_cte as (\n    select 1\n)\n\n, other_cte as (\n    select 1\n\
+    )\n\nselect * from my_cte cross join other_cte"
+test_7:
+  fail_str: with my_cte as (select 1), other_cte as (select 1) select * from my_cte
+    cross join other_cte
+  fix_str: 'with my_cte as (select 1)
+
+
+    , other_cte as (select 1)
+
+
+    select * from my_cte cross join other_cte'
+  configs:
+    rules:
+      comma_style: leading
+test_8:
+  fail_str: 'with my_cte as (select 1)
+
+    ,
+
+    other_cte as (select 1)
+
+    select * from my_cte cross join other_cte'
+  fix_str: 'with my_cte as (select 1)
+
+    ,
+
+    other_cte as (select 1)
+
+
+    select * from my_cte cross join other_cte'

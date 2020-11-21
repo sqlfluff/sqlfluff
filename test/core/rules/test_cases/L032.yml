@@ -1,0 +1,7 @@
+rule: L032
+test_1:
+  pass_str: select x.a from x inner join y on x.id = y.id
+test_2:
+  fail_str: select x.a from x inner join y using (id)
+test_3:
+  fail_str: select x.a from x inner join y on x.id = y.id inner join z using (id)

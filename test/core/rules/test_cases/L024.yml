@@ -1,0 +1,8 @@
+rule: L024
+test_1:
+  fail_str: select * from a JOIN b USING(x)
+  fix_str: select * from a JOIN b USING (x)
+test_2:
+  pass_str: 'select * from a JOIN b USING
+
+    (x)'

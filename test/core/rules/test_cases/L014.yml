@@ -1,0 +1,13 @@
+rule: L014
+test_1:
+  pass_str: SELECT a, b
+test_2:
+  pass_str: SELECT A, B
+test_3:
+  fail_str: SELECT a,   B
+  fix_str: SELECT a,   b
+test_4:
+  fail_str: SELECT B,   a
+  fix_str: SELECT B,   A
+test_5:
+  pass_str: SELECT NULL,   a

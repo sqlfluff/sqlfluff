@@ -1,0 +1,15 @@
+rule: L029
+test_1:
+  pass_str: CREATE TABLE artist(artist_name TEXT)
+test_2:
+  fail_str: CREATE TABLE artist(create TEXT)
+test_3:
+  fail_str: SELECT 1 as parameter
+test_4:
+  pass_str: SELECT parameter
+test_5:
+  fail_str: SELECT parameter
+  configs:
+    rules:
+      L029:
+        only_aliases: false

@@ -1,0 +1,9 @@
+rule: L008
+test_1:
+  pass_str: SELECT 1, 4
+test_2:
+  fail_str: SELECT 1,   4
+  fix_str: SELECT 1, 4
+test_3:
+  fail_str: SELECT 1,4
+  fix_str: SELECT 1, 4

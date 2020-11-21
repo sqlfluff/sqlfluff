@@ -1,0 +1,9 @@
+rule: L015
+test_1:
+  fail_str: SELECT DISTINCT(a)
+test_2:
+  fail_str: SELECT DISTINCT(a + b) * c
+test_3:
+  pass_str: SELECT DISTINCT (a)
+test_4:
+  pass_str: SELECT DISTINCT (a + b) * c

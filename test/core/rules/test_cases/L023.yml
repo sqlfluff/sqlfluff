@@ -1,0 +1,4 @@
+rule: L023
+test_1:
+  fail_str: WITH a AS(select 1) select * from a
+  fix_str: WITH a AS (select 1) select * from a

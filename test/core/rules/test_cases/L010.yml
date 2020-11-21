@@ -1,0 +1,24 @@
+rule: L010
+test_1:
+  fail_str: SELECT null,   a
+  fix_str: SELECT NULL,   a
+test_2:
+  fail_str: SeLeCt 1
+  fix_str: SELECT 1
+test_3:
+  fail_str: SeLeCt 1 from blah
+  fix_str: SELECT 1 FROM blah
+test_4:
+  fail_str: SELECT * FROM MOO ORDER BY dt DESC
+  fix_str: select * from MOO order by dt desc
+  configs:
+    rules:
+      L010:
+        capitalisation_policy: lower
+test_5:
+  fail_str: SELECT * FROM MOO ORDER BY dt DESC
+  fix_str: Select * From MOO Order By dt Desc
+  configs:
+    rules:
+      L010:
+        capitalisation_policy: capitalise

@@ -32,3 +32,5 @@ test-reports
 # Ignore root testing sql & python files
 /test*.sql
 /test*.py
+
+gen_test_cases.py

@@ -1,0 +1,7 @@
+rule: L004
+test_1:
+  pass_str: "   \nSELECT 1"
+test_2:
+  pass_str: "\t\tSELECT 1\n"
+test_3:
+  fail_str: "   \n  \t \n  SELECT 1"

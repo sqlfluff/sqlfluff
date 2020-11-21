@@ -1,0 +1,17 @@
+rule: L006
+test_1:
+  pass_str: 'SELECT COUNT(*) FROM tbl
+
+    '
+test_2:
+  pass_str: "select\n    field,\n    date(field_1) - date(field_2) as diff\nfrom table"
+test_3:
+  pass_str: 'SELECT 1
+
+    + 2'
+test_4:
+  pass_str: "SELECT 1\n\t+ 2"
+test_5:
+  pass_str: "SELECT 1\n    + 2"
+test_6:
+  pass_str: SELECT 1, +2, -4

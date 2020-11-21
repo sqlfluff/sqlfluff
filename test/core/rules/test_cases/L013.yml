@@ -1,0 +1,18 @@
+rule: L013
+test_1:
+  pass_str: SELECT *, foo from blah
+test_2:
+  fail_str: SELECT upper(foo), bar from blah
+test_3:
+  pass_str: SELECT *, foo from blah
+test_4:
+  pass_str: SELECT 1 from blah
+test_5:
+  fail_str: SELECT 1 from blah
+  configs:
+    rules:
+      allow_scalar: false
+test_6:
+  pass_str: SELECT upper(foo) as foo_up, bar from blah
+test_7:
+  pass_str: select ps.*, pandgs.blah from ps join pandgs using(moo)

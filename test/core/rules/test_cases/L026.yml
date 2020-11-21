@@ -1,0 +1,25 @@
+rule: L026
+test_1:
+  pass_str: SELECT bar.user_id FROM `foo.far.bar`
+  configs:
+    core:
+      dialect: bigquery
+test_2:
+  fail_str: SELECT foo.user_id FROM `foo.far.bar`
+  configs:
+    core:
+      dialect: bigquery
+test_3:
+  fail_str: SELECT * FROM my_tbl WHERE foo.bar > 0
+test_4:
+  pass_str: 'SELECT * FROM db.sc.tbl2
+
+    WHERE a NOT IN (SELECT a FROM db.sc.tbl1)
+
+    '
+test_5:
+  pass_str: 'SELECT * FROM db.sc.tbl2
+
+    WHERE a NOT IN (SELECT tbl2.a FROM db.sc.tbl1)
+
+    '
