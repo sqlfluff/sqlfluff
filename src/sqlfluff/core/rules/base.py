@@ -464,7 +464,10 @@ class RuleSet:
         config_doc = "\n    | **Configuration**"
         try:
             for keyword in cls.config_keywords:
-                info_dict = self.config_info[keyword]
+                try:
+                    info_dict = self.config_info[keyword]
+                except KeyError:
+                    raise KeyError("Config value {!r} for rule {} is not configured in `config_info`.".format(keyword, cls.__name__))
                 config_doc += "\n    |     `{0}`: {1}. Must be one of {2}.".format(
                     keyword, info_dict["definition"], info_dict["validation"]
                 )

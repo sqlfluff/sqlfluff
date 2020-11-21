@@ -154,7 +154,7 @@ class Rule_L003(BaseCrawler):
     """
 
     _works_on_unparsable = False
-    config_keywords = ["tab_space_size", "indent_unit"]
+    config_keywords = ["tab_space_size", "indent_unit", "lint_templated_tokens"]
 
     def _make_indent(self, num=1, tab_space_size=None, indent_unit=None):
         if (indent_unit or self.indent_unit) == "tab":
@@ -188,6 +188,10 @@ class Rule_L003(BaseCrawler):
 
         for elem in raw_stack:
             line_buffer.append(elem)
+            # Pin indent_balance to above zero
+            if indent_balance < 0:
+                indent_balance = 0
+
             if elem.is_type("newline"):
                 result_buffer[line_no] = {
                     "line_no": line_no,
@@ -424,6 +428,13 @@ class Rule_L003(BaseCrawler):
                         LintFix("delete", elem) for elem in this_line["indent_buffer"]
                     ],
                 )
+
+        # Are we linting a placeholder, and if so are we allowed to?
+        if (not self.lint_templated_tokens) and this_line["line_buffer"][len(this_line["indent_buffer"]):][0].is_type("placeholder"):
+            # If not, make this a problem line and carry on.
+            memory["problem_lines"].append(this_line_no)
+            self.logger.debug("    Avoiding template placeholder Line. #%s", this_line_no)
+            return LintResult(memory=memory)
 
         # Assuming it's not a hanger, let's compare it to the other previous
         # lines. We do it in reverse so that closer lines are more relevant.
