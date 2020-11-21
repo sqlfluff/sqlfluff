@@ -37,19 +37,21 @@ class MetaSegment(RawSegment):
         return type(cls.__name__, (cls,), dict(_config_rules=kwargs))
 
     @classmethod
-    def is_enabled(cls, parse_context):
+    def is_enabled(cls, indent_config):
         """Given a certain parse context, determine if this segment is enabled.
 
-        All rules are assumed to be False if not present in the parse_context,
+        All rules are assumed to be False if not present in the indent_config,
         and later rules in the config override previous ones.
         """
-        # All rules are assumed to be False if not present
+        # If no config rules are set then it's always enabled.
         if cls._config_rules is not None:
-            config = parse_context.indentation_config or {}
+            config = indent_config or {}
             # This looks like an iteration, but there should only be one.
             for rule, val in cls._config_rules.items():
+                # Assume False if not set.
                 conf_val = config.get(rule, False)
-                if val == conf_val:
+                # Coerce to boolean.
+                if val == bool(conf_val):
                     return True
                 else:
                     return False

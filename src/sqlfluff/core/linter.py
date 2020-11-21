@@ -679,10 +679,19 @@ class Linter:
         # Dispatch the output for the parse header (including the config diff)
         if self.formatter:
             self.formatter.dispatch_parse_header(fname, self.config, config)
+        
+        # Just use the local config from here:
+        config = config or self.config
+
+        # Scan the raw file for config commands.
+        for raw_line in in_str.splitlines():
+            if raw_line.startswith('-- sqlfluff'):
+                # Found a in-file config command
+                config.process_inline_config(raw_line)
 
         linter_logger.info("TEMPLATING RAW [%s] (%s)", self.templater.name, fname)
         templated_file, templater_violations = self.templater.process(
-            in_str, fname=fname, config=config or self.config
+            in_str, fname=fname, config=config
         )
         violations += templater_violations
         # Detect the case of a catastrophic templater fail. In this case
@@ -697,7 +706,7 @@ class Linter:
         if templated_file:
             linter_logger.info("LEXING RAW (%s)", fname)
             # Get the lexer
-            lexer = Lexer(config=config or self.config)
+            lexer = Lexer(config=config)
             # Lex the file and log any problems
             try:
                 tokens, lex_vs = lexer.lex(templated_file)
@@ -714,11 +723,45 @@ class Linter:
             linter_logger.info("Lexed tokens: %s", [seg.raw for seg in tokens])
         else:
             linter_logger.info("NO LEXED TOKENS!")
+        
+        # Check that we've got sensible indentation from the lexer.
+        # We might need to supress if it's a complicated file.
+        templating_blocks_indent = (config).get('template_blocks_indent', 'indentation')
+        if isinstance(templating_blocks_indent, str):
+            force_block_indent = templating_blocks_indent.lower().strip() == 'force'
+        else:
+            force_block_indent = False
+        templating_blocks_indent = bool(templating_blocks_indent)
+        # If we're forcing it through we don't check.
+        if templating_blocks_indent and not force_block_indent:
+            indent_balance = sum(getattr(elem, "indent_val", 0) for elem in tokens)
+            if indent_balance != 0:
+                linter_logger.warning("Indent balance test failed for %r. Template indents will not be linted for this file.", fname)
+                # Don't enable the templating blocks.
+                templating_blocks_indent = False
+                # Disable the linting of L003 on templated tokens.
+                self.set_value(["rules", "L003", "lint_templated_tokens"], False)
+
+        # The file will have been lexed without config, so check all indents
+        # are enabled.
+        new_tokens = []
+        for token in tokens:
+            if token.is_meta:
+                if token.indent_val != 0:
+                    # Don't allow it if we're not linting templating block indents.
+                    if not templating_blocks_indent:
+                        continue
+                    # Don't allow if it's not configure to function.
+                    elif not token.is_enabled(indent_config=config.get_section("indentation")):
+                        continue
+            new_tokens.append(token)
+        # Swap the buffers
+        tokens = new_tokens
 
         t2 = time.monotonic()
         bencher("Lexing {0!r}".format(short_fname))
         linter_logger.info("PARSING (%s)", fname)
-        parser = Parser(config=config or self.config)
+        parser = Parser(config=config)
         # Parse the file and log any problems
         if tokens:
             try:
@@ -753,7 +796,7 @@ class Linter:
         time_dict = {"templating": t1 - t0, "lexing": t2 - t1, "parsing": t3 - t2}
         bencher("Finish parsing {0!r}".format(short_fname))
         return ParsedString(
-            parsed, violations, time_dict, templated_file, config or self.config
+            parsed, violations, time_dict, templated_file, config
         )
 
     @staticmethod

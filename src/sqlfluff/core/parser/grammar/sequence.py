@@ -69,7 +69,7 @@ class Sequence(BaseGrammar):
                 # Is it an indent or dedent?
                 if elem.is_meta:
                     # Is it actually enabled?
-                    if elem.is_enabled(parse_context=parse_context):
+                    if elem.is_enabled(indent_config=parse_context.indentation_config):
                         # Elements with a negative indent value come AFTER
                         # the whitespace. Positive or neutral come BEFORE.
                         if elem.indent_val < 0:
@@ -91,7 +91,7 @@ class Sequence(BaseGrammar):
                         meta_post_nc += tuple(
                             e()
                             for e in self._elements[idx:]
-                            if e.is_meta and e.is_enabled(parse_context=parse_context)
+                            if e.is_meta and e.is_enabled(indent_config=parse_context.indentation_config)
                         )
                         # Early break to exit via the happy match path.
                         early_break = True
