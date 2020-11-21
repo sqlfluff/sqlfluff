@@ -31,6 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   with a configuration value so that indentation around these
   functions can be linted accordingly.
 - MyPy type linting into a large proportion of the core library.
+- Config values specific to a file can now be defined using a comment
+  line starting with `-- sqlfluff:`.
 
 ### Changed
 
