@@ -1,28 +1,87 @@
 rule: L033
+
 test_1:
-  pass_str: SELECT a, b FROM tbl UNION ALL SELECT c, d FROM tbl1
+  # Bare UNION without a DISTINCT or ALL
+  pass_str: |
+    SELECT
+      a,
+      b
+    FROM tbl
+    UNION ALL
+    SELECT
+      c,
+      d
+    FROM tbl1
+
 test_2:
-  fail_str: SELECT a, b FROM tbl UNION SELECT c, d FROM tbl1
+  fail_str: |
+    SELECT
+      a,
+      b
+    FROM tbl
+    UNION
+    SELECT
+      c,
+      d
+    FROM tbl1
+
 test_3:
-  fail_str: "SELECT a, b FROM tbl\n UNION\nSELECT c, d FROM tbl1"
+  fail_str: |
+    SELECT
+      a,
+      b
+    FROM tbl
+    UNION
+    SELECT
+      c,
+      d
+    FROM tbl1
+
 test_4:
-  pass_str: 'SELECT a, b FROM tbl
-
+  pass_str: |
+    SELECT
+      a,
+      b
+    FROM tbl
     UNION DISTINCT
+    SELECT
+      c,
+      d
+    FROM tbl1
 
-    SELECT c, d FROM tbl1'
 test_5:
-  pass_str: 'SELECT a, b FROM tbl
+  pass_str: |
+    SELECT
+      a,
+      b
+    FROM tbl
 
     --selecting a and b
 
     UNION DISTINCT
 
-    SELECT c, d FROM tbl1'
-test_6:
-  fail_str: 'SELECT a, b FROM tbl UNION DISTINCT SELECT c, d
+    SELECT
+      c,
+      d
+    FROM tbl1
 
-    FROM tbl1 UNION SELECT e, f FROM tbl2'
+test_6:
+  fail_str: |
+    SELECT
+      a,
+      b
+    FROM tbl
+    UNION DISTINCT
+    SELECT
+      c,
+      d
+    FROM tbl1
+    UNION
+    SELECT
+      e,
+      f
+    FROM tbl2
+
 test_7:
   fail_str: 'select a, b from tbl union distinct select c, d
 

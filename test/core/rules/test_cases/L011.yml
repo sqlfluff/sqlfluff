@@ -1,4 +1,6 @@
 rule: L011
+
 test_1:
+  # Add whitespace when fixing implicit aliasing
   fail_str: select foo.bar from (select 1 as bar)foo
   fix_str: select foo.bar from (select 1 as bar) AS foo

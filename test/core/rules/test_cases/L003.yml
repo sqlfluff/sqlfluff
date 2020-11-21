@@ -1,64 +1,141 @@
 rule: L003
+
 test_1:
   fail_str: '     SELECT 1'
   fix_str: SELECT 1
+
 test_2:
+  # Github Bug #99. Python2 Issues with fixing L003
   fail_str: '  select 1 from tbl;'
   fix_str: select 1 from tbl;
+
 test_3:
-  pass_str: "SELECT\n    -- Compute the thing\n    (a + b) AS c\nFROM\n    acceptable_buckets"
+  # Github Bug #203
+  pass_str: |
+    SELECT
+        -- Compute the thing
+        (a + b) AS c
+    FROM
+        acceptable_buckets
+
 test_4:
-  pass_str: "SELECT\n    user_id\nFROM\n    age_data\nJOIN\n    audience_size\n  \
-    \  USING (user_id, list_id)\n-- We LEFT JOIN because blah\nLEFT JOIN\n    verts\n\
-    \    USING\n        (user_id)"
+  pass_str: |
+    SELECT
+        user_id
+    FROM
+        age_data
+    JOIN
+        audience_size
+        USING (user_id, list_id)
+    -- We LEFT JOIN because blah
+    LEFT JOIN
+        verts
+        USING
+            (user_id)
+
 test_5:
-  fail_str: "SELECT\n\ta,\nb\nFROM my_tbl"
-  fix_str: "SELECT\n\ta,\n\tb\nFROM my_tbl"
+  # Using tabs as indents works
+  fail_str: |
+    SELECT
+    	a,
+    b
+    FROM my_tbl
+
+  fix_str: |
+    SELECT
+    	a,
+    	b
+    FROM my_tbl
+
   configs:
     rules:
       indent_unit: tab
+
 test_6:
-  pass_str: 'SELECT a, b, c
+  # Configurable indents work.
+  # a) default
+  pass_str: |
+    SELECT a, b, c
 
     FROM my_tbl
 
-    LEFT JOIN another_tbl USING(a)'
+    LEFT JOIN another_tbl USING(a)
+
 test_7:
-  pass_str: 'SELECT a, b, c
+  # b) specific
+  pass_str: |
+    SELECT a, b, c
 
     FROM my_tbl
 
-    LEFT JOIN another_tbl USING(a)'
+    LEFT JOIN another_tbl USING(a)
+
   configs:
     indentation:
       indented_joins: false
+
 test_8:
-  pass_str: "SELECT a, b, c\nFROM my_tbl\n    LEFT JOIN another_tbl USING(a)"
+  # c) specific True, but passing
+  pass_str: |
+    SELECT a, b, c
+    FROM my_tbl
+        LEFT JOIN another_tbl USING(a)
+
   configs:
     indentation:
       indented_joins: true
+
 test_9:
-  fail_str: 'SELECT a, b, c
-
+  # d) specific True, but failing
+  fail_str: |
+    SELECT a, b, c
     FROM my_tbl
+    LEFT JOIN another_tbl USING(a)
 
-    LEFT JOIN another_tbl USING(a)'
-  fix_str: "SELECT a, b, c\nFROM my_tbl\n    LEFT JOIN another_tbl USING(a)"
+  fix_str: |
+    SELECT a, b, c
+    FROM my_tbl
+        LEFT JOIN another_tbl USING(a)
+
   configs:
     indentation:
       indented_joins: true
+
 test_10:
-  fail_str: "SELECT a, b, c\nFROM my_tbl\n    LEFT JOIN another_tbl USING(a)"
-  fix_str: 'SELECT a, b, c
-
+  # e) specific False, and failing
+  fail_str: |
+    SELECT a, b, c
     FROM my_tbl
+        LEFT JOIN another_tbl USING(a)
 
-    LEFT JOIN another_tbl USING(a)'
+  fix_str: |
+    SELECT a, b, c
+    FROM my_tbl
+    LEFT JOIN another_tbl USING(a)
+
   configs:
     indentation:
       indented_joins: false
+
 test_11:
-  pass_str: "SELECT *\nFROM\n    t1\n-- Comment\nJOIN t2 USING (user_id)"
+  pass_str: |
+    SELECT *
+    FROM
+        t1
+    -- Comment
+    JOIN t2 USING (user_id)
+
 test_12:
-  fail_str: "SELECT *\nFROM\n    t1\n    -- Comment\nJOIN t2 USING (user_id)"
-  fix_str: "SELECT *\nFROM\n    t1\n-- Comment\nJOIN t2 USING (user_id)"
+  fail_str: |
+    SELECT *
+    FROM
+        t1
+        -- Comment
+    JOIN t2 USING (user_id)
+
+  fix_str: |
+    SELECT *
+    FROM
+        t1
+    -- Comment
+    JOIN t2 USING (user_id)

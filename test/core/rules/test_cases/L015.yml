@@ -1,9 +1,15 @@
 rule: L015
+
 test_1:
+  # Check we get fails for using DISTINCT apparently incorrectly
   fail_str: SELECT DISTINCT(a)
+
 test_2:
   fail_str: SELECT DISTINCT(a + b) * c
+
 test_3:
+  # Space after DISTINCT makes it okay...
   pass_str: SELECT DISTINCT (a)
+
 test_4:
   pass_str: SELECT DISTINCT (a + b) * c
