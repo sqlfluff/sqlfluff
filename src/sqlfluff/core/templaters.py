@@ -72,6 +72,14 @@ class RawTemplateInterface:
     def process(*, in_str, fname=None, config=None):
         """Process a string and return the new string.
 
+        Note that the arguments are enforced as keywords
+        because Templaters can have differences in their
+        `process` method signature.
+        A Templater that only supports reading from a file
+        would need the following signature:
+            process(*, fname, in_str=None, config=None)
+        (arguments are swapped)
+
         Args:
             in_str (:obj:`str`): The input string.
             fname (:obj:`str`, optional): The filename of this string. This is
