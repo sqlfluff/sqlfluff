@@ -982,7 +982,8 @@ class BaseSegment:
                     # If we have an insert buffer, then it's an edit, otherwise a deletion.
                     yield FixPatch(
                         slice(
-                            segment.pos_marker.templated_slice.start - max(start_diff, 0),
+                            segment.pos_marker.templated_slice.start
+                            - max(start_diff, 0),
                             segment.pos_marker.templated_slice.start,
                         ),
                         insert_buff,

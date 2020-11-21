@@ -446,7 +446,7 @@ class Lexer:
                 "\tTmp: %s\tSrc: %s\tSeg: %s",
                 getattr(seg.pos_marker, "templated_slice", None),
                 getattr(seg.pos_marker, "source_slice", None),
-                seg
+                seg,
             )
 
         return tuple(new_segment_buff)

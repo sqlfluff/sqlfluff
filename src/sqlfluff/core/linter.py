@@ -159,7 +159,9 @@ class LintedFile(NamedTuple):
             t_str = self.templated_file.templated_str[file_slice.templated_slice]
             s_str = self.templated_file.source_str[file_slice.source_slice]
             if t_str == s_str:
-                linter_logger.debug("    File slice: %s %r [invariant]", idx, file_slice)
+                linter_logger.debug(
+                    "    File slice: %s %r [invariant]", idx, file_slice
+                )
             else:
                 linter_logger.debug("    File slice: %s %r", idx, file_slice)
                 linter_logger.debug("    \t\t\ttemplated: %r\tsource: %r", t_str, s_str)
@@ -210,7 +212,9 @@ class LintedFile(NamedTuple):
                     patch.templated_slice,
                 )
             except ValueError:
-                linter_logger.info("      - Skipping. Source space Value Error. i.e. attempted insertion within templated section.")
+                linter_logger.info(
+                    "      - Skipping. Source space Value Error. i.e. attempted insertion within templated section."
+                )
                 # If we try and slice within a templated section, then we may fail
                 # in which case, we should skip this patch.
                 continue
@@ -218,7 +222,9 @@ class LintedFile(NamedTuple):
             # Check for duplicates
             dedupe_tuple = (source_slice, patch.fixed_raw)
             if dedupe_tuple in dedupe_buffer:
-                linter_logger.info("      - Skipping. Source space Duplicate: %s", dedupe_tuple)
+                linter_logger.info(
+                    "      - Skipping. Source space Duplicate: %s", dedupe_tuple
+                )
                 continue
 
             # We now evaluate patches in the source-space for whether they overlap
@@ -299,7 +305,12 @@ class LintedFile(NamedTuple):
                     continue
                 # We have a single occurances of the thing we want to patch. This
                 # means we can use it's position to place our patch.
-                new_source_slice = slice(enriched_patch.source_slice.start + positions[0], enriched_patch.source_slice.start + positions[0] + len(enriched_patch.templated_str))
+                new_source_slice = slice(
+                    enriched_patch.source_slice.start + positions[0],
+                    enriched_patch.source_slice.start
+                    + positions[0]
+                    + len(enriched_patch.templated_str),
+                )
                 enriched_patch = EnrichedFixPatch(
                     source_slice=new_source_slice,
                     templated_slice=enriched_patch.templated_slice,
@@ -679,13 +690,13 @@ class Linter:
         # Dispatch the output for the parse header (including the config diff)
         if self.formatter:
             self.formatter.dispatch_parse_header(fname, self.config, config)
-        
+
         # Just use the local config from here:
         config = config or self.config
 
         # Scan the raw file for config commands.
         for raw_line in in_str.splitlines():
-            if raw_line.startswith('-- sqlfluff'):
+            if raw_line.startswith("-- sqlfluff"):
                 # Found a in-file config command
                 config.process_inline_config(raw_line)
 
@@ -723,12 +734,12 @@ class Linter:
             linter_logger.info("Lexed tokens: %s", [seg.raw for seg in tokens])
         else:
             linter_logger.info("NO LEXED TOKENS!")
-        
+
         # Check that we've got sensible indentation from the lexer.
         # We might need to supress if it's a complicated file.
-        templating_blocks_indent = (config).get('template_blocks_indent', 'indentation')
+        templating_blocks_indent = (config).get("template_blocks_indent", "indentation")
         if isinstance(templating_blocks_indent, str):
-            force_block_indent = templating_blocks_indent.lower().strip() == 'force'
+            force_block_indent = templating_blocks_indent.lower().strip() == "force"
         else:
             force_block_indent = False
         templating_blocks_indent = bool(templating_blocks_indent)
@@ -736,11 +747,14 @@ class Linter:
         if templating_blocks_indent and not force_block_indent:
             indent_balance = sum(getattr(elem, "indent_val", 0) for elem in tokens)
             if indent_balance != 0:
-                linter_logger.warning("Indent balance test failed for %r. Template indents will not be linted for this file.", fname)
+                linter_logger.warning(
+                    "Indent balance test failed for %r. Template indents will not be linted for this file.",
+                    fname,
+                )
                 # Don't enable the templating blocks.
                 templating_blocks_indent = False
                 # Disable the linting of L003 on templated tokens.
-                self.set_value(["rules", "L003", "lint_templated_tokens"], False)
+                config.set_value(["rules", "L003", "lint_templated_tokens"], False)
 
         # The file will have been lexed without config, so check all indents
         # are enabled.
@@ -752,7 +766,9 @@ class Linter:
                     if not templating_blocks_indent:
                         continue
                     # Don't allow if it's not configure to function.
-                    elif not token.is_enabled(indent_config=config.get_section("indentation")):
+                    elif not token.is_enabled(
+                        indent_config=config.get_section("indentation")
+                    ):
                         continue
             new_tokens.append(token)
         # Swap the buffers
@@ -795,9 +811,7 @@ class Linter:
         t3 = time.monotonic()
         time_dict = {"templating": t1 - t0, "lexing": t2 - t1, "parsing": t3 - t2}
         bencher("Finish parsing {0!r}".format(short_fname))
-        return ParsedString(
-            parsed, violations, time_dict, templated_file, config
-        )
+        return ParsedString(parsed, violations, time_dict, templated_file, config)
 
     @staticmethod
     def extract_ignore_from_comment(comment):

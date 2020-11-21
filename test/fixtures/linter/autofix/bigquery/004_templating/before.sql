@@ -1,6 +1,9 @@
 
 /*
 A nice hairy templated query to really stretch and test templating and fixing.
+
+This file should fail the safety checks, and so the position of the templated
+tokens shouldn't move.
 */
 WITH
   raw_effect_sizes AS (

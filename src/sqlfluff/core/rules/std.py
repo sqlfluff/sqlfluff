@@ -430,10 +430,14 @@ class Rule_L003(BaseCrawler):
                 )
 
         # Are we linting a placeholder, and if so are we allowed to?
-        if (not self.lint_templated_tokens) and this_line["line_buffer"][len(this_line["indent_buffer"]):][0].is_type("placeholder"):
+        if (not self.lint_templated_tokens) and this_line["line_buffer"][
+            len(this_line["indent_buffer"]) :
+        ][0].is_type("placeholder"):
             # If not, make this a problem line and carry on.
             memory["problem_lines"].append(this_line_no)
-            self.logger.debug("    Avoiding template placeholder Line. #%s", this_line_no)
+            self.logger.debug(
+                "    Avoiding template placeholder Line. #%s", this_line_no
+            )
             return LintResult(memory=memory)
 
         # Assuming it's not a hanger, let's compare it to the other previous

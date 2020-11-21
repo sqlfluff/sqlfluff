@@ -74,13 +74,15 @@ def auto_fix_test(dialect, folder, caplog):
     cmp_filepath = os.path.join(*base_auto_fix_path, dialect, folder, "after.sql")
     vio_filepath = os.path.join(*base_auto_fix_path, dialect, folder, "violations.json")
     cfg_filepath = os.path.join(*base_auto_fix_path, dialect, folder, ".sqlfluff")
-    test_conf_filepath = os.path.join(*base_auto_fix_path, dialect, folder, "test-config.yml")
+    test_conf_filepath = os.path.join(
+        *base_auto_fix_path, dialect, folder, "test-config.yml"
+    )
 
     # Load the config file for the test:
     with open(test_conf_filepath) as cfg_file:
         cfg = yaml.safe_load(cfg_file)
     print("## Config: ", cfg)
-    rules = ','.join(cfg['test-config']['rules'])
+    rules = ",".join(cfg["test-config"]["rules"])
 
     # Open the example file and write the content to it
     print_buff = ""

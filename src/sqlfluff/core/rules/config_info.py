@@ -57,5 +57,5 @@ STANDARD_CONFIG_INFO_DICT = {
             "Should lines starting with a templating placeholder"
             " such as `{{blah}}` have their indentation linted."
         ),
-    }
+    },
 }

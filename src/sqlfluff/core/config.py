@@ -41,6 +41,7 @@ def coerce_value(val: str) -> Any:
                 v = val
     return v
 
+
 def nested_combine(*dicts: dict) -> dict:
     """Combine an iterable of dictionaries.
 
@@ -458,6 +459,8 @@ class FluffConfig:
 
     def set_value(self, config_path: Iterable[str], val: Any):
         """Set a value at a given path."""
+        # Make the path a list so we can index on it
+        config_path = list(config_path)
         # Coerce the value into something more useful.
         config_val = coerce_value(val)
         # Sort out core if not there
@@ -503,15 +506,17 @@ class FluffConfig:
                 # Then yield it's content
                 for idnt, key, val in self.iter_vals(cfg=cfg[k]):
                     yield (idnt + 1, key, val)
-    
-    def process_inline_config(self, config_line):
+
+    def process_inline_config(self, config_line: str):
         """Process an inline config command and update self."""
         # Strip preceeding comment marks
         if config_line.startswith("--"):
             config_line = config_line[2:].strip()
         # Strip preceeding sqlfluff line.
         if not config_line.startswith("sqlfluff:"):
-            config_logger.warning("Unable to process inline config statement: %r", config_line)
+            config_logger.warning(
+                "Unable to process inline config statement: %r", config_line
+            )
             return
         config_line = config_line[9:].strip()
         # Divide on colons
