@@ -2066,35 +2066,54 @@ class Rule_L019(BaseCrawler):
                 return raw_stack[idx]
             idx -= 1
 
-    def _eval(self, segment, raw_stack, **kwargs):
+    def _eval(self, segment, raw_stack, memory, **kwargs):
         """Enforce comma placement.
 
         If want leading commas, we're looking for trailing commas, so
         we look for newline segments. If we want trailing commas then
         we're looking for leading commas, so we look for the comma itself.
         """
-        if len(raw_stack) >= 1:
-            if self.comma_style == "trailing":
-                segment_trigger = "comma"
-                last_segment_trigger = "newline"
-                comma_violation_type = "leading"
-            else:
-                segment_trigger = "newline"
-                last_segment_trigger = "comma"
-                comma_violation_type = "trailing"
+        # TODO: Add nice commenting :-)
+        # TODO: Modify docstring
+        # TODO: Add/modify tests
+        # TODO: Maybe add memory dict to the top, in order to explain all the keys
 
-            if segment.is_type(segment_trigger):
-                # work back and find the last code segment, is it not what it should be?
+        if self.comma_style == "trailing":
+            if segment.is_type("comma"):
                 last_seg = self._last_code_seg(raw_stack)
-                if last_seg.is_type(last_segment_trigger):
-                    anchor = segment if self.comma_style == "trailing" else last_seg
+                if last_seg.is_type("newline"):
                     return LintResult(
-                        anchor=anchor,
-                        description="Found {0} comma. Expected only {1}.".format(
-                            comma_violation_type, self.comma_style
-                        ),
+                        anchor=segment,
+                        description="Found leading comma. Expected only trailing.",
+                        fixes=[
+                            # TODO: Figure out how to fix indentation on line where leading comma is being removed
+                            # Add the necessary config to config_keywords if going this route
+                            LintFix("delete", segment),
+                            LintFix("create", anchor=last_seg, edit=segment),
+                        ],
                     )
-        # Otherwise fine
+        elif self.comma_style == "leading":
+            if memory.get("insert_leading_comma"):
+                if segment.is_code:
+                    last_comma_seg = memory["last_trailing_comma_segment"]
+                    return LintResult(
+                        anchor=last_comma_seg,
+                        description="Found trailing comma. Expected only leading.",
+                        fixes=[
+                            LintFix("delete", anchor=last_comma_seg),
+                            LintFix("create", anchor=segment, edit=last_comma_seg),
+                            # TODO: Figure out how to add whitespace after comma
+                        ],
+                    )
+
+            if segment.is_type("newline"):
+                last_seg = self._last_code_seg(raw_stack)
+                if last_seg.is_type("comma"):
+                    # Insert a leading comma on the next segment
+                    memory["insert_leading_comma"] = True
+                    memory["last_trailing_comma_segment"] = last_seg
+                    return LintResult(memory=memory)
+
         return None
 
 
