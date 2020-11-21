@@ -83,6 +83,18 @@ test_6:
     FROM tbl2
 
 test_7:
-  fail_str: 'select a, b from tbl union distinct select c, d
-
-    from tbl1 union select e, f from tbl2'
+  fail_str: |
+    select
+      a,
+      b
+    from tbl
+    union distinct
+    select
+      c,
+      d
+    from tbl1
+    union
+    select
+      e,
+      f
+    from tbl2
