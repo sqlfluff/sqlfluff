@@ -1,0 +1,9 @@
+rule: L016
+
+test_1:
+  pass_str: |
+    SELECT COUNT(*) FROM tbl
+
+  configs: 
+    rules: 
+      max_line_length: 30
