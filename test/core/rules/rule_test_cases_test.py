@@ -21,7 +21,7 @@ for path in sorted(glob.glob(test_cases_path)):
     y = yaml.safe_load(raw)
 
     rule = y["rule"]
-    named_tests = {k: v for k, v in y.items() if k.startswith("test")}
+    named_tests = {k: v for k, v in y.items() if k != "rule"}
     ids.extend([rule + "_" + t for t in named_tests])
     test_cases.extend([RuleTestCase(rule=rule, **v) for k, v in named_tests.items()])
 
