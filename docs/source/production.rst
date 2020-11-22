@@ -85,3 +85,32 @@ such as:
   lines). The default is `origin/master`.
 * Configuring `diff-quality` to return an error code if the quality is too low
 * Troubleshooting
+
+Using `pre-commit`_
+^^^^^^^^^^^^^^^^^^^
+
+SQLFluff comes with two `pre-commit`_ hooks:
+
+* sqlfluff-lint: returns linting errors.
+* sqlfluff-fix: attempts to fix rule violations.
+
+Running with `pre-commit`_, you get the benefit of
+only linting/fixing the files that changed.
+
+Your `.pre-commit-config.yaml` should look like this:
+
+.. code-block:: yaml
+
+  repos:
+  - repo: https://github.com/sqlfluff/sqlfluff
+    rev: v0.4.0
+    hooks:
+      - id: sqlfluff-lint
+        # For dbt projects, this installs the dbt "extras":
+        # additional_dependencies: ['.[dbt]']
+      - id: sqlfluff-fix
+        # Fixes indentation and inconsistent capitalisation
+        args: [--rules, "L003,L014"]
+        # additional_dependencies: ['.[dbt]']
+
+.. _`pre-commit`: https://pre-commit.com/
