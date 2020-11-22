@@ -112,3 +112,81 @@ test_6:
     rules:
       L019:
         comma_style: trailing
+
+trailing_comma_fixing_removes_extra_whitespace:
+  fail_str: |
+    SELECT
+        field_1
+        ,   field_2
+        ,field_3,
+        field_4,
+        field_5
+    FROM a
+  fix_str: |
+    SELECT
+        field_1,
+        field_2,
+        field_3,
+        field_4,
+        field_5
+    FROM a
+
+  configs:
+    rules:
+      L019:
+        comma_style: trailing
+
+leading_comma_fixing_flows_around_comments:
+  fail_str: |
+    SELECT
+        a.foo
+        
+        -- another comment
+        , a.baz,
+        -- another comment
+         a.bar,
+    
+        -- This is an important comment with awkward line spacing
+    
+       a.foobar
+    
+        /* Which might also
+        be followed by a multiline one */
+        , a.barfoo
+    FROM a
+    WHERE
+        a.field4 in (
+            '1',
+            '2',
+            '3'
+            ,'4'
+        )
+  fix_str: |
+    SELECT
+        a.foo
+        
+        -- another comment
+        , a.baz
+        -- another comment
+         , a.bar
+    
+        -- This is an important comment with awkward line spacing
+    
+       , a.foobar
+    
+        /* Which might also
+        be followed by a multiline one */
+        , a.barfoo
+    FROM a
+    WHERE
+        a.field4 in (
+            '1'
+            , '2'
+            , '3'
+            ,'4'
+        )
+
+  configs:
+    rules:
+      L019:
+        comma_style: leading
