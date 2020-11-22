@@ -1,0 +1,6 @@
+rule: L023
+
+test_1:
+  # Check fixing of single space rules
+  fail_str: WITH a AS(select 1) select * from a
+  fix_str: WITH a AS (select 1) select * from a
