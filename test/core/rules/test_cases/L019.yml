@@ -1,7 +1,6 @@
 rule: L019
 
-test_1:
-  # Leading commas
+leading_comma_violations:
   fail_str: |
     SELECT
       a
@@ -13,12 +12,7 @@ test_1:
       b
     FROM c
 
-  configs:
-    rules:
-      L019:
-        comma_style: trailing
-
-test_2:
+leading_commas_allowed:
   pass_str: |
     SELECT
       a
@@ -30,8 +24,7 @@ test_2:
       L019:
         comma_style: leading
 
-test_3:
-  # Leading commas in with statement
+leading_comma_violations_in_with_statement:
   fail_str: |
     WITH cte_1 as (
         SELECT *
@@ -59,12 +52,7 @@ test_3:
 
     SELECT * FROM table_3
 
-  configs:
-    rules:
-      L019:
-        comma_style: trailing
-
-test_4:
+leading_commas_allowed_in_with_statement:
   pass_str: |
     WITH cte_1 as (
         SELECT *
@@ -83,8 +71,7 @@ test_4:
       L019:
         comma_style: leading
 
-test_5:
-  # Trailing commas
+trailing_comma_violations:
   fail_str: |
     SELECT
         a,
@@ -101,17 +88,12 @@ test_5:
       L019:
         comma_style: leading
 
-test_6:
+trailing_commas_allowed:
   pass_str: |
     SELECT
         a,
         b
     FROM c
-
-  configs:
-    rules:
-      L019:
-        comma_style: trailing
 
 trailing_comma_fixing_removes_extra_whitespace:
   fail_str: |
@@ -130,11 +112,6 @@ trailing_comma_fixing_removes_extra_whitespace:
         field_4,
         field_5
     FROM a
-
-  configs:
-    rules:
-      L019:
-        comma_style: trailing
 
 leading_comma_fixing_flows_around_comments:
   fail_str: |
