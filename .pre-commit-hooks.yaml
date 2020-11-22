@@ -9,7 +9,8 @@
 
 - id: sqlfluff-fix
   name: sqlfluff-fix
-  entry: sqlfluff fix
+  # Needs to use "--force" to disable confirmation
+  entry: sqlfluff fix --force
   language: python
   description: 'Fixes sql lint errors with `sqlfluff`'
   types: [sql]
