@@ -7,6 +7,11 @@ test_1:
       a
       , b
     FROM c
+  fix_str: |
+    SELECT
+      a,
+      b
+    FROM c
 
   configs:
     rules:
@@ -34,6 +39,19 @@ test_3:
     )
 
     , cte_2 as (
+
+        SELECT *
+        FROM table_2
+    )
+
+    SELECT * FROM table_3
+  fix_str: |
+    WITH cte_1 as (
+        SELECT *
+        FROM table_1
+    ),
+
+    cte_2 as (
 
         SELECT *
         FROM table_2
@@ -71,6 +89,11 @@ test_5:
     SELECT
         a,
         b
+        FROM c
+  fix_str: |
+    SELECT
+        a
+        , b
         FROM c
 
   configs:
