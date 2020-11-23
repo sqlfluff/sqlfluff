@@ -579,14 +579,13 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
         # handle stdin if specified via lone '-'
         if "-" == path:
             # put the parser result in a list to iterate later
-            config = lnt.config.make_child_from_path("stdin")
             result = [
                 (
                     # TODO: Remove verbose
                     *lnt.parse_string(
-                        sys.stdin.read(), "stdin", recurse=recurse, config=config
+                        sys.stdin.read(), "stdin", recurse=recurse, config=lnt.config
                     ),
-                    config,
+                    lnt.config,
                 )
             ]
         else:

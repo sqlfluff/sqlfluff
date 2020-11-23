@@ -54,8 +54,9 @@ def test__cli__command_directed():
     check_b = "Indentation"
     assert check_a in result.output
     assert check_b in result.output
-    # Finally check the WHOLE output to make sure that unexpected newlines are not added
-    assert result.output == expected_output
+    # Finally check the WHOLE output to make sure that unexpected newlines are not added.
+    # The replace command just accounts for cross platform testing.
+    assert result.output.replace("\\", "/") == expected_output
 
 
 def test__cli__command_dialect():
