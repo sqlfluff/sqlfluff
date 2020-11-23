@@ -57,6 +57,8 @@ def assert_matches(instring, matcher, matchstring):
         ("*-+bd/", ["*", "-", "+", "bd", "/"]),
         # Test Negatives and Minus
         ("2+4 -5", ["2", "+", "4", " ", "-", "5"]),
+        ("when 'Spec\\'s 23' like", ["when", " ", "'Spec\\'s 23'", " ", "like"]),
+        ('when "Spec\\"s 23" like', ["when", " ", '"Spec\\"s 23"', " ", "like"]),
     ],
 )
 def test__parser__lexer_obj(raw, res, caplog):

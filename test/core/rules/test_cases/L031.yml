@@ -1,0 +1,79 @@
+rule: L031
+
+test_1:
+  # L031 Allow self-joins
+  pass_str: |
+    select
+      x.a,
+      x_2.b
+    from x
+    left join x as x_2 on x.foreign_key = x.foreign_key
+
+test_2:
+  fail_str: |
+    SELECT
+      u.id,
+      c.first_name,
+      c.last_name,
+      COUNT(o.user_id)
+    FROM users as u
+    JOIN customers as c on u.id = c.user_id
+    JOIN orders as o on u.id = o.user_id;
+
+  fix_str: |
+    SELECT
+      users.id,
+      customers.first_name,
+      customers.last_name,
+      COUNT(orders.user_id)
+    FROM users
+    JOIN customers on users.id = customers.user_id
+    JOIN orders on users.id = orders.user_id;
+
+test_3:
+  # L031 order by
+  fail_str: |
+    SELECT
+      u.id,
+      c.first_name,
+      c.last_name,
+      COUNT(o.user_id)
+    FROM users as u
+    JOIN customers as c on u.id = c.user_id
+    JOIN orders as o on u.id = o.user_id
+    order by o.user_id desc
+
+  fix_str: |
+    SELECT
+      users.id,
+      customers.first_name,
+      customers.last_name,
+      COUNT(orders.user_id)
+    FROM users
+    JOIN customers on users.id = customers.user_id
+    JOIN orders on users.id = orders.user_id
+    order by orders.user_id desc
+
+test_4:
+  # L031 order by identifier which is the same raw as an alias but refers to a column
+  fail_str: |
+    SELECT
+      u.id,
+      c.first_name,
+      c.last_name,
+      COUNT(o.user_id)
+    FROM users as u
+    JOIN customers as c on u.id = c.user_id
+    JOIN orders as o on u.id = o.user_id
+    order by o desc
+
+  fix_str: |
+    SELECT
+      users.id,
+      customers.first_name,
+      customers.last_name,
+      COUNT(orders.user_id)
+    FROM users
+    JOIN customers on users.id = customers.user_id
+    JOIN orders on users.id = orders.user_id
+    order by o desc

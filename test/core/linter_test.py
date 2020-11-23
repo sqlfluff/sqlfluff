@@ -2,7 +2,7 @@
 
 import pytest
 
-from sqlfluff.core import Linter
+from sqlfluff.core import Linter, FluffConfig
 from sqlfluff.core.linter import LintingResult
 
 
@@ -44,6 +44,18 @@ def test__linter__path_from_paths__not_exist_ignore():
     """Test extracting paths from a file path."""
     lntr = Linter()
     paths = lntr.paths_from_path("asflekjfhsakuefhse", ignore_non_existent_files=True)
+    assert len(paths) == 0
+
+
+def test__linter__path_from_paths__explicit_ignore():
+    """Test ignoring files that were passed explicitly."""
+    lntr = Linter(config=FluffConfig())
+    paths = lntr.paths_from_path(
+        "test/fixtures/linter/sqlfluffignore/path_a/query_a.sql",
+        ignore_non_existent_files=True,
+        ignore_files=True,
+        working_path="test/fixtures/linter/sqlfluffignore/",
+    )
     assert len(paths) == 0
 
 

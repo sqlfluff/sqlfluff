@@ -13,7 +13,7 @@ from .parser import Lexer, Parser
 from .string_helpers import findall
 from .templaters import TemplatedFile
 from .rules import get_ruleset
-from .config import FluffConfig
+from .config import FluffConfig, ConfigLoader
 
 from .parser.segments.base import BaseSegment
 
@@ -1000,11 +1000,23 @@ class Linter:
         return linted_file
 
     def paths_from_path(
-        self, path, ignore_file_name=".sqlfluffignore", ignore_non_existent_files=False
+        self,
+        path,
+        ignore_file_name=".sqlfluffignore",
+        ignore_non_existent_files=False,
+        ignore_files=True,
+        working_path=os.getcwd(),
     ):
         """Return a set of sql file paths from a potentially more ambigious path string.
 
         Here we also deal with the .sqlfluffignore file if present.
+
+        When a path to a file to be linted is explicitly passed
+        we look for ignore files in all directories that are parents of the file,
+        up to the current directory.
+
+        If the current directory is not a parent of the file we only
+        look for an ignore file in the direct parent of the file.
 
         """
         if not os.path.exists(path):
@@ -1013,24 +1025,50 @@ class Linter:
             else:
                 raise IOError("Specified path does not exist")
 
-        # Files referred to exactly are never ignored.
-        if not os.path.isdir(path):
-            return [path]
+        # Files referred to exactly are also ignored if
+        # matched, but we warn the users when that happens
+        is_exact_file = not os.path.isdir(path)
+
+        if is_exact_file:
+            # When the exact file to lint is passed, we
+            # fill path_walk with an input that follows
+            # the structure of `os.walk`:
+            #   (root, directories, files)
+            dirpath = os.path.dirname(path)
+            files = [os.path.basename(path)]
+            ignore_file_paths = ConfigLoader.find_ignore_config_files(
+                path=path, working_path=working_path, ignore_file_name=ignore_file_name
+            )
+            # Add paths that could contain "ignore files"
+            # to the path_walk list
+            path_walk_ignore_file = [
+                (
+                    os.path.dirname(ignore_file_path),
+                    None,
+                    # Only one possible file, since we only
+                    # have one "ignore file name"
+                    [os.path.basename(ignore_file_path)],
+                )
+                for ignore_file_path in ignore_file_paths
+            ]
+            path_walk = [(dirpath, None, files)] + path_walk_ignore_file
+        else:
+            path_walk = os.walk(path)
 
         # If it's a directory then expand the path!
-        ignore_set = set()
         buffer = []
-        for dirpath, _, filenames in os.walk(path):
+        ignore_set = set()
+        for dirpath, _, filenames in path_walk:
             for fname in filenames:
                 fpath = os.path.join(dirpath, fname)
                 # Handle potential .sqlfluffignore files
-                if fname == ignore_file_name:
+                if ignore_files and fname == ignore_file_name:
                     with open(fpath, "r") as fh:
                         spec = pathspec.PathSpec.from_lines("gitwildmatch", fh)
                     matches = spec.match_tree(dirpath)
                     for m in matches:
                         ignore_path = os.path.join(dirpath, m)
-                        ignore_set.add(ignore_path)
+                        ignore_set.add(os.path.abspath(ignore_path))
                     # We don't need to process the ignore file any futher
                     continue
 
@@ -1043,11 +1081,27 @@ class Linter:
                     if fname.endswith(ext):
                         buffer.append(fpath)
 
+        if not ignore_files:
+            return sorted(buffer)
+
         # Check the buffer for ignore items and normalise the rest.
         filtered_buffer = []
+
         for fpath in buffer:
-            if fpath not in ignore_set:
+            if os.path.abspath(fpath) not in ignore_set:
                 filtered_buffer.append(os.path.normpath(fpath))
+            elif is_exact_file:
+                linter_logger.warning(
+                    "Exact file path %s was given but "
+                    "it was ignored by a %s pattern, "
+                    "re-run with `--disregard-sqlfluffignores` to "
+                    "skip %s"
+                    % (
+                        path,
+                        ignore_file_name,
+                        ignore_file_name,
+                    )
+                )
 
         # Return
         return sorted(filtered_buffer)
@@ -1060,13 +1114,17 @@ class Linter:
         result.add(linted_path)
         return result
 
-    def lint_path(self, path, fix=False, ignore_non_existent_files=False):
+    def lint_path(
+        self, path, fix=False, ignore_non_existent_files=False, ignore_files=True
+    ):
         """Lint a path."""
         linted_path = LintedPath(path)
         if self.formatter:
             self.formatter.dispatch_path(path)
         for fname in self.paths_from_path(
-            path, ignore_non_existent_files=ignore_non_existent_files
+            path,
+            ignore_non_existent_files=ignore_non_existent_files,
+            ignore_files=ignore_files,
         ):
             config = self.config.make_child_from_path(fname)
             # Handle unicode issues gracefully
@@ -1080,7 +1138,9 @@ class Linter:
                 )
         return linted_path
 
-    def lint_paths(self, paths, fix=False, ignore_non_existent_files=False):
+    def lint_paths(
+        self, paths, fix=False, ignore_non_existent_files=False, ignore_files=True
+    ):
         """Lint an iterable of paths."""
         # If no paths specified - assume local
         if len(paths) == 0:
@@ -1092,7 +1152,10 @@ class Linter:
             # or read the file directly if it's not
             result.add(
                 self.lint_path(
-                    path, fix=fix, ignore_non_existent_files=ignore_non_existent_files
+                    path,
+                    fix=fix,
+                    ignore_non_existent_files=ignore_non_existent_files,
+                    ignore_files=ignore_files,
                 )
             )
         return result

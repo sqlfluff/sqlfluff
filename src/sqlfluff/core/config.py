@@ -6,6 +6,7 @@ import os.path
 import sys
 import configparser
 from typing import Dict, List, Tuple, Any, Optional, Union, Iterable
+from pathlib import Path
 
 import appdirs
 
@@ -274,42 +275,58 @@ class ConfigLoader:
         """Loads a selection of config files from both the path and it's parent paths."""
         user_appdir_config = self.load_user_appdir_config()
         user_config = self.load_user_config()
+        config_paths = self.iter_config_locations_up_to_path(path)
+        config_stack = [self.load_config_at_path(p) for p in config_paths]
+        return nested_combine(user_appdir_config, user_config, *config_stack)
 
-        working_path = os.getcwd()
-        given_path = os.path.abspath(path)
+    @classmethod
+    def find_ignore_config_files(
+        cls, path, working_path=os.getcwd(), ignore_file_name=".sqlfluffignore"
+    ):
+        """Finds sqlfluff ignore files from both the path and its parent paths."""
+        return set(
+            filter(
+                os.path.isfile,
+                map(
+                    lambda x: os.path.join(x, ignore_file_name),
+                    cls.iter_config_locations_up_to_path(
+                        path=path, working_path=working_path
+                    ),
+                ),
+            )
+        )
+
+    @staticmethod
+    def iter_config_locations_up_to_path(path, working_path=Path.cwd()):
+        """Finds config locations from both the path and it's parent paths.
+
+        The lowest priority is the user appdir, then home dir, then increasingly
+        the configs closest to the file being directly linted.
+        """
+        given_path = Path(path).resolve()
+        working_path = Path(working_path).resolve()
+
         # If we've been passed a file and not a directory,
         # then go straight to the directory.
-        if not os.path.isdir(given_path):
-            given_path = os.path.dirname(given_path)
-        config_stack: List[Dict] = []
+        if not given_path.is_dir():
+            given_path = given_path.parent
 
-        if hasattr(os.path, "commonpath"):
-            common_path = os.path.commonpath([working_path, given_path])
-        else:
-            # Compatabilty with pre python 3.5
-            common_path = os.path.commonprefix([working_path, given_path])
+        common_path = Path(os.path.commonpath([working_path, given_path]))
 
-        if common_path == working_path:
-            # we have a sub path! We can load nested paths
-            last_path = given_path
-            while True:
-                config_stack.insert(0, self.load_config_at_path(last_path))
-                if last_path == working_path:
-                    break
-                # iterate up the directories
-                if last_path == os.path.dirname(last_path):
-                    # we're not making progres...
-                    # [prevent infinite loop]
-                    break
-                last_path = os.path.dirname(last_path)
-            config_stack.insert(0, self.load_config_at_path(working_path))
-        else:
-            # we have divergent paths, we can only load config for that path and global
-            config_stack.append(self.load_config_at_path(given_path))
+        # we have a sub path! We can load nested paths
+        path_to_visit = common_path
+        while path_to_visit != given_path:
+            yield str(path_to_visit.resolve())
+            next_path_to_visit = (
+                path_to_visit / given_path.relative_to(path_to_visit).parts[0]
+            )
+            if next_path_to_visit == path_to_visit:
+                # we're not making progres...
+                # [prevent infinite loop]
+                break
+            path_to_visit = next_path_to_visit
 
-        # The lowest priority is the user appdir config, then home dir config,
-        # then increasingly the configs closest to the file being directly linted.
-        return nested_combine(user_appdir_config, user_config, *config_stack)
+        yield str(given_path.resolve())
 
 
 class FluffConfig:

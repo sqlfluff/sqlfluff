@@ -64,8 +64,9 @@ ansi_dialect.set_lexer_struct(
                 ),
             ),
         ),
-        ("single_quote", "regex", r"'[^']*'", dict(is_code=True)),
-        ("double_quote", "regex", r'"[^"]*"', dict(is_code=True)),
+        # Matches 0 or more characters surrounded by quotes that (aren't a quote or backslash) or a sequence of backslash followed by any character, aka an escaped character.
+        ("single_quote", "regex", r"'([^'\\]|\\.)*'", dict(is_code=True)),
+        ("double_quote", "regex", r'"([^"\\]|\\.)*"', dict(is_code=True)),
         ("back_quote", "regex", r"`[^`]*`", dict(is_code=True)),
         (
             "numeric_literal",
@@ -263,7 +264,7 @@ ansi_dialect.add(
     OrKeywordSegment=KeywordSegment.make("or", type="binary_operator"),
     # This is a placeholder for other dialects.
     PreTableFunctionKeywordsGrammar=Nothing(),
-    BinaryOperatorGramar=OneOf(
+    BinaryOperatorGrammar=OneOf(
         Ref("ArithmeticBinaryOperatorGrammar"),
         Ref("StringBinaryOperatorGrammar"),
         Ref("BooleanBinaryOperatorGrammar"),
@@ -358,7 +359,7 @@ class ObjectReferenceSegment(BaseSegment):
             Ref("CastOperatorSegment"),
             Ref("StartSquareBracketSegment"),
             Ref("StartBracketSegment"),
-            Ref("BinaryOperatorGramar"),
+            Ref("BinaryOperatorGrammar"),
             Ref("ColonSegment"),
             Ref("SemicolonSegment"),
         ),
@@ -958,7 +959,7 @@ ansi_dialect.add(
             OneOf(
                 Sequence(
                     OneOf(
-                        Ref("BinaryOperatorGramar"),
+                        Ref("BinaryOperatorGrammar"),
                         Sequence(
                             Ref.keyword("NOT", optional=True),
                             OneOf("LIKE", "RLIKE", "ILIKE"),
@@ -966,6 +967,11 @@ ansi_dialect.add(
                         # We need to add a lot more here...
                     ),
                     Ref("Expression_A_Grammar"),
+                    Sequence(
+                        Ref.keyword("ESCAPE"),
+                        Ref("Expression_A_Grammar"),
+                        optional=True,
+                    ),
                 ),
                 Sequence(
                     Ref.keyword("NOT", optional=True),

@@ -1,0 +1,91 @@
+rule: L019
+
+test_1:
+  # Leading commas
+  fail_str: |
+    SELECT
+      a
+      , b
+    FROM c
+
+  configs:
+    rules:
+      L019:
+        comma_style: trailing
+
+test_2:
+  pass_str: |
+    SELECT
+      a
+      , b
+    FROM c
+
+  configs:
+    rules:
+      L019:
+        comma_style: leading
+
+test_3:
+  # Leading commas in with statement
+  fail_str: |
+    WITH cte_1 as (
+        SELECT *
+        FROM table_1
+    )
+
+    , cte_2 as (
+
+        SELECT *
+        FROM table_2
+    )
+
+    SELECT * FROM table_3
+
+  configs:
+    rules:
+      L019:
+        comma_style: trailing
+
+test_4:
+  pass_str: |
+    WITH cte_1 as (
+        SELECT *
+        FROM table_1
+    )
+
+    , cte_2 as (
+        SELECT *
+        FROM table_2
+    )
+
+    SELECT * FROM table_3
+
+  configs:
+    rules:
+      L019:
+        comma_style: leading
+
+test_5:
+  # Trailing commas
+  fail_str: |
+    SELECT
+        a,
+        b
+        FROM c
+
+  configs:
+    rules:
+      L019:
+        comma_style: leading
+
+test_6:
+  pass_str: |
+    SELECT
+        a,
+        b
+    FROM c
+
+  configs:
+    rules:
+      L019:
+        comma_style: trailing
