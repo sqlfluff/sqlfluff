@@ -51,7 +51,7 @@ postgres_dialect.replace(
             Ref("OverClauseSegment"),
         ),
     ),
-    BinaryOperatorGramar=OneOf(
+    BinaryOperatorGrammar=OneOf(
         Ref("ArithmeticBinaryOperatorGrammar"),
         Ref("StringBinaryOperatorGrammar"),
         Ref("BooleanBinaryOperatorGrammar"),
