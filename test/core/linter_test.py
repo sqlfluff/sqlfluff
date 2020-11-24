@@ -3,7 +3,7 @@
 import pytest
 
 from sqlfluff.core import Linter, FluffConfig
-from sqlfluff.core.errors import SQLLintError
+from sqlfluff.core.errors import SQLLintError, SQLParseError
 from sqlfluff.core.linter import LintingResult
 
 
@@ -166,3 +166,12 @@ def test__linter__linting_result_get_violations():
     )
 
     all([type(v) == SQLLintError for v in result.get_violations()])
+
+
+def test__linter__raises_malformed_noqa():
+    """A badly formatted noqa gets raised as a parsing error."""
+    lntr = Linter()
+    result = lntr.lint_string_wrapped("select 1 --noqa missing semicolon")
+
+    with pytest.raises(SQLParseError):
+        result.check_tuples()
