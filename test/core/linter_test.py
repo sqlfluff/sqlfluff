@@ -138,3 +138,17 @@ def test__linter__linting_result__combine_dicts():
     assert lr.combine_dicts(a, b, r) == dict(
         a=3, b=123, f=876.321, h=19, i=321.0, j=23478, z=22
     )
+
+
+@pytest.mark.parametrize("by_path,result_type", [(False, list), (True, dict)])
+def test__linter__linting_result_check_tuples_by_path(by_path, result_type):
+    """Test that a LintingResult can partition violations by the source files."""
+    lntr = Linter()
+    result = lntr.lint_paths(
+        [
+            "test/fixtures/linter/comma_errors.sql",
+            "test/fixtures/linter/whitespace_errors.sql",
+        ]
+    )
+    check_tuples = result.check_tuples(by_path=by_path)
+    isinstance(check_tuples, result_type)
