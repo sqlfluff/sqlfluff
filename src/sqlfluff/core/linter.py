@@ -571,19 +571,6 @@ class LintingResult:
             ]
         )
 
-    @property
-    def tree(self):
-        """A convenience method for when there is only one file and we want the tree."""
-        if len(self.paths) > 1:
-            raise ValueError(
-                ".tree() cannot be called when a LintingResult contains more than one path."
-            )
-        if len(self.paths[0].files) > 1:
-            raise ValueError(
-                ".tree() cannot be called when a LintingResult contains more than one file."
-            )
-        return self.paths[0].files[0].tree
-
 
 class Linter:
     """The interface class to interact with the linter."""
