@@ -2070,9 +2070,9 @@ class Rule_L019(BaseCrawler):
     def _eval(self, segment, raw_stack, memory, **kwargs):
         """Enforce comma placement.
 
-        If want leading commas, we're looking for trailing commas, so
-        we look for newline segments. If we want trailing commas then
-        we're looking for leading commas, so we look for the comma itself.
+        For leading commas we're looking for trailing commas, so
+        we look for newline segments. For trailing commas we're
+        looking for leading commas, so we look for the comma itself.
 
         We also want to handle proper whitespace removal/addition. We remove
         any trailing whitespace after the leading comma, when converting a
