@@ -106,6 +106,17 @@ def test__linter__lint_string_vs_file(path):
     )
 
 
+@pytest.mark.parametrize(
+    "rules,num_violations", [(None, 6), ("L010", 2), (("L001", "L009", "L031"), 2)]
+)
+def test__linter__get_violations_filter_rules(rules, num_violations):
+    """Test filtering violations by which rules were violated."""
+    lntr = Linter()
+    lint_result = lntr.lint_string("select a, b FROM tbl c order BY d")
+
+    assert len(lint_result.get_violations(rules=rules)) == num_violations
+
+
 def test__linter__linting_result__sum_dicts():
     """Test the summing of dictionaries in the linter."""
     lr = LintingResult()
