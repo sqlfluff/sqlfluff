@@ -3,6 +3,7 @@
 import pytest
 
 from sqlfluff.core import Linter, FluffConfig
+from sqlfluff.core.errors import SQLLintError
 from sqlfluff.core.linter import LintingResult
 
 
@@ -152,3 +153,16 @@ def test__linter__linting_result_check_tuples_by_path(by_path, result_type):
     )
     check_tuples = result.check_tuples(by_path=by_path)
     isinstance(check_tuples, result_type)
+
+
+def test__linter__linting_result_get_violations():
+    """Test that we can get violations from a LintingResult."""
+    lntr = Linter()
+    result = lntr.lint_paths(
+        [
+            "test/fixtures/linter/comma_errors.sql",
+            "test/fixtures/linter/whitespace_errors.sql",
+        ]
+    )
+
+    all([type(v) == SQLLintError for v in result.get_violations()])
