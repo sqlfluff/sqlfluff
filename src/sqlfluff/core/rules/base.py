@@ -277,7 +277,7 @@ class BaseCrawler:
         # cause the user to get no results
         except Exception as e:
             self.logger.critical(
-                f"Applying rule {self.code} threw and Exception: {e}", exc_info=True
+                f"Applying rule {self.code} threw an Exception: {e}", exc_info=True
             )
             vs.append(
                 SQLLintError(
