@@ -654,7 +654,7 @@ class Linter:
 
         linter_logger.info("TEMPLATING RAW [%s] (%s)", self.templater.name, fname)
         s, templater_violations = self.templater.process(
-            s, fname=fname, config=config or self.config
+            in_str=s, fname=fname, config=config or self.config
         )
         violations += templater_violations
         # Detect the case of a catastrophic templater fail. In this case
