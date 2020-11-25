@@ -3061,7 +3061,11 @@ class Rule_L031(BaseCrawler):
             table_ref = table_exp.get_child("object_reference")
 
             # If this is self-join - skip it
-            if base_table and base_table.raw == table_ref.raw and base_table != table_ref:
+            if (
+                base_table
+                and base_table.raw == table_ref.raw
+                and base_table != table_ref
+            ):
                 continue
 
             whitespace_ref = table_exp.get_child("whitespace")
