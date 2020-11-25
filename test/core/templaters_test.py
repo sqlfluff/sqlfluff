@@ -218,4 +218,5 @@ def test__templater_dbt_handle_exceptions(
         get_adapter(dbt_templater.dbt_config).connections.release()
         os.rename(target_fpath, src_fpath)
     assert violations
-    assert violations[0].desc().startswith(exception_msg)
+    # NB: Replace slashes to deal with different plaform paths being returned.
+    assert violations[0].desc().replace('\\', '/').startswith(exception_msg)

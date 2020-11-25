@@ -243,9 +243,26 @@ projects. In particular it provides mock objects for:
 Dbt Project Configuration
 -------------------------
 
-dbt is not the default templater for *sqlfluff* (it is Jinja). In order
-to get started using *sqlfluff* with a dbt project you will need the following
-configuration:
+dbt is not the default templater for *sqlfluff* (it is Jinja). For using
+*sqlfluff* with a dbt project, users can either use the `jinja` templater
+(which may be slightly faster, but may not support the full spectrum of
+macros) or the `dbt` templater, which uses the dbt itself to render the
+sql (meaning that there is a much more reliable representation of macros,
+but a potential performance hit accordingly). At this stage we recommend
+that users try both approaches and choose according to the method that
+they indent to use *sqlfluff*.
+
+A simple rule of thumb might be:
+
+- If you are using *sqlfluff* in a CI/CD context, where speed is not
+  critical but accuracy in rendering sql is, then the `dbt` templater
+  may be more appropriate.
+- If you are using *sqlfluff* in an IDE or on a git hook, where speed
+  of response may be more important, then the `jinja` templater may
+  be more appropriate.
+
+In order to get started using *sqlfluff* with a dbt project you will
+need the following configuration:
 
 In *.sqlfluff*:
 

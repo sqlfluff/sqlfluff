@@ -75,13 +75,7 @@ changes.
 ## Nerdy Details
 ### Testing
 
-To test locally, sqlfluff uses `tox`.
-
-**For Windows users**: the tox environment depends on `make` to set up the dbt test folders.
-To do that we recommend using _chocolatey_. You can find the instructions to install chocolately here: https://chocolatey.org/install.
-Once chocolatey is installed you can use `choco install make` to install `make`.
-
-Then you can build locally using...
+To test locally, sqlfluff uses `tox`, which means you can build locally using...
 
 ```shell
 pip install tox
