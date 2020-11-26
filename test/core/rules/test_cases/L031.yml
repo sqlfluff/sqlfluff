@@ -77,3 +77,29 @@ test_4:
     JOIN customers on users.id = customers.user_id
     JOIN orders on users.id = orders.user_id
     order by o desc
+
+alias_single_char_identifiers:
+  pass_str: "select b from tbl as a"
+  pass_str: "select b from tbl"
+
+alias_with_wildcard_identifier:
+  fail_str: "select * from tbl as a"
+  fix_str: "select * from tbl"
+
+select_from_values:
+  pass_str: |
+    select *
+    from values(1, 2, 3)
+
+select_from_table_generator:
+  pass_str: |
+    select *
+    from table(
+        generator(
+            rowcount=>10000
+        )
+    )
+
+  configs:
+    core:
+      dialect: bigquery

@@ -3099,7 +3099,11 @@ class Rule_L031(BaseCrawler):
             table_ref = table_exp.get_child("object_reference")
 
             # If this is self-join - skip it
-            if base_table.raw == table_ref.raw and base_table != table_ref:
+            if (
+                base_table
+                and base_table.raw == table_ref.raw
+                and base_table != table_ref
+            ):
                 continue
 
             whitespace_ref = table_exp.get_child("whitespace")
@@ -3117,7 +3121,7 @@ class Rule_L031(BaseCrawler):
             # Find all references to alias in select clause
             for alias_with_column in select_clause.recursive_crawl("object_reference"):
                 used_alias_ref = alias_with_column.get_child("identifier")
-                if used_alias_ref.raw == alias_identifier_ref.raw:
+                if used_alias_ref and used_alias_ref.raw == alias_identifier_ref.raw:
                     ids_refs.append(used_alias_ref)
 
             # Find all references to alias in column references
