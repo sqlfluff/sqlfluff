@@ -12,3 +12,5 @@ diff-cover>=2.5.0,<3.0
 pathspec
 pytest
 appdirs
+# dataclasses backport for python 3.6
+dataclasses

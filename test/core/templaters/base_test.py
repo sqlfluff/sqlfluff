@@ -45,7 +45,7 @@ def test__templater_raw():
     """Test the raw templater."""
     t = RawTemplater()
     instr = "SELECT * FROM {{blah}}"
-    outstr, _ = t.process(instr)
+    outstr, _ = t.process(in_str=instr)
     assert instr == str(outstr)
 
 

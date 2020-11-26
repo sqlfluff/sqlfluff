@@ -365,9 +365,17 @@ class RawTemplater:
         """
 
     def process(
-        self, in_str: str, fname: Optional[str] = None, config=None
+        self, *, in_str: str, fname: Optional[str] = None, config=None
     ) -> Tuple[Optional[TemplatedFile], list]:
         """Process a string and return a TemplatedFile.
+
+        Note that the arguments are enforced as keywords
+        because Templaters can have differences in their
+        `process` method signature.
+        A Templater that only supports reading from a file
+        would need the following signature:
+            process(*, fname, in_str=None, config=None)
+        (arguments are swapped)
 
         Args:
             in_str (:obj:`str`): The input string.

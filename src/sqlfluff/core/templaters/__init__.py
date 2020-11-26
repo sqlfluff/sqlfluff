@@ -9,3 +9,4 @@ from .base import templater_selector, TemplatedFile
 from .base import RawTemplater
 from .jinja import JinjaTemplater
 from .python import PythonTemplater
+from .dbt import DbtTemplater

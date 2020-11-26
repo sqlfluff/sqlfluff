@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and call `parse`, `lint` and `fix` within their own projects. See
   [the docs](https://docs.sqlfluff.com/en/latest/api.html) for more
   information.
+- The ability to use `dbt` as a templating engine directly allowing
+  richer and more accurate linting around `dbt` macros (and packages
+  related to `dbt`). For more info see [the docs](https://docs.sqlfluff.com/en/latest/configuration.html#dbt-project-configuration).
 - Support for modulo (`%`) operator.
 - A limit in the internal fix routines to catch any infinite loops.
 - Added the `.istype()` method on segments to more intelligently

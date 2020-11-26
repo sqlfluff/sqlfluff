@@ -14,7 +14,7 @@ def test__templater_jinja():
     """Test jinja templating and the treatment of whitespace."""
     t = JinjaTemplater(override_context=dict(blah="foo", condition="a < 10"))
     instr = JINJA_STRING
-    outstr, _ = t.process(instr, config=FluffConfig())
+    outstr, _ = t.process(in_str=instr, config=FluffConfig())
     assert str(outstr) == "SELECT * FROM f, o, o WHERE a < 10\n\n"
 
 
@@ -22,7 +22,7 @@ def test__templater_jinja_error_variable():
     """Test missing variable error handling in the jinja templater."""
     t = JinjaTemplater(override_context=dict(blah="foo"))
     instr = JINJA_STRING
-    outstr, vs = t.process(instr, config=FluffConfig())
+    outstr, vs = t.process(in_str=instr, config=FluffConfig())
     assert str(outstr) == "SELECT * FROM f, o, o WHERE \n\n"
     # Check we have violations.
     assert len(vs) > 0
@@ -34,7 +34,7 @@ def test__templater_jinja_error_syntax():
     """Test syntax problems in the jinja templater."""
     t = JinjaTemplater()
     instr = "SELECT {{foo} FROM jinja_error\n"
-    outstr, vs = t.process(instr, config=FluffConfig())
+    outstr, vs = t.process(in_str=instr, config=FluffConfig())
     # Check we just skip templating.
     assert str(outstr) == instr
     # Check we have violations.
@@ -47,7 +47,7 @@ def test__templater_jinja_error_catatrophic():
     """Test error handling in the jinja templater."""
     t = JinjaTemplater(override_context=dict(blah=7))
     instr = JINJA_STRING
-    outstr, vs = t.process(instr, config=FluffConfig())
+    outstr, vs = t.process(in_str=instr, config=FluffConfig())
     assert not outstr
     assert len(vs) > 0
 
