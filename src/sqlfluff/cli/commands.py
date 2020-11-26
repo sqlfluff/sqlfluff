@@ -375,18 +375,8 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
 @click.option(
     "--fixed-suffix", default=None, help="An optional suffix to add to fixed files."
 )
-@click.option(
-    "-s",
-    "--no-safety",
-    is_flag=True,
-    help=(
-        "Disable the safety of requiring --rules to be specified. **Use this with caution.**"
-    ),
-)
 @click.argument("paths", nargs=-1)
-def fix(
-    force, paths, bench=False, fixed_suffix="", no_safety=False, logger=None, **kwargs
-):
+def fix(force, paths, bench=False, fixed_suffix="", logger=None, **kwargs):
     """Fix SQL files.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -396,7 +386,6 @@ def fix(
     """
     # some quick checks
     fixing_stdin = ("-",) == paths
-    no_safety = no_safety or fixing_stdin  # saftey not needed if fixing stdin
 
     c = get_config(**kwargs)
     lnt, formatter = get_linter_and_formatter(c, silent=fixing_stdin)
@@ -408,23 +397,6 @@ def fix(
 
     # Set up logging.
     set_logging_level(verbosity=verbose, logger=logger)
-
-    # Check that if fix is specified, that we have picked only a subset of rules
-    if no_safety:
-        if not fixing_stdin:
-            click.echo(
-                colorize("NO SAFETY", "red")
-                + ": Attempting fixes for all enabled rules."
-            )
-    elif lnt.config.get("rule_whitelist") is None:
-        click.echo(
-            (
-                "The fix option is only available in combination"
-                " with --rules. This is for your own safety! To"
-                " disable this safety feature use --no-safety or --s."
-            )
-        )
-        sys.exit(1)
 
     # handle stdin case. should output formatted sql to stdout and nothing else.
     if fixing_stdin:

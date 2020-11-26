@@ -72,6 +72,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   sensible caching and optimising loops within functions.
 
 ### Removed
+- From the CLI, the `--no-safety` option has been removed, the default
+  is now that all enabled rules will be fixed.
 - Removed `BaseSegment.grammar`, `BaseSegment._match_grammar()` and
   `BaseSegment._parse_grammar()` instead preferring references directly
   to `BaseSegment.match_grammar` and `BaseSegment.parse_grammar`.
