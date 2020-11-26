@@ -12,7 +12,7 @@ for the rule itself, with all the other mechanics abstracted away.
 Specific Rules
 --------------
 
-.. automodule:: sqlfluff.rules.std
+.. automodule:: sqlfluff.core.rules.std
    :members:
    :member-order: alphabetical
 
@@ -20,17 +20,17 @@ Specific Rules
 Implementation
 --------------
 
-.. autoclass:: sqlfluff.rules.base.RuleSet
+.. autoclass:: sqlfluff.core.rules.base.RuleSet
    :members:
 
-.. autoclass:: sqlfluff.rules.base.BaseCrawler
+.. autoclass:: sqlfluff.core.rules.base.BaseCrawler
    :members:
    :private-members:
 
-.. autoclass:: sqlfluff.rules.base.LintResult
+.. autoclass:: sqlfluff.core.rules.base.LintResult
    :members:
 
-.. autoclass:: sqlfluff.rules.base.LintFix
+.. autoclass:: sqlfluff.core.rules.base.LintFix
    :members:
 
 
@@ -40,3 +40,33 @@ and that the segment which finally "triggers" the error, should be the one
 that would be corrected OR if the rule relates to something that is missing,
 then it should flag on the segment FOLLOWING, the place that the desired
 element is missing.
+
+
+Inline Ignoring Errors
+-----------------------
+`sqlfluff` features inline error ignoring. For example, the following will
+ignore the lack of whitespace surrounding the ``*`` operator.
+
+.. code-block:: sql
+
+   a.a*a.b AS bad_1  -- noqa: L006
+
+Multiple rules can be ignored by placing them in a comma-delimited list.
+
+.. code-block:: sql
+
+   a.a *  a.b AS bad_2,  -- noqa: L007, L006
+
+It is also possible to ignore non-rule based errors, and instead opt to
+ignore templating (``TMP``) & parsing (``PRS``) errors.
+
+.. code-block:: sql
+
+   WHERE dt >= DATE_ADD(CURRENT_DATE(), INTERVAL -2 DAY) -- noqa: PRS
+
+Should the need arise, not specifying specific rules to ignore will ignore
+all rules on the given line.
+
+.. code-block:: sql
+
+   a.a*a.b AS bad_3  -- noqa

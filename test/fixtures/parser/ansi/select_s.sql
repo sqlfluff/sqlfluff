@@ -1,5 +1,5 @@
 -- Array notation (BigQuery and Postgres)
--- https://github.com/alanmcruickshank/sqlfluff/issues/59
+-- https://github.com/sqlfluff/sqlfluff/issues/59
 SELECT
   user_id,
   list_id,

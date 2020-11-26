@@ -21,6 +21,9 @@ your database.
   handling of indentation linting in a potentially not backward
   compatable way.
 
+Want to see where and how people are using Sqlfluff in their projects?
+Head over to :ref:`inthewildref` for inspiration.
+
 Getting Started
 ^^^^^^^^^^^^^^^
 
@@ -47,12 +50,16 @@ Contents
 
    gettingstarted
    realworld
+   vision
    indentation
    rules
+   dialects
    production
    configuration
    architecture
    cli
+   api
+   inthewild
 
 
 Indices and tables

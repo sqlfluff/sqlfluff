@@ -8,13 +8,13 @@ file:
         - keyword: 'on'
         - start_bracket: (
         - expression:
-            object_reference:
+            column_reference:
               identifier: id
         - end_bracket: )
       - select_target_element:
           expression:
           - start_bracket: (
-          - object_reference:
+          - column_reference:
               identifier: json
           - binary_operator: ->
           - literal: "'type'"
@@ -32,7 +32,7 @@ file:
       - select_target_element:
           expression:
           - start_bracket: (
-          - object_reference:
+          - column_reference:
               identifier: json
           - binary_operator: ->
           - literal: "'type'"
@@ -50,11 +50,13 @@ file:
             select_clause:
               keyword: select
               select_target_element:
-                keyword: '*'
+                wildcard_expression:
+                  wildcard_identifier:
+                    star: '*'
             from_clause:
               keyword: from
               table_expression:
-                object_reference:
+                table_reference:
                   identifier: sb_route_events
                 alias_expression:
                   keyword: as
@@ -63,7 +65,7 @@ file:
               keyword: where
               expression:
               - start_bracket: (
-              - object_reference:
+              - column_reference:
                 - identifier: s
                 - dot: .
                 - identifier: match_id
@@ -76,12 +78,12 @@ file:
                     select_clause_modifier:
                       keyword: distinct
                     select_target_element:
-                      object_reference:
+                      column_reference:
                         identifier: match_id
                   from_clause:
                     keyword: from
                     table_expression:
-                      object_reference:
+                      table_reference:
                         identifier: this_model
               - end_bracket: )
               - end_bracket: )

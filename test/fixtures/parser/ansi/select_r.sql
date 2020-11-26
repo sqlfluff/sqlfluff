@@ -1,5 +1,5 @@
 -- Union All in a With
--- https://github.com/alanmcruickshank/sqlfluff/issues/162
+-- https://github.com/sqlfluff/sqlfluff/issues/162
 WITH result AS (
     SELECT
         customer

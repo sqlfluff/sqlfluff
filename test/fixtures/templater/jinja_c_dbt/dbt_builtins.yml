@@ -4,14 +4,14 @@ file:
       select_clause:
       - keyword: SELECT
       - select_target_element:
-          object_reference:
+          column_reference:
             identifier: col1
       - comma: ','
       - select_target_element:
-          object_reference:
+          column_reference:
             identifier: col2
       from_clause:
         keyword: FROM
         table_expression:
-          object_reference:
+          table_reference:
             identifier: my_table

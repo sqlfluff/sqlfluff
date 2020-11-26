@@ -1,0 +1,4 @@
+rule: L002
+
+test_1:
+  fail_str: "    \t    \t    SELECT 1"

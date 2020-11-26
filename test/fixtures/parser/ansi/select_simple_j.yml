@@ -1,27 +1,26 @@
-# Test that casting works as expected
 file:
   statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_target_element:
-          object_reference:
+          column_reference:
             identifier: count_correctly_substituted
       from_clause:
         - keyword: FROM
         - table_expression:
-            object_reference:
+            table_reference:
               identifier: correctly_substituted
         - join_clause:
           - keyword: CROSS
           - keyword: JOIN
           - table_expression:
-              object_reference:
+              table_reference:
                 identifier: needs_substitution
         - join_clause:
           - keyword: LEFT
           - keyword: OUTER
           - keyword: JOIN
           - table_expression:
-              object_reference:
+              table_reference:
                 identifier: some_other_table

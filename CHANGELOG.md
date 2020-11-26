@@ -7,12 +7,139 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Public API to enable people to import `sqlfluff` as a python module
+  and call `parse`, `lint` and `fix` within their own projects. See
+  [the docs](https://docs.sqlfluff.com/en/latest/api.html) for more
+  information.
+- The ability to use `dbt` as a templating engine directly allowing
+  richer and more accurate linting around `dbt` macros (and packages
+  related to `dbt`). For more info see [the docs](https://docs.sqlfluff.com/en/latest/configuration.html#dbt-project-configuration).
+- Support for modulo (`%`) operator.
+- A limit in the internal fix routines to catch any infinite loops.
+- Added the `.istype()` method on segments to more intelligently
+  deal with type matching in rules when inheritance is at play.
+- Added the ability for the user to add their own rules when interacting
+  with the `Linter` directly using `user_rules`.
+- [466](https://github.com/sqlfluff/sqlfluff/issues/466) - Added L034
+  'Fields should be stated before aggregates / window functions' per
+  [dbt coding convenventions](https://github.com/fishtown-analytics/corp/blob/master/dbt_coding_conventions.md#sql-style-guide.)
+- Templating tags, such as `{{ variables }}`, `{# comments #}` and
+  `{% loops %}` (in jinja) now have placeholders in the parsed
+  structure. Rule L003 (indentation), also now respects these
+  placeholders so that their indentation is linted accordingly.
+  For loop or block tags, they also generate an `Indent` and
+  `Dedent` tag accordingly (which can be enabled or disabled)
+  with a configuration value so that indentation around these
+  functions can be linted accordingly.
+- MyPy type linting into a large proportion of the core library.
+- Config values specific to a file can now be defined using a comment
+  line starting with `-- sqlfluff:`.
+
+### Changed
+
+- Big refactor of logging internally. `Linter` is now decoupled from
+  logging so that it can be imported directly by subprojects without
+  needing to worry about wierd output or without the log handing getting
+  in the way of your project.
+- Linting errors in the final file are now reported with their position
+  in the source file rather than in the templated file. This means
+  when using sqlfluff as a plugabble library within an IDE, the
+  references match the file which is being edited.
+- Created new Github Organisation (https://github.com/sqlfluff) and
+  migrated from https://github.com/alanmcruickshank/sqlfluff to
+  https://github.com/sqlfluff/sqlfluff.
+- Changed the handling of `*` and `a.b.*` expressions to have their
+  own expressions. Any dependencies on this structure downstream
+  will be broken. This also fixes the linting of both kinds of expressions
+  with regard to L013 and L025.
+- Refactor of L022 to handle poorly formatted CTEs better.
+- Internally added an `EphemeralSegment` to aid with parsing efficiency
+  without altering the end structure of the query.
+- Split `ObjectReference` into `ColumnReference` and `TableReference`
+  for more useful API access to the underlying structure.
+- `KeywordSegment` and the new `SymbolSegment` both now inherit
+  from `_ProtoKeywordSegment` which allows symbols to match in a very
+  similar way to keywords without later appearing with the `type` of
+  `keyword`.
+- Introduced the `Parser` class to parse a lexed query rather than
+  relying on users to instantiate a `FileSegment` directly. As a result
+  the `FileSegment` has been moved from the core parser directly into
+  the dialects. Users can refer to it via the `get_root_segment()`
+  method of a dialect.
+- Several perfomance improvements through removing unused functionality,
+  sensible caching and optimising loops within functions.
+
+### Removed
+- From the CLI, the `--no-safety` option has been removed, the default
+  is now that all enabled rules will be fixed.
+- Removed `BaseSegment.grammar`, `BaseSegment._match_grammar()` and
+  `BaseSegment._parse_grammar()` instead preferring references directly
+  to `BaseSegment.match_grammar` and `BaseSegment.parse_grammar`.
+- Removed `EmptySegmentGrammar` and replaced with better non-code handling
+  in the `FileSegment` itself.
+- Remove the `ContainsOnly` grammar as it remained only as an anti-pattern.
+- Removed the `expected_string()` functionality from grammars and segments
+  as it was poorly supported.
+- Removed `BaseSegment.as_optional()` as now this functionality happens
+  mostly in grammars (including `Ref`).
+- Removed `ColumnExpressionSegment` in favour of `ColumnReference`.
+- Removed the `LambdaSegment` feature, instead replacing with an internal
+  to the grammar module called `NonCodeMatcher`.
+- Case sensitivity as a feature for segment matching has been removed as
+  not required for existing dialects.
+- Dependency on `difflib` or `cdifflib`, by relying on source mapping
+  instead to apply fixes.
+
+## [0.3.6] - 2020-09-24
+
+### Added
+
+- `sqlfluff dialects` command to get a readout of available
+  dialects [+ associated docs].
+- More helpful error messages when trying to run in Python2.
+- Window functions now parse with `IGNORE`/`RESPECT` `NULLS`.
+- Parsing of `current_timestamp` and similar functions. Thanks [@dmateusp](https://github.com/dmateusp).
+- Snowflake `QUALIFY` clause.
+
+### Changed
+
+- Respect user config directories. Thanks [@sethwoodworth](https://github.com/sethwoodworth).
+- Fix incorrect reporting of L013 with `*`. Thanks [@dmateusp](https://github.com/dmateusp).
+- Fix incorrect reporting of L027 with column aliases. Thanks [@pwildenhain](https://github.com/pwildenhain).
+- Simplification of application of fixes and correction of
+  a case where fixes could be depleted. Thanks [@NiallRees](https://github.com/NiallRees).
+- Fix functions with a similar structure to `SUBSTRING`.
+- Refactor BigQuery `REPLACE` and `EXCEPT` clauses.
+- Bigquery date parts corrected.
+- Snowflake array accessors.
+- Psotgres `NOTNULL` and `ISNULL`.
+- Bugfix in snowflake for keywords used in semistructured
+  queries.
+- Nested `WITH` statements now parse.
+- Performance improvements in the `fix` command.
+- Numeric literals starting with a decimal now parse.
+- Refactor the jinja templater.
+
+## [0.3.5] - 2020-08-03
+
+### Added
+
+- Patterns and Anti-patterns in documentation. Thanks [@flpezet](https://github.com/flpezet).
+- Functions in `GROUP BY`. Thanks [@flpezet](https://github.com/flpezet).
+
 ### Changed
 
 - Deep bugfixes in the parser to handle simple matching better for a few
   edge cases. Also added some logging deeper in the parser.
 - Added in the `SelectableGrammar` and some related segments to make it
   easier to refer to _select-like_ things in other grammars.
+- Fixes to `CASE` statement parsing. Thanks [@azhard](https://github.com/azhard).
+- Fix to snowflake `SAMPLE` implementation. Thanks [@rkm3](https://github.com/rkm3).
+- Numerous docs fixes. Thanks [@SimonStJG](https://github.com/SimonStJG),
+  [@flpezet](https://github.com/flpezet), [@s-pace](https://github.com/s-pace),
+  [@nolanbconaway](https://github.com/nolanbconaway).
 
 ## [0.3.4] - 2020-05-13
 
@@ -120,7 +247,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated logging of parsing and lexing errors to have more useful
   error codes.
 - Changed parsing of expressions to favour functions over identifiers
-  to [fix the expression bug](https://github.com/alanmcruickshank/sqlfluff/issues/96).
+  to [fix the expression bug](https://github.com/sqlfluff/sqlfluff/issues/96).
 - Fixed the "inconsistent" bug in L010. Thanks [@nolanbconaway](https://github.com/nolanbconaway).
 - Moved where the `SELECT` keyword is parsed within a select statement,
   so that it belongs as part of the newly renamed `select_clause` (renamed

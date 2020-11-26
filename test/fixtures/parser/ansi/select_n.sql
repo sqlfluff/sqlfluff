@@ -1,5 +1,5 @@
 -- Full Join
--- https://github.com/alanmcruickshank/sqlfluff/issues/144
+-- https://github.com/sqlfluff/sqlfluff/issues/144
 SELECT
     exists_left.business_type AS business_type_left,
     exists_right.business_type AS business_type_right

@@ -1,4 +1,4 @@
 SELECT
-    a.name,
-    a.value
-FROM tbl AS a
+    tbl.name,
+    tbl.value
+FROM tbl

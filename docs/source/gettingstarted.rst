@@ -204,6 +204,10 @@ file has been fixed accordingly.
     select a + b  as foo,
       c as bar from my_table
 
+For a full list of configuration options check out :ref:`defaultconfig`.
+To see how these options apply to specific rules check out the
+"Configuration" section within each rule's documentation in :ref:`ruleref`.
+
 Going further
 -------------
 
@@ -217,7 +221,7 @@ From here, there are several more things to explore.
   with passing sqlfluff directories rather than just single files.
   Try running :code:`sqlfluff lint .` (to lint every sql file in the
   current folder) or :code:`sqlfluff lint path/to/my/sqlfiles`.
-* To find out more about which ruels are available, see :ref:`ruleref`.
+* To find out more about which rules are available, see :ref:`ruleref`.
 * To find out more about configuring *sqlfluff* and what other options
   are available, see :ref:`config`.
 
@@ -228,4 +232,4 @@ github`_ where the maintainers of the project can work out what to do with
 it. The project is in active development and so updates and fixes may
 come out regularly.
 
-.. _`post the issue on github`: https://github.com/alanmcruickshank/sqlfluff/issues
+.. _`post the issue on github`: https://github.com/sqlfluff/sqlfluff/issues

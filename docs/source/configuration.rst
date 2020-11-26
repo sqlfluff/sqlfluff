@@ -42,15 +42,17 @@ steps overriding those from earlier:
 0. *[...and this one doesn't really count]* There's a default config as
    part of the sqlfluff package. You can find this below, in the
    :ref:`defaultconfig` section.
-1. It will look in the user's home directory (~), for any of the
-   filenames above in the main :ref:`config` section. If
-   multiple are present, they will *patch*/*override* eachother
-   in the order above.
-2. It will look for the same files in the current working directory.
-3. *[if parsing a file in a subdirectory of the current working directory]*
+1. It will look in the user's os-specific app config directory. On OSX this is
+   `~/Library/Preferences/sqlfluff`, Unix is `~/.config/sqlfluff`, Windows is
+   `<home>\AppData\Local\sqlfluff\sqlfluff`, for any of the filenames
+   above in the main :ref:`config` section. If multiple are present, they will
+   *patch*/*override* eachother in the order above.
+2. It will look for the same files in the user's home directory (~).
+3. It will look for the same files in the current working directory.
+4. *[if parsing a file in a subdirectory of the current working directory]*
    It will look for the same files in every subdirectory between the
    current working dir and the file directory.
-4. It will look for the same files in the directory containing the file
+5. It will look for the same files in the directory containing the file
    being linted.
 
 This whole structure leads to efficient configuration, in particular
@@ -58,10 +60,10 @@ in projects which utilise a lot of complicated templating.
 
 .. _templateconfig:
 
-Templating Configuration
-------------------------
+Jinja Templating Configuration
+------------------------------
 
-When thinking about templating there are two different kinds of things
+When thinking about Jinja templating there are two different kinds of things
 that a user might want to fill into a templated file, *variables* and
 *functions/macros*. Currently *functions* aren't implemented in any
 of the templaters.
@@ -115,6 +117,7 @@ and *native python types*. Both are illustrated in the following example:
     [sqlfluff:templater:jinja:context]
     my_list=['a', 'b', 'c']
     MY_LIST=("d", "e", "f")
+    my_where_dict={"field_1": 1, "field_2": 2}
 
 .. code-block:: jinja
 
@@ -123,6 +126,10 @@ and *native python types*. Both are illustrated in the following example:
             '{{elem}}' {% if not loop.last %}||{% endif %}
         {% endfor %} as concatenated_list
     FROM tbl
+    WHERE
+        {% for field, value in my_where_dict.items() %}
+            {{field}} = {{value}} {% if not loop.last %}and{% endif %}
+        {% endfor %}
 
 ...will render as...
 
@@ -131,6 +138,8 @@ and *native python types*. Both are illustrated in the following example:
     SELECT
         'd' || 'e' || 'f' as concatenated_list
     FROM tbl
+    WHERE
+        field_1 = 1 and field_2 = 2
 
 Note that the variable was replaced in a case sensitive way and that the
 settings in the config file were interpreted as native python types.
@@ -169,14 +178,11 @@ Note that in the code block above, the variable name in the config is
 Broadly this is accurate, however within the configuration loader this will
 still be used to overwrite previous *values* in other config files. As such
 this introduces the idea of config *blocks* which could be selectively
-overwritten by other configuration files downsteam as required. Some such
-blocks are provided by default as `Builtin Macro Blocks`_ to assist with
-common use cases.
+overwritten by other configuration files downsteam as required.
 
 In addition to macros specified in the config file, macros can also be
-loaded from a file or folder (this particularly useful for `dbt`_ users,
-who may already have a macros folder in their project). The path to this
-macros folder must be specified in the config file to function as below:
+loaded from a file or folder. The path to this macros folder must be
+specified in the config file to function as below:
 
 .. code-block:: cfg
 
@@ -206,9 +212,16 @@ be a :code:`.sql` itself.
 Builtin Macro Blocks
 ^^^^^^^^^^^^^^^^^^^^
 
-One of the main use cases which inspired *sqlfluff* as a a project was `dbt`_.
+One of the main use cases which inspired *sqlfluff* as a project was `dbt`_.
 It uses jinja templating extensively and leads to some users maintaining large
 repositories of sql files which could potentially benefit from some linting.
+
+.. note::
+    *sqlfluff* has now a tighter integration with dbt through the "dbt" templater.
+    It is the recommended templater for dbt projects and removes the need for the
+    overwrites described in this section.
+
+    To use the dbt templater, go to `Dbt Project Configuration`_.
 
 *Sqlfluff* anticipates this use case and provides some built in macro blocks
 in the `Default Configuration`_ which assist in getting started with `dbt`_
@@ -221,15 +234,78 @@ projects. In particular it provides mock objects for:
   returns nothing.
 
 .. note::
-
     If there are other builtin macros which would make your life easier,
     consider submitting the idea (or even better a pull request) on `github`_.
 
 .. _`dbt`: https://www.getdbt.com/
-.. _`github`: https://www.github.com/alanmcruickshank/sqlfluff
+.. _`github`: https://www.github.com/sqlfluff/sqlfluff
 
-.. _defaultconfig:
+Dbt Project Configuration
+-------------------------
 
+dbt is not the default templater for *sqlfluff* (it is Jinja). For using
+*sqlfluff* with a dbt project, users can either use the `jinja` templater
+(which may be slightly faster, but may not support the full spectrum of
+macros) or the `dbt` templater, which uses the dbt itself to render the
+sql (meaning that there is a much more reliable representation of macros,
+but a potential performance hit accordingly). At this stage we recommend
+that users try both approaches and choose according to the method that
+they indent to use *sqlfluff*.
+
+A simple rule of thumb might be:
+
+- If you are using *sqlfluff* in a CI/CD context, where speed is not
+  critical but accuracy in rendering sql is, then the `dbt` templater
+  may be more appropriate.
+- If you are using *sqlfluff* in an IDE or on a git hook, where speed
+  of response may be more important, then the `jinja` templater may
+  be more appropriate.
+
+In order to get started using *sqlfluff* with a dbt project you will
+need the following configuration:
+
+In *.sqlfluff*:
+
+.. code-block:: cfg
+
+    [sqlfluff]
+    templater = dbt
+    # dbt templating does not keep trailing new lines (L009)
+    exclude_rules = L009
+
+In *.sqlfluffignore*:
+
+.. code-block::
+
+    target/
+    dbt_modules/
+    macros/
+
+CLI Arguments
+-------------
+
+You already know you can pass arguments (:code:`--verbose`,
+:code:`--exclude_rules`, etc.) through the CLI commands (:code:`lint`,
+:code:`fix`, etc.):
+
+.. code-block:: console
+
+    $ sqfluff lint my_code.sql -v -exclude_rules L022,L027
+
+You might have arguments that you pass through every time, e.g rules you
+*always* want to ignore. These can also be configured:
+
+.. code-block:: cfg
+
+    [sqlfluff]
+    verbose = 1
+    exclude_rules = L022,L027
+
+Note that while the :code:`exclude_rules` config looks similiar to the
+above example, the :code:`verbose` config has an integer value. This is
+because :code:`verbose` is *stackable* meaning there are multiple levels
+of verbosity that are available for configuration. See :ref:`cliref` for
+more details about the available CLI arguments.
 
 .sqlfluffignore
 ---------------
@@ -263,13 +339,14 @@ linted and the sub files will also be applied within that subdirectory.
 .. _`Docker's`: https://docs.docker.com/engine/reference/builder/#dockerignore-file
 .. _`pathspec library`: https://python-path-specification.readthedocs.io/
 
+.. _defaultconfig:
 
 Default Configuration
 ---------------------
 
 The default configuration is as follows, note the `Builtin Macro Blocks`_ in
-section *[sqlfulff:templater:jinja:macros]* as referred to above.
+section *[sqlfluff:templater:jinja:macros]* as referred to above.
 
-.. literalinclude:: ../../src/sqlfluff/default_config.cfg
+.. literalinclude:: ../../src/sqlfluff/core/default_config.cfg
    :language: cfg
    :linenos:
