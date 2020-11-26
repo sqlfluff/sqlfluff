@@ -68,13 +68,12 @@ def parse(sql, dialect="ansi"):
             to be linted. Defaults to `ansi`.
 
     Returns:
-        :obj:`FileSegment` containing the parsed structure, or None
-            on failure.
+        :obj:`ParsedString` containing the parsed structure.
     """
     sql = _unify_str_or_file(sql)
     linter = Linter(dialect=dialect)
-    parsed, violations, _ = linter.parse_string(sql)
+    parsed = linter.parse_string(sql)
     # If we encounter any parsing errors, raise the first one we find.
-    if violations:
-        raise violations[0]
+    if parsed.violations:
+        raise parsed.violations[0]
     return parsed

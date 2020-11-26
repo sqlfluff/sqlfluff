@@ -89,7 +89,7 @@ def generate_test_segments():
             else:
                 cls = RawSegment.make("", _is_code=True)
 
-            buff.append(cls(elem, FilePositionMarker.from_fresh().advance_by(raw_buff)))
+            buff.append(cls(elem, FilePositionMarker().advance_by(raw_buff)))
             raw_buff += elem
         return tuple(buff)  # Make sure we return a tuple
 

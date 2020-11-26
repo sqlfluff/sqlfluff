@@ -1,6 +1,6 @@
 """Fixtures for dbt templating tests."""
 
-from sqlfluff.core.templaters import DbtTemplateInterface
+from sqlfluff.core.templaters import DbtTemplater
 import pytest
 import os
 
@@ -20,7 +20,7 @@ DBT_FLUFF_CONFIG = {
 @pytest.fixture()
 def dbt_templater():
     """Returns an instance of the DbtTemplater."""
-    return DbtTemplateInterface()
+    return DbtTemplater()
 
 
 @pytest.fixture()

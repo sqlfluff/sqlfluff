@@ -580,13 +580,9 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
         if "-" == path:
             # put the parser result in a list to iterate later
             result = [
-                (
-                    # TODO: Remove verbose
-                    *lnt.parse_string(
-                        sys.stdin.read(), "stdin", recurse=recurse, config=lnt.config
-                    ),
-                    lnt.config,
-                )
+                lnt.parse_string(
+                    sys.stdin.read(), "stdin", recurse=recurse, config=lnt.config
+                ),
             ]
         else:
             # A single path must be specified for this command
@@ -595,22 +591,25 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
 
         # iterative print for human readout
         if format == "human":
-            for parsed, violations, time_dict, f_cfg in result:
-                if parsed:
-                    click.echo(parsed.stringify(code_only=code_only))
+            for parsed_string in result:
+                if parsed_string.tree:
+                    click.echo(parsed_string.tree.stringify(code_only=code_only))
                 else:
                     # TODO: Make this prettier
                     click.echo("...Failed to Parse...")
-                nv += len(violations)
-                if violations:
+                nv += len(parsed_string.violations)
+                if parsed_string.violations:
                     click.echo("==== parsing violations ====")
-                for v in violations:
+                for v in parsed_string.violations:
                     click.echo(format_violation(v))
-                if violations and f_cfg.get("dialect") == "ansi":
+                if (
+                    parsed_string.violations
+                    and parsed_string.config.get("dialect") == "ansi"
+                ):
                     click.echo(format_dialect_warning())
                 if verbose >= 2:
                     click.echo("==== timings ====")
-                    click.echo(cli_table(time_dict.items()))
+                    click.echo(cli_table(parsed_string.time_dict.items()))
                 bencher("Output details for file")
         else:
             # collect result and print as single payload
@@ -621,7 +620,7 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
                     filepath=filepath,
                     segments=parsed.as_record(code_only=code_only, show_raw=True),
                 )
-                for filepath, (parsed, _, _, _) in zip(filepaths, result)
+                for filepath, (parsed, _, _, _, _) in zip(filepaths, result)
             ]
 
             if format == "yaml":

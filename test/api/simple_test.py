@@ -4,6 +4,8 @@ import io
 
 import sqlfluff
 
+from sqlfluff.core.linter import ParsedString
+
 my_bad_query = "SeLEct  *, 1, blah as  fOO  from myTable"
 
 lint_result = [
@@ -86,13 +88,17 @@ def test__api__parse_string():
     """Basic checking of parse functionality."""
     parsed = sqlfluff.parse(my_bad_query)
     # Check we can call `to_tuple` on the result
-    assert isinstance(parsed.to_tuple(), tuple)
+    assert isinstance(parsed, ParsedString)
     # Check we can iterate objects within it
-    keywords = [keyword.raw for keyword in parsed.recursive_crawl("keyword")]
+    keywords = [keyword.raw for keyword in parsed.tree.recursive_crawl("keyword")]
     assert keywords == ["SeLEct", "as", "from"]
     # Check we can get columns from it
-    col_refs = [col_ref.raw for col_ref in parsed.recursive_crawl("column_reference")]
+    col_refs = [
+        col_ref.raw for col_ref in parsed.tree.recursive_crawl("column_reference")
+    ]
     assert col_refs == ["blah"]
     # Check we can get table from it
-    tbl_refs = [tbl_ref.raw for tbl_ref in parsed.recursive_crawl("table_reference")]
+    tbl_refs = [
+        tbl_ref.raw for tbl_ref in parsed.tree.recursive_crawl("table_reference")
+    ]
     assert tbl_refs == ["myTable"]

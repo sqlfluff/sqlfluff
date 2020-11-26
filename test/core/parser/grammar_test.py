@@ -242,7 +242,7 @@ def test__parser__grammar_startswith_a(
     Keyword = KeywordSegment.make(keyword)
     grammar = StartsWith(Keyword)
     with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
-        with caplog.at_level(logging.DEBUG, logger="sqluff.parser"):
+        with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
             m = grammar.match(seg_list, parse_context=ctx)
             assert bool(m) is match_truthy
 
@@ -263,7 +263,7 @@ def test__parser__grammar_startswith_b(
     bar = KeywordSegment.make("bar")
     grammar = StartsWith(bar, terminator=baar, include_terminator=include_terminator)
     with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
-        with caplog.at_level(logging.DEBUG, logger="sqluff.parser"):
+        with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
             m = grammar.match(seg_list, parse_context=ctx)
             assert len(m) == match_length
 
@@ -275,7 +275,7 @@ def test__parser__grammar_sequence(seg_list, caplog):
     g = Sequence(bs, fs)
     gc = Sequence(bs, fs, allow_gaps=False)
     with RootParseContext(dialect=None) as ctx:
-        with caplog.at_level(logging.DEBUG, logger="sqluff.parser"):
+        with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
             # Should be able to match the list using the normal matcher
             logging.info("#### TEST 1")
             m = g.match(seg_list, parse_context=ctx)
@@ -301,7 +301,7 @@ def test__parser__grammar_sequence_nested(seg_list, caplog):
     bas = KeywordSegment.make("baar")
     g = Sequence(Sequence(bs, fs), bas)
     with RootParseContext(dialect=None) as ctx:
-        with caplog.at_level(logging.DEBUG, logger="sqluff.parser"):
+        with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
             # Matching the start of the list shouldn't work
             logging.info("#### TEST 1")
             assert not g.match(seg_list[:2], parse_context=ctx)
@@ -356,7 +356,7 @@ def test__parser__grammar_delimited(
         min_delimiters=min_delimiters,
     )
     with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
-        with caplog.at_level(logging.DEBUG, logger="sqluff.parser"):
+        with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
             # Matching with whitespace shouldn't match if we need at least one delimiter
             m = g.match(seg_list, parse_context=ctx)
             assert len(m) == match_len

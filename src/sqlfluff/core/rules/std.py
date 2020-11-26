@@ -149,7 +149,7 @@ class Rule_L003(BaseCrawler):
     """
 
     _works_on_unparsable = False
-    config_keywords = ["tab_space_size", "indent_unit"]
+    config_keywords = ["tab_space_size", "indent_unit", "lint_templated_tokens"]
 
     def _make_indent(self, num=1, tab_space_size=None, indent_unit=None):
         if (indent_unit or self.indent_unit) == "tab":
@@ -183,6 +183,10 @@ class Rule_L003(BaseCrawler):
 
         for elem in raw_stack:
             line_buffer.append(elem)
+            # Pin indent_balance to above zero
+            if indent_balance < 0:
+                indent_balance = 0
+
             if elem.is_type("newline"):
                 result_buffer[line_no] = {
                     "line_no": line_no,
@@ -335,8 +339,8 @@ class Rule_L003(BaseCrawler):
             if segment.is_type("whitespace"):
                 # it's whitespace, carry on
                 return LintResult(memory=memory)
-            elif segment.segments or segment.is_meta:
-                # it's not a raw segment. Carry on.
+            elif segment.segments or (segment.is_meta and segment.indent_val != 0):
+                # it's not a raw segment or placeholder. Carry on.
                 return LintResult(memory=memory)
             else:
                 memory["in_indent"] = False
@@ -349,14 +353,29 @@ class Rule_L003(BaseCrawler):
         res = self._process_raw_stack(raw_stack + (segment,))
         this_line_no = max(res.keys())
         this_line = res.pop(this_line_no)
+        self.logger.debug(
+            "Evaluating line #%s. %s",
+            this_line_no,
+            # Don't log the line or indent buffer, it's too noisy.
+            {
+                key: this_line[key]
+                for key in this_line
+                if key not in ("line_buffer", "indent_buffer")
+            },
+        )
 
         # Is this line just comments?
-        if set(seg.type for seg in this_line["line_buffer"] if not seg.is_meta) <= {
-            "whitespace",
-            "comment",
-        }:
+        if all(
+            seg.is_type(
+                "whitespace",
+                "comment",
+                "indent",  # dedent is a subtype of indent
+            )
+            for seg in this_line["line_buffer"]
+        ):
             # Comment line, deal with it later.
             memory["comment_lines"].append(this_line_no)
+            self.logger.debug("    Comment Line. #%s", this_line_no)
             return LintResult(memory=memory)
 
         # Is it a hanging indent?
@@ -389,10 +408,13 @@ class Rule_L003(BaseCrawler):
             ):
                 # This is a HANGER
                 memory["hanging_lines"].append(this_line_no)
+                self.logger.debug("    Hanger Line. #%s", this_line_no)
                 return LintResult(memory=memory)
+
         # Is this an indented first line?
         elif len(res) == 0:
             if this_line["indent_size"] > 0:
+                self.logger.debug("    Indented First Line. #%s", this_line_no)
                 return LintResult(
                     anchor=segment,
                     memory=memory,
@@ -401,6 +423,17 @@ class Rule_L003(BaseCrawler):
                         LintFix("delete", elem) for elem in this_line["indent_buffer"]
                     ],
                 )
+
+        # Are we linting a placeholder, and if so are we allowed to?
+        if (not self.lint_templated_tokens) and this_line["line_buffer"][
+            len(this_line["indent_buffer"]) :
+        ][0].is_type("placeholder"):
+            # If not, make this a problem line and carry on.
+            memory["problem_lines"].append(this_line_no)
+            self.logger.debug(
+                "    Avoiding template placeholder Line. #%s", this_line_no
+            )
+            return LintResult(memory=memory)
 
         # Assuming it's not a hanger, let's compare it to the other previous
         # lines. We do it in reverse so that closer lines are more relevant.
@@ -423,6 +456,7 @@ class Rule_L003(BaseCrawler):
                 continue
             # Is the indent balance the same?
             elif indent_diff == 0:
+                self.logger.debug("    [same indent balance] Comparing to #%s", k)
                 if this_line["indent_size"] != res[k]["indent_size"]:
                     # Indents don't match even though balance is the same...
                     memory["problem_lines"].append(this_line_no)
@@ -444,7 +478,9 @@ class Rule_L003(BaseCrawler):
                         current_indent_buffer=this_line["indent_buffer"],
                         current_anchor=segment,
                     )
-
+                    self.logger.debug(
+                        "    !! Indentation does not match #%s. Fixes: %s", k, fixes
+                    )
                     return LintResult(
                         anchor=segment,
                         memory=memory,
@@ -456,6 +492,7 @@ class Rule_L003(BaseCrawler):
                     )
             # Are we at a deeper indent?
             elif indent_diff > 0:
+                self.logger.debug("    [deeper indent balance] Comparing to #%s", k)
                 # NB: We shouldn't need to deal with hanging indents
                 # here, they should already have been dealt with before.
 
@@ -608,6 +645,7 @@ class Rule_L003(BaseCrawler):
 
             # This was a valid comparison, so if it doesn't flag then
             # we can assume that we're ok.
+            self.logger.debug("    Indent deemed ok comparing to #%s", k)
 
             # Given that this line is ok, consider if the previous line is a comment.
             # If it is, lint the indentation of that comment.
@@ -1376,7 +1414,7 @@ class Rule_L015(BaseCrawler):
     """
 
     def _eval(self, segment, raw_stack, **kwargs):
-        """Uneccessary trailing whitespace.
+        """Looking for DISTINCT before a bracket.
 
         Look for DISTINCT keyword immediately followed by open parenthesis.
         """
