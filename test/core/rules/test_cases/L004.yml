@@ -1,10 +1,45 @@
 rule: L004
 
-test_1:
-  pass_str: "   \nSELECT 1"
+spaces_pass_default:
+  pass_str: "    \nSELECT 1"
 
-test_2:
-  pass_str: "\t\tSELECT 1\n"
 
-test_3:
-  fail_str: "   \n  \t \n  SELECT 1"
+spaces_fail:
+  fail_str: "    \nSELECT 1"
+
+  configs:
+    rules:
+      indent_unit: tab
+
+
+tabs_fail_default:
+  fail_str: "\t\tSELECT 1\n"
+  fix_str: "        SELECT 1\n"
+
+
+tabs_fail_default_set_tab_space_size:
+  fail_str: "\t\tSELECT 1\n"
+  fix_str: "    SELECT 1\n"
+
+  configs:
+    rules:
+      tab_space_size: 2
+
+
+tabs_pass:
+  pass_str: "\tSELECT 1"
+
+  configs:
+    rules:
+      indent_unit: tab
+
+
+tabs_pass:
+  fail_str: "\t\tSELECT 1\n"
+
+
+mixed_fail:
+  fail_str: |2
+      	 select 1
+  fix_str: |2
+           select 1

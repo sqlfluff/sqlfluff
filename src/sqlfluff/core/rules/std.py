@@ -688,13 +688,16 @@ class Rule_L003(BaseCrawler):
         return LintResult(memory=memory)
 
 
+@std_rule_set.document_fix_compatible
+@std_rule_set.document_configuration
 @std_rule_set.register
 class Rule_L004(BaseCrawler):
-    """Mixed Tab and Space indentation found in file.
+    """Incorrect indentation style.
+
+    Note that fix only compatible for converting tabs to spaces, not spaces to tabs.
 
     | **Anti-pattern**
-    | The • character represents a space and the → character represents a tab.
-    | In this example, the second line is indented with spaces and the third one with tab.
+    | Using tabs instead of spaces when indent_unit config set to spaces (default).
 
     .. code-block::
 
@@ -714,25 +717,36 @@ class Rule_L004(BaseCrawler):
         FROM foo
     """
 
-    def _eval(self, segment, raw_stack, memory, **kwargs):
-        """Mixed Tab and Space indentation found in file.
+    config_keywords = ["indent_unit", "tab_space_size"]
 
-        We use the `memory` feature here to keep track of
-        what we've seen in the past.
+    def _eval(self, segment, **kwargs):
+        """Incorrect indentation found in file.
 
+        We only fix tabs to spaces. Spaces to tabs is not clean as the number
+        of space indents might not be a multiple of tab_space_size.
         """
-        indents_seen = memory.get("indents_seen", set())
-        if segment.is_type("whitespace"):
-            if len(raw_stack) == 0 or raw_stack[-1].is_type("newline"):
-                indents_here = set(segment.raw)
-                indents_union = indents_here | indents_seen
-                memory["indents_seen"] = indents_union
-                if len(indents_union) > 1:
-                    # We are seeing an indent we haven't seen before and we've seen others before
-                    return LintResult(anchor=segment, memory=memory)
-                else:
-                    return LintResult(memory=memory)
-        return LintResult(memory=memory)
+        correct_indent = (
+            " " * self.tab_space_size if self.indent_unit == "space" else "\t"
+        )
+        wrong_indent = (
+            "\t" if self.indent_unit == "space" else " " * self.tab_space_size
+        )
+        if segment.is_type("whitespace") and wrong_indent in segment.raw:
+            fixes = []
+            if self.indent_unit == "space":
+                # We only fix tabs to spaces.
+                edit_indent = segment.raw.replace("\t", correct_indent)
+                fixes = [
+                    LintFix(
+                        "edit",
+                        segment,
+                        self.make_whitespace(
+                            raw=edit_indent,
+                            pos_marker=segment.pos_marker,
+                        ),
+                    )
+                ]
+            return LintResult(anchor=segment, fixes=fixes)
 
 
 @std_rule_set.document_fix_compatible
