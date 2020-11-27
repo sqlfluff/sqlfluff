@@ -8,7 +8,7 @@ A basic example of this usage is given here, with the documentation
 for each of the methods below.
 
 
-.. literalinclude:: ../../examples/basic_api_usage.py
+.. literalinclude:: ../../examples/01_basic_api_usage.py
    :language: python
 
 

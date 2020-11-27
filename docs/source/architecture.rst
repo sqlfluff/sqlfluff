@@ -10,13 +10,17 @@ systems use curly brackets *{}* to indicate templatable sections and
 these are not currently set up in any of the lexers, and so will fail
 at the next step if not dealt with here.
 
-Most templated SQL in the wild uses Jinja_ and so that is the default
-templater for *sqlfluff*. It uses the config framework to get at any
-templating variables.
+*sqlfluff* supports 2 templating engines:
+
+.. _Jinja: https://jinja.palletsprojects.com/
+.. _dbt: https://docs.getdbt.com/
+
+Jinja_ is the default templater used by *sqlfluff*. Under the covers, dbt_ also
+uses Jinja_ but in *sqlfluff* it is a separate templater which relies directly
+on the dbt_ compiler.
 
 For more details on how to configure the templater see :ref:`templateconfig`.
 
-.. _Jinja: https://jinja.palletsprojects.com/
 
 Stage 2, the lexer
 ------------------

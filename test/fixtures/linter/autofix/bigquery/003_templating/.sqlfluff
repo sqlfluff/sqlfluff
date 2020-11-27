@@ -1,0 +1,4 @@
+[sqlfluff:templater:jinja:context]
+considered_actions=['uses_small_subject_line', 'uses_personal_subject', 'uses_personal_to']
+corr_states="state_user_v_peer_open\n ,business_type"
+metric=open

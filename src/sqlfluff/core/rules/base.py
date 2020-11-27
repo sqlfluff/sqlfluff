@@ -107,7 +107,22 @@ class LintFix:
             raise ValueError("Unexpected edit_type: {0}".format(edit_type))
         self.edit_type = edit_type
         self.anchor = anchor
-        self.edit = edit
+        # Coerce to list
+        if isinstance(edit, BaseSegment):
+            edit = [edit]
+        # Copy all the elements of edit to stop contamination.
+        # We're about to start stripping the position markers
+        # of some of the elements and we don't want to end up
+        # stripping the positions of the original elements of
+        # the parsed structure.
+        self.edit = copy.deepcopy(edit)
+        if self.edit:
+            # Strip position markers of anything enriched, otherwise things can get blurry
+            for seg in self.edit:
+                seg.pos_marker = seg.pos_marker.strip()
+        # Once stripped, we shouldn't replace any markers because
+        # later code may rely on them being accurate, which we
+        # can't guarantee with edits.
 
     def is_trivial(self):
         """Return true if the fix is trivial.
@@ -138,7 +153,7 @@ class LintFix:
                 new_detail = "".join(s.raw for s in self.edit)
 
             if self.edit_type == "edit":
-                detail = "edit:{0!r}>{1!r}".format(self.anchor.raw, new_detail)
+                detail = "edt:{0!r}->{1!r}".format(self.anchor.raw, new_detail)
             else:
                 detail = "create:{0!r}".format(new_detail)
         else:
@@ -277,7 +292,7 @@ class BaseCrawler:
         # cause the user to get no results
         except Exception as e:
             self.logger.critical(
-                f"Applying rule {self.code} threw and Exception: {e}", exc_info=True
+                f"Applying rule {self.code} threw an Exception: {e}", exc_info=True
             )
             vs.append(
                 SQLLintError(
@@ -471,7 +486,14 @@ class RuleSet:
         config_doc = "\n    | **Configuration**"
         try:
             for keyword in cls.config_keywords:
-                info_dict = self.config_info[keyword]
+                try:
+                    info_dict = self.config_info[keyword]
+                except KeyError:
+                    raise KeyError(
+                        "Config value {!r} for rule {} is not configured in `config_info`.".format(
+                            keyword, cls.__name__
+                        )
+                    )
                 config_doc += "\n    |     `{0}`: {1}. Must be one of {2}.".format(
                     keyword, info_dict["definition"], info_dict["validation"]
                 )

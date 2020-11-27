@@ -1,30 +1,24 @@
 """Indent and Dedent classes."""
 
 from ..match_wrapper import match_wrapper
+from ..markers import FilePositionMarker
 
 from .raw import RawSegment
 
 
-class Indent(RawSegment):
-    """A segment which is empty but indicates where an indent should be.
+class MetaSegment(RawSegment):
+    """A segment which is empty but indicates where something should be."""
 
-    This segment is always empty, i.e. it's raw format is '', but it indicates
-    the position of a theoretical indent which will be used in linting
-    and reconstruction. Even if there is an *actual indent* that occurs
-    in the same place this intentionally *won't* capture it, they will just
-    be compared later.
-    """
-
-    type = "indent"
+    type = "meta"
     _is_code = False
     _template = "<unset>"
-    indent_val = 1
+    indent_val = 0
     is_meta = True
     _config_rules = None
 
     @classmethod
     def when(cls, **kwargs):
-        """Configure whether this indent/dedent is available given certain rules.
+        """Configure whether this meta segment is available given certain rules.
 
         All we do is override the _config_rules parameter
         for the class.
@@ -43,19 +37,21 @@ class Indent(RawSegment):
         return type(cls.__name__, (cls,), dict(_config_rules=kwargs))
 
     @classmethod
-    def is_enabled(cls, parse_context):
+    def is_enabled(cls, indent_config):
         """Given a certain parse context, determine if this segment is enabled.
 
-        All rules are assumed to be False if not present in the parse_context,
+        All rules are assumed to be False if not present in the indent_config,
         and later rules in the config override previous ones.
         """
-        # All rules are assumed to be False if not present
+        # If no config rules are set then it's always enabled.
         if cls._config_rules is not None:
-            config = parse_context.indentation_config or {}
+            config = indent_config or {}
             # This looks like an iteration, but there should only be one.
             for rule, val in cls._config_rules.items():
+                # Assume False if not set.
                 conf_val = config.get(rule, False)
-                if val == conf_val:
+                # Coerce to boolean.
+                if val == bool(conf_val):
                     return True
                 else:
                     return False
@@ -79,8 +75,8 @@ class Indent(RawSegment):
             )
         )
 
-    def __init__(self, pos_marker):
-        """For the indent we override the init method.
+    def __init__(self, pos_marker=None):
+        """For the meta segment we override the init method.
 
         For something without content, the content doesn't make
         sense. The pos_marker, will be matched with the following
@@ -89,9 +85,28 @@ class Indent(RawSegment):
         with repairs.
         """
         self._raw = ""
-        # TODO: Make sure that we DO actually skip meta segments
-        # during fixes.
-        self.pos_marker = pos_marker
+        # We strip the position marker, so that when fixing it's
+        # skipped and not considered. If no position marker is given
+        # then give it a fresh one - it will need to be realigned
+        # before it's useful.
+        if pos_marker:
+            self.pos_marker = pos_marker.strip()
+        else:
+            self.pos_marker = FilePositionMarker()
+
+
+class Indent(MetaSegment):
+    """A segment which is empty but indicates where an indent should be.
+
+    This segment is always empty, i.e. it's raw format is '', but it indicates
+    the position of a theoretical indent which will be used in linting
+    and reconstruction. Even if there is an *actual indent* that occurs
+    in the same place this intentionally *won't* capture it, they will just
+    be compared later.
+    """
+
+    type = "indent"
+    indent_val = 1
 
 
 class Dedent(Indent):
@@ -105,4 +120,35 @@ class Dedent(Indent):
 
     """
 
+    type = "dedent"
     indent_val = -1
+
+
+class TemplateSegment(MetaSegment):
+    """A segment which is empty but indicates something should be.
+
+    This segment is always empty, i.e. it's raw format is '', but it indicates
+    the position of an element on a line which has been removed. This is used
+    to record the position of template blocks, so that their indents are not
+    removed during linting.
+
+    This is used to hold a reference point for code from the source file
+    which is removed in the templated version such as loop blocks or comments.
+    On initialisation we optionally accept the source string as a kwarg in
+    case rules want to lint this down the line.
+    """
+
+    type = "placeholder"
+
+    def __init__(self, pos_marker=None, source_str="", block_type=""):
+        """Initialise a placeholder with the source code embedded."""
+        if not source_str:
+            raise ValueError("Cannot instantiate TemplateSegment without a source_str.")
+        self.source_str = source_str
+        self.block_type = block_type
+        # Call the super of the pos_marker.
+        super().__init__(pos_marker=pos_marker)
+
+    def _suffix(self):
+        """Also output what it's a placeholder for."""
+        return "[Type: {0!r}, Raw: {1!r}]".format(self.block_type, self.source_str)

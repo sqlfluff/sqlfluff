@@ -1,5 +1,6 @@
 """Module for loading config."""
 
+import logging
 import os
 import os.path
 import sys
@@ -9,6 +10,8 @@ from pathlib import Path
 
 import appdirs
 
+# Instantiate the templater logger
+config_logger = logging.getLogger("sqlfluff.config")
 
 global_loader = None
 """:obj:`ConfigLoader`: A variable to hold the single module loader when loaded.
@@ -16,6 +19,28 @@ global_loader = None
 We define a global loader, so that between calls to load config, we
 can still cache appropriately
 """
+
+
+def coerce_value(val: str) -> Any:
+    """Try to coerce to a more specific type."""
+    # Try to coerce it to a more specific type,
+    # otherwise just make it a string.
+    try:
+        v: Any = int(val)
+    except ValueError:
+        try:
+            v = float(val)
+        except ValueError:
+            cleaned_val = val.strip().lower()
+            if cleaned_val in ["true"]:
+                v = True
+            elif cleaned_val in ["false"]:
+                v = False
+            elif cleaned_val in ["none"]:
+                v = None
+            else:
+                v = val
+    return v
 
 
 def nested_combine(*dicts: dict) -> dict:
@@ -156,21 +181,7 @@ class ConfigLoader:
             for name, val in config.items(section=k):
                 # Try to coerce it to a more specific type,
                 # otherwise just make it a string.
-                try:
-                    v: Any = int(val)
-                except ValueError:
-                    try:
-                        v = float(val)
-                    except ValueError:
-                        cleaned_val = val.strip().lower()
-                        if cleaned_val in ["true"]:
-                            v = True
-                        elif cleaned_val in ["false"]:
-                            v = False
-                        elif cleaned_val in ["none"]:
-                            v = None
-                        else:
-                            v = val
+                v = coerce_value(val)
 
                 # Attempt to resolve paths
                 if name.lower().endswith("_path"):
@@ -463,6 +474,27 @@ class FluffConfig:
                     return None
             return buff
 
+    def set_value(self, config_path: Iterable[str], val: Any):
+        """Set a value at a given path."""
+        # Make the path a list so we can index on it
+        config_path = list(config_path)
+        # Coerce the value into something more useful.
+        config_val = coerce_value(val)
+        # Sort out core if not there
+        if len(config_path) == 1:
+            config_path = ["core"] + config_path
+        # Current section:
+        dict_buff = [self._configs]
+        for elem in config_path[:-1]:
+            dict_buff.append(dict_buff[-1][elem])
+        # Set the value
+        dict_buff[-1][config_path[-1]] = config_val
+        # Rebuild the config
+        for elem in reversed(config_path[:-1]):
+            dict_elem = dict_buff.pop()
+            dict_buff[-1][elem] = dict_elem
+        self._configs = dict_buff[0]
+
     def iter_vals(self, cfg: Optional[dict] = None) -> Iterable[tuple]:
         """Return an iterable of tuples representing keys.
 
@@ -491,3 +523,20 @@ class FluffConfig:
                 # Then yield it's content
                 for idnt, key, val in self.iter_vals(cfg=cfg[k]):
                     yield (idnt + 1, key, val)
+
+    def process_inline_config(self, config_line: str):
+        """Process an inline config command and update self."""
+        # Strip preceeding comment marks
+        if config_line.startswith("--"):
+            config_line = config_line[2:].strip()
+        # Strip preceeding sqlfluff line.
+        if not config_line.startswith("sqlfluff:"):
+            config_logger.warning(
+                "Unable to process inline config statement: %r", config_line
+            )
+            return
+        config_line = config_line[9:].strip()
+        # Divide on colons
+        config_path = [elem.strip() for elem in config_line.split(":")]
+        # Set the value
+        self.set_value(config_path[:-1], config_path[-1])

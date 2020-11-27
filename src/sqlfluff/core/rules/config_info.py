@@ -51,4 +51,11 @@ STANDARD_CONFIG_INFO_DICT = {
         "validation": ["consistent", "upper", "lower", "capitalise"],
         "definition": "The capitalisation policy to enforce",
     },
+    "lint_templated_tokens": {
+        "validation": [True, False],
+        "definition": (
+            "Should lines starting with a templating placeholder"
+            " such as `{{blah}}` have their indentation linted."
+        ),
+    },
 }

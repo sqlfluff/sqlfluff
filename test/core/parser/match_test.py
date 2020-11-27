@@ -9,7 +9,7 @@ from sqlfluff.core.parser import RawSegment, FilePositionMarker
 @pytest.fixture(scope="module")
 def raw_seg():
     """Construct a raw segment as a fixture."""
-    fp = FilePositionMarker.from_fresh().advance_by("abc")
+    fp = FilePositionMarker().advance_by("abc")
     return RawSegment("foobar", fp)
 
 

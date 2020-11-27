@@ -15,9 +15,9 @@ from sqlfluff.core.parser.segments import EphemeralSegment
 def raw_seg_list():
     """A generic list of raw segments to test against."""
     return [
-        RawSegment("bar", FilePositionMarker.from_fresh()),
-        RawSegment("foo", FilePositionMarker.from_fresh().advance_by("bar")),
-        RawSegment("bar", FilePositionMarker.from_fresh().advance_by("barfoo")),
+        RawSegment("bar", FilePositionMarker()),
+        RawSegment("foo", FilePositionMarker().advance_by("bar")),
+        RawSegment("bar", FilePositionMarker().advance_by("barfoo")),
     ]
 
 

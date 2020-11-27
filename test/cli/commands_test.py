@@ -177,11 +177,10 @@ def test__cli__command_lint_stdin(command):
                 "test/fixtures/cli/fail_many.sql",
             ],
         ),
-        # Fix without safety
+        # Fix without specifying rules
         (
             fix,
             [
-                "--no-safety",
                 "--fixed-suffix",
                 "_fix",
                 "test/fixtures/cli/fail_many.sql",
@@ -370,10 +369,6 @@ def test__cli__command_fix_stdin_safety():
     result = invoke_assert_code(args=[fix, ("-",)], cli_input=perfect_sql)
     assert result.output.strip() == perfect_sql
 
-    # still no warning if no safety specified unnecessarily
-    result = invoke_assert_code(args=[fix, ("-", "--no-safety")], cli_input=perfect_sql)
-    assert result.output.strip() == perfect_sql
-
 
 @pytest.mark.parametrize(
     "rule,fname,prompt,exit_code",
@@ -454,7 +449,7 @@ def test__cli__command_lint_serialize_from_stdin(serialize, sql, expected, exit_
     "command",
     [
         [lint, ("this_file_does_not_exist.sql")],
-        [fix, ("this_file_does_not_exist.sql", "--no-safety")],
+        [fix, ("this_file_does_not_exist.sql")],
     ],
 )
 def test__cli__command_fail_nice_not_found(command):
