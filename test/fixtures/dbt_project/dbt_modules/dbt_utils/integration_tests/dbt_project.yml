@@ -1,0 +1,52 @@
+
+name: 'dbt_utils_integration_tests'
+version: '1.0'
+
+profile: 'integration_tests'
+
+# require-dbt-version: inherit this from dbt-utils
+
+config-version: 2
+
+source-paths: ["models"]
+analysis-paths: ["analysis"]
+test-paths: ["tests"]
+data-paths: ["data"]
+macro-paths: ["macros"]
+
+target-path: "target"  # directory which will store compiled SQL files
+clean-targets:         # directories to be removed by `dbt clean`
+    - "target"
+    - "dbt_modules"
+
+seeds:
+
+  +quote_columns: false
+  dbt_utils_integration_tests:
+
+    cross_db:
+      data_date_trunc:
+        +column_types:
+          updated_at: timestamp
+          day: date
+          month: date
+
+      data_dateadd:
+        +column_types:
+          from_time: timestamp
+          result: timestamp
+
+      data_datediff:
+        +column_types:
+          first_date: timestamp
+          second_date: timestamp
+
+      data_width_bucket:
+        +column_types:
+          num_buckets: integer
+          min_value: float
+          max_value: float
+
+    sql:
+      data_events_20180103:
+        +schema: events

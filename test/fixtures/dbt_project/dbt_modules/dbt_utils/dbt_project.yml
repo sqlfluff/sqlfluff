@@ -1,0 +1,10 @@
+name: 'dbt_utils'
+version: '0.1.0'
+
+require-dbt-version: [">=0.18.0", "<0.19.0"]
+config-version: 2
+
+target-path: "target"
+clean-targets: ["target", "dbt_modules"]
+macro-paths: ["macros"]
+log-path: "logs"

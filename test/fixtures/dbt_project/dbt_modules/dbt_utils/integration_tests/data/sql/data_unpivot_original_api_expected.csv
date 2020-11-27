@@ -1,0 +1,10 @@
+customer_id,created_at,field_name,value
+123,2017-01-01,status,active
+123,2017-01-01,segment,tier 1
+234,2017-02-01,status,active
+234,2017-02-01,segment,tier 3
+567,2017-03-01,status,churned
+567,2017-03-01,segment,tier 2
+123,2017-01-01,name,name 1
+234,2017-02-01,name,name 3
+567,2017-03-01,name,name 2

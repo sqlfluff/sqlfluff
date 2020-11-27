@@ -1,0 +1,3 @@
+string_text,search_chars,replace_chars,result
+a,a,b,b
+http://google.com,http://,"",google.com

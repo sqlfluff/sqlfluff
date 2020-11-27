@@ -1,0 +1,5 @@
+input_1,input_2,output
+a,b,ab
+a,,a
+,b,b
+,,

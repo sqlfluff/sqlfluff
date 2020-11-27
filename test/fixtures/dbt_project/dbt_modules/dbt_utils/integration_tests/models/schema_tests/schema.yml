@@ -1,0 +1,103 @@
+version: 2
+
+models:
+  - name: data_test_not_constant
+    columns:
+      - name: field
+        tests:
+          - dbt_utils.not_constant
+
+  - name: data_test_at_least_one
+    columns:
+      - name: field
+        tests:
+          - dbt_utils.at_least_one
+
+  - name: data_test_expression_is_true
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: col_a + col_b = 1
+      - dbt_utils.expression_is_true:
+          expression: col_a = 0.5
+          condition: col_b = 0.5
+
+  - name: test_recency
+    tests:
+      - dbt_utils.recency:
+          datepart: day
+          field: today
+          interval: 1
+
+  - name: test_equal_rowcount
+    tests:
+      - dbt_utils.equal_rowcount:
+          compare_model: ref('test_equal_rowcount')
+
+  - name: test_equal_column_subset
+    tests:
+      - dbt_utils.equality:
+          compare_model: ref('data_people')
+          compare_columns:
+            - first_name
+            - last_name
+            - email
+
+  - name: data_people
+    columns:
+      - name: is_active
+        tests:
+          - dbt_utils.cardinality_equality:
+              field: is_active
+              to: ref('data_people')
+
+  - name: data_test_unique_where
+    columns:
+      - name: id
+        tests:
+          - dbt_utils.unique_where:
+              where: "_deleted = false"
+
+  - name: data_test_not_null_where
+    columns:
+      - name: id
+        tests:
+          - dbt_utils.not_null_where:
+              where: "_deleted = false"
+
+  - name: data_test_relationships_where_table_2
+    columns:
+      - name: id
+        tests:
+          - dbt_utils.relationships_where:
+              from: id
+              to: ref('data_test_relationships_where_table_1')
+              field: id
+              from_condition: id <> 4
+
+  - name: data_test_mutually_exclusive_ranges_no_gaps
+    tests:
+      - dbt_utils.mutually_exclusive_ranges:
+          lower_bound_column: lower_bound
+          upper_bound_column: upper_bound
+          gaps: not_allowed
+
+  - name: data_test_mutually_exclusive_ranges_with_gaps
+    tests:
+      - dbt_utils.mutually_exclusive_ranges:
+          lower_bound_column: valid_from
+          upper_bound_column: coalesce(valid_to, '2099-01-01')
+          partition_by: subscription_id
+          gaps: allowed
+
+      - dbt_utils.mutually_exclusive_ranges:
+          lower_bound_column: valid_from
+          upper_bound_column: coalesce(valid_to, '2099-01-01')
+          partition_by: subscription_id
+          gaps: required
+
+  - name: data_unique_combination_of_columns
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - month
+            - product

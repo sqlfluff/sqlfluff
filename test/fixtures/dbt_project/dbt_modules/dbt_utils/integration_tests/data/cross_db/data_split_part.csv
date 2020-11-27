@@ -1,0 +1,4 @@
+parts,split_on,result_1,result_2,result_3
+a|b|c,|,a,b,c
+1|2|3,|,1,2,3
+,|,,,
