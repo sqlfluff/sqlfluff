@@ -4,7 +4,11 @@ import os
 import pytest
 
 from sqlfluff.core import FluffConfig
-from test.fixtures.dbt.templater import DBT_FLUFF_CONFIG, dbt_templater, in_dbt_project_dir  # noqa
+from test.fixtures.dbt.templater import (  # noqa
+    DBT_FLUFF_CONFIG,
+    dbt_templater,
+    in_dbt_project_dir,
+)
 
 
 def test__templater_dbt_missing(dbt_templater):  # noqa
@@ -27,7 +31,9 @@ def test__templater_dbt_missing(dbt_templater):  # noqa
 @pytest.mark.dbt
 def test__templater_dbt_profiles_dir_expanded(dbt_templater):  # noqa
     """Check that the profiles_dir is expanded."""
-    dbt_templater.sqlfluff_config = FluffConfig(configs={"templater": {"dbt": {"profiles_dir": "~/.dbt"}}})
+    dbt_templater.sqlfluff_config = FluffConfig(
+        configs={"templater": {"dbt": {"profiles_dir": "~/.dbt"}}}
+    )
     profiles_dir = dbt_templater._get_profiles_dir()
     assert profiles_dir == os.path.expanduser("~/.dbt")
 
@@ -77,9 +83,12 @@ def test__templater_dbt_templating_absolute_path(
 @pytest.mark.parametrize(
     "fname,exception_msg",
     [
-        ("compiler_error.sql", "dbt compilation error on file 'models/my_new_project/compiler_error.sql', Unexpected end of template. Jinja was looking for the following tags: 'endfor'"),
+        (
+            "compiler_error.sql",
+            "dbt compilation error on file 'models/my_new_project/compiler_error.sql', Unexpected end of template. Jinja was looking for the following tags: 'endfor'",
+        ),
         ("exception_connect_database.sql", "dbt tried to connect to the database"),
-    ]
+    ],
 )
 @pytest.mark.dbt
 def test__templater_dbt_handle_exceptions(
@@ -104,4 +113,4 @@ def test__templater_dbt_handle_exceptions(
         os.rename(target_fpath, src_fpath)
     assert violations
     # NB: Replace slashes to deal with different plaform paths being returned.
-    assert violations[0].desc().replace('\\', '/').startswith(exception_msg)
+    assert violations[0].desc().replace("\\", "/").startswith(exception_msg)
