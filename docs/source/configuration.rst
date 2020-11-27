@@ -240,6 +240,8 @@ projects. In particular it provides mock objects for:
 .. _`dbt`: https://www.getdbt.com/
 .. _`github`: https://www.github.com/sqlfluff/sqlfluff
 
+.. _dbt-project-configuration:
+
 Dbt Project Configuration
 -------------------------
 

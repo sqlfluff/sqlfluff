@@ -5,6 +5,8 @@ list see the documentation:
 https://www.sphinx-doc.org/en/master/usage/configuration.html
 """
 
+import configparser
+
 # -- Path setup --------------------------------------------------------------
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -15,6 +17,11 @@ https://www.sphinx-doc.org/en/master/usage/configuration.html
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
+# Get the global config info as currently stated
+# (we use the config file to avoid actually loading any python here)
+config = configparser.ConfigParser()
+config.read(["../../src/sqlfluff/config.ini"])
+stable_version = config.get("sqlfluff", "stable_version")
 
 # -- Project information -----------------------------------------------------
 
@@ -23,7 +30,7 @@ copyright = "2019, Alan Cruickshank"
 author = "Alan Cruickshank"
 
 # The full version, including alpha/beta/rc tags
-release = "0.3.6"
+release = stable_version
 
 
 # -- General configuration ---------------------------------------------------
@@ -84,3 +91,20 @@ html_theme_options = {
     # Codecov button
     "codecov_button": True,
 }
+
+# Replacement variables in code-blocks
+# do not work, so we use these functions
+# from: https://github.com/sphinx-doc/sphinx/issues/4054#issuecomment-329097229
+def ultimateReplace(app, docname, source):
+    result = source[0]
+    for key in app.config.ultimate_replacements:
+        result = result.replace(key, app.config.ultimate_replacements[key])
+    source[0] = result
+
+ultimate_replacements = {
+    "|release|" : release
+}
+
+def setup(app):
+   app.add_config_value('ultimate_replacements', {}, True)
+   app.connect('source-read', ultimateReplace)

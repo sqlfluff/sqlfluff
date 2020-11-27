@@ -89,28 +89,48 @@ such as:
 Using `pre-commit`_
 ^^^^^^^^^^^^^^^^^^^
 
+`pre-commit`_ is a framework to manage git "hooks"
+triggered right before a commit is made.
+
+A `git hook`_ is a git feature to "fire off custom scripts"
+when specific actions occur.
+
+Using `pre-commit`_ with SQLFluff is a good way
+to provide automated linting to SQL developers.
+
+With `pre-commit`_, you also get the benefit of
+only linting/fixing the files that changed.
+
 SQLFluff comes with two `pre-commit`_ hooks:
 
 * sqlfluff-lint: returns linting errors.
 * sqlfluff-fix: attempts to fix rule violations.
 
-Running with `pre-commit`_, you get the benefit of
-only linting/fixing the files that changed.
-
-Your `.pre-commit-config.yaml` should look like this:
+You should create a file named `.pre-commit-config.yaml`
+at the root of your git project, which should look
+like this:
 
 .. code-block:: yaml
 
   repos:
   - repo: https://github.com/sqlfluff/sqlfluff
-    rev: v0.4.0
+    rev: v|release|
     hooks:
       - id: sqlfluff-lint
         # For dbt projects, this installs the dbt "extras":
         # additional_dependencies: ['.[dbt]']
       - id: sqlfluff-fix
-        # Fixes indentation and inconsistent capitalisation
-        args: [--rules, "L003,L014"]
+        # Arbitrary arguments to show an example
+        # args: [--rules, "L003,L014"]
         # additional_dependencies: ['.[dbt]']
 
+When trying to use the `dbt templater`_, uncomment the
+``additional_dependencies`` to install the extras.
+This is equivalent to running ``pip install sqlfluff[dbt]``.
+
+Note that you can pass the same arguments available
+through the CLI using ``args:``.
+
 .. _`pre-commit`: https://pre-commit.com/
+.. _`git hook`: https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks
+.. _`dbt templater`: `dbt-project-configuration`
