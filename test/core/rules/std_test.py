@@ -4,6 +4,7 @@ from typing import NamedTuple
 import pytest
 
 from sqlfluff.core import Linter, FluffConfig
+from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.rules.base import BaseCrawler, LintResult, LintFix
 from sqlfluff.core.rules.std import std_rule_set
 
@@ -17,6 +18,7 @@ class RuleTestCase(NamedTuple):
     fail_str: str = None
     fix_str: str = None
     configs: dict = None
+    skip: str = None
 
 
 def get_rule_from_set(code, config):
@@ -35,6 +37,14 @@ def assert_rule_fail_in_sql(code, sql, configs=None):
     linted = Linter(config=cfg).lint_string(sql, fix=True)
     lerrs = linted.get_violations()
     print("Errors Found: {0}".format(lerrs))
+    parse_errors = list(filter(
+        lambda v: type(v) == SQLParseError,
+        lerrs
+    ))
+    if parse_errors:
+        pytest.fail(
+            f"Found the following parse errors in test case: {parse_errors}"
+        )
     if not any(v.rule.code == code for v in lerrs):
         pytest.fail(
             "No {0} failures found in query which should fail.".format(code),
@@ -64,6 +74,9 @@ def rules__test_helper(test_case):
 
     Optionally, also test the fixed string if provided in the test case.
     """
+    if test_case.skip:
+        pytest.skip(test_case.skip)
+
     if test_case.pass_str:
         assert_rule_pass_in_sql(
             test_case.rule,

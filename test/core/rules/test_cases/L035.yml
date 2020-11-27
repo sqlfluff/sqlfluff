@@ -26,3 +26,23 @@ redundant_else_null:
             when name like '%dog%' then 'woof'
         end
     from x
+
+alternate_case_when_syntax:
+  skip: Alternate case when syntax is not parse-able right now
+
+  fail_str: |
+    select
+        case name
+            when like '%cat%' then 'meow'
+            when like '%dog%' then 'woof'
+            else null
+        end
+    from x
+
+  fix_str: |
+    select
+        case name
+            when like '%cat%' then 'meow'
+            when like '%dog%' then 'woof'
+        end
+    from x
