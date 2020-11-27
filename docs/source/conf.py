@@ -92,19 +92,22 @@ html_theme_options = {
     "codecov_button": True,
 }
 
-# Replacement variables in code-blocks
-# do not work, so we use these functions
-# from: https://github.com/sphinx-doc/sphinx/issues/4054#issuecomment-329097229
-def ultimateReplace(app, docname, source):
+
+def ultimate_replace(app, docname, source):
+    """Replaces variables in docs, including code blocks.
+
+    From: https://github.com/sphinx-doc/sphinx/issues/4054#issuecomment-329097229
+    """
     result = source[0]
     for key in app.config.ultimate_replacements:
         result = result.replace(key, app.config.ultimate_replacements[key])
     source[0] = result
 
-ultimate_replacements = {
-    "|release|" : release
-}
+
+ultimate_replacements = {"|release|": release}
+
 
 def setup(app):
-   app.add_config_value('ultimate_replacements', {}, True)
-   app.connect('source-read', ultimateReplace)
+    """Configures the documentation app."""
+    app.add_config_value("ultimate_replacements", {}, True)
+    app.connect("source-read", ultimate_replace)
