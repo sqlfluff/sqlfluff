@@ -37,14 +37,9 @@ def assert_rule_fail_in_sql(code, sql, configs=None):
     linted = Linter(config=cfg).lint_string(sql, fix=True)
     lerrs = linted.get_violations()
     print("Errors Found: {0}".format(lerrs))
-    parse_errors = list(filter(
-        lambda v: type(v) == SQLParseError,
-        lerrs
-    ))
+    parse_errors = list(filter(lambda v: type(v) == SQLParseError, lerrs))
     if parse_errors:
-        pytest.fail(
-            f"Found the following parse errors in test case: {parse_errors}"
-        )
+        pytest.fail(f"Found the following parse errors in test case: {parse_errors}")
     if not any(v.rule.code == code for v in lerrs):
         pytest.fail(
             "No {0} failures found in query which should fail.".format(code),

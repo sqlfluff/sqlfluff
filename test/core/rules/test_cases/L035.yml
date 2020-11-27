@@ -46,3 +46,13 @@ alternate_case_when_syntax:
             when like '%dog%' then 'woof'
         end
     from x
+
+else_expression:
+  pass_str: |
+    select
+        case name
+            when like '%cat%' then 'meow'
+            when like '%dog%' then 'woof'
+            else iff(wing_type is not null, 'tweet', 'invalid')
+        end
+    from x

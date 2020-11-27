@@ -3279,6 +3279,16 @@ class Rule_L035(BaseCrawler):
     """
 
     def _eval(self, segment, **kwargs):
+        """Find rule violations and provide fixes.
+
+        0. Look for a case expression
+        1. Look for "ELSE"
+        2. Mark "ELSE" for deletion (populate "fixes")
+        3. Backtrack and mark all newlines/whitespaces for deletion
+        4. Look for a raw "NULL" segment
+        5.a. The raw "NULL" segment is found, we mark it for deletion and return
+        5.b. We reach the end of case when without matching "NULL": the rule passes
+        """
         if segment.is_type("case_expression"):
             fixes = []
             for idx, seg in enumerate(segment.segments):
@@ -3286,8 +3296,9 @@ class Rule_L035(BaseCrawler):
                 # everything up to NULL
                 if fixes:
                     fixes.append(LintFix("delete", seg))
+                    # Safe to look for NULL, as an expression
+                    # would contain NULL but not be == NULL
                     if seg.raw_upper == "NULL":
-                        # When we find NULL we're done
                         return LintResult(anchor=segment, fixes=fixes)
 
                 if not fixes and seg.name == "ELSE":
