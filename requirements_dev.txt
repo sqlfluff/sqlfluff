@@ -12,3 +12,4 @@ pytest
 pytest-cov
 # MyPy
 mypy
+typing_extensions
