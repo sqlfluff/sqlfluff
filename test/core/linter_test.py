@@ -127,3 +127,11 @@ def test__linter__linting_result__combine_dicts():
     assert lr.combine_dicts(a, b, r) == dict(
         a=3, b=123, f=876.321, h=19, i=321.0, j=23478, z=22
     )
+
+
+def test__linter__empty_file():
+    """Test linter behaves nicely with an empty string."""
+    lntr = Linter()
+    # Make sure no exceptions raised and no violations found in empty file.
+    parsed = lntr.parse_string("")
+    assert not parsed.violations
