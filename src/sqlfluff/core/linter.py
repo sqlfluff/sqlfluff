@@ -19,13 +19,6 @@ from typing import (
 )
 from typing_extensions import Literal
 
-# Attempt to use the C version for a speedup on comparisons
-# if it's present. If not just use the normal one.
-try:
-    from cdifflib import CSequenceMatcher as SequenceMatcher  # type: ignore
-except ImportError:
-    from difflib import SequenceMatcher
-
 from benchit import BenchIt
 import pathspec
 
