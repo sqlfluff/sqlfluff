@@ -4,9 +4,10 @@ import copy
 from typing import List, Optional, Union, Type, Tuple
 
 from ...errors import SQLParseError
+from ...string_helpers import curtail_string
 
 from ..segments import BaseSegment, EphemeralSegment
-from ..helpers import curtail_string, trim_non_code_segments
+from ..helpers import trim_non_code_segments
 from ..match_result import MatchResult
 from ..match_logging import (
     parse_match_logging,

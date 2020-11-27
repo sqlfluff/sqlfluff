@@ -1,0 +1,9 @@
+[sqlfluff:rules]
+max_line_length = 50
+
+[sqlfluff:templater:jinja:context]
+considered_actions=['ussl', 'ups', 'upt']
+corr_states="suvpo\n ,biz_type"
+dst=my_dataset
+gcp=my_project
+metric=open

@@ -1,7 +1,7 @@
 """Standard SQL Linting Rules."""
 
 import itertools
-from typing import Tuple, List
+from typing import Tuple, List, Dict, Any
 
 from .base import BaseCrawler, LintFix, LintResult, RuleSet
 from .config_info import STANDARD_CONFIG_INFO_DICT
@@ -149,7 +149,7 @@ class Rule_L003(BaseCrawler):
     """
 
     _works_on_unparsable = False
-    config_keywords = ["tab_space_size", "indent_unit"]
+    config_keywords = ["tab_space_size", "indent_unit", "lint_templated_tokens"]
 
     def _make_indent(self, num=1, tab_space_size=None, indent_unit=None):
         if (indent_unit or self.indent_unit) == "tab":
@@ -183,6 +183,10 @@ class Rule_L003(BaseCrawler):
 
         for elem in raw_stack:
             line_buffer.append(elem)
+            # Pin indent_balance to above zero
+            if indent_balance < 0:
+                indent_balance = 0
+
             if elem.is_type("newline"):
                 result_buffer[line_no] = {
                     "line_no": line_no,
@@ -335,8 +339,8 @@ class Rule_L003(BaseCrawler):
             if segment.is_type("whitespace"):
                 # it's whitespace, carry on
                 return LintResult(memory=memory)
-            elif segment.segments or segment.is_meta:
-                # it's not a raw segment. Carry on.
+            elif segment.segments or (segment.is_meta and segment.indent_val != 0):
+                # it's not a raw segment or placeholder. Carry on.
                 return LintResult(memory=memory)
             else:
                 memory["in_indent"] = False
@@ -349,14 +353,29 @@ class Rule_L003(BaseCrawler):
         res = self._process_raw_stack(raw_stack + (segment,))
         this_line_no = max(res.keys())
         this_line = res.pop(this_line_no)
+        self.logger.debug(
+            "Evaluating line #%s. %s",
+            this_line_no,
+            # Don't log the line or indent buffer, it's too noisy.
+            {
+                key: this_line[key]
+                for key in this_line
+                if key not in ("line_buffer", "indent_buffer")
+            },
+        )
 
         # Is this line just comments?
-        if set(seg.type for seg in this_line["line_buffer"] if not seg.is_meta) <= {
-            "whitespace",
-            "comment",
-        }:
+        if all(
+            seg.is_type(
+                "whitespace",
+                "comment",
+                "indent",  # dedent is a subtype of indent
+            )
+            for seg in this_line["line_buffer"]
+        ):
             # Comment line, deal with it later.
             memory["comment_lines"].append(this_line_no)
+            self.logger.debug("    Comment Line. #%s", this_line_no)
             return LintResult(memory=memory)
 
         # Is it a hanging indent?
@@ -389,10 +408,13 @@ class Rule_L003(BaseCrawler):
             ):
                 # This is a HANGER
                 memory["hanging_lines"].append(this_line_no)
+                self.logger.debug("    Hanger Line. #%s", this_line_no)
                 return LintResult(memory=memory)
+
         # Is this an indented first line?
         elif len(res) == 0:
             if this_line["indent_size"] > 0:
+                self.logger.debug("    Indented First Line. #%s", this_line_no)
                 return LintResult(
                     anchor=segment,
                     memory=memory,
@@ -401,6 +423,17 @@ class Rule_L003(BaseCrawler):
                         LintFix("delete", elem) for elem in this_line["indent_buffer"]
                     ],
                 )
+
+        # Are we linting a placeholder, and if so are we allowed to?
+        if (not self.lint_templated_tokens) and this_line["line_buffer"][
+            len(this_line["indent_buffer"]) :
+        ][0].is_type("placeholder"):
+            # If not, make this a problem line and carry on.
+            memory["problem_lines"].append(this_line_no)
+            self.logger.debug(
+                "    Avoiding template placeholder Line. #%s", this_line_no
+            )
+            return LintResult(memory=memory)
 
         # Assuming it's not a hanger, let's compare it to the other previous
         # lines. We do it in reverse so that closer lines are more relevant.
@@ -423,6 +456,7 @@ class Rule_L003(BaseCrawler):
                 continue
             # Is the indent balance the same?
             elif indent_diff == 0:
+                self.logger.debug("    [same indent balance] Comparing to #%s", k)
                 if this_line["indent_size"] != res[k]["indent_size"]:
                     # Indents don't match even though balance is the same...
                     memory["problem_lines"].append(this_line_no)
@@ -444,7 +478,9 @@ class Rule_L003(BaseCrawler):
                         current_indent_buffer=this_line["indent_buffer"],
                         current_anchor=segment,
                     )
-
+                    self.logger.debug(
+                        "    !! Indentation does not match #%s. Fixes: %s", k, fixes
+                    )
                     return LintResult(
                         anchor=segment,
                         memory=memory,
@@ -456,6 +492,7 @@ class Rule_L003(BaseCrawler):
                     )
             # Are we at a deeper indent?
             elif indent_diff > 0:
+                self.logger.debug("    [deeper indent balance] Comparing to #%s", k)
                 # NB: We shouldn't need to deal with hanging indents
                 # here, they should already have been dealt with before.
 
@@ -608,6 +645,7 @@ class Rule_L003(BaseCrawler):
 
             # This was a valid comparison, so if it doesn't flag then
             # we can assume that we're ok.
+            self.logger.debug("    Indent deemed ok comparing to #%s", k)
 
             # Given that this line is ok, consider if the previous line is a comment.
             # If it is, lint the indentation of that comment.
@@ -1376,7 +1414,7 @@ class Rule_L015(BaseCrawler):
     """
 
     def _eval(self, segment, raw_stack, **kwargs):
-        """Uneccessary trailing whitespace.
+        """Looking for DISTINCT before a bracket.
 
         Look for DISTINCT keyword immediately followed by open parenthesis.
         """
@@ -2016,6 +2054,7 @@ class Rule_L018(BaseCrawler):
         return LintResult()
 
 
+@std_rule_set.document_fix_compatible
 @std_rule_set.document_configuration
 @std_rule_set.register
 class Rule_L019(BaseCrawler):
@@ -2066,33 +2105,116 @@ class Rule_L019(BaseCrawler):
                 return raw_stack[idx]
             idx -= 1
 
-    def _eval(self, segment, raw_stack, **kwargs):
+    def _eval(self, segment, raw_stack, memory, **kwargs):
         """Enforce comma placement.
 
-        If want leading commas, we're looking for trailing commas, so
-        we look for newline segments. If we want trailing commas then
-        we're looking for leading commas, so we look for the comma itself.
+        For leading commas we're looking for trailing commas, so
+        we look for newline segments. For trailing commas we're
+        looking for leading commas, so we look for the comma itself.
+
+        We also want to handle proper whitespace removal/addition. We remove
+        any trailing whitespace after the leading comma, when converting a
+        leading comma to a trailing comma. We add whitespace after the leading
+        comma when converting a trailing comma to a leading comma.
         """
-        if len(raw_stack) >= 1:
-            if self.comma_style == "leading":
-                if segment.is_type("newline"):
-                    # work back and find the last code segment, was it a comma?
-                    last_seg = self._last_code_seg(raw_stack)
-                    if last_seg.is_type("comma"):
-                        return LintResult(
-                            anchor=last_seg,
-                            description="Found trailing comma. Expected only leading.",
-                        )
-            elif self.comma_style == "trailing":
-                if segment.is_type("comma"):
-                    # work back and find the last interesting thing, is the comma the first element?
-                    last_seg = self._last_code_seg(raw_stack)
-                    if last_seg.is_type("newline"):
-                        return LintResult(
-                            anchor=segment,
-                            description="Found leading comma. Expected only trailing.",
-                        )
-        # Otherwise fine
+        if not memory:
+            memory: Dict[str, Any] = {
+                # Trailing comma keys
+                #
+                # Do we have a fix in place for removing a leading
+                # comma violation, and inserting a new trailing comma?
+                "insert_trailing_comma": False,
+                # A list of whitespace segments that come after a
+                # leading comma violation, to be removed during fixing.
+                "whitespace_deletions": None,
+                # The leading comma violation segment to be removed during fixing
+                "last_leading_comma_seg": None,
+                # The newline segment where we're going to insert our new trailing
+                # comma during fixing
+                "anchor_for_new_trailing_comma_seg": None,
+                #
+                # Leading comma keys
+                #
+                # Do we have a fix in place for removing a trailing
+                # comma violation, and inserting a new leading comma?
+                "insert_leading_comma": False,
+                # The trailing comma violation segment to be removed during fixing
+                "last_trailing_comma_segment": None,
+            }
+
+        if self.comma_style == "trailing":
+            # A comma preceded by a new line == a leading comma
+            if segment.is_type("comma"):
+                last_seg = self._last_code_seg(raw_stack)
+                if last_seg.is_type("newline"):
+                    # Recorded where the fix should be applied
+                    memory["last_leading_comma_seg"] = segment
+                    memory["anchor_for_new_trailing_comma_seg"] = last_seg
+                    # Trigger fix routine
+                    memory["insert_trailing_comma"] = True
+                    memory["whitespace_deletions"] = []
+                    return LintResult(memory=memory)
+            # Have we found a leading comma violation?
+            if memory["insert_trailing_comma"]:
+                # Search for trailing whitespace to delete after the leading
+                # comma violation
+                if segment.is_type("whitespace"):
+                    memory["whitespace_deletions"] += [segment]
+                    return LintResult(memory=memory)
+                else:
+                    # We've run out of whitespace to delete, time to fix
+                    last_leading_comma_seg = memory["last_leading_comma_seg"]
+                    return LintResult(
+                        anchor=last_leading_comma_seg,
+                        description="Found leading comma. Expected only trailing.",
+                        fixes=[
+                            LintFix("delete", last_leading_comma_seg),
+                            *[
+                                LintFix("delete", d)
+                                for d in memory["whitespace_deletions"]
+                            ],
+                            LintFix(
+                                "create",
+                                anchor=memory["anchor_for_new_trailing_comma_seg"],
+                                # Reuse the previous leading comma violation to
+                                # create a new trailing comma
+                                edit=last_leading_comma_seg,
+                            ),
+                        ],
+                    )
+
+        elif self.comma_style == "leading":
+            # A new line preceded by a comma == a trailing comma
+            if segment.is_type("newline"):
+                last_seg = self._last_code_seg(raw_stack)
+                if last_seg.is_type("comma"):
+                    # Trigger fix routine
+                    memory["insert_leading_comma"] = True
+                    # Record where the fix should be applied
+                    memory["last_trailing_comma_segment"] = last_seg
+                    return LintResult(memory=memory)
+            # Have we found a trailing comma violation?
+            if memory["insert_leading_comma"]:
+                # Only insert the comma here if this isn't a comment/whitespace segment
+                if segment.is_code:
+                    last_comma_seg = memory["last_trailing_comma_segment"]
+                    # Create whitespace to insert after the new leading comma
+                    new_whitespace_seg = self.make_whitespace(
+                        raw=" ", pos_marker=segment.pos_marker.advance_by(" ")
+                    )
+                    return LintResult(
+                        anchor=last_comma_seg,
+                        description="Found trailing comma. Expected only leading.",
+                        fixes=[
+                            LintFix("delete", anchor=last_comma_seg),
+                            LintFix(
+                                "edit",
+                                anchor=segment,
+                                edit=[last_comma_seg, new_whitespace_seg, segment],
+                            ),
+                        ],
+                    )
+        # Otherwise, no issue
         return None
 
 
@@ -2977,7 +3099,11 @@ class Rule_L031(BaseCrawler):
             table_ref = table_exp.get_child("object_reference")
 
             # If this is self-join - skip it
-            if base_table.raw == table_ref.raw and base_table != table_ref:
+            if (
+                base_table
+                and base_table.raw == table_ref.raw
+                and base_table != table_ref
+            ):
                 continue
 
             whitespace_ref = table_exp.get_child("whitespace")
@@ -2995,7 +3121,7 @@ class Rule_L031(BaseCrawler):
             # Find all references to alias in select clause
             for alias_with_column in select_clause.recursive_crawl("object_reference"):
                 used_alias_ref = alias_with_column.get_child("identifier")
-                if used_alias_ref.raw == alias_identifier_ref.raw:
+                if used_alias_ref and used_alias_ref.raw == alias_identifier_ref.raw:
                     ids_refs.append(used_alias_ref)
 
             # Find all references to alias in column references
