@@ -694,7 +694,9 @@ class Rule_L003(BaseCrawler):
 class Rule_L004(BaseCrawler):
     """Incorrect indentation style.
 
-    Note that fix only compatible for converting tabs to spaces, not spaces to tabs.
+    Note: spaces can only be converted to tabs if the number of spaces in the
+    indent is a multiple of the tab_space_size config, otherwise the fix
+    would result in mixed indentation of spaces and tabs.
 
     | **Anti-pattern**
     | Using tabs instead of spaces when indent_unit config set to spaces (default).
@@ -720,12 +722,7 @@ class Rule_L004(BaseCrawler):
     config_keywords = ["indent_unit", "tab_space_size"]
 
     def _eval(self, segment, **kwargs):
-        """Incorrect indentation found in file.
-
-        Spaces will only be converted to tabs if the number of spaces in the
-        indent is a multiple of the tab_space_size config, otherwise the fix
-        would result in mixed indentation of spaces and tabs.
-        """
+        """Incorrect indentation found in file."""
         tab = "\t"
         space = " "
         correct_indent = (
@@ -735,9 +732,11 @@ class Rule_L004(BaseCrawler):
             tab if self.indent_unit == "space" else space * self.tab_space_size
         )
         if segment.is_type("whitespace") and wrong_indent in segment.raw:
+            description = "Incorrect indentation found in file."
             edit_indent = segment.raw.replace(wrong_indent, correct_indent)
             # Ensure that the number of space indents is a multiple of tab_space_size
-            # before attempting to fix spaces to tabs to avoid mixed indents
+            # before attempting to convert spaces to tabs to avoid mixed indents
+            # unless we are converted tabs to spaces (indent_unit = space)
             if (
                 self.indent_unit == "space"
                 or segment.raw.count(space) % self.tab_space_size == 0
@@ -753,12 +752,9 @@ class Rule_L004(BaseCrawler):
                     )
                 ]
             else:
-                description = """
-                No fix available as number of spaces is not a multiple \
-                    of tab_space_size.
-                """
+                description += " No fix available as number of spaces in indent is not a multiple of tab_space_size."
                 fixes = []
-            return LintResult(anchor=segment, fixes=fixes)
+            return LintResult(anchor=segment, fixes=fixes, description=description)
 
 
 @std_rule_set.document_fix_compatible
