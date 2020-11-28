@@ -64,14 +64,21 @@ def test__dialect__base_file_parse(dialect, file):
     # Do the parse WITHOUT lots of logging
     # The logs get too long here to be useful. We should use
     # specfic segment tests if we want to debug logs.
-    parsed = Parser(config=config).parse(tokens)
-    print("Post-parse structure: {0}".format(parsed.to_tuple(show_raw=True)))
-    print("Post-parse structure: {0}".format(parsed.stringify()))
-    # Check we're all there.
-    assert parsed.raw == raw
-    # Check that there's nothing un parsable
-    typs = parsed.type_set()
-    assert "unparsable" not in typs
+    if raw:
+        parsed = Parser(config=config).parse(tokens)
+        print("Post-parse structure: {0}".format(parsed.to_tuple(show_raw=True)))
+        print("Post-parse structure: {0}".format(parsed.stringify()))
+        # Check we're all there.
+        assert parsed.raw == raw
+        # Check that there's nothing un parsable
+        typs = parsed.type_set()
+        assert "unparsable" not in typs
+    else:
+        # If it's an empty file, check that we get a value exception
+        # here. The linter handles this by *not* parsing the file,
+        # but in this case, we explicitly want an error.
+        with pytest.raises(ValueError):
+            Parser(config=config).parse(tokens)
 
 
 @pytest.mark.parametrize("dialect,sqlfile,code_only,yamlfile", parse_structure_examples)

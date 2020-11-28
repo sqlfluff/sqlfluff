@@ -7,7 +7,11 @@ from sqlfluff.core import Linter, FluffConfig
 from sqlfluff.core.rules.base import BaseCrawler, LintResult, LintFix
 from sqlfluff.core.rules.std import std_rule_set
 
-from test.fixtures.dbt.templater import in_dbt_project_dir, DBT_FLUFF_CONFIG, dbt_templater  # noqa
+from test.fixtures.dbt.templater import (  # noqa
+    DBT_FLUFF_CONFIG,
+    in_dbt_project_dir,
+    dbt_templater,
+)
 
 
 class RuleTestCase(NamedTuple):
@@ -224,7 +228,7 @@ def test__rules__std_file(rule, path, violations):
     [
         # Group By
         ("L021", "models/my_new_project/select_distinct_group_by.sql", [(1, 8)]),
-    ]
+    ],
 )
 def test__rules__std_file_dbt(rule, path, violations, in_dbt_project_dir):  # noqa
     """Test the linter finds the given errors in (and only in) the right places (DBT)."""
