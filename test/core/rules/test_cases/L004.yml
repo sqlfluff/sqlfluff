@@ -6,6 +6,7 @@ spaces_pass_default:
 
 spaces_fail:
   fail_str: "    \nSELECT 1"
+  fix_str: "\t\nSELECT 1"
 
   configs:
     rules:
@@ -34,12 +35,18 @@ tabs_pass:
       indent_unit: tab
 
 
-tabs_pass:
-  fail_str: "\t\tSELECT 1\n"
+mixed_tab_fail:
+  fail_str: |2
+      	 select 1
 
 
-mixed_fail:
+mixed_tab_fail_custom_indent:
   fail_str: |2
       	 select 1
   fix_str: |2
            select 1
+
+  configs:
+    rules:
+      tab_space_size: 2
+

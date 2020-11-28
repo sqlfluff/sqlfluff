@@ -722,8 +722,9 @@ class Rule_L004(BaseCrawler):
     def _eval(self, segment, **kwargs):
         """Incorrect indentation found in file.
 
-        The rule only fixes tabs to spaces. Spaces to tabs is not clean as the
-        number of space indents might not be a multiple of tab_space_size.
+        Spaces will only be converted to tabs if the number of spaces in the
+        indent is a multiple of the tab_space_size config, otherwise the fix
+        would result in mixed indentation of spaces and tabs.
         """
         tab = "\t"
         space = " "
@@ -734,10 +735,13 @@ class Rule_L004(BaseCrawler):
             tab if self.indent_unit == "space" else space * self.tab_space_size
         )
         if segment.is_type("whitespace") and wrong_indent in segment.raw:
-            fixes = []
-            if self.indent_unit == "space":
-                # We only fix tabs to spaces.
-                edit_indent = segment.raw.replace(tab, correct_indent)
+            edit_indent = segment.raw.replace(wrong_indent, correct_indent)
+            # Ensure that the number of space indents is a multiple of tab_space_size
+            # before attempting to fix spaces to tabs to avoid mixed indents
+            if (
+                self.indent_unit == "space"
+                or segment.raw.count(space) % self.tab_space_size == 0
+            ):
                 fixes = [
                     LintFix(
                         "edit",
@@ -748,6 +752,12 @@ class Rule_L004(BaseCrawler):
                         ),
                     )
                 ]
+            else:
+                description = """
+                No fix available as number of spaces is not a multiple \
+                    of tab_space_size.
+                """
+                fixes = []
             return LintResult(anchor=segment, fixes=fixes)
 
 
