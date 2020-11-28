@@ -722,20 +722,22 @@ class Rule_L004(BaseCrawler):
     def _eval(self, segment, **kwargs):
         """Incorrect indentation found in file.
 
-        We only fix tabs to spaces. Spaces to tabs is not clean as the number
-        of space indents might not be a multiple of tab_space_size.
+        The rule only fixes tabs to spaces. Spaces to tabs is not clean as the
+        number of space indents might not be a multiple of tab_space_size.
         """
+        tab = "\t"
+        space = " "
         correct_indent = (
-            " " * self.tab_space_size if self.indent_unit == "space" else "\t"
+            space * self.tab_space_size if self.indent_unit == "space" else tab
         )
         wrong_indent = (
-            "\t" if self.indent_unit == "space" else " " * self.tab_space_size
+            tab if self.indent_unit == "space" else space * self.tab_space_size
         )
         if segment.is_type("whitespace") and wrong_indent in segment.raw:
             fixes = []
             if self.indent_unit == "space":
                 # We only fix tabs to spaces.
-                edit_indent = segment.raw.replace("\t", correct_indent)
+                edit_indent = segment.raw.replace(tab, correct_indent)
                 fixes = [
                     LintFix(
                         "edit",
