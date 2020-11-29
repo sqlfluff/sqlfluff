@@ -73,7 +73,7 @@ snowflake_dialect.add(
         "=>", name="parameter_assigner", type="parameter_assigner"
     ),
     NakedSemiStructuredElementSegment=ReSegment.make(
-        r"[A-Z][A-Z0-9_]*",
+        r"[A-Z0-9_]*",
         name="naked_semi_structured_element",
         type="semi_structured_element",
     ),
