@@ -137,9 +137,24 @@ python setup.py develop
 
 ## Building Package
 
-To build and submit the package to pypi we use `twine`. You'll need to be an admin
-to actually submit this to pypi and you'll need a properly formatted `.pypirc` file.
-If you've managed all that then you can run:
+New versions of SQLFluff will be published to PyPI automatically via 
+[github actions](.github/workflows/publish-release-to-pypi.yaml) 
+whenever a new release is published to github. 
+
+A new release can published with a tag in github by navigating to the 
+[releases page](https://github.com/sqlfluff/sqlfluff/releases) and clicking on "Draft a
+New Release" (or clicking [here](https://github.com/sqlfluff/sqlfluff/releases/new)).
+
+:warning: **Before creating a new release, ensure that
+[src/sqlfluff/config.ini](src/sqlfluff/config.ini) is up to date with a new version** :warning:.
+If this is not done, PyPI will reject the package. Also ensure you have used that 
+version as a part of the tag and have described the changes accordingly.
+
+### Manually
+
+If for some reason the package needs to be submitted to pypi manually, we use `twine`.
+You'll need to be an admin to actually submit this to pypi and you'll need a properly 
+formatted `.pypirc` file. If you've managed all that then you can run:
 
 ```shell
 python setup.py sdist
