@@ -1,4 +1,4 @@
-"""Tests specific to the ansi dialect."""
+"""Tests specific to the snowflake dialect."""
 
 import pytest
 

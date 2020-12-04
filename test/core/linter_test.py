@@ -175,3 +175,11 @@ def test__linter__raises_malformed_noqa():
 
     with pytest.raises(SQLParseError):
         result.check_tuples()
+
+
+def test__linter__empty_file():
+    """Test linter behaves nicely with an empty string."""
+    lntr = Linter()
+    # Make sure no exceptions raised and no violations found in empty file.
+    parsed = lntr.parse_string("")
+    assert not parsed.violations

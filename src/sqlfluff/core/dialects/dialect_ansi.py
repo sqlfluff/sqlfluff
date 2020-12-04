@@ -942,6 +942,7 @@ class CaseExpressionSegment(BaseSegment):
 
 
 ansi_dialect.add(
+    # Expression_A_Grammar https://www.cockroachlabs.com/docs/v20.2/sql-grammar.html#a_expr
     Expression_A_Grammar=Sequence(
         OneOf(
             Ref("Expression_C_Grammar"),
@@ -1034,12 +1035,15 @@ ansi_dialect.add(
             )
         ),
     ),
+    # Expression_B_Grammar https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#b_expr
     Expression_B_Grammar=None,  # TODO
+    # Expression_C_Grammar https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#c_expr
     Expression_C_Grammar=OneOf(
         Ref("Expression_D_Grammar"),
         Ref("CaseExpressionSegment"),
         Sequence("EXISTS", Ref("SelectStatementSegment")),
     ),
+    # Expression_D_Grammar https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#d_expr
     Expression_D_Grammar=Sequence(
         OneOf(
             Ref("BareFunctionSegment"),
