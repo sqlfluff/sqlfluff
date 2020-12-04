@@ -114,7 +114,7 @@ like this:
 
   repos:
   - repo: https://github.com/sqlfluff/sqlfluff
-    rev: v|release|
+    rev: |release|
     hooks:
       - id: sqlfluff-lint
         # For dbt projects, this installs the dbt "extras":
