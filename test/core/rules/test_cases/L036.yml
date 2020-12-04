@@ -17,7 +17,7 @@ test_multiple_select_targets_on_new_lines_and_new_line_after_select:
     from x
 
 test_single_select_target_and_new_line_between_select_and_select_target:
-  fail_str: |
+  pass_str: |
     select
         *
     from x

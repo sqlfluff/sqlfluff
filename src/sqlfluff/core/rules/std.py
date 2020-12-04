@@ -3445,9 +3445,18 @@ class Rule_L036(BaseCrawler):
                 return LintResult(anchor=segment)
 
     @staticmethod
-    def eval_single_select_target_element(eval_result, segment):
-        if eval_result.select_idx < eval_result.first_new_line_idx < eval_result.first_select_target_idx:
+    def eval_single_select_target_element(eval_result, select_clause):
+        is_wildcard = False
+        for segment in select_clause.segments:
+            if segment.is_type("select_target_element"):
+                for sub_segment in segment.segments:
+                    if sub_segment.is_type("wildcard_expression"):
+                        is_wildcard = True
+
+        if is_wildcard:
+            return None
+        elif eval_result.select_idx < eval_result.first_new_line_idx < eval_result.first_select_target_idx:
             # there is a newline between select and select target
-            return LintResult(anchor=segment)
+            return LintResult(anchor=select_clause)
         else:
             return None
