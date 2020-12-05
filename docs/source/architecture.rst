@@ -10,13 +10,13 @@ systems use curly brackets *{}* to indicate templatable sections and
 these are not currently set up in any of the lexers, and so will fail
 at the next step if not dealt with here.
 
-*sqlfluff* supports 2 templating engines:
+*SQLFluff* supports 2 templating engines:
 
 .. _Jinja: https://jinja.palletsprojects.com/
 .. _dbt: https://docs.getdbt.com/
 
-Jinja_ is the default templater used by *sqlfluff*. Under the covers, dbt_ also
-uses Jinja_ but in *sqlfluff* it is a separate templater which relies directly
+Jinja_ is the default templater used by *SQLFluff*. Under the covers, dbt_ also
+uses Jinja_ but in *SQLFluff* it is a separate templater which relies directly
 on the dbt_ compiler.
 
 For more details on how to configure the templater see :ref:`templateconfig`.
@@ -63,7 +63,7 @@ We recursively parse each of the elements, using their in built grammars.
 
       * *Grammars* are objects which combine *segments* or other *grammars*
         together in a pre-defined way. For example the :code:`OneOf` grammar
-        will match if any one of it's child elements match.
+        will match if any one of its child elements match.
 
    #. Regardless of whether the :code:`parse_grammar` was used, the next step
       is to recursively call the :code:`.parse()` method of each of the child
@@ -87,7 +87,7 @@ We recursively parse each of the elements, using their in built grammars.
 Principles within the parser
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The parser is arguably the most complicated element of sqlfluff, and is
+The parser is arguably the most complicated element of SQLFluff, and is
 relied on by all the other elements of the tool to do most of the heavy
 lifting. When working on the parser there are a couple of design principles
 to keep in mind.

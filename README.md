@@ -55,6 +55,12 @@ For full documentation visit [docs.sqlfluff.com](https://docs.sqlfluff.com/en/st
 * **0.1.x** involved a major re-write of the parser, completely changing
   the behaviour of the tool with respect to complex parsing.
 
+# SQLFluff on Slack
+
+We have a fast-growing community on Slack, come and join us!
+
+https://join.slack.com/t/sqlfluff/shared_invite/zt-js0wsnvo-78gEI0phW9_LiItXAiJcqQ
+
 # Contributing
 
 There's lots to do in this project, and we're just getting started. If you want to understand more

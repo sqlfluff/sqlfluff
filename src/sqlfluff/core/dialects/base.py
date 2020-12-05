@@ -47,8 +47,8 @@ class Dialect:
         for key in self._library:
             if isinstance(self._library[key], SegmentGenerator):
                 # If the element is callable, call it passing the current
-                # dialect and store the result it it's place.
-                # Use the .replace() method for it's error handling.
+                # dialect and store the result in its place.
+                # Use the .replace() method for its error handling.
                 self.replace(**{key: self._library[key].expand(self)})
         # Expand any keyword sets.
         for keyword_set in [

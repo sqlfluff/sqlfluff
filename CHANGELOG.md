@@ -252,7 +252,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   of ignore rules and filters.
 - Several bugfixes, including catching potential infinite regress during
   fixing of files, if one fix would re-introduce a problem with another.
-- Behaviour of the `Bracketed` grammar has been changed to treat it's
+- Behaviour of the `Bracketed` grammar has been changed to treat its
   content as a `Sequence` rather than a `OneOf`.
 - Move to `SandboxedEnvironment` rather than `Environment` for jinja
   templating for security.
@@ -288,7 +288,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   so that it belongs as part of the newly renamed `select_clause` (renamed
   from previously `select_target_group`).
 - Clarified handling of the `type` and `name` properties of the BaseSegment
-  class and it's children. `name` should be specific to a particular kind
+  class and its children. `name` should be specific to a particular kind
   of segment, and `type` should express a wider group. Handling of the
   `newline`, `whitespace` and `comma` segments has been updated so that
   we use the `type` property for most use cases rather than `name`.

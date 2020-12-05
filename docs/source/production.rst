@@ -1,27 +1,27 @@
 Production Usage
 ================
 
-Sqlfluff is designed to be used both as a utility for developers but also to
+SQLFluff is designed to be used both as a utility for developers but also to
 be part of `CI/CD`_ pipelines.
 
-Using sqlfluff on a whole sql codebase
+Using SQLFluff on a whole sql codebase
 --------------------------------------
 
-The `exit code`_ provided by sqlfluff when run as a command line utility is
+The `exit code`_ provided by SQLFluff when run as a command line utility is
 designed to assist usefulness in deployment pipelines. If no violations
 are found then the `exit code`_ will be 0. If violations are found then
 a non-zero code will be returned which can be interrogated to find out
 more.
 
 - At the moment all error states related to linting return *65*.
-- An error as a result of a sqlfluff internal error will return *1*.
+- An error as a result of a sqlflSQLFluffuff internal error will return *1*.
 
 .. _`CI/CD`: https://en.wikipedia.org/wiki/Continuous_integration
 .. _`exit code`: https://shapeshed.com/unix-exit-codes/
 
 .. _diff-quality:
 
-Using sqlfluff on changes using `diff-quality`
+Using SQLFluff on changes using `diff-quality`
 ----------------------------------------------
 
 For projects with large amounts of (potentially imperfect) SQL code, the full

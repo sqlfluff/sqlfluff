@@ -51,7 +51,7 @@ class BaseSegment:
 
     This defines the base element which drives both Lexing, Parsing and Linting.
     A large chunk of the logic which defines those three operations are centered
-    here. Much of what is defined in the BaseSegment is also used by it's many
+    here. Much of what is defined in the BaseSegment is also used by its many
     subclasses rather than directly here.
 
     For clarity, the `BaseSement` is mostly centered around a segment which contains
@@ -178,7 +178,7 @@ class BaseSegment:
         """Return true if it is meaningful to call `expand` on this segment.
 
         We need to do this recursively because even if *this* segment doesn't
-        need expanding, maybe one of it's children does.
+        need expanding, maybe one of its children does.
 
         Once a segment is *not* expandable, it can never become so, which is
         why the variable is cached.
@@ -352,7 +352,7 @@ class BaseSegment:
 
     @classmethod
     def is_type(cls, *seg_type):
-        """Is this segment (or it's parent) of the given type."""
+        """Is this segment (or its parent) of the given type."""
         # Do we match on the type of _this_ class.
         if cls.type in seg_type:
             return True
@@ -532,7 +532,7 @@ class BaseSegment:
         return self.segments[0].get_start_pos_marker()
 
     def stringify(self, ident=0, tabsize=4, code_only=False):
-        """Use indentation to render this segment and it's children as a string."""
+        """Use indentation to render this segment and its children as a string."""
         buff = StringIO()
         preface = self._preface(ident=ident, tabsize=tabsize)
         buff.write(preface + "\n")
@@ -913,7 +913,7 @@ class BaseSegment:
         Realign is recursive. We will assume that the pos_marker of THIS segment is
         truthful, and that during recursion it will have been set by the parent.
 
-        This function will align the pos marker if it's direct children, we then
+        This function will align the pos marker if its direct children, we then
         recurse to realign their children.
 
         """

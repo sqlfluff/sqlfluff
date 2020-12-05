@@ -25,7 +25,7 @@ stable_version = config.get("sqlfluff", "stable_version")
 
 # -- Project information -----------------------------------------------------
 
-project = "sqlfluff"
+project = "SQLFluff"
 copyright = "2019, Alan Cruickshank"
 author = "Alan Cruickshank"
 

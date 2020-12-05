@@ -105,7 +105,7 @@ class BaseGrammar(Matchable):
                 Defaults `False`.
             ephemeral_name (:obj:`str`, optional): If specified this allows
                 the grammar to match anything, and create an EphemeralSegment
-                with the given name in it's place. The content of this grammar
+                with the given name in its place. The content of this grammar
                 is passed to the segment, and will become the parse grammar
                 for it. If used widely this is an excellent way of breaking
                 up the parse process and also signposting the name of a given

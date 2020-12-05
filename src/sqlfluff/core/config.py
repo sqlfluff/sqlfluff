@@ -272,7 +272,7 @@ class ConfigLoader:
         return self.load_config_at_path(user_home_path)
 
     def load_config_up_to_path(self, path: str) -> dict:
-        """Loads a selection of config files from both the path and it's parent paths."""
+        """Loads a selection of config files from both the path and its parent paths."""
         user_appdir_config = self.load_user_appdir_config()
         user_config = self.load_user_config()
         config_paths = self.iter_config_locations_up_to_path(path)
@@ -298,7 +298,7 @@ class ConfigLoader:
 
     @staticmethod
     def iter_config_locations_up_to_path(path, working_path=Path.cwd()):
-        """Finds config locations from both the path and it's parent paths.
+        """Finds config locations from both the path and its parent paths.
 
         The lowest priority is the user appdir, then home dir, then increasingly
         the configs closest to the file being directly linted.
@@ -520,7 +520,7 @@ class FluffConfig:
             if isinstance(cfg[k], dict):
                 # First yield the dict label
                 yield (0, k, "")
-                # Then yield it's content
+                # Then yield its content
                 for idnt, key, val in self.iter_vals(cfg=cfg[k]):
                     yield (idnt + 1, key, val)
 

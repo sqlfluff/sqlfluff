@@ -1,6 +1,6 @@
-# SqlFluff - Contributing
+# SQLFluff - Contributing
 
-:star2: **First** - thanks for being interested in improving sqlfluff! :smiley:
+:star2: **First** - thanks for being interested in improving SQLFluff! :smiley:
 
 :star2: **Second** - please read and familiarise yourself with both the content
 of this guide and also our [code of conduct](CODE_OF_CONDUCT.md).
@@ -30,7 +30,7 @@ document your contributions in the `CHANGELOG.md`.
 
 ## How the community works
 
-SQLfluff is maintained by a community of volunteers, which means we have a
+SQLFluff is maintained by a community of volunteers, which means we have a
 few processes in place to allow everyone to contribute at a level that suits
 them and at a time that suits them. These aren't meant to be a way of restricting
 development, but a way of allowing the community to agree what to focus on
@@ -76,7 +76,7 @@ changes.
 ## Nerdy Details
 ### Testing
 
-To test locally, sqlfluff uses `tox`, which means you can build locally using...
+To test locally, SQLFluff uses `tox`, which means you can build locally using...
 
 ```shell
 pip install tox
@@ -110,7 +110,7 @@ tox -e dbt018-py38 -- -m "dbt"
 
 ### Using your local version
 
-To trial using your local development branch of sqlfluff, I recommend you use a virtual
+To trial using your local development branch of SQLFluff, I recommend you use a virtual
 environment. e.g:
 
 ```shell

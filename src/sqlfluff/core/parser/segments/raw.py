@@ -120,7 +120,7 @@ class RawSegment(BaseSegment):
         return self._raw
 
     def stringify(self, ident=0, tabsize=4, code_only=False):
-        """Use indentation to render this segment and it's children as a string."""
+        """Use indentation to render this segment and its children as a string."""
         preface = self._preface(ident=ident, tabsize=tabsize)
         return preface + "\n"
 
