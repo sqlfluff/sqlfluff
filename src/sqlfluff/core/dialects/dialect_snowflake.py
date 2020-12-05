@@ -114,10 +114,8 @@ snowflake_dialect.replace(
     ),
     PostFunctionGrammar=Sequence(
         Ref("WithinGroupClauseSegment", optional=True),
-        Sequence(
-            Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
-            Ref("OverClauseSegment"),
-        ),
+        Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
+        Ref("OverClauseSegment"),
     ),
 )
 
