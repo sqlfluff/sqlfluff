@@ -12,10 +12,10 @@ SQLFluff has a few components:
 3. An opinionated set of guidelines for how SQL should be structured
    and formatted. The *rules*.
 
-The core vision [#f1]_ for sqlfluff is to be really good at being the *linter*.
+The core vision [#f1]_ for SQLFluff is to be really good at being the *linter*.
 The reasoning for this is outlined in :ref:`realworldref`.
 
-Most of the codebase for SQlfluff is the *parser*, mostly because at
+Most of the codebase for SQLFluff is the *parser*, mostly because at
 the point of developing SQLFluff, there didn't appear to be a good
 option for a whitespace-aware parser that could be used instead.
 

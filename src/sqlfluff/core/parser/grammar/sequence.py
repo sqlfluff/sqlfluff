@@ -200,11 +200,11 @@ class Bracketed(Sequence):
 
         1. work forwards to find the first bracket.
            If we find something other that whitespace, then fail out.
-        2. Once we have the first bracket, we need to bracket count forward to find it's partner.
-        3. Assuming we find it's partner then we try and match what goes between them
+        2. Once we have the first bracket, we need to bracket count forward to find its partner.
+        3. Assuming we find its partner then we try and match what goes between them
            using the match method of Sequence.
            If we match, great. If not, then we return an empty match.
-           If we never find it's partner then we return an empty match but should probably
+           If we never find its partner then we return an empty match but should probably
            log a parsing warning, or error?
 
         """

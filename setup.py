@@ -10,7 +10,7 @@ import io
 import sys
 
 if sys.version_info[0] < 3:
-    raise Exception("Sqlfluff does not support Python 2. Please upgrade to Python 3.")
+    raise Exception("SQLFluff does not support Python 2. Please upgrade to Python 3.")
 
 import configparser
 from os.path import dirname

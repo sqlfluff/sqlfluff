@@ -1078,7 +1078,7 @@ class Rule_L009(BaseCrawler):
             # need to check that each parent segment is also the last
             file_len = len(parent_stack[0].raw)
             pos = segment.pos_marker.char_pos
-            # Does the length of the file, equal the length of the segment plus it's position
+            # Does the length of the file, equal the length of the segment plus its position
             if file_len != pos + len(segment.raw):
                 return None
 

@@ -1,6 +1,6 @@
-# SqlFluff - Contributing
+# SQLFluff - Contributing
 
-:star2: **First** - thanks for being interested in improving sqlfluff! :smiley:
+:star2: **First** - thanks for being interested in improving SQLFluff! :smiley:
 
 :star2: **Second** - please read and familiarise yourself with both the content
 of this guide and also our [code of conduct](CODE_OF_CONDUCT.md).
@@ -76,7 +76,7 @@ changes.
 ## Nerdy Details
 ### Testing
 
-To test locally, sqlfluff uses `tox`, which means you can build locally using...
+To test locally, SQLFluff uses `tox`, which means you can build locally using...
 
 ```shell
 pip install tox
@@ -110,7 +110,7 @@ tox -e dbt018-py38 -- -m "dbt"
 
 ### Using your local version
 
-To trial using your local development branch of sqlfluff, I recommend you use a virtual
+To trial using your local development branch of SQLFluff, I recommend you use a virtual
 environment. e.g:
 
 ```shell

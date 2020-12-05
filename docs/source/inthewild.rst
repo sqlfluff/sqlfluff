@@ -11,7 +11,7 @@ Just add a section below by raising a PR on Github by
 `editing this file ✏️ <https://github.com/sqlfluff/sqlfluff/edit/master/docs/source/inthewild.rst>`_.
 
 - SQLFluff in production `dbt <http://www.getdbt.com/>`_ projects at
-  `tails.com <https://tails.com>`_. We use the sqlfluff cli as part
+  `tails.com <https://tails.com>`_. We use the SQLFluff cli as part
   of our CI pipeline in `codeship <https://codeship.com>`_ to enfore
   certain styles in our SQL codebase (with over 650 models) and keep
   code quality high. Contact `@alanmcruickshank <https://github.com/alanmcruickshank>`_.

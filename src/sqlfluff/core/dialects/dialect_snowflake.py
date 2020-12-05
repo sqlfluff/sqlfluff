@@ -117,7 +117,7 @@ snowflake_dialect.replace(
 
 @snowflake_dialect.segment(replace=True)
 class StatementSegment(BaseSegment):
-    """A generic segment, to any of it's child subsegments."""
+    """A generic segment, to any of its child subsegments."""
 
     type = "statement"
     match_grammar = GreedyUntil(Ref("SemicolonSegment"))

@@ -3,14 +3,14 @@
 Dialects Reference
 ==================
 
-Sqlfluff is designed to be flexible in supporting a variety of dialects.
+SQLFluff is designed to be flexible in supporting a variety of dialects.
 Not all potential dialects are supported so far, but several have been
 implemented by the community. Below are a list of the currently available
 dialects. Each inherits from another, up to the root `ansi` dialect.
 
 For a canonical list of supported dialects, run the
 :program:`sqlfluff dialects` command, which will output a list of the
-current dialects available on your installation of sqlfluff.
+current dialects available on your installation of SQLFluff.
 
 .. note::
 
@@ -43,7 +43,7 @@ ANSI
 
 This is the base dialect which holds most of the definitions of common
 SQL commands and structures. If the dialect which you're actually using
-isn't specifically implemented by sqlfluff, using this dialect is a good
+isn't specifically implemented by SQLFluff, using this dialect is a good
 place to start.
 
 This dialect doesn't intend to be brutal in adhering to (and only to) the

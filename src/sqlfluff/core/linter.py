@@ -304,7 +304,7 @@ class LintedFile(NamedTuple):
                     )
                     continue
                 # We have a single occurances of the thing we want to patch. This
-                # means we can use it's position to place our patch.
+                # means we can use its position to place our patch.
                 new_source_slice = slice(
                     enriched_patch.source_slice.start + positions[0],
                     enriched_patch.source_slice.start
@@ -533,7 +533,7 @@ class LintingResult:
         Args:
             by_path (:obj:`bool`, optional): When False, all the check_tuples
                 are aggregated into one flat list. When True, we return a `dict`
-                of paths, each with it's own list of check_tuples. Defaults to False.
+                of paths, each with its own list of check_tuples. Defaults to False.
 
         """
         if by_path:

@@ -516,7 +516,7 @@ ansi_dialect.add(
         ),
     ),
     # Optional OVER suffix for window functions.
-    # This is supported in biquery & postgres (and it's derivatives)
+    # This is supported in biquery & postgres (and its derivatives)
     # and so is included here for now.
     PostFunctionGrammar=Sequence(
         Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
@@ -1846,7 +1846,7 @@ class MLTableExpressionSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class StatementSegment(BaseSegment):
-    """A generic segment, to any of it's child subsegments."""
+    """A generic segment, to any of its child subsegments."""
 
     type = "statement"
     match_grammar = GreedyUntil(Ref("SemicolonSegment"))
