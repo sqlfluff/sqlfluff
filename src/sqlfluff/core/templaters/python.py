@@ -291,7 +291,7 @@ class PythonTemplater(RawTemplater):
     def _substring_occurances(
         cls, in_str: str, substrings: Iterable[str]
     ) -> Dict[str, List[int]]:
-        """Find every occurance of the given substrings."""
+        """Find every occurrence of the given substrings."""
         occurances = {}
         for substring in substrings:
             occurances[substring] = list(findall(substring, in_str))
@@ -301,7 +301,7 @@ class PythonTemplater(RawTemplater):
     def _sorted_occurance_tuples(
         occurances: Dict[str, List[int]]
     ) -> List[Tuple[str, int]]:
-        """Sort a dict of occurances into a sorted list of tuples."""
+        """Sort a dict of occurrences into a sorted list of tuples."""
         return sorted(
             ((raw, idx) for raw in occurances.keys() for idx in occurances[raw]),
             # Sort first by position, then by lexical (for stability)
@@ -414,7 +414,7 @@ class PythonTemplater(RawTemplater):
     def _filter_occurances(
         file_slice: slice, occurances: Dict[str, List[int]]
     ) -> Dict[str, List[int]]:
-        """Filter a dict of occurances to just those within a slice."""
+        """Filter a dict of occurrences to just those within a slice."""
         filtered = {
             key: [
                 pos
@@ -492,7 +492,7 @@ class PythonTemplater(RawTemplater):
             if not int_file_slice.slice_buffer:
                 continue
 
-            # Try to yield simply agin (post trim)
+            # Try to yield simply again (post trim)
             try:
                 simple_elem = int_file_slice.try_simple()
                 templater_logger.debug("        Yielding Simple: %s", simple_elem)
@@ -513,7 +513,7 @@ class PythonTemplater(RawTemplater):
                 int_file_slice.templated_slice, templ_occurances
             )
             # Do we have any uniques to split on?
-            # NB: We use `get` on the templated occurances, because it's possible
+            # NB: We use `get` on the templated occurrences, because it's possible
             # that because of an if statement, something is in the source, but
             # not in the templated at all. In that case, we shouldn't use it.
             one_way_uniques = [
@@ -562,7 +562,7 @@ class PythonTemplater(RawTemplater):
                         )
                         # Do we have anything before it to process?
                         if idx > bookmark_idx:
-                            # Recurse to deal with any loops seperately
+                            # Recurse to deal with any loops separately
                             sub_section = int_file_slice.slice_buffer[bookmark_idx:idx]
                             yield from cls._split_uniques_coalesce_rest(
                                 [
@@ -593,7 +593,7 @@ class PythonTemplater(RawTemplater):
                         bookmark_idx = idx + 1
                 # At the end of the loop deal with any hangover
                 if len(int_file_slice.slice_buffer) > bookmark_idx:
-                    # Recurse to deal with any loops seperately
+                    # Recurse to deal with any loops separately
                     sub_section = int_file_slice.slice_buffer[
                         bookmark_idx : len(int_file_slice.slice_buffer)
                     ]
@@ -616,7 +616,7 @@ class PythonTemplater(RawTemplater):
                 continue
 
             # If we get here, then there ARE uniques, but they are only ONE WAY.
-            # This means loops. Loops are tricksy.
+            # This means loops. Loops are tricky.
             # We're very unlikely to get here (impossible?) with just python
             # formatting, but this class is also the base for the jinja templater
             # (and others?) so it may be used there.
@@ -638,7 +638,7 @@ class PythonTemplater(RawTemplater):
             # OWU in this context refers to "One Way Unique"
             this_owu_idx: Optional[int] = None
             last_owu_idx: Optional[int] = None
-            # Iterate through occurance tuples of the one-way uniques.
+            # Iterate through occurrence tuples of the one-way uniques.
             for raw, template_idx in owu_templ_tuples:
                 raw_idx = raw_occs[raw][0]
                 raw_len = len(raw)
@@ -739,7 +739,7 @@ class PythonTemplater(RawTemplater):
                             slc[1] == "block_end"
                             for slc in int_file_slice.slice_buffer[cur_idx:]
                         )
-                        # We can allow up to this number of preceeding block starts
+                        # We can allow up to this number of preceding block starts
                         block_start_indices = [
                             idx
                             for idx, slc in enumerate(

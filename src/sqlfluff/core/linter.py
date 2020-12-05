@@ -46,7 +46,7 @@ linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
 
 
 class ProtoFile(NamedTuple):
-    """Proto object to be inherited by Lintedfile."""
+    """Proto object to be inherited by LintedFile."""
 
     path: str
     violations: list
@@ -73,7 +73,7 @@ class EnrichedFixPatch(NamedTuple):
     templated_slice: slice
     fixed_raw: str
     # The patch type, functions mostly for debugging and explanation
-    # than for function. It allows tracability of *why* this patch was
+    # than for function. It allows traceability of *why* this patch was
     # generated.
     patch_type: str
     templated_str: str
@@ -192,7 +192,7 @@ class LintedFile(NamedTuple):
         linter_logger.debug("Original Tree: %r", self.templated_file.templated_str)
         linter_logger.debug("Fixed Tree: %r", self.tree.raw)  # type: ignore
 
-        # The sliced file is contigious in the TEMPLATED space.
+        # The sliced file is contiguous in the TEMPLATED space.
         # NB: It has gaps and repeats in the source space.
         # It's also not the FIXED file either.
         linter_logger.debug("### Templated File.")
@@ -271,7 +271,7 @@ class LintedFile(NamedTuple):
 
             # We now evaluate patches in the source-space for whether they overlap
             # or disrupt any templated sections.
-            # The intent here is that unless explicity stated, a fix should never
+            # The intent here is that unless explicitly stated, a fix should never
             # disrupt a templated section.
             # NOTE: We rely here on the patches being sorted.
             # TODO: Implement a mechanism for doing templated section fixes. For
@@ -299,7 +299,7 @@ class LintedFile(NamedTuple):
                 )
                 filtered_source_patches.append(enriched_patch)
                 dedupe_buffer.append(enriched_patch.dedupe_tuple())
-            # Is it a zero length pathch.
+            # Is it a zero length patch.
             elif (
                 enriched_patch.source_slice.start == enriched_patch.source_slice.stop
                 and enriched_patch.source_slice.start == local_raw_slices[0].source_idx
@@ -345,7 +345,7 @@ class LintedFile(NamedTuple):
                         enriched_patch,
                     )
                     continue
-                # We have a single occurances of the thing we want to patch. This
+                # We have a single occurrences of the thing we want to patch. This
                 # means we can use its position to place our patch.
                 new_source_slice = slice(
                     enriched_patch.source_slice.start + positions[0],
@@ -759,7 +759,7 @@ class Linter:
         Returns:
             `ParsedString` of (`parsed`, `violations`, `time_dict`, `templated_file`).
                 `parsed` is a segment structure representing the parsed file. If
-                    parsing fails due to an inrecoverable violation then we will
+                    parsing fails due to an unrecoverable violation then we will
                     return None.
                 `violations` is a :obj:`list` of violations so far, which will either be
                     templating, lexing or parsing violations at this stage.
@@ -829,7 +829,7 @@ class Linter:
 
         if tokens:
             # Check that we've got sensible indentation from the lexer.
-            # We might need to supress if it's a complicated file.
+            # We might need to suppress if it's a complicated file.
             templating_blocks_indent = config.get(
                 "template_blocks_indent", "indentation"
             )
@@ -1114,7 +1114,7 @@ class Linter:
         ignore_files: bool = True,
         working_path: str = os.getcwd(),
     ) -> List[str]:
-        """Return a set of sql file paths from a potentially more ambigious path string.
+        """Return a set of sql file paths from a potentially more ambiguous path string.
 
         Here we also deal with the .sqlfluffignore file if present.
 

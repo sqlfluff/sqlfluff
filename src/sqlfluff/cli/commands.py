@@ -75,7 +75,7 @@ def set_logging_level(verbosity, logger=None):
     else:
         fluff_logger.addHandler(handler)
 
-    # NB: We treat the parser logger slightly differently because it's noiser.
+    # NB: We treat the parser logger slightly differently because it's noisier.
     # It's important that we set levels for all each time so
     # that we don't break tests by changing the granularity
     # between tests.
@@ -133,10 +133,10 @@ def core_options(f):
     f = click.option(
         "--rules",
         default=None,
-        # short_help='Specify a particular rule, or comma seperated rules, to check',
+        # short_help='Specify a particular rule, or comma separated rules, to check',
         help=(
             "Narrow the search to only specific rules. For example "
-            "specifying `--rules L001` will only search for rule `L001` (Unnessesary "
+            "specifying `--rules L001` will only search for rule `L001` (Unnecessary "
             "trailing whitespace). Multiple rules can be specified with commas e.g. "
             "`--rules L001,L002` will specify only looking for violations of rule "
             "`L001` and rule `L002`."
@@ -145,10 +145,10 @@ def core_options(f):
     f = click.option(
         "--exclude-rules",
         default=None,
-        # short_help='Specify a particular rule, or comma seperated rules to exclude',
+        # short_help='Specify a particular rule, or comma separated rules to exclude',
         help=(
             "Exclude specific rules. For example "
-            "specifying `--exclude-rules L001` will remove rule `L001` (Unnessesary "
+            "specifying `--exclude-rules L001` will remove rule `L001` (Unnecessary "
             "trailing whitespace) from the set of considered rules. This could either "
             "be the whitelist, or the general set if there is no specific whitelist. "
             "Multiple rules can be specified with commas e.g. "
@@ -163,7 +163,7 @@ def core_options(f):
             "Ignore particular families of errors so that they don't cause a failed "
             "run. For example `--ignore parsing` would mean that any parsing errors "
             "are ignored and don't influence the success or fail of a run. Multiple "
-            "options are possible if comma seperated e.g. `--ignore parsing,templating`."
+            "options are possible if comma separated e.g. `--ignore parsing,templating`."
         ),
     )(f)
     f = click.option(
@@ -598,7 +598,7 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
             if format == "yaml":
                 # For yaml dumping always dump double quoted strings if they contain tabs or newlines.
                 def quoted_presenter(dumper, data):
-                    """Representer which always double quotes string values needing escapes."""
+                    """Re-presenter which always double quotes string values needing escapes."""
                     if "\n" in data or "\t" in data or "'" in data:
                         return dumper.represent_scalar(
                             "tag:yaml.org,2002:str", data, style='"'

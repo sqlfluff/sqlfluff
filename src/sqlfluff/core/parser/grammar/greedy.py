@@ -15,7 +15,7 @@ class GreedyUntil(BaseGrammar):
 
     Args:
         enforce_whitespace_preceeding (:obj:`bool`): Should the GreedyUntil
-            match only match the content if it's preceeded by whitespace?
+            match only match the content if it's preceded by whitespace?
             (defaults to False). This is useful for some keywords which may
             have false alarms on some array accessors.
 
@@ -66,7 +66,7 @@ class GreedyUntil(BaseGrammar):
 
             # Do we have a match?
             if mat:
-                # Do we need to enfore whitespace preceeding?
+                # Do we need to enforce whitespace preceding?
                 if enforce_whitespace_preceeding_terminator:
                     # Does the match include some whitespace already?
                     # Work forward
@@ -84,7 +84,7 @@ class GreedyUntil(BaseGrammar):
                             allowable_match = False
                             break
 
-                    # If we're not ok yet, work backward to the preceeding sections.
+                    # If we're not ok yet, work backward to the preceding sections.
                     if not allowable_match:
                         idx = -1
                         while True:
@@ -103,7 +103,7 @@ class GreedyUntil(BaseGrammar):
                                 allowable_match = False
                                 break
 
-                    # If this match isn't preceeded by whitespace and that is
+                    # If this match isn't preceded by whitespace and that is
                     # a requirement, then we can't use it. Carry on...
                     if not allowable_match:
                         # Update our buffers and continue onward
@@ -205,7 +205,7 @@ class StartsWith(GreedyUntil):
             # So just return the original match.
             return match
 
-        # Otherise Combine the results.
+        # Otherwise Combine the results.
         return MatchResult(
             match.matched_segments + greedy_match.matched_segments,
             greedy_match.unmatched_segments,
