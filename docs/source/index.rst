@@ -60,6 +60,7 @@ Contents
    cli
    api
    inthewild
+   jointhecommunity
 
 
 Indices and tables

@@ -242,13 +242,18 @@ projects. In particular it provides mock objects for:
 
 .. _dbt-project-configuration:
 
-Dbt Project Configuration
+dbt Project Configuration
 -------------------------
+
+.. note::
+    dbt templating is a new feature added in 0.4.0 and has not benefited
+    from widespread use and testing yet! If you encounter an issue, please
+    let us know in a Github issue or on the SQLFluff slack workspace.
 
 dbt is not the default templater for *sqlfluff* (it is Jinja). For using
 *sqlfluff* with a dbt project, users can either use the `jinja` templater
-(which may be slightly faster, but may not support the full spectrum of
-macros) or the `dbt` templater, which uses the dbt itself to render the
+(which may be slightly faster, but will not support the full spectrum of
+macros) or the `dbt` templater, which uses dbt itself to render the
 sql (meaning that there is a much more reliable representation of macros,
 but a potential performance hit accordingly). At this stage we recommend
 that users try both approaches and choose according to the method that
@@ -282,6 +287,19 @@ In *.sqlfluffignore*:
     target/
     dbt_modules/
     macros/
+
+Known Caveats
+^^^^^^^^^^^^^
+
+- In SQLFluff 0.4.0 dbt templating only works if SQLFluff CLI commands are invoked
+  from the dbt project's root directory (containing `dbt_project.yml`). There is an
+  issue to address this: https://github.com/sqlfluff/sqlfluff/issues/601
+- In SQLFluff 0.4.0 using the dbt templater requires that all files within the root
+  and child directories of the dbt project must be part of the project. If there are
+  deployment scripts which refer to SQL files not part of the project for instance,
+  this will result in an error. You can overcome this by adding any non-dbt project
+  SQL files to .sqlfluffignore.
+
 
 CLI Arguments
 -------------

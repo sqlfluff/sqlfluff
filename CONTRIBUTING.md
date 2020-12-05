@@ -30,7 +30,7 @@ document your contributions in the `CHANGELOG.md`.
 
 ## How the community works
 
-SQLfluff is maintained by a community of volunteers, which means we have a
+SQLFluff is maintained by a community of volunteers, which means we have a
 few processes in place to allow everyone to contribute at a level that suits
 them and at a time that suits them. These aren't meant to be a way of restricting
 development, but a way of allowing the community to agree what to focus on

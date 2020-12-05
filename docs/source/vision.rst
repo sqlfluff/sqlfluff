@@ -1,9 +1,9 @@
 .. _vision:
 
-Vision for SQLfluff
+Vision for SQLFluff
 ===================
 
-SQLfluff has a few components:
+SQLFluff has a few components:
 
 1. A generic parser for SQL which aims to be able to unify SQL written
    in different dialects into a comparable format. The *parser*.
@@ -16,12 +16,12 @@ The core vision [#f1]_ for sqlfluff is to be really good at being the *linter*.
 The reasoning for this is outlined in :ref:`realworldref`.
 
 Most of the codebase for SQlfluff is the *parser*, mostly because at
-the point of developing SQLfluff, there didn't appear to be a good
+the point of developing SQLFluff, there didn't appear to be a good
 option for a whitespace-aware parser that could be used instead.
 
-With regards to the *rules*, SQLfluff aims to be opinionated but it
+With regards to the *rules*, SQLFluff aims to be opinionated but it
 also accepts that many organisations and groups have pre-existing
-strong conventions around how to write SQL and so ultimately SQLfluff
+strong conventions around how to write SQL and so ultimately SQLFluff
 should be flexible enough to support whichever rule set a user wishes
 to.
 
