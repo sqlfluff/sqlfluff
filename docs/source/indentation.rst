@@ -49,7 +49,7 @@ So, without further ado, here are the principles we think apply to indentation:
 
 2. **Line Length**. Long lines are hard to read and many SQL guidelines
    include a line length restriction. This is (of course) configurable, but
-   the default is 80 characters (in line with the `fishtown SQL style guide`_.)
+   the default is 80 characters (in line with the `Fishtown SQL style guide`_.)
 
 3. **Bracket behaviour**. For brackets there are three accepted ways:
 
@@ -89,8 +89,8 @@ So, without further ado, here are the principles we think apply to indentation:
          FROM my_table
 
 4. **Comments** are dealt with differently, depending on whether they're
-   *block* comments (:code:`/* like this */`), which might optinally
-   inlude newlines, or *inline* comments (:code:`-- like this`) which
+   *block* comments (:code:`/* like this */`), which might optionally
+   include newlines, or *inline* comments (:code:`-- like this`) which
    are necessarily only on one line.
 
    a. *Block comments* cannot share a line with any code elements (so
@@ -153,12 +153,12 @@ Configuring Indentation
 
 How indentation is linted is controlled in the rules, but what indentation
 is expected to be present is controlled by the parser, and therefore
-configured seperately. One of the key areas for this is the indentation
+configured separately. One of the key areas for this is the indentation
 of the :code:`JOIN` expression.
 
 Semantically, a :code:`JOIN` expression is part of the :code:`FROM` expression
 and therefore would be expected to be indented. However according to many
-of the most common SQL style guides (including the `fishtown SQL style guide`_
+of the most common SQL style guides (including the `Fishtown SQL style guide`_
 and the `Mozilla SQL style guide`_) the :code:`JOIN` keyword is expected to at
 the same indent as the :code:`FROM` keyword. By default, *SQLFluff* sides with
 the current consensus, which is to *not* indent the :code:`JOIN` keyword,
@@ -201,6 +201,6 @@ to indentation. However, if you have other versions of indentation which are
 supported by published style guides, then please submit an issue on github
 to have that variation supported by *SQLFluff*.
 
-.. _`fishtown SQL style guide`: https://github.com/fishtown-analytics/corp/blob/master/dbt_coding_conventions.md#sql-style-guide
+.. _`Fishtown SQL style guide`: https://github.com/fishtown-analytics/corp/blob/master/dbt_coding_conventions.md#sql-style-guide
 .. _`Mozilla SQL style guide`: https://docs.telemetry.mozilla.org/concepts/sql_style.html#joins
 .. _`Baron Schwartz`: https://www.xaprb.com/blog/2006/04/26/sql-coding-standards/

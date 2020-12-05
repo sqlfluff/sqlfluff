@@ -46,7 +46,7 @@ steps overriding those from earlier:
    `~/Library/Preferences/sqlfluff`, Unix is `~/.config/sqlfluff`, Windows is
    `<home>\AppData\Local\sqlfluff\sqlfluff`, for any of the filenames
    above in the main :ref:`config` section. If multiple are present, they will
-   *patch*/*override* eachother in the order above.
+   *patch*/*override* each other in the order above.
 2. It will look for the same files in the user's home directory (~).
 3. It will look for the same files in the current working directory.
 4. *[if parsing a file in a subdirectory of the current working directory]*
@@ -150,7 +150,7 @@ Macro Templating
 Macros (which also look and feel like *functions* are available only in the
 *jinja* templater. Similar to `Variable Templating`_, these are specified in
 config files, what's different in this case is how they are named. Similar to
-the *context* section above, macros are configured seperately in the *macros*
+the *context* section above, macros are configured separately in the *macros*
 section of the config. Consider the following example.
 
 If passed the following *.sql* file:
@@ -178,7 +178,7 @@ Note that in the code block above, the variable name in the config is
 Broadly this is accurate, however within the configuration loader this will
 still be used to overwrite previous *values* in other config files. As such
 this introduces the idea of config *blocks* which could be selectively
-overwritten by other configuration files downsteam as required.
+overwritten by other configuration files downstream as required.
 
 In addition to macros specified in the config file, macros can also be
 loaded from a file or folder. The path to this macros folder must be
@@ -200,7 +200,7 @@ be a :code:`.sql` itself.
 .. note::
 
     Throughout the templating process **whitespace** will still be treated
-    rigourously, and this includes **newlines**. In particular you may choose
+    rigorously, and this includes **newlines**. In particular you may choose
     to provide your *dummy* macros in your configuration with different to
     the actual macros you may be using in production.
 
@@ -323,7 +323,7 @@ You might have arguments that you pass through every time, e.g rules you
     verbose = 1
     exclude_rules = L022,L027
 
-Note that while the :code:`exclude_rules` config looks similiar to the
+Note that while the :code:`exclude_rules` config looks similar to the
 above example, the :code:`verbose` config has an integer value. This is
 because :code:`verbose` is *stackable* meaning there are multiple levels
 of verbosity that are available for configuration. See :ref:`cliref` for
@@ -348,7 +348,7 @@ project would be:
     /path/
 
     # Ignore anything called "testing.sql"
-    tesing.sql
+    testing.sql
 
     # Ignore any ".tsql" files
     *.tsql

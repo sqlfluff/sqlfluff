@@ -31,7 +31,7 @@ which should give you a sensible read out and not an error.
     Python 3.6.7
 
 For most people, their installation of python will come with
-:code:`pip` (the python pacakge manager) preinstalled. To confirm
+:code:`pip` (the python package manager) preinstalled. To confirm
 this you can type :code:`pip --version` similar to python above.
 
 .. code-block:: bash
@@ -175,7 +175,7 @@ are many different ways that people style their sql, and if you
 or your organisation have different conventions, then many of
 these behaviours can be configured. For example, given the
 example above, what if we actually think that indents should only
-be two spaces, and rather than upeercase keywords, they should
+be two spaces, and rather than uppercase keywords, they should
 all be lowercase?
 
 To achieve this we create a configuration file named :code:`.sqlfluff`

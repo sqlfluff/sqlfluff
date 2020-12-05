@@ -26,12 +26,12 @@ Stage 2, the lexer
 ------------------
 
 The lexer takes raw text and splits it into tokens. Nothing is *removed* but
-whitepace and code are seperated. In principle all identifiers should be
-seperated at this stage, but they should not be imparted any meaning at this
+whitespace and code are separated. In principle all identifiers should be
+separated at this stage, but they should not be imparted any meaning at this
 stage. Any files which cannot be lexed, should raise a *SQLLexError*.
 
 While the Lexer is passed a series of raw segments, it will return a single
-segment, usually a :code:`FileSegment`, which will be used to initite parsing.
+segment, usually a :code:`FileSegment`, which will be used to initiate parsing.
 
 Stage 3, the parser
 -------------------
@@ -69,9 +69,9 @@ We recursively parse each of the elements, using their in built grammars.
       is to recursively call the :code:`.parse()` method of each of the child
       segments of the grammar. This operation is wrapped in a method called
       :code:`.expand()`. In the :code:`FileSegment`, the first step will have
-      transformed a seried of raw tokens into :code:`StatmentSegment` segments,
-      and the *expand* step will let each of those segments refine the content
-      within them.
+      transformed a series of raw tokens into :code:`StatementSegment`
+      segments, and the *expand* step will let each of those segments refine
+      the content within them.
 
    #. Eventually in that recursive operation we reach segments which have no
       children (raw elements containing a single token), and so the recursion
@@ -99,7 +99,7 @@ to keep in mind.
   grammar is that it allows name resolution of grammar elements at runtime
   and so a *patched* grammar with some elements overriden can still rely on
   lower level elements which haven't been overwritten.
-- *Segments* and *Grammars* operate roughly interchangably from a dialect.
+- *Segments* and *Grammars* operate roughly interchangeably from a dialect.
   A grammar is something which can be matched against and return a result.
   These will be used as instantiated classes and usually contain a set of
   elements (stored in the *_elements* attribute) which are the sub elements

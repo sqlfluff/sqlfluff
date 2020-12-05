@@ -14,7 +14,7 @@ a non-zero code will be returned which can be interrogated to find out
 more.
 
 - At the moment all error states related to linting return *65*.
-- An error as a result of a sqlflSQLFluffuff internal error will return *1*.
+- An error as a result of a SQLFluff internal error will return *1*.
 
 .. _`CI/CD`: https://en.wikipedia.org/wiki/Continuous_integration
 .. _`exit code`: https://shapeshed.com/unix-exit-codes/
