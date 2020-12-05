@@ -63,7 +63,7 @@ class SQLBaseError(ValueError):
             return None
 
     def line_pos(self):
-        """Return the line postion of the violation."""
+        """Return the line position of the violation."""
         pm = self.pos_marker()
         if pm:
             return pm.line_pos
@@ -127,7 +127,7 @@ class SQLBaseError(ValueError):
 
 
 class SQLTemplaterError(SQLBaseError):
-    """An error which occured during templating.
+    """An error which occurred during templating.
 
     Args:
         pos (:obj:`PosMarker`, optional): The position which the error
@@ -144,7 +144,7 @@ class SQLTemplaterError(SQLBaseError):
 
 
 class SQLLexError(SQLBaseError):
-    """An error which occured during lexing.
+    """An error which occurred during lexing.
 
     Args:
         pos (:obj:`PosMarker`, optional): The position which the error
@@ -162,7 +162,7 @@ class SQLLexError(SQLBaseError):
 
 
 class SQLParseError(SQLBaseError):
-    """An error which occured during parsing.
+    """An error which occurred during parsing.
 
     Args:
         segment (:obj:`BaseSegment`, optional): The segment which is relevant
@@ -182,7 +182,7 @@ class SQLParseError(SQLBaseError):
 
 
 class SQLLintError(SQLBaseError):
-    """An error which occured during linting.
+    """An error which occurred during linting.
 
     In particular we reference the rule here to do extended logging based on
     the rule in question which caused the fail.

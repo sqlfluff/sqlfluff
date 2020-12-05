@@ -21,7 +21,7 @@ class Sequence(BaseGrammar):
         """Does this matcher support a uppercase hash matching route?
 
         Sequence does provide this, as long as the *first* non-optional
-        element does, *AND* and optional elements which preceed it also do.
+        element does, *AND* and optional elements which preceded it also do.
         """
         simple_buff = []
         for opt in self._elements:
@@ -79,14 +79,14 @@ class Sequence(BaseGrammar):
                     break
 
                 if len(pre_nc + mid_seg + post_nc) == 0:
-                    # We've run our of sequence without matching everyting.
+                    # We've run our of sequence without matching everything.
                     # Do only optional or meta elements remain?
                     if all(e.is_optional() or e.is_meta for e in self._elements[idx:]):
                         # then it's ok, and we can return what we've got so far.
                         # No need to deal with anything left over because we're at the end,
                         # unless it's a meta segment.
 
-                        # We'll add those meta segments afer any existing ones. So
+                        # We'll add those meta segments after any existing ones. So
                         # the go on the meta_post_nc stack.
                         meta_post_nc += tuple(
                             e()
@@ -165,7 +165,7 @@ class Bracketed(Sequence):
       the the `Bracketed()` expression is treated as a sequence. For the
       content of the Brackets, we call the `match()` method of the sequence
       grammar.
-    - Post 0.1.0: Bracketed was seperate from sequence, and the content
+    - Post 0.1.0: Bracketed was separate from sequence, and the content
       of the expression were treated as options (like OneOf).
     - Pre 0.1.0: Bracketed inherited from Sequence and simply added
       brackets to that sequence,

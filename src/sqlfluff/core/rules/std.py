@@ -35,10 +35,10 @@ class Rule_L001(BaseCrawler):
     """
 
     def _eval(self, segment, raw_stack, **kwargs):
-        """Unneccessary trailing whitespace.
+        """Unnecessary trailing whitespace.
 
         Look for newline segments, and then evaluate what
-        it was preceeded by.
+        it was preceded by.
         """
         # We only trigger on newlines
         if (
@@ -46,7 +46,7 @@ class Rule_L001(BaseCrawler):
             and len(raw_stack) > 0
             and raw_stack[-1].is_type("whitespace")
         ):
-            # If we find a newline, which is preceeded by whitespace, then bad
+            # If we find a newline, which is preceded by whitespace, then bad
             deletions = []
             idx = -1
             while raw_stack[idx].is_type("whitespace"):
@@ -517,7 +517,7 @@ class Rule_L003(BaseCrawler):
                         desired_indent = " " * res[k]["hanging_indent"]
                     else:
                         raise RuntimeError(
-                            "Unexpected case, please report bug, inluding the query you are linting!"
+                            "Unexpected case, please report bug, including the query you are linting!"
                         )
 
                     # Make fixes
@@ -841,7 +841,7 @@ class Rule_L006(BaseCrawler):
                 elem.is_type("newline") for elem in segments_since_code
             ):
                 # TODO: This is a case we should deal with, but there are probably
-                # some cases that SHOULDNT apply here (like comments and newlines)
+                # some cases that SHOULDN'T apply here (like comments and newlines)
                 # so let's deal with them later
                 anchor = None
             else:
@@ -1158,7 +1158,7 @@ class Rule_L010(BaseCrawler):
             else:
                 seen_case = "inconsistent"
 
-            # NOTE: We'll only add to cases_seen if we DONT
+            # NOTE: We'll only add to cases_seen if we DON'T
             # also raise an error, so that we can focus in.
 
             def make_replacement(seg, policy):
@@ -1170,7 +1170,7 @@ class Rule_L010(BaseCrawler):
                 elif policy == "capitalise":
                     new_raw = seg.raw.capitalize()
                 elif policy == "consistent":
-                    # The only case we DONT allow here is "inconsistent",
+                    # The only case we DON'T allow here is "inconsistent",
                     # because it doesn't actually help us.
                     filtered_cases_seen = [c for c in cases_seen if c != "inconsistent"]
                     if filtered_cases_seen:
@@ -1198,7 +1198,7 @@ class Rule_L010(BaseCrawler):
                         or seen_case == "inconsistent"
                     )
                 )
-                # Are we just required to be specfic?
+                # Are we just required to be specific?
                 # Policy is either upper, lower or capitalize
                 or (
                     self.capitalisation_policy != "consistent"
@@ -1269,7 +1269,7 @@ class Rule_L011(BaseCrawler):
                     insert_str = ""
                     init_pos = segment.segments[0].pos_marker
 
-                    # Add intial whitespace if we need to...
+                    # Add initial whitespace if we need to...
                     if raw_stack[-1].name not in ["whitespace", "newline"]:
                         insert_buff.append(
                             self.make_whitespace(raw=" ", pos_marker=init_pos)
@@ -1305,7 +1305,7 @@ class Rule_L012(Rule_L011):
     """Implicit aliasing of column not allowed. Use explicit `AS` clause.
 
     NB: This rule inherits its functionality from obj:`Rule_L011` but is
-    seperate so that they can be enabled and disabled seperately.
+    separate so that they can be enabled and disabled separately.
 
     """
 
@@ -1397,7 +1397,7 @@ class Rule_L015(BaseCrawler):
 
     | **Anti-pattern**
     | In this example, parenthesis are not needed and confuse
-    | DISTINCT with a function. The parethesis can also be misleading
+    | DISTINCT with a function. The parenthesis can also be misleading
     | in which columns they apply to.
 
     .. code-block:: sql
@@ -1449,7 +1449,7 @@ class Rule_L016(Rule_L003):
         - Pausepoint (which is a comma, potentially surrounded by
           whitespace). This is for potential list splitting.
 
-        Once split, we'll use a seperate method to work out what
+        Once split, we'll use a separate method to work out what
         combinations make most sense for reflow.
         """
         chunk_buff = []
@@ -1807,7 +1807,7 @@ class Rule_L016(Rule_L003):
 
             # Does the line end in an inline comment that we can move back?
             if this_line[-1].name == "inline_comment":
-                # Is this line JUST COMMENT (with optional predeeding whitespace) if
+                # Is this line JUST COMMENT (with optional preceding whitespace) if
                 # so, user will have to fix themselves.
                 if len(this_line) == 1 or all(
                     elem.name == "whitespace" or elem.is_meta for elem in this_line[:-1]
@@ -1821,7 +1821,7 @@ class Rule_L016(Rule_L003):
                     "Attempting move of inline comment at end of line: %s",
                     this_line[-1],
                 )
-                # Set up to delete the original comment and the preceeding whitespace
+                # Set up to delete the original comment and the preceding whitespace
                 delete_buffer = [LintFix("delete", this_line[-1])]
                 idx = -2
                 while True:
@@ -2535,7 +2535,7 @@ class Rule_L022(BaseCrawler):
                             if comma_style in ("trailing", "final", "floating"):
                                 # Detected an existing trailing comma or it's a final CTE,
                                 # OR the comma isn't leading or trailing.
-                                # If the preceeding segment is whitespace, replace it
+                                # If the preceding segment is whitespace, replace it
                                 if forward_slice[seg_idx - 1].is_type("whitespace"):
                                     fix_point = forward_slice[seg_idx - 1]
                                     fix_type = "edit"
@@ -2546,7 +2546,7 @@ class Rule_L022(BaseCrawler):
                                 # Detected an existing leading comma.
                                 fix_point = forward_slice[comma_seg_idx]
                         else:
-                            self.logger.info("Handling preceeding comments")
+                            self.logger.info("Handling preceding comments")
                             offset = 1
                             while line_idx - offset in comment_lines:
                                 offset += 1
@@ -2702,7 +2702,7 @@ class Rule_L025(Rule_L020):
         FROM foo AS zoo
 
     | **Best practice**
-    | Use the alias or remove it. An usused alias makes code
+    | Use the alias or remove it. An unused alias makes code
     | harder to read without changing any functionality.
 
     .. code-block:: sql

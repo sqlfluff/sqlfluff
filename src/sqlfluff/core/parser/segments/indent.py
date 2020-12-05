@@ -61,7 +61,7 @@ class MetaSegment(RawSegment):
     def _suffix():
         """Return any extra output required at the end when logging.
 
-        Meta classess have not much to say here so just stay blank.
+        Meta classes have not much to say here so just stay blank.
         """
         return ""
 

@@ -77,7 +77,7 @@ class _ProtoKeywordSegment(RawSegment):
 class KeywordSegment(_ProtoKeywordSegment):
     """A segment used for matching single words.
 
-    We rename the segment class here so that decendents of
+    We rename the segment class here so that descendants of
     _ProtoKeywordSegment can use the same functionality
     but don't end up being labelled as a `keyword` later.
     """
@@ -88,7 +88,7 @@ class KeywordSegment(_ProtoKeywordSegment):
 class SymbolSegment(_ProtoKeywordSegment):
     """A segment used for matching single entities which aren't keywords.
 
-    We rename the segment class here so that decendents of
+    We rename the segment class here so that descendants of
     _ProtoKeywordSegment can use the same functionality
     but don't end up being labelled as a `keyword` later.
     """

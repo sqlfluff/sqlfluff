@@ -321,7 +321,7 @@ class ConfigLoader:
                 path_to_visit / given_path.relative_to(path_to_visit).parts[0]
             )
             if next_path_to_visit == path_to_visit:
-                # we're not making progres...
+                # we're not making progress...
                 # [prevent infinite loop]
                 break
             path_to_visit = next_path_to_visit
@@ -422,7 +422,7 @@ class FluffConfig:
             # If it's a string, make it a list
             if isinstance(rules, str):
                 rules = [rules]
-            # Make a comma seperated string to pass in as override
+            # Make a comma separated string to pass in as override
             overrides["rules"] = ",".join(rules)
         return cls(overrides=overrides)
 
@@ -526,10 +526,10 @@ class FluffConfig:
 
     def process_inline_config(self, config_line: str):
         """Process an inline config command and update self."""
-        # Strip preceeding comment marks
+        # Strip preceding comment marks
         if config_line.startswith("--"):
             config_line = config_line[2:].strip()
-        # Strip preceeding sqlfluff line.
+        # Strip preceding sqlfluff line.
         if not config_line.startswith("sqlfluff:"):
             config_logger.warning(
                 "Unable to process inline config statement: %r", config_line

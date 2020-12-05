@@ -17,7 +17,7 @@ class EphemeralSegment(BaseSegment):
 
         Return the content of the result, rather than itself.
         """
-        # Call the ususal parse function
+        # Call the usual parse function
         new_self = super().parse(parse_context)
         # Return the content of that result rather than self
         return new_self.segments

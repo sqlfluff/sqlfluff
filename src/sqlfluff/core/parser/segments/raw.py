@@ -127,7 +127,7 @@ class RawSegment(BaseSegment):
     def _suffix(self):
         """Return any extra output required at the end when logging.
 
-        NB Override this for specific subclassesses if we want extra output.
+        NB Override this for specific subclasses if we want extra output.
         """
         return "{0!r}".format(self.raw)
 
