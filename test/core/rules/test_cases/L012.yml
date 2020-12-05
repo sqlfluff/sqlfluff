@@ -10,4 +10,5 @@ test_1:
     from x
 
   configs:
-    dialect: snowflake
+    core:
+      dialect: snowflake
