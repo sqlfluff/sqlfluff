@@ -522,7 +522,7 @@ class SelectTargetElementSegment(BaseSegment):
         GreedyUntil(
             'FROM', 'LIMIT',
             Ref('CommaSegment'),
-            Ref('SetOperatorSegment')
+            Ref('SetOperatorSegment'),
         )
     )
 
@@ -557,11 +557,8 @@ class SelectClauseSegment(BaseSegment):
     """A group of elements in a select target statement."""
     type = 'select_clause'
     match_grammar = StartsWith(
-        Sequence(
-            'SELECT',
-            Ref('WildcardSelectTargetElementGrammar', optional=True)
-        ),
-        terminator=OneOf('FROM', 'LIMIT', Ref('SetOperatorSegment'))
+        'SELECT',
+        terminator=OneOf('FROM', 'LIMIT')
     )
 
     parse_grammar = Sequence(
@@ -1114,22 +1111,6 @@ class WithCompoundStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
-class WildcardSelectTargetElementGrammar(BaseSegment):
-    type = 'wildcard_select_target_element'
-    match_grammar = Sequence(
-        # *, blah.*, blah.blah.*, etc.
-        AnyNumberOf(
-            Sequence(
-                Ref('SingleIdentifierGrammar'),
-                Ref('DotSegment'),
-                code_only=True
-            )
-        ),
-        Ref('StarSegment'), code_only=False
-    )
-
-
-@ansi_dialect.segment()
 class SetOperatorSegment(BaseSegment):
     """A set operator such as Union, Minus, Exept or Intersect."""
     type = 'set_operator'
@@ -1155,6 +1136,22 @@ class SetOperatorSegment(BaseSegment):
             )
         ),
         'MINUS'
+    )
+
+
+@ansi_dialect.segment()
+class WildcardSelectTargetElementGrammar(BaseSegment):
+    type = 'wildcard_select_target_element'
+    match_grammar = Sequence(
+        # *, blah.*, blah.blah.*, etc.
+        AnyNumberOf(
+            Sequence(
+                Ref('SingleIdentifierGrammar'),
+                Ref('DotSegment'),
+                code_only=True
+            )
+        ),
+        Ref('StarSegment'), code_only=False
     )
 
 

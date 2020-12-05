@@ -5,6 +5,7 @@ import pytest
 from sqlfluff.rules.std import std_rule_set
 from sqlfluff.linter import Linter
 from sqlfluff.config import FluffConfig
+from utils import generate_test_segments
 
 
 def get_rule_from_set(code, config):

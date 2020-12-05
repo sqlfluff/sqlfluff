@@ -50,7 +50,8 @@ file:
             select_clause:
               keyword: select
               select_target_element:
-                keyword: '*'
+                wildcard_select_target_element:
+                  keyword: '*'
             from_clause:
               keyword: from
               table_expression:

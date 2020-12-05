@@ -6,7 +6,7 @@ select
     from another_table
     where another_table.foo_id = some_table.foo_id
   )
-from another_table
+from another_table;
 
 -- Example of explicitly building a struct in a select clause.
 select
@@ -15,4 +15,4 @@ select
     bar.bar_name as bar
   ) as bar
 from foo
-left join bar on bar.foo_id = foo.foo_id
+left join bar on bar.foo_id = foo.foo_id;

@@ -4,7 +4,8 @@ file:
       select_clause:
         keyword: SELECT
         select_target_element:
-          keyword: '*'
+          wildcard_select_target_element:
+            keyword: '*'
       from_clause:
         keyword: FROM
         table_expression:

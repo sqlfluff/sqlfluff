@@ -4,7 +4,7 @@ import pytest
 import logging
 
 from sqlfluff.parser.grammar import (OneOf, Sequence, GreedyUntil, ContainsOnly,
-                                     Delimited, BaseGrammar, StartsWith, Not)
+                                     Delimited, BaseGrammar, StartsWith, Not, Ref)
 from sqlfluff.parser.segments_base import ParseContext
 from sqlfluff.parser.segments_common import KeywordSegment
 from sqlfluff.parser.match import MatchResult
@@ -310,7 +310,7 @@ def assert_grammar_produces_stringified_match_result(segments, grammar, expected
         f"{s.__class__.__name__}__{s.raw}" for s in
         grammar.match(
             segments,
-            parse_context=ParseContext(),
+            parse_context=ParseContext(dialect=ansi_dialect),
         ).matched_segments
     ]
 
@@ -318,7 +318,7 @@ def assert_grammar_produces_stringified_match_result(segments, grammar, expected
         s.name for s in
         grammar.match(
             segments,
-            parse_context=ParseContext(),
+            parse_context=ParseContext(dialect=ansi_dialect),
         ).unmatched_segments
     ]
 
@@ -389,7 +389,7 @@ def assert_grammar_produces_stringified_match_result(segments, grammar, expected
                 '_RawSegment__baar',
                 '_RawSegment__az',
             ]),
-        )
+        ),
     ]
 )
 def test__parser__grammar_not(segments, grammar, expected):

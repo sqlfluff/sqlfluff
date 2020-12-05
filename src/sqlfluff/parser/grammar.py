@@ -562,7 +562,6 @@ class BaseGrammar:
                     raise SQLParseError(
                         "Couldn't find closing bracket for opening bracket.",
                         segment=bracket_stack.pop())
-
                 # We at the end but without a bracket left open. This is a
                 # friendly unmatched return.
                 return ((), MatchResult.from_unmatched(segments), None)
@@ -1432,7 +1431,6 @@ class StartsWith(BaseGrammar):
                     else:
                         m_tail = term_match.unmatched_segments
                         u_tail = ()
-
                     return MatchResult(
                         segments[:first_code_idx]
                         + match_segments
@@ -1583,6 +1581,9 @@ class Bracketed(Sequence):
 
 class Not(BaseGrammar):
     """Grammar which matches what its Segments do not match."""
+    def expected_string(self, dialect=None, called_from=None):
+        return self.target.expected_string(dialect=dialect, called_from=called_from)
+
     def __init__(self, target, *args, **kwargs):
         self.target = self._resolve_ref(target)
         super(Not, self).__init__(*args, **kwargs)
