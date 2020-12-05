@@ -69,9 +69,9 @@ We recursively parse each of the elements, using their in built grammars.
       is to recursively call the :code:`.parse()` method of each of the child
       segments of the grammar. This operation is wrapped in a method called
       :code:`.expand()`. In the :code:`FileSegment`, the first step will have
-      transformed a series of raw tokens into :code:`StatementSegment` segments,
-      and the *expand* step will let each of those segments refine the content
-      within them.
+      transformed a series of raw tokens into :code:`StatementSegment`
+      segments, and the *expand* step will let each of those segments refine
+      the content within them.
 
    #. Eventually in that recursive operation we reach segments which have no
       children (raw elements containing a single token), and so the recursion
