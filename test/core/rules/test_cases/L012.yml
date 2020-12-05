@@ -1,7 +1,7 @@
 rule: L012
 
-test_1:
-  # Add whitespace when fixing implicit aliasing
+issue_561:
+  # Test for https://github.com/sqlfluff/sqlfluff/issues/561
   pass_str: |
     select
       array_agg(catalog_item_id) within group
