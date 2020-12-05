@@ -15,7 +15,7 @@ https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 from ..parser import (BaseSegment, KeywordSegment, ReSegment, NamedSegment,
                       Sequence, GreedyUntil, StartsWith, ContainsOnly,
                       OneOf, Delimited, Bracketed, AnyNumberOf, Ref, SegmentGenerator,
-                      Anything, LambdaSegment, Indent, Dedent, Nothing)
+                      Anything, LambdaSegment, Indent, Dedent, Nothing, Not)
 from .base import Dialect
 from .ansi_keywords import ansi_reserved_keywords, ansi_unreserved_keywords
 
@@ -509,22 +509,6 @@ class TableExpressionSegment(BaseSegment):
             return (*penultimate_ref, False)
         # No references or alias, return None
         return None
-
-
-ansi_dialect.add(
-    # This is a hook point to allow subclassing for other dialects
-    WildcardSelectTargetElementGrammar=Sequence(
-        # *, blah.*, blah.blah.*, etc.
-        AnyNumberOf(
-            Sequence(
-                Ref('SingleIdentifierGrammar'),
-                Ref('DotSegment'),
-                code_only=True
-            )
-        ),
-        Ref('StarSegment'), code_only=False
-    ),
-)
 
 
 @ansi_dialect.segment()
@@ -1130,6 +1114,22 @@ class WithCompoundStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class WildcardSelectTargetElementGrammar(BaseSegment):
+    type = 'wildcard_select_target_element'
+    match_grammar = Sequence(
+        # *, blah.*, blah.blah.*, etc.
+        AnyNumberOf(
+            Sequence(
+                Ref('SingleIdentifierGrammar'),
+                Ref('DotSegment'),
+                code_only=True
+            )
+        ),
+        Ref('StarSegment'), code_only=False
+    )
+
+
+@ansi_dialect.segment()
 class SetOperatorSegment(BaseSegment):
     """A set operator such as Union, Minus, Exept or Intersect."""
     type = 'set_operator'
@@ -1143,7 +1143,17 @@ class SetOperatorSegment(BaseSegment):
             )
         ),
         'INTERSECT',
-        'EXCEPT',
+        Sequence(
+            'EXCEPT',
+            Not(
+                Bracketed(
+                    Delimited(
+                        Ref('SingleIdentifierGrammar'),
+                        delimiter=Ref('CommaSegment')
+                    )
+                )
+            )
+        ),
         'MINUS'
     )
 

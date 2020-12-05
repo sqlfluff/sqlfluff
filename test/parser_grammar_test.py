@@ -4,22 +4,25 @@ import pytest
 import logging
 
 from sqlfluff.parser.grammar import (OneOf, Sequence, GreedyUntil, ContainsOnly,
-                                     Delimited, BaseGrammar, StartsWith)
+                                     Delimited, BaseGrammar, StartsWith, Not)
 from sqlfluff.parser.segments_base import ParseContext
 from sqlfluff.parser.segments_common import KeywordSegment
+from sqlfluff.parser.match import MatchResult
 from sqlfluff.dialects import ansi_dialect
+
+from utils import generate_test_segments
 
 # NB: All of these tests depend somewhat on the KeywordSegment working as planned
 
 
 @pytest.fixture(scope="function")
-def seg_list(generate_test_segments):
+def seg_list():
     """A preset list of segments for testing."""
     return generate_test_segments(['bar', ' \t ', 'foo', 'baar', ' \t '])
 
 
 @pytest.fixture(scope="function")
-def bracket_seg_list(generate_test_segments):
+def bracket_seg_list():
     """Another preset list of segments for testing."""
     return generate_test_segments([
         'bar', ' \t ', '(', 'foo', '    ', ')', 'baar', ' \t ', 'foo'
@@ -200,7 +203,7 @@ def test__parser__grammar_sequence_nested(seg_list, caplog):
         )
 
 
-def test__parser__grammar_delimited(caplog, generate_test_segments):
+def test__parser__grammar_delimited(caplog):
     """Test the Delimited grammar."""
     seg_list = generate_test_segments(['bar', ' \t ', ',', '    ', 'bar', '    '])
     bs = KeywordSegment.make('bar')
@@ -232,7 +235,7 @@ def test__parser__grammar_delimited(caplog, generate_test_segments):
         # We should have matched the trailing whitespace in this case.
 
 
-def test__parser__grammar_delimited_not_code_only(caplog, generate_test_segments):
+def test__parser__grammar_delimited_not_code_only(caplog):
     """Test the Delimited grammar when not code_only."""
     seg_list_a = generate_test_segments(['bar', ' \t ', '.', '    ', 'bar'])
     seg_list_b = generate_test_segments(['bar', '.', 'bar'])
@@ -300,3 +303,95 @@ def test__parser__grammar_containsonly(seg_list):
     )
     # When we consider mode than code then it shouldn't work
     assert not g3.match(seg_list, parse_context=c)
+
+
+def assert_grammar_produces_stringified_match_result(segments, grammar, expected):
+    assert list(expected.matched_segments) == [
+        f"{s.__class__.__name__}__{s.raw}" for s in
+        grammar.match(
+            segments,
+            parse_context=ParseContext(),
+        ).matched_segments
+    ]
+
+    assert list(expected.unmatched_segments) == [
+        s.name for s in
+        grammar.match(
+            segments,
+            parse_context=ParseContext(),
+        ).unmatched_segments
+    ]
+
+
+@pytest.mark.parametrize(
+    "segments,grammar,expected",
+    [
+        (
+            generate_test_segments(["foo", "bar", "baar"]),
+            Sequence(
+                KeywordSegment.make('foo'),
+                KeywordSegment.make('bar'),
+                Not(KeywordSegment.make('baar'))
+            ),
+            MatchResult.from_unmatched([
+                "_RawSegment",
+                "_RawSegment",
+                "_RawSegment",
+            ])
+        ),
+        (
+            generate_test_segments(["foo", "bar", "baz"]),
+            Sequence(
+                KeywordSegment.make('foo'),
+                KeywordSegment.make('bar'),
+                Not(KeywordSegment.make('baar'))
+            ),
+            MatchResult.from_matched([
+                "FOO_KeywordSegment__foo",
+                "BAR_KeywordSegment__bar",
+                "_RawSegment__baz"
+            ]),
+        ),
+        (
+            generate_test_segments(["foo", "bar", "baar", "oz"]),
+            Sequence(
+                KeywordSegment.make('foo'),
+                KeywordSegment.make('bar'),
+                Not(
+                    Sequence(
+                        KeywordSegment.make('baar'),
+                        KeywordSegment.make('oz'),
+                    )
+                ),
+            ),
+            MatchResult.from_unmatched([
+                "_RawSegment",
+                "_RawSegment",
+                "_RawSegment",
+                "_RawSegment",
+            ])
+        ),
+        (
+            generate_test_segments(["foo", "bar", "baar", "az"]),
+            Sequence(
+                KeywordSegment.make('foo'),
+                KeywordSegment.make('bar'),
+                Not(
+                    Sequence(
+                        KeywordSegment.make('baar'),
+                        KeywordSegment.make('oz'),
+                    )
+                ),
+            ),
+            MatchResult.from_matched([
+                'FOO_KeywordSegment__foo',
+                'BAR_KeywordSegment__bar',
+                '_RawSegment__baar',
+                '_RawSegment__az',
+            ]),
+        )
+    ]
+)
+def test__parser__grammar_not(segments, grammar, expected):
+    """Test the Not grammar."""
+    assert_grammar_produces_stringified_match_result(segments, grammar, expected)

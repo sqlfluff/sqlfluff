@@ -1579,3 +1579,24 @@ class Bracketed(Sequence):
                 for opt in self._elements
             )
         )
+
+
+class Not(BaseGrammar):
+    """Grammar which matches what its Segments do not match."""
+    def __init__(self, target, *args, **kwargs):
+        self.target = self._resolve_ref(target)
+        super(Not, self).__init__(*args, **kwargs)
+
+
+    def match(self, segments, parse_context):
+        """Negative match."""
+        match_result = self.target.match(
+            segments,
+            parse_context
+        )
+
+        if match_result.matched_segments:
+            return MatchResult.from_unmatched(segments)
+        else:
+            return MatchResult.from_matched(segments)
+
