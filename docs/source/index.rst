@@ -1,7 +1,7 @@
 📜 The SQL Linter for humans
 ============================
 
-Bored of not having a good SQL linter that works with whichever dialiect
+Bored of not having a good SQL linter that works with whichever dialect
 you're working with? Fluff is an extensible and modular linter designed
 to help you write good SQL and catch errors and bad SQL before it hits
 your database.
@@ -10,7 +10,7 @@ your database.
 
     **SQLFluff** is still in an open alpha phase - expect the tool to
     change significantly over the coming months, and expect potentially
-    non-backward compatable api changes to happen at any point. In
+    non-backward compatible api changes to happen at any point. In
     particular:
 
 * **0.1.x** involved a major re-write of the parser, completely changing
@@ -19,7 +19,7 @@ your database.
   and changed how users might interact with SQLFluff on templated code.
 * **0.3.x** drops support for python 2.7 and 3.4, and also reworks the
   handling of indentation linting in a potentially not backward
-  compatable way.
+  compatible way.
 
 Want to see where and how people are using SQLFluff in their projects?
 Head over to :ref:`inthewildref` for inspiration.
