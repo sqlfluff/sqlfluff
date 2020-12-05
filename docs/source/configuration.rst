@@ -291,14 +291,16 @@ In *.sqlfluffignore*:
 Known Caveats
 ^^^^^^^^^^^^^
 
-- In SQLFluff 0.4.0 dbt templating only works if SQLFluff CLI commands are invoked
-  from the dbt project's root directory (containing `dbt_project.yml`). There is an
-  issue to address this: https://github.com/sqlfluff/sqlfluff/issues/601
-- In SQLFluff 0.4.0 using the dbt templater requires that all files within the root
-  and child directories of the dbt project must be part of the project. If there are
-  deployment scripts which refer to SQL files not part of the project for instance,
-  this will result in an error. You can overcome this by adding any non-dbt project
-  SQL files to .sqlfluffignore.
+- In SQLFluff 0.4.0 dbt templating only works if SQLFluff CLI commands
+  are invoked from the dbt project's root directory (containing
+  `dbt_project.yml`). There is an issue to address this:
+  https://github.com/sqlfluff/sqlfluff/issues/601
+- In SQLFluff 0.4.0 using the dbt templater requires that all files
+  within the root and child directories of the dbt project must be part
+  of the project. If there are deployment scripts which refer to SQL files
+  not part of the project for instance, this will result in an error.
+  You can overcome this by adding any non-dbt project SQL files to
+  .sqlfluffignore.
 
 
 CLI Arguments
