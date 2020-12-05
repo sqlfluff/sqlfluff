@@ -1,5 +1,7 @@
 """Errors - these are closely linked to what used to be called violations."""
-from typing import Optional
+from typing import Optional, Tuple
+
+CheckTuple = Tuple[str, int, int]
 
 
 class SQLBaseError(ValueError):
@@ -210,7 +212,7 @@ class SQLLintError(SQLBaseError):
             return True
         return False
 
-    def check_tuple(self):
+    def check_tuple(self) -> CheckTuple:
         """Get a tuple representing this error. Mostly for testing."""
         return (
             self.rule.code,
