@@ -3375,7 +3375,7 @@ class Rule_L034(BaseCrawler):
 
 @std_rule_set.register
 class Rule_L036(BaseCrawler):
-    """Select targets should be on a new line unless there is only one select target
+    """Select targets should be on a new line unless there is only one select target.
 
     | **Anti-pattern**
 
@@ -3400,17 +3400,24 @@ class Rule_L036(BaseCrawler):
 
     def _eval(self, segment, raw_stack, **kwargs):
         if segment.is_type("select_clause"):
-            eval_result = self.get_indexes(segment)
+            eval_result = self._get_indexes(segment)
             if eval_result.cnt_select_targets == 1:
-                return self.eval_single_select_target_element(eval_result, segment)
+                return self._eval_single_select_target_element(eval_result, segment)
             if eval_result.cnt_select_targets > 1:
-                return self.eval_multiple_select_target_elements(eval_result, segment)
+                return self._eval_multiple_select_target_elements(eval_result, segment)
 
     @staticmethod
-    def get_indexes(segment):
-        EvalResult = namedtuple('EvalResults',
-                                'cnt_select_targets, select_idx, first_new_line_idx, first_select_target_idx, '
-                                'first_whitespace_idx')
+    def _get_indexes(segment):
+        EvalResult = namedtuple(
+            "EvalResults",
+            [
+                "cnt_select_targets",
+                "select_idx",
+                "first_new_line_idx",
+                "first_select_target_idx",
+                "first_whitespace_idx",
+            ],
+        )
         cnt_select_targets = 0
         select_idx = -1
         first_new_line_idx = -1
@@ -3428,24 +3435,34 @@ class Rule_L036(BaseCrawler):
             if seg.is_type("whitespace") and first_whitespace_idx == -1:
                 first_whitespace_idx = fname_idx
 
-        eval_result = EvalResult(cnt_select_targets, select_idx, first_new_line_idx, first_select_target_idx,
-                                 first_whitespace_idx)
+        eval_result = EvalResult(
+            cnt_select_targets,
+            select_idx,
+            first_new_line_idx,
+            first_select_target_idx,
+            first_whitespace_idx,
+        )
+
         return eval_result
 
     @staticmethod
-    def eval_multiple_select_target_elements(eval_result, segment):
+    def _eval_multiple_select_target_elements(eval_result, segment):
         if eval_result.first_new_line_idx == -1:
             # there are multiple select targets but no new lines
             return LintResult(anchor=segment)
         else:
             # ensure newline before select target and whitespace segment
-            if eval_result.first_new_line_idx < eval_result.first_whitespace_idx < eval_result.first_select_target_idx:
+            if (
+                eval_result.first_new_line_idx
+                < eval_result.first_whitespace_idx
+                < eval_result.first_select_target_idx
+            ):
                 return None
             else:
                 return LintResult(anchor=segment)
 
     @staticmethod
-    def eval_single_select_target_element(eval_result, select_clause):
+    def _eval_single_select_target_element(eval_result, select_clause):
         is_wildcard = False
         for segment in select_clause.segments:
             if segment.is_type("select_target_element"):
@@ -3455,7 +3472,11 @@ class Rule_L036(BaseCrawler):
 
         if is_wildcard:
             return None
-        elif eval_result.select_idx < eval_result.first_new_line_idx < eval_result.first_select_target_idx:
+        elif (
+            eval_result.select_idx
+            < eval_result.first_new_line_idx
+            < eval_result.first_select_target_idx
+        ):
             # there is a newline between select and select target
             return LintResult(anchor=select_clause)
         else:
