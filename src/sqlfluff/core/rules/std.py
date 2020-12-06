@@ -689,51 +689,79 @@ class Rule_L003(BaseCrawler):
         return LintResult(memory=memory)
 
 
+@std_rule_set.document_fix_compatible
+@std_rule_set.document_configuration
 @std_rule_set.register
 class Rule_L004(BaseCrawler):
-    """Mixed Tab and Space indentation found in file.
+    """Incorrect indentation type.
+
+    Note 1: spaces are only fixed to tabs if the number of spaces in the
+    indent is an integer multiple of the tab_space_size config.
+    Note 2: fixes are only applied to indents at the start of a line. Indents
+    after other text on the same line are not fixed.
 
     | **Anti-pattern**
-    | The • character represents a space and the → character represents a tab.
-    | In this example, the second line is indented with spaces and the third one with tab.
+    | Using tabs instead of spaces when indent_unit config set to spaces (default).
 
     .. code-block::
 
-        SELECT
+        select
         ••••a,
         →   b
-        FROM foo
+        from foo
 
     | **Best practice**
     | Change the line to use spaces only.
 
     .. code-block::
 
-        SELECT
+        select
         ••••a,
         ••••b
-        FROM foo
+        from foo
     """
 
-    def _eval(self, segment, raw_stack, memory, **kwargs):
-        """Mixed Tab and Space indentation found in file.
+    config_keywords = ["indent_unit", "tab_space_size"]
 
-        We use the `memory` feature here to keep track of
-        what we've seen in the past.
-
-        """
-        indents_seen = memory.get("indents_seen", set())
-        if segment.is_type("whitespace"):
-            if len(raw_stack) == 0 or raw_stack[-1].is_type("newline"):
-                indents_here = set(segment.raw)
-                indents_union = indents_here | indents_seen
-                memory["indents_seen"] = indents_union
-                if len(indents_union) > 1:
-                    # We are seeing an indent we haven't seen before and we've seen others before
-                    return LintResult(anchor=segment, memory=memory)
-                else:
-                    return LintResult(memory=memory)
-        return LintResult(memory=memory)
+    # TODO fix indents after text: https://github.com/sqlfluff/sqlfluff/pull/590#issuecomment-739484190
+    def _eval(self, segment, raw_stack, **kwargs):
+        """Incorrect indentation found in file."""
+        tab = "\t"
+        space = " "
+        correct_indent = (
+            space * self.tab_space_size if self.indent_unit == "space" else tab
+        )
+        wrong_indent = (
+            tab if self.indent_unit == "space" else space * self.tab_space_size
+        )
+        if segment.is_type("whitespace") and wrong_indent in segment.raw:
+            description = "Incorrect indentation type found in file."
+            edit_indent = segment.raw.replace(wrong_indent, correct_indent)
+            # Ensure that the number of space indents is a multiple of tab_space_size
+            # before attempting to convert spaces to tabs to avoid mixed indents
+            # unless we are converted tabs to spaces (indent_unit = space)
+            if (
+                (
+                    self.indent_unit == "space"
+                    or segment.raw.count(space) % self.tab_space_size == 0
+                )
+                # Only attempt a fix at the start of a newline for now
+                and (len(raw_stack) == 0 or raw_stack[-1].is_type("newline"))
+            ):
+                fixes = [
+                    LintFix(
+                        "edit",
+                        segment,
+                        self.make_whitespace(
+                            raw=edit_indent,
+                            pos_marker=segment.pos_marker,
+                        ),
+                    )
+                ]
+            else:
+                description += " No fix available as number of spaces in indent is not a multiple of tab_space_size."
+                fixes = []
+            return LintResult(anchor=segment, fixes=fixes, description=description)
 
 
 @std_rule_set.document_fix_compatible
