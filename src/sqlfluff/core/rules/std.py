@@ -722,7 +722,8 @@ class Rule_L004(BaseCrawler):
 
     config_keywords = ["indent_unit", "tab_space_size"]
 
-    def _eval(self, segment, **kwargs):
+    # TODO fix indents after text: https://github.com/sqlfluff/sqlfluff/pull/590#issuecomment-739484190
+    def _eval(self, segment, raw_stack, **kwargs):
         """Incorrect indentation found in file."""
         tab = "\t"
         space = " "
@@ -733,14 +734,18 @@ class Rule_L004(BaseCrawler):
             tab if self.indent_unit == "space" else space * self.tab_space_size
         )
         if segment.is_type("whitespace") and wrong_indent in segment.raw:
-            description = "Incorrect indentation found in file."
+            description = "Incorrect indentation type found in file."
             edit_indent = segment.raw.replace(wrong_indent, correct_indent)
             # Ensure that the number of space indents is a multiple of tab_space_size
             # before attempting to convert spaces to tabs to avoid mixed indents
             # unless we are converted tabs to spaces (indent_unit = space)
             if (
-                self.indent_unit == "space"
-                or segment.raw.count(space) % self.tab_space_size == 0
+                (
+                    self.indent_unit == "space"
+                    or segment.raw.count(space) % self.tab_space_size == 0
+                )
+                # Only attempt a fix at the start of a newline for now
+                and (len(raw_stack) == 0 or raw_stack[-1].is_type("newline"))
             ):
                 fixes = [
                     LintFix(
