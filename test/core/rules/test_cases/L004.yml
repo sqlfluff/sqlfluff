@@ -103,4 +103,4 @@ indented_comments_tab_config:
     rules:
       indent_unit: tab
 
-# TODO fix indents after text: https://github.com/sqlfluff/sqlfluff/pull/590#issuecomment-739484190
+# TODO fix indents after text: https://github.com/sqlfluff/sqlfluff/issues/624

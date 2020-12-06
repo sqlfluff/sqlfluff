@@ -693,31 +693,32 @@ class Rule_L003(BaseCrawler):
 @std_rule_set.document_configuration
 @std_rule_set.register
 class Rule_L004(BaseCrawler):
-    """Incorrect indentation style.
+    """Incorrect indentation type.
 
-    Note: spaces can only be converted to tabs if the number of spaces in the
-    indent is a multiple of the tab_space_size config, otherwise the fix
-    would result in mixed indentation of spaces and tabs.
+    Note 1: spaces are only fixed to tabs if the number of spaces in the
+    indent is an integer multiple of the tab_space_size config.
+    Note 2: fixes are only applied to indents at the start of a line. Indents
+    after other text on the same line are not fixed.
 
     | **Anti-pattern**
     | Using tabs instead of spaces when indent_unit config set to spaces (default).
 
     .. code-block::
 
-        SELECT
+        select
         ••••a,
         →   b
-        FROM foo
+        from foo
 
     | **Best practice**
     | Change the line to use spaces only.
 
     .. code-block::
 
-        SELECT
+        select
         ••••a,
         ••••b
-        FROM foo
+        from foo
     """
 
     config_keywords = ["indent_unit", "tab_space_size"]
