@@ -6,12 +6,12 @@ Let's talk about indentation
 If there is one part of building a linter that is going to be controversial
 it's going to be **indentation** (closely followed by **cApiTaLiSaTiOn** 😁).
 
-*Sqlfluff* aims to be *opinionated* here, but also *configurable* (see
+*SQLFluff* aims to be *opinionated* here, but also *configurable* (see
 :ref:`indentconfig`). The tool will have a default viewpoint and will aim
 to have views on all of the important aspects of SQL layout, but if you
 (or your organisation) don't like those views then we aim to allow enough
 configuration that you can lint in line with your views, and still use
-*sqlfluff*. For more information on how to configure rules to your own
+*SQLFluff*. For more information on how to configure rules to your own
 viewpoint see :ref:`config`.
 
 So, without further ado, here are the principles we think apply to indentation:
@@ -49,7 +49,7 @@ So, without further ado, here are the principles we think apply to indentation:
 
 2. **Line Length**. Long lines are hard to read and many SQL guidelines
    include a line length restriction. This is (of course) configurable, but
-   the default is 80 characters (in line with the `fishtown SQL style guide`_.)
+   the default is 80 characters (in line with the `Fishtown SQL style guide`_.)
 
 3. **Bracket behaviour**. For brackets there are three accepted ways:
 
@@ -89,8 +89,8 @@ So, without further ado, here are the principles we think apply to indentation:
          FROM my_table
 
 4. **Comments** are dealt with differently, depending on whether they're
-   *block* comments (:code:`/* like this */`), which might optinally
-   inlude newlines, or *inline* comments (:code:`-- like this`) which
+   *block* comments (:code:`/* like this */`), which might optionally
+   include newlines, or *inline* comments (:code:`-- like this`) which
    are necessarily only on one line.
 
    a. *Block comments* cannot share a line with any code elements (so
@@ -137,7 +137,7 @@ So, without further ado, here are the principles we think apply to indentation:
 
       .. note::
 
-         When fixing issues with comment indentation, sqlfluff
+         When fixing issues with comment indentation, SQLFluff
          will attempt to keep comments in their original position
          but if line length concerns make this difficult, it will
          either abort the fix, or move *same line* comments up and
@@ -153,14 +153,14 @@ Configuring Indentation
 
 How indentation is linted is controlled in the rules, but what indentation
 is expected to be present is controlled by the parser, and therefore
-configured seperately. One of the key areas for this is the indentation
+configured separately. One of the key areas for this is the indentation
 of the :code:`JOIN` expression.
 
 Semantically, a :code:`JOIN` expression is part of the :code:`FROM` expression
 and therefore would be expected to be indented. However according to many
-of the most common SQL style guides (including the `fishtown SQL style guide`_
+of the most common SQL style guides (including the `Fishtown SQL style guide`_
 and the `Mozilla SQL style guide`_) the :code:`JOIN` keyword is expected to at
-the same indent as the :code:`FROM` keyword. By default, *sqlfluff* sides with
+the same indent as the :code:`FROM` keyword. By default, *SQLFluff* sides with
 the current consensus, which is to *not* indent the :code:`JOIN` keyword,
 however this is one element which is configurable.
 
@@ -196,11 +196,11 @@ However if no value for :code:`indented_joins` is set, or if it is set to
    JOIN another_table
       USING(a)
 
-By default, *sqlfluff* aims to follow the indentation most common approach
+By default, *SQLFluff* aims to follow the indentation most common approach
 to indentation. However, if you have other versions of indentation which are
 supported by published style guides, then please submit an issue on github
-to have that variation supported by *sqlfluff*.
+to have that variation supported by *SQLFluff*.
 
-.. _`fishtown SQL style guide`: https://github.com/fishtown-analytics/corp/blob/master/dbt_coding_conventions.md#sql-style-guide
+.. _`Fishtown SQL style guide`: https://github.com/fishtown-analytics/corp/blob/master/dbt_coding_conventions.md#sql-style-guide
 .. _`Mozilla SQL style guide`: https://docs.telemetry.mozilla.org/concepts/sql_style.html#joins
 .. _`Baron Schwartz`: https://www.xaprb.com/blog/2006/04/26/sql-coding-standards/

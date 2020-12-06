@@ -7,7 +7,7 @@ The intent is that it should be possible for the rules to be expressed
 as simply as possible, with as much of the complexity abstracted away.
 
 The evaluation function should take enough arguments that it can evaluate
-the position of the given segment in relation to it's neighbors, and that
+the position of the given segment in relation to its neighbors, and that
 the segment which finally "triggers" the error, should be the one that would
 be corrected OR if the rule relates to something that is missing, then it
 should flag on the segment FOLLOWING, the place that the desired element is
@@ -42,8 +42,8 @@ class LintResult:
     Args:
         anchor (:obj:`BaseSegment`, optional): A segment which represents
             the *position* of the a problem. NB: Each fix will also hold
-            it's own reference to position, so this position is mostly for
-            alterting the user to where the *problem* is.
+            its own reference to position, so this position is mostly for
+            alerting the user to where the *problem* is.
         fixes (:obj:`list` of :obj:`LintFix`, optional): An array of any
             fixes which would correct this issue. If not present then it's
             assumed that this issue will have to manually fixed.
@@ -72,7 +72,7 @@ class LintResult:
     def to_linting_error(self, rule):
         """Convert a linting result to a :exc:`SQLLintError` if appropriate."""
         if self.anchor:
-            # Allow description override from the LintRestult
+            # Allow description override from the LintResult
             description = self.description or rule.description
             return SQLLintError(
                 rule=rule,
@@ -219,10 +219,10 @@ class BaseCrawler:
     def _eval(self, **kwargs):
         """Evaluate this rule against the current context.
 
-        This should indicate whether a linting violation has occured and/or
+        This should indicate whether a linting violation has occurred and/or
         whether there is something to remember from this evaluation.
 
-        Note that an evaluate function shoul always accept `**kwargs`, but
+        Note that an evaluate function should always accept `**kwargs`, but
         if it relies on any available kwargs, it should explicitly call
         them out at definition.
 
@@ -236,7 +236,7 @@ class BaseCrawler:
         """
         raise NotImplementedError(
             (
-                "{0} has not had it's `eval` function defined. This is a problem "
+                "{0} has not had its `eval` function defined. This is a problem "
                 "with the rule setup."
             ).format(self.__class__.__name__)
         )
@@ -260,7 +260,7 @@ class BaseCrawler:
         """
         # parent stack should be a tuple if it exists
 
-        # crawlers, should evalutate on segments FIRST, before evaulating on their
+        # crawlers, should evaluate on segments FIRST, before evaluating on their
         # children. They should also return a list of violations.
 
         parent_stack = parent_stack or ()
@@ -425,7 +425,7 @@ class RuleSet:
     """Class to define a ruleset.
 
     A rule set is instantiated on module load, but the references
-    to each of it's classes are instantiated at runtime. This means
+    to each of its classes are instantiated at runtime. This means
     that configuration values can be passed to those rules live
     and be responsive to any changes in configuration from the
     path that the file is in.
@@ -480,7 +480,7 @@ class RuleSet:
         Utilize the the metadata in config_info to dynamically
         document the configuration options for a given rule.
 
-        This is a little hacky, but it allows us to propogate configuration
+        This is a little hacky, but it allows us to propagate configuration
         options in the docs, from a single source of truth.
         """
         config_doc = "\n    | **Configuration**"
@@ -603,7 +603,7 @@ class RuleSet:
         # First we filter the rules
         keylist = [r for r in keylist if r in whitelist and r not in blacklist]
 
-        # Construct the kwargs for instatiation before we actually do it.
+        # Construct the kwargs for instantiation before we actually do it.
         rule_kwargs = {}
         for k in keylist:
             kwargs = {}
@@ -626,7 +626,7 @@ class RuleSet:
         return [self._register[k]["cls"](**rule_kwargs[k]) for k in keylist]
 
     def copy(self):
-        """Return a copy of self with a seperate register."""
+        """Return a copy of self with a separate register."""
         new_ruleset = copy.copy(self)
         new_ruleset._register = self._register.copy()
         return new_ruleset

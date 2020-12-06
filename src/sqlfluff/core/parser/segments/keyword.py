@@ -77,7 +77,7 @@ class _ProtoKeywordSegment(RawSegment):
 class KeywordSegment(_ProtoKeywordSegment):
     """A segment used for matching single words.
 
-    We rename the segment class here so that decendents of
+    We rename the segment class here so that descendants of
     _ProtoKeywordSegment can use the same functionality
     but don't end up being labelled as a `keyword` later.
     """
@@ -88,7 +88,7 @@ class KeywordSegment(_ProtoKeywordSegment):
 class SymbolSegment(_ProtoKeywordSegment):
     """A segment used for matching single entities which aren't keywords.
 
-    We rename the segment class here so that decendents of
+    We rename the segment class here so that descendants of
     _ProtoKeywordSegment can use the same functionality
     but don't end up being labelled as a `keyword` later.
     """
@@ -119,7 +119,7 @@ class ReSegment(_ProtoKeywordSegment):
     def match(cls, segments, parse_context):
         """Compare input segments for a match, return a `MatchResult`.
 
-        ReSegment implements it's own matching function where
+        ReSegment implements its own matching function where
         we assume that ._template is a r"" string, and is formatted
         for use directly as a regex. This only matches on a single segment.
         """
@@ -174,7 +174,7 @@ class NamedSegment(_ProtoKeywordSegment):
     def match(cls, segments, parse_context):
         """Compare input segments for a match, return a `MatchResult`.
 
-        NamedSegment implements it's own matching function where
+        NamedSegment implements its own matching function where
         we assume that ._template is the `name` of a segment.
         """
         # If we've been passed the singular, make it a list

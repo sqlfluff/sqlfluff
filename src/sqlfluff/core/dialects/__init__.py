@@ -30,7 +30,7 @@ def dialect_readout():
 
 
 def dialect_selector(s):
-    """Return a dialect given it's name."""
+    """Return a dialect given its name."""
     s = s or "ansi"
     dialect = _dialect_lookup[s]
     # Expand any callable references at this point.

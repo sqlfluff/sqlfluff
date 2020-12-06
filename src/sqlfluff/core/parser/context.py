@@ -30,8 +30,8 @@ class RootParseContext:
         """Store persistent config objects."""
         self.dialect = dialect
         self.recurse = recurse
-        # Indendation config is used by Indent and Dedent and used to control
-        # the intended indentation of certain fearures. Specifically it is
+        # Indentation config is used by Indent and Dedent and used to control
+        # the intended indentation of certain features. Specifically it is
         # used in segments_common.Indent.when().
         self.indentation_config = indentation_config or {}
         # Initialise the blacklist

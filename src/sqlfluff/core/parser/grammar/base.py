@@ -48,7 +48,7 @@ def cached_method_for_parse_context(func):
 class BaseGrammar(Matchable):
     """Grammars are a way of composing match statements.
 
-    Any grammar must implment the `match` function. Segments can also be
+    Any grammar must implement the `match` function. Segments can also be
     passed to most grammars. Segments implement `match` as a classmethod. Grammars
     implement it as an instance method.
 
@@ -68,7 +68,7 @@ class BaseGrammar(Matchable):
             (True, BaseGrammar, lambda x: x),
             (False, BaseSegment, lambda x: x),
         ]
-        # Getout clause for None
+        # Get-out clause for None
         if elem is None:
             return None
 
@@ -105,11 +105,11 @@ class BaseGrammar(Matchable):
                 Defaults `False`.
             ephemeral_name (:obj:`str`, optional): If specified this allows
                 the grammar to match anything, and create an EphemeralSegment
-                with the given name in it's place. The content of this grammar
+                with the given name in its place. The content of this grammar
                 is passed to the segment, and will become the parse grammar
                 for it. If used widely this is an excellent way of breaking
                 up the parse process and also signposting the name of a given
-                chunk of code that might be parsed seperately.
+                chunk of code that might be parsed separately.
         """
         # We provide a common interface for any grammar that allows positional elements.
         # If *any* for the elements are a string and not a grammar, then this is a shortcut
@@ -511,7 +511,7 @@ class BaseGrammar(Matchable):
                         if matcher in start_brackets:
                             # We've found the start of a bracket segment.
                             # NB: It might not *Actually* be the bracket itself,
-                            # but could be some non-code element preceeding it.
+                            # but could be some non-code element preceding it.
                             # That's actually ok.
 
                             # Add the bracket to the stack.
@@ -646,7 +646,7 @@ class Ref(BaseGrammar):
             return MatchResult.from_unmatched(segments)
 
         # Match against that. NB We're not incrementing the match_depth here.
-        # References shouldn't relly count as a depth of match.
+        # References shouldn't really count as a depth of match.
         with parse_context.matching_segment(self._get_ref()) as ctx:
             resp = elem.match(segments=segments, parse_context=ctx)
         if not resp:
@@ -673,7 +673,7 @@ class Anything(BaseGrammar):
     def match(self, segments, parse_context):
         """Matches... Anything.
 
-        Most useful in match grammars, where a later parse grammmar
+        Most useful in match grammars, where a later parse grammar
         will work out what's inside.
         """
         return MatchResult.from_matched(segments)
