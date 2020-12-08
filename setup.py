@@ -107,6 +107,8 @@ setup(
         "cached-property",
         # dataclasses backport for python 3.6
         "dataclasses",
+        # better type hints for older python versions
+        "typing_extensions",
     ],
     extras_require={
         "dbt": ["dbt>=0.17"],
