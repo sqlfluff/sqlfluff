@@ -3,6 +3,7 @@
 import os
 import time
 import logging
+import traceback
 from typing import (
     Any,
     Dict,
@@ -1270,14 +1271,25 @@ class Linter:
         for path in paths:
             # Iterate through files recursively in the specified directory (if it's a directory)
             # or read the file directly if it's not
-            result.add(
-                self.lint_path(
-                    path,
-                    fix=fix,
-                    ignore_non_existent_files=ignore_non_existent_files,
-                    ignore_files=ignore_files,
+            try:
+                result.add(
+                    self.lint_path(
+                        path,
+                        fix=fix,
+                        ignore_non_existent_files=ignore_non_existent_files,
+                        ignore_files=ignore_files,
+                    )
                 )
-            )
+            except IOError as e:  # IOErrors caught in commands.py, so still raise it
+                raise (e)
+            except Exception:
+                linter_logger.warning(
+                    f"""
+Unable to lint {path} due to an internal error. Please report this as an issue with the stacktrace below!
+If you'd like to hide this warning, add the failing file to .sqlfluffignore
+{traceback.format_exc()}
+                    """,
+                )
         return result
 
     def parse_path(
