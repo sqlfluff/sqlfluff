@@ -512,6 +512,22 @@ class TableExpressionSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class WildcardSelectTargetElementGrammar(BaseSegment):
+    type = 'wildcard_select_target_element'
+    match_grammar = Sequence(
+        # *, blah.*, blah.blah.*, etc.
+        AnyNumberOf(
+            Sequence(
+                Ref('SingleIdentifierGrammar'),
+                Ref('DotSegment'),
+                code_only=True
+            )
+        ),
+        Ref('StarSegment'), code_only=False
+    )
+
+
+@ansi_dialect.segment()
 class SelectTargetElementSegment(BaseSegment):
     """An element in the targets of a select statement."""
     type = 'select_target_element'
@@ -1136,22 +1152,6 @@ class SetOperatorSegment(BaseSegment):
             )
         ),
         'MINUS'
-    )
-
-
-@ansi_dialect.segment()
-class WildcardSelectTargetElementGrammar(BaseSegment):
-    type = 'wildcard_select_target_element'
-    match_grammar = Sequence(
-        # *, blah.*, blah.blah.*, etc.
-        AnyNumberOf(
-            Sequence(
-                Ref('SingleIdentifierGrammar'),
-                Ref('DotSegment'),
-                code_only=True
-            )
-        ),
-        Ref('StarSegment'), code_only=False
     )
 
 
