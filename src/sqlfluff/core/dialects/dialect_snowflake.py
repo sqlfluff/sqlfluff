@@ -289,14 +289,11 @@ class SemiStructuredAccessorSegment(BaseSegment):
                     Ref("QuotedSemiStructuredElementSegment"),
                 ),
                 Ref("ArrayAccessorSegment", optional=True),
-                # No extra whitespace
-                allow_gaps=False,
+                allow_gaps=True,
             ),
-            # No extra whitespace
-            allow_gaps=False,
+            allow_gaps=True,
         ),
-        # No extra whitespace
-        allow_gaps=False,
+        allow_gaps=True,
     )
 
 

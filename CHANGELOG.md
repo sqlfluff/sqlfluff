@@ -59,6 +59,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+
+- [#634](https://github.com/sqlfluff/sqlfluff/issues/635) Fixed parsing of semi-structured objects in the snowflake of dialects with whitespace gaps.
 - Big refactor of logging internally. `Linter` is now decoupled from
   logging so that it can be imported directly by subprojects without
   needing to worry about weird output or without the log handing getting
