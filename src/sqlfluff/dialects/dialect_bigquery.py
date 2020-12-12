@@ -7,7 +7,6 @@ https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and
 """
 
 from ..parser import (BaseSegment, ReSegment, NamedSegment, OneOf, Ref, Sequence, Bracketed, Delimited, AnyNumberOf, GreedyUntil, StartsWith, Indent, Dedent, KeywordSegment, Not, Anything)
-
 from .dialect_ansi import (
     ansi_dialect,
     SelectTargetElementSegment as AnsiSelectTargetElementSegment,
@@ -64,24 +63,22 @@ class IntervalExpressionSegment(BaseSegment):
 
 @bigquery_dialect.segment()
 class ExceptSegment(BaseSegment):
-    """select * except(some_column).
+    """select * except(column_a, column_b, column_c).
 
-    https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#select_replace
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#select_except
     """
     type = 'except'
     match_grammar = Sequence(
         'EXCEPT',
-        Bracketed(
-            Delimited(
-                Ref('SingleIdentifierGrammar'),
-                delimiter=Ref('CommaSegment')
-            )
-        ),
+        Ref('IdentifierListSegment')
     )
 
 
 @bigquery_dialect.segment()
 class ReplaceSegment(BaseSegment):
+    """select * replace ("widget" as item_name).
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#select_replace"""
     type = "replace"
 
     match_grammar = Sequence(
@@ -105,12 +102,16 @@ class ReplaceSegment(BaseSegment):
 
 @bigquery_dialect.segment()
 class StarModifierSegment(BaseSegment):
+    """A function that can be "applied" to the star selector.
+
+    For example: select * replace ... or select * except ..."""
     match_grammar = Sequence(
         Ref('ExceptSegment', optional=True),
         Ref('ReplaceSegment', optional=True),
     )
 
 class WildcardSelectTargetElementGrammar(BaseSegment):
+    """Matches wildcard selectors (*, a.*) and modifiers (e.g. b.* except ...)."""
     match_grammar = Sequence(
         Sequence(
             Sequence(
@@ -127,7 +128,9 @@ class WildcardSelectTargetElementGrammar(BaseSegment):
 
 @bigquery_dialect.segment()
 class StructSegment(BaseSegment):
-    """Bigquery struct."""
+    """Container of ordered fields each with a type (required) and field name (optional).
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types#constructing_a_struct"""
     type = 'struct'
     match_grammar = Sequence(
         'STRUCT',

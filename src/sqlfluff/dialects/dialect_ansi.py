@@ -1127,6 +1127,18 @@ class WithCompoundStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class IdentifierListSegment(BaseSegment):
+    """A list of identifiers."""
+    type = 'identifier_list'
+    match_grammar = Bracketed(
+        Delimited(
+            Ref('SingleIdentifierGrammar'),
+            delimiter=Ref('CommaSegment'),
+        )
+    )
+
+
+@ansi_dialect.segment()
 class SetOperatorSegment(BaseSegment):
     """A set operator such as Union, Minus, Exept or Intersect."""
     type = 'set_operator'
@@ -1143,12 +1155,7 @@ class SetOperatorSegment(BaseSegment):
         Sequence(
             'EXCEPT',
             Not(
-                Bracketed(
-                    Delimited(
-                        Ref('SingleIdentifierGrammar'),
-                        delimiter=Ref('CommaSegment')
-                    )
-                )
+                Ref('IdentifierListSegment')
             )
         ),
         'MINUS'
