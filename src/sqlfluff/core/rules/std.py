@@ -735,6 +735,7 @@ class Rule_L004(BaseCrawler):
             tab if self.indent_unit == "space" else space * self.tab_space_size
         )
         if segment.is_type("whitespace") and wrong_indent in segment.raw:
+            fixes = []
             description = "Incorrect indentation type found in file."
             edit_indent = segment.raw.replace(wrong_indent, correct_indent)
             # Ensure that the number of space indents is a multiple of tab_space_size
@@ -758,9 +759,14 @@ class Rule_L004(BaseCrawler):
                         ),
                     )
                 ]
+            elif not (len(raw_stack) == 0 or raw_stack[-1].is_type("newline")):
+                # give a helpful message if the wrong indent has been found and is not at the start of a newline
+                description += (
+                    " The indent occurs after other text, so a manual fix is needed."
+                )
             else:
-                description += " No fix available as number of spaces in indent is not a multiple of tab_space_size."
-                fixes = []
+                # If we get here, the indent_unit is tabs, and the number of spaces is not a multiple of tab_space_size
+                description += " The number of spaces is not a multiple of tab_space_size, so a manual fix is needed."
             return LintResult(anchor=segment, fixes=fixes, description=description)
 
 
