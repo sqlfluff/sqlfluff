@@ -423,25 +423,29 @@ def test__parser__grammar_noncode(seg_list, fresh_ansi_dialect):
     # We should match one and only one segment
     assert len(m) == 1
 
+def stringify_segment(segment):
+    return f"{segment.__class__.__name__}({segment.raw})"
 
 def assert_grammar_produces_stringified_match_result(segments, grammar, expected):
     with RootParseContext(dialect=None) as ctx:
+        match_result = grammar.match(
+            segments,
+            parse_context=ctx,
+        )
 
-        assert list(expected.matched_segments) == [
-            f"{s.__class__.__name__}__{s.raw}" for s in
-            grammar.match(
-                segments,
-                parse_context=ctx,
-            ).matched_segments
-        ]
+        assert list(expected.matched_segments) == list(
+            map(
+                stringify_segment,
+                match_result.matched_segments,
+            )
+        )
 
-        assert list(expected.unmatched_segments) == [
-            s.name for s in
-            grammar.match(
-                segments,
-                parse_context=ctx,
-            ).unmatched_segments
-        ]
+        assert list(expected.unmatched_segments) == list(
+            map(
+                stringify_segment,
+                match_result.unmatched_segments,
+            )
+        )
 
 
 @pytest.mark.parametrize(
@@ -455,9 +459,9 @@ def assert_grammar_produces_stringified_match_result(segments, grammar, expected
                 NotExist(KeywordSegment.make('baar'))
             ),
             MatchResult.from_unmatched([
-                "_RawSegment",
-                "_RawSegment",
-                "_RawSegment",
+                "_RawSegment(foo)",
+                "_RawSegment(bar)",
+                "_RawSegment(baar)",
             ])
         ),
         (
@@ -468,9 +472,9 @@ def assert_grammar_produces_stringified_match_result(segments, grammar, expected
                 NotExist(KeywordSegment.make('baar'))
             ),
             MatchResult.from_matched([
-                "FOO_KeywordSegment__foo",
-                "BAR_KeywordSegment__bar",
-                "_RawSegment__baz"
+                "FOO_KeywordSegment(foo)",
+                "BAR_KeywordSegment(bar)",
+                "_RawSegment(baz)"
             ]),
         ),
         (
@@ -486,10 +490,10 @@ def assert_grammar_produces_stringified_match_result(segments, grammar, expected
                 ),
             ),
             MatchResult.from_unmatched([
-                "_RawSegment",
-                "_RawSegment",
-                "_RawSegment",
-                "_RawSegment",
+                "_RawSegment(foo)",
+                "_RawSegment(bar)",
+                "_RawSegment(baar)",
+                "_RawSegment(oz)",
             ])
         ),
         (
@@ -505,10 +509,10 @@ def assert_grammar_produces_stringified_match_result(segments, grammar, expected
                 ),
             ),
             MatchResult.from_matched([
-                'FOO_KeywordSegment__foo',
-                'BAR_KeywordSegment__bar',
-                '_RawSegment__baar',
-                '_RawSegment__az',
+                'FOO_KeywordSegment(foo)',
+                'BAR_KeywordSegment(bar)',
+                '_RawSegment(baar)',
+                '_RawSegment(az)',
             ]),
         ),
     ]
