@@ -19,7 +19,6 @@ from ..parser import (
     Anything,
     KeywordSegment,
     Indent,
-    Dedent,
 )
 
 from .dialect_ansi import (
@@ -106,7 +105,6 @@ class SelectClauseSegment(AnsiSelectClauseSegment):
                 allow_trailing=True
             ),
         ),
-        Dedent
     )
 
 class SelectTargetElementSegment(AnsiSelectTargetElementSegment):
