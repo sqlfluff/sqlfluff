@@ -12,6 +12,7 @@ from test.fixtures.dbt.templater import (  # noqa
     in_dbt_project_dir,
     dbt_templater,
 )
+from utils import generate_test_segments
 
 
 class RuleTestCase(NamedTuple):
@@ -242,7 +243,7 @@ def test__rules__std_file_dbt(rule, path, violations, in_dbt_project_dir):  # no
     )
 
 
-def test__rules__std_L003_process_raw_stack(generate_test_segments):
+def test__rules__std_L003_process_raw_stack():
     """Test the _process_raw_stack function.
 
     Note: This test probably needs expanding. It doesn't

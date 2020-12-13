@@ -7,3 +7,4 @@ from .anyof import AnyNumberOf, OneOf
 from .delimited import Delimited
 from .greedy import GreedyUntil, StartsWith
 from .sequence import Sequence, Bracketed
+from .not_exist import NotExist
