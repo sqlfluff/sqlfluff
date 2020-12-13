@@ -464,7 +464,7 @@ def fix(force, paths, bench=False, fixed_suffix="", logger=None, **kwargs):
             elif c == "n":
                 click.echo("Aborting...")
             else:
-                click.echo("Invalid input :(")
+                click.echo("Invalid input, please enter 'Y' or 'N'")
                 click.echo("Aborting...")
     else:
         click.echo("==== no fixable linting violations found ====")
