@@ -1285,7 +1285,7 @@ class Linter:
             except Exception:
                 linter_logger.warning(
                     f"""
-Unable to lint {path} due to an internal error. Please report this as an issue with the stacktrace below!
+Unable to lint {path} due to an internal error. Please report this as an issue with your query's contents and stacktrace below!
 If you'd like to hide this warning, add the failing file to .sqlfluffignore
 {traceback.format_exc()}
                     """,
