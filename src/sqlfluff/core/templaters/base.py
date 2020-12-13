@@ -10,7 +10,7 @@ templater_logger = logging.getLogger("sqlfluff.templater")
 
 
 def templater_selector(s=None, **kwargs):
-    """Instantitate a new templater by name."""
+    """Instantiate a new templater by name."""
     s = s or "jinja"  # default to jinja
     try:
         cls = _templater_lookup[s]
@@ -80,7 +80,7 @@ class TemplatedFile:
     """A templated SQL file.
 
     This is the response of a templaters .process() method
-    and contains both references to the orginal file and also
+    and contains both references to the original file and also
     the capability to split up that file when lexing.
     """
 
@@ -308,7 +308,7 @@ class TemplatedFile:
 
     def is_source_slice_literal(self, source_slice: slice) -> bool:
         """Work out whether a slice of the source file is a literal or not."""
-        # No sliced file? Evenrything is literal
+        # No sliced file? Everything is literal
         if not self.raw_sliced:
             return True
         # Zero length slice. It's a literal, because it's definitely not templated.
@@ -359,7 +359,7 @@ class RawTemplater:
 
         Here we should load any initial config found in the root directory. The init
         function shouldn't take any arguments at this stage as we assume that it will load
-        it's own config. Maybe at this stage we might allow override parameters to be passed
+        its own config. Maybe at this stage we might allow override parameters to be passed
         to the linter at runtime from the cli - that would be the only time we would pass
         arguments in here.
         """

@@ -20,7 +20,7 @@ class SegmentGenerator:
 
     # For all functions, use the function call
     def expand(self, dialect):
-        """Expand this object into it's true dialect object.
+        """Expand this object into its true dialect object.
 
         The inner function is passed an instance of the current dialect
         and so has access to the current sets of that dialect.

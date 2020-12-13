@@ -1,0 +1,19 @@
+- id: sqlfluff-lint
+  name: sqlfluff-lint
+  entry: sqlfluff lint
+  language: python
+  description: 'Lints sql files with `SQLFluff`'
+  types: [sql]
+  require_serial: true
+  additional_dependencies: []
+
+- id: sqlfluff-fix
+  name: sqlfluff-fix
+  # Needs to use "--force" to disable confirmation
+  # By default all the rules are applied
+  entry: sqlfluff fix --force
+  language: python
+  description: 'Fixes sql lint errors with `SQLFluff`'
+  types: [sql]
+  require_serial: true
+  additional_dependencies: []

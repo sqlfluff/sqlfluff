@@ -41,7 +41,7 @@ class FixPatch(NamedTuple):
     templated_slice: slice
     fixed_raw: str
     # The patch type, functions mostly for debugging and explanation
-    # than for function. It allows tracability of *why* this patch was
+    # than for function. It allows traceability of *why* this patch was
     # generated.
     patch_type: str
 
@@ -51,10 +51,10 @@ class BaseSegment:
 
     This defines the base element which drives both Lexing, Parsing and Linting.
     A large chunk of the logic which defines those three operations are centered
-    here. Much of what is defined in the BaseSegment is also used by it's many
+    here. Much of what is defined in the BaseSegment is also used by its many
     subclasses rather than directly here.
 
-    For clarity, the `BaseSement` is mostly centered around a segment which contains
+    For clarity, the `BaseSegment` is mostly centered around a segment which contains
     other subsegments. For segments which don't have *children*, refer to the `RawSegment`
     class (which still inherits from this one).
 
@@ -163,7 +163,7 @@ class BaseSegment:
         """The name of this segment.
 
         The reason for two routes for names is that some subclasses
-        might want to overrise the name rather than just getting it
+        might want to override the name rather than just getting it
         the class name.
 
         Name should be specific to this kind of segment, while `type`
@@ -178,7 +178,7 @@ class BaseSegment:
         """Return true if it is meaningful to call `expand` on this segment.
 
         We need to do this recursively because even if *this* segment doesn't
-        need expanding, maybe one of it's children does.
+        need expanding, maybe one of its children does.
 
         Once a segment is *not* expandable, it can never become so, which is
         why the variable is cached.
@@ -230,7 +230,7 @@ class BaseSegment:
     def _suffix():
         """Return any extra output required at the end when logging.
 
-        NB Override this for specific subclassesses if we want extra output.
+        NB Override this for specific subclasses if we want extra output.
         """
         return ""
 
@@ -284,7 +284,7 @@ class BaseSegment:
         todo_buffer = list(segments)
         if not todo_buffer:
             return ()
-        # If starting pos not provded, take it from the first of the buffer.
+        # If starting pos not provided, take it from the first of the buffer.
         running_pos = starting_pos
         if not running_pos:
             for seg in todo_buffer:
@@ -352,7 +352,7 @@ class BaseSegment:
 
     @classmethod
     def is_type(cls, *seg_type):
-        """Is this segment (or it's parent) of the given type."""
+        """Is this segment (or its parent) of the given type."""
         # Do we match on the type of _this_ class.
         if cls.type in seg_type:
             return True
@@ -376,7 +376,7 @@ class BaseSegment:
                 keys = [e[0] for e in elem]
                 # Any duplicate elements?
                 if len(set(keys)) == len(keys):
-                    # No, we can use a mapping typle
+                    # No, we can use a mapping tuple
                     elem = {e[0]: cls.structural_simplify(e[1]) for e in elem}
                 else:
                     # Yes, this has to be a list :(
@@ -489,7 +489,7 @@ class BaseSegment:
         Check the elements of the `segments` attribute are all
         themselves segments, and that the positions match up.
 
-        `validate` confirms whether we should check contigiousness.
+        `validate` confirms whether we should check contiguousness.
         """
         # Placeholder variables for positions
         start_pos = None
@@ -509,7 +509,7 @@ class BaseSegment:
                 if end_pos and elem.get_start_pos_marker() != end_pos:
                     raise TypeError(
                         "In {0} {1}, found an element of the segments tuple which"
-                        " isn't contigious with previous: {2} > {3}. End pos: {4}."
+                        " isn't contiguous with previous: {2} > {3}. End pos: {4}."
                         " Prev String: {5!r}".format(
                             text, type(self), prev_seg, elem, end_pos, prev_seg.raw
                         )
@@ -532,7 +532,7 @@ class BaseSegment:
         return self.segments[0].get_start_pos_marker()
 
     def stringify(self, ident=0, tabsize=4, code_only=False):
-        """Use indentation to render this segment and it's children as a string."""
+        """Use indentation to render this segment and its children as a string."""
         buff = StringIO()
         preface = self._preface(ident=ident, tabsize=tabsize)
         buff.write(preface + "\n")
@@ -782,7 +782,7 @@ class BaseSegment:
                 self.segments = pre_nc + post_nc
             else:
                 # If there's no match at this stage, then it's unparsable. That's
-                # a problem at this stage so wrap it in an unparable segment and carry on.
+                # a problem at this stage so wrap it in an unparsable segment and carry on.
                 self.segments = (
                     pre_nc
                     + (
@@ -913,7 +913,7 @@ class BaseSegment:
         Realign is recursive. We will assume that the pos_marker of THIS segment is
         truthful, and that during recursion it will have been set by the parent.
 
-        This function will align the pos marker if it's direct children, we then
+        This function will align the pos marker if its direct children, we then
         recurse to realign their children.
 
         """
@@ -1016,7 +1016,7 @@ class UnparsableSegment(BaseSegment):
     """This is a segment which can't be parsed. It indicates a error during parsing."""
 
     type = "unparsable"
-    # From here down, comments are printed seperately.
+    # From here down, comments are printed separately.
     comment_seperate = True
     _expected = ""
 
@@ -1027,7 +1027,7 @@ class UnparsableSegment(BaseSegment):
     def _suffix(self):
         """Return any extra output required at the end when logging.
 
-        NB Override this for specific subclassesses if we want extra output.
+        NB Override this for specific subclasses if we want extra output.
         """
         return "!! Expected: {0!r}".format(self._expected)
 

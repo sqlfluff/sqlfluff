@@ -224,7 +224,7 @@ ansi_dialect.add(
     ),
     TrueSegment=KeywordSegment.make("true", name="boolean_literal", type="literal"),
     FalseSegment=KeywordSegment.make("false", name="boolean_literal", type="literal"),
-    # We use a GRAMMAR here not a Segment. Otherwise we get an unecessary layer
+    # We use a GRAMMAR here not a Segment. Otherwise we get an unnecessary layer
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"), Ref("QuotedIdentifierSegment")
     ),
@@ -298,7 +298,7 @@ class FileSegment(BaseSegment):
     allow_empty = True
 
     # NB: We don't need a match_grammar here because we're
-    # going straight into instantiating it directly ususually.
+    # going straight into instantiating it directly usually.
     parse_grammar = Delimited(
         Ref("StatementSegment"),
         delimiter=Ref("SemicolonSegment"),
@@ -471,7 +471,7 @@ class ShorthandCastSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class QualifiedNumericLiteralSegment(BaseSegment):
-    """A numeric literal with a + or - sign preceeding.
+    """A numeric literal with a + or - sign preceding.
 
     The qualified numeric literal is a compound of a raw
     literal and a plus/minus sign. We do it this way rather
@@ -516,7 +516,7 @@ ansi_dialect.add(
         ),
     ),
     # Optional OVER suffix for window functions.
-    # This is supported in biquery & postgres (and it's derivatives)
+    # This is supported in biquery & postgres (and its derivatives)
     # and so is included here for now.
     PostFunctionGrammar=Sequence(
         Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
@@ -692,7 +692,7 @@ class WildcardIdentifierSegment(ObjectReferenceSegment):
 class WildcardExpressionSegment(BaseSegment):
     """A star (*) expression for a SELECT clause.
 
-    This is seperate from the identifier to allow for
+    This is separate from the identifier to allow for
     some dialects which extend this logic to allow
     REPLACE, EXCEPT or similar clauses e.g. BigQuery.
     """
@@ -1274,7 +1274,7 @@ ansi_dialect.add(
 
 @ansi_dialect.segment()
 class WithCompoundStatementSegment(BaseSegment):
-    """A `SELECT` statement preceeded by a selection of `WITH` clauses."""
+    """A `SELECT` statement preceded by a selection of `WITH` clauses."""
 
     type = "with_compound_statement"
     # match grammar
@@ -1299,7 +1299,7 @@ class WithCompoundStatementSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class SetOperatorSegment(BaseSegment):
-    """A set operator such as Union, Minus, Exept or Intersect."""
+    """A set operator such as Union, Minus, Except or Intersect."""
 
     type = "set_operator"
     match_grammar = OneOf(
@@ -1313,7 +1313,7 @@ class SetOperatorSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class SetExpressionSegment(BaseSegment):
-    """A set expression with either Union, Minus, Exept or Intersect."""
+    """A set expression with either Union, Minus, Except or Intersect."""
 
     type = "set_expression"
     # match grammar
@@ -1781,7 +1781,7 @@ class CreateModelStatementSegment(BaseSegment):
                         Ref("EqualsSegment"),
                         OneOf(
                             # This covers many but not all the extensive list of
-                            # possible 'CREATE MODEL' optiona.
+                            # possible 'CREATE MODEL' options.
                             Ref("LiteralGrammar"),  # Single value
                             Bracketed(
                                 # E.g. input_label_cols: list of column names
@@ -1846,7 +1846,7 @@ class MLTableExpressionSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class StatementSegment(BaseSegment):
-    """A generic segment, to any of it's child subsegments."""
+    """A generic segment, to any of its child subsegments."""
 
     type = "statement"
     match_grammar = GreedyUntil(Ref("SemicolonSegment"))

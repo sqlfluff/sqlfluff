@@ -3,7 +3,7 @@
 Configuration
 =============
 
-sqlfluff accepts configuration either through the command line or
+SQLFluff accepts configuration either through the command line or
 through configuration files. There is *rough* parity between the
 two approaches with the exception that *templating* configuration
 must be done via a file, because it otherwise gets slightly complicated.
@@ -11,7 +11,7 @@ must be done via a file, because it otherwise gets slightly complicated.
 For details of what's available on the command line check out
 the :ref:`cliref`.
 
-For file based configuration *sqlfluff* will look for the following
+For file based configuration *SQLFluff* will look for the following
 files in order. Later files will (if found) will be used to overwrite
 any vales read from earlier files.
 
@@ -20,8 +20,8 @@ any vales read from earlier files.
 - :code:`pep8.ini`
 - :code:`.sqlfluff`
 
-Within these files, they will be read like an `cfg file`_, and *sqlfluff*
-will look for sections which start with *sqlfluff*, and where subsections
+Within these files, they will be read like an `cfg file`_, and *SQLFluff*
+will look for sections which start with *SQLFluff*, and where subsections
 are delimited by a semicolon. For example the *jinjacontext* section will
 be indicated in the section started with *[sqlfluff:jinjacontext]*.
 
@@ -30,23 +30,23 @@ be indicated in the section started with *[sqlfluff:jinjacontext]*.
 Nesting
 -------
 
-**Sqlfluff** uses **nesting** in it's configuration files, with files
+**SQLFluff** uses **nesting** in its configuration files, with files
 closer *overriding* (or *patching*, if you will) values from other files.
 That means you'll end up with a final config which will be a patchwork
 of all the values from the config files loaded up to that path.
-You don't **need** any config files to be present to make *sqlfluff*
-work. If you do want to override any values though sqlfluff will use
+You don't **need** any config files to be present to make *SQLFluff*
+work. If you do want to override any values though SQLFluff will use
 files in the following locations in order, with values from later
 steps overriding those from earlier:
 
 0. *[...and this one doesn't really count]* There's a default config as
-   part of the sqlfluff package. You can find this below, in the
+   part of the SQLFluff package. You can find this below, in the
    :ref:`defaultconfig` section.
 1. It will look in the user's os-specific app config directory. On OSX this is
    `~/Library/Preferences/sqlfluff`, Unix is `~/.config/sqlfluff`, Windows is
    `<home>\AppData\Local\sqlfluff\sqlfluff`, for any of the filenames
    above in the main :ref:`config` section. If multiple are present, they will
-   *patch*/*override* eachother in the order above.
+   *patch*/*override* each other in the order above.
 2. It will look for the same files in the user's home directory (~).
 3. It will look for the same files in the current working directory.
 4. *[if parsing a file in a subdirectory of the current working directory]*
@@ -150,7 +150,7 @@ Macro Templating
 Macros (which also look and feel like *functions* are available only in the
 *jinja* templater. Similar to `Variable Templating`_, these are specified in
 config files, what's different in this case is how they are named. Similar to
-the *context* section above, macros are configured seperately in the *macros*
+the *context* section above, macros are configured separately in the *macros*
 section of the config. Consider the following example.
 
 If passed the following *.sql* file:
@@ -178,7 +178,7 @@ Note that in the code block above, the variable name in the config is
 Broadly this is accurate, however within the configuration loader this will
 still be used to overwrite previous *values* in other config files. As such
 this introduces the idea of config *blocks* which could be selectively
-overwritten by other configuration files downsteam as required.
+overwritten by other configuration files downstream as required.
 
 In addition to macros specified in the config file, macros can also be
 loaded from a file or folder. The path to this macros folder must be
@@ -189,10 +189,10 @@ specified in the config file to function as below:
     [sqlfluff:templater:jinja]
     load_macros_from_path=my_macros
 
-In this case, sqlfluff will load macros from any :code:`.sql` file found at the
+In this case, SQLFluff will load macros from any :code:`.sql` file found at the
 path specified on this variable. The path is interpreted *relative to the
 config file*, and therefore if the config file above was found at
-:code:`/home/my_project/.sqlfluff` then sqlfluff will look for macros in the
+:code:`/home/my_project/.sqlfluff` then SQLFluff will look for macros in the
 folder :code:`/home/my_project/my_macros/`. Alternatively the path can also
 be a :code:`.sql` itself.
 
@@ -200,7 +200,7 @@ be a :code:`.sql` itself.
 .. note::
 
     Throughout the templating process **whitespace** will still be treated
-    rigourously, and this includes **newlines**. In particular you may choose
+    rigorously, and this includes **newlines**. In particular you may choose
     to provide your *dummy* macros in your configuration with different to
     the actual macros you may be using in production.
 
@@ -212,18 +212,18 @@ be a :code:`.sql` itself.
 Builtin Macro Blocks
 ^^^^^^^^^^^^^^^^^^^^
 
-One of the main use cases which inspired *sqlfluff* as a project was `dbt`_.
+One of the main use cases which inspired *SQLFluff* as a project was `dbt`_.
 It uses jinja templating extensively and leads to some users maintaining large
 repositories of sql files which could potentially benefit from some linting.
 
 .. note::
-    *sqlfluff* has now a tighter integration with dbt through the "dbt" templater.
+    *SQLFluff* has now a tighter integration with dbt through the "dbt" templater.
     It is the recommended templater for dbt projects and removes the need for the
     overwrites described in this section.
 
     To use the dbt templater, go to `Dbt Project Configuration`_.
 
-*Sqlfluff* anticipates this use case and provides some built in macro blocks
+*SQLFluff* anticipates this use case and provides some built in macro blocks
 in the `Default Configuration`_ which assist in getting started with `dbt`_
 projects. In particular it provides mock objects for:
 
@@ -240,28 +240,35 @@ projects. In particular it provides mock objects for:
 .. _`dbt`: https://www.getdbt.com/
 .. _`github`: https://www.github.com/sqlfluff/sqlfluff
 
-Dbt Project Configuration
+.. _dbt-project-configuration:
+
+dbt Project Configuration
 -------------------------
 
-dbt is not the default templater for *sqlfluff* (it is Jinja). For using
-*sqlfluff* with a dbt project, users can either use the `jinja` templater
-(which may be slightly faster, but may not support the full spectrum of
-macros) or the `dbt` templater, which uses the dbt itself to render the
+.. note::
+    dbt templating is a new feature added in 0.4.0 and has not benefited
+    from widespread use and testing yet! If you encounter an issue, please
+    let us know in a Github issue or on the SQLFluff slack workspace.
+
+dbt is not the default templater for *SQLFluff* (it is Jinja). For using
+*SQLFluff* with a dbt project, users can either use the `jinja` templater
+(which may be slightly faster, but will not support the full spectrum of
+macros) or the `dbt` templater, which uses dbt itself to render the
 sql (meaning that there is a much more reliable representation of macros,
 but a potential performance hit accordingly). At this stage we recommend
 that users try both approaches and choose according to the method that
-they indent to use *sqlfluff*.
+they indent to use *SQLFluff*.
 
 A simple rule of thumb might be:
 
-- If you are using *sqlfluff* in a CI/CD context, where speed is not
+- If you are using *SQLFluff* in a CI/CD context, where speed is not
   critical but accuracy in rendering sql is, then the `dbt` templater
   may be more appropriate.
-- If you are using *sqlfluff* in an IDE or on a git hook, where speed
+- If you are using *SQLFluff* in an IDE or on a git hook, where speed
   of response may be more important, then the `jinja` templater may
   be more appropriate.
 
-In order to get started using *sqlfluff* with a dbt project you will
+In order to get started using *SQLFluff* with a dbt project you will
 need the following configuration:
 
 In *.sqlfluff*:
@@ -280,6 +287,21 @@ In *.sqlfluffignore*:
     target/
     dbt_modules/
     macros/
+
+Known Caveats
+^^^^^^^^^^^^^
+
+- In SQLFluff 0.4.0 dbt templating only works if SQLFluff CLI commands
+  are invoked from the dbt project's root directory (containing
+  `dbt_project.yml`). There is an issue to address this:
+  https://github.com/sqlfluff/sqlfluff/issues/601
+- In SQLFluff 0.4.0 using the dbt templater requires that all files
+  within the root and child directories of the dbt project must be part
+  of the project. If there are deployment scripts which refer to SQL files
+  not part of the project for instance, this will result in an error.
+  You can overcome this by adding any non-dbt project SQL files to
+  .sqlfluffignore.
+
 
 CLI Arguments
 -------------
@@ -301,7 +323,7 @@ You might have arguments that you pass through every time, e.g rules you
     verbose = 1
     exclude_rules = L022,L027
 
-Note that while the :code:`exclude_rules` config looks similiar to the
+Note that while the :code:`exclude_rules` config looks similar to the
 above example, the :code:`verbose` config has an integer value. This is
 because :code:`verbose` is *stackable* meaning there are multiple levels
 of verbosity that are available for configuration. See :ref:`cliref` for
@@ -311,7 +333,7 @@ more details about the available CLI arguments.
 ---------------
 
 Similar to `Git's`_ :code:`.gitignore` and `Docker's`_ :code:`.dockerignore`,
-sqlfluff supports a :code:`.sqfluffignore` file to control which files are and
+SQLFluff supports a :code:`.sqfluffignore` file to control which files are and
 aren't linted. Under the hood we use the python `pathspec library`_ which also
 has a brief tutorial in their documentation.
 
@@ -326,7 +348,7 @@ project would be:
     /path/
 
     # Ignore anything called "testing.sql"
-    tesing.sql
+    testing.sql
 
     # Ignore any ".tsql" files
     *.tsql

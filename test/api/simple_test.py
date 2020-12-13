@@ -16,6 +16,12 @@ lint_result = [
         "description": "Inconsistent capitalisation of keywords.",
     },
     {
+        "code": "L036",
+        "description": "Select targets should be on a new line unless there is only one select target.",
+        "line_no": 1,
+        "line_pos": 1,
+    },
+    {
         "code": "L013",
         "line_no": 1,
         "line_pos": 12,

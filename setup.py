@@ -10,7 +10,7 @@ import io
 import sys
 
 if sys.version_info[0] < 3:
-    raise Exception("Sqlfluff does not support Python 2. Please upgrade to Python 3.")
+    raise Exception("SQLFluff does not support Python 2. Please upgrade to Python 3.")
 
 import configparser
 from os.path import dirname
@@ -107,6 +107,8 @@ setup(
         "cached-property",
         # dataclasses backport for python 3.6
         "dataclasses",
+        # better type hints for older python versions
+        "typing_extensions",
     ],
     extras_require={
         "dbt": ["dbt>=0.17"],

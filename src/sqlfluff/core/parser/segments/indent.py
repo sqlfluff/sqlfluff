@@ -61,7 +61,7 @@ class MetaSegment(RawSegment):
     def _suffix():
         """Return any extra output required at the end when logging.
 
-        Meta classess have not much to say here so just stay blank.
+        Meta classes have not much to say here so just stay blank.
         """
         return ""
 
@@ -98,7 +98,7 @@ class MetaSegment(RawSegment):
 class Indent(MetaSegment):
     """A segment which is empty but indicates where an indent should be.
 
-    This segment is always empty, i.e. it's raw format is '', but it indicates
+    This segment is always empty, i.e. its raw format is '', but it indicates
     the position of a theoretical indent which will be used in linting
     and reconstruction. Even if there is an *actual indent* that occurs
     in the same place this intentionally *won't* capture it, they will just
@@ -112,7 +112,7 @@ class Indent(MetaSegment):
 class Dedent(Indent):
     """A segment which is empty but indicates where an dedent should be.
 
-    This segment is always empty, i.e. it's raw format is '', but it indicates
+    This segment is always empty, i.e. its raw format is '', but it indicates
     the position of a theoretical dedent which will be used in linting
     and reconstruction. Even if there is an *actual dedent* that occurs
     in the same place this intentionally *won't* capture it, they will just
@@ -127,7 +127,7 @@ class Dedent(Indent):
 class TemplateSegment(MetaSegment):
     """A segment which is empty but indicates something should be.
 
-    This segment is always empty, i.e. it's raw format is '', but it indicates
+    This segment is always empty, i.e. its raw format is '', but it indicates
     the position of an element on a line which has been removed. This is used
     to record the position of template blocks, so that their indents are not
     removed during linting.

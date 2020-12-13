@@ -1,6 +1,6 @@
-# SqlFluff - Contributing
+# SQLFluff - Contributing
 
-:star2: **First** - thanks for being interested in improving sqlfluff! :smiley:
+:star2: **First** - thanks for being interested in improving SQLFluff! :smiley:
 
 :star2: **Second** - please read and familiarise yourself with both the content
 of this guide and also our [code of conduct](CODE_OF_CONDUCT.md).
@@ -25,11 +25,12 @@ are always welcome. Bear in mind that all the tests should pass, and test
 coverage should not decrease unduly as part of the changes which you make.
 You may find it useful to familiarise yourself with the
 [architectural principles here](https://docs.sqlfluff.com/en/latest/architecture.html)
-and with the [current documentation here](https://docs.sqlfluff.com).
+and with the [current documentation here](https://docs.sqlfluff.com). Lastly, please
+document your contributions in the `CHANGELOG.md`.
 
 ## How the community works
 
-SQLfluff is maintained by a community of volunteers, which means we have a
+SQLFluff is maintained by a community of volunteers, which means we have a
 few processes in place to allow everyone to contribute at a level that suits
 them and at a time that suits them. These aren't meant to be a way of restricting
 development, but a way of allowing the community to agree what to focus on
@@ -75,7 +76,7 @@ changes.
 ## Nerdy Details
 ### Testing
 
-To test locally, sqlfluff uses `tox`, which means you can build locally using...
+To test locally, SQLFluff uses `tox`, which means you can build locally using...
 
 ```shell
 pip install tox
@@ -109,7 +110,7 @@ tox -e dbt018-py38 -- -m "dbt"
 
 ### Using your local version
 
-To trial using your local development branch of sqlfluff, I recommend you use a virtual
+To trial using your local development branch of SQLFluff, I recommend you use a virtual
 environment. e.g:
 
 ```shell
@@ -137,9 +138,24 @@ python setup.py develop
 
 ## Building Package
 
-To build and submit the package to pypi we use `twine`. You'll need to be an admin
-to actually submit this to pypi and you'll need a properly formatted `.pypirc` file.
-If you've managed all that then you can run:
+New versions of SQLFluff will be published to PyPI automatically via 
+[github actions](.github/workflows/publish-release-to-pypi.yaml) 
+whenever a new release is published to github. 
+
+A new release can published with a tag in github by navigating to the 
+[releases page](https://github.com/sqlfluff/sqlfluff/releases) and clicking on "Draft a
+New Release" (or clicking [here](https://github.com/sqlfluff/sqlfluff/releases/new)).
+
+:warning: **Before creating a new release, ensure that
+[src/sqlfluff/config.ini](src/sqlfluff/config.ini) is up to date with a new version** :warning:.
+If this is not done, PyPI will reject the package. Also ensure you have used that 
+version as a part of the tag and have described the changes accordingly.
+
+### Manually
+
+If for some reason the package needs to be submitted to pypi manually, we use `twine`.
+You'll need to be an admin to actually submit this to pypi and you'll need a properly 
+formatted `.pypirc` file. If you've managed all that then you can run:
 
 ```shell
 python setup.py sdist

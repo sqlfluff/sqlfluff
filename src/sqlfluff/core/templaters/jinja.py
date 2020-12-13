@@ -122,7 +122,7 @@ class JinjaTemplater(PythonTemplater):
 
     @classmethod
     def _crawl_tree(cls, tree, variable_names, raw):
-        """Crawl the tree looking for occurances of the undeclared values."""
+        """Crawl the tree looking for occurrences of the undeclared values."""
         # First iterate through children
         for elem in tree.iter_child_nodes():
             yield from cls._crawl_tree(elem, variable_names, raw)
