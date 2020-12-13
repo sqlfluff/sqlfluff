@@ -449,7 +449,7 @@ def fix(force, paths, bench=False, fixed_suffix="", logger=None, **kwargs):
             )
             c = click.getchar().lower()
             click.echo("...")
-            if c == "y":
+            if c in ("y", "\r", "\n"):
                 click.echo("Attempting fixes...")
                 # TODO: Remove verbose
                 success = do_fixes(
@@ -464,7 +464,7 @@ def fix(force, paths, bench=False, fixed_suffix="", logger=None, **kwargs):
             elif c == "n":
                 click.echo("Aborting...")
             else:
-                click.echo("Invalid input :(")
+                click.echo("Invalid input, please enter 'Y' or 'N'")
                 click.echo("Aborting...")
     else:
         click.echo("==== no fixable linting violations found ====")
