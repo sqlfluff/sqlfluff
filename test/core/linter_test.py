@@ -177,7 +177,7 @@ def test__linter__linting_unexpected_error_handled_gracefully(
     """Test that an unexpected internal error is handled gracefully and returns the issue-surfacing file."""
     patched_lint_path.side_effect = Exception("Something unexpected happened")
     lntr = Linter()
-    result = lntr.lint_paths(["test/fixtures/linter/passing.sql"])
+    lntr.lint_paths(["test/fixtures/linter/passing.sql"])
     assert (
         "Unable to lint test/fixtures/linter/passing.sql due to an internal error."
         in patched_logger.warning.call_args[0][0]
