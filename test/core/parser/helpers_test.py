@@ -6,6 +6,7 @@ from sqlfluff.core.parser.helpers import trim_non_code_segments
 
 from utils import generate_test_segments
 
+
 @pytest.mark.parametrize(
     "token_list,pre_len,mid_len,post_len",
     [

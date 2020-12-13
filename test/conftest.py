@@ -5,12 +5,10 @@ import oyaml
 import sys
 import os
 
-from sqlfluff.core.parser.markers import FilePositionMarker
-from sqlfluff.core.parser.segments import RawSegment
-
 # append the helpers to the test path
 # to support having a "testing" library
-sys.path.append(os.path.join(os.path.dirname(__file__), 'helpers'))
+sys.path.append(os.path.join(os.path.dirname(__file__), "helpers"))
+
 
 def process_struct(obj):
     """Process a nested dict or dict-like into a check tuple."""

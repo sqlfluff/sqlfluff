@@ -1,5 +1,8 @@
+"""Functions/classes shared by multiple test files."""
+
 from sqlfluff.core.parser.markers import FilePositionMarker
 from sqlfluff.core.parser.segments.raw import RawSegment
+
 
 def generate_test_segments(elems):
     """Roughly generate test segments.

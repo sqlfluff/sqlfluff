@@ -18,7 +18,6 @@ from ..parser import (
     Delimited,
     ReSegment,
     AnyNumberOf,
-    Anything,
     KeywordSegment,
     Indent,
 )
@@ -59,7 +58,7 @@ bigquery_dialect.add(
     DoubleQuotedLiteralSegment=NamedSegment.make(
         "double_quote", name="quoted_literal", type="literal", trim_chars=('"',)
     ),
-    StructKeywordSegment=KeywordSegment.make('struct', name="struct"),
+    StructKeywordSegment=KeywordSegment.make("struct", name="struct"),
 )
 
 # Add additional datetime units
@@ -102,25 +101,28 @@ class SelectClauseSegment(AnsiSelectClauseSegment):
     """In BigQuery, select * as struct is valid."""
 
     parse_grammar = Sequence(
-        'SELECT',
-        Ref('SelectClauseModifierSegment', optional=True),
+        "SELECT",
+        Ref("SelectClauseModifierSegment", optional=True),
         Indent,
         OneOf(
             Sequence(
-                'AS',
-                'STRUCT',
-                Ref('StarSegment'),
-                Ref('StarModifierSegment', optional=True),
+                "AS",
+                "STRUCT",
+                Ref("StarSegment"),
+                Ref("StarModifierSegment", optional=True),
             ),
             Delimited(
-                Ref('SelectTargetElementSegment'),
-                delimiter=Ref('CommaSegment'),
-                allow_trailing=True
+                Ref("SelectTargetElementSegment"),
+                delimiter=Ref("CommaSegment"),
+                allow_trailing=True,
             ),
         ),
     )
 
+
 class SelectTargetElementSegment(AnsiSelectTargetElementSegment):
+    """BigQuery also supports the special "Struct" construct."""
+
     parse_grammar = OneOf(
         # *, blah.*, blah.blah.*, etc.
         Ref("WildcardExpressionSegment"),
@@ -137,6 +139,7 @@ class SelectTargetElementSegment(AnsiSelectTargetElementSegment):
             Ref("AliasExpressionSegment", optional=True),
         ),
     )
+
 
 bigquery_dialect.replace(
     QuotedIdentifierSegment=NamedSegment.make(
@@ -159,7 +162,10 @@ bigquery_dialect.replace(
     ),
     FunctionNameSegment=ReSegment.make(
         # In BigQuery struct() has a special syntax, so we don't treat it as a function
-        r"[A-Z][A-Z0-9_]*", name="function_name", type="function_name", _anti_template=r"STRUCT"
+        r"[A-Z][A-Z0-9_]*",
+        name="function_name",
+        type="function_name",
+        _anti_template=r"STRUCT",
     ),
     SelectTargetElementSegment=SelectTargetElementSegment,
     SelectClauseSegment=SelectClauseSegment,
@@ -256,7 +262,6 @@ class ReplaceClauseSegment(BaseSegment):
         ),
     )
 
-
 @bigquery_dialect.segment(replace=True)
 class DatatypeSegment(BaseSegment):
     """A data type segment.
@@ -281,31 +286,32 @@ class DatatypeSegment(BaseSegment):
             ),
         ),
 
-# @bigquery_dialect.segment()
-# class StructSegment(BaseSegment):
-#     """Container of ordered fields each with a type (required) and field name (optional).
+@bigquery_dialect.segment()
+class StructSegment(BaseSegment):
+    """Container of ordered fields each with a type (required) and field name (optional).
 
-#     https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types#constructing_a_struct
-#     """
-#     type = 'struct'
-#     match_grammar = Sequence(
-#         'STRUCT',
-#         Bracketed(
-#             Delimited(
-#                 AnyNumberOf(
-#                     Sequence(
-#                         OneOf(
-#                             Ref('LiteralGrammar'),
-#                             Ref('FunctionSegment'),
-#                             Ref('IntervalExpressionSegment'),
-#                             Ref('ObjectReferenceSegment'),
-#                             Ref('ExpressionSegment')
-#                         ),
-#                         Ref('AliasExpressionSegment', optional=True)
-#                     ),
-#                 ),
-#                 delimiter=Ref('CommaSegment'),
-#             ),
-#             optional=True,
-#         )
-#     )
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types#constructing_a_struct
+    """
+
+    type = "struct"
+    match_grammar = Sequence(
+        "STRUCT",
+        Bracketed(
+            Delimited(
+                AnyNumberOf(
+                    Sequence(
+                        OneOf(
+                            Ref("LiteralGrammar"),
+                            Ref("FunctionSegment"),
+                            Ref("IntervalExpressionSegment"),
+                            Ref("ObjectReferenceSegment"),
+                            Ref("ExpressionSegment"),
+                        ),
+                        Ref("AliasExpressionSegment", optional=True),
+                    ),
+                ),
+                delimiter=Ref("CommaSegment"),
+            ),
+            optional=True,
+        ),
+    )

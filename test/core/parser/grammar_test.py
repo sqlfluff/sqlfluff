@@ -18,9 +18,7 @@ from sqlfluff.core.parser.grammar import (
     Nothing,
     NotExist,
 )
-from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.match_result import MatchResult
-from sqlfluff.core.dialects.dialect_ansi import ansi_dialect
 
 from utils import generate_test_segments
 
@@ -423,10 +421,17 @@ def test__parser__grammar_noncode(seg_list, fresh_ansi_dialect):
     # We should match one and only one segment
     assert len(m) == 1
 
+
 def stringify_segment(segment):
+    """Turns segments into strings to ease equality checks."""
     return f"{segment.__class__.__name__}({segment.raw})"
 
+
 def assert_grammar_produces_stringified_match_result(segments, grammar, expected):
+    """Asserts that a grammar produces a certain MatchResult.
+
+    The MatchResult segments are stringified to ease equality checks.
+    """
     with RootParseContext(dialect=None) as ctx:
         match_result = grammar.match(
             segments,
@@ -454,68 +459,76 @@ def assert_grammar_produces_stringified_match_result(segments, grammar, expected
         (
             generate_test_segments(["foo", "bar", "baar"]),
             Sequence(
-                KeywordSegment.make('foo'),
-                KeywordSegment.make('bar'),
-                NotExist(KeywordSegment.make('baar'))
+                KeywordSegment.make("foo"),
+                KeywordSegment.make("bar"),
+                NotExist(KeywordSegment.make("baar")),
             ),
-            MatchResult.from_unmatched([
-                "_RawSegment(foo)",
-                "_RawSegment(bar)",
-                "_RawSegment(baar)",
-            ])
+            MatchResult.from_unmatched(
+                [
+                    "_RawSegment(foo)",
+                    "_RawSegment(bar)",
+                    "_RawSegment(baar)",
+                ]
+            ),
         ),
         (
             generate_test_segments(["foo", "bar", "baz"]),
             Sequence(
-                KeywordSegment.make('foo'),
-                KeywordSegment.make('bar'),
-                NotExist(KeywordSegment.make('baar'))
+                KeywordSegment.make("foo"),
+                KeywordSegment.make("bar"),
+                NotExist(KeywordSegment.make("baar")),
             ),
-            MatchResult.from_matched([
-                "FOO_KeywordSegment(foo)",
-                "BAR_KeywordSegment(bar)",
-                "_RawSegment(baz)"
-            ]),
+            MatchResult.from_matched(
+                [
+                    "FOO_KeywordSegment(foo)",
+                    "BAR_KeywordSegment(bar)",
+                    "_RawSegment(baz)",
+                ]
+            ),
         ),
         (
             generate_test_segments(["foo", "bar", "baar", "oz"]),
             Sequence(
-                KeywordSegment.make('foo'),
-                KeywordSegment.make('bar'),
+                KeywordSegment.make("foo"),
+                KeywordSegment.make("bar"),
                 NotExist(
                     Sequence(
-                        KeywordSegment.make('baar'),
-                        KeywordSegment.make('oz'),
+                        KeywordSegment.make("baar"),
+                        KeywordSegment.make("oz"),
                     )
                 ),
             ),
-            MatchResult.from_unmatched([
-                "_RawSegment(foo)",
-                "_RawSegment(bar)",
-                "_RawSegment(baar)",
-                "_RawSegment(oz)",
-            ])
+            MatchResult.from_unmatched(
+                [
+                    "_RawSegment(foo)",
+                    "_RawSegment(bar)",
+                    "_RawSegment(baar)",
+                    "_RawSegment(oz)",
+                ]
+            ),
         ),
         (
             generate_test_segments(["foo", "bar", "baar", "az"]),
             Sequence(
-                KeywordSegment.make('foo'),
-                KeywordSegment.make('bar'),
+                KeywordSegment.make("foo"),
+                KeywordSegment.make("bar"),
                 NotExist(
                     Sequence(
-                        KeywordSegment.make('baar'),
-                        KeywordSegment.make('oz'),
+                        KeywordSegment.make("baar"),
+                        KeywordSegment.make("oz"),
                     )
                 ),
             ),
-            MatchResult.from_matched([
-                'FOO_KeywordSegment(foo)',
-                'BAR_KeywordSegment(bar)',
-                '_RawSegment(baar)',
-                '_RawSegment(az)',
-            ]),
+            MatchResult.from_matched(
+                [
+                    "FOO_KeywordSegment(foo)",
+                    "BAR_KeywordSegment(bar)",
+                    "_RawSegment(baar)",
+                    "_RawSegment(az)",
+                ]
+            ),
         ),
-    ]
+    ],
 )
 def test__parser__grammar_not(segments, grammar, expected):
     """Test the Not grammar."""
