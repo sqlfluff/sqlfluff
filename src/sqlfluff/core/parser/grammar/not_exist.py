@@ -7,7 +7,7 @@ from sqlfluff.core.parser.match_result import MatchResult
 class NotExist(BaseGrammar):
     """Lookahead/lookbehind which matches when the target does not match and vice-versa.
 
-    The Not grammar always returns segments as they were before the match() function ran.
+    The NotExist grammar always returns segments as they were before the match() function ran.
     In other words, it does not "consume" segments.
     """
 
