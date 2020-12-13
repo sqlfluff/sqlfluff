@@ -8,6 +8,7 @@ from sqlfluff.core.parser.context import RootParseContext
 from sqlfluff.core.parser.segments import EphemeralSegment
 from sqlfluff.core.parser.grammar.base import BaseGrammar
 from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
+from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.grammar import (
     OneOf,
     Sequence,
@@ -530,6 +531,43 @@ def assert_grammar_produces_stringified_match_result(segments, grammar, expected
         ),
     ],
 )
-def test__parser__grammar_not(segments, grammar, expected):
-    """Test the Not grammar."""
+def test__parser__grammar_not_exist(segments, grammar, expected):
+    """Test the NotExist grammar."""
     assert_grammar_produces_stringified_match_result(segments, grammar, expected)
+
+
+@pytest.mark.parametrize(
+    "segments,grammar,expected",
+    [
+        (
+            generate_test_segments(["foo", "bar", "baz"]),
+            Sequence(
+                KeywordSegment.make("foo"),
+                KeywordSegment.make("bar"),
+                NotExist(KeywordSegment.make("baz")),
+            ),
+            ["UnparsableSegment(foobarbaz)"],
+        ),
+        (
+            generate_test_segments(["foo", "bar", "baz"]),
+            Sequence(
+                KeywordSegment.make("foo"),
+                KeywordSegment.make("bar"),
+                KeywordSegment.make("baz"),
+            ),
+            [
+                "FOO_KeywordSegment(foo)",
+                "BAR_KeywordSegment(bar)",
+                "BAZ_KeywordSegment(baz)",
+            ],
+        ),
+    ],
+)
+def test__parser__parse_not_exit(segments, grammar, expected):
+    """Test the NotExist grammar in a parse."""
+    with RootParseContext(dialect=None) as ctx:
+        segment = BaseSegment(segments)
+        segment.match_grammar = grammar
+        segment.parse_grammar = grammar
+        result_segments = segment.parse(parse_context=ctx).segments
+        assert list(map(stringify_segment, result_segments)) == expected
