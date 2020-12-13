@@ -1,6 +1,7 @@
 """The Test file for the linter class."""
 
 import pytest
+from unittest.mock import patch
 
 from sqlfluff.core import Linter, FluffConfig
 from sqlfluff.core.errors import SQLLintError, SQLParseError
@@ -166,6 +167,23 @@ def test__linter__linting_result_get_violations():
     )
 
     all([type(v) == SQLLintError for v in result.get_violations()])
+
+
+@patch("sqlfluff.core.linter.linter_logger")
+@patch("sqlfluff.core.Linter.lint_path")
+def test__linter__linting_unexpected_error_handled_gracefully(
+    patched_lint_path, patched_logger
+):
+    """Test that an unexpected internal error is handled gracefully and returns the issue-surfacing file."""
+    patched_lint_path.side_effect = Exception("Something unexpected happened")
+    lntr = Linter()
+    result = lntr.lint_paths(["test/fixtures/linter/passing.sql"])
+    assert (
+        "Unable to lint test/fixtures/linter/passing.sql due to an internal error."
+        in patched_logger.warning.call_args[0][0]
+        and "Exception: Something unexpected happened"
+        in patched_logger.warning.call_args[0][0]
+    )
 
 
 def test__linter__raises_malformed_noqa():
