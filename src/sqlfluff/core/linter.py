@@ -1248,11 +1248,21 @@ class Linter:
             with open(
                 fname, "r", encoding="utf8", errors="backslashreplace"
             ) as target_file:
-                linted_path.add(
-                    self.lint_string(
-                        target_file.read(), fname=fname, fix=fix, config=config
+                try:
+                    linted_path.add(
+                        self.lint_string(
+                            target_file.read(), fname=fname, fix=fix, config=config
+                        )
                     )
-                )
+                except IOError as e:  # IOErrors caught in commands.py, so still raise it
+                    raise (e)
+                except Exception:
+                    linter_logger.warning(
+                        f"""Unable to lint {fname} due to an internal error. \
+Please report this as an issue with your query's contents and stacktrace below!
+To hide this warning, add the failing file to .sqlfluffignore
+{traceback.format_exc()}""",
+                    )
         return linted_path
 
     def lint_paths(
@@ -1271,25 +1281,14 @@ class Linter:
         for path in paths:
             # Iterate through files recursively in the specified directory (if it's a directory)
             # or read the file directly if it's not
-            try:
-                result.add(
-                    self.lint_path(
-                        path,
-                        fix=fix,
-                        ignore_non_existent_files=ignore_non_existent_files,
-                        ignore_files=ignore_files,
-                    )
+            result.add(
+                self.lint_path(
+                    path,
+                    fix=fix,
+                    ignore_non_existent_files=ignore_non_existent_files,
+                    ignore_files=ignore_files,
                 )
-            except IOError as e:  # IOErrors caught in commands.py, so still raise it
-                raise (e)
-            except Exception:
-                linter_logger.warning(
-                    f"""
-Unable to lint {path} due to an internal error. Please report this as an issue with your query's contents and stacktrace below!
-If you'd like to hide this warning, add the failing file to .sqlfluffignore
-{traceback.format_exc()}
-                    """,
-                )
+            )
         return result
 
     def parse_path(

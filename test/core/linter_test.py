@@ -170,12 +170,12 @@ def test__linter__linting_result_get_violations():
 
 
 @patch("sqlfluff.core.linter.linter_logger")
-@patch("sqlfluff.core.Linter.lint_path")
+@patch("sqlfluff.core.Linter.lint_string")
 def test__linter__linting_unexpected_error_handled_gracefully(
-    patched_lint_path, patched_logger
+    patched_lint_string, patched_logger
 ):
     """Test that an unexpected internal error is handled gracefully and returns the issue-surfacing file."""
-    patched_lint_path.side_effect = Exception("Something unexpected happened")
+    patched_lint_string.side_effect = Exception("Something unexpected happened")
     lntr = Linter()
     lntr.lint_paths(["test/fixtures/linter/passing.sql"])
     assert (
