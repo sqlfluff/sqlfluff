@@ -3,6 +3,7 @@
 import os
 import time
 import logging
+import traceback
 from typing import (
     Any,
     Dict,
@@ -1247,11 +1248,21 @@ class Linter:
             with open(
                 fname, "r", encoding="utf8", errors="backslashreplace"
             ) as target_file:
-                linted_path.add(
-                    self.lint_string(
-                        target_file.read(), fname=fname, fix=fix, config=config
+                try:
+                    linted_path.add(
+                        self.lint_string(
+                            target_file.read(), fname=fname, fix=fix, config=config
+                        )
                     )
-                )
+                except IOError as e:  # IOErrors caught in commands.py, so still raise it
+                    raise (e)
+                except Exception:
+                    linter_logger.warning(
+                        f"""Unable to lint {fname} due to an internal error. \
+Please report this as an issue with your query's contents and stacktrace below!
+To hide this warning, add the failing file to .sqlfluffignore
+{traceback.format_exc()}""",
+                    )
         return linted_path
 
     def lint_paths(
