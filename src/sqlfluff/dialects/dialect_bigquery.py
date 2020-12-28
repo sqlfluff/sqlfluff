@@ -7,7 +7,7 @@ https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and
 """
 
 from ..parser import (BaseSegment, NamedSegment, OneOf, Ref, Sequence, Bracketed,
-                      Delimited, AnyNumberOf, Anything, KeywordSegment)
+                      Delimited, AnyNumberOf, Anything)
 
 from .dialect_ansi import ansi_dialect
 
@@ -28,8 +28,6 @@ bigquery_dialect.patch_lexer_struct([
 
 bigquery_dialect.add(
     DoubleQuotedLiteralSegment=NamedSegment.make('double_quote', name='quoted_literal', type='literal', trim_chars=('"',)),
-    StartAngleBracketSegment=KeywordSegment.make('<', name='start_angle_bracket', type='start_angle_bracket'),
-    EndAngleBracketSegment=KeywordSegment.make('>', name='end_angle_bracket', type='end_angle_bracket')
 )
 
 # Add the microsecond unit
@@ -46,7 +44,7 @@ bigquery_dialect.sets('reserved_keywords').add('FOR')
 # Bracket pairs (a set of tuples)
 bigquery_dialect.sets('bracket_pairs').update([
     # NB: Angle brackets can be mistaken, so False
-    ('angle', 'StartAngleBracketSegment', 'EndAngleBracketSegment', False)
+    ('angle', 'LessThanSegment', 'GreaterThanSegment', False)
 ])
 
 
