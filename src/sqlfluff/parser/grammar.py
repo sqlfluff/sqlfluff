@@ -572,10 +572,17 @@ class BaseGrammar:
                             seg_buff = match.unmatched_segments
                             continue
                         elif matcher in end_brackets:
-                            # We've found an unexpected end bracket!
-                            raise SQLParseError(
-                                "Found unexpected end bracket!",
-                                segment=match.matched_segments[0])
+                            # each bracket with its "definite" attribute
+                            bracket_is_definite = end_definite[end_brackets.index(matcher)]
+                            if bracket_is_definite:
+                                # We've found an unexpected end bracket!
+                                raise SQLParseError(
+                                    f"Found unexpected end bracket!, was expecting one of: {matchers}, but got {matcher}",
+                                    segment=match.matched_segments[0])
+                            pre_seg_buff += pre
+                            pre_seg_buff += match.matched_segments
+                            seg_buff = match.unmatched_segments
+                            continue
                         else:
                             # This shouldn't happen!?
                             raise NotImplementedError("This shouldn't happen. Panic in _bracket_sensitive_look_ahead_match.")
@@ -588,10 +595,19 @@ class BaseGrammar:
                 # Now check have we closed all our brackets?
                 if bracket_stack:
                     # No we haven't.
+                    # Check that the unclosed brackets are definite
+                    definite_bracket_stack = list(
+                        filter(
+                            lambda b: b[1],
+                            zip(bracket_stack, definite_stack)
+                        )
+                    )
+
                     # TODO: Format this better
-                    raise SQLParseError(
-                        "Couldn't find closing bracket for opening bracket.",
-                        segment=bracket_stack.pop())
+                    if definite_bracket_stack:
+                        raise SQLParseError(
+                            f"Couldn't find closing bracket for opened brackets: `{bracket_stack}`.",
+                            segment=bracket_stack.pop())
 
                 # We at the end but without a bracket left open. This is a
                 # friendly unmatched return.
