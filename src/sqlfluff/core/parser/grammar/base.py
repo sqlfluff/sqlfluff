@@ -456,20 +456,6 @@ class BaseGrammar(Matchable):
             parse_context.dialect.ref(seg_ref) for seg_ref in end_bracket_refs
         ]
         start_definite = list(definitely_bracket)
-        # to the list of matchers. We get them from the relevant set on the
-        # dialect. We use zip twice to "unzip" them. We ignore the first
-        # argument because that's just the name.
-        _, start_bracket_refs, end_bracket_refs, definitely_bracket = zip(
-            *parse_context.dialect.sets("bracket_pairs")
-        )
-        # These are currently strings which need rehydrating
-        start_brackets = [
-            parse_context.dialect.ref(seg_ref) for seg_ref in start_bracket_refs
-        ]
-        end_brackets = [
-            parse_context.dialect.ref(seg_ref) for seg_ref in end_bracket_refs
-        ]
-        start_definite = list(definitely_bracket)
         end_definite = list(definitely_bracket)
         # Any any bracket-like things passed as arguments
         if start_bracket:
