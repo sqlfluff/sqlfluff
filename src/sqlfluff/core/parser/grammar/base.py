@@ -420,7 +420,9 @@ class BaseGrammar(Matchable):
                 seg_buff = seg_buff[1:]
 
     @classmethod
-    def _bracket_sensitive_look_ahead_match(cls, segments, matchers, parse_context, start_bracket=None, end_bracket=None):
+    def _bracket_sensitive_look_ahead_match(
+        cls, segments, matchers, parse_context, start_bracket=None, end_bracket=None
+    ):
         """Same as `_look_ahead_match` but with bracket counting.
 
         NB: Given we depend on `_look_ahead_match` we can also utilise
@@ -443,18 +445,30 @@ class BaseGrammar(Matchable):
         # to the list of matchers. We get them from the relevant set on the
         # dialect. We use zip twice to "unzip" them. We ignore the first
         # argument because that's just the name.
-        _, start_bracket_refs, end_bracket_refs, definitely_bracket = zip(*parse_context.dialect.sets('bracket_pairs'))
+        _, start_bracket_refs, end_bracket_refs, definitely_bracket = zip(
+            *parse_context.dialect.sets("bracket_pairs")
+        )
         # These are currently strings which need rehydrating
-        start_brackets = [parse_context.dialect.ref(seg_ref) for seg_ref in start_bracket_refs]
-        end_brackets = [parse_context.dialect.ref(seg_ref) for seg_ref in end_bracket_refs]
+        start_brackets = [
+            parse_context.dialect.ref(seg_ref) for seg_ref in start_bracket_refs
+        ]
+        end_brackets = [
+            parse_context.dialect.ref(seg_ref) for seg_ref in end_bracket_refs
+        ]
         start_definite = list(definitely_bracket)
         # to the list of matchers. We get them from the relevant set on the
         # dialect. We use zip twice to "unzip" them. We ignore the first
         # argument because that's just the name.
-        _, start_bracket_refs, end_bracket_refs, definitely_bracket = zip(*parse_context.dialect.sets('bracket_pairs'))
+        _, start_bracket_refs, end_bracket_refs, definitely_bracket = zip(
+            *parse_context.dialect.sets("bracket_pairs")
+        )
         # These are currently strings which need rehydrating
-        start_brackets = [parse_context.dialect.ref(seg_ref) for seg_ref in start_bracket_refs]
-        end_brackets = [parse_context.dialect.ref(seg_ref) for seg_ref in end_bracket_refs]
+        start_brackets = [
+            parse_context.dialect.ref(seg_ref) for seg_ref in start_bracket_refs
+        ]
+        end_brackets = [
+            parse_context.dialect.ref(seg_ref) for seg_ref in end_bracket_refs
+        ]
         start_definite = list(definitely_bracket)
         end_definite = list(definitely_bracket)
         # Any any bracket-like things passed as arguments
@@ -494,7 +508,9 @@ class BaseGrammar(Matchable):
                         if matcher in start_brackets and matcher not in end_brackets:
                             # Same procedure as below in finding brackets.
                             bracket_stack.append(match.matched_segments[0])
-                            definite_stack.append(start_definite[start_brackets.index(matcher)])
+                            definite_stack.append(
+                                start_definite[start_brackets.index(matcher)]
+                            )
                             pre_seg_buff += pre
                             pre_seg_buff += match.matched_segments
                             seg_buff = match.unmatched_segments
@@ -529,7 +545,8 @@ class BaseGrammar(Matchable):
                         # No match and we're in a bracket stack. Raise an error.
                         raise SQLParseError(
                             "Couldn't find closing bracket for opening bracket.",
-                            segment=bracket_stack.pop())
+                            segment=bracket_stack.pop(),
+                        )
                 else:
                     # No, we're open to more opening brackets or the thing(s)
                     # that we're otherwise looking for.
@@ -552,7 +569,9 @@ class BaseGrammar(Matchable):
 
                             # Add the bracket to the stack.
                             bracket_stack.append(match.matched_segments[0])
-                            definite_stack.append(start_definite[start_brackets.index(matcher)])
+                            definite_stack.append(
+                                start_definite[start_brackets.index(matcher)]
+                            )
                             # Add the matched elements and anything before it to the
                             # pre segment buffer. Reset the working buffer.
                             pre_seg_buff += pre
@@ -561,19 +580,24 @@ class BaseGrammar(Matchable):
                             continue
                         elif matcher in end_brackets:
                             # each bracket with its "definite" attribute
-                            bracket_is_definite = end_definite[end_brackets.index(matcher)]
+                            bracket_is_definite = end_definite[
+                                end_brackets.index(matcher)
+                            ]
                             if bracket_is_definite:
                                 # We've found an unexpected end bracket!
                                 raise SQLParseError(
                                     f"Found unexpected end bracket!, was expecting one of: {matchers}, but got {matcher}",
-                                    segment=match.matched_segments[0])
+                                    segment=match.matched_segments[0],
+                                )
                             pre_seg_buff += pre
                             pre_seg_buff += match.matched_segments
                             seg_buff = match.unmatched_segments
                             continue
                         else:
                             # This shouldn't happen!?
-                            raise NotImplementedError("This shouldn't happen. Panic in _bracket_sensitive_look_ahead_match.")
+                            raise NotImplementedError(
+                                "This shouldn't happen. Panic in _bracket_sensitive_look_ahead_match."
+                            )
                     else:
                         # Not in a bracket stack, but no match. This is a happy
                         # unmatched exit.
@@ -585,17 +609,15 @@ class BaseGrammar(Matchable):
                     # No we haven't.
                     # Check that the unclosed brackets are definite
                     definite_bracket_stack = list(
-                        filter(
-                            lambda b: b[1],
-                            zip(bracket_stack, definite_stack)
-                        )
+                        filter(lambda b: b[1], zip(bracket_stack, definite_stack))
                     )
 
                     # TODO: Format this better
                     if definite_bracket_stack:
                         raise SQLParseError(
                             f"Couldn't find closing bracket for opened brackets: `{bracket_stack}`.",
-                            segment=bracket_stack.pop())
+                            segment=bracket_stack.pop(),
+                        )
 
                 # We at the end but without a bracket left open. This is a
                 # friendly unmatched return.

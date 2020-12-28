@@ -129,10 +129,12 @@ ansi_dialect.sets("reserved_keywords").update(
 
 # Bracket pairs (a set of tuples).
 # (name, startref, endref, definitely_bracket)
-ansi_dialect.sets('bracket_pairs').update([
-    ('round', 'StartBracketSegment', 'EndBracketSegment', True),
-    ('square', 'StartSquareBracketSegment', 'EndSquareBracketSegment', True)
-])
+ansi_dialect.sets("bracket_pairs").update(
+    [
+        ("round", "StartBracketSegment", "EndBracketSegment", True),
+        ("square", "StartSquareBracketSegment", "EndSquareBracketSegment", True),
+    ]
+)
 
 ansi_dialect.add(
     # Real segments
@@ -336,13 +338,11 @@ class IntervalExpressionSegment(BaseSegment):
 @ansi_dialect.segment()
 class ArrayLiteralSegment(BaseSegment):
     """A data type segment."""
-    type = 'array_literal_type'
+
+    type = "array_literal_type"
     match_grammar = Bracketed(
-        Delimited(
-            Ref('ExpressionSegment'),
-            delimiter=Ref('CommaSegment')
-        ),
-        bracket_type='square'
+        Delimited(Ref("ExpressionSegment"), delimiter=Ref("CommaSegment")),
+        bracket_type="square",
     )
 
 
@@ -361,7 +361,7 @@ class DatatypeSegment(BaseSegment):
             ),
             # There may be no brackets for some data types
             optional=True,
-            bracket_type='square'
+            bracket_type="square",
         ),
     )
 
@@ -452,7 +452,7 @@ class ArrayAccessorSegment(BaseSegment):
             delimiter=Ref("SliceSegment"),
             ephemeral_name="ArrayAccessorContent",
         ),
-        bracket_type='square'
+        bracket_type="square",
     )
 
 
@@ -853,7 +853,7 @@ class JoinClauseSegment(BaseSegment):
 ansi_dialect.add(
     # This is a hook point to allow subclassing for other dialects
     JoinLikeClauseGrammar=Nothing(),
-    DialectSpecificTableExpressionGrammar=Nothing()
+    DialectSpecificTableExpressionGrammar=Nothing(),
 )
 
 
@@ -1081,7 +1081,7 @@ ansi_dialect.add(
             Ref("LiteralGrammar"),
             Ref("IntervalExpressionSegment"),
             Ref("ColumnReferenceSegment"),
-            Ref('ArrayLiteralSegment'),
+            Ref("ArrayLiteralSegment"),
         ),
         Ref("Accessor_Grammar", optional=True),
         Ref("ShorthandCastSegment", optional=True),
@@ -1793,13 +1793,13 @@ ansi_dialect.add(
 @ansi_dialect.segment()
 class FunctionDefinitionGrammar(BaseSegment):
     match_grammar = Sequence(
-        'AS',
-        Ref('QuotedLiteralSegment'),
+        "AS",
+        Ref("QuotedLiteralSegment"),
         Sequence(
-            'LANGUAGE',
+            "LANGUAGE",
             # Not really a parameter, but best fit for now.
-            Ref('ParameterNameSegment'),
-            optional=True
+            Ref("ParameterNameSegment"),
+            optional=True,
         ),
     )
 
@@ -1813,70 +1813,44 @@ class CreateFunctionStatementSegment(BaseSegment):
     snowflake: https://docs.snowflake.com/en/sql-reference/sql/create-function.html
     bigquery: https://cloud.google.com/bigquery/docs/reference/standard-sql/user-defined-functions
     """
-    type = 'create_function_statement'
+
+    type = "create_function_statement"
 
     match_grammar = Sequence(
-        'CREATE',
-        Sequence(
-            'OR',
-            'REPLACE',
-            optional=True
-        ),
-        OneOf(
-            'TEMPORARY',
-            'TEMP',
-            optional=True
-        ),
-        'FUNCTION',
-        Anything()
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        OneOf("TEMPORARY", "TEMP", optional=True),
+        "FUNCTION",
+        Anything(),
     )
 
     parse_grammar = Sequence(
-        'CREATE',
-        Sequence(
-            'OR',
-            'REPLACE',
-            optional=True
-        ),
-        OneOf(
-            'TEMPORARY',
-            'TEMP',
-            optional=True
-        ),
-        'FUNCTION',
-        Sequence(
-            'IF',
-            'NOT',
-            'EXISTS',
-            optional=True
-        ),
-        Ref('FunctionNameSegment'),
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        OneOf("TEMPORARY", "TEMP", optional=True),
+        "FUNCTION",
+        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("FunctionNameSegment"),
         # Function parameter list
         Bracketed(
             Delimited(
                 # Odd syntax, but prevents eager parameters being confused for data types
                 OneOf(
                     Sequence(
-                        Ref('ParameterNameSegment', optional=True),
-                        OneOf(
-                            Sequence('ANY', 'TYPE'),
-                            Ref('DatatypeSegment')
-                        )
+                        Ref("ParameterNameSegment", optional=True),
+                        OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
                     ),
-                    OneOf(
-                        Sequence('ANY', 'TYPE'),
-                        Ref('DatatypeSegment')
-                    )
+                    OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
                 ),
-                delimiter=Ref('CommaSegment')
+                delimiter=Ref("CommaSegment"),
             )
         ),
         Sequence(  # Optional function return type
-            'RETURNS',
-            Ref('DatatypeSegment'),
+            "RETURNS",
+            Ref("DatatypeSegment"),
             optional=True,
         ),
-        Ref('FunctionDefinitionGrammar')
+        Ref("FunctionDefinitionGrammar"),
     )
 
 
@@ -1909,7 +1883,7 @@ class CreateModelStatementSegment(BaseSegment):
                                     Ref("QuotedLiteralSegment"),
                                     delimiter=Ref("CommaSegment"),
                                 ),
-                                bracket_type='square',
+                                bracket_type="square",
                                 optional=True,
                             ),
                         ),
@@ -1982,8 +1956,8 @@ class StatementSegment(BaseSegment):
         Ref("CreateViewStatementSegment"),
         Ref("DeleteStatementSegment"),
         Ref("UpdateStatementSegment"),
-        Ref('CreateFunctionStatementSegment'),
-        Ref('DialectSpecificStatementsGrammar'),
+        Ref("CreateFunctionStatementSegment"),
+        Ref("DialectSpecificStatementsGrammar"),
         Ref("CreateModelStatementSegment"),
         Ref("DropModelStatementSegment"),
     )

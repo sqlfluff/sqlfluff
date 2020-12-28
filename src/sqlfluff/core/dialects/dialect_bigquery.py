@@ -66,10 +66,12 @@ bigquery_dialect.sets("reserved_keywords").add("FOR")
 
 
 # Bracket pairs (a set of tuples)
-bigquery_dialect.sets('bracket_pairs').update([
-    # NB: Angle brackets can be mistaken, so False
-    ('angle', 'LessThanSegment', 'GreaterThanSegment', False)
-])
+bigquery_dialect.sets("bracket_pairs").update(
+    [
+        # NB: Angle brackets can be mistaken, so False
+        ("angle", "LessThanSegment", "GreaterThanSegment", False)
+    ]
+)
 
 
 # BigQuery allows functions in INTERVAL
@@ -105,11 +107,10 @@ bigquery_dialect.replace(
     ),
     # This is a hook point to allow subclassing for other dialects.
     # In the ANSI dialect this is designed to be a basic starting point.
-
     DialectSpecificStatementsGrammar=OneOf(
-        Ref('CreateModelStatementSegment'), Ref('DropModelStatementSegment')
+        Ref("CreateModelStatementSegment"), Ref("DropModelStatementSegment")
     ),
-    DialectSpecificTableExpressionGrammar=Ref('MLTableExpressionSegment')
+    DialectSpecificTableExpressionGrammar=Ref("MLTableExpressionSegment"),
 )
 
 
@@ -118,38 +119,35 @@ class FunctionDefinitionGrammar(BaseSegment):
     match_grammar = Sequence(
         AnyNumberOf(
             Sequence(
-                'LANGUAGE',
+                "LANGUAGE",
                 # Not really a parameter, but best fit for now.
-                Ref('ParameterNameSegment'),
+                Ref("ParameterNameSegment"),
                 Sequence(
-                    'OPTIONS',
+                    "OPTIONS",
                     Bracketed(
                         Delimited(
                             Sequence(
-                                Ref('ParameterNameSegment'),
-                                Ref('EqualsSegment'),
-                                Anything()
+                                Ref("ParameterNameSegment"),
+                                Ref("EqualsSegment"),
+                                Anything(),
                             ),
-                            delimiter=Ref('CommaSegment')
+                            delimiter=Ref("CommaSegment"),
                         )
                     ),
-                    optional=True
-                )
+                    optional=True,
+                ),
             ),
             # There is some syntax not implemented here,
             Sequence(
-                'AS',
+                "AS",
                 OneOf(
-                    Ref('DoubleQuotedLiteralSegment'),
-                    Ref('QuotedLiteralSegment'),
+                    Ref("DoubleQuotedLiteralSegment"),
+                    Ref("QuotedLiteralSegment"),
                     Bracketed(
-                        OneOf(
-                            Ref('ExpressionSegment'),
-                            Ref('SelectStatementSegment')
-                        )
-                    )
+                        OneOf(Ref("ExpressionSegment"), Ref("SelectStatementSegment"))
+                    ),
                 ),
-            )
+            ),
         )
     )
 
@@ -211,128 +209,99 @@ class DatatypeSegment(BaseSegment):
     In particular here, this enabled the support for
     the STRUCT datatypes.
     """
-    type = 'data_type'
+
+    type = "data_type"
     match_grammar = OneOf(  # Parameter type
-        Ref('ParameterNameSegment'),  # Simple type
-        Sequence(  # SQL UDFs can specify this "type"
-            'ANY',
-            'TYPE'
-        ),
+        Ref("ParameterNameSegment"),  # Simple type
+        Sequence("ANY", "TYPE"),  # SQL UDFs can specify this "type"
+        Sequence("ARRAY", Bracketed(Ref("DatatypeSegment"), bracket_type="angle")),
         Sequence(
-            'ARRAY',
-            Bracketed(
-                Ref('DatatypeSegment'),
-                bracket_type='angle'
-            )
-        ),
-        Sequence(
-            'STRUCT',
+            "STRUCT",
             Bracketed(
                 Delimited(  # Comma-separated list of field names/types
-                    Sequence(
-                        Ref('ParameterNameSegment'),
-                        Ref('DatatypeSegment')
-                    ),
-                    delimiter=Ref('CommaSegment')
+                    Sequence(Ref("ParameterNameSegment"), Ref("DatatypeSegment")),
+                    delimiter=Ref("CommaSegment"),
                 ),
-                bracket_type='angle'
+                bracket_type="angle",
             ),
-        )
+        ),
     )
 
 
 @bigquery_dialect.segment(replace=True)
 class CreateModelStatementSegment(BaseSegment):
     """A BigQuery `CREATE MODEL` statement."""
-    type = 'create_model_statement'
+
+    type = "create_model_statement"
     # https://cloud.google.com/bigquery-ml/docs/reference/standard-sql/bigqueryml-syntax-create
     match_grammar = Sequence(
-        'CREATE',
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        "MODEL",
+        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("ObjectReferenceSegment"),
         Sequence(
-            'OR',
-            'REPLACE',
-            optional=True
-        ),
-        'MODEL',
-        Sequence(
-            'IF',
-            'NOT',
-            'EXISTS',
-            optional=True
-        ),
-        Ref('ObjectReferenceSegment'),
-        Sequence(
-            'OPTIONS',
+            "OPTIONS",
             Bracketed(
                 Delimited(
                     Sequence(
-                        Ref('ParameterNameSegment'),
-                        Ref('EqualsSegment'),
+                        Ref("ParameterNameSegment"),
+                        Ref("EqualsSegment"),
                         OneOf(
                             # This covers many but not all the extensive list of
                             # possible 'CREATE MODEL' optiona.
-                            Ref('LiteralGrammar'),  # Single value
+                            Ref("LiteralGrammar"),  # Single value
                             Bracketed(
                                 # E.g. input_label_cols: list of column names
                                 Delimited(
-                                    Ref('QuotedLiteralSegment'),
-                                    delimiter=Ref('CommaSegment')
+                                    Ref("QuotedLiteralSegment"),
+                                    delimiter=Ref("CommaSegment"),
                                 ),
-                                bracket_type='square',
-                                optional=True
+                                bracket_type="square",
+                                optional=True,
                             ),
-                        )
+                        ),
                     ),
-                    delimiter=Ref('CommaSegment')
+                    delimiter=Ref("CommaSegment"),
                 )
             ),
-            optional=True
+            optional=True,
         ),
-        'AS',
-        Ref('SelectStatementSegment')
+        "AS",
+        Ref("SelectStatementSegment"),
     )
 
 
 @bigquery_dialect.segment(replace=True)
 class DropModelStatementSegment(BaseSegment):
     """A `DROP MODEL` statement."""
-    type = 'drop_model_statement'
+
+    type = "drop_model_statement"
     # DROP MODEL <Model name> [IF EXISTS}
     # https://cloud.google.com/bigquery-ml/docs/reference/standard-sql/bigqueryml-syntax-drop-model
     match_grammar = Sequence(
-        'DROP',
-        'MODEL',
-        Sequence(
-            'IF',
-            'EXISTS',
-            optional=True
-        ),
-        Ref('ObjectReferenceSegment')
+        "DROP",
+        "MODEL",
+        Sequence("IF", "EXISTS", optional=True),
+        Ref("ObjectReferenceSegment"),
     )
 
 
 @bigquery_dialect.segment(replace=True)
 class MLTableExpressionSegment(BaseSegment):
     """An ML table expression."""
-    type = 'ml_table_expression'
+
+    type = "ml_table_expression"
     # E.g. ML.WEIGHTS(MODEL `project.dataset.model`)
     match_grammar = Sequence(
-        'ML',
-        Ref('DotSegment'),
-        Ref('SingleIdentifierGrammar'),
+        "ML",
+        Ref("DotSegment"),
+        Ref("SingleIdentifierGrammar"),
         Bracketed(
-            Sequence(
-                'MODEL',
-                Ref('ObjectReferenceSegment')
-            ),
+            Sequence("MODEL", Ref("ObjectReferenceSegment")),
             OneOf(
-                Sequence(
-                    Ref('CommaSegment'),
-                    Bracketed(
-                        Ref('SelectStatementSegment')
-                    )
-                ),
-                optional=True
-            )
-        )
+                Sequence(Ref("CommaSegment"), Bracketed(Ref("SelectStatementSegment"))),
+                optional=True,
+            ),
+        ),
     )
