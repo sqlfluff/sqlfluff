@@ -1792,9 +1792,8 @@ ansi_dialect.add(
 
 @ansi_dialect.segment()
 class FunctionDefinitionGrammar(BaseSegment):
-    """
-    This is the body of a `CREATE FUNCTION AS` statement.
-    """
+    """This is the body of a `CREATE FUNCTION AS` statement."""
+
     match_grammar = Sequence(
         "AS",
         Ref("QuotedLiteralSegment"),

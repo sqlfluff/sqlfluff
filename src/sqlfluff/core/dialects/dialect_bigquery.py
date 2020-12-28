@@ -116,9 +116,8 @@ bigquery_dialect.replace(
 
 @bigquery_dialect.segment(replace=True)
 class FunctionDefinitionGrammar(BaseSegment):
-    """
-    This is the body of a `CREATE FUNCTION AS` statement.
-    """
+    """This is the body of a `CREATE FUNCTION AS` statement."""
+
     match_grammar = Sequence(
         AnyNumberOf(
             Sequence(
