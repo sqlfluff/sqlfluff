@@ -1,0 +1,15 @@
+# Install with -U to keep all requirements up-to-date
+# code linting and formatting
+flake8
+flake8-docstrings
+flake8-black
+# documentation checks
+doc8
+Pygments
+# testing
+coverage
+pytest
+pytest-cov
+# MyPy
+mypy
+typing_extensions

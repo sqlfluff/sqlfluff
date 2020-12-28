@@ -7,7 +7,6 @@ NB: This is not part of the core sqlfluff code.
 """
 
 from __future__ import absolute_import
-from __future__ import print_function
 
 # This contains various utility scripts
 
@@ -28,7 +27,7 @@ def cli():
 
 
 @cli.command()
-@click.option('--path', default='.test-reports')
+@click.option("--path", default=".test-reports")
 def clean_tests(path):
     """Clear up the tests directory.
 
@@ -48,18 +47,18 @@ def clean_tests(path):
 
 
 @cli.command()
-@click.argument('cmd', nargs=-1)
-@click.option('--from-file', '-f', default=None)
-@click.option('--runs', default=3, show_default=True)
+@click.argument("cmd", nargs=-1)
+@click.option("--from-file", "-f", default=None)
+@click.option("--runs", default=3, show_default=True)
 def benchmark(cmd, runs, from_file):
     """Benchmark how long it takes to run a particular command."""
     if from_file:
-        with open(from_file, 'r') as yaml_file:
+        with open(from_file, "r") as yaml_file:
             parsed = yaml.load(yaml_file.read(), Loader=yaml.FullLoader)
-            benchmarks = parsed['benchmarks']
+            benchmarks = parsed["benchmarks"]
             click.echo(repr(benchmarks))
     elif cmd:
-        benchmarks = [{'name': str(hash(cmd)), 'cmd': cmd}]
+        benchmarks = [{"name": str(hash(cmd)), "cmd": cmd}]
     else:
         click.echo("No command or file specified!")
         sys.exit(1)
@@ -67,11 +66,11 @@ def benchmark(cmd, runs, from_file):
     commit_hash = None
     post_results = False
     # Try and detect a CI environment
-    if 'CIRCLECI' in os.environ:
+    if "CIRCLECI" in os.environ:
         click.echo("Circle CI detected!")
         # available_vars = [var for var in os.environ.keys()]  # if var.startswith('CIRCLE')
         # click.echo("Available keys: {0!r}".format(available_vars))
-        commit_hash = os.environ.get('CIRCLE_SHA1', None)
+        commit_hash = os.environ.get("CIRCLE_SHA1", None)
         post_results = True
         click.echo("Commit hash is: {0!r}".format(commit_hash))
 
@@ -81,43 +80,39 @@ def benchmark(cmd, runs, from_file):
         results = {}
         for benchmark in benchmarks:
             # Iterate through benchmarks
-            click.echo("Starting bechmark: {0!r}".format(benchmark['name']))
+            click.echo("Starting bechmark: {0!r}".format(benchmark["name"]))
             t0 = time.monotonic()
             click.echo("===START PROCESS OUTPUT===")
-            process = subprocess.run(benchmark['cmd'])
+            process = subprocess.run(benchmark["cmd"])
             click.echo("===END PROCESS OUTPUT===")
             t1 = time.monotonic()
             if process.returncode != 0:
-                click.echo("Command failed with return code: {0}".format(process.returncode))
+                click.echo(
+                    "Command failed with return code: {0}".format(process.returncode)
+                )
                 sys.exit(process.returncode)
             else:
                 duration = t1 - t0
                 click.echo("Process completed in {0:.4f}s".format(duration))
-                results[benchmark['name']] = duration
+                results[benchmark["name"]] = duration
 
         if post_results:
             click.echo("Posting results: {0}".format(results))
             resp = requests.post(
-                'https://f32cvv8yh3.execute-api.eu-west-1.amazonaws.com/result/gh/{repo}/{commit}'.format(
-                    repo='alanmcruickshank/sqlfluff',
-                    commit=commit_hash
+                "https://f32cvv8yh3.execute-api.eu-west-1.amazonaws.com/result/gh/{repo}/{commit}".format(
+                    # TODO: update the stats collector eventually to allow the new repo path
+                    repo="alanmcruickshank/sqlfluff",
+                    commit=commit_hash,
                 ),
-                params={
-                    'key': 'mtqTC1fVVebVQ5BVREP7jYrKwgjaO0IfRILzyZt'
-                },
-                json=results
+                params={"key": "mtqTC1fVVebVQ5BVREP7jYrKwgjaO0IfRILzyZt"},
+                json=results,
             )
             click.echo(resp.text)
         all_results[run_no] = results
     click.echo("===== Done =====")
     for run_no in all_results:
-        click.echo(
-            "Run {0:>5}: {1}".format(
-                "#{0}".format(run_no),
-                all_results[run_no]
-            )
-        )
+        click.echo("Run {0:>5}: {1}".format("#{0}".format(run_no), all_results[run_no]))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     cli()

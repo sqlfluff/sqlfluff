@@ -4,15 +4,15 @@ file:
       select_clause:
       - keyword: SELECT
       - select_target_element:
-          object_reference:
+          column_reference:
             identifier: ticket_id
       - comma: ','
       - select_target_element:
           expression:
-            object_reference:
+            column_reference:
               identifier: value
             snowflake_semi_structured_expression:
-              keyword: ':'
+              colon: ':'
               semi_structured_element: value
           alias_expression:
             keyword: AS
@@ -20,10 +20,10 @@ file:
       - comma: ','
       - select_target_element:
           expression:
-            object_reference:
+            column_reference:
               identifier: value
             snowflake_semi_structured_expression:
-              keyword: ':'
+              colon: ':'
               semi_structured_element: id
             cast_expression:
               casting_operator: '::'
@@ -35,10 +35,10 @@ file:
       - comma: ','
       - select_target_element:
           expression:
-            object_reference:
+            column_reference:
               identifier: value
             snowflake_semi_structured_expression:
-              keyword: ':'
+              colon: ':'
               semi_structured_element: value
             cast_expression:
               casting_operator: '::'
@@ -50,10 +50,10 @@ file:
       - comma: ','
       - select_target_element:
           expression:
-            object_reference:
+            column_reference:
               identifier: value
             snowflake_semi_structured_expression:
-            - keyword: ':'
+            - colon: ':'
             - semi_structured_element: thing
             - array_accessor:
                 start_square_bracket: '['
@@ -67,10 +67,10 @@ file:
       - comma: ','
       - select_target_element:
           expression:
-            object_reference:
+            column_reference:
               identifier: value
             snowflake_semi_structured_expression:
-            - keyword: ':'
+            - colon: ':'
             - semi_structured_element: thing
             - array_accessor:
                 start_square_bracket: '['
@@ -96,7 +96,7 @@ file:
       from_clause:
       - keyword: FROM
       - table_expression:
-          object_reference:
+          table_reference:
             identifier: raw_tickets
       - comma: ','
       - table_expression:
@@ -107,6 +107,6 @@ file:
             snowflake_keyword_expression:
               parameter: INPUT
               parameter_assigner: =>
-              object_reference:
+              column_reference:
                 identifier: custom_fields
             end_bracket: )

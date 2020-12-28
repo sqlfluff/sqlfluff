@@ -6,7 +6,7 @@ file:
       - keyword: SELECT
       - select_target_element:
           expression:
-            object_reference:
+            column_reference:
               identifier: my_var
             cast_expression:
               casting_operator: '::'
@@ -29,5 +29,5 @@ file:
       from_clause:
         keyword: FROM
         table_expression:
-          object_reference:
+          table_reference:
             identifier: boo

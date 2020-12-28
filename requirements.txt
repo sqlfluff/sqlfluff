@@ -1,6 +1,7 @@
 click>=7.1
 colorama>=0.3
 configparser
+cached-property
 # bench-it is used while profiling
 bench-it
 # oyaml is like pyyaml but preserves orderings
@@ -9,3 +10,7 @@ Jinja2
 diff-cover>=2.5.0,<3.0
 # pathspec handles the .sqlfluffignore file
 pathspec
+pytest
+appdirs
+# dataclasses backport for python 3.6
+dataclasses

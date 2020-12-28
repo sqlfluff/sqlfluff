@@ -5,7 +5,7 @@ SQL in the Wild
 
 SQL has been around for a long time, as a language for communicating
 with databases, like a communication protocol. More recently with the
-rise of *data* as a business function, or a domain in it's own right
+rise of *data* as a business function, or a domain in its own right
 SQL has also become an invaluable tool for defining the *structure* of
 data and analysis - not just as a one off but as a form of
 `infrastructure as code`_.
@@ -21,7 +21,7 @@ the principles mentioned in that article are `quality assurance`_ and
 Quality assurance
 -----------------
 
-The primary aim of `sqlfluff` as a project is in service of that first
+The primary aim of `SQLFluff` as a project is in service of that first
 aim of `quality assurance`_. With larger and larger teams maintaining
 large bodies of SQL code, it becomes more and more important that the
 code is not just *valid* but also easily *comprehensible* by other users
@@ -29,10 +29,10 @@ of the same codebase. One way to ensure readability is to enforce a
 `consistent style`_, and the tools used to do this are called `linters`_.
 
 Some famous `linters`_ which are well known in the software community are
-`flake8`_ and `jslint`_ (the former is used to lint the `sqlfluff` project
+`flake8`_ and `jslint`_ (the former is used to lint the `SQLFluff` project
 itself).
 
-**Sqlfluff** aims to fill this space for SQL.
+**SQLFluff** aims to fill this space for SQL.
 
 Modularity
 ----------
@@ -69,16 +69,17 @@ mean that the SQL files themselves are no longer valid SQL code, because
 they now contain these configured *placeholder* values, intended to
 improve modularity.
 
-Sqlfluff allows limited templating using both of the methods outlined
-above, to allow you to still lint those SQL files as part of your CI/CD
-pipeline (which is great 🙌), rather than waiting until you're in production
-(which is bad 🤦, and maybe too late).
+SQLFluff supports both of the templating methods outlined above,
+as well as `dbt`_ projects, to allow you to still lint these
+"dynamic" SQL files as part of your CI/CD pipeline (which is great 🙌),
+rather than waiting until you're in production (which is bad 🤦,
+and maybe too late).
 
 During the CI/CD pipeline (or any time that we need to handle `templated`_
-code), Sqlfluff needs additional info in order to interpret your templates
-as valid SQL code. You do so by providing dummy parameters in Sqlfluff
+code), SQLFluff needs additional info in order to interpret your templates
+as valid SQL code. You do so by providing dummy parameters in SQLFluff
 configuration files. When substituted into the template, these values should
-evaluate to valid SQL (so Sqlfluff can check its style, formatting, and
+evaluate to valid SQL (so SQLFluff can check its style, formatting, and
 correctness), but the values don't need to match actual values used in
 production. This means that you can use *much simpler* dummy values than
 what you would really use. The recommendation is to use *the simplest*

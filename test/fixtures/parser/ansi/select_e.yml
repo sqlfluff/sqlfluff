@@ -5,7 +5,7 @@ file:
           select_clause:
             keyword: SELECT
             select_target_element:
-              object_reference:
+              column_reference:
                 identifier: col_a
               alias_expression:
                 keyword: as
@@ -13,7 +13,7 @@ file:
           from_clause:
             keyword: FROM
             table_expression:
-              object_reference:
+              table_reference:
                 identifier: some_table
       - set_operator:
           keyword: UNION
@@ -21,7 +21,7 @@ file:
           select_clause:
             keyword: SELECT
             select_target_element:
-              object_reference:
+              column_reference:
                 identifier: col_b
               alias_expression:
                 keyword: as
@@ -29,7 +29,7 @@ file:
           from_clause:
             keyword: FROM
             table_expression:
-              object_reference:
+              table_reference:
                 identifier: another_table
       - set_operator:
         - keyword: UNION
@@ -38,7 +38,7 @@ file:
           select_clause:
             keyword: SELECT
             select_target_element:
-              object_reference:
+              column_reference:
                 identifier: col_c
               alias_expression:
                 keyword: as
@@ -46,7 +46,7 @@ file:
           from_clause:
             keyword: FROM
             table_expression:
-              object_reference:
+              table_reference:
                 identifier: this_other_table
       - set_operator:
           keyword: INTERSECT
@@ -54,7 +54,7 @@ file:
           select_clause:
             keyword: SELECT
             select_target_element:
-              object_reference:
+              column_reference:
                 identifier: col_d
               alias_expression:
                 keyword: as
@@ -62,5 +62,5 @@ file:
           from_clause:
             keyword: FROM
             table_expression:
-              object_reference:
+              table_reference:
                 identifier: the_last_table

@@ -1,0 +1,4 @@
+[sqlfluff:templater:jinja:context]
+test_expression_1=4+5+6
+test_expression_2=+2+
+test_expression_3=barfoo as bf,

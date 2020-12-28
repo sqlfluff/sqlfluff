@@ -10,57 +10,84 @@ systems use curly brackets *{}* to indicate templatable sections and
 these are not currently set up in any of the lexers, and so will fail
 at the next step if not dealt with here.
 
-Most templated SQL in the wild uses Jinja_ and so that is the default
-templater for *sqlfluff*. It uses the config framework to get at any
-templating variables.
+*SQLFluff* supports 2 templating engines:
+
+.. _Jinja: https://jinja.palletsprojects.com/
+.. _dbt: https://docs.getdbt.com/
+
+Jinja_ is the default templater used by *SQLFluff*. Under the covers, dbt_ also
+uses Jinja_ but in *SQLFluff* it is a separate templater which relies directly
+on the dbt_ compiler.
 
 For more details on how to configure the templater see :ref:`templateconfig`.
 
-.. _Jinja: https://jinja.palletsprojects.com/
 
 Stage 2, the lexer
 ------------------
 
 The lexer takes raw text and splits it into tokens. Nothing is *removed* but
-whitepace and code are seperated. In principle all identifiers should be
-seperated at this stage, but they should not be imparted any meaning at this
+whitespace and code are separated. In principle all identifiers should be
+separated at this stage, but they should not be imparted any meaning at this
 stage. Any files which cannot be lexed, should raise a *SQLLexError*.
 
-The lexer is normally not called directly, but through the `from_raw` method
-of the *FileSegment*.
+While the Lexer is passed a series of raw segments, it will return a single
+segment, usually a :code:`FileSegment`, which will be used to initiate parsing.
 
 Stage 3, the parser
 -------------------
 
 We recursively parse each of the elements, using their in built grammars.
 
-1. Initially we start with a segment, which contains only raw segments. This
-   is normally a *FileSegment*, but it could in theory be any kind of segment,
-   and as we recurse it will be lower and lower sublevels.
-2. We then *parse* this element. This calls the *parse* method on the segment,
-   and uses the *parse grammar* if that is present. If no *parse grammar* is
-   present then the *match* grammar will be used instead on the segment in
-   question. This will return either a new list of segments (where we expect
-   that some are likely no longer just raw segments), or it will return *None*
-   or an empty list, to indicate it has not matched. If no match is found for
-   the current segment, the contents will be wrapped in an *UnparsableSegment*
-   which can be picked up as a *parsing* error later. **Note:** any *segments*
-   referenced in the grammar, will have their *match grammar* used rather than
-   their *parse grammar*. Their *parse grammar* will only be called when they
-   are currently the subject of the *parse*.
-3. When the segment is *parsed*, we then iterate through all the child
-   segments, calling their *parse* method, as above. There are options which
-   can be passed to the *parse* method to limit how many layers deep the
-   *parse* will go. Raw elements, return themselves with no sub-segments,
-   which means that they effectively limit how deep a parse can go to avoid
-   infinite recursion.
-4. In analysing the eventual tree, any *UnparsableSegment* objects should
+#. Initially we start with a segment, which contains only raw segments. This
+   is normally a :code:`FileSegment`, but it could in theory be any kind of
+   segment, and as we recurse it will be lower and lower sublevels.
+
+#. We then *parse* this element by calling :code:`.parse()`.
+
+   #. This first calls uses the :code:`parse_grammar` if that is present, on
+      which we call :code:`.match()`. The *match* method of this grammar will
+      return a potentially refined structure of the segments within this
+      segment in greater detail than what was initially there. In the example
+      of a :code:`FileSegment`, it first divides up the query into statements
+      and then finishes.
+
+   #. The :code:`.match()` method of any grammar is naturally recursive, and
+      is comprised of *segments* and *grammars*. The match step is still not
+      inert however and child elements of a match grammar may return more
+      specific versions of segments during this phase even though we are not
+      calling :code:`.parse()`
+
+      * *Segments* must implement a :code:`match_grammar` to be used in this
+        way. When :code:`.match()` is called on a segment, this is the grammar
+        which is used to decide whether there is a match.
+
+      * *Grammars* are objects which combine *segments* or other *grammars*
+        together in a pre-defined way. For example the :code:`OneOf` grammar
+        will match if any one of its child elements match.
+
+   #. Regardless of whether the :code:`parse_grammar` was used, the next step
+      is to recursively call the :code:`.parse()` method of each of the child
+      segments of the grammar. This operation is wrapped in a method called
+      :code:`.expand()`. In the :code:`FileSegment`, the first step will have
+      transformed a series of raw tokens into :code:`StatementSegment`
+      segments, and the *expand* step will let each of those segments refine
+      the content within them.
+
+   #. Eventually in that recursive operation we reach segments which have no
+      children (raw elements containing a single token), and so the recursion
+      naturally finishes.
+
+#. If no match is found for the current segment, the contents will be wrapped
+   in an :code:`UnparsableSegment` which can be picked up as a *parsing* error
+   later.
+
+#. In analysing the eventual tree, any *UnparsableSegment* objects should
    raise a *SQLParseError* which can then be formatted and raised to the user.
 
 Principles within the parser
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The parser is arguably the most complicated element of sqlfluff, and is
+The parser is arguably the most complicated element of SQLFluff, and is
 relied on by all the other elements of the tool to do most of the heavy
 lifting. When working on the parser there are a couple of design principles
 to keep in mind.
@@ -72,7 +99,7 @@ to keep in mind.
   grammar is that it allows name resolution of grammar elements at runtime
   and so a *patched* grammar with some elements overriden can still rely on
   lower level elements which haven't been overwritten.
-- *Segments* and *Grammars* operate roughly interchangably from a dialect.
+- *Segments* and *Grammars* operate roughly interchangeably from a dialect.
   A grammar is something which can be matched against and return a result.
   These will be used as instantiated classes and usually contain a set of
   elements (stored in the *_elements* attribute) which are the sub elements

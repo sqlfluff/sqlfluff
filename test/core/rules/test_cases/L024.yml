@@ -1,0 +1,11 @@
+rule: L024
+
+test_1:
+  fail_str: select * from a JOIN b USING(x)
+  fix_str: select * from a JOIN b USING (x)
+
+test_2:
+  # Check L024 passes if there's a newline between
+  pass_str: |
+    select * from a JOIN b USING
+    (x)

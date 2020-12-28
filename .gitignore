@@ -16,17 +16,19 @@ dist
 env
 .tox
 venv
-.venv 
+.venv
 .python-version
 
 # Ignore coverage reports
 .coverage
 .coverage.*
 coverage.xml
+htmlcov
 
 # Ignore test reports
 .test-reports
 test-reports
 
-# Ignore root testing sql files
+# Ignore root testing sql & python files
 /test*.sql
+/test*.py

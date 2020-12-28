@@ -8,7 +8,7 @@ file:
                 - whitespace: '    '
                 - select_target_element:
                     expression:
-                        object_reference:
+                        column_reference:
                             identifier: my_var
                         cast_expression:
                             casting_operator: '::'
@@ -39,6 +39,6 @@ file:
                 keyword: FROM
                 whitespace: ' '
                 table_expression:
-                    object_reference:
+                    table_reference:
                         identifier: boo
     newline: "\n"

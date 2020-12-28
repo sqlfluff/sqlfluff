@@ -1,0 +1,5 @@
+rule: L005
+
+test_1:
+  fail_str: SELECT 1 ,4
+  fix_str: SELECT 1,4
