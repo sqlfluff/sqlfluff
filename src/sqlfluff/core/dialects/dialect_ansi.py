@@ -1792,6 +1792,9 @@ ansi_dialect.add(
 
 @ansi_dialect.segment()
 class FunctionDefinitionGrammar(BaseSegment):
+    """
+    This is the body of a `CREATE FUNCTION AS` statement.
+    """
     match_grammar = Sequence(
         "AS",
         Ref("QuotedLiteralSegment"),
@@ -1807,6 +1810,7 @@ class FunctionDefinitionGrammar(BaseSegment):
 @ansi_dialect.segment()
 class CreateFunctionStatementSegment(BaseSegment):
     """A `CREATE FUNCTION` statement.
+
     This version in the ANSI dialect should be a "common subset" of the
     structure of the code for those dialects.
     postgres: https://www.postgresql.org/docs/9.1/sql-createfunction.html

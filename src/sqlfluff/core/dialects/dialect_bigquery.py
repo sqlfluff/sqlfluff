@@ -116,6 +116,9 @@ bigquery_dialect.replace(
 
 @bigquery_dialect.segment(replace=True)
 class FunctionDefinitionGrammar(BaseSegment):
+    """
+    This is the body of a `CREATE FUNCTION AS` statement.
+    """
     match_grammar = Sequence(
         AnyNumberOf(
             Sequence(
@@ -206,6 +209,7 @@ class ReplaceClauseSegment(BaseSegment):
 @bigquery_dialect.segment(replace=True)
 class DatatypeSegment(BaseSegment):
     """A data type segment.
+
     In particular here, this enabled the support for
     the STRUCT datatypes.
     """
