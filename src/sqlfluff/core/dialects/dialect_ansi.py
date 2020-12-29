@@ -605,7 +605,13 @@ class PartitionClauseSegment(BaseSegment):
         "PARTITION",
         "BY",
         Indent,
-        Delimited(Ref("ExpressionSegment"), delimiter=Ref("CommaSegment")),
+        OneOf(
+            # Brackets are optional in a partition by statement
+            Bracketed(
+                Delimited(Ref("ExpressionSegment"), delimiter=Ref("CommaSegment"))
+            ),
+            Delimited(Ref("ExpressionSegment"), delimiter=Ref("CommaSegment")),
+        ),
         Dedent,
     )
 
