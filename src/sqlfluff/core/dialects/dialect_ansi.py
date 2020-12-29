@@ -337,7 +337,7 @@ class IntervalExpressionSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class ArrayLiteralSegment(BaseSegment):
-    """A data type segment."""
+    """An array literal segment."""
 
     type = "array_literal_type"
     match_grammar = Bracketed(
@@ -887,6 +887,7 @@ class FromClauseSegment(BaseSegment):
             OneOf(
                 # Optional old school delimited joins
                 Ref("TableExpressionSegment"),
+                Ref("MLTableExpressionSegment"),
                 Ref("DialectSpecificTableExpressionGrammar"),
             ),
             delimiter=Ref("CommaSegment"),
