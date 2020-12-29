@@ -107,6 +107,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Silenced warnings when fixing from stdin. ([#522](https://github.com/sqlfluff/sqlfluff/pull/522))
 - Allow an underscore as the first char in a semi structured element key. ([#596](https://github.com/sqlfluff/sqlfluff/pull/596))
 - Fix PostFunctionGrammar in the Snowflake dialect which was causing strange behaviour in L012. ([#619](https://github.com/sqlfluff/sqlfluff/pull/619/files))
+- `Bracketed` segment now obtains it's brackets directly from the dialect
+  using a set named `bracket_pairs`. This now enables better configuration
+  of brackets between dialects. ([#325](https://github.com/sqlfluff/sqlfluff/pull/325))
 
 ### Removed
 - Dropped support for python 3.5. ([#482](https://github.com/sqlfluff/sqlfluff/pull/482))
@@ -167,13 +170,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Patterns and Anti-patterns in documentation. Thanks [@flpezet](https://github.com/flpezet).
 - Functions in `GROUP BY`. Thanks [@flpezet](https://github.com/flpezet).
 
-### Added
-
 ### Changed
 
-- `Bracketed` segment now obtains it's brackets directly from the dialect
-  using a set named `bracket_pairs`. This now enables better configuration
-  of brackets between dialects.
 - Deep bugfixes in the parser to handle simple matching better for a few
   edge cases. Also added some logging deeper in the parser.
 - Added in the `SelectableGrammar` and some related segments to make it
