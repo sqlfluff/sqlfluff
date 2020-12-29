@@ -361,7 +361,6 @@ class DatatypeSegment(BaseSegment):
             ),
             # There may be no brackets for some data types
             optional=True,
-            bracket_type="square",
         ),
     )
 
