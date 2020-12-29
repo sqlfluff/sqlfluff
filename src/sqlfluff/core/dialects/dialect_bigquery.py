@@ -215,7 +215,7 @@ class DatatypeSegment(BaseSegment):
 
     type = "data_type"
     match_grammar = OneOf(  # Parameter type
-        Ref("ParameterNameSegment"),  # Simple type
+        Ref("DatatypeIdentifierSegment"),  # Simple type
         Sequence("ANY", "TYPE"),  # SQL UDFs can specify this "type"
         Sequence("ARRAY", Bracketed(Ref("DatatypeSegment"), bracket_type="angle")),
         Sequence(
