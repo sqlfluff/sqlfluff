@@ -457,7 +457,7 @@ class BaseGrammar(Matchable):
         ]
         start_definite = list(definitely_bracket)
         end_definite = list(definitely_bracket)
-        # Any any bracket-like things passed as arguments
+        # Add any bracket-like things passed as arguments
         if start_bracket:
             start_brackets += [start_bracket]
             start_definite += [True]
