@@ -55,6 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `dbt` `incremental` macro. ([#363](https://github.com/sqlfluff/sqlfluff/pull/363))
 - Added links to cockroachlabs expression grammars in ansi dialect. ([#592](https://github.com/sqlfluff/sqlfluff/pull/592))
 - Added favicon to the docs website. ([#589](https://github.com/sqlfluff/sqlfluff/pull/589))
+- Added `CREATE FUNCTION` syntax for postgres and for bigquery. ([#325](https://github.com/sqlfluff/sqlfluff/pull/325))
 
 ### Changed
 
@@ -167,9 +168,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Functions in `GROUP BY`. Thanks [@flpezet](https://github.com/flpezet).
 
 ### Added
-
-- `CREATE FUNCTION` syntax for postgres and for bigquery. Thanks [@barrywhart](https://github.com/barrywhart).
-- `CREATE MODEL` syntax for bigquery. Thanks [@barrywhart](https://github.com/barrywhart).
 
 ### Changed
 
