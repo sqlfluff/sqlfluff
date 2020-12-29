@@ -858,7 +858,6 @@ class JoinClauseSegment(BaseSegment):
 ansi_dialect.add(
     # This is a hook point to allow subclassing for other dialects
     JoinLikeClauseGrammar=Nothing(),
-    DialectSpecificTableExpressionGrammar=Nothing(),
 )
 
 
@@ -888,7 +887,6 @@ class FromClauseSegment(BaseSegment):
                 # Optional old school delimited joins
                 Ref("TableExpressionSegment"),
                 Ref("MLTableExpressionSegment"),
-                Ref("DialectSpecificTableExpressionGrammar"),
             ),
             delimiter=Ref("CommaSegment"),
             terminator=Ref("JoinClauseSegment"),
@@ -1788,14 +1786,6 @@ class SetClauseSegment(BaseSegment):
     )
 
 
-ansi_dialect.add(
-    # This is a hook point to allow subclassing for other dialects.
-    # In the ANSI dialect this is designed to be a basic starting point.
-    # Hook point for other dialects to define new kinds of statement
-    DialectSpecificStatementsGrammar=Nothing()
-)
-
-
 @ansi_dialect.segment()
 class FunctionDefinitionGrammar(BaseSegment):
     """This is the body of a `CREATE FUNCTION AS` statement."""
@@ -1966,7 +1956,6 @@ class StatementSegment(BaseSegment):
         Ref("DeleteStatementSegment"),
         Ref("UpdateStatementSegment"),
         Ref("CreateFunctionStatementSegment"),
-        Ref("DialectSpecificStatementsGrammar"),
         Ref("CreateModelStatementSegment"),
         Ref("DropModelStatementSegment"),
     )

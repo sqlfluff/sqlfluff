@@ -106,12 +106,6 @@ bigquery_dialect.replace(
         ),
         Sequence("WITH", "OFFSET", "AS", Ref("SingleIdentifierGrammar"), optional=True),
     ),
-    # This is a hook point to allow subclassing for other dialects.
-    # In the ANSI dialect this is designed to be a basic starting point.
-    DialectSpecificStatementsGrammar=OneOf(
-        Ref("CreateModelStatementSegment"), Ref("DropModelStatementSegment")
-    ),
-    DialectSpecificTableExpressionGrammar=Ref("MLTableExpressionSegment"),
 )
 
 
