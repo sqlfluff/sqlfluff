@@ -3469,7 +3469,11 @@ class Rule_L036(BaseCrawler):
             # TRICKY: Ignore whitespace prior to the first newline, e.g. if
             # the line with "SELECT" (before any selct targets) has trailing
             # whitespace.
-            if seg.is_type("whitespace") and first_new_line_idx != -1 and first_whitespace_idx == -1:
+            if (
+                seg.is_type("whitespace")
+                and first_new_line_idx != -1
+                and first_whitespace_idx == -1
+            ):
                 first_whitespace_idx = fname_idx
 
         eval_result = EvalResult(
