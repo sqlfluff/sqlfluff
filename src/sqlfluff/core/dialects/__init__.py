@@ -6,6 +6,7 @@ from .dialect_mysql import mysql_dialect
 from .dialect_teradata import teradata_dialect
 from .dialect_postgres import postgres_dialect
 from .dialect_snowflake import snowflake_dialect
+from .dialect_exasol import exasol_dialect
 
 
 _dialect_lookup = {
@@ -15,6 +16,7 @@ _dialect_lookup = {
     "teradata": teradata_dialect,
     "postgres": postgres_dialect,
     "snowflake": snowflake_dialect,
+    "exasol": exasol_dialect,
 }
 
 
