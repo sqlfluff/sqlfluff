@@ -19,6 +19,7 @@ from ..parser import (
     NamedSegment,
     SymbolSegment,
     ReSegment,
+    Anything,
 )
 
 from .dialect_exasol import ObjectReferenceSegment, exasol_dialect
@@ -77,6 +78,23 @@ exasol_fs_dialect.replace(
     SemicolonSegment=SymbolSegment.make(";", name="semicolon", type="semicolon"),
 )
 
+
+@exasol_fs_dialect.segment()
+class ParameterDefinitionSegment(BaseSegment):
+    """A parameter definition."""
+
+    type = "parameter_definition"
+    match_grammar = Sequence(
+        Ref("SingleIdentifierGrammar"),  # Column name
+        Ref.keyword("IN", optional=True),
+        Ref("DatatypeSegment"),  # Column type
+        Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
+        AnyNumberOf(
+            Ref("ColumnOptionSegment", optional=True),
+        ),
+    )
+
+
 ############################
 # FUNCTION
 ############################
@@ -102,16 +120,19 @@ class CreateFunctionStatementSegment(BaseSegment):
         # Ref("StartBracketSegment"),
         Bracketed(
             AnyNumberOf(
-                Sequence(
-                    Ref("FunctionParameterNameSegment"),
-                    Ref.keyword("IN", optional=True),
-                    Ref("DatatypeSegment"),
-                    Ref(
-                        "ExpressionSegment", optional=True
-                    ),  # TODO: codepage, default ...
+                Ref(
+                    "ParameterDefinitionSegment",
+                    optional=True
+                    # Sequence(
+                    #     Ref("FunctionParameterNameSegment"),
+                    #     Ref.keyword("IN", optional=True),
+                    #     Ref("DatatypeSegment"),
+                    #     Ref(
+                    #         "ExpressionSegment", optional=True
+                    #     ),  # TODO: codepage, default ...
                 ),
                 Ref("CommaSegment", optional=True),
-            )
+            ),
         ),
         # Ref("EndBracketSegment"),
         "RETURN",
