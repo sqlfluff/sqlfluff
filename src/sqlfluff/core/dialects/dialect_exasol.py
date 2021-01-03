@@ -3,7 +3,8 @@
 https://docs.exasol.com
 """
 
-from typing import Any
+
+from sqlfluff.core.parser.segments import keyword
 from ..parser import (
     OneOf,
     Ref,
@@ -21,7 +22,7 @@ from .dialect_ansi import ObjectReferenceSegment, ansi_dialect
 
 exasol_dialect = ansi_dialect.copy_as("exasol")
 
-# Clear ANSI Keywords and all EXASOL keywords
+# Clear ANSI Keywords and add all EXASOL keywords
 exasol_dialect.sets("unreserved_keywords").clear()
 exasol_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 exasol_dialect.sets("reserved_keywords").clear()
@@ -41,8 +42,12 @@ exasol_dialect.replace(
         Ref("QuotedIdentifierSegment"),
     ),
 )
-
-# Copied from ANSI but removed the RLIKE & LLIKE keyword part
+exasol_dialect.replace(
+    SemicolonSegment=keyword.SymbolSegment.make(
+        ";", name="semicolon", type="semicolon"
+    ),
+)
+# Copied from ANSI but removed the RLIKE & LLIKE, NAN; ISNULL, NOTNULL keyword part
 exasol_dialect.replace(
     Expression_A_Grammar=Sequence(
         OneOf(
@@ -100,9 +105,6 @@ exasol_dialect.replace(
                     Ref.keyword("NOT", optional=True),
                     OneOf(
                         "NULL",
-                        "NAN",
-                        "NOTNULL",
-                        "ISNULL",
                         # TODO: True and False might not be allowed here in some
                         # dialects (e.g. snowflake) so we should probably
                         # revisit this at some point. Perhaps abstract this clause
@@ -267,6 +269,7 @@ class DropTableStatementSegment(BaseSegment):
 class SchemaReferenceSegment(ObjectReferenceSegment):
     """A reference to an schema."""
 
+    # TODO: SCHEMA ist ein einzel identifier...
     type = "schema_reference"
 
 
