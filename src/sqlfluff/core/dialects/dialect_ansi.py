@@ -287,6 +287,18 @@ ansi_dialect.add(
             ephemeral_name="ColumnReferenceList",
         )
     ),
+    OrReplaceGrammar=Sequence("OR", "REPLACE"),
+    IfExistsGrammar=Sequence("IF", "EXISTS"),
+    IfNotExistsGrammar=Sequence("IF", "NOT", "EXISTS"),
+    LikeGrammar=OneOf("LIKE", "RLIKE", "ILIKE"),
+    IsClauseGrammar=OneOf(
+        "NULL",
+        "NAN",
+        "NOTNULL",
+        "ISNULL",
+        Ref("BooleanLiteralGrammar"),
+    ),
+    WhereClauseTerminatorGrammar=OneOf("LIMIT", "GROUP", "ORDER", "HAVING", "QUALIFY"),
 )
 
 
@@ -977,7 +989,7 @@ ansi_dialect.add(
                         Ref("BinaryOperatorGrammar"),
                         Sequence(
                             Ref.keyword("NOT", optional=True),
-                            OneOf("LIKE", "RLIKE", "ILIKE"),
+                            Ref("LikeGrammar"),
                         )
                         # We need to add a lot more here...
                     ),
@@ -1011,17 +1023,7 @@ ansi_dialect.add(
                 Sequence(
                     "IS",
                     Ref.keyword("NOT", optional=True),
-                    OneOf(
-                        "NULL",
-                        "NAN",
-                        "NOTNULL",
-                        "ISNULL",
-                        # TODO: True and False might not be allowed here in some
-                        # dialects (e.g. snowflake) so we should probably
-                        # revisit this at some point. Perhaps abstract this clause
-                        # into an "is-statement grammar", which could be overridden.
-                        Ref("BooleanLiteralGrammar"),
-                    ),
+                    Ref("IsClauseGrammar"),
                 ),
                 Sequence(
                     Ref.keyword("NOT", optional=True),
@@ -1111,7 +1113,7 @@ class WhereClauseSegment(BaseSegment):
     type = "where_clause"
     match_grammar = StartsWith(
         "WHERE",
-        terminator=OneOf("LIMIT", "GROUP", "ORDER", "HAVING", "QUALIFY"),
+        terminator=Ref("WhereClauseTerminatorGrammar"),
         enforce_whitespace_preceeding_terminator=True,
     )
     parse_grammar = Sequence("WHERE", Indent, Ref("ExpressionSegment"), Dedent)
@@ -1483,9 +1485,9 @@ class CreateTableStatementSegment(BaseSegment):
     # https://www.postgresql.org/docs/12/sql-createtable.html
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         "TABLE",
-        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         OneOf(
             # Columns and comment syntax:
@@ -1564,7 +1566,7 @@ class CreateViewStatementSegment(BaseSegment):
     # https://www.postgresql.org/docs/12/sql-createview.html
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         "VIEW",
         Ref("TableReferenceSegment"),
         # Optional list of column names
@@ -1586,7 +1588,7 @@ class DropStatementSegment(BaseSegment):
             "TABLE",
             "VIEW",
         ),
-        Sequence("IF", "EXISTS", optional=True),
+        Ref("IfExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         OneOf("RESTRICT", Ref.keyword("CASCADE", optional=True), optional=True),
     )
@@ -1782,9 +1784,9 @@ class CreateModelStatementSegment(BaseSegment):
     # https://cloud.google.com/bigquery-ml/docs/reference/standard-sql/bigqueryml-syntax-create
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         "MODEL",
-        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
         Sequence(
             "OPTIONS",
@@ -1828,7 +1830,7 @@ class DropModelStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "DROP",
         "MODEL",
-        Sequence("IF", "EXISTS", optional=True),
+        Ref("IfExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
     )
 

@@ -57,11 +57,6 @@ exasol_fs_dialect.add(
     WalrusOperatorSegment=SymbolSegment.make(
         ":=", name="walrus_operator", type="assignment_operator"
     ),
-    FunctionParameterNameSegment=ReSegment.make(
-        r"\"?[A-Z][A-Z0-9_]*\"?",
-        name="function_parameter",
-        type="parameter",
-    ),
     FunctionVariableNameSegment=ReSegment.make(
         r"[A-Z][A-Z0-9_]*",
         name="function_variable",
@@ -88,10 +83,7 @@ class ParameterDefinitionSegment(BaseSegment):
         Ref("SingleIdentifierGrammar"),  # Column name
         Ref.keyword("IN", optional=True),
         Ref("DatatypeSegment"),  # Column type
-        Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
-        AnyNumberOf(
-            Ref("ColumnOptionSegment", optional=True),
-        ),
+        Ref.keyword("UTF8", optional=True),
     )
 
 
@@ -120,17 +112,7 @@ class CreateFunctionStatementSegment(BaseSegment):
         # Ref("StartBracketSegment"),
         Bracketed(
             AnyNumberOf(
-                Ref(
-                    "ParameterDefinitionSegment",
-                    optional=True
-                    # Sequence(
-                    #     Ref("FunctionParameterNameSegment"),
-                    #     Ref.keyword("IN", optional=True),
-                    #     Ref("DatatypeSegment"),
-                    #     Ref(
-                    #         "ExpressionSegment", optional=True
-                    #     ),  # TODO: codepage, default ...
-                ),
+                Ref("ParameterDefinitionSegment", optional=True),
                 Ref("CommaSegment", optional=True),
             ),
         ),
@@ -184,7 +166,7 @@ class FunctionAssignmentSegment(BaseSegment):
                 Ref("FunctionReferenceSegment"),
                 Bracketed(
                     AnyNumberOf(
-                        Ref("FunctionParameterNameSegment"),
+                        Ref("ParameterNameSegment"),
                         Ref("CommaSegment", optional=True),
                     ),
                 ),
@@ -194,20 +176,6 @@ class FunctionAssignmentSegment(BaseSegment):
             Ref("ExpressionSegment"),
             Ref("QuotedIdentifierSegment"),  # TODO: geht das überhaupt?
         ),
-        # Ref("FunctionVariableAssignmentSegment"),
-        # AnyNumberOf(
-        # OneOf(
-        #     Ref("StartBracketSegment"),
-        #     Ref("EndBracketSegment"),
-        #     Ref("CommaSegment"),
-        #     Ref("DotSegment"),
-        #     Ref("BinaryOperatorGrammar"),
-        # Ref("LiteralGrammar"),
-        # ),
-        # min_times=1,
-        # ),
-        # Ref("FunctionExpressionSegment"),  # TODO
-        # Ref("ExpressionSegment"),
         Ref("SemicolonSegment"),
     )
 
@@ -335,3 +303,15 @@ class FileSegment(BaseSegment):
         allow_gaps=True,
         allow_trailing=True,
     )
+
+
+@exasol_fs_dialect.segment()
+class ScriptContentSegment(BaseSegment):
+    """This represents the script content.
+
+    Because the script content could be written in
+    LUA, PYTHON, JAVA or R there is no further verification.
+    """
+
+    type = "script_content"
+    match_grammar = Anything()
