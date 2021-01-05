@@ -58,6 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- [#634](https://github.com/sqlfluff/sqlfluff/issues/635) Fixed parsing of semi-structured objects in the snowflake of dialects with whitespace gaps.
 - [#632](https://github.com/sqlfluff/sqlfluff/pull/632) Handle internal errors elegantly, reporting the stacktrace and the error-surfacing file.
 - [#633](https://github.com/sqlfluff/sqlfluff/issues/633) Improve message for when an automatic fix is not available for L004.
 - Big refactor of logging internally. `Linter` is now decoupled from
