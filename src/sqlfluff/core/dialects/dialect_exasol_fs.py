@@ -38,11 +38,14 @@ exasol_fs_dialect.set_lexer_struct(
         (
             "function_script_terminator",
             "regex",
-            r";\s*\/(?!\*)",
+            r";\s+\/(?!\*)|\s+\/$",  # this will match multiple functions in one file, but only one script per file
             dict(
                 is_code=True,
                 type="statement_terminator",
                 subdivide=dict(type="semicolon", name="semicolon", regex=r";"),
+                trim_post_subdivide=dict(
+                    type="newline", name="newline", regex=r"(\n|\r\n)*"
+                ),
             ),
         ),
         ("double_dot", "regex", r"\.{2}", dict(is_code=True)),
