@@ -3462,11 +3462,18 @@ class Rule_L036(BaseCrawler):
                 cnt_select_targets += 1
                 if first_select_target_idx == -1:
                     first_select_target_idx = fname_idx
-            if seg.is_type("keyword") and seg.name == "SELECT" and select_idx - 1:
+            if seg.is_type("keyword") and seg.name == "SELECT" and select_idx == -1:
                 select_idx = fname_idx
             if seg.is_type("newline") and first_new_line_idx == -1:
                 first_new_line_idx = fname_idx
-            if seg.is_type("whitespace") and first_whitespace_idx == -1:
+            # TRICKY: Ignore whitespace prior to the first newline, e.g. if
+            # the line with "SELECT" (before any select targets) has trailing
+            # whitespace.
+            if (
+                seg.is_type("whitespace")
+                and first_new_line_idx != -1
+                and first_whitespace_idx == -1
+            ):
                 first_whitespace_idx = fname_idx
 
         eval_result = EvalResult(
