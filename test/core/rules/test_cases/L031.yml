@@ -102,4 +102,4 @@ select_from_table_generator:
 
   configs:
     core:
-      dialect: bigquery
+      dialect: snowflake

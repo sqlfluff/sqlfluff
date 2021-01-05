@@ -59,7 +59,7 @@ For full documentation visit [docs.sqlfluff.com](https://docs.sqlfluff.com/en/st
 
 We have a fast-growing community on Slack, come and join us!
 
-https://join.slack.com/t/sqlfluff/shared_invite/zt-js0wsnvo-78gEI0phW9_LiItXAiJcqQ
+https://join.slack.com/t/sqlfluff/shared_invite/zt-knvv2a10-oZIKqGBFhldMcIkokaiv_w
 
 # Contributing
 
