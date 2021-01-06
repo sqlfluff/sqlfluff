@@ -17,6 +17,7 @@ from ..parser import (
     Anything,
     Matchable,
     SymbolSegment,
+    StartsWith,
 )
 
 from .exasol_keywords import RESERVED_KEYWORDS, UNRESERVED_KEYWORDS
@@ -37,17 +38,38 @@ exasol_dialect.add(
     ),
     ForeignKeyReferencesClauseGrammar=Sequence(
         "REFERENCES",
-        Ref("ColumnReferenceSegment"),
+        Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
-    ),
+    ),  # TODO Test Fails
     ColumnReferenceListGrammar=Delimited(
         Ref("ColumnReferenceSegment"),
         delimiter=Ref("CommaSegment"),
         ephemeral_name="ColumnReferenceList",
     ),
     CommentIsGrammar=Sequence("COMMENT", "IS", Ref("QuotedLiteralSegment")),
-    DistributeByGrammar=Sequence("DISTRIBUTE", "BY", Ref("ColumnReferenceListGrammar")),
-    PartitionByGrammar=Sequence("PARTITION", "BY", Ref("ColumnReferenceListGrammar")),
+    # delimiter doesn't work for DISTRIBUTE and PARTITION BY
+    # expression because both expressions are splitted by comma
+    # as well as n columns within each expression
+    TableDistributeByGrammar=StartsWith(
+        "DISTRIBUTE",
+        "BY",
+        AnyNumberOf(
+            Sequence(Ref("CommaSegment", optional=True), Ref("ColumnReferenceSegment")),
+            min_times=1,
+        ),
+        terminator=OneOf(Ref("TablePartitionByGrammar"), Ref("SemicolonSegment")),
+        enforce_whitespace_preceeding_terminator=True,
+    ),
+    TablePartitionByGrammar=StartsWith(
+        "PARTITION",
+        "BY",
+        AnyNumberOf(
+            Sequence(Ref("CommaSegment", optional=True), Ref("ColumnReferenceSegment")),
+            min_times=1,
+        ),
+        terminator=OneOf(Ref("TableDistributeByGrammar"), Ref("SemicolonSegment")),
+        enforce_whitespace_preceeding_terminator=True,
+    ),
 )
 
 exasol_dialect.replace(
@@ -89,15 +111,34 @@ exasol_dialect.replace(
 )
 
 
+@exasol_dialect.segment(replace=True)
+class DropStatementSegment(BaseSegment):
+    """A `DROP` statement without any options."""
+
+    type = "drop_statement"
+    match_grammar = Sequence(
+        "DROP",
+        OneOf(
+            "CONNECTION",
+            Sequence(
+                Ref.keyword("ADAPTER", optional=True),
+                "SCRIPT",
+            ),
+        ),
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
 @exasol_dialect.segment()
-class DropStatementCascadeSegment(BaseSegment):
-    """A `DROP` statement with cascade option.
+class DropCascadeStatementSegment(BaseSegment):
+    """A `DROP` statement with CASCADE option.
 
     https://docs.exasol.com/sql/drop_role.htm
     https://docs.exasol.com/sql/drop_user.htm
     """
 
-    type = "drop_statement_cascade"
+    type = "drop_statement"
     match_grammar = Sequence(
         "DROP",
         OneOf(
@@ -105,27 +146,18 @@ class DropStatementCascadeSegment(BaseSegment):
             "ROLE",
         ),
         Ref("IfExistsGrammar", optional=True),
-        Ref("TableReferenceSegment"),
+        Ref("ObjectReferenceSegment"),
         Ref.keyword("CASCADE", optional=True),
     )
 
 
 @exasol_dialect.segment()
-class DropSimpleStatementSegment(BaseSegment):
-    """A simple `DROP` statement without any options."""
+class DropCascadeRestrictStatementSegment(BaseSegment):
+    """A `DROP` statement with CASCADE and RESTRICT option.
 
-    type = "drop_simple_statement"
-    match_grammar = Sequence(
-        "DROP",
-        "CONNECTION",
-        Ref("IfExistsGrammar", optional=True),
-        Ref("TableReferenceSegment"),
-    )
-
-
-@exasol_dialect.segment(replace=True)
-class DropStatementSegment(BaseSegment):
-    """A `DROP` statement."""
+    https://docs.exasol.com/sql/drop_view.htm
+    https://docs.exasol.com/sql/drop_function.htm
+    """
 
     type = "drop_statement"
     match_grammar = Sequence(
@@ -135,8 +167,8 @@ class DropStatementSegment(BaseSegment):
             "FUNCTION",
         ),
         Ref("IfExistsGrammar", optional=True),
-        Ref("TableReferenceSegment"),
-        OneOf("RESTRICT", Ref.keyword("CASCADE", optional=True), optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf("RESTRICT", "CASCADE", optional=True),
     )
 
 
@@ -347,9 +379,8 @@ class CreateTableStatementSegment(BaseSegment):
                         Ref("CreateTableColumnDefinitionSegment"),
                         Ref("CreateTableOutOfLineConstraintSegment"),
                         Ref("CreateTableLikeClauseSegment"),
-                        Ref("DistributeByGrammar", optional=True),
-                        Ref("PartitionByGrammar", optional=True),
                         Ref("CommaSegment", optional=True),
+                        Ref("TableDistributionPartitonClause", optional=True),
                         min_times=1,
                     ),
                 ),
@@ -373,7 +404,7 @@ class CreateTableColumnDefinitionSegment(BaseSegment):
 
     type = "column_definition"
     match_grammar = Sequence(
-        Ref("ColumnReferenceSegment"),
+        Ref("ColumnReferenceSegment"),  # TODO: SingleIdentifierGrammar ??
         Ref("DatatypeSegment"),
         Ref("CreateTableColumnOptionSegment", optional=True),
     )
@@ -477,6 +508,59 @@ class CreateTableLikeClauseSegment(BaseSegment):
 
 
 @exasol_dialect.segment()
+class TableDistributionPartitonClause(BaseSegment):
+    """`CREATE / ALTER TABLE` distribution / partition clause."""
+
+    type = "table_distribution_partition_clause"
+    match_grammar = OneOf(
+        Sequence(
+            Ref("TableDistributeByGrammar"),
+            Ref("CommaSegment", optional=True),
+            Ref("TablePartitionByGrammar", optional=True),
+        ),
+        Sequence(
+            Ref("TablePartitionByGrammar"),
+            Ref("CommaSegment", optional=True),
+            Ref("TableDistributeByGrammar", optional=True),
+        ),
+    )
+
+
+@exasol_dialect.segment()
+class AlterTableDistributePartitionSegment(BaseSegment):
+    """A `ALTER TABLE` statement to add or drop distribution / partition keys.
+
+    https://docs.exasol.com/sql/alter_table(distribution_partitioning).htm
+    """
+
+    type = "alter_table_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Ref("TableDistributionPartitonClause"),
+            Sequence(
+                "DROP",
+                OneOf(
+                    Sequence(
+                        Ref.keyword("DISTRIBUTION"),
+                        Ref.keyword("AND", optional=True),
+                        Ref.keyword("PARTITION", optional=True),
+                    ),
+                    Sequence(
+                        Ref.keyword("PARTITION"),
+                        Ref.keyword("AND", optional=True),
+                        Ref.keyword("DISTRIBUTION", optional=True),
+                    ),
+                ),
+                "KEYS",
+            ),
+        ),
+    )
+
+
+@exasol_dialect.segment()
 class DropTableStatementSegment(BaseSegment):
     """A `DROP` table statement.
 
@@ -491,23 +575,6 @@ class DropTableStatementSegment(BaseSegment):
         Ref("TableReferenceSegment"),
         OneOf("RESTRICT", Ref.keyword("CASCADE", optional=True), optional=True),
         Sequence("CASCADE", "CONSTRAINTS", optional=True),
-    )
-
-
-@exasol_dialect.segment()
-class DropScriptStatementSegment(BaseSegment):
-    """A `DROP` statement for EXASOL scripts.
-
-    https://docs.exasol.com/sql/drop_script.htm
-    """
-
-    type = "drop_script_statement"
-    match_grammar = Sequence(
-        "DROP",
-        Ref.keyword("ADAPTER", optional=True),
-        "SCRIPT",
-        Sequence("IF", "EXISTS", optional=True),
-        Ref("TableReferenceSegment"),
     )
 
 
@@ -530,19 +597,20 @@ class StatementSegment(BaseSegment):
         Ref("SelectableGrammar"),
         Ref("InsertStatementSegment"),
         Ref("TransactionStatementSegment"),
-        Ref("DropStatementSegment"),
+        Ref("DropCascadeRestrictStatementSegment"),
         Ref("DropTableStatementSegment"),
-        Ref("DropScriptStatementSegment"),
-        Ref("DropStatementCascadeSegment"),
+        # Ref("DropScriptStatementSegment"),
+        Ref("DropCascadeStatementSegment"),
         Ref("CreateSchemaStatementSegment"),
         Ref("CreateVirtualSchemaStatementSegment"),
         Ref("AlterSchemaStatementSegment"),
         Ref("AlterVirtualSchemaStatementSegment"),
         Ref("DropSchemaStatementSegment"),
-        Ref("DropSimpleStatementSegment"),
+        Ref("DropStatementSegment"),
         Ref("AccessStatementSegment"),
         Ref("CreateTableStatementSegment"),
         Ref("AlterTableStatementSegment"),
+        Ref("AlterTableDistributePartitionSegment"),
         Ref("CreateViewStatementSegment"),
         Ref("DeleteStatementSegment"),
         Ref("UpdateStatementSegment"),
