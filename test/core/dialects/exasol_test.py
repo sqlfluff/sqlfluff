@@ -10,11 +10,15 @@ from sqlfluff.core.dialects.dialect_exasol import (
     DropSchemaStatementSegment,
     CreateViewStatementSegment,
     CreateTableStatementSegment,
+    AlterTableColumnSegment,
+    AlterTableConstraintSegment,
     AlterTableDistributePartitionSegment,
     DropTableStatementSegment,
     DropCascadeStatementSegment,
     DropStatementSegment,
     DropCascadeRestrictStatementSegment,
+    RenameStatementSegment,
+    CommentStatementSegment,
 )
 
 TEST_DIALECT = "exasol"
@@ -158,6 +162,56 @@ TEST_DIALECT = "exasol"
             ALTER TABLE my_table DISTRIBUTE BY shop_id, branch_no;
             """,
             6,
+        ),
+        (
+            AlterTableConstraintSegment,
+            """
+            ALTER TABLE t1 ADD CONSTRAINT my_primary_key PRIMARY KEY (a);
+            ALTER TABLE t2 ADD CONSTRAINT my_foreign_key FOREIGN KEY (x) REFERENCES t1;
+            ALTER TABLE t2 MODIFY CONSTRAINT my_foreign_key DISABLE;
+            ALTER TABLE t2 RENAME CONSTRAINT my_foreign_key TO my_fk;
+            ALTER TABLE t2 DROP CONSTRAINT my_fk;
+            """,
+            5,
+        ),
+        (
+            AlterTableColumnSegment,
+            """
+            ALTER TABLE t ADD COLUMN IF NOT EXISTS new_dec DECIMAL(18,0);
+            ALTER TABLE t ADD (new_char CHAR(10) DEFAULT 'some text');
+            ALTER TABLE myschema.t DROP COLUMN i;
+            ALTER TABLE t DROP j;
+            ALTER TABLE t MODIFY (i DECIMAL(10,2));
+            ALTER TABLE t MODIFY (j VARCHAR(5) DEFAULT 'text');
+            ALTER TABLE t MODIFY k INTEGER IDENTITY(1000);
+            ALTER TABLE t RENAME COLUMN i TO j;
+            ALTER TABLE t ALTER COLUMN v SET DEFAULT CURRENT_USER;
+            ALTER TABLE "SCHEMA"."TABLE" ALTER COLUMN v DROP DEFAULT;
+            ALTER TABLE t ALTER COLUMN id SET IDENTITY 1000;
+            ALTER TABLE t ALTER COLUMN id DROP IDENTITY;
+            """,
+            12,
+        ),
+        (
+            RenameStatementSegment,
+            """
+            RENAME SCHEMA s1 TO s2;
+            RENAME TABLE t1 TO t2;
+            RENAME s2.t3 TO t4;
+            RENAME s2.t3 TO s2.t4;
+            """,
+            4,
+        ),
+        (
+            CommentStatementSegment,
+            """
+            COMMENT ON SCHEMA s1 IS 'My first schema';
+            COMMENT ON TABLE a_schema.t1 IS 'My first table';
+            COMMENT ON t1 (id IS 'Identity column', zip IS 'Zip code');
+            COMMENT ON SCRIPT script1 IS 'My first script';
+            COMMENT ON CONSUMER GROUP admin_group IS 'VERY important!!!';
+            """,
+            5,
         ),
     ],
 )

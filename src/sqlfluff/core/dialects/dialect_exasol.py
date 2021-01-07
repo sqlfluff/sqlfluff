@@ -18,6 +18,7 @@ from ..parser import (
     Matchable,
     SymbolSegment,
     StartsWith,
+    NamedSegment,
 )
 
 from .exasol_keywords import RESERVED_KEYWORDS, UNRESERVED_KEYWORDS
@@ -31,10 +32,29 @@ exasol_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 exasol_dialect.sets("reserved_keywords").clear()
 exasol_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 
+exasol_dialect.set_lexer_struct(
+    [
+        (
+            "consumer_group",
+            "regex",
+            r"\bCONSUMER\s+\bGROUP",
+            dict(
+                is_code=True,
+                type="keyword",
+            ),
+        )
+    ]
+    + exasol_dialect.get_lexer_struct()
+)
+
 # Access column aliases by using the LOCAL keyword
 exasol_dialect.add(
     LocalIdentifierSegment=KeywordSegment.make(
         "LOCAL", name="local_identifier", type="identifier"
+    ),
+    ConsumerGroupSegment=NamedSegment.make(
+        "consumer_group",
+        type="keyword",  # not a real keyword, but some statements use it as one
     ),
     ForeignKeyReferencesClauseGrammar=Sequence(
         "REFERENCES",
@@ -70,13 +90,21 @@ exasol_dialect.add(
         terminator=OneOf(Ref("TableDistributeByGrammar"), Ref("SemicolonSegment")),
         enforce_whitespace_preceeding_terminator=True,
     ),
+    TableConstraintEnableDisableGrammar=OneOf("ENABLE", "DISABLE"),
 )
 
-exasol_dialect.replace(
+exasol_dialect.replace(  # TODO: SingleIdentifierGrammar -> Column
     SingleIdentifierGrammar=OneOf(
         Ref("LocalIdentifierSegment"),
         Ref("NakedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
+    ),
+)
+exasol_dialect.replace(
+    BareFunctionSegment=ReSegment.make(
+        r"current_timestamp|curdate|current_date|current_user|current_session|current_schema|current_statement",
+        name="bare_function",
+        type="bare_function",
     ),
 )
 exasol_dialect.replace(
@@ -377,7 +405,7 @@ class CreateTableStatementSegment(BaseSegment):
                 Sequence(
                     AnyNumberOf(
                         Ref("CreateTableColumnDefinitionSegment"),
-                        Ref("CreateTableOutOfLineConstraintSegment"),
+                        Ref("TableOutOfLineConstraintSegment"),
                         Ref("CreateTableLikeClauseSegment"),
                         Ref("CommaSegment", optional=True),
                         Ref("TableDistributionPartitonClause", optional=True),
@@ -399,19 +427,21 @@ class CreateTableStatementSegment(BaseSegment):
 
 
 @exasol_dialect.segment()
-class CreateTableColumnDefinitionSegment(BaseSegment):
-    """Column definition within a `CREATE TABLE` statement."""
+class TableColumnDefinitionSegment(BaseSegment):
+    """Column definition within a `CREATE / ALTER TABLE` statement."""
 
     type = "column_definition"
     match_grammar = Sequence(
-        Ref("ColumnReferenceSegment"),  # TODO: SingleIdentifierGrammar ??
+        Ref(
+            "SingleIdentifierGrammar"
+        ),  # TODO: SingleIdentifierGrammar = SingleColumnSegment??
         Ref("DatatypeSegment"),
-        Ref("CreateTableColumnOptionSegment", optional=True),
+        Ref("TableColumnOptionSegment", optional=True),
     )
 
 
 @exasol_dialect.segment()
-class CreateTableColumnOptionSegment(BaseSegment):
+class TableColumnOptionSegment(BaseSegment):
     """A column option; each CREATE TABLE column can have 0 or more."""
 
     type = "column_constraint"
@@ -422,17 +452,23 @@ class CreateTableColumnOptionSegment(BaseSegment):
             Sequence(
                 "DEFAULT", OneOf(Ref("LiteralGrammar"), Ref("BareFunctionSegment"))
             ),
-            Sequence("IDENTITY", Ref("NumericLiteralSegment", optional=True)),
+            Sequence(
+                # IDENTITY(1000) or IDENTITY 1000 or IDENTITY
+                "IDENTITY",
+                Ref("StartBracketSegment", optional=True),
+                Ref("NumericLiteralSegment", optional=True),
+                Ref("EndBracketSegment", optional=True),
+            ),
             optional=True,
         ),
-        Ref("CreateTableInlineConstraintSegment", optional=True),
+        Ref("TableInlineConstraintSegment", optional=True),
         Ref("CommentIsGrammar", optional=True),
     )
 
 
 @exasol_dialect.segment()
-class CreateTableInlineConstraintSegment(BaseSegment):
-    """Inline table constraint for CREATE TABLE."""
+class TableInlineConstraintSegment(BaseSegment):
+    """Inline table constraint for CREATE / ALTER TABLE."""
 
     type = "table_constraint_definition"
     # Later add support for CHECK constraint, others?
@@ -450,13 +486,13 @@ class CreateTableInlineConstraintSegment(BaseSegment):
             # FOREIGN KEY
             Ref("ForeignKeyReferencesClauseGrammar"),
         ),
-        OneOf("ENABLE", "DISABLE", optional=True),
+        Ref("TableConstraintEnableDisableGrammar", optional=True),
     )
 
 
 @exasol_dialect.segment()
-class CreateTableOutOfLineConstraintSegment(BaseSegment):
-    """Out of line table constraint for CREATE TABLE."""
+class TableOutOfLineConstraintSegment(BaseSegment):
+    """Out of line table constraint for CREATE / ALTER TABLE."""
 
     type = "table_constraint_definition"
     # Later add support for CHECK constraint, others?
@@ -478,7 +514,7 @@ class CreateTableOutOfLineConstraintSegment(BaseSegment):
                 Ref("ForeignKeyReferencesClauseGrammar"),
             ),
         ),
-        OneOf("ENABLE", "DISABLE", optional=True),
+        Ref("TableConstraintEnableDisableGrammar", optional=True),
     )
 
 
@@ -493,7 +529,7 @@ class CreateTableLikeClauseSegment(BaseSegment):
         Bracketed(
             AnyNumberOf(
                 Sequence(
-                    Ref("ColumnReferenceSegment"),
+                    Ref("SingleIdentifierGrammar"),
                     Ref("AliasExpressionSegment", optional=True),
                 ),
                 Ref("CommaSegment", optional=True),
@@ -522,6 +558,132 @@ class TableDistributionPartitonClause(BaseSegment):
             Ref("TablePartitionByGrammar"),
             Ref("CommaSegment", optional=True),
             Ref("TableDistributeByGrammar", optional=True),
+        ),
+    )
+
+
+@exasol_dialect.segment(replace=True)
+class AlterTableStatementSegment(BaseSegment):
+    """`ALTER TABLE` statement."""
+
+    type = "alter_table_statment"
+    match_grammar = OneOf(
+        Ref("AlterTableColumnSegment"),
+        Ref("AlterTableConstraintSegment"),
+        Ref("AlterTableDistributePartitionSegment"),
+    )
+
+
+@exasol_dialect.segment()
+class AlterTableColumnSegment(BaseSegment):
+    """A `ALTER TABLE` statement to add, modify, drop or rename columns.
+
+    https://docs.exasol.com/sql/alter_table(column).htm
+    """
+
+    type = "alter_table_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence(
+                "ADD",
+                Ref.keyword("COLUMN", optional=True),
+                Ref("IfNotExistsGrammar", optional=True),
+                Ref("StartBracketSegment", optional=True),
+                Ref("TableColumnDefinitionSegment"),
+                Ref("EndBracketSegment", optional=True),
+            ),
+            Sequence(
+                "DROP",
+                Ref.keyword("COLUMN", optional=True),
+                Ref("IfExistsGrammar", optional=True),
+                Ref("SingleIdentifierGrammar"),
+                Sequence("CASCADE", "CONSTRAINTS", optional=True),
+            ),
+            Sequence(
+                "MODIFY",
+                Ref.keyword("COLUMN", optional=True),
+                Ref("StartBracketSegment", optional=True),
+                Ref("SingleIdentifierGrammar"),
+                Ref("DatatypeSegment", optional=True),
+                Ref("TableColumnOptionSegment", optional=True),
+                Ref("EndBracketSegment", optional=True),
+            ),
+            Sequence(
+                "RENAME",
+                "COLUMN",
+                Ref("SingleIdentifierGrammar"),
+                "TO",
+                Ref("SingleIdentifierGrammar"),
+            ),
+            Sequence(
+                "ALTER",
+                Ref.keyword("COLUMN", optional=True),
+                Ref("SingleIdentifierGrammar"),
+                OneOf(
+                    Sequence(
+                        "SET",
+                        OneOf(
+                            Sequence(
+                                # IDENTITY(1000) or IDENTITY 1000
+                                "IDENTITY",
+                                Ref("StartBracketSegment", optional=True),
+                                Ref("NumericLiteralSegment"),
+                                Ref("EndBracketSegment", optional=True),
+                            ),
+                            Sequence(
+                                "DEFAULT",
+                                OneOf(
+                                    Ref("LiteralGrammar"), Ref("BareFunctionSegment")
+                                ),
+                            ),
+                        ),
+                    ),
+                    Sequence("DROP", OneOf("IDENTITY", "DEFAULT")),
+                ),
+            ),
+        ),
+    )
+
+
+@exasol_dialect.segment()
+class AlterTableConstraintSegment(BaseSegment):
+    """A `ALTER TABLE` statement to add, modify, drop or rename constraints.
+
+    https://docs.exasol.com/sql/alter_table(constraints).htm
+    """
+
+    type = "alter_table_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence("ADD", Ref("TableOutOfLineConstraintSegment")),
+            Sequence(
+                "MODIFY",
+                OneOf(
+                    Sequence("CONSTRAINT", Ref("SingleIdentifierGrammar")),
+                    Sequence("PRIMARY", "KEY"),
+                ),
+                Ref("TableConstraintEnableDisableGrammar"),
+            ),
+            Sequence(
+                "DROP",
+                OneOf(
+                    Sequence("CONSTRAINT", Ref("SingleIdentifierGrammar")),
+                    Sequence("PRIMARY", "KEY"),
+                ),
+            ),
+            Sequence(
+                "RENAME",
+                "CONSTRAINT",
+                Ref("SingleIdentifierGrammar"),
+                "TO",
+                Ref("SingleIdentifierGrammar"),
+            ),
         ),
     )
 
@@ -578,6 +740,81 @@ class DropTableStatementSegment(BaseSegment):
     )
 
 
+@exasol_dialect.segment()
+class RenameStatementSegment(BaseSegment):
+    """`RENAME` statement.
+
+    https://docs.exasol.com/sql/rename.htm
+    """
+
+    type = "rename_statement"
+    match_grammar = Sequence(
+        "RENAME",
+        OneOf(
+            "SCHEMA",
+            "TABLE",
+            "VIEW",
+            "FUNCTION",
+            "SCRIPT",
+            "USER",
+            "ROLE",
+            "CONNECTION",
+            Ref("ConsumerGroupSegment"),
+            optional=True,
+        ),
+        Ref("ObjectReferenceSegment"),
+        "TO",
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+@exasol_dialect.segment()
+class CommentStatementSegment(BaseSegment):
+    """`COMMENT` statement.
+
+    https://docs.exasol.com/sql/comment.htm
+    """
+
+    type = "comment_statement"
+    match_grammar = Sequence(
+        "COMMENT",
+        "ON",
+        OneOf(
+            Sequence(
+                Ref.keyword("TABLE", optional=True),
+                Ref("TableReferenceSegment"),
+                Sequence("IS", Ref("QuotedLiteralSegment"), optional=True),
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("SingleIdentifierGrammar"),
+                            "IS",
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        delimiter=Ref("CommaSegment"),
+                    ),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                OneOf(
+                    "COLUMN",
+                    "SCHEMA",
+                    "FUNCTION",
+                    "SCRIPT",
+                    "USER",
+                    "ROLE",
+                    "CONNECTION",
+                    Ref("ConsumerGroupSegment"),
+                ),
+                Ref("ObjectReferenceSegment"),
+                "IS",
+                Ref("QuotedLiteralSegment"),
+            ),
+        ),
+    )
+
+
 @exasol_dialect.segment(replace=True)
 class MLTableExpressionSegment(BaseSegment):
     """Not supported!"""
@@ -598,8 +835,6 @@ class StatementSegment(BaseSegment):
         Ref("InsertStatementSegment"),
         Ref("TransactionStatementSegment"),
         Ref("DropCascadeRestrictStatementSegment"),
-        Ref("DropTableStatementSegment"),
-        # Ref("DropScriptStatementSegment"),
         Ref("DropCascadeStatementSegment"),
         Ref("CreateSchemaStatementSegment"),
         Ref("CreateVirtualSchemaStatementSegment"),
@@ -610,8 +845,10 @@ class StatementSegment(BaseSegment):
         Ref("AccessStatementSegment"),
         Ref("CreateTableStatementSegment"),
         Ref("AlterTableStatementSegment"),
-        Ref("AlterTableDistributePartitionSegment"),
+        Ref("DropTableStatementSegment"),
         Ref("CreateViewStatementSegment"),
         Ref("DeleteStatementSegment"),
         Ref("UpdateStatementSegment"),
+        Ref("RenameStatementSegment"),
+        Ref("CommentStatementSegment"),
     )
