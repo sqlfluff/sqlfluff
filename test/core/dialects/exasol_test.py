@@ -22,6 +22,8 @@ from sqlfluff.core.dialects.dialect_exasol import (
     CommentStatementSegment,
     InsertStatementSegment,
     UpdateStatementSegment,
+    DeleteStatementSegment,
+    TruncateStatmentSegement,
 )
 
 TEST_DIALECT = "exasol"
@@ -266,6 +268,22 @@ TEST_DIALECT = "exasol"
             ---
             """,
             2,
+        ),
+        (
+            DeleteStatementSegment,
+            """
+            DELETE FROM staff WHERE name='SMITH';
+            DELETE * FROM staff;
+            DELETE FROM staff PREFERRING (LOW change_date) PARTITION BY emp_no;
+            """,
+            3,
+        ),
+        (
+            TruncateStatmentSegement,
+            """
+            TRUNCATE TABLE test;
+            """,
+            1,
         ),
     ],
 )
