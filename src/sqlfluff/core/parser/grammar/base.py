@@ -517,9 +517,14 @@ class BaseGrammar(Matchable):
                         # OR we were mistaken in our initial identification of the opening
                         # bracket. That's only allowed if `not definitely_bracket`.
 
-                        # Any any not definitely brackets
+                        # Are any not definitely brackets?
                         if any(not definite for definite in definite_stack):
                             # If so, remove the last one from the stack and try again.
+                            # Note that this is a *heuristic* (i.e. the authors of this
+                            # code are not yet convinced this will *always* do the right
+                            # thing. If, someday, this approach turns out not to handle
+                            # some unanticipated case, we may need to brainstorm and
+                            # explore another, more thorough search algorithm(s).
                             for idx, elem in enumerate(reversed(definite_stack)):
                                 if not elem:
                                     del bracket_stack[-idx]

@@ -7,6 +7,7 @@ https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and
 """
 
 from ..parser import (
+    AnyNumberOf,
     Anything,
     BaseSegment,
     NamedSegment,
@@ -16,7 +17,6 @@ from ..parser import (
     Bracketed,
     Delimited,
 )
-from ..parser.grammar.anyof import AnyNumberOf
 from .dialect_ansi import ansi_dialect
 
 
