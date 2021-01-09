@@ -432,6 +432,7 @@ class BaseGrammar(Matchable):
             `tuple` of (unmatched_segments, match_object, matcher).
 
         """
+
         class BracketInfo(NamedTuple):
             bracket: BaseSegment
             is_definite: bool
@@ -473,7 +474,7 @@ class BaseGrammar(Matchable):
         # Make some buffers
         seg_buff = segments
         pre_seg_buff = ()  # NB: Tuple
-        bracket_stack : List[BracketInfo] = []
+        bracket_stack: List[BracketInfo] = []
 
         # Iterate
         while True:
@@ -501,9 +502,14 @@ class BaseGrammar(Matchable):
                         # a small, speculative investment in a possible future requirement.
                         if matcher in start_brackets and matcher not in end_brackets:
                             # Same procedure as below in finding brackets.
-                            bracket_stack.append(BracketInfo(
-                                bracket=match.matched_segments[0],
-                                is_definite=start_definite[start_brackets.index(matcher)]))
+                            bracket_stack.append(
+                                BracketInfo(
+                                    bracket=match.matched_segments[0],
+                                    is_definite=start_definite[
+                                        start_brackets.index(matcher)
+                                    ],
+                                )
+                            )
                             pre_seg_buff += pre
                             pre_seg_buff += match.matched_segments
                             seg_buff = match.unmatched_segments
@@ -534,7 +540,7 @@ class BaseGrammar(Matchable):
                             # No we can't. We don't have a match and we're in a bracket stack.
                             raise SQLParseError(
                                 "Couldn't find closing bracket for opening bracket.",
-                                segment=bracket_stack[-1].bracket
+                                segment=bracket_stack[-1].bracket,
                             )
                         # We have attempted a potential solution to the problem. Loop around.
                         continue
@@ -559,9 +565,14 @@ class BaseGrammar(Matchable):
                             # That's actually ok.
 
                             # Add the bracket to the stack.
-                            bracket_stack.append(BracketInfo(
-                                bracket=match.matched_segments[0],
-                                is_definite=start_definite[start_brackets.index(matcher)]))
+                            bracket_stack.append(
+                                BracketInfo(
+                                    bracket=match.matched_segments[0],
+                                    is_definite=start_definite[
+                                        start_brackets.index(matcher)
+                                    ],
+                                )
+                            )
                             # Add the matched elements and anything before it to the
                             # pre segment buffer. Reset the working buffer.
                             pre_seg_buff += pre
