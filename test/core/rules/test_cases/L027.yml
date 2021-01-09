@@ -1,0 +1,13 @@
+rule: L027
+
+test_1:
+  # Allow use of BigQuery date parts (which are not quoted and were previously
+  # mistaken for column references and flagged by this rule).
+  pass_str: |
+    SELECT timestamp_trunc(a.ts, month) AS t
+    FROM a
+    JOIN b ON a.id = b.id
+
+  configs:
+    core:
+      dialect: bigquery

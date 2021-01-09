@@ -50,6 +50,27 @@ bigquery_dialect.add(
     )
 )
 
+# Add additional bare functions. These are not *quite* bare functions, because
+# they can only be used as parameters to a handful of date functions, but this
+# is a simple way to allow these keywords without SQLFluff having to know about
+# all the BigQuery date/time function signaatures.
+bigquery_dialect.sets("bare_functions").update(
+    [
+        "MICROSECOND",
+        "MILLISECOND",
+        "SECOND",
+        "MINUTE",
+        "HOUR",
+        "DAY",
+        "WEEK",
+        "ISOWEEKMONTH",
+        "MONTH",
+        "QUARTER",
+        "YEAR",
+        "ISOYEAR",
+    ]
+)
+
 # Add additional datetime units
 # https://cloud.google.com/bigquery/docs/reference/standard-sql/date_functions#extract
 bigquery_dialect.sets("datetime_units").update(
