@@ -1,7 +1,7 @@
 """Base grammar, Ref, Anything and Nothing."""
 
 import copy
-from typing import List, Optional, Union, Type, Tuple
+from typing import List, NamedTuple, Optional, Union, Type, Tuple
 
 from ...errors import SQLParseError
 from ...string_helpers import curtail_string
@@ -432,6 +432,10 @@ class BaseGrammar(Matchable):
             `tuple` of (unmatched_segments, match_object, matcher).
 
         """
+        class BracketInfo(NamedTuple):
+            bracket: BaseSegment
+            is_definite: bool
+
         # Type munging
         matchers = list(matchers)
         if isinstance(segments, BaseSegment):
@@ -469,8 +473,7 @@ class BaseGrammar(Matchable):
         # Make some buffers
         seg_buff = segments
         pre_seg_buff = ()  # NB: Tuple
-        bracket_stack = []
-        definite_stack = []
+        bracket_stack : List[BracketInfo] = []
 
         # Iterate
         while True:
@@ -490,13 +493,17 @@ class BaseGrammar(Matchable):
                     if match:
                         # NB: We can only consider this as a nested bracket if the start
                         # and end tokens are not the same. If a matcher is both a start and
-                        # end token we cannot deepen the bracket stack.
+                        # end token we cannot deepen the bracket stack. In general, quoted
+                        # strings are a typical example where the start and end tokens are
+                        # the same. Currently, though, quoted strings are handled elsewhere
+                        # in the parser, and there are no cases where *this* code has to
+                        # handle identical start and end brackets. For now, consider this
+                        # a small, speculative investment in a possible future requirement.
                         if matcher in start_brackets and matcher not in end_brackets:
                             # Same procedure as below in finding brackets.
-                            bracket_stack.append(match.matched_segments[0])
-                            definite_stack.append(
-                                start_definite[start_brackets.index(matcher)]
-                            )
+                            bracket_stack.append(BracketInfo(
+                                bracket=match.matched_segments[0],
+                                is_definite=start_definite[start_brackets.index(matcher)]))
                             pre_seg_buff += pre
                             pre_seg_buff += match.matched_segments
                             seg_buff = match.unmatched_segments
@@ -505,7 +512,6 @@ class BaseGrammar(Matchable):
                             # We've found an end bracket, remove it from the
                             # stack and carry on.
                             bracket_stack.pop()
-                            definite_stack.pop()
                             pre_seg_buff += pre
                             pre_seg_buff += match.matched_segments
                             seg_buff = match.unmatched_segments
@@ -517,27 +523,21 @@ class BaseGrammar(Matchable):
                         # OR we were mistaken in our initial identification of the opening
                         # bracket. That's only allowed if `not definitely_bracket`.
 
-                        # Are any not definitely brackets?
-                        if any(not definite for definite in definite_stack):
-                            # If so, remove the last one from the stack and try again.
-                            # Note that this is a *heuristic* (i.e. the authors of this
-                            # code are not yet convinced this will *always* do the right
-                            # thing. If, someday, this approach turns out not to handle
-                            # some unanticipated case, we may need to brainstorm and
-                            # explore another, more thorough search algorithm(s).
-                            for idx, elem in enumerate(reversed(definite_stack)):
-                                if not elem:
-                                    del bracket_stack[-idx]
-                                    del definite_stack[-idx]
-                                    # We don't change the string buffer, we assume that was ok.
-                                    break
-                            continue
-
-                        # No match and we're in a bracket stack. Raise an error.
-                        raise SQLParseError(
-                            "Couldn't find closing bracket for opening bracket.",
-                            segment=bracket_stack.pop(),
-                        )
+                        # Can we remove any brackets from the stack which aren't definites
+                        # to resolve the issue?
+                        for idx, elem in enumerate(reversed(bracket_stack)):
+                            if not elem.is_definite:
+                                del bracket_stack[-idx]
+                                # We don't change the string buffer, we assume that was ok.
+                                break
+                        else:
+                            # No we can't. We don't have a match and we're in a bracket stack.
+                            raise SQLParseError(
+                                "Couldn't find closing bracket for opening bracket.",
+                                segment=bracket_stack[-1].bracket
+                            )
+                        # We have attempted a potential solution to the problem. Loop around.
+                        continue
                 else:
                     # No, we're open to more opening brackets or the thing(s)
                     # that we're otherwise looking for.
@@ -554,15 +554,14 @@ class BaseGrammar(Matchable):
                             return (pre_seg_buff + pre, match, matcher)
                         elif matcher in start_brackets:
                             # We've found the start of a bracket segment.
-                            # NB: It might not *Actually* be the bracket itself,
+                            # NB: It might not *actually* be the bracket itself,
                             # but could be some non-code element preceding it.
                             # That's actually ok.
 
                             # Add the bracket to the stack.
-                            bracket_stack.append(match.matched_segments[0])
-                            definite_stack.append(
-                                start_definite[start_brackets.index(matcher)]
-                            )
+                            bracket_stack.append(BracketInfo(
+                                bracket=match.matched_segments[0],
+                                is_definite=start_definite[start_brackets.index(matcher)]))
                             # Add the matched elements and anything before it to the
                             # pre segment buffer. Reset the working buffer.
                             pre_seg_buff += pre
@@ -599,15 +598,11 @@ class BaseGrammar(Matchable):
                 if bracket_stack:
                     # No we haven't.
                     # Check that the unclosed brackets are definite
-                    definite_bracket_stack = list(
-                        filter(lambda b: b[1], zip(bracket_stack, definite_stack))
-                    )
-
-                    # TODO: Format this better
+                    definite_bracket_stack = [b for b in bracket_stack if b.is_definite]
                     if definite_bracket_stack:
                         raise SQLParseError(
                             f"Couldn't find closing bracket for opened brackets: `{bracket_stack}`.",
-                            segment=bracket_stack.pop(),
+                            segment=bracket_stack[-1].bracket,
                         )
 
                 # We at the end but without a bracket left open. This is a
