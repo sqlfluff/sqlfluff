@@ -17,8 +17,11 @@ from sqlfluff.core.dialects.dialect_exasol import (
     DropCascadeStatementSegment,
     DropStatementSegment,
     DropCascadeRestrictStatementSegment,
+    MergeStatementSegment,
     RenameStatementSegment,
     CommentStatementSegment,
+    InsertStatementSegment,
+    UpdateStatementSegment,
 )
 
 TEST_DIALECT = "exasol"
@@ -108,16 +111,17 @@ TEST_DIALECT = "exasol"
             CreateViewStatementSegment,
             """
             CREATE VIEW my_view as select x from t;
+            CREATE VIEW my_view (col1 ) as (select x from t);
             CREATE OR REPLACE FORCE VIEW my_view as select y from t;
             CREATE OR REPLACE VIEW my_view (col_1 COMMENT IS 'something important',col2) as select max(y) from t;
             """,
-            3,
+            4,
         ),
         (
             CreateTableStatementSegment,
             """
             CREATE TABLE myschema.t1
-            (   a VARCHAR(20),
+            (   a VARCHAR(20) UTF8,
                 b DECIMAL(24,4) NOT NULL COMMENT IS 'The B column',
                 c DECIMAL DEFAULT 122,
                 d DOUBLE,
@@ -213,15 +217,60 @@ TEST_DIALECT = "exasol"
             """,
             5,
         ),
+        (
+            InsertStatementSegment,
+            """
+            INSERT INTO t (n1, n2, t1) VALUES (1, 2.34, 'abc');
+            INSERT INTO t VALUES (2, 1.56, 'ghi'), (3, 5.92, 'pqr');
+            INSERT INTO t VALUES (4, DEFAULT, 'xyz');
+            INSERT INTO t (i,k) SELECT * FROM u;
+            INSERT INTO t (i) SELECT max(j) FROM u;
+            INSERT INTO t DEFAULT VALUES;
+            """,
+            6,
+        ),
+        (
+            UpdateStatementSegment,
+            """
+            UPDATE staff SET salary=salary*1.1 WHERE name='SMITH';
+            ----
+            UPDATE staff AS U SET U.salary=U.salary/1.95583, U.currency='EUR'
+            WHERE U.currency='DM';
+            ----
+            UPDATE staff AS U
+            SET U.salary=V.salary, U.currency=V.currency
+            FROM staff AS U, staff_updates AS V
+            WHERE U.name=V.name;
+            ----
+            UPDATE order_pos
+            SET stocks=stocks*10
+            PREFERRING HIGH (order_date) PARTITION BY (shop_id, order_id);
+            """,
+            4,
+        ),
+        (
+            MergeStatementSegment,
+            """
+            MERGE INTO staff T
+            USING changes U
+            ON T.name = U.name
+            WHEN MATCHED THEN UPDATE SET T.salary = U.salary,
+                                         T.lastChange = CURRENT_DATE
+                              WHERE T.salary < U.salary
+            WHEN NOT MATCHED THEN INSERT VALUES (U.name,U.salary,CURRENT_DATE);
+            ----
+            MERGE INTO staff T
+            USING (SELECT name FROM X) U
+            ON T.name = U.name
+            WHEN MATCHED THEN DELETE;
+            ---
+            """,
+            2,
+        ),
     ],
 )
-# def test__dialect__exasol_specific_segment_parses(
-#     segmentref, raw, caplog, dialect_specific_segment_parses
-# ):
-#     """Test exasol_fs specific segments."""
-#     dialect_specific_segment_parses(TEST_DIALECT, segmentref, raw, caplog)
 def test_exasol_queries(segment_cls, raw, stmt_count, caplog):
-    """Test snowflake specific queries parse."""
+    """Test exasol specific queries parse."""
     lnt = Linter(dialect=TEST_DIALECT)
     parsed = lnt.parse_string(raw)
     assert len(parsed.violations) == 0

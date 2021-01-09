@@ -136,7 +136,7 @@ class CreateFunctionStatementSegment(BaseSegment):
                     Ref("SingleIdentifierGrammar"),  # Column name
                     Ref.keyword("IN", optional=True),
                     Ref("DatatypeSegment"),  # Column type
-                    Ref.keyword("UTF8", optional=True),
+                    Ref("CharCharacterSetSegment", optional=True),
                 ),
                 delimiter=Ref("CommaSegment"),
                 optional=True,
