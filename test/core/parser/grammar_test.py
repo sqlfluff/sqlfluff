@@ -8,7 +8,6 @@ from sqlfluff.core.parser.context import RootParseContext
 from sqlfluff.core.parser.segments import EphemeralSegment
 from sqlfluff.core.parser.grammar.base import BaseGrammar
 from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
-from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.grammar import (
     OneOf,
     Sequence,
@@ -17,11 +16,7 @@ from sqlfluff.core.parser.grammar import (
     StartsWith,
     Anything,
     Nothing,
-    NotExist,
 )
-from sqlfluff.core.parser.match_result import MatchResult
-
-from utils import generate_test_segments
 
 # NB: All of these tests depend somewhat on the KeywordSegment working as planned
 
@@ -348,6 +343,7 @@ def test__parser__grammar_delimited(
     token_list,
     match_len,
     caplog,
+    generate_test_segments,
     fresh_ansi_dialect,
 ):
     """Test the Delimited grammar when not code_only."""
@@ -421,153 +417,3 @@ def test__parser__grammar_noncode(seg_list, fresh_ansi_dialect):
         m = NonCodeMatcher().match(seg_list[1:], parse_context=ctx)
     # We should match one and only one segment
     assert len(m) == 1
-
-
-def stringify_segment(segment):
-    """Turns segments into strings to ease equality checks."""
-    return f"{segment.__class__.__name__}({segment.raw})"
-
-
-def assert_grammar_produces_stringified_match_result(segments, grammar, expected):
-    """Asserts that a grammar produces a certain MatchResult.
-
-    The MatchResult segments are stringified to ease equality checks.
-    """
-    with RootParseContext(dialect=None) as ctx:
-        match_result = grammar.match(
-            segments,
-            parse_context=ctx,
-        )
-
-        assert list(expected.matched_segments) == list(
-            map(
-                stringify_segment,
-                match_result.matched_segments,
-            )
-        )
-
-        assert list(expected.unmatched_segments) == list(
-            map(
-                stringify_segment,
-                match_result.unmatched_segments,
-            )
-        )
-
-
-@pytest.mark.parametrize(
-    "segments,grammar,expected",
-    [
-        (
-            generate_test_segments(["foo", "bar", "baar"]),
-            Sequence(
-                KeywordSegment.make("foo"),
-                KeywordSegment.make("bar"),
-                NotExist(KeywordSegment.make("baar")),
-            ),
-            MatchResult.from_unmatched(
-                [
-                    "_RawSegment(foo)",
-                    "_RawSegment(bar)",
-                    "_RawSegment(baar)",
-                ]
-            ),
-        ),
-        (
-            generate_test_segments(["foo", "bar", "baz"]),
-            Sequence(
-                KeywordSegment.make("foo"),
-                KeywordSegment.make("bar"),
-                NotExist(KeywordSegment.make("baar")),
-            ),
-            MatchResult.from_matched(
-                [
-                    "FOO_KeywordSegment(foo)",
-                    "BAR_KeywordSegment(bar)",
-                    "_RawSegment(baz)",
-                ]
-            ),
-        ),
-        (
-            generate_test_segments(["foo", "bar", "baar", "oz"]),
-            Sequence(
-                KeywordSegment.make("foo"),
-                KeywordSegment.make("bar"),
-                NotExist(
-                    Sequence(
-                        KeywordSegment.make("baar"),
-                        KeywordSegment.make("oz"),
-                    )
-                ),
-            ),
-            MatchResult.from_unmatched(
-                [
-                    "_RawSegment(foo)",
-                    "_RawSegment(bar)",
-                    "_RawSegment(baar)",
-                    "_RawSegment(oz)",
-                ]
-            ),
-        ),
-        (
-            generate_test_segments(["foo", "bar", "baar", "az"]),
-            Sequence(
-                KeywordSegment.make("foo"),
-                KeywordSegment.make("bar"),
-                NotExist(
-                    Sequence(
-                        KeywordSegment.make("baar"),
-                        KeywordSegment.make("oz"),
-                    )
-                ),
-            ),
-            MatchResult.from_matched(
-                [
-                    "FOO_KeywordSegment(foo)",
-                    "BAR_KeywordSegment(bar)",
-                    "_RawSegment(baar)",
-                    "_RawSegment(az)",
-                ]
-            ),
-        ),
-    ],
-)
-def test__parser__grammar_not_exist(segments, grammar, expected):
-    """Test the NotExist grammar."""
-    assert_grammar_produces_stringified_match_result(segments, grammar, expected)
-
-
-@pytest.mark.parametrize(
-    "segments,grammar,expected",
-    [
-        (
-            generate_test_segments(["foo", "bar", "baz"]),
-            Sequence(
-                KeywordSegment.make("foo"),
-                KeywordSegment.make("bar"),
-                NotExist(KeywordSegment.make("baz")),
-            ),
-            ["UnparsableSegment(foobarbaz)"],
-        ),
-        (
-            generate_test_segments(["foo", "bar", "baz"]),
-            Sequence(
-                KeywordSegment.make("foo"),
-                KeywordSegment.make("bar"),
-                KeywordSegment.make("baz"),
-            ),
-            [
-                "FOO_KeywordSegment(foo)",
-                "BAR_KeywordSegment(bar)",
-                "BAZ_KeywordSegment(baz)",
-            ],
-        ),
-    ],
-)
-def test__parser__parse_not_exit(segments, grammar, expected):
-    """Test the NotExist grammar in a parse."""
-    with RootParseContext(dialect=None) as ctx:
-        segment = BaseSegment(segments)
-        segment.match_grammar = grammar
-        segment.parse_grammar = grammar
-        result_segments = segment.parse(parse_context=ctx).segments
-        assert list(map(stringify_segment, result_segments)) == expected

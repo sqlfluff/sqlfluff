@@ -4,8 +4,6 @@ import pytest
 
 from sqlfluff.core.parser.helpers import trim_non_code_segments
 
-from utils import generate_test_segments
-
 
 @pytest.mark.parametrize(
     "token_list,pre_len,mid_len,post_len",
@@ -21,6 +19,7 @@ def test__parser__helper_trim_non_code_segments(
     pre_len,
     mid_len,
     post_len,
+    generate_test_segments,
 ):
     """Test trim_non_code_segments."""
     seg_list = generate_test_segments(token_list)
