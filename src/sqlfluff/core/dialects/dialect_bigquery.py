@@ -14,17 +14,9 @@ from ..parser import (
     Sequence,
     Bracketed,
     Delimited,
-    ReSegment,
-    AnyNumberOf,
-    KeywordSegment,
-    Indent,
 )
 
-from .dialect_ansi import (
-    ansi_dialect,
-    SelectTargetElementSegment as AnsiSelectTargetElementSegment,
-    SelectClauseSegment as AnsiSelectClauseSegment,
-)
+from .dialect_ansi import ansi_dialect
 
 
 bigquery_dialect = ansi_dialect.copy_as("bigquery")
@@ -55,8 +47,7 @@ bigquery_dialect.patch_lexer_struct(
 bigquery_dialect.add(
     DoubleQuotedLiteralSegment=NamedSegment.make(
         "double_quote", name="quoted_literal", type="literal", trim_chars=('"',)
-    ),
-    StructKeywordSegment=KeywordSegment.make("struct", name="struct"),
+    )
 )
 
 # Add additional datetime units
@@ -84,50 +75,6 @@ class IntervalExpressionSegment(BaseSegment):
     )
 
 
-class SelectClauseSegment(AnsiSelectClauseSegment):
-    """In BigQuery, select * as struct is valid."""
-
-    parse_grammar = Sequence(
-        "SELECT",
-        Ref("SelectClauseModifierSegment", optional=True),
-        Indent,
-        OneOf(
-            Sequence(
-                "AS",
-                "STRUCT",
-                Ref("StarSegment"),
-                Ref("StarModifierSegment", optional=True),
-            ),
-            Delimited(
-                Ref("SelectTargetElementSegment"),
-                delimiter=Ref("CommaSegment"),
-                allow_trailing=True,
-            ),
-        ),
-    )
-
-
-class SelectTargetElementSegment(AnsiSelectTargetElementSegment):
-    """BigQuery also supports the special "Struct" construct."""
-
-    parse_grammar = OneOf(
-        # *, blah.*, blah.blah.*, etc.
-        Ref("WildcardExpressionSegment"),
-        Sequence(
-            OneOf(
-                Ref("LiteralGrammar"),
-                Ref("BareFunctionSegment"),
-                Ref("FunctionSegment"),
-                Ref("IntervalExpressionSegment"),
-                Ref("StructSegment"),
-                Ref("ColumnReferenceSegment"),
-                Ref("ExpressionSegment"),
-            ),
-            Ref("AliasExpressionSegment", optional=True),
-        ),
-    )
-
-
 bigquery_dialect.replace(
     QuotedIdentifierSegment=NamedSegment.make(
         "back_quote", name="quoted_identifier", type="identifier", trim_chars=("`",)
@@ -147,15 +94,6 @@ bigquery_dialect.replace(
         ),
         Sequence("WITH", "OFFSET", "AS", Ref("SingleIdentifierGrammar"), optional=True),
     ),
-    FunctionNameSegment=ReSegment.make(
-        # In BigQuery struct() has a special syntax, so we don't treat it as a function
-        r"[A-Z][A-Z0-9_]*",
-        name="function_name",
-        type="function_name",
-        _anti_template=r"STRUCT",
-    ),
-    SelectTargetElementSegment=SelectTargetElementSegment,
-    SelectClauseSegment=SelectClauseSegment,
 )
 
 
@@ -206,36 +144,5 @@ class ReplaceClauseSegment(BaseSegment):
             ),
             # Single replace not in brackets.
             Ref("SelectTargetElementSegment"),
-        ),
-    )
-
-
-@bigquery_dialect.segment()
-class StructSegment(BaseSegment):
-    """Container of ordered fields each with a type (required) and field name (optional).
-
-    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types#constructing_a_struct
-    """
-
-    type = "struct"
-    match_grammar = Sequence(
-        "STRUCT",
-        Bracketed(
-            Delimited(
-                AnyNumberOf(
-                    Sequence(
-                        OneOf(
-                            Ref("LiteralGrammar"),
-                            Ref("FunctionSegment"),
-                            Ref("IntervalExpressionSegment"),
-                            Ref("ObjectReferenceSegment"),
-                            Ref("ExpressionSegment"),
-                        ),
-                        Ref("AliasExpressionSegment", optional=True),
-                    ),
-                ),
-                delimiter=Ref("CommaSegment"),
-            ),
-            optional=True,
         ),
     )
