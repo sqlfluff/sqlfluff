@@ -293,6 +293,7 @@ ansi_dialect.add(
         Ref("BooleanLiteralGrammar"),
     ),
     WhereClauseTerminatorGrammar=OneOf("LIMIT", "GROUP", "ORDER", "HAVING", "QUALIFY"),
+    PrimaryKeyGrammar=Sequence("PRIMARY", "KEY"),
 )
 
 
@@ -457,6 +458,16 @@ class AliasedObjectReferenceSegment(BaseSegment):
     type = "object_reference"
     match_grammar = Sequence(
         Ref("ObjectReferenceSegment"), Ref("AliasExpressionSegment")
+    )
+
+
+@ansi_dialect.segment()
+class AliasedTableReferenceSegment(BaseSegment):
+    """A reference to a table with an `AS` clause."""
+
+    type = "table_reference"
+    match_grammar = Sequence(
+        Ref("TableReferenceSegment"), Ref("AliasExpressionSegment", optional=True)
     )
 
 
@@ -809,15 +820,7 @@ class JoinClauseSegment(BaseSegment):
         # NB: this is optional
         AnyNumberOf(
             # ON clause
-            Sequence(
-                "ON",
-                Indent,
-                OneOf(
-                    Ref("ExpressionSegment"),
-                    Bracketed(Ref("ExpressionSegment", ephemeral_name="JoinCondition")),
-                ),
-                Dedent,
-            ),
+            Ref("JoinOnCondition"),
             # USING clause
             Sequence(
                 "USING",
@@ -848,6 +851,22 @@ class JoinClauseSegment(BaseSegment):
         """Return the eventual table name referred to by this join clause."""
         table_expression = self.get_child("table_expression")
         return table_expression.get_eventual_alias()
+
+
+@ansi_dialect.segment()
+class JoinOnCondition(BaseSegment):
+    """The `ON` condition within a `JOIN` clause."""
+
+    type = "join_on_condition"
+    match_grammar = Sequence(
+        "ON",
+        Indent,
+        OneOf(
+            Ref("ExpressionSegment"),
+            Bracketed(Ref("ExpressionSegment", ephemeral_name="JoinCondition")),
+        ),
+        Dedent,
+    )
 
 
 ansi_dialect.add(
@@ -1394,10 +1413,7 @@ class ColumnOptionSegment(BaseSegment):
                 Ref("LiteralGrammar"),
                 # ?? Ref('IntervalExpressionSegment')
             ),
-            Sequence(  # PRIMARY KEY
-                "PRIMARY",
-                "KEY",
-            ),
+            Ref("PrimaryKeyGrammar"),
             "UNIQUE",  # UNIQUE
             "AUTO_INCREMENT",  # AUTO_INCREMENT (MySQL)
             Sequence(  # REFERENCES reftable [ ( refcolumn) ]
@@ -1447,8 +1463,7 @@ class TableConstraintSegment(BaseSegment):
                 # Later add support for index_parameters?
             ),
             Sequence(  # PRIMARY KEY ( column_name [, ... ] ) index_parameters
-                "PRIMARY",
-                "KEY",
+                Ref("PrimaryKeyGrammar"),
                 # Columns making up PRIMARY KEY constraint
                 Ref("BracketedColumnReferenceListGrammar"),
                 # Later add support for index_parameters?
@@ -1696,7 +1711,7 @@ class UpdateStatementSegment(BaseSegment):
     UPDATE <table name> SET <set clause list> [ WHERE <search condition> ]
     """
 
-    type = "delete_statement"
+    type = "dupdate_statement"
     match_grammar = StartsWith("UPDATE")
     parse_grammar = Sequence(
         "UPDATE",
