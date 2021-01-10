@@ -37,15 +37,34 @@ exasol_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 
 exasol_dialect.set_lexer_struct(
     [
-        (
-            "consumer_group",
-            "regex",
-            r"\bCONSUMER\s+\bGROUP",
-            dict(
-                is_code=True,
-                type="keyword",
-            ),
-        )
+        # (
+        #     "consumer_group",
+        #     "regex",
+        #     r"\bCONSUMER\s+\bGROUP",
+        #     dict(
+        #         is_code=True,
+        #         type="keyword",
+        #     ),
+        # ),
+        # (
+        #     "jdbc",
+        #     "regex",
+        #     r"\bJBDC",
+        #     dict(
+        #         is_code=True,
+        #         type="keyword",
+        #     ),
+        # ),
+        # (
+        #     "driver",
+        #     "regex",
+        #     r"\bDRIVER",
+        #     dict(
+        #         is_code=True,
+        #         type="keyword",
+        #     ),
+        # ),
+        ("range_operator", "regex", r"\.{2}", dict(is_code=True)),
     ]
     + exasol_dialect.get_lexer_struct()
 )
@@ -55,10 +74,19 @@ exasol_dialect.add(
     LocalIdentifierSegment=KeywordSegment.make(
         "LOCAL", name="local_identifier", type="identifier"
     ),
-    ConsumerGroupSegment=NamedSegment.make(
-        "consumer_group",
-        type="keyword",  # not a real keyword, but some statements use it as one
-    ),
+    RangeOperator=NamedSegment.make("range_operator", type="range_operator"),
+    # ConsumerGroupSegment=NamedSegment.make(
+    #     "consumer_group",
+    #     type="keyword",  # not a real keyword, but some statements use it as one
+    # ),
+    # JDBCSegment=NamedSegment.make(
+    #     "jdbc",
+    #     type="keyword",  # not a real keyword, but some statements use it as one
+    # ),
+    # DriverSegment=NamedSegment.make(
+    #     "driver",
+    #     type="keyword",  # not a real keyword, but some statements use it as one
+    # ),
     ForeignKeyReferencesClauseGrammar=Sequence(
         "REFERENCES",
         Ref("TableReferenceSegment"),
@@ -187,11 +215,9 @@ class OnlyColumnListSegment(BaseSegment):
     """"""
 
     type = "column_list"
-    match_grammar = (
-        Delimited(
-            Ref("SingleIdentifierGrammar"),
-            delimiter=Ref("CommaSegment"),
-        ),
+    match_grammar = Delimited(
+        Ref("SingleIdentifierGrammar"),
+        delimiter=Ref("CommaSegment"),
     )
 
 
@@ -928,7 +954,7 @@ class RenameStatementSegment(BaseSegment):
             "USER",
             "ROLE",
             "CONNECTION",
-            Ref("ConsumerGroupSegment"),
+            Sequence("CONSUMER", "GROUP"),
             optional=True,
         ),
         Ref("ObjectReferenceSegment"),
@@ -979,7 +1005,7 @@ class CommentStatementSegment(BaseSegment):
                     "USER",
                     "ROLE",
                     "CONNECTION",
-                    Ref("ConsumerGroupSegment"),
+                    Sequence("CONSUMER", "GROUP"),
                 ),
                 Ref("ObjectReferenceSegment"),
                 "IS",
@@ -1313,12 +1339,7 @@ class ImportStatementSegment(BaseSegment):
                 Sequence(
                     Ref("TableReferenceSegment"),
                     Bracketed(
-                        Ref("OnlyColumnListSegment")
-                        # Delimited(
-                        #     Ref("SingleIdentifierGrammar"),
-                        #     delimiter=Ref("CommaSegment"),
-                        # )
-                        ,
+                        Ref("OnlyColumnListSegment"),
                         optional=True,
                     ),
                 ),
@@ -1355,52 +1376,48 @@ class ImportFromClauseSegment(BaseSegment):
     type = "import_from_clause"
     match_grammar = Sequence(
         "FROM",
-        Ref("ImportFromDbSrcSegment"),
-        Ref("ImportErrorsClauseSegment", optional=True)
-        # OneOf(
-        #     Sequence(
-        #         OneOf(
-        #             Ref("ImportFromDbSrcSegment"),
-        #             Ref("ImportFromFileSegment"),
-        #         ),
-        #         Ref("ImportErrorsClauseSegment", optional=True),
-        #     ),
-        #     Ref("ImportFromScriptSegment"),
-        # ),
+        OneOf(
+            Sequence(
+                OneOf(
+                    Ref("ImportFromDbSrcSegment"),
+                    Ref("ImportFromFileSegment"),
+                ),
+                Ref("ImportErrorsClauseSegment", optional=True),
+            ),
+            Ref("ImportFromScriptSegment"),
+        ),
     )
 
 
 @exasol_dialect.segment()
 class ImportFromDbSrcSegment(BaseSegment):
-    """"""
+    """`IMPORT` from a external database source (EXA,ORA,JDBC)."""
 
-    # TODO: JDBC Support
     type = "import_dbsrc"
-    match_grammar = StartsWith(OneOf("EXA", "ORA"))  # , "JDBC"))
+    match_grammar = StartsWith(
+        OneOf("EXA", "ORA", "JDBC"),
+        terminator=Ref("ImportErrorsClauseSegment"),
+    )
     parse_grammar = Sequence(
         OneOf(
             "EXA",
             "ORA",
-            # Sequence(
-            #     "JDBC",
-            #     Sequence(
-            #         "DRIVER",
-            #         Ref("EqualsSegment"),
-            #         Ref("QuotedLiteralSegment"),
-            #     ),
-            # ),
+            Sequence(
+                "JDBC",
+                Sequence(
+                    "DRIVER",
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
         ),
-        Ref("ImportConnectionDefinition"),
+        Ref("ImportExportConnectionDefinition"),
         OneOf(
             Sequence(
                 "TABLE",
                 Ref("TableReferenceSegment"),
                 Bracketed(
                     Ref("OnlyColumnListSegment"),
-                    # Delimited(
-                    #     Ref("SingleIdentifierGrammar"),
-                    #     delimiter=Ref("CommaSegment"),
-                    # ),
                     optional=True,
                 ),
             ),
@@ -1421,13 +1438,91 @@ class ImportFromDbSrcSegment(BaseSegment):
 
 
 @exasol_dialect.segment()
-class ImportConnectionDefinition(BaseSegment):
-    """"""
+class ImportFromFileSegment(BaseSegment):
+    """`IMPORT` from a file source (FBV,CSV)."""
 
-    type = "import_connection_definition"
+    type = "import_file"
+    match_grammar = StartsWith(
+        OneOf("CSV", "FBV", "LOCAL"),
+        terminator=Ref("ImportErrorsClauseSegment"),
+    )
+    parse_grammar = Sequence(
+        OneOf(
+            Sequence(
+                OneOf(
+                    "CSV",
+                    "FBV",
+                ),
+                AnyNumberOf(
+                    Ref("ImportExportConnectionDefinition"),
+                    AnyNumberOf(
+                        "FILE",
+                        Ref("QuotedLiteralSegment"),
+                        min_times=1,
+                    ),
+                    min_times=1,
+                ),
+            ),
+            Sequence(
+                "LOCAL",
+                Ref.keyword("SECURE", optional=True),
+                OneOf(
+                    "CSV",
+                    "FBV",
+                ),
+                AnyNumberOf(
+                    "FILE",
+                    Ref("QuotedLiteralSegment"),
+                    min_times=1,
+                ),
+            ),
+        ),
+        OneOf(
+            Ref("CSVColumnDefinitionSegment"),
+            Ref("FBVColumnDefinitionSegment"),
+            optional=True,
+        ),
+        Ref("FileOptionSegment", optional=True),
+    )
+
+
+@exasol_dialect.segment()
+class ImportFromScriptSegment(BaseSegment):
+    """`IMPORT` from a executed database script."""
+
+    type = "import_script"
+    match_grammar = StartsWith("SCRIPT")
+    parse_grammar = Sequence(
+        "SCRIPT",
+        Ref("ObjectReferenceSegment"),
+        Ref("ImportExportConnectionDefinition", optional=True),
+        Sequence(
+            "WITH",
+            AnyNumberOf(
+                Sequence(
+                    Ref("ParameterNameSegment"),
+                    Ref("EqualsSegment"),
+                    Ref("LiteralGrammar"),
+                ),
+                min_times=1,
+            ),
+            optional=True,
+        ),
+    )
+
+
+@exasol_dialect.segment()
+class ImportExportConnectionDefinition(BaseSegment):
+    """Definition of a connection used within an `IMPORT`/`EXPORT`."""
+
+    type = "import_export_connection_definition"
     match_grammar = Sequence(
         "AT",
-        Ref("ObjectReferenceSegment"),
+        OneOf(
+            # string or identifier
+            Ref("SingleIdentifierGrammar"),
+            Ref("QuotedLiteralSegment"),
+        ),
         Sequence(
             "USER",
             Ref("QuotedLiteralSegment"),
@@ -1440,44 +1535,39 @@ class ImportConnectionDefinition(BaseSegment):
 
 
 @exasol_dialect.segment()
-class ImportFromFileSegment(BaseSegment):
-    """"""
-
-    type = "import_file"
-    match_grammar = StartsWith(OneOf("CSV", "FBV", "LOCAL"))
-    parse_grammar = Sequence()
-
-
-@exasol_dialect.segment()
-class ImportFromScriptSegment(BaseSegment):
-    """"""
-
-    type = "import_script"
-    match_grammar = StartsWith("SCRIPT")
-    parse_grammar = Sequence()
-
-
-@exasol_dialect.segment()
 class ImportErrorsClauseSegment(BaseSegment):
-    """"""
+    """`ERRORS` clause."""
 
     type = "import_errors_clause"
-    match_grammar = Sequence(
+    match_grammar = StartsWith(
+        "ERRORS",
+    )
+    parse_grammar = Sequence(
         "ERRORS",
         "INTO",
-        # Ref("ImportErrorDestinationSegment"),
+        Ref("ImportErrorDestinationSegment"),
+        Bracketed(
+            Ref("ExpressionSegment"),  # maybe wrong implementation?
+            optional=True,
+        ),
+        OneOf(
+            "REPLACE",
+            "TRUNCATE",
+            optional=True,
+        ),
+        Ref("RejectClauseSegment", optional=True),
     )
 
 
 @exasol_dialect.segment()
 class ImportErrorDestinationSegment(BaseSegment):
-    """"""
+    """Error destination (csv file or table)."""
 
     type = "import_error_destination"
     match_grammar = OneOf(
         Sequence(
             "CSV",
-            Ref("ImportConnectionDefinition"),
+            Ref("ImportExportConnectionDefinition"),
             "FILE",
             Ref("QuotedLiteralSegment"),
         ),
@@ -1490,9 +1580,110 @@ class ImportErrorDestinationSegment(BaseSegment):
         ),
         Sequence(
             Ref("TableReferenceSegment"),
-            Bracketed(
-                Ref.keyword("CURRENT_TIMESTAMP"),  # maybe wrong implementation?
+        ),
+    )
+
+
+@exasol_dialect.segment()
+class RejectClauseSegment(BaseSegment):
+    """`REJECT` clause within an import / export statement."""
+
+    type = "reject_clause"
+    match_grammar = StartsWith("REJECT")
+    parse_grammar = Sequence(
+        "REJECT",
+        "LIMIT",
+        OneOf(
+            Ref("NumericLiteralSegment"),
+            "UNLIMITED",
+        ),
+        Ref.keyword("ERRORS", optional=True),
+    )
+
+
+@exasol_dialect.segment()
+class CSVColumnDefinitionSegment(BaseSegment):
+    """Definition of csv columns within an `IMPORT` statement."""
+
+    type = "csv_cols"
+    match_grammar = Bracketed(
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("NumericLiteralSegment"),  # TODO: Integer
+                    Sequence(
+                        # Expression 1..3, for col 1, 2 and 3
+                        Ref("NumericLiteralSegment"),
+                        Ref("RangeOperator"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                ),
+                Sequence(
+                    "FORMAT",
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
             ),
+            delimiter=Ref("CommaSegment"),
+        )
+    )
+
+
+@exasol_dialect.segment()
+class FBVColumnDefinitionSegment(BaseSegment):
+    """Definition of fbv columns within an `IMPORT` statement."""
+
+    type = "fbv_cols"
+    match_grammar = Bracketed(
+        Delimited(
+            AnyNumberOf(
+                Sequence(
+                    OneOf("SIZE", "START"),
+                    Ref("EqualsSegment"),
+                    Ref("NumericLiteralSegment"),
+                ),
+                Sequence(
+                    OneOf("FORMAT", "PADDING"),
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+                Sequence(
+                    "ALIGN",
+                    Ref("EqualsSegment"),
+                    OneOf("LEFT", "RIGHT"),
+                ),
+            ),
+            delimiter=Ref("CommaSegment"),
+        )
+    )
+
+
+@exasol_dialect.segment()
+class FileOptionSegment(BaseSegment):
+    """File options."""
+
+    type = "file_opts"
+    match_grammar = AnyNumberOf(
+        OneOf(
+            "ENCODING",
+            "NULL",
+            Sequence("ROW", "SEPARATOR"),
+            Sequence(
+                "COLUMN",
+                OneOf("SEPARATOR", "DELIMITER"),
+            ),
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+        OneOf("TRIM", "LTRIM", "RTRIM"),
+        Sequence(
+            OneOf(
+                "SKIP",
+                Sequence("ROW", "SIZE"),
+            ),
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
         ),
     )
 

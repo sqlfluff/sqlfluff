@@ -843,4 +843,8 @@ UNRESERVED_KEYWORDS = [
     "WRITE",
     "YEARS_BETWEEN",
     "ZEROIFNULL",
+    # Additional unreserved keywords not defined in EXA_SQL_KEYWORDS
+    "JDBC",
+    "DRIVER",
+    "CONSUMER",
 ]

@@ -48,7 +48,6 @@ exasol_fs_dialect.set_lexer_struct(
                 ),
             ),
         ),
-        ("double_dot", "regex", r"\.{2}", dict(is_code=True)),
     ]
     + exasol_fs_dialect.get_lexer_struct()
 )
@@ -65,7 +64,6 @@ exasol_fs_dialect.add(
         name="function_variable",
         type="variable",
     ),
-    DoubleDotSegment=NamedSegment.make("double_dot", type="for_loop_between_type"),
 )
 
 exasol_fs_dialect.replace(
@@ -257,7 +255,7 @@ class FunctionForLoopSegment(BaseSegment):
             Sequence(
                 "IN",
                 Ref("ExpressionSegment"),  # could be a variable
-                Ref("DoubleDotSegment"),
+                Ref("RangeOperator"),
                 Ref("ExpressionSegment"),  # could be a variable
                 "LOOP",
                 AnyNumberOf(Ref("FunctionBodySegment"), min_times=1),
