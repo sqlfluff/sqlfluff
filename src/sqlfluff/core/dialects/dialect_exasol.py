@@ -37,33 +37,6 @@ exasol_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 
 exasol_dialect.set_lexer_struct(
     [
-        # (
-        #     "consumer_group",
-        #     "regex",
-        #     r"\bCONSUMER\s+\bGROUP",
-        #     dict(
-        #         is_code=True,
-        #         type="keyword",
-        #     ),
-        # ),
-        # (
-        #     "jdbc",
-        #     "regex",
-        #     r"\bJBDC",
-        #     dict(
-        #         is_code=True,
-        #         type="keyword",
-        #     ),
-        # ),
-        # (
-        #     "driver",
-        #     "regex",
-        #     r"\bDRIVER",
-        #     dict(
-        #         is_code=True,
-        #         type="keyword",
-        #     ),
-        # ),
         ("range_operator", "regex", r"\.{2}", dict(is_code=True)),
     ]
     + exasol_dialect.get_lexer_struct()
@@ -318,6 +291,12 @@ class DropCascadeStatementSegment(BaseSegment):
     """
 
     type = "drop_statement"
+
+    is_ddl = False
+    is_dml = False
+    is_dql = False
+    is_dcl = True
+
     match_grammar = Sequence(
         "DROP",
         OneOf(
@@ -339,6 +318,12 @@ class DropCascadeRestrictStatementSegment(BaseSegment):
     """
 
     type = "drop_statement"
+
+    is_ddl = True
+    is_dml = False
+    is_dql = False
+    is_dcl = False
+
     match_grammar = Sequence(
         "DROP",
         OneOf(
@@ -371,6 +356,12 @@ class CreateSchemaStatementSegment(BaseSegment):
     """
 
     type = "create_schema_statement"
+
+    is_ddl = True
+    is_dml = False
+    is_dql = False
+    is_dcl = False
+
     match_grammar = Sequence(
         "CREATE",
         "SCHEMA",
@@ -394,6 +385,11 @@ class CreateVirtualSchemaStatementSegment(BaseSegment):
     """
 
     type = "create_virtual_schema_statement"
+    is_ddl = True
+    is_dml = False
+    is_dql = False
+    is_dcl = False
+
     match_grammar = Sequence(
         "CREATE",
         "VIRTUAL",
@@ -421,6 +417,12 @@ class AlterSchemaStatementSegment(BaseSegment):
     """
 
     type = "alter_schema_statement"
+
+    is_ddl = True
+    is_dml = False
+    is_dql = False
+    is_dcl = False
+
     match_grammar = Sequence(
         "ALTER",
         "SCHEMA",
@@ -445,6 +447,12 @@ class AlterVirtualSchemaStatementSegment(BaseSegment):
     """
 
     type = "alter_virtual_schema_statement"
+
+    is_ddl = True
+    is_dml = False
+    is_dql = False
+    is_dcl = False
+
     match_grammar = Sequence(
         "ALTER",
         "VIRTUAL",
@@ -482,6 +490,12 @@ class DropSchemaStatementSegment(BaseSegment):
     """
 
     type = "drop_schema_statement"
+
+    is_ddl = True
+    is_dml = False
+    is_dql = False
+    is_dcl = False
+
     match_grammar = Sequence(
         "DROP",
         Ref.keyword("FORCE", optional=True),
@@ -511,6 +525,12 @@ class CreateViewStatementSegment(BaseSegment):
     """
 
     type = "create_view_statement"
+
+    is_ddl = True
+    is_dml = False
+    is_dql = False
+    is_dcl = False
+
     match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
@@ -547,6 +567,12 @@ class CreateTableStatementSegment(BaseSegment):
     """
 
     type = "create_table_statement"
+
+    is_ddl = True
+    is_dml = False
+    is_dql = False
+    is_dcl = False
+
     match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
@@ -721,6 +747,12 @@ class AlterTableStatementSegment(BaseSegment):
     """`ALTER TABLE` statement."""
 
     type = "alter_table_statment"
+
+    is_ddl = True
+    is_dml = False
+    is_dql = False
+    is_dcl = False
+
     match_grammar = OneOf(
         Ref("AlterTableColumnSegment"),
         Ref("AlterTableConstraintSegment"),
@@ -736,6 +768,12 @@ class AlterTableColumnSegment(BaseSegment):
     """
 
     type = "alter_table_statement"
+
+    is_ddl = True
+    is_dml = False
+    is_dql = False
+    is_dcl = False
+
     match_grammar = Sequence(
         "ALTER",
         "TABLE",
@@ -848,6 +886,12 @@ class AlterTableConstraintSegment(BaseSegment):
     """
 
     type = "alter_table_statement"
+
+    is_ddl = True
+    is_dml = False
+    is_dql = False
+    is_dcl = False
+
     match_grammar = Sequence(
         "ALTER",
         "TABLE",
@@ -888,6 +932,12 @@ class AlterTableDistributePartitionSegment(BaseSegment):
     """
 
     type = "alter_table_statement"
+
+    is_ddl = True
+    is_dml = False
+    is_dql = False
+    is_dcl = False
+
     match_grammar = Sequence(
         "ALTER",
         "TABLE",
@@ -943,6 +993,12 @@ class RenameStatementSegment(BaseSegment):
     """
 
     type = "rename_statement"
+
+    is_ddl = True
+    is_dml = False
+    is_dql = False
+    is_dcl = False
+
     match_grammar = Sequence(
         "RENAME",
         OneOf(
@@ -976,6 +1032,12 @@ class CommentStatementSegment(BaseSegment):
     """
 
     type = "comment_statement"
+
+    is_ddl = True
+    is_dml = False
+    is_dql = False
+    is_dcl = False
+
     match_grammar = Sequence(
         "COMMENT",
         "ON",
@@ -1038,6 +1100,12 @@ class InsertStatementSegment(BaseSegment):
     """A `INSERT` statement."""
 
     type = "insert_statement"
+
+    is_ddl = False
+    is_dml = True
+    is_dql = False
+    is_dcl = False
+
     match_grammar = StartsWith("INSERT")
     parse_grammar = Sequence(
         "INSERT",
@@ -1078,6 +1146,12 @@ class UpdateStatementSegment(BaseSegment):
     """
 
     type = "update_statement"
+
+    is_ddl = False
+    is_dml = True
+    is_dql = False
+    is_dcl = False
+
     match_grammar = StartsWith("UPDATE")
     parse_grammar = Sequence(
         "UPDATE",
@@ -1162,6 +1236,12 @@ class MergeStatementSegment(BaseSegment):
     """
 
     type = "merge_statement"
+
+    is_ddl = False
+    is_dml = True
+    is_dql = False
+    is_dcl = False
+
     match_grammar = StartsWith(
         Sequence("MERGE", "INTO"),
     )
@@ -1281,6 +1361,12 @@ class DeleteStatementSegment(BaseSegment):
     """
 
     type = "delete_statement"
+
+    is_ddl = False
+    is_dml = True
+    is_dql = False
+    is_dcl = False
+
     match_grammar = StartsWith("DELETE")
     parse_grammar = Sequence(
         "DELETE",
@@ -1311,6 +1397,12 @@ class TruncateStatmentSegement(BaseSegment):
     """
 
     type = "truncate_table"
+
+    is_ddl = False
+    is_dml = True
+    is_dql = False
+    is_dcl = False
+
     match_grammar = StartsWith("TRUNCATE")
     parse_grammar = Sequence(
         "TRUNCATE",
@@ -1330,6 +1422,12 @@ class ImportStatementSegment(BaseSegment):
     """
 
     type = "import_statement"
+
+    is_ddl = False
+    is_dml = True
+    is_dql = False
+    is_dcl = False
+
     match_grammar = StartsWith("IMPORT")
     parse_grammar = Sequence(
         "IMPORT",
@@ -1357,6 +1455,57 @@ class ImportStatementSegment(BaseSegment):
 
 
 @exasol_dialect.segment()
+class ExportStatementSegment(BaseSegment):
+    """`EXPORT` statement.
+
+    https://docs.exasol.com/sql/export.htm
+    """
+
+    type = "export_statement"
+    is_ddl = False
+    is_dml = True
+    is_dql = False
+    is_dcl = False
+    match_grammar = StartsWith("EXPORT")
+    parse_grammar = Sequence(
+        "EXPORT",
+        OneOf(
+            Sequence(
+                Ref("TableReferenceSegment"),
+                Bracketed(
+                    Ref("OnlyColumnListSegment"),
+                    optional=True,
+                ),
+            ),
+            Bracketed(
+                Ref("SelectableGrammar"),
+            ),
+        ),
+        Ref("ExportIntoClauseSegment"),
+    )
+
+
+@exasol_dialect.segment()
+class ExportIntoClauseSegment(BaseSegment):
+    """EXPORT INTO CLAUSE."""
+
+    type = "export_into_clause"
+    match_grammar = Sequence(
+        "INTO",
+        OneOf(
+            Sequence(
+                OneOf(
+                    Ref("ImportFromExportIntoDbSrcSegment"),
+                    Ref("ImportFromExportIntoFileSegment"),
+                ),
+                Ref("RejectClauseSegment", optional=True),
+            ),
+            Ref("ImportFromExportIntoScriptSegment"),
+        ),
+    )
+
+
+@exasol_dialect.segment()
 class ImportColumnsSegment(BaseSegment):
     """IMPORT COLUMNS."""
 
@@ -1379,24 +1528,24 @@ class ImportFromClauseSegment(BaseSegment):
         OneOf(
             Sequence(
                 OneOf(
-                    Ref("ImportFromDbSrcSegment"),
-                    Ref("ImportFromFileSegment"),
+                    Ref("ImportFromExportIntoDbSrcSegment"),
+                    Ref("ImportFromExportIntoFileSegment"),
                 ),
                 Ref("ImportErrorsClauseSegment", optional=True),
             ),
-            Ref("ImportFromScriptSegment"),
+            Ref("ImportFromExportIntoScriptSegment"),
         ),
     )
 
 
 @exasol_dialect.segment()
-class ImportFromDbSrcSegment(BaseSegment):
-    """`IMPORT` from a external database source (EXA,ORA,JDBC)."""
+class ImportFromExportIntoDbSrcSegment(BaseSegment):
+    """`IMPORT` from or `EXPORT` to a external database source (EXA,ORA,JDBC)."""
 
-    type = "import_dbsrc"
+    type = "import_export_dbsrc"
     match_grammar = StartsWith(
         OneOf("EXA", "ORA", "JDBC"),
-        terminator=Ref("ImportErrorsClauseSegment"),
+        terminator=OneOf(Ref("ImportErrorsClauseSegment"), Ref("RejectClauseSegment")),
     )
     parse_grammar = Sequence(
         OneOf(
@@ -1420,6 +1569,19 @@ class ImportFromDbSrcSegment(BaseSegment):
                     Ref("OnlyColumnListSegment"),
                     optional=True,
                 ),
+                Sequence(
+                    # EXPORT only
+                    AnyNumberOf(
+                        OneOf("REPLACE", "TRUNCATE"),
+                        Sequence(
+                            "CREATED",
+                            "BY",
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        max_times=2,
+                    ),
+                    optional=True,
+                ),
             ),
             AnyNumberOf(
                 Sequence(
@@ -1438,8 +1600,8 @@ class ImportFromDbSrcSegment(BaseSegment):
 
 
 @exasol_dialect.segment()
-class ImportFromFileSegment(BaseSegment):
-    """`IMPORT` from a file source (FBV,CSV)."""
+class ImportFromExportIntoFileSegment(BaseSegment):
+    """`IMPORT` from or `EXPORT` to a file source (FBV,CSV)."""
 
     type = "import_file"
     match_grammar = StartsWith(
@@ -1487,8 +1649,8 @@ class ImportFromFileSegment(BaseSegment):
 
 
 @exasol_dialect.segment()
-class ImportFromScriptSegment(BaseSegment):
-    """`IMPORT` from a executed database script."""
+class ImportFromExportIntoScriptSegment(BaseSegment):
+    """`IMPORT` from / `EXPORT` to a executed database script."""
 
     type = "import_script"
     match_grammar = StartsWith("SCRIPT")
@@ -1603,7 +1765,7 @@ class RejectClauseSegment(BaseSegment):
 
 @exasol_dialect.segment()
 class CSVColumnDefinitionSegment(BaseSegment):
-    """Definition of csv columns within an `IMPORT` statement."""
+    """Definition of csv columns within an `IMPORT` / `EXPORT` statement."""
 
     type = "csv_cols"
     match_grammar = Bracketed(
@@ -1624,6 +1786,13 @@ class CSVColumnDefinitionSegment(BaseSegment):
                     Ref("QuotedLiteralSegment"),
                     optional=True,
                 ),
+                Sequence(
+                    # EXPORT only
+                    "DELIMIT",
+                    Ref("EqualsSegment"),
+                    OneOf("ALWAYS", "NEVER", "AUTO"),
+                    optional=True,
+                ),
             ),
             delimiter=Ref("CommaSegment"),
         )
@@ -1632,12 +1801,14 @@ class CSVColumnDefinitionSegment(BaseSegment):
 
 @exasol_dialect.segment()
 class FBVColumnDefinitionSegment(BaseSegment):
-    """Definition of fbv columns within an `IMPORT` statement."""
+    """Definition of fbv columns within an `IMPORT` / `EXPORT` statement."""
 
     type = "fbv_cols"
     match_grammar = Bracketed(
         Delimited(
             AnyNumberOf(
+                # IMPORT vaild: SIZE ,START, FORMAT, PADDING, ALIGN
+                # EXPORT vaild: SIZE, FORMAT, ALIGN, PADDING
                 Sequence(
                     OneOf("SIZE", "START"),
                     Ref("EqualsSegment"),
@@ -1666,8 +1837,13 @@ class FileOptionSegment(BaseSegment):
     type = "file_opts"
     match_grammar = AnyNumberOf(
         OneOf(
+            # IMPORT valid: ENCODING, NULL, ROW SEPARATOR, COLUMN SEPARATOR / DELIMITER
+            #               TRIM, LTRIM, RTRIM, SKIP, ROW SIZE
+            # EXPORT valid: REPLACE, TRUNCATE, ENCODING, NULL, BOOLEAN, ROW SEPARATOR
+            #               COLUMN SEPARATOR / DELIMITER, DELIMIT, WITH COLUMN NAMES
             "ENCODING",
             "NULL",
+            "BOOLEAN",
             Sequence("ROW", "SEPARATOR"),
             Sequence(
                 "COLUMN",
@@ -1685,15 +1861,20 @@ class FileOptionSegment(BaseSegment):
             Ref("EqualsSegment"),
             Ref("NumericLiteralSegment"),
         ),
+        "REPLACE",
+        "TRUNCATE",
+        Sequence(
+            "WITH",
+            "COLUMN",
+            "NAMES",
+        ),
+        Sequence(
+            # EXPORT only
+            "DELIMIT",
+            Ref("EqualsSegment"),
+            OneOf("ALWAYS", "NEVER", "AUTO"),
+        ),
     )
-
-
-############################
-# EXPORT
-############################
-@exasol_dialect.segment()
-class ExportStatementSegment(BaseSegment):
-    pass
 
 
 ############################
@@ -1804,4 +1985,5 @@ class StatementSegment(BaseSegment):
         Ref("MergeStatementSegment"),
         Ref("TruncateStatmentSegement"),
         Ref("ImportStatementSegment"),
+        Ref("ExportStatementSegment"),
     )
