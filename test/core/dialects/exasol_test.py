@@ -2,12 +2,15 @@
 import pytest
 from sqlfluff.core import Linter
 from sqlfluff.core.dialects.dialect_exasol import (
+    AlterConnectionSegment,
     AlterSchemaStatementSegment,
     AlterTableColumnSegment,
     AlterTableConstraintSegment,
     AlterTableDistributePartitionSegment,
     AlterVirtualSchemaStatementSegment,
     CommentStatementSegment,
+    CreateConnectionSegment,
+    CreateRoleSegment,
     CreateSchemaStatementSegment,
     CreateTableStatementSegment,
     CreateViewStatementSegment,
@@ -25,6 +28,8 @@ from sqlfluff.core.dialects.dialect_exasol import (
     TruncateStatmentSegement,
     UpdateStatementSegment,
     ExportStatementSegment,
+    CreateUserSegment,
+    AlterUserSegment,
 )
 
 TEST_DIALECT = "exasol"
@@ -419,6 +424,57 @@ TEST_DIALECT = "exasol"
             ----
             """,
             9,
+        ),
+        (
+            CreateUserSegment,
+            """
+            CREATE USER user_1 IDENTIFIED BY "h12_xhz";
+            CREATE USER user_2 IDENTIFIED AT LDAP
+            AS 'cn=user_2,dc=authorization,dc=exasol,dc=com';
+            CREATE USER user_3 IDENTIFIED BY KERBEROS PRINCIPAL '<user>@<realm>';
+            """,
+            3,
+        ),
+        (
+            AlterUserSegment,
+            """
+            ALTER USER user_1 IDENTIFIED BY "h22_xhz" REPLACE "h12_xhz";
+            ALTER USER user_1 IDENTIFIED BY "h12_xhz";
+            ALTER USER user_2 IDENTIFIED AT LDAP
+            AS 'cn=user_2,dc=authorization,dc=exasol,dc=com';
+            ALTER USER user_3 PASSWORD_EXPIRY_POLICY = '42 days';
+            ALTER USER user_4 PASSWORD EXPIRE;
+            ALTER USER user_5 RESET FAILED LOGIN ATTEMPTS;
+            """,
+            6,
+        ),
+        (CreateRoleSegment, "CREATE ROLE test_role;", 1),
+        (
+            CreateConnectionSegment,
+            """
+            CREATE CONNECTION ftp_connection
+            TO 'ftp://192.168.1.1/'
+            USER 'agent_007'
+            IDENTIFIED BY 'secret';
+            ----
+            CREATE CONNECTION exa_connection TO '192.168.6.11..14:8563';
+            ----
+            CREATE CONNECTION ora_connection TO '(DESCRIPTION =
+              (ADDRESS = (PROTOCOL = TCP)(HOST = 192.168.6.54)(PORT = 1521))
+              (CONNECT_DATA = (SERVER = DEDICATED)(SERVICE_NAME = orcl)))';
+            ----
+            CREATE CONNECTION jdbc_connection_1
+                   TO 'jdbc:mysql://192.168.6.1/my_db';
+            ----
+            CREATE CONNECTION jdbc_connection_2
+                   TO 'jdbc:postgresql://192.168.6.2:5432/my_db?stringtype=unspecified';
+            """,
+            5,
+        ),
+        (
+            AlterConnectionSegment,
+            "ALTER CONNECTION exa_connection TO '192.168.6.11..14:8564';",
+            1,
         ),
     ],
 )
