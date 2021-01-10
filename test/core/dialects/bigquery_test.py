@@ -26,8 +26,7 @@ from sqlfluff.core import FluffConfig
 @example(data=[("<", "AND"), ("<", "AND"), (">", "AND")])
 @example(data=[(">", "AND"), (">", "AND"), ("<", "AND")])
 def test_bigquery_relational_operator_parsing(data):
-    """Tests queries with a diverse mixture of relational operators.
-    """
+    """Tests queries with a diverse mixture of relational operators."""
     # Generate a simple SELECT query with relational operators and conjunctions
     # as specified in 'data'. Note the conjunctions are used as separators
     # between comparisons, sn the conjunction in the first item is not used.
