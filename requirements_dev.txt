@@ -9,8 +9,10 @@ Pygments
 # testing
 coverage
 hypothesis
+hypothesisssssss
 pytest
 pytest-cov
+sqlalchemy
 # MyPy
 mypy
 typing_extensions
