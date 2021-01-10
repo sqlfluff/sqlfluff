@@ -16,7 +16,7 @@ common: &common
     # https://support.circleci.com/hc/en-us/articles/115015426888-Clear-project-cache
     - restore_cache:
         keys:
-          - v3-deps-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}-{{ checksum "requirements.txt" }}{{ checksum "requirements_dev.txt" }}
+          - v3-deps-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements_dev.txt" }}
     - run:
         name: install dependencies
         command: pip install --user tox
@@ -45,7 +45,7 @@ common: &common
           - ~/.cache/pip
           - ~/.local
           - ./eggs
-        key: v3-deps-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}-{{ checksum "requirements.txt" }}
+        key: v3-deps-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements_dev.txt" }}
     # Don't store test reports for circle.
     # According to https://discuss.circleci.com/t/junit-xml-results-from-pytest-are-not-captured-in-the-projects-insights/28673
     # the store_test_results argument is only available for paid plans. As such this
