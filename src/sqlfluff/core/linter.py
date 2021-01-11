@@ -53,7 +53,6 @@ class ProtoFile(NamedTuple):
     violations: list
     time_dict: dict
     tree: Any
-    file_mask: Any
     ignore_mask: list
 
 
@@ -448,17 +447,7 @@ class LintedFile(NamedTuple):
         return str_buff, str_buff != original_source
 
     def persist_tree(self, suffix: str = "") -> bool:
-        """Persist changes to the given path.
-
-        We use the file_mask to do a safe merge, avoiding any templated
-        sections. First we need to detect where there have been changes
-        between the fixed and templated versions.
-
-        We use difflib.SequenceMatcher.get_opcodes
-        See: https://docs.python.org/3.7/library/difflib.html#difflib.SequenceMatcher.get_opcodes
-        It returns a list of tuples ('equal|replace', ia1, ia2, ib1, ib2).
-
-        """
+        """Persist changes to the given path."""
         write_buff, success = self.fix_string()
 
         if success:
