@@ -24,7 +24,7 @@ from ..parser import (
     CommaDelimited,
 )
 
-from .exasol_keywords import RESERVED_KEYWORDS, UNRESERVED_KEYWORDS
+from .exasol_keywords import RESERVED_KEYWORDS, UNRESERVED_KEYWORDS, BARE_FUNCTIONS
 from .dialect_ansi import ObjectReferenceSegment, ansi_dialect
 
 exasol_dialect = ansi_dialect.copy_as("exasol")
@@ -34,6 +34,8 @@ exasol_dialect.sets("unreserved_keywords").clear()
 exasol_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 exasol_dialect.sets("reserved_keywords").clear()
 exasol_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
+exasol_dialect.sets("bare_functions").clear()
+exasol_dialect.sets("bare_functions").update(BARE_FUNCTIONS)
 
 exasol_dialect.set_lexer_struct(
     [
@@ -48,18 +50,6 @@ exasol_dialect.add(
         "LOCAL", name="local_identifier", type="identifier"
     ),
     RangeOperator=NamedSegment.make("range_operator", type="range_operator"),
-    # ConsumerGroupSegment=NamedSegment.make(
-    #     "consumer_group",
-    #     type="keyword",  # not a real keyword, but some statements use it as one
-    # ),
-    # JDBCSegment=NamedSegment.make(
-    #     "jdbc",
-    #     type="keyword",  # not a real keyword, but some statements use it as one
-    # ),
-    # DriverSegment=NamedSegment.make(
-    #     "driver",
-    #     type="keyword",  # not a real keyword, but some statements use it as one
-    # ),
     ForeignKeyReferencesClauseGrammar=Sequence(
         "REFERENCES",
         Ref("TableReferenceSegment"),
@@ -121,20 +111,6 @@ exasol_dialect.replace(  # TODO: SingleIdentifierGrammar -> Column
         Ref("LocalIdentifierSegment"),
         Ref("NakedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
-    ),
-)
-exasol_dialect.replace(
-    BareFunctionSegment=ReSegment.make(
-        (
-            r"current_timestamp|systimestamp|now|localtimestamp|"
-            r"curdate|current_date|sysdate|"
-            r"current_user|user|"
-            r"current_session|sessiontimezone|dbtimezone|"
-            r"current_schema|current_statement|"
-            r"rowid|rownum|level"
-        ),
-        name="bare_function",
-        type="bare_function",
     ),
 )
 exasol_dialect.replace(

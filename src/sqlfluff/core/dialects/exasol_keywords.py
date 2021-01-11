@@ -848,3 +848,23 @@ UNRESERVED_KEYWORDS = [
     "DRIVER",
     "CONSUMER",
 ]
+
+BARE_FUNCTIONS = [
+    "current_timestamp",
+    "systimestamp",
+    "now",
+    "localtimestamp",
+    "curdate",
+    "current_date",
+    "sysdate",
+    "current_user",
+    "user",
+    "current_session",
+    "sessiontimezone",
+    "dbtimezone",
+    "current_schema",
+    "current_statement",
+    "rowid",
+    "rownum",
+    "level",
+]
