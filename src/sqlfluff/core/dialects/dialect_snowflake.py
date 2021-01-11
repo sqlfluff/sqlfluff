@@ -16,6 +16,7 @@ from ..parser import (
     AnyNumberOf,
     ReSegment,
     KeywordSegment,
+    SymbolSegment,
     Bracketed,
     Anything,
     Delimited,
@@ -56,9 +57,18 @@ snowflake_dialect.sets("unreserved_keywords").update(
 
 snowflake_dialect.sets("reserved_keywords").update(
     [
-        "SAMPLE",
-        "TABLESAMPLE",
+        "CLONE",
+        "MASKING",
+        "MATERIALIZED",
+        "NETWORK",
+        "NOTIFICATION",
+        "PIPE",
         "PIVOT",
+        "SAMPLE",
+        "STAGE",
+        "STREAM",
+        "TABLESAMPLE",
+        "TASK",
         "UNPIVOT",
         "WAREHOUSE",
     ]
@@ -71,6 +81,9 @@ snowflake_dialect.add(
     # by other rules.
     ParameterAssignerSegment=KeywordSegment.make(
         "=>", name="parameter_assigner", type="parameter_assigner"
+    ),
+    KeywordAssignerSegment=SymbolSegment.make(
+        "=>", name="keyword_assigner", type="keyword_assigner"
     ),
     NakedSemiStructuredElementSegment=ReSegment.make(
         r"[A-Z0-9_]*",
@@ -141,6 +154,8 @@ class StatementSegment(BaseSegment):
         Ref("CreateModelStatementSegment"),
         Ref("DropModelStatementSegment"),
         Ref("UseStatementSegment"),
+        Ref("CreateStatementSegment"),
+        Ref("CreateCloneStatementSegment"),
     )
 
 
@@ -185,7 +200,11 @@ class FromBeforeExpressionSegment(BaseSegment):
 
     parse_grammar = Sequence(
         "BEFORE",
-        Bracketed("STATEMENT", Ref("KeywordAssignerSegment"), Ref("StringLiteral")),
+        Bracketed(
+            OneOf("TIMESTAMP", "OFFSET", "STATEMENT"),
+            Ref("KeywordAssignerSegment"),
+            Ref("ExpressionSegment"),
+        ),
     )
 
 
@@ -384,5 +403,83 @@ class UseStatementSegment(BaseSegment):
     parse_grammar = Sequence(
         "USE",
         OneOf("ROLE", "WAREHOUSE", "DATABASE", "SCHEMA", optional=True),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+@snowflake_dialect.segment()
+class CreateCloneStatementSegment(BaseSegment):
+    """A snowflake `CREATE ... CLONE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-clone.html
+    """
+
+    type = "create_clone_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        OneOf(
+            "DATABASE",
+            "SCHEMA",
+            "TABLE",
+            "SEQUENCE",
+            Sequence("FILE", "FORMAT"),
+            "STAGE",
+            "STREAM",
+            "TASK",
+        ),
+        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("SingleIdentifierGrammar"),
+        "CLONE",
+        Ref("SingleIdentifierGrammar"),
+        OneOf(
+            Ref("FromAtExpressionSegment"),
+            Ref("FromBeforeExpressionSegment"),
+            optional=True,
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class CreateStatementSegment(BaseSegment):
+    """A snowflake `CREATE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create.html
+    """
+
+    type = "create_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        OneOf(
+            Sequence("NETWORK", "POLICY"),
+            Sequence("RESOURCE", "MONITOR"),
+            "SHARE",
+            "ROLE",
+            "USER",
+            "WAREHOUSE",
+            Sequence("NOTIFICATION", "INTEGRATION"),
+            Sequence("SECURITY", "INTEGRATION"),
+            Sequence("STORAGE", "INTEGRATION"),
+            Sequence("EXTERNAL", "TABLE"),
+            "VIEW",
+            Sequence("MATERIALIZED", "VIEW"),
+            Sequence("MASKING", "POLICY"),
+            "PIPE",
+            "FUNCTION",
+            Sequence("EXTERNAL", "FUNCTION"),
+            "PROCEDURE",
+            # Objects that also support clone
+            "DATABASE",
+            "SCHEMA",
+            "TABLE",
+            "SEQUENCE",
+            Sequence("FILE", "FORMAT"),
+            "STAGE",
+            "STREAM",
+            "TASK",
+        ),
+        Sequence("IF", "NOT", "EXISTS", optional=True),
         Ref("ObjectReferenceSegment"),
     )
