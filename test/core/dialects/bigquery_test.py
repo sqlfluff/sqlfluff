@@ -1,11 +1,8 @@
 """Tests specific to the snowflake dialect."""
 
-import pytest
-
 import hypothesis.strategies as st
-from hypothesis import assume, example, given, note, settings
+from hypothesis import example, given, note, settings
 
-from sqlfluff.core import Linter
 from sqlfluff.core.parser import Parser, Lexer
 from sqlfluff.core import FluffConfig
 
