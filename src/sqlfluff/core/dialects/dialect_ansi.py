@@ -101,6 +101,12 @@ ansi_dialect.set_lexer_struct(
     ]
 )
 
+# Set the bare functions
+ansi_dialect.sets("bare_functions").update(
+    ["current_timestamp", "current_time", "current_date"]
+)
+
+
 # Set the datetime units
 ansi_dialect.sets("datetime_units").update(
     [
@@ -179,10 +185,12 @@ ansi_dialect.add(
         "<>", name="not_equal_to", type="comparison_operator"
     ),
     # The following functions can be called without parentheses per ANSI specification
-    BareFunctionSegment=ReSegment.make(
-        r"current_timestamp|current_time|current_date",
-        name="bare_function",
-        type="bare_function",
+    BareFunctionSegment=SegmentGenerator(
+        lambda dialect: ReSegment.make(
+            r"^(" + r"|".join(dialect.sets("bare_functions")) + r")$",
+            name="bare_function",
+            type="bare_function",
+        )
     ),
     # The strange regex here it to make sure we don't accidentally match numeric literals. We
     # also use a regex to explicitly exclude disallowed keywords.
