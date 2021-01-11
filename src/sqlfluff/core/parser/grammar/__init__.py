@@ -4,6 +4,6 @@
 
 from .base import Ref, Anything, Nothing
 from .anyof import AnyNumberOf, OneOf
-from .delimited import Delimited
+from .delimited import Delimited, CommaDelimited
 from .greedy import GreedyUntil, StartsWith
 from .sequence import Sequence, Bracketed
