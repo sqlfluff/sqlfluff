@@ -1,0 +1,14 @@
+rule: L012
+
+issue_561:
+  # Test for https://github.com/sqlfluff/sqlfluff/issues/561
+  pass_str: |
+    select
+      array_agg(catalog_item_id) within group
+        (order by product_position asc) over (partition by (event_id, shelf_position))
+      as shelf_catalog_items
+    from x
+
+  configs:
+    core:
+      dialect: snowflake

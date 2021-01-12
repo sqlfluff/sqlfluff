@@ -47,8 +47,8 @@ class Dialect:
         for key in self._library:
             if isinstance(self._library[key], SegmentGenerator):
                 # If the element is callable, call it passing the current
-                # dialect and store the result it it's place.
-                # Use the .replace() method for it's error handling.
+                # dialect and store the result in its place.
+                # Use the .replace() method for its error handling.
                 self.replace(**{key: self._library[key].expand(self)})
         # Expand any keyword sets.
         for keyword_set in [
@@ -131,9 +131,9 @@ class Dialect:
         defined using `make`. Segments are passed in as kwargs.
 
         e.g.
-        dialect.add(SomeSegment=KeyworkSegment.make(blah, blah, blah))
+        dialect.add(SomeSegment=KeywordSegment.make(blah, blah, blah))
 
-        Note that mutiple segments can be added in the same call as this method
+        Note that multiple segments can be added in the same call as this method
         will iterate through the kwargs
         """
         for n in kwargs:
@@ -144,7 +144,7 @@ class Dialect:
     def replace(self, **kwargs):
         """Override a segment on the dialect directly.
 
-        Usage is very similar to add, but elements specfied must already exist.
+        Usage is very similar to add, but elements specified must already exist.
         """
         for n in kwargs:
             if n not in self._library:

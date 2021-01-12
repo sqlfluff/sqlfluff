@@ -32,3 +32,4 @@ test-reports
 # Ignore root testing sql & python files
 /test*.sql
 /test*.py
+/.hypothesis/

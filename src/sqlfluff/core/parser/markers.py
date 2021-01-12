@@ -18,7 +18,7 @@ class FilePositionMarker:
         line_pos: Optional[int] = 1,
         char_pos: int = 0,
     ):
-        # NB: statment_index and line_pos are optional so that
+        # NB: statement_index and line_pos are optional so that
         # we can use position markers to flag up errors which
         # are specific to a line but we don't (or can't) know
         # precisely where within that line the issue is.

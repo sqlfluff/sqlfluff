@@ -61,6 +61,8 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     cfg = FluffConfig(configs=configs)
     r = get_rule_from_set(code, config=cfg)
     parsed = Linter(config=cfg).parse_string(sql)
+    if parsed.violations:
+        pytest.fail(parsed.violations[0].desc() + "\n" + parsed.tree.stringify())
     print("Parsed:\n {0}".format(parsed.tree.stringify()))
     lerrs, _, _, _ = r.crawl(parsed.tree, dialect=cfg.get("dialect_obj"), fix=True)
     print("Errors Found: {0}".format(lerrs))

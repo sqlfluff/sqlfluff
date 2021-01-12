@@ -8,7 +8,9 @@ doc8
 Pygments
 # testing
 coverage
+hypothesis
 pytest
 pytest-cov
 # MyPy
 mypy
+typing_extensions

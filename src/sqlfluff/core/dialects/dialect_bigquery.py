@@ -7,6 +7,8 @@ https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and
 """
 
 from ..parser import (
+    AnyNumberOf,
+    Anything,
     BaseSegment,
     NamedSegment,
     OneOf,
@@ -15,7 +17,6 @@ from ..parser import (
     Bracketed,
     Delimited,
 )
-
 from .dialect_ansi import ansi_dialect
 
 
@@ -59,11 +60,22 @@ bigquery_dialect.sets("datetime_units").update(
 # Unreserved Keywords
 bigquery_dialect.sets("unreserved_keywords").add("SYSTEM_TIME")
 bigquery_dialect.sets("unreserved_keywords").remove("FOR")
+bigquery_dialect.sets("unreserved_keywords").add("STRUCT")
 # Reserved Keywords
 bigquery_dialect.sets("reserved_keywords").add("FOR")
 
 
+# Bracket pairs (a set of tuples)
+bigquery_dialect.sets("bracket_pairs").update(
+    [
+        # NB: Angle brackets can be mistaken, so False
+        ("angle", "LessThanSegment", "GreaterThanSegment", False)
+    ]
+)
+
+
 # BigQuery allows functions in INTERVAL
+@bigquery_dialect.segment(replace=True)
 class IntervalExpressionSegment(BaseSegment):
     """An interval with a function as value segment."""
 
@@ -95,6 +107,46 @@ bigquery_dialect.replace(
         Sequence("WITH", "OFFSET", "AS", Ref("SingleIdentifierGrammar"), optional=True),
     ),
 )
+
+
+@bigquery_dialect.segment(replace=True)
+class FunctionDefinitionGrammar(BaseSegment):
+    """This is the body of a `CREATE FUNCTION AS` statement."""
+
+    match_grammar = Sequence(
+        AnyNumberOf(
+            Sequence(
+                "LANGUAGE",
+                # Not really a parameter, but best fit for now.
+                Ref("ParameterNameSegment"),
+                Sequence(
+                    "OPTIONS",
+                    Bracketed(
+                        Delimited(
+                            Sequence(
+                                Ref("ParameterNameSegment"),
+                                Ref("EqualsSegment"),
+                                Anything(),
+                            ),
+                            delimiter=Ref("CommaSegment"),
+                        )
+                    ),
+                    optional=True,
+                ),
+            ),
+            # There is some syntax not implemented here,
+            Sequence(
+                "AS",
+                OneOf(
+                    Ref("DoubleQuotedLiteralSegment"),
+                    Ref("QuotedLiteralSegment"),
+                    Bracketed(
+                        OneOf(Ref("ExpressionSegment"), Ref("SelectStatementSegment"))
+                    ),
+                ),
+            ),
+        )
+    )
 
 
 @bigquery_dialect.segment(replace=True)
@@ -144,5 +196,31 @@ class ReplaceClauseSegment(BaseSegment):
             ),
             # Single replace not in brackets.
             Ref("SelectTargetElementSegment"),
+        ),
+    )
+
+
+@bigquery_dialect.segment(replace=True)
+class DatatypeSegment(BaseSegment):
+    """A data type segment.
+
+    In particular here, this enabled the support for
+    the STRUCT datatypes.
+    """
+
+    type = "data_type"
+    match_grammar = OneOf(  # Parameter type
+        Ref("DatatypeIdentifierSegment"),  # Simple type
+        Sequence("ANY", "TYPE"),  # SQL UDFs can specify this "type"
+        Sequence("ARRAY", Bracketed(Ref("DatatypeSegment"), bracket_type="angle")),
+        Sequence(
+            "STRUCT",
+            Bracketed(
+                Delimited(  # Comma-separated list of field names/types
+                    Sequence(Ref("ParameterNameSegment"), Ref("DatatypeSegment")),
+                    delimiter=Ref("CommaSegment"),
+                ),
+                bracket_type="angle",
+            ),
         ),
     )

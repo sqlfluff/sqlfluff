@@ -6,25 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
 ### Added
 
 - Public API to enable people to import `sqlfluff` as a python module
   and call `parse`, `lint` and `fix` within their own projects. See
   [the docs](https://docs.sqlfluff.com/en/latest/api.html) for more
-  information.
+  information. ([#501](https://github.com/sqlfluff/sqlfluff/pull/501))
 - The ability to use `dbt` as a templating engine directly allowing
   richer and more accurate linting around `dbt` macros (and packages
-  related to `dbt`). For more info see [the docs](https://docs.sqlfluff.com/en/latest/configuration.html#dbt-project-configuration).
-- Support for modulo (`%`) operator.
-- A limit in the internal fix routines to catch any infinite loops.
+  related to `dbt`). For more info see [the docs](https://docs.sqlfluff.com/en/latest/configuration.html#dbt-project-configuration). ([#508](https://github.com/sqlfluff/sqlfluff/pull/508))
+- Support for modulo (`%`) operator. ([#447](https://github.com/sqlfluff/sqlfluff/pull/447))
+- A limit in the internal fix routines to catch any infinite loops. ([#494](https://github.com/sqlfluff/sqlfluff/pull/494))
 - Added the `.istype()` method on segments to more intelligently
   deal with type matching in rules when inheritance is at play.
 - Added the ability for the user to add their own rules when interacting
   with the `Linter` directly using `user_rules`.
-- [466](https://github.com/sqlfluff/sqlfluff/issues/466) - Added L034
-  'Fields should be stated before aggregates / window functions' per
-  [dbt coding convenventions](https://github.com/fishtown-analytics/corp/blob/master/dbt_coding_conventions.md#sql-style-guide.)
+- Added L034 'Fields should be stated before aggregates / window functions' per
+  [dbt coding convenventions](https://github.com/fishtown-analytics/corp/blob/master/dbt_coding_conventions.md#sql-style-guide.) ([#495](https://github.com/sqlfluff/sqlfluff/pull/495))
 - Templating tags, such as `{{ variables }}`, `{# comments #}` and
   `{% loops %}` (in jinja) now have placeholders in the parsed
   structure. Rule L003 (indentation), also now respects these
@@ -32,65 +30,109 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   For loop or block tags, they also generate an `Indent` and
   `Dedent` tag accordingly (which can be enabled or disabled)
   with a configuration value so that indentation around these
-  functions can be linted accordingly.
-- MyPy type linting into a large proportion of the core library.
+  functions can be linted accordingly. ([#541](https://github.com/sqlfluff/sqlfluff/pull/541))
+- MyPy type linting into a large proportion of the core library. ([#526](https://github.com/sqlfluff/sqlfluff/pull/526), [#580](https://github.com/sqlfluff/sqlfluff/pull/580))
 - Config values specific to a file can now be defined using a comment
-  line starting with `-- sqlfluff:`.
+  line starting with `-- sqlfluff:`. ([#541](https://github.com/sqlfluff/sqlfluff/pull/541))
+- Added documentation for `--noqa:` use in rules. ([#552](https://github.com/sqlfluff/sqlfluff/pull/552))
+- Added `pre-commit` hooks for `lint` and `fix`. ([#576](https://github.com/sqlfluff/sqlfluff/pull/576))
+- Added a fix routine for Rule L019 (comma placement). ([#575](https://github.com/sqlfluff/sqlfluff/pull/575))
+- Added Rule L031 to enforce "avoid using alias in the `FROM`/`JOIN` clauses" from the `dbt` coding conventions. ([#473](https://github.com/sqlfluff/sqlfluff/pull/473), [#479](https://github.com/sqlfluff/sqlfluff/pull/479))
+- Added Rule L032 to enforce "do not use `USING`" from the `dbt` coding conventions. ([#487](https://github.com/sqlfluff/sqlfluff/pull/487))
+- Added Rule L033 to enforce "prefer `UNION ALL` to `UNION *`" from the `dbt` coding conventions. ([#489](https://github.com/sqlfluff/sqlfluff/pull/489))
+- Added Rule L034 to enforce "fields should be stated before aggregate/window functions" from the `dbt` coding conventions. ([#495](https://github.com/sqlfluff/sqlfluff/pull/495))
+- Adopted the `black` coding style. ([#485](https://github.com/sqlfluff/sqlfluff/pull/485))
+- Added validation and documentation for rule configuration options. ([#462](https://github.com/sqlfluff/sqlfluff/pull/462))
+- Added documentation for which rules are fixable. ([#594](https://github.com/sqlfluff/sqlfluff/pull/594))
+- Added `EPOCH` keyword for postgres dialect. ([#522](https://github.com/sqlfluff/sqlfluff/pull/522))
+- Added column index identifier in snowflake dialect. ([#458](https://github.com/sqlfluff/sqlfluff/pull/458))
+- Added `USE` statement to the snowflake dialect. ([#537](https://github.com/sqlfluff/sqlfluff/pull/537))
+- Added `CODE_OF_CONDUCT` to the project. ([#471](https://github.com/sqlfluff/sqlfluff/pull/471))
+- Added `ISNULL` and `NOTNULL` keywords to ansi dialect. ([#441](https://github.com/sqlfluff/sqlfluff/pull/441))
+- Added support for python 3.9. ([#482](https://github.com/sqlfluff/sqlfluff/pull/482))
+- Added `requirements_dev.txt` for local testing/linting. ([#500](https://github.com/sqlfluff/sqlfluff/pull/500))
+- Added CLI option `--disregard-sqlfluffignores` to allow direct linting of files in the `.sqlfluffignore`. ([#486](https://github.com/sqlfluff/sqlfluff/pull/486))
+- Added `dbt` `incremental` macro. ([#363](https://github.com/sqlfluff/sqlfluff/pull/363))
+- Added links to cockroachlabs expression grammars in ansi dialect. ([#592](https://github.com/sqlfluff/sqlfluff/pull/592))
+- Added favicon to the docs website. ([#589](https://github.com/sqlfluff/sqlfluff/pull/589))
+- Added `CREATE FUNCTION` syntax for postgres and for bigquery. ([#325](https://github.com/sqlfluff/sqlfluff/pull/325))
 
 ### Changed
 
+- [#634](https://github.com/sqlfluff/sqlfluff/issues/635) Fixed parsing of semi-structured objects in the snowflake of dialects with whitespace gaps.
+- [#632](https://github.com/sqlfluff/sqlfluff/pull/632) Handle internal errors elegantly, reporting the stacktrace and the error-surfacing file.
+- [#633](https://github.com/sqlfluff/sqlfluff/issues/633) Improve message for when an automatic fix is not available for L004.
 - Big refactor of logging internally. `Linter` is now decoupled from
   logging so that it can be imported directly by subprojects without
-  needing to worry about wierd output or without the log handing getting
-  in the way of your project.
+  needing to worry about weird output or without the log handing getting
+  in the way of your project. ([#460](https://github.com/sqlfluff/sqlfluff/pull/460))
 - Linting errors in the final file are now reported with their position
   in the source file rather than in the templated file. This means
   when using sqlfluff as a plugabble library within an IDE, the
-  references match the file which is being edited.
+  references match the file which is being edited. ([#541](https://github.com/sqlfluff/sqlfluff/pull/541))
 - Created new Github Organisation (https://github.com/sqlfluff) and
   migrated from https://github.com/alanmcruickshank/sqlfluff to
-  https://github.com/sqlfluff/sqlfluff.
+  https://github.com/sqlfluff/sqlfluff. ([#444](https://github.com/sqlfluff/sqlfluff/issues/444))
 - Changed the handling of `*` and `a.b.*` expressions to have their
   own expressions. Any dependencies on this structure downstream
   will be broken. This also fixes the linting of both kinds of expressions
-  with regard to L013 and L025.
-- Refactor of L022 to handle poorly formatted CTEs better.
+  with regard to L013 and L025. ([#454](https://github.com/sqlfluff/sqlfluff/pull/454))
+- Refactor of L022 to handle poorly formatted CTEs better. ([#494](https://github.com/sqlfluff/sqlfluff/pull/494))
 - Internally added an `EphemeralSegment` to aid with parsing efficiency
-  without altering the end structure of the query.
+  without altering the end structure of the query. ([#491](https://github.com/sqlfluff/sqlfluff/pull/491))
 - Split `ObjectReference` into `ColumnReference` and `TableReference`
-  for more useful API access to the underlying structure.
+  for more useful API access to the underlying structure. ([#504](https://github.com/sqlfluff/sqlfluff/pull/504))
 - `KeywordSegment` and the new `SymbolSegment` both now inherit
   from `_ProtoKeywordSegment` which allows symbols to match in a very
   similar way to keywords without later appearing with the `type` of
-  `keyword`.
+  `keyword`. ([#504](https://github.com/sqlfluff/sqlfluff/pull/504))
 - Introduced the `Parser` class to parse a lexed query rather than
   relying on users to instantiate a `FileSegment` directly. As a result
   the `FileSegment` has been moved from the core parser directly into
   the dialects. Users can refer to it via the `get_root_segment()`
-  method of a dialect.
+  method of a dialect. ([#510](https://github.com/sqlfluff/sqlfluff/pull/510))
 - Several perfomance improvements through removing unused functionality,
-  sensible caching and optimising loops within functions.
+  sensible caching and optimising loops within functions. ([#526](https://github.com/sqlfluff/sqlfluff/pull/526))
+- Split up rule tests into separate `yml` files. ([#553](https://github.com/sqlfluff/sqlfluff/pull/553))
+- Allow escaped quotes in strings. ([#557](https://github.com/sqlfluff/sqlfluff/pull/557))
+- Fixed `ESCAPE` parsing in `LIKE` clause. ([#566](https://github.com/sqlfluff/sqlfluff/pull/566))
+- Fixed parsing of complex `BETWEEN` statements. ([#498](https://github.com/sqlfluff/sqlfluff/pull/498))
+- Fixed BigQuery `EXCEPT` clause parsing. ([#472](https://github.com/sqlfluff/sqlfluff/pull/472))
+- Fixed Rule L022 to respect leading comma configuration. ([#455](https://github.com/sqlfluff/sqlfluff/pull/455))
+- Improved instructions on adding a virtual environment in the `README`. ([#457](https://github.com/sqlfluff/sqlfluff/pull/457))
+- Improved documentation for passing CLI defaults in `.sqlfluff`. ([#452](https://github.com/sqlfluff/sqlfluff/pull/452))
+- Fix bug with templated blocks + `capitalisation_policy = lower`. ([#477](https://github.com/sqlfluff/sqlfluff/pull/477))
+- Fix array accessors in snowflake dialect. ([#442](https://github.com/sqlfluff/sqlfluff/pull/442))
+- Color `logging` warnings red. ([#497](https://github.com/sqlfluff/sqlfluff/pull/497))
+- Allow whitespace before a shorthand cast. ([#544](https://github.com/sqlfluff/sqlfluff/pull/544))
+- Silenced warnings when fixing from stdin. ([#522](https://github.com/sqlfluff/sqlfluff/pull/522))
+- Allow an underscore as the first char in a semi structured element key. ([#596](https://github.com/sqlfluff/sqlfluff/pull/596))
+- Fix PostFunctionGrammar in the Snowflake dialect which was causing strange behaviour in L012. ([#619](https://github.com/sqlfluff/sqlfluff/pull/619/files))
+- `Bracketed` segment now obtains its brackets directly from the dialect
+  using a set named `bracket_pairs`. This now enables better configuration
+  of brackets between dialects. ([#325](https://github.com/sqlfluff/sqlfluff/pull/325))
 
 ### Removed
+- Dropped support for python 3.5. ([#482](https://github.com/sqlfluff/sqlfluff/pull/482))
 - From the CLI, the `--no-safety` option has been removed, the default
-  is now that all enabled rules will be fixed.
+  is now that all enabled rules will be fixed. ([#583](https://github.com/sqlfluff/sqlfluff/pull/583))
 - Removed `BaseSegment.grammar`, `BaseSegment._match_grammar()` and
   `BaseSegment._parse_grammar()` instead preferring references directly
-  to `BaseSegment.match_grammar` and `BaseSegment.parse_grammar`.
+  to `BaseSegment.match_grammar` and `BaseSegment.parse_grammar`. ([#509](https://github.com/sqlfluff/sqlfluff/pull/509))
 - Removed `EmptySegmentGrammar` and replaced with better non-code handling
-  in the `FileSegment` itself.
-- Remove the `ContainsOnly` grammar as it remained only as an anti-pattern.
-- Removed the `expected_string()` functionality from grammars and segments
+  in the `FileSegment` itself. ([#509](https://github.com/sqlfluff/sqlfluff/pull/509))
+- Remove the `ContainsOnly` grammar as it remained only as an anti-pattern. ([#509](https://github.com/sqlfluff/sqlfluff/pull/509))
+- Removed the `expected_string()` functionality from grammars and segments ([#509](https://github.com/sqlfluff/sqlfluff/pull/509))
   as it was poorly supported.
 - Removed `BaseSegment.as_optional()` as now this functionality happens
-  mostly in grammars (including `Ref`).
-- Removed `ColumnExpressionSegment` in favour of `ColumnReference`.
+  mostly in grammars (including `Ref`). ([#509](https://github.com/sqlfluff/sqlfluff/pull/509))
+- Removed `ColumnExpressionSegment` in favour of `ColumnReference`. ([#512](https://github.com/sqlfluff/sqlfluff/pull/512))
 - Removed the `LambdaSegment` feature, instead replacing with an internal
-  to the grammar module called `NonCodeMatcher`.
+  to the grammar module called `NonCodeMatcher`. ([#512](https://github.com/sqlfluff/sqlfluff/pull/512))
 - Case sensitivity as a feature for segment matching has been removed as
-  not required for existing dialects.
+  not required for existing dialects. ([#517](https://github.com/sqlfluff/sqlfluff/pull/517))
 - Dependency on `difflib` or `cdifflib`, by relying on source mapping
-  instead to apply fixes.
+  instead to apply fixes. ([#541](https://github.com/sqlfluff/sqlfluff/pull/541))
 
 ## [0.3.6] - 2020-09-24
 
@@ -217,7 +259,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   of ignore rules and filters.
 - Several bugfixes, including catching potential infinite regress during
   fixing of files, if one fix would re-introduce a problem with another.
-- Behaviour of the `Bracketed` grammar has been changed to treat it's
+- Behaviour of the `Bracketed` grammar has been changed to treat its
   content as a `Sequence` rather than a `OneOf`.
 - Move to `SandboxedEnvironment` rather than `Environment` for jinja
   templating for security.
@@ -253,7 +295,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   so that it belongs as part of the newly renamed `select_clause` (renamed
   from previously `select_target_group`).
 - Clarified handling of the `type` and `name` properties of the BaseSegment
-  class and it's children. `name` should be specific to a particular kind
+  class and its children. `name` should be specific to a particular kind
   of segment, and `type` should express a wider group. Handling of the
   `newline`, `whitespace` and `comma` segments has been updated so that
   we use the `type` property for most use cases rather than `name`.
