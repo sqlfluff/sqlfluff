@@ -867,4 +867,7 @@ BARE_FUNCTIONS = [
     "rowid",
     "rownum",
     "level",
+    "connect_by_isleaf",
+    "connect_by_root",
+    "connect_by_iscycle",
 ]

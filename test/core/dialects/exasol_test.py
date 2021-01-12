@@ -31,6 +31,7 @@ from sqlfluff.core.dialects.dialect_exasol import (
     ExportStatementSegment,
     CreateUserSegment,
     AlterUserSegment,
+    SelectStatementSegment,
 )
 
 TEST_DIALECT = "exasol"
@@ -119,7 +120,7 @@ TEST_DIALECT = "exasol"
         (
             CreateViewStatementSegment,
             """
-            CREATE VIEW my_view as select x from t;
+            CREATE VIEW my_view as select x from t COMMENT IS 'nice view';
             CREATE VIEW my_view (col1 ) as (select x from t);
             CREATE OR REPLACE FORCE VIEW my_view as select y from t;
             CREATE OR REPLACE VIEW my_view (col_1 COMMENT IS 'something important',col2) as select max(y) from t;
@@ -515,6 +516,33 @@ TEST_DIALECT = "exasol"
             REVOKE IMPERSONATION ON user2 FROM user1;
             -- Connections
             REVOKE CONNECTION my_connection FROM user1;
+            """,
+            6,
+        ),
+        (
+            SelectStatementSegment,
+            """
+            SELECT last_name, employee_id id, manager_id mgr_id,
+               CONNECT_BY_ISLEAF leaf, LEVEL,
+               LPAD(' ', 2*LEVEL-1)||SYS_CONNECT_BY_PATH(last_name, '/') "PATH"
+            FROM employees
+            CONNECT BY PRIOR employee_id = manager_id AND dept_no = dno
+            START WITH last_name = 'Clark'
+            ORDER BY employee_id;
+            ----
+            SELECT store, SUM(price) AS volume FROM sales GROUP BY store ORDER BY store DESC;
+            ----
+            SELECT name, SUM(price) AS volume FROM customers JOIN sales USING (c_id)
+            GROUP BY name ORDER BY name;
+            ----
+            WITH tmp_view AS
+                (SELECT name, price, store FROM customers, sales
+                 WHERE customers.c_id=sales.c_id)
+            SELECT sum(price) AS volume, name, store FROM tmp_view
+            GROUP BY GROUPING SETS (name,store,());
+            ----
+            SELECT * FROM (IMPORT INTO (v VARCHAR(1))
+            FROM EXA AT my_connection TABLE sys.dual);
             """,
             6,
         ),

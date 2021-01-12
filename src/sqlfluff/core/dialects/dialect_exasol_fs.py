@@ -118,7 +118,7 @@ class FunctionReferenceSegment(ObjectReferenceSegment):
     type = "function_reference"
 
 
-@exasol_fs_dialect.segment()
+@exasol_fs_dialect.segment(replace=True)
 class CreateFunctionStatementSegment(BaseSegment):
     """A `CREATE FUNCTION` statement."""
 
