@@ -90,7 +90,7 @@ setup(
     ],
     install_requires=[
         # Core
-        "click>=2.0",
+        "click>=7.1",
         "colorama>=0.3",
         "configparser",
         "oyaml",
