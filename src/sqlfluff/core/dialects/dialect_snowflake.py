@@ -15,7 +15,6 @@ from ..parser import (
     Sequence,
     AnyNumberOf,
     ReSegment,
-    KeywordSegment,
     SymbolSegment,
     Bracketed,
     Anything,
@@ -39,7 +38,7 @@ snowflake_dialect.patch_lexer_struct(
 
 snowflake_dialect.insert_lexer_struct(
     # Keyword assigner needed for keyword functions.
-    [("keyword_assigner", "regex", r"=>", dict(is_code=True))],
+    [("parameter_assigner", "regex", r"=>", dict(is_code=True))],
     before="not_equal",
 )
 
@@ -79,11 +78,8 @@ snowflake_dialect.add(
     # In snowflake, these are case sensitive even though they're not quoted
     # so they need a different `name` and `type` so they're not picked up
     # by other rules.
-    ParameterAssignerSegment=KeywordSegment.make(
+    ParameterAssignerSegment=SymbolSegment.make(
         "=>", name="parameter_assigner", type="parameter_assigner"
-    ),
-    KeywordAssignerSegment=SymbolSegment.make(
-        "=>", name="keyword_assigner", type="keyword_assigner"
     ),
     NakedSemiStructuredElementSegment=ReSegment.make(
         r"[A-Z0-9_]*",
@@ -185,7 +181,7 @@ class FromAtExpressionSegment(BaseSegment):
         "AT",
         Bracketed(
             OneOf("TIMESTAMP", "OFFSET", "STATEMENT"),
-            Ref("KeywordAssignerSegment"),
+            Ref("ParameterAssignerSegment"),
             Ref("ExpressionSegment"),
         ),
     )
@@ -202,7 +198,7 @@ class FromBeforeExpressionSegment(BaseSegment):
         "BEFORE",
         Bracketed(
             OneOf("TIMESTAMP", "OFFSET", "STATEMENT"),
-            Ref("KeywordAssignerSegment"),
+            Ref("ParameterAssignerSegment"),
             Ref("ExpressionSegment"),
         ),
     )
