@@ -3504,7 +3504,7 @@ class Rule_L035(BaseCrawler):
                     fixes=lint_fixes,
                     description=(
                         "Ambiguous order by clause. Order by "
-                        "clauses should specify order direction for each column in the order by clause."
+                        "clauses should specify order direction for ALL columns or NO columns."
                     ),
                 )
             ]
