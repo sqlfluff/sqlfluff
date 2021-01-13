@@ -368,9 +368,7 @@ class Rule_L003(BaseCrawler):
         # Is this line just comments?
         if all(
             seg.is_type(
-                "whitespace",
-                "comment",
-                "indent",  # dedent is a subtype of indent
+                "whitespace", "comment", "indent"  # dedent is a subtype of indent
             )
             for seg in this_line["line_buffer"]
         ):
@@ -754,8 +752,7 @@ class Rule_L004(BaseCrawler):
                         "edit",
                         segment,
                         self.make_whitespace(
-                            raw=edit_indent,
-                            pos_marker=segment.pos_marker,
+                            raw=edit_indent, pos_marker=segment.pos_marker
                         ),
                     )
                 ]
@@ -922,8 +919,7 @@ class Rule_L006(BaseCrawler):
                     # It's not an operator, we can evaluate what happened after an
                     # operator if that's the last code we saw.
                     if memory["last_code"] and memory["last_code"].is_type(
-                        "binary_operator",
-                        "comparison_operator",
+                        "binary_operator", "comparison_operator"
                     ):
                         # Evaluate whitespace AFTER the operator
                         anchor, fixes = _handle_previous_segments(
@@ -1006,8 +1002,7 @@ class Rule_L007(BaseCrawler):
                     # We only trigger if the last was an operator, not if this is.
                     pass
                 elif memory["last_code"] and memory["last_code"].is_type(
-                    "binary_operator",
-                    "comparison_operator",
+                    "binary_operator", "comparison_operator"
                 ):
                     # It's not an operator, but the last code was. Now check to see
                     # there is a newline between us and the last operator.
@@ -2539,9 +2534,7 @@ class Rule_L022(BaseCrawler):
 
                 if blank_lines < 1:
                     # We've got an issue
-                    self.logger.info(
-                        "!! Found CTE without enough blank lines.",
-                    )
+                    self.logger.info("!! Found CTE without enough blank lines.")
 
                     # Based on the current location of the comma we insert newlines
                     # to correct the issue.
@@ -2996,9 +2989,7 @@ class Rule_L029(BaseCrawler):
             if self.only_aliases:
                 # Aliases are ok (either directly, or in column definitions or in with statements)
                 if parent_stack[-1].is_type(
-                    "alias_expression",
-                    "column_definition",
-                    "with_compound_statement",
+                    "alias_expression", "column_definition", "with_compound_statement"
                 ):
                     pass
                 # All other references may not be at the discretion of the developer, so leave them out
@@ -3405,6 +3396,97 @@ class Rule_L034(BaseCrawler):
                 self.violation_buff[-1].fixes = fixes
 
         return self.violation_buff or None
+
+
+@std_rule_set.document_fix_compatible
+@std_rule_set.register
+class Rule_L035(BaseCrawler):
+    """Ambiguous ordering directions for columns in order by clause.
+
+    | **Anti-pattern**
+
+    .. code-block::
+
+        SELECT
+            a, b
+        FROM foo
+        ORDER BY a, b DESC
+
+    | **Best practice**
+    | Specify ASC or DESC for all columns in the order by clause.
+
+    .. code-block::
+
+        SELECT
+            a, b
+        FROM foo
+        ORDER BY a ASC, b DESC
+    """
+
+    def _eval(self, segment, parent_stack, **kwargs):
+        """Ambiguous ordering directions for columns in order by clause.
+
+        This rule checks for the ASC or DESC keyword for all columns in the order by clause.
+        """
+        # We only trigger on orderby_clause
+        if segment.is_type("orderby_clause"):
+            found_column_reference = False
+            found_ordering_reference = False
+            mismatch_found = False
+            insert_buff = []
+            lint_fixes = []
+            for child_segment in segment.segments:
+                if child_segment.is_type("column_reference"):
+                    found_column_reference = True
+                elif child_segment.is_type("keyword") and child_segment.name in (
+                    "ASC",
+                    "DESC",
+                ):
+                    found_ordering_reference = True
+                elif found_column_reference and child_segment.type not in [
+                    "keyword",
+                    "whitespace",
+                    "indent",
+                    "dedent",
+                ]:
+                    if not found_ordering_reference:
+                        # Since ASC is default in SQL, add in ASC for fix
+                        mismatch_found = True
+                        new_whitespace = self.make_whitespace(
+                            raw=" ", pos_marker=child_segment.pos_marker
+                        )
+                        new_keyword = self.make_keyword(
+                            raw="ASC", pos_marker=child_segment.pos_marker
+                        )
+                        whitespace_lint_fix = LintFix(
+                            "create", child_segment, new_whitespace
+                        )
+                        order_lint_fix = LintFix("create", child_segment, new_keyword)
+                        lint_fixes.append(whitespace_lint_fix)
+                        lint_fixes.append(order_lint_fix)
+                        insert_buff.append(
+                            self.make_keyword(
+                                raw="ASC", pos_marker=child_segment.pos_marker
+                            )
+                        )
+                    # Reset findings
+                    found_column_reference = False
+                    found_ordering_reference = False
+
+            if mismatch_found:
+                # We've detected 1 or more columns that do not have the order direction
+                return [
+                    LintResult(
+                        anchor=segment,
+                        fixes=lint_fixes,
+                        description=(
+                            "Ambiguous order by clause. Order by "
+                            "clauses should specify order direction for each column in the order by clause."
+                        ),
+                    )
+                ]
+            return None
+        return None
 
 
 @std_rule_set.register
