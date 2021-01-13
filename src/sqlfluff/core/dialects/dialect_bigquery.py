@@ -7,7 +7,6 @@ https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and
 """
 
 from ..parser import (
-    AnyNumberOf,
     Anything,
     BaseSegment,
     NamedSegment,
@@ -262,6 +261,7 @@ class ReplaceClauseSegment(BaseSegment):
         ),
     )
 
+
 @bigquery_dialect.segment(replace=True)
 class DatatypeSegment(BaseSegment):
     """A data type segment.
@@ -286,6 +286,7 @@ class DatatypeSegment(BaseSegment):
             ),
         ),
     )
+
 
 @bigquery_dialect.segment()
 class StructSegment(BaseSegment):
