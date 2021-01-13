@@ -3400,7 +3400,7 @@ class Rule_L034(BaseCrawler):
 
 
 class OrderByColumnInfo(NamedTuple):
-    """For L035, segment that ends an ORDER BY column and any order provided"""
+    """For L035, segment that ends an ORDER BY column and any order provided."""
 
     separator: BaseSegment
     order: str  # One of 'ASC'/'DESC'/None
