@@ -285,10 +285,14 @@ class DatatypeSegment(BaseSegment):
                 bracket_type="angle",
             ),
         ),
+    )
 
 @bigquery_dialect.segment()
 class StructSegment(BaseSegment):
     """Container of ordered fields each with a type (required) and field name (optional).
+
+    Note that here we're not trying to parse the Struct datatype (struct<...>)
+    which is covered in DatatypeSegment, but the function to construct a struct.
 
     https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types#constructing_a_struct
     """
