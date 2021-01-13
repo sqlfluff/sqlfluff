@@ -3436,7 +3436,7 @@ class Rule_L035(BaseCrawler):
         result = []
         found_column_reference = False
         ordering_reference = None
-        for child_segment in itertools.chain(segment.segments, [segment]):
+        for child_segment in segment.segments:
             if child_segment.is_type("column_reference"):
                 found_column_reference = True
             elif child_segment.is_type("keyword") and child_segment.name in (
@@ -3457,6 +3457,14 @@ class Rule_L035(BaseCrawler):
                 # Reset findings
                 found_column_reference = False
                 ordering_reference = None
+
+        # Special handling for last column
+        if found_column_reference:
+            result.append(
+                OrderByColumnInfo(
+                    separator=segment.segments[-1], order=ordering_reference
+                )
+            )
         return result
 
     def _eval(self, segment, parent_stack, **kwargs):
@@ -3486,11 +3494,9 @@ class Rule_L035(BaseCrawler):
                     new_keyword = self.make_keyword(
                         raw="ASC", pos_marker=col_info.separator.pos_marker
                     )
-                    whitespace_lint_fix = LintFix(
-                        "create", col_info.separator, new_whitespace
+                    order_lint_fix = LintFix(
+                        "create", col_info.separator, [new_whitespace, new_keyword]
                     )
-                    order_lint_fix = LintFix("create", col_info.separator, new_keyword)
-                    lint_fixes.append(whitespace_lint_fix)
                     lint_fixes.append(order_lint_fix)
                     insert_buff.append(
                         self.make_keyword(
