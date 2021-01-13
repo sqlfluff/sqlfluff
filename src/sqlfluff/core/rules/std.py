@@ -2,7 +2,7 @@
 
 import itertools
 from collections import namedtuple
-from typing import NamedTuple, Tuple, List, Dict, Any
+from typing import NamedTuple, Optional, Tuple, List, Dict, Any
 
 from .base import BaseCrawler, LintFix, LintResult, RuleSet
 from .config_info import STANDARD_CONFIG_INFO_DICT
@@ -3403,7 +3403,7 @@ class OrderByColumnInfo(NamedTuple):
     """For L035, segment that ends an ORDER BY column and any order provided."""
 
     separator: BaseSegment
-    order: str  # One of 'ASC'/'DESC'/None
+    order: Optional[str]  # One of 'ASC'/'DESC'/None
 
 
 @std_rule_set.document_fix_compatible
