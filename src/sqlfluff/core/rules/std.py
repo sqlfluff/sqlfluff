@@ -3421,7 +3421,8 @@ class Rule_L035(BaseCrawler):
         ORDER BY a, b DESC
 
     | **Best practice**
-    | Specify ASC or DESC for all columns in the order by clause.
+    | If any columns in the ORDER BY clause specify ASC or DESC, they should all
+      do so.
 
     .. code-block::
 
@@ -3472,11 +3473,11 @@ class Rule_L035(BaseCrawler):
     def _eval(self, segment, parent_stack, **kwargs):
         """Ambiguous ordering directions for columns in order by clause.
 
-        This rule checks for the ASC or DESC keyword for all columns in the order by clause.
+        This rule checks if some ORDER BY columns explicitly specify ASC or
+        DESC and some don't.
         """
         # We only trigger on orderby_clause
         if segment.is_type("orderby_clause"):
-            insert_buff = []
             lint_fixes = []
             orderby_spec = self._get_orderby_info(segment)
             order_types = {o.order for o in orderby_spec}
@@ -3500,11 +3501,6 @@ class Rule_L035(BaseCrawler):
                         "create", col_info.separator, [new_whitespace, new_keyword]
                     )
                     lint_fixes.append(order_lint_fix)
-                    insert_buff.append(
-                        self.make_keyword(
-                            raw="ASC", pos_marker=col_info.separator.pos_marker
-                        )
-                    )
 
             return [
                 LintResult(
