@@ -2,10 +2,11 @@
 
 import itertools
 from collections import namedtuple
-from typing import Tuple, List, Dict, Any
+from typing import NamedTuple, Tuple, List, Dict, Any
 
 from .base import BaseCrawler, LintFix, LintResult, RuleSet
 from .config_info import STANDARD_CONFIG_INFO_DICT
+from ..parser import BaseSegment
 
 std_rule_set = RuleSet(name="standard", config_info=STANDARD_CONFIG_INFO_DICT)
 
@@ -3398,6 +3399,11 @@ class Rule_L034(BaseCrawler):
         return self.violation_buff or None
 
 
+class OrderByColumnInfo(NamedTuple):
+    separator: BaseSegment
+    order: str
+
+
 @std_rule_set.document_fix_compatible
 @std_rule_set.register
 class Rule_L035(BaseCrawler):
@@ -3423,6 +3429,36 @@ class Rule_L035(BaseCrawler):
         ORDER BY a ASC, b DESC
     """
 
+    @staticmethod
+    def _get_orderby_info(segment: BaseSegment) -> List[OrderByColumnInfo]:
+        assert segment.is_type("orderby_clause")
+
+        result = []
+        found_column_reference = False
+        ordering_reference = None
+        for child_segment in segment.segments:
+            if child_segment.is_type("column_reference"):
+                found_column_reference = True
+            elif child_segment.is_type("keyword") and child_segment.name in (
+                "ASC",
+                "DESC",
+            ):
+                ordering_reference = child_segment.name
+            elif found_column_reference and child_segment.type not in [
+                "keyword",
+                "whitespace",
+                "indent",
+                "dedent",
+            ]:
+                result.append(
+                    OrderByColumnInfo(separator=child_segment, order=ordering_reference)
+                )
+
+                # Reset findings
+                found_column_reference = False
+                ordering_reference = None
+        return result
+
     def _eval(self, segment, parent_stack, **kwargs):
         """Ambiguous ordering directions for columns in order by clause.
 
@@ -3430,48 +3466,31 @@ class Rule_L035(BaseCrawler):
         """
         # We only trigger on orderby_clause
         if segment.is_type("orderby_clause"):
-            found_column_reference = False
-            found_ordering_reference = False
             mismatch_found = False
             insert_buff = []
             lint_fixes = []
-            for child_segment in segment.segments:
-                if child_segment.is_type("column_reference"):
-                    found_column_reference = True
-                elif child_segment.is_type("keyword") and child_segment.name in (
-                    "ASC",
-                    "DESC",
-                ):
-                    found_ordering_reference = True
-                elif found_column_reference and child_segment.type not in [
-                    "keyword",
-                    "whitespace",
-                    "indent",
-                    "dedent",
-                ]:
-                    if not found_ordering_reference:
-                        # Since ASC is default in SQL, add in ASC for fix
-                        mismatch_found = True
-                        new_whitespace = self.make_whitespace(
-                            raw=" ", pos_marker=child_segment.pos_marker
+            orderby_spec = self._get_orderby_info(segment)
+            for col_info in orderby_spec:
+                if not col_info.order:
+                    # Since ASC is default in SQL, add in ASC for fix
+                    mismatch_found = True
+                    new_whitespace = self.make_whitespace(
+                        raw=" ", pos_marker=col_info.separator.pos_marker
+                    )
+                    new_keyword = self.make_keyword(
+                        raw="ASC", pos_marker=col_info.separator.pos_marker
+                    )
+                    whitespace_lint_fix = LintFix(
+                        "create", col_info.separator, new_whitespace
+                    )
+                    order_lint_fix = LintFix("create", col_info.separator, new_keyword)
+                    lint_fixes.append(whitespace_lint_fix)
+                    lint_fixes.append(order_lint_fix)
+                    insert_buff.append(
+                        self.make_keyword(
+                            raw="ASC", pos_marker=col_info.separator.pos_marker
                         )
-                        new_keyword = self.make_keyword(
-                            raw="ASC", pos_marker=child_segment.pos_marker
-                        )
-                        whitespace_lint_fix = LintFix(
-                            "create", child_segment, new_whitespace
-                        )
-                        order_lint_fix = LintFix("create", child_segment, new_keyword)
-                        lint_fixes.append(whitespace_lint_fix)
-                        lint_fixes.append(order_lint_fix)
-                        insert_buff.append(
-                            self.make_keyword(
-                                raw="ASC", pos_marker=child_segment.pos_marker
-                            )
-                        )
-                    # Reset findings
-                    found_column_reference = False
-                    found_ordering_reference = False
+                    )
 
             if mismatch_found:
                 # We've detected 1 or more columns that do not have the order direction
