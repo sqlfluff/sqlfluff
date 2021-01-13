@@ -3,10 +3,11 @@ from typing import NamedTuple
 
 import pytest
 
-from sqlfluff.core import Linter, FluffConfig
+from sqlfluff.core import Linter
 from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.rules.base import BaseCrawler, LintResult, LintFix
 from sqlfluff.core.rules.std import std_rule_set
+from sqlfluff.core.config import FluffConfig
 
 from test.fixtures.dbt.templater import (  # noqa
     DBT_FLUFF_CONFIG,

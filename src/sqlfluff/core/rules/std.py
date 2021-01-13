@@ -3411,6 +3411,7 @@ class Rule_L034(BaseCrawler):
 @std_rule_set.register
 class Rule_L035(BaseCrawler):
     """Do not specify "else null" in a case when statement (redundant).
+
     | **Anti-pattern**
     .. code-block:: sql
         select
@@ -3433,6 +3434,7 @@ class Rule_L035(BaseCrawler):
 
     def _eval(self, segment, **kwargs):
         """Find rule violations and provide fixes.
+
         0. Look for a case expression
         1. Look for "ELSE"
         2. Mark "ELSE" for deletion (populate "fixes")

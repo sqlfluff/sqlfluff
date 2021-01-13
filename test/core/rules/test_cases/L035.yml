@@ -4,8 +4,8 @@ no_redundant_else_null:
   pass_str: |
     select
         case
-            when name like '%cat%' then 'meow'
-            when name like '%dog%' then 'woof'
+            when name = 'cat' then 'meow'
+            when name = 'dog' then 'woof'
         end
     from x
 
@@ -13,8 +13,8 @@ redundant_else_null:
   fail_str: |
     select
         case
-            when name like '%cat%' then 'meow'
-            when name like '%dog%' then 'woof'
+            when name = 'cat' then 'meow'
+            when name = 'dog' then 'woof'
             else null
         end
     from x
@@ -22,13 +22,12 @@ redundant_else_null:
   fix_str: |
     select
         case
-            when name like '%cat%' then 'meow'
-            when name like '%dog%' then 'woof'
+            when name = 'cat' then 'meow'
+            when name = 'dog' then 'woof'
         end
     from x
 
 alternate_case_when_syntax:
-  skip: Alternate case when syntax is not parse-able right now
 
   fail_str: |
     select
@@ -42,8 +41,8 @@ alternate_case_when_syntax:
   fix_str: |
     select
         case name
-            when like '%cat%' then 'meow'
-            when like '%dog%' then 'woof'
+            when 'cat' then 'meow'
+            when 'dog' then 'woof'
         end
     from x
 
@@ -51,8 +50,8 @@ else_expression:
   pass_str: |
     select
         case name
-            when like '%cat%' then 'meow'
-            when like '%dog%' then 'woof'
+            when 'cat' then 'meow'
+            when 'dog' then 'woof'
             else iff(wing_type is not null, 'tweet', 'invalid')
         end
     from x
