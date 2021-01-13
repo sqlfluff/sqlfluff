@@ -131,7 +131,7 @@ class SelectTargetElementSegment(AnsiSelectTargetElementSegment):
                 Ref("BareFunctionSegment"),
                 Ref("FunctionSegment"),
                 Ref("IntervalExpressionSegment"),
-                Ref("StructSegment"),
+                Ref("TypelessStructSegment"),
                 Ref("ColumnReferenceSegment"),
                 Ref("ExpressionSegment"),
             ),
@@ -289,16 +289,13 @@ class DatatypeSegment(BaseSegment):
 
 
 @bigquery_dialect.segment()
-class StructSegment(BaseSegment):
-    """Container of ordered fields each with a type (required) and field name (optional).
+class TypelessStructSegment(BaseSegment):
+    """Expression to construct a STRUCT with implicit types.
 
-    Note that here we're not trying to parse the Struct datatype (struct<...>)
-    which is covered in DatatypeSegment, but the function to construct a struct.
-
-    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types#constructing_a_struct
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types#typeless_struct_syntax
     """
 
-    type = "struct"
+    type = "typeless_struct"
     match_grammar = Sequence(
         "STRUCT",
         Bracketed(
