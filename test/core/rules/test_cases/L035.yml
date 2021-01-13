@@ -13,7 +13,7 @@ test_unspecified_desc:
 
 
 test_asc_desc:
-  fail_str: SELECT * FROM t ORDER BY a ASC, b DESC
+  pass_str: SELECT * FROM t ORDER BY a ASC, b DESC
 
 
 test_desc_unspecified:

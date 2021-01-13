@@ -3436,7 +3436,7 @@ class Rule_L035(BaseCrawler):
         result = []
         found_column_reference = False
         ordering_reference = None
-        for child_segment in segment.segments:
+        for child_segment in itertools.chain(segment.segments, [segment]):
             if child_segment.is_type("column_reference"):
                 found_column_reference = True
             elif child_segment.is_type("keyword") and child_segment.name in (
@@ -3466,14 +3466,20 @@ class Rule_L035(BaseCrawler):
         """
         # We only trigger on orderby_clause
         if segment.is_type("orderby_clause"):
-            mismatch_found = False
             insert_buff = []
             lint_fixes = []
             orderby_spec = self._get_orderby_info(segment)
+            order_types = {o.order for o in orderby_spec}
+            # If ALL columns or NO columns explicitly specify ASC/DESC, all is
+            # well.
+            if None not in order_types or order_types == {None}:
+                return None
+
+            # There's a mix of explicit and default sort order. Make everything
+            # explicit.
             for col_info in orderby_spec:
                 if not col_info.order:
                     # Since ASC is default in SQL, add in ASC for fix
-                    mismatch_found = True
                     new_whitespace = self.make_whitespace(
                         raw=" ", pos_marker=col_info.separator.pos_marker
                     )
@@ -3492,19 +3498,16 @@ class Rule_L035(BaseCrawler):
                         )
                     )
 
-            if mismatch_found:
-                # We've detected 1 or more columns that do not have the order direction
-                return [
-                    LintResult(
-                        anchor=segment,
-                        fixes=lint_fixes,
-                        description=(
-                            "Ambiguous order by clause. Order by "
-                            "clauses should specify order direction for each column in the order by clause."
-                        ),
-                    )
-                ]
-            return None
+            return [
+                LintResult(
+                    anchor=segment,
+                    fixes=lint_fixes,
+                    description=(
+                        "Ambiguous order by clause. Order by "
+                        "clauses should specify order direction for each column in the order by clause."
+                    ),
+                )
+            ]
         return None
 
 
