@@ -2,47 +2,107 @@
 
 import os
 import time
-from collections import namedtuple
 import logging
-
-# Attempt to use the C version for a speedup on comparisons
-# if it's present. If not just use the normal one.
-try:
-    from cdifflib import CSequenceMatcher as SequenceMatcher
-except ImportError:
-    from difflib import SequenceMatcher
+import traceback
+from typing import (
+    Any,
+    Dict,
+    Generator,
+    Iterable,
+    Iterator,
+    List,
+    NamedTuple,
+    Optional,
+    Tuple,
+    Union,
+    cast,
+    overload,
+)
+from typing_extensions import Literal
 
 from benchit import BenchIt
 import pathspec
 
-from .errors import SQLLexError, SQLParseError
+from .errors import (
+    SQLBaseError,
+    SQLLexError,
+    SQLLintError,
+    SQLParseError,
+    CheckTuple,
+)
 from .parser import Lexer, Parser
+from .string_helpers import findall
+from .templaters import TemplatedFile
 from .rules import get_ruleset
 from .config import FluffConfig, ConfigLoader
 
+# Classes needed only for type checking
+from .parser.segments.base import BaseSegment, FixPatch
+from .parser.segments.indent import MetaSegment
+from .parser.segments.raw import RawSegment
+from .rules.base import BaseCrawler
 
 # Instantiate the linter logger
-linter_logger = logging.getLogger("sqlfluff.linter")
+linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
 
 
-class LintedFile(
-    namedtuple(
-        "ProtoFile",
-        ["path", "violations", "time_dict", "tree", "file_mask", "ignore_mask"],
-    )
-):
+class ProtoFile(NamedTuple):
+    """Proto object to be inherited by LintedFile."""
+
+    path: str
+    violations: list
+    time_dict: dict
+    tree: Any
+    ignore_mask: list
+
+
+class ParsedString(NamedTuple):
+    """An object to store the result of parsing a string."""
+
+    tree: Optional[BaseSegment]
+    violations: List[SQLBaseError]
+    time_dict: dict
+    templated_file: TemplatedFile
+    config: FluffConfig
+
+
+class EnrichedFixPatch(NamedTuple):
+    """An edit patch for a source file."""
+
+    source_slice: slice
+    templated_slice: slice
+    fixed_raw: str
+    # The patch type, functions mostly for debugging and explanation
+    # than for function. It allows traceability of *why* this patch was
+    # generated.
+    patch_type: str
+    templated_str: str
+    source_str: str
+
+    def dedupe_tuple(self):
+        """Generate a tuple of this fix for deduping."""
+        return (self.source_slice, self.fixed_raw)
+
+
+class LintedFile(NamedTuple):
     """A class to store the idea of a linted file."""
 
-    __slots__ = ()
+    path: str
+    violations: list
+    time_dict: dict
+    tree: Optional[BaseSegment]
+    ignore_mask: list
+    templated_file: TemplatedFile
 
-    def check_tuples(self):
+    def check_tuples(self) -> List[CheckTuple]:
         """Make a list of check_tuples.
 
         This assumes that all the violations found are
         linting violations (and therefore implement `check_tuple()`).
         If they don't then this function raises that error.
         """
-        vs = []
+        vs: List[CheckTuple] = []
+        v: SQLLintError
         for v in self.get_violations():
             if hasattr(v, "check_tuple"):
                 vs.append(v.check_tuple())
@@ -50,7 +110,13 @@ class LintedFile(
                 raise v
         return vs
 
-    def get_violations(self, rules=None, types=None, filter_ignore=True, fixable=None):
+    def get_violations(
+        self,
+        rules: Optional[Union[str, Tuple[str, ...]]] = None,
+        types: Optional[Union[Any, Iterable[Any]]] = None,
+        filter_ignore: bool = True,
+        fixable: bool = None,
+    ) -> list:
         """Get a list of violations, respecting filters and ignore options.
 
         Optionally now with filters.
@@ -90,7 +156,7 @@ class LintedFile(
                     ]
         return violations
 
-    def num_violations(self, **kwargs):
+    def num_violations(self, **kwargs) -> int:
         """Count the number of violations.
 
         Optionally now with filters.
@@ -98,282 +164,290 @@ class LintedFile(
         violations = self.get_violations(**kwargs)
         return len(violations)
 
-    def is_clean(self):
+    def is_clean(self) -> bool:
         """Return True if there are no ignorable violations."""
         return not any(self.get_violations(filter_ignore=True))
 
-    def fix_string(self):
+    def fix_string(self) -> Tuple[Any, bool]:
         """Obtain the changes to a path as a string.
 
-        We use the file_mask to do a safe merge, avoiding any templated
-        sections. First we need to detect where there have been changes
-        between the fixed and templated versions. The file mask is of
-        the format: (raw_file, templated_file, fixed_file).
+        We use the source mapping features of TemplatedFile
+        to generate a list of "patches" which cover the non
+        templated parts of the file and refer back to the locations
+        in the original file.
 
-        We use difflib.SequenceMatcher.get_opcodes
-        See: https://docs.python.org/3.7/library/difflib.html#difflib.SequenceMatcher.get_opcodes
-        It returns a list of tuples ('equal|replace|delete|insert', ia1, ia2, ib1, ib2).
+        NB: This is MUCH FASTER than the original approach
+        using difflib in pre 0.4.0.
 
+        There is an important distinction here between Slices and
+        Segments. A Slice is a portion of a file which is determined
+        by the templater based on which portions of the source file
+        are templated or not, and therefore before Lexing and so is
+        completely dialect agnostic. A Segment is determined by the
+        Lexer from portions of strings after templating.
         """
         bencher = BenchIt()
         bencher("fix_string: start")
 
-        # Do we have enough information to actually fix the file?
-        if any(elem is None for elem in self.file_mask):
-            linter_logger.warning(
-                "Insufficient information to fix file: %s", self.file_mask
-            )
-            return None, False
+        linter_logger.debug("Original Tree: %r", self.templated_file.templated_str)
+        linter_logger.debug("Fixed Tree: %r", self.tree.raw)  # type: ignore
 
-        linter_logger.info("Persisting file masks: %s", self.file_mask)
-        # Compare Templated with Raw
-        diff_templ = SequenceMatcher(
-            autojunk=None, a=self.file_mask[0], b=self.file_mask[1]
-        )
-        bencher("fix_string: Match 0&1")
-        diff_templ_codes = diff_templ.get_opcodes()
-        linter_logger.debug("Templater diff codes: %s", diff_templ_codes)
-
-        bencher("fix_string: Got Opcodes 0&1")
-        # Compare Fixed with Templated
-        diff_fix = SequenceMatcher(
-            autojunk=None, a=self.file_mask[1], b=self.file_mask[2]
-        )
-        bencher("fix_string: Matched 1&2")
-        # diff_fix = SequenceMatcher(autojunk=None, a=self.file_mask[1][0], b=self.file_mask[2][0])
-        diff_fix_codes = diff_fix.get_opcodes()
-        linter_logger.debug("Fixing diff codes: %s", diff_fix_codes)
-        bencher("fix_string: Got Opcodes 1&2")
-
-        # If diff_templ isn't the same then we should just keep the template. If there *was*
-        # a fix in that space, then we should raise an issue
-        # If it is the same, then we can apply fixes as expected.
-        write_buff = ""
-        fixed_block = None
-        templ_block = None
-        # index in raw, templ and fix
-        idx = (0, 0, 0)
-        loop_idx = 0
-        bencher("fix_string: Loop Setup")
-        while True:
-            loop_idx += 1
-            linter_logger.debug(
-                "%04d: Write Loop: idx:%s, buff:%r", loop_idx, idx, write_buff
-            )
-            if templ_block is None:
-                if diff_templ_codes:
-                    templ_block = diff_templ_codes.pop(0)
-                # We've exhausted the template. Have we exhausted the fixes?
-                elif fixed_block is None and not diff_fix_codes:
-                    # Yes - excellent. DONE
-                    break
-                # Deal with the case that we only have inserts left.
-                elif all(elem[0] == "insert" for elem in diff_fix_codes):
-                    for fixed_block in diff_fix_codes:
-                        write_buff += self.file_mask[2][fixed_block[3] : fixed_block[4]]
-                    break
-                else:
-                    raise NotImplementedError(
-                        "Fix Block(s) left over! Don't know how to handle this! aeflf8wh"
-                    )
-            if fixed_block is None:
-                if diff_fix_codes:
-                    fixed_block = diff_fix_codes.pop(0)
-                elif templ_block[0] != "delete":
-                    # We need another fixed_block for the cases where templ_block[0] is not 'delete'
-                    raise NotImplementedError(
-                        "A {} template block remains with no more diff_fix_codes left".format(
-                            templ_block[0]
-                        )
-                    )
-
-            linter_logger.debug(
-                "%04d: Blocks: template:%s, fix:%s", loop_idx, templ_block, fixed_block
-            )
-            if templ_block[0] == "equal":
-                if fixed_block[0] == "equal":
-                    # No templating, no fixes, go with middle and advance indexes
-                    # Find out how far we can advance (we use the middle version because it's common)
-                    if templ_block[4] == fixed_block[2]:
-                        buff = self.file_mask[1][idx[1] : fixed_block[2]]
-                        # consume both blocks
-                        fixed_block = None
-                        templ_block = None
-                    elif templ_block[4] > fixed_block[2]:
-                        buff = self.file_mask[1][idx[1] : fixed_block[2]]
-                        # consume fixed block
-                        fixed_block = None
-                    elif templ_block[4] < fixed_block[2]:
-                        buff = self.file_mask[1][idx[1] : templ_block[4]]
-                        # consume templ block
-                        templ_block = None
-                    idx = (idx[0] + len(buff), idx[1] + len(buff), idx[2] + len(buff))
-                    write_buff += buff
-                    continue
-                elif fixed_block[0] == "replace":
-                    # Consider how to apply fixes.
-                    # Can we implement the fix while staying in the equal segment?
-                    if fixed_block[2] <= templ_block[4]:
-                        # Yes! Write from the fixed version.
-                        write_buff += self.file_mask[2][idx[2] : fixed_block[4]]
-                        idx = (
-                            idx[0] + (fixed_block[2] - fixed_block[1]),
-                            fixed_block[2],
-                            fixed_block[4],
-                        )
-                        # Consume the fixed block because we've written the whole thing.
-                        fixed_block = None
-                        if not diff_templ_codes and not diff_fix_codes:
-                            # If we just just used the last fixed_block and were using the last templ_block
-                            # then consume the templ_block
-                            templ_block = None
-                        continue
-                    else:
-                        raise NotImplementedError("DEF")
-                elif fixed_block[0] == "delete":
-                    # We're deleting items, nothing to write but we can consume some
-                    # blocks and advance some indexes.
-                    idx = (
-                        idx[0] + (fixed_block[2] - fixed_block[1]),
-                        fixed_block[2],
-                        fixed_block[4],
-                    )
-                    fixed_block = None
-                elif fixed_block[0] == "insert":
-                    # We're inserting items, Write from the fix block, but only that index moves.
-                    write_buff += self.file_mask[2][idx[2] : fixed_block[4]]
-                    idx = (idx[0], idx[1], fixed_block[4])
-                    fixed_block = None
-                else:
-                    raise NotImplementedError(
-                        (
-                            "Unexpected opcode {0} for fix block! Please report this "
-                            "issue on github with the query and rules you're trying to "
-                            "fix."
-                        ).format(fixed_block[0])
-                    )
-            elif templ_block[0] == "replace":
-                # We're in a templated section - we should write the templated version.
-                # we should consume the whole replace block and then deal with where
-                # we end up.
-                buff = self.file_mask[0][idx[0] : templ_block[2]]
-                new_templ_idx = templ_block[4]
-
-                # Fast forward through fix blocks until we catch up. We're not implementing
-                # any changes in a templated section.
-                while True:
-                    if fixed_block[2] > new_templ_idx >= fixed_block[1]:
-                        # this block contains the end point
-                        break
-                    else:
-                        # We're not at the end point yet, continue to fast forward through.
-                        if fixed_block[0] != "equal":
-                            linter_logger.warning(
-                                "Skipping edit block: {0}".format(fixed_block)
-                            )
-                        if diff_fix_codes:
-                            fixed_block = diff_fix_codes.pop(0)
-                        else:
-                            raise NotImplementedError(
-                                "Unexpectedly depleted the fixes. Panic!"
-                            )
-                # Are we exactly on a join?
-                if new_templ_idx == fixed_block[1]:
-                    # GREAT - this makes things easy because we have an equality point already
-                    idx = (templ_block[2], new_templ_idx, fixed_block[3])
-                else:
-                    if fixed_block[0] == "equal":
-                        # If it's in an equal block, we can use the same offset from the end.
-                        idx = (
-                            templ_block[2],
-                            new_templ_idx,
-                            fixed_block[3] + (new_templ_idx - fixed_block[1]),
-                        )
-                    else:
-                        # TODO: We're trying to move through an templated section, but end up
-                        # in a fixed section. We've lost track of indexes.
-                        # We might need to panic if this happens...
-                        linter_logger.warning(
-                            "UMMMMMM!\n%s\n%s", new_templ_idx, fixed_block
-                        )
-                        raise NotImplementedError(
-                            "PANIC. Index position confused. Report this error."
-                        )
-                write_buff += buff
-                # consume template block
-                templ_block = None
-            elif templ_block[0] == "delete":
-                # The comparison, things that the templater has deleted
-                # some characters. This is just a quirk of the differ.
-                # In reality this means we just write these characters
-                # and don't worry about advancing the other indexes.
-                buff = self.file_mask[0][idx[0] : templ_block[2]]
-                # consume templ block
-                templ_block = None
-                idx = (idx[0] + len(buff), idx[1], idx[2])
-                write_buff += buff
-            elif templ_block[0] == "insert":
-                # The templater has inserted something here. We don't need
-                # to write anything here (because whatever we're looking at
-                # was inserted by the templater), but we do need to keep
-                # track of what happened to the rest of the section we're in.
-                # If nothing was fixed then it's easy because the indices
-                # will be the same. Otherwise... great question...
-
-                # For now let's just deal with the happy case where the fixed
-                # block is equal
-                if fixed_block[0] == "equal":
-                    # Let's make sure we can consume enough to get through the
-                    # templ block and not get to the end of the fix block.
-                    if templ_block[4] <= fixed_block[2]:
-                        insert_len = templ_block[4] - templ_block[3]
-                        idx = (idx[0], idx[1] + insert_len, idx[2] + insert_len)
-                        # if things matched up perfectly, consume the fixed block
-                        if templ_block[4] == fixed_block[2]:
-                            fixed_block = None
-                        # always consume templ block in this case
-                        templ_block = None
-                    else:
-                        raise NotImplementedError(
-                            (
-                                "Unexpected scenario during insert opcode! Please report "
-                                "this issue on github with the query and rules you're trying "
-                                "to fix."
-                            )
-                        )
-                else:
-                    raise NotImplementedError(
-                        (
-                            "Unexpected opcode {0} for fix block! Please report this "
-                            "issue on github with the query and rules you're trying to "
-                            "fix."
-                        ).format(fixed_block[0])
-                    )
-            else:
-                raise NotImplementedError(
-                    (
-                        "Unexpected opcode {0} for template block! Please report this "
-                        "issue on github with the query and rules you're trying to "
-                        "fix."
-                    ).format(templ_block[0])
+        # The sliced file is contiguous in the TEMPLATED space.
+        # NB: It has gaps and repeats in the source space.
+        # It's also not the FIXED file either.
+        linter_logger.debug("### Templated File.")
+        for idx, file_slice in enumerate(self.templated_file.sliced_file):
+            t_str = self.templated_file.templated_str[file_slice.templated_slice]
+            s_str = self.templated_file.source_str[file_slice.source_slice]
+            if t_str == s_str:
+                linter_logger.debug(
+                    "    File slice: %s %r [invariant]", idx, file_slice
                 )
+            else:
+                linter_logger.debug("    File slice: %s %r", idx, file_slice)
+                linter_logger.debug("    \t\t\ttemplated: %r\tsource: %r", t_str, s_str)
+
+        original_source = self.templated_file.source_str
+
+        # Make sure no patches overlap and divide up the source file into slices.
+        # Any Template tags in the source file are off limits.
+        source_only_slices = self.templated_file.source_only_slices()
+
+        linter_logger.debug("Source-only slices: %s", source_only_slices)
+
+        # Iterate patches, filtering and translating as we go:
+        linter_logger.debug("### Beginning Patch Iteration.")
+        filtered_source_patches = []
+        dedupe_buffer = []
+        # We use enumerate so that we get an index for each patch. This is entirely
+        # so when debugging logs we can find a given patch again!
+        patch: Union[EnrichedFixPatch, FixPatch]
+        for idx, patch in enumerate(
+            self.tree.iter_patches(templated_str=self.templated_file.templated_str)  # type: ignore
+        ):
+            linter_logger.debug("  %s Yielded patch: %s", idx, patch)
+
+            # This next bit is ALL FOR LOGGING AND DEBUGGING
+            if patch.templated_slice.start >= 10:
+                pre_hint = self.templated_file.templated_str[
+                    patch.templated_slice.start - 10 : patch.templated_slice.start
+                ]
+            else:
+                pre_hint = self.templated_file.templated_str[
+                    : patch.templated_slice.start
+                ]
+            if patch.templated_slice.stop + 10 < len(self.templated_file.templated_str):
+                post_hint = self.templated_file.templated_str[
+                    patch.templated_slice.stop : patch.templated_slice.stop + 10
+                ]
+            else:
+                post_hint = self.templated_file.templated_str[
+                    patch.templated_slice.stop :
+                ]
+            linter_logger.debug(
+                "        Templated Hint: ...%r <> %r...", pre_hint, post_hint
+            )
+
+            # Attempt to convert to source space.
+            try:
+                source_slice = self.templated_file.templated_slice_to_source_slice(
+                    patch.templated_slice,
+                )
+            except ValueError:
+                linter_logger.info(
+                    "      - Skipping. Source space Value Error. i.e. attempted insertion within templated section."
+                )
+                # If we try and slice within a templated section, then we may fail
+                # in which case, we should skip this patch.
+                continue
+
+            # Check for duplicates
+            dedupe_tuple = (source_slice, patch.fixed_raw)
+            if dedupe_tuple in dedupe_buffer:
+                linter_logger.info(
+                    "      - Skipping. Source space Duplicate: %s", dedupe_tuple
+                )
+                continue
+
+            # We now evaluate patches in the source-space for whether they overlap
+            # or disrupt any templated sections.
+            # The intent here is that unless explicitly stated, a fix should never
+            # disrupt a templated section.
+            # NOTE: We rely here on the patches being sorted.
+            # TODO: Implement a mechanism for doing templated section fixes. For
+            # now it's just not allowed.
+
+            # Get the affected raw slices.
+            local_raw_slices = self.templated_file.raw_slices_spanning_source_slice(
+                source_slice
+            )
+            local_type_list = [slc.slice_type for slc in local_raw_slices]
+
+            enriched_patch = EnrichedFixPatch(
+                source_slice=source_slice,
+                templated_slice=patch.templated_slice,
+                patch_type=patch.patch_type,
+                fixed_raw=patch.fixed_raw,
+                templated_str=self.templated_file.templated_str[patch.templated_slice],
+                source_str=self.templated_file.source_str[source_slice],
+            )
+
+            # Deal with the easy case of only literals
+            if set(local_type_list) == {"literal"}:
+                linter_logger.info(
+                    "      * Keeping patch on literal-only section: %s", enriched_patch
+                )
+                filtered_source_patches.append(enriched_patch)
+                dedupe_buffer.append(enriched_patch.dedupe_tuple())
+            # Is it a zero length patch.
+            elif (
+                enriched_patch.source_slice.start == enriched_patch.source_slice.stop
+                and enriched_patch.source_slice.start == local_raw_slices[0].source_idx
+            ):
+                linter_logger.info(
+                    "      * Keeping insertion patch on slice boundary: %s",
+                    enriched_patch,
+                )
+                filtered_source_patches.append(enriched_patch)
+                dedupe_buffer.append(enriched_patch.dedupe_tuple())
+            # If it's ONLY templated then we should skip it.
+            elif "literal" not in local_type_list:
+                linter_logger.info(
+                    "      - Skipping patch over templated section: %s", enriched_patch
+                )
+            # If we span more than two slices then we should just skip it. Too Hard.
+            elif len(local_raw_slices) > 2:
+                linter_logger.info(
+                    "      - Skipping patch over more than two raw slices: %s",
+                    enriched_patch,
+                )
+            # If it's an insertion (i.e. the string in the pre-fix template is '') then we
+            # won't be able to place it, so skip.
+            elif not enriched_patch.templated_str:
+                linter_logger.info(
+                    "      - Skipping insertion patch in templated section: %s",
+                    enriched_patch,
+                )
+            # If the string from the templated version isn't in the source, then we can't fix it.
+            elif enriched_patch.templated_str not in enriched_patch.source_str:
+                linter_logger.info(
+                    "      - Skipping edit patch on templated content: %s",
+                    enriched_patch,
+                )
+            else:
+                # Identify all the places the string appears in the source content.
+                positions = list(
+                    findall(enriched_patch.templated_str, enriched_patch.source_str)
+                )
+                if len(positions) != 1:
+                    linter_logger.debug(
+                        "        - Skipping edit patch on non-unique templated content: %s",
+                        enriched_patch,
+                    )
+                    continue
+                # We have a single occurrences of the thing we want to patch. This
+                # means we can use its position to place our patch.
+                new_source_slice = slice(
+                    enriched_patch.source_slice.start + positions[0],
+                    enriched_patch.source_slice.start
+                    + positions[0]
+                    + len(enriched_patch.templated_str),
+                )
+                enriched_patch = EnrichedFixPatch(
+                    source_slice=new_source_slice,
+                    templated_slice=enriched_patch.templated_slice,
+                    patch_type=enriched_patch.patch_type,
+                    fixed_raw=enriched_patch.fixed_raw,
+                    templated_str=enriched_patch.templated_str,
+                    source_str=enriched_patch.source_str,
+                )
+                linter_logger.debug(
+                    "      * Keeping Tricky Case. Positions: %s, New Slice: %s, Patch: %s",
+                    positions,
+                    new_source_slice,
+                    enriched_patch,
+                )
+                filtered_source_patches.append(enriched_patch)
+                dedupe_buffer.append(enriched_patch.dedupe_tuple())
+                continue
+
+        # Sort the patches before building up the file.
+        filtered_source_patches = sorted(
+            filtered_source_patches, key=lambda x: x.source_slice.start
+        )
+        # We now slice up the file using the patches and any source only slices.
+        # This gives us regions to apply changes to.
+        slice_buff = []
+        source_idx = 0
+        for patch in filtered_source_patches:
+            # Are there templated slices at or before the start of this patch?
+            while (
+                source_only_slices
+                and source_only_slices[0].source_idx < patch.source_slice.start
+            ):
+                next_so_slice = source_only_slices.pop(0).source_slice()
+                # Add a pre-slice before the next templated slices if needed.
+                if next_so_slice.start > source_idx:
+                    slice_buff.append(slice(source_idx, next_so_slice.start))
+                # Add the templated slice.
+                slice_buff.append(next_so_slice)
+                source_idx = next_so_slice.stop
+
+            # Is there a gap between current position and this patch?
+            if patch.source_slice.start > source_idx:
+                # Add a slice up to this patch.
+                slice_buff.append(slice(source_idx, patch.source_slice.start))
+
+            # Is this patch covering an area we've already covered?
+            if patch.source_slice.start < source_idx:
+                linter_logger.info(
+                    "Skipping overlapping patch at Index %s, Patch: %s",
+                    source_idx,
+                    patch,
+                )
+                # Ignore the patch for now...
+                continue
+
+            # Add this patch.
+            slice_buff.append(patch.source_slice)
+            source_idx = patch.source_slice.stop
+        # Add a tail slice.
+        if source_idx < len(self.templated_file.source_str):
+            slice_buff.append(slice(source_idx, len(self.templated_file.source_str)))
+
+        linter_logger.debug("Final slice buffer: %s", slice_buff)
+
+        # Iterate through the patches, building up the new string.
+        str_buff = ""
+        for source_slice in slice_buff:
+            # Is it one in the patch buffer:
+            for patch in filtered_source_patches:
+                if patch.source_slice == source_slice:
+                    # Use the patched version
+                    linter_logger.debug(
+                        "%-30s    %s    %r > %r",
+                        "Appending {} Patch:".format(patch.patch_type),
+                        patch.source_slice,
+                        patch.source_str,
+                        patch.fixed_raw,
+                    )
+                    str_buff += patch.fixed_raw
+                    break
+            else:
+                # Use the raw string
+                linter_logger.debug(
+                    "Appending Raw:                    %s     %r",
+                    source_slice,
+                    self.templated_file.source_str[source_slice],
+                )
+                str_buff += self.templated_file.source_str[source_slice]
 
         bencher("fix_string: Fixing loop done")
         # The success metric here is whether anything ACTUALLY changed.
-        return write_buff, write_buff != self.file_mask[0]
+        return str_buff, str_buff != original_source
 
-    def persist_tree(self, suffix=""):
-        """Persist changes to the given path.
-
-        We use the file_mask to do a safe merge, avoiding any templated
-        sections. First we need to detect where there have been changes
-        between the fixed and templated versions.
-
-        We use difflib.SequenceMatcher.get_opcodes
-        See: https://docs.python.org/3.7/library/difflib.html#difflib.SequenceMatcher.get_opcodes
-        It returns a list of tuples ('equal|replace', ia1, ia2, ib1, ib2).
-
-        """
+    def persist_tree(self, suffix: str = "") -> bool:
+        """Persist changes to the given path."""
         write_buff, success = self.fix_string()
 
         if success:
@@ -391,13 +465,28 @@ class LintedFile(
 class LintedPath:
     """A class to store the idea of a collection of linted files at a single start path."""
 
-    def __init__(self, path):
-        self.files = []
-        self.path = path
+    def __init__(self, path: str) -> None:
+        self.files: List[LintedFile] = []
+        self.path: str = path
 
-    def add(self, file):
+    def add(self, file: LintedFile) -> None:
         """Add a file to this path."""
         self.files.append(file)
+
+    @overload
+    def check_tuples(self, by_path: Literal[False]) -> List[CheckTuple]:
+        """Return a List of CheckTuples when by_path is False."""
+        ...
+
+    @overload
+    def check_tuples(self, by_path: Literal[True]) -> Dict[str, List[CheckTuple]]:
+        """Return a Dict of paths and CheckTuples when by_path is True."""
+        ...
+
+    @overload
+    def check_tuples(self, by_path: bool = False):
+        """Default overload method."""
+        ...
 
     def check_tuples(self, by_path=False):
         """Compress all the tuples into one list.
@@ -409,27 +498,27 @@ class LintedPath:
         if by_path:
             return {file.path: file.check_tuples() for file in self.files}
         else:
-            tuple_buffer = []
+            tuple_buffer: List[CheckTuple] = []
             for file in self.files:
                 tuple_buffer += file.check_tuples()
             return tuple_buffer
 
-    def num_violations(self, **kwargs):
+    def num_violations(self, **kwargs) -> int:
         """Count the number of violations in the path."""
         return sum(file.num_violations(**kwargs) for file in self.files)
 
-    def get_violations(self, **kwargs):
+    def get_violations(self, **kwargs) -> list:
         """Return a list of violations in the path."""
-        buff = []
+        buff: list = []
         for file in self.files:
             buff += file.get_violations(**kwargs)
         return buff
 
-    def violation_dict(self, **kwargs):
+    def violation_dict(self, **kwargs) -> Dict[str, list]:
         """Return a dict of violations by file path."""
         return {file.path: file.get_violations(**kwargs) for file in self.files}
 
-    def stats(self):
+    def stats(self) -> Dict[str, int]:
         """Return a dict containing linting stats about this path."""
         return dict(
             files=len(self.files),
@@ -438,13 +527,15 @@ class LintedPath:
             violations=sum(file.num_violations() for file in self.files),
         )
 
-    def persist_changes(self, formatter=None, fixed_file_suffix="", **kwargs):
+    def persist_changes(
+        self, formatter: Any = None, fixed_file_suffix: str = "", **kwargs
+    ) -> Dict[str, Union[bool, str]]:
         """Persist changes to files in the given path.
 
         This also logs the output as we go using the formatter if present.
         """
         # Run all the fixes for all the files and return a dict
-        buffer = {}
+        buffer: Dict[str, Union[bool, str]] = {}
         for file in self.files:
             if file.num_violations(fixable=True, **kwargs) > 0:
                 buffer[file.path] = file.persist_tree(suffix=fixed_file_suffix)
@@ -457,6 +548,15 @@ class LintedPath:
                 formatter.dispatch_persist_filename(filename=file.path, result=result)
         return buffer
 
+    @property
+    def tree(self) -> Optional[BaseSegment]:
+        """A convenience method for when there is only one file and we want the tree."""
+        if len(self.files) > 1:
+            raise ValueError(
+                ".tree() cannot be called when a LintedPath contains more than one file."
+            )
+        return self.files[0].tree
+
 
 class LintingResult:
     """A class to represent the result of a linting operation.
@@ -465,26 +565,43 @@ class LintingResult:
     potential files within them.
     """
 
-    def __init__(self):
-        self.paths = []
+    def __init__(self) -> None:
+        self.paths: List[LintedPath] = []
 
     @staticmethod
-    def sum_dicts(d1, d2):
+    def sum_dicts(d1: Dict[str, Any], d2: Dict[str, Any]) -> Dict[str, Any]:
         """Take the keys of two dictionaries and add them."""
         keys = set(d1.keys()) | set(d2.keys())
         return {key: d1.get(key, 0) + d2.get(key, 0) for key in keys}
 
     @staticmethod
-    def combine_dicts(*d):
+    def combine_dicts(*d: dict) -> dict:
         """Take any set of dictionaries and combine them."""
-        dict_buffer = {}
+        dict_buffer: dict = {}
         for dct in d:
             dict_buffer.update(dct)
         return dict_buffer
 
-    def add(self, path):
+    def add(self, path: LintedPath) -> None:
         """Add a new `LintedPath` to this result."""
         self.paths.append(path)
+
+    @overload
+    def check_tuples(self, by_path: Literal[False]) -> List[CheckTuple]:
+        """Return a List of CheckTuples when by_path is False."""
+        ...
+
+    @overload
+    def check_tuples(
+        self, by_path: Literal[True]
+    ) -> Dict[LintedPath, List[CheckTuple]]:
+        """Return a Dict of LintedPath and CheckTuples when by_path is True."""
+        ...
+
+    @overload
+    def check_tuples(self, by_path: bool = False):
+        """Default overload method."""
+        ...
 
     def check_tuples(self, by_path=False):
         """Fetch all check_tuples from all contained `LintedPath` objects.
@@ -492,21 +609,21 @@ class LintingResult:
         Args:
             by_path (:obj:`bool`, optional): When False, all the check_tuples
                 are aggregated into one flat list. When True, we return a `dict`
-                of paths, each with it's own list of check_tuples. Defaults to False.
+                of paths, each with its own list of check_tuples. Defaults to False.
 
         """
         if by_path:
-            buff = {}
+            buff: Dict[LintedPath, List[CheckTuple]] = {}
             for path in self.paths:
                 buff.update(path.check_tuples(by_path=by_path))
             return buff
         else:
-            tuple_buffer = []
+            tuple_buffer: List[CheckTuple] = []
             for path in self.paths:
                 tuple_buffer += path.check_tuples()
             return tuple_buffer
 
-    def num_violations(self, **kwargs):
+    def num_violations(self, **kwargs) -> int:
         """Count the number of violations in the result."""
         return sum(path.num_violations(**kwargs) for path in self.paths)
 
@@ -521,9 +638,9 @@ class LintingResult:
         """Return a dict of paths and violations."""
         return self.combine_dicts(path.violation_dict(**kwargs) for path in self.paths)
 
-    def stats(self):
+    def stats(self) -> Dict[str, Any]:
         """Return a stats dictionary of this result."""
-        all_stats = dict(files=0, clean=0, unclean=0, violations=0)
+        all_stats: Dict[str, Any] = dict(files=0, clean=0, unclean=0, violations=0)
         for path in self.paths:
             all_stats = self.sum_dicts(path.stats(), all_stats)
         if all_stats["files"] > 0:
@@ -540,7 +657,7 @@ class LintingResult:
         all_stats["status"] = "FAIL" if all_stats["violations"] > 0 else "PASS"
         return all_stats
 
-    def as_records(self):
+    def as_records(self) -> List[dict]:
         """Return the result as a list of dictionaries.
 
         Each record contains a key specifying the filepath, and a list of violations. This
@@ -562,7 +679,7 @@ class LintingResult:
             if violations
         ]
 
-    def persist_changes(self, formatter=None, **kwargs):
+    def persist_changes(self, formatter, **kwargs) -> dict:
         """Run all the fixes for all the files and return a dict."""
         return self.combine_dicts(
             *[
@@ -572,17 +689,13 @@ class LintingResult:
         )
 
     @property
-    def tree(self):
+    def tree(self) -> Optional[BaseSegment]:
         """A convenience method for when there is only one file and we want the tree."""
         if len(self.paths) > 1:
             raise ValueError(
                 ".tree() cannot be called when a LintingResult contains more than one path."
             )
-        if len(self.paths[0].files) > 1:
-            raise ValueError(
-                ".tree() cannot be called when a LintingResult contains more than one file."
-            )
-        return self.paths[0].files[0].tree
+        return self.paths[0].tree
 
 
 class Linter:
@@ -590,13 +703,13 @@ class Linter:
 
     def __init__(
         self,
-        sql_exts=(".sql",),
-        config=None,
-        formatter=None,
-        dialect=None,
-        rules=None,
-        user_rules=None,
-    ):
+        sql_exts: Tuple[str, ...] = (".sql",),
+        config: Optional[FluffConfig] = None,
+        formatter: Any = None,
+        dialect: Optional[str] = None,
+        rules: Optional[Union[str, List[str]]] = None,
+        user_rules: Optional[Union[str, List[str]]] = None,
+    ) -> None:
         self.sql_exts = sql_exts
         # Store the config object
         self.config = FluffConfig.from_kwargs(
@@ -610,7 +723,7 @@ class Linter:
         # Store references to user rule classes
         self.user_rules = user_rules or []
 
-    def get_ruleset(self, config=None):
+    def get_ruleset(self, config: Optional[FluffConfig] = None) -> List[BaseCrawler]:
         """Get hold of a set of rules."""
         rs = get_ruleset()
         # Register any user rules
@@ -619,30 +732,38 @@ class Linter:
         cfg = config or self.config
         return rs.get_rulelist(config=cfg)
 
-    def rule_tuples(self):
+    def rule_tuples(self) -> List[Tuple[str, str]]:
         """A simple pass through to access the rule tuples of the rule set."""
         rs = self.get_ruleset()
         return [(rule.code, rule.description) for rule in rs]
 
-    def parse_string(self, s, fname=None, recurse=True, config=None):
+    def parse_string(
+        self,
+        in_str: str,
+        fname: Optional[str] = None,
+        recurse: bool = True,
+        config: Optional[FluffConfig] = None,
+    ) -> ParsedString:
         """Parse a string.
 
         Returns:
-            `tuple` of (`parsed`, `violations`, `time_dict`, `config_diff`).
+            `ParsedString` of (`parsed`, `violations`, `time_dict`, `templated_file`).
                 `parsed` is a segment structure representing the parsed file. If
-                    parsing fails due to an inrecoverable violation then we will
+                    parsing fails due to an unrecoverable violation then we will
                     return None.
                 `violations` is a :obj:`list` of violations so far, which will either be
                     templating, lexing or parsing violations at this stage.
                 `time_dict` is a :obj:`dict` containing timings for how long each step
                     took in the process.
+                `templated_file` is a :obj:`TemplatedFile` containing the details
+                    of the templated file.
 
         """
         violations = []
         t0 = time.monotonic()
         bencher = BenchIt()  # starts the timer
         if fname:
-            short_fname = fname.replace("\\", "/").split("/")[-1]
+            short_fname: Optional[str] = fname.replace("\\", "/").split("/")[-1]
         else:
             # this handles the potential case of a null fname
             short_fname = fname
@@ -652,29 +773,40 @@ class Linter:
         if self.formatter:
             self.formatter.dispatch_parse_header(fname, self.config, config)
 
+        # Just use the local config from here:
+        config = config or self.config
+
+        # Scan the raw file for config commands.
+        for raw_line in in_str.splitlines():
+            if raw_line.startswith("-- sqlfluff"):
+                # Found a in-file config command
+                config.process_inline_config(raw_line)
+
         linter_logger.info("TEMPLATING RAW [%s] (%s)", self.templater.name, fname)
-        s, templater_violations = self.templater.process(
-            s, fname=fname, config=config or self.config
+        templated_file, templater_violations = self.templater.process(
+            in_str=in_str, fname=fname, config=config
         )
         violations += templater_violations
         # Detect the case of a catastrophic templater fail. In this case
         # we don't continue. We'll just bow out now.
-        if not s:
+        if not templated_file:
+            linter_logger.info("TEMPLATING FAILED: %s", templater_violations)
             tokens = None
 
         t1 = time.monotonic()
         bencher("Templating {0!r}".format(short_fname))
 
-        if s:
+        if templated_file:
             linter_logger.info("LEXING RAW (%s)", fname)
             # Get the lexer
-            lexer = Lexer(config=config or self.config)
+            lexer = Lexer(config=config)
             # Lex the file and log any problems
             try:
-                tokens, lex_vs = lexer.lex(s)
+                tokens, lex_vs = lexer.lex(templated_file)
                 # We might just get the violations as a list
                 violations += lex_vs
             except SQLLexError as err:
+                linter_logger.info("LEXING FAILED! (%s): %s", fname, err)
                 violations.append(err)
                 tokens = None
         else:
@@ -682,16 +814,65 @@ class Linter:
 
         if tokens:
             linter_logger.info("Lexed tokens: %s", [seg.raw for seg in tokens])
+        else:
+            linter_logger.info("NO LEXED TOKENS!")
+
+        if tokens:
+            # Check that we've got sensible indentation from the lexer.
+            # We might need to suppress if it's a complicated file.
+            templating_blocks_indent = config.get(
+                "template_blocks_indent", "indentation"
+            )
+            if isinstance(templating_blocks_indent, str):
+                force_block_indent = templating_blocks_indent.lower().strip() == "force"
+            else:
+                force_block_indent = False
+            templating_blocks_indent = bool(templating_blocks_indent)
+            # If we're forcing it through we don't check.
+            if templating_blocks_indent and not force_block_indent:
+                indent_balance = sum(
+                    getattr(elem, "indent_val", 0)
+                    for elem in cast(Tuple[BaseSegment, ...], tokens)
+                )
+                if indent_balance != 0:
+                    linter_logger.warning(
+                        "Indent balance test failed for %r. Template indents will not be linted for this file.",
+                        fname,
+                    )
+                    # Don't enable the templating blocks.
+                    templating_blocks_indent = False
+                    # Disable the linting of L003 on templated tokens.
+                    config.set_value(["rules", "L003", "lint_templated_tokens"], False)
+
+            # The file will have been lexed without config, so check all indents
+            # are enabled.
+            new_tokens = []
+            for token in cast(Tuple[BaseSegment, ...], tokens):
+                if token.is_meta:
+                    token = cast(MetaSegment, token)
+                    if token.indent_val != 0:
+                        # Don't allow it if we're not linting templating block indents.
+                        if not templating_blocks_indent:
+                            continue
+                        # Don't allow if it's not configure to function.
+                        elif not token.is_enabled(
+                            indent_config=config.get_section("indentation")
+                        ):
+                            continue
+                new_tokens.append(token)
+            # Swap the buffers
+            tokens = new_tokens  # type: ignore
 
         t2 = time.monotonic()
         bencher("Lexing {0!r}".format(short_fname))
         linter_logger.info("PARSING (%s)", fname)
-        parser = Parser(config=config or self.config)
+        parser = Parser(config=config)
         # Parse the file and log any problems
         if tokens:
             try:
-                parsed = parser.parse(tokens, recurse=recurse)
+                parsed: Optional[BaseSegment] = parser.parse(tokens, recurse=recurse)
             except SQLParseError as err:
+                linter_logger.info("PARSING FAILED! (%s): %s", fname, err)
                 violations.append(err)
                 parsed = None
             if parsed:
@@ -719,10 +900,10 @@ class Linter:
         t3 = time.monotonic()
         time_dict = {"templating": t1 - t0, "lexing": t2 - t1, "parsing": t3 - t2}
         bencher("Finish parsing {0!r}".format(short_fname))
-        return parsed, violations, time_dict
+        return ParsedString(parsed, violations, time_dict, templated_file, config)
 
     @staticmethod
-    def extract_ignore_from_comment(comment):
+    def extract_ignore_from_comment(comment: RawSegment):
         """Extract ignore mask entries from a comment segment."""
         # Also trim any whitespace afterward
         comment_content = comment.raw_trimmed().strip()
@@ -742,7 +923,9 @@ class Linter:
                 return (comment.pos_marker.line_no, None)
         return None
 
-    def lint(self, parsed, config=None):
+    def lint(
+        self, parsed: BaseSegment, config: Optional[FluffConfig] = None
+    ) -> List[SQLLintError]:
         """Lint a parsed file object."""
         config = config or self.config
         linting_errors = []
@@ -751,7 +934,7 @@ class Linter:
             linting_errors += lerrs
         return linting_errors
 
-    def fix(self, parsed, config=None):
+    def fix(self, parsed: BaseSegment, config: Optional[FluffConfig] = None):
         """Fix a parsed file object."""
         # Set up our config
         config = config or self.config
@@ -765,6 +948,9 @@ class Linter:
         fix_loop_idx = 0
         # How many loops are we allowed
         loop_limit = config.get("runaway_limit")
+        # Keep track of the errors from round 1
+        linting_errors = []
+        initial_linting_errors = []
         # Enter into the main fix loop. Some fixes may introduce other
         # problems and so we loop around this until we reach stability
         # or we reach the limit.
@@ -781,6 +967,7 @@ class Linter:
                 lerrs, _, fixes, _ = crawler.crawl(
                     working, dialect=config.get("dialect_obj"), fix=True
                 )
+                linting_errors += lerrs
                 # Are there fixes to apply?
                 if fixes:
                     linter_logger.info("Applying Fixes: %s", fixes)
@@ -807,6 +994,9 @@ class Linter:
                             "One fix for %s not applied, it would re-cause the same error.",
                             crawler.code,
                         )
+            # Keep track of initial errors for reporting.
+            if fix_loop_idx == 1:
+                initial_linting_errors = linting_errors.copy()
             # We did not change the file. Either the file is clean (no fixes), or
             # any fixes which are present will take us back to a previous state.
             if not changed:
@@ -821,30 +1011,34 @@ class Linter:
                 "Loop limit on fixes reached [%s]. Some fixes may be overdone.",
                 loop_limit,
             )
-        return working
+        return working, initial_linting_errors
 
-    def lint_string(self, s, fname="<string input>", fix=False, config=None):
+    def lint_string(
+        self,
+        in_str: str,
+        fname: str = "<string input>",
+        fix: bool = False,
+        config: Optional[FluffConfig] = None,
+    ) -> LintedFile:
         """Lint a string.
 
         Returns:
             :obj:`LintedFile`: an object representing that linted file.
 
         """
-        # Before templating, we want to get a store of what's in the file
-        # so we can compare later. We iterate character by character because
-        # we don't want to miss anything.
-        raw_buff = s
-
         # Sort out config, defaulting to the built in config if no override
         config = config or self.config
 
         # Using the new parser, read the file object.
-        parsed, vs, time_dict = self.parse_string(s=s, fname=fname, config=config)
+        parsed = self.parse_string(in_str=in_str, fname=fname, config=config)
+        time_dict = parsed.time_dict
+        vs = parsed.violations
+        tree = parsed.tree
 
         # Look for comment segments which might indicate lines to ignore.
         ignore_buff = []
-        if parsed:
-            for comment in parsed.recursive_crawl("comment"):
+        if tree:
+            for comment in tree.recursive_crawl("comment"):
                 if comment.name == "inline_comment":
                     ignore_entry = self.extract_ignore_from_comment(comment)
                     if isinstance(ignore_entry, SQLParseError):
@@ -854,22 +1048,16 @@ class Linter:
             if ignore_buff:
                 linter_logger.info("Parsed noqa directives from file: %r", ignore_buff)
 
-        templ_buff = None
-        fixed_buff = None
-        if parsed:
-            # Store the templated version
-            templ_buff = parsed.raw
+        if tree:
             t0 = time.monotonic()
             linter_logger.info("LINTING (%s)", fname)
-            # Get the initial violations
-            linting_errors = self.lint(parsed, config=config)
-            initial_linting_errors = linting_errors
-
             # If we're in fix mode, apply those fixes.
             # NB: We don't pass in the linting errors, because the fix function
             # regenerates them on each loop.
             if fix:
-                parsed = self.fix(parsed, config=config)
+                tree, initial_linting_errors = self.fix(tree, config=config)
+            else:
+                initial_linting_errors = self.lint(tree, config=config)
 
             # Update the timing dict
             t1 = time.monotonic()
@@ -878,16 +1066,19 @@ class Linter:
             # We're only going to return the *initial* errors, rather
             # than any generated during the fixing cycle.
             vs += initial_linting_errors
-            fixed_buff = parsed.raw
 
         # We process the ignore config here if appropriate
         if config:
             for violation in vs:
                 violation.ignore_if_in(config.get("ignore"))
 
-        file_mask = (raw_buff, templ_buff, fixed_buff)
         linted_file = LintedFile(
-            fname, vs, time_dict, parsed, file_mask=file_mask, ignore_mask=ignore_buff
+            fname,
+            vs,
+            time_dict,
+            tree,
+            ignore_mask=ignore_buff,
+            templated_file=parsed.templated_file,
         )
 
         # This is the main command line output from linting.
@@ -907,13 +1098,13 @@ class Linter:
 
     def paths_from_path(
         self,
-        path,
-        ignore_file_name=".sqlfluffignore",
-        ignore_non_existent_files=False,
-        ignore_files=True,
-        working_path=os.getcwd(),
-    ):
-        """Return a set of sql file paths from a potentially more ambigious path string.
+        path: str,
+        ignore_file_name: str = ".sqlfluffignore",
+        ignore_non_existent_files: bool = False,
+        ignore_files: bool = True,
+        working_path: str = os.getcwd(),
+    ) -> List[str]:
+        """Return a set of sql file paths from a potentially more ambiguous path string.
 
         Here we also deal with the .sqlfluffignore file if present.
 
@@ -957,7 +1148,10 @@ class Linter:
                 )
                 for ignore_file_path in ignore_file_paths
             ]
-            path_walk = [(dirpath, None, files)] + path_walk_ignore_file
+            path_walk: Union[
+                Iterator[Tuple[str, List[str], List[str]]],
+                List[Tuple[str, None, List[str]]],
+            ] = [(dirpath, None, files)] + path_walk_ignore_file
         else:
             path_walk = os.walk(path)
 
@@ -1012,7 +1206,9 @@ class Linter:
         # Return
         return sorted(filtered_buffer)
 
-    def lint_string_wrapped(self, string, fname="<string input>", fix=False):
+    def lint_string_wrapped(
+        self, string: str, fname: str = "<string input>", fix: bool = False
+    ) -> LintingResult:
         """Lint strings directly."""
         result = LintingResult()
         linted_path = LintedPath(fname)
@@ -1021,8 +1217,12 @@ class Linter:
         return result
 
     def lint_path(
-        self, path, fix=False, ignore_non_existent_files=False, ignore_files=True
-    ):
+        self,
+        path: str,
+        fix: bool = False,
+        ignore_non_existent_files: bool = False,
+        ignore_files: bool = True,
+    ) -> LintedPath:
         """Lint a path."""
         linted_path = LintedPath(path)
         if self.formatter:
@@ -1037,16 +1237,30 @@ class Linter:
             with open(
                 fname, "r", encoding="utf8", errors="backslashreplace"
             ) as target_file:
-                linted_path.add(
-                    self.lint_string(
-                        target_file.read(), fname=fname, fix=fix, config=config
+                try:
+                    linted_path.add(
+                        self.lint_string(
+                            target_file.read(), fname=fname, fix=fix, config=config
+                        )
                     )
-                )
+                except IOError as e:  # IOErrors caught in commands.py, so still raise it
+                    raise (e)
+                except Exception:
+                    linter_logger.warning(
+                        f"""Unable to lint {fname} due to an internal error. \
+Please report this as an issue with your query's contents and stacktrace below!
+To hide this warning, add the failing file to .sqlfluffignore
+{traceback.format_exc()}""",
+                    )
         return linted_path
 
     def lint_paths(
-        self, paths, fix=False, ignore_non_existent_files=False, ignore_files=True
-    ):
+        self,
+        paths: Tuple[str, ...],
+        fix: bool = False,
+        ignore_non_existent_files: bool = False,
+        ignore_files: bool = True,
+    ) -> LintingResult:
         """Lint an iterable of paths."""
         # If no paths specified - assume local
         if len(paths) == 0:
@@ -1066,7 +1280,9 @@ class Linter:
             )
         return result
 
-    def parse_path(self, path, recurse=True):
+    def parse_path(
+        self, path: str, recurse: bool = True
+    ) -> Generator[ParsedString, None, None]:
         """Parse a path of sql files.
 
         NB: This a generator which will yield the result of each file
@@ -1080,10 +1296,6 @@ class Linter:
             with open(
                 fname, "r", encoding="utf8", errors="backslashreplace"
             ) as target_file:
-                yield (
-                    *self.parse_string(
-                        target_file.read(), fname=fname, recurse=recurse, config=config
-                    ),
-                    # Also yield the config
-                    config,
+                yield self.parse_string(
+                    target_file.read(), fname=fname, recurse=recurse, config=config
                 )

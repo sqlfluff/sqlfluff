@@ -10,24 +10,28 @@ systems use curly brackets *{}* to indicate templatable sections and
 these are not currently set up in any of the lexers, and so will fail
 at the next step if not dealt with here.
 
-Most templated SQL in the wild uses Jinja_ and so that is the default
-templater for *sqlfluff*. It uses the config framework to get at any
-templating variables.
+*SQLFluff* supports 2 templating engines:
+
+.. _Jinja: https://jinja.palletsprojects.com/
+.. _dbt: https://docs.getdbt.com/
+
+Jinja_ is the default templater used by *SQLFluff*. Under the covers, dbt_ also
+uses Jinja_ but in *SQLFluff* it is a separate templater which relies directly
+on the dbt_ compiler.
 
 For more details on how to configure the templater see :ref:`templateconfig`.
 
-.. _Jinja: https://jinja.palletsprojects.com/
 
 Stage 2, the lexer
 ------------------
 
 The lexer takes raw text and splits it into tokens. Nothing is *removed* but
-whitepace and code are seperated. In principle all identifiers should be
-seperated at this stage, but they should not be imparted any meaning at this
+whitespace and code are separated. In principle all identifiers should be
+separated at this stage, but they should not be imparted any meaning at this
 stage. Any files which cannot be lexed, should raise a *SQLLexError*.
 
 While the Lexer is passed a series of raw segments, it will return a single
-segment, usually a :code:`FileSegment`, which will be used to initite parsing.
+segment, usually a :code:`FileSegment`, which will be used to initiate parsing.
 
 Stage 3, the parser
 -------------------
@@ -59,15 +63,15 @@ We recursively parse each of the elements, using their in built grammars.
 
       * *Grammars* are objects which combine *segments* or other *grammars*
         together in a pre-defined way. For example the :code:`OneOf` grammar
-        will match if any one of it's child elements match.
+        will match if any one of its child elements match.
 
    #. Regardless of whether the :code:`parse_grammar` was used, the next step
       is to recursively call the :code:`.parse()` method of each of the child
       segments of the grammar. This operation is wrapped in a method called
       :code:`.expand()`. In the :code:`FileSegment`, the first step will have
-      transformed a seried of raw tokens into :code:`StatmentSegment` segments,
-      and the *expand* step will let each of those segments refine the content
-      within them.
+      transformed a series of raw tokens into :code:`StatementSegment`
+      segments, and the *expand* step will let each of those segments refine
+      the content within them.
 
    #. Eventually in that recursive operation we reach segments which have no
       children (raw elements containing a single token), and so the recursion
@@ -83,7 +87,7 @@ We recursively parse each of the elements, using their in built grammars.
 Principles within the parser
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The parser is arguably the most complicated element of sqlfluff, and is
+The parser is arguably the most complicated element of SQLFluff, and is
 relied on by all the other elements of the tool to do most of the heavy
 lifting. When working on the parser there are a couple of design principles
 to keep in mind.
@@ -95,7 +99,7 @@ to keep in mind.
   grammar is that it allows name resolution of grammar elements at runtime
   and so a *patched* grammar with some elements overriden can still rely on
   lower level elements which haven't been overwritten.
-- *Segments* and *Grammars* operate roughly interchangably from a dialect.
+- *Segments* and *Grammars* operate roughly interchangeably from a dialect.
   A grammar is something which can be matched against and return a result.
   These will be used as instantiated classes and usually contain a set of
   elements (stored in the *_elements* attribute) which are the sub elements

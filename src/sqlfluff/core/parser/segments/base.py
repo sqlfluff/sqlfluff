@@ -9,21 +9,41 @@ Here we define:
 """
 
 from io import StringIO
+import copy
 from benchit import BenchIt
 from cached_property import cached_property
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, NamedTuple, Iterator
+import logging
+
+from ...string_helpers import (
+    frame_msg,
+    curtail_string,
+)
 
 from ..match_result import MatchResult
 from ..match_logging import parse_match_logging
 from ..match_wrapper import match_wrapper
 from ..helpers import (
-    frame_msg,
     check_still_complete,
     trim_non_code_segments,
-    curtail_string,
 )
 from ..matchable import Matchable
+from ..markers import EnrichedFilePositionMarker
 from ..context import ParseContext
+
+# Instantiate the linter logger (only for use in methods involved with fixing.)
+linter_logger = logging.getLogger("sqlfluff.linter")
+
+
+class FixPatch(NamedTuple):
+    """An edit patch for a templated file."""
+
+    templated_slice: slice
+    fixed_raw: str
+    # The patch type, functions mostly for debugging and explanation
+    # than for function. It allows traceability of *why* this patch was
+    # generated.
+    patch_type: str
 
 
 class BaseSegment:
@@ -31,10 +51,10 @@ class BaseSegment:
 
     This defines the base element which drives both Lexing, Parsing and Linting.
     A large chunk of the logic which defines those three operations are centered
-    here. Much of what is defined in the BaseSegment is also used by it's many
+    here. Much of what is defined in the BaseSegment is also used by its many
     subclasses rather than directly here.
 
-    For clarity, the `BaseSement` is mostly centered around a segment which contains
+    For clarity, the `BaseSegment` is mostly centered around a segment which contains
     other subsegments. For segments which don't have *children*, refer to the `RawSegment`
     class (which still inherits from this one).
 
@@ -91,12 +111,21 @@ class BaseSegment:
         if pos_marker:
             self.pos_marker = pos_marker
         else:
-            # If no pos given, it's the pos of the first segment
-            # Work out if we're dealing with a match result...
-            if hasattr(segments, "initial_match_pos_marker"):
-                self.pos_marker = segments.initial_match_pos_marker()
-            elif isinstance(segments, (tuple, list)):
-                self.pos_marker = segments[0].pos_marker
+            # If no pos given, it's the pos of the first segment.
+            if isinstance(segments, (tuple, list)):
+                # Find the first segment with an enriched position marker
+                first_enriched = next(
+                    (
+                        seg.pos_marker
+                        for seg in segments
+                        if isinstance(seg.pos_marker, EnrichedFilePositionMarker)
+                    ),
+                    # Default to the first un-enriched segment
+                    segments[0].pos_marker,
+                )
+                self.pos_marker = first_enriched.combine(
+                    *(seg.pos_marker for seg in segments)
+                )
             else:
                 raise TypeError(
                     "Unexpected type passed to BaseSegment: {0}".format(type(segments))
@@ -134,7 +163,7 @@ class BaseSegment:
         """The name of this segment.
 
         The reason for two routes for names is that some subclasses
-        might want to overrise the name rather than just getting it
+        might want to override the name rather than just getting it
         the class name.
 
         Name should be specific to this kind of segment, while `type`
@@ -149,7 +178,7 @@ class BaseSegment:
         """Return true if it is meaningful to call `expand` on this segment.
 
         We need to do this recursively because even if *this* segment doesn't
-        need expanding, maybe one of it's children does.
+        need expanding, maybe one of its children does.
 
         Once a segment is *not* expandable, it can never become so, which is
         why the variable is cached.
@@ -201,7 +230,7 @@ class BaseSegment:
     def _suffix():
         """Return any extra output required at the end when logging.
 
-        NB Override this for specific subclassesses if we want extra output.
+        NB Override this for specific subclasses if we want extra output.
         """
         return ""
 
@@ -248,6 +277,53 @@ class BaseSegment:
         check_still_complete(segments, segs, ())
         return segs
 
+    @staticmethod
+    def _realign_segments(segments, starting_pos=None, meta_only=False):
+        """Realign the positions in the provided segments."""
+        seg_buffer = []
+        todo_buffer = list(segments)
+        if not todo_buffer:
+            return ()
+        # If starting pos not provided, take it from the first of the buffer.
+        running_pos = starting_pos
+        if not running_pos:
+            for seg in todo_buffer:
+                if not seg.is_meta:
+                    running_pos = seg.pos_marker
+                    break
+            else:
+                raise ValueError("No starting pos provided and unable to infer.")
+
+        # Strip the starting position regardless. This means
+        # we don't accidentally contaminate any inserted initial
+        # segments.
+        running_pos = running_pos.strip()
+
+        while len(todo_buffer) > 0:
+            # Get the first off the buffer
+            seg = todo_buffer.pop(0)
+
+            # We'll preserve statement indexes so we should keep track of that.
+            # When recreating, we use the DELTA of the index so that's what matter...
+            idx = seg.pos_marker.statement_index - running_pos.statement_index
+            new_pos = seg.pos_marker.shift_to(running_pos)
+
+            if not meta_only or seg.is_meta:
+                # Copy the segment
+                seg_copy = copy.copy(seg)
+                # Update the position
+                seg_copy.pos_marker = new_pos
+                # Realign the children of that class if required.
+                if len(seg_copy.segments) > 0:
+                    seg_copy = seg_copy.realign()
+                seg = seg_copy
+
+            # Update the running position with the content of that segment.
+            running_pos = running_pos.advance_by(raw=seg.raw, idx=idx)
+            # Add the buffer to my new segment
+            seg_buffer.append(seg)
+        return tuple(seg_buffer)
+
     # ################ CLASS METHODS
 
     @classmethod
@@ -276,7 +352,7 @@ class BaseSegment:
 
     @classmethod
     def is_type(cls, *seg_type):
-        """Is this segment (or it's parent) of the given type."""
+        """Is this segment (or its parent) of the given type."""
         # Do we match on the type of _this_ class.
         if cls.type in seg_type:
             return True
@@ -300,7 +376,7 @@ class BaseSegment:
                 keys = [e[0] for e in elem]
                 # Any duplicate elements?
                 if len(set(keys)) == len(keys):
-                    # No, we can use a mapping typle
+                    # No, we can use a mapping tuple
                     elem = {e[0]: cls.structural_simplify(e[1]) for e in elem}
                 else:
                     # Yes, this has to be a list :(
@@ -413,7 +489,7 @@ class BaseSegment:
         Check the elements of the `segments` attribute are all
         themselves segments, and that the positions match up.
 
-        `validate` confirms whether we should check contigiousness.
+        `validate` confirms whether we should check contiguousness.
         """
         # Placeholder variables for positions
         start_pos = None
@@ -433,7 +509,7 @@ class BaseSegment:
                 if end_pos and elem.get_start_pos_marker() != end_pos:
                     raise TypeError(
                         "In {0} {1}, found an element of the segments tuple which"
-                        " isn't contigious with previous: {2} > {3}. End pos: {4}."
+                        " isn't contiguous with previous: {2} > {3}. End pos: {4}."
                         " Prev String: {5!r}".format(
                             text, type(self), prev_seg, elem, end_pos, prev_seg.raw
                         )
@@ -456,7 +532,7 @@ class BaseSegment:
         return self.segments[0].get_start_pos_marker()
 
     def stringify(self, ident=0, tabsize=4, code_only=False):
-        """Use indentation to render this segment and it's children as a string."""
+        """Use indentation to render this segment and its children as a string."""
         buff = StringIO()
         preface = self._preface(ident=ident, tabsize=tabsize)
         buff.write(preface + "\n")
@@ -706,7 +782,7 @@ class BaseSegment:
                 self.segments = pre_nc + post_nc
             else:
                 # If there's no match at this stage, then it's unparsable. That's
-                # a problem at this stage so wrap it in an unparable segment and carry on.
+                # a problem at this stage so wrap it in an unparsable segment and carry on.
                 self.segments = (
                     pre_nc
                     + (
@@ -766,16 +842,15 @@ class BaseSegment:
                     break
                 else:
                     seg = todo_buffer.pop(0)
-                    # We don't apply fixes to meta segments
-                    if seg.is_meta:
-                        seg_buffer.append(seg)
-                        continue
 
                     fix_buff = fixes.copy()
                     unused_fixes = []
                     while fix_buff:
                         f = fix_buff.pop()
                         if f.anchor == seg:
+                            linter_logger.debug(
+                                "Matched fix against segment: %s -> %s", f, seg
+                            )
                             if f.edit_type == "delete":
                                 # We're just getting rid of this segment.
                                 seg = None
@@ -838,53 +913,110 @@ class BaseSegment:
         Realign is recursive. We will assume that the pos_marker of THIS segment is
         truthful, and that during recursion it will have been set by the parent.
 
-        This function will align the pos marker if it's direct children, we then
+        This function will align the pos marker if its direct children, we then
         recurse to realign their children.
 
         """
-        seg_buffer = []
-        todo_buffer = list(self.segments)
-        running_pos = self.pos_marker
-
-        while True:
-            if len(todo_buffer) == 0:
-                # We're done.
-                break
-            else:
-                # Get the first off the buffer
-                seg = todo_buffer.pop(0)
-
-                # We'll preserve statement indexes so we should keep track of that.
-                # When recreating, we use the DELTA of the index so that's what matter...
-                idx = seg.pos_marker.statement_index - running_pos.statement_index
-                if seg.is_meta:
-                    # It's a meta segment, just update the position
-                    seg = seg.__class__(pos_marker=running_pos)
-                elif len(seg.segments) > 0:
-                    # It's a compound segment, so keep track of it's children
-                    child_segs = seg.segments
-                    # Create a new segment of the same type with the new position
-                    seg = seg.__class__(segments=child_segs, pos_marker=running_pos)
-                    # Realign the children of that class
-                    seg = seg.realign()
-                else:
-                    # It's a raw segment...
-                    # Create a new segment of the same type with the new position
-                    seg = seg.__class__(raw=seg.raw, pos_marker=running_pos)
-                # Update the running position with the content of that segment
-                running_pos = running_pos.advance_by(raw=seg.raw, idx=idx)
-                # Add the buffer to my new segment
-                seg_buffer.append(seg)
-
         # Create a new version of this class with the new details
-        return self.__class__(segments=tuple(seg_buffer), pos_marker=self.pos_marker)
+        return self.__class__(
+            segments=self._realign_segments(self.segments, self.pos_marker),
+            pos_marker=self.pos_marker,
+        )
+
+    def iter_patches(self, templated_str: str) -> Iterator[FixPatch]:
+        """Iterate through the segments generating fix patches.
+
+        The patches are generated in TEMPLATED space. This is important
+        so that we defer dealing with any loops until later. At this stage
+        everything *should* happen in templated order.
+
+        Occasionally we have an insertion around a placeholder, so we also
+        return a hint to deal with that.
+        """
+        # Does it match? If so we can ignore it.
+        matches = self.raw == templated_str[self.pos_marker.templated_slice]
+        if matches:
+            return
+
+        # If we're here, the segment doesn't match the original.
+
+        # If it's all literal, then we don't need to recurse.
+        if self.pos_marker.is_literal:
+            # Yield the position in the source file and the patch
+            yield FixPatch(
+                self.pos_marker.templated_slice, self.raw, patch_type="literal"
+            )
+        # Can we go deeper?
+        elif not self.segments:
+            # It's not literal, but it's also a raw segment. If were going
+            # to yield a change, we would have done it from the parent, so
+            # we just abort from here.
+            return
+        else:
+            # This segment isn't a literal, but has changed, we need to go deeper.
+
+            # Iterate through the child segments
+            templated_idx = self.pos_marker.templated_slice.start
+            insert_buff = ""
+            for seg_idx, segment in enumerate(self.segments):
+
+                # First check for insertions.
+                # We know it is new if the position marker is NOT ENRICHED.
+                if not isinstance(segment.pos_marker, EnrichedFilePositionMarker):
+                    # Add it to the insertion buffer if it has length:
+                    if segment.raw:
+                        insert_buff += segment.raw
+                        linter_logger.debug(
+                            "Appending insertion buffer. %r @idx: %s",
+                            insert_buff,
+                            templated_idx,
+                        )
+                    continue
+
+                # If we get here, then we know it's an original.
+                # Check for deletions at the before this segment (vs the TEMPLATED).
+                start_diff = segment.pos_marker.templated_slice.start - templated_idx
+
+                # Check to see whether there's a discontinuity before the current segment
+                if start_diff > 0 or insert_buff:
+                    # If we have an insert buffer, then it's an edit, otherwise a deletion.
+                    yield FixPatch(
+                        slice(
+                            segment.pos_marker.templated_slice.start
+                            - max(start_diff, 0),
+                            segment.pos_marker.templated_slice.start,
+                        ),
+                        insert_buff,
+                        patch_type="mid_point",
+                    )
+                    insert_buff = ""
+
+                # Now we deal with any changes *within* the segment itself.
+                yield from segment.iter_patches(templated_str=templated_str)
+
+                # Once we've dealt with any patches from the segment, update
+                # our position markers.
+                templated_idx = segment.pos_marker.templated_slice.stop
+
+            # After the loop, we check whether there's a trailing deletion
+            # or insert. Also valid if we still have an insertion buffer here.
+            end_diff = self.pos_marker.templated_slice.stop - templated_idx
+            if end_diff or insert_buff:
+                yield FixPatch(
+                    slice(
+                        self.pos_marker.templated_slice.stop - end_diff,
+                        self.pos_marker.templated_slice.stop,
+                    ),
+                    insert_buff,
+                    patch_type="end_point",
+                )
 
 
 class UnparsableSegment(BaseSegment):
     """This is a segment which can't be parsed. It indicates a error during parsing."""
 
     type = "unparsable"
-    # From here down, comments are printed seperately.
+    # From here down, comments are printed separately.
     comment_seperate = True
     _expected = ""
 
@@ -895,7 +1027,7 @@ class UnparsableSegment(BaseSegment):
     def _suffix(self):
         """Return any extra output required at the end when logging.
 
-        NB Override this for specific subclassesses if we want extra output.
+        NB Override this for specific subclasses if we want extra output.
         """
         return "!! Expected: {0!r}".format(self._expected)
 

@@ -10,7 +10,7 @@ import io
 import sys
 
 if sys.version_info[0] < 3:
-    raise Exception("Sqlfluff does not support Python 2. Please upgrade to Python 3.")
+    raise Exception("SQLFluff does not support Python 2. Please upgrade to Python 3.")
 
 import configparser
 from os.path import dirname
@@ -63,6 +63,7 @@ setup(
         "sqlfluff.core.parser.segments",
         "sqlfluff.core.parser.grammar",
         "sqlfluff.core.rules",
+        "sqlfluff.core.templaters",
     ],
     package_dir={"": "src"},
     include_package_data=True,
@@ -95,7 +96,7 @@ setup(
         "oyaml",
         "Jinja2",
         # Used for diffcover plugin
-        "diff-cover>=2.5.0,<3.0",
+        "diff-cover>=2.5.0",
         # Used for performance profiling
         "bench-it",
         # Used for .sqlfluffignore
@@ -104,8 +105,13 @@ setup(
         "appdirs",
         # Cached property for performance gains
         "cached-property",
+        # dataclasses backport for python 3.6
+        "dataclasses",
+        # better type hints for older python versions
+        "typing_extensions",
     ],
     extras_require={
+        "dbt": ["dbt>=0.17"],
         # eg:
         #   'rst': ['docutils>=0.11'],
         #   ':python_version=="2.6"': ['argparse'],

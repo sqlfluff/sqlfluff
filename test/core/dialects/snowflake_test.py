@@ -1,9 +1,12 @@
-"""Tests specific to the ansi dialect."""
+"""Tests specific to the snowflake dialect."""
 
 import pytest
 
 from sqlfluff.core import Linter
-from sqlfluff.core.dialects.dialect_snowflake import UseStatementSegment
+from sqlfluff.core.dialects.dialect_snowflake import (
+    UseStatementSegment,
+    SemiStructuredAccessorSegment,
+)
 
 
 @pytest.mark.parametrize(
@@ -16,19 +19,24 @@ from sqlfluff.core.dialects.dialect_snowflake import UseStatementSegment
         (UseStatementSegment, 'USE SCHEMA "MY_DATABASE"."MY_SCHEMA";'),
         (UseStatementSegment, 'USE SCHEMA "MY_SCHEMA";'),
         (UseStatementSegment, 'USE "MY_DATABASE"."MY_SCHEMA";'),
+        # Testing https://github.com/sqlfluff/sqlfluff/issues/634
+        (
+            SemiStructuredAccessorSegment,
+            "SELECT ID :: VARCHAR as id, OBJ : userId :: VARCHAR as user_id from x",
+        ),
     ],
 )
 def test_snowflake_queries(segment_cls, raw, caplog):
     """Test snowflake specific queries parse."""
     lnt = Linter(dialect="snowflake")
-    parsed, vs, _ = lnt.parse_string(raw)
-    assert len(vs) == 0
+    parsed = lnt.parse_string(raw)
+    assert len(parsed.violations) == 0
 
     # Find any unparsable statements
-    typs = parsed.type_set()
+    typs = parsed.tree.type_set()
     assert "unparsable" not in typs
 
     # Find the expected type in the parsed segment
-    child_segments = [seg for seg in parsed.recursive_crawl(segment_cls.type)]
+    child_segments = [seg for seg in parsed.tree.recursive_crawl(segment_cls.type)]
     assert len(child_segments) > 0
     # If we get here the raw statement was parsed as expected

@@ -5,6 +5,8 @@ list see the documentation:
 https://www.sphinx-doc.org/en/master/usage/configuration.html
 """
 
+import configparser
+
 # -- Path setup --------------------------------------------------------------
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -15,15 +17,20 @@ https://www.sphinx-doc.org/en/master/usage/configuration.html
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
+# Get the global config info as currently stated
+# (we use the config file to avoid actually loading any python here)
+config = configparser.ConfigParser()
+config.read(["../../src/sqlfluff/config.ini"])
+stable_version = config.get("sqlfluff", "stable_version")
 
 # -- Project information -----------------------------------------------------
 
-project = "sqlfluff"
+project = "SQLFluff"
 copyright = "2019, Alan Cruickshank"
 author = "Alan Cruickshank"
 
 # The full version, including alpha/beta/rc tags
-release = "0.3.6"
+release = stable_version
 
 
 # -- General configuration ---------------------------------------------------
@@ -62,6 +69,7 @@ add_module_names = False
 # a list of builtin themes.
 #
 html_theme = "alabaster"
+html_favicon = "favicon-fluff.png"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -83,3 +91,23 @@ html_theme_options = {
     # Codecov button
     "codecov_button": True,
 }
+
+
+def ultimate_replace(app, docname, source):
+    """Replaces variables in docs, including code blocks.
+
+    From: https://github.com/sphinx-doc/sphinx/issues/4054#issuecomment-329097229
+    """
+    result = source[0]
+    for key in app.config.ultimate_replacements:
+        result = result.replace(key, app.config.ultimate_replacements[key])
+    source[0] = result
+
+
+ultimate_replacements = {"|release|": release}
+
+
+def setup(app):
+    """Configures the documentation app."""
+    app.add_config_value("ultimate_replacements", {}, True)
+    app.connect("source-read", ultimate_replace)

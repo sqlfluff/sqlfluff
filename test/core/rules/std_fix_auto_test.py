@@ -9,9 +9,10 @@ import os
 import tempfile
 import shutil
 import json
+import logging
+import yaml
 
 from sqlfluff.core import FluffConfig, Linter
-from sqlfluff.cli.commands import do_fixes
 
 
 # Construct the tests from the filepath
@@ -26,23 +27,12 @@ for dialect in os.listdir(os.path.join(*base_auto_fix_path)):
     # assume that d is now the name of a dialect
     dirlist = os.listdir(os.path.join(*base_auto_fix_path, dialect))
     for test_case in dirlist:
-        spl = test_case.split("_")
-        rules = spl[1]
-        rule_list = []
-        if len(rules) % 4 != 0:
-            raise ValueError(
-                "Test case {0!r} is incorrectly formatted!".format(test_case)
-            )
-        for idx in range(0, len(rules) // 4):
-            rule_list.append(rules[idx * 4 : (idx + 1) * 4])
         test_cases.append(
             (
                 # The dialect
                 dialect,
                 # The directory name
                 test_case,
-                # Rules
-                ",".join(rule_list),
             )
         )
 
@@ -59,12 +49,22 @@ def load_file(dialect, fname):
     return raw
 
 
-def auto_fix_test(rules, dialect, folder):
+def auto_fix_test(dialect, folder, caplog):
     """A test for roundtrip testing, take a file buffer, lint, fix and lint.
 
     This is explicitly different from the linter version of this, in that
     it uses the command line rather than the direct api.
     """
+    # Log just the rules logger for this test.
+    # NOTE: In debugging it may be instructive to enable some of
+    # the other loggers listed here to debug particular issues.
+    # Enabling all of them results in very long logs so use
+    # wisely.
+    # caplog.set_level(logging.DEBUG, logger="sqlfluff.templater")
+    # caplog.set_level(logging.DEBUG, logger="sqlfluff.lexer")
+    caplog.set_level(logging.DEBUG, logger="sqlfluff.linter")
+    caplog.set_level(logging.DEBUG, logger="sqlfluff.rules")
+
     filename = "testing.sql"
     # Lets get the path of a file to use
     tempdir_path = tempfile.mkdtemp()
@@ -74,6 +74,16 @@ def auto_fix_test(rules, dialect, folder):
     cmp_filepath = os.path.join(*base_auto_fix_path, dialect, folder, "after.sql")
     vio_filepath = os.path.join(*base_auto_fix_path, dialect, folder, "violations.json")
     cfg_filepath = os.path.join(*base_auto_fix_path, dialect, folder, ".sqlfluff")
+    test_conf_filepath = os.path.join(
+        *base_auto_fix_path, dialect, folder, "test-config.yml"
+    )
+
+    # Load the config file for the test:
+    with open(test_conf_filepath) as cfg_file:
+        cfg = yaml.safe_load(cfg_file)
+    print("## Config: ", cfg)
+    rules = ",".join(cfg["test-config"]["rules"])
+
     # Open the example file and write the content to it
     print_buff = ""
     with open(filepath, mode="w") as dest_file:
@@ -85,10 +95,12 @@ def auto_fix_test(rules, dialect, folder):
     try:
         with open(cfgpath, mode="w") as dest_file:
             with open(cfg_filepath, mode="r") as source_file:
+                print("## Config File Found.")
                 for line in source_file:
                     dest_file.write(line)
     except FileNotFoundError:
         # No config file? No biggie
+        print("## No Config File Found.")
         pass
     print("## Input file:\n{0}".format(print_buff))
     # Do we need to do a violations check?
@@ -104,9 +116,13 @@ def auto_fix_test(rules, dialect, folder):
     lnt = Linter(config=cfg)
     res = lnt.lint_path(filepath, fix=True)
 
+    print("## Templated file:\n{0}".format(res.tree.raw))
+
+    # We call the check_tuples here, even to makes sure any non-linting
+    # violations are raised, and the test fails.
+    vs = set(res.check_tuples())
     # If we have a violations structure, let's enforce it.
     if violations:
-        vs = set(res.check_tuples())
         # Format the violations file
         expected_vs = set()
         for rule_key in violations["violations"]["linting"]:
@@ -115,7 +131,7 @@ def auto_fix_test(rules, dialect, folder):
         assert expected_vs == vs
 
     # Actually do the fixes
-    res = do_fixes(lnt, res)
+    res = res.persist_changes()
     # Read the fixed file
     with open(filepath, mode="r") as fixed_file:
         fixed_buff = fixed_file.read()
@@ -131,7 +147,7 @@ def auto_fix_test(rules, dialect, folder):
     assert fixed_buff == comp_buff
 
 
-@pytest.mark.parametrize("dialect,folder,rules", test_cases)
-def test__std_fix_auto(dialect, folder, rules):
+@pytest.mark.parametrize("dialect,folder", test_cases)
+def test__std_fix_auto(dialect, folder, caplog):
     """Automated Fixing Tests."""
-    auto_fix_test(rules=rules, dialect=dialect, folder=folder)
+    auto_fix_test(dialect=dialect, folder=folder, caplog=caplog)

@@ -546,7 +546,7 @@ class FromUpdateClauseSegment(BaseSegment):
 # Adding Teradata specific statements
 @teradata_dialect.segment(replace=True)
 class StatementSegment(BaseSegment):
-    """A generic segment, to any of it's child subsegments."""
+    """A generic segment, to any of its child subsegments."""
 
     type = "statement"
     parse_grammar = OneOf(

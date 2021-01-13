@@ -101,6 +101,12 @@ ansi_dialect.set_lexer_struct(
     ]
 )
 
+# Set the bare functions
+ansi_dialect.sets("bare_functions").update(
+    ["current_timestamp", "current_time", "current_date"]
+)
+
+
 # Set the datetime units
 ansi_dialect.sets("datetime_units").update(
     [
@@ -125,6 +131,15 @@ ansi_dialect.sets("unreserved_keywords").update(
 
 ansi_dialect.sets("reserved_keywords").update(
     [n.strip().upper() for n in ansi_reserved_keywords.split("\n")]
+)
+
+# Bracket pairs (a set of tuples).
+# (name, startref, endref, definitely_bracket)
+ansi_dialect.sets("bracket_pairs").update(
+    [
+        ("round", "StartBracketSegment", "EndBracketSegment", True),
+        ("square", "StartSquareBracketSegment", "EndSquareBracketSegment", True),
+    ]
 )
 
 ansi_dialect.add(
@@ -179,10 +194,12 @@ ansi_dialect.add(
         "<>", name="not_equal_to", type="comparison_operator"
     ),
     # The following functions can be called without parentheses per ANSI specification
-    BareFunctionSegment=ReSegment.make(
-        r"current_timestamp|current_time|current_date",
-        name="bare_function",
-        type="bare_function",
+    BareFunctionSegment=SegmentGenerator(
+        lambda dialect: ReSegment.make(
+            r"^(" + r"|".join(dialect.sets("bare_functions")) + r")$",
+            name="bare_function",
+            type="bare_function",
+        )
     ),
     # The strange regex here it to make sure we don't accidentally match numeric literals. We
     # also use a regex to explicitly exclude disallowed keywords.
@@ -224,7 +241,7 @@ ansi_dialect.add(
     ),
     TrueSegment=KeywordSegment.make("true", name="boolean_literal", type="literal"),
     FalseSegment=KeywordSegment.make("false", name="boolean_literal", type="literal"),
-    # We use a GRAMMAR here not a Segment. Otherwise we get an unecessary layer
+    # We use a GRAMMAR here not a Segment. Otherwise we get an unnecessary layer
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"), Ref("QuotedIdentifierSegment")
     ),
@@ -298,7 +315,7 @@ class FileSegment(BaseSegment):
     allow_empty = True
 
     # NB: We don't need a match_grammar here because we're
-    # going straight into instantiating it directly ususually.
+    # going straight into instantiating it directly usually.
     parse_grammar = Delimited(
         Ref("StatementSegment"),
         delimiter=Ref("SemicolonSegment"),
@@ -323,6 +340,17 @@ class IntervalExpressionSegment(BaseSegment):
             # The String version
             Ref("QuotedLiteralSegment"),
         ),
+    )
+
+
+@ansi_dialect.segment()
+class ArrayLiteralSegment(BaseSegment):
+    """An array literal segment."""
+
+    type = "array_literal_type"
+    match_grammar = Bracketed(
+        Delimited(Ref("ExpressionSegment"), delimiter=Ref("CommaSegment")),
+        bracket_type="square",
     )
 
 
@@ -431,8 +459,7 @@ class ArrayAccessorSegment(BaseSegment):
             delimiter=Ref("SliceSegment"),
             ephemeral_name="ArrayAccessorContent",
         ),
-        # Use square brackets
-        square=True,
+        bracket_type="square",
     )
 
 
@@ -471,7 +498,7 @@ class ShorthandCastSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class QualifiedNumericLiteralSegment(BaseSegment):
-    """A numeric literal with a + or - sign preceeding.
+    """A numeric literal with a + or - sign preceding.
 
     The qualified numeric literal is a compound of a raw
     literal and a plus/minus sign. We do it this way rather
@@ -516,7 +543,7 @@ ansi_dialect.add(
         ),
     ),
     # Optional OVER suffix for window functions.
-    # This is supported in biquery & postgres (and it's derivatives)
+    # This is supported in biquery & postgres (and its derivatives)
     # and so is included here for now.
     PostFunctionGrammar=Sequence(
         Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
@@ -585,7 +612,13 @@ class PartitionClauseSegment(BaseSegment):
         "PARTITION",
         "BY",
         Indent,
-        Delimited(Ref("ExpressionSegment"), delimiter=Ref("CommaSegment")),
+        OneOf(
+            # Brackets are optional in a partition by statement
+            Bracketed(
+                Delimited(Ref("ExpressionSegment"), delimiter=Ref("CommaSegment"))
+            ),
+            Delimited(Ref("ExpressionSegment"), delimiter=Ref("CommaSegment")),
+        ),
         Dedent,
     )
 
@@ -692,7 +725,7 @@ class WildcardIdentifierSegment(ObjectReferenceSegment):
 class WildcardExpressionSegment(BaseSegment):
     """A star (*) expression for a SELECT clause.
 
-    This is seperate from the identifier to allow for
+    This is separate from the identifier to allow for
     some dialects which extend this logic to allow
     REPLACE, EXCEPT or similar clauses e.g. BigQuery.
     """
@@ -766,7 +799,9 @@ class SelectClauseSegment(BaseSegment):
             delimiter=Ref("CommaSegment"),
             allow_trailing=True,
         ),
-        Dedent,
+        # NB: The Dedent for the indent above lives in the
+        # SelectStatementSegment so that it sits in the right
+        # place corresponding to the whitespace.
     )
 
 
@@ -830,7 +865,7 @@ class JoinClauseSegment(BaseSegment):
 
 ansi_dialect.add(
     # This is a hook point to allow subclassing for other dialects
-    JoinLikeClauseGrammar=Nothing()
+    JoinLikeClauseGrammar=Nothing(),
 )
 
 
@@ -940,6 +975,7 @@ class CaseExpressionSegment(BaseSegment):
 
 
 ansi_dialect.add(
+    # Expression_A_Grammar https://www.cockroachlabs.com/docs/v20.2/sql-grammar.html#a_expr
     Expression_A_Grammar=Sequence(
         OneOf(
             Ref("Expression_C_Grammar"),
@@ -1032,12 +1068,15 @@ ansi_dialect.add(
             )
         ),
     ),
+    # Expression_B_Grammar https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#b_expr
     Expression_B_Grammar=None,  # TODO
+    # Expression_C_Grammar https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#c_expr
     Expression_C_Grammar=OneOf(
         Ref("Expression_D_Grammar"),
         Ref("CaseExpressionSegment"),
         Sequence("EXISTS", Ref("SelectStatementSegment")),
     ),
+    # Expression_D_Grammar https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#d_expr
     Expression_D_Grammar=Sequence(
         OneOf(
             Ref("BareFunctionSegment"),
@@ -1054,6 +1093,7 @@ ansi_dialect.add(
             Ref("LiteralGrammar"),
             Ref("IntervalExpressionSegment"),
             Ref("ColumnReferenceSegment"),
+            Ref("ArrayLiteralSegment"),
         ),
         Ref("Accessor_Grammar", optional=True),
         Ref("ShorthandCastSegment", optional=True),
@@ -1238,6 +1278,9 @@ class SelectStatementSegment(BaseSegment):
 
     parse_grammar = Sequence(
         Ref("SelectClauseSegment"),
+        # Dedent for the indent in the select clause.
+        # It's here so that it can come AFTER any whitespace.
+        Dedent,
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
         Ref("GroupByClauseSegment", optional=True),
@@ -1265,7 +1308,7 @@ ansi_dialect.add(
 
 @ansi_dialect.segment()
 class WithCompoundStatementSegment(BaseSegment):
-    """A `SELECT` statement preceeded by a selection of `WITH` clauses."""
+    """A `SELECT` statement preceded by a selection of `WITH` clauses."""
 
     type = "with_compound_statement"
     # match grammar
@@ -1290,7 +1333,7 @@ class WithCompoundStatementSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class SetOperatorSegment(BaseSegment):
-    """A set operator such as Union, Minus, Exept or Intersect."""
+    """A set operator such as Union, Minus, Except or Intersect."""
 
     type = "set_operator"
     match_grammar = OneOf(
@@ -1304,7 +1347,7 @@ class SetOperatorSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class SetExpressionSegment(BaseSegment):
-    """A set expression with either Union, Minus, Exept or Intersect."""
+    """A set expression with either Union, Minus, Except or Intersect."""
 
     type = "set_expression"
     # match grammar
@@ -1752,6 +1795,73 @@ class SetClauseSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class FunctionDefinitionGrammar(BaseSegment):
+    """This is the body of a `CREATE FUNCTION AS` statement."""
+
+    match_grammar = Sequence(
+        "AS",
+        Ref("QuotedLiteralSegment"),
+        Sequence(
+            "LANGUAGE",
+            # Not really a parameter, but best fit for now.
+            Ref("ParameterNameSegment"),
+            optional=True,
+        ),
+    )
+
+
+@ansi_dialect.segment()
+class CreateFunctionStatementSegment(BaseSegment):
+    """A `CREATE FUNCTION` statement.
+
+    This version in the ANSI dialect should be a "common subset" of the
+    structure of the code for those dialects.
+    postgres: https://www.postgresql.org/docs/9.1/sql-createfunction.html
+    snowflake: https://docs.snowflake.com/en/sql-reference/sql/create-function.html
+    bigquery: https://cloud.google.com/bigquery/docs/reference/standard-sql/user-defined-functions
+    """
+
+    type = "create_function_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        OneOf("TEMPORARY", "TEMP", optional=True),
+        "FUNCTION",
+        Anything(),
+    )
+
+    parse_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        OneOf("TEMPORARY", "TEMP", optional=True),
+        "FUNCTION",
+        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("FunctionNameSegment"),
+        # Function parameter list
+        Bracketed(
+            Delimited(
+                # Odd syntax, but prevents eager parameters being confused for data types
+                OneOf(
+                    Sequence(
+                        Ref("ParameterNameSegment", optional=True),
+                        OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
+                    ),
+                    OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
+                ),
+                delimiter=Ref("CommaSegment"),
+            )
+        ),
+        Sequence(  # Optional function return type
+            "RETURNS",
+            Ref("DatatypeSegment"),
+            optional=True,
+        ),
+        Ref("FunctionDefinitionGrammar"),
+    )
+
+
+@ansi_dialect.segment()
 class CreateModelStatementSegment(BaseSegment):
     """A BigQuery `CREATE MODEL` statement."""
 
@@ -1772,7 +1882,7 @@ class CreateModelStatementSegment(BaseSegment):
                         Ref("EqualsSegment"),
                         OneOf(
                             # This covers many but not all the extensive list of
-                            # possible 'CREATE MODEL' optiona.
+                            # possible 'CREATE MODEL' options.
                             Ref("LiteralGrammar"),  # Single value
                             Bracketed(
                                 # E.g. input_label_cols: list of column names
@@ -1780,7 +1890,7 @@ class CreateModelStatementSegment(BaseSegment):
                                     Ref("QuotedLiteralSegment"),
                                     delimiter=Ref("CommaSegment"),
                                 ),
-                                square=True,
+                                bracket_type="square",
                                 optional=True,
                             ),
                         ),
@@ -1837,7 +1947,7 @@ class MLTableExpressionSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class StatementSegment(BaseSegment):
-    """A generic segment, to any of it's child subsegments."""
+    """A generic segment, to any of its child subsegments."""
 
     type = "statement"
     match_grammar = GreedyUntil(Ref("SemicolonSegment"))
@@ -1853,6 +1963,7 @@ class StatementSegment(BaseSegment):
         Ref("CreateViewStatementSegment"),
         Ref("DeleteStatementSegment"),
         Ref("UpdateStatementSegment"),
+        Ref("CreateFunctionStatementSegment"),
         Ref("CreateModelStatementSegment"),
         Ref("DropModelStatementSegment"),
     )

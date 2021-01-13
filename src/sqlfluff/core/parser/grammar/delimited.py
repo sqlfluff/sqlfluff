@@ -12,7 +12,7 @@ from .anyof import OneOf
 
 
 class Delimited(OneOf):
-    """Match an arbitrary number of elements seperated by a delimiter.
+    """Match an arbitrary number of elements separated by a delimiter.
 
     Note that if there are multiple elements passed in that they will be treated
     as different options of what can be delimited, rather than a sequence.
@@ -40,7 +40,7 @@ class Delimited(OneOf):
     def match(
         self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
     ) -> MatchResult:
-        """Match an arbitrary number of elements seperated by a delimiter.
+        """Match an arbitrary number of elements separated by a delimiter.
 
         Note that if there are multiple elements passed in that they will be treated
         as different options of what can be delimited, rather than a sequence.
@@ -69,7 +69,7 @@ class Delimited(OneOf):
             if len(seg_buff) == 0:
                 # Append the remaining buffer in case we're in the not is_code case.
                 matched_segments += seg_buff
-                # Nothing left, this is potentially a trailling case?
+                # Nothing left, this is potentially a trailing case?
                 if self.allow_trailing and (
                     self.min_delimiters is None
                     or len(delimiters) >= self.min_delimiters

@@ -34,6 +34,8 @@ postgres_dialect.insert_lexer_struct(
 # Reserve WITHIN (required for the WithinGroupClauseSegment)
 postgres_dialect.sets("unreserved_keywords").remove("WITHIN")
 postgres_dialect.sets("reserved_keywords").add("WITHIN")
+# Add the EPOCH datetime unit
+postgres_dialect.sets("datetime_units").update(["EPOCH"])
 
 
 postgres_dialect.add(

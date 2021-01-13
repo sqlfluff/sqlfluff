@@ -1,0 +1,14 @@
+name: 'my_new_project'
+version: '1.0.0'
+config-version: 2
+
+profile: 'default'
+
+models:
+  my_new_project:
+    materialized: view
+
+vars:
+  my_new_project:
+    # Default date stamp of run
+    ds: "2020-01-01"

@@ -33,7 +33,3 @@ test_4:
         with cte as (
         select 1
         ) select * from cte
-
-test_5:
-  # still runs with unparsable with statement
-  pass_str: with (select 1)

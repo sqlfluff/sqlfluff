@@ -7,8 +7,10 @@ bench-it
 # oyaml is like pyyaml but preserves orderings
 oyaml
 Jinja2
-diff-cover>=2.5.0,<3.0
+diff-cover>=2.5.0
 # pathspec handles the .sqlfluffignore file
 pathspec
 pytest
 appdirs
+# dataclasses backport for python 3.6
+dataclasses

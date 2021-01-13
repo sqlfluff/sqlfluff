@@ -1,7 +1,8 @@
 """Standard SQL Linting Rules."""
 
 import itertools
-from typing import Tuple, List
+from collections import namedtuple
+from typing import Tuple, List, Dict, Any
 
 from .base import BaseCrawler, LintFix, LintResult, RuleSet
 from .config_info import STANDARD_CONFIG_INFO_DICT
@@ -34,10 +35,10 @@ class Rule_L001(BaseCrawler):
     """
 
     def _eval(self, segment, raw_stack, **kwargs):
-        """Unneccessary trailing whitespace.
+        """Unnecessary trailing whitespace.
 
         Look for newline segments, and then evaluate what
-        it was preceeded by.
+        it was preceded by.
         """
         # We only trigger on newlines
         if (
@@ -45,7 +46,7 @@ class Rule_L001(BaseCrawler):
             and len(raw_stack) > 0
             and raw_stack[-1].is_type("whitespace")
         ):
-            # If we find a newline, which is preceeded by whitespace, then bad
+            # If we find a newline, which is preceded by whitespace, then bad
             deletions = []
             idx = -1
             while raw_stack[idx].is_type("whitespace"):
@@ -149,7 +150,7 @@ class Rule_L003(BaseCrawler):
     """
 
     _works_on_unparsable = False
-    config_keywords = ["tab_space_size", "indent_unit"]
+    config_keywords = ["tab_space_size", "indent_unit", "lint_templated_tokens"]
 
     def _make_indent(self, num=1, tab_space_size=None, indent_unit=None):
         if (indent_unit or self.indent_unit) == "tab":
@@ -183,6 +184,10 @@ class Rule_L003(BaseCrawler):
 
         for elem in raw_stack:
             line_buffer.append(elem)
+            # Pin indent_balance to above zero
+            if indent_balance < 0:
+                indent_balance = 0
+
             if elem.is_type("newline"):
                 result_buffer[line_no] = {
                     "line_no": line_no,
@@ -335,8 +340,8 @@ class Rule_L003(BaseCrawler):
             if segment.is_type("whitespace"):
                 # it's whitespace, carry on
                 return LintResult(memory=memory)
-            elif segment.segments or segment.is_meta:
-                # it's not a raw segment. Carry on.
+            elif segment.segments or (segment.is_meta and segment.indent_val != 0):
+                # it's not a raw segment or placeholder. Carry on.
                 return LintResult(memory=memory)
             else:
                 memory["in_indent"] = False
@@ -349,14 +354,29 @@ class Rule_L003(BaseCrawler):
         res = self._process_raw_stack(raw_stack + (segment,))
         this_line_no = max(res.keys())
         this_line = res.pop(this_line_no)
+        self.logger.debug(
+            "Evaluating line #%s. %s",
+            this_line_no,
+            # Don't log the line or indent buffer, it's too noisy.
+            {
+                key: this_line[key]
+                for key in this_line
+                if key not in ("line_buffer", "indent_buffer")
+            },
+        )
 
         # Is this line just comments?
-        if set(seg.type for seg in this_line["line_buffer"] if not seg.is_meta) <= {
-            "whitespace",
-            "comment",
-        }:
+        if all(
+            seg.is_type(
+                "whitespace",
+                "comment",
+                "indent",  # dedent is a subtype of indent
+            )
+            for seg in this_line["line_buffer"]
+        ):
             # Comment line, deal with it later.
             memory["comment_lines"].append(this_line_no)
+            self.logger.debug("    Comment Line. #%s", this_line_no)
             return LintResult(memory=memory)
 
         # Is it a hanging indent?
@@ -389,10 +409,13 @@ class Rule_L003(BaseCrawler):
             ):
                 # This is a HANGER
                 memory["hanging_lines"].append(this_line_no)
+                self.logger.debug("    Hanger Line. #%s", this_line_no)
                 return LintResult(memory=memory)
+
         # Is this an indented first line?
         elif len(res) == 0:
             if this_line["indent_size"] > 0:
+                self.logger.debug("    Indented First Line. #%s", this_line_no)
                 return LintResult(
                     anchor=segment,
                     memory=memory,
@@ -401,6 +424,17 @@ class Rule_L003(BaseCrawler):
                         LintFix("delete", elem) for elem in this_line["indent_buffer"]
                     ],
                 )
+
+        # Are we linting a placeholder, and if so are we allowed to?
+        if (not self.lint_templated_tokens) and this_line["line_buffer"][
+            len(this_line["indent_buffer"]) :
+        ][0].is_type("placeholder"):
+            # If not, make this a problem line and carry on.
+            memory["problem_lines"].append(this_line_no)
+            self.logger.debug(
+                "    Avoiding template placeholder Line. #%s", this_line_no
+            )
+            return LintResult(memory=memory)
 
         # Assuming it's not a hanger, let's compare it to the other previous
         # lines. We do it in reverse so that closer lines are more relevant.
@@ -423,6 +457,7 @@ class Rule_L003(BaseCrawler):
                 continue
             # Is the indent balance the same?
             elif indent_diff == 0:
+                self.logger.debug("    [same indent balance] Comparing to #%s", k)
                 if this_line["indent_size"] != res[k]["indent_size"]:
                     # Indents don't match even though balance is the same...
                     memory["problem_lines"].append(this_line_no)
@@ -444,7 +479,9 @@ class Rule_L003(BaseCrawler):
                         current_indent_buffer=this_line["indent_buffer"],
                         current_anchor=segment,
                     )
-
+                    self.logger.debug(
+                        "    !! Indentation does not match #%s. Fixes: %s", k, fixes
+                    )
                     return LintResult(
                         anchor=segment,
                         memory=memory,
@@ -456,6 +493,7 @@ class Rule_L003(BaseCrawler):
                     )
             # Are we at a deeper indent?
             elif indent_diff > 0:
+                self.logger.debug("    [deeper indent balance] Comparing to #%s", k)
                 # NB: We shouldn't need to deal with hanging indents
                 # here, they should already have been dealt with before.
 
@@ -479,7 +517,7 @@ class Rule_L003(BaseCrawler):
                         desired_indent = " " * res[k]["hanging_indent"]
                     else:
                         raise RuntimeError(
-                            "Unexpected case, please report bug, inluding the query you are linting!"
+                            "Unexpected case, please report bug, including the query you are linting!"
                         )
 
                     # Make fixes
@@ -608,6 +646,7 @@ class Rule_L003(BaseCrawler):
 
             # This was a valid comparison, so if it doesn't flag then
             # we can assume that we're ok.
+            self.logger.debug("    Indent deemed ok comparing to #%s", k)
 
             # Given that this line is ok, consider if the previous line is a comment.
             # If it is, lint the indentation of that comment.
@@ -650,51 +689,85 @@ class Rule_L003(BaseCrawler):
         return LintResult(memory=memory)
 
 
+@std_rule_set.document_fix_compatible
+@std_rule_set.document_configuration
 @std_rule_set.register
 class Rule_L004(BaseCrawler):
-    """Mixed Tab and Space indentation found in file.
+    """Incorrect indentation type.
+
+    Note 1: spaces are only fixed to tabs if the number of spaces in the
+    indent is an integer multiple of the tab_space_size config.
+    Note 2: fixes are only applied to indents at the start of a line. Indents
+    after other text on the same line are not fixed.
 
     | **Anti-pattern**
-    | The • character represents a space and the → character represents a tab.
-    | In this example, the second line is indented with spaces and the third one with tab.
+    | Using tabs instead of spaces when indent_unit config set to spaces (default).
 
     .. code-block::
 
-        SELECT
+        select
         ••••a,
         →   b
-        FROM foo
+        from foo
 
     | **Best practice**
     | Change the line to use spaces only.
 
     .. code-block::
 
-        SELECT
+        select
         ••••a,
         ••••b
-        FROM foo
+        from foo
     """
 
-    def _eval(self, segment, raw_stack, memory, **kwargs):
-        """Mixed Tab and Space indentation found in file.
+    config_keywords = ["indent_unit", "tab_space_size"]
 
-        We use the `memory` feature here to keep track of
-        what we've seen in the past.
-
-        """
-        indents_seen = memory.get("indents_seen", set())
-        if segment.is_type("whitespace"):
-            if len(raw_stack) == 0 or raw_stack[-1].is_type("newline"):
-                indents_here = set(segment.raw)
-                indents_union = indents_here | indents_seen
-                memory["indents_seen"] = indents_union
-                if len(indents_union) > 1:
-                    # We are seeing an indent we haven't seen before and we've seen others before
-                    return LintResult(anchor=segment, memory=memory)
-                else:
-                    return LintResult(memory=memory)
-        return LintResult(memory=memory)
+    # TODO fix indents after text: https://github.com/sqlfluff/sqlfluff/pull/590#issuecomment-739484190
+    def _eval(self, segment, raw_stack, **kwargs):
+        """Incorrect indentation found in file."""
+        tab = "\t"
+        space = " "
+        correct_indent = (
+            space * self.tab_space_size if self.indent_unit == "space" else tab
+        )
+        wrong_indent = (
+            tab if self.indent_unit == "space" else space * self.tab_space_size
+        )
+        if segment.is_type("whitespace") and wrong_indent in segment.raw:
+            fixes = []
+            description = "Incorrect indentation type found in file."
+            edit_indent = segment.raw.replace(wrong_indent, correct_indent)
+            # Ensure that the number of space indents is a multiple of tab_space_size
+            # before attempting to convert spaces to tabs to avoid mixed indents
+            # unless we are converted tabs to spaces (indent_unit = space)
+            if (
+                (
+                    self.indent_unit == "space"
+                    or segment.raw.count(space) % self.tab_space_size == 0
+                )
+                # Only attempt a fix at the start of a newline for now
+                and (len(raw_stack) == 0 or raw_stack[-1].is_type("newline"))
+            ):
+                fixes = [
+                    LintFix(
+                        "edit",
+                        segment,
+                        self.make_whitespace(
+                            raw=edit_indent,
+                            pos_marker=segment.pos_marker,
+                        ),
+                    )
+                ]
+            elif not (len(raw_stack) == 0 or raw_stack[-1].is_type("newline")):
+                # give a helpful message if the wrong indent has been found and is not at the start of a newline
+                description += (
+                    " The indent occurs after other text, so a manual fix is needed."
+                )
+            else:
+                # If we get here, the indent_unit is tabs, and the number of spaces is not a multiple of tab_space_size
+                description += " The number of spaces is not a multiple of tab_space_size, so a manual fix is needed."
+            return LintResult(anchor=segment, fixes=fixes, description=description)
 
 
 @std_rule_set.document_fix_compatible
@@ -802,7 +875,7 @@ class Rule_L006(BaseCrawler):
                 elem.is_type("newline") for elem in segments_since_code
             ):
                 # TODO: This is a case we should deal with, but there are probably
-                # some cases that SHOULDNT apply here (like comments and newlines)
+                # some cases that SHOULDN'T apply here (like comments and newlines)
                 # so let's deal with them later
                 anchor = None
             else:
@@ -1040,7 +1113,7 @@ class Rule_L009(BaseCrawler):
             # need to check that each parent segment is also the last
             file_len = len(parent_stack[0].raw)
             pos = segment.pos_marker.char_pos
-            # Does the length of the file, equal the length of the segment plus it's position
+            # Does the length of the file, equal the length of the segment plus its position
             if file_len != pos + len(segment.raw):
                 return None
 
@@ -1119,7 +1192,7 @@ class Rule_L010(BaseCrawler):
             else:
                 seen_case = "inconsistent"
 
-            # NOTE: We'll only add to cases_seen if we DONT
+            # NOTE: We'll only add to cases_seen if we DON'T
             # also raise an error, so that we can focus in.
 
             def make_replacement(seg, policy):
@@ -1131,7 +1204,7 @@ class Rule_L010(BaseCrawler):
                 elif policy == "capitalise":
                     new_raw = seg.raw.capitalize()
                 elif policy == "consistent":
-                    # The only case we DONT allow here is "inconsistent",
+                    # The only case we DON'T allow here is "inconsistent",
                     # because it doesn't actually help us.
                     filtered_cases_seen = [c for c in cases_seen if c != "inconsistent"]
                     if filtered_cases_seen:
@@ -1159,7 +1232,7 @@ class Rule_L010(BaseCrawler):
                         or seen_case == "inconsistent"
                     )
                 )
-                # Are we just required to be specfic?
+                # Are we just required to be specific?
                 # Policy is either upper, lower or capitalize
                 or (
                     self.capitalisation_policy != "consistent"
@@ -1230,7 +1303,7 @@ class Rule_L011(BaseCrawler):
                     insert_str = ""
                     init_pos = segment.segments[0].pos_marker
 
-                    # Add intial whitespace if we need to...
+                    # Add initial whitespace if we need to...
                     if raw_stack[-1].name not in ["whitespace", "newline"]:
                         insert_buff.append(
                             self.make_whitespace(raw=" ", pos_marker=init_pos)
@@ -1266,7 +1339,7 @@ class Rule_L012(Rule_L011):
     """Implicit aliasing of column not allowed. Use explicit `AS` clause.
 
     NB: This rule inherits its functionality from obj:`Rule_L011` but is
-    seperate so that they can be enabled and disabled seperately.
+    separate so that they can be enabled and disabled separately.
 
     """
 
@@ -1358,7 +1431,7 @@ class Rule_L015(BaseCrawler):
 
     | **Anti-pattern**
     | In this example, parenthesis are not needed and confuse
-    | DISTINCT with a function. The parethesis can also be misleading
+    | DISTINCT with a function. The parenthesis can also be misleading
     | in which columns they apply to.
 
     .. code-block:: sql
@@ -1376,7 +1449,7 @@ class Rule_L015(BaseCrawler):
     """
 
     def _eval(self, segment, raw_stack, **kwargs):
-        """Uneccessary trailing whitespace.
+        """Looking for DISTINCT before a bracket.
 
         Look for DISTINCT keyword immediately followed by open parenthesis.
         """
@@ -1410,7 +1483,7 @@ class Rule_L016(Rule_L003):
         - Pausepoint (which is a comma, potentially surrounded by
           whitespace). This is for potential list splitting.
 
-        Once split, we'll use a seperate method to work out what
+        Once split, we'll use a separate method to work out what
         combinations make most sense for reflow.
         """
         chunk_buff = []
@@ -1768,7 +1841,7 @@ class Rule_L016(Rule_L003):
 
             # Does the line end in an inline comment that we can move back?
             if this_line[-1].name == "inline_comment":
-                # Is this line JUST COMMENT (with optional predeeding whitespace) if
+                # Is this line JUST COMMENT (with optional preceding whitespace) if
                 # so, user will have to fix themselves.
                 if len(this_line) == 1 or all(
                     elem.name == "whitespace" or elem.is_meta for elem in this_line[:-1]
@@ -1782,7 +1855,7 @@ class Rule_L016(Rule_L003):
                     "Attempting move of inline comment at end of line: %s",
                     this_line[-1],
                 )
-                # Set up to delete the original comment and the preceeding whitespace
+                # Set up to delete the original comment and the preceding whitespace
                 delete_buffer = [LintFix("delete", this_line[-1])]
                 idx = -2
                 while True:
@@ -2016,6 +2089,7 @@ class Rule_L018(BaseCrawler):
         return LintResult()
 
 
+@std_rule_set.document_fix_compatible
 @std_rule_set.document_configuration
 @std_rule_set.register
 class Rule_L019(BaseCrawler):
@@ -2066,33 +2140,116 @@ class Rule_L019(BaseCrawler):
                 return raw_stack[idx]
             idx -= 1
 
-    def _eval(self, segment, raw_stack, **kwargs):
+    def _eval(self, segment, raw_stack, memory, **kwargs):
         """Enforce comma placement.
 
-        If want leading commas, we're looking for trailing commas, so
-        we look for newline segments. If we want trailing commas then
-        we're looking for leading commas, so we look for the comma itself.
+        For leading commas we're looking for trailing commas, so
+        we look for newline segments. For trailing commas we're
+        looking for leading commas, so we look for the comma itself.
+
+        We also want to handle proper whitespace removal/addition. We remove
+        any trailing whitespace after the leading comma, when converting a
+        leading comma to a trailing comma. We add whitespace after the leading
+        comma when converting a trailing comma to a leading comma.
         """
-        if len(raw_stack) >= 1:
-            if self.comma_style == "leading":
-                if segment.is_type("newline"):
-                    # work back and find the last code segment, was it a comma?
-                    last_seg = self._last_code_seg(raw_stack)
-                    if last_seg.is_type("comma"):
-                        return LintResult(
-                            anchor=last_seg,
-                            description="Found trailing comma. Expected only leading.",
-                        )
-            elif self.comma_style == "trailing":
-                if segment.is_type("comma"):
-                    # work back and find the last interesting thing, is the comma the first element?
-                    last_seg = self._last_code_seg(raw_stack)
-                    if last_seg.is_type("newline"):
-                        return LintResult(
-                            anchor=segment,
-                            description="Found leading comma. Expected only trailing.",
-                        )
-        # Otherwise fine
+        if not memory:
+            memory: Dict[str, Any] = {
+                # Trailing comma keys
+                #
+                # Do we have a fix in place for removing a leading
+                # comma violation, and inserting a new trailing comma?
+                "insert_trailing_comma": False,
+                # A list of whitespace segments that come after a
+                # leading comma violation, to be removed during fixing.
+                "whitespace_deletions": None,
+                # The leading comma violation segment to be removed during fixing
+                "last_leading_comma_seg": None,
+                # The newline segment where we're going to insert our new trailing
+                # comma during fixing
+                "anchor_for_new_trailing_comma_seg": None,
+                #
+                # Leading comma keys
+                #
+                # Do we have a fix in place for removing a trailing
+                # comma violation, and inserting a new leading comma?
+                "insert_leading_comma": False,
+                # The trailing comma violation segment to be removed during fixing
+                "last_trailing_comma_segment": None,
+            }
+
+        if self.comma_style == "trailing":
+            # A comma preceded by a new line == a leading comma
+            if segment.is_type("comma"):
+                last_seg = self._last_code_seg(raw_stack)
+                if last_seg.is_type("newline"):
+                    # Recorded where the fix should be applied
+                    memory["last_leading_comma_seg"] = segment
+                    memory["anchor_for_new_trailing_comma_seg"] = last_seg
+                    # Trigger fix routine
+                    memory["insert_trailing_comma"] = True
+                    memory["whitespace_deletions"] = []
+                    return LintResult(memory=memory)
+            # Have we found a leading comma violation?
+            if memory["insert_trailing_comma"]:
+                # Search for trailing whitespace to delete after the leading
+                # comma violation
+                if segment.is_type("whitespace"):
+                    memory["whitespace_deletions"] += [segment]
+                    return LintResult(memory=memory)
+                else:
+                    # We've run out of whitespace to delete, time to fix
+                    last_leading_comma_seg = memory["last_leading_comma_seg"]
+                    return LintResult(
+                        anchor=last_leading_comma_seg,
+                        description="Found leading comma. Expected only trailing.",
+                        fixes=[
+                            LintFix("delete", last_leading_comma_seg),
+                            *[
+                                LintFix("delete", d)
+                                for d in memory["whitespace_deletions"]
+                            ],
+                            LintFix(
+                                "create",
+                                anchor=memory["anchor_for_new_trailing_comma_seg"],
+                                # Reuse the previous leading comma violation to
+                                # create a new trailing comma
+                                edit=last_leading_comma_seg,
+                            ),
+                        ],
+                    )
+
+        elif self.comma_style == "leading":
+            # A new line preceded by a comma == a trailing comma
+            if segment.is_type("newline"):
+                last_seg = self._last_code_seg(raw_stack)
+                if last_seg.is_type("comma"):
+                    # Trigger fix routine
+                    memory["insert_leading_comma"] = True
+                    # Record where the fix should be applied
+                    memory["last_trailing_comma_segment"] = last_seg
+                    return LintResult(memory=memory)
+            # Have we found a trailing comma violation?
+            if memory["insert_leading_comma"]:
+                # Only insert the comma here if this isn't a comment/whitespace segment
+                if segment.is_code:
+                    last_comma_seg = memory["last_trailing_comma_segment"]
+                    # Create whitespace to insert after the new leading comma
+                    new_whitespace_seg = self.make_whitespace(
+                        raw=" ", pos_marker=segment.pos_marker.advance_by(" ")
+                    )
+                    return LintResult(
+                        anchor=last_comma_seg,
+                        description="Found trailing comma. Expected only leading.",
+                        fixes=[
+                            LintFix("delete", anchor=last_comma_seg),
+                            LintFix(
+                                "edit",
+                                anchor=segment,
+                                edit=[last_comma_seg, new_whitespace_seg, segment],
+                            ),
+                        ],
+                    )
+        # Otherwise, no issue
         return None
 
 
@@ -2412,7 +2569,7 @@ class Rule_L022(BaseCrawler):
                             if comma_style in ("trailing", "final", "floating"):
                                 # Detected an existing trailing comma or it's a final CTE,
                                 # OR the comma isn't leading or trailing.
-                                # If the preceeding segment is whitespace, replace it
+                                # If the preceding segment is whitespace, replace it
                                 if forward_slice[seg_idx - 1].is_type("whitespace"):
                                     fix_point = forward_slice[seg_idx - 1]
                                     fix_type = "edit"
@@ -2423,7 +2580,7 @@ class Rule_L022(BaseCrawler):
                                 # Detected an existing leading comma.
                                 fix_point = forward_slice[comma_seg_idx]
                         else:
-                            self.logger.info("Handling preceeding comments")
+                            self.logger.info("Handling preceding comments")
                             offset = 1
                             while line_idx - offset in comment_lines:
                                 offset += 1
@@ -2579,7 +2736,7 @@ class Rule_L025(Rule_L020):
         FROM foo AS zoo
 
     | **Best practice**
-    | Use the alias or remove it. An usused alias makes code
+    | Use the alias or remove it. An unused alias makes code
     | harder to read without changing any functionality.
 
     .. code-block:: sql
@@ -2977,7 +3134,11 @@ class Rule_L031(BaseCrawler):
             table_ref = table_exp.get_child("object_reference")
 
             # If this is self-join - skip it
-            if base_table.raw == table_ref.raw and base_table != table_ref:
+            if (
+                base_table
+                and base_table.raw == table_ref.raw
+                and base_table != table_ref
+            ):
                 continue
 
             whitespace_ref = table_exp.get_child("whitespace")
@@ -2995,7 +3156,7 @@ class Rule_L031(BaseCrawler):
             # Find all references to alias in select clause
             for alias_with_column in select_clause.recursive_crawl("object_reference"):
                 used_alias_ref = alias_with_column.get_child("identifier")
-                if used_alias_ref.raw == alias_identifier_ref.raw:
+                if used_alias_ref and used_alias_ref.raw == alias_identifier_ref.raw:
                     ids_refs.append(used_alias_ref)
 
             # Find all references to alias in column references
@@ -3250,11 +3411,8 @@ class Rule_L034(BaseCrawler):
 @std_rule_set.register
 class Rule_L035(BaseCrawler):
     """Do not specify "else null" in a case when statement (redundant).
-
     | **Anti-pattern**
-
     .. code-block:: sql
-
         select
             case
                 when name like '%cat%' then 'meow'
@@ -3262,25 +3420,19 @@ class Rule_L035(BaseCrawler):
                 else null
             end
         from x
-
-
     | **Best practice**
     |  Omit "else null"
-
     .. code-block:: sql
-
         select
             case
                 when name like '%cat%' then 'meow'
                 when name like '%dog%' then 'woof'
             end
         from x
-
     """
 
     def _eval(self, segment, **kwargs):
         """Find rule violations and provide fixes.
-
         0. Look for a case expression
         1. Look for "ELSE"
         2. Mark "ELSE" for deletion (populate "fixes")
@@ -3312,3 +3464,120 @@ class Rule_L035(BaseCrawler):
                     ):
                         fixes.append(LintFix("delete", segment.segments[walk_idx]))
                         walk_idx = walk_idx - 1
+
+
+@std_rule_set.register
+class Rule_L036(BaseCrawler):
+    """Select targets should be on a new line unless there is only one select target.
+
+    | **Anti-pattern**
+
+    .. code-block:: sql
+
+        select
+            *
+        from x
+
+
+    | **Best practice**
+
+    .. code-block:: sql
+
+        select
+            a,
+            b,
+            c
+        from x
+
+    """
+
+    def _eval(self, segment, raw_stack, **kwargs):
+        if segment.is_type("select_clause"):
+            eval_result = self._get_indexes(segment)
+            if eval_result.cnt_select_targets == 1:
+                return self._eval_single_select_target_element(eval_result, segment)
+            if eval_result.cnt_select_targets > 1:
+                return self._eval_multiple_select_target_elements(eval_result, segment)
+
+    @staticmethod
+    def _get_indexes(segment):
+        EvalResult = namedtuple(
+            "EvalResults",
+            [
+                "cnt_select_targets",
+                "select_idx",
+                "first_new_line_idx",
+                "first_select_target_idx",
+                "first_whitespace_idx",
+            ],
+        )
+        cnt_select_targets = 0
+        select_idx = -1
+        first_new_line_idx = -1
+        first_select_target_idx = -1
+        first_whitespace_idx = -1
+        for fname_idx, seg in enumerate(segment.segments):
+            if seg.is_type("select_target_element"):
+                cnt_select_targets += 1
+                if first_select_target_idx == -1:
+                    first_select_target_idx = fname_idx
+            if seg.is_type("keyword") and seg.name == "SELECT" and select_idx == -1:
+                select_idx = fname_idx
+            if seg.is_type("newline") and first_new_line_idx == -1:
+                first_new_line_idx = fname_idx
+            # TRICKY: Ignore whitespace prior to the first newline, e.g. if
+            # the line with "SELECT" (before any select targets) has trailing
+            # whitespace.
+            if (
+                seg.is_type("whitespace")
+                and first_new_line_idx != -1
+                and first_whitespace_idx == -1
+            ):
+                first_whitespace_idx = fname_idx
+
+        eval_result = EvalResult(
+            cnt_select_targets,
+            select_idx,
+            first_new_line_idx,
+            first_select_target_idx,
+            first_whitespace_idx,
+        )
+
+        return eval_result
+
+    @staticmethod
+    def _eval_multiple_select_target_elements(eval_result, segment):
+        if eval_result.first_new_line_idx == -1:
+            # there are multiple select targets but no new lines
+            return LintResult(anchor=segment)
+        else:
+            # ensure newline before select target and whitespace segment
+            if (
+                eval_result.first_new_line_idx
+                < eval_result.first_whitespace_idx
+                < eval_result.first_select_target_idx
+            ):
+                return None
+            else:
+                return LintResult(anchor=segment)
+
+    @staticmethod
+    def _eval_single_select_target_element(eval_result, select_clause):
+        is_wildcard = False
+        for segment in select_clause.segments:
+            if segment.is_type("select_target_element"):
+                for sub_segment in segment.segments:
+                    if sub_segment.is_type("wildcard_expression"):
+                        is_wildcard = True
+
+        if is_wildcard:
+            return None
+        elif (
+            eval_result.select_idx
+            < eval_result.first_new_line_idx
+            < eval_result.first_select_target_idx
+        ):
+            # there is a newline between select and select target
+            return LintResult(anchor=select_clause)
+        else:
+            return None

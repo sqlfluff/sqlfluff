@@ -10,7 +10,7 @@ from ..match_result import MatchResult
 from ..match_wrapper import match_wrapper
 from ..context import ParseContext
 
-from .base import BaseGrammar, Ref, cached_method_for_parse_context
+from .base import BaseGrammar, cached_method_for_parse_context
 
 
 class Sequence(BaseGrammar):
@@ -21,7 +21,7 @@ class Sequence(BaseGrammar):
         """Does this matcher support a uppercase hash matching route?
 
         Sequence does provide this, as long as the *first* non-optional
-        element does, *AND* and optional elements which preceed it also do.
+        element does, *AND* and optional elements which preceded it also do.
         """
         simple_buff = []
         for opt in self._elements:
@@ -45,25 +45,17 @@ class Sequence(BaseGrammar):
         matched_segments = MatchResult.from_empty()
         unmatched_segments = segments
 
-        for idx, elem in enumerate(self._elements):
-            while True:
-                # Is it an indent or dedent?
-                if elem.is_meta:
-                    # Is it actually enabled?
-                    if not elem.is_enabled(parse_context=parse_context):
-                        break
-                    # Work out how to find an appropriate pos_marker for
-                    # the meta segment.
-                    if matched_segments:
-                        # Get from end of last
-                        last_matched = matched_segments.matched_segments[-1]
-                        meta_pos_marker = last_matched.get_end_pos_marker()
-                    else:
-                        # Get from start of next
-                        meta_pos_marker = unmatched_segments[0].pos_marker
-                    matched_segments += elem(pos_marker=meta_pos_marker)
-                    break
+        # Buffers of uninstantiated meta segments.
+        meta_pre_nc = ()
+        meta_post_nc = ()
+        early_break = False
 
+        for idx, elem in enumerate(self._elements):
+            # Check for an early break.
+            if early_break:
+                break
+
+            while True:
                 # Consume non-code if appropriate
                 if self.allow_gaps:
                     pre_nc, mid_seg, post_nc = trim_non_code_segments(
@@ -74,23 +66,39 @@ class Sequence(BaseGrammar):
                     mid_seg = unmatched_segments
                     post_nc = ()
 
+                # Is it an indent or dedent?
+                if elem.is_meta:
+                    # Is it actually enabled?
+                    if elem.is_enabled(indent_config=parse_context.indentation_config):
+                        # Elements with a negative indent value come AFTER
+                        # the whitespace. Positive or neutral come BEFORE.
+                        if elem.indent_val < 0:
+                            meta_post_nc += (elem(),)
+                        else:
+                            meta_pre_nc += (elem(),)
+                    break
+
                 if len(pre_nc + mid_seg + post_nc) == 0:
-                    # We've run our of sequence without matching everyting.
+                    # We've run our of sequence without matching everything.
                     # Do only optional or meta elements remain?
                     if all(e.is_optional() or e.is_meta for e in self._elements[idx:]):
                         # then it's ok, and we can return what we've got so far.
                         # No need to deal with anything left over because we're at the end,
                         # unless it's a meta segment.
 
-                        # Get hold of the last thing to be matched, so we've got an anchor.
-                        last_matched = matched_segments.matched_segments[-1]
-                        meta_pos_marker = last_matched.get_end_pos_marker()
-                        # NB: This complicated expression just adds indents as appropriate.
-                        return matched_segments + tuple(
-                            e(pos_marker=meta_pos_marker)
+                        # We'll add those meta segments after any existing ones. So
+                        # the go on the meta_post_nc stack.
+                        meta_post_nc += tuple(
+                            e()
                             for e in self._elements[idx:]
-                            if e.is_meta and e.is_enabled(parse_context=parse_context)
+                            if e.is_meta
+                            and e.is_enabled(
+                                indent_config=parse_context.indentation_config
+                            )
                         )
+                        # Early break to exit via the happy match path.
+                        early_break = True
+                        break
                     else:
                         # we've got to the end of the sequence without matching all
                         # required elements.
@@ -103,7 +111,14 @@ class Sequence(BaseGrammar):
                     if elem_match.has_match():
                         # We're expecting mostly partial matches here, but complete
                         # matches are possible. Don't be greedy with whitespace!
-                        matched_segments += pre_nc + elem_match.matched_segments
+                        matched_segments += (
+                            meta_pre_nc
+                            + pre_nc
+                            + meta_post_nc
+                            + elem_match.matched_segments
+                        )
+                        meta_pre_nc = ()
+                        meta_post_nc = ()
                         unmatched_segments = elem_match.unmatched_segments + post_nc
                         # Each time we do this, we do a sense check to make sure we haven't
                         # dropped anything. (Because it's happened before!).
@@ -129,8 +144,15 @@ class Sequence(BaseGrammar):
         # If we get to here, we've matched all of the elements (or skipped them)
         # but still have some segments left (or perhaps have precisely zero left).
         # In either case, we're golden. Return successfully, with any leftovers as
-        # the unmatched elements.
-        return MatchResult(matched_segments.matched_segments, unmatched_segments)
+        # the unmatched elements. Meta all go at the end regardless of wny trailing
+        # whitespace.
+        return MatchResult(
+            BaseSegment._realign_segments(
+                matched_segments.matched_segments + meta_pre_nc + meta_post_nc,
+                meta_only=True,
+            ),
+            unmatched_segments,
+        )
 
 
 class Bracketed(Sequence):
@@ -143,7 +165,7 @@ class Bracketed(Sequence):
       the the `Bracketed()` expression is treated as a sequence. For the
       content of the Brackets, we call the `match()` method of the sequence
       grammar.
-    - Post 0.1.0: Bracketed was seperate from sequence, and the content
+    - Post 0.1.0: Bracketed was separate from sequence, and the content
       of the expression were treated as options (like OneOf).
     - Pre 0.1.0: Bracketed inherited from Sequence and simply added
       brackets to that sequence,
@@ -151,15 +173,12 @@ class Bracketed(Sequence):
     """
 
     def __init__(self, *args, **kwargs):
-        self.square = kwargs.pop("square", False)
-        # Start and end tokens
-        # The details on how to match a bracket are stored in the dialect
-        if self.square:
-            self.start_bracket = Ref("StartSquareBracketSegment")
-            self.end_bracket = Ref("EndSquareBracketSegment")
-        else:
-            self.start_bracket = Ref("StartBracketSegment")
-            self.end_bracket = Ref("EndBracketSegment")
+        # Store the bracket type. NB: This is only
+        # hydrated into segments at runtime.
+        self.bracket_type = kwargs.pop("bracket_type", "round")
+        # Allow optional override for special bracket-like things
+        self.start_bracket = kwargs.pop("start_bracket", None)
+        self.end_bracket = kwargs.pop("end_bracket", None)
         super(Bracketed, self).__init__(*args, **kwargs)
 
     @cached_method_for_parse_context
@@ -168,7 +187,25 @@ class Bracketed(Sequence):
 
         Bracketed does this easily, we just look for the bracket.
         """
-        return self.start_bracket.simple(parse_context=parse_context)
+        start_bracket, _ = self.get_bracket_from_dialect(parse_context)
+        return start_bracket.simple(parse_context=parse_context)
+
+    def get_bracket_from_dialect(self, parse_context):
+        """Rehydrate the bracket segments in question."""
+        for bracket_type, start_ref, end_ref, _ in parse_context.dialect.sets(
+            "bracket_pairs"
+        ):
+            if bracket_type == self.bracket_type:
+                start_bracket = parse_context.dialect.ref(start_ref)
+                end_bracket = parse_context.dialect.ref(end_ref)
+                break
+        else:
+            raise ValueError(
+                "bracket_type {0!r} not found in bracket_pairs of {1!r} dialect.".format(
+                    self.bracket_type, parse_context.dialect.name
+                )
+            )
+        return start_bracket, end_bracket
 
     @match_wrapper()
     def match(
@@ -178,11 +215,11 @@ class Bracketed(Sequence):
 
         1. work forwards to find the first bracket.
            If we find something other that whitespace, then fail out.
-        2. Once we have the first bracket, we need to bracket count forward to find it's partner.
-        3. Assuming we find it's partner then we try and match what goes between them
+        2. Once we have the first bracket, we need to bracket count forward to find its partner.
+        3. Assuming we find its partner then we try and match what goes between them
            using the match method of Sequence.
            If we match, great. If not, then we return an empty match.
-           If we never find it's partner then we return an empty match but should probably
+           If we never find its partner then we return an empty match but should probably
            log a parsing warning, or error?
 
         """
@@ -192,9 +229,15 @@ class Bracketed(Sequence):
         else:
             seg_buff = segments
 
+        # Rehydrate the bracket segments in question.
+        start_bracket, end_bracket = self.get_bracket_from_dialect(parse_context)
+        # Allow optional override for special bracket-like things
+        start_bracket = self.start_bracket or start_bracket
+        end_bracket = self.end_bracket or end_bracket
+
         # Look for the first bracket
         with parse_context.deeper_match() as ctx:
-            start_match = self.start_bracket.match(seg_buff, parse_context=ctx)
+            start_match = start_bracket.match(seg_buff, parse_context=ctx)
         if start_match:
             seg_buff = start_match.unmatched_segments
         else:
@@ -204,8 +247,10 @@ class Bracketed(Sequence):
         # Look for the closing bracket
         content_segs, end_match, _ = self._bracket_sensitive_look_ahead_match(
             segments=seg_buff,
-            matchers=[self.end_bracket],
+            matchers=[end_bracket],
             parse_context=parse_context,
+            start_bracket=start_bracket,
+            end_bracket=end_bracket,
         )
         if not end_match:
             raise SQLParseError(
@@ -256,25 +301,21 @@ class Bracketed(Sequence):
         # We require a complete match for the content (hopefully for obvious reasons)
         if content_match.is_complete():
             # Append some indent and dedent tokens at the start and the end.
-            pre_meta = (
-                Indent(
-                    pos_marker=content_match.matched_segments[0].get_start_pos_marker()
-                ),
-            )
-            post_meta = (
-                Dedent(
-                    pos_marker=content_match.matched_segments[-1].get_end_pos_marker()
-                ),
-            )
             return MatchResult(
-                # NB: The nc segments go *outside* the indents.
-                start_match.matched_segments
-                + pre_nc
-                + pre_meta  # Add a meta indent here
-                + content_match.matched_segments
-                + post_meta  # Add a meta indent here
-                + post_nc
-                + end_match.matched_segments,
+                # We need to realign the meta segments so the pos markers are correct.
+                BaseSegment._realign_segments(
+                    (
+                        # NB: The nc segments go *outside* the indents.
+                        start_match.matched_segments
+                        + (Indent(),)  # Add a meta indent here
+                        + pre_nc
+                        + content_match.matched_segments
+                        + post_nc
+                        + (Dedent(),)  # Add a meta indent here
+                        + end_match.matched_segments
+                    ),
+                    meta_only=True,
+                ),
                 end_match.unmatched_segments,
             )
         # No complete match. Fail.

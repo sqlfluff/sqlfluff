@@ -1,13 +1,18 @@
 """The code for the Lexer."""
 
-from typing import Optional, List, Tuple
+import logging
+from typing import Optional, List, Tuple, Union
 from collections import namedtuple
 import re
 
-from .markers import FilePositionMarker
-from .segments import RawSegment
+from .markers import FilePositionMarker, EnrichedFilePositionMarker
+from .segments import BaseSegment, RawSegment, Indent, Dedent, TemplateSegment
 from ..errors import SQLLexError
+from ..templaters import TemplatedFile
 from ..config import FluffConfig
+
+# Instantiate the lexer logger
+lexer_logger = logging.getLogger("sqlfluff.lexer")
 
 
 class LexMatch(namedtuple("LexMatch", ["new_string", "new_pos", "segments"])):
@@ -294,19 +299,24 @@ class Lexer:
             "<unlexable>", r"[^\t\n\,\.\ \-\+\*\\\/\'\"\;\:\[\]\(\)\|]*", is_code=True
         )
 
-    def lex(self, raw: str) -> Tuple[Tuple[RawSegment, ...], List[SQLLexError]]:
-        """Take a string and return segments.
+    def lex(
+        self, raw: Union[str, TemplatedFile]
+    ) -> Tuple[Tuple[BaseSegment, ...], List[SQLLexError]]:
+        """Take a string or TemplatedFile and return segments.
 
         If we fail to match the *whole* string, then we must have
         found something that we cannot lex. If that happens we should
         package it up as unlexable and keep track of the exceptions.
         """
-        start_pos = FilePositionMarker.from_fresh()
+        start_pos = FilePositionMarker()
         segment_buff = ()
         violations = []
 
+        # Handle potential TemplatedFile for now
+        str_buff = str(raw)
+
         while True:
-            res = self.matcher.match(raw, start_pos)
+            res = self.matcher.match(str_buff, start_pos)
             segment_buff += res.segments
             if len(res.new_string) > 0:
                 violations.append(
@@ -322,9 +332,121 @@ class Lexer:
                     # If we STILL can't match, then just panic out.
                     raise violations[-1]
 
-                raw = resort_res.new_string
+                str_buff = resort_res.new_string
                 start_pos = resort_res.new_pos
                 segment_buff += resort_res.segments
             else:
                 break
-        return segment_buff, violations
+
+        # Enrich the segments if we can using the templated file
+        if isinstance(raw, TemplatedFile):
+            return self.enrich_segments(segment_buff, raw), violations
+        else:
+            return segment_buff, violations
+
+    @staticmethod
+    def enrich_segments(
+        segment_buff: Tuple[BaseSegment, ...], templated_file: TemplatedFile
+    ) -> Tuple[BaseSegment, ...]:
+        """Enrich the segments using the templated file.
+
+        We use the mapping in the template to provide positions
+        in the source file.
+        """
+        # Make a new buffer to hold the enriched segments.
+        # We need a new buffer to hold the new meta segments
+        # introduced.
+        new_segment_buff = []
+        # Get the templated slices to re-insert tokens for them
+        source_only_slices = templated_file.source_only_slices()
+
+        lexer_logger.info(
+            "Enriching Segments. Source-only slices: %s", source_only_slices
+        )
+
+        for segment in segment_buff:
+            templated_slice = slice(
+                segment.pos_marker.char_pos,
+                segment.pos_marker.char_pos + len(segment.raw),
+            )
+            source_slice = templated_file.templated_slice_to_source_slice(
+                templated_slice
+            )
+
+            # At this stage, templated slices will be INCLUDED in the source slice,
+            # so we should consider whether we've captured any. If we have then
+            # we need to re-evaluate whether it's a literal or not.
+
+            for source_only_slice in source_only_slices:
+                if source_only_slice.source_idx > source_slice.start:
+                    break
+                elif source_only_slice.source_idx == source_slice.start:
+                    lexer_logger.debug(
+                        "Found templated section! %s, %s, %s",
+                        source_only_slice.source_slice(),
+                        source_only_slice.slice_type,
+                        templated_slice.start,
+                    )
+                    # Adjust the source slice accordingly.
+                    source_slice = slice(
+                        source_only_slice.end_source_idx(), source_slice.stop
+                    )
+
+                    # Add segments as appropriate.
+                    # If it's a block end, add a dedent.
+                    if source_only_slice.slice_type in ("block_end", "block_mid"):
+                        new_segment_buff.append(
+                            Dedent.when(template_blocks_indent=True)(
+                                pos_marker=segment.pos_marker
+                            )
+                        )
+                    # Always add a placeholder
+                    new_segment_buff.append(
+                        TemplateSegment(
+                            pos_marker=segment.pos_marker,
+                            source_str=source_only_slice.raw,
+                            block_type=source_only_slice.slice_type,
+                        )
+                    )
+                    # If it's a block end, add a dedent.
+                    if source_only_slice.slice_type in ("block_start", "block_mid"):
+                        new_segment_buff.append(
+                            Indent.when(template_blocks_indent=True)(
+                                pos_marker=segment.pos_marker
+                            )
+                        )
+
+            source_line, source_pos = templated_file.get_line_pos_of_char_pos(
+                source_slice.start
+            )
+
+            # Recalculate is_literal
+            is_literal = templated_file.is_source_slice_literal(source_slice)
+
+            segment.pos_marker = EnrichedFilePositionMarker(
+                statement_index=segment.pos_marker.statement_index,
+                line_no=segment.pos_marker.line_no,
+                line_pos=segment.pos_marker.line_pos,
+                char_pos=segment.pos_marker.char_pos,
+                templated_slice=templated_slice,
+                source_slice=source_slice,
+                is_literal=is_literal,
+                source_pos_marker=FilePositionMarker(
+                    segment.pos_marker.statement_index,
+                    source_line,
+                    source_pos,
+                    source_slice.start,
+                ),
+            )
+            new_segment_buff.append(segment)
+
+        lexer_logger.debug("Enriched Segments:")
+        for seg in new_segment_buff:
+            lexer_logger.debug(
+                "\tTmp: %s\tSrc: %s\tSeg: %s",
+                getattr(seg.pos_marker, "templated_slice", None),
+                getattr(seg.pos_marker, "source_slice", None),
+                seg,
+            )
+
+        return tuple(new_segment_buff)
