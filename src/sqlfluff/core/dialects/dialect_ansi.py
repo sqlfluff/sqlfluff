@@ -552,7 +552,7 @@ ansi_dialect.add(
     # FunctionContentsExpressionGrammar intended as a hook to override
     # in other dialects.
     FunctionContentsExpressionGrammar=Ref("ExpressionSegment"),
-    FunctionContentsGrammar=OneOf(
+    FunctionContentsGrammar=AnyNumberOf(
         # A Cast-like function
         Sequence(Ref("ExpressionSegment"), "AS", Ref("DatatypeSegment")),
         # An extract-like or substring-like function
@@ -572,6 +572,10 @@ ansi_dialect.add(
                 CommaDelimited(Ref("FunctionContentsExpressionGrammar")),
             ),
         ),
+        Ref(
+            "OrderByClauseSegment"
+        ),  # used by string_agg (postgres), group_concat (exasol), listagg (snowflake)...
+        Sequence(Ref.keyword("SEPARATOR"), Ref("LiteralGrammar")),
     ),
     # Optional OVER suffix for window functions.
     # This is supported in biquery & postgres (and its derivatives)
@@ -616,7 +620,7 @@ class FunctionSegment(BaseSegment):
     match_grammar = Sequence(
         Sequence(
             Sequence(
-                # a stored function could be accessed by schema definition
+                # a stored function could be accessed by schema identifier
                 Ref("SingleIdentifierGrammar"),
                 Ref("DotSegment"),
                 optional=True,
@@ -805,10 +809,18 @@ class SelectTargetElementSegment(BaseSegment):
                 Ref("IntervalExpressionSegment"),
                 Ref("ColumnReferenceSegment"),
                 Ref("ExpressionSegment"),
+                Ref("CastFunctionSegment"),
             ),
             Ref("AliasExpressionSegment", optional=True),
         ),
     )
+
+
+ansi_dialect.add(
+    # hookpoint for other dialects
+    # e.g. EXASOL str to date cast with DATE '2021-01-01'
+    CastFunctionSegment=Nothing(),
+)
 
 
 @ansi_dialect.segment()
@@ -854,38 +866,51 @@ class JoinClauseSegment(BaseSegment):
     type = "join_clause"
     match_grammar = Sequence(
         # NB These qualifiers are optional
-        AnyNumberOf(
-            "FULL", "INNER", "LEFT", "RIGHT", "CROSS", max_times=1, optional=True
+        # TODO: Allow nested joins like:
+        # ....FROM S1.T1 t1 LEFT JOIN ( S2.T2 t2 JOIN S3.T3 t3 ON t2.col1=t3.col1) ON tab1.col1 = tab2.col1
+        OneOf(
+            "CROSS",
+            "INNER",
+            Sequence(
+                OneOf(
+                    "FULL",
+                    "LEFT",
+                    "RIGHT",
+                ),
+                Ref.keyword("OUTER", optional=True),
+            ),
+            optional=True,
         ),
-        Ref.keyword("OUTER", optional=True),
         "JOIN",
         Indent,
-        Ref("TableExpressionSegment"),
-        # NB: this is optional
-        AnyNumberOf(
-            # ON clause
-            Ref("JoinOnCondition"),
-            # USING clause
-            Sequence(
-                "USING",
-                Indent,
-                Bracketed(
-                    # NB: We don't use BracketedColumnReferenceListGrammar
-                    # here because we're just using SingleIdentifierGrammar,
-                    # rather than ObjectReferenceSegment or ColumnReferenceSegment.
-                    # This is a) so that we don't lint it as a reference and
-                    # b) because the column will probably be returned anyway
-                    # during parsing.
-                    CommaDelimited(
-                        Ref("SingleIdentifierGrammar"),
-                        ephemeral_name="UsingClauseContents",
-                    )
+        Sequence(
+            Ref("TableExpressionSegment"),
+            # NB: this is optional
+            OneOf(
+                # ON clause
+                Ref("JoinOnCondition"),
+                # USING clause
+                Sequence(
+                    "USING",
+                    Indent,
+                    Bracketed(
+                        # NB: We don't use BracketedColumnReferenceListGrammar
+                        # here because we're just using SingleIdentifierGrammar,
+                        # rather than ObjectReferenceSegment or ColumnReferenceSegment.
+                        # This is a) so that we don't lint it as a reference and
+                        # b) because the column will probably be returned anyway
+                        # during parsing.
+                        CommaDelimited(
+                            Ref("SingleIdentifierGrammar"),
+                            ephemeral_name="UsingClauseContents",
+                        )
+                    ),
+                    Dedent,
                 ),
-                Dedent,
+                # Unqualified joins *are* allowed. They just might not
+                # be a good idea.
+                optional=True,
             ),
-            # Unqualified joins *are* allowed. They just might not
-            # be a good idea.
-            min_times=0,
         ),
         Dedent,
     )
@@ -1073,6 +1098,12 @@ ansi_dialect.add(
                     Ref("IsClauseGrammar"),
                 ),
                 Sequence(
+                    # e.g. NOT EXISTS, but other expressions could be met as
+                    # well by inverting the condition with the NOT operator
+                    "NOT",
+                    Ref("Expression_C_Grammar"),
+                ),
+                Sequence(
                     Ref.keyword("NOT", optional=True),
                     "BETWEEN",
                     # In a between expression, we're restricted to arithmetic operations
@@ -1102,9 +1133,11 @@ ansi_dialect.add(
     Expression_B_Grammar=None,  # TODO
     # Expression_C_Grammar https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#c_expr
     Expression_C_Grammar=OneOf(
+        Sequence(
+            "EXISTS", Bracketed(Ref("SelectStatementSegment"))
+        ),  # should be first priority, otherwise EXISTS() would be matched as a function
         Ref("Expression_D_Grammar"),
         Ref("CaseExpressionSegment"),
-        Sequence("EXISTS", Ref("SelectStatementSegment")),
     ),
     # Expression_D_Grammar https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#d_expr
     Expression_D_Grammar=Sequence(
@@ -1116,9 +1149,13 @@ ansi_dialect.add(
                     Ref("Expression_A_Grammar"),
                     Ref("SelectableGrammar"),
                     CommaDelimited(
-                        # multiple selectable columns
-                        # WHERE (a,b,c) IN (select a,b,c FROM...)
-                        Ref("ColumnReferenceSegment"),
+                        Ref(
+                            "ColumnReferenceSegment"
+                        ),  # WHERE (a,b,c) IN (select a,b,c FROM...)
+                        Ref(
+                            "FunctionSegment"
+                        ),  # WHERE (a, substr(b,1,3)) IN (select c,d FROM...)
+                        Ref("LiteralGrammar"),  # WHERE (a, 2) IN (SELECT b, c FROM ...)
                     ),
                     ephemeral_name="BracketedExpression",
                 ),
@@ -1196,6 +1233,7 @@ class OrderByClauseSegment(BaseSegment):
             "QUALIFY",
             # For window functions
             "ROWS",
+            "SEPARATOR",
         ),
     )
     parse_grammar = Sequence(
@@ -1343,7 +1381,9 @@ ansi_dialect.add(
     ),
     # Things that behave like select statements, which can form part of set expressions.
     NonSetSelectableGrammar=OneOf(
-        Ref("SelectStatementSegment"), Ref("ValuesClauseSegment")
+        Ref("SelectStatementSegment"),
+        Ref("ValuesClauseSegment"),
+        Bracketed(Ref("SelectStatementSegment")),
     ),
 )
 
@@ -1395,7 +1435,10 @@ class SetExpressionSegment(BaseSegment):
     match_grammar = Sequence(
         Ref("NonSetSelectableGrammar"),
         AnyNumberOf(
-            Sequence(Ref("SetOperatorSegment"), Ref("NonSetSelectableGrammar")),
+            Sequence(
+                Ref("SetOperatorSegment"),
+                Ref("NonSetSelectableGrammar"),
+            ),
             min_times=1,
         ),
     )

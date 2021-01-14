@@ -14,7 +14,6 @@ from ..parser import (
     GreedyUntil,
     KeywordSegment,
     ReSegment,
-    Anything,
     Matchable,
     SymbolSegment,
     StartsWith,
@@ -44,6 +43,16 @@ exasol_dialect.set_lexer_struct(
         ("range_operator", "regex", r"\.{2}", dict(is_code=True)),
     ]
     + exasol_dialect.get_lexer_struct()
+)
+
+exasol_dialect.patch_lexer_struct(
+    [
+        # In EXASOL, a double single/double quote resolves as a single/double quote in the string.
+        # It's also used for escaping single quotes inside of STATEMENT strings like in the IMPORT function
+        # https://docs.exasol.com/sql_references/basiclanguageelements.htm?Highlight=quoted#Delimited_Identifiers
+        ("single_quote", "regex", r"'([^']|'')*'", dict(is_code=True)),
+        ("double_quote", "regex", r'"([^"]|"")*"', dict(is_code=True)),
+    ]
 )
 
 # Access column aliases by using the LOCAL keyword
@@ -106,13 +115,21 @@ exasol_dialect.add(
         Ref.keyword("UTF8"),
         Ref.keyword("ASCII"),
     ),
+    EscapedIdentifierSegment=ReSegment.make(
+        # This matches escaped identifier e.g. [day]. There can be reserved keywords
+        # within the square brackets.
+        r"\[[A-Z]\]",
+        name="escaped_identifier",
+        type="identifier",
+    ),
 )
 
-exasol_dialect.replace(  # TODO: SingleIdentifierGrammar -> Column
+exasol_dialect.replace(
     SingleIdentifierGrammar=OneOf(
         Ref("LocalIdentifierSegment"),
         Ref("NakedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
+        Ref("EscapedIdentifierSegment"),
     ),
 )
 exasol_dialect.replace(
@@ -144,6 +161,7 @@ exasol_dialect.replace(
         "HAVING",
         "QUALIFY",
         Ref("SetOperatorSegment"),
+        "WITH",
     ),
 )
 exasol_dialect.replace(
@@ -157,7 +175,10 @@ exasol_dialect.replace(
         "HAVING",
         "QUALIFY",
         Ref("SetOperatorSegment"),
-    )
+    ),
+    CastFunctionSegment=Sequence(
+        OneOf("DATE", "TIMESTAMP"), Ref("QuotedLiteralSegment")
+    ),
 )
 exasol_dialect.replace(PreTableFunctionKeywordsGrammar=Ref.keyword("TABLE"))
 
@@ -221,7 +242,11 @@ class AliasExpressionSegment(BaseSegment):
     match_grammar = Sequence(
         Ref.keyword("AS", optional=True),
         OneOf(
-            Ref("SingleIdentifierGrammar"),
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                # Column alias in VALUES clause
+                Bracketed(Ref("OnlyColumnListSegment"), optional=True),
+            ),
             Ref("QuotedLiteralSegment"),
         ),
     )
@@ -426,7 +451,7 @@ class CubeRollupClauseSegment(BaseSegment):
 
 @exasol_dialect.segment()
 class GroupingSetsClauseSegment(BaseSegment):
-    """`GROUPING SETS` clause within the `GROUP BY` clause"""
+    """`GROUPING SETS` clause within the `GROUP BY` clause."""
 
     type = "grouping_sets_clause"
     match_grammar = StartsWith(
@@ -456,22 +481,20 @@ class GroupingSetsClauseSegment(BaseSegment):
 
 @exasol_dialect.segment()
 class GroupingExpressionList(BaseSegment):
-    """Grouping expression list within `CUBE` / `ROLLUP` `GROUPING SETS`"""
+    """Grouping expression list within `CUBE` / `ROLLUP` `GROUPING SETS`."""
 
     type = "grouping_expression_list"
     match_grammar = CommaDelimited(
         OneOf(
             Bracketed(CommaDelimited(Ref("ExpressionSegment"))),
             Ref("ExpressionSegment"),
-            # Bracketed(Nothing())
-            # Sequence(Ref("StartBracket"), Ref("EndBracket")),
         )
     )
 
 
 @exasol_dialect.segment()
 class QualifyClauseSegment(BaseSegment):
-    """`QUALIFY` clause within `SELECT`"""
+    """`QUALIFY` clause within `SELECT`."""
 
     type = "qualify_clause"
     match_grammar = StartsWith(
@@ -796,7 +819,7 @@ class CreateViewStatementSegment(BaseSegment):
             Ref("SelectableGrammar"),
         ),
         Ref("CommentIsGrammar", optional=True),
-        # TODO: () COMMENT works, without brackets doesn't work
+        # TODO: (...) COMMENT IS '...' works, without brackets doesn't work
         # e.g. COMMENT is matched as a identifier...
     )
 
@@ -842,7 +865,9 @@ class CreateTableStatementSegment(BaseSegment):
             Sequence(
                 "AS",
                 Ref("SelectableGrammar"),
-                Sequence("WITH", Sequence("NO", optional=True), "DATA", optional=True),
+                Sequence(
+                    "WITH", Ref.keyword("NO", optional=True), "DATA", optional=True
+                ),  # TODO: doesn't work
             ),
             # Create like syntax
             Ref("CreateTableLikeClauseSegment"),
@@ -1374,12 +1399,14 @@ class ValuesClauseSegment(BaseSegment):
         CommaDelimited(
             Bracketed(
                 CommaDelimited(
-                    Ref("LiteralGrammar"),  # TODO: functions expression
+                    Ref("LiteralGrammar"),
                     Ref("IntervalExpressionSegment"),
+                    Ref("FunctionSegment"),
                     ephemeral_name="ValuesClauseElements",
-                )
+                ),
             ),
         ),
+        Ref("AliasExpressionSegment", optional=True),
     )
     # Sequence(
     #             "VALUES",
@@ -1826,12 +1853,7 @@ class ImportFromExportIntoDbSrcSegment(BaseSegment):
             AnyNumberOf(
                 Sequence(
                     "STATEMENT",
-                    AnyNumberOf(
-                        Ref("QuotedLiteralSegment"),
-                        # AnyNumberOf to match escaped single quotes
-                        # e.g STATEMENT ' SELECT * FROM orders WHERE order_state=''OK'' '
-                        min_times=1,
-                    ),
+                    Ref("QuotedLiteralSegment"),
                 ),
                 min_times=1,
             ),

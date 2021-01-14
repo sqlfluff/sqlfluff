@@ -543,8 +543,17 @@ TEST_DIALECT = "exasol"
             ----
             SELECT * FROM (IMPORT INTO (v VARCHAR(1))
             FROM EXA AT my_connection TABLE sys.dual);
+            ----
+            SELECT aschema.afunction('hello', 123) FROM aschema.mytable
+            WHERE (a,2,substr(c,1,3)) IN (SELECT a,b,c FROM bschema.yourtable);
+            ----
+            WITH mylist AS (
+                VALUES ('a','b','c'), ('d','e','f'), (f1('a'),'b','d')
+                AS mylist (a,b,c)
+            )
+            SELECT * from mylist;
             """,
-            6,
+            9,
         ),
     ],
 )
