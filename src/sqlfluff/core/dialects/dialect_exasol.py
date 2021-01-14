@@ -277,7 +277,7 @@ class SelectStatementSegment(BaseSegment):
         # Dedent for the indent in the select clause.
         # It's here so that it can come AFTER any whitespace.
         Dedent,
-        Ref("FromClauseSegment", optional=True),  # TODO: Subimport
+        Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
         Ref("ConnectByClauseSegment", optional=True),
         Ref("PreferringClauseSegment", optional=True),
@@ -628,8 +628,8 @@ class CreateSchemaStatementSegment(BaseSegment):
     is_dml = False
     is_dql = False
     is_dcl = False
-
-    match_grammar = Sequence(
+    match_grammar = StartsWith(Sequence("CREATE", "SCHEMA"))
+    parse_grammar = Sequence(
         "CREATE",
         "SCHEMA",
         Ref("IfNotExistsGrammar", optional=True),
@@ -656,8 +656,8 @@ class CreateVirtualSchemaStatementSegment(BaseSegment):
     is_dml = False
     is_dql = False
     is_dcl = False
-
-    match_grammar = Sequence(
+    match_grammar = StartsWith(Sequence("CREATE", "VIRTUAL", "SCHEMA"))
+    parse_grammar = Sequence(
         "CREATE",
         "VIRTUAL",
         "SCHEMA",
@@ -689,8 +689,8 @@ class AlterSchemaStatementSegment(BaseSegment):
     is_dml = False
     is_dql = False
     is_dcl = False
-
-    match_grammar = Sequence(
+    match_grammar = StartsWith(Sequence("ALTER", "SCHEMA"))
+    parse_grammar = Sequence(
         "ALTER",
         "SCHEMA",
         Ref("SchemaReferenceSegment"),
@@ -719,8 +719,8 @@ class AlterVirtualSchemaStatementSegment(BaseSegment):
     is_dml = False
     is_dql = False
     is_dcl = False
-
-    match_grammar = Sequence(
+    match_grammar = StartsWith(Sequence("ALTER", "VIRTUAL", "SCHEMA"))
+    parse_grammar = Sequence(
         "ALTER",
         "VIRTUAL",
         "SCHEMA",
@@ -797,8 +797,15 @@ class CreateViewStatementSegment(BaseSegment):
     is_dml = False
     is_dql = False
     is_dcl = False
-
-    match_grammar = Sequence(
+    match_grammar = StartsWith(
+        Sequence(
+            "CREATE",
+            Ref("OrReplaceGrammar", optional=True),
+            Ref.keyword("FORCE", optional=True),
+            "VIEW",
+        )
+    )
+    parse_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         Ref.keyword("FORCE", optional=True),
@@ -820,7 +827,7 @@ class CreateViewStatementSegment(BaseSegment):
         ),
         Ref("CommentIsGrammar", optional=True),
         # TODO: (...) COMMENT IS '...' works, without brackets doesn't work
-        # e.g. COMMENT is matched as a identifier...
+        # COMMENT is matched as an identifier...
     )
 
 
@@ -840,8 +847,10 @@ class CreateTableStatementSegment(BaseSegment):
     is_dml = False
     is_dql = False
     is_dcl = False
-
-    match_grammar = Sequence(
+    match_grammar = StartsWith(
+        Sequence("CREATE", Ref("OrReplaceGrammar", optional=True), "TABLE")
+    )
+    parse_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         "TABLE",
@@ -1022,8 +1031,8 @@ class AlterTableStatementSegment(BaseSegment):
     is_dml = False
     is_dql = False
     is_dcl = False
-
-    match_grammar = OneOf(
+    match_grammar = StartsWith(Sequence("ALTER", "TABLE"))
+    parse_grammar = OneOf(
         Ref("AlterTableColumnSegment"),
         Ref("AlterTableConstraintSegment"),
         Ref("AlterTableDistributePartitionSegment"),
@@ -1242,7 +1251,8 @@ class DropTableStatementSegment(BaseSegment):
     """
 
     type = "drop_table_statement"
-    match_grammar = Sequence(
+    match_grammar = StartsWith(Sequence("DROP", "TABLE"))
+    parse_grammar = Sequence(
         "DROP",
         "TABLE",
         Ref("IfExistsGrammar", optional=True),
@@ -1268,8 +1278,8 @@ class RenameStatementSegment(BaseSegment):
     is_dml = False
     is_dql = False
     is_dcl = False
-
-    match_grammar = Sequence(
+    match_grammar = StartsWith("RENAME")
+    parse_grammar = Sequence(
         "RENAME",
         OneOf(
             "SCHEMA",
@@ -1307,8 +1317,8 @@ class CommentStatementSegment(BaseSegment):
     is_dml = False
     is_dql = False
     is_dcl = False
-
-    match_grammar = Sequence(
+    match_grammar = StartsWith(Sequence("COMMENT", "ON"))
+    parse_grammar = Sequence(
         "COMMENT",
         "ON",
         OneOf(
