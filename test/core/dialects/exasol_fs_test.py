@@ -1,6 +1,13 @@
 """Tests specific to the exasol_fs dialect."""
 import pytest
 
+from sqlfluff.core.dialects.dialect_exasol_fs import (
+    CreateAdapterScriptStatementSegment,
+    CreateFunctionStatementSegment,
+    CreateScriptingScriptStatementSegment,
+    CreateUDFScriptStatementSegment,
+)
+
 TEST_DIALECT = "exasol_fs"
 
 
@@ -56,12 +63,21 @@ TEST_DIALECT = "exasol_fs"
             """,
         ),
         ("WalrusOperatorSegment", ":="),
-        ("FunctionVariableNameSegment", "my_function"),
-        ("FunctionVariableNameSegment", "my_function2021"),
-        ("FunctionVariableNameSegment", "func"),
-        ("DoubleDotSegment", ".."),
+        ("VariableNameSegment", "var1"),
+    ],
+)
+def test_dialect_exasol_fs_specific_segment_parses(
+    segmentref, raw, caplog, dialect_specific_segment_parses
+):
+    """Test exasol_fs specific segments."""
+    dialect_specific_segment_parses(TEST_DIALECT, segmentref, raw, caplog)
+
+
+@pytest.mark.parametrize(
+    "segment_cls,raw,stmt_count",
+    [
         (
-            "CreateFunctionStatementSegment",
+            CreateFunctionStatementSegment,
             """
             CREATE OR REPLACE FUNCTION percentage ( fraction DECIMAL,
                                                     entirety DECIMAL)
@@ -73,11 +89,7 @@ TEST_DIALECT = "exasol_fs"
                 RETURN res || ' %';
             END percentage;
             /
-            """,
-        ),
-        (
-            "CreateFunctionStatementSegment",
-            """
+            ----
             CREATE FUNCTION hello () RETURN VARCHAR(10)
             AS
                 res DECIMAL;
@@ -85,17 +97,19 @@ TEST_DIALECT = "exasol_fs"
                 RETURN 'HELLO';
             END hello; /
             """,
+            2,
         ),
         (
-            "CreateScriptingScriptStatementSegment",
+            CreateScriptingScriptStatementSegment,
             """
-            CREATE OR REPLACE SCRIPT schema.hello AS
+            CREATE OR REPLACE SCRIPT aschema.hello AS
                 return 'HELLO'
             /
             """,
+            1,
         ),
         (
-            "CreateScriptingScriptStatementSegment",
+            CreateScriptingScriptStatementSegment,
             """
             CREATE SCRIPT insert_low_high (param1, param2, param3) AS
                 import('function_lib') -- accessing external function
@@ -103,12 +117,13 @@ TEST_DIALECT = "exasol_fs"
                 query([[INSERT INTO t VALUES (:x, :y)]], {x=lowest, y=highest})
             /
             """,
+            1,
         ),
         (
-            "CreateUDFScriptStatementSegment",
+            CreateUDFScriptStatementSegment,
             """
             CREATE LUA SCALAR SCRIPT my_average
-                (a DOUBLE, b DOUBLE)
+                (a DOUBLE, b DOUBLE ORDER BY 1 desc)
             RETURNS DOUBLE AS
                 function run(ctx)
                     if ctx.a == nil or ctx.b==nil
@@ -118,9 +133,10 @@ TEST_DIALECT = "exasol_fs"
                 end
             /
             """,
+            1,
         ),
         (
-            "CreateUDFScriptStatementSegment",
+            CreateUDFScriptStatementSegment,
             """
             CREATE LUA SCALAR SCRIPT map_words(w varchar(10000))
             EMITS (words varchar(100)) AS
@@ -135,29 +151,32 @@ TEST_DIALECT = "exasol_fs"
                 end
             end
             /
-            """,
+             """,
+            1,
         ),
         (
-            "CreateUDFScriptStatementSegment",
+            CreateUDFScriptStatementSegment,
             """
             CREATE OR REPLACE PYTHON3 SCALAR SCRIPT LIB.MYLIB() RETURNS INT AS
             def helloWorld():
               return "Hello Python3 World!"
             /
-            """,
+             """,
+            1,
         ),
         (
-            "CreateUDFScriptStatementSegment",
+            CreateUDFScriptStatementSegment,
             """
             CREATE OR REPLACE PYTHON SCALAR SCRIPT TEST.MYHELLOWORLD() RETURNS VARCHAR(2000) AS
             l = exa.import_script('LIB.MYLIB')
             def run(ctx):
                 return l.helloWorld()
             /
-            """,
+             """,
+            1,
         ),
         (
-            "CreateUDFScriptStatementSegment",
+            CreateUDFScriptStatementSegment,
             """
             CREATE OR REPLACE JAVA SCALAR SCRIPT LIB.MYLIB() RETURNS VARCHAR(2000) AS
             class MYLIB {
@@ -167,19 +186,21 @@ TEST_DIALECT = "exasol_fs"
             }
             /
             """,
+            1,
         ),
         (
-            "CreateAdapterScriptStatementSegment",
+            CreateAdapterScriptStatementSegment,
             """
             CREATE JAVA ADAPTER SCRIPT my_script AS
             %jar hive_jdbc_adapter.jar;
             /
             """,
+            1,
         ),
     ],
 )
-def test__dialect__exasol_fs_specific_segment_parses(
-    segmentref, raw, caplog, dialect_specific_segment_parses
+def test_exasol_scripts_functions(
+    segment_cls, raw, stmt_count, validate_dialect_specific_statements
 ):
-    """Test exasol_fs specific segments."""
-    dialect_specific_segment_parses(TEST_DIALECT, segmentref, raw, caplog)
+    """Test exasol specific scripts and functions with parse."""
+    validate_dialect_specific_statements(TEST_DIALECT, segment_cls, raw, stmt_count)

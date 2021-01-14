@@ -5,27 +5,26 @@ https://docs.exasol.com/sql_references/sqlstandardcompliance.htm
 """
 
 from ..parser import (
+    AnyNumberOf,
+    BaseSegment,
+    Bracketed,
+    CommaDelimited,
+    Dedent,
+    Delimited,
+    GreedyUntil,
+    Indent,
+    KeywordSegment,
+    Matchable,
+    NamedSegment,
+    Nothing,
     OneOf,
     Ref,
-    Sequence,
-    Bracketed,
-    BaseSegment,
-    AnyNumberOf,
-    GreedyUntil,
-    KeywordSegment,
     ReSegment,
-    Matchable,
+    Sequence,
     StartsWith,
-    NamedSegment,
-    Indent,
-    Dedent,
-    CommaDelimited,
-    Delimited,
-    Nothing,
 )
-
-from .exasol_keywords import RESERVED_KEYWORDS, UNRESERVED_KEYWORDS, BARE_FUNCTIONS
 from .dialect_ansi import ObjectReferenceSegment, ansi_dialect
+from .exasol_keywords import BARE_FUNCTIONS, RESERVED_KEYWORDS, UNRESERVED_KEYWORDS
 
 exasol_dialect = ansi_dialect.copy_as("exasol")
 

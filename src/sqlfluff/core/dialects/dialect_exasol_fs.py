@@ -8,25 +8,25 @@ https://docs.exasol.com
 """
 
 from ..parser import (
+    AnyNumberOf,
+    Anything,
+    BaseSegment,
+    Bracketed,
+    CommaDelimited,
+    Delimited,
+    GreedyUntil,
+    NamedSegment,
     OneOf,
     Ref,
-    Sequence,
-    Bracketed,
-    BaseSegment,
-    AnyNumberOf,
-    GreedyUntil,
-    Delimited,
-    NamedSegment,
-    SymbolSegment,
     ReSegment,
-    Anything,
+    Sequence,
+    StartsWith,
+    SymbolSegment,
 )
-
 from .dialect_exasol import ObjectReferenceSegment, exasol_dialect
 
 exasol_fs_dialect = exasol_dialect.copy_as("exasol_fs")
 
-# Add walrus operator to the top
 exasol_fs_dialect.set_lexer_struct(
     [
         (
@@ -38,7 +38,11 @@ exasol_fs_dialect.set_lexer_struct(
         (
             "function_script_terminator",
             "regex",
-            r";\s+\/(?!\*)|\s+\/$",  # this will match multiple functions in one file, but only one script per file
+            # TODO: this expression matches multiple functions within a raw string.
+            # but it only matches one script per raw string, because the statement terminator (;)
+            # is not required for scripts (e.g. not present in Python)
+            # need to find another solution but don't mess up with the divide operator.
+            r";\s+\/(?!\*)|\s+\/$",
             dict(
                 is_code=True,
                 type="statement_terminator",
@@ -59,7 +63,7 @@ exasol_fs_dialect.add(
     WalrusOperatorSegment=NamedSegment.make(
         "walrus_operator", type="assignment_operator"
     ),
-    FunctionVariableNameSegment=ReSegment.make(
+    VariableNameSegment=ReSegment.make(
         r"[A-Z][A-Z0-9_]*",
         name="function_variable",
         type="variable",
@@ -123,20 +127,25 @@ class CreateFunctionStatementSegment(BaseSegment):
     """A `CREATE FUNCTION` statement."""
 
     type = "create_function_statement"
-    match_grammar = Sequence(
+    match_grammar = StartsWith(
+        Sequence(
+            "CREATE",
+            Ref("OrReplaceGrammar", optional=True),
+            "FUNCTION",
+        )
+    )
+    parse_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         "FUNCTION",
         Ref("FunctionReferenceSegment"),
         Bracketed(
-            Delimited(
+            CommaDelimited(
                 Sequence(
                     Ref("SingleIdentifierGrammar"),  # Column name
                     Ref.keyword("IN", optional=True),
                     Ref("DatatypeSegment"),  # Column type
-                    Ref("CharCharacterSetSegment", optional=True),
                 ),
-                delimiter=Ref("CommaSegment"),
                 optional=True,
             ),
         ),
@@ -145,14 +154,14 @@ class CreateFunctionStatementSegment(BaseSegment):
         OneOf("IS", "AS", optional=True),
         AnyNumberOf(
             Sequence(
-                Ref("FunctionVariableNameSegment"),
+                Ref("VariableNameSegment"),
                 Ref("DatatypeSegment"),
                 Ref("SemicolonSegment"),
             ),
             optional=True,
         ),
         "BEGIN",
-        AnyNumberOf(Ref("FunctionBodySegment"), min_times=1),
+        AnyNumberOf(Ref("FunctionBodySegment")),
         "RETURN",
         Ref("FunctionContentsExpressionGrammar"),
         Ref("SemicolonSegment"),
@@ -182,19 +191,11 @@ class FunctionAssignmentSegment(BaseSegment):
     type = "function_assignment"
     match_grammar = Sequence(
         # assignment
-        Ref("FunctionVariableNameSegment"),
+        Ref("VariableNameSegment"),
         Ref("WalrusOperatorSegment"),
         OneOf(
-            Sequence(
-                Ref("FunctionReferenceSegment"),
-                Bracketed(
-                    AnyNumberOf(
-                        Ref("ParameterNameSegment"),
-                        Ref("CommaSegment", optional=True),
-                    ),
-                ),
-            ),
-            Ref("FunctionVariableNameSegment"),
+            Ref("FunctionSegment"),
+            Ref("VariableNameSegment"),
             Ref("LiteralGrammar"),
             Ref("ExpressionSegment"),
         ),
@@ -313,17 +314,23 @@ class CreateScriptingScriptStatementSegment(BaseSegment):
     """
 
     type = "create_scripting_script"
-    match_grammar = Sequence(
+    match_grammar = StartsWith(
+        Sequence(
+            "CREATE",
+            Ref("OrReplaceGrammar", optional=True),
+            "SCRIPT",
+        )
+    )
+    parse_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         "SCRIPT",
         Ref("ScriptReferenceSegment"),
         Bracketed(
-            Delimited(
+            CommaDelimited(
                 Sequence(
                     Ref.keyword("ARRAY", optional=True), Ref("SingleIdentifierGrammar")
                 ),
-                delimiter=Ref("CommaSegment"),
             ),
             optional=True,
         ),
@@ -341,7 +348,23 @@ class CreateUDFScriptStatementSegment(BaseSegment):
     """
 
     type = "create_udf_script"
-    match_grammar = Sequence(
+    match_grammar = StartsWith(
+        Sequence(
+            "CREATE",
+            Ref("OrReplaceGrammar", optional=True),
+            OneOf(
+                "JAVA",
+                "PYTHON",
+                "LUA",
+                "R",
+                Ref("SingleIdentifierGrammar"),
+                optional=True,
+            ),
+            OneOf("SCALAR", "SET"),
+            "SCRIPT",
+        )
+    )
+    parse_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         OneOf(
@@ -352,36 +375,16 @@ class CreateUDFScriptStatementSegment(BaseSegment):
         Ref("ScriptReferenceSegment"),
         Bracketed(
             Sequence(
-                Delimited(
-                    Sequence(Ref("SingleIdentifierGrammar"), Ref("DatatypeSegment")),
-                    delimiter=Ref("CommaSegment"),
-                ),
-                Sequence(
-                    "ORDER",
-                    "BY",
-                    Delimited(
-                        Ref("SingleIdentifierGrammar"),
-                        OneOf("ASC", "DESC", optional=True),
-                        Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
-                        delimiter=Ref("CommaSegment"),
-                    ),
-                    optional=True,
-                ),
+                CommaDelimited(Ref("ColumnDatatypeSegment")),
+                Ref("OrderByClauseSegment", optional=True),
+                optional=True,
             ),
-            optional=True,
         ),
         OneOf(
             Sequence("RETURNS", Ref("DatatypeSegment")),
             Sequence(
                 "EMITS",
-                Bracketed(
-                    Delimited(
-                        Sequence(
-                            Ref("SingleIdentifierGrammar"), Ref("DatatypeSegment")
-                        ),
-                        delimiter=Ref("CommaSegment"),
-                    )
-                ),
+                Bracketed(CommaDelimited(Ref("ColumnDatatypeSegment"))),
             ),
         ),
         "AS",
@@ -397,7 +400,14 @@ class CreateAdapterScriptStatementSegment(BaseSegment):
     """
 
     type = "create_udf_script"
-    match_grammar = Sequence(
+    match_grammar = StartsWith(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        OneOf("JAVA", "PYTHON", Ref("SingleIdentifierGrammar"), optional=True),
+        "ADAPTER",
+        "SCRIPT",
+    )
+    parse_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         OneOf("JAVA", "PYTHON", Ref("SingleIdentifierGrammar"), optional=True),
