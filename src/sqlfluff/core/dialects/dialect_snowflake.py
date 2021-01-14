@@ -58,18 +58,13 @@ snowflake_dialect.sets("reserved_keywords").update(
     [
         "CLONE",
         "MASKING",
-        "MATERIALIZED",
         "NETWORK",
         "NOTIFICATION",
         "PIPE",
         "PIVOT",
         "SAMPLE",
-        "STAGE",
-        "STREAM",
         "TABLESAMPLE",
-        "TASK",
         "UNPIVOT",
-        "WAREHOUSE",
     ]
 )
 

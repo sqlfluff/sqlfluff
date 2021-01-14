@@ -1617,36 +1617,118 @@ class AccessStatementSegment(BaseSegment):
     """A `GRANT` or `REVOKE` statement."""
 
     type = "access_statement"
+
+    _global_permissions = OneOf(
+        Sequence(
+            "CREATE",
+            OneOf(
+                "ROLE",
+                "USER",
+                "WAREHOUSE",
+                "DATABASE",
+                "INTEGRATION",
+            ),
+        ),
+        Sequence("APPLY", "MASKING", "POLICY"),
+        Sequence("EXECUTE", "TASK"),
+        Sequence("MANAGE", "GRANTS"),
+        Sequence("MONITOR", OneOf("EXECUTION", "USAGE")),
+    )
+
+    _schema_object_names = [
+        "TABLE",
+        "VIEW",
+        "STAGE",
+        "FUNCTION",
+        "PROCEDURE",
+        "SEQUENCE",
+        "STREAM",
+        "TASK",
+    ]
+
+    _schema_object_types = OneOf(
+        *_schema_object_names,
+        Sequence("MATERIALIZED", "VIEW"),
+        Sequence("EXTERNAL", "TABLE"),
+        Sequence("FILE", "FORMAT"),
+    )
+
+    _schema_object_types_pural = OneOf(
+        *[f"{object_name}S" for object_name in _schema_object_names]
+    )
+
+    _permissions = Sequence(
+        OneOf(
+            Sequence(
+                "CREATE",
+                OneOf(
+                    "SCHEMA",
+                    Sequence("MASKING", "POLICY"),
+                    "PIPE",
+                    _schema_object_types,
+                ),
+            ),
+            Sequence("IMPORTED", "PRIVILEGES"),
+            "MODIFY",
+            "USE_ANY_ROLE",
+            "USAGE",
+            "SELECT",
+            "INSERT",
+            "UPDATE",
+            "DELETE",
+            "TRUNCATE",
+            "REFERENCES",
+            "READ",
+            "WRITE",
+            "MONITOR",
+            "OPERATE",
+            "APPLY",
+            "OWNERSHIP",
+            Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
+        ),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+    )
+
+    _objects = OneOf(
+        "ACCOUNT",
+        Sequence(
+            OneOf(
+                Sequence("RESOURCE", "MONITOR"),
+                "WAREHOUSE",
+                "DATABASE",
+                "INTEGRATION",
+                "SCHEMA",
+                Sequence("ALL", "SCHEMAS", "IN", "DATABASE"),
+                Sequence("FUTURE", "SCHEMAS", "IN", "DATABASE"),
+                _schema_object_types,
+                Sequence("ALL", _schema_object_types_pural, "IN", "SCHEMA"),
+                Sequence(
+                    "FUTURE",
+                    _schema_object_types_pural,
+                    "IN",
+                    OneOf("DATABASE", "SCHEMA"),
+                ),
+                optional=True,
+            ),
+            Ref("ObjectReferenceSegment"),
+        ),
+    )
+
     # Based on https://www.postgresql.org/docs/12/sql-grant.html
+    # and https://docs.snowflake.com/en/sql-reference/sql/grant-privilege.html
     match_grammar = OneOf(
         Sequence(
             "GRANT",
-            Delimited(  # List of permission types
-                Sequence(
-                    OneOf(  # Permission type
-                        Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
-                        "SELECT",
-                        "UPDATE",
-                        "INSERT",
-                    ),
-                    # Optional list of column names
-                    Ref("BracketedColumnReferenceListGrammar", optional=True),
-                ),
-                delimiter=Ref("CommaSegment"),
-            ),
-            "ON",
             OneOf(
                 Sequence(
-                    Ref.keyword("TABLE", optional=True),
-                    Ref("TableReferenceSegment"),
+                    Delimited(
+                        OneOf(_global_permissions, _permissions),
+                        delimiter=Ref("CommaSegment"),
+                    ),
+                    "ON",
+                    _objects,
                 ),
-                Sequence(
-                    "ALL",
-                    "TABLES",
-                    "IN",
-                    "SCHEMA",
-                    Ref("ObjectReferenceSegment"),
-                ),
+                Sequence("ROLE", Ref("ObjectReferenceSegment")),
             ),
             "TO",
             OneOf("GROUP", "USER", "ROLE", optional=True),
@@ -1654,7 +1736,11 @@ class AccessStatementSegment(BaseSegment):
                 Ref("ObjectReferenceSegment"),
                 "PUBLIC",
             ),
-            Sequence("WITH", "GRANT", "OPTION", optional=True),
+            OneOf(
+                Sequence("WITH", "GRANT", "OPTION"),
+                Sequence("COPY", "CURRENT", "GRANTS"),
+                optional=True,
+            ),
         ),
         # Based on https://www.postgresql.org/docs/12/sql-revoke.html
         Sequence(
