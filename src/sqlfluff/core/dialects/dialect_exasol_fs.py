@@ -132,6 +132,12 @@ class CreateFunctionStatementSegment(BaseSegment):
     """A `CREATE FUNCTION` statement."""
 
     type = "create_function_statement"
+
+    is_ddl = True
+    is_dml = False
+    is_dql = False
+    is_dcl = False
+
     match_grammar = StartsWith(
         Sequence(
             "CREATE",
@@ -319,6 +325,12 @@ class CreateScriptingLuaScriptStatementSegment(BaseSegment):
     """
 
     type = "create_scripting_lua_script"
+
+    is_ddl = True
+    is_dml = False
+    is_dql = False
+    is_dcl = False
+
     match_grammar = StartsWith(
         Sequence(
             "CREATE",
@@ -356,6 +368,12 @@ class CreateUDFScriptStatementSegment(BaseSegment):
     """
 
     type = "create_udf_script"
+
+    is_ddl = True
+    is_dml = False
+    is_dql = False
+    is_dcl = False
+
     match_grammar = StartsWith(
         Sequence(
             "CREATE",
@@ -409,6 +427,12 @@ class CreateAdapterScriptStatementSegment(BaseSegment):
     """
 
     type = "create_udf_script"
+
+    is_ddl = True
+    is_dml = False
+    is_dql = False
+    is_dcl = False
+
     match_grammar = StartsWith(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),

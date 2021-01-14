@@ -2132,7 +2132,7 @@ class UserLDAPAuthSegment(BaseSegment):
 
     type = "ldap_auth"
     match_grammar = StartsWith(Sequence("AT", "LDAP"))
-    match_grammar = Sequence(
+    parse_grammar = Sequence(
         "AT",
         "LDAP",
         "AS",
