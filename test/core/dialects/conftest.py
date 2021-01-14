@@ -3,7 +3,7 @@ import pytest
 
 import logging
 
-from sqlfluff.core import FluffConfig
+from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.parser import (
     Lexer,
     BaseSegment,
@@ -89,7 +89,7 @@ def _dialect_specific_segment_not_match(dialect, segmentref, raw, caplog):
     NB: We're testing the MATCH function not the PARSE function.
     This is the opposite to the above.
     """
-    config = FluffConfig(overrides=dict(dialect="ansi"))
+    config = FluffConfig(overrides=dict(dialect=dialect))
     seg_list = lex(raw, config=config)
     Seg = validate_segment(segmentref, config=config)
 
@@ -98,6 +98,28 @@ def _dialect_specific_segment_not_match(dialect, segmentref, raw, caplog):
             match = Seg.match(segments=seg_list, parse_context=ctx)
 
     assert not match
+
+
+def _validate_dialect_specific_statements(dialect, segment_cls, raw, stmt_count):
+    """This validates one or multiple statements against specified segment class.
+
+    It even validates the number of parsed statements with the number of expected statements.
+    """
+    lnt = Linter(dialect=dialect)
+    parsed = lnt.parse_string(raw)
+    assert len(parsed.violations) == 0
+
+    # Find any unparsable statements
+    typs = parsed.tree.type_set()
+    assert "unparsable" not in typs
+
+    # Find the expected type in the parsed segment
+    child_segments = [seg for seg in parsed.tree.recursive_crawl(segment_cls.type)]
+    assert len(child_segments) == stmt_count
+
+    # Check if all child segments are the correct type
+    for c in child_segments:
+        assert isinstance(c, segment_cls)
 
 
 @pytest.fixture()
@@ -110,3 +132,12 @@ def dialect_specific_segment_parses():
 def dialect_specific_segment_not_match():
     """Fixture to check specific segments of a dialect which will not match to a segment."""
     return _dialect_specific_segment_not_match
+
+
+@pytest.fixture()
+def validate_dialect_specific_statements():
+    """This validates one or multiple statements against specified segment class.
+
+    It even validates the number of parsed statements with the number of expected statements.
+    """
+    return _validate_dialect_specific_statements

@@ -1,6 +1,5 @@
 """Tests specific to the exasol dialect."""
 import pytest
-from sqlfluff.core import Linter
 from sqlfluff.core.dialects.dialect_exasol import (
     AlterConnectionSegment,
     AlterSchemaStatementSegment,
@@ -85,7 +84,7 @@ TEST_DIALECT = "exasol"
                 CONNECTION_STRING   = 'jdbc:hive2://localhost:10000/default'
                 SCHEMA_NAME	     = 'default'
                 USERNAME	     = 'hive-usr'
-                PASSWORD	     = 'hive-pwd'
+                PASSWORD	     = 'hive-pwd';
             """,
             1,
         ),
@@ -120,7 +119,7 @@ TEST_DIALECT = "exasol"
         (
             CreateViewStatementSegment,
             """
-            CREATE VIEW my_view as select x from t COMMENT IS 'nice view';
+            CREATE VIEW my_view as (select x from t) COMMENT IS 'nice view';
             CREATE VIEW my_view (col1 ) as (select x from t);
             CREATE OR REPLACE FORCE VIEW my_view as select y from t;
             CREATE OR REPLACE VIEW my_view (col_1 COMMENT IS 'something important',col2) as select max(y) from t;
@@ -137,9 +136,9 @@ TEST_DIALECT = "exasol"
                 d DOUBLE,
                 e TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 f BOOL);
-            CREATE TABLE "MYSCHEMA"."T2" AS SELECT * FROM t1 WITH NO DATA;
+            CREATE TABLE "MYSCHEMA"."T2" AS (SELECT * FROM t1) WITH NO DATA;
             CREATE OR REPLACE TABLE "MYSCHEMA".T2 AS SELECT a,b,c+1 AS c FROM t1;
-            CREATE TABLE t3 AS SELECT count(*) AS my_count FROM t1 WITH NO DATA;
+            CREATE TABLE t3 AS (SELECT count(*) AS my_count FROM t1) WITH NO DATA;
             CREATE TABLE t4 LIKE t1;
             CREATE TABLE t5 (   id int IDENTITY PRIMARY KEY DISABLE,
                                 LIKE t1 INCLUDING DEFAULTS,
@@ -557,20 +556,8 @@ TEST_DIALECT = "exasol"
         ),
     ],
 )
-def test_exasol_queries(segment_cls, raw, stmt_count, caplog):
-    """Test exasol specific queries parse."""
-    lnt = Linter(dialect=TEST_DIALECT)
-    parsed = lnt.parse_string(raw)
-    assert len(parsed.violations) == 0
-
-    # Find any unparsable statements
-    typs = parsed.tree.type_set()
-    assert "unparsable" not in typs
-
-    # Find the expected type in the parsed segment
-    child_segments = [seg for seg in parsed.tree.recursive_crawl(segment_cls.type)]
-    assert len(child_segments) == stmt_count
-
-    # Check if all child segments are the correct type
-    for c in child_segments:
-        assert isinstance(c, segment_cls)
+def test_exasol_queries(
+    segment_cls, raw, stmt_count, validate_dialect_specific_statements
+):
+    """Test exasol specific queries with parse."""
+    validate_dialect_specific_statements(TEST_DIALECT, segment_cls, raw, stmt_count)

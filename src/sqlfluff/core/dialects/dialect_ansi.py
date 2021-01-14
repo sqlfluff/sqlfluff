@@ -271,6 +271,9 @@ ansi_dialect.add(
         Ref("NotEqualToSegment_a"),
         Ref("NotEqualToSegment_b"),
     ),
+    # hookpoint for other dialects
+    # e.g. EXASOL str to date cast with DATE '2021-01-01'
+    DateTimeLiteralGrammar=Nothing(),
     LiteralGrammar=OneOf(
         Ref("QuotedLiteralSegment"),
         Ref("NumericLiteralSegment"),
@@ -279,6 +282,7 @@ ansi_dialect.add(
         # NB: Null is included in the literals, because it is a keyword which
         # can otherwise be easily mistaken for an identifier.
         Ref("NullKeywordSegment"),
+        Ref("DateTimeLiteralGrammar"),
     ),
     AndKeywordSegment=KeywordSegment.make("and", type="binary_operator"),
     OrKeywordSegment=KeywordSegment.make("or", type="binary_operator"),
@@ -394,7 +398,12 @@ class DatatypeSegment(BaseSegment):
             # There may be no brackets for some data types
             optional=True,
         ),
+        Ref("CharCharacterSetSegment", optional=True),
     )
+
+
+# hookpoint
+ansi_dialect.add(CharCharacterSetSegment=Nothing())
 
 
 @ansi_dialect.segment()
@@ -473,6 +482,14 @@ class ColumnReferenceSegment(ObjectReferenceSegment):
 
 
 @ansi_dialect.segment()
+class SingleIdentifierListSegment(BaseSegment):
+    """A comma delimited list of identifiers."""
+
+    type = "identifier_list"
+    match_grammar = CommaDelimited(Ref("SingleIdentifierGrammar"))
+
+
+@ansi_dialect.segment()
 class ArrayAccessorSegment(BaseSegment):
     """An array accessor e.g. [3:4]."""
 
@@ -516,7 +533,15 @@ class AliasExpressionSegment(BaseSegment):
 
     type = "alias_expression"
     match_grammar = Sequence(
-        Ref.keyword("AS", optional=True), Ref("SingleIdentifierGrammar")
+        Ref.keyword("AS", optional=True),
+        OneOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                # Column alias in VALUES clause
+                Bracketed(Ref("SingleIdentifierListSegment"), optional=True),
+            ),
+            Ref("QuotedLiteralSegment"),
+        ),
     )
 
 
@@ -809,18 +834,10 @@ class SelectTargetElementSegment(BaseSegment):
                 Ref("IntervalExpressionSegment"),
                 Ref("ColumnReferenceSegment"),
                 Ref("ExpressionSegment"),
-                Ref("CastFunctionSegment"),
             ),
             Ref("AliasExpressionSegment", optional=True),
         ),
     )
-
-
-ansi_dialect.add(
-    # hookpoint for other dialects
-    # e.g. EXASOL str to date cast with DATE '2021-01-01'
-    CastFunctionSegment=Nothing(),
-)
 
 
 @ansi_dialect.segment()
@@ -1332,10 +1349,13 @@ class ValuesClauseSegment(BaseSegment):
                 CommaDelimited(
                     Ref("LiteralGrammar"),
                     Ref("IntervalExpressionSegment"),
+                    Ref("FunctionSegment"),
+                    "DEFAULT",  # not in `FROM` clause, rule?
                     ephemeral_name="ValuesClauseElements",
                 )
             ),
         ),
+        Ref("AliasExpressionSegment", optional=True),
     )
 
 
@@ -1390,7 +1410,10 @@ ansi_dialect.add(
 
 @ansi_dialect.segment()
 class WithCompoundStatementSegment(BaseSegment):
-    """A `SELECT` statement preceded by a selection of `WITH` clauses."""
+    """A `SELECT` statement preceded by a selection of `WITH` clauses.
+
+    `WITH tab (col1,col2) AS (SELECT a,b FROM x)`
+    """
 
     type = "with_compound_statement"
     # match grammar
@@ -1400,6 +1423,10 @@ class WithCompoundStatementSegment(BaseSegment):
         CommaDelimited(
             Sequence(
                 Ref("SingleIdentifierGrammar"),
+                Bracketed(
+                    Ref("SingleIdentifierListSegment"),
+                    optional=True,
+                ),
                 "AS",
                 Bracketed(
                     # Checkpoint here to subdivide the query.
