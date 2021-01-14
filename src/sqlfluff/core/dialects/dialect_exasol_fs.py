@@ -7,6 +7,11 @@ A semicolon is the terminator of the statement within the function / script
 https://docs.exasol.com
 """
 
+# TODO: How to turn off Jinja templating? In LUA language its possible to use {{}}. this is parsed as Jinja
+# TODO: How to prevent bracket check in script body?
+#       e.g. LUA: local _stmt = [[SOME ASSIGNMENT WITH OPEN BRACKET ( ]]
+#                 ...do some stuff ...
+#                 local _stmt = _stmt .. [[ ) ]]
 from ..parser import (
     AnyNumberOf,
     Anything,
@@ -26,7 +31,7 @@ from ..parser import (
 from .dialect_exasol import ObjectReferenceSegment, exasol_dialect
 
 exasol_fs_dialect = exasol_dialect.copy_as("exasol_fs")
-
+exasol_fs_dialect.sets("unreserved_keywords").add("ROWCOUNT")
 exasol_fs_dialect.set_lexer_struct(
     [
         (
@@ -84,7 +89,7 @@ class StatementSegment(BaseSegment):
     match_grammar = GreedyUntil(Ref("FunctionScriptTerminatorSegment"))
     parse_grammar = OneOf(
         Ref("CreateFunctionStatementSegment"),
-        Ref("CreateScriptingScriptStatementSegment"),
+        Ref("CreateScriptingLuaScriptStatementSegment"),
         Ref("CreateUDFScriptStatementSegment"),
         Ref("CreateAdapterScriptStatementSegment"),
     )
@@ -215,7 +220,7 @@ class FunctionIfBranchSegment(BaseSegment):
         AnyNumberOf(Ref("FunctionBodySegment"), min_times=1),
         AnyNumberOf(
             Sequence(
-                "ELSEIF",
+                OneOf("ELSIF", "ELSEIF"),
                 Ref("ExpressionSegment"),
                 "THEN",
                 AnyNumberOf(Ref("FunctionBodySegment"), min_times=1),
@@ -307,23 +312,25 @@ class ScriptContentSegment(BaseSegment):
 
 
 @exasol_fs_dialect.segment()
-class CreateScriptingScriptStatementSegment(BaseSegment):
-    """`CREATE SCRIPT` statement to create a scripting script.
+class CreateScriptingLuaScriptStatementSegment(BaseSegment):
+    """`CREATE SCRIPT` statement to create a Lua scripting script.
 
     https://docs.exasol.com/sql/create_script.htm
     """
 
-    type = "create_scripting_script"
+    type = "create_scripting_lua_script"
     match_grammar = StartsWith(
         Sequence(
             "CREATE",
             Ref("OrReplaceGrammar", optional=True),
+            Ref.keyword("LUA", optional=True),
             "SCRIPT",
         )
     )
     parse_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
+        Ref.keyword("LUA", optional=True),
         "SCRIPT",
         Ref("ScriptReferenceSegment"),
         Bracketed(
@@ -331,6 +338,7 @@ class CreateScriptingScriptStatementSegment(BaseSegment):
                 Sequence(
                     Ref.keyword("ARRAY", optional=True), Ref("SingleIdentifierGrammar")
                 ),
+                optional=True,
             ),
             optional=True,
         ),
@@ -379,6 +387,7 @@ class CreateUDFScriptStatementSegment(BaseSegment):
                 Ref("OrderByClauseSegment", optional=True),
                 optional=True,
             ),
+            optional=True,
         ),
         OneOf(
             Sequence("RETURNS", Ref("DatatypeSegment")),

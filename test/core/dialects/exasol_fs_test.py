@@ -4,7 +4,7 @@ import pytest
 from sqlfluff.core.dialects.dialect_exasol_fs import (
     CreateAdapterScriptStatementSegment,
     CreateFunctionStatementSegment,
-    CreateScriptingScriptStatementSegment,
+    CreateScriptingLuaScriptStatementSegment,
     CreateUDFScriptStatementSegment,
 )
 
@@ -94,22 +94,32 @@ def test_dialect_exasol_fs_specific_segment_parses(
             AS
                 res DECIMAL;
             BEGIN
+                res := hello.world("no");
                 RETURN 'HELLO';
             END hello; /
             """,
             2,
         ),
         (
-            CreateScriptingScriptStatementSegment,
+            CreateScriptingLuaScriptStatementSegment,
             """
-            CREATE OR REPLACE SCRIPT aschema.hello AS
+            CREATE OR REPLACE LUA SCRIPT aschema.hello AS
                 return 'HELLO'
             /
             """,
             1,
         ),
         (
-            CreateScriptingScriptStatementSegment,
+            CreateScriptingLuaScriptStatementSegment,
+            """
+            CREATE OR REPLACE LUA SCRIPT aschema.hello() AS
+                return 'HELLO'
+            /
+            """,
+            1,
+        ),
+        (
+            CreateScriptingLuaScriptStatementSegment,
             """
             CREATE SCRIPT insert_low_high (param1, param2, param3) AS
                 import('function_lib') -- accessing external function

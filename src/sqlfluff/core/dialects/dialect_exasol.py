@@ -39,6 +39,7 @@ exasol_dialect.sets("bare_functions").update(BARE_FUNCTIONS)
 exasol_dialect.set_lexer_struct(
     [
         ("range_operator", "regex", r"\.{2}", dict(is_code=True)),
+        ("hash", "singleton", "#", dict(is_code=True)),
     ]
     + exasol_dialect.get_lexer_struct()
 )
@@ -51,6 +52,12 @@ exasol_dialect.patch_lexer_struct(
         # https://docs.exasol.com/sql_references/literals.htm
         ("single_quote", "regex", r"'([^']|'')*'", dict(is_code=True)),
         ("double_quote", "regex", r'"([^"]|"")*"', dict(is_code=True)),
+        (
+            "inline_comment",
+            "regex",
+            r"--[^\n]*",
+            dict(is_comment=True, type="comment", trim_start=("--")),
+        ),
     ]
 )
 

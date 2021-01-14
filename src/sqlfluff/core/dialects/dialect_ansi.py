@@ -601,6 +601,12 @@ ansi_dialect.add(
             "OrderByClauseSegment"
         ),  # used by string_agg (postgres), group_concat (exasol), listagg (snowflake)...
         Sequence(Ref.keyword("SEPARATOR"), Ref("LiteralGrammar")),
+        # like a function call: POSITION ( 'QL' IN 'SQL')
+        Sequence(
+            OneOf(Ref("QuotedLiteralSegment"), Ref("SingleIdentifierGrammar")),
+            "IN",
+            OneOf(Ref("QuotedLiteralSegment"), Ref("SingleIdentifierGrammar")),
+        ),
     ),
     # Optional OVER suffix for window functions.
     # This is supported in biquery & postgres (and its derivatives)
