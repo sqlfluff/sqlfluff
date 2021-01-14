@@ -1,4 +1,4 @@
-rule: L035
+rule: L037
 
 test_unspecified:
   pass_str: SELECT * FROM t ORDER BY a
