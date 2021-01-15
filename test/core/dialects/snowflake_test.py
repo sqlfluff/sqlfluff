@@ -8,6 +8,7 @@ from sqlfluff.core.dialects.dialect_snowflake import (
     SemiStructuredAccessorSegment,
     CreateStatementSegment,
     CreateCloneStatementSegment,
+    ShowStatementSegment,
 )
 
 
@@ -37,6 +38,9 @@ from sqlfluff.core.dialects.dialect_snowflake import (
             CreateCloneStatementSegment,
             "create table orders_clone_restore clone orders at (timestamp => to_timestamp_tz('04/05/2013 01:02:03', 'mm/dd/yyyy hh24:mi:ss'));",
         ),
+        (ShowStatementSegment, "SHOW GRANTS ON ACCOUNT;"),
+        (ShowStatementSegment, "show tables history in tpch.public;"),
+        (ShowStatementSegment, "show future grants in schema sales.public;"),
         # Testing https://github.com/sqlfluff/sqlfluff/issues/634
         (
             SemiStructuredAccessorSegment,

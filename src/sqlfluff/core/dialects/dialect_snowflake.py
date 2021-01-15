@@ -56,20 +56,43 @@ snowflake_dialect.sets("unreserved_keywords").update(
 
 snowflake_dialect.sets("reserved_keywords").update(
     [
+        "ACCOUNT",
+        "API",
         "CLONE",
+        "FUNCTIONS",
+        "FUTURE",
+        "HISTORY",
+        "INTEGRATIONS",
+        "LOCKS",
         "MASKING",
         "MATERIALIZED",
         "NETWORK",
         "NOTIFICATION",
+        "OBJECTS",
         "PIPE",
+        "PIPES",
         "PIVOT",
+        "PROCEDURES",
+        "REGIONS",
+        "ROLES",
         "SAMPLE",
+        "SEQUENCES",
+        "SHARES",
         "STAGE",
+        "STAGES",
+        "STARTS",
         "STREAM",
+        "STREAMS",
         "TABLESAMPLE",
         "TASK",
+        "TASKS",
+        "TERSE",
+        "TRANSACTIONS",
         "UNPIVOT",
+        "USERS",
+        "VIEWS",
         "WAREHOUSE",
+        "WAREHOUSES",
     ]
 )
 
@@ -152,6 +175,7 @@ class StatementSegment(BaseSegment):
         Ref("UseStatementSegment"),
         Ref("CreateStatementSegment"),
         Ref("CreateCloneStatementSegment"),
+        Ref("ShowStatementSegment"),
     )
 
 
@@ -478,4 +502,97 @@ class CreateStatementSegment(BaseSegment):
         ),
         Sequence("IF", "NOT", "EXISTS", optional=True),
         Ref("ObjectReferenceSegment"),
+    )
+
+
+@snowflake_dialect.segment()
+class ShowStatementSegment(BaseSegment):
+    """A snowflake `SHOW` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/show.html
+    """
+
+    _object_types_pural = OneOf(
+        "PARAMETERS",
+        Sequence("GLOBAL", "ACCOUNTS"),
+        "REGIONS",
+        Sequence("REPLICATION", "ACCOUNTS"),
+        Sequence("REPLICATION", "DATABASES"),
+        "PARAMETERS",
+        "VARIABLES",
+        "TRANSACTIONS",
+        "LOCKS",
+        "PARAMETERS",
+        "FUNCTIONS",
+        Sequence("NETWORK", "POLICIES"),
+        "SHARES",
+        "ROLES",
+        "GRANTS",
+        "USERS",
+        "WAREHOUSES",
+        "DATABASES",
+        Sequence(
+            OneOf("API", "NOTIFICATION", "SECURITY", "STORAGE", optional=True),
+            "INTEGRATIONS",
+        ),
+        "SCHEMAS",
+        "OBJECTS",
+        "TABLES",
+        Sequence("EXTERNAL", "TABLES"),
+        "VIEWS",
+        Sequence("MATERIALIZED", "VIEWS"),
+        Sequence("MASKING", "POLICIES"),
+        "COLUMNS",
+        Sequence("FILE", "FORMATS"),
+        "SEQUENCES",
+        "STAGES",
+        "PIPES",
+        "STREAMS",
+        "TASKS",
+        Sequence("USER", "FUNCTIONS"),
+        Sequence("EXTERNAL", "FUNCTIONS"),
+        "PROCEDURES",
+        Sequence("FUTURE", "GRANTS"),
+    )
+
+    _object_scope_types = OneOf(
+        "ACCOUNT",
+        "SESSION",
+        Sequence(
+            OneOf(
+                "DATABASE",
+                "SCHEMA",
+                "TABLE",
+                "TASK",
+                "USER",
+                "WAREHOUSE",
+                "VIEW",
+            ),
+            Ref("ObjectReferenceSegment", optional=True),
+        ),
+    )
+
+    type = "show_statement"
+
+    match_grammar = Sequence(
+        "SHOW",
+        OneOf("TERSE", optional=True),
+        _object_types_pural,
+        OneOf("HISTORY", optional=True),
+        Sequence("LIKE", Ref("ObjectReferenceSegment"), optional=True),
+        Sequence(
+            OneOf("ON", "TO", "OF", "IN"),
+            OneOf(
+                Sequence(_object_scope_types),
+                Ref("ObjectReferenceSegment"),
+            ),
+            optional=True,
+        ),
+        Sequence("STARTS", "WITH", Ref("ObjectReferenceSegment"), optional=True),
+        Sequence("WITH", "PRIMARY", Ref("ObjectReferenceSegment"), optional=True),
+        Sequence(
+            Ref("LimitClauseSegment"),
+            Sequence("FROM", Ref("ObjectReferenceSegment"), optional=True),
+            optional=True,
+        ),
     )
