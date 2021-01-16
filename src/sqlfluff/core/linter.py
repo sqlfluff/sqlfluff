@@ -33,7 +33,7 @@ from .errors import (
 from .parser import Lexer, Parser
 from .string_helpers import findall
 from .templaters import TemplatedFile
-from .rules import get_ruleset
+from sqlfluff.core.rules import get_ruleset
 from .config import FluffConfig, ConfigLoader
 
 # Classes needed only for type checking
