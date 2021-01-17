@@ -8,7 +8,6 @@ from ..parser import (
     AnyNumberOf,
     BaseSegment,
     Bracketed,
-    CommaDelimited,
     Dedent,
     Delimited,
     GreedyUntil,
@@ -75,7 +74,7 @@ exasol_dialect.add(
         Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
     ),
-    ColumnReferenceListGrammar=CommaDelimited(
+    ColumnReferenceListGrammar=Delimited(
         Ref("ColumnReferenceSegment"),
         ephemeral_name="ColumnReferenceList",
     ),
@@ -224,7 +223,7 @@ class SelectStatementSegment(BaseSegment):
 
 
 @exasol_dialect.segment(replace=True)
-class MainTableExpressionSegment(BaseSegment):
+class MainTableExpressionGrammar(BaseSegment):
     """The main table expression e.g. within a FROM clause."""
 
     type = "main_table_expression"
@@ -314,7 +313,7 @@ class GroupByClauseSegment(BaseSegment):
         "GROUP",
         "BY",
         Indent,
-        CommaDelimited(
+        Delimited(
             OneOf(
                 Ref("ColumnReferenceSegment"),
                 # Can `GROUP BY 1`
@@ -381,7 +380,7 @@ class GroupingSetsClauseSegment(BaseSegment):
         "GROUPING",
         "SETS",
         Bracketed(
-            CommaDelimited(
+            Delimited(
                 Ref("CubeRollupClauseSegment"),
                 Ref("GroupingExpressionList"),
                 Sequence(
@@ -397,9 +396,9 @@ class GroupingExpressionList(BaseSegment):
     """Grouping expression list within `CUBE` / `ROLLUP` `GROUPING SETS`."""
 
     type = "grouping_expression_list"
-    match_grammar = CommaDelimited(
+    match_grammar = Delimited(
         OneOf(
-            Bracketed(CommaDelimited(Ref("ExpressionSegment"))),
+            Bracketed(Delimited(Ref("ExpressionSegment"))),
             Ref("ExpressionSegment"),
         )
     )
@@ -673,7 +672,7 @@ class AlterVirtualSchemaStatementSegment(BaseSegment):
                 "REFRESH",
                 Sequence(
                     "TABLES",
-                    CommaDelimited(Ref("TableReferenceSegment")),
+                    Delimited(Ref("TableReferenceSegment")),
                     optional=True,
                 ),
             ),
@@ -745,7 +744,7 @@ class CreateViewStatementSegment(BaseSegment):
         "VIEW",
         Ref("ViewReferenceSegment"),
         Bracketed(
-            CommaDelimited(
+            Delimited(
                 Sequence(
                     Ref("ColumnReferenceSegment"),
                     Ref("CommentIsGrammar", optional=True),
@@ -1267,7 +1266,7 @@ class CommentStatementSegment(BaseSegment):
                 Ref("TableReferenceSegment"),
                 Sequence("IS", Ref("QuotedLiteralSegment"), optional=True),
                 Bracketed(
-                    CommaDelimited(
+                    Delimited(
                         Sequence(
                             Ref("SingleIdentifierGrammar"),
                             "IS",
@@ -1363,7 +1362,7 @@ class SetClauseListSegment(BaseSegment):
     match_grammar = Sequence(
         "SET",
         Indent,
-        CommaDelimited(
+        Delimited(
             Ref("SetClauseSegment"),
             terminator="FROM",
         ),
@@ -1399,7 +1398,7 @@ class UpdateFromClauseSegment(BaseSegment):
     type = "update_from_clause"
     match_grammar = Sequence(
         "FROM",
-        CommaDelimited(
+        Delimited(
             Ref("AliasedTableReferenceSegment"),
             terminator="WHERE",
         ),
@@ -1519,7 +1518,7 @@ class MergeInsertClauseSegment(BaseSegment):
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         "VALUES",
         Bracketed(
-            CommaDelimited(
+            Delimited(
                 OneOf(
                     "DEFAULT",
                     Ref("ExpressionSegment"),
@@ -1614,7 +1613,7 @@ class ImportStatementSegment(BaseSegment):
                     ),
                 ),
                 Bracketed(
-                    CommaDelimited(Ref("ImportColumnsSegment")),
+                    Delimited(Ref("ImportColumnsSegment")),
                 ),
             ),
             optional=True,
@@ -1913,7 +1912,7 @@ class CSVColumnDefinitionSegment(BaseSegment):
 
     type = "csv_cols"
     match_grammar = Bracketed(
-        CommaDelimited(
+        Delimited(
             Sequence(
                 OneOf(
                     Ref("NumericLiteralSegment"),
@@ -1948,7 +1947,7 @@ class FBVColumnDefinitionSegment(BaseSegment):
 
     type = "fbv_cols"
     match_grammar = Bracketed(
-        CommaDelimited(
+        Delimited(
             AnyNumberOf(
                 # IMPORT vaild: SIZE ,START, FORMAT, PADDING, ALIGN
                 # EXPORT vaild: SIZE, FORMAT, ALIGN, PADDING
@@ -2294,13 +2293,13 @@ class GrantRevokeSystemPrivilegesSegment(BaseSegment):
                     optional=True,
                 ),
             ),
-            CommaDelimited(
+            Delimited(
                 Ref("SystemPrivilegesSegment"),
                 terminator=OneOf("TO", "FROM"),
             ),
         ),
         OneOf("TO", "FROM"),
-        CommaDelimited(
+        Delimited(
             Ref("NakedIdentifierSegment"),
         ),
         Sequence("WITH", "ADMIN", "OPTION", optional=True),  # Grant only
@@ -2315,7 +2314,7 @@ class GrantRevokeObjectPrivilegesSegment(BaseSegment):
     match_grammar = Sequence(
         OneOf(
             Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
-            CommaDelimited(Ref("ObjectPrivilegesSegment"), terminator="ON"),
+            Delimited(Ref("ObjectPrivilegesSegment"), terminator="ON"),
         ),
         "ON",
         OneOf(
@@ -2327,11 +2326,11 @@ class GrantRevokeObjectPrivilegesSegment(BaseSegment):
         OneOf(
             Sequence(  # Grant only
                 "TO",
-                CommaDelimited(Ref("NakedIdentifierSegment")),
+                Delimited(Ref("NakedIdentifierSegment")),
             ),
             Sequence(  # Revoke only
                 "FROM",
-                CommaDelimited(Ref("NakedIdentifierSegment")),
+                Delimited(Ref("NakedIdentifierSegment")),
                 Sequence("CASCADE", "CONSTRAINTS", optional=True),
             ),
         ),
@@ -2346,12 +2345,10 @@ class GrantRevokeRolesSegment(BaseSegment):
     match_grammar = Sequence(
         OneOf(
             Sequence("ALL", "ROLES"),  # Revoke only
-            CommaDelimited(
-                Ref("NakedIdentifierSegment"), terminator=OneOf("TO", "FROM")
-            ),
+            Delimited(Ref("NakedIdentifierSegment"), terminator=OneOf("TO", "FROM")),
         ),
         OneOf("TO", "FROM"),
-        CommaDelimited(Ref("NakedIdentifierSegment")),
+        Delimited(Ref("NakedIdentifierSegment")),
         Sequence("WITH", "ADMIN", "OPTION", optional=True),  # Grant only
     )
 
@@ -2364,12 +2361,12 @@ class GrantRevokeImpersonationSegment(BaseSegment):
     match_grammar = Sequence(
         "IMPERSONATION",
         "ON",
-        CommaDelimited(
+        Delimited(
             Ref("NakedIdentifierSegment"),
             terminator=OneOf("TO", "FROM"),
         ),
         OneOf("TO", "FROM"),
-        CommaDelimited(Ref("NakedIdentifierSegment")),
+        Delimited(Ref("NakedIdentifierSegment")),
     )
 
 
@@ -2380,12 +2377,12 @@ class GrantRevokeConnectionSegment(BaseSegment):
     type = "grant_revoke_connection"
     match_grammar = Sequence(
         "CONNECTION",
-        CommaDelimited(
+        Delimited(
             Ref("NakedIdentifierSegment"),
             terminator=OneOf("TO", "FROM"),
         ),
         OneOf("TO", "FROM"),
-        CommaDelimited(Ref("NakedIdentifierSegment")),
+        Delimited(Ref("NakedIdentifierSegment")),
         Sequence("WITH", "ADMIN", "OPTION", optional=True),
     )
 
@@ -2406,7 +2403,7 @@ class GrantRevokeConnectionRestrictedSegment(BaseSegment):
             Ref("NakedIdentifierSegment"),
         ),
         OneOf("TO", "FROM"),
-        CommaDelimited(Ref("NakedIdentifierSegment")),
+        Delimited(Ref("NakedIdentifierSegment")),
     )
 
 

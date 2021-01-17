@@ -24,7 +24,6 @@ from .grammar import (
     Ref,
     Anything,
     Nothing,
-    CommaDelimited,
 )
 from .markers import FilePositionMarker
 from .lexer import Lexer

@@ -17,7 +17,6 @@ from ..parser import (
     Anything,
     BaseSegment,
     Bracketed,
-    CommaDelimited,
     Delimited,
     GreedyUntil,
     NamedSegment,
@@ -151,7 +150,7 @@ class CreateFunctionStatementSegment(BaseSegment):
         "FUNCTION",
         Ref("FunctionReferenceSegment"),
         Bracketed(
-            CommaDelimited(
+            Delimited(
                 Sequence(
                     Ref("SingleIdentifierGrammar"),  # Column name
                     Ref.keyword("IN", optional=True),
@@ -346,7 +345,7 @@ class CreateScriptingLuaScriptStatementSegment(BaseSegment):
         "SCRIPT",
         Ref("ScriptReferenceSegment"),
         Bracketed(
-            CommaDelimited(
+            Delimited(
                 Sequence(
                     Ref.keyword("ARRAY", optional=True), Ref("SingleIdentifierGrammar")
                 ),
@@ -401,7 +400,7 @@ class CreateUDFScriptStatementSegment(BaseSegment):
         Ref("ScriptReferenceSegment"),
         Bracketed(
             Sequence(
-                CommaDelimited(Ref("ColumnDatatypeSegment")),
+                Delimited(Ref("ColumnDatatypeSegment")),
                 Ref("OrderByClauseSegment", optional=True),
                 optional=True,
             ),
@@ -411,7 +410,7 @@ class CreateUDFScriptStatementSegment(BaseSegment):
             Sequence("RETURNS", Ref("DatatypeSegment")),
             Sequence(
                 "EMITS",
-                Bracketed(CommaDelimited(Ref("ColumnDatatypeSegment"))),
+                Bracketed(Delimited(Ref("ColumnDatatypeSegment"))),
             ),
         ),
         "AS",

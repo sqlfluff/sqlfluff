@@ -22,7 +22,7 @@ class Delimited(OneOf):
     def __init__(
         self,
         *args,
-        delimiter=None,
+        delimiter=Ref("CommaSegment"),
         allow_trailing=False,
         terminator=None,
         min_delimiters=None,
@@ -213,24 +213,3 @@ class Delimited(OneOf):
                         return MatchResult(matched_segments.matched_segments, seg_buff)
                     else:
                         return MatchResult.from_unmatched(segments)
-
-
-class CommaDelimited(Delimited):
-    """Inherits from Delimited with pre-set CommaSegment as delimiter."""
-
-    def __init__(
-        self,
-        *args,
-        allow_trailing=False,
-        terminator=None,
-        min_delimiters=None,
-        **kwargs,
-    ):
-        super(CommaDelimited, self).__init__(
-            *args,
-            delimiter=Ref("CommaSegment"),
-            allow_trailing=allow_trailing,
-            terminator=terminator,
-            min_delimiters=min_delimiters,
-            **kwargs,
-        )

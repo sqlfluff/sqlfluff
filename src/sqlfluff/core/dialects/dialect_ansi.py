@@ -32,7 +32,6 @@ from ..parser import (
     Indent,
     Dedent,
     Nothing,
-    CommaDelimited,
 )
 
 from .base import Dialect
@@ -142,6 +141,7 @@ ansi_dialect.sets("bracket_pairs").update(
     [
         ("round", "StartBracketSegment", "EndBracketSegment", True),
         ("square", "StartSquareBracketSegment", "EndSquareBracketSegment", True),
+        ("curly", "StartCurlyBracketSegment", "EndCurlyBracketSegment", True),
     ]
 )
 
@@ -161,6 +161,12 @@ ansi_dialect.add(
     ),
     EndSquareBracketSegment=SymbolSegment.make(
         "]", name="end_square_bracket", type="end_square_bracket"
+    ),
+    StartCurlyBracketSegment=SymbolSegment.make(
+        "{", name="start_curly_bracket", type="start_curly_bracket"
+    ),
+    EndCurlyBracketSegment=SymbolSegment.make(
+        "}", name="end_curly_bracket", type="end_curly_bracket"
     ),
     CommaSegment=SymbolSegment.make(",", name="comma", type="comma"),
     DotSegment=SymbolSegment.make(".", name="dot", type="dot"),
@@ -297,7 +303,7 @@ ansi_dialect.add(
     # This pattern is used in a lot of places.
     # Defined here to avoid repetition.
     BracketedColumnReferenceListGrammar=Bracketed(
-        CommaDelimited(
+        Delimited(
             Ref("ColumnReferenceSegment"),
             ephemeral_name="ColumnReferenceList",
         )
@@ -377,7 +383,7 @@ class ArrayLiteralSegment(BaseSegment):
 
     type = "array_literal_type"
     match_grammar = Bracketed(
-        CommaDelimited(Ref("ExpressionSegment")),
+        Delimited(Ref("ExpressionSegment")),
         bracket_type="square",
     )
 
@@ -391,7 +397,7 @@ class DatatypeSegment(BaseSegment):
         Ref("DatatypeIdentifierSegment"),
         Bracketed(
             OneOf(
-                CommaDelimited(Ref("ExpressionSegment")),
+                Delimited(Ref("ExpressionSegment")),
                 # The brackets might be empty for some cases...
                 optional=True,
             ),
@@ -486,7 +492,7 @@ class SingleIdentifierListSegment(BaseSegment):
     """A comma delimited list of identifiers."""
 
     type = "identifier_list"
-    match_grammar = CommaDelimited(Ref("SingleIdentifierGrammar"))
+    match_grammar = Delimited(Ref("SingleIdentifierGrammar"))
 
 
 @ansi_dialect.segment()
@@ -594,7 +600,7 @@ ansi_dialect.add(
                 # but for COUNT(*) or similar we allow the star segment
                 # here.
                 Ref("StarSegment"),
-                CommaDelimited(Ref("FunctionContentsExpressionGrammar")),
+                Delimited(Ref("FunctionContentsExpressionGrammar")),
             ),
         ),
         Ref(
@@ -686,8 +692,8 @@ class PartitionClauseSegment(BaseSegment):
         Indent,
         OneOf(
             # Brackets are optional in a partition by statement
-            Bracketed(CommaDelimited(Ref("ExpressionSegment"))),
-            CommaDelimited(Ref("ExpressionSegment")),
+            Bracketed(Delimited(Ref("ExpressionSegment"))),
+            Delimited(Ref("ExpressionSegment")),
         ),
         Dedent,
     )
@@ -721,8 +727,8 @@ class TableExpressionSegment(BaseSegment):
     match_grammar = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OneOf(
-            Ref("MainTableExpressionSegment"),
-            Bracketed(Ref("MainTableExpressionSegment")),
+            Ref("MainTableExpressionGrammar"),
+            Bracketed(Ref("MainTableExpressionGrammar")),
         ),
         Ref("AliasExpressionSegment", optional=True),
         Ref("PostTableExpressionGrammar", optional=True),
@@ -755,7 +761,7 @@ class TableExpressionSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
-class MainTableExpressionSegment(BaseSegment):
+class MainTableExpressionGrammar(BaseSegment):
     """The main table expression e.g. within a FROM clause."""
 
     type = "main_table_expression"
@@ -872,7 +878,7 @@ class SelectClauseSegment(BaseSegment):
         "SELECT",
         Ref("SelectClauseModifierSegment", optional=True),
         Indent,
-        CommaDelimited(
+        Delimited(
             Ref("SelectTargetElementSegment"),
             allow_trailing=True,
         ),
@@ -923,7 +929,7 @@ class JoinClauseSegment(BaseSegment):
                         # This is a) so that we don't lint it as a reference and
                         # b) because the column will probably be returned anyway
                         # during parsing.
-                        CommaDelimited(
+                        Delimited(
                             Ref("SingleIdentifierGrammar"),
                             ephemeral_name="UsingClauseContents",
                         )
@@ -979,7 +985,7 @@ class FromClauseSegment(BaseSegment):
     parse_grammar = Sequence(
         "FROM",
         Indent,
-        CommaDelimited(
+        Delimited(
             OneOf(
                 # Optional old school delimited joins
                 Ref("TableExpressionSegment"),
@@ -1101,7 +1107,7 @@ ansi_dialect.add(
                     "IN",
                     Bracketed(
                         OneOf(
-                            CommaDelimited(
+                            Delimited(
                                 Ref("LiteralGrammar"),
                                 Ref("IntervalExpressionSegment"),
                             ),
@@ -1171,7 +1177,7 @@ ansi_dialect.add(
                 OneOf(
                     Ref("Expression_A_Grammar"),
                     Ref("SelectableGrammar"),
-                    CommaDelimited(
+                    Delimited(
                         Ref(
                             "ColumnReferenceSegment"
                         ),  # WHERE (a,b,c) IN (select a,b,c FROM...)
@@ -1263,7 +1269,7 @@ class OrderByClauseSegment(BaseSegment):
         "ORDER",
         "BY",
         Indent,
-        CommaDelimited(
+        Delimited(
             Sequence(
                 OneOf(
                     Ref("ColumnReferenceSegment"),
@@ -1298,7 +1304,7 @@ class GroupByClauseSegment(BaseSegment):
         "GROUP",
         "BY",
         Indent,
-        CommaDelimited(
+        Delimited(
             OneOf(
                 Ref("ColumnReferenceSegment"),
                 # Can `GROUP BY 1`
@@ -1350,9 +1356,9 @@ class ValuesClauseSegment(BaseSegment):
     type = "values_clause"
     match_grammar = Sequence(
         OneOf("VALUE", "VALUES"),
-        CommaDelimited(
+        Delimited(
             Bracketed(
-                CommaDelimited(
+                Delimited(
                     Ref("LiteralGrammar"),
                     Ref("IntervalExpressionSegment"),
                     Ref("FunctionSegment"),
@@ -1426,7 +1432,7 @@ class WithCompoundStatementSegment(BaseSegment):
     match_grammar = StartsWith("WITH")
     parse_grammar = Sequence(
         "WITH",
-        CommaDelimited(
+        Delimited(
             Sequence(
                 Ref("SingleIdentifierGrammar"),
                 Bracketed(
@@ -1624,7 +1630,7 @@ class CreateTableStatementSegment(BaseSegment):
             # Columns and comment syntax:
             Sequence(
                 Bracketed(
-                    CommaDelimited(
+                    Delimited(
                         OneOf(
                             Ref("ColumnDefinitionSegment"),
                             Ref("TableConstraintSegment"),
@@ -1658,7 +1664,7 @@ class AlterTableStatementSegment(BaseSegment):
         "ALTER",
         "TABLE",
         Ref("TableReferenceSegment"),
-        CommaDelimited(
+        Delimited(
             OneOf(
                 # Table options
                 Sequence(
@@ -1732,7 +1738,7 @@ class AccessStatementSegment(BaseSegment):
     match_grammar = OneOf(
         Sequence(
             "GRANT",
-            CommaDelimited(  # List of permission types
+            Delimited(  # List of permission types
                 Sequence(
                     OneOf(  # Permission type
                         Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
@@ -1769,7 +1775,7 @@ class AccessStatementSegment(BaseSegment):
         # Based on https://www.postgresql.org/docs/12/sql-revoke.html
         Sequence(
             "REVOKE",
-            CommaDelimited(  # List of permission types
+            Delimited(  # List of permission types
                 Sequence(
                     Sequence("GRANT", "OPTION", "FOR", optional=True),
                     OneOf(  # Permission type
@@ -1829,7 +1835,7 @@ class UpdateStatementSegment(BaseSegment):
     UPDATE <table name> SET <set clause list> [ WHERE <search condition> ]
     """
 
-    type = "dupdate_statement"
+    type = "update_statement"
     match_grammar = StartsWith("UPDATE")
     parse_grammar = Sequence(
         "UPDATE",
@@ -1865,7 +1871,7 @@ class SetClauseListSegment(BaseSegment):
             Ref("SetClauseSegment"),
             # set clause
             AnyNumberOf(
-                CommaDelimited(Ref("SetClauseSegment")),
+                Delimited(Ref("SetClauseSegment")),
             ),
         ),
         Dedent,
@@ -1949,7 +1955,7 @@ class CreateFunctionStatementSegment(BaseSegment):
         Ref("FunctionNameSegment"),
         # Function parameter list
         Bracketed(
-            CommaDelimited(
+            Delimited(
                 # Odd syntax, but prevents eager parameters being confused for data types
                 OneOf(
                     Sequence(
@@ -1984,7 +1990,7 @@ class CreateModelStatementSegment(BaseSegment):
         Sequence(
             "OPTIONS",
             Bracketed(
-                CommaDelimited(
+                Delimited(
                     Sequence(
                         Ref("ParameterNameSegment"),
                         Ref("EqualsSegment"),
@@ -1994,7 +2000,7 @@ class CreateModelStatementSegment(BaseSegment):
                             Ref("LiteralGrammar"),  # Single value
                             Bracketed(
                                 # E.g. input_label_cols: list of column names
-                                CommaDelimited(Ref("QuotedLiteralSegment")),
+                                Delimited(Ref("QuotedLiteralSegment")),
                                 bracket_type="square",
                                 optional=True,
                             ),
