@@ -3125,6 +3125,12 @@ class Rule_L031(BaseCrawler):
         for table_exp in table_expression_segments:
             table_ref = table_exp.get_child("object_reference")
 
+            # If the table_expression has no object_references - skip it
+            # An example case is a lateral flatten, where we have a function segment
+            # instead of a table_reference segment.
+            if not table_ref:
+                continue
+
             # If this is self-join - skip it
             if (
                 base_table
