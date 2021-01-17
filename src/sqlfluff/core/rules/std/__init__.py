@@ -18,8 +18,8 @@ for module in sorted(glob(rules_path)):
         rule_class = getattr(
             import_module(f"sqlfluff.core.rules.std.{rule_id}"), rule_class_name
         )
-    except ImportError:
-        raise (ImportError("Rule classes must be named in the format of L*."))
+    except AttributeError:
+        raise (AttributeError("Rule classes must be named in the format of L*."))
     # Add the rule_classes to the module namespace with globals() to be imported in
     # sqlfluff/core/rules/__init__.py
     # Sphinx automodule documentation looks at this module (see rules.rst) so
