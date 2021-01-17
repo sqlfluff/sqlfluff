@@ -2,9 +2,9 @@
 
 from typing import NamedTuple, Optional, List
 
-from sqlfluff.core.rules.base import BaseCrawler, LintFix, LintResult
+from ..base import BaseCrawler, LintFix, LintResult
 from sqlfluff.core.parser import BaseSegment
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from ..doc_decorators import document_fix_compatible
 
 
 class OrderByColumnInfo(NamedTuple):

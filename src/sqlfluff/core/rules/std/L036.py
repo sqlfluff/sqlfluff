@@ -2,7 +2,7 @@
 
 from collections import namedtuple
 
-from sqlfluff.core.rules.base import BaseCrawler, LintResult
+from ..base import BaseCrawler, LintResult
 
 
 class Rule_L036(BaseCrawler):

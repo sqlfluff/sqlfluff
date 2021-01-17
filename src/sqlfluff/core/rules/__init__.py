@@ -4,7 +4,7 @@ import inspect
 
 from .base import RuleSet
 from .config_info import STANDARD_CONFIG_INFO_DICT
-from sqlfluff.core.rules import std
+from . import std
 
 
 std_rule_set = RuleSet(name="standard", config_info=STANDARD_CONFIG_INFO_DICT)

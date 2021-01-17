@@ -2,7 +2,7 @@
 
 from typing import Tuple, List
 
-from sqlfluff.core.rules.doc_decorators import document_configuration
+from ..doc_decorators import document_configuration
 from sqlfluff.core.rules.std.L010 import Rule_L010
 
 

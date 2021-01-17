@@ -1,7 +1,7 @@
 """Implementation of Rule L013."""
 
-from sqlfluff.core.rules.base import BaseCrawler, LintResult
-from sqlfluff.core.rules.doc_decorators import document_configuration
+from ..base import BaseCrawler, LintResult
+from ..doc_decorators import document_configuration
 
 
 @document_configuration

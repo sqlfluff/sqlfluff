@@ -1,7 +1,7 @@
 """Implementation of Rule L028."""
 
-from sqlfluff.core.rules.base import LintResult
-from sqlfluff.core.rules.doc_decorators import document_configuration
+from ..base import LintResult
+from ..doc_decorators import document_configuration
 from sqlfluff.core.rules.std.L025 import Rule_L025
 
 
