@@ -10,7 +10,7 @@ rules_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "L*.py")
 
 for module in sorted(glob(rules_path)):
     # Manipulate the module path to extract the filename without the .py
-    rule_id = module.split("/")[-1][:-3]
+    rule_id = os.path.splitext(os.path.basename(module))[0]
     rule_class_name = f"Rule_{rule_id}"
     rule_class = getattr(
         import_module(f"sqlfluff.core.rules.std.{rule_id}"), rule_class_name
