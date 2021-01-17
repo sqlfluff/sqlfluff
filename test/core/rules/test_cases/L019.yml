@@ -24,6 +24,19 @@ leading_commas_allowed:
       L019:
         comma_style: leading
 
+leading_commas_allowed_with_header:
+  pass_str: |
+    
+    SELECT
+      a
+      , b
+    FROM c
+
+  configs:
+    rules:
+      L019:
+        comma_style: leading
+        
 leading_comma_violations_in_with_statement:
   fail_str: |
     WITH cte_1 as (
