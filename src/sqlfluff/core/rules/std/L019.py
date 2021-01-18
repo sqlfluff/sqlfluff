@@ -53,11 +53,15 @@ class Rule_L019(BaseCrawler):
     config_keywords = ["comma_style"]
 
     @staticmethod
-    def _last_code_seg(raw_stack, idx=-1):
-        while True:
-            if raw_stack[idx].is_code or raw_stack[idx].is_type("newline"):
-                return raw_stack[idx]
-            idx -= 1
+    def _last_code_seg(raw_stack):
+        """Trace the raw stack back to the most recent code segment.
+
+        A return value of `None` indicates no code segments preceding the current position.
+        """
+        for segment in raw_stack[::-1]:
+            if segment.is_code or segment.is_type("newline"):
+                return segment
+        return None
 
     def _eval(self, segment, raw_stack, memory, **kwargs):
         """Enforce comma placement.
@@ -141,6 +145,9 @@ class Rule_L019(BaseCrawler):
             # A new line preceded by a comma == a trailing comma
             if segment.is_type("newline"):
                 last_seg = self._last_code_seg(raw_stack)
+                # no code precedes the current position: no issue
+                if last_seg is None:
+                    return None
                 if last_seg.is_type("comma"):
                     # Trigger fix routine
                     memory["insert_leading_comma"] = True
