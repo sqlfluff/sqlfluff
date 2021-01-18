@@ -2,14 +2,14 @@
 
 from .base import RuleSet
 from .config_info import STANDARD_CONFIG_INFO_DICT
-from .std import rules as std_rules  # Import the standard ruleset dictionary
+from .std import rules as std_rules  # Import the standard ruleset list
 
 
 std_rule_set = RuleSet(name="standard", config_info=STANDARD_CONFIG_INFO_DICT)
 
-# Iterate through the std rule dictionary and register each rule with the std_rule_set
-for name, val in std_rules.items():
-    std_rule_set.register(val)
+# Iterate through the std rules list and register each rule with the std_rule_set
+for rule in std_rules:
+    std_rule_set.register(rule)
 
 
 def get_ruleset(name: str = "standard") -> RuleSet:
