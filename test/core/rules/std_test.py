@@ -6,7 +6,8 @@ import pytest
 from sqlfluff.core import Linter
 from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.rules.base import BaseCrawler, LintResult, LintFix
-from sqlfluff.core.rules.std import std_rule_set
+from sqlfluff.core.rules import std_rule_set
+from sqlfluff.core.rules.doc_decorators import document_configuration
 from sqlfluff.core.config import FluffConfig
 
 from test.fixtures.dbt.templater import (  # noqa
@@ -306,7 +307,7 @@ def test_rules_cannot_be_instantiated_without_declared_configs():
 def test_rules_configs_are_dynamically_documented():
     """Ensure that rule configurations are added to the class docstring."""
 
-    @std_rule_set.document_configuration
+    @document_configuration
     class RuleWithConfig(BaseCrawler):
         """A new rule with configuration."""
 
@@ -315,7 +316,7 @@ def test_rules_configs_are_dynamically_documented():
     assert "comma_style" in RuleWithConfig.__doc__
     assert "only_aliases" in RuleWithConfig.__doc__
 
-    @std_rule_set.document_configuration
+    @document_configuration
     class RuleWithoutConfig(BaseCrawler):
         """A new rule without configuration."""
 
