@@ -9,6 +9,9 @@ from glob import glob
 # All rule files are expected in the format of L*.py
 rules_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "L*.py")
 
+# Create a rules dictionary for importing in sqlfluff/src/sqlfluff/core/rules/__init__.py
+rules = {}
+
 for module in sorted(glob(rules_path)):
     # Manipulate the module path to extract the filename without the .py
     rule_id = os.path.splitext(os.path.basename(module))[0]
@@ -20,8 +23,5 @@ for module in sorted(glob(rules_path)):
         )
     except AttributeError:
         raise (AttributeError("Rule classes must be named in the format of L*."))
-    # Add the rule_classes to the module namespace with globals() to be imported in
-    # sqlfluff/core/rules/__init__.py
-    # Sphinx automodule documentation looks at this module (see rules.rst) so
-    # this also ensures that all the Rule_* classes are available.
-    globals()[rule_class_name] = rule_class
+    # Add the rules to the rules dictionary
+    rules[rule_class_name] = rule_class
