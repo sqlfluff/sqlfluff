@@ -1614,10 +1614,21 @@ class DropStatementSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class AccessStatementSegment(BaseSegment):
-    """A `GRANT` or `REVOKE` statement."""
+    """A `GRANT` or `REVOKE` statement.
+
+    In order to help reduce code duplication we decided to implement other dialect specific grants (like snowflake)
+    here too which will help with maintainability. We also note that this causes the grammar to be less "correct",
+    but the benefits outweigh the con in our opinion.
+
+
+    Grant specific information:
+     * https://www.postgresql.org/docs/9.0/sql-grant.html
+     * https://docs.snowflake.com/en/sql-reference/sql/grant-privilege.html
+    """
 
     type = "access_statement"
 
+    # Privileges that can be set on the account (specific to snowflake)
     _global_permissions = OneOf(
         Sequence(
             "CREATE",
@@ -1653,6 +1664,7 @@ class AccessStatementSegment(BaseSegment):
         Sequence("FILE", "FORMAT"),
     )
 
+    # We reuse the object names above and simply append an `S` to the end of them to get plurals
     _schema_object_types_plural = OneOf(
         *[f"{object_name}S" for object_name in _schema_object_names]
     )
@@ -1689,6 +1701,8 @@ class AccessStatementSegment(BaseSegment):
         Ref("BracketedColumnReferenceListGrammar", optional=True),
     )
 
+    # All of the object types that we can grant permissions on.
+    # This list will contain ansi sql objects as well as dialect specific ones.
     _objects = OneOf(
         "ACCOUNT",
         Sequence(
@@ -1714,9 +1728,9 @@ class AccessStatementSegment(BaseSegment):
         ),
     )
 
-    # Based on https://www.postgresql.org/docs/12/sql-grant.html
-    # and https://docs.snowflake.com/en/sql-reference/sql/grant-privilege.html
     match_grammar = OneOf(
+        # Based on https://www.postgresql.org/docs/12/sql-grant.html
+        # and https://docs.snowflake.com/en/sql-reference/sql/grant-privilege.html
         Sequence(
             "GRANT",
             OneOf(
