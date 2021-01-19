@@ -1653,7 +1653,7 @@ class AccessStatementSegment(BaseSegment):
         Sequence("FILE", "FORMAT"),
     )
 
-    _schema_object_types_pural = OneOf(
+    _schema_object_types_plural = OneOf(
         *[f"{object_name}S" for object_name in _schema_object_names]
     )
 
@@ -1701,10 +1701,10 @@ class AccessStatementSegment(BaseSegment):
                 Sequence("ALL", "SCHEMAS", "IN", "DATABASE"),
                 Sequence("FUTURE", "SCHEMAS", "IN", "DATABASE"),
                 _schema_object_types,
-                Sequence("ALL", _schema_object_types_pural, "IN", "SCHEMA"),
+                Sequence("ALL", _schema_object_types_plural, "IN", "SCHEMA"),
                 Sequence(
                     "FUTURE",
-                    _schema_object_types_pural,
+                    _schema_object_types_plural,
                     "IN",
                     OneOf("DATABASE", "SCHEMA"),
                 ),
