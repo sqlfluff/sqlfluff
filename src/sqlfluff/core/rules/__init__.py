@@ -3,15 +3,16 @@
 from sqlfluff.core.rules.base import RuleSet
 from sqlfluff.core.rules.config_info import STANDARD_CONFIG_INFO_DICT
 from sqlfluff.core.rules.std import (
-    rules as std_rules,
-)  # Import the standard ruleset list
+    get_rules,
+)
 
 
 std_rule_set = RuleSet(name="standard", config_info=STANDARD_CONFIG_INFO_DICT)
 
-# Iterate through the std rules list and register each rule with the std_rule_set
-for rule in std_rules:
-    std_rule_set.register(rule)
+# Iterate through the rules list and register each rule with the std_rule_set
+for plugin_rules in get_rules():
+    for rule in plugin_rules:
+        std_rule_set.register(rule)
 
 
 def get_ruleset(name: str = "standard") -> RuleSet:

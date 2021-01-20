@@ -16,6 +16,7 @@ missing.
 
 import copy
 import logging
+import re
 from collections import namedtuple
 
 from sqlfluff.core.parser import RawSegment, KeywordSegment, BaseSegment, SymbolSegment
@@ -482,7 +483,21 @@ class RuleSet:
                     )
                 )
 
-    def register(self, cls):
+    @property
+    def valid_rule_name_regex(self):
+        """Defines the accepted pattern for rule names.
+
+        The first group captures the plugin name (optional), which
+        must be capitalized.
+        The second group captures the rule code.
+
+        Examples of valid rule names:
+        * Rule_PluginName_L001
+        * Rule_L001
+        """
+        return re.compile(r"Rule_?([A-Z]{1}[a-zA-Z]+)?_(L[0-9]{3})")
+
+    def register(self, cls, plugin=None):
         """Decorate a class with this to add it to the ruleset.
 
         .. code-block:: python
@@ -502,18 +517,23 @@ class RuleSet:
         :exc:`ValueError`.
 
         """
-        elems = cls.__name__.split("_")
+        rule_name_match = self.valid_rule_name_regex.match(cls.__name__)
         # Validate the name
-        if len(elems) != 2 or elems[0] != "Rule" or len(elems[1]) != 4:
+        if not rule_name_match:
             raise ValueError(
                 (
-                    "Tried to register rule on set {0!r} with unexpected " "format: {1}"
-                ).format(self.name, cls.__name__)
+                    "Tried to register rule on set {0!r} with unexpected "
+                    "format: {1}, format should be: {2}."
+                    " Example: Rule_PluginName_L001 (for plugins) or Rule_L001 (for core rules)."
+                ).format(self.name, cls.__name__, self.valid_rule_name_regex.pattern)
             )
 
-        code = elems[1]
+        plugin_name, code = rule_name_match.groups()
         # If the docstring is multiline, then we extract just summary.
         description = cls.__doc__.split("\n")[0]
+
+        if plugin_name:
+            code = f"{plugin_name}_{code}"
 
         # Keep track of the *class* in the register. Don't instantiate yet.
         if code in self._register:
