@@ -661,8 +661,12 @@ class TableExpressionSegment(BaseSegment):
             Bracketed(Ref("SelectableGrammar")),
             # Values clause?
         ),
-        Ref("AliasExpressionSegment", optional=True),
-        Ref("PostTableExpressionGrammar", optional=True),
+        OneOf(
+            Ref("PostTableExpressionGrammar"),
+            Sequence(Ref("AliasExpressionSegment"), Ref("PostTableExpressionGrammar")),
+            Ref("AliasExpressionSegment"),
+            optional=True,
+        ),
     )
 
     def get_eventual_alias(self):
@@ -1240,17 +1244,16 @@ class LimitClauseSegment(BaseSegment):
         OneOf(
             Ref("NumericLiteralSegment"),
             Sequence(
-                Ref("NumericLiteralSegment"),
-                "OFFSET",
-                Ref("NumericLiteralSegment")
+                Ref("NumericLiteralSegment"), "OFFSET", Ref("NumericLiteralSegment")
             ),
             Sequence(
                 Ref("NumericLiteralSegment"),
                 Ref("CommaSegment"),
-                Ref("NumericLiteralSegment")
-            )
-        )
+                Ref("NumericLiteralSegment"),
+            ),
+        ),
     )
+
 
 @ansi_dialect.segment()
 class ValuesClauseSegment(BaseSegment):

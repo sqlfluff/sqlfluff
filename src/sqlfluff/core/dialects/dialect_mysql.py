@@ -4,7 +4,7 @@ For now the only change is the parsing of comments.
 https://dev.mysql.com/doc/refman/8.0/en/differences-from-ansi.html
 """
 
-from ..parser import NamedSegment, OneOf, Ref
+from ..parser import NamedSegment, OneOf, Ref, Sequence, Bracketed
 
 from .dialect_ansi import ansi_dialect
 
@@ -33,6 +33,13 @@ mysql_dialect.replace(
         Ref("BooleanLiteralGrammar"),
         Ref("QualifiedNumericLiteralSegment"),
         Ref("NullKeywordSegment"),
+    ),
+    PostTableExpressionGrammar=Sequence(
+        OneOf("IGNORE", "FORCE", "USE"),
+        OneOf("INDEX", "KEY"),
+        "FOR",
+        OneOf("JOIN", Sequence("GROUP", "BY"), Sequence("ORDER", "BY")),
+        Bracketed(Ref("ObjectReferenceSegment")),
     ),
 )
 
