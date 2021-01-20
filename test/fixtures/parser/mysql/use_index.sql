@@ -1,0 +1,1 @@
+SELECT * FROM t1 test USE INDEX (i2) ORDER BY a;

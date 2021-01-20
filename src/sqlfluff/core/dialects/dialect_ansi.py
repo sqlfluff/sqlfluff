@@ -661,8 +661,12 @@ class TableExpressionSegment(BaseSegment):
             Bracketed(Ref("SelectableGrammar")),
             # Values clause?
         ),
-        Ref("AliasExpressionSegment", optional=True),
-        Ref("PostTableExpressionGrammar", optional=True),
+        OneOf(
+            Ref("PostTableExpressionGrammar"),
+            Sequence(Ref("AliasExpressionSegment"), Ref("PostTableExpressionGrammar")),
+            Ref("AliasExpressionSegment"),
+            optional=True,
+        ),
     )
 
     def get_eventual_alias(self):
