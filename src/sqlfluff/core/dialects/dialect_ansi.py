@@ -1624,6 +1624,12 @@ class AccessStatementSegment(BaseSegment):
     Grant specific information:
      * https://www.postgresql.org/docs/9.0/sql-grant.html
      * https://docs.snowflake.com/en/sql-reference/sql/grant-privilege.html
+
+    Revoke specific information:
+     * https://www.postgresql.org/docs/9.0/sql-revoke.html
+     * https://docs.snowflake.com/en/sql-reference/sql/revoke-role.html
+     * https://docs.snowflake.com/en/sql-reference/sql/revoke-privilege.html
+     * https://docs.snowflake.com/en/sql-reference/sql/revoke-privilege-share.html
     """
 
     type = "access_statement"
@@ -1696,6 +1702,7 @@ class AccessStatementSegment(BaseSegment):
             "OPERATE",
             "APPLY",
             "OWNERSHIP",
+            "REFERENCE_USAGE",
             Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
         ),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
@@ -1725,6 +1732,7 @@ class AccessStatementSegment(BaseSegment):
                 optional=True,
             ),
             Ref("ObjectReferenceSegment"),
+            Ref("FunctionParameterGrammar", optional=True),
         ),
     )
 
@@ -1745,7 +1753,7 @@ class AccessStatementSegment(BaseSegment):
                 Sequence("ROLE", Ref("ObjectReferenceSegment")),
             ),
             "TO",
-            OneOf("GROUP", "USER", "ROLE", optional=True),
+            OneOf("GROUP", "USER", "ROLE", "SHARE", optional=True),
             OneOf(
                 Ref("ObjectReferenceSegment"),
                 "PUBLIC",
@@ -1759,36 +1767,20 @@ class AccessStatementSegment(BaseSegment):
         # Based on https://www.postgresql.org/docs/12/sql-revoke.html
         Sequence(
             "REVOKE",
-            Delimited(  # List of permission types
-                Sequence(
-                    Sequence("GRANT", "OPTION", "FOR", optional=True),
-                    OneOf(  # Permission type
-                        Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
-                        "SELECT",
-                        "UPDATE",
-                        "INSERT",
-                    ),
-                    # Optional list of column names
-                    Ref("BracketedColumnReferenceListGrammar", optional=True),
-                ),
-                delimiter=Ref("CommaSegment"),
-            ),
-            "ON",
+            Sequence("GRANT", "OPTION", "FOR", optional=True),
             OneOf(
                 Sequence(
-                    Ref.keyword("TABLE", optional=True),
-                    Ref("TableReferenceSegment"),
+                    Delimited(
+                        OneOf(_global_permissions, _permissions),
+                        delimiter=Ref("CommaSegment"),
+                    ),
+                    "ON",
+                    _objects,
                 ),
-                Sequence(
-                    "ALL",
-                    "TABLES",
-                    "IN",
-                    "SCHEMA",
-                    Ref("ObjectReferenceSegment"),
-                ),
+                Sequence("ROLE", Ref("ObjectReferenceSegment")),
             ),
             "FROM",
-            OneOf("GROUP", "USER", "ROLE", optional=True),
+            OneOf("GROUP", "USER", "ROLE", "SHARE", optional=True),
             Ref("ObjectReferenceSegment"),
             OneOf("RESTRICT", Ref.keyword("CASCADE", optional=True), optional=True),
         ),
@@ -1938,26 +1930,33 @@ class CreateFunctionStatementSegment(BaseSegment):
         "FUNCTION",
         Sequence("IF", "NOT", "EXISTS", optional=True),
         Ref("FunctionNameSegment"),
-        # Function parameter list
-        Bracketed(
-            Delimited(
-                # Odd syntax, but prevents eager parameters being confused for data types
-                OneOf(
-                    Sequence(
-                        Ref("ParameterNameSegment", optional=True),
-                        OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
-                    ),
-                    OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
-                ),
-                delimiter=Ref("CommaSegment"),
-            )
-        ),
+        Ref("FunctionParameterGrammar"),
         Sequence(  # Optional function return type
             "RETURNS",
             Ref("DatatypeSegment"),
             optional=True,
         ),
         Ref("FunctionDefinitionGrammar"),
+    )
+
+
+@ansi_dialect.segment()
+class FunctionParameterGrammar(BaseSegment):
+    """The parameters for a function ie. `(string, number)`"""
+
+    # Function parameter list
+    match_grammar = Bracketed(
+        Delimited(
+            # Odd syntax, but prevents eager parameters being confused for data types
+            OneOf(
+                Sequence(
+                    Ref("ParameterNameSegment", optional=True),
+                    OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
+                ),
+                OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
+            ),
+            delimiter=Ref("CommaSegment"),
+        )
     )
 
 

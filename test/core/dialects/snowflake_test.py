@@ -63,6 +63,31 @@ from sqlfluff.core.dialects.dialect_ansi import AccessStatementSegment
             AccessStatementSegment,
             "grant ownership on all tables in schema mydb.public to role analyst copy current grants;",
         ),
+        (AccessStatementSegment, "revoke role analyst from role sysadmin;"),
+        (
+            AccessStatementSegment,
+            "revoke select,insert on future tables in schema mydb.myschema from role role1;",
+        ),
+        (
+            AccessStatementSegment,
+            "revoke all privileges on function add5(number) from role analyst;",
+        ),
+        (
+            AccessStatementSegment,
+            "revoke grant option for operate on warehouse report_wh from role analyst;",
+        ),
+        (
+            AccessStatementSegment,
+            "revoke select on all tables in schema mydb.myschema from role analyst;",
+        ),
+        (
+            AccessStatementSegment,
+            "revoke operate on warehouse report_wh from role analyst;",
+        ),
+        (
+            AccessStatementSegment,
+            "revoke reference_usage on database database2 from share share1;",
+        ),
         # Testing https://github.com/sqlfluff/sqlfluff/issues/634
         (
             SemiStructuredAccessorSegment,
