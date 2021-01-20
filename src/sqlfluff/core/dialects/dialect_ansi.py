@@ -1685,6 +1685,7 @@ class AccessStatementSegment(BaseSegment):
                     "PIPE",
                     _schema_object_types,
                 ),
+                delimiter=Ref("CommaSegment"),
             ),
             Sequence("IMPORTED", "PRIVILEGES"),
             "MODIFY",
@@ -1930,33 +1931,26 @@ class CreateFunctionStatementSegment(BaseSegment):
         "FUNCTION",
         Sequence("IF", "NOT", "EXISTS", optional=True),
         Ref("FunctionNameSegment"),
-        Ref("FunctionParameterGrammar"),
+        # Function parameter list
+        Bracketed(
+            Delimited(
+                # Odd syntax, but prevents eager parameters being confused for data types
+                OneOf(
+                    Sequence(
+                        Ref("ParameterNameSegment", optional=True),
+                        OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
+                    ),
+                    OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
+                ),
+                delimiter=Ref("CommaSegment"),
+            )
+        ),
         Sequence(  # Optional function return type
             "RETURNS",
             Ref("DatatypeSegment"),
             optional=True,
         ),
         Ref("FunctionDefinitionGrammar"),
-    )
-
-
-@ansi_dialect.segment()
-class FunctionParameterGrammar(BaseSegment):
-    """The parameters for a function ie. `(string, number)`"""
-
-    # Function parameter list
-    match_grammar = Bracketed(
-        Delimited(
-            # Odd syntax, but prevents eager parameters being confused for data types
-            OneOf(
-                Sequence(
-                    Ref("ParameterNameSegment", optional=True),
-                    OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
-                ),
-                OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
-            ),
-            delimiter=Ref("CommaSegment"),
-        )
     )
 
 
