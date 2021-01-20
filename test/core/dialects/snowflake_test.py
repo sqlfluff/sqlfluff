@@ -9,6 +9,7 @@ from sqlfluff.core.dialects.dialect_snowflake import (
     CreateStatementSegment,
     CreateCloneStatementSegment,
 )
+from sqlfluff.core.dialects.dialect_ansi import AccessStatementSegment
 
 
 @pytest.mark.parametrize(
@@ -36,6 +37,31 @@ from sqlfluff.core.dialects.dialect_snowflake import (
         (
             CreateCloneStatementSegment,
             "create table orders_clone_restore clone orders at (timestamp => to_timestamp_tz('04/05/2013 01:02:03', 'mm/dd/yyyy hh24:mi:ss'));",
+        ),
+        (
+            AccessStatementSegment,
+            "GRANT OWNERSHIP ON SCHEMA MY_DATABASE.MY_SCHEMA TO ROLE MY_ROLE;",
+        ),
+        (AccessStatementSegment, "GRANT ROLE MY_ROLE TO ROLE MY_OTHER_ROLE;"),
+        (
+            AccessStatementSegment,
+            "grant use_any_role on integration external_oauth_1 to role1;",
+        ),
+        (
+            AccessStatementSegment,
+            "grant ownership on table myschema.mytable to role analyst;",
+        ),
+        (
+            AccessStatementSegment,
+            "grant ownership on all tables in schema public to role analyst;",
+        ),
+        (
+            AccessStatementSegment,
+            "grant ownership on all tables in schema mydb.public to role analyst;",
+        ),
+        (
+            AccessStatementSegment,
+            "grant ownership on all tables in schema mydb.public to role analyst copy current grants;",
         ),
         # Testing https://github.com/sqlfluff/sqlfluff/issues/634
         (
