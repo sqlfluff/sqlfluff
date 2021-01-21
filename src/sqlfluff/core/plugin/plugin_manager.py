@@ -11,3 +11,6 @@ def get_plugin_manager() -> PluginManager:
     pm.load_setuptools_entrypoints(project_name)
     pm.register(default)
     return pm
+
+
+plugin_manager = get_plugin_manager()

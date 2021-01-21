@@ -11,6 +11,8 @@ from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
 )
 from typing import Tuple, List
+import os.path
+from sqlfluff.core.config import ConfigLoader
 
 
 @document_fix_compatible
@@ -152,3 +154,12 @@ class Rule_Example_L001(BaseCrawler):
 def get_rules() -> List[BaseCrawler]:
     """Get plugin rules."""
     return [Rule_Example_L001]
+
+
+@hookimpl
+def load_default_config() -> dict:
+    """Loads the default configuration for the plugin."""
+    return ConfigLoader.get_global().load_default_config_file(
+        file_dir=os.path.dirname(__file__),
+        file_name="plugin_default_config.cfg",
+    )
