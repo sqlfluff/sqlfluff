@@ -5,12 +5,15 @@ from sqlfluff.core.rules.config_info import STANDARD_CONFIG_INFO_DICT
 from sqlfluff.core.rules.std import (
     get_rules,
 )
-
+from sqlfluff.core.plugin.plugin_manager import get_plugin_manager
 
 std_rule_set = RuleSet(name="standard", config_info=STANDARD_CONFIG_INFO_DICT)
 
+# Initialize the plugin manager
+pm = get_plugin_manager()
+
 # Iterate through the rules list and register each rule with the std_rule_set
-for plugin_rules in get_rules():
+for plugin_rules in pm.hook.get_rules():
     for rule in plugin_rules:
         std_rule_set.register(rule)
 
