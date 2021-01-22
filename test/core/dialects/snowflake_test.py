@@ -8,6 +8,7 @@ from sqlfluff.core.dialects.dialect_snowflake import (
     SemiStructuredAccessorSegment,
     CreateStatementSegment,
     CreateCloneStatementSegment,
+    ShowStatementSegment,
 )
 from sqlfluff.core.dialects.dialect_ansi import AccessStatementSegment
 
@@ -63,6 +64,9 @@ from sqlfluff.core.dialects.dialect_ansi import AccessStatementSegment
             AccessStatementSegment,
             "grant ownership on all tables in schema mydb.public to role analyst copy current grants;",
         ),
+        (ShowStatementSegment, "SHOW GRANTS ON ACCOUNT;"),
+        (ShowStatementSegment, "show tables history in tpch.public;"),
+        (ShowStatementSegment, "show future grants in schema sales.public;"),
         # Testing https://github.com/sqlfluff/sqlfluff/issues/634
         (
             SemiStructuredAccessorSegment,
