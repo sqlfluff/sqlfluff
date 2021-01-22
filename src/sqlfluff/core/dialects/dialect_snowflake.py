@@ -572,7 +572,7 @@ class ShowStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
-        Sequence("STARTS", "WITH", Ref("Expression_A_Grammar"), optional=True),
+        Sequence("STARTS", "WITH", Ref("QuotedLiteralSegment"), optional=True),
         Sequence("WITH", "PRIMARY", Ref("ObjectReferenceSegment"), optional=True),
         Sequence(
             Ref("LimitClauseSegment"),
