@@ -494,7 +494,7 @@ class ShowStatementSegment(BaseSegment):
     https://docs.snowflake.com/en/sql-reference/sql/show.html
     """
 
-    _object_types_pural = OneOf(
+    _object_types_plural = OneOf(
         "PARAMETERS",
         Sequence("GLOBAL", "ACCOUNTS"),
         "REGIONS",
@@ -559,7 +559,7 @@ class ShowStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "SHOW",
         OneOf("TERSE", optional=True),
-        _object_types_pural,
+        _object_types_plural,
         OneOf("HISTORY", optional=True),
         Sequence("LIKE", Ref("ObjectReferenceSegment"), optional=True),
         Sequence(
