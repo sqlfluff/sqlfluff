@@ -563,7 +563,7 @@ class ShowStatementSegment(BaseSegment):
         OneOf("TERSE", optional=True),
         _object_types_plural,
         OneOf("HISTORY", optional=True),
-        Sequence("LIKE", Ref("Expression_A_Grammar"), optional=True),
+        Sequence("LIKE", Ref("QuotedLiteralSegment"), optional=True),
         Sequence(
             OneOf("ON", "TO", "OF", "IN"),
             OneOf(
