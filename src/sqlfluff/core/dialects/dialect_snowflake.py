@@ -544,6 +544,8 @@ class ShowStatementSegment(BaseSegment):
             OneOf(
                 "DATABASE",
                 "SCHEMA",
+                "SHARE",
+                "ROLE",
                 "TABLE",
                 "TASK",
                 "USER",
@@ -561,7 +563,7 @@ class ShowStatementSegment(BaseSegment):
         OneOf("TERSE", optional=True),
         _object_types_plural,
         OneOf("HISTORY", optional=True),
-        Sequence("LIKE", Ref("ObjectReferenceSegment"), optional=True),
+        Sequence("LIKE", Ref("Expression_A_Grammar"), optional=True),
         Sequence(
             OneOf("ON", "TO", "OF", "IN"),
             OneOf(
@@ -570,11 +572,11 @@ class ShowStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
-        Sequence("STARTS", "WITH", Ref("ObjectReferenceSegment"), optional=True),
+        Sequence("STARTS", "WITH", Ref("Expression_A_Grammar"), optional=True),
         Sequence("WITH", "PRIMARY", Ref("ObjectReferenceSegment"), optional=True),
         Sequence(
             Ref("LimitClauseSegment"),
-            Sequence("FROM", Ref("ObjectReferenceSegment"), optional=True),
+            Sequence("FROM", Ref("QuotedLiteralSegment"), optional=True),
             optional=True,
         ),
     )
