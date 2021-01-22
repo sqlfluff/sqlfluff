@@ -51,15 +51,15 @@ snowflake_dialect.insert_lexer_struct(
 
 snowflake_dialect.sets("unreserved_keywords").update(
     [
-        "LATERAL",
+        "API",
         "BERNOULLI",
         "BLOCK",
-        "SEED",
-        "API",
         "HISTORY",
+        "LATERAL",
         "PIPE",
         "PIPES",
         "REGIONS",
+        "SEED",
         "TERSE",
     ]
 )
