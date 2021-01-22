@@ -50,49 +50,31 @@ snowflake_dialect.insert_lexer_struct(
 )
 
 snowflake_dialect.sets("unreserved_keywords").update(
-    ["LATERAL", "BERNOULLI", "BLOCK", "SEED"]
+    [
+        "LATERAL",
+        "BERNOULLI",
+        "BLOCK",
+        "SEED",
+        "API",
+        "HISTORY",
+        "PIPE",
+        "PIPES",
+        "REGIONS",
+        "TERSE",
+    ]
 )
 
 
 snowflake_dialect.sets("reserved_keywords").update(
     [
-        "ACCOUNT",
-        "API",
         "CLONE",
-        "FUNCTIONS",
-        "FUTURE",
-        "HISTORY",
-        "INTEGRATIONS",
-        "LOCKS",
         "MASKING",
-        "MATERIALIZED",
         "NETWORK",
         "NOTIFICATION",
-        "OBJECTS",
-        "PIPE",
-        "PIPES",
         "PIVOT",
-        "PROCEDURES",
-        "REGIONS",
-        "ROLES",
         "SAMPLE",
-        "SEQUENCES",
-        "SHARES",
-        "STAGE",
-        "STAGES",
-        "STARTS",
-        "STREAM",
-        "STREAMS",
         "TABLESAMPLE",
-        "TASK",
-        "TASKS",
-        "TERSE",
-        "TRANSACTIONS",
         "UNPIVOT",
-        "USERS",
-        "VIEWS",
-        "WAREHOUSE",
-        "WAREHOUSES",
     ]
 )
 

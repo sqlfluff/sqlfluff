@@ -1,6 +1,6 @@
 """Runs the rule test cases."""
 import os
-import glob
+from glob import glob
 
 import pytest
 import oyaml as yaml
@@ -14,7 +14,7 @@ test_cases_path = os.path.join(
     os.path.abspath(os.path.dirname(__file__)), "test_cases", "*.yml"
 )
 
-for path in sorted(glob.glob(test_cases_path)):
+for path in sorted(glob(test_cases_path)):
     with open(path) as f:
         raw = f.read()
 
