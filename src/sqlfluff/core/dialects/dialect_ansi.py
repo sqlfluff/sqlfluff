@@ -1942,7 +1942,7 @@ class CreateFunctionStatementSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class FunctionParameterGrammar(BaseSegment):
-    """The parameters for a function ie. `(string, number)`"""
+    """The parameters for a function ie. `(string, number)`."""
 
     # Function parameter list
     match_grammar = Bracketed(
