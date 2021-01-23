@@ -108,19 +108,6 @@ def test__templater_dbt_slice_file_wrapped_test(
             raw_file,
             templated_file,
         )
-    # Check contigious on the TEMPLATED VERSION
-    print(resp)
-    prev_slice = None
-    for elem in resp:
-        print(elem)
-        if prev_slice:
-            assert elem[2].start == prev_slice.stop
-        prev_slice = elem[2]
-    # Check that all literal segments have a raw slice
-    for elem in resp:
-        if elem[0] == "literal":
-            assert elem[1] is not None
-    # check result
     assert resp == result
 
 
