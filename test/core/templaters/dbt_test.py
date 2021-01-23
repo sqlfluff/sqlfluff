@@ -91,13 +91,18 @@ select * from a
 )select count(*) from dbt__CTE__INTERNAL_test
 """,
             [
+                ("templated", slice(0, 0, None), slice(0, 35, None)),
                 ("literal", slice(0, 15, None), slice(35, 50, None)),
+                ("templated", slice(15, 15, None), slice(50, 97, None)),
             ],
         )
     ],
 )
-def test__templater_dbt_slice_file(raw_file, templated_file, result, caplog):
-    """Test slice_file."""
+def test__templater_dbt_slice_file_wrapped_test(
+    raw_file, templated_file, result, caplog
+):
+    """Test slice_file on a dbt test, which is a wrapped query."""
+    #  See https://github.com/sqlfluff/sqlfluff/pull/603
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.templater"):
         _, resp = DbtTemplater.slice_file(
             raw_file,

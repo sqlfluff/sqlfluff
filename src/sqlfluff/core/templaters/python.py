@@ -285,7 +285,46 @@ class PythonTemplater(RawTemplater):
             )
         )
         templater_logger.debug("    Fully Sliced: %s", sliced_file)
+        sliced_file = cls._check_for_wrapped(sliced_file, templated_str)
         return raw_sliced, sliced_file
+
+    @classmethod
+    def _check_for_wrapped(
+        cls, slices: List[RawFileSlice], templated_str: str
+    ) -> List[RawFileSlice]:
+        """Identify a wrapped query (e.g. dbt test) and add a slice at start and end."""
+        if not slices:
+            # If there are no slices, return
+            return slices
+        first_slice = slices[0]
+        last_slice = slices[-1]
+        if (
+            first_slice.source_slice.start == 0
+            and first_slice.templated_slice.start != 0
+        ):
+            #  This means that there is text at the start of the templated file which doesn't exist
+            #  in the raw file. Handle this by adding a templated slice (though it's not really templated)
+            #  between 0 and 0 in the raw, and 0 and the current first slice start index in the templated.
+            slices.insert(
+                0,
+                TemplatedFileSlice(
+                    "templated",
+                    slice(0, 0),
+                    slice(0, first_slice.templated_slice.start),
+                ),
+            )
+        if last_slice.templated_slice.stop != len(templated_str):
+            #  This means that there is text at the end of the templated file which doesn't exist
+            #  in the raw file. Handle this by adding a templated slice beginning and ending at the
+            #  end of the raw, and the current last slice stop and file end in the templated.
+            slices.append(
+                TemplatedFileSlice(
+                    "templated",
+                    slice(last_slice.source_slice.stop, last_slice.source_slice.stop),
+                    slice(last_slice.templated_slice.stop, len(templated_str)),
+                )
+            )
+        return slices
 
     @classmethod
     def _substring_occurances(
