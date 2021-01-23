@@ -290,8 +290,8 @@ class PythonTemplater(RawTemplater):
 
     @classmethod
     def _check_for_wrapped(
-        cls, slices: List[RawFileSlice], templated_str: str
-    ) -> List[RawFileSlice]:
+        cls, slices: List[TemplatedFileSlice], templated_str: str
+    ) -> List[TemplatedFileSlice]:
         """Identify a wrapped query (e.g. dbt test) and add a slice at start and end."""
         if not slices:
             # If there are no slices, return
