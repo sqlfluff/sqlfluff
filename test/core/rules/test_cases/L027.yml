@@ -10,3 +10,14 @@ test_1:
   configs:
     core:
       dialect: bigquery
+
+test_2:
+  # Allow use of Snowflake date parts (which are not quoted and were previously
+  # mistaken for column references and flagged by this rule).
+  pass_str: |
+    SELECT datediff(year, a.column1, b.column2)
+    FROM a
+    JOIN b ON a.id = b.id
+  configs:
+    core:
+      dialect: snowflake
