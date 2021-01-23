@@ -517,7 +517,10 @@ class QualifiedNumericLiteralSegment(BaseSegment):
 ansi_dialect.add(
     # FunctionContentsExpressionGrammar intended as a hook to override
     # in other dialects.
-    FunctionContentsExpressionGrammar=Ref("ExpressionSegment"),
+    FunctionContentsExpressionGrammar=OneOf(
+        Ref("DatetimeUnitSegment"),
+        Ref("ExpressionSegment"),
+    ),
     FunctionContentsGrammar=OneOf(
         # A Cast-like function
         Sequence(Ref("ExpressionSegment"), "AS", Ref("DatatypeSegment")),

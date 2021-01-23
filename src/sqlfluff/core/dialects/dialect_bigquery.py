@@ -60,10 +60,11 @@ bigquery_dialect.add(
     StructKeywordSegment=KeywordSegment.make("struct", name="struct"),
 )
 
+
 # Add additional datetime units
 # https://cloud.google.com/bigquery/docs/reference/standard-sql/date_functions#extract
 bigquery_dialect.sets("datetime_units").update(
-    ["MICROSECOND", "DAYOFWEEK", "ISOWEEK", "ISOYEAR", "DATE", "DATETIME", "TIME"]
+    ["MICROSECOND", "DAYOFWEEK", "ISOWEEK", "ISOWEEKMONTH", "ISOYEAR", "DATE", "DATETIME", "TIME"]
 )
 
 # Unreserved Keywords
@@ -317,3 +318,11 @@ class TypelessStructSegment(BaseSegment):
             optional=True,
         ),
     )
+
+
+bigquery_dialect.replace(
+    FunctionContentsExpressionGrammar=OneOf(
+        Ref("DatetimeUnitSegment"),
+        Ref("ExpressionSegment"),
+    ),
+)
