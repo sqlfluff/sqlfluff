@@ -104,7 +104,9 @@ snowflake_dialect.replace(
     ),
     PreTableFunctionKeywordsGrammar=OneOf(Ref("LateralKeywordSegment")),
     FunctionContentsExpressionGrammar=OneOf(
-        Ref("NamedParameterExpressionSegment"), Ref("ExpressionSegment")
+        Ref("DatetimeUnitSegment"),
+        Ref("NamedParameterExpressionSegment"),
+        Ref("ExpressionSegment")
     ),
     JoinLikeClauseGrammar=Sequence(
         OneOf(
