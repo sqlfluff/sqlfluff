@@ -221,6 +221,8 @@ class SQLLintError(SQLBaseError):
         )
 
     def __repr__(self):
-        return "<SQLLintError: rule {0} pos:{1!r}, #fixes: {2}>".format(
-            self.rule_code(), self.pos_marker(), len(self.fixes)
+        return (
+            "<SQLLintError: rule {0} pos:{1!r}, #fixes: {2}, description: {3}>".format(
+                self.rule_code(), self.pos_marker(), len(self.fixes), self.description
+            )
         )

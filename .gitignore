@@ -1,6 +1,7 @@
 # Ignore IDE files
 .vscode
 .idea
+.sqlfluff
 
 # Ignore Python cache and prebuilt things
 .cache
@@ -32,3 +33,4 @@ test-reports
 # Ignore root testing sql & python files
 /test*.sql
 /test*.py
+/.hypothesis/

@@ -22,7 +22,11 @@ test_single_select_target_and_new_line_between_select_and_select_target:
         *
     from x
 
-test_mulitple_select_targets_all_on_the_same_line:
+test_multiple_select_targets_all_on_the_same_line:
   fail_str: |
     select a, b, c
     from x
+
+test_multiple_select_targets_trailing_whitespace_after_select:
+  # TRICKY: Use explicit newlines to preserve the trailing space after "SELECT".
+  pass_str: "SELECT \n    a,\n    b\nFROM t\n"

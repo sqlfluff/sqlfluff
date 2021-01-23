@@ -3,9 +3,12 @@ from typing import NamedTuple
 
 import pytest
 
-from sqlfluff.core import Linter, FluffConfig
+from sqlfluff.core import Linter
+from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.rules.base import BaseCrawler, LintResult, LintFix
-from sqlfluff.core.rules.std import std_rule_set
+from sqlfluff.core.rules import std_rule_set
+from sqlfluff.core.rules.doc_decorators import document_configuration
+from sqlfluff.core.config import FluffConfig
 
 from test.fixtures.dbt.templater import (  # noqa
     DBT_FLUFF_CONFIG,
@@ -23,6 +26,7 @@ class RuleTestCase(NamedTuple):
     fail_str: str = None
     fix_str: str = None
     configs: dict = None
+    skip: str = None
 
 
 def get_rule_from_set(code, config):
@@ -41,6 +45,9 @@ def assert_rule_fail_in_sql(code, sql, configs=None):
     linted = Linter(config=cfg).lint_string(sql, fix=True)
     lerrs = linted.get_violations()
     print("Errors Found: {0}".format(lerrs))
+    parse_errors = list(filter(lambda v: type(v) == SQLParseError, lerrs))
+    if parse_errors:
+        pytest.fail(f"Found the following parse errors in test case: {parse_errors}")
     if not any(v.rule.code == code for v in lerrs):
         pytest.fail(
             "No {0} failures found in query which should fail.".format(code),
@@ -56,6 +63,8 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     cfg = FluffConfig(configs=configs)
     r = get_rule_from_set(code, config=cfg)
     parsed = Linter(config=cfg).parse_string(sql)
+    if parsed.violations:
+        pytest.fail(parsed.violations[0].desc() + "\n" + parsed.tree.stringify())
     print("Parsed:\n {0}".format(parsed.tree.stringify()))
     lerrs, _, _, _ = r.crawl(parsed.tree, dialect=cfg.get("dialect_obj"), fix=True)
     print("Errors Found: {0}".format(lerrs))
@@ -80,6 +89,9 @@ def rules__test_helper(test_case):
 
     Optionally, also test the fixed string if provided in the test case.
     """
+    if test_case.skip:
+        pytest.skip(test_case.skip)
+
     if test_case.pass_str:
         assert_rule_pass_in_sql(
             test_case.rule,
@@ -295,7 +307,7 @@ def test_rules_cannot_be_instantiated_without_declared_configs():
 def test_rules_configs_are_dynamically_documented():
     """Ensure that rule configurations are added to the class docstring."""
 
-    @std_rule_set.document_configuration
+    @document_configuration
     class RuleWithConfig(BaseCrawler):
         """A new rule with configuration."""
 
@@ -304,7 +316,7 @@ def test_rules_configs_are_dynamically_documented():
     assert "comma_style" in RuleWithConfig.__doc__
     assert "only_aliases" in RuleWithConfig.__doc__
 
-    @std_rule_set.document_configuration
+    @document_configuration
     class RuleWithoutConfig(BaseCrawler):
         """A new rule without configuration."""
 

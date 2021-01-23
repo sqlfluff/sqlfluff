@@ -6,7 +6,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
 ### Added
 
 - Public API to enable people to import `sqlfluff` as a python module
@@ -56,9 +55,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `dbt` `incremental` macro. ([#363](https://github.com/sqlfluff/sqlfluff/pull/363))
 - Added links to cockroachlabs expression grammars in ansi dialect. ([#592](https://github.com/sqlfluff/sqlfluff/pull/592))
 - Added favicon to the docs website. ([#589](https://github.com/sqlfluff/sqlfluff/pull/589))
+- Added `CREATE FUNCTION` syntax for postgres and for bigquery. ([#325](https://github.com/sqlfluff/sqlfluff/pull/325))
 
 ### Changed
 
+- [#634](https://github.com/sqlfluff/sqlfluff/issues/635) Fixed parsing of semi-structured objects in the snowflake of dialects with whitespace gaps.
+- [#632](https://github.com/sqlfluff/sqlfluff/pull/632) Handle internal errors elegantly, reporting the stacktrace and the error-surfacing file.
 - [#633](https://github.com/sqlfluff/sqlfluff/issues/633) Improve message for when an automatic fix is not available for L004.
 - Big refactor of logging internally. `Linter` is now decoupled from
   logging so that it can be imported directly by subprojects without
@@ -106,6 +108,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Silenced warnings when fixing from stdin. ([#522](https://github.com/sqlfluff/sqlfluff/pull/522))
 - Allow an underscore as the first char in a semi structured element key. ([#596](https://github.com/sqlfluff/sqlfluff/pull/596))
 - Fix PostFunctionGrammar in the Snowflake dialect which was causing strange behaviour in L012. ([#619](https://github.com/sqlfluff/sqlfluff/pull/619/files))
+- `Bracketed` segment now obtains its brackets directly from the dialect
+  using a set named `bracket_pairs`. This now enables better configuration
+  of brackets between dialects. ([#325](https://github.com/sqlfluff/sqlfluff/pull/325))
 
 ### Removed
 - Dropped support for python 3.5. ([#482](https://github.com/sqlfluff/sqlfluff/pull/482))

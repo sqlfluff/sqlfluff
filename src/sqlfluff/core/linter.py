@@ -3,6 +3,7 @@
 import os
 import time
 import logging
+import traceback
 from typing import (
     Any,
     Dict,
@@ -52,7 +53,6 @@ class ProtoFile(NamedTuple):
     violations: list
     time_dict: dict
     tree: Any
-    file_mask: Any
     ignore_mask: list
 
 
@@ -447,17 +447,7 @@ class LintedFile(NamedTuple):
         return str_buff, str_buff != original_source
 
     def persist_tree(self, suffix: str = "") -> bool:
-        """Persist changes to the given path.
-
-        We use the file_mask to do a safe merge, avoiding any templated
-        sections. First we need to detect where there have been changes
-        between the fixed and templated versions.
-
-        We use difflib.SequenceMatcher.get_opcodes
-        See: https://docs.python.org/3.7/library/difflib.html#difflib.SequenceMatcher.get_opcodes
-        It returns a list of tuples ('equal|replace', ia1, ia2, ib1, ib2).
-
-        """
+        """Persist changes to the given path."""
         write_buff, success = self.fix_string()
 
         if success:
@@ -1247,11 +1237,21 @@ class Linter:
             with open(
                 fname, "r", encoding="utf8", errors="backslashreplace"
             ) as target_file:
-                linted_path.add(
-                    self.lint_string(
-                        target_file.read(), fname=fname, fix=fix, config=config
+                try:
+                    linted_path.add(
+                        self.lint_string(
+                            target_file.read(), fname=fname, fix=fix, config=config
+                        )
                     )
-                )
+                except IOError as e:  # IOErrors caught in commands.py, so still raise it
+                    raise (e)
+                except Exception:
+                    linter_logger.warning(
+                        f"""Unable to lint {fname} due to an internal error. \
+Please report this as an issue with your query's contents and stacktrace below!
+To hide this warning, add the failing file to .sqlfluffignore
+{traceback.format_exc()}""",
+                    )
         return linted_path
 
     def lint_paths(

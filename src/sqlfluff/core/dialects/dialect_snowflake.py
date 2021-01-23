@@ -15,7 +15,7 @@ from ..parser import (
     Sequence,
     AnyNumberOf,
     ReSegment,
-    KeywordSegment,
+    SymbolSegment,
     Bracketed,
     Anything,
     Delimited,
@@ -38,7 +38,7 @@ snowflake_dialect.patch_lexer_struct(
 
 snowflake_dialect.insert_lexer_struct(
     # Keyword assigner needed for keyword functions.
-    [("keyword_assigner", "regex", r"=>", dict(is_code=True))],
+    [("parameter_assigner", "regex", r"=>", dict(is_code=True))],
     before="not_equal",
 )
 
@@ -50,17 +50,31 @@ snowflake_dialect.insert_lexer_struct(
 )
 
 snowflake_dialect.sets("unreserved_keywords").update(
-    ["LATERAL", "BERNOULLI", "BLOCK", "SEED"]
+    [
+        "API",
+        "BERNOULLI",
+        "BLOCK",
+        "HISTORY",
+        "LATERAL",
+        "PIPE",
+        "PIPES",
+        "REGIONS",
+        "SEED",
+        "TERSE",
+    ]
 )
 
 
 snowflake_dialect.sets("reserved_keywords").update(
     [
+        "CLONE",
+        "MASKING",
+        "NETWORK",
+        "NOTIFICATION",
+        "PIVOT",
         "SAMPLE",
         "TABLESAMPLE",
-        "PIVOT",
         "UNPIVOT",
-        "WAREHOUSE",
     ]
 )
 
@@ -69,7 +83,7 @@ snowflake_dialect.add(
     # In snowflake, these are case sensitive even though they're not quoted
     # so they need a different `name` and `type` so they're not picked up
     # by other rules.
-    ParameterAssignerSegment=KeywordSegment.make(
+    ParameterAssignerSegment=SymbolSegment.make(
         "=>", name="parameter_assigner", type="parameter_assigner"
     ),
     NakedSemiStructuredElementSegment=ReSegment.make(
@@ -141,6 +155,9 @@ class StatementSegment(BaseSegment):
         Ref("CreateModelStatementSegment"),
         Ref("DropModelStatementSegment"),
         Ref("UseStatementSegment"),
+        Ref("CreateStatementSegment"),
+        Ref("CreateCloneStatementSegment"),
+        Ref("ShowStatementSegment"),
     )
 
 
@@ -170,7 +187,7 @@ class FromAtExpressionSegment(BaseSegment):
         "AT",
         Bracketed(
             OneOf("TIMESTAMP", "OFFSET", "STATEMENT"),
-            Ref("KeywordAssignerSegment"),
+            Ref("ParameterAssignerSegment"),
             Ref("ExpressionSegment"),
         ),
     )
@@ -185,7 +202,11 @@ class FromBeforeExpressionSegment(BaseSegment):
 
     parse_grammar = Sequence(
         "BEFORE",
-        Bracketed("STATEMENT", Ref("KeywordAssignerSegment"), Ref("StringLiteral")),
+        Bracketed(
+            OneOf("TIMESTAMP", "OFFSET", "STATEMENT"),
+            Ref("ParameterAssignerSegment"),
+            Ref("ExpressionSegment"),
+        ),
     )
 
 
@@ -289,14 +310,11 @@ class SemiStructuredAccessorSegment(BaseSegment):
                     Ref("QuotedSemiStructuredElementSegment"),
                 ),
                 Ref("ArrayAccessorSegment", optional=True),
-                # No extra whitespace
-                allow_gaps=False,
+                allow_gaps=True,
             ),
-            # No extra whitespace
-            allow_gaps=False,
+            allow_gaps=True,
         ),
-        # No extra whitespace
-        allow_gaps=False,
+        allow_gaps=True,
     )
 
 
@@ -388,4 +406,177 @@ class UseStatementSegment(BaseSegment):
         "USE",
         OneOf("ROLE", "WAREHOUSE", "DATABASE", "SCHEMA", optional=True),
         Ref("ObjectReferenceSegment"),
+    )
+
+
+@snowflake_dialect.segment()
+class CreateCloneStatementSegment(BaseSegment):
+    """A snowflake `CREATE ... CLONE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-clone.html
+    """
+
+    type = "create_clone_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        OneOf(
+            "DATABASE",
+            "SCHEMA",
+            "TABLE",
+            "SEQUENCE",
+            Sequence("FILE", "FORMAT"),
+            "STAGE",
+            "STREAM",
+            "TASK",
+        ),
+        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("SingleIdentifierGrammar"),
+        "CLONE",
+        Ref("SingleIdentifierGrammar"),
+        OneOf(
+            Ref("FromAtExpressionSegment"),
+            Ref("FromBeforeExpressionSegment"),
+            optional=True,
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class CreateStatementSegment(BaseSegment):
+    """A snowflake `CREATE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create.html
+    """
+
+    type = "create_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        OneOf(
+            Sequence("NETWORK", "POLICY"),
+            Sequence("RESOURCE", "MONITOR"),
+            "SHARE",
+            "ROLE",
+            "USER",
+            "WAREHOUSE",
+            Sequence("NOTIFICATION", "INTEGRATION"),
+            Sequence("SECURITY", "INTEGRATION"),
+            Sequence("STORAGE", "INTEGRATION"),
+            Sequence("EXTERNAL", "TABLE"),
+            "VIEW",
+            Sequence("MATERIALIZED", "VIEW"),
+            Sequence("MASKING", "POLICY"),
+            "PIPE",
+            "FUNCTION",
+            Sequence("EXTERNAL", "FUNCTION"),
+            "PROCEDURE",
+            # Objects that also support clone
+            "DATABASE",
+            "SCHEMA",
+            "TABLE",
+            "SEQUENCE",
+            Sequence("FILE", "FORMAT"),
+            "STAGE",
+            "STREAM",
+            "TASK",
+        ),
+        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+@snowflake_dialect.segment()
+class ShowStatementSegment(BaseSegment):
+    """A snowflake `SHOW` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/show.html
+    """
+
+    _object_types_plural = OneOf(
+        "PARAMETERS",
+        Sequence("GLOBAL", "ACCOUNTS"),
+        "REGIONS",
+        Sequence("REPLICATION", "ACCOUNTS"),
+        Sequence("REPLICATION", "DATABASES"),
+        "PARAMETERS",
+        "VARIABLES",
+        "TRANSACTIONS",
+        "LOCKS",
+        "PARAMETERS",
+        "FUNCTIONS",
+        Sequence("NETWORK", "POLICIES"),
+        "SHARES",
+        "ROLES",
+        "GRANTS",
+        "USERS",
+        "WAREHOUSES",
+        "DATABASES",
+        Sequence(
+            OneOf("API", "NOTIFICATION", "SECURITY", "STORAGE", optional=True),
+            "INTEGRATIONS",
+        ),
+        "SCHEMAS",
+        "OBJECTS",
+        "TABLES",
+        Sequence("EXTERNAL", "TABLES"),
+        "VIEWS",
+        Sequence("MATERIALIZED", "VIEWS"),
+        Sequence("MASKING", "POLICIES"),
+        "COLUMNS",
+        Sequence("FILE", "FORMATS"),
+        "SEQUENCES",
+        "STAGES",
+        "PIPES",
+        "STREAMS",
+        "TASKS",
+        Sequence("USER", "FUNCTIONS"),
+        Sequence("EXTERNAL", "FUNCTIONS"),
+        "PROCEDURES",
+        Sequence("FUTURE", "GRANTS"),
+    )
+
+    _object_scope_types = OneOf(
+        "ACCOUNT",
+        "SESSION",
+        Sequence(
+            OneOf(
+                "DATABASE",
+                "SCHEMA",
+                "SHARE",
+                "ROLE",
+                "TABLE",
+                "TASK",
+                "USER",
+                "WAREHOUSE",
+                "VIEW",
+            ),
+            Ref("ObjectReferenceSegment", optional=True),
+        ),
+    )
+
+    type = "show_statement"
+
+    match_grammar = Sequence(
+        "SHOW",
+        OneOf("TERSE", optional=True),
+        _object_types_plural,
+        OneOf("HISTORY", optional=True),
+        Sequence("LIKE", Ref("QuotedLiteralSegment"), optional=True),
+        Sequence(
+            OneOf("ON", "TO", "OF", "IN"),
+            OneOf(
+                Sequence(_object_scope_types),
+                Ref("ObjectReferenceSegment"),
+            ),
+            optional=True,
+        ),
+        Sequence("STARTS", "WITH", Ref("QuotedLiteralSegment"), optional=True),
+        Sequence("WITH", "PRIMARY", Ref("ObjectReferenceSegment"), optional=True),
+        Sequence(
+            Ref("LimitClauseSegment"),
+            Sequence("FROM", Ref("QuotedLiteralSegment"), optional=True),
+            optional=True,
+        ),
     )

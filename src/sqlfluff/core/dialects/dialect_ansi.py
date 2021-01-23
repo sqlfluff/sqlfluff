@@ -101,6 +101,12 @@ ansi_dialect.set_lexer_struct(
     ]
 )
 
+# Set the bare functions
+ansi_dialect.sets("bare_functions").update(
+    ["current_timestamp", "current_time", "current_date"]
+)
+
+
 # Set the datetime units
 ansi_dialect.sets("datetime_units").update(
     [
@@ -125,6 +131,15 @@ ansi_dialect.sets("unreserved_keywords").update(
 
 ansi_dialect.sets("reserved_keywords").update(
     [n.strip().upper() for n in ansi_reserved_keywords.split("\n")]
+)
+
+# Bracket pairs (a set of tuples).
+# (name, startref, endref, definitely_bracket)
+ansi_dialect.sets("bracket_pairs").update(
+    [
+        ("round", "StartBracketSegment", "EndBracketSegment", True),
+        ("square", "StartSquareBracketSegment", "EndSquareBracketSegment", True),
+    ]
 )
 
 ansi_dialect.add(
@@ -179,10 +194,12 @@ ansi_dialect.add(
         "<>", name="not_equal_to", type="comparison_operator"
     ),
     # The following functions can be called without parentheses per ANSI specification
-    BareFunctionSegment=ReSegment.make(
-        r"current_timestamp|current_time|current_date",
-        name="bare_function",
-        type="bare_function",
+    BareFunctionSegment=SegmentGenerator(
+        lambda dialect: ReSegment.make(
+            r"^(" + r"|".join(dialect.sets("bare_functions")) + r")$",
+            name="bare_function",
+            type="bare_function",
+        )
     ),
     # The strange regex here it to make sure we don't accidentally match numeric literals. We
     # also use a regex to explicitly exclude disallowed keywords.
@@ -327,6 +344,17 @@ class IntervalExpressionSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class ArrayLiteralSegment(BaseSegment):
+    """An array literal segment."""
+
+    type = "array_literal_type"
+    match_grammar = Bracketed(
+        Delimited(Ref("ExpressionSegment"), delimiter=Ref("CommaSegment")),
+        bracket_type="square",
+    )
+
+
+@ansi_dialect.segment()
 class DatatypeSegment(BaseSegment):
     """A data type segment."""
 
@@ -431,8 +459,7 @@ class ArrayAccessorSegment(BaseSegment):
             delimiter=Ref("SliceSegment"),
             ephemeral_name="ArrayAccessorContent",
         ),
-        # Use square brackets
-        square=True,
+        bracket_type="square",
     )
 
 
@@ -585,7 +612,13 @@ class PartitionClauseSegment(BaseSegment):
         "PARTITION",
         "BY",
         Indent,
-        Delimited(Ref("ExpressionSegment"), delimiter=Ref("CommaSegment")),
+        OneOf(
+            # Brackets are optional in a partition by statement
+            Bracketed(
+                Delimited(Ref("ExpressionSegment"), delimiter=Ref("CommaSegment"))
+            ),
+            Delimited(Ref("ExpressionSegment"), delimiter=Ref("CommaSegment")),
+        ),
         Dedent,
     )
 
@@ -832,7 +865,7 @@ class JoinClauseSegment(BaseSegment):
 
 ansi_dialect.add(
     # This is a hook point to allow subclassing for other dialects
-    JoinLikeClauseGrammar=Nothing()
+    JoinLikeClauseGrammar=Nothing(),
 )
 
 
@@ -1060,6 +1093,7 @@ ansi_dialect.add(
             Ref("LiteralGrammar"),
             Ref("IntervalExpressionSegment"),
             Ref("ColumnReferenceSegment"),
+            Ref("ArrayLiteralSegment"),
         ),
         Ref("Accessor_Grammar", optional=True),
         Ref("ShorthandCastSegment", optional=True),
@@ -1201,7 +1235,20 @@ class LimitClauseSegment(BaseSegment):
     """A `LIMIT` clause like in `SELECT`."""
 
     type = "limit_clause"
-    match_grammar = Sequence("LIMIT", Ref("NumericLiteralSegment"))
+    match_grammar = Sequence(
+        "LIMIT",
+        OneOf(
+            Ref("NumericLiteralSegment"),
+            Sequence(
+                Ref("NumericLiteralSegment"), "OFFSET", Ref("NumericLiteralSegment")
+            ),
+            Sequence(
+                Ref("NumericLiteralSegment"),
+                Ref("CommaSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+        ),
+    )
 
 
 @ansi_dialect.segment()
@@ -1580,39 +1627,135 @@ class DropStatementSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class AccessStatementSegment(BaseSegment):
-    """A `GRANT` or `REVOKE` statement."""
+    """A `GRANT` or `REVOKE` statement.
+
+    In order to help reduce code duplication we decided to implement other dialect specific grants (like snowflake)
+    here too which will help with maintainability. We also note that this causes the grammar to be less "correct",
+    but the benefits outweigh the con in our opinion.
+
+
+    Grant specific information:
+     * https://www.postgresql.org/docs/9.0/sql-grant.html
+     * https://docs.snowflake.com/en/sql-reference/sql/grant-privilege.html
+    """
 
     type = "access_statement"
-    # Based on https://www.postgresql.org/docs/12/sql-grant.html
+
+    # Privileges that can be set on the account (specific to snowflake)
+    _global_permissions = OneOf(
+        Sequence(
+            "CREATE",
+            OneOf(
+                "ROLE",
+                "USER",
+                "WAREHOUSE",
+                "DATABASE",
+                "INTEGRATION",
+            ),
+        ),
+        Sequence("APPLY", "MASKING", "POLICY"),
+        Sequence("EXECUTE", "TASK"),
+        Sequence("MANAGE", "GRANTS"),
+        Sequence("MONITOR", OneOf("EXECUTION", "USAGE")),
+    )
+
+    _schema_object_names = [
+        "TABLE",
+        "VIEW",
+        "STAGE",
+        "FUNCTION",
+        "PROCEDURE",
+        "SEQUENCE",
+        "STREAM",
+        "TASK",
+    ]
+
+    _schema_object_types = OneOf(
+        *_schema_object_names,
+        Sequence("MATERIALIZED", "VIEW"),
+        Sequence("EXTERNAL", "TABLE"),
+        Sequence("FILE", "FORMAT"),
+    )
+
+    # We reuse the object names above and simply append an `S` to the end of them to get plurals
+    _schema_object_types_plural = OneOf(
+        *[f"{object_name}S" for object_name in _schema_object_names]
+    )
+
+    _permissions = Sequence(
+        OneOf(
+            Sequence(
+                "CREATE",
+                OneOf(
+                    "SCHEMA",
+                    Sequence("MASKING", "POLICY"),
+                    "PIPE",
+                    _schema_object_types,
+                ),
+            ),
+            Sequence("IMPORTED", "PRIVILEGES"),
+            "MODIFY",
+            "USE_ANY_ROLE",
+            "USAGE",
+            "SELECT",
+            "INSERT",
+            "UPDATE",
+            "DELETE",
+            "TRUNCATE",
+            "REFERENCES",
+            "READ",
+            "WRITE",
+            "MONITOR",
+            "OPERATE",
+            "APPLY",
+            "OWNERSHIP",
+            Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
+        ),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+    )
+
+    # All of the object types that we can grant permissions on.
+    # This list will contain ansi sql objects as well as dialect specific ones.
+    _objects = OneOf(
+        "ACCOUNT",
+        Sequence(
+            OneOf(
+                Sequence("RESOURCE", "MONITOR"),
+                "WAREHOUSE",
+                "DATABASE",
+                "INTEGRATION",
+                "SCHEMA",
+                Sequence("ALL", "SCHEMAS", "IN", "DATABASE"),
+                Sequence("FUTURE", "SCHEMAS", "IN", "DATABASE"),
+                _schema_object_types,
+                Sequence("ALL", _schema_object_types_plural, "IN", "SCHEMA"),
+                Sequence(
+                    "FUTURE",
+                    _schema_object_types_plural,
+                    "IN",
+                    OneOf("DATABASE", "SCHEMA"),
+                ),
+                optional=True,
+            ),
+            Ref("ObjectReferenceSegment"),
+        ),
+    )
+
     match_grammar = OneOf(
+        # Based on https://www.postgresql.org/docs/12/sql-grant.html
+        # and https://docs.snowflake.com/en/sql-reference/sql/grant-privilege.html
         Sequence(
             "GRANT",
-            Delimited(  # List of permission types
-                Sequence(
-                    OneOf(  # Permission type
-                        Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
-                        "SELECT",
-                        "UPDATE",
-                        "INSERT",
-                    ),
-                    # Optional list of column names
-                    Ref("BracketedColumnReferenceListGrammar", optional=True),
-                ),
-                delimiter=Ref("CommaSegment"),
-            ),
-            "ON",
             OneOf(
                 Sequence(
-                    Ref.keyword("TABLE", optional=True),
-                    Ref("TableReferenceSegment"),
+                    Delimited(
+                        OneOf(_global_permissions, _permissions),
+                        delimiter=Ref("CommaSegment"),
+                    ),
+                    "ON",
+                    _objects,
                 ),
-                Sequence(
-                    "ALL",
-                    "TABLES",
-                    "IN",
-                    "SCHEMA",
-                    Ref("ObjectReferenceSegment"),
-                ),
+                Sequence("ROLE", Ref("ObjectReferenceSegment")),
             ),
             "TO",
             OneOf("GROUP", "USER", "ROLE", optional=True),
@@ -1620,7 +1763,11 @@ class AccessStatementSegment(BaseSegment):
                 Ref("ObjectReferenceSegment"),
                 "PUBLIC",
             ),
-            Sequence("WITH", "GRANT", "OPTION", optional=True),
+            OneOf(
+                Sequence("WITH", "GRANT", "OPTION"),
+                Sequence("COPY", "CURRENT", "GRANTS"),
+                optional=True,
+            ),
         ),
         # Based on https://www.postgresql.org/docs/12/sql-revoke.html
         Sequence(
@@ -1761,6 +1908,73 @@ class SetClauseSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class FunctionDefinitionGrammar(BaseSegment):
+    """This is the body of a `CREATE FUNCTION AS` statement."""
+
+    match_grammar = Sequence(
+        "AS",
+        Ref("QuotedLiteralSegment"),
+        Sequence(
+            "LANGUAGE",
+            # Not really a parameter, but best fit for now.
+            Ref("ParameterNameSegment"),
+            optional=True,
+        ),
+    )
+
+
+@ansi_dialect.segment()
+class CreateFunctionStatementSegment(BaseSegment):
+    """A `CREATE FUNCTION` statement.
+
+    This version in the ANSI dialect should be a "common subset" of the
+    structure of the code for those dialects.
+    postgres: https://www.postgresql.org/docs/9.1/sql-createfunction.html
+    snowflake: https://docs.snowflake.com/en/sql-reference/sql/create-function.html
+    bigquery: https://cloud.google.com/bigquery/docs/reference/standard-sql/user-defined-functions
+    """
+
+    type = "create_function_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        OneOf("TEMPORARY", "TEMP", optional=True),
+        "FUNCTION",
+        Anything(),
+    )
+
+    parse_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        OneOf("TEMPORARY", "TEMP", optional=True),
+        "FUNCTION",
+        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("FunctionNameSegment"),
+        # Function parameter list
+        Bracketed(
+            Delimited(
+                # Odd syntax, but prevents eager parameters being confused for data types
+                OneOf(
+                    Sequence(
+                        Ref("ParameterNameSegment", optional=True),
+                        OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
+                    ),
+                    OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
+                ),
+                delimiter=Ref("CommaSegment"),
+            )
+        ),
+        Sequence(  # Optional function return type
+            "RETURNS",
+            Ref("DatatypeSegment"),
+            optional=True,
+        ),
+        Ref("FunctionDefinitionGrammar"),
+    )
+
+
+@ansi_dialect.segment()
 class CreateModelStatementSegment(BaseSegment):
     """A BigQuery `CREATE MODEL` statement."""
 
@@ -1789,7 +2003,7 @@ class CreateModelStatementSegment(BaseSegment):
                                     Ref("QuotedLiteralSegment"),
                                     delimiter=Ref("CommaSegment"),
                                 ),
-                                square=True,
+                                bracket_type="square",
                                 optional=True,
                             ),
                         ),
@@ -1862,6 +2076,7 @@ class StatementSegment(BaseSegment):
         Ref("CreateViewStatementSegment"),
         Ref("DeleteStatementSegment"),
         Ref("UpdateStatementSegment"),
+        Ref("CreateFunctionStatementSegment"),
         Ref("CreateModelStatementSegment"),
         Ref("DropModelStatementSegment"),
     )

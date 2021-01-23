@@ -102,4 +102,19 @@ select_from_table_generator:
 
   configs:
     core:
-      dialect: bigquery
+      dialect: snowflake
+
+issue_635:
+  pass_str: |
+    select
+        id::varchar as id,
+        obj:userid::varchar as user_id,
+        redemptions.value:awardedreceiptid::varchar as awarded_receipt_id
+    from
+        a,
+        lateral flatten(input => a.obj:redemptions) redemptions
+
+
+  configs:
+    core:
+      dialect: snowflake

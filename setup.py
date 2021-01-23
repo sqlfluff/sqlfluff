@@ -63,6 +63,7 @@ setup(
         "sqlfluff.core.parser.segments",
         "sqlfluff.core.parser.grammar",
         "sqlfluff.core.rules",
+        "sqlfluff.core.rules.std",
         "sqlfluff.core.templaters",
     ],
     package_dir={"": "src"},
@@ -90,13 +91,13 @@ setup(
     ],
     install_requires=[
         # Core
-        "click>=2.0",
+        "click>=7.1",
         "colorama>=0.3",
         "configparser",
         "oyaml",
         "Jinja2",
         # Used for diffcover plugin
-        "diff-cover>=2.5.0,<3.0",
+        "diff-cover>=2.5.0",
         # Used for performance profiling
         "bench-it",
         # Used for .sqlfluffignore

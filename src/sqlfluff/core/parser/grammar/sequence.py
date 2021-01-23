@@ -10,7 +10,7 @@ from ..match_result import MatchResult
 from ..match_wrapper import match_wrapper
 from ..context import ParseContext
 
-from .base import BaseGrammar, Ref, cached_method_for_parse_context
+from .base import BaseGrammar, cached_method_for_parse_context
 
 
 class Sequence(BaseGrammar):
@@ -173,15 +173,12 @@ class Bracketed(Sequence):
     """
 
     def __init__(self, *args, **kwargs):
-        self.square = kwargs.pop("square", False)
-        # Start and end tokens
-        # The details on how to match a bracket are stored in the dialect
-        if self.square:
-            self.start_bracket = Ref("StartSquareBracketSegment")
-            self.end_bracket = Ref("EndSquareBracketSegment")
-        else:
-            self.start_bracket = Ref("StartBracketSegment")
-            self.end_bracket = Ref("EndBracketSegment")
+        # Store the bracket type. NB: This is only
+        # hydrated into segments at runtime.
+        self.bracket_type = kwargs.pop("bracket_type", "round")
+        # Allow optional override for special bracket-like things
+        self.start_bracket = kwargs.pop("start_bracket", None)
+        self.end_bracket = kwargs.pop("end_bracket", None)
         super(Bracketed, self).__init__(*args, **kwargs)
 
     @cached_method_for_parse_context
@@ -190,7 +187,25 @@ class Bracketed(Sequence):
 
         Bracketed does this easily, we just look for the bracket.
         """
-        return self.start_bracket.simple(parse_context=parse_context)
+        start_bracket, _ = self.get_bracket_from_dialect(parse_context)
+        return start_bracket.simple(parse_context=parse_context)
+
+    def get_bracket_from_dialect(self, parse_context):
+        """Rehydrate the bracket segments in question."""
+        for bracket_type, start_ref, end_ref, _ in parse_context.dialect.sets(
+            "bracket_pairs"
+        ):
+            if bracket_type == self.bracket_type:
+                start_bracket = parse_context.dialect.ref(start_ref)
+                end_bracket = parse_context.dialect.ref(end_ref)
+                break
+        else:
+            raise ValueError(
+                "bracket_type {0!r} not found in bracket_pairs of {1!r} dialect.".format(
+                    self.bracket_type, parse_context.dialect.name
+                )
+            )
+        return start_bracket, end_bracket
 
     @match_wrapper()
     def match(
@@ -214,9 +229,15 @@ class Bracketed(Sequence):
         else:
             seg_buff = segments
 
+        # Rehydrate the bracket segments in question.
+        start_bracket, end_bracket = self.get_bracket_from_dialect(parse_context)
+        # Allow optional override for special bracket-like things
+        start_bracket = self.start_bracket or start_bracket
+        end_bracket = self.end_bracket or end_bracket
+
         # Look for the first bracket
         with parse_context.deeper_match() as ctx:
-            start_match = self.start_bracket.match(seg_buff, parse_context=ctx)
+            start_match = start_bracket.match(seg_buff, parse_context=ctx)
         if start_match:
             seg_buff = start_match.unmatched_segments
         else:
@@ -226,8 +247,10 @@ class Bracketed(Sequence):
         # Look for the closing bracket
         content_segs, end_match, _ = self._bracket_sensitive_look_ahead_match(
             segments=seg_buff,
-            matchers=[self.end_bracket],
+            matchers=[end_bracket],
             parse_context=parse_context,
+            start_bracket=start_bracket,
+            end_bracket=end_bracket,
         )
         if not end_match:
             raise SQLParseError(
