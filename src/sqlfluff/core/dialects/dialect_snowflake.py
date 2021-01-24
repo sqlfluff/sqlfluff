@@ -106,7 +106,7 @@ snowflake_dialect.replace(
     FunctionContentsExpressionGrammar=OneOf(
         Ref("DatetimeUnitSegment"),
         Ref("NamedParameterExpressionSegment"),
-        Ref("ExpressionSegment")
+        Ref("ExpressionSegment"),
     ),
     JoinLikeClauseGrammar=Sequence(
         OneOf(

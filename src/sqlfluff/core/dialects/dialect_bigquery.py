@@ -63,7 +63,16 @@ bigquery_dialect.add(
 # Add additional datetime units
 # https://cloud.google.com/bigquery/docs/reference/standard-sql/date_functions#extract
 bigquery_dialect.sets("datetime_units").update(
-    ["MICROSECOND", "DAYOFWEEK", "ISOWEEK", "ISOWEEKMONTH", "ISOYEAR", "DATE", "DATETIME", "TIME"]
+    [
+        "MICROSECOND",
+        "DAYOFWEEK",
+        "ISOWEEK",
+        "ISOWEEKMONTH",
+        "ISOYEAR",
+        "DATE",
+        "DATETIME",
+        "TIME",
+    ]
 )
 
 # Unreserved Keywords
