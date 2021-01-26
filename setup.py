@@ -63,6 +63,7 @@ setup(
         "sqlfluff.core.parser.segments",
         "sqlfluff.core.parser.grammar",
         "sqlfluff.core.rules",
+        "sqlfluff.core.rules.std",
         "sqlfluff.core.templaters",
     ],
     package_dir={"": "src"},
