@@ -9,8 +9,9 @@ file:
       from_clause:
         - keyword: FROM
         - table_expression:
-            table_reference:
-              identifier: correctly_substituted
+            main_table_expression:
+              table_reference:
+                identifier: correctly_substituted
         - join_clause:
             - keyword: CROSS
             - keyword: JOIN

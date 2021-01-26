@@ -37,7 +37,7 @@ file:
               keyword: AS
               identifier: f
               start_bracket: (
-              identfier_list:
+              identifier_list:
                 - identifier: a
                 - comma: ","
                 - identifier: b
