@@ -988,8 +988,9 @@ class FromClauseSegment(BaseSegment):
         Delimited(
             OneOf(
                 # Optional old school delimited joins
-                Ref("TableExpressionSegment"),
+                # check first for MLTableExpression, because of possible FunctionSegment in MainTableExpression
                 Ref("MLTableExpressionSegment"),
+                Ref("TableExpressionSegment"),
             ),
             terminator=Ref("JoinClauseSegment"),
         ),

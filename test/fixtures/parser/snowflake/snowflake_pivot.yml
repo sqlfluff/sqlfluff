@@ -6,37 +6,39 @@ file:
         select_target_element:
           wildcard_expression:
             wildcard_identifier:
-              star: '*'
+              star: "*"
       from_clause:
         keyword: FROM
         table_expression:
-          table_reference:
-            identifier: my_tbl
+          main_table_expression:
+            table_reference:
+              identifier: my_tbl
         from_pivot_expression:
-        - keyword: PIVOT
-        - start_bracket: (
-        - function:
-            function_name: min
-            start_bracket: (
-            expression:
-              column_reference:
-                identifier: f_val
-            end_bracket: )
-        - keyword: FOR
-        - identifier: f_id
-        - keyword: IN
-        - start_bracket: (
-        - literal: '1'
-        - comma: ','
-        - literal: '2'
-        - end_bracket: )
-        - end_bracket: )
+          - keyword: PIVOT
+          - start_bracket: (
+          - function:
+              function_name: min
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: f_val
+              end_bracket: )
+          - keyword: FOR
+          - identifier: f_id
+          - keyword: IN
+          - start_bracket: (
+          - literal: "1"
+          - comma: ","
+          - literal: "2"
+          - end_bracket: )
+          - end_bracket: )
         table_alias_expression:
-        - alias_expression:
-            keyword: AS
-            identifier: f
-        - start_bracket: (
-        - identifier: a
-        - comma: ','
-        - identifier: b
-        - end_bracket: )
+          - alias_expression:
+              keyword: AS
+              identifier: f
+              start_bracket: (
+              identfier_list:
+                - identifier: a
+                - comma: ","
+                - identifier: b
+              end_bracket: )
