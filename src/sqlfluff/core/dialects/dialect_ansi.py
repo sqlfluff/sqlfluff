@@ -750,7 +750,8 @@ class TableExpressionSegment(BaseSegment):
             return (segment.raw, segment, True)
 
         # If not return the object name (or None if there isn't one)
-        ref = self.get_child("object_reference")
+        # ref = self.get_child("object_reference")
+        ref = self.get_child("main_table_expression").get_child("object_reference")
         if ref:
             # Return the last element of the reference, which
             # will already be a tuple.
