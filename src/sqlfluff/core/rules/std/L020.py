@@ -96,12 +96,16 @@ class Rule_L020(BaseCrawler):
             for join_clause in fc.recursive_crawl("join_clause"):
                 in_using_brackets = False
                 seen_using = False
-                seen_on = False
                 for seg in join_clause.segments:
                     if seg.is_type("keyword") and seg.name == "USING":
                         seen_using = True
-                    elif seg.is_type("keyword") and seg.name == "ON":
-                        seen_on = True
+                    elif seg.is_type("join_on_condition"):
+                        for on_seg in seg:
+                            if on_seg.is_type("expression"):
+                                # Deal with expressions
+                                reference_buffer += list(
+                                    seg.recursive_crawl("object_reference")
+                                )
                     elif seen_using and seg.is_type("start_bracket"):
                         in_using_brackets = True
                     elif seen_using and seg.is_type("end_bracket"):
@@ -109,11 +113,6 @@ class Rule_L020(BaseCrawler):
                         seen_using = False
                     elif in_using_brackets and seg.is_type("identifier"):
                         using_cols.append(seg.raw)
-                    elif seen_on and seg.is_type("expression"):
-                        # Deal with expressions
-                        reference_buffer += list(
-                            seg.recursive_crawl("object_reference")
-                        )
 
             # Work out if we have a parent select function
             parent_select = None

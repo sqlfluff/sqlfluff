@@ -1437,7 +1437,7 @@ class MergeStatementSegment(BaseSegment):
             ),  # subquery
         ),
         Ref("AliasExpressionSegment", optional=True),
-        Ref("JoinOnCondition"),
+        Ref("JoinOnConditionSegment"),
         Ref("MergeMatchedClauseSegment", optional=True),
         Ref("MergeNotMatchedClauseSegment", optional=True),
     )

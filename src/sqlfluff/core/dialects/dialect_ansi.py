@@ -918,7 +918,7 @@ class JoinClauseSegment(BaseSegment):
             # NB: this is optional
             OneOf(
                 # ON clause
-                Ref("JoinOnCondition"),
+                Ref("JoinOnConditionSegment"),
                 # USING clause
                 Sequence(
                     "USING",
@@ -952,7 +952,7 @@ class JoinClauseSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
-class JoinOnCondition(BaseSegment):
+class JoinOnConditionSegment(BaseSegment):
     """The `ON` condition within a `JOIN` clause."""
 
     type = "join_on_condition"
