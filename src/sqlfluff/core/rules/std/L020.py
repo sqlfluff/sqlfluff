@@ -100,7 +100,7 @@ class Rule_L020(BaseCrawler):
                     if seg.is_type("keyword") and seg.name == "USING":
                         seen_using = True
                     elif seg.is_type("join_on_condition"):
-                        for on_seg in seg:
+                        for on_seg in seg.segments:
                             if on_seg.is_type("expression"):
                                 # Deal with expressions
                                 reference_buffer += list(
