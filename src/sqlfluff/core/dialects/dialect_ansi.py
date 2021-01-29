@@ -1526,8 +1526,8 @@ class CreateTableStatementSegment(BaseSegment):
                 Bracketed(
                     Delimited(
                         OneOf(
-                            Ref("ColumnDefinitionSegment"),
                             Ref("TableConstraintSegment"),
+                            Ref("ColumnDefinitionSegment"),
                         ),
                         delimiter=Ref("CommaSegment"),
                     )
