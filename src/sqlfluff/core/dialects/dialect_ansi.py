@@ -11,6 +11,7 @@ labs full sql grammar. In particular their way for dividing up the expression
 grammar. Check out their docs, they're awesome.
 https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 """
+from _collections import OrderedDict
 
 from ..parser import (
     Matchable,
@@ -141,6 +142,16 @@ ansi_dialect.sets("bracket_pairs").update(
         ("square", "StartSquareBracketSegment", "EndSquareBracketSegment", True),
     ]
 )
+
+# Set the value table functions. These are functions that, if they appear as
+# an item in "FROM', are treated as returning a COLUMN, not a TABLE. Currently,
+# apparently only BigQuery has this concept, but it's included in ANSI because
+# it impacts core linter rules and how they interpret the contents of
+# table_expressions.
+ansi_dialect.sets("value_table_functions").update(
+    []
+)
+
 
 ansi_dialect.add(
     # Real segments
@@ -912,10 +923,10 @@ class FromClauseSegment(BaseSegment):
         Dedent.when(indented_joins=True),
     )
 
-    def get_eventual_aliases(self):
-        """List the eventual aliases of this from clause.
+    def get_table_expressions_and_eventual_aliases(self):
+        """List the table expressions and eventual aliases of this from clause.
 
-        Comes as a list of tuples (string, segment).
+        Comes as a list of tuples (table expr, tuples (string, segment)).
         """
         buff = []
         direct_table_children = self.get_children("table_expression")
@@ -923,10 +934,21 @@ class FromClauseSegment(BaseSegment):
         # Iterate through the potential sources of aliases
         for clause in (*direct_table_children, *join_clauses):
             ref = clause.get_eventual_alias()
+            buff.append((clause, ref))
+        return buff
+
+    def get_eventual_aliases(self):
+        """List the eventual aliases of this from clause.
+
+        Comes as a list of tuples (string, segment).
+        """
+        temp_buff = self.get_table_expressions_and_eventual_aliases()
+        buff = []
+        for clause, alias in temp_buff:
             # Only append if non null. A None reference, may
             # indicate a generator expression or similar.
-            if ref:
-                buff.append(ref)
+            if alias:
+                buff.append(alias)
         return buff
 
 

@@ -3,3 +3,12 @@ rule: L020
 test_1:
   # duplicate aliases
   fail_str: select 1 from table_1 as a join table_2 as a using(pk)
+
+test_ignore_value_table_functions:
+  pass_str: |
+    select *
+    from unnest(generate_timestamp_array(
+        '2020-01-01', '2020-01-30', interval 1 day)) as ts
+  configs:
+    core:
+      dialect: bigquery
