@@ -52,7 +52,7 @@ class Rule_L020(BaseCrawler):
         return function_name.raw in dialect.sets("value_table_functions")
 
     @classmethod
-    def _get_aliases_from_select(cls, segment, dialect):
+    def _get_aliases_from_select(cls, segment, dialect=None):
         # Get the aliases referred to in the clause
         fc = segment.get_child("from_clause")
         if not fc:
