@@ -35,8 +35,13 @@ class Rule_L020(BaseCrawler):
         return None
 
     @staticmethod
-    def _has_value_table_function(clause, dialect):
-        function = clause.get_child('function')
+    def _has_value_table_function(table_expr, dialect):
+        if not dialect:
+            # We need the dialect to get the value table function names. If
+            # we don't have it, assume the clause does not have one.
+            return False
+
+        function = table_expr.get_child('function')
         if not function:
             return False
 
@@ -59,12 +64,12 @@ class Rule_L020(BaseCrawler):
         # * None values
         # * Aliases for table value functions
         result = []
-        for clause, alias in aliases:
-            if alias and not cls._has_value_table_function(clause, dialect):
+        for table_expr, alias in aliases:
+            if alias and not cls._has_value_table_function(table_expr, dialect):
                 result.append(alias)
         return result
 
-    def _eval(self, segment, parent_stack, dialect, **kwargs):
+    def _eval(self, segment, parent_stack, **kwargs):
         """Get References and Aliases and allow linting.
 
         This rule covers a lot of potential cases of odd usages of
@@ -74,7 +79,7 @@ class Rule_L020(BaseCrawler):
         `_lint_references_and_aliases` method.
         """
         if segment.is_type("select_statement"):
-            aliases = self._get_aliases_from_select(segment, dialect)
+            aliases = self._get_aliases_from_select(segment, kwargs.get('dialect'))
             if not aliases:
                 return None
 

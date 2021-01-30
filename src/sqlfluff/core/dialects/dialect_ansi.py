@@ -944,7 +944,7 @@ class FromClauseSegment(BaseSegment):
         """
         temp_buff = self.get_table_expressions_and_eventual_aliases()
         buff = []
-        for clause, alias in temp_buff:
+        for table_expr, alias in temp_buff:
             # Only append if non null. A None reference, may
             # indicate a generator expression or similar.
             if alias:
