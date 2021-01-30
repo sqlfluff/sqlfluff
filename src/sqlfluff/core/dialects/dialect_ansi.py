@@ -2090,7 +2090,8 @@ class StatementSegment(BaseSegment):
 class WithNoSchemaBindingClauseSegment(BaseSegment):
     """WITH NO SCHEMA BINDING clause for Redshift's Late Binding Views.
 
-    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_VIEW.html"""
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_VIEW.html
+    """
 
     type = "with_no_schema_binding_clause"
     match_grammar = Sequence(
