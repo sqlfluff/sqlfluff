@@ -11,8 +11,6 @@ labs full sql grammar. In particular their way for dividing up the expression
 grammar. Check out their docs, they're awesome.
 https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 """
-from _collections import OrderedDict
-
 from ..parser import (
     Matchable,
     BaseSegment,
@@ -148,9 +146,7 @@ ansi_dialect.sets("bracket_pairs").update(
 # apparently only BigQuery has this concept, but it's included in ANSI because
 # it impacts core linter rules and how they interpret the contents of
 # table_expressions.
-ansi_dialect.sets("value_table_functions").update(
-    []
-)
+ansi_dialect.sets("value_table_functions").update([])
 
 
 ansi_dialect.add(

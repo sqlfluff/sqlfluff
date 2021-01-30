@@ -41,11 +41,11 @@ class Rule_L020(BaseCrawler):
             # we don't have it, assume the clause does not have one.
             return False
 
-        function = table_expr.get_child('function')
+        function = table_expr.get_child("function")
         if not function:
             return False
 
-        function_name = function.get_child('function_name')
+        function_name = function.get_child("function_name")
         if not function_name:
             return False
 
@@ -79,7 +79,7 @@ class Rule_L020(BaseCrawler):
         `_lint_references_and_aliases` method.
         """
         if segment.is_type("select_statement"):
-            aliases = self._get_aliases_from_select(segment, kwargs.get('dialect'))
+            aliases = self._get_aliases_from_select(segment, kwargs.get("dialect"))
             if not aliases:
                 return None
 

@@ -84,9 +84,7 @@ bigquery_dialect.sets("reserved_keywords").add("FOR")
 
 # In BigQuery, UNNEST() returns a "value table".
 # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#value_tables
-bigquery_dialect.sets("value_table_functions").update(
-    ["unnest"]
-)
+bigquery_dialect.sets("value_table_functions").update(["unnest"])
 
 # Bracket pairs (a set of tuples)
 bigquery_dialect.sets("bracket_pairs").update(
