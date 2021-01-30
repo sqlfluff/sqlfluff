@@ -255,6 +255,26 @@ def test__parser__grammar_oneof_take_longest_match(seg_list):
         )
 
 
+def test__parser__grammar_oneof_take_first(seg_list):
+    """Test that the OneOf grammar takes first match in case they are of same length."""
+    fooRegex = ReSegment.make(r"fo{2}")
+    foo = KeywordSegment.make(
+        "foo",
+    )
+
+    # Both segments would match "foo"
+    # so we test that order matters
+    g1 = OneOf(fooRegex, foo)
+    g2 = OneOf(foo, fooRegex)
+    with RootParseContext(dialect=None) as ctx:
+        assert g1.match(seg_list[2:], parse_context=ctx).matched_segments == (
+            fooRegex("foo", seg_list[2].pos_marker),
+        )
+        assert g2.match(seg_list[2:], parse_context=ctx).matched_segments == (
+            foo("foo", seg_list[2].pos_marker),
+        )
+
+
 @pytest.mark.parametrize(
     "keyword,match_truthy",
     [
