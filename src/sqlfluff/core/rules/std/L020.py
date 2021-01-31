@@ -8,16 +8,15 @@ from ..base import BaseCrawler, LintResult
 class Rule_L020(BaseCrawler):
     """Table aliases should be unique within each clause."""
 
-    def _lint_references_and_aliases(
-        self, aliases, references, col_aliases, using_cols, parent_select
-    ):
+    def _lint_references_and_aliases(self, table_aliases, value_table_function_aliases, references,
+                                     col_aliases, using_cols, parent_select):
         """Check whether any aliases are duplicates.
 
         NB: Subclasses of this error should override this function.
 
         """
         # Are any of the aliases the same?
-        for a1, a2 in itertools.combinations(aliases, 2):
+        for a1, a2 in itertools.combinations(table_aliases, 2):
             # Compare the strings
             if a1[0] == a2[0] and a1[0]:
                 # If there are any, then the rest of the code
@@ -51,21 +50,30 @@ class Rule_L020(BaseCrawler):
 
     @classmethod
     def _get_aliases_from_select(cls, segment, dialect=None):
-        # Get the aliases referred to in the clause
+        """
+        Gets the aliases referred to in the FROM clause. Returns a tuple of two
+        lists:
+        - Table aliases
+        - Value table aliases
+        """
         fc = segment.get_child("from_clause")
         if not fc:
             # If there's no from clause then just abort.
-            return None
+            return None, None
         aliases = fc.get_table_expressions_and_eventual_aliases()
 
         # We only want table aliases, so filter out:
         # * None values
         # * Aliases for table value functions
-        result = []
+        table_aliases = []
+        value_table_function_aliases = []
         for table_expr, alias in aliases:
-            if alias and not cls._has_value_table_function(table_expr, dialect):
-                result.append(alias)
-        return result
+            if alias:
+                if not cls._has_value_table_function(table_expr, dialect):
+                    table_aliases.append(alias)
+                else:
+                    value_table_function_aliases.append(alias)
+        return table_aliases, value_table_function_aliases
 
     def _eval(self, segment, parent_stack, **kwargs):
         """Get References and Aliases and allow linting.
@@ -77,8 +85,9 @@ class Rule_L020(BaseCrawler):
         `_lint_references_and_aliases` method.
         """
         if segment.is_type("select_statement"):
-            aliases = self._get_aliases_from_select(segment, kwargs.get("dialect"))
-            if not aliases:
+            table_aliases, value_table_function_aliases = \
+                self._get_aliases_from_select(segment, kwargs.get("dialect"))
+            if not table_aliases and not value_table_function_aliases:
                 return None
 
             # Iterate through all the references, both in the select clause, but also
@@ -148,7 +157,9 @@ class Rule_L020(BaseCrawler):
 
             # Pass them all to the function that does all the work.
             # NB: Subclasses of this rules should override the function below
-            return self._lint_references_and_aliases(
-                aliases, reference_buffer, col_aliases, using_cols, parent_select
-            )
+            return self._lint_references_and_aliases(table_aliases,
+                                                     value_table_function_aliases,
+                                                     reference_buffer,
+                                                     col_aliases, using_cols,
+                                                     parent_select)
         return None

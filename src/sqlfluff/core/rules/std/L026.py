@@ -27,9 +27,8 @@ class Rule_L026(Rule_L025):
 
     """
 
-    def _lint_references_and_aliases(
-        self, aliases, references, col_aliases, using_cols, parent_select
-    ):
+    def _lint_references_and_aliases(self, table_aliases, value_table_function_aliases, references,
+                                     col_aliases, using_cols, parent_select):
         # A buffer to keep any violations.
         violation_buff = []
 
@@ -37,10 +36,10 @@ class Rule_L026(Rule_L025):
         for r in references:
             tbl_ref = r.extract_reference(level=2)
             # Check whether the string in the list of strings
-            if tbl_ref and tbl_ref[0] not in [a[0] for a in aliases]:
+            if tbl_ref and tbl_ref[0] not in [a[0] for a in table_aliases]:
                 # Last check, this *might* be a correlated subquery reference.
                 if parent_select:
-                    parent_aliases = self._get_aliases_from_select(parent_select)
+                    parent_aliases, _ = self._get_aliases_from_select(parent_select)
                     if parent_aliases and tbl_ref[0] in [a[0] for a in parent_aliases]:
                         continue
 

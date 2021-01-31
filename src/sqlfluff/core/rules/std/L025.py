@@ -33,9 +33,8 @@ class Rule_L025(Rule_L020):
 
     """
 
-    def _lint_references_and_aliases(
-        self, aliases, references, col_aliases, using_cols, parent_select
-    ):
+    def _lint_references_and_aliases(self, table_aliases, value_table_function_aliases, references,
+                                     col_aliases, using_cols, parent_select):
         """Check all aliased references against tables referenced in the query."""
         # A buffer to keep any violations.
         violation_buff = []
@@ -46,7 +45,7 @@ class Rule_L025(Rule_L020):
             if tbl_ref:
                 tbl_refs.add(tbl_ref[0])
 
-        for ref_str, seg, aliased in aliases:
+        for ref_str, seg, aliased in table_aliases:
             if aliased and ref_str not in tbl_refs:
                 violation_buff.append(
                     LintResult(
