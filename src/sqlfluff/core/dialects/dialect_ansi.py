@@ -933,20 +933,6 @@ class FromClauseSegment(BaseSegment):
             buff.append((clause, ref))
         return buff
 
-    def get_eventual_aliases(self):
-        """List the eventual aliases of this from clause.
-
-        Comes as a list of tuples (string, segment).
-        """
-        temp_buff = self.get_table_expressions_and_eventual_aliases()
-        buff = []
-        for table_expr, alias in temp_buff:
-            # Only append if non null. A None reference, may
-            # indicate a generator expression or similar.
-            if alias:
-                buff.append(alias)
-        return buff
-
 
 @ansi_dialect.segment()
 class CaseExpressionSegment(BaseSegment):

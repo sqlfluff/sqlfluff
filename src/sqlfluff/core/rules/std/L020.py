@@ -46,10 +46,8 @@ class Rule_L020(BaseCrawler):
             return False
 
         function_name = function.get_child("function_name")
-        if not function_name:
-            return False
-
-        return function_name.raw in dialect.sets("value_table_functions")
+        return function_name and \
+            function_name.raw in dialect.sets("value_table_functions")
 
     @classmethod
     def _get_aliases_from_select(cls, segment, dialect=None):
