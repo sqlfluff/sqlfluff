@@ -103,7 +103,7 @@ class IntervalExpressionSegment(BaseSegment):
     type = "interval_expression"
     match_grammar = Sequence(
         "INTERVAL",
-        OneOf(Ref("NumericLiteralSegment"), Ref("QuotedLiteralSegment"), Ref("FunctionSegment")),
+        OneOf(Ref("NumericLiteralSegment"), Ref("FunctionSegment")),
         OneOf(Ref("QuotedLiteralSegment"), Ref("DatetimeUnitSegment")),
     )
 
@@ -164,7 +164,6 @@ bigquery_dialect.replace(
         Ref("BooleanLiteralGrammar"),
         Ref("QualifiedNumericLiteralSegment"),
         Ref("NullKeywordSegment"),
-        Ref("LiteralCoercionSegment"),
     ),
     PostTableExpressionGrammar=Sequence(
         Sequence(
@@ -329,25 +328,4 @@ class TypelessStructSegment(BaseSegment):
             ),
             optional=True,
         ),
-    )
-
-
-@bigquery_dialect.segment()
-class LiteralCoercionSegment(BaseSegment):
-    """A casting operation with a type name preceding a string literal.
-
-    BigQuery allows string literals to be explicitly coerced to one of the
-    following 4 types:
-    - DATE
-    - DATETIME
-    - TIME
-    - TIMESTAMP
-
-    https://cloud.google.com/bigquery/docs/reference/standard-sql/conversion_rules#literal_coercion
-
-    """
-    type = "cast_expression"
-    match_grammar = Sequence(
-        OneOf("DATE", "DATETIME", "TIME", "TIMESTAMP"),
-        Ref("QuotedLiteralSegment"),
     )
