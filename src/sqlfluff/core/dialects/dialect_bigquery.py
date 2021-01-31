@@ -103,7 +103,11 @@ class IntervalExpressionSegment(BaseSegment):
     type = "interval_expression"
     match_grammar = Sequence(
         "INTERVAL",
-        OneOf(Ref("NumericLiteralSegment"), Ref("QuotedLiteralSegment"), Ref("FunctionSegment")),
+        OneOf(
+            Ref("NumericLiteralSegment"),
+            Ref("QuotedLiteralSegment"),
+            Ref("FunctionSegment"),
+        ),
         OneOf(Ref("QuotedLiteralSegment"), Ref("DatetimeUnitSegment")),
     )
 
@@ -346,6 +350,7 @@ class LiteralCoercionSegment(BaseSegment):
     https://cloud.google.com/bigquery/docs/reference/standard-sql/conversion_rules#literal_coercion
 
     """
+
     type = "cast_expression"
     match_grammar = Sequence(
         OneOf("DATE", "DATETIME", "TIME", "TIMESTAMP"),
