@@ -52,7 +52,7 @@ class Rule_L020(BaseCrawler):
             return False
 
         function_name = function.get_child("function_name")
-        return function_name and function_name.raw in dialect.sets(
+        return function_name and function_name.raw.lower() in dialect.sets(
             "value_table_functions"
         )
 
