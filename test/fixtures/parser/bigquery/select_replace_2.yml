@@ -6,7 +6,7 @@ file:
         select_target_element:
           wildcard_expression:
             wildcard_identifier:
-              star: '*'
+              star: "*"
             select_replace_clause:
               keyword: REPLACE
               start_bracket: (
@@ -15,7 +15,7 @@ file:
                   function_name: CAST
                   start_bracket: (
                   expression:
-                    literal: '1'
+                    literal: "1"
                   keyword: AS
                   data_type:
                     data_type_identifier: BOOLEAN
@@ -27,13 +27,14 @@ file:
       from_clause:
         keyword: FROM
         table_expression:
-          start_bracket: (
-          select_statement:
-            select_clause:
-              keyword: SELECT
-              select_target_element:
-                literal: '1'
-                alias_expression:
-                  keyword: AS
-                  identifier: foo
-          end_bracket: )
+          main_table_expression:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_target_element:
+                  literal: "1"
+                  alias_expression:
+                    keyword: AS
+                    identifier: foo
+            end_bracket: )
