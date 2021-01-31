@@ -31,3 +31,13 @@ test_6:
   pass_str: |
     SELECT * FROM db.sc.tbl2
     WHERE a NOT IN (SELECT a FROM db.sc.tbl1)
+
+test_value_table_functions_do_not_require_qualification:
+  pass_str: |
+    select
+        a.*,
+        _t_start
+    from a
+    left join unnest(generate_timestamp_array(
+            '2020-01-01', '2020-01-30', interval 1 day)) as _t_start
+        on true

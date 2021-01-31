@@ -53,6 +53,9 @@ class Rule_L028(Rule_L025):
         # How many aliases are there? If more than one then abort.
         if len(table_aliases) > 1:
             return None
+        # Oddball case: Column aliases provided via function calls in by FROM or
+        # JOIN. References to these should not be qualified.
+        standalone_aliases = [t[0] for t in value_table_function_aliases]
         # A buffer to keep any violations.
         violation_buff = []
         # Check all the references that we have.
@@ -60,6 +63,8 @@ class Rule_L028(Rule_L025):
         for ref in references:
             # We skip any unqualified wildcard references (i.e. *). They shouldn't count.
             if not ref.is_qualified() and ref.is_type("wildcard_identifier"):
+                continue
+            if ref.raw in standalone_aliases:
                 continue
             this_ref_type = ref.qualification()
             if self.single_table_references == "consistent":
