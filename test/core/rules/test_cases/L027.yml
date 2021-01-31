@@ -21,3 +21,20 @@ test_allow_date_parts_as_function_parameter_snowflake:
   configs:
     core:
       dialect: snowflake
+
+test_ignore_value_table_functions:
+  pass_str: |
+    with a as (
+        select 1
+    )
+
+    select
+        a.*,
+        _t_start
+    from a
+    left join unnest(generate_timestamp_array(
+            '2020-01-01', '2020-01-30', interval 1 day)) as _t_start
+        on true
+  configs:
+    core:
+      dialect: bigquery
