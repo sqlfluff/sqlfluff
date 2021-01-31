@@ -2,92 +2,95 @@ file:
   statement:
     select_statement:
       select_clause:
-      - keyword: select
-      - select_clause_modifier:
-        - keyword: distinct
-        - keyword: 'on'
-        - start_bracket: (
-        - expression:
-            column_reference:
+        - keyword: select
+        - select_clause_modifier:
+            - keyword: distinct
+            - keyword: "on"
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  identifier: id
+            - end_bracket: )
+        - select_target_element:
+            expression:
+              - start_bracket: (
+              - column_reference:
+                  identifier: json
+              - binary_operator: ->
+              - literal: "'type'"
+              - binary_operator: ->>
+              - literal: "'id'"
+              - end_bracket: )
+              - cast_expression:
+                  casting_operator: "::"
+                  data_type:
+                    data_type_identifier: int
+            alias_expression:
+              keyword: as
               identifier: id
-        - end_bracket: )
-      - select_target_element:
-          expression:
-          - start_bracket: (
-          - column_reference:
-              identifier: json
-          - binary_operator: ->
-          - literal: "'type'"
-          - binary_operator: ->>
-          - literal: "'id'"
-          - end_bracket: )
-          - cast_expression:
-              casting_operator: '::'
-              data_type:
-                data_type_identifier: int
-          alias_expression:
-            keyword: as
-            identifier: id
-      - comma: ','
-      - select_target_element:
-          expression:
-          - start_bracket: (
-          - column_reference:
-              identifier: json
-          - binary_operator: ->
-          - literal: "'type'"
-          - binary_operator: ->>
-          - literal: "'name'"
-          - end_bracket: )
-          alias_expression:
-            keyword: as
-            identifier: name
+        - comma: ","
+        - select_target_element:
+            expression:
+              - start_bracket: (
+              - column_reference:
+                  identifier: json
+              - binary_operator: ->
+              - literal: "'type'"
+              - binary_operator: ->>
+              - literal: "'name'"
+              - end_bracket: )
+            alias_expression:
+              keyword: as
+              identifier: name
       from_clause:
         keyword: from
         table_expression:
-          start_bracket: (
-          select_statement:
-            select_clause:
-              keyword: select
-              select_target_element:
-                wildcard_expression:
-                  wildcard_identifier:
-                    star: '*'
-            from_clause:
-              keyword: from
-              table_expression:
-                table_reference:
-                  identifier: sb_route_events
-                alias_expression:
-                  keyword: as
-                  identifier: s
-            where_clause:
-              keyword: where
-              expression:
-              - start_bracket: (
-              - column_reference:
-                - identifier: s
-                - dot: .
-                - identifier: match_id
-              - keyword: not
-              - keyword: in
-              - start_bracket: (
-              - select_statement:
-                  select_clause:
-                    keyword: select
-                    select_clause_modifier:
-                      keyword: distinct
-                    select_target_element:
-                      column_reference:
-                        identifier: match_id
-                  from_clause:
-                    keyword: from
-                    table_expression:
-                      table_reference:
-                        identifier: this_model
-              - end_bracket: )
-              - end_bracket: )
-          end_bracket: )
+          main_table_expression:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: select
+                select_target_element:
+                  wildcard_expression:
+                    wildcard_identifier:
+                      star: "*"
+              from_clause:
+                keyword: from
+                table_expression:
+                  main_table_expression:
+                    table_reference:
+                      identifier: sb_route_events
+                  alias_expression:
+                    keyword: as
+                    identifier: s
+              where_clause:
+                keyword: where
+                start_bracket: (
+                expression:
+                  - column_reference:
+                      - identifier: s
+                      - dot: .
+                      - identifier: match_id
+                  - keyword: not
+                  - keyword: in
+                  - start_bracket: (
+                  - select_statement:
+                      select_clause:
+                        keyword: select
+                        select_clause_modifier:
+                          keyword: distinct
+                        select_target_element:
+                          column_reference:
+                            identifier: match_id
+                      from_clause:
+                        keyword: from
+                        table_expression:
+                          main_table_expression:
+                            table_reference:
+                              identifier: this_model
+                  - end_bracket: )
+                end_bracket: )
+            end_bracket: )
           alias_expression:
             keyword: as
             identifier: e

@@ -92,6 +92,16 @@ from sqlfluff.core.dialects.dialect_ansi import AccessStatementSegment
         (ShowStatementSegment, "SHOW GRANTS ON ACCOUNT;"),
         (ShowStatementSegment, "show tables history in tpch.public;"),
         (ShowStatementSegment, "show future grants in schema sales.public;"),
+        (
+            ShowStatementSegment,
+            "show replication databases with primary aws_us_west_2.myaccount1.mydb1;",
+        ),
+        (
+            ShowStatementSegment,
+            "SHOW TERSE SCHEMAS HISTORY LIKE '%META%' IN DATABASE MYDB STARTS WITH 'INT' LIMIT 10 FROM 'LAST_SCHEMA';",
+        ),
+        (ShowStatementSegment, "SHOW GRANTS TO ROLE SECURITYADMIN;"),
+        (ShowStatementSegment, "SHOW GRANTS OF SHARE MY_SHARE;"),
         # Testing https://github.com/sqlfluff/sqlfluff/issues/634
         (
             SemiStructuredAccessorSegment,

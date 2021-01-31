@@ -2,6 +2,7 @@
 
 from typing import Tuple, List
 
+from ..grammar import Ref
 from ..segments import BaseSegment
 from ..match_result import MatchResult
 from ..match_wrapper import match_wrapper
@@ -21,7 +22,7 @@ class Delimited(OneOf):
     def __init__(
         self,
         *args,
-        delimiter=None,
+        delimiter=Ref("CommaSegment"),
         allow_trailing=False,
         terminator=None,
         min_delimiters=None,

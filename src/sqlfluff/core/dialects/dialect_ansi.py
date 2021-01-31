@@ -95,6 +95,8 @@ ansi_dialect.set_lexer_struct(
         ("bracket_close", "singleton", ")", dict(is_code=True)),
         ("sq_bracket_open", "singleton", "[", dict(is_code=True)),
         ("sq_bracket_close", "singleton", "]", dict(is_code=True)),
+        ("crly_bracket_open", "singleton", "{", dict(is_code=True)),
+        ("crly_bracket_close", "singleton", "}", dict(is_code=True)),
         ("colon", "singleton", ":", dict(is_code=True)),
         ("semicolon", "singleton", ";", dict(is_code=True)),
         ("code", "regex", r"[0-9a-zA-Z_]*", dict(is_code=True)),
@@ -139,8 +141,20 @@ ansi_dialect.sets("bracket_pairs").update(
     [
         ("round", "StartBracketSegment", "EndBracketSegment", True),
         ("square", "StartSquareBracketSegment", "EndSquareBracketSegment", True),
+        ("curly", "StartCurlyBracketSegment", "EndCurlyBracketSegment", True),
     ]
 )
+
+# Set the value table functions. These are functions that, if they appear as
+# an item in "FROM', are treated as returning a COLUMN, not a TABLE. Apparently,
+# among dialects supported by SQLFluff, only BigQuery has this concept, but this
+# set is defined in the ANSI dialect because:
+# - It impacts core linter rules (see L020 and several other rules that subclass
+#   from it) and how they interpret the contents of table_expressions
+# - At least one other database (DB2) has the same value table function,
+#   UNNEST(), as BigQuery. DB2 is not currently supported by SQLFluff.
+ansi_dialect.sets("value_table_functions").update([])
+
 
 ansi_dialect.add(
     # Real segments
@@ -158,6 +172,12 @@ ansi_dialect.add(
     ),
     EndSquareBracketSegment=SymbolSegment.make(
         "]", name="end_square_bracket", type="end_square_bracket"
+    ),
+    StartCurlyBracketSegment=SymbolSegment.make(
+        "{", name="start_curly_bracket", type="start_curly_bracket"
+    ),
+    EndCurlyBracketSegment=SymbolSegment.make(
+        "}", name="end_curly_bracket", type="end_curly_bracket"
     ),
     CommaSegment=SymbolSegment.make(",", name="comma", type="comma"),
     DotSegment=SymbolSegment.make(".", name="dot", type="dot"),
@@ -268,6 +288,9 @@ ansi_dialect.add(
         Ref("NotEqualToSegment_a"),
         Ref("NotEqualToSegment_b"),
     ),
+    # hookpoint for other dialects
+    # e.g. EXASOL str to date cast with DATE '2021-01-01'
+    DateTimeLiteralGrammar=Nothing(),
     LiteralGrammar=OneOf(
         Ref("QuotedLiteralSegment"),
         Ref("NumericLiteralSegment"),
@@ -276,6 +299,7 @@ ansi_dialect.add(
         # NB: Null is included in the literals, because it is a keyword which
         # can otherwise be easily mistaken for an identifier.
         Ref("NullKeywordSegment"),
+        Ref("DateTimeLiteralGrammar"),
     ),
     AndKeywordSegment=KeywordSegment.make("and", type="binary_operator"),
     OrKeywordSegment=KeywordSegment.make("or", type="binary_operator"),
@@ -292,10 +316,32 @@ ansi_dialect.add(
     BracketedColumnReferenceListGrammar=Bracketed(
         Delimited(
             Ref("ColumnReferenceSegment"),
-            delimiter=Ref("CommaSegment"),
             ephemeral_name="ColumnReferenceList",
         )
     ),
+    OrReplaceGrammar=Sequence("OR", "REPLACE"),
+    IfExistsGrammar=Sequence("IF", "EXISTS"),
+    IfNotExistsGrammar=Sequence("IF", "NOT", "EXISTS"),
+    LikeGrammar=OneOf("LIKE", "RLIKE", "ILIKE"),
+    IsClauseGrammar=OneOf(
+        "NULL",
+        "NAN",
+        "NOTNULL",
+        "ISNULL",
+        Ref("BooleanLiteralGrammar"),
+    ),
+    FromClauseTerminatorGrammar=OneOf(
+        "WHERE",
+        "LIMIT",
+        "GROUP",
+        "ORDER",
+        "HAVING",
+        "QUALIFY",
+        Ref("SetOperatorSegment"),
+        Ref("WithNoSchemaBindingClauseSegment"),
+    ),
+    WhereClauseTerminatorGrammar=OneOf("LIMIT", "GROUP", "ORDER", "HAVING", "QUALIFY"),
+    PrimaryKeyGrammar=Sequence("PRIMARY", "KEY"),
 )
 
 
@@ -349,7 +395,7 @@ class ArrayLiteralSegment(BaseSegment):
 
     type = "array_literal_type"
     match_grammar = Bracketed(
-        Delimited(Ref("ExpressionSegment"), delimiter=Ref("CommaSegment")),
+        Delimited(Ref("ExpressionSegment")),
         bracket_type="square",
     )
 
@@ -363,14 +409,19 @@ class DatatypeSegment(BaseSegment):
         Ref("DatatypeIdentifierSegment"),
         Bracketed(
             OneOf(
-                Delimited(Ref("ExpressionSegment"), delimiter=Ref("CommaSegment")),
+                Delimited(Ref("ExpressionSegment")),
                 # The brackets might be empty for some cases...
                 optional=True,
             ),
             # There may be no brackets for some data types
             optional=True,
         ),
+        Ref("CharCharacterSetSegment", optional=True),
     )
+
+
+# hookpoint
+ansi_dialect.add(CharCharacterSetSegment=Nothing())
 
 
 @ansi_dialect.segment()
@@ -449,6 +500,14 @@ class ColumnReferenceSegment(ObjectReferenceSegment):
 
 
 @ansi_dialect.segment()
+class SingleIdentifierListSegment(BaseSegment):
+    """A comma delimited list of identifiers."""
+
+    type = "identifier_list"
+    match_grammar = Delimited(Ref("SingleIdentifierGrammar"))
+
+
+@ansi_dialect.segment()
 class ArrayAccessorSegment(BaseSegment):
     """An array accessor e.g. [3:4]."""
 
@@ -474,6 +533,16 @@ class AliasedObjectReferenceSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class AliasedTableReferenceSegment(BaseSegment):
+    """A reference to a table with an `AS` clause."""
+
+    type = "table_reference"
+    match_grammar = Sequence(
+        Ref("TableReferenceSegment"), Ref("AliasExpressionSegment", optional=True)
+    )
+
+
+@ansi_dialect.segment()
 class AliasExpressionSegment(BaseSegment):
     """A reference to an object with an `AS` clause.
 
@@ -482,7 +551,15 @@ class AliasExpressionSegment(BaseSegment):
 
     type = "alias_expression"
     match_grammar = Sequence(
-        Ref.keyword("AS", optional=True), Ref("SingleIdentifierGrammar")
+        Ref.keyword("AS", optional=True),
+        OneOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                # Column alias in VALUES clause
+                Bracketed(Ref("SingleIdentifierListSegment"), optional=True),
+            ),
+            Ref("QuotedLiteralSegment"),
+        ),
     )
 
 
@@ -518,7 +595,7 @@ ansi_dialect.add(
     # FunctionContentsExpressionGrammar intended as a hook to override
     # in other dialects.
     FunctionContentsExpressionGrammar=Ref("ExpressionSegment"),
-    FunctionContentsGrammar=OneOf(
+    FunctionContentsGrammar=AnyNumberOf(
         # A Cast-like function
         Sequence(Ref("ExpressionSegment"), "AS", Ref("DatatypeSegment")),
         # An extract-like or substring-like function
@@ -535,11 +612,18 @@ ansi_dialect.add(
                 # but for COUNT(*) or similar we allow the star segment
                 # here.
                 Ref("StarSegment"),
-                Delimited(
-                    Ref("FunctionContentsExpressionGrammar"),
-                    delimiter=Ref("CommaSegment"),
-                ),
+                Delimited(Ref("FunctionContentsExpressionGrammar")),
             ),
+        ),
+        Ref(
+            "OrderByClauseSegment"
+        ),  # used by string_agg (postgres), group_concat (exasol), listagg (snowflake)...
+        Sequence(Ref.keyword("SEPARATOR"), Ref("LiteralGrammar")),
+        # like a function call: POSITION ( 'QL' IN 'SQL')
+        Sequence(
+            OneOf(Ref("QuotedLiteralSegment"), Ref("SingleIdentifierGrammar")),
+            "IN",
+            OneOf(Ref("QuotedLiteralSegment"), Ref("SingleIdentifierGrammar")),
         ),
     ),
     # Optional OVER suffix for window functions.
@@ -584,6 +668,12 @@ class FunctionSegment(BaseSegment):
     type = "function"
     match_grammar = Sequence(
         Sequence(
+            Sequence(
+                # a stored function could be accessed by schema identifier
+                Ref("SingleIdentifierGrammar"),
+                Ref("DotSegment"),
+                optional=True,
+            ),
             Ref("FunctionNameSegment"),
             Bracketed(
                 Ref(
@@ -614,10 +704,8 @@ class PartitionClauseSegment(BaseSegment):
         Indent,
         OneOf(
             # Brackets are optional in a partition by statement
-            Bracketed(
-                Delimited(Ref("ExpressionSegment"), delimiter=Ref("CommaSegment"))
-            ),
-            Delimited(Ref("ExpressionSegment"), delimiter=Ref("CommaSegment")),
+            Bracketed(Delimited(Ref("ExpressionSegment"))),
+            Delimited(Ref("ExpressionSegment")),
         ),
         Dedent,
     )
@@ -651,15 +739,8 @@ class TableExpressionSegment(BaseSegment):
     match_grammar = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OneOf(
-            # Functions allowed here for table expressions.
-            # Perhaps this should just be in a dialect, but
-            # it seems sensible here for now.
-            Ref("BareFunctionSegment"),
-            Ref("FunctionSegment"),
-            Ref("TableReferenceSegment"),
-            # Nested Selects
-            Bracketed(Ref("SelectableGrammar")),
-            # Values clause?
+            Ref("MainTableExpressionGrammar"),
+            Bracketed(Ref("MainTableExpressionGrammar")),
         ),
         Ref("AliasExpressionSegment", optional=True),
         Ref("PostTableExpressionGrammar", optional=True),
@@ -681,7 +762,8 @@ class TableExpressionSegment(BaseSegment):
             return (segment.raw, segment, True)
 
         # If not return the object name (or None if there isn't one)
-        ref = self.get_child("object_reference")
+        # ref = self.get_child("object_reference")
+        ref = self.get_child("main_table_expression").get_child("object_reference")
         if ref:
             # Return the last element of the reference, which
             # will already be a tuple.
@@ -689,6 +771,21 @@ class TableExpressionSegment(BaseSegment):
             return (*penultimate_ref, False)
         # No references or alias, return None
         return None
+
+
+@ansi_dialect.segment()
+class MainTableExpressionGrammar(BaseSegment):
+    """The main table expression e.g. within a FROM clause."""
+
+    type = "main_table_expression"
+    match_grammar = OneOf(
+        Ref("BareFunctionSegment"),
+        Ref("FunctionSegment"),
+        Ref("TableReferenceSegment"),
+        # Nested Selects
+        Bracketed(Ref("SelectableGrammar")),
+        # Values clause?
+    )
 
 
 @ansi_dialect.segment()
@@ -796,7 +893,6 @@ class SelectClauseSegment(BaseSegment):
         Indent,
         Delimited(
             Ref("SelectTargetElementSegment"),
-            delimiter=Ref("CommaSegment"),
             allow_trailing=True,
         ),
         # NB: The Dedent for the indent above lives in the
@@ -812,47 +908,51 @@ class JoinClauseSegment(BaseSegment):
     type = "join_clause"
     match_grammar = Sequence(
         # NB These qualifiers are optional
-        AnyNumberOf(
-            "FULL", "INNER", "LEFT", "RIGHT", "CROSS", max_times=1, optional=True
+        # TODO: Allow nested joins like:
+        # ....FROM S1.T1 t1 LEFT JOIN ( S2.T2 t2 JOIN S3.T3 t3 ON t2.col1=t3.col1) ON tab1.col1 = tab2.col1
+        OneOf(
+            "CROSS",
+            "INNER",
+            Sequence(
+                OneOf(
+                    "FULL",
+                    "LEFT",
+                    "RIGHT",
+                ),
+                Ref.keyword("OUTER", optional=True),
+            ),
+            optional=True,
         ),
-        Ref.keyword("OUTER", optional=True),
         "JOIN",
         Indent,
-        Ref("TableExpressionSegment"),
-        # NB: this is optional
-        AnyNumberOf(
-            # ON clause
-            Sequence(
-                "ON",
-                Indent,
-                OneOf(
-                    Ref("ExpressionSegment"),
-                    Bracketed(Ref("ExpressionSegment", ephemeral_name="JoinCondition")),
+        Sequence(
+            Ref("TableExpressionSegment"),
+            # NB: this is optional
+            OneOf(
+                # ON clause
+                Ref("JoinOnConditionSegment"),
+                # USING clause
+                Sequence(
+                    "USING",
+                    Indent,
+                    Bracketed(
+                        # NB: We don't use BracketedColumnReferenceListGrammar
+                        # here because we're just using SingleIdentifierGrammar,
+                        # rather than ObjectReferenceSegment or ColumnReferenceSegment.
+                        # This is a) so that we don't lint it as a reference and
+                        # b) because the column will probably be returned anyway
+                        # during parsing.
+                        Delimited(
+                            Ref("SingleIdentifierGrammar"),
+                            ephemeral_name="UsingClauseContents",
+                        )
+                    ),
+                    Dedent,
                 ),
-                Dedent,
+                # Unqualified joins *are* allowed. They just might not
+                # be a good idea.
+                optional=True,
             ),
-            # USING clause
-            Sequence(
-                "USING",
-                Indent,
-                Bracketed(
-                    # NB: We don't use BracketedColumnReferenceListGrammar
-                    # here because we're just using SingleIdentifierGrammar,
-                    # rather than ObjectReferenceSegment or ColumnReferenceSegment.
-                    # This is a) so that we don't lint it as a reference and
-                    # b) because the column will probably be returned anyway
-                    # during parsing.
-                    Delimited(
-                        Ref("SingleIdentifierGrammar"),
-                        delimiter=Ref("CommaSegment"),
-                        ephemeral_name="UsingClauseContents",
-                    )
-                ),
-                Dedent,
-            ),
-            # Unqualified joins *are* allowed. They just might not
-            # be a good idea.
-            min_times=0,
         ),
         Dedent,
     )
@@ -861,6 +961,22 @@ class JoinClauseSegment(BaseSegment):
         """Return the eventual table name referred to by this join clause."""
         table_expression = self.get_child("table_expression")
         return table_expression.get_eventual_alias()
+
+
+@ansi_dialect.segment()
+class JoinOnConditionSegment(BaseSegment):
+    """The `ON` condition within a `JOIN` clause."""
+
+    type = "join_on_condition"
+    match_grammar = Sequence(
+        "ON",
+        Indent,
+        OneOf(
+            Ref("ExpressionSegment"),
+            Bracketed(Ref("ExpressionSegment", ephemeral_name="JoinCondition")),
+        ),
+        Dedent,
+    )
 
 
 ansi_dialect.add(
@@ -876,15 +992,7 @@ class FromClauseSegment(BaseSegment):
     type = "from_clause"
     match_grammar = StartsWith(
         "FROM",
-        terminator=OneOf(
-            "WHERE",
-            "LIMIT",
-            "GROUP",
-            "ORDER",
-            "HAVING",
-            "QUALIFY",
-            Ref("SetOperatorSegment"),
-        ),
+        terminator=Ref("FromClauseTerminatorGrammar"),
         enforce_whitespace_preceeding_terminator=True,
     )
     parse_grammar = Sequence(
@@ -893,10 +1001,10 @@ class FromClauseSegment(BaseSegment):
         Delimited(
             OneOf(
                 # Optional old school delimited joins
-                Ref("TableExpressionSegment"),
+                # check first for MLTableExpression, because of possible FunctionSegment in MainTableExpression
                 Ref("MLTableExpressionSegment"),
+                Ref("TableExpressionSegment"),
             ),
-            delimiter=Ref("CommaSegment"),
             terminator=Ref("JoinClauseSegment"),
         ),
         # NB: The JOIN clause is *part of* the FROM clause
@@ -915,7 +1023,7 @@ class FromClauseSegment(BaseSegment):
     def get_eventual_aliases(self):
         """List the eventual aliases of this from clause.
 
-        Comes as a list of tuples (string, segment).
+        Comes as a list of tuples (table expr, tuple (string, segment, bool)).
         """
         buff = []
         direct_table_children = self.get_children("table_expression")
@@ -925,8 +1033,13 @@ class FromClauseSegment(BaseSegment):
             ref = clause.get_eventual_alias()
             # Only append if non null. A None reference, may
             # indicate a generator expression or similar.
+            table_expr = (
+                clause
+                if clause in direct_table_children
+                else clause.get_child("table_expression")
+            )
             if ref:
-                buff.append(ref)
+                buff.append((table_expr, ref))
         return buff
 
 
@@ -985,6 +1098,7 @@ ansi_dialect.add(
                     Ref("NegativeSegment"),
                     # Ref('TildeSegment'),
                     "NOT",
+                    "PRIOR",  # used in CONNECT BY clauses (EXASOL, Snowflake, Postgres...)
                 ),
                 Ref("Expression_A_Grammar"),
             ),
@@ -996,7 +1110,7 @@ ansi_dialect.add(
                         Ref("BinaryOperatorGrammar"),
                         Sequence(
                             Ref.keyword("NOT", optional=True),
-                            OneOf("LIKE", "RLIKE", "ILIKE"),
+                            Ref("LikeGrammar"),
                         )
                         # We need to add a lot more here...
                     ),
@@ -1015,7 +1129,6 @@ ansi_dialect.add(
                             Delimited(
                                 Ref("LiteralGrammar"),
                                 Ref("IntervalExpressionSegment"),
-                                delimiter=Ref("CommaSegment"),
                             ),
                             Ref("SelectableGrammar"),
                             ephemeral_name="InExpression",
@@ -1030,17 +1143,13 @@ ansi_dialect.add(
                 Sequence(
                     "IS",
                     Ref.keyword("NOT", optional=True),
-                    OneOf(
-                        "NULL",
-                        "NAN",
-                        "NOTNULL",
-                        "ISNULL",
-                        # TODO: True and False might not be allowed here in some
-                        # dialects (e.g. snowflake) so we should probably
-                        # revisit this at some point. Perhaps abstract this clause
-                        # into an "is-statement grammar", which could be overridden.
-                        Ref("BooleanLiteralGrammar"),
-                    ),
+                    Ref("IsClauseGrammar"),
+                ),
+                Sequence(
+                    # e.g. NOT EXISTS, but other expressions could be met as
+                    # well by inverting the condition with the NOT operator
+                    "NOT",
+                    Ref("Expression_C_Grammar"),
                 ),
                 Sequence(
                     Ref.keyword("NOT", optional=True),
@@ -1072,9 +1181,11 @@ ansi_dialect.add(
     Expression_B_Grammar=None,  # TODO
     # Expression_C_Grammar https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#c_expr
     Expression_C_Grammar=OneOf(
+        Sequence(
+            "EXISTS", Bracketed(Ref("SelectStatementSegment"))
+        ),  # should be first priority, otherwise EXISTS() would be matched as a function
         Ref("Expression_D_Grammar"),
         Ref("CaseExpressionSegment"),
-        Sequence("EXISTS", Ref("SelectStatementSegment")),
     ),
     # Expression_D_Grammar https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#d_expr
     Expression_D_Grammar=Sequence(
@@ -1085,6 +1196,15 @@ ansi_dialect.add(
                 OneOf(
                     Ref("Expression_A_Grammar"),
                     Ref("SelectableGrammar"),
+                    Delimited(
+                        Ref(
+                            "ColumnReferenceSegment"
+                        ),  # WHERE (a,b,c) IN (select a,b,c FROM...)
+                        Ref(
+                            "FunctionSegment"
+                        ),  # WHERE (a, substr(b,1,3)) IN (select c,d FROM...)
+                        Ref("LiteralGrammar"),  # WHERE (a, 2) IN (SELECT b, c FROM ...)
+                    ),
                     ephemeral_name="BracketedExpression",
                 ),
             ),
@@ -1131,10 +1251,21 @@ class WhereClauseSegment(BaseSegment):
     type = "where_clause"
     match_grammar = StartsWith(
         "WHERE",
-        terminator=OneOf("LIMIT", "GROUP", "ORDER", "HAVING", "QUALIFY"),
+        terminator=Ref("WhereClauseTerminatorGrammar"),
         enforce_whitespace_preceeding_terminator=True,
     )
-    parse_grammar = Sequence("WHERE", Indent, Ref("ExpressionSegment"), Dedent)
+    parse_grammar = Sequence(
+        "WHERE",
+        Indent,
+        OneOf(
+            Bracketed(
+                # expression could be in brackets
+                Ref("ExpressionSegment"),
+            ),
+            Ref("ExpressionSegment"),
+        ),
+        Dedent,
+    )
 
 
 @ansi_dialect.segment()
@@ -1150,6 +1281,7 @@ class OrderByClauseSegment(BaseSegment):
             "QUALIFY",
             # For window functions
             "ROWS",
+            "SEPARATOR",
         ),
     )
     parse_grammar = Sequence(
@@ -1171,7 +1303,6 @@ class OrderByClauseSegment(BaseSegment):
                 # for now.
                 Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
             ),
-            delimiter=Ref("CommaSegment"),
             terminator=Ref.keyword("LIMIT"),
         ),
         Dedent,
@@ -1200,7 +1331,6 @@ class GroupByClauseSegment(BaseSegment):
                 # Can `GROUP BY coalesce(col, 1)`
                 Ref("ExpressionSegment"),
             ),
-            delimiter=Ref("CommaSegment"),
             terminator=OneOf("ORDER", "LIMIT", "HAVING", "QUALIFY"),
         ),
         Dedent,
@@ -1263,12 +1393,13 @@ class ValuesClauseSegment(BaseSegment):
                 Delimited(
                     Ref("LiteralGrammar"),
                     Ref("IntervalExpressionSegment"),
-                    delimiter=Ref("CommaSegment"),
+                    Ref("FunctionSegment"),
+                    "DEFAULT",  # not in `FROM` clause, rule?
                     ephemeral_name="ValuesClauseElements",
                 )
             ),
-            delimiter=Ref("CommaSegment"),
         ),
+        Ref("AliasExpressionSegment", optional=True),
     )
 
 
@@ -1285,7 +1416,9 @@ class SelectStatementSegment(BaseSegment):
         # select clause rather than just the SELECT keyword, we mitigate that
         # here.
         Ref("SelectClauseSegment"),
-        terminator=Ref("SetOperatorSegment"),
+        terminator=OneOf(
+            Ref("SetOperatorSegment"), Ref("WithNoSchemaBindingClauseSegment")
+        ),
         enforce_whitespace_preceeding_terminator=True,
     )
 
@@ -1314,14 +1447,19 @@ ansi_dialect.add(
     ),
     # Things that behave like select statements, which can form part of set expressions.
     NonSetSelectableGrammar=OneOf(
-        Ref("SelectStatementSegment"), Ref("ValuesClauseSegment")
+        Ref("SelectStatementSegment"),
+        Ref("ValuesClauseSegment"),
+        Bracketed(Ref("SelectStatementSegment")),
     ),
 )
 
 
 @ansi_dialect.segment()
 class WithCompoundStatementSegment(BaseSegment):
-    """A `SELECT` statement preceded by a selection of `WITH` clauses."""
+    """A `SELECT` statement preceded by a selection of `WITH` clauses.
+
+    `WITH tab (col1,col2) AS (SELECT a,b FROM x)`
+    """
 
     type = "with_compound_statement"
     # match grammar
@@ -1331,13 +1469,16 @@ class WithCompoundStatementSegment(BaseSegment):
         Delimited(
             Sequence(
                 Ref("SingleIdentifierGrammar"),
+                Bracketed(
+                    Ref("SingleIdentifierListSegment"),
+                    optional=True,
+                ),
                 "AS",
                 Bracketed(
                     # Checkpoint here to subdivide the query.
                     Ref("SelectableGrammar", ephemeral_name="SelectableGrammar")
                 ),
             ),
-            delimiter=Ref("CommaSegment"),
             terminator=Ref.keyword("SELECT"),
         ),
         Ref("NonWithSelectableGrammar"),
@@ -1367,7 +1508,10 @@ class SetExpressionSegment(BaseSegment):
     match_grammar = Sequence(
         Ref("NonSetSelectableGrammar"),
         AnyNumberOf(
-            Sequence(Ref("SetOperatorSegment"), Ref("NonSetSelectableGrammar")),
+            Sequence(
+                Ref("SetOperatorSegment"),
+                Ref("NonSetSelectableGrammar"),
+            ),
             min_times=1,
         ),
     )
@@ -1431,10 +1575,7 @@ class ColumnOptionSegment(BaseSegment):
                 Ref("LiteralGrammar"),
                 # ?? Ref('IntervalExpressionSegment')
             ),
-            Sequence(  # PRIMARY KEY
-                "PRIMARY",
-                "KEY",
-            ),
+            Ref("PrimaryKeyGrammar"),
             "UNIQUE",  # UNIQUE
             "AUTO_INCREMENT",  # AUTO_INCREMENT (MySQL)
             Sequence(  # REFERENCES reftable [ ( refcolumn) ]
@@ -1484,8 +1625,7 @@ class TableConstraintSegment(BaseSegment):
                 # Later add support for index_parameters?
             ),
             Sequence(  # PRIMARY KEY ( column_name [, ... ] ) index_parameters
-                "PRIMARY",
-                "KEY",
+                Ref("PrimaryKeyGrammar"),
                 # Columns making up PRIMARY KEY constraint
                 Ref("BracketedColumnReferenceListGrammar"),
                 # Later add support for index_parameters?
@@ -1516,9 +1656,9 @@ class CreateTableStatementSegment(BaseSegment):
     # https://www.postgresql.org/docs/12/sql-createtable.html
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         "TABLE",
-        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         OneOf(
             # Columns and comment syntax:
@@ -1526,10 +1666,9 @@ class CreateTableStatementSegment(BaseSegment):
                 Bracketed(
                     Delimited(
                         OneOf(
-                            Ref("ColumnDefinitionSegment"),
                             Ref("TableConstraintSegment"),
+                            Ref("ColumnDefinitionSegment"),
                         ),
-                        delimiter=Ref("CommaSegment"),
                     )
                 ),
                 Sequence(  # [COMMENT 'string'] (MySQL)
@@ -1582,7 +1721,6 @@ class AlterTableStatementSegment(BaseSegment):
                     ),
                 ),
             ),
-            delimiter=Ref("CommaSegment"),
         ),
     )
 
@@ -1597,13 +1735,14 @@ class CreateViewStatementSegment(BaseSegment):
     # https://www.postgresql.org/docs/12/sql-createview.html
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         "VIEW",
         Ref("TableReferenceSegment"),
         # Optional list of column names
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         "AS",
         Ref("SelectableGrammar"),
+        Ref("WithNoSchemaBindingClauseSegment", optional=True),
     )
 
 
@@ -1619,7 +1758,7 @@ class DropStatementSegment(BaseSegment):
             "TABLE",
             "VIEW",
         ),
-        Sequence("IF", "EXISTS", optional=True),
+        Ref("IfExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         OneOf("RESTRICT", Ref.keyword("CASCADE", optional=True), optional=True),
     )
@@ -1825,7 +1964,7 @@ class UpdateStatementSegment(BaseSegment):
     UPDATE <table name> SET <set clause list> [ WHERE <search condition> ]
     """
 
-    type = "delete_statement"
+    type = "update_statement"
     match_grammar = StartsWith("UPDATE")
     parse_grammar = Sequence(
         "UPDATE",
@@ -1861,7 +2000,7 @@ class SetClauseListSegment(BaseSegment):
             Ref("SetClauseSegment"),
             # set clause
             AnyNumberOf(
-                Delimited(Ref("SetClauseSegment"), delimiter=Ref("CommaSegment")),
+                Delimited(Ref("SetClauseSegment")),
             ),
         ),
         Dedent,
@@ -1981,9 +2120,9 @@ class CreateModelStatementSegment(BaseSegment):
     # https://cloud.google.com/bigquery-ml/docs/reference/standard-sql/bigqueryml-syntax-create
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         "MODEL",
-        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
         Sequence(
             "OPTIONS",
@@ -1998,16 +2137,12 @@ class CreateModelStatementSegment(BaseSegment):
                             Ref("LiteralGrammar"),  # Single value
                             Bracketed(
                                 # E.g. input_label_cols: list of column names
-                                Delimited(
-                                    Ref("QuotedLiteralSegment"),
-                                    delimiter=Ref("CommaSegment"),
-                                ),
+                                Delimited(Ref("QuotedLiteralSegment")),
                                 bracket_type="square",
                                 optional=True,
                             ),
                         ),
                     ),
-                    delimiter=Ref("CommaSegment"),
                 )
             ),
             optional=True,
@@ -2027,7 +2162,7 @@ class DropModelStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "DROP",
         "MODEL",
-        Sequence("IF", "EXISTS", optional=True),
+        Ref("IfExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
     )
 
@@ -2078,4 +2213,20 @@ class StatementSegment(BaseSegment):
         Ref("CreateFunctionStatementSegment"),
         Ref("CreateModelStatementSegment"),
         Ref("DropModelStatementSegment"),
+    )
+
+
+@ansi_dialect.segment()
+class WithNoSchemaBindingClauseSegment(BaseSegment):
+    """WITH NO SCHEMA BINDING clause for Redshift's Late Binding Views.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_VIEW.html
+    """
+
+    type = "with_no_schema_binding_clause"
+    match_grammar = Sequence(
+        "WITH",
+        "NO",
+        "SCHEMA",
+        "BINDING",
     )

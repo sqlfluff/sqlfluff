@@ -60,6 +60,15 @@ bigquery_dialect.add(
     StructKeywordSegment=KeywordSegment.make("struct", name="struct"),
 )
 
+
+bigquery_dialect.replace(
+    FunctionContentsExpressionGrammar=OneOf(
+        Ref("DatetimeUnitSegment"),
+        Ref("ExpressionSegment"),
+    ),
+)
+
+
 # Add additional datetime units
 # https://cloud.google.com/bigquery/docs/reference/standard-sql/date_functions#extract
 bigquery_dialect.sets("datetime_units").update(
@@ -73,6 +82,9 @@ bigquery_dialect.sets("unreserved_keywords").add("STRUCT")
 # Reserved Keywords
 bigquery_dialect.sets("reserved_keywords").add("FOR")
 
+# In BigQuery, UNNEST() returns a "value table".
+# https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#value_tables
+bigquery_dialect.sets("value_table_functions").update(["unnest"])
 
 # Bracket pairs (a set of tuples)
 bigquery_dialect.sets("bracket_pairs").update(

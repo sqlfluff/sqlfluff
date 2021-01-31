@@ -3,22 +3,23 @@ file:
   statement:
     select_statement:
       select_clause:
-      - keyword: select
-      - select_target_element:
-          column_reference:
-            identifier: a
-      - comma: ','
-      - select_target_element:
-          column_reference:
-            identifier: b
-      - comma: ','
-      - select_target_element:
-          column_reference:
-            identifier: c
+        - keyword: select
+        - select_target_element:
+            column_reference:
+              identifier: a
+        - comma: ","
+        - select_target_element:
+            column_reference:
+              identifier: b
+        - comma: ","
+        - select_target_element:
+            column_reference:
+              identifier: c
       from_clause:
         keyword: from
         table_expression:
-          table_reference:
-          - identifier: sch
-          - dot: '.'
-          - identifier: '"blah"'
+          main_table_expression:
+            table_reference:
+              - identifier: sch
+              - dot: "."
+              - identifier: '"blah"'
