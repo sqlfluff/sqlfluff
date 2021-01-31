@@ -9,7 +9,13 @@ class Rule_L020(BaseCrawler):
     """Table aliases should be unique within each clause."""
 
     def _lint_references_and_aliases(
-        self, aliases, references, col_aliases, using_cols, parent_select
+        self,
+        table_aliases,
+        value_table_function_aliases,
+        references,
+        col_aliases,
+        using_cols,
+        parent_select,
     ):
         """Check whether any aliases are duplicates.
 
@@ -17,7 +23,7 @@ class Rule_L020(BaseCrawler):
 
         """
         # Are any of the aliases the same?
-        for a1, a2 in itertools.combinations(aliases, 2):
+        for a1, a2 in itertools.combinations(table_aliases, 2):
             # Compare the strings
             if a1[0] == a2[0] and a1[0]:
                 # If there are any, then the rest of the code
@@ -35,13 +41,46 @@ class Rule_L020(BaseCrawler):
         return None
 
     @staticmethod
-    def _get_aliases_from_select(segment):
-        # Get the aliases referred to in the clause
+    def _has_value_table_function(table_expr, dialect):
+        if not dialect:
+            # We need the dialect to get the value table function names. If
+            # we don't have it, assume the clause does not have a value table
+            # function.
+            return False
+
+        function = table_expr.get_child("function")
+        if not function:
+            return False
+
+        function_name = function.get_child("function_name")
+        return function_name and function_name.raw.lower() in dialect.sets(
+            "value_table_functions"
+        )
+
+    @classmethod
+    def _get_aliases_from_select(cls, segment, dialect=None):
+        """Gets the aliases referred to in the FROM clause.
+
+        Returns a tuple of two lists:
+        - Table aliases
+        - Value table function aliases
+        """
         fc = segment.get_child("from_clause")
         if not fc:
             # If there's no from clause then just abort.
-            return None
-        return fc.get_eventual_aliases()
+            return None, None
+        aliases = fc.get_eventual_aliases()
+
+        # We only want table aliases, so filter out aliases for value table
+        # functions.
+        table_aliases = []
+        value_table_function_aliases = []
+        for table_expr, alias_info in aliases:
+            if not cls._has_value_table_function(table_expr, dialect):
+                table_aliases.append(alias_info)
+            else:
+                value_table_function_aliases.append(alias_info)
+        return table_aliases, value_table_function_aliases
 
     def _eval(self, segment, parent_stack, **kwargs):
         """Get References and Aliases and allow linting.
@@ -53,8 +92,10 @@ class Rule_L020(BaseCrawler):
         `_lint_references_and_aliases` method.
         """
         if segment.is_type("select_statement"):
-            aliases = self._get_aliases_from_select(segment)
-            if not aliases:
+            table_aliases, value_table_function_aliases = self._get_aliases_from_select(
+                segment, kwargs.get("dialect")
+            )
+            if not table_aliases and not value_table_function_aliases:
                 return None
 
             # Iterate through all the references, both in the select clause, but also
@@ -124,6 +165,11 @@ class Rule_L020(BaseCrawler):
             # Pass them all to the function that does all the work.
             # NB: Subclasses of this rules should override the function below
             return self._lint_references_and_aliases(
-                aliases, reference_buffer, col_aliases, using_cols, parent_select
+                table_aliases,
+                value_table_function_aliases,
+                reference_buffer,
+                col_aliases,
+                using_cols,
+                parent_select,
             )
         return None

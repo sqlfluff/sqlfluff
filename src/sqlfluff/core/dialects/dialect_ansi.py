@@ -145,6 +145,17 @@ ansi_dialect.sets("bracket_pairs").update(
     ]
 )
 
+# Set the value table functions. These are functions that, if they appear as
+# an item in "FROM', are treated as returning a COLUMN, not a TABLE. Apparently,
+# among dialects supported by SQLFluff, only BigQuery has this concept, but this
+# set is defined in the ANSI dialect because:
+# - It impacts core linter rules (see L020 and several other rules that subclass
+#   from it) and how they interpret the contents of table_expressions
+# - At least one other database (DB2) has the same value table function,
+#   UNNEST(), as BigQuery. DB2 is not currently supported by SQLFluff.
+ansi_dialect.sets("value_table_functions").update([])
+
+
 ansi_dialect.add(
     # Real segments
     SemicolonSegment=SymbolSegment.make(
@@ -1011,7 +1022,7 @@ class FromClauseSegment(BaseSegment):
     def get_eventual_aliases(self):
         """List the eventual aliases of this from clause.
 
-        Comes as a list of tuples (string, segment).
+        Comes as a list of tuples (table expr, tuple (string, segment, bool)).
         """
         buff = []
         direct_table_children = self.get_children("table_expression")
@@ -1021,8 +1032,13 @@ class FromClauseSegment(BaseSegment):
             ref = clause.get_eventual_alias()
             # Only append if non null. A None reference, may
             # indicate a generator expression or similar.
+            table_expr = (
+                clause
+                if clause in direct_table_children
+                else clause.get_child("table_expression")
+            )
             if ref:
-                buff.append(ref)
+                buff.append((table_expr, ref))
         return buff
 
 
