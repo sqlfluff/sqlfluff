@@ -18,10 +18,11 @@ file:
         from_clause:
           keyword: from
           table_expression:
-            table_reference:
-            - identifier: schema
-            - dot: .
-            - identifier: table
+            main_table_expression:
+              table_reference:
+              - identifier: schema
+              - dot: .
+              - identifier: table
     - with_no_schema_binding_clause:
       - keyword: with
       - keyword: 'no'
