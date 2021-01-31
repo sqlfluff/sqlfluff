@@ -932,9 +932,11 @@ class FromClauseSegment(BaseSegment):
             ref = clause.get_eventual_alias()
             # Only append if non null. A None reference, may
             # indicate a generator expression or similar.
-            table_expr = clause \
-                if clause in direct_table_children \
+            table_expr = (
+                clause
+                if clause in direct_table_children
                 else clause.get_child("table_expression")
+            )
             if ref:
                 buff.append((table_expr, ref))
         return buff
