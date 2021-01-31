@@ -48,14 +48,10 @@ class Rule_L020(BaseCrawler):
             # function.
             return False
 
-        function = table_expr.get_child("function")
-        if not function:
-            return False
-
-        function_name = function.get_child("function_name")
-        return function_name and function_name.raw.lower() in dialect.sets(
-            "value_table_functions"
-        )
+        for function_name in table_expr.recursive_crawl("function_name"):
+            if function_name.raw.lower() in dialect.sets("value_table_functions"):
+                return True
+        return False
 
     @classmethod
     def _get_aliases_from_select(cls, segment, dialect=None):
