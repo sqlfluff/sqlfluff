@@ -40,8 +40,15 @@ class Rule_L028(Rule_L025):
 
     config_keywords = ["single_table_references"]
 
-    def _lint_references_and_aliases(self, table_aliases, value_table_function_aliases, references,
-                                     col_aliases, using_cols, parent_select):
+    def _lint_references_and_aliases(
+        self,
+        table_aliases,
+        value_table_function_aliases,
+        references,
+        col_aliases,
+        using_cols,
+        parent_select,
+    ):
         """Iterate through references and check consistency."""
         # How many aliases are there? If more than one then abort.
         if len(table_aliases) > 1:

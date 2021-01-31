@@ -8,8 +8,15 @@ from ..base import BaseCrawler, LintResult
 class Rule_L020(BaseCrawler):
     """Table aliases should be unique within each clause."""
 
-    def _lint_references_and_aliases(self, table_aliases, value_table_function_aliases, references,
-                                     col_aliases, using_cols, parent_select):
+    def _lint_references_and_aliases(
+        self,
+        table_aliases,
+        value_table_function_aliases,
+        references,
+        col_aliases,
+        using_cols,
+        parent_select,
+    ):
         """Check whether any aliases are duplicates.
 
         NB: Subclasses of this error should override this function.
@@ -45,14 +52,15 @@ class Rule_L020(BaseCrawler):
             return False
 
         function_name = function.get_child("function_name")
-        return function_name and \
-            function_name.raw in dialect.sets("value_table_functions")
+        return function_name and function_name.raw in dialect.sets(
+            "value_table_functions"
+        )
 
     @classmethod
     def _get_aliases_from_select(cls, segment, dialect=None):
-        """
-        Gets the aliases referred to in the FROM clause. Returns a tuple of two
-        lists:
+        """Gets the aliases referred to in the FROM clause.
+
+        Returns a tuple of two lists:
         - Table aliases
         - Value table aliases
         """
@@ -84,8 +92,9 @@ class Rule_L020(BaseCrawler):
         `_lint_references_and_aliases` method.
         """
         if segment.is_type("select_statement"):
-            table_aliases, value_table_function_aliases = \
-                self._get_aliases_from_select(segment, kwargs.get("dialect"))
+            table_aliases, value_table_function_aliases = self._get_aliases_from_select(
+                segment, kwargs.get("dialect")
+            )
             if not table_aliases and not value_table_function_aliases:
                 return None
 
@@ -156,9 +165,12 @@ class Rule_L020(BaseCrawler):
 
             # Pass them all to the function that does all the work.
             # NB: Subclasses of this rules should override the function below
-            return self._lint_references_and_aliases(table_aliases,
-                                                     value_table_function_aliases,
-                                                     reference_buffer,
-                                                     col_aliases, using_cols,
-                                                     parent_select)
+            return self._lint_references_and_aliases(
+                table_aliases,
+                value_table_function_aliases,
+                reference_buffer,
+                col_aliases,
+                using_cols,
+                parent_select,
+            )
         return None

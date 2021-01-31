@@ -27,8 +27,15 @@ class Rule_L026(Rule_L025):
 
     """
 
-    def _lint_references_and_aliases(self, table_aliases, value_table_function_aliases, references,
-                                     col_aliases, using_cols, parent_select):
+    def _lint_references_and_aliases(
+        self,
+        table_aliases,
+        value_table_function_aliases,
+        references,
+        col_aliases,
+        using_cols,
+        parent_select,
+    ):
         # A buffer to keep any violations.
         violation_buff = []
 

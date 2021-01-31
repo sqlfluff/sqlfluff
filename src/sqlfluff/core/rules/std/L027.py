@@ -29,8 +29,15 @@ class Rule_L027(Rule_L025):
         LEFT JOIN vee ON vee.a = foo.a
     """
 
-    def _lint_references_and_aliases(self, table_aliases, value_table_function_aliases, references,
-                                     col_aliases, using_cols, parent_select):
+    def _lint_references_and_aliases(
+        self,
+        table_aliases,
+        value_table_function_aliases,
+        references,
+        col_aliases,
+        using_cols,
+        parent_select,
+    ):
         # Do we have more than one? If so, all references should be qualified.
         if len(table_aliases) <= 1:
             return None
