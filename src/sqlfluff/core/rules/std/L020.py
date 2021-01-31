@@ -67,12 +67,11 @@ class Rule_L020(BaseCrawler):
         # * Aliases for table value functions
         table_aliases = []
         value_table_function_aliases = []
-        for table_expr, alias in aliases:
-            if alias:
-                if not cls._has_value_table_function(table_expr, dialect):
-                    table_aliases.append(alias)
-                else:
-                    value_table_function_aliases.append(alias)
+        for table_expr, alias_info in aliases:
+            if not cls._has_value_table_function(table_expr, dialect):
+                table_aliases.append(alias_info)
+            else:
+                value_table_function_aliases.append(alias_info)
         return table_aliases, value_table_function_aliases
 
     def _eval(self, segment, parent_stack, **kwargs):

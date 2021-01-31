@@ -922,7 +922,7 @@ class FromClauseSegment(BaseSegment):
     def get_table_expressions_and_eventual_aliases(self):
         """List the table expressions and eventual aliases of this from clause.
 
-        Comes as a list of tuples (table expr, tuples (string, segment)).
+        Comes as a list of tuples (table expr, tuple (string, segment, bool)).
         """
         buff = []
         direct_table_children = self.get_children("table_expression")
@@ -930,7 +930,13 @@ class FromClauseSegment(BaseSegment):
         # Iterate through the potential sources of aliases
         for clause in (*direct_table_children, *join_clauses):
             ref = clause.get_eventual_alias()
-            buff.append((clause, ref))
+            # Only append if non null. A None reference, may
+            # indicate a generator expression or similar.
+            table_expr = clause \
+                if clause in direct_table_children \
+                else clause.get_child("table_expression")
+            if ref:
+                buff.append((table_expr, ref))
         return buff
 
 
