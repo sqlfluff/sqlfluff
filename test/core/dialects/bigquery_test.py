@@ -12,7 +12,7 @@ from sqlfluff.core import FluffConfig
     st.lists(
         st.tuples(st.sampled_from(["<", "=", ">"]), st.sampled_from(["AND", "OR"])),
         min_size=1,
-        max_size=33,
+        max_size=30,
     )
 )
 @example(data=[("<", "AND")])
