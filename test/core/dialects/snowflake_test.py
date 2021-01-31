@@ -8,6 +8,7 @@ from sqlfluff.core.dialects.dialect_snowflake import (
     SemiStructuredAccessorSegment,
     CreateStatementSegment,
     CreateCloneStatementSegment,
+    ShowStatementSegment,
 )
 from sqlfluff.core.dialects.dialect_ansi import AccessStatementSegment
 
@@ -88,6 +89,9 @@ from sqlfluff.core.dialects.dialect_ansi import AccessStatementSegment
             AccessStatementSegment,
             "revoke reference_usage on database database2 from share share1;",
         ),
+        (ShowStatementSegment, "SHOW GRANTS ON ACCOUNT;"),
+        (ShowStatementSegment, "show tables history in tpch.public;"),
+        (ShowStatementSegment, "show future grants in schema sales.public;"),
         # Testing https://github.com/sqlfluff/sqlfluff/issues/634
         (
             SemiStructuredAccessorSegment,

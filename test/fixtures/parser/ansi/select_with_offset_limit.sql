@@ -1,0 +1,3 @@
+SELECT *
+FROM counter
+LIMIT 10, 10

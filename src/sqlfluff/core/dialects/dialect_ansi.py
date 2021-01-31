@@ -1235,7 +1235,20 @@ class LimitClauseSegment(BaseSegment):
     """A `LIMIT` clause like in `SELECT`."""
 
     type = "limit_clause"
-    match_grammar = Sequence("LIMIT", Ref("NumericLiteralSegment"))
+    match_grammar = Sequence(
+        "LIMIT",
+        OneOf(
+            Ref("NumericLiteralSegment"),
+            Sequence(
+                Ref("NumericLiteralSegment"), "OFFSET", Ref("NumericLiteralSegment")
+            ),
+            Sequence(
+                Ref("NumericLiteralSegment"),
+                Ref("CommaSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+        ),
+    )
 
 
 @ansi_dialect.segment()
