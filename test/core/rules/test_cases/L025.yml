@@ -10,3 +10,13 @@ test_2:
 test_3:
   # L025 fix with https://github.com/sqlfluff/sqlfluff/issues/449
   pass_str: select ps.*, pandgs.blah from ps join pandgs using(moo)
+
+test_ignore_value_table_functions:
+  # L025 fix with https://github.com/sqlfluff/sqlfluff/issues/356
+  pass_str: |
+    select *
+    from unnest(generate_timestamp_array(
+        '2020-01-01', '2020-01-30', interval 1 day)) as ts
+  configs:
+    core:
+      dialect: bigquery

@@ -41,12 +41,19 @@ class Rule_L028(Rule_L025):
     config_keywords = ["single_table_references"]
 
     def _lint_references_and_aliases(
-        self, aliases, references, col_aliases, using_cols, parent_select
+        self,
+        table_aliases,
+        value_table_function_aliases,
+        references,
+        col_aliases,
+        using_cols,
+        parent_select,
     ):
         """Iterate through references and check consistency."""
         # How many aliases are there? If more than one then abort.
-        if len(aliases) > 1:
+        if len(table_aliases) > 1:
             return None
+        standalone_aliases = [t[0] for t in value_table_function_aliases]
         # A buffer to keep any violations.
         violation_buff = []
         # Check all the references that we have.
@@ -54,6 +61,13 @@ class Rule_L028(Rule_L025):
         for ref in references:
             # We skip any unqualified wildcard references (i.e. *). They shouldn't count.
             if not ref.is_qualified() and ref.is_type("wildcard_identifier"):
+                continue
+            # Oddball case: Column aliases provided via function calls in by
+            # FROM or JOIN. References to these don't need to be qualified.
+            # Note there could be a table with a column by the same name as
+            # this alias, so avoid bogus warnings by just skipping them
+            # entirely rather than trying to enforce anything.
+            if ref.raw in standalone_aliases:
                 continue
             this_ref_type = ref.qualification()
             if self.single_table_references == "consistent":

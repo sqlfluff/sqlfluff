@@ -3,7 +3,7 @@
 import pytest
 import logging
 
-from sqlfluff.core.parser import KeywordSegment
+from sqlfluff.core.parser import KeywordSegment, ReSegment
 from sqlfluff.core.parser.context import RootParseContext
 from sqlfluff.core.parser.segments import EphemeralSegment
 from sqlfluff.core.parser.grammar.base import BaseGrammar
@@ -226,6 +226,53 @@ def test__parser__grammar_oneof_exclude(seg_list):
         assert g.match(seg_list[:1], parse_context=ctx)
         # Now with the bit to exclude included
         assert not g.match(seg_list, parse_context=ctx)
+
+
+def test__parser__grammar_oneof_take_longest_match(seg_list):
+    """Test that the OneOf grammar takes the longest match."""
+    fooRegex = ReSegment.make(r"fo{2}")
+    baar = KeywordSegment.make(
+        "baar",
+    )
+    foo = KeywordSegment.make(
+        "foo",
+    )
+    fooBaar = Sequence(
+        foo,
+        baar,
+    )
+
+    # Even if fooRegex comes first, fooBaar
+    # is a longer match and should be taken
+    g = OneOf(fooRegex, fooBaar)
+    with RootParseContext(dialect=None) as ctx:
+        assert fooRegex.match(seg_list[2:], parse_context=ctx).matched_segments == (
+            fooRegex("foo", seg_list[2].pos_marker),
+        )
+        assert g.match(seg_list[2:], parse_context=ctx).matched_segments == (
+            foo("foo", seg_list[2].pos_marker),
+            baar("baar", seg_list[3].pos_marker),
+        )
+
+
+def test__parser__grammar_oneof_take_first(seg_list):
+    """Test that the OneOf grammar takes first match in case they are of same length."""
+    fooRegex = ReSegment.make(r"fo{2}")
+    foo = KeywordSegment.make(
+        "foo",
+    )
+
+    # Both segments would match "foo"
+    # so we test that order matters
+    g1 = OneOf(fooRegex, foo)
+    g2 = OneOf(foo, fooRegex)
+    with RootParseContext(dialect=None) as ctx:
+        assert g1.match(seg_list[2:], parse_context=ctx).matched_segments == (
+            fooRegex("foo", seg_list[2].pos_marker),
+        )
+        assert g2.match(seg_list[2:], parse_context=ctx).matched_segments == (
+            foo("foo", seg_list[2].pos_marker),
+        )
 
 
 @pytest.mark.parametrize(
