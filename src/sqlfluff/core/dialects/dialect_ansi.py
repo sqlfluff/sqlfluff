@@ -143,13 +143,13 @@ ansi_dialect.sets("bracket_pairs").update(
 )
 
 # Set the value table functions. These are functions that, if they appear as
-# an item in "FROM', are treated as returning a COLUMN, not a TABLE. Among
-# Apparently, among dialects supported by SQLFluff, only BigQuery has this
-# concept, but this set is defined in the ANSI dialect because:
+# an item in "FROM', are treated as returning a COLUMN, not a TABLE. Apparently,
+# among dialects supported by SQLFluff, only BigQuery has this concept, but this
+# set is defined in the ANSI dialect because:
 # - It impacts core linter rules (see L020 and several other rules that subclass
 #   from it) and how they interpret the contents of table_expressions
 # - At least one other database (DB2) has the same value table function,
-#   UNNEST(), as BigQuery. DB2 is not currently supported by BigQuery.
+#   UNNEST(), as BigQuery. DB2 is not currently supported by SQLFluff.
 ansi_dialect.sets("value_table_functions").update([])
 
 
