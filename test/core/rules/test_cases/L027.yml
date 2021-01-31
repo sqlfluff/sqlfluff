@@ -24,10 +24,6 @@ test_allow_date_parts_as_function_parameter_snowflake:
 
 test_ignore_value_table_functions:
   pass_str: |
-    with a as (
-        select 1
-    )
-
     select
         a.*,
         _t_start

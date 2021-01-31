@@ -44,7 +44,8 @@ class Rule_L020(BaseCrawler):
     def _has_value_table_function(table_expr, dialect):
         if not dialect:
             # We need the dialect to get the value table function names. If
-            # we don't have it, assume the clause does not have one.
+            # we don't have it, assume the clause does not have a value table
+            # function.
             return False
 
         function = table_expr.get_child("function")
@@ -62,17 +63,16 @@ class Rule_L020(BaseCrawler):
 
         Returns a tuple of two lists:
         - Table aliases
-        - Value table aliases
+        - Value table function aliases
         """
         fc = segment.get_child("from_clause")
         if not fc:
             # If there's no from clause then just abort.
             return None, None
-        aliases = fc.get_table_expressions_and_eventual_aliases()
+        aliases = fc.get_eventual_aliases()
 
-        # We only want table aliases, so filter out:
-        # * None values
-        # * Aliases for table value functions
+        # We only want table aliases, so filter out aliases for value table
+        # functions.
         table_aliases = []
         value_table_function_aliases = []
         for table_expr, alias_info in aliases:

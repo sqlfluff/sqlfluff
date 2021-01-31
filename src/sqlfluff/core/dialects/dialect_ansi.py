@@ -11,6 +11,7 @@ labs full sql grammar. In particular their way for dividing up the expression
 grammar. Check out their docs, they're awesome.
 https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 """
+
 from ..parser import (
     Matchable,
     BaseSegment,
@@ -142,10 +143,13 @@ ansi_dialect.sets("bracket_pairs").update(
 )
 
 # Set the value table functions. These are functions that, if they appear as
-# an item in "FROM', are treated as returning a COLUMN, not a TABLE. Currently,
-# apparently only BigQuery has this concept, but it's included in ANSI because
-# it impacts core linter rules and how they interpret the contents of
-# table_expressions.
+# an item in "FROM', are treated as returning a COLUMN, not a TABLE. Among
+# Apparently, among dialects supported by SQLFluff, only BigQuery has this
+# concept, but this set is defined in the ANSI dialect because:
+# - It impacts core linter rules (see L020 and several other rules that subclass
+#   from it) and how they interpret the contents of table_expressions
+# - At least one other database (DB2) has the same value table function,
+#   UNNEST(), as BigQuery. DB2 is not currently supported by BigQuery.
 ansi_dialect.sets("value_table_functions").update([])
 
 
@@ -919,8 +923,8 @@ class FromClauseSegment(BaseSegment):
         Dedent.when(indented_joins=True),
     )
 
-    def get_table_expressions_and_eventual_aliases(self):
-        """List the table expressions and eventual aliases of this from clause.
+    def get_eventual_aliases(self):
+        """List the eventual aliases of this from clause.
 
         Comes as a list of tuples (table expr, tuple (string, segment, bool)).
         """
