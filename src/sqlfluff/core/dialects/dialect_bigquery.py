@@ -64,7 +64,10 @@ bigquery_dialect.add(
 bigquery_dialect.replace(
     FunctionContentsExpressionGrammar=OneOf(
         Ref("DatetimeUnitSegment"),
-        Ref("ExpressionSegment"),
+        Sequence(
+            Ref("ExpressionSegment"),
+            Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
+        ),
     ),
 )
 
