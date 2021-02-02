@@ -118,3 +118,32 @@ issue_635:
   configs:
     core:
       dialect: snowflake
+
+# This query was causing a runtime error in the rule.
+issue_239:
+  pass_str: |
+    WITH
+      confusion_matrix AS (
+      SELECT
+        expected_label,
+        commerce,
+        digital,
+        traditional_services
+      FROM
+        ML.CONFUSION_MATRIX(MODEL model3,
+          (
+          SELECT
+            *
+          FROM
+            table1
+          WHERE
+            training = 0 )))
+
+    SELECT
+      *,
+      commerce pct_commerce
+    FROM
+      confusion_matrix
+  configs:
+    core:
+      dialect: bigquery
