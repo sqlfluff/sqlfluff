@@ -15,9 +15,6 @@ file:
               identifier: table_a
     - where_clause:
       - keyword: WHERE
-          \ use angle"
-          \ isolation to"
-          bracket.
       - expression:
         - column_reference:
             identifier: a
