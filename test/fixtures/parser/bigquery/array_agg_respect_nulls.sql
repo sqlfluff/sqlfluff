@@ -1,0 +1,2 @@
+SELECT ARRAY_AGG(x RESPECT NULLS) AS array_agg
+FROM t
