@@ -7,16 +7,18 @@ file:
       select_clause:
       - keyword: select
       - select_target_element:
-          unparsable:
-          - raw: $1
-          - raw: as
-          - raw: type
+          column_reference:
+            identifier: $1
+          alias_expression:
+            keyword: as
+            identifier: type
       - comma: ','
       - select_target_element:
-          unparsable:
-          - raw: $2
-          - raw: as
-          - raw: price
+          column_reference:
+            identifier: $2
+          alias_expression:
+            keyword: as
+            identifier: price
       from_clause:
         keyword: from
         table_expression:

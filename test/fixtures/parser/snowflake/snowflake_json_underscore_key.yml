@@ -4,15 +4,18 @@ file:
       select_clause:
         keyword: select
         select_target_element:
-          column_reference:
-          - identifier: x
-          - dot: .
-          - identifier: y
-          unparsable:
-          - raw: ':'
-          - raw: _z
-          - raw: '::'
-          - raw: string
+          expression:
+            column_reference:
+            - identifier: x
+            - dot: .
+            - identifier: y
+            snowflake_semi_structured_expression:
+              colon: ':'
+              semi_structured_element: _z
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: string
       from_clause:
         keyword: from
         table_expression:

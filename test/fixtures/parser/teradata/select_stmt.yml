@@ -29,13 +29,10 @@ file:
           - expression:
               literal: "'200010'"
           - keyword: AS
-          - data_type:
-              data_type_identifier: DATE
-          - expression:
-              column_reference:
-                identifier: FORMAT
-          - expression:
-              literal: "'YYYYMM'"
+          - td_internal_data_type:
+            - data_type_identifier: DATE
+            - keyword: FORMAT
+            - literal: "'YYYYMM'"
           - end_bracket: )
           alias_expression:
             keyword: AS

@@ -16,11 +16,11 @@ file:
               identifier: r
               dot: .
               star: '*'
-          unparsable:
-          - raw: except
-          - start_bracket: (
-          - raw: date_key
-          - end_bracket: )
+            select_except_clause:
+              keyword: except
+              start_bracket: (
+              identifier: date_key
+              end_bracket: )
       from_clause:
         keyword: from
         table_expression:

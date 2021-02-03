@@ -1,41 +1,44 @@
 file:
   statement:
     create_function_statement:
-      unparsable:
-      - keyword: CREATE
-      - keyword: TEMP
-      - keyword: FUNCTION
-      - raw: parseTopSellers
-      - raw: (
-      - raw: arr_str
-      - raw: STRING
-      - raw: )
-      - raw: RETURNS
-      - raw: ARRAY
-      - raw: <
-      - raw: STRUCT
-      - raw: <
-      - raw: product_id
-      - raw: INT64
-      - comma: ','
-      - raw: rating
-      - raw: FLOAT64
-      - raw: '>'
-      - raw: '>'
-      - raw: LANGUAGE
-      - raw: js
-      - raw: OPTIONS
-      - raw: (
-      - raw: library
-      - raw: '='
-      - raw: '['
+    - keyword: CREATE
+    - keyword: TEMP
+    - keyword: FUNCTION
+    - function_name: parseTopSellers
+    - start_bracket: (
+    - parameter: arr_str
+    - data_type:
+        data_type_identifier: STRING
+    - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+      - keyword: ARRAY
+      - comparison_operator: <
+      - data_type:
+        - keyword: STRUCT
+        - comparison_operator: <
+        - parameter: product_id
+        - data_type:
+            data_type_identifier: INT64
+        - comma: ','
+        - parameter: rating
+        - data_type:
+            data_type_identifier: FLOAT64
+        - comparison_operator: '>'
+      - comparison_operator: '>'
+    - base:
+      - keyword: LANGUAGE
+      - parameter: js
+      - keyword: OPTIONS
+      - start_bracket: (
+      - parameter: library
+      - comparison_operator: '='
+      - start_square_bracket: '['
       - raw: '"gs://my-bucket/path/to/lib1.js"'
       - comma: ','
       - raw: '"gs://my-bucket/path/to/lib2.js"'
-      - raw: ']'
-      - raw: )
-      - raw: AS
-      - raw: '""'
-      - raw: "\"\n    CODE GOES HERE\n\""
-      - raw: '""'
+      - end_square_bracket: ']'
+      - end_bracket: )
+      - keyword: AS
+      - literal: "\"\"\"\n    CODE GOES HERE\n\"\"\""
 

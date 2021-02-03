@@ -9,22 +9,28 @@ file:
               star: '*'
       from_clause:
         keyword: FROM
-        table_expression:
-          main_table_expression:
-            function:
-            - identifier: ML
-            - dot: .
-            - function_name: PREDICT
-            - start_bracket: (
-            - unparsable:
-              - raw: MODEL
-              - raw: '`project.dataset.model`'
-              - comma: ','
-              - start_bracket: (
-              - raw: SELECT
-              - raw: user_id
-              - raw: FROM
-              - raw: '`project.dataset.stats`'
-              - end_bracket: )
-            - end_bracket: )
+        ml_table_expression:
+        - keyword: ML
+        - dot: .
+        - identifier: PREDICT
+        - start_bracket: (
+        - keyword: MODEL
+        - object_reference:
+            identifier: '`project.dataset.model`'
+        - comma: ','
+        - start_bracket: (
+        - select_statement:
+            select_clause:
+              keyword: SELECT
+              select_target_element:
+                column_reference:
+                  identifier: user_id
+            from_clause:
+              keyword: FROM
+              table_expression:
+                main_table_expression:
+                  table_reference:
+                    identifier: '`project.dataset.stats`'
+        - end_bracket: )
+        - end_bracket: )
 

@@ -17,14 +17,10 @@ file:
           - expression:
               select_statement:
               - select_clause:
-                  keyword: select
-                  select_target_element:
-                    column_reference:
-                      identifier: as
-                    alias_expression:
-                      identifier: struct
-                    unparsable:
-                      raw: '*'
+                - keyword: select
+                - keyword: as
+                - keyword: struct
+                - star: '*'
               - from_clause:
                   keyword: from
                   table_expression:
@@ -57,24 +53,24 @@ file:
       select_clause:
         keyword: select
         select_target_element:
-          function:
-          - function_name: struct
+          typeless_struct:
+          - keyword: struct
           - start_bracket: (
-          - expression:
-              column_reference:
-              - identifier: bar
-              - dot: .
-              - identifier: bar_id
-          - keyword: as
-          - data_type:
-              data_type_identifier: id
-          - unparsable:
-            - comma: ','
-            - raw: bar
-            - raw: .
-            - raw: bar_name
-            - raw: as
-            - raw: bar
+          - object_reference:
+            - identifier: bar
+            - dot: .
+            - identifier: bar_id
+          - alias_expression:
+              keyword: as
+              identifier: id
+          - comma: ','
+          - object_reference:
+            - identifier: bar
+            - dot: .
+            - identifier: bar_name
+          - alias_expression:
+              keyword: as
+              identifier: bar
           - end_bracket: )
           alias_expression:
             keyword: as

@@ -1,34 +1,41 @@
 file:
 - statement:
-    unparsable:
-    - raw: COLLECT
-    - raw: STATISTICS
-    - raw: COLUMN
+    collect_statistics_statement:
+    - keyword: COLLECT
+    - keyword: STATISTICS
+    - keyword: COLUMN
     - start_bracket: (
-    - raw: IND_TIPO_TARJETA
+    - object_reference:
+        identifier: IND_TIPO_TARJETA
     - end_bracket: )
-    - raw: 'ON'
-    - raw: DB_1
-    - raw: .
-    - raw: TABLE_1
+    - keyword: 'ON'
+    - object_reference:
+      - identifier: DB_1
+      - dot: .
+      - identifier: TABLE_1
 - statement_terminator: ;
 - statement:
-    unparsable:
-    - raw: COLLECT
-    - raw: STATISTICS
-    - raw: INDEX
+    collect_statistics_statement:
+    - keyword: COLLECT
+    - keyword: STATISTICS
+    - keyword: INDEX
     - start_bracket: (
-    - raw: COD_TARJETA
+    - object_reference:
+        identifier: COD_TARJETA
     - comma: ','
-    - raw: COD_EST
+    - object_reference:
+        identifier: COD_EST
     - comma: ','
-    - raw: IND_TIPO_TARJETA
+    - object_reference:
+        identifier: IND_TIPO_TARJETA
     - comma: ','
-    - raw: FEC_ANIO_MES
+    - object_reference:
+        identifier: FEC_ANIO_MES
     - end_bracket: )
-    - raw: 'ON'
-    - raw: DB_1
-    - raw: .
-    - raw: TABLE_1
+    - keyword: 'ON'
+    - object_reference:
+      - identifier: DB_1
+      - dot: .
+      - identifier: TABLE_1
 - statement_terminator: ;
 

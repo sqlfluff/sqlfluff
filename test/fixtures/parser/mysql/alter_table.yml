@@ -1,20 +1,25 @@
 file:
   statement:
-    unparsable:
-    - raw: ALTER
-    - raw: TABLE
-    - raw: '`users`'
-    - raw: MODIFY
-    - raw: COLUMN
-    - raw: '`name`'
-    - raw: varchar
-    - start_bracket: (
-    - raw: '255'
-    - end_bracket: )
-    - raw: NOT
-    - raw: 'NULL'
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: '`users`'
+    - keyword: MODIFY
+    - keyword: COLUMN
+    - column_definition:
+      - identifier: '`name`'
+      - data_type:
+          data_type_identifier: varchar
+          start_bracket: (
+          expression:
+            literal: '255'
+          end_bracket: )
+      - column_constraint:
+        - keyword: NOT
+        - keyword: 'NULL'
     - comma: ','
-    - raw: COMMENT
-    - raw: '"name of user"'
+    - parameter: COMMENT
+    - literal: '"name of user"'
   statement_terminator: ;
 

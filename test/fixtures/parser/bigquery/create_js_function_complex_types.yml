@@ -1,71 +1,86 @@
 file:
   statement:
     create_function_statement:
-      unparsable:
-      - keyword: CREATE
-      - keyword: TEMP
-      - keyword: FUNCTION
-      - raw: qs
-      - raw: (
-      - raw: foo1
-      - raw: INT64
+    - keyword: CREATE
+    - keyword: TEMP
+    - keyword: FUNCTION
+    - function_name: qs
+    - start_bracket: (
+    - parameter: foo1
+    - data_type:
+        data_type_identifier: INT64
+    - comma: ','
+    - parameter: foo2
+    - data_type:
+      - keyword: ARRAY
+      - comparison_operator: <
+      - data_type:
+          data_type_identifier: STRING
+      - comparison_operator: '>'
+    - comma: ','
+    - parameter: foo3
+    - data_type:
+      - keyword: STRUCT
+      - comparison_operator: <
+      - parameter: x
+      - data_type:
+          data_type_identifier: INT64
+      - comparison_operator: '>'
+    - comma: ','
+    - parameter: foo4
+    - data_type:
+      - keyword: STRUCT
+      - comparison_operator: <
+      - parameter: x
+      - data_type:
+          data_type_identifier: INT64
       - comma: ','
-      - raw: foo2
-      - raw: ARRAY
-      - raw: <
-      - raw: STRING
-      - raw: '>'
+      - parameter: y
+      - data_type:
+          data_type_identifier: INT64
+      - comparison_operator: '>'
+    - comma: ','
+    - parameter: foo5
+    - data_type:
+      - keyword: STRUCT
+      - comparison_operator: <
+      - parameter: a
+      - data_type:
+        - keyword: ARRAY
+        - comparison_operator: <
+        - data_type:
+            data_type_identifier: FLOAT
+        - comparison_operator: '>'
       - comma: ','
-      - raw: foo3
-      - raw: STRUCT
-      - raw: <
-      - raw: x
-      - raw: INT64
-      - raw: '>'
-      - comma: ','
-      - raw: foo4
-      - raw: STRUCT
-      - raw: <
-      - raw: x
-      - raw: INT64
-      - comma: ','
-      - raw: y
-      - raw: INT64
-      - raw: '>'
-      - comma: ','
-      - raw: foo5
-      - raw: STRUCT
-      - raw: <
-      - raw: a
-      - raw: ARRAY
-      - raw: <
-      - raw: FLOAT
-      - raw: '>'
-      - comma: ','
-      - raw: b
-      - raw: STRUCT
-      - raw: <
-      - raw: x
-      - raw: INT64
-      - comma: ','
-      - raw: y
-      - raw: INT64
-      - raw: '>'
-      - raw: '>'
-      - raw: )
-      - raw: RETURNS
-      - raw: STRUCT
-      - raw: <
-      - raw: product_id
-      - raw: ARRAY
-      - raw: <
-      - raw: INT64
-      - raw: '>'
-      - raw: '>'
-      - raw: LANGUAGE
-      - raw: js
-      - raw: AS
-      - raw: '""'
-      - raw: "\"\n    CODE GOES HERE\n\""
-      - raw: '""'
+      - parameter: b
+      - data_type:
+        - keyword: STRUCT
+        - comparison_operator: <
+        - parameter: x
+        - data_type:
+            data_type_identifier: INT64
+        - comma: ','
+        - parameter: y
+        - data_type:
+            data_type_identifier: INT64
+        - comparison_operator: '>'
+      - comparison_operator: '>'
+    - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+      - keyword: STRUCT
+      - comparison_operator: <
+      - parameter: product_id
+      - data_type:
+        - keyword: ARRAY
+        - comparison_operator: <
+        - data_type:
+            data_type_identifier: INT64
+        - comparison_operator: '>'
+      - comparison_operator: '>'
+    - base:
+      - keyword: LANGUAGE
+      - parameter: js
+      - keyword: AS
+      - literal: "\"\"\"\n    CODE GOES HERE\n\"\"\""
 

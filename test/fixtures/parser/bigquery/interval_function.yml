@@ -5,44 +5,53 @@ file:
       - keyword: SELECT
       - select_target_element:
           function:
-          - function_name: TIMESTAMP_TRUNC
-          - start_bracket: (
-          - expression:
+            function_name: TIMESTAMP_TRUNC
+            start_bracket: (
+            expression:
               function:
-                function_name: TIMESTAMP_ADD
-                start_bracket: (
-                unparsable:
-                - raw: session_start
-                - raw: .
-                - raw: eventTimestamp
-                - comma: ','
-                - raw: INTERVAL
-                - raw: cast
-                - start_bracket: (
-                - raw: TIMESTAMP_DIFF
-                - start_bracket: (
-                - raw: session_end
-                - raw: .
-                - raw: eventTimestamp
-                - comma: ','
-                - raw: session_start
-                - raw: .
-                - raw: eventTimestamp
-                - comma: ','
-                - raw: SECOND
-                - end_bracket: )
-                - raw: /
-                - raw: '2'
-                - raw: AS
-                - raw: int64
-                - end_bracket: )
-                - raw: second
-                end_bracket: )
-          - comma: ','
-          - expression:
-              column_reference:
-                identifier: HOUR
-          - end_bracket: )
+              - function_name: TIMESTAMP_ADD
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                  - identifier: session_start
+                  - dot: .
+                  - identifier: eventTimestamp
+              - comma: ','
+              - expression:
+                  interval_expression:
+                  - keyword: INTERVAL
+                  - function:
+                    - function_name: cast
+                    - start_bracket: (
+                    - expression:
+                        function:
+                        - function_name: TIMESTAMP_DIFF
+                        - start_bracket: (
+                        - expression:
+                            column_reference:
+                            - identifier: session_end
+                            - dot: .
+                            - identifier: eventTimestamp
+                        - comma: ','
+                        - expression:
+                            column_reference:
+                            - identifier: session_start
+                            - dot: .
+                            - identifier: eventTimestamp
+                        - comma: ','
+                        - date_part: SECOND
+                        - end_bracket: )
+                        binary_operator: /
+                        literal: '2'
+                    - keyword: AS
+                    - data_type:
+                        data_type_identifier: int64
+                    - end_bracket: )
+                  - date_part: second
+              - end_bracket: )
+            comma: ','
+            date_part: HOUR
+            end_bracket: )
           alias_expression:
             keyword: AS
             identifier: avgAtHour

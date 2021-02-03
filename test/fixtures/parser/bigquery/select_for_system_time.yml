@@ -9,21 +9,24 @@ file:
       from_clause:
         keyword: FROM
         table_expression:
-          main_table_expression:
+        - main_table_expression:
             table_reference:
               identifier: lists_emails
-          alias_expression:
+        - alias_expression:
             keyword: AS
             identifier: list_emails
-        unparsable:
-        - raw: FOR
-        - raw: SYSTEM_TIME
-        - raw: AS
-        - raw: OF
-        - raw: CAST
-        - raw: (
-        - raw: "'2019-12-02T20:52:34+00:00'"
-        - raw: AS
-        - raw: TIMESTAMP
-        - raw: )
+        - keyword: FOR
+        - keyword: SYSTEM_TIME
+        - keyword: AS
+        - keyword: OF
+        - expression:
+            function:
+            - function_name: CAST
+            - start_bracket: (
+            - expression:
+                literal: "'2019-12-02T20:52:34+00:00'"
+            - keyword: AS
+            - data_type:
+                data_type_identifier: TIMESTAMP
+            - end_bracket: )
 

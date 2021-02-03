@@ -8,9 +8,11 @@ file:
             wildcard_identifier:
               star: '*'
     - from_clause:
-        unparsable:
-          keyword: FROM
-          raw: '`project.dataset.table_1`'
+        keyword: FROM
+        table_expression:
+          main_table_expression:
+            table_reference:
+              identifier: '`project.dataset.table_1`'
     - where_clause:
         keyword: WHERE
         expression:

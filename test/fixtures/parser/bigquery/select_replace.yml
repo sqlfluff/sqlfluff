@@ -8,11 +8,13 @@ file:
           wildcard_expression:
             wildcard_identifier:
               star: '*'
-          unparsable:
-          - raw: replace
-          - raw: "'thing'"
-          - raw: as
-          - raw: foo
+            select_replace_clause:
+              keyword: replace
+              select_target_element:
+                literal: "'thing'"
+                alias_expression:
+                  keyword: as
+                  identifier: foo
       from_clause:
         keyword: from
         table_expression:
@@ -29,19 +31,25 @@ file:
           wildcard_expression:
             wildcard_identifier:
               star: '*'
-          unparsable:
-          - raw: REPLACE
-          - start_bracket: (
-          - raw: quantity
-          - raw: /
-          - raw: '2'
-          - raw: AS
-          - raw: quantity
-          - comma: ','
-          - raw: "'thing'"
-          - raw: as
-          - raw: foo
-          - end_bracket: )
+            select_replace_clause:
+            - keyword: REPLACE
+            - start_bracket: (
+            - select_target_element:
+                expression:
+                  column_reference:
+                    identifier: quantity
+                  binary_operator: /
+                  literal: '2'
+                alias_expression:
+                  keyword: AS
+                  identifier: quantity
+            - comma: ','
+            - select_target_element:
+                literal: "'thing'"
+                alias_expression:
+                  keyword: as
+                  identifier: foo
+            - end_bracket: )
       from_clause:
         keyword: from
         table_expression:

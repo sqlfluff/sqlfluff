@@ -5,22 +5,29 @@ file:
         keyword: SELECT
         select_target_element:
           wildcard_expression:
-            wildcard_identifier:
+          - wildcard_identifier:
               star: '*'
-          unparsable:
-          - raw: EXCEPT
-          - start_bracket: (
-          - raw: seqnum
-          - end_bracket: )
-          - raw: REPLACE
-          - start_bracket: (
-          - raw: foo
-          - raw: as
-          - raw: bar
-          - comma: ','
-          - raw: baz
-          - raw: foobar
-          - end_bracket: )
+          - select_except_clause:
+              keyword: EXCEPT
+              start_bracket: (
+              identifier: seqnum
+              end_bracket: )
+          - select_replace_clause:
+            - keyword: REPLACE
+            - start_bracket: (
+            - select_target_element:
+                column_reference:
+                  identifier: foo
+                alias_expression:
+                  keyword: as
+                  identifier: bar
+            - comma: ','
+            - select_target_element:
+                column_reference:
+                  identifier: baz
+                alias_expression:
+                  identifier: foobar
+            - end_bracket: )
       from_clause:
         keyword: FROM
         table_expression:
@@ -38,11 +45,11 @@ file:
             wildcard_expression:
               wildcard_identifier:
                 star: '*'
-            unparsable:
-            - raw: except
-            - start_bracket: (
-            - raw: foo
-            - end_bracket: )
+              select_except_clause:
+                keyword: except
+                start_bracket: (
+                identifier: foo
+                end_bracket: )
         from_clause:
           keyword: from
           table_expression:
@@ -84,11 +91,11 @@ file:
           wildcard_expression:
             wildcard_identifier:
               star: '*'
-          unparsable:
-          - raw: except
-          - start_bracket: (
-          - raw: irrelevant
-          - end_bracket: )
+            select_except_clause:
+              keyword: except
+              start_bracket: (
+              identifier: irrelevant
+              end_bracket: )
       from_clause:
         keyword: from
         table_expression:
@@ -108,11 +115,11 @@ file:
               identifier: foo
               dot: .
               star: '*'
-          unparsable:
-          - raw: except
-          - start_bracket: (
-          - raw: some_column
-          - end_bracket: )
+            select_except_clause:
+              keyword: except
+              start_bracket: (
+              identifier: some_column
+              end_bracket: )
       - comma: ','
       - select_target_element:
           wildcard_expression:
@@ -120,11 +127,11 @@ file:
               identifier: bar
               dot: .
               star: '*'
-          unparsable:
-          - raw: except
-          - start_bracket: (
-          - raw: other_column
-          - end_bracket: )
+            select_except_clause:
+              keyword: except
+              start_bracket: (
+              identifier: other_column
+              end_bracket: )
       from_clause:
         keyword: from
         table_expression:

@@ -5,19 +5,16 @@ file:
       select_clause:
       - keyword: SELECT
       - select_target_element:
-          column_reference:
-            identifier: '""'
+          literal: '""'
       - comma: ','
       - select_target_element:
           literal: "''"
       - comma: ','
       - select_target_element:
-          column_reference:
-            identifier: '"abc"'
+          literal: '"abc"'
       - comma: ','
       - select_target_element:
-          column_reference:
-            identifier: "\"it's\""
+          literal: "\"it's\""
       - comma: ','
       - select_target_element:
           literal: "'it\\'s'"
@@ -26,129 +23,70 @@ file:
           literal: "'Title: \"Boy\"'"
       - comma: ','
       - select_target_element:
-          column_reference:
-            identifier: '"test \"escaped\""'
+          literal: '"test \"escaped\""'
       - comma: ','
       - select_target_element:
           literal: "'test \\'escaped\\''"
       - comma: ','
       - select_target_element:
-          column_reference:
-            identifier: '"test \\\"escaped"'
+          literal: '"test \\\"escaped"'
       - comma: ','
       - select_target_element:
-          column_reference:
-            identifier: '"test \"escaped\\\""'
+          literal: '"test \"escaped\\\""'
       - comma: ','
       - select_target_element:
-          column_reference:
-            identifier: r
+          literal: r""
+      - comma: ','
+      - select_target_element:
+          literal: "r''"
+      - comma: ','
+      - select_target_element:
+          literal: r"abc+"
+      - comma: ','
+      - select_target_element:
+          literal: R"abc+"
+      - comma: ','
+      - select_target_element:
+          literal: "r'abc+'"
+      - comma: ','
+      - select_target_element:
+          literal: "R'abc+'"
+      - comma: ','
+      - select_target_element:
+          literal: "r'f\\(abc, (.*),def\\)'"
+      - comma: ','
+      - select_target_element:
+          literal: r"f\(abc, (.*),def\)"
+      - comma: ','
+      - select_target_element:
+          literal: "b'abc'"
+      - comma: ','
+      - select_target_element:
+          literal: B"abc"
+      - comma: ','
+      - select_target_element:
+          literal: rb"abc*"
+      - comma: ','
+      - select_target_element:
+          literal: rB"abc*"
+      - comma: ','
+      - select_target_element:
+          literal: "Rb'abc*'"
+      - comma: ','
+      - select_target_element:
+          literal: "br'abc+'"
+      - comma: ','
+      - select_target_element:
+          literal: RB"abc+"
+      - comma: ','
+      - select_target_element:
+          literal: "r''' as foo ''  bar '''"
+      - comma: ','
+      - select_target_element:
+          literal: "B\"\"\" triple ''' quoted '' \"\" string are \"\"\""
           alias_expression:
-            identifier: '""'
-      - comma: ','
-      - select_target_element:
-          column_reference:
-            identifier: r
-          alias_expression:
-            literal: "''"
-      - comma: ','
-      - select_target_element:
-          column_reference:
-            identifier: r
-          alias_expression:
-            identifier: '"abc+"'
-      - comma: ','
-      - select_target_element:
-          column_reference:
-            identifier: R
-          alias_expression:
-            identifier: '"abc+"'
-      - comma: ','
-      - select_target_element:
-          column_reference:
-            identifier: r
-          alias_expression:
-            literal: "'abc+'"
-      - comma: ','
-      - select_target_element:
-          column_reference:
-            identifier: R
-          alias_expression:
-            literal: "'abc+'"
-      - comma: ','
-      - select_target_element:
-          column_reference:
-            identifier: r
-          alias_expression:
-            literal: "'f\\(abc, (.*),def\\)'"
-      - comma: ','
-      - select_target_element:
-          column_reference:
-            identifier: r
-          alias_expression:
-            identifier: '"f\(abc, (.*),def\)"'
-      - comma: ','
-      - select_target_element:
-          column_reference:
-            identifier: b
-          alias_expression:
-            literal: "'abc'"
-      - comma: ','
-      - select_target_element:
-          column_reference:
-            identifier: B
-          alias_expression:
-            identifier: '"abc"'
-      - comma: ','
-      - select_target_element:
-          column_reference:
-            identifier: rb
-          alias_expression:
-            identifier: '"abc*"'
-      - comma: ','
-      - select_target_element:
-          column_reference:
-            identifier: rB
-          alias_expression:
-            identifier: '"abc*"'
-      - comma: ','
-      - select_target_element:
-          column_reference:
-            identifier: Rb
-          alias_expression:
-            literal: "'abc*'"
-      - comma: ','
-      - select_target_element:
-          column_reference:
-            identifier: br
-          alias_expression:
-            literal: "'abc+'"
-      - comma: ','
-      - select_target_element:
-          column_reference:
-            identifier: RB
-          alias_expression:
-            identifier: '"abc+"'
-      - comma: ','
-      - select_target_element:
-          column_reference:
-            identifier: r
-          alias_expression:
-            literal: "''"
-          unparsable:
-          - raw: "' as foo '"
-          - raw: "'  bar '"
-          - raw: "''"
-      - comma: ','
-      - select_target_element:
-          unparsable:
-          - raw: B
-          - raw: '""'
-          - raw: "\" triple ''' quoted '' \""
-          - raw: '" string are "'
-          - raw: '""'
-          - raw: as
-          - raw: hard
+            keyword: as
+            identifier: hard
       from_clause:
         keyword: FROM
         table_expression:

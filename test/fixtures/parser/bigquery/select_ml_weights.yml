@@ -9,19 +9,15 @@ file:
               star: '*'
     - from_clause:
         keyword: FROM
-        table_expression:
-          main_table_expression:
-            function:
-              identifier: ML
-              dot: .
-              function_name: WEIGHTS
-              start_bracket: (
-              expression:
-                column_reference:
-                  identifier: MODEL
-              unparsable:
-                raw: '`project.dataset.model`'
-              end_bracket: )
+        ml_table_expression:
+        - keyword: ML
+        - dot: .
+        - identifier: WEIGHTS
+        - start_bracket: (
+        - keyword: MODEL
+        - object_reference:
+            identifier: '`project.dataset.model`'
+        - end_bracket: )
     - orderby_clause:
       - keyword: ORDER
       - keyword: BY

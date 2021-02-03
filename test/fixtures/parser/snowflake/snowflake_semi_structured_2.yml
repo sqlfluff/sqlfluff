@@ -4,30 +4,38 @@ file:
       select_clause:
       - keyword: select
       - select_target_element:
-          column_reference:
-            identifier: value
-          unparsable:
-          - raw: ':'
-          - raw: data
-          - raw: ':'
-          - raw: to
-          - raw: '::'
-          - raw: string
-          - raw: AS
-          - raw: TO_PHONE_NUMBER
+          expression:
+            column_reference:
+              identifier: value
+            snowflake_semi_structured_expression:
+            - colon: ':'
+            - semi_structured_element: data
+            - colon: ':'
+            - semi_structured_element: to
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: string
+          alias_expression:
+            keyword: AS
+            identifier: TO_PHONE_NUMBER
       - comma: ','
       - select_target_element:
-          column_reference:
-            identifier: value
-          unparsable:
-          - raw: ':'
-          - raw: data
-          - raw: ':'
-          - keyword: from
-          - raw: '::'
-          - raw: string
-          - raw: AS
-          - raw: FROM_PHONE_NUMBER
+          expression:
+            column_reference:
+              identifier: value
+            snowflake_semi_structured_expression:
+            - colon: ':'
+            - semi_structured_element: data
+            - colon: ':'
+            - semi_structured_element: from
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: string
+          alias_expression:
+            keyword: AS
+            identifier: FROM_PHONE_NUMBER
       from_clause:
         keyword: FROM
         table_expression:

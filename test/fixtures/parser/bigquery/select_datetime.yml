@@ -20,9 +20,7 @@ file:
           function:
           - function_name: EXTRACT
           - start_bracket: (
-          - expression:
-              column_reference:
-                identifier: DATE
+          - date_part: DATE
           - keyword: FROM
           - expression:
               column_reference:
@@ -51,9 +49,9 @@ file:
           - identifier: datetime
         - comparison_operator: '>='
         - function:
-          - function_name: DATE_TRUNC
-          - start_bracket: (
-          - expression:
+            function_name: DATE_TRUNC
+            start_bracket: (
+            expression:
               function:
               - function_name: DATE_SUB
               - start_bracket: (
@@ -69,11 +67,9 @@ file:
                   - literal: '2'
                   - date_part: YEAR
               - end_bracket: )
-          - comma: ','
-          - expression:
-              column_reference:
-                identifier: year
-          - end_bracket: )
+            comma: ','
+            date_part: year
+            end_bracket: )
     - limit_clause:
         keyword: LIMIT
         literal: '1'

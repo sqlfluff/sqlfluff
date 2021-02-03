@@ -12,16 +12,17 @@ file:
               column_reference:
                 identifier: o_orderkey
             end_bracket: )
-          alias_expression:
-            identifier: WITHIN
-          unparsable:
-          - raw: GROUP
-          - start_bracket: (
-          - raw: ORDER
-          - raw: BY
-          - raw: o_orderkey
-          - raw: ASC
-          - end_bracket: )
+            withingroup_clause:
+            - keyword: WITHIN
+            - keyword: GROUP
+            - start_bracket: (
+            - orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                  identifier: o_orderkey
+              - keyword: ASC
+            - end_bracket: )
       from_clause:
         keyword: FROM
         table_expression:

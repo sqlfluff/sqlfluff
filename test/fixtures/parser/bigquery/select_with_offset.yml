@@ -79,7 +79,7 @@ file:
               from_clause:
                 keyword: FROM
                 table_expression:
-                  main_table_expression:
+                - main_table_expression:
                     function:
                       function_name: UNNEST
                       start_bracket: (
@@ -89,13 +89,12 @@ file:
                         - dot: .
                         - identifier: sequence_validation_and_business_rules
                       end_bracket: )
-                  alias_expression:
+                - alias_expression:
                     keyword: AS
                     identifier: value
-                unparsable:
-                - raw: WITH
-                - raw: OFFSET
-                - raw: AS
-                - raw: ix
+                - keyword: WITH
+                - keyword: OFFSET
+                - keyword: AS
+                - identifier: ix
           - end_bracket: )
 

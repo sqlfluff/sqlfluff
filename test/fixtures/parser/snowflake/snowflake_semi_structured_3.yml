@@ -28,20 +28,22 @@ file:
             identifier: first_name
       - comma: ','
       - select_target_element:
-          function:
-            function_name: PARSE_JSON
-            start_bracket: (
-            expression:
-              column_reference:
-              - identifier: t
-              - dot: .
-              - identifier: metadata
-            end_bracket: )
-          unparsable:
-          - raw: ':'
-          - raw: customer_id
-          - raw: AS
-          - raw: customer_id
+          expression:
+            function:
+              function_name: PARSE_JSON
+              start_bracket: (
+              expression:
+                column_reference:
+                - identifier: t
+                - dot: .
+                - identifier: metadata
+              end_bracket: )
+            snowflake_semi_structured_expression:
+              colon: ':'
+              semi_structured_element: customer_id
+          alias_expression:
+            keyword: AS
+            identifier: customer_id
       from_clause:
         keyword: FROM
         table_expression:
