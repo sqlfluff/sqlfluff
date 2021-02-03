@@ -1,35 +1,25 @@
-- filepath: test/fixtures/parser/bigquery/array_agg_respect_nulls.sql
-  segments:
-    file:
-      statement:
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            whitespace: ' '
-            select_target_element:
-              function:
-              - function_name: ARRAY_AGG
-              - start_bracket: (
-              - expression:
-                  column_reference:
-                    identifier: x
-              - whitespace: ' '
-              - keyword: RESPECT
-              - whitespace: ' '
-              - keyword: NULLS
-              - end_bracket: )
-              whitespace: ' '
-              alias_expression:
-                keyword: AS
-                whitespace: ' '
-                identifier: array_agg
-          newline: "\n"
-          from_clause:
-            keyword: FROM
-            whitespace: ' '
-            table_expression:
-              main_table_expression:
-                table_reference:
-                  identifier: t
-      newline: "\n"
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_target_element:
+          function:
+          - function_name: ARRAY_AGG
+          - start_bracket: (
+          - expression:
+              column_reference:
+                identifier: x
+          - keyword: RESPECT
+          - keyword: NULLS
+          - end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: array_agg
+      from_clause:
+        keyword: FROM
+        table_expression:
+          main_table_expression:
+            table_reference:
+              identifier: t
 
