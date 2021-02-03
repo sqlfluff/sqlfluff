@@ -1,7 +1,5 @@
 file:
-- comment: -- In snowflake the column position is denoted with $n syntax (e.g.
     $1, $2)
-- comment: -- https://docs.snowflake.com/en/sql-reference/sql/select.html#parameters
 - statement:
     select_statement:
       select_clause:

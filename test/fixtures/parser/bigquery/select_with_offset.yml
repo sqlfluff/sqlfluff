@@ -1,6 +1,4 @@
 file:
-- comment: -- This has a table expression and also an offset value.
-- comment: -- It also includes a nested SELECT
 - statement:
     select_statement:
       select_clause:

@@ -1,5 +1,4 @@
 file:
-  comment: -- NB This is a pivot expression With and Alias. The alias should be
     parsed seperately to the pivot.
   statement:
     select_statement:

@@ -1,5 +1,4 @@
 file:
-- comment: -- Some more complicated Postgres function creations.
 - statement:
     create_function_statement:
     - keyword: CREATE

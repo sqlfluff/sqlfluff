@@ -1,5 +1,4 @@
 file:
-- comment: -- Single replace
 - statement:
     select_statement:
       select_clause:
@@ -22,7 +21,6 @@ file:
             table_reference:
               identifier: some_table
 - statement_terminator: ;
-- comment: -- Multi replace
 - statement:
     select_statement:
       select_clause:

@@ -1,6 +1,4 @@
 file:
-- comment: -- Aliasing without AS
-- comment: -- https://github.com/sqlfluff/sqlfluff/issues/149
 - statement:
     select_statement:
       select_clause:
@@ -61,7 +59,6 @@ file:
             table_reference:
               identifier: dat
 - statement_terminator: ;
-- comment: -- Another Aliasing without AS
 - statement:
     select_statement:
       select_clause:

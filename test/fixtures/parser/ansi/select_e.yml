@@ -1,5 +1,4 @@
 file:
-- comment: -- Union expressions
 - statement:
     set_expression:
     - select_statement:

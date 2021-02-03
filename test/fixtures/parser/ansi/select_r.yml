@@ -1,6 +1,4 @@
 file:
-- comment: -- Union All in a With
-- comment: -- https://github.com/sqlfluff/sqlfluff/issues/162
 - statement:
     with_compound_statement:
     - keyword: WITH

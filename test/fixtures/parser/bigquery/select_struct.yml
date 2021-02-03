@@ -1,5 +1,4 @@
 file:
-- comment: -- Example of "select as struct *" syntax.
 - statement:
     select_statement:
       select_clause:
@@ -47,7 +46,6 @@ file:
             table_reference:
               identifier: another_table
 - statement_terminator: ;
-- comment: -- Example of explicitly building a struct in a select clause.
 - statement:
     select_statement:
       select_clause:

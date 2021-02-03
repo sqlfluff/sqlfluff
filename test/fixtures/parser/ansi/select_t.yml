@@ -17,7 +17,6 @@ file:
         - keyword: FULL
         - keyword: OUTER
         - keyword: JOIN
-        - comment: -- comment1
         - table_expression:
             main_table_expression:
             - start_bracket: (

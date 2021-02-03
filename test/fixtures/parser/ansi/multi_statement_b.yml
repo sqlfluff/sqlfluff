@@ -1,6 +1,4 @@
 file:
-- comment: '# COMMENT'
-- comment: -- Another Comment
 - statement:
     select_statement:
     - select_clause:
@@ -21,12 +19,10 @@ file:
         expression:
         - column_reference:
             identifier: a
-        - comment: -- inline comment
         - keyword: in
         - start_bracket: (
         - literal: "'RED'"
         - comma: ','
-        - comment: /* Inline */
         - literal: "'GREEN'"
         - comma: ','
         - literal: "'BLUE'"
@@ -47,7 +43,6 @@ file:
             table_reference:
               identifier: tbl_b
 - statement_terminator: ;
-- comment: '# as another comment'
 - statement:
     insert_statement:
     - keyword: insert
@@ -103,5 +98,4 @@ file:
               table_reference:
                 identifier: tmp
 - statement_terminator: ;
-- comment: "# And that's the end"
 

@@ -1,5 +1,4 @@
 file:
-- comment: -- tests parsing of table functions and semi structured accessing.
 - statement:
     select_statement:
       select_clause:

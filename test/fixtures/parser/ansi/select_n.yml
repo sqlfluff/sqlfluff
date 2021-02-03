@@ -1,6 +1,4 @@
 file:
-- comment: -- Full Join
-- comment: -- https://github.com/sqlfluff/sqlfluff/issues/144
 - statement:
     select_statement:
       select_clause:

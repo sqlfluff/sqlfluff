@@ -1,7 +1,5 @@
 file:
-- comment: -- In snowflake, a double single quote resolves as a single quote in
     the string.
-- comment: -- https://docs.snowflake.com/en/sql-reference/data-types-text.html#single-quoted-string-constants
 - statement:
     select_statement:
       select_clause:

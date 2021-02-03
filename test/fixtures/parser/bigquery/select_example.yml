@@ -1,8 +1,4 @@
 file:
-- comment: -- This query should also parse in ANSI, but as a bigquery example
-- comment: -- it probably lives here. In particular it has an un-bracketed
-- comment: -- select clause within a function, and array notation which
-- comment: -- makes it a useful test case.
 - statement:
     with_compound_statement:
     - keyword: WITH

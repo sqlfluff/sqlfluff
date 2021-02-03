@@ -1,6 +1,4 @@
 file:
-- comment: -- On clause without brackets
-- comment: -- https://github.com/sqlfluff/sqlfluff/issues/146
 - statement:
     select_statement:
       select_clause:

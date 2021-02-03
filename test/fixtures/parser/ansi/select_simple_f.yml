@@ -1,5 +1,4 @@
 file:
-- comment: -- test some more advanced constructs
 - statement:
     select_statement:
     - select_clause:

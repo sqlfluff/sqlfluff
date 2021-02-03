@@ -1,5 +1,4 @@
 file:
-- comment: -- Thanks @mrshu for this query, it tests nested functions
 - statement:
     select_statement:
       select_clause:

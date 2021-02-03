@@ -1,5 +1,4 @@
 file:
-- comment: -- Postgres style WITHIN GROUP window functions
 - statement:
     select_statement:
       select_clause:

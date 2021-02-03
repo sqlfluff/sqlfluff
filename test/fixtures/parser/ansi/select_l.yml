@@ -1,6 +1,4 @@
 file:
-- comment: -- Nested scalar query
-- comment: -- https://github.com/sqlfluff/sqlfluff/issues/147
 - statement:
     select_statement:
     - select_clause:

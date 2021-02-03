@@ -1,5 +1,4 @@
 file:
-- comment: -- More complex select clause without from clause
 - statement:
     select_statement:
       select_clause:

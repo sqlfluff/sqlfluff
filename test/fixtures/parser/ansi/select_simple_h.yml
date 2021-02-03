@@ -1,5 +1,4 @@
 file:
-- comment: -- test window functions in functions with casting
 - statement:
     select_statement:
       select_clause:

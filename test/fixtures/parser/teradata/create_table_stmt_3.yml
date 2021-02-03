@@ -1,5 +1,4 @@
 file:
-  comment: -- Testing of the specific create table end options
   statement:
     create_table_statement:
     - keyword: CREATE

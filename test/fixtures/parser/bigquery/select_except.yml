@@ -35,7 +35,6 @@ file:
             table_reference:
               identifier: my_tbl
 - statement_terminator: ;
-- comment: -- Catch potential bugs in unions
 - statement:
     set_expression:
     - select_statement:
@@ -73,7 +72,6 @@ file:
               table_reference:
                 identifier: another_table
 - statement_terminator: ;
-- comment: -- Except is allowed after other fields
 - statement:
     select_statement:
       select_clause:
@@ -103,8 +101,6 @@ file:
             table_reference:
               identifier: my_tbl
 - statement_terminator: ;
-- comment: -- This might be redundant with the example above.
-- comment: -- Demonstrates using multiple except clauses.
 - statement:
     select_statement:
       select_clause:

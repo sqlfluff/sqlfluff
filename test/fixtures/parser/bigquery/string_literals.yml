@@ -1,5 +1,4 @@
 file:
-- comment: -- Examples from https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and_bytes_literals
 - statement:
     select_statement:
       select_clause:

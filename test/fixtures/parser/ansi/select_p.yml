@@ -1,6 +1,4 @@
 file:
-- comment: -- Case and Extract Expressions
-- comment: -- https://github.com/sqlfluff/sqlfluff/issues/143
 - statement:
     select_statement:
       select_clause:

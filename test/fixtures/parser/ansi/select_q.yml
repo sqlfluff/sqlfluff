@@ -1,6 +1,4 @@
 file:
-- comment: -- Unexpected Join Fail
-- comment: -- https://github.com/sqlfluff/sqlfluff/issues/163
 - statement:
     select_statement:
       select_clause:

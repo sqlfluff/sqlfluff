@@ -59,7 +59,6 @@ file:
                     identifier: b
                 - comparison_operator: '='
                 - literal: "'F'"
-          - comment: "-- AND SUBSTR(c, 1, 1) = 'T'"
           - end_bracket: )
           alias_expression:
             keyword: AS

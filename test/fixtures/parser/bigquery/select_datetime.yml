@@ -1,5 +1,4 @@
 file:
-- comment: -- Test BigQuery specific date identifiers.
 - statement:
     select_statement:
     - select_clause:

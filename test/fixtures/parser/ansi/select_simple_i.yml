@@ -1,5 +1,4 @@
 file:
-- comment: -- test aliasing
 - statement:
     select_statement:
       select_clause:
@@ -35,8 +34,6 @@ file:
           - column_reference:
               identifier: calculation
       - comma: ','
-      - comment: "-- We know that the following one doesn't parse..."
-      - comment: -- an_implicitly + aliased calculation,
       - select_target_element:
           expression:
           - column_reference:

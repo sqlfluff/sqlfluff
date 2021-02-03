@@ -1,5 +1,4 @@
 file:
-- comment: -- Thanks @mrshu for this query, it tests functions and order by
 - statement:
     select_statement:
     - select_clause:

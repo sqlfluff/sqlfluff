@@ -1,5 +1,4 @@
 file:
-- comment: -- We can call functions when replacing a field
 - statement:
     select_statement:
       select_clause:

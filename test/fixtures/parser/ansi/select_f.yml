@@ -1,5 +1,4 @@
 file:
-- comment: -- Test the parser on complex maths
 - statement:
     select_statement:
       select_clause:

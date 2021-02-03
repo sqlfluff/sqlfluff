@@ -1,6 +1,4 @@
 file:
-- comment: -- Array notation (BigQuery and Postgres)
-- comment: -- https://github.com/sqlfluff/sqlfluff/issues/59
 - statement:
     select_statement:
       select_clause:

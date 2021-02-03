@@ -1,7 +1,4 @@
 file:
-- comment: -- Between and Not Between
-- comment: -- https://github.com/sqlfluff/sqlfluff/issues/142
-- comment: -- https://github.com/sqlfluff/sqlfluff/issues/478
 - statement:
     select_statement:
     - select_clause:

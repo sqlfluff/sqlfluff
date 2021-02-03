@@ -1,5 +1,4 @@
 file:
-- comment: -- test parsing of cross join and outer join
 - statement:
     select_statement:
       select_clause:

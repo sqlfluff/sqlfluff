@@ -1,5 +1,4 @@
 file:
-- comment: -- Test Nested WITH
 - statement:
     with_compound_statement:
     - keyword: WITH
