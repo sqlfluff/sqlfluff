@@ -341,7 +341,9 @@ ansi_dialect.add(
         Ref("SetOperatorSegment"),
         Ref("WithNoSchemaBindingClauseSegment"),
     ),
-    WhereClauseTerminatorGrammar=OneOf("LIMIT", "GROUP", "ORDER", "HAVING", "QUALIFY", "WINDOW"),
+    WhereClauseTerminatorGrammar=OneOf(
+        "LIMIT", "GROUP", "ORDER", "HAVING", "QUALIFY", "WINDOW"
+    ),
     PrimaryKeyGrammar=Sequence("PRIMARY", "KEY"),
 )
 
@@ -649,12 +651,13 @@ class OverClauseSegment(BaseSegment):
                 Ref("WindowSpecificationSegment"),
                 Ref("SingleIdentifierGrammar"),  # Window name
             )
-        )
+        ),
     )
 
 
 @ansi_dialect.segment()
 class WindowSpecificationSegment(BaseSegment):
+    """Window specification, e.g. OVER() or named window"""
     type = "window_specification"
     match_grammar = Sequence(
         Ref("PartitionClauseSegment", optional=True),
@@ -1394,18 +1397,20 @@ class LimitClauseSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class NamedWindowSegment(BaseSegment):
-    """A WINDOW clause"""
+    """A WINDOW clause."""
+
     type = "named_window"
     match_grammar = Sequence(
         "WINDOW",
         Delimited(
             Ref("NamedWindowExpressionSegment"),
-        )
+        ),
     )
 
 
 @ansi_dialect.segment()
 class NamedWindowExpressionSegment(BaseSegment):
+    """Named window expression"""
     type = "named_window_expression"
     match_grammar = Sequence(
         Ref("SingleIdentifierGrammar"),  # Window name
