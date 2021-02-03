@@ -338,6 +338,7 @@ ansi_dialect.add(
         "HAVING",
         "QUALIFY",
         Ref("SetOperatorSegment"),
+        Ref("WithNoSchemaBindingClauseSegment"),
     ),
     WhereClauseTerminatorGrammar=OneOf("LIMIT", "GROUP", "ORDER", "HAVING", "QUALIFY"),
     PrimaryKeyGrammar=Sequence("PRIMARY", "KEY"),
@@ -1415,7 +1416,9 @@ class SelectStatementSegment(BaseSegment):
         # select clause rather than just the SELECT keyword, we mitigate that
         # here.
         Ref("SelectClauseSegment"),
-        terminator=Ref("SetOperatorSegment"),
+        terminator=OneOf(
+            Ref("SetOperatorSegment"), Ref("WithNoSchemaBindingClauseSegment")
+        ),
         enforce_whitespace_preceeding_terminator=True,
     )
 
@@ -1739,6 +1742,7 @@ class CreateViewStatementSegment(BaseSegment):
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         "AS",
         Ref("SelectableGrammar"),
+        Ref("WithNoSchemaBindingClauseSegment", optional=True),
     )
 
 
@@ -2208,4 +2212,20 @@ class StatementSegment(BaseSegment):
         Ref("CreateFunctionStatementSegment"),
         Ref("CreateModelStatementSegment"),
         Ref("DropModelStatementSegment"),
+    )
+
+
+@ansi_dialect.segment()
+class WithNoSchemaBindingClauseSegment(BaseSegment):
+    """WITH NO SCHEMA BINDING clause for Redshift's Late Binding Views.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_VIEW.html
+    """
+
+    type = "with_no_schema_binding_clause"
+    match_grammar = Sequence(
+        "WITH",
+        "NO",
+        "SCHEMA",
+        "BINDING",
     )
