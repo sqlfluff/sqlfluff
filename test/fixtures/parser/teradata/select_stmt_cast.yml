@@ -1,0 +1,35 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_target_element:
+          literal: "'9999-12-31'"
+          unparsable:
+            start_bracket: (
+            raw: DATE
+            end_bracket: )
+      - comma: ','
+      - select_target_element:
+          literal: "'9999-12-31'"
+          unparsable:
+          - start_bracket: (
+          - raw: DATE
+          - raw: FORMAT
+          - raw: "'YYYY-MM-DD'"
+          - end_bracket: )
+      - comma: ','
+      - select_target_element:
+          literal: "'100000'"
+          unparsable:
+            start_bracket: (
+            raw: SMALLINT
+            end_bracket: )
+      from_clause:
+        keyword: from
+        table_expression:
+          main_table_expression:
+            table_reference:
+              identifier: test_table
+  statement_terminator: ;
+

@@ -1,0 +1,41 @@
+file:
+  statement:
+    create_function_statement:
+      unparsable:
+      - keyword: CREATE
+      - keyword: TEMP
+      - keyword: FUNCTION
+      - raw: parseTopSellers
+      - raw: (
+      - raw: arr_str
+      - raw: STRING
+      - raw: )
+      - raw: RETURNS
+      - raw: ARRAY
+      - raw: <
+      - raw: STRUCT
+      - raw: <
+      - raw: product_id
+      - raw: INT64
+      - comma: ','
+      - raw: rating
+      - raw: FLOAT64
+      - raw: '>'
+      - raw: '>'
+      - raw: LANGUAGE
+      - raw: js
+      - raw: OPTIONS
+      - raw: (
+      - raw: library
+      - raw: '='
+      - raw: '['
+      - raw: '"gs://my-bucket/path/to/lib1.js"'
+      - comma: ','
+      - raw: '"gs://my-bucket/path/to/lib2.js"'
+      - raw: ']'
+      - raw: )
+      - raw: AS
+      - raw: '""'
+      - raw: "\"\n    CODE GOES HERE\n\""
+      - raw: '""'
+

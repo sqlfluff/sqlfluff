@@ -1,0 +1,23 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_target_element:
+          column_reference:
+            identifier: user_id
+      from_clause:
+        unparsable:
+        - keyword: FROM
+        - raw: '`project.dataset.table1`'
+        - raw: FOR
+        - raw: SYSTEM_TIME
+        - raw: AS
+        - raw: OF
+        - raw: CAST
+        - raw: (
+        - raw: "'2020-05-11T14:02:52+00:00'"
+        - raw: AS
+        - raw: TIMESTAMP
+        - raw: )
+

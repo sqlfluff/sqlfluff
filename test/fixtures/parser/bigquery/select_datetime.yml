@@ -1,0 +1,80 @@
+file:
+- comment: -- Test BigQuery specific date identifiers.
+- statement:
+    select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_target_element:
+          column_reference:
+          - identifier: gmv
+          - dot: .
+          - identifier: _merchant_key
+      - comma: ','
+      - select_target_element:
+          column_reference:
+          - identifier: gmv
+          - dot: .
+          - identifier: order_created_at
+      - comma: ','
+      - select_target_element:
+          function:
+          - function_name: EXTRACT
+          - start_bracket: (
+          - expression:
+              column_reference:
+                identifier: DATE
+          - keyword: FROM
+          - expression:
+              column_reference:
+              - identifier: gmv
+              - dot: .
+              - identifier: order_created_at
+          - end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: order_dt
+    - from_clause:
+        keyword: FROM
+        table_expression:
+          main_table_expression:
+            table_reference:
+              identifier: my_table
+          alias_expression:
+            keyword: as
+            identifier: gmv
+    - where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+          - identifier: gmv
+          - dot: .
+          - identifier: datetime
+        - comparison_operator: '>='
+        - function:
+          - function_name: DATE_TRUNC
+          - start_bracket: (
+          - expression:
+              function:
+              - function_name: DATE_SUB
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name: CURRENT_DATE
+                    start_bracket: (
+                    end_bracket: )
+              - comma: ','
+              - expression:
+                  interval_expression:
+                  - keyword: INTERVAL
+                  - literal: '2'
+                  - date_part: YEAR
+              - end_bracket: )
+          - comma: ','
+          - expression:
+              column_reference:
+                identifier: year
+          - end_bracket: )
+    - limit_clause:
+        keyword: LIMIT
+        literal: '1'
+

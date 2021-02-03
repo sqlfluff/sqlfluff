@@ -1,0 +1,39 @@
+file:
+  statement:
+    create_function_statement:
+      unparsable:
+      - keyword: CREATE
+      - keyword: TEMP
+      - keyword: FUNCTION
+      - raw: URLDECODE
+      - raw: (
+      - raw: url
+      - raw: STRING
+      - raw: )
+      - raw: RETURNS
+      - raw: STRING
+      - raw: AS
+      - raw: (
+      - raw: (
+      - raw: SELECT
+      - raw: '1'
+      - raw: FROM
+      - raw: UNNEST
+      - raw: (
+      - raw: REGEXP_EXTRACT_ALL
+      - raw: (
+      - raw: url
+      - comma: ','
+      - raw: r
+      - raw: '"%[0-9a-fA-F]{2}|[^%]+"'
+      - raw: )
+      - raw: )
+      - raw: AS
+      - raw: y
+      - raw: WITH
+      - raw: OFFSET
+      - raw: AS
+      - raw: i
+      - raw: )
+      - raw: )
+

@@ -1,0 +1,31 @@
+file:
+- comment: -- Postgres style WITHIN GROUP window functions
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_target_element:
+          function:
+            function_name: ARRAY_AGG
+            start_bracket: (
+            expression:
+              column_reference:
+                identifier: o_orderkey
+            end_bracket: )
+          alias_expression:
+            identifier: WITHIN
+          unparsable:
+          - raw: GROUP
+          - start_bracket: (
+          - raw: ORDER
+          - raw: BY
+          - raw: o_orderkey
+          - raw: ASC
+          - end_bracket: )
+      from_clause:
+        keyword: FROM
+        table_expression:
+          main_table_expression:
+            table_reference:
+              identifier: orders
+

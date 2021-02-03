@@ -1,0 +1,101 @@
+file:
+- comment: -- This has a table expression and also an offset value.
+- comment: -- It also includes a nested SELECT
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_target_element:
+          function:
+            function_name: SUM
+            start_bracket: (
+            expression:
+              case_expression:
+              - keyword: CASE
+              - keyword: WHEN
+              - expression:
+                - column_reference:
+                    identifier: value
+                - comparison_operator: '!='
+                - column_reference:
+                    identifier: previous_value
+              - keyword: THEN
+              - expression:
+                  literal: '1.0'
+              - keyword: ELSE
+              - expression:
+                  literal: '0.0'
+              - keyword: END
+            end_bracket: )
+      from_clause:
+        keyword: FROM
+        table_expression:
+          main_table_expression:
+          - start_bracket: (
+          - select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_target_element:
+                  column_reference:
+                    identifier: value
+              - comma: ','
+              - select_target_element:
+                  expression:
+                    case_expression:
+                    - keyword: CASE
+                    - keyword: WHEN
+                    - expression:
+                      - column_reference:
+                          identifier: ix
+                      - comparison_operator: '!='
+                      - literal: '0'
+                    - keyword: THEN
+                    - expression:
+                        function:
+                          function_name: LAG
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              identifier: value
+                          end_bracket: )
+                          over_clause:
+                            keyword: OVER
+                            start_bracket: (
+                            orderby_clause:
+                            - keyword: ORDER
+                            - keyword: BY
+                            - column_reference:
+                                identifier: ix
+                            - keyword: ASC
+                            end_bracket: )
+                    - keyword: ELSE
+                    - expression:
+                        column_reference:
+                          identifier: value
+                    - keyword: END
+                  alias_expression:
+                    keyword: AS
+                    identifier: previous_value
+              from_clause:
+                keyword: FROM
+                table_expression:
+                  main_table_expression:
+                    function:
+                      function_name: UNNEST
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                        - identifier: sequence_validation_and_business_rules
+                        - dot: .
+                        - identifier: sequence_validation_and_business_rules
+                      end_bracket: )
+                  alias_expression:
+                    keyword: AS
+                    identifier: value
+                unparsable:
+                - raw: WITH
+                - raw: OFFSET
+                - raw: AS
+                - raw: ix
+          - end_bracket: )
+

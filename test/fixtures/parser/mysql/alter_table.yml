@@ -1,0 +1,20 @@
+file:
+  statement:
+    unparsable:
+    - raw: ALTER
+    - raw: TABLE
+    - raw: '`users`'
+    - raw: MODIFY
+    - raw: COLUMN
+    - raw: '`name`'
+    - raw: varchar
+    - start_bracket: (
+    - raw: '255'
+    - end_bracket: )
+    - raw: NOT
+    - raw: 'NULL'
+    - comma: ','
+    - raw: COMMENT
+    - raw: '"name of user"'
+  statement_terminator: ;
+

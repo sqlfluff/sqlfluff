@@ -1,0 +1,69 @@
+file:
+  comment: -- Testing of the specific create table end options
+  statement:
+    unparsable:
+    - raw: CREATE
+    - raw: MULTISET
+    - raw: TABLE
+    - raw: NUM_LTR_DESVINCULADOS_ADH
+    - start_bracket: (
+    - raw: DES_EVENTO
+    - raw: VARCHAR
+    - start_bracket: (
+    - raw: '255'
+    - end_bracket: )
+    - raw: CHARACTER
+    - raw: SET
+    - raw: LATIN
+    - raw: NOT
+    - raw: CASESPECIFIC
+    - raw: COMPRESS
+    - start_bracket: (
+    - raw: "'Cambio de bandera'"
+    - comma: ','
+    - raw: "'Cierre'"
+    - end_bracket: )
+    - comma: ','
+    - raw: IND_CONTINUA
+    - raw: BYTEINT
+    - raw: COMPRESS
+    - end_bracket: )
+    - raw: PRIMARY
+    - raw: INDEX
+    - start_bracket: (
+    - raw: COD_TARJETA
+    - comma: ','
+    - raw: COD_EST
+    - comma: ','
+    - raw: FEC_CIERRE_EST
+    - comma: ','
+    - raw: IND_TIPO_TARJETA
+    - end_bracket: )
+    - raw: PARTITION
+    - raw: BY
+    - raw: RANGE_N
+    - start_bracket: (
+    - raw: FEC_OPERACION
+    - raw: BETWEEN
+    - raw: DATE
+    - raw: "'2007-01-01'"
+    - raw: AND
+    - raw: DATE
+    - raw: "'2022-01-01'"
+    - raw: EACH
+    - raw: INTERVAL
+    - raw: "'1'"
+    - raw: MONTH
+    - comma: ','
+    - raw: 'NO'
+    - raw: RANGE
+    - raw: OR
+    - raw: UNKNOWN
+    - end_bracket: )
+    - raw: INDEX
+    - raw: HOPR_TRN_TRAV_SIN_MP_I
+    - start_bracket: (
+    - raw: IND_TIPO_TARJETA
+    - end_bracket: )
+  statement_terminator: ;
+

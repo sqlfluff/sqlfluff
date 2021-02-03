@@ -1,0 +1,14 @@
+file:
+  statement:
+    unparsable:
+    - raw: .
+    - raw: if
+    - raw: errorcode
+    - raw: '>'
+    - raw: '0'
+    - raw: then
+    - raw: .
+    - raw: quit
+    - raw: '4'
+  statement_terminator: ;
+

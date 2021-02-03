@@ -1,0 +1,45 @@
+file:
+- comment: -- In snowflake the column position is denoted with $n syntax (e.g.
+    $1, $2)
+- comment: -- https://docs.snowflake.com/en/sql-reference/sql/select.html#parameters
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_target_element:
+          unparsable:
+          - raw: $1
+          - raw: as
+          - raw: type
+      - comma: ','
+      - select_target_element:
+          unparsable:
+          - raw: $2
+          - raw: as
+          - raw: price
+      from_clause:
+        keyword: from
+        table_expression:
+          main_table_expression:
+            start_bracket: (
+            values_clause:
+            - keyword: values
+            - start_bracket: (
+            - literal: "'toffee'"
+            - comma: ','
+            - literal: '5'
+            - end_bracket: )
+            - comma: ','
+            - start_bracket: (
+            - literal: "'starburst'"
+            - comma: ','
+            - literal: '8'
+            - end_bracket: )
+            - comma: ','
+            - start_bracket: (
+            - literal: "'flying_saucer'"
+            - comma: ','
+            - literal: '1'
+            - end_bracket: )
+            end_bracket: )
+

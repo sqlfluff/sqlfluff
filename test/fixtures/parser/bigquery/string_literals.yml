@@ -1,0 +1,158 @@
+file:
+- comment: -- Examples from https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and_bytes_literals
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_target_element:
+          column_reference:
+            identifier: '""'
+      - comma: ','
+      - select_target_element:
+          literal: "''"
+      - comma: ','
+      - select_target_element:
+          column_reference:
+            identifier: '"abc"'
+      - comma: ','
+      - select_target_element:
+          column_reference:
+            identifier: "\"it's\""
+      - comma: ','
+      - select_target_element:
+          literal: "'it\\'s'"
+      - comma: ','
+      - select_target_element:
+          literal: "'Title: \"Boy\"'"
+      - comma: ','
+      - select_target_element:
+          column_reference:
+            identifier: '"test \"escaped\""'
+      - comma: ','
+      - select_target_element:
+          literal: "'test \\'escaped\\''"
+      - comma: ','
+      - select_target_element:
+          column_reference:
+            identifier: '"test \\\"escaped"'
+      - comma: ','
+      - select_target_element:
+          column_reference:
+            identifier: '"test \"escaped\\\""'
+      - comma: ','
+      - select_target_element:
+          column_reference:
+            identifier: r
+          alias_expression:
+            identifier: '""'
+      - comma: ','
+      - select_target_element:
+          column_reference:
+            identifier: r
+          alias_expression:
+            literal: "''"
+      - comma: ','
+      - select_target_element:
+          column_reference:
+            identifier: r
+          alias_expression:
+            identifier: '"abc+"'
+      - comma: ','
+      - select_target_element:
+          column_reference:
+            identifier: R
+          alias_expression:
+            identifier: '"abc+"'
+      - comma: ','
+      - select_target_element:
+          column_reference:
+            identifier: r
+          alias_expression:
+            literal: "'abc+'"
+      - comma: ','
+      - select_target_element:
+          column_reference:
+            identifier: R
+          alias_expression:
+            literal: "'abc+'"
+      - comma: ','
+      - select_target_element:
+          column_reference:
+            identifier: r
+          alias_expression:
+            literal: "'f\\(abc, (.*),def\\)'"
+      - comma: ','
+      - select_target_element:
+          column_reference:
+            identifier: r
+          alias_expression:
+            identifier: '"f\(abc, (.*),def\)"'
+      - comma: ','
+      - select_target_element:
+          column_reference:
+            identifier: b
+          alias_expression:
+            literal: "'abc'"
+      - comma: ','
+      - select_target_element:
+          column_reference:
+            identifier: B
+          alias_expression:
+            identifier: '"abc"'
+      - comma: ','
+      - select_target_element:
+          column_reference:
+            identifier: rb
+          alias_expression:
+            identifier: '"abc*"'
+      - comma: ','
+      - select_target_element:
+          column_reference:
+            identifier: rB
+          alias_expression:
+            identifier: '"abc*"'
+      - comma: ','
+      - select_target_element:
+          column_reference:
+            identifier: Rb
+          alias_expression:
+            literal: "'abc*'"
+      - comma: ','
+      - select_target_element:
+          column_reference:
+            identifier: br
+          alias_expression:
+            literal: "'abc+'"
+      - comma: ','
+      - select_target_element:
+          column_reference:
+            identifier: RB
+          alias_expression:
+            identifier: '"abc+"'
+      - comma: ','
+      - select_target_element:
+          column_reference:
+            identifier: r
+          alias_expression:
+            literal: "''"
+          unparsable:
+          - raw: "' as foo '"
+          - raw: "'  bar '"
+          - raw: "''"
+      - comma: ','
+      - select_target_element:
+          unparsable:
+          - raw: B
+          - raw: '""'
+          - raw: "\" triple ''' quoted '' \""
+          - raw: '" string are "'
+          - raw: '""'
+          - raw: as
+          - raw: hard
+      from_clause:
+        keyword: FROM
+        table_expression:
+          main_table_expression:
+            table_reference:
+              identifier: dummy
+

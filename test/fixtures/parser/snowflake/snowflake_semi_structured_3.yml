@@ -1,0 +1,54 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_target_element:
+          expression:
+          - function:
+              function_name: PARSE_JSON
+              start_bracket: (
+              expression:
+                column_reference:
+                - identifier: t
+                - dot: .
+                - identifier: metadata
+              end_bracket: )
+          - array_accessor:
+              start_square_bracket: '['
+              expression:
+                literal: "'names'"
+              end_square_bracket: ']'
+          - array_accessor:
+              start_square_bracket: '['
+              literal: '0'
+              end_square_bracket: ']'
+          alias_expression:
+            keyword: AS
+            identifier: first_name
+      - comma: ','
+      - select_target_element:
+          function:
+            function_name: PARSE_JSON
+            start_bracket: (
+            expression:
+              column_reference:
+              - identifier: t
+              - dot: .
+              - identifier: metadata
+            end_bracket: )
+          unparsable:
+          - raw: ':'
+          - raw: customer_id
+          - raw: AS
+          - raw: customer_id
+      from_clause:
+        keyword: FROM
+        table_expression:
+          main_table_expression:
+            table_reference:
+              identifier: tickets
+          alias_expression:
+            keyword: AS
+            identifier: t
+

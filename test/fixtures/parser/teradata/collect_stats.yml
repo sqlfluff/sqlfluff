@@ -1,0 +1,34 @@
+file:
+- statement:
+    unparsable:
+    - raw: COLLECT
+    - raw: STATISTICS
+    - raw: COLUMN
+    - start_bracket: (
+    - raw: IND_TIPO_TARJETA
+    - end_bracket: )
+    - raw: 'ON'
+    - raw: DB_1
+    - raw: .
+    - raw: TABLE_1
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: COLLECT
+    - raw: STATISTICS
+    - raw: INDEX
+    - start_bracket: (
+    - raw: COD_TARJETA
+    - comma: ','
+    - raw: COD_EST
+    - comma: ','
+    - raw: IND_TIPO_TARJETA
+    - comma: ','
+    - raw: FEC_ANIO_MES
+    - end_bracket: )
+    - raw: 'ON'
+    - raw: DB_1
+    - raw: .
+    - raw: TABLE_1
+- statement_terminator: ;
+

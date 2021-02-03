@@ -1,0 +1,16 @@
+file:
+  statement:
+    create_function_statement:
+      unparsable:
+      - keyword: CREATE
+      - keyword: FUNCTION
+      - raw: qs
+      - raw: (
+      - raw: y
+      - raw: STRING
+      - raw: )
+      - raw: LANGUAGE
+      - raw: js
+      - raw: AS
+      - raw: '" return y; "'
+

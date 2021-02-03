@@ -1,0 +1,31 @@
+file:
+  statement:
+    select_statement:
+    - select_clause:
+        keyword: SELECT
+        select_target_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+    - from_clause:
+        keyword: FROM
+        table_expression:
+          main_table_expression:
+            function:
+              identifier: ML
+              dot: .
+              function_name: WEIGHTS
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: MODEL
+              unparsable:
+                raw: '`project.dataset.model`'
+              end_bracket: )
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - literal: '2'
+      - comma: ','
+      - literal: '1'
+

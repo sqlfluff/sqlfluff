@@ -1,0 +1,33 @@
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_target_element:
+          column_reference:
+            identifier: a
+      from_clause:
+        keyword: from
+        table_expression:
+          main_table_expression:
+            table_reference:
+              identifier: tbl1
+- comment: /*comment here*/
+- statement_terminator: ;
+- comment: /*and here*/
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_target_element:
+          column_reference:
+            identifier: b
+      from_clause:
+        keyword: from
+        table_expression:
+          main_table_expression:
+            table_reference:
+              identifier: tbl2
+- statement_terminator: ;
+- comment: -- trailling ending comment
+

@@ -1,0 +1,51 @@
+file:
+- statement:
+    update_statement:
+      unparsable:
+      - keyword: UPDATE
+      - raw: table_name
+      - raw: FROM
+      - start_bracket: (
+      - raw: SELECT
+      - raw: a
+      - comma: ','
+      - raw: b
+      - comma: ','
+      - raw: c
+      - comma: ','
+      - raw: d
+      - raw: FROM
+      - raw: t_b
+      - raw: INNER
+      - raw: JOIN
+      - raw: t_c
+      - raw: 'ON'
+      - raw: t_b
+      - raw: .
+      - raw: d
+      - raw: '='
+      - raw: t_c
+      - raw: .
+      - raw: d
+      - raw: WHERE
+      - raw: b
+      - raw: '='
+      - raw: "'F'"
+      - comment: "-- AND SUBSTR(c, 1, 1) = 'T'"
+      - end_bracket: )
+      - raw: AS
+      - raw: t_d
+      - raw: SET
+      - raw: column1
+      - raw: '='
+      - raw: value1
+      - comma: ','
+      - raw: column2
+      - raw: '='
+      - raw: "'value2'"
+      - raw: WHERE
+      - raw: a
+      - raw: '='
+      - raw: '1'
+- statement_terminator: ;
+

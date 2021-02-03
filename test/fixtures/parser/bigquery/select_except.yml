@@ -1,0 +1,135 @@
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_target_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+          unparsable:
+          - raw: EXCEPT
+          - start_bracket: (
+          - raw: seqnum
+          - end_bracket: )
+          - raw: REPLACE
+          - start_bracket: (
+          - raw: foo
+          - raw: as
+          - raw: bar
+          - comma: ','
+          - raw: baz
+          - raw: foobar
+          - end_bracket: )
+      from_clause:
+        keyword: FROM
+        table_expression:
+          main_table_expression:
+            table_reference:
+              identifier: my_tbl
+- statement_terminator: ;
+- comment: -- Catch potential bugs in unions
+- statement:
+    set_expression:
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_target_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+            unparsable:
+            - raw: except
+            - start_bracket: (
+            - raw: foo
+            - end_bracket: )
+        from_clause:
+          keyword: from
+          table_expression:
+            main_table_expression:
+              table_reference:
+                identifier: some_table
+    - set_operator:
+      - keyword: union
+      - keyword: all
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_target_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: from
+          table_expression:
+            main_table_expression:
+              table_reference:
+                identifier: another_table
+- statement_terminator: ;
+- comment: -- Except is allowed after other fields
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_target_element:
+          expression:
+          - literal: '1'
+          - binary_operator: +
+          - literal: '2'
+          alias_expression:
+            keyword: as
+            identifier: calculated
+      - comma: ','
+      - select_target_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+          unparsable:
+          - raw: except
+          - start_bracket: (
+          - raw: irrelevant
+          - end_bracket: )
+      from_clause:
+        keyword: from
+        table_expression:
+          main_table_expression:
+            table_reference:
+              identifier: my_tbl
+- statement_terminator: ;
+- comment: -- This might be redundant with the example above.
+- comment: -- Demonstrates using multiple except clauses.
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_target_element:
+          wildcard_expression:
+            wildcard_identifier:
+              identifier: foo
+              dot: .
+              star: '*'
+          unparsable:
+          - raw: except
+          - start_bracket: (
+          - raw: some_column
+          - end_bracket: )
+      - comma: ','
+      - select_target_element:
+          wildcard_expression:
+            wildcard_identifier:
+              identifier: bar
+              dot: .
+              star: '*'
+          unparsable:
+          - raw: except
+          - start_bracket: (
+          - raw: other_column
+          - end_bracket: )
+      from_clause:
+        keyword: from
+        table_expression:
+          main_table_expression:
+            table_reference:
+              identifier: my_tbl
+- statement_terminator: ;
+

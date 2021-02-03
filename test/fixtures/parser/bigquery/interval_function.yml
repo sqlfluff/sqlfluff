@@ -1,0 +1,92 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_target_element:
+          function:
+          - function_name: TIMESTAMP_TRUNC
+          - start_bracket: (
+          - expression:
+              function:
+                function_name: TIMESTAMP_ADD
+                start_bracket: (
+                unparsable:
+                - raw: session_start
+                - raw: .
+                - raw: eventTimestamp
+                - comma: ','
+                - raw: INTERVAL
+                - raw: cast
+                - start_bracket: (
+                - raw: TIMESTAMP_DIFF
+                - start_bracket: (
+                - raw: session_end
+                - raw: .
+                - raw: eventTimestamp
+                - comma: ','
+                - raw: session_start
+                - raw: .
+                - raw: eventTimestamp
+                - comma: ','
+                - raw: SECOND
+                - end_bracket: )
+                - raw: /
+                - raw: '2'
+                - raw: AS
+                - raw: int64
+                - end_bracket: )
+                - raw: second
+                end_bracket: )
+          - comma: ','
+          - expression:
+              column_reference:
+                identifier: HOUR
+          - end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: avgAtHour
+      - comma: ','
+      - select_target_element:
+          function:
+          - function_name: TIME_ADD
+          - start_bracket: (
+          - expression:
+              column_reference:
+                identifier: time1
+          - comma: ','
+          - expression:
+              interval_expression:
+              - keyword: INTERVAL
+              - literal: '10'
+              - date_part: MINUTE
+          - end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: after
+      - comma: ','
+      - select_target_element:
+          function:
+          - function_name: DATE_SUB
+          - start_bracket: (
+          - expression:
+              column_reference:
+                identifier: time2
+          - comma: ','
+          - expression:
+              interval_expression:
+              - keyword: INTERVAL
+              - literal: '5'
+              - date_part: YEAR
+          - end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: before
+      from_clause:
+        keyword: FROM
+        table_expression:
+          main_table_expression:
+            table_reference:
+              identifier: dummy
+  statement_terminator: ;
+

@@ -1,0 +1,44 @@
+file:
+  statement:
+    select_statement:
+    - select_clause:
+        keyword: SELECT
+        select_target_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+    - from_clause:
+        unparsable:
+          keyword: FROM
+          raw: '`project.dataset.table_1`'
+    - where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            identifier: effect_size_list
+        - array_accessor:
+            start_square_bracket: '['
+            expression:
+              function:
+                function_name: ORDINAL
+                start_bracket: (
+                expression:
+                  literal: '1'
+                end_bracket: )
+            end_square_bracket: ']'
+        - comparison_operator: <
+        - column_reference:
+            identifier: effect_size_list
+        - array_accessor:
+            start_square_bracket: '['
+            expression:
+              function:
+                function_name: ORDINAL
+                start_bracket: (
+                expression:
+                - literal: '1'
+                - binary_operator: +
+                - literal: '1'
+                end_bracket: )
+            end_square_bracket: ']'
+
