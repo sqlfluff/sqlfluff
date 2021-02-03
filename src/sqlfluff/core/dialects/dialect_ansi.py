@@ -660,6 +660,7 @@ class WindowSpecificationSegment(BaseSegment):
     """Window specification, e.g. OVER() or named window"""
     type = "window_specification"
     match_grammar = Sequence(
+        Ref("SingleIdentifierGrammar", optional=True),  # "Base" window name
         Ref("PartitionClauseSegment", optional=True),
         Ref("OrderByClauseSegment", optional=True),
         Ref("FrameClauseSegment", optional=True),
