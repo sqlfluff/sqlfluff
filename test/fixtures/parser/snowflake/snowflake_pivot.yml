@@ -1,5 +1,4 @@
 file:
-    parsed seperately to the pivot.
   statement:
     select_statement:
       select_clause:

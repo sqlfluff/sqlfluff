@@ -1,5 +1,4 @@
 file:
-    $1, $2)
 - statement:
     select_statement:
       select_clause:
