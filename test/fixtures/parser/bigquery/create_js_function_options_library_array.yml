@@ -5,11 +5,12 @@ file:
     - keyword: TEMP
     - keyword: FUNCTION
     - function_name: parseTopSellers
-    - start_bracket: (
-    - parameter: arr_str
-    - data_type:
-        data_type_identifier: STRING
-    - end_bracket: )
+    - base:
+      - start_bracket: (
+      - parameter: arr_str
+      - data_type:
+          data_type_identifier: STRING
+      - end_bracket: )
     - keyword: RETURNS
     - data_type:
       - keyword: ARRAY
