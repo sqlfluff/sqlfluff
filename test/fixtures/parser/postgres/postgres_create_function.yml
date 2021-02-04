@@ -1,0 +1,44 @@
+file:
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name: add
+    - start_bracket: (
+    - data_type:
+        data_type_identifier: integer
+    - comma: ','
+    - data_type:
+        data_type_identifier: integer
+    - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: integer
+    - base:
+      - keyword: AS
+      - literal: "'select $1 + $2;'"
+      - keyword: LANGUAGE
+      - parameter: SQL
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - binary_operator: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name: increment
+    - start_bracket: (
+    - parameter: i
+    - data_type:
+        data_type_identifier: integer
+    - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: integer
+    - base:
+      - keyword: AS
+      - literal: "'\n    BEGIN\n        RETURN i + 1;\n    END;\n'"
+      - keyword: LANGUAGE
+      - parameter: plpgsql
+- statement_terminator: ;
+

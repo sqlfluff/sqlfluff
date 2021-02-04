@@ -4,4 +4,5 @@ file:
       select_clause:
         keyword: select
         select_target_element:
-          literal: 1
+          literal: '1'
+

@@ -1,0 +1,37 @@
+file:
+  statement:
+    select_statement:
+    - select_clause:
+        keyword: SELECT
+        select_target_element:
+          function:
+          - function_name: COALESCE
+          - start_bracket: (
+          - expression:
+              column_reference:
+                identifier: id
+          - comma: ','
+          - expression:
+              literal: '1'
+          - end_bracket: )
+    - from_clause:
+        keyword: FROM
+        table_expression:
+          main_table_expression:
+            table_reference:
+              identifier: some_table
+    - groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - expression:
+          function:
+          - function_name: COALESCE
+          - start_bracket: (
+          - expression:
+              column_reference:
+                identifier: id
+          - comma: ','
+          - expression:
+              literal: '1'
+          - end_bracket: )
+

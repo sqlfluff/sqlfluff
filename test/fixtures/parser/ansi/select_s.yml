@@ -1,0 +1,129 @@
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_target_element:
+          column_reference:
+            identifier: user_id
+      - comma: ','
+      - select_target_element:
+          column_reference:
+            identifier: list_id
+      - comma: ','
+      - select_target_element:
+          expression:
+          - start_bracket: (
+          - column_reference:
+              identifier: count_18_24
+          - binary_operator: '*'
+          - column_reference:
+              identifier: bits
+          - array_accessor:
+              start_square_bracket: '['
+              expression:
+                function:
+                  function_name: OFFSET
+                  start_bracket: (
+                  expression:
+                    literal: '0'
+                  end_bracket: )
+              end_square_bracket: ']'
+          - binary_operator: +
+          - column_reference:
+              identifier: count_25_34
+          - binary_operator: '*'
+          - column_reference:
+              identifier: bits
+          - array_accessor:
+              start_square_bracket: '['
+              expression:
+                function:
+                  function_name: OFFSET
+                  start_bracket: (
+                  expression:
+                    literal: '1'
+                  end_bracket: )
+              end_square_bracket: ']'
+          - binary_operator: +
+          - column_reference:
+              identifier: count_35_44
+          - binary_operator: '*'
+          - column_reference:
+              identifier: bits
+          - array_accessor:
+              start_square_bracket: '['
+              expression:
+                function:
+                  function_name: OFFSET
+                  start_bracket: (
+                  expression:
+                    literal: '2'
+                  end_bracket: )
+              end_square_bracket: ']'
+          - binary_operator: +
+          - column_reference:
+              identifier: count_45_54
+          - binary_operator: '*'
+          - column_reference:
+              identifier: bits
+          - array_accessor:
+              start_square_bracket: '['
+              expression:
+                function:
+                  function_name: OFFSET
+                  start_bracket: (
+                  expression:
+                    literal: '3'
+                  end_bracket: )
+              end_square_bracket: ']'
+          - binary_operator: +
+          - column_reference:
+              identifier: count_55_64
+          - binary_operator: '*'
+          - column_reference:
+              identifier: bits
+          - array_accessor:
+              start_square_bracket: '['
+              expression:
+                function:
+                  function_name: OFFSET
+                  start_bracket: (
+                  expression:
+                    literal: '4'
+                  end_bracket: )
+              end_square_bracket: ']'
+          - binary_operator: +
+          - column_reference:
+              identifier: count_65_plus
+          - binary_operator: '*'
+          - column_reference:
+              identifier: bits
+          - array_accessor:
+              start_square_bracket: '['
+              expression:
+                function:
+                  function_name: OFFSET
+                  start_bracket: (
+                  expression:
+                    literal: '5'
+                  end_bracket: )
+              end_square_bracket: ']'
+          - end_bracket: )
+          - binary_operator: /
+          - column_reference:
+              identifier: audience_size
+          alias_expression:
+            keyword: AS
+            identifier: relative_abundance
+      from_clause:
+        keyword: FROM
+        table_expression:
+          main_table_expression:
+            table_reference:
+            - identifier: gcp_project
+            - dot: .
+            - identifier: dataset
+            - dot: .
+            - identifier: audience_counts_gender_age
+

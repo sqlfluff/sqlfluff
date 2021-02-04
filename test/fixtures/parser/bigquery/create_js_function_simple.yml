@@ -1,0 +1,17 @@
+file:
+  statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name: qs
+    - start_bracket: (
+    - parameter: y
+    - data_type:
+        data_type_identifier: STRING
+    - end_bracket: )
+    - base:
+      - keyword: LANGUAGE
+      - parameter: js
+      - keyword: AS
+      - literal: '" return y; "'
+
