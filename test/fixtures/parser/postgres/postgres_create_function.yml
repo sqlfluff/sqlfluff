@@ -4,13 +4,14 @@ file:
     - keyword: CREATE
     - keyword: FUNCTION
     - function_name: add
-    - start_bracket: (
-    - data_type:
-        data_type_identifier: integer
-    - comma: ','
-    - data_type:
-        data_type_identifier: integer
-    - end_bracket: )
+    - base:
+      - start_bracket: (
+      - data_type:
+          data_type_identifier: integer
+      - comma: ','
+      - data_type:
+          data_type_identifier: integer
+      - end_bracket: )
     - keyword: RETURNS
     - data_type:
         data_type_identifier: integer
@@ -27,11 +28,12 @@ file:
     - keyword: REPLACE
     - keyword: FUNCTION
     - function_name: increment
-    - start_bracket: (
-    - parameter: i
-    - data_type:
-        data_type_identifier: integer
-    - end_bracket: )
+    - base:
+      - start_bracket: (
+      - parameter: i
+      - data_type:
+          data_type_identifier: integer
+      - end_bracket: )
     - keyword: RETURNS
     - data_type:
         data_type_identifier: integer

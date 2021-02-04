@@ -6,11 +6,12 @@ file:
     - keyword: REPLACE
     - keyword: FUNCTION
     - function_name: qs
-    - start_bracket: (
-    - parameter: y
-    - keyword: ANY
-    - keyword: TYPE
-    - end_bracket: )
+    - base:
+      - start_bracket: (
+      - parameter: y
+      - keyword: ANY
+      - keyword: TYPE
+      - end_bracket: )
     - base:
       - keyword: AS
       - start_bracket: (

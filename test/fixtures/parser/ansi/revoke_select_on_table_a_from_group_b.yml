@@ -5,7 +5,7 @@ file:
     - keyword: select
     - keyword: 'on'
     - keyword: table
-    - table_reference:
+    - object_reference:
         identifier: a
     - keyword: from
     - keyword: group

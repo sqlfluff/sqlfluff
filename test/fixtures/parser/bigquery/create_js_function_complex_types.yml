@@ -5,54 +5,30 @@ file:
     - keyword: TEMP
     - keyword: FUNCTION
     - function_name: qs
-    - start_bracket: (
-    - parameter: foo1
-    - data_type:
-        data_type_identifier: INT64
-    - comma: ','
-    - parameter: foo2
-    - data_type:
-      - keyword: ARRAY
-      - comparison_operator: <
-      - data_type:
-          data_type_identifier: STRING
-      - comparison_operator: '>'
-    - comma: ','
-    - parameter: foo3
-    - data_type:
-      - keyword: STRUCT
-      - comparison_operator: <
-      - parameter: x
-      - data_type:
-          data_type_identifier: INT64
-      - comparison_operator: '>'
-    - comma: ','
-    - parameter: foo4
-    - data_type:
-      - keyword: STRUCT
-      - comparison_operator: <
-      - parameter: x
+    - base:
+      - start_bracket: (
+      - parameter: foo1
       - data_type:
           data_type_identifier: INT64
       - comma: ','
-      - parameter: y
-      - data_type:
-          data_type_identifier: INT64
-      - comparison_operator: '>'
-    - comma: ','
-    - parameter: foo5
-    - data_type:
-      - keyword: STRUCT
-      - comparison_operator: <
-      - parameter: a
+      - parameter: foo2
       - data_type:
         - keyword: ARRAY
         - comparison_operator: <
         - data_type:
-            data_type_identifier: FLOAT
+            data_type_identifier: STRING
         - comparison_operator: '>'
       - comma: ','
-      - parameter: b
+      - parameter: foo3
+      - data_type:
+        - keyword: STRUCT
+        - comparison_operator: <
+        - parameter: x
+        - data_type:
+            data_type_identifier: INT64
+        - comparison_operator: '>'
+      - comma: ','
+      - parameter: foo4
       - data_type:
         - keyword: STRUCT
         - comparison_operator: <
@@ -64,8 +40,33 @@ file:
         - data_type:
             data_type_identifier: INT64
         - comparison_operator: '>'
-      - comparison_operator: '>'
-    - end_bracket: )
+      - comma: ','
+      - parameter: foo5
+      - data_type:
+        - keyword: STRUCT
+        - comparison_operator: <
+        - parameter: a
+        - data_type:
+          - keyword: ARRAY
+          - comparison_operator: <
+          - data_type:
+              data_type_identifier: FLOAT
+          - comparison_operator: '>'
+        - comma: ','
+        - parameter: b
+        - data_type:
+          - keyword: STRUCT
+          - comparison_operator: <
+          - parameter: x
+          - data_type:
+              data_type_identifier: INT64
+          - comma: ','
+          - parameter: y
+          - data_type:
+              data_type_identifier: INT64
+          - comparison_operator: '>'
+        - comparison_operator: '>'
+      - end_bracket: )
     - keyword: RETURNS
     - data_type:
       - keyword: STRUCT
