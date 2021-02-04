@@ -1,0 +1,33 @@
+file:
+  statement:
+    select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_target_element:
+          column_reference:
+            identifier: user_id
+      - comma: ','
+      - select_target_element:
+          literal: '"some string"'
+          alias_expression:
+            keyword: as
+            identifier: list_id
+    - from_clause:
+        keyword: FROM
+        table_expression:
+          main_table_expression:
+            table_reference:
+              identifier: '`database.schema.benchmark_user_map`'
+    - where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            identifier: list_id
+        - keyword: IS
+        - keyword: 'NULL'
+        - binary_operator: OR
+        - column_reference:
+            identifier: user_id
+        - keyword: IS
+        - keyword: 'NULL'
+

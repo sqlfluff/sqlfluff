@@ -1,0 +1,46 @@
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: MULTISET
+    - keyword: TABLE
+    - table_reference:
+        identifier: CONSUMOS
+    - create_table_options_statement:
+      - comma: ','
+      - keyword: 'NO'
+      - keyword: FALLBACK
+      - comma: ','
+      - keyword: 'NO'
+      - keyword: BEFORE
+      - keyword: JOURNAL
+      - comma: ','
+      - keyword: 'NO'
+      - keyword: AFTER
+      - keyword: JOURNAL
+      - comma: ','
+      - keyword: CHECKSUM
+      - comparison_operator: '='
+      - keyword: DEFAULT
+      - comma: ','
+      - keyword: DEFAULT
+      - keyword: MERGEBLOCKRATIO
+    - start_bracket: (
+    - column_definition:
+        column_reference:
+          identifier: FIELD1
+        td_internal_data_type:
+          data_type_identifier: CHAR
+          start_bracket: (
+          expression:
+            literal: '9'
+          end_bracket: )
+    - end_bracket: )
+    - td_table_constraint:
+      - keyword: PRIMARY
+      - keyword: INDEX
+      - start_bracket: (
+      - identifier: FIELD1
+      - end_bracket: )
+- statement_terminator: ;
+

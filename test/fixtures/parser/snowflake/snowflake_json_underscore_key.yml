@@ -1,0 +1,25 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_target_element:
+          expression:
+            column_reference:
+            - identifier: x
+            - dot: .
+            - identifier: y
+            snowflake_semi_structured_expression:
+              colon: ':'
+              semi_structured_element: _z
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: string
+      from_clause:
+        keyword: from
+        table_expression:
+          main_table_expression:
+            table_reference:
+              identifier: x
+

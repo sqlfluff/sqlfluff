@@ -29,3 +29,4 @@ file:
       - keyword: schema
       - keyword: binding
   statement_terminator: ;
+

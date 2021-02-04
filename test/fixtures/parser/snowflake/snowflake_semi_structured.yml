@@ -1,114 +1,115 @@
 file:
-  statement:
+- statement:
     select_statement:
       select_clause:
-        - keyword: SELECT
-        - select_target_element:
+      - keyword: SELECT
+      - select_target_element:
+          column_reference:
+            identifier: ticket_id
+      - comma: ','
+      - select_target_element:
+          expression:
             column_reference:
-              identifier: ticket_id
-        - comma: ","
-        - select_target_element:
-            expression:
-              column_reference:
-                identifier: value
-              snowflake_semi_structured_expression:
-                colon: ":"
-                semi_structured_element: value
-            alias_expression:
-              keyword: AS
-              identifier: uncasted
-        - comma: ","
-        - select_target_element:
-            expression:
-              column_reference:
-                identifier: value
-              snowflake_semi_structured_expression:
-                colon: ":"
-                semi_structured_element: id
-              cast_expression:
-                casting_operator: "::"
-                data_type:
-                  data_type_identifier: bigint
-            alias_expression:
-              keyword: AS
-              identifier: field_id
-        - comma: ","
-        - select_target_element:
-            expression:
-              column_reference:
-                identifier: value
-              snowflake_semi_structured_expression:
-                colon: ":"
-                semi_structured_element: value
-              cast_expression:
-                casting_operator: "::"
-                data_type:
-                  data_type_identifier: STRING
-            alias_expression:
-              keyword: AS
-              identifier: field_val
-        - comma: ","
-        - select_target_element:
-            expression:
-              column_reference:
-                identifier: value
-              snowflake_semi_structured_expression:
-                - colon: ":"
-                - semi_structured_element: thing
-                - array_accessor:
-                    start_square_bracket: "["
-                    literal: "4"
-                    end_square_bracket: "]"
-                - dot: .
-                - semi_structured_element: foo
-            alias_expression:
-              keyword: AS
-              identifier: another_val
-        - comma: ","
-        - select_target_element:
-            expression:
-              column_reference:
-                identifier: value
-              snowflake_semi_structured_expression:
-                - colon: ":"
-                - semi_structured_element: thing
-                - array_accessor:
-                    start_square_bracket: "["
-                    literal: "4"
-                    end_square_bracket: "]"
-                - dot: .
-                - semi_structured_element: bar
-                - dot: .
-                - semi_structured_element: baz
-                - array_accessor:
-                    start_square_bracket: "["
-                    literal: "0"
-                    end_square_bracket: "]"
-                - dot: .
-                - semi_structured_element: foo
-              cast_expression:
-                casting_operator: "::"
-                data_type:
-                  data_type_identifier: bigint
-            alias_expression:
-              keyword: AS
-              identifier: another_val
+              identifier: value
+            snowflake_semi_structured_expression:
+              colon: ':'
+              semi_structured_element: value
+          alias_expression:
+            keyword: AS
+            identifier: uncasted
+      - comma: ','
+      - select_target_element:
+          expression:
+            column_reference:
+              identifier: value
+            snowflake_semi_structured_expression:
+              colon: ':'
+              semi_structured_element: id
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: bigint
+          alias_expression:
+            keyword: AS
+            identifier: field_id
+      - comma: ','
+      - select_target_element:
+          expression:
+            column_reference:
+              identifier: value
+            snowflake_semi_structured_expression:
+              colon: ':'
+              semi_structured_element: value
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: STRING
+          alias_expression:
+            keyword: AS
+            identifier: field_val
+      - comma: ','
+      - select_target_element:
+          expression:
+            column_reference:
+              identifier: value
+            snowflake_semi_structured_expression:
+            - colon: ':'
+            - semi_structured_element: thing
+            - array_accessor:
+                start_square_bracket: '['
+                literal: '4'
+                end_square_bracket: ']'
+            - dot: .
+            - semi_structured_element: foo
+          alias_expression:
+            keyword: AS
+            identifier: another_val
+      - comma: ','
+      - select_target_element:
+          expression:
+            column_reference:
+              identifier: value
+            snowflake_semi_structured_expression:
+            - colon: ':'
+            - semi_structured_element: thing
+            - array_accessor:
+                start_square_bracket: '['
+                literal: '4'
+                end_square_bracket: ']'
+            - dot: .
+            - semi_structured_element: bar
+            - dot: .
+            - semi_structured_element: baz
+            - array_accessor:
+                start_square_bracket: '['
+                literal: '0'
+                end_square_bracket: ']'
+            - dot: .
+            - semi_structured_element: foo
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: bigint
+          alias_expression:
+            keyword: AS
+            identifier: another_val
       from_clause:
-        - keyword: FROM
-        - table_expression:
-            main_table_expression:
-              table_reference:
-                identifier: raw_tickets
-        - comma: ","
-        - table_expression:
-            keyword: lateral
-            main_table_expression:
-              function:
-                function_name: flatten
-                start_bracket: (
-                snowflake_keyword_expression:
-                  parameter: INPUT
-                  parameter_assigner: =>
-                  column_reference:
-                    identifier: custom_fields
-                end_bracket: )
+      - keyword: FROM
+      - table_expression:
+          main_table_expression:
+            table_reference:
+              identifier: raw_tickets
+      - comma: ','
+      - table_expression:
+          keyword: lateral
+          main_table_expression:
+            function:
+              function_name: flatten
+              start_bracket: (
+              snowflake_keyword_expression:
+              - parameter: INPUT
+              - parameter_assigner: =>
+              - column_reference:
+                  identifier: custom_fields
+              end_bracket: )
+

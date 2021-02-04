@@ -1,0 +1,30 @@
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_target_element:
+          expression:
+            keyword: 'NULL'
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: INT
+          alias_expression:
+            keyword: AS
+            identifier: user_id
+      - comma: ','
+      - select_target_element:
+          expression:
+            keyword: 'NULL'
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: INT
+          alias_expression:
+            keyword: AS
+            identifier: is_paid
+      limit_clause:
+        keyword: LIMIT
+        literal: '0'
+

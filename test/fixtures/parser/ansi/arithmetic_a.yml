@@ -1,0 +1,24 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_target_element:
+          expression:
+          - literal: '1'
+          - binary_operator: +
+          - start_bracket: (
+          - literal: '2'
+          - binary_operator: '*'
+          - literal: '3'
+          - end_bracket: )
+          - comparison_operator: '>='
+          - literal: '4'
+          - binary_operator: +
+          - literal: '6'
+          - binary_operator: +
+          - literal: '13'
+          alias_expression:
+            keyword: as
+            identifier: val
+
