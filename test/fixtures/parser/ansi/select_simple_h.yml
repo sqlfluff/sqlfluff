@@ -19,15 +19,16 @@ file:
                   over_clause:
                     keyword: OVER
                     start_bracket: (
-                    orderby_clause:
-                    - keyword: ORDER
-                    - keyword: BY
-                    - expression:
-                        function:
-                          function_name: seq8
-                          start_bracket: (
-                          end_bracket: )
-                    - keyword: asc
+                    window_specification:
+                      orderby_clause:
+                      - keyword: ORDER
+                      - keyword: BY
+                      - expression:
+                          function:
+                            function_name: seq8
+                            start_bracket: (
+                            end_bracket: )
+                      - keyword: asc
                     end_bracket: )
             - comma: ','
             - expression:

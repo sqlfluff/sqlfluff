@@ -16,25 +16,26 @@ file:
           - over_clause:
             - keyword: over
             - start_bracket: (
-            - partitionby_clause:
-              - keyword: PARTITION
-              - keyword: BY
-              - expression:
-                  column_reference:
-                    identifier: buzz
-            - orderby_clause:
-              - keyword: ORDER
-              - keyword: BY
-              - column_reference:
-                  identifier: bar
-            - frame_clause:
-              - keyword: ROWS
-              - raw: BETWEEN
-              - raw: UNBOUNDED
-              - raw: PRECEDING
-              - raw: AND
-              - raw: CURRENT
-              - raw: ROW
+            - window_specification:
+              - partitionby_clause:
+                - keyword: PARTITION
+                - keyword: BY
+                - expression:
+                    column_reference:
+                      identifier: buzz
+              - orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    identifier: bar
+              - frame_clause:
+                - keyword: ROWS
+                - raw: BETWEEN
+                - raw: UNBOUNDED
+                - raw: PRECEDING
+                - raw: AND
+                - raw: CURRENT
+                - raw: ROW
             - end_bracket: )
           alias_expression:
             keyword: AS

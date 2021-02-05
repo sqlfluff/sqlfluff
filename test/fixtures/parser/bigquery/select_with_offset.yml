@@ -59,12 +59,13 @@ file:
                           over_clause:
                             keyword: OVER
                             start_bracket: (
-                            orderby_clause:
-                            - keyword: ORDER
-                            - keyword: BY
-                            - column_reference:
-                                identifier: ix
-                            - keyword: ASC
+                            window_specification:
+                              orderby_clause:
+                              - keyword: ORDER
+                              - keyword: BY
+                              - column_reference:
+                                  identifier: ix
+                              - keyword: ASC
                             end_bracket: )
                     - keyword: ELSE
                     - expression:
