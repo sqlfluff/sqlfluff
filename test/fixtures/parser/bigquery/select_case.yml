@@ -1,0 +1,41 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_target_element:
+          expression:
+            case_expression:
+            - keyword: case
+            - expression:
+                column_reference:
+                  identifier: fruit_code
+            - keyword: when
+            - expression:
+                literal: '0'
+            - keyword: then
+            - expression:
+                literal: "'apple'"
+            - keyword: when
+            - expression:
+                literal: '1'
+            - keyword: then
+            - expression:
+                literal: "'banana'"
+            - keyword: when
+            - expression:
+                literal: '2'
+            - keyword: then
+            - expression:
+                literal: "'cashew'"
+            - keyword: end
+          alias_expression:
+            keyword: as
+            identifier: fruit
+      from_clause:
+        keyword: from
+        table_expression:
+          main_table_expression:
+            table_reference:
+              identifier: some_table
+

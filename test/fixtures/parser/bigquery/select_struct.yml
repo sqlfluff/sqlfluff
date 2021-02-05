@@ -1,0 +1,102 @@
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_target_element:
+          column_reference:
+          - identifier: some_table
+          - dot: .
+          - identifier: foo_id
+      - comma: ','
+      - select_target_element:
+          function:
+          - function_name: array
+          - start_bracket: (
+          - expression:
+              select_statement:
+              - select_clause:
+                - keyword: select
+                - keyword: as
+                - keyword: struct
+                - star: '*'
+              - from_clause:
+                  keyword: from
+                  table_expression:
+                    main_table_expression:
+                      table_reference:
+                        identifier: another_table
+              - where_clause:
+                  keyword: where
+                  expression:
+                  - column_reference:
+                    - identifier: another_table
+                    - dot: .
+                    - identifier: foo_id
+                  - comparison_operator: '='
+                  - column_reference:
+                    - identifier: some_table
+                    - dot: .
+                    - identifier: foo_id
+          - end_bracket: )
+      from_clause:
+        keyword: from
+        table_expression:
+          main_table_expression:
+            table_reference:
+              identifier: another_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_target_element:
+          typeless_struct:
+          - keyword: struct
+          - start_bracket: (
+          - object_reference:
+            - identifier: bar
+            - dot: .
+            - identifier: bar_id
+          - alias_expression:
+              keyword: as
+              identifier: id
+          - comma: ','
+          - object_reference:
+            - identifier: bar
+            - dot: .
+            - identifier: bar_name
+          - alias_expression:
+              keyword: as
+              identifier: bar
+          - end_bracket: )
+          alias_expression:
+            keyword: as
+            identifier: bar
+      from_clause:
+        keyword: from
+        table_expression:
+          main_table_expression:
+            table_reference:
+              identifier: foo
+        join_clause:
+        - keyword: left
+        - keyword: join
+        - table_expression:
+            main_table_expression:
+              table_reference:
+                identifier: bar
+        - join_on_condition:
+            keyword: 'on'
+            expression:
+            - column_reference:
+              - identifier: bar
+              - dot: .
+              - identifier: foo_id
+            - comparison_operator: '='
+            - column_reference:
+              - identifier: foo
+              - dot: .
+              - identifier: foo_id
+- statement_terminator: ;
+

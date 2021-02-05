@@ -1,0 +1,8 @@
+file:
+  statement:
+    transaction_statement:
+    - keyword: rollback
+    - binary_operator: and
+    - keyword: 'no'
+    - keyword: chain
+
