@@ -7,6 +7,8 @@ This mapping is used to validate rule config inputs, as well
 as document rule configuration.
 """
 
+from sqlfluff.core.plugin.host import get_plugin_manager
+
 STANDARD_CONFIG_INFO_DICT = {
     "tab_space_size": {
         "validation": range(100),
@@ -72,3 +74,11 @@ STANDARD_CONFIG_INFO_DICT = {
         ),
     },
 }
+
+def get_config_info() -> dict:
+    plugin_manager = get_plugin_manager()
+    configs_info = plugin_manager.hook.get_configs_info()
+    return {
+        k: v for config_info_dict in configs_info
+             for k, v in config_info_dict.items()
+    }

@@ -1,14 +1,18 @@
 """Defines the specification to implement a plugin."""
 
-from typing import List
-
 import pluggy
 from sqlfluff.core.plugin import plugin_base_name
-from sqlfluff.core.rules.base import BaseCrawler
 
 hookspec = pluggy.HookspecMarker(plugin_base_name)
 
+class PluginSpec:
+    @hookspec
+    def get_rules(self):
+        """Get plugin rules."""
 
-@hookspec
-def get_rules() -> List[BaseCrawler]:
-    """Get plugin rules."""
+    def load_default_config(self) -> dict:
+        """Loads the default configuration for the plugin."""
+
+    @hookspec
+    def get_configs_info(self) -> dict:
+        """Get rule config validations and descriptions."""
