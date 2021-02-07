@@ -337,10 +337,13 @@ ansi_dialect.add(
         "ORDER",
         "HAVING",
         "QUALIFY",
+        "WINDOW",
         Ref("SetOperatorSegment"),
         Ref("WithNoSchemaBindingClauseSegment"),
     ),
-    WhereClauseTerminatorGrammar=OneOf("LIMIT", "GROUP", "ORDER", "HAVING", "QUALIFY"),
+    WhereClauseTerminatorGrammar=OneOf(
+        "LIMIT", "GROUP", "ORDER", "HAVING", "QUALIFY", "WINDOW"
+    ),
     PrimaryKeyGrammar=Sequence("PRIMARY", "KEY"),
 )
 
@@ -644,14 +647,26 @@ class OverClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "OVER",
         Bracketed(
-            Sequence(
-                Ref("PartitionClauseSegment", optional=True),
-                Ref("OrderByClauseSegment", optional=True),
-                Ref("FrameClauseSegment", optional=True),
-                optional=True,
-                ephemeral_name="OverClauseContent",
+            OneOf(
+                Ref("WindowSpecificationSegment"),
+                Ref("SingleIdentifierGrammar"),  # Window name
             )
         ),
+    )
+
+
+@ansi_dialect.segment()
+class WindowSpecificationSegment(BaseSegment):
+    """Window specification, e.g. OVER() or named window."""
+
+    type = "window_specification"
+    match_grammar = Sequence(
+        Ref("SingleIdentifierGrammar", optional=True),  # "Base" window name
+        Ref("PartitionClauseSegment", optional=True),
+        Ref("OrderByClauseSegment", optional=True),
+        Ref("FrameClauseSegment", optional=True),
+        optional=True,
+        ephemeral_name="OverClauseContent",
     )
 
 
@@ -1280,6 +1295,7 @@ class OrderByClauseSegment(BaseSegment):
             "HAVING",
             "QUALIFY",
             # For window functions
+            "WINDOW",
             "ROWS",
             "SEPARATOR",
         ),
@@ -1316,7 +1332,7 @@ class GroupByClauseSegment(BaseSegment):
     type = "groupby_clause"
     match_grammar = StartsWith(
         Sequence("GROUP", "BY"),
-        terminator=OneOf("ORDER", "LIMIT", "HAVING", "QUALIFY"),
+        terminator=OneOf("ORDER", "LIMIT", "HAVING", "QUALIFY", "WINDOW"),
         enforce_whitespace_preceeding_terminator=True,
     )
     parse_grammar = Sequence(
@@ -1331,7 +1347,7 @@ class GroupByClauseSegment(BaseSegment):
                 # Can `GROUP BY coalesce(col, 1)`
                 Ref("ExpressionSegment"),
             ),
-            terminator=OneOf("ORDER", "LIMIT", "HAVING", "QUALIFY"),
+            terminator=OneOf("ORDER", "LIMIT", "HAVING", "QUALIFY", "WINDOW"),
         ),
         Dedent,
     )
@@ -1344,7 +1360,7 @@ class HavingClauseSegment(BaseSegment):
     type = "having_clause"
     match_grammar = StartsWith(
         "HAVING",
-        terminator=OneOf("ORDER", "LIMIT", "QUALIFY"),
+        terminator=OneOf("ORDER", "LIMIT", "QUALIFY", "WINDOW"),
         enforce_whitespace_preceeding_terminator=True,
     )
     parse_grammar = Sequence(
@@ -1377,6 +1393,33 @@ class LimitClauseSegment(BaseSegment):
                 Ref("CommaSegment"),
                 Ref("NumericLiteralSegment"),
             ),
+        ),
+    )
+
+
+@ansi_dialect.segment()
+class NamedWindowSegment(BaseSegment):
+    """A WINDOW clause."""
+
+    type = "named_window"
+    match_grammar = Sequence(
+        "WINDOW",
+        Delimited(
+            Ref("NamedWindowExpressionSegment"),
+        ),
+    )
+
+
+@ansi_dialect.segment()
+class NamedWindowExpressionSegment(BaseSegment):
+    """Named window expression."""
+
+    type = "named_window_expression"
+    match_grammar = Sequence(
+        Ref("SingleIdentifierGrammar"),  # Window name
+        "AS",
+        Bracketed(
+            Ref("WindowSpecificationSegment"),
         ),
     )
 
@@ -1433,6 +1476,7 @@ class SelectStatementSegment(BaseSegment):
         Ref("HavingClauseSegment", optional=True),
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),
+        Ref("NamedWindowSegment", optional=True),
     )
 
 

@@ -1,0 +1,1 @@
+SELECT AVG(col) OVER(win) FROM table WINDOW win AS (PARTITION BY date)
