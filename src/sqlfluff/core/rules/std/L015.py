@@ -34,7 +34,11 @@ class Rule_L015(BaseCrawler):
         # parenthesis)
         if segment.type == "expression":
             segments_filt = self.filter_meta(segment.segments)
-            if len(segments_filt) and segments_filt[0].type == "start_bracket" and segments_filt[0].raw == "(":
+            if (
+                len(segments_filt)
+                and segments_filt[0].type == "start_bracket"
+                and segments_filt[0].raw == "("
+            ):
                 filt_raw_stack = self.filter_meta(raw_stack)
                 if len(filt_raw_stack) and filt_raw_stack[-1].name == "DISTINCT":
                     # If we find open_bracket immediately following DISTINCT,
@@ -44,13 +48,24 @@ class Rule_L015(BaseCrawler):
                         # Insert a single space after the open parenthesis being
                         # removed.
                         insert_str = " "
-                        fixes.append(LintFix("create", self.filter_meta(segment.segments)[1], [self.make_whitespace(
-                                    raw=insert_str, pos_marker=segment.pos_marker.advance_by(insert_str)
-                                )]))
+                        fixes.append(
+                            LintFix(
+                                "create",
+                                self.filter_meta(segment.segments)[1],
+                                [
+                                    self.make_whitespace(
+                                        raw=insert_str,
+                                        pos_marker=segment.pos_marker.advance_by(
+                                            insert_str
+                                        ),
+                                    )
+                                ],
+                            )
+                        )
                     # Remove the parentheses.
                     fixes += [
                         LintFix("delete", segments_filt[0]),
-                        LintFix("delete", segments_filt[-1])
+                        LintFix("delete", segments_filt[-1]),
                     ]
                     return LintResult(anchor=segment, fixes=fixes)
         return None
