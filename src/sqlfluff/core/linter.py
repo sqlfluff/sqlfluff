@@ -965,7 +965,7 @@ class Linter:
                 # "anchor", the segment to look for either to edit or to insert BEFORE.
                 # The second is the element to insert or create.
                 lerrs, _, fixes, _ = crawler.crawl(
-                    working, dialect=config.get("dialect_obj"), fix=True
+                    working, dialect=config.get("dialect_obj")
                 )
                 linting_errors += lerrs
                 # Are there fixes to apply?

@@ -249,7 +249,6 @@ class BaseCrawler:
         siblings_pre=None,
         siblings_post=None,
         raw_stack=None,
-        fix=False,
         memory=None,
     ):
         """Recursively perform the crawl operation on a given segment.
@@ -351,7 +350,6 @@ class BaseCrawler:
                 siblings_pre=segment.segments[:idx],
                 siblings_post=segment.segments[idx + 1 :],
                 raw_stack=raw_stack,
-                fix=fix,
                 memory=memory,
                 dialect=dialect,
             )
