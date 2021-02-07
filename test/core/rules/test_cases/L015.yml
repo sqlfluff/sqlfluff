@@ -13,3 +13,13 @@ test_3:
 
 test_4:
   pass_str: SELECT DISTINCT (a + b) * c
+
+test_fix_1:
+  fail_str: |
+    select distinct(field_1)
+    from
+        my_table
+  fix_str: |
+    select distinct field_1
+    from
+        my_table
