@@ -1,5 +1,5 @@
 file:
-  statement:
+- statement:
     select_statement:
       select_clause:
         keyword: SELECT
@@ -7,20 +7,24 @@ file:
           column_reference:
             identifier: count_correctly_substituted
       from_clause:
-        - keyword: FROM
-        - table_expression:
+      - keyword: FROM
+      - table_expression:
+          main_table_expression:
             table_reference:
               identifier: correctly_substituted
-        - join_clause:
-          - keyword: CROSS
-          - keyword: JOIN
-          - table_expression:
+      - join_clause:
+        - keyword: CROSS
+        - keyword: JOIN
+        - table_expression:
+            main_table_expression:
               table_reference:
                 identifier: needs_substitution
-        - join_clause:
-          - keyword: LEFT
-          - keyword: OUTER
-          - keyword: JOIN
-          - table_expression:
+      - join_clause:
+        - keyword: LEFT
+        - keyword: OUTER
+        - keyword: JOIN
+        - table_expression:
+            main_table_expression:
               table_reference:
                 identifier: some_other_table
+

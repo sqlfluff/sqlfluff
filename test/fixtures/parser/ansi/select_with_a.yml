@@ -6,25 +6,28 @@ file:
     - keyword: as
     - start_bracket: (
     - select_statement:
-      - select_clause:
+        select_clause:
           keyword: select
           select_target_element:
             column_reference:
               identifier: a
-      - from_clause:
+        from_clause:
           keyword: from
           table_expression:
-            table_reference:
-              identifier: tbla
+            main_table_expression:
+              table_reference:
+                identifier: tbla
     - end_bracket: )
     - select_statement:
-      - select_clause:
+        select_clause:
           keyword: select
           select_target_element:
             column_reference:
               identifier: a
-      - from_clause:
+        from_clause:
           keyword: from
           table_expression:
-            table_reference:
-              identifier: cte
+            main_table_expression:
+              table_reference:
+                identifier: cte
+

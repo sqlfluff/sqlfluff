@@ -1,0 +1,47 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_target_element:
+          wildcard_expression:
+            wildcard_identifier:
+              identifier: d
+              dot: .
+              star: '*'
+      - comma: ','
+      - select_target_element:
+          wildcard_expression:
+            wildcard_identifier:
+              identifier: r
+              dot: .
+              star: '*'
+            select_except_clause:
+              keyword: except
+              start_bracket: (
+              identifier: date_key
+              end_bracket: )
+      from_clause:
+        keyword: from
+        table_expression:
+          main_table_expression:
+            table_reference:
+              identifier: my_table
+          alias_expression:
+            keyword: as
+            identifier: d
+        join_clause:
+        - keyword: inner
+        - keyword: join
+        - table_expression:
+            main_table_expression:
+              table_reference:
+                identifier: my_other_table
+            alias_expression:
+              keyword: as
+              identifier: r
+        - keyword: using
+        - start_bracket: (
+        - identifier: date_key
+        - end_bracket: )
+

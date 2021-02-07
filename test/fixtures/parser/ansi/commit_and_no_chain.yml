@@ -1,0 +1,8 @@
+file:
+  statement:
+    transaction_statement:
+    - keyword: commit
+    - binary_operator: and
+    - keyword: 'no'
+    - keyword: chain
+

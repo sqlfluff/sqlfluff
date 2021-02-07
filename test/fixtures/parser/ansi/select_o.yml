@@ -1,0 +1,42 @@
+file:
+- statement:
+    select_statement:
+    - select_clause:
+        keyword: SELECT
+        select_target_element:
+          column_reference:
+            identifier: business_type
+    - from_clause:
+        keyword: FROM
+        table_expression:
+          main_table_expression:
+            table_reference:
+              identifier: benchmark_summaries
+    - where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            identifier: avg_click_rate
+        - keyword: NOT
+        - keyword: BETWEEN
+        - literal: '0'
+        - binary_operator: and
+        - literal: '1'
+        - binary_operator: +
+        - literal: '1'
+        - binary_operator: +
+        - column_reference:
+            identifier: some_value
+        - binary_operator: AND
+        - column_reference:
+            identifier: some_other_thing
+        - keyword: BETWEEN
+        - literal: '0'
+        - binary_operator: '-'
+        - literal: '1'
+        - binary_operator: '*'
+        - column_reference:
+            identifier: another_value
+        - binary_operator: and
+        - literal: '1'
+

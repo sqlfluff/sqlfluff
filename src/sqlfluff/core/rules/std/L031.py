@@ -59,6 +59,9 @@ class Rule_L031(BaseCrawler):
                 return None
 
             table_expression = from_clause_segment.get_child("table_expression")
+            if not table_expression:
+                return None
+            table_expression = table_expression.get_child("main_table_expression")
 
             # Find base table
             base_table = None
@@ -93,7 +96,9 @@ class Rule_L031(BaseCrawler):
         violation_buff = []
 
         for table_exp in table_expression_segments:
-            table_ref = table_exp.get_child("object_reference")
+            table_ref = table_exp.get_child("main_table_expression").get_child(
+                "object_reference"
+            )
 
             # If the table_expression has no object_references - skip it
             # An example case is a lateral flatten, where we have a function segment

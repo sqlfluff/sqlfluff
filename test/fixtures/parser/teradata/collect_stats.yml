@@ -1,0 +1,41 @@
+file:
+- statement:
+    collect_statistics_statement:
+    - keyword: COLLECT
+    - keyword: STATISTICS
+    - keyword: COLUMN
+    - start_bracket: (
+    - object_reference:
+        identifier: IND_TIPO_TARJETA
+    - end_bracket: )
+    - keyword: 'ON'
+    - object_reference:
+      - identifier: DB_1
+      - dot: .
+      - identifier: TABLE_1
+- statement_terminator: ;
+- statement:
+    collect_statistics_statement:
+    - keyword: COLLECT
+    - keyword: STATISTICS
+    - keyword: INDEX
+    - start_bracket: (
+    - object_reference:
+        identifier: COD_TARJETA
+    - comma: ','
+    - object_reference:
+        identifier: COD_EST
+    - comma: ','
+    - object_reference:
+        identifier: IND_TIPO_TARJETA
+    - comma: ','
+    - object_reference:
+        identifier: FEC_ANIO_MES
+    - end_bracket: )
+    - keyword: 'ON'
+    - object_reference:
+      - identifier: DB_1
+      - dot: .
+      - identifier: TABLE_1
+- statement_terminator: ;
+
