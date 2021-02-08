@@ -29,3 +29,14 @@ test_6:
     SELECT DISTINCT(a), b
   fix_str: |
     SELECT DISTINCT a, b
+
+test_7:
+  pass_str: |
+    SELECT
+        DISTINCT ON(bcolor) bcolor,
+        fcolor
+    FROM
+        distinct_demo
+  configs:
+    core:
+      dialect: postgres
