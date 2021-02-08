@@ -36,10 +36,7 @@ class Rule_L015(BaseCrawler):
         if raw_stack_filtered and raw_stack_filtered[-1].name == "DISTINCT":
             if segment.type == "expression":
                 segments_filtered = self.filter_meta(segment.segments)
-                if (
-                    segments_filtered
-                    and segments_filtered[0].type == "start_bracket"
-                ):
+                if segments_filtered and segments_filtered[0].type == "start_bracket":
                     # If we find open_bracket immediately following DISTINCT,
                     # then bad.
                     fixes = []
@@ -69,9 +66,9 @@ class Rule_L015(BaseCrawler):
                                 [
                                     self.make_whitespace(
                                         raw=insert_str,
-                                        pos_marker=segments_filtered[0].pos_marker.advance_by(
-                                            insert_str
-                                        ),
+                                        pos_marker=segments_filtered[
+                                            0
+                                        ].pos_marker.advance_by(insert_str),
                                     )
                                 ],
                             )
