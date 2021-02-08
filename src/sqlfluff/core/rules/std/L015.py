@@ -30,8 +30,8 @@ class Rule_L015(BaseCrawler):
 
         Look for DISTINCT keyword immediately followed by open parenthesis.
         """
-        # We only trigger on expressions that begin with start_bracket (open
-        # parenthesis)
+        # We only trigger when "DISTINCT" is the immediate parent of an
+        # expression that begins with start_bracket.
         raw_stack_filtered = self.filter_meta(raw_stack)
         if raw_stack_filtered and raw_stack_filtered[-1].name == "DISTINCT":
             if segment.type == "expression":
@@ -52,6 +52,11 @@ class Rule_L015(BaseCrawler):
                         # Update segments_filtered to reflect the pending
                         # deletions.
                         segments_filtered = segments_filtered[1:-1]
+                    # If there are still segments remaining after the potential
+                    # deletions above, insert a space between DISTINCT and the
+                    # remainder of the expression. (I think there will always
+                    # be remaining segments; this is a sanity check to ensure
+                    # we don't cause an IndexError.)
                     if segments_filtered:
                         # Insert a single space after the open parenthesis being
                         # removed. Reason: DISTINCT is not a function; it's more
