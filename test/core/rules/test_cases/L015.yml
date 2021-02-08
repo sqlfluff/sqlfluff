@@ -3,23 +3,29 @@ rule: L015
 test_1:
   # Check we get fails for using DISTINCT apparently incorrectly
   fail_str: SELECT DISTINCT(a)
+  fix_str: SELECT DISTINCT a
 
 test_2:
   fail_str: SELECT DISTINCT(a + b) * c
+  fix_str: SELECT DISTINCT (a + b) * c
 
 test_3:
-  # Space after DISTINCT makes it okay...
+  # Space after DISTINCT makes it okay(-ish)...
   pass_str: SELECT DISTINCT (a)
 
 test_4:
   pass_str: SELECT DISTINCT (a + b) * c
 
-test_fix_1:
+test_5:
   fail_str: |
-    select distinct(field_1)
-    from
-        my_table
+    SELECT DISTINCT(field_1)
+    FROM my_table
   fix_str: |
-    select distinct field_1
-    from
-        my_table
+    SELECT DISTINCT field_1
+    FROM my_table
+
+test_6:
+  fail_str: |
+    SELECT DISTINCT(a), b
+  fix_str: |
+    SELECT DISTINCT a, b

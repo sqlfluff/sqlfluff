@@ -38,37 +38,43 @@ class Rule_L015(BaseCrawler):
                 segments_filtered = self.filter_meta(segment.segments)
                 if (
                     segments_filtered
-                    and segments_filtered[0].raw == "("
                     and segments_filtered[0].type == "start_bracket"
                 ):
                     # If we find open_bracket immediately following DISTINCT,
                     # then bad.
                     fixes = []
-                    # :TRICKY: Check for length > 2 because the "create" LintFix
-                    # is relative to segments_filtered[1], so this code would
-                    # throw an IndexError if somehow the length were < 2.
-                    if len(segments_filtered) >= 2:
+                    # The end bracket could be anywhere in segments_filtered,
+                    # e.g. if the expression is (a + b) * c. If and only if it's
+                    # at the *end*, then the parentheses are unnecessary and
+                    # confusing. Remove them.
+                    if segments_filtered[-1].type == "end_bracket":
+                        fixes += [
+                            LintFix("delete", segments_filtered[0]),
+                            LintFix("delete", segments_filtered[-1]),
+                        ]
+                        # Update segments_filtered to reflect the pending
+                        # deletions.
+                        segments_filtered = segments_filtered[1:-1]
+                    if segments_filtered:
                         # Insert a single space after the open parenthesis being
-                        # removed.
+                        # removed. Reason: DISTINCT is not a function; it's more
+                        # of a modifier that acts on all the columns. Therefore,
+                        # adding a space makes it clearer what the SQL is
+                        # actually doing.
                         insert_str = " "
                         fixes.append(
                             LintFix(
                                 "create",
-                                self.filter_meta(segments_filtered)[1],
+                                segments_filtered[0],
                                 [
                                     self.make_whitespace(
                                         raw=insert_str,
-                                        pos_marker=segment.pos_marker.advance_by(
+                                        pos_marker=segments_filtered[0].pos_marker.advance_by(
                                             insert_str
                                         ),
                                     )
                                 ],
                             )
                         )
-                    # Remove the parentheses.
-                    fixes += [
-                        LintFix("delete", segments_filtered[0]),
-                        LintFix("delete", segments_filtered[-1]),
-                    ]
                     return LintResult(anchor=segment, fixes=fixes)
         return None
