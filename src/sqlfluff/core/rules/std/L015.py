@@ -59,16 +59,17 @@ class Rule_L015(BaseCrawler):
                         # adding a space makes it clearer what the SQL is
                         # actually doing.
                         insert_str = " "
+                        first_segment = segments_filtered[0]
                         fixes.append(
                             LintFix(
                                 "create",
-                                segments_filtered[0],
+                                first_segment,
                                 [
                                     self.make_whitespace(
                                         raw=insert_str,
-                                        pos_marker=segments_filtered[
-                                            0
-                                        ].pos_marker.advance_by(insert_str),
+                                        pos_marker=first_segment.pos_marker.advance_by(
+                                            insert_str
+                                        ),
                                     )
                                 ],
                             )
