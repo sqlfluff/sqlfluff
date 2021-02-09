@@ -931,12 +931,12 @@ class Linter:
 
     def lint_fix(
         self, tree: BaseSegment, config: Optional[FluffConfig] = None, fix: bool = False
-    ) -> List[SQLLintError]:
+    ) -> Tuple[BaseSegment, List[SQLLintError]]:
         """Lint and optionally fix a tree object."""
         config = config or self.config
         all_linting_errors = []
-        previous_versions = {tree.raw}
         last_fixes = []
+        previous_versions = {tree.raw}
 
         loop_limit = config.get("runaway_limit")
 
@@ -997,7 +997,7 @@ class Linter:
 
     def fix(
         self, tree: BaseSegment, config: Optional[FluffConfig] = None
-    ) -> List[SQLLintError]:
+    ) -> Tuple[BaseSegment, List[SQLLintError]]:
         """Return the fixed tree and violations from lintfix when we're fixing."""
         fixed_tree, violations = self.lint_fix(tree, config, fix=True)
         return fixed_tree, violations
@@ -1011,7 +1011,7 @@ class Linter:
 
     def lint_string(
         self,
-        in_str: str,
+        in_str: Optional[str] = "",
         fname: str = "<string input>",
         fix: bool = False,
         config: Optional[FluffConfig] = None,

@@ -4,7 +4,7 @@ import os
 import pytest
 import logging
 
-from sqlfluff.core import FluffConfig, Lexer
+from sqlfluff.core import FluffConfig, Lexer, Linter
 from sqlfluff.core.templaters import DbtTemplater
 from test.fixtures.dbt.templater import (  # noqa
     DBT_FLUFF_CONFIG,
@@ -109,6 +109,18 @@ def test__templater_dbt_slice_file_wrapped_test(
             templated_file,
         )
     assert resp == result
+
+
+@pytest.mark.dbt
+def test__templated_sections_do_not_raise_lint_error(in_dbt_project_dir):  # noqa
+    """Test that the dbt test has no lint errors.
+
+    It is wrapped in a CTE, which is sliced as a templated slice and the beginning
+    and end of query. As these are templated slices, they should not raise a violation.
+    """
+    lntr = Linter(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
+    lnt = lntr.lint_string(fname="tests/test.sql")
+    assert lnt.violations == []
 
 
 @pytest.mark.dbt
