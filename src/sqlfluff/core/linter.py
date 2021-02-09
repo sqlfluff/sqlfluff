@@ -935,7 +935,7 @@ class Linter:
         """Lint and optionally fix a tree object."""
         config = config or self.config
         all_linting_errors = []
-        last_fixes = []
+        last_fixes = None
         previous_versions = {tree.raw}
 
         loop_limit = config.get("runaway_limit")
@@ -1011,7 +1011,7 @@ class Linter:
 
     def lint_string(
         self,
-        in_str: Optional[str] = "",
+        in_str: str = "",
         fname: str = "<string input>",
         fix: bool = False,
         config: Optional[FluffConfig] = None,
