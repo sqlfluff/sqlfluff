@@ -646,12 +646,12 @@ class OverClauseSegment(BaseSegment):
     type = "over_clause"
     match_grammar = Sequence(
         "OVER",
-        Bracketed(
-            OneOf(
+        OneOf(
+            Ref("SingleIdentifierGrammar"),  # Window name
+            Bracketed(
                 Ref("WindowSpecificationSegment"),
-                Ref("SingleIdentifierGrammar"),  # Window name
             )
-        ),
+        )
     )
 
 
