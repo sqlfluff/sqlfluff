@@ -1,0 +1,45 @@
+file:
+  statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: TEMP
+    - keyword: FUNCTION
+    - function_name: parseTopSellers
+    - base:
+      - start_bracket: (
+      - parameter: arr_str
+      - data_type:
+          data_type_identifier: STRING
+      - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+      - keyword: ARRAY
+      - comparison_operator: <
+      - data_type:
+        - keyword: STRUCT
+        - comparison_operator: <
+        - parameter: product_id
+        - data_type:
+            data_type_identifier: INT64
+        - comma: ','
+        - parameter: rating
+        - data_type:
+            data_type_identifier: FLOAT64
+        - comparison_operator: '>'
+      - comparison_operator: '>'
+    - base:
+      - keyword: LANGUAGE
+      - parameter: js
+      - keyword: OPTIONS
+      - start_bracket: (
+      - parameter: library
+      - comparison_operator: '='
+      - start_square_bracket: '['
+      - raw: '"gs://my-bucket/path/to/lib1.js"'
+      - comma: ','
+      - raw: '"gs://my-bucket/path/to/lib2.js"'
+      - end_square_bracket: ']'
+      - end_bracket: )
+      - keyword: AS
+      - literal: "\"\"\"\n    CODE GOES HERE\n\"\"\""
+

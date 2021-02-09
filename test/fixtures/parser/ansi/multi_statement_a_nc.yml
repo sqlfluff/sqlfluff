@@ -4,41 +4,43 @@ file:
       select_statement:
         select_clause:
           keyword: select
-          whitespace: ' '
+          whitespace: " "
           select_target_element:
-            object_reference:
+            column_reference:
               identifier: a
-        whitespace: ' '
+        whitespace: " "
         from_clause:
           keyword: from
-          whitespace: ' '
+          whitespace: " "
           table_expression:
-            object_reference:
-              identifier: tbl1
-  - whitespace: '  '
+            main_table_expression:
+              table_reference:
+                identifier: tbl1
+  - whitespace: "  "
   - comment: /*comment here*/
-  - whitespace: ' '
-  - keyword: ;
-  - whitespace: '  '
+  - whitespace: " "
+  - statement_terminator: ;
+  - whitespace: "  "
   - comment: /*and here*/
-  - whitespace: '  '
+  - whitespace: "  "
   - statement:
       select_statement:
         select_clause:
           keyword: select
-          whitespace: ' '
+          whitespace: " "
           select_target_element:
-            object_reference:
+            column_reference:
               identifier: b
-        whitespace: ' '
+        whitespace: " "
         from_clause:
           keyword: from
-          whitespace: ' '
+          whitespace: " "
           table_expression:
-            object_reference:
-              identifier: tbl2
-  - keyword: ;
-  - whitespace: '   '
+            main_table_expression:
+              table_reference:
+                identifier: tbl2
+  - statement_terminator: ;
+  - whitespace: "   "
   - comment: -- trailling ending comment
   - newline: "\n"
   - whitespace: "\t\t"

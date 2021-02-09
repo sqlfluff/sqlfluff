@@ -1,0 +1,8 @@
+rule: L021
+
+test_1:
+  # check if using select distinct and group by
+  pass_str: select a from b group by a
+
+test_2:
+  fail_str: select distinct a from b group by a

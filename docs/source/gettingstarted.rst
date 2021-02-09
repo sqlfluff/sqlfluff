@@ -3,7 +3,7 @@
 Getting Started
 ===============
 
-To get started with *sqlfluff* you'll need python and pip installed
+To get started with *SQLFluff* you'll need python and pip installed
 on your machine, if you're already set up, you can skip straight to
 `Installing sqlfluff`_.
 
@@ -17,7 +17,7 @@ you're using. In any case, the python wiki provides up to date
 There's a chance that you'll be offered the choice between python
 versions. Support for python 2 was dropped in early 2020, so you
 should always opt for a version number starting with a 3. As for
-more specific options beyond that, *sqlfluff* aims to be compatible
+more specific options beyond that, *SQLFluff* aims to be compatible
 with all current python versions, and so it's best to pick the most
 recent.
 
@@ -31,7 +31,7 @@ which should give you a sensible read out and not an error.
     Python 3.6.7
 
 For most people, their installation of python will come with
-:code:`pip` (the python pacakge manager) preinstalled. To confirm
+:code:`pip` (the python package manager) preinstalled. To confirm
 this you can type :code:`pip --version` similar to python above.
 
 .. code-block:: bash
@@ -45,17 +45,17 @@ the best instructions for what to do next are `on the python website`_.
 .. _`instructions for all platforms here`: https://wiki.python.org/moin/BeginnersGuide/Download
 .. _`on the python website`: https://pip.pypa.io/en/stable/installing/
 
-Installing sqlfluff
+Installing SQLFluff
 -------------------
 
 Assuming that python and pip are already installed, then installing
-*sqlfluff* is straight forward.
+*SQLFluff* is straight forward.
 
 .. code-block:: bash
 
     $ pip install sqlfluff
 
-You can confirm it's installation by getting *sqlfluff* to show it's
+You can confirm its installation by getting *SQLFluff* to show its
 version number.
 
 .. code-block:: bash
@@ -66,7 +66,7 @@ version number.
 Basic Usage
 -----------
 
-To get a feel for how to use *sqlfluff* it helps to have a small
+To get a feel for how to use *SQLFluff* it helps to have a small
 :code:`.sql` file which has a simple structure and some known
 issues for testing. Create a file called :code:`test.sql` in the
 same folder that you're currently in with the following content:
@@ -88,7 +88,7 @@ You can then run :code:`sqlfluff lint test.sql` to lint this file.
     L:   2 | P:  10 | L010 | Inconsistent capitalisation of keywords.
     L:   2 | P:  15 | L009 | Files must end with a trailing newline.
 
-You'll see that *sqlfluff* has failed the linting check for this file.
+You'll see that *SQLFluff* has failed the linting check for this file.
 On each of the following lines you can see each of the problems it has
 found, with some information about the location and what kind of
 problem there is. The first one has been found on *line 1*, *position 9*
@@ -116,7 +116,7 @@ problems now no longer show up.
     L:   2 | P:  15 | L009 | Files must end with a trailing newline.
 
 To fix the remaining issues, we're going to use one of the more
-advanced features of *sqlfluff*, which is the *fix* command. This
+advanced features of *SQLFluff*, which is the *fix* command. This
 allows more automated fixing of some errors, to save you time in
 sorting out your sql files. Not all rules can be fixed in this way
 and there may be some situations where a fix may not be able to be
@@ -170,12 +170,12 @@ In particular:
 Custom Usage
 ------------
 
-So far we've covered the stock settings of *sqlfluff*, but there
+So far we've covered the stock settings of *SQLFluff*, but there
 are many different ways that people style their sql, and if you
 or your organisation have different conventions, then many of
 these behaviours can be configured. For example, given the
 example above, what if we actually think that indents should only
-be two spaces, and rather than upeercase keywords, they should
+be two spaces, and rather than uppercase keywords, they should
 all be lowercase?
 
 To achieve this we create a configuration file named :code:`.sqlfluff`
@@ -204,28 +204,32 @@ file has been fixed accordingly.
     select a + b  as foo,
       c as bar from my_table
 
+For a full list of configuration options check out :ref:`defaultconfig`.
+To see how these options apply to specific rules check out the
+"Configuration" section within each rule's documentation in :ref:`ruleref`.
+
 Going further
 -------------
 
 From here, there are several more things to explore.
 
-* To understand how *sqlfluff* is interpreting your file
+* To understand how *SQLFluff* is interpreting your file
   explore the :code:`parse` command. You can learn more about
   that command and more by running :code:`sqlfluff --help` or
   :code:`sqlfluff parse --help`.
 * To start linting more than just one file at a time, experiment
-  with passing sqlfluff directories rather than just single files.
+  with passing SQLFluff directories rather than just single files.
   Try running :code:`sqlfluff lint .` (to lint every sql file in the
   current folder) or :code:`sqlfluff lint path/to/my/sqlfiles`.
 * To find out more about which rules are available, see :ref:`ruleref`.
-* To find out more about configuring *sqlfluff* and what other options
+* To find out more about configuring *SQLFluff* and what other options
   are available, see :ref:`config`.
 
-One last thing to note is that *sqlfluff* is a relatively new project
+One last thing to note is that *SQLFluff* is a relatively new project
 and you may find bugs or strange things while using it. If you do find
 anything, the most useful thing you can do is to `post the issue on
 github`_ where the maintainers of the project can work out what to do with
 it. The project is in active development and so updates and fixes may
 come out regularly.
 
-.. _`post the issue on github`: https://github.com/alanmcruickshank/sqlfluff/issues
+.. _`post the issue on github`: https://github.com/sqlfluff/sqlfluff/issues

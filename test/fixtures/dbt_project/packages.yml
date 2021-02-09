@@ -1,0 +1,3 @@
+packages:
+    - package: fishtown-analytics/dbt_utils
+      version: ["0.6.3"]

@@ -1,0 +1,46 @@
+file:
+  statement:
+    select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_target_element:
+          column_reference:
+            identifier: col_a
+      - comma: ','
+      - select_target_element:
+          column_reference:
+            identifier: col_b
+    - from_clause:
+        keyword: FROM
+        table_expression:
+          main_table_expression:
+            table_reference:
+              identifier: some_table
+    - where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            identifier: col_a
+        - keyword: IS
+        - keyword: NOT
+        - keyword: 'NULL'
+        - binary_operator: AND
+        - column_reference:
+            identifier: col_b
+        - keyword: NOT
+        - keyword: IN
+        - start_bracket: (
+        - select_statement:
+            select_clause:
+              keyword: SELECT
+              select_target_element:
+                column_reference:
+                  identifier: c
+            from_clause:
+              keyword: FROM
+              table_expression:
+                main_table_expression:
+                  table_reference:
+                    identifier: another_table
+        - end_bracket: )
+

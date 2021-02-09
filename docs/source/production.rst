@@ -1,27 +1,27 @@
 Production Usage
 ================
 
-Sqlfluff is designed to be used both as a utility for developers but also to
+SQLFluff is designed to be used both as a utility for developers but also to
 be part of `CI/CD`_ pipelines.
 
-Using sqlfluff on a whole sql codebase
+Using SQLFluff on a whole sql codebase
 --------------------------------------
 
-The `exit code`_ provided by sqlfluff when run as a command line utility is
+The `exit code`_ provided by SQLFluff when run as a command line utility is
 designed to assist usefulness in deployment pipelines. If no violations
 are found then the `exit code`_ will be 0. If violations are found then
 a non-zero code will be returned which can be interrogated to find out
 more.
 
 - At the moment all error states related to linting return *65*.
-- An error as a result of a sqlfluff internal error will return *1*.
+- An error as a result of a SQLFluff internal error will return *1*.
 
 .. _`CI/CD`: https://en.wikipedia.org/wiki/Continuous_integration
 .. _`exit code`: https://shapeshed.com/unix-exit-codes/
 
 .. _diff-quality:
 
-Using sqlfluff on changes using `diff-quality`
+Using SQLFluff on changes using `diff-quality`
 ----------------------------------------------
 
 For projects with large amounts of (potentially imperfect) SQL code, the full
@@ -85,3 +85,52 @@ such as:
   lines). The default is `origin/master`.
 * Configuring `diff-quality` to return an error code if the quality is too low
 * Troubleshooting
+
+Using `pre-commit`_
+^^^^^^^^^^^^^^^^^^^
+
+`pre-commit`_ is a framework to manage git "hooks"
+triggered right before a commit is made.
+
+A `git hook`_ is a git feature to "fire off custom scripts"
+when specific actions occur.
+
+Using `pre-commit`_ with SQLFluff is a good way
+to provide automated linting to SQL developers.
+
+With `pre-commit`_, you also get the benefit of
+only linting/fixing the files that changed.
+
+SQLFluff comes with two `pre-commit`_ hooks:
+
+* sqlfluff-lint: returns linting errors.
+* sqlfluff-fix: attempts to fix rule violations.
+
+You should create a file named `.pre-commit-config.yaml`
+at the root of your git project, which should look
+like this:
+
+.. code-block:: yaml
+
+  repos:
+  - repo: https://github.com/sqlfluff/sqlfluff
+    rev: |release|
+    hooks:
+      - id: sqlfluff-lint
+        # For dbt projects, this installs the dbt "extras":
+        # additional_dependencies: ['.[dbt]']
+      - id: sqlfluff-fix
+        # Arbitrary arguments to show an example
+        # args: [--rules, "L003,L014"]
+        # additional_dependencies: ['.[dbt]']
+
+When trying to use the `dbt templater`_, uncomment the
+``additional_dependencies`` to install the extras.
+This is equivalent to running ``pip install sqlfluff[dbt]``.
+
+Note that you can pass the same arguments available
+through the CLI using ``args:``.
+
+.. _`pre-commit`: https://pre-commit.com/
+.. _`git hook`: https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks
+.. _`dbt templater`: `dbt-project-configuration`

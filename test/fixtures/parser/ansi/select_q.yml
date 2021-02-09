@@ -1,0 +1,59 @@
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_target_element:
+          column_reference:
+          - identifier: data
+          - dot: .
+          - identifier: id
+      from_clause:
+      - keyword: FROM
+      - table_expression:
+          main_table_expression:
+            table_reference:
+              identifier: data
+      - join_clause:
+        - keyword: JOIN
+        - table_expression:
+            main_table_expression:
+              table_reference:
+                identifier: data_max
+        - join_on_condition:
+            keyword: 'ON'
+            expression:
+            - column_reference:
+              - identifier: data
+              - dot: .
+              - identifier: event_id
+            - comparison_operator: '='
+            - column_reference:
+              - identifier: data_max
+              - dot: .
+              - identifier: event_id
+      - join_clause:
+        - keyword: LEFT
+        - keyword: JOIN
+        - table_expression:
+            main_table_expression:
+              table_reference:
+              - identifier: '"other_db"'
+              - dot: .
+              - identifier: '"other_data"'
+            alias_expression:
+              keyword: AS
+              identifier: od
+        - join_on_condition:
+            keyword: 'ON'
+            expression:
+            - column_reference:
+              - identifier: od
+              - dot: .
+              - identifier: fid
+            - comparison_operator: '='
+            - column_reference:
+              - identifier: data_max
+              - dot: .
+              - identifier: fid
+

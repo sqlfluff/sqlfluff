@@ -5,40 +5,41 @@ file:
             select_clause:
                 - keyword: SELECT
                 - newline: "\n"
-                - whitespace: '    '
+                - whitespace: "    "
                 - select_target_element:
-                    expression:
-                        object_reference:
-                            identifier: my_var
-                        cast_expression:
-                            casting_operator: '::'
-                            data_type:
-                                data_type_identifier: date
-                    whitespace: ' '
-                    alias_expression:
-                        keyword: as
-                        whitespace: ' '
-                        identifier: casted_variable
-                - comma: ','
+                      expression:
+                          column_reference:
+                              identifier: my_var
+                          cast_expression:
+                              casting_operator: "::"
+                              data_type:
+                                  data_type_identifier: date
+                      whitespace: " "
+                      alias_expression:
+                          keyword: as
+                          whitespace: " "
+                          identifier: casted_variable
+                - comma: ","
                 - newline: "\n"
-                - whitespace: '    '
+                - whitespace: "    "
                 - select_target_element:
-                    expression:
-                        literal: '123'
-                        cast_expression:
-                            casting_operator: '::'
-                            data_type:
-                                data_type_identifier: bigint
-                    whitespace: ' '
-                    alias_expression:
-                        keyword: as
-                        whitespace: ' '
-                        identifier: another_casted_number
+                      expression:
+                          literal: "123"
+                          cast_expression:
+                              casting_operator: "::"
+                              data_type:
+                                  data_type_identifier: bigint
+                      whitespace: " "
+                      alias_expression:
+                          keyword: as
+                          whitespace: " "
+                          identifier: another_casted_number
             newline: "\n"
             from_clause:
                 keyword: FROM
-                whitespace: ' '
+                whitespace: " "
                 table_expression:
-                    object_reference:
-                        identifier: boo
+                    main_table_expression:
+                        table_reference:
+                            identifier: boo
     newline: "\n"

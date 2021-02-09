@@ -2,16 +2,17 @@ file:
   statement:
     select_statement:
       select_clause:
-      - keyword: SELECT
-      - select_target_element:
-          object_reference:
-            identifier: col1
-      - comma: ','
-      - select_target_element:
-          object_reference:
-            identifier: col2
+        - keyword: SELECT
+        - select_target_element:
+            column_reference:
+              identifier: col1
+        - comma: ","
+        - select_target_element:
+            column_reference:
+              identifier: col2
       from_clause:
         keyword: FROM
         table_expression:
-          object_reference:
-            identifier: my_table
+          main_table_expression:
+            table_reference:
+              identifier: my_table

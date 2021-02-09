@@ -1,0 +1,41 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_target_element:
+          expression:
+            literal: "'9999-12-31'"
+            cast_expression:
+              start_bracket: (
+              td_internal_data_type:
+                data_type_identifier: DATE
+              end_bracket: )
+      - comma: ','
+      - select_target_element:
+          expression:
+            literal: "'9999-12-31'"
+            cast_expression:
+              start_bracket: (
+              td_internal_data_type:
+              - data_type_identifier: DATE
+              - keyword: FORMAT
+              - literal: "'YYYY-MM-DD'"
+              end_bracket: )
+      - comma: ','
+      - select_target_element:
+          expression:
+            literal: "'100000'"
+            cast_expression:
+              start_bracket: (
+              td_internal_data_type:
+                data_type_identifier: SMALLINT
+              end_bracket: )
+      from_clause:
+        keyword: from
+        table_expression:
+          main_table_expression:
+            table_reference:
+              identifier: test_table
+  statement_terminator: ;
+

@@ -1,0 +1,22 @@
+rule: L025
+
+test_1:
+  # Aliases not referenced.
+  fail_str: SELECT * FROM my_tbl AS foo
+
+test_2:
+  pass_str: SELECT * FROM my_tbl AS foo JOIN other_tbl on other_tbl.x = foo.x
+
+test_3:
+  # L025 fix with https://github.com/sqlfluff/sqlfluff/issues/449
+  pass_str: select ps.*, pandgs.blah from ps join pandgs using(moo)
+
+test_ignore_value_table_functions:
+  # L025 fix with https://github.com/sqlfluff/sqlfluff/issues/356
+  pass_str: |
+    select *
+    from unnest(generate_timestamp_array(
+        '2020-01-01', '2020-01-30', interval 1 day)) as ts
+  configs:
+    core:
+      dialect: bigquery

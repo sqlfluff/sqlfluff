@@ -1,0 +1,15 @@
+file:
+  statement:
+    access_statement:
+    - keyword: grant
+    - keyword: select
+    - keyword: 'on'
+    - object_reference:
+        identifier: mytable
+    - keyword: to
+    - object_reference:
+        identifier: public
+    - keyword: with
+    - keyword: grant
+    - keyword: option
+

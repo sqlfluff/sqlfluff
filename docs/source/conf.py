@@ -5,6 +5,8 @@ list see the documentation:
 https://www.sphinx-doc.org/en/master/usage/configuration.html
 """
 
+import configparser
+
 # -- Path setup --------------------------------------------------------------
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -15,15 +17,20 @@ https://www.sphinx-doc.org/en/master/usage/configuration.html
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
+# Get the global config info as currently stated
+# (we use the config file to avoid actually loading any python here)
+config = configparser.ConfigParser()
+config.read(["../../src/sqlfluff/config.ini"])
+stable_version = config.get("sqlfluff", "stable_version")
 
 # -- Project information -----------------------------------------------------
 
-project = 'sqlfluff'
-copyright = '2019, Alan Cruickshank'
-author = 'Alan Cruickshank'
+project = "SQLFluff"
+copyright = "2019, Alan Cruickshank"
+author = "Alan Cruickshank"
 
 # The full version, including alpha/beta/rc tags
-release = '0.1.5'
+release = stable_version
 
 
 # -- General configuration ---------------------------------------------------
@@ -33,15 +40,15 @@ release = '0.1.5'
 # ones.
 extensions = [
     # Autodocumentation from docstrings
-    'sphinx.ext.autodoc',
+    "sphinx.ext.autodoc",
     # Allow Google style docstrings
-    'sphinx.ext.napoleon',
+    "sphinx.ext.napoleon",
     # Documenting click commands
-    'sphinx_click.ext'
+    "sphinx_click.ext",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -49,7 +56,11 @@ templates_path = ['_templates']
 exclude_patterns = []
 
 # Master doc
-master_doc = 'index'
+master_doc = "index"
+
+# If true, the current module name will be prepended to all description
+# unit titles (such as .. function::).
+add_module_names = False
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -57,25 +68,46 @@ master_doc = 'index'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+html_theme = "alabaster"
+html_favicon = "favicon-fluff.png"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
 
 # -- Options for Alabaster Theme ---------------------------------------------
 
 html_theme_options = {
-    'logo': 'images/sqlfluff-lrg.png',
+    "logo": "images/sqlfluff-lrg.png",
     # Icon for iOS shortcuts
-    'touch_icon': 'images/sqlfluff-sm2-sq.png',
-    'github_user': 'alanmcruickshank',
-    'github_repo': 'sqlfluff',
+    "touch_icon": "images/sqlfluff-sm2-sq.png",
+    "github_user": "sqlfluff",
+    "github_repo": "sqlfluff",
     # Github Fork button
-    'github_banner': True,
+    "github_banner": True,
     # Github link button
-    'github_button': True,
+    "github_button": True,
     # Codecov button
-    'codecov_button': True
+    "codecov_button": True,
 }
+
+
+def ultimate_replace(app, docname, source):
+    """Replaces variables in docs, including code blocks.
+
+    From: https://github.com/sphinx-doc/sphinx/issues/4054#issuecomment-329097229
+    """
+    result = source[0]
+    for key in app.config.ultimate_replacements:
+        result = result.replace(key, app.config.ultimate_replacements[key])
+    source[0] = result
+
+
+ultimate_replacements = {"|release|": release}
+
+
+def setup(app):
+    """Configures the documentation app."""
+    app.add_config_value("ultimate_replacements", {}, True)
+    app.connect("source-read", ultimate_replace)

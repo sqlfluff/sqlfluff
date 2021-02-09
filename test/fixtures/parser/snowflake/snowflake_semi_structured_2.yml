@@ -1,0 +1,49 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_target_element:
+          expression:
+            column_reference:
+              identifier: value
+            snowflake_semi_structured_expression:
+            - colon: ':'
+            - semi_structured_element: data
+            - colon: ':'
+            - semi_structured_element: to
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: string
+          alias_expression:
+            keyword: AS
+            identifier: TO_PHONE_NUMBER
+      - comma: ','
+      - select_target_element:
+          expression:
+            column_reference:
+              identifier: value
+            snowflake_semi_structured_expression:
+            - colon: ':'
+            - semi_structured_element: data
+            - colon: ':'
+            - semi_structured_element: from
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: string
+          alias_expression:
+            keyword: AS
+            identifier: FROM_PHONE_NUMBER
+      from_clause:
+        keyword: FROM
+        table_expression:
+          main_table_expression:
+            table_reference:
+            - identifier: a
+            - dot: .
+            - identifier: b
+            - dot: .
+            - identifier: ticket_audits
+

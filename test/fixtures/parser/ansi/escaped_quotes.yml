@@ -1,0 +1,23 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_target_element:
+          expression:
+            case_expression:
+            - keyword: case
+            - keyword: when
+            - expression:
+              - column_reference:
+                  identifier: '"Spec\"s 23"'
+              - keyword: like
+              - literal: "'Spec\\'s%'"
+            - keyword: then
+            - expression:
+                literal: "'boop'"
+            - keyword: end
+          alias_expression:
+            keyword: as
+            identifier: field
+

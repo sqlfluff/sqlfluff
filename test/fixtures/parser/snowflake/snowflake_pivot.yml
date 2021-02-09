@@ -4,20 +4,23 @@ file:
       select_clause:
         keyword: SELECT
         select_target_element:
-          keyword: '*'
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
       from_clause:
-        keyword: FROM
-        table_expression:
-          object_reference:
-            identifier: my_tbl
-        from_pivot_expression:
+      - keyword: FROM
+      - table_expression:
+          main_table_expression:
+            table_reference:
+              identifier: my_tbl
+      - from_pivot_expression:
         - keyword: PIVOT
         - start_bracket: (
         - function:
             function_name: min
             start_bracket: (
             expression:
-              object_reference:
+              column_reference:
                 identifier: f_val
             end_bracket: )
         - keyword: FOR
@@ -29,12 +32,14 @@ file:
         - literal: '2'
         - end_bracket: )
         - end_bracket: )
-        table_alias_expression:
-        - alias_expression:
-            keyword: AS
-            identifier: f
-        - start_bracket: (
-        - identifier: a
-        - comma: ','
-        - identifier: b
-        - end_bracket: )
+      - table_alias_expression:
+          alias_expression:
+          - keyword: AS
+          - identifier: f
+          - start_bracket: (
+          - identifier_list:
+            - identifier: a
+            - comma: ','
+            - identifier: b
+          - end_bracket: )
+

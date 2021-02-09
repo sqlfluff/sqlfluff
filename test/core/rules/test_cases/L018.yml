@@ -1,0 +1,35 @@
+rule: L018
+
+test_1:
+  # with statement indentation
+  pass_str: |
+    with cte as (
+        select 1
+    ) select * from cte
+
+test_2:
+  # with statement oneline
+  pass_str: with cte as (select 1) select * from cte
+
+test_3:
+  # Fix with statement indentation
+  fail_str: |
+    with cte as (
+        select 1
+        ) select * from cte
+
+  fix_str: |
+    with cte as (
+        select 1
+    ) select * from cte
+
+test_4:
+  # Fix with statement that has negative indentation
+  fail_str: |2
+        with cte as (
+        select 1
+    ) select * from cte
+  fix_str: |2
+        with cte as (
+        select 1
+        ) select * from cte

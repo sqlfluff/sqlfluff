@@ -1,13 +1,16 @@
-# A very simplistic select
 file:
   statement:
     select_statement:
       select_clause:
         keyword: select
         select_target_element:
-          keyword: '*'
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
       from_clause:
         keyword: from
         table_expression:
-          object_reference:
-            identifier: blah
+          main_table_expression:
+            table_reference:
+              identifier: blah
+

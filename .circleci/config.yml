@@ -16,13 +16,13 @@ common: &common
     # https://support.circleci.com/hc/en-us/articles/115015426888-Clear-project-cache
     - restore_cache:
         keys:
-          - v3-deps-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}-{{ checksum "requirements.txt" }}
+          - v3-deps-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements_dev.txt" }}
     - run:
         name: install dependencies
         command: pip install --user tox
     - run:
         name: run tox
-        command: ~/.local/bin/tox
+        command: ~/.local/bin/tox -- $TOX_ARGS
     - run:
         name: upload coverage report
         command: |
@@ -45,12 +45,11 @@ common: &common
           - ~/.cache/pip
           - ~/.local
           - ./eggs
-        key: v3-deps-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}-{{ checksum "requirements.txt" }}
-    # Store test reports for circle
-    - store_test_results:
-        path: .test-reports
-    - store_artifacts:
-        path: .test-reports
+        key: v3-deps-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements_dev.txt" }}
+    # Don't store test reports for circle.
+    # According to https://discuss.circleci.com/t/junit-xml-results-from-pytest-are-not-captured-in-the-projects-insights/28673
+    # the store_test_results argument is only available for paid plans. As such this
+    # is not included.
 
 ### JOBS
 jobs:
@@ -68,12 +67,6 @@ jobs:
         environment:
           - TOXENV=doclinting
           - UPLOAD_COVERAGE=0
-  py35:
-    <<: *common
-    docker:
-      - image: circleci/python:3.5
-        environment:
-          TOXENV=py35
   py36:
     <<: *common
     docker:
@@ -95,7 +88,7 @@ jobs:
   py39:
     <<: *common
     docker:
-      - image: circleci/python:3.9-rc
+      - image: circleci/python:3.9
         environment:
           TOXENV=py39
   # Benchmarking task
@@ -105,6 +98,26 @@ jobs:
       - image: circleci/python:3.8
         environment:
           TOXENV=bench
+  mypy:
+    <<: *common
+    docker:
+      - image: circleci/python:3.9
+        environment:
+          TOXENV=mypy
+  dbt017-py38:
+    <<: *common
+    docker:
+      - image: circleci/python:3.8
+        environment:
+          - TOXENV=dbt017-py38
+          - TOX_ARGS=-m dbt
+  dbt018-py38:
+    <<: *common
+    docker:
+      - image: circleci/python:3.8
+        environment:
+          - TOXENV=dbt018-py38
+          - TOX_ARGS=-m dbt
 
 
 ### Workflows which call the different tox jobs
@@ -114,9 +127,11 @@ workflows:
     jobs:
       - linting
       - doclinting
-      - py35
+      - mypy
       - py36
       - py37
       - py38
       - py39
+      - dbt017-py38
+      - dbt018-py38
       - bench
