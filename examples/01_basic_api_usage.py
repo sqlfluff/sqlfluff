@@ -7,7 +7,7 @@ import sqlfluff
 my_bad_query = "SeLEct  *, 1, blah as  fOO  from myTable"
 
 # Lint the given string and get a list of violations found.
-result = sqlfluff.lint(my_bad_query, dialect="bigquery", fix=False)
+result = sqlfluff.lint(my_bad_query, dialect="bigquery")
 
 # result =
 # [
