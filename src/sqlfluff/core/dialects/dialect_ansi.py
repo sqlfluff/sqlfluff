@@ -650,8 +650,8 @@ class OverClauseSegment(BaseSegment):
             Ref("SingleIdentifierGrammar"),  # Window name
             Bracketed(
                 Ref("WindowSpecificationSegment"),
-            )
-        )
+            ),
+        ),
     )
 
 
