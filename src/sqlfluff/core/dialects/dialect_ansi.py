@@ -751,7 +751,7 @@ class AliasInfo(NamedTuple):
     ref_str: str  # Name given to the alias
     segment: BaseSegment  # Identifier segment containing the name
     aliased: bool
-    #alias_expression: BaseSegment  # Segment w/name and optional "AS"
+    alias_expression: Optional[BaseSegment]
 
 
 @ansi_dialect.segment()
@@ -782,7 +782,7 @@ class TableExpressionSegment(BaseSegment):
         if alias_expression:
             # If it has an alias, return that
             segment = alias_expression.get_child("identifier")
-            return AliasInfo(segment.raw, segment, True)
+            return AliasInfo(segment.raw, segment, True, alias_expression)
 
         # If not return the object name (or None if there isn't one)
         # ref = self.get_child("object_reference")
@@ -791,7 +791,7 @@ class TableExpressionSegment(BaseSegment):
             # Return the last element of the reference, which
             # will already be a tuple.
             penultimate_ref = list(ref.iter_raw_references())[-1]
-            return AliasInfo(*penultimate_ref, False)
+            return AliasInfo(penultimate_ref[0], penultimate_ref[1], False, None)
         # No references or alias, return None
         return None
 
