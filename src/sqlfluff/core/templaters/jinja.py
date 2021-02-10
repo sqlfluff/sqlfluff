@@ -296,10 +296,16 @@ class JinjaTemplater(PythonTemplater):
         env = cls._get_jinja_env()
         str_buff = ""
         idx = 0
+        # We decide the "kind" of element we're dealing with
+        # using it's _closing_ tag rather than it's opening
+        # tag. The types here map back to similar types of
+        # sections in the python slicer.
         block_types = {
             "variable_end": "templated",
             "block_end": "block",
             "comment_end": "comment",
+            # Raw tags should behave like blocks
+            "raw_end": "block",
         }
         # https://jinja.palletsprojects.com/en/2.11.x/api/#jinja2.Environment.lex
         for _, elem_type, raw in env.lex(in_str):
