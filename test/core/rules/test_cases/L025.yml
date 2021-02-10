@@ -26,3 +26,7 @@ test_4:
   # Similar to test_1, but with implicit alias.
   fail_str: SELECT * FROM my_tbl foo
   fix_str: SELECT * FROM my_tbl
+
+test_5:
+  fail_str: select * from (select 1 as a) subquery
+  fix_str: select * from (select 1 as a)
