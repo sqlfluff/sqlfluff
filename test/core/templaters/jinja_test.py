@@ -86,6 +86,8 @@ def assert_structure(yaml_loader, path, code_only=True):
         # Macro loading from a folder
         ("jinja_g_macros/jinja", True),
         ("jinja_h_macros/jinja", True),
+        # Library Loading from a folder
+        ("jinja_i_libraries/jinja", True),
     ],
 )
 def test__templater_full(subpath, code_only, yaml_loader, caplog):
