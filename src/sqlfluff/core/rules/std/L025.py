@@ -1,8 +1,9 @@
 """Implementation of Rule L025."""
 
-from ..base import LintResult
+from ..base import LintFix, LintResult
 from sqlfluff.core.rules.std.L020 import Rule_L020
 from sqlfluff.core.dialects.dialect_ansi import AliasInfo
+
 
 class Rule_L025(Rule_L020):
     """Tables should not be aliased if that alias is not used.
@@ -55,12 +56,30 @@ class Rule_L025(Rule_L020):
         alias: AliasInfo
         for alias in table_aliases:
             if alias.aliased and alias.ref_str not in tbl_refs:
+                fixes = [LintFix("delete", alias.alias_expression)]
+                found_alias_segment = False
+                # Walk back to remove indents/whitespaces
+                for segment in reversed(alias.table_expression.segments):
+                    if not found_alias_segment:
+                        if segment is alias.alias_expression:
+                            found_alias_segment = True
+                    else:
+                        if (
+                            segment.name == "whitespace"
+                            or segment.name == "newline"
+                            or segment.is_meta
+                        ):
+                            fixes.append(LintFix("delete", segment))
+                        else:
+                            # Stop once we reach an other, "regular" segment.
+                            break
                 violation_buff.append(
                     LintResult(
                         anchor=alias.segment,
                         description="Alias {0!r} is never used in SELECT statement.".format(
                             alias.ref_str
                         ),
+                        fixes=fixes,
                     )
                 )
         return violation_buff or None
