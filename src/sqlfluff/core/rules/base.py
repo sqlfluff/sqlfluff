@@ -464,7 +464,6 @@ class RuleSet:
         Config options can also be checked for a specific rule e.g L010.
         """
         rule_config = config.get_section("rules")
-        #from icecream import ic
         for config_name, info_dict in self.config_info.items():
             config_option = (
                 rule_config.get(config_name)

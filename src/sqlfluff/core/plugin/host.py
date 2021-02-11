@@ -8,5 +8,4 @@ def get_plugin_manager() -> pluggy.PluginManager:
     pm = pluggy.PluginManager(plugin_base_name)
     pm.add_hookspecs(PluginSpec)
     pm.load_setuptools_entrypoints(project_name)
-    #pm.register(Plugin())
     return pm
