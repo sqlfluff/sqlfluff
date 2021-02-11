@@ -3,9 +3,15 @@
 ### https://circleci.com/docs/config-sample
 ### =============================================================
 
-version: 2
+version: 2.1
+
+# Enable the windows orb for windows testing
+orbs:
+  win: circleci/windows@2.2.0
 
 ### COMMON CONFIG FOR ALL JOBS
+# Note that this includes the windows build (in a bash shell).
+# These commands have been designed to be cross compatible.
 common: &common
   steps:
     - checkout
@@ -19,21 +25,21 @@ common: &common
           - v3-deps-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements_dev.txt" }}
     - run:
         name: install dependencies
-        command: pip install --user tox
+        command: pip install tox
     - run:
         name: run tox
-        command: ~/.local/bin/tox -- $TOX_ARGS
+        command: python -m tox -- $TOX_ARGS
     - run:
         name: upload coverage report
         command: |
           if [[ "$UPLOAD_COVERAGE" != 0 ]]; then
-            pip install --user codecov
+            pip install codecov
             # Retry upload until success (sometimes we get a timeout)
             n=0
             until [ $n -ge 5 ]
             do
               # The break at the end means if the command succeeds then we break out of the loop.
-              ~/.local/bin/codecov --required -X search gcov pycov -f coverage.xml --flags $CIRCLE_JOB && break
+              codecov --required -X search gcov pycov -f coverage.xml --flags $CIRCLE_JOB && break
               n=$[$n+1]
               sleep 5
             done
@@ -58,67 +64,76 @@ jobs:
     docker:
       - image: circleci/python:3.6
         environment:
-          - TOXENV=linting
-          - UPLOAD_COVERAGE=0
+          TOXENV: linting
+          UPLOAD_COVERAGE: 0
   doclinting:
     <<: *common
     docker:
       - image: circleci/python:3.6
         environment:
-          - TOXENV=doclinting
-          - UPLOAD_COVERAGE=0
+          TOXENV: doclinting
+          UPLOAD_COVERAGE: 0
   py36:
     <<: *common
     docker:
       - image: circleci/python:3.6
         environment:
-          TOXENV=py36
+          TOXENV: py36
   py37:
     <<: *common
     docker:
       - image: circleci/python:3.7
         environment:
-          TOXENV=py37
+          TOXENV: py37
   py38:
     <<: *common
     docker:
       - image: circleci/python:3.8
         environment:
-          TOXENV=py38
+          TOXENV: py38
   py39:
     <<: *common
     docker:
       - image: circleci/python:3.9
         environment:
-          TOXENV=py39
+          TOXENV: py39
   # Benchmarking task
   bench:
     <<: *common
     docker:
       - image: circleci/python:3.8
         environment:
-          TOXENV=bench
+          TOXENV: bench
   mypy:
     <<: *common
     docker:
       - image: circleci/python:3.9
         environment:
-          TOXENV=mypy
+          TOXENV: mypy
   dbt017-py38:
     <<: *common
     docker:
       - image: circleci/python:3.8
         environment:
-          - TOXENV=dbt017-py38
-          - TOX_ARGS=-m dbt
+          TOXENV: dbt017-py38
+          TOX_ARGS: -m dbt
   dbt018-py38:
     <<: *common
     docker:
       - image: circleci/python:3.8
         environment:
-          - TOXENV=dbt018-py38
-          - TOX_ARGS=-m dbt
-
+          TOXENV: dbt018-py38
+          TOX_ARGS: -m dbt
+  win-py37:
+    # NB: The default python installation on the circleci
+    # windows VM is python 3.7.3.
+    # https://circleci.com/docs/2.0/hello-world-windows/#software-pre-installed-in-the-windows-image
+    <<: *common
+    executor:
+      name: win/default
+      shell: bash.exe
+    environment:
+      TOXENV: py37
 
 ### Workflows which call the different tox jobs
 workflows:
@@ -134,4 +149,5 @@ workflows:
       - py39
       - dbt017-py38
       - dbt018-py38
+      - win-py37
       - bench
