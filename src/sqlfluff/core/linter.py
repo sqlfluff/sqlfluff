@@ -982,18 +982,25 @@ class Linter:
         if loop + 1 == loop_limit:
             linter_logger.warning(f"Loop limit on fixes reached [{loop_limit}].")
 
-        source_only_linting_errors = self.remove_templated_errors(
-            initial_linting_errors
-        )
+        if config.get("ignore_templated_areas", default=True):
+            source_only_linting_errors = self.remove_templated_errors(
+                initial_linting_errors
+            )
 
         return tree, source_only_linting_errors
 
     def remove_templated_errors(
-        self, initial_linting_errors: List[SQLLintError]
+        self, linting_errors: List[SQLLintError]
     ) -> List[SQLLintError]:
         """Filter a list of lint errors, removing those which only occur in templated slices."""
-        # TODO
-        return initial_linting_errors
+        # Filter out any linting errors in templated sections if relevant.
+        linting_errors = list(
+            filter(
+                lambda e: getattr(e.segment.pos_marker, "is_literal", True),
+                linting_errors,
+            )
+        )
+        return linting_errors
 
     def fix(
         self, tree: BaseSegment, config: Optional[FluffConfig] = None

@@ -1,7 +1,7 @@
 # Ignore IDE files
 .vscode
 .idea
-.sqlfluff
+/.sqlfluff
 
 # Ignore Python cache and prebuilt things
 .cache

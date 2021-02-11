@@ -75,6 +75,13 @@ class DbtTemplater(JinjaTemplater):
         def identity(x):
             return x
 
+        # Set dbt not to run tracking. We don't load
+        # a dull project and so some tracking routines
+        # may fail.
+        from dbt.tracking import do_not_track
+
+        do_not_track()
+
         if "0.17" in self.dbt_version:
             from dbt.parser.manifest import (
                 load_internal_manifest as load_macro_manifest,
@@ -193,6 +200,9 @@ class DbtTemplater(JinjaTemplater):
                     f"to skip the database calls. Error: {e.msg}"
                 )
             ]
+        # If a SQLFluff error is raised, just pass it through
+        except SQLTemplaterError as e:
+            return None, [e]
 
     def _unsafe_process(self, fname, in_str=None, config=None):
         if not config:
@@ -224,11 +234,17 @@ class DbtTemplater(JinjaTemplater):
             manifest=self.dbt_manifest,
         )
 
-        raw_sliced, sliced_file = self.slice_file(node.raw_sql, node.injected_sql)
+        if not node.compiled_sql:
+            raise SQLTemplaterError(
+                "dbt templater compilation failed silently, check your configuration "
+                "by running `dbt compile` directly."
+            )
+
+        raw_sliced, sliced_file = self.slice_file(node.raw_sql, node.compiled_sql)
         return (
             TemplatedFile(
                 source_str=node.raw_sql,
-                templated_str=node.injected_sql,
+                templated_str=node.compiled_sql,
                 fname=fname,
                 sliced_file=sliced_file,
                 raw_sliced=raw_sliced,

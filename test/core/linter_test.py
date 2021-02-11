@@ -180,7 +180,8 @@ def test__linter__linting_unexpected_error_handled_gracefully(
     lntr.lint_paths(["test/fixtures/linter/passing.sql"])
     assert (
         "Unable to lint test/fixtures/linter/passing.sql due to an internal error."
-        in patched_logger.warning.call_args[0][0]
+        # NB: Replace is to handle windows-style paths.
+        in patched_logger.warning.call_args[0][0].replace("\\", "/")
         and "Exception: Something unexpected happened"
         in patched_logger.warning.call_args[0][0]
     )
@@ -201,3 +202,34 @@ def test__linter__empty_file():
     # Make sure no exceptions raised and no violations found in empty file.
     parsed = lntr.parse_string("")
     assert not parsed.violations
+
+
+@pytest.mark.parametrize(
+    "ignore_templated_areas,check_tuples",
+    [
+        (True, [("L006", 3, 27), ("L006", 3, 28)]),
+        (
+            False,
+            [
+                ("L006", 3, 17),
+                ("L006", 3, 18),
+                ("L006", 3, 19),
+                ("L006", 3, 20),
+                ("L006", 3, 27),
+                ("L006", 3, 28),
+            ],
+        ),
+    ],
+)
+def test__linter__mask_templated_violations(ignore_templated_areas, check_tuples):
+    """Test linter masks files properly around templated content."""
+    lntr = Linter(
+        config=FluffConfig(
+            overrides={
+                "rules": "L006",
+                "ignore_templated_areas": ignore_templated_areas,
+            }
+        )
+    )
+    linted = lntr.lint_path(path="test/fixtures/templater/jinja_h_macros/jinja.sql")
+    assert linted.check_tuples() == check_tuples
