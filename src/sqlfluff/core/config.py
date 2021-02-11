@@ -445,9 +445,11 @@ class FluffConfig:
         """
         return dict_diff(self._configs, other._configs)
 
-    def get(self, val: str, section: Union[str, Iterable[str]] = "core"):
+    def get(
+        self, val: str, section: Union[str, Iterable[str]] = "core", default: Any = None
+    ):
         """Get a particular value from the config."""
-        return self._configs[section].get(val, None)
+        return self._configs[section].get(val, default)
 
     def get_section(self, section: Union[str, Iterable[str]]) -> Union[dict, None]:
         """Return a whole section of config as a dict.
