@@ -1,10 +1,12 @@
 """Implementation of Rule L025."""
 
 from ..base import LintFix, LintResult
+from ..doc_decorators import document_fix_compatible
 from sqlfluff.core.rules.std.L020 import Rule_L020
 from sqlfluff.core.dialects.dialect_ansi import AliasInfo
 
 
+@document_fix_compatible
 class Rule_L025(Rule_L020):
     """Tables should not be aliased if that alias is not used.
 
