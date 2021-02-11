@@ -6,7 +6,7 @@ import pytest
 from sqlfluff.core import Linter
 from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.rules.base import BaseCrawler, LintResult, LintFix
-from sqlfluff.core.rules import std_rule_set
+from sqlfluff.core.rules import get_ruleset
 from sqlfluff.core.rules.doc_decorators import document_configuration
 from sqlfluff.core.config import FluffConfig
 
@@ -31,10 +31,10 @@ class RuleTestCase(NamedTuple):
 
 def get_rule_from_set(code, config):
     """Fetch a rule from the rule set."""
-    for r in std_rule_set.get_rulelist(config=config):
+    for r in get_ruleset().get_rulelist(config=config):
         if r.code == code:
             return r
-    raise ValueError("{0!r} not in {1!r}".format(code, std_rule_set))
+    raise ValueError("{0!r} not in {1!r}".format(code, get_ruleset()))
 
 
 def assert_rule_fail_in_sql(code, sql, configs=None):
@@ -287,7 +287,7 @@ def test_improper_configs_are_rejected(rule_config_dict):
     """Ensure that unsupported configs raise a ValueError."""
     config = FluffConfig(configs={"rules": rule_config_dict})
     with pytest.raises(ValueError):
-        std_rule_set.get_rulelist(config)
+        get_ruleset().get_rulelist(config)
 
 
 def test_rules_cannot_be_instantiated_without_declared_configs():
@@ -327,6 +327,8 @@ def test_rules_configs_are_dynamically_documented():
 
 def test_rule_exception_is_caught_to_validation():
     """Assert that a rule that throws an exception on _eval returns it as a validation."""
+
+    std_rule_set = get_ruleset()
 
     @std_rule_set.register
     class Rule_LXXX(BaseCrawler):
