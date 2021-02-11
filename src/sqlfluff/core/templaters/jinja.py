@@ -321,7 +321,7 @@ class JinjaTemplater(PythonTemplater):
             # raw_end and raw_begin behave a little differently in
             # that the whole tag shows up in one go rather than getting
             # parts of the tag at a time.
-            if elem_type.endswith("_end") or elem_type == 'raw_begin':
+            if elem_type.endswith("_end") or elem_type == "raw_begin":
                 block_type = block_types[elem_type]
                 # Handle starts and ends of blocks
                 if block_type == "block":
