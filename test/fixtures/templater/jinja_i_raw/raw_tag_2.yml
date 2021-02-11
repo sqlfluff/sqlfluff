@@ -12,10 +12,10 @@ file:
                   column_reference:
                     identifier: note_text
               - end_bracket: ")"
-            - keyword: not
-            - keyword: like
+            - keyword: NOT
+            - keyword: LIKE
             - literal: "'%daycare: {%'"
-            - binary_operator: and
+            - binary_operator: AND
             - function:
               - function_name: lower
               - start_bracket: "("
@@ -23,10 +23,10 @@ file:
                   column_reference:
                     identifier: note_text
               - end_bracket: ")"
-            - keyword: not
-            - keyword: like
+            - keyword: NOT
+            - keyword: LIKE
             - literal: "'%grade/ school name:  {%'"
-            - binary_operator: and
+            - binary_operator: AND
             - function:
               - function_name: lower
               - start_bracket: "("
@@ -34,11 +34,11 @@ file:
                   column_reference:
                     identifier: note_text
               - end_bracket: ")"
-            - keyword: not
-            - keyword: like
+            - keyword: NOT
+            - keyword: LIKE
             - literal: "'%social history:  {%'"
           - alias_expression:
-              keyword: as
+              keyword: AS
               identifier: foo
       from_clause:
         keyword: FROM
