@@ -79,6 +79,7 @@ class DbtTemplater(JinjaTemplater):
         # a dull project and so some tracking routines
         # may fail.
         from dbt.tracking import do_not_track
+
         do_not_track()
 
         if "0.17" in self.dbt_version:
