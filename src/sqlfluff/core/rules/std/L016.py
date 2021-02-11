@@ -1,8 +1,8 @@
 """Implementation of Rule L016."""
 
 
-from ..base import LintFix, LintResult
-from ..doc_decorators import (
+from src.sqlfluff.core.rules.base import LintFix, LintResult
+from src.sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_configuration,
 )

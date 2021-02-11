@@ -2,7 +2,7 @@
 
 # flake8: noqa: F401
 
-from .segments import (
+from src.sqlfluff.core.parser.segments import (
     BaseSegment,
     RawSegment,
     KeywordSegment,
@@ -13,7 +13,7 @@ from .segments import (
     Dedent,
     SegmentGenerator,
 )
-from .grammar import (
+from src.sqlfluff.core.parser.grammar import (
     Sequence,
     GreedyUntil,
     StartsWith,
@@ -25,7 +25,7 @@ from .grammar import (
     Anything,
     Nothing,
 )
-from .markers import FilePositionMarker
-from .lexer import Lexer
-from .parser import Parser
-from .matchable import Matchable
+from src.sqlfluff.core.parser.markers import FilePositionMarker
+from src.sqlfluff.core.parser.lexer import Lexer
+from src.sqlfluff.core.parser.parser import Parser
+from src.sqlfluff.core.parser.matchable import Matchable

@@ -2,7 +2,7 @@
 
 import itertools
 
-from ..base import BaseCrawler, LintResult
+from src.sqlfluff.core.rules.base import BaseCrawler, LintResult
 
 
 class Rule_L020(BaseCrawler):

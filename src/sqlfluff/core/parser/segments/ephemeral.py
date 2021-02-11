@@ -1,6 +1,6 @@
 """Ephemeral segment definitions."""
 
-from .base import BaseSegment
+from src.sqlfluff.core.parser.segments.base import BaseSegment
 
 
 class EphemeralSegment(BaseSegment):

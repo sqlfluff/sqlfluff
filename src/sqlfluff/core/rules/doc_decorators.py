@@ -1,7 +1,7 @@
 """A collection of decorators to modify rule docstrings for Sphinx."""
 
-from .config_info import STANDARD_CONFIG_INFO_DICT
-from .base import rules_logger  # noqa
+from src.sqlfluff.core.rules.config_info import STANDARD_CONFIG_INFO_DICT
+from src.sqlfluff.core.rules.base import rules_logger  # noqa
 
 
 def document_fix_compatible(cls):

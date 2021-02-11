@@ -5,8 +5,8 @@ from typing import List, Optional, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from .context import ParseContext
-    from .match_result import MatchResult
+    from src.sqlfluff.core.parser.context import ParseContext
+    from src.sqlfluff.core.parser.match_result import MatchResult
 
 
 class Matchable(ABC):

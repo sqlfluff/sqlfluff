@@ -1,9 +1,9 @@
 """Indent and Dedent classes."""
 
-from ..match_wrapper import match_wrapper
-from ..markers import FilePositionMarker
+from src.sqlfluff.core.parser.match_wrapper import match_wrapper
+from src.sqlfluff.core.parser.markers import FilePositionMarker
 
-from .raw import RawSegment
+from src.sqlfluff.core.parser.segments.raw import RawSegment
 
 
 class MetaSegment(RawSegment):

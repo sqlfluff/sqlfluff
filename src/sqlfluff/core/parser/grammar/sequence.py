@@ -2,15 +2,15 @@
 
 from typing import Optional, List, Tuple
 
-from ...errors import SQLParseError
+from src.sqlfluff.core.errors import SQLParseError
 
-from ..segments import BaseSegment, Indent, Dedent
-from ..helpers import trim_non_code_segments, check_still_complete
-from ..match_result import MatchResult
-from ..match_wrapper import match_wrapper
-from ..context import ParseContext
+from src.sqlfluff.core.parser.segments import BaseSegment, Indent, Dedent
+from src.sqlfluff.core.parser.helpers import trim_non_code_segments, check_still_complete
+from src.sqlfluff.core.parser.match_result import MatchResult
+from src.sqlfluff.core.parser.match_wrapper import match_wrapper
+from src.sqlfluff.core.parser.context import ParseContext
 
-from .base import BaseGrammar, cached_method_for_parse_context
+from src.sqlfluff.core.parser.grammar.base import BaseGrammar, cached_method_for_parse_context
 
 
 class Sequence(BaseGrammar):

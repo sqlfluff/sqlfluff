@@ -4,7 +4,7 @@ This is designed to be the root segment, without
 any children, and the output of the lexer.
 """
 
-from .base import BaseSegment
+from src.sqlfluff.core.parser.segments.base import BaseSegment
 
 
 class RawSegment(BaseSegment):

@@ -1,6 +1,6 @@
 """Implementation of Rule L032."""
 
-from ..base import BaseCrawler, LintResult
+from src.sqlfluff.core.rules.base import BaseCrawler, LintResult
 
 
 class Rule_L032(BaseCrawler):

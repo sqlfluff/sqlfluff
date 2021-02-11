@@ -1,6 +1,6 @@
 """Implementation of Rule L027."""
 
-from ..base import LintResult
+from src.sqlfluff.core.rules.base import LintResult
 from sqlfluff.core.rules.std.L025 import Rule_L025
 
 

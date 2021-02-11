@@ -23,24 +23,24 @@ from typing_extensions import Literal
 from benchit import BenchIt
 import pathspec
 
-from .errors import (
+from src.sqlfluff.core.errors import (
     SQLBaseError,
     SQLLexError,
     SQLLintError,
     SQLParseError,
     CheckTuple,
 )
-from .parser import Lexer, Parser
-from .string_helpers import findall
-from .templaters import TemplatedFile
-from .rules import get_ruleset
-from .config import FluffConfig, ConfigLoader
+from src.sqlfluff.core.parser import Lexer, Parser
+from src.sqlfluff.core.string_helpers import findall
+from src.sqlfluff.core.templaters import TemplatedFile
+from src.sqlfluff.core.rules import get_ruleset
+from src.sqlfluff.core.config import FluffConfig, ConfigLoader
 
 # Classes needed only for type checking
-from .parser.segments.base import BaseSegment, FixPatch
-from .parser.segments.indent import MetaSegment
-from .parser.segments.raw import RawSegment
-from .rules.base import BaseCrawler
+from src.sqlfluff.core.parser.segments.base import BaseSegment, FixPatch
+from src.sqlfluff.core.parser.segments.indent import MetaSegment
+from src.sqlfluff.core.parser.segments.raw import RawSegment
+from src.sqlfluff.core.rules.base import BaseCrawler
 
 # Instantiate the linter logger
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")

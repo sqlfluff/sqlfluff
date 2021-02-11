@@ -2,8 +2,8 @@
 
 from typing import Dict, Any
 
-from ..base import BaseCrawler, LintFix, LintResult
-from ..doc_decorators import (
+from src.sqlfluff.core.rules.base import BaseCrawler, LintFix, LintResult
+from src.sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_configuration,
 )

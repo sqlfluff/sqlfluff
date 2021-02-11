@@ -1,6 +1,6 @@
 """Classes to help with match logging."""
 
-from .helpers import join_segments_raw_curtailed
+from src.sqlfluff.core.parser.helpers import join_segments_raw_curtailed
 
 
 class LateLoggingObject(object):

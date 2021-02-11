@@ -1,8 +1,8 @@
 """Register all the rule classes with their corresponding rulesets (just std currently)."""
 
-from .base import RuleSet
-from .config_info import STANDARD_CONFIG_INFO_DICT
-from .std import rules as std_rules  # Import the standard ruleset list
+from src.sqlfluff.core.rules.base import RuleSet
+from src.sqlfluff.core.rules.config_info import STANDARD_CONFIG_INFO_DICT
+from src.sqlfluff.core.rules.std import rules as std_rules  # Import the standard ruleset list
 
 
 std_rule_set = RuleSet(name="standard", config_info=STANDARD_CONFIG_INFO_DICT)

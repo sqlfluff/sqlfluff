@@ -8,10 +8,10 @@ from dataclasses import dataclass
 from cached_property import cached_property
 from functools import partial
 
-from ..errors import SQLTemplaterError
+from src.sqlfluff.core.errors import SQLTemplaterError
 
-from .base import register_templater, TemplatedFile
-from .jinja import JinjaTemplater
+from src.sqlfluff.core.templaters.base import register_templater, TemplatedFile
+from src.sqlfluff.core.templaters.jinja import JinjaTemplater
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")

@@ -2,11 +2,11 @@
 
 from typing import Optional, Tuple, TYPE_CHECKING
 
-from .context import RootParseContext
-from ..config import FluffConfig
+from src.sqlfluff.core.parser.context import RootParseContext
+from src.sqlfluff.core.config import FluffConfig
 
 if TYPE_CHECKING:
-    from .segments import BaseSegment
+    from src.sqlfluff.core.parser.segments import BaseSegment
 
 
 class Parser:

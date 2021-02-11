@@ -5,7 +5,7 @@ import sys
 import textwrap
 from colorama import Fore, Style
 
-from .. import __version__ as pkg_version
+from src.sqlfluff import __version__ as pkg_version
 
 
 color_lookup = {

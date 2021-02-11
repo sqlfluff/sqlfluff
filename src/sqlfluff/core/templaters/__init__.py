@@ -2,11 +2,11 @@
 
 # flake8: noqa: F401
 
-from .base import templater_selector, TemplatedFile
+from src.sqlfluff.core.templaters.base import templater_selector, TemplatedFile
 
 # Although these shouldn't usually be instantiated from here
 # we import them to make sure they get registered.
-from .base import RawTemplater
-from .jinja import JinjaTemplater
-from .python import PythonTemplater
-from .dbt import DbtTemplater
+from src.sqlfluff.core.templaters.base import RawTemplater
+from src.sqlfluff.core.templaters.jinja import JinjaTemplater
+from src.sqlfluff.core.templaters.python import PythonTemplater
+from src.sqlfluff.core.templaters.dbt import DbtTemplater

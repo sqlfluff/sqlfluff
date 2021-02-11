@@ -2,12 +2,12 @@
 
 from typing import Optional, List
 
-from ..helpers import trim_non_code_segments
-from ..match_result import MatchResult
-from ..match_wrapper import match_wrapper
-from ..context import ParseContext
+from src.sqlfluff.core.parser.helpers import trim_non_code_segments
+from src.sqlfluff.core.parser.match_result import MatchResult
+from src.sqlfluff.core.parser.match_wrapper import match_wrapper
+from src.sqlfluff.core.parser.context import ParseContext
 
-from .base import BaseGrammar, cached_method_for_parse_context
+from src.sqlfluff.core.parser.grammar.base import BaseGrammar, cached_method_for_parse_context
 
 
 class GreedyUntil(BaseGrammar):

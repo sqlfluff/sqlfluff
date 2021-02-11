@@ -12,7 +12,7 @@ grammar. Check out their docs, they're awesome.
 https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 """
 
-from ..parser import (
+from src.sqlfluff.core.parser import (
     Matchable,
     BaseSegment,
     KeywordSegment,
@@ -34,8 +34,8 @@ from ..parser import (
     Nothing,
 )
 
-from .base import Dialect
-from .ansi_keywords import ansi_reserved_keywords, ansi_unreserved_keywords
+from src.sqlfluff.core.dialects.base import Dialect
+from src.sqlfluff.core.dialects.ansi_keywords import ansi_reserved_keywords, ansi_unreserved_keywords
 
 
 ansi_dialect = Dialect("ansi", root_segment_name="FileSegment")

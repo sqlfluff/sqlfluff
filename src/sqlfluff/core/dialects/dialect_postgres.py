@@ -1,6 +1,6 @@
 """The PostgreSQL dialect."""
 
-from ..parser import (
+from src.sqlfluff.core.parser import (
     OneOf,
     Ref,
     Sequence,
@@ -11,7 +11,7 @@ from ..parser import (
     Delimited,
 )
 
-from .dialect_ansi import ansi_dialect
+from src.sqlfluff.core.dialects.dialect_ansi import ansi_dialect
 
 # At the moment this is just a placeholder. Unique syntax to be added later.
 postgres_dialect = ansi_dialect.copy_as("postgres")

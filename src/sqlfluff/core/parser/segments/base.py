@@ -15,21 +15,21 @@ from cached_property import cached_property
 from typing import Optional, List, Tuple, NamedTuple, Iterator
 import logging
 
-from ...string_helpers import (
+from src.sqlfluff.core.string_helpers import (
     frame_msg,
     curtail_string,
 )
 
-from ..match_result import MatchResult
-from ..match_logging import parse_match_logging
-from ..match_wrapper import match_wrapper
-from ..helpers import (
+from src.sqlfluff.core.parser.match_result import MatchResult
+from src.sqlfluff.core.parser.match_logging import parse_match_logging
+from src.sqlfluff.core.parser.match_wrapper import match_wrapper
+from src.sqlfluff.core.parser.helpers import (
     check_still_complete,
     trim_non_code_segments,
 )
-from ..matchable import Matchable
-from ..markers import EnrichedFilePositionMarker
-from ..context import ParseContext
+from src.sqlfluff.core.parser.matchable import Matchable
+from src.sqlfluff.core.parser.markers import EnrichedFilePositionMarker
+from src.sqlfluff.core.parser.context import ParseContext
 
 # Instantiate the linter logger (only for use in methods involved with fixing.)
 linter_logger = logging.getLogger("sqlfluff.linter")

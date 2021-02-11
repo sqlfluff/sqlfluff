@@ -6,10 +6,10 @@ This should be the default response from any `match` method.
 from typing import Tuple, TYPE_CHECKING
 from collections import namedtuple
 
-from .helpers import join_segments_raw
+from src.sqlfluff.core.parser.helpers import join_segments_raw
 
 if TYPE_CHECKING:
-    from .segments import BaseSegment
+    from src.sqlfluff.core.parser.segments import BaseSegment
 
 
 def is_segment(other):

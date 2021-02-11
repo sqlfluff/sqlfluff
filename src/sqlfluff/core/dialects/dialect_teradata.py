@@ -8,8 +8,8 @@ Teradata Database SQL Data Definition Language Syntax and Examples
 
 """
 
-from .dialect_ansi import ansi_dialect
-from ..parser import (
+from src.sqlfluff.core.dialects.dialect_ansi import ansi_dialect
+from src.sqlfluff.core.parser import (
     BaseSegment,
     Sequence,
     GreedyUntil,

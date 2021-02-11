@@ -8,11 +8,11 @@ from jinja2.sandbox import SandboxedEnvironment
 from jinja2 import meta, TemplateSyntaxError, TemplateError
 import jinja2.nodes
 
-from ..errors import SQLTemplaterError
-from ..parser import FilePositionMarker
+from src.sqlfluff.core.errors import SQLTemplaterError
+from src.sqlfluff.core.parser import FilePositionMarker
 
-from .base import register_templater, TemplatedFile, RawFileSlice
-from .python import PythonTemplater
+from src.sqlfluff.core.templaters.base import register_templater, TemplatedFile, RawFileSlice
+from src.sqlfluff.core.templaters.python import PythonTemplater
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")

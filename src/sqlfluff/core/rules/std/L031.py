@@ -1,7 +1,7 @@
 """Implementation of Rule L031."""
 
-from ..base import BaseCrawler, LintFix, LintResult
-from ..doc_decorators import document_fix_compatible
+from src.sqlfluff.core.rules.base import BaseCrawler, LintFix, LintResult
+from src.sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
 @document_fix_compatible

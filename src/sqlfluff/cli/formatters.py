@@ -3,7 +3,7 @@
 
 from io import StringIO
 
-from .helpers import (
+from src.sqlfluff.cli.helpers import (
     colorize,
     cli_table,
     get_package_version,
@@ -11,7 +11,7 @@ from .helpers import (
     pad_line,
 )
 
-from ..core import SQLBaseError
+from src.sqlfluff.core import SQLBaseError
 
 
 def format_filename(filename, success=False, success_text="PASS"):

@@ -2,12 +2,12 @@
 
 # flake8: noqa: F401
 
-from .base import BaseSegment, UnparsableSegment
-from .generator import SegmentGenerator
-from .raw import RawSegment
-from .ephemeral import EphemeralSegment
-from .indent import Indent, Dedent, TemplateSegment
-from .keyword import (
+from src.sqlfluff.core.parser.segments.base import BaseSegment, UnparsableSegment
+from src.sqlfluff.core.parser.segments.generator import SegmentGenerator
+from src.sqlfluff.core.parser.segments.raw import RawSegment
+from src.sqlfluff.core.parser.segments.ephemeral import EphemeralSegment
+from src.sqlfluff.core.parser.segments.indent import Indent, Dedent, TemplateSegment
+from src.sqlfluff.core.parser.segments.keyword import (
     KeywordSegment,
     SymbolSegment,
     ReSegment,

@@ -5,7 +5,7 @@ from glob import glob
 import pytest
 import oyaml as yaml
 
-from .std_test import rules__test_helper, RuleTestCase
+from test.core.rules.std_test import rules__test_helper, RuleTestCase
 
 ids = []
 test_cases = []
