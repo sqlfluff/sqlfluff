@@ -221,7 +221,7 @@ def test__linter__empty_file():
         ),
     ],
 )
-def test__linter__mast_templated_violations(ignore_templated_areas, check_tuples):
+def test__linter__mask_templated_violations(ignore_templated_areas, check_tuples):
     """Test linter masks files properly around templated content."""
     lntr = Linter(
         config=FluffConfig(
