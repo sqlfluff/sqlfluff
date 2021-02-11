@@ -2,7 +2,7 @@
 import sys
 
 # Expose the public API.
-from .api import lint, fix, parse  # noqa: F401
+from src.sqlfluff.api import lint, fix, parse  # noqa: F401
 
 # Check major python version
 if sys.version_info[0] < 3:
