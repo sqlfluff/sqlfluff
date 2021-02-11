@@ -180,7 +180,8 @@ def test__linter__linting_unexpected_error_handled_gracefully(
     lntr.lint_paths(["test/fixtures/linter/passing.sql"])
     assert (
         "Unable to lint test/fixtures/linter/passing.sql due to an internal error."
-        in patched_logger.warning.call_args[0][0]
+        # NB: Replace is to handle windows-style paths.
+        in patched_logger.warning.call_args[0][0].replace("\\", "/")
         and "Exception: Something unexpected happened"
         in patched_logger.warning.call_args[0][0]
     )
