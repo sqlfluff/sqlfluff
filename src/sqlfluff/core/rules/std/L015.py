@@ -1,8 +1,10 @@
 """Implementation of Rule L015."""
 
 from ..base import BaseCrawler, LintFix, LintResult
+from ..doc_decorators import document_fix_compatible
 
 
+@document_fix_compatible
 class Rule_L015(BaseCrawler):
     """DISTINCT used with parentheses.
 
