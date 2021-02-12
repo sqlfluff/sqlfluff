@@ -53,6 +53,23 @@ common: &common
 
 ### JOBS
 jobs:
+  examples:
+    # Runs all the examples files to test that they succeed.
+    steps:
+      - checkout
+      - run:
+          name: Install sqlfluff
+          command: pip install -e .
+      - run:
+          name: Test examples file run successfully
+          command: |
+            for file in examples/*
+            do
+              echo "Running $file"
+              python "$file"
+            done
+    docker:
+      - image: circleci/python:3.8
   linting:
     <<: *common
     docker:
@@ -135,3 +152,4 @@ workflows:
       - dbt017-py38
       - dbt018-py38
       - bench
+      - examples
