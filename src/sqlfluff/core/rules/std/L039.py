@@ -1,9 +1,6 @@
 """Implementation of Rule L039."""
 
-from typing import NamedTuple, Optional, List
-
 from ..base import BaseCrawler, LintFix, LintResult
-from sqlfluff.core.parser import BaseSegment
 from ..doc_decorators import document_fix_compatible
 
 

@@ -22,16 +22,34 @@ lint_result = [
         "line_pos": 1,
     },
     {
+        "code": "L039",
+        "description": "Unnecessary whitespace found.",
+        "line_no": 1,
+        "line_pos": 7,
+    },
+    {
         "code": "L013",
         "line_no": 1,
         "line_pos": 12,
         "description": "Column expression without alias. Use explicit `AS` clause.",
     },
     {
+        "code": "L039",
+        "description": "Unnecessary whitespace found.",
+        "line_no": 1,
+        "line_pos": 22,
+    },
+    {
         "code": "L014",
         "line_no": 1,
         "line_pos": 24,
         "description": "Inconsistent capitalisation of unquoted identifiers.",
+    },
+    {
+        "code": "L039",
+        "description": "Unnecessary whitespace found.",
+        "line_no": 1,
+        "line_pos": 27,
     },
     {
         "code": "L009",
@@ -80,7 +98,7 @@ def test__api__fix_string():
     # Check return types.
     assert isinstance(result, str)
     # Check actual result
-    assert result == "SELECT  *, 1, blah AS  foo  FROM mytable\n"
+    assert result == "SELECT *, 1, blah AS foo FROM mytable\n"
 
 
 def test__api__fix_string_specific():
