@@ -65,6 +65,8 @@ jobs:
               echo "Running $file"
               python "$file"
             done
+    docker:
+      - image: circleci/python:3.8
   linting:
     <<: *common
     docker:
