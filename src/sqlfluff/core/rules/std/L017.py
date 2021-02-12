@@ -47,11 +47,21 @@ class Rule_L017(BaseCrawler):
                     break
 
             if bracket_idx != fname_idx + 1:
-                return LintResult(
-                    anchor=segment.segments[fname_idx + 1],
-                    fixes=[
-                        LintFix("delete", segment.segments[idx])
-                        for idx in range(fname_idx + 1, bracket_idx)
-                    ],
-                )
+                # It's only safe to fix if there is only whitespace
+                # or newlines in the intervening section.
+                intermediate_segments = segment.segments[fname_idx + 1: bracket_idx]
+                if all(seg.is_type("whitespace", "newline") for seg in intermediate_segments):
+                    return LintResult(
+                        anchor=intermediate_segments[0],
+                        fixes=[
+                            LintFix("delete", seg)
+                            for seg in intermediate_segments
+                        ],
+                    )
+                else:
+                    # It's not all whitespace, just report the error.
+                    return LintResult(
+                        anchor=intermediate_segments[0],
+                    )
+                    
         return LintResult()

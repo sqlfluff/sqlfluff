@@ -1,0 +1,24 @@
+rule: L017
+
+passing_example:
+  pass_str: SELECT SUM(1)
+
+simple_fail:
+  fail_str: SELECT SUM (1)
+  fix_str: SELECT SUM(1)
+
+complex_fail_1:
+  fail_str: SELECT SUM /* SOMETHING */ (1)
+  fix_str: SELECT SUM /* SOMETHING */ (1)
+
+complex_fail_2:
+  fail_str: |
+    SELECT
+      SUM
+      -- COMMENT
+      (1)
+  fix_str: |
+    SELECT
+      SUM
+      -- COMMENT
+      (1)

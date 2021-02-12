@@ -1,4 +1,5 @@
 SELECT
     min(col_a) as foo,
-    max(col_b) as bar
+    max /* a really obnoxious comment */
+(col_b) as bar
 FROM tbl
