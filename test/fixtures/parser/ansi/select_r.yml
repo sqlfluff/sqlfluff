@@ -2,44 +2,45 @@ file:
 - statement:
     with_compound_statement:
     - keyword: WITH
-    - identifier: result
-    - keyword: AS
-    - start_bracket: (
-    - set_expression:
-      - select_statement:
-          select_clause:
-            keyword: SELECT
-            select_target_element:
-              column_reference:
-                identifier: customer
-          from_clause:
-            keyword: FROM
-            table_expression:
-              main_table_expression:
-                table_reference:
-                  identifier: sales_eu
-              alias_expression:
-                keyword: AS
-                identifier: s
-      - set_operator:
-        - keyword: UNION
-        - keyword: ALL
-      - select_statement:
-          select_clause:
-            keyword: SELECT
-            select_target_element:
-              column_reference:
-                identifier: customer
-          from_clause:
-            keyword: FROM
-            table_expression:
-              main_table_expression:
-                table_reference:
-                  identifier: sales_us
-              alias_expression:
-                keyword: AS
-                identifier: s2
-    - end_bracket: )
+    - common_table_expression:
+      - identifier: result
+      - keyword: AS
+      - start_bracket: (
+      - set_expression:
+        - select_statement:
+            select_clause:
+              keyword: SELECT
+              select_target_element:
+                column_reference:
+                  identifier: customer
+            from_clause:
+              keyword: FROM
+              table_expression:
+                main_table_expression:
+                  table_reference:
+                    identifier: sales_eu
+                alias_expression:
+                  keyword: AS
+                  identifier: s
+        - set_operator:
+          - keyword: UNION
+          - keyword: ALL
+        - select_statement:
+            select_clause:
+              keyword: SELECT
+              select_target_element:
+                column_reference:
+                  identifier: customer
+            from_clause:
+              keyword: FROM
+              table_expression:
+                main_table_expression:
+                  table_reference:
+                    identifier: sales_us
+                alias_expression:
+                  keyword: AS
+                  identifier: s2
+      - end_bracket: )
     - select_statement:
         select_clause:
           keyword: SELECT
