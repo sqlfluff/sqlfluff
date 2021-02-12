@@ -522,9 +522,9 @@ class RuleSet:
             raise ValueError(
                 (
                     "Tried to register rule on set {0!r} with unexpected "
-                    "format: {1}, format should be: {2}."
-                    " Example: Rule_PluginName_L001 (for plugins) or Rule_L001 (for core rules)."
-                ).format(self.name, cls.__name__, self.valid_rule_name_regex.pattern)
+                    "format: {1}, format should be: Rule_PluginName_LXXX (for plugins) "
+                    "or Rule_LXXX (for core rules)."
+                ).format(self.name, cls.__name__)
             )
 
         plugin_name, code = rule_name_match.groups()
