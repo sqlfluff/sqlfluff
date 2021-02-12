@@ -18,8 +18,8 @@ import copy
 import logging
 from collections import namedtuple
 
-from ..parser import RawSegment, KeywordSegment, BaseSegment
-from ..errors import SQLLintError
+from sqlfluff.core.parser import RawSegment, KeywordSegment, BaseSegment
+from sqlfluff.core.errors import SQLLintError
 
 # The ghost of a rule (mostly used for testing)
 RuleGhost = namedtuple("RuleGhost", ["code", "description"])

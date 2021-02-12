@@ -12,7 +12,7 @@ https://docs.exasol.com
 #       e.g. LUA: local _stmt = [[SOME ASSIGNMENT WITH OPEN BRACKET ( ]]
 #                 ...do some stuff ...
 #                 local _stmt = _stmt .. [[ ) ]]
-from ..parser import (
+from sqlfluff.core.parser import (
     AnyNumberOf,
     Anything,
     BaseSegment,
@@ -27,7 +27,7 @@ from ..parser import (
     StartsWith,
     SymbolSegment,
 )
-from .dialect_exasol import ObjectReferenceSegment, exasol_dialect
+from sqlfluff.core.dialects.dialect_exasol import ObjectReferenceSegment, exasol_dialect
 
 exasol_fs_dialect = exasol_dialect.copy_as("exasol_fs")
 exasol_fs_dialect.sets("unreserved_keywords").add("ROWCOUNT")

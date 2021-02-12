@@ -6,7 +6,7 @@ and
 https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and_bytes_literals
 """
 
-from ..parser import (
+from sqlfluff.core.parser import (
     Anything,
     BaseSegment,
     NamedSegment,
@@ -21,7 +21,7 @@ from ..parser import (
     Indent,
 )
 
-from .dialect_ansi import (
+from sqlfluff.core.dialects.dialect_ansi import (
     ansi_dialect,
     SelectTargetElementSegment as AnsiSelectTargetElementSegment,
     SelectClauseSegment as AnsiSelectClauseSegment,

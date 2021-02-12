@@ -13,7 +13,7 @@ https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 """
 from typing import List, Tuple, NamedTuple, Optional
 
-from ..parser import (
+from sqlfluff.core.parser import (
     Matchable,
     BaseSegment,
     KeywordSegment,
@@ -35,8 +35,8 @@ from ..parser import (
     Nothing,
 )
 
-from .base import Dialect
-from .ansi_keywords import ansi_reserved_keywords, ansi_unreserved_keywords
+from sqlfluff.core.dialects.base import Dialect
+from sqlfluff.core.dialects.ansi_keywords import ansi_reserved_keywords, ansi_unreserved_keywords
 
 
 ansi_dialect = Dialect("ansi", root_segment_name="FileSegment")

@@ -14,12 +14,12 @@ we use, and will be common between all of them.
 import re
 from typing import Optional, List
 
-from ..match_result import MatchResult
-from ..match_wrapper import match_wrapper
-from ..context import ParseContext
+from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.match_wrapper import match_wrapper
+from sqlfluff.core.parser.context import ParseContext
 
-from .base import BaseSegment
-from .raw import RawSegment
+from sqlfluff.core.parser.segments.base import BaseSegment
+from sqlfluff.core.parser.segments.raw import RawSegment
 
 
 class _ProtoKeywordSegment(RawSegment):

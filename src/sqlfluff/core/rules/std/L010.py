@@ -1,8 +1,8 @@
 """Implementation of Rule L010."""
 
 from typing import Tuple, List
-from ..base import BaseCrawler, LintResult, LintFix
-from ..doc_decorators import (
+from sqlfluff.core.rules.base import BaseCrawler, LintResult, LintFix
+from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_configuration,
 )
