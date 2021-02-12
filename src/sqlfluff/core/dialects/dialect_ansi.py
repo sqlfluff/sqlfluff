@@ -1532,7 +1532,7 @@ class CTEDefinitionSegment(BaseSegment):
         ),
         "AS",
         Bracketed(
-            # Checkpoint here to subdivide the query.
+            # Ephemeral here to subdivide the query.
             Ref("SelectableGrammar", ephemeral_name="SelectableGrammar")
         ),
     )
