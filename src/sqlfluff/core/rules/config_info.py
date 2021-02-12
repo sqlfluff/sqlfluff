@@ -58,4 +58,11 @@ STANDARD_CONFIG_INFO_DICT = {
             " such as `{{blah}}` have their indentation linted."
         ),
     },
+    "ignore_comment_lines": {
+        "validation": [True, False],
+        "definition": (
+            "Should lines that contain only whitespace and comments"
+            " be ignored when linting line lengths."
+        ),
+    },
 }
