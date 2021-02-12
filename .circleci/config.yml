@@ -58,6 +58,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install sqlfluff
+          command: pip install -e .
+      - run:
           name: Test examples file run successfully
           command: |
             for file in examples/*
