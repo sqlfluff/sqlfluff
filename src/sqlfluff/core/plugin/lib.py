@@ -26,4 +26,3 @@ def load_default_config() -> dict:
 def get_configs_info() -> dict:
     """Get rule config validations and descriptions."""
     return STANDARD_CONFIG_INFO_DICT
-
