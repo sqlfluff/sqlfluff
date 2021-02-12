@@ -327,7 +327,6 @@ def test_rules_configs_are_dynamically_documented():
 
 def test_rule_exception_is_caught_to_validation():
     """Assert that a rule that throws an exception on _eval returns it as a validation."""
-
     std_rule_set = get_ruleset()
 
     @std_rule_set.register

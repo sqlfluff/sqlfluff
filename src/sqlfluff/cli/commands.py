@@ -38,6 +38,7 @@ from sqlfluff.core import (
 )
 from sqlfluff.core.config import FluffConfig
 
+
 class RedWarningsFilter(logging.Filter):
     """This filter makes all warnings or above red."""
 

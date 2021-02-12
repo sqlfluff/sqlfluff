@@ -20,7 +20,7 @@ def document_configuration(cls, ruleset="std"):
     options in the docs, from a single source of truth.
     """
     if ruleset == "std":
-        #from sqlfluff.core.rules.config_info import config_info_merged
+        # from sqlfluff.core.rules.config_info import config_info_merged
         config_info = get_config_info()
     else:
         raise (
@@ -44,9 +44,7 @@ def document_configuration(cls, ruleset="std"):
                 keyword, info_dict["definition"]
             )
             if "validation" in info_dict:
-                config_doc += " Must be one of {0}.".format(
-                    info_dict["validation"]
-                )
+                config_doc += " Must be one of {0}.".format(info_dict["validation"])
             config_doc += "\n    |"
     except AttributeError:
         rules_logger.info("No config_keywords defined for {0}".format(cls.__name__))

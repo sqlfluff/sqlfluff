@@ -471,7 +471,11 @@ class RuleSet:
                 else rule_config.get(rule).get(config_name)
             )
             valid_options = info_dict.get("validation")
-            if valid_options and config_option not in valid_options and config_option is not None:
+            if (
+                valid_options
+                and config_option not in valid_options
+                and config_option is not None
+            ):
                 raise ValueError(
                     (
                         "Invalid option '{0}' for {1} configuration. Must be one of {2}"

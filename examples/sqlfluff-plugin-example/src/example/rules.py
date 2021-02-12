@@ -4,7 +4,6 @@ from sqlfluff.core.plugin import hookimpl
 from sqlfluff.core.rules.base import (
     BaseCrawler,
     LintResult,
-    LintFix
 )
 from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
@@ -13,6 +12,7 @@ from sqlfluff.core.rules.doc_decorators import (
 from typing import Tuple, List
 import os.path
 from sqlfluff.core.config import ConfigLoader
+
 
 @hookimpl
 def get_rules() -> List[BaseCrawler]:
@@ -33,9 +33,7 @@ def load_default_config() -> dict:
 def get_configs_info() -> dict:
     """Get rule config validations and descriptions."""
     return {
-        "forbidden_columns": {
-            "definition": "A list of column to forbid"
-        },
+        "forbidden_columns": {"definition": "A list of column to forbid"},
     }
 
 
@@ -74,5 +72,11 @@ class Rule_Example_L001(BaseCrawler):
         if segment.is_type("orderby_clause"):
             for seg in segment.segments:
                 col_name = seg.raw.lower()
-                if seg.is_type("column_reference") and col_name in self.forbidden_columns:
-                    return LintResult(anchor=seg, description=f"Column `{col_name}` not allowed in ORDER BY.")
+                if (
+                    seg.is_type("column_reference")
+                    and col_name in self.forbidden_columns
+                ):
+                    return LintResult(
+                        anchor=seg,
+                        description=f"Column `{col_name}` not allowed in ORDER BY.",
+                    )

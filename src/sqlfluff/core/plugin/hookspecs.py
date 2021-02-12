@@ -5,7 +5,10 @@ from sqlfluff.core.plugin import plugin_base_name
 
 hookspec = pluggy.HookspecMarker(plugin_base_name)
 
+
 class PluginSpec:
+    """Defines the method signatures for plugin implementations."""
+
     @hookspec
     def get_rules(self):
         """Get plugin rules."""
