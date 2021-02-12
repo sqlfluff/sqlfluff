@@ -37,6 +37,7 @@ class Rule_L023(BaseCrawler):
     pre_segment_identifier = ("name", "AS")
     post_segment_identifier = ("type", "start_bracket")
     allow_newline = False
+    expand_children = ["common_table_expression"]
 
     def _eval(self, segment, **kwargs):
         """Single whitespace expected in mother segment between pre and post segments."""
@@ -44,7 +45,7 @@ class Rule_L023(BaseCrawler):
         if segment.is_type(self.expected_mother_segment_type):
             last_code = None
             mid_segs = []
-            for seg in segment.segments:
+            for seg in segment.iter_segments(expanding=self.expand_children):
                 if seg.is_code:
                     if (
                         last_code

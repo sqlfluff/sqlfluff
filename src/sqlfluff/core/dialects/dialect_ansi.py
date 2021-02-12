@@ -1532,7 +1532,7 @@ class CTEDefinitionSegment(BaseSegment):
 
     def get_identifier(self) -> BaseSegment:
         """Gets the identifier of this CTE.
-        
+
         Note: it blindly get the first identifier it finds
         which given the structure of a CTE definition is
         usually the right one.
