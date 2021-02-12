@@ -1510,6 +1510,37 @@ ansi_dialect.add(
 
 
 @ansi_dialect.segment()
+class CTEDefinitionSegment(BaseSegment):
+    """A CTE Definition from a WITH statement.
+
+    `tab (col1,col2) AS (SELECT a,b FROM x)`
+    """
+
+    type = "common_table_expression"
+    match_grammar = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        Bracketed(
+            Ref("SingleIdentifierListSegment"),
+            optional=True,
+        ),
+        "AS",
+        Bracketed(
+            # Checkpoint here to subdivide the query.
+            Ref("SelectableGrammar", ephemeral_name="SelectableGrammar")
+        ),
+    )
+
+    def get_identifier(self) -> BaseSegment:
+        """Gets the identifier of this CTE.
+        
+        Note: it blindly get the first identifier it finds
+        which given the structure of a CTE definition is
+        usually the right one.
+        """
+        return self.get_child("identifier")
+
+
+@ansi_dialect.segment()
 class WithCompoundStatementSegment(BaseSegment):
     """A `SELECT` statement preceded by a selection of `WITH` clauses.
 
@@ -1522,18 +1553,7 @@ class WithCompoundStatementSegment(BaseSegment):
     parse_grammar = Sequence(
         "WITH",
         Delimited(
-            Sequence(
-                Ref("SingleIdentifierGrammar"),
-                Bracketed(
-                    Ref("SingleIdentifierListSegment"),
-                    optional=True,
-                ),
-                "AS",
-                Bracketed(
-                    # Checkpoint here to subdivide the query.
-                    Ref("SelectableGrammar", ephemeral_name="SelectableGrammar")
-                ),
-            ),
+            Ref("CTEDefinitionSegment"),
             terminator=Ref.keyword("SELECT"),
         ),
         Ref("NonWithSelectableGrammar"),
