@@ -124,16 +124,21 @@ jobs:
         environment:
           TOXENV: dbt018-py38
           TOX_ARGS: -m dbt
+  # NB: The default python installation on the circleci
+  # windows VM is python 3.7.3.
+  # https://circleci.com/docs/2.0/hello-world-windows/#software-pre-installed-in-the-windows-image
   win-py37:
-    # NB: The default python installation on the circleci
-    # windows VM is python 3.7.3.
-    # https://circleci.com/docs/2.0/hello-world-windows/#software-pre-installed-in-the-windows-image
     <<: *common
-    executor:
+    executor: &common-windows
       name: win/default
       shell: bash.exe
     environment:
       TOXENV: py37
+  win-dbt018-py37:
+    <<: *common
+    <<: *common-windows
+    environment:
+      TOXENV: dbt018-py37
 
 ### Workflows which call the different tox jobs
 workflows:
@@ -150,4 +155,5 @@ workflows:
       - dbt017-py38
       - dbt018-py38
       - win-py37
+      - win-dbt018-py37
       - bench
