@@ -497,6 +497,13 @@ class TableReferenceSegment(ObjectReferenceSegment):
 
 
 @ansi_dialect.segment()
+class IndexReferenceSegment(ObjectReferenceSegment):
+    """A reference to an index."""
+
+    type = "index_reference"
+
+
+@ansi_dialect.segment()
 class ColumnReferenceSegment(ObjectReferenceSegment):
     """A reference to column, field or alias."""
 
@@ -1663,6 +1670,17 @@ class ColumnDefinitionSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class IndexColumnDefinitionSegment(BaseSegment):
+    """A column definition for CREATE INDEX."""
+
+    type = "column_definition"
+    match_grammar = Sequence(
+        Ref("SingleIdentifierGrammar"),  # Column name
+        OneOf("ASC", "DESC", optional=True),
+    )
+
+
+@ansi_dialect.segment()
 class TableConstraintSegment(BaseSegment):
     """A table constraint, e.g. for CREATE TABLE."""
 
@@ -1742,6 +1760,37 @@ class CreateTableStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class CreateIndexStatementSegment(BaseSegment):
+    """A `CREATE INDEX` statement."""
+
+    type = "create_index_statement"
+    # https://crate.io/docs/sql-99/en/latest/chapters/18.html
+    # https://www.postgresql.org/docs/12/sql-createtable.html
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "INDEX",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("IndexReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            # Columns and comment syntax:
+            Sequence(
+                Bracketed(
+                    Delimited(
+                        Ref("IndexColumnDefinitionSegment"),
+                    ),
+                )
+            ),
+            Sequence(  # [COMMENT 'string'] (MySQL)
+                "COMMENT", Ref("QuotedLiteralSegment"), optional=True
+            ),
+        ),
+    )
+
+
+@ansi_dialect.segment()
 class AlterTableStatementSegment(BaseSegment):
     """An `ALTER TABLE` statement."""
 
@@ -1815,6 +1864,22 @@ class DropStatementSegment(BaseSegment):
         ),
         Ref("IfExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
+        OneOf("RESTRICT", Ref.keyword("CASCADE", optional=True), optional=True),
+    )
+
+
+@ansi_dialect.segment()
+class DropIndexStatementSegment(BaseSegment):
+    """A `DROP INDEX` statement."""
+
+    type = "drop_statement"
+    # DROP INDEX <Index name> [CONCURRENTLY] [IF EXISTS] {RESTRICT | CASCADE}
+    match_grammar = Sequence(
+        "DROP",
+        "INDEX",
+        Ref.keyword("CONCURRENTLY", optional=True),
+        Ref("IfExistsGrammar", optional=True),
+        Ref("IndexReferenceSegment"),
         OneOf("RESTRICT", Ref.keyword("CASCADE", optional=True), optional=True),
     )
 
