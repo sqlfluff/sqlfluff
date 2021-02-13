@@ -57,6 +57,12 @@ common: &common
     # the store_test_results argument is only available for paid plans. As such this
     # is not included.
 
+common_windows: &common_windows
+  executor:
+    name: win/default
+    shell: bash.exe
+
+
 ### JOBS
 jobs:
   linting:
@@ -129,14 +135,12 @@ jobs:
   # https://circleci.com/docs/2.0/hello-world-windows/#software-pre-installed-in-the-windows-image
   win-py37:
     <<: *common
-    executor: &common-windows
-      name: win/default
-      shell: bash.exe
+    <<: *common_windows
     environment:
       TOXENV: py37
   win-dbt018-py37:
     <<: *common
-    <<: *common-windows
+    <<: *common_windows
     environment:
       TOXENV: dbt018-py37
 
