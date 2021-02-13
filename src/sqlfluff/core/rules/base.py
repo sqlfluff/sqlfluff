@@ -498,7 +498,7 @@ class RuleSet:
         * Rule_PluginName_L001
         * Rule_L001
         """
-        return re.compile(r"Rule_?([A-Z]{1}[a-zA-Z]+)?_(L[0-9]{3})")
+        return re.compile(r"Rule_?([A-Z]{1}[a-zA-Z]+)?_([A-Z][0-9]{3})")
 
     def register(self, cls, plugin=None):
         """Decorate a class with this to add it to the ruleset.
@@ -526,8 +526,8 @@ class RuleSet:
             raise ValueError(
                 (
                     "Tried to register rule on set {0!r} with unexpected "
-                    "format: {1}, format should be: Rule_PluginName_LXXX (for plugins) "
-                    "or Rule_LXXX (for core rules)."
+                    "format: {1}, format should be: Rule_PluginName_L123 (for plugins) "
+                    "or Rule_L123 (for core rules)."
                 ).format(self.name, cls.__name__)
             )
 

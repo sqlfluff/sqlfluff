@@ -330,12 +330,15 @@ def test_rule_exception_is_caught_to_validation():
     std_rule_set = get_ruleset()
 
     @std_rule_set.register
-    class Rule_LXXX(BaseCrawler):
+    class Rule_T000(BaseCrawler):
         """Rule that throws an exception."""
 
         def _eval(self, segment, parent_stack, **kwargs):
             raise Exception("Catch me or I'll deny any linting results from you")
 
-    linter = Linter(config=FluffConfig(overrides=dict(rules="LXXX")))
+    linter = Linter(
+        config=FluffConfig(overrides=dict(rules="T000")),
+        user_rules=[Rule_T000],
+    )
 
-    assert linter.lint_string("select 1").check_tuples() == [("LXXX", 1, 1)]
+    assert linter.lint_string("select 1").check_tuples() == [("T000", 1, 1)]
