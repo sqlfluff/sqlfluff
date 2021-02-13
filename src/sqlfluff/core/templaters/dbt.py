@@ -270,7 +270,6 @@ class DbtTemplater(JinjaTemplater):
             results = [self.dbt_manifest.expect(uid) for uid in selected]
 
             if not results:
-                breakpoint()
                 raise RuntimeError(
                     "File %s was not found in dbt project" % patched_fname
                 )
