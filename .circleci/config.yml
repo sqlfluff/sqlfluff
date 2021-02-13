@@ -143,6 +143,7 @@ jobs:
     <<: *common_windows
     environment:
       TOXENV: dbt018-py37
+      TOX_ARGS: -m dbt
 
 ### Workflows which call the different tox jobs
 workflows:
