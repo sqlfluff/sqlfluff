@@ -11,6 +11,7 @@ labs full sql grammar. In particular their way for dividing up the expression
 grammar. Check out their docs, they're awesome.
 https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 """
+from typing import List, Tuple, NamedTuple, Optional
 
 from ..parser import (
     Matchable,
@@ -371,6 +372,13 @@ class FileSegment(BaseSegment):
         allow_gaps=True,
         allow_trailing=True,
     )
+
+    def get_table_references(self):
+        """Use parsed tree to extract table references."""
+        references = set()
+        for stmt in self.get_children("statement"):
+            references |= stmt.get_table_references()
+        return references
 
 
 @ansi_dialect.segment()
@@ -746,6 +754,16 @@ ansi_dialect.add(
 )
 
 
+class AliasInfo(NamedTuple):
+    """Details about a table alias."""
+
+    ref_str: str  # Name given to the alias
+    segment: BaseSegment  # Identifier segment containing the name
+    aliased: bool
+    table_expression: BaseSegment
+    alias_expression: Optional[BaseSegment]
+
+
 @ansi_dialect.segment()
 class TableExpressionSegment(BaseSegment):
     """A table expression."""
@@ -761,7 +779,7 @@ class TableExpressionSegment(BaseSegment):
         Ref("PostTableExpressionGrammar", optional=True),
     )
 
-    def get_eventual_alias(self):
+    def get_eventual_alias(self) -> Optional[AliasInfo]:
         """Return the eventual table name referred to by this table expression.
 
         Returns:
@@ -774,7 +792,7 @@ class TableExpressionSegment(BaseSegment):
         if alias_expression:
             # If it has an alias, return that
             segment = alias_expression.get_child("identifier")
-            return (segment.raw, segment, True)
+            return AliasInfo(segment.raw, segment, True, self, alias_expression)
 
         # If not return the object name (or None if there isn't one)
         # ref = self.get_child("object_reference")
@@ -783,7 +801,7 @@ class TableExpressionSegment(BaseSegment):
             # Return the last element of the reference, which
             # will already be a tuple.
             penultimate_ref = list(ref.iter_raw_references())[-1]
-            return (*penultimate_ref, False)
+            return AliasInfo(penultimate_ref[0], penultimate_ref[1], False, self, None)
         # No references or alias, return None
         return None
 
@@ -972,7 +990,7 @@ class JoinClauseSegment(BaseSegment):
         Dedent,
     )
 
-    def get_eventual_alias(self):
+    def get_eventual_alias(self) -> AliasInfo:
         """Return the eventual table name referred to by this join clause."""
         table_expression = self.get_child("table_expression")
         return table_expression.get_eventual_alias()
@@ -1035,7 +1053,7 @@ class FromClauseSegment(BaseSegment):
         Dedent.when(indented_joins=True),
     )
 
-    def get_eventual_aliases(self):
+    def get_eventual_aliases(self) -> List[Tuple[BaseSegment, AliasInfo]]:
         """List the eventual aliases of this from clause.
 
         Comes as a list of tuples (table expr, tuple (string, segment, bool)).
@@ -1045,7 +1063,7 @@ class FromClauseSegment(BaseSegment):
         join_clauses = self.get_children("join_clause")
         # Iterate through the potential sources of aliases
         for clause in (*direct_table_children, *join_clauses):
-            ref = clause.get_eventual_alias()
+            ref: AliasInfo = clause.get_eventual_alias()
             # Only append if non null. A None reference, may
             # indicate a generator expression or similar.
             table_expr = (
@@ -1499,6 +1517,37 @@ ansi_dialect.add(
 
 
 @ansi_dialect.segment()
+class CTEDefinitionSegment(BaseSegment):
+    """A CTE Definition from a WITH statement.
+
+    `tab (col1,col2) AS (SELECT a,b FROM x)`
+    """
+
+    type = "common_table_expression"
+    match_grammar = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        Bracketed(
+            Ref("SingleIdentifierListSegment"),
+            optional=True,
+        ),
+        "AS",
+        Bracketed(
+            # Ephemeral here to subdivide the query.
+            Ref("SelectableGrammar", ephemeral_name="SelectableGrammar")
+        ),
+    )
+
+    def get_identifier(self) -> BaseSegment:
+        """Gets the identifier of this CTE.
+
+        Note: it blindly get the first identifier it finds
+        which given the structure of a CTE definition is
+        usually the right one.
+        """
+        return self.get_child("identifier")
+
+
+@ansi_dialect.segment()
 class WithCompoundStatementSegment(BaseSegment):
     """A `SELECT` statement preceded by a selection of `WITH` clauses.
 
@@ -1511,18 +1560,7 @@ class WithCompoundStatementSegment(BaseSegment):
     parse_grammar = Sequence(
         "WITH",
         Delimited(
-            Sequence(
-                Ref("SingleIdentifierGrammar"),
-                Bracketed(
-                    Ref("SingleIdentifierListSegment"),
-                    optional=True,
-                ),
-                "AS",
-                Bracketed(
-                    # Checkpoint here to subdivide the query.
-                    Ref("SelectableGrammar", ephemeral_name="SelectableGrammar")
-                ),
-            ),
+            Ref("CTEDefinitionSegment"),
             terminator=Ref.keyword("SELECT"),
         ),
         Ref("NonWithSelectableGrammar"),
@@ -2258,6 +2296,19 @@ class StatementSegment(BaseSegment):
         Ref("CreateModelStatementSegment"),
         Ref("DropModelStatementSegment"),
     )
+
+    def get_table_references(self):
+        """Use parsed tree to extract table references."""
+        table_refs = set(
+            tbl_ref.raw for tbl_ref in self.recursive_crawl("table_reference")
+        )
+        cte_refs = set(
+            cte_def.get_identifier().raw
+            for cte_def in self.recursive_crawl("common_table_expression")
+        )
+        # External references are any table references which aren't
+        # also cte aliases.
+        return table_refs - cte_refs
 
 
 @ansi_dialect.segment()

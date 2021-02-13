@@ -31,4 +31,5 @@ class Rule_L024(Rule_L023):
     expected_mother_segment_type = "join_clause"
     pre_segment_identifier = ("name", "USING")
     post_segment_identifier = ("type", "start_bracket")
+    expand_children = None
     allow_newline = True

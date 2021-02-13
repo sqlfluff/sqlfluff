@@ -1,0 +1,48 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+        - keyword: SELECT
+        - select_target_element:
+          - expression:
+            - function:
+              - function_name: lower
+              - start_bracket: "("
+              - expression:
+                  column_reference:
+                    identifier: note_text
+              - end_bracket: ")"
+            - keyword: NOT
+            - keyword: LIKE
+            - literal: "'%daycare: {%'"
+            - binary_operator: AND
+            - function:
+              - function_name: lower
+              - start_bracket: "("
+              - expression:
+                  column_reference:
+                    identifier: note_text
+              - end_bracket: ")"
+            - keyword: NOT
+            - keyword: LIKE
+            - literal: "'%grade/ school name:  {%'"
+            - binary_operator: AND
+            - function:
+              - function_name: lower
+              - start_bracket: "("
+              - expression:
+                  column_reference:
+                    identifier: note_text
+              - end_bracket: ")"
+            - keyword: NOT
+            - keyword: LIKE
+            - literal: "'%social history:  {%'"
+          - alias_expression:
+              keyword: AS
+              identifier: foo
+      from_clause:
+        keyword: FROM
+        table_expression:
+          main_table_expression:
+            table_reference:
+              identifier: my_table
