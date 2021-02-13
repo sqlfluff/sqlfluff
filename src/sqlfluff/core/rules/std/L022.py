@@ -43,13 +43,16 @@ class Rule_L022(BaseCrawler):
 
             # Find all the closing brackets. They are our anchor points.
             bracket_indices = []
-            for idx, seg in enumerate(segment.segments):
+            expanded_segments = list(
+                segment.iter_segments(expanding=["common_table_expression"])
+            )
+            for idx, seg in enumerate(expanded_segments):
                 if seg.is_type("end_bracket"):
                     bracket_indices.append(idx)
 
             # Work through each point and deal with it individually
             for bracket_idx in bracket_indices:
-                forward_slice = segment.segments[bracket_idx:]
+                forward_slice = expanded_segments[bracket_idx:]
                 seg_idx = 1
                 line_idx = 0
                 comma_seg_idx = None
