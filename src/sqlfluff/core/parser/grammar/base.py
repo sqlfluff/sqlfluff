@@ -45,6 +45,13 @@ def cached_method_for_parse_context(func):
     return wrapped_method
 
 
+class BracketInfo(NamedTuple):
+    """Holds bracket related information (special segment)."""
+
+    bracket: BaseSegment
+    is_definite: bool
+
+
 class BaseGrammar(Matchable):
     """Grammars are a way of composing match statements.
 
@@ -432,11 +439,6 @@ class BaseGrammar(Matchable):
             `tuple` of (unmatched_segments, match_object, matcher).
 
         """
-
-        class BracketInfo(NamedTuple):
-            bracket: BaseSegment
-            is_definite: bool
-
         # Type munging
         matchers = list(matchers)
         if isinstance(segments, BaseSegment):

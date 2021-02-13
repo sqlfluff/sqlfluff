@@ -3,7 +3,7 @@ from sqlfluff.core import Linter
 from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.rules import get_ruleset
 from sqlfluff.core.config import FluffConfig
-from typing import Tuple, List, NamedTuple
+from typing import Tuple, List, NamedTuple, Optional
 from glob import glob
 
 import pytest
@@ -13,13 +13,13 @@ import oyaml as yaml
 class RuleTestCase(NamedTuple):
     """Used like a dataclass by rule tests."""
 
-    rule: str = None
-    desc: str = None
-    pass_str: str = None
-    fail_str: str = None
-    fix_str: str = None
-    configs: dict = None
-    skip: str = None
+    rule: Optional[str] = None
+    desc: Optional[str] = None
+    pass_str: Optional[str] = None
+    fail_str: Optional[str] = None
+    fix_str: Optional[str] = None
+    configs: Optional[dict] = None
+    skip: Optional[str] = None
 
 
 def load_test_cases(
