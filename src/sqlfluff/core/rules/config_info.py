@@ -58,6 +58,12 @@ STANDARD_CONFIG_INFO_DICT = {
             " such as `{{blah}}` have their indentation linted."
         ),
     },
+    "select_clause_trailing_comma": {
+        "validation": ["forbid", "require"],
+        "definition": (
+            "Should trailing commas within select clauses be required or forbidden."
+        ),
+    },
     "ignore_comment_lines": {
         "validation": [True, False],
         "definition": (
