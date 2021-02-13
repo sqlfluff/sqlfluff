@@ -43,7 +43,7 @@ class Rule_L026(Rule_L025):
         for r in references:
             tbl_ref = r.extract_reference(level=2)
             # Check whether the string in the list of strings
-            if tbl_ref and tbl_ref[0] not in [a[0] for a in table_aliases]:
+            if tbl_ref and tbl_ref[0] not in [a.ref_str for a in table_aliases]:
                 # Last check, this *might* be a correlated subquery reference.
                 if parent_select:
                     parent_aliases, _ = self._get_aliases_from_select(parent_select)

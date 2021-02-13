@@ -3,6 +3,7 @@ rule: L025
 test_1:
   # Aliases not referenced.
   fail_str: SELECT * FROM my_tbl AS foo
+  fix_str: SELECT * FROM my_tbl
 
 test_2:
   pass_str: SELECT * FROM my_tbl AS foo JOIN other_tbl on other_tbl.x = foo.x
@@ -20,3 +21,12 @@ test_ignore_value_table_functions:
   configs:
     core:
       dialect: bigquery
+
+test_4:
+  # Similar to test_1, but with implicit alias.
+  fail_str: SELECT * FROM my_tbl foo
+  fix_str: SELECT * FROM my_tbl
+
+test_5:
+  fail_str: select * from (select 1 as a) subquery
+  fix_str: select * from (select 1 as a)
