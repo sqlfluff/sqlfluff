@@ -445,6 +445,9 @@ class ObjectReferenceSegment(BaseSegment):
         Ref("SingleIdentifierGrammar"),
         delimiter=OneOf(Ref("DotSegment"), Sequence(Ref("DotSegment"))),
         terminator=OneOf(
+            "ON",
+            "AS",
+            "USING",
             Ref("CommaSegment"),
             Ref("CastOperatorSegment"),
             Ref("StartSquareBracketSegment"),
