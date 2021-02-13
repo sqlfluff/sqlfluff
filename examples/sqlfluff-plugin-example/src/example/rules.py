@@ -69,6 +69,9 @@ class Rule_Example_L001(BaseCrawler):
 
     def _eval(self, segment, raw_stack, **kwargs):
         """We should not use ORDER BY."""
+        if self.forbidden_columns and type(self.forbidden_columns) is not list:
+            self.forbidden_columns = self.forbidden_columns.split(",")
+
         if segment.is_type("orderby_clause"):
             for seg in segment.segments:
                 col_name = seg.raw.lower()
