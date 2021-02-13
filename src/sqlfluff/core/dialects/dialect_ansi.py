@@ -373,6 +373,13 @@ class FileSegment(BaseSegment):
         allow_trailing=True,
     )
 
+    def get_table_references(self):
+        """Use parsed tree to extract table references."""
+        references = set()
+        for stmt in self.get_children("statement"):
+            references |= stmt.get_table_references()
+        return references
+
 
 @ansi_dialect.segment()
 class IntervalExpressionSegment(BaseSegment):
@@ -1510,6 +1517,37 @@ ansi_dialect.add(
 
 
 @ansi_dialect.segment()
+class CTEDefinitionSegment(BaseSegment):
+    """A CTE Definition from a WITH statement.
+
+    `tab (col1,col2) AS (SELECT a,b FROM x)`
+    """
+
+    type = "common_table_expression"
+    match_grammar = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        Bracketed(
+            Ref("SingleIdentifierListSegment"),
+            optional=True,
+        ),
+        "AS",
+        Bracketed(
+            # Ephemeral here to subdivide the query.
+            Ref("SelectableGrammar", ephemeral_name="SelectableGrammar")
+        ),
+    )
+
+    def get_identifier(self) -> BaseSegment:
+        """Gets the identifier of this CTE.
+
+        Note: it blindly get the first identifier it finds
+        which given the structure of a CTE definition is
+        usually the right one.
+        """
+        return self.get_child("identifier")
+
+
+@ansi_dialect.segment()
 class WithCompoundStatementSegment(BaseSegment):
     """A `SELECT` statement preceded by a selection of `WITH` clauses.
 
@@ -1522,18 +1560,7 @@ class WithCompoundStatementSegment(BaseSegment):
     parse_grammar = Sequence(
         "WITH",
         Delimited(
-            Sequence(
-                Ref("SingleIdentifierGrammar"),
-                Bracketed(
-                    Ref("SingleIdentifierListSegment"),
-                    optional=True,
-                ),
-                "AS",
-                Bracketed(
-                    # Checkpoint here to subdivide the query.
-                    Ref("SelectableGrammar", ephemeral_name="SelectableGrammar")
-                ),
-            ),
+            Ref("CTEDefinitionSegment"),
             terminator=Ref.keyword("SELECT"),
         ),
         Ref("NonWithSelectableGrammar"),
@@ -2269,6 +2296,19 @@ class StatementSegment(BaseSegment):
         Ref("CreateModelStatementSegment"),
         Ref("DropModelStatementSegment"),
     )
+
+    def get_table_references(self):
+        """Use parsed tree to extract table references."""
+        table_refs = set(
+            tbl_ref.raw for tbl_ref in self.recursive_crawl("table_reference")
+        )
+        cte_refs = set(
+            cte_def.get_identifier().raw
+            for cte_def in self.recursive_crawl("common_table_expression")
+        )
+        # External references are any table references which aren't
+        # also cte aliases.
+        return table_refs - cte_refs
 
 
 @ansi_dialect.segment()
