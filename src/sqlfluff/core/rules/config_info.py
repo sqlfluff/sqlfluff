@@ -64,4 +64,11 @@ STANDARD_CONFIG_INFO_DICT = {
             "Should trailing commas within select clauses be required or forbidden."
         ),
     },
+    "ignore_comment_lines": {
+        "validation": [True, False],
+        "definition": (
+            "Should lines that contain only whitespace and comments"
+            " be ignored when linting line lengths."
+        ),
+    },
 }
