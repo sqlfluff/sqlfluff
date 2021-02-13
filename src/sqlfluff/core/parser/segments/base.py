@@ -620,6 +620,16 @@ class BaseSegment:
         for s in self.segments:
             yield from s.iter_raw_seg()
 
+    def iter_segments(self, expanding=None, pass_through=False):
+        """Iterate raw segments, optionally expanding some chldren."""
+        for s in self.segments:
+            if expanding and s.is_type(*expanding):
+                yield from s.iter_segments(
+                    expanding=expanding if pass_through else None
+                )
+            else:
+                yield s
+
     def iter_unparsables(self):
         """Iterate through any unparsables this segment may contain."""
         for s in self.segments:
