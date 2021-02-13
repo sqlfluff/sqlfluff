@@ -934,15 +934,24 @@ class Linter:
     ) -> Tuple[BaseSegment, List[SQLLintError]]:
         """Lint and optionally fix a tree object."""
         config = config or self.config
+        # Keep track of the linting errors
         all_linting_errors = []
+        # A placeholder for the fixes we had on the previous loop
         last_fixes = None
+        # Keep a set of previous versions to catch infinite loops.
         previous_versions = {tree.raw}
 
-        loop_limit = config.get("runaway_limit")
+        # If we are fixing then we want to loop up to the runaway_limit, otherwise just once for linting.
+        loop_limit = config.get("runaway_limit") if fix else 1
 
         for loop in range(loop_limit):
             changed = False
             for crawler in self.get_ruleset(config=config):
+                # fixes should be a dict {} with keys edit, delete, create
+                # delete is just a list of segments to delete
+                # edit and create are list of tuples. The first element is the
+                # "anchor", the segment to look for either to edit or to insert BEFORE.
+                # The second is the element to insert or create.
                 linting_errors, _, fixes, _ = crawler.crawl(
                     tree, dialect=config.get("dialect_obj")
                 )
@@ -950,11 +959,13 @@ class Linter:
 
                 if fix and fixes:
                     linter_logger.info(f"Applying Fixes: {fixes}")
+                    # Do some sanity checks on the fixes before applying.
                     if fixes == last_fixes:
                         self._warn_unfixable(crawler.code)
                     else:
                         last_fixes = fixes
                         new_tree, _ = tree.apply_fixes(fixes)
+                        # Check for infinite loops
                         if new_tree.raw not in previous_versions:
                             # We've not seen this version of the file so far. Continue.
                             tree = new_tree
@@ -962,15 +973,13 @@ class Linter:
                             changed = True
                             continue
                         else:
+                            # Applying these fixes took us back to a state which we've
+                            # seen before. Abort.
                             self._warn_unfixable(crawler.code)
 
             if loop == 0:
                 # Keep track of initial errors for reporting.
                 initial_linting_errors = all_linting_errors.copy()
-
-            if not fix:
-                # If we just want to lint then we only need one pass
-                break
 
             if fix and not changed:
                 # We did not change the file. Either the file is clean (no fixes), or
@@ -979,15 +988,15 @@ class Linter:
                     f"Fix loop complete. Stability achieved after {loop}/{loop_limit} loops."
                 )
                 break
-        if loop + 1 == loop_limit:
+        if fix and loop + 1 == loop_limit:
             linter_logger.warning(f"Loop limit on fixes reached [{loop_limit}].")
 
         if config.get("ignore_templated_areas", default=True):
-            source_only_linting_errors = self.remove_templated_errors(
+            initial_linting_errors = self.remove_templated_errors(
                 initial_linting_errors
             )
 
-        return tree, source_only_linting_errors
+        return tree, initial_linting_errors
 
     def remove_templated_errors(
         self, linting_errors: List[SQLLintError]
