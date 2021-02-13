@@ -11,6 +11,7 @@ labs full sql grammar. In particular their way for dividing up the expression
 grammar. Check out their docs, they're awesome.
 https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 """
+
 from typing import List, Tuple, NamedTuple, Optional
 
 from ..parser import (
@@ -438,6 +439,7 @@ class ObjectReferenceSegment(BaseSegment):
         Ref("SingleIdentifierGrammar"),
         delimiter=OneOf(Ref("DotSegment"), Sequence(Ref("DotSegment"))),
         terminator=OneOf(
+            "ON",
             Ref("CommaSegment"),
             Ref("CastOperatorSegment"),
             Ref("StartSquareBracketSegment"),
@@ -1673,7 +1675,7 @@ class ColumnDefinitionSegment(BaseSegment):
 class IndexColumnDefinitionSegment(BaseSegment):
     """A column definition for CREATE INDEX."""
 
-    type = "column_definition"
+    type = "index_column_definition"
     match_grammar = Sequence(
         Ref("SingleIdentifierGrammar"),  # Column name
         OneOf("ASC", "DESC", optional=True),
@@ -1764,8 +1766,6 @@ class CreateIndexStatementSegment(BaseSegment):
     """A `CREATE INDEX` statement."""
 
     type = "create_index_statement"
-    # https://crate.io/docs/sql-99/en/latest/chapters/18.html
-    # https://www.postgresql.org/docs/12/sql-createtable.html
     match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
@@ -1774,18 +1774,12 @@ class CreateIndexStatementSegment(BaseSegment):
         Ref("IndexReferenceSegment"),
         "ON",
         Ref("TableReferenceSegment"),
-        OneOf(
-            # Columns and comment syntax:
-            Sequence(
-                Bracketed(
-                    Delimited(
-                        Ref("IndexColumnDefinitionSegment"),
-                    ),
-                )
-            ),
-            Sequence(  # [COMMENT 'string'] (MySQL)
-                "COMMENT", Ref("QuotedLiteralSegment"), optional=True
-            ),
+        Sequence(
+            Bracketed(
+                Delimited(
+                    Ref("IndexColumnDefinitionSegment"),
+                ),
+            )
         ),
     )
 
@@ -2327,6 +2321,8 @@ class StatementSegment(BaseSegment):
         Ref("AccessStatementSegment"),
         Ref("CreateTableStatementSegment"),
         Ref("AlterTableStatementSegment"),
+        Ref("CreateIndexStatementSegment"),
+        Ref("DropIndexStatementSegment"),
         Ref("CreateViewStatementSegment"),
         Ref("DeleteStatementSegment"),
         Ref("UpdateStatementSegment"),
