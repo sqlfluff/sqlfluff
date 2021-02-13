@@ -120,7 +120,9 @@ def test__templated_sections_do_not_raise_lint_error(in_dbt_project_dir):  # noq
     """
     lntr = Linter(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
     lnt = lntr.lint_string(fname="tests/test.sql")
-    assert lnt.violations == []
+    assert len(lnt.violations) == 1
+    # Newlines are removed by dbt templater
+    assert lnt.violations[0].rule.code == "L009"
 
 
 @pytest.mark.dbt

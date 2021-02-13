@@ -3,10 +3,14 @@
 import os.path
 import logging
 from typing import Optional
+from contextlib import contextmanager
+import shutil
 
 from dataclasses import dataclass
 from cached_property import cached_property
 from functools import partial
+
+import oyaml as yaml
 
 from ..errors import SQLTemplaterError
 
@@ -204,6 +208,41 @@ class DbtTemplater(JinjaTemplater):
         except SQLTemplaterError as e:
             return None, [e]
 
+    @contextmanager
+    def _tests_as_models(self):
+        """To prevent dbt tests from being wrapped in a CTE, we make them into models before moving them back."""
+        try:
+            with open("dbt_project.yml", "r") as f:
+                initial_dbt_project_yml_raw = f.read()
+                initial_dbt_project_yml = yaml.load(initial_dbt_project_yml_raw)
+            tests_paths = initial_dbt_project_yml.get("test-paths")
+
+            if not tests_paths:
+                return
+            else:
+                for path in tests_paths:
+                    destination = os.path.join(
+                        "models", "sqlfluff_temp_tests", os.path.basename(path)
+                    )
+                    shutil.copytree(os.path.basename(path), destination)
+                modified_dbt_project_yml = initial_dbt_project_yml.copy()
+                del modified_dbt_project_yml["test-paths"]
+                with open("dbt_project.yml", "w") as f:
+                    f.write(yaml.dump(modified_dbt_project_yml))
+                yield (tests_paths, os.path.join("models", "sqlfluff_temp_tests"))
+        finally:
+            with open("dbt_project.yml", "w") as f:
+                f.write(initial_dbt_project_yml_raw)
+                shutil.rmtree(os.path.join("models", "sqlfluff_temp_tests"))
+
+    @staticmethod
+    def patch_fname(fname, paths):
+        """If the file is a test then we need to patch the filepath to due to the _tests_as_models path manipulation."""
+        for tests_path in paths[0]:
+            if fname.startswith(tests_path):
+                return os.path.join(paths[1], fname)
+        return fname
+
     def _unsafe_process(self, fname, in_str=None, config=None):
         if not config:
             raise ValueError(
@@ -219,20 +258,24 @@ class DbtTemplater(JinjaTemplater):
             )
         self.sqlfluff_config = config
 
-        selected = self.dbt_selector_method.search(
-            included_nodes=self.dbt_manifest.nodes,
-            # Selector needs to be a relative path
-            selector=os.path.relpath(fname, start=os.getcwd()),
-        )
-        results = [self.dbt_manifest.expect(uid) for uid in selected]
+        with self._tests_as_models() as paths:
+            patched_fname = self.patch_fname(fname, paths)
+            selected = self.dbt_selector_method.search(
+                included_nodes=self.dbt_manifest.nodes,
+                # Selector needs to be a relative path
+                selector=os.path.relpath(patched_fname, start=os.getcwd()),
+            )
+            results = [self.dbt_manifest.expect(uid) for uid in selected]
 
-        if not results:
-            raise RuntimeError("File %s was not found in dbt project" % fname)
+            if not results:
+                raise RuntimeError(
+                    "File %s was not found in dbt project" % patched_fname
+                )
 
-        node = self.dbt_compiler.compile_node(
-            node=results[0],
-            manifest=self.dbt_manifest,
-        )
+            node = self.dbt_compiler.compile_node(
+                node=results[0],
+                manifest=self.dbt_manifest,
+            )
 
         if not node.compiled_sql:
             raise SQLTemplaterError(
