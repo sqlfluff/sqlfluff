@@ -23,6 +23,7 @@ for d in os.listdir(os.path.join("test", "fixtures", "parser")):
     # assume that d is now the name of a dialect
     dirlist = os.listdir(os.path.join("test", "fixtures", "parser", d))
     for f in dirlist:
+        has_yml = False
         if f.endswith(".sql"):
             root = f[:-4]
             # only look for sql files
@@ -31,10 +32,18 @@ for d in os.listdir(os.path.join("test", "fixtures", "parser")):
             y = root + ".yml"
             if y in dirlist:
                 parse_structure_examples.append((d, f, True, y))
+                has_yml = True
             # Look for the non-code included version of the structure
             y = root + "_nc.yml"
             if y in dirlist:
                 parse_structure_examples.append((d, f, False, y))
+                has_yml = True
+            if not has_yml:
+                raise (
+                    Exception(
+                        f"Missing .yml file for {os.path.join(d, f)}. See sqlfluff/test/fixtures/parser/README.md for more info."
+                    )
+                )
 
 
 def make_dialect_path(dialect, fname):
@@ -63,22 +72,16 @@ def test__dialect__base_file_parse(dialect, file):
 
     # Do the parse WITHOUT lots of logging
     # The logs get too long here to be useful. We should use
-    # specfic segment tests if we want to debug logs.
+    # specific segment tests if we want to debug logs.
     if raw:
         parsed = Parser(config=config).parse(tokens)
         print("Post-parse structure: {0}".format(parsed.to_tuple(show_raw=True)))
         print("Post-parse structure: {0}".format(parsed.stringify()))
         # Check we're all there.
         assert parsed.raw == raw
-        # Check that there's nothing un parsable
+        # Check that there's nothing unparsable
         typs = parsed.type_set()
         assert "unparsable" not in typs
-    else:
-        # If it's an empty file, check that we get a value exception
-        # here. The linter handles this by *not* parsing the file,
-        # but in this case, we explicitly want an error.
-        with pytest.raises(ValueError):
-            Parser(config=config).parse(tokens)
 
 
 @pytest.mark.parametrize("dialect,sqlfile,code_only,yamlfile", parse_structure_examples)
@@ -95,4 +98,7 @@ def test__dialect__base_parse_struct(
     parsed = Parser(config=config).parse(tokens)
     # Load the YAML
     res = yaml_loader(make_dialect_path(dialect, yamlfile))
-    assert parsed.to_tuple(code_only=code_only, show_raw=True) == res
+    if parsed:
+        assert parsed.to_tuple(code_only=code_only, show_raw=True) == res
+    else:
+        assert parsed == res

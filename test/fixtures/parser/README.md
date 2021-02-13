@@ -20,8 +20,8 @@ within that yaml file.
 For best test coverage, add both a `.sql` and `.yml` file. The easiest way to
 add a `.yml` file is to run:
 
-    sqlfluff parse -f yaml test.sql | grep -v newline | grep -v whitespace | sed -e '1,2d' -e 's/^....//' > test.yml
-  
+    sqlfluff parse -f yaml 'ansi/empty_file.sql' | grep -v newline | grep -v whitespace | sed -e '1,2d' -e 's/^....//' > 'ansi/empty_file.sql'
+
 Now your test should pass!
 
 ## Uhh, what is that command doing?
@@ -30,13 +30,13 @@ The command above automates several steps to clean up the file for use by the
 test. What, specifically, is it doing?
 
 * Parsing the SQL file, writing the output in YAML format
-* Removing parsed newlines and whitespace from the parse output 
+* Removing parsed newlines and whitespace from the parse output
 * Removing the first two lines:
 
 
     - filepath: test.sql
       segments:
-      
+
 * Dedenting the remaining lines in the file by 4 spaces
 
 So if the initial `sqlfluff parse` output began:

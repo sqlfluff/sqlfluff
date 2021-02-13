@@ -590,7 +590,9 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
             result = [
                 dict(
                     filepath=filepath,
-                    segments=parsed.as_record(code_only=code_only, show_raw=True),
+                    segments=parsed.as_record(code_only=code_only, show_raw=True)
+                    if parsed
+                    else None,
                 )
                 for filepath, (parsed, _, _, _, _) in zip(filepaths, result)
             ]

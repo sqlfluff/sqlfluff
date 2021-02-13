@@ -1,0 +1,60 @@
+file:
+  statement:
+    select_statement:
+    - select_clause:
+        keyword: SELECT
+        select_target_element:
+          function:
+          - function_name: NTH_VALUE
+          - start_bracket: (
+          - expression:
+              column_reference:
+                identifier: bar
+          - comma: ','
+          - expression:
+              literal: '1'
+          - end_bracket: )
+          - over_clause:
+              keyword: OVER
+              start_bracket: (
+              window_specification:
+                identifier: w1
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: baz
+    - from_clause:
+        keyword: FROM
+        table_expression:
+          main_table_expression:
+            table_reference:
+              identifier: t
+    - named_window:
+        keyword: WINDOW
+        named_window_expression:
+        - identifier: w1
+        - keyword: AS
+        - start_bracket: (
+        - window_specification:
+            partitionby_clause:
+            - keyword: PARTITION
+            - keyword: BY
+            - expression:
+                column_reference:
+                  identifier: x
+            - comma: ','
+            - expression:
+                column_reference:
+                  identifier: y
+            - comma: ','
+            - expression:
+                column_reference:
+                  identifier: z
+            orderby_clause:
+            - keyword: ORDER
+            - keyword: BY
+            - column_reference:
+                identifier: abc
+            - keyword: DESC
+        - end_bracket: )
+

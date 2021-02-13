@@ -22,7 +22,7 @@ class Parser:
     def parse(self, segments: Tuple["BaseSegment", ...], recurse=True) -> "BaseSegment":
         """Parse a series of lexed tokens using the current dialect."""
         if not segments:
-            raise ValueError("Cannot parse an empty iterable of segments.")
+            return None
         # Instantiate the root segment
         root_segment = self.RootSegment(segments=segments)
         # Call .parse() on that segment

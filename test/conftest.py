@@ -27,9 +27,7 @@ def process_struct(obj):
     elif isinstance(obj, (str, int, float)):
         return str(obj)
     elif obj is None:
-        raise TypeError(
-            "Found a null value in dict. This is probably a misconfiguration."
-        )
+        return None
     else:
         raise TypeError(
             "Not sure how to deal with type {0}: {1!r}".format(type(obj), obj)
@@ -44,7 +42,10 @@ def load_yaml(fpath):
     # Parse the yaml
     obj = oyaml.safe_load(raw)
     # Return the parsed and structured object
-    return process_struct(obj)[0]
+    if process_struct(obj):
+        return process_struct(obj)[0]
+    else:
+        return None
 
 
 @pytest.fixture()
