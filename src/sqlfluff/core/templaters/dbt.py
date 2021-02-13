@@ -229,6 +229,7 @@ class DbtTemplater(JinjaTemplater):
                 del modified_dbt_project_yml["test-paths"]
                 with open("dbt_project.yml", "w") as f:
                     f.write(yaml.dump(modified_dbt_project_yml))
+                # Yield the paths of the original tests along with where we've put them for fname patching
                 yield (tests_paths, os.path.join("models", "sqlfluff_temp_tests"))
         finally:
             with open("dbt_project.yml", "w") as f:
@@ -238,9 +239,10 @@ class DbtTemplater(JinjaTemplater):
     @staticmethod
     def patch_fname(fname, paths):
         """If the file is a test then we need to patch the filepath to due to the _tests_as_models path manipulation."""
+        relative_fname = os.path.relpath(fname, os.getcwd())
         for tests_path in paths[0]:
-            if fname.startswith(tests_path):
-                return os.path.join(paths[1], fname)
+            if relative_fname.startswith(tests_path):
+                return os.path.join(os.getcwd(), paths[1], relative_fname)
         return fname
 
     def _unsafe_process(self, fname, in_str=None, config=None):
@@ -268,6 +270,7 @@ class DbtTemplater(JinjaTemplater):
             results = [self.dbt_manifest.expect(uid) for uid in selected]
 
             if not results:
+                breakpoint()
                 raise RuntimeError(
                     "File %s was not found in dbt project" % patched_fname
                 )
