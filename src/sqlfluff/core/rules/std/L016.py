@@ -14,7 +14,12 @@ from sqlfluff.core.rules.std.L003 import Rule_L003
 class Rule_L016(Rule_L003):
     """Line is too long."""
 
-    config_keywords = ["max_line_length", "tab_space_size", "indent_unit"]
+    config_keywords = [
+        "max_line_length",
+        "tab_space_size",
+        "indent_unit",
+        "ignore_comment_lines",
+    ]
 
     def _eval_line_for_breaks(self, segments):
         """Evaluate the line for break points.
@@ -395,7 +400,10 @@ class Rule_L016(Rule_L003):
                     self.logger.info(
                         "Unfixable inline comment, alone on line: %s", this_line[-1]
                     )
-                    return LintResult(anchor=segment)
+                    if self.ignore_comment_lines:
+                        return LintResult()
+                    else:
+                        return LintResult(anchor=segment)
 
                 self.logger.info(
                     "Attempting move of inline comment at end of line: %s",
