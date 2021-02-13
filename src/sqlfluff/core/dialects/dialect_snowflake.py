@@ -6,7 +6,9 @@ Based on https://docs.snowflake.com/en/sql-reference-commands.html
 """
 
 from sqlfluff.core.dialects.dialect_postgres import postgres_dialect
-from sqlfluff.core.dialects.dialect_ansi import SelectClauseSegment as ansi_SelectClauseSegment
+from sqlfluff.core.dialects.dialect_ansi import (
+    SelectClauseSegment as ansi_SelectClauseSegment,
+)
 from sqlfluff.core.parser import (
     BaseSegment,
     NamedSegment,

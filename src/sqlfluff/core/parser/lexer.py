@@ -6,7 +6,13 @@ from collections import namedtuple
 import re
 
 from sqlfluff.core.parser.markers import FilePositionMarker, EnrichedFilePositionMarker
-from sqlfluff.core.parser.segments import BaseSegment, RawSegment, Indent, Dedent, TemplateSegment
+from sqlfluff.core.parser.segments import (
+    BaseSegment,
+    RawSegment,
+    Indent,
+    Dedent,
+    TemplateSegment,
+)
 from sqlfluff.core.errors import SQLLexError
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.config import FluffConfig

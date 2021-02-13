@@ -11,7 +11,11 @@ import jinja2.nodes
 from sqlfluff.core.errors import SQLTemplaterError
 from sqlfluff.core.parser import FilePositionMarker
 
-from sqlfluff.core.templaters.base import register_templater, TemplatedFile, RawFileSlice
+from sqlfluff.core.templaters.base import (
+    register_templater,
+    TemplatedFile,
+    RawFileSlice,
+)
 from sqlfluff.core.templaters.python import PythonTemplater
 
 # Instantiate the templater logger

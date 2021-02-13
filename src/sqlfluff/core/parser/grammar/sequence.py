@@ -10,7 +10,10 @@ from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.context import ParseContext
 
-from sqlfluff.core.parser.grammar.base import BaseGrammar, cached_method_for_parse_context
+from sqlfluff.core.parser.grammar.base import (
+    BaseGrammar,
+    cached_method_for_parse_context,
+)
 
 
 class Sequence(BaseGrammar):

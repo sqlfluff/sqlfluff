@@ -29,7 +29,13 @@ from sqlfluff.cli.formatters import (
 from sqlfluff.cli.helpers import cli_table, get_package_version
 
 # Import from sqlfluff core.
-from sqlfluff.core import Linter, FluffConfig, SQLLintError, dialect_selector, dialect_readout
+from sqlfluff.core import (
+    Linter,
+    FluffConfig,
+    SQLLintError,
+    dialect_selector,
+    dialect_readout,
+)
 
 
 class RedWarningsFilter(logging.Filter):

@@ -2,7 +2,9 @@
 
 from sqlfluff.core.rules.base import RuleSet
 from sqlfluff.core.rules.config_info import STANDARD_CONFIG_INFO_DICT
-from sqlfluff.core.rules.std import rules as std_rules  # Import the standard ruleset list
+from sqlfluff.core.rules.std import (
+    rules as std_rules,
+)  # Import the standard ruleset list
 
 
 std_rule_set = RuleSet(name="standard", config_info=STANDARD_CONFIG_INFO_DICT)

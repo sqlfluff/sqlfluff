@@ -23,7 +23,11 @@ from sqlfluff.core.parser import (
     StartsWith,
 )
 from sqlfluff.core.dialects.dialect_ansi import ObjectReferenceSegment, ansi_dialect
-from sqlfluff.core.dialects.exasol_keywords import BARE_FUNCTIONS, RESERVED_KEYWORDS, UNRESERVED_KEYWORDS
+from sqlfluff.core.dialects.exasol_keywords import (
+    BARE_FUNCTIONS,
+    RESERVED_KEYWORDS,
+    UNRESERVED_KEYWORDS,
+)
 
 exasol_dialect = ansi_dialect.copy_as("exasol")
 

@@ -36,7 +36,10 @@ from sqlfluff.core.parser import (
 )
 
 from sqlfluff.core.dialects.base import Dialect
-from sqlfluff.core.dialects.ansi_keywords import ansi_reserved_keywords, ansi_unreserved_keywords
+from sqlfluff.core.dialects.ansi_keywords import (
+    ansi_reserved_keywords,
+    ansi_unreserved_keywords,
+)
 
 
 ansi_dialect = Dialect("ansi", root_segment_name="FileSegment")
