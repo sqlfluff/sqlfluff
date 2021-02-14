@@ -3,14 +3,10 @@
 import os.path
 import logging
 from typing import Optional
-from contextlib import contextmanager
-import shutil
 
 from dataclasses import dataclass
 from cached_property import cached_property
 from functools import partial
-
-import oyaml as yaml
 
 from sqlfluff.core.errors import SQLTemplaterError
 
@@ -231,7 +227,7 @@ class DbtTemplater(JinjaTemplater):
         results = [self.dbt_manifest.expect(uid) for uid in selected]
 
         if not results:
-            raise RuntimeError("File %s was not found in dbt project" % patched_fname)
+            raise RuntimeError("File %s was not found in dbt project" % fname)
 
         node = self.dbt_compiler.compile_node(
             node=results[0],
