@@ -52,7 +52,7 @@ setup(
         "Documentation": "https://docs.sqlfluff.com",
         "Source": "https://github.com/sqlfluff/sqlfluff",
     },
-    packages=find_packages(where='src'),
+    packages=find_packages(where="src"),
     package_dir={"": "src"},
     include_package_data=True,
     classifiers=[
