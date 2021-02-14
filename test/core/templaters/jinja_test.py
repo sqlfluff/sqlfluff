@@ -85,7 +85,10 @@ def assert_structure(yaml_loader, path, code_only=True):
         ("jinja_f/jinja", True),
         # Macro loading from a folder
         ("jinja_g_macros/jinja", True),
+        # jinja raw tag
         ("jinja_h_macros/jinja", True),
+        ("jinja_i_raw/raw_tag", True),
+        ("jinja_i_raw/raw_tag_2", True),
     ],
 )
 def test__templater_full(subpath, code_only, yaml_loader, caplog):
