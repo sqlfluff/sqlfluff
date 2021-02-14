@@ -254,12 +254,24 @@ def test__templater_jinja_slice_template(test, result):
                 ("literal", slice(107, 121, None), slice(146, 160, None)),
             ],
         ),
+        # Test a wrapped example. Given the default config is to unwrap any wrapped
+        # queries, it should ignore the ends in the sliced file.
+        (
+            "SELECT {{blah}} FROM something",
+            "WITH wrap AS (SELECT nothing FROM something) SELECT * FROM wrap",
+            # The sliced version should have trimmed the ends
+            [
+                ("literal", slice(0, 7, None), slice(0, 7, None)),
+                ("templated", slice(7, 15, None), slice(7, 14, None)),
+                ("literal", slice(15, 30, None), slice(14, 29, None)),
+            ],
+        ),
     ],
 )
 def test__templater_jinja_slice_file(raw_file, templated_file, result, caplog):
     """Test slice_file."""
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.templater"):
-        _, resp = JinjaTemplater.slice_file(
+        _, resp, _ = JinjaTemplater.slice_file(
             raw_file,
             templated_file,
         )

@@ -78,10 +78,9 @@ with dbt__CTE__INTERNAL_test as (
 select * from a
 )select count(*) from dbt__CTE__INTERNAL_test
 """,
+            # The unwrapper should trim the ends.
             [
-                ("templated", slice(0, 0, None), slice(0, 35, None)),
-                ("literal", slice(0, 15, None), slice(35, 50, None)),
-                ("templated", slice(15, 15, None), slice(50, 97, None)),
+                ("literal", slice(0, 15, None), slice(0, 15, None)),
             ],
         )
     ],
@@ -91,7 +90,7 @@ def test__templater_dbt_slice_file_wrapped_test(
 ):
     """Test that wrapped queries are sliced safely using _check_for_wrapped()."""
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.templater"):
-        _, resp = DbtTemplater.slice_file(
+        _, resp, _ = DbtTemplater.slice_file(
             raw_file,
             templated_file,
         )
@@ -117,6 +116,7 @@ def test__templated_sections_do_not_raise_lint_error(in_dbt_project_dir):  # noq
     """Test that the dbt test has only a new line lint error."""
     lntr = Linter(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
     lnt = lntr.lint_string(fname="tests/test.sql")
+    print(lnt.violations)
     assert len(lnt.violations) == 1
     # Newlines are removed by dbt templater
     assert lnt.violations[0].rule.code == "L009"

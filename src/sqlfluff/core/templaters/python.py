@@ -230,7 +230,14 @@ class PythonTemplater(RawTemplater):
                     err
                 )
             )
-        raw_sliced, sliced_file = self.slice_file(in_str, new_str)
+        unwrap_wrapped = (
+            True
+            if config is None
+            else config.get("unwrap_wrapped_queries", section="templater", default=True)
+        )
+        raw_sliced, sliced_file, new_str = self.slice_file(
+            in_str, new_str, unwrap_wrapped=unwrap_wrapped
+        )
         return (
             TemplatedFile(
                 source_str=in_str,
@@ -244,8 +251,8 @@ class PythonTemplater(RawTemplater):
 
     @classmethod
     def slice_file(
-        cls, raw_str: str, templated_str: str
-    ) -> Tuple[List[RawFileSlice], List[TemplatedFileSlice]]:
+        cls, raw_str: str, templated_str: str, unwrap_wrapped: bool = True
+    ) -> Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]:
         """Slice the file to determine regions where we can fix."""
         templater_logger.info("Slicing File Template")
         templater_logger.debug("    Raw String: %r", raw_str)
@@ -259,52 +266,81 @@ class PythonTemplater(RawTemplater):
             if raw_slice.slice_type == "literal"
         ]
         templater_logger.debug("    Literals: %s", literals)
-        # Calculate occurrences
-        raw_occurrences = cls._substring_occurances(raw_str, literals)
-        templated_occurances = cls._substring_occurances(templated_str, literals)
-        templater_logger.debug(
-            "    Occurances: Raw: %s, Templated: %s",
-            raw_occurrences,
-            templated_occurances,
-        )
-        # Split on invariants
-        split_sliced = list(
-            cls._split_invariants(
-                raw_sliced,
-                literals,
+        for loop_idx in range(2):
+            templater_logger.debug("    # Slice Loop %s", loop_idx)
+            # Calculate occurrences
+            raw_occurrences = cls._substring_occurances(raw_str, literals)
+            templated_occurances = cls._substring_occurances(templated_str, literals)
+            templater_logger.debug(
+                "    Occurances: Raw: %s, Templated: %s",
                 raw_occurrences,
                 templated_occurances,
-                templated_str,
             )
-        )
-        templater_logger.debug("    Split Sliced: %s", split_sliced)
-        # Deal with uniques and coalesce the rest
-        sliced_file = list(
-            cls._split_uniques_coalesce_rest(
-                split_sliced, raw_occurrences, templated_occurances, templated_str
+            # Split on invariants
+            split_sliced = list(
+                cls._split_invariants(
+                    raw_sliced,
+                    literals,
+                    raw_occurrences,
+                    templated_occurances,
+                    templated_str,
+                )
             )
-        )
-        templater_logger.debug("    Fully Sliced: %s", sliced_file)
-        sliced_file = cls._check_for_wrapped(sliced_file, templated_str)
-        return raw_sliced, sliced_file
+            templater_logger.debug("    Split Sliced: %s", split_sliced)
+            # Deal with uniques and coalesce the rest
+            sliced_file = list(
+                cls._split_uniques_coalesce_rest(
+                    split_sliced, raw_occurrences, templated_occurances, templated_str
+                )
+            )
+            templater_logger.debug("    Fully Sliced: %s", sliced_file)
+            sliced_file, new_templated_str = cls._check_for_wrapped(
+                sliced_file, templated_str, unwrap_wrapped=unwrap_wrapped
+            )
+            if new_templated_str == templated_str:
+                # If we didn't change it then we're done.
+                break
+            else:
+                # If it's not equal, loop around
+                templated_str = new_templated_str
+        return raw_sliced, sliced_file, new_templated_str
 
     @classmethod
     def _check_for_wrapped(
-        cls, slices: List[TemplatedFileSlice], templated_str: str
-    ) -> List[TemplatedFileSlice]:
-        """Identify a wrapped query (e.g. dbt test) and add a slice at start and end."""
+        cls,
+        slices: List[TemplatedFileSlice],
+        templated_str: str,
+        unwrap_wrapped: bool = True,
+    ) -> Tuple[List[TemplatedFileSlice], str]:
+        """Identify a wrapped query (e.g. dbt test) and handle it.
+
+        If unwrap_wrapped is true, we trim the wrapping from the templated file.
+        If unwrap_wrapped is false, we add a slice at start and end"""
         if not slices:
             # If there are no slices, return
-            return slices
+            return slices, templated_str
         first_slice = slices[0]
         last_slice = slices[-1]
+
+        if unwrap_wrapped:
+            # If we're unwrapping, there is no need to edit the slices, but we do need to trim
+            # the templated string. We should expect that the template will need to be re-sliced
+            # but we should assume that the function calling this one will deal with that
+            # eventuality.
+            return (
+                slices,
+                templated_str[
+                    first_slice.templated_slice.start : last_slice.templated_slice.stop
+                ],
+            )
+
         if (
             first_slice.source_slice.start == 0
             and first_slice.templated_slice.start != 0
         ):
-            #  This means that there is text at the start of the templated file which doesn't exist
-            #  in the raw file. Handle this by adding a templated slice (though it's not really templated)
-            #  between 0 and 0 in the raw, and 0 and the current first slice start index in the templated.
+            # This means that there is text at the start of the templated file which doesn't exist
+            # in the raw file. Handle this by adding a templated slice (though it's not really templated)
+            # between 0 and 0 in the raw, and 0 and the current first slice start index in the templated.
             slices.insert(
                 0,
                 TemplatedFileSlice(
@@ -324,7 +360,7 @@ class PythonTemplater(RawTemplater):
                     slice(last_slice.templated_slice.stop, len(templated_str)),
                 )
             )
-        return slices
+        return slices, templated_str
 
     @classmethod
     def _substring_occurances(
