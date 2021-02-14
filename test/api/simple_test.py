@@ -3,7 +3,6 @@
 import io
 
 import sqlfluff
-
 from sqlfluff.core.linter import ParsedString
 
 my_bad_query = "SeLEct  *, 1, blah as  fOO  from myTable"
@@ -64,6 +63,12 @@ lint_result = [
         "description": "Inconsistent capitalisation of unquoted identifiers.",
     },
 ]
+
+
+def test__api__lint_string_without_violations():
+    """Check lint functionality when there is no violation."""
+    result = sqlfluff.lint("select column from table\n")
+    assert result == []
 
 
 def test__api__lint_string():
