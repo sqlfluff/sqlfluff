@@ -1,13 +1,13 @@
 """Contains SQL Dialects."""
 
-from .dialect_ansi import ansi_dialect
-from .dialect_bigquery import bigquery_dialect
-from .dialect_mysql import mysql_dialect
-from .dialect_teradata import teradata_dialect
-from .dialect_postgres import postgres_dialect
-from .dialect_snowflake import snowflake_dialect
-from .dialect_exasol import exasol_dialect
-from .dialect_exasol_fs import exasol_fs_dialect
+from sqlfluff.core.dialects.dialect_ansi import ansi_dialect
+from sqlfluff.core.dialects.dialect_bigquery import bigquery_dialect
+from sqlfluff.core.dialects.dialect_mysql import mysql_dialect
+from sqlfluff.core.dialects.dialect_teradata import teradata_dialect
+from sqlfluff.core.dialects.dialect_postgres import postgres_dialect
+from sqlfluff.core.dialects.dialect_snowflake import snowflake_dialect
+from sqlfluff.core.dialects.dialect_exasol import exasol_dialect
+from sqlfluff.core.dialects.dialect_exasol_fs import exasol_fs_dialect
 
 
 _dialect_lookup = {

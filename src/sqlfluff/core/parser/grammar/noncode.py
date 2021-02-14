@@ -6,10 +6,10 @@ terminator or similar alongside other matchers.
 
 from typing import Optional, List
 
-from ..match_wrapper import match_wrapper
-from ..match_result import MatchResult
-from ..matchable import Matchable
-from ..context import ParseContext
+from sqlfluff.core.parser.match_wrapper import match_wrapper
+from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.matchable import Matchable
+from sqlfluff.core.parser.context import ParseContext
 
 
 class NonCodeMatcher(Matchable):

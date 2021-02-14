@@ -4,10 +4,10 @@ import ast
 from string import Formatter
 from typing import Iterable, Dict, Tuple, List, Iterator, Optional, NamedTuple
 
-from ..errors import SQLTemplaterError
-from ..string_helpers import findall
+from sqlfluff.core.errors import SQLTemplaterError
+from sqlfluff.core.string_helpers import findall
 
-from .base import (
+from sqlfluff.core.templaters.base import (
     RawTemplater,
     register_templater,
     TemplatedFile,

@@ -1,6 +1,6 @@
 """The simple public API methods."""
 
-from ..core import Linter
+from sqlfluff.core import Linter
 
 
 def _unify_str_or_file(sql):

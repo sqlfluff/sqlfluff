@@ -12,10 +12,10 @@ from functools import partial
 
 import oyaml as yaml
 
-from ..errors import SQLTemplaterError
+from sqlfluff.core.errors import SQLTemplaterError
 
-from .base import register_templater, TemplatedFile
-from .jinja import JinjaTemplater
+from sqlfluff.core.templaters.base import register_templater, TemplatedFile
+from sqlfluff.core.templaters.jinja import JinjaTemplater
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
