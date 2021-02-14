@@ -2,8 +2,10 @@
 
 import os
 import pytest
+import logging
 
-from sqlfluff.core import FluffConfig
+from sqlfluff.core import FluffConfig, Lexer, Linter
+from sqlfluff.core.templaters.dbt import DbtTemplater
 from test.fixtures.dbt.templater import (  # noqa
     DBT_FLUFF_CONFIG,
     dbt_templater,
@@ -63,6 +65,61 @@ def test__templater_dbt_templating_result(
     )
     # the dbt compiler gets rid of new lines
     assert str(templated_file) + "\n" == open("../dbt/" + fname).read()
+
+
+@pytest.mark.dbt
+@pytest.mark.parametrize(
+    "raw_file,templated_file,result",
+    [
+        (
+            "select * from a",
+            """
+with dbt__CTE__INTERNAL_test as (
+select * from a
+)select count(*) from dbt__CTE__INTERNAL_test
+""",
+            # The unwrapper should trim the ends.
+            [
+                ("literal", slice(0, 15, None), slice(0, 15, None)),
+            ],
+        )
+    ],
+)
+def test__templater_dbt_slice_file_wrapped_test(
+    raw_file, templated_file, result, caplog
+):
+    """Test that wrapped queries are sliced safely using _check_for_wrapped()."""
+    with caplog.at_level(logging.DEBUG, logger="sqlfluff.templater"):
+        _, resp, _ = DbtTemplater.slice_file(
+            raw_file,
+            templated_file,
+        )
+    assert resp == result
+
+
+@pytest.mark.dbt
+def test__templater_dbt_templating_test_lex(in_dbt_project_dir, dbt_templater):  # noqa
+    """A test to demonstrate _tests_as_models works on dbt tests by temporarily making them models."""
+    lexer = Lexer(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
+    templated_file, _ = dbt_templater.process(
+        in_str="",
+        fname="tests/test.sql",
+        config=FluffConfig(configs=DBT_FLUFF_CONFIG),
+    )
+    tokens, lex_vs = lexer.lex(templated_file)
+    assert templated_file.source_str == "select * from a"
+    assert templated_file.templated_str == "select * from a"
+
+
+@pytest.mark.dbt
+def test__templated_sections_do_not_raise_lint_error(in_dbt_project_dir):  # noqa
+    """Test that the dbt test has only a new line lint error."""
+    lntr = Linter(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
+    lnt = lntr.lint_string(fname="tests/test.sql")
+    print(lnt.violations)
+    assert len(lnt.violations) == 1
+    # Newlines are removed by dbt templater
+    assert lnt.violations[0].rule.code == "L009"
 
 
 @pytest.mark.dbt
