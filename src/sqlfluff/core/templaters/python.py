@@ -317,7 +317,8 @@ class PythonTemplater(RawTemplater):
         """Identify a wrapped query (e.g. dbt test) and handle it.
 
         If unwrap_wrapped is true, we trim the wrapping from the templated file.
-        If unwrap_wrapped is false, we add a slice at start and end"""
+        If unwrap_wrapped is false, we add a slice at start and end.
+        """
         if not slices:
             # If there are no slices, return
             return slices, templated_str
