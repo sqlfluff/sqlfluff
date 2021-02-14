@@ -2,9 +2,6 @@
 
 from sqlfluff.core.rules.base import RuleSet
 from sqlfluff.core.rules.config_info import STANDARD_CONFIG_INFO_DICT
-from sqlfluff.core.plugin.lib import (
-    get_rules,
-)
 from sqlfluff.core.plugin.host import get_plugin_manager
 
 std_rule_set = RuleSet(name="standard", config_info=STANDARD_CONFIG_INFO_DICT)
