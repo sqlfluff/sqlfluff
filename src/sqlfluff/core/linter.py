@@ -923,109 +923,111 @@ class Linter:
                 return (comment.pos_marker.line_no, None)
         return None
 
-    def lint(
-        self, parsed: BaseSegment, config: Optional[FluffConfig] = None
-    ) -> List[SQLLintError]:
-        """Lint a parsed file object."""
+    @staticmethod
+    def _warn_unfixable(code: str):
+        linter_logger.warning(
+            f"One fix for {code} not applied, it would re-cause the same error."
+        )
+
+    def lint_fix(
+        self, tree: BaseSegment, config: Optional[FluffConfig] = None, fix: bool = False
+    ) -> Tuple[BaseSegment, List[SQLLintError]]:
+        """Lint and optionally fix a tree object."""
         config = config or self.config
-        linting_errors = []
-        for crawler in self.get_ruleset(config=config):
-            lerrs, _, _, _ = crawler.crawl(parsed, dialect=config.get("dialect_obj"))
-            linting_errors += lerrs
-
-        # Filter out any linting errors in templated sections if relevant.
-        if config.get("ignore_templated_areas", default=True):
-            linting_errors = list(
-                filter(
-                    lambda e: getattr(e.segment.pos_marker, "is_literal", True),
-                    linting_errors,
-                )
-            )
-
-        return linting_errors
-
-    def fix(self, parsed: BaseSegment, config: Optional[FluffConfig] = None):
-        """Fix a parsed file object."""
-        # Set up our config
-        config = config or self.config
-        # If we're in fix mode, then we need to progressively call and reconstruct
-        working = parsed
-        # Keep a set of previous versions to catch infinite loops.
-        previous_versions = {working.raw}
+        # Keep track of the linting errors
+        all_linting_errors = []
         # A placeholder for the fixes we had on the previous loop
         last_fixes = None
-        # How many loops have we had
-        fix_loop_idx = 0
-        # How many loops are we allowed
-        loop_limit = config.get("runaway_limit")
-        # Keep track of the errors from round 1
-        linting_errors = []
-        initial_linting_errors = []
-        # Enter into the main fix loop. Some fixes may introduce other
-        # problems and so we loop around this until we reach stability
-        # or we reach the limit.
-        while fix_loop_idx < loop_limit:
-            fix_loop_idx += 1
+        # Keep a set of previous versions to catch infinite loops.
+        previous_versions = {tree.raw}
+
+        # If we are fixing then we want to loop up to the runaway_limit, otherwise just once for linting.
+        loop_limit = config.get("runaway_limit") if fix else 1
+
+        for loop in range(loop_limit):
             changed = False
-            # Iterate through each rule.
             for crawler in self.get_ruleset(config=config):
                 # fixes should be a dict {} with keys edit, delete, create
                 # delete is just a list of segments to delete
                 # edit and create are list of tuples. The first element is the
                 # "anchor", the segment to look for either to edit or to insert BEFORE.
                 # The second is the element to insert or create.
-                lerrs, _, fixes, _ = crawler.crawl(
-                    working, dialect=config.get("dialect_obj"), fix=True
+                linting_errors, _, fixes, _ = crawler.crawl(
+                    tree, dialect=config.get("dialect_obj")
                 )
-                linting_errors += lerrs
-                # Are there fixes to apply?
-                if fixes:
-                    linter_logger.info("Applying Fixes: %s", fixes)
+                all_linting_errors += linting_errors
+
+                if fix and fixes:
+                    linter_logger.info(f"Applying Fixes: {fixes}")
                     # Do some sanity checks on the fixes before applying.
-                    if last_fixes and fixes == last_fixes:
-                        linter_logger.warning(
-                            "One fix for %s not applied, it would re-cause the same error.",
-                            crawler.code,
-                        )
+                    if fixes == last_fixes:
+                        self._warn_unfixable(crawler.code)
                     else:
                         last_fixes = fixes
-                        # Actually apply fixes.
-                        new_working, _ = working.apply_fixes(fixes)
+                        new_tree, _ = tree.apply_fixes(fixes)
                         # Check for infinite loops
-                        if new_working.raw not in previous_versions:
+                        if new_tree.raw not in previous_versions:
                             # We've not seen this version of the file so far. Continue.
-                            working = new_working
-                            previous_versions.add(working.raw)
+                            tree = new_tree
+                            previous_versions.add(tree.raw)
                             changed = True
                             continue
-                        # Applying these fixes took us back to a state which we've
-                        # seen before. Abort.
-                        linter_logger.warning(
-                            "One fix for %s not applied, it would re-cause the same error.",
-                            crawler.code,
-                        )
-            # Keep track of initial errors for reporting.
-            if fix_loop_idx == 1:
-                initial_linting_errors = linting_errors.copy()
-            # We did not change the file. Either the file is clean (no fixes), or
-            # any fixes which are present will take us back to a previous state.
-            if not changed:
+                        else:
+                            # Applying these fixes took us back to a state which we've
+                            # seen before. Abort.
+                            self._warn_unfixable(crawler.code)
+
+            if loop == 0:
+                # Keep track of initial errors for reporting.
+                initial_linting_errors = all_linting_errors.copy()
+
+            if fix and not changed:
+                # We did not change the file. Either the file is clean (no fixes), or
+                # any fixes which are present will take us back to a previous state.
                 linter_logger.info(
-                    "Fix loop complete. Stability achieved after %s/%s loops.",
-                    fix_loop_idx,
-                    loop_limit,
+                    f"Fix loop complete. Stability achieved after {loop}/{loop_limit} loops."
                 )
                 break
-        else:
-            linter_logger.warning(
-                "Loop limit on fixes reached [%s]. Some fixes may be overdone.",
-                loop_limit,
+        if fix and loop + 1 == loop_limit:
+            linter_logger.warning(f"Loop limit on fixes reached [{loop_limit}].")
+
+        if config.get("ignore_templated_areas", default=True):
+            initial_linting_errors = self.remove_templated_errors(
+                initial_linting_errors
             )
-        return working, initial_linting_errors
+
+        return tree, initial_linting_errors
+
+    def remove_templated_errors(
+        self, linting_errors: List[SQLLintError]
+    ) -> List[SQLLintError]:
+        """Filter a list of lint errors, removing those which only occur in templated slices."""
+        # Filter out any linting errors in templated sections if relevant.
+        linting_errors = list(
+            filter(
+                lambda e: getattr(e.segment.pos_marker, "is_literal", True),
+                linting_errors,
+            )
+        )
+        return linting_errors
+
+    def fix(
+        self, tree: BaseSegment, config: Optional[FluffConfig] = None
+    ) -> Tuple[BaseSegment, List[SQLLintError]]:
+        """Return the fixed tree and violations from lintfix when we're fixing."""
+        fixed_tree, violations = self.lint_fix(tree, config, fix=True)
+        return fixed_tree, violations
+
+    def lint(
+        self, tree: BaseSegment, config: Optional[FluffConfig] = None
+    ) -> List[SQLLintError]:
+        """Return just the violations from lintfix when we're only linting."""
+        _, violations = self.lint_fix(tree, config, fix=False)
+        return violations
 
     def lint_string(
         self,
-        in_str: str,
+        in_str: str = "",
         fname: str = "<string input>",
         fix: bool = False,
         config: Optional[FluffConfig] = None,
@@ -1061,9 +1063,7 @@ class Linter:
         if tree:
             t0 = time.monotonic()
             linter_logger.info("LINTING (%s)", fname)
-            # If we're in fix mode, apply those fixes.
-            # NB: We don't pass in the linting errors, because the fix function
-            # regenerates them on each loop.
+
             if fix:
                 tree, initial_linting_errors = self.fix(tree, config=config)
             else:

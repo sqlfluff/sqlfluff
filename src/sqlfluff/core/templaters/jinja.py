@@ -268,7 +268,9 @@ class JinjaTemplater(PythonTemplater):
             # NB: Passing no context. Everything is loaded when the template is loaded.
             out_str = template.render()
             # Slice the file once rendered.
-            raw_sliced, sliced_file = self.slice_file(in_str, out_str)
+            raw_sliced, sliced_file, out_str = self.slice_file(
+                in_str, out_str, config=config
+            )
             return (
                 TemplatedFile(
                     source_str=in_str,

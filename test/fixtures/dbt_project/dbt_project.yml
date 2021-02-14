@@ -4,6 +4,8 @@ config-version: 2
 
 profile: 'default'
 
+test-paths: ["tests"]
+
 models:
   my_new_project:
     materialized: view
