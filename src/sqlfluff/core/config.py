@@ -223,9 +223,11 @@ class ConfigLoader:
             r[n] = v
         return ctx
 
-    def load_default_config_file(self, file_dir: str, file_name: str) -> dict:
+    def load_default_config_file(self) -> dict:
         """Load the default config file."""
-        elems = self._get_config_elems_from_file(os.path.join(file_dir, file_name))
+        elems = self._get_config_elems_from_file(
+            os.path.join(os.path.dirname(__file__), "default_config.cfg")
+        )
         return self._incorporate_vals({}, elems)
 
     def load_config_at_path(self, path: str) -> dict:
@@ -337,8 +339,9 @@ class FluffConfig:
         self, configs: Optional[dict] = None, overrides: Optional[dict] = None
     ):
         self._overrides = overrides  # We only store this for child configs
-        plugin_manager = get_plugin_manager()
-        defaults = nested_combine(*plugin_manager.hook.load_default_config())
+        defaults = nested_combine(
+            *get
+        )
         self._configs = nested_combine(
             defaults, configs or {"core": {}}, {"core": overrides or {}}
         )
@@ -370,8 +373,8 @@ class FluffConfig:
 
         # Dialect and Template selection.
         # NB: We import here to avoid a circular references.
-        from .dialects import dialect_selector
-        from .templaters import templater_selector
+        from sqlfluff.core.dialects import dialect_selector
+        from sqlfluff.core.templaters import templater_selector
 
         self._configs["core"]["dialect_obj"] = dialect_selector(
             self._configs["core"]["dialect"]
@@ -445,9 +448,11 @@ class FluffConfig:
         """
         return dict_diff(self._configs, other._configs)
 
-    def get(self, val: str, section: Union[str, Iterable[str]] = "core"):
+    def get(
+        self, val: str, section: Union[str, Iterable[str]] = "core", default: Any = None
+    ):
         """Get a particular value from the config."""
-        return self._configs[section].get(val, None)
+        return self._configs[section].get(val, default)
 
     def get_section(self, section: Union[str, Iterable[str]]) -> Union[dict, None]:
         """Return a whole section of config as a dict.
