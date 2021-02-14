@@ -2,8 +2,10 @@
 
 import os
 import pytest
+import logging
 
 from sqlfluff.core import FluffConfig, Lexer, Linter
+from sqlfluff.core.templaters.dbt import DbtTemplater
 from test.fixtures.dbt.templater import (  # noqa
     DBT_FLUFF_CONFIG,
     dbt_templater,
@@ -63,6 +65,37 @@ def test__templater_dbt_templating_result(
     )
     # the dbt compiler gets rid of new lines
     assert str(templated_file) + "\n" == open("../dbt/" + fname).read()
+
+
+@pytest.mark.dbt
+@pytest.mark.parametrize(
+    "raw_file,templated_file,result",
+    [
+        (
+            "select * from a",
+            """
+with dbt__CTE__INTERNAL_test as (
+select * from a
+)select count(*) from dbt__CTE__INTERNAL_test
+""",
+            [
+                ("templated", slice(0, 0, None), slice(0, 35, None)),
+                ("literal", slice(0, 15, None), slice(35, 50, None)),
+                ("templated", slice(15, 15, None), slice(50, 97, None)),
+            ],
+        )
+    ],
+)
+def test__templater_dbt_slice_file_wrapped_test(
+    raw_file, templated_file, result, caplog
+):
+    """Test that wrapped queries are sliced safely using _check_for_wrapped()."""
+    with caplog.at_level(logging.DEBUG, logger="sqlfluff.templater"):
+        _, resp = DbtTemplater.slice_file(
+            raw_file,
+            templated_file,
+        )
+    assert resp == result
 
 
 @pytest.mark.dbt
