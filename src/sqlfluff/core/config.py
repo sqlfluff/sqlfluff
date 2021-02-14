@@ -223,11 +223,9 @@ class ConfigLoader:
             r[n] = v
         return ctx
 
-    def load_default_config_file(self) -> dict:
+    def load_default_config_file(self, file_dir: str, file_name: str) -> dict:
         """Load the default config file."""
-        elems = self._get_config_elems_from_file(
-            os.path.join(os.path.dirname(__file__), "default_config.cfg")
-        )
+        elems = self._get_config_elems_from_file(os.path.join(file_dir, file_name))
         return self._incorporate_vals({}, elems)
 
     def load_config_at_path(self, path: str) -> dict:
