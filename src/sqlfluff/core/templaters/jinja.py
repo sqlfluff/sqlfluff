@@ -268,15 +268,8 @@ class JinjaTemplater(PythonTemplater):
             # NB: Passing no context. Everything is loaded when the template is loaded.
             out_str = template.render()
             # Slice the file once rendered.
-            unwrap_wrapped = (
-                True
-                if config is None
-                else config.get(
-                    "unwrap_wrapped_queries", section="templater", default=True
-                )
-            )
             raw_sliced, sliced_file, out_str = self.slice_file(
-                in_str, out_str, unwrap_wrapped=unwrap_wrapped
+                in_str, out_str, config=config
             )
             return (
                 TemplatedFile(

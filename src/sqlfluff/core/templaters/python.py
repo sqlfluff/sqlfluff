@@ -230,13 +230,8 @@ class PythonTemplater(RawTemplater):
                     err
                 )
             )
-        unwrap_wrapped = (
-            True
-            if config is None
-            else config.get("unwrap_wrapped_queries", section="templater", default=True)
-        )
         raw_sliced, sliced_file, new_str = self.slice_file(
-            in_str, new_str, unwrap_wrapped=unwrap_wrapped
+            in_str, new_str, config=config
         )
         return (
             TemplatedFile(
@@ -251,7 +246,7 @@ class PythonTemplater(RawTemplater):
 
     @classmethod
     def slice_file(
-        cls, raw_str: str, templated_str: str, unwrap_wrapped: bool = True
+        cls, raw_str: str, templated_str: str, config = None
     ) -> Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]:
         """Slice the file to determine regions where we can fix."""
         templater_logger.info("Slicing File Template")
@@ -294,6 +289,11 @@ class PythonTemplater(RawTemplater):
                 )
             )
             templater_logger.debug("    Fully Sliced: %s", sliced_file)
+            unwrap_wrapped = (
+                True
+                if config is None
+                else config.get("unwrap_wrapped_queries", section="templater", default=True)
+            )
             sliced_file, new_templated_str = cls._check_for_wrapped(
                 sliced_file, templated_str, unwrap_wrapped=unwrap_wrapped
             )

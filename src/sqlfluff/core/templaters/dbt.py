@@ -252,13 +252,8 @@ class DbtTemplater(JinjaTemplater):
                 "by running `dbt compile` directly."
             )
 
-        unwrap_wrapped = (
-            True
-            if config is None
-            else config.get("unwrap_wrapped_queries", section="templater", default=True)
-        )
         raw_sliced, sliced_file, templated_sql = self.slice_file(
-            node.raw_sql, compiled_sql, unwrap_wrapped=unwrap_wrapped
+            node.raw_sql, compiled_sql, config=config
         )
         return (
             TemplatedFile(

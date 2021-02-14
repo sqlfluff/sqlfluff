@@ -4,7 +4,7 @@ import pytest
 import logging
 
 from sqlfluff.core.templaters import PythonTemplater
-from sqlfluff.core import SQLTemplaterError
+from sqlfluff.core import SQLTemplaterError, FluffConfig
 
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFileSlice
 from sqlfluff.core.templaters.python import IntermediateFileSlice
@@ -420,7 +420,11 @@ def test__templater_python_split_uniques_coalesce_rest(
 def test__templater_python_slice_file(raw_file, templated_file, unwrap_wrapped, result):
     """Test slice_file."""
     _, resp, _ = PythonTemplater.slice_file(
-        raw_file, templated_file, unwrap_wrapped=unwrap_wrapped
+        raw_file,
+        templated_file,
+        config=FluffConfig(
+            configs={"templater": {"unwrap_wrapped_queries": unwrap_wrapped}}
+        ),
     )
     # Check contigious
     prev_slice = None
