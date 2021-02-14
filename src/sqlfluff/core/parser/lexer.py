@@ -5,11 +5,17 @@ from typing import Optional, List, Tuple, Union
 from collections import namedtuple
 import re
 
-from .markers import FilePositionMarker, EnrichedFilePositionMarker
-from .segments import BaseSegment, RawSegment, Indent, Dedent, TemplateSegment
-from ..errors import SQLLexError
-from ..templaters import TemplatedFile
-from ..config import FluffConfig
+from sqlfluff.core.parser.markers import FilePositionMarker, EnrichedFilePositionMarker
+from sqlfluff.core.parser.segments import (
+    BaseSegment,
+    RawSegment,
+    Indent,
+    Dedent,
+    TemplateSegment,
+)
+from sqlfluff.core.errors import SQLLexError
+from sqlfluff.core.templaters import TemplatedFile
+from sqlfluff.core.config import FluffConfig
 
 # Instantiate the lexer logger
 lexer_logger = logging.getLogger("sqlfluff.lexer")

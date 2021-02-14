@@ -3,19 +3,19 @@
 import copy
 from typing import List, NamedTuple, Optional, Union, Type, Tuple
 
-from ...errors import SQLParseError
-from ...string_helpers import curtail_string
+from sqlfluff.core.errors import SQLParseError
+from sqlfluff.core.string_helpers import curtail_string
 
-from ..segments import BaseSegment, EphemeralSegment
-from ..helpers import trim_non_code_segments
-from ..match_result import MatchResult
-from ..match_logging import (
+from sqlfluff.core.parser.segments import BaseSegment, EphemeralSegment
+from sqlfluff.core.parser.helpers import trim_non_code_segments
+from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.match_logging import (
     parse_match_logging,
     LateBoundJoinSegmentsCurtailed,
 )
-from ..match_wrapper import match_wrapper
-from ..matchable import Matchable
-from ..context import ParseContext
+from sqlfluff.core.parser.match_wrapper import match_wrapper
+from sqlfluff.core.parser.matchable import Matchable
+from sqlfluff.core.parser.context import ParseContext
 
 # Either a Grammar or a Segment CLASS
 MatchableType = Union[Matchable, Type[BaseSegment]]
