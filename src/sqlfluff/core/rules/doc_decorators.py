@@ -1,6 +1,6 @@
 """A collection of decorators to modify rule docstrings for Sphinx."""
 
-from sqlfluff.core.rules.config_info import STANDARD_CONFIG_INFO_DICT
+from sqlfluff.core.rules.config_info import get_config_info
 from sqlfluff.core.rules.base import rules_logger  # noqa
 
 
@@ -20,7 +20,6 @@ def document_configuration(cls, ruleset="std"):
     options in the docs, from a single source of truth.
     """
     if ruleset == "std":
-        # from sqlfluff.core.rules.config_info import config_info_merged
         config_info = get_config_info()
     else:
         raise (
