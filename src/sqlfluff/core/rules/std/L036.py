@@ -136,8 +136,8 @@ class Rule_L036(BaseCrawler):
                 if len(select_stmt.segments) > after_select_clause_idx:
                     if select_stmt.segments[after_select_clause_idx].type == 'newline':
                         # The select_clause is immediately followed by a
-                        # newline. Delete it in order to avoid leaving behind an
-                        # empty line after fix.
+                        # newline. Delete the newline in order to avoid leaving
+                        # behind an empty line after fix.
                         fixes.append(
                             LintFix("delete", select_stmt.segments[after_select_clause_idx])
                         )
