@@ -1,8 +1,9 @@
 """Implementation of Rule L036."""
 
-from typing import NamedTuple
+from typing import List, NamedTuple
 
-from sqlfluff.core.rules.base import BaseCrawler, LintResult
+from sqlfluff.core.parser import BaseSegment
+from sqlfluff.core.rules.base import BaseCrawler, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
@@ -12,6 +13,7 @@ class EvalResult(NamedTuple):
     first_new_line_idx: int
     first_select_target_idx: int
     first_whitespace_idx: int
+    select_targets: List[BaseSegment]
 
 
 @document_fix_compatible
@@ -54,8 +56,10 @@ class Rule_L036(BaseCrawler):
         first_new_line_idx = -1
         first_select_target_idx = -1
         first_whitespace_idx = -1
+        select_targets = []
         for fname_idx, seg in enumerate(segment.segments):
             if seg.is_type("select_target_element"):
+                select_targets.append(seg)
                 cnt_select_targets += 1
                 if first_select_target_idx == -1:
                     first_select_target_idx = fname_idx
@@ -79,15 +83,18 @@ class Rule_L036(BaseCrawler):
             first_new_line_idx,
             first_select_target_idx,
             first_whitespace_idx,
+            select_targets
         )
 
         return eval_result
 
-    @staticmethod
-    def _eval_multiple_select_target_elements(eval_result, segment):
+    def _eval_multiple_select_target_elements(self, eval_result, segment):
         if eval_result.first_new_line_idx == -1:
             # there are multiple select targets but no new lines
-            return LintResult(anchor=segment)
+            ins = self.make_newline(
+                pos_marker=segment.pos_marker.advance_by(segment.raw))
+            fixes = [LintFix("create", eval_result.select_targets[0], ins)]
+            return LintResult(anchor=segment, fixes=fixes)
         else:
             # ensure newline before select target and whitespace segment
             if (
@@ -99,8 +106,7 @@ class Rule_L036(BaseCrawler):
             else:
                 return LintResult(anchor=segment)
 
-    @staticmethod
-    def _eval_single_select_target_element(eval_result, select_clause):
+    def _eval_single_select_target_element(self, eval_result, select_clause):
         is_wildcard = False
         for segment in select_clause.segments:
             if segment.is_type("select_target_element"):
@@ -116,6 +122,7 @@ class Rule_L036(BaseCrawler):
             < eval_result.first_select_target_idx
         ):
             # there is a newline between select and select target
-            return LintResult(anchor=select_clause)
+            fixes = [LintFix("delete", select_clause.segments[eval_result.first_new_line_idx])]
+            return LintResult(anchor=select_clause, fixes=fixes)
         else:
             return None
