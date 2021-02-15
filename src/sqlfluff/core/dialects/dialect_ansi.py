@@ -237,6 +237,9 @@ ansi_dialect.add(
             _anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
     ),
+    VersionIdentifierSegment=ReSegment.make(
+        r"[A-Z0-9_.]*", name="version", type="identifier"
+    ),
     ParameterNameSegment=ReSegment.make(
         r"[A-Z][A-Z0-9_]*", name="parameter", type="parameter"
     ),
@@ -511,10 +514,24 @@ class TableReferenceSegment(ObjectReferenceSegment):
 
 
 @ansi_dialect.segment()
+class SchemaReferenceSegment(ObjectReferenceSegment):
+    """A reference to a schema."""
+
+    type = "schema_reference"
+
+
+@ansi_dialect.segment()
 class IndexReferenceSegment(ObjectReferenceSegment):
     """A reference to an index."""
 
     type = "index_reference"
+
+
+@ansi_dialect.segment()
+class ExtensionReferenceSegment(ObjectReferenceSegment):
+    """A reference to an extension."""
+
+    type = "extension_reference"
 
 
 @ansi_dialect.segment()
@@ -1794,6 +1811,38 @@ class CreateTableStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class CreateSchemaStatementSegment(BaseSegment):
+    """A `CREATE SCHEMA` statement."""
+
+    type = "create_schema_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "SCHEMA",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("SchemaReferenceSegment"),
+    )
+
+
+@ansi_dialect.segment()
+class CreateExtensionStatementSegment(BaseSegment):
+    """A `CREATE EXTENSION` statement.
+    https://www.postgresql.org/docs/9.1/sql-createextension.html
+    """
+
+    type = "create_extension_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "EXTENSION",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ExtensionReferenceSegment"),
+        Ref.keyword("WITH", optional=True),
+        Sequence("SCHEMA", Ref("SchemaReferenceSegment"), optional=True),
+        Sequence("VERSION", Ref("VersionIdentifierSegment"), optional=True),
+        Sequence("FROM", Ref("VersionIdentifierSegment"), optional=True),
+    )
+
+
+@ansi_dialect.segment()
 class CreateIndexStatementSegment(BaseSegment):
     """A `CREATE INDEX` statement."""
 
@@ -2353,6 +2402,8 @@ class StatementSegment(BaseSegment):
         Ref("AccessStatementSegment"),
         Ref("CreateTableStatementSegment"),
         Ref("AlterTableStatementSegment"),
+        Ref("CreateSchemaStatementSegment"),
+        Ref("CreateExtensionStatementSegment"),
         Ref("CreateIndexStatementSegment"),
         Ref("DropIndexStatementSegment"),
         Ref("CreateViewStatementSegment"),
