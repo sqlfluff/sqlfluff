@@ -13,8 +13,10 @@ test_single_select_target_and_new_line_before_select_target:
       select
           a
       from x
+  # In a normal "sqlfluff fix" run, the extra spaces in fix_str would be removed
+  # by a different rule, L039.
   fix_str: |
-      select a
+      select    a
       from x
 
 test_multiple_select_targets_on_new_lines_and_new_line_after_select:
@@ -35,10 +37,10 @@ test_multiple_select_targets_all_on_the_same_line:
   fail_str: |
     select a, b, c
     from x
-  fix_str: |
-    select
-        a, b, c
-    from x
+  # In a normal "sqlfluff fix" run, some formatting issues left over by this
+  # rule would be addressed by other rules.
+  # TRICKY: Use explicit newlines to preserve the trailing space after "SELECT".
+  fix_str: "select \na, b, c\nfrom x\n"
 
 test_multiple_select_targets_trailing_whitespace_after_select:
   # TRICKY: Use explicit newlines to preserve the trailing space after "SELECT".
