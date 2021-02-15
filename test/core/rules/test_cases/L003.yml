@@ -139,3 +139,34 @@ test_12:
         t1
     -- Comment
     JOIN t2 USING (user_id)
+
+test_13:
+  # GitHub issue #318. Keep "DISTINCT" on the line with the "SELECT".
+  fail_str: |
+    SELECT
+        DISTINCT user_id,
+        list_id
+    FROM
+        safe_user
+  fix_str: |
+    SELECT    DISTINCT user_id,
+        list_id
+    FROM
+        safe_user
+
+test_14:
+  # Same as test_13, but with a comment line in between SELECT and DISTINCT.
+  fail_str: |
+    SELECT
+        -- The table contains duplicates, so use DISTINCT.
+        DISTINCT user_id,
+        list_id
+    FROM
+        safe_user
+  fix_str: |
+    SELECT DISTINCT
+        -- The table contains duplicates, so use DISTINCT.
+        user_id,
+        list_id
+    FROM
+        safe_user

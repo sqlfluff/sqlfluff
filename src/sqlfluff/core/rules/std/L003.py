@@ -1,4 +1,5 @@
 """Implementation of Rule L003."""
+from typing import Optional
 
 from sqlfluff.core.rules.base import BaseCrawler, LintResult, LintFix
 from sqlfluff.core.rules.doc_decorators import (
@@ -185,6 +186,25 @@ class Rule_L003(BaseCrawler):
             ]
         return fixes
 
+    def _should_combine_with_previous_line(self, this_line, res, k) -> Optional[LintResult]:
+        """Conditionally combine with previous line.
+
+        Returns a LintResult if it decides to split, None otherwise. Currently,
+        only does so iff the last meaningful thing on this_line is the keyword
+        DISTINCT.
+        """
+        for seg in reversed(this_line["line_buffer"]):
+            if seg.is_code or seg.is_meta:
+                if seg.is_type("keyword") and seg.name == "DISTINCT":
+                    fixes = [
+                        LintFix("delete", res[k]['line_buffer'][-1]),
+                    ]
+
+                    return LintResult(anchor=seg, fixes=fixes)
+                else:
+                    return None
+        return None
+
     def _eval(self, segment, raw_stack, memory, **kwargs):
         """Indentation not consistent with previous lines.
 
@@ -363,6 +383,10 @@ class Rule_L003(BaseCrawler):
                         )
 
                     # Make fixes
+                    #import pdb; pdb.set_trace()
+                    split = self._should_combine_with_previous_line(this_line, res, k)
+                    if split:
+                        return split
                     fixes = self._coerce_indent_to(
                         desired_indent=desired_indent,
                         current_indent_buffer=this_line["indent_buffer"],
