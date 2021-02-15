@@ -1,5 +1,5 @@
 file:
-- statement:
+  statement:
     select_statement:
       select_clause:
         keyword: SELECT
@@ -30,4 +30,3 @@ file:
             - identifier: '"database"'
             - dot: .
             - identifier: '"sample_table"'
-

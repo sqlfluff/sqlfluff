@@ -41,7 +41,7 @@ for d in os.listdir(os.path.join("test", "fixtures", "parser")):
             if not has_yml:
                 raise (
                     Exception(
-                        f"Missing .yml file for {os.path.join(d, f)}. See sqlfluff/test/fixtures/parser/README.md for more info."
+                        f"Missing .yml file for {os.path.join(d, f)}. Run the test/core/generate_parse_fixture_yml.py script!"
                     )
                 )
 

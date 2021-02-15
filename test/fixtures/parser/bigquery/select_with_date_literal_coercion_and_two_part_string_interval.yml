@@ -19,11 +19,10 @@ file:
           - comma: ','
           - expression:
               interval_expression:
-              - keyword: INTERVAL
-              - literal: "'7'"
-              - date_part: DAY
+                keyword: INTERVAL
+                literal: "'7'"
+                date_part: DAY
           - end_bracket: )
           alias_expression:
             keyword: AS
             identifier: my_array
-

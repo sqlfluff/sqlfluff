@@ -1,42 +1,42 @@
 file:
-- statement:
+  statement:
     with_compound_statement:
-    - keyword: WITH
-    - common_table_expression:
-      - identifier: counter
-      - keyword: AS
-      - start_bracket: (
-      - with_compound_statement:
-        - keyword: WITH
-        - common_table_expression:
-          - identifier: ladder
-          - keyword: AS
-          - start_bracket: (
-          - select_statement:
+      keyword: WITH
+      common_table_expression:
+        identifier: counter
+        keyword: AS
+        start_bracket: (
+        with_compound_statement:
+          keyword: WITH
+          common_table_expression:
+            identifier: ladder
+            keyword: AS
+            start_bracket: (
+            select_statement:
               select_clause:
                 keyword: SELECT
                 select_target_element:
                   literal: '1'
-          - end_bracket: )
-        - select_statement:
-          - select_clause:
+            end_bracket: )
+          select_statement:
+            select_clause:
               keyword: SELECT
               select_target_element:
                 wildcard_expression:
                   wildcard_identifier:
                     star: '*'
-          - from_clause:
+            from_clause:
               keyword: FROM
               table_expression:
                 main_table_expression:
                   table_reference:
                     identifier: ladder
-          - orderby_clause:
+            orderby_clause:
             - keyword: ORDER
             - keyword: BY
             - literal: '1'
-      - end_bracket: )
-    - select_statement:
+        end_bracket: )
+      select_statement:
         select_clause:
           keyword: SELECT
           select_target_element:
@@ -49,4 +49,3 @@ file:
             main_table_expression:
               table_reference:
                 identifier: counter
-

@@ -9,10 +9,10 @@ file:
             - keyword: case
             - keyword: when
             - expression:
-              - column_reference:
+                column_reference:
                   identifier: '"Spec\"s 23"'
-              - keyword: like
-              - literal: "'Spec\\'s%'"
+                keyword: like
+                literal: "'Spec\\'s%'"
             - keyword: then
             - expression:
                 literal: "'boop'"
@@ -20,4 +20,3 @@ file:
           alias_expression:
             keyword: as
             identifier: field
-

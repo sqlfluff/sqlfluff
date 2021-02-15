@@ -29,11 +29,11 @@ file:
     - keyword: FUNCTION
     - function_name: increment
     - base:
-      - start_bracket: (
-      - parameter: i
-      - data_type:
+        start_bracket: (
+        parameter: i
+        data_type:
           data_type_identifier: integer
-      - end_bracket: )
+        end_bracket: )
     - keyword: RETURNS
     - data_type:
         data_type_identifier: integer
@@ -43,4 +43,3 @@ file:
       - keyword: LANGUAGE
       - parameter: plpgsql
 - statement_terminator: ;
-

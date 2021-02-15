@@ -27,4 +27,3 @@ file:
             table_reference:
               identifier: tbl2
 - statement_terminator: ;
-

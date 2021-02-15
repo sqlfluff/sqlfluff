@@ -6,11 +6,11 @@ file:
     - keyword: FUNCTION
     - function_name: parseTopSellers
     - base:
-      - start_bracket: (
-      - parameter: arr_str
-      - data_type:
+        start_bracket: (
+        parameter: arr_str
+        data_type:
           data_type_identifier: STRING
-      - end_bracket: )
+        end_bracket: )
     - keyword: RETURNS
     - data_type:
       - keyword: ARRAY
@@ -42,4 +42,3 @@ file:
       - end_bracket: )
       - keyword: AS
       - literal: "\"\"\"\n    CODE GOES HERE\n\"\"\""
-

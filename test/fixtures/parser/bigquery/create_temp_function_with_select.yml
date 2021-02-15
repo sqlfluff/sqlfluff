@@ -6,11 +6,11 @@ file:
     - keyword: FUNCTION
     - function_name: URLDECODE
     - base:
-      - start_bracket: (
-      - parameter: url
-      - data_type:
+        start_bracket: (
+        parameter: url
+        data_type:
           data_type_identifier: STRING
-      - end_bracket: )
+        end_bracket: )
     - keyword: RETURNS
     - data_type:
         data_type_identifier: STRING
@@ -18,8 +18,8 @@ file:
         keyword: AS
         start_bracket: (
         expression:
-        - start_bracket: (
-        - select_statement:
+          start_bracket: (
+          select_statement:
             select_clause:
               keyword: SELECT
               select_target_element:
@@ -50,6 +50,5 @@ file:
               - keyword: OFFSET
               - keyword: AS
               - identifier: i
-        - end_bracket: )
+          end_bracket: )
         end_bracket: )
-

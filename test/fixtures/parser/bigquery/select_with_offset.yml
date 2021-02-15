@@ -1,5 +1,5 @@
 file:
-- statement:
+  statement:
     select_statement:
       select_clause:
         keyword: SELECT
@@ -29,8 +29,8 @@ file:
         keyword: FROM
         table_expression:
           main_table_expression:
-          - start_bracket: (
-          - select_statement:
+            start_bracket: (
+            select_statement:
               select_clause:
               - keyword: SELECT
               - select_target_element:
@@ -43,10 +43,10 @@ file:
                     - keyword: CASE
                     - keyword: WHEN
                     - expression:
-                      - column_reference:
+                        column_reference:
                           identifier: ix
-                      - comparison_operator: '!='
-                      - literal: '0'
+                        comparison_operator: '!='
+                        literal: '0'
                     - keyword: THEN
                     - expression:
                         function:
@@ -95,5 +95,4 @@ file:
                 - keyword: OFFSET
                 - keyword: AS
                 - identifier: ix
-          - end_bracket: )
-
+            end_bracket: )
