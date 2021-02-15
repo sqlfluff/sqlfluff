@@ -1,6 +1,6 @@
 """Defines the base dialect class."""
 
-from ..parser import KeywordSegment, SegmentGenerator
+from sqlfluff.core.parser import KeywordSegment, SegmentGenerator
 
 
 class Dialect:

@@ -242,6 +242,35 @@ projects. In particular it provides mock objects for:
 
 .. _dbt-project-configuration:
 
+Library Templating
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+If using *SQLFluff* for dbt with jinja as your templater, you may have library
+function calls within your sql files that can not be templated via the
+normal macro templating mechanisms:
+
+.. code-block:: jinja
+
+    SELECT foo, bar FROM baz {{ dbt_utils.group_by(2) }}
+
+To template these libraries, you can use the `sqlfluff:jinja:library_path`
+config option:
+
+.. code-block:: cfg
+
+    [sqlfluff:templater:jinja]
+    library_path=sqlfluff_libs
+
+This will pull in any python modules from that directory and allow sqlfluff
+to use them for templated. In the above example, you might define a file at
+`sqlfluff_libs/dbt_utils.py` as:
+
+.. code-block:: python
+
+    def group_by(n):
+        return "GROUP BY 1,2"
+
+
 dbt Project Configuration
 -------------------------
 

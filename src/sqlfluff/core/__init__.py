@@ -3,14 +3,14 @@
 # flake8: noqa: F401
 
 # Config objects
-from .config import FluffConfig
+from sqlfluff.core.config import FluffConfig
 
 # Public classes
-from .linter import Linter
-from .parser import Lexer, Parser
+from sqlfluff.core.linter import Linter
+from sqlfluff.core.parser import Lexer, Parser
 
 # All of the errors.
-from .errors import (
+from sqlfluff.core.errors import (
     SQLBaseError,
     SQLTemplaterError,
     SQLLexError,
@@ -20,4 +20,4 @@ from .errors import (
 
 # Dialect introspection.
 # TODO: This feels untidy, maybe refactor into a class.
-from .dialects import dialect_selector, dialect_readout
+from sqlfluff.core.dialects import dialect_selector, dialect_readout

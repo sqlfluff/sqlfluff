@@ -370,8 +370,8 @@ class FluffConfig:
 
         # Dialect and Template selection.
         # NB: We import here to avoid a circular references.
-        from .dialects import dialect_selector
-        from .templaters import templater_selector
+        from sqlfluff.core.dialects import dialect_selector
+        from sqlfluff.core.templaters import templater_selector
 
         self._configs["core"]["dialect_obj"] = dialect_selector(
             self._configs["core"]["dialect"]

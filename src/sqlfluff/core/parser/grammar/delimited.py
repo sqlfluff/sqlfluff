@@ -2,14 +2,14 @@
 
 from typing import Tuple, List
 
-from ..grammar import Ref
-from ..segments import BaseSegment
-from ..match_result import MatchResult
-from ..match_wrapper import match_wrapper
-from ..context import ParseContext
+from sqlfluff.core.parser.grammar import Ref
+from sqlfluff.core.parser.segments import BaseSegment
+from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.match_wrapper import match_wrapper
+from sqlfluff.core.parser.context import ParseContext
 
-from .noncode import NonCodeMatcher
-from .anyof import OneOf
+from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
+from sqlfluff.core.parser.grammar.anyof import OneOf
 
 
 class Delimited(OneOf):

@@ -16,7 +16,7 @@ from benchit import BenchIt
 # To enable colour cross platform
 import colorama
 
-from .formatters import (
+from sqlfluff.cli.formatters import (
     format_rules,
     format_violation,
     format_linting_result_header,
@@ -26,10 +26,16 @@ from .formatters import (
     format_dialects,
     CallbackFormatter,
 )
-from .helpers import cli_table, get_package_version
+from sqlfluff.cli.helpers import cli_table, get_package_version
 
 # Import from sqlfluff core.
-from ..core import Linter, FluffConfig, SQLLintError, dialect_selector, dialect_readout
+from sqlfluff.core import (
+    Linter,
+    FluffConfig,
+    SQLLintError,
+    dialect_selector,
+    dialect_readout,
+)
 
 
 class RedWarningsFilter(logging.Filter):

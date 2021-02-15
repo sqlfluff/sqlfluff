@@ -66,7 +66,7 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     if parsed.violations:
         pytest.fail(parsed.violations[0].desc() + "\n" + parsed.tree.stringify())
     print("Parsed:\n {0}".format(parsed.tree.stringify()))
-    lerrs, _, _, _ = r.crawl(parsed.tree, dialect=cfg.get("dialect_obj"), fix=True)
+    lerrs, _, _, _ = r.crawl(parsed.tree, dialect=cfg.get("dialect_obj"))
     print("Errors Found: {0}".format(lerrs))
     if any(v.rule.code == code for v in lerrs):
         pytest.fail(
@@ -107,6 +107,7 @@ def rules__test_helper(test_case):
         # If a `fixed` value is provided then check it matches
         if test_case.fix_str:
             assert res == test_case.fix_str
+        return res
 
 
 class Rule_T042(BaseCrawler):

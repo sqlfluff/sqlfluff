@@ -4,7 +4,7 @@ import pytest
 import logging
 
 from sqlfluff.core.templaters import PythonTemplater
-from sqlfluff.core import SQLTemplaterError
+from sqlfluff.core import SQLTemplaterError, FluffConfig
 
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFileSlice
 from sqlfluff.core.templaters.python import IntermediateFileSlice
@@ -364,40 +364,67 @@ def test__templater_python_split_uniques_coalesce_rest(
 
 
 @pytest.mark.parametrize(
-    "raw_file,templated_file,result",
+    "raw_file,templated_file,unwrap_wrapped,result",
     [
-        ("", "", []),
+        ("", "", True, []),
         (
             "foo",
             "foo",
-            [TemplatedFileSlice("literal", slice(0, 3, None), slice(0, 3, None))],
+            True,
+            [("literal", slice(0, 3, None), slice(0, 3, None))],
         ),
         (
             "SELECT {blah}, {foo:.2f} as foo, {bar}, '{{}}' as convertable from something",
             "SELECT nothing, 435.24 as foo, spam, '{}' as convertable from something",
+            True,
             [
-                TemplatedFileSlice("literal", slice(0, 7, None), slice(0, 7, None)),
-                TemplatedFileSlice("templated", slice(7, 13, None), slice(7, 14, None)),
-                TemplatedFileSlice("literal", slice(13, 15, None), slice(14, 16, None)),
-                TemplatedFileSlice(
-                    "templated", slice(15, 24, None), slice(16, 22, None)
-                ),
-                TemplatedFileSlice("literal", slice(24, 33, None), slice(22, 31, None)),
-                TemplatedFileSlice(
-                    "templated", slice(33, 38, None), slice(31, 35, None)
-                ),
-                TemplatedFileSlice("literal", slice(38, 41, None), slice(35, 38, None)),
-                TemplatedFileSlice("escaped", slice(41, 45, None), slice(38, 40, None)),
-                TemplatedFileSlice("literal", slice(45, 76, None), slice(40, 71, None)),
+                ("literal", slice(0, 7, None), slice(0, 7, None)),
+                ("templated", slice(7, 13, None), slice(7, 14, None)),
+                ("literal", slice(13, 15, None), slice(14, 16, None)),
+                ("templated", slice(15, 24, None), slice(16, 22, None)),
+                ("literal", slice(24, 33, None), slice(22, 31, None)),
+                ("templated", slice(33, 38, None), slice(31, 35, None)),
+                ("literal", slice(38, 41, None), slice(35, 38, None)),
+                ("escaped", slice(41, 45, None), slice(38, 40, None)),
+                ("literal", slice(45, 76, None), slice(40, 71, None)),
+            ],
+        ),
+        # Test a wrapped example. Given the default config is to unwrap any wrapped
+        # queries, it should ignore the ends in the sliced file.
+        (
+            "SELECT {blah} FROM something",
+            "WITH wrap AS (SELECT nothing FROM something) SELECT * FROM wrap",
+            True,
+            # The sliced version should have trimmed the ends
+            [
+                ("literal", slice(0, 7, None), slice(0, 7, None)),
+                ("templated", slice(7, 13, None), slice(7, 14, None)),
+                ("literal", slice(13, 28, None), slice(14, 29, None)),
+            ],
+        ),
+        (
+            "SELECT {blah} FROM something",
+            "WITH wrap AS (SELECT nothing FROM something) SELECT * FROM wrap",
+            False,  # Test NOT unwrapping it.
+            # The sliced version should NOT have trimmed the ends
+            [
+                ("templated", slice(0, 0, None), slice(0, 14, None)),
+                ("literal", slice(0, 7, None), slice(14, 21, None)),
+                ("templated", slice(7, 13, None), slice(21, 28, None)),
+                ("literal", slice(13, 28, None), slice(28, 43, None)),
+                ("templated", slice(28, 28, None), slice(43, 63, None)),
             ],
         ),
     ],
 )
-def test__templater_python_slice_file(raw_file, templated_file, result):
+def test__templater_python_slice_file(raw_file, templated_file, unwrap_wrapped, result):
     """Test slice_file."""
-    _, resp = PythonTemplater.slice_file(
+    _, resp, _ = PythonTemplater.slice_file(
         raw_file,
         templated_file,
+        config=FluffConfig(
+            configs={"templater": {"unwrap_wrapped_queries": unwrap_wrapped}}
+        ),
     )
     # Check contigious
     prev_slice = None

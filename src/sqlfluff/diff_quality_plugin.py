@@ -2,7 +2,7 @@
 from diff_cover.hook import hookimpl as diff_cover_hookimpl
 from diff_cover.violationsreporters.base import BaseViolationReporter, Violation
 
-from .core import FluffConfig, Linter
+from sqlfluff.core import FluffConfig, Linter
 
 
 class SQLFluffViolationReporter(BaseViolationReporter):

@@ -2,11 +2,15 @@
 
 from typing import List, Tuple
 
-from ..doc_decorators import document_configuration
+from sqlfluff.core.rules.doc_decorators import (
+    document_configuration,
+    document_fix_compatible,
+)
 from sqlfluff.core.rules.std.L010 import Rule_L010
 
 
 @document_configuration
+@document_fix_compatible
 class Rule_L030(Rule_L010):
     """Inconsistent capitalisation of function names.
 

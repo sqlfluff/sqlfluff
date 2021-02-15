@@ -5,9 +5,11 @@ Inherits from Postgres.
 Based on https://docs.snowflake.com/en/sql-reference-commands.html
 """
 
-from .dialect_postgres import postgres_dialect
-from .dialect_ansi import SelectClauseSegment as ansi_SelectClauseSegment
-from ..parser import (
+from sqlfluff.core.dialects.dialect_postgres import postgres_dialect
+from sqlfluff.core.dialects.dialect_ansi import (
+    SelectClauseSegment as ansi_SelectClauseSegment,
+)
+from sqlfluff.core.parser import (
     BaseSegment,
     NamedSegment,
     OneOf,
