@@ -1,0 +1,19 @@
+file:
+  statement:
+    create_extension_statement:
+    - keyword: CREATE
+    - keyword: EXTENSION
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - extension_reference:
+        identifier: amazing_extension
+    - keyword: with
+    - keyword: schema
+    - schema_reference:
+        identifier: schema1
+    - keyword: VERSION
+    - identifier: '2.0'
+    - keyword: FROM
+    - identifier: '1.0'
+

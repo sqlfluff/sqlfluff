@@ -13,7 +13,6 @@ from sqlfluff.core.parser import (
     GreedyUntil,
     Indent,
     KeywordSegment,
-    Matchable,
     NamedSegment,
     Nothing,
     OneOf,

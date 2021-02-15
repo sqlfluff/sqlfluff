@@ -521,6 +521,13 @@ class SchemaReferenceSegment(ObjectReferenceSegment):
 
 
 @ansi_dialect.segment()
+class DatabaseReferenceSegment(ObjectReferenceSegment):
+    """A reference to a database."""
+
+    type = "database_reference"
+
+
+@ansi_dialect.segment()
 class IndexReferenceSegment(ObjectReferenceSegment):
     """A reference to an index."""
 
@@ -1824,8 +1831,22 @@ class CreateSchemaStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class CreateDatabaseStatementSegment(BaseSegment):
+    """A `CREATE DATABASE` statement."""
+
+    type = "create_database_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "DATABASE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("DatabaseReferenceSegment"),
+    )
+
+
+@ansi_dialect.segment()
 class CreateExtensionStatementSegment(BaseSegment):
     """A `CREATE EXTENSION` statement.
+
     https://www.postgresql.org/docs/9.1/sql-createextension.html
     """
 
@@ -2403,6 +2424,7 @@ class StatementSegment(BaseSegment):
         Ref("CreateTableStatementSegment"),
         Ref("AlterTableStatementSegment"),
         Ref("CreateSchemaStatementSegment"),
+        Ref("CreateDatabaseStatementSegment"),
         Ref("CreateExtensionStatementSegment"),
         Ref("CreateIndexStatementSegment"),
         Ref("DropIndexStatementSegment"),
