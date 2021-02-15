@@ -46,7 +46,7 @@ class Rule_L036(BaseCrawler):
         if segment.is_type("select_clause"):
             select_targets_info = self._get_indexes(segment)
             if len(select_targets_info.select_targets) == 1:
-                parent_stack = kwargs.get('parent_stack')
+                parent_stack = kwargs.get("parent_stack")
                 return self._eval_single_select_target_element(
                     select_targets_info, segment, parent_stack
                 )
@@ -98,7 +98,9 @@ class Rule_L036(BaseCrawler):
             fixes = [LintFix("create", select_targets_info.select_targets[0], ins)]
             return LintResult(anchor=segment, fixes=fixes)
 
-    def _eval_single_select_target_element(self, select_targets_info, select_clause, parent_stack):
+    def _eval_single_select_target_element(
+        self, select_targets_info, select_clause, parent_stack
+    ):
         is_wildcard = False
         for segment in select_clause.segments:
             if segment.is_type("select_target_element"):
@@ -116,30 +118,44 @@ class Rule_L036(BaseCrawler):
             # there is a newline between select and select target
             insert_buff = [
                 self.make_whitespace(
-                    raw=" ", pos_marker=select_clause.segments[select_targets_info.first_new_line_idx].pos_marker
+                    raw=" ",
+                    pos_marker=select_clause.segments[
+                        select_targets_info.first_new_line_idx
+                    ].pos_marker,
                 ),
                 select_clause.segments[select_targets_info.first_select_target_idx],
                 self.make_newline(
-                    pos_marker=select_clause.segments[select_targets_info.first_new_line_idx].pos_marker
+                    pos_marker=select_clause.segments[
+                        select_targets_info.first_new_line_idx
+                    ].pos_marker
                 ),
             ]
             fixes = [
                 # Replace "newline" with <<select_target>>, "newline".
-                LintFix("edit", select_clause.segments[select_targets_info.first_new_line_idx], insert_buff),
+                LintFix(
+                    "edit",
+                    select_clause.segments[select_targets_info.first_new_line_idx],
+                    insert_buff,
+                ),
                 # Delete the first select target from its original location.
-                LintFix("delete", select_clause.segments[select_targets_info.first_select_target_idx]),
+                LintFix(
+                    "delete",
+                    select_clause.segments[select_targets_info.first_select_target_idx],
+                ),
             ]
-            if parent_stack and parent_stack[-1].type == 'select_statement':
+            if parent_stack and parent_stack[-1].type == "select_statement":
                 select_stmt = parent_stack[-1]
                 select_clause_idx = select_stmt.segments.index(select_clause)
                 after_select_clause_idx = select_clause_idx + 1
                 if len(select_stmt.segments) > after_select_clause_idx:
-                    if select_stmt.segments[after_select_clause_idx].type == 'newline':
+                    if select_stmt.segments[after_select_clause_idx].type == "newline":
                         # The select_clause is immediately followed by a
                         # newline. Delete the newline in order to avoid leaving
                         # behind an empty line after fix.
                         fixes.append(
-                            LintFix("delete", select_stmt.segments[after_select_clause_idx])
+                            LintFix(
+                                "delete", select_stmt.segments[after_select_clause_idx]
+                            )
                         )
             return LintResult(
                 anchor=select_clause,
