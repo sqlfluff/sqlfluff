@@ -1,4 +1,4 @@
-"""Implementation of Rule L036."""
+"""Implementation of Rule L040."""
 
 from sqlfluff.core.rules.base import BaseCrawler, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
@@ -47,9 +47,13 @@ class Rule_L040(BaseCrawler):
 
             if newline_idx < modifiers_idx:
                 insert_buff = [
-                    self.make_whitespace(raw=" ", pos_marker=segment.segments[newline_idx].pos_marker),
+                    self.make_whitespace(
+                        raw=" ", pos_marker=segment.segments[newline_idx].pos_marker
+                    ),
                     select_modifier,
-                    self.make_newline(pos_marker=segment.segments[newline_idx].pos_marker),
+                    self.make_newline(
+                        pos_marker=segment.segments[newline_idx].pos_marker
+                    ),
                 ]
                 return LintResult(
                     anchor=segment,
@@ -57,6 +61,7 @@ class Rule_L040(BaseCrawler):
                         # Replace "newline" with <<MODIFIERS>>, "newline".
                         LintFix("edit", segment.segments[newline_idx], insert_buff),
                         # Delete the modifiers from their original location.
-                        LintFix("delete", select_modifier)
-                    ])
+                        LintFix("delete", select_modifier),
+                    ],
+                )
         return None
