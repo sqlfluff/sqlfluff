@@ -18,8 +18,8 @@ import copy
 import logging
 from collections import namedtuple
 
-from ..parser import RawSegment, KeywordSegment, BaseSegment
-from ..errors import SQLLintError
+from sqlfluff.core.parser import RawSegment, KeywordSegment, BaseSegment, SymbolSegment
+from sqlfluff.core.errors import SQLLintError
 
 # The ghost of a rule (mostly used for testing)
 RuleGhost = namedtuple("RuleGhost", ["code", "description"])
@@ -249,7 +249,6 @@ class BaseCrawler:
         siblings_pre=None,
         siblings_post=None,
         raw_stack=None,
-        fix=False,
         memory=None,
     ):
         """Recursively perform the crawl operation on a given segment.
@@ -351,7 +350,6 @@ class BaseCrawler:
                 siblings_pre=segment.segments[:idx],
                 siblings_post=segment.segments[idx + 1 :],
                 raw_stack=raw_stack,
-                fix=fix,
                 memory=memory,
                 dialect=dialect,
             )
@@ -419,6 +417,16 @@ class BaseCrawler:
         kws = KeywordSegment.make(raw.lower())
         # At the moment we let the rule dictate *case* here.
         return kws(raw=raw, pos_marker=pos_marker)
+
+    @classmethod
+    def make_symbol(cls, raw, pos_marker, seg_type, name=None):
+        """Make a symbol segment."""
+        # For the name of the segment, we force the string to lowercase.
+        symbol_seg = SymbolSegment.make(
+            raw.lower(), name=name or seg_type, type=seg_type
+        )
+        # At the moment we let the rule dictate *case* here.
+        return symbol_seg(raw=raw, pos_marker=pos_marker)
 
 
 class RuleSet:

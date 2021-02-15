@@ -381,6 +381,8 @@ def test__parser__grammar_sequence_nested(seg_list, caplog):
         (["bar", ".", "bar"], None, False, False, 3),
         (["bar", ".", "bar"], 1, True, False, 3),
         (["bar", ".", "bar"], 1, False, False, 3),
+        # Check we still succeed with something trailing right on the end.
+        (["bar", ".", "bar", "foo"], 1, False, False, 3),
     ],
 )
 def test__parser__grammar_delimited(

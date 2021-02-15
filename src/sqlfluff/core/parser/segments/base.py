@@ -15,21 +15,21 @@ from cached_property import cached_property
 from typing import Optional, List, Tuple, NamedTuple, Iterator
 import logging
 
-from ...string_helpers import (
+from sqlfluff.core.string_helpers import (
     frame_msg,
     curtail_string,
 )
 
-from ..match_result import MatchResult
-from ..match_logging import parse_match_logging
-from ..match_wrapper import match_wrapper
-from ..helpers import (
+from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.match_logging import parse_match_logging
+from sqlfluff.core.parser.match_wrapper import match_wrapper
+from sqlfluff.core.parser.helpers import (
     check_still_complete,
     trim_non_code_segments,
 )
-from ..matchable import Matchable
-from ..markers import EnrichedFilePositionMarker
-from ..context import ParseContext
+from sqlfluff.core.parser.matchable import Matchable
+from sqlfluff.core.parser.markers import EnrichedFilePositionMarker
+from sqlfluff.core.parser.context import ParseContext
 
 # Instantiate the linter logger (only for use in methods involved with fixing.)
 linter_logger = logging.getLogger("sqlfluff.linter")
@@ -619,6 +619,16 @@ class BaseSegment:
         """Iterate raw segments, mostly for searching."""
         for s in self.segments:
             yield from s.iter_raw_seg()
+
+    def iter_segments(self, expanding=None, pass_through=False):
+        """Iterate raw segments, optionally expanding some chldren."""
+        for s in self.segments:
+            if expanding and s.is_type(*expanding):
+                yield from s.iter_segments(
+                    expanding=expanding if pass_through else None
+                )
+            else:
+                yield s
 
     def iter_unparsables(self):
         """Iterate through any unparsables this segment may contain."""

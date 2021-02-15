@@ -1,6 +1,6 @@
 """The simple public API methods."""
 
-from ..core import Linter
+from sqlfluff.core import Linter
 
 
 def _unify_str_or_file(sql):
@@ -33,7 +33,7 @@ def lint(sql, dialect="ansi", rules=None):
     result = linter.lint_string_wrapped(sql)
     result_records = result.as_records()
     # Return just the violations for this file
-    return result_records[0]["violations"]
+    return [] if not result_records else result_records[0]["violations"]
 
 
 def fix(sql, dialect="ansi", rules=None):

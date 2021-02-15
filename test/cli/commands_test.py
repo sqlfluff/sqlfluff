@@ -160,7 +160,7 @@ def test__cli__command_lint_stdin(command):
             [
                 "-n",
                 "--exclude-rules",
-                "L006,L007,L031",
+                "L006,L007,L031,L039",
                 "test/fixtures/linter/operator_errors.sql",
             ],
         ),

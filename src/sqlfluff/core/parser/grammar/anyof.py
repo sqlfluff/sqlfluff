@@ -2,14 +2,18 @@
 
 from typing import List, Optional, Tuple
 
-from ..helpers import trim_non_code_segments
-from ..match_result import MatchResult
-from ..match_wrapper import match_wrapper
-from ..match_logging import parse_match_logging
-from ..context import ParseContext
-from ..segments import BaseSegment
+from sqlfluff.core.parser.helpers import trim_non_code_segments
+from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.match_wrapper import match_wrapper
+from sqlfluff.core.parser.match_logging import parse_match_logging
+from sqlfluff.core.parser.context import ParseContext
+from sqlfluff.core.parser.segments import BaseSegment
 
-from .base import BaseGrammar, MatchableType, cached_method_for_parse_context
+from sqlfluff.core.parser.grammar.base import (
+    BaseGrammar,
+    MatchableType,
+    cached_method_for_parse_context,
+)
 
 
 class AnyNumberOf(BaseGrammar):

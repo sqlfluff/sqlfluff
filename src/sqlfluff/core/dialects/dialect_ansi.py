@@ -11,9 +11,10 @@ labs full sql grammar. In particular their way for dividing up the expression
 grammar. Check out their docs, they're awesome.
 https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 """
+
 from typing import List, Tuple, NamedTuple, Optional
 
-from ..parser import (
+from sqlfluff.core.parser import (
     Matchable,
     BaseSegment,
     KeywordSegment,
@@ -35,8 +36,11 @@ from ..parser import (
     Nothing,
 )
 
-from .base import Dialect
-from .ansi_keywords import ansi_reserved_keywords, ansi_unreserved_keywords
+from sqlfluff.core.dialects.base import Dialect
+from sqlfluff.core.dialects.ansi_keywords import (
+    ansi_reserved_keywords,
+    ansi_unreserved_keywords,
+)
 
 
 ansi_dialect = Dialect("ansi", root_segment_name="FileSegment")
@@ -373,6 +377,13 @@ class FileSegment(BaseSegment):
         allow_trailing=True,
     )
 
+    def get_table_references(self):
+        """Use parsed tree to extract table references."""
+        references = set()
+        for stmt in self.get_children("statement"):
+            references |= stmt.get_table_references()
+        return references
+
 
 @ansi_dialect.segment()
 class IntervalExpressionSegment(BaseSegment):
@@ -438,6 +449,9 @@ class ObjectReferenceSegment(BaseSegment):
         Ref("SingleIdentifierGrammar"),
         delimiter=OneOf(Ref("DotSegment"), Sequence(Ref("DotSegment"))),
         terminator=OneOf(
+            "ON",
+            "AS",
+            "USING",
             Ref("CommaSegment"),
             Ref("CastOperatorSegment"),
             Ref("StartSquareBracketSegment"),
@@ -494,6 +508,13 @@ class TableReferenceSegment(ObjectReferenceSegment):
     """A reference to an table, CTE, subquery or alias."""
 
     type = "table_reference"
+
+
+@ansi_dialect.segment()
+class IndexReferenceSegment(ObjectReferenceSegment):
+    """A reference to an index."""
+
+    type = "index_reference"
 
 
 @ansi_dialect.segment()
@@ -1510,6 +1531,37 @@ ansi_dialect.add(
 
 
 @ansi_dialect.segment()
+class CTEDefinitionSegment(BaseSegment):
+    """A CTE Definition from a WITH statement.
+
+    `tab (col1,col2) AS (SELECT a,b FROM x)`
+    """
+
+    type = "common_table_expression"
+    match_grammar = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        Bracketed(
+            Ref("SingleIdentifierListSegment"),
+            optional=True,
+        ),
+        "AS",
+        Bracketed(
+            # Ephemeral here to subdivide the query.
+            Ref("SelectableGrammar", ephemeral_name="SelectableGrammar")
+        ),
+    )
+
+    def get_identifier(self) -> BaseSegment:
+        """Gets the identifier of this CTE.
+
+        Note: it blindly get the first identifier it finds
+        which given the structure of a CTE definition is
+        usually the right one.
+        """
+        return self.get_child("identifier")
+
+
+@ansi_dialect.segment()
 class WithCompoundStatementSegment(BaseSegment):
     """A `SELECT` statement preceded by a selection of `WITH` clauses.
 
@@ -1522,18 +1574,7 @@ class WithCompoundStatementSegment(BaseSegment):
     parse_grammar = Sequence(
         "WITH",
         Delimited(
-            Sequence(
-                Ref("SingleIdentifierGrammar"),
-                Bracketed(
-                    Ref("SingleIdentifierListSegment"),
-                    optional=True,
-                ),
-                "AS",
-                Bracketed(
-                    # Checkpoint here to subdivide the query.
-                    Ref("SelectableGrammar", ephemeral_name="SelectableGrammar")
-                ),
-            ),
+            Ref("CTEDefinitionSegment"),
             terminator=Ref.keyword("SELECT"),
         ),
         Ref("NonWithSelectableGrammar"),
@@ -1663,6 +1704,17 @@ class ColumnDefinitionSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class IndexColumnDefinitionSegment(BaseSegment):
+    """A column definition for CREATE INDEX."""
+
+    type = "index_column_definition"
+    match_grammar = Sequence(
+        Ref("SingleIdentifierGrammar"),  # Column name
+        OneOf("ASC", "DESC", optional=True),
+    )
+
+
+@ansi_dialect.segment()
 class TableConstraintSegment(BaseSegment):
     """A table constraint, e.g. for CREATE TABLE."""
 
@@ -1742,6 +1794,29 @@ class CreateTableStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class CreateIndexStatementSegment(BaseSegment):
+    """A `CREATE INDEX` statement."""
+
+    type = "create_index_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "INDEX",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("IndexReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        Sequence(
+            Bracketed(
+                Delimited(
+                    Ref("IndexColumnDefinitionSegment"),
+                ),
+            )
+        ),
+    )
+
+
+@ansi_dialect.segment()
 class AlterTableStatementSegment(BaseSegment):
     """An `ALTER TABLE` statement."""
 
@@ -1815,6 +1890,22 @@ class DropStatementSegment(BaseSegment):
         ),
         Ref("IfExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
+        OneOf("RESTRICT", Ref.keyword("CASCADE", optional=True), optional=True),
+    )
+
+
+@ansi_dialect.segment()
+class DropIndexStatementSegment(BaseSegment):
+    """A `DROP INDEX` statement."""
+
+    type = "drop_statement"
+    # DROP INDEX <Index name> [CONCURRENTLY] [IF EXISTS] {RESTRICT | CASCADE}
+    match_grammar = Sequence(
+        "DROP",
+        "INDEX",
+        Ref.keyword("CONCURRENTLY", optional=True),
+        Ref("IfExistsGrammar", optional=True),
+        Ref("IndexReferenceSegment"),
         OneOf("RESTRICT", Ref.keyword("CASCADE", optional=True), optional=True),
     )
 
@@ -2262,6 +2353,8 @@ class StatementSegment(BaseSegment):
         Ref("AccessStatementSegment"),
         Ref("CreateTableStatementSegment"),
         Ref("AlterTableStatementSegment"),
+        Ref("CreateIndexStatementSegment"),
+        Ref("DropIndexStatementSegment"),
         Ref("CreateViewStatementSegment"),
         Ref("DeleteStatementSegment"),
         Ref("UpdateStatementSegment"),
@@ -2269,6 +2362,19 @@ class StatementSegment(BaseSegment):
         Ref("CreateModelStatementSegment"),
         Ref("DropModelStatementSegment"),
     )
+
+    def get_table_references(self):
+        """Use parsed tree to extract table references."""
+        table_refs = set(
+            tbl_ref.raw for tbl_ref in self.recursive_crawl("table_reference")
+        )
+        cte_refs = set(
+            cte_def.get_identifier().raw
+            for cte_def in self.recursive_crawl("common_table_expression")
+        )
+        # External references are any table references which aren't
+        # also cte aliases.
+        return table_refs - cte_refs
 
 
 @ansi_dialect.segment()
