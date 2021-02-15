@@ -25,4 +25,7 @@ for example in parse_structure_examples:
     root = sqlfile[:-4]
     path = os.path.join("test", "fixtures", "parser", dialect, root + ".yml")
     with open(path, "w") as f:
-        yaml.dump(r, f)
+        if r:
+            yaml.dump(r, f)
+        else:
+            f.write("")
