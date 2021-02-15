@@ -107,6 +107,7 @@ def rules__test_helper(test_case):
         # If a `fixed` value is provided then check it matches
         if test_case.fix_str:
             assert res == test_case.fix_str
+        return res
 
 
 class Rule_T042(BaseCrawler):
