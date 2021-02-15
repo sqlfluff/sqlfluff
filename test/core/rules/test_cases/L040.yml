@@ -23,6 +23,8 @@ test_2:
         DISTINCT user_id
     FROM
         safe_user
+  # The extra space before "user_id" is left over after the fix. In a full
+  # "sqlfluff fix" run, this will be cleaned up by other rules.
   fix_str: |
     SELECT DISTINCT
         -- The table contains duplicates, so we use DISTINCT.
