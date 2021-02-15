@@ -95,16 +95,6 @@ class Rule_L036(BaseCrawler):
                 pos_marker=segment.pos_marker.advance_by(segment.raw))
             fixes = [LintFix("create", eval_result.select_targets[0], ins)]
             return LintResult(anchor=segment, fixes=fixes)
-        else:
-            # ensure newline before select target and whitespace segment
-            if (
-                eval_result.first_new_line_idx
-                < eval_result.first_whitespace_idx
-                < eval_result.first_select_target_idx
-            ):
-                return None
-            else:
-                return LintResult(anchor=segment)
 
     def _eval_single_select_target_element(self, eval_result, select_clause):
         is_wildcard = False
