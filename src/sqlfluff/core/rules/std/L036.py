@@ -7,8 +7,9 @@ from sqlfluff.core.rules.base import BaseCrawler, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
-class EvalResult(NamedTuple):
-    cnt_select_targets: int
+class SelectTargetsInfo(NamedTuple):
+    """Info about select targets and nearby whitespace."""
+
     select_idx: int
     first_new_line_idx: int
     first_select_target_idx: int
@@ -43,15 +44,18 @@ class Rule_L036(BaseCrawler):
 
     def _eval(self, segment, raw_stack, **kwargs):
         if segment.is_type("select_clause"):
-            eval_result = self._get_indexes(segment)
-            if eval_result.cnt_select_targets == 1:
-                return self._eval_single_select_target_element(eval_result, segment)
-            if eval_result.cnt_select_targets > 1:
-                return self._eval_multiple_select_target_elements(eval_result, segment)
+            select_targets_info = self._get_indexes(segment)
+            if len(select_targets_info.select_targets) == 1:
+                return self._eval_single_select_target_element(
+                    select_targets_info, segment
+                )
+            if len(select_targets_info.select_targets) > 1:
+                return self._eval_multiple_select_target_elements(
+                    select_targets_info, segment
+                )
 
     @staticmethod
     def _get_indexes(segment):
-        cnt_select_targets = 0
         select_idx = -1
         first_new_line_idx = -1
         first_select_target_idx = -1
@@ -60,7 +64,6 @@ class Rule_L036(BaseCrawler):
         for fname_idx, seg in enumerate(segment.segments):
             if seg.is_type("select_target_element"):
                 select_targets.append(seg)
-                cnt_select_targets += 1
                 if first_select_target_idx == -1:
                     first_select_target_idx = fname_idx
             if seg.is_type("keyword") and seg.name == "SELECT" and select_idx == -1:
@@ -77,26 +80,25 @@ class Rule_L036(BaseCrawler):
             ):
                 first_whitespace_idx = fname_idx
 
-        eval_result = EvalResult(
-            cnt_select_targets,
+        return SelectTargetsInfo(
             select_idx,
             first_new_line_idx,
             first_select_target_idx,
             first_whitespace_idx,
-            select_targets
+            select_targets,
         )
 
-        return eval_result
-
-    def _eval_multiple_select_target_elements(self, eval_result, segment):
-        if eval_result.first_new_line_idx == -1:
+    def _eval_multiple_select_target_elements(self, select_targets_info, segment):
+        if select_targets_info.first_new_line_idx == -1:
             # there are multiple select targets but no new lines
             ins = self.make_newline(
-                pos_marker=segment.pos_marker.advance_by(segment.raw))
-            fixes = [LintFix("create", eval_result.select_targets[0], ins)]
+                pos_marker=segment.pos_marker.advance_by(segment.raw)
+            )
+            fixes = [LintFix("create", select_targets_info.select_targets[0], ins)]
             return LintResult(anchor=segment, fixes=fixes)
 
-    def _eval_single_select_target_element(self, eval_result, select_clause):
+    @staticmethod
+    def _eval_single_select_target_element(select_targets_info, select_clause):
         is_wildcard = False
         for segment in select_clause.segments:
             if segment.is_type("select_target_element"):
@@ -107,12 +109,17 @@ class Rule_L036(BaseCrawler):
         if is_wildcard:
             return None
         elif (
-            eval_result.select_idx
-            < eval_result.first_new_line_idx
-            < eval_result.first_select_target_idx
+            select_targets_info.select_idx
+            < select_targets_info.first_new_line_idx
+            < select_targets_info.first_select_target_idx
         ):
             # there is a newline between select and select target
-            fixes = [LintFix("delete", select_clause.segments[eval_result.first_new_line_idx])]
+            fixes = [
+                LintFix(
+                    "delete",
+                    select_clause.segments[select_targets_info.first_new_line_idx],
+                )
+            ]
             return LintResult(anchor=select_clause, fixes=fixes)
         else:
             return None
