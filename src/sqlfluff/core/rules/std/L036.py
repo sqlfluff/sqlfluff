@@ -1,10 +1,20 @@
 """Implementation of Rule L036."""
 
-from collections import namedtuple
+from typing import NamedTuple
 
 from sqlfluff.core.rules.base import BaseCrawler, LintResult
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
+class EvalResult(NamedTuple):
+    cnt_select_targets: int
+    select_idx: int
+    first_new_line_idx: int
+    first_select_target_idx: int
+    first_whitespace_idx: int
+
+
+@document_fix_compatible
 class Rule_L036(BaseCrawler):
     """Select targets should be on a new line unless there is only one select target.
 
@@ -39,16 +49,6 @@ class Rule_L036(BaseCrawler):
 
     @staticmethod
     def _get_indexes(segment):
-        EvalResult = namedtuple(
-            "EvalResults",
-            [
-                "cnt_select_targets",
-                "select_idx",
-                "first_new_line_idx",
-                "first_select_target_idx",
-                "first_whitespace_idx",
-            ],
-        )
         cnt_select_targets = 0
         select_idx = -1
         first_new_line_idx = -1
