@@ -49,7 +49,7 @@ class Rule_L036(BaseCrawler):
                 return self._eval_single_select_target_element(
                     select_targets_info, segment
                 )
-            if len(select_targets_info.select_targets) > 1:
+            elif len(select_targets_info.select_targets) > 1:
                 return self._eval_multiple_select_target_elements(
                     select_targets_info, segment
                 )
