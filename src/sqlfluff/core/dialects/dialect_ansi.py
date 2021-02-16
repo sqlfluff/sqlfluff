@@ -2087,6 +2087,7 @@ class AccessStatementSegment(BaseSegment):
                 "DATABASE",
                 "INTEGRATION",
                 "SCHEMA",
+                "ROLE",
                 Sequence("ALL", "SCHEMAS", "IN", "DATABASE"),
                 Sequence("FUTURE", "SCHEMAS", "IN", "DATABASE"),
                 _schema_object_types,
