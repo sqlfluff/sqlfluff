@@ -7,12 +7,14 @@ from sqlfluff.core.parser import Parser, Lexer
 from sqlfluff.core import FluffConfig
 from sqlfluff.cli.commands import quoted_presenter
 
-from dialects.dialects_test import parse_structure_examples, load_file
+from dialects.parse_fixtures import get_parse_fixtures, load_file
 
 yaml.add_representer(str, quoted_presenter)
 
-for example in parse_structure_examples:
-    dialect, sqlfile, _, _ = example
+parse_success_examples, _ = get_parse_fixtures()
+
+for example in parse_success_examples:
+    dialect, sqlfile = example
     config = FluffConfig(overrides=dict(dialect=dialect))
     # Load the SQL
     raw = load_file(dialect, sqlfile)
