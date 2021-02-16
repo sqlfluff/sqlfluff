@@ -1,5 +1,5 @@
 file:
-- statement:
+  statement:
     set_expression:
     - select_statement:
         select_clause:
@@ -68,4 +68,3 @@ file:
             main_table_expression:
               table_reference:
                 identifier: the_last_table
-

@@ -2,4 +2,3 @@ file:
   statement:
     transaction_statement:
       keyword: commit
-

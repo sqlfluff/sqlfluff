@@ -1,7 +1,7 @@
 file:
   statement:
     select_statement:
-    - select_clause:
+      select_clause:
       - keyword: SELECT
       - select_target_element:
           column_reference:
@@ -32,45 +32,45 @@ file:
           alias_expression:
             keyword: AS
             identifier: most_popular
-    - from_clause:
+      from_clause:
         keyword: FROM
         table_expression:
           main_table_expression:
             table_reference:
               identifier: Produce
-    - named_window:
+      named_window:
       - keyword: WINDOW
       - named_window_expression:
-        - identifier: a
-        - keyword: AS
-        - start_bracket: (
-        - window_specification:
+          identifier: a
+          keyword: AS
+          start_bracket: (
+          window_specification:
             partitionby_clause:
             - keyword: PARTITION
             - keyword: BY
             - expression:
                 column_reference:
                   identifier: category
-        - end_bracket: )
+          end_bracket: )
       - comma: ','
       - named_window_expression:
-        - identifier: b
-        - keyword: AS
-        - start_bracket: (
-        - window_specification:
+          identifier: b
+          keyword: AS
+          start_bracket: (
+          window_specification:
             identifier: a
             orderby_clause:
             - keyword: ORDER
             - keyword: BY
             - column_reference:
                 identifier: purchases
-        - end_bracket: )
+          end_bracket: )
       - comma: ','
       - named_window_expression:
-        - identifier: c
-        - keyword: AS
-        - start_bracket: (
-        - window_specification:
+          identifier: c
+          keyword: AS
+          start_bracket: (
+          window_specification:
             identifier: b
             frame_clause:
             - keyword: ROWS
@@ -80,13 +80,12 @@ file:
             - raw: AND
             - raw: '2'
             - raw: FOLLOWING
-        - end_bracket: )
+          end_bracket: )
       - comma: ','
       - named_window_expression:
-        - identifier: d
-        - keyword: AS
-        - start_bracket: (
-        - window_specification:
+          identifier: d
+          keyword: AS
+          start_bracket: (
+          window_specification:
             identifier: c
-        - end_bracket: )
-
+          end_bracket: )

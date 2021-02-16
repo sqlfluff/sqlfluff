@@ -488,6 +488,14 @@ def fix(force, paths, bench=False, fixed_suffix="", logger=None, **kwargs):
     sys.exit(0)
 
 
+def quoted_presenter(dumper, data):
+    """Re-presenter which always double quotes string values needing escapes."""
+    if "\n" in data or "\t" in data or "'" in data:
+        return dumper.represent_scalar("tag:yaml.org,2002:str", data, style='"')
+    else:
+        return dumper.represent_scalar("tag:yaml.org,2002:str", data, style="")
+
+
 @cli.command()
 @common_options
 @core_options
@@ -596,24 +604,15 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
             result = [
                 dict(
                     filepath=filepath,
-                    segments=parsed.as_record(code_only=code_only, show_raw=True),
+                    segments=parsed.as_record(code_only=code_only, show_raw=True)
+                    if parsed
+                    else None,
                 )
                 for filepath, (parsed, _, _, _, _) in zip(filepaths, result)
             ]
 
             if format == "yaml":
                 # For yaml dumping always dump double quoted strings if they contain tabs or newlines.
-                def quoted_presenter(dumper, data):
-                    """Re-presenter which always double quotes string values needing escapes."""
-                    if "\n" in data or "\t" in data or "'" in data:
-                        return dumper.represent_scalar(
-                            "tag:yaml.org,2002:str", data, style='"'
-                        )
-                    else:
-                        return dumper.represent_scalar(
-                            "tag:yaml.org,2002:str", data, style=""
-                        )
-
                 yaml.add_representer(str, quoted_presenter)
 
                 click.echo(yaml.dump(result))

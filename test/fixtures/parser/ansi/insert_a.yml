@@ -15,4 +15,3 @@ file:
         literal: '123'
         end_bracket: )
   statement_terminator: ;
-

@@ -28,29 +28,29 @@ file:
         - keyword: 'NULL'
     - comma: ','
     - column_definition:
-      - column_reference:
+        column_reference:
           identifier: DATE_FIELD
-      - td_internal_data_type:
-        - data_type_identifier: DATE
-        - keyword: FORMAT
-        - literal: "'YYYY-MM-DD'"
-      - column_constraint:
+        td_internal_data_type:
+          data_type_identifier: DATE
+          keyword: FORMAT
+          literal: "'YYYY-MM-DD'"
+        column_constraint:
         - keyword: NOT
         - keyword: 'NULL'
     - comma: ','
     - column_definition:
-      - column_reference:
+        column_reference:
           identifier: BYTE_FIELD
-      - td_internal_data_type:
+        td_internal_data_type:
           data_type_identifier: BYTEINT
-      - td_column_attribute_constraint:
+        td_column_attribute_constraint:
           keyword: COMPRESS
           literal: '0'
     - comma: ','
     - column_definition:
-      - column_reference:
+        column_reference:
           identifier: DECIMAL_FIELD
-      - td_internal_data_type:
+        td_internal_data_type:
         - data_type_identifier: DECIMAL
         - start_bracket: (
         - expression:
@@ -59,7 +59,7 @@ file:
         - expression:
             literal: '2'
         - end_bracket: )
-      - td_column_attribute_constraint:
+        td_column_attribute_constraint:
         - keyword: COMPRESS
         - start_bracket: (
         - literal: '50.00'
@@ -94,15 +94,15 @@ file:
         - end_bracket: )
     - comma: ','
     - column_definition:
-      - column_reference:
+        column_reference:
           identifier: TIMESTAMP_FIELD
-      - td_internal_data_type:
+        td_internal_data_type:
           data_type_identifier: TIMESTAMP
           start_bracket: (
           expression:
             literal: '6'
           end_bracket: )
-      - column_constraint:
+        column_constraint:
         - keyword: NOT
         - keyword: 'NULL'
     - end_bracket: )
@@ -117,4 +117,3 @@ file:
       - identifier: BYTE_FIELD
       - end_bracket: )
   statement_terminator: ;
-

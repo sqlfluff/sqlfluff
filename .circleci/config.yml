@@ -176,7 +176,18 @@ workflows:
       - py39
       - dbt017-py38
       - dbt018-py38
-      - win-py37
-      - win-dbt018-py37
       - bench
       - examples
+  nightly:
+    triggers:
+      - schedule:
+          # 2am each night
+          cron: "0 2 * * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      # Run the windows jobs on a schedule.
+      - win-py37
+      - win-dbt018-py37

@@ -8,63 +8,63 @@ file:
             wildcard_identifier:
               star: '*'
       from_clause:
-      - keyword: FROM
-      - table_expression:
+        keyword: FROM
+        table_expression:
           main_table_expression:
             table_reference:
               identifier: TABLE_1
-      - join_clause:
+        join_clause:
         - keyword: FULL
         - keyword: OUTER
         - keyword: JOIN
         - table_expression:
             main_table_expression:
-            - start_bracket: (
-            - set_expression:
+              start_bracket: (
+              set_expression:
               - select_statement:
-                - select_clause:
+                  select_clause:
                     keyword: SELECT
                     select_target_element:
                       wildcard_expression:
                         wildcard_identifier:
                           star: '*'
-                - from_clause:
+                  from_clause:
                     keyword: FROM
                     table_expression:
                       main_table_expression:
                         table_reference:
                           identifier: Table_B
-                - where_clause:
+                  where_clause:
                     keyword: WHERE
                     expression:
-                    - column_reference:
+                      column_reference:
                         identifier: COL_2
-                    - comparison_operator: '='
-                    - literal: "'B'"
+                      comparison_operator: '='
+                      literal: "'B'"
               - set_operator:
                 - keyword: UNION
                 - keyword: ALL
               - select_statement:
-                - select_clause:
+                  select_clause:
                     keyword: SELECT
                     select_target_element:
                       wildcard_expression:
                         wildcard_identifier:
                           star: '*'
-                - from_clause:
+                  from_clause:
                     keyword: FROM
                     table_expression:
                       main_table_expression:
                         table_reference:
                           identifier: TABLE_C
-                - where_clause:
+                  where_clause:
                     keyword: WHERE
                     expression:
-                    - column_reference:
+                      column_reference:
                         identifier: COL_1
-                    - comparison_operator: '='
-                    - literal: '0'
-            - end_bracket: )
+                      comparison_operator: '='
+                      literal: '0'
+              end_bracket: )
         - join_on_condition:
             keyword: 'ON'
             expression:
@@ -77,4 +77,3 @@ file:
               - identifier: TABLE_2
               - dot: .
               - identifier: A
-

@@ -45,10 +45,10 @@ file:
                 function_name: LEN
                 start_bracket: (
                 expression:
-                - column_reference:
+                  column_reference:
                     identifier: s
-                - binary_operator: +
-                - literal: '6'
+                  binary_operator: +
+                  literal: '6'
                 end_bracket: )
           - end_bracket: )
           alias_expression:
@@ -60,4 +60,3 @@ file:
           main_table_expression:
             table_reference:
               identifier: tbl_b
-
