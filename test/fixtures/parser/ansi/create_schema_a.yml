@@ -3,8 +3,5 @@ file:
     create_schema_statement:
     - keyword: create
     - keyword: schema
-    - keyword: if
-    - keyword: not
-    - keyword: exists
     - schema_reference:
         identifier: my_schema
