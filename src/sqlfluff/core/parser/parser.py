@@ -19,7 +19,9 @@ class Parser:
         self.config = FluffConfig.from_kwargs(config=config, dialect=dialect)
         self.RootSegment = self.config.get("dialect_obj").get_root_segment()
 
-    def parse(self, segments: Tuple["BaseSegment", ...], recurse=True) -> Optional["BaseSegment"]:
+    def parse(
+        self, segments: Tuple["BaseSegment", ...], recurse=True
+    ) -> Optional["BaseSegment"]:
         """Parse a series of lexed tokens using the current dialect."""
         if not segments:
             return None
