@@ -42,7 +42,8 @@ def load_yaml(fpath):
     # Parse the yaml
     obj = oyaml.safe_load(raw)
     # Return the parsed and structured object
-    if process_struct(obj):
+    processed = process_struct(obj)
+    if processed:
         return process_struct(obj)[0]
     else:
         return None

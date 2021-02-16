@@ -22,6 +22,7 @@ for example in parse_structure_examples:
     r = None
     if tree:
         r = tree.as_record(code_only=True, show_raw=True)
+    # Remove the .sql file extension
     root = sqlfile[:-4]
     path = os.path.join("test", "fixtures", "parser", dialect, root + ".yml")
     with open(path, "w") as f:
