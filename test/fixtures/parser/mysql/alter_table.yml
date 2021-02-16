@@ -8,18 +8,17 @@ file:
     - keyword: MODIFY
     - keyword: COLUMN
     - column_definition:
-      - identifier: '`name`'
-      - data_type:
+        identifier: '`name`'
+        data_type:
           data_type_identifier: varchar
           start_bracket: (
           expression:
             literal: '255'
           end_bracket: )
-      - column_constraint:
+        column_constraint:
         - keyword: NOT
         - keyword: 'NULL'
     - comma: ','
     - parameter: COMMENT
     - literal: '"name of user"'
   statement_terminator: ;
-

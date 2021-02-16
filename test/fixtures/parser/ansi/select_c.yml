@@ -1,7 +1,7 @@
 file:
-- statement:
+  statement:
     select_statement:
-    - select_clause:
+      select_clause:
       - keyword: SELECT
       - select_target_element:
           column_reference:
@@ -18,7 +18,7 @@ file:
       - select_target_element:
           column_reference:
             identifier: date_col_b
-    - from_clause:
+      from_clause:
         keyword: FROM
         table_expression:
           main_table_expression:
@@ -26,7 +26,7 @@ file:
             - identifier: '"database"'
             - dot: .
             - identifier: '"sample_table"'
-    - where_clause:
+      where_clause:
         keyword: WHERE
         expression:
         - function:
@@ -48,7 +48,7 @@ file:
             end_bracket: )
         - comparison_operator: '='
         - literal: '4'
-    - orderby_clause:
+      orderby_clause:
       - keyword: ORDER
       - keyword: BY
       - column_reference:
@@ -56,4 +56,3 @@ file:
       - keyword: DESC
       - keyword: NULLS
       - keyword: LAST
-

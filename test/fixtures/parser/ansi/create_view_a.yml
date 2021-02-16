@@ -13,12 +13,12 @@ file:
             column_reference:
               identifier: c
         from_clause:
-        - keyword: FROM
-        - table_expression:
+          keyword: FROM
+          table_expression:
             main_table_expression:
               table_reference:
                 identifier: table1
-        - join_clause:
+          join_clause:
           - keyword: INNER
           - keyword: JOIN
           - table_expression:
@@ -39,4 +39,3 @@ file:
                 - dot: .
                 - identifier: id
               - end_bracket: )
-

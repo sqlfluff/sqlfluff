@@ -12,14 +12,14 @@ file:
               start_bracket: (
               select_target_element:
                 function:
-                - function_name: CAST
-                - start_bracket: (
-                - expression:
+                  function_name: CAST
+                  start_bracket: (
+                  expression:
                     literal: '1'
-                - keyword: AS
-                - data_type:
+                  keyword: AS
+                  data_type:
                     data_type_identifier: BOOLEAN
-                - end_bracket: )
+                  end_bracket: )
                 alias_expression:
                   keyword: AS
                   identifier: foo
@@ -38,4 +38,3 @@ file:
                     keyword: AS
                     identifier: foo
             end_bracket: )
-

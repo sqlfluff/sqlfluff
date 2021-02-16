@@ -14,21 +14,21 @@ file:
           - keyword: IGNORE
           - keyword: NULLS
           - over_clause:
-            - keyword: over
-            - start_bracket: (
-            - window_specification:
-              - partitionby_clause:
+              keyword: over
+              start_bracket: (
+              window_specification:
+                partitionby_clause:
                 - keyword: PARTITION
                 - keyword: BY
                 - expression:
                     column_reference:
                       identifier: buzz
-              - orderby_clause:
+                orderby_clause:
                 - keyword: ORDER
                 - keyword: BY
                 - column_reference:
                     identifier: bar
-              - frame_clause:
+                frame_clause:
                 - keyword: ROWS
                 - raw: BETWEEN
                 - raw: UNBOUNDED
@@ -36,7 +36,7 @@ file:
                 - raw: AND
                 - raw: CURRENT
                 - raw: ROW
-            - end_bracket: )
+              end_bracket: )
           alias_expression:
             keyword: AS
             identifier: bat
@@ -46,4 +46,3 @@ file:
           main_table_expression:
             table_reference:
               identifier: some_table
-

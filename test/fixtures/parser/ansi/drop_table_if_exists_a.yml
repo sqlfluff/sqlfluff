@@ -7,4 +7,3 @@ file:
     - keyword: exists
     - table_reference:
         identifier: a
-

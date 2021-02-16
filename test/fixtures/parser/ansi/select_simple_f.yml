@@ -1,7 +1,7 @@
 file:
-- statement:
+  statement:
     select_statement:
-    - select_clause:
+      select_clause:
       - keyword: SELECT
       - select_target_element:
           column_reference:
@@ -10,24 +10,23 @@ file:
       - select_target_element:
           column_reference:
             identifier: b
-    - from_clause:
+      from_clause:
         keyword: FROM
         table_expression:
           main_table_expression:
             table_reference:
               identifier: boo
-    - groupby_clause:
+      groupby_clause:
       - keyword: GROUP
       - keyword: BY
       - literal: '1'
-    - orderby_clause:
+      orderby_clause:
       - keyword: ORDER
       - keyword: BY
       - column_reference:
           identifier: b
       - comma: ','
       - literal: '1'
-    - limit_clause:
+      limit_clause:
         keyword: LIMIT
         literal: '5'
-

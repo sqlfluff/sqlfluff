@@ -5,13 +5,13 @@ file:
     - keyword: FUNCTION
     - function_name: add
     - base:
-        - start_bracket: (
-        - data_type:
-            data_type_identifier: integer
-        - comma: ','
-        - data_type:
-            data_type_identifier: integer
-        - end_bracket: )
+      - start_bracket: (
+      - data_type:
+          data_type_identifier: integer
+      - comma: ','
+      - data_type:
+          data_type_identifier: integer
+      - end_bracket: )
     - keyword: RETURNS
     - data_type:
         data_type_identifier: integer
@@ -21,4 +21,3 @@ file:
       - keyword: LANGUAGE
       - parameter: SQL
   statement_terminator: ;
-

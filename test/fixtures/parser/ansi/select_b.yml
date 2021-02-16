@@ -8,18 +8,18 @@ file:
             wildcard_identifier:
               star: '*'
       from_clause:
-      - keyword: from
-      - table_expression:
+        keyword: from
+        table_expression:
           main_table_expression:
             table_reference:
               identifier: foo
-      - join_clause:
-        - keyword: JOIN
-        - table_expression:
+        join_clause:
+          keyword: JOIN
+          table_expression:
             main_table_expression:
               table_reference:
                 identifier: bar
-        - join_on_condition:
+          join_on_condition:
             keyword: 'ON'
             expression:
             - start_bracket: (
@@ -33,4 +33,3 @@ file:
               - dot: .
               - identifier: a
             - end_bracket: )
-

@@ -7,12 +7,12 @@ file:
           column_reference:
             identifier: a
       from_clause:
-      - keyword: FROM
-      - table_expression:
+        keyword: FROM
+        table_expression:
           main_table_expression:
             table_reference:
               identifier: zendesk
-      - join_clause:
+        join_clause:
         - keyword: LEFT
         - keyword: JOIN
         - table_expression:
@@ -40,18 +40,18 @@ file:
           column_reference:
             identifier: low_user_counts
       from_clause:
-      - keyword: FROM
-      - table_expression:
+        keyword: FROM
+        table_expression:
           main_table_expression:
             table_reference:
               identifier: acceptable_buckets
-      - join_clause:
-        - keyword: JOIN
-        - table_expression:
+        join_clause:
+          keyword: JOIN
+          table_expression:
             main_table_expression:
               table_reference:
                 identifier: small_buckets
-        - join_on_condition:
+          join_on_condition:
             keyword: 'ON'
             expression:
             - start_bracket: (
@@ -76,4 +76,3 @@ file:
                 identifier: low_size_label
             - end_bracket: )
 - statement_terminator: ;
-
