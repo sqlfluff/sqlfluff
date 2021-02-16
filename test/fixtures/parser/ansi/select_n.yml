@@ -1,5 +1,5 @@
 file:
-- statement:
+  statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -21,15 +21,15 @@ file:
             keyword: AS
             identifier: business_type_right
       from_clause:
-      - keyword: FROM
-      - table_expression:
+        keyword: FROM
+        table_expression:
           main_table_expression:
             table_reference:
               identifier: benchmark_summaries
           alias_expression:
             keyword: AS
             identifier: exists_left
-      - join_clause:
+        join_clause:
         - keyword: FULL
         - keyword: JOIN
         - table_expression:
@@ -51,4 +51,3 @@ file:
               - identifier: exists_right
               - dot: .
               - identifier: business_type
-

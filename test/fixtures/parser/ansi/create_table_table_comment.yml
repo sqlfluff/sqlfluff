@@ -17,4 +17,3 @@ file:
     - end_bracket: )
     - keyword: COMMENT
     - literal: "'Table comment'"
-

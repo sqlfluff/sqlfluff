@@ -18,9 +18,9 @@ file:
             cast_expression:
               start_bracket: (
               td_internal_data_type:
-              - data_type_identifier: DATE
-              - keyword: FORMAT
-              - literal: "'YYYY-MM-DD'"
+                data_type_identifier: DATE
+                keyword: FORMAT
+                literal: "'YYYY-MM-DD'"
               end_bracket: )
       - comma: ','
       - select_target_element:
@@ -38,4 +38,3 @@ file:
             table_reference:
               identifier: test_table
   statement_terminator: ;
-

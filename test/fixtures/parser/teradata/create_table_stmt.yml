@@ -1,5 +1,5 @@
 file:
-- statement:
+  statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: MULTISET
@@ -42,5 +42,4 @@ file:
       - start_bracket: (
       - identifier: FIELD1
       - end_bracket: )
-- statement_terminator: ;
-
+  statement_terminator: ;

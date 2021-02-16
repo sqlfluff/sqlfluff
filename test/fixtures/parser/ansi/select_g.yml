@@ -1,5 +1,5 @@
 file:
-- statement:
+  statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -27,4 +27,3 @@ file:
       limit_clause:
         keyword: LIMIT
         literal: '0'
-

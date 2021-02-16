@@ -1,12 +1,12 @@
 file:
-- statement:
+  statement:
     with_compound_statement:
     - keyword: WITH
     - common_table_expression:
-      - identifier: age_buckets_bit_array
-      - keyword: AS
-      - start_bracket: (
-      - select_statement:
+        identifier: age_buckets_bit_array
+        keyword: AS
+        start_bracket: (
+        select_statement:
           select_clause:
           - keyword: SELECT
           - select_target_element:
@@ -31,15 +31,15 @@ file:
                       keyword: SELECT
                       select_target_element:
                         function:
-                        - function_name: CAST
-                        - start_bracket: (
-                        - expression:
+                          function_name: CAST
+                          start_bracket: (
+                          expression:
                             column_reference:
                               identifier: num
-                        - keyword: AS
-                        - data_type:
+                          keyword: AS
+                          data_type:
                             data_type_identifier: INT64
-                        - end_bracket: )
+                          end_bracket: )
                     from_clause:
                       keyword: FROM
                       table_expression:
@@ -76,18 +76,18 @@ file:
               main_table_expression:
                 table_reference:
                   identifier: age_buckets
-      - end_bracket: )
+        end_bracket: )
     - comma: ','
     - common_table_expression:
-      - identifier: bucket_abundance
-      - keyword: AS
-      - start_bracket: (
-      - select_statement:
+        identifier: bucket_abundance
+        keyword: AS
+        start_bracket: (
+        select_statement:
           select_clause:
             keyword: SELECT
             select_target_element:
               expression:
-              - function:
+                function:
                   function_name: bucket_id
                   start_bracket: (
                   expression:
@@ -187,26 +187,26 @@ file:
                           end_bracket: )
                       end_square_bracket: ']'
                   end_bracket: )
-              - binary_operator: /
-              - column_reference:
+                binary_operator: /
+                column_reference:
                   identifier: audience_size
               alias_expression:
                 keyword: AS
                 identifier: relative_abundance
           from_clause:
-          - keyword: FROM
-          - table_expression:
+            keyword: FROM
+            table_expression:
               main_table_expression:
                 table_reference:
                   identifier: audience_counts_gender_age
-          - join_clause:
+            join_clause:
             - keyword: CROSS
             - keyword: JOIN
             - table_expression:
                 main_table_expression:
                   table_reference:
                     identifier: age_buckets_bit_array
-      - end_bracket: )
+        end_bracket: )
     - select_statement:
         select_clause:
           keyword: SELECT
@@ -215,12 +215,12 @@ file:
               wildcard_identifier:
                 star: '*'
         from_clause:
-        - keyword: FROM
-        - table_expression:
+          keyword: FROM
+          table_expression:
             main_table_expression:
               table_reference:
                 identifier: age_buckets_bit_array
-        - join_clause:
+          join_clause:
           - keyword: JOIN
           - table_expression:
               main_table_expression:
@@ -230,4 +230,3 @@ file:
           - start_bracket: (
           - identifier: bucket_id
           - end_bracket: )
-

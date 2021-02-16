@@ -13,4 +13,3 @@ file:
         identifier: last_updated
     - end_bracket: )
   statement_terminator: ;
-

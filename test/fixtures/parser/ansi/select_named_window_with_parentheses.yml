@@ -16,7 +16,10 @@ file:
           - end_bracket: )
           - over_clause:
               keyword: OVER
-              identifier: w1
+              start_bracket: (
+              window_specification:
+                identifier: w1
+              end_bracket: )
           alias_expression:
             keyword: AS
             identifier: baz

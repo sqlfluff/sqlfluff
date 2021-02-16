@@ -1,5 +1,5 @@
 file:
-- statement:
+  statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -107,9 +107,8 @@ file:
               function_name: flatten
               start_bracket: (
               snowflake_keyword_expression:
-              - parameter: INPUT
-              - parameter_assigner: =>
-              - column_reference:
+                parameter: INPUT
+                parameter_assigner: =>
+                column_reference:
                   identifier: custom_fields
               end_bracket: )
-

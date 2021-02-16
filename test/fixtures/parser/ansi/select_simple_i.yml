@@ -1,5 +1,5 @@
 file:
-- statement:
+  statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -85,4 +85,3 @@ file:
         - start_bracket: (
         - identifier: b
         - end_bracket: )
-

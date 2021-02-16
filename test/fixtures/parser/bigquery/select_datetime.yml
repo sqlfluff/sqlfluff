@@ -1,7 +1,7 @@
 file:
-- statement:
+  statement:
     select_statement:
-    - select_clause:
+      select_clause:
       - keyword: SELECT
       - select_target_element:
           column_reference:
@@ -17,20 +17,20 @@ file:
       - comma: ','
       - select_target_element:
           function:
-          - function_name: EXTRACT
-          - start_bracket: (
-          - date_part: DATE
-          - keyword: FROM
-          - expression:
+            function_name: EXTRACT
+            start_bracket: (
+            date_part: DATE
+            keyword: FROM
+            expression:
               column_reference:
               - identifier: gmv
               - dot: .
               - identifier: order_created_at
-          - end_bracket: )
+            end_bracket: )
           alias_expression:
             keyword: AS
             identifier: order_dt
-    - from_clause:
+      from_clause:
         keyword: FROM
         table_expression:
           main_table_expression:
@@ -39,15 +39,15 @@ file:
           alias_expression:
             keyword: as
             identifier: gmv
-    - where_clause:
+      where_clause:
         keyword: WHERE
         expression:
-        - column_reference:
+          column_reference:
           - identifier: gmv
           - dot: .
           - identifier: datetime
-        - comparison_operator: '>='
-        - function:
+          comparison_operator: '>='
+          function:
             function_name: DATE_TRUNC
             start_bracket: (
             expression:
@@ -62,14 +62,13 @@ file:
               - comma: ','
               - expression:
                   interval_expression:
-                  - keyword: INTERVAL
-                  - literal: '2'
-                  - date_part: YEAR
+                    keyword: INTERVAL
+                    literal: '2'
+                    date_part: YEAR
               - end_bracket: )
             comma: ','
             date_part: year
             end_bracket: )
-    - limit_clause:
+      limit_clause:
         keyword: LIMIT
         literal: '1'
-

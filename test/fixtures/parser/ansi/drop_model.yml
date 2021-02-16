@@ -7,4 +7,3 @@ file:
     - keyword: EXISTS
     - object_reference:
         identifier: model3
-

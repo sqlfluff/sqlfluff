@@ -11,22 +11,22 @@ file:
       - comma: ','
       - select_target_element:
           function:
-          - function_name: array
-          - start_bracket: (
-          - expression:
+            function_name: array
+            start_bracket: (
+            expression:
               select_statement:
-              - select_clause:
+                select_clause:
                 - keyword: select
                 - keyword: as
                 - keyword: struct
                 - star: '*'
-              - from_clause:
+                from_clause:
                   keyword: from
                   table_expression:
                     main_table_expression:
                       table_reference:
                         identifier: another_table
-              - where_clause:
+                where_clause:
                   keyword: where
                   expression:
                   - column_reference:
@@ -38,7 +38,7 @@ file:
                     - identifier: some_table
                     - dot: .
                     - identifier: foo_id
-          - end_bracket: )
+            end_bracket: )
       from_clause:
         keyword: from
         table_expression:
@@ -99,4 +99,3 @@ file:
               - dot: .
               - identifier: foo_id
 - statement_terminator: ;
-
