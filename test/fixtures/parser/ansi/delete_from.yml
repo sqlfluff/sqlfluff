@@ -11,9 +11,8 @@ file:
       where_clause:
         keyword: WHERE
         expression:
-        - column_reference:
+          column_reference:
             identifier: a
-        - comparison_operator: '>'
-        - literal: '0'
+          comparison_operator: '>'
+          literal: '0'
   statement_terminator: ;
-

@@ -5,14 +5,13 @@ file:
     - keyword: FUNCTION
     - function_name: qs
     - base:
-      - start_bracket: (
-      - parameter: y
-      - data_type:
+        start_bracket: (
+        parameter: y
+        data_type:
           data_type_identifier: STRING
-      - end_bracket: )
+        end_bracket: )
     - base:
       - keyword: LANGUAGE
       - parameter: js
       - keyword: AS
       - literal: '" return y; "'
-

@@ -1,5 +1,5 @@
 file:
-- statement:
+  statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -126,4 +126,3 @@ file:
             - identifier: dataset
             - dot: .
             - identifier: audience_counts_gender_age
-

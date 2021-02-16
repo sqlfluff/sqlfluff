@@ -10,7 +10,6 @@ from sqlfluff.core.dialects.dialect_exasol import (
     CommentStatementSegment,
     CreateConnectionSegment,
     CreateRoleSegment,
-    CreateSchemaStatementSegment,
     CreateTableStatementSegment,
     CreateViewStatementSegment,
     CreateVirtualSchemaStatementSegment,
@@ -75,14 +74,6 @@ def test_dialect_exasol_specific_segment_parses(
             """
             DROP VIEW IF EXISTS my_view RESTRICT;
             DROP FUNCTION my_function CASCADE;
-            """,
-            2,
-        ),
-        (
-            CreateSchemaStatementSegment,
-            """
-            CREATE SCHEMA TEST;
-            CREATE SCHEMA IF NOT EXISTS my_schema;
             """,
             2,
         ),

@@ -42,13 +42,6 @@ def make_dialect_path(dialect, fname):
     return os.path.join("test", "fixtures", "parser", dialect, fname)
 
 
-def load_file(dialect, fname):
-    """Load a file."""
-    with open(make_dialect_path(dialect, fname)) as f:
-        raw = f.read()
-    return raw
-
-
 def auto_fix_test(dialect, folder, caplog):
     """A test for roundtrip testing, take a file buffer, lint, fix and lint.
 

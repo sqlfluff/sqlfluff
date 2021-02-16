@@ -1,12 +1,12 @@
 file:
   statement:
     with_compound_statement:
-    - keyword: WITH
-    - common_table_expression:
-      - identifier: cte
-      - keyword: as
-      - start_bracket: (
-      - select_statement:
+      keyword: WITH
+      common_table_expression:
+        identifier: cte
+        keyword: as
+        start_bracket: (
+        select_statement:
           select_clause:
             keyword: select
             select_target_element:
@@ -18,8 +18,8 @@ file:
               main_table_expression:
                 table_reference:
                   identifier: tbla
-      - end_bracket: )
-    - select_statement:
+        end_bracket: )
+      select_statement:
         select_clause:
           keyword: select
           select_target_element:
@@ -31,4 +31,3 @@ file:
             main_table_expression:
               table_reference:
                 identifier: cte
-

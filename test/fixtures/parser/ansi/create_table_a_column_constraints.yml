@@ -7,10 +7,10 @@ file:
         identifier: table1
     - start_bracket: (
     - column_definition:
-      - identifier: c1
-      - data_type:
+        identifier: c1
+        data_type:
           data_type_identifier: INT
-      - column_constraint:
+        column_constraint:
         - keyword: NOT
         - keyword: 'NULL'
     - comma: ','
@@ -25,34 +25,34 @@ file:
           literal: '1'
     - comma: ','
     - column_definition:
-      - identifier: c3
-      - data_type:
+        identifier: c3
+        data_type:
           data_type_identifier: INT
-      - column_constraint:
+        column_constraint:
         - keyword: PRIMARY
         - keyword: KEY
     - comma: ','
     - column_definition:
-      - identifier: c4
-      - data_type:
+        identifier: c4
+        data_type:
           data_type_identifier: INT
-      - column_constraint:
+        column_constraint:
           keyword: UNIQUE
     - comma: ','
     - column_definition:
-      - identifier: c5
-      - data_type:
+        identifier: c5
+        data_type:
           data_type_identifier: INT
-      - column_constraint:
+        column_constraint:
           keyword: REFERENCES
           column_reference:
             identifier: table2
     - comma: ','
     - column_definition:
-      - identifier: c6
-      - data_type:
+        identifier: c6
+        data_type:
           data_type_identifier: INT
-      - column_constraint:
+        column_constraint:
         - keyword: REFERENCES
         - column_reference:
             identifier: table2
@@ -82,4 +82,3 @@ file:
             identifier: c7_other
         - end_bracket: )
     - end_bracket: )
-

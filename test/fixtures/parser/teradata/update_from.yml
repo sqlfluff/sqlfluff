@@ -1,16 +1,16 @@
 file:
-- statement:
+  statement:
     update_statement:
-    - keyword: UPDATE
-    - table_reference:
+      keyword: UPDATE
+      table_reference:
         identifier: table_name
-    - from_in_update_clause:
+      from_in_update_clause:
         keyword: FROM
         table_expression:
           main_table_expression:
-          - start_bracket: (
-          - select_statement:
-            - select_clause:
+            start_bracket: (
+            select_statement:
+              select_clause:
               - keyword: SELECT
               - select_target_element:
                   column_reference:
@@ -27,13 +27,13 @@ file:
               - select_target_element:
                   column_reference:
                     identifier: d
-            - from_clause:
-              - keyword: FROM
-              - table_expression:
+              from_clause:
+                keyword: FROM
+                table_expression:
                   main_table_expression:
                     table_reference:
                       identifier: t_b
-              - join_clause:
+                join_clause:
                 - keyword: INNER
                 - keyword: JOIN
                 - table_expression:
@@ -52,18 +52,18 @@ file:
                       - identifier: t_c
                       - dot: .
                       - identifier: d
-            - where_clause:
+              where_clause:
                 keyword: WHERE
                 expression:
-                - column_reference:
+                  column_reference:
                     identifier: b
-                - comparison_operator: '='
-                - literal: "'F'"
-          - end_bracket: )
+                  comparison_operator: '='
+                  literal: "'F'"
+            end_bracket: )
           alias_expression:
             keyword: AS
             identifier: t_d
-    - set_clause_list:
+      set_clause_list:
       - keyword: SET
       - set_clause:
         - column_reference:
@@ -73,16 +73,15 @@ file:
             identifier: value1
       - comma: ','
       - set_clause:
-        - column_reference:
+          column_reference:
             identifier: column2
-        - comparison_operator: '='
-        - literal: "'value2'"
-    - where_clause:
+          comparison_operator: '='
+          literal: "'value2'"
+      where_clause:
         keyword: WHERE
         expression:
           column_reference:
             identifier: a
           comparison_operator: '='
           literal: '1'
-- statement_terminator: ;
-
+  statement_terminator: ;

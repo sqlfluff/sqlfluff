@@ -6,4 +6,3 @@ file:
     - index_reference:
         identifier: transaction_updated
   statement_terminator: ;
-

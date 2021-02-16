@@ -1,10 +1,10 @@
 file:
   statement:
     update_statement:
-    - keyword: UPDATE
-    - table_reference:
+      keyword: UPDATE
+      table_reference:
         identifier: table_name
-    - set_clause_list:
+      set_clause_list:
       - keyword: SET
       - set_clause:
         - column_reference:
@@ -19,7 +19,7 @@ file:
         - comparison_operator: '='
         - column_reference:
             identifier: value2
-    - where_clause:
+      where_clause:
         keyword: WHERE
         expression:
           column_reference:
@@ -27,4 +27,3 @@ file:
           comparison_operator: '='
           literal: '1'
   statement_terminator: ;
-

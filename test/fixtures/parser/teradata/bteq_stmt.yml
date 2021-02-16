@@ -15,4 +15,3 @@ file:
         keyword: quit
         literal: '4'
   statement_terminator: ;
-

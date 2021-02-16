@@ -5,4 +5,3 @@ file:
         keyword: select
         select_target_element:
           literal: '1'
-

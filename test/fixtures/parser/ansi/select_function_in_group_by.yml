@@ -1,7 +1,7 @@
 file:
   statement:
     select_statement:
-    - select_clause:
+      select_clause:
         keyword: SELECT
         select_target_element:
           function:
@@ -14,13 +14,13 @@ file:
           - expression:
               literal: '1'
           - end_bracket: )
-    - from_clause:
+      from_clause:
         keyword: FROM
         table_expression:
           main_table_expression:
             table_reference:
               identifier: some_table
-    - groupby_clause:
+      groupby_clause:
       - keyword: GROUP
       - keyword: BY
       - expression:
@@ -34,4 +34,3 @@ file:
           - expression:
               literal: '1'
           - end_bracket: )
-

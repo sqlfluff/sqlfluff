@@ -32,11 +32,11 @@ file:
         - end_bracket: )
     - comma: ','
     - column_definition:
-      - column_reference:
+        column_reference:
           identifier: IND_CONTINUA
-      - td_internal_data_type:
+        td_internal_data_type:
           data_type_identifier: BYTEINT
-      - td_column_attribute_constraint:
+        td_column_attribute_constraint:
           keyword: COMPRESS
     - end_bracket: )
     - td_table_constraint:
@@ -81,4 +81,3 @@ file:
           identifier: IND_TIPO_TARJETA
       - end_bracket: )
   statement_terminator: ;
-

@@ -1,12 +1,12 @@
 file:
 - statement:
     select_statement:
-    - select_clause:
+      select_clause:
         keyword: Select
         select_target_element:
           column_reference:
             identifier: A
-    - from_clause:
+      from_clause:
         keyword: from
         table_expression:
           main_table_expression:
@@ -14,7 +14,7 @@ file:
             - identifier: Sys
             - dot: .
             - identifier: dual
-    - where_clause:
+      where_clause:
         keyword: where
         expression:
         - column_reference:
@@ -63,12 +63,12 @@ file:
 - statement_terminator: ;
 - statement:
     with_compound_statement:
-    - keyword: with
-    - common_table_expression:
-      - identifier: tmp
-      - keyword: as
-      - start_bracket: (
-      - select_statement:
+      keyword: with
+      common_table_expression:
+        identifier: tmp
+        keyword: as
+        start_bracket: (
+        select_statement:
           select_clause:
             keyword: select
             select_target_element:
@@ -81,8 +81,8 @@ file:
               main_table_expression:
                 table_reference:
                   identifier: blah
-      - end_bracket: )
-    - select_statement:
+        end_bracket: )
+      select_statement:
         select_clause:
         - keyword: select
         - select_target_element:
@@ -99,4 +99,3 @@ file:
               table_reference:
                 identifier: tmp
 - statement_terminator: ;
-

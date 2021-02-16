@@ -25,7 +25,7 @@ file:
     - end_bracket: )
     - keyword: AS
     - select_statement:
-      - select_clause:
+        select_clause:
         - keyword: SELECT
         - select_target_element:
             column_reference:
@@ -34,17 +34,16 @@ file:
         - select_target_element:
             column_reference:
               identifier: b
-      - from_clause:
+        from_clause:
           keyword: FROM
           table_expression:
             main_table_expression:
               table_reference:
                 identifier: table1
-      - where_clause:
+        where_clause:
           keyword: WHERE
           expression:
-          - column_reference:
+            column_reference:
               identifier: training
-          - comparison_operator: '='
-          - literal: '1'
-
+            comparison_operator: '='
+            literal: '1'
