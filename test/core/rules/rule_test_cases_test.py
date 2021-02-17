@@ -1,7 +1,13 @@
 """Runs the rule test cases."""
 import os
 import pytest
-from sqlfluff.testing.rules import load_test_cases, rules__test_helper
+from sqlfluff.testing.rules import (
+    load_test_cases,
+    rules__test_helper,
+    get_rule_from_set,
+)
+from sqlfluff.core.doc_decorators import is_fix_compatible
+from sqlfluff.core.config import FluffConfig
 
 ids, test_cases = load_test_cases(
     test_cases_path=os.path.join(
