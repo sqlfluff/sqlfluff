@@ -35,17 +35,20 @@ class Rule_L040(BaseCrawler):
             # Does the select clause have modifiers?
             select_modifier = segment.get_child("select_clause_modifier")
             if not select_modifier:
-                return None
+                return None  # No. We're done.
+            select_modifier_idx = segment.segments.index(select_modifier)
 
             # Does the select clause contain a newline?
-            modifiers_idx = segment.segments.index(select_modifier)
             newline = segment.get_child("newline")
             if not newline:
-                return None
-
+                return None  # No. We're done.
             newline_idx = segment.segments.index(newline)
-            if newline_idx > modifiers_idx:
-                return None
+
+            # Is there a newline before the select modifier?
+            if newline_idx > select_modifier_idx:
+                return None  # No, we're done.
+
+            # Yes to all the above. We found an issue.
 
             # E.g.: " DISTINCT\n"
             replace_newline_with = [
