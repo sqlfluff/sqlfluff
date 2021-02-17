@@ -661,10 +661,13 @@ class BaseSegment:
                 buff.append(seg)
         return buff
 
-    def select_children(self, start_seg: 'BaseSegment' = None,
-                        stop_seg: 'BaseSegment' = None,
-                        collect_if: Callable[['BaseSegment'], bool] = None,
-                        stop_on: Callable[['BaseSegment'], bool] = None):
+    def select_children(
+        self,
+        start_seg: "BaseSegment" = None,
+        stop_seg: "BaseSegment" = None,
+        collect_if: Callable[["BaseSegment"], bool] = None,
+        stop_on: Callable[["BaseSegment"], bool] = None,
+    ):
         """Retrieve subset of children based on range and filters.
 
         Often useful by linter rules when generating fixes, e.g. to find
