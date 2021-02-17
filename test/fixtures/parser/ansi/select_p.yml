@@ -19,7 +19,7 @@ file:
             function_name: SAFE_CAST
             start_bracket: (
             expression:
-              keyword: 'NULL'
+              literal: 'NULL'
             keyword: AS
             data_type:
               data_type_identifier: STRING

@@ -89,6 +89,10 @@ from sqlfluff.core.dialects.dialect_ansi import AccessStatementSegment
             AccessStatementSegment,
             "revoke reference_usage on database database2 from share share1;",
         ),
+        (
+            AccessStatementSegment,
+            "GRANT OWNERSHIP ON ROLE TEST_ROLE TO ROLE DIFFERENT_ROLE;",
+        ),
         (ShowStatementSegment, "SHOW GRANTS ON ACCOUNT;"),
         (ShowStatementSegment, "show tables history in tpch.public;"),
         (ShowStatementSegment, "show future grants in schema sales.public;"),
