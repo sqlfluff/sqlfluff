@@ -1,0 +1,5 @@
+rule: L040
+
+test_1:
+  fail_str: SeLeCt true, FALSE, NULL
+  fix_str: SeLeCt true, false, null
