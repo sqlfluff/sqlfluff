@@ -1,9 +1,5 @@
 rule: L010
 
-test_1:
-  fail_str: SELECT null,   a
-  fix_str: SELECT NULL,   a
-
 test_2:
   # Test that we don't have the "inconsistent" bug
   fail_str: SeLeCt 1

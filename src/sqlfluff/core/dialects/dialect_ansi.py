@@ -267,6 +267,8 @@ ansi_dialect.add(
     NumericLiteralSegment=NamedSegment.make(
         "numeric_literal", name="numeric_literal", type="literal"
     ),
+    # NullSegment is defined seperately to the keyword so we can give it a different type
+    NullLiteralSegment=KeywordSegment.make("null", name="null_literal", type="literal"),
     TrueSegment=KeywordSegment.make("true", name="boolean_literal", type="literal"),
     FalseSegment=KeywordSegment.make("false", name="boolean_literal", type="literal"),
     # We use a GRAMMAR here not a Segment. Otherwise we get an unnecessary layer
@@ -306,7 +308,7 @@ ansi_dialect.add(
         Ref("QualifiedNumericLiteralSegment"),
         # NB: Null is included in the literals, because it is a keyword which
         # can otherwise be easily mistaken for an identifier.
-        Ref("NullKeywordSegment"),
+        Ref("NullLiteralSegment"),
         Ref("DateTimeLiteralGrammar"),
     ),
     AndKeywordSegment=KeywordSegment.make("and", type="binary_operator"),
@@ -2087,6 +2089,7 @@ class AccessStatementSegment(BaseSegment):
                 "DATABASE",
                 "INTEGRATION",
                 "SCHEMA",
+                "ROLE",
                 Sequence("ALL", "SCHEMAS", "IN", "DATABASE"),
                 Sequence("FUTURE", "SCHEMAS", "IN", "DATABASE"),
                 _schema_object_types,
@@ -2248,7 +2251,6 @@ class SetClauseSegment(BaseSegment):
             Ref("BareFunctionSegment"),
             Ref("FunctionSegment"),
             Ref("ColumnReferenceSegment"),
-            "NULL",
             "DEFAULT",
         ),
     )
