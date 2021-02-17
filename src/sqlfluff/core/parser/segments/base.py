@@ -12,7 +12,7 @@ from io import StringIO
 import copy
 from benchit import BenchIt
 from cached_property import cached_property
-from typing import Callable, Optional, List, Tuple, NamedTuple, Iterator
+from typing import Any, Callable, Optional, List, Tuple, NamedTuple, Iterator
 import logging
 
 from sqlfluff.core.string_helpers import (
@@ -665,8 +665,8 @@ class BaseSegment:
         self,
         start_seg: Optional["BaseSegment"] = None,
         stop_seg: Optional["BaseSegment"] = None,
-        collect_if: Optional[Callable[["BaseSegment"], bool]] = None,
-        stop_on: Optional[Callable[["BaseSegment"], bool]] = None,
+        select_if: Optional[Callable[["BaseSegment"], Any]] = None,
+        loop_while: Optional[Callable[["BaseSegment"], Any]] = None,
     ):
         """Retrieve subset of children based on range and filters.
 
@@ -677,10 +677,10 @@ class BaseSegment:
         stop_index = self.segments.index(stop_seg) if stop_seg else len(self.segments)
         buff = []
         for seg in self.segments[start_index + 1 : stop_index]:
-            if not collect_if or collect_if(seg):
-                buff.append(seg)
-            elif not stop_on or stop_on(seg):
+            if loop_while and not loop_while(seg):
                 break
+            if not select_if or select_if(seg):
+                buff.append(seg)
         return buff
 
     def recursive_crawl(self, *seg_type):

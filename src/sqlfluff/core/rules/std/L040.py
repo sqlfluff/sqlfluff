@@ -66,8 +66,8 @@ class Rule_L040(BaseCrawler):
             # E.g. " " after "DISTINCT"
             ws_to_delete = segment.select_children(
                 start_seg=select_modifier,
-                collect_if=lambda s: s.is_type("whitespace"),
-                stop_on=lambda s: not s.is_meta,
+                select_if=lambda s: s.is_type("whitespace"),
+                loop_while=lambda s: s.is_type("whitespace") or s.is_meta,
             )
 
             # E.g. " " -> X
