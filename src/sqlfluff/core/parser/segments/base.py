@@ -663,10 +663,10 @@ class BaseSegment:
 
     def select_children(
         self,
-        start_seg: "BaseSegment" = None,
-        stop_seg: "BaseSegment" = None,
-        collect_if: Callable[["BaseSegment"], bool] = None,
-        stop_on: Callable[["BaseSegment"], bool] = None,
+        start_seg: Optional["BaseSegment"] = None,
+        stop_seg: Optional["BaseSegment"] = None,
+        collect_if: Optional[Callable[["BaseSegment"], bool]] = None,
+        stop_on: Optional[Callable[["BaseSegment"], bool]] = None,
     ):
         """Retrieve subset of children based on range and filters.
 
@@ -677,9 +677,9 @@ class BaseSegment:
         stop_index = self.segments.index(stop_seg) if stop_seg else len(self.segments)
         buff = []
         for seg in self.segments[start_index + 1 : stop_index]:
-            if collect_if(seg):
+            if not collect_if or collect_if(seg):
                 buff.append(seg)
-            elif stop_on(seg):
+            elif not stop_on or stop_on(seg):
                 break
         return buff
 
