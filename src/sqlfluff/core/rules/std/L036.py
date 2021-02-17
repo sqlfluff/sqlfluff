@@ -92,10 +92,19 @@ class Rule_L036(BaseCrawler):
     def _eval_multiple_select_target_elements(self, select_targets_info, segment):
         if select_targets_info.first_new_line_idx == -1:
             # there are multiple select targets but no new lines
+
+            # Find and delete any whitespace between "SELECT" and its targets.
+            ws_to_delete = segment.select_children(
+                start_seg=segment.segments[select_targets_info.select_idx],
+                select_if=lambda s: s.is_type("whitespace"),
+                loop_while=lambda s: s.is_type("whitespace") or s.is_meta,
+            )
+            fixes = [LintFix("delete", ws) for ws in ws_to_delete]
+            # Insert newline before the first select target.
             ins = self.make_newline(
                 pos_marker=segment.pos_marker.advance_by(segment.raw)
             )
-            fixes = [LintFix("create", select_targets_info.select_targets[0], ins)]
+            fixes.append(LintFix("create", select_targets_info.select_targets[0], ins))
             return LintResult(anchor=segment, fixes=fixes)
 
     def _eval_single_select_target_element(

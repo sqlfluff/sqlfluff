@@ -37,10 +37,7 @@ test_multiple_select_targets_all_on_the_same_line:
   fail_str: |
     select a, b, c
     from x
-  # In a normal "sqlfluff fix" run, some formatting issues left over by this
-  # rule would be addressed by other rules.
-  # TRICKY: Use explicit newlines to preserve the trailing space after "SELECT".
-  fix_str: "select \na, b, c\nfrom x\n"
+  fix_str: "select\na, b, c\nfrom x\n"
 
 test_multiple_select_targets_trailing_whitespace_after_select:
   # TRICKY: Use explicit newlines to preserve the trailing space after "SELECT".
@@ -50,13 +47,13 @@ test_comment_between_select_and_single_select_target:
   fail_str: |
     SELECT
         -- This is the user's ID.
-         user_id
+        user_id
     FROM
         safe_user
-  # In a normal "sqlfluff fix" run, some formatting issues left over by this
-  # rule would be addressed by other rules.
+  # In a normal "sqlfluff fix" run, the weird "FROM" indenting left over after the fix
+  # would be fixed by L003.
   fix_str: |
     SELECT user_id
         -- This is the user's ID.
-         FROM
+        FROM
         safe_user
