@@ -661,6 +661,28 @@ class BaseSegment:
                 buff.append(seg)
         return buff
 
+    def select_children(
+        self,
+        start_seg: Optional["BaseSegment"] = None,
+        stop_seg: Optional["BaseSegment"] = None,
+        select_if: Optional[Callable[["BaseSegment"], Any]] = None,
+        loop_while: Optional[Callable[["BaseSegment"], Any]] = None,
+    ):
+        """Retrieve subset of children based on range and filters.
+
+        Often useful by linter rules when generating fixes, e.g. to find
+        whitespace segments between two already known segments.
+        """
+        start_index = self.segments.index(start_seg) if start_seg else -1
+        stop_index = self.segments.index(stop_seg) if stop_seg else len(self.segments)
+        buff = []
+        for seg in self.segments[start_index + 1 : stop_index]:
+            if loop_while and not loop_while(seg):
+                break
+            if not select_if or select_if(seg):
+                buff.append(seg)
+        return buff
+
     def recursive_crawl(self, *seg_type):
         """Recursively crawl for segments of a given type.
 
