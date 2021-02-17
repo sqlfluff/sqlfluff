@@ -37,28 +37,24 @@ class Rule_L040(BaseCrawler):
             if not select_modifier:
                 return None
 
-            newline_idx = -1
-            modifiers_idx = -1
-            for fname_idx, seg in enumerate(segment.segments):
-                if seg is select_modifier:
-                    modifiers_idx = fname_idx
-                if seg.is_type("newline") and newline_idx == -1:
-                    newline_idx = fname_idx
+            modifiers_idx = segment.segments.index(select_modifier)
+            newline = segment.get_child("newline")
+            newline_idx = segment.segments.index(newline)
 
             if newline_idx < modifiers_idx:
                 # E.g.: " DISTINCT\n"
                 replace_newline_with = [
                     self.make_whitespace(
-                        raw=" ", pos_marker=segment.segments[newline_idx].pos_marker
+                        raw=" ", pos_marker=newline.pos_marker
                     ),
                     select_modifier,
                     self.make_newline(
-                        pos_marker=segment.segments[newline_idx].pos_marker
+                        pos_marker=newline.pos_marker
                     ),
                 ]
                 fixes = [
                     # E.g. "\n" -> " DISTINCT\n.
-                    LintFix("edit", segment.segments[newline_idx], replace_newline_with),
+                    LintFix("edit", newline, replace_newline_with),
                     # E.g. "DISTINCT" -> X
                     LintFix("delete", select_modifier),
                 ]
