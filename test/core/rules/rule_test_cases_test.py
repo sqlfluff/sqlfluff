@@ -6,7 +6,7 @@ from sqlfluff.testing.rules import (
     rules__test_helper,
     get_rule_from_set,
 )
-from sqlfluff.core.doc_decorators import is_fix_compatible
+from sqlfluff.core.rules.doc_decorators import is_fix_compatible
 from sqlfluff.core.config import FluffConfig
 
 ids, test_cases = load_test_cases(
