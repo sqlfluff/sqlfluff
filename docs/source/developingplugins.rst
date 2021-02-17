@@ -1,0 +1,48 @@
+.. _developingpluginsref:
+
+Developing Plugins
+==================
+
+*SQLFluff* is extensible through "plugins". We use the `pluggy library`_
+to make linting Rules pluggable, which enable users to implement rules that
+are just too "organization specific" to be shared, or too platform specific
+to be included in the core library.
+
+.. _`pluggy library`: https://pluggy.readthedocs.io/en/latest/
+
+Creating a plugin
+-----------------
+
+We have an example plugin in `sqlfluff/plugins/sqlfluff-plugin-example`_
+which you can use as a template.
+
+Few things to note about plugins:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Right now, only Rules can be added through plugins.
+
+The name of a plugin should start with *"sqlfluff-plugin"* to be valid.
+
+A plugin Rule class name should have the structure:
+"Rule_PluginName_L000". The 'L' can by any letter
+and is meant to categorize rules; you could use the
+letter 'S' to denote rules that enforce security checks
+for example.
+
+A plugin Rule code includes the PluginName,
+so a rule "Rule_L000" in core will have code "L000",
+while "Rule_PluginName_L000" will have code "PluginName_L000".
+Codes are used to display errors, they are also used as configuration keys.
+
+We make it easy for plugin developers to test their rules by
+exposing a testing library in *sqlfluff.testing*.
+
+.. _`sqlfluff/plugins/sqlfluff-plugin-example`: https://github.com/sqlfluff/sqlfluff/tree/master/plugins/sqlfluff-plugin-example
+
+Giving feedback
+---------------
+
+Would you like to have other parts of *SQLFluff* be "pluggable"?
+Tell us about it in a `GitHub issue`_ 😄.
+
+.. _`GitHub issue`: https://github.com/sqlfluff/sqlfluff/issues/new?assignees=&labels=enhancement&template=enhancement.md
