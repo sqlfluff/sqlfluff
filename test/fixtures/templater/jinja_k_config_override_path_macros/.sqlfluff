@@ -1,0 +1,6 @@
+[sqlfluff:templater:jinja]
+load_macros_from_path=macros
+
+[sqlfluff:templater:jinja:macros]
+foo2_def={%- macro foo2() -%}202{%- endmacro -%}
+foo3_def={%- macro foo3() -%}203{%- endmacro -%}
