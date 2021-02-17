@@ -12,7 +12,7 @@ from io import StringIO
 import copy
 from benchit import BenchIt
 from cached_property import cached_property
-from typing import Optional, List, Tuple, NamedTuple, Iterator
+from typing import Any, Callable, Optional, List, Tuple, NamedTuple, Iterator
 import logging
 
 from sqlfluff.core.string_helpers import (
