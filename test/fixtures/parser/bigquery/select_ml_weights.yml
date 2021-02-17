@@ -1,13 +1,13 @@
 file:
   statement:
     select_statement:
-    - select_clause:
+      select_clause:
         keyword: SELECT
         select_target_element:
           wildcard_expression:
             wildcard_identifier:
               star: '*'
-    - from_clause:
+      from_clause:
         keyword: FROM
         ml_table_expression:
         - keyword: ML
@@ -18,10 +18,9 @@ file:
         - object_reference:
             identifier: '`project.dataset.model`'
         - end_bracket: )
-    - orderby_clause:
+      orderby_clause:
       - keyword: ORDER
       - keyword: BY
       - literal: '2'
       - comma: ','
       - literal: '1'
-

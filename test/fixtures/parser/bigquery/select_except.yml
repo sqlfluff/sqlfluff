@@ -5,14 +5,14 @@ file:
         keyword: SELECT
         select_target_element:
           wildcard_expression:
-          - wildcard_identifier:
+            wildcard_identifier:
               star: '*'
-          - select_except_clause:
+            select_except_clause:
               keyword: EXCEPT
               start_bracket: (
               identifier: seqnum
               end_bracket: )
-          - select_replace_clause:
+            select_replace_clause:
             - keyword: REPLACE
             - start_bracket: (
             - select_target_element:
@@ -135,4 +135,3 @@ file:
             table_reference:
               identifier: my_tbl
 - statement_terminator: ;
-

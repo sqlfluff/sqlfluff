@@ -16,7 +16,7 @@ import configparser
 from os.path import dirname
 from os.path import join
 
-from setuptools import setup
+from setuptools import find_packages, setup
 
 
 # Get the global config info as currently stated
@@ -52,20 +52,7 @@ setup(
         "Documentation": "https://docs.sqlfluff.com",
         "Source": "https://github.com/sqlfluff/sqlfluff",
     },
-    # Specify all the seperate packages, modules come automatically
-    packages=[
-        "sqlfluff",
-        "sqlfluff.api",
-        "sqlfluff.cli",
-        "sqlfluff.core",
-        "sqlfluff.core.dialects",
-        "sqlfluff.core.parser",
-        "sqlfluff.core.parser.segments",
-        "sqlfluff.core.parser.grammar",
-        "sqlfluff.core.rules",
-        "sqlfluff.core.rules.std",
-        "sqlfluff.core.templaters",
-    ],
+    packages=find_packages(where="src"),
     package_dir={"": "src"},
     include_package_data=True,
     classifiers=[

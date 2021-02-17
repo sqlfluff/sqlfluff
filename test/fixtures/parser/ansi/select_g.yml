@@ -1,11 +1,11 @@
 file:
-- statement:
+  statement:
     select_statement:
       select_clause:
       - keyword: SELECT
       - select_target_element:
           expression:
-            keyword: 'NULL'
+            literal: 'NULL'
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -16,7 +16,7 @@ file:
       - comma: ','
       - select_target_element:
           expression:
-            keyword: 'NULL'
+            literal: 'NULL'
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -27,4 +27,3 @@ file:
       limit_clause:
         keyword: LIMIT
         literal: '0'
-

@@ -1,9 +1,11 @@
 """Implementation of Rule L024."""
 
 
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 from sqlfluff.core.rules.std.L023 import Rule_L023
 
 
+@document_fix_compatible
 class Rule_L024(Rule_L023):
     """Single whitespace expected after USING in JOIN clause.
 

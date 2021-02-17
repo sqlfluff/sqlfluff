@@ -1,5 +1,5 @@
 file:
-- statement:
+  statement:
     select_statement:
       select_clause:
       - keyword: select
@@ -41,4 +41,3 @@ file:
             - literal: '1'
             - end_bracket: )
             end_bracket: )
-
