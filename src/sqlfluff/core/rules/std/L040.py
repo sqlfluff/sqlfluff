@@ -46,7 +46,8 @@ class Rule_L040(BaseCrawler):
                     newline_idx = fname_idx
 
             if newline_idx < modifiers_idx:
-                insert_buff = [
+                # E.g.: " DISTINCT\n"
+                replace_newline_with = [
                     self.make_whitespace(
                         raw=" ", pos_marker=segment.segments[newline_idx].pos_marker
                     ),
@@ -55,17 +56,23 @@ class Rule_L040(BaseCrawler):
                         pos_marker=segment.segments[newline_idx].pos_marker
                     ),
                 ]
+                fixes = [
+                    # E.g. "\n" -> " DISTINCT\n.
+                    LintFix("edit", segment.segments[newline_idx], replace_newline_with),
+                    # E.g. "DISTINCT" -> X
+                    LintFix("delete", select_modifier),
+                ]
+
+                # E.g. " " after "DISTINCT"
                 ws_to_delete = segment.select_children(
                     start_seg=select_modifier,
-                    collect_if=lambda seg: seg.is_type("whitespace"),
-                    stop_on=lambda seg: not seg.is_meta)
+                    collect_if=lambda s: s.is_type("whitespace"),
+                    stop_on=lambda s: not s.is_meta)
+
+                # E.g. " " -> X
+                fixes += [LintFix("delete", ws) for ws in ws_to_delete]
                 return LintResult(
                     anchor=segment,
-                    fixes=[
-                        # Replace "newline" with <<MODIFIERS>>, "newline".
-                        LintFix("edit", segment.segments[newline_idx], insert_buff),
-                        # Delete the modifiers from their original location.
-                        LintFix("delete", select_modifier),
-                    ] + [LintFix("delete", ws) for ws in ws_to_delete],
+                    fixes=fixes,
                 )
         return None
