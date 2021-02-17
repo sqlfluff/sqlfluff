@@ -12,7 +12,7 @@ from io import StringIO
 import copy
 from benchit import BenchIt
 from cached_property import cached_property
-from typing import Optional, List, Tuple, NamedTuple, Iterator
+from typing import Callable, Optional, List, Tuple, NamedTuple, Iterator
 import logging
 
 from sqlfluff.core.string_helpers import (
@@ -659,6 +659,25 @@ class BaseSegment:
         for seg in self.segments:
             if seg.is_type(*seg_type):
                 buff.append(seg)
+        return buff
+
+    def select_children(self, start_seg: 'BaseSegment' = None,
+                        stop_seg: 'BaseSegment' = None,
+                        collect_if: Callable[['BaseSegment'], bool] = None,
+                        stop_on: Callable[['BaseSegment'], bool] = None):
+        """Retrieve subset of children based on range and filters.
+
+        Often useful by linter rules when generating fixes, e.g. to find
+        whitespace segments between two already known segments.
+        """
+        start_index = self.segments.index(start_seg) if start_seg else -1
+        stop_index = self.segments.index(stop_seg) if stop_seg else len(self.segments)
+        buff = []
+        for seg in self.segments[start_index + 1 : stop_index]:
+            if collect_if(seg):
+                buff.append(seg)
+            elif stop_on(seg):
+                break
         return buff
 
     def recursive_crawl(self, *seg_type):

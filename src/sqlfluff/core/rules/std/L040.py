@@ -55,6 +55,10 @@ class Rule_L040(BaseCrawler):
                         pos_marker=segment.segments[newline_idx].pos_marker
                     ),
                 ]
+                ws_to_delete = segment.select_children(
+                    start_seg=select_modifier,
+                    collect_if=lambda seg: seg.is_type("whitespace"),
+                    stop_on=lambda seg: not seg.is_meta)
                 return LintResult(
                     anchor=segment,
                     fixes=[
@@ -62,6 +66,6 @@ class Rule_L040(BaseCrawler):
                         LintFix("edit", segment.segments[newline_idx], insert_buff),
                         # Delete the modifiers from their original location.
                         LintFix("delete", select_modifier),
-                    ],
+                    ] + [LintFix("delete", ws) for ws in ws_to_delete],
                 )
         return None
