@@ -27,3 +27,6 @@ test_2:
         user_id
     FROM
         safe_user
+
+test_3:
+  pass_str: SELECT DISTINCT user_id FROM safe_user

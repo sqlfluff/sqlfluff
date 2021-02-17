@@ -37,20 +37,19 @@ class Rule_L040(BaseCrawler):
             if not select_modifier:
                 return None
 
+            # Does the select clause contain a newline?
             modifiers_idx = segment.segments.index(select_modifier)
             newline = segment.get_child("newline")
-            newline_idx = segment.segments.index(newline)
+            if not newline:
+                return None
 
+            newline_idx = segment.segments.index(newline)
             if newline_idx < modifiers_idx:
                 # E.g.: " DISTINCT\n"
                 replace_newline_with = [
-                    self.make_whitespace(
-                        raw=" ", pos_marker=newline.pos_marker
-                    ),
+                    self.make_whitespace(raw=" ", pos_marker=newline.pos_marker),
                     select_modifier,
-                    self.make_newline(
-                        pos_marker=newline.pos_marker
-                    ),
+                    self.make_newline(pos_marker=newline.pos_marker),
                 ]
                 fixes = [
                     # E.g. "\n" -> " DISTINCT\n.
@@ -63,7 +62,8 @@ class Rule_L040(BaseCrawler):
                 ws_to_delete = segment.select_children(
                     start_seg=select_modifier,
                     collect_if=lambda s: s.is_type("whitespace"),
-                    stop_on=lambda s: not s.is_meta)
+                    stop_on=lambda s: not s.is_meta,
+                )
 
                 # E.g. " " -> X
                 fixes += [LintFix("delete", ws) for ws in ws_to_delete]
