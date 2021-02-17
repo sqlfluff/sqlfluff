@@ -5,7 +5,7 @@ from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
 @document_fix_compatible
-class Rule_L040(BaseCrawler):
+class Rule_L041(BaseCrawler):
     """SELECT clause modifiers such as DISTINCT must be on the same line as SELECT.
 
     | **Anti-pattern**

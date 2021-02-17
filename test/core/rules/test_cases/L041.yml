@@ -1,4 +1,4 @@
-rule: L040
+rule: L041
 
 test_1:
   fail_str: |
