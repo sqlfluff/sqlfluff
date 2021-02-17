@@ -44,31 +44,32 @@ class Rule_L040(BaseCrawler):
                 return None
 
             newline_idx = segment.segments.index(newline)
-            if newline_idx < modifiers_idx:
-                # E.g.: " DISTINCT\n"
-                replace_newline_with = [
-                    self.make_whitespace(raw=" ", pos_marker=newline.pos_marker),
-                    select_modifier,
-                    self.make_newline(pos_marker=newline.pos_marker),
-                ]
-                fixes = [
-                    # E.g. "\n" -> " DISTINCT\n.
-                    LintFix("edit", newline, replace_newline_with),
-                    # E.g. "DISTINCT" -> X
-                    LintFix("delete", select_modifier),
-                ]
+            if newline_idx > modifiers_idx:
+                return None
 
-                # E.g. " " after "DISTINCT"
-                ws_to_delete = segment.select_children(
-                    start_seg=select_modifier,
-                    collect_if=lambda s: s.is_type("whitespace"),
-                    stop_on=lambda s: not s.is_meta,
-                )
+            # E.g.: " DISTINCT\n"
+            replace_newline_with = [
+                self.make_whitespace(raw=" ", pos_marker=newline.pos_marker),
+                select_modifier,
+                self.make_newline(pos_marker=newline.pos_marker),
+            ]
+            fixes = [
+                # E.g. "\n" -> " DISTINCT\n.
+                LintFix("edit", newline, replace_newline_with),
+                # E.g. "DISTINCT" -> X
+                LintFix("delete", select_modifier),
+            ]
 
-                # E.g. " " -> X
-                fixes += [LintFix("delete", ws) for ws in ws_to_delete]
-                return LintResult(
-                    anchor=segment,
-                    fixes=fixes,
-                )
-        return None
+            # E.g. " " after "DISTINCT"
+            ws_to_delete = segment.select_children(
+                start_seg=select_modifier,
+                collect_if=lambda s: s.is_type("whitespace"),
+                stop_on=lambda s: not s.is_meta,
+            )
+
+            # E.g. " " -> X
+            fixes += [LintFix("delete", ws) for ws in ws_to_delete]
+            return LintResult(
+                anchor=segment,
+                fixes=fixes,
+            )
