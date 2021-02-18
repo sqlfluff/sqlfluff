@@ -1,0 +1,134 @@
+rule: L099
+
+test_1:
+  pass_str: select a, b from t
+
+test_2:
+  fail_str: select * from t
+
+test_3:
+  pass_str: |
+    with cte as (
+        select
+            a, b
+        from
+            t
+    )
+    select * from cte
+
+test_4:
+  fail_str: |
+    with cte as (
+        select
+            *
+        from
+            t
+    )
+    select * from cte
+
+
+test_5:
+  pass_str: |
+    with cte as (
+        select
+            *
+        from
+            t
+    )
+    select a, b from cte
+
+test_6:
+  pass_str: |
+    with cte1 as (
+        select
+            *
+        from
+            t
+    ),
+    cte2 as (
+        select
+            a, b
+        from
+            t
+    )
+    select
+        cte1.a,
+        cte2.*
+    from cte1
+    join cte2
+    using (a)
+
+test_7:
+  fail_str: |
+    with cte1 as (
+        select
+            *
+        from
+            t
+    ),
+    cte2 as (
+        select
+            a, b
+        from
+            t
+    )
+    select
+        cte1.*,
+        cte2.*
+    from cte1
+    join cte2
+    using (a)
+
+test_8:
+  pass_str: |
+    select * from (
+        select
+            a, b
+        from
+            t
+    )
+
+test_9:
+  fail_str: |
+    with cte as (
+        select
+            a, b
+        from
+            t
+    )
+    select
+        cte.*,
+        t.*
+    from cte1
+    join t
+    using (a)
+
+test_10:
+  fail_str: |
+    with cte as (
+        select
+            a, b
+        from
+            t
+    )
+    select
+        cte.*,
+        t_alias.*
+    from cte1
+    join (select * from t) as t_alias
+    using (a)
+
+test_11:
+  pass_str: |
+    with cte as (
+        select
+            a, b
+        from
+            t
+    )
+    select
+        cte.*,
+        t_alias.a
+    from cte1
+    join (select * from t) as t_alias
+    using (a)
