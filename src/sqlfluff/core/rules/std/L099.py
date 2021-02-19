@@ -74,9 +74,16 @@ class Rule_L099(BaseCrawler):
     @classmethod
     def gather_select_info(cls, segment, dialect):
         queries = {}
-        # Get all the select statements, then get the path to each to determine
-        # the structure.
+        # Get all the TOP-LEVEL select statements and CTEs, then get the path
+        # to each to determine the structure.
+        previous = None
         for select_statement in segment.recursive_crawl("select_statement"):
+            is_child = bool(previous.path_to(select_statement)) if previous else False
+            previous = select_statement
+            if is_child:
+                # At this stage, ignore nested selects. We'll deal with those
+                # as part of their top-level parent.
+                continue
             path_to = segment.path_to(select_statement)
 
             # If it's a CTE, get the name and info on the query inside.
@@ -86,36 +93,87 @@ class Rule_L099(BaseCrawler):
                     cte = seg
                     break
             select_name = cte.segments[0].raw if cte else None
+            # TODO: Avoid as much of this work as possible, e.g. if the outer
+            # query does not use a wildcard, we don't need to look at any of
+            # the CTEs.
             select_info = L020.Rule_L020.get_select_statement_info(
                 select_statement, dialect, early_exit=False)
+            print(f'Storing select info for {select_name}')
             queries[select_name] = select_info
         return queries
 
     @classmethod
-    def analyze_result_columns(cls, select_info, queries):
-        # Recursively walk from the final query (key=None) to any wildcard columns
-        # in the select targets. If it's wildcards all the way, warn.
+    def get_nested_select_info(cls, segment, dialect) -> Optional[L020.SelectStatementColumnsAndTables]:
+        # :TRICKY: We're doing a recursive crawl, but we only want
+        # the first one.
+        for select_statement in segment.recursive_crawl(
+                'select_statement'):
+            if select_statement is segment:
+                # If we are starting with a select_statement, recursive_crawl()
+                # returns the statement itself. Skip that.
+                continue
+            select_info_target = L020.Rule_L020.get_select_statement_info(
+                select_statement, dialect, early_exit=False)
+            return select_info_target
+        return None
+
+    @classmethod
+    def analyze_result_columns(cls, select_info, dialect, queries):
+        # Recursively walk from the final query (key=None) to any wildcard
+        # columns in the select targets. If it's wildcards all the way, warn.
+        print(f'Analyzing query: {select_info.select_statement.raw}')
         wildcards = cls._get_wildcard_info(select_info)
-        if not wildcards:
-            return None
         for wildcard in wildcards:
-            select_info_target = queries.get(wildcard.table)
-            if not select_info_target:
-                # References something that is not a CTE. Assume it's
-                # an external table, one we can't check. Thus, warn.
-                return LintResult(anchor=queries[None].select_statement)
+            print(f'Wildcard: {wildcard.segment.raw} has target {wildcard.table}')
+            if wildcard.table:
+                select_info_target = queries.get(wildcard.table)
+                if select_info_target:
+                    # For each wildcard in select targets, recurse, i.e. look at the
+                    # "upstream" query to see if it is wildcard free (i.e. known
+                    # number of columns).
+                    result = cls.analyze_result_columns(select_info_target, dialect, queries)
+                    if result:
+                        return result
+                else:
+                    # Not a CTE. Maybe an alias?
+                    alias = [t for t in select_info.table_aliases if t.aliased and t.ref_str == wildcard.table]
+                    if alias:
+                        # Found the alias matching the wildcard. Recurse, analyzing
+                        # the query associated with that alias.
+                        select_info_target = cls.get_nested_select_info(
+                            alias[0].table_expression, dialect)
+                        result = cls.analyze_result_columns(select_info_target,
+                                                            dialect,
+                                                            queries)
+                        if result:
+                            return result
+                    else:
+                        # Not a CTE, not a table alias. Assume it's an external
+                        # table whose number of columns could vary without our
+                        # knowledge. Thus, warn.
+                        print(f'Query target {wildcard.table} is external. Generating warning.')
+                        return LintResult(anchor=queries[None].select_statement)
             else:
-                result = cls.analyze_result_columns(select_info_target, queries)
+                # No table was specified with the wildcard. Assume we're
+                # querying from a nested select in FROM. Question: Is it possible
+                # # we're querying from a single table in FROM like test_2?
+                select_info_target = cls.get_nested_select_info(
+                    select_info.select_statement, dialect)
+                result = cls.analyze_result_columns(select_info_target,
+                                                    dialect,
+                                                    queries)
                 if result:
                     return result
+
         return None
 
     def _eval(self, segment, **kwargs):
         """Outermost query should produce known number of columns.
         """
         if segment.is_type("statement"):
-            queries = self.gather_select_info(segment, kwargs.get('dialect'))
+            dialect = kwargs.get('dialect')
+            queries = self.gather_select_info(segment, dialect)
 
             select_info = queries[None]
-            return self.analyze_result_columns(select_info, queries)
+            return self.analyze_result_columns(select_info, dialect, queries)
         return None

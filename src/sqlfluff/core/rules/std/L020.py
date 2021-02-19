@@ -183,6 +183,8 @@ class Rule_L020(BaseCrawler):
         if segment.is_type("select_statement"):
             select_info = self.get_select_statement_info(segment, kwargs.get(
                 'dialect'))
+            if not select_info:
+                return None
 
             # Work out if we have a parent select function
             parent_select = None

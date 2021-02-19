@@ -120,6 +120,22 @@ test_10:
 
 test_11:
   pass_str: |
+    select
+        t_alias.*
+    from cte1
+    join (select a from t) as t_alias
+    using (a)
+
+test_12:
+  fail_str: |
+    select
+        t_alias.*
+    from t1
+    join (select * from t) as t_alias
+    using (a)
+
+test_13:
+  pass_str: |
     with cte as (
         select
             a, b
@@ -133,5 +149,5 @@ test_11:
     join (select * from t) as t_alias
     using (a)
 
-test_12:
+test_14:
   fail_str: select *, t.*, t.a, b from t
