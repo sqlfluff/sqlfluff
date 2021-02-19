@@ -2371,6 +2371,41 @@ class CreateModelStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class CreateTypeStatementSegment(BaseSegment):
+    """A `CREATE TYPE` statement.
+    
+    This is based around the Postgres syntax.
+    https://www.postgresql.org/docs/current/sql-createtype.html
+
+    Note: This is relatively permissive currently
+    and does not lint the syntax strictly, to allow
+    for some deviation between dialects.
+    """
+
+    type = "create_type_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "TYPE",
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            "AS",
+            OneOf(
+                "ENUM",
+                "RANGE",
+                optional=True
+            ),
+            optional=True
+        ),
+        Bracketed(
+            Delimited(
+                Anything()
+            ),
+            optional=True
+        )
+    )
+
+
+@ansi_dialect.segment()
 class DropModelStatementSegment(BaseSegment):
     """A `DROP MODEL` statement."""
 
@@ -2424,6 +2459,7 @@ class StatementSegment(BaseSegment):
         Ref("DropStatementSegment"),
         Ref("AccessStatementSegment"),
         Ref("CreateTableStatementSegment"),
+        Ref("CreateTypeStatementSegment"),
         Ref("AlterTableStatementSegment"),
         Ref("CreateSchemaStatementSegment"),
         Ref("CreateDatabaseStatementSegment"),
