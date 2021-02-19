@@ -93,21 +93,22 @@ class Rule_L099(BaseCrawler):
 
     @classmethod
     def analyze_result_columns(cls, select_info, queries):
-        # Walk from the final query (key=None) to any wildcard columns
+        # Recursively walk from the final query (key=None) to any wildcard columns
         # in the select targets. If it's wildcards all the way, warn.
-        while True:
-            wildcards = cls._get_wildcard_info(select_info)
-            if not wildcards:
-                return None
-            wildcard = wildcards[0]
-            # TODO: Loop or recurse here since a select may have multiple
-            # wildcards in its select targets.
-            # for wildcard in wildcards:
-            select_info = queries.get(wildcard.table)
-            if not select_info:
+        wildcards = cls._get_wildcard_info(select_info)
+        if not wildcards:
+            return None
+        for wildcard in wildcards:
+            select_info_target = queries.get(wildcard.table)
+            if not select_info_target:
                 # References something that is not a CTE. Assume it's
                 # an external table, one we can't check. Thus, warn.
                 return LintResult(anchor=queries[None].select_statement)
+            else:
+                result = cls.analyze_result_columns(select_info_target, queries)
+                if result:
+                    return result
+        return None
 
     def _eval(self, segment, **kwargs):
         """Outermost query should produce known number of columns.
