@@ -703,14 +703,12 @@ class Linter:
 
     def __init__(
         self,
-        sql_exts: Tuple[str, ...] = (".sql",),
         config: Optional[FluffConfig] = None,
         formatter: Any = None,
         dialect: Optional[str] = None,
         rules: Optional[Union[str, List[str]]] = None,
         user_rules: Optional[Union[str, List[str]]] = None,
     ) -> None:
-        self.sql_exts = sql_exts
         # Store the config object
         self.config = FluffConfig.from_kwargs(
             config=config, dialect=dialect, rules=rules
@@ -1186,7 +1184,7 @@ class Linter:
                 # that the ignore file is processed after the sql file.
 
                 # Scan for remaining files
-                for ext in self.sql_exts:
+                for ext in self.config.get("sql_file_exts", default=".sql").split(","):
                     # is it a sql file?
                     if fname.endswith(ext):
                         buffer.append(fpath)
