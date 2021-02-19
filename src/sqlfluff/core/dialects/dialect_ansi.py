@@ -432,10 +432,10 @@ class DatatypeSegment(BaseSegment):
                 Ref("SingleIdentifierGrammar"),
                 Ref("DotSegment"),
                 allow_gaps=False,
-                optional=True
+                optional=True,
             ),
             Ref("DatatypeIdentifierSegment"),
-            allow_gaps=False
+            allow_gaps=False,
         ),
         Bracketed(
             OneOf(
@@ -2383,7 +2383,7 @@ class CreateModelStatementSegment(BaseSegment):
 @ansi_dialect.segment()
 class CreateTypeStatementSegment(BaseSegment):
     """A `CREATE TYPE` statement.
-    
+
     This is based around the Postgres syntax.
     https://www.postgresql.org/docs/current/sql-createtype.html
 
@@ -2397,21 +2397,8 @@ class CreateTypeStatementSegment(BaseSegment):
         "CREATE",
         "TYPE",
         Ref("ObjectReferenceSegment"),
-        Sequence(
-            "AS",
-            OneOf(
-                "ENUM",
-                "RANGE",
-                optional=True
-            ),
-            optional=True
-        ),
-        Bracketed(
-            Delimited(
-                Anything()
-            ),
-            optional=True
-        )
+        Sequence("AS", OneOf("ENUM", "RANGE", optional=True), optional=True),
+        Bracketed(Delimited(Anything()), optional=True),
     )
 
 
