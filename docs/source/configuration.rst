@@ -287,7 +287,7 @@ macros) or the `dbt` templater, which uses dbt itself to render the
 sql (meaning that there is a much more reliable representation of macros,
 but a potential performance hit accordingly). At this stage we recommend
 that users try both approaches and choose according to the method that
-they indent to use *SQLFluff*.
+they intend to use *SQLFluff*.
 
 A simple rule of thumb might be:
 
