@@ -822,8 +822,8 @@ class TableExpressionSegment(BaseSegment):
     match_grammar = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OneOf(
-            Ref("MainTableExpressionGrammar"),
-            Bracketed(Ref("MainTableExpressionGrammar")),
+            Ref("MainTableExpressionSegment"),
+            Bracketed(Ref("MainTableExpressionSegment")),
         ),
         Ref("AliasExpressionSegment", optional=True),
         Ref("PostTableExpressionGrammar", optional=True),
@@ -857,7 +857,7 @@ class TableExpressionSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
-class MainTableExpressionGrammar(BaseSegment):
+class MainTableExpressionSegment(BaseSegment):
     """The main table expression e.g. within a FROM clause."""
 
     type = "main_table_expression"

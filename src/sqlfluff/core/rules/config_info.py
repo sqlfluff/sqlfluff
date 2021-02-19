@@ -71,4 +71,8 @@ STANDARD_CONFIG_INFO_DICT = {
             " be ignored when linting line lengths."
         ),
     },
+    "forbid_subquery_in": {
+        "validation": ["join", "from", "both"],
+        "definition": "Which clauses should be linted for subqueries.",
+    },
 }
