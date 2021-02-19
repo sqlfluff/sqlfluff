@@ -10,6 +10,7 @@ from sqlfluff.core.rules.base import BaseCrawler, LintResult
 
 
 class SelectStatementColumnsAndTables(NamedTuple):
+    select_statement: BaseSegment
     table_aliases: List[AliasInfo]
     value_table_function_aliases: List[AliasInfo]
     reference_buffer: List[BaseSegment]
@@ -162,6 +163,7 @@ class Rule_L020(BaseCrawler):
                     using_cols.append(seg.raw)
 
         return SelectStatementColumnsAndTables(
+            select_statement=segment,
             table_aliases=table_aliases,
             value_table_function_aliases=value_table_function_aliases,
             reference_buffer=reference_buffer,

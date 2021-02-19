@@ -1,9 +1,8 @@
 """Implementation of Rule L099."""
 from typing import List, NamedTuple, Optional
 
-from sqlfluff.core.rules.base import BaseCrawler, LintFix, LintResult
+from sqlfluff.core.rules.base import BaseCrawler, LintResult
 from sqlfluff.core.parser.segments.base import BaseSegment
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 from sqlfluff.core.rules.std import L020
 
 
@@ -75,10 +74,38 @@ class Rule_L099(BaseCrawler):
     def _eval(self, segment, **kwargs):
         """Outermost query should produce known number of columns.
         """
-        if segment.is_type("select_statement"):
-            select_info = L020.Rule_L020.get_select_statement_info(segment, kwargs.get(
-                'dialect'), early_exit=False)
-            wildcards = self._get_wildcard_info(select_info)
-            if wildcards:
-                return LintResult(anchor=segment)
+        if segment.is_type("statement"):
+            queries = {}
+
+            # Get all the select statements, then get the path to each to determine
+            # the structure.
+            for select_statement in segment.recursive_crawl("select_statement"):
+                path_to = segment.path_to(select_statement)
+
+                # If it's a CTE, get the name and info on the query inside.
+                cte = None
+                for seg in path_to:
+                    if seg.is_type("common_table_expression"):
+                        cte = seg
+                        break
+                select_name = cte.segments[0].raw if cte else None
+                select_info = L020.Rule_L020.get_select_statement_info(select_statement, kwargs.get('dialect'), early_exit=False)
+                queries[select_name] = select_info
+
+            # Walk from the final query (key=None) to any wildcard columns
+            # in the select targets. If it's wildcards all the way, warn.
+            select_info = queries[None]
+            while True:
+                wildcards = self._get_wildcard_info(select_info)
+                if not wildcards:
+                    return None
+                wildcard = wildcards[0]
+                # TODO: Loop or recurse here since a select may have multiple
+                # wildcards in its select targets.
+                #for wildcard in wildcards:
+                select_info = queries.get(wildcard.table)
+                if not select_info:
+                    # References something that is not a CTE. Assume it's
+                    # an external table, one we can't check. Thus, warn.
+                    return LintResult(anchor=queries[None].select_statement)
         return None
