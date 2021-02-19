@@ -8,10 +8,12 @@ from sqlfluff.core.dialects.dialect_ansi import AliasInfo
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.rules.base import BaseCrawler, LintResult
 
+
 class SelectStatementColumnsAndTables(NamedTuple):
     table_aliases: List[AliasInfo]
     value_table_function_aliases: List[AliasInfo]
     reference_buffer: List[BaseSegment]
+    select_targets: List[BaseSegment]
     col_aliases: List[str]
     using_cols: List[str]
 
@@ -124,6 +126,9 @@ class Rule_L020(BaseCrawler):
             ):
                 reference_buffer.remove(ref)
 
+        # Get all select targets.
+        select_targets = segment.get_child('select_clause').get_children('select_target_element')
+
         # Get all column aliases
         col_aliases = []
         for col_seg in list(sc.recursive_crawl("alias_expression")):
@@ -160,6 +165,7 @@ class Rule_L020(BaseCrawler):
             table_aliases=table_aliases,
             value_table_function_aliases=value_table_function_aliases,
             reference_buffer=reference_buffer,
+            select_targets=select_targets,
             col_aliases=col_aliases,
             using_cols=using_cols)
 
