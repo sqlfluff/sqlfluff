@@ -71,41 +71,50 @@ class Rule_L099(BaseCrawler):
                 buff.append(WildcardInfo(seg, table))
         return buff
 
+    @classmethod
+    def gather_select_info(cls, segment, dialect):
+        queries = {}
+        # Get all the select statements, then get the path to each to determine
+        # the structure.
+        for select_statement in segment.recursive_crawl("select_statement"):
+            path_to = segment.path_to(select_statement)
+
+            # If it's a CTE, get the name and info on the query inside.
+            cte = None
+            for seg in path_to:
+                if seg.is_type("common_table_expression"):
+                    cte = seg
+                    break
+            select_name = cte.segments[0].raw if cte else None
+            select_info = L020.Rule_L020.get_select_statement_info(
+                select_statement, dialect, early_exit=False)
+            queries[select_name] = select_info
+        return queries
+
+    @classmethod
+    def analyze_result_columns(cls, select_info, queries):
+        # Walk from the final query (key=None) to any wildcard columns
+        # in the select targets. If it's wildcards all the way, warn.
+        while True:
+            wildcards = cls._get_wildcard_info(select_info)
+            if not wildcards:
+                return None
+            wildcard = wildcards[0]
+            # TODO: Loop or recurse here since a select may have multiple
+            # wildcards in its select targets.
+            # for wildcard in wildcards:
+            select_info = queries.get(wildcard.table)
+            if not select_info:
+                # References something that is not a CTE. Assume it's
+                # an external table, one we can't check. Thus, warn.
+                return LintResult(anchor=queries[None].select_statement)
+
     def _eval(self, segment, **kwargs):
         """Outermost query should produce known number of columns.
         """
         if segment.is_type("statement"):
-            queries = {}
+            queries = self.gather_select_info(segment, kwargs.get('dialect'))
 
-            # Get all the select statements, then get the path to each to determine
-            # the structure.
-            for select_statement in segment.recursive_crawl("select_statement"):
-                path_to = segment.path_to(select_statement)
-
-                # If it's a CTE, get the name and info on the query inside.
-                cte = None
-                for seg in path_to:
-                    if seg.is_type("common_table_expression"):
-                        cte = seg
-                        break
-                select_name = cte.segments[0].raw if cte else None
-                select_info = L020.Rule_L020.get_select_statement_info(select_statement, kwargs.get('dialect'), early_exit=False)
-                queries[select_name] = select_info
-
-            # Walk from the final query (key=None) to any wildcard columns
-            # in the select targets. If it's wildcards all the way, warn.
             select_info = queries[None]
-            while True:
-                wildcards = self._get_wildcard_info(select_info)
-                if not wildcards:
-                    return None
-                wildcard = wildcards[0]
-                # TODO: Loop or recurse here since a select may have multiple
-                # wildcards in its select targets.
-                #for wildcard in wildcards:
-                select_info = queries.get(wildcard.table)
-                if not select_info:
-                    # References something that is not a CTE. Assume it's
-                    # an external table, one we can't check. Thus, warn.
-                    return LintResult(anchor=queries[None].select_statement)
+            return self.analyze_result_columns(select_info, queries)
         return None
