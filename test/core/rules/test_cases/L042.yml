@@ -1,0 +1,43 @@
+rule: L042
+
+select_fail:
+  fail_str: |
+    select
+        a.x, a.y, b.z
+    from a
+    join (
+        select x, z from b
+    ) on (a.x = b.x)
+  
+with_fail:
+  fail_str: |
+    select
+        a.x, a.y, b.z
+    from a
+    join (
+        with d as (
+            select x, z from b
+        )
+        select * from d
+    ) using (x)
+  
+set_fail:
+  fail_str: |
+    select
+        a.x, a.y, b.z
+    from a
+    join (
+        select x, z from b
+        union
+        select x, z from d
+    ) using (x)
+
+simple_pass:
+  pass_str: |
+    with c as (
+        select x, z from b
+    )
+    select
+        a.x, a.y, c.z
+    from a
+    join c on (a.x = c.x)
