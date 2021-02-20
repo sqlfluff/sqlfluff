@@ -1088,7 +1088,7 @@ class FromClauseSegment(BaseSegment):
                 Ref("MLTableExpressionSegment"),
                 Ref("TableExpressionSegment"),
             ),
-            terminator=OneOf(Ref("JoinClauseSegment")),
+            terminator=Ref("JoinClauseSegment"),
         ),
         # NB: The JOIN clause is *part of* the FROM clause
         # and so should be on a sub-indent of it. That isn't
