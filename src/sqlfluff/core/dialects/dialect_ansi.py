@@ -1088,7 +1088,7 @@ class FromClauseSegment(BaseSegment):
                 Ref("MLTableExpressionSegment"),
                 Ref("TableExpressionSegment"),
             ),
-            terminator=Ref("JoinClauseSegment"),
+            terminator=OneOf(Ref("JoinClauseSegment")),
         ),
         # NB: The JOIN clause is *part of* the FROM clause
         # and so should be on a sub-indent of it. That isn't
@@ -1099,6 +1099,10 @@ class FromClauseSegment(BaseSegment):
         Dedent.when(indented_joins=False),
         AnyNumberOf(
             Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar"), optional=True
+        ),
+        # In case of table functions e.g. lateral flatten
+        AnyNumberOf(
+            Sequence(Ref("CommaSegment"), Ref("TableExpressionSegment")), optional=True
         ),
         Dedent.when(indented_joins=True),
     )
