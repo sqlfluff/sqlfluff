@@ -139,3 +139,31 @@ test_12:
         t1
     -- Comment
     JOIN t2 USING (user_id)
+
+# https://github.com/sqlfluff/sqlfluff/issues/643
+snowflake_with_indent:
+  pass_str: |
+    with source_data as (
+        select * from {{ source('source_name', 'xxx_yyy_zzz') }}   
+    )
+
+    select *
+    from source_data
+  
+  configs:
+    core:
+      dialect: snowflake
+
+# https://github.com/sqlfluff/sqlfluff/issues/643
+bigquery_with_indent:
+  pass_str: |
+    with source_data as (
+        select * from {{ source('source_name', 'xxx_yyy_zzz') }}   
+    )
+
+    select *
+    from source_data
+  
+  configs:
+    core:
+      dialect: bigquery
