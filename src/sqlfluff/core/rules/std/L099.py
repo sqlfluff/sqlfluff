@@ -77,9 +77,8 @@ class Rule_L099(BaseCrawler):
                 buff.append(WildcardInfo(seg, table))
         return buff
 
-    @classmethod
     def gather_select_info(
-        cls, segment, dialect: Dialect
+        self, segment, dialect: Dialect
     ) -> Dict[str, List[L020.SelectStatementColumnsAndTables]]:
         """Find top-level SELECTs and CTEs, return info."""
         queries = defaultdict(list)
@@ -106,7 +105,7 @@ class Rule_L099(BaseCrawler):
             select_info = L020.Rule_L020.get_select_statement_info(
                 select_statement, dialect, early_exit=False
             )
-            print(f"Storing select info for {select_name}")
+            self.logger.debug(f"Storing select info for {select_name}")
             queries[select_name].append(select_info)
         return dict(queries)
 
@@ -137,9 +136,8 @@ class Rule_L099(BaseCrawler):
             )
         return buff
 
-    @classmethod
     def analyze_result_columns(
-        cls,
+        self,
         select_info_list: List[L020.SelectStatementColumnsAndTables],
         dialect: Dialect,
         queries: Dict[str, List[L020.SelectStatementColumnsAndTables]],
@@ -148,17 +146,17 @@ class Rule_L099(BaseCrawler):
         # Recursively walk from the final query (key=None) to any wildcard
         # columns in the select targets. If it's wildcards all the way, warn.
         for select_info in select_info_list:
-            print(f"Analyzing query: {select_info.select_statement.raw}")
-            wildcards = cls._get_wildcard_info(select_info)
+            self.logger.debug(f"Analyzing query: {select_info.select_statement.raw}")
+            wildcards = self._get_wildcard_info(select_info)
             for wildcard in wildcards:
-                print(f"Wildcard: {wildcard.segment.raw} has target {wildcard.table}")
+                self.logger.debug(f"Wildcard: {wildcard.segment.raw} has target {wildcard.table}")
                 if wildcard.table:
                     select_info_target = queries.get(wildcard.table)
                     if select_info_target:
                         # For each wildcard in select targets, recurse, i.e. look at the
                         # "upstream" query to see if it is wildcard free (i.e. known
                         # number of columns).
-                        result = cls.analyze_result_columns(
+                        result = self.analyze_result_columns(
                             select_info_target, dialect, queries
                         )
                         if result:
@@ -173,10 +171,10 @@ class Rule_L099(BaseCrawler):
                         if alias:
                             # Found the alias matching the wildcard. Recurse,
                             # analyzing the query associated with that alias.
-                            select_info_target = cls.get_nested_select_info(
+                            select_info_target = self.get_nested_select_info(
                                 alias[0].table_expression, dialect
                             )
-                            result = cls.analyze_result_columns(
+                            result = self.analyze_result_columns(
                                 select_info_target, dialect, queries
                             )
                             if result:
@@ -185,7 +183,7 @@ class Rule_L099(BaseCrawler):
                             # Not a CTE, not a table alias. Assume it's an external
                             # table whose number of columns could vary without our
                             # knowledge. Thus, warn.
-                            print(
+                            self.logger.debug(
                                 f"Query target {wildcard.table} is external. Generating warning."
                             )
                             # TODO: It'd be better for the anchor to be the
@@ -202,10 +200,10 @@ class Rule_L099(BaseCrawler):
                     # querying from a nested select in FROM. Question: Is it
                     # possible we're querying from a single table in FROM like
                     # test_2?
-                    select_info_target = cls.get_nested_select_info(
+                    select_info_target = self.get_nested_select_info(
                         select_info.select_statement, dialect
                     )
-                    result = cls.analyze_result_columns(
+                    result = self.analyze_result_columns(
                         select_info_target, dialect, queries
                     )
                     if result:

@@ -147,26 +147,27 @@ class Rule_L020(BaseCrawler):
         # from ON clauses.
         using_cols = []
         fc = segment.get_child("from_clause")
-        for join_clause in fc.recursive_crawl("join_clause"):
-            in_using_brackets = False
-            seen_using = False
-            for seg in join_clause.segments:
-                if seg.is_type("keyword") and seg.name == "USING":
-                    seen_using = True
-                elif seg.is_type("join_on_condition"):
-                    for on_seg in seg.segments:
-                        if on_seg.is_type("expression"):
-                            # Deal with expressions
-                            reference_buffer += list(
-                                seg.recursive_crawl("object_reference")
-                            )
-                elif seen_using and seg.is_type("start_bracket"):
-                    in_using_brackets = True
-                elif seen_using and seg.is_type("end_bracket"):
-                    in_using_brackets = False
-                    seen_using = False
-                elif in_using_brackets and seg.is_type("identifier"):
-                    using_cols.append(seg.raw)
+        if fc:
+            for join_clause in fc.recursive_crawl("join_clause"):
+                in_using_brackets = False
+                seen_using = False
+                for seg in join_clause.segments:
+                    if seg.is_type("keyword") and seg.name == "USING":
+                        seen_using = True
+                    elif seg.is_type("join_on_condition"):
+                        for on_seg in seg.segments:
+                            if on_seg.is_type("expression"):
+                                # Deal with expressions
+                                reference_buffer += list(
+                                    seg.recursive_crawl("object_reference")
+                                )
+                    elif seen_using and seg.is_type("start_bracket"):
+                        in_using_brackets = True
+                    elif seen_using and seg.is_type("end_bracket"):
+                        in_using_brackets = False
+                        seen_using = False
+                    elif in_using_brackets and seg.is_type("identifier"):
+                        using_cols.append(seg.raw)
 
         return SelectStatementColumnsAndTables(
             select_statement=segment,
