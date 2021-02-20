@@ -78,7 +78,7 @@ class Rule_L099(BaseCrawler):
         return buff
 
     def gather_select_info(
-        self, segment, dialect: Dialect
+        self, segment: BaseSegment, dialect: Dialect
     ) -> Dict[str, List[L020.SelectStatementColumnsAndTables]]:
         """Find top-level SELECTs and CTEs, return info."""
         queries = defaultdict(list)
@@ -111,7 +111,7 @@ class Rule_L099(BaseCrawler):
 
     @classmethod
     def get_nested_select_info(
-        cls, segment, dialect
+        cls, segment: BaseSegment, dialect: Dialect
     ) -> List[L020.SelectStatementColumnsAndTables]:
         """Find SELECTs underneath segment. Assume no CTEs."""
         # TODO: This function is very similar to gather_select_info() except
@@ -149,7 +149,9 @@ class Rule_L099(BaseCrawler):
             self.logger.debug(f"Analyzing query: {select_info.select_statement.raw}")
             wildcards = self._get_wildcard_info(select_info)
             for wildcard in wildcards:
-                self.logger.debug(f"Wildcard: {wildcard.segment.raw} has target {wildcard.table}")
+                self.logger.debug(
+                    f"Wildcard: {wildcard.segment.raw} has target {wildcard.table}"
+                )
                 if wildcard.table:
                     select_info_target = queries.get(wildcard.table)
                     if select_info_target:
@@ -211,10 +213,10 @@ class Rule_L099(BaseCrawler):
 
         return None
 
-    def _eval(self, segment, **kwargs) -> Optional[LintResult]:
+    def _eval(self, segment, **kwargs):
         """Outermost query should produce known number of columns."""
         if segment.is_type("statement"):
-            dialect = kwargs.get("dialect")
+            dialect: Dialect = kwargs.get("dialect")
             queries = self.gather_select_info(segment, dialect)
 
             select_info = queries[None]

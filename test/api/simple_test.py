@@ -21,10 +21,10 @@ lint_result = [
         "line_pos": 1,
     },
     {
-        'code': 'L099',
-        'description': 'Query produces an unknown number of result columns.',
-        'line_no': 1,
-        'line_pos': 1
+        "code": "L099",
+        "description": "Query produces an unknown number of result columns.",
+        "line_no": 1,
+        "line_pos": 1,
     },
     {
         "code": "L039",

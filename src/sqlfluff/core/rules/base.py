@@ -217,7 +217,7 @@ class BaseCrawler:
         except AttributeError:
             self.logger.info("No config_keywords defined for {0}".format(code))
 
-    def _eval(self, **kwargs) -> Optional[LintResult]:
+    def _eval(self, **kwargs):
         """Evaluate this rule against the current context.
 
         This should indicate whether a linting violation has occurred and/or
