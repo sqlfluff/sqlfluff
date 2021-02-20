@@ -1,0 +1,26 @@
+file:
+  statement:
+    with_compound_statement:
+      unparsable:
+      - keyword: with
+      - raw: a
+      - raw: as
+      - raw: (
+      - raw: select
+      - raw: '*'
+      - raw: from
+      - raw: table_a
+      - raw: )
+      - comma: ','
+      - raw: b
+      - raw: as
+      - raw: (
+      - raw: select
+      - raw: '*'
+      - raw: from
+      - raw: a
+      - raw: )
+      - raw: select
+      - raw: '*'
+      - raw: from
+      - raw: b
