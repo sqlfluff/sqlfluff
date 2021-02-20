@@ -10,6 +10,8 @@ from sqlfluff.core.rules.base import BaseCrawler, LintResult
 
 
 class SelectStatementColumnsAndTables(NamedTuple):
+    """Structure returned by get_select_statement_info()."""
+
     select_statement: BaseSegment
     table_aliases: List[AliasInfo]
     value_table_function_aliases: List[AliasInfo]
@@ -93,7 +95,10 @@ class Rule_L020(BaseCrawler):
         return table_aliases, value_table_function_aliases
 
     @classmethod
-    def get_select_statement_info(cls, segment: BaseSegment, dialect: Optional[Dialect], early_exit: bool=True) -> Optional[SelectStatementColumnsAndTables]:
+    def get_select_statement_info(
+        cls, segment: BaseSegment, dialect: Optional[Dialect], early_exit: bool = True
+    ) -> Optional[SelectStatementColumnsAndTables]:
+        """Analyze a select statement: targets, aliases, etc. Return info."""
         assert segment.is_type("select_statement")
         table_aliases, value_table_function_aliases = cls._get_aliases_from_select(
             segment, dialect
@@ -108,27 +113,28 @@ class Rule_L020(BaseCrawler):
         # Add any wildcard references
         reference_buffer += list(sc.recursive_crawl("wildcard_identifier"))
         for potential_clause in (
-                "where_clause",
-                "groupby_clause",
-                "having_clause",
-                "orderby_clause",
+            "where_clause",
+            "groupby_clause",
+            "having_clause",
+            "orderby_clause",
         ):
             clause = segment.get_child(potential_clause)
             if clause:
-                reference_buffer += list(
-                    clause.recursive_crawl("object_reference"))
+                reference_buffer += list(clause.recursive_crawl("object_reference"))
         # PURGE any references which are in nested select statements
         for ref in reference_buffer.copy():
             ref_path = segment.path_to(ref)
             # is it in a subselect? i.e. a select which isn't this one.
             if any(
-                    seg.is_type("select_statement") and seg is not segment
-                    for seg in ref_path
+                seg.is_type("select_statement") and seg is not segment
+                for seg in ref_path
             ):
                 reference_buffer.remove(ref)
 
         # Get all select targets.
-        select_targets = segment.get_child('select_clause').get_children('select_target_element')
+        select_targets = segment.get_child("select_clause").get_children(
+            "select_target_element"
+        )
 
         # Get all column aliases
         col_aliases = []
@@ -169,7 +175,8 @@ class Rule_L020(BaseCrawler):
             reference_buffer=reference_buffer,
             select_targets=select_targets,
             col_aliases=col_aliases,
-            using_cols=using_cols)
+            using_cols=using_cols,
+        )
 
     def _eval(self, segment, parent_stack, **kwargs):
         """Get References and Aliases and allow linting.
@@ -181,8 +188,7 @@ class Rule_L020(BaseCrawler):
         `_lint_references_and_aliases` method.
         """
         if segment.is_type("select_statement"):
-            select_info = self.get_select_statement_info(segment, kwargs.get(
-                'dialect'))
+            select_info = self.get_select_statement_info(segment, kwargs.get("dialect"))
             if not select_info:
                 return None
 

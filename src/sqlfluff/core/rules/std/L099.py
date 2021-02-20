@@ -9,6 +9,8 @@ from sqlfluff.core.rules.std import L020
 
 
 class WildcardInfo(NamedTuple):
+    """Structure returned by _get_wildcard_info()."""
+
     segment: BaseSegment
     table: Optional[str]
 
@@ -76,7 +78,10 @@ class Rule_L099(BaseCrawler):
         return buff
 
     @classmethod
-    def gather_select_info(cls, segment, dialect: Dialect) -> Dict[str, List[L020.SelectStatementColumnsAndTables]]:
+    def gather_select_info(
+        cls, segment, dialect: Dialect
+    ) -> Dict[str, List[L020.SelectStatementColumnsAndTables]]:
+        """Find top-level SELECTs and CTEs, return info."""
         queries = defaultdict(list)
         # Get all the TOP-LEVEL select statements and CTEs, then get the path
         # to each to determine the structure.
@@ -109,23 +114,37 @@ class Rule_L099(BaseCrawler):
     def get_nested_select_info(
         cls, segment, dialect
     ) -> List[L020.SelectStatementColumnsAndTables]:
-        # :TRICKY: We're doing a recursive crawl, but we only want
-        # the first one.
+        """Find SELECTs underneath segment. Assume no CTEs."""
+        # TODO: This function is very similar to gather_select_info() except
+        # that it assumes there are no CTEs. Can it be eliminated?
         buff = []
-        for select_statement in segment.recursive_crawl("select_statement", recurse_into=False):
+        for select_statement in segment.recursive_crawl(
+            "select_statement", recurse_into=False
+        ):
             if select_statement is segment:
                 # If we are starting with a select_statement, recursive_crawl()
                 # returns the statement itself. Skip that.
                 continue
             # :TRICKY: Cast away "Optional" because early_exit=False ensures
             # we won't get a "None" result.
-            buff.append(cast(L020.SelectStatementColumnsAndTables, L020.Rule_L020.get_select_statement_info(
-                select_statement, dialect, early_exit=False
-            )))
+            buff.append(
+                cast(
+                    L020.SelectStatementColumnsAndTables,
+                    L020.Rule_L020.get_select_statement_info(
+                        select_statement, dialect, early_exit=False
+                    ),
+                )
+            )
         return buff
 
     @classmethod
-    def analyze_result_columns(cls, select_info_list: List[L020.SelectStatementColumnsAndTables], dialect: Dialect, queries: Dict[str, List[L020.SelectStatementColumnsAndTables]]):
+    def analyze_result_columns(
+        cls,
+        select_info_list: List[L020.SelectStatementColumnsAndTables],
+        dialect: Dialect,
+        queries: Dict[str, List[L020.SelectStatementColumnsAndTables]],
+    ) -> Optional[LintResult]:
+        """Given info on a list of SELECTs, determine whether to warn."""
         # Recursively walk from the final query (key=None) to any wildcard
         # columns in the select targets. If it's wildcards all the way, warn.
         for select_info in select_info_list:
@@ -194,7 +213,7 @@ class Rule_L099(BaseCrawler):
 
         return None
 
-    def _eval(self, segment, **kwargs):
+    def _eval(self, segment, **kwargs) -> Optional[LintResult]:
         """Outermost query should produce known number of columns."""
         if segment.is_type("statement"):
             dialect = kwargs.get("dialect")

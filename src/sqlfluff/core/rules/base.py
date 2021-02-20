@@ -17,6 +17,7 @@ missing.
 import copy
 import logging
 from collections import namedtuple
+from typing import Optional
 
 from sqlfluff.core.parser import RawSegment, KeywordSegment, BaseSegment, SymbolSegment
 from sqlfluff.core.errors import SQLLintError
@@ -216,7 +217,7 @@ class BaseCrawler:
         except AttributeError:
             self.logger.info("No config_keywords defined for {0}".format(code))
 
-    def _eval(self, **kwargs):
+    def _eval(self, **kwargs) -> Optional[LintResult]:
         """Evaluate this rule against the current context.
 
         This should indicate whether a linting violation has occurred and/or
