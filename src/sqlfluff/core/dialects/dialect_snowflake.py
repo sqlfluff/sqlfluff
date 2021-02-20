@@ -58,6 +58,7 @@ snowflake_dialect.sets("unreserved_keywords").update(
         "BLOCK",
         "HISTORY",
         "LATERAL",
+        "NETWORK",
         "PIPE",
         "PIPES",
         "REGIONS",
@@ -71,7 +72,6 @@ snowflake_dialect.sets("reserved_keywords").update(
     [
         "CLONE",
         "MASKING",
-        "NETWORK",
         "NOTIFICATION",
         "PIVOT",
         "SAMPLE",
@@ -133,7 +133,7 @@ snowflake_dialect.replace(
     PostFunctionGrammar=Sequence(
         Ref("WithinGroupClauseSegment", optional=True),
         Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
-        Ref("OverClauseSegment"),
+        Ref("OverClauseSegment", optional=True),
     ),
 )
 
