@@ -151,3 +151,45 @@ test_13:
 
 test_14:
   fail_str: select *, t.*, t.a, b from t
+
+test_15:
+  pass_str: |
+    select a from t1
+    union all
+    select b from t2
+
+test_16:
+  fail_str: |
+    select a from t1
+    union all
+    select * from t2
+
+test_17:
+  fail_str: |
+    select * from t1
+    union all
+    select b from t2
+
+test_18:
+  fail_str: |
+    with cte as (
+      select * from t1
+      union all
+      select b from t2
+    )
+
+    select * from cte
+    union all
+    select b from t3
+
+test_19:
+  pass_str: |
+    with cte as (
+      select a from t1
+      union all
+      select b from t2
+    )
+
+    select * from cte
+    union all
+    select b from t3
