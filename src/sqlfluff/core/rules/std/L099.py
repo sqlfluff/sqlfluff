@@ -1,6 +1,6 @@
 """Implementation of Rule L099."""
 from collections import defaultdict
-from typing import Dict, List, NamedTuple, Optional
+from typing import cast, Dict, List, NamedTuple, Optional
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.rules.base import BaseCrawler, LintResult
@@ -117,9 +117,11 @@ class Rule_L099(BaseCrawler):
                 # If we are starting with a select_statement, recursive_crawl()
                 # returns the statement itself. Skip that.
                 continue
-            buff.append(L020.Rule_L020.get_select_statement_info(
+            # :TRICKY: Cast away "Optional" because early_exit=False ensures
+            # we won't get a "None" result.
+            buff.append(cast(L020.SelectStatementColumnsAndTables, L020.Rule_L020.get_select_statement_info(
                 select_statement, dialect, early_exit=False
-            ))
+            )))
         return buff
 
     @classmethod
@@ -167,11 +169,20 @@ class Rule_L099(BaseCrawler):
                             print(
                                 f"Query target {wildcard.table} is external. Generating warning."
                             )
-                            return LintResult(anchor=queries[None].select_statement)
+                            # TODO: It'd be better for the anchor to be the
+                            # top-level query we started with. As currently
+                            # written, this could be a deeply nested query
+                            # where the rule finally determined to issue a
+                            # warning. To be clear, the result is correct in
+                            # terms of WHETHER to return a warning; this "TODO"
+                            # is talking about what line of the query is
+                            # referenced in the warning.
+                            return LintResult(anchor=select_info.select_statement)
                 else:
                     # No table was specified with the wildcard. Assume we're
-                    # querying from a nested select in FROM. Question: Is it possible
-                    # # we're querying from a single table in FROM like test_2?
+                    # querying from a nested select in FROM. Question: Is it
+                    # possible we're querying from a single table in FROM like
+                    # test_2?
                     select_info_target = cls.get_nested_select_info(
                         select_info.select_statement, dialect
                     )
