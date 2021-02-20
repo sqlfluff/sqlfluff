@@ -1,0 +1,67 @@
+file:
+- statement:
+    create_type_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - object_reference:
+        identifier: foo
+- statement_terminator: ;
+- statement:
+    create_type_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - object_reference:
+        identifier: bar
+    - keyword: AS
+    - keyword: ENUM
+    - start_bracket: (
+    - raw: "'foo'"
+    - comma: ','
+    - raw: "'bar'"
+    - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_type_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - object_reference:
+        identifier: foobar
+    - keyword: AS
+    - keyword: RANGE
+    - start_bracket: (
+    - raw: SUBTYPE
+    - raw: '='
+    - raw: FLOAT
+    - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_type_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - object_reference:
+        identifier: barbar
+    - keyword: AS
+    - start_bracket: (
+    - raw: INPUT
+    - raw: '='
+    - raw: foo
+    - comma: ','
+    - raw: OUTPUT
+    - raw: '='
+    - raw: bar
+    - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_type_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - object_reference:
+        identifier: foofoo
+    - keyword: AS
+    - start_bracket: (
+    - raw: foo
+    - raw: varchar
+    - raw: collate
+    - raw: utf8
+    - end_bracket: )
+- statement_terminator: ;

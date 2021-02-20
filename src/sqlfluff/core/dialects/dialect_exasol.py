@@ -226,7 +226,7 @@ class SelectStatementSegment(BaseSegment):
 
 
 @exasol_dialect.segment(replace=True)
-class MainTableExpressionGrammar(BaseSegment):
+class MainTableExpressionSegment(BaseSegment):
     """The main table expression e.g. within a FROM clause."""
 
     type = "main_table_expression"
