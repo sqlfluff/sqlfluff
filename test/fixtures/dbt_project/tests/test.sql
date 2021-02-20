@@ -1,1 +1,1 @@
-select c from a
+select * from a
