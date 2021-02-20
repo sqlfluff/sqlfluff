@@ -17,7 +17,6 @@ missing.
 import copy
 import logging
 from collections import namedtuple
-from typing import Optional
 
 from sqlfluff.core.parser import RawSegment, KeywordSegment, BaseSegment, SymbolSegment
 from sqlfluff.core.errors import SQLLintError
