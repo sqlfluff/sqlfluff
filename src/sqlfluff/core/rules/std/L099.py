@@ -11,13 +11,14 @@ from sqlfluff.core.rules.std import L020
 
 
 class WildcardInfo(NamedTuple):
-    """Structure returned by _get_wildcard_info()."""
+    """Structure returned by SelectInfo.get_wildcard_info()."""
 
     segment: BaseSegment
     tables: List[str]
 
 
 class SelectInfo:
+    """Simple caching wrapper around get_select_statement_info()."""
     def __init__(self, select_statement, dialect):
         self.select_statement = select_statement
         self.dialect = dialect
@@ -27,6 +28,31 @@ class SelectInfo:
         result = L020.Rule_L020.get_select_statement_info(
                 self.select_statement, self.dialect, early_exit=False)
         return result
+
+    def get_wildcard_info(
+        self
+    ) -> List[WildcardInfo]:
+        buff = []
+        for seg in self.select_info.select_targets:
+            if seg.get_child("wildcard_expression"):
+                if "." in seg.raw:
+                    # The wildcard specifies a target table.
+                    table = seg.raw.rsplit(".", 1)[0]
+                    buff.append(WildcardInfo(seg, [table]))
+                else:
+                    # The wildcard is unqualified (i.e. does not specify a
+                    # table). This means to include all columns from all the
+                    # tables in the query.
+                    buff.append(
+                        WildcardInfo(
+                            seg,
+                            [
+                                alias_info.ref_str
+                                for alias_info in self.select_info.table_aliases
+                            ],
+                        )
+                    )
+        return buff
 
 
 class Rule_L099(BaseCrawler):
@@ -60,32 +86,6 @@ class Rule_L099(BaseCrawler):
     """
 
     _works_on_unparsable = False
-
-    @classmethod
-    def _get_wildcard_info(
-        cls, select_info: SelectInfo
-    ) -> List[WildcardInfo]:
-        buff = []
-        for seg in select_info.select_info.select_targets:
-            if seg.get_child("wildcard_expression"):
-                if "." in seg.raw:
-                    # The wildcard specifies a target table.
-                    table = seg.raw.rsplit(".", 1)[0]
-                    buff.append(WildcardInfo(seg, [table]))
-                else:
-                    # The wildcard is unqualified (i.e. does not specify a
-                    # table). This means to include all columns from all the
-                    # tables in the query.
-                    buff.append(
-                        WildcardInfo(
-                            seg,
-                            [
-                                alias_info.ref_str
-                                for alias_info in select_info.select_info.table_aliases
-                            ],
-                        )
-                    )
-        return buff
 
     def gather_select_info(
         self, segment: BaseSegment, dialect: Dialect
@@ -166,7 +166,7 @@ class Rule_L099(BaseCrawler):
         # columns in the select targets. If it's wildcards all the way, warn.
         for select_info in select_info_list:
             self.logger.debug(f"Analyzing query: {select_info.select_statement.raw}")
-            wildcards = self._get_wildcard_info(select_info)
+            wildcards = select_info.get_wildcard_info()
             for wildcard in wildcards:
                 if wildcard.tables:
                     for wildcard_table in wildcard.tables:
