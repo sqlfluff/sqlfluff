@@ -207,13 +207,12 @@ class Rule_L099(BaseCrawler):
                                     return result
                         else:
                             # Not an alias. Is it a CTE?
-                            select_info_target = queries.get(wildcard_table)
-                            if select_info_target:
+                            if wildcard_table in queries:
                                 # For each wildcard in select targets, recurse, i.e. look at the
                                 # "upstream" query to see if it is wildcard free (i.e. known
                                 # number of columns).
                                 result = self.analyze_result_columns(
-                                    select_info_target, dialect, queries
+                                    queries[wildcard_table], dialect, queries
                                 )
                                 if result:
                                     return result
@@ -241,8 +240,14 @@ class Rule_L099(BaseCrawler):
                     select_info_target = self.get_select_info(
                         select_info.select_statement, queries, dialect
                     )
+                    assert isinstance(select_info_target, list)
                     result = self.analyze_result_columns(
-                        select_info_target, dialect, queries
+                        cast(
+                            List[L020.SelectStatementColumnsAndTables],
+                            select_info_target,
+                        ),
+                        dialect,
+                        queries,
                     )
                     if result:
                         return result
