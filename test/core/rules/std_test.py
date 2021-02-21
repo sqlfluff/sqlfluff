@@ -16,6 +16,9 @@ from test.fixtures.dbt.templater import (  # noqa
     in_dbt_project_dir,
     dbt_templater,
 )
+from test.fixtures.rules.L000 import Rule_L000
+from test.fixtures.rules.S000 import Rule_S000
+from sqlfluff.core.rules.std import get_rules_from_path
 
 
 class Rule_T042(BaseCrawler):
@@ -251,3 +254,16 @@ def test_rule_exception_is_caught_to_validation():
     )
 
     assert linter.lint_string("select 1").check_tuples() == [("T000", 1, 1)]
+
+
+def test_std_rule_import_fail_bad_naming():
+    """Check that rule import from file works."""
+    assert get_rules_from_path(
+        rules_path="test/fixtures/rules/*.py", base_module="test.fixtures.rules"
+    ) == [Rule_L000, Rule_S000]
+
+    with pytest.raises(AttributeError):
+        get_rules_from_path(
+            rules_path="test/fixtures/rules/bad_rule_name/*.py",
+            base_module="test.fixtures.rules.bad_rule_name",
+        )

@@ -9,7 +9,8 @@ from glob import glob
 
 def get_rules_from_path(
     # All rule files are expected in the format of L*.py
-    rules_path=os.path.join(os.path.abspath(os.path.dirname(__file__)), "L*.py")
+    rules_path=os.path.join(os.path.abspath(os.path.dirname(__file__)), "L*.py"),
+    base_module="sqlfluff.core.rules.std",
 ):
     """Reads all of the Rule classes from a path into a list."""
     # Create a rules dictionary for importing in sqlfluff/src/sqlfluff/core/rules/__init__.py
@@ -26,10 +27,12 @@ def get_rules_from_path(
         rule_class_name = f"Rule_{rule_id}"
         try:
             rule_class = getattr(
-                import_module(f"sqlfluff.core.rules.std.{rule_id}"), rule_class_name
+                import_module(f"{base_module}.{rule_id}"), rule_class_name
             )
-        except AttributeError:
-            raise (AttributeError("Rule classes must be named in the format of L*."))
+        except AttributeError as e:
+            raise AttributeError(
+                "Rule classes must be named in the format of L*."
+            ) from e
         # Add the rules to the rules dictionary for sqlfluff/src/sqlfluff/core/rules/__init__.py
         rules.append(rule_class)
         # Add the rule_classes to the module namespace with globals() so that they can
