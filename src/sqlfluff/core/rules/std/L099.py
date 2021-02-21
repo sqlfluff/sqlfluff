@@ -18,14 +18,18 @@ class RuleFailure(Exception):
 
 
 class WildcardInfo(NamedTuple):
-    """Structure returned by SelectInfo.get_wildcard_info()."""
+    """Structure returned by SelectInfo.get_wildcard_info().
+
+    This class is a wrapper for L020.Rule_L020.get_select_statement_info(), plus
+    some additional functionality required by this rule.
+    """
 
     segment: BaseSegment
     tables: List[str]
 
 
 class SelectInfo:
-    """Simple caching wrapper around get_select_statement_info()."""
+    """Class for analyzing SELECT statements."""
     @classmethod
     def gather(
         cls, segment: BaseSegment, dialect: Dialect
@@ -174,7 +178,25 @@ class Rule_L099(BaseCrawler):
 
     _works_on_unparsable = False
 
-    def analyze_result_columns(
+    def _handle_alias(self, alias_info, dialect, queries):
+        select_info_target = SelectInfo.get(
+            alias_info.table_expression, queries, dialect
+        )
+        if isinstance(select_info_target, str):
+            # It's an alias to an external table whose
+            # number of columns could vary without our
+            # knowledge. Thus, warn.
+            self.logger.debug(
+                f"Query target {select_info_target} is external. Generating warning."
+            )
+            raise RuleFailure()
+        else:
+            # Handle nested SELECT.
+            self._analyze_result_columns(
+                select_info_target, dialect, queries
+            )
+
+    def _analyze_result_columns(
         self,
         select_info_list: List[SelectInfo],
         dialect: Dialect,
@@ -197,49 +219,29 @@ class Rule_L099(BaseCrawler):
                         if alias_info:
                             # Found the alias matching the wildcard. Recurse,
                             # analyzing the query associated with that alias.
-                            select_info_target = SelectInfo.get(
-                                alias_info.table_expression, queries, dialect
-                            )
-                            if isinstance(select_info_target, str):
-                                # It's an alias to an external table whose
-                                # number of columns could vary without our
-                                # knowledge. Thus, warn.
-                                self.logger.debug(
-                                    f"Query target {select_info_target} is external. Generating warning."
-                                )
-                                raise RuleFailure()
-                            else:
-                                # Handle nested SELECT.
-                                self.analyze_result_columns(
-                                    select_info_target, dialect, queries
-                                )
+                            self._handle_alias(alias_info, dialect, queries)
                         else:
                             # Not an alias. Is it a CTE?
                             if wildcard_table in queries:
-                                # For each wildcard in select targets, recurse, i.e. look at the
-                                # "upstream" query to see if it is wildcard free (i.e. known
-                                # number of columns).
-                                self.analyze_result_columns(
+                                # Wildcard refers to a CTE. Analyze it.
+                                self._analyze_result_columns(
                                     queries[wildcard_table], dialect, queries
                                 )
                             else:
-                                # Not a CTE, not a table alias. Assume it's an external
-                                # table whose number of columns could vary without our
-                                # knowledge. Thus, warn.
+                                # Not CTE, not table alias. Presumably an
+                                # external table. Warn.
                                 self.logger.debug(
                                     f"Query target {wildcard_table} is external. Generating warning."
                                 )
                                 raise RuleFailure()
                 else:
                     # No table was specified with the wildcard. Assume we're
-                    # querying from a nested select in FROM. Question: Is it
-                    # possible we're querying from a single table in FROM like
-                    # test_2?
+                    # querying from a nested select in FROM.
                     select_info_target = SelectInfo.get(
                         select_info.select_statement, queries, dialect
                     )
                     assert isinstance(select_info_target, list)
-                    self.analyze_result_columns(
+                    self._analyze_result_columns(
                         select_info_target,
                         dialect,
                         queries,
@@ -254,7 +256,7 @@ class Rule_L099(BaseCrawler):
             # Begin analysis at the final, outer query (key=None).
             select_info = queries[None]
             try:
-                return self.analyze_result_columns(select_info, dialect, queries)
+                return self._analyze_result_columns(select_info, dialect, queries)
             except RuleFailure as result:
                 return LintResult(anchor=queries[None][0].select_info.select_statement)
         return None
