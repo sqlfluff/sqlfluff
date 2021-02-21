@@ -9,7 +9,7 @@ from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_configuration,
 )
-from typing import Tuple, List
+from typing import List
 import os.path
 from sqlfluff.core.config import ConfigLoader
 
@@ -63,15 +63,17 @@ class Rule_Example_L001(BaseCrawler):
         ORDER BY bar
     """
 
-    # Binary operators behave like keywords too.
-    _target_elems: List[Tuple[str, str]] = [("type", "orderby_clause")]
     config_keywords = ["forbidden_columns"]
+
+    def __init__(self, code, description, **kwargs):
+        """Overwrite __init__ to set config."""
+        super().__init__(code, description, **kwargs)
+        self.forbidden_columns = [
+            col.strip() for col in self.forbidden_columns.split(",")
+        ]
 
     def _eval(self, segment, raw_stack, **kwargs):
         """We should not use ORDER BY."""
-        if self.forbidden_columns and type(self.forbidden_columns) is not list:
-            self.forbidden_columns = self.forbidden_columns.split(",")
-
         if segment.is_type("orderby_clause"):
             for seg in segment.segments:
                 col_name = seg.raw.lower()
