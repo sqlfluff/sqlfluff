@@ -1,4 +1,4 @@
-"""Implementation of Rule L099."""
+"""Implementation of Rule L043."""
 from collections import defaultdict
 from typing import cast, Dict, List, NamedTuple, Optional, Union
 
@@ -30,10 +30,11 @@ class WildcardInfo(NamedTuple):
 
 class SelectInfo:
     """Class for analyzing SELECT statements."""
+
     @classmethod
     def gather(
         cls, segment: BaseSegment, dialect: Dialect
-    ) -> Dict[Optional[str], List['SelectInfo']]:
+    ) -> Dict[Optional[str], List["SelectInfo"]]:
         """Find top-level SELECTs and CTEs, return info."""
         queries = defaultdict(list)
         # We specify recurse_into=False because we only want top-level select
@@ -50,9 +51,9 @@ class SelectInfo:
     def get(
         cls,
         segment: BaseSegment,
-        queries: Dict[str, List['SelectInfo']],
+        queries: Dict[str, List["SelectInfo"]],
         dialect: Dialect,
-    ) -> Union[str, List['SelectInfo']]:
+    ) -> Union[str, List["SelectInfo"]]:
         """Find SELECTs or table ref underneath segment.
 
         If we find a SELECT, return info list. If it's a table ref, return its
@@ -146,7 +147,7 @@ class SelectInfo:
         return select_name
 
 
-class Rule_L099(BaseCrawler):
+class Rule_L043(BaseCrawler):
     """Query produces an unknown number of result columns.
 
     | **Anti-pattern**
@@ -192,9 +193,7 @@ class Rule_L099(BaseCrawler):
             raise RuleFailure()
         else:
             # Handle nested SELECT.
-            self._analyze_result_columns(
-                select_info_target, dialect, queries
-            )
+            self._analyze_result_columns(select_info_target, dialect, queries)
 
     def _analyze_result_columns(
         self,

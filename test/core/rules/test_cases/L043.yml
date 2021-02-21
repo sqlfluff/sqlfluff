@@ -1,4 +1,4 @@
-rule: L099
+rule: L043
 
 test_1:
   pass_str: select a, b from t
