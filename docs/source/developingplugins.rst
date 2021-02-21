@@ -19,7 +19,8 @@ which you can use as a template.
 Few things to note about plugins:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Right now, only Rules can be added through plugins.
+Right now, only Rules can be added through plugins. Each plugin can
+implement multiple Rules.
 
 The name of a plugin should start with *"sqlfluff-plugin"* to be valid.
 
