@@ -2,6 +2,8 @@
 from collections import defaultdict
 from typing import cast, Dict, List, NamedTuple, Optional, Union
 
+from cached_property import cached_property
+
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.rules.base import BaseCrawler, LintResult
 from sqlfluff.core.parser.segments.base import BaseSegment
@@ -13,6 +15,18 @@ class WildcardInfo(NamedTuple):
 
     segment: BaseSegment
     tables: List[str]
+
+
+class SelectInfo:
+    def __init__(self, select_statement, dialect):
+        self.select_statement = select_statement
+        self.dialect = dialect
+
+    @cached_property
+    def select_info(self):
+        result = L020.Rule_L020.get_select_statement_info(
+                self.select_statement, self.dialect, early_exit=False)
+        return result
 
 
 class Rule_L099(BaseCrawler):
@@ -49,23 +63,25 @@ class Rule_L099(BaseCrawler):
 
     @classmethod
     def _get_wildcard_info(
-        cls, select_info: L020.SelectStatementColumnsAndTables
+        cls, select_info: SelectInfo
     ) -> List[WildcardInfo]:
         buff = []
-        for seg in select_info.select_targets:
+        for seg in select_info.select_info.select_targets:
             if seg.get_child("wildcard_expression"):
                 if "." in seg.raw:
+                    # The wildcard specifies a target table.
                     table = seg.raw.rsplit(".", 1)[0]
                     buff.append(WildcardInfo(seg, [table]))
                 else:
-                    # Unqualified '*', which means to include all columns from
-                    # all the tables.
+                    # The wildcard is unqualified (i.e. does not specify a
+                    # table). This means to include all columns from all the
+                    # tables in the query.
                     buff.append(
                         WildcardInfo(
                             seg,
                             [
                                 alias_info.ref_str
-                                for alias_info in select_info.table_aliases
+                                for alias_info in select_info.select_info.table_aliases
                             ],
                         )
                     )
@@ -73,7 +89,7 @@ class Rule_L099(BaseCrawler):
 
     def gather_select_info(
         self, segment: BaseSegment, dialect: Dialect
-    ) -> Dict[str, List[L020.SelectStatementColumnsAndTables]]:
+    ) -> Dict[str, List[SelectInfo]]:
         """Find top-level SELECTs and CTEs, return info."""
         queries = defaultdict(list)
         # Get all the TOP-LEVEL select statements and CTEs, then get the path
@@ -93,23 +109,17 @@ class Rule_L099(BaseCrawler):
                     cte = seg
                     break
             select_name = cte.segments[0].raw if cte else None
-            # TODO: Avoid as much of this work as possible, e.g. if the outer
-            # query does not use a wildcard, we don't need to look at any of
-            # the CTEs.
-            select_info = L020.Rule_L020.get_select_statement_info(
-                select_statement, dialect, early_exit=False
-            )
             self.logger.debug(f"Storing select info for {select_name}")
-            queries[select_name].append(select_info)
+            queries[select_name].append(SelectInfo(select_statement, dialect))
         return dict(queries)
 
     @classmethod
     def get_select_info(
         cls,
         segment: BaseSegment,
-        queries: Dict[str, List[L020.SelectStatementColumnsAndTables]],
+        queries: Dict[str, List[SelectInfo]],
         dialect: Dialect,
-    ) -> Union[str, List[L020.SelectStatementColumnsAndTables]]:
+    ) -> Union[str, List[SelectInfo]]:
         """Find SELECTs or table ref underneath segment.
 
         If we find a SELECT, return info list. If it's a table ref, return its
@@ -135,14 +145,7 @@ class Rule_L099(BaseCrawler):
                 assert seg.type == "select_statement"
                 # :TRICKY: Cast away "Optional" because early_exit=False ensures
                 # we won't get a "None" result.
-                buff.append(
-                    cast(
-                        L020.SelectStatementColumnsAndTables,
-                        L020.Rule_L020.get_select_statement_info(
-                            seg, dialect, early_exit=False
-                        ),
-                    )
-                )
+                buff.append(SelectInfo(seg, dialect))
         if not buff:
             # If we reach here, the SELECT may be querying from a value table
             # function, e.g. UNNEST(). For our purposes, this is basically the
@@ -154,9 +157,9 @@ class Rule_L099(BaseCrawler):
 
     def analyze_result_columns(
         self,
-        select_info_list: List[L020.SelectStatementColumnsAndTables],
+        select_info_list: List[SelectInfo],
         dialect: Dialect,
-        queries: Dict[str, List[L020.SelectStatementColumnsAndTables]],
+        queries: Dict[str, List[SelectInfo]],
     ) -> Optional[LintResult]:
         """Given info on a list of SELECTs, determine whether to warn."""
         # Recursively walk from the final query (key=None) to any wildcard
@@ -173,7 +176,7 @@ class Rule_L099(BaseCrawler):
                         # Is it an alias?
                         alias_info = [
                             t
-                            for t in select_info.table_aliases
+                            for t in select_info.select_info.table_aliases
                             if t.aliased and t.ref_str == wildcard_table
                         ]
                         if alias_info:
@@ -242,10 +245,7 @@ class Rule_L099(BaseCrawler):
                     )
                     assert isinstance(select_info_target, list)
                     result = self.analyze_result_columns(
-                        cast(
-                            List[L020.SelectStatementColumnsAndTables],
-                            select_info_target,
-                        ),
+                        select_info_target,
                         dialect,
                         queries,
                     )
