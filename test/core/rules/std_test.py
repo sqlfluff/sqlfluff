@@ -267,3 +267,12 @@ def test_std_rule_import_fail_bad_naming():
             rules_path="test/fixtures/rules/bad_rule_name/*.py",
             base_module="test.fixtures.rules.bad_rule_name",
         )
+
+
+def test_rule_set_return_informative_error_when_rule_not_registered():
+    """Assert that a rule that throws an exception on _eval returns it as a validation."""
+    cfg = FluffConfig()
+    with pytest.raises(ValueError) as e:
+        get_rule_from_set("L000", config=cfg)
+
+    e.match("'L000' not in")
