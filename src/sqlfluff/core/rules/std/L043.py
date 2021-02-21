@@ -54,10 +54,10 @@ class SelectInfo:
         queries: Dict[str, List["SelectInfo"]],
         dialect: Dialect,
     ) -> Union[str, List["SelectInfo"]]:
-        """Find SELECTs or table ref underneath segment.
+        """Find SELECTs, table refs, or value table function calls in segment.
 
-        If we find a SELECT, return info list. If it's a table ref, return its
-        name (str).
+        If we find a SELECT, return info list. Otherwise, return table name
+        or function call string.
         """
         buff = []
         for seg in segment.recursive_crawl(
