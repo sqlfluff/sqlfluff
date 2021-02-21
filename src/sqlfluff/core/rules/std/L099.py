@@ -25,6 +25,7 @@ class WildcardInfo(NamedTuple):
 
 class SelectInfo:
     """Simple caching wrapper around get_select_statement_info()."""
+
     def __init__(self, select_statement, dialect):
         self.select_statement = select_statement
         self.dialect = dialect
@@ -32,12 +33,11 @@ class SelectInfo:
     @cached_property
     def select_info(self):
         result = L020.Rule_L020.get_select_statement_info(
-                self.select_statement, self.dialect, early_exit=False)
+            self.select_statement, self.dialect, early_exit=False
+        )
         return result
 
-    def get_wildcard_info(
-        self
-    ) -> List[WildcardInfo]:
+    def get_wildcard_info(self) -> List[WildcardInfo]:
         buff = []
         for seg in self.select_info.select_targets:
             if seg.get_child("wildcard_expression"):
@@ -93,7 +93,10 @@ class Rule_L099(BaseCrawler):
 
     _works_on_unparsable = False
 
-    def _get_name_if_cte(self, select_statement: BaseSegment, ancestor_segment: BaseSegment) -> Optional[str]:
+    @staticmethod
+    def _get_name_if_cte(
+        select_statement: BaseSegment, ancestor_segment: BaseSegment
+    ) -> Optional[str]:
         """Return name if CTE. If top-level, return None."""
         cte = None
         path_to = ancestor_segment.path_to(select_statement)
@@ -202,22 +205,18 @@ class Rule_L099(BaseCrawler):
                                 raise RuleFailure()
                             else:
                                 # Handle nested SELECT.
-                                result = self.analyze_result_columns(
+                                self.analyze_result_columns(
                                     select_info_target, dialect, queries
                                 )
-                                if result:
-                                    return result
                         else:
                             # Not an alias. Is it a CTE?
                             if wildcard_table in queries:
                                 # For each wildcard in select targets, recurse, i.e. look at the
                                 # "upstream" query to see if it is wildcard free (i.e. known
                                 # number of columns).
-                                result = self.analyze_result_columns(
+                                self.analyze_result_columns(
                                     queries[wildcard_table], dialect, queries
                                 )
-                                if result:
-                                    return result
                             else:
                                 # Not a CTE, not a table alias. Assume it's an external
                                 # table whose number of columns could vary without our
@@ -235,15 +234,11 @@ class Rule_L099(BaseCrawler):
                         select_info.select_statement, queries, dialect
                     )
                     assert isinstance(select_info_target, list)
-                    result = self.analyze_result_columns(
+                    self.analyze_result_columns(
                         select_info_target,
                         dialect,
                         queries,
                     )
-                    if result:
-                        return result
-
-        return None
 
     def _eval(self, segment, **kwargs):
         """Outermost query should produce known number of columns."""
