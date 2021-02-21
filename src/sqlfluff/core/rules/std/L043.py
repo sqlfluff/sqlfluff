@@ -1,6 +1,6 @@
 """Implementation of Rule L043."""
 from collections import defaultdict
-from typing import cast, Dict, List, NamedTuple, Optional, Union
+from typing import Dict, List, NamedTuple, Optional, Union
 
 from cached_property import cached_property
 
@@ -95,12 +95,14 @@ class SelectInfo:
 
     @cached_property
     def select_info(self):
+        """Returns SelectStatementColumnsAndTables on the SELECT."""
         result = L020.Rule_L020.get_select_statement_info(
             self.select_statement, self.dialect, early_exit=False
         )
         return result
 
     def find_alias(self, table: str) -> Optional[AliasInfo]:
+        """Find corresponding table_aliases entry (if any) matching "table"."""
         alias_info = [
             t
             for t in self.select_info.table_aliases
@@ -110,6 +112,7 @@ class SelectInfo:
         return alias_info[0] if alias_info else None
 
     def get_wildcard_info(self) -> List[WildcardInfo]:
+        """Find wildcard (*) targets in the SELECT."""
         buff = []
         for seg in self.select_info.select_targets:
             if seg.get_child("wildcard_expression"):
@@ -256,6 +259,6 @@ class Rule_L043(BaseCrawler):
             select_info = queries[None]
             try:
                 return self._analyze_result_columns(select_info, dialect, queries)
-            except RuleFailure as result:
+            except RuleFailure:
                 return LintResult(anchor=queries[None][0].select_info.select_statement)
         return None
