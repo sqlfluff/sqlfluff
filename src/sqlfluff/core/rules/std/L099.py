@@ -4,6 +4,7 @@ from typing import cast, Dict, List, NamedTuple, Optional, Union
 
 from cached_property import cached_property
 
+from sqlfluff.core.dialects.dialect_ansi import AliasInfo
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.rules.base import BaseCrawler, LintResult
 from sqlfluff.core.parser.segments.base import BaseSegment
@@ -36,6 +37,15 @@ class SelectInfo:
             self.select_statement, self.dialect, early_exit=False
         )
         return result
+
+    def find_alias(self, table: str) -> Optional[AliasInfo]:
+        alias_info = [
+            t
+            for t in self.select_info.table_aliases
+            if t.aliased and t.ref_str == table
+        ]
+        assert len(alias_info) <= 1
+        return alias_info[0] if alias_info else None
 
     def get_wildcard_info(self) -> List[WildcardInfo]:
         buff = []
@@ -170,7 +180,7 @@ class Rule_L099(BaseCrawler):
         select_info_list: List[SelectInfo],
         dialect: Dialect,
         queries: Dict[str, List[SelectInfo]],
-    ) -> Optional[LintResult]:
+    ):
         """Given info on a list of SELECTs, determine whether to warn."""
         # Recursively walk from the given query (select_info_list) to any
         # wildcard columns in the select targets. If every wildcard evdentually
@@ -184,16 +194,12 @@ class Rule_L099(BaseCrawler):
                             f"Wildcard: {wildcard.segment.raw} has target {wildcard_table}"
                         )
                         # Is it an alias?
-                        alias_info = [
-                            t
-                            for t in select_info.select_info.table_aliases
-                            if t.aliased and t.ref_str == wildcard_table
-                        ]
+                        alias_info = select_info.find_alias(wildcard_table)
                         if alias_info:
                             # Found the alias matching the wildcard. Recurse,
                             # analyzing the query associated with that alias.
                             select_info_target = self.get_select_info(
-                                alias_info[0].table_expression, queries, dialect
+                                alias_info.table_expression, queries, dialect
                             )
                             if isinstance(select_info_target, str):
                                 # It's an alias to an external table whose
