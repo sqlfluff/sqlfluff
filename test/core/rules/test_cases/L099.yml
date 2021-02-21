@@ -193,3 +193,31 @@ test_19:
     select * from cte
     union all
     select b from t3
+
+test_20:
+  pass_str: |
+    WITH cte_orders AS (
+      SELECT customer_id, total
+      FROM orders
+    )
+
+    SELECT customers.name, cte_orders.*
+    FROM
+      customers,
+      cte_orders
+    WHERE
+      clients.id = orders.clientId
+
+test_21:
+  pass_str: |
+    WITH cte_orders AS (
+      SELECT *
+      FROM orders
+    )
+
+    SELECT customers.name, cte_orders.*
+    FROM
+      customers,
+      cte_orders
+    WHERE
+      clients.id = orders.clientId
