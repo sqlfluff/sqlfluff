@@ -47,16 +47,6 @@ class Rule_L099(BaseCrawler):
 
     _works_on_unparsable = False
 
-    # with_compound_statement
-    #   common_table_expression
-    #     select_statement
-    #       select_clause
-    #         select_target_element
-    #   common_table_expression ...
-    #   select_statement
-    #     select_clause
-    #       select_target_element
-
     @classmethod
     def _get_wildcard_info(
         cls, select_info: L020.SelectStatementColumnsAndTables
@@ -64,7 +54,6 @@ class Rule_L099(BaseCrawler):
         buff = []
         for seg in select_info.select_targets:
             if seg.get_child("wildcard_expression"):
-                # TODO: Can we use ObjectReference methods here, e.g. extract_reference()?
                 if "." in seg.raw:
                     table = seg.raw.rsplit(".", 1)[0]
                     buff.append(WildcardInfo(seg, [table]))
@@ -154,6 +143,13 @@ class Rule_L099(BaseCrawler):
                         ),
                     )
                 )
+        if not buff:
+            # If we reach here, the SELECT may be querying from a value table
+            # function, e.g. UNNEST(). For our purposes, this is basically the
+            # same as an external table. Return the "table" part as a string.
+            table_expr = segment.get_child('main_table_expression')
+            if table_expr:
+                return table_expr.raw
         return buff
 
     def analyze_result_columns(

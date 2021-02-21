@@ -240,3 +240,9 @@ test_23:
     SELECT *
     FROM
       orders AS cte_orders
+
+test_24:
+  fail_str: SELECT p.* FROM races, UNNEST(participants) AS p
+
+test_25:
+  pass_str: SELECT p FROM races, UNNEST(participants) AS p
