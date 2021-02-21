@@ -273,3 +273,15 @@ test_28:
     SELECT *
     FROM cte1
     JOIN cte2
+
+test_29:
+  pass_str: select a, b from `d.t`
+  configs:
+    core:
+      dialect: bigquery
+
+test_30:
+  fail_str: select * from `d.t`
+  configs:
+    core:
+      dialect: bigquery
