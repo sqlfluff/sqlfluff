@@ -87,28 +87,29 @@ class Rule_L099(BaseCrawler):
 
     _works_on_unparsable = False
 
+    def _get_name_if_cte(self, select_statement: BaseSegment, ancestor_segment: BaseSegment) -> Optional[str]:
+        """Return name if CTE. If top-level, return None."""
+        cte = None
+        path_to = ancestor_segment.path_to(select_statement)
+        for seg in path_to:
+            if seg.is_type("common_table_expression"):
+                cte = seg
+                break
+        select_name = cte.segments[0].raw if cte else None
+        return select_name
+
     def gather_select_info(
         self, segment: BaseSegment, dialect: Dialect
     ) -> Dict[str, List[SelectInfo]]:
         """Find top-level SELECTs and CTEs, return info."""
         queries = defaultdict(list)
-        # Get all the TOP-LEVEL select statements and CTEs, then get the path
-        # to each to determine the structure.
         # We specify recurse_into=False because we only want top-level select
         # statmeents and CTEs. We'll deal with nested selects later as needed,
         # when processing their top-level parent.
         for select_statement in segment.recursive_crawl(
             "select_statement", recurse_into=False
         ):
-            path_to = segment.path_to(select_statement)
-
-            # If it's a CTE, get the name and info on the query inside.
-            cte = None
-            for seg in path_to:
-                if seg.is_type("common_table_expression"):
-                    cte = seg
-                    break
-            select_name = cte.segments[0].raw if cte else None
+            select_name = self._get_name_if_cte(select_statement, segment)
             self.logger.debug(f"Storing select info for {select_name}")
             queries[select_name].append(SelectInfo(select_statement, dialect))
         return dict(queries)
