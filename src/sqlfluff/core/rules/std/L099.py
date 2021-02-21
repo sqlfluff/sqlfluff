@@ -147,7 +147,7 @@ class Rule_L099(BaseCrawler):
             # If we reach here, the SELECT may be querying from a value table
             # function, e.g. UNNEST(). For our purposes, this is basically the
             # same as an external table. Return the "table" part as a string.
-            table_expr = segment.get_child('main_table_expression')
+            table_expr = segment.get_child("main_table_expression")
             if table_expr:
                 return table_expr.raw
         return buff
