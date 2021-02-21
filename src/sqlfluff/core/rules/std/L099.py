@@ -10,6 +10,12 @@ from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.rules.std import L020
 
 
+class RuleFailure(Exception):
+    """Exception class for reporting lint failure inside deeply nested code."""
+
+    pass
+
+
 class WildcardInfo(NamedTuple):
     """Structure returned by SelectInfo.get_wildcard_info()."""
 
@@ -100,7 +106,7 @@ class Rule_L099(BaseCrawler):
 
     def gather_select_info(
         self, segment: BaseSegment, dialect: Dialect
-    ) -> Dict[str, List[SelectInfo]]:
+    ) -> Dict[Optional[str], List[SelectInfo]]:
         """Find top-level SELECTs and CTEs, return info."""
         queries = defaultdict(list)
         # We specify recurse_into=False because we only want top-level select
@@ -163,12 +169,12 @@ class Rule_L099(BaseCrawler):
         queries: Dict[str, List[SelectInfo]],
     ) -> Optional[LintResult]:
         """Given info on a list of SELECTs, determine whether to warn."""
-        # Recursively walk from the final query (key=None) to any wildcard
-        # columns in the select targets. If it's wildcards all the way, warn.
+        # Recursively walk from the given query (select_info_list) to any
+        # wildcard columns in the select targets. If every wildcard evdentually
+        # resolves to a query without wildcards, all is well. Otherwise, warn.
         for select_info in select_info_list:
             self.logger.debug(f"Analyzing query: {select_info.select_statement.raw}")
-            wildcards = select_info.get_wildcard_info()
-            for wildcard in wildcards:
+            for wildcard in select_info.get_wildcard_info():
                 if wildcard.tables:
                     for wildcard_table in wildcard.tables:
                         self.logger.debug(
@@ -193,15 +199,7 @@ class Rule_L099(BaseCrawler):
                                 self.logger.debug(
                                     f"Query target {select_info_target} is external. Generating warning."
                                 )
-                                # TODO: It'd be better for the anchor to be the
-                                # top-level query we started with. As currently
-                                # written, this could be a deeply nested query
-                                # where the rule finally determined to issue a
-                                # warning. To be clear, the result is correct in
-                                # terms of WHETHER to return a warning; this "TODO"
-                                # is talking about what line of the query is
-                                # referenced in the warning.
-                                return LintResult(anchor=alias_info[0].table_expression)
+                                raise RuleFailure()
                             else:
                                 # Handle nested SELECT.
                                 result = self.analyze_result_columns(
@@ -227,15 +225,7 @@ class Rule_L099(BaseCrawler):
                                 self.logger.debug(
                                     f"Query target {wildcard_table} is external. Generating warning."
                                 )
-                                # TODO: It'd be better for the anchor to be the
-                                # top-level query we started with. As currently
-                                # written, this could be a deeply nested query
-                                # where the rule finally determined to issue a
-                                # warning. To be clear, the result is correct in
-                                # terms of WHETHER to return a warning; this "TODO"
-                                # is talking about what line of the query is
-                                # referenced in the warning.
-                                return LintResult(anchor=select_info.select_statement)
+                                raise RuleFailure()
                 else:
                     # No table was specified with the wildcard. Assume we're
                     # querying from a nested select in FROM. Question: Is it
@@ -261,6 +251,10 @@ class Rule_L099(BaseCrawler):
             dialect: Dialect = kwargs.get("dialect")
             queries = self.gather_select_info(segment, dialect)
 
+            # Begin analysis at the final, outer query (key=None).
             select_info = queries[None]
-            return self.analyze_result_columns(select_info, dialect, queries)
+            try:
+                return self.analyze_result_columns(select_info, dialect, queries)
+            except RuleFailure as result:
+                return LintResult(anchor=queries[None][0].select_info.select_statement)
         return None
