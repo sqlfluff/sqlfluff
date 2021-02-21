@@ -24,8 +24,15 @@ implement multiple Rules.
 
 The name of a plugin should start with *"sqlfluff-plugin"* to be valid.
 
+A plugin may need to include a default configuration if its rules
+are configurable: use plugin default configurations **only for that reason**!
+We advise against overwriting core configurations by using a default
+plugin configuration, as there is no mechanism in place to enforce precendence
+between the core library configs and plugin configs,
+and multiple plugins could clash.
+
 A plugin Rule class name should have the structure:
-"Rule_PluginName_L000". The 'L' can by any letter
+"Rule_PluginName_L000". The 'L' can be any letter
 and is meant to categorize rules; you could use the
 letter 'S' to denote rules that enforce security checks
 for example.
