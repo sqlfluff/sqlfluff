@@ -109,7 +109,7 @@ def test__api__fix_string():
     # Check return types.
     assert isinstance(result, str)
     # Check actual result
-    assert result == "SELECT *, 1, blah AS foo FROM mytable\n"
+    assert result == "SELECT\n    *, 1, blah AS foo FROM mytable\n"
 
 
 def test__api__fix_string_specific():
