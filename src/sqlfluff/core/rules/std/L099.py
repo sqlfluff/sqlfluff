@@ -26,6 +26,63 @@ class WildcardInfo(NamedTuple):
 
 class SelectInfo:
     """Simple caching wrapper around get_select_statement_info()."""
+    @classmethod
+    def gather(
+        cls, segment: BaseSegment, dialect: Dialect
+    ) -> Dict[Optional[str], List['SelectInfo']]:
+        """Find top-level SELECTs and CTEs, return info."""
+        queries = defaultdict(list)
+        # We specify recurse_into=False because we only want top-level select
+        # statmeents and CTEs. We'll deal with nested selects later as needed,
+        # when processing their top-level parent.
+        for select_statement in segment.recursive_crawl(
+            "select_statement", recurse_into=False
+        ):
+            select_name = cls._get_name_if_cte(select_statement, segment)
+            queries[select_name].append(SelectInfo(select_statement, dialect))
+        return dict(queries)
+
+    @classmethod
+    def get(
+        cls,
+        segment: BaseSegment,
+        queries: Dict[str, List['SelectInfo']],
+        dialect: Dialect,
+    ) -> Union[str, List['SelectInfo']]:
+        """Find SELECTs or table ref underneath segment.
+
+        If we find a SELECT, return info list. If it's a table ref, return its
+        name (str).
+        """
+        buff = []
+        for seg in segment.recursive_crawl(
+            "table_reference", "select_statement", recurse_into=False
+        ):
+            if seg is segment:
+                # If we are starting with a select_statement, recursive_crawl()
+                # returns the statement itself. Skip that.
+                continue
+
+            if seg.type == "table_reference":
+                if not seg.is_qualified() and seg.raw in queries:
+                    # It's a CTE.
+                    return queries[seg.raw]
+                else:
+                    # It's an external table.
+                    return seg.raw
+            else:
+                assert seg.type == "select_statement"
+                # :TRICKY: Cast away "Optional" because early_exit=False ensures
+                # we won't get a "None" result.
+                buff.append(SelectInfo(seg, dialect))
+        if not buff:
+            # If we reach here, the SELECT may be querying from a value table
+            # function, e.g. UNNEST(). For our purposes, this is basically the
+            # same as an external table. Return the "table" part as a string.
+            table_expr = segment.get_child("main_table_expression")
+            if table_expr:
+                return table_expr.raw
+        return buff
 
     def __init__(self, select_statement, dialect):
         self.select_statement = select_statement
@@ -70,6 +127,20 @@ class SelectInfo:
                     )
         return buff
 
+    @staticmethod
+    def _get_name_if_cte(
+        select_statement: BaseSegment, ancestor_segment: BaseSegment
+    ) -> Optional[str]:
+        """Return name if CTE. If top-level, return None."""
+        cte = None
+        path_to = ancestor_segment.path_to(select_statement)
+        for seg in path_to:
+            if seg.is_type("common_table_expression"):
+                cte = seg
+                break
+        select_name = cte.segments[0].raw if cte else None
+        return select_name
+
 
 class Rule_L099(BaseCrawler):
     """Query produces an unknown number of result columns.
@@ -103,78 +174,6 @@ class Rule_L099(BaseCrawler):
 
     _works_on_unparsable = False
 
-    @staticmethod
-    def _get_name_if_cte(
-        select_statement: BaseSegment, ancestor_segment: BaseSegment
-    ) -> Optional[str]:
-        """Return name if CTE. If top-level, return None."""
-        cte = None
-        path_to = ancestor_segment.path_to(select_statement)
-        for seg in path_to:
-            if seg.is_type("common_table_expression"):
-                cte = seg
-                break
-        select_name = cte.segments[0].raw if cte else None
-        return select_name
-
-    def gather_select_info(
-        self, segment: BaseSegment, dialect: Dialect
-    ) -> Dict[Optional[str], List[SelectInfo]]:
-        """Find top-level SELECTs and CTEs, return info."""
-        queries = defaultdict(list)
-        # We specify recurse_into=False because we only want top-level select
-        # statmeents and CTEs. We'll deal with nested selects later as needed,
-        # when processing their top-level parent.
-        for select_statement in segment.recursive_crawl(
-            "select_statement", recurse_into=False
-        ):
-            select_name = self._get_name_if_cte(select_statement, segment)
-            self.logger.debug(f"Storing select info for {select_name}")
-            queries[select_name].append(SelectInfo(select_statement, dialect))
-        return dict(queries)
-
-    @classmethod
-    def get_select_info(
-        cls,
-        segment: BaseSegment,
-        queries: Dict[str, List[SelectInfo]],
-        dialect: Dialect,
-    ) -> Union[str, List[SelectInfo]]:
-        """Find SELECTs or table ref underneath segment.
-
-        If we find a SELECT, return info list. If it's a table ref, return its
-        name (str).
-        """
-        buff = []
-        for seg in segment.recursive_crawl(
-            "table_reference", "select_statement", recurse_into=False
-        ):
-            if seg is segment:
-                # If we are starting with a select_statement, recursive_crawl()
-                # returns the statement itself. Skip that.
-                continue
-
-            if seg.type == "table_reference":
-                if not seg.is_qualified() and seg.raw in queries:
-                    # It's a CTE.
-                    return queries[seg.raw]
-                else:
-                    # It's an external table.
-                    return seg.raw
-            else:
-                assert seg.type == "select_statement"
-                # :TRICKY: Cast away "Optional" because early_exit=False ensures
-                # we won't get a "None" result.
-                buff.append(SelectInfo(seg, dialect))
-        if not buff:
-            # If we reach here, the SELECT may be querying from a value table
-            # function, e.g. UNNEST(). For our purposes, this is basically the
-            # same as an external table. Return the "table" part as a string.
-            table_expr = segment.get_child("main_table_expression")
-            if table_expr:
-                return table_expr.raw
-        return buff
-
     def analyze_result_columns(
         self,
         select_info_list: List[SelectInfo],
@@ -198,7 +197,7 @@ class Rule_L099(BaseCrawler):
                         if alias_info:
                             # Found the alias matching the wildcard. Recurse,
                             # analyzing the query associated with that alias.
-                            select_info_target = self.get_select_info(
+                            select_info_target = SelectInfo.get(
                                 alias_info.table_expression, queries, dialect
                             )
                             if isinstance(select_info_target, str):
@@ -236,7 +235,7 @@ class Rule_L099(BaseCrawler):
                     # querying from a nested select in FROM. Question: Is it
                     # possible we're querying from a single table in FROM like
                     # test_2?
-                    select_info_target = self.get_select_info(
+                    select_info_target = SelectInfo.get(
                         select_info.select_statement, queries, dialect
                     )
                     assert isinstance(select_info_target, list)
@@ -250,7 +249,7 @@ class Rule_L099(BaseCrawler):
         """Outermost query should produce known number of columns."""
         if segment.is_type("statement"):
             dialect: Dialect = kwargs.get("dialect")
-            queries = self.gather_select_info(segment, dialect)
+            queries = SelectInfo.gather(segment, dialect)
 
             # Begin analysis at the final, outer query (key=None).
             select_info = queries[None]
