@@ -77,8 +77,6 @@ class SelectInfo:
                     return seg.raw
             else:
                 assert seg.type == "select_statement"
-                # :TRICKY: Cast away "Optional" because early_exit=False ensures
-                # we won't get a "None" result.
                 buff.append(SelectInfo(seg, dialect))
         if not buff:
             # If we reach here, the SELECT may be querying from a value table
