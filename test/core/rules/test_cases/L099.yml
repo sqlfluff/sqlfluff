@@ -246,3 +246,30 @@ test_24:
 
 test_25:
   pass_str: SELECT p FROM races, UNNEST(participants) AS p
+
+test_26:
+  fail_str: SELECT * FROM a JOIN b
+
+test_27:
+  fail_str: |
+    WITH cte AS (
+      SELECT a
+      FROM t
+    )
+    SELECT *
+    FROM cte
+    JOIN b
+
+test_28:
+  pass_str: |
+    WITH cte1 AS (
+      SELECT a
+      FROM t
+    ),
+    cte2 AS (
+      SELECT b
+      FROM u
+    )
+    SELECT *
+    FROM cte1
+    JOIN cte2
