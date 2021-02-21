@@ -1,8 +1,10 @@
 """Implementation of Rule L042."""
 
 from sqlfluff.core.rules.base import BaseCrawler, LintResult
+from sqlfluff.core.rules.doc_decorators import document_configuration
 
 
+@document_configuration
 class Rule_L042(BaseCrawler):
     """Join/From clauses should not contain subqueries. Use CTEs instead.
 
