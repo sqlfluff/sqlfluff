@@ -426,7 +426,17 @@ class DatatypeSegment(BaseSegment):
 
     type = "data_type"
     match_grammar = Sequence(
-        Ref("DatatypeIdentifierSegment"),
+        Sequence(
+            # Some dialects allow optional qualification of data types with schemas
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("DotSegment"),
+                allow_gaps=False,
+                optional=True,
+            ),
+            Ref("DatatypeIdentifierSegment"),
+            allow_gaps=False,
+        ),
         Bracketed(
             OneOf(
                 Delimited(Ref("ExpressionSegment")),
@@ -812,8 +822,8 @@ class TableExpressionSegment(BaseSegment):
     match_grammar = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OneOf(
-            Ref("MainTableExpressionGrammar"),
-            Bracketed(Ref("MainTableExpressionGrammar")),
+            Ref("MainTableExpressionSegment"),
+            Bracketed(Ref("MainTableExpressionSegment")),
         ),
         Ref("AliasExpressionSegment", optional=True),
         Ref("PostTableExpressionGrammar", optional=True),
@@ -847,7 +857,7 @@ class TableExpressionSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
-class MainTableExpressionGrammar(BaseSegment):
+class MainTableExpressionSegment(BaseSegment):
     """The main table expression e.g. within a FROM clause."""
 
     type = "main_table_expression"
@@ -2371,6 +2381,28 @@ class CreateModelStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class CreateTypeStatementSegment(BaseSegment):
+    """A `CREATE TYPE` statement.
+
+    This is based around the Postgres syntax.
+    https://www.postgresql.org/docs/current/sql-createtype.html
+
+    Note: This is relatively permissive currently
+    and does not lint the syntax strictly, to allow
+    for some deviation between dialects.
+    """
+
+    type = "create_type_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "TYPE",
+        Ref("ObjectReferenceSegment"),
+        Sequence("AS", OneOf("ENUM", "RANGE", optional=True), optional=True),
+        Bracketed(Delimited(Anything()), optional=True),
+    )
+
+
+@ansi_dialect.segment()
 class DropModelStatementSegment(BaseSegment):
     """A `DROP MODEL` statement."""
 
@@ -2424,6 +2456,7 @@ class StatementSegment(BaseSegment):
         Ref("DropStatementSegment"),
         Ref("AccessStatementSegment"),
         Ref("CreateTableStatementSegment"),
+        Ref("CreateTypeStatementSegment"),
         Ref("AlterTableStatementSegment"),
         Ref("CreateSchemaStatementSegment"),
         Ref("CreateDatabaseStatementSegment"),
