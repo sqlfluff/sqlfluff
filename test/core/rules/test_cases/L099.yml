@@ -211,13 +211,32 @@ test_20:
 test_21:
   pass_str: |
     WITH cte_orders AS (
+      SELECT customer_id, total
+      FROM orders
+    )
+
+    SELECT *
+    FROM
+      cte_orders AS orders
+
+test_22:
+  fail_str: |
+    WITH cte_orders AS (
       SELECT *
       FROM orders
     )
 
-    SELECT customers.name, cte_orders.*
+    SELECT *
     FROM
-      customers,
-      cte_orders
-    WHERE
-      clients.id = orders.clientId
+      cte_orders AS orders
+
+test_23:
+  fail_str: |
+    WITH cte_orders AS (
+      SELECT customer_id, total
+      FROM orders
+    )
+
+    SELECT *
+    FROM
+      orders AS cte_orders

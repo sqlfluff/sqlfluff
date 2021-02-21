@@ -1,6 +1,6 @@
 """Implementation of Rule L099."""
 from collections import defaultdict
-from typing import cast, Dict, List, NamedTuple, Optional
+from typing import cast, Dict, List, NamedTuple, Optional, Union
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.rules.base import BaseCrawler, LintResult
@@ -12,7 +12,7 @@ class WildcardInfo(NamedTuple):
     """Structure returned by _get_wildcard_info()."""
 
     segment: BaseSegment
-    table: Optional[str]
+    tables: List[str]
 
 
 class Rule_L099(BaseCrawler):
@@ -64,17 +64,22 @@ class Rule_L099(BaseCrawler):
         buff = []
         for seg in select_info.select_targets:
             if seg.get_child("wildcard_expression"):
+                # TODO: Can we use ObjectReference methods here, e.g. extract_reference()?
                 if "." in seg.raw:
                     table = seg.raw.rsplit(".", 1)[0]
+                    buff.append(WildcardInfo(seg, [table]))
                 else:
-                    if len(select_info.table_aliases) == 1:
-                        # Unqualified '*' and there is only one table, so that
-                        # must be the table. Probably need to revisit this to
-                        # reconcile/consider alias vs actual table name.
-                        table = select_info.table_aliases[0].ref_str
-                    else:
-                        table = None
-                buff.append(WildcardInfo(seg, table))
+                    # Unqualified '*', which means to include all columns from
+                    # all the tables.
+                    buff.append(
+                        WildcardInfo(
+                            seg,
+                            [
+                                alias_info.ref_str
+                                for alias_info in select_info.table_aliases
+                            ],
+                        )
+                    )
         return buff
 
     def gather_select_info(
@@ -110,30 +115,45 @@ class Rule_L099(BaseCrawler):
         return dict(queries)
 
     @classmethod
-    def get_nested_select_info(
-        cls, segment: BaseSegment, dialect: Dialect
-    ) -> List[L020.SelectStatementColumnsAndTables]:
-        """Find SELECTs underneath segment. Assume no CTEs."""
-        # TODO: This function is very similar to gather_select_info() except
-        # that it assumes there are no CTEs. Can it be eliminated?
+    def get_select_info(
+        cls,
+        segment: BaseSegment,
+        queries: Dict[str, List[L020.SelectStatementColumnsAndTables]],
+        dialect: Dialect,
+    ) -> Union[str, List[L020.SelectStatementColumnsAndTables]]:
+        """Find SELECTs or table ref underneath segment.
+
+        If we find a SELECT, return info list. If it's a table ref, return its
+        name (str).
+        """
         buff = []
-        for select_statement in segment.recursive_crawl(
-            "select_statement", recurse_into=False
+        for seg in segment.recursive_crawl(
+            "table_reference", "select_statement", recurse_into=False
         ):
-            if select_statement is segment:
+            if seg is segment:
                 # If we are starting with a select_statement, recursive_crawl()
                 # returns the statement itself. Skip that.
                 continue
-            # :TRICKY: Cast away "Optional" because early_exit=False ensures
-            # we won't get a "None" result.
-            buff.append(
-                cast(
-                    L020.SelectStatementColumnsAndTables,
-                    L020.Rule_L020.get_select_statement_info(
-                        select_statement, dialect, early_exit=False
-                    ),
+
+            if seg.type == "table_reference":
+                if not seg.is_qualified() and seg.raw in queries:
+                    # It's a CTE.
+                    return queries[seg.raw]
+                else:
+                    # It's an external table.
+                    return seg.raw
+            else:
+                assert seg.type == "select_statement"
+                # :TRICKY: Cast away "Optional" because early_exit=False ensures
+                # we won't get a "None" result.
+                buff.append(
+                    cast(
+                        L020.SelectStatementColumnsAndTables,
+                        L020.Rule_L020.get_select_statement_info(
+                            seg, dialect, early_exit=False
+                        ),
+                    )
                 )
-            )
         return buff
 
     def analyze_result_columns(
@@ -149,61 +169,81 @@ class Rule_L099(BaseCrawler):
             self.logger.debug(f"Analyzing query: {select_info.select_statement.raw}")
             wildcards = self._get_wildcard_info(select_info)
             for wildcard in wildcards:
-                self.logger.debug(
-                    f"Wildcard: {wildcard.segment.raw} has target {wildcard.table}"
-                )
-                if wildcard.table:
-                    select_info_target = queries.get(wildcard.table)
-                    if select_info_target:
-                        # For each wildcard in select targets, recurse, i.e. look at the
-                        # "upstream" query to see if it is wildcard free (i.e. known
-                        # number of columns).
-                        result = self.analyze_result_columns(
-                            select_info_target, dialect, queries
+                if wildcard.tables:
+                    for wildcard_table in wildcard.tables:
+                        self.logger.debug(
+                            f"Wildcard: {wildcard.segment.raw} has target {wildcard_table}"
                         )
-                        if result:
-                            return result
-                    else:
-                        # Not a CTE. Maybe an alias?
-                        alias = [
+                        # Is it an alias?
+                        alias_info = [
                             t
                             for t in select_info.table_aliases
-                            if t.aliased and t.ref_str == wildcard.table
+                            if t.aliased and t.ref_str == wildcard_table
                         ]
-                        if alias:
+                        if alias_info:
                             # Found the alias matching the wildcard. Recurse,
                             # analyzing the query associated with that alias.
-                            select_info_target = self.get_nested_select_info(
-                                alias[0].table_expression, dialect
+                            select_info_target = self.get_select_info(
+                                alias_info[0].table_expression, queries, dialect
                             )
-                            result = self.analyze_result_columns(
-                                select_info_target, dialect, queries
-                            )
-                            if result:
-                                return result
+                            if isinstance(select_info_target, str):
+                                # It's an alias to an external table whose
+                                # number of columns could vary without our
+                                # knowledge. Thus, warn.
+                                self.logger.debug(
+                                    f"Query target {select_info_target} is external. Generating warning."
+                                )
+                                # TODO: It'd be better for the anchor to be the
+                                # top-level query we started with. As currently
+                                # written, this could be a deeply nested query
+                                # where the rule finally determined to issue a
+                                # warning. To be clear, the result is correct in
+                                # terms of WHETHER to return a warning; this "TODO"
+                                # is talking about what line of the query is
+                                # referenced in the warning.
+                                return LintResult(anchor=alias_info[0].table_expression)
+                            else:
+                                # Handle nested SELECT.
+                                result = self.analyze_result_columns(
+                                    select_info_target, dialect, queries
+                                )
+                                if result:
+                                    return result
                         else:
-                            # Not a CTE, not a table alias. Assume it's an external
-                            # table whose number of columns could vary without our
-                            # knowledge. Thus, warn.
-                            self.logger.debug(
-                                f"Query target {wildcard.table} is external. Generating warning."
-                            )
-                            # TODO: It'd be better for the anchor to be the
-                            # top-level query we started with. As currently
-                            # written, this could be a deeply nested query
-                            # where the rule finally determined to issue a
-                            # warning. To be clear, the result is correct in
-                            # terms of WHETHER to return a warning; this "TODO"
-                            # is talking about what line of the query is
-                            # referenced in the warning.
-                            return LintResult(anchor=select_info.select_statement)
+                            # Not an alias. Is it a CTE?
+                            select_info_target = queries.get(wildcard_table)
+                            if select_info_target:
+                                # For each wildcard in select targets, recurse, i.e. look at the
+                                # "upstream" query to see if it is wildcard free (i.e. known
+                                # number of columns).
+                                result = self.analyze_result_columns(
+                                    select_info_target, dialect, queries
+                                )
+                                if result:
+                                    return result
+                            else:
+                                # Not a CTE, not a table alias. Assume it's an external
+                                # table whose number of columns could vary without our
+                                # knowledge. Thus, warn.
+                                self.logger.debug(
+                                    f"Query target {wildcard_table} is external. Generating warning."
+                                )
+                                # TODO: It'd be better for the anchor to be the
+                                # top-level query we started with. As currently
+                                # written, this could be a deeply nested query
+                                # where the rule finally determined to issue a
+                                # warning. To be clear, the result is correct in
+                                # terms of WHETHER to return a warning; this "TODO"
+                                # is talking about what line of the query is
+                                # referenced in the warning.
+                                return LintResult(anchor=select_info.select_statement)
                 else:
                     # No table was specified with the wildcard. Assume we're
                     # querying from a nested select in FROM. Question: Is it
                     # possible we're querying from a single table in FROM like
                     # test_2?
-                    select_info_target = self.get_nested_select_info(
-                        select_info.select_statement, dialect
+                    select_info_target = self.get_select_info(
+                        select_info.select_statement, queries, dialect
                     )
                     result = self.analyze_result_columns(
                         select_info_target, dialect, queries
