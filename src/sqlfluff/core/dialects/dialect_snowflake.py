@@ -389,6 +389,9 @@ class SelectStatementSegment(ansi_SelectClauseSegment):
 
     parse_grammar = Sequence(
         Ref("SelectClauseSegment"),
+        # Dedent for the indent in the select clause.
+        # It's here so that it can come AFTER any whitespace.
+        Dedent,
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
         Ref("GroupByClauseSegment", optional=True),
