@@ -65,9 +65,9 @@ class Rule_Example_L001(BaseCrawler):
 
     config_keywords = ["forbidden_columns"]
 
-    def __init__(self, code, description, **kwargs):
+    def __init__(self, *args, **kwargs):
         """Overwrite __init__ to set config."""
-        super().__init__(code, description, **kwargs)
+        super().__init__(*args, **kwargs)
         self.forbidden_columns = [
             col.strip() for col in self.forbidden_columns.split(",")
         ]
