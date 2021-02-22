@@ -91,6 +91,8 @@ def assert_structure(yaml_loader, path, code_only=True):
         ("jinja_i_raw/raw_tag_2", True),
         # Library Loading from a folder
         ("jinja_j_libraries/jinja", True),
+        # Priority of macros
+        ("jinja_k_config_override_path_macros/jinja", True),
     ],
 )
 def test__templater_full(subpath, code_only, yaml_loader, caplog):

@@ -57,21 +57,25 @@ STANDARD_CONFIG_INFO_DICT = {
         "validation": [True, False],
         "definition": (
             "Should lines starting with a templating placeholder"
-            " such as `{{blah}}` have their indentation linted."
+            " such as `{{blah}}` have their indentation linted"
         ),
     },
     "select_clause_trailing_comma": {
         "validation": ["forbid", "require"],
         "definition": (
-            "Should trailing commas within select clauses be required or forbidden."
+            "Should trailing commas within select clauses be required or forbidden"
         ),
     },
     "ignore_comment_lines": {
         "validation": [True, False],
         "definition": (
             "Should lines that contain only whitespace and comments"
-            " be ignored when linting line lengths."
+            " be ignored when linting line lengths"
         ),
+    },
+    "forbid_subquery_in": {
+        "validation": ["join", "from", "both"],
+        "definition": "Which clauses should be linted for subqueries",
     },
 }
 

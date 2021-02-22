@@ -223,21 +223,23 @@ class JinjaTemplater(PythonTemplater):
                 if name not in live_context:
                     live_context[name] = dbt_builtins[name]
 
-        # Load config macros
         env = self._get_jinja_env()
-        ctx = self._extract_macros_from_config(config=config, env=env, ctx=live_context)
+
         # Load macros from path (if applicable)
         macros_path = config.get_section(
             (self.templater_selector, self.name, "load_macros_from_path")
         )
         if macros_path:
-            ctx.update(
+            live_context.update(
                 self._extract_macros_from_path(macros_path, env=env, ctx=live_context)
             )
 
-        ctx.update(self._extract_libraries_from_config(config=config))
+        # Load config macros, these will take precedence over macros from the path
+        live_context.update(
+            self._extract_macros_from_config(config=config, env=env, ctx=live_context)
+        )
 
-        live_context.update(ctx)
+        live_context.update(self._extract_libraries_from_config(config=config))
 
         # Load the template, passing the global context.
         try:

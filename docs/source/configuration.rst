@@ -194,7 +194,8 @@ path specified on this variable. The path is interpreted *relative to the
 config file*, and therefore if the config file above was found at
 :code:`/home/my_project/.sqlfluff` then SQLFluff will look for macros in the
 folder :code:`/home/my_project/my_macros/`. Alternatively the path can also
-be a :code:`.sql` itself.
+be a :code:`.sql` itself. Any macros defined in the config will always take
+precedence over a macro defined in the path.
 
 
 .. note::
@@ -286,7 +287,7 @@ macros) or the `dbt` templater, which uses dbt itself to render the
 sql (meaning that there is a much more reliable representation of macros,
 but a potential performance hit accordingly). At this stage we recommend
 that users try both approaches and choose according to the method that
-they indent to use *SQLFluff*.
+they intend to use *SQLFluff*.
 
 A simple rule of thumb might be:
 
