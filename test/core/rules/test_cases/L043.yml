@@ -1,0 +1,80 @@
+rule: L043
+
+test_1:
+  pass_str: |
+    select
+        fab > 0 as is_fab
+    from fancy_table
+test_2:
+  fail_str: |
+    select
+        case when fab > 0 then true end as is_fab
+    from fancy_table
+  fix_str: |
+    select
+        fab > 0 as is_fab
+    from fancy_table
+test_3:
+  fail_str: |
+    select
+        case when fab > 0 then false end as is_fab
+    from fancy_table
+  fix_str: |
+    select
+        not (fab > 0) as is_fab
+    from fancy_table
+test_4:
+  fail_str: |
+    select
+        case
+            when fab > 0 then true else false end as is_fab
+    from fancy_table
+  fix_str: |
+    select
+        fab > 0 as is_fab
+    from fancy_table
+test_5:
+  fail_str: |
+    select
+        case
+            when fab > 0 then false else true end as is_fab
+    from fancy_table
+  fix_str: |
+    select
+        not (fab > 0) as is_fab
+    from fancy_table
+test_6:
+  fail_str: |
+    select
+        case
+            when fab > 0 and tot > 0 then true else false end as is_fab
+    from fancy_table
+  fix_str: |
+    select
+        fab > 0 and tot > 0 as is_fab
+    from fancy_table
+test_7:
+  fail_str: |
+    select
+        case
+            when fab > 0 and tot > 0 then false else true end as is_fab
+    from fancy_table
+  fix_str: |
+    select
+        not (fab > 0 and tot > 0) as is_fab
+    from fancy_table
+test_8:
+  fail_str: |
+    select
+        case
+            when not fab > 0 and tot > 0 then false else true end as is_fab
+    from fancy_table
+  fix_str: |
+    select
+        not (not fab > 0 and tot > 0) as is_fab
+    from fancy_table
+test_9:
+  pass_str: |
+    select
+        case when fab > 0 then 'just a string' end as fab_category
+    from fancy_table
