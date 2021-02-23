@@ -12,6 +12,20 @@ leading_comma_violations:
       b
     FROM c
 
+leading_comma_violation_with_inline_comment:
+  fail_str: |
+    SELECT
+      a
+      , b -- some comment
+      , c
+    FROM d
+  fix_str: |
+    SELECT
+      a,
+      b, -- some comment
+      c
+    FROM d
+
 leading_commas_allowed:
   pass_str: |
     SELECT
@@ -95,6 +109,25 @@ trailing_comma_violations:
         a
         , b
         FROM c
+
+  configs:
+    rules:
+      L019:
+        comma_style: leading
+
+trailing_comma_violations_with_inline_comment:
+  fail_str: |
+    SELECT
+        a,
+        b, -- some comment
+        c
+        FROM d
+  fix_str: |
+    SELECT
+        a
+        , b -- some comment
+        , c
+        FROM d
 
   configs:
     rules:
