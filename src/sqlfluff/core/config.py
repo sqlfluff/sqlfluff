@@ -7,6 +7,7 @@ import sys
 import configparser
 from typing import Dict, List, Tuple, Any, Optional, Union, Iterable
 from pathlib import Path
+from sqlfluff.core.plugin.host import get_plugin_manager
 
 import appdirs
 
@@ -222,11 +223,9 @@ class ConfigLoader:
             r[n] = v
         return ctx
 
-    def load_default_config_file(self) -> dict:
+    def load_default_config_file(self, file_dir: str, file_name: str) -> dict:
         """Load the default config file."""
-        elems = self._get_config_elems_from_file(
-            os.path.join(os.path.dirname(__file__), "default_config.cfg")
-        )
+        elems = self._get_config_elems_from_file(os.path.join(file_dir, file_name))
         return self._incorporate_vals({}, elems)
 
     def load_config_at_path(self, path: str) -> dict:
@@ -338,7 +337,7 @@ class FluffConfig:
         self, configs: Optional[dict] = None, overrides: Optional[dict] = None
     ):
         self._overrides = overrides  # We only store this for child configs
-        defaults = ConfigLoader.get_global().load_default_config_file()
+        defaults = nested_combine(*get_plugin_manager().hook.load_default_config())
         self._configs = nested_combine(
             defaults, configs or {"core": {}}, {"core": overrides or {}}
         )
