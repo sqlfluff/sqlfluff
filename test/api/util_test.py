@@ -16,14 +16,14 @@ INNER JOIN ban USING (user_id)
 
 
 @pytest.mark.parametrize(
-    "sql,table_refs",
+    "sql,table_refs,dialect",
     [
-        (my_bad_query, {"myTable"}),
-        (query_with_ctes, {"bar.bar", "bap", "ban"}),
+        (my_bad_query, {"myTable"}, None),
+        (query_with_ctes, {"bar.bar", "bap", "ban"}, "snowflake"),
     ],
 )
-def test__api__util_get_table_references(sql, table_refs):
+def test__api__util_get_table_references(sql, table_refs, dialect):
     """Basic checking of lint functionality."""
-    parsed = sqlfluff.parse(sql)
+    parsed = sqlfluff.parse(sql, dialect=dialect)
     external_tables = parsed.tree.get_table_references()
     assert external_tables == table_refs

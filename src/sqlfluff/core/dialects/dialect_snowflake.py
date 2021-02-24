@@ -8,6 +8,7 @@ Based on https://docs.snowflake.com/en/sql-reference-commands.html
 from sqlfluff.core.dialects.dialect_postgres import postgres_dialect
 from sqlfluff.core.dialects.dialect_ansi import (
     SelectClauseSegment as ansi_SelectClauseSegment,
+    StatementSegment as ansi_StatementSegment,
 )
 from sqlfluff.core.parser import (
     BaseSegment,
@@ -139,7 +140,7 @@ snowflake_dialect.replace(
 
 
 @snowflake_dialect.segment(replace=True)
-class StatementSegment(BaseSegment):
+class StatementSegment(ansi_StatementSegment):
     """A generic segment, to any of its child subsegments."""
 
     type = "statement"
