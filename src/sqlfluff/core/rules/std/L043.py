@@ -6,7 +6,10 @@ from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 @document_fix_compatible
 class Rule_L043(BaseCrawler):
-    """Use an explicit condition rather than case when statement.
+    """Unnecessary case when statement. Use the "when" condition itself.
+
+    If a case when else statement returns booleans, we can reduce it to the
+    "when" condition.
 
     | **Anti-pattern**
 
@@ -18,11 +21,13 @@ class Rule_L043(BaseCrawler):
         from fancy_table
 
     | **Best practice**
+    |   Reduce to "when" condition. Wrap with "coalesce". If necessary, add
+    |   a "not" operator at the beginning.
 
     .. code-block:: sql
 
         select
-            fab > 0 as is_fab
+            coalesce(fab > 0, false) as is_fab
         from fancy_table
 
     """
