@@ -1,0 +1,48 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_target_element:
+          column_reference:
+            identifier: a
+      - comma: ','
+      - select_target_element:
+          function:
+          - function_name: coalesce
+          - start_bracket: (
+          - expression:
+              function:
+              - function_name: first_value
+              - start_bracket: (
+              - expression:
+                  case_expression:
+                  - keyword: case
+                  - keyword: when
+                  - expression:
+                      column_reference:
+                        identifier: a
+                  - keyword: then
+                  - expression:
+                      column_reference:
+                        identifier: b
+                  - keyword: else
+                  - expression:
+                      literal: 'null'
+                  - keyword: end
+              - keyword: ignore
+              - keyword: nulls
+              - end_bracket: )
+          - comma: ','
+          - expression:
+              literal: 'false'
+          - end_bracket: )
+          alias_expression:
+            keyword: as
+            identifier: c
+      from_clause:
+        keyword: from
+        table_expression:
+          main_table_expression:
+            table_reference:
+              identifier: d
