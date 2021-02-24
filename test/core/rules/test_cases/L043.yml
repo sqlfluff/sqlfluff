@@ -21,6 +21,14 @@ test_4:
         case when fab <> 0 then 'just a string' end as fab_category
     from fancy_table
 test_5:
+  pass_str: |
+    select
+        case
+          when fab <> 0 then true
+          when fab < 0 then 'not a bool'
+        end as fab_category
+    from fancy_table
+test_6:
   fail_str: |
     select
         case
@@ -30,7 +38,7 @@ test_5:
     select
         coalesce(fab > 0, false) as is_fab
     from fancy_table
-test_6:
+test_7:
   fail_str: |
     select
         case
@@ -40,7 +48,7 @@ test_6:
     select
         not coalesce(fab > 0, false) as is_fab
     from fancy_table
-test_7:
+test_8:
   fail_str: |
     select
         case
@@ -50,7 +58,7 @@ test_7:
     select
         coalesce(fab > 0 and tot > 0, false) as is_fab
     from fancy_table
-test_8:
+test_9:
   fail_str: |
     select
         case
@@ -60,7 +68,7 @@ test_8:
     select
         not coalesce(fab > 0 and tot > 0, false) as is_fab
     from fancy_table
-test_9:
+test_10:
   fail_str: |
     select
         case
