@@ -171,8 +171,8 @@ class Rule_L020(BaseCrawler):
 
         return SelectStatementColumnsAndTables(
             select_statement=segment,
-            table_aliases=table_aliases,
-            value_table_function_aliases=value_table_function_aliases,
+            table_aliases=table_aliases or [],
+            value_table_function_aliases=value_table_function_aliases or [],
             reference_buffer=reference_buffer,
             select_targets=select_targets,
             col_aliases=col_aliases,
