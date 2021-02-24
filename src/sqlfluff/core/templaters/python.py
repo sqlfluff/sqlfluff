@@ -633,6 +633,18 @@ class PythonTemplater(RawTemplater):
                 bookmark_idx = 0
                 for idx, raw_slice in enumerate(int_file_slice.slice_buffer):
                     # Is this one a unique?
+                    # THE WHOLE THING ISN'T A UNIQUE - BUT PART OF IT IS :facepalm:
+                    print(raw_slice.raw, two_way_uniques)
+                    pos = None
+                    unq = None
+                    for unique in two_way_uniques:
+                        if unique in raw_slice.raw:
+                            pos = raw_slice.raw.index(unique)
+                            unq = unique
+
+                    if unq:
+                        print("FOUND", repr(unq), "@", pos)
+
                     if raw_slice.raw in two_way_uniques:
                         unique_position = (
                             raw_occs[raw_slice.raw][0],
@@ -656,7 +668,7 @@ class PythonTemplater(RawTemplater):
                                 templ_occs,
                                 templated_str,
                             )
-                        # Process the value itself, withe the new starts.
+                        # Process the value itself, with the new starts.
                         starts = (
                             unique_position[0] + len(raw_slice.raw),
                             unique_position[1] + len(raw_slice.raw),
@@ -669,7 +681,10 @@ class PythonTemplater(RawTemplater):
                         )
                         # Move the bookmark after this position
                         bookmark_idx = idx + 1
+                if bookmark_idx == 0:
+                    raise RuntimeError("Expected to find unique, but not found!")
                 # At the end of the loop deal with any hangover
+                # If we have uniques but they're part of a larger section, this is going to recurse for ever!
                 if len(int_file_slice.slice_buffer) > bookmark_idx:
                     # Recurse to deal with any loops separately
                     sub_section = int_file_slice.slice_buffer[

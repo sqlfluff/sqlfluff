@@ -337,6 +337,29 @@ def test__templater_python_split_invariants(
                 TemplatedFileSlice("literal", slice(45, 76, None), slice(40, 71, None)),
             ],
         ),
+        # Check for recursion error in non-exact raw cases.
+        (
+            [
+                IntermediateFileSlice(
+                    "compound",
+                    slice(0, 13, None),
+                    slice(0, 9, None),
+                    [
+                        RawFileSlice("{foo}", "templated", 0),
+                        RawFileSlice(" , ", "literal", 5),
+                        RawFileSlice("{bar}", "templated", 8),
+                    ],
+                ),
+            ],
+            {",": [6]},
+            {",": [4]},
+            "foo , bar",
+            [
+                TemplatedFileSlice("templated", slice(0, 5, None), slice(0, 3, None)),
+                TemplatedFileSlice("literal", slice(5, 8, None), slice(3, 6, None)),
+                TemplatedFileSlice("templated", slice(8, 13, None), slice(6, 9, None)),
+            ],
+        ),
     ],
 )
 def test__templater_python_split_uniques_coalesce_rest(
