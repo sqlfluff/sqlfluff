@@ -632,8 +632,8 @@ class PythonTemplater(RawTemplater):
                 # Yield the uniques and coalesce anything between.
                 bookmark_idx = 0
                 for idx, raw_slice in enumerate(int_file_slice.slice_buffer):
-                    pos = None
-                    unq = None
+                    pos = 0
+                    unq: Optional[str] = None
                     # Does this element contain one of our uniques? If so, where?
                     for unique in two_way_uniques:
                         if unique in raw_slice.raw:
@@ -729,8 +729,9 @@ class PythonTemplater(RawTemplater):
                     yield coalesced
                     continue
 
-                # At the end of the loop deal with any hangover
-                # If we have uniques but they're part of a larger section, this is going to recurse for ever!
+                # At the end of the loop deal with any remaining slices.
+                # The above "Safety Valve"TM should keep us safe from infinite
+                # recursion.
                 if len(int_file_slice.slice_buffer) > bookmark_idx:
                     # Recurse to deal with any loops separately
                     sub_section = int_file_slice.slice_buffer[
