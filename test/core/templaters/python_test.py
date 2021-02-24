@@ -356,7 +356,11 @@ def test__templater_python_split_invariants(
             "foo , bar",
             [
                 TemplatedFileSlice("templated", slice(0, 5, None), slice(0, 3, None)),
-                TemplatedFileSlice("literal", slice(5, 8, None), slice(3, 6, None)),
+                # Alternate implementations which group these next three together
+                # would also be fine.
+                TemplatedFileSlice("literal", slice(5, 6, None), slice(3, 4, None)),
+                TemplatedFileSlice("literal", slice(6, 7, None), slice(4, 5, None)),
+                TemplatedFileSlice("literal", slice(7, 8, None), slice(5, 6, None)),
                 TemplatedFileSlice("templated", slice(8, 13, None), slice(6, 9, None)),
             ],
         ),

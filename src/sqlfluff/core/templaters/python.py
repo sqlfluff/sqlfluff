@@ -632,57 +632,103 @@ class PythonTemplater(RawTemplater):
                 # Yield the uniques and coalesce anything between.
                 bookmark_idx = 0
                 for idx, raw_slice in enumerate(int_file_slice.slice_buffer):
-                    # Is this one a unique?
-                    # THE WHOLE THING ISN'T A UNIQUE - BUT PART OF IT IS :facepalm:
-                    print(raw_slice.raw, two_way_uniques)
                     pos = None
                     unq = None
+                    # Does this element contain one of our uniques? If so, where?
                     for unique in two_way_uniques:
                         if unique in raw_slice.raw:
                             pos = raw_slice.raw.index(unique)
                             unq = unique
 
                     if unq:
-                        print("FOUND", repr(unq), "@", pos)
+                        # Yes it does. Handle it.
 
-                    if raw_slice.raw in two_way_uniques:
+                        # Get the position of the unique section.
                         unique_position = (
-                            raw_occs[raw_slice.raw][0],
-                            templ_occs[raw_slice.raw][0],
+                            raw_occs[unq][0],
+                            templ_occs[unq][0],
                         )
-                        # Do we have anything before it to process?
+                        templater_logger.debug(
+                            "            Handling Unique: %r, %s, %s, %r",
+                            unq,
+                            pos,
+                            unique_position,
+                            raw_slice,
+                        )
+
+                        # Handle full slices up to this one
                         if idx > bookmark_idx:
                             # Recurse to deal with any loops separately
-                            sub_section = int_file_slice.slice_buffer[bookmark_idx:idx]
                             yield from cls._split_uniques_coalesce_rest(
                                 [
                                     IntermediateFileSlice(
                                         "compound",
                                         # slice up to this unique
-                                        slice(starts[0], unique_position[0]),
-                                        slice(starts[1], unique_position[1]),
-                                        sub_section,
+                                        slice(starts[0], unique_position[0] - pos),
+                                        slice(starts[1], unique_position[1] - pos),
+                                        int_file_slice.slice_buffer[bookmark_idx:idx],
                                     )
                                 ],
                                 raw_occs,
                                 templ_occs,
                                 templated_str,
                             )
-                        # Process the value itself, with the new starts.
+
+                        # Handle any potential partial slice if we're part way through this one.
+                        if pos > 0:
+                            yield TemplatedFileSlice(
+                                raw_slice.slice_type,
+                                slice(unique_position[0] - pos, unique_position[0]),
+                                slice(unique_position[1] - pos, unique_position[1]),
+                            )
+
+                        # Handle the unique itself and update the bookmark
                         starts = (
-                            unique_position[0] + len(raw_slice.raw),
-                            unique_position[1] + len(raw_slice.raw),
+                            unique_position[0] + len(unq),
+                            unique_position[1] + len(unq),
                         )
                         yield TemplatedFileSlice(
                             raw_slice.slice_type,
-                            # It's a literal so use its length
                             slice(unique_position[0], starts[0]),
                             slice(unique_position[1], starts[1]),
                         )
                         # Move the bookmark after this position
                         bookmark_idx = idx + 1
+
+                        # Handle any remnant after the unique.
+                        if raw_slice.raw[pos + len(unq) :]:
+                            remnant_length = len(raw_slice.raw) - (len(unq) + pos)
+                            _starts = starts
+                            starts = (
+                                starts[0] + remnant_length,
+                                starts[1] + remnant_length,
+                            )
+                            yield TemplatedFileSlice(
+                                raw_slice.slice_type,
+                                slice(_starts[0], starts[0]),
+                                slice(_starts[1], starts[1]),
+                            )
+
                 if bookmark_idx == 0:
-                    raise RuntimeError("Expected to find unique, but not found!")
+                    # This is a SAFETY VALVE. In Theory we should never be here
+                    # and if we are it implies an error elsewhere. This clause
+                    # should stop any potential infinite recursion in it's tracks
+                    # by simply classifying the whole of the current block as
+                    # templated and just stopping here.
+                    # Bugs triggering this eventuality have been observed in 0.4.0.
+                    templater_logger.info(
+                        "        Safety Value Info: %s, %r",
+                        two_way_uniques,
+                        templated_str[int_file_slice.templated_slice],
+                    )
+                    templater_logger.warning(
+                        "        Python templater safety value unexpectedly triggered. "
+                        "Your query may be more conservatively sliced than expected. "
+                        "Please report your raw and compiled query on github for debugging."
+                    )
+                    yield coalesced
+                    continue
+
                 # At the end of the loop deal with any hangover
                 # If we have uniques but they're part of a larger section, this is going to recurse for ever!
                 if len(int_file_slice.slice_buffer) > bookmark_idx:
