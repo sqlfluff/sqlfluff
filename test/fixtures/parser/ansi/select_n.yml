@@ -29,25 +29,25 @@ file:
           alias_expression:
             keyword: AS
             identifier: exists_left
-        join_clause:
-        - keyword: FULL
-        - keyword: JOIN
-        - table_expression:
-            main_table_expression:
-              table_reference:
-                identifier: business_types
-            alias_expression:
-              keyword: AS
-              identifier: exists_right
-        - join_on_condition:
-            keyword: 'ON'
-            expression:
-            - column_reference:
-              - identifier: exists_left
-              - dot: .
-              - identifier: business_type
-            - comparison_operator: '='
-            - column_reference:
-              - identifier: exists_right
-              - dot: .
-              - identifier: business_type
+          join_clause:
+          - keyword: FULL
+          - keyword: JOIN
+          - table_expression:
+              main_table_expression:
+                table_reference:
+                  identifier: business_types
+              alias_expression:
+                keyword: AS
+                identifier: exists_right
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - identifier: exists_left
+                - dot: .
+                - identifier: business_type
+              - comparison_operator: '='
+              - column_reference:
+                - identifier: exists_right
+                - dot: .
+                - identifier: business_type
