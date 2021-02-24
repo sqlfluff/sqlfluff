@@ -1,113 +1,24 @@
 """Tests for the standard set of rules."""
-from typing import NamedTuple
-
 import pytest
 
 from sqlfluff.core import Linter
-from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.rules.base import BaseCrawler, LintResult, LintFix
-from sqlfluff.core.rules import std_rule_set
+from sqlfluff.core.rules import get_ruleset
 from sqlfluff.core.rules.doc_decorators import document_configuration
 from sqlfluff.core.config import FluffConfig
+from sqlfluff.testing.rules import (
+    assert_rule_raises_violations_in_file,
+    get_rule_from_set,
+)
 
 from test.fixtures.dbt.templater import (  # noqa
     DBT_FLUFF_CONFIG,
     in_dbt_project_dir,
     dbt_templater,
 )
-
-
-class RuleTestCase(NamedTuple):
-    """Used like a dataclass by rule tests."""
-
-    rule: str = None
-    desc: str = None
-    pass_str: str = None
-    fail_str: str = None
-    fix_str: str = None
-    configs: dict = None
-    skip: str = None
-
-
-def get_rule_from_set(code, config):
-    """Fetch a rule from the rule set."""
-    for r in std_rule_set.get_rulelist(config=config):
-        if r.code == code:
-            return r
-    raise ValueError("{0!r} not in {1!r}".format(code, std_rule_set))
-
-
-def assert_rule_fail_in_sql(code, sql, configs=None):
-    """Assert that a given rule does fail on the given sql."""
-    # Set up the config to only use the rule we are testing.
-    cfg = FluffConfig(configs=configs, overrides={"rules": code})
-    # Lint it using the current config (while in fix mode)
-    linted = Linter(config=cfg).lint_string(sql, fix=True)
-    lerrs = linted.get_violations()
-    print("Errors Found: {0}".format(lerrs))
-    parse_errors = list(filter(lambda v: type(v) == SQLParseError, lerrs))
-    if parse_errors:
-        pytest.fail(f"Found the following parse errors in test case: {parse_errors}")
-    if not any(v.rule.code == code for v in lerrs):
-        pytest.fail(
-            "No {0} failures found in query which should fail.".format(code),
-            pytrace=False,
-        )
-    # The query should already have been fixed if possible so just return the raw.
-    return linted.tree.raw
-
-
-def assert_rule_pass_in_sql(code, sql, configs=None):
-    """Assert that a given rule doesn't fail on the given sql."""
-    # Configs allows overrides if we want to use them.
-    cfg = FluffConfig(configs=configs)
-    r = get_rule_from_set(code, config=cfg)
-    parsed = Linter(config=cfg).parse_string(sql)
-    if parsed.violations:
-        pytest.fail(parsed.violations[0].desc() + "\n" + parsed.tree.stringify())
-    print("Parsed:\n {0}".format(parsed.tree.stringify()))
-    lerrs, _, _, _ = r.crawl(parsed.tree, dialect=cfg.get("dialect_obj"))
-    print("Errors Found: {0}".format(lerrs))
-    if any(v.rule.code == code for v in lerrs):
-        pytest.fail(
-            "Found {0} failures in query which should pass.".format(code), pytrace=False
-        )
-
-
-def assert_rule_raises_violations_in_file(rule, fpath, violations, fluff_config):
-    """Assert that a given rule raises given errors in specific positions of a file."""
-    lntr = Linter(config=fluff_config)
-    lnt = lntr.lint_path(fpath)
-    # Reformat the test data to match the format we're expecting. We use
-    # sets because we really don't care about order and if one is missing,
-    # we don't care about the orders of the correct ones.
-    assert set(lnt.check_tuples()) == {(rule, v[0], v[1]) for v in violations}
-
-
-def rules__test_helper(test_case):
-    """Test that a rule passes/fails on a set of test_cases.
-
-    Optionally, also test the fixed string if provided in the test case.
-    """
-    if test_case.skip:
-        pytest.skip(test_case.skip)
-
-    if test_case.pass_str:
-        assert_rule_pass_in_sql(
-            test_case.rule,
-            test_case.pass_str,
-            configs=test_case.configs,
-        )
-    if test_case.fail_str:
-        res = assert_rule_fail_in_sql(
-            test_case.rule,
-            test_case.fail_str,
-            configs=test_case.configs,
-        )
-        # If a `fixed` value is provided then check it matches
-        if test_case.fix_str:
-            assert res == test_case.fix_str
-        return res
+from test.fixtures.rules.L000 import Rule_L000
+from test.fixtures.rules.S000 import Rule_S000
+from sqlfluff.core.rules.std import get_rules_from_path
 
 
 class Rule_T042(BaseCrawler):
@@ -288,7 +199,7 @@ def test_improper_configs_are_rejected(rule_config_dict):
     """Ensure that unsupported configs raise a ValueError."""
     config = FluffConfig(configs={"rules": rule_config_dict})
     with pytest.raises(ValueError):
-        std_rule_set.get_rulelist(config)
+        get_ruleset().get_rulelist(config)
 
 
 def test_rules_cannot_be_instantiated_without_declared_configs():
@@ -328,14 +239,42 @@ def test_rules_configs_are_dynamically_documented():
 
 def test_rule_exception_is_caught_to_validation():
     """Assert that a rule that throws an exception on _eval returns it as a validation."""
+    std_rule_set = get_ruleset()
 
     @std_rule_set.register
-    class Rule_LXXX(BaseCrawler):
+    class Rule_T000(BaseCrawler):
         """Rule that throws an exception."""
 
         def _eval(self, segment, parent_stack, **kwargs):
             raise Exception("Catch me or I'll deny any linting results from you")
 
-    linter = Linter(config=FluffConfig(overrides=dict(rules="LXXX")))
+    linter = Linter(
+        config=FluffConfig(overrides=dict(rules="T000")),
+        user_rules=[Rule_T000],
+    )
 
-    assert linter.lint_string("select 1").check_tuples() == [("LXXX", 1, 1)]
+    assert linter.lint_string("select 1").check_tuples() == [("T000", 1, 1)]
+
+
+def test_std_rule_import_fail_bad_naming():
+    """Check that rule import from file works."""
+    assert get_rules_from_path(
+        rules_path="test/fixtures/rules/*.py", base_module="test.fixtures.rules"
+    ) == [Rule_L000, Rule_S000]
+
+    with pytest.raises(AttributeError) as e:
+        get_rules_from_path(
+            rules_path="test/fixtures/rules/bad_rule_name/*.py",
+            base_module="test.fixtures.rules.bad_rule_name",
+        )
+
+    e.match("Rule classes must be named in the format of")
+
+
+def test_rule_set_return_informative_error_when_rule_not_registered():
+    """Assert that a rule that throws an exception on _eval returns it as a validation."""
+    cfg = FluffConfig()
+    with pytest.raises(ValueError) as e:
+        get_rule_from_set("L000", config=cfg)
+
+    e.match("'L000' not in")
