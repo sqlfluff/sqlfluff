@@ -59,6 +59,7 @@ Contents
    architecture
    cli
    api
+   developingplugins
    inthewild
    jointhecommunity
 

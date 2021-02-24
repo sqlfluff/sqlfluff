@@ -1,6 +1,6 @@
 """A collection of decorators to modify rule docstrings for Sphinx."""
 
-from sqlfluff.core.rules.config_info import STANDARD_CONFIG_INFO_DICT
+from sqlfluff.core.rules.config_info import get_config_info
 from sqlfluff.core.rules.base import rules_logger  # noqa
 
 
@@ -28,7 +28,7 @@ def document_configuration(cls, ruleset="std"):
     options in the docs, from a single source of truth.
     """
     if ruleset == "std":
-        config_info = STANDARD_CONFIG_INFO_DICT
+        config_info = get_config_info()
     else:
         raise (
             NotImplementedError(
@@ -47,9 +47,11 @@ def document_configuration(cls, ruleset="std"):
                         keyword, cls.__name__
                     )
                 )
-            config_doc += "\n    |     `{0}`: {1}. Must be one of {2}.".format(
-                keyword, info_dict["definition"], info_dict["validation"]
+            config_doc += "\n    |     `{0}`: {1}.".format(
+                keyword, info_dict["definition"]
             )
+            if "validation" in info_dict:
+                config_doc += " Must be one of {0}.".format(info_dict["validation"])
             config_doc += "\n    |"
     except AttributeError:
         rules_logger.info("No config_keywords defined for {0}".format(cls.__name__))
