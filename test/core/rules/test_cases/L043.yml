@@ -1,0 +1,85 @@
+rule: L043
+
+test_1:
+  pass_str: |
+    select
+        fab > 0 as is_fab
+    from fancy_table
+test_2:
+  pass_str: |
+    select
+        case when fab > 0 then true end as is_fab
+    from fancy_table
+test_3:
+  pass_str: |
+    select
+        case when fab is not null then false end as is_fab
+    from fancy_table
+test_4:
+  pass_str: |
+    select
+        case when fab > 0 then true else true end as is_fab
+    from fancy_table
+test_5:
+  pass_str: |
+    select
+        case when fab <> 0 then 'just a string' end as fab_category
+    from fancy_table
+test_6:
+  pass_str: |
+    select
+        case
+          when fab <> 0 then true
+          when fab < 0 then 'not a bool'
+        end as fab_category
+    from fancy_table
+test_7:
+  fail_str: |
+    select
+        case
+            when fab > 0 then true else false end as is_fab
+    from fancy_table
+  fix_str: |
+    select
+        coalesce(fab > 0, false) as is_fab
+    from fancy_table
+test_8:
+  fail_str: |
+    select
+        case
+            when fab > 0 then false else true end as is_fab
+    from fancy_table
+  fix_str: |
+    select
+        not coalesce(fab > 0, false) as is_fab
+    from fancy_table
+test_9:
+  fail_str: |
+    select
+        case
+            when fab > 0 and tot > 0 then true else false end as is_fab
+    from fancy_table
+  fix_str: |
+    select
+        coalesce(fab > 0 and tot > 0, false) as is_fab
+    from fancy_table
+test_10:
+  fail_str: |
+    select
+        case
+            when fab > 0 and tot > 0 then false else true end as is_fab
+    from fancy_table
+  fix_str: |
+    select
+        not coalesce(fab > 0 and tot > 0, false) as is_fab
+    from fancy_table
+test_11:
+  fail_str: |
+    select
+        case
+            when not fab > 0 or tot > 0 then false else true end as is_fab
+    from fancy_table
+  fix_str: |
+    select
+        not coalesce(not fab > 0 or tot > 0, false) as is_fab
+    from fancy_table
