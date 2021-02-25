@@ -8,6 +8,7 @@ import os
 DBT_FLUFF_CONFIG = {
     "core": {
         "templater": "dbt",
+        "dialect": "postgres",
     },
     "templater": {
         "dbt": {
