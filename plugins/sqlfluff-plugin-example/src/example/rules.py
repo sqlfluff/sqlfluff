@@ -37,8 +37,10 @@ def get_configs_info() -> dict:
     }
 
 
-@document_fix_compatible
+# These two decorators allow plugins
+# to be displayed in the sqlfluff docs
 @document_configuration
+@document_fix_compatible
 class Rule_Example_L001(BaseCrawler):
     """ORDER BY on these columns is forbidden!
 
