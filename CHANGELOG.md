@@ -10,15 +10,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.1] - 2021-02-25
 ### Added
-- Add tests for dbt 0.19.0
-- General increased parsing coverage
+
+- Initial architecture for rule plugins to allow custom rules. This
+  initial release should be considered *beta* until the release of
+  0.5.0.
+- Add tests for dbt 0.19.0.
+- General increased parsing coverage.
+- Added some missing Postgres syntax elements.
+
 ### Changed
-- Fix several Snowflake parsing bugs
-- Refactor from clause to handle flattens after joins
-- Fix .get_table_references() in Snowflake dialect
+
+- Fix several Snowflake parsing bugs.
+- Refactor from clause to handle flattens after joins.
+- Fix .get_table_references() in Snowflake dialect.
 - Macros defined within the .sqlfluff config will take precedence over the macros defined in the
   path that is defined with config value `sqlfluff:templater:jinja:load_macros_from_path`.
-- Fix Snowflake indent parsing
+- Fix Snowflake indent parsing.
+- Fixed incorrect parsing of syntax-like elements in comments.
+- Altered parsing of `NULL` keywords, so parse as Literals where
+  appropriate.
 
 ## [0.4.0] - 2021-02-14
 ### Added
