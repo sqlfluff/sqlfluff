@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add tests for dbt 0.19.0.
 - General increased parsing coverage.
 - Added some missing Postgres syntax elements.
+- Added some basic introspection API elements to output what dialects
+  and rules are available for use within the API.
 
 ### Changed
 
