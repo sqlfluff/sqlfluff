@@ -53,11 +53,14 @@ class Rule_L045(BaseCrawler):
         for select_info in select_info_list:
             for alias_info in select_info.select_info.table_aliases:
                 # Does the query read from a CTE? If so, visit the CTE.
-                target = alias_info.table_expression.raw
-                if target in queries:
-                    select_info_target = queries.pop(target)
-                    if isinstance(select_info_target, list):
-                        cls._visit_sources(select_info_target, dialect, queries)
+                for target_segment in alias_info.table_expression.select_children(
+                    select_if=lambda s: s.type in ["main_table_expression", "join_clause"]
+                ):
+                    target = target_segment.raw
+                    if target in queries:
+                        select_info_target = queries.pop(target)
+                        if isinstance(select_info_target, list):
+                            cls._visit_sources(select_info_target, dialect, queries)
 
     def _eval(self, segment, **kwargs):
         if segment.is_type("statement"):
