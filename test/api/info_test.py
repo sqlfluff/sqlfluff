@@ -1,7 +1,5 @@
 """Test using sqlfluff to extract elements of queries."""
 
-import pytest
-
 import sqlfluff
 
 

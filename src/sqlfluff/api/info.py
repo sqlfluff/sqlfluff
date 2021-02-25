@@ -1,6 +1,6 @@
 """Information API."""
 
-from typing import List, Dict, Tuple
+from typing import List
 
 from sqlfluff.core import dialect_readout, Linter
 from sqlfluff.core.linter import RuleTuple
