@@ -1,9 +1,12 @@
-rule: L044
+rule: L043
 
 test_1:
-  pass_str: select * from t
+  pass_str: select a, b from t
 
 test_2:
+  fail_str: select * from t
+
+test_3:
   pass_str: |
     with cte as (
         select
@@ -13,7 +16,251 @@ test_2:
     )
     select * from cte
 
-test_3:
+test_4:
+  fail_str: |
+    with cte as (
+        select
+            *
+        from
+            t
+    )
+    select * from cte
+
+
+test_5:
+  pass_str: |
+    with cte as (
+        select
+            *
+        from
+            t
+    )
+    select a, b from cte
+
+test_6:
+  pass_str: |
+    with cte1 as (
+        select
+            *
+        from
+            t
+    ),
+    cte2 as (
+        select
+            a, b
+        from
+            t
+    )
+    select
+        cte1.a,
+        cte2.*
+    from cte1
+    join cte2
+    using (a)
+
+test_7:
+  fail_str: |
+    with cte1 as (
+        select
+            *
+        from
+            t
+    ),
+    cte2 as (
+        select
+            a, b
+        from
+            t
+    )
+    select
+        cte1.*,
+        cte2.*
+    from cte1
+    join cte2
+    using (a)
+
+test_8:
+  pass_str: |
+    select * from (
+        select
+            a, b
+        from
+            t
+    )
+
+test_9:
+  fail_str: |
+    with cte as (
+        select
+            a, b
+        from
+            t
+    )
+    select
+        cte.*,
+        t.*
+    from cte1
+    join t
+    using (a)
+
+test_10:
+  fail_str: |
+    with cte as (
+        select
+            a, b
+        from
+            t
+    )
+    select
+        cte.*,
+        t_alias.*
+    from cte1
+    join (select * from t) as t_alias
+    using (a)
+
+test_11:
+  pass_str: |
+    select
+        t_alias.*
+    from cte1
+    join (select a from t) as t_alias
+    using (a)
+
+test_12:
+  fail_str: |
+    select
+        t_alias.*
+    from t1
+    join (select * from t) as t_alias
+    using (a)
+
+test_13:
+  pass_str: |
+    with cte as (
+        select
+            a, b
+        from
+            t
+    )
+    select
+        cte.*,
+        t_alias.a
+    from cte1
+    join (select * from t) as t_alias
+    using (a)
+
+test_14:
+  fail_str: select *, t.*, t.a, b from t
+
+test_15:
+  pass_str: |
+    select a from t1
+    union all
+    select b from t2
+
+test_16:
+  fail_str: |
+    select a from t1
+    union all
+    select * from t2
+
+test_17:
+  fail_str: |
+    select * from t1
+    union all
+    select b from t2
+
+test_18:
+  fail_str: |
+    with cte as (
+      select * from t1
+      union all
+      select b from t2
+    )
+
+    select * from cte
+    union all
+    select b from t3
+
+test_19:
+  pass_str: |
+    with cte as (
+      select a from t1
+      union all
+      select b from t2
+    )
+
+    select * from cte
+    union all
+    select b from t3
+
+test_20:
+  pass_str: |
+    WITH cte_orders AS (
+      SELECT customer_id, total
+      FROM orders
+    )
+
+    SELECT customers.name, cte_orders.*
+    FROM
+      customers,
+      cte_orders
+    WHERE
+      clients.id = orders.clientId
+
+test_21:
+  pass_str: |
+    WITH cte_orders AS (
+      SELECT customer_id, total
+      FROM orders
+    )
+
+    SELECT *
+    FROM
+      cte_orders AS orders
+
+test_22:
+  fail_str: |
+    WITH cte_orders AS (
+      SELECT *
+      FROM orders
+    )
+
+    SELECT *
+    FROM
+      cte_orders AS orders
+
+test_23:
+  fail_str: |
+    WITH cte_orders AS (
+      SELECT customer_id, total
+      FROM orders
+    )
+
+    SELECT *
+    FROM
+      orders AS cte_orders
+
+test_24:
+  fail_str: SELECT p.* FROM races, UNNEST(participants) AS p
+
+test_25:
+  pass_str: SELECT p FROM races, UNNEST(participants) AS p
+
+test_26:
+  fail_str: SELECT * FROM a JOIN b
+
+test_27:
+  fail_str: |
+    WITH cte AS (
+      SELECT a
+      FROM t
+    )
+    SELECT *
+    FROM cte
+    JOIN b
+
+test_28:
   pass_str: |
     WITH cte1 AS (
       SELECT a
@@ -27,52 +274,14 @@ test_3:
     FROM cte1
     JOIN cte2
 
-test_4:
-  fail_str: |
-    WITH cte1 AS (
-      SELECT a
-      FROM t
-    ),
-    cte2 AS (
-      SELECT b
-      FROM u
-    )
-    SELECT *
-    FROM cte1
+test_29:
+  pass_str: select a, b from `d.t`
+  configs:
+    core:
+      dialect: bigquery
 
-test_5:
-  fail_str: |
-    WITH cte_orders AS (
-      SELECT customer_id, total
-      FROM orders
-    )
-
-    SELECT *
-    FROM
-      orders AS cte_orders
-
-test_6:
-  pass_str: |
-    WITH cte1 AS (
-      SELECT a
-      FROM t
-    ),
-    cte2 AS (
-      SELECT b
-      FROM cte1
-    )
-    SELECT *
-    FROM cte2
-
-test_7:
-  fail_str: |
-    WITH cte1 AS (
-      SELECT a
-      FROM t
-    ),
-    cte2 AS (
-      SELECT b
-      FROM cte1
-    )
-    SELECT *
-    FROM cte1
+test_30:
+  fail_str: select * from `d.t`
+  configs:
+    core:
+      dialect: bigquery

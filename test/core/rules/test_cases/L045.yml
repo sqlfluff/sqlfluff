@@ -1,0 +1,78 @@
+rule: L044
+
+test_1:
+  pass_str: select * from t
+
+test_2:
+  pass_str: |
+    with cte as (
+        select
+            a, b
+        from
+            t
+    )
+    select * from cte
+
+test_3:
+  pass_str: |
+    WITH cte1 AS (
+      SELECT a
+      FROM t
+    ),
+    cte2 AS (
+      SELECT b
+      FROM u
+    )
+    SELECT *
+    FROM cte1
+    JOIN cte2
+
+test_4:
+  fail_str: |
+    WITH cte1 AS (
+      SELECT a
+      FROM t
+    ),
+    cte2 AS (
+      SELECT b
+      FROM u
+    )
+    SELECT *
+    FROM cte1
+
+test_5:
+  fail_str: |
+    WITH cte_orders AS (
+      SELECT customer_id, total
+      FROM orders
+    )
+
+    SELECT *
+    FROM
+      orders AS cte_orders
+
+test_6:
+  pass_str: |
+    WITH cte1 AS (
+      SELECT a
+      FROM t
+    ),
+    cte2 AS (
+      SELECT b
+      FROM cte1
+    )
+    SELECT *
+    FROM cte2
+
+test_7:
+  fail_str: |
+    WITH cte1 AS (
+      SELECT a
+      FROM t
+    ),
+    cte2 AS (
+      SELECT b
+      FROM cte1
+    )
+    SELECT *
+    FROM cte1
