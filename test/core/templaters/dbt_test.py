@@ -111,15 +111,21 @@ def test__templater_dbt_templating_test_lex(in_dbt_project_dir, dbt_templater): 
     assert templated_file.templated_str == "select * from a"
 
 
+@pytest.mark.parametrize(
+    "fname",
+    [
+        "use_var.sql",
+        "incremental.sql",
+    ],
+)
 @pytest.mark.dbt
-def test__templated_sections_do_not_raise_lint_error(in_dbt_project_dir):  # noqa
+def test__templated_sections_do_not_raise_lint_error(in_dbt_project_dir, fname):  # noqa
     """Test that the dbt test has only a new line lint error."""
     lntr = Linter(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
-    lnt = lntr.lint_string(fname="tests/test.sql")
-    print(lnt.violations)
-    assert len(lnt.violations) == 2
-    # Newlines are removed by dbt templater
-    assert {v.rule.code for v in lnt.violations} == {"L009", "L043"}
+    lnt = lntr.lint_path(path="models/my_new_project/" + fname)
+    violations = lnt.check_tuples()
+    print(violations)
+    assert len(violations) == 0
 
 
 @pytest.mark.dbt
