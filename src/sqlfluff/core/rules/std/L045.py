@@ -4,7 +4,7 @@ from typing import Dict, List
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.rules.base import BaseCrawler, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
-from sqlfluff.core.rules.std.L043 import SelectInfo
+from sqlfluff.core.rules.std.L044 import SelectInfo
 
 
 @document_fix_compatible
