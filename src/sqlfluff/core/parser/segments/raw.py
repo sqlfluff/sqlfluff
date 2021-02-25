@@ -14,7 +14,6 @@ class RawSegment(BaseSegment):
     _is_code = False
     _is_comment = False
     _template = "<unset>"
-    _raw_upper = None
 
     def __init__(self, raw, pos_marker):
         self._raw = raw

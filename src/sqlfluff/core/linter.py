@@ -38,7 +38,7 @@ from sqlfluff.core.config import FluffConfig, ConfigLoader
 
 # Classes needed only for type checking
 from sqlfluff.core.parser.segments.base import BaseSegment, FixPatch
-from sqlfluff.core.parser.segments.indent import MetaSegment
+from sqlfluff.core.parser.segments.meta import MetaSegment
 from sqlfluff.core.parser.segments.raw import RawSegment
 from sqlfluff.core.rules.base import BaseCrawler
 
