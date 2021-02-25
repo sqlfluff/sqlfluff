@@ -1,4 +1,4 @@
-"""Implementation of Rule L043."""
+"""Implementation of Rule L044."""
 from collections import defaultdict
 from typing import Dict, List, NamedTuple, Optional, Union
 
@@ -148,7 +148,7 @@ class SelectInfo:
         return select_name
 
 
-class Rule_L043(BaseCrawler):
+class Rule_L044(BaseCrawler):
     """Query produces an unknown number of result columns.
 
     | **Anti-pattern**

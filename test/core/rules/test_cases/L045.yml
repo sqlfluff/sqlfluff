@@ -1,4 +1,4 @@
-rule: L044
+rule: L045
 
 test_1:
   pass_str: select * from t

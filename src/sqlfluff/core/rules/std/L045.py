@@ -1,4 +1,4 @@
-"""Implementation of Rule L044."""
+"""Implementation of Rule L045."""
 from typing import Dict, List
 
 from sqlfluff.core.dialects.base import Dialect
@@ -8,7 +8,7 @@ from sqlfluff.core.rules.std.L043 import SelectInfo
 
 
 @document_fix_compatible
-class Rule_L044(BaseCrawler):
+class Rule_L045(BaseCrawler):
     """Query defines a CTE (common-table expression) but does not use it.
 
     | **Anti-pattern**
