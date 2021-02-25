@@ -157,9 +157,9 @@ class Rule_L043(BaseCrawler):
     | This should generally be avoided because it can cause slow performance,
     | cause important schema changes to go undetected, or break production code.
     | For example:
-    | * If a query is expected to return a particular set of columns `c`, they
-    |   may stop returning a column if it's deleted from the input table, or
-    |   start returning additional columns if new ones are added.
+    | * If a query does `SELECT t.*` and is expected to return columns `a`, `b`,
+    |   and `c`, the actual columns returned will be wrong/different if columns
+    |   are added to or deleted from the input table.
     | * `UNION` and `DIFFERENCE` clauses require the inputs have the same number
     |   of columns (and compatible types).
     | * `JOIN` queries may break due to new column name conflicts, e.g. the
