@@ -13,28 +13,28 @@ file:
           main_table_expression:
             table_reference:
               identifier: '"my_table2"'
-        join_clause:
-        - keyword: INNER
-        - keyword: JOIN
-        - table_expression:
-            main_table_expression:
-              table_reference:
-              - identifier: '"my_database"'
-              - dot: .
-              - identifier: '"my_schema"'
-              - dot: .
-              - identifier: '"my_table"'
-        - join_on_condition:
-            keyword: 'ON'
-            expression:
-            - start_bracket: (
-            - column_reference:
-              - identifier: '"my_table2"'
-              - dot: .
-              - identifier: foo
-            - comparison_operator: '='
-            - column_reference:
-              - identifier: '"my_table"'
-              - dot: .
-              - identifier: foo
-            - end_bracket: )
+          join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - table_expression:
+              main_table_expression:
+                table_reference:
+                - identifier: '"my_database"'
+                - dot: .
+                - identifier: '"my_schema"'
+                - dot: .
+                - identifier: '"my_table"'
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - start_bracket: (
+              - column_reference:
+                - identifier: '"my_table2"'
+                - dot: .
+                - identifier: foo
+              - comparison_operator: '='
+              - column_reference:
+                - identifier: '"my_table"'
+                - dot: .
+                - identifier: foo
+              - end_bracket: )

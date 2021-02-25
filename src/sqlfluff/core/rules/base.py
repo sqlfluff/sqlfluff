@@ -16,6 +16,7 @@ missing.
 
 import copy
 import logging
+import re
 from collections import namedtuple
 
 from sqlfluff.core.parser import RawSegment, KeywordSegment, BaseSegment, SymbolSegment
@@ -463,15 +464,18 @@ class RuleSet:
         Config options can also be checked for a specific rule e.g L010.
         """
         rule_config = config.get_section("rules")
-
         for config_name, info_dict in self.config_info.items():
             config_option = (
                 rule_config.get(config_name)
                 if not rule
                 else rule_config.get(rule).get(config_name)
             )
-            valid_options = info_dict["validation"]
-            if config_option not in valid_options and config_option is not None:
+            valid_options = info_dict.get("validation")
+            if (
+                valid_options
+                and config_option not in valid_options
+                and config_option is not None
+            ):
                 raise ValueError(
                     (
                         "Invalid option '{0}' for {1} configuration. Must be one of {2}"
@@ -482,7 +486,21 @@ class RuleSet:
                     )
                 )
 
-    def register(self, cls):
+    @property
+    def valid_rule_name_regex(self):
+        """Defines the accepted pattern for rule names.
+
+        The first group captures the plugin name (optional), which
+        must be capitalized.
+        The second group captures the rule code.
+
+        Examples of valid rule names:
+        * Rule_PluginName_L001
+        * Rule_L001
+        """
+        return re.compile(r"Rule_?([A-Z]{1}[a-zA-Z]+)?_([A-Z][0-9]{3})")
+
+    def register(self, cls, plugin=None):
         """Decorate a class with this to add it to the ruleset.
 
         .. code-block:: python
@@ -502,18 +520,23 @@ class RuleSet:
         :exc:`ValueError`.
 
         """
-        elems = cls.__name__.split("_")
+        rule_name_match = self.valid_rule_name_regex.match(cls.__name__)
         # Validate the name
-        if len(elems) != 2 or elems[0] != "Rule" or len(elems[1]) != 4:
+        if not rule_name_match:
             raise ValueError(
                 (
-                    "Tried to register rule on set {0!r} with unexpected " "format: {1}"
+                    "Tried to register rule on set {0!r} with unexpected "
+                    "format: {1}, format should be: Rule_PluginName_L123 (for plugins) "
+                    "or Rule_L123 (for core rules)."
                 ).format(self.name, cls.__name__)
             )
 
-        code = elems[1]
+        plugin_name, code = rule_name_match.groups()
         # If the docstring is multiline, then we extract just summary.
         description = cls.__doc__.split("\n")[0]
+
+        if plugin_name:
+            code = f"{plugin_name}_{code}"
 
         # Keep track of the *class* in the register. Don't instantiate yet.
         if code in self._register:

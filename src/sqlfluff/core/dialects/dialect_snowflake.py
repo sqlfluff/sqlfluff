@@ -8,6 +8,7 @@ Based on https://docs.snowflake.com/en/sql-reference-commands.html
 from sqlfluff.core.dialects.dialect_postgres import postgres_dialect
 from sqlfluff.core.dialects.dialect_ansi import (
     SelectClauseSegment as ansi_SelectClauseSegment,
+    StatementSegment as ansi_StatementSegment,
 )
 from sqlfluff.core.parser import (
     BaseSegment,
@@ -58,6 +59,7 @@ snowflake_dialect.sets("unreserved_keywords").update(
         "BLOCK",
         "HISTORY",
         "LATERAL",
+        "NETWORK",
         "PIPE",
         "PIPES",
         "REGIONS",
@@ -71,7 +73,6 @@ snowflake_dialect.sets("reserved_keywords").update(
     [
         "CLONE",
         "MASKING",
-        "NETWORK",
         "NOTIFICATION",
         "PIVOT",
         "SAMPLE",
@@ -113,7 +114,10 @@ snowflake_dialect.replace(
     FunctionContentsExpressionGrammar=OneOf(
         Ref("DatetimeUnitSegment"),
         Ref("NamedParameterExpressionSegment"),
-        Ref("ExpressionSegment"),
+        Sequence(
+            Ref("ExpressionSegment"),
+            Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
+        ),
     ),
     JoinLikeClauseGrammar=Sequence(
         OneOf(
@@ -133,13 +137,13 @@ snowflake_dialect.replace(
     PostFunctionGrammar=Sequence(
         Ref("WithinGroupClauseSegment", optional=True),
         Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
-        Ref("OverClauseSegment"),
+        Ref("OverClauseSegment", optional=True),
     ),
 )
 
 
 @snowflake_dialect.segment(replace=True)
-class StatementSegment(BaseSegment):
+class StatementSegment(ansi_StatementSegment):
     """A generic segment, to any of its child subsegments."""
 
     type = "statement"
@@ -386,6 +390,9 @@ class SelectStatementSegment(ansi_SelectClauseSegment):
 
     parse_grammar = Sequence(
         Ref("SelectClauseSegment"),
+        # Dedent for the indent in the select clause.
+        # It's here so that it can come AFTER any whitespace.
+        Dedent,
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
         Ref("GroupByClauseSegment", optional=True),

@@ -79,23 +79,23 @@ file:
           main_table_expression:
             table_reference:
               identifier: foo
-        join_clause:
-        - keyword: left
-        - keyword: join
-        - table_expression:
-            main_table_expression:
-              table_reference:
-                identifier: bar
-        - join_on_condition:
-            keyword: 'on'
-            expression:
-            - column_reference:
-              - identifier: bar
-              - dot: .
-              - identifier: foo_id
-            - comparison_operator: '='
-            - column_reference:
-              - identifier: foo
-              - dot: .
-              - identifier: foo_id
+          join_clause:
+          - keyword: left
+          - keyword: join
+          - table_expression:
+              main_table_expression:
+                table_reference:
+                  identifier: bar
+          - join_on_condition:
+              keyword: 'on'
+              expression:
+              - column_reference:
+                - identifier: bar
+                - dot: .
+                - identifier: foo_id
+              - comparison_operator: '='
+              - column_reference:
+                - identifier: foo
+                - dot: .
+                - identifier: foo_id
 - statement_terminator: ;

@@ -1,0 +1,5 @@
+select a
+/*
+)
+*/
+from b
