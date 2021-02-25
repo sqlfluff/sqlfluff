@@ -1,0 +1,19 @@
+"""Test using sqlfluff to extract elements of queries."""
+
+import pytest
+
+import sqlfluff
+
+
+def test__api__info_dialects():
+    """Basic linting of dialects."""
+    dialects = sqlfluff.dialects()
+    assert isinstance(dialects, list)
+    assert ("ansi", "ansi", "nothing") in dialects
+
+
+def test__api__info_rules():
+    """Basic linting of dialects."""
+    rules = sqlfluff.rules()
+    assert isinstance(rules, list)
+    assert ("L001", "Unnecessary trailing whitespace.") in rules

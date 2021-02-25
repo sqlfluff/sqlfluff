@@ -46,6 +46,13 @@ from sqlfluff.core.rules.base import BaseCrawler
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
 
 
+class RuleTuple(NamedTuple):
+    """Rule Tuple object for describing rules."""
+
+    code: str
+    description: str
+
+
 class ProtoFile(NamedTuple):
     """Proto object to be inherited by LintedFile."""
 
@@ -732,10 +739,10 @@ class Linter:
         cfg = config or self.config
         return rs.get_rulelist(config=cfg)
 
-    def rule_tuples(self) -> List[Tuple[str, str]]:
+    def rule_tuples(self) -> List[RuleTuple]:
         """A simple pass through to access the rule tuples of the rule set."""
         rs = self.get_ruleset()
-        return [(rule.code, rule.description) for rule in rs]
+        return [RuleTuple(rule.code, rule.description) for rule in rs]
 
     def parse_string(
         self,
