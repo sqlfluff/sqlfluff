@@ -12,7 +12,7 @@ for the rule itself, with all the other mechanics abstracted away.
 Specific Rules
 --------------
 
-.. automodule:: sqlfluff.core.rules.std
+.. automodule:: sqlfluff.core.rules
    :members:
    :member-order: alphabetical
 
