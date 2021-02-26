@@ -85,6 +85,7 @@ class MetaSegment(RawSegment):
         with repairs.
         """
         self._raw = ""
+        self._raw_upper = ""
         # We strip the position marker, so that when fixing it's
         # skipped and not considered. If no position marker is given
         # then give it a fresh one - it will need to be realigned

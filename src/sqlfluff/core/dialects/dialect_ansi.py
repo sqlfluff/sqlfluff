@@ -822,6 +822,7 @@ class TableExpressionSegment(BaseSegment):
 
     type = "table_expression"
     match_grammar = Sequence(
+        Indent,
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OneOf(
             Ref("MainTableExpressionSegment"),
@@ -829,6 +830,11 @@ class TableExpressionSegment(BaseSegment):
         ),
         Ref("AliasExpressionSegment", optional=True),
         Ref("PostTableExpressionGrammar", optional=True),
+        Dedent.when(indented_joins=False),
+        AnyNumberOf(
+            Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar"), optional=True
+        ),
+        Dedent.when(indented_joins=True),
     )
 
     def get_eventual_alias(self) -> Optional[AliasInfo]:
@@ -1082,27 +1088,13 @@ class FromClauseSegment(BaseSegment):
     )
     parse_grammar = Sequence(
         "FROM",
-        Indent,
         Delimited(
             OneOf(
-                # Optional old school delimited joins
                 # check first for MLTableExpression, because of possible FunctionSegment in MainTableExpression
                 Ref("MLTableExpressionSegment"),
                 Ref("TableExpressionSegment"),
             ),
-            terminator=Ref("JoinClauseSegment"),
         ),
-        # NB: The JOIN clause is *part of* the FROM clause
-        # and so should be on a sub-indent of it. That isn't
-        # common practice however, so for now it will be assumed
-        # to be on the same level as the FROM clause. To change
-        # this behaviour, set the `indented_joins` config value
-        # to True.
-        Dedent.when(indented_joins=False),
-        AnyNumberOf(
-            Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar"), optional=True
-        ),
-        Dedent.when(indented_joins=True),
     )
 
     def get_eventual_aliases(self) -> List[Tuple[BaseSegment, AliasInfo]]:
@@ -1112,7 +1104,11 @@ class FromClauseSegment(BaseSegment):
         """
         buff = []
         direct_table_children = self.get_children("table_expression")
-        join_clauses = self.get_children("join_clause")
+        join_clauses = [
+            join_clause
+            for child in direct_table_children
+            for join_clause in child.get_children("join_clause")
+        ]
         # Iterate through the potential sources of aliases
         for clause in (*direct_table_children, *join_clauses):
             ref: AliasInfo = clause.get_eventual_alias()

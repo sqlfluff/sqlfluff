@@ -1,5 +1,7 @@
 """Contains SQL Dialects."""
 
+from typing import NamedTuple
+
 from sqlfluff.core.dialects.dialect_ansi import ansi_dialect
 from sqlfluff.core.dialects.dialect_bigquery import bigquery_dialect
 from sqlfluff.core.dialects.dialect_mysql import mysql_dialect
@@ -22,15 +24,23 @@ _dialect_lookup = {
 }
 
 
+class DialectTuple(NamedTuple):
+    """Dialect Tuple object for describing dialects."""
+
+    label: str
+    name: str
+    inherits_from: str
+
+
 def dialect_readout():
     """Generate a readout of available dialects."""
     for dialect_label in _dialect_lookup:
         d = _dialect_lookup[dialect_label]
-        yield {
-            "label": dialect_label,
-            "name": d.name,
-            "inherits_from": d.inherits_from or "nothing",
-        }
+        yield DialectTuple(
+            label=dialect_label,
+            name=d.name,
+            inherits_from=d.inherits_from or "nothing",
+        )
 
 
 def dialect_selector(s):
