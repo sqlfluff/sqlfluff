@@ -216,6 +216,21 @@ def test__parser__grammar_oneof(seg_list, allow_gaps):
         assert not g.match(seg_list[1:], parse_context=ctx)
 
 
+def test__parser__grammar_oneof_templated(seg_list):
+    """Test the OneOf grammar.
+
+    NB: Should behave the same regardless of code_only.
+
+    """
+    fs = KeywordSegment.make("foo")
+    bs = KeywordSegment.make("bar")
+    g = OneOf(fs, bs)
+    with RootParseContext(dialect=None) as ctx:
+        # This shouldn't match, but it *ALSO* shouldn't raise an exception.
+        # https://github.com/sqlfluff/sqlfluff/issues/780
+        assert not g.match(seg_list[5:], parse_context=ctx)
+
+
 def test__parser__grammar_oneof_exclude(seg_list):
     """Test the OneOf grammar exclude option."""
     fs = KeywordSegment.make("foo")
@@ -421,7 +436,7 @@ def test__parser__grammar_delimited(
         # Greedy matching up to baar should return bar, foo...
         ("baar", False, 3),
         # ... except if whitespace is required to preceed it
-        ("baar", True, 5),
+        ("baar", True, 6),
     ],
 )
 def test__parser__grammar_greedyuntil(

@@ -68,7 +68,9 @@ class _ProtoKeywordSegment(RawSegment):
             pos = segments[0].pos_marker
             raw_comp = raw.upper()
 
-            if cls._template == raw_comp:
+            # Is the target a match and IS IT CODE.
+            # The latter stops us accidentally matching comments.
+            if cls._template == raw_comp and segments[0].is_code:
                 m = (cls(raw=raw, pos_marker=pos),)  # Return as a tuple
                 return MatchResult(m, segments[1:])
         return MatchResult.from_unmatched(segments)

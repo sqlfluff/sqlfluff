@@ -1,9 +1,10 @@
 """Implementation of Rule L038."""
 
 from ..base import BaseCrawler, LintFix, LintResult
-from ..doc_decorators import document_fix_compatible
+from ..doc_decorators import document_fix_compatible, document_configuration
 
 
+@document_configuration
 @document_fix_compatible
 class Rule_L038(BaseCrawler):
     """Trailing commas within select clause.

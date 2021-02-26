@@ -109,5 +109,6 @@ setup(
             "sqlfluff = sqlfluff.cli.commands:cli",
         ],
         "diff_cover": ["sqlfluff = sqlfluff.diff_quality_plugin"],
+        "sqlfluff": ["sqlfluff = sqlfluff.core.plugin.lib"],
     },
 )

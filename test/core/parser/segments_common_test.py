@@ -2,23 +2,15 @@
 
 import pytest
 
-from sqlfluff.core.parser import (
-    FilePositionMarker,
-    RawSegment,
-    KeywordSegment,
-)
+from sqlfluff.core.parser import KeywordSegment
 from sqlfluff.core.parser.context import RootParseContext
 from sqlfluff.core.parser.segments import EphemeralSegment
 
 
 @pytest.fixture(scope="module")
-def raw_seg_list():
+def raw_seg_list(generate_test_segments):
     """A generic list of raw segments to test against."""
-    return [
-        RawSegment("bar", FilePositionMarker()),
-        RawSegment("foo", FilePositionMarker().advance_by("bar")),
-        RawSegment("bar", FilePositionMarker().advance_by("barfoo")),
-    ]
+    return generate_test_segments(["bar", "foo", "bar"])
 
 
 def test__parser__core_keyword(raw_seg_list):
