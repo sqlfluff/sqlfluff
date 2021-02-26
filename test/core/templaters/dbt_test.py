@@ -69,7 +69,7 @@ def test__templater_dbt_templating_result(
 
 @pytest.mark.dbt
 @pytest.mark.parametrize(
-    "raw_file,templated_file,result",
+    "test_raw_str,test_templated_str,test_slices,test_new_templated_str",
     [
         (
             "select * from a",
@@ -82,33 +82,75 @@ select * from a
             [
                 ("literal", slice(0, 15, None), slice(0, 15, None)),
             ],
-        )
+            "select * from a",
+        ),
+        (
+            """-- This is a thorough test
+
+-- NB This test is an excellent test
+select * from {{ ref('test__historics') }}
+where total_costs not between -100000000 and 100000000
+
+""",
+            """
+with dbt__CTE__INTERNAL_test as (
+-- This is a thorough test
+
+-- NB This test is an excellent test
+select * from analytics_test.test__historics
+where total_costs not between -100000000 and 100000000
+)select count(*) from dbt__CTE__INTERNAL_test""",
+            # The unwrapper should trim the ends. The below slices are the ones currently returned and are incorrect.
+            [
+                ("literal", slice(0, 79, None), slice(0, 79, None)),
+                ("templated", slice(79, 164, None), slice(79, 210, None)),
+            ],
+            # The slice_file function should remove the wrapped CTE part of the query, like so:
+            """-- This is a thorough test
+
+-- NB This test is an excellent test
+select * from analytics_test.test__historics
+where total_costs not between -100000000 and 100000000""",
+        ),
     ],
 )
 def test__templater_dbt_slice_file_wrapped_test(
-    raw_file, templated_file, result, caplog
+    test_raw_str, test_templated_str, test_slices, test_new_templated_str, caplog
 ):
     """Test that wrapped queries are sliced safely using _check_for_wrapped()."""
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.templater"):
-        _, resp, _ = DbtTemplater.slice_file(
-            raw_file,
-            templated_file,
+        _, slices, new_templated_str = DbtTemplater.slice_file(
+            test_raw_str,
+            test_templated_str,
         )
-    assert resp == result
+    assert slices == test_slices
+    assert new_templated_str == test_new_templated_str
 
 
 @pytest.mark.dbt
-def test__templater_dbt_templating_test_lex(in_dbt_project_dir, dbt_templater):  # noqa
-    """A test to demonstrate _tests_as_models works on dbt tests by temporarily making them models."""
+@pytest.mark.parametrize(
+    "fname,source_str,templated_str",
+    [
+        (
+            "tests/test.sql",
+            "select * from a",
+            "select * from a",
+        )
+    ],
+)
+def test__templater_dbt_templating_test_lex(
+    in_dbt_project_dir, dbt_templater, fname, source_str, templated_str
+):  # noqa
+    """A test to demonstrate that tests are stripped of their wrapped CTE before parsing."""
     lexer = Lexer(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
     templated_file, _ = dbt_templater.process(
         in_str="",
-        fname="tests/test.sql",
+        fname=fname,
         config=FluffConfig(configs=DBT_FLUFF_CONFIG),
     )
     tokens, lex_vs = lexer.lex(templated_file)
-    assert templated_file.source_str == "select * from a"
-    assert templated_file.templated_str == "select * from a"
+    assert templated_file.source_str == source_str
+    assert templated_file.templated_str == templated_str
 
 
 @pytest.mark.parametrize(
