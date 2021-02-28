@@ -712,7 +712,7 @@ class PythonTemplater(RawTemplater):
                 if bookmark_idx == 0:
                     # This is a SAFETY VALVE. In Theory we should never be here
                     # and if we are it implies an error elsewhere. This clause
-                    # should stop any potential infinite recursion in it's tracks
+                    # should stop any potential infinite recursion in its tracks
                     # by simply classifying the whole of the current block as
                     # templated and just stopping here.
                     # Bugs triggering this eventuality have been observed in 0.4.0.
