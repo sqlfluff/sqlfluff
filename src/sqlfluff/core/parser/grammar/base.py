@@ -631,6 +631,34 @@ class BaseGrammar(Matchable):
                 100,
             ),
         )
+    
+    def __eq__(self, other):
+        """Two grammars are equal if their elements and types are equal.
+
+        NOTE: This could potentially mean that two grammars with
+        the same elements but _different configuration_ will be
+        classed as the same. If this matters for your use case,
+        consider extending this function.
+        """
+        return self._elements == other._elements and type(self) == type(other)
+
+
+    def copy(self, insert: Optional[list]=None, at=-1):
+        """Create a copy of this grammar, optionally with differences.
+
+        This is mainly used in dialect inheritance.
+        """
+        # Copy only the *grammar* elements. The rest comes through
+        # as is.
+        new_elems = [
+            elem.copy() if isinstance(elem, BaseGrammar) else elem
+            for elem in self._elements
+        ]
+        if insert:
+            new_elems = new_elems[:at] + insert + new_elems[at:]
+        new_seg = copy.copy(self)
+        new_seg._elements = new_elems
+        return new_seg
 
 
 class Ref(BaseGrammar):

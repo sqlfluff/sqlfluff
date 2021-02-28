@@ -197,6 +197,26 @@ def test__parser__grammar__base__bracket_sensitive_look_ahead_match(
         assert match.matched_segments == (fs("foo", bracket_seg_list[8].pos_marker),)
 
 
+def test__parser__grammar__oneof__copy():
+    """Test grammar copying."""
+    fs = KeywordSegment.make("foo")
+    bs = KeywordSegment.make("bar")
+    g1 = OneOf(fs, bs)
+    # Check copy
+    g2 = g1.copy()
+    assert g1 == g2
+    assert g1 is not g2
+    # Check copy insert (start)
+    g3 = g1.copy(insert=[bs], at=0)
+    assert g3 == OneOf(bs, fs, bs)
+    # Check copy insert (mid)
+    g4 = g1.copy(insert=[bs], at=1)
+    assert g4 == OneOf(fs, bs, bs)
+    # Check copy insert (end)
+    g5 = g1.copy(insert=[bs], at=-1)
+    assert g5 == OneOf(fs, bs, bs)
+
+
 @pytest.mark.parametrize("allow_gaps", [True, False])
 def test__parser__grammar_oneof(seg_list, allow_gaps):
     """Test the OneOf grammar.
