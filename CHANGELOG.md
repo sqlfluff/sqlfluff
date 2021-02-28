@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed incorrect parsing of syntax-like elements in comments.
 - Altered parsing of `NULL` keywords, so parse as Literals where
   appropriate.
+- Fixed bug in expression parsing leading to recursion errors.
 
 ## [0.4.0] - 2021-02-14
 ### Added

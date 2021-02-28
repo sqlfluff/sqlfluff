@@ -18,7 +18,7 @@ class Rule_L039(BaseCrawler):
 
     | **Best practice**
     | Unless an indent or preceeding a comment, whitespace should
-    be a single space.
+    | be a single space.
 
     .. code-block::
 
