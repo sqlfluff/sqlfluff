@@ -47,7 +47,7 @@ setup(
     python_requires=">=3.6",
     keywords=["sqlfluff", "sql", "linter"],
     project_urls={
-        'Homepage': 'https://www.sqlfluff.com',
+        "Homepage": "https://www.sqlfluff.com",
         "Documentation": "https://docs.sqlfluff.com",
         "Source": "https://github.com/sqlfluff/sqlfluff",
     },
