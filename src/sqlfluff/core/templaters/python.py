@@ -723,9 +723,10 @@ class PythonTemplater(RawTemplater):
                     )
                     templater_logger.warning(
                         "        Python templater safety value unexpectedly triggered. "
-                        "Your query may be more conservatively sliced than expected. "
                         "Please report your raw and compiled query on github for debugging."
                     )
+                    # NOTE: If a bug is reported here, this will incorrectly
+                    # classify more of the query as "templated" than it should.
                     yield coalesced
                     continue
 
