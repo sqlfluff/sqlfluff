@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Macros defined within the .sqlfluff config will take precedence over the macros defined in the
   path that is defined with config value `sqlfluff:templater:jinja:load_macros_from_path`.
+- Fixed bug in expression parsing leading to recursion errors.
 
 ## [0.4.0] - 2021-02-14
 ### Added
