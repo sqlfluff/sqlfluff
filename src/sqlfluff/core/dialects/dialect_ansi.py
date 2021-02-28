@@ -1696,7 +1696,7 @@ class ColumnOptionSegment(BaseSegment):
             Ref("ObjectReferenceSegment"),  # Constraint name
             optional=True,
         ),
-        OneOf(
+        AnyNumberOf(
             Sequence(Ref.keyword("NOT", optional=True), "NULL"),  # NOT NULL or NULL
             Sequence(  # DEFAULT <value>
                 "DEFAULT",
@@ -1706,6 +1706,7 @@ class ColumnOptionSegment(BaseSegment):
             Ref("PrimaryKeyGrammar"),
             "UNIQUE",  # UNIQUE
             "AUTO_INCREMENT",  # AUTO_INCREMENT (MySQL)
+            "UNSIGNED",  # UNSIGNED (MySQL)
             Sequence(  # REFERENCES reftable [ ( refcolumn) ]
                 "REFERENCES",
                 Ref("ColumnReferenceSegment"),
