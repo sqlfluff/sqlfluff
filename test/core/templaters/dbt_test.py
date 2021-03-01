@@ -90,7 +90,6 @@ select * from a
 -- NB This test is an excellent test
 select * from {{ ref('test__historics') }}
 where total_costs not between -100000000 and 100000000
-
 """,
             """
 with dbt__CTE__INTERNAL_test as (
@@ -100,17 +99,19 @@ with dbt__CTE__INTERNAL_test as (
 select * from analytics_test.test__historics
 where total_costs not between -100000000 and 100000000
 )select count(*) from dbt__CTE__INTERNAL_test""",
-            # The unwrapper should trim the ends. The below slices are the ones currently returned and are incorrect.
+            # The unwrapper should trim the ends.
             [
                 ("literal", slice(0, 79, None), slice(0, 79, None)),
-                ("templated", slice(79, 164, None), slice(79, 210, None)),
+                ("templated", slice(79, 107, None), slice(79, 109, None)),
+                ("literal", slice(107, 163, None), slice(109, 165, None)),
             ],
-            # The slice_file function should remove the wrapped CTE part of the query, like so:
+            # The slice_file function removes the wrapped CTE part of the query:
             """-- This is a thorough test
 
 -- NB This test is an excellent test
 select * from analytics_test.test__historics
-where total_costs not between -100000000 and 100000000""",
+where total_costs not between -100000000 and 100000000
+""",
         ),
     ],
     ids=[1,2]
