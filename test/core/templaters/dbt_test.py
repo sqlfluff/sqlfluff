@@ -113,6 +113,7 @@ select * from analytics_test.test__historics
 where total_costs not between -100000000 and 100000000""",
         ),
     ],
+    ids=[1,2]
 )
 def test__templater_dbt_slice_file_wrapped_test(
     test_raw_str, test_templated_str, test_slices, test_new_templated_str, caplog
