@@ -1696,7 +1696,7 @@ class ColumnOptionSegment(BaseSegment):
             Ref("ObjectReferenceSegment"),  # Constraint name
             optional=True,
         ),
-        AnyNumberOf(
+        OneOf(
             Sequence(Ref.keyword("NOT", optional=True), "NULL"),  # NOT NULL or NULL
             Sequence(  # DEFAULT <value>
                 "DEFAULT",
