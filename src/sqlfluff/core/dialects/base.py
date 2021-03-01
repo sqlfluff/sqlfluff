@@ -152,7 +152,7 @@ class Dialect:
                     "{0!r} is not already registered in {1!r}".format(n, self)
                 )
             self._library[n] = kwargs[n]
-    
+
     def get(self, name):
         """Allow access to elements pre-expansion.
 

@@ -8,7 +8,9 @@ Based on https://docs.snowflake.com/en/sql-reference-commands.html
 from sqlfluff.core.dialects.dialect_postgres import postgres_dialect
 from sqlfluff.core.dialects.dialect_ansi import (
     SelectClauseSegment as ansi_SelectClauseSegment,
+    SelectStatementSegment as ansi_SelectStatementSegment,
     StatementSegment as ansi_StatementSegment,
+    SelectClauseModifierSegment as ansi_SelectClauseModifierSegment,
 )
 from sqlfluff.core.parser import (
     BaseSegment,
@@ -25,7 +27,6 @@ from sqlfluff.core.parser import (
     StartsWith,
     Indent,
     Dedent,
-    GreedyUntil,
 )
 
 
@@ -146,28 +147,23 @@ snowflake_dialect.replace(
 class StatementSegment(ansi_StatementSegment):
     """A generic segment, to any of its child subsegments."""
 
-    type = "statement"
-    match_grammar = GreedyUntil(Ref("SemicolonSegment"))
-
-    parse_grammar = OneOf(
-        Ref("SelectableGrammar"),
-        Ref("InsertStatementSegment"),
-        Ref("TransactionStatementSegment"),
-        Ref("DropStatementSegment"),
-        Ref("AccessStatementSegment"),
-        Ref("CreateTableStatementSegment"),
-        Ref("AlterTableStatementSegment"),
-        Ref("CreateViewStatementSegment"),
-        Ref("DeleteStatementSegment"),
-        Ref("UpdateStatementSegment"),
-        Ref("CreateModelStatementSegment"),
-        Ref("DropModelStatementSegment"),
-        Ref("UseStatementSegment"),
-        Ref("CreateStatementSegment"),
-        Ref("CreateCloneStatementSegment"),
-        Ref("ShowStatementSegment"),
+    parse_grammar = ansi_StatementSegment.parse_grammar.copy(
+        insert=[
+            Ref("UseStatementSegment"),
+            Ref("CreateStatementSegment"),
+            Ref("CreateCloneStatementSegment"),
+            Ref("ShowStatementSegment"),
+        ],
+        remove=[
+            Ref("CreateTypeStatementSegment"),
+            Ref("CreateExtensionStatementSegment"),
+            Ref("CreateIndexStatementSegment"),
+            Ref("DropIndexStatementSegment"),
+            Ref("CreateFunctionStatementSegment"),
+        ],
     )
 
+print(StatementSegment.parse_grammar)
 
 @snowflake_dialect.segment()
 class TableAliasExpressionSegment(BaseSegment):
@@ -327,19 +323,13 @@ class SemiStructuredAccessorSegment(BaseSegment):
 
 
 @snowflake_dialect.segment(replace=True)
-class SelectClauseModifierSegment(BaseSegment):
+class SelectClauseModifierSegment(ansi_SelectClauseModifierSegment):
     """Things that come after SELECT but before the columns.
 
     In snowflake we go back to similar functionality as the ANSI
     version in the root dialect, without the things added in
     postgres.
     """
-
-    type = "select_clause_modifier"
-    match_grammar = OneOf(
-        "DISTINCT",
-        "ALL",
-    )
 
 
 @snowflake_dialect.segment()
@@ -371,7 +361,7 @@ class QualifyClauseSegment(BaseSegment):
 
 
 @snowflake_dialect.segment(replace=True)
-class SelectStatementSegment(ansi_SelectClauseSegment):
+class SelectStatementSegment(ansi_SelectStatementSegment):
     """A snowflake `SELECT` statement including optional Qualify.
 
     https://docs.snowflake.com/en/sql-reference/constructs/qualify.html
@@ -388,18 +378,9 @@ class SelectStatementSegment(ansi_SelectClauseSegment):
         terminator=Ref("SetOperatorSegment"),
     )
 
-    parse_grammar = Sequence(
-        Ref("SelectClauseSegment"),
-        # Dedent for the indent in the select clause.
-        # It's here so that it can come AFTER any whitespace.
-        Dedent,
-        Ref("FromClauseSegment", optional=True),
-        Ref("WhereClauseSegment", optional=True),
-        Ref("GroupByClauseSegment", optional=True),
-        Ref("HavingClauseSegment", optional=True),
-        Ref("QualifyClauseSegment", optional=True),
-        Ref("OrderByClauseSegment", optional=True),
-        Ref("LimitClauseSegment", optional=True),
+    parse_grammar = ansi_SelectStatementSegment.parse_grammar.copy(
+        insert=[Ref("QualifyClauseSegment", optional=True)],
+        before=Ref("OrderByClauseSegment", optional=True),
     )
 
 

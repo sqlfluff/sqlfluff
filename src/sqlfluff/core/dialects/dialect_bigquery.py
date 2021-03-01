@@ -167,10 +167,7 @@ bigquery_dialect.replace(
     ),
     # Add two elements to the ansi LiteralGrammar
     LiteralGrammar=ansi_dialect.get("LiteralGrammar").copy(
-        insert=[
-            Ref("DoubleQuotedLiteralSegment"),
-            Ref("LiteralCoercionSegment")
-        ]
+        insert=[Ref("DoubleQuotedLiteralSegment"), Ref("LiteralCoercionSegment")]
     ),
     PostTableExpressionGrammar=Sequence(
         Sequence(

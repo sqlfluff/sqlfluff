@@ -27,7 +27,7 @@ def get_rules_from_path(
             )
         except AttributeError as e:
             raise AttributeError(
-                "Rule classes must be named in the format of L*."
+                f"Rule classes must be named in the format of Rule_L*. [{rule_class_name}]"
             ) from e
         # Add the rules to the rules dictionary for sqlfluff/src/sqlfluff/core/rules/__init__.py
         rules.append(rule_class)

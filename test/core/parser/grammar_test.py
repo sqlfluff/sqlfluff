@@ -16,6 +16,7 @@ from sqlfluff.core.parser.grammar import (
     StartsWith,
     Anything,
     Nothing,
+    Ref
 )
 
 # NB: All of these tests depend somewhat on the KeywordSegment working as planned
@@ -195,6 +196,22 @@ def test__parser__grammar__base__bracket_sensitive_look_ahead_match(
         assert matcher == fs
         # We shouldn't match the whitespace with the keyword
         assert match.matched_segments == (fs("foo", bracket_seg_list[8].pos_marker),)
+
+
+def test__parser__grammar__ref_eq():
+    """Test equality of Ref Grammars."""
+    r1 = Ref("foo")
+    r2 = Ref("foo")
+    assert r1 is not r2
+    assert r1 == r2
+    check_list = [1, 2, r2, 3]
+    # Check we can find it in lists
+    assert r1 in check_list
+    # Check we can get it's position
+    assert check_list.index(r1) == 2
+    # Check we can remove it from a list
+    check_list.remove(r1)
+    assert r1 not in check_list
 
 
 def test__parser__grammar__oneof__copy():

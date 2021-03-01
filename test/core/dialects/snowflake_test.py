@@ -10,7 +10,10 @@ from sqlfluff.core.dialects.dialect_snowflake import (
     CreateCloneStatementSegment,
     ShowStatementSegment,
 )
-from sqlfluff.core.dialects.dialect_ansi import AccessStatementSegment
+from sqlfluff.core.dialects.dialect_ansi import (
+    AccessStatementSegment,
+    CreateDatabaseStatementSegment
+)
 
 
 @pytest.mark.parametrize(
@@ -25,8 +28,8 @@ from sqlfluff.core.dialects.dialect_ansi import AccessStatementSegment
         (UseStatementSegment, 'USE "MY_DATABASE"."MY_SCHEMA";'),
         (CreateStatementSegment, "CREATE ROLE MY_ROLE;"),
         (CreateStatementSegment, 'CREATE ROLE "my_role";'),
-        (CreateStatementSegment, "CREATE DATABASE MY_DATABASE;"),
-        (CreateStatementSegment, "CREATE DATABASE IF NOT EXISTS MY_DATABASE;"),
+        (CreateDatabaseStatementSegment, "CREATE DATABASE MY_DATABASE;"),
+        (CreateDatabaseStatementSegment, "CREATE DATABASE IF NOT EXISTS MY_DATABASE;"),
         (
             CreateCloneStatementSegment,
             "create schema mytestschema_clone_restore clone testschema;",

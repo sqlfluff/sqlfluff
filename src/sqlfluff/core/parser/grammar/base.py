@@ -1,7 +1,7 @@
 """Base grammar, Ref, Anything and Nothing."""
 
 import copy
-from typing import List, NamedTuple, Optional, Union, Type, Tuple
+from typing import List, NamedTuple, Optional, Union, Type, Tuple, Any
 
 from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.string_helpers import curtail_string
@@ -119,7 +119,7 @@ class BaseGrammar(Matchable):
             for elem in args:
                 self._elements.append(self._resolve_ref(elem))
         else:
-            self._elements = args
+            self._elements = list(args)
 
         # Now we deal with the standard kwargs
         self.allow_gaps = allow_gaps
@@ -631,7 +631,7 @@ class BaseGrammar(Matchable):
                 100,
             ),
         )
-    
+
     def __eq__(self, other):
         """Two grammars are equal if their elements and types are equal.
 
@@ -642,13 +642,18 @@ class BaseGrammar(Matchable):
         """
         return type(self) is type(other) and self._elements == other._elements
 
-
-    def copy(self, insert: Optional[list]=None, at: Optional[int]=None):
+    def copy(
+        self,
+        insert: Optional[list] = None,
+        at: Optional[int] = None,
+        before: Optional[Any] = None,
+        remove: Optional[list] = None,
+    ):
         """Create a copy of this grammar, optionally with differences.
 
         This is mainly used in dialect inheritance.
 
-        
+
         Args:
             insert (:obj:`list`, optional): Matchable elements to
                 insert. This is inserted pre-expansion so can include
@@ -656,19 +661,51 @@ class BaseGrammar(Matchable):
             at (:obj:`int`, optional): The position in the elements
                 to insert the item. Defaults to `None` which means
                 insert at the end of the elements.
+            before (optional): An alternative to _at_ to determine the
+                position of an insertion. Using this inserts the elements
+                immediately before the position of this element.
+            remove (:obj:`list`, optional): A list of individual
+                elements to remove from a grammar. Removal is done
+                *after* insertion so that order is preserved.
+                Elements are searched for individually.
 
         """
         # Copy only the *grammar* elements. The rest comes through
-        # as is.
+        # as is because they should just be classes rather than
+        # instances.
         new_elems = [
             elem.copy() if isinstance(elem, BaseGrammar) else elem
             for elem in self._elements
         ]
         if insert:
-            if at is None:
+            if at is not None and before is not None:
+                raise ValueError(
+                    "Cannot specify `at` and `before` in BaseGrammar.copy()."
+                )
+            if before is not None:
+                try:
+                    idx = new_elems.index(before)
+                except ValueError:
+                    raise ValueError(
+                        "Could not insert {0} in copy of {1}. {2} not Found.".format(
+                            insert, self, before
+                        )
+                    )
+                new_elems = new_elems[:idx] + insert + new_elems[idx:]
+            elif at is None:
                 new_elems = new_elems + insert
             else:
                 new_elems = new_elems[:at] + insert + new_elems[at:]
+        if remove:
+            for elem in remove:
+                try:
+                    new_elems.remove(elem)
+                except ValueError:
+                    raise ValueError(
+                        "Could not remove {0} from copy of {1}. Not Found.".format(
+                            elem, self
+                        )
+                    )
         new_seg = copy.copy(self)
         new_seg._elements = new_elems
         return new_seg
