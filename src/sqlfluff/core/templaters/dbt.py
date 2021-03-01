@@ -169,6 +169,12 @@ class DbtTemplater(JinjaTemplater):
                 "please install dbt dependencies through `pip install sqlfluff[dbt]`"
             ) from e
 
+    @staticmethod
+    def _error_on_crlf_line_endings(str):
+        """The dbt templater converts CRLF line endings to LF. This means that slicing fails unless the input line endings are LF."""
+        if "\r\n" in str:
+            raise(SQLTemplaterError("CRLF line endings detected in input file. LF line endings must be used with the dbt templater."))
+
     def process(self, *, fname, in_str=None, config=None):
         """Compile a dbt model and return the compiled SQL.
 
@@ -241,6 +247,8 @@ class DbtTemplater(JinjaTemplater):
             compiled_sql = node.injected_sql
         else:
             compiled_sql = node.compiled_sql
+
+        self._error_on_crlf_line_endings(node.raw_sql)
 
         if not compiled_sql:
             raise SQLTemplaterError(
