@@ -152,6 +152,13 @@ class Dialect:
                     "{0!r} is not already registered in {1!r}".format(n, self)
                 )
             self._library[n] = kwargs[n]
+    
+    def get(self, name):
+        """Allow access to elements pre-expansion.
+
+        This is typically for dialect inheritance.
+        """
+        return self._library[name]
 
     def ref(self, name):
         """Return an object which acts as a late binding reference to the element named.

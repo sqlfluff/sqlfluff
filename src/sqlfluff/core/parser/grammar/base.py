@@ -640,13 +640,23 @@ class BaseGrammar(Matchable):
         classed as the same. If this matters for your use case,
         consider extending this function.
         """
-        return self._elements == other._elements and type(self) == type(other)
+        return type(self) is type(other) and self._elements == other._elements
 
 
-    def copy(self, insert: Optional[list]=None, at=-1):
+    def copy(self, insert: Optional[list]=None, at: Optional[int]=None):
         """Create a copy of this grammar, optionally with differences.
 
         This is mainly used in dialect inheritance.
+
+        
+        Args:
+            insert (:obj:`list`, optional): Matchable elements to
+                insert. This is inserted pre-expansion so can include
+                unexpanded elements as normal.
+            at (:obj:`int`, optional): The position in the elements
+                to insert the item. Defaults to `None` which means
+                insert at the end of the elements.
+
         """
         # Copy only the *grammar* elements. The rest comes through
         # as is.
@@ -655,7 +665,10 @@ class BaseGrammar(Matchable):
             for elem in self._elements
         ]
         if insert:
-            new_elems = new_elems[:at] + insert + new_elems[at:]
+            if at is None:
+                new_elems = new_elems + insert
+            else:
+                new_elems = new_elems[:at] + insert + new_elems[at:]
         new_seg = copy.copy(self)
         new_seg._elements = new_elems
         return new_seg

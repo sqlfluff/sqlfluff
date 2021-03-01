@@ -26,13 +26,10 @@ mysql_dialect.replace(
     QuotedIdentifierSegment=NamedSegment.make(
         "back_quote", name="quoted_identifier", type="identifier", trim_chars=("`",)
     ),
-    LiteralGrammar=OneOf(
-        Ref("QuotedLiteralSegment"),
-        Ref("DoubleQuotedLiteralSegment"),
-        Ref("NumericLiteralSegment"),
-        Ref("BooleanLiteralGrammar"),
-        Ref("QualifiedNumericLiteralSegment"),
-        Ref("NullKeywordSegment"),
+    LiteralGrammar=ansi_dialect.get("LiteralGrammar").copy(
+        insert=[
+            Ref("DoubleQuotedLiteralSegment"),
+        ]
     ),
 )
 
