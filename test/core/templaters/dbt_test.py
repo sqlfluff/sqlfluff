@@ -114,7 +114,7 @@ where total_costs not between -100000000 and 100000000
 """,
         ),
     ],
-    ids=[1,2]
+    ids=[1, 2],
 )
 def test__templater_dbt_slice_file_wrapped_test(
     test_raw_str, test_templated_str, test_slices, test_new_templated_str, caplog
@@ -141,7 +141,7 @@ def test__templater_dbt_slice_file_wrapped_test(
     ],
 )
 def test__templater_dbt_templating_test_lex(
-    in_dbt_project_dir, dbt_templater, fname, source_str, templated_str # noqa
+    in_dbt_project_dir, dbt_templater, fname, source_str, templated_str  # noqa
 ):
     """A test to demonstrate that tests are stripped of their wrapped CTE before parsing."""
     lexer = Lexer(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
