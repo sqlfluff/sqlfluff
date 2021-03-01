@@ -28,6 +28,22 @@ def test__linter__path_from_paths__dir():
     }
 
 
+def test__linter__path_from_paths__default():
+    """Test .sql files are found by default."""
+    lntr = Linter()
+    paths = normalise_paths(lntr.paths_from_path("test/fixtures/linter"))
+    assert "test.fixtures.linter.passing.sql" in paths
+    assert "test.fixtures.linter.discovery_file.txt" not in paths
+
+
+def test__linter__path_from_paths__exts():
+    """Test configuration of file discovery."""
+    lntr = Linter(config=FluffConfig(overrides={"sql_file_exts": ".txt"}))
+    paths = normalise_paths(lntr.paths_from_path("test/fixtures/linter"))
+    assert "test.fixtures.linter.passing.sql" not in paths
+    assert "test.fixtures.linter.discovery_file.txt" in paths
+
+
 def test__linter__path_from_paths__file():
     """Test extracting paths from a file path."""
     lntr = Linter()
@@ -51,7 +67,7 @@ def test__linter__path_from_paths__not_exist_ignore():
 
 def test__linter__path_from_paths__explicit_ignore():
     """Test ignoring files that were passed explicitly."""
-    lntr = Linter(config=FluffConfig())
+    lntr = Linter()
     paths = lntr.paths_from_path(
         "test/fixtures/linter/sqlfluffignore/path_a/query_a.sql",
         ignore_non_existent_files=True,
