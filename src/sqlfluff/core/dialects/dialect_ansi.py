@@ -1195,10 +1195,10 @@ ansi_dialect.add(
                         )
                         # We need to add a lot more here...
                     ),
-                    Ref("Expression_A_Grammar"),
+                    Ref("Expression_C_Grammar"),
                     Sequence(
                         Ref.keyword("ESCAPE"),
-                        Ref("Expression_A_Grammar"),
+                        Ref("Expression_C_Grammar"),
                         optional=True,
                     ),
                 ),
