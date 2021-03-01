@@ -37,6 +37,8 @@ def get_configs_info() -> dict:
     }
 
 
+# These two decorators allow plugins
+# to be displayed in the sqlfluff docs
 @document_fix_compatible
 @document_configuration
 class Rule_Example_L001(BaseCrawler):
