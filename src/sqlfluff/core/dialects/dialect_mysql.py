@@ -8,7 +8,7 @@ from sqlfluff.core.parser import NamedSegment, Ref, AnyNumberOf, Sequence, OneOf
 
 from sqlfluff.core.dialects.dialect_ansi import (
     ansi_dialect,
-    CreateTableStatementSegment as ansi_CreateTableStatementSegment
+    CreateTableStatementSegment as ansi_CreateTableStatementSegment,
 )
 
 mysql_dialect = ansi_dialect.copy_as("mysql")
@@ -53,10 +53,7 @@ class CreateTableStatementSegment(ansi_CreateTableStatementSegment):
                     Ref.keyword("DEFAULT", optional=True),
                     Ref("ParameterNameSegment"),
                     Ref("EqualsSegment"),
-                    OneOf(
-                        Ref("LiteralGrammar"),
-                        Ref("ParameterNameSegment")
-                    ),
+                    OneOf(Ref("LiteralGrammar"), Ref("ParameterNameSegment")),
                 ),
             ),
         ],

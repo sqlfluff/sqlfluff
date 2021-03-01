@@ -7,7 +7,6 @@ Based on https://docs.snowflake.com/en/sql-reference-commands.html
 
 from sqlfluff.core.dialects.dialect_postgres import postgres_dialect
 from sqlfluff.core.dialects.dialect_ansi import (
-    SelectClauseSegment as ansi_SelectClauseSegment,
     SelectStatementSegment as ansi_SelectStatementSegment,
     StatementSegment as ansi_StatementSegment,
     SelectClauseModifierSegment as ansi_SelectClauseModifierSegment,
@@ -163,7 +162,6 @@ class StatementSegment(ansi_StatementSegment):
         ],
     )
 
-print(StatementSegment.parse_grammar)
 
 @snowflake_dialect.segment()
 class TableAliasExpressionSegment(BaseSegment):

@@ -16,7 +16,7 @@ from sqlfluff.core.parser.grammar import (
     StartsWith,
     Anything,
     Nothing,
-    Ref
+    Ref,
 )
 
 # NB: All of these tests depend somewhat on the KeywordSegment working as planned

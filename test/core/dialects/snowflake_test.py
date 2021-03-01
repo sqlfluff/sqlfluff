@@ -12,7 +12,7 @@ from sqlfluff.core.dialects.dialect_snowflake import (
 )
 from sqlfluff.core.dialects.dialect_ansi import (
     AccessStatementSegment,
-    CreateDatabaseStatementSegment
+    CreateDatabaseStatementSegment,
 )
 
 
