@@ -66,73 +66,81 @@ class Rule_L010(BaseCrawler):
             ):
             return LintResult(memory=memory)
         
-        raw = segment.raw
-
-        # Check if any cases can be refuted
-        if raw[0] != raw[0].upper():
+        # Which cases are definitely inconsistent with the segment?
+        if segment.raw[0] != segment.raw[0].upper():
             refuted_cases.update(["upper", "capitalise", "pascal"])
+            if segment.raw != segment.raw.lower():
+                refuted_cases.update(["lower"])
         else:
-            if raw != raw.upper():
-                refuted_cases.update(["upper"])
-            if raw != raw.capitalize():
-                refuted_cases.update(["capitalise"])
-            if not raw.isalnum():
-                refuted_cases.update(["pascal"])
-        if raw != raw.lower():
             refuted_cases.update(["lower"])
+            if segment.raw != segment.raw.upper():
+                refuted_cases.update(["upper"])
+            if segment.raw != segment.raw.capitalize():
+                refuted_cases.update(["capitalise"])
+            if not segment.raw.isalnum():
+                refuted_cases.update(["pascal"])
         
         # Update the memory
         memory["refuted_cases"] = refuted_cases
         
-        logging.debug(f"[L010] Refuted cases after segment '{raw}': {refuted_cases}")
-        
-        # Compute the new possible cases
-        possible_cases = [c for c in self._consistent_caps
-                          if c not in refuted_cases]
-        
-        logging.debug(f"[L010] Possible cases after segment '{raw}': {possible_cases}")
+        logging.debug(f"[L010] Refuted cases after segment '{segment.raw}': "
+                      f"{refuted_cases}")
         
         # Skip if no inconsistencies, otherwise compute a concrete policy
         # to convert to.
         if self.capitalisation_policy == "consistent":
+            possible_cases = [c for c in self._consistent_caps
+                              if c not in refuted_cases]
+            logging.debug(f"[L010] Possible cases after segment "
+                          f"'{segment.raw}': {possible_cases}")
             if possible_cases:
                 # Save the latest possible case
                 memory["latest_possible_case"] = possible_cases[0]
-                logging.debug(f"[L010] Consistent capitalization, returning with memory: {memory}")
+                logging.debug(f"[L010] Consistent capitalization, returning "
+                              f"with memory: {memory}")
                 return LintResult(memory=memory)
             else:
                 concrete_policy = memory.get("latest_possible_case", "upper")
-                logging.debug(f"[L010] Getting concrete policy '{concrete_policy}' from memory")
+                logging.debug(f"[L010] Getting concrete policy "
+                              f"'{concrete_policy}' from memory")
         else:
-            if self.capitalisation_policy in possible_cases:
-                logging.debug(f"[L010] Consistent capitalization {self.capitalisation_policy}, returning with memory: {memory}")
+            if self.capitalisation_policy not in refuted_cases:
+                logging.debug(f"[L010] Consistent capitalization "
+                              f"{self.capitalisation_policy}, returning with "
+                              f"memory: {memory}")
                 return LintResult(memory=memory)
             else:
                 concrete_policy = self.capitalisation_policy
-                logging.debug(f"[L010] Setting concrete policy '{concrete_policy}' from self.capitalisation_policy")
+                logging.debug(f"[L010] Setting concrete policy "
+                              f"'{concrete_policy}' from "
+                              f"self.capitalisation_policy")
         
         # If we got here, we need to change the case to the top possible case
         # Convert the raw to the concrete policy
         if concrete_policy == "lower":
-            fixed_raw = raw.lower()
+            fixed_raw = segment.raw.lower()
         elif concrete_policy == "upper":
-            fixed_raw = raw.upper()
+            fixed_raw = segment.raw.upper()
         elif concrete_policy == "capitalise":
-            fixed_raw = raw.capitalize()
+            fixed_raw = segment.raw.capitalize()
         elif concrete_policy == "pascal":
             fixed_raw = re.sub(
                 "([^a-zA-Z0-9]+|^)([a-zA-Z0-9])([a-zA-Z0-9]*)",
                 lambda match: match.group(2).upper() + match.group(3).lower(),
-                raw
+                segment.raw
             )
         
-        if fixed_raw == raw:
+        if fixed_raw == segment.raw:
             # No need to fix
-            logging.debug(f"[L010] Capitalisation of segment '{raw}' already consistent with policy '{concrete_policy}', returning with memory {memory}")
+            logging.debug(f"[L010] Capitalisation of segment '{segment.raw}' "
+                          f"already consistent with policy '{concrete_policy}'"
+                          f", returning with memory {memory}")
             return LintResult(memory=memory)
         else:
             # Return the fixed segment
-            logging.debug(f"[L010] INCONSISTENT Capitalisation of segment '{raw}', fixing to '{fixed_raw}' and returning with memory {memory}")
+            logging.debug(f"[L010] INCONSISTENT Capitalisation of segment "
+                          f"'{segment.raw}', fixing to '{fixed_raw}' and "
+                          f"returning with memory {memory}")
             return LintResult(
                 anchor=segment,
                 fixes=[
