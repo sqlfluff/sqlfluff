@@ -10,6 +10,22 @@ from sqlfluff.core.rules.doc_decorators import (
 from sqlfluff.core.rules.std.L010 import Rule_L010
 
 
+def unquoted_ids_policy_applicable(policy, parent_stack):
+    if policy == 'all':
+        return True
+    is_alias = parent_stack and parent_stack[-1].is_type(
+        "alias_expression",
+        "column_definition",
+        "with_compound_statement"
+    )
+    if policy == 'aliases' and is_alias:
+        return True
+    is_inside_from = any(p.is_type("from_clause") for p in parent_stack)
+    if policy == 'column_aliases' and is_alias and not is_inside_from:
+        return True
+    return False
+
+
 @document_configuration
 @document_fix_compatible
 class Rule_L014(Rule_L010):
@@ -19,21 +35,12 @@ class Rule_L014(Rule_L010):
     """
     
     _target_elems: List[Tuple[str, str]] = [("name", "naked_identifier")]
-    config_keywords = ["extended_capitalisation_policy", "only_aliases"]
+    config_keywords = ["extended_capitalisation_policy",
+                       "unquoted_identifiers_policy"]
 
     def _eval(self, segment, memory, parent_stack, **kwargs):
-        # If self.only_aliases is true, we're a bit pickier here
-        if (
-                self.only_aliases and (
-                    not parent_stack
-                    or not parent_stack[-1].is_type(
-                        # Skip aliases, column definition, and with statements
-                        "alias_expression",
-                        "column_definition",
-                        "with_compound_statement",
-                    )
-                )
-            ):
-            return LintResult(memory=memory)
-        else:
+        if unquoted_ids_policy_applicable(self.unquoted_identifiers_policy,
+                                          parent_stack):
             return super()._eval(segment, memory, parent_stack, **kwargs)
+        else:
+            return LintResult(memory=memory)

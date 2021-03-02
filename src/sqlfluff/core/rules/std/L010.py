@@ -104,7 +104,7 @@ class Rule_L010(BaseCrawler):
             self.logger.debug(f"Possible cases after segment "
                               f"'{segment.raw}': {possible_cases}")
             if possible_cases:
-                # Save the latest possible case
+                # Save the latest possible case and skip
                 memory["latest_possible_case"] = possible_cases[0]
                 self.logger.debug(f"Consistent capitalization, returning "
                                   f"with memory: {memory}")
@@ -115,6 +115,7 @@ class Rule_L010(BaseCrawler):
                                   f"'{concrete_policy}' from memory")
         else:
             if cap_policy not in refuted_cases:
+                # Skip
                 self.logger.debug(f"Consistent capitalization "
                                   f"{cap_policy}, returning with "
                                   f"memory: {memory}")
@@ -124,14 +125,21 @@ class Rule_L010(BaseCrawler):
                 self.logger.debug(f"Setting concrete policy "
                                   f"'{concrete_policy}' from cap_policy")
         
-        # If we got here, we need to change the case to the top possible case
-        # Convert the raw to the concrete policy
-        if concrete_policy == "lower":
-            fixed_raw = segment.raw.lower()
-        elif concrete_policy == "upper":
-            fixed_raw = segment.raw.upper()
-        elif concrete_policy == "capitalise":
-            fixed_raw = segment.raw.capitalize()
+        # We need to change the segment to match the concrete policy
+        if concrete_policy in ["upper", "lower", "capitalise"]:
+            if 'pascal' in cap_policy_opts and segment.raw[0].isupper():
+                # Insert undescores in transitions between lower and upper
+                fixed_raw = re.sub("(?<=[a-z0-9])(?=[A-Z])", '_', segment.raw)
+                self.logger.debug(f"Inserted underscores: {fixed_raw}")
+            else:
+                fixed_raw = segment.raw
+            
+            if concrete_policy == "upper":
+                fixed_raw = fixed_raw.upper()
+            elif concrete_policy == "lower":
+                fixed_raw = fixed_raw.lower()
+            elif concrete_policy == "capitalise":
+                fixed_raw = fixed_raw.capitalize()
         elif concrete_policy == "pascal":
             fixed_raw = re.sub(
                 "([^a-zA-Z0-9]+|^)([a-zA-Z0-9])([a-zA-Z0-9]*)",

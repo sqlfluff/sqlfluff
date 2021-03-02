@@ -6,7 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+
+ - `pascal` (PascalCase) `capitalisation_policy` option for L014 (unquoted identifiers)
+ - `only_aliases` configuration option for L014 (unquoted identifers)
+
 ### Changed
+
+ - Renamed `capitalisation_policy` to `extended_capitalisation_policy` for L014 to reflect the fact that it now
+   accepts more options (`pascal`) than regular `capitalisation_policy` still used by L010 and others.
+ - Replaced `only_aliases` config with `unquoted_identifiers_policy` and added it to rule L014 in addition to L029.
 
 ## [0.4.1] - 2021-02-25
 ### Added

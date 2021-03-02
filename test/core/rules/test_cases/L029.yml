@@ -10,13 +10,29 @@ test_3:
   fail_str: SELECT 1 as parameter
 
 test_4:
+  fail_str: SELECT x FROM tbl AS parameter
+
+test_5:
   # should pass on default config as not alias
   pass_str: SELECT parameter
 
-test_5:
+test_6:
   fail_str: SELECT parameter
-
   configs:
     rules:
       L029:
-        only_aliases: false
+        unquoted_identifiers_policy: all
+
+test_7:
+  pass_str: SELECT x FROM tbl AS parameter
+  configs:
+    rules:
+      L029:
+        unquoted_identifiers_policy: column_aliases
+
+test_8:
+  fail_str: SELECT x AS date FROM tbl AS parameter
+  configs:
+    rules:
+      L029:
+        unquoted_identifiers_policy: column_aliases
