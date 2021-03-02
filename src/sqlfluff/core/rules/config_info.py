@@ -43,7 +43,7 @@ STANDARD_CONFIG_INFO_DICT = {
         "definition": "The expectation for references in single-table select",
     },
     "unquoted_identifiers_policy": {
-        "validation": ['all', 'aliases', 'column_aliases'],
+        "validation": ["all", "aliases", "column_aliases"],
         "definition": "Types of unquoted identifiers to flag violations for",
     },
     "capitalisation_policy": {
@@ -54,7 +54,7 @@ STANDARD_CONFIG_INFO_DICT = {
         "validation": ["consistent", "upper", "lower", "pascal", "capitalise"],
         "definition": (
             "The capitalisation policy to enforce, extended with more choices"
-            ),
+        ),
     },
     "lint_templated_tokens": {
         "validation": [True, False],
@@ -66,8 +66,7 @@ STANDARD_CONFIG_INFO_DICT = {
     "select_clause_trailing_comma": {
         "validation": ["forbid", "require"],
         "definition": (
-            "Should trailing commas within select clauses be required or "
-            "forbidden"
+            "Should trailing commas within select clauses be required or forbidden"
         ),
     },
     "ignore_comment_lines": {

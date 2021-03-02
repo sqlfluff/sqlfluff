@@ -35,16 +35,12 @@ class Rule_L029(BaseCrawler):
     def _eval(self, segment, dialect, parent_stack, **kwargs):
         """Keywords should not be used as identifiers."""
         if (
-                segment.name == "naked_identifier"
-                and unquoted_ids_policy_applicable(
-                        self.unquoted_identifiers_policy,
-                        parent_stack
-                    )
-                and (
-                    segment.raw.upper()
-                    in dialect.sets("unreserved_keywords")
-                )
-            ):
+            segment.name == "naked_identifier"
+            and unquoted_ids_policy_applicable(
+                self.unquoted_identifiers_policy, parent_stack
+            )
+            and (segment.raw.upper() in dialect.sets("unreserved_keywords"))
+        ):
             return LintResult(anchor=segment)
         else:
             return None
