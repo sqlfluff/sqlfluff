@@ -10,6 +10,9 @@ setup(
     package_dir={"": "src"},
     packages=find_packages(where="src"),
     install_requires="sqlfluff>=0.4.0",
-    entry_points={"sqlfluff": ["{plugin_name} = {plugin_name}.rules".format(
-        plugin_name=PLUGIN_NAME)]},
+    entry_points={
+        "sqlfluff": [
+            "{plugin_name} = {plugin_name}.rules".format(plugin_name=PLUGIN_NAME)
+        ]
+    },
 )
