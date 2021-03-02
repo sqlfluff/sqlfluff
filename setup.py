@@ -47,8 +47,7 @@ setup(
     python_requires=">=3.6",
     keywords=["sqlfluff", "sql", "linter"],
     project_urls={
-        # Homepage not ready yet.
-        # 'Homepage': 'https://www.sqlfluff.com'
+        "Homepage": "https://www.sqlfluff.com",
         "Documentation": "https://docs.sqlfluff.com",
         "Source": "https://github.com/sqlfluff/sqlfluff",
     },
@@ -57,7 +56,7 @@ setup(
     include_package_data=True,
     classifiers=[
         # complete classifier list: http://pypi.python.org/pypi?%3Aaction=list_classifiers
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         # 'Development Status :: 5 - Production/Stable',
         "Environment :: Console",
         "Intended Audience :: Developers",

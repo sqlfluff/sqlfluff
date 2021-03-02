@@ -8,8 +8,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 
+## [0.4.1] - 2021-02-25
+### Added
+
+- Initial architecture for rule plugins to allow custom rules. This
+  initial release should be considered *beta* until the release of
+  0.5.0.
+- Add tests for dbt 0.19.0.
+- General increased parsing coverage.
+- Added some missing Postgres syntax elements.
+- Added some basic introspection API elements to output what dialects
+  and rules are available for use within the API.
+
+### Changed
+
+- Fix several Snowflake parsing bugs.
+- Refactor from clause to handle flattens after joins.
+- Fix .get_table_references() in Snowflake dialect.
 - Macros defined within the .sqlfluff config will take precedence over the macros defined in the
   path that is defined with config value `sqlfluff:templater:jinja:load_macros_from_path`.
+- Fix Snowflake indent parsing.
+- Fixed incorrect parsing of syntax-like elements in comments.
+- Altered parsing of `NULL` keywords, so parse as Literals where
+  appropriate.
+- Fixed bug in expression parsing leading to recursion errors.
 
 ## [0.4.0] - 2021-02-14
 ### Added
@@ -77,7 +99,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Fixed parsing of semi-structured objects in the snowflake of dialects
-  with whitespace gaps. [#634](https://github.com/sqlfluff/sqlfluff/issues/635) 
+  with whitespace gaps. [#634](https://github.com/sqlfluff/sqlfluff/issues/635)
 - Handle internal errors elegantly, reporting the stacktrace and the
   error-surfacing file. [#632](https://github.com/sqlfluff/sqlfluff/pull/632)
 - Improve message for when an automatic fix is not available for L004. [#633](https://github.com/sqlfluff/sqlfluff/issues/633)
