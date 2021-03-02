@@ -1,5 +1,6 @@
 """Implementation of Rule L010."""
 
+import logging
 import re
 from typing import Tuple, List, Set
 from sqlfluff.core.rules.base import BaseCrawler, LintResult, LintFix
@@ -45,6 +46,7 @@ class Rule_L010(BaseCrawler):
         ("type", "keyword"),
         ("type", "binary_operator"),
     ]
+    _consistent_caps = ["lower", "upper", "capitalise"]
     config_keywords = ["capitalisation_policy"]
 
     def _eval(self, segment, memory, **kwargs):
@@ -69,23 +71,26 @@ class Rule_L010(BaseCrawler):
         # Check if any cases can be refuted
         if raw[0] != raw[0].upper():
             refuted_cases.update(["upper", "capitalise", "pascal"])
-        elif not raw.isalnum():
-            refuted_cases.update(["pascal"])
-        
+        else:
+            if raw != raw.upper():
+                refuted_cases.update(["upper"])
+            if raw != raw.capitalize():
+                refuted_cases.update(["capitalise"])
+            if not raw.isalnum():
+                refuted_cases.update(["pascal"])
         if raw != raw.lower():
             refuted_cases.update(["lower"])
         
-        # Compute the new possible cases
-        possible_cases = [
-            c for c in (
-                get_config_info()["capitalisation_policy"]
-                ["validation"]
-            )
-            if c not in ["consitent", *refuted_cases]
-        ]
-        
         # Update the memory
         memory["refuted_cases"] = refuted_cases
+        
+        logging.debug(f"[L010] Refuted cases after segment '{raw}': {refuted_cases}")
+        
+        # Compute the new possible cases
+        possible_cases = [c for c in self._consistent_caps
+                          if c not in refuted_cases]
+        
+        logging.debug(f"[L010] Possible cases after segment '{raw}': {possible_cases}")
         
         # Skip if no inconsistencies, otherwise compute a concrete policy
         # to convert to.
@@ -93,11 +98,13 @@ class Rule_L010(BaseCrawler):
             if possible_cases:
                 # Save the latest possible case
                 memory["latest_possible_case"] = possible_cases[0]
+                logging.debug(f"[L010] Consistent capitalization, returning with memory: {memory}")
                 return LintResult(memory=memory)
             else:
                 concrete_policy = memory.get("latest_possible_case", "upper")
         else:
             if self.capitalisation_policy in possible_cases:
+                logging.debug(f"[L010] Consistent capitalization {self.capitalisation_policy}, returning with memory: {memory}")
                 return LintResult(memory=memory)
             else:
                 concrete_policy = self.capitalisation_policy
@@ -112,23 +119,29 @@ class Rule_L010(BaseCrawler):
             fixed_raw = raw.capitalize()
         elif concrete_policy == "pascal":
             fixed_raw = re.sub(
-                '([^a-zA-Z0-9]+|^)([a-zA-Z0-9])',
+                "([^a-zA-Z0-9]+|^)([a-zA-Z0-9])",
                 lambda match: match.group(2).upper(),
                 raw
             )
-    
-        # Return the fixed segment
-        return LintResult(
-            anchor=segment,
-            fixes=[
-                LintFix(
-                    "edit",
-                    segment,
-                    segment.__class__(
-                        raw=fixed_raw,
-                        pos_marker=segment.pos_marker
+        
+        if fixed_raw == raw:
+            # No need to fix
+            logging.debug(f"[L010] Capitalisation of segment '{raw}' already consistent with policy '{concrete_policy}', returning with memory {memory}")
+            return LintResult(memory=memory)
+        else:
+            # Return the fixed segment
+            logging.debug(f"[L010] INCONSISTENT Capitalisation of segment '{raw}', fixing to '{fixed_raw}' and returning with memory {memory}")
+            return LintResult(
+                anchor=segment,
+                fixes=[
+                    LintFix(
+                        "edit",
+                        segment,
+                        segment.__class__(
+                            raw=fixed_raw,
+                            pos_marker=segment.pos_marker
+                        )
                     )
-                )
-            ],
-            memory=memory,
-        )
+                ],
+                memory=memory,
+            )
