@@ -16,5 +16,6 @@ class Rule_L014(Rule_L010):
 
     The functionality for this rule is inherited from :obj:`Rule_L010`.
     """
-
+    
     _target_elems: List[Tuple[str, str]] = [("name", "naked_identifier")]
+    _consistent_caps: List[str] = ["upper", "lower", "capitalise", "pascal"]

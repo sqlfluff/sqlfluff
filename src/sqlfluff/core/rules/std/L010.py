@@ -2,7 +2,7 @@
 
 import logging
 import re
-from typing import Tuple, List, Set
+from typing import Tuple, List
 from sqlfluff.core.rules.base import BaseCrawler, LintResult, LintFix
 from sqlfluff.core.rules.config_info import get_config_info
 from sqlfluff.core.rules.doc_decorators import (
@@ -46,7 +46,7 @@ class Rule_L010(BaseCrawler):
         ("type", "keyword"),
         ("type", "binary_operator"),
     ]
-    _consistent_caps = ["lower", "upper", "capitalise"]
+    _consistent_caps: List[str] = ["upper", "lower", "capitalise"]
     config_keywords = ["capitalisation_policy"]
 
     def _eval(self, segment, memory, **kwargs):
@@ -102,12 +102,14 @@ class Rule_L010(BaseCrawler):
                 return LintResult(memory=memory)
             else:
                 concrete_policy = memory.get("latest_possible_case", "upper")
+                logging.debug(f"[L010] Getting concrete policy '{concrete_policy}' from memory")
         else:
             if self.capitalisation_policy in possible_cases:
                 logging.debug(f"[L010] Consistent capitalization {self.capitalisation_policy}, returning with memory: {memory}")
                 return LintResult(memory=memory)
             else:
                 concrete_policy = self.capitalisation_policy
+                logging.debug(f"[L010] Setting concrete policy '{concrete_policy}' from self.capitalisation_policy")
         
         # If we got here, we need to change the case to the top possible case
         # Convert the raw to the concrete policy
@@ -119,8 +121,8 @@ class Rule_L010(BaseCrawler):
             fixed_raw = raw.capitalize()
         elif concrete_policy == "pascal":
             fixed_raw = re.sub(
-                "([^a-zA-Z0-9]+|^)([a-zA-Z0-9])",
-                lambda match: match.group(2).upper(),
+                "([^a-zA-Z0-9]+|^)([a-zA-Z0-9])([a-zA-Z0-9]*)",
+                lambda match: match.group(2).upper() + match.group(3).lower(),
                 raw
             )
         

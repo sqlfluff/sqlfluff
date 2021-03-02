@@ -18,3 +18,72 @@ test_4:
 test_5:
   # Test that NULL is classed as a keyword and not an identifier
   pass_str: SELECT NULL,   a
+
+# PascalCase tests are based on this comment by @alanmcruickshank:
+# https://github.com/sqlfluff/sqlfluff/issues/820#issuecomment-787050507
+test_pascal_1:
+  pass_str: SELECT PascalCase
+  configs:
+    rules:
+      L014:
+        capitalisation_policy: pascal
+
+test_pascal_2:
+  pass_str: SELECT Pascalcase
+  configs:
+    rules:
+      L014:
+        capitalisation_policy: pascal
+
+test_pascal_3:
+  fail_str: SELECT pascalCase
+  fix_str: SELECT Pascalcase
+  configs:
+    rules:
+      L014:
+        capitalisation_policy: pascal
+
+test_pascal_4:
+  pass_str: SELECT PasCalCaSe 
+  configs:
+    rules:
+      L014:
+        capitalisation_policy: pascal
+
+test_pascal_5:
+  pass_str: SELECT PAscalcase 
+  configs:
+    rules:
+      L014:
+        capitalisation_policy: pascal
+
+test_pascal_6:
+  pass_str: SELECT PASCALCASE 
+  configs:
+    rules:
+      L014:
+        capitalisation_policy: pascal
+
+test_pascal_7:
+  fail_str: SELECT pascalcase
+  fix_str: SELECT Pascalcase
+  configs:
+    rules:
+      L014:
+        capitalisation_policy: pascal
+
+test_pascal_8:
+  fail_str: SELECT pascal_case
+  fix_str: SELECT PascalCase
+  configs:
+    rules:
+      L014:
+        capitalisation_policy: pascal
+
+test_pascal_9:
+  fail_str: SELECT PASCAL_CASE
+  fix_str: SELECT PascalCase
+  configs:
+    rules:
+      L014:
+        capitalisation_policy: pascal
