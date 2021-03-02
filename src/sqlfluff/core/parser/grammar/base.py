@@ -557,7 +557,7 @@ class BaseGrammar(Matchable):
                                             # We don't change the string buffer, we assume that was ok.
                                             break
                                     else:
-                                        raise SQLParseError(
+                                        raise SQLParseError(  # pragma: no cover
                                             f"Found unexpected end bracket!, was expecting {end_brackets[start_index]}, but got {matcher}",
                                             segment=match.matched_segments[0],
                                         )
