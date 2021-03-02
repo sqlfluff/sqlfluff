@@ -26,14 +26,14 @@ test_pascal_1:
   configs:
     rules:
       L014:
-        capitalisation_policy: pascal
+        extended_capitalisation_policy: pascal
 
 test_pascal_2:
   pass_str: SELECT Pascalcase
   configs:
     rules:
       L014:
-        capitalisation_policy: pascal
+        extended_capitalisation_policy: pascal
 
 test_pascal_3:
   fail_str: SELECT pascalCase
@@ -41,28 +41,28 @@ test_pascal_3:
   configs:
     rules:
       L014:
-        capitalisation_policy: pascal
+        extended_capitalisation_policy: pascal
 
 test_pascal_4:
   pass_str: SELECT PasCalCaSe 
   configs:
     rules:
       L014:
-        capitalisation_policy: pascal
+        extended_capitalisation_policy: pascal
 
 test_pascal_5:
   pass_str: SELECT PAscalcase 
   configs:
     rules:
       L014:
-        capitalisation_policy: pascal
+        extended_capitalisation_policy: pascal
 
 test_pascal_6:
   pass_str: SELECT PASCALCASE 
   configs:
     rules:
       L014:
-        capitalisation_policy: pascal
+        extended_capitalisation_policy: pascal
 
 test_pascal_7:
   fail_str: SELECT pascalcase
@@ -70,7 +70,7 @@ test_pascal_7:
   configs:
     rules:
       L014:
-        capitalisation_policy: pascal
+        extended_capitalisation_policy: pascal
 
 test_pascal_8:
   fail_str: SELECT pascal_case
@@ -78,7 +78,7 @@ test_pascal_8:
   configs:
     rules:
       L014:
-        capitalisation_policy: pascal
+        extended_capitalisation_policy: pascal
 
 test_pascal_9:
   fail_str: SELECT PASCAL_CASE
@@ -86,4 +86,4 @@ test_pascal_9:
   configs:
     rules:
       L014:
-        capitalisation_policy: pascal
+        extended_capitalisation_policy: pascal

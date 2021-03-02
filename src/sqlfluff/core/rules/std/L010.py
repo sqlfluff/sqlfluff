@@ -1,6 +1,5 @@
 """Implementation of Rule L010."""
 
-import logging
 import re
 from typing import Tuple, List
 from sqlfluff.core.rules.base import BaseCrawler, LintResult, LintFix
@@ -46,7 +45,6 @@ class Rule_L010(BaseCrawler):
         ("type", "keyword"),
         ("type", "binary_operator"),
     ]
-    _consistent_caps: List[str] = ["upper", "lower", "capitalise"]
     config_keywords = ["capitalisation_policy"]
 
     def _eval(self, segment, memory, **kwargs):
@@ -57,7 +55,6 @@ class Rule_L010(BaseCrawler):
         for what the possible case is.
 
         """
-        refuted_cases = memory.get("refuted_cases", set())
         
         # Skip if not an element of the specified type/name
         if (
@@ -65,6 +62,19 @@ class Rule_L010(BaseCrawler):
                 and ("name", segment.name) not in self._target_elems
             ):
             return LintResult(memory=memory)
+        
+        # Get the capitalisation policy configuration
+        cap_policy_name = [k for k in self.config_keywords
+                           if k.endswith('capitalisation_policy')][0]
+        cap_policy = getattr(self, cap_policy_name)
+        cap_policy_opts = [
+            o for o in get_config_info()[cap_policy_name]['validation']
+            if o != 'consistent'
+        ]
+        self.logger.debug(f"Selected '{cap_policy_name}': '{cap_policy}' from "
+                          f"options {cap_policy_opts}")
+        
+        refuted_cases = memory.get("refuted_cases", set())
         
         # Which cases are definitely inconsistent with the segment?
         if segment.raw[0] != segment.raw[0].upper():
@@ -83,37 +93,36 @@ class Rule_L010(BaseCrawler):
         # Update the memory
         memory["refuted_cases"] = refuted_cases
         
-        logging.debug(f"[L010] Refuted cases after segment '{segment.raw}': "
-                      f"{refuted_cases}")
+        self.logger.debug(f"Refuted cases after segment '{segment.raw}': "
+                          f"{refuted_cases}")
         
         # Skip if no inconsistencies, otherwise compute a concrete policy
         # to convert to.
-        if self.capitalisation_policy == "consistent":
-            possible_cases = [c for c in self._consistent_caps
+        if cap_policy == "consistent":
+            possible_cases = [c for c in cap_policy_opts
                               if c not in refuted_cases]
-            logging.debug(f"[L010] Possible cases after segment "
-                          f"'{segment.raw}': {possible_cases}")
+            self.logger.debug(f"Possible cases after segment "
+                              f"'{segment.raw}': {possible_cases}")
             if possible_cases:
                 # Save the latest possible case
                 memory["latest_possible_case"] = possible_cases[0]
-                logging.debug(f"[L010] Consistent capitalization, returning "
-                              f"with memory: {memory}")
+                self.logger.debug(f"Consistent capitalization, returning "
+                                  f"with memory: {memory}")
                 return LintResult(memory=memory)
             else:
                 concrete_policy = memory.get("latest_possible_case", "upper")
-                logging.debug(f"[L010] Getting concrete policy "
-                              f"'{concrete_policy}' from memory")
+                self.logger.debug(f"Getting concrete policy "
+                                  f"'{concrete_policy}' from memory")
         else:
-            if self.capitalisation_policy not in refuted_cases:
-                logging.debug(f"[L010] Consistent capitalization "
-                              f"{self.capitalisation_policy}, returning with "
-                              f"memory: {memory}")
+            if cap_policy not in refuted_cases:
+                self.logger.debug(f"Consistent capitalization "
+                                  f"{cap_policy}, returning with "
+                                  f"memory: {memory}")
                 return LintResult(memory=memory)
             else:
-                concrete_policy = self.capitalisation_policy
-                logging.debug(f"[L010] Setting concrete policy "
-                              f"'{concrete_policy}' from "
-                              f"self.capitalisation_policy")
+                concrete_policy = cap_policy
+                self.logger.debug(f"Setting concrete policy "
+                                  f"'{concrete_policy}' from cap_policy")
         
         # If we got here, we need to change the case to the top possible case
         # Convert the raw to the concrete policy
@@ -132,15 +141,15 @@ class Rule_L010(BaseCrawler):
         
         if fixed_raw == segment.raw:
             # No need to fix
-            logging.debug(f"[L010] Capitalisation of segment '{segment.raw}' "
-                          f"already consistent with policy '{concrete_policy}'"
-                          f", returning with memory {memory}")
+            self.logger.debug(f"Capitalisation of segment '{segment.raw}' "
+                              f"already OK with policy '{concrete_policy}', "
+                              f"returning with memory {memory}")
             return LintResult(memory=memory)
         else:
             # Return the fixed segment
-            logging.debug(f"[L010] INCONSISTENT Capitalisation of segment "
-                          f"'{segment.raw}', fixing to '{fixed_raw}' and "
-                          f"returning with memory {memory}")
+            self.logger.debug(f"INCONSISTENT Capitalisation of segment "
+                              f"'{segment.raw}', fixing to '{fixed_raw}' and "
+                              f"returning with memory {memory}")
             return LintResult(
                 anchor=segment,
                 fixes=[

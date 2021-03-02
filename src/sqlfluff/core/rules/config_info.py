@@ -50,8 +50,14 @@ STANDARD_CONFIG_INFO_DICT = {
         ),
     },
     "capitalisation_policy": {
-        "validation": ["consistent", "upper", "lower", "pascal", "capitalise"],
+        "validation": ["consistent", "upper", "lower", "capitalise"],
         "definition": "The capitalisation policy to enforce",
+    },
+    "extended_capitalisation_policy": {
+        "validation": ["consistent", "upper", "lower", "pascal", "capitalise"],
+        "definition": (
+            "The capitalisation policy to enforce, extended with more choices"
+            ),
     },
     "lint_templated_tokens": {
         "validation": [True, False],
@@ -63,7 +69,8 @@ STANDARD_CONFIG_INFO_DICT = {
     "select_clause_trailing_comma": {
         "validation": ["forbid", "require"],
         "definition": (
-            "Should trailing commas within select clauses be required or forbidden"
+            "Should trailing commas within select clauses be required or "
+            "forbidden"
         ),
     },
     "ignore_comment_lines": {
