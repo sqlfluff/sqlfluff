@@ -7,6 +7,6 @@ file:
           expression:
           - start_bracket: (
           - literal: '1'
-          - comparison_operator: '>'
+          - comparison_operator: <
           - literal: '0'
           - end_bracket: )
