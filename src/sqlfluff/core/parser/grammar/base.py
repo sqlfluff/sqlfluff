@@ -1,7 +1,7 @@
 """Base grammar, Ref, Anything and Nothing."""
 
 import copy
-from typing import List, NamedTuple, Optional, Union, Type, Tuple
+from typing import List, NamedTuple, Optional, Sequence, Union, Type, Tuple
 
 from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.string_helpers import curtail_string
@@ -172,7 +172,7 @@ class BaseGrammar(Matchable):
     @classmethod
     def _longest_trimmed_match(
         cls,
-        segments: Tuple["BaseSegment", ...],
+        segments: Sequence["BaseSegment"],
         matchers: List["MatchableType"],
         parse_context: ParseContext,
         trim_noncode=True,
