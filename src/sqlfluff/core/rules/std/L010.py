@@ -1,7 +1,9 @@
 """Implementation of Rule L010."""
 
-from typing import Tuple, List
+import re
+from typing import Tuple, List, Set
 from sqlfluff.core.rules.base import BaseCrawler, LintResult, LintFix
+from sqlfluff.core.rules.config_info import get_config_info
 from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_configuration,
@@ -48,96 +50,85 @@ class Rule_L010(BaseCrawler):
     def _eval(self, segment, memory, **kwargs):
         """Inconsistent capitalisation of keywords.
 
-        We use the `memory` feature here to keep track of
-        what we've seen in the past.
+        We use the `memory` feature here to keep track of cases known to be
+        INconsistent with what we've seen so far as well as the top choice
+        for what the possible case is.
 
         """
-        cases_seen = memory.get("cases_seen", set())
+        refuted_cases = memory.get("refuted_cases", set())
+        
+        # Skip if not an element of the specified type/name
+        if (
+                ("type", segment.type) not in self._target_elems
+                and ("name", segment.name) not in self._target_elems
+            ):
+            return LintResult(memory=memory)
+        
+        raw = segment.raw
 
-        if ("type", segment.type) in self._target_elems or (
-            "name",
-            segment.name,
-        ) in self._target_elems:
-            raw = segment.raw
-            uc = raw.upper()
-            lc = raw.lower()
-            cap = raw.capitalize()
-            seen_case = None
-            if uc == lc:
-                # Caseless
-                pass
-            elif raw == uc:
-                seen_case = "upper"
-            elif raw == lc:
-                seen_case = "lower"
-            elif raw == cap:
-                seen_case = "capitalise"
-            else:
-                seen_case = "inconsistent"
-
-            # NOTE: We'll only add to cases_seen if we DON'T
-            # also raise an error, so that we can focus in.
-
-            def make_replacement(seg, policy):
-                """Make a replacement segment, based on seen capitalisation."""
-                if policy == "lower":
-                    new_raw = seg.raw.lower()
-                elif policy == "upper":
-                    new_raw = seg.raw.upper()
-                elif policy == "capitalise":
-                    new_raw = seg.raw.capitalize()
-                elif policy == "consistent":
-                    # The only case we DON'T allow here is "inconsistent",
-                    # because it doesn't actually help us.
-                    filtered_cases_seen = [c for c in cases_seen if c != "inconsistent"]
-                    if filtered_cases_seen:
-                        # Get an element from what we've already seen.
-                        return make_replacement(seg, list(filtered_cases_seen)[0])
-                    else:
-                        # If we haven't seen anything yet, then let's default
-                        # to upper
-                        return make_replacement(seg, "upper")
-                # Make a new class and return it.
-                return seg.__class__(raw=new_raw, pos_marker=seg.pos_marker)
-
-            if not seen_case:
-                # Skip this if we haven't seen anything good.
-                # No need to update memory
+        # Check if any cases can be refuted
+        if raw[0] != raw[0].upper():
+            refuted_cases.update(["upper", "capitalise", "pascal"])
+        elif not raw.isalnum():
+            refuted_cases.update(["pascal"])
+        
+        if raw != raw.lower():
+            refuted_cases.update(["lower"])
+        
+        # Compute the new possible cases
+        possible_cases = [
+            c for c in (
+                get_config_info()["capitalisation_policy"]
+                ["validation"]
+            )
+            if c not in ["consitent", *refuted_cases]
+        ]
+        
+        # Update the memory
+        memory["refuted_cases"] = refuted_cases
+        
+        # Skip if no inconsistencies, otherwise compute a concrete policy
+        # to convert to.
+        if self.capitalisation_policy == "consistent":
+            if possible_cases:
+                # Save the latest possible case
+                memory["latest_possible_case"] = possible_cases[0]
                 return LintResult(memory=memory)
-            elif (
-                # Are we required to be consistent? (and this is inconsistent?)
-                (
-                    self.capitalisation_policy == "consistent"
-                    and (
-                        # Either because we've seen multiple
-                        (cases_seen and seen_case not in cases_seen)
-                        # Or just because this one is inconsistent internally
-                        or seen_case == "inconsistent"
+            else:
+                concrete_policy = memory.get("latest_possible_case", "upper")
+        else:
+            if self.capitalisation_policy in possible_cases:
+                return LintResult(memory=memory)
+            else:
+                concrete_policy = self.capitalisation_policy
+        
+        # If we got here, we need to change the case to the top possible case
+        # Convert the raw to the concrete policy
+        if concrete_policy == "lower":
+            fixed_raw = raw.lower()
+        elif concrete_policy == "upper":
+            fixed_raw = raw.upper()
+        elif concrete_policy == "capitalise":
+            fixed_raw = raw.capitalize()
+        elif concrete_policy == "pascal":
+            fixed_raw = re.sub(
+                '([^a-zA-Z0-9]+|^)([a-zA-Z0-9])',
+                lambda match: match.group(2).upper(),
+                raw
+            )
+    
+        # Return the fixed segment
+        return LintResult(
+            anchor=segment,
+            fixes=[
+                LintFix(
+                    "edit",
+                    segment,
+                    segment.__class__(
+                        raw=fixed_raw,
+                        pos_marker=segment.pos_marker
                     )
                 )
-                # Are we just required to be specific?
-                # Policy is either upper, lower or capitalize
-                or (
-                    self.capitalisation_policy != "consistent"
-                    and seen_case != self.capitalisation_policy
-                )
-            ):
-                return LintResult(
-                    anchor=segment,
-                    fixes=[
-                        LintFix(
-                            "edit",
-                            segment,
-                            make_replacement(segment, self.capitalisation_policy),
-                        )
-                    ],
-                    memory=memory,
-                )
-            else:
-                # Update memory and carry on
-                cases_seen.add(seen_case)
-                memory["cases_seen"] = cases_seen
-                return LintResult(memory=memory)
-
-        # If it's not a keyword just carry on
-        return LintResult(memory=memory)
+            ],
+            memory=memory,
+        )

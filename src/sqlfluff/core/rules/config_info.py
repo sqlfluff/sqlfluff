@@ -50,7 +50,7 @@ STANDARD_CONFIG_INFO_DICT = {
         ),
     },
     "capitalisation_policy": {
-        "validation": ["consistent", "upper", "lower", "capitalise"],
+        "validation": ["consistent", "upper", "lower", "pascal", "capitalise"],
         "definition": "The capitalisation policy to enforce",
     },
     "lint_templated_tokens": {
