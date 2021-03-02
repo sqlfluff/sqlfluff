@@ -47,7 +47,7 @@ class Rule_L010(BaseCrawler):
     ]
     config_keywords = ["capitalisation_policy"]
 
-    def _eval(self, segment, memory, **kwargs):
+    def _eval(self, segment, memory, parent_stack, **kwargs):
         """Inconsistent capitalisation of keywords.
 
         We use the `memory` feature here to keep track of cases known to be

@@ -87,3 +87,49 @@ test_pascal_9:
     rules:
       L014:
         extended_capitalisation_policy: pascal
+
+test_only_aliases_1:
+  pass_str: SELECT a,   B
+  configs:
+    rules:
+      L014:
+        only_aliases: true
+
+test_only_aliases_2:
+  pass_str: SELECT B,   a
+  configs:
+    rules:
+      L014:
+        only_aliases: true
+
+test_only_aliases_3:
+  pass_str: SELECT PASCAL_CASE
+  configs:
+    rules:
+      L014:
+        extended_capitalisation_policy: pascal
+        only_aliases: true
+
+test_only_aliases_4:
+  pass_str: SELECT UPPER_CASE AS low_case, PascalCase AS low_case
+  configs:
+    rules:
+      L014:
+        only_aliases: true
+
+test_only_aliases_5:
+  fail_str: SELECT UPPER_CASE AS PascalCase, PascalCase AS lower_case
+  fix_str: SELECT UPPER_CASE AS PascalCase, PascalCase AS LowerCase
+  configs:
+    rules:
+      L014:
+        only_aliases: true
+
+test_only_aliases_6:
+  fail_str: SELECT UPPER_CASE AS PascalCase, PascalCase AS lower_case
+  fix_str: SELECT UPPER_CASE AS PASCALCASE, PascalCase AS LOWER_CASE
+  configs:
+    rules:
+      L014:
+        extended_capitalisation_policy: upper
+        only_aliases: true
