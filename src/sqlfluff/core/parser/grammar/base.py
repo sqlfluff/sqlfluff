@@ -518,7 +518,9 @@ class BaseGrammar(Matchable):
                             # Found an end bracket. Does its type match that of
                             # the innermost start bracket (e.g. ")" matches "(",
                             # "]" matches "[".
-                            start_index = start_brackets.index(type(bracket_stack[-1].bracket))
+                            start_index = start_brackets.index(
+                                type(bracket_stack[-1].bracket)
+                            )
                             end_index = end_brackets.index(matcher)
                             bracket_types_match = start_index == end_index
                             if bracket_types_match:
