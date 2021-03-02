@@ -19,9 +19,9 @@ def join_segments_raw_curtailed(segments: Tuple["BaseSegment", ...], length=20) 
 
 
 def check_still_complete(
-    segments_in: Tuple["BaseSegment"],
-    matched_segments: Tuple["BaseSegment"],
-    unmatched_segments: Tuple["BaseSegment"],
+    segments_in: Tuple["BaseSegment", ...],
+    matched_segments: Tuple["BaseSegment", ...],
+    unmatched_segments: Tuple["BaseSegment", ...],
 ) -> bool:
     """Check that the segments in are the same as the segments out."""
     initial_str = join_segments_raw(segments_in)
@@ -36,8 +36,10 @@ def check_still_complete(
 
 
 def trim_non_code_segments(
-    segments: Tuple["BaseSegment"],
-) -> Tuple[Tuple["BaseSegment"], Tuple["BaseSegment"], Tuple["BaseSegment"]]:
+    segments: Tuple["BaseSegment", ...]
+) -> Tuple[
+    Tuple["BaseSegment", ...], Tuple["BaseSegment", ...], Tuple["BaseSegment", ...]
+]:
     """Take segments and split off surrounding non-code segments as appropriate.
 
     We use slices to avoid creating too many unnecessary tuples.
