@@ -1,3 +1,4 @@
+"""Basic code analysis tools for SELECT statements."""
 from typing import List, NamedTuple, Optional
 
 from sqlfluff.core.dialects.base import Dialect
@@ -48,8 +49,7 @@ def get_select_statement_info(
         ref_path = segment.path_to(ref)
         # is it in a subselect? i.e. a select which isn't this one.
         if any(
-            seg.is_type("select_statement") and seg is not segment
-            for seg in ref_path
+            seg.is_type("select_statement") and seg is not segment for seg in ref_path
         ):
             reference_buffer.remove(ref)
 

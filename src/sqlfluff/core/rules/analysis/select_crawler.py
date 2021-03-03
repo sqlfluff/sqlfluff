@@ -1,3 +1,4 @@
+"""Tools for more complex analysis of SELECT statements."""
 from collections import defaultdict
 from typing import Dict, List, NamedTuple, Optional, Union
 
@@ -10,15 +11,14 @@ from sqlfluff.core.rules.analysis import get_select_statement_info
 
 
 class WildcardInfo(NamedTuple):
-    """Structure returned by SelectCrawler.get_wildcard_info().
-
-    """
+    """Structure returned by SelectCrawler.get_wildcard_info()."""
 
     segment: BaseSegment
     tables: List[str]
 
+
 class SelectCrawler:
-    """Class for analyzing SELECT statements.
+    """Class for recursive dependency analysis related to SELECT statements.
 
     This class is a wrapper for select.get_select_statement_info(), but it adds
     recursive dependency walking.
