@@ -3,8 +3,8 @@ from typing import Dict, List
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.rules.base import BaseCrawler, LintResult
+from sqlfluff.core.rules.analysis import SelectCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
-from sqlfluff.core.rules.std.L044 import SelectInfo
 
 
 @document_fix_compatible
@@ -46,9 +46,9 @@ class Rule_L045(BaseCrawler):
     @classmethod
     def _visit_sources(
         cls,
-        select_info_list: List[SelectInfo],
+        select_info_list: List[SelectCrawler],
         dialect: Dialect,
-        queries: Dict[str, List[SelectInfo]],
+        queries: Dict[str, List[SelectCrawler]],
     ):
         for select_info in select_info_list:
             for alias_info in select_info.select_info.table_aliases:
@@ -65,7 +65,7 @@ class Rule_L045(BaseCrawler):
     def _eval(self, segment, **kwargs):
         if segment.is_type("statement"):
             dialect: Dialect = kwargs.get("dialect")
-            queries = SelectInfo.gather(segment, dialect)
+            queries = SelectCrawler.gather(segment, dialect)
 
             # Begin analysis at the final, outer query (key=None).
             self._visit_sources(queries.pop(None), dialect, queries)
