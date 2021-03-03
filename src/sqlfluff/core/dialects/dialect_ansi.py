@@ -330,6 +330,8 @@ ansi_dialect.add(
         )
     ),
     OrReplaceGrammar=Sequence("OR", "REPLACE"),
+    TemporaryTransientGrammar=OneOf("TRANSIENT", Ref("TemporaryGrammar")),
+    TemporaryGrammar=OneOf("TEMP", "TEMPORARY"),
     IfExistsGrammar=Sequence("IF", "EXISTS"),
     IfNotExistsGrammar=Sequence("IF", "NOT", "EXISTS"),
     LikeGrammar=OneOf("LIKE", "RLIKE", "ILIKE"),
@@ -1193,10 +1195,10 @@ ansi_dialect.add(
                         )
                         # We need to add a lot more here...
                     ),
-                    Ref("Expression_A_Grammar"),
+                    Ref("Expression_C_Grammar"),
                     Sequence(
                         Ref.keyword("ESCAPE"),
-                        Ref("Expression_A_Grammar"),
+                        Ref("Expression_C_Grammar"),
                         optional=True,
                     ),
                 ),
@@ -1796,6 +1798,7 @@ class CreateTableStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
+        Ref("TemporaryTransientGrammar", optional=True),
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
@@ -2294,7 +2297,7 @@ class CreateFunctionStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "CREATE",
         Sequence("OR", "REPLACE", optional=True),
-        OneOf("TEMPORARY", "TEMP", optional=True),
+        Ref("TemporaryGrammar", optional=True),
         "FUNCTION",
         Anything(),
     )
@@ -2302,7 +2305,7 @@ class CreateFunctionStatementSegment(BaseSegment):
     parse_grammar = Sequence(
         "CREATE",
         Sequence("OR", "REPLACE", optional=True),
-        OneOf("TEMPORARY", "TEMP", optional=True),
+        Ref("TemporaryGrammar", optional=True),
         "FUNCTION",
         Sequence("IF", "NOT", "EXISTS", optional=True),
         Ref("FunctionNameSegment"),
