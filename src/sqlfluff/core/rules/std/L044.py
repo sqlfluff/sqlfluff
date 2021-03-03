@@ -1,7 +1,7 @@
 """Implementation of Rule L044."""
 from typing import Dict, List
 
-from sqlfluff.core.rules.analysis import SelectCrawler
+from sqlfluff.core.rules.analysis.select_crawler import SelectCrawler
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.rules.base import BaseCrawler, LintResult
 

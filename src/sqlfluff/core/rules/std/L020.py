@@ -3,7 +3,7 @@
 import itertools
 
 from sqlfluff.core.rules.base import BaseCrawler, LintResult
-from sqlfluff.core.rules.analysis import get_select_statement_info
+from sqlfluff.core.rules.analysis.select import get_select_statement_info
 
 
 class Rule_L020(BaseCrawler):

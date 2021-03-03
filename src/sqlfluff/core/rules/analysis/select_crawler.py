@@ -7,7 +7,7 @@ from cached_property import cached_property
 from sqlfluff.core.dialects.dialect_ansi import AliasInfo
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.parser.segments.base import BaseSegment
-from sqlfluff.core.rules.analysis import get_select_statement_info
+from sqlfluff.core.rules.analysis.select import get_select_statement_info
 
 
 class WildcardInfo(NamedTuple):
