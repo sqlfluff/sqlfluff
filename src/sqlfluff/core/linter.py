@@ -935,7 +935,11 @@ class Linter:
         )
 
     def lint_fix(
-        self, tree: BaseSegment, config: Optional[FluffConfig] = None, fix: bool = False, fname: Optional[str] = None
+        self,
+        tree: BaseSegment,
+        config: Optional[FluffConfig] = None,
+        fix: bool = False,
+        fname: Optional[str] = None,
     ) -> Tuple[BaseSegment, List[SQLLintError]]:
         """Lint and optionally fix a tree object."""
         config = config or self.config
@@ -1017,14 +1021,20 @@ class Linter:
         return linting_errors
 
     def fix(
-        self, tree: BaseSegment, config: Optional[FluffConfig] = None, fname: Optional[str] = None
+        self,
+        tree: BaseSegment,
+        config: Optional[FluffConfig] = None,
+        fname: Optional[str] = None,
     ) -> Tuple[BaseSegment, List[SQLLintError]]:
         """Return the fixed tree and violations from lintfix when we're fixing."""
         fixed_tree, violations = self.lint_fix(tree, config, fix=True, fname=fname)
         return fixed_tree, violations
 
     def lint(
-        self, tree: BaseSegment, config: Optional[FluffConfig] = None, fname: Optional[str] = None
+        self,
+        tree: BaseSegment,
+        config: Optional[FluffConfig] = None,
+        fname: Optional[str] = None,
     ) -> List[SQLLintError]:
         """Return just the violations from lintfix when we're only linting."""
         _, violations = self.lint_fix(tree, config, fix=False, fname=fname)
@@ -1070,7 +1080,9 @@ class Linter:
             linter_logger.info("LINTING (%s)", fname)
 
             if fix:
-                tree, initial_linting_errors = self.fix(tree, config=config, fname=fname)
+                tree, initial_linting_errors = self.fix(
+                    tree, config=config, fname=fname
+                )
             else:
                 lint = self.lint(tree, config=config, fname=fname)
                 initial_linting_errors = lint
