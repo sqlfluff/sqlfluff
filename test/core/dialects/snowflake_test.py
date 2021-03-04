@@ -10,7 +10,10 @@ from sqlfluff.core.dialects.dialect_snowflake import (
     CreateCloneStatementSegment,
     ShowStatementSegment,
 )
-from sqlfluff.core.dialects.dialect_ansi import AccessStatementSegment
+from sqlfluff.core.dialects.dialect_ansi import (
+    AccessStatementSegment,
+    DropStatementSegment,
+)
 
 
 @pytest.mark.parametrize(
@@ -111,6 +114,7 @@ from sqlfluff.core.dialects.dialect_ansi import AccessStatementSegment
             SemiStructuredAccessorSegment,
             "SELECT ID :: VARCHAR as id, OBJ : userId :: VARCHAR as user_id from x",
         ),
+        (DropStatementSegment, "DROP USER my_user;"),
     ],
 )
 def test_snowflake_queries(segment_cls, raw, caplog):
