@@ -12,7 +12,7 @@ grammar. Check out their docs, they're awesome.
 https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 """
 
-from typing import List, Tuple, NamedTuple, Optional
+from typing import Generator, List, Tuple, NamedTuple, Optional
 
 from sqlfluff.core.parser import (
     Matchable,
@@ -480,14 +480,20 @@ class ObjectReferenceSegment(BaseSegment):
         allow_gaps=False,
     )
 
-    @staticmethod
-    def _iter_reference_parts(elem):
+    class ObjectReferencePart(NamedTuple):
+        """Details about a table alias."""
+
+        part: str  # Name of the part
+        segment: BaseSegment  # Segment containing the part
+
+    @classmethod
+    def _iter_reference_parts(cls, elem) -> Generator[ObjectReferencePart, None, None]:
         """Extract the elements of a reference and yield."""
         # trim on quotes and split out any dots.
         for part in elem.raw_trimmed().split("."):
-            yield part, elem
+            yield cls.ObjectReferencePart(part, elem)
 
-    def iter_raw_references(self):
+    def iter_raw_references(self) -> Generator[ObjectReferencePart, None, None]:
         """Generate a list of reference strings and elements.
 
         Each element is a tuple of (str, segment). If some are
@@ -506,7 +512,7 @@ class ObjectReferenceSegment(BaseSegment):
         """Return the qualification type of this reference."""
         return "qualified" if self.is_qualified() else "unqualified"
 
-    def extract_reference(self, level):
+    def extract_reference(self, level: int) -> Optional[ObjectReferencePart]:
         """Extract a reference of a given level.
 
         e.g. level 1 = the object.

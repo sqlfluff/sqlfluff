@@ -62,9 +62,8 @@ class Rule_L045(BaseCrawler):
                         if isinstance(select_info_target, list):
                             cls._visit_sources(select_info_target, dialect, queries)
 
-    def _eval(self, segment, **kwargs):
+    def _eval(self, segment, dialect, **kwargs):
         if segment.is_type("statement"):
-            dialect: Dialect = kwargs.get("dialect")
             queries = SelectCrawler.gather(segment, dialect)
 
             # Begin analysis at the final, outer query (key=None).

@@ -41,7 +41,7 @@ class Rule_L020(BaseCrawler):
                 ]
         return None
 
-    def _eval(self, segment, parent_stack, **kwargs):
+    def _eval(self, segment, parent_stack, dialect, **kwargs):
         """Get References and Aliases and allow linting.
 
         This rule covers a lot of potential cases of odd usages of
@@ -51,7 +51,7 @@ class Rule_L020(BaseCrawler):
         `_lint_references_and_aliases` method.
         """
         if segment.is_type("select_statement"):
-            select_info = get_select_statement_info(segment, kwargs.get("dialect"))
+            select_info = get_select_statement_info(segment, dialect)
             if not select_info:
                 return None
 

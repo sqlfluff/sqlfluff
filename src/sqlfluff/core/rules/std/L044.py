@@ -126,10 +126,9 @@ class Rule_L044(BaseCrawler):
                         queries,
                     )
 
-    def _eval(self, segment, **kwargs):
+    def _eval(self, segment, dialect, **kwargs):
         """Outermost query should produce known number of columns."""
         if segment.is_type("statement"):
-            dialect: Dialect = kwargs.get("dialect")
             queries = SelectCrawler.gather(segment, dialect)
 
             # Begin analysis at the final, outer query (key=None).
