@@ -860,7 +860,9 @@ class TableExpressionSegment(BaseSegment):
             # Return the last element of the reference, which
             # will already be a tuple.
             penultimate_ref = list(ref.iter_raw_references())[-1]
-            return AliasInfo(penultimate_ref[0], penultimate_ref[1], False, self, None, ref)
+            return AliasInfo(
+                penultimate_ref[0], penultimate_ref[1], False, self, None, ref
+            )
         # No references or alias, return None
         return None
 
