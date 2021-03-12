@@ -63,6 +63,7 @@ snowflake_dialect.sets("unreserved_keywords").update(
         "PIPE",
         "PIPES",
         "REGIONS",
+        "SECURE",
         "SEED",
         "TERSE",
     ]
@@ -166,6 +167,22 @@ class StatementSegment(ansi_StatementSegment):
         Ref("CreateStatementSegment"),
         Ref("CreateCloneStatementSegment"),
         Ref("ShowStatementSegment"),
+    )
+
+
+@snowflake_dialect.segment()
+class CommentSegment(BaseSegment):
+    """A comment in a create statement.
+
+    e.g. comment = 'a new view'
+
+    """
+
+    type = "snowflake_comment"
+    match_grammar = Sequence(
+        Ref.keyword("COMMENT"),
+        Ref("EqualsSegment"),
+        Ref("LiteralGrammar"),
     )
 
 
@@ -478,6 +495,7 @@ class CreateStatementSegment(BaseSegment):
             Sequence("EXTERNAL", "TABLE"),
             "VIEW",
             Sequence("MATERIALIZED", "VIEW"),
+            Sequence("SECURE", "VIEW"),
             Sequence("MASKING", "POLICY"),
             "PIPE",
             "FUNCTION",
@@ -495,6 +513,9 @@ class CreateStatementSegment(BaseSegment):
         ),
         Sequence("IF", "NOT", "EXISTS", optional=True),
         Ref("ObjectReferenceSegment"),
+        Ref("CommentSegment", optional=True),
+        Ref.keyword("AS", optional=True),
+        Ref("SelectStatementSegment", optional=True),
     )
 
 

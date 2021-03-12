@@ -1,0 +1,28 @@
+file:
+  statement:
+    create_statement:
+    - keyword: create
+    - keyword: view
+    - object_reference:
+        identifier: another_view
+    - snowflake_comment:
+      - keyword: comment
+      - comparison_operator: '='
+      - literal: "'a great description'"
+    - keyword: as
+    - select_statement:
+        select_clause:
+        - keyword: select
+        - select_target_element:
+            column_reference:
+              identifier: col_1
+        - comma: ','
+        - select_target_element:
+            column_reference:
+              identifier: col_2
+        from_clause:
+          keyword: from
+          table_expression:
+            main_table_expression:
+              table_reference:
+                identifier: other_table
