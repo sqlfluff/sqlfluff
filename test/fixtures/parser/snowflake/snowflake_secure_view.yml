@@ -1,0 +1,25 @@
+file:
+  statement:
+    create_view_statement:
+    - keyword: create
+    - keyword: secure
+    - keyword: view
+    - table_reference:
+        identifier: cool_view
+    - keyword: as
+    - select_statement:
+        select_clause:
+          - keyword: select
+          - select_target_element:
+              column_reference:
+                identifier: column_1
+          - comma: ','
+          - select_target_element:
+              column_reference:
+                identifier: column_2
+          from_clause:
+            keyword: from
+            table_expression:
+              main_table_expression:
+                table_reference:
+                  identifier: some_table
