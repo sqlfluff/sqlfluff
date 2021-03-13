@@ -201,10 +201,10 @@ def test__parser__grammar__base__bracket_sensitive_look_ahead_match(
 def test__parser__grammar__base__bracket_fail_with_open_paren_close_square_mismatch(
     generate_test_segments, fresh_ansi_dialect
 ):
-    """
-    Test that _bracket_sensitive_look_ahead_match fails when the type of a
-    close bracket doesn't match the type of the corresponding open bracket, but
-    both are "definite" brackets.
+    """Test _bracket_sensitive_look_ahead_match failure case.
+
+    Should fail when the type of a close bracket doesn't match the type of the
+    corresponding open bracket, but both are "definite" brackets.
     """
     fs = KeywordSegment.make("foo")
     # We need a dialect here to do bracket matching
