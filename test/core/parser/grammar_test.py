@@ -217,12 +217,14 @@ def test__parser__grammar__base__bracket_fail_when_not_closed(
                         "from",
                         "(",  # we don't close this bracket
                         "foo",
+                        ")",
+                        ")",
                     ]
                 ),
                 [fs],
                 ctx,
             )
-        assert sql_parse_error.match("Couldn't find closing bracket")
+        assert sql_parse_error.match("Found unexpected end bracket")
 
 
 @pytest.mark.parametrize("allow_gaps", [True, False])
