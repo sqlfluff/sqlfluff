@@ -17,6 +17,7 @@ from sqlfluff.core.parser.grammar import (
     Anything,
     Nothing,
 )
+from sqlfluff.core.errors import SQLParseError
 
 # NB: All of these tests depend somewhat on the KeywordSegment working as planned
 
