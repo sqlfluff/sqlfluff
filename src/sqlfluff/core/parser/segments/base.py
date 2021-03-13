@@ -683,19 +683,25 @@ class BaseSegment:
                 buff.append(seg)
         return buff
 
-    def recursive_crawl(self, *seg_type):
+    def recursive_crawl(self, *seg_type, recurse_into=True):
         """Recursively crawl for segments of a given type.
 
         Args:
             seg_type: :obj:`str`: one or more type of segment
                 to look for.
+            recurse_into: :obj:`bool`: When an element of type "seg_type" is
+                found, whether to recurse into it.
         """
         # Check this segment
         if self.is_type(*seg_type):
+            match = True
             yield self
-        # Recurse
-        for seg in self.segments:
-            yield from seg.recursive_crawl(*seg_type)
+        else:
+            match = False
+        if recurse_into or not match:
+            # Recurse
+            for seg in self.segments:
+                yield from seg.recursive_crawl(*seg_type, recurse_into=recurse_into)
 
     def path_to(self, other):
         """Given a segment which is assumed within self, get the intermediate segments.
