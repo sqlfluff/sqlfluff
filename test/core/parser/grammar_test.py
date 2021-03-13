@@ -6,7 +6,7 @@ import logging
 from sqlfluff.core.parser import KeywordSegment, ReSegment
 from sqlfluff.core.parser.context import RootParseContext
 from sqlfluff.core.parser.segments import EphemeralSegment
-from sqlfluff.core.parser.grammar.base import BaseGrammar, SQLParseError
+from sqlfluff.core.parser.grammar.base import BaseGrammar
 from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
 from sqlfluff.core.parser.grammar import (
     OneOf,
