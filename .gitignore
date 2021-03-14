@@ -34,6 +34,3 @@ test-reports
 /test*.sql
 /test*.py
 /.hypothesis/
-
-# Ignore conda environment used for dev
-environment.yml
