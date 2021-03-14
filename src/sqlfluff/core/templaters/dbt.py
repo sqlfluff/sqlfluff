@@ -249,24 +249,18 @@ class DbtTemplater(JinjaTemplater):
                 "by running `dbt compile` directly."
             )
 
-        exclude_rules = (
-            self.sqlfluff_config.__dict__["_configs"]["core"]["exclude_rules"]
-        )
+        exclude_rules = self.sqlfluff_config.__dict__["_configs"]["core"][
+            "exclude_rules"
+        ]
 
         if re.search("L009", str(exclude_rules)):
             raw_sliced, sliced_file, templated_sql = self.slice_file(
-                node.raw_sql,
-                compiled_sql,
-                config=config,
-                trailing_newline=False
+                node.raw_sql, compiled_sql, config=config, trailing_newline=False
             )
 
         else:
             raw_sliced, sliced_file, templated_sql = self.slice_file(
-                node.raw_sql,
-                compiled_sql,
-                config=config,
-                trailing_newline=True
+                node.raw_sql, compiled_sql, config=config, trailing_newline=True
             )
 
         return (
