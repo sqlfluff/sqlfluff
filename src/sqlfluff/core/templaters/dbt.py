@@ -2,6 +2,7 @@
 
 import os.path
 import logging
+import re
 from typing import Optional
 
 from dataclasses import dataclass
@@ -242,17 +243,32 @@ class DbtTemplater(JinjaTemplater):
         else:
             compiled_sql = node.compiled_sql
 
-        compiled_sql = compiled_sql + '\n'
-
         if not compiled_sql:
             raise SQLTemplaterError(
                 "dbt templater compilation failed silently, check your configuration "
                 "by running `dbt compile` directly."
             )
 
-        raw_sliced, sliced_file, templated_sql = self.slice_file(
-            node.raw_sql, compiled_sql, config=config
+        exclude_rules = (
+            self.sqlfluff_config.__dict__["_configs"]["core"]["exclude_rules"]
         )
+
+        if re.search("L009", str(exclude_rules)):
+            raw_sliced, sliced_file, templated_sql = self.slice_file(
+                node.raw_sql,
+                compiled_sql,
+                config=config,
+                trailing_newline=False
+            )
+
+        else:
+            raw_sliced, sliced_file, templated_sql = self.slice_file(
+                node.raw_sql,
+                compiled_sql,
+                config=config,
+                trailing_newline=True
+            )
+
         return (
             TemplatedFile(
                 source_str=node.raw_sql,
