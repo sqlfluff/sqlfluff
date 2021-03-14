@@ -404,7 +404,7 @@ class BaseCrawler:
     @classmethod
     def make_whitespace(cls, raw, pos_marker):
         """Make a whitespace segment."""
-        WhitespaceSegment = RawSegment.make(" ", name="whitespace", type="whitespace")
+        WhitespaceSegment = RawSegment.make(" ", name="whitespace", type="whitespace", is_whitespace=True)
         return WhitespaceSegment(raw=raw, pos_marker=pos_marker)
 
     @classmethod
