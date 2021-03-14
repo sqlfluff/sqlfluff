@@ -242,6 +242,8 @@ class DbtTemplater(JinjaTemplater):
         else:
             compiled_sql = node.compiled_sql
 
+        compiled_sql = compiled_sql + '\n'
+
         if not compiled_sql:
             raise SQLTemplaterError(
                 "dbt templater compilation failed silently, check your configuration "
