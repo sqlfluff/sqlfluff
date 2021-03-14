@@ -327,9 +327,7 @@ class Bracketed(Sequence):
 
 
 def optionally_bracketed(*args, **kwargs):
-    """
-    Hybrid of Bracketed and Sequence: allows brackets but the aren't required.
-    """
+    """Hybrid of Bracketed and Sequence: allows brackets but they aren't required."""
     return OneOf(
         Sequence(*args),
         Bracketed(*args, **kwargs),
