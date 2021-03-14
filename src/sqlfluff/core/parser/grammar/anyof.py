@@ -225,7 +225,6 @@ class OneOf(AnyNumberOf):
 
 class OptionallyBracketed(OneOf):
     """Hybrid of Bracketed and Sequence: allows brackets but they aren't required."""
+
     def __init__(self, *args, **kwargs):
-        super().__init__(
-            Sequence(*args),
-            Bracketed(*args, **kwargs))
+        super().__init__(Sequence(*args), Bracketed(*args, **kwargs))
