@@ -983,7 +983,16 @@ class SelectClauseSegment(BaseSegment):
     type = "select_clause"
     match_grammar = StartsWith(
         Sequence("SELECT", Ref("WildcardExpressionSegment", optional=True)),
-        terminator=OneOf("FROM", "LIMIT", Ref("SetOperatorSegment")),
+        terminator=OneOf(
+            "FROM",
+            "LIMIT",
+            # :HACK: This Sequence("UNION", ... stuff should not be needed,
+            # because it exists as part of "SetOperatorSegment". But without it,
+            # some of the parse tests fail. It seems likely this is working
+            # around an underlying parser bug.
+            Sequence("UNION", OneOf("DISTINCT", "ALL", optional=True)),
+            Ref("SetOperatorSegment"),
+        ),
         enforce_whitespace_preceeding_terminator=True,
     )
 
