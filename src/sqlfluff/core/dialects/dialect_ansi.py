@@ -2205,8 +2205,9 @@ class UpdateStatementSegment(BaseSegment):
     match_grammar = StartsWith("UPDATE")
     parse_grammar = Sequence(
         "UPDATE",
-        Ref("TableReferenceSegment"),
+        Ref("AliasedTableReferenceSegment"),
         Ref("SetClauseListSegment"),
+        Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
     )
 
