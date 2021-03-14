@@ -3,5 +3,5 @@ import sqlfluff.core.rules.base as rules_base
 
 
 def test_whitespace_segment_is_whitespace():
-    """Tests that WhitespaceSegment.is_whitespace is True"""
+    """Tests that WhitespaceSegment.is_whitespace is True."""
     assert rules_base.BaseCrawler.make_whitespace("", "").is_whitespace
