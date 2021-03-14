@@ -1830,9 +1830,7 @@ class CreateTableStatementSegment(BaseSegment):
             # Create AS syntax:
             Sequence(
                 "AS",
-                optionally_bracketed(
-                    Ref("SelectableGrammar")
-                ),
+                optionally_bracketed(Ref("SelectableGrammar")),
             ),
             # Create like syntax
             Sequence("LIKE", Ref("TableReferenceSegment")),
