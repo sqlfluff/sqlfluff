@@ -171,7 +171,7 @@ class StatementSegment(ansi_StatementSegment):
 
 
 @snowflake_dialect.segment()
-class CommentSegment(BaseSegment):
+class CreateStatementCommentSegment(BaseSegment):
     """A comment in a create statement.
 
     e.g. comment = 'a new view'
@@ -513,7 +513,7 @@ class CreateStatementSegment(BaseSegment):
         ),
         Sequence("IF", "NOT", "EXISTS", optional=True),
         Ref("ObjectReferenceSegment"),
-        Ref("CommentSegment", optional=True),
+        Ref("CreateStatementCommentSegment", optional=True),
         Ref.keyword("AS", optional=True),
         Ref("SelectStatementSegment", optional=True),
     )

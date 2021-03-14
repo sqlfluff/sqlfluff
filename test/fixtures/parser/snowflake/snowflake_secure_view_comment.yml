@@ -2,13 +2,14 @@ file:
   statement:
     create_statement:
     - keyword: create
+    - keyword: secure
     - keyword: view
     - object_reference:
-        identifier: another_view
+        identifier: some_view
     - snowflake_comment:
         keyword: comment
         comparison_operator: '='
-        literal: "'a great description'"
+        literal: "'another description'"
     - keyword: as
     - select_statement:
         select_clause:
@@ -25,4 +26,4 @@ file:
           table_expression:
             main_table_expression:
               table_reference:
-                identifier: other_table
+                identifier: my_table
