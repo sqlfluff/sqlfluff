@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `trailing_newline` argument to `slice_file` method for `PythonTemplater`
   class. This is added to address incorrect deletion of trailing newlines caused
   by the dbt compiler when `templater = dbt` in `.sqlfluff` config.
-- Added `conda` environment for developers who prefer it over `venv`.
+
 ### Changed
 
 ## [0.4.1] - 2021-02-25
