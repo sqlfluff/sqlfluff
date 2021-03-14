@@ -34,7 +34,7 @@ from sqlfluff.core.parser import (
     Indent,
     Dedent,
     Nothing,
-    optionally_bracketed,
+    OptionallyBracketed,
 )
 
 from sqlfluff.core.dialects.base import Dialect
@@ -1830,7 +1830,7 @@ class CreateTableStatementSegment(BaseSegment):
             # Create AS syntax:
             Sequence(
                 "AS",
-                optionally_bracketed(Ref("SelectableGrammar")),
+                OptionallyBracketed(Ref("SelectableGrammar")),
             ),
             # Create like syntax
             Sequence("LIKE", Ref("TableReferenceSegment")),

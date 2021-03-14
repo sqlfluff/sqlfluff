@@ -9,7 +9,6 @@ from sqlfluff.core.parser.helpers import trim_non_code_segments, check_still_com
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.grammar.anyof import OneOf
 from sqlfluff.core.parser.grammar.base import (
     BaseGrammar,
     cached_method_for_parse_context,
@@ -324,11 +323,3 @@ class Bracketed(Sequence):
         # No complete match. Fail.
         else:
             return MatchResult.from_unmatched(segments)
-
-
-def optionally_bracketed(*args, **kwargs):
-    """Hybrid of Bracketed and Sequence: allows brackets but they aren't required."""
-    return OneOf(
-        Sequence(*args),
-        Bracketed(*args, **kwargs),
-    )

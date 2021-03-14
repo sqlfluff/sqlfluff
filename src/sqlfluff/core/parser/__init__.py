@@ -24,7 +24,7 @@ from sqlfluff.core.parser.grammar import (
     Ref,
     Anything,
     Nothing,
-    optionally_bracketed,
+    OptionallyBracketed,
 )
 from sqlfluff.core.parser.markers import FilePositionMarker
 from sqlfluff.core.parser.lexer import Lexer
