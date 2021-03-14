@@ -34,3 +34,6 @@ test-reports
 /test*.sql
 /test*.py
 /.hypothesis/
+
+# Ignore conda environment.yml contributors might be using
+environment.yml
