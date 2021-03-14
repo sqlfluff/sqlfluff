@@ -1,0 +1,79 @@
+rule: L046
+
+passes_on_count_star:
+  pass_str: |
+    select
+        foo,
+        count(*)
+    from my_table
+    group by
+      foo
+
+passes_on_count_1:
+  pass_str: |
+    select
+        foo,
+        count(1)
+    from my_table
+    group by
+      foo
+
+  configs: &prefer_count_1
+    rules:
+      L046:
+        prefer_count_1: True
+
+changes_count_1_to_count_star:
+  fail_str: |
+    select
+        foo,
+        count(1)
+    from my_table
+    group by
+      foo
+
+  fix_str: &fix_count_1 |
+    select
+        foo,
+        count(*)
+    from my_table
+    group by
+      foo
+
+handles_whitespaces:
+  fail_str: |
+    select
+        foo,
+        count( 1 )
+    from my_table
+    group by
+      foo
+
+  fix_str: *fix_count_1
+
+changes_count_star_to_count_1:
+  fail_str: |
+    select
+        foo,
+        count(*)
+    from my_table
+    group by
+      foo
+
+  fix_str: |
+    select
+        foo,
+        count(1)
+    from my_table
+    group by
+      foo
+
+  configs: *prefer_count_1
+
+no_false_positive_on_count_col:
+  pass_str: |
+    select
+        foo,
+        count(bar)
+    from my_table
+
