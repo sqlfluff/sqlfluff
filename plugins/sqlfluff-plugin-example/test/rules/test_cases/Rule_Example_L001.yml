@@ -24,10 +24,3 @@ forbidden_col_used:
       baz
     from tbl
     order by bar
-
-  fix_str: |
-    select
-      bar,
-      bazz
-    from tbl
-    order by bar
