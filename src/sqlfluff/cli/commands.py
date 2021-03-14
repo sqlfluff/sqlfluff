@@ -48,7 +48,7 @@ class RedWarningsFilter(logging.Filter):
         return True
 
 
-def set_logging_level(verbosity, logger=None):
+def set_logging_level(verbosity, logger=None, stderr_output=False):
     """Set up logging for the CLI.
 
     We either set up global logging based on the verbosity
@@ -69,7 +69,7 @@ def set_logging_level(verbosity, logger=None):
     colorama.init()
 
     # Set up the log handler to log to stdout
-    handler = logging.StreamHandler(stream=sys.stdout)
+    handler = logging.StreamHandler(stream=sys.stderr if stderr_output else sys.stdout)
     # NB: the unicode character at the beginning is to squash any badly
     # tamed ANSI colour statements, and return us to normality.
     handler.setFormatter(logging.Formatter("\u001b[0m%(levelname)-10s %(message)s"))
@@ -306,13 +306,14 @@ def lint(paths, format, nofail, disregard_sqlfluffignores, logger=None, **kwargs
 
     """
     c = get_config(**kwargs)
-    lnt, formatter = get_linter_and_formatter(c, silent=format in ("json", "yaml"))
+    non_human_output = format in ("json", "yaml")
+    lnt, formatter = get_linter_and_formatter(c, silent=non_human_output)
     verbose = c.get("verbose")
 
     formatter.dispatch_config(lnt)
 
     # Set up logging.
-    set_logging_level(verbosity=verbose, logger=logger)
+    set_logging_level(verbosity=verbose, logger=logger, stderr_output=non_human_output)
     # add stdin if specified via lone '-'
     if ("-",) == paths:
         # TODO: Remove verbose
@@ -538,15 +539,16 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
     # Initialise the benchmarker
     bencher = BenchIt()  # starts the timer
     c = get_config(**kwargs)
-    # We don't want anything else to be logged if we want a yaml output
-    lnt, formatter = get_linter_and_formatter(c, silent=format in ("json", "yaml"))
+    # We don't want anything else to be logged if we want json or yaml output
+    non_human_output = format in ("json", "yaml")
+    lnt, formatter = get_linter_and_formatter(c, silent=non_human_output)
     verbose = c.get("verbose")
     recurse = c.get("recurse")
 
     formatter.dispatch_config(lnt)
 
     # Set up logging.
-    set_logging_level(verbosity=verbose, logger=logger)
+    set_logging_level(verbosity=verbose, logger=logger, stderr_output=non_human_output)
 
     # TODO: do this better
     nv = 0
