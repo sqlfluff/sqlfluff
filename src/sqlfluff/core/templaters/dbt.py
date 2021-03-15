@@ -252,10 +252,7 @@ class DbtTemplater(JinjaTemplater):
             "exclude_rules"
         ]
 
-        if "L009" in str(exclude_rules):
-            keep_trailing_newline = False
-        else:
-            keep_trailing_newline = True
+        keep_trailing_newline = [False if "L009" in str(exclude_rules) else True]
 
         raw_sliced, sliced_file, templated_sql = self.slice_file(
             node.raw_sql,
