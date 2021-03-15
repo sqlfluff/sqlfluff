@@ -2,7 +2,6 @@
 
 import os.path
 import logging
-import re
 from typing import Optional
 
 from dataclasses import dataclass
@@ -253,14 +252,13 @@ class DbtTemplater(JinjaTemplater):
             "exclude_rules"
         ]
 
-        if re.search("L009", str(exclude_rules)):
-            raw_sliced, sliced_file, templated_sql = self.slice_file(
-                node.raw_sql, compiled_sql, config=config, trailing_newline=False
-            )
-
+        if "L009" in str(exclude_rules):
+            keep_trailing_newline = False
         else:
-            raw_sliced, sliced_file, templated_sql = self.slice_file(
-                node.raw_sql, compiled_sql, config=config, trailing_newline=True
+            keep_trailing_newline = True
+
+        raw_sliced, sliced_file, templated_sql = self.slice_file(
+                node.raw_sql, compiled_sql, config=config, trailing_newline=keep_trailing_newline
             )
 
         return (
