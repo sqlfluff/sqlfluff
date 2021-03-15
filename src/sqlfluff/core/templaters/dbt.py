@@ -258,8 +258,11 @@ class DbtTemplater(JinjaTemplater):
             keep_trailing_newline = True
 
         raw_sliced, sliced_file, templated_sql = self.slice_file(
-                node.raw_sql, compiled_sql, config=config, trailing_newline=keep_trailing_newline
-            )
+            node.raw_sql,
+            compiled_sql,
+            config=config,
+            trailing_newline=keep_trailing_newline,
+        )
 
         return (
             TemplatedFile(
