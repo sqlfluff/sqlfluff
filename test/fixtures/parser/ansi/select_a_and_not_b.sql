@@ -1,0 +1,3 @@
+SELECT
+  a AND NOT i.b
+FROM i
