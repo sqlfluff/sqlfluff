@@ -1,0 +1,41 @@
+file:
+  statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: final_rows
+    - keyword: AS
+    - with_compound_statement:
+        keyword: WITH
+        common_table_expression:
+          identifier: source_table
+          keyword: AS
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_target_element:
+                wildcard_expression:
+                  wildcard_identifier:
+                    star: '*'
+            from_clause:
+              keyword: FROM
+              table_expression:
+                main_table_expression:
+                  table_reference:
+                    identifier: source_data
+          end_bracket: )
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_target_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            table_expression:
+              main_table_expression:
+                table_reference:
+                  identifier: source_table
