@@ -1,0 +1,11 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_target_element:
+          expression:
+          - literal: 'TRUE'
+          - binary_operator: AND
+          - keyword: NOT
+          - literal: 'FALSE'
