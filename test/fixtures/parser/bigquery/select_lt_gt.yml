@@ -1,0 +1,16 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_target_element:
+          expression:
+          - start_bracket: (
+          - literal: '0'
+          - comparison_operator: <
+          - literal: '1'
+          - binary_operator: AND
+          - literal: '1'
+          - comparison_operator: '>'
+          - literal: '0'
+          - end_bracket: )

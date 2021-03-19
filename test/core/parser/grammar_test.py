@@ -17,6 +17,7 @@ from sqlfluff.core.parser.grammar import (
     Anything,
     Nothing,
 )
+from sqlfluff.core.errors import SQLParseError
 
 # NB: All of these tests depend somewhat on the KeywordSegment working as planned
 
@@ -195,6 +196,38 @@ def test__parser__grammar__base__bracket_sensitive_look_ahead_match(
         assert matcher == fs
         # We shouldn't match the whitespace with the keyword
         assert match.matched_segments == (fs("foo", bracket_seg_list[8].pos_marker),)
+
+
+def test__parser__grammar__base__bracket_fail_with_open_paren_close_square_mismatch(
+    generate_test_segments, fresh_ansi_dialect
+):
+    """Test _bracket_sensitive_look_ahead_match failure case.
+
+    Should fail when the type of a close bracket doesn't match the type of the
+    corresponding open bracket, but both are "definite" brackets.
+    """
+    fs = KeywordSegment.make("foo")
+    # We need a dialect here to do bracket matching
+    with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
+        # Basic version, we should find bar first
+        with pytest.raises(SQLParseError) as sql_parse_error:
+            BaseGrammar._bracket_sensitive_look_ahead_match(
+                generate_test_segments(
+                    [
+                        "select",
+                        " ",
+                        "*",
+                        " ",
+                        "from",
+                        "(",
+                        "foo",
+                        "]",  # Bracket types don't match (parens vs square)
+                    ]
+                ),
+                [fs],
+                ctx,
+            )
+        assert sql_parse_error.match("Found unexpected end bracket")
 
 
 @pytest.mark.parametrize("allow_gaps", [True, False])
