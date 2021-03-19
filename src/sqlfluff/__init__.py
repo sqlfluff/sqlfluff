@@ -16,6 +16,9 @@ elif sys.version_info[1] < 6:
         )
     )
 
+# Increase the maximum recursion depth from default of 10^4 to 10^5, see https://github.com/sqlfluff/sqlfluff/pull/870
+sys.setrecursionlimit(10**5)
+
 # Set the version attribute of the library
 import pkg_resources
 import configparser
