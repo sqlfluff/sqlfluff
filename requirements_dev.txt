@@ -11,6 +11,7 @@ coverage
 hypothesis
 pytest
 pytest-cov
+pytest-sugar
 # MyPy
 mypy
 typing_extensions
