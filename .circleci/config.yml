@@ -85,14 +85,14 @@ jobs:
   linting:
     <<: *common
     docker:
-      - image: circleci/python:3.6
+      - image: circleci/python:3.9
         environment:
           TOXENV: linting
           UPLOAD_COVERAGE: 0
   doclinting:
     <<: *common
     docker:
-      - image: circleci/python:3.6
+      - image: circleci/python:3.9
         environment:
           TOXENV: doclinting
           UPLOAD_COVERAGE: 0
