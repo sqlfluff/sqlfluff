@@ -1,5 +1,6 @@
 """Sqlfluff is a SQL linter for humans."""
 import sys
+import pytest
 
 # Expose the public API.
 from sqlfluff.api import lint, fix, parse, rules, dialects  # noqa: F401
@@ -25,3 +26,6 @@ config = configparser.ConfigParser()
 config.read([pkg_resources.resource_filename("sqlfluff", "config.ini")])
 
 __version__ = config.get("sqlfluff", "version")
+
+# Register helper functions to support variable introspection on failure.
+pytest.register_assert_rewrite("sqlfluff.testing")
