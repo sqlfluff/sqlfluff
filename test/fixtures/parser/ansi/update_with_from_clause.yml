@@ -3,8 +3,7 @@ file:
     update_statement:
       keyword: UPDATE
       table_reference:
-        table_reference:
-          identifier: my_table
+        identifier: my_table
       set_clause_list:
         keyword: SET
         set_clause:
