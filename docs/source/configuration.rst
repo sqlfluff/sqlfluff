@@ -244,7 +244,7 @@ projects. In particular it provides mock objects for:
 .. _dbt-project-configuration:
 
 Library Templating
-^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^
 
 If using *SQLFluff* for dbt with jinja as your templater, you may have library
 function calls within your sql files that can not be templated via the
@@ -359,8 +359,31 @@ because :code:`verbose` is *stackable* meaning there are multiple levels
 of verbosity that are available for configuration. See :ref:`cliref` for
 more details about the available CLI arguments.
 
+Ignoring Errors & Files
+-----------------------
+
+Ignoring individual lines
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Similar to `flake8's ignore`_, individual lines can be ignored by adding
+:code:`-- noqa` to the end of the line. Additionally, specific rules can
+be ignored by quoting their code or the category.
+
+.. code-block:: sql
+
+    -- Ignore all errors
+    SeLeCt  1 from tBl ;    -- noqa
+
+    -- Ignore rule L014 & rule L030
+    SeLeCt  1 from tBl ;    -- noqa: L014,L030
+
+    -- Ignore all parsing errors
+    SeLeCt from tBl ;       -- noqa: PRS
+
+.. _`flake8's ignore`: https://flake8.pycqa.org/en/3.1.1/user/ignoring-errors.html#in-line-ignoring-errors
+
 .sqlfluffignore
----------------
+^^^^^^^^^^^^^^^
 
 Similar to `Git's`_ :code:`.gitignore` and `Docker's`_ :code:`.dockerignore`,
 SQLFluff supports a :code:`.sqfluffignore` file to control which files are and
