@@ -1073,8 +1073,9 @@ class JoinOnConditionSegment(BaseSegment):
         "ON",
         Indent,
         OneOf(
-            Ref("ExpressionSegment"),
+            # This is a great case for "optionally bracketed"
             Bracketed(Ref("ExpressionSegment", ephemeral_name="JoinCondition")),
+            Ref("ExpressionSegment"),
         ),
         Dedent,
     )
@@ -1285,7 +1286,9 @@ ansi_dialect.add(
             Ref("FunctionSegment"),
             Bracketed(
                 OneOf(
-                    Ref("Expression_A_Grammar"),
+                    # We're using the expression segment here rather than the grammar so
+                    # that in the parsed structure we get nested elements.
+                    Ref("ExpressionSegment"),
                     Ref("SelectableGrammar"),
                     Delimited(
                         Ref(

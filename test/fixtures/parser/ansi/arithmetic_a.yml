@@ -8,9 +8,10 @@ file:
           - literal: '1'
           - binary_operator: +
           - start_bracket: (
-          - literal: '2'
-          - binary_operator: '*'
-          - literal: '3'
+          - expression:
+            - literal: '2'
+            - binary_operator: '*'
+            - literal: '3'
           - end_bracket: )
           - comparison_operator: '>='
           - literal: '4'
