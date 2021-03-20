@@ -16,6 +16,7 @@ missing.
 
 import copy
 import logging
+import pathlib
 import re
 from collections import namedtuple
 
@@ -251,6 +252,7 @@ class BaseCrawler:
         siblings_post=None,
         raw_stack=None,
         memory=None,
+        fname=None,
     ):
         """Recursively perform the crawl operation on a given segment.
 
@@ -287,6 +289,7 @@ class BaseCrawler:
                 raw_stack=raw_stack,
                 memory=memory,
                 dialect=dialect,
+                path=pathlib.Path(fname) if fname else None,
             )
         # Any exception at this point would halt the linter and
         # cause the user to get no results
@@ -353,6 +356,7 @@ class BaseCrawler:
                 raw_stack=raw_stack,
                 memory=memory,
                 dialect=dialect,
+                fname=fname,
             )
             vs += dvs
             fixes += child_fixes
