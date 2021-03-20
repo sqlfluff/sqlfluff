@@ -44,3 +44,27 @@ def test_rules__test_helper_skipped_when_test_case_skipped():
     with pytest.raises(Skipped) as skipped_test:
         rules__test_helper(rule_test_case)
     skipped_test.match("Skip this one for now")
+
+
+def test_rules__test_helper_has_variable_introspection():
+    """Make sure the helper gives variable introspection information on failure."""
+    rule_test_case = RuleTestCase(
+        rule="L003",
+        fail_str="""
+            select
+                a,
+                    b
+            from table
+        """,
+        # extra comma on purpose
+        fix_str="""
+            select
+                a,
+                b,
+            from table
+        """,
+    )
+    with pytest.raises(AssertionError) as skipped_test:
+        rules__test_helper(rule_test_case)
+    # Enough to check that a query diff is displayed
+    skipped_test.match("select")
