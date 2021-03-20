@@ -639,6 +639,8 @@ class BaseGrammar(Matchable):
         the same elements but _different configuration_ will be
         classed as the same. If this matters for your use case,
         consider extending this function.
+
+        e.g. `OneOf(foo) == OneOf(foo, optional=True)`
         """
         return type(self) is type(other) and self._elements == other._elements
 
