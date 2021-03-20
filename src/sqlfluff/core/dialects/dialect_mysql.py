@@ -6,12 +6,10 @@ https://dev.mysql.com/doc/refman/8.0/en/differences-from-ansi.html
 
 from sqlfluff.core.parser import NamedSegment, Ref, AnyNumberOf, Sequence, OneOf
 
-from sqlfluff.core.dialects.dialect_ansi import (
-    ansi_dialect,
-    CreateTableStatementSegment as ansi_CreateTableStatementSegment,
-)
+import sqlfluff.core.dialects.dialect_ansi as ansi
 
-mysql_dialect = ansi_dialect.copy_as("mysql")
+
+mysql_dialect = ansi.ansi_dialect.copy_as("mysql")
 
 mysql_dialect.patch_lexer_struct(
     [
@@ -44,7 +42,7 @@ mysql_dialect.add(
 
 
 @mysql_dialect.segment(replace=True)
-class CreateTableStatementSegment(ansi_CreateTableStatementSegment):
+class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     # https://dev.mysql.com/doc/refman/8.0/en/create-table.html
     match_grammar = ansi_dialect.get("CreateTableStatementSegment").match_grammar.copy(
         insert=[

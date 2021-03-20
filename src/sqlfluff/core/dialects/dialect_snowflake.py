@@ -6,11 +6,7 @@ Based on https://docs.snowflake.com/en/sql-reference-commands.html
 """
 
 from sqlfluff.core.dialects.dialect_postgres import postgres_dialect
-from sqlfluff.core.dialects.dialect_ansi import (
-    SelectStatementSegment as ansi_SelectStatementSegment,
-    StatementSegment as ansi_StatementSegment,
-    SelectClauseModifierSegment as ansi_SelectClauseModifierSegment,
-)
+import sqlfluff.core.dialects.dialect_ansi as ansi
 from sqlfluff.core.parser import (
     BaseSegment,
     NamedSegment,
@@ -143,10 +139,10 @@ snowflake_dialect.replace(
 
 
 @snowflake_dialect.segment(replace=True)
-class StatementSegment(ansi_StatementSegment):
+class StatementSegment(ansi.StatementSegment):
     """A generic segment, to any of its child subsegments."""
 
-    parse_grammar = ansi_StatementSegment.parse_grammar.copy(
+    parse_grammar = ansi.StatementSegment.parse_grammar.copy(
         insert=[
             Ref("UseStatementSegment"),
             Ref("CreateStatementSegment"),
@@ -321,7 +317,7 @@ class SemiStructuredAccessorSegment(BaseSegment):
 
 
 @snowflake_dialect.segment(replace=True)
-class SelectClauseModifierSegment(ansi_SelectClauseModifierSegment):
+class SelectClauseModifierSegment(ansi.SelectClauseModifierSegment):
     """Things that come after SELECT but before the columns.
 
     In snowflake we go back to similar functionality as the ANSI
@@ -359,7 +355,7 @@ class QualifyClauseSegment(BaseSegment):
 
 
 @snowflake_dialect.segment(replace=True)
-class SelectStatementSegment(ansi_SelectStatementSegment):
+class SelectStatementSegment(ansi.SelectStatementSegment):
     """A snowflake `SELECT` statement including optional Qualify.
 
     https://docs.snowflake.com/en/sql-reference/constructs/qualify.html
@@ -376,7 +372,7 @@ class SelectStatementSegment(ansi_SelectStatementSegment):
         terminator=Ref("SetOperatorSegment"),
     )
 
-    parse_grammar = ansi_SelectStatementSegment.parse_grammar.copy(
+    parse_grammar = ansi.SelectStatementSegment.parse_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OrderByClauseSegment", optional=True),
     )

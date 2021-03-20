@@ -21,14 +21,10 @@ from sqlfluff.core.parser import (
     Indent,
 )
 
-from sqlfluff.core.dialects.dialect_ansi import (
-    ansi_dialect,
-    SelectTargetElementSegment as AnsiSelectTargetElementSegment,
-    SelectClauseSegment as AnsiSelectClauseSegment,
-)
+import sqlfluff.core.dialects.dialect_ansi as ansi
 
 
-bigquery_dialect = ansi_dialect.copy_as("bigquery")
+bigquery_dialect = ansi.ansi_dialect.copy_as("bigquery")
 
 bigquery_dialect.patch_lexer_struct(
     [
@@ -116,7 +112,7 @@ class IntervalExpressionSegment(BaseSegment):
 
 
 @bigquery_dialect.segment(replace=True)
-class SelectClauseSegment(AnsiSelectClauseSegment):
+class SelectClauseSegment(ansi.SelectClauseSegment):
     """In BigQuery, select * as struct is valid."""
 
     parse_grammar = Sequence(
@@ -140,7 +136,7 @@ class SelectClauseSegment(AnsiSelectClauseSegment):
 
 
 @bigquery_dialect.segment(replace=True)
-class SelectTargetElementSegment(AnsiSelectTargetElementSegment):
+class SelectTargetElementSegment(ansi.SelectTargetElementSegment):
     """BigQuery also supports the special "Struct" construct."""
 
     parse_grammar = OneOf(
