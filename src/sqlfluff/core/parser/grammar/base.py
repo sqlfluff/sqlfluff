@@ -666,6 +666,9 @@ class BaseGrammar(Matchable):
             before (optional): An alternative to _at_ to determine the
                 position of an insertion. Using this inserts the elements
                 immediately before the position of this element.
+                Note that this is not an _index_ but an element to look
+                for (i.e. a Segment or Grammar which will be compared
+                with other elements for equality).
             remove (:obj:`list`, optional): A list of individual
                 elements to remove from a grammar. Removal is done
                 *after* insertion so that order is preserved.
