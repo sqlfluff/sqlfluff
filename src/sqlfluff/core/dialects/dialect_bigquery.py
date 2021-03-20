@@ -226,7 +226,9 @@ class WildcardExpressionSegment(BaseSegment):
     """An extension of the star expression for Bigquery."""
 
     type = "wildcard_expression"
-    match_grammar = ansi.ansi_dialect.get("WildcardExpressionSegment").match_grammar.copy(
+    match_grammar = ansi.ansi_dialect.get(
+        "WildcardExpressionSegment"
+    ).match_grammar.copy(
         insert=[
             # Optional EXCEPT or REPLACE clause
             # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#select_replace
