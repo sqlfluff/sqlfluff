@@ -6,11 +6,12 @@ file:
         select_target_element:
           expression:
           - start_bracket: (
-          - literal: '1'
-          - comparison_operator: '>'
-          - literal: '0'
-          - binary_operator: AND
-          - literal: '0'
-          - comparison_operator: <
-          - literal: '1'
+          - expression:
+            - literal: '1'
+            - comparison_operator: '>'
+            - literal: '0'
+            - binary_operator: AND
+            - literal: '0'
+            - comparison_operator: <
+            - literal: '1'
           - end_bracket: )

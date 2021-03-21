@@ -14,12 +14,13 @@ file:
         - select_target_element:
             expression:
               - start_bracket: (
-              - column_reference:
-                  identifier: json
-              - binary_operator: ->
-              - literal: "'type'"
-              - binary_operator: ->>
-              - literal: "'id'"
+              - expression:
+                - column_reference:
+                    identifier: json
+                - binary_operator: ->
+                - literal: "'type'"
+                - binary_operator: ->>
+                - literal: "'id'"
               - end_bracket: )
               - cast_expression:
                   casting_operator: "::"
@@ -32,12 +33,13 @@ file:
         - select_target_element:
             expression:
               - start_bracket: (
-              - column_reference:
-                  identifier: json
-              - binary_operator: ->
-              - literal: "'type'"
-              - binary_operator: ->>
-              - literal: "'name'"
+              - expression:
+                - column_reference:
+                    identifier: json
+                - binary_operator: ->
+                - literal: "'type'"
+                - binary_operator: ->>
+                - literal: "'name'"
               - end_bracket: )
             alias_expression:
               keyword: as
