@@ -1,11 +1,11 @@
 """Implementation of Rule L039."""
 
-from ..base import BaseCrawler, LintFix, LintResult
+from ..base import BaseRule, LintFix, LintResult
 from ..doc_decorators import document_fix_compatible
 
 
 @document_fix_compatible
-class Rule_L039(BaseCrawler):
+class Rule_L039(BaseRule):
     """Unnecessary whitespace found.
 
     | **Anti-pattern**

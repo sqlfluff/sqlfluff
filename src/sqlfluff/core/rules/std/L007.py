@@ -1,9 +1,9 @@
 """Implementation of Rule L007."""
 
-from sqlfluff.core.rules.base import BaseCrawler, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintResult
 
 
-class Rule_L007(BaseCrawler):
+class Rule_L007(BaseRule):
     """Operators near newlines should be after, not before the newline.
 
     | **Anti-pattern**
