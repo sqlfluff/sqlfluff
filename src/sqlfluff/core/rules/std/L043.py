@@ -1,11 +1,11 @@
 """Implementation of Rule L043."""
 
-from sqlfluff.core.rules.base import BaseCrawler, LintFix, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
 @document_fix_compatible
-class Rule_L043(BaseCrawler):
+class Rule_L043(BaseRule):
     """Unnecessary case when statement. Use the "when" condition itself.
 
     If a case when else statement returns booleans, we can reduce it to the
