@@ -162,7 +162,7 @@ bigquery_dialect.replace(
         "back_quote", name="quoted_identifier", type="identifier", trim_chars=("`",)
     ),
     # Add two elements to the ansi LiteralGrammar
-    LiteralGrammar=ansi.ansi_dialect.get("LiteralGrammar").copy(
+    LiteralGrammar=ansi.ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[Ref("DoubleQuotedLiteralSegment"), Ref("LiteralCoercionSegment")]
     ),
     PostTableExpressionGrammar=Sequence(
@@ -226,7 +226,7 @@ class WildcardExpressionSegment(BaseSegment):
     """An extension of the star expression for Bigquery."""
 
     type = "wildcard_expression"
-    match_grammar = ansi.ansi_dialect.get(
+    match_grammar = ansi.ansi_dialect.get_segment(
         "WildcardExpressionSegment"
     ).match_grammar.copy(
         insert=[

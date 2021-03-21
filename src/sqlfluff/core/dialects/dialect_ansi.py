@@ -1269,7 +1269,7 @@ ansi_dialect.add(
         ),
     ),
     # Expression_B_Grammar https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#b_expr
-    Expression_B_Grammar=None,  # TODO
+    # Expression_B_Grammar=None,  # TODO
     # Expression_C_Grammar https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#c_expr
     Expression_C_Grammar=OneOf(
         Sequence(

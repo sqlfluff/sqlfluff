@@ -27,7 +27,7 @@ mysql_dialect.replace(
     QuotedIdentifierSegment=NamedSegment.make(
         "back_quote", name="quoted_identifier", type="identifier", trim_chars=("`",)
     ),
-    LiteralGrammar=ansi.ansi_dialect.get("LiteralGrammar").copy(
+    LiteralGrammar=ansi.ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
             Ref("DoubleQuotedLiteralSegment"),
         ]
@@ -48,7 +48,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     https://dev.mysql.com/doc/refman/8.0/en/create-table.html
     """
 
-    match_grammar = ansi.ansi_dialect.get(
+    match_grammar = ansi.ansi_dialect.get_segment(  # type: ignore
         "CreateTableStatementSegment"
     ).match_grammar.copy(
         insert=[

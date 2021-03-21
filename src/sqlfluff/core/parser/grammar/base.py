@@ -21,6 +21,17 @@ from sqlfluff.core.parser.context import ParseContext
 MatchableType = Union[Matchable, Type[BaseSegment]]
 
 
+class BracketInfo(NamedTuple):
+    """BracketInfo tuple for keeping track of brackets during matching.
+
+    This is used in BaseGrammar._bracket_sensitive_look_ahead_match but
+    defined here for type checking.
+    """
+
+    bracket: BaseSegment
+    is_definite: bool
+
+
 def cached_method_for_parse_context(func):
     """A decorator to cache the output of this method for a given parse context.
 
@@ -432,11 +443,6 @@ class BaseGrammar(Matchable):
             `tuple` of (unmatched_segments, match_object, matcher).
 
         """
-
-        class BracketInfo(NamedTuple):
-            bracket: BaseSegment
-            is_definite: bool
-
         # Type munging
         matchers = list(matchers)
         if isinstance(segments, BaseSegment):
@@ -690,6 +696,7 @@ class BaseGrammar(Matchable):
         at: Optional[int] = None,
         before: Optional[Any] = None,
         remove: Optional[list] = None,
+        **kwargs,
     ):
         """Create a copy of this grammar, optionally with differences.
 

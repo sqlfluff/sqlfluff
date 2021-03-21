@@ -1,6 +1,13 @@
 """Defines the base dialect class."""
 
-from sqlfluff.core.parser import KeywordSegment, SegmentGenerator
+from typing import Union, Type
+
+from sqlfluff.core.parser import KeywordSegment, SegmentGenerator, BaseSegment
+from sqlfluff.core.parser.grammar.base import BaseGrammar
+
+DialectElementType = Union[Type[BaseSegment], BaseGrammar, SegmentGenerator]
+# NOTE: Post expansion, no generators remain
+ExpandedDialectElementType = Union[Type[BaseSegment], BaseGrammar]
 
 
 class Dialect:
@@ -124,7 +131,7 @@ class Dialect:
         # return the wrapping function
         return segment_wrap
 
-    def add(self, **kwargs):
+    def add(self, **kwargs: DialectElementType):
         """Add a segment to the dialect directly.
 
         This is the alternative to the decorator route, most useful for segments
@@ -141,7 +148,7 @@ class Dialect:
                 raise ValueError("{0!r} is already registered in {1!r}".format(n, self))
             self._library[n] = kwargs[n]
 
-    def replace(self, **kwargs):
+    def replace(self, **kwargs: DialectElementType):
         """Override a segment on the dialect directly.
 
         Usage is very similar to add, but elements specified must already exist.
@@ -153,17 +160,39 @@ class Dialect:
                 )
             self._library[n] = kwargs[n]
 
-    def get(self, name):
-        """Allow access to elements pre-expansion.
+    def get_grammar(self, name: str) -> BaseGrammar:
+        """Allow access to grammars pre-expansion.
 
-        This is typically for dialect inheritance.
+        This is typically for dialect inheritance. This method
+        also validates that the result is a grammar.
         """
+        if name not in self._library:
+            raise ValueError("Element {0} not found in dialect.".format(name))
+        if not isinstance(self._library[name], BaseGrammar):
+            raise TypeError(
+                "Attempted to fetch non grammar [{}] with get_grammar.".format(name)
+            )
         return self._library[name]
 
-    def ref(self, name):
+    def get_segment(self, name: str) -> Type["BaseSegment"]:
+        """Allow access to segments pre-expansion.
+
+        This is typically for dialect inheritance. This method
+        also validates that the result is a segment.
+        """
+        if name not in self._library:
+            raise ValueError("Element {0} not found in dialect.".format(name))
+        if not issubclass(self._library[name], BaseSegment):
+            raise TypeError(
+                "Attempted to fetch non segment [{}] with get_segment.".format(name)
+            )
+        return self._library[name]
+
+    def ref(self, name: str) -> ExpandedDialectElementType:
         """Return an object which acts as a late binding reference to the element named.
 
-        NB: This requires the dialect to be expanded.
+        NB: This requires the dialect to be expanded, and only returns Matchables
+        as a result.
 
         """
         if not self.expanded:
