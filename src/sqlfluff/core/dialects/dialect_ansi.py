@@ -1188,18 +1188,21 @@ ansi_dialect.add(
                     "NOT",
                     "PRIOR",  # used in CONNECT BY clauses (EXASOL, Snowflake, Postgres...)
                 ),
-                Ref("Expression_A_Grammar"),
+                Ref("Expression_C_Grammar"),
             ),
         ),
         AnyNumberOf(
             OneOf(
                 Sequence(
                     OneOf(
-                        Ref("BinaryOperatorGrammar"),
                         Sequence(
                             Ref.keyword("NOT", optional=True),
                             Ref("LikeGrammar"),
-                        )
+                        ),
+                        Sequence(
+                            Ref("BinaryOperatorGrammar"),
+                            Ref.keyword("NOT", optional=True),
+                        ),
                         # We need to add a lot more here...
                     ),
                     Ref("Expression_C_Grammar"),

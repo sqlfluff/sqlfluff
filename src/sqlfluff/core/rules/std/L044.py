@@ -3,7 +3,7 @@ from typing import Dict, List
 
 from sqlfluff.core.rules.analysis.select_crawler import SelectCrawler
 from sqlfluff.core.dialects.base import Dialect
-from sqlfluff.core.rules.base import BaseCrawler, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintResult
 
 
 class RuleFailure(Exception):
@@ -12,7 +12,7 @@ class RuleFailure(Exception):
     pass
 
 
-class Rule_L044(BaseCrawler):
+class Rule_L044(BaseRule):
     """Query produces an unknown number of result columns.
 
     | **Anti-pattern**
