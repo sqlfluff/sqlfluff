@@ -1072,10 +1072,7 @@ class JoinOnConditionSegment(BaseSegment):
     match_grammar = Sequence(
         "ON",
         Indent,
-        OptionallyBracketed(
-            Ref("ExpressionSegment"),
-            ephemeral_name="JoinCondition"
-        ),
+        OptionallyBracketed(Ref("ExpressionSegment")),
         Dedent,
     )
 
