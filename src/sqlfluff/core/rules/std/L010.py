@@ -1,7 +1,7 @@
 """Implementation of Rule L010."""
 
 from typing import Tuple, List
-from sqlfluff.core.rules.base import BaseCrawler, LintResult, LintFix
+from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_configuration,
@@ -10,7 +10,7 @@ from sqlfluff.core.rules.doc_decorators import (
 
 @document_fix_compatible
 @document_configuration
-class Rule_L010(BaseCrawler):
+class Rule_L010(BaseRule):
     """Inconsistent capitalisation of keywords.
 
     | **Anti-pattern**

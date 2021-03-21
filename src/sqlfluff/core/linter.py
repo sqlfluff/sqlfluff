@@ -40,7 +40,7 @@ from sqlfluff.core.config import FluffConfig, ConfigLoader
 from sqlfluff.core.parser.segments.base import BaseSegment, FixPatch
 from sqlfluff.core.parser.segments.meta import MetaSegment
 from sqlfluff.core.parser.segments.raw import RawSegment
-from sqlfluff.core.rules.base import BaseCrawler
+from sqlfluff.core.rules.base import BaseRule
 
 # Instantiate the linter logger
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
@@ -728,7 +728,7 @@ class Linter:
         # Store references to user rule classes
         self.user_rules = user_rules or []
 
-    def get_ruleset(self, config: Optional[FluffConfig] = None) -> List[BaseCrawler]:
+    def get_ruleset(self, config: Optional[FluffConfig] = None) -> List[BaseRule]:
         """Get hold of a set of rules."""
         rs = get_ruleset()
         # Register any user rules
