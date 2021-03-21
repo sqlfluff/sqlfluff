@@ -1,0 +1,49 @@
+file:
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_target_element:
+            expression:
+            - literal: 'TRUE'
+            - binary_operator: AND
+            - keyword: NOT
+            - literal: 'FALSE'
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_target_element:
+            literal: 'TRUE'
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_target_element:
+            expression:
+            - literal: 'TRUE'
+            - binary_operator: AND
+            - literal: 'FALSE'
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_target_element:
+            expression:
+              keyword: NOT
+              literal: 'TRUE'
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_target_element:
+            expression:
+            - keyword: NOT
+            - literal: 'TRUE'
+            - binary_operator: AND
+            - literal: 'FALSE'
+  - statement_terminator: ;
