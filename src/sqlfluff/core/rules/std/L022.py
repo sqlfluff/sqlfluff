@@ -1,11 +1,11 @@
 """Implementation of Rule L022."""
 
-from sqlfluff.core.rules.base import BaseCrawler, LintFix, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
 @document_fix_compatible
-class Rule_L022(BaseCrawler):
+class Rule_L022(BaseRule):
     """Blank line expected but not found after CTE closing bracket.
 
     | **Anti-pattern**

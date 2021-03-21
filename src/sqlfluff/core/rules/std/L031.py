@@ -1,11 +1,11 @@
 """Implementation of Rule L031."""
 
-from sqlfluff.core.rules.base import BaseCrawler, LintFix, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
 @document_fix_compatible
-class Rule_L031(BaseCrawler):
+class Rule_L031(BaseRule):
     """Avoid table aliases in from clauses and join conditions.
 
     | **Anti-pattern**
