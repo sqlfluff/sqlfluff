@@ -26,9 +26,9 @@ file:
                   table_reference:
                     identifier: table2
             - join_on_condition:
-                keyword: 'ON'
-                expression:
-                - start_bracket: (
+              - keyword: 'ON'
+              - start_bracket: (
+              - expression:
                 - column_reference:
                   - identifier: table1
                   - dot: .
@@ -38,4 +38,4 @@ file:
                   - identifier: table2
                   - dot: .
                   - identifier: id
-                - end_bracket: )
+              - end_bracket: )
