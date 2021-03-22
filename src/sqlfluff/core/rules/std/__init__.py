@@ -21,9 +21,12 @@ def get_rules_from_path(
         rule_id = os.path.splitext(os.path.basename(module))[0]
         # All rule classes are expected in the format of Rule_L*
         rule_class_name = f"Rule_{rule_id}"
+        # NOTE: We import the module outside of the try clause to
+        # properly catch any import errors.
+        rule_module = import_module(f"{base_module}.{rule_id}")
         try:
             rule_class = getattr(
-                import_module(f"{base_module}.{rule_id}"), rule_class_name
+                rule_module, rule_class_name
             )
         except AttributeError as e:
             raise AttributeError(
