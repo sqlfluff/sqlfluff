@@ -12,22 +12,22 @@ file:
           main_table_expression:
             table_reference:
               identifier: table1
-          join_clause:
-          - keyword: RIGHT
-          - keyword: JOIN
-          - table_expression:
-              main_table_expression:
-                table_reference:
-                  identifier: table2
-          - join_on_condition:
-              keyword: 'ON'
-              expression:
-              - column_reference:
-                - identifier: table1
-                - dot: .
-                - identifier: column_name
-              - comparison_operator: '='
-              - column_reference:
-                - identifier: table2
-                - dot: .
-                - identifier: column_name
+        join_clause:
+        - keyword: RIGHT
+        - keyword: JOIN
+        - table_expression:
+            main_table_expression:
+              table_reference:
+                identifier: table2
+        - join_on_condition:
+            keyword: 'ON'
+            expression:
+            - column_reference:
+              - identifier: table1
+              - dot: .
+              - identifier: column_name
+            - comparison_operator: '='
+            - column_reference:
+              - identifier: table2
+              - dot: .
+              - identifier: column_name

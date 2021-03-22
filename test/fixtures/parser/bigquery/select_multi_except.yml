@@ -30,17 +30,17 @@ file:
           alias_expression:
             keyword: as
             identifier: d
-          join_clause:
-          - keyword: inner
-          - keyword: join
-          - table_expression:
-              main_table_expression:
-                table_reference:
-                  identifier: my_other_table
-              alias_expression:
-                keyword: as
-                identifier: r
-          - keyword: using
-          - start_bracket: (
-          - identifier: date_key
-          - end_bracket: )
+        join_clause:
+        - keyword: inner
+        - keyword: join
+        - table_expression:
+            main_table_expression:
+              table_reference:
+                identifier: my_other_table
+            alias_expression:
+              keyword: as
+              identifier: r
+        - keyword: using
+        - start_bracket: (
+        - identifier: date_key
+        - end_bracket: )
