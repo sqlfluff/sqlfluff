@@ -1,27 +1,38 @@
-"""Contains SQL Dialects."""
+"""Contains SQL Dialects.
+
+Note that individual dialects are only imported as needed at runtime.
+This avoids circular references in python 3.6.
+
+To enable this, any modules outside of .dialects cannot import dialects
+directly. They should import `dialect_selector` and use that to fetch
+dialects.
+
+Within .dialects, each dialect is free to depend on other dialects as
+required. Any dependent dialects will be loaded as needed.
+"""
 
 from typing import NamedTuple
-
-from sqlfluff.core.dialects.dialect_ansi import ansi_dialect
-from sqlfluff.core.dialects.dialect_bigquery import bigquery_dialect
-from sqlfluff.core.dialects.dialect_mysql import mysql_dialect
-from sqlfluff.core.dialects.dialect_teradata import teradata_dialect
-from sqlfluff.core.dialects.dialect_postgres import postgres_dialect
-from sqlfluff.core.dialects.dialect_snowflake import snowflake_dialect
-from sqlfluff.core.dialects.dialect_exasol import exasol_dialect
-from sqlfluff.core.dialects.dialect_exasol_fs import exasol_fs_dialect
+from importlib import import_module
 
 
+# Eventually it would be a good to dynamically discover dialects
+# from any module beginning with "dialect_" within this folder.
 _dialect_lookup = {
-    "ansi": ansi_dialect,
-    "bigquery": bigquery_dialect,
-    "mysql": mysql_dialect,
-    "teradata": teradata_dialect,
-    "postgres": postgres_dialect,
-    "snowflake": snowflake_dialect,
-    "exasol": exasol_dialect,
-    "exasol_fs": exasol_fs_dialect,
+    "ansi": ("dialect_ansi", "ansi_dialect"),
+    "bigquery": ("dialect_bigquery", "bigquery_dialect"),
+    "mysql": ("dialect_mysql", "mysql_dialect"),
+    "teradata": ("dialect_teradata", "teradata_dialect"),
+    "postgres": ("dialect_postgres", "postgres_dialect"),
+    "snowflake": ("dialect_snowflake", "snowflake_dialect"),
+    "exasol": ("dialect_exasol", "exasol_dialect"),
+    "exasol_fs": ("dialect_exasol_fs", "exasol_fs_dialect"),
 }
+
+
+def _load_dialect(label, base_module="sqlfluff.core.dialects"):
+    """Dynamically load a dialect."""
+    module, name = _dialect_lookup[label]
+    return getattr(import_module(f"{base_module}.{module}"), name)
 
 
 class DialectTuple(NamedTuple):
@@ -35,18 +46,17 @@ class DialectTuple(NamedTuple):
 def dialect_readout():
     """Generate a readout of available dialects."""
     for dialect_label in _dialect_lookup:
-        d = _dialect_lookup[dialect_label]
+        dialect = _load_dialect(dialect_label)
         yield DialectTuple(
             label=dialect_label,
-            name=d.name,
-            inherits_from=d.inherits_from or "nothing",
+            name=dialect.name,
+            inherits_from=dialect.inherits_from or "nothing",
         )
 
 
 def dialect_selector(s):
     """Return a dialect given its name."""
-    s = s or "ansi"
-    dialect = _dialect_lookup[s]
+    dialect = _load_dialect(s or "ansi")
     # Expand any callable references at this point.
     dialect.expand()
     return dialect
