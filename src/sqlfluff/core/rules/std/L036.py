@@ -3,7 +3,7 @@
 from typing import List, NamedTuple
 
 from sqlfluff.core.parser import BaseSegment
-from sqlfluff.core.rules.base import BaseCrawler, LintFix, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
@@ -18,7 +18,7 @@ class SelectTargetsInfo(NamedTuple):
 
 
 @document_fix_compatible
-class Rule_L036(BaseCrawler):
+class Rule_L036(BaseRule):
     """Select targets should be on a new line unless there is only one select target.
 
     | **Anti-pattern**
