@@ -96,6 +96,8 @@ setup(
         "dataclasses",
         # better type hints for older python versions
         "typing_extensions",
+        # We provide a testing library for plugins in sqlfluff.testing
+        "pytest",
     ],
     extras_require={
         "dbt": ["dbt>=0.17"],

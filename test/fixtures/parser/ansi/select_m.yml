@@ -55,24 +55,26 @@ file:
               keyword: 'ON'
               expression:
               - start_bracket: (
-              - column_reference:
-                  identifier: business_type
-              - comparison_operator: '='
-              - column_reference:
-                  identifier: low_business_type
+              - expression:
+                - column_reference:
+                    identifier: business_type
+                - comparison_operator: '='
+                - column_reference:
+                    identifier: low_business_type
               - end_bracket: )
               - binary_operator: AND
               - start_bracket: (
-              - column_reference:
-                  identifier: business_type
-              - comparison_operator: '='
-              - column_reference:
-                  identifier: low_business_type
-              - binary_operator: OR
-              - column_reference:
-                  identifier: size_label
-              - comparison_operator: '='
-              - column_reference:
-                  identifier: low_size_label
+              - expression:
+                - column_reference:
+                    identifier: business_type
+                - comparison_operator: '='
+                - column_reference:
+                    identifier: low_business_type
+                - binary_operator: OR
+                - column_reference:
+                    identifier: size_label
+                - comparison_operator: '='
+                - column_reference:
+                    identifier: low_size_label
               - end_bracket: )
 - statement_terminator: ;

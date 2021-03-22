@@ -12,7 +12,7 @@ grammar. Check out their docs, they're awesome.
 https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 """
 
-from typing import List, Tuple, NamedTuple, Optional
+from typing import Generator, List, Tuple, NamedTuple, Optional
 
 from sqlfluff.core.parser import (
     Matchable,
@@ -34,6 +34,7 @@ from sqlfluff.core.parser import (
     Indent,
     Dedent,
     Nothing,
+    OptionallyBracketed,
 )
 
 from sqlfluff.core.dialects.base import Dialect
@@ -480,14 +481,20 @@ class ObjectReferenceSegment(BaseSegment):
         allow_gaps=False,
     )
 
-    @staticmethod
-    def _iter_reference_parts(elem):
+    class ObjectReferencePart(NamedTuple):
+        """Details about a table alias."""
+
+        part: str  # Name of the part
+        segment: BaseSegment  # Segment containing the part
+
+    @classmethod
+    def _iter_reference_parts(cls, elem) -> Generator[ObjectReferencePart, None, None]:
         """Extract the elements of a reference and yield."""
         # trim on quotes and split out any dots.
         for part in elem.raw_trimmed().split("."):
-            yield part, elem
+            yield cls.ObjectReferencePart(part, elem)
 
-    def iter_raw_references(self):
+    def iter_raw_references(self) -> Generator[ObjectReferencePart, None, None]:
         """Generate a list of reference strings and elements.
 
         Each element is a tuple of (str, segment). If some are
@@ -506,7 +513,7 @@ class ObjectReferenceSegment(BaseSegment):
         """Return the qualification type of this reference."""
         return "qualified" if self.is_qualified() else "unqualified"
 
-    def extract_reference(self, level):
+    def extract_reference(self, level: int) -> Optional[ObjectReferencePart]:
         """Extract a reference of a given level.
 
         e.g. level 1 = the object.
@@ -814,6 +821,7 @@ class AliasInfo(NamedTuple):
     aliased: bool
     table_expression: BaseSegment
     alias_expression: Optional[BaseSegment]
+    object_reference: Optional[BaseSegment]
 
 
 @ansi_dialect.segment()
@@ -847,19 +855,21 @@ class TableExpressionSegment(BaseSegment):
 
         """
         alias_expression = self.get_child("alias_expression")
+        ref = self.get_child("main_table_expression").get_child("object_reference")
         if alias_expression:
             # If it has an alias, return that
             segment = alias_expression.get_child("identifier")
-            return AliasInfo(segment.raw, segment, True, self, alias_expression)
+            return AliasInfo(segment.raw, segment, True, self, alias_expression, ref)
 
         # If not return the object name (or None if there isn't one)
         # ref = self.get_child("object_reference")
-        ref = self.get_child("main_table_expression").get_child("object_reference")
         if ref:
             # Return the last element of the reference, which
             # will already be a tuple.
             penultimate_ref = list(ref.iter_raw_references())[-1]
-            return AliasInfo(penultimate_ref[0], penultimate_ref[1], False, self, None)
+            return AliasInfo(
+                penultimate_ref[0], penultimate_ref[1], False, self, None, ref
+            )
         # No references or alias, return None
         return None
 
@@ -974,7 +984,11 @@ class SelectClauseSegment(BaseSegment):
     type = "select_clause"
     match_grammar = StartsWith(
         Sequence("SELECT", Ref("WildcardExpressionSegment", optional=True)),
-        terminator=OneOf("FROM", "LIMIT", Ref("SetOperatorSegment")),
+        terminator=OneOf(
+            "FROM",
+            "LIMIT",
+            Ref("SetOperatorSegment"),
+        ),
         enforce_whitespace_preceeding_terminator=True,
     )
 
@@ -1062,10 +1076,7 @@ class JoinOnConditionSegment(BaseSegment):
     match_grammar = Sequence(
         "ON",
         Indent,
-        OneOf(
-            Ref("ExpressionSegment"),
-            Bracketed(Ref("ExpressionSegment", ephemeral_name="JoinCondition")),
-        ),
+        OptionallyBracketed(Ref("ExpressionSegment")),
         Dedent,
     )
 
@@ -1181,18 +1192,21 @@ ansi_dialect.add(
                     "NOT",
                     "PRIOR",  # used in CONNECT BY clauses (EXASOL, Snowflake, Postgres...)
                 ),
-                Ref("Expression_A_Grammar"),
+                Ref("Expression_C_Grammar"),
             ),
         ),
         AnyNumberOf(
             OneOf(
                 Sequence(
                     OneOf(
-                        Ref("BinaryOperatorGrammar"),
                         Sequence(
                             Ref.keyword("NOT", optional=True),
                             Ref("LikeGrammar"),
-                        )
+                        ),
+                        Sequence(
+                            Ref("BinaryOperatorGrammar"),
+                            Ref.keyword("NOT", optional=True),
+                        ),
                         # We need to add a lot more here...
                     ),
                     Ref("Expression_C_Grammar"),
@@ -1275,7 +1289,9 @@ ansi_dialect.add(
             Ref("FunctionSegment"),
             Bracketed(
                 OneOf(
-                    Ref("Expression_A_Grammar"),
+                    # We're using the expression segment here rather than the grammar so
+                    # that in the parsed structure we get nested elements.
+                    Ref("ExpressionSegment"),
                     Ref("SelectableGrammar"),
                     Delimited(
                         Ref(
@@ -1820,7 +1836,7 @@ class CreateTableStatementSegment(BaseSegment):
             # Create AS syntax:
             Sequence(
                 "AS",
-                Ref("SelectableGrammar"),
+                OptionallyBracketed(Ref("SelectableGrammar")),
             ),
             # Create like syntax
             Sequence("LIKE", Ref("TableReferenceSegment")),
@@ -2196,8 +2212,9 @@ class UpdateStatementSegment(BaseSegment):
     match_grammar = StartsWith("UPDATE")
     parse_grammar = Sequence(
         "UPDATE",
-        Ref("TableReferenceSegment"),
+        OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceSegment")),
         Ref("SetClauseListSegment"),
+        Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
     )
 

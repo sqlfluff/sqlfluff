@@ -290,10 +290,16 @@ class BaseGrammar(Matchable):
             # For existing compound segments, we should assume that within
             # that segment, things are internally consistent, that means
             # rather than enumerating all the individual segments of a longer
-            # one we just dump out the whole segment. This is a) faster and
+            # one we just dump out the whole segment, but splitting off the
+            # first element seperated by whitespace. This is a) faster and
             # also b) prevents some really horrible bugs with bracket matching.
             # See https://github.com/sqlfluff/sqlfluff/issues/433
-            str_buff = [seg.raw_upper for seg in segments]
+
+            def _trim_elem(seg):
+                s = seg.raw_upper.split(maxsplit=1)
+                return s[0] if s else ""
+
+            str_buff = [_trim_elem(seg) for seg in segments]
             match_queue = []
 
             for matcher, simple in simple_matchers:
@@ -515,13 +521,53 @@ class BaseGrammar(Matchable):
                             seg_buff = match.unmatched_segments
                             continue
                         elif matcher in end_brackets:
-                            # We've found an end bracket, remove it from the
-                            # stack and carry on.
-                            bracket_stack.pop()
-                            pre_seg_buff += pre
-                            pre_seg_buff += match.matched_segments
-                            seg_buff = match.unmatched_segments
-                            continue
+                            # Found an end bracket. Does its type match that of
+                            # the innermost start bracket (e.g. ")" matches "(",
+                            # "]" matches "[".
+                            start_index = start_brackets.index(
+                                type(bracket_stack[-1].bracket)
+                            )
+                            end_index = end_brackets.index(matcher)
+                            bracket_types_match = start_index == end_index
+                            if bracket_types_match:
+                                # Yes, the types match. So we've found a
+                                # matching end bracket. Pop the stack and carry
+                                # on.
+                                bracket_stack.pop()
+                                pre_seg_buff += pre
+                                pre_seg_buff += match.matched_segments
+                                seg_buff = match.unmatched_segments
+                                continue
+                            else:
+                                # The types don't match. Check whether the end
+                                # bracket is a definite bracket.
+                                end_is_definite = end_definite[end_index]
+                                if not end_is_definite:
+                                    # The end bracket whose type didn't match
+                                    # the innermost open bracket is not
+                                    # definite. Assume it's not a bracket and
+                                    # carry on.
+                                    pre_seg_buff += pre
+                                    pre_seg_buff += match.matched_segments
+                                    seg_buff = match.unmatched_segments
+                                else:
+                                    # Definite end bracket does not match the
+                                    # innermost start bracket. Was the innermost
+                                    # start bracket definite? If yes, error. If
+                                    # no, assume it was not a bracket.
+                                    # Can we remove any brackets from the stack which aren't definites
+                                    # to resolve the issue?
+                                    for idx in range(len(bracket_stack) - 1, -1, -1):
+                                        if not bracket_stack[idx].is_definite:
+                                            del bracket_stack[idx]
+                                            # We don't change the string buffer, we assume that was ok.
+                                            break
+                                    else:
+                                        raise SQLParseError(
+                                            f"Found unexpected end bracket!, was expecting {end_brackets[start_index]}, but got {matcher}",
+                                            segment=match.matched_segments[0],
+                                        )
+
                         else:
                             raise RuntimeError("I don't know how we get here?!")
                     else:
@@ -587,7 +633,7 @@ class BaseGrammar(Matchable):
                             if bracket_is_definite:
                                 # We've found an unexpected end bracket!
                                 raise SQLParseError(
-                                    f"Found unexpected end bracket!, was expecting one of: {matchers}, but got {matcher}",
+                                    f"Found unexpected end bracket!, was expecting one of: {matchers + bracket_matchers}, but got {matcher}",
                                     segment=match.matched_segments[0],
                                 )
                             pre_seg_buff += pre

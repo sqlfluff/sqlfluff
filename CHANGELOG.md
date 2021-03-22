@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Add support for `ALTER USER` commands in Snowflake dialect.
 
+- Renamed the BaseCrawler class to BaseRule. This is the base class for all
+  rules. This is a breaking change for any custom rules that have been added
+  via plugins or by forking the SQLFluff repo.
+  
 ## [0.4.1] - 2021-02-25
 ### Added
 

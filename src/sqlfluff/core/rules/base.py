@@ -1,7 +1,7 @@
-"""Implements the base crawler which all the rules are based on.
+"""Implements the base rule class.
 
-Crawlers, crawl through the trees returned by the parser and
-evaluate particular rules.
+Rules crawl through the trees returned by the parser and evaluate particular
+rules.
 
 The intent is that it should be possible for the rules to be expressed
 as simply as possible, with as much of the complexity abstracted away.
@@ -16,6 +16,7 @@ missing.
 
 import copy
 import logging
+import pathlib
 import re
 from collections import namedtuple
 
@@ -38,7 +39,7 @@ class RuleLoggingAdapter(logging.LoggerAdapter):
 
 
 class LintResult:
-    """A class to hold the results of a crawl operation.
+    """A class to hold the results of a rule evaluation.
 
     Args:
         anchor (:obj:`BaseSegment`, optional): A segment which represents
@@ -49,7 +50,7 @@ class LintResult:
             fixes which would correct this issue. If not present then it's
             assumed that this issue will have to manually fixed.
         memory (:obj:`dict`, optional): An object which stores any working
-            memory for the crawler. The `memory` returned in any `LintResult`
+            memory for the rule. The `memory` returned in any `LintResult`
             will be passed as an input to the next segment to be crawled.
         description (:obj:`str`, optional): A description of the problem
             identified as part of this result. This will override the
@@ -179,8 +180,8 @@ class LintFix:
         return True
 
 
-class BaseCrawler:
-    """The base class for a crawler, of which all rules are derived from.
+class BaseRule:
+    """The base class for a rule.
 
     Args:
         code (:obj:`str`): The identifier for this rule, used in inclusion
@@ -195,7 +196,7 @@ class BaseCrawler:
     def __init__(self, code, description, **kwargs):
         self.description = description
         self.code = code
-        # kwargs represents the config passed to the crawler. Add all kwargs as class attributes
+        # kwargs represents the config passed to the rule. Add all kwargs as class attributes
         # so they can be accessed in rules which inherit from this class
         for key, value in kwargs.items():
             self.__dict__[key] = value
@@ -251,6 +252,7 @@ class BaseCrawler:
         siblings_post=None,
         raw_stack=None,
         memory=None,
+        fname=None,
     ):
         """Recursively perform the crawl operation on a given segment.
 
@@ -260,7 +262,7 @@ class BaseCrawler:
         """
         # parent stack should be a tuple if it exists
 
-        # crawlers, should evaluate on segments FIRST, before evaluating on their
+        # Rules should evaluate on segments FIRST, before evaluating on their
         # children. They should also return a list of violations.
 
         parent_stack = parent_stack or ()
@@ -287,6 +289,7 @@ class BaseCrawler:
                 raw_stack=raw_stack,
                 memory=memory,
                 dialect=dialect,
+                path=pathlib.Path(fname) if fname else None,
             )
         # Any exception at this point would halt the linter and
         # cause the user to get no results
@@ -353,6 +356,7 @@ class BaseCrawler:
                 raw_stack=raw_stack,
                 memory=memory,
                 dialect=dialect,
+                fname=fname,
             )
             vs += dvs
             fixes += child_fixes
@@ -506,7 +510,7 @@ class RuleSet:
         .. code-block:: python
 
            @myruleset.register
-           class Rule_L001(BaseCrawler):
+           class Rule_L001(BaseRule):
                "Description of rule."
 
                def eval(self, **kwargs):
@@ -557,7 +561,7 @@ class RuleSet:
         for configuring the rules given the given config.
 
         Returns:
-            :obj:`list` of instantiated :obj:`BaseCrawler`.
+            :obj:`list` of instantiated :obj:`BaseRule`.
 
         """
         # Validate all generic rule configs
