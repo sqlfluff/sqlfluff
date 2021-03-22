@@ -29,29 +29,30 @@ file:
                     identifier: d
               from_clause:
                 keyword: FROM
-                table_expression:
-                  main_table_expression:
-                    table_reference:
-                      identifier: t_b
-                join_clause:
-                - keyword: INNER
-                - keyword: JOIN
-                - table_expression:
+                joined_table_expression:
+                  table_expression:
                     main_table_expression:
                       table_reference:
-                        identifier: t_c
-                - join_on_condition:
-                    keyword: 'ON'
-                    expression:
-                    - column_reference:
-                      - identifier: t_b
-                      - dot: .
-                      - identifier: d
-                    - comparison_operator: '='
-                    - column_reference:
-                      - identifier: t_c
-                      - dot: .
-                      - identifier: d
+                        identifier: t_b
+                  join_clause:
+                  - keyword: INNER
+                  - keyword: JOIN
+                  - table_expression:
+                      main_table_expression:
+                        table_reference:
+                          identifier: t_c
+                  - join_on_condition:
+                      keyword: 'ON'
+                      expression:
+                      - column_reference:
+                        - identifier: t_b
+                        - dot: .
+                        - identifier: d
+                      - comparison_operator: '='
+                      - column_reference:
+                        - identifier: t_c
+                        - dot: .
+                        - identifier: d
               where_clause:
                 keyword: WHERE
                 expression:

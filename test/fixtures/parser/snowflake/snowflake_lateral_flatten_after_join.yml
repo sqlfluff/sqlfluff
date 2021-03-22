@@ -54,31 +54,32 @@ file:
             identifier: most_recent
       from_clause:
       - keyword: from
-      - table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: a
-      - join_clause:
-        - keyword: inner
-        - keyword: join
+      - joined_table_expression:
         - table_expression:
             main_table_expression:
               table_reference:
-                identifier: b
-        - join_on_condition:
-            keyword: 'on'
-            start_bracket: (
-            expression:
-            - column_reference:
-              - identifier: b
-              - dot: .
-              - identifier: c_id
-            - comparison_operator: '='
-            - column_reference:
-              - identifier: a
-              - dot: .
-              - identifier: c_id
-            end_bracket: )
+                identifier: a
+        - join_clause:
+          - keyword: inner
+          - keyword: join
+          - table_expression:
+              main_table_expression:
+                table_reference:
+                  identifier: b
+          - join_on_condition:
+              keyword: 'on'
+              start_bracket: (
+              expression:
+              - column_reference:
+                - identifier: b
+                - dot: .
+                - identifier: c_id
+              - comparison_operator: '='
+              - column_reference:
+                - identifier: a
+                - dot: .
+                - identifier: c_id
+              end_bracket: )
       - comma: ','
       - table_expression:
           keyword: lateral

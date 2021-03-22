@@ -60,28 +60,29 @@ file:
             identifier: aliased_column3
       from_clause:
       - keyword: FROM
-      - table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: unaliased
-      - join_clause:
-          keyword: JOIN
-          table_expression:
-            main_table_expression:
-              table_reference:
-                identifier: aliased_1
-            alias_expression:
-              keyword: as
-              identifier: foo
-      - join_clause:
-        - keyword: JOIN
+      - joined_table_expression:
         - table_expression:
             main_table_expression:
               table_reference:
-                identifier: aliased_2
-            alias_expression:
-              identifier: bar
-        - keyword: USING
-        - start_bracket: (
-        - identifier: b
-        - end_bracket: )
+                identifier: unaliased
+        - join_clause:
+            keyword: JOIN
+            table_expression:
+              main_table_expression:
+                table_reference:
+                  identifier: aliased_1
+              alias_expression:
+                keyword: as
+                identifier: foo
+        - join_clause:
+          - keyword: JOIN
+          - table_expression:
+              main_table_expression:
+                table_reference:
+                  identifier: aliased_2
+              alias_expression:
+                identifier: bar
+          - keyword: USING
+          - start_bracket: (
+          - identifier: b
+          - end_bracket: )

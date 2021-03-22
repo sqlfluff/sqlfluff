@@ -46,27 +46,28 @@ file:
               identifier: some_value
         from_clause:
         - keyword: FROM
-        - table_expression:
-            main_table_expression:
-              table_reference:
-                identifier: table1
-        - join_clause:
-          - keyword: CROSS
-          - keyword: JOIN
+        - joined_table_expression:
           - table_expression:
               main_table_expression:
                 table_reference:
-                  identifier: constants
-        - join_clause:
-          - keyword: JOIN
-          - table_expression:
-              main_table_expression:
-                table_reference:
-                  identifier: table2
-              alias_expression:
-                keyword: AS
-                identifier: foo
-          - keyword: USING
-          - start_bracket: (
-          - identifier: id
-          - end_bracket: )
+                  identifier: table1
+          - join_clause:
+            - keyword: CROSS
+            - keyword: JOIN
+            - table_expression:
+                main_table_expression:
+                  table_reference:
+                    identifier: constants
+          - join_clause:
+            - keyword: JOIN
+            - table_expression:
+                main_table_expression:
+                  table_reference:
+                    identifier: table2
+                alias_expression:
+                  keyword: AS
+                  identifier: foo
+            - keyword: USING
+            - start_bracket: (
+            - identifier: id
+            - end_bracket: )

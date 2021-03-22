@@ -869,6 +869,26 @@ class TableExpressionSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class JoinedTableExpressionSegment(BaseSegment):
+    """A joined table expression."""
+
+    type = "joined_table_expression"
+    match_grammar = Sequence(
+        Indent,
+        OneOf(
+            # check first for MLTableExpression, because of possible FunctionSegment in MainTableExpression
+            Ref("MLTableExpressionSegment"),
+            Ref("TableExpressionSegment"),
+        ),
+        Dedent.when(indented_joins=False),
+        AnyNumberOf(
+            Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar"), min_times=1
+        ),
+        Dedent.when(indented_joins=True),
+    )
+
+
+@ansi_dialect.segment()
 class MainTableExpressionSegment(BaseSegment):
     """The main table expression e.g. within a FROM clause."""
 
@@ -1105,20 +1125,16 @@ class FromClauseSegment(BaseSegment):
     parse_grammar = Sequence(
         "FROM",
         Delimited(
-            Sequence(
-                Indent,
-                OneOf(
-                    # check first for MLTableExpression, because of possible FunctionSegment in MainTableExpression
-                    Ref("MLTableExpressionSegment"),
-                    Ref("TableExpressionSegment"),
+            OneOf(
+                Sequence(
+                    Indent,
+                    OneOf(
+                        Ref("MLTableExpressionSegment"),
+                        Ref("TableExpressionSegment"),
+                    ),
+                    Dedent,
                 ),
-                Dedent.when(indented_joins=False),
-                AnyNumberOf(
-                    Ref("JoinClauseSegment"),
-                    Ref("JoinLikeClauseGrammar"),
-                    optional=True,
-                ),
-                Dedent.when(indented_joins=True),
+                Ref("JoinedTableExpressionSegment"),
             ),
         ),
     )
@@ -1130,7 +1146,11 @@ class FromClauseSegment(BaseSegment):
         """
         buff = []
         direct_table_children = self.get_children("table_expression")
-        join_clauses = self.get_children("join_clause")
+        join_clauses = []
+        for joined_expr in self.get_children("joined_table_expression"):
+            for table_expr in joined_expr.get_children("table_expression"):
+                direct_table_children.append(table_expr)
+            join_clauses += joined_expr.get_children("join_clause")
         # Iterate through the potential sources of aliases
         for clause in (*direct_table_children, *join_clauses):
             ref: AliasInfo = clause.get_eventual_alias()
