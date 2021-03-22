@@ -9,11 +9,12 @@ from sqlfluff.core.dialects.dialect_snowflake import (
     CreateStatementSegment,
     CreateCloneStatementSegment,
     ShowStatementSegment,
-    AlterUserSegment,
 )
 from sqlfluff.core.dialects.dialect_ansi import AccessStatementSegment
 
 
+# Deprecated: All new tests should be added as .sql and .yml files under `test/fixtures/parser/snowflake`.
+# See test/fixtures/parser/README.md for more details.
 @pytest.mark.parametrize(
     "segment_cls,raw",
     [
@@ -111,29 +112,6 @@ from sqlfluff.core.dialects.dialect_ansi import AccessStatementSegment
         (
             SemiStructuredAccessorSegment,
             "SELECT ID :: VARCHAR as id, OBJ : userId :: VARCHAR as user_id from x",
-        ),
-        (
-            AlterUserSegment,
-            "ALTER USER my_user SET password = 'abc123', DEFAULT_ROLE = user_role;",
-        ),
-        (
-            AlterUserSegment,
-            "ALTER USER my_user unset USE_CACHED_RESULT, must_change_password;",
-        ),
-        (AlterUserSegment, 'ALTER USER IF EXISTS my_user RENAME TO "new_name";'),
-        (AlterUserSegment, "ALTER USER my_user RESET PASSWORD;"),
-        (AlterUserSegment, "ALTER USER IF EXISTS my_user ABORT ALL QUERIES;"),
-        (
-            AlterUserSegment,
-            "ALTER USER my_user ADD DELEGATED AUTHORIZATION OF ROLE my_role TO SECURITY INTEGRATION my_idp;",
-        ),
-        (
-            AlterUserSegment,
-            "ALTER USER my_user REMOVE DELEGATED AUTHORIZATIONS FROM SECURITY INTEGRATION my_idp;",
-        ),
-        (
-            AlterUserSegment,
-            "ALTER USER my_user REMOVE DELEGATED AUTHORIZATION OF ROLE my_role FROM SECURITY INTEGRATION my_idp;",
         ),
     ],
 )
