@@ -984,7 +984,11 @@ class SelectClauseSegment(BaseSegment):
     type = "select_clause"
     match_grammar = StartsWith(
         Sequence("SELECT", Ref("WildcardExpressionSegment", optional=True)),
-        terminator=OneOf("FROM", "LIMIT", Ref("SetOperatorSegment")),
+        terminator=OneOf(
+            "FROM",
+            "LIMIT",
+            Ref("SetOperatorSegment"),
+        ),
         enforce_whitespace_preceeding_terminator=True,
     )
 

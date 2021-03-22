@@ -290,10 +290,16 @@ class BaseGrammar(Matchable):
             # For existing compound segments, we should assume that within
             # that segment, things are internally consistent, that means
             # rather than enumerating all the individual segments of a longer
-            # one we just dump out the whole segment. This is a) faster and
+            # one we just dump out the whole segment, but splitting off the
+            # first element seperated by whitespace. This is a) faster and
             # also b) prevents some really horrible bugs with bracket matching.
             # See https://github.com/sqlfluff/sqlfluff/issues/433
-            str_buff = [seg.raw_upper for seg in segments]
+
+            def _trim_elem(seg):
+                s = seg.raw_upper.split(maxsplit=1)
+                return s[0] if s else ""
+
+            str_buff = [_trim_elem(seg) for seg in segments]
             match_queue = []
 
             for matcher, simple in simple_matchers:
