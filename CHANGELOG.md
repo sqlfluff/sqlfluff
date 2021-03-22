@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   to `sqlfluff.list_dialects()` due to naming conflicts with the now separate
   `sqlfluff.dialects` module.
 - Extracted dialect definitions from the `sqlfluff.core` module so that each
-  dialect is better isolated from eachother. This also allows more focussed
+  dialect is better isolated from each other. This also allows more focussed
   testing and the potential for dialect plugins in future. Dialects are now
   only imported as needed at runtime. All dialects should now be accessed
   using the selector methods in `sqlfluff.core.dialects` rather than importing
