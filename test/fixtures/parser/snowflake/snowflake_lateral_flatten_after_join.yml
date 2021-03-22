@@ -66,9 +66,9 @@ file:
                 table_reference:
                   identifier: b
           - join_on_condition:
-              keyword: 'on'
-              expression:
-              - start_bracket: (
+            - keyword: 'on'
+            - start_bracket: (
+            - expression:
               - column_reference:
                 - identifier: b
                 - dot: .
@@ -78,7 +78,7 @@ file:
                 - identifier: a
                 - dot: .
                 - identifier: c_id
-              - end_bracket: )
+            - end_bracket: )
       - comma: ','
       - table_expression:
           keyword: lateral

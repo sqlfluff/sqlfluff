@@ -6,49 +6,50 @@ file:
         select_target_element:
           expression:
           - start_bracket: (
-          - function:
-            - function_name: POW
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  identifier: sd2
-            - comma: ','
-            - expression:
-                literal: '2'
-            - end_bracket: )
-          - binary_operator: +
-          - function:
-            - function_name: POW
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  identifier: sd3
-            - comma: ','
-            - expression:
-                literal: '2'
-            - end_bracket: )
-          - binary_operator: +
-          - function:
-            - function_name: POW
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  identifier: sd4
-            - comma: ','
-            - expression:
-                literal: '2'
-            - end_bracket: )
-          - binary_operator: +
-          - function:
-            - function_name: POW
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  identifier: sd4
-            - comma: ','
-            - expression:
-                literal: '2'
-            - end_bracket: )
+          - expression:
+            - function:
+              - function_name: POW
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    identifier: sd2
+              - comma: ','
+              - expression:
+                  literal: '2'
+              - end_bracket: )
+            - binary_operator: +
+            - function:
+              - function_name: POW
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    identifier: sd3
+              - comma: ','
+              - expression:
+                  literal: '2'
+              - end_bracket: )
+            - binary_operator: +
+            - function:
+              - function_name: POW
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    identifier: sd4
+              - comma: ','
+              - expression:
+                  literal: '2'
+              - end_bracket: )
+            - binary_operator: +
+            - function:
+              - function_name: POW
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    identifier: sd4
+              - comma: ','
+              - expression:
+                  literal: '2'
+              - end_bracket: )
           - end_bracket: )
           alias_expression:
             identifier: w1
