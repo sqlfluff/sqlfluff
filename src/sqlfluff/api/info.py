@@ -7,12 +7,12 @@ from sqlfluff.core.linter import RuleTuple
 from sqlfluff.core.dialects import DialectTuple
 
 
-def rules() -> List[RuleTuple]:
+def list_rules() -> List[RuleTuple]:
     """Return a list of available rule tuples."""
     linter = Linter()
     return linter.rule_tuples()
 
 
-def dialects() -> List[DialectTuple]:
+def list_dialects() -> List[DialectTuple]:
     """Return a list of available dialect info."""
     return list(dialect_readout())

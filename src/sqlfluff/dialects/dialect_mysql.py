@@ -6,10 +6,10 @@ https://dev.mysql.com/doc/refman/8.0/en/differences-from-ansi.html
 
 from sqlfluff.core.parser import NamedSegment, Ref, AnyNumberOf, Sequence, OneOf
 
-import sqlfluff.core.dialects.dialect_ansi as ansi
+from sqlfluff.core.dialects import load_raw_dialect
 
-
-mysql_dialect = ansi.ansi_dialect.copy_as("mysql")
+ansi_dialect = load_raw_dialect("ansi")
+mysql_dialect = ansi_dialect.copy_as("mysql")
 
 mysql_dialect.patch_lexer_struct(
     [
@@ -27,7 +27,7 @@ mysql_dialect.replace(
     QuotedIdentifierSegment=NamedSegment.make(
         "back_quote", name="quoted_identifier", type="identifier", trim_chars=("`",)
     ),
-    LiteralGrammar=ansi.ansi_dialect.get_grammar("LiteralGrammar").copy(
+    LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
             Ref("DoubleQuotedLiteralSegment"),
         ]
@@ -42,13 +42,15 @@ mysql_dialect.add(
 
 
 @mysql_dialect.segment(replace=True)
-class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
+class CreateTableStatementSegment(
+    ansi_dialect.get_segment("CreateTableStatementSegment")  # type: ignore
+):
     """Create table segment.
 
     https://dev.mysql.com/doc/refman/8.0/en/create-table.html
     """
 
-    match_grammar = ansi.ansi_dialect.get_segment(  # type: ignore
+    match_grammar = ansi_dialect.get_segment(
         "CreateTableStatementSegment"
     ).match_grammar.copy(
         insert=[

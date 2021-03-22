@@ -29,7 +29,7 @@ _dialect_lookup = {
 }
 
 
-def _load_dialect(label, base_module="sqlfluff.core.dialects"):
+def load_raw_dialect(label, base_module="sqlfluff.dialects"):
     """Dynamically load a dialect."""
     module, name = _dialect_lookup[label]
     return getattr(import_module(f"{base_module}.{module}"), name)
@@ -46,7 +46,7 @@ class DialectTuple(NamedTuple):
 def dialect_readout():
     """Generate a readout of available dialects."""
     for dialect_label in _dialect_lookup:
-        dialect = _load_dialect(dialect_label)
+        dialect = load_raw_dialect(dialect_label)
         yield DialectTuple(
             label=dialect_label,
             name=dialect.name,
@@ -56,7 +56,7 @@ def dialect_readout():
 
 def dialect_selector(s):
     """Return a dialect given its name."""
-    dialect = _load_dialect(s or "ansi")
+    dialect = load_raw_dialect(s or "ansi")
     # Expand any callable references at this point.
-    dialect.expand()
-    return dialect
+    # NOTE: The result of .expand() is a new class.
+    return dialect.expand()

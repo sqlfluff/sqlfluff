@@ -6,11 +6,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+
+- Dialects now have more advanced dependency options to allow less repetition
+  between related dialects. The methods `get_segment` and `get_grammar` can be
+  used on unexpanded grammars to access elements of the parent grammars.
+  The `copy` method on grammars can be used to copy with alterations.
+
 ### Changed
 
 - Renamed the BaseCrawler class to BaseRule. This is the base class for all
   rules. This is a breaking change for any custom rules that have been added
   via plugins or by forking the SQLFluff repo.
+- Renamed `sqlfluff.rules()` to `sqlfluff.list_rules()` and `sqlfluff.dialects()`
+  to `sqlfluff.list_dialects()` due to naming conflicts with the now separate
+  `sqlfluff.dialects` module.
+- Extracted dialect definitions from the `sqlfluff.core` module so that each
+  dialect is better isolated from eachother. This also allows more focussed
+  testing and the potential for dialect plugins in future. Dialects are now
+  only imported as needed at runtime. All dialects should now be accessed
+  using the selector methods in `sqlfluff.core.dialects` rather than importing
+  from `sqlfluff.dialects` directly.
   
 ## [0.4.1] - 2021-02-25
 ### Added

@@ -21,10 +21,10 @@ from sqlfluff.core.parser import (
     Indent,
 )
 
-import sqlfluff.core.dialects.dialect_ansi as ansi
+from sqlfluff.core.dialects import load_raw_dialect
 
-
-bigquery_dialect = ansi.ansi_dialect.copy_as("bigquery")
+ansi_dialect = load_raw_dialect("ansi")
+bigquery_dialect = ansi_dialect.copy_as("bigquery")
 
 bigquery_dialect.patch_lexer_struct(
     [
@@ -112,7 +112,7 @@ class IntervalExpressionSegment(BaseSegment):
 
 
 @bigquery_dialect.segment(replace=True)
-class SelectClauseSegment(ansi.SelectClauseSegment):
+class SelectClauseSegment(ansi_dialect.get_segment("SelectClauseSegment")):  # type: ignore
     """In BigQuery, select * as struct is valid."""
 
     parse_grammar = Sequence(
@@ -136,7 +136,9 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
 
 
 @bigquery_dialect.segment(replace=True)
-class SelectTargetElementSegment(ansi.SelectTargetElementSegment):
+class SelectTargetElementSegment(
+    ansi_dialect.get_segment("SelectTargetElementSegment")  # type: ignore
+):
     """BigQuery also supports the special "Struct" construct."""
 
     parse_grammar = OneOf(
@@ -162,7 +164,7 @@ bigquery_dialect.replace(
         "back_quote", name="quoted_identifier", type="identifier", trim_chars=("`",)
     ),
     # Add two elements to the ansi LiteralGrammar
-    LiteralGrammar=ansi.ansi_dialect.get_grammar("LiteralGrammar").copy(
+    LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[Ref("DoubleQuotedLiteralSegment"), Ref("LiteralCoercionSegment")]
     ),
     PostTableExpressionGrammar=Sequence(
@@ -226,7 +228,7 @@ class WildcardExpressionSegment(BaseSegment):
     """An extension of the star expression for Bigquery."""
 
     type = "wildcard_expression"
-    match_grammar = ansi.ansi_dialect.get_segment(
+    match_grammar = ansi_dialect.get_segment(
         "WildcardExpressionSegment"
     ).match_grammar.copy(
         insert=[

@@ -21,13 +21,14 @@ from sqlfluff.core.parser import (
     Sequence,
     StartsWith,
 )
-from sqlfluff.core.dialects.dialect_ansi import ObjectReferenceSegment, ansi_dialect
-from sqlfluff.core.dialects.exasol_keywords import (
+from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.dialects.exasol_keywords import (
     BARE_FUNCTIONS,
     RESERVED_KEYWORDS,
     UNRESERVED_KEYWORDS,
 )
 
+ansi_dialect = load_raw_dialect("ansi")
 exasol_dialect = ansi_dialect.copy_as("exasol")
 
 # Clear ANSI Keywords and add all EXASOL keywords
@@ -685,7 +686,7 @@ class DropSchemaStatementSegment(BaseSegment):
 # VIEW
 ############################
 @exasol_dialect.segment()
-class ViewReferenceSegment(ObjectReferenceSegment):
+class ViewReferenceSegment(ansi_dialect.get_segment("ObjectReferenceSegment")):  # type: ignore
     """A reference to an schema."""
 
     type = "view_reference"

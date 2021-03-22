@@ -5,8 +5,7 @@ Inherits from Postgres.
 Based on https://docs.snowflake.com/en/sql-reference-commands.html
 """
 
-from sqlfluff.core.dialects.dialect_postgres import postgres_dialect
-import sqlfluff.core.dialects.dialect_ansi as ansi
+from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     BaseSegment,
     NamedSegment,
@@ -24,6 +23,9 @@ from sqlfluff.core.parser import (
     Dedent,
 )
 
+
+ansi_dialect = load_raw_dialect("ansi")
+postgres_dialect = load_raw_dialect("postgres")
 
 snowflake_dialect = postgres_dialect.copy_as("snowflake")
 
@@ -140,10 +142,10 @@ snowflake_dialect.replace(
 
 
 @snowflake_dialect.segment(replace=True)
-class StatementSegment(ansi.StatementSegment):
+class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
     """A generic segment, to any of its child subsegments."""
 
-    parse_grammar = ansi.StatementSegment.parse_grammar.copy(
+    parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
         insert=[
             Ref("UseStatementSegment"),
             Ref("CreateStatementSegment"),
@@ -334,7 +336,9 @@ class SemiStructuredAccessorSegment(BaseSegment):
 
 
 @snowflake_dialect.segment(replace=True)
-class SelectClauseModifierSegment(ansi.SelectClauseModifierSegment):
+class SelectClauseModifierSegment(
+    ansi_dialect.get_segment("SelectClauseModifierSegment")  # type: ignore
+):
     """Things that come after SELECT but before the columns.
 
     In snowflake we go back to similar functionality as the ANSI
@@ -372,7 +376,7 @@ class QualifyClauseSegment(BaseSegment):
 
 
 @snowflake_dialect.segment(replace=True)
-class SelectStatementSegment(ansi.SelectStatementSegment):
+class SelectStatementSegment(ansi_dialect.get_segment("SelectStatementSegment")):  # type: ignore
     """A snowflake `SELECT` statement including optional Qualify.
 
     https://docs.snowflake.com/en/sql-reference/constructs/qualify.html
@@ -389,7 +393,9 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
         terminator=Ref("SetOperatorSegment"),
     )
 
-    parse_grammar = ansi.SelectStatementSegment.parse_grammar.copy(
+    parse_grammar = ansi_dialect.get_segment(
+        "SelectStatementSegment"
+    ).parse_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OrderByClauseSegment", optional=True),
     )

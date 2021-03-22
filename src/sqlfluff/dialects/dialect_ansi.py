@@ -38,7 +38,9 @@ from sqlfluff.core.parser import (
 )
 
 from sqlfluff.core.dialects.base import Dialect
-from sqlfluff.core.dialects.ansi_keywords import (
+from sqlfluff.core.dialects.common import AliasInfo
+
+from sqlfluff.dialects.ansi_keywords import (
     ansi_reserved_keywords,
     ansi_unreserved_keywords,
 )
@@ -811,17 +813,6 @@ ansi_dialect.add(
     # This is a hook point to allow subclassing for other dialects
     PostTableExpressionGrammar=Nothing()
 )
-
-
-class AliasInfo(NamedTuple):
-    """Details about a table alias."""
-
-    ref_str: str  # Name given to the alias
-    segment: BaseSegment  # Identifier segment containing the name
-    aliased: bool
-    table_expression: BaseSegment
-    alias_expression: Optional[BaseSegment]
-    object_reference: Optional[BaseSegment]
 
 
 @ansi_dialect.segment()
