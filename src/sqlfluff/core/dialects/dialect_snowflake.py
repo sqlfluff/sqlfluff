@@ -66,6 +66,7 @@ snowflake_dialect.sets("unreserved_keywords").update(
         "PIPES",
         "QUERIES",
         "REGIONS",
+        "REMOVE",
         "SECURE",
         "SEED",
         "TERSE",
