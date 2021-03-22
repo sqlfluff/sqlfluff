@@ -2,13 +2,13 @@
 from typing import Dict, List
 
 from sqlfluff.core.dialects.base import Dialect
-from sqlfluff.core.rules.base import BaseCrawler, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintResult
 from sqlfluff.core.rules.analysis.select_crawler import SelectCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
 @document_fix_compatible
-class Rule_L045(BaseCrawler):
+class Rule_L045(BaseRule):
     """Query defines a CTE (common-table expression) but does not use it.
 
     | **Anti-pattern**

@@ -23,7 +23,7 @@ Implementation
 .. autoclass:: sqlfluff.core.rules.base.RuleSet
    :members:
 
-.. autoclass:: sqlfluff.core.rules.base.BaseCrawler
+.. autoclass:: sqlfluff.core.rules.base.BaseRule
    :members:
    :private-members:
 
