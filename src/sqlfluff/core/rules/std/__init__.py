@@ -25,9 +25,7 @@ def get_rules_from_path(
         # properly catch any import errors.
         rule_module = import_module(f"{base_module}.{rule_id}")
         try:
-            rule_class = getattr(
-                rule_module, rule_class_name
-            )
+            rule_class = getattr(rule_module, rule_class_name)
         except AttributeError as e:
             raise AttributeError(
                 f"Rule classes must be named in the format of Rule_L*. [{rule_class_name}]"
