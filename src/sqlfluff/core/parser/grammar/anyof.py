@@ -224,7 +224,16 @@ class OneOf(AnyNumberOf):
 
 
 class OptionallyBracketed(OneOf):
-    """Hybrid of Bracketed and Sequence: allows brackets but they aren't required."""
+    """Hybrid of Bracketed and Sequence: allows brackets but they aren't required.
+
+    NOTE: This class is greedy on brackets so if they *can* be claimed, then
+    they will be.
+    """
 
     def __init__(self, *args, **kwargs):
-        super().__init__(Sequence(*args), Bracketed(*args, **kwargs))
+        super().__init__(
+            Bracketed(*args),
+            # In the case that there is only one argument, no sequence is required.
+            args[0] if len(args) == 1 else Sequence(*args),
+            **kwargs
+        )
