@@ -1114,7 +1114,9 @@ class FromClauseSegment(BaseSegment):
                 ),
                 Dedent.when(indented_joins=False),
                 AnyNumberOf(
-                    Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar"), optional=True
+                    Ref("JoinClauseSegment"),
+                    Ref("JoinLikeClauseGrammar"),
+                    optional=True,
                 ),
                 Dedent.when(indented_joins=True),
             ),
