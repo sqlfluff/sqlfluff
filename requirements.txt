@@ -13,4 +13,4 @@ pathspec
 pytest
 appdirs
 # dataclasses backport for python 3.6
-dataclasses
+dataclasses; python_version < '3.7'

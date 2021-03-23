@@ -1984,6 +1984,7 @@ class DropStatementSegment(BaseSegment):
         OneOf(
             "TABLE",
             "VIEW",
+            "USER",
         ),
         Ref("IfExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
@@ -2485,6 +2486,7 @@ class StatementSegment(BaseSegment):
         Ref("CreateFunctionStatementSegment"),
         Ref("CreateModelStatementSegment"),
         Ref("DropModelStatementSegment"),
+        Ref("DescribeStatementSegment"),
     )
 
     def get_table_references(self):
@@ -2514,4 +2516,21 @@ class WithNoSchemaBindingClauseSegment(BaseSegment):
         "NO",
         "SCHEMA",
         "BINDING",
+    )
+
+
+@ansi_dialect.segment()
+class DescribeStatementSegment(BaseSegment):
+    """A `Describe` statement.
+
+    DESCRIBE <object type> <object name>
+    """
+
+    type = "describe_statement"
+    match_grammar = StartsWith("DESCRIBE")
+
+    parse_grammar = Sequence(
+        "DESCRIBE",
+        Ref("NakedIdentifierSegment"),
+        Ref("ObjectReferenceSegment"),
     )

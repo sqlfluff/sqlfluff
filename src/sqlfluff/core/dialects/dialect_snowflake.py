@@ -173,6 +173,7 @@ class StatementSegment(ansi_StatementSegment):
         Ref("CreateCloneStatementSegment"),
         Ref("ShowStatementSegment"),
         Ref("AlterUserSegment"),
+        Ref("DescribeStatementSegment"),
     )
 
 
