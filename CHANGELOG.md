@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
+- Add support for `ALTER USER` commands in Snowflake dialect.
 - Added describe statement to ANSI dialect
 
 - Renamed the BaseCrawler class to BaseRule. This is the base class for all

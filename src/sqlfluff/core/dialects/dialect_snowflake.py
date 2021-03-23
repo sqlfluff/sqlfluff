@@ -55,17 +55,22 @@ snowflake_dialect.insert_lexer_struct(
 snowflake_dialect.sets("unreserved_keywords").update(
     [
         "API",
+        "AUTHORIZATIONS",
         "BERNOULLI",
         "BLOCK",
+        "DELEGATED",
         "HISTORY",
         "LATERAL",
         "NETWORK",
         "PIPE",
         "PIPES",
+        "QUERIES",
         "REGIONS",
+        "REMOVE",
         "SECURE",
         "SEED",
         "TERSE",
+        "UNSET",
     ]
 )
 
@@ -167,6 +172,7 @@ class StatementSegment(ansi_StatementSegment):
         Ref("CreateStatementSegment"),
         Ref("CreateCloneStatementSegment"),
         Ref("ShowStatementSegment"),
+        Ref("AlterUserSegment"),
         Ref("DescribeStatementSegment"),
     )
 
@@ -611,5 +617,72 @@ class ShowStatementSegment(BaseSegment):
             Ref("LimitClauseSegment"),
             Sequence("FROM", Ref("QuotedLiteralSegment"), optional=True),
             optional=True,
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class AlterUserSegment(BaseSegment):
+    """`ALTER USER` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-user.html
+
+    All user parameters can be found here
+    https://docs.snowflake.com/en/sql-reference/parameters.html
+    """
+
+    type = "alter_user"
+
+    match_grammar = StartsWith(
+        Sequence("ALTER", "USER"),
+    )
+    parse_grammar = Sequence(
+        "ALTER",
+        "USER",
+        Sequence("IF", "EXISTS", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
+            Sequence("RESET", "PASSWORD"),
+            Sequence("ABORT", "ALL", "QUERIES"),
+            Sequence(
+                "ADD",
+                "DELEGATED",
+                "AUTHORIZATION",
+                "OF",
+                "ROLE",
+                Ref("ObjectReferenceSegment"),
+                "TO",
+                "SECURITY",
+                "INTEGRATION",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "REMOVE",
+                "DELEGATED",
+                OneOf(
+                    Sequence(
+                        "AUTHORIZATION", "OF", "ROLE", Ref("ObjectReferenceSegment")
+                    ),
+                    "AUTHORIZATIONS",
+                ),
+                "FROM",
+                "SECURITY",
+                "INTEGRATION",
+                Ref("ObjectReferenceSegment"),
+            ),
+            # Snowflake supports the SET command with space delimitted parameters, but it also supports
+            # using commas which is better supported by `Delimited`, so we will just use that.
+            Sequence(
+                "SET",
+                Delimited(
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("EqualsSegment"),
+                        OneOf(Ref("LiteralGrammar"), Ref("ObjectReferenceSegment")),
+                    ),
+                ),
+            ),
+            Sequence("UNSET", Delimited(Ref("ParameterNameSegment"))),
         ),
     )

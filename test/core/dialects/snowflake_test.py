@@ -16,6 +16,8 @@ from sqlfluff.core.dialects.dialect_ansi import (
 )
 
 
+# Deprecated: All new tests should be added as .sql and .yml files under `test/fixtures/parser/snowflake`.
+# See test/fixtures/parser/README.md for more details.
 @pytest.mark.parametrize(
     "segment_cls,raw",
     [
