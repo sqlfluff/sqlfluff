@@ -1,11 +1,11 @@
 """Implementation of Rule L034."""
 
-from sqlfluff.core.rules.base import BaseCrawler, LintFix, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
 @document_fix_compatible
-class Rule_L034(BaseCrawler):
+class Rule_L034(BaseRule):
     """Use wildcards then simple select targets before calculations and aggregates.
 
     | **Anti-pattern**

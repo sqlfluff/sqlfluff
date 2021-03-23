@@ -93,7 +93,7 @@ setup(
         # Cached property for performance gains
         "cached-property",
         # dataclasses backport for python 3.6
-        "dataclasses",
+        "dataclasses; python_version < '3.7'",
         # better type hints for older python versions
         "typing_extensions",
         # We provide a testing library for plugins in sqlfluff.testing
