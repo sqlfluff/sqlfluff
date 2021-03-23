@@ -2,7 +2,7 @@
 
 from sqlfluff.core.plugin import hookimpl
 from sqlfluff.core.rules.base import (
-    BaseCrawler,
+    BaseRule,
     LintResult,
 )
 from sqlfluff.core.rules.doc_decorators import (
@@ -15,7 +15,7 @@ from sqlfluff.core.config import ConfigLoader
 
 
 @hookimpl
-def get_rules() -> List[BaseCrawler]:
+def get_rules() -> List[BaseRule]:
     """Get plugin rules."""
     return [Rule_Example_L001]
 
@@ -41,7 +41,7 @@ def get_configs_info() -> dict:
 # to be displayed in the sqlfluff docs
 @document_fix_compatible
 @document_configuration
-class Rule_Example_L001(BaseCrawler):
+class Rule_Example_L001(BaseRule):
     """ORDER BY on these columns is forbidden!
 
     | **Anti-pattern**

@@ -8,12 +8,12 @@ from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.match_logging import parse_match_logging
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.segments import BaseSegment
-
 from sqlfluff.core.parser.grammar.base import (
     BaseGrammar,
     MatchableType,
     cached_method_for_parse_context,
 )
+from sqlfluff.core.parser.grammar.sequence import Sequence, Bracketed
 
 
 class AnyNumberOf(BaseGrammar):
@@ -221,3 +221,19 @@ class OneOf(AnyNumberOf):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, max_times=1, min_times=1, **kwargs)
+
+
+class OptionallyBracketed(OneOf):
+    """Hybrid of Bracketed and Sequence: allows brackets but they aren't required.
+
+    NOTE: This class is greedy on brackets so if they *can* be claimed, then
+    they will be.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            Bracketed(*args),
+            # In the case that there is only one argument, no sequence is required.
+            args[0] if len(args) == 1 else Sequence(*args),
+            **kwargs
+        )

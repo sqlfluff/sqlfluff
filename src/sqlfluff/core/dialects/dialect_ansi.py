@@ -34,6 +34,7 @@ from sqlfluff.core.parser import (
     Indent,
     Dedent,
     Nothing,
+    OptionallyBracketed,
 )
 
 from sqlfluff.core.dialects.base import Dialect
@@ -983,7 +984,11 @@ class SelectClauseSegment(BaseSegment):
     type = "select_clause"
     match_grammar = StartsWith(
         Sequence("SELECT", Ref("WildcardExpressionSegment", optional=True)),
-        terminator=OneOf("FROM", "LIMIT", Ref("SetOperatorSegment")),
+        terminator=OneOf(
+            "FROM",
+            "LIMIT",
+            Ref("SetOperatorSegment"),
+        ),
         enforce_whitespace_preceeding_terminator=True,
     )
 
@@ -1071,10 +1076,7 @@ class JoinOnConditionSegment(BaseSegment):
     match_grammar = Sequence(
         "ON",
         Indent,
-        OneOf(
-            Ref("ExpressionSegment"),
-            Bracketed(Ref("ExpressionSegment", ephemeral_name="JoinCondition")),
-        ),
+        OptionallyBracketed(Ref("ExpressionSegment")),
         Dedent,
     )
 
@@ -1190,18 +1192,21 @@ ansi_dialect.add(
                     "NOT",
                     "PRIOR",  # used in CONNECT BY clauses (EXASOL, Snowflake, Postgres...)
                 ),
-                Ref("Expression_A_Grammar"),
+                Ref("Expression_C_Grammar"),
             ),
         ),
         AnyNumberOf(
             OneOf(
                 Sequence(
                     OneOf(
-                        Ref("BinaryOperatorGrammar"),
                         Sequence(
                             Ref.keyword("NOT", optional=True),
                             Ref("LikeGrammar"),
-                        )
+                        ),
+                        Sequence(
+                            Ref("BinaryOperatorGrammar"),
+                            Ref.keyword("NOT", optional=True),
+                        ),
                         # We need to add a lot more here...
                     ),
                     Ref("Expression_C_Grammar"),
@@ -1284,7 +1289,9 @@ ansi_dialect.add(
             Ref("FunctionSegment"),
             Bracketed(
                 OneOf(
-                    Ref("Expression_A_Grammar"),
+                    # We're using the expression segment here rather than the grammar so
+                    # that in the parsed structure we get nested elements.
+                    Ref("ExpressionSegment"),
                     Ref("SelectableGrammar"),
                     Delimited(
                         Ref(
@@ -1829,7 +1836,7 @@ class CreateTableStatementSegment(BaseSegment):
             # Create AS syntax:
             Sequence(
                 "AS",
-                Ref("SelectableGrammar"),
+                OptionallyBracketed(Ref("SelectableGrammar")),
             ),
             # Create like syntax
             Sequence("LIKE", Ref("TableReferenceSegment")),
@@ -1977,6 +1984,7 @@ class DropStatementSegment(BaseSegment):
         OneOf(
             "TABLE",
             "VIEW",
+            "USER",
         ),
         Ref("IfExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
@@ -2205,8 +2213,9 @@ class UpdateStatementSegment(BaseSegment):
     match_grammar = StartsWith("UPDATE")
     parse_grammar = Sequence(
         "UPDATE",
-        Ref("TableReferenceSegment"),
+        OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceSegment")),
         Ref("SetClauseListSegment"),
+        Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
     )
 
@@ -2477,6 +2486,7 @@ class StatementSegment(BaseSegment):
         Ref("CreateFunctionStatementSegment"),
         Ref("CreateModelStatementSegment"),
         Ref("DropModelStatementSegment"),
+        Ref("DescribeStatementSegment"),
     )
 
     def get_table_references(self):
@@ -2506,4 +2516,21 @@ class WithNoSchemaBindingClauseSegment(BaseSegment):
         "NO",
         "SCHEMA",
         "BINDING",
+    )
+
+
+@ansi_dialect.segment()
+class DescribeStatementSegment(BaseSegment):
+    """A `Describe` statement.
+
+    DESCRIBE <object type> <object name>
+    """
+
+    type = "describe_statement"
+    match_grammar = StartsWith("DESCRIBE")
+
+    parse_grammar = Sequence(
+        "DESCRIBE",
+        Ref("NakedIdentifierSegment"),
+        Ref("ObjectReferenceSegment"),
     )

@@ -20,9 +20,9 @@ file:
                 table_reference:
                   identifier: bar
             join_on_condition:
-              keyword: 'ON'
-              expression:
-              - start_bracket: (
+            - keyword: 'ON'
+            - start_bracket: (
+            - expression: 
               - column_reference:
                 - identifier: foo
                 - dot: .
@@ -32,4 +32,4 @@ file:
                 - identifier: bar
                 - dot: .
                 - identifier: a
-              - end_bracket: )
+            - end_bracket: )

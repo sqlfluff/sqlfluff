@@ -22,7 +22,7 @@ common: &common
     # https://support.circleci.com/hc/en-us/articles/115015426888-Clear-project-cache
     - restore_cache:
         keys:
-          - v3-deps-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements_dev.txt" }}
+          - v4-deps-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements_dev.txt" }}
     - run:
         name: install dependencies
         command: pip install tox
@@ -85,14 +85,14 @@ jobs:
   linting:
     <<: *common
     docker:
-      - image: circleci/python:3.6
+      - image: circleci/python:3.9
         environment:
           TOXENV: linting
           UPLOAD_COVERAGE: 0
   doclinting:
     <<: *common
     docker:
-      - image: circleci/python:3.6
+      - image: circleci/python:3.9
         environment:
           TOXENV: doclinting
           UPLOAD_COVERAGE: 0

@@ -1,11 +1,11 @@
 """Implementation of Rule L017."""
 
-from sqlfluff.core.rules.base import BaseCrawler, LintFix, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
 @document_fix_compatible
-class Rule_L017(BaseCrawler):
+class Rule_L017(BaseRule):
     """Function name not immediately followed by bracket.
 
     | **Anti-pattern**

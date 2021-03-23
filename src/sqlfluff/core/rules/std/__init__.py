@@ -1,6 +1,6 @@
+# noqa
 # No docstring here as it would appear in the rules docs.
 # Rule definitions for the standard ruleset, dynamically imported from the directory.
-# noqa
 
 import os
 from importlib import import_module
