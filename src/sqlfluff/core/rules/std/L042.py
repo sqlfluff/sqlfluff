@@ -45,8 +45,8 @@ class Rule_L042(BaseRule):
 
     _config_mapping = {
         "join": ["join_clause"],
-        "from": ["from_clause"],
-        "both": ["join_clause", "from_clause"],
+        "from": ["from_expression"],
+        "both": ["join_clause", "from_expression"],
     }
 
     def _eval(self, segment, **kwargs):

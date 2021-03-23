@@ -9,10 +9,11 @@ file:
               star: '*'
       from_clause:
         keyword: from
-        table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: boo
+        from_expression:
+          table_expression:
+            main_table_expression:
+              table_reference:
+                identifier: boo
 - statement_terminator: ;
 - statement:
     with_compound_statement:
@@ -36,10 +37,11 @@ file:
               literal: '4.567'
           from_clause:
             keyword: FROM
-            table_expression:
-              main_table_expression:
-                table_reference:
-                  identifier: foo
+            from_expression:
+              table_expression:
+                main_table_expression:
+                  table_reference:
+                    identifier: foo
         end_bracket: )
       select_statement:
         select_clause:
@@ -57,8 +59,9 @@ file:
               identifier: x
         from_clause:
           keyword: from
-          table_expression:
-            main_table_expression:
-              table_reference:
-                identifier: blah
+          from_expression:
+            table_expression:
+              main_table_expression:
+                table_reference:
+                  identifier: blah
 - statement_terminator: ;

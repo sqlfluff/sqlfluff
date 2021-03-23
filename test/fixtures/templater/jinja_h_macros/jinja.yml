@@ -19,8 +19,9 @@ file:
               - binary_operator: +
               - literal: 101
       from_clause:
-        keyword: from
-        table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: my_table
+      - keyword: from
+      - from_expression:
+          table_expression:
+            main_table_expression:
+              table_reference:
+                identifier: my_table

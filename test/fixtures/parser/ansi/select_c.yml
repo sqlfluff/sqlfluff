@@ -20,12 +20,13 @@ file:
             identifier: date_col_b
       from_clause:
         keyword: FROM
-        table_expression:
-          main_table_expression:
-            table_reference:
-            - identifier: '"database"'
-            - dot: .
-            - identifier: '"sample_table"'
+        from_expression:
+          table_expression:
+            main_table_expression:
+              table_reference:
+              - identifier: '"database"'
+              - dot: .
+              - identifier: '"sample_table"'
       where_clause:
         keyword: WHERE
         expression:

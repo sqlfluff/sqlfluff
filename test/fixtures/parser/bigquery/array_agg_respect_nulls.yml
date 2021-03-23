@@ -18,7 +18,8 @@ file:
             identifier: array_agg
       from_clause:
         keyword: FROM
-        table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: t
+        from_expression:
+          table_expression:
+            main_table_expression:
+              table_reference:
+                identifier: t

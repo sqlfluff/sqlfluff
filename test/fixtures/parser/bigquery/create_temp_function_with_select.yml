@@ -27,29 +27,30 @@ file:
                   literal: '1'
               from_clause:
                 keyword: FROM
-                table_expression:
-                - main_table_expression:
-                    function:
-                      function_name: UNNEST
-                      start_bracket: (
-                      expression:
-                        function:
-                        - function_name: REGEXP_EXTRACT_ALL
-                        - start_bracket: (
-                        - expression:
-                            column_reference:
-                              identifier: url
-                        - comma: ','
-                        - expression:
-                            literal: r"%[0-9a-fA-F]{2}|[^%]+"
-                        - end_bracket: )
-                      end_bracket: )
-                - alias_expression:
-                    keyword: AS
-                    identifier: y
-                - keyword: WITH
-                - keyword: OFFSET
-                - keyword: AS
-                - identifier: i
+                from_expression:
+                  table_expression:
+                  - main_table_expression:
+                      function:
+                        function_name: UNNEST
+                        start_bracket: (
+                        expression:
+                          function:
+                          - function_name: REGEXP_EXTRACT_ALL
+                          - start_bracket: (
+                          - expression:
+                              column_reference:
+                                identifier: url
+                          - comma: ','
+                          - expression:
+                              literal: r"%[0-9a-fA-F]{2}|[^%]+"
+                          - end_bracket: )
+                        end_bracket: )
+                  - alias_expression:
+                      keyword: AS
+                      identifier: y
+                  - keyword: WITH
+                  - keyword: OFFSET
+                  - keyword: AS
+                  - identifier: i
           end_bracket: )
         end_bracket: )

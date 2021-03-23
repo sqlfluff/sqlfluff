@@ -8,7 +8,7 @@ file:
             identifier: a
       from_clause:
         keyword: FROM
-        joined_table_expression:
+        from_expression:
           table_expression:
             main_table_expression:
               table_reference:
@@ -42,7 +42,7 @@ file:
             identifier: low_user_counts
       from_clause:
         keyword: FROM
-        joined_table_expression:
+        from_expression:
           table_expression:
             main_table_expression:
               table_reference:

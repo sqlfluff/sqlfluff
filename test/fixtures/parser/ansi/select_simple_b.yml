@@ -9,7 +9,8 @@ file:
               star: '*'
       from_clause:
         keyword: from
-        table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: blah
+        from_expression:
+          table_expression:
+            main_table_expression:
+              table_reference:
+                identifier: blah

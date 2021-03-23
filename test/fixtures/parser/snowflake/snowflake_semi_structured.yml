@@ -95,20 +95,22 @@ file:
             identifier: another_val
       from_clause:
       - keyword: FROM
-      - table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: raw_tickets
+      - from_expression:
+          table_expression:
+            main_table_expression:
+              table_reference:
+                identifier: raw_tickets
       - comma: ','
-      - table_expression:
-          keyword: lateral
-          main_table_expression:
-            function:
-              function_name: flatten
-              start_bracket: (
-              snowflake_keyword_expression:
-                parameter: INPUT
-                parameter_assigner: =>
-                column_reference:
-                  identifier: custom_fields
-              end_bracket: )
+      - from_expression:
+          table_expression:
+            keyword: lateral
+            main_table_expression:
+              function:
+                function_name: flatten
+                start_bracket: (
+                snowflake_keyword_expression:
+                  parameter: INPUT
+                  parameter_assigner: =>
+                  column_reference:
+                    identifier: custom_fields
+                end_bracket: )

@@ -26,15 +26,16 @@ file:
               end_bracket: )
       from_clause:
         keyword: FROM
-        table_expression:
-          main_table_expression:
-            start_bracket: (
-            select_statement:
-              select_clause:
-                keyword: SELECT
-                select_target_element:
-                  literal: '1'
-                  alias_expression:
-                    keyword: AS
-                    identifier: foo
-            end_bracket: )
+        from_expression:
+          table_expression:
+            main_table_expression:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_target_element:
+                    literal: '1'
+                    alias_expression:
+                      keyword: AS
+                      identifier: foo
+              end_bracket: )

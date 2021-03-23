@@ -4,10 +4,11 @@ file:
       keyword: DELETE
       from_clause:
         keyword: FROM
-        table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: table_name
+        from_expression:
+          table_expression:
+            main_table_expression:
+              table_reference:
+                identifier: table_name
       where_clause:
         keyword: WHERE
         expression:

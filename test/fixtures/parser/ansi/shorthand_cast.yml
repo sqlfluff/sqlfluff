@@ -26,7 +26,8 @@ file:
             identifier: id2
       from_clause:
         keyword: from
-        table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: table_a
+        from_expression:
+          table_expression:
+            main_table_expression:
+              table_reference:
+                identifier: table_a

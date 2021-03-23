@@ -39,8 +39,9 @@ file:
             identifier: CAST_STATEMENT_EXAMPLE
       from_clause:
         keyword: FROM
-        table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: EXAMPLE_TABLE
+        from_expression:
+          table_expression:
+            main_table_expression:
+              table_reference:
+                identifier: EXAMPLE_TABLE
   statement_terminator: ;

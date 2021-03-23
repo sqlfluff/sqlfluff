@@ -9,7 +9,7 @@ file:
               star: '*'
       from_clause:
         keyword: FROM
-        joined_table_expression:
+        from_expression:
           table_expression:
             main_table_expression:
               table_reference:
@@ -31,10 +31,11 @@ file:
                             star: '*'
                     from_clause:
                       keyword: FROM
-                      table_expression:
-                        main_table_expression:
-                          table_reference:
-                            identifier: Table_B
+                      from_expression:
+                        table_expression:
+                          main_table_expression:
+                            table_reference:
+                              identifier: Table_B
                     where_clause:
                       keyword: WHERE
                       expression:
@@ -54,10 +55,11 @@ file:
                             star: '*'
                     from_clause:
                       keyword: FROM
-                      table_expression:
-                        main_table_expression:
-                          table_reference:
-                            identifier: TABLE_C
+                      from_expression:
+                        table_expression:
+                          main_table_expression:
+                            table_reference:
+                              identifier: TABLE_C
                     where_clause:
                       keyword: WHERE
                       expression:

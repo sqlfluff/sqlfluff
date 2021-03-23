@@ -16,9 +16,10 @@ file:
             identifier: c
       from_clause:
         keyword: from
-        table_expression:
-          main_table_expression:
-            table_reference:
-            - identifier: sch
-            - dot: .
-            - identifier: '"blah"'
+        from_expression:
+          table_expression:
+            main_table_expression:
+              table_reference:
+              - identifier: sch
+              - dot: .
+              - identifier: '"blah"'

@@ -9,8 +9,8 @@ file:
           - dot: .
           - identifier: id
       from_clause:
-      - keyword: FROM
-      - joined_table_expression:
+        keyword: FROM
+        from_expression:
         - table_expression:
             main_table_expression:
               table_reference:

@@ -9,12 +9,14 @@ file:
               star: '*'
       from_clause:
       - keyword: from
-      - table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: foo
+      - from_expression:
+          table_expression:
+            main_table_expression:
+              table_reference:
+                identifier: foo
       - comma: ','
-      - table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: bar
+      - from_expression:
+          table_expression:
+            main_table_expression:
+              table_reference:
+                identifier: bar

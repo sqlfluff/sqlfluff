@@ -6,10 +6,11 @@ file:
         select_target_element:
           literal: 56
       from_clause:
-        keyword: FROM
-        table_expression:
-          main_table_expression:
-            table_reference:
-              - identifier: sch1
-              - dot: "."
-              - identifier: tbl2
+      - keyword: FROM
+      - from_expression:
+          table_expression:
+            main_table_expression:
+              table_reference:
+                - identifier: sch1
+                - dot: "."
+                - identifier: tbl2

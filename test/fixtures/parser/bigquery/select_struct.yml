@@ -22,10 +22,11 @@ file:
                 - star: '*'
                 from_clause:
                   keyword: from
-                  table_expression:
-                    main_table_expression:
-                      table_reference:
-                        identifier: another_table
+                  from_expression:
+                    table_expression:
+                      main_table_expression:
+                        table_reference:
+                          identifier: another_table
                 where_clause:
                   keyword: where
                   expression:
@@ -41,10 +42,11 @@ file:
             end_bracket: )
       from_clause:
         keyword: from
-        table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: another_table
+        from_expression:
+          table_expression:
+            main_table_expression:
+              table_reference:
+                identifier: another_table
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -75,7 +77,7 @@ file:
             identifier: bar
       from_clause:
         keyword: from
-        joined_table_expression:
+        from_expression:
           table_expression:
             main_table_expression:
               table_reference:

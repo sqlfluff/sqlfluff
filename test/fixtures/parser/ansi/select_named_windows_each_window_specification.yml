@@ -34,10 +34,11 @@ file:
             identifier: most_popular
       from_clause:
         keyword: FROM
-        table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: Produce
+        from_expression:
+          table_expression:
+            main_table_expression:
+              table_reference:
+                identifier: Produce
       named_window:
       - keyword: WINDOW
       - named_window_expression:

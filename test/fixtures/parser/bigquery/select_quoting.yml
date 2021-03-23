@@ -14,10 +14,11 @@ file:
             identifier: list_id
       from_clause:
         keyword: FROM
-        table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: '`database.schema.benchmark_user_map`'
+        from_expression:
+          table_expression:
+            main_table_expression:
+              table_reference:
+                identifier: '`database.schema.benchmark_user_map`'
       where_clause:
         keyword: WHERE
         expression:

@@ -51,7 +51,8 @@ file:
             identifier: tech_support
       from_clause:
         keyword: FROM
-        table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: zendesk
+        from_expression:
+          table_expression:
+            main_table_expression:
+              table_reference:
+                identifier: zendesk

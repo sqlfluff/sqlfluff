@@ -36,10 +36,11 @@ file:
               identifier: b
         from_clause:
           keyword: FROM
-          table_expression:
-            main_table_expression:
-              table_reference:
-                identifier: table1
+          from_expression:
+            table_expression:
+              main_table_expression:
+                table_reference:
+                  identifier: table1
         where_clause:
           keyword: WHERE
           expression:

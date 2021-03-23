@@ -13,8 +13,8 @@ file:
       - comma: ','
       - select_target_element:
           expression:
-          - start_bracket: (
-          - expression:
+            start_bracket: (
+            expression:
             - column_reference:
                 identifier: count_18_24
             - binary_operator: '*'
@@ -110,20 +110,21 @@ file:
                       literal: '5'
                     end_bracket: )
                 end_square_bracket: ']'
-          - end_bracket: )
-          - binary_operator: /
-          - column_reference:
+            end_bracket: )
+            binary_operator: /
+            column_reference:
               identifier: audience_size
           alias_expression:
             keyword: AS
             identifier: relative_abundance
       from_clause:
         keyword: FROM
-        table_expression:
-          main_table_expression:
-            table_reference:
-            - identifier: gcp_project
-            - dot: .
-            - identifier: dataset
-            - dot: .
-            - identifier: audience_counts_gender_age
+        from_expression:
+          table_expression:
+            main_table_expression:
+              table_reference:
+              - identifier: gcp_project
+              - dot: .
+              - identifier: dataset
+              - dot: .
+              - identifier: audience_counts_gender_age

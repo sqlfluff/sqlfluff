@@ -12,10 +12,11 @@ file:
             identifier: b
       from_clause:
         keyword: FROM
-        table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: boo
+        from_expression:
+          table_expression:
+            main_table_expression:
+              table_reference:
+                identifier: boo
       groupby_clause:
       - keyword: GROUP
       - keyword: BY

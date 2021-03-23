@@ -8,12 +8,13 @@ file:
             identifier: A
       from_clause:
         keyword: from
-        table_expression:
-          main_table_expression:
-            table_reference:
-            - identifier: Sys
-            - dot: .
-            - identifier: dual
+        from_expression:
+          table_expression:
+            main_table_expression:
+              table_reference:
+              - identifier: Sys
+              - dot: .
+              - identifier: dual
       where_clause:
         keyword: where
         expression:
@@ -38,10 +39,11 @@ file:
               star: '*'
       from_clause:
         keyword: from
-        table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: tbl_b
+        from_expression:
+          table_expression:
+            main_table_expression:
+              table_reference:
+                identifier: tbl_b
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -77,10 +79,11 @@ file:
                   star: '*'
           from_clause:
             keyword: from
-            table_expression:
-              main_table_expression:
-                table_reference:
-                  identifier: blah
+            from_expression:
+              table_expression:
+                main_table_expression:
+                  table_reference:
+                    identifier: blah
         end_bracket: )
       select_statement:
         select_clause:
@@ -94,8 +97,9 @@ file:
               identifier: b
         from_clause:
           keyword: from
-          table_expression:
-            main_table_expression:
-              table_reference:
-                identifier: tmp
+          from_expression:
+            table_expression:
+              main_table_expression:
+                table_reference:
+                  identifier: tmp
 - statement_terminator: ;

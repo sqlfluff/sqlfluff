@@ -42,26 +42,27 @@ file:
                           end_bracket: )
                     from_clause:
                       keyword: FROM
-                      table_expression:
-                        main_table_expression:
-                          function:
-                            function_name: UNNEST
-                            start_bracket: (
-                            expression:
-                              function:
-                              - function_name: SPLIT
-                              - start_bracket: (
-                              - expression:
-                                  column_reference:
-                                    identifier: binary
-                              - comma: ','
-                              - expression:
-                                  literal: "''"
-                              - end_bracket: )
-                            end_bracket: )
-                        alias_expression:
-                          keyword: AS
-                          identifier: num
+                      from_expression:
+                        table_expression:
+                          main_table_expression:
+                            function:
+                              function_name: UNNEST
+                              start_bracket: (
+                              expression:
+                                function:
+                                - function_name: SPLIT
+                                - start_bracket: (
+                                - expression:
+                                    column_reference:
+                                      identifier: binary
+                                - comma: ','
+                                - expression:
+                                    literal: "''"
+                                - end_bracket: )
+                              end_bracket: )
+                          alias_expression:
+                            keyword: AS
+                            identifier: num
                 end_bracket: )
               alias_expression:
                 keyword: AS
@@ -72,10 +73,11 @@ file:
                 identifier: age_label
           from_clause:
             keyword: FROM
-            table_expression:
-              main_table_expression:
-                table_reference:
-                  identifier: age_buckets
+            from_expression:
+              table_expression:
+                main_table_expression:
+                  table_reference:
+                    identifier: age_buckets
         end_bracket: )
     - comma: ','
     - common_table_expression:
@@ -195,7 +197,7 @@ file:
                 identifier: relative_abundance
           from_clause:
             keyword: FROM
-            joined_table_expression:
+            from_expression:
               table_expression:
                 main_table_expression:
                   table_reference:
@@ -217,7 +219,7 @@ file:
                 star: '*'
         from_clause:
           keyword: FROM
-          joined_table_expression:
+          from_expression:
             table_expression:
               main_table_expression:
                 table_reference:
