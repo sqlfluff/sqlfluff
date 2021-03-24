@@ -60,11 +60,15 @@ class Rule_L031(BaseRule):
 
             from_expression = from_clause_segment.get_child("from_expression")
             if from_expression:
-                from_expression_element = from_expression.get_child("from_expression_element")
+                from_expression_element = from_expression.get_child(
+                    "from_expression_element"
+                )
 
             if not from_expression_element:
                 return None
-            from_expression_element = from_expression_element.get_child("table_expression")
+            from_expression_element = from_expression_element.get_child(
+                "table_expression"
+            )
 
             # Find base table
             base_table = None
@@ -75,7 +79,9 @@ class Rule_L031(BaseRule):
             from_clause_and_after = segment.segments[from_clause_index:]
 
             for clause in from_clause_and_after:
-                for from_expression_element in clause.recursive_crawl("from_expression_element"):
+                for from_expression_element in clause.recursive_crawl(
+                    "from_expression_element"
+                ):
                     table_expression_segments.append(from_expression_element)
                 for column_reference in clause.recursive_crawl("column_reference"):
                     column_reference_segments.append(column_reference)

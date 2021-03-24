@@ -63,7 +63,9 @@ class Rule_L042(BaseRule):
                 if not from_expression_element:
                     return None  # There isn't one. We're done.
                 # Get the main bit
-                from_expression_element = from_expression_element.get_child("table_expression")
+                from_expression_element = from_expression_element.get_child(
+                    "table_expression"
+                )
                 if not from_expression_element:
                     return None  # There isn't one. We're done.
 
