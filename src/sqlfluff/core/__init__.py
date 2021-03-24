@@ -9,6 +9,9 @@ from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.linter import Linter
 from sqlfluff.core.parser import Lexer, Parser
 
+# Dialect introspection
+from sqlfluff.core.dialects import dialect_selector, dialect_readout
+
 # All of the errors.
 from sqlfluff.core.errors import (
     SQLBaseError,
@@ -17,7 +20,3 @@ from sqlfluff.core.errors import (
     SQLParseError,
     SQLLintError,
 )
-
-# Dialect introspection.
-# TODO: This feels untidy, maybe refactor into a class.
-from sqlfluff.core.dialects import dialect_selector, dialect_readout

@@ -1,36 +1,7 @@
 """Tests specific to the exasol dialect."""
 import pytest
-from sqlfluff.core.dialects.dialect_exasol import (
-    AlterConnectionSegment,
-    AlterSchemaStatementSegment,
-    AlterTableColumnSegment,
-    AlterTableConstraintSegment,
-    AlterTableDistributePartitionSegment,
-    AlterVirtualSchemaStatementSegment,
-    CommentStatementSegment,
-    CreateConnectionSegment,
-    CreateRoleSegment,
-    CreateTableStatementSegment,
-    CreateViewStatementSegment,
-    CreateVirtualSchemaStatementSegment,
-    DeleteStatementSegment,
-    DropCascadeRestrictStatementSegment,
-    DropCascadeStatementSegment,
-    DropSchemaStatementSegment,
-    DropStatementSegment,
-    DropTableStatementSegment,
-    AccessStatementSegment,
-    ImportStatementSegment,
-    InsertStatementSegment,
-    MergeStatementSegment,
-    RenameStatementSegment,
-    TruncateStatmentSegement,
-    UpdateStatementSegment,
-    ExportStatementSegment,
-    CreateUserSegment,
-    AlterUserSegment,
-    SelectStatementSegment,
-)
+
+from sqlfluff.core.dialects import dialect_selector
 
 TEST_DIALECT = "exasol"
 
@@ -54,13 +25,13 @@ def test_dialect_exasol_specific_segment_parses(
     "segment_cls,raw,stmt_count",
     [
         (
-            DropCascadeStatementSegment,
+            "DropCascadeStatementSegment",
             """DROP USER test_user1;DROP USER test_user2 CASCADE;
             DROP ROLE myrole;""",
             3,
         ),
         (
-            DropStatementSegment,
+            "DropStatementSegment",
             """
             DROP CONNECTION my_connection;
             DROP CONNECTION IF EXISTS my_connection;
@@ -70,7 +41,7 @@ def test_dialect_exasol_specific_segment_parses(
             4,
         ),
         (
-            DropCascadeRestrictStatementSegment,
+            "DropCascadeRestrictStatementSegment",
             """
             DROP VIEW IF EXISTS my_view RESTRICT;
             DROP FUNCTION my_function CASCADE;
@@ -78,7 +49,7 @@ def test_dialect_exasol_specific_segment_parses(
             2,
         ),
         (
-            CreateVirtualSchemaStatementSegment,
+            "CreateVirtualSchemaStatementSegment",
             """
             CREATE VIRTUAL SCHEMA hive
             USING adapter.jdbc_adapter
@@ -92,7 +63,7 @@ def test_dialect_exasol_specific_segment_parses(
             1,
         ),
         (
-            AlterSchemaStatementSegment,
+            "AlterSchemaStatementSegment",
             """
             ALTER SCHEMA s1 CHANGE OWNER user1;
             ALTER SCHEMA s1 CHANGE OWNER role1;
@@ -101,7 +72,7 @@ def test_dialect_exasol_specific_segment_parses(
             3,
         ),
         (
-            AlterVirtualSchemaStatementSegment,
+            "AlterVirtualSchemaStatementSegment",
             """
             ALTER VIRTUAL SCHEMA s2
               SET CONNECTION_STRING = 'jdbc:hive2://localhost:10000/default';
@@ -110,7 +81,7 @@ def test_dialect_exasol_specific_segment_parses(
             2,
         ),
         (
-            DropSchemaStatementSegment,
+            "DropSchemaStatementSegment",
             """
             DROP FORCE SCHEMA my_schema;
             DROP SCHEMA IF EXISTS my_schema;
@@ -120,7 +91,7 @@ def test_dialect_exasol_specific_segment_parses(
             4,
         ),
         (
-            CreateViewStatementSegment,
+            "CreateViewStatementSegment",
             """
             CREATE VIEW my_view as (select x from t) COMMENT IS 'nice view';
             CREATE VIEW my_view (col1 ) as (select x from t);
@@ -130,7 +101,7 @@ def test_dialect_exasol_specific_segment_parses(
             4,
         ),
         (
-            CreateTableStatementSegment,
+            "CreateTableStatementSegment",
             """
             CREATE TABLE myschema.t1
             (   a VARCHAR(20) UTF8,
@@ -160,7 +131,7 @@ def test_dialect_exasol_specific_segment_parses(
             8,
         ),
         (
-            DropTableStatementSegment,
+            "DropTableStatementSegment",
             """
             DROP TABLE my_table;
             DROP TABLE IF EXISTS "MY_SCHEMA"."MY_TABLE" CASCADE CASCADE CONSTRAINTS;
@@ -168,7 +139,7 @@ def test_dialect_exasol_specific_segment_parses(
             2,
         ),
         (
-            AlterTableDistributePartitionSegment,
+            "AlterTableDistributePartitionSegment",
             """
             ALTER TABLE my_table DROP DISTRIBUTION KEYS;
             ALTER TABLE my_table DROP DISTRIBUTION AND PARTITION KEYS;
@@ -180,7 +151,7 @@ def test_dialect_exasol_specific_segment_parses(
             6,
         ),
         (
-            AlterTableConstraintSegment,
+            "AlterTableConstraintSegment",
             """
             ALTER TABLE t1 ADD CONSTRAINT my_primary_key PRIMARY KEY (a);
             ALTER TABLE t2 ADD CONSTRAINT my_foreign_key FOREIGN KEY (x) REFERENCES t1;
@@ -191,7 +162,7 @@ def test_dialect_exasol_specific_segment_parses(
             5,
         ),
         (
-            AlterTableColumnSegment,
+            "AlterTableColumnSegment",
             """
             ALTER TABLE t ADD COLUMN IF NOT EXISTS new_dec DECIMAL(18,0);
             ALTER TABLE t ADD (new_char CHAR(10) DEFAULT 'some text');
@@ -209,7 +180,7 @@ def test_dialect_exasol_specific_segment_parses(
             12,
         ),
         (
-            RenameStatementSegment,
+            "RenameStatementSegment",
             """
             RENAME SCHEMA s1 TO s2;
             RENAME TABLE t1 TO t2;
@@ -219,7 +190,7 @@ def test_dialect_exasol_specific_segment_parses(
             4,
         ),
         (
-            CommentStatementSegment,
+            "CommentStatementSegment",
             """
             COMMENT ON SCHEMA s1 IS 'My first schema';
             COMMENT ON TABLE a_schema.t1 IS 'My first table';
@@ -230,7 +201,7 @@ def test_dialect_exasol_specific_segment_parses(
             5,
         ),
         (
-            InsertStatementSegment,
+            "InsertStatementSegment",
             """
             INSERT INTO t (n1, n2, t1) VALUES (1, 2.34, 'abc');
             INSERT INTO t VALUES (2, 1.56, 'ghi'), (3, 5.92, 'pqr');
@@ -242,7 +213,7 @@ def test_dialect_exasol_specific_segment_parses(
             6,
         ),
         (
-            UpdateStatementSegment,
+            "UpdateStatementSegment",
             """
             UPDATE staff SET salary=salary*1.1 WHERE name='SMITH';
             ----
@@ -261,7 +232,7 @@ def test_dialect_exasol_specific_segment_parses(
             4,
         ),
         (
-            MergeStatementSegment,
+            "MergeStatementSegment",
             """
             MERGE INTO staff T
             USING changes U
@@ -280,7 +251,7 @@ def test_dialect_exasol_specific_segment_parses(
             2,
         ),
         (
-            DeleteStatementSegment,
+            "DeleteStatementSegment",
             """
             DELETE FROM staff WHERE name='SMITH';
             DELETE * FROM staff;
@@ -289,14 +260,14 @@ def test_dialect_exasol_specific_segment_parses(
             3,
         ),
         (
-            TruncateStatmentSegement,
+            "TruncateStatmentSegement",
             """
             TRUNCATE TABLE test;
             """,
             1,
         ),
         (
-            ImportStatementSegment,
+            "ImportStatementSegment",
             """
             IMPORT INTO table_3 (col1, col2, col4) FROM ORA
             AT my_oracle
@@ -372,7 +343,7 @@ def test_dialect_exasol_specific_segment_parses(
             11,
         ),
         (
-            ExportStatementSegment,
+            "ExportStatementSegment",
             """
             EXPORT tab1 INTO CSV
             AT 'ftp://192.168.1.1/' USER 'agent_007' IDENTIFIED BY 'secret'
@@ -430,7 +401,7 @@ def test_dialect_exasol_specific_segment_parses(
             9,
         ),
         (
-            CreateUserSegment,
+            "CreateUserSegment",
             """
             CREATE USER user_1 IDENTIFIED BY "h12_xhz";
             CREATE USER user_2 IDENTIFIED AT LDAP
@@ -440,7 +411,7 @@ def test_dialect_exasol_specific_segment_parses(
             3,
         ),
         (
-            AlterUserSegment,
+            "AlterUserSegment",
             """
             ALTER USER user_1 IDENTIFIED BY "h22_xhz" REPLACE "h12_xhz";
             ALTER USER user_1 IDENTIFIED BY "h12_xhz";
@@ -452,9 +423,9 @@ def test_dialect_exasol_specific_segment_parses(
             """,
             6,
         ),
-        (CreateRoleSegment, "CREATE ROLE test_role;", 1),
+        ("CreateRoleSegment", "CREATE ROLE test_role;", 1),
         (
-            CreateConnectionSegment,
+            "CreateConnectionSegment",
             """
             CREATE CONNECTION ftp_connection
             TO 'ftp://192.168.1.1/'
@@ -476,12 +447,12 @@ def test_dialect_exasol_specific_segment_parses(
             5,
         ),
         (
-            AlterConnectionSegment,
+            "AlterConnectionSegment",
             "ALTER CONNECTION exa_connection TO '192.168.6.11..14:8564';",
             1,
         ),
         (
-            AccessStatementSegment,
+            "AccessStatementSegment",
             """
             -- System privileges
             GRANT CREATE SCHEMA TO role1;
@@ -505,7 +476,7 @@ def test_dialect_exasol_specific_segment_parses(
             10,
         ),
         (
-            AccessStatementSegment,
+            "AccessStatementSegment",
             """
             -- System privilege
             REVOKE CREATE SCHEMA FROM role1,user3;
@@ -522,7 +493,7 @@ def test_dialect_exasol_specific_segment_parses(
             6,
         ),
         (
-            SelectStatementSegment,
+            "SelectStatementSegment",
             """
             SELECT last_name, employee_id id, manager_id mgr_id,
                CONNECT_BY_ISLEAF leaf, LEVEL,
@@ -563,4 +534,5 @@ def test_exasol_queries(
     segment_cls, raw, stmt_count, validate_dialect_specific_statements
 ):
     """Test exasol specific queries with parse."""
-    validate_dialect_specific_statements(TEST_DIALECT, segment_cls, raw, stmt_count)
+    seg_cls = dialect_selector(TEST_DIALECT).get_segment(segment_cls)
+    validate_dialect_specific_statements(TEST_DIALECT, seg_cls, raw, stmt_count)
