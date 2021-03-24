@@ -1259,8 +1259,11 @@ ansi_dialect.add(
             )
         ),
     ),
-    # Expression_B_Grammar https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#b_expr
-    # Expression_B_Grammar=None,  # TODO
+    # CockroachDB defines Expression_B_Grammar. The SQLFluff implementation of
+    # expression parsing pulls that logic into Expression_A_Grammar and so there's
+    # currently no need to define Expression_B.
+    # https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#b_expr
+    #
     # Expression_C_Grammar https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#c_expr
     Expression_C_Grammar=OneOf(
         Sequence(
