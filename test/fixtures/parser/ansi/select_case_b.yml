@@ -3,7 +3,7 @@ file:
     select_statement:
       select_clause:
         keyword: SELECT
-        select_target_element:
+        select_clause_element:
           expression:
             case_expression:
             - keyword: CASE
@@ -31,7 +31,8 @@ file:
             identifier: a_case_statement
       from_clause:
         keyword: FROM
-        table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: boo
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: boo

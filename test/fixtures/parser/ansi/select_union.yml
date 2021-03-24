@@ -4,12 +4,12 @@ file:
     - select_statement:
         select_clause:
           keyword: SELECT
-          select_target_element:
+          select_clause_element:
             literal: '0'
     - set_operator:
         keyword: UNION
     - select_statement:
         select_clause:
           keyword: SELECT
-          select_target_element:
+          select_clause_element:
             literal: '1'

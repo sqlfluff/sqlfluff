@@ -3,29 +3,30 @@ file:
     select_statement:
       select_clause:
         keyword: SELECT
-        select_target_element:
+        select_clause_element:
           column_reference:
             identifier: user_id
       from_clause:
         keyword: FROM
-        table_expression:
-        - main_table_expression:
-            table_reference:
-              identifier: lists_emails
-        - alias_expression:
-            keyword: AS
-            identifier: list_emails
-        - keyword: FOR
-        - keyword: SYSTEM_TIME
-        - keyword: AS
-        - keyword: OF
-        - expression:
-            function:
-              function_name: CAST
-              start_bracket: (
-              expression:
-                literal: "'2019-12-02T20:52:34+00:00'"
+        from_expression:
+          from_expression_element:
+          - table_expression:
+              table_reference:
+                identifier: lists_emails
+          - alias_expression:
               keyword: AS
-              data_type:
-                data_type_identifier: TIMESTAMP
-              end_bracket: )
+              identifier: list_emails
+          - keyword: FOR
+          - keyword: SYSTEM_TIME
+          - keyword: AS
+          - keyword: OF
+          - expression:
+              function:
+                function_name: CAST
+                start_bracket: (
+                expression:
+                  literal: "'2019-12-02T20:52:34+00:00'"
+                keyword: AS
+                data_type:
+                  data_type_identifier: TIMESTAMP
+                end_bracket: )

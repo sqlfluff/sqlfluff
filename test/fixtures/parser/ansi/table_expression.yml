@@ -3,7 +3,7 @@ file:
     select_statement:
       select_clause:
         keyword: SELECT
-        select_target_element:
+        select_clause_element:
           column_reference:
             identifier: y
           alias_expression:
@@ -11,22 +11,23 @@ file:
             identifier: woy
       from_clause:
         keyword: FROM
-        table_expression:
-          main_table_expression:
-            function:
-              function_name: UNNEST
-              start_bracket: (
-              expression:
-                function:
-                - function_name: GENERATE_ARRAY
-                - start_bracket: (
-                - expression:
-                    literal: '1'
-                - comma: ','
-                - expression:
-                    literal: '53'
-                - end_bracket: )
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: y
+        from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name: UNNEST
+                start_bracket: (
+                expression:
+                  function:
+                  - function_name: GENERATE_ARRAY
+                  - start_bracket: (
+                  - expression:
+                      literal: '1'
+                  - comma: ','
+                  - expression:
+                      literal: '53'
+                  - end_bracket: )
+                end_bracket: )
+            alias_expression:
+              keyword: AS
+              identifier: y

@@ -789,11 +789,8 @@ class PartitionClauseSegment(BaseSegment):
         "PARTITION",
         "BY",
         Indent,
-        OneOf(
-            # Brackets are optional in a partition by statement
-            Bracketed(Delimited(Ref("ExpressionSegment"))),
-            Delimited(Ref("ExpressionSegment")),
-        ),
+        # Brackets are optional in a partition by statement
+        OptionallyBracketed(Delimited(Ref("ExpressionSegment"))),
         Dedent,
     )
 
@@ -824,30 +821,21 @@ class AliasInfo(NamedTuple):
     ref_str: str  # Name given to the alias
     segment: BaseSegment  # Identifier segment containing the name
     aliased: bool
-    table_expression: BaseSegment
+    from_expression_element: BaseSegment
     alias_expression: Optional[BaseSegment]
     object_reference: Optional[BaseSegment]
 
 
 @ansi_dialect.segment()
-class TableExpressionSegment(BaseSegment):
+class FromExpressionElementSegment(BaseSegment):
     """A table expression."""
 
-    type = "table_expression"
+    type = "from_expression_element"
     match_grammar = Sequence(
-        Indent,
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
-        OneOf(
-            Ref("MainTableExpressionSegment"),
-            Bracketed(Ref("MainTableExpressionSegment")),
-        ),
+        OptionallyBracketed(Ref("TableExpressionSegment")),
         Ref("AliasExpressionSegment", optional=True),
         Ref("PostTableExpressionGrammar", optional=True),
-        Dedent.when(indented_joins=False),
-        AnyNumberOf(
-            Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar"), optional=True
-        ),
-        Dedent.when(indented_joins=True),
     )
 
     def get_eventual_alias(self) -> Optional[AliasInfo]:
@@ -860,7 +848,7 @@ class TableExpressionSegment(BaseSegment):
 
         """
         alias_expression = self.get_child("alias_expression")
-        ref = self.get_child("main_table_expression").get_child("object_reference")
+        ref = self.get_child("table_expression").get_child("object_reference")
         if alias_expression:
             # If it has an alias, return that
             segment = alias_expression.get_child("identifier")
@@ -880,10 +868,30 @@ class TableExpressionSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
-class MainTableExpressionSegment(BaseSegment):
+class FromExpressionSegment(BaseSegment):
+    """A from expression segment."""
+
+    type = "from_expression"
+    match_grammar = Sequence(
+        Indent,
+        OneOf(
+            # check first for MLTableExpression, because of possible FunctionSegment in MainTableExpression
+            Ref("MLTableExpressionSegment"),
+            Ref("FromExpressionElementSegment"),
+        ),
+        Dedent.when(indented_joins=False),
+        AnyNumberOf(
+            Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar"), optional=True
+        ),
+        Dedent.when(indented_joins=True),
+    )
+
+
+@ansi_dialect.segment()
+class TableExpressionSegment(BaseSegment):
     """The main table expression e.g. within a FROM clause."""
 
-    type = "main_table_expression"
+    type = "table_expression"
     match_grammar = OneOf(
         Ref("BareFunctionSegment"),
         Ref("FunctionSegment"),
@@ -941,10 +949,10 @@ class WildcardExpressionSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
-class SelectTargetElementSegment(BaseSegment):
+class SelectClauseElementSegment(BaseSegment):
     """An element in the targets of a select statement."""
 
-    type = "select_target_element"
+    type = "select_clause_element"
     # Important to split elements before parsing, otherwise debugging is really hard.
     match_grammar = GreedyUntil(
         "FROM",
@@ -1002,7 +1010,7 @@ class SelectClauseSegment(BaseSegment):
         Ref("SelectClauseModifierSegment", optional=True),
         Indent,
         Delimited(
-            Ref("SelectTargetElementSegment"),
+            Ref("SelectClauseElementSegment"),
             allow_trailing=True,
         ),
         # NB: The Dedent for the indent above lives in the
@@ -1036,7 +1044,7 @@ class JoinClauseSegment(BaseSegment):
         "JOIN",
         Indent,
         Sequence(
-            Ref("TableExpressionSegment"),
+            Ref("FromExpressionElementSegment"),
             # NB: this is optional
             OneOf(
                 # ON clause
@@ -1069,8 +1077,8 @@ class JoinClauseSegment(BaseSegment):
 
     def get_eventual_alias(self) -> AliasInfo:
         """Return the eventual table name referred to by this join clause."""
-        table_expression = self.get_child("table_expression")
-        return table_expression.get_eventual_alias()
+        from_expression_element = self.get_child("from_expression_element")
+        return from_expression_element.get_eventual_alias()
 
 
 @ansi_dialect.segment()
@@ -1094,7 +1102,18 @@ ansi_dialect.add(
 
 @ansi_dialect.segment()
 class FromClauseSegment(BaseSegment):
-    """A `FROM` clause like in `SELECT`."""
+    """A `FROM` clause like in `SELECT`.
+
+    NOTE: thiis is a delimited set of table expressions, with a variable
+    number of optional join clauses with those table expressions. The
+    delmited aspect is the higher of the two such that the following is
+    valid (albeit unusual):
+
+    ```
+    SELECT *
+    FROM a JOIN b, c JOIN d
+    ```
+    """
 
     type = "from_clause"
     match_grammar = StartsWith(
@@ -1105,11 +1124,7 @@ class FromClauseSegment(BaseSegment):
     parse_grammar = Sequence(
         "FROM",
         Delimited(
-            OneOf(
-                # check first for MLTableExpression, because of possible FunctionSegment in MainTableExpression
-                Ref("MLTableExpressionSegment"),
-                Ref("TableExpressionSegment"),
-            ),
+            Ref("FromExpressionSegment"),
         ),
     )
 
@@ -1119,12 +1134,15 @@ class FromClauseSegment(BaseSegment):
         Comes as a list of tuples (table expr, tuple (string, segment, bool)).
         """
         buff = []
-        direct_table_children = self.get_children("table_expression")
-        join_clauses = [
-            join_clause
-            for child in direct_table_children
-            for join_clause in child.get_children("join_clause")
-        ]
+        direct_table_children = []
+        join_clauses = []
+
+        for from_expression in self.get_children("from_expression"):
+            direct_table_children += from_expression.get_children(
+                "from_expression_element"
+            )
+            join_clauses += from_expression.get_children("join_clause")
+
         # Iterate through the potential sources of aliases
         for clause in (*direct_table_children, *join_clauses):
             ref: AliasInfo = clause.get_eventual_alias()
@@ -1133,7 +1151,7 @@ class FromClauseSegment(BaseSegment):
             table_expr = (
                 clause
                 if clause in direct_table_children
-                else clause.get_child("table_expression")
+                else clause.get_child("from_expression_element")
             )
             if ref:
                 buff.append((table_expr, ref))
@@ -1359,13 +1377,7 @@ class WhereClauseSegment(BaseSegment):
     parse_grammar = Sequence(
         "WHERE",
         Indent,
-        OneOf(
-            Bracketed(
-                # expression could be in brackets
-                Ref("ExpressionSegment"),
-            ),
-            Ref("ExpressionSegment"),
-        ),
+        OptionallyBracketed(Ref("ExpressionSegment")),
         Dedent,
     )
 
@@ -1453,12 +1465,7 @@ class HavingClauseSegment(BaseSegment):
     parse_grammar = Sequence(
         "HAVING",
         Indent,
-        OneOf(
-            Bracketed(
-                Ref("ExpressionSegment"),
-            ),
-            Ref("ExpressionSegment"),
-        ),
+        OptionallyBracketed(Ref("ExpressionSegment")),
         Dedent,
     )
 

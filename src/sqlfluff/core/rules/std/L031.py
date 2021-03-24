@@ -58,22 +58,31 @@ class Rule_L031(BaseRule):
             if not from_clause_segment:
                 return None
 
-            table_expression = from_clause_segment.get_child("table_expression")
-            if not table_expression:
+            from_expression = from_clause_segment.get_child("from_expression")
+            if from_expression:
+                from_expression_element = from_expression.get_child(
+                    "from_expression_element"
+                )
+
+            if not from_expression_element:
                 return None
-            table_expression = table_expression.get_child("main_table_expression")
+            from_expression_element = from_expression_element.get_child(
+                "table_expression"
+            )
 
             # Find base table
             base_table = None
-            if table_expression:
-                base_table = table_expression.get_child("object_reference")
+            if from_expression_element:
+                base_table = from_expression_element.get_child("object_reference")
 
             from_clause_index = segment.segments.index(from_clause_segment)
             from_clause_and_after = segment.segments[from_clause_index:]
 
             for clause in from_clause_and_after:
-                for table_expression in clause.recursive_crawl("table_expression"):
-                    table_expression_segments.append(table_expression)
+                for from_expression_element in clause.recursive_crawl(
+                    "from_expression_element"
+                ):
+                    table_expression_segments.append(from_expression_element)
                 for column_reference in clause.recursive_crawl("column_reference"):
                     column_reference_segments.append(column_reference)
 
@@ -96,11 +105,11 @@ class Rule_L031(BaseRule):
         violation_buff = []
 
         for table_exp in table_expression_segments:
-            table_ref = table_exp.get_child("main_table_expression").get_child(
+            table_ref = table_exp.get_child("table_expression").get_child(
                 "object_reference"
             )
 
-            # If the table_expression has no object_references - skip it
+            # If the from_expression_element has no object_references - skip it
             # An example case is a lateral flatten, where we have a function segment
             # instead of a table_reference segment.
             if not table_ref:
