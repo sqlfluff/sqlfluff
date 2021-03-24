@@ -784,11 +784,8 @@ class PartitionClauseSegment(BaseSegment):
         "PARTITION",
         "BY",
         Indent,
-        OneOf(
-            # Brackets are optional in a partition by statement
-            Bracketed(Delimited(Ref("ExpressionSegment"))),
-            Delimited(Ref("ExpressionSegment")),
-        ),
+        # Brackets are optional in a partition by statement
+        OptionallyBracketed(Delimited(Ref("ExpressionSegment"))),
         Dedent,
     )
 
@@ -831,10 +828,7 @@ class FromExpressionElementSegment(BaseSegment):
     type = "from_expression_element"
     match_grammar = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
-        OneOf(
-            Ref("TableExpressionSegment"),
-            Bracketed(Ref("TableExpressionSegment")),
-        ),
+        OptionallyBracketed(Ref("TableExpressionSegment")),
         Ref("AliasExpressionSegment", optional=True),
         Ref("PostTableExpressionGrammar", optional=True),
     )
@@ -1139,7 +1133,9 @@ class FromClauseSegment(BaseSegment):
         join_clauses = []
 
         for from_expression in self.get_children("from_expression"):
-            direct_table_children += from_expression.get_children("from_expression_element")
+            direct_table_children += from_expression.get_children(
+                "from_expression_element"
+            )
             join_clauses += from_expression.get_children("join_clause")
 
         # Iterate through the potential sources of aliases
@@ -1376,13 +1372,7 @@ class WhereClauseSegment(BaseSegment):
     parse_grammar = Sequence(
         "WHERE",
         Indent,
-        OneOf(
-            Bracketed(
-                # expression could be in brackets
-                Ref("ExpressionSegment"),
-            ),
-            Ref("ExpressionSegment"),
-        ),
+        OptionallyBracketed(Ref("ExpressionSegment")),
         Dedent,
     )
 
@@ -1470,12 +1460,7 @@ class HavingClauseSegment(BaseSegment):
     parse_grammar = Sequence(
         "HAVING",
         Indent,
-        OneOf(
-            Bracketed(
-                Ref("ExpressionSegment"),
-            ),
-            Ref("ExpressionSegment"),
-        ),
+        OptionallyBracketed(Ref("ExpressionSegment")),
         Dedent,
     )
 
