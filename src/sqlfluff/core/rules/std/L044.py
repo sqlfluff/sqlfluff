@@ -61,7 +61,7 @@ class Rule_L044(BaseRule):
 
     def _handle_alias(self, alias_info, dialect, queries):
         select_info_target = SelectCrawler.get(
-            alias_info.table_expression, queries, dialect
+            alias_info.from_expression_element, queries, dialect
         )
         if isinstance(select_info_target, str):
             # It's an alias to an external table whose

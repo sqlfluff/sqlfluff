@@ -62,7 +62,7 @@ class Rule_L034(BaseRule):
         self.seen_band_elements = [[] for i in select_element_order_preference] + [[]]
 
         if segment.type == "select_clause":
-            select_target_elements = segment.get_children("select_target_element")
+            select_target_elements = segment.get_children("select_clause_element")
             if not select_target_elements:
                 return None
 

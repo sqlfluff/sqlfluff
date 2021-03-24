@@ -23,7 +23,7 @@ from sqlfluff.core.parser import (
 
 from sqlfluff.core.dialects.dialect_ansi import (
     ansi_dialect,
-    SelectTargetElementSegment as AnsiSelectTargetElementSegment,
+    SelectClauseElementSegment as AnsiSelectTargetElementSegment,
     SelectClauseSegment as AnsiSelectClauseSegment,
 )
 
@@ -130,7 +130,7 @@ class SelectClauseSegment(AnsiSelectClauseSegment):
                 Ref("StarModifierSegment", optional=True),
             ),
             Delimited(
-                Ref("SelectTargetElementSegment"),
+                Ref("SelectClauseElementSegment"),
                 delimiter=Ref("CommaSegment"),
                 allow_trailing=True,
             ),
@@ -138,7 +138,7 @@ class SelectClauseSegment(AnsiSelectClauseSegment):
     )
 
 
-class SelectTargetElementSegment(AnsiSelectTargetElementSegment):
+class SelectClauseElementSegment(AnsiSelectTargetElementSegment):
     """BigQuery also supports the special "Struct" construct."""
 
     parse_grammar = OneOf(
@@ -186,7 +186,7 @@ bigquery_dialect.replace(
         type="function_name",
         _anti_template=r"STRUCT",
     ),
-    SelectTargetElementSegment=SelectTargetElementSegment,
+    SelectClauseElementSegment=SelectClauseElementSegment,
     SelectClauseSegment=SelectClauseSegment,
 )
 
@@ -272,12 +272,12 @@ class ReplaceClauseSegment(BaseSegment):
                 Delimited(
                     # Not *really* a select target element. It behaves exactly
                     # the same way however.
-                    Ref("SelectTargetElementSegment"),
+                    Ref("SelectClauseElementSegment"),
                     delimiter=Ref("CommaSegment"),
                 )
             ),
             # Single replace not in brackets.
-            Ref("SelectTargetElementSegment"),
+            Ref("SelectClauseElementSegment"),
         ),
     )
 

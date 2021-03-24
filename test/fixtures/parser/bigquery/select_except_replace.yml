@@ -3,7 +3,7 @@ file:
     select_statement:
       select_clause:
         keyword: select
-        select_target_element:
+        select_clause_element:
           wildcard_expression:
             wildcard_identifier:
               star: '*'
@@ -15,7 +15,7 @@ file:
             select_replace_clause:
               keyword: replace
               start_bracket: (
-              select_target_element:
+              select_clause_element:
                 function:
                 - function_name: concat
                 - start_bracket: (
@@ -32,7 +32,8 @@ file:
               end_bracket: )
       from_clause:
         keyword: from
-        table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: some_table
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: some_table

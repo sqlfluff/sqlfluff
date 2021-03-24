@@ -3,31 +3,31 @@ file:
       select_statement:
         select_clause:
         - keyword: select
-        - select_target_element:
+        - select_clause_element:
             literal: '2'
             alias_expression:
               keyword: as
               identifier: col2
         - comma: ','
-        - select_target_element:
+        - select_clause_element:
             literal: '4'
             alias_expression:
               keyword: as
               identifier: col4
         - comma: ','
-        - select_target_element:
+        - select_clause_element:
             literal: '6'
             alias_expression:
               keyword: as
               identifier: col6
         - comma: ','
-        - select_target_element:
+        - select_clause_element:
             literal: '8'
             alias_expression:
               keyword: as
               identifier: col8
         - comma: ','
-        - select_target_element:
+        - select_clause_element:
             literal: '10'
             alias_expression:
               keyword: as
