@@ -242,6 +242,14 @@ class Rule_L003(BaseRule):
             # Not in indent and not a newline, don't trigger here.
             return LintResult(memory=memory)
 
+        def _strip_buffers(line_dict):
+            """Strip a line dict of buffers for logging."""
+            return {
+                key: line_dict[key]
+                for key in line_dict
+                if key not in ("line_buffer", "indent_buffer")
+            }
+
         res = self._process_raw_stack(raw_stack + (segment,))
         this_line_no = max(res.keys())
         this_line = res.pop(this_line_no)
@@ -249,11 +257,7 @@ class Rule_L003(BaseRule):
             "Evaluating line #%s. %s",
             this_line_no,
             # Don't log the line or indent buffer, it's too noisy.
-            {
-                key: this_line[key]
-                for key in this_line
-                if key not in ("line_buffer", "indent_buffer")
-            },
+            _strip_buffers(this_line),
         )
 
         # Is this line just comments?
@@ -299,6 +303,9 @@ class Rule_L003(BaseRule):
                 # This is a HANGER
                 memory["hanging_lines"].append(this_line_no)
                 self.logger.debug("    Hanger Line. #%s", this_line_no)
+                self.logger.debug(
+                    "    Last Line: %s", _strip_buffers(res[last_code_line])
+                )
                 return LintResult(memory=memory)
 
         # Is this an indented first line?
@@ -394,20 +401,28 @@ class Rule_L003(BaseRule):
                 if this_line["indent_size"] % self.tab_space_size != 0:
                     memory["problem_lines"].append(this_line_no)
 
+                    indent_size_diff = this_line["indent_size"] - res[k]["indent_size"]
+                    # The default indent is the one just reconstructs it from
+                    # the indent size.
+                    default_indent = "".join(
+                        elem.raw for elem in res[k]["indent_buffer"]
+                    ) + (self._make_indent() * indent_diff)
                     # If we have a clean indent, we can just add steps in line
                     # with the difference in the indent buffers. simples.
                     # We can also do this if we've skipped a line. I think?
                     if this_line["clean_indent"] or this_line_no - k > 1:
-                        desired_indent = "".join(
-                            elem.raw for elem in res[k]["indent_buffer"]
-                        ) + (self._make_indent() * indent_diff)
-                    # If we have the option of a hanging indent then use it.
-                    elif res[k]["hanging_indent"]:
+                        self.logger.debug("        Use clean indent.")
+                        desired_indent = default_indent
+                    # If we have the option of a hanging indent and it's close
+                    # then use it.
+                    elif res[k]["hanging_indent"] and abs(indent_size_diff) < (
+                        self.tab_space_size / 2
+                    ):
+                        self.logger.debug("        Use hanging indent.")
                         desired_indent = " " * res[k]["hanging_indent"]
                     else:
-                        raise RuntimeError(
-                            "Unexpected case, please report bug, including the query you are linting!"
-                        )
+                        self.logger.debug("        Use default indent.")
+                        desired_indent = default_indent
 
                     # Make fixes
                     fixes = self._coerce_indent_to(
@@ -420,7 +435,7 @@ class Rule_L003(BaseRule):
                         anchor=segment,
                         memory=memory,
                         description=(
-                            "Indentation not hanging or " "a multiple of {0} spaces"
+                            "Indentation not hanging or a multiple of {0} spaces"
                         ).format(self.tab_space_size),
                         fixes=fixes,
                     )
