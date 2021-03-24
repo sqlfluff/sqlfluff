@@ -421,7 +421,13 @@ def test__cli__command_parse_serialize_from_stdin(serialize):
                             "line_no": 1,
                             "line_pos": 1,
                             "description": "Inconsistent capitalisation of keywords.",
-                        }
+                        },
+                        {
+                            "code": "L010",
+                            "line_no": 1,
+                            "line_pos": 10,
+                            "description": "Inconsistent capitalisation of keywords.",
+                        },
                     ],
                 }
             ],
