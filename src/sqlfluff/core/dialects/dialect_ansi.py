@@ -1686,7 +1686,7 @@ class InsertStatementSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class TransactionStatementSegment(BaseSegment):
-    """A `COMMIT` or `ROLLBACK` statement."""
+    """A `COMMIT`, `ROLLBACK` or `TRANSACTION` statement."""
 
     type = "transaction_statement"
     match_grammar = OneOf(
@@ -1703,6 +1703,8 @@ class TransactionStatementSegment(BaseSegment):
             Ref.keyword("WORK", optional=True),
             Sequence("AND", Ref.keyword("NO", optional=True), "CHAIN", optional=True),
         ),
+        # BEGIN | END TRANSACTION
+        Sequence(OneOf("BEGIN", "END"), "TRANSACTION"),
     )
 
 
