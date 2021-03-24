@@ -1,0 +1,13 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            start_bracket: (
+            expression:
+            - literal: '1'
+            - comparison_operator: '>'
+            - literal: '0'
+            end_bracket: )

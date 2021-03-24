@@ -3,13 +3,13 @@ file:
     select_statement:
       select_clause:
       - keyword: select
-      - select_target_element:
+      - select_clause_element:
           column_reference:
           - identifier: some_table
           - dot: .
           - identifier: foo_id
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           function:
             function_name: array
             start_bracket: (
@@ -22,10 +22,11 @@ file:
                 - star: '*'
                 from_clause:
                   keyword: from
-                  table_expression:
-                    main_table_expression:
-                      table_reference:
-                        identifier: another_table
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          identifier: another_table
                 where_clause:
                   keyword: where
                   expression:
@@ -41,16 +42,17 @@ file:
             end_bracket: )
       from_clause:
         keyword: from
-        table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: another_table
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: another_table
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: select
-        select_target_element:
+        select_clause_element:
           typeless_struct:
           - keyword: struct
           - start_bracket: (
@@ -75,15 +77,16 @@ file:
             identifier: bar
       from_clause:
         keyword: from
-        table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: foo
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: foo
           join_clause:
           - keyword: left
           - keyword: join
-          - table_expression:
-              main_table_expression:
+          - from_expression_element:
+              table_expression:
                 table_reference:
                   identifier: bar
           - join_on_condition:

@@ -1,0 +1,16 @@
+file:
+  statement:
+    alter_user:
+    - keyword: ALTER
+    - keyword: USER
+    - object_reference:
+        identifier: my_user
+    - keyword: REMOVE
+    - keyword: DELEGATED
+    - keyword: AUTHORIZATIONS
+    - keyword: FROM
+    - keyword: SECURITY
+    - keyword: INTEGRATION
+    - object_reference:
+        identifier: my_idp
+  statement_terminator: ;

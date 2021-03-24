@@ -9,26 +9,27 @@ file:
     - select_statement:
         select_clause:
           keyword: SELECT
-          select_target_element:
+          select_clause_element:
             column_reference:
               identifier: c
         from_clause:
           keyword: FROM
-          table_expression:
-            main_table_expression:
-              table_reference:
-                identifier: table1
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: table1
             join_clause:
             - keyword: INNER
             - keyword: JOIN
-            - table_expression:
-                main_table_expression:
+            - from_expression_element:
+                table_expression:
                   table_reference:
                     identifier: table2
             - join_on_condition:
                 keyword: 'ON'
+                start_bracket: (
                 expression:
-                - start_bracket: (
                 - column_reference:
                   - identifier: table1
                   - dot: .
@@ -38,4 +39,4 @@ file:
                   - identifier: table2
                   - dot: .
                   - identifier: id
-                - end_bracket: )
+                end_bracket: )

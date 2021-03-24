@@ -537,7 +537,7 @@ class FromUpdateClauseSegment(BaseSegment):
         "FROM",
         Delimited(
             # Optional old school delimited joins
-            Ref("TableExpressionSegment"),
+            Ref("FromExpressionElementSegment"),
             delimiter=Ref("CommaSegment"),
         ),
     )

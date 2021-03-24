@@ -2,7 +2,7 @@
 
 from typing import NamedTuple, Optional, List
 
-from sqlfluff.core.rules.base import BaseCrawler, LintFix, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
@@ -15,7 +15,7 @@ class OrderByColumnInfo(NamedTuple):
 
 
 @document_fix_compatible
-class Rule_L037(BaseCrawler):
+class Rule_L037(BaseRule):
     """Ambiguous ordering directions for columns in order by clause.
 
     | **Anti-pattern**

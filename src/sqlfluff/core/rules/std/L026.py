@@ -1,5 +1,6 @@
 """Implementation of Rule L026."""
 
+from sqlfluff.core.rules.analysis.select import get_aliases_from_select
 from sqlfluff.core.rules.base import LintResult
 from sqlfluff.core.rules.std.L025 import Rule_L025
 
@@ -46,7 +47,7 @@ class Rule_L026(Rule_L025):
             if tbl_ref and tbl_ref[0] not in [a.ref_str for a in table_aliases]:
                 # Last check, this *might* be a correlated subquery reference.
                 if parent_select:
-                    parent_aliases, _ = self._get_aliases_from_select(parent_select)
+                    parent_aliases, _ = get_aliases_from_select(parent_select)
                     if parent_aliases and tbl_ref[0] in [a[0] for a in parent_aliases]:
                         continue
 

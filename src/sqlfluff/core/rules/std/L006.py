@@ -1,12 +1,12 @@
 """Implementation of Rule L006."""
 
 
-from sqlfluff.core.rules.base import BaseCrawler, LintResult, LintFix
+from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
 @document_fix_compatible
-class Rule_L006(BaseCrawler):
+class Rule_L006(BaseRule):
     """Operators should be surrounded by a single whitespace.
 
     | **Anti-pattern**

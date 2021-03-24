@@ -2,7 +2,7 @@
 import pytest
 
 from sqlfluff.core import Linter
-from sqlfluff.core.rules.base import BaseCrawler, LintResult, LintFix
+from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules import get_ruleset
 from sqlfluff.core.rules.doc_decorators import document_configuration
 from sqlfluff.core.config import FluffConfig
@@ -21,14 +21,14 @@ from test.fixtures.rules.S000 import Rule_S000
 from sqlfluff.core.rules.std import get_rules_from_path
 
 
-class Rule_T042(BaseCrawler):
+class Rule_T042(BaseRule):
     """A dummy rule."""
 
     def _eval(self, segment, raw_stack, **kwargs):
         pass
 
 
-class Rule_T001(BaseCrawler):
+class Rule_T001(BaseRule):
     """A deliberately malicious rule."""
 
     def _eval(self, segment, raw_stack, **kwargs):
@@ -205,7 +205,7 @@ def test_improper_configs_are_rejected(rule_config_dict):
 def test_rules_cannot_be_instantiated_without_declared_configs():
     """Ensure that new rules must be instantiated with config values."""
 
-    class NewRule(BaseCrawler):
+    class NewRule(BaseRule):
         config_keywords = ["comma_style"]
 
     new_rule = NewRule(code="L000", description="", comma_style="trailing")
@@ -220,7 +220,7 @@ def test_rules_configs_are_dynamically_documented():
     """Ensure that rule configurations are added to the class docstring."""
 
     @document_configuration
-    class RuleWithConfig(BaseCrawler):
+    class RuleWithConfig(BaseRule):
         """A new rule with configuration."""
 
         config_keywords = ["comma_style", "lint_templated_tokens"]
@@ -229,7 +229,7 @@ def test_rules_configs_are_dynamically_documented():
     assert "lint_templated_tokens" in RuleWithConfig.__doc__
 
     @document_configuration
-    class RuleWithoutConfig(BaseCrawler):
+    class RuleWithoutConfig(BaseRule):
         """A new rule without configuration."""
 
         pass
@@ -242,7 +242,7 @@ def test_rule_exception_is_caught_to_validation():
     std_rule_set = get_ruleset()
 
     @std_rule_set.register
-    class Rule_T000(BaseCrawler):
+    class Rule_T000(BaseRule):
         """Rule that throws an exception."""
 
         def _eval(self, segment, parent_stack, **kwargs):

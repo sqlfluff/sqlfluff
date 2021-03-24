@@ -1,11 +1,11 @@
 """Implementation of Rule L034."""
 
-from sqlfluff.core.rules.base import BaseCrawler, LintFix, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
 @document_fix_compatible
-class Rule_L034(BaseCrawler):
+class Rule_L034(BaseRule):
     """Use wildcards then simple select targets before calculations and aggregates.
 
     | **Anti-pattern**
@@ -62,7 +62,7 @@ class Rule_L034(BaseCrawler):
         self.seen_band_elements = [[] for i in select_element_order_preference] + [[]]
 
         if segment.type == "select_clause":
-            select_target_elements = segment.get_children("select_target_element")
+            select_target_elements = segment.get_children("select_clause_element")
             if not select_target_elements:
                 return None
 

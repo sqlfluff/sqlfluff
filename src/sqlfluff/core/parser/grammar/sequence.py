@@ -9,7 +9,6 @@ from sqlfluff.core.parser.helpers import trim_non_code_segments, check_still_com
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.context import ParseContext
-
 from sqlfluff.core.parser.grammar.base import (
     BaseGrammar,
     cached_method_for_parse_context,

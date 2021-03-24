@@ -1,13 +1,13 @@
 """Implementation of Rule L029."""
 
 
-from sqlfluff.core.rules.base import BaseCrawler, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintResult
 from sqlfluff.core.rules.doc_decorators import document_configuration
 from sqlfluff.core.rules.std.L014 import unquoted_ids_policy_applicable
 
 
 @document_configuration
-class Rule_L029(BaseCrawler):
+class Rule_L029(BaseRule):
     """Keywords should not be used as identifiers.
 
     | **Anti-pattern**
