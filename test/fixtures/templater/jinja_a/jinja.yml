@@ -3,13 +3,14 @@ file:
     select_statement:
       select_clause:
         keyword: SELECT
-        select_target_element:
+        select_clause_element:
           literal: 56
       from_clause:
-        keyword: FROM
-        table_expression:
-          main_table_expression:
-            table_reference:
-              - identifier: sch1
-              - dot: "."
-              - identifier: tbl2
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                - identifier: sch1
+                - dot: "."
+                - identifier: tbl2

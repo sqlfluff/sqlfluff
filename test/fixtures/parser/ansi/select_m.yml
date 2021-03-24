@@ -3,20 +3,21 @@ file:
     select_statement:
       select_clause:
         keyword: SELECT
-        select_target_element:
+        select_clause_element:
           column_reference:
             identifier: a
       from_clause:
         keyword: FROM
-        table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: zendesk
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: zendesk
           join_clause:
           - keyword: LEFT
           - keyword: JOIN
-          - table_expression:
-              main_table_expression:
+          - from_expression_element:
+              table_expression:
                 table_reference:
                   identifier: ticket
           - join_on_condition:
@@ -36,19 +37,20 @@ file:
     select_statement:
       select_clause:
         keyword: SELECT
-        select_target_element:
+        select_clause_element:
           column_reference:
             identifier: low_user_counts
       from_clause:
         keyword: FROM
-        table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: acceptable_buckets
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: acceptable_buckets
           join_clause:
             keyword: JOIN
-            table_expression:
-              main_table_expression:
+            from_expression_element:
+              table_expression:
                 table_reference:
                   identifier: small_buckets
             join_on_condition:

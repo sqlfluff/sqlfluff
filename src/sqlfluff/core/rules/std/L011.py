@@ -28,7 +28,7 @@ class Rule_L011(BaseRule):
 
     """
 
-    _target_elems = ("table_expression",)
+    _target_elems = ("from_expression_element",)
 
     def _eval(self, segment, parent_stack, raw_stack, **kwargs):
         """Implicit aliasing of table/column not allowed. Use explicit `AS` clause.

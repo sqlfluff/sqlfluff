@@ -45,8 +45,8 @@ class Rule_L042(BaseRule):
 
     _config_mapping = {
         "join": ["join_clause"],
-        "from": ["from_clause"],
-        "both": ["join_clause", "from_clause"],
+        "from": ["from_expression"],
+        "both": ["join_clause", "from_expression"],
     }
 
     def _eval(self, segment, **kwargs):
@@ -59,12 +59,14 @@ class Rule_L042(BaseRule):
         for parent_type in parent_types:
             if segment.is_type(parent_type):
                 # Get the referenced table segment
-                table_expression = segment.get_child("table_expression")
-                if not table_expression:
+                from_expression_element = segment.get_child("from_expression_element")
+                if not from_expression_element:
                     return None  # There isn't one. We're done.
                 # Get the main bit
-                table_expression = table_expression.get_child("main_table_expression")
-                if not table_expression:
+                from_expression_element = from_expression_element.get_child(
+                    "table_expression"
+                )
+                if not from_expression_element:
                     return None  # There isn't one. We're done.
 
                 # If any of the following are found, raise an issue.
@@ -75,7 +77,7 @@ class Rule_L042(BaseRule):
                     "select_statement",
                 ]
                 for seg_type in problem_children:
-                    seg = table_expression.get_child(seg_type)
+                    seg = from_expression_element.get_child(seg_type)
                     if seg:
                         return LintResult(
                             anchor=seg,

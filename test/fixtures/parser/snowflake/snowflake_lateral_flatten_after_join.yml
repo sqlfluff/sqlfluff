@@ -3,18 +3,18 @@ file:
     select_statement:
       select_clause:
       - keyword: select
-      - select_target_element:
+      - select_clause_element:
           column_reference:
             identifier: value
           alias_expression:
             keyword: as
             identifier: p_id
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           column_reference:
             identifier: name
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           function:
           - function_name: iff
           - start_bracket: (
@@ -54,21 +54,22 @@ file:
             identifier: most_recent
       from_clause:
       - keyword: from
-      - table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: a
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: a
           join_clause:
           - keyword: inner
           - keyword: join
-          - table_expression:
-              main_table_expression:
+          - from_expression_element:
+              table_expression:
                 table_reference:
                   identifier: b
           - join_on_condition:
-            - keyword: 'on'
-            - start_bracket: (
-            - expression:
+              keyword: 'on'
+              start_bracket: (
+              expression:
               - column_reference:
                 - identifier: b
                 - dot: .
@@ -78,19 +79,20 @@ file:
                 - identifier: a
                 - dot: .
                 - identifier: c_id
-            - end_bracket: )
-      - comma: ','
-      - table_expression:
-          keyword: lateral
-          main_table_expression:
-            function:
-              function_name: flatten
-              start_bracket: (
-              snowflake_keyword_expression:
-                parameter: input
-                parameter_assigner: =>
-                column_reference:
-                - identifier: b
-                - dot: .
-                - identifier: cool_ids
               end_bracket: )
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            keyword: lateral
+            table_expression:
+              function:
+                function_name: flatten
+                start_bracket: (
+                snowflake_keyword_expression:
+                  parameter: input
+                  parameter_assigner: =>
+                  column_reference:
+                  - identifier: b
+                  - dot: .
+                  - identifier: cool_ids
+                end_bracket: )

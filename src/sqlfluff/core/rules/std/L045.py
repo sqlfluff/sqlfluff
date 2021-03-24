@@ -53,8 +53,8 @@ class Rule_L045(BaseRule):
         for select_info in select_info_list:
             for alias_info in select_info.select_info.table_aliases:
                 # Does the query read from a CTE? If so, visit the CTE.
-                for target_segment in alias_info.table_expression.get_children(
-                    "main_table_expression", "join_clause"
+                for target_segment in alias_info.from_expression_element.get_children(
+                    "table_expression", "join_clause"
                 ):
                     target = target_segment.raw
                     if target in queries:

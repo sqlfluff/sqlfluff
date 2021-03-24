@@ -3,33 +3,35 @@ file:
     select_statement:
       select_clause:
         keyword: SELECT
-        select_target_element:
+        select_clause_element:
           wildcard_expression:
             wildcard_identifier:
               star: '*'
       from_clause:
         keyword: FROM
-        ml_table_expression:
-        - keyword: ML
-        - dot: .
-        - identifier: PREDICT
-        - start_bracket: (
-        - keyword: MODEL
-        - object_reference:
-            identifier: '`project.dataset.model`'
-        - comma: ','
-        - start_bracket: (
-        - select_statement:
-            select_clause:
-              keyword: SELECT
-              select_target_element:
-                column_reference:
-                  identifier: user_id
-            from_clause:
-              keyword: FROM
-              table_expression:
-                main_table_expression:
-                  table_reference:
-                    identifier: '`project.dataset.stats`'
-        - end_bracket: )
-        - end_bracket: )
+        from_expression:
+          ml_table_expression:
+          - keyword: ML
+          - dot: .
+          - identifier: PREDICT
+          - start_bracket: (
+          - keyword: MODEL
+          - object_reference:
+              identifier: '`project.dataset.model`'
+          - comma: ','
+          - start_bracket: (
+          - select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    identifier: user_id
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        identifier: '`project.dataset.stats`'
+          - end_bracket: )
+          - end_bracket: )

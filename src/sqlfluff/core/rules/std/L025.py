@@ -61,7 +61,7 @@ class Rule_L025(Rule_L020):
                 fixes = [LintFix("delete", alias.alias_expression)]
                 found_alias_segment = False
                 # Walk back to remove indents/whitespaces
-                for segment in reversed(alias.table_expression.segments):
+                for segment in reversed(alias.from_expression_element.segments):
                     if not found_alias_segment:
                         if segment is alias.alias_expression:
                             found_alias_segment = True

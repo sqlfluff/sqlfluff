@@ -1,0 +1,83 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: a
+            alias_expression:
+              keyword: as
+              identifier: foo
+        - join_clause:
+            keyword: JOIN
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: b
+        - join_clause:
+            keyword: JOIN
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: c
+              alias_expression:
+                keyword: as
+                identifier: foobar
+        - join_clause:
+            keyword: JOIN
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: d
+      - comma: ','
+      - from_expression:
+        - from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: e
+            alias_expression:
+              keyword: as
+              identifier: bar
+        - join_clause:
+            keyword: JOIN
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: f
+        - join_clause:
+            keyword: JOIN
+            from_expression_element:
+              table_expression:
+                function:
+                  function_name: g
+                  start_bracket: (
+                  expression:
+                    literal: "'blah'"
+                  end_bracket: )
+              alias_expression:
+                keyword: as
+                identifier: tbl_func
+        - join_clause:
+            keyword: JOIN
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: h
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: baz
+            alias_expression:
+              keyword: as
+              identifier: buzz
