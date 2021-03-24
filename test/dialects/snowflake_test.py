@@ -6,6 +6,8 @@ from sqlfluff.core import Linter
 from sqlfluff.core.dialects import dialect_selector
 
 
+# Deprecated: All new tests should be added as .sql and .yml files under `test/fixtures/parser/snowflake`.
+# See test/fixtures/parser/README.md for more details.
 @pytest.mark.parametrize(
     "segment_cls,raw",
     [
@@ -107,6 +109,7 @@ from sqlfluff.core.dialects import dialect_selector
             "SemiStructuredAccessorSegment",
             "SELECT ID :: VARCHAR as id, OBJ : userId :: VARCHAR as user_id from x",
         ),
+        ("DropStatementSegment", "DROP USER my_user;"),
     ],
 )
 def test_snowflake_queries(segment_cls, raw, caplog):

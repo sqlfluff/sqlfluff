@@ -63,7 +63,7 @@ class Rule_L036(BaseRule):
         first_whitespace_idx = -1
         select_targets = []
         for fname_idx, seg in enumerate(segment.segments):
-            if seg.is_type("select_target_element"):
+            if seg.is_type("select_clause_element"):
                 select_targets.append(seg)
                 if first_select_target_idx == -1:
                     first_select_target_idx = fname_idx
@@ -112,7 +112,7 @@ class Rule_L036(BaseRule):
     ):
         is_wildcard = False
         for segment in select_clause.segments:
-            if segment.is_type("select_target_element"):
+            if segment.is_type("select_clause_element"):
                 for sub_segment in segment.segments:
                     if sub_segment.is_type("wildcard_expression"):
                         is_wildcard = True

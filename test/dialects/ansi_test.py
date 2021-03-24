@@ -56,7 +56,7 @@ def test__dialect__ansi__file_lex(raw, res, caplog):
         ("ExpressionSegment", "name NOT LIKE '%y'"),
         # Functions with a space
         # https://github.com/sqlfluff/sqlfluff/issues/171
-        ("SelectTargetElementSegment", "MIN (test.id) AS min_test_id"),
+        ("SelectClauseElementSegment", "MIN (test.id) AS min_test_id"),
         # Interval literals
         # https://github.com/sqlfluff/sqlfluff/issues/148
         (
@@ -70,7 +70,7 @@ def test__dialect__ansi__file_lex(raw, res, caplog):
         ("ExpressionSegment", "4 + my_array[OFFSET(1)]"),
         ("ExpressionSegment", "bits[OFFSET(0)] + 7"),
         (
-            "SelectTargetElementSegment",
+            "SelectClauseElementSegment",
             (
                 "(count_18_24 * bits[OFFSET(0)])"
                 " / audience_size AS relative_abundance"
@@ -78,7 +78,7 @@ def test__dialect__ansi__file_lex(raw, res, caplog):
         ),
         ("ExpressionSegment", "count_18_24 * bits[OFFSET(0)] + count_25_34"),
         (
-            "SelectTargetElementSegment",
+            "SelectClauseElementSegment",
             (
                 "(count_18_24 * bits[OFFSET(0)] + count_25_34)"
                 " / audience_size AS relative_abundance"
@@ -88,20 +88,20 @@ def test__dialect__ansi__file_lex(raw, res, caplog):
         # https://github.com/sqlfluff/sqlfluff/issues/178
         # https://github.com/sqlfluff/sqlfluff/issues/179
         ("SelectStatementSegment", "SELECT t.val/t.id FROM test WHERE id*1.0/id > 0.8"),
-        ("SelectTargetElementSegment", "t.val/t.id"),
+        ("SelectClauseElementSegment", "t.val/t.id"),
         # Issue with casting raise as part of PR #177
-        ("SelectTargetElementSegment", "CAST(num AS INT64)"),
+        ("SelectClauseElementSegment", "CAST(num AS INT64)"),
         # Casting as datatype with arguments
-        ("SelectTargetElementSegment", "CAST(num AS numeric(8,4))"),
+        ("SelectClauseElementSegment", "CAST(num AS numeric(8,4))"),
         # Wildcard field selection
-        ("SelectTargetElementSegment", "a.*"),
-        ("SelectTargetElementSegment", "a.b.*"),
-        ("SelectTargetElementSegment", "a.b.c.*"),
+        ("SelectClauseElementSegment", "a.*"),
+        ("SelectClauseElementSegment", "a.b.*"),
+        ("SelectClauseElementSegment", "a.b.c.*"),
         # Default Element Syntax
         ("ObjectReferenceSegment", "a..c.*"),
         # Negative Elements
-        ("SelectTargetElementSegment", "-some_variable"),
-        ("SelectTargetElementSegment", "- some_variable"),
+        ("SelectClauseElementSegment", "-some_variable"),
+        ("SelectClauseElementSegment", "- some_variable"),
         # Complex Functions
         (
             "ExpressionSegment",
@@ -113,7 +113,7 @@ def test__dialect__ansi__file_lex(raw, res, caplog):
         ("ExpressionSegment", "c isnull"),
         # Shorthand casting
         ("ExpressionSegment", "NULL::INT"),
-        ("SelectTargetElementSegment", "NULL::INT AS user_id"),
+        ("SelectClauseElementSegment", "NULL::INT AS user_id"),
     ],
 )
 def test__dialect__ansi_specific_segment_parses(
@@ -162,3 +162,14 @@ def test__dialect__ansi_specific_segment_not_parse(raw, err_locations, caplog):
     assert len(parsed.violations) > 0
     locs = [(v.line_no(), v.line_pos()) for v in parsed.violations]
     assert locs == err_locations
+
+
+def test__dialect__ansi_is_whitespace():
+    """Test proper tagging with is_whitespace."""
+    lnt = Linter()
+    with open("test/fixtures/parser/ansi/select_in_multiline_comment.sql") as f:
+        parsed = lnt.parse_string(f.read())
+    # Check all the segments that *should* be whitespace, ARE
+    for raw_seg in parsed.tree.iter_raw_seg():
+        if raw_seg.type in ("whitespace", "newline"):
+            assert raw_seg.is_whitespace

@@ -127,7 +127,7 @@ class SelectClauseSegment(ansi_dialect.get_segment("SelectClauseSegment")):  # t
                 Ref("StarModifierSegment", optional=True),
             ),
             Delimited(
-                Ref("SelectTargetElementSegment"),
+                Ref("SelectClauseElementSegment"),
                 delimiter=Ref("CommaSegment"),
                 allow_trailing=True,
             ),
@@ -136,8 +136,8 @@ class SelectClauseSegment(ansi_dialect.get_segment("SelectClauseSegment")):  # t
 
 
 @bigquery_dialect.segment(replace=True)
-class SelectTargetElementSegment(
-    ansi_dialect.get_segment("SelectTargetElementSegment")  # type: ignore
+class SelectClauseElementSegment(
+    ansi_dialect.get_segment("SelectClauseElementSegment")  # type: ignore
 ):
     """BigQuery also supports the special "Struct" construct."""
 
@@ -266,12 +266,12 @@ class ReplaceClauseSegment(BaseSegment):
                 Delimited(
                     # Not *really* a select target element. It behaves exactly
                     # the same way however.
-                    Ref("SelectTargetElementSegment"),
+                    Ref("SelectClauseElementSegment"),
                     delimiter=Ref("CommaSegment"),
                 )
             ),
             # Single replace not in brackets.
-            Ref("SelectTargetElementSegment"),
+            Ref("SelectClauseElementSegment"),
         ),
     )
 

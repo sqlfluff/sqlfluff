@@ -6,7 +6,7 @@ file:
           - keyword: SELECT
           - newline: "\n"
           - whitespace: "    "
-          - select_target_element:
+          - select_clause_element:
               - expression:
                   - literal: 3
                   - whitespace: " "
@@ -19,7 +19,7 @@ file:
                   - whitespace: " "
                   - identifier: a
           - comma: ","
-          - select_target_element:
+          - select_clause_element:
               - expression:
                   - literal: 7
                   - whitespace: " "
@@ -33,10 +33,11 @@ file:
                   - identifier: b
       - newline: "\n"
       - from_clause:
-          keyword: FROM
-          whitespace: " "
-          table_expression:
-            main_table_expression:
-              table_reference:
-                - identifier: some_table
+        - keyword: FROM
+        - whitespace: " "
+        - from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  - identifier: some_table
   newline: "\n"

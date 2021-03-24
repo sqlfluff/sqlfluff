@@ -11,6 +11,6 @@ class AliasInfo(NamedTuple):
     ref_str: str  # Name given to the alias
     segment: BaseSegment  # Identifier segment containing the name
     aliased: bool
-    table_expression: BaseSegment
+    from_expression_element: BaseSegment
     alias_expression: Optional[BaseSegment]
     object_reference: Optional[BaseSegment]

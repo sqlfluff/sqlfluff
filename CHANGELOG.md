@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   The `copy` method on grammars can be used to copy with alterations.
 
 ### Changed
+- Add support for `ALTER USER` commands in Snowflake dialect.
+- Added describe statement to ANSI dialect
 
 - Renamed the BaseCrawler class to BaseRule. This is the base class for all
   rules. This is a breaking change for any custom rules that have been added

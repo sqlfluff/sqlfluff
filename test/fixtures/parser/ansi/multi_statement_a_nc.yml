@@ -1,46 +1,48 @@
 # Here we're testing the whitespace capture between segments
 file:
-  - statement:
-      select_statement:
-        select_clause:
-          keyword: select
-          whitespace: " "
-          select_target_element:
-            column_reference:
-              identifier: a
-        whitespace: " "
-        from_clause:
-          keyword: from
-          whitespace: " "
-          table_expression:
-            main_table_expression:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        whitespace: ' '
+        select_clause_element:
+          column_reference:
+            identifier: a
+      whitespace: ' '
+      from_clause:
+        keyword: from
+        whitespace: ' '
+        from_expression:
+          from_expression_element:
+            table_expression:
               table_reference:
                 identifier: tbl1
-  - whitespace: "  "
-  - comment: /*comment here*/
-  - whitespace: " "
-  - statement_terminator: ;
-  - whitespace: "  "
-  - comment: /*and here*/
-  - whitespace: "  "
-  - statement:
-      select_statement:
-        select_clause:
-          keyword: select
-          whitespace: " "
-          select_target_element:
-            column_reference:
-              identifier: b
-        whitespace: " "
-        from_clause:
-          keyword: from
-          whitespace: " "
-          table_expression:
-            main_table_expression:
+- whitespace: '  '
+- comment: /*comment here*/
+- whitespace: ' '
+- statement_terminator: ;
+- whitespace: '  '
+- comment: /*and here*/
+- whitespace: '  '
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        whitespace: ' '
+        select_clause_element:
+          column_reference:
+            identifier: b
+      whitespace: ' '
+      from_clause:
+        keyword: from
+        whitespace: ' '
+        from_expression:
+          from_expression_element:
+            table_expression:
               table_reference:
                 identifier: tbl2
-  - statement_terminator: ;
-  - whitespace: "   "
-  - comment: -- trailling ending comment
-  - newline: "\n"
-  - whitespace: "\t\t"
+- statement_terminator: ;
+- whitespace: '   '
+- comment: -- trailling ending comment
+- newline: "\n"
+- whitespace: "\t\t"

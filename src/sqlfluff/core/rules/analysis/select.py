@@ -55,7 +55,7 @@ def get_select_statement_info(
 
     # Get all select targets.
     select_targets = segment.get_child("select_clause").get_children(
-        "select_target_element"
+        "select_clause_element"
     )
 
     # Get all column aliases

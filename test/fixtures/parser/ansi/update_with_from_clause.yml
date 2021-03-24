@@ -18,10 +18,11 @@ file:
           - identifier: days
       from_clause:
         keyword: FROM
-        table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: other_table
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: other_table
       where_clause:
         keyword: WHERE
         expression:
