@@ -27,8 +27,9 @@ from sqlfluff.core.parser import (
     StartsWith,
     SymbolSegment,
 )
-from sqlfluff.core.dialects.dialect_exasol import ObjectReferenceSegment, exasol_dialect
+from sqlfluff.core.dialects import load_raw_dialect
 
+exasol_dialect = load_raw_dialect("exasol")
 exasol_fs_dialect = exasol_dialect.copy_as("exasol_fs")
 exasol_fs_dialect.sets("unreserved_keywords").add("ROWCOUNT")
 exasol_fs_dialect.set_lexer_struct(
@@ -120,7 +121,7 @@ class FileSegment(BaseSegment):
 
 
 @exasol_fs_dialect.segment()
-class FunctionReferenceSegment(ObjectReferenceSegment):
+class FunctionReferenceSegment(exasol_dialect.get_segment("ObjectReferenceSegment")):  # type: ignore
     """A reference to a function."""
 
     type = "function_reference"
@@ -298,7 +299,7 @@ class FunctionWhileLoopSegment(BaseSegment):
 # SCRIPT
 ############################
 @exasol_fs_dialect.segment()
-class ScriptReferenceSegment(ObjectReferenceSegment):
+class ScriptReferenceSegment(exasol_dialect.get_segment("ObjectReferenceSegment")):  # type: ignore
     """A reference to a script."""
 
     type = "script_reference"

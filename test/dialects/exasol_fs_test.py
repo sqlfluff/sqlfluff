@@ -1,12 +1,6 @@
 """Tests specific to the exasol_fs dialect."""
 import pytest
-
-from sqlfluff.core.dialects.dialect_exasol_fs import (
-    CreateAdapterScriptStatementSegment,
-    CreateFunctionStatementSegment,
-    CreateScriptingLuaScriptStatementSegment,
-    CreateUDFScriptStatementSegment,
-)
+from sqlfluff.core.dialects import dialect_selector
 
 TEST_DIALECT = "exasol_fs"
 
@@ -77,7 +71,7 @@ def test_dialect_exasol_fs_specific_segment_parses(
     "segment_cls,raw,stmt_count",
     [
         (
-            CreateFunctionStatementSegment,
+            "CreateFunctionStatementSegment",
             """
             CREATE OR REPLACE FUNCTION percentage ( fraction DECIMAL,
                                                     entirety DECIMAL)
@@ -101,7 +95,7 @@ def test_dialect_exasol_fs_specific_segment_parses(
             2,
         ),
         (
-            CreateScriptingLuaScriptStatementSegment,
+            "CreateScriptingLuaScriptStatementSegment",
             """
             CREATE OR REPLACE LUA SCRIPT aschema.hello AS
                 return 'HELLO'
@@ -110,7 +104,7 @@ def test_dialect_exasol_fs_specific_segment_parses(
             1,
         ),
         (
-            CreateScriptingLuaScriptStatementSegment,
+            "CreateScriptingLuaScriptStatementSegment",
             """
             CREATE OR REPLACE LUA SCRIPT aschema.hello() AS
                 return 'HELLO'
@@ -119,7 +113,7 @@ def test_dialect_exasol_fs_specific_segment_parses(
             1,
         ),
         (
-            CreateScriptingLuaScriptStatementSegment,
+            "CreateScriptingLuaScriptStatementSegment",
             """
             CREATE SCRIPT insert_low_high (param1, param2, param3) AS
                 import('function_lib') -- accessing external function
@@ -130,7 +124,7 @@ def test_dialect_exasol_fs_specific_segment_parses(
             1,
         ),
         (
-            CreateUDFScriptStatementSegment,
+            "CreateUDFScriptStatementSegment",
             """
             CREATE LUA SCALAR SCRIPT my_average
                 (a DOUBLE, b DOUBLE ORDER BY 1 desc)
@@ -146,7 +140,7 @@ def test_dialect_exasol_fs_specific_segment_parses(
             1,
         ),
         (
-            CreateUDFScriptStatementSegment,
+            "CreateUDFScriptStatementSegment",
             """
             CREATE LUA SCALAR SCRIPT map_words(w varchar(10000))
             EMITS (words varchar(100)) AS
@@ -165,7 +159,7 @@ def test_dialect_exasol_fs_specific_segment_parses(
             1,
         ),
         (
-            CreateUDFScriptStatementSegment,
+            "CreateUDFScriptStatementSegment",
             """
             CREATE OR REPLACE PYTHON3 SCALAR SCRIPT LIB.MYLIB() RETURNS INT AS
             def helloWorld():
@@ -175,7 +169,7 @@ def test_dialect_exasol_fs_specific_segment_parses(
             1,
         ),
         (
-            CreateUDFScriptStatementSegment,
+            "CreateUDFScriptStatementSegment",
             """
             CREATE OR REPLACE PYTHON SCALAR SCRIPT TEST.MYHELLOWORLD() RETURNS VARCHAR(2000) AS
             l = exa.import_script('LIB.MYLIB')
@@ -186,7 +180,7 @@ def test_dialect_exasol_fs_specific_segment_parses(
             1,
         ),
         (
-            CreateUDFScriptStatementSegment,
+            "CreateUDFScriptStatementSegment",
             """
             CREATE OR REPLACE JAVA SCALAR SCRIPT LIB.MYLIB() RETURNS VARCHAR(2000) AS
             class MYLIB {
@@ -199,7 +193,7 @@ def test_dialect_exasol_fs_specific_segment_parses(
             1,
         ),
         (
-            CreateAdapterScriptStatementSegment,
+            "CreateAdapterScriptStatementSegment",
             """
             CREATE JAVA ADAPTER SCRIPT my_script AS
             %jar hive_jdbc_adapter.jar;
@@ -213,4 +207,5 @@ def test_exasol_scripts_functions(
     segment_cls, raw, stmt_count, validate_dialect_specific_statements
 ):
     """Test exasol specific scripts and functions with parse."""
-    validate_dialect_specific_statements(TEST_DIALECT, segment_cls, raw, stmt_count)
+    seg_cls = dialect_selector(TEST_DIALECT).get_segment(segment_cls)
+    validate_dialect_specific_statements(TEST_DIALECT, seg_cls, raw, stmt_count)

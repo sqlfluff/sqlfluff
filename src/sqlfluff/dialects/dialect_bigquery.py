@@ -21,13 +21,9 @@ from sqlfluff.core.parser import (
     Indent,
 )
 
-from sqlfluff.core.dialects.dialect_ansi import (
-    ansi_dialect,
-    SelectClauseElementSegment as AnsiSelectTargetElementSegment,
-    SelectClauseSegment as AnsiSelectClauseSegment,
-)
+from sqlfluff.core.dialects import load_raw_dialect
 
-
+ansi_dialect = load_raw_dialect("ansi")
 bigquery_dialect = ansi_dialect.copy_as("bigquery")
 
 bigquery_dialect.patch_lexer_struct(
@@ -115,7 +111,8 @@ class IntervalExpressionSegment(BaseSegment):
     )
 
 
-class SelectClauseSegment(AnsiSelectClauseSegment):
+@bigquery_dialect.segment(replace=True)
+class SelectClauseSegment(ansi_dialect.get_segment("SelectClauseSegment")):  # type: ignore
     """In BigQuery, select * as struct is valid."""
 
     parse_grammar = Sequence(
@@ -138,7 +135,10 @@ class SelectClauseSegment(AnsiSelectClauseSegment):
     )
 
 
-class SelectClauseElementSegment(AnsiSelectTargetElementSegment):
+@bigquery_dialect.segment(replace=True)
+class SelectClauseElementSegment(
+    ansi_dialect.get_segment("SelectClauseElementSegment")  # type: ignore
+):
     """BigQuery also supports the special "Struct" construct."""
 
     parse_grammar = OneOf(
@@ -163,15 +163,9 @@ bigquery_dialect.replace(
     QuotedIdentifierSegment=NamedSegment.make(
         "back_quote", name="quoted_identifier", type="identifier", trim_chars=("`",)
     ),
-    IntervalExpressionSegment=IntervalExpressionSegment,
-    LiteralGrammar=OneOf(
-        Ref("QuotedLiteralSegment"),
-        Ref("DoubleQuotedLiteralSegment"),
-        Ref("NumericLiteralSegment"),
-        Ref("BooleanLiteralGrammar"),
-        Ref("QualifiedNumericLiteralSegment"),
-        Ref("NullKeywordSegment"),
-        Ref("LiteralCoercionSegment"),
+    # Add two elements to the ansi LiteralGrammar
+    LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
+        insert=[Ref("DoubleQuotedLiteralSegment"), Ref("LiteralCoercionSegment")]
     ),
     PostTableExpressionGrammar=Sequence(
         Sequence(
@@ -186,8 +180,6 @@ bigquery_dialect.replace(
         type="function_name",
         _anti_template=r"STRUCT",
     ),
-    SelectClauseElementSegment=SelectClauseElementSegment,
-    SelectClauseSegment=SelectClauseSegment,
 )
 
 
@@ -236,13 +228,15 @@ class WildcardExpressionSegment(BaseSegment):
     """An extension of the star expression for Bigquery."""
 
     type = "wildcard_expression"
-    match_grammar = Sequence(
-        # *, blah.*, blah.blah.*, etc.
-        Ref("WildcardIdentifierSegment"),
-        # Optional EXCEPT or REPLACE clause
-        # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#select_replace
-        Ref("ExceptClauseSegment", optional=True),
-        Ref("ReplaceClauseSegment", optional=True),
+    match_grammar = ansi_dialect.get_segment(
+        "WildcardExpressionSegment"
+    ).match_grammar.copy(
+        insert=[
+            # Optional EXCEPT or REPLACE clause
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#select_replace
+            Ref("ExceptClauseSegment", optional=True),
+            Ref("ReplaceClauseSegment", optional=True),
+        ]
     )
 
 

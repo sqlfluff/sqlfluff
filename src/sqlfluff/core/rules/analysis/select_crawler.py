@@ -4,7 +4,7 @@ from typing import Dict, List, NamedTuple, Optional, Union
 
 from cached_property import cached_property
 
-from sqlfluff.core.dialects.dialect_ansi import AliasInfo
+from sqlfluff.core.dialects.common import AliasInfo
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.rules.analysis.select import get_select_statement_info

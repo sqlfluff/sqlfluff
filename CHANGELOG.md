@@ -6,14 +6,33 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- `pascal` (PascalCase) `capitalisation_policy` option for L014 (unquoted identifiers)
+- `only_aliases` configuration option for L014 (unquoted identifers)
+- Dialects now have more advanced dependency options to allow less repetition
+  between related dialects. The methods `get_segment` and `get_grammar` can be
+  used on unexpanded grammars to access elements of the parent grammars.
+  The `copy` method on grammars can be used to copy with alterations.
+
 ### Changed
 - Add support for `ALTER USER` commands in Snowflake dialect.
 - Added describe statement to ANSI dialect
-
+- Renamed `capitalisation_policy` to `extended_capitalisation_policy` for L014 to reflect the fact that it now
+  accepts more options (`pascal`) than regular `capitalisation_policy` still used by L010 and others.
+- Replaced `only_aliases` config with `unquoted_identifiers_policy` and added it to rule L014 in addition to L029.
 - Renamed the BaseCrawler class to BaseRule. This is the base class for all
   rules. This is a breaking change for any custom rules that have been added
   via plugins or by forking the SQLFluff repo.
-  
+- Renamed `sqlfluff.rules()` to `sqlfluff.list_rules()` and `sqlfluff.dialects()`
+  to `sqlfluff.list_dialects()` due to naming conflicts with the now separate
+  `sqlfluff.dialects` module.
+- Extracted dialect definitions from the `sqlfluff.core` module so that each
+  dialect is better isolated from each other. This also allows more focused
+  testing and the potential for dialect plugins in future. Dialects are now
+  only imported as needed at runtime. All dialects should now be accessed
+  using the selector methods in `sqlfluff.core.dialects` rather than importing
+  from `sqlfluff.dialects` directly.
+
 ## [0.4.1] - 2021-02-25
 ### Added
 

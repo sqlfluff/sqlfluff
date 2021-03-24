@@ -11,9 +11,10 @@ from sqlfluff.core.parser import (
     Delimited,
 )
 
-from sqlfluff.core.dialects.dialect_ansi import ansi_dialect
+from sqlfluff.core.dialects import load_raw_dialect
 
-# At the moment this is just a placeholder. Unique syntax to be added later.
+ansi_dialect = load_raw_dialect("ansi")
+
 postgres_dialect = ansi_dialect.copy_as("postgres")
 
 

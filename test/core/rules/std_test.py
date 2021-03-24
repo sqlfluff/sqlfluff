@@ -189,9 +189,9 @@ def test__rules__std_L003_process_raw_stack(generate_test_segments):
         {"comma_style": "blah"},
         {"allow_scalar": "blah"},
         {"single_table_references": "blah"},
-        {"only_aliases": "blah"},
+        {"unquoted_identifiers_policy": "blah"},
         {"L010": {"capitalisation_policy": "blah"}},
-        {"L014": {"capitalisation_policy": "blah"}},
+        {"L014": {"extended_capitalisation_policy": "blah"}},
         {"L030": {"capitalisation_policy": "blah"}},
     ],
 )
@@ -223,10 +223,10 @@ def test_rules_configs_are_dynamically_documented():
     class RuleWithConfig(BaseRule):
         """A new rule with configuration."""
 
-        config_keywords = ["comma_style", "only_aliases"]
+        config_keywords = ["comma_style", "lint_templated_tokens"]
 
     assert "comma_style" in RuleWithConfig.__doc__
-    assert "only_aliases" in RuleWithConfig.__doc__
+    assert "lint_templated_tokens" in RuleWithConfig.__doc__
 
     @document_configuration
     class RuleWithoutConfig(BaseRule):
