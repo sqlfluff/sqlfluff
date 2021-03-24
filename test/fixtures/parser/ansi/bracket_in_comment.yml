@@ -8,7 +8,8 @@ file:
             identifier: a
       from_clause:
         keyword: from
-        table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: b
+        from_expression:
+          table_expression:
+            main_table_expression:
+              table_reference:
+                identifier: b

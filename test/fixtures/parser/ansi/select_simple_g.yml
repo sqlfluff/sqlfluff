@@ -8,10 +8,11 @@ file:
             identifier: id
       from_clause:
         keyword: FROM
-        table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: test
+        from_expression:
+          table_expression:
+            main_table_expression:
+              table_reference:
+                identifier: test
       where_clause:
         keyword: WHERE
         expression:

@@ -5,8 +5,8 @@ file:
         keyword: SELECT
         select_target_element:
           expression:
-          - start_bracket: (
-          - expression:
+            start_bracket: (
+            expression:
             - function:
               - function_name: POW
               - start_bracket: (
@@ -50,15 +50,16 @@ file:
               - expression:
                   literal: '2'
               - end_bracket: )
-          - end_bracket: )
+            end_bracket: )
           alias_expression:
             identifier: w1
       from_clause:
         keyword: FROM
-        table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: dat
+        from_expression:
+          table_expression:
+            main_table_expression:
+              table_reference:
+                identifier: dat
 - statement_terminator: ;
 - statement:
     select_statement:

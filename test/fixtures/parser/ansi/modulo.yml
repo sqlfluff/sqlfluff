@@ -47,7 +47,8 @@ file:
             identifier: is_leap_year
       from_clause:
         keyword: FROM
-        table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: mytable
+        from_expression:
+          table_expression:
+            main_table_expression:
+              table_reference:
+                identifier: mytable

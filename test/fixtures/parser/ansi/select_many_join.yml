@@ -9,7 +9,7 @@ file:
               star: '*'
       from_clause:
       - keyword: FROM
-      - joined_table_expression:
+      - from_expression:
         - table_expression:
             main_table_expression:
               table_reference:
@@ -39,7 +39,7 @@ file:
                 table_reference:
                   identifier: d
       - comma: ','
-      - joined_table_expression:
+      - from_expression:
         - table_expression:
             main_table_expression:
               table_reference:
@@ -73,10 +73,11 @@ file:
                 table_reference:
                   identifier: h
       - comma: ','
-      - table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: baz
-          alias_expression:
-            keyword: as
-            identifier: buzz
+      - from_expression:
+          table_expression:
+            main_table_expression:
+              table_reference:
+                identifier: baz
+            alias_expression:
+              keyword: as
+              identifier: buzz

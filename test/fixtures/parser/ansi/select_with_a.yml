@@ -14,10 +14,11 @@ file:
                 identifier: a
           from_clause:
             keyword: from
-            table_expression:
-              main_table_expression:
-                table_reference:
-                  identifier: tbla
+            from_expression:
+              table_expression:
+                main_table_expression:
+                  table_reference:
+                    identifier: tbla
         end_bracket: )
       select_statement:
         select_clause:
@@ -27,7 +28,8 @@ file:
               identifier: a
         from_clause:
           keyword: from
-          table_expression:
-            main_table_expression:
-              table_reference:
-                identifier: cte
+          from_expression:
+            table_expression:
+              main_table_expression:
+                table_reference:
+                  identifier: cte

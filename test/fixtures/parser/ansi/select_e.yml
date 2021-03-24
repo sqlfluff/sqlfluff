@@ -12,10 +12,11 @@ file:
               identifier: foo
         from_clause:
           keyword: FROM
-          table_expression:
-            main_table_expression:
-              table_reference:
-                identifier: some_table
+          from_expression:
+            table_expression:
+              main_table_expression:
+                table_reference:
+                  identifier: some_table
     - set_operator:
         keyword: UNION
     - select_statement:
@@ -29,10 +30,11 @@ file:
               identifier: foo
         from_clause:
           keyword: FROM
-          table_expression:
-            main_table_expression:
-              table_reference:
-                identifier: another_table
+          from_expression:
+            table_expression:
+              main_table_expression:
+                table_reference:
+                  identifier: another_table
     - set_operator:
       - keyword: UNION
       - keyword: ALL
@@ -47,10 +49,11 @@ file:
               identifier: foo
         from_clause:
           keyword: FROM
-          table_expression:
-            main_table_expression:
-              table_reference:
-                identifier: this_other_table
+          from_expression:
+            table_expression:
+              main_table_expression:
+                table_reference:
+                  identifier: this_other_table
     - set_operator:
         keyword: INTERSECT
     - select_statement:
@@ -64,7 +67,8 @@ file:
               identifier: foo
         from_clause:
           keyword: FROM
-          table_expression:
-            main_table_expression:
-              table_reference:
-                identifier: the_last_table
+          from_expression:
+            table_expression:
+              main_table_expression:
+                table_reference:
+                  identifier: the_last_table

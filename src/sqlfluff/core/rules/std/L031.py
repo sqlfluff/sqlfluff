@@ -58,11 +58,9 @@ class Rule_L031(BaseRule):
             if not from_clause_segment:
                 return None
 
-            table_expression = from_clause_segment.get_child("joined_table_expression")
-            if not table_expression:
-                table_expression = from_clause_segment.get_child("table_expression")
-            else:
-                table_expression = table_expression.get_child("table_expression")
+            from_expression = from_clause_segment.get_child("from_expression")
+            if from_expression:
+                table_expression = from_expression.get_child("table_expression")
 
             if not table_expression:
                 return None

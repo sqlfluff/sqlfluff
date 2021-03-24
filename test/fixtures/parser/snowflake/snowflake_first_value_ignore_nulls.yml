@@ -42,7 +42,8 @@ file:
             identifier: c
       from_clause:
         keyword: from
-        table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: d
+        from_expression:
+          table_expression:
+            main_table_expression:
+              table_reference:
+                identifier: d

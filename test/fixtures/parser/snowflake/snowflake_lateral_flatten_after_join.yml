@@ -54,12 +54,12 @@ file:
             identifier: most_recent
       from_clause:
       - keyword: from
-      - joined_table_expression:
-        - table_expression:
+      - from_expression:
+          table_expression:
             main_table_expression:
               table_reference:
                 identifier: a
-        - join_clause:
+          join_clause:
           - keyword: inner
           - keyword: join
           - table_expression:
@@ -81,17 +81,18 @@ file:
                 - identifier: c_id
               end_bracket: )
       - comma: ','
-      - table_expression:
-          keyword: lateral
-          main_table_expression:
-            function:
-              function_name: flatten
-              start_bracket: (
-              snowflake_keyword_expression:
-                parameter: input
-                parameter_assigner: =>
-                column_reference:
-                - identifier: b
-                - dot: .
-                - identifier: cool_ids
-              end_bracket: )
+      - from_expression:
+          table_expression:
+            keyword: lateral
+            main_table_expression:
+              function:
+                function_name: flatten
+                start_bracket: (
+                snowflake_keyword_expression:
+                  parameter: input
+                  parameter_assigner: =>
+                  column_reference:
+                  - identifier: b
+                  - dot: .
+                  - identifier: cool_ids
+                end_bracket: )

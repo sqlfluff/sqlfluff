@@ -27,10 +27,11 @@ file:
                     star: '*'
             from_clause:
               keyword: FROM
-              table_expression:
-                main_table_expression:
-                  table_reference:
-                    identifier: ladder
+              from_expression:
+                table_expression:
+                  main_table_expression:
+                    table_reference:
+                      identifier: ladder
             orderby_clause:
             - keyword: ORDER
             - keyword: BY
@@ -45,7 +46,8 @@ file:
                 star: '*'
         from_clause:
           keyword: FROM
-          table_expression:
-            main_table_expression:
-              table_reference:
-                identifier: counter
+          from_expression:
+            table_expression:
+              main_table_expression:
+                table_reference:
+                  identifier: counter

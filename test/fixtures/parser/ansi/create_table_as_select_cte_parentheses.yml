@@ -22,10 +22,11 @@ file:
                     star: '*'
             from_clause:
               keyword: FROM
-              table_expression:
-                main_table_expression:
-                  table_reference:
-                    identifier: source_data
+              from_expression:
+                table_expression:
+                  main_table_expression:
+                    table_reference:
+                      identifier: source_data
           end_bracket: )
         select_statement:
           select_clause:
@@ -36,8 +37,9 @@ file:
                   star: '*'
           from_clause:
             keyword: FROM
-            table_expression:
-              main_table_expression:
-                table_reference:
-                  identifier: source_table
+            from_expression:
+              table_expression:
+                main_table_expression:
+                  table_reference:
+                    identifier: source_table
     - end_bracket: )

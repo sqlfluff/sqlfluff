@@ -46,10 +46,11 @@ file:
             identifier: customer_id
       from_clause:
         keyword: FROM
-        table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: tickets
-          alias_expression:
-            keyword: AS
-            identifier: t
+        from_expression:
+          table_expression:
+            main_table_expression:
+              table_reference:
+                identifier: tickets
+            alias_expression:
+              keyword: AS
+              identifier: t

@@ -23,7 +23,8 @@ file:
               identifier: col_2
         from_clause:
           keyword: from
-          table_expression:
-            main_table_expression:
-              table_reference:
-                identifier: my_table
+          from_expression:
+            table_expression:
+              main_table_expression:
+                table_reference:
+                  identifier: my_table

@@ -9,15 +9,16 @@ file:
               star: '*'
       from_clause:
         keyword: FROM
-        ml_table_expression:
-        - keyword: ML
-        - dot: .
-        - identifier: WEIGHTS
-        - start_bracket: (
-        - keyword: MODEL
-        - object_reference:
-            identifier: '`project.dataset.model`'
-        - end_bracket: )
+        from_expression:
+          ml_table_expression:
+          - keyword: ML
+          - dot: .
+          - identifier: WEIGHTS
+          - start_bracket: (
+          - keyword: MODEL
+          - object_reference:
+              identifier: '`project.dataset.model`'
+          - end_bracket: )
       orderby_clause:
       - keyword: ORDER
       - keyword: BY

@@ -9,10 +9,11 @@ file:
               star: '*'
       from_clause:
         keyword: FROM
-        table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: counter
+        from_expression:
+          table_expression:
+            main_table_expression:
+              table_reference:
+                identifier: counter
       limit_clause:
         keyword: LIMIT
         literal: '10'

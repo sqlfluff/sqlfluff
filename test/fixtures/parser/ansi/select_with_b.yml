@@ -22,10 +22,11 @@ file:
                 identifier: z
           from_clause:
             keyword: FROM
-            table_expression:
-              main_table_expression:
-                table_reference:
-                  identifier: foo
+            from_expression:
+              table_expression:
+                main_table_expression:
+                  table_reference:
+                    identifier: foo
         end_bracket: )
       select_statement:
         select_clause:
@@ -43,8 +44,9 @@ file:
               identifier: x
         from_clause:
           keyword: from
-          table_expression:
-            main_table_expression:
-              table_reference:
-                identifier: blah
+          from_expression:
+            table_expression:
+              main_table_expression:
+                table_reference:
+                  identifier: blah
   statement_terminator: ;
