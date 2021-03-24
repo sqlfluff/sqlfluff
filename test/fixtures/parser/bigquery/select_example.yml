@@ -9,19 +9,19 @@ file:
         select_statement:
           select_clause:
           - keyword: SELECT
-          - select_target_element:
+          - select_clause_element:
               column_reference:
                 identifier: bucket_id
           - comma: ','
-          - select_target_element:
+          - select_clause_element:
               column_reference:
                 identifier: num_ranges
           - comma: ','
-          - select_target_element:
+          - select_clause_element:
               column_reference:
                 identifier: min_age
           - comma: ','
-          - select_target_element:
+          - select_clause_element:
               function:
                 function_name: ARRAY
                 start_bracket: (
@@ -29,7 +29,7 @@ file:
                   select_statement:
                     select_clause:
                       keyword: SELECT
-                      select_target_element:
+                      select_clause_element:
                         function:
                           function_name: CAST
                           start_bracket: (
@@ -68,7 +68,7 @@ file:
                 keyword: AS
                 identifier: bits
           - comma: ','
-          - select_target_element:
+          - select_clause_element:
               column_reference:
                 identifier: age_label
           from_clause:
@@ -87,7 +87,7 @@ file:
         select_statement:
           select_clause:
             keyword: SELECT
-            select_target_element:
+            select_clause_element:
               expression:
                 function:
                   function_name: bucket_id
@@ -213,7 +213,7 @@ file:
     - select_statement:
         select_clause:
           keyword: SELECT
-          select_target_element:
+          select_clause_element:
             wildcard_expression:
               wildcard_identifier:
                 star: '*'

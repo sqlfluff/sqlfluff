@@ -950,10 +950,10 @@ class WildcardExpressionSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
-class SelectTargetElementSegment(BaseSegment):
+class SelectClauseElementSegment(BaseSegment):
     """An element in the targets of a select statement."""
 
-    type = "select_target_element"
+    type = "select_clause_element"
     # Important to split elements before parsing, otherwise debugging is really hard.
     match_grammar = GreedyUntil(
         "FROM",
@@ -1011,7 +1011,7 @@ class SelectClauseSegment(BaseSegment):
         Ref("SelectClauseModifierSegment", optional=True),
         Indent,
         Delimited(
-            Ref("SelectTargetElementSegment"),
+            Ref("SelectClauseElementSegment"),
             allow_trailing=True,
         ),
         # NB: The Dedent for the indent above lives in the

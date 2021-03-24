@@ -3,19 +3,19 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_target_element:
+      - select_clause_element:
           column_reference:
             identifier: item
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           column_reference:
             identifier: purchases
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           column_reference:
             identifier: category
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           function:
             function_name: LAST_VALUE
             start_bracket: (

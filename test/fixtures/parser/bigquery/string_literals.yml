@@ -3,85 +3,85 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_target_element:
+      - select_clause_element:
           literal: '""'
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           literal: "''"
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           literal: '"abc"'
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           literal: "\"it's\""
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           literal: "'it\\'s'"
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           literal: "'Title: \"Boy\"'"
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           literal: '"test \"escaped\""'
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           literal: "'test \\'escaped\\''"
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           literal: '"test \\\"escaped"'
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           literal: '"test \"escaped\\\""'
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           literal: r""
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           literal: "r''"
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           literal: r"abc+"
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           literal: R"abc+"
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           literal: "r'abc+'"
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           literal: "R'abc+'"
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           literal: "r'f\\(abc, (.*),def\\)'"
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           literal: r"f\(abc, (.*),def\)"
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           literal: "b'abc'"
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           literal: B"abc"
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           literal: rb"abc*"
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           literal: rB"abc*"
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           literal: "Rb'abc*'"
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           literal: "br'abc+'"
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           literal: RB"abc+"
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           literal: "r''' as foo ''  bar '''"
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           literal: "B\"\"\" triple ''' quoted '' \"\" string are \"\"\""
           alias_expression:
             keyword: as

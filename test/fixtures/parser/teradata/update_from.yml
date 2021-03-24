@@ -12,19 +12,19 @@ file:
             select_statement:
               select_clause:
               - keyword: SELECT
-              - select_target_element:
+              - select_clause_element:
                   column_reference:
                     identifier: a
               - comma: ','
-              - select_target_element:
+              - select_clause_element:
                   column_reference:
                     identifier: b
               - comma: ','
-              - select_target_element:
+              - select_clause_element:
                   column_reference:
                     identifier: c
               - comma: ','
-              - select_target_element:
+              - select_clause_element:
                   column_reference:
                     identifier: d
               from_clause:

@@ -14,11 +14,11 @@ file:
     - select_statement:
         select_clause:
         - keyword: select
-        - select_target_element:
+        - select_clause_element:
             column_reference:
               identifier: col_1
         - comma: ','
-        - select_target_element:
+        - select_clause_element:
             column_reference:
               identifier: col_2
         from_clause:

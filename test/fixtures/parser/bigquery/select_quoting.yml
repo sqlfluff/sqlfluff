@@ -3,11 +3,11 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_target_element:
+      - select_clause_element:
           column_reference:
             identifier: user_id
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           literal: '"some string"'
           alias_expression:
             keyword: as

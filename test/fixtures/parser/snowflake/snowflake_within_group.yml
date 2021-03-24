@@ -9,14 +9,14 @@ file:
         select_statement:
           select_clause:
           - keyword: select
-          - select_target_element:
+          - select_clause_element:
               column_reference:
                 identifier: column1
               alias_expression:
                 keyword: as
                 identifier: name
           - comma: ','
-          - select_target_element:
+          - select_clause_element:
               column_reference:
                 identifier: column2
               alias_expression:
@@ -70,11 +70,11 @@ file:
       select_statement:
         select_clause:
         - keyword: select
-        - select_target_element:
+        - select_clause_element:
             column_reference:
               identifier: colour
         - comma: ','
-        - select_target_element:
+        - select_clause_element:
             function:
             - function_name: listagg
             - start_bracket: (

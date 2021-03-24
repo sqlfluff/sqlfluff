@@ -3,19 +3,19 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_target_element:
+      - select_clause_element:
           column_reference:
           - identifier: gmv
           - dot: .
           - identifier: _merchant_key
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           column_reference:
           - identifier: gmv
           - dot: .
           - identifier: order_created_at
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           function:
             function_name: EXTRACT
             start_bracket: (

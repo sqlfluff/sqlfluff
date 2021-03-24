@@ -3,11 +3,11 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_target_element:
+      - select_clause_element:
           column_reference:
             identifier: job_id
       - comma: ","
-      - select_target_element:
+      - select_clause_element:
           function:
             function_name: MAX
             start_bracket: (
@@ -32,7 +32,7 @@ file:
             keyword: AS
             identifier: shop_word
       - comma: ","
-      - select_target_element:
+      - select_clause_element:
           function:
             function_name: MAX
             start_bracket: (
@@ -57,7 +57,7 @@ file:
             keyword: AS
             identifier: products_word
       - comma: ","
-      - select_target_element:
+      - select_clause_element:
           function:
             function_name: MAX
             start_bracket: (
@@ -82,7 +82,7 @@ file:
             keyword: AS
             identifier: code_word
       - comma: ","
-      - select_target_element:
+      - select_clause_element:
           function:
             function_name: safe_cast
             start_bracket: (
@@ -107,7 +107,7 @@ file:
             keyword: AS
             identifier: v0
       - comma: ","
-      - select_target_element:
+      - select_clause_element:
           function:
             function_name: safe_cast
             start_bracket: (

@@ -3,7 +3,7 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_target_element:
+      - select_clause_element:
           column_reference:
           - identifier: exists_left
           - dot: .
@@ -12,7 +12,7 @@ file:
             keyword: AS
             identifier: business_type_left
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           column_reference:
           - identifier: exists_right
           - dot: .

@@ -3,7 +3,7 @@ file:
     select_statement:
       select_clause:
       - keyword: select
-      - select_target_element:
+      - select_clause_element:
           expression:
             literal: "'1'"
             cast_expression:
@@ -14,7 +14,7 @@ file:
             keyword: as
             identifier: id1
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           expression:
             literal: "'2'"
             cast_expression:

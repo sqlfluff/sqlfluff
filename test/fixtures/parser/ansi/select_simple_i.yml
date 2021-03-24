@@ -3,30 +3,30 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_target_element:
+      - select_clause_element:
           column_reference:
             identifier: raw_column
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           column_reference:
           - identifier: raw_sch
           - dot: .
           - identifier: raw_col
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           column_reference:
             identifier: simple_explicit
           alias_expression:
             keyword: as
             identifier: aliased_column_1
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           column_reference:
             identifier: simple_implicit
           alias_expression:
             identifier: aliased_column_2
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           expression:
           - column_reference:
               identifier: an_unaliased
@@ -34,7 +34,7 @@ file:
           - column_reference:
               identifier: calculation
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           expression:
           - column_reference:
               identifier: an_explicitly
@@ -45,13 +45,13 @@ file:
             keyword: as
             identifier: calculation
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           literal: "'an unalised string'"
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           literal: '123.6'
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           numeric_literal:
             binary_operator: '-'
             literal: '786'

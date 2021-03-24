@@ -15,13 +15,13 @@ file:
             select_statement:
               select_clause:
                 keyword: SELECT
-                select_target_element:
+                select_clause_element:
                   literal: '1'
             end_bracket: )
           select_statement:
             select_clause:
               keyword: SELECT
-              select_target_element:
+              select_clause_element:
                 wildcard_expression:
                   wildcard_identifier:
                     star: '*'
@@ -40,7 +40,7 @@ file:
       select_statement:
         select_clause:
           keyword: SELECT
-          select_target_element:
+          select_clause_element:
             wildcard_expression:
               wildcard_identifier:
                 star: '*'

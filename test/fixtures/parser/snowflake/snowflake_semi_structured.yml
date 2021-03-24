@@ -3,11 +3,11 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_target_element:
+      - select_clause_element:
           column_reference:
             identifier: ticket_id
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           expression:
             column_reference:
               identifier: value
@@ -18,7 +18,7 @@ file:
             keyword: AS
             identifier: uncasted
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           expression:
             column_reference:
               identifier: value
@@ -33,7 +33,7 @@ file:
             keyword: AS
             identifier: field_id
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           expression:
             column_reference:
               identifier: value
@@ -48,7 +48,7 @@ file:
             keyword: AS
             identifier: field_val
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           expression:
             column_reference:
               identifier: value
@@ -65,7 +65,7 @@ file:
             keyword: AS
             identifier: another_val
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           expression:
             column_reference:
               identifier: value

@@ -9,7 +9,7 @@ file:
         select_statement:
           select_clause:
             keyword: select
-            select_target_element:
+            select_clause_element:
               column_reference:
                 identifier: a
           from_clause:
@@ -23,7 +23,7 @@ file:
       select_statement:
         select_clause:
           keyword: select
-          select_target_element:
+          select_clause_element:
             column_reference:
               identifier: a
         from_clause:

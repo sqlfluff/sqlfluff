@@ -3,11 +3,11 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_target_element:
+      - select_clause_element:
           column_reference:
             identifier: col1
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           column_reference:
             identifier: col2
       from_clause:

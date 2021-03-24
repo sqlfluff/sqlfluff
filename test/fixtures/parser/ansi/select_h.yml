@@ -3,7 +3,7 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_target_element:
+      - select_clause_element:
           function:
           - function_name: DATE
           - start_bracket: (
@@ -20,7 +20,7 @@ file:
             keyword: AS
             identifier: date
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           function:
             function_name: COUNT
             start_bracket: (

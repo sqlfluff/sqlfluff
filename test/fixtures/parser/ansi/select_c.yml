@@ -3,19 +3,19 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_target_element:
+      - select_clause_element:
           column_reference:
             identifier: col_a
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           column_reference:
             identifier: col_b
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           column_reference:
             identifier: date_col_a
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           column_reference:
             identifier: date_col_b
       from_clause:

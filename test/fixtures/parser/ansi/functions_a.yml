@@ -3,7 +3,7 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_target_element:
+      - select_clause_element:
           function:
             function_name: DATE
             start_bracket: (
@@ -12,7 +12,7 @@ file:
                 identifier: t
             end_bracket: )
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           function:
           - function_name: ROUND
           - start_bracket: (
@@ -24,7 +24,7 @@ file:
               literal: '2'
           - end_bracket: )
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           function:
           - function_name: LEFT
           - start_bracket: (

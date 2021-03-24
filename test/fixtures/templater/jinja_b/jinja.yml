@@ -6,7 +6,7 @@ file:
           - keyword: SELECT
           - newline: "\n"
           - whitespace: "    "
-          - select_target_element:
+          - select_clause_element:
               - expression:
                   - literal: 3
                   - whitespace: " "
@@ -19,7 +19,7 @@ file:
                   - whitespace: " "
                   - identifier: a
           - comma: ","
-          - select_target_element:
+          - select_clause_element:
               - expression:
                   - literal: 7
                   - whitespace: " "

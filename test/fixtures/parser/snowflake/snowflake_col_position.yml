@@ -3,14 +3,14 @@ file:
     select_statement:
       select_clause:
       - keyword: select
-      - select_target_element:
+      - select_clause_element:
           column_reference:
             identifier: $1
           alias_expression:
             keyword: as
             identifier: type
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           column_reference:
             identifier: $2
           alias_expression:

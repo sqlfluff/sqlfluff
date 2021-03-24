@@ -11,7 +11,7 @@ file:
             column_reference:
               identifier: id
         - end_bracket: )
-      - select_target_element:
+      - select_clause_element:
           expression:
             start_bracket: (
             expression:
@@ -30,7 +30,7 @@ file:
             keyword: as
             identifier: id
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           expression:
             start_bracket: (
             expression:
@@ -53,7 +53,7 @@ file:
               select_statement:
                 select_clause:
                   keyword: select
-                  select_target_element:
+                  select_clause_element:
                     wildcard_expression:
                       wildcard_identifier:
                         star: '*'
@@ -83,7 +83,7 @@ file:
                         keyword: select
                         select_clause_modifier:
                           keyword: distinct
-                        select_target_element:
+                        select_clause_element:
                           column_reference:
                             identifier: match_id
                       from_clause:

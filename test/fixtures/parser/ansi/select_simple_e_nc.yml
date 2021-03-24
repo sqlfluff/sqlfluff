@@ -6,7 +6,7 @@ file:
       - keyword: SELECT
       - newline: "\n"
       - whitespace: '    '
-      - select_target_element:
+      - select_clause_element:
           expression:
             column_reference:
               identifier: my_var
@@ -22,7 +22,7 @@ file:
       - comma: ','
       - newline: "\n"
       - whitespace: '    '
-      - select_target_element:
+      - select_clause_element:
           expression:
             literal: '123'
             cast_expression:

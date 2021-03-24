@@ -3,13 +3,13 @@ file:
     select_statement:
       select_clause:
       - keyword: select
-      - select_target_element:
+      - select_clause_element:
           literal: '101'
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           literal: '202'
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           literal: '203'
       from_clause:
         keyword: from

@@ -3,13 +3,13 @@ file:
     select_statement:
       select_clause:
       - keyword: select
-      - select_target_element:
+      - select_clause_element:
           column_reference:
           - identifier: some_table
           - dot: .
           - identifier: foo_id
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           function:
             function_name: array
             start_bracket: (
@@ -52,7 +52,7 @@ file:
     select_statement:
       select_clause:
         keyword: select
-        select_target_element:
+        select_clause_element:
           typeless_struct:
           - keyword: struct
           - start_bracket: (

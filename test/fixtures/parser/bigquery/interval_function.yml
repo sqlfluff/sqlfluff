@@ -3,7 +3,7 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_target_element:
+      - select_clause_element:
           function:
             function_name: TIMESTAMP_TRUNC
             start_bracket: (
@@ -56,7 +56,7 @@ file:
             keyword: AS
             identifier: avgAtHour
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           function:
           - function_name: TIME_ADD
           - start_bracket: (
@@ -74,7 +74,7 @@ file:
             keyword: AS
             identifier: after
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           function:
           - function_name: DATE_SUB
           - start_bracket: (

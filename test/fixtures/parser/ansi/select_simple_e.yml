@@ -3,7 +3,7 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_target_element:
+      - select_clause_element:
           expression:
             column_reference:
               identifier: my_var
@@ -15,7 +15,7 @@ file:
             keyword: as
             identifier: casted_variable
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           expression:
             literal: '123'
             cast_expression:

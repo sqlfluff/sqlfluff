@@ -3,7 +3,7 @@ file:
     select_statement:
       select_clause:
         keyword: SELECT
-        select_target_element:
+        select_clause_element:
           function:
             function_name: SUM
             start_bracket: (
@@ -34,11 +34,11 @@ file:
               select_statement:
                 select_clause:
                 - keyword: SELECT
-                - select_target_element:
+                - select_clause_element:
                     column_reference:
                       identifier: value
                 - comma: ','
-                - select_target_element:
+                - select_clause_element:
                     expression:
                       case_expression:
                       - keyword: CASE

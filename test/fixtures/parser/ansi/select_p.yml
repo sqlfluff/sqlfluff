@@ -3,7 +3,7 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_target_element:
+      - select_clause_element:
           function:
             function_name: CAST
             start_bracket: (
@@ -14,7 +14,7 @@ file:
               data_type_identifier: int
             end_bracket: )
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           function:
             function_name: SAFE_CAST
             start_bracket: (
@@ -28,7 +28,7 @@ file:
             keyword: AS
             identifier: age_label
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           function:
             function_name: EXTRACT
             start_bracket: (

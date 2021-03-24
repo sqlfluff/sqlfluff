@@ -3,14 +3,14 @@ file:
     select_statement:
       select_clause:
       - keyword: select
-      - select_target_element:
+      - select_clause_element:
           wildcard_expression:
             wildcard_identifier:
               identifier: d
               dot: .
               star: '*'
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           wildcard_expression:
             wildcard_identifier:
               identifier: r

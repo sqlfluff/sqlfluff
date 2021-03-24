@@ -9,7 +9,7 @@ file:
         select_statement:
           select_clause:
             keyword: SELECT
-            select_target_element:
+            select_clause_element:
               literal: '8760'
               alias_expression:
                 keyword: AS
@@ -18,19 +18,19 @@ file:
       select_statement:
         select_clause:
         - keyword: SELECT
-        - select_target_element:
+        - select_clause_element:
             column_reference:
             - identifier: table1
             - dot: .
             - identifier: name
         - comma: ','
-        - select_target_element:
+        - select_clause_element:
             column_reference:
             - identifier: foo
             - dot: .
             - identifier: name
         - comma: ','
-        - select_target_element:
+        - select_clause_element:
             expression:
             - column_reference:
               - identifier: foo

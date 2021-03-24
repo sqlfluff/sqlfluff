@@ -3,7 +3,7 @@ file:
     select_statement:
       select_clause:
         keyword: SELECT
-        select_target_element:
+        select_clause_element:
           wildcard_expression:
             wildcard_identifier:
               star: '*'
@@ -15,14 +15,14 @@ file:
             select_replace_clause:
             - keyword: REPLACE
             - start_bracket: (
-            - select_target_element:
+            - select_clause_element:
                 column_reference:
                   identifier: foo
                 alias_expression:
                   keyword: as
                   identifier: bar
             - comma: ','
-            - select_target_element:
+            - select_clause_element:
                 column_reference:
                   identifier: baz
                 alias_expression:
@@ -41,7 +41,7 @@ file:
     - select_statement:
         select_clause:
           keyword: select
-          select_target_element:
+          select_clause_element:
             wildcard_expression:
               wildcard_identifier:
                 star: '*'
@@ -63,7 +63,7 @@ file:
     - select_statement:
         select_clause:
           keyword: select
-          select_target_element:
+          select_clause_element:
             wildcard_expression:
               wildcard_identifier:
                 star: '*'
@@ -79,7 +79,7 @@ file:
     select_statement:
       select_clause:
       - keyword: select
-      - select_target_element:
+      - select_clause_element:
           expression:
           - literal: '1'
           - binary_operator: +
@@ -88,7 +88,7 @@ file:
             keyword: as
             identifier: calculated
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           wildcard_expression:
             wildcard_identifier:
               star: '*'
@@ -109,7 +109,7 @@ file:
     select_statement:
       select_clause:
       - keyword: select
-      - select_target_element:
+      - select_clause_element:
           wildcard_expression:
             wildcard_identifier:
               identifier: foo
@@ -121,7 +121,7 @@ file:
               identifier: some_column
               end_bracket: )
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           wildcard_expression:
             wildcard_identifier:
               identifier: bar

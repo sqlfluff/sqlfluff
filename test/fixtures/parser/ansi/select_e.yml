@@ -4,7 +4,7 @@ file:
     - select_statement:
         select_clause:
           keyword: SELECT
-          select_target_element:
+          select_clause_element:
             column_reference:
               identifier: col_a
             alias_expression:
@@ -22,7 +22,7 @@ file:
     - select_statement:
         select_clause:
           keyword: SELECT
-          select_target_element:
+          select_clause_element:
             column_reference:
               identifier: col_b
             alias_expression:
@@ -41,7 +41,7 @@ file:
     - select_statement:
         select_clause:
           keyword: SELECT
-          select_target_element:
+          select_clause_element:
             column_reference:
               identifier: col_c
             alias_expression:
@@ -59,7 +59,7 @@ file:
     - select_statement:
         select_clause:
           keyword: SELECT
-          select_target_element:
+          select_clause_element:
             column_reference:
               identifier: col_d
             alias_expression:

@@ -3,7 +3,7 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_target_element:
+      - select_clause_element:
           expression:
             literal: "'9999-12-31'"
             cast_expression:
@@ -12,7 +12,7 @@ file:
                 data_type_identifier: DATE
               end_bracket: )
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           expression:
             literal: "'9999-12-31'"
             cast_expression:
@@ -23,7 +23,7 @@ file:
                 literal: "'YYYY-MM-DD'"
               end_bracket: )
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           expression:
             literal: "'100000'"
             cast_expression:

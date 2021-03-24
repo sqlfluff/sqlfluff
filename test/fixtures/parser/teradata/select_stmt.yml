@@ -3,7 +3,7 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_target_element:
+      - select_clause_element:
           function:
           - function_name: ADD_MONTHS
           - start_bracket: (
@@ -22,7 +22,7 @@ file:
             keyword: AS
             identifier: FEC_CIERRE_EST_ULT12
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           function:
             function_name: CAST
             start_bracket: (

@@ -5,7 +5,7 @@ file:
       select_clause:
         keyword: select
         whitespace: ' '
-        select_target_element:
+        select_clause_element:
           column_reference:
             identifier: a
       whitespace: ' '
@@ -29,7 +29,7 @@ file:
       select_clause:
         keyword: select
         whitespace: ' '
-        select_target_element:
+        select_clause_element:
           column_reference:
             identifier: b
       whitespace: ' '
