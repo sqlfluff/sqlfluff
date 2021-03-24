@@ -840,7 +840,7 @@ class Linter:
                     for elem in cast(Tuple[BaseSegment, ...], tokens)
                 )
                 if indent_balance != 0:
-                    linter_logger.warning(
+                    linter_logger.debug(
                         "Indent balance test failed for %r. Template indents will not be linted for this file.",
                         fname,
                     )

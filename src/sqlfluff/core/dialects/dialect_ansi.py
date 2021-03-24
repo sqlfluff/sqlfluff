@@ -50,7 +50,7 @@ ansi_dialect = Dialect("ansi", root_segment_name="FileSegment")
 ansi_dialect.set_lexer_struct(
     [
         # name, type, pattern, kwargs
-        ("whitespace", "regex", r"[\t ]+", dict(type="whitespace")),
+        ("whitespace", "regex", r"[\t ]+", dict(type="whitespace", is_whitespace=True)),
         (
             "inline_comment",
             "regex",
@@ -64,9 +64,14 @@ ansi_dialect.set_lexer_struct(
             dict(
                 is_comment=True,
                 type="comment",
-                subdivide=dict(type="newline", name="newline", regex=r"\r\n|\n"),
+                subdivide=dict(
+                    type="newline", name="newline", regex=r"\r\n|\n", is_whitespace=True
+                ),
                 trim_post_subdivide=dict(
-                    type="whitespace", name="whitespace", regex=r"[\t ]+"
+                    type="whitespace",
+                    name="whitespace",
+                    regex=r"[\t ]+",
+                    is_whitespace=True,
                 ),
             ),
         ),
@@ -83,7 +88,7 @@ ansi_dialect.set_lexer_struct(
         ("not_equal", "regex", r"!=|<>", dict(is_code=True)),
         ("greater_than_or_equal", "regex", r">=", dict(is_code=True)),
         ("less_than_or_equal", "regex", r"<=", dict(is_code=True)),
-        ("newline", "regex", r"\r\n|\n", dict(type="newline")),
+        ("newline", "regex", r"\r\n|\n", dict(type="newline", is_whitespace=True)),
         ("casting_operator", "regex", r"::", dict(is_code=True)),
         ("concat_operator", "regex", r"\|\|", dict(is_code=True)),
         ("equals", "singleton", "=", dict(is_code=True)),
@@ -1991,6 +1996,7 @@ class DropStatementSegment(BaseSegment):
         OneOf(
             "TABLE",
             "VIEW",
+            "USER",
         ),
         Ref("IfExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
@@ -2492,6 +2498,7 @@ class StatementSegment(BaseSegment):
         Ref("CreateFunctionStatementSegment"),
         Ref("CreateModelStatementSegment"),
         Ref("DropModelStatementSegment"),
+        Ref("DescribeStatementSegment"),
     )
 
     def get_table_references(self):
@@ -2521,4 +2528,21 @@ class WithNoSchemaBindingClauseSegment(BaseSegment):
         "NO",
         "SCHEMA",
         "BINDING",
+    )
+
+
+@ansi_dialect.segment()
+class DescribeStatementSegment(BaseSegment):
+    """A `Describe` statement.
+
+    DESCRIBE <object type> <object name>
+    """
+
+    type = "describe_statement"
+    match_grammar = StartsWith("DESCRIBE")
+
+    parse_grammar = Sequence(
+        "DESCRIBE",
+        Ref("NakedIdentifierSegment"),
+        Ref("ObjectReferenceSegment"),
     )
