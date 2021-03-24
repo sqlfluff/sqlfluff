@@ -67,7 +67,8 @@ class BaseSegment:
     # `type` should be the *category* of this kind of segment
     type = "base"
     parse_grammar: Optional[Matchable] = None
-    match_grammar: Optional[Matchable] = None
+    # We define this as Null here but it is assumed that any subclass must override.
+    match_grammar: Matchable = None  # type: ignore
     comment_seperate = False
     is_whitespace = False
     optional = False  # NB: See the sequence grammar for details

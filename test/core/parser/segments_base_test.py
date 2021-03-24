@@ -8,7 +8,6 @@ from sqlfluff.core.parser import (
     BaseSegment,
 )
 from sqlfluff.core.parser.context import RootParseContext
-from sqlfluff.core.dialects import ansi_dialect
 
 
 @pytest.fixture(scope="module")
@@ -68,12 +67,12 @@ def test__parser__base_segments_raw(raw_seg):
     assert raw_seg.to_tuple(show_raw=True) == ("raw", "foobar")
 
 
-def test__parser__base_segments_base(raw_seg_list):
+def test__parser__base_segments_base(raw_seg_list, fresh_ansi_dialect):
     """Test base segments behave as expected."""
     base_seg = DummySegment(raw_seg_list)
     # Check we assume the position correctly
     assert base_seg.pos_marker == raw_seg_list[0].pos_marker
-    with RootParseContext(dialect=ansi_dialect) as ctx:
+    with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
         # Expand and given we don't have a grammar we should get the same thing
         assert base_seg.parse(parse_context=ctx) == base_seg
     # Check that we correctly reconstruct the raw

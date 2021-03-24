@@ -38,7 +38,9 @@ from sqlfluff.core.parser import (
 )
 
 from sqlfluff.core.dialects.base import Dialect
-from sqlfluff.core.dialects.ansi_keywords import (
+from sqlfluff.core.dialects.common import AliasInfo
+
+from sqlfluff.dialects.ansi_keywords import (
     ansi_reserved_keywords,
     ansi_unreserved_keywords,
 )
@@ -815,17 +817,6 @@ ansi_dialect.add(
 )
 
 
-class AliasInfo(NamedTuple):
-    """Details about a table alias."""
-
-    ref_str: str  # Name given to the alias
-    segment: BaseSegment  # Identifier segment containing the name
-    aliased: bool
-    from_expression_element: BaseSegment
-    alias_expression: Optional[BaseSegment]
-    object_reference: Optional[BaseSegment]
-
-
 @ansi_dialect.segment()
 class FromExpressionElementSegment(BaseSegment):
     """A table expression."""
@@ -1295,8 +1286,11 @@ ansi_dialect.add(
             )
         ),
     ),
-    # Expression_B_Grammar https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#b_expr
-    Expression_B_Grammar=None,  # TODO
+    # CockroachDB defines Expression_B_Grammar. The SQLFluff implementation of
+    # expression parsing pulls that logic into Expression_A_Grammar and so there's
+    # currently no need to define Expression_B.
+    # https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#b_expr
+    #
     # Expression_C_Grammar https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#c_expr
     Expression_C_Grammar=OneOf(
         Sequence(
@@ -1736,6 +1730,7 @@ class ColumnOptionSegment(BaseSegment):
             Ref("PrimaryKeyGrammar"),
             "UNIQUE",  # UNIQUE
             "AUTO_INCREMENT",  # AUTO_INCREMENT (MySQL)
+            "UNSIGNED",  # UNSIGNED (MySQL)
             Sequence(  # REFERENCES reftable [ ( refcolumn) ]
                 "REFERENCES",
                 Ref("ColumnReferenceSegment"),
