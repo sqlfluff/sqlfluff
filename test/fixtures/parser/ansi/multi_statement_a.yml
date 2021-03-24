@@ -9,8 +9,8 @@ file:
       from_clause:
         keyword: from
         from_expression:
-          table_expression:
-            main_table_expression:
+          from_expression_element:
+            table_expression:
               table_reference:
                 identifier: tbl1
 - statement_terminator: ;
@@ -24,8 +24,8 @@ file:
       from_clause:
         keyword: from
         from_expression:
-          table_expression:
-            main_table_expression:
+          from_expression_element:
+            table_expression:
               table_reference:
                 identifier: tbl2
 - statement_terminator: ;

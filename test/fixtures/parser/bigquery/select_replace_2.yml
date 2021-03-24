@@ -27,8 +27,8 @@ file:
       from_clause:
         keyword: FROM
         from_expression:
-          table_expression:
-            main_table_expression:
+          from_expression_element:
+            table_expression:
               start_bracket: (
               select_statement:
                 select_clause:

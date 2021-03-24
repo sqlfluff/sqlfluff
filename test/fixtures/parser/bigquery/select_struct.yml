@@ -23,8 +23,8 @@ file:
                 from_clause:
                   keyword: from
                   from_expression:
-                    table_expression:
-                      main_table_expression:
+                    from_expression_element:
+                      table_expression:
                         table_reference:
                           identifier: another_table
                 where_clause:
@@ -43,8 +43,8 @@ file:
       from_clause:
         keyword: from
         from_expression:
-          table_expression:
-            main_table_expression:
+          from_expression_element:
+            table_expression:
               table_reference:
                 identifier: another_table
 - statement_terminator: ;
@@ -78,15 +78,15 @@ file:
       from_clause:
         keyword: from
         from_expression:
-          table_expression:
-            main_table_expression:
+          from_expression_element:
+            table_expression:
               table_reference:
                 identifier: foo
           join_clause:
           - keyword: left
           - keyword: join
-          - table_expression:
-              main_table_expression:
+          - from_expression_element:
+              table_expression:
                 table_reference:
                   identifier: bar
           - join_on_condition:

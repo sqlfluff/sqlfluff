@@ -47,8 +47,8 @@ file:
       from_clause:
         keyword: from
         from_expression:
-          table_expression:
-            main_table_expression:
+          from_expression_element:
+            table_expression:
               start_bracket: (
               select_statement:
                 select_clause:
@@ -60,8 +60,8 @@ file:
                 from_clause:
                   keyword: from
                   from_expression:
-                    table_expression:
-                      main_table_expression:
+                    from_expression_element:
+                      table_expression:
                         table_reference:
                           identifier: sb_route_events
                       alias_expression:
@@ -89,8 +89,8 @@ file:
                       from_clause:
                         keyword: from
                         from_expression:
-                          table_expression:
-                            main_table_expression:
+                          from_expression_element:
+                            table_expression:
                               table_reference:
                                 identifier: this_model
                   - end_bracket: )

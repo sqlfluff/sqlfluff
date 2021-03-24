@@ -13,8 +13,8 @@ file:
         keyword: from
         whitespace: ' '
         from_expression:
-          table_expression:
-            main_table_expression:
+          from_expression_element:
+            table_expression:
               table_reference:
                 identifier: tbl1
 - whitespace: '  '
@@ -37,8 +37,8 @@ file:
         keyword: from
         whitespace: ' '
         from_expression:
-          table_expression:
-            main_table_expression:
+          from_expression_element:
+            table_expression:
               table_reference:
                 identifier: tbl2
 - statement_terminator: ;

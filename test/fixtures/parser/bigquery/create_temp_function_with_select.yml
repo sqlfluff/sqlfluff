@@ -28,8 +28,8 @@ file:
               from_clause:
                 keyword: FROM
                 from_expression:
-                  table_expression:
-                  - main_table_expression:
+                  from_expression_element:
+                  - table_expression:
                       function:
                         function_name: UNNEST
                         start_bracket: (

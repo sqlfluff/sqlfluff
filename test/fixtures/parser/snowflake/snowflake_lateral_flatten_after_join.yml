@@ -55,15 +55,15 @@ file:
       from_clause:
       - keyword: from
       - from_expression:
-          table_expression:
-            main_table_expression:
+          from_expression_element:
+            table_expression:
               table_reference:
                 identifier: a
           join_clause:
           - keyword: inner
           - keyword: join
-          - table_expression:
-              main_table_expression:
+          - from_expression_element:
+              table_expression:
                 table_reference:
                   identifier: b
           - join_on_condition:
@@ -82,9 +82,9 @@ file:
               end_bracket: )
       - comma: ','
       - from_expression:
-          table_expression:
+          from_expression_element:
             keyword: lateral
-            main_table_expression:
+            table_expression:
               function:
                 function_name: flatten
                 start_bracket: (

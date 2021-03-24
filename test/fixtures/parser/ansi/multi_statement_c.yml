@@ -10,8 +10,8 @@ file:
       from_clause:
         keyword: from
         from_expression:
-          table_expression:
-            main_table_expression:
+          from_expression_element:
+            table_expression:
               table_reference:
                 identifier: boo
 - statement_terminator: ;
@@ -38,8 +38,8 @@ file:
           from_clause:
             keyword: FROM
             from_expression:
-              table_expression:
-                main_table_expression:
+              from_expression_element:
+                table_expression:
                   table_reference:
                     identifier: foo
         end_bracket: )
@@ -60,8 +60,8 @@ file:
         from_clause:
           keyword: from
           from_expression:
-            table_expression:
-              main_table_expression:
+            from_expression_element:
+              table_expression:
                 table_reference:
                   identifier: blah
 - statement_terminator: ;

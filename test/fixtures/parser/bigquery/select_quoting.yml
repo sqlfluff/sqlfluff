@@ -15,8 +15,8 @@ file:
       from_clause:
         keyword: FROM
         from_expression:
-          table_expression:
-            main_table_expression:
+          from_expression_element:
+            table_expression:
               table_reference:
                 identifier: '`database.schema.benchmark_user_map`'
       where_clause:

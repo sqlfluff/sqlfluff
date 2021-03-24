@@ -10,8 +10,8 @@ file:
       from_clause:
       - keyword: FROM
       - from_expression:
-        - table_expression:
-            main_table_expression:
+        - from_expression_element:
+            table_expression:
               table_reference:
                 identifier: a
             alias_expression:
@@ -19,14 +19,14 @@ file:
               identifier: foo
         - join_clause:
             keyword: JOIN
-            table_expression:
-              main_table_expression:
+            from_expression_element:
+              table_expression:
                 table_reference:
                   identifier: b
         - join_clause:
             keyword: JOIN
-            table_expression:
-              main_table_expression:
+            from_expression_element:
+              table_expression:
                 table_reference:
                   identifier: c
               alias_expression:
@@ -34,14 +34,14 @@ file:
                 identifier: foobar
         - join_clause:
             keyword: JOIN
-            table_expression:
-              main_table_expression:
+            from_expression_element:
+              table_expression:
                 table_reference:
                   identifier: d
       - comma: ','
       - from_expression:
-        - table_expression:
-            main_table_expression:
+        - from_expression_element:
+            table_expression:
               table_reference:
                 identifier: e
             alias_expression:
@@ -49,14 +49,14 @@ file:
               identifier: bar
         - join_clause:
             keyword: JOIN
-            table_expression:
-              main_table_expression:
+            from_expression_element:
+              table_expression:
                 table_reference:
                   identifier: f
         - join_clause:
             keyword: JOIN
-            table_expression:
-              main_table_expression:
+            from_expression_element:
+              table_expression:
                 function:
                   function_name: g
                   start_bracket: (
@@ -68,14 +68,14 @@ file:
                 identifier: tbl_func
         - join_clause:
             keyword: JOIN
-            table_expression:
-              main_table_expression:
+            from_expression_element:
+              table_expression:
                 table_reference:
                   identifier: h
       - comma: ','
       - from_expression:
-          table_expression:
-            main_table_expression:
+          from_expression_element:
+            table_expression:
               table_reference:
                 identifier: baz
             alias_expression:

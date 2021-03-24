@@ -31,8 +31,8 @@ file:
       from_clause:
         keyword: FROM
         from_expression:
-          table_expression:
-            main_table_expression:
+          from_expression_element:
+            table_expression:
               table_reference:
                 identifier: my_tbl
 - statement_terminator: ;
@@ -53,8 +53,8 @@ file:
         from_clause:
           keyword: from
           from_expression:
-            table_expression:
-              main_table_expression:
+            from_expression_element:
+              table_expression:
                 table_reference:
                   identifier: some_table
     - set_operator:
@@ -70,8 +70,8 @@ file:
         from_clause:
           keyword: from
           from_expression:
-            table_expression:
-              main_table_expression:
+            from_expression_element:
+              table_expression:
                 table_reference:
                   identifier: another_table
 - statement_terminator: ;
@@ -100,8 +100,8 @@ file:
       from_clause:
         keyword: from
         from_expression:
-          table_expression:
-            main_table_expression:
+          from_expression_element:
+            table_expression:
               table_reference:
                 identifier: my_tbl
 - statement_terminator: ;
@@ -135,8 +135,8 @@ file:
       from_clause:
         keyword: from
         from_expression:
-          table_expression:
-            main_table_expression:
+          from_expression_element:
+            table_expression:
               table_reference:
                 identifier: my_tbl
 - statement_terminator: ;

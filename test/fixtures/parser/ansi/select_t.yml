@@ -10,16 +10,16 @@ file:
       from_clause:
         keyword: FROM
         from_expression:
-          table_expression:
-            main_table_expression:
+          from_expression_element:
+            table_expression:
               table_reference:
                 identifier: TABLE_1
           join_clause:
           - keyword: FULL
           - keyword: OUTER
           - keyword: JOIN
-          - table_expression:
-              main_table_expression:
+          - from_expression_element:
+              table_expression:
                 start_bracket: (
                 set_expression:
                 - select_statement:
@@ -32,8 +32,8 @@ file:
                     from_clause:
                       keyword: FROM
                       from_expression:
-                        table_expression:
-                          main_table_expression:
+                        from_expression_element:
+                          table_expression:
                             table_reference:
                               identifier: Table_B
                     where_clause:
@@ -56,8 +56,8 @@ file:
                     from_clause:
                       keyword: FROM
                       from_expression:
-                        table_expression:
-                          main_table_expression:
+                        from_expression_element:
+                          table_expression:
                             table_reference:
                               identifier: TABLE_C
                     where_clause:
