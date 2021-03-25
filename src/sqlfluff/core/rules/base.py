@@ -18,10 +18,14 @@ import copy
 import logging
 import pathlib
 import re
+from typing import Optional, TYPE_CHECKING
 from collections import namedtuple
 
 from sqlfluff.core.parser import RawSegment, KeywordSegment, BaseSegment, SymbolSegment
 from sqlfluff.core.errors import SQLLintError
+
+if TYPE_CHECKING:
+    from sqlfluff.core.templaters import TemplatedFile
 
 # The ghost of a rule (mostly used for testing)
 RuleGhost = namedtuple("RuleGhost", ["code", "description"])
@@ -192,6 +196,7 @@ class BaseRule:
     """
 
     _works_on_unparsable = True
+    targets_templated = False
 
     def __init__(self, code, description, **kwargs):
         self.description = description
@@ -253,6 +258,7 @@ class BaseRule:
         raw_stack=None,
         memory=None,
         fname=None,
+        templated_file: Optional["TemplatedFile"] = None,
     ):
         """Recursively perform the crawl operation on a given segment.
 
@@ -290,6 +296,7 @@ class BaseRule:
                 memory=memory,
                 dialect=dialect,
                 path=pathlib.Path(fname) if fname else None,
+                templated_file=templated_file,
             )
         # Any exception at this point would halt the linter and
         # cause the user to get no results
@@ -357,6 +364,7 @@ class BaseRule:
                 memory=memory,
                 dialect=dialect,
                 fname=fname,
+                templated_file=templated_file,
             )
             vs += dvs
             fixes += child_fixes

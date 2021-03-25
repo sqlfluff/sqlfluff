@@ -1,0 +1,10 @@
+rule: L046
+
+test_simple:
+  pass_str: SELECT 1 from {{ ref('foo') }}
+
+test_fail_1:
+  fail_str: SELECT 1 from {{ref('foo')}}
+
+test_fail_2:
+  fail_str: SELECT 1 from {{      ref('foo')       }}
