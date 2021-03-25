@@ -203,6 +203,22 @@ def test__linter__linting_unexpected_error_handled_gracefully(
     )
 
 
+@pytest.mark.parametrize("input,expected", [
+    ("", None),
+    ("noqa", (0, None)),
+    ("noqa?", SQLParseError),
+    ("noqa:", (0, None)),
+    ("noqa:L001,L002", (0, ('L001', 'L002'))),
+])
+def test_parse_noqa(input, expected):
+    result = Linter.parse_noqa(input, 0)
+    if not isinstance(expected, type):
+        assert result == expected
+    else:
+        # With exceptions, just check the type, not the contents.
+        assert isinstance(result, expected)
+
+
 def test__linter__raises_malformed_noqa():
     """A badly formatted noqa gets raised as a parsing error."""
     lntr = Linter()

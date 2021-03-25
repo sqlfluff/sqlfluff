@@ -907,26 +907,34 @@ class Linter:
         bencher("Finish parsing {0!r}".format(short_fname))
         return ParsedString(parsed, violations, time_dict, templated_file, config)
 
-    @staticmethod
-    def extract_ignore_from_comment(comment: RawSegment):
-        """Extract ignore mask entries from a comment segment."""
+    @classmethod
+    def parse_noqa(cls, comment: str, line_no: int):
+        """Extract ignore mask entries from a comment string."""
         # Also trim any whitespace afterward
-        comment_content = comment.raw_trimmed().strip()
-        if comment_content.startswith("noqa"):
+        if comment.startswith("noqa"):
             # This is an ignore identifier
-            comment_remainder = comment_content[4:]
+            comment_remainder = comment[4:]
             if comment_remainder:
                 if not comment_remainder.startswith(":"):
                     return SQLParseError(
                         "Malformed 'noqa' section. Expected 'noqa: <rule>[,...]",
-                        segment=comment,
                     )
                 comment_remainder = comment_remainder[1:]
-                rules = [r.strip() for r in comment_remainder.split(",")]
-                return (comment.pos_marker.line_no, tuple(rules))
-            else:
-                return (comment.pos_marker.line_no, None)
+                if comment_remainder:
+                    rules = [r.strip() for r in comment_remainder.split(",")]
+                    return (line_no, tuple(rules))
+            return (line_no, None)
         return None
+
+    @classmethod
+    def extract_ignore_from_comment(cls, comment: RawSegment):
+        """Extract ignore mask entries from a comment segment."""
+        # Also trim any whitespace afterward
+        comment_content = comment.raw_trimmed().strip()
+        result = cls.parse_noqa(comment_content, comment.pos_marker.line_no)
+        if isinstance(result, SQLParseError):
+            result.segment = comment
+        return result
 
     @staticmethod
     def _warn_unfixable(code: str):
