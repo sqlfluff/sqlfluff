@@ -3,7 +3,6 @@
 import pytest
 
 from sqlfluff.core.config import FluffConfig
-from sqlfluff.core.rules import get_ruleset
 from sqlfluff.core.rules.std.L003 import Rule_L003
 from sqlfluff.testing.rules import get_rule_from_set
 
@@ -158,20 +157,6 @@ class ProtoSeg:
 
     def __init__(self, raw):
         self.raw = raw
-
-
-@pytest.mark.parametrize(
-    "tab_space_size,segments,result",
-    [
-        # Integer examples
-        (3, [ProtoSeg("      ")], 2),
-        (2, [ProtoSeg("\t\t")], 2),
-    ],
-)
-def test__rules__std_L003_indent_size(tab_space_size, segments, result):
-    """Test Rule_L003._make_indent."""
-    res = Rule_L003._indent_size(segments=segments, tab_space_size=tab_space_size)
-    assert res == result
 
 
 @pytest.mark.parametrize(
