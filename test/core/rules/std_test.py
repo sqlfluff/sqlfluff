@@ -73,66 +73,71 @@ def test__rules__runaway_fail_catch():
 @pytest.mark.parametrize(
     "rule,path,violations",
     [
-        ("L001", "test/fixtures/linter/indentation_errors.sql", [(4, 24)]),
-        ("L002", "test/fixtures/linter/indentation_errors.sql", [(3, 1), (4, 1)]),
+        ("L001", "indentation_errors.sql", [(4, 24)]),
+        ("L002", "indentation_errors.sql", [(3, 1), (4, 1)]),
         (
             "L003",
-            "test/fixtures/linter/indentation_errors.sql",
+            "indentation_errors.sql",
             [(2, 4), (3, 4), (4, 6)],
         ),
         (
             "L004",
-            "test/fixtures/linter/indentation_errors.sql",
+            "indentation_errors.sql",
             [(3, 1), (4, 1), (5, 1)],
         ),
         # Check we get comma (with leading space/newline) whitespace errors
         # NB The newline before the comma, should report on the comma, not the newline for clarity.
-        ("L005", "test/fixtures/linter/whitespace_errors.sql", [(2, 9)]),
-        ("L019", "test/fixtures/linter/whitespace_errors.sql", [(4, 1)]),
+        ("L005", "whitespace_errors.sql", [(2, 9)]),
+        ("L019", "whitespace_errors.sql", [(4, 1)]),
         # Check we get comma (with incorrect trailing space) whitespace errors,
         # but also no false positives on line 4 or 5.
-        ("L008", "test/fixtures/linter/whitespace_errors.sql", [(3, 12)]),
+        ("L008", "whitespace_errors.sql", [(3, 12)]),
         # Check we get operator whitespace errors and it works with brackets
         (
             "L006",
-            "test/fixtures/linter/operator_errors.sql",
+            "operator_errors.sql",
             [(3, 8), (4, 10), (7, 6), (7, 7), (7, 9), (7, 10), (7, 12), (7, 13)],
         ),
-        ("L007", "test/fixtures/linter/operator_errors.sql", [(5, 9)]),
+        ("L007", "operator_errors.sql", [(5, 9)]),
         # Check we DO get a violation on line 2 but NOT on line 3
         (
             "L006",
-            "test/fixtures/linter/operator_errors_negative.sql",
+            "operator_errors_negative.sql",
             [(2, 6), (2, 9), (5, 6), (5, 7)],
         ),
         # Hard indentation errors
         (
             "L003",
-            "test/fixtures/linter/indentation_error_hard.sql",
+            "indentation_error_hard.sql",
             [(2, 4), (6, 5), (9, 13), (14, 14), (19, 5), (20, 6)],
         ),
         # Check bracket handling with closing brackets and contained indents works.
-        ("L003", "test/fixtures/linter/indentation_error_contained.sql", []),
+        ("L003", "indentation_error_contained.sql", []),
         # Check we handle block comments as expect. Github #236
         (
             "L016",
-            "test/fixtures/linter/block_comment_errors.sql",
+            "block_comment_errors.sql",
             [(1, 121), (2, 99), (4, 88)],
         ),
-        ("L016", "test/fixtures/linter/block_comment_errors_2.sql", [(1, 85), (2, 86)]),
+        ("L016", "block_comment_errors_2.sql", [(1, 85), (2, 86)]),
         # Column references
-        ("L027", "test/fixtures/linter/column_references.sql", [(1, 8)]),
-        ("L027", "test/fixtures/linter/column_references_bare_function.sql", []),
-        ("L026", "test/fixtures/linter/column_references.sql", [(1, 11)]),
-        ("L025", "test/fixtures/linter/column_references.sql", [(2, 11)]),
+        ("L027", "column_references.sql", [(1, 8)]),
+        ("L027", "column_references_bare_function.sql", []),
+        ("L026", "column_references.sql", [(1, 11)]),
+        ("L025", "column_references.sql", [(2, 11)]),
         # Distinct and Group by
-        ("L021", "test/fixtures/linter/select_distinct_group_by.sql", [(1, 8)]),
+        ("L021", "select_distinct_group_by.sql", [(1, 8)]),
         # Make sure that ignoring works as expected
-        ("L006", "test/fixtures/linter/operator_errors_ignore.sql", [(10, 8), (10, 9)]),
+        ("L006", "operator_errors_ignore.sql", [(10, 8), (10, 9)]),
         (
             "L031",
-            "test/fixtures/linter/aliases_in_join_error.sql",
+            "aliases_in_join_error.sql",
             [(6, 15), (7, 19), (8, 16)],
+        ),
+        (
+            "L046",
+            "heavy_templating.sql",
+            [(12, 13), (12, 25)],
         ),
     ],
 )
@@ -140,7 +145,7 @@ def test__rules__std_file(rule, path, violations):
     """Test the linter finds the given errors in (and only in) the right places."""
     assert_rule_raises_violations_in_file(
         rule=rule,
-        fpath=path,
+        fpath="test/fixtures/linter/" + path,
         violations=violations,
         fluff_config=FluffConfig(overrides=dict(rules=rule)),
     )

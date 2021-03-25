@@ -15,14 +15,26 @@ class Rule_L046(BaseRule):
         SELECT {{    a     }} from {{ref('foo')}}
 
     | **Best practice**
-    | A single whitespace surrounding Jinja tags.
+    | A single whitespace surrounding Jinja tags, alternatively
+    | longer gaps containing newlines are acceptable.
 
     .. code-block::
 
-        SELECT {{ a }} from {{ ref('foo') }}
+        SELECT {{ a }} from {{ ref('foo') }};
+        SELECT {{ a }} from {{
+            ref('foo')
+        }};
     """
 
     targets_templated = True
+
+    @staticmethod
+    def _get_whitespace_ends(s):
+        """Remove tag ends and partition off any whitespace ends."""
+        main = s[2:-2]
+        inner = main.strip()
+        pos = main.find(inner)
+        return main[:pos], inner, main[pos + len(inner) :]
 
     def _eval(self, segment, templated_file, memory, **kwargs):
         # Extract some data from the segment. Importantly, all
@@ -35,7 +47,7 @@ class Rule_L046(BaseRule):
         if source_slice and source_str and not is_literal:
             # Does it actually look like a tag?
             src_raw = source_str[source_slice]
-            if src_raw[0] != "{" or src_raw[-1] != "}":
+            if not src_raw or src_raw[0] != "{" or src_raw[-1] != "}":
                 return LintResult(memory=memory)
 
             # Dedupe usign a memory of source indexes.
@@ -50,15 +62,16 @@ class Rule_L046(BaseRule):
             memory.add(src_idx)
 
             # Get the inner section
-            inner_str = src_raw[2:-2]
+            ws_pre, inner, ws_post = self._get_whitespace_ends(src_raw)
 
-            # Do we have too little whitespace?
-            if len(inner_str) < 2 or inner_str[0] != " " or inner_str[-1] != " ":
-                print("foo")
+            # For the following section, whitespace should be a single
+            # whitespace OR it should contain a newline.
+
+            # Check the initial whitespace.
+            if not ws_pre or (ws_pre != " " and "\n" not in ws_pre):
+                return LintResult(memory=memory, anchor=segment)
+            # Check latter whitespace.
+            if not ws_post or (ws_post != " " and "\n" not in ws_post):
                 return LintResult(memory=memory, anchor=segment)
 
-            # Do we have too much whitespace?
-            if len(inner_str) > 4 and (inner_str[1] == " " or inner_str[-2] == " "):
-                print("bar")
-                return LintResult(memory=memory, anchor=segment)
         return LintResult(memory=memory)

@@ -1020,7 +1020,9 @@ class Linter:
             filter(
                 lambda e: (
                     # Is it in a literal section?
-                    getattr(e.segment.pos_marker, "is_literal", True)
+                    # This default to NO because if it's not enriched then it's
+                    # likely templated.
+                    getattr(e.segment.pos_marker, "is_literal", False)
                     # Is it a rule that is designed to work on templated sections?
                     or e.rule.targets_templated
                 ),
