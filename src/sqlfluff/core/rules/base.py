@@ -18,7 +18,7 @@ import copy
 import logging
 import pathlib
 import re
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, List, TYPE_CHECKING
 from collections import namedtuple
 
 from sqlfluff.core.parser import RawSegment, KeywordSegment, BaseSegment, SymbolSegment
@@ -276,8 +276,8 @@ class BaseRule:
         siblings_post = siblings_post or ()
         siblings_pre = siblings_pre or ()
         memory = memory or {}
-        vs = []
-        fixes = []
+        vs: List[SQLLintError] = []
+        fixes: List[LintFix] = []
 
         # First, check whether we're looking at an unparsable and whether
         # this rule will still operate on that.
