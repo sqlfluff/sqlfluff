@@ -405,18 +405,23 @@ class Rule_L003(BaseRule):
             # Are we at a deeper indent?
             elif indent_diff > 0:
                 self.logger.debug("    [deeper indent balance] Comparing to #%s", k)
-                # NB: We shouldn't need to deal with hanging indents
-                # here, they should already have been dealt with before.
+                # NB: We shouldn't need to deal with correct hanging indents
+                # here, they should already have been dealt with before. We
+                # may still need to deal with *creating* hanging indents if
+                # appropriate.
+                self.logger.debug(
+                    "    Comparison Line: %s", self._strip_buffers(res[k])
+                )
 
                 # Check to see if we've got a whole number of multiples. If
                 # we do then record the number for later, otherwise raise
                 # an error. We do the comparison here so we have a reference
                 # point to do the repairs. We need a sensible previous line
-                # to base the repairs off.
+                # to base the repairs off. If there's no indent at all, then
+                # we should also take this route because there SHOULD be one.
                 if this_line["indent_size"] % self.tab_space_size != 0:
                     memory["problem_lines"].append(this_line_no)
 
-                    indent_size_diff = this_line["indent_size"] - res[k]["indent_size"]
                     # The default indent is the one just reconstructs it from
                     # the indent size.
                     default_indent = "".join(
@@ -432,11 +437,8 @@ class Rule_L003(BaseRule):
                     if this_line["clean_indent"] or this_line_no - k > 1:
                         self.logger.debug("        Use clean indent.")
                         desired_indent = default_indent
-                    # If we have the option of a hanging indent and it's close
-                    # then use it.
-                    elif res[k]["hanging_indent"] and abs(indent_size_diff) < (
-                        self.tab_space_size / 2
-                    ):
+                    # If we have the option of a hanging indent then use it.
+                    elif res[k]["hanging_indent"]:
                         self.logger.debug("        Use hanging indent.")
                         desired_indent = " " * res[k]["hanging_indent"]
                     else:

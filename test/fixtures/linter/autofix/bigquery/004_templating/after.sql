@@ -24,8 +24,10 @@ raw_effect_sizes AS (
     SELECT
         COUNT(1) AS campaign_count_{{action}},
         {{corr_states}}
+    -- NOTE: The L003 fix routine behaves a little strangely here around the templated
+        -- code. This is a bug currently with no obvious solution.
         , SAFE_DIVIDE(SAFE_MULTIPLY(CORR({{metric}}_rate_su, {{action}}), STDDEV_POP({{metric}}_rate_su)),
-            STDDEV_POP({{action}})) AS {{metric}}_{{action}}
+                        STDDEV_POP({{action}})) AS {{metric}}_{{action}}
     FROM
         `{{gcp_project}}.{{dataset}}.global_actions_states`
     WHERE

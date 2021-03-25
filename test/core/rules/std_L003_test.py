@@ -128,7 +128,10 @@ def test__rules__std_L003_process_raw_stack(generate_test_segments, test_elems, 
         }
         for v in res.values()
     )
-    # For testing purposes, we won't be checking the buffer fields
+    # For testing purposes, we won't be checking the buffer fields. They're just
+    # too hard to create in the test cases and aren't critical in determining
+    # what course of action to take. Most of the logic uses the values which we
+    # *are* still testing.
     for k in res:
         del res[k]["line_buffer"]
         del res[k]["indent_buffer"]
