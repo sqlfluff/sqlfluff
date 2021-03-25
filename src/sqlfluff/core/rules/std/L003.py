@@ -43,23 +43,26 @@ class Rule_L003(BaseRule):
     _works_on_unparsable = False
     config_keywords = ["tab_space_size", "indent_unit", "lint_templated_tokens"]
 
-    def _make_indent(self, num=1, tab_space_size=None, indent_unit=None):
-        if (indent_unit or self.indent_unit) == "tab":
+    @staticmethod
+    def _make_indent(num=1, tab_space_size=4, indent_unit="space"):
+        if indent_unit == "tab":
             base_unit = "\t"
-        elif (indent_unit or self.indent_unit) == "space":
-            base_unit = " " * (tab_space_size or self.tab_space_size)
+        elif indent_unit == "space":
+            base_unit = " " * tab_space_size
         return base_unit * num
 
-    def _indent_size(self, segments):
+    @staticmethod
+    def _indent_size(segments, tab_space_size=4):
         indent_size = 0
         for elem in segments:
             raw = elem.raw
             # convert to spaces for convenience (and hanging indents)
-            raw = raw.replace("\t", " " * self.tab_space_size)
+            raw = raw.replace("\t", " " * tab_space_size)
             indent_size += len(raw)
         return indent_size
 
-    def _process_raw_stack(self, raw_stack):
+    @classmethod
+    def _process_raw_stack(cls, raw_stack, tab_space_size=4):
         """Take the raw stack, split into lines and evaluate some stats."""
         indent_balance = 0
         line_no = 1
@@ -123,12 +126,16 @@ class Rule_L003(BaseRule):
                 else:
                     in_indent = False
                     this_indent_balance = indent_balance
-                    indent_size = self._indent_size(indent_buffer)
+                    indent_size = cls._indent_size(
+                        indent_buffer, tab_space_size=tab_space_size
+                    )
             elif elem.is_meta and elem.indent_val != 0:
                 indent_balance += elem.indent_val
                 if elem.indent_val > 0:
                     # Keep track of the indent at the last ... indent
-                    line_indent_stack.append(self._indent_size(line_buffer))
+                    line_indent_stack.append(
+                        cls._indent_size(line_buffer, tab_space_size=tab_space_size)
+                    )
                     hanger_pos = None
                 else:
                     # this is a dedent, we could still have a hanging indent,
@@ -137,7 +144,9 @@ class Rule_L003(BaseRule):
                         line_indent_stack.pop()
             elif elem.is_code:
                 if hanger_pos is None:
-                    hanger_pos = self._indent_size(line_buffer[:-1])
+                    hanger_pos = cls._indent_size(
+                        line_buffer[:-1], tab_space_size=tab_space_size
+                    )
 
         # If we get to the end, and still have a buffer, add it on
         if line_buffer:
@@ -146,7 +155,7 @@ class Rule_L003(BaseRule):
                 "line_buffer": line_buffer,
                 "indent_buffer": indent_buffer,
                 "indent_size": indent_size,
-                "indent_balance": indent_balance,
+                "indent_balance": this_indent_balance,
                 "hanging_indent": line_indent_stack.pop()
                 if line_indent_stack
                 else None,
@@ -184,6 +193,15 @@ class Rule_L003(BaseRule):
                 )
             ]
         return fixes
+
+    @staticmethod
+    def _strip_buffers(line_dict):
+        """Strip a line dict of buffers for logging."""
+        return {
+            key: line_dict[key]
+            for key in line_dict
+            if key not in ("line_buffer", "indent_buffer")
+        }
 
     def _eval(self, segment, raw_stack, memory, **kwargs):
         """Indentation not consistent with previous lines.
@@ -242,22 +260,16 @@ class Rule_L003(BaseRule):
             # Not in indent and not a newline, don't trigger here.
             return LintResult(memory=memory)
 
-        def _strip_buffers(line_dict):
-            """Strip a line dict of buffers for logging."""
-            return {
-                key: line_dict[key]
-                for key in line_dict
-                if key not in ("line_buffer", "indent_buffer")
-            }
-
-        res = self._process_raw_stack(raw_stack + (segment,))
+        res = self._process_raw_stack(
+            raw_stack + (segment,), tab_space_size=self.tab_space_size
+        )
         this_line_no = max(res.keys())
         this_line = res.pop(this_line_no)
         self.logger.debug(
             "Evaluating line #%s. %s",
             this_line_no,
             # Don't log the line or indent buffer, it's too noisy.
-            _strip_buffers(this_line),
+            self._strip_buffers(this_line),
         )
 
         # Is this line just comments?
@@ -304,7 +316,7 @@ class Rule_L003(BaseRule):
                 memory["hanging_lines"].append(this_line_no)
                 self.logger.debug("    Hanger Line. #%s", this_line_no)
                 self.logger.debug(
-                    "    Last Line: %s", _strip_buffers(res[last_code_line])
+                    "    Last Line: %s", self._strip_buffers(res[last_code_line])
                 )
                 return LintResult(memory=memory)
 
@@ -362,7 +374,10 @@ class Rule_L003(BaseRule):
                     if res[k]["indent_size"] == 0:
                         desired_indent = ""
                     elif this_line["indent_size"] == 0:
-                        desired_indent = self._make_indent()
+                        desired_indent = self._make_indent(
+                            indent_unit=self.indent_unit,
+                            tab_space_size=self.tab_space_size,
+                        )
                     else:
                         # The previous indent.
                         desired_indent = "".join(
@@ -406,7 +421,11 @@ class Rule_L003(BaseRule):
                     # the indent size.
                     default_indent = "".join(
                         elem.raw for elem in res[k]["indent_buffer"]
-                    ) + (self._make_indent() * indent_diff)
+                    ) + self._make_indent(
+                        indent_unit=self.indent_unit,
+                        tab_space_size=self.tab_space_size,
+                        num=indent_diff,
+                    )
                     # If we have a clean indent, we can just add steps in line
                     # with the difference in the indent buffers. simples.
                     # We can also do this if we've skipped a line. I think?
@@ -497,7 +516,10 @@ class Rule_L003(BaseRule):
                                     "create",
                                     segment,
                                     self.make_whitespace(
-                                        raw=self._make_indent(),
+                                        raw=self._make_indent(
+                                            indent_unit=self.indent_unit,
+                                            tab_space_size=self.tab_space_size,
+                                        ),
                                         pos_marker=segment.pos_marker,
                                     ),
                                 )
@@ -518,7 +540,9 @@ class Rule_L003(BaseRule):
                                 self.make_whitespace(
                                     # Make the minimum indent for it to be ok.
                                     raw=self._make_indent(
-                                        num=comp_indent_num - this_indent_num
+                                        num=comp_indent_num - this_indent_num,
+                                        indent_unit=self.indent_unit,
+                                        tab_space_size=self.tab_space_size,
                                     ),
                                     pos_marker=segment.pos_marker,
                                 ),
@@ -528,7 +552,9 @@ class Rule_L003(BaseRule):
                 elif this_indent_num > comp_indent_num + indent_diff:
                     # Calculate the lowest ok indent:
                     desired_indent = self._make_indent(
-                        num=comp_indent_num - this_indent_num
+                        num=comp_indent_num - this_indent_num,
+                        indent_unit=self.indent_unit,
+                        tab_space_size=self.tab_space_size,
                     )
 
                     # Make fixes

@@ -25,7 +25,7 @@ raw_effect_sizes AS (
         COUNT(1) AS campaign_count_{{action}},
         {{corr_states}}
         , SAFE_DIVIDE(SAFE_MULTIPLY(CORR({{metric}}_rate_su, {{action}}), STDDEV_POP({{metric}}_rate_su)),
-                        STDDEV_POP({{action}})) AS {{metric}}_{{action}}
+            STDDEV_POP({{action}})) AS {{metric}}_{{action}}
     FROM
         `{{gcp_project}}.{{dataset}}.global_actions_states`
     WHERE
