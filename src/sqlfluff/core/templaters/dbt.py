@@ -20,8 +20,13 @@ from sqlfluff.core.templaters.jinja import JinjaTemplater
 templater_logger = logging.getLogger("sqlfluff.templater")
 
 class PathSelectorMethodWithRoot(PathSelectorMethod):
+
+    def __init__(self, root, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.root = root
+
     def search(
-        self, included_nodes, selector, root
+        self, included_nodes, selector
     ):
         """Yields nodes from included_nodes that match the given path.
 
@@ -29,9 +34,9 @@ class PathSelectorMethodWithRoot(PathSelectorMethod):
         specified. This allows SQLFluff to run with dbt templater outside of the dbt project_dir.
         """
 
-        paths = set(p.relative_to(root) for p in root.glob(selector))
+        paths = set(p.relative_to(self.root) for p in self.root.glob(selector))
         for node, real_node in self.all_nodes(included_nodes):
-            if Path(real_node.root_path) != root:
+            if Path(real_node.root_path) != self.root:
                 continue
             ofp = Path(real_node.original_file_path)
             if ofp in paths:
@@ -126,7 +131,9 @@ class DbtTemplater(JinjaTemplater):
     @cached_property
     def dbt_selector_method(self):
         """Loads the dbt selector method."""
-        if "0.17" in self.dbt_version:
+        if self._get_project_dir() != os.getcwd():
+            self.dbt_selector_method = PathSelectorMethodWithRoot(Path(self._get_project_dir()), manifest = self.dbt_manifest, previous_state=None, arguments=[])
+        elif "0.17" in self.dbt_version:
             from dbt.graph.selector import PathSelector
 
             self.dbt_selector_method = PathSelector(self.dbt_manifest)
@@ -241,13 +248,10 @@ class DbtTemplater(JinjaTemplater):
             )
         self.sqlfluff_config = config
 
-        self.dbt_selector_method = PathSelectorMethodWithRoot(self.dbt_manifest, previous_state=None, arguments=[])
-
         selected = self.dbt_selector_method.search(
             included_nodes=self.dbt_manifest.nodes,
             # Selector needs to be a relative path
-            selector=os.path.relpath(fname, start=self._get_project_dir()),
-            root=Path(self._get_project_dir()))
+            selector=os.path.relpath(fname, start=self._get_project_dir()))
         
         results = [self.dbt_manifest.expect(uid) for uid in selected]
 
