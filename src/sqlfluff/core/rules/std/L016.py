@@ -80,7 +80,10 @@ class Rule_L016(Rule_L003):
                 fixes = []
 
                 # Generate some sample indents:
-                unit_indent = crawler._make_indent()
+                unit_indent = crawler._make_indent(
+                    indent_unit=crawler.indent_unit,
+                    tab_space_size=crawler.tab_space_size,
+                )
                 indent_p1 = indent_section.raw + unit_indent
                 if unit_indent in indent_section.raw:
                     indent_m1 = indent_section.raw.replace(unit_indent, "", 1)
