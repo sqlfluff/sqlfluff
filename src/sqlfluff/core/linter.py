@@ -103,7 +103,7 @@ class LintedFile(NamedTuple):
     """A class to store the idea of a linted file."""
 
     path: str
-    violations: list
+    violations: List[SQLBaseError]
     time_dict: dict
     tree: Optional[BaseSegment]
     ignore_mask: List[NoQaDirective]
@@ -160,15 +160,20 @@ class LintedFile(NamedTuple):
             violations = [v for v in violations if not v.ignore]
             # Ignore any rules in the ignore mask
             if self.ignore_mask:
-                for ignore in self.ignore_mask:
-                    violations = [
-                        v
-                        for v in violations
-                        if not (
-                            v.line_no() == ignore.line_no
-                            and (rules is None or v.rule_code() in ignore.rules)
-                        )
-                    ]
+                violations = self._ignore_masked_violations(violations)
+        return violations
+
+    def _ignore_masked_violations(self, violations: List[SQLBaseError]) -> List[SQLBaseError]:
+        """Remove any violations specified by ignore_mask."""
+        for ignore in self.ignore_mask:
+            violations = [
+                v
+                for v in violations
+                if not (
+                        v.line_no() == ignore.line_no
+                        and (ignore.rules is None or v.rule_code() in ignore.rules)
+                )
+            ]
         return violations
 
     def num_violations(self, **kwargs) -> int:
@@ -1078,9 +1083,9 @@ class Linter:
         config = config or self.config
 
         # Using the new parser, read the file object.
-        parsed = self.parse_string(in_str=in_str, fname=fname, config=config)
+        parsed: ParsedString = self.parse_string(in_str=in_str, fname=fname, config=config)
         time_dict = parsed.time_dict
-        vs = parsed.violations
+        vs: List[SQLBaseError] = parsed.violations
         tree = parsed.tree
 
         # Look for comment segments which might indicate lines to ignore.

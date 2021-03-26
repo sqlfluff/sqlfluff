@@ -4,8 +4,18 @@ import pytest
 from unittest.mock import patch
 
 from sqlfluff.core import Linter, FluffConfig
-from sqlfluff.core.errors import SQLLintError, SQLParseError
+from sqlfluff.core.errors import SQLBaseError, SQLLintError, SQLParseError
 from sqlfluff.core.linter import LintingResult, NoQaDirective
+import sqlfluff.core.linter as linter
+from sqlfluff.core.parser import FilePositionMarker
+
+
+class DummyLintError(SQLBaseError):
+    """Fake lint error used by tests, similar to SQLLintError."""
+    def __init__(self, pos: FilePositionMarker, code: str="L001"):
+        self.pos = pos
+        self._code = code
+        super(DummyLintError, self).__init__()
 
 
 def normalise_paths(paths):
@@ -193,7 +203,7 @@ def test__linter__linting_unexpected_error_handled_gracefully(
     """Test that an unexpected internal error is handled gracefully and returns the issue-surfacing file."""
     patched_lint_string.side_effect = Exception("Something unexpected happened")
     lntr = Linter()
-    lntr.lint_paths(["test/fixtures/linter/passing.sql"])
+    lntr.lint_paths(("test/fixtures/linter/passing.sql",))
     assert (
         "Unable to lint test/fixtures/linter/passing.sql due to an internal error."
         # NB: Replace is to handle windows-style paths.
@@ -202,23 +212,6 @@ def test__linter__linting_unexpected_error_handled_gracefully(
         in patched_logger.warning.call_args[0][0]
     )
 
-
-@pytest.mark.parametrize("input,expected", [
-    ("", None),
-    ("noqa", NoQaDirective(0, None, None)),
-    ("noqa?", SQLParseError),
-    ("noqa:", NoQaDirective(0, None, None)),
-    ("noqa:L001,L002", NoQaDirective(0, ('L001', 'L002'), None)),
-    ("noqa: enable=L005", NoQaDirective(0, ('L005',), "enable")),
-    ("noqa: disable=L010", NoQaDirective(0, ('L010',), "disable")),
-])
-def test_parse_noqa(input, expected):
-    result = Linter.parse_noqa(input, 0)
-    if not isinstance(expected, type):
-        assert result == expected
-    else:
-        # With exceptions, just check the type, not the contents.
-        assert isinstance(result, expected)
 
 
 def test__linter__raises_malformed_noqa():
@@ -267,3 +260,110 @@ def test__linter__mask_templated_violations(ignore_templated_areas, check_tuples
     )
     linted = lntr.lint_path(path="test/fixtures/templater/jinja_h_macros/jinja.sql")
     assert linted.check_tuples() == check_tuples
+
+
+@pytest.mark.parametrize("input,expected", [
+    ("", None),
+    ("noqa", NoQaDirective(0, None, None)),
+    ("noqa?", SQLParseError),
+    ("noqa:", NoQaDirective(0, None, None)),
+    ("noqa:L001,L002", NoQaDirective(0, ('L001', 'L002'), None)),
+    ("noqa: enable=L005", NoQaDirective(0, ('L005',), "enable")),
+    ("noqa: disable=L010", NoQaDirective(0, ('L010',), "disable")),
+])
+def test_parse_noqa(input, expected):
+    result = Linter.parse_noqa(input, 0)
+    if not isinstance(expected, type):
+        assert result == expected
+    else:
+        # With exceptions, just check the type, not the contents.
+        assert isinstance(result, expected)
+
+
+@pytest.mark.parametrize(
+    "noqa,violations,expected",
+    [
+        [
+            [],
+            [
+                DummyLintError(FilePositionMarker(statement_index=None, line_no=1))
+            ],
+            [
+                0,
+            ],
+        ],
+        [
+            [
+                dict(comment="noqa: L001", line_no=1)
+            ],
+            [
+                DummyLintError(FilePositionMarker(statement_index=None, line_no=1))
+            ],
+            [
+            ],
+        ],
+        [
+            [
+                dict(comment="noqa: L001", line_no=2)
+            ],
+            [
+                DummyLintError(
+                    FilePositionMarker(statement_index=None, line_no=1))
+            ],
+            [
+                0
+            ],
+        ],
+        [
+            [
+                dict(comment="noqa: L002", line_no=1)
+            ],
+            [
+                DummyLintError(
+                    FilePositionMarker(statement_index=None, line_no=1))
+            ],
+            [
+                0
+            ],
+        ],
+        # [
+        #     [
+        #         dict(comment="noqa: enable=L001", line_no=1)
+        #     ],
+        #     [
+        #         DummyLintError(
+        #             FilePositionMarker(statement_index=None, line_no=1))
+        #     ],
+        #     [
+        #         0
+        #     ],
+        # ],
+        # [
+        #     [
+        #         dict(comment="noqa: disable=L001", line_no=1)
+        #     ],
+        #     [
+        #         DummyLintError(
+        #             FilePositionMarker(statement_index=None, line_no=1))
+        #     ],
+        #     [
+        #     ],
+        # ],
+    ],
+    ids=[
+        '1_violation_no_ignore',
+        '1_violation_ignore_specific_line',
+        '1_violation_ignore_different_specific_line',
+        '1_violation_ignore_different_specific_rule',
+        # '1_violation_ignore_enable_this_range',
+        # '1_violation_ignore_disable_this_range',
+    ]
+)
+def test_ignore_masked_violations(noqa, violations, expected):
+    ignore_mask = [Linter.parse_noqa(**c) for c in noqa]
+    lf = linter.LintedFile(
+        path='', violations=violations, time_dict={}, tree=None,
+        ignore_mask=ignore_mask, templated_file=linter.TemplatedFile(''))
+    result = lf._ignore_masked_violations(violations)
+    expected_violations = [v for i, v in enumerate(violations) if i in expected]
+    assert expected_violations == result
