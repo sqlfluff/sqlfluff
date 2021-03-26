@@ -19,7 +19,7 @@ test_identation_of_comments_1:
     FROM
         acceptable_buckets
 
-test__identation_of_comments_2:
+test_indentation_of_comments_2:
   # Comments should be aligned to the following line.
   pass_str: |
     SELECT
@@ -179,7 +179,7 @@ test_attempted_hanger_fix:
     FROM tbl
 
 test_possible_hanger_fix:
-  # It's not even close to a hnaging indent, but we should
+  # It's not even close to a hanging indent, but we should
   # still attempt this, although this is potentially a questionable
   # fix and could be an approach we change in the future.
   fail_str: |
