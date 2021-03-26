@@ -50,7 +50,7 @@ class Rule_L046(BaseRule):
             if not src_raw or src_raw[0] != "{" or src_raw[-1] != "}":
                 return LintResult(memory=memory)
 
-            # Dedupe usign a memory of source indexes.
+            # Dedupe using a memory of source indexes.
             # This is important because several positions in the
             # templated file may refer to the same position in the
             # source file and we only want to get one violation.
