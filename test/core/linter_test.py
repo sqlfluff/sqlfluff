@@ -385,6 +385,7 @@ def test_linted_file_ignore_masked_violations(
 
 
 def test_linter_noqa():
+    """Test "noqa" feature at the higher "Linter" level."""
     lntr = Linter(
         config=FluffConfig(
             overrides={
