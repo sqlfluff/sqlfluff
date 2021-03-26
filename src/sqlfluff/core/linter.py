@@ -183,14 +183,38 @@ class LintedFile(NamedTuple):
         return violations
 
     @staticmethod
-    def _ignore_masked_violations_line_range(violations: List[SQLBaseError], ignore_mask: List[NoQaDirective]):
+    def _should_ignore_violation_line_range(line_no: int, ignore_rule: List[NoQaDirective]):
+        """Returns whether to ignore a violation at line_no."""
+        # Loop through the NoQaDirectives to find the state of things at
+        # line_no. Assumptions about "ignore_rule":
+        # - Contains directives for only ONE RULE, i.e. the rule that was
+        #   violated at line_no
+        # - Sorted in ascending order by line number
+        disable = False
+        for ignore in ignore_rule:
+            if ignore.line_no > line_no:
+                break
+            disable = ignore.action == "disable"
+        return disable
+
+    @classmethod
+    def _ignore_masked_violations_line_range(cls, violations: List[SQLBaseError], ignore_mask: List[NoQaDirective]):
         """Returns whether to ignore error for line-range directives.
 
         The "ignore" list is assumed to ONLY contain NoQaDirectives where
         action is "enable" or "disable".
         """
-        #import pdb; pdb.set_trace()
-        return violations
+        result = []
+        for v in violations:
+            ignore_rule = sorted([
+                    ignore
+                    for ignore in ignore_mask
+                    if v.rule_code() in ignore.rules
+                ],
+                key=lambda ignore: ignore.line_no)
+            if not cls._should_ignore_violation_line_range(v.line_no(), ignore_rule):
+                result.append(v)
+        return result
 
     def _ignore_masked_violations(self, violations: List[SQLBaseError]) -> List[SQLBaseError]:
         """Remove any violations specified by ignore_mask."""
