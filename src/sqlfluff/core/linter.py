@@ -31,6 +31,7 @@ from sqlfluff.core.errors import (
     CheckTuple,
 )
 from sqlfluff.core.parser import Lexer, Parser
+from sqlfluff.core.file_helpers import get_encoding
 from sqlfluff.core.string_helpers import findall
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.rules import get_ruleset
@@ -100,6 +101,7 @@ class LintedFile(NamedTuple):
     tree: Optional[BaseSegment]
     ignore_mask: list
     templated_file: TemplatedFile
+    encoding: str
 
     def check_tuples(self) -> List[CheckTuple]:
         """Make a list of check_tuples.
@@ -464,7 +466,7 @@ class LintedFile(NamedTuple):
                 root, ext = os.path.splitext(fname)
                 fname = root + suffix + ext
             # Actually write the file.
-            with open(fname, "w") as f:
+            with open(fname, "w", encoding=self.encoding) as f:
                 f.write(write_buff)
         return success
 
@@ -1046,6 +1048,7 @@ class Linter:
         fname: str = "<string input>",
         fix: bool = False,
         config: Optional[FluffConfig] = None,
+        encoding: str = "utf8",
     ) -> LintedFile:
         """Lint a string.
 
@@ -1107,6 +1110,7 @@ class Linter:
             tree,
             ignore_mask=ignore_buff,
             templated_file=parsed.templated_file,
+            encoding=encoding,
         )
 
         # This is the main command line output from linting.
@@ -1262,13 +1266,18 @@ class Linter:
         ):
             config = self.config.make_child_from_path(fname)
             # Handle unicode issues gracefully
+            encoding = get_encoding(fname=fname, config=config)
             with open(
-                fname, "r", encoding="utf8", errors="backslashreplace"
+                fname, "r", encoding=encoding, errors="backslashreplace"
             ) as target_file:
                 try:
                     linted_path.add(
                         self.lint_string(
-                            target_file.read(), fname=fname, fix=fix, config=config
+                            target_file.read(),
+                            fname=fname,
+                            fix=fix,
+                            config=config,
+                            encoding=encoding,
                         )
                     )
                 except IOError as e:  # IOErrors caught in commands.py, so still raise it
@@ -1322,7 +1331,10 @@ To hide this warning, add the failing file to .sqlfluffignore
             config = self.config.make_child_from_path(fname)
             # Handle unicode issues gracefully
             with open(
-                fname, "r", encoding="utf8", errors="backslashreplace"
+                fname,
+                "r",
+                encoding=get_encoding(fname=fname, config=config),
+                errors="backslashreplace",
             ) as target_file:
                 yield self.parse_string(
                     target_file.read(), fname=fname, recurse=recurse, config=config

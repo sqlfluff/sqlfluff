@@ -4,7 +4,7 @@ import pytest
 from unittest.mock import patch
 
 from sqlfluff.core import Linter, FluffConfig
-from sqlfluff.core.errors import SQLLintError, SQLParseError
+from sqlfluff.core.errors import SQLLexError, SQLLintError, SQLParseError
 from sqlfluff.core.linter import LintingResult
 
 
@@ -249,3 +249,52 @@ def test__linter__mask_templated_violations(ignore_templated_areas, check_tuples
     )
     linted = lntr.lint_path(path="test/fixtures/templater/jinja_h_macros/jinja.sql")
     assert linted.check_tuples() == check_tuples
+
+
+@pytest.mark.parametrize(
+    "fname,config_encoding,lexerror",
+    [
+        (
+            "test/fixtures/linter/encoding-utf-8.sql",
+            "autodetect",
+            False,
+        ),
+        (
+            "test/fixtures/linter/encoding-utf-8-sig.sql",
+            "autodetect",
+            False,
+        ),
+        (
+            "test/fixtures/linter/encoding-utf-8.sql",
+            "utf-8",
+            False,
+        ),
+        (
+            "test/fixtures/linter/encoding-utf-8-sig.sql",
+            "utf-8",
+            True,
+        ),
+        (
+            "test/fixtures/linter/encoding-utf-8.sql",
+            "utf-8-sig",
+            False,
+        ),
+        (
+            "test/fixtures/linter/encoding-utf-8-sig.sql",
+            "utf-8-sig",
+            False,
+        ),
+    ],
+)
+def test__linter__encoding(fname, config_encoding, lexerror):
+    """Test linter deals with files with different encoding."""
+    lntr = Linter(
+        config=FluffConfig(
+            overrides={
+                "rules": "L001",
+                "encoding": config_encoding,
+            }
+        )
+    )
+    result = lntr.lint_paths([fname])
+    assert lexerror == (SQLLexError in [type(v) for v in result.get_violations()])
