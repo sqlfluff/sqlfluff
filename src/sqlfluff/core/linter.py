@@ -53,6 +53,14 @@ class RuleTuple(NamedTuple):
     description: str
 
 
+class NoQaDirective(NamedTuple):
+    """Parsed version of a 'noqa' comment."""
+
+    line_no: int  # Source line number
+    rules: Optional[Tuple[str, ...]]  # Affected rule names
+    action: Optional[Literal["enable", "disable"]]
+
+
 class ProtoFile(NamedTuple):
     """Proto object to be inherited by LintedFile."""
 
@@ -60,7 +68,7 @@ class ProtoFile(NamedTuple):
     violations: list
     time_dict: dict
     tree: Any
-    ignore_mask: list
+    ignore_mask: List[NoQaDirective]
 
 
 class ParsedString(NamedTuple):
@@ -98,7 +106,7 @@ class LintedFile(NamedTuple):
     violations: list
     time_dict: dict
     tree: Optional[BaseSegment]
-    ignore_mask: list
+    ignore_mask: List[NoQaDirective]
     templated_file: TemplatedFile
 
     def check_tuples(self) -> List[CheckTuple]:
@@ -152,13 +160,13 @@ class LintedFile(NamedTuple):
             violations = [v for v in violations if not v.ignore]
             # Ignore any rules in the ignore mask
             if self.ignore_mask:
-                for line_no, rules in self.ignore_mask:
+                for ignore in self.ignore_mask:
                     violations = [
                         v
                         for v in violations
                         if not (
-                            v.line_no() == line_no
-                            and (rules is None or v.rule_code() in rules)
+                            v.line_no() == ignore.line_no
+                            and (rules is None or v.rule_code() in ignore.rules)
                         )
                     ]
         return violations
@@ -919,11 +927,16 @@ class Linter:
                     return SQLParseError(
                         "Malformed 'noqa' section. Expected 'noqa: <rule>[,...]",
                     )
-                comment_remainder = comment_remainder[1:]
+                comment_remainder = comment_remainder[1:].strip()
                 if comment_remainder:
-                    rules = [r.strip() for r in comment_remainder.split(",")]
-                    return (line_no, tuple(rules))
-            return (line_no, None)
+                    if '=' in comment_remainder:
+                        action, rule_part = comment_remainder.split('=', 1)
+                    else:
+                        action = None
+                        rule_part = comment_remainder
+                    rules = [r.strip() for r in rule_part.split(",")]
+                    return NoQaDirective(line_no, tuple(rules), action)
+            return NoQaDirective(line_no, None, None)
         return None
 
     @classmethod

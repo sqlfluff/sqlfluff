@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 from sqlfluff.core import Linter, FluffConfig
 from sqlfluff.core.errors import SQLLintError, SQLParseError
-from sqlfluff.core.linter import LintingResult
+from sqlfluff.core.linter import LintingResult, NoQaDirective
 
 
 def normalise_paths(paths):
@@ -205,10 +205,12 @@ def test__linter__linting_unexpected_error_handled_gracefully(
 
 @pytest.mark.parametrize("input,expected", [
     ("", None),
-    ("noqa", (0, None)),
+    ("noqa", NoQaDirective(0, None, None)),
     ("noqa?", SQLParseError),
-    ("noqa:", (0, None)),
-    ("noqa:L001,L002", (0, ('L001', 'L002'))),
+    ("noqa:", NoQaDirective(0, None, None)),
+    ("noqa:L001,L002", NoQaDirective(0, ('L001', 'L002'), None)),
+    ("noqa: enable=L005", NoQaDirective(0, ('L005',), "enable")),
+    ("noqa: disable=L010", NoQaDirective(0, ('L010',), "disable")),
 ])
 def test_parse_noqa(input, expected):
     result = Linter.parse_noqa(input, 0)
