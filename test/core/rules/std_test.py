@@ -169,22 +169,6 @@ def test__rules__std_file_dbt(rule, path, violations, in_dbt_project_dir):  # no
     )
 
 
-def test__rules__std_L003_process_raw_stack(generate_test_segments):
-    """Test the _process_raw_stack function.
-
-    Note: This test probably needs expanding. It doesn't
-    really check enough of the full functionality.
-
-    """
-    cfg = FluffConfig()
-    r = get_rule_from_set("L003", config=cfg)
-    test_stack = generate_test_segments(["bar", "\n", "     ", "foo", "baar", " \t "])
-    res = r._process_raw_stack(test_stack)
-    print(res)
-    assert sorted(res.keys()) == [1, 2]
-    assert res[2]["indent_size"] == 5
-
-
 @pytest.mark.parametrize(
     "rule_config_dict",
     [
