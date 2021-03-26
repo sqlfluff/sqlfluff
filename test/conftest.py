@@ -4,7 +4,7 @@ import pytest
 import oyaml
 
 from sqlfluff.core.parser.markers import FilePositionMarker
-from sqlfluff.core.parser.segments import RawSegment
+from sqlfluff.core.parser.segments import RawSegment, Indent, Dedent
 
 
 def process_struct(obj):
@@ -74,6 +74,13 @@ def generate_test_segments():
         buff = []
         raw_buff = ""
         for elem in elems:
+            if elem == "<indent>":
+                buff.append(Indent(FilePositionMarker().advance_by(raw_buff)))
+                continue
+            elif elem == "<dedent>":
+                buff.append(Dedent(FilePositionMarker().advance_by(raw_buff)))
+                continue
+
             if set(elem) <= {" ", "\t"}:
                 cls = RawSegment.make(" ", name="whitespace", type="whitespace")
             elif set(elem) <= {"\n"}:

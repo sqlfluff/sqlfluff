@@ -1,16 +1,17 @@
 rule: L003
 
-test_1:
+test_reindent_first_line_1:
   fail_str: '     SELECT 1'
   fix_str: SELECT 1
 
-test_2:
+test_reindent_first_line_2:
   # Github Bug #99. Python2 Issues with fixing L003
   fail_str: '  select 1 from tbl;'
   fix_str: select 1 from tbl;
 
-test_3:
+test_identation_of_comments_1:
   # Github Bug #203
+  # Comments should be aligned to the following line.
   pass_str: |
     SELECT
         -- Compute the thing
@@ -18,7 +19,8 @@ test_3:
     FROM
         acceptable_buckets
 
-test_4:
+test_indentation_of_comments_2:
+  # Comments should be aligned to the following line.
   pass_str: |
     SELECT
         user_id
@@ -33,7 +35,7 @@ test_4:
         USING
             (user_id)
 
-test_5:
+test_tab_indentation:
   # Using tabs as indents works
   fail_str: |
     SELECT
@@ -51,30 +53,26 @@ test_5:
     rules:
       indent_unit: tab
 
-test_6:
+test_indented_joins_default:
   # Configurable indents work.
   # a) default
   pass_str: |
     SELECT a, b, c
-
     FROM my_tbl
-
     LEFT JOIN another_tbl USING(a)
 
-test_7:
+test_indented_joins_false:
   # b) specific
   pass_str: |
     SELECT a, b, c
-
     FROM my_tbl
-
     LEFT JOIN another_tbl USING(a)
 
   configs:
     indentation:
       indented_joins: false
 
-test_8:
+test_indented_joins_true:
   # c) specific True, but passing
   pass_str: |
     SELECT a, b, c
@@ -85,7 +83,7 @@ test_8:
     indentation:
       indented_joins: true
 
-test_9:
+test_indented_joins_true_fix:
   # d) specific True, but failing
   fail_str: |
     SELECT a, b, c
@@ -101,7 +99,7 @@ test_9:
     indentation:
       indented_joins: true
 
-test_10:
+test_indented_joins_false_fix:
   # e) specific False, and failing
   fail_str: |
     SELECT a, b, c
@@ -117,7 +115,7 @@ test_10:
     indentation:
       indented_joins: false
 
-test_11:
+test_indented_from_with_comment:
   pass_str: |
     SELECT *
     FROM
@@ -125,7 +123,7 @@ test_11:
     -- Comment
     JOIN t2 USING (user_id)
 
-test_12:
+test_indented_from_with_comment_fix:
   fail_str: |
     SELECT *
     FROM
@@ -167,3 +165,45 @@ bigquery_with_indent:
   configs:
     core:
       dialect: bigquery
+
+test_attempted_hanger_fix:
+  # It's almost a hanger and so should be corrected to one.
+  fail_str: |
+    SELECT coalesce(foo,
+                  bar)
+       FROM tbl
+
+  fix_str: |
+    SELECT coalesce(foo,
+                    bar)
+    FROM tbl
+
+test_possible_hanger_fix:
+  # It's not even close to a hanging indent, but we should
+  # still attempt this, although this is potentially a questionable
+  # fix and could be an approach we change in the future.
+  fail_str: |
+    SELECT coalesce(foo,
+     bar)
+       FROM tbl
+
+  fix_str: |
+    SELECT coalesce(foo,
+                    bar)
+    FROM tbl
+
+test_clean_reindent_fix:
+  # A "clean" indent is where the previous line ends with an
+  # indent token (as per this example). We should use the
+  # default approach and indent by 1 step.
+  fail_str: |
+    SELECT coalesce(
+    foo,
+                    bar)
+       FROM tbl
+
+  fix_str: |
+    SELECT coalesce(
+        foo,
+        bar)
+    FROM tbl
