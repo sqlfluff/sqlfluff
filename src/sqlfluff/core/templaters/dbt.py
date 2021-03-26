@@ -132,7 +132,10 @@ class DbtTemplater(JinjaTemplater):
     def dbt_selector_method(self):
         """Loads the dbt selector method."""
         if self._get_project_dir() != os.getcwd():
-            self.dbt_selector_method = PathSelectorMethodWithRoot(Path(self._get_project_dir()), manifest = self.dbt_manifest, previous_state=None, arguments=[])
+            self.dbt_selector_method = PathSelectorMethodWithRoot(
+                                                Path(self._get_project_dir()),
+                                                manifest = self.dbt_manifest, previous_state=None, arguments=[]
+                                            )
         elif "0.17" in self.dbt_version:
             from dbt.graph.selector import PathSelector
 
