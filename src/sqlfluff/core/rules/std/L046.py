@@ -31,6 +31,8 @@ class Rule_L046(BaseRule):
     @staticmethod
     def _get_whitespace_ends(s):
         """Remove tag ends and partition off any whitespace ends."""
+        # Jinja tags all have a length of two. We can use slicing
+        # to remove them easily.
         main = s[2:-2]
         inner = main.strip()
         pos = main.find(inner)
