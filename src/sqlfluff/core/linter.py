@@ -58,7 +58,7 @@ class NoQaDirective(NamedTuple):
 
     line_no: int  # Source line number
     rules: Optional[Tuple[str, ...]]  # Affected rule names
-    action: Optional[Literal["enable", "disable"]]
+    action: Optional[str]  # "enable" "disable", or "None"
 
 
 class ProtoFile(NamedTuple):
@@ -213,7 +213,11 @@ class LintedFile(NamedTuple):
         result = []
         for v in violations:
             ignore_rule = sorted(
-                [ignore for ignore in ignore_mask if v.rule_code() in ignore.rules],
+                [
+                    ignore
+                    for ignore in ignore_mask
+                    if v.rule_code() in cast(Tuple[str, ...], ignore.rules)
+                ],
                 key=lambda ignore: ignore.line_no,
             )
             if not cls._should_ignore_violation_line_range(v.line_no(), ignore_rule):
@@ -990,6 +994,7 @@ class Linter:
                     )
                 comment_remainder = comment_remainder[1:].strip()
                 if comment_remainder:
+                    action: Optional[str]
                     if "=" in comment_remainder:
                         action, rule_part = comment_remainder.split("=", 1)
                     else:
