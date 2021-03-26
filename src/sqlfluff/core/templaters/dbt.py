@@ -7,6 +7,9 @@ from typing import Optional
 from dataclasses import dataclass
 from cached_property import cached_property
 from functools import partial
+from pathlib import Path
+
+from dbt.graph.selector_methods import SelectorMethod
 
 from sqlfluff.core.errors import SQLTemplaterError
 
@@ -16,6 +19,25 @@ from sqlfluff.core.templaters.jinja import JinjaTemplater
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
 
+class PathSelectorMethodNew(SelectorMethod):
+    def search(
+        self, included_nodes, selector, root
+    ):
+        """Yields nodes from included_nodes that match the given path.
+
+        Adapted from dbt.graph.selector_methods.PathSelectorMethod to allow root to be
+        specified. This allows SQLFluff to run with dbt templater outside of the dbt project_dir.
+        """
+
+        paths = set(p.relative_to(root) for p in root.glob(selector))
+        for node, real_node in self.all_nodes(included_nodes):
+            if Path(real_node.root_path) != root:
+                continue
+            ofp = Path(real_node.original_file_path)
+            if ofp in paths:
+                yield node
+            elif any(parent in paths for parent in ofp.parents):
+                yield node
 
 @dataclass
 class DbtConfigArgs:
@@ -219,11 +241,14 @@ class DbtTemplater(JinjaTemplater):
             )
         self.sqlfluff_config = config
 
+        self.dbt_selector_method = PathSelectorMethodNew(self.dbt_manifest, previous_state=None, arguments=[])
+
         selected = self.dbt_selector_method.search(
             included_nodes=self.dbt_manifest.nodes,
             # Selector needs to be a relative path
-            selector=os.path.relpath(fname, start=os.getcwd()),
-        )
+            selector=os.path.relpath(fname, start="dbt-tutorial"),
+            root=Path("/home/patrick/Tutorials/dbt/dbt-tutorial"))
+        
         results = [self.dbt_manifest.expect(uid) for uid in selected]
 
         if not results:
