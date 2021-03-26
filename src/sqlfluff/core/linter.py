@@ -164,7 +164,9 @@ class LintedFile(NamedTuple):
         return violations
 
     @staticmethod
-    def _ignore_masked_violations_single_line(violations: List[SQLBaseError], ignore_mask: List[NoQaDirective]):
+    def _ignore_masked_violations_single_line(
+        violations: List[SQLBaseError], ignore_mask: List[NoQaDirective]
+    ):
         """Returns whether to ignore error for line-specific directives.
 
         The "ignore" list is assumed to ONLY contain NoQaDirectives with
@@ -176,14 +178,16 @@ class LintedFile(NamedTuple):
                 v
                 for v in violations
                 if not (
-                        v.line_no() == ignore.line_no
-                        and (ignore.rules is None or v.rule_code() in ignore.rules)
+                    v.line_no() == ignore.line_no
+                    and (ignore.rules is None or v.rule_code() in ignore.rules)
                 )
             ]
         return violations
 
     @staticmethod
-    def _should_ignore_violation_line_range(line_no: int, ignore_rule: List[NoQaDirective]):
+    def _should_ignore_violation_line_range(
+        line_no: int, ignore_rule: List[NoQaDirective]
+    ):
         """Returns whether to ignore a violation at line_no."""
         # Loop through the NoQaDirectives to find the state of things at
         # line_no. Assumptions about "ignore_rule":
@@ -198,7 +202,9 @@ class LintedFile(NamedTuple):
         return disable
 
     @classmethod
-    def _ignore_masked_violations_line_range(cls, violations: List[SQLBaseError], ignore_mask: List[NoQaDirective]):
+    def _ignore_masked_violations_line_range(
+        cls, violations: List[SQLBaseError], ignore_mask: List[NoQaDirective]
+    ):
         """Returns whether to ignore error for line-range directives.
 
         The "ignore" list is assumed to ONLY contain NoQaDirectives where
@@ -206,21 +212,23 @@ class LintedFile(NamedTuple):
         """
         result = []
         for v in violations:
-            ignore_rule = sorted([
-                    ignore
-                    for ignore in ignore_mask
-                    if v.rule_code() in ignore.rules
-                ],
-                key=lambda ignore: ignore.line_no)
+            ignore_rule = sorted(
+                [ignore for ignore in ignore_mask if v.rule_code() in ignore.rules],
+                key=lambda ignore: ignore.line_no,
+            )
             if not cls._should_ignore_violation_line_range(v.line_no(), ignore_rule):
                 result.append(v)
         return result
 
-    def _ignore_masked_violations(self, violations: List[SQLBaseError]) -> List[SQLBaseError]:
+    def _ignore_masked_violations(
+        self, violations: List[SQLBaseError]
+    ) -> List[SQLBaseError]:
         """Remove any violations specified by ignore_mask."""
         ignore_specific = [ignore for ignore in self.ignore_mask if not ignore.action]
         ignore_range = [ignore for ignore in self.ignore_mask if ignore.action]
-        violations = self._ignore_masked_violations_single_line(violations, ignore_specific)
+        violations = self._ignore_masked_violations_single_line(
+            violations, ignore_specific
+        )
         violations = self._ignore_masked_violations_line_range(violations, ignore_range)
         return violations
 
@@ -982,8 +990,8 @@ class Linter:
                     )
                 comment_remainder = comment_remainder[1:].strip()
                 if comment_remainder:
-                    if '=' in comment_remainder:
-                        action, rule_part = comment_remainder.split('=', 1)
+                    if "=" in comment_remainder:
+                        action, rule_part = comment_remainder.split("=", 1)
                     else:
                         action = None
                         rule_part = comment_remainder
@@ -1131,7 +1139,9 @@ class Linter:
         config = config or self.config
 
         # Using the new parser, read the file object.
-        parsed: ParsedString = self.parse_string(in_str=in_str, fname=fname, config=config)
+        parsed: ParsedString = self.parse_string(
+            in_str=in_str, fname=fname, config=config
+        )
         time_dict = parsed.time_dict
         vs: List[SQLBaseError] = parsed.violations
         tree = parsed.tree

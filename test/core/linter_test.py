@@ -12,7 +12,8 @@ from sqlfluff.core.parser import FilePositionMarker
 
 class DummyLintError(SQLBaseError):
     """Fake lint error used by tests, similar to SQLLintError."""
-    def __init__(self, pos: FilePositionMarker, code: str="L001"):
+
+    def __init__(self, pos: FilePositionMarker, code: str = "L001"):
         self.pos = pos
         self._code = code
         super(DummyLintError, self).__init__()
@@ -213,7 +214,6 @@ def test__linter__linting_unexpected_error_handled_gracefully(
     )
 
 
-
 def test__linter__raises_malformed_noqa():
     """A badly formatted noqa gets raised as a parsing error."""
     lntr = Linter()
@@ -262,15 +262,18 @@ def test__linter__mask_templated_violations(ignore_templated_areas, check_tuples
     assert linted.check_tuples() == check_tuples
 
 
-@pytest.mark.parametrize("input,expected", [
-    ("", None),
-    ("noqa", NoQaDirective(0, None, None)),
-    ("noqa?", SQLParseError),
-    ("noqa:", NoQaDirective(0, None, None)),
-    ("noqa:L001,L002", NoQaDirective(0, ('L001', 'L002'), None)),
-    ("noqa: enable=L005", NoQaDirective(0, ('L005',), "enable")),
-    ("noqa: disable=L010", NoQaDirective(0, ('L010',), "disable")),
-])
+@pytest.mark.parametrize(
+    "input,expected",
+    [
+        ("", None),
+        ("noqa", NoQaDirective(0, None, None)),
+        ("noqa?", SQLParseError),
+        ("noqa:", NoQaDirective(0, None, None)),
+        ("noqa:L001,L002", NoQaDirective(0, ("L001", "L002"), None)),
+        ("noqa: enable=L005", NoQaDirective(0, ("L005",), "enable")),
+        ("noqa: disable=L010", NoQaDirective(0, ("L010",), "disable")),
+    ],
+)
 def test_parse_noqa(input, expected):
     result = Linter.parse_noqa(input, 0)
     if not isinstance(expected, type):
@@ -285,85 +288,56 @@ def test_parse_noqa(input, expected):
     [
         [
             [],
-            [
-                DummyLintError(FilePositionMarker(statement_index=None, line_no=1))
-            ],
+            [DummyLintError(FilePositionMarker(statement_index=None, line_no=1))],
             [
                 0,
             ],
         ],
         [
-            [
-                dict(comment="noqa: L001", line_no=1)
-            ],
-            [
-                DummyLintError(FilePositionMarker(statement_index=None, line_no=1))
-            ],
-            [
-            ],
+            [dict(comment="noqa: L001", line_no=1)],
+            [DummyLintError(FilePositionMarker(statement_index=None, line_no=1))],
+            [],
         ],
         [
-            [
-                dict(comment="noqa: L001", line_no=2)
-            ],
-            [
-                DummyLintError(
-                    FilePositionMarker(statement_index=None, line_no=1))
-            ],
-            [
-                0
-            ],
+            [dict(comment="noqa: L001", line_no=2)],
+            [DummyLintError(FilePositionMarker(statement_index=None, line_no=1))],
+            [0],
         ],
         [
-            [
-                dict(comment="noqa: L002", line_no=1)
-            ],
-            [
-                DummyLintError(
-                    FilePositionMarker(statement_index=None, line_no=1))
-            ],
-            [
-                0
-            ],
+            [dict(comment="noqa: L002", line_no=1)],
+            [DummyLintError(FilePositionMarker(statement_index=None, line_no=1))],
+            [0],
         ],
         [
-            [
-                dict(comment="noqa: enable=L001", line_no=1)
-            ],
-            [
-                DummyLintError(
-                    FilePositionMarker(statement_index=None, line_no=1))
-            ],
-            [
-                0
-            ],
+            [dict(comment="noqa: enable=L001", line_no=1)],
+            [DummyLintError(FilePositionMarker(statement_index=None, line_no=1))],
+            [0],
         ],
         [
-            [
-                dict(comment="noqa: disable=L001", line_no=1)
-            ],
-            [
-                DummyLintError(
-                    FilePositionMarker(statement_index=None, line_no=1))
-            ],
-            [
-            ],
+            [dict(comment="noqa: disable=L001", line_no=1)],
+            [DummyLintError(FilePositionMarker(statement_index=None, line_no=1))],
+            [],
         ],
     ],
     ids=[
-        '1_violation_no_ignore',
-        '1_violation_ignore_specific_line',
-        '1_violation_ignore_different_specific_line',
-        '1_violation_ignore_different_specific_rule',
-        '1_violation_ignore_enable_this_range',
-        '1_violation_ignore_disable_this_range',
-    ]
+        "1_violation_no_ignore",
+        "1_violation_ignore_specific_line",
+        "1_violation_ignore_different_specific_line",
+        "1_violation_ignore_different_specific_rule",
+        "1_violation_ignore_enable_this_range",
+        "1_violation_ignore_disable_this_range",
+    ],
 )
 def test_ignore_masked_violations(noqa, violations, expected):
     ignore_mask = [Linter.parse_noqa(**c) for c in noqa]
     lf = linter.LintedFile(
-        path='', violations=violations, time_dict={}, tree=None,
-        ignore_mask=ignore_mask, templated_file=linter.TemplatedFile(''))
+        path="",
+        violations=violations,
+        time_dict={},
+        tree=None,
+        ignore_mask=ignore_mask,
+        templated_file=linter.TemplatedFile(""),
+    )
     result = lf._ignore_masked_violations(violations)
     expected_violations = [v for i, v in enumerate(violations) if i in expected]
     assert expected_violations == result
