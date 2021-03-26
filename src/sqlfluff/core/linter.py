@@ -58,7 +58,7 @@ class NoQaDirective(NamedTuple):
 
     line_no: int  # Source line number
     rules: Optional[Tuple[str, ...]]  # Affected rule names
-    action: Optional[str]  # "enable" "disable", or "None"
+    action: Optional[str]  # "enable", "disable", or "None"
 
 
 class ProtoFile(NamedTuple):
@@ -173,7 +173,6 @@ class LintedFile(NamedTuple):
         action=None.
         """
         for ignore in ignore_mask:
-            assert ignore.action is None
             violations = [
                 v
                 for v in violations
@@ -212,6 +211,7 @@ class LintedFile(NamedTuple):
         """
         result = []
         for v in violations:
+            # Find the directives that affect the violated rule "v".
             ignore_rule = sorted(
                 [
                     ignore
@@ -220,6 +220,8 @@ class LintedFile(NamedTuple):
                 ],
                 key=lambda ignore: ignore.line_no,
             )
+            # Determine whether to ignore the violation, based on the relevant
+            # enable/disable directives.
             if not cls._should_ignore_violation_line_range(v.line_no(), ignore_rule):
                 result.append(v)
         return result
@@ -227,7 +229,12 @@ class LintedFile(NamedTuple):
     def _ignore_masked_violations(
         self, violations: List[SQLBaseError]
     ) -> List[SQLBaseError]:
-        """Remove any violations specified by ignore_mask."""
+        """Remove any violations specified by ignore_mask.
+
+        This involves two steps:
+        1. Filter out violations affected by single-line "noqa" directives.
+        2. Filter out violations affected by disable/enable "noqa" directives.
+        """
         ignore_specific = [ignore for ignore in self.ignore_mask if not ignore.action]
         ignore_range = [ignore for ignore in self.ignore_mask if ignore.action]
         violations = self._ignore_masked_violations_single_line(
@@ -1144,11 +1151,9 @@ class Linter:
         config = config or self.config
 
         # Using the new parser, read the file object.
-        parsed: ParsedString = self.parse_string(
-            in_str=in_str, fname=fname, config=config
-        )
+        parsed = self.parse_string(in_str=in_str, fname=fname, config=config)
         time_dict = parsed.time_dict
-        vs: List[SQLBaseError] = parsed.violations
+        vs = parsed.violations
         tree = parsed.tree
 
         # Look for comment segments which might indicate lines to ignore.
