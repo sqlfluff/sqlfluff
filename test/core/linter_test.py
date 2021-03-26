@@ -1,7 +1,7 @@
 """The Test file for the linter class."""
 
 import pytest
-from typing import cast, List
+from typing import List
 from unittest.mock import patch
 
 from sqlfluff.core import Linter, FluffConfig
