@@ -1,6 +1,7 @@
 """The Test file for the linter class."""
 
 import pytest
+from typing import cast, List
 from unittest.mock import patch
 
 from sqlfluff.core import Linter, FluffConfig
@@ -275,6 +276,7 @@ def test__linter__mask_templated_violations(ignore_templated_areas, check_tuples
     ],
 )
 def test_parse_noqa(input, expected):
+    """Test correct of "noqa" comments."""
     result = Linter.parse_noqa(input, 0)
     if not isinstance(expected, type):
         assert result == expected
@@ -328,7 +330,8 @@ def test_parse_noqa(input, expected):
         "1_violation_ignore_disable_this_range",
     ],
 )
-def test_ignore_masked_violations(noqa, violations, expected):
+def test_ignore_masked_violations(noqa: dict, violations: List[SQLBaseError], expected):
+    """Test that _ignore_masked_violations() correctly filters violations."""
     ignore_mask = [Linter.parse_noqa(**c) for c in noqa]
     lf = linter.LintedFile(
         path="",
