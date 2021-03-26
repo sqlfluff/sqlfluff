@@ -9,7 +9,7 @@ from cached_property import cached_property
 from functools import partial
 from pathlib import Path
 
-from dbt.graph.selector_methods import SelectorMethod
+from dbt.graph.selector_methods import PathSelectorMethod
 
 from sqlfluff.core.errors import SQLTemplaterError
 
@@ -19,7 +19,7 @@ from sqlfluff.core.templaters.jinja import JinjaTemplater
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
 
-class PathSelectorMethodNew(SelectorMethod):
+class PathSelectorMethodWithRoot(PathSelectorMethod):
     def search(
         self, included_nodes, selector, root
     ):
@@ -241,13 +241,13 @@ class DbtTemplater(JinjaTemplater):
             )
         self.sqlfluff_config = config
 
-        self.dbt_selector_method = PathSelectorMethodNew(self.dbt_manifest, previous_state=None, arguments=[])
+        self.dbt_selector_method = PathSelectorMethodWithRoot(self.dbt_manifest, previous_state=None, arguments=[])
 
         selected = self.dbt_selector_method.search(
             included_nodes=self.dbt_manifest.nodes,
             # Selector needs to be a relative path
-            selector=os.path.relpath(fname, start="dbt-tutorial"),
-            root=Path("/home/patrick/Tutorials/dbt/dbt-tutorial"))
+            selector=os.path.relpath(fname, start=self._get_project_dir()),
+            root=Path(self._get_project_dir()))
         
         results = [self.dbt_manifest.expect(uid) for uid in selected]
 
