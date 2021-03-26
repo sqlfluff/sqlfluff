@@ -326,37 +326,37 @@ def test_parse_noqa(input, expected):
                 0
             ],
         ],
-        # [
-        #     [
-        #         dict(comment="noqa: enable=L001", line_no=1)
-        #     ],
-        #     [
-        #         DummyLintError(
-        #             FilePositionMarker(statement_index=None, line_no=1))
-        #     ],
-        #     [
-        #         0
-        #     ],
-        # ],
-        # [
-        #     [
-        #         dict(comment="noqa: disable=L001", line_no=1)
-        #     ],
-        #     [
-        #         DummyLintError(
-        #             FilePositionMarker(statement_index=None, line_no=1))
-        #     ],
-        #     [
-        #     ],
-        # ],
+        [
+            [
+                dict(comment="noqa: enable=L001", line_no=1)
+            ],
+            [
+                DummyLintError(
+                    FilePositionMarker(statement_index=None, line_no=1))
+            ],
+            [
+                0
+            ],
+        ],
+        [
+            [
+                dict(comment="noqa: disable=L001", line_no=1)
+            ],
+            [
+                DummyLintError(
+                    FilePositionMarker(statement_index=None, line_no=1))
+            ],
+            [
+            ],
+        ],
     ],
     ids=[
         '1_violation_no_ignore',
         '1_violation_ignore_specific_line',
         '1_violation_ignore_different_specific_line',
         '1_violation_ignore_different_specific_rule',
-        # '1_violation_ignore_enable_this_range',
-        # '1_violation_ignore_disable_this_range',
+        '1_violation_ignore_enable_this_range',
+        '1_violation_ignore_disable_this_range',
     ]
 )
 def test_ignore_masked_violations(noqa, violations, expected):
