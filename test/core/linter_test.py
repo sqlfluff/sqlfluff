@@ -325,8 +325,7 @@ def test_parse_noqa(input, expected):
                 dict(comment="noqa: disable=L001", line_no=2),
                 dict(comment="noqa: enable=L001", line_no=4),
             ],
-            [DummyLintError(
-                FilePositionMarker(statement_index=None, line_no=1))],
+            [DummyLintError(FilePositionMarker(statement_index=None, line_no=1))],
             [0],
         ],
         [
@@ -334,8 +333,7 @@ def test_parse_noqa(input, expected):
                 dict(comment="noqa: disable=L001", line_no=2),
                 dict(comment="noqa: enable=L001", line_no=4),
             ],
-            [DummyLintError(
-                FilePositionMarker(statement_index=None, line_no=2))],
+            [DummyLintError(FilePositionMarker(statement_index=None, line_no=2))],
             [],
         ],
         [
@@ -343,8 +341,7 @@ def test_parse_noqa(input, expected):
                 dict(comment="noqa: disable=L001", line_no=2),
                 dict(comment="noqa: enable=L001", line_no=4),
             ],
-            [DummyLintError(
-                FilePositionMarker(statement_index=None, line_no=3))],
+            [DummyLintError(FilePositionMarker(statement_index=None, line_no=3))],
             [],
         ],
         [
@@ -352,8 +349,7 @@ def test_parse_noqa(input, expected):
                 dict(comment="noqa: disable=L001", line_no=2),
                 dict(comment="noqa: enable=L001", line_no=4),
             ],
-            [DummyLintError(
-                FilePositionMarker(statement_index=None, line_no=4))],
+            [DummyLintError(FilePositionMarker(statement_index=None, line_no=4))],
             [0],
         ],
     ],
@@ -370,7 +366,9 @@ def test_parse_noqa(input, expected):
         "1_violation_line_4_ignore_disable_2_3",
     ],
 )
-def test_ignore_masked_violations(noqa: dict, violations: List[SQLBaseError], expected):
+def test_linted_file_ignore_masked_violations(
+    noqa: dict, violations: List[SQLBaseError], expected
+):
     """Test that _ignore_masked_violations() correctly filters violations."""
     ignore_mask = [Linter.parse_noqa(**c) for c in noqa]
     lf = linter.LintedFile(
@@ -384,3 +382,32 @@ def test_ignore_masked_violations(noqa: dict, violations: List[SQLBaseError], ex
     result = lf._ignore_masked_violations(violations)
     expected_violations = [v for i, v in enumerate(violations) if i in expected]
     assert expected_violations == result
+
+
+def test_linter_noqa():
+    lntr = Linter(
+        config=FluffConfig(
+            overrides={
+                "rules": "L012",
+            }
+        )
+    )
+    sql = """
+    SELECT
+        col_a a,
+        col_b b, --noqa: disable=L012
+        col_c c,
+        col_d d, --noqa: enable=L012
+        col_e e,
+        col_f f,
+        col_g g,  --noqa
+        col_h h,
+        col_i i, --noqa:L012
+        col_j j,
+        col_k k, --noqa:L013
+        col_l l,
+    FROM foo
+        """
+    result = lntr.lint_string(sql)
+    violations = result.get_violations()
+    assert {3, 6, 7, 8, 10, 12, 13, 14} == {v.line_no() for v in violations}
