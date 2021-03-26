@@ -220,8 +220,8 @@ class SQLLintError(SQLBaseError):
         """Get a tuple representing this error. Mostly for testing."""
         return (
             self.rule.code,
-            self.segment.pos_marker.line_no,
-            self.segment.pos_marker.line_pos,
+            self.pos_marker().line_no,
+            self.pos_marker().line_pos,
         )
 
     def __repr__(self):
