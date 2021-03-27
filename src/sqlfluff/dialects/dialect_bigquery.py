@@ -19,6 +19,8 @@ from sqlfluff.core.parser import (
     AnyNumberOf,
     KeywordSegment,
     Indent,
+    Matchable,
+    SegmentGenerator,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -54,6 +56,21 @@ bigquery_dialect.add(
         "double_quote", name="quoted_literal", type="literal", trim_chars=('"',)
     ),
     StructKeywordSegment=KeywordSegment.make("struct", name="struct"),
+    # The strange regex here it to make sure we don't accidentally match numeric literals. We
+    # also use a regex to explicitly exclude disallowed keywords.
+    # TODO: Could we copy and modify this from ANSI's NakedIdentifierSegment?
+    HyphenatedNakedIdentifierSegment=SegmentGenerator(
+        # Generate the anti template from the set of reserved keywords
+        lambda dialect: ReSegment.make(
+            # Based on the rules for Google Cloud project names:
+            # https://cloud.google.com/resource-manager/docs/creating-managing-projects
+            r"[A-Z0-9_]*-?[A-Z][A-Z0-9_]*",
+            name="naked_identifier",
+            type="identifier",
+            _anti_template=r"^(" + r"|".join(
+                dialect.sets("reserved_keywords")) + r")$",
+        )
+    ),
 )
 
 
@@ -352,4 +369,40 @@ class LiteralCoercionSegment(BaseSegment):
     match_grammar = Sequence(
         OneOf("DATE", "DATETIME", "TIME", "TIMESTAMP"),
         Ref("QuotedLiteralSegment"),
+    )
+
+
+@bigquery_dialect.segment()
+class HyphenatedObjectReferenceSegment(ansi_dialect.get_segment("ObjectReferenceSegment")):  # type: ignore
+    type = "hyphenated_object_reference"
+    # match grammar (don't allow whitespace)
+    # TODO: Could we copy and adapt this from ANSI's ObjectReferenceSegment?
+    match_grammar: Matchable = Delimited(
+        Ref("HyphenatedNakedIdentifierSegment"),
+        delimiter=OneOf(Ref("DotSegment"), Sequence(Ref("DotSegment"))),
+        terminator=OneOf(
+            "ON",
+            "AS",
+            "USING",
+            Ref("CommaSegment"),
+            Ref("CastOperatorSegment"),
+            Ref("StartSquareBracketSegment"),
+            Ref("StartBracketSegment"),
+            Ref("BinaryOperatorGrammar"),
+            Ref("ColonSegment"),
+            Ref("SemicolonSegment"),
+        ),
+        allow_gaps=False,
+    )
+
+
+@bigquery_dialect.segment(replace=True)
+class TableExpressionSegment(BaseSegment):
+    type = "table_expression"
+    match_grammar = ansi_dialect.get_segment(
+        "TableExpressionSegment"
+    ).match_grammar.copy(
+        insert=[
+            Ref("HyphenatedObjectReferenceSegment"),
+        ]
     )

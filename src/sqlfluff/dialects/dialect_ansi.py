@@ -112,7 +112,7 @@ ansi_dialect.set_lexer_struct(
         ("crly_bracket_close", "singleton", "}", dict(is_code=True)),
         ("colon", "singleton", ":", dict(is_code=True)),
         ("semicolon", "singleton", ";", dict(is_code=True)),
-        ("code", "regex", r"[0-9a-zA-Z_]*", dict(is_code=True)),
+        ("code", "regex", r"[0-9a-zA-Z_\-]*", dict(is_code=True)),
     ]
 )
 
