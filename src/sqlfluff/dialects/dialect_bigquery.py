@@ -19,7 +19,6 @@ from sqlfluff.core.parser import (
     AnyNumberOf,
     KeywordSegment,
     Indent,
-    Matchable,
     SegmentGenerator,
 )
 

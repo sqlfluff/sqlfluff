@@ -18,3 +18,15 @@ file:
               - identifier: dataset-b
               - dot: .
               - identifier: table-c
+          join_clause:
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                hyphenated_object_reference:
+                - identifier: dataset-c
+                - dot: .
+                - identifier: table-d
+          - keyword: USING
+          - start_bracket: (
+          - identifier: a
+          - end_bracket: )
