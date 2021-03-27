@@ -63,13 +63,12 @@ bigquery_dialect.add(
             r"[A-Z0-9_]*-?[A-Z][A-Z0-9_]*",
             name="naked_identifier",
             type="identifier",
-            _anti_template=r"^(" + r"|".join(
-                dialect.sets("reserved_keywords")) + r")$",
+            _anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
     ),
     HyphenatedSingleIdentifierGrammar=OneOf(
         Ref("HyphenatedNakedIdentifierSegment"), Ref("QuotedIdentifierSegment")
-    )
+    ),
 )
 
 
