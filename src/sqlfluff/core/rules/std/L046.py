@@ -52,34 +52,54 @@ class Rule_L046(BaseCrawler):
 
     def _eval(self, segment, **kwargs):
         """Find rule violations and provide fixes."""
-        if segment.is_type("function"):
+        if (
+            segment.is_type("function")
+            and segment.get_child("function_name").raw_upper == "COUNT"
+        ):
+            f_content = [
+                seg
+                for seg in segment.segments
+                if not seg.is_meta
+                and not seg.is_type(
+                    "start_bracket",
+                    "end_bracket",
+                    "function_name",
+                    "whitespace",
+                    "newline",
+                )
+            ]
+            if len(f_content) != 1:
+                return None
 
-            raw_upper_no_whitespaces = segment.raw_upper.replace(" ", "")
-
-            if self.prefer_count_1 and raw_upper_no_whitespaces == "COUNT(*)":
+            if self.prefer_count_1 and f_content[0].type == "star":
                 return LintResult(
                     anchor=segment,
                     fixes=[
                         LintFix(
                             "edit",
-                            segment,
-                            segment.get_child("star").edit(
-                                segment.raw.replace("*", "1")
+                            f_content[0],
+                            f_content[0].edit(f_content[0].raw.replace("*", "1")),
+                        ),
+                    ],
+                )
+            if not self.prefer_count_1 and f_content[0].type == "expression":
+                expression_content = [
+                    seg for seg in f_content[0].segments if not seg.is_meta
+                ]
+                if (
+                    len(expression_content) == 1
+                    and expression_content[0].type == "literal"
+                    and expression_content[0].raw == "1"
+                ):
+                    return LintResult(
+                        anchor=segment,
+                        fixes=[
+                            LintFix(
+                                "edit",
+                                expression_content[0],
+                                expression_content[0].edit(
+                                    expression_content[0].raw.replace("1", "*")
+                                ),
                             ),
-                        ),
-                    ],
-                )
-
-            if not self.prefer_count_1 and raw_upper_no_whitespaces == "COUNT(1)":
-                return LintResult(
-                    anchor=segment,
-                    fixes=[
-                        LintFix(
-                            "edit",
-                            segment,
-                            segment.get_child("expression")
-                            .get_child("literal")
-                            .edit(segment.raw.replace("1", "*")),
-                        ),
-                    ],
-                )
+                        ],
+                    )

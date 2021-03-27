@@ -76,6 +76,33 @@ changes_count_star_to_count_1:
 
   configs: *prefer_count_1
 
+changes_count_star_to_count_1_handle_new_line:
+  fail_str: |
+    select
+        foo,
+        count(
+
+          *
+
+        )
+    from my_table
+    group by
+      foo
+
+  fix_str: |
+    select
+        foo,
+        count(
+
+          1
+
+        )
+    from my_table
+    group by
+      foo
+
+  configs: *prefer_count_1
+
 no_false_positive_on_count_col:
   pass_str: |
     select
@@ -83,3 +110,9 @@ no_false_positive_on_count_col:
         count(bar)
     from my_table
 
+no_false_positive_on_expression:
+  pass_str: |
+    select
+        foo,
+        count(1 + 10)
+    from my_table
