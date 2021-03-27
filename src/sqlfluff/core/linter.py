@@ -211,12 +211,15 @@ class LintedFile(NamedTuple):
         """
         result = []
         for v in violations:
-            # Find the directives that affect the violated rule "v".
+            # Find the directives that affect the violated rule "v", either
+            # because they specifically reference it or because they don't
+            # specify a list of rules, thus affecting ALL rules.
             ignore_rule = sorted(
                 [
                     ignore
                     for ignore in ignore_mask
-                    if v.rule_code() in cast(Tuple[str, ...], ignore.rules)
+                    if not ignore.rules
+                    or (v.rule_code() in cast(Tuple[str, ...], ignore.rules))
                 ],
                 key=lambda ignore: ignore.line_no,
             )
@@ -1004,11 +1007,23 @@ class Linter:
                     action: Optional[str]
                     if "=" in comment_remainder:
                         action, rule_part = comment_remainder.split("=", 1)
+                        if action not in {"disable", "enable"}:
+                            return SQLParseError(
+                                "Malformed 'noqa' section. Expected 'noqa: enable=<rule>[,...] | all' or 'noqa: disable=<rule>[,...] | all",
+                            )
                     else:
                         action = None
                         rule_part = comment_remainder
-                    rules = [r.strip() for r in rule_part.split(",")]
-                    return NoQaDirective(line_no, tuple(rules), action)
+                        if rule_part in {"disable", "enable"}:
+                            return SQLParseError(
+                                "Malformed 'noqa' section. Expected 'noqa: enable=<rule>[,...] | all' or 'noqa: disable=<rule>[,...] | all",
+                            )
+                    rules: Optional[Tuple[str, ...]]
+                    if rule_part != "all":
+                        rules = tuple(r.strip() for r in rule_part.split(","))
+                    else:
+                        rules = None
+                    return NoQaDirective(line_no, rules, action)
             return NoQaDirective(line_no, None, None)
         return None
 

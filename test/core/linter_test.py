@@ -273,6 +273,8 @@ def test__linter__mask_templated_violations(ignore_templated_areas, check_tuples
         ("noqa:L001,L002", NoQaDirective(0, ("L001", "L002"), None)),
         ("noqa: enable=L005", NoQaDirective(0, ("L005",), "enable")),
         ("noqa: disable=L010", NoQaDirective(0, ("L010",), "disable")),
+        ("noqa: disable=all", NoQaDirective(0, None, "disable")),
+        ("noqa: disable", SQLParseError),
     ],
 )
 def test_parse_noqa(input, expected):
@@ -352,6 +354,80 @@ def test_parse_noqa(input, expected):
             [DummyLintError(FilePositionMarker(statement_index=None, line_no=4))],
             [0],
         ],
+        [
+            [
+                dict(comment="noqa: disable=all", line_no=2),
+                dict(comment="noqa: enable=all", line_no=4),
+            ],
+            [DummyLintError(FilePositionMarker(statement_index=None, line_no=1))],
+            [0],
+        ],
+        [
+            [
+                dict(comment="noqa: disable=all", line_no=2),
+                dict(comment="noqa: enable=all", line_no=4),
+            ],
+            [DummyLintError(FilePositionMarker(statement_index=None, line_no=2))],
+            [],
+        ],
+        [
+            [
+                dict(comment="noqa: disable=all", line_no=2),
+                dict(comment="noqa: enable=all", line_no=4),
+            ],
+            [DummyLintError(FilePositionMarker(statement_index=None, line_no=3))],
+            [],
+        ],
+        [
+            [
+                dict(comment="noqa: disable=all", line_no=2),
+                dict(comment="noqa: enable=all", line_no=4),
+            ],
+            [DummyLintError(FilePositionMarker(statement_index=None, line_no=4))],
+            [0],
+        ],
+        [
+            [
+                dict(comment="noqa: disable=L001", line_no=2),
+                dict(comment="noqa: enable=all", line_no=4),
+            ],
+            [
+                DummyLintError(
+                    FilePositionMarker(statement_index=None, line_no=2), code="L001"
+                ),
+                DummyLintError(
+                    FilePositionMarker(statement_index=None, line_no=2), code="L002"
+                ),
+                DummyLintError(
+                    FilePositionMarker(statement_index=None, line_no=4), code="L001"
+                ),
+                DummyLintError(
+                    FilePositionMarker(statement_index=None, line_no=4), code="L002"
+                ),
+            ],
+            [1, 2, 3],
+        ],
+        [
+            [
+                dict(comment="noqa: disable=all", line_no=2),
+                dict(comment="noqa: enable=L001", line_no=4),
+            ],
+            [
+                DummyLintError(
+                    FilePositionMarker(statement_index=None, line_no=2), code="L001"
+                ),
+                DummyLintError(
+                    FilePositionMarker(statement_index=None, line_no=2), code="L002"
+                ),
+                DummyLintError(
+                    FilePositionMarker(statement_index=None, line_no=4), code="L001"
+                ),
+                DummyLintError(
+                    FilePositionMarker(statement_index=None, line_no=4), code="L002"
+                ),
+            ],
+            [2],
+        ],
     ],
     ids=[
         "1_violation_no_ignore",
@@ -360,10 +436,16 @@ def test_parse_noqa(input, expected):
         "1_violation_ignore_different_specific_rule",
         "1_violation_ignore_enable_this_range",
         "1_violation_ignore_disable_this_range",
-        "1_violation_line_1_ignore_disable_2_3",
-        "1_violation_line_2_ignore_disable_2_3",
-        "1_violation_line_3_ignore_disable_2_3",
-        "1_violation_line_4_ignore_disable_2_3",
+        "1_violation_line_1_ignore_disable_specific_2_3",
+        "1_violation_line_2_ignore_disable_specific_2_3",
+        "1_violation_line_3_ignore_disable_specific_2_3",
+        "1_violation_line_4_ignore_disable_specific_2_3",
+        "1_violation_line_1_ignore_disable_all_2_3",
+        "1_violation_line_2_ignore_disable_all_2_3",
+        "1_violation_line_3_ignore_disable_all_2_3",
+        "1_violation_line_4_ignore_disable_all_2_3",
+        "4_violations_two_types_disable_specific_enable_all",
+        "4_violations_two_types_disable_all_enable_specific",
     ],
 )
 def test_linted_file_ignore_masked_violations(
@@ -407,8 +489,12 @@ def test_linter_noqa():
         col_j j,
         col_k k, --noqa:L013
         col_l l,
+        col_m m,
+        col_n n, --noqa: disable=all
+        col_o o,
+        col_p p --noqa: enable=all
     FROM foo
         """
     result = lntr.lint_string(sql)
     violations = result.get_violations()
-    assert {3, 6, 7, 8, 10, 12, 13, 14} == {v.line_no() for v in violations}
+    assert {3, 6, 7, 8, 10, 12, 13, 14, 15, 18} == {v.line_no() for v in violations}

@@ -70,3 +70,26 @@ all rules on the given line.
 .. code-block:: sql
 
    a.a*a.b AS bad_3  -- noqa
+
+
+Ignoring line ranges
+^^^^^^^^^^^^^^^^^^^^
+
+Similar to `pylint's "pylint" directive"`_, ranges of lines can be ignored by
+adding :code:`-- noqa:disable=<rule>[,...] | all` to the line. Following this
+directive, specified rules (or all rules, if "all" was specified) will be
+ignored until a corresponding `-- noqa:enable=<rule>[,...] | all` directive.
+
+.. code-block:: sql
+
+    -- Ignore rule L012 from this line forward
+    SELECT col_a a FROM foo --noqa: disable=L012
+
+    -- Ignore all rules from this line forward
+    SELECT col_a a FROM foo --noqa: disable=all
+
+    -- Enforce all rules from this line forward
+    SELECT col_a a FROM foo --noqa: enable=all
+
+
+.. _`pylint's "pylint" directive"`: http://pylint.pycqa.org/en/latest/user_guide/message-control.html
