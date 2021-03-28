@@ -386,7 +386,7 @@ class HyphenatedObjectReferenceSegment(ansi_dialect.get_segment("ObjectReference
             lambda e: e.type == "dot",
         ):
             if not is_dot:
-                segments = [elem for elem in elems]
+                segments = list(elems)
                 parts = [seg.raw_trimmed() for seg in segments]
                 yield self.ObjectReferencePart("".join(parts), segments)
 
