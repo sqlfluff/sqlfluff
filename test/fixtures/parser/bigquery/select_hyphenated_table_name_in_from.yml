@@ -13,19 +13,29 @@ file:
           from_expression_element:
             table_expression:
               hyphenated_object_reference:
-              - identifier: project-a
+              - identifier: project
+              - binary_operator: '-'
+              - identifier: a
               - dot: .
-              - identifier: dataset-b
+              - identifier: dataset
+              - binary_operator: '-'
+              - identifier: b
               - dot: .
-              - identifier: table-c
+              - identifier: table
+              - binary_operator: '-'
+              - identifier: c
           join_clause:
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 hyphenated_object_reference:
-                - identifier: dataset-c
+                - identifier: dataset
+                - binary_operator: '-'
+                - identifier: c
                 - dot: .
-                - identifier: table-d
+                - identifier: table
+                - binary_operator: '-'
+                - identifier: d
           - keyword: USING
           - start_bracket: (
           - identifier: a

@@ -5,6 +5,7 @@ https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax
 and
 https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and_bytes_literals
 """
+
 from sqlfluff.core.parser import (
     Anything,
     BaseSegment,
