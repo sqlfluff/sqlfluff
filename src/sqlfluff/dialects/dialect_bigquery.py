@@ -5,7 +5,6 @@ https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax
 and
 https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and_bytes_literals
 """
-
 from sqlfluff.core.parser import (
     Anything,
     BaseSegment,
@@ -366,6 +365,28 @@ class HyphenatedObjectReferenceSegment(ansi_dialect.get_segment("ObjectReference
     match_grammar.delimiter = OneOf(
         Ref("DotSegment"), Sequence(Ref("DotSegment")), Sequence(Ref("MinusSegment"))
     )
+
+    def iter_raw_references(self):
+        """Generate a list of reference strings and elements.
+
+        Each reference is an ObjectReferencePart. Overrides the base class
+        because hyphens (MinusSegment) causes one logical part of the name to
+        be split across multiple elements, e.g. "table-a" is parsed as three
+        segments.
+        """
+        segments = []
+        parts = []
+        for elem in self.recursive_crawl("identifier", "binary_operator", "dot"):
+            elem_str = elem.raw_trimmed()
+            if elem.type != "dot":
+                segments.append(elem)
+                parts.append(elem_str)
+            else:
+                yield self.ObjectReferencePart("".join(parts), segments)
+                segments = []
+                parts = []
+        if segments:
+            yield self.ObjectReferencePart("".join(parts), segments)
 
 
 @bigquery_dialect.segment(replace=True)
