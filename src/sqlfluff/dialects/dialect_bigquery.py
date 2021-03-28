@@ -5,6 +5,7 @@ https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax
 and
 https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and_bytes_literals
 """
+
 from sqlfluff.core.parser import (
     Anything,
     BaseSegment,
@@ -363,7 +364,9 @@ class HyphenatedObjectReferenceSegment(ansi_dialect.get_segment("ObjectReference
         "ObjectReferenceSegment"
     ).match_grammar.copy()
     match_grammar.delimiter = OneOf(
-        Ref("DotSegment"), Sequence(Ref("DotSegment")), Sequence(Ref("MinusSegment"))
+        Ref("DotSegment"),
+        Sequence(Ref("DotSegment"), Ref("DotSegment")),
+        Sequence(Ref("MinusSegment")),
     )
 
     def iter_raw_references(self):
@@ -376,7 +379,10 @@ class HyphenatedObjectReferenceSegment(ansi_dialect.get_segment("ObjectReference
         """
         segments = []
         parts = []
+        # TODO: Rewrite this code using itertools.groupby()
+        # For each descendant element...
         for elem in self.recursive_crawl("identifier", "binary_operator", "dot"):
+            # Group them, using "dot" elements as a delimiter.
             elem_str = elem.raw_trimmed()
             if elem.type != "dot":
                 segments.append(elem)
@@ -385,6 +391,7 @@ class HyphenatedObjectReferenceSegment(ansi_dialect.get_segment("ObjectReference
                 yield self.ObjectReferencePart("".join(parts), segments)
                 segments = []
                 parts = []
+        # Process leftovers.
         if segments:
             yield self.ObjectReferencePart("".join(parts), segments)
 
