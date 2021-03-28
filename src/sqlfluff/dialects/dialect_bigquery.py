@@ -358,6 +358,7 @@ class LiteralCoercionSegment(BaseSegment):
 @bigquery_dialect.segment()
 class HyphenatedObjectReferenceSegment(ansi_dialect.get_segment("ObjectReferenceSegment")):  # type: ignore
     """A reference to an object that may contain embedded hyphens."""
+
     type = "hyphenated_object_reference"
     match_grammar = ansi_dialect.get_segment(
         "ObjectReferenceSegment"
@@ -370,6 +371,7 @@ class HyphenatedObjectReferenceSegment(ansi_dialect.get_segment("ObjectReference
 @bigquery_dialect.segment(replace=True)
 class TableExpressionSegment(BaseSegment):
     """Main table expression e.g. within a FROM clause, with hyphen support."""
+
     type = "table_expression"
     match_grammar = ansi_dialect.get_segment(
         "TableExpressionSegment"
