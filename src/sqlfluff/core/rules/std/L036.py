@@ -94,18 +94,20 @@ class Rule_L036(BaseRule):
         # Insert newline before every select target.
         fixes = []
         for i, select_target in enumerate(select_targets_info.select_targets):
-            base_segment = segment if not i else select_targets_info.select_targets[i - 1]
+            base_segment = (
+                segment if not i else select_targets_info.select_targets[i - 1]
+            )
             if base_segment.pos_marker.line_no == select_target.pos_marker.line_no:
                 # Find and delete any whitespace before the select target.
                 ws_to_delete = segment.select_children(
-                    start_seg=segment.segments[select_targets_info.select_idx] if not i else select_targets_info.select_targets[i - 1],
+                    start_seg=segment.segments[select_targets_info.select_idx]
+                    if not i
+                    else select_targets_info.select_targets[i - 1],
                     select_if=lambda s: s.is_type("whitespace"),
                     loop_while=lambda s: s.is_type("whitespace", "comma") or s.is_meta,
                 )
                 fixes += [LintFix("delete", ws) for ws in ws_to_delete]
-                ins = self.make_newline(
-                    pos_marker=select_target.pos_marker
-                )
+                ins = self.make_newline(pos_marker=select_target.pos_marker)
                 fixes.append(LintFix("create", select_target, ins))
         if fixes:
             return LintResult(anchor=segment, fixes=fixes)
