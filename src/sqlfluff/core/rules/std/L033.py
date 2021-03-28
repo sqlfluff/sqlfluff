@@ -8,14 +8,15 @@ class Rule_L033(BaseRule):
 
     | **Anti-pattern**
     | In this example, UNION DISTINCT should be preferred over UNION, because
-    explicit is better than implicit.
+    | explicit is better than implicit.
 
     .. code-block:: sql
 
         SELECT a, b FROM table_1 UNION SELECT a, b FROM table_2
 
     | **Best practice**
-    | Specify DISTINCT or ALL after UNION.
+    | Specify DISTINCT or ALL after UNION. (Note that DISTINCT is the default
+    | behavior.
 
     .. code-block:: sql
 
