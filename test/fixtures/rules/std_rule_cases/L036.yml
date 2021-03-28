@@ -58,11 +58,25 @@ test_comment_between_select_and_single_select_target:
         FROM
         safe_user
 
-test_multiple_select_targets_some_newlines_missing:
+test_multiple_select_targets_some_newlines_missing_1:
   fail_str: |
     select
       a, b, c,
       d, e, f, g,
       h
     from x
-  fix_str: "select\na,\nb,\nc,\nd,\ne,\nf,\n,g,\nh\nfrom x\n"
+  # The spaces before a, d, and h look odd, but these are places where the
+  # select targets were already on a separate line, and the rule made no
+  # changes.
+  fix_str: "select\n  a,\nb,\nc,\n  d,\ne,\nf,\ng,\n  h\nfrom x\n"
+
+test_multiple_select_targets_some_newlines_missing_2:
+  fail_str: |
+    select a, b, c,
+      d, e, f, g,
+      h
+    from x
+  # The spaces before d, and h look odd, but these are places where the
+  # select targets were already on a separate line, and the rule made no
+  # changes.
+  fix_str: "select\na,\nb,\nc,\n  d,\ne,\nf,\ng,\n  h\nfrom x\n"

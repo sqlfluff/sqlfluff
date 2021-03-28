@@ -90,12 +90,12 @@ class Rule_L036(BaseRule):
         )
 
     def _eval_multiple_select_target_elements(self, select_targets_info, segment):
-        if select_targets_info.first_new_line_idx == -1:
-            # there are multiple select targets but no new lines
-
-            # Insert newline before every select target.
-            fixes = []
-            for i, select_target in enumerate(select_targets_info.select_targets):
+        """Multiple select targets. Ensure each is on a separate line."""
+        # Insert newline before every select target.
+        fixes = []
+        for i, select_target in enumerate(select_targets_info.select_targets):
+            base_segment = segment if not i else select_targets_info.select_targets[i - 1]
+            if base_segment.pos_marker.line_no == select_target.pos_marker.line_no:
                 # Find and delete any whitespace before the select target.
                 ws_to_delete = segment.select_children(
                     start_seg=segment.segments[select_targets_info.select_idx] if not i else select_targets_info.select_targets[i - 1],
@@ -107,6 +107,7 @@ class Rule_L036(BaseRule):
                     pos_marker=select_target.pos_marker
                 )
                 fixes.append(LintFix("create", select_target, ins))
+        if fixes:
             return LintResult(anchor=segment, fixes=fixes)
 
     def _eval_single_select_target_element(
