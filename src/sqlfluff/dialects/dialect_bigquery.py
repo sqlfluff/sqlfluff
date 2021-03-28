@@ -6,6 +6,8 @@ and
 https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and_bytes_literals
 """
 
+import itertools
+
 from sqlfluff.core.parser import (
     Anything,
     BaseSegment,
@@ -377,23 +379,16 @@ class HyphenatedObjectReferenceSegment(ansi_dialect.get_segment("ObjectReference
         be split across multiple elements, e.g. "table-a" is parsed as three
         segments.
         """
-        segments = []
-        parts = []
-        # TODO: Rewrite this code using itertools.groupby()
-        # For each descendant element...
-        for elem in self.recursive_crawl("identifier", "binary_operator", "dot"):
-            # Group them, using "dot" elements as a delimiter.
-            elem_str = elem.raw_trimmed()
-            if elem.type != "dot":
-                segments.append(elem)
-                parts.append(elem_str)
-            else:
+        # For each descendant element, group them, using "dot" elements as a
+        # delimiter.
+        for is_dot, elems in itertools.groupby(
+            self.recursive_crawl("identifier", "binary_operator", "dot"),
+            lambda e: e.type == "dot",
+        ):
+            if not is_dot:
+                segments = [elem for elem in elems]
+                parts = [seg.raw_trimmed() for seg in segments]
                 yield self.ObjectReferencePart("".join(parts), segments)
-                segments = []
-                parts = []
-        # Process leftovers.
-        if segments:
-            yield self.ObjectReferencePart("".join(parts), segments)
 
 
 @bigquery_dialect.segment(replace=True)
