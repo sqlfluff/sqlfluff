@@ -5,7 +5,6 @@ https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax
 and
 https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and_bytes_literals
 """
-
 from sqlfluff.core.parser import (
     Anything,
     BaseSegment,
@@ -19,7 +18,6 @@ from sqlfluff.core.parser import (
     AnyNumberOf,
     KeywordSegment,
     Indent,
-    SegmentGenerator,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -55,19 +53,6 @@ bigquery_dialect.add(
         "double_quote", name="quoted_literal", type="literal", trim_chars=('"',)
     ),
     StructKeywordSegment=KeywordSegment.make("struct", name="struct"),
-    HyphenatedNakedIdentifierSegment=SegmentGenerator(
-        lambda dialect: ReSegment.make(
-            # Based on the rules for Google Cloud project names:
-            # https://cloud.google.com/resource-manager/docs/creating-managing-projects
-            r"[A-Z0-9_]*-?[A-Z][A-Z0-9_]*",
-            name="naked_identifier",
-            type="identifier",
-            _anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
-        )
-    ),
-    HyphenatedSingleIdentifierGrammar=OneOf(
-        Ref("HyphenatedNakedIdentifierSegment"), Ref("QuotedIdentifierSegment")
-    ),
 )
 
 
@@ -374,9 +359,9 @@ class HyphenatedObjectReferenceSegment(ansi_dialect.get_segment("ObjectReference
     type = "hyphenated_object_reference"
     match_grammar = ansi_dialect.get_segment(
         "ObjectReferenceSegment"
-    ).match_grammar.copy(
-        remove=[Ref("SingleIdentifierGrammar")],
-        insert=[Ref("HyphenatedSingleIdentifierGrammar")],
+    ).match_grammar.copy()
+    match_grammar.delimiter = OneOf(
+        Ref("DotSegment"), Sequence(Ref("DotSegment")), Sequence(Ref("MinusSegment"))
     )
 
 
