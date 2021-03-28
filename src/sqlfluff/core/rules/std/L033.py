@@ -26,8 +26,8 @@ class Rule_L033(BaseRule):
 
     def _eval(self, segment, raw_stack, **kwargs):
         """Look for UNION keyword not immediately followed by DISTINCT or ALL.
-        Note that UNION DISTINCT is valid, rule only applies to bare UNION.
 
+        Note that UNION DISTINCT is valid, rule only applies to bare UNION.
         The function does this by looking for a segment of type set_operator
         which has a UNION but no DISTINCT or ALL.
         """
