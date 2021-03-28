@@ -99,7 +99,7 @@ class LintFix:
             to be moved *after* the edit), for an `edit` it implies the segment
             to be replaced.
         edit (:obj:`BaseSegment`, optional): For `edit` and `create` fixes, this
-            hold the segment, or iterable of segments to create to replace at the
+            hold the segment, or iterable of segments to create or replace at the
             given `anchor` point.
 
     """

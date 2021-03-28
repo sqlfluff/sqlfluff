@@ -59,6 +59,7 @@ class Rule_L031(BaseRule):
                 return None
 
             from_expression = from_clause_segment.get_child("from_expression")
+            from_expression_element = None
             if from_expression:
                 from_expression_element = from_expression.get_child(
                     "from_expression_element"
