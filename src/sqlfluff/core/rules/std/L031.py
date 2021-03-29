@@ -158,9 +158,14 @@ class Rule_L031(BaseRule):
 
         # How many times does each table appear in the FROM clause?
         table_counts = Counter(ai.table_ref.raw for ai in to_check)
+
+        # What is the set of aliases used for each table? (We are mainly
+        # interested in the NUMBER of different aliases used.)
         table_aliases = defaultdict(set)
         for ai in to_check:
             table_aliases[ai.table_ref.raw].add(ai.alias_identifier_ref.raw)
+
+        # For each aliased table, check whether to keep or remove it.
         for alias_info in to_check:
             # If the same table appears more than once in the FROM clause with
             # different alias names, do not consider removing its aliases.
