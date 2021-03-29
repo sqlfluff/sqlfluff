@@ -59,6 +59,7 @@ class Rule_L031(BaseRule):
                 return None
 
             from_expression = from_clause_segment.get_child("from_expression")
+            from_expression_element = None
             if from_expression:
                 from_expression_element = from_expression.get_child(
                     "from_expression_element"
@@ -97,13 +98,8 @@ class Rule_L031(BaseRule):
             )
         return None
 
-    def _lint_aliases_in_join(
-        self, base_table, table_expression_segments, column_reference_segments, segment
-    ):
-        """Lint and fix all aliases in joins - except for self-joins."""
-        # A buffer to keep any violations.
-        violation_buff = []
-
+    @classmethod
+    def _filter_table_expressions(cls, base_table, table_expression_segments):
         for table_exp in table_expression_segments:
             table_ref = table_exp.get_child("table_expression").get_child(
                 "object_reference"
@@ -130,6 +126,17 @@ class Rule_L031(BaseRule):
             if alias_exp_ref is None:
                 continue
 
+            yield table_ref, whitespace_ref, alias_exp_ref
+
+    def _lint_aliases_in_join(
+        self, base_table, table_expression_segments, column_reference_segments, segment
+    ):
+        """Lint and fix all aliases in joins - except for self-joins."""
+        # A buffer to keep any violations.
+        violation_buff = []
+
+        to_check = list(self._filter_table_expressions(base_table, table_expression_segments))
+        for table_ref, whitespace_ref, alias_exp_ref in to_check:
             alias_identifier_ref = alias_exp_ref.get_child("identifier")
             select_clause = segment.get_child("select_clause")
 
