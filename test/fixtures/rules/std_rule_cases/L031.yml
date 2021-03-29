@@ -147,3 +147,13 @@ issue_239:
   configs:
     core:
       dialect: bigquery
+
+# The rule was removing the aliases from this query, causing incorrect behavior.
+# (Aliases may not only be used in select targets; they also influence whether
+# multiple joins to a table are independent or not).
+issue_610:
+  pass_str: |
+    SELECT aaaaaa.c
+    FROM aaaaaa
+    JOIN bbbbbb AS b ON b.a = aaaaaa.id
+    JOIN bbbbbb AS b2 ON b2.other = b.id
