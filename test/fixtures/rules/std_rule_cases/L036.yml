@@ -68,7 +68,18 @@ test_multiple_select_targets_some_newlines_missing_1:
   # The spaces before a, d, and h look odd, but these are places where the
   # select targets were already on a separate line, and the rule made no
   # changes.
-  fix_str: "select\n  a,\nb,\nc,\n  d,\ne,\nf,\ng,\n  h\nfrom x\n"
+  fix_str: |
+    select
+      a,
+    b,
+    c,
+      d,
+    e,
+    f,
+    g,
+      h
+    from x
+
 
 test_multiple_select_targets_some_newlines_missing_2:
   fail_str: |
@@ -79,4 +90,14 @@ test_multiple_select_targets_some_newlines_missing_2:
   # The spaces before d, and h look odd, but these are places where the
   # select targets were already on a separate line, and the rule made no
   # changes.
-  fix_str: "select\na,\nb,\nc,\n  d,\ne,\nf,\ng,\n  h\nfrom x\n"
+  fix_str: |
+    select
+    a,
+    b,
+    c,
+      d,
+    e,
+    f,
+    g,
+      h
+    from x
