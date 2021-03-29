@@ -1,5 +1,9 @@
 """Implementation of Rule L031."""
 
+from collections import Counter, defaultdict
+from typing import Generator, NamedTuple
+
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
@@ -98,8 +102,18 @@ class Rule_L031(BaseRule):
             )
         return None
 
+    class TableAliasInfo(NamedTuple):
+        """Structure yielded by_filter_table_expressions()."""
+
+        table_ref: BaseSegment
+        whitespace_ref: BaseSegment
+        alias_exp_ref: BaseSegment
+        alias_identifier_ref: BaseSegment
+
     @classmethod
-    def _filter_table_expressions(cls, base_table, table_expression_segments):
+    def _filter_table_expressions(
+        cls, base_table, table_expression_segments
+    ) -> Generator[TableAliasInfo, None, None]:
         for table_exp in table_expression_segments:
             table_ref = table_exp.get_child("table_expression").get_child(
                 "object_reference"
@@ -126,7 +140,10 @@ class Rule_L031(BaseRule):
             if alias_exp_ref is None:
                 continue
 
-            yield table_ref, whitespace_ref, alias_exp_ref
+            alias_identifier_ref = alias_exp_ref.get_child("identifier")
+            yield cls.TableAliasInfo(
+                table_ref, whitespace_ref, alias_exp_ref, alias_identifier_ref
+            )
 
     def _lint_aliases_in_join(
         self, base_table, table_expression_segments, column_reference_segments, segment
@@ -135,41 +152,59 @@ class Rule_L031(BaseRule):
         # A buffer to keep any violations.
         violation_buff = []
 
-        to_check = list(self._filter_table_expressions(base_table, table_expression_segments))
-        for table_ref, whitespace_ref, alias_exp_ref in to_check:
-            alias_identifier_ref = alias_exp_ref.get_child("identifier")
+        to_check = list(
+            self._filter_table_expressions(base_table, table_expression_segments)
+        )
+
+        # How many times does each table appear in the FROM clause?
+        table_counts = Counter(ai.table_ref.raw for ai in to_check)
+        table_aliases = defaultdict(set)
+        for ai in to_check:
+            table_aliases[ai.table_ref.raw].add(ai.alias_identifier_ref.raw)
+        for alias_info in to_check:
+            # If the same table appears more than once in the FROM clause with
+            # different alias names, do not consider removing its aliases.
+            # The aliases may have been introduced simply to make each
+            # occurrence of the table independent within the query.
+            if (
+                table_counts[alias_info.table_ref.raw] > 1
+                and len(table_aliases[alias_info.table_ref.raw]) > 1
+            ):
+                continue
+
             select_clause = segment.get_child("select_clause")
 
             ids_refs = []
 
             # Find all references to alias in select clause
+            alias_name = alias_info.alias_identifier_ref.raw
             for alias_with_column in select_clause.recursive_crawl("object_reference"):
                 used_alias_ref = alias_with_column.get_child("identifier")
-                if used_alias_ref and used_alias_ref.raw == alias_identifier_ref.raw:
+                if used_alias_ref and used_alias_ref.raw == alias_name:
                     ids_refs.append(used_alias_ref)
 
             # Find all references to alias in column references
             for exp_ref in column_reference_segments:
                 used_alias_ref = exp_ref.get_child("identifier")
                 # exp_ref.get_child('dot') ensures that the column reference includes a table reference
-                if (
-                    used_alias_ref.raw == alias_identifier_ref.raw
-                    and exp_ref.get_child("dot")
-                ):
+                if used_alias_ref.raw == alias_name and exp_ref.get_child("dot"):
                     ids_refs.append(used_alias_ref)
 
             # Fixes for deleting ` as sth` and for editing references to aliased tables
             fixes = [
-                *[LintFix("delete", d) for d in [alias_exp_ref, whitespace_ref]],
                 *[
-                    LintFix("edit", alias, alias.edit(table_ref.raw))
-                    for alias in [alias_identifier_ref, *ids_refs]
+                    LintFix("delete", d)
+                    for d in [alias_info.alias_exp_ref, alias_info.whitespace_ref]
+                ],
+                *[
+                    LintFix("edit", alias, alias.edit(alias_info.table_ref.raw))
+                    for alias in [alias_info.alias_identifier_ref, *ids_refs]
                 ],
             ]
 
             violation_buff.append(
                 LintResult(
-                    anchor=alias_identifier_ref,
+                    anchor=alias_info.alias_identifier_ref,
                     description="Avoid using aliases in join condition",
                     fixes=fixes,
                 )
