@@ -15,3 +15,7 @@ Just add a section below by raising a PR on Github by
   of our CI pipeline in `codeship <https://codeship.com>`_ to enforce
   certain styles in our SQL codebase (with over 650 models) and keep
   code quality high. Contact `@alanmcruickshank <https://github.com/alanmcruickshank>`_.
+- `Netlify <https://www.netlify.com>`_'s data team uses SQLFluff with 
+  `dbt <http://www.getdbt.com/>`_ to keep code quality in more than 350 models (and growing).
+  Previously, we had our SQL Guidelines defined in a site hosted with Netlify, and now we're 
+  enforcing these rules in our CI workflow thanks to SQLFluff.
