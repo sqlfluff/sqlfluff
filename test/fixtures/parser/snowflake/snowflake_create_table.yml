@@ -1,0 +1,171 @@
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: basic_table
+    - start_bracket: (
+    - column_definition:
+        identifier: column1
+        data_type:
+          data_type_identifier: VARCHAR
+    - comma: ','
+    - column_definition:
+        identifier: column2
+        data_type:
+          data_type_identifier: INTEGER
+    - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: basic_table_with_column_comment
+    - start_bracket: (
+    - column_definition:
+        identifier: column1
+        data_type:
+          data_type_identifier: VARCHAR
+        column_constraint:
+          comment_clause:
+            keyword: COMMENT
+            literal: "'column1 desc'"
+    - comma: ','
+    - column_definition:
+        identifier: column2
+        data_type:
+          data_type_identifier: INTEGER
+    - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: table_with_table_comment
+    - start_bracket: (
+    - column_definition:
+        identifier: column1
+        data_type:
+          data_type_identifier: VARCHAR
+    - comma: ','
+    - column_definition:
+        identifier: column2
+        data_type:
+          data_type_identifier: INTEGER
+    - end_bracket: )
+    unparsable:
+    - raw: COMMENT
+    - raw: '='
+    - raw: "'table_with_comments'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: table_with_table_and_column_comments
+    - start_bracket: (
+    - column_definition:
+        identifier: column1
+        data_type:
+          data_type_identifier: VARCHAR
+        column_constraint:
+          comment_clause:
+            keyword: COMMENT
+            literal: "'column1 desc'"
+    - comma: ','
+    - column_definition:
+        identifier: column2
+        data_type:
+          data_type_identifier: INTEGER
+    - end_bracket: )
+    unparsable:
+    - raw: COMMENT
+    - raw: '='
+    - raw: "'table_with_comments'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: table_with_cluster_by
+    - start_bracket: (
+    - column_definition:
+        identifier: column1
+        data_type:
+          data_type_identifier: VARCHAR
+    - comma: ','
+    - column_definition:
+        identifier: column2
+        data_type:
+          data_type_identifier: INTEGER
+    - end_bracket: )
+    unparsable:
+    - raw: CLUSTER
+    - raw: BY
+    - start_bracket: (
+    - raw: column1
+    - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: table_with_cluster_by_and_table_comment
+    - start_bracket: (
+    - column_definition:
+        identifier: column1
+        data_type:
+          data_type_identifier: VARCHAR
+    - comma: ','
+    - column_definition:
+        identifier: column2
+        data_type:
+          data_type_identifier: INTEGER
+    - end_bracket: )
+    unparsable:
+    - raw: CLUSTER
+    - raw: BY
+    - start_bracket: (
+    - raw: column1
+    - end_bracket: )
+    - raw: COMMENT
+    - raw: '='
+    - raw: "'table_with_comments'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: table_with_cluster_by_and_table_and_column_comments
+    - start_bracket: (
+    - column_definition:
+        identifier: column1
+        data_type:
+          data_type_identifier: VARCHAR
+        column_constraint:
+          comment_clause:
+            keyword: COMMENT
+            literal: "'column1 desc'"
+    - comma: ','
+    - column_definition:
+        identifier: column2
+        data_type:
+          data_type_identifier: INTEGER
+    - end_bracket: )
+    unparsable:
+    - raw: CLUSTER
+    - raw: BY
+    - start_bracket: (
+    - raw: column1
+    - end_bracket: )
+    - raw: COMMENT
+    - raw: '='
+    - raw: "'table_with_comments'"
+- statement_terminator: ;

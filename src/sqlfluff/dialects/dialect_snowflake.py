@@ -21,6 +21,7 @@ from sqlfluff.core.parser import (
     StartsWith,
     Indent,
     Dedent,
+    OptionallyBracketed,
 )
 
 
@@ -168,6 +169,31 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("DropIndexStatementSegment"),
             Ref("CreateFunctionStatementSegment"),
         ],
+    )
+
+
+@snowflake_dialect.segment()
+class ClusterBySegment(BaseSegment):
+    """A `CLUSTER BY` segment."""
+
+    type = "clusterby_segment"
+    # https://docs.snowflake.com/en/user-guide/tables-clustering-keys.html#defining-a-clustering-key-for-a-table
+
+    match_grammar = StartsWith(
+        "CLUSTER",
+        "BY",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    OneOf(
+                        # Can CLUSTER BY a column
+                        Ref("ColumnReferenceSegment"),
+                        # Can CLUSTER BY an expression (e.g. `TO_DATE(timestamp_column)`)
+                        Ref("ExpressionSegment"),
+                    ),
+                ),
+            ),
+        ),
     )
 
 
@@ -452,6 +478,9 @@ class CreateCloneStatementSegment(BaseSegment):
 class CreateStatementSegment(BaseSegment):
     """A snowflake `CREATE` statement.
 
+    @TODO: This needs to be updated - The current definition is a bit generic that allows invalid grammar like
+    `CREATE TABLE my_table AS` or `CREATE TABLE my_table` without any `SELECT` to go through.
+
     https://docs.snowflake.com/en/sql-reference/sql/create.html
     """
 
@@ -482,7 +511,7 @@ class CreateStatementSegment(BaseSegment):
             # Objects that also support clone
             "DATABASE",
             "SCHEMA",
-            "TABLE",
+            # "TABLE",
             "SEQUENCE",
             Sequence("FILE", "FORMAT"),
             "STAGE",

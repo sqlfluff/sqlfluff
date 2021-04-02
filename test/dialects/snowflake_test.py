@@ -38,6 +38,18 @@ from sqlfluff.core.dialects import dialect_selector
             "create table orders_clone_restore clone orders at (timestamp => to_timestamp_tz('04/05/2013 01:02:03', 'mm/dd/yyyy hh24:mi:ss'));",
         ),
         (
+            "CreateTableStatementSegment",
+            "CREATE TABLE my_table (user_id INTEGER, created TIMESTAMP_TZ)",
+        ),
+        (
+            "CreateTableStatementSegment",
+            "CREATE TABLE my_table (user_id INTEGER, created TIMESTAMP_TZ) COMMENT = 'my_table';",
+        ),
+        (
+            "CreateTableStatementSegment",
+            "CREATE TABLE my_table (user_id INTEGER, created TIMESTAMP_TZ) CLUSTER BY (TO_DATE(created), user_id) COMMENT = 'my_table';",
+        ),
+        (
             "AccessStatementSegment",
             "GRANT OWNERSHIP ON SCHEMA MY_DATABASE.MY_SCHEMA TO ROLE MY_ROLE;",
         ),
