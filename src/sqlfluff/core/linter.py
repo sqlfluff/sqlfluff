@@ -1049,6 +1049,7 @@ class Linter:
         config: Optional[FluffConfig] = None,
         fix: bool = False,
         fname: Optional[str] = None,
+        templated_file: Optional[TemplatedFile] = None,
     ) -> Tuple[BaseSegment, List[SQLLintError]]:
         """Lint and optionally fix a tree object."""
         config = config or self.config
@@ -1071,7 +1072,10 @@ class Linter:
                 # "anchor", the segment to look for either to edit or to insert BEFORE.
                 # The second is the element to insert or create.
                 linting_errors, _, fixes, _ = crawler.crawl(
-                    tree, dialect=config.get("dialect_obj"), fname=fname
+                    tree,
+                    dialect=config.get("dialect_obj"),
+                    fname=fname,
+                    templated_file=templated_file,
                 )
                 all_linting_errors += linting_errors
 
@@ -1123,7 +1127,14 @@ class Linter:
         # Filter out any linting errors in templated sections if relevant.
         linting_errors = list(
             filter(
-                lambda e: getattr(e.segment.pos_marker, "is_literal", True),
+                lambda e: (
+                    # Is it in a literal section?
+                    # This default to YES because if it's missing we probably
+                    # didn't template this file.
+                    getattr(e.segment.pos_marker, "is_literal", True)
+                    # Is it a rule that is designed to work on templated sections?
+                    or e.rule.targets_templated
+                ),
                 linting_errors,
             )
         )
@@ -1134,9 +1145,12 @@ class Linter:
         tree: BaseSegment,
         config: Optional[FluffConfig] = None,
         fname: Optional[str] = None,
+        templated_file: Optional[TemplatedFile] = None,
     ) -> Tuple[BaseSegment, List[SQLLintError]]:
         """Return the fixed tree and violations from lintfix when we're fixing."""
-        fixed_tree, violations = self.lint_fix(tree, config, fix=True, fname=fname)
+        fixed_tree, violations = self.lint_fix(
+            tree, config, fix=True, fname=fname, templated_file=templated_file
+        )
         return fixed_tree, violations
 
     def lint(
@@ -1144,9 +1158,12 @@ class Linter:
         tree: BaseSegment,
         config: Optional[FluffConfig] = None,
         fname: Optional[str] = None,
+        templated_file: Optional[TemplatedFile] = None,
     ) -> List[SQLLintError]:
         """Return just the violations from lintfix when we're only linting."""
-        _, violations = self.lint_fix(tree, config, fix=False, fname=fname)
+        _, violations = self.lint_fix(
+            tree, config, fix=False, fname=fname, templated_file=templated_file
+        )
         return violations
 
     def lint_string(
@@ -1190,10 +1207,18 @@ class Linter:
 
             if fix:
                 tree, initial_linting_errors = self.fix(
-                    tree, config=config, fname=fname
+                    tree,
+                    config=config,
+                    fname=fname,
+                    templated_file=parsed.templated_file,
                 )
             else:
-                lint = self.lint(tree, config=config, fname=fname)
+                lint = self.lint(
+                    tree,
+                    config=config,
+                    fname=fname,
+                    templated_file=parsed.templated_file,
+                )
                 initial_linting_errors = lint
 
             # Update the timing dict

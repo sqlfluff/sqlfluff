@@ -271,8 +271,14 @@ class TemplatedFile:
                 ts_start_sf_stop, ts_stop_sf_stop
             )
         ]
-        start_slices = self.sliced_file[ts_start_sf_start:ts_start_sf_stop]
-        stop_slices = self.sliced_file[ts_stop_sf_start:ts_stop_sf_stop]
+        if ts_start_sf_start == ts_start_sf_stop:
+            start_slices = [self.sliced_file[ts_start_sf_start]]
+        else:
+            start_slices = self.sliced_file[ts_start_sf_start:ts_start_sf_stop]
+        if ts_stop_sf_start == ts_stop_sf_stop:
+            stop_slices = [self.sliced_file[ts_stop_sf_start]]
+        else:
+            stop_slices = self.sliced_file[ts_stop_sf_start:ts_stop_sf_stop]
 
         # if it's a literal segment then we can get the exact position
         # otherwise we're greedy.

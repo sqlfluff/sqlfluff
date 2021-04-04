@@ -88,8 +88,12 @@ class SQLBaseError(ValueError):
 
         """
         if hasattr(self, "segment"):
-            # Linting and Parsing Errors
-            return self.segment.pos_marker
+            # Linting and Parsing Errors.
+            # Use the source position market if there is one
+            # present.
+            return getattr(
+                self.segment.pos_marker, "source_pos_marker", self.segment.pos_marker
+            )
         elif hasattr(self, "pos"):
             # Lexing errors
             return self.pos
@@ -216,8 +220,8 @@ class SQLLintError(SQLBaseError):
         """Get a tuple representing this error. Mostly for testing."""
         return (
             self.rule.code,
-            self.segment.pos_marker.line_no,
-            self.segment.pos_marker.line_pos,
+            self.pos_marker().line_no,
+            self.pos_marker().line_pos,
         )
 
     def __repr__(self):
