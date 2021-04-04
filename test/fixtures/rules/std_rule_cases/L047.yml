@@ -1,4 +1,4 @@
-rule: L046
+rule: L047
 
 passes_on_count_star:
   pass_str: |

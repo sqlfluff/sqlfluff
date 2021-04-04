@@ -1,4 +1,4 @@
-"""Implementation of Rule L046."""
+"""Implementation of Rule L047."""
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import (
@@ -9,7 +9,7 @@ from sqlfluff.core.rules.doc_decorators import (
 
 @document_configuration
 @document_fix_compatible
-class Rule_L046(BaseRule):
+class Rule_L047(BaseRule):
     """Use consistent syntax to express "count number of rows".
 
     COUNT(*) and COUNT(1) are equivalent syntaxes in many SQL engines
