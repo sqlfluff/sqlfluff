@@ -1,11 +1,15 @@
 """Implementation of Rule L002."""
 
-from ..base import BaseCrawler, LintResult, LintFix
-from ..doc_decorators import document_configuration
+from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
+from sqlfluff.core.rules.doc_decorators import (
+    document_configuration,
+    document_fix_compatible,
+)
 
 
 @document_configuration
-class Rule_L002(BaseCrawler):
+@document_fix_compatible
+class Rule_L002(BaseRule):
     """Mixed Tabs and Spaces in single whitespace.
 
     This rule will fail if a single section of whitespace

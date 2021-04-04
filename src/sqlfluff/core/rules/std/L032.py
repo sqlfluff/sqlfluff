@@ -1,9 +1,9 @@
 """Implementation of Rule L032."""
 
-from ..base import BaseCrawler, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintResult
 
 
-class Rule_L032(BaseCrawler):
+class Rule_L032(BaseRule):
     """Prefer specifying join keys instead of using "USING".
 
     | **Anti-pattern**

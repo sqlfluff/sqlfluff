@@ -1,11 +1,11 @@
 """Implementation of Rule L018."""
 
-from ..base import BaseCrawler, LintFix, LintResult
-from ..doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
 @document_fix_compatible
-class Rule_L018(BaseCrawler):
+class Rule_L018(BaseRule):
     """WITH clause closing bracket should be aligned with WITH keyword.
 
     | **Anti-pattern**
@@ -79,7 +79,7 @@ class Rule_L018(BaseCrawler):
 
             balance = 0
             with_indent, with_indent_str = indent_size_up_to(raw_stack_buff)
-            for seg in segment.segments:
+            for seg in segment.iter_segments(expanding=["common_table_expression"]):
                 if seg.name == "start_bracket":
                     balance += 1
                 elif seg.name == "end_bracket":
@@ -109,7 +109,9 @@ class Rule_L018(BaseCrawler):
                             # Is it all whitespace before the bracket on this line?
                             prev_segs_on_line = [
                                 elem
-                                for elem in segment.segments
+                                for elem in segment.iter_segments(
+                                    expanding=["common_table_expression"]
+                                )
                                 if elem.pos_marker.line_no == seg.pos_marker.line_no
                                 and elem.pos_marker.line_pos < seg.pos_marker.line_pos
                             ]

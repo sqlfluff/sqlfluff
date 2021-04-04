@@ -5,11 +5,17 @@ from typing import Optional, List, Tuple, Union
 from collections import namedtuple
 import re
 
-from .markers import FilePositionMarker, EnrichedFilePositionMarker
-from .segments import BaseSegment, RawSegment, Indent, Dedent, TemplateSegment
-from ..errors import SQLLexError
-from ..templaters import TemplatedFile
-from ..config import FluffConfig
+from sqlfluff.core.parser.markers import FilePositionMarker, EnrichedFilePositionMarker
+from sqlfluff.core.parser.segments import (
+    BaseSegment,
+    RawSegment,
+    Indent,
+    Dedent,
+    TemplateSegment,
+)
+from sqlfluff.core.errors import SQLLexError
+from sqlfluff.core.templaters import TemplatedFile
+from sqlfluff.core.config import FluffConfig
 
 # Instantiate the lexer logger
 lexer_logger = logging.getLogger("sqlfluff.lexer")
@@ -68,12 +74,10 @@ class SingletonMatcher:
         idx = 0
 
         if self.trim_post_subdivide:
-            trimmer = re.compile(self.trim_post_subdivide["regex"], re.DOTALL)
-            TrimClass = RawSegment.make(
-                self.trim_post_subdivide["regex"],
-                name=self.trim_post_subdivide["name"],
-                type=self.trim_post_subdivide["type"],
-            )
+            class_kwargs = self.trim_post_subdivide.copy()
+            pattern = class_kwargs.pop("regex")
+            trimmer = re.compile(pattern, re.DOTALL)
+            TrimClass = RawSegment.make(pattern, **class_kwargs)
 
             for trim_mat in trimmer.finditer(matched):
                 trim_span = trim_mat.span()
@@ -126,12 +130,10 @@ class SingletonMatcher:
             seg_buff = ()
             str_buff = matched
             pos_buff = start_pos
-            divider = re.compile(self.subdivide["regex"], re.DOTALL)
-            DividerClass = RawSegment.make(
-                self.subdivide["regex"],
-                name=self.subdivide["name"],
-                type=self.subdivide["type"],
-            )
+            class_kwargs = self.subdivide.copy()
+            pattern = class_kwargs.pop("regex")
+            divider = re.compile(pattern, re.DOTALL)
+            DividerClass = RawSegment.make(pattern, **class_kwargs)
 
             while True:
                 # Iterate through subdividing as appropriate

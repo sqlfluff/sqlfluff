@@ -2,8 +2,8 @@
 
 from typing import Dict, Any
 
-from ..base import BaseCrawler, LintFix, LintResult
-from ..doc_decorators import (
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
+from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_configuration,
 )
@@ -11,7 +11,7 @@ from ..doc_decorators import (
 
 @document_fix_compatible
 @document_configuration
-class Rule_L019(BaseCrawler):
+class Rule_L019(BaseRule):
     """Leading/Trailing comma enforcement.
 
     | **Anti-pattern**

@@ -1,0 +1,41 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: '"my_table2"'
+          join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                - identifier: '"my_database"'
+                - dot: .
+                - identifier: '"my_schema"'
+                - dot: .
+                - identifier: '"my_table"'
+          - join_on_condition:
+              keyword: 'ON'
+              start_bracket: (
+              expression:
+              - column_reference:
+                - identifier: '"my_table2"'
+                - dot: .
+                - identifier: foo
+              - comparison_operator: '='
+              - column_reference:
+                - identifier: '"my_table"'
+                - dot: .
+                - identifier: foo
+              end_bracket: )

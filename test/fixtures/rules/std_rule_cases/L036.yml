@@ -1,0 +1,59 @@
+rule: L036
+
+test_single_select_target_and_no_new_line_between_select_and_select_target:
+  pass_str: select * from x
+
+test_single_select_target_and_new_line_after_select_target:
+  pass_str: |
+    select *
+    from x
+
+test_single_select_target_and_new_line_before_select_target:
+  fail_str: |
+      select
+          a
+      from x
+  # In a normal "sqlfluff fix" run, the extra spaces in fix_str would be removed
+  # by a different rule, L039.
+  fix_str: |
+    select a
+        from x
+
+test_multiple_select_targets_on_new_lines_and_new_line_after_select:
+  pass_str: |
+    select
+        a,
+        b,
+        c
+    from x
+
+test_single_select_target_and_new_line_between_select_and_select_target:
+  pass_str: |
+    select
+        *
+    from x
+
+test_multiple_select_targets_all_on_the_same_line:
+  fail_str: |
+    select a, b, c
+    from x
+  fix_str: "select\na, b, c\nfrom x\n"
+
+test_multiple_select_targets_trailing_whitespace_after_select:
+  # TRICKY: Use explicit newlines to preserve the trailing space after "SELECT".
+  pass_str: "SELECT \n    a,\n    b\nFROM t\n"
+
+test_comment_between_select_and_single_select_target:
+  fail_str: |
+    SELECT
+        -- This is the user's ID.
+        user_id
+    FROM
+        safe_user
+  # In a normal "sqlfluff fix" run, the weird "FROM" indenting left over after the fix
+  # would be fixed by L003.
+  fix_str: |
+    SELECT user_id
+        -- This is the user's ID.
+        FROM
+        safe_user

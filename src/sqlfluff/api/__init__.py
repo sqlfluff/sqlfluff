@@ -3,4 +3,5 @@
 # flake8: noqa: F401
 
 # Expose the simple api
-from .simple import lint, fix, parse
+from sqlfluff.api.simple import lint, fix, parse
+from sqlfluff.api.info import list_rules, list_dialects

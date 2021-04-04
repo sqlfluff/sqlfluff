@@ -1,11 +1,11 @@
 """Implementation of Rule L005."""
 
-from ..base import BaseCrawler, LintResult, LintFix
-from ..doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
 @document_fix_compatible
-class Rule_L005(BaseCrawler):
+class Rule_L005(BaseRule):
     """Commas should not have whitespace directly before them.
 
     Unless it's an indent. Trailing/leading commas are dealt with

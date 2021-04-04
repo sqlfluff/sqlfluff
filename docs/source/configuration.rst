@@ -194,7 +194,8 @@ path specified on this variable. The path is interpreted *relative to the
 config file*, and therefore if the config file above was found at
 :code:`/home/my_project/.sqlfluff` then SQLFluff will look for macros in the
 folder :code:`/home/my_project/my_macros/`. Alternatively the path can also
-be a :code:`.sql` itself.
+be a :code:`.sql` itself. Any macros defined in the config will always take
+precedence over a macro defined in the path.
 
 
 .. note::
@@ -242,6 +243,35 @@ projects. In particular it provides mock objects for:
 
 .. _dbt-project-configuration:
 
+Library Templating
+^^^^^^^^^^^^^^^^^^
+
+If using *SQLFluff* for dbt with jinja as your templater, you may have library
+function calls within your sql files that can not be templated via the
+normal macro templating mechanisms:
+
+.. code-block:: jinja
+
+    SELECT foo, bar FROM baz {{ dbt_utils.group_by(2) }}
+
+To template these libraries, you can use the `sqlfluff:jinja:library_path`
+config option:
+
+.. code-block:: cfg
+
+    [sqlfluff:templater:jinja]
+    library_path=sqlfluff_libs
+
+This will pull in any python modules from that directory and allow sqlfluff
+to use them for templated. In the above example, you might define a file at
+`sqlfluff_libs/dbt_utils.py` as:
+
+.. code-block:: python
+
+    def group_by(n):
+        return "GROUP BY 1,2"
+
+
 dbt Project Configuration
 -------------------------
 
@@ -257,7 +287,7 @@ macros) or the `dbt` templater, which uses dbt itself to render the
 sql (meaning that there is a much more reliable representation of macros,
 but a potential performance hit accordingly). At this stage we recommend
 that users try both approaches and choose according to the method that
-they indent to use *SQLFluff*.
+they intend to use *SQLFluff*.
 
 A simple rule of thumb might be:
 
@@ -329,8 +359,53 @@ because :code:`verbose` is *stackable* meaning there are multiple levels
 of verbosity that are available for configuration. See :ref:`cliref` for
 more details about the available CLI arguments.
 
+Ignoring Errors & Files
+-----------------------
+
+Ignoring individual lines
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Similar to `flake8's ignore`_, individual lines can be ignored by adding
+:code:`-- noqa` to the end of the line. Additionally, specific rules can
+be ignored by quoting their code or the category.
+
+.. code-block:: sql
+
+    -- Ignore all errors
+    SeLeCt  1 from tBl ;    -- noqa
+
+    -- Ignore rule L014 & rule L030
+    SeLeCt  1 from tBl ;    -- noqa: L014,L030
+
+    -- Ignore all parsing errors
+    SeLeCt from tBl ;       -- noqa: PRS
+
+.. _`flake8's ignore`: https://flake8.pycqa.org/en/3.1.1/user/ignoring-errors.html#in-line-ignoring-errors
+
+Ignoring line ranges
+^^^^^^^^^^^^^^^^^^^^
+
+Similar to `pylint's "pylint" directive"`_, ranges of lines can be ignored by
+adding :code:`-- noqa:disable=<rule>[,...] | all` to the line. Following this
+directive, specified rules (or all rules, if "all" was specified) will be
+ignored until a corresponding `-- noqa:enable=<rule>[,...] | all` directive.
+
+.. code-block:: sql
+
+    -- Ignore rule L012 from this line forward
+    SELECT col_a a FROM foo --noqa: disable=L012
+
+    -- Ignore all rules from this line forward
+    SELECT col_a a FROM foo --noqa: disable=all
+
+    -- Enforce all rules from this line forward
+    SELECT col_a a FROM foo --noqa: enable=all
+
+
+.. _`pylint's "pylint" directive"`: http://pylint.pycqa.org/en/latest/user_guide/message-control.html
+
 .sqlfluffignore
----------------
+^^^^^^^^^^^^^^^
 
 Similar to `Git's`_ :code:`.gitignore` and `Docker's`_ :code:`.dockerignore`,
 SQLFluff supports a :code:`.sqfluffignore` file to control which files are and

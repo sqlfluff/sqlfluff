@@ -1,0 +1,26 @@
+rule: Example_L001
+
+no_forbidden_col_used:
+  pass_str: |
+    select
+      a,
+      sum(b)
+    from tbl
+    group by a
+    order by a
+
+no_order_by_used:
+  pass_str: |
+    select
+      a,
+      b,
+      c
+    from tbl
+
+forbidden_col_used:
+  fail_str: |
+    select
+      bar,
+      baz
+    from tbl
+    order by bar

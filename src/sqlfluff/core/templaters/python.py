@@ -4,10 +4,10 @@ import ast
 from string import Formatter
 from typing import Iterable, Dict, Tuple, List, Iterator, Optional, NamedTuple
 
-from ..errors import SQLTemplaterError
-from ..string_helpers import findall
+from sqlfluff.core.errors import SQLTemplaterError
+from sqlfluff.core.string_helpers import findall
 
-from .base import (
+from sqlfluff.core.templaters.base import (
     RawTemplater,
     register_templater,
     TemplatedFile,
@@ -230,7 +230,9 @@ class PythonTemplater(RawTemplater):
                     err
                 )
             )
-        raw_sliced, sliced_file = self.slice_file(in_str, new_str)
+        raw_sliced, sliced_file, new_str = self.slice_file(
+            in_str, new_str, config=config
+        )
         return (
             TemplatedFile(
                 source_str=in_str,
@@ -244,8 +246,8 @@ class PythonTemplater(RawTemplater):
 
     @classmethod
     def slice_file(
-        cls, raw_str: str, templated_str: str
-    ) -> Tuple[List[RawFileSlice], List[TemplatedFileSlice]]:
+        cls, raw_str: str, templated_str: str, config=None
+    ) -> Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]:
         """Slice the file to determine regions where we can fix."""
         templater_logger.info("Slicing File Template")
         templater_logger.debug("    Raw String: %r", raw_str)
@@ -259,33 +261,109 @@ class PythonTemplater(RawTemplater):
             if raw_slice.slice_type == "literal"
         ]
         templater_logger.debug("    Literals: %s", literals)
-        # Calculate occurrences
-        raw_occurrences = cls._substring_occurances(raw_str, literals)
-        templated_occurances = cls._substring_occurances(templated_str, literals)
-        templater_logger.debug(
-            "    Occurances: Raw: %s, Templated: %s",
-            raw_occurrences,
-            templated_occurances,
-        )
-        # Split on invariants
-        split_sliced = list(
-            cls._split_invariants(
-                raw_sliced,
-                literals,
+        for loop_idx in range(2):
+            templater_logger.debug("    # Slice Loop %s", loop_idx)
+            # Calculate occurrences
+            raw_occurrences = cls._substring_occurances(raw_str, literals)
+            templated_occurances = cls._substring_occurances(templated_str, literals)
+            templater_logger.debug(
+                "    Occurances: Raw: %s, Templated: %s",
                 raw_occurrences,
                 templated_occurances,
-                templated_str,
             )
-        )
-        templater_logger.debug("    Split Sliced: %s", split_sliced)
-        # Deal with uniques and coalesce the rest
-        sliced_file = list(
-            cls._split_uniques_coalesce_rest(
-                split_sliced, raw_occurrences, templated_occurances, templated_str
+            # Split on invariants
+            split_sliced = list(
+                cls._split_invariants(
+                    raw_sliced,
+                    literals,
+                    raw_occurrences,
+                    templated_occurances,
+                    templated_str,
+                )
             )
-        )
-        templater_logger.debug("    Fully Sliced: %s", sliced_file)
-        return raw_sliced, sliced_file
+            templater_logger.debug("    Split Sliced: %s", split_sliced)
+            # Deal with uniques and coalesce the rest
+            sliced_file = list(
+                cls._split_uniques_coalesce_rest(
+                    split_sliced, raw_occurrences, templated_occurances, templated_str
+                )
+            )
+            templater_logger.debug("    Fully Sliced: %s", sliced_file)
+            unwrap_wrapped = (
+                True
+                if config is None
+                else config.get(
+                    "unwrap_wrapped_queries", section="templater", default=True
+                )
+            )
+            sliced_file, new_templated_str = cls._check_for_wrapped(
+                sliced_file, templated_str, unwrap_wrapped=unwrap_wrapped
+            )
+            if new_templated_str == templated_str:
+                # If we didn't change it then we're done.
+                break
+            else:
+                # If it's not equal, loop around
+                templated_str = new_templated_str
+        return raw_sliced, sliced_file, new_templated_str
+
+    @classmethod
+    def _check_for_wrapped(
+        cls,
+        slices: List[TemplatedFileSlice],
+        templated_str: str,
+        unwrap_wrapped: bool = True,
+    ) -> Tuple[List[TemplatedFileSlice], str]:
+        """Identify a wrapped query (e.g. dbt test) and handle it.
+
+        If unwrap_wrapped is true, we trim the wrapping from the templated file.
+        If unwrap_wrapped is false, we add a slice at start and end.
+        """
+        if not slices:
+            # If there are no slices, return
+            return slices, templated_str
+        first_slice = slices[0]
+        last_slice = slices[-1]
+
+        if unwrap_wrapped:
+            # If we're unwrapping, there is no need to edit the slices, but we do need to trim
+            # the templated string. We should expect that the template will need to be re-sliced
+            # but we should assume that the function calling this one will deal with that
+            # eventuality.
+            return (
+                slices,
+                templated_str[
+                    first_slice.templated_slice.start : last_slice.templated_slice.stop
+                ],
+            )
+
+        if (
+            first_slice.source_slice.start == 0
+            and first_slice.templated_slice.start != 0
+        ):
+            # This means that there is text at the start of the templated file which doesn't exist
+            # in the raw file. Handle this by adding a templated slice (though it's not really templated)
+            # between 0 and 0 in the raw, and 0 and the current first slice start index in the templated.
+            slices.insert(
+                0,
+                TemplatedFileSlice(
+                    "templated",
+                    slice(0, 0),
+                    slice(0, first_slice.templated_slice.start),
+                ),
+            )
+        if last_slice.templated_slice.stop != len(templated_str):
+            #  This means that there is text at the end of the templated file which doesn't exist
+            #  in the raw file. Handle this by adding a templated slice beginning and ending at the
+            #  end of the raw, and the current last slice stop and file end in the templated.
+            slices.append(
+                TemplatedFileSlice(
+                    "templated",
+                    slice(last_slice.source_slice.stop, last_slice.source_slice.stop),
+                    slice(last_slice.templated_slice.stop, len(templated_str)),
+                )
+            )
+        return slices, templated_str
 
     @classmethod
     def _substring_occurances(
@@ -554,44 +632,107 @@ class PythonTemplater(RawTemplater):
                 # Yield the uniques and coalesce anything between.
                 bookmark_idx = 0
                 for idx, raw_slice in enumerate(int_file_slice.slice_buffer):
-                    # Is this one a unique?
-                    if raw_slice.raw in two_way_uniques:
+                    pos = 0
+                    unq: Optional[str] = None
+                    # Does this element contain one of our uniques? If so, where?
+                    for unique in two_way_uniques:
+                        if unique in raw_slice.raw:
+                            pos = raw_slice.raw.index(unique)
+                            unq = unique
+
+                    if unq:
+                        # Yes it does. Handle it.
+
+                        # Get the position of the unique section.
                         unique_position = (
-                            raw_occs[raw_slice.raw][0],
-                            templ_occs[raw_slice.raw][0],
+                            raw_occs[unq][0],
+                            templ_occs[unq][0],
                         )
-                        # Do we have anything before it to process?
+                        templater_logger.debug(
+                            "            Handling Unique: %r, %s, %s, %r",
+                            unq,
+                            pos,
+                            unique_position,
+                            raw_slice,
+                        )
+
+                        # Handle full slices up to this one
                         if idx > bookmark_idx:
                             # Recurse to deal with any loops separately
-                            sub_section = int_file_slice.slice_buffer[bookmark_idx:idx]
                             yield from cls._split_uniques_coalesce_rest(
                                 [
                                     IntermediateFileSlice(
                                         "compound",
                                         # slice up to this unique
-                                        slice(starts[0], unique_position[0]),
-                                        slice(starts[1], unique_position[1]),
-                                        sub_section,
+                                        slice(starts[0], unique_position[0] - pos),
+                                        slice(starts[1], unique_position[1] - pos),
+                                        int_file_slice.slice_buffer[bookmark_idx:idx],
                                     )
                                 ],
                                 raw_occs,
                                 templ_occs,
                                 templated_str,
                             )
-                        # Process the value itself, withe the new starts.
+
+                        # Handle any potential partial slice if we're part way through this one.
+                        if pos > 0:
+                            yield TemplatedFileSlice(
+                                raw_slice.slice_type,
+                                slice(unique_position[0] - pos, unique_position[0]),
+                                slice(unique_position[1] - pos, unique_position[1]),
+                            )
+
+                        # Handle the unique itself and update the bookmark
                         starts = (
-                            unique_position[0] + len(raw_slice.raw),
-                            unique_position[1] + len(raw_slice.raw),
+                            unique_position[0] + len(unq),
+                            unique_position[1] + len(unq),
                         )
                         yield TemplatedFileSlice(
                             raw_slice.slice_type,
-                            # It's a literal so use its length
                             slice(unique_position[0], starts[0]),
                             slice(unique_position[1], starts[1]),
                         )
                         # Move the bookmark after this position
                         bookmark_idx = idx + 1
-                # At the end of the loop deal with any hangover
+
+                        # Handle any remnant after the unique.
+                        if raw_slice.raw[pos + len(unq) :]:
+                            remnant_length = len(raw_slice.raw) - (len(unq) + pos)
+                            _starts = starts
+                            starts = (
+                                starts[0] + remnant_length,
+                                starts[1] + remnant_length,
+                            )
+                            yield TemplatedFileSlice(
+                                raw_slice.slice_type,
+                                slice(_starts[0], starts[0]),
+                                slice(_starts[1], starts[1]),
+                            )
+
+                if bookmark_idx == 0:
+                    # This is a SAFETY VALVE. In Theory we should never be here
+                    # and if we are it implies an error elsewhere. This clause
+                    # should stop any potential infinite recursion in its tracks
+                    # by simply classifying the whole of the current block as
+                    # templated and just stopping here.
+                    # Bugs triggering this eventuality have been observed in 0.4.0.
+                    templater_logger.info(
+                        "        Safety Value Info: %s, %r",
+                        two_way_uniques,
+                        templated_str[int_file_slice.templated_slice],
+                    )
+                    templater_logger.warning(
+                        "        Python templater safety value unexpectedly triggered. "
+                        "Please report your raw and compiled query on github for debugging."
+                    )
+                    # NOTE: If a bug is reported here, this will incorrectly
+                    # classify more of the query as "templated" than it should.
+                    yield coalesced
+                    continue
+
+                # At the end of the loop deal with any remaining slices.
+                # The above "Safety Valve"TM should keep us safe from infinite
+                # recursion.
                 if len(int_file_slice.slice_buffer) > bookmark_idx:
                     # Recurse to deal with any loops separately
                     sub_section = int_file_slice.slice_buffer[

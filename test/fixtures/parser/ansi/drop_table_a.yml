@@ -1,0 +1,7 @@
+file:
+  statement:
+    drop_statement:
+    - keyword: drop
+    - keyword: table
+    - table_reference:
+        identifier: a

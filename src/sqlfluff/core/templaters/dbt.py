@@ -8,10 +8,10 @@ from dataclasses import dataclass
 from cached_property import cached_property
 from functools import partial
 
-from ..errors import SQLTemplaterError
+from sqlfluff.core.errors import SQLTemplaterError
 
-from .base import register_templater, TemplatedFile
-from .jinja import JinjaTemplater
+from sqlfluff.core.templaters.base import register_templater, TemplatedFile
+from sqlfluff.core.templaters.jinja import JinjaTemplater
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
@@ -74,6 +74,13 @@ class DbtTemplater(JinjaTemplater):
         # Identity function used for macro hooks
         def identity(x):
             return x
+
+        # Set dbt not to run tracking. We don't load
+        # a dull project and so some tracking routines
+        # may fail.
+        from dbt.tracking import do_not_track
+
+        do_not_track()
 
         if "0.17" in self.dbt_version:
             from dbt.parser.manifest import (
@@ -193,6 +200,9 @@ class DbtTemplater(JinjaTemplater):
                     f"to skip the database calls. Error: {e.msg}"
                 )
             ]
+        # If a SQLFluff error is raised, just pass it through
+        except SQLTemplaterError as e:
+            return None, [e]
 
     def _unsafe_process(self, fname, in_str=None, config=None):
         if not config:
@@ -224,11 +234,27 @@ class DbtTemplater(JinjaTemplater):
             manifest=self.dbt_manifest,
         )
 
-        raw_sliced, sliced_file = self.slice_file(node.raw_sql, node.injected_sql)
+        if hasattr(node, "injected_sql"):
+            # If injected SQL is present, it contains a better picture
+            # of what will actually hit the database (e.g. with tests).
+            # However it's not always present.
+            compiled_sql = node.injected_sql
+        else:
+            compiled_sql = node.compiled_sql
+
+        if not compiled_sql:
+            raise SQLTemplaterError(
+                "dbt templater compilation failed silently, check your configuration "
+                "by running `dbt compile` directly."
+            )
+
+        raw_sliced, sliced_file, templated_sql = self.slice_file(
+            node.raw_sql, compiled_sql, config=config
+        )
         return (
             TemplatedFile(
                 source_str=node.raw_sql,
-                templated_str=node.injected_sql,
+                templated_str=templated_sql,
                 fname=fname,
                 sliced_file=sliced_file,
                 raw_sliced=raw_sliced,

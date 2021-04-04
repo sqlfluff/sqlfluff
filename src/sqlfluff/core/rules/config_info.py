@@ -7,6 +7,8 @@ This mapping is used to validate rule config inputs, as well
 as document rule configuration.
 """
 
+from sqlfluff.core.plugin.host import get_plugin_manager
+
 STANDARD_CONFIG_INFO_DICT = {
     "tab_space_size": {
         "validation": range(100),
@@ -40,22 +42,51 @@ STANDARD_CONFIG_INFO_DICT = {
         "validation": ["consistent", "qualified", "unqualified"],
         "definition": "The expectation for references in single-table select",
     },
-    "only_aliases": {
-        "validation": [True, False],
-        "definition": (
-            "Whether or not to flags violations for only alias expressions "
-            "or all unquoted identifiers"
-        ),
+    "unquoted_identifiers_policy": {
+        "validation": ["all", "aliases", "column_aliases"],
+        "definition": "Types of unquoted identifiers to flag violations for",
     },
     "capitalisation_policy": {
         "validation": ["consistent", "upper", "lower", "capitalise"],
         "definition": "The capitalisation policy to enforce",
     },
+    "extended_capitalisation_policy": {
+        "validation": ["consistent", "upper", "lower", "pascal", "capitalise"],
+        "definition": (
+            "The capitalisation policy to enforce, extended with PascalCase. This is separate from capitalisation_policy as it should not be applied to keywords."
+        ),
+    },
     "lint_templated_tokens": {
         "validation": [True, False],
         "definition": (
             "Should lines starting with a templating placeholder"
-            " such as `{{blah}}` have their indentation linted."
+            " such as `{{blah}}` have their indentation linted"
         ),
     },
+    "select_clause_trailing_comma": {
+        "validation": ["forbid", "require"],
+        "definition": (
+            "Should trailing commas within select clauses be required or forbidden"
+        ),
+    },
+    "ignore_comment_lines": {
+        "validation": [True, False],
+        "definition": (
+            "Should lines that contain only whitespace and comments"
+            " be ignored when linting line lengths"
+        ),
+    },
+    "forbid_subquery_in": {
+        "validation": ["join", "from", "both"],
+        "definition": "Which clauses should be linted for subqueries",
+    },
 }
+
+
+def get_config_info() -> dict:
+    """Gets the config from core sqlfluff and sqlfluff plugins and merges them."""
+    plugin_manager = get_plugin_manager()
+    configs_info = plugin_manager.hook.get_configs_info()
+    return {
+        k: v for config_info_dict in configs_info for k, v in config_info_dict.items()
+    }

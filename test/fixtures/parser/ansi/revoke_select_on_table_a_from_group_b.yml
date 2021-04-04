@@ -1,0 +1,13 @@
+file:
+  statement:
+    access_statement:
+    - keyword: revoke
+    - keyword: select
+    - keyword: 'on'
+    - keyword: table
+    - object_reference:
+        identifier: a
+    - keyword: from
+    - keyword: group
+    - object_reference:
+        identifier: b

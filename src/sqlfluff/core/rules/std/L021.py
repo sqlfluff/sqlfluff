@@ -1,10 +1,10 @@
 """Implementation of Rule L021."""
 
 
-from ..base import BaseCrawler, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintResult
 
 
-class Rule_L021(BaseCrawler):
+class Rule_L021(BaseRule):
     """Ambiguous use of DISTINCT in select statement with GROUP BY.
 
     | **Anti-pattern**

@@ -1,11 +1,11 @@
 """Implementation of Rule L035."""
 
-from ..base import BaseCrawler, LintFix, LintResult
-from ..doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
 @document_fix_compatible
-class Rule_L035(BaseCrawler):
+class Rule_L035(BaseRule):
     """Do not specify "else null" in a case when statement (redundant).
 
     | **Anti-pattern**

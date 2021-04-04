@@ -1,0 +1,53 @@
+file:
+  statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        identifier: counter
+        keyword: AS
+        start_bracket: (
+        with_compound_statement:
+          keyword: WITH
+          common_table_expression:
+            identifier: ladder
+            keyword: AS
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  literal: '1'
+            end_bracket: )
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                wildcard_expression:
+                  wildcard_identifier:
+                    star: '*'
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      identifier: ladder
+            orderby_clause:
+            - keyword: ORDER
+            - keyword: BY
+            - literal: '1'
+        end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: counter

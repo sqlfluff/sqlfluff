@@ -3,7 +3,6 @@
 import io
 
 import sqlfluff
-
 from sqlfluff.core.linter import ParsedString
 
 my_bad_query = "SeLEct  *, 1, blah as  fOO  from myTable"
@@ -22,16 +21,52 @@ lint_result = [
         "line_pos": 1,
     },
     {
+        "code": "L044",
+        "description": "Query produces an unknown number of result columns.",
+        "line_no": 1,
+        "line_pos": 1,
+    },
+    {
+        "code": "L039",
+        "description": "Unnecessary whitespace found.",
+        "line_no": 1,
+        "line_pos": 7,
+    },
+    {
         "code": "L013",
         "line_no": 1,
         "line_pos": 12,
         "description": "Column expression without alias. Use explicit `AS` clause.",
     },
     {
+        "code": "L010",
+        "line_no": 1,
+        "line_pos": 20,
+        "description": "Inconsistent capitalisation of keywords.",
+    },
+    {
+        "code": "L039",
+        "description": "Unnecessary whitespace found.",
+        "line_no": 1,
+        "line_pos": 22,
+    },
+    {
         "code": "L014",
         "line_no": 1,
         "line_pos": 24,
         "description": "Inconsistent capitalisation of unquoted identifiers.",
+    },
+    {
+        "code": "L039",
+        "description": "Unnecessary whitespace found.",
+        "line_no": 1,
+        "line_pos": 27,
+    },
+    {
+        "code": "L010",
+        "line_no": 1,
+        "line_pos": 29,
+        "description": "Inconsistent capitalisation of keywords.",
     },
     {
         "code": "L009",
@@ -46,6 +81,12 @@ lint_result = [
         "description": "Inconsistent capitalisation of unquoted identifiers.",
     },
 ]
+
+
+def test__api__lint_string_without_violations():
+    """Check lint functionality when there is no violation."""
+    result = sqlfluff.lint("select column from table\n")
+    assert result == []
 
 
 def test__api__lint_string():
@@ -80,7 +121,7 @@ def test__api__fix_string():
     # Check return types.
     assert isinstance(result, str)
     # Check actual result
-    assert result == "SELECT  *, 1, blah AS  foo  FROM mytable\n"
+    assert result == "SELECT\n    *, 1, blah AS foo FROM mytable\n"
 
 
 def test__api__fix_string_specific():

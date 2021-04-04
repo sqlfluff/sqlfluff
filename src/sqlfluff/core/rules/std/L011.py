@@ -1,11 +1,11 @@
 """Implementation of Rule L011."""
 
-from ..base import BaseCrawler, LintResult, LintFix
-from ..doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
 @document_fix_compatible
-class Rule_L011(BaseCrawler):
+class Rule_L011(BaseRule):
     """Implicit aliasing of table not allowed. Use explicit `AS` clause.
 
     | **Anti-pattern**
@@ -28,7 +28,7 @@ class Rule_L011(BaseCrawler):
 
     """
 
-    _target_elems = ("table_expression",)
+    _target_elems = ("from_expression_element",)
 
     def _eval(self, segment, parent_stack, raw_stack, **kwargs):
         """Implicit aliasing of table/column not allowed. Use explicit `AS` clause.

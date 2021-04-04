@@ -1,13 +1,21 @@
 """A collection of decorators to modify rule docstrings for Sphinx."""
 
-from .config_info import STANDARD_CONFIG_INFO_DICT
-from .base import rules_logger  # noqa
+from sqlfluff.core.rules.config_info import get_config_info
+from sqlfluff.core.rules.base import rules_logger  # noqa
+
+
+FIX_COMPATIBLE = "``sqlfluff fix`` compatible."
 
 
 def document_fix_compatible(cls):
     """Mark the rule as fixable in the documentation."""
-    cls.__doc__ = cls.__doc__.replace("\n", "\n\n``sqlfluff fix`` compatible.\n", 1)
+    cls.__doc__ = cls.__doc__.replace("\n", f"\n\n{FIX_COMPATIBLE}\n", 1)
     return cls
+
+
+def is_fix_compatible(cls) -> bool:
+    """Return whether the rule is documented as fixable."""
+    return FIX_COMPATIBLE in cls.__doc__
 
 
 def document_configuration(cls, ruleset="std"):
@@ -20,7 +28,7 @@ def document_configuration(cls, ruleset="std"):
     options in the docs, from a single source of truth.
     """
     if ruleset == "std":
-        config_info = STANDARD_CONFIG_INFO_DICT
+        config_info = get_config_info()
     else:
         raise (
             NotImplementedError(
@@ -39,9 +47,11 @@ def document_configuration(cls, ruleset="std"):
                         keyword, cls.__name__
                     )
                 )
-            config_doc += "\n    |     `{0}`: {1}. Must be one of {2}.".format(
-                keyword, info_dict["definition"], info_dict["validation"]
+            config_doc += "\n    |     `{0}`: {1}.".format(
+                keyword, info_dict["definition"]
             )
+            if "validation" in info_dict:
+                config_doc += " Must be one of {0}.".format(info_dict["validation"])
             config_doc += "\n    |"
     except AttributeError:
         rules_logger.info("No config_keywords defined for {0}".format(cls.__name__))

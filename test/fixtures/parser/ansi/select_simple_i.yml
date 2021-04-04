@@ -1,0 +1,88 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: raw_column
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: raw_sch
+          - dot: .
+          - identifier: raw_col
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: simple_explicit
+          alias_expression:
+            keyword: as
+            identifier: aliased_column_1
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: simple_implicit
+          alias_expression:
+            identifier: aliased_column_2
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+              identifier: an_unaliased
+          - binary_operator: +
+          - column_reference:
+              identifier: calculation
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+              identifier: an_explicitly
+          - binary_operator: '-'
+          - column_reference:
+              identifier: aliased
+          alias_expression:
+            keyword: as
+            identifier: calculation
+      - comma: ','
+      - select_clause_element:
+          literal: "'an unalised string'"
+      - comma: ','
+      - select_clause_element:
+          literal: '123.6'
+      - comma: ','
+      - select_clause_element:
+          numeric_literal:
+            binary_operator: '-'
+            literal: '786'
+          alias_expression:
+            keyword: as
+            identifier: aliased_column3
+      from_clause:
+        keyword: FROM
+        from_expression:
+        - from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: unaliased
+        - join_clause:
+            keyword: JOIN
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: aliased_1
+              alias_expression:
+                keyword: as
+                identifier: foo
+        - join_clause:
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: aliased_2
+              alias_expression:
+                identifier: bar
+          - keyword: USING
+          - start_bracket: (
+          - identifier: b
+          - end_bracket: )

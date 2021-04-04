@@ -3,7 +3,7 @@
 
 from io import StringIO
 
-from .helpers import (
+from sqlfluff.cli.helpers import (
     colorize,
     cli_table,
     get_package_version,
@@ -11,7 +11,7 @@ from .helpers import (
     pad_line,
 )
 
-from ..core import SQLBaseError
+from sqlfluff.core import SQLBaseError
 
 
 def format_filename(filename, success=False, success_text="PASS"):
@@ -161,8 +161,13 @@ def format_dialects(dialect_readout, verbose=0):
     text_buffer = StringIO()
     text_buffer.write("==== sqlfluff - dialects ====\n")
     readouts = [
-        (d["label"], "{name} dialect [inherits from '{inherits_from}']".format(**d))
-        for d in dialect_readout()
+        (
+            dialect.label,
+            "{dialect.name} dialect [inherits from '{dialect.inherits_from}']".format(
+                dialect=dialect
+            ),
+        )
+        for dialect in dialect_readout()
     ]
     text_buffer.write(
         cli_table(readouts, col_width=60, cols=1, label_color="blue", val_align="right")

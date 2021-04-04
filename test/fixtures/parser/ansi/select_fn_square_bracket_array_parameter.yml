@@ -1,0 +1,22 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name: myfn
+            start_bracket: (
+            expression:
+              array_literal_type:
+              - start_square_bracket: '['
+              - expression:
+                  literal: '1'
+              - comma: ','
+              - expression:
+                  literal: '2'
+              - comma: ','
+              - expression:
+                  literal: '3'
+              - end_square_bracket: ']'
+            end_bracket: )

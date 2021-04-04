@@ -1,0 +1,7 @@
+file:
+  statement:
+    create_database_statement:
+    - keyword: create
+    - keyword: database
+    - database_reference:
+        identifier: my_database

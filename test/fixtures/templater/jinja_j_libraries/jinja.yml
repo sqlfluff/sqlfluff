@@ -1,0 +1,23 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          literal: '56'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - identifier: sch1
+              - dot: .
+              - identifier: foo_xyz
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            identifier: x
+          comparison_operator: '='
+          literal: '23'

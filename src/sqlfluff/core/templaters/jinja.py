@@ -2,17 +2,22 @@
 
 import os.path
 import logging
+import importlib.util
 from typing import Iterator, Tuple, Optional
 
 from jinja2.sandbox import SandboxedEnvironment
 from jinja2 import meta, TemplateSyntaxError, TemplateError
 import jinja2.nodes
 
-from ..errors import SQLTemplaterError
-from ..parser import FilePositionMarker
+from sqlfluff.core.errors import SQLTemplaterError
+from sqlfluff.core.parser import FilePositionMarker
 
-from .base import register_templater, TemplatedFile, RawFileSlice
-from .python import PythonTemplater
+from sqlfluff.core.templaters.base import (
+    register_templater,
+    TemplatedFile,
+    RawFileSlice,
+)
+from sqlfluff.core.templaters.python import PythonTemplater
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
@@ -92,6 +97,27 @@ class JinjaTemplater(PythonTemplater):
                 self._extract_macros_from_template(value, env=env, ctx=ctx)
             )
         return macro_ctx
+
+    def _extract_libraries_from_config(self, config):
+        library_path = config.get_section(
+            (self.templater_selector, self.name, "library_path")
+        )
+        if not library_path:
+            return {}
+
+        libraries = {}
+        for file_name in os.listdir(library_path):
+            file_path = os.path.join(library_path, file_name)
+            if not os.path.isfile(file_path) or not file_name.endswith(".py"):
+                continue
+
+            module_name = os.path.splitext(file_name)[0]
+            spec = importlib.util.spec_from_file_location(module_name, file_path)
+            lib = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(lib)
+            libraries[module_name] = lib
+
+        return libraries
 
     @staticmethod
     def _generate_dbt_builtins():
@@ -197,18 +223,23 @@ class JinjaTemplater(PythonTemplater):
                 if name not in live_context:
                     live_context[name] = dbt_builtins[name]
 
-        # Load config macros
         env = self._get_jinja_env()
-        ctx = self._extract_macros_from_config(config=config, env=env, ctx=live_context)
+
         # Load macros from path (if applicable)
         macros_path = config.get_section(
             (self.templater_selector, self.name, "load_macros_from_path")
         )
         if macros_path:
-            ctx.update(
+            live_context.update(
                 self._extract_macros_from_path(macros_path, env=env, ctx=live_context)
             )
-        live_context.update(ctx)
+
+        # Load config macros, these will take precedence over macros from the path
+        live_context.update(
+            self._extract_macros_from_config(config=config, env=env, ctx=live_context)
+        )
+
+        live_context.update(self._extract_libraries_from_config(config=config))
 
         # Load the template, passing the global context.
         try:
@@ -264,7 +295,9 @@ class JinjaTemplater(PythonTemplater):
             # NB: Passing no context. Everything is loaded when the template is loaded.
             out_str = template.render()
             # Slice the file once rendered.
-            raw_sliced, sliced_file = self.slice_file(in_str, out_str)
+            raw_sliced, sliced_file, out_str = self.slice_file(
+                in_str, out_str, config=config
+            )
             return (
                 TemplatedFile(
                     source_str=in_str,
@@ -296,10 +329,20 @@ class JinjaTemplater(PythonTemplater):
         env = cls._get_jinja_env()
         str_buff = ""
         idx = 0
+        # We decide the "kind" of element we're dealing with
+        # using it's _closing_ tag rather than it's opening
+        # tag. The types here map back to similar types of
+        # sections in the python slicer.
         block_types = {
             "variable_end": "templated",
             "block_end": "block",
             "comment_end": "comment",
+            # Raw tags should behave like blocks. Note that
+            # raw_end and raw_begin are whole tags rather
+            # than blocks and comments where we get partial
+            # tags.
+            "raw_end": "block",
+            "raw_begin": "block",
         }
         # https://jinja.palletsprojects.com/en/2.11.x/api/#jinja2.Environment.lex
         for _, elem_type, raw in env.lex(in_str):
@@ -308,7 +351,10 @@ class JinjaTemplater(PythonTemplater):
                 idx += len(raw)
                 continue
             str_buff += raw
-            if elem_type.endswith("_end"):
+            # raw_end and raw_begin behave a little differently in
+            # that the whole tag shows up in one go rather than getting
+            # parts of the tag at a time.
+            if elem_type.endswith("_end") or elem_type == "raw_begin":
                 block_type = block_types[elem_type]
                 # Handle starts and ends of blocks
                 if block_type == "block":

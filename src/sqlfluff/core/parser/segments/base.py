@@ -12,24 +12,24 @@ from io import StringIO
 import copy
 from benchit import BenchIt
 from cached_property import cached_property
-from typing import Optional, List, Tuple, NamedTuple, Iterator
+from typing import Any, Callable, Optional, List, Tuple, NamedTuple, Iterator
 import logging
 
-from ...string_helpers import (
+from sqlfluff.core.string_helpers import (
     frame_msg,
     curtail_string,
 )
 
-from ..match_result import MatchResult
-from ..match_logging import parse_match_logging
-from ..match_wrapper import match_wrapper
-from ..helpers import (
+from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.match_logging import parse_match_logging
+from sqlfluff.core.parser.match_wrapper import match_wrapper
+from sqlfluff.core.parser.helpers import (
     check_still_complete,
     trim_non_code_segments,
 )
-from ..matchable import Matchable
-from ..markers import EnrichedFilePositionMarker
-from ..context import ParseContext
+from sqlfluff.core.parser.matchable import Matchable
+from sqlfluff.core.parser.markers import EnrichedFilePositionMarker
+from sqlfluff.core.parser.context import ParseContext
 
 # Instantiate the linter logger (only for use in methods involved with fixing.)
 linter_logger = logging.getLogger("sqlfluff.linter")
@@ -67,7 +67,8 @@ class BaseSegment:
     # `type` should be the *category* of this kind of segment
     type = "base"
     parse_grammar: Optional[Matchable] = None
-    match_grammar: Optional[Matchable] = None
+    # We define this as Null here but it is assumed that any subclass must override.
+    match_grammar: Matchable = None  # type: ignore
     comment_seperate = False
     is_whitespace = False
     optional = False  # NB: See the sequence grammar for details
@@ -620,6 +621,16 @@ class BaseSegment:
         for s in self.segments:
             yield from s.iter_raw_seg()
 
+    def iter_segments(self, expanding=None, pass_through=False):
+        """Iterate raw segments, optionally expanding some chldren."""
+        for s in self.segments:
+            if expanding and s.is_type(*expanding):
+                yield from s.iter_segments(
+                    expanding=expanding if pass_through else None
+                )
+            else:
+                yield s
+
     def iter_unparsables(self):
         """Iterate through any unparsables this segment may contain."""
         for s in self.segments:
@@ -651,19 +662,47 @@ class BaseSegment:
                 buff.append(seg)
         return buff
 
-    def recursive_crawl(self, *seg_type):
+    def select_children(
+        self,
+        start_seg: Optional["BaseSegment"] = None,
+        stop_seg: Optional["BaseSegment"] = None,
+        select_if: Optional[Callable[["BaseSegment"], Any]] = None,
+        loop_while: Optional[Callable[["BaseSegment"], Any]] = None,
+    ):
+        """Retrieve subset of children based on range and filters.
+
+        Often useful by linter rules when generating fixes, e.g. to find
+        whitespace segments between two already known segments.
+        """
+        start_index = self.segments.index(start_seg) if start_seg else -1
+        stop_index = self.segments.index(stop_seg) if stop_seg else len(self.segments)
+        buff = []
+        for seg in self.segments[start_index + 1 : stop_index]:
+            if loop_while and not loop_while(seg):
+                break
+            if not select_if or select_if(seg):
+                buff.append(seg)
+        return buff
+
+    def recursive_crawl(self, *seg_type, recurse_into=True):
         """Recursively crawl for segments of a given type.
 
         Args:
             seg_type: :obj:`str`: one or more type of segment
                 to look for.
+            recurse_into: :obj:`bool`: When an element of type "seg_type" is
+                found, whether to recurse into it.
         """
         # Check this segment
         if self.is_type(*seg_type):
+            match = True
             yield self
-        # Recurse
-        for seg in self.segments:
-            yield from seg.recursive_crawl(*seg_type)
+        else:
+            match = False
+        if recurse_into or not match:
+            # Recurse
+            for seg in self.segments:
+                yield from seg.recursive_crawl(*seg_type, recurse_into=recurse_into)
 
     def path_to(self, other):
         """Given a segment which is assumed within self, get the intermediate segments.

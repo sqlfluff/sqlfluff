@@ -1,0 +1,92 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: item
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: purchases
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: category
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name: LAST_VALUE
+            start_bracket: (
+            expression:
+              column_reference:
+                identifier: item
+            end_bracket: )
+            over_clause:
+              keyword: OVER
+              start_bracket: (
+              window_specification:
+                identifier: d
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: most_popular
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: Produce
+      named_window:
+      - keyword: WINDOW
+      - named_window_expression:
+          identifier: a
+          keyword: AS
+          start_bracket: (
+          window_specification:
+            partitionby_clause:
+            - keyword: PARTITION
+            - keyword: BY
+            - expression:
+                column_reference:
+                  identifier: category
+          end_bracket: )
+      - comma: ','
+      - named_window_expression:
+          identifier: b
+          keyword: AS
+          start_bracket: (
+          window_specification:
+            identifier: a
+            orderby_clause:
+            - keyword: ORDER
+            - keyword: BY
+            - column_reference:
+                identifier: purchases
+          end_bracket: )
+      - comma: ','
+      - named_window_expression:
+          identifier: c
+          keyword: AS
+          start_bracket: (
+          window_specification:
+            identifier: b
+            frame_clause:
+            - keyword: ROWS
+            - raw: BETWEEN
+            - raw: '2'
+            - raw: PRECEDING
+            - raw: AND
+            - raw: '2'
+            - raw: FOLLOWING
+          end_bracket: )
+      - comma: ','
+      - named_window_expression:
+          identifier: d
+          keyword: AS
+          start_bracket: (
+          window_specification:
+            identifier: c
+          end_bracket: )

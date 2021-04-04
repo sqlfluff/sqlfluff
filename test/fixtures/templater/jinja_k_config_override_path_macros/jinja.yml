@@ -1,0 +1,20 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          literal: '101'
+      - comma: ','
+      - select_clause_element:
+          literal: '202'
+      - comma: ','
+      - select_clause_element:
+          literal: '203'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: my_table

@@ -2,14 +2,21 @@
 
 import itertools
 
-from ..base import BaseCrawler, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintResult
+from sqlfluff.core.rules.analysis.select import get_select_statement_info
 
 
-class Rule_L020(BaseCrawler):
+class Rule_L020(BaseRule):
     """Table aliases should be unique within each clause."""
 
     def _lint_references_and_aliases(
-        self, aliases, references, col_aliases, using_cols, parent_select
+        self,
+        table_aliases,
+        value_table_function_aliases,
+        references,
+        col_aliases,
+        using_cols,
+        parent_select,
     ):
         """Check whether any aliases are duplicates.
 
@@ -17,33 +24,24 @@ class Rule_L020(BaseCrawler):
 
         """
         # Are any of the aliases the same?
-        for a1, a2 in itertools.combinations(aliases, 2):
+        for a1, a2 in itertools.combinations(table_aliases, 2):
             # Compare the strings
-            if a1[0] == a2[0] and a1[0]:
+            if a1.ref_str == a2.ref_str and a1.ref_str:
                 # If there are any, then the rest of the code
                 # won't make sense so just return here.
                 return [
                     LintResult(
                         # Reference the element, not the string.
-                        anchor=a2[1],
+                        anchor=a2.segment,
                         description=(
                             "Duplicate table alias {0!r}. Table "
                             "aliases should be unique."
-                        ).format(a2[0]),
+                        ).format(a2.ref_str),
                     )
                 ]
         return None
 
-    @staticmethod
-    def _get_aliases_from_select(segment):
-        # Get the aliases referred to in the clause
-        fc = segment.get_child("from_clause")
-        if not fc:
-            # If there's no from clause then just abort.
-            return None
-        return fc.get_eventual_aliases()
-
-    def _eval(self, segment, parent_stack, **kwargs):
+    def _eval(self, segment, parent_stack, dialect, **kwargs):
         """Get References and Aliases and allow linting.
 
         This rule covers a lot of potential cases of odd usages of
@@ -53,67 +51,9 @@ class Rule_L020(BaseCrawler):
         `_lint_references_and_aliases` method.
         """
         if segment.is_type("select_statement"):
-            aliases = self._get_aliases_from_select(segment)
-            if not aliases:
+            select_info = get_select_statement_info(segment, dialect)
+            if not select_info:
                 return None
-
-            # Iterate through all the references, both in the select clause, but also
-            # potential others.
-            sc = segment.get_child("select_clause")
-            reference_buffer = list(sc.recursive_crawl("object_reference"))
-            # Add any wildcard references
-            reference_buffer += list(sc.recursive_crawl("wildcard_identifier"))
-            for potential_clause in (
-                "where_clause",
-                "groupby_clause",
-                "having_clause",
-                "orderby_clause",
-            ):
-                clause = segment.get_child(potential_clause)
-                if clause:
-                    reference_buffer += list(clause.recursive_crawl("object_reference"))
-            # PURGE any references which are in nested select statements
-            for ref in reference_buffer.copy():
-                ref_path = segment.path_to(ref)
-                # is it in a subselect? i.e. a select which isn't this one.
-                if any(
-                    seg.is_type("select_statement") and seg is not segment
-                    for seg in ref_path
-                ):
-                    reference_buffer.remove(ref)
-
-            # Get all column aliases
-            col_aliases = []
-            for col_seg in list(sc.recursive_crawl("alias_expression")):
-                for seg in col_seg.segments:
-                    if seg.is_type("identifier"):
-                        col_aliases.append(seg.raw)
-
-            # Get any columns referred to in a using clause, and extract anything
-            # from ON clauses.
-            using_cols = []
-            fc = segment.get_child("from_clause")
-            for join_clause in fc.recursive_crawl("join_clause"):
-                in_using_brackets = False
-                seen_using = False
-                seen_on = False
-                for seg in join_clause.segments:
-                    if seg.is_type("keyword") and seg.name == "USING":
-                        seen_using = True
-                    elif seg.is_type("keyword") and seg.name == "ON":
-                        seen_on = True
-                    elif seen_using and seg.is_type("start_bracket"):
-                        in_using_brackets = True
-                    elif seen_using and seg.is_type("end_bracket"):
-                        in_using_brackets = False
-                        seen_using = False
-                    elif in_using_brackets and seg.is_type("identifier"):
-                        using_cols.append(seg.raw)
-                    elif seen_on and seg.is_type("expression"):
-                        # Deal with expressions
-                        reference_buffer += list(
-                            seg.recursive_crawl("object_reference")
-                        )
 
             # Work out if we have a parent select function
             parent_select = None
@@ -125,6 +65,11 @@ class Rule_L020(BaseCrawler):
             # Pass them all to the function that does all the work.
             # NB: Subclasses of this rules should override the function below
             return self._lint_references_and_aliases(
-                aliases, reference_buffer, col_aliases, using_cols, parent_select
+                select_info.table_aliases,
+                select_info.value_table_function_aliases,
+                select_info.reference_buffer,
+                select_info.col_aliases,
+                select_info.using_cols,
+                parent_select,
             )
         return None

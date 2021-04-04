@@ -1,7 +1,7 @@
 """Implementation of Rule L004."""
 
-from ..base import BaseCrawler, LintResult, LintFix
-from ..doc_decorators import (
+from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
+from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_configuration,
 )
@@ -9,7 +9,7 @@ from ..doc_decorators import (
 
 @document_fix_compatible
 @document_configuration
-class Rule_L004(BaseCrawler):
+class Rule_L004(BaseRule):
     """Incorrect indentation type.
 
     Note 1: spaces are only fixed to tabs if the number of spaces in the

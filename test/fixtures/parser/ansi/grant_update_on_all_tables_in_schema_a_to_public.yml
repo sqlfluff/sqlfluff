@@ -1,0 +1,15 @@
+file:
+  statement:
+    access_statement:
+    - keyword: grant
+    - keyword: update
+    - keyword: 'on'
+    - keyword: all
+    - keyword: tables
+    - keyword: in
+    - keyword: schema
+    - object_reference:
+        identifier: a
+    - keyword: to
+    - object_reference:
+        identifier: public

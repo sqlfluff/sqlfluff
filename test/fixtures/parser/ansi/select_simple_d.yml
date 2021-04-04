@@ -1,0 +1,7 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          literal: '12'

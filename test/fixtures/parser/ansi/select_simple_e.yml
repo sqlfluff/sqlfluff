@@ -1,10 +1,9 @@
-# Test that casting works as expected
 file:
   statement:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_target_element:
+      - select_clause_element:
           expression:
             column_reference:
               identifier: my_var
@@ -16,9 +15,9 @@ file:
             keyword: as
             identifier: casted_variable
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           expression:
-            literal: 123
+            literal: '123'
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -28,6 +27,8 @@ file:
             identifier: another_casted_number
       from_clause:
         keyword: FROM
-        table_expression:
-          table_reference:
-            identifier: boo
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: boo

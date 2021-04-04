@@ -14,12 +14,12 @@ we use, and will be common between all of them.
 import re
 from typing import Optional, List
 
-from ..match_result import MatchResult
-from ..match_wrapper import match_wrapper
-from ..context import ParseContext
+from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.match_wrapper import match_wrapper
+from sqlfluff.core.parser.context import ParseContext
 
-from .base import BaseSegment
-from .raw import RawSegment
+from sqlfluff.core.parser.segments.base import BaseSegment
+from sqlfluff.core.parser.segments.raw import RawSegment
 
 
 class _ProtoKeywordSegment(RawSegment):
@@ -68,7 +68,9 @@ class _ProtoKeywordSegment(RawSegment):
             pos = segments[0].pos_marker
             raw_comp = raw.upper()
 
-            if cls._template == raw_comp:
+            # Is the target a match and IS IT CODE.
+            # The latter stops us accidentally matching comments.
+            if cls._template == raw_comp and segments[0].is_code:
                 m = (cls(raw=raw, pos_marker=pos),)  # Return as a tuple
                 return MatchResult(m, segments[1:])
         return MatchResult.from_unmatched(segments)

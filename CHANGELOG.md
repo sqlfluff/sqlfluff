@@ -7,6 +7,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- `pascal` (PascalCase) `capitalisation_policy` option for L014 (unquoted identifiers)
+- `only_aliases` configuration option for L014 (unquoted identifers)
+- Dialects now have more advanced dependency options to allow less repetition
+  between related dialects. The methods `get_segment` and `get_grammar` can be
+  used on unexpanded grammars to access elements of the parent grammars.
+  The `copy` method on grammars can be used to copy with alterations.
+
+### Changed
+- Add support for `ALTER USER` commands in Snowflake dialect.
+- Added describe statement to ANSI dialect
+- Renamed `capitalisation_policy` to `extended_capitalisation_policy` for L014 to reflect the fact that it now
+  accepts more options (`pascal`) than regular `capitalisation_policy` still used by L010 and others.
+- Replaced `only_aliases` config with `unquoted_identifiers_policy` and added it to rule L014 in addition to L029.
+- Renamed the BaseCrawler class to BaseRule. This is the base class for all
+  rules. This is a breaking change for any custom rules that have been added
+  via plugins or by forking the SQLFluff repo.
+- Renamed `sqlfluff.rules()` to `sqlfluff.list_rules()` and `sqlfluff.dialects()`
+  to `sqlfluff.list_dialects()` due to naming conflicts with the now separate
+  `sqlfluff.dialects` module.
+- Extracted dialect definitions from the `sqlfluff.core` module so that each
+  dialect is better isolated from each other. This also allows more focused
+  testing and the potential for dialect plugins in future. Dialects are now
+  only imported as needed at runtime. All dialects should now be accessed
+  using the selector methods in `sqlfluff.core.dialects` rather than importing
+  from `sqlfluff.dialects` directly.
+
+## [0.4.1] - 2021-02-25
+### Added
+
+- Initial architecture for rule plugins to allow custom rules. This
+  initial release should be considered *beta* until the release of
+  0.5.0.
+- Add tests for dbt 0.19.0.
+- General increased parsing coverage.
+- Added some missing Postgres syntax elements.
+- Added some basic introspection API elements to output what dialects
+  and rules are available for use within the API.
+
+### Changed
+
+- Fix several Snowflake parsing bugs.
+- Refactor from clause to handle flattens after joins.
+- Fix .get_table_references() in Snowflake dialect.
+- Macros defined within the .sqlfluff config will take precedence over the macros defined in the
+  path that is defined with config value `sqlfluff:templater:jinja:load_macros_from_path`.
+- Fix Snowflake indent parsing.
+- Fixed incorrect parsing of syntax-like elements in comments.
+- Altered parsing of `NULL` keywords, so parse as Literals where
+  appropriate.
+- Fixed bug in expression parsing leading to recursion errors.
+
+## [0.4.0] - 2021-02-14
+### Added
 
 - Public API to enable people to import `sqlfluff` as a python module
   and call `parse`, `lint` and `fix` within their own projects. See
@@ -41,6 +94,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added Rule L032 to enforce "do not use `USING`" from the `dbt` coding conventions. ([#487](https://github.com/sqlfluff/sqlfluff/pull/487))
 - Added Rule L033 to enforce "prefer `UNION ALL` to `UNION *`" from the `dbt` coding conventions. ([#489](https://github.com/sqlfluff/sqlfluff/pull/489))
 - Added Rule L034 to enforce "fields should be stated before aggregate/window functions" from the `dbt` coding conventions. ([#495](https://github.com/sqlfluff/sqlfluff/pull/495))
+- Added Rule L038 to forbid (or require) trailing commas in select clauses. ([#362](https://github.com/sqlfluff/sqlfluff/pull/752))
+- Added Rule L039 to lint unnecessary whitespace between elements. ([#502](https://github.com/sqlfluff/sqlfluff/pull/753))
+- Added a fix routine for L015. ([#732](https://github.com/sqlfluff/sqlfluff/pull/732))
+- Added a fix routine for L025. ([#404](https://github.com/sqlfluff/sqlfluff/pull/741))
 - Adopted the `black` coding style. ([#485](https://github.com/sqlfluff/sqlfluff/pull/485))
 - Added validation and documentation for rule configuration options. ([#462](https://github.com/sqlfluff/sqlfluff/pull/462))
 - Added documentation for which rules are fixable. ([#594](https://github.com/sqlfluff/sqlfluff/pull/594))
@@ -56,12 +113,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added links to cockroachlabs expression grammars in ansi dialect. ([#592](https://github.com/sqlfluff/sqlfluff/pull/592))
 - Added favicon to the docs website. ([#589](https://github.com/sqlfluff/sqlfluff/pull/589))
 - Added `CREATE FUNCTION` syntax for postgres and for bigquery. ([#325](https://github.com/sqlfluff/sqlfluff/pull/325))
+- Added `CREATE INDEX` and `DROP INDEX` for mysql. ([#740](https://github.com/sqlfluff/sqlfluff/pull/748))
+- Added `IGNORE NULLS`, `RESPECT NULLS`, `GENERATE_DATE_ARRAY` and
+  `GENERATE_TIMESTAMP_ARRAY` for bigquery. (
+  [#667](https://github.com/sqlfluff/sqlfluff/pull/727),
+  [#527](https://github.com/sqlfluff/sqlfluff/pull/726))
+- Added `CREATE` and `CREATE ... CLONE` for snowflake. ([#539](https://github.com/sqlfluff/sqlfluff/pull/670))
+- Added support for EXASOL. ([#684](https://github.com/sqlfluff/sqlfluff/pull/684))
 
 ### Changed
 
-- [#634](https://github.com/sqlfluff/sqlfluff/issues/635) Fixed parsing of semi-structured objects in the snowflake of dialects with whitespace gaps.
-- [#632](https://github.com/sqlfluff/sqlfluff/pull/632) Handle internal errors elegantly, reporting the stacktrace and the error-surfacing file.
-- [#633](https://github.com/sqlfluff/sqlfluff/issues/633) Improve message for when an automatic fix is not available for L004.
+- Fixed parsing of semi-structured objects in the snowflake of dialects
+  with whitespace gaps. [#634](https://github.com/sqlfluff/sqlfluff/issues/635)
+- Handle internal errors elegantly, reporting the stacktrace and the
+  error-surfacing file. [#632](https://github.com/sqlfluff/sqlfluff/pull/632)
+- Improve message for when an automatic fix is not available for L004. [#633](https://github.com/sqlfluff/sqlfluff/issues/633)
+- Linting errors raised on templated sections are now ignored by default
+  and added a configuration value to show them. ([#713](https://github.com/sqlfluff/sqlfluff/pull/745))
 - Big refactor of logging internally. `Linter` is now decoupled from
   logging so that it can be imported directly by subprojects without
   needing to worry about weird output or without the log handing getting
@@ -78,6 +146,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   will be broken. This also fixes the linting of both kinds of expressions
   with regard to L013 and L025. ([#454](https://github.com/sqlfluff/sqlfluff/pull/454))
 - Refactor of L022 to handle poorly formatted CTEs better. ([#494](https://github.com/sqlfluff/sqlfluff/pull/494))
+- Restriction of L017 to only fix when it would delete whitespace or
+  newlines. ([#598](https://github.com/sqlfluff/sqlfluff/pull/756))
+- Added a configuration value to L016 to optionally ignore lines
+  containing only comments. ([#299](https://github.com/sqlfluff/sqlfluff/pull/751))
 - Internally added an `EphemeralSegment` to aid with parsing efficiency
   without altering the end structure of the query. ([#491](https://github.com/sqlfluff/sqlfluff/pull/491))
 - Split `ObjectReference` into `ColumnReference` and `TableReference`

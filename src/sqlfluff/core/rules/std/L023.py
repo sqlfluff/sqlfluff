@@ -1,11 +1,13 @@
 """Implementation of Rule L023."""
 
-from ..base import BaseCrawler, LintFix, LintResult
-from ..doc_decorators import document_fix_compatible
+from typing import Optional, List
+
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
 @document_fix_compatible
-class Rule_L023(BaseCrawler):
+class Rule_L023(BaseRule):
     """Single whitespace expected after AS in WITH clause.
 
     | **Anti-pattern**
@@ -37,6 +39,7 @@ class Rule_L023(BaseCrawler):
     pre_segment_identifier = ("name", "AS")
     post_segment_identifier = ("type", "start_bracket")
     allow_newline = False
+    expand_children: Optional[List[str]] = ["common_table_expression"]
 
     def _eval(self, segment, **kwargs):
         """Single whitespace expected in mother segment between pre and post segments."""
@@ -44,7 +47,7 @@ class Rule_L023(BaseCrawler):
         if segment.is_type(self.expected_mother_segment_type):
             last_code = None
             mid_segs = []
-            for seg in segment.segments:
+            for seg in segment.iter_segments(expanding=self.expand_children):
                 if seg.is_code:
                     if (
                         last_code

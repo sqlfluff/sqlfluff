@@ -16,7 +16,7 @@ import configparser
 from os.path import dirname
 from os.path import join
 
-from setuptools import setup
+from setuptools import find_packages, setup
 
 
 # Get the global config info as currently stated
@@ -47,29 +47,16 @@ setup(
     python_requires=">=3.6",
     keywords=["sqlfluff", "sql", "linter"],
     project_urls={
-        # Homepage not ready yet.
-        # 'Homepage': 'https://www.sqlfluff.com'
+        "Homepage": "https://www.sqlfluff.com",
         "Documentation": "https://docs.sqlfluff.com",
         "Source": "https://github.com/sqlfluff/sqlfluff",
     },
-    # Specify all the seperate packages, modules come automatically
-    packages=[
-        "sqlfluff",
-        "sqlfluff.api",
-        "sqlfluff.cli",
-        "sqlfluff.core",
-        "sqlfluff.core.dialects",
-        "sqlfluff.core.parser",
-        "sqlfluff.core.parser.segments",
-        "sqlfluff.core.parser.grammar",
-        "sqlfluff.core.rules",
-        "sqlfluff.core.templaters",
-    ],
+    packages=find_packages(where="src"),
     package_dir={"": "src"},
     include_package_data=True,
     classifiers=[
         # complete classifier list: http://pypi.python.org/pypi?%3Aaction=list_classifiers
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         # 'Development Status :: 5 - Production/Stable',
         "Environment :: Console",
         "Intended Audience :: Developers",
@@ -106,9 +93,11 @@ setup(
         # Cached property for performance gains
         "cached-property",
         # dataclasses backport for python 3.6
-        "dataclasses",
+        "dataclasses; python_version < '3.7'",
         # better type hints for older python versions
         "typing_extensions",
+        # We provide a testing library for plugins in sqlfluff.testing
+        "pytest",
     ],
     extras_require={
         "dbt": ["dbt>=0.17"],
@@ -121,5 +110,6 @@ setup(
             "sqlfluff = sqlfluff.cli.commands:cli",
         ],
         "diff_cover": ["sqlfluff = sqlfluff.diff_quality_plugin"],
+        "sqlfluff": ["sqlfluff = sqlfluff.core.plugin.lib"],
     },
 )

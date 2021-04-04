@@ -1,0 +1,66 @@
+rule: L016
+
+test_1:
+  # Long lines (with config override)
+  pass_str: "SELECT COUNT(*) FROM tbl\n"
+  configs:
+    rules:
+      max_line_length: 30
+
+test_2:
+  # Check we move comments correctly
+  fail_str: "SELECT 1 -- Some Comment\n"
+
+  fix_str: "-- Some Comment\nSELECT 1\n"
+  configs:
+    rules:
+      max_line_length: 18
+
+test_3:
+  # Check long lines that are only comments are linted correctly
+  fail_str: "-- Some really long comments on their own line\n\nSELECT 1"
+  configs:
+    rules:
+      max_line_length: 18
+
+test_4:
+  # Check we can add newlines after dedents (with an indent)
+  fail_str: "    SELECT COUNT(*) FROM tbl\n"
+  fix_str: "    SELECT\n        COUNT(*)\n    FROM tbl\n"
+  configs:
+    rules:
+      max_line_length: 20
+
+test_5:
+  # Check we handle indents nicely
+  fail_str: "SELECT 12345\n"
+  fix_str: "SELECT\n    12345\n"
+  configs:
+    rules:
+      max_line_length: 10
+
+test_6:
+  # Check priority of fixes
+  fail_str: "SELECT COUNT(*) FROM tbl -- Some Comment\n"
+  fix_str: "-- Some Comment\nSELECT\n    COUNT(*)\nFROM tbl\n"
+  configs:
+    rules:
+      max_line_length: 18
+
+test_7:
+  # Check we can ignore comments if we want
+  pass_str: "SELECT 1\n-- Some long comment over 10 characters\n"
+  configs:
+    rules:
+      max_line_length: 10
+      L016:
+        ignore_comment_lines: True
+
+test_8:
+  # Check we still pick up long comments if we don't want to ignore
+  fail_str: "SELECT 1\n-- Some long comment over 10 characters\n"
+  configs:
+    rules:
+      max_line_length: 10
+      L016:
+        ignore_comment_lines: False

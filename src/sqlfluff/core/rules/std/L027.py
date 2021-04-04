@@ -1,6 +1,6 @@
 """Implementation of Rule L027."""
 
-from ..base import LintResult
+from sqlfluff.core.rules.base import LintResult
 from sqlfluff.core.rules.std.L025 import Rule_L025
 
 
@@ -30,10 +30,16 @@ class Rule_L027(Rule_L025):
     """
 
     def _lint_references_and_aliases(
-        self, aliases, references, col_aliases, using_cols, parent_select
+        self,
+        table_aliases,
+        value_table_function_aliases,
+        references,
+        col_aliases,
+        using_cols,
+        parent_select,
     ):
         # Do we have more than one? If so, all references should be qualified.
-        if len(aliases) <= 1:
+        if len(table_aliases) <= 1:
             return None
         # A buffer to keep any violations.
         violation_buff = []

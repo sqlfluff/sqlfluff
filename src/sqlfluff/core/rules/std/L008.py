@@ -1,11 +1,11 @@
 """Implementation of Rule L008."""
 
-from ..base import BaseCrawler, LintResult, LintFix
-from ..doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
 @document_fix_compatible
-class Rule_L008(BaseCrawler):
+class Rule_L008(BaseRule):
     """Commas should be followed by a single whitespace unless followed by a comment.
 
     | **Anti-pattern**

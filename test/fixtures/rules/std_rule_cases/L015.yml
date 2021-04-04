@@ -1,0 +1,42 @@
+rule: L015
+
+test_1:
+  # Check we get fails for using DISTINCT apparently incorrectly
+  fail_str: SELECT DISTINCT(a)
+  fix_str: SELECT DISTINCT a
+
+test_2:
+  fail_str: SELECT DISTINCT(a + b) * c
+  fix_str: SELECT DISTINCT (a + b) * c
+
+test_3:
+  # Space after DISTINCT makes it okay(-ish)...
+  pass_str: SELECT DISTINCT (a)
+
+test_4:
+  pass_str: SELECT DISTINCT (a + b) * c
+
+test_5:
+  fail_str: |
+    SELECT DISTINCT(field_1)
+    FROM my_table
+  fix_str: |
+    SELECT DISTINCT field_1
+    FROM my_table
+
+test_6:
+  fail_str: |
+    SELECT DISTINCT(a), b
+  fix_str: |
+    SELECT DISTINCT a, b
+
+test_7:
+  pass_str: |
+    SELECT
+        DISTINCT ON(bcolor) bcolor,
+        fcolor
+    FROM
+        distinct_demo
+  configs:
+    core:
+      dialect: postgres

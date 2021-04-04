@@ -1,0 +1,32 @@
+rule: L041
+
+test_1:
+  fail_str: |
+    SELECT
+        DISTINCT user_id,
+        list_id
+    FROM
+        safe_user
+  fix_str: |
+    SELECT DISTINCT
+        user_id,
+        list_id
+    FROM
+        safe_user
+
+test_2:
+  fail_str: |
+    SELECT
+        -- The table contains duplicates, so we use DISTINCT.
+        DISTINCT user_id
+    FROM
+        safe_user
+  fix_str: |
+    SELECT DISTINCT
+        -- The table contains duplicates, so we use DISTINCT.
+        user_id
+    FROM
+        safe_user
+
+test_3:
+  pass_str: SELECT DISTINCT user_id FROM safe_user
