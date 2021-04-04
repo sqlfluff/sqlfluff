@@ -82,9 +82,9 @@ class SQLBaseError(ValueError):
         """Get the position marker of the violation.
 
         Returns:
-            The :obj:`PosMarker` of the segments if the violation has a segment,
-            the :obj:`PosMarker` directly stored in a `pos` attribute or None
-            if neither a present.
+            The :obj:`FilePositionMarker` of the segments if the violation has a segment,
+            the :obj:`FilePositionMarker` directly stored in a `pos` attribute or None
+            if neither is present.
 
         """
         if hasattr(self, "segment"):
