@@ -9,6 +9,7 @@ from sqlfluff.core.parser import (
     BaseSegment,
     NamedSegment,
     Delimited,
+    Anything,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -108,4 +109,26 @@ class WithinGroupClauseSegment(BaseSegment):
         "WITHIN",
         "GROUP",
         Bracketed(Ref("OrderByClauseSegment", optional=True)),
+    )
+
+
+@postgres_dialect.segment(replace=True)
+class CreateRoleStatementSegment(BaseSegment):
+    """A `CREATE ROLE` statement.
+
+    As per:
+    https://www.postgresql.org/docs/current/sql-createrole.html
+    """
+
+    type = "create_role_statement"
+    match_grammar = ansi_dialect.get_segment(
+        "CreateRoleStatementSegment"
+    ).match_grammar.copy(
+        insert=[
+            Sequence(
+                Ref.keyword("WITH", optional=True),
+                # Very permissive for now. Anything can go here.
+                Anything(),
+            )
+        ],
     )

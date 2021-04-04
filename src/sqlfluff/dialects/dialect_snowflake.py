@@ -666,3 +666,36 @@ class AlterUserSegment(BaseSegment):
             Sequence("UNSET", Delimited(Ref("ParameterNameSegment"))),
         ),
     )
+
+
+@snowflake_dialect.segment(replace=True)
+class CreateRoleStatementSegment(BaseSegment):
+    """A `CREATE ROLE` statement.
+
+    Redefined because it's much simpler than postgres.
+    https://docs.snowflake.com/en/sql-reference/sql/create-role.html
+    """
+
+    type = "create_role_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence(
+            "OR",
+            "REPLACE",
+            optional=True,
+        ),
+        "ROLE",
+        Sequence(
+            "IF",
+            "NOT",
+            "EXISTS",
+            optional=True,
+        ),
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            "COMMENT",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+    )

@@ -18,8 +18,8 @@ from sqlfluff.core.dialects import dialect_selector
         ("UseStatementSegment", 'USE SCHEMA "MY_DATABASE"."MY_SCHEMA";'),
         ("UseStatementSegment", 'USE SCHEMA "MY_SCHEMA";'),
         ("UseStatementSegment", 'USE "MY_DATABASE"."MY_SCHEMA";'),
-        ("CreateStatementSegment", "CREATE ROLE MY_ROLE;"),
-        ("CreateStatementSegment", 'CREATE ROLE "my_role";'),
+        ("CreateRoleStatementSegment", "CREATE ROLE MY_ROLE;"),
+        ("CreateRoleStatementSegment", 'CREATE ROLE "my_role";'),
         ("CreateDatabaseStatementSegment", "CREATE DATABASE MY_DATABASE;"),
         (
             "CreateDatabaseStatementSegment",
