@@ -132,9 +132,12 @@ class Rule_L044(BaseRule):
             queries = SelectCrawler.gather(segment, dialect)
 
             # Begin analysis at the final, outer query (key=None).
-            select_info = queries[None]
-            try:
-                return self._analyze_result_columns(select_info, dialect, queries)
-            except RuleFailure:
-                return LintResult(anchor=queries[None][0].select_info.select_statement)
+            if None in queries:
+                select_info = queries[None]
+                try:
+                    return self._analyze_result_columns(select_info, dialect, queries)
+                except RuleFailure:
+                    return LintResult(
+                        anchor=queries[None][0].select_info.select_statement
+                    )
         return None
