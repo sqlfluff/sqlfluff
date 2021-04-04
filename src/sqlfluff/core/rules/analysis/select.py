@@ -2,7 +2,7 @@
 from typing import List, NamedTuple, Optional
 
 from sqlfluff.core.dialects.base import Dialect
-from sqlfluff.core.dialects.dialect_ansi import AliasInfo
+from sqlfluff.core.dialects.common import AliasInfo
 from sqlfluff.core.parser.segments.base import BaseSegment
 
 

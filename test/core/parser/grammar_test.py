@@ -16,6 +16,7 @@ from sqlfluff.core.parser.grammar import (
     StartsWith,
     Anything,
     Nothing,
+    Ref,
 )
 from sqlfluff.core.errors import SQLParseError
 
@@ -228,6 +229,42 @@ def test__parser__grammar__base__bracket_fail_with_open_paren_close_square_misma
                 ctx,
             )
         assert sql_parse_error.match("Found unexpected end bracket")
+
+
+def test__parser__grammar__ref_eq():
+    """Test equality of Ref Grammars."""
+    r1 = Ref("foo")
+    r2 = Ref("foo")
+    assert r1 is not r2
+    assert r1 == r2
+    check_list = [1, 2, r2, 3]
+    # Check we can find it in lists
+    assert r1 in check_list
+    # Check we can get it's position
+    assert check_list.index(r1) == 2
+    # Check we can remove it from a list
+    check_list.remove(r1)
+    assert r1 not in check_list
+
+
+def test__parser__grammar__oneof__copy():
+    """Test grammar copying."""
+    fs = KeywordSegment.make("foo")
+    bs = KeywordSegment.make("bar")
+    g1 = OneOf(fs, bs)
+    # Check copy
+    g2 = g1.copy()
+    assert g1 == g2
+    assert g1 is not g2
+    # Check copy insert (start)
+    g3 = g1.copy(insert=[bs], at=0)
+    assert g3 == OneOf(bs, fs, bs)
+    # Check copy insert (mid)
+    g4 = g1.copy(insert=[bs], at=1)
+    assert g4 == OneOf(fs, bs, bs)
+    # Check copy insert (end)
+    g5 = g1.copy(insert=[bs], at=-1)
+    assert g5 == OneOf(fs, bs, bs)
 
 
 @pytest.mark.parametrize("allow_gaps", [True, False])

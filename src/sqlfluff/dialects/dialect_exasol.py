@@ -21,13 +21,14 @@ from sqlfluff.core.parser import (
     Sequence,
     StartsWith,
 )
-from sqlfluff.core.dialects.dialect_ansi import ObjectReferenceSegment, ansi_dialect
-from sqlfluff.core.dialects.exasol_keywords import (
+from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.dialects.exasol_keywords import (
     BARE_FUNCTIONS,
     RESERVED_KEYWORDS,
     UNRESERVED_KEYWORDS,
 )
 
+ansi_dialect = load_raw_dialect("ansi")
 exasol_dialect = ansi_dialect.copy_as("exasol")
 
 # Clear ANSI Keywords and add all EXASOL keywords
@@ -685,7 +686,7 @@ class DropSchemaStatementSegment(BaseSegment):
 # VIEW
 ############################
 @exasol_dialect.segment()
-class ViewReferenceSegment(ObjectReferenceSegment):
+class ViewReferenceSegment(ansi_dialect.get_segment("ObjectReferenceSegment")):  # type: ignore
     """A reference to an schema."""
 
     type = "view_reference"
@@ -1321,7 +1322,7 @@ class UpdateStatementSegment(BaseSegment):
     match_grammar = StartsWith("UPDATE")
     parse_grammar = Sequence(
         "UPDATE",
-        Ref("AliasedTableReferenceSegment"),
+        OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
         Ref("SetClauseListSegment"),
         Ref("UpdateFromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
@@ -1374,7 +1375,7 @@ class UpdateFromClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "FROM",
         Delimited(
-            Ref("AliasedTableReferenceSegment"),
+            OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
             terminator="WHERE",
         ),
     )
@@ -1403,7 +1404,7 @@ class MergeStatementSegment(BaseSegment):
     parse_grammar = Sequence(
         "MERGE",
         "INTO",
-        Ref("AliasedTableReferenceSegment"),
+        OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
         "USING",
         OneOf(
             Ref("TableReferenceSegment"),  # tables/views
@@ -1526,7 +1527,7 @@ class DeleteStatementSegment(BaseSegment):
         "DELETE",
         Ref("StarSegment", optional=True),
         "FROM",
-        Ref("AliasedTableReferenceSegment"),
+        OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
         Ref("WhereClauseSegment", optional=True),
         Ref("PreferringClauseSegment", optional=True),
     )

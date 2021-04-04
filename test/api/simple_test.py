@@ -39,6 +39,12 @@ lint_result = [
         "description": "Column expression without alias. Use explicit `AS` clause.",
     },
     {
+        "code": "L010",
+        "line_no": 1,
+        "line_pos": 20,
+        "description": "Inconsistent capitalisation of keywords.",
+    },
+    {
         "code": "L039",
         "description": "Unnecessary whitespace found.",
         "line_no": 1,
@@ -55,6 +61,12 @@ lint_result = [
         "description": "Unnecessary whitespace found.",
         "line_no": 1,
         "line_pos": 27,
+    },
+    {
+        "code": "L010",
+        "line_no": 1,
+        "line_pos": 29,
+        "description": "Inconsistent capitalisation of keywords.",
     },
     {
         "code": "L009",

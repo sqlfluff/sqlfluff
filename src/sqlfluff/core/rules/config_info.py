@@ -42,16 +42,19 @@ STANDARD_CONFIG_INFO_DICT = {
         "validation": ["consistent", "qualified", "unqualified"],
         "definition": "The expectation for references in single-table select",
     },
-    "only_aliases": {
-        "validation": [True, False],
-        "definition": (
-            "Whether or not to flags violations for only alias expressions "
-            "or all unquoted identifiers"
-        ),
+    "unquoted_identifiers_policy": {
+        "validation": ["all", "aliases", "column_aliases"],
+        "definition": "Types of unquoted identifiers to flag violations for",
     },
     "capitalisation_policy": {
         "validation": ["consistent", "upper", "lower", "capitalise"],
         "definition": "The capitalisation policy to enforce",
+    },
+    "extended_capitalisation_policy": {
+        "validation": ["consistent", "upper", "lower", "pascal", "capitalise"],
+        "definition": (
+            "The capitalisation policy to enforce, extended with PascalCase. This is separate from capitalisation_policy as it should not be applied to keywords."
+        ),
     },
     "lint_templated_tokens": {
         "validation": [True, False],

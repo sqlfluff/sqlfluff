@@ -20,3 +20,6 @@ class Matchable(ABC):
 
     def match(self, segments: tuple, parse_context: "ParseContext") -> "MatchResult":
         """Match against this matcher."""
+
+    def copy(self, **kwargs) -> "Matchable":
+        """Copy this Matchable."""
