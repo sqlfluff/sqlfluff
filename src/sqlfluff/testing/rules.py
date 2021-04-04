@@ -20,6 +20,7 @@ class RuleTestCase(NamedTuple):
     fix_str: Optional[str] = None
     configs: Optional[dict] = None
     skip: Optional[str] = None
+    line_numbers: List[int] = None
 
 
 def load_test_cases(
@@ -50,7 +51,7 @@ def get_rule_from_set(code, config):
     raise ValueError("{0!r} not in {1!r}".format(code, get_ruleset()))
 
 
-def assert_rule_fail_in_sql(code, sql, configs=None):
+def assert_rule_fail_in_sql(code, sql, configs=None, line_numbers=None):
     """Assert that a given rule does fail on the given sql."""
     # Set up the config to only use the rule we are testing.
     cfg = FluffConfig(configs=configs, overrides={"rules": code})
@@ -66,6 +67,13 @@ def assert_rule_fail_in_sql(code, sql, configs=None):
             "No {0} failures found in query which should fail.".format(code),
             pytrace=False,
         )
+    if line_numbers:
+        actual_line_numbers = [e.line_no() for e in lerrs]
+        if line_numbers != actual_line_numbers:
+            pytest.fail("Expected errors on lines {0}, but got errors on lines {1}".format(
+                line_numbers,
+                actual_line_numbers
+            ))
     # The query should already have been fixed if possible so just return the raw.
     return linted.tree.raw
 
@@ -116,7 +124,7 @@ def rules__test_helper(test_case):
             test_case.rule,
             test_case.fail_str,
             configs=test_case.configs,
-        )
+            line_numbers=test_case.line_numbers)
         # If a `fixed` value is provided then check it matches
         if test_case.fix_str:
             assert res == test_case.fix_str
