@@ -20,7 +20,7 @@ passes_on_count_1:
 
   configs: &prefer_count_1
     rules:
-      L046:
+      L047:
         prefer_count_1: True
 
 changes_count_1_to_count_star:
