@@ -1685,23 +1685,20 @@ class InsertStatementSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class TransactionStatementSegment(BaseSegment):
-    """A `COMMIT` or `ROLLBACK` statement."""
+    """A `COMMIT`, `ROLLBACK` or `TRANSACTION` statement."""
 
     type = "transaction_statement"
-    match_grammar = OneOf(
+    match_grammar = Sequence(
         # COMMIT [ WORK ] [ AND [ NO ] CHAIN ]
-        Sequence(
-            "COMMIT",
-            Ref.keyword("WORK", optional=True),
-            Sequence("AND", Ref.keyword("NO", optional=True), "CHAIN", optional=True),
-        ),
-        # NOTE: "TO SAVEPOINT" is not yet supported
         # ROLLBACK [ WORK ] [ AND [ NO ] CHAIN ]
-        Sequence(
-            "ROLLBACK",
-            Ref.keyword("WORK", optional=True),
-            Sequence("AND", Ref.keyword("NO", optional=True), "CHAIN", optional=True),
-        ),
+        # BEGIN | END TRANSACTION | WORK
+        # NOTE: "TO SAVEPOINT" is not yet supported
+        # https://docs.snowflake.com/en/sql-reference/sql/begin.html
+        # https://www.postgresql.org/docs/current/sql-end.html
+        OneOf("START", "BEGIN", "COMMIT", "ROLLBACK", "END"),
+        OneOf("TRANSACTION", "WORK", optional=True),
+        Sequence("NAME", Ref("SingleIdentifierGrammar"), optional=True),
+        Sequence("AND", Ref.keyword("NO", optional=True), "CHAIN", optional=True),
     )
 
 
