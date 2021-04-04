@@ -4,7 +4,14 @@ For now the only change is the parsing of comments.
 https://dev.mysql.com/doc/refman/8.0/en/differences-from-ansi.html
 """
 
-from sqlfluff.core.parser import NamedSegment, Ref, AnyNumberOf, Sequence, OneOf, Bracketed
+from sqlfluff.core.parser import (
+    NamedSegment,
+    Ref,
+    AnyNumberOf,
+    Sequence,
+    OneOf,
+    Bracketed,
+)
 from sqlfluff.core.dialects import load_raw_dialect
 
 ansi_dialect = load_raw_dialect("ansi")
