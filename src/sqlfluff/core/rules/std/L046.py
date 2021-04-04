@@ -34,6 +34,13 @@ class Rule_L046(BaseRule):
         # Jinja tags all have a length of two. We can use slicing
         # to remove them easily.
         main = s[2:-2]
+        # Optionally Jinja tags may also have plus of minus notation
+        # https://jinja2docs.readthedocs.io/en/stable/templates.html#whitespace-control
+        modifier_chars = ["+", "-"]
+        if main and main[0] in modifier_chars:
+            main = main[1:]
+        if main and main[-1] in modifier_chars:
+            main = main[:-1]
         inner = main.strip()
         pos = main.find(inner)
         return main[:pos], inner, main[pos + len(inner) :]
