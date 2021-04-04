@@ -24,20 +24,18 @@ test_2:
       c,
       d
     FROM tbl1
-
-test_3:
-  fail_str: |
+  fix_str: |
     SELECT
       a,
       b
     FROM tbl
-    UNION
+    UNION DISTINCT
     SELECT
       c,
       d
     FROM tbl1
 
-test_4:
+test_3:
   pass_str: |
     SELECT
       a,
@@ -49,7 +47,7 @@ test_4:
       d
     FROM tbl1
 
-test_5:
+test_4:
   pass_str: |
     SELECT
       a,
@@ -65,7 +63,7 @@ test_5:
       d
     FROM tbl1
 
-test_6:
+test_5:
   fail_str: |
     SELECT
       a,
@@ -81,8 +79,23 @@ test_6:
       e,
       f
     FROM tbl2
+  fix_str: |
+    SELECT
+      a,
+      b
+    FROM tbl
+    UNION DISTINCT
+    SELECT
+      c,
+      d
+    FROM tbl1
+    UNION DISTINCT
+    SELECT
+      e,
+      f
+    FROM tbl2
 
-test_7:
+test_6:
   fail_str: |
     select
       a,
@@ -94,6 +107,21 @@ test_7:
       d
     from tbl1
     union
+    select
+      e,
+      f
+    from tbl2
+  fix_str: |
+    select
+      a,
+      b
+    from tbl
+    union distinct
+    select
+      c,
+      d
+    from tbl1
+    UNION DISTINCT
     select
       e,
       f

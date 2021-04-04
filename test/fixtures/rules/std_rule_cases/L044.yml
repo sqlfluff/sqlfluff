@@ -285,3 +285,7 @@ test_30:
   configs:
     core:
       dialect: bigquery
+
+test_31:
+  # Issue 915: Crash on statements that don't have a SELECT
+  pass_str: CREATE TABLE my_table (id INTEGER)

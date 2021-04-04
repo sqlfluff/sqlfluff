@@ -611,14 +611,12 @@ class AliasedObjectReferenceSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
-class AliasedTableReferenceSegment(BaseSegment):
-    """A reference to a table with an `AS` clause."""
-
-    type = "table_reference"
-    match_grammar = Sequence(
-        Ref("TableReferenceSegment"), Ref("AliasExpressionSegment", optional=True)
+ansi_dialect.add(
+    # This is a hook point to allow subclassing for other dialects
+    AliasedTableReferenceGrammar=Sequence(
+        Ref("TableReferenceSegment"), Ref("AliasExpressionSegment")
     )
+)
 
 
 @ansi_dialect.segment()
@@ -1689,23 +1687,20 @@ class InsertStatementSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class TransactionStatementSegment(BaseSegment):
-    """A `COMMIT` or `ROLLBACK` statement."""
+    """A `COMMIT`, `ROLLBACK` or `TRANSACTION` statement."""
 
     type = "transaction_statement"
-    match_grammar = OneOf(
+    match_grammar = Sequence(
         # COMMIT [ WORK ] [ AND [ NO ] CHAIN ]
-        Sequence(
-            "COMMIT",
-            Ref.keyword("WORK", optional=True),
-            Sequence("AND", Ref.keyword("NO", optional=True), "CHAIN", optional=True),
-        ),
-        # NOTE: "TO SAVEPOINT" is not yet supported
         # ROLLBACK [ WORK ] [ AND [ NO ] CHAIN ]
-        Sequence(
-            "ROLLBACK",
-            Ref.keyword("WORK", optional=True),
-            Sequence("AND", Ref.keyword("NO", optional=True), "CHAIN", optional=True),
-        ),
+        # BEGIN | END TRANSACTION | WORK
+        # NOTE: "TO SAVEPOINT" is not yet supported
+        # https://docs.snowflake.com/en/sql-reference/sql/begin.html
+        # https://www.postgresql.org/docs/current/sql-end.html
+        OneOf("START", "BEGIN", "COMMIT", "ROLLBACK", "END"),
+        OneOf("TRANSACTION", "WORK", optional=True),
+        Sequence("NAME", Ref("SingleIdentifierGrammar"), optional=True),
+        Sequence("AND", Ref.keyword("NO", optional=True), "CHAIN", optional=True),
     )
 
 
@@ -2222,7 +2217,7 @@ class UpdateStatementSegment(BaseSegment):
     match_grammar = StartsWith("UPDATE")
     parse_grammar = Sequence(
         "UPDATE",
-        OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceSegment")),
+        OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
         Ref("SetClauseListSegment"),
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
