@@ -22,6 +22,10 @@ mysql_dialect.patch_lexer_struct(
     ]
 )
 
+# Reserve USE, FORCE & IGNORE
+mysql_dialect.sets("unreserved_keywords").difference_update(["FORCE", "IGNORE", "USE"])
+mysql_dialect.sets("reserved_keywords").update(["FORCE", "IGNORE", "USE"])
+
 mysql_dialect.replace(
     QuotedIdentifierSegment=NamedSegment.make(
         "back_quote", name="quoted_identifier", type="identifier", trim_chars=("`",)
