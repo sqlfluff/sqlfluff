@@ -8,6 +8,7 @@ from sqlfluff.core.parser import (
     AnyNumberOf,
     BaseSegment,
     Bracketed,
+    OptionallyBracketed,
     Dedent,
     Delimited,
     GreedyUntil,
@@ -2477,10 +2478,7 @@ class PreferringClauseSegment(BaseSegment):
     )
     parse_grammar = Sequence(
         "PREFERRING",
-        OneOf(
-            Ref("PreferringPreferenceTermSegment"),
-            Bracketed(Ref("PreferringPreferenceTermSegment")),
-        ),
+        OptionallyBracketed(Ref("PreferringPreferenceTermSegment")),
         Ref("PartitionClauseSegment", optional=True),
     )
 
