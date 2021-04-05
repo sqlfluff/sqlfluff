@@ -750,6 +750,8 @@ class WindowSpecificationSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class FunctionNameSegment(BaseSegment):
+    """Base part of a function name (excluding project, schema, etc.)."""
+
     type = "function_name"
     match_grammar = OneOf(
         Ref("FunctionNameIdentifierSegment"),
