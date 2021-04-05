@@ -82,14 +82,18 @@ class SQLBaseError(ValueError):
         """Get the position marker of the violation.
 
         Returns:
-            The :obj:`PosMarker` of the segments if the violation has a segment,
-            the :obj:`PosMarker` directly stored in a `pos` attribute or None
-            if neither a present.
+            The :obj:`FilePositionMarker` of the segments if the violation has a segment,
+            the :obj:`FilePositionMarker` directly stored in a `pos` attribute or None
+            if neither is present.
 
         """
         if hasattr(self, "segment"):
-            # Linting and Parsing Errors
-            return self.segment.pos_marker
+            # Linting and Parsing Errors.
+            # Use the source position market if there is one
+            # present.
+            return getattr(
+                self.segment.pos_marker, "source_pos_marker", self.segment.pos_marker
+            )
         elif hasattr(self, "pos"):
             # Lexing errors
             return self.pos
@@ -216,8 +220,8 @@ class SQLLintError(SQLBaseError):
         """Get a tuple representing this error. Mostly for testing."""
         return (
             self.rule.code,
-            self.segment.pos_marker.line_no,
-            self.segment.pos_marker.line_pos,
+            self.pos_marker().line_no,
+            self.pos_marker().line_pos,
         )
 
     def __repr__(self):

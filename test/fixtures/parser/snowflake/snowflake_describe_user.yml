@@ -1,8 +1,8 @@
 file:
   statement:
     describe_statement:
-    - keyword: describe
-    - identifier: user
-    - object_reference:
+      keyword: describe
+      identifier: user
+      object_reference:
         identifier: my_user
   statement_terminator: ;
