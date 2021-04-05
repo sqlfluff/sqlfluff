@@ -9,7 +9,8 @@ file:
           - dot: .
           - identifier: functions
           - dot: .
-          - function_name: timestamp_parsing
+          - function_name:
+              function_name_identifier: timestamp_parsing
           - start_bracket: (
           - expression:
               column_reference:

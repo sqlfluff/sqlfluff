@@ -5,16 +5,17 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-          - identifier: '`another-gcp-project`'
-          - dot: .
-          - identifier: '`functions.timestamp_parsing`'
-          - start_bracket: (
-          - expression:
+            identifier: '`another-gcp-project`'
+            dot: .
+            function_name:
+              identifier: '`functions.timestamp_parsing`'
+            start_bracket: (
+            expression:
               column_reference:
               - identifier: log_tbl
               - dot: .
               - identifier: first_move
-          - end_bracket: )
+            end_bracket: )
           alias_expression:
             keyword: AS
             identifier: first_move

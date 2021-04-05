@@ -2,6 +2,7 @@
 
 from typing import List, Tuple
 
+from sqlfluff.core.rules.base import LintFix
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
@@ -38,4 +39,12 @@ class Rule_L030(Rule_L010):
 
     """
 
-    _target_elems: List[Tuple[str, str]] = [("name", "function_name")]
+    _target_elems: List[Tuple[str, str]] = [("type", "function_name")]
+
+    def _get_fix(self, segment, fixed_raw):
+        child_segment = segment.segments[0]
+        return LintFix(
+            "edit",
+            child_segment,
+            child_segment.__class__(raw=fixed_raw, pos_marker=child_segment.pos_marker),
+        )

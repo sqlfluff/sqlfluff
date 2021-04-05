@@ -17,7 +17,8 @@ file:
       - comma: ','
       - select_clause_element:
           function:
-            function_name: LAST_VALUE
+            function_name:
+              function_name_identifier: LAST_VALUE
             start_bracket: (
             expression:
               column_reference:

@@ -251,8 +251,10 @@ ansi_dialect.add(
     ParameterNameSegment=ReSegment.make(
         r"[A-Z][A-Z0-9_]*", name="parameter", type="parameter"
     ),
-    FunctionNameSegment=ReSegment.make(
-        r"[A-Z][A-Z0-9_]*", name="function_name", type="function_name"
+    FunctionNameIdentifierSegment=ReSegment.make(
+        r"[A-Z][A-Z0-9_]*",
+        name="function_name_identifier",
+        type="function_name_identifier",
     ),
     # Maybe data types should be more restrictive?
     DatatypeIdentifierSegment=ReSegment.make(
@@ -747,6 +749,15 @@ class WindowSpecificationSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class FunctionNameSegment(BaseSegment):
+    type = "function_name"
+    match_grammar = OneOf(
+        Ref("FunctionNameIdentifierSegment"),
+        Ref("QuotedIdentifierSegment"),
+    )
+
+
+@ansi_dialect.segment()
 class FunctionSegment(BaseSegment):
     """A scalar or aggregate function.
 
@@ -766,10 +777,7 @@ class FunctionSegment(BaseSegment):
                     Ref("DotSegment"),
                 ),
             ),
-            OneOf(
-                Ref("FunctionNameSegment"),
-                Ref("SingleIdentifierGrammar"),
-            ),
+            Ref("FunctionNameSegment"),
             Bracketed(
                 Ref(
                     "FunctionContentsGrammar",

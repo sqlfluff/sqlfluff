@@ -8,7 +8,8 @@ file:
             start_bracket: (
             expression:
             - function:
-              - function_name: POW
+              - function_name:
+                  function_name_identifier: POW
               - start_bracket: (
               - expression:
                   column_reference:
@@ -19,7 +20,8 @@ file:
               - end_bracket: )
             - binary_operator: +
             - function:
-              - function_name: POW
+              - function_name:
+                  function_name_identifier: POW
               - start_bracket: (
               - expression:
                   column_reference:
@@ -30,7 +32,8 @@ file:
               - end_bracket: )
             - binary_operator: +
             - function:
-              - function_name: POW
+              - function_name:
+                  function_name_identifier: POW
               - start_bracket: (
               - expression:
                   column_reference:
@@ -41,7 +44,8 @@ file:
               - end_bracket: )
             - binary_operator: +
             - function:
-              - function_name: POW
+              - function_name:
+                  function_name_identifier: POW
               - start_bracket: (
               - expression:
                   column_reference:

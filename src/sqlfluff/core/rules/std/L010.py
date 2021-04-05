@@ -169,12 +169,13 @@ class Rule_L010(BaseRule):
             )
             return LintResult(
                 anchor=segment,
-                fixes=[
-                    LintFix(
-                        "edit",
-                        segment,
-                        segment.__class__(raw=fixed_raw, pos_marker=segment.pos_marker),
-                    )
-                ],
+                fixes=[self._get_fix(segment, fixed_raw)],
                 memory=memory,
             )
+
+    def _get_fix(self, segment, fixed_raw):
+        return LintFix(
+            "edit",
+            segment,
+            segment.__class__(raw=fixed_raw, pos_marker=segment.pos_marker),
+        )

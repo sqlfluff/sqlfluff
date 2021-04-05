@@ -5,7 +5,8 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-            function_name: AVG
+            function_name:
+              function_name_identifier: AVG
             start_bracket: (
             expression:
               column_reference:

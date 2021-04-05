@@ -5,13 +5,15 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-            function_name: COS
+            function_name:
+              function_name_identifier: COS
             start_bracket: (
             expression:
             - literal: '2'
             - binary_operator: '*'
             - function:
-                function_name: ACOS
+                function_name:
+                  function_name_identifier: ACOS
                 start_bracket: (
                 expression:
                   numeric_literal:
