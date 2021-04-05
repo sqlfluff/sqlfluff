@@ -759,13 +759,17 @@ class FunctionSegment(BaseSegment):
     type = "function"
     match_grammar = Sequence(
         Sequence(
-            Sequence(
-                # a stored function could be accessed by schema identifier
-                Ref("SingleIdentifierGrammar"),
-                Ref("DotSegment"),
-                optional=True,
+            # Project name, schema identifier, etc.
+            AnyNumberOf(
+                Sequence(
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("DotSegment"),
+                ),
             ),
-            Ref("FunctionNameSegment"),
+            OneOf(
+                Ref("FunctionNameSegment"),
+                Ref("SingleIdentifierGrammar"),
+            ),
             Bracketed(
                 Ref(
                     "FunctionContentsGrammar",

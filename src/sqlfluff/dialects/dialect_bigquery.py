@@ -79,8 +79,8 @@ bigquery_dialect.sets("datetime_units").update(
 # Unreserved Keywords
 bigquery_dialect.sets("unreserved_keywords").add("SYSTEM_TIME")
 bigquery_dialect.sets("unreserved_keywords").remove("FOR")
-bigquery_dialect.sets("unreserved_keywords").add("STRUCT")
 # Reserved Keywords
+bigquery_dialect.sets("reserved_keywords").add("STRUCT")
 bigquery_dialect.sets("reserved_keywords").add("FOR")
 
 # In BigQuery, UNNEST() returns a "value table".
