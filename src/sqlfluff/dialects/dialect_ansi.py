@@ -494,21 +494,23 @@ class ObjectReferenceSegment(BaseSegment):
         """Details about a table alias."""
 
         part: str  # Name of the part
-        segment: BaseSegment  # Segment containing the part
+        # Segment(s) comprising the part. Usuaully just one segment, but could
+        # be multiple in dialects (e.g. BigQuery) that support unusual
+        # characters in names (e.g. "-")
+        segments: List[BaseSegment]
 
     @classmethod
     def _iter_reference_parts(cls, elem) -> Generator[ObjectReferencePart, None, None]:
         """Extract the elements of a reference and yield."""
         # trim on quotes and split out any dots.
         for part in elem.raw_trimmed().split("."):
-            yield cls.ObjectReferencePart(part, elem)
+            yield cls.ObjectReferencePart(part, [elem])
 
     def iter_raw_references(self) -> Generator[ObjectReferencePart, None, None]:
         """Generate a list of reference strings and elements.
 
-        Each element is a tuple of (str, segment). If some are
-        split, then a segment may appear twice, but the substring
-        will only appear once.
+        Each reference is an ObjectReferencePart. If some are split, then a
+        segment may appear twice, but the substring will only appear once.
         """
         # Extract the references from those identifiers (because some may be quoted)
         for elem in self.recursive_crawl("identifier"):
@@ -848,11 +850,17 @@ class FromExpressionElementSegment(BaseSegment):
         # If not return the object name (or None if there isn't one)
         # ref = self.get_child("object_reference")
         if ref:
-            # Return the last element of the reference, which
-            # will already be a tuple.
-            penultimate_ref = list(ref.iter_raw_references())[-1]
+            # Return the last element of the reference.
+            penultimate_ref: ObjectReferenceSegment.ObjectReferencePart = list(
+                ref.iter_raw_references()
+            )[-1]
             return AliasInfo(
-                penultimate_ref[0], penultimate_ref[1], False, self, None, ref
+                penultimate_ref.part,
+                penultimate_ref.segments[0],
+                False,
+                self,
+                None,
+                ref,
             )
         # No references or alias, return None
         return None
