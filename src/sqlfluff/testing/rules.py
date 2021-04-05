@@ -20,7 +20,7 @@ class RuleTestCase(NamedTuple):
     fix_str: Optional[str] = None
     configs: Optional[dict] = None
     skip: Optional[str] = None
-    line_numbers: List[int] = None
+    line_numbers: List[int] = []
 
 
 def load_test_cases(
