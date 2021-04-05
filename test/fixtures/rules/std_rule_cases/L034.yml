@@ -15,6 +15,7 @@ test_2:
       row_number() over (partition by id order by date) as y,
       b
     from x
+  line_numbers: [3]
 
   fix_str: |
     select
@@ -30,6 +31,7 @@ test_3:
       *,
       cast(b as int) as b_int
     from x
+  line_numbers: [2]
 
   fix_str: |
     select
@@ -45,6 +47,7 @@ test_4:
       cast(b as int) as b_int,
       *
     from x
+  line_numbers: [2, 3]
 
   fix_str: |
     select
@@ -60,6 +63,7 @@ test_5:
       b::int,
       *
     from x
+  line_numbers: [2, 3]
 
   fix_str: |
     select
@@ -76,6 +80,7 @@ test_6:
       2::int + 4 as sum,
       cast(b) as c
     from x
+  line_numbers: [2, 4]
 
   fix_str: |
     select
