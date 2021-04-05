@@ -1,0 +1,31 @@
+file:
+  - statement:
+      transaction_statement:
+      - keyword: BEGIN
+      - keyword: TRANSACTION
+  - statement_terminator: ;
+  - statement:
+      update_statement:
+        keyword: UPDATE
+        table_reference:
+          identifier: tbl
+        set_clause_list:
+          keyword: SET
+          set_clause:
+            column_reference:
+              identifier: foo
+            comparison_operator: '='
+            literal: '1'
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              identifier: bar
+            comparison_operator: '='
+            literal: '2'
+  - statement_terminator: ;
+  - statement:
+      transaction_statement:
+      - keyword: END
+      - keyword: TRANSACTION
+  - statement_terminator: ;
