@@ -1322,7 +1322,7 @@ class UpdateStatementSegment(BaseSegment):
     match_grammar = StartsWith("UPDATE")
     parse_grammar = Sequence(
         "UPDATE",
-        Ref("AliasedTableReferenceSegment"),
+        OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
         Ref("SetClauseListSegment"),
         Ref("UpdateFromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
@@ -1375,7 +1375,7 @@ class UpdateFromClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "FROM",
         Delimited(
-            Ref("AliasedTableReferenceSegment"),
+            OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
             terminator="WHERE",
         ),
     )
@@ -1404,7 +1404,7 @@ class MergeStatementSegment(BaseSegment):
     parse_grammar = Sequence(
         "MERGE",
         "INTO",
-        Ref("AliasedTableReferenceSegment"),
+        OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
         "USING",
         OneOf(
             Ref("TableReferenceSegment"),  # tables/views
@@ -1527,7 +1527,7 @@ class DeleteStatementSegment(BaseSegment):
         "DELETE",
         Ref("StarSegment", optional=True),
         "FROM",
-        Ref("AliasedTableReferenceSegment"),
+        OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
         Ref("WhereClauseSegment", optional=True),
         Ref("PreferringClauseSegment", optional=True),
     )

@@ -54,6 +54,14 @@ class RuleTuple(NamedTuple):
     description: str
 
 
+class NoQaDirective(NamedTuple):
+    """Parsed version of a 'noqa' comment."""
+
+    line_no: int  # Source line number
+    rules: Optional[Tuple[str, ...]]  # Affected rule names
+    action: Optional[str]  # "enable", "disable", or "None"
+
+
 class ProtoFile(NamedTuple):
     """Proto object to be inherited by LintedFile."""
 
@@ -61,7 +69,7 @@ class ProtoFile(NamedTuple):
     violations: list
     time_dict: dict
     tree: Any
-    ignore_mask: list
+    ignore_mask: List[NoQaDirective]
 
 
 class ParsedString(NamedTuple):
@@ -96,10 +104,10 @@ class LintedFile(NamedTuple):
     """A class to store the idea of a linted file."""
 
     path: str
-    violations: list
+    violations: List[SQLBaseError]
     time_dict: dict
     tree: Optional[BaseSegment]
-    ignore_mask: list
+    ignore_mask: List[NoQaDirective]
     templated_file: TemplatedFile
     encoding: str
 
@@ -154,15 +162,90 @@ class LintedFile(NamedTuple):
             violations = [v for v in violations if not v.ignore]
             # Ignore any rules in the ignore mask
             if self.ignore_mask:
-                for line_no, rules in self.ignore_mask:
-                    violations = [
-                        v
-                        for v in violations
-                        if not (
-                            v.line_no() == line_no
-                            and (rules is None or v.rule_code() in rules)
-                        )
-                    ]
+                violations = self._ignore_masked_violations(violations)
+        return violations
+
+    @staticmethod
+    def _ignore_masked_violations_single_line(
+        violations: List[SQLBaseError], ignore_mask: List[NoQaDirective]
+    ):
+        """Returns whether to ignore error for line-specific directives.
+
+        The "ignore" list is assumed to ONLY contain NoQaDirectives with
+        action=None.
+        """
+        for ignore in ignore_mask:
+            violations = [
+                v
+                for v in violations
+                if not (
+                    v.line_no() == ignore.line_no
+                    and (ignore.rules is None or v.rule_code() in ignore.rules)
+                )
+            ]
+        return violations
+
+    @staticmethod
+    def _should_ignore_violation_line_range(
+        line_no: int, ignore_rule: List[NoQaDirective]
+    ):
+        """Returns whether to ignore a violation at line_no."""
+        # Loop through the NoQaDirectives to find the state of things at
+        # line_no. Assumptions about "ignore_rule":
+        # - Contains directives for only ONE RULE, i.e. the rule that was
+        #   violated at line_no
+        # - Sorted in ascending order by line number
+        disable = False
+        for ignore in ignore_rule:
+            if ignore.line_no > line_no:
+                break
+            disable = ignore.action == "disable"
+        return disable
+
+    @classmethod
+    def _ignore_masked_violations_line_range(
+        cls, violations: List[SQLBaseError], ignore_mask: List[NoQaDirective]
+    ):
+        """Returns whether to ignore error for line-range directives.
+
+        The "ignore" list is assumed to ONLY contain NoQaDirectives where
+        action is "enable" or "disable".
+        """
+        result = []
+        for v in violations:
+            # Find the directives that affect the violated rule "v", either
+            # because they specifically reference it or because they don't
+            # specify a list of rules, thus affecting ALL rules.
+            ignore_rule = sorted(
+                [
+                    ignore
+                    for ignore in ignore_mask
+                    if not ignore.rules
+                    or (v.rule_code() in cast(Tuple[str, ...], ignore.rules))
+                ],
+                key=lambda ignore: ignore.line_no,
+            )
+            # Determine whether to ignore the violation, based on the relevant
+            # enable/disable directives.
+            if not cls._should_ignore_violation_line_range(v.line_no(), ignore_rule):
+                result.append(v)
+        return result
+
+    def _ignore_masked_violations(
+        self, violations: List[SQLBaseError]
+    ) -> List[SQLBaseError]:
+        """Remove any violations specified by ignore_mask.
+
+        This involves two steps:
+        1. Filter out violations affected by single-line "noqa" directives.
+        2. Filter out violations affected by disable/enable "noqa" directives.
+        """
+        ignore_specific = [ignore for ignore in self.ignore_mask if not ignore.action]
+        ignore_range = [ignore for ignore in self.ignore_mask if ignore.action]
+        violations = self._ignore_masked_violations_single_line(
+            violations, ignore_specific
+        )
+        violations = self._ignore_masked_violations_line_range(violations, ignore_range)
         return violations
 
     def num_violations(self, **kwargs) -> int:
@@ -909,26 +992,52 @@ class Linter:
         bencher("Finish parsing {0!r}".format(short_fname))
         return ParsedString(parsed, violations, time_dict, templated_file, config)
 
-    @staticmethod
-    def extract_ignore_from_comment(comment: RawSegment):
-        """Extract ignore mask entries from a comment segment."""
+    @classmethod
+    def parse_noqa(cls, comment: str, line_no: int):
+        """Extract ignore mask entries from a comment string."""
         # Also trim any whitespace afterward
-        comment_content = comment.raw_trimmed().strip()
-        if comment_content.startswith("noqa"):
+        if comment.startswith("noqa"):
             # This is an ignore identifier
-            comment_remainder = comment_content[4:]
+            comment_remainder = comment[4:]
             if comment_remainder:
                 if not comment_remainder.startswith(":"):
                     return SQLParseError(
                         "Malformed 'noqa' section. Expected 'noqa: <rule>[,...]",
-                        segment=comment,
                     )
-                comment_remainder = comment_remainder[1:]
-                rules = [r.strip() for r in comment_remainder.split(",")]
-                return (comment.pos_marker.line_no, tuple(rules))
-            else:
-                return (comment.pos_marker.line_no, None)
+                comment_remainder = comment_remainder[1:].strip()
+                if comment_remainder:
+                    action: Optional[str]
+                    if "=" in comment_remainder:
+                        action, rule_part = comment_remainder.split("=", 1)
+                        if action not in {"disable", "enable"}:
+                            return SQLParseError(
+                                "Malformed 'noqa' section. Expected 'noqa: enable=<rule>[,...] | all' or 'noqa: disable=<rule>[,...] | all",
+                            )
+                    else:
+                        action = None
+                        rule_part = comment_remainder
+                        if rule_part in {"disable", "enable"}:
+                            return SQLParseError(
+                                "Malformed 'noqa' section. Expected 'noqa: enable=<rule>[,...] | all' or 'noqa: disable=<rule>[,...] | all",
+                            )
+                    rules: Optional[Tuple[str, ...]]
+                    if rule_part != "all":
+                        rules = tuple(r.strip() for r in rule_part.split(","))
+                    else:
+                        rules = None
+                    return NoQaDirective(line_no, rules, action)
+            return NoQaDirective(line_no, None, None)
         return None
+
+    @classmethod
+    def extract_ignore_from_comment(cls, comment: RawSegment):
+        """Extract ignore mask entries from a comment segment."""
+        # Also trim any whitespace afterward
+        comment_content = comment.raw_trimmed().strip()
+        result = cls.parse_noqa(comment_content, comment.pos_marker.line_no)
+        if isinstance(result, SQLParseError):
+            result.segment = comment
+        return result
 
     @staticmethod
     def _warn_unfixable(code: str):
@@ -942,6 +1051,7 @@ class Linter:
         config: Optional[FluffConfig] = None,
         fix: bool = False,
         fname: Optional[str] = None,
+        templated_file: Optional[TemplatedFile] = None,
     ) -> Tuple[BaseSegment, List[SQLLintError]]:
         """Lint and optionally fix a tree object."""
         config = config or self.config
@@ -964,7 +1074,10 @@ class Linter:
                 # "anchor", the segment to look for either to edit or to insert BEFORE.
                 # The second is the element to insert or create.
                 linting_errors, _, fixes, _ = crawler.crawl(
-                    tree, dialect=config.get("dialect_obj"), fname=fname
+                    tree,
+                    dialect=config.get("dialect_obj"),
+                    fname=fname,
+                    templated_file=templated_file,
                 )
                 all_linting_errors += linting_errors
 
@@ -1016,7 +1129,14 @@ class Linter:
         # Filter out any linting errors in templated sections if relevant.
         linting_errors = list(
             filter(
-                lambda e: getattr(e.segment.pos_marker, "is_literal", True),
+                lambda e: (
+                    # Is it in a literal section?
+                    # This default to YES because if it's missing we probably
+                    # didn't template this file.
+                    getattr(e.segment.pos_marker, "is_literal", True)
+                    # Is it a rule that is designed to work on templated sections?
+                    or e.rule.targets_templated
+                ),
                 linting_errors,
             )
         )
@@ -1027,9 +1147,12 @@ class Linter:
         tree: BaseSegment,
         config: Optional[FluffConfig] = None,
         fname: Optional[str] = None,
+        templated_file: Optional[TemplatedFile] = None,
     ) -> Tuple[BaseSegment, List[SQLLintError]]:
         """Return the fixed tree and violations from lintfix when we're fixing."""
-        fixed_tree, violations = self.lint_fix(tree, config, fix=True, fname=fname)
+        fixed_tree, violations = self.lint_fix(
+            tree, config, fix=True, fname=fname, templated_file=templated_file
+        )
         return fixed_tree, violations
 
     def lint(
@@ -1037,9 +1160,12 @@ class Linter:
         tree: BaseSegment,
         config: Optional[FluffConfig] = None,
         fname: Optional[str] = None,
+        templated_file: Optional[TemplatedFile] = None,
     ) -> List[SQLLintError]:
         """Return just the violations from lintfix when we're only linting."""
-        _, violations = self.lint_fix(tree, config, fix=False, fname=fname)
+        _, violations = self.lint_fix(
+            tree, config, fix=False, fname=fname, templated_file=templated_file
+        )
         return violations
 
     def lint_string(
@@ -1084,10 +1210,18 @@ class Linter:
 
             if fix:
                 tree, initial_linting_errors = self.fix(
-                    tree, config=config, fname=fname
+                    tree,
+                    config=config,
+                    fname=fname,
+                    templated_file=parsed.templated_file,
                 )
             else:
-                lint = self.lint(tree, config=config, fname=fname)
+                lint = self.lint(
+                    tree,
+                    config=config,
+                    fname=fname,
+                    templated_file=parsed.templated_file,
+                )
                 initial_linting_errors = lint
 
             # Update the timing dict
