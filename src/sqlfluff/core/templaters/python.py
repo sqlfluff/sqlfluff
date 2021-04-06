@@ -246,7 +246,11 @@ class PythonTemplater(RawTemplater):
 
     @classmethod
     def slice_file(
-        cls, raw_str: str, templated_str: str, config=None, trailing_newline=False
+        cls,
+        raw_str: str,
+        templated_str: str,
+        config=None,
+        trailing_newline=False,
     ) -> Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]:
         """Slice the file to determine regions where we can fix."""
         templater_logger.info("Slicing File Template")
@@ -306,10 +310,21 @@ class PythonTemplater(RawTemplater):
                 # If it's not equal, loop around
                 templated_str = new_templated_str
             if trailing_newline:
-                # Used by dbt.py to determine if trailing newline needs to be
-                # added to the templated SQL since the dbt compiler always
-                # strips trailing newlines.
+                # This logic only triggered when 'templater = dbt' since dbt
+                # compiler always strips trailing newlines.
+
+                # Since the dbt templater will strip the trailing newlines when
+                # it compiles the raw SQL, we can count the trailing newlines
+                # by determining the character difference before and after
+                # compiling
+
+                # newlines = len(raw_str) - len(templated_str)
+                # newlines_to_append = "\n" * newlines
+
+                # new_templated_str = new_templated_str + newlines_to_append
+
                 new_templated_str = new_templated_str + "\n"
+
         return raw_sliced, sliced_file, new_templated_str
 
     @classmethod
