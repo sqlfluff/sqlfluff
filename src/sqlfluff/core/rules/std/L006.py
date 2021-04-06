@@ -47,7 +47,6 @@ class Rule_L006(BaseRule):
 
         NOTE: We also allow bracket characters either side.
         """
-
         # Iterate through children of this segment looking for any of the
         # target types. We also check for whether any of the children start
         # or end with the targets.
@@ -116,11 +115,23 @@ class Rule_L006(BaseRule):
                         break
 
                 if (
+                    # There is a previous segment
                     prev_seg
+                    # And it's not whitespace
                     and not prev_seg.is_whitespace
+                    # And it's not an opening bracket
                     and not (
                         prev_seg.name.endswith("_bracket")
                         and prev_seg.name.startswith("start_")
+                    )
+                    # And it's not a placeholder that itself ends with whitespace.
+                    # NOTE: This feels convoluted but handles the case of '-%}' modifiers.
+                    and not (
+                        prev_seg.is_meta
+                        and (
+                            prev_seg.source_str.endswith(" ")
+                            or prev_seg.source_str.endswith("\n")
+                        )
                     )
                 ):
                     self.logger.debug(
@@ -159,11 +170,23 @@ class Rule_L006(BaseRule):
                         break
 
                 if (
+                    # There is a next segment
                     next_seg
+                    # It's not whitespace
                     and not next_seg.is_whitespace
+                    # It's not a closeing bracket
                     and not (
                         next_seg.name.endswith("_bracket")
                         and next_seg.name.startswith("end_")
+                    )
+                    # And it's not a placeholder that itself starts with whitespace.
+                    # NOTE: This feels convoluted but handles the case of '{%-' modifiers.
+                    and not (
+                        next_seg.is_meta
+                        and (
+                            next_seg.source_str.startswith(" ")
+                            or next_seg.source_str.startswith("\n")
+                        )
                     )
                 ):
                     self.logger.debug(
