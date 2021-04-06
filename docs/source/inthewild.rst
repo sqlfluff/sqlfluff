@@ -22,5 +22,6 @@ Just add a section below by raising a PR on Github by
   CI workflow thanks to SQLFluff.
 - `Drizly's <https://www.drizly.com>`_ analytics team uses SQLFluff with
   `dbt <http://www.getdbt.com/>`_ for over 700 models as part of our CI checks in github.
-  Before SQLFluff, we had SQL best practices outlined in a google doc and had to manually 
-  enforce through PR comments. We're now able to enforce much of our style guide automatically through SQLFluff.
+  Before SQLFluff, we had SQL best practices outlined in a google doc and had to manually
+  enforce through PR comments. We're now able to enforce much of our style guide automatically
+  through SQLFluff.
