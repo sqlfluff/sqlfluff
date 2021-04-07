@@ -7,7 +7,7 @@ from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.string_helpers import curtail_string
 
 from sqlfluff.core.parser.segments import BaseSegment, EphemeralSegment
-from sqlfluff.core.parser.helpers import trim_non_code_segments
+from sqlfluff.core.parser.helpers import trim_non_code_segments, iter_indices
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_logging import (
     parse_match_logging,
@@ -316,11 +316,11 @@ class BaseGrammar(Matchable):
             for matcher, simple in simple_matchers:
                 # Simple will be a tuple of options
                 for simple_option in simple:
-                    try:
-                        buff_pos = str_buff.index(simple_option)
+                    # NOTE: We use iter_indices to make sure we capture
+                    # all instances of potential matches if there are many.
+                    # This is important for bracket counting.
+                    for buff_pos in iter_indices(str_buff, simple_option):
                         match_queue.append((matcher, buff_pos, simple_option))
-                    except ValueError:
-                        pass
 
             # Sort the match queue. First to process AT THE END.
             # That means we pop from the end.
@@ -637,11 +637,19 @@ class BaseGrammar(Matchable):
                                 end_brackets.index(matcher)
                             ]
                             if bracket_is_definite:
-                                # We've found an unexpected end bracket!
-                                raise SQLParseError(
-                                    f"Found unexpected end bracket!, was expecting one of: {matchers + bracket_matchers}, but got {matcher}",
-                                    segment=match.matched_segments[0],
+                                # We've found an unexpected end bracket! This is likely
+                                # because we're matching a section which should have ended.
+                                # If we had a match, it would have matched by now, so this
+                                # means no match.
+                                parse_match_logging(
+                                    cls.__name__,
+                                    "_bracket_sensitive_look_ahead_match",
+                                    "UEXB",
+                                    parse_context=parse_context,
+                                    v_level=3,
+                                    got=matcher,
                                 )
+                                return ((), MatchResult.from_unmatched(segments), None)
                             pre_seg_buff += pre
                             pre_seg_buff += match.matched_segments
                             seg_buff = match.unmatched_segments

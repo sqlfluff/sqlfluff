@@ -959,6 +959,8 @@ class SelectClauseElementSegment(BaseSegment):
     # Important to split elements before parsing, otherwise debugging is really hard.
     match_grammar = GreedyUntil(
         "FROM",
+        "WHERE",
+        "ORDER",
         "LIMIT",
         Ref("CommaSegment"),
         Ref("SetOperatorSegment"),
@@ -1002,6 +1004,8 @@ class SelectClauseSegment(BaseSegment):
         Sequence("SELECT", Ref("WildcardExpressionSegment", optional=True)),
         terminator=OneOf(
             "FROM",
+            "WHERE",
+            "ORDER",
             "LIMIT",
             Ref("SetOperatorSegment"),
         ),
@@ -1547,6 +1551,46 @@ class ValuesClauseSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class UnorderedSelectStatementSegment(BaseSegment):
+    """A `SELECT` statement without any ORDER clauses or later.
+
+    This is designed for use in the context of set operations,
+    for other use cases, we should use the main
+    SelectStatementSegment.
+    """
+
+    type = "select_statement"
+    # match grammar. This one makes sense in the context of knowing that it's
+    # definitely a statement, we just don't know what type yet.
+    match_grammar = StartsWith(
+        # NB: In bigquery, the select clause may include an EXCEPT, which
+        # will also match the set operator, but by starting with the whole
+        # select clause rather than just the SELECT keyword, we mitigate that
+        # here.
+        Ref("SelectClauseSegment"),
+        terminator=OneOf(
+            Ref("SetOperatorSegment"),
+            Ref("WithNoSchemaBindingClauseSegment"),
+            Ref("OrderByClauseSegment"),
+            Ref("LimitClauseSegment"),
+            Ref("NamedWindowSegment"),
+        ),
+        enforce_whitespace_preceeding_terminator=True,
+    )
+
+    parse_grammar = Sequence(
+        Ref("SelectClauseSegment"),
+        # Dedent for the indent in the select clause.
+        # It's here so that it can come AFTER any whitespace.
+        Dedent,
+        Ref("FromClauseSegment", optional=True),
+        Ref("WhereClauseSegment", optional=True),
+        Ref("GroupByClauseSegment", optional=True),
+        Ref("HavingClauseSegment", optional=True),
+    )
+
+
+@ansi_dialect.segment()
 class SelectStatementSegment(BaseSegment):
     """A `SELECT` statement."""
 
@@ -1565,18 +1609,13 @@ class SelectStatementSegment(BaseSegment):
         enforce_whitespace_preceeding_terminator=True,
     )
 
-    parse_grammar = Sequence(
-        Ref("SelectClauseSegment"),
-        # Dedent for the indent in the select clause.
-        # It's here so that it can come AFTER any whitespace.
-        Dedent,
-        Ref("FromClauseSegment", optional=True),
-        Ref("WhereClauseSegment", optional=True),
-        Ref("GroupByClauseSegment", optional=True),
-        Ref("HavingClauseSegment", optional=True),
-        Ref("OrderByClauseSegment", optional=True),
-        Ref("LimitClauseSegment", optional=True),
-        Ref("NamedWindowSegment", optional=True),
+    # Inherit most of the parse grammar from the original.
+    parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(
+        insert=[
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("LimitClauseSegment", optional=True),
+            Ref("NamedWindowSegment", optional=True),
+        ]
     )
 
 
@@ -1587,12 +1626,17 @@ ansi_dialect.add(
     ),
     # Things that behave like select statements, which can form part of with expressions.
     NonWithSelectableGrammar=OneOf(
-        Ref("SetExpressionSegment"), Ref("NonSetSelectableGrammar")
+        Ref("SetExpressionSegment"),
+        OptionallyBracketed(Ref("SelectStatementSegment")),
+        Ref("NonSetSelectableGrammar"),
     ),
     # Things that behave like select statements, which can form part of set expressions.
     NonSetSelectableGrammar=OneOf(
-        Ref("SelectStatementSegment"),
         Ref("ValuesClauseSegment"),
+        Ref("UnorderedSelectStatementSegment"),
+        # If it's bracketed, we can have the full select statment here,
+        # otherwise we can't because any order by clauses should belong
+        # to the set expression.
         Bracketed(Ref("SelectStatementSegment")),
     ),
 )
@@ -1678,6 +1722,9 @@ class SetExpressionSegment(BaseSegment):
             ),
             min_times=1,
         ),
+        Ref("OrderByClauseSegment", optional=True),
+        Ref("LimitClauseSegment", optional=True),
+        Ref("NamedWindowSegment", optional=True),
     )
 
 
