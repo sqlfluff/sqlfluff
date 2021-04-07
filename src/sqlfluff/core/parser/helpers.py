@@ -63,7 +63,22 @@ def trim_non_code_segments(
 
 
 def iter_indices(seq: List, val: Any) -> Iterator[int]:
-    """Iterate all indices in a list that val occurs at."""
+    """Iterate all indices in a list that val occurs at.
+
+    Args:
+        seq (list): A list to look for indices in.
+        val: What to look for.
+
+    Yields:
+        int: The index of val in seq.
+
+    Examples:
+        The function works like str.index() but iterates all
+        the results rather than returning the first.
+
+        >>> print([i for i in iter_indices([1, 0, 2, 3, 2], 2)])
+        [2, 4]
+    """
     idx = 0
     while val in seq[idx:]:
         idx = seq.index(val, idx) + 1
