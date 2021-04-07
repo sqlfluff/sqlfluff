@@ -88,6 +88,7 @@ ansi_dialect.set_lexer_struct(
             dict(is_code=True),
         ),
         ("not_equal", "regex", r"!=|<>", dict(is_code=True)),
+        ("like_operator", "regex", r"!?~~?\*?", dict(is_code=True)),
         ("greater_than_or_equal", "regex", r">=", dict(is_code=True)),
         ("less_than_or_equal", "regex", r"<=", dict(is_code=True)),
         ("newline", "regex", r"\r\n|\n", dict(type="newline", is_whitespace=True)),
@@ -99,7 +100,6 @@ ansi_dialect.set_lexer_struct(
         ("dot", "singleton", ".", dict(is_code=True)),
         ("comma", "singleton", ",", dict(is_code=True, type="comma")),
         ("plus", "singleton", "+", dict(is_code=True)),
-        ("tilde", "singleton", "~", dict(is_code=True)),
         ("minus", "singleton", "-", dict(is_code=True)),
         ("divide", "singleton", "/", dict(is_code=True)),
         ("percent", "singleton", "%", dict(is_code=True)),
@@ -208,6 +208,9 @@ ansi_dialect.add(
     ModuloSegment=SymbolSegment.make("%", name="modulo", type="binary_operator"),
     ConcatSegment=SymbolSegment.make("||", name="concatenate", type="binary_operator"),
     EqualsSegment=SymbolSegment.make("=", name="equals", type="comparison_operator"),
+    LikeOperatorSegment=NamedSegment.make(
+        "like_operator", name="like_operator", type="comparison_operator"
+    ),
     GreaterThanSegment=SymbolSegment.make(
         ">", name="greater_than", type="comparison_operator"
     ),
@@ -305,6 +308,7 @@ ansi_dialect.add(
         Ref("LessThanOrEqualToSegment"),
         Ref("NotEqualToSegment_a"),
         Ref("NotEqualToSegment_b"),
+        Ref("LikeOperatorSegment"),
     ),
     # hookpoint for other dialects
     # e.g. EXASOL str to date cast with DATE '2021-01-01'
