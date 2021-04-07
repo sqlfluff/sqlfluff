@@ -1,0 +1,128 @@
+rule: L033
+
+test_1:
+  # Bare UNION without a DISTINCT or ALL
+  pass_str: |
+    SELECT
+      a,
+      b
+    FROM tbl
+    UNION ALL
+    SELECT
+      c,
+      d
+    FROM tbl1
+
+test_2:
+  fail_str: |
+    SELECT
+      a,
+      b
+    FROM tbl
+    UNION
+    SELECT
+      c,
+      d
+    FROM tbl1
+  fix_str: |
+    SELECT
+      a,
+      b
+    FROM tbl
+    UNION DISTINCT
+    SELECT
+      c,
+      d
+    FROM tbl1
+
+test_3:
+  pass_str: |
+    SELECT
+      a,
+      b
+    FROM tbl
+    UNION DISTINCT
+    SELECT
+      c,
+      d
+    FROM tbl1
+
+test_4:
+  pass_str: |
+    SELECT
+      a,
+      b
+    FROM tbl
+
+    --selecting a and b
+
+    UNION DISTINCT
+
+    SELECT
+      c,
+      d
+    FROM tbl1
+
+test_5:
+  fail_str: |
+    SELECT
+      a,
+      b
+    FROM tbl
+    UNION DISTINCT
+    SELECT
+      c,
+      d
+    FROM tbl1
+    UNION
+    SELECT
+      e,
+      f
+    FROM tbl2
+  fix_str: |
+    SELECT
+      a,
+      b
+    FROM tbl
+    UNION DISTINCT
+    SELECT
+      c,
+      d
+    FROM tbl1
+    UNION DISTINCT
+    SELECT
+      e,
+      f
+    FROM tbl2
+
+test_6:
+  fail_str: |
+    select
+      a,
+      b
+    from tbl
+    union distinct
+    select
+      c,
+      d
+    from tbl1
+    union
+    select
+      e,
+      f
+    from tbl2
+  fix_str: |
+    select
+      a,
+      b
+    from tbl
+    union distinct
+    select
+      c,
+      d
+    from tbl1
+    UNION DISTINCT
+    select
+      e,
+      f
+    from tbl2

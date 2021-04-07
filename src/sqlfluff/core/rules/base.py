@@ -1,7 +1,7 @@
-"""Implements the base crawler which all the rules are based on.
+"""Implements the base rule class.
 
-Crawlers, crawl through the trees returned by the parser and
-evaluate particular rules.
+Rules crawl through the trees returned by the parser and evaluate particular
+rules.
 
 The intent is that it should be possible for the rules to be expressed
 as simply as possible, with as much of the complexity abstracted away.
@@ -16,11 +16,16 @@ missing.
 
 import copy
 import logging
+import pathlib
 import re
+from typing import Optional, List, Tuple, TYPE_CHECKING
 from collections import namedtuple
 
 from sqlfluff.core.parser import RawSegment, KeywordSegment, BaseSegment, SymbolSegment
 from sqlfluff.core.errors import SQLLintError
+
+if TYPE_CHECKING:
+    from sqlfluff.core.templaters import TemplatedFile
 
 # The ghost of a rule (mostly used for testing)
 RuleGhost = namedtuple("RuleGhost", ["code", "description"])
@@ -38,7 +43,7 @@ class RuleLoggingAdapter(logging.LoggerAdapter):
 
 
 class LintResult:
-    """A class to hold the results of a crawl operation.
+    """A class to hold the results of a rule evaluation.
 
     Args:
         anchor (:obj:`BaseSegment`, optional): A segment which represents
@@ -49,7 +54,7 @@ class LintResult:
             fixes which would correct this issue. If not present then it's
             assumed that this issue will have to manually fixed.
         memory (:obj:`dict`, optional): An object which stores any working
-            memory for the crawler. The `memory` returned in any `LintResult`
+            memory for the rule. The `memory` returned in any `LintResult`
             will be passed as an input to the next segment to be crawled.
         description (:obj:`str`, optional): A description of the problem
             identified as part of this result. This will override the
@@ -98,7 +103,7 @@ class LintFix:
             to be moved *after* the edit), for an `edit` it implies the segment
             to be replaced.
         edit (:obj:`BaseSegment`, optional): For `edit` and `create` fixes, this
-            hold the segment, or iterable of segments to create to replace at the
+            hold the segment, or iterable of segments to create or replace at the
             given `anchor` point.
 
     """
@@ -179,8 +184,8 @@ class LintFix:
         return True
 
 
-class BaseCrawler:
-    """The base class for a crawler, of which all rules are derived from.
+class BaseRule:
+    """The base class for a rule.
 
     Args:
         code (:obj:`str`): The identifier for this rule, used in inclusion
@@ -191,11 +196,12 @@ class BaseCrawler:
     """
 
     _works_on_unparsable = True
+    targets_templated = False
 
     def __init__(self, code, description, **kwargs):
         self.description = description
         self.code = code
-        # kwargs represents the config passed to the crawler. Add all kwargs as class attributes
+        # kwargs represents the config passed to the rule. Add all kwargs as class attributes
         # so they can be accessed in rules which inherit from this class
         for key, value in kwargs.items():
             self.__dict__[key] = value
@@ -251,6 +257,8 @@ class BaseCrawler:
         siblings_post=None,
         raw_stack=None,
         memory=None,
+        fname=None,
+        templated_file: Optional["TemplatedFile"] = None,
     ):
         """Recursively perform the crawl operation on a given segment.
 
@@ -260,7 +268,7 @@ class BaseCrawler:
         """
         # parent stack should be a tuple if it exists
 
-        # crawlers, should evaluate on segments FIRST, before evaluating on their
+        # Rules should evaluate on segments FIRST, before evaluating on their
         # children. They should also return a list of violations.
 
         parent_stack = parent_stack or ()
@@ -268,8 +276,8 @@ class BaseCrawler:
         siblings_post = siblings_post or ()
         siblings_pre = siblings_pre or ()
         memory = memory or {}
-        vs = []
-        fixes = []
+        vs: List[SQLLintError] = []
+        fixes: List[LintFix] = []
 
         # First, check whether we're looking at an unparsable and whether
         # this rule will still operate on that.
@@ -287,6 +295,8 @@ class BaseCrawler:
                 raw_stack=raw_stack,
                 memory=memory,
                 dialect=dialect,
+                path=pathlib.Path(fname) if fname else None,
+                templated_file=templated_file,
             )
         # Any exception at this point would halt the linter and
         # cause the user to get no results
@@ -310,6 +320,8 @@ class BaseCrawler:
             )
             return vs, raw_stack, fixes, memory
 
+        new_lerrs = []
+        new_fixes = []
         if res is None:
             # Assume this means no problems (also means no memory)
             pass
@@ -318,8 +330,8 @@ class BaseCrawler:
             memory = res.memory
             lerr = res.to_linting_error(rule=self)
             if lerr:
-                vs.append(lerr)
-            fixes += res.fixes
+                new_lerrs = [lerr]
+            new_fixes = res.fixes
         elif isinstance(res, list) and all(
             isinstance(elem, LintResult) for elem in res
         ):
@@ -329,14 +341,23 @@ class BaseCrawler:
             for elem in res:
                 lerr = elem.to_linting_error(rule=self)
                 if lerr:
-                    vs.append(lerr)
-                fixes += elem.fixes
+                    new_lerrs.append(lerr)
+                new_fixes += elem.fixes
         else:
             raise TypeError(
                 "Got unexpected result [{0!r}] back from linting rule: {1!r}".format(
                     res, self.code
                 )
             )
+
+        for lerr in new_lerrs:
+            self.logger.debug("!! Violation Found: %r", lerr.description)
+        for fix in new_fixes:
+            self.logger.debug("!! Fix Proposed: %r", fix)
+
+        # Consume the new results
+        vs += new_lerrs
+        fixes += new_fixes
 
         # The raw stack only keeps track of the previous raw segments
         if len(segment.segments) == 0:
@@ -353,6 +374,8 @@ class BaseCrawler:
                 raw_stack=raw_stack,
                 memory=memory,
                 dialect=dialect,
+                fname=fname,
+                templated_file=templated_file,
             )
             vs += dvs
             fixes += child_fixes
@@ -400,7 +423,9 @@ class BaseCrawler:
     @classmethod
     def make_whitespace(cls, raw, pos_marker):
         """Make a whitespace segment."""
-        WhitespaceSegment = RawSegment.make(" ", name="whitespace", type="whitespace")
+        WhitespaceSegment = RawSegment.make(
+            " ", name="whitespace", type="whitespace", is_whitespace=True
+        )
         return WhitespaceSegment(raw=raw, pos_marker=pos_marker)
 
     @classmethod
@@ -428,6 +453,15 @@ class BaseCrawler:
         )
         # At the moment we let the rule dictate *case* here.
         return symbol_seg(raw=raw, pos_marker=pos_marker)
+
+    @staticmethod
+    def matches_target_tuples(seg: BaseSegment, target_tuples: List[Tuple[str, str]]):
+        """Does the given segment match any of the given type tuples."""
+        if seg.name in [elem[1] for elem in target_tuples if elem[0] == "name"]:
+            return True
+        elif seg.is_type(*[elem[1] for elem in target_tuples if elem[0] == "type"]):
+            return True
+        return False
 
 
 class RuleSet:
@@ -506,7 +540,7 @@ class RuleSet:
         .. code-block:: python
 
            @myruleset.register
-           class Rule_L001(BaseCrawler):
+           class Rule_L001(BaseRule):
                "Description of rule."
 
                def eval(self, **kwargs):
@@ -557,7 +591,7 @@ class RuleSet:
         for configuring the rules given the given config.
 
         Returns:
-            :obj:`list` of instantiated :obj:`BaseCrawler`.
+            :obj:`list` of instantiated :obj:`BaseRule`.
 
         """
         # Validate all generic rule configs

@@ -3,7 +3,7 @@
 from sqlfluff.core.rules.base import LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 from sqlfluff.core.rules.std.L020 import Rule_L020
-from sqlfluff.core.dialects.dialect_ansi import AliasInfo
+from sqlfluff.core.dialects.common import AliasInfo
 
 
 @document_fix_compatible
@@ -53,7 +53,7 @@ class Rule_L025(Rule_L020):
         for r in references:
             tbl_ref = r.extract_reference(level=2)
             if tbl_ref:
-                tbl_refs.add(tbl_ref[0])
+                tbl_refs.add(tbl_ref.part)
 
         alias: AliasInfo
         for alias in table_aliases:
@@ -61,7 +61,7 @@ class Rule_L025(Rule_L020):
                 fixes = [LintFix("delete", alias.alias_expression)]
                 found_alias_segment = False
                 # Walk back to remove indents/whitespaces
-                for segment in reversed(alias.table_expression.segments):
+                for segment in reversed(alias.from_expression_element.segments):
                     if not found_alias_segment:
                         if segment is alias.alias_expression:
                             found_alias_segment = True

@@ -3,14 +3,15 @@ file:
     select_statement:
       select_clause:
         keyword: SELECT
-        select_target_element:
+        select_clause_element:
           expression:
           - literal: '1'
           - binary_operator: +
           - start_bracket: (
-          - literal: '2'
-          - binary_operator: '*'
-          - literal: '3'
+          - expression:
+            - literal: '2'
+            - binary_operator: '*'
+            - literal: '3'
           - end_bracket: )
           - comparison_operator: '>='
           - literal: '4'

@@ -14,10 +14,8 @@
 [![ReadTheDocs](https://img.shields.io/readthedocs/sqlfluff?style=flat-square&logo=Read%20the%20Docs)](https://sqlfluff.readthedocs.io)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat-square)](https://github.com/psf/black)
 
-Bored of not having a good SQL linter that works with whichever dialect you're
-working with? SQLFluff is an extensible and modular linter designed to help you write
-good SQL and catch errors before it hits your database. SQLFluff can auto-fix most linting
-errors too.
+SQLFluff is a dialect-flexible and configurable SQL linter. Designed with ELT applications in mind, SQLFluff also works with jinja templating and dbt. SQLFluff will auto-fix most linting errors, allowing you to focus your time on what matters.
+
 
 # Getting Started
 
@@ -43,23 +41,15 @@ For full documentation visit [docs.sqlfluff.com](https://docs.sqlfluff.com/en/st
 
 # Releases
 
-> **SQLFluff** is still in an open alpha phase - expect the tool to change significantly
-> over the coming months, and expect potentially non-backward compatible api changes
-> to happen at any point. If you'd like to help please consider [contributing](CONTRIBUTING.md).
+**SQLFluff** is in beta phase - expect the tool to change significantly with potentially non-backward compatible api and configuration changes in future releases. If you'd like to join in please consider [contributing](CONTRIBUTING.md).
 
-* **0.4.x** (ongoing development) will fully support dbt packages and macros with significant speed improvements and new rules.
-* **0.3.x** dropped support for python 2.7 and 3.4, and reworked the
-  handling of indentation linting in a potentially not backward compatible way.
-* **0.2.x** added templating support and a big restructure of rules
-  and changed how users might interact with sqlfluff on templated code.
-* **0.1.x** involved a major re-write of the parser, completely changing
-  the behaviour of the tool with respect to complex parsing.
+New releases are made monthly. For more information, visit [Releases](https://github.com/sqlfluff/sqlfluff/releases).
 
 # SQLFluff on Slack
 
 We have a fast-growing community on Slack, come and join us!
 
-https://join.slack.com/t/sqlfluff/shared_invite/zt-knvv2a10-oZIKqGBFhldMcIkokaiv_w
+https://join.slack.com/t/sqlfluff/shared_invite/zt-o1f4x0e8-pZzarAIlQmKj_6ZwD16w0g
 
 # Contributing
 

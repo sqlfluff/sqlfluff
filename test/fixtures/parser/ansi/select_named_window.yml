@@ -3,7 +3,7 @@ file:
     select_statement:
       select_clause:
         keyword: SELECT
-        select_target_element:
+        select_clause_element:
           function:
             function_name: AVG
             start_bracket: (
@@ -19,10 +19,11 @@ file:
               end_bracket: )
       from_clause:
         keyword: FROM
-        table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: table
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: table
       named_window:
         keyword: WINDOW
         named_window_expression:

@@ -3,76 +3,80 @@ file:
     select_statement:
       select_clause:
         keyword: SELECT
-        select_target_element:
+        select_clause_element:
           column_reference:
             identifier: a
       from_clause:
         keyword: FROM
-        table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: zendesk
-        join_clause:
-        - keyword: LEFT
-        - keyword: JOIN
-        - table_expression:
-            main_table_expression:
+        from_expression:
+          from_expression_element:
+            table_expression:
               table_reference:
-                identifier: ticket
-        - join_on_condition:
-            keyword: 'ON'
-            expression:
-            - column_reference:
-              - identifier: zendesk
-              - dot: .
-              - identifier: ticket_id
-            - comparison_operator: '='
-            - column_reference:
-              - identifier: ticket
-              - dot: .
-              - identifier: id
+                identifier: zendesk
+          join_clause:
+          - keyword: LEFT
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: ticket
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - identifier: zendesk
+                - dot: .
+                - identifier: ticket_id
+              - comparison_operator: '='
+              - column_reference:
+                - identifier: ticket
+                - dot: .
+                - identifier: id
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
-        select_target_element:
+        select_clause_element:
           column_reference:
             identifier: low_user_counts
       from_clause:
         keyword: FROM
-        table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: acceptable_buckets
-        join_clause:
-          keyword: JOIN
-          table_expression:
-            main_table_expression:
+        from_expression:
+          from_expression_element:
+            table_expression:
               table_reference:
-                identifier: small_buckets
-          join_on_condition:
-            keyword: 'ON'
-            expression:
-            - start_bracket: (
-            - column_reference:
-                identifier: business_type
-            - comparison_operator: '='
-            - column_reference:
-                identifier: low_business_type
-            - end_bracket: )
-            - binary_operator: AND
-            - start_bracket: (
-            - column_reference:
-                identifier: business_type
-            - comparison_operator: '='
-            - column_reference:
-                identifier: low_business_type
-            - binary_operator: OR
-            - column_reference:
-                identifier: size_label
-            - comparison_operator: '='
-            - column_reference:
-                identifier: low_size_label
-            - end_bracket: )
+                identifier: acceptable_buckets
+          join_clause:
+            keyword: JOIN
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: small_buckets
+            join_on_condition:
+              keyword: 'ON'
+              expression:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                    identifier: business_type
+                - comparison_operator: '='
+                - column_reference:
+                    identifier: low_business_type
+              - end_bracket: )
+              - binary_operator: AND
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                    identifier: business_type
+                - comparison_operator: '='
+                - column_reference:
+                    identifier: low_business_type
+                - binary_operator: OR
+                - column_reference:
+                    identifier: size_label
+                - comparison_operator: '='
+                - column_reference:
+                    identifier: low_size_label
+              - end_bracket: )
 - statement_terminator: ;

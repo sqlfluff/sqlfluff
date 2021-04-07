@@ -3,7 +3,7 @@
 from typing import List, NamedTuple
 
 from sqlfluff.core.parser import BaseSegment
-from sqlfluff.core.rules.base import BaseCrawler, LintFix, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
@@ -18,7 +18,7 @@ class SelectTargetsInfo(NamedTuple):
 
 
 @document_fix_compatible
-class Rule_L036(BaseCrawler):
+class Rule_L036(BaseRule):
     """Select targets should be on a new line unless there is only one select target.
 
     | **Anti-pattern**
@@ -63,7 +63,7 @@ class Rule_L036(BaseCrawler):
         first_whitespace_idx = -1
         select_targets = []
         for fname_idx, seg in enumerate(segment.segments):
-            if seg.is_type("select_target_element"):
+            if seg.is_type("select_clause_element"):
                 select_targets.append(seg)
                 if first_select_target_idx == -1:
                     first_select_target_idx = fname_idx
@@ -112,7 +112,7 @@ class Rule_L036(BaseCrawler):
     ):
         is_wildcard = False
         for segment in select_clause.segments:
-            if segment.is_type("select_target_element"):
+            if segment.is_type("select_clause_element"):
                 for sub_segment in segment.segments:
                     if sub_segment.is_type("wildcard_expression"):
                         is_wildcard = True

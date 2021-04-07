@@ -1,11 +1,13 @@
 """Implementation of Rule L034."""
 
-from sqlfluff.core.rules.base import BaseCrawler, LintFix, LintResult
+import itertools
+
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
 @document_fix_compatible
-class Rule_L034(BaseCrawler):
+class Rule_L034(BaseRule):
     """Use wildcards then simple select targets before calculations and aggregates.
 
     | **Anti-pattern**
@@ -39,7 +41,17 @@ class Rule_L034(BaseCrawler):
         if self.seen_band_elements[i + 1 : :] != [[]] * len(
             self.seen_band_elements[i + 1 : :]
         ):
-            self.violation_buff.append(LintResult(anchor=segment))
+            # Found a violation (i.e. a simpler element that *follows* a more
+            # complex element. Find the more complex element occurring JUST
+            # PRIOR TO "segment" by sorting on line number and position, then
+            # report that as the location of the issue.
+            more_complex_segments = sorted(
+                itertools.chain(*self.seen_band_elements[i + 1 : :]),
+                key=lambda s: (s.pos_marker.line_no, s.pos_marker.line_pos),
+            )
+            misplaced_segment = more_complex_segments[-1]
+            if misplaced_segment not in [v.anchor for v in self.violation_buff]:
+                self.violation_buff.append(LintResult(anchor=misplaced_segment))
         self.current_element_band = i
         self.seen_band_elements[i].append(segment)
 
@@ -62,7 +74,7 @@ class Rule_L034(BaseCrawler):
         self.seen_band_elements = [[] for i in select_element_order_preference] + [[]]
 
         if segment.type == "select_clause":
-            select_target_elements = segment.get_children("select_target_element")
+            select_target_elements = segment.get_children("select_clause_element")
             if not select_target_elements:
                 return None
 

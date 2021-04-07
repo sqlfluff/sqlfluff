@@ -5,11 +5,66 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.5.0] - 2021-04-05
+### Added
+- `pascal` (PascalCase) `capitalisation_policy` option for L014 (unquoted identifiers)
+- `only_aliases` configuration option for L014 (unquoted identifers)
+- Dialects now have more advanced dependency options to allow less repetition
+  between related dialects. The methods `get_segment` and `get_grammar` can be
+  used on unexpanded grammars to access elements of the parent grammars.
+  The `copy` method on grammars can be used to copy with alterations.
+- Rule L046 to line whitespace within jinja tags.
+- Enable and Disable syntax for [ignoring violations from ranges of lines](https://docs.sqlfluff.com/en/latest/configuration.html#ignoring-line-ranges).
+
+### Changed
+- Renamed the BaseCrawler class to BaseRule. This is the base class for all
+  rules. This is a breaking change for any custom rules that have been added
+  via plugins or by forking the SQLFluff repo.
+- Renamed `sqlfluff.rules()` to `sqlfluff.list_rules()` and `sqlfluff.dialects()`
+  to `sqlfluff.list_dialects()` due to naming conflicts with the now separate
+  `sqlfluff.dialects` module.
+- Extracted dialect definitions from the `sqlfluff.core` module so that each
+  dialect is better isolated from each other. This also allows more focused
+  testing and the potential for dialect plugins in future. Dialects are now
+  only imported as needed at runtime. All dialects should now be accessed
+  using the selector methods in `sqlfluff.core.dialects` rather than importing
+  from `sqlfluff.dialects` directly.
+- Add support for `ALTER USER` commands in Snowflake dialect.
+- Added describe statement to ANSI dialect
+- Renamed `capitalisation_policy` to `extended_capitalisation_policy` for L014
+  to reflect the fact that it now accepts more options (`pascal`) than regular
+  `capitalisation_policy` still used by L010 and others.
+- Replaced `only_aliases` config with `unquoted_identifiers_policy` and added
+  it to rule L014 in addition to L029.
+- Parse structure of `FROM` clauses to better represent nested joins and table
+  functions.
+- Parse structure of expressions to avoid unneccessary nesting and overly
+  recursive method calls.
+
+## [0.4.1] - 2021-02-25
+### Added
+
+- Initial architecture for rule plugins to allow custom rules. This
+  initial release should be considered *beta* until the release of
+  0.5.0.
+- Add tests for dbt 0.19.0.
+- General increased parsing coverage.
+- Added some missing Postgres syntax elements.
+- Added some basic introspection API elements to output what dialects
+  and rules are available for use within the API.
+
 ### Changed
 
+- Fix several Snowflake parsing bugs.
+- Refactor from clause to handle flattens after joins.
+- Fix .get_table_references() in Snowflake dialect.
 - Macros defined within the .sqlfluff config will take precedence over the macros defined in the
   path that is defined with config value `sqlfluff:templater:jinja:load_macros_from_path`.
+- Fix Snowflake indent parsing.
+- Fixed incorrect parsing of syntax-like elements in comments.
+- Altered parsing of `NULL` keywords, so parse as Literals where
+  appropriate.
+- Fixed bug in expression parsing leading to recursion errors.
 
 ## [0.4.0] - 2021-02-14
 ### Added
@@ -77,7 +132,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Fixed parsing of semi-structured objects in the snowflake of dialects
-  with whitespace gaps. [#634](https://github.com/sqlfluff/sqlfluff/issues/635) 
+  with whitespace gaps. [#634](https://github.com/sqlfluff/sqlfluff/issues/635)
 - Handle internal errors elegantly, reporting the stacktrace and the
   error-surfacing file. [#632](https://github.com/sqlfluff/sqlfluff/pull/632)
 - Improve message for when an automatic fix is not available for L004. [#633](https://github.com/sqlfluff/sqlfluff/issues/633)

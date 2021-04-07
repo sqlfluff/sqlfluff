@@ -3,14 +3,14 @@ file:
     select_statement:
       select_clause:
       - keyword: select
-      - select_target_element:
+      - select_clause_element:
           wildcard_expression:
             wildcard_identifier:
               identifier: d
               dot: .
               star: '*'
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           wildcard_expression:
             wildcard_identifier:
               identifier: r
@@ -23,24 +23,25 @@ file:
               end_bracket: )
       from_clause:
         keyword: from
-        table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: my_table
-          alias_expression:
-            keyword: as
-            identifier: d
-        join_clause:
-        - keyword: inner
-        - keyword: join
-        - table_expression:
-            main_table_expression:
+        from_expression:
+          from_expression_element:
+            table_expression:
               table_reference:
-                identifier: my_other_table
+                identifier: my_table
             alias_expression:
               keyword: as
-              identifier: r
-        - keyword: using
-        - start_bracket: (
-        - identifier: date_key
-        - end_bracket: )
+              identifier: d
+          join_clause:
+          - keyword: inner
+          - keyword: join
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: my_other_table
+              alias_expression:
+                keyword: as
+                identifier: r
+          - keyword: using
+          - start_bracket: (
+          - identifier: date_key
+          - end_bracket: )

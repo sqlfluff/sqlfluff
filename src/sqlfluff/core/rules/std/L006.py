@@ -1,16 +1,17 @@
 """Implementation of Rule L006."""
 
 
-from sqlfluff.core.rules.base import BaseCrawler, LintResult, LintFix
+from typing import Tuple, List
+
+from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
 @document_fix_compatible
-class Rule_L006(BaseCrawler):
+class Rule_L006(BaseRule):
     """Operators should be surrounded by a single whitespace.
 
     | **Anti-pattern**
-    | The • character represents a space.
     | In this example, there is a space missing space between the operator and 'b'.
 
     .. code-block:: sql
@@ -30,113 +31,166 @@ class Rule_L006(BaseCrawler):
         FROM foo
     """
 
-    def _eval(self, segment, memory, parent_stack, **kwargs):
+    _target_elems: List[Tuple[str, str]] = [
+        ("type", "binary_operator"),
+        ("type", "comparison_operator"),
+    ]
+
+    @staticmethod
+    def _missing_whitespace(seg, before=True):
+        """Check whether we're missing whitespace given an adjoining segment."""
+        # There is a segment
+        if not seg:
+            return False
+        # And it's not whitespace
+        if seg.is_whitespace:
+            return False
+        # And it's not an opening/closing bracket
+        if seg.name.endswith("_bracket"):
+            if seg.name.startswith("start_" if before else "end_"):
+                return False
+        if seg.is_meta:
+            if before:
+                if seg.source_str.endswith(" ") or seg.source_str.endswith("\n"):
+                    return False
+            else:
+                if seg.source_str.startswith(" ") or seg.source_str.startswith("\n"):
+                    return False
+        return True
+
+    @staticmethod
+    def _find_segment(idx, segments, before=True):
+        """Go back or forward to find the next relevant segment."""
+        step = -1 if before else 1
+        j = idx + step
+        while (j >= 0) if before else (j < len(segments)):
+            # Don't trigger on indents, but placeholders are allowed.
+            if segments[j].is_type("indent"):
+                j += step
+            else:
+                return segments[j]
+        return None
+
+    def _eval(self, segment, **kwargs):
         """Operators should be surrounded by a single whitespace.
 
-        We use the memory to keep track of whitespace up to now, and
-        whether the last code segment was an operator or not.
+        Rewritten to assess direct children of a segment to make
+        whitespace insertion more sensible.
 
+        We only need to handle *missing* whitespace because excess
+        whitespace is handled by L039.
+
+        NOTE: We also allow bracket characters either side.
         """
+        # Iterate through children of this segment looking for any of the
+        # target types. We also check for whether any of the children start
+        # or end with the targets.
 
-        def _handle_previous_segments(segments_since_code, anchor, this_segment, fixes):
-            """Handle the list of previous segments and return the new anchor and fixes.
+        # We ignore any targets which start or finish this segment. They'll
+        # be dealt with by the parent segment. That also means that we need
+        # to have at least three children.
 
-            NB: This function mutates `fixes`.
-            """
-            if len(segments_since_code) == 0:
-                # No whitespace, anchor is the segment AFTER where the whitespace
-                # should be.
-                anchor = this_segment
-                fixes.append(
-                    LintFix(
-                        "create",
-                        this_segment,
-                        self.make_whitespace(
-                            raw=" ", pos_marker=this_segment.pos_marker
-                        ),
-                    )
+        if len(segment.segments) <= 2:
+            return LintResult()
+
+        violations = []
+
+        for idx, sub_seg in enumerate(segment.segments):
+            check_before = False
+            check_after = False
+            before_anchor = sub_seg
+            after_anchor = sub_seg
+            # Skip anything which is whitespace
+            if sub_seg.is_whitespace:
+                continue
+            # Skip any non-code elements
+            if not sub_seg.is_code:
+                continue
+
+            # Is it a target in itself?
+            if self.matches_target_tuples(sub_seg, self._target_elems):
+                self.logger.debug(
+                    "Found Target [main] @%s: %r", sub_seg.pos_marker, sub_seg.raw
                 )
-            elif len(segments_since_code) > 1 or any(
-                elem.is_type("newline") for elem in segments_since_code
-            ):
-                # TODO: This is a case we should deal with, but there are probably
-                # some cases that SHOULDN'T apply here (like comments and newlines)
-                # so let's deal with them later
-                anchor = None
-            else:
-                # We know it's just one thing.
-                gap_seg = segments_since_code[-1]
-                if gap_seg.raw != " ":
-                    # It's not just a single space
-                    anchor = gap_seg
-                    fixes.append(
-                        LintFix(
-                            "edit",
-                            gap_seg,
-                            self.make_whitespace(
-                                raw=" ", pos_marker=gap_seg.pos_marker
+                check_before = True
+                check_after = True
+            # Is it a compound segment ending or starting with the target?
+            elif sub_seg.segments:
+                # Get first and last raw segments.
+                raw_list = list(sub_seg.iter_raw_seg())
+                if len(raw_list) > 1:
+                    leading = raw_list[0]
+                    trailing = raw_list[-1]
+                    if self.matches_target_tuples(leading, self._target_elems):
+                        before_anchor = leading
+                        self.logger.debug(
+                            "Found Target [leading] @%s: %r",
+                            before_anchor.pos_marker,
+                            before_anchor.raw,
+                        )
+                        check_before = True
+                    if self.matches_target_tuples(trailing, self._target_elems):
+                        after_anchor = trailing
+                        self.logger.debug(
+                            "Found Target [trailing] @%s: %r",
+                            after_anchor.pos_marker,
+                            after_anchor.raw,
+                        )
+                        check_after = True
+
+            if check_before:
+                prev_seg = self._find_segment(idx, segment.segments, before=True)
+                if self._missing_whitespace(prev_seg, before=True):
+                    self.logger.debug(
+                        "Missing Whitespace Before %r. Found %r instead.",
+                        before_anchor.raw,
+                        prev_seg.raw,
+                    )
+                    violations.append(
+                        LintResult(
+                            anchor=before_anchor,
+                            description="Missing whitespace before {0}".format(
+                                before_anchor.raw[:10]
                             ),
+                            fixes=[
+                                LintFix(
+                                    "create",
+                                    # NB the anchor here is always in the parent and not anchor
+                                    anchor=sub_seg,
+                                    edit=self.make_whitespace(
+                                        raw=" ", pos_marker=sub_seg.pos_marker
+                                    ),
+                                )
+                            ],
                         )
                     )
-                else:
-                    # We have just the right amount of whitespace!
-                    # Unset our signal.
-                    anchor = None
-            return anchor, fixes
 
-        # anchor is our signal as to whether there's a problem
-        anchor = None
-        fixes = []
-        description = None
-
-        # The parent stack tells us whether we're in an expression or not.
-        if parent_stack and parent_stack[-1].is_type("expression"):
-            if segment.is_code:
-                # This is code, what kind?
-                if segment.is_type("binary_operator", "comparison_operator"):
-                    # It's an operator, we can evaluate whitespace before it.
-                    anchor, fixes = _handle_previous_segments(
-                        memory["since_code"],
-                        anchor=segment,
-                        this_segment=segment,
-                        fixes=fixes,
+            if check_after:
+                next_seg = self._find_segment(idx, segment.segments, before=False)
+                if self._missing_whitespace(next_seg, before=False):
+                    self.logger.debug(
+                        "Missing Whitespace After %r. Found %r instead.",
+                        after_anchor.raw,
+                        next_seg.raw,
                     )
-                    if anchor:
-                        description = "Operators should be preceded by a space."
-                else:
-                    # It's not an operator, we can evaluate what happened after an
-                    # operator if that's the last code we saw.
-                    if memory["last_code"] and memory["last_code"].is_type(
-                        "binary_operator", "comparison_operator"
-                    ):
-                        # Evaluate whitespace AFTER the operator
-                        anchor, fixes = _handle_previous_segments(
-                            memory["since_code"],
-                            anchor=memory["last_code"],
-                            this_segment=segment,
-                            fixes=fixes,
+                    violations.append(
+                        LintResult(
+                            anchor=after_anchor,
+                            description="Missing whitespace after {0}".format(
+                                after_anchor.raw[-10:]
+                            ),
+                            fixes=[
+                                LintFix(
+                                    "create",
+                                    # NB the anchor here is always in the parent and not anchor
+                                    anchor=next_seg,
+                                    edit=self.make_whitespace(
+                                        raw=" ", pos_marker=next_seg.pos_marker
+                                    ),
+                                )
+                            ],
                         )
-                        if anchor:
-                            description = "Operators should be followed by a space."
-                    else:
-                        # This isn't an operator, and the thing before it wasn't
-                        # either. I don't think that's an issue for now.
-                        pass
-                # Prepare memory for later
-                memory["last_code"] = segment
-                memory["since_code"] = []
-            else:
-                # This isn't a code segment...
-                # Prepare memory for later
-                memory["since_code"].append(segment)
-        else:
-            # Reset the memory if we're not in an expression
-            memory = {"last_code": None, "since_code": []}
+                    )
 
-        # Anchor is our signal as to whether there's a problem
-        if anchor:
-            return LintResult(
-                anchor=anchor, memory=memory, fixes=fixes, description=description
-            )
-        else:
-            return LintResult(memory=memory)
+        if violations:
+            return violations

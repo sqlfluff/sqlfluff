@@ -15,7 +15,7 @@ SELECT
         , campaign_count_{{action}}
     {% endfor %}
 FROM
-    {% for action in considered_actions %}
+{% for action in considered_actions %}
     {% if loop.first %}
     {{action}}_raw_effect_sizes
     {% else %}

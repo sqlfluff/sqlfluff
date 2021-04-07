@@ -3,33 +3,34 @@ file:
     select_statement:
       select_clause:
         keyword: select
-        select_target_element:
+        select_clause_element:
           wildcard_expression:
             wildcard_identifier:
               star: '*'
       from_clause:
         keyword: from
-        table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: foo
-        join_clause:
-          keyword: JOIN
-          table_expression:
-            main_table_expression:
+        from_expression:
+          from_expression_element:
+            table_expression:
               table_reference:
-                identifier: bar
-          join_on_condition:
-            keyword: 'ON'
-            expression:
-            - start_bracket: (
-            - column_reference:
-              - identifier: foo
-              - dot: .
-              - identifier: a
-            - comparison_operator: '='
-            - column_reference:
-              - identifier: bar
-              - dot: .
-              - identifier: a
-            - end_bracket: )
+                identifier: foo
+          join_clause:
+            keyword: JOIN
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: bar
+            join_on_condition:
+              keyword: 'ON'
+              start_bracket: (
+              expression:
+              - column_reference:
+                - identifier: foo
+                - dot: .
+                - identifier: a
+              - comparison_operator: '='
+              - column_reference:
+                - identifier: bar
+                - dot: .
+                - identifier: a
+              end_bracket: )

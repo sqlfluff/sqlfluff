@@ -1,0 +1,12 @@
+file:
+  statement:
+    alter_user:
+    - keyword: ALTER
+    - keyword: USER
+    - object_reference:
+        identifier: my_user
+    - keyword: unset
+    - parameter: USE_CACHED_RESULT
+    - comma: ','
+    - parameter: must_change_password
+  statement_terminator: ;

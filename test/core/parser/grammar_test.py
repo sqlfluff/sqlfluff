@@ -16,7 +16,9 @@ from sqlfluff.core.parser.grammar import (
     StartsWith,
     Anything,
     Nothing,
+    Ref,
 )
+from sqlfluff.core.errors import SQLParseError
 
 # NB: All of these tests depend somewhat on the KeywordSegment working as planned
 
@@ -197,6 +199,74 @@ def test__parser__grammar__base__bracket_sensitive_look_ahead_match(
         assert match.matched_segments == (fs("foo", bracket_seg_list[8].pos_marker),)
 
 
+def test__parser__grammar__base__bracket_fail_with_open_paren_close_square_mismatch(
+    generate_test_segments, fresh_ansi_dialect
+):
+    """Test _bracket_sensitive_look_ahead_match failure case.
+
+    Should fail when the type of a close bracket doesn't match the type of the
+    corresponding open bracket, but both are "definite" brackets.
+    """
+    fs = KeywordSegment.make("foo")
+    # We need a dialect here to do bracket matching
+    with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
+        # Basic version, we should find bar first
+        with pytest.raises(SQLParseError) as sql_parse_error:
+            BaseGrammar._bracket_sensitive_look_ahead_match(
+                generate_test_segments(
+                    [
+                        "select",
+                        " ",
+                        "*",
+                        " ",
+                        "from",
+                        "(",
+                        "foo",
+                        "]",  # Bracket types don't match (parens vs square)
+                    ]
+                ),
+                [fs],
+                ctx,
+            )
+        assert sql_parse_error.match("Found unexpected end bracket")
+
+
+def test__parser__grammar__ref_eq():
+    """Test equality of Ref Grammars."""
+    r1 = Ref("foo")
+    r2 = Ref("foo")
+    assert r1 is not r2
+    assert r1 == r2
+    check_list = [1, 2, r2, 3]
+    # Check we can find it in lists
+    assert r1 in check_list
+    # Check we can get it's position
+    assert check_list.index(r1) == 2
+    # Check we can remove it from a list
+    check_list.remove(r1)
+    assert r1 not in check_list
+
+
+def test__parser__grammar__oneof__copy():
+    """Test grammar copying."""
+    fs = KeywordSegment.make("foo")
+    bs = KeywordSegment.make("bar")
+    g1 = OneOf(fs, bs)
+    # Check copy
+    g2 = g1.copy()
+    assert g1 == g2
+    assert g1 is not g2
+    # Check copy insert (start)
+    g3 = g1.copy(insert=[bs], at=0)
+    assert g3 == OneOf(bs, fs, bs)
+    # Check copy insert (mid)
+    g4 = g1.copy(insert=[bs], at=1)
+    assert g4 == OneOf(fs, bs, bs)
+    # Check copy insert (end)
+    g5 = g1.copy(insert=[bs], at=-1)
+    assert g5 == OneOf(fs, bs, bs)
+
+
 @pytest.mark.parametrize("allow_gaps", [True, False])
 def test__parser__grammar_oneof(seg_list, allow_gaps):
     """Test the OneOf grammar.
@@ -214,6 +284,21 @@ def test__parser__grammar_oneof(seg_list, allow_gaps):
         )
         # Check with a bit of whitespace
         assert not g.match(seg_list[1:], parse_context=ctx)
+
+
+def test__parser__grammar_oneof_templated(seg_list):
+    """Test the OneOf grammar.
+
+    NB: Should behave the same regardless of code_only.
+
+    """
+    fs = KeywordSegment.make("foo")
+    bs = KeywordSegment.make("bar")
+    g = OneOf(fs, bs)
+    with RootParseContext(dialect=None) as ctx:
+        # This shouldn't match, but it *ALSO* shouldn't raise an exception.
+        # https://github.com/sqlfluff/sqlfluff/issues/780
+        assert not g.match(seg_list[5:], parse_context=ctx)
 
 
 def test__parser__grammar_oneof_exclude(seg_list):
@@ -421,7 +506,7 @@ def test__parser__grammar_delimited(
         # Greedy matching up to baar should return bar, foo...
         ("baar", False, 3),
         # ... except if whitespace is required to preceed it
-        ("baar", True, 5),
+        ("baar", True, 6),
     ],
 )
 def test__parser__grammar_greedyuntil(

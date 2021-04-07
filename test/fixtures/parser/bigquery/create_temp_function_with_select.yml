@@ -19,36 +19,38 @@ file:
         start_bracket: (
         expression:
           start_bracket: (
-          select_statement:
-            select_clause:
-              keyword: SELECT
-              select_target_element:
-                literal: '1'
-            from_clause:
-              keyword: FROM
-              table_expression:
-              - main_table_expression:
-                  function:
-                    function_name: UNNEST
-                    start_bracket: (
-                    expression:
+          expression:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  literal: '1'
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                  - table_expression:
                       function:
-                      - function_name: REGEXP_EXTRACT_ALL
-                      - start_bracket: (
-                      - expression:
-                          column_reference:
-                            identifier: url
-                      - comma: ','
-                      - expression:
-                          literal: r"%[0-9a-fA-F]{2}|[^%]+"
-                      - end_bracket: )
-                    end_bracket: )
-              - alias_expression:
-                  keyword: AS
-                  identifier: y
-              - keyword: WITH
-              - keyword: OFFSET
-              - keyword: AS
-              - identifier: i
+                        function_name: UNNEST
+                        start_bracket: (
+                        expression:
+                          function:
+                          - function_name: REGEXP_EXTRACT_ALL
+                          - start_bracket: (
+                          - expression:
+                              column_reference:
+                                identifier: url
+                          - comma: ','
+                          - expression:
+                              literal: r"%[0-9a-fA-F]{2}|[^%]+"
+                          - end_bracket: )
+                        end_bracket: )
+                  - alias_expression:
+                      keyword: AS
+                      identifier: y
+                  - keyword: WITH
+                  - keyword: OFFSET
+                  - keyword: AS
+                  - identifier: i
           end_bracket: )
         end_bracket: )

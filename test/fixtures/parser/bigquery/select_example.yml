@@ -9,19 +9,19 @@ file:
         select_statement:
           select_clause:
           - keyword: SELECT
-          - select_target_element:
+          - select_clause_element:
               column_reference:
                 identifier: bucket_id
           - comma: ','
-          - select_target_element:
+          - select_clause_element:
               column_reference:
                 identifier: num_ranges
           - comma: ','
-          - select_target_element:
+          - select_clause_element:
               column_reference:
                 identifier: min_age
           - comma: ','
-          - select_target_element:
+          - select_clause_element:
               function:
                 function_name: ARRAY
                 start_bracket: (
@@ -29,7 +29,7 @@ file:
                   select_statement:
                     select_clause:
                       keyword: SELECT
-                      select_target_element:
+                      select_clause_element:
                         function:
                           function_name: CAST
                           start_bracket: (
@@ -42,40 +42,42 @@ file:
                           end_bracket: )
                     from_clause:
                       keyword: FROM
-                      table_expression:
-                        main_table_expression:
-                          function:
-                            function_name: UNNEST
-                            start_bracket: (
-                            expression:
-                              function:
-                              - function_name: SPLIT
-                              - start_bracket: (
-                              - expression:
-                                  column_reference:
-                                    identifier: binary
-                              - comma: ','
-                              - expression:
-                                  literal: "''"
-                              - end_bracket: )
-                            end_bracket: )
-                        alias_expression:
-                          keyword: AS
-                          identifier: num
+                      from_expression:
+                        from_expression_element:
+                          table_expression:
+                            function:
+                              function_name: UNNEST
+                              start_bracket: (
+                              expression:
+                                function:
+                                - function_name: SPLIT
+                                - start_bracket: (
+                                - expression:
+                                    column_reference:
+                                      identifier: binary
+                                - comma: ','
+                                - expression:
+                                    literal: "''"
+                                - end_bracket: )
+                              end_bracket: )
+                          alias_expression:
+                            keyword: AS
+                            identifier: num
                 end_bracket: )
               alias_expression:
                 keyword: AS
                 identifier: bits
           - comma: ','
-          - select_target_element:
+          - select_clause_element:
               column_reference:
                 identifier: age_label
           from_clause:
             keyword: FROM
-            table_expression:
-              main_table_expression:
-                table_reference:
-                  identifier: age_buckets
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: age_buckets
         end_bracket: )
     - comma: ','
     - common_table_expression:
@@ -85,7 +87,7 @@ file:
         select_statement:
           select_clause:
             keyword: SELECT
-            select_target_element:
+            select_clause_element:
               expression:
                 function:
                   function_name: bucket_id
@@ -195,38 +197,40 @@ file:
                 identifier: relative_abundance
           from_clause:
             keyword: FROM
-            table_expression:
-              main_table_expression:
-                table_reference:
-                  identifier: audience_counts_gender_age
-            join_clause:
-            - keyword: CROSS
-            - keyword: JOIN
-            - table_expression:
-                main_table_expression:
+            from_expression:
+              from_expression_element:
+                table_expression:
                   table_reference:
-                    identifier: age_buckets_bit_array
+                    identifier: audience_counts_gender_age
+              join_clause:
+              - keyword: CROSS
+              - keyword: JOIN
+              - from_expression_element:
+                  table_expression:
+                    table_reference:
+                      identifier: age_buckets_bit_array
         end_bracket: )
     - select_statement:
         select_clause:
           keyword: SELECT
-          select_target_element:
+          select_clause_element:
             wildcard_expression:
               wildcard_identifier:
                 star: '*'
         from_clause:
           keyword: FROM
-          table_expression:
-            main_table_expression:
-              table_reference:
-                identifier: age_buckets_bit_array
-          join_clause:
-          - keyword: JOIN
-          - table_expression:
-              main_table_expression:
+          from_expression:
+            from_expression_element:
+              table_expression:
                 table_reference:
-                  identifier: bucket_abundance
-          - keyword: USING
-          - start_bracket: (
-          - identifier: bucket_id
-          - end_bracket: )
+                  identifier: age_buckets_bit_array
+            join_clause:
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: bucket_abundance
+            - keyword: USING
+            - start_bracket: (
+            - identifier: bucket_id
+            - end_bracket: )

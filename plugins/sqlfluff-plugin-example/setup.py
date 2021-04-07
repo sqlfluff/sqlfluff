@@ -1,15 +1,24 @@
 """Setup file for example plugin."""
-from setuptools import setup
+from setuptools import find_packages, setup
+
+# Change these names in your plugin, e.g. company name or plugin purpose.
+PLUGIN_LOGICAL_NAME = "example"
+PLUGIN_ROOT_MODULE = "example"
 
 setup(
-    name="sqlfluff-plugin-example",
+    name="sqlfluff-plugin-{plugin_logical_name}".format(
+        plugin_logical_name=PLUGIN_LOGICAL_NAME
+    ),
     include_package_data=True,
     package_dir={"": "src"},
-    packages=[
-        "example",
-    ],
-    # TODO: Change me to the first release
-    # that includes the pluggy work.
-    install_requires="sqlfluff>=0.4.0a3",
-    entry_points={"sqlfluff": ["example = example.rules"]},
+    packages=find_packages(where="src"),
+    install_requires="sqlfluff>=0.4.0",
+    entry_points={
+        "sqlfluff": [
+            "{plugin_logical_name} = {plugin_root_module}.rules".format(
+                plugin_logical_name=PLUGIN_LOGICAL_NAME,
+                plugin_root_module=PLUGIN_ROOT_MODULE,
+            )
+        ]
+    },
 )

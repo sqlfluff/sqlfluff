@@ -1,11 +1,11 @@
 """Implementation of Rule L013."""
 
-from sqlfluff.core.rules.base import BaseCrawler, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintResult
 from sqlfluff.core.rules.doc_decorators import document_configuration
 
 
 @document_configuration
-class Rule_L013(BaseCrawler):
+class Rule_L013(BaseRule):
     """Column expression without alias. Use explicit `AS` clause.
 
     | **Anti-pattern**
@@ -35,13 +35,13 @@ class Rule_L013(BaseCrawler):
     def _eval(self, segment, parent_stack, **kwargs):
         """Column expression without alias. Use explicit `AS` clause.
 
-        We look for the select_target_element segment, and then evaluate
+        We look for the select_clause_element segment, and then evaluate
         whether it has an alias segment or not and whether the expression
         is complicated enough. `parent_stack` is to assess how many other
         elements there are.
 
         """
-        if segment.is_type("select_target_element"):
+        if segment.is_type("select_clause_element"):
             if not any(e.is_type("alias_expression") for e in segment.segments):
                 types = {e.type for e in segment.segments if e.name != "star"}
                 unallowed_types = types - {
@@ -58,7 +58,7 @@ class Rule_L013(BaseCrawler):
                         # statement. If this is the only one, then we won't
                         # report an error.
                         num_elements = sum(
-                            e.is_type("select_target_element")
+                            e.is_type("select_clause_element")
                             for e in parent_stack[-1].segments
                         )
                         if num_elements > 1:
