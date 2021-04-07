@@ -955,9 +955,9 @@ class SelectClauseElementSegment(BaseSegment):
     # Important to split elements before parsing, otherwise debugging is really hard.
     match_grammar = GreedyUntil(
         "FROM",
-        "LIMIT",
-        "ORDER",
         "WHERE",
+        "ORDER",
+        "LIMIT",
         Ref("CommaSegment"),
         Ref("SetOperatorSegment"),
         enforce_whitespace_preceeding_terminator=True,
@@ -1000,9 +1000,9 @@ class SelectClauseSegment(BaseSegment):
         Sequence("SELECT", Ref("WildcardExpressionSegment", optional=True)),
         terminator=OneOf(
             "FROM",
-            "LIMIT",
             "WHERE",
             "ORDER",
+            "LIMIT",
             Ref("SetOperatorSegment"),
         ),
         enforce_whitespace_preceeding_terminator=True,
