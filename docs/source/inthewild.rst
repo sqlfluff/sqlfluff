@@ -25,3 +25,6 @@ Just add a section below by raising a PR on Github by
   checks in github. Before SQLFluff, we had SQL best practices outlined
   in a google doc and had to manually enforce through PR comments. We're
   now able to enforce much of our style guide automatically through SQLFluff.
+- `Petal's <https://www.petalcard.com>`_ data-eng team runs SQLFluff on our 100+ model
+  `dbt <http://www.getdbt.com/>`_ project. As a pre-commit hook and as a CI
+  check, SQLFluff helps keep our SQL readable and consistent.
