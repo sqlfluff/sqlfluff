@@ -36,6 +36,41 @@ class Rule_L006(BaseRule):
         ("type", "comparison_operator"),
     ]
 
+    @staticmethod
+    def _missing_whitespace(seg, before=True):
+        """Check whether we're missing whitespace given an adjoining segment."""
+        # There is a segment
+        if not seg:
+            return False
+        # And it's not whitespace
+        if seg.is_whitespace:
+            return False
+        # And it's not an opening/closing bracket
+        if seg.name.endswith("_bracket"):
+            if seg.name.startswith("start_" if before else "end_"):
+                return False
+        if seg.is_meta:
+            if before:
+                if seg.source_str.endswith(" ") or seg.source_str.endswith("\n"):
+                    return False
+            else:
+                if seg.source_str.startswith(" ") or seg.source_str.startswith("\n"):
+                    return False
+        return True
+
+    @staticmethod
+    def _find_segment(idx, segments, before=True):
+        """Go back or forward to find the next relevant segment."""
+        step = -1 if before else 1
+        j = idx + step
+        while (j >= 0) if before else (j < len(segments)):
+            # Don't trigger on indents, but placeholders are allowed.
+            if segments[j].is_type("indent"):
+                j += step
+            else:
+                return segments[j]
+        return None
+
     def _eval(self, segment, **kwargs):
         """Operators should be surrounded by a single whitespace.
 
@@ -104,36 +139,8 @@ class Rule_L006(BaseRule):
                         check_after = True
 
             if check_before:
-                j = idx - 1
-                prev_seg = None
-                while j >= 0:
-                    # Don't trigger on indents, but placeholders are allowed.
-                    if segment.segments[j].is_type("indent"):
-                        j -= 1
-                    else:
-                        prev_seg = segment.segments[j]
-                        break
-
-                if (
-                    # There is a previous segment
-                    prev_seg
-                    # And it's not whitespace
-                    and not prev_seg.is_whitespace
-                    # And it's not an opening bracket
-                    and not (
-                        prev_seg.name.endswith("_bracket")
-                        and prev_seg.name.startswith("start_")
-                    )
-                    # And it's not a placeholder that itself ends with whitespace.
-                    # NOTE: This feels convoluted but handles the case of '-%}' modifiers.
-                    and not (
-                        prev_seg.is_meta
-                        and (
-                            prev_seg.source_str.endswith(" ")
-                            or prev_seg.source_str.endswith("\n")
-                        )
-                    )
-                ):
+                prev_seg = self._find_segment(idx, segment.segments, before=True)
+                if self._missing_whitespace(prev_seg, before=True):
                     self.logger.debug(
                         "Missing Whitespace Before %r. Found %r instead.",
                         before_anchor.raw,
@@ -159,36 +166,8 @@ class Rule_L006(BaseRule):
                     )
 
             if check_after:
-                j = idx + 1
-                next_seg = None
-                while j < len(segment.segments):
-                    # Don't trigger on indents, but placeholders are allowed.
-                    if segment.segments[j].is_type("indent"):
-                        j += 1
-                    else:
-                        next_seg = segment.segments[j]
-                        break
-
-                if (
-                    # There is a next segment
-                    next_seg
-                    # It's not whitespace
-                    and not next_seg.is_whitespace
-                    # It's not a closeing bracket
-                    and not (
-                        next_seg.name.endswith("_bracket")
-                        and next_seg.name.startswith("end_")
-                    )
-                    # And it's not a placeholder that itself starts with whitespace.
-                    # NOTE: This feels convoluted but handles the case of '{%-' modifiers.
-                    and not (
-                        next_seg.is_meta
-                        and (
-                            next_seg.source_str.startswith(" ")
-                            or next_seg.source_str.startswith("\n")
-                        )
-                    )
-                ):
+                next_seg = self._find_segment(idx, segment.segments, before=False)
+                if self._missing_whitespace(next_seg, before=False):
                     self.logger.debug(
                         "Missing Whitespace After %r. Found %r instead.",
                         after_anchor.raw,

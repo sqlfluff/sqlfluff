@@ -1,14 +1,9 @@
 rule: L048
 
 test_pass_1:
-  # Test that we don't fail * operators in brackets
   pass_str: "SELECT 'foo'"
 
 test_pass_2:
-  # Test that we don't fail * operators in brackets
-  pass_str: "SELECT 'foo'"
-
-test_pass_3:
   # Test that brackets don't trigger it
   pass_str: "SELECT ('foo' || 'bar') as buzz"
 
