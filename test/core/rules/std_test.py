@@ -96,14 +96,24 @@ def test__rules__runaway_fail_catch():
         (
             "L006",
             "operator_errors.sql",
-            [(3, 8), (4, 10), (7, 6), (7, 7), (7, 9), (7, 10), (7, 12), (7, 13)],
+            [(7, 6), (7, 9), (7, 12)],
+        ),
+        (
+            "L039",
+            "operator_errors.sql",
+            [(3, 8), (4, 10)],
         ),
         ("L007", "operator_errors.sql", [(5, 9)]),
-        # Check we DO get a violation on line 2 but NOT on line 3
+        # Check we DO get a violation on line 2 but NOT on line 3 (between L006 & L039)
         (
             "L006",
             "operator_errors_negative.sql",
-            [(2, 6), (2, 9), (5, 6), (5, 7)],
+            [(5, 6)],
+        ),
+        (
+            "L039",
+            "operator_errors_negative.sql",
+            [(2, 6), (2, 9)],
         ),
         # Hard indentation errors
         (
@@ -128,7 +138,7 @@ def test__rules__runaway_fail_catch():
         # Distinct and Group by
         ("L021", "select_distinct_group_by.sql", [(1, 8)]),
         # Make sure that ignoring works as expected
-        ("L006", "operator_errors_ignore.sql", [(10, 8), (10, 9)]),
+        ("L006", "operator_errors_ignore.sql", [(10, 8)]),
         (
             "L031",
             "aliases_in_join_error.sql",
