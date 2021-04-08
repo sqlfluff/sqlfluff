@@ -292,9 +292,10 @@ test_31:
 
 test_32:
   # Issue 930: Infinite recursion if CTE queries itself.
-  fail_str: with
-    hubspot__engagement_calls as (
-      select * from hubspot__engagement_calls
-    )
+  fail_str: |
+    with
+      hubspot__engagement_calls as (
+        select * from hubspot__engagement_calls
+      )
 
-    select * from hubspot__engagement_calls
+      select * from hubspot__engagement_calls
