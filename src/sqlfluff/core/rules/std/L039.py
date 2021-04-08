@@ -32,6 +32,7 @@ class Rule_L039(BaseRule):
         # For the given segment, lint whitespace directly within it.
         prev_newline = True
         prev_whitespace = None
+        violations = []
         for seg in segment.segments:
             if seg.is_type("newline"):
                 prev_newline = True
@@ -47,18 +48,22 @@ class Rule_L039(BaseRule):
             else:
                 if prev_whitespace:
                     if prev_whitespace.raw != " ":
-                        return LintResult(
-                            anchor=prev_whitespace,
-                            fixes=[
-                                LintFix(
-                                    "edit",
-                                    prev_whitespace,
-                                    self.make_whitespace(
-                                        raw=" ", pos_marker=prev_whitespace.pos_marker
-                                    ),
-                                )
-                            ],
+                        violations.append(
+                            LintResult(
+                                anchor=prev_whitespace,
+                                fixes=[
+                                    LintFix(
+                                        "edit",
+                                        prev_whitespace,
+                                        self.make_whitespace(
+                                            raw=" ",
+                                            pos_marker=prev_whitespace.pos_marker,
+                                        ),
+                                    )
+                                ],
+                            )
                         )
                 prev_newline = False
                 prev_whitespace = None
-        return None
+        if violations:
+            return violations
