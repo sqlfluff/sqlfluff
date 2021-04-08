@@ -299,3 +299,18 @@ test_32:
       )
 
       select * from hubspot__engagement_calls
+
+test_33:
+  # Another test for issue #930
+  fail_str: |
+    with
+    hubspot__contacts as (
+      select * from ANALYTICS.PUBLIC_intermediate.hubspot__contacts
+    ),
+    final as (
+      select *
+      from
+        hubspot__contacts
+        where not coalesce(_fivetran_deleted, false)
+    )
+    select * from final
