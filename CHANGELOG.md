@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1] - 2021-04-09
+### Changed
+- Parsing improvements around optional brackets.
+- Better parsing of set operators (like `UNION`) and how they interact with
+  `ORDER BY` clauses.
+- Support for comparison operators like `~`.
+- Fix parsing of snowflake `SAMPLE` syntax.
+- Fix recursion issues in L044.
+- `SPACE` keyword now has no special meaning in the postgres dialect.
+
 ## [0.5.0] - 2021-04-05
 ### Added
 - `pascal` (PascalCase) `capitalisation_policy` option for L014 (unquoted identifiers)
