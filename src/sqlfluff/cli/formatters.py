@@ -234,7 +234,7 @@ class CallbackFormatter:
                 ("python", get_python_version()),
                 ("dialect", linter.dialect.name),
                 ("verbosity", self._verbosity),
-            ]
+            ] + linter.templater.config_pairs()
             text_buffer.write(cli_table(config_content, col_width=25))
             text_buffer.write("\n")
             if linter.config.get("rule_whitelist"):
@@ -269,10 +269,10 @@ class CallbackFormatter:
         if self._verbosity > 0:
             self._dispatch(self._format_path(path))
 
-    def dispatch_parse_header(self, fname, linter_config, file_config):
-        """Dispatch the header displayed before parsing."""
+    def dispatch_template_header(self, fname, linter_config, file_config):
+        """Dispatch the header displayed before templating."""
         if self._verbosity > 1:
-            self._dispatch(format_filename(filename=fname, success="PARSING"))
+            self._dispatch(format_filename(filename=fname, success="TEMPLATING"))
             # This is where we output config diffs if they exist.
             if file_config:
                 # Only output config diffs if there is a config to diff to.
@@ -282,6 +282,20 @@ class CallbackFormatter:
                     self._dispatch(
                         format_config_vals(linter_config.iter_vals(cfg=config_diff))
                     )
+
+    def dispatch_parse_header(self, fname):
+        """Dispatch the header displayed before parsing."""
+        if self._verbosity > 1:
+            self._dispatch(format_filename(filename=fname, success="PARSING"))
+
+    def dispatch_lint_header(self, fname):
+        """Dispatch the header displayed before linting."""
+        if self._verbosity > 1:
+            self._dispatch(format_filename(filename=fname, success="LINTING"))
+
+    def dispatch_compilation_header(self, templater, message):
+        """Dispatch the header displayed before linting."""
+        self._dispatch("=== [" + colorize(templater, "lightgrey") + "] " + message)
 
     def dispatch_dialect_warning(self):
         """Dispatch a warning for dialects."""
@@ -294,7 +308,7 @@ class CallbackFormatter:
         success = sum(int(not violation.ignore) for violation in violations) == 0
 
         # Only print the filename if it's either a failure or verbosity > 1
-        if self._verbosity > 1 or not success:
+        if self._verbosity > 0 or not success:
             text_buffer.write(format_filename(fname, success=success))
             text_buffer.write("\n")
 
