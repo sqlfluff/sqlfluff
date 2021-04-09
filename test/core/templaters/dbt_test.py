@@ -64,7 +64,7 @@ def test__templater_dbt_templating_result(
         config=FluffConfig(configs=DBT_FLUFF_CONFIG),
     )
     # the dbt compiler gets rid of new lines
-    assert str(templated_file) + "\n" == open("../dbt/" + fname).read()
+    assert str(templated_file) == open("../dbt/" + fname).read()
 
 
 @pytest.mark.dbt
