@@ -254,7 +254,9 @@ class DbtTemplater(JinjaTemplater):
 
         n_trailing_newlines = len(source_dbt_sql) - len(source_dbt_sql.rstrip("\n"))
 
-        templater_logger.debug("    Trailing newline count in source dbt model: %r", n_trailing_newlines)
+        templater_logger.debug(
+            "    Trailing newline count in source dbt model: %r", n_trailing_newlines
+        )
         templater_logger.debug("    Raw SQL before compile: %r", source_dbt_sql)
         templater_logger.debug("    Node raw SQL: %r", node.raw_sql)
         templater_logger.debug("    Node compiled SQL: %r", compiled_sql)
