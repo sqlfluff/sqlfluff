@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for comparison operators like `~`.
 - Fix parsing of snowflake `SAMPLE` syntax.
 - Fix recursion issues in L044.
+- `SPACE` keyword now has no special meaning in the postgres dialect.
 
 ## [0.5.0] - 2021-04-05
 ### Added
