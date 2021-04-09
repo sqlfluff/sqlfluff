@@ -245,7 +245,7 @@ class CallbackFormatter:
                     )
                 )
             if self._verbosity > 1:
-                text_buffer.write("== Raw Config:\n")
+                text_buffer.write("\n== Raw Config:\n")
                 text_buffer.write(format_config_vals(linter.config.iter_vals()))
         return text_buffer.getvalue()
 
