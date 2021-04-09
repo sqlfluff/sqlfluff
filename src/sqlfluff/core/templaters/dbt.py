@@ -15,6 +15,7 @@ from sqlfluff.core.templaters.jinja import JinjaTemplater
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
+# templater_logger.setLevel(logging.DEBUG)
 
 
 @dataclass
@@ -248,17 +249,32 @@ class DbtTemplater(JinjaTemplater):
                 "by running `dbt compile` directly."
             )
 
-        exclude_rules = self.sqlfluff_config.__dict__["_configs"]["core"][
-            "exclude_rules"
-        ]
+        with open(fname, "r") as soure_dbt_model:
+            source_dbt_sql = soure_dbt_model.read()
 
-        keep_trailing_newline = [False if "L009" in str(exclude_rules) else True]
+        n_trailing_newlines = len(source_dbt_sql) - len(source_dbt_sql.rstrip("\n"))
+
+        templater_logger.debug("    Trailing newline count in source dbt model: %r", n_trailing_newlines)
+        templater_logger.debug("    Raw SQL before compile: %r", source_dbt_sql)
+        templater_logger.debug("    Node raw SQL: %r", node.raw_sql)
+        templater_logger.debug("    Node compiled SQL: %r", compiled_sql)
+
+        # When using dbt-templater, trailing newlines are ALWAYS REMOVED during
+        # compiling. This will cause "No newline at end of file" warnings in
+        # Git/GitHub since sqlfluff uses the compiled SQL to write fixes back
+        # to the source SQL in the dbt model. Solution is:
+        #    1. Check for trailing newlines before compiling by looking at the
+        #       raw source .sql file, store the count of trailing newlines.
+        #    2. Append the count from #1 above to the node.raw_sql and
+        #       compiled_sql objects, both of which have had the trailing
+        #       newlines removed by the dbt-templater.
+        node.raw_sql = node.raw_sql + "\n" * n_trailing_newlines
+        compiled_sql = compiled_sql + "\n" * n_trailing_newlines
 
         raw_sliced, sliced_file, templated_sql = self.slice_file(
             node.raw_sql,
             compiled_sql,
             config=config,
-            trailing_newline=keep_trailing_newline,
         )
 
         return (
