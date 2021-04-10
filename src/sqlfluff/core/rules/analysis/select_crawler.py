@@ -86,7 +86,6 @@ class SelectCrawler:
         segment: BaseSegment,
         queries: Dict[str, List["SelectCrawler"]],
         dialect: Dialect,
-        recurse_into: bool=False,
     ) -> Generator[Union[str, List["SelectCrawler"]], None, None]:
         """Find SELECTs, table refs, or value table function calls in segment.
 

@@ -69,9 +69,8 @@ class Rule_L045(BaseRule):
                 main_selects = queries.pop(None)
                 for select in main_selects:
                     for source in SelectCrawler.crawl(
-                            select.select_statement,
-                            queries,
-                            dialect):
+                        select.select_statement, queries, dialect
+                    ):
                         if isinstance(source, list):
                             self._visit_sources(source, dialect, queries)
                 self._visit_sources(main_selects, dialect, queries)
