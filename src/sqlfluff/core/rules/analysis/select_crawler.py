@@ -52,33 +52,8 @@ class SelectCrawler:
         If we find a SELECT, return info list. Otherwise, return table name
         or function call string.
         """
-        buff = []
-        for seg in segment.recursive_crawl(
-            "table_reference", "select_statement", recurse_into=False
-        ):
-            if seg is segment:
-                # If we are starting with a select_statement, recursive_crawl()
-                # returns the statement itself. Skip that.
-                continue
-
-            if seg.type == "table_reference":
-                if not seg.is_qualified() and seg.raw in queries:
-                    # It's a CTE.
-                    return queries[seg.raw]
-                else:
-                    # It's an external table.
-                    return seg.raw
-            else:
-                assert seg.type == "select_statement"
-                buff.append(SelectCrawler(seg, dialect))
-        if not buff:
-            # If we reach here, the SELECT may be querying from a value table
-            # function, e.g. UNNEST(). For our purposes, this is basically the
-            # same as an external table. Return the "table" part as a string.
-            table_expr = segment.get_child("table_expression")
-            if table_expr:
-                return table_expr.raw
-        return buff
+        for o in cls.crawl(segment, queries, dialect, False):
+            return o
 
     @classmethod
     def crawl(
@@ -86,6 +61,7 @@ class SelectCrawler:
         segment: BaseSegment,
         queries: Dict[str, List["SelectCrawler"]],
         dialect: Dialect,
+        recurse_into=True,
     ) -> Generator[Union[str, List["SelectCrawler"]], None, None]:
         """Find SELECTs, table refs, or value table function calls in segment.
 
@@ -94,7 +70,7 @@ class SelectCrawler:
         """
         buff = []
         for seg in segment.recursive_crawl(
-            "table_reference", "select_statement", recurse_into=True
+            "table_reference", "select_statement", recurse_into=recurse_into
         ):
             if seg is segment:
                 # If we are starting with a select_statement, recursive_crawl()
