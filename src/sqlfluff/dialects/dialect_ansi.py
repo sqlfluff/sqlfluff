@@ -792,6 +792,7 @@ class FunctionSegment(BaseSegment):
                     ephemeral_name="FunctionContentsGrammar",
                 )
             ),
+            allow_gaps=False,
         ),
         Ref("PostFunctionGrammar", optional=True),
     )

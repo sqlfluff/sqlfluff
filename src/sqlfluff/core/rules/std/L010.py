@@ -172,6 +172,11 @@ class Rule_L010(BaseRule):
             )
 
     def _get_fix(self, segment, fixed_raw):
+        """Given a segment found to have a fix, returns a LintFix for it.
+
+        May be overridden by subclasses, which is useful when the parse tree
+        structure varies from this simple base case.
+        """
         return LintFix(
             "edit",
             segment,

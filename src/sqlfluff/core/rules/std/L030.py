@@ -42,6 +42,11 @@ class Rule_L030(Rule_L010):
     _target_elems: List[Tuple[str, str]] = [("type", "function_name")]
 
     def _get_fix(self, segment, fixed_raw):
+        """Overrides the base class.
+
+        We need to do this because function_name nodes have a child
+        function_name_identifier that holds the actual name.
+        """
         child_segment = segment.segments[0]
         return LintFix(
             "edit",
