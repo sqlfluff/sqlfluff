@@ -18,7 +18,7 @@ import copy
 import logging
 import pathlib
 import re
-from typing import Optional, List, TYPE_CHECKING
+from typing import Optional, List, Tuple, TYPE_CHECKING
 from collections import namedtuple
 
 from sqlfluff.core.parser import RawSegment, KeywordSegment, BaseSegment, SymbolSegment
@@ -453,6 +453,15 @@ class BaseRule:
         )
         # At the moment we let the rule dictate *case* here.
         return symbol_seg(raw=raw, pos_marker=pos_marker)
+
+    @staticmethod
+    def matches_target_tuples(seg: BaseSegment, target_tuples: List[Tuple[str, str]]):
+        """Does the given segment match any of the given type tuples."""
+        if seg.name in [elem[1] for elem in target_tuples if elem[0] == "name"]:
+            return True
+        elif seg.is_type(*[elem[1] for elem in target_tuples if elem[0] == "type"]):
+            return True
+        return False
 
 
 class RuleSet:

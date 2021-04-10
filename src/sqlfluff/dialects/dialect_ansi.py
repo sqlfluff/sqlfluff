@@ -88,6 +88,7 @@ ansi_dialect.set_lexer_struct(
             dict(is_code=True),
         ),
         ("not_equal", "regex", r"!=|<>", dict(is_code=True)),
+        ("like_operator", "regex", r"!?~~?\*?", dict(is_code=True)),
         ("greater_than_or_equal", "regex", r">=", dict(is_code=True)),
         ("less_than_or_equal", "regex", r"<=", dict(is_code=True)),
         ("newline", "regex", r"\r\n|\n", dict(type="newline", is_whitespace=True)),
@@ -99,7 +100,6 @@ ansi_dialect.set_lexer_struct(
         ("dot", "singleton", ".", dict(is_code=True)),
         ("comma", "singleton", ",", dict(is_code=True, type="comma")),
         ("plus", "singleton", "+", dict(is_code=True)),
-        ("tilde", "singleton", "~", dict(is_code=True)),
         ("minus", "singleton", "-", dict(is_code=True)),
         ("divide", "singleton", "/", dict(is_code=True)),
         ("percent", "singleton", "%", dict(is_code=True)),
@@ -208,6 +208,9 @@ ansi_dialect.add(
     ModuloSegment=SymbolSegment.make("%", name="modulo", type="binary_operator"),
     ConcatSegment=SymbolSegment.make("||", name="concatenate", type="binary_operator"),
     EqualsSegment=SymbolSegment.make("=", name="equals", type="comparison_operator"),
+    LikeOperatorSegment=NamedSegment.make(
+        "like_operator", name="like_operator", type="comparison_operator"
+    ),
     GreaterThanSegment=SymbolSegment.make(
         ">", name="greater_than", type="comparison_operator"
     ),
@@ -305,6 +308,7 @@ ansi_dialect.add(
         Ref("LessThanOrEqualToSegment"),
         Ref("NotEqualToSegment_a"),
         Ref("NotEqualToSegment_b"),
+        Ref("LikeOperatorSegment"),
     ),
     # hookpoint for other dialects
     # e.g. EXASOL str to date cast with DATE '2021-01-01'
@@ -494,21 +498,23 @@ class ObjectReferenceSegment(BaseSegment):
         """Details about a table alias."""
 
         part: str  # Name of the part
-        segment: BaseSegment  # Segment containing the part
+        # Segment(s) comprising the part. Usuaully just one segment, but could
+        # be multiple in dialects (e.g. BigQuery) that support unusual
+        # characters in names (e.g. "-")
+        segments: List[BaseSegment]
 
     @classmethod
     def _iter_reference_parts(cls, elem) -> Generator[ObjectReferencePart, None, None]:
         """Extract the elements of a reference and yield."""
         # trim on quotes and split out any dots.
         for part in elem.raw_trimmed().split("."):
-            yield cls.ObjectReferencePart(part, elem)
+            yield cls.ObjectReferencePart(part, [elem])
 
     def iter_raw_references(self) -> Generator[ObjectReferencePart, None, None]:
         """Generate a list of reference strings and elements.
 
-        Each element is a tuple of (str, segment). If some are
-        split, then a segment may appear twice, but the substring
-        will only appear once.
+        Each reference is an ObjectReferencePart. If some are split, then a
+        segment may appear twice, but the substring will only appear once.
         """
         # Extract the references from those identifiers (because some may be quoted)
         for elem in self.recursive_crawl("identifier"):
@@ -848,11 +854,17 @@ class FromExpressionElementSegment(BaseSegment):
         # If not return the object name (or None if there isn't one)
         # ref = self.get_child("object_reference")
         if ref:
-            # Return the last element of the reference, which
-            # will already be a tuple.
-            penultimate_ref = list(ref.iter_raw_references())[-1]
+            # Return the last element of the reference.
+            penultimate_ref: ObjectReferenceSegment.ObjectReferencePart = list(
+                ref.iter_raw_references()
+            )[-1]
             return AliasInfo(
-                penultimate_ref[0], penultimate_ref[1], False, self, None, ref
+                penultimate_ref.part,
+                penultimate_ref.segments[0],
+                False,
+                self,
+                None,
+                ref,
             )
         # No references or alias, return None
         return None
@@ -947,6 +959,8 @@ class SelectClauseElementSegment(BaseSegment):
     # Important to split elements before parsing, otherwise debugging is really hard.
     match_grammar = GreedyUntil(
         "FROM",
+        "WHERE",
+        "ORDER",
         "LIMIT",
         Ref("CommaSegment"),
         Ref("SetOperatorSegment"),
@@ -990,6 +1004,8 @@ class SelectClauseSegment(BaseSegment):
         Sequence("SELECT", Ref("WildcardExpressionSegment", optional=True)),
         terminator=OneOf(
             "FROM",
+            "WHERE",
+            "ORDER",
             "LIMIT",
             Ref("SetOperatorSegment"),
         ),
@@ -1535,6 +1551,46 @@ class ValuesClauseSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class UnorderedSelectStatementSegment(BaseSegment):
+    """A `SELECT` statement without any ORDER clauses or later.
+
+    This is designed for use in the context of set operations,
+    for other use cases, we should use the main
+    SelectStatementSegment.
+    """
+
+    type = "select_statement"
+    # match grammar. This one makes sense in the context of knowing that it's
+    # definitely a statement, we just don't know what type yet.
+    match_grammar = StartsWith(
+        # NB: In bigquery, the select clause may include an EXCEPT, which
+        # will also match the set operator, but by starting with the whole
+        # select clause rather than just the SELECT keyword, we mitigate that
+        # here.
+        Ref("SelectClauseSegment"),
+        terminator=OneOf(
+            Ref("SetOperatorSegment"),
+            Ref("WithNoSchemaBindingClauseSegment"),
+            Ref("OrderByClauseSegment"),
+            Ref("LimitClauseSegment"),
+            Ref("NamedWindowSegment"),
+        ),
+        enforce_whitespace_preceeding_terminator=True,
+    )
+
+    parse_grammar = Sequence(
+        Ref("SelectClauseSegment"),
+        # Dedent for the indent in the select clause.
+        # It's here so that it can come AFTER any whitespace.
+        Dedent,
+        Ref("FromClauseSegment", optional=True),
+        Ref("WhereClauseSegment", optional=True),
+        Ref("GroupByClauseSegment", optional=True),
+        Ref("HavingClauseSegment", optional=True),
+    )
+
+
+@ansi_dialect.segment()
 class SelectStatementSegment(BaseSegment):
     """A `SELECT` statement."""
 
@@ -1553,18 +1609,13 @@ class SelectStatementSegment(BaseSegment):
         enforce_whitespace_preceeding_terminator=True,
     )
 
-    parse_grammar = Sequence(
-        Ref("SelectClauseSegment"),
-        # Dedent for the indent in the select clause.
-        # It's here so that it can come AFTER any whitespace.
-        Dedent,
-        Ref("FromClauseSegment", optional=True),
-        Ref("WhereClauseSegment", optional=True),
-        Ref("GroupByClauseSegment", optional=True),
-        Ref("HavingClauseSegment", optional=True),
-        Ref("OrderByClauseSegment", optional=True),
-        Ref("LimitClauseSegment", optional=True),
-        Ref("NamedWindowSegment", optional=True),
+    # Inherit most of the parse grammar from the original.
+    parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(
+        insert=[
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("LimitClauseSegment", optional=True),
+            Ref("NamedWindowSegment", optional=True),
+        ]
     )
 
 
@@ -1575,12 +1626,17 @@ ansi_dialect.add(
     ),
     # Things that behave like select statements, which can form part of with expressions.
     NonWithSelectableGrammar=OneOf(
-        Ref("SetExpressionSegment"), Ref("NonSetSelectableGrammar")
+        Ref("SetExpressionSegment"),
+        OptionallyBracketed(Ref("SelectStatementSegment")),
+        Ref("NonSetSelectableGrammar"),
     ),
     # Things that behave like select statements, which can form part of set expressions.
     NonSetSelectableGrammar=OneOf(
-        Ref("SelectStatementSegment"),
         Ref("ValuesClauseSegment"),
+        Ref("UnorderedSelectStatementSegment"),
+        # If it's bracketed, we can have the full select statment here,
+        # otherwise we can't because any order by clauses should belong
+        # to the set expression.
         Bracketed(Ref("SelectStatementSegment")),
     ),
 )
@@ -1666,6 +1722,9 @@ class SetExpressionSegment(BaseSegment):
             ),
             min_times=1,
         ),
+        Ref("OrderByClauseSegment", optional=True),
+        Ref("LimitClauseSegment", optional=True),
+        Ref("NamedWindowSegment", optional=True),
     )
 
 

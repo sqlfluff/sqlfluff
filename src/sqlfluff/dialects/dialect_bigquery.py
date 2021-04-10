@@ -6,6 +6,8 @@ and
 https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and_bytes_literals
 """
 
+import itertools
+
 from sqlfluff.core.parser import (
     Anything,
     BaseSegment,
@@ -352,4 +354,52 @@ class LiteralCoercionSegment(BaseSegment):
     match_grammar = Sequence(
         OneOf("DATE", "DATETIME", "TIME", "TIMESTAMP"),
         Ref("QuotedLiteralSegment"),
+    )
+
+
+@bigquery_dialect.segment()
+class HyphenatedObjectReferenceSegment(ansi_dialect.get_segment("ObjectReferenceSegment")):  # type: ignore
+    """A reference to an object that may contain embedded hyphens."""
+
+    type = "hyphenated_object_reference"
+    match_grammar = ansi_dialect.get_segment(
+        "ObjectReferenceSegment"
+    ).match_grammar.copy()
+    match_grammar.delimiter = OneOf(
+        Ref("DotSegment"),
+        Sequence(Ref("DotSegment"), Ref("DotSegment")),
+        Sequence(Ref("MinusSegment")),
+    )
+
+    def iter_raw_references(self):
+        """Generate a list of reference strings and elements.
+
+        Each reference is an ObjectReferencePart. Overrides the base class
+        because hyphens (MinusSegment) causes one logical part of the name to
+        be split across multiple elements, e.g. "table-a" is parsed as three
+        segments.
+        """
+        # For each descendant element, group them, using "dot" elements as a
+        # delimiter.
+        for is_dot, elems in itertools.groupby(
+            self.recursive_crawl("identifier", "binary_operator", "dot"),
+            lambda e: e.type == "dot",
+        ):
+            if not is_dot:
+                segments = list(elems)
+                parts = [seg.raw_trimmed() for seg in segments]
+                yield self.ObjectReferencePart("".join(parts), segments)
+
+
+@bigquery_dialect.segment(replace=True)
+class TableExpressionSegment(BaseSegment):
+    """Main table expression e.g. within a FROM clause, with hyphen support."""
+
+    type = "table_expression"
+    match_grammar = ansi_dialect.get_segment(
+        "TableExpressionSegment"
+    ).match_grammar.copy(
+        insert=[
+            Ref("HyphenatedObjectReferenceSegment"),
+        ]
     )

@@ -6,6 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Fix false positive when CTE used in WHERE clause ([#944](https://github.com/sqlfluff/sqlfluff/issues/944))
+- Logging and readout now includes more detail and a notification of dbt compilation.
+
+## [0.5.1] - 2021-04-09
+### Changed
+- Parsing improvements around optional brackets.
+- Better parsing of set operators (like `UNION`) and how they interact with
+  `ORDER BY` clauses.
+- Support for comparison operators like `~`.
+- Fix parsing of snowflake `SAMPLE` syntax.
+- Fix recursion issues in L044.
+- `SPACE` keyword now has no special meaning in the postgres dialect.
+
+## [0.5.0] - 2021-04-05
 ### Added
 - `pascal` (PascalCase) `capitalisation_policy` option for L014 (unquoted identifiers)
 - `only_aliases` configuration option for L014 (unquoted identifers)
@@ -13,13 +28,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   between related dialects. The methods `get_segment` and `get_grammar` can be
   used on unexpanded grammars to access elements of the parent grammars.
   The `copy` method on grammars can be used to copy with alterations.
+- Rule L046 to line whitespace within jinja tags.
+- Enable and Disable syntax for [ignoring violations from ranges of lines](https://docs.sqlfluff.com/en/latest/configuration.html#ignoring-line-ranges).
 
 ### Changed
-- Add support for `ALTER USER` commands in Snowflake dialect.
-- Added describe statement to ANSI dialect
-- Renamed `capitalisation_policy` to `extended_capitalisation_policy` for L014 to reflect the fact that it now
-  accepts more options (`pascal`) than regular `capitalisation_policy` still used by L010 and others.
-- Replaced `only_aliases` config with `unquoted_identifiers_policy` and added it to rule L014 in addition to L029.
 - Renamed the BaseCrawler class to BaseRule. This is the base class for all
   rules. This is a breaking change for any custom rules that have been added
   via plugins or by forking the SQLFluff repo.
@@ -32,6 +44,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   only imported as needed at runtime. All dialects should now be accessed
   using the selector methods in `sqlfluff.core.dialects` rather than importing
   from `sqlfluff.dialects` directly.
+- Add support for `ALTER USER` commands in Snowflake dialect.
+- Added describe statement to ANSI dialect
+- Renamed `capitalisation_policy` to `extended_capitalisation_policy` for L014
+  to reflect the fact that it now accepts more options (`pascal`) than regular
+  `capitalisation_policy` still used by L010 and others.
+- Replaced `only_aliases` config with `unquoted_identifiers_policy` and added
+  it to rule L014 in addition to L029.
+- Parse structure of `FROM` clauses to better represent nested joins and table
+  functions.
+- Parse structure of expressions to avoid unneccessary nesting and overly
+  recursive method calls.
 
 ## [0.4.1] - 2021-02-25
 ### Added
