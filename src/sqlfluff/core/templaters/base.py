@@ -371,7 +371,7 @@ class RawTemplater:
         """
 
     def process(
-        self, *, in_str: str, fname: Optional[str] = None, config=None
+        self, *, in_str: str, fname: Optional[str] = None, config=None, formatter=None
     ) -> Tuple[Optional[TemplatedFile], list]:
         """Process a string and return a TemplatedFile.
 
@@ -389,6 +389,7 @@ class RawTemplater:
                 mostly for loading config files at runtime.
             config (:obj:`FluffConfig`): A specific config to use for this
                 templating operation. Only necessary for some templaters.
+            formatter (:obj:`CallbackFormatter`): Optional object for output.
 
         """
         return TemplatedFile(in_str, fname=fname), []
@@ -399,3 +400,7 @@ class RawTemplater:
         NB: This is useful in comparing configs.
         """
         return isinstance(other, self.__class__)
+
+    def config_pairs(self):
+        """Returns info about the given templater for output by the cli."""
+        return [("templater", self.name)]

@@ -1,0 +1,27 @@
+file:
+  statement:
+    set_expression:
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            literal: '1'
+            alias_expression:
+              keyword: AS
+              identifier: a
+    - set_operator:
+      - keyword: UNION
+      - keyword: ALL
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            literal: '1'
+            alias_expression:
+              keyword: AS
+              identifier: a
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          identifier: a

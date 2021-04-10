@@ -200,7 +200,7 @@ class PythonTemplater(RawTemplater):
         return live_context
 
     def process(
-        self, *, in_str: str, fname: Optional[str] = None, config=None
+        self, *, in_str: str, fname: Optional[str] = None, config=None, formatter=None
     ) -> Tuple[Optional[TemplatedFile], list]:
         """Process a string and return a TemplatedFile.
 
@@ -218,6 +218,7 @@ class PythonTemplater(RawTemplater):
                 mostly for loading config files at runtime.
             config (:obj:`FluffConfig`): A specific config to use for this
                 templating operation. Only necessary for some templaters.
+            formatter (:obj:`CallbackFormatter`): Optional object for output.
 
         """
         live_context = self.get_context(fname=fname, config=config)

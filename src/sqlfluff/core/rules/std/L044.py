@@ -104,7 +104,7 @@ class Rule_L044(BaseRule):
                             if wildcard_table in queries:
                                 # Wildcard refers to a CTE. Analyze it.
                                 self._analyze_result_columns(
-                                    queries[wildcard_table], dialect, queries
+                                    queries.pop(wildcard_table), dialect, queries
                                 )
                             else:
                                 # Not CTE, not table alias. Presumably an

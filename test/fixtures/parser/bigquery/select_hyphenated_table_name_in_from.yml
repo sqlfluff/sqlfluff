@@ -1,0 +1,42 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              hyphenated_object_reference:
+              - identifier: project
+              - binary_operator: '-'
+              - identifier: a
+              - dot: .
+              - identifier: dataset
+              - binary_operator: '-'
+              - identifier: b
+              - dot: .
+              - identifier: table
+              - binary_operator: '-'
+              - identifier: c
+          join_clause:
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                hyphenated_object_reference:
+                - identifier: dataset
+                - binary_operator: '-'
+                - identifier: c
+                - dot: .
+                - identifier: table
+                - binary_operator: '-'
+                - identifier: d
+          - keyword: USING
+          - start_bracket: (
+          - identifier: a
+          - end_bracket: )

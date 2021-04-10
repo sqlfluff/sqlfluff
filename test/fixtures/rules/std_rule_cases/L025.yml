@@ -30,3 +30,15 @@ test_4:
 test_5:
   fail_str: select * from (select 1 as a) subquery
   fix_str: select * from (select 1 as a)
+
+test_6:
+  # Test non-quoted table name containing hyphens: https://github.com/sqlfluff/sqlfluff/issues/895
+  # This is more of a smoke test to exercise the
+  # ObjectReferenceSegment.extract_reference() function, which is used by L025
+  # and in turn calls HyphenatedObjectReferenceSegment.iter_raw_references().
+  pass_str: |
+    select *
+    from project-a.dataset-b.table-c
+  configs:
+    core:
+      dialect: bigquery

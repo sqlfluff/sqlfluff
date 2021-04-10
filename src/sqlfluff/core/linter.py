@@ -859,9 +859,9 @@ class Linter:
             short_fname = fname
         bencher("Staring parse_string for {0!r}".format(short_fname))
 
-        # Dispatch the output for the parse header (including the config diff)
+        # Dispatch the output for the template header (including the config diff)
         if self.formatter:
-            self.formatter.dispatch_parse_header(fname, self.config, config)
+            self.formatter.dispatch_template_header(fname, self.config, config)
 
         # Just use the local config from here:
         config = config or self.config
@@ -874,7 +874,7 @@ class Linter:
 
         linter_logger.info("TEMPLATING RAW [%s] (%s)", self.templater.name, fname)
         templated_file, templater_violations = self.templater.process(
-            in_str=in_str, fname=fname, config=config
+            in_str=in_str, fname=fname, config=config, formatter=self.formatter
         )
         violations += templater_violations
         # Detect the case of a catastrophic templater fail. In this case
@@ -885,6 +885,10 @@ class Linter:
 
         t1 = time.monotonic()
         bencher("Templating {0!r}".format(short_fname))
+
+        # Dispatch the output for the parse header
+        if self.formatter:
+            self.formatter.dispatch_parse_header(fname)
 
         if templated_file:
             linter_logger.info("LEXING RAW (%s)", fname)
@@ -1064,6 +1068,10 @@ class Linter:
 
         # If we are fixing then we want to loop up to the runaway_limit, otherwise just once for linting.
         loop_limit = config.get("runaway_limit") if fix else 1
+
+        # Dispatch the output for the lint header
+        if self.formatter:
+            self.formatter.dispatch_lint_header(fname)
 
         for loop in range(loop_limit):
             changed = False
