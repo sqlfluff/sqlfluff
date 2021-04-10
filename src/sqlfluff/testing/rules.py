@@ -59,6 +59,9 @@ def assert_rule_fail_in_sql(code, sql, configs=None, line_numbers=None):
     linted = Linter(config=cfg).lint_string(sql, fix=True)
     lerrs = linted.get_violations()
     print("Errors Found: {0}".format(lerrs))
+    for e in lerrs:
+        if e.desc().startswith("Unexpected exception"):
+            pytest.fail(f"Linter failed with {e.desc()}")
     parse_errors = list(filter(lambda v: type(v) == SQLParseError, lerrs))
     if parse_errors:
         pytest.fail(f"Found the following parse errors in test case: {parse_errors}")
