@@ -12,7 +12,11 @@ labels: bug
   - [ ] All cases affected by the bug.
   - [ ] Some cases affected by the bug, but others still remain.
   - [ ] No cases, this PR just adds a failing test case.
-- [ ] This PR includes test cases to demonstrate the fix.
+- [ ] This PR includes test cases to demonstrate the fix. Specifically:
+  - [ ] `.yml` rule test cases in `test/fixtures/rules/std_rule_cases`.
+  - [ ] `.sql`/`.yml` parser test cases in `test/fixtures/parser`.
+  - [ ] Full autofix test cases in `test/fixtures/linter/autofix`.
+  - [ ] Other.
 - [ ] This PR updates the [CHANGELOG.md](https://github.com/sqlfluff/sqlfluff/blob/master/CHANGELOG.md).
 
 ### What was the root cause of this bug?
@@ -21,5 +25,5 @@ labels: bug
 ### Are there any other side effects of this fix?
 ...
 
-### How comprehesive is the test coverage of this fix?
+### How comprehensive is the test coverage of this fix?
 ...
