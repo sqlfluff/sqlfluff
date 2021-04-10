@@ -51,12 +51,14 @@ class Rule_L045(BaseRule):
         queries: Dict[str, List[SelectCrawler]],
     ):
         for select_info in select_info_list:
+            # Process nested SELECTs.
             for source in SelectCrawler.crawl(
                 select_info.select_statement, queries, dialect
             ):
                 if isinstance(source, list):
                     cls._visit_sources(source, dialect, queries)
 
+            # Process the query's sources.
             for alias_info in select_info.select_info.table_aliases:
                 # Does the query read from a CTE? If so, visit the CTE.
                 for target_segment in alias_info.from_expression_element.get_children(

@@ -94,7 +94,7 @@ test_9:
     WHERE row_updated_date <= (SELECT max_date FROM max_date_cte)
 
 test_10:
-  # Variant on test_9
+  # Variant on test_9, the WHERE with a nested SELECT is in a CTE
   pass_str: |
     WITH max_date_cte AS (
       SELECT MAX(row_updated_date) AS max_date
