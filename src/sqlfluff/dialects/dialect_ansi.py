@@ -757,9 +757,20 @@ class FunctionNameSegment(BaseSegment):
     """Base part of a function name (excluding project, schema, etc.)."""
 
     type = "function_name"
-    match_grammar = OneOf(
-        Ref("FunctionNameIdentifierSegment"),
-        Ref("QuotedIdentifierSegment"),
+    match_grammar = Sequence(
+        # Project name, schema identifier, etc.
+        AnyNumberOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("DotSegment"),
+            ),
+        ),
+        # Base function name
+        OneOf(
+            Ref("FunctionNameIdentifierSegment"),
+            Ref("QuotedIdentifierSegment"),
+        ),
+        allow_gaps=False,
     )
 
 
@@ -776,13 +787,6 @@ class FunctionSegment(BaseSegment):
     type = "function"
     match_grammar = Sequence(
         Sequence(
-            # Project name, schema identifier, etc.
-            AnyNumberOf(
-                Sequence(
-                    Ref("SingleIdentifierGrammar"),
-                    Ref("DotSegment"),
-                ),
-            ),
             Ref("FunctionNameSegment"),
             Bracketed(
                 Ref(
@@ -792,7 +796,6 @@ class FunctionSegment(BaseSegment):
                     ephemeral_name="FunctionContentsGrammar",
                 )
             ),
-            allow_gaps=False,
         ),
         Ref("PostFunctionGrammar", optional=True),
     )
