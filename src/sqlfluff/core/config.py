@@ -78,7 +78,7 @@ def nested_combine(*dicts: dict) -> dict:
     return r
 
 
-def dict_diff(left: dict, right: dict) -> dict:
+def dict_diff(left: dict, right: dict, ignore: Optional[List[str]] = None) -> dict:
     """Work out the difference between to dictionaries.
 
     Returns a dictionary which represents elements in the `left`
@@ -102,6 +102,8 @@ def dict_diff(left: dict, right: dict) -> dict:
     """
     buff: dict = {}
     for k in left:
+        if ignore and k in ignore:
+            continue
         # Is the key there at all?
         if k not in right:
             buff[k] = left[k]
@@ -110,8 +112,10 @@ def dict_diff(left: dict, right: dict) -> dict:
             continue
         # If it's not the same but both are dicts, then compare
         elif isinstance(left[k], dict) and isinstance(right[k], dict):
-            diff = dict_diff(left[k], right[k])
-            buff[k] = diff
+            diff = dict_diff(left[k], right[k], ignore=ignore)
+            # Only if the difference is not ignored it do we include it.
+            if diff:
+                buff[k] = diff
         # It's just different
         else:
             buff[k] = left[k]
@@ -442,7 +446,9 @@ class FluffConfig:
             or are different to the other.
 
         """
-        return dict_diff(self._configs, other._configs)
+        # We igonre some objects which are not meaningful in the comparison
+        # e.g. dialect_obj, which is generated on the fly.
+        return dict_diff(self._configs, other._configs, ignore=["dialect_obj"])
 
     def get(
         self, val: str, section: Union[str, Iterable[str]] = "core", default: Any = None

@@ -56,9 +56,7 @@ class Rule_L010(BaseRule):
 
         """
         # Skip if not an element of the specified type/name
-        if (("type", segment.type) not in self._target_elems) and (
-            ("name", segment.name) not in self._target_elems
-        ):
+        if not self.matches_target_tuples(segment, self._target_elems):
             return LintResult(memory=memory)
 
         # Get the capitalisation policy configuration

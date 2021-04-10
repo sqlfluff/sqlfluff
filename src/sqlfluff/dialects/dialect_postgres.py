@@ -32,6 +32,9 @@ postgres_dialect.insert_lexer_struct(
 )
 
 
+# https://www.postgresql.org/docs/current/sql-keywords-appendix.html
+# SPACE has special status in some SQL dialects, but not Postgres.
+postgres_dialect.sets("unreserved_keywords").remove("SPACE")
 # Reserve WITHIN (required for the WithinGroupClauseSegment)
 postgres_dialect.sets("unreserved_keywords").remove("WITHIN")
 postgres_dialect.sets("reserved_keywords").add("WITHIN")

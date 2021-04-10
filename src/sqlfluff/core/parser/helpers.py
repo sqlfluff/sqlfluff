@@ -1,6 +1,6 @@
 """Helpers for the parser module."""
 
-from typing import Tuple, TYPE_CHECKING
+from typing import Tuple, List, Any, Iterator, TYPE_CHECKING
 
 from sqlfluff.core.string_helpers import curtail_string
 
@@ -60,3 +60,26 @@ def trim_non_code_segments(
             post_idx -= 1
 
     return segments[:pre_idx], segments[pre_idx:post_idx], segments[post_idx:]
+
+
+def iter_indices(seq: List, val: Any) -> Iterator[int]:
+    """Iterate all indices in a list that val occurs at.
+
+    Args:
+        seq (list): A list to look for indices in.
+        val: What to look for.
+
+    Yields:
+        int: The index of val in seq.
+
+    Examples:
+        The function works like str.index() but iterates all
+        the results rather than returning the first.
+
+        >>> print([i for i in iter_indices([1, 0, 2, 3, 2], 2)])
+        [2, 4]
+    """
+    idx = 0
+    while val in seq[idx:]:
+        idx = seq.index(val, idx) + 1
+        yield idx - 1
