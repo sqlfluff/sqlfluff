@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
+- Fix false positive when CTE used in WHERE clause ([#944](https://github.com/sqlfluff/sqlfluff/issues/944))
 - Logging and readout now includes more detail and a notification of dbt compilation.
 
 ## [0.5.1] - 2021-04-09
