@@ -5,19 +5,19 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-          - identifier: gcpproject
-          - dot: .
-          - identifier: functions
-          - dot: .
-          - function_name:
-              function_name_identifier: timestamp_parsing
-          - start_bracket: (
-          - expression:
+            function_name:
+            - identifier: gcpproject
+            - dot: .
+            - identifier: functions
+            - dot: .
+            - function_name_identifier: timestamp_parsing
+            start_bracket: (
+            expression:
               column_reference:
               - identifier: log_tbl
               - dot: .
               - identifier: orderdate
-          - end_bracket: )
+            end_bracket: )
           alias_expression:
             keyword: AS
             identifier: orderdate

@@ -5,10 +5,10 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-            identifier: '`another-gcp-project`'
-            dot: .
             function_name:
-              identifier: '`functions.timestamp_parsing`'
+            - identifier: '`another-gcp-project`'
+            - dot: .
+            - identifier: '`functions.timestamp_parsing`'
             start_bracket: (
             expression:
               column_reference:
