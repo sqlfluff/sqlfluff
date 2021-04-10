@@ -65,8 +65,8 @@ class SelectCrawler:
     ) -> Generator[Union[str, List["SelectCrawler"]], None, None]:
         """Find SELECTs, table refs, or value table function calls in segment.
 
-        If we find a SELECT, return info list. Otherwise, return table name
-        or function call string.
+        For each SELECT, yield a list of SelectCrawlers. As we find table
+        references or function call strings, yield those.
         """
         buff = []
         for seg in segment.recursive_crawl(
