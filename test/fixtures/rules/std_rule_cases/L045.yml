@@ -92,3 +92,19 @@ test_9:
     SELECT stuff
     FROM warehouse.updated_weekly
     WHERE row_updated_date <= (SELECT max_date FROM max_date_cte)
+
+test_10:
+  # Variant on test_9
+  pass_str: |
+    WITH max_date_cte AS (
+      SELECT MAX(row_updated_date) AS max_date
+      FROM warehouse.loaded_monthly
+    ),
+    uses_max_date_cte AS (
+      SELECT stuff
+          FROM warehouse.updated_weekly
+          WHERE row_updated_date <= (SELECT max_date FROM max_date_cte)
+    )
+
+    SELECT stuff
+    FROM uses_max_date_cte
