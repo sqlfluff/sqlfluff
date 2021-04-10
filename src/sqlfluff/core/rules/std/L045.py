@@ -66,8 +66,15 @@ class Rule_L045(BaseRule):
         if segment.is_type("statement"):
             queries = SelectCrawler.gather(segment, dialect)
             if None in queries:
-                # Begin analysis at the final, outer query (key=None).
-                self._visit_sources(queries.pop(None), dialect, queries)
+                main_selects = queries.pop(None)
+                for select in main_selects:
+                    for source in SelectCrawler.crawl(
+                            select.select_statement,
+                            queries,
+                            dialect):
+                        if isinstance(source, list):
+                            self._visit_sources(source, dialect, queries)
+                self._visit_sources(main_selects, dialect, queries)
                 if queries:
                     return LintResult(anchor=segment)
         return None
