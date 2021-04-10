@@ -124,13 +124,14 @@ snowflake_dialect.replace(
         ),
     ),
     JoinLikeClauseGrammar=Sequence(
-        OneOf(
+        AnyNumberOf(
             Ref("FromAtExpressionSegment"),
             Ref("FromBeforeExpressionSegment"),
             Ref("FromPivotExpressionSegment"),
             Ref("FromUnpivotExpressionSegment"),
+            Ref("SamplingExpressionSegment"),
+            min_times=1,
         ),
-        Ref("SamplingExpressionSegment", optional=True),
         Ref("TableAliasExpressionSegment", optional=True),
     ),
     SingleIdentifierGrammar=OneOf(
@@ -282,7 +283,11 @@ class SamplingExpressionSegment(BaseSegment):
         OneOf("SAMPLE", "TABLESAMPLE"),
         OneOf("BERNOULLI", "ROW", "SYSTEM", "BLOCK", optional=True),
         Bracketed(Ref("NumericLiteralSegment"), Ref.keyword("ROWS", optional=True)),
-        Sequence(OneOf("REPEATABLE", "SEED"), Bracketed(Ref("NumericLiteralSegment"))),
+        Sequence(
+            OneOf("REPEATABLE", "SEED"),
+            Bracketed(Ref("NumericLiteralSegment")),
+            optional=True,
+        ),
     )
 
 

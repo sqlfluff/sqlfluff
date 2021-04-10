@@ -37,7 +37,7 @@ test_multiple_select_targets_all_on_the_same_line:
   fail_str: |
     select a, b, c
     from x
-  fix_str: "select\na, b, c\nfrom x\n"
+  fix_str: "select\na,\nb,\nc\nfrom x\n"
 
 test_multiple_select_targets_trailing_whitespace_after_select:
   # TRICKY: Use explicit newlines to preserve the trailing space after "SELECT".
@@ -57,3 +57,47 @@ test_comment_between_select_and_single_select_target:
         -- This is the user's ID.
         FROM
         safe_user
+
+test_multiple_select_targets_some_newlines_missing_1:
+  fail_str: |
+    select
+      a, b, c,
+      d, e, f, g,
+      h
+    from x
+  # The spaces before a, d, and h look odd, but these are places where the
+  # select targets were already on a separate line, and the rule made no
+  # changes.
+  fix_str: |
+    select
+      a,
+    b,
+    c,
+      d,
+    e,
+    f,
+    g,
+      h
+    from x
+
+
+test_multiple_select_targets_some_newlines_missing_2:
+  fail_str: |
+    select a, b, c,
+      d, e, f, g,
+      h
+    from x
+  # The spaces before d, and h look odd, but these are places where the
+  # select targets were already on a separate line, and the rule made no
+  # changes.
+  fix_str: |
+    select
+    a,
+    b,
+    c,
+      d,
+    e,
+    f,
+    g,
+      h
+    from x

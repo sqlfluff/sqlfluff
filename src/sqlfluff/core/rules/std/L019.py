@@ -53,6 +53,17 @@ class Rule_L019(BaseRule):
     config_keywords = ["comma_style"]
 
     @staticmethod
+    def _last_comment_seg(raw_stack):
+        """Trace the raw stack back to the most recent comment segment.
+
+        A return value of `None` indicates no code segments preceding the current position.
+        """
+        for segment in raw_stack[::-1]:
+            if segment.is_comment:
+                return segment
+        return None
+
+    @staticmethod
     def _last_code_seg(raw_stack):
         """Trace the raw stack back to the most recent code segment.
 
@@ -107,7 +118,18 @@ class Rule_L019(BaseRule):
                 if last_seg.is_type("newline"):
                     # Recorded where the fix should be applied
                     memory["last_leading_comma_seg"] = segment
-                    memory["anchor_for_new_trailing_comma_seg"] = last_seg
+                    last_comment_seg = self._last_comment_seg(raw_stack)
+                    inline_comment = (
+                        last_comment_seg.pos_marker.line_no
+                        == last_seg.pos_marker.line_no
+                        if last_comment_seg
+                        else False
+                    )
+                    # If we have a comment right before the newline, then anchor
+                    # the fix at the comment instead
+                    memory["anchor_for_new_trailing_comma_seg"] = (
+                        last_seg if not inline_comment else last_comment_seg
+                    )
                     # Trigger fix routine
                     memory["insert_trailing_comma"] = True
                     memory["whitespace_deletions"] = []

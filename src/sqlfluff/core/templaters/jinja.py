@@ -182,7 +182,7 @@ class JinjaTemplater(PythonTemplater):
         )
 
     def process(
-        self, *, in_str: str, fname: Optional[str] = None, config=None
+        self, *, in_str: str, fname: Optional[str] = None, config=None, formatter=None
     ) -> Tuple[Optional[TemplatedFile], list]:
         """Process a string and return the new string.
 
@@ -200,6 +200,7 @@ class JinjaTemplater(PythonTemplater):
                 mostly for loading config files at runtime.
             config (:obj:`FluffConfig`): A specific config to use for this
                 templating operation. Only necessary for some templaters.
+            formatter (:obj:`CallbackFormatter`): Optional object for output.
 
         """
         if not config:
