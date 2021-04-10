@@ -107,8 +107,8 @@ def test__templater_dbt_templating_test_lex(in_dbt_project_dir, dbt_templater): 
         config=FluffConfig(configs=DBT_FLUFF_CONFIG),
     )
     tokens, lex_vs = lexer.lex(templated_file)
-    assert templated_file.source_str == "select * from a"
-    assert templated_file.templated_str == "select * from a"
+    assert templated_file.source_str == "select * from a\n"
+    assert templated_file.templated_str == "select * from a\n"
 
 
 @pytest.mark.parametrize(
