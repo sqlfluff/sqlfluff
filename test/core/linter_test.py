@@ -9,6 +9,7 @@ from sqlfluff.core.errors import SQLBaseError, SQLLintError, SQLParseError
 from sqlfluff.core.linter import LintingResult, NoQaDirective
 import sqlfluff.core.linter as linter
 from sqlfluff.core.parser import FilePositionMarker
+from test.fixtures.dbt.templater import in_dbt_project_dir  # noqa
 
 
 class DummyLintError(SQLBaseError):
@@ -498,3 +499,14 @@ def test_linter_noqa():
     result = lntr.lint_string(sql)
     violations = result.get_violations()
     assert {3, 6, 7, 8, 10, 12, 13, 14, 15, 18} == {v.line_no() for v in violations}
+
+
+@pytest.mark.dbt
+def test__linter__skip_dbt_model_disabled(in_dbt_project_dir):  # noqa
+    """Test that the linter skips disabled dbt models."""
+    conf = FluffConfig(configs={"core": {"templater": "dbt"}})
+    lntr = Linter(config=conf)
+    linted_path = lntr.lint_path(path="models/my_new_project/disabled_model.sql")
+    linted_file = linted_path.files[0]
+    assert linted_file.path == "models/my_new_project/disabled_model.sql"
+    assert not linted_file.templated_file
