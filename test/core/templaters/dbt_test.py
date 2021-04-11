@@ -154,8 +154,8 @@ def test__dbt_templater_maintains_single_trailing_newline_at_file_end(in_dbt_pro
         config=FluffConfig(configs=DBT_FLUFF_CONFIG),
     )
     tokens, lex_vs = lexer.lex(templated_file)
-    assert templated_file.source_str == "select a\n from table_a\n"
-    assert templated_file.templated_str == "select a\n from table_a\n"
+    assert templated_file.source_str == "select a\nfrom table_a\n"
+    assert templated_file.templated_str == "select a\nfrom table_a\n"
 
 
 @pytest.mark.parametrize(
@@ -184,8 +184,8 @@ def test__dbt_templater_maintains_multiple_trailing_newlines_at_file_end(in_dbt_
         config=FluffConfig(configs=DBT_FLUFF_CONFIG),
     )
     tokens, lex_vs = lexer.lex(templated_file)
-    assert templated_file.source_str == "select a\n from table_a\n\n"
-    assert templated_file.templated_str == "select a\n from table_a\n\n"
+    assert templated_file.source_str == "select a\nfrom table_a\n\n"
+    assert templated_file.templated_str == "select a\nfrom table_a\n\n"
 
 
 @pytest.mark.dbt
