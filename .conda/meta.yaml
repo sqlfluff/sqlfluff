@@ -1,0 +1,60 @@
+{% set data = load_setup_py_data() %}
+
+package:
+  name: sqlfluff
+  version: {{ data['version'] }}
+
+source:
+  path: ..
+
+build:
+  number: 0
+  script: python setup.py install --single-version-externally-managed --record=record.txt
+
+build:
+  number: 0
+  skip: true   # [py2k]
+  entry_points:
+    - sqlfluff = sqlfluff.cli.commands:cli
+  script: {{ PYTHON }} -m pip install . -vv
+
+requirements:
+  host:
+    - pip
+    - python
+  run:
+    - appdirs
+    - bench-it
+    - cached-property
+    - click >=7.1
+    - colorama >=0.3
+    - configparser
+    - dataclasses  # [py<37]
+    - diff-cover >=2.5.0
+    - jinja2
+    - oyaml
+    - pathspec
+    - pytest
+    - python
+    - typing-extensions
+
+test:
+  imports:
+    - sqlfluff
+    - sqlfluff.api
+  commands:
+    - pip check
+    - sqlfluff --help
+  requires:
+    - pip
+
+about:
+  home: https://github.com/sqlfluff/sqlfluff
+  summary: Modular SQL Linting for Humans
+  dev_url: https://github.com/sqlfluff/sqlfluff
+  license: MIT
+  license_file: LICENSE.md
+
+extra:
+  recipe-maintainers:
+    - alanmcruickshank
