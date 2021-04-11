@@ -482,17 +482,17 @@ class LintedPath:
 
     @overload
     def check_tuples(self, by_path: Literal[False]) -> List[CheckTuple]:
-        """Return a List of CheckTuples when by_path is False."""
+        """Return a List of CheckTuples when by_path is False."""  # noqa: D418
         ...
 
     @overload
     def check_tuples(self, by_path: Literal[True]) -> Dict[str, List[CheckTuple]]:
-        """Return a Dict of paths and CheckTuples when by_path is True."""
+        """Return a Dict of paths and CheckTuples when by_path is True."""  # noqa: D418
         ...
 
     @overload
     def check_tuples(self, by_path: bool = False):
-        """Default overload method."""
+        """Default overload method."""  # noqa: D418
         ...
 
     def check_tuples(self, by_path=False):
@@ -595,19 +595,19 @@ class LintingResult:
 
     @overload
     def check_tuples(self, by_path: Literal[False]) -> List[CheckTuple]:
-        """Return a List of CheckTuples when by_path is False."""
+        """Return a List of CheckTuples when by_path is False."""  # noqa: D418
         ...
 
     @overload
     def check_tuples(
         self, by_path: Literal[True]
     ) -> Dict[LintedPath, List[CheckTuple]]:
-        """Return a Dict of LintedPath and CheckTuples when by_path is True."""
+        """Return a Dict of LintedPath and CheckTuples when by_path is True."""  # noqa: D418
         ...
 
     @overload
     def check_tuples(self, by_path: bool = False):
-        """Default overload method."""
+        """Default overload method."""  # noqa: D418
         ...
 
     def check_tuples(self, by_path=False):
