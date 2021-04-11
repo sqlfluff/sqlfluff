@@ -413,23 +413,6 @@ class SelectStatementSegment(ansi_dialect.get_segment("SelectStatementSegment"))
 
 
 @snowflake_dialect.segment()
-class UseStatementSegment(BaseSegment):
-    """A snowflake `USE` statement.
-
-    https://docs.snowflake.com/en/sql-reference/sql/use.html
-    """
-
-    type = "use_statement"
-    match_grammar = StartsWith("USE")
-
-    parse_grammar = Sequence(
-        "USE",
-        OneOf("ROLE", "WAREHOUSE", "DATABASE", "SCHEMA", optional=True),
-        Ref("ObjectReferenceSegment"),
-    )
-
-
-@snowflake_dialect.segment()
 class CreateCloneStatementSegment(BaseSegment):
     """A snowflake `CREATE ... CLONE` statement.
 
