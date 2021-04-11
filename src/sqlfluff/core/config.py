@@ -285,7 +285,7 @@ class ConfigLoader:
         else:
             p = os.path.dirname(path)
 
-        d = os.listdir(p)
+        d = os.listdir(os.path.expanduser(p))
         # iterate this way round to make sure things overwrite is the right direction
         for fname in filename_options:
             if fname in d:
@@ -299,14 +299,24 @@ class ConfigLoader:
         self._config_cache[str(path)] = configs
         return configs
 
-    def load_user_appdir_config(self) -> dict:
+    def load_user_appdir_config(self) -> Tuple[Optional[str], dict]:
         """Load the config from the user's OS specific appdir config directory."""
         appname = "sqlfluff"
         appauthor = "sqlfluff"
-        user_config_dir_path = appdirs.user_config_dir(appname, appauthor)
+
+        # On Mac OSX follow Linux XDG base dirs
+        # https://github.com/sqlfluff/sqlfluff/issues/889
+        user_config_dir_path = os.path.expanduser("~/.config/sqlfluff")
+        if appdirs.system == "darwin":
+            appdirs.system = "linux2"
+            user_config_dir_path = appdirs.user_config_dir(appname, appauthor)
+            appdirs.system = "darwin"
+        if not os.path.exists(user_config_dir_path):
+            user_config_dir_path = appdirs.user_config_dir(appname, appauthor)
+
         if os.path.exists(user_config_dir_path):
-            return self.load_config_at_path(user_config_dir_path)
-        return {}
+            return user_config_dir_path, self.load_config_at_path(user_config_dir_path)
+        return None, {}
 
     def load_user_config(self) -> dict:
         """Load the config from the user's home directory."""
@@ -315,7 +325,7 @@ class ConfigLoader:
 
     def load_config_up_to_path(self, path: str) -> dict:
         """Loads a selection of config files from both the path and its parent paths."""
-        user_appdir_config = self.load_user_appdir_config()
+        _, user_appdir_config = self.load_user_appdir_config()
         user_config = self.load_user_config()
         config_paths = self.iter_config_locations_up_to_path(path)
         config_stack = [self.load_config_at_path(p) for p in config_paths]
