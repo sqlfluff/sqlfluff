@@ -10,3 +10,12 @@ test_pass_2:
 test_fail_simple:
   fail_str: "SELECT ('foo'||'bar') as buzz"
   fix_str: "SELECT ('foo' || 'bar') as buzz"
+
+test_pass_comma:
+  pass_str: |
+   SELECT
+        col1,
+        'string literal' AS new_column_literal,
+        CASE WHEN col2 IN ('a', 'b') THEN 'Y' ELSE 'N' END AS new_column_case
+    FROM some_table
+    WHERE col2 IN ('a', 'b', 'c', 'd');
