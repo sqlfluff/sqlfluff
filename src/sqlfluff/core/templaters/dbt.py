@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from cached_property import cached_property
 from functools import partial
 
-from sqlfluff.core.errors import SQLTemplaterError
+from sqlfluff.core.errors import SQLTemplaterError, SQLTemplaterSkipFile
 
 from sqlfluff.core.templaters.base import register_templater, TemplatedFile
 from sqlfluff.core.templaters.jinja import JinjaTemplater
@@ -241,6 +241,14 @@ class DbtTemplater(JinjaTemplater):
         results = [self.dbt_manifest.expect(uid) for uid in selected]
 
         if not results:
+            model_name = os.path.splitext(os.path.basename(fname))[0]
+            disabled_model = self.dbt_manifest.find_disabled_by_name(name=model_name)
+            if disabled_model and os.path.abspath(
+                disabled_model.original_file_path
+            ) == os.path.abspath(fname):
+                raise SQLTemplaterSkipFile(
+                    f"Skipped file {fname} because the model was disabled"
+                )
             raise RuntimeError("File %s was not found in dbt project" % fname)
 
         node = self.dbt_compiler.compile_node(
