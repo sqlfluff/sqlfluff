@@ -2,7 +2,7 @@
 from typing import List, NamedTuple, Optional
 
 from sqlfluff.core.dialects.base import Dialect
-from sqlfluff.core.dialects.dialect_ansi import AliasInfo
+from sqlfluff.core.dialects.common import AliasInfo
 from sqlfluff.core.parser.segments.base import BaseSegment
 
 
@@ -55,7 +55,7 @@ def get_select_statement_info(
 
     # Get all select targets.
     select_targets = segment.get_child("select_clause").get_children(
-        "select_target_element"
+        "select_clause_element"
     )
 
     # Get all column aliases

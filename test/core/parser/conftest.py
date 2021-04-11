@@ -2,16 +2,14 @@
 
 import pytest
 
-from sqlfluff.core.dialects import ansi_dialect
+from sqlfluff.core.dialects import dialect_selector
 from sqlfluff.core.parser.segments import TemplateSegment
 
 
 @pytest.fixture(scope="function")
 def fresh_ansi_dialect():
     """Expand the ansi dialect for use."""
-    dialect = ansi_dialect
-    dialect.expand()
-    return dialect
+    return dialect_selector("ansi")
 
 
 @pytest.fixture(scope="function")

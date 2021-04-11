@@ -15,22 +15,23 @@ file:
             select_statement:
               select_clause:
                 keyword: SELECT
-                select_target_element:
+                select_clause_element:
                   literal: '1'
             end_bracket: )
           select_statement:
             select_clause:
               keyword: SELECT
-              select_target_element:
+              select_clause_element:
                 wildcard_expression:
                   wildcard_identifier:
                     star: '*'
             from_clause:
               keyword: FROM
-              table_expression:
-                main_table_expression:
-                  table_reference:
-                    identifier: ladder
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      identifier: ladder
             orderby_clause:
             - keyword: ORDER
             - keyword: BY
@@ -39,13 +40,14 @@ file:
       select_statement:
         select_clause:
           keyword: SELECT
-          select_target_element:
+          select_clause_element:
             wildcard_expression:
               wildcard_identifier:
                 star: '*'
         from_clause:
           keyword: FROM
-          table_expression:
-            main_table_expression:
-              table_reference:
-                identifier: counter
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: counter

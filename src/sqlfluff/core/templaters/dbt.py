@@ -35,7 +35,12 @@ class DbtTemplater(JinjaTemplater):
 
     def __init__(self, **kwargs):
         self.sqlfluff_config = None
+        self.formatter = None
         super().__init__(**kwargs)
+
+    def config_pairs(self):
+        """Returns info about the given templater for output by the cli."""
+        return [("templater", self.name), ("dbt", self.dbt_version)]
 
     @cached_property
     def dbt_version(self):
@@ -105,6 +110,11 @@ class DbtTemplater(JinjaTemplater):
     @cached_property
     def dbt_selector_method(self):
         """Loads the dbt selector method."""
+        if self.formatter:
+            self.formatter.dispatch_compilation_header(
+                "dbt templater", "Compiling dbt project..."
+            )
+
         if "0.17" in self.dbt_version:
             from dbt.graph.selector import PathSelector
 
@@ -170,7 +180,7 @@ class DbtTemplater(JinjaTemplater):
                 "please install dbt dependencies through `pip install sqlfluff[dbt]`"
             ) from e
 
-    def process(self, *, fname, in_str=None, config=None):
+    def process(self, *, fname, in_str=None, config=None, formatter=None):
         """Compile a dbt model and return the compiled SQL.
 
         Args:
@@ -178,7 +188,11 @@ class DbtTemplater(JinjaTemplater):
             in_str (:obj:`str`, optional): This is ignored for dbt
             config (:obj:`FluffConfig`, optional): A specific config to use for this
                 templating operation. Only necessary for some templaters.
+            formatter (:obj:`CallbackFormatter`): Optional object for output.
         """
+        # Stash the formatter if provided to use in cached methods.
+        self.formatter = formatter
+
         self._check_dbt_installed()
         from dbt.exceptions import (
             CompilationException as DbtCompilationException,

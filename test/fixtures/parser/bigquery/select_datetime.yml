@@ -3,19 +3,19 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_target_element:
+      - select_clause_element:
           column_reference:
           - identifier: gmv
           - dot: .
           - identifier: _merchant_key
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           column_reference:
           - identifier: gmv
           - dot: .
           - identifier: order_created_at
       - comma: ','
-      - select_target_element:
+      - select_clause_element:
           function:
             function_name: EXTRACT
             start_bracket: (
@@ -32,13 +32,14 @@ file:
             identifier: order_dt
       from_clause:
         keyword: FROM
-        table_expression:
-          main_table_expression:
-            table_reference:
-              identifier: my_table
-          alias_expression:
-            keyword: as
-            identifier: gmv
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: my_table
+            alias_expression:
+              keyword: as
+              identifier: gmv
       where_clause:
         keyword: WHERE
         expression:

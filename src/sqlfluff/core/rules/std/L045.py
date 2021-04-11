@@ -2,13 +2,13 @@
 from typing import Dict, List
 
 from sqlfluff.core.dialects.base import Dialect
-from sqlfluff.core.rules.base import BaseCrawler, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintResult
 from sqlfluff.core.rules.analysis.select_crawler import SelectCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
 @document_fix_compatible
-class Rule_L045(BaseCrawler):
+class Rule_L045(BaseRule):
     """Query defines a CTE (common-table expression) but does not use it.
 
     | **Anti-pattern**
@@ -51,10 +51,18 @@ class Rule_L045(BaseCrawler):
         queries: Dict[str, List[SelectCrawler]],
     ):
         for select_info in select_info_list:
+            # Process nested SELECTs.
+            for source in SelectCrawler.crawl(
+                select_info.select_statement, queries, dialect
+            ):
+                if isinstance(source, list):
+                    cls._visit_sources(source, dialect, queries)
+
+            # Process the query's sources.
             for alias_info in select_info.select_info.table_aliases:
                 # Does the query read from a CTE? If so, visit the CTE.
-                for target_segment in alias_info.table_expression.get_children(
-                    "main_table_expression", "join_clause"
+                for target_segment in alias_info.from_expression_element.get_children(
+                    "table_expression", "join_clause"
                 ):
                     target = target_segment.raw
                     if target in queries:
@@ -65,9 +73,9 @@ class Rule_L045(BaseCrawler):
     def _eval(self, segment, dialect, **kwargs):
         if segment.is_type("statement"):
             queries = SelectCrawler.gather(segment, dialect)
-
-            # Begin analysis at the final, outer query (key=None).
-            self._visit_sources(queries.pop(None), dialect, queries)
-            if queries:
-                return LintResult(anchor=segment)
+            if None in queries:
+                # Begin analysis at the final, outer query (key=None).
+                self._visit_sources(queries.pop(None), dialect, queries)
+                if queries:
+                    return LintResult(anchor=segment)
         return None

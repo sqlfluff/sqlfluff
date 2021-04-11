@@ -2,7 +2,7 @@
 import pytest
 
 from sqlfluff.core import Linter
-from sqlfluff.core.rules.base import BaseCrawler, LintResult, LintFix
+from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules import get_ruleset
 from sqlfluff.core.rules.doc_decorators import document_configuration
 from sqlfluff.core.config import FluffConfig
@@ -16,19 +16,19 @@ from test.fixtures.dbt.templater import (  # noqa
     in_dbt_project_dir,
     dbt_templater,
 )
-from test.fixtures.rules.L000 import Rule_L000
-from test.fixtures.rules.S000 import Rule_S000
+from test.fixtures.rules.custom.L000 import Rule_L000
+from test.fixtures.rules.custom.S000 import Rule_S000
 from sqlfluff.core.rules.std import get_rules_from_path
 
 
-class Rule_T042(BaseCrawler):
+class Rule_T042(BaseRule):
     """A dummy rule."""
 
     def _eval(self, segment, raw_stack, **kwargs):
         pass
 
 
-class Rule_T001(BaseCrawler):
+class Rule_T001(BaseRule):
     """A deliberately malicious rule."""
 
     def _eval(self, segment, raw_stack, **kwargs):
@@ -73,66 +73,81 @@ def test__rules__runaway_fail_catch():
 @pytest.mark.parametrize(
     "rule,path,violations",
     [
-        ("L001", "test/fixtures/linter/indentation_errors.sql", [(4, 24)]),
-        ("L002", "test/fixtures/linter/indentation_errors.sql", [(3, 1), (4, 1)]),
+        ("L001", "indentation_errors.sql", [(4, 24)]),
+        ("L002", "indentation_errors.sql", [(3, 1), (4, 1)]),
         (
             "L003",
-            "test/fixtures/linter/indentation_errors.sql",
+            "indentation_errors.sql",
             [(2, 4), (3, 4), (4, 6)],
         ),
         (
             "L004",
-            "test/fixtures/linter/indentation_errors.sql",
+            "indentation_errors.sql",
             [(3, 1), (4, 1), (5, 1)],
         ),
         # Check we get comma (with leading space/newline) whitespace errors
         # NB The newline before the comma, should report on the comma, not the newline for clarity.
-        ("L005", "test/fixtures/linter/whitespace_errors.sql", [(2, 9)]),
-        ("L019", "test/fixtures/linter/whitespace_errors.sql", [(4, 1)]),
+        ("L005", "whitespace_errors.sql", [(2, 9)]),
+        ("L019", "whitespace_errors.sql", [(4, 1)]),
         # Check we get comma (with incorrect trailing space) whitespace errors,
         # but also no false positives on line 4 or 5.
-        ("L008", "test/fixtures/linter/whitespace_errors.sql", [(3, 12)]),
+        ("L008", "whitespace_errors.sql", [(3, 12)]),
         # Check we get operator whitespace errors and it works with brackets
         (
             "L006",
-            "test/fixtures/linter/operator_errors.sql",
-            [(3, 8), (4, 10), (7, 6), (7, 7), (7, 9), (7, 10), (7, 12), (7, 13)],
+            "operator_errors.sql",
+            [(7, 6), (7, 9), (7, 12)],
         ),
-        ("L007", "test/fixtures/linter/operator_errors.sql", [(5, 9)]),
-        # Check we DO get a violation on line 2 but NOT on line 3
+        (
+            "L039",
+            "operator_errors.sql",
+            [(3, 8), (4, 10)],
+        ),
+        ("L007", "operator_errors.sql", [(5, 9)]),
+        # Check we DO get a violation on line 2 but NOT on line 3 (between L006 & L039)
         (
             "L006",
-            "test/fixtures/linter/operator_errors_negative.sql",
-            [(2, 6), (2, 9), (5, 6), (5, 7)],
+            "operator_errors_negative.sql",
+            [(5, 6)],
+        ),
+        (
+            "L039",
+            "operator_errors_negative.sql",
+            [(2, 6), (2, 9)],
         ),
         # Hard indentation errors
         (
             "L003",
-            "test/fixtures/linter/indentation_error_hard.sql",
+            "indentation_error_hard.sql",
             [(2, 4), (6, 5), (9, 13), (14, 14), (19, 5), (20, 6)],
         ),
         # Check bracket handling with closing brackets and contained indents works.
-        ("L003", "test/fixtures/linter/indentation_error_contained.sql", []),
+        ("L003", "indentation_error_contained.sql", []),
         # Check we handle block comments as expect. Github #236
         (
             "L016",
-            "test/fixtures/linter/block_comment_errors.sql",
+            "block_comment_errors.sql",
             [(1, 121), (2, 99), (4, 88)],
         ),
-        ("L016", "test/fixtures/linter/block_comment_errors_2.sql", [(1, 85), (2, 86)]),
+        ("L016", "block_comment_errors_2.sql", [(1, 85), (2, 86)]),
         # Column references
-        ("L027", "test/fixtures/linter/column_references.sql", [(1, 8)]),
-        ("L027", "test/fixtures/linter/column_references_bare_function.sql", []),
-        ("L026", "test/fixtures/linter/column_references.sql", [(1, 11)]),
-        ("L025", "test/fixtures/linter/column_references.sql", [(2, 11)]),
+        ("L027", "column_references.sql", [(1, 8)]),
+        ("L027", "column_references_bare_function.sql", []),
+        ("L026", "column_references.sql", [(1, 11)]),
+        ("L025", "column_references.sql", [(2, 11)]),
         # Distinct and Group by
-        ("L021", "test/fixtures/linter/select_distinct_group_by.sql", [(1, 8)]),
+        ("L021", "select_distinct_group_by.sql", [(1, 8)]),
         # Make sure that ignoring works as expected
-        ("L006", "test/fixtures/linter/operator_errors_ignore.sql", [(10, 8), (10, 9)]),
+        ("L006", "operator_errors_ignore.sql", [(10, 8)]),
         (
             "L031",
-            "test/fixtures/linter/aliases_in_join_error.sql",
+            "aliases_in_join_error.sql",
             [(6, 15), (7, 19), (8, 16)],
+        ),
+        (
+            "L046",
+            "heavy_templating.sql",
+            [(12, 13), (12, 25)],
         ),
     ],
 )
@@ -140,7 +155,7 @@ def test__rules__std_file(rule, path, violations):
     """Test the linter finds the given errors in (and only in) the right places."""
     assert_rule_raises_violations_in_file(
         rule=rule,
-        fpath=path,
+        fpath="test/fixtures/linter/" + path,
         violations=violations,
         fluff_config=FluffConfig(overrides=dict(rules=rule)),
     )
@@ -164,22 +179,6 @@ def test__rules__std_file_dbt(rule, path, violations, in_dbt_project_dir):  # no
     )
 
 
-def test__rules__std_L003_process_raw_stack(generate_test_segments):
-    """Test the _process_raw_stack function.
-
-    Note: This test probably needs expanding. It doesn't
-    really check enough of the full functionality.
-
-    """
-    cfg = FluffConfig()
-    r = get_rule_from_set("L003", config=cfg)
-    test_stack = generate_test_segments(["bar", "\n", "     ", "foo", "baar", " \t "])
-    res = r._process_raw_stack(test_stack)
-    print(res)
-    assert sorted(res.keys()) == [1, 2]
-    assert res[2]["indent_size"] == 5
-
-
 @pytest.mark.parametrize(
     "rule_config_dict",
     [
@@ -189,9 +188,9 @@ def test__rules__std_L003_process_raw_stack(generate_test_segments):
         {"comma_style": "blah"},
         {"allow_scalar": "blah"},
         {"single_table_references": "blah"},
-        {"only_aliases": "blah"},
+        {"unquoted_identifiers_policy": "blah"},
         {"L010": {"capitalisation_policy": "blah"}},
-        {"L014": {"capitalisation_policy": "blah"}},
+        {"L014": {"extended_capitalisation_policy": "blah"}},
         {"L030": {"capitalisation_policy": "blah"}},
     ],
 )
@@ -205,7 +204,7 @@ def test_improper_configs_are_rejected(rule_config_dict):
 def test_rules_cannot_be_instantiated_without_declared_configs():
     """Ensure that new rules must be instantiated with config values."""
 
-    class NewRule(BaseCrawler):
+    class NewRule(BaseRule):
         config_keywords = ["comma_style"]
 
     new_rule = NewRule(code="L000", description="", comma_style="trailing")
@@ -220,16 +219,16 @@ def test_rules_configs_are_dynamically_documented():
     """Ensure that rule configurations are added to the class docstring."""
 
     @document_configuration
-    class RuleWithConfig(BaseCrawler):
+    class RuleWithConfig(BaseRule):
         """A new rule with configuration."""
 
-        config_keywords = ["comma_style", "only_aliases"]
+        config_keywords = ["comma_style", "lint_templated_tokens"]
 
     assert "comma_style" in RuleWithConfig.__doc__
-    assert "only_aliases" in RuleWithConfig.__doc__
+    assert "lint_templated_tokens" in RuleWithConfig.__doc__
 
     @document_configuration
-    class RuleWithoutConfig(BaseCrawler):
+    class RuleWithoutConfig(BaseRule):
         """A new rule without configuration."""
 
         pass
@@ -242,7 +241,7 @@ def test_rule_exception_is_caught_to_validation():
     std_rule_set = get_ruleset()
 
     @std_rule_set.register
-    class Rule_T000(BaseCrawler):
+    class Rule_T000(BaseRule):
         """Rule that throws an exception."""
 
         def _eval(self, segment, parent_stack, **kwargs):
@@ -258,14 +257,18 @@ def test_rule_exception_is_caught_to_validation():
 
 def test_std_rule_import_fail_bad_naming():
     """Check that rule import from file works."""
-    assert get_rules_from_path(
-        rules_path="test/fixtures/rules/*.py", base_module="test.fixtures.rules"
-    ) == [Rule_L000, Rule_S000]
+    assert (
+        get_rules_from_path(
+            rules_path="test/fixtures/rules/custom/*.py",
+            base_module="test.fixtures.rules.custom",
+        )
+        == [Rule_L000, Rule_S000]
+    )
 
     with pytest.raises(AttributeError) as e:
         get_rules_from_path(
-            rules_path="test/fixtures/rules/bad_rule_name/*.py",
-            base_module="test.fixtures.rules.bad_rule_name",
+            rules_path="test/fixtures/rules/custom/bad_rule_name/*.py",
+            base_module="test.fixtures.rules.custom.bad_rule_name",
         )
 
     e.match("Rule classes must be named in the format of")

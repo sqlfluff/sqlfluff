@@ -3,7 +3,7 @@ from typing import Dict, List
 
 from sqlfluff.core.rules.analysis.select_crawler import SelectCrawler
 from sqlfluff.core.dialects.base import Dialect
-from sqlfluff.core.rules.base import BaseCrawler, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintResult
 
 
 class RuleFailure(Exception):
@@ -12,7 +12,7 @@ class RuleFailure(Exception):
     pass
 
 
-class Rule_L044(BaseCrawler):
+class Rule_L044(BaseRule):
     """Query produces an unknown number of result columns.
 
     | **Anti-pattern**
@@ -61,7 +61,7 @@ class Rule_L044(BaseCrawler):
 
     def _handle_alias(self, alias_info, dialect, queries):
         select_info_target = SelectCrawler.get(
-            alias_info.table_expression, queries, dialect
+            alias_info.from_expression_element, queries, dialect
         )
         if isinstance(select_info_target, str):
             # It's an alias to an external table whose
@@ -104,7 +104,7 @@ class Rule_L044(BaseCrawler):
                             if wildcard_table in queries:
                                 # Wildcard refers to a CTE. Analyze it.
                                 self._analyze_result_columns(
-                                    queries[wildcard_table], dialect, queries
+                                    queries.pop(wildcard_table), dialect, queries
                                 )
                             else:
                                 # Not CTE, not table alias. Presumably an
@@ -132,9 +132,12 @@ class Rule_L044(BaseCrawler):
             queries = SelectCrawler.gather(segment, dialect)
 
             # Begin analysis at the final, outer query (key=None).
-            select_info = queries[None]
-            try:
-                return self._analyze_result_columns(select_info, dialect, queries)
-            except RuleFailure:
-                return LintResult(anchor=queries[None][0].select_info.select_statement)
+            if None in queries:
+                select_info = queries[None]
+                try:
+                    return self._analyze_result_columns(select_info, dialect, queries)
+                except RuleFailure:
+                    return LintResult(
+                        anchor=queries[None][0].select_info.select_statement
+                    )
         return None

@@ -11,4 +11,4 @@ class Rule_L012(Rule_L011):
 
     """
 
-    _target_elems = ("select_target_element",)
+    _target_elems = ("select_clause_element",)

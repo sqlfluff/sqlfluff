@@ -3,7 +3,7 @@
 from typing import List, NamedTuple
 
 from sqlfluff.core.parser import BaseSegment
-from sqlfluff.core.rules.base import BaseCrawler, LintFix, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
@@ -18,7 +18,7 @@ class SelectTargetsInfo(NamedTuple):
 
 
 @document_fix_compatible
-class Rule_L036(BaseCrawler):
+class Rule_L036(BaseRule):
     """Select targets should be on a new line unless there is only one select target.
 
     | **Anti-pattern**
@@ -63,7 +63,7 @@ class Rule_L036(BaseCrawler):
         first_whitespace_idx = -1
         select_targets = []
         for fname_idx, seg in enumerate(segment.segments):
-            if seg.is_type("select_target_element"):
+            if seg.is_type("select_clause_element"):
                 select_targets.append(seg)
                 if first_select_target_idx == -1:
                     first_select_target_idx = fname_idx
@@ -90,21 +90,26 @@ class Rule_L036(BaseCrawler):
         )
 
     def _eval_multiple_select_target_elements(self, select_targets_info, segment):
-        if select_targets_info.first_new_line_idx == -1:
-            # there are multiple select targets but no new lines
-
-            # Find and delete any whitespace between "SELECT" and its targets.
-            ws_to_delete = segment.select_children(
-                start_seg=segment.segments[select_targets_info.select_idx],
-                select_if=lambda s: s.is_type("whitespace"),
-                loop_while=lambda s: s.is_type("whitespace") or s.is_meta,
+        """Multiple select targets. Ensure each is on a separate line."""
+        # Insert newline before every select target.
+        fixes = []
+        for i, select_target in enumerate(select_targets_info.select_targets):
+            base_segment = (
+                segment if not i else select_targets_info.select_targets[i - 1]
             )
-            fixes = [LintFix("delete", ws) for ws in ws_to_delete]
-            # Insert newline before the first select target.
-            ins = self.make_newline(
-                pos_marker=segment.pos_marker.advance_by(segment.raw)
-            )
-            fixes.append(LintFix("create", select_targets_info.select_targets[0], ins))
+            if base_segment.pos_marker.line_no == select_target.pos_marker.line_no:
+                # Find and delete any whitespace before the select target.
+                ws_to_delete = segment.select_children(
+                    start_seg=segment.segments[select_targets_info.select_idx]
+                    if not i
+                    else select_targets_info.select_targets[i - 1],
+                    select_if=lambda s: s.is_type("whitespace"),
+                    loop_while=lambda s: s.is_type("whitespace", "comma") or s.is_meta,
+                )
+                fixes += [LintFix("delete", ws) for ws in ws_to_delete]
+                ins = self.make_newline(pos_marker=select_target.pos_marker)
+                fixes.append(LintFix("create", select_target, ins))
+        if fixes:
             return LintResult(anchor=segment, fixes=fixes)
 
     def _eval_single_select_target_element(
@@ -112,7 +117,7 @@ class Rule_L036(BaseCrawler):
     ):
         is_wildcard = False
         for segment in select_clause.segments:
-            if segment.is_type("select_target_element"):
+            if segment.is_type("select_clause_element"):
                 for sub_segment in segment.segments:
                     if sub_segment.is_type("wildcard_expression"):
                         is_wildcard = True

@@ -74,12 +74,10 @@ class SingletonMatcher:
         idx = 0
 
         if self.trim_post_subdivide:
-            trimmer = re.compile(self.trim_post_subdivide["regex"], re.DOTALL)
-            TrimClass = RawSegment.make(
-                self.trim_post_subdivide["regex"],
-                name=self.trim_post_subdivide["name"],
-                type=self.trim_post_subdivide["type"],
-            )
+            class_kwargs = self.trim_post_subdivide.copy()
+            pattern = class_kwargs.pop("regex")
+            trimmer = re.compile(pattern, re.DOTALL)
+            TrimClass = RawSegment.make(pattern, **class_kwargs)
 
             for trim_mat in trimmer.finditer(matched):
                 trim_span = trim_mat.span()
@@ -132,12 +130,10 @@ class SingletonMatcher:
             seg_buff = ()
             str_buff = matched
             pos_buff = start_pos
-            divider = re.compile(self.subdivide["regex"], re.DOTALL)
-            DividerClass = RawSegment.make(
-                self.subdivide["regex"],
-                name=self.subdivide["name"],
-                type=self.subdivide["type"],
-            )
+            class_kwargs = self.subdivide.copy()
+            pattern = class_kwargs.pop("regex")
+            divider = re.compile(pattern, re.DOTALL)
+            DividerClass = RawSegment.make(pattern, **class_kwargs)
 
             while True:
                 # Iterate through subdividing as appropriate
@@ -445,6 +441,61 @@ class Lexer:
                 ),
             )
             new_segment_buff.append(segment)
+
+        # Finally, we pass through a final time, enriching any remaining
+        # un-enriched segments using the position of their preceeding marker.
+        for idx in range(len(new_segment_buff)):
+            if not isinstance(
+                new_segment_buff[idx].pos_marker, EnrichedFilePositionMarker
+            ):
+                # get previous marker
+                if idx > 0:
+                    prev_marker = new_segment_buff[idx - 1].pos_marker
+                    prev_pos = (
+                        prev_marker.source_slice.stop,
+                        prev_marker.templated_slice.stop,
+                    )
+                    prev_line = prev_marker.source_pos_marker.line_no
+                    prev_line_pos = prev_marker.source_pos_marker.line_pos
+                else:
+                    prev_pos = (0, 0)
+                    prev_line = 0
+                    prev_line_pos = 0
+                # Is it a placeholder (i.e. does it have source length?)
+                if isinstance(new_segment_buff[idx], TemplateSegment):
+                    # Find the next enriched marker.
+                    for elem in new_segment_buff[idx + 1 :]:
+                        if isinstance(elem.pos_marker, EnrichedFilePositionMarker):
+                            next_pos = (
+                                elem.pos_marker.source_slice.start,
+                                elem.pos_marker.templated_slice.start,
+                            )
+                            break
+                    else:
+                        # We're at the end of the file.
+                        next_pos = (
+                            len(templated_file.source_str),
+                            len(templated_file.templated_str),
+                        )
+                else:
+                    # It's a point and so we don't need to find the next one.
+                    next_pos = prev_pos
+                # Enrich by proxy
+                new_segment_buff[idx].pos_marker = EnrichedFilePositionMarker(
+                    statement_index=new_segment_buff[idx].pos_marker.statement_index,
+                    line_no=new_segment_buff[idx].pos_marker.line_no,
+                    line_pos=new_segment_buff[idx].pos_marker.line_pos,
+                    char_pos=new_segment_buff[idx].pos_marker.char_pos,
+                    templated_slice=slice(prev_pos[1], next_pos[1]),
+                    source_slice=slice(prev_pos[0], next_pos[0]),
+                    is_literal=False,
+                    source_pos_marker=FilePositionMarker(
+                        new_segment_buff[idx].pos_marker.statement_index,
+                        prev_line,
+                        prev_line_pos,
+                        prev_pos[0],
+                    ),
+                )
 
         lexer_logger.debug("Enriched Segments:")
         for seg in new_segment_buff:

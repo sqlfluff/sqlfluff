@@ -271,8 +271,14 @@ class TemplatedFile:
                 ts_start_sf_stop, ts_stop_sf_stop
             )
         ]
-        start_slices = self.sliced_file[ts_start_sf_start:ts_start_sf_stop]
-        stop_slices = self.sliced_file[ts_stop_sf_start:ts_stop_sf_stop]
+        if ts_start_sf_start == ts_start_sf_stop:
+            start_slices = [self.sliced_file[ts_start_sf_start]]
+        else:
+            start_slices = self.sliced_file[ts_start_sf_start:ts_start_sf_stop]
+        if ts_stop_sf_start == ts_stop_sf_stop:
+            stop_slices = [self.sliced_file[ts_stop_sf_start]]
+        else:
+            stop_slices = self.sliced_file[ts_stop_sf_start:ts_stop_sf_stop]
 
         # if it's a literal segment then we can get the exact position
         # otherwise we're greedy.
@@ -365,7 +371,7 @@ class RawTemplater:
         """
 
     def process(
-        self, *, in_str: str, fname: Optional[str] = None, config=None
+        self, *, in_str: str, fname: Optional[str] = None, config=None, formatter=None
     ) -> Tuple[Optional[TemplatedFile], list]:
         """Process a string and return a TemplatedFile.
 
@@ -383,6 +389,7 @@ class RawTemplater:
                 mostly for loading config files at runtime.
             config (:obj:`FluffConfig`): A specific config to use for this
                 templating operation. Only necessary for some templaters.
+            formatter (:obj:`CallbackFormatter`): Optional object for output.
 
         """
         return TemplatedFile(in_str, fname=fname), []
@@ -393,3 +400,7 @@ class RawTemplater:
         NB: This is useful in comparing configs.
         """
         return isinstance(other, self.__class__)
+
+    def config_pairs(self):
+        """Returns info about the given templater for output by the cli."""
+        return [("templater", self.name)]

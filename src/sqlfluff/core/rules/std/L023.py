@@ -2,12 +2,12 @@
 
 from typing import Optional, List
 
-from sqlfluff.core.rules.base import BaseCrawler, LintFix, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
 @document_fix_compatible
-class Rule_L023(BaseCrawler):
+class Rule_L023(BaseRule):
     """Single whitespace expected after AS in WITH clause.
 
     | **Anti-pattern**

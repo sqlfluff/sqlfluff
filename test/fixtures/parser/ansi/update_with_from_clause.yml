@@ -1,0 +1,37 @@
+file:
+  statement:
+    update_statement:
+      keyword: UPDATE
+      table_reference:
+        identifier: my_table
+      set_clause_list:
+        keyword: SET
+        set_clause:
+        - column_reference:
+          - identifier: my_table
+          - dot: .
+          - identifier: days
+        - comparison_operator: '='
+        - column_reference:
+          - identifier: other_table
+          - dot: .
+          - identifier: days
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: other_table
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+          - identifier: my_table
+          - dot: .
+          - identifier: po_number
+        - comparison_operator: '='
+        - column_reference:
+          - identifier: other_table
+          - dot: .
+          - identifier: po_number

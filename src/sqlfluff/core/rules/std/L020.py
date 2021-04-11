@@ -2,11 +2,11 @@
 
 import itertools
 
-from sqlfluff.core.rules.base import BaseCrawler, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintResult
 from sqlfluff.core.rules.analysis.select import get_select_statement_info
 
 
-class Rule_L020(BaseCrawler):
+class Rule_L020(BaseRule):
     """Table aliases should be unique within each clause."""
 
     def _lint_references_and_aliases(
