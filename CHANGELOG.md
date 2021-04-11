@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix bug in L048 which flagged adjoining commas as failures.
 - Fix bug in L019 with inline comments.
 - Fix bug in L036 with multiple newlines.
+- Skip disabled dbt models. ([#931](https://github.com/sqlfluff/sqlfluff/issues/931))
 
 ## [0.5.1] - 2021-04-09
 ### Changed
