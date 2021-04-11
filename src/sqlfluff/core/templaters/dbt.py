@@ -275,11 +275,16 @@ class DbtTemplater(JinjaTemplater):
         templater_logger.debug("    Node compiled SQL: %r", compiled_sql)
 
         # When using dbt-templater, trailing newlines are ALWAYS REMOVED during
-        # compiling. This will cause "No newline at end of file" warnings in
-        # Git/GitHub since sqlfluff uses the compiled SQL to write fixes back
-        # to the source SQL in the dbt model. Solution is:
+        # compiling. Unless fixed (like below), this will cause:
+        #    1. L009 linting errors when runnign "sqlfluff lint foo_bar.sql"
+        #       since the linter will use the compiled code with the newlines
+        #       removed.
+        #    2. "No newline at end of file" warnings in Git/GitHub since
+        #       sqlfluff uses the compiled SQL to write fixes back to the
+        #       source SQL in the dbt model.
+        # The solution is:
         #    1. Check for trailing newlines before compiling by looking at the
-        #       raw source .sql file, store the count of trailing newlines.
+        #       raw SQL in the source dbt file, store the count of trailing newlines.
         #    2. Append the count from #1 above to the node.raw_sql and
         #       compiled_sql objects, both of which have had the trailing
         #       newlines removed by the dbt-templater.
