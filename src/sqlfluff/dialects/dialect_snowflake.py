@@ -675,7 +675,7 @@ class AlterUserSegment(BaseSegment):
 
 
 @snowflake_dialect.segment(replace=True)
-class ExplainStatementSegment(ansi_dialect.get_segment("ExplainStatementSegment")):
+class ExplainStatementSegment(ansi_dialect.get_segment("ExplainStatementSegment")):  # type: ignore
     """An `Explain` statement.
 
     EXPLAIN [ USING { TABULAR | JSON | TEXT } ] <statement>
