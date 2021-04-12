@@ -276,7 +276,7 @@ class DbtTemplater(JinjaTemplater):
 
         # When using dbt-templater, trailing newlines are ALWAYS REMOVED during
         # compiling. Unless fixed (like below), this will cause:
-        #    1. L009 linting errors when runnign "sqlfluff lint foo_bar.sql"
+        #    1. L009 linting errors when running "sqlfluff lint foo_bar.sql"
         #       since the linter will use the compiled code with the newlines
         #       removed.
         #    2. "No newline at end of file" warnings in Git/GitHub since
