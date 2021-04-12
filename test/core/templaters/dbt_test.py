@@ -105,8 +105,8 @@ def test__templater_dbt_slice_file_wrapped_test(
 )
 @pytest.mark.dbt
 def test__templater_dbt_templating_test_lex(
-    in_dbt_project_dir, dbt_templater, fname
-):  # noqa
+    in_dbt_project_dir, dbt_templater, fname  # noqa
+):
     """A test to demonstrate the lexer works on both:
     1. dbt models (with any # of trailing newlines)
     2. dbt tests
@@ -142,8 +142,8 @@ def test__templater_dbt_templating_test_lex(
 )
 @pytest.mark.dbt
 def test__dbt_templated_models_do_not_raise_lint_error(
-    in_dbt_project_dir, fname
-):  # noqa
+    in_dbt_project_dir, fname  # noqa
+):
     """Test that templated dbt models do not raise a linting error."""
     lntr = Linter(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
     lnt = lntr.lint_path(path="models/my_new_project/" + fname)
