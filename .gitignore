@@ -35,5 +35,6 @@ test-reports
 /test*.py
 /.hypothesis/
 
-# Ignore conda environment.yml contributors might be using
+# Ignore conda environment.yml contributors might be using and direnv config
 environment.yml
+.envrc
