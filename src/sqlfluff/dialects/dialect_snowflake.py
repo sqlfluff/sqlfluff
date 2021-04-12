@@ -69,6 +69,7 @@ snowflake_dialect.sets("unreserved_keywords").update(
         "SEED",
         "TERSE",
         "UNSET",
+        "TABULAR",
     ]
 )
 
@@ -653,4 +654,24 @@ class AlterUserSegment(BaseSegment):
             ),
             Sequence("UNSET", Delimited(Ref("ParameterNameSegment"))),
         ),
+    )
+
+
+@snowflake_dialect.segment(replace=True)
+class ExplainStatementSegment(ansi_dialect.get_segment("ExplainStatementSegment")):  # type: ignore
+    """An `Explain` statement.
+
+    EXPLAIN [ USING { TABULAR | JSON | TEXT } ] <statement>
+
+    https://docs.snowflake.com/en/sql-reference/sql/explain.html
+    """
+
+    parse_grammar = Sequence(
+        "EXPLAIN",
+        Sequence(
+            "USING",
+            OneOf("TABULAR", "JSON", "TEXT"),
+            optional=True,
+        ),
+        ansi_dialect.get_segment("ExplainStatementSegment").explainable_stmt,
     )

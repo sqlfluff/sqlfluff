@@ -2551,6 +2551,7 @@ class StatementSegment(BaseSegment):
         Ref("DropModelStatementSegment"),
         Ref("DescribeStatementSegment"),
         Ref("UseStatementSegment"),
+        Ref("ExplainStatementSegment"),
     )
 
     def get_table_references(self):
@@ -2620,4 +2621,27 @@ class UseStatementSegment(BaseSegment):
         "USE",
         OneOf("ROLE", "WAREHOUSE", "DATABASE", "SCHEMA", optional=True),
         Ref("ObjectReferenceSegment"),
+    )
+
+
+class ExplainStatementSegment(BaseSegment):
+    """An `Explain` statement.
+
+    EXPLAIN explainable_stmt
+    """
+
+    type = "explain_statement"
+
+    explainable_stmt = OneOf(
+        Ref("SelectableGrammar"),
+        Ref("InsertStatementSegment"),
+        Ref("UpdateStatementSegment"),
+        Ref("DeleteStatementSegment"),
+    )
+
+    match_grammar = StartsWith("EXPLAIN")
+
+    parse_grammar = Sequence(
+        "EXPLAIN",
+        explainable_stmt,
     )
