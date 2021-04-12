@@ -262,8 +262,8 @@ class DbtTemplater(JinjaTemplater):
                 "by running `dbt compile` directly."
             )
 
-        with open(fname, "r") as soure_dbt_model:
-            source_dbt_sql = soure_dbt_model.read()
+        with open(fname, "r") as source_dbt_model:
+            source_dbt_sql = source_dbt_model.read()
 
         n_trailing_newlines = len(source_dbt_sql) - len(source_dbt_sql.rstrip("\n"))
 

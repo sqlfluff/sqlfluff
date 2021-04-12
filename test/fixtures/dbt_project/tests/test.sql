@@ -1,1 +1,2 @@
-select * from a
+select a
+from table_a
