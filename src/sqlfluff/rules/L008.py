@@ -14,7 +14,7 @@ class Rule_L008(BaseRule):
     | The • character represents a space.
     | In this example, there is no space between the comma and 'zoo'.
 
-    .. code-block::
+    .. code-block:: sql
 
         SELECT
             *
@@ -24,7 +24,7 @@ class Rule_L008(BaseRule):
     | **Best practice**
     | Keep a single space after the comma.
 
-    .. code-block::
+    .. code-block:: sql
 
         SELECT
             *

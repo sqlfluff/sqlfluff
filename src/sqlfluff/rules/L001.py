@@ -10,7 +10,7 @@ class Rule_L001(BaseRule):
     | **Anti-pattern**
     | The • character represents a space.
 
-    .. code-block::
+    .. code-block:: sql
 
         SELECT
             a
@@ -19,7 +19,7 @@ class Rule_L001(BaseRule):
     | **Best practice**
     | Remove trailing spaces.
 
-    .. code-block::
+    .. code-block:: sql
 
         SELECT
             a
