@@ -7,10 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Added `trailing_newline` argument to `slice_file` method for `PythonTemplater`
-  class. This is added to address incorrect deletion of trailing newlines caused
-  by the dbt compiler when `templater = dbt` in `.sqlfluff` config.
+- [`L009`](https://docs.sqlfluff.com/en/stable/rules.html#sqlfluff.core.rules.Rule_L009) can now be enforced when `templater = dbt`.
 
+### Changed
+- Fix `templater = dbt` L009 bug [#861](https://github.com/sqlfluff/sqlfluff/issues/861) where:
+    - `sqlfluff lint` would incorrectlt always return `L009 | Files must end with a trailing newline.`
+    - `sqlfluff fix` would remove trailing newlines when `exclude_rules = L009`.
+
+## [0.5.2] - 2021-04-11
 ### Changed
 - Fix false positive in L045 when CTE used in WHERE clause ([#944](https://github.com/sqlfluff/sqlfluff/issues/944))
 - Logging and readout now includes more detail and a notification of dbt compilation.
