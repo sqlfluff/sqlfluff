@@ -135,7 +135,9 @@ def test__templated_sections_do_not_raise_lint_error(in_dbt_project_dir, fname):
     ],
 )
 @pytest.mark.dbt
-def test__single_trailing_newline_at_file_end_does_not_raise_lint_error(in_dbt_project_dir, fname):  # noqa
+def test__single_trailing_newline_at_file_end_does_not_raise_lint_error(
+    in_dbt_project_dir, fname
+):  # noqa
     """Test that dbt model with a single trailing newline at end of file does not raise a linting error."""
     lntr = Linter(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
     lnt = lntr.lint_path(path="models/my_new_project/" + fname)
@@ -145,7 +147,9 @@ def test__single_trailing_newline_at_file_end_does_not_raise_lint_error(in_dbt_p
 
 
 @pytest.mark.dbt
-def test__dbt_templater_maintains_single_trailing_newline_at_file_end(in_dbt_project_dir, dbt_templater):  # noqa
+def test__dbt_templater_maintains_single_trailing_newline_at_file_end(
+    in_dbt_project_dir, dbt_templater
+):  # noqa
     """A test to demonstrate that using the dbt templater maintains a single trailing newline at the end of a dbt model."""
     lexer = Lexer(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
     templated_file, _ = dbt_templater.process(
@@ -165,7 +169,9 @@ def test__dbt_templater_maintains_single_trailing_newline_at_file_end(in_dbt_pro
     ],
 )
 @pytest.mark.dbt
-def test__mulitple_trailing_newlines_at_file_end_does_not_raise_lint_error(in_dbt_project_dir, fname):  # noqa
+def test__mulitple_trailing_newlines_at_file_end_does_not_raise_lint_error(
+    in_dbt_project_dir, fname
+):  # noqa
     """Test that dbt model with a multiple trailing newlines at end of file does not raise a linting error."""
     lntr = Linter(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
     lnt = lntr.lint_path(path="models/my_new_project/" + fname)
@@ -175,7 +181,9 @@ def test__mulitple_trailing_newlines_at_file_end_does_not_raise_lint_error(in_db
 
 
 @pytest.mark.dbt
-def test__dbt_templater_maintains_multiple_trailing_newlines_at_file_end(in_dbt_project_dir, dbt_templater):  # noqa
+def test__dbt_templater_maintains_multiple_trailing_newlines_at_file_end(
+    in_dbt_project_dir, dbt_templater
+):  # noqa
     """A test to demonstrate that using the dbt templater maintains multiple trailing newline at the end of a dbt model."""
     lexer = Lexer(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
     templated_file, _ = dbt_templater.process(
