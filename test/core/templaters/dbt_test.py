@@ -63,7 +63,6 @@ def test__templater_dbt_templating_result(
         fname="models/my_new_project/" + fname,
         config=FluffConfig(configs=DBT_FLUFF_CONFIG),
     )
-    # the dbt compiler gets rid of new lines
     assert str(templated_file) == open("../dbt/" + fname).read()
 
 
