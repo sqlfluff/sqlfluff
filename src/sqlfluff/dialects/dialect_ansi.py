@@ -2550,6 +2550,7 @@ class StatementSegment(BaseSegment):
         Ref("CreateModelStatementSegment"),
         Ref("DropModelStatementSegment"),
         Ref("DescribeStatementSegment"),
+        Ref("UseStatementSegment"),
         Ref("ExplainStatementSegment"),
     )
 
@@ -2596,6 +2597,29 @@ class DescribeStatementSegment(BaseSegment):
     parse_grammar = Sequence(
         "DESCRIBE",
         Ref("NakedIdentifierSegment"),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+@ansi_dialect.segment()
+class UseStatementSegment(BaseSegment):
+    """A `USE` statement.
+
+    USE [ ROLE ] <name>
+
+    USE [ WAREHOUSE ] <name>
+
+    USE [ DATABASE ] <name>
+
+    USE [ SCHEMA ] [<db_name>.]<name>
+    """
+
+    type = "use_statement"
+    match_grammar = StartsWith("USE")
+
+    parse_grammar = Sequence(
+        "USE",
+        OneOf("ROLE", "WAREHOUSE", "DATABASE", "SCHEMA", optional=True),
         Ref("ObjectReferenceSegment"),
     )
 
