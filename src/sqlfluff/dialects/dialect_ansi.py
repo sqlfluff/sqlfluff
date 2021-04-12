@@ -2624,6 +2624,7 @@ class UseStatementSegment(BaseSegment):
     )
 
 
+@ansi_dialect.segment()
 class ExplainStatementSegment(BaseSegment):
     """An `Explain` statement.
 
