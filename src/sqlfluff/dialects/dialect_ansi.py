@@ -2550,6 +2550,7 @@ class StatementSegment(BaseSegment):
         Ref("CreateModelStatementSegment"),
         Ref("DropModelStatementSegment"),
         Ref("DescribeStatementSegment"),
+        Ref("ExplainStatementSegment"),
     )
 
     def get_table_references(self):
@@ -2596,4 +2597,28 @@ class DescribeStatementSegment(BaseSegment):
         "DESCRIBE",
         Ref("NakedIdentifierSegment"),
         Ref("ObjectReferenceSegment"),
+    )
+
+
+@ansi_dialect.segment()
+class ExplainStatementSegment(BaseSegment):
+    """An `Explain` statement.
+
+    EXPLAIN explainable_stmt
+    """
+
+    type = "explain_statement"
+
+    explainable_stmt = OneOf(
+        Ref("SelectableGrammar"),
+        Ref("InsertStatementSegment"),
+        Ref("UpdateStatementSegment"),
+        Ref("DeleteStatementSegment"),
+    )
+
+    match_grammar = StartsWith("EXPLAIN")
+
+    parse_grammar = Sequence(
+        "EXPLAIN",
+        explainable_stmt,
     )

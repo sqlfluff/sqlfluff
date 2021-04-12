@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix bug in L048 which flagged adjoining commas as failures.
 - Fix bug in L019 with inline comments.
 - Fix bug in L036 with multiple newlines.
+- Parse explain statement ([#893](https://github.com/sqlfluff/sqlfluff/issues/893)).
 
 ## [0.5.1] - 2021-04-09
 ### Changed
