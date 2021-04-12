@@ -99,7 +99,8 @@ def test__templater_dbt_slice_file_wrapped_test(
 @pytest.mark.parametrize(
     "fname",
     [
-        "tests/test.sql" "models/my_new_project/single_trailing_newline.sql",
+        "tests/test.sql",
+        "models/my_new_project/single_trailing_newline.sql",
         "models/my_new_project/multiple_trailing_newline.sql",
     ],
 )
