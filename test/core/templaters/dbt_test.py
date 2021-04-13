@@ -5,6 +5,7 @@ import pytest
 import logging
 
 from sqlfluff.core import FluffConfig, Lexer, Linter
+from sqlfluff.core.errors import SQLTemplaterSkipFile
 from sqlfluff.core.templaters.dbt import DbtTemplater
 from test.fixtures.dbt.templater import (  # noqa
     DBT_FLUFF_CONFIG,
@@ -127,6 +128,17 @@ def test__templater_dbt_templating_test_lex(
         templated_file.templated_str
         == "select a\nfrom table_a" + "\n" * n_trailing_newlines
     )
+
+
+@pytest.mark.dbt
+def test__templater_dbt_skips_disabled_model(in_dbt_project_dir, dbt_templater):  # noqa
+    """A disabled dbt model should be skipped."""
+    with pytest.raises(SQLTemplaterSkipFile, match=r"model was disabled"):
+        dbt_templater.process(
+            in_str="",
+            fname="models/my_new_project/disabled_model.sql",
+            config=FluffConfig(configs=DBT_FLUFF_CONFIG),
+        )
 
 
 @pytest.mark.parametrize(
