@@ -6,13 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+
+### Changed
+
+## [0.5.2] - 2021-04-11
 ### Changed
 - Fix false positive in L045 when CTE used in WHERE clause ([#944](https://github.com/sqlfluff/sqlfluff/issues/944))
 - Logging and readout now includes more detail and a notification of dbt compilation.
 - Fix bug in L048 which flagged adjoining commas as failures.
 - Fix bug in L019 with inline comments.
 - Fix bug in L036 with multiple newlines.
-- Skip disabled dbt models. ([#931](https://github.com/sqlfluff/sqlfluff/issues/931))
+- Skip disabled dbt models. ([#931](https://github.com/sqlfluff/sqlfluff/issues/931)).
+- Support "USE" statement in ANSI ([#902](https://github.com/sqlfluff/sqlfluff/issues/902)).
+- Parse explain statement ([#893](https://github.com/sqlfluff/sqlfluff/issues/893)).
 
 ## [0.5.1] - 2021-04-09
 ### Changed

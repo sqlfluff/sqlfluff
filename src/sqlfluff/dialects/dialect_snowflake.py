@@ -69,6 +69,7 @@ snowflake_dialect.sets("unreserved_keywords").update(
         "SEED",
         "TERSE",
         "UNSET",
+        "TABULAR",
     ]
 )
 
@@ -413,23 +414,6 @@ class SelectStatementSegment(ansi_dialect.get_segment("SelectStatementSegment"))
 
 
 @snowflake_dialect.segment()
-class UseStatementSegment(BaseSegment):
-    """A snowflake `USE` statement.
-
-    https://docs.snowflake.com/en/sql-reference/sql/use.html
-    """
-
-    type = "use_statement"
-    match_grammar = StartsWith("USE")
-
-    parse_grammar = Sequence(
-        "USE",
-        OneOf("ROLE", "WAREHOUSE", "DATABASE", "SCHEMA", optional=True),
-        Ref("ObjectReferenceSegment"),
-    )
-
-
-@snowflake_dialect.segment()
 class CreateCloneStatementSegment(BaseSegment):
     """A snowflake `CREATE ... CLONE` statement.
 
@@ -670,4 +654,24 @@ class AlterUserSegment(BaseSegment):
             ),
             Sequence("UNSET", Delimited(Ref("ParameterNameSegment"))),
         ),
+    )
+
+
+@snowflake_dialect.segment(replace=True)
+class ExplainStatementSegment(ansi_dialect.get_segment("ExplainStatementSegment")):  # type: ignore
+    """An `Explain` statement.
+
+    EXPLAIN [ USING { TABULAR | JSON | TEXT } ] <statement>
+
+    https://docs.snowflake.com/en/sql-reference/sql/explain.html
+    """
+
+    parse_grammar = Sequence(
+        "EXPLAIN",
+        Sequence(
+            "USING",
+            OneOf("TABULAR", "JSON", "TEXT"),
+            optional=True,
+        ),
+        ansi_dialect.get_segment("ExplainStatementSegment").explainable_stmt,
     )
