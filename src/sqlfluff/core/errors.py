@@ -147,6 +147,12 @@ class SQLTemplaterError(SQLBaseError):
         super(SQLTemplaterError, self).__init__(*args, **kwargs)
 
 
+class SQLTemplaterSkipFile(RuntimeError):
+    """An error returned from a templater to skip a file."""
+
+    pass
+
+
 class SQLLexError(SQLBaseError):
     """An error which occurred during lexing.
 

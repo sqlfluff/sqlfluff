@@ -247,7 +247,10 @@ class PythonTemplater(RawTemplater):
 
     @classmethod
     def slice_file(
-        cls, raw_str: str, templated_str: str, config=None
+        cls,
+        raw_str: str,
+        templated_str: str,
+        config=None,
     ) -> Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]:
         """Slice the file to determine regions where we can fix."""
         templater_logger.info("Slicing File Template")

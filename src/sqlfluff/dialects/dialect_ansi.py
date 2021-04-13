@@ -2568,6 +2568,8 @@ class StatementSegment(BaseSegment):
         Ref("CreateModelStatementSegment"),
         Ref("DropModelStatementSegment"),
         Ref("DescribeStatementSegment"),
+        Ref("UseStatementSegment"),
+        Ref("ExplainStatementSegment"),
     )
 
     def get_table_references(self):
@@ -2614,4 +2616,51 @@ class DescribeStatementSegment(BaseSegment):
         "DESCRIBE",
         Ref("NakedIdentifierSegment"),
         Ref("ObjectReferenceSegment"),
+    )
+
+
+@ansi_dialect.segment()
+class UseStatementSegment(BaseSegment):
+    """A `USE` statement.
+
+    USE [ ROLE ] <name>
+
+    USE [ WAREHOUSE ] <name>
+
+    USE [ DATABASE ] <name>
+
+    USE [ SCHEMA ] [<db_name>.]<name>
+    """
+
+    type = "use_statement"
+    match_grammar = StartsWith("USE")
+
+    parse_grammar = Sequence(
+        "USE",
+        OneOf("ROLE", "WAREHOUSE", "DATABASE", "SCHEMA", optional=True),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+@ansi_dialect.segment()
+class ExplainStatementSegment(BaseSegment):
+    """An `Explain` statement.
+
+    EXPLAIN explainable_stmt
+    """
+
+    type = "explain_statement"
+
+    explainable_stmt = OneOf(
+        Ref("SelectableGrammar"),
+        Ref("InsertStatementSegment"),
+        Ref("UpdateStatementSegment"),
+        Ref("DeleteStatementSegment"),
+    )
+
+    match_grammar = StartsWith("EXPLAIN")
+
+    parse_grammar = Sequence(
+        "EXPLAIN",
+        explainable_stmt,
     )
