@@ -7,8 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- [`L009`](https://docs.sqlfluff.com/en/stable/rules.html#sqlfluff.core.rules.Rule_L009) can now be enforced when `templater = dbt`.
 
 ### Changed
+- Fix `templater = dbt` L009 bug [#861](https://github.com/sqlfluff/sqlfluff/issues/861) where:
+    - `sqlfluff lint` would incorrectly always return `L009 | Files must end with a trailing newline.`
+    - `sqlfluff fix` would remove trailing newlines when `exclude_rules = L009`.
 
 ## [0.5.2] - 2021-04-11
 ### Changed

@@ -307,8 +307,6 @@ In *.sqlfluff*:
 
     [sqlfluff]
     templater = dbt
-    # dbt templating does not keep trailing new lines (L009)
-    exclude_rules = L009
 
 In *.sqlfluffignore*:
 

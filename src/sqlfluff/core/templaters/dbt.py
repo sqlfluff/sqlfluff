@@ -270,9 +270,41 @@ class DbtTemplater(JinjaTemplater):
                 "by running `dbt compile` directly."
             )
 
-        raw_sliced, sliced_file, templated_sql = self.slice_file(
-            node.raw_sql, compiled_sql, config=config
+        with open(fname, "r") as source_dbt_model:
+            source_dbt_sql = source_dbt_model.read()
+
+        n_trailing_newlines = len(source_dbt_sql) - len(source_dbt_sql.rstrip("\n"))
+
+        templater_logger.debug(
+            "    Trailing newline count in source dbt model: %r", n_trailing_newlines
         )
+        templater_logger.debug("    Raw SQL before compile: %r", source_dbt_sql)
+        templater_logger.debug("    Node raw SQL: %r", node.raw_sql)
+        templater_logger.debug("    Node compiled SQL: %r", compiled_sql)
+
+        # When using dbt-templater, trailing newlines are ALWAYS REMOVED during
+        # compiling. Unless fixed (like below), this will cause:
+        #    1. L009 linting errors when running "sqlfluff lint foo_bar.sql"
+        #       since the linter will use the compiled code with the newlines
+        #       removed.
+        #    2. "No newline at end of file" warnings in Git/GitHub since
+        #       sqlfluff uses the compiled SQL to write fixes back to the
+        #       source SQL in the dbt model.
+        # The solution is:
+        #    1. Check for trailing newlines before compiling by looking at the
+        #       raw SQL in the source dbt file, store the count of trailing newlines.
+        #    2. Append the count from #1 above to the node.raw_sql and
+        #       compiled_sql objects, both of which have had the trailing
+        #       newlines removed by the dbt-templater.
+        node.raw_sql = node.raw_sql + "\n" * n_trailing_newlines
+        compiled_sql = compiled_sql + "\n" * n_trailing_newlines
+
+        raw_sliced, sliced_file, templated_sql = self.slice_file(
+            node.raw_sql,
+            compiled_sql,
+            config=config,
+        )
+
         return (
             TemplatedFile(
                 source_str=node.raw_sql,
