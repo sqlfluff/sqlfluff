@@ -42,15 +42,15 @@ requirements:
     - python
     - typing-extensions
 
-test:
-  imports:
-    - sqlfluff
-    - sqlfluff.api
-  commands:
-    - pip check
-    - sqlfluff --version
-  requires:
-    - pip
+#test:
+#  imports:
+#    - sqlfluff
+#    - sqlfluff.api
+#  commands:
+#    - pip check
+#    - sqlfluff --version
+#  requires:
+#    - pip
 
 about:
   home: https://github.com/sqlfluff/sqlfluff
