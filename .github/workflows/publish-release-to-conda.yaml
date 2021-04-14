@@ -1,6 +1,10 @@
 name: Publish Conda Version
 
 on:
+  # test for now with pushing to this branch
+  push:
+    branches:
+      - ac/conda_release
   release:
     types:
       - published

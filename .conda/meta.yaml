@@ -1,4 +1,6 @@
 {% set data = load_setup_py_data() %}
+# This is the config file for publishing a conda package.
+# Initially generated using grayskull.
 
 package:
   name: sqlfluff
@@ -24,7 +26,6 @@ requirements:
     - python
   run:
     - appdirs
-    - bench-it
     - cached-property
     - click >=7.1
     - colorama >=0.3
