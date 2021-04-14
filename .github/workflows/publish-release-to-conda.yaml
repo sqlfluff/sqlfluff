@@ -14,17 +14,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-python@v1
-        with:
-          python-version: "3.7"
-
-      - name: Install Dependencies
-        run: |
-          pip install --upgrade pip
-
       - name: Publish Python distribution to Conda
-        uses: fcakyon/conda-publish-action@v1.3
+        uses: MichaelsJP/conda-package-publish-action@v1.1.0
         with:
           subDir: '.conda'
-          anacondatoken: ${{ secrets.ANACONDA_TOKEN }}
-          platforms: 'win osx linux'
+          AnacondaToken: ${{ secrets.ANACONDA_TOKEN }}
+          platforms: 'all'
+          dry_run: true
