@@ -10,11 +10,11 @@ Here we define:
 
 from io import StringIO
 import copy
-from benchit import BenchIt
 from cached_property import cached_property
 from typing import Any, Callable, Optional, List, Tuple, NamedTuple, Iterator
 import logging
 
+from sqlfluff.core.bencher import SafeBencher
 from sqlfluff.core.string_helpers import (
     frame_msg,
     curtail_string,
@@ -836,7 +836,7 @@ class BaseSegment:
             # Validate new segments
             self.validate_segments(text="parsing")
 
-        bencher = BenchIt()  # starts the timer
+        bencher = SafeBencher()  # starts the timer
         bencher("Parse complete of {0!r}".format(self.__class__.__name__))
 
         # Recurse if allowed (using the expand method to deal with the expansion)

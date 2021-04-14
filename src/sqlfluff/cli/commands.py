@@ -11,7 +11,6 @@ import click
 # For the profiler
 import pstats
 from io import StringIO
-from benchit import BenchIt
 
 # To enable colour cross platform
 import colorama
@@ -35,6 +34,7 @@ from sqlfluff.core import (
     SQLLintError,
     dialect_selector,
     dialect_readout,
+    SafeBencher,
 )
 
 
@@ -398,7 +398,11 @@ def fix(force, paths, bench=False, fixed_suffix="", logger=None, **kwargs):
     lnt, formatter = get_linter_and_formatter(c, silent=fixing_stdin)
     verbose = c.get("verbose")
 
-    bencher = BenchIt()
+    try:
+        bencher = SafeBencher(strict=bench)
+    except RuntimeError as err:
+        click.echo(colorize("Error with --bench: " + str(err), "red"))
+        sys.exit()
 
     formatter.dispatch_config(lnt)
 
@@ -482,7 +486,7 @@ def fix(force, paths, bench=False, fixed_suffix="", logger=None, **kwargs):
                 )
             )
 
-    if bench:
+    if bencher and bench:
         click.echo("\n\n==== bencher stats ====")
         bencher.display()
 
@@ -536,8 +540,13 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
     character to indicate reading from *stdin* or a dot/blank ('.'/' ') which will
     be interpreted like passing the current working directory as a path argument.
     """
-    # Initialise the benchmarker
-    bencher = BenchIt()  # starts the timer
+    # Initialise the benchmarker & starts the timer
+    try:
+        bencher = SafeBencher(strict=bench)
+    except RuntimeError as err:
+        click.echo(colorize("Error with --bench: " + str(err), "red"))
+        sys.exit()
+
     c = get_config(**kwargs)
     # We don't want anything else to be logged if we want json or yaml output
     non_human_output = format in ("json", "yaml")
@@ -638,7 +647,7 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
         # Only print the first 50 lines of it
         click.echo("\n".join(profiler_buffer.getvalue().split("\n")[:50]))
 
-    if bench:
+    if bencher and bench:
         click.echo("\n\n==== bencher stats ====")
         bencher.display()
 

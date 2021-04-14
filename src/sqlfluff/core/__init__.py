@@ -12,6 +12,9 @@ from sqlfluff.core.parser import Lexer, Parser
 # Dialect introspection
 from sqlfluff.core.dialects import dialect_selector, dialect_readout
 
+# Bencher
+from sqlfluff.core.bencher import SafeBencher
+
 # All of the errors.
 from sqlfluff.core.errors import (
     SQLBaseError,

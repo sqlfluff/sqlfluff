@@ -6,6 +6,8 @@ flake8-black
 # documentation checks
 doc8
 Pygments
+# benchmarking
+bench-it
 # testing
 coverage
 hypothesis

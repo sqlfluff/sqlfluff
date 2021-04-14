@@ -20,7 +20,6 @@ from typing import (
 )
 from typing_extensions import Literal
 
-from benchit import BenchIt
 import pathspec
 
 from sqlfluff.core.errors import (
@@ -35,6 +34,7 @@ from sqlfluff.core.string_helpers import findall
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.rules import get_ruleset
 from sqlfluff.core.config import FluffConfig, ConfigLoader
+from sqlfluff.core.bencher import SafeBencher
 
 # Classes needed only for type checking
 from sqlfluff.core.parser.segments.base import BaseSegment, FixPatch
@@ -276,7 +276,7 @@ class LintedFile(NamedTuple):
         completely dialect agnostic. A Segment is determined by the
         Lexer from portions of strings after templating.
         """
-        bencher = BenchIt()
+        bencher = SafeBencher()
         bencher("fix_string: start")
 
         linter_logger.debug("Original Tree: %r", self.templated_file.templated_str)
@@ -849,7 +849,7 @@ class Linter:
         """
         violations = []
         t0 = time.monotonic()
-        bencher = BenchIt()  # starts the timer
+        bencher = SafeBencher()  # starts the timer
         if fname:
             short_fname: Optional[str] = fname.replace("\\", "/").split("/")[-1]
         else:

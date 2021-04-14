@@ -84,8 +84,6 @@ setup(
         "Jinja2",
         # Used for diffcover plugin
         "diff-cover>=2.5.0",
-        # Used for performance profiling
-        "bench-it",
         # Used for .sqlfluffignore
         "pathspec",
         # Used for finding os-specific application config dirs
@@ -100,10 +98,10 @@ setup(
         "pytest",
     ],
     extras_require={
+        # dbt templater
         "dbt": ["dbt>=0.17"],
-        # eg:
-        #   'rst': ['docutils>=0.11'],
-        #   ':python_version=="2.6"': ['argparse'],
+        # Benchmark profiling [NB: Not supported in conda]
+        "bench": ["bench-it"]
     },
     entry_points={
         "console_scripts": [
