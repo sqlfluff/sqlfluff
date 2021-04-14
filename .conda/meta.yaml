@@ -16,13 +16,6 @@ build:
     - sqlfluff = sqlfluff.cli.commands:cli
   script: python setup.py install --single-version-externally-managed --record=record.txt
 
-#build:
-#  number: 0
-#  skip: true   # [py2k]
-#  entry_points:
-#    - sqlfluff = sqlfluff.cli.commands:cli
-#  script: {{ PYTHON }} -m pip install . -vv
-
 requirements:
   host:
     - pip
@@ -41,16 +34,6 @@ requirements:
     - pytest
     - python
     - typing-extensions
-
-#test:
-#  imports:
-#    - sqlfluff
-#    - sqlfluff.api
-#  commands:
-#    - pip check
-#    - sqlfluff --version
-#  requires:
-#    - pip
 
 about:
   home: https://github.com/sqlfluff/sqlfluff

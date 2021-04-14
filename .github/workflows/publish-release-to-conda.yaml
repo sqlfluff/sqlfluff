@@ -20,4 +20,4 @@ jobs:
           subDir: '.conda'
           AnacondaToken: ${{ secrets.ANACONDA_TOKEN }}
           platforms: 'all'
-          dry_run: true
+          dry_run: false
