@@ -5,6 +5,7 @@ import pytest
 import logging
 
 from sqlfluff.core import FluffConfig, Lexer, Linter
+from sqlfluff.core.errors import SQLTemplaterSkipFile
 from sqlfluff.core.templaters.dbt import DbtTemplater
 from test.fixtures.dbt.templater import (  # noqa
     DBT_FLUFF_CONFIG,
@@ -63,8 +64,7 @@ def test__templater_dbt_templating_result(
         fname="models/my_new_project/" + fname,
         config=FluffConfig(configs=DBT_FLUFF_CONFIG),
     )
-    # the dbt compiler gets rid of new lines
-    assert str(templated_file) + "\n" == open("../dbt/" + fname).read()
+    assert str(templated_file) == open("../dbt/" + fname).read()
 
 
 @pytest.mark.dbt
@@ -97,18 +97,48 @@ def test__templater_dbt_slice_file_wrapped_test(
     assert resp == result
 
 
+@pytest.mark.parametrize(
+    "fname",
+    [
+        "tests/test.sql",
+        "models/my_new_project/single_trailing_newline.sql",
+        "models/my_new_project/multiple_trailing_newline.sql",
+    ],
+)
 @pytest.mark.dbt
-def test__templater_dbt_templating_test_lex(in_dbt_project_dir, dbt_templater):  # noqa
-    """A test to demonstrate _tests_as_models works on dbt tests by temporarily making them models."""
+def test__templater_dbt_templating_test_lex(
+    in_dbt_project_dir, dbt_templater, fname  # noqa
+):
+    """A test to demonstrate the lexer works on both dbt models (with any # of trailing newlines) and dbt tests."""
+    with open(fname, "r") as source_dbt_model:
+        source_dbt_sql = source_dbt_model.read()
+    n_trailing_newlines = len(source_dbt_sql) - len(source_dbt_sql.rstrip("\n"))
     lexer = Lexer(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
     templated_file, _ = dbt_templater.process(
         in_str="",
-        fname="tests/test.sql",
+        fname=fname,
         config=FluffConfig(configs=DBT_FLUFF_CONFIG),
     )
     tokens, lex_vs = lexer.lex(templated_file)
-    assert templated_file.source_str == "select * from a"
-    assert templated_file.templated_str == "select * from a"
+    assert (
+        templated_file.source_str
+        == "select a\nfrom table_a" + "\n" * n_trailing_newlines
+    )
+    assert (
+        templated_file.templated_str
+        == "select a\nfrom table_a" + "\n" * n_trailing_newlines
+    )
+
+
+@pytest.mark.dbt
+def test__templater_dbt_skips_disabled_model(in_dbt_project_dir, dbt_templater):  # noqa
+    """A disabled dbt model should be skipped."""
+    with pytest.raises(SQLTemplaterSkipFile, match=r"model was disabled"):
+        dbt_templater.process(
+            in_str="",
+            fname="models/my_new_project/disabled_model.sql",
+            config=FluffConfig(configs=DBT_FLUFF_CONFIG),
+        )
 
 
 @pytest.mark.parametrize(
@@ -116,11 +146,15 @@ def test__templater_dbt_templating_test_lex(in_dbt_project_dir, dbt_templater): 
     [
         "use_var.sql",
         "incremental.sql",
+        "single_trailing_newline.sql",
+        "multiple_trailing_newline.sql",
     ],
 )
 @pytest.mark.dbt
-def test__templated_sections_do_not_raise_lint_error(in_dbt_project_dir, fname):  # noqa
-    """Test that the dbt test has only a new line lint error."""
+def test__dbt_templated_models_do_not_raise_lint_error(
+    in_dbt_project_dir, fname  # noqa
+):
+    """Test that templated dbt models do not raise a linting error."""
     lntr = Linter(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
     lnt = lntr.lint_path(path="models/my_new_project/" + fname)
     violations = lnt.check_tuples()

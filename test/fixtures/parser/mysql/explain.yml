@@ -1,0 +1,70 @@
+file:
+    - statement:
+        explain_statement:
+          keyword: explain
+          select_statement:
+            select_clause:
+              keyword: select
+              select_clause_element:
+                literal: '1'
+    - statement_terminator: ;
+    - statement:
+        explain_statement:
+          keyword: explain
+          update_statement:
+            keyword: update
+            table_reference:
+              identifier: tbl
+            set_clause_list:
+              keyword: set
+              set_clause:
+                column_reference:
+                  identifier: foo
+                comparison_operator: '='
+                literal: '1'
+            where_clause:
+              keyword: where
+              expression:
+                column_reference:
+                  identifier: bar
+                comparison_operator: '='
+                literal: '2'
+    - statement_terminator: ;
+    - statement:
+        explain_statement:
+          keyword: explain
+          delete_statement:
+            keyword: delete
+            from_clause:
+              keyword: from
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      identifier: tbl
+            where_clause:
+              keyword: where
+              expression:
+                column_reference:
+                  identifier: foo
+                comparison_operator: '='
+                literal: '1'
+    - statement_terminator: ;
+    - statement:
+        explain_statement:
+          keyword: explain
+          insert_statement:
+          - keyword: insert
+          - keyword: into
+          - table_reference:
+              identifier: tbl
+          - start_bracket: (
+          - column_reference:
+              identifier: col1
+          - end_bracket: )
+          - values_clause:
+              keyword: values
+              start_bracket: (
+              literal: '123'
+              end_bracket: )
+    - statement_terminator: ;
