@@ -81,7 +81,10 @@ class SelectCrawler:
             if seg.type == "table_reference":
                 if not seg.is_qualified() and seg.raw in queries:
                     # It's a CTE.
-                    yield queries[seg.raw]
+                    # :TRICKY: Pop the CTE from "queries" to help callers avoid
+                    # infinite recursion. We could make this behavior optional
+                    # someday, if necessary.
+                    yield queries.pop(seg.raw)
                 else:
                     # It's an external table.
                     yield seg.raw

@@ -38,7 +38,7 @@ def document_configuration(cls, ruleset="std"):
 
     config_doc = "\n    | **Configuration**"
     try:
-        for keyword in cls.config_keywords:
+        for keyword in sorted(cls.config_keywords):
             try:
                 info_dict = config_info[keyword]
             except KeyError:
