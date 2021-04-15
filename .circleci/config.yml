@@ -120,6 +120,12 @@ jobs:
       - image: circleci/python:3.9
         environment:
           TOXENV: py39
+  pypy38:
+    <<: *common
+    docker:
+      - image: pypy:3.8
+        environment:
+          TOXENV: pypy38
   # Benchmarking task
   bench:
     <<: *common
@@ -181,6 +187,7 @@ workflows:
       - py37
       - py38
       - py39
+      - pypy38
       - dbt017-py38
       - dbt018-py38
       - dbt019-py38
