@@ -1,0 +1,29 @@
+file:
+- statement:
+    use_statement:
+    - keyword: use
+    - keyword: role
+    - object_reference:
+        identifier: my_role
+- statement_terminator: ;
+- statement:
+    use_statement:
+    - keyword: use
+    - keyword: warehouse
+    - object_reference:
+        identifier: my_warehouse
+- statement_terminator: ;
+- statement:
+    use_statement:
+    - keyword: use
+    - keyword: database
+    - object_reference:
+        identifier: my_database
+- statement_terminator: ;
+- statement:
+    use_statement:
+    - keyword: use
+    - keyword: schema
+    - object_reference:
+        identifier: my_schema
+- statement_terminator: ;

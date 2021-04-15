@@ -29,6 +29,7 @@ from sqlfluff.core.errors import (
     SQLLintError,
     SQLParseError,
     CheckTuple,
+    SQLTemplaterSkipFile,
 )
 from sqlfluff.core.parser import Lexer, Parser
 from sqlfluff.core.string_helpers import findall
@@ -871,9 +872,15 @@ class Linter:
                 config.process_inline_config(raw_line)
 
         linter_logger.info("TEMPLATING RAW [%s] (%s)", self.templater.name, fname)
-        templated_file, templater_violations = self.templater.process(
-            in_str=in_str, fname=fname, config=config, formatter=self.formatter
-        )
+        try:
+            templated_file, templater_violations = self.templater.process(
+                in_str=in_str, fname=fname, config=config, formatter=self.formatter
+            )
+        except SQLTemplaterSkipFile as s:
+            linter_logger.warning(str(s))
+            templated_file = None
+            templater_violations = []
+
         violations += templater_violations
         # Detect the case of a catastrophic templater fail. In this case
         # we don't continue. We'll just bow out now.
