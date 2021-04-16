@@ -15,3 +15,5 @@ pytest-sugar
 # MyPy
 mypy
 typing_extensions
+# Common use cases
+dbt
