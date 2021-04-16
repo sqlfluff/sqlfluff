@@ -13,5 +13,5 @@ pytest
 pytest-cov
 pytest-sugar
 # MyPy
-mypy
-typing_extensions
+mypy;implementation_name!="pypy"
+typing_extensions;implementation_name!="pypy"
