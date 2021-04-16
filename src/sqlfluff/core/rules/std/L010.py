@@ -63,6 +63,17 @@ class Rule_L010(BaseRule):
         cap_policy_name = next(
             k for k in self.config_keywords if k.endswith("capitalisation_policy")
         )
+        # Make sure the user hasn't provided the wrong name
+        try:
+            wrong_keyword = next(
+                k for k in dir(self) if k.endswith("capitalisation_policy")
+                and k != cap_policy_name and getattr(self, k) != None
+            )
+            raise ValueError("Capitalisation policy provided via configuration "
+                             f"'{wrong_keyword}', but must be provided via "
+                             f"configuration '{cap_policy_name}'")
+        except StopIteration:
+            pass
         cap_policy = getattr(self, cap_policy_name)
         cap_policy_opts = [
             opt
