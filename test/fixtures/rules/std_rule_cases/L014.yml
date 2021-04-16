@@ -36,6 +36,11 @@ test_consistency_9:
   fail_str: SELECT U, what_Is_This_Case
   fix_str: SELECT U, WHAT_IS_THIS_CASE
 
+test_consistency_10:
+  # Ensure that the latest known case is used
+  fail_str: SELECT l, what_Is_This_Case, WasPascal
+  fix_str: SELECT l, what_is_this_case, was_pascal
+
 # PascalCase tests are based on this comment by @alanmcruickshank:
 # https://github.com/sqlfluff/sqlfluff/issues/820#issuecomment-787050507
 test_pascal_1:
