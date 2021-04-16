@@ -51,7 +51,7 @@ class Rule_L010(BaseRule):
         """Inconsistent capitalisation of keywords.
 
         We use the `memory` feature here to keep track of cases known to be
-        INconsistent with what we've seen so far as well as the top choice
+        *inconsistent* with what we've seen so far as well as the top choice
         for what the possible case is.
 
         """
@@ -100,22 +100,22 @@ class Rule_L010(BaseRule):
         # Skip if no inconsistencies, otherwise compute a concrete policy
         # to convert to.
         if cap_policy == "consistent":
-            possible_cases = [c for c in cap_policy_opts if c not in refuted_cases]
-            self.logger.debug(
-                f"Possible cases after segment '{segment.raw}': {possible_cases}"
-            )
-            if possible_cases:
-                # Save the latest possible case and skip
-                memory["latest_possible_case"] = possible_cases[0]
-                self.logger.debug(
-                    f"Consistent capitalization, returning with memory: {memory}"
+            try:
+                memory["latest_possible_case"] = next(
+                    c for c in cap_policy_opts if c not in refuted_cases
                 )
-                return LintResult(memory=memory)
-            else:
+            except StopIteration:
                 concrete_policy = memory.get("latest_possible_case", "upper")
                 self.logger.debug(
                     f"Getting concrete policy '{concrete_policy}' from memory"
                 )
+            else:
+                self.logger.debug(
+                    f"Latest possible case after segment '{segment.raw}': "
+                    f"{memory['latest_possible_case']}. Still consistent..."
+                )
+                return LintResult(memory=memory)
+
         else:
             if cap_policy not in refuted_cases:
                 # Skip
