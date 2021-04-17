@@ -10,12 +10,24 @@ from sqlfluff.core import Linter, FluffConfig
 JINJA_STRING = "SELECT * FROM {% for c in blah %}{{c}}{% if not loop.last %}, {% endif %}{% endfor %} WHERE {{condition}}\n\n"
 
 
-def test__templater_jinja():
+@pytest.mark.parametrize(
+    "instr, expected_outstr",
+    [
+        (
+            JINJA_STRING,
+            "SELECT * FROM f, o, o WHERE a < 10\n\n",
+        ),
+        (
+            "{% set event_columns = ['campaign', 'click_item'] %}\n\nSELECT\n    event_id\n    {% for event_column in event_columns %}\n    , {{ event_column }}\n    {% endfor %}\nFROM events\n",
+            "\n\nSELECT\n    event_id\n    \n    , campaign\n    \n    , click_item\n    \nFROM events\n",
+        ),
+    ],
+)
+def test__templater_jinja(instr, expected_outstr):
     """Test jinja templating and the treatment of whitespace."""
     t = JinjaTemplater(override_context=dict(blah="foo", condition="a < 10"))
-    instr = JINJA_STRING
     outstr, _ = t.process(in_str=instr, config=FluffConfig())
-    assert str(outstr) == "SELECT * FROM f, o, o WHERE a < 10\n\n"
+    assert str(outstr) == expected_outstr
 
 
 def test__templater_jinja_error_variable():
@@ -50,6 +62,10 @@ def test__templater_jinja_error_catatrophic():
     outstr, vs = t.process(in_str=instr, config=FluffConfig())
     assert not outstr
     assert len(vs) > 0
+
+
+# def test__templater_jinja_fix_issue_968():
+#     """Tests a bug that was throwing an "UnboundLocalError"."""
 
 
 def assert_structure(yaml_loader, path, code_only=True):

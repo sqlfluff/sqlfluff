@@ -544,6 +544,8 @@ class PythonTemplater(RawTemplater):
         # A buffer to capture tail segments
         tail_buffer: List[TemplatedFileSlice] = []
 
+        sub_section = None
+
         templater_logger.debug("    _split_uniques_coalesce_rest: %s", split_file)
 
         for int_file_slice in split_file:
@@ -947,7 +949,11 @@ class PythonTemplater(RawTemplater):
                     template_idx + raw_len,
                 )
 
-            if starts[1] < stops[1] and last_owu_idx is not None:
+            if (
+                starts[1] < stops[1]
+                and last_owu_idx is not None
+                and sub_section is not None
+            ):
                 # Yield the end bit
                 templater_logger.debug(
                     "        Attempting Subsplit [post]: %s", sub_section
