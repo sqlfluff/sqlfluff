@@ -19,10 +19,20 @@ JINJA_STRING = "SELECT * FROM {% for c in blah %}{{c}}{% if not loop.last %}, {%
         ),
         # Test for issue #968. This was previously raising an UnboundLocalError.
         (
-            "{% set event_columns = ['campaign', 'click_item'] %}\n\nSELECT\n    event_id\n    {% for event_column in event_columns %}\n    , {{ event_column }}\n    {% endfor %}\nFROM events\n",
-            "\n\nSELECT\n    event_id\n    \n    , campaign\n    \n    , click_item\n    \nFROM events\n",
+            """
+{% set event_columns = ['campaign', 'click_item'] %}
+
+SELECT
+    event_id
+    {% for event_column in event_columns %}
+    , {{ event_column }}
+    {% endfor %}
+FROM events
+            """,
+            '\n\n\nSELECT\n    event_id\n    \n    , campaign\n    \n    , click_item\n    \nFROM events\n            ',
         ),
     ],
+    ids=['simple', 'unboundlocal_bugfix']
 )
 def test__templater_jinja(instr, expected_outstr):
     """Test jinja templating and the treatment of whitespace."""
