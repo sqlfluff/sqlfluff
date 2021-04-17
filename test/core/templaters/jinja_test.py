@@ -29,10 +29,10 @@ SELECT
     {% endfor %}
 FROM events
             """,
-            '\n\n\nSELECT\n    event_id\n    \n    , campaign\n    \n    , click_item\n    \nFROM events\n            ',
+            "\n\n\nSELECT\n    event_id\n    \n    , campaign\n    \n    , click_item\n    \nFROM events\n            ",
         ),
     ],
-    ids=['simple', 'unboundlocal_bugfix']
+    ids=["simple", "unboundlocal_bugfix"],
 )
 def test__templater_jinja(instr, expected_outstr):
     """Test jinja templating and the treatment of whitespace."""
