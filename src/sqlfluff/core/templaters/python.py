@@ -839,6 +839,7 @@ class PythonTemplater(RawTemplater):
                     # If we succeeded in one of the above, we can also recurse
                     # and be more intelligent with the other sections.
                     if source_slice:
+                        assert sub_section is not None
                         templater_logger.debug(
                             "        Attempting Subsplit [pre]: %s, %r",
                             sub_section,
