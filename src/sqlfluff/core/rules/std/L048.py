@@ -35,3 +35,15 @@ class Rule_L048(Rule_L006):
     _target_elems: List[Tuple[str, str]] = [
         ("name", "quoted_literal"),
     ]
+
+    @staticmethod
+    def _missing_whitespace(seg, before=True):
+        """Check whether we're missing whitespace given an adjoining segment.
+
+        This avoids flagging for commas after quoted strings.
+        https://github.com/sqlfluff/sqlfluff/issues/943
+        """
+        simple_res = Rule_L006._missing_whitespace(seg, before=before)
+        if not before and seg and seg.is_type("comma"):
+            return False
+        return simple_res
