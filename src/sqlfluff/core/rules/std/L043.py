@@ -83,9 +83,10 @@ class Rule_L043(BaseRule):
             ):
                 # Delete everything but the first expression
                 fixes = []
+                delete_segments = []
                 for s in segment.segments:
                     if s != segment.segments[expression_idx]:
-                        fixes.append(LintFix("delete", s))
+                        delete_segments.append(s)
                 # If then-false, add "not" and space
                 edits = []
                 if then_bool_type == "FALSE":
@@ -113,10 +114,11 @@ class Rule_L043(BaseRule):
                     ),
                 ]
                 edits.extend(coalesce_parenthesis)
+                edit_coalesce_target = segment.segments[0]
                 fixes.append(
                     LintFix(
                         "edit",
-                        segment.segments[0],
+                        edit_coalesce_target,
                         edits,
                     )
                 )
@@ -149,6 +151,11 @@ class Rule_L043(BaseRule):
                         closing_parenthesis,
                     )
                 )
+                fixes += [
+                    LintFix("delete", s)
+                    for s in delete_segments
+                    if s is not edit_coalesce_target
+                ]
                 return LintResult(
                     anchor=segment.segments[expression_idx],
                     fixes=fixes,
