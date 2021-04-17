@@ -17,6 +17,7 @@ JINJA_STRING = "SELECT * FROM {% for c in blah %}{{c}}{% if not loop.last %}, {%
             JINJA_STRING,
             "SELECT * FROM f, o, o WHERE a < 10\n\n",
         ),
+        # Test for issue #968. This was previously raising an UnboundLocalError.
         (
             "{% set event_columns = ['campaign', 'click_item'] %}\n\nSELECT\n    event_id\n    {% for event_column in event_columns %}\n    , {{ event_column }}\n    {% endfor %}\nFROM events\n",
             "\n\nSELECT\n    event_id\n    \n    , campaign\n    \n    , click_item\n    \nFROM events\n",
@@ -62,10 +63,6 @@ def test__templater_jinja_error_catatrophic():
     outstr, vs = t.process(in_str=instr, config=FluffConfig())
     assert not outstr
     assert len(vs) > 0
-
-
-# def test__templater_jinja_fix_issue_968():
-#     """Tests a bug that was throwing an "UnboundLocalError"."""
 
 
 def assert_structure(yaml_loader, path, code_only=True):
