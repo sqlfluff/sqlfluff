@@ -53,7 +53,9 @@ class Rule_L016(Rule_L003):
                     indent_balance=self.indent_balance,
                     indent_impulse=self.indent_impulse,
                     segments="".join(elem.raw for elem in self.segments),
-                    pos=self.segments[0].get_start_pos_marker(),
+                    pos=self.segments[0].get_start_pos_marker()
+                    if self.segments
+                    else "",
                 )
 
             @property
@@ -334,9 +336,10 @@ class Rule_L016(Rule_L003):
 
         fixes = []
         for split, indent in split_at:
-            fixes += split.generate_fixes_to_coerce(
-                segments, indent_section, self, indent
-            )
+            if split.segments:
+                fixes += split.generate_fixes_to_coerce(
+                    segments, indent_section, self, indent
+                )
 
         self.logger.info("Fixes: %s", fixes)
 
