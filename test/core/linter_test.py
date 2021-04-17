@@ -501,6 +501,28 @@ def test_linter_noqa():
     assert {3, 6, 7, 8, 10, 12, 13, 14, 15, 18} == {v.line_no() for v in violations}
 
 
+def test_linter_noqa_with_templating():
+    """Similar to test_linter_noqa, but uses templating (Jinja)."""
+    lntr = Linter(
+        config=FluffConfig(
+            overrides={
+                "templater": "jinja",
+                "rules": "L016",
+            }
+        )
+    )
+    sql = """
+    {%- set a_var = ["1", "2"] -%}
+    SELECT
+      this_is_just_a_very_long_line_for_demonstration_purposes_of_a_bug_involving_templated_sql_files, --noqa: L016
+      this_is_not_so_big
+    FROM
+      a_table
+        """
+    result = lntr.lint_string(sql)
+    assert not result.get_violations()
+
+
 @pytest.mark.dbt
 def test__linter__skip_dbt_model_disabled(in_dbt_project_dir):  # noqa
     """Test that the linter skips disabled dbt models."""
