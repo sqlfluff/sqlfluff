@@ -12,9 +12,10 @@ from sqlfluff.core.parser import (
     GreedyUntil,
 )
 
-from sqlfluff.core.dialects.dialect_ansi import ansi_dialect
-from sqlfluff.core.dialects.hive_keywords import RESERVED_KEYWORDS, UNRESERVED_KEYWORDS
+from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.dialects.hive_keywords import RESERVED_KEYWORDS, UNRESERVED_KEYWORDS
 
+ansi_dialect = load_raw_dialect("ansi")
 hive_dialect = ansi_dialect.copy_as("hive")
 
 # Clear ANSI Keywords and add all Hive keywords
@@ -394,7 +395,7 @@ class TruncateStatementSegment(BaseSegment):
     )
 
 
-@hive_dialect.segment()
+@hive_dialect.segment(replace=True)
 class UseStatementSegment(BaseSegment):
     """An `USE` statement."""
 
