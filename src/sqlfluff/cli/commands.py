@@ -651,5 +651,5 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
 # This "__main__" handler allows invoking SQLFluff using "python -m", which
 # simplifies the use of cProfile, e.g.:
 # python -m cProfile -s cumtime -m sqlfluff.cli.commands lint slow_file.sql
-if __name__ == '__main__':
+if __name__ == "__main__":
     cli.main(sys.argv[1:])
