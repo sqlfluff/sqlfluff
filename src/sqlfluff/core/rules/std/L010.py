@@ -172,8 +172,7 @@ class Rule_L010(BaseRule):
     def _init_capitalisation_policy(self):
         """Called first time rule is evaluated to fetch & cache the policy."""
         cap_policy_name = next(
-            k for k in self.config_keywords if
-            k.endswith("capitalisation_policy")
+            k for k in self.config_keywords if k.endswith("capitalisation_policy")
         )
         self.cap_policy = getattr(self, cap_policy_name)
         self.cap_policy_opts = [
