@@ -59,11 +59,13 @@ class Rule_L010(BaseRule):
         if not self.matches_target_tuples(segment, self._target_elems):
             return LintResult(memory=memory)
 
-        # Get the capitalisation policy configuration
+        # Get the capitalisation policy configuration.
         try:
             cap_policy = self.cap_policy
             cap_policy_opts = self.cap_policy_opts
         except AttributeError:
+            # First-time only, read the settings from configuration. This is
+            # very slow.
             cap_policy, cap_policy_opts = self._init_capitalisation_policy()
 
         refuted_cases = memory.get("refuted_cases", set())
