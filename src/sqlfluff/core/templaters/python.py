@@ -544,8 +544,6 @@ class PythonTemplater(RawTemplater):
         # A buffer to capture tail segments
         tail_buffer: List[TemplatedFileSlice] = []
 
-        sub_section = None
-
         templater_logger.debug("    _split_uniques_coalesce_rest: %s", split_file)
 
         for int_file_slice in split_file:
@@ -741,9 +739,6 @@ class PythonTemplater(RawTemplater):
                 # recursion.
                 if len(int_file_slice.slice_buffer) > bookmark_idx:
                     # Recurse to deal with any loops separately
-                    sub_section = int_file_slice.slice_buffer[
-                        bookmark_idx : len(int_file_slice.slice_buffer)
-                    ]
                     yield from cls._split_uniques_coalesce_rest(
                         [
                             IntermediateFileSlice(
@@ -751,7 +746,10 @@ class PythonTemplater(RawTemplater):
                                 # Slicing is easy here, we have no choice
                                 slice(starts[0], int_file_slice.source_slice.stop),
                                 slice(starts[1], int_file_slice.templated_slice.stop),
-                                sub_section,
+                                # Calculate the subsection to deal with.
+                                int_file_slice.slice_buffer[
+                                    bookmark_idx : len(int_file_slice.slice_buffer)
+                                ],
                             )
                         ],
                         raw_occs,
@@ -820,15 +818,15 @@ class PythonTemplater(RawTemplater):
                     # all as a tuple, because if we could do any better
                     # we would have done it by now.
 
-                    source_slice: Optional[slice] = None
+                    # Can we identify a meaningful portion of the patch
+                    # to recurse a split?
+                    sub_section: Optional[List[RawFileSlice]] = None
                     # If it's the start, the slicing is easy
                     if starts[1] == int_file_slice.templated_slice.stop:
-                        source_slice = slice(starts[0], raw_idx)
                         sub_section = int_file_slice.slice_buffer[:this_owu_idx]
                     # If we are AFTER the previous in the template, then it's
                     # also easy. [assuming it's not the same owu]
                     elif raw_idx > starts[0] and last_owu_idx != this_owu_idx:
-                        source_slice = slice(starts[0], raw_idx)
                         if last_owu_idx:
                             sub_section = int_file_slice.slice_buffer[
                                 last_owu_idx + 1 : this_owu_idx
@@ -838,11 +836,10 @@ class PythonTemplater(RawTemplater):
 
                     # If we succeeded in one of the above, we can also recurse
                     # and be more intelligent with the other sections.
-                    if source_slice:
+                    if sub_section:
                         # This assertion makes MyPy happy. In this case, we
                         # never set source_slice without also setting
                         # subsection.
-                        assert sub_section is not None
                         templater_logger.debug(
                             "        Attempting Subsplit [pre]: %s, %r",
                             sub_section,
@@ -853,7 +850,7 @@ class PythonTemplater(RawTemplater):
                                 IntermediateFileSlice(
                                     "compound",
                                     # Slicing is easy here, we have no choice
-                                    source_slice,
+                                    slice(starts[0], raw_idx),
                                     slice(starts[1], template_idx),
                                     sub_section,
                                 )
@@ -953,15 +950,9 @@ class PythonTemplater(RawTemplater):
                     template_idx + raw_len,
                 )
 
-            if (
-                starts[1] < stops[1]
-                and last_owu_idx is not None
-                and sub_section is not None
-            ):
+            if starts[1] < stops[1] and last_owu_idx is not None:
                 # Yield the end bit
-                templater_logger.debug(
-                    "        Attempting Subsplit [post]: %s", sub_section
-                )
+                templater_logger.debug("        Attempting Subsplit [post].")
                 yield from cls._split_uniques_coalesce_rest(
                     [
                         IntermediateFileSlice(
