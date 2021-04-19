@@ -111,7 +111,9 @@ class CreateDatabaseStatementSegment(BaseSegment):
         Ref("CommentGrammar", optional=True),
         Ref("LocationGrammar", optional=True),
         Sequence("MANAGEDLOCATION", Ref("QuotedLiteralSegment"), optional=True),
-        Sequence("WITH", "DBPROPERTIES", Ref("BracketedPropertyListGrammar"), optional=True),
+        Sequence(
+            "WITH", "DBPROPERTIES", Ref("BracketedPropertyListGrammar"), optional=True
+        ),
     )
 
 
