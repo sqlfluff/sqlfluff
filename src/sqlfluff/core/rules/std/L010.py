@@ -59,20 +59,14 @@ class Rule_L010(BaseRule):
         if not self.matches_target_tuples(segment, self._target_elems):
             return LintResult(memory=memory)
 
-        # Get the capitalisation policy configuration
-        cap_policy_name = next(
-            k for k in self.config_keywords if k.endswith("capitalisation_policy")
-        )
-        cap_policy = getattr(self, cap_policy_name)
-        cap_policy_opts = [
-            opt
-            for opt in get_config_info()[cap_policy_name]["validation"]
-            if opt != "consistent"
-        ]
-        self.logger.debug(
-            f"Selected '{cap_policy_name}': '{cap_policy}' from options "
-            f"{cap_policy_opts}"
-        )
+        # Get the capitalisation policy configuration.
+        try:
+            cap_policy = self.cap_policy
+            cap_policy_opts = self.cap_policy_opts
+        except AttributeError:
+            # First-time only, read the settings from configuration. This is
+            # very slow.
+            cap_policy, cap_policy_opts = self._init_capitalisation_policy()
 
         refuted_cases = memory.get("refuted_cases", set())
 
@@ -176,3 +170,22 @@ class Rule_L010(BaseRule):
                 ],
                 memory=memory,
             )
+
+    def _init_capitalisation_policy(self):
+        """Called first time rule is evaluated to fetch & cache the policy."""
+        cap_policy_name = next(
+            k for k in self.config_keywords if k.endswith("capitalisation_policy")
+        )
+        self.cap_policy = getattr(self, cap_policy_name)
+        self.cap_policy_opts = [
+            opt
+            for opt in get_config_info()[cap_policy_name]["validation"]
+            if opt != "consistent"
+        ]
+        self.logger.debug(
+            f"Selected '{cap_policy_name}': '{self.cap_policy}' from options "
+            f"{self.cap_policy_opts}"
+        )
+        cap_policy = self.cap_policy
+        cap_policy_opts = self.cap_policy_opts
+        return cap_policy, cap_policy_opts

@@ -81,11 +81,12 @@ class Rule_L043(BaseRule):
                 and else_bool_type is not None
                 and then_bool_type != else_bool_type
             ):
-                # Delete everything but the first expression
-                fixes = []
+                # Generate list of segments to delete -- everything but the
+                # first expression.
+                delete_segments = []
                 for s in segment.segments:
                     if s != segment.segments[expression_idx]:
-                        fixes.append(LintFix("delete", s))
+                        delete_segments.append(s)
                 # If then-false, add "not" and space
                 edits = []
                 if then_bool_type == "FALSE":
@@ -113,10 +114,12 @@ class Rule_L043(BaseRule):
                     ),
                 ]
                 edits.extend(coalesce_parenthesis)
+                edit_coalesce_target = segment.segments[0]
+                fixes = []
                 fixes.append(
                     LintFix(
                         "edit",
-                        segment.segments[0],
+                        edit_coalesce_target,
                         edits,
                     )
                 )
@@ -149,6 +152,15 @@ class Rule_L043(BaseRule):
                         closing_parenthesis,
                     )
                 )
+                # Generate a "delete" action for each segment in
+                # delete_segments EXCEPT the one being edited to become a call
+                # to "coalesce(". Deleting and editing the same segment has
+                # unpredictable behavior.
+                fixes += [
+                    LintFix("delete", s)
+                    for s in delete_segments
+                    if s is not edit_coalesce_target
+                ]
                 return LintResult(
                     anchor=segment.segments[expression_idx],
                     fixes=fixes,

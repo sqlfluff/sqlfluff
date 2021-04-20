@@ -83,3 +83,25 @@ test_11:
     select
         not coalesce(not fab > 0 or tot > 0, false) as is_fab
     from fancy_table
+test_12:
+  fail_str: |
+    select
+        subscriptions_xf.metadata_migrated,
+
+        case  -- BEFORE L043 FIX
+            when perks.perk is null then false
+            else true
+        end as perk_redeemed,
+
+        perks.received_at as perk_received_at
+
+    from subscriptions_xf
+  fix_str: |
+    select
+        subscriptions_xf.metadata_migrated,
+
+        not coalesce(perks.perk is null, false) as perk_redeemed,
+
+        perks.received_at as perk_received_at
+
+    from subscriptions_xf
