@@ -172,10 +172,11 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
 
 @snowflake_dialect.segment()
 class CreateStatementCommentSegment(BaseSegment):
-    """A comment in a create statement.
+    """A comment in a create view/table statement.
 
-    e.g. comment = 'a new view'
-
+    e.g. comment = 'a new view/table'
+    Please note that, for column comment, the syntax in Snowflake is
+    `COMMENT 'text'` (Without the `=`).
     """
 
     type = "snowflake_comment"
