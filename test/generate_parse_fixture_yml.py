@@ -7,7 +7,7 @@ from sqlfluff.core.parser import Parser, Lexer
 from sqlfluff.core import FluffConfig
 from sqlfluff.cli.commands import quoted_presenter
 
-from test.dialects.parse_fixtures import get_parse_fixtures, load_file
+from dialects.parse_fixtures import get_parse_fixtures, load_file
 
 yaml.add_representer(str, quoted_presenter)
 
