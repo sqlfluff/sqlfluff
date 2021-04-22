@@ -27,7 +27,7 @@ for example in parse_success_examples:
     # Remove the .sql file extension
     root = sqlfile[:-4]
     path = os.path.join("test", "fixtures", "parser", dialect, root + ".yml")
-    with open(path, "w", newline='\n') as f:
+    with open(path, "w", newline="\n") as f:
         if r:
             yaml.dump(r, f, default_flow_style=False)
         else:
