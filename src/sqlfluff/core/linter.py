@@ -1043,7 +1043,9 @@ class Linter:
         """Extract ignore mask entries from a comment segment."""
         # Also trim any whitespace afterward
         comment_content = comment.raw_trimmed().strip()
-        result = cls.parse_noqa(comment_content, comment.pos_marker.line_no)
+        result = cls.parse_noqa(
+            comment_content, comment.pos_marker.source_pos_marker.line_no
+        )
         if isinstance(result, SQLParseError):
             result.segment = comment
         return result
