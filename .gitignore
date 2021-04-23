@@ -34,3 +34,9 @@ test-reports
 /test*.sql
 /test*.py
 /.hypothesis/
+
+# Ignore conda environment.yml and .envrc used by other contributors to
+# manage python environments. The contirbuting docs suggest venv, but others be
+# more comfrotable with conda.
+environment.yml
+.envrc
