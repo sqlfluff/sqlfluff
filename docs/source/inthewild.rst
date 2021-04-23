@@ -28,7 +28,7 @@ Just add a section below by raising a PR on Github by
 - `Petal's <https://www.petalcard.com>`_ data-eng team runs SQLFluff on our 100+ model
   `dbt <http://www.getdbt.com/>`_ project. As a pre-commit hook and as a CI
   check, SQLFluff helps keep our SQL readable and consistent.
-- `Surline <https://www.surfline.com/>`_'s Analytics Engineering team
+- `Surfline <https://www.surfline.com/>`_'s Analytics Engineering team
   implemented SQLFluff as part of our continuous integration (CI) suite across
   our entire `dbt <http://www.getdbt.com/>`_ project (700+ models). We implement
   the CI suite using `GitHub Actions and Workflows <https://docs.github.com/en/actions>`_.
