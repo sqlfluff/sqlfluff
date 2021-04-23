@@ -35,7 +35,8 @@ Just add a section below by raising a PR on Github by
   The benefits of using SQLFluff at Surfline are:
 
   - Make the SQL in our dbt models consistent and easily readable.
-  - Our style guide is maintained as :code:`code`, not a README that is rarely updated.
+  - Our style guide is maintained as :code:`code`, not a README that is rarely
+    updated.
   - Reduced burden on Analytics Engineers to remember every single style rule.
   - New Analytics Engineers can quickly see and learn what "good SQL" looks
     like at Surfline and start writing it from day 1.
