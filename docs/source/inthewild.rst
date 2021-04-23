@@ -34,7 +34,7 @@ Just add a section below by raising a PR on Github by
   the CI suite using `GitHub Actions and Workflows <https://docs.github.com/en/actions>`_.
   The benefits of using SQLFluff at Surfline are:
 
-  - Make the SQL in our dbt models consistent and easily readable.
+  - The SQL in our dbt models is consistent and easily readable.
   - Our style guide is maintained as :code:`code`, not a README that is rarely
     updated.
   - Reduced burden on Analytics Engineers to remember every single style rule.
