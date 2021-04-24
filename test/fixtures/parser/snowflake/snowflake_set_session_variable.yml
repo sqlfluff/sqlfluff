@@ -1,0 +1,150 @@
+file:
+- statement:
+    set_session_variable_statement:
+      keyword: SET
+      parameter: var1
+      comparison_operator: '='
+      expression:
+        literal: '10'
+- statement_terminator: ;
+- statement:
+    set_session_variable_statement:
+      keyword: SET
+      parameter: var1
+      comparison_operator: '='
+      expression:
+        literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    set_session_variable_statement:
+      keyword: SET
+      parameter: var1
+      comparison_operator: '='
+      expression:
+        literal: "'example'"
+- statement_terminator: ;
+- statement:
+    set_session_variable_statement:
+      keyword: SET
+      parameter: var1
+      comparison_operator: '='
+      expression:
+        bare_function: CURRENT_TIMESTAMP
+- statement_terminator: ;
+- statement:
+    set_session_variable_statement:
+      keyword: SET
+      parameter: var1
+      comparison_operator: '='
+      expression:
+        variable_reference: $var2
+- statement_terminator: ;
+- statement:
+    set_session_variable_statement:
+      keyword: SET
+      parameter: var1
+      comparison_operator: '='
+      expression:
+        function:
+          function_name: TO_DATE
+          start_bracket: (
+          expression:
+            literal: "'2021-01-01'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    set_session_variable_statement:
+      keyword: SET
+      parameter: var1
+      comparison_operator: '='
+      expression:
+        start_bracket: (
+        expression:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                literal: '10'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    set_session_variable_statement:
+      keyword: SET
+      parameter: var1
+      comparison_operator: '='
+      expression:
+        start_bracket: (
+        expression:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                function:
+                  function_name: AVG
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      identifier: col1
+                  end_bracket: )
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      identifier: table1
+            where_clause:
+              keyword: WHERE
+              expression:
+              - column_reference:
+                  identifier: col2
+              - keyword: IS
+              - keyword: NOT
+              - keyword: 'NULL'
+            limit_clause:
+              keyword: LIMIT
+              literal: '1'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    set_session_variable_statement:
+      keyword: SET
+      parameter: var1
+      comparison_operator: '='
+      expression:
+        start_bracket: (
+        expression:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                function:
+                  function_name: AVG
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      identifier: col1
+                  end_bracket: )
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      identifier: table1
+            where_clause:
+              keyword: WHERE
+              expression:
+              - column_reference:
+                  identifier: col2
+              - keyword: BETWEEN
+              - literal: '10'
+              - binary_operator: AND
+              - literal: '11'
+            limit_clause:
+              keyword: LIMIT
+              literal: '10'
+        end_bracket: )
+        binary_operator: /
+        literal: '2'
+- statement_terminator: ;

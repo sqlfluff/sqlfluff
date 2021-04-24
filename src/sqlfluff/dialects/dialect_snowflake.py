@@ -107,6 +107,13 @@ snowflake_dialect.add(
     ColumnIndexIdentifierSegment=ReSegment.make(
         r"\$[0-9]+", name="column_index_identifier_segment", type="identifier"
     ),
+    # In Snowflake, variable names must start with an alphabet or an underscore. When referencing a variable,
+    # we must add a dollar sign in front.
+    VariableReferenceSegment=ReSegment.make(
+        r"\$[A-Z_][A-Z0-9_]+",
+        name="variable_reference_segment",
+        type="variable_reference",
+    ),
 )
 
 snowflake_dialect.replace(
@@ -114,6 +121,19 @@ snowflake_dialect.replace(
         Ref("ArrayAccessorSegment"),
         # Add in semi structured expressions
         Ref("SemiStructuredAccessorSegment"),
+    ),
+    LiteralGrammar=OneOf(
+        # @TODO: This is pretty much the re-definition of `LiteralGrammar` except we allow
+        # any variable to be referenced in Snowflake. What's the best way to do this without
+        # redefining the entire LiteralGrammar?
+        Ref("QuotedLiteralSegment"),
+        Ref("NumericLiteralSegment"),
+        Ref("BooleanLiteralGrammar"),
+        Ref("QualifiedNumericLiteralSegment"),
+        Ref("NullLiteralSegment"),
+        Ref("DateTimeLiteralGrammar"),
+        # Added specifically for Snowflake
+        Ref("VariableReferenceSegment"),
     ),
     PreTableFunctionKeywordsGrammar=OneOf(Ref("LateralKeywordSegment")),
     FunctionContentsExpressionGrammar=OneOf(
@@ -158,6 +178,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("CreateStatementSegment"),
             Ref("CreateCloneStatementSegment"),
             Ref("ShowStatementSegment"),
+            Ref("SetSessionVariableStatementSegment"),
             Ref("AlterUserSegment"),
         ],
         remove=[
@@ -586,6 +607,42 @@ class ShowStatementSegment(BaseSegment):
             Ref("LimitClauseSegment"),
             Sequence("FROM", Ref("QuotedLiteralSegment"), optional=True),
             optional=True,
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class SetSessionVariableStatementSegment(BaseSegment):
+    """Set a single session variable statement.
+
+    ```
+    SET <var> = <expr>;
+    ```
+
+    https://docs.snowflake.com/en/sql-reference/sql/set.html
+    """
+
+    type = "set_session_variable_statement"
+
+    match_grammar = StartsWith(
+        "SET",
+    )
+
+    parse_grammar = Sequence(
+        "SET",
+        OneOf(
+            # Set 1 variable with a single expression:
+            # `SET <var> = <expr>;`
+            #
+            # Examples:
+            # `SET var1 = 'hello';`
+            # `SET var1 = (SELECT 1 FROM table1 WHERE col1 IS NULL LIMIT 1);`
+            # `SET var1 = (SELECT 1 FROM table1 WHERE col1 IS NULL LIMIT 1) / 2;`
+            Sequence(
+                Ref("ParameterNameSegment"),
+                Ref("EqualsSegment"),
+                Ref("ExpressionSegment"),
+            ),
         ),
     )
 
