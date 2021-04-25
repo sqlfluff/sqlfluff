@@ -17,9 +17,6 @@ from sqlfluff.core.parser.grammar.base import (
 
 class Sequence(BaseGrammar):
     """Match a specific sequence of elements."""
-    def __init__(self, *args, **kwargs):
-        self.bracket_pairs_set = kwargs.pop("bracket_pairs_set", "bracket_pairs")
-        super(Sequence, self).__init__(*args, **kwargs)
 
     @cached_method_for_parse_context
     def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
@@ -181,6 +178,7 @@ class Bracketed(Sequence):
         # Store the bracket type. NB: This is only
         # hydrated into segments at runtime.
         self.bracket_type = kwargs.pop("bracket_type", "round")
+        self.bracket_pairs_set = kwargs.pop("bracket_pairs_set", "bracket_pairs")
         # Allow optional override for special bracket-like things
         self.start_bracket = kwargs.pop("start_bracket", None)
         self.end_bracket = kwargs.pop("end_bracket", None)

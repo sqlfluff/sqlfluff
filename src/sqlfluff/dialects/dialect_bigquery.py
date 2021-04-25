@@ -290,7 +290,7 @@ class DatatypeSegment(BaseSegment):
     match_grammar = OneOf(  # Parameter type
         Ref("DatatypeIdentifierSegment"),  # Simple type
         Sequence(
-            "ANY", "TYPE", bracket_pairs_set="angle_bracket_pairs"
+            "ANY", "TYPE"
         ),  # SQL UDFs can specify this "type"
         Sequence(
             "ARRAY",
@@ -299,7 +299,6 @@ class DatatypeSegment(BaseSegment):
                 bracket_type="angle",
                 bracket_pairs_set="angle_bracket_pairs",
             ),
-            bracket_pairs_set="angle_bracket_pairs",
         ),
         Sequence(
             "STRUCT",
@@ -308,7 +307,6 @@ class DatatypeSegment(BaseSegment):
                     Sequence(
                         Ref("ParameterNameSegment"),
                         Ref("DatatypeSegment"),
-                        bracket_pairs_set="angle_bracket_pairs",
                     ),
                     delimiter=Ref("CommaSegment"),
                     bracket_pairs_set="angle_bracket_pairs",
@@ -316,7 +314,6 @@ class DatatypeSegment(BaseSegment):
                 bracket_type="angle",
                 bracket_pairs_set="angle_bracket_pairs",
             ),
-            bracket_pairs_set="angle_bracket_pairs",
         ),
     )
 
