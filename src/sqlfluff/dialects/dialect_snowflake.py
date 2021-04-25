@@ -159,6 +159,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("CreateCloneStatementSegment"),
             Ref("ShowStatementSegment"),
             Ref("AlterUserSegment"),
+            Ref("AlterSessionStatementSegment"),
         ],
         remove=[
             Ref("CreateTypeStatementSegment"),
@@ -675,4 +676,72 @@ class ExplainStatementSegment(ansi_dialect.get_segment("ExplainStatementSegment"
             optional=True,
         ),
         ansi_dialect.get_segment("ExplainStatementSegment").explainable_stmt,
+    )
+
+
+@snowflake_dialect.segment()
+class AlterSessionStatementSegment(BaseSegment):
+    """Snowflake's ALTER SESSION statement.
+
+    ```
+    ALTER SESSION SET <param_name> = <param_value>;
+    ALTER SESSION UNSET <param_name>, [ , <param_name> , ... ];
+    ```
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-session.html
+    """
+
+    type = "alter_session_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "SESSION",
+        OneOf(
+            Ref("AlterSessionSetClauseSegment"),
+            Ref("AlterSessionUnsetClauseSegment"),
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class AlterSessionSetClauseSegment(BaseSegment):
+    """Snowflake's ALTER SESSION SET clause.
+
+    ```
+    [ALTER SESSION] SET <param_name> = <param_value>;
+    ```
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-session.html
+    """
+
+    type = "alter_session_set_statement"
+
+    match_grammar = Sequence(
+        "SET",
+        Ref("ParameterNameSegment"),
+        Ref("EqualsSegment"),
+        OneOf(
+            Ref("BooleanLiteralGrammar"),
+            Ref("QuotedLiteralSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class AlterSessionUnsetClauseSegment(BaseSegment):
+    """Snowflake's ALTER SESSION UNSET clause.
+
+    ```
+    [ALTER SESSION] UNSET <param_name>, [ , <param_name> , ... ];
+    ```
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-session.html
+    """
+
+    type = "alter_session_unset_clause"
+
+    match_grammar = Sequence(
+        "UNSET",
+        Delimited(Ref("ParameterNameSegment"), delimiter=Ref("CommaSegment")),
     )
