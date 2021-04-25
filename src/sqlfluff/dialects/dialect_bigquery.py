@@ -318,11 +318,10 @@ class FunctionParameterGrammar(BaseSegment):
             OneOf(
                 Sequence(
                     Ref("ParameterNameSegment", optional=True),
-                    OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")), #, bracket_pairs_set="angle_bracket_pairs"),
+                    OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
                     bracket_pairs_set="angle_bracket_pairs"
                 ),
-                OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")), #, bracket_pairs_set="angle_bracket_pairs"),
-                #bracket_pairs_set="angle_bracket_pairs"
+                OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
             ),
             delimiter=Ref("CommaSegment"),
             bracket_pairs_set="angle_bracket_pairs",
