@@ -438,7 +438,13 @@ class BaseGrammar(Matchable):
 
     @classmethod
     def _bracket_sensitive_look_ahead_match(
-        cls, segments, matchers, parse_context, start_bracket=None, end_bracket=None, bracket_pairs_set="bracket_pairs"
+        cls,
+        segments,
+        matchers,
+        parse_context,
+        start_bracket=None,
+        end_bracket=None,
+        bracket_pairs_set="bracket_pairs",
     ):
         """Same as `_look_ahead_match` but with bracket counting.
 
@@ -449,8 +455,6 @@ class BaseGrammar(Matchable):
             `tuple` of (unmatched_segments, match_object, matcher).
 
         """
-        # if len(segments) == 9:
-        #     import pdb; pdb.set_trace()
         parse_match_logging(
             cls.__name__,
             "***** _bracket_sensitive_look_ahead_match",
@@ -468,7 +472,6 @@ class BaseGrammar(Matchable):
 
         # Have we been passed an empty list?
         if len(segments) == 0:
-            #import pdb; pdb.set_trace()
             return ((), MatchResult.from_unmatched(segments), None)
 
         # Get hold of the bracket matchers from the dialect, and append them
@@ -485,7 +488,6 @@ class BaseGrammar(Matchable):
         end_brackets = [
             parse_context.dialect.ref(seg_ref) for seg_ref in end_bracket_refs
         ]
-        #import pdb; pdb.set_trace()
         start_definite = list(definitely_bracket)
         end_definite = list(definitely_bracket)
         # Add any bracket-like things passed as arguments

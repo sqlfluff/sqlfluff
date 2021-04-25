@@ -234,11 +234,6 @@ class Bracketed(Sequence):
         else:
             seg_buff = segments
 
-        # if len(seg_buff) == 10:
-        #     print('case 1')
-        #     import pdb; pdb.set_trace()
-        #     pass
-
         # Rehydrate the bracket segments in question.
         start_bracket, end_bracket = self.get_bracket_from_dialect(parse_context)
         # Allow optional override for special bracket-like things
@@ -249,10 +244,6 @@ class Bracketed(Sequence):
         with parse_context.deeper_match() as ctx:
             start_match = start_bracket.match(seg_buff, parse_context=ctx)
         if start_match:
-            # if len(start_match.unmatched_segments) == 9:
-            #     print('case 2')
-            #     import pdb; pdb.set_trace()
-            #     pass
             seg_buff = start_match.unmatched_segments
 
         else:

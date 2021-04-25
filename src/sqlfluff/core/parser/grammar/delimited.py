@@ -104,8 +104,6 @@ class Delimited(OneOf):
             # Keep track of the *length* of this pre-content section before we start
             # to change it later. We need this for dealing with terminators.
             pre_content_len = len(pre_content)
-            # if len(seg_buff) == 44:
-            #     import pdb; pdb.set_trace()
 
             # Have we found a delimiter or terminator looking forward?
             if delimiter_match:
