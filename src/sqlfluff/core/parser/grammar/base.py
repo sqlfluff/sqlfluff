@@ -451,6 +451,10 @@ class BaseGrammar(Matchable):
         NB: Given we depend on `_look_ahead_match` we can also utilise
         the same performance optimisations which are implemented there.
 
+        bracket_pairs_set: Allows specific segments to override the available
+            bracket pairs. See the definition of "angle_bracket_pairs" in the
+            BigQuery dialect for additional context on why this exists.
+
         Returns:
             `tuple` of (unmatched_segments, match_object, matcher).
 

@@ -87,7 +87,11 @@ bigquery_dialect.sets("reserved_keywords").add("FOR")
 # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#value_tables
 bigquery_dialect.sets("value_table_functions").update(["unnest"])
 
-# Bracket pairs (a set of tuples)
+# Bracket pairs (a set of tuples). Note that BigQuery inherits the default
+# "bracket_pairs" set from ANSI. Here, we're adding a different set of bracket
+# pairs that are only available in specific contexts where they are
+# applicable. This limits the scope where BigQuery allows angle brackets,
+# eliminating many potential parsing errors with the "<" and ">" operators.
 bigquery_dialect.sets("angle_bracket_pairs").update(
     [
         # NB: Angle brackets can be mistaken, so False
@@ -289,9 +293,7 @@ class DatatypeSegment(BaseSegment):
     type = "data_type"
     match_grammar = OneOf(  # Parameter type
         Ref("DatatypeIdentifierSegment"),  # Simple type
-        Sequence(
-            "ANY", "TYPE"
-        ),  # SQL UDFs can specify this "type"
+        Sequence("ANY", "TYPE"),  # SQL UDFs can specify this "type"
         Sequence(
             "ARRAY",
             Bracketed(
