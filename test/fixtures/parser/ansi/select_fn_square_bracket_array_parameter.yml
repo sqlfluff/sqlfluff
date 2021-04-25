@@ -8,7 +8,7 @@ file:
             function_name: myfn
             start_bracket: (
             expression:
-              array_literal_type:
+              array_literal:
               - start_square_bracket: '['
               - expression:
                   literal: '1'

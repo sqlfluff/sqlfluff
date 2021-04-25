@@ -5,6 +5,6 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            array_literal_type:
+            array_literal:
               start_square_bracket: '['
               end_square_bracket: ']'
