@@ -1793,10 +1793,7 @@ class ColumnOptionSegment(BaseSegment):
                 # Foreign columns making up FOREIGN KEY constraint
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
             ),
-            Sequence(  # [COMMENT 'string'] (MySQL)
-                "COMMENT",
-                Ref("QuotedLiteralSegment"),
-            ),
+            Ref("CommentClauseSegment"),
         ),
     )
 
@@ -1892,9 +1889,7 @@ class CreateTableStatementSegment(BaseSegment):
                         ),
                     )
                 ),
-                Sequence(  # [COMMENT 'string'] (MySQL)
-                    "COMMENT", Ref("QuotedLiteralSegment"), optional=True
-                ),
+                Ref("CommentClauseSegment", optional=True),
             ),
             # Create AS syntax:
             Sequence(
@@ -1905,6 +1900,17 @@ class CreateTableStatementSegment(BaseSegment):
             Sequence("LIKE", Ref("TableReferenceSegment")),
         ),
     )
+
+
+@ansi_dialect.segment()
+class CommentClauseSegment(BaseSegment):
+    """A comment clause.
+
+    e.g. COMMENT 'view/table/column description'
+    """
+
+    type = "comment_clause"
+    match_grammar = Sequence("COMMENT", Ref("QuotedLiteralSegment"))
 
 
 @ansi_dialect.segment()
