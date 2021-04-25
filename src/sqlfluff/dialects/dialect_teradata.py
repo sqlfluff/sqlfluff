@@ -485,9 +485,7 @@ class CreateTableStatementSegment(BaseSegment):
                         delimiter=Ref("CommaSegment"),
                     )
                 ),
-                Sequence(  # [COMMENT 'string'] (MySQL)
-                    "COMMENT", Ref("QuotedLiteralSegment"), optional=True
-                ),
+                Ref("CommentClauseSegment", optional=True),
             ),
             # Create AS syntax:
             Sequence("AS", Ref("SelectableGrammar")),
