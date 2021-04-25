@@ -455,16 +455,6 @@ class BaseGrammar(Matchable):
             `tuple` of (unmatched_segments, match_object, matcher).
 
         """
-        parse_match_logging(
-            cls.__name__,
-            "***** _bracket_sensitive_look_ahead_match",
-            "IN",
-            parse_context=parse_context,
-            v_level=3,
-            ls=len(segments),
-            seg=LateBoundJoinSegmentsCurtailed(segments),
-        )
-
         # Type munging
         matchers = list(matchers)
         if isinstance(segments, BaseSegment):

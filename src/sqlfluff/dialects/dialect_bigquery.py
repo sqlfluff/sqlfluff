@@ -88,18 +88,8 @@ bigquery_dialect.sets("reserved_keywords").add("FOR")
 bigquery_dialect.sets("value_table_functions").update(["unnest"])
 
 # Bracket pairs (a set of tuples)
-# bigquery_dialect.sets("bracket_pairs").update(
-#     [
-#         # NB: Angle brackets can be mistaken, so False
-#         ("angle", "LessThanSegment", "GreaterThanSegment", False)
-#     ]
-# )
 bigquery_dialect.sets("angle_bracket_pairs").update(
     [
-        # ("round", "StartBracketSegment", "EndBracketSegment", True),
-        # ("square", "StartSquareBracketSegment", "EndSquareBracketSegment", True),
-        # ("curly", "StartCurlyBracketSegment", "EndCurlyBracketSegment", True),
-
         # NB: Angle brackets can be mistaken, so False
         ("angle", "LessThanSegment", "GreaterThanSegment", False)
     ]

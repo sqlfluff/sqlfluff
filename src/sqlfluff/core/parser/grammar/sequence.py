@@ -245,7 +245,6 @@ class Bracketed(Sequence):
             start_match = start_bracket.match(seg_buff, parse_context=ctx)
         if start_match:
             seg_buff = start_match.unmatched_segments
-
         else:
             # Can't find the opening bracket. No Match.
             return MatchResult.from_unmatched(segments)
