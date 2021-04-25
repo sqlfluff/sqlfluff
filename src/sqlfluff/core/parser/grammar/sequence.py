@@ -17,6 +17,9 @@ from sqlfluff.core.parser.grammar.base import (
 
 class Sequence(BaseGrammar):
     """Match a specific sequence of elements."""
+    def __init__(self, *args, **kwargs):
+        self.bracket_pairs_set = kwargs.pop("bracket_pairs_set", "bracket_pairs")
+        super(Sequence, self).__init__(*args, **kwargs)
 
     @cached_method_for_parse_context
     def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
@@ -195,7 +198,7 @@ class Bracketed(Sequence):
     def get_bracket_from_dialect(self, parse_context):
         """Rehydrate the bracket segments in question."""
         for bracket_type, start_ref, end_ref, _ in parse_context.dialect.sets(
-            "bracket_pairs"
+            self.bracket_pairs_set
         ):
             if bracket_type == self.bracket_type:
                 start_bracket = parse_context.dialect.ref(start_ref)
@@ -231,6 +234,11 @@ class Bracketed(Sequence):
         else:
             seg_buff = segments
 
+        # if len(seg_buff) == 10:
+        #     print('case 1')
+        #     import pdb; pdb.set_trace()
+        #     pass
+
         # Rehydrate the bracket segments in question.
         start_bracket, end_bracket = self.get_bracket_from_dialect(parse_context)
         # Allow optional override for special bracket-like things
@@ -241,7 +249,12 @@ class Bracketed(Sequence):
         with parse_context.deeper_match() as ctx:
             start_match = start_bracket.match(seg_buff, parse_context=ctx)
         if start_match:
+            # if len(start_match.unmatched_segments) == 9:
+            #     print('case 2')
+            #     import pdb; pdb.set_trace()
+            #     pass
             seg_buff = start_match.unmatched_segments
+
         else:
             # Can't find the opening bracket. No Match.
             return MatchResult.from_unmatched(segments)
@@ -253,6 +266,7 @@ class Bracketed(Sequence):
             parse_context=parse_context,
             start_bracket=start_bracket,
             end_bracket=end_bracket,
+            bracket_pairs_set=self.bracket_pairs_set,
         )
         if not end_match:
             raise SQLParseError(

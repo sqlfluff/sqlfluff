@@ -88,8 +88,18 @@ bigquery_dialect.sets("reserved_keywords").add("FOR")
 bigquery_dialect.sets("value_table_functions").update(["unnest"])
 
 # Bracket pairs (a set of tuples)
-bigquery_dialect.sets("bracket_pairs").update(
+# bigquery_dialect.sets("bracket_pairs").update(
+#     [
+#         # NB: Angle brackets can be mistaken, so False
+#         ("angle", "LessThanSegment", "GreaterThanSegment", False)
+#     ]
+# )
+bigquery_dialect.sets("angle_bracket_pairs").update(
     [
+        ("round", "StartBracketSegment", "EndBracketSegment", True),
+        ("square", "StartSquareBracketSegment", "EndSquareBracketSegment", True),
+        ("curly", "StartCurlyBracketSegment", "EndCurlyBracketSegment", True),
+
         # NB: Angle brackets can be mistaken, so False
         ("angle", "LessThanSegment", "GreaterThanSegment", False)
     ]
@@ -289,20 +299,45 @@ class DatatypeSegment(BaseSegment):
     type = "data_type"
     match_grammar = OneOf(  # Parameter type
         Ref("DatatypeIdentifierSegment"),  # Simple type
-        Sequence("ANY", "TYPE"),  # SQL UDFs can specify this "type"
-        Sequence("ARRAY", Bracketed(Ref("DatatypeSegment"), bracket_type="angle")),
+        Sequence("ANY", "TYPE", bracket_pairs_set="angle_bracket_pairs"),  # SQL UDFs can specify this "type"
+        Sequence("ARRAY", Bracketed(Ref("DatatypeSegment"), bracket_type="angle", bracket_pairs_set="angle_bracket_pairs"), bracket_pairs_set="angle_bracket_pairs"),
         Sequence(
             "STRUCT",
             Bracketed(
                 Delimited(  # Comma-separated list of field names/types
-                    Sequence(Ref("ParameterNameSegment"), Ref("DatatypeSegment")),
+                    Sequence(Ref("ParameterNameSegment"), Ref("DatatypeSegment"), bracket_pairs_set="angle_bracket_pairs"),
                     delimiter=Ref("CommaSegment"),
+                    bracket_pairs_set="angle_bracket_pairs"
                 ),
                 bracket_type="angle",
+                bracket_pairs_set="angle_bracket_pairs",
             ),
+            bracket_pairs_set="angle_bracket_pairs"
         ),
     )
 
+
+@bigquery_dialect.segment(replace=True)
+class FunctionParameterGrammar(BaseSegment):
+    """The parameters for a function ie. `(string, number)`."""
+
+    # Function parameter list
+    match_grammar = Bracketed(
+        Delimited(
+            # Odd syntax, but prevents eager parameters being confused for data types
+            OneOf(
+                Sequence(
+                    Ref("ParameterNameSegment", optional=True),
+                    OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")), #, bracket_pairs_set="angle_bracket_pairs"),
+                    bracket_pairs_set="angle_bracket_pairs"
+                ),
+                OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")), #, bracket_pairs_set="angle_bracket_pairs"),
+                #bracket_pairs_set="angle_bracket_pairs"
+            ),
+            delimiter=Ref("CommaSegment"),
+            bracket_pairs_set="angle_bracket_pairs",
+        )
+    )
 
 @bigquery_dialect.segment()
 class TypelessStructSegment(BaseSegment):

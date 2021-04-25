@@ -438,7 +438,7 @@ class BaseGrammar(Matchable):
 
     @classmethod
     def _bracket_sensitive_look_ahead_match(
-        cls, segments, matchers, parse_context, start_bracket=None, end_bracket=None
+        cls, segments, matchers, parse_context, start_bracket=None, end_bracket=None, bracket_pairs_set="bracket_pairs"
     ):
         """Same as `_look_ahead_match` but with bracket counting.
 
@@ -449,6 +449,18 @@ class BaseGrammar(Matchable):
             `tuple` of (unmatched_segments, match_object, matcher).
 
         """
+        # if len(segments) == 9:
+        #     import pdb; pdb.set_trace()
+        parse_match_logging(
+            cls.__name__,
+            "***** _bracket_sensitive_look_ahead_match",
+            "IN",
+            parse_context=parse_context,
+            v_level=3,
+            ls=len(segments),
+            seg=LateBoundJoinSegmentsCurtailed(segments),
+        )
+
         # Type munging
         matchers = list(matchers)
         if isinstance(segments, BaseSegment):
@@ -456,6 +468,7 @@ class BaseGrammar(Matchable):
 
         # Have we been passed an empty list?
         if len(segments) == 0:
+            #import pdb; pdb.set_trace()
             return ((), MatchResult.from_unmatched(segments), None)
 
         # Get hold of the bracket matchers from the dialect, and append them
@@ -463,7 +476,7 @@ class BaseGrammar(Matchable):
         # dialect. We use zip twice to "unzip" them. We ignore the first
         # argument because that's just the name.
         _, start_bracket_refs, end_bracket_refs, definitely_bracket = zip(
-            *parse_context.dialect.sets("bracket_pairs")
+            *parse_context.dialect.sets(bracket_pairs_set)
         )
         # These are currently strings which need rehydrating
         start_brackets = [
@@ -472,6 +485,7 @@ class BaseGrammar(Matchable):
         end_brackets = [
             parse_context.dialect.ref(seg_ref) for seg_ref in end_bracket_refs
         ]
+        #import pdb; pdb.set_trace()
         start_definite = list(definitely_bracket)
         end_definite = list(definitely_bracket)
         # Add any bracket-like things passed as arguments
@@ -528,7 +542,7 @@ class BaseGrammar(Matchable):
                             continue
                         elif matcher in end_brackets:
                             # Found an end bracket. Does its type match that of
-                            # the innermost start bracket (e.g. ")" matches "(",
+                            # the innermost start bracket? E.g. ")" matches "(",
                             # "]" matches "[".
                             start_index = start_brackets.index(
                                 type(bracket_stack[-1].bracket)
@@ -676,8 +690,8 @@ class BaseGrammar(Matchable):
                             segment=bracket_stack[-1].bracket,
                         )
 
-                # We at the end but without a bracket left open. This is a
-                # friendly unmatched return.
+                # We reached the end with no open brackets. This is a friendly
+                # unmatched return.
                 return ((), MatchResult.from_unmatched(segments), None)
 
     def __str__(self):
