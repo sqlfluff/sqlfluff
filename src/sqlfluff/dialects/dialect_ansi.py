@@ -369,6 +369,14 @@ ansi_dialect.add(
         "LIMIT", "GROUP", "ORDER", "HAVING", "QUALIFY", "WINDOW"
     ),
     PrimaryKeyGrammar=Sequence("PRIMARY", "KEY"),
+    # Odd syntax, but prevents eager parameters being confused for data types
+    FunctionParameterGrammar=OneOf(
+        Sequence(
+            Ref("ParameterNameSegment", optional=True),
+            OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
+        ),
+        OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
+    ),
 )
 
 
@@ -2198,7 +2206,7 @@ class AccessStatementSegment(BaseSegment):
                 optional=True,
             ),
             Ref("ObjectReferenceSegment"),
-            Ref("FunctionParameterGrammar", optional=True),
+            Ref("FunctionParameterListGrammar", optional=True),
         ),
     )
 
@@ -2396,7 +2404,7 @@ class CreateFunctionStatementSegment(BaseSegment):
         "FUNCTION",
         Sequence("IF", "NOT", "EXISTS", optional=True),
         Ref("FunctionNameSegment"),
-        Ref("FunctionParameterGrammar"),
+        Ref("FunctionParameterListGrammar"),
         Sequence(  # Optional function return type
             "RETURNS",
             Ref("DatatypeSegment"),
@@ -2407,20 +2415,13 @@ class CreateFunctionStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
-class FunctionParameterGrammar(BaseSegment):
+class FunctionParameterListGrammar(BaseSegment):
     """The parameters for a function ie. `(string, number)`."""
 
     # Function parameter list
     match_grammar = Bracketed(
         Delimited(
-            # Odd syntax, but prevents eager parameters being confused for data types
-            OneOf(
-                Sequence(
-                    Ref("ParameterNameSegment", optional=True),
-                    OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
-                ),
-                OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
-            ),
+            Ref("FunctionParameterGrammar"),
             delimiter=Ref("CommaSegment"),
         )
     )
