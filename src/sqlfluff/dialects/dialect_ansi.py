@@ -428,9 +428,16 @@ class ArrayLiteralSegment(BaseSegment):
     """An array literal segment."""
 
     type = "array_literal_type"
-    match_grammar = Bracketed(
-        Delimited(Ref("ExpressionSegment")),
-        bracket_type="square",
+    match_grammar = OneOf(
+        Bracketed(
+            Delimited(Ref("ExpressionSegment")),
+            bracket_type="square",
+        ),
+        Sequence(
+            Ref("StartSquareBracketSegment"),
+            Ref("EndSquareBracketSegment"),
+            allow_gaps=True,
+        ),
     )
 
 
