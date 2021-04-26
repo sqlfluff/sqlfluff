@@ -84,7 +84,7 @@ ansi_dialect.set_lexer_struct(
         (
             "numeric_literal",
             "regex",
-            r"([0-9]+(\.[0-9]+)?)|(\.[0-9]+)",
+            r"(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?",
             dict(is_code=True),
         ),
         ("not_equal", "regex", r"!=|<>", dict(is_code=True)),
