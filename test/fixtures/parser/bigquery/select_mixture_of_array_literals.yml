@@ -1,0 +1,82 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+            array_literal:
+              start_square_bracket: '['
+              end_square_bracket: ']'
+      - comma: ','
+      - select_clause_element:
+          expression:
+            array_literal:
+              start_square_bracket: '['
+              expression:
+                literal: 'false'
+              end_square_bracket: ']'
+      - comma: ','
+      - select_clause_element:
+          expression:
+            keyword: ARRAY
+            start_angle_bracket: <
+            data_type_identifier: BOOLEAN
+            end_angle_bracket: '>'
+            array_literal:
+              start_square_bracket: '['
+              expression:
+                literal: 'false'
+              end_square_bracket: ']'
+      - comma: ','
+      - select_clause_element:
+          expression:
+            array_literal:
+              start_square_bracket: '['
+              expression:
+                literal: "'a'"
+              end_square_bracket: ']'
+          alias_expression:
+            keyword: AS
+            identifier: strcol1
+      - comma: ','
+      - select_clause_element:
+          expression:
+            keyword: ARRAY
+            start_angle_bracket: <
+            data_type_identifier: string
+            end_angle_bracket: '>'
+            array_literal:
+              start_square_bracket: '['
+              expression:
+                literal: "'b'"
+              end_square_bracket: ']'
+          alias_expression:
+            keyword: AS
+            identifier: strcol2
+      - comma: ','
+      - select_clause_element:
+          expression:
+            array_literal:
+              start_square_bracket: '['
+              expression:
+                literal: '1.0'
+              end_square_bracket: ']'
+          alias_expression:
+            keyword: AS
+            identifier: numcol1
+      - comma: ','
+      - select_clause_element:
+          expression:
+            keyword: ARRAY
+            start_angle_bracket: <
+            data_type_identifier: NUMERIC
+            end_angle_bracket: '>'
+            array_literal:
+              start_square_bracket: '['
+              expression:
+                literal: '1.4'
+              end_square_bracket: ']'
+          alias_expression:
+            keyword: AS
+            identifier: numcol2
