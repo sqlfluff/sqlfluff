@@ -149,12 +149,12 @@ ansi_dialect.sets("reserved_keywords").update(
 )
 
 # Bracket pairs (a set of tuples).
-# (name, startref, endref, definitely_bracket)
+# (name, startref, endref)
 ansi_dialect.sets("bracket_pairs").update(
     [
-        ("round", "StartBracketSegment", "EndBracketSegment", True),
-        ("square", "StartSquareBracketSegment", "EndSquareBracketSegment", True),
-        ("curly", "StartCurlyBracketSegment", "EndCurlyBracketSegment", True),
+        ("round", "StartBracketSegment", "EndBracketSegment"),
+        ("square", "StartSquareBracketSegment", "EndSquareBracketSegment"),
+        ("curly", "StartCurlyBracketSegment", "EndCurlyBracketSegment"),
     ]
 )
 
