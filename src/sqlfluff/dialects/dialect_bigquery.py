@@ -87,11 +87,15 @@ bigquery_dialect.sets("reserved_keywords").add("FOR")
 # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#value_tables
 bigquery_dialect.sets("value_table_functions").update(["unnest"])
 
-# Bracket pairs (a set of tuples)
-bigquery_dialect.sets("bracket_pairs").update(
+# Bracket pairs (a set of tuples). Note that BigQuery inherits the default
+# "bracket_pairs" set from ANSI. Here, we're adding a different set of bracket
+# pairs that are only available in specific contexts where they are
+# applicable. This limits the scope where BigQuery allows angle brackets,
+# eliminating many potential parsing errors with the "<" and ">" operators.
+bigquery_dialect.sets("angle_bracket_pairs").update(
     [
         # NB: Angle brackets can be mistaken, so False
-        ("angle", "LessThanSegment", "GreaterThanSegment", False)
+        ("angle", "LessThanSegment", "GreaterThanSegment", False),
     ]
 )
 
@@ -290,17 +294,44 @@ class DatatypeSegment(BaseSegment):
     match_grammar = OneOf(  # Parameter type
         Ref("DatatypeIdentifierSegment"),  # Simple type
         Sequence("ANY", "TYPE"),  # SQL UDFs can specify this "type"
-        Sequence("ARRAY", Bracketed(Ref("DatatypeSegment"), bracket_type="angle")),
+        Sequence(
+            "ARRAY",
+            Bracketed(
+                Ref("DatatypeSegment"),
+                bracket_type="angle",
+                bracket_pairs_set="angle_bracket_pairs",
+            ),
+        ),
         Sequence(
             "STRUCT",
             Bracketed(
                 Delimited(  # Comma-separated list of field names/types
-                    Sequence(Ref("ParameterNameSegment"), Ref("DatatypeSegment")),
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("DatatypeSegment"),
+                    ),
                     delimiter=Ref("CommaSegment"),
+                    bracket_pairs_set="angle_bracket_pairs",
                 ),
                 bracket_type="angle",
+                bracket_pairs_set="angle_bracket_pairs",
             ),
         ),
+    )
+
+
+@bigquery_dialect.segment(replace=True)
+class FunctionParameterListGrammar(BaseSegment):
+    """The parameters for a function ie. `(string, number)`."""
+
+    # Function parameter list. Note that the only difference from the ANSI
+    # grammar is that BigQuery provides overrides bracket_pairs_set.
+    match_grammar = Bracketed(
+        Delimited(
+            Ref("FunctionParameterGrammar"),
+            delimiter=Ref("CommaSegment"),
+            bracket_pairs_set="angle_bracket_pairs",
+        )
     )
 
 

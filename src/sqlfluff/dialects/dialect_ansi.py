@@ -371,6 +371,14 @@ ansi_dialect.add(
         "LIMIT", "GROUP", "ORDER", "HAVING", "QUALIFY", "WINDOW"
     ),
     PrimaryKeyGrammar=Sequence("PRIMARY", "KEY"),
+    # Odd syntax, but prevents eager parameters being confused for data types
+    FunctionParameterGrammar=OneOf(
+        Sequence(
+            Ref("ParameterNameSegment", optional=True),
+            OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
+        ),
+        OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
+    ),
 )
 
 
@@ -1811,10 +1819,7 @@ class ColumnOptionSegment(BaseSegment):
                 # Foreign columns making up FOREIGN KEY constraint
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
             ),
-            Sequence(  # [COMMENT 'string'] (MySQL)
-                "COMMENT",
-                Ref("QuotedLiteralSegment"),
-            ),
+            Ref("CommentClauseSegment"),
         ),
     )
 
@@ -1910,9 +1915,7 @@ class CreateTableStatementSegment(BaseSegment):
                         ),
                     )
                 ),
-                Sequence(  # [COMMENT 'string'] (MySQL)
-                    "COMMENT", Ref("QuotedLiteralSegment"), optional=True
-                ),
+                Ref("CommentClauseSegment", optional=True),
             ),
             # Create AS syntax:
             Sequence(
@@ -1923,6 +1926,17 @@ class CreateTableStatementSegment(BaseSegment):
             Sequence("LIKE", Ref("TableReferenceSegment")),
         ),
     )
+
+
+@ansi_dialect.segment()
+class CommentClauseSegment(BaseSegment):
+    """A comment clause.
+
+    e.g. COMMENT 'view/table/column description'
+    """
+
+    type = "comment_clause"
+    match_grammar = Sequence("COMMENT", Ref("QuotedLiteralSegment"))
 
 
 @ansi_dialect.segment()
@@ -2216,7 +2230,7 @@ class AccessStatementSegment(BaseSegment):
                 optional=True,
             ),
             Ref("ObjectReferenceSegment"),
-            Ref("FunctionParameterGrammar", optional=True),
+            Ref("FunctionParameterListGrammar", optional=True),
         ),
     )
 
@@ -2414,7 +2428,7 @@ class CreateFunctionStatementSegment(BaseSegment):
         "FUNCTION",
         Sequence("IF", "NOT", "EXISTS", optional=True),
         Ref("FunctionNameSegment"),
-        Ref("FunctionParameterGrammar"),
+        Ref("FunctionParameterListGrammar"),
         Sequence(  # Optional function return type
             "RETURNS",
             Ref("DatatypeSegment"),
@@ -2425,20 +2439,13 @@ class CreateFunctionStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
-class FunctionParameterGrammar(BaseSegment):
+class FunctionParameterListGrammar(BaseSegment):
     """The parameters for a function ie. `(string, number)`."""
 
     # Function parameter list
     match_grammar = Bracketed(
         Delimited(
-            # Odd syntax, but prevents eager parameters being confused for data types
-            OneOf(
-                Sequence(
-                    Ref("ParameterNameSegment", optional=True),
-                    OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
-                ),
-                OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
-            ),
+            Ref("FunctionParameterGrammar"),
             delimiter=Ref("CommaSegment"),
         )
     )
