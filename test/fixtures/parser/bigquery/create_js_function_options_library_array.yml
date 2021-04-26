@@ -13,11 +13,11 @@ file:
         end_bracket: )
     - keyword: RETURNS
     - data_type:
-      - keyword: ARRAY
-      - comparison_operator: <
-      - data_type:
+        keyword: ARRAY
+        start_angle_bracket: <
+        data_type:
         - keyword: STRUCT
-        - comparison_operator: <
+        - start_angle_bracket: <
         - parameter: product_id
         - data_type:
             data_type_identifier: INT64
@@ -25,8 +25,8 @@ file:
         - parameter: rating
         - data_type:
             data_type_identifier: FLOAT64
-        - comparison_operator: '>'
-      - comparison_operator: '>'
+        - end_angle_bracket: '>'
+        end_angle_bracket: '>'
     - base:
       - keyword: LANGUAGE
       - parameter: js

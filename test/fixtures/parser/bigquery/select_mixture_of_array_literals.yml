@@ -19,11 +19,11 @@ file:
       - comma: ','
       - select_clause_element:
           expression:
-          - keyword: ARRAY
-          - comparison_operator: <
-          - data_type_identifier: BOOLEAN
-          - comparison_operator: '>'
-          - array_literal:
+            keyword: ARRAY
+            start_angle_bracket: <
+            data_type_identifier: BOOLEAN
+            end_angle_bracket: '>'
+            array_literal:
               start_square_bracket: '['
               expression:
                 literal: 'false'
@@ -42,11 +42,11 @@ file:
       - comma: ','
       - select_clause_element:
           expression:
-          - keyword: ARRAY
-          - comparison_operator: <
-          - data_type_identifier: string
-          - comparison_operator: '>'
-          - array_literal:
+            keyword: ARRAY
+            start_angle_bracket: <
+            data_type_identifier: string
+            end_angle_bracket: '>'
+            array_literal:
               start_square_bracket: '['
               expression:
                 literal: "'b'"
@@ -68,11 +68,11 @@ file:
       - comma: ','
       - select_clause_element:
           expression:
-          - keyword: ARRAY
-          - comparison_operator: <
-          - data_type_identifier: NUMERIC
-          - comparison_operator: '>'
-          - array_literal:
+            keyword: ARRAY
+            start_angle_bracket: <
+            data_type_identifier: NUMERIC
+            end_angle_bracket: '>'
+            array_literal:
               start_square_bracket: '['
               expression:
                 literal: '1.4'

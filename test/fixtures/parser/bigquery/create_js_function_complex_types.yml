@@ -13,25 +13,25 @@ file:
       - comma: ','
       - parameter: foo2
       - data_type:
-        - keyword: ARRAY
-        - comparison_operator: <
-        - data_type:
+          keyword: ARRAY
+          start_angle_bracket: <
+          data_type:
             data_type_identifier: STRING
-        - comparison_operator: '>'
+          end_angle_bracket: '>'
       - comma: ','
       - parameter: foo3
       - data_type:
-        - keyword: STRUCT
-        - comparison_operator: <
-        - parameter: x
-        - data_type:
+          keyword: STRUCT
+          start_angle_bracket: <
+          parameter: x
+          data_type:
             data_type_identifier: INT64
-        - comparison_operator: '>'
+          end_angle_bracket: '>'
       - comma: ','
       - parameter: foo4
       - data_type:
         - keyword: STRUCT
-        - comparison_operator: <
+        - start_angle_bracket: <
         - parameter: x
         - data_type:
             data_type_identifier: INT64
@@ -39,24 +39,24 @@ file:
         - parameter: y
         - data_type:
             data_type_identifier: INT64
-        - comparison_operator: '>'
+        - end_angle_bracket: '>'
       - comma: ','
       - parameter: foo5
       - data_type:
         - keyword: STRUCT
-        - comparison_operator: <
+        - start_angle_bracket: <
         - parameter: a
         - data_type:
-          - keyword: ARRAY
-          - comparison_operator: <
-          - data_type:
+            keyword: ARRAY
+            start_angle_bracket: <
+            data_type:
               data_type_identifier: FLOAT
-          - comparison_operator: '>'
+            end_angle_bracket: '>'
         - comma: ','
         - parameter: b
         - data_type:
           - keyword: STRUCT
-          - comparison_operator: <
+          - start_angle_bracket: <
           - parameter: x
           - data_type:
               data_type_identifier: INT64
@@ -64,21 +64,21 @@ file:
           - parameter: y
           - data_type:
               data_type_identifier: INT64
-          - comparison_operator: '>'
-        - comparison_operator: '>'
+          - end_angle_bracket: '>'
+        - end_angle_bracket: '>'
       - end_bracket: )
     - keyword: RETURNS
     - data_type:
-      - keyword: STRUCT
-      - comparison_operator: <
-      - parameter: product_id
-      - data_type:
-        - keyword: ARRAY
-        - comparison_operator: <
-        - data_type:
+        keyword: STRUCT
+        start_angle_bracket: <
+        parameter: product_id
+        data_type:
+          keyword: ARRAY
+          start_angle_bracket: <
+          data_type:
             data_type_identifier: INT64
-        - comparison_operator: '>'
-      - comparison_operator: '>'
+          end_angle_bracket: '>'
+        end_angle_bracket: '>'
     - base:
       - keyword: LANGUAGE
       - parameter: js
