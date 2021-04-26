@@ -123,11 +123,7 @@ class IntervalExpressionSegment(BaseSegment):
     type = "interval_expression"
     match_grammar = Sequence(
         "INTERVAL",
-        OneOf(
-            Ref("NumericLiteralSegment"),
-            Ref("QuotedLiteralSegment"),
-            Ref("FunctionSegment"),
-        ),
+        Ref("ExpressionSegment"),
         OneOf(Ref("QuotedLiteralSegment"), Ref("DatetimeUnitSegment")),
     )
 

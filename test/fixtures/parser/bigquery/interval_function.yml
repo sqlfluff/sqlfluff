@@ -20,33 +20,34 @@ file:
               - expression:
                   interval_expression:
                     keyword: INTERVAL
-                    function:
-                      function_name: cast
-                      start_bracket: (
-                      expression:
-                        function:
-                        - function_name: TIMESTAMP_DIFF
-                        - start_bracket: (
-                        - expression:
-                            column_reference:
-                            - identifier: session_end
-                            - dot: .
-                            - identifier: eventTimestamp
-                        - comma: ','
-                        - expression:
-                            column_reference:
-                            - identifier: session_start
-                            - dot: .
-                            - identifier: eventTimestamp
-                        - comma: ','
-                        - date_part: SECOND
-                        - end_bracket: )
-                        binary_operator: /
-                        literal: '2'
-                      keyword: AS
-                      data_type:
-                        data_type_identifier: int64
-                      end_bracket: )
+                    expression:
+                      function:
+                        function_name: cast
+                        start_bracket: (
+                        expression:
+                          function:
+                          - function_name: TIMESTAMP_DIFF
+                          - start_bracket: (
+                          - expression:
+                              column_reference:
+                              - identifier: session_end
+                              - dot: .
+                              - identifier: eventTimestamp
+                          - comma: ','
+                          - expression:
+                              column_reference:
+                              - identifier: session_start
+                              - dot: .
+                              - identifier: eventTimestamp
+                          - comma: ','
+                          - date_part: SECOND
+                          - end_bracket: )
+                          binary_operator: /
+                          literal: '2'
+                        keyword: AS
+                        data_type:
+                          data_type_identifier: int64
+                        end_bracket: )
                     date_part: second
               - end_bracket: )
             comma: ','
@@ -67,7 +68,8 @@ file:
           - expression:
               interval_expression:
                 keyword: INTERVAL
-                literal: '10'
+                expression:
+                  literal: '10'
                 date_part: MINUTE
           - end_bracket: )
           alias_expression:
@@ -85,7 +87,8 @@ file:
           - expression:
               interval_expression:
                 keyword: INTERVAL
-                literal: '5'
+                expression:
+                  literal: '5'
                 date_part: YEAR
           - end_bracket: )
           alias_expression:
