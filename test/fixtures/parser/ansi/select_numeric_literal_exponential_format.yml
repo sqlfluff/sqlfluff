@@ -15,9 +15,6 @@ file:
           literal: '.0123E-6'
       - comma: ','
       - select_clause_element:
-          literal: 123.E1
-      - comma: ','
-      - select_clause_element:
           literal: '25'
       - comma: ','
       - select_clause_element:
