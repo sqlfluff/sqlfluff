@@ -21,6 +21,7 @@ from sqlfluff.core.parser import (
     AnyNumberOf,
     KeywordSegment,
     Indent,
+    SymbolSegment,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -56,6 +57,12 @@ bigquery_dialect.add(
         "double_quote", name="quoted_literal", type="literal", trim_chars=('"',)
     ),
     StructKeywordSegment=KeywordSegment.make("struct", name="struct"),
+    StartAngleBracketSegment=SymbolSegment.make(
+        "<", name="start_angle_bracket", type="start_angle_bracket"
+    ),
+    EndAngleBracketSegment=SymbolSegment.make(
+        ">", name="end_angle_bracket", type="end_angle_bracket"
+    ),
 )
 
 
@@ -65,6 +72,14 @@ bigquery_dialect.replace(
         Sequence(
             Ref("ExpressionSegment"),
             Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
+        ),
+    ),
+    SimpleArrayTypeGrammar=Sequence(
+        "ARRAY",
+        Bracketed(
+            Ref("DatatypeIdentifierSegment"),
+            bracket_type="angle",
+            bracket_pairs_set="angle_bracket_pairs",
         ),
     ),
 )
@@ -94,7 +109,7 @@ bigquery_dialect.sets("value_table_functions").update(["unnest"])
 # eliminating many potential parsing errors with the "<" and ">" operators.
 bigquery_dialect.sets("angle_bracket_pairs").update(
     [
-        ("angle", "LessThanSegment", "GreaterThanSegment"),
+        ("angle", "StartAngleBracketSegment", "EndAngleBracketSegment"),
     ]
 )
 

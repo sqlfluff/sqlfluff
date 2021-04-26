@@ -84,7 +84,7 @@ ansi_dialect.set_lexer_struct(
         (
             "numeric_literal",
             "regex",
-            r"([0-9]+(\.[0-9]+)?)|(\.[0-9]+)",
+            r"(\d+(\.\d+)?|\.\d+)([eE][+-]?\d+)?",
             dict(is_code=True),
         ),
         ("not_equal", "regex", r"!=|<>", dict(is_code=True)),
@@ -377,6 +377,8 @@ ansi_dialect.add(
         ),
         OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
     ),
+    # This is a placeholder for other dialects.
+    SimpleArrayTypeGrammar=Nothing(),
 )
 
 
@@ -435,9 +437,9 @@ class IntervalExpressionSegment(BaseSegment):
 class ArrayLiteralSegment(BaseSegment):
     """An array literal segment."""
 
-    type = "array_literal_type"
+    type = "array_literal"
     match_grammar = Bracketed(
-        Delimited(Ref("ExpressionSegment")),
+        Delimited(Ref("ExpressionSegment"), optional=True),
         bracket_type="square",
     )
 
@@ -1351,7 +1353,9 @@ ansi_dialect.add(
             Ref("LiteralGrammar"),
             Ref("IntervalExpressionSegment"),
             Ref("ColumnReferenceSegment"),
-            Ref("ArrayLiteralSegment"),
+            Sequence(
+                Ref("SimpleArrayTypeGrammar", optional=True), Ref("ArrayLiteralSegment")
+            ),
         ),
         Ref("Accessor_Grammar", optional=True),
         Ref("ShorthandCastSegment", optional=True),
