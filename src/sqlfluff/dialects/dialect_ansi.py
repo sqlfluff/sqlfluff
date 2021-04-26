@@ -689,6 +689,7 @@ ansi_dialect.add(
     # in other dialects.
     FunctionContentsExpressionGrammar=Ref("ExpressionSegment"),
     FunctionContentsGrammar=AnyNumberOf(
+        Ref("ExpressionSegment"),
         # A Cast-like function
         Sequence(Ref("ExpressionSegment"), "AS", Ref("DatatypeSegment")),
         # An extract-like or substring-like function
