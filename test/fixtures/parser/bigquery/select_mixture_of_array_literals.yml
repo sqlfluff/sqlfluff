@@ -79,4 +79,4 @@ file:
               end_square_bracket: ']'
           alias_expression:
             keyword: AS
-            identifier: numcol1
+            identifier: numcol2
