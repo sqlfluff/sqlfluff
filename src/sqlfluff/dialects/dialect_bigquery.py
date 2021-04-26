@@ -67,6 +67,14 @@ bigquery_dialect.replace(
             Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
         ),
     ),
+    SimpleArrayTypeGrammar=Sequence(
+        "ARRAY",
+        Bracketed(
+            Ref("DatatypeIdentifierSegment"),
+            bracket_type="angle",
+            bracket_pairs_set="angle_bracket_pairs",
+        ),
+    ),
 )
 
 

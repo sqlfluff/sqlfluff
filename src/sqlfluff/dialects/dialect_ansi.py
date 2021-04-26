@@ -377,6 +377,8 @@ ansi_dialect.add(
         ),
         OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
     ),
+    # This is a placeholder for other dialects.
+    SimpleArrayTypeGrammar=Nothing(),
 )
 
 
@@ -1351,7 +1353,9 @@ ansi_dialect.add(
             Ref("LiteralGrammar"),
             Ref("IntervalExpressionSegment"),
             Ref("ColumnReferenceSegment"),
-            Ref("ArrayLiteralSegment"),
+            Sequence(
+                Ref("SimpleArrayTypeGrammar", optional=True), Ref("ArrayLiteralSegment")
+            ),
         ),
         Ref("Accessor_Grammar", optional=True),
         Ref("ShorthandCastSegment", optional=True),

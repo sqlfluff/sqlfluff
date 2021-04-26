@@ -16,5 +16,5 @@ file:
           end_bracket: )
     - end_bracket: )
     - comment_clause:
-      - keyword: COMMENT
-      - literal: "'Table comment'"
+        keyword: COMMENT
+        literal: "'Table comment'"
