@@ -235,5 +235,5 @@ class OptionallyBracketed(OneOf):
             Bracketed(*args),
             # In the case that there is only one argument, no sequence is required.
             args[0] if len(args) == 1 else Sequence(*args),
-            **kwargs
+            **kwargs,
         )
