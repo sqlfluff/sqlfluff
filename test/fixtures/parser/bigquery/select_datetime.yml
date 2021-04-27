@@ -64,7 +64,8 @@ file:
               - expression:
                   interval_expression:
                     keyword: INTERVAL
-                    literal: '2'
+                    expression:
+                      literal: '2'
                     date_part: YEAR
               - end_bracket: )
             comma: ','
