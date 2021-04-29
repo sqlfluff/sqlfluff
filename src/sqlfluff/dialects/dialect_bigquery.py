@@ -82,6 +82,14 @@ bigquery_dialect.replace(
             bracket_pairs_set="angle_bracket_pairs",
         ),
     ),
+    # BigQuery also supports the special "Struct" construct.
+    BaseExpressionElementGrammar=ansi_dialect.get_grammar("BaseExpressionElementGrammar").copy(
+        insert=[Ref("TypelessStructSegment")]
+    ),
+    FunctionContentsGrammar=ansi_dialect.get_grammar("FunctionContentsGrammar").copy(
+        insert=[Ref("TypelessStructSegment")],
+        before=Ref("ExpressionSegment"),
+    )
 )
 
 
@@ -148,30 +156,6 @@ class SelectClauseSegment(ansi_dialect.get_segment("SelectClauseSegment")):  # t
                 delimiter=Ref("CommaSegment"),
                 allow_trailing=True,
             ),
-        ),
-    )
-
-
-@bigquery_dialect.segment(replace=True)
-class SelectClauseElementSegment(
-    ansi_dialect.get_segment("SelectClauseElementSegment")  # type: ignore
-):
-    """BigQuery also supports the special "Struct" construct."""
-
-    parse_grammar = OneOf(
-        # *, blah.*, blah.blah.*, etc.
-        Ref("WildcardExpressionSegment"),
-        Sequence(
-            OneOf(
-                Ref("LiteralGrammar"),
-                Ref("BareFunctionSegment"),
-                Ref("FunctionSegment"),
-                Ref("IntervalExpressionSegment"),
-                Ref("TypelessStructSegment"),
-                Ref("ColumnReferenceSegment"),
-                Ref("ExpressionSegment"),
-            ),
-            Ref("AliasExpressionSegment", optional=True),
         ),
     )
 
@@ -360,13 +344,7 @@ class TypelessStructSegment(BaseSegment):
             Delimited(
                 AnyNumberOf(
                     Sequence(
-                        OneOf(
-                            Ref("LiteralGrammar"),
-                            Ref("FunctionSegment"),
-                            Ref("IntervalExpressionSegment"),
-                            Ref("ObjectReferenceSegment"),
-                            Ref("ExpressionSegment"),
-                        ),
+                        Ref("BaseExpressionElementGrammar"),
                         Ref("AliasExpressionSegment", optional=True),
                     ),
                 ),
