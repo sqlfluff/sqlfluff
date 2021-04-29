@@ -83,13 +83,13 @@ bigquery_dialect.replace(
         ),
     ),
     # BigQuery also supports the special "Struct" construct.
-    BaseExpressionElementGrammar=ansi_dialect.get_grammar("BaseExpressionElementGrammar").copy(
-        insert=[Ref("TypelessStructSegment")]
-    ),
+    BaseExpressionElementGrammar=ansi_dialect.get_grammar(
+        "BaseExpressionElementGrammar"
+    ).copy(insert=[Ref("TypelessStructSegment")]),
     FunctionContentsGrammar=ansi_dialect.get_grammar("FunctionContentsGrammar").copy(
         insert=[Ref("TypelessStructSegment")],
         before=Ref("ExpressionSegment"),
-    )
+    ),
 )
 
 
