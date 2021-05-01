@@ -178,13 +178,6 @@ def core_options(f):
         help="Set this flag to engage the benchmarking tool output.",
     )(f)
     f = click.option(
-        "--parallel",
-        type=int,
-        default=1,
-        help="If set to a value higher than 1, runs SQLFluff in parallel, "
-             "speeding up processing.",
-    )(f)
-    f = click.option(
         "--logger",
         type=click.Choice(["parser", "linter", "rules"], case_sensitive=False),
         help="Choose to limit the logging to one of the loggers.",
@@ -292,8 +285,15 @@ def dialects(**kwargs):
     is_flag=True,
     help=("Perform the operation regardless of .sqlfluffignore configurations"),
 )
+@click.option(
+    "--parallel",
+    type=int,
+    default=1,
+    help="If set to a value higher than 1, runs SQLFluff in parallel, "
+         "speeding up processing.",
+)
 @click.argument("paths", nargs=-1)
-def lint(paths, format, nofail, disregard_sqlfluffignores, logger=None, **kwargs):
+def lint(paths, parallel, format, nofail, disregard_sqlfluffignores, logger=None, **kwargs):
     """Lint SQL files via passing a list of files or using stdin.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -335,6 +335,7 @@ def lint(paths, format, nofail, disregard_sqlfluffignores, logger=None, **kwargs
                 paths,
                 ignore_non_existent_files=False,
                 ignore_files=not disregard_sqlfluffignores,
+                parallel=parallel,
             )
         except IOError:
             click.echo(
@@ -388,6 +389,13 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
 )
 @click.option(
     "--fixed-suffix", default=None, help="An optional suffix to add to fixed files."
+)
+@click.option(
+    "--parallel",
+    type=int,
+    default=1,
+    help="If set to a value higher than 1, runs SQLFluff in parallel, "
+         "speeding up processing.",
 )
 @click.argument("paths", nargs=-1)
 def fix(force, paths, parallel, bench=False, fixed_suffix="", logger=None, **kwargs):
