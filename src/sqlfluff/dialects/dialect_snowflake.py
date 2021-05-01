@@ -21,7 +21,6 @@ from sqlfluff.core.parser import (
     StartsWith,
     Indent,
     Dedent,
-    OptionallyBracketed,
 )
 
 
@@ -176,24 +175,83 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
 class ClusterBySegment(BaseSegment):
     """A `CLUSTER BY` segment."""
 
-    type = "clusterby_segment"
+    type = "cluster_by_segment"
     # https://docs.snowflake.com/en/user-guide/tables-clustering-keys.html#defining-a-clustering-key-for-a-table
 
-    match_grammar = StartsWith(
+    match_grammar = Sequence(
         "CLUSTER",
         "BY",
         Bracketed(
             Delimited(
                 Sequence(
-                    OneOf(
+                    AnyNumberOf(
                         # Can CLUSTER BY a column
                         Ref("ColumnReferenceSegment"),
                         # Can CLUSTER BY an expression (e.g. `TO_DATE(timestamp_column)`)
                         Ref("ExpressionSegment"),
+                        min_times=1,
                     ),
                 ),
             ),
         ),
+    )
+
+
+@snowflake_dialect.segment(replace=True)
+class CreateTableStatementSegment(BaseSegment):
+    """A `CREATE TABLE` statement."""
+
+    type = "create_table_statement"
+    # https://crate.io/docs/sql-99/en/latest/chapters/18.html
+    # https://www.postgresql.org/docs/12/sql-createtable.html
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref("TemporaryTransientGrammar", optional=True),
+        "TABLE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        OneOf(
+            # Columns and comment syntax:
+            AnyNumberOf(
+                Sequence(
+                    OneOf(
+                        Bracketed(
+                            Delimited(
+                                OneOf(
+                                    Ref("TableConstraintSegment"),
+                                    Ref("ColumnDefinitionSegment"),
+                                ),
+                            )
+                        ),
+                    ),
+                ),
+                # @NOTE: In Snowflake, table-level comment can go before column
+                # definition.
+                Ref("CommentClauseSegment"),
+                Ref("ClusterBySegment"),
+                min_times=1,
+            ),
+        ),
+    )
+
+
+@snowflake_dialect.segment(replace=True)
+class CommentClauseSegment(BaseSegment):
+    """A comment clause.
+
+    e.g. COMMENT 'view/table/column description'
+    """
+
+    type = "comment_clause"
+    match_grammar = Sequence(
+        "COMMENT",
+        # @TODO: In Snowflake, the `=` must exist for `CREATE <object>`,
+        # while it must be absent in a column-level comment. This is not
+        # the best way to address this, but it's better then redefining
+        # the entire CreateTable statement.
+        Ref("EqualsSegment", optional=True),
+        Ref("QuotedLiteralSegment"),
     )
 
 

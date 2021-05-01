@@ -56,10 +56,32 @@ file:
         data_type:
           data_type_identifier: INTEGER
     - end_bracket: )
-    unparsable:
-    - raw: COMMENT
-    - raw: '='
-    - raw: "'table_with_comments'"
+    - comment_clause:
+        keyword: COMMENT
+        comparison_operator: '='
+        literal: "'table_with_comments'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: table_with_table_comment_before_column_definition
+    - comment_clause:
+        keyword: COMMENT
+        comparison_operator: '='
+        literal: "'table_with_table_comment_before_column_definition'"
+    - start_bracket: (
+    - column_definition:
+        identifier: column1
+        data_type:
+          data_type_identifier: VARCHAR
+    - comma: ','
+    - column_definition:
+        identifier: column2
+        data_type:
+          data_type_identifier: INTEGER
+    - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -82,10 +104,10 @@ file:
         data_type:
           data_type_identifier: INTEGER
     - end_bracket: )
-    unparsable:
-    - raw: COMMENT
-    - raw: '='
-    - raw: "'table_with_comments'"
+    - comment_clause:
+        keyword: COMMENT
+        comparison_operator: '='
+        literal: "'table_with_comments'"
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -104,12 +126,13 @@ file:
         data_type:
           data_type_identifier: INTEGER
     - end_bracket: )
-    unparsable:
-    - raw: CLUSTER
-    - raw: BY
-    - start_bracket: (
-    - raw: column1
-    - end_bracket: )
+    - cluster_by_segment:
+      - keyword: CLUSTER
+      - keyword: BY
+      - start_bracket: (
+      - column_reference:
+          identifier: column1
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -128,15 +151,17 @@ file:
         data_type:
           data_type_identifier: INTEGER
     - end_bracket: )
-    unparsable:
-    - raw: CLUSTER
-    - raw: BY
-    - start_bracket: (
-    - raw: column1
-    - end_bracket: )
-    - raw: COMMENT
-    - raw: '='
-    - raw: "'table_with_comments'"
+    - cluster_by_segment:
+      - keyword: CLUSTER
+      - keyword: BY
+      - start_bracket: (
+      - column_reference:
+          identifier: column1
+      - end_bracket: )
+    - comment_clause:
+        keyword: COMMENT
+        comparison_operator: '='
+        literal: "'table_with_comments'"
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -159,13 +184,128 @@ file:
         data_type:
           data_type_identifier: INTEGER
     - end_bracket: )
-    unparsable:
-    - raw: CLUSTER
-    - raw: BY
+    - cluster_by_segment:
+      - keyword: CLUSTER
+      - keyword: BY
+      - start_bracket: (
+      - column_reference:
+          identifier: column1
+      - end_bracket: )
+    - comment_clause:
+        keyword: COMMENT
+        comparison_operator: '='
+        literal: "'table_with_comments'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: table_with_cluster_by_and_table_and_column_comments
+    - comment_clause:
+        keyword: COMMENT
+        comparison_operator: '='
+        literal: "'table_with_comments'"
     - start_bracket: (
-    - raw: column1
+    - column_definition:
+        identifier: column1
+        data_type:
+          data_type_identifier: VARCHAR
+        column_constraint:
+          comment_clause:
+            keyword: COMMENT
+            literal: "'column1'"
+    - comma: ','
+    - column_definition:
+        identifier: column2
+        data_type:
+          data_type_identifier: INTEGER
     - end_bracket: )
-    - raw: COMMENT
-    - raw: '='
-    - raw: "'table_with_comments'"
+    - cluster_by_segment:
+      - keyword: CLUSTER
+      - keyword: BY
+      - start_bracket: (
+      - column_reference:
+          identifier: column1
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: table_with_cluster_by_with_function
+    - start_bracket: (
+    - column_definition:
+        identifier: column1
+        data_type:
+          data_type_identifier: TIMESTAMP
+        column_constraint:
+          comment_clause:
+            keyword: COMMENT
+            literal: "'timestamp column'"
+    - comma: ','
+    - column_definition:
+        identifier: column2
+        data_type:
+          data_type_identifier: INTEGER
+    - end_bracket: )
+    - cluster_by_segment:
+      - keyword: CLUSTER
+      - keyword: BY
+      - start_bracket: (
+      - expression:
+          function:
+            function_name: TO_DATE
+            start_bracket: (
+            expression:
+              column_reference:
+                identifier: column1
+            end_bracket: )
+      - comma: ','
+      - column_reference:
+          identifier: column2
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: table_with_both_comments_and_cluster_by_with_function
+    - start_bracket: (
+    - column_definition:
+        identifier: column1
+        data_type:
+          data_type_identifier: TIMESTAMP
+        column_constraint:
+          comment_clause:
+            keyword: COMMENT
+            literal: "'column comment'"
+    - comma: ','
+    - column_definition:
+        identifier: column2
+        data_type:
+          data_type_identifier: INTEGER
+    - end_bracket: )
+    - comment_clause:
+        keyword: COMMENT
+        comparison_operator: '='
+        literal: "'table comment'"
+    - cluster_by_segment:
+      - keyword: CLUSTER
+      - keyword: BY
+      - start_bracket: (
+      - expression:
+          function:
+            function_name: TO_DATE
+            start_bracket: (
+            expression:
+              column_reference:
+                identifier: column1
+            end_bracket: )
+      - comma: ','
+      - column_reference:
+          identifier: column2
+      - end_bracket: )
 - statement_terminator: ;
