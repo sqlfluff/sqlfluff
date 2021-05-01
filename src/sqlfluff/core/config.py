@@ -340,6 +340,7 @@ class FluffConfig:
     def __init__(
         self, configs: Optional[dict] = None, overrides: Optional[dict] = None
     ):
+        self._base_configs = configs
         self._overrides = overrides  # We only store this for child configs
         defaults = nested_combine(*get_plugin_manager().hook.load_default_config())
         self._configs = nested_combine(

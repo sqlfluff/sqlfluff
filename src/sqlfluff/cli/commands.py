@@ -178,6 +178,13 @@ def core_options(f):
         help="Set this flag to engage the benchmarking tool output.",
     )(f)
     f = click.option(
+        "--parallel",
+        type=int,
+        default=1,
+        help="If set to a value higher than 1, runs SQLFluff in parallel, "
+             "speeding up processing.",
+    )(f)
+    f = click.option(
         "--logger",
         type=click.Choice(["parser", "linter", "rules"], case_sensitive=False),
         help="Choose to limit the logging to one of the loggers.",
@@ -383,7 +390,7 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
     "--fixed-suffix", default=None, help="An optional suffix to add to fixed files."
 )
 @click.argument("paths", nargs=-1)
-def fix(force, paths, bench=False, fixed_suffix="", logger=None, **kwargs):
+def fix(force, paths, parallel, bench=False, fixed_suffix="", logger=None, **kwargs):
     """Fix SQL files.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -417,7 +424,10 @@ def fix(force, paths, bench=False, fixed_suffix="", logger=None, **kwargs):
     # Lint the paths (not with the fix argument at this stage), outputting as we go.
     click.echo("==== finding fixable violations ====")
     try:
-        result = lnt.lint_paths(paths, fix=True, ignore_non_existent_files=False)
+        lint_paths = lnt.lint_paths(paths, fix=True,
+                                    ignore_non_existent_files=False,
+                                    parallel=parallel)
+        result = lint_paths
     except IOError:
         click.echo(
             colorize(
