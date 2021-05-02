@@ -31,6 +31,7 @@ class Rule_L043(BaseRule):
         from fancy_table
 
     """
+
     NotKeywordClass = BaseRule.make_keyword_class("NOT")
     CoalesceKeywordClass = BaseRule.make_keyword_class("COALESCE")
     FalseKeywordClass = BaseRule.make_keyword_class("FALSE")

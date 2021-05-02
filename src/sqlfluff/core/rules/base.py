@@ -440,7 +440,7 @@ class BaseRule:
 
     @classmethod
     def make_keyword_class(cls, raw, must_exist=False):
-        """Make a keyword segment."""
+        """Make a keyword segment class."""
         # For the name of the segment, we force the string to lowercase.
         return KeywordSegment.make(raw.lower(), must_exist=must_exist)
 
@@ -455,6 +455,7 @@ class BaseRule:
 
     @classmethod
     def make_symbol_class(cls, raw, seg_type, name=None, must_exist=False):
+        """Make a symbol segment class."""
         # For the name of the segment, we force the string to lowercase.
         return SymbolSegment.make(
             raw.lower(), name=name or seg_type, type=seg_type, must_exist=must_exist
