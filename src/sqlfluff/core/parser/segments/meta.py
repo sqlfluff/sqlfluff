@@ -34,7 +34,12 @@ class MetaSegment(RawSegment):
                 )
             )
         # Sorcery (but less to than on _ProtoKeywordSegment)
-        return type(cls.__name__, (cls,), dict(_config_rules=kwargs))
+        classname = cls.__name__ + "__" + '__'.join(f"{k}_{v}" for k, v in kwargs.items())
+        class_ = globals().get(classname)
+        if class_ is None:
+            class_ = type(classname, (cls,), dict(_config_rules=kwargs))
+            globals()[classname] = class_
+        return class_
 
     @classmethod
     def is_enabled(cls, indent_config):
