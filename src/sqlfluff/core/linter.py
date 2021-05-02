@@ -1408,8 +1408,8 @@ class Linter:
     def _lint_path_parallel_wrapper(config, fname, fix=False):
         """Lint a file in parallel mode.
 
-        Creates new FluffConfig and Linter objects to avoid
-        multiprocessing-related pickling errors.
+        Creates new Linter object to avoid multiprocessing-related pickling
+        errors.
         """
         linter = Linter(config=config)
         return linter._lint_path_core(fname, fix)
@@ -1474,13 +1474,13 @@ To hide this warning, add the failing file to .sqlfluffignore
             dialect = self.config.get('dialect')
             self._init_dialect(dialect)
             with multiprocessing.Pool(parallel, self._init_dialect, (dialect,)) as pool:
-                temp_results = pool.map(self._apply, jobs)
-                for temp_result in temp_results:
+                linted_files = pool.map(self._apply, jobs)
+                for linted_file in linted_files:
                     if self.formatter:
                         self.formatter.dispatch_file_violations(
-                            fname, temp_result, only_fixable=fix
+                            linted_file.path, linted_file, only_fixable=fix
                         )
-                    linted_path.add(temp_result)
+                    linted_path.add(linted_file)
         else:
             for fname in fnames:
                 result = self._lint_path_core(fname, fix)
