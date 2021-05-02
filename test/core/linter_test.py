@@ -176,23 +176,25 @@ def test__linter__linting_result_check_tuples_by_path(by_path, result_type):
     """Test that a LintingResult can partition violations by the source files."""
     lntr = Linter()
     result = lntr.lint_paths(
-        [
+        (
             "test/fixtures/linter/comma_errors.sql",
             "test/fixtures/linter/whitespace_errors.sql",
-        ]
+        )
     )
     check_tuples = result.check_tuples(by_path=by_path)
     isinstance(check_tuples, result_type)
 
 
-def test__linter__linting_result_get_violations():
+@pytest.mark.parametrize("parallel", [1, 2])
+def test__linter__linting_result_get_violations(parallel):
     """Test that we can get violations from a LintingResult."""
     lntr = Linter()
     result = lntr.lint_paths(
-        [
+        (
             "test/fixtures/linter/comma_errors.sql",
             "test/fixtures/linter/whitespace_errors.sql",
-        ]
+        ),
+        parallel=parallel,
     )
 
     all([type(v) == SQLLintError for v in result.get_violations()])
@@ -532,3 +534,11 @@ def test__linter__skip_dbt_model_disabled(in_dbt_project_dir):  # noqa
     linted_file = linted_path.files[0]
     assert linted_file.path == "models/my_new_project/disabled_model.sql"
     assert not linted_file.templated_file
+
+
+def test_delayed_exception():
+    """Test that DelayedException stores and reraises a stored exception."""
+    ve = ValueError()
+    de = linter.DelayedException(ve)
+    with pytest.raises(ValueError):
+        de.reraise()
