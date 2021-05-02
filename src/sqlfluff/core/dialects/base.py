@@ -36,6 +36,7 @@ class Dialect:
         self._sets = sets or {}
         self.inherits_from = inherits_from
         self.root_segment_name = root_segment_name
+        self.module = None
 
     def __repr__(self):
         return "<Dialect: {0}>".format(self.name)
