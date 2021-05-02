@@ -1454,6 +1454,42 @@ To hide this warning, add the failing file to .sqlfluffignore
 {traceback.format_exc()}""",
         )
 
+    def _serial_lint_path_body(self, fnames, fix):
+        for fname in fnames:
+            try:
+                yield self._lint_path_core(fname, fix)
+            except Exception as e:
+                self._handle_lint_path_exception(fname, e)
+
+    def _parallel_lint_path_body(self, fnames, fix, parallel):
+        jobs = []
+        for fname in fnames:
+            jobs.append(
+                functools.partial(
+                    self._lint_path_parallel_wrapper,
+                    self.config,
+                    fname,
+                    fix,
+                )
+            )
+        dialect = self.config.get("dialect")
+        self._init_dialect(dialect)
+        with multiprocessing.Pool(parallel, self._init_dialect,
+                                  (dialect,)) as pool:
+            lint_results = pool.map(self._apply, jobs)
+            for lint_result in lint_results:
+                if isinstance(lint_result, LintedFile):
+                    if self.formatter:
+                        self.formatter.dispatch_file_violations(
+                            lint_result.path, lint_result, only_fixable=fix
+                        )
+                    yield lint_result
+                elif isinstance(lint_result, DelayedException):
+                    try:
+                        lint_result.reraise()
+                    except Exception as e:
+                        self._handle_lint_path_exception(lint_result.fname, e)
+
     def _lint_path_core(self, fname, fix):
         """Core linting functionality, shared between single and parallel."""
         config = self.config.make_child_from_path(fname)
@@ -1485,39 +1521,11 @@ To hide this warning, add the failing file to .sqlfluffignore
             )
         )
         if parallel > 1:
-            jobs = []
-            for fname in fnames:
-                jobs.append(
-                    functools.partial(
-                        self._lint_path_parallel_wrapper,
-                        self.config,
-                        fname,
-                        fix,
-                    )
-                )
-            dialect = self.config.get("dialect")
-            self._init_dialect(dialect)
-            with multiprocessing.Pool(parallel, self._init_dialect, (dialect,)) as pool:
-                lint_results = pool.map(self._apply, jobs)
-                for lint_result in lint_results:
-                    if isinstance(lint_result, LintedFile):
-                        if self.formatter:
-                            self.formatter.dispatch_file_violations(
-                                lint_result.path, lint_result, only_fixable=fix
-                            )
-                        linted_path.add(lint_result)
-                    elif isinstance(lint_result, DelayedException):
-                        try:
-                            lint_result.reraise()
-                        except Exception as e:
-                            self._handle_lint_path_exception(lint_result.fname, e)
+            g = self._parallel_lint_path_body(fnames, fix, parallel)
         else:
-            for fname in fnames:
-                try:
-                    result = self._lint_path_core(fname, fix)
-                    linted_path.add(result)
-                except Exception as e:
-                    self._handle_lint_path_exception(fname, e)
+            g = self._serial_lint_path_body(fnames, fix)
+        for linted_file in g:
+            linted_path.add(linted_file)
         return linted_path
 
     def lint_paths(
