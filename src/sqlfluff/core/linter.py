@@ -1480,6 +1480,10 @@ To hide this warning, add the failing file to .sqlfluffignore
             with multiprocessing.Pool(parallel, self._init_dialect, (dialect,)) as pool:
                 temp_results = pool.map(self._apply, jobs)
                 for temp_result in temp_results:
+                    if self.formatter:
+                        self.formatter.dispatch_file_violations(
+                            fname, temp_result, only_fixable=fix
+                        )
                     linted_path.add(temp_result)
         else:
             for fname in fnames:
