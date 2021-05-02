@@ -1439,6 +1439,18 @@ class Linter:
             result.fname = fname
             return result
 
+    @staticmethod
+    def _handle_lint_path_exception(fname, e):
+        if isinstance(e, IOError):
+            # IOErrors are caught in commands.py, so propagate it
+            raise (e)
+        linter_logger.warning(
+f"""Unable to lint {fname} due to an internal error. \
+Please report this as an issue with your query's contents and stacktrace below!
+To hide this warning, add the failing file to .sqlfluffignore
+{traceback.format_exc()}""",
+        )
+
     def _lint_path_core(self, fname, fix):
         """Core linting functionality, shared between single and parallel."""
         config = self.config.make_child_from_path(fname)
@@ -1493,33 +1505,16 @@ class Linter:
                         linted_path.add(lint_result)
                     elif isinstance(lint_result, DelayedException):
                         try:
-                            fname = lint_result.fname
                             lint_result.reraise()
-                        except IOError as e:  # IOErrors caught in commands.py, so
-                            # propagate it
-                            raise (e)
-                        except Exception:
-                            linter_logger.warning(
-                                f"""Unable to lint {fname} due to an internal error. \
-Please report this as an issue with your query's contents and stacktrace below!
-To hide this warning, add the failing file to .sqlfluffignore
-{traceback.format_exc()}""",
-                            )
+                        except Exception as e:
+                            self._handle_lint_path_exception(lint_result.fname, e)
         else:
             for fname in fnames:
                 try:
                     result = self._lint_path_core(fname, fix)
                     linted_path.add(result)
-                except IOError as e:  # IOErrors caught in commands.py, so
-                    # propagate it
-                    raise (e)
-                except Exception:
-                    linter_logger.warning(
-                        f"""Unable to lint {fname} due to an internal error. \
-Please report this as an issue with your query's contents and stacktrace below!
-To hide this warning, add the failing file to .sqlfluffignore
-{traceback.format_exc()}""",
-                    )
+                except Exception as e:
+                    self._handle_lint_path_exception(fname, e)
         return linted_path
 
     def lint_paths(
