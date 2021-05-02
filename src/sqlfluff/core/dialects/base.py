@@ -78,7 +78,7 @@ class Dialect:
             for kw in expanded_copy.sets(keyword_set):
                 n = kw.capitalize() + "KeywordSegment"
                 if n not in expanded_copy._library:
-                    expanded_copy._library[n] = KeywordSegment.make(kw.lower())
+                    expanded_copy._library[n] = KeywordSegment.make(kw.lower(), module=self.module)
         expanded_copy.expanded = True
         return expanded_copy
 

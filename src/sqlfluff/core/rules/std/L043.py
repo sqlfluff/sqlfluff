@@ -31,6 +31,13 @@ class Rule_L043(BaseRule):
         from fancy_table
 
     """
+    NotKeywordClass = BaseRule.make_keyword_class("NOT")
+    CoalesceKeywordClass = BaseRule.make_keyword_class("COALESCE")
+    FalseKeywordClass = BaseRule.make_keyword_class("FALSE")
+
+    OpenParenSymbolClass = BaseRule.make_symbol_class("(", "parenthesis")
+    CommaSymbolClass = BaseRule.make_symbol_class(",", "comma")
+    CloseParenSymbolClass = BaseRule.make_symbol_class(")", "parenthesis")
 
     def _eval(self, segment, **kwargs):
         """Find rule violations and provide fixes.

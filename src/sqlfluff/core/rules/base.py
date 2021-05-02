@@ -439,20 +439,30 @@ class BaseRule:
         return cls.NewlineSegment(raw=raw, pos_marker=pos_marker)
 
     @classmethod
+    def make_keyword_class(cls, raw):
+        """Make a keyword segment."""
+        # For the name of the segment, we force the string to lowercase.
+        return KeywordSegment.make(raw.lower())
+
+    @classmethod
     def make_keyword(cls, raw, pos_marker):
         """Make a keyword segment."""
         # For the name of the segment, we force the string to lowercase.
-        kws = KeywordSegment.make(raw.lower())
+        kws = cls.make_keyword_class(raw)
         # At the moment we let the rule dictate *case* here.
         return kws(raw=raw, pos_marker=pos_marker)
+
+    @classmethod
+    def make_symbol_class(cls, raw, seg_type, name=None):
+        return SymbolSegment.make(
+            raw.lower(), name=name or seg_type, type=seg_type
+        )
 
     @classmethod
     def make_symbol(cls, raw, pos_marker, seg_type, name=None):
         """Make a symbol segment."""
         # For the name of the segment, we force the string to lowercase.
-        symbol_seg = SymbolSegment.make(
-            raw.lower(), name=name or seg_type, type=seg_type
-        )
+        symbol_seg = cls.make_symbol_class(raw, seg_type, name)
         # At the moment we let the rule dictate *case* here.
         return symbol_seg(raw=raw, pos_marker=pos_marker)
 

@@ -65,7 +65,7 @@ class RawSegment(BaseSegment):
     # ################ CLASS METHODS
 
     @classmethod
-    def make(cls, template, case_sensitive=False, name=None, **kwargs):
+    def make(cls, template, case_sensitive=False, name=None, module=None, **kwargs):
         """Make a subclass of the segment using a method."""
         # Let's deal with the template first
         if case_sensitive:
@@ -86,8 +86,9 @@ class RawSegment(BaseSegment):
         # is necessary in order to allow instances of these classes to be
         # pickled, e.g. when running "sqlfluff lint" in parallel using a process
         # pool.
-        calling_module = inspect.getmodule(inspect.currentframe().f_back)
-        class_ = getattr(calling_module, classname, None)
+        if module is None:
+            module = inspect.getmodule(inspect.currentframe().f_back)
+        class_ = getattr(module, classname, None)
         if class_ is None:
             # This is the magic, we generate a new class! SORCERY
             class_ = type(
@@ -95,8 +96,8 @@ class RawSegment(BaseSegment):
                 (cls,),
                 dict(_template=_template, _name=name, **kwargs),
             )
-            class_.__module__ = calling_module.__name__
-            setattr(calling_module, classname, class_)
+            class_.__module__ = module.__name__
+            setattr(module, classname, class_)
         # Now we return that class in the abstract. NOT INSTANTIATED
         return class_
 
