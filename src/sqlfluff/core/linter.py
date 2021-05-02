@@ -797,13 +797,15 @@ class LintingResult:
 
 
 class DelayedException(Exception):
+    """Multiprocessing process pool uses this to propagate exceptions."""
 
     def __init__(self, ee):
         self.ee = ee
-        __,  __, self.tb = sys.exc_info()
+        __, __, self.tb = sys.exc_info()
         super(DelayedException, self).__init__(str(ee))
 
     def reraise(self):
+        """Reraise the encapsulated exception."""
         raise self.ee.with_traceback(self.tb)
 
 
@@ -1445,7 +1447,7 @@ class Linter:
             # IOErrors are caught in commands.py, so propagate it
             raise (e)
         linter_logger.warning(
-f"""Unable to lint {fname} due to an internal error. \
+            f"""Unable to lint {fname} due to an internal error. \
 Please report this as an issue with your query's contents and stacktrace below!
 To hide this warning, add the failing file to .sqlfluffignore
 {traceback.format_exc()}""",
@@ -1492,7 +1494,7 @@ To hide this warning, add the failing file to .sqlfluffignore
                         fix,
                     )
                 )
-            dialect = self.config.get('dialect')
+            dialect = self.config.get("dialect")
             self._init_dialect(dialect)
             with multiprocessing.Pool(parallel, self._init_dialect, (dialect,)) as pool:
                 lint_results = pool.map(self._apply, jobs)

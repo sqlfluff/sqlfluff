@@ -290,10 +290,12 @@ def dialects(**kwargs):
     type=int,
     default=1,
     help="If set to a value higher than 1, runs SQLFluff in parallel, "
-         "speeding up processing.",
+    "speeding up processing.",
 )
 @click.argument("paths", nargs=-1)
-def lint(paths, parallel, format, nofail, disregard_sqlfluffignores, logger=None, **kwargs):
+def lint(
+    paths, parallel, format, nofail, disregard_sqlfluffignores, logger=None, **kwargs
+):
     """Lint SQL files via passing a list of files or using stdin.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -395,7 +397,7 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
     type=int,
     default=1,
     help="If set to a value higher than 1, runs SQLFluff in parallel, "
-         "speeding up processing.",
+    "speeding up processing.",
 )
 @click.argument("paths", nargs=-1)
 def fix(force, paths, parallel, bench=False, fixed_suffix="", logger=None, **kwargs):
@@ -432,9 +434,9 @@ def fix(force, paths, parallel, bench=False, fixed_suffix="", logger=None, **kwa
     # Lint the paths (not with the fix argument at this stage), outputting as we go.
     click.echo("==== finding fixable violations ====")
     try:
-        result = lnt.lint_paths(paths, fix=True,
-                                    ignore_non_existent_files=False,
-                                    parallel=parallel)
+        result = lnt.lint_paths(
+            paths, fix=True, ignore_non_existent_files=False, parallel=parallel
+        )
     except IOError:
         click.echo(
             colorize(
