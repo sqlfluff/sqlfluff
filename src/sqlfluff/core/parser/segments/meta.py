@@ -34,7 +34,9 @@ class MetaSegment(RawSegment):
                 )
             )
         # Sorcery (but less to than on _ProtoKeywordSegment)
-        classname = cls.__name__ + "__" + '__'.join(f"{k}_{v}" for k, v in kwargs.items())
+        classname = (
+            cls.__name__ + "__" + "__".join(f"{k}_{v}" for k, v in kwargs.items())
+        )
         # Store/cache dynamically created classes at module level. This is
         # necessary in order to allow instances of these classes to be pickled,
         # e.g. when running "sqlfluff lint" in parallel using a process pool.

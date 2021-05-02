@@ -556,7 +556,8 @@ class FluffConfig:
         """Allows FluffConfig to be pickled.
 
         Without this function, pickling fails due to some dynamically created
-        objects not being present in various dialect-related modules."""
+        objects not being present in various dialect-related modules.
+        """
         return dict(
             configs=self._base_configs,
             overrides=self._overrides,
