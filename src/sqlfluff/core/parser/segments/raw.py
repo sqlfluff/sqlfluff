@@ -75,7 +75,13 @@ class RawSegment(BaseSegment):
         # Use the name if provided otherwise default to the template
         name = name or _template
         # Now lets make the classname (it indicates the mother class for clarity)
-        classname = "{0}_{1}".format(name, cls.__name__)
+        classname = "{0}_{1}__{2}__{3}____{4}".format(
+            name,
+            cls.__name__,
+            "".join(format(ord(c), "x") for c in _template),
+            "".join(format(ord(c), "x") for c in name),
+            "__".join(f"{k}_{v}" for k, v in kwargs.items()),
+        )
         # Store/cache dynamically created classes at dialect module level. This
         # is necessary in order to allow instances of these classes to be
         # pickled, e.g. when running "sqlfluff lint" in parallel using a process
