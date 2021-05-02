@@ -52,7 +52,7 @@ class DialectTuple(NamedTuple):
 def dialect_readout():
     """Generate a readout of available dialects."""
     for dialect_label in sorted(_dialect_lookup):
-        _, dialect = load_raw_dialect(dialect_label)
+        dialect = load_raw_dialect(dialect_label)
         yield DialectTuple(
             label=dialect_label,
             name=dialect.name,
