@@ -1,5 +1,6 @@
 """Defines the linter class."""
 
+import sys
 import functools
 import multiprocessing
 import os
@@ -24,6 +25,7 @@ from typing_extensions import Literal
 
 from benchit import BenchIt
 import pathspec
+import tblib.pickling_support
 
 from sqlfluff.core.errors import (
     SQLBaseError,
@@ -48,6 +50,8 @@ from sqlfluff.core.rules.base import BaseRule
 
 # Instantiate the linter logger
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
+
+tblib.pickling_support.install()
 
 
 class RuleTuple(NamedTuple):
@@ -792,6 +796,17 @@ class LintingResult:
         return self.paths[0].tree
 
 
+class DelayedException(Exception):
+
+    def __init__(self, ee):
+        self.ee = ee
+        __,  __, self.tb = sys.exc_info()
+        super(DelayedException, self).__init__(str(ee))
+
+    def reraise(self):
+        raise self.ee.with_traceback(self.tb)
+
+
 class Linter:
     """The interface class to interact with the linter."""
 
@@ -1405,19 +1420,24 @@ class Linter:
         dialect_selector(dialect)
 
     @staticmethod
+    def _apply(f):
+        """Shim function used in parallel mode."""
+        return f()
+
+    @staticmethod
     def _lint_path_parallel_wrapper(config, fname, fix=False):
         """Lint a file in parallel mode.
 
         Creates new Linter object to avoid multiprocessing-related pickling
         errors.
         """
-        linter = Linter(config=config)
-        return linter._lint_path_core(fname, fix)
-
-    @staticmethod
-    def _apply(f):
-        """Shim function used in parallel mode."""
-        return f()
+        try:
+            linter = Linter(config=config)
+            return linter._lint_path_core(fname, fix)
+        except Exception as e:
+            result = DelayedException(e)
+            result.fname = fname
+            return result
 
     def _lint_path_core(self, fname, fix):
         """Core linting functionality, shared between single and parallel."""
@@ -1426,20 +1446,9 @@ class Linter:
         with open(
             fname, "r", encoding="utf8", errors="backslashreplace"
         ) as target_file:
-            try:
-                return self.lint_string(
-                    target_file.read(), fname=fname, fix=fix, config=config
-                )
-            except IOError as e:  # IOErrors caught in commands.py, so
-                # propagate it
-                raise (e)
-            except Exception:
-                linter_logger.warning(
-                    f"""Unable to lint {fname} due to an internal error. \
-Please report this as an issue with your query's contents and stacktrace below!
-To hide this warning, add the failing file to .sqlfluffignore
-{traceback.format_exc()}""",
-                )
+            return self.lint_string(
+                target_file.read(), fname=fname, fix=fix, config=config
+            )
 
     def lint_path(
         self,
@@ -1474,17 +1483,43 @@ To hide this warning, add the failing file to .sqlfluffignore
             dialect = self.config.get('dialect')
             self._init_dialect(dialect)
             with multiprocessing.Pool(parallel, self._init_dialect, (dialect,)) as pool:
-                linted_files = pool.map(self._apply, jobs)
-                for linted_file in linted_files:
-                    if self.formatter:
-                        self.formatter.dispatch_file_violations(
-                            linted_file.path, linted_file, only_fixable=fix
-                        )
-                    linted_path.add(linted_file)
+                lint_results = pool.map(self._apply, jobs)
+                for lint_result in lint_results:
+                    if isinstance(lint_result, LintedFile):
+                        if self.formatter:
+                            self.formatter.dispatch_file_violations(
+                                lint_result.path, lint_result, only_fixable=fix
+                            )
+                        linted_path.add(lint_result)
+                    elif isinstance(lint_result, DelayedException):
+                        try:
+                            fname = lint_result.fname
+                            lint_result.reraise()
+                        except IOError as e:  # IOErrors caught in commands.py, so
+                            # propagate it
+                            raise (e)
+                        except Exception:
+                            linter_logger.warning(
+                                f"""Unable to lint {fname} due to an internal error. \
+Please report this as an issue with your query's contents and stacktrace below!
+To hide this warning, add the failing file to .sqlfluffignore
+{traceback.format_exc()}""",
+                            )
         else:
             for fname in fnames:
-                result = self._lint_path_core(fname, fix)
-                linted_path.add(result)
+                try:
+                    result = self._lint_path_core(fname, fix)
+                    linted_path.add(result)
+                except IOError as e:  # IOErrors caught in commands.py, so
+                    # propagate it
+                    raise (e)
+                except Exception:
+                    linter_logger.warning(
+                        f"""Unable to lint {fname} due to an internal error. \
+Please report this as an issue with your query's contents and stacktrace below!
+To hide this warning, add the failing file to .sqlfluffignore
+{traceback.format_exc()}""",
+                    )
         return linted_path
 
     def lint_paths(

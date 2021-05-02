@@ -11,6 +11,7 @@ diff-cover>=2.5.0
 # pathspec handles the .sqlfluffignore file
 pathspec
 pytest
+tblib
 appdirs
 # dataclasses backport for python 3.6
 dataclasses; python_version < '3.7'
