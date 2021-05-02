@@ -1518,9 +1518,15 @@ To hide this warning, add the failing file to .sqlfluffignore
                 ignore_files=ignore_files,
             )
         )
-        if parallel > 1:
+        if parallel > 1 and sys.version_info > (3, 7):
             g = self._parallel_lint_path_body(fnames, fix, parallel)
         else:
+            if parallel > 1:
+                linter_logger.warning(
+                    "Parallel linting is not supported in Python %s.%s.",
+                    sys.version_info.major,
+                    sys.version_info.minor,
+                )
             g = self._serial_lint_path_body(fnames, fix)
         for linted_file in g:
             linted_path.add(linted_file)
