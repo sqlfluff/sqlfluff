@@ -1,4 +1,5 @@
 """Indent and Dedent classes."""
+import inspect
 
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.markers import FilePositionMarker
@@ -37,13 +38,18 @@ class MetaSegment(RawSegment):
         classname = (
             cls.__name__ + "__" + "__".join(f"{k}_{v}" for k, v in kwargs.items())
         )
-        # Store/cache dynamically created classes at module level. This is
-        # necessary in order to allow instances of these classes to be pickled,
-        # e.g. when running "sqlfluff lint" in parallel using a process pool.
-        class_ = globals().get(classname)
+
+        # Store/cache dynamically created classes at dialect module level. This
+        # is necessary in order to allow instances of these classes to be
+        # pickled, e.g. when running "sqlfluff lint" in parallel using a process
+        # pool.
+        calling_module = inspect.getmodule(inspect.currentframe().f_back)
+        class_ = getattr(calling_module, classname, None)
         if class_ is None:
+            # This is the magic, we generate a new class! SORCERY
             class_ = type(classname, (cls,), dict(_config_rules=kwargs))
-            globals()[classname] = class_
+            setattr(calling_module, classname, class_)
+        # Now we return that class in the abstract. NOT INSTANTIATED
         return class_
 
     @classmethod
