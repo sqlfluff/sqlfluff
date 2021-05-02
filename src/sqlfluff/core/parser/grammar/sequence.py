@@ -178,6 +178,7 @@ class Bracketed(Sequence):
         # Store the bracket type. NB: This is only
         # hydrated into segments at runtime.
         self.bracket_type = kwargs.pop("bracket_type", "round")
+        self.bracket_pairs_set = kwargs.pop("bracket_pairs_set", "bracket_pairs")
         # Allow optional override for special bracket-like things
         self.start_bracket = kwargs.pop("start_bracket", None)
         self.end_bracket = kwargs.pop("end_bracket", None)
@@ -195,7 +196,7 @@ class Bracketed(Sequence):
     def get_bracket_from_dialect(self, parse_context):
         """Rehydrate the bracket segments in question."""
         for bracket_type, start_ref, end_ref, _ in parse_context.dialect.sets(
-            "bracket_pairs"
+            self.bracket_pairs_set
         ):
             if bracket_type == self.bracket_type:
                 start_bracket = parse_context.dialect.ref(start_ref)
@@ -253,6 +254,7 @@ class Bracketed(Sequence):
             parse_context=parse_context,
             start_bracket=start_bracket,
             end_bracket=end_bracket,
+            bracket_pairs_set=self.bracket_pairs_set,
         )
         if not end_match:
             raise SQLParseError(
