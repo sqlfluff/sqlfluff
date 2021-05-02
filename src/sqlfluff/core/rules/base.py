@@ -439,30 +439,33 @@ class BaseRule:
         return cls.NewlineSegment(raw=raw, pos_marker=pos_marker)
 
     @classmethod
-    def make_keyword_class(cls, raw):
+    def make_keyword_class(cls, raw, must_exist=False):
         """Make a keyword segment."""
         # For the name of the segment, we force the string to lowercase.
-        return KeywordSegment.make(raw.lower())
+        return KeywordSegment.make(raw.lower(), must_exist=must_exist)
 
     @classmethod
     def make_keyword(cls, raw, pos_marker):
         """Make a keyword segment."""
-        # For the name of the segment, we force the string to lowercase.
-        kws = cls.make_keyword_class(raw)
+        # We require the class to already exist. This is necessary in order for
+        # the "--parallel" option to work correctly.
+        kws = cls.make_keyword_class(raw, must_exist=True)
         # At the moment we let the rule dictate *case* here.
         return kws(raw=raw, pos_marker=pos_marker)
 
     @classmethod
-    def make_symbol_class(cls, raw, seg_type, name=None):
+    def make_symbol_class(cls, raw, seg_type, name=None, must_exist=False):
+        # For the name of the segment, we force the string to lowercase.
         return SymbolSegment.make(
-            raw.lower(), name=name or seg_type, type=seg_type
+            raw.lower(), name=name or seg_type, type=seg_type, must_exist=must_exist
         )
 
     @classmethod
     def make_symbol(cls, raw, pos_marker, seg_type, name=None):
         """Make a symbol segment."""
-        # For the name of the segment, we force the string to lowercase.
-        symbol_seg = cls.make_symbol_class(raw, seg_type, name)
+        # We require the class to already exist. This is necessary in order for
+        # the "--parallel" option to work correctly.
+        symbol_seg = cls.make_symbol_class(raw, seg_type, name, must_exist=True)
         # At the moment we let the rule dictate *case* here.
         return symbol_seg(raw=raw, pos_marker=pos_marker)
 

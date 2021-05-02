@@ -30,7 +30,7 @@ class Rule_L011(BaseRule):
 
     _target_elems = ("from_expression_element",)
 
-    AS_KeywordClass = BaseRule.make_keyword_class("AS")
+    AsKeywordClass = BaseRule.make_keyword_class("AS")
 
     def _eval(self, segment, parent_stack, raw_stack, **kwargs):
         """Implicit aliasing of table/column not allowed. Use explicit `AS` clause.

@@ -24,6 +24,9 @@ class Rule_L033(BaseRule):
 
     """
 
+    UnionKeywordClass = BaseRule.make_keyword_class("UNION")
+    DistinctKeywordClass = BaseRule.make_keyword_class("DISTINCT")
+
     def _eval(self, segment, raw_stack, **kwargs):
         """Look for UNION keyword not immediately followed by DISTINCT or ALL.
 

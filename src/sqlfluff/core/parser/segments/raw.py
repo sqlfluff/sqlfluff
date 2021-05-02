@@ -65,7 +65,15 @@ class RawSegment(BaseSegment):
     # ################ CLASS METHODS
 
     @classmethod
-    def make(cls, template, case_sensitive=False, name=None, module=None, **kwargs):
+    def make(
+        cls,
+        template,
+        case_sensitive=False,
+        name=None,
+        module=None,
+        must_exist=False,
+        **kwargs,
+    ):
         """Make a subclass of the segment using a method."""
         # Let's deal with the template first
         if case_sensitive:
@@ -89,6 +97,9 @@ class RawSegment(BaseSegment):
         if module is None:
             module = inspect.getmodule(inspect.currentframe().f_back)
         class_ = getattr(module, classname, None)
+        assert (
+            class_ or not must_exist
+        ), f"ERROR: Segment class was not defined at module load time: {name}_{cls.__name__}"
         if class_ is None:
             # This is the magic, we generate a new class! SORCERY
             class_ = type(

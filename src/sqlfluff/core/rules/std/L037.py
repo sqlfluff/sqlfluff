@@ -77,6 +77,8 @@ class Rule_L037(BaseRule):
             )
         return result
 
+    AscKeywordClass = BaseRule.make_keyword_class("ASC")
+
     def _eval(self, segment, parent_stack, **kwargs):
         """Ambiguous ordering directions for columns in order by clause.
 
