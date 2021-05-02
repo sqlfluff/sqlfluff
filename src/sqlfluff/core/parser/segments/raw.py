@@ -80,9 +80,9 @@ class RawSegment(BaseSegment):
         # is necessary in order to allow instances of these classes to be
         # pickled, e.g. when running "sqlfluff lint" in parallel using a process
         # pool.
-        caller = inspect.stack()[1]
-        calling_module = inspect.getmodule(caller.frame)
-        if not hasattr(calling_module, classname):
+        calling_module = inspect.getmodule(inspect.currentframe().f_back)
+        class_ = getattr(calling_module, classname, None)
+        if class_ is None:
             # This is the magic, we generate a new class! SORCERY
             class_ = type(
                 classname,
@@ -91,7 +91,7 @@ class RawSegment(BaseSegment):
             )
             setattr(calling_module, classname, class_)
         # Now we return that class in the abstract. NOT INSTANTIATED
-        return getattr(calling_module, classname)
+        return class_
 
     # ################ INSTANCE METHODS
 
