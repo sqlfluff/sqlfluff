@@ -38,6 +38,7 @@ from sqlfluff.core.string_helpers import findall
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.rules import get_ruleset
 from sqlfluff.core.config import FluffConfig, ConfigLoader
+from sqlfluff.core.dialects import dialect_selector
 
 # Classes needed only for type checking
 from sqlfluff.core.parser.segments.base import BaseSegment, FixPatch
@@ -1398,6 +1399,12 @@ class Linter:
         return result
 
     @staticmethod
+    def _init_dialect(dialect):
+        """Ensure module-level dialect-related objects exist."""
+        Lexer(dialect=dialect)
+        dialect_selector(dialect)
+
+    @staticmethod
     def _lint_path_parallel_wrapper(config_params, fname, fix=False):
         """Lint a file in parallel mode.
 
@@ -1468,13 +1475,16 @@ To hide this warning, add the failing file to .sqlfluffignore
                         fix,
                     )
                 )
-            with multiprocessing.Pool(parallel) as pool:
+            dialect = self.config.get('dialect')
+            self._init_dialect(dialect)
+            with multiprocessing.Pool(parallel, self._init_dialect, (dialect,)) as pool:
                 temp_results = pool.map(self._apply, jobs)
                 for temp_result in temp_results:
                     linted_path.add(temp_result)
         else:
             for fname in fnames:
-                linted_path.add(self._lint_path_core(fname, fix))
+                result = self._lint_path_core(fname, fix)
+                linted_path.add(result)
         return linted_path
 
     def lint_paths(

@@ -3,6 +3,7 @@
 This is designed to be the root segment, without
 any children, and the output of the lexer.
 """
+import os
 
 from sqlfluff.core.parser.segments.base import BaseSegment
 
@@ -75,14 +76,17 @@ class RawSegment(BaseSegment):
         name = name or _template
         # Now lets make the classname (it indicates the mother class for clarity)
         classname = "{0}_{1}".format(name, cls.__name__)
-        # This is the magic, we generate a new class! SORCERY
-        newclass = type(
-            classname,
-            (cls,),
-            dict(_template=_template, _name=name, **kwargs),
-        )
+        class_ = globals().get(classname)
+        if class_ is None:
+            # This is the magic, we generate a new class! SORCERY
+            class_ = type(
+                classname,
+                (cls,),
+                dict(_template=_template, _name=name, **kwargs),
+            )
+            globals()[classname] = class_
         # Now we return that class in the abstract. NOT INSTANTIATED
-        return newclass
+        return class_
 
     # ################ INSTANCE METHODS
 
