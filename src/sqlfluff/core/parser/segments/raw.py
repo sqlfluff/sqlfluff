@@ -89,6 +89,7 @@ class RawSegment(BaseSegment):
                 (cls,),
                 dict(_template=_template, _name=name, **kwargs),
             )
+            class_.__module__ = calling_module.__name__
             setattr(calling_module, classname, class_)
         # Now we return that class in the abstract. NOT INSTANTIATED
         return class_

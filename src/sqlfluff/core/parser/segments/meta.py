@@ -48,6 +48,7 @@ class MetaSegment(RawSegment):
         if class_ is None:
             # This is the magic, we generate a new class! SORCERY
             class_ = type(classname, (cls,), dict(_config_rules=kwargs))
+            class_.__module__ = calling_module.__name__
             setattr(calling_module, classname, class_)
         # Now we return that class in the abstract. NOT INSTANTIATED
         return class_
