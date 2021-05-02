@@ -19,7 +19,7 @@ def test__parser__core_keyword(raw_seg_list):
     FooKeyword = KeywordSegment.make("foo")
     # Check it looks as expected
     assert issubclass(FooKeyword, KeywordSegment)
-    assert FooKeyword.__name__ == "FOO_KeywordSegment"
+    assert FooKeyword.__name__.startswith("FOO_KeywordSegment")
     assert FooKeyword._template == "FOO"
     with RootParseContext(dialect=None) as ctx:
         # Match it against a list and check it doesn't match
