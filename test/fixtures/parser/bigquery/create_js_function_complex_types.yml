@@ -4,7 +4,8 @@ file:
     - keyword: CREATE
     - keyword: TEMP
     - keyword: FUNCTION
-    - function_name: qs
+    - function_name:
+        function_name_identifier: qs
     - base:
       - start_bracket: (
       - parameter: foo1

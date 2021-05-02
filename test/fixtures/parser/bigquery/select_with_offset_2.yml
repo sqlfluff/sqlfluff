@@ -5,7 +5,8 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-            function_name: ARRAY
+            function_name:
+              function_name_identifier: ARRAY
             start_bracket: (
             expression:
               select_statement:

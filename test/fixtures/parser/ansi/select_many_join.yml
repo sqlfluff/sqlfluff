@@ -58,7 +58,8 @@ file:
             from_expression_element:
               table_expression:
                 function:
-                  function_name: g
+                  function_name:
+                    function_name_identifier: g
                   start_bracket: (
                   expression:
                     literal: "'blah'"
