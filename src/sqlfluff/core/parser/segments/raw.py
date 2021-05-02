@@ -76,6 +76,9 @@ class RawSegment(BaseSegment):
         name = name or _template
         # Now lets make the classname (it indicates the mother class for clarity)
         classname = "{0}_{1}".format(name, cls.__name__)
+        # Store/cache dynamically created classes at module level. This is
+        # necessary in order to allow instances of these classes to be pickled,
+        # e.g. when running "sqlfluff lint" in parallel using a process pool.
         class_ = globals().get(classname)
         if class_ is None:
             # This is the magic, we generate a new class! SORCERY
