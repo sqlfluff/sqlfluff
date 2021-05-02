@@ -1475,8 +1475,7 @@ To hide this warning, add the failing file to .sqlfluffignore
         dialect = self.config.get("dialect")
         self._init_dialect(dialect)
         with multiprocessing.Pool(parallel, self._init_dialect, (dialect,)) as pool:
-            lint_results = pool.map(self._apply, jobs)
-            for lint_result in lint_results:
+            for lint_result in pool.imap(self._apply, jobs):
                 if isinstance(lint_result, LintedFile):
                     if self.formatter:
                         self.formatter.dispatch_file_violations(
