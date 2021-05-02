@@ -1405,13 +1405,12 @@ class Linter:
         dialect_selector(dialect)
 
     @staticmethod
-    def _lint_path_parallel_wrapper(config_params, fname, fix=False):
+    def _lint_path_parallel_wrapper(config, fname, fix=False):
         """Lint a file in parallel mode.
 
         Creates new FluffConfig and Linter objects to avoid
         multiprocessing-related pickling errors.
         """
-        config = FluffConfig(**config_params)
         linter = Linter(config=config)
         return linter._lint_path_core(fname, fix)
 
@@ -1467,10 +1466,7 @@ To hide this warning, add the failing file to .sqlfluffignore
                 jobs.append(
                     functools.partial(
                         self._lint_path_parallel_wrapper,
-                        dict(
-                            configs=self.config._base_configs,
-                            overrides=self.config._overrides,
-                        ),
+                        self.config,
                         fname,
                         fix,
                     )

@@ -432,10 +432,9 @@ def fix(force, paths, parallel, bench=False, fixed_suffix="", logger=None, **kwa
     # Lint the paths (not with the fix argument at this stage), outputting as we go.
     click.echo("==== finding fixable violations ====")
     try:
-        lint_paths = lnt.lint_paths(paths, fix=True,
+        result = lnt.lint_paths(paths, fix=True,
                                     ignore_non_existent_files=False,
                                     parallel=parallel)
-        result = lint_paths
     except IOError:
         click.echo(
             colorize(
