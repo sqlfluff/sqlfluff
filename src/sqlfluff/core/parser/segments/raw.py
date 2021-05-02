@@ -3,6 +3,8 @@
 This is designed to be the root segment, without
 any children, and the output of the lexer.
 """
+import inspect
+
 from sqlfluff.core.parser.segments.base import BaseSegment
 
 
@@ -74,20 +76,22 @@ class RawSegment(BaseSegment):
         name = name or _template
         # Now lets make the classname (it indicates the mother class for clarity)
         classname = "{0}_{1}".format(name, cls.__name__)
-        # Store/cache dynamically created classes at module level. This is
-        # necessary in order to allow instances of these classes to be pickled,
-        # e.g. when running "sqlfluff lint" in parallel using a process pool.
-        class_ = globals().get(classname)
-        if class_ is None:
+        # Store/cache dynamically created classes at dialect module level. This
+        # is necessary in order to allow instances of these classes to be
+        # pickled, e.g. when running "sqlfluff lint" in parallel using a process
+        # pool.
+        caller = inspect.stack()[1]
+        calling_module = inspect.getmodule(caller.frame)
+        if not hasattr(calling_module, classname):
             # This is the magic, we generate a new class! SORCERY
             class_ = type(
                 classname,
                 (cls,),
                 dict(_template=_template, _name=name, **kwargs),
             )
-            globals()[classname] = class_
+            setattr(calling_module, classname, class_)
         # Now we return that class in the abstract. NOT INSTANTIATED
-        return class_
+        return getattr(calling_module, classname)
 
     # ################ INSTANCE METHODS
 
