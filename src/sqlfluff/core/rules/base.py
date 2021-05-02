@@ -420,21 +420,23 @@ class BaseRule:
         # no subsegments to check. Return None.
         return None
 
+    WhitespaceSegment = RawSegment.make(
+        " ", name="whitespace", type="whitespace", is_whitespace=True
+    )
+
     @classmethod
     def make_whitespace(cls, raw, pos_marker):
         """Make a whitespace segment."""
-        WhitespaceSegment = RawSegment.make(
-            " ", name="whitespace", type="whitespace", is_whitespace=True
-        )
-        return WhitespaceSegment(raw=raw, pos_marker=pos_marker)
+        return cls.WhitespaceSegment(raw=raw, pos_marker=pos_marker)
+
+    NewlineSegment = RawSegment.make("\n", name="newline", type="newline")
 
     @classmethod
     def make_newline(cls, pos_marker, raw=None):
         """Make a newline segment."""
         # Default the newline to \n
         raw = raw or "\n"
-        nls = RawSegment.make("\n", name="newline", type="newline")
-        return nls(raw=raw, pos_marker=pos_marker)
+        return cls.NewlineSegment(raw=raw, pos_marker=pos_marker)
 
     @classmethod
     def make_keyword(cls, raw, pos_marker):
