@@ -25,7 +25,7 @@ from typing_extensions import Literal
 
 from benchit import BenchIt
 import pathspec
-import tblib.pickling_support
+import tblib.pickling_support  # type: ignore
 
 from sqlfluff.core.errors import (
     SQLBaseError,
@@ -802,6 +802,7 @@ class DelayedException(Exception):
     def __init__(self, ee):
         self.ee = ee
         __, __, self.tb = sys.exc_info()
+        self.fname = None
         super(DelayedException, self).__init__(str(ee))
 
     def reraise(self):
