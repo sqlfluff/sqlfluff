@@ -71,8 +71,7 @@ class BaseSegment:
     match_grammar: Matchable = None  # type: ignore
     comment_seperate = False
     optional = False  # NB: See the sequence grammar for details
-    is_segment = True
-    _name = None
+    _name: Optional[str] = None
     is_meta = False
     # Are we able to have non-code at the start or end?
     can_start_end_non_code = False

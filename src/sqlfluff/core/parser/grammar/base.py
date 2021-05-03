@@ -790,8 +790,7 @@ class Ref(BaseGrammar):
             )
 
         # First check against the efficiency Cache.
-        # We used to use seg_to_tuple here, but it was too slow,
-        # so instead we rely on segments not being mutated within a given
+        # We rely on segments not being mutated within a given
         # match cycle and so the ids should continue to refer to unchanged
         # objects.
         seg_tuple = (id(seg) for seg in segments)
