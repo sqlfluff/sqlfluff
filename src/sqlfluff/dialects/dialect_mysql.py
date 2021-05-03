@@ -11,6 +11,7 @@ from sqlfluff.core.parser import (
     Sequence,
     OneOf,
     Bracketed,
+    RegexMatcher,
 )
 from sqlfluff.core.dialects import load_raw_dialect
 
@@ -19,12 +20,10 @@ mysql_dialect = ansi_dialect.copy_as("mysql")
 
 mysql_dialect.patch_lexer_struct(
     [
-        # name, type, pattern, kwargs
-        (
+        RegexMatcher(
             "inline_comment",
-            "regex",
             r"(-- |#)[^\n]*",
-            dict(is_comment=True, type="comment", trim_start=("-- ", "#")),
+            segment_kwargs={"is_comment": True, "type": "comment", "trim_start": ("-- ", "#")}
         )
     ]
 )

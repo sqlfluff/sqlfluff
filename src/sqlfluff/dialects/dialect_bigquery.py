@@ -22,6 +22,7 @@ from sqlfluff.core.parser import (
     KeywordSegment,
     Indent,
     SymbolSegment,
+    RegexMatcher,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -37,17 +38,15 @@ bigquery_dialect.patch_lexer_struct(
         # backslashes in front of it.
         # https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and_bytes_literals
         # Triple quoted variant first, then single quoted
-        (
+        RegexMatcher(
             "single_quote",
-            "regex",
             r"([rR]?[bB]?|[bB]?[rR]?)?('''((?<!\\)(\\{2})*\\'|'{,2}(?!')|[^'])*(?<!\\)(\\{2})*'''|'((?<!\\)(\\{2})*\\'|[^'])*(?<!\\)(\\{2})*')",
-            dict(is_code=True),
+            segment_kwargs={"is_code": True}
         ),
-        (
+        RegexMatcher(
             "double_quote",
-            "regex",
             r'([rR]?[bB]?|[bB]?[rR]?)?(\"\"\"((?<!\\)(\\{2})*\\\"|\"{,2}(?!\")|[^\"])*(?<!\\)(\\{2})*\"\"\"|"((?<!\\)(\\{2})*\\"|[^"])*(?<!\\)(\\{2})*")',
-            dict(is_code=True),
+            segment_kwargs={"is_code": True}
         ),
     ]
 )

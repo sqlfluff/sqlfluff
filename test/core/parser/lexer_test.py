@@ -5,11 +5,10 @@ import logging
 
 from sqlfluff.core.parser import Lexer
 from sqlfluff.core.parser.lexer import (
-    SingletonMatcher,
+    StringMatcher,
     LexMatch,
     RegexMatcher,
 )
-from sqlfluff.core.parser import RawSegment, FilePositionMarker
 from sqlfluff.core import SQLLexError, FluffConfig
 
 
@@ -21,20 +20,16 @@ def assert_matches(instring, matcher, matchstring):
     particular string or negative matching (that it explicitly)
     doesn't match.
     """
-    start_pos = FilePositionMarker()
-    res = matcher.match(instring, start_pos)
+    res = matcher.match(instring)
     # Check we've got the right type
     assert isinstance(res, LexMatch)
     if matchstring is None:
-        assert res.new_string == instring
-        assert res.new_pos == start_pos
-        assert res.segments == ()  # tuple
+        assert res.forward_string == instring
+        assert res.elements == ()  # tuple
     else:
-        new_pos = start_pos.advance_by(matchstring)
-        assert res.new_string == instring[len(matchstring) :]
-        assert res.new_pos == new_pos
-        assert len(res.segments) == 1
-        assert res.segments[0].raw == matchstring
+        assert res.forward_string == instring[len(matchstring) :]
+        assert len(res.elements) == 1
+        assert res.elements[0].raw == matchstring
 
 
 @pytest.mark.parametrize(
@@ -52,7 +47,7 @@ def assert_matches(instring, matcher, matchstring):
         # This tests subdivision and trimming (incl the empty case)
         ("abc /* comment \nblah*/", ["abc", " ", "/* comment", " ", "\n", "blah*/"]),
         ("abc /*\n\t\n*/", ["abc", " ", "/*", "\n", "\t", "\n", "*/"]),
-        # Test Singletons
+        # Test strings
         ("*-+bd/", ["*", "-", "+", "bd", "/"]),
         # Test Negatives and Minus
         ("2+4 -5", ["2", "+", "4", " ", "-", "5"]),
@@ -75,10 +70,10 @@ def test__parser__lexer_obj(raw, res, caplog):
         ("fsaljk", None),
     ],
 )
-def test__parser__lexer_singleton(raw, res):
-    """Test the SingletonMatcher."""
-    matcher = SingletonMatcher(
-        "dot", ".", RawSegment.make(".", name="dot", is_code=True)
+def test__parser__lexer_string(raw, res):
+    """Test the StringMatcher."""
+    matcher = StringMatcher(
+        "dot", ".", segment_kwargs={"name": "dot", "is_code": True}
     )
     assert_matches(raw, matcher, res)
 
@@ -104,7 +99,7 @@ def test__parser__lexer_singleton(raw, res):
 )
 def test__parser__lexer_regex(raw, reg, res, caplog):
     """Test the RegexMatcher."""
-    matcher = RegexMatcher("test", reg, RawSegment.make("test", name="test"))
+    matcher = RegexMatcher("test", reg, segment_kwargs={"name": "test"})
     with caplog.at_level(logging.DEBUG):
         assert_matches(raw, matcher, res)
 
@@ -112,16 +107,14 @@ def test__parser__lexer_regex(raw, reg, res, caplog):
 def test__parser__lexer_lex_match(caplog):
     """Test the RepeatedMultiMatcher."""
     matchers = [
-        SingletonMatcher("dot", ".", RawSegment.make(".", name="dot", is_code=True)),
-        RegexMatcher("test", r"#[^#]*#", RawSegment.make("test", name="test")),
+        StringMatcher("dot", ".", segment_kwargs={"name": "dot", "is_code": True}),
+        RegexMatcher("test", r"#[^#]*#", segment_kwargs={"name": "test"}),
     ]
-    start_pos = FilePositionMarker()
     with caplog.at_level(logging.DEBUG):
-        res = Lexer.lex_match("..#..#..#", start_pos, matchers)
-        assert res.new_string == "#"  # Should match right up to the final element
-        assert res.new_pos == start_pos.advance_by("..#..#..")
-        assert len(res.segments) == 5
-        assert res.segments[2].raw == "#..#"
+        res = Lexer.lex_match("..#..#..#", matchers)
+        assert res.forward_string == "#"  # Should match right up to the final element
+        assert len(res.elements) == 5
+        assert res.elements[2].raw == "#..#"
 
 
 def test__parser__lexer_fail():

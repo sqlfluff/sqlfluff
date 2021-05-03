@@ -15,7 +15,7 @@ class Dialect:
 
     Args:
         name (:obj:`str`): The name of the dialect, used for lookup.
-        lexer_struct (iterable of :obj:`tuple`): A structure defining
+        lexer_struct (iterable of :obj:`StringMatcher`): A structure defining
             the lexing config for this dialect.
 
     """
@@ -263,11 +263,11 @@ class Dialect:
             raise ValueError("Lexer struct must be defined before it can be patched!")
 
         # Make a new data struct for lookups
-        patch_dict = {elem[0]: elem for elem in lexer_patch}
+        patch_dict = {elem.name: elem for elem in lexer_patch}
 
         for elem in self.lexer_struct:
-            if elem[0] in patch_dict:
-                buff.append(patch_dict[elem[0]])
+            if elem.name in patch_dict:
+                buff.append(patch_dict[elem.name])
             else:
                 buff.append(elem)
         # Overwrite with the buffer once we're done
@@ -285,7 +285,7 @@ class Dialect:
             raise ValueError("Lexer struct must be defined before it can be patched!")
 
         for elem in self.lexer_struct:
-            if elem[0] == before:
+            if elem.name == before:
                 found = True
                 for patch in lexer_patch:
                     buff.append(patch)

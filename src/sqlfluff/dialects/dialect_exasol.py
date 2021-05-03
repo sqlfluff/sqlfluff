@@ -21,6 +21,8 @@ from sqlfluff.core.parser import (
     ReSegment,
     Sequence,
     StartsWith,
+    RegexMatcher,
+    StringMatcher,
 )
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.dialects.exasol_keywords import (
@@ -40,12 +42,12 @@ exasol_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 exasol_dialect.sets("bare_functions").clear()
 exasol_dialect.sets("bare_functions").update(BARE_FUNCTIONS)
 
-exasol_dialect.set_lexer_struct(
+exasol_dialect.insert_lexer_struct(
     [
-        ("range_operator", "regex", r"\.{2}", dict(is_code=True)),
-        ("hash", "singleton", "#", dict(is_code=True)),
-    ]
-    + exasol_dialect.get_lexer_struct()
+        RegexMatcher("range_operator", r"\.{2}", segment_kwargs={"is_code": True}),
+        StringMatcher("hash", "#", segment_kwargs={"is_code": True}),
+    ],
+    before="not_equal",
 )
 
 exasol_dialect.patch_lexer_struct(
@@ -54,13 +56,12 @@ exasol_dialect.patch_lexer_struct(
         # It's also used for escaping single quotes inside of STATEMENT strings like in the IMPORT function
         # https://docs.exasol.com/sql_references/basiclanguageelements.htm#Delimited_Identifiers
         # https://docs.exasol.com/sql_references/literals.htm
-        ("single_quote", "regex", r"'([^']|'')*'", dict(is_code=True)),
-        ("double_quote", "regex", r'"([^"]|"")*"', dict(is_code=True)),
-        (
+        RegexMatcher("single_quote", r"'([^']|'')*'", segment_kwargs={"is_code": True}),
+        RegexMatcher("double_quote", r'"([^"]|"")*"', segment_kwargs={"is_code": True}),
+        RegexMatcher(
             "inline_comment",
-            "regex",
             r"--[^\n]*",
-            dict(is_comment=True, type="comment", trim_start=("--")),
+            segment_kwargs={"is_comment": True, "type": "comment", "trim_start": ("--")}
         ),
     ]
 )
