@@ -5,7 +5,8 @@ file:
       - keyword: SELECT
       - select_clause_element:
           function:
-            function_name: CAST
+            function_name:
+              function_name_identifier: CAST
             start_bracket: (
             expression:
               literal: '25.65'
@@ -16,7 +17,8 @@ file:
       - comma: ','
       - select_clause_element:
           function:
-            function_name: SAFE_CAST
+            function_name:
+              function_name_identifier: SAFE_CAST
             start_bracket: (
             expression:
               literal: 'NULL'
@@ -30,7 +32,8 @@ file:
       - comma: ','
       - select_clause_element:
           function:
-            function_name: EXTRACT
+            function_name:
+              function_name_identifier: EXTRACT
             start_bracket: (
             date_part: day
             keyword: FROM

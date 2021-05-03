@@ -17,7 +17,8 @@ file:
               start_bracket: (
               select_clause_element:
                 function:
-                - function_name: concat
+                - function_name:
+                    function_name_identifier: concat
                 - start_bracket: (
                 - expression:
                     column_reference:

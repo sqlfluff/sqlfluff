@@ -5,7 +5,8 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-          - function_name: FIRST_VALUE
+          - function_name:
+              function_name_identifier: FIRST_VALUE
           - start_bracket: (
           - expression:
               column_reference:

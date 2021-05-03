@@ -31,7 +31,8 @@ file:
         keyword: WHERE
         expression:
         - function:
-            function_name: DATE
+            function_name:
+              function_name_identifier: DATE
             start_bracket: (
             expression:
               column_reference:
@@ -41,7 +42,8 @@ file:
         - bare_function: current_date
         - binary_operator: AND
         - function:
-            function_name: length
+            function_name:
+              function_name_identifier: length
             start_bracket: (
             expression:
               column_reference:

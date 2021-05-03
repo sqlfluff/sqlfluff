@@ -109,8 +109,7 @@ bigquery_dialect.sets("value_table_functions").update(["unnest"])
 # eliminating many potential parsing errors with the "<" and ">" operators.
 bigquery_dialect.sets("angle_bracket_pairs").update(
     [
-        # NB: Angle brackets can be mistaken, so False
-        ("angle", "StartAngleBracketSegment", "EndAngleBracketSegment", False),
+        ("angle", "StartAngleBracketSegment", "EndAngleBracketSegment"),
     ]
 )
 
@@ -190,11 +189,11 @@ bigquery_dialect.replace(
         ),
         Sequence("WITH", "OFFSET", "AS", Ref("SingleIdentifierGrammar"), optional=True),
     ),
-    FunctionNameSegment=ReSegment.make(
+    FunctionNameIdentifierSegment=ReSegment.make(
         # In BigQuery struct() has a special syntax, so we don't treat it as a function
         r"[A-Z][A-Z0-9_]*",
-        name="function_name",
-        type="function_name",
+        name="function_name_identifier",
+        type="function_name_identifier",
         _anti_template=r"STRUCT",
     ),
 )

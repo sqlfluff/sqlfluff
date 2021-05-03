@@ -5,11 +5,13 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-          - function_name: SPLIT
+          - function_name:
+              function_name_identifier: SPLIT
           - start_bracket: (
           - expression:
               function:
-                function_name: LOWER
+                function_name:
+                  function_name_identifier: LOWER
                 start_bracket: (
                 expression:
                   column_reference:

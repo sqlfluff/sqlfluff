@@ -402,6 +402,8 @@ ignored until a corresponding `-- noqa:enable=<rule>[,...] | all` directive.
 
 .. _`pylint's "pylint" directive"`: http://pylint.pycqa.org/en/latest/user_guide/message-control.html
 
+.. _sqlfluffignore:
+
 .sqlfluffignore
 ^^^^^^^^^^^^^^^
 
