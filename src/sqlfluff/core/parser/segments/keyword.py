@@ -48,7 +48,8 @@ class _ProtoKeywordSegment(RawSegment):
         we return a tuple in case there is more than one option.
         """
         # NB: We go UPPER on make, so no need to convert here
-        return [cls._template]
+        cls_ = parse_context._factory if parse_context._factory else cls
+        return [cls_._template]
 
     @classmethod
     @match_wrapper(v_level=4)

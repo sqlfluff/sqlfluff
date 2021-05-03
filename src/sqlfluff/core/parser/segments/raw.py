@@ -153,7 +153,7 @@ class RawSegment(BaseSegment):
         return self.pos_marker
 
 
-class RawSegmentFactory(BaseSegment):
+class RawSegmentFactory:
     def __init__(self, cls, classname, _template, _name, **kwargs):
         # if classname.startswith("semicolon"):
         #     import pdb; pdb.set_trace()
@@ -173,6 +173,7 @@ class RawSegmentFactory(BaseSegment):
             _classname=self.__name__,
             _template=self._template,
             _name=self._name,
+            _cls=self,
             **self._kwargs
         )
         return result
@@ -182,3 +183,13 @@ class RawSegmentFactory(BaseSegment):
         result = self.cls.match(segments, parse_context)
         parse_context._factory = None
         return result
+
+    def simple(self, parse_context):
+        parse_context._factory = self
+        result = self.cls.simple(parse_context)
+        parse_context._factory = None
+        return result
+
+    @property
+    def is_meta(self):
+        return self.cls.is_meta

@@ -21,6 +21,12 @@ from sqlfluff.core.parser.context import ParseContext
 MatchableType = Union[Matchable, Type[BaseSegment]]
 
 
+def fluff_type(self):
+    if hasattr(self, "_cls"):
+        return self._cls
+    return type(self)
+
+
 def fluff_issubclass(cls, class_or_tuple):
     if hasattr(cls, "cls"):
         cls = getattr(cls, "cls")
@@ -539,7 +545,7 @@ class BaseGrammar(Matchable):
                             # the innermost start bracket? E.g. ")" matches "(",
                             # "]" matches "[".
                             start_index = start_brackets.index(
-                                type(bracket_stack[-1].bracket)
+                                fluff_type(bracket_stack[-1].bracket)
                             )
                             end_index = end_brackets.index(matcher)
                             bracket_types_match = start_index == end_index
@@ -658,7 +664,7 @@ class BaseGrammar(Matchable):
 
         e.g. `OneOf(foo) == OneOf(foo, optional=True)`
         """
-        return type(self) is type(other) and self._elements == other._elements
+        return fluff_type(self) is fluff_type(other) and self._elements == other._elements
 
     def copy(
         self,
