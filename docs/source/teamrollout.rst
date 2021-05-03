@@ -29,7 +29,7 @@ might be:
    organisation's style guide in code, it means you can version
    control it, discuss changes and ultimately give a concrete output
    to discussions over style.
-   
+
    *You like leading commas? Make a PR to .sqlfluff and let's*
    *dicuss with the team what the implications would be*.
 
