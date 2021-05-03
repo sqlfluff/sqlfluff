@@ -119,6 +119,11 @@ class TemplatedFile:
         self._source_newlines = list(iter_indices_of_newlines(self.source_str))
         self._templated_newlines = list(iter_indices_of_newlines(self.templated_str))
 
+    @classmethod
+    def from_string(cls, raw):
+        """Create TemplatedFile from a string."""
+        return cls(source_str=raw)
+
     def __bool__(self):
         """Return true if there's a templated file."""
         return bool(self.templated_str)

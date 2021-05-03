@@ -272,8 +272,14 @@ class Lexer:
 
         element_buffer: Tuple[LexedElement, ...] = ()
 
-        # Handle potential TemplatedFile for now
-        str_buff = str(raw)
+        # Make sure we've got a string buffer and a template
+        # regardless of what was passed in.
+        if isinstance(raw, str):
+            template = TemplatedFile.from_string(raw)
+            str_buff = raw
+        else:
+            template = raw
+            str_buff = str(template)
 
         while True:
             res = self.lex_match(str_buff, self.lexer_matchers)
@@ -294,12 +300,11 @@ class Lexer:
                 break
 
         # Turn lexed elements into segments.
-        return self.elements_to_segments(element_buffer, raw)
+        return self.elements_to_segments(element_buffer, template)
 
-    def elements_to_segments(self, elements: Tuple[LexedElement, ...], raw: Union[str, TemplatedFile]) -> Tuple[Tuple[BaseSegment, ...], List[SQLLexError]]:
+    def elements_to_segments(self, elements: Tuple[LexedElement, ...], template: TemplatedFile) -> Tuple[Tuple[BaseSegment, ...], List[SQLLexError]]:
         """Convert a tuple of lexed elements into a tuple of segments."""
         # TODO: Refactor so we never create unenriched position markers.
-        # TODO: Convert raw -> template, generate template if we don't have one, so it's always here.
         pos_marker = FilePositionMarker()
         segment_buff: Tuple[RawSegment, ...] = ()
         violations = []
@@ -321,10 +326,7 @@ class Lexer:
             pos_marker = pos_marker.advance_by(element.raw)
 
         # Enrich the segments if we can using the templated file
-        if isinstance(raw, TemplatedFile):
-            return self.enrich_segments(segment_buff, raw), violations
-        else:
-            return segment_buff, violations
+        return self.enrich_segments(segment_buff, template), violations
 
     @staticmethod
     def lex_match(forward_string, lexer_matchers):
