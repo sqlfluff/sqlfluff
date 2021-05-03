@@ -154,6 +154,8 @@ class RawSegment(BaseSegment):
 
 
 class RawSegmentFactory:
+    optional = False
+
     def __init__(self, cls, classname, _template, _name, **kwargs):
         # if classname.startswith("semicolon"):
         #     import pdb; pdb.set_trace()
@@ -189,6 +191,9 @@ class RawSegmentFactory:
         result = self.cls.simple(parse_context)
         parse_context._factory = None
         return result
+
+    def is_optional(self):
+        return self.optional
 
     @property
     def is_meta(self):
