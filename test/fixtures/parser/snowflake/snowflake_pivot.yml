@@ -18,7 +18,8 @@ file:
           - keyword: PIVOT
           - start_bracket: (
           - function:
-              function_name: min
+              function_name:
+                function_name_identifier: min
               start_bracket: (
               expression:
                 column_reference:

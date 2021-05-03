@@ -5,7 +5,8 @@ file:
       - keyword: SELECT
       - select_clause_element:
           function:
-          - function_name: ADD_MONTHS
+          - function_name:
+              function_name_identifier: ADD_MONTHS
           - start_bracket: (
           - expression:
               column_reference:
@@ -24,7 +25,8 @@ file:
       - comma: ','
       - select_clause_element:
           function:
-            function_name: CAST
+            function_name:
+              function_name_identifier: CAST
             start_bracket: (
             expression:
               literal: "'200010'"

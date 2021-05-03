@@ -6,14 +6,16 @@ file:
         select_clause_element:
           expression:
             function:
-            - function_name: dateadd
+            - function_name:
+                function_name_identifier: dateadd
             - start_bracket: (
             - expression:
                 literal: "'day'"
             - comma: ','
             - expression:
                 function:
-                  function_name: row_number
+                  function_name:
+                    function_name_identifier: row_number
                   start_bracket: (
                   end_bracket: )
                   over_clause:
@@ -25,7 +27,8 @@ file:
                       - keyword: BY
                       - expression:
                           function:
-                            function_name: seq8
+                            function_name:
+                              function_name_identifier: seq8
                             start_bracket: (
                             end_bracket: )
                       - keyword: asc

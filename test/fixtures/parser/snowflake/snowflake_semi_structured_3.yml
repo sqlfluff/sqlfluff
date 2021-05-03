@@ -6,7 +6,8 @@ file:
       - select_clause_element:
           expression:
           - function:
-              function_name: PARSE_JSON
+              function_name:
+                function_name_identifier: PARSE_JSON
               start_bracket: (
               expression:
                 column_reference:
@@ -30,7 +31,8 @@ file:
       - select_clause_element:
           expression:
             function:
-              function_name: PARSE_JSON
+              function_name:
+                function_name_identifier: PARSE_JSON
               start_bracket: (
               expression:
                 column_reference:

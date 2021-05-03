@@ -4,7 +4,8 @@ file:
     - keyword: CREATE
     - keyword: TEMP
     - keyword: FUNCTION
-    - function_name: parseTopSellers
+    - function_name:
+        function_name_identifier: parseTopSellers
     - base:
         start_bracket: (
         parameter: arr_str
