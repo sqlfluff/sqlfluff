@@ -18,20 +18,20 @@ might be:
 #. **Faster comprehension and collaboration** by the team on a shared
    codebase. This includes more effective (and more enjoyable) code
    review on top of code which is easy to review and build upon.
-#. **Easier and faster onboarding** on new team members. By adopting
+#. **Easier and faster onboarding** for new team members. By adopting
    a style which is clean and *consistent with other organisations*
    we make it easier for new people to join the team.
 #. **Improved adoption of shared SQL** from other sources. If the SQL
    found in open source projects is easy to read and *looks familiar*
    then you're more likely to use it. This means more reusable code
    across the industry.
-#. **Productive duscussions around style**. By defining your
+#. **Productive discussions  around style**. By defining your
    organisation's style guide in code, it means you can version
    control it, discuss changes and ultimately give a concrete output
    to discussions over style.
 
    *You like leading commas? Make a PR to .sqlfluff and let's*
-   *dicuss with the team what the implications would be*.
+   *discuss with the team what the implications would be*.
 
 Consider which of these success measures is most important and most
 desirable for your team. *Write that down*.
@@ -71,7 +71,7 @@ In each of these phases you have three levers to play with:
 #. Depth of rules enforced (this might also include whether
    to ignore parsing errors or not too).
 #. Whether to just lint changes (:ref:`diff-quality`),
-   or whether to lint existing code.
+   or whether to lint all the existing code as well.
 
 Work out a sensible roadmap of how hard you want to go in
 each phase. Be clear who is responsible for changes at each
@@ -102,6 +102,14 @@ whether to only talk about the first few steps. Aim to make
 this an empowering experience that everyone can get involved with
 rather than *another piece of admin they need to do*.
 
+At this stage, you might also want to consider other tools in the
+SQLFluff ecosystem such as the `SQLFluff pre-commit hook`_ and
+the `SQLFluff VSCode plugin`_ or `SQLFluff online formatter`_.
+
+.. _`SQLFluff pre-commit hook`: https://github.com/sqlfluff/sqlfluff-github-actions
+.. _`SQLFluff VSCode plugin`: https://github.com/sqlfluff/vscode-sqlfluff
+.. _`SQLFluff online formatter`: https://sqlfluff-online.herokuapp.com/
+
 4. Do, Review & Reassess
 ------------------------
 
@@ -118,3 +126,10 @@ evolve over time, what's important is to know this in advance
 and welcome it when it happens, and make sure you're always driving
 toward the success measures you decided up front, rather than
 just resisting the change.
+
+5. Spread the word 😁
+---------------------
+
+Did it work? If so, spread the word. Tell a friend about SQLFluff.
+
+If you're lucky they might share your views on comma placement 🤷‍♀️.
