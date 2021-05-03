@@ -126,6 +126,9 @@ jobs:
       - image: pypy:3.7
         environment:
           TOXENV: pypy37
+          # In pypy, testing is much slower, so we only
+          # test the core.
+          TOX_ARGS: -m "not dbt" test/core
   # Benchmarking task
   bench:
     <<: *common
