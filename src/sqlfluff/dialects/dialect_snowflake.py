@@ -31,7 +31,7 @@ postgres_dialect = load_raw_dialect("postgres")
 
 snowflake_dialect = postgres_dialect.copy_as("snowflake")
 
-snowflake_dialect.patch_lexer_struct(
+snowflake_dialect.patch_lexer_matchers(
     [
         # In snowflake, a double single quote resolves as a single quote in the string.
         # https://docs.snowflake.com/en/sql-reference/data-types-text.html#single-quoted-string-constants
@@ -39,7 +39,7 @@ snowflake_dialect.patch_lexer_struct(
     ]
 )
 
-snowflake_dialect.insert_lexer_struct(
+snowflake_dialect.insert_lexer_matchers(
     [
         # Keyword assigner needed for keyword functions.
         StringMatcher("parameter_assigner", "=>", segment_kwargs={"is_code": True}),

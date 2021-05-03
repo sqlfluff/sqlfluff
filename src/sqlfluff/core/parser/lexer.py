@@ -248,7 +248,7 @@ class Lexer:
         # Allow optional config and dialect
         self.config = FluffConfig.from_kwargs(config=config, dialect=dialect)
         # Store the matchers
-        self.lexer_matchers = self.config.get("dialect_obj").get_lexer_struct()
+        self.lexer_matchers = self.config.get("dialect_obj").get_lexer_matchers()
 
         self.last_resort_lexer = last_resort_lexer or RegexMatcher(
             "<unlexable>",

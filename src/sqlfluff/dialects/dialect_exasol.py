@@ -42,7 +42,7 @@ exasol_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 exasol_dialect.sets("bare_functions").clear()
 exasol_dialect.sets("bare_functions").update(BARE_FUNCTIONS)
 
-exasol_dialect.insert_lexer_struct(
+exasol_dialect.insert_lexer_matchers(
     [
         RegexMatcher("range_operator", r"\.{2}", segment_kwargs={"is_code": True}),
         StringMatcher("hash", "#", segment_kwargs={"is_code": True}),
@@ -50,7 +50,7 @@ exasol_dialect.insert_lexer_struct(
     before="not_equal",
 )
 
-exasol_dialect.patch_lexer_struct(
+exasol_dialect.patch_lexer_matchers(
     [
         # In EXASOL, a double single/double quote resolves as a single/double quote in the string.
         # It's also used for escaping single quotes inside of STATEMENT strings like in the IMPORT function

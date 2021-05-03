@@ -35,7 +35,7 @@ exasol_dialect = load_raw_dialect("exasol")
 exasol_fs_dialect = exasol_dialect.copy_as("exasol_fs")
 exasol_fs_dialect.sets("unreserved_keywords").add("ROWCOUNT")
 
-exasol_fs_dialect.insert_lexer_struct(
+exasol_fs_dialect.insert_lexer_matchers(
     [
         StringMatcher("walrus_operator", ":=", segment_kwargs={"is_code": True, "type": "walrus_operator"}),
         RegexMatcher(

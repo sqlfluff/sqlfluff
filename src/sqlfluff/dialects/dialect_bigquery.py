@@ -30,7 +30,7 @@ from sqlfluff.core.dialects import load_raw_dialect
 ansi_dialect = load_raw_dialect("ansi")
 bigquery_dialect = ansi_dialect.copy_as("bigquery")
 
-bigquery_dialect.patch_lexer_struct(
+bigquery_dialect.patch_lexer_matchers(
     [
         # Quoted literals can have r or b (case insensitive) prefixes, in any order, to
         # indicate a raw/regex string or byte sequence, respectively.  Allow escaped quote

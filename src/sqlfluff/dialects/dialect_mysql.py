@@ -18,7 +18,7 @@ from sqlfluff.core.dialects import load_raw_dialect
 ansi_dialect = load_raw_dialect("ansi")
 mysql_dialect = ansi_dialect.copy_as("mysql")
 
-mysql_dialect.patch_lexer_struct(
+mysql_dialect.patch_lexer_matchers(
     [
         RegexMatcher(
             "inline_comment",

@@ -51,7 +51,7 @@ from sqlfluff.dialects.ansi_keywords import (
 ansi_dialect = Dialect("ansi", root_segment_name="FileSegment")
 
 
-ansi_dialect.set_lexer_struct(
+ansi_dialect.set_lexer_matchers(
     [
         RegexMatcher("whitespace", r"[\t ]+", segment_kwargs={"type": "whitespace", "is_whitespace": True}),
         RegexMatcher(

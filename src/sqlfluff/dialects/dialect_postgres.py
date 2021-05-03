@@ -19,7 +19,7 @@ ansi_dialect = load_raw_dialect("ansi")
 postgres_dialect = ansi_dialect.copy_as("postgres")
 
 
-postgres_dialect.insert_lexer_struct(
+postgres_dialect.insert_lexer_matchers(
     # JSON Operators: https://www.postgresql.org/docs/9.5/functions-json.html
     [
         RegexMatcher(

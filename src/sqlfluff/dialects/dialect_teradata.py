@@ -26,7 +26,7 @@ from sqlfluff.core.dialects import load_raw_dialect
 ansi_dialect = load_raw_dialect("ansi")
 teradata_dialect = ansi_dialect.copy_as("teradata")
 
-teradata_dialect.patch_lexer_struct(
+teradata_dialect.patch_lexer_matchers(
     [
         # so it also matches 1.
         RegexMatcher("numeric_literal", r"([0-9]+(\.[0-9]*)?)", segment_kwargs={"is_code": True}),
