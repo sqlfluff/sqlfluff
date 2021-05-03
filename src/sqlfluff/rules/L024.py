@@ -2,7 +2,7 @@
 
 
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
-from sqlfluff.core.rules.std.L023 import Rule_L023
+from sqlfluff.rules.L023 import Rule_L023
 
 
 @document_fix_compatible

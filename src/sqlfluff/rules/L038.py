@@ -1,7 +1,7 @@
 """Implementation of Rule L038."""
 
-from ..base import BaseRule, LintFix, LintResult
-from ..doc_decorators import document_fix_compatible, document_configuration
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_configuration
 
 
 @document_configuration
