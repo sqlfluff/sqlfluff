@@ -7,7 +7,9 @@ from glob import glob
 
 def get_rules_from_path(
     # All rule files are expected in the format of L*.py
-    rules_path=os.path.abspath(os.path.join(os.path.dirname(__file__), "../../rules", "L*.py")),
+    rules_path=os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "../../rules", "L*.py")
+    ),
     base_module="sqlfluff.rules",
 ):
     """Reads all of the Rule classes from a path into a list."""
