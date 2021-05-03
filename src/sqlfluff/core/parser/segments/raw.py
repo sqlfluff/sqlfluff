@@ -14,17 +14,21 @@ class RawSegment(BaseSegment):
     _is_code = False
     _is_comment = False
     _template = "<unset>"
+    _classname = "RawSegment"
 
-    def __init__(self, raw, pos_marker):
+    def __init__(self, raw, pos_marker, **kwargs):
         self._raw = raw
         self._raw_upper = raw.upper()
         # pos marker is required here
         self.pos_marker = pos_marker
+        self._kwargs = kwargs
+        for k, v in kwargs.items():
+            if not k.startswith("_"):
+                k = "_{k}"
+            setattr(self, k, v)
 
     def __repr__(self):
-        return "<{0}: ({1}) {2!r}>".format(
-            self.__class__.__name__, self.pos_marker, self.raw
-        )
+        return "<{0}: ({1}) {2!r}>".format(self._classname, self.pos_marker, self.raw)
 
     # ################ PUBLIC PROPERTIES
 
@@ -75,14 +79,7 @@ class RawSegment(BaseSegment):
         name = name or _template
         # Now lets make the classname (it indicates the mother class for clarity)
         classname = "{0}_{1}".format(name, cls.__name__)
-        # This is the magic, we generate a new class! SORCERY
-        newclass = type(
-            classname,
-            (cls,),
-            dict(_template=_template, _name=name, **kwargs),
-        )
-        # Now we return that class in the abstract. NOT INSTANTIATED
-        return newclass
+        return RawSegmentFactory(cls, classname, _template, name, **kwargs)
 
     # ################ INSTANCE METHODS
 
@@ -139,7 +136,13 @@ class RawSegment(BaseSegment):
         Used mostly by fixes.
 
         """
-        return self.__class__(raw=raw, pos_marker=self.pos_marker)
+        # return self.__class__(raw=raw, pos_marker=self.pos_marker)
+        return RawSegment(
+            _classname=self._classname,
+            _template=self._template,
+            _name=self._name,
+            **self._kwargs
+        )
 
     def get_end_pos_marker(self):
         """Return the pos marker at the end of this segment."""
@@ -148,3 +151,28 @@ class RawSegment(BaseSegment):
     def get_start_pos_marker(self):
         """Return the pos marker at the start of this segment."""
         return self.pos_marker
+
+
+class RawSegmentFactory(BaseSegment):
+    def __init__(self, cls, classname, _template, _name, **kwargs):
+        # if classname.startswith("semicolon"):
+        #     import pdb; pdb.set_trace()
+        self.cls = cls
+        self.__name__ = classname
+        self._template = _template
+        self._name = _name
+        self._kwargs = kwargs
+
+    def __repr__(self):
+        return f"<{self.cls.__name__}: {self.__name__} {self._template} {self._name} {self._kwargs}"
+
+    def __call__(self, raw, pos_marker):
+        result = self.cls(
+            raw,
+            pos_marker,
+            _classname=self.__name__,
+            _template=self._template,
+            _name=self._name,
+            **self._kwargs
+        )
+        return result
