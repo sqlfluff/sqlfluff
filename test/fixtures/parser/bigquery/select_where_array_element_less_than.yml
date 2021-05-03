@@ -23,7 +23,8 @@ file:
             start_square_bracket: '['
             expression:
               function:
-                function_name: ORDINAL
+                function_name:
+                  function_name_identifier: ORDINAL
                 start_bracket: (
                 expression:
                   literal: '1'
@@ -36,7 +37,8 @@ file:
             start_square_bracket: '['
             expression:
               function:
-                function_name: ORDINAL
+                function_name:
+                  function_name_identifier: ORDINAL
                 start_bracket: (
                 expression:
                 - literal: '1'

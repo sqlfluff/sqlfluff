@@ -5,7 +5,8 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-          - function_name: COALESCE
+          - function_name:
+              function_name_identifier: COALESCE
           - start_bracket: (
           - expression:
               column_reference:
@@ -26,7 +27,8 @@ file:
       - keyword: BY
       - expression:
           function:
-          - function_name: COALESCE
+          - function_name:
+              function_name_identifier: COALESCE
           - start_bracket: (
           - expression:
               column_reference:

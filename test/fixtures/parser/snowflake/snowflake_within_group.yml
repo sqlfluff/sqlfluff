@@ -76,7 +76,8 @@ file:
         - comma: ','
         - select_clause_element:
             function:
-            - function_name: listagg
+            - function_name:
+                function_name_identifier: listagg
             - start_bracket: (
             - expression:
                 column_reference:

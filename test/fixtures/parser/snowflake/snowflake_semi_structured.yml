@@ -106,7 +106,8 @@ file:
             keyword: lateral
             table_expression:
               function:
-                function_name: flatten
+                function_name:
+                  function_name_identifier: flatten
                 start_bracket: (
                 snowflake_keyword_expression:
                   parameter: INPUT
