@@ -127,6 +127,7 @@ class ReSegment(_ProtoKeywordSegment):
         we assume that ._template is a r"" string, and is formatted
         for use directly as a regex. This only matches on a single segment.
         """
+        cls_ = parse_context._factory if parse_context._factory else cls
         # If we've been passed the singular, make it a list
         if isinstance(segments, BaseSegment):
             segments = [segments]
@@ -138,17 +139,17 @@ class ReSegment(_ProtoKeywordSegment):
         if len(s) == 0:
             raise ValueError("Zero length string passed to ReSegment!?")
         # Try the regex
-        result = re.match(cls._template, sc)
+        result = re.match(cls_._template, sc)
         if result:
             r = result.group(0)
             # Check that we've fully matched
             if r == sc:
                 # Check that the _anti_template (if set) hasn't also matched
-                if cls._anti_template and re.match(cls._anti_template, sc):
+                if cls_._anti_template and re.match(cls_._anti_template, sc):
                     return MatchResult.from_unmatched(segments)
                 else:
                     m = (
-                        cls(raw=s, pos_marker=segments[0].pos_marker),
+                        cls_(raw=s, pos_marker=segments[0].pos_marker),
                     )  # Return a tuple
                     return MatchResult(m, segments[1:])
         return MatchResult.from_unmatched(segments)

@@ -155,7 +155,8 @@ class RawSegment(BaseSegment):
 
 class RawSegmentFactory:
     optional = False
-
+    _anti_template = None
+    
     def __init__(self, cls, classname, _template, _name, **kwargs):
         # if classname.startswith("semicolon"):
         #     import pdb; pdb.set_trace()
