@@ -2,7 +2,7 @@
 # code linting and formatting
 flake8
 flake8-docstrings
-flake8-black
+flake8-black;implementation_name!="pypy"
 # documentation checks
 doc8
 Pygments
