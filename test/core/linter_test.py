@@ -214,17 +214,23 @@ def test__linter__linting_parallel_thread(force_error, monkeypatch):
     monkeypatch.setattr(Linter, "MIN_THRESHOLD_PARALLEL", 1)
 
     if not force_error:
+
         def _create_pool(*args, **kwargs):
             return multiprocessing.dummy.Pool(*args, **kwargs)
+
     else:
+
         def _create_pool(*args, **kwargs):
             class ErrorPool:
                 def __enter__(self):
                     return self
+
                 def __exit__(self, exc_type, exc_val, exc_tb):
                     pass
+
                 def imap(self, *args, **kwargs):
                     yield linter.DelayedException(ValueError())
+
             return ErrorPool()
 
     monkeypatch.setattr(linter, "_create_pool", _create_pool)
