@@ -5,6 +5,10 @@
 from sqlfluff.core.parser.segments import (
     BaseSegment,
     RawSegment,
+    CodeSegment,
+    CommentSegment,
+    WhitespaceSegment,
+    NewlineSegment,
     KeywordSegment,
     SymbolSegment,
     ReSegment,

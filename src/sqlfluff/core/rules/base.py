@@ -21,7 +21,7 @@ import re
 from typing import Optional, List, Tuple, TYPE_CHECKING
 from collections import namedtuple
 
-from sqlfluff.core.parser import RawSegment, KeywordSegment, BaseSegment, SymbolSegment
+from sqlfluff.core.parser import KeywordSegment, BaseSegment, SymbolSegment, WhitespaceSegment, NewlineSegment
 from sqlfluff.core.errors import SQLLintError
 
 if TYPE_CHECKING:
@@ -423,9 +423,6 @@ class BaseRule:
     @classmethod
     def make_whitespace(cls, raw, pos_marker):
         """Make a whitespace segment."""
-        WhitespaceSegment = RawSegment.make(
-            " ", name="whitespace", type="whitespace", is_whitespace=True, is_code=False
-        )
         return WhitespaceSegment(raw=raw, pos_marker=pos_marker)
 
     @classmethod
@@ -433,8 +430,7 @@ class BaseRule:
         """Make a newline segment."""
         # Default the newline to \n
         raw = raw or "\n"
-        nls = RawSegment.make("\n", name="newline", type="newline", is_code=False)
-        return nls(raw=raw, pos_marker=pos_marker)
+        return NewlineSegment(raw=raw, pos_marker=pos_marker)
 
     @classmethod
     def make_keyword(cls, raw, pos_marker):

@@ -20,6 +20,7 @@ from sqlfluff.core.parser import (
     Ref,
     Anything,
     RegexMatcher,
+    CodeSegment,
 )
 from sqlfluff.core.dialects import load_raw_dialect
 
@@ -29,7 +30,7 @@ teradata_dialect = ansi_dialect.copy_as("teradata")
 teradata_dialect.patch_lexer_matchers(
     [
         # so it also matches 1.
-        RegexMatcher("numeric_literal", r"([0-9]+(\.[0-9]*)?)"),
+        RegexMatcher("numeric_literal", r"([0-9]+(\.[0-9]*)?)", CodeSegment),
     ]
 )
 

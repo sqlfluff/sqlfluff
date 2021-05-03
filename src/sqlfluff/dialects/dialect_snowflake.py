@@ -23,6 +23,7 @@ from sqlfluff.core.parser import (
     Dedent,
     RegexMatcher,
     StringMatcher,
+    CodeSegment,
 )
 
 
@@ -35,17 +36,17 @@ snowflake_dialect.patch_lexer_matchers(
     [
         # In snowflake, a double single quote resolves as a single quote in the string.
         # https://docs.snowflake.com/en/sql-reference/data-types-text.html#single-quoted-string-constants
-        RegexMatcher("single_quote", r"'([^']|'')*'"),
+        RegexMatcher("single_quote", r"'([^']|'')*'", CodeSegment),
     ]
 )
 
 snowflake_dialect.insert_lexer_matchers(
     [
         # Keyword assigner needed for keyword functions.
-        StringMatcher("parameter_assigner", "=>"),
+        StringMatcher("parameter_assigner", "=>", CodeSegment),
         # Column selector
         # https://docs.snowflake.com/en/sql-reference/sql/select.html#parameters
-        RegexMatcher("column_selector", r"\$[0-9]+"),
+        RegexMatcher("column_selector", r"\$[0-9]+", CodeSegment),
     ],
     before="not_equal",
 )

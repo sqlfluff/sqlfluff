@@ -23,6 +23,7 @@ from sqlfluff.core.parser import (
     Indent,
     SymbolSegment,
     RegexMatcher,
+    CodeSegment,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -41,10 +42,12 @@ bigquery_dialect.patch_lexer_matchers(
         RegexMatcher(
             "single_quote",
             r"([rR]?[bB]?|[bB]?[rR]?)?('''((?<!\\)(\\{2})*\\'|'{,2}(?!')|[^'])*(?<!\\)(\\{2})*'''|'((?<!\\)(\\{2})*\\'|[^'])*(?<!\\)(\\{2})*')",
+            CodeSegment,
         ),
         RegexMatcher(
             "double_quote",
             r'([rR]?[bB]?|[bB]?[rR]?)?(\"\"\"((?<!\\)(\\{2})*\\\"|\"{,2}(?!\")|[^\"])*(?<!\\)(\\{2})*\"\"\"|"((?<!\\)(\\{2})*\\"|[^"])*(?<!\\)(\\{2})*")',
+            CodeSegment,
         ),
     ]
 )

@@ -23,6 +23,8 @@ from sqlfluff.core.parser import (
     StartsWith,
     RegexMatcher,
     StringMatcher,
+    CodeSegment,
+    CommentSegment,
 )
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.dialects.exasol_keywords import (
@@ -44,8 +46,8 @@ exasol_dialect.sets("bare_functions").update(BARE_FUNCTIONS)
 
 exasol_dialect.insert_lexer_matchers(
     [
-        RegexMatcher("range_operator", r"\.{2}"),
-        StringMatcher("hash", "#"),
+        RegexMatcher("range_operator", r"\.{2}", CodeSegment),
+        StringMatcher("hash", "#", CodeSegment),
     ],
     before="not_equal",
 )
@@ -56,12 +58,13 @@ exasol_dialect.patch_lexer_matchers(
         # It's also used for escaping single quotes inside of STATEMENT strings like in the IMPORT function
         # https://docs.exasol.com/sql_references/basiclanguageelements.htm#Delimited_Identifiers
         # https://docs.exasol.com/sql_references/literals.htm
-        RegexMatcher("single_quote", r"'([^']|'')*'"),
-        RegexMatcher("double_quote", r'"([^"]|"")*"'),
+        RegexMatcher("single_quote", r"'([^']|'')*'", CodeSegment),
+        RegexMatcher("double_quote", r'"([^"]|"")*"', CodeSegment),
         RegexMatcher(
             "inline_comment",
             r"--[^\n]*",
-            segment_kwargs={"is_comment": True, "type": "comment", "trim_start": ("--"), "is_code": False}
+            CommentSegment,
+            segment_kwargs={"trim_start": ("--")},
         ),
     ]
 )

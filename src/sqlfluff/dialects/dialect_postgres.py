@@ -10,6 +10,7 @@ from sqlfluff.core.parser import (
     NamedSegment,
     Delimited,
     RegexMatcher,
+    CodeSegment,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -25,6 +26,7 @@ postgres_dialect.insert_lexer_matchers(
         RegexMatcher(
             "json_operator",
             r"->>|#>>|->|#>|@>|<@|\?\||\?|\?&|#-",
+            CodeSegment,
         )
     ],
     before="not_equal",

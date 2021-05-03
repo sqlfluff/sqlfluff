@@ -12,6 +12,7 @@ from sqlfluff.core.parser.segments import (
     Indent,
     Dedent,
     TemplateSegment,
+    CodeSegment,
 )
 from sqlfluff.core.errors import SQLLexError
 from sqlfluff.core.templaters import TemplatedFile
@@ -57,12 +58,14 @@ class StringMatcher:
         self,
         name,
         template,
+        segment_class,
         subdivider=None,
         trim_post_subdivide=None,
         segment_kwargs=None,
     ):
         self.name = name
         self.template = template
+        self.segment_class = segment_class
         self.subdivider = subdivider
         self.trim_post_subdivide = trim_post_subdivide
         self.segment_kwargs = segment_kwargs or {}
@@ -195,7 +198,7 @@ class StringMatcher:
     def _make_segment_class(self):
         # NOTE: Stub method to override later.
         # THIS NEEDS REFACTORING WITH FACTORIES
-        return RawSegment.make(self.template, name=self.name, **self.segment_kwargs)
+        return self.segment_class.make(self.template, name=self.name, **self.segment_kwargs)
 
 
 class RegexMatcher(StringMatcher):
@@ -253,6 +256,7 @@ class Lexer:
         self.last_resort_lexer = last_resort_lexer or RegexMatcher(
             "<unlexable>",
             r"[^\t\n\,\.\ \-\+\*\\\/\'\"\;\:\[\]\(\)\|]*",
+            CodeSegment,
             segment_kwargs={"is_code": True}
         )
 

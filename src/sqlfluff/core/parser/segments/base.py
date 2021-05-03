@@ -70,7 +70,6 @@ class BaseSegment:
     # We define this as Null here but it is assumed that any subclass must override.
     match_grammar: Matchable = None  # type: ignore
     comment_seperate = False
-    is_whitespace = False
     optional = False  # NB: See the sequence grammar for details
     is_segment = True
     _name = None
@@ -204,6 +203,11 @@ class BaseSegment:
     def is_comment(self):
         """Return True if this is entirely made of comments."""
         return all(seg.is_comment for seg in self.segments)
+
+    @cached_property
+    def is_whitespace(self):
+        """Return True if this segment is entirely whitespace."""
+        return all(seg.is_whitespace for seg in self.segments)
 
     @cached_property
     def raw(self):

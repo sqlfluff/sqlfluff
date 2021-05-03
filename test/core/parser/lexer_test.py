@@ -3,7 +3,7 @@
 import pytest
 import logging
 
-from sqlfluff.core.parser import Lexer
+from sqlfluff.core.parser import Lexer, CodeSegment
 from sqlfluff.core.parser.lexer import (
     StringMatcher,
     LexMatch,
@@ -73,7 +73,7 @@ def test__parser__lexer_obj(raw, res, caplog):
 def test__parser__lexer_string(raw, res):
     """Test the StringMatcher."""
     matcher = StringMatcher(
-        "dot", ".", segment_kwargs={"name": "dot", "is_code": True}
+        "dot", ".", CodeSegment
     )
     assert_matches(raw, matcher, res)
 
@@ -99,7 +99,7 @@ def test__parser__lexer_string(raw, res):
 )
 def test__parser__lexer_regex(raw, reg, res, caplog):
     """Test the RegexMatcher."""
-    matcher = RegexMatcher("test", reg, segment_kwargs={"name": "test"})
+    matcher = RegexMatcher("test", reg, CodeSegment)
     with caplog.at_level(logging.DEBUG):
         assert_matches(raw, matcher, res)
 
@@ -107,8 +107,8 @@ def test__parser__lexer_regex(raw, reg, res, caplog):
 def test__parser__lexer_lex_match(caplog):
     """Test the RepeatedMultiMatcher."""
     matchers = [
-        StringMatcher("dot", ".", segment_kwargs={"name": "dot", "is_code": True}),
-        RegexMatcher("test", r"#[^#]*#", segment_kwargs={"name": "test"}),
+        StringMatcher("dot", ".", CodeSegment),
+        RegexMatcher("test", r"#[^#]*#", CodeSegment),
     ]
     with caplog.at_level(logging.DEBUG):
         res = Lexer.lex_match("..#..#..#", matchers)

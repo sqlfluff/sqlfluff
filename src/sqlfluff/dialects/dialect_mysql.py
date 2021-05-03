@@ -12,6 +12,7 @@ from sqlfluff.core.parser import (
     OneOf,
     Bracketed,
     RegexMatcher,
+    CommentSegment,
 )
 from sqlfluff.core.dialects import load_raw_dialect
 
@@ -23,7 +24,8 @@ mysql_dialect.patch_lexer_matchers(
         RegexMatcher(
             "inline_comment",
             r"(-- |#)[^\n]*",
-            segment_kwargs={"is_comment": True, "type": "comment", "trim_start": ("-- ", "#"), "is_code": False}
+            CommentSegment,
+            segment_kwargs={"trim_start": ("-- ", "#")}
         )
     ]
 )

@@ -28,6 +28,8 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     StringMatcher,
     RegexMatcher,
+    CodeSegment,
+    NewlineSegment,
 )
 from sqlfluff.core.dialects import load_raw_dialect
 
@@ -37,20 +39,22 @@ exasol_fs_dialect.sets("unreserved_keywords").add("ROWCOUNT")
 
 exasol_fs_dialect.insert_lexer_matchers(
     [
-        StringMatcher("walrus_operator", ":=", segment_kwargs={"type": "walrus_operator"}),
+        StringMatcher("walrus_operator", ":=", CodeSegment, segment_kwargs={"type": "walrus_operator"}),
         RegexMatcher(
             "function_script_terminator",
             r";\s+\/(?!\*)|\s+\/$",
+            CodeSegment,
             segment_kwargs={"type": "statement_terminator"},
             subdivider=StringMatcher(
                 "semicolon",
                 ";",
+                CodeSegment,
                 segment_kwargs={"type": "semicolon"}
             ),
             trim_post_subdivide=RegexMatcher(
                 "newline",
                 r"(\n|\r\n)+",
-                segment_kwargs={"type": "newline", "is_code": False}
+                NewlineSegment,
             ),
         ),
     ],
