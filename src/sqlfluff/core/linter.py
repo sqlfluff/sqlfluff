@@ -810,6 +810,10 @@ class DelayedException(Exception):
         raise self.ee.with_traceback(self.tb)
 
 
+def _create_pool(*args, **kwargs):
+    return multiprocessing.Pool(*args, **kwargs)
+
+
 class Linter:
     """The interface class to interact with the linter."""
 
@@ -1474,7 +1478,7 @@ To hide this warning, add the failing file to .sqlfluffignore
             )
         dialect = self.config.get("dialect")
         self._init_dialect(dialect)
-        with multiprocessing.Pool(parallel, self._init_dialect, (dialect,)) as pool:
+        with _create_pool(parallel, self._init_dialect, (dialect,)) as pool:
             for lint_result in pool.imap(self._apply, jobs):
                 if isinstance(lint_result, LintedFile):
                     if self.formatter:
@@ -1499,6 +1503,8 @@ To hide this warning, add the failing file to .sqlfluffignore
                 target_file.read(), fname=fname, fix=fix, config=config
             )
 
+    MIN_THRESHOLD_PARALLEL = 2
+
     def lint_path(
         self,
         path: str,
@@ -1518,7 +1524,7 @@ To hide this warning, add the failing file to .sqlfluffignore
                 ignore_files=ignore_files,
             )
         )
-        if parallel > 1 and sys.version_info > (3, 7):
+        if parallel >= self.MIN_THRESHOLD_PARALLEL and sys.version_info > (3, 7):
             g = self._parallel_lint_path_body(fnames, fix, parallel)
         else:
             if parallel > 1:

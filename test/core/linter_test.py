@@ -1,6 +1,7 @@
 """The Test file for the linter class."""
 
 import pytest
+import multiprocessing.dummy
 from typing import List
 from unittest.mock import patch
 
@@ -198,6 +199,40 @@ def test__linter__linting_result_get_violations(parallel):
     )
 
     all([type(v) == SQLLintError for v in result.get_violations()])
+
+
+def test__linter__linting_parallel_thread(monkeypatch):
+    """Run linter in parallel mode using threads.
+
+    Similar to test__linter__linting_result_get_violations but uses a thread
+    pool of 1 worker to test parallel mode without subprocesses. This lets the
+    tests capture code coverage information for the backend parts of parallel
+    execution without having to jump through hoops.
+    """
+    monkeypatch.setattr(Linter, "MIN_THRESHOLD_PARALLEL", 1)
+
+    def _create_pool(*args, **kwargs):
+        return multiprocessing.dummy.Pool(*args, **kwargs)
+
+    monkeypatch.setattr(linter, "_create_pool", _create_pool)
+
+    lntr = Linter()
+    result = lntr.lint_paths(
+        ("test/fixtures/linter/comma_errors.sql",),
+        parallel=1,
+    )
+
+    all([type(v) == SQLLintError for v in result.get_violations()])
+
+
+@patch("sqlfluff.core.linter.Linter._lint_path_core")
+def test_lint_path_parallel_wrapper_exception(patched_lint_path_core):
+    """Tests the error catching behavior of _lint_path_parallel_wrapper()."""
+    patched_lint_path_core.side_effect = ValueError("Something unexpected happened")
+    result = Linter._lint_path_parallel_wrapper(FluffConfig(), "")
+    assert isinstance(result, linter.DelayedException)
+    with pytest.raises(ValueError):
+        result.reraise()
 
 
 @patch("sqlfluff.core.linter.linter_logger")
