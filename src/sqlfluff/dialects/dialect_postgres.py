@@ -25,7 +25,6 @@ postgres_dialect.insert_lexer_matchers(
         RegexMatcher(
             "json_operator",
             r"->>|#>>|->|#>|@>|<@|\?\||\?|\?&|#-",
-            segment_kwargs={"is_code": True}
         )
     ],
     before="not_equal",

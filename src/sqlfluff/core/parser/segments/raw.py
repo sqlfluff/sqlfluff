@@ -11,7 +11,7 @@ class RawSegment(BaseSegment):
     """This is a segment without any subsegments."""
 
     type = "raw"
-    _is_code = False
+    _is_code = True
     _is_comment = False
     _template = "<unset>"
 

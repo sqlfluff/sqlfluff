@@ -424,7 +424,7 @@ class BaseRule:
     def make_whitespace(cls, raw, pos_marker):
         """Make a whitespace segment."""
         WhitespaceSegment = RawSegment.make(
-            " ", name="whitespace", type="whitespace", is_whitespace=True
+            " ", name="whitespace", type="whitespace", is_whitespace=True, is_code=False
         )
         return WhitespaceSegment(raw=raw, pos_marker=pos_marker)
 
@@ -433,7 +433,7 @@ class BaseRule:
         """Make a newline segment."""
         # Default the newline to \n
         raw = raw or "\n"
-        nls = RawSegment.make("\n", name="newline", type="newline")
+        nls = RawSegment.make("\n", name="newline", type="newline", is_code=False)
         return nls(raw=raw, pos_marker=pos_marker)
 
     @classmethod

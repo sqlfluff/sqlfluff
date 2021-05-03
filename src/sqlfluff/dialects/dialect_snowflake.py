@@ -35,17 +35,17 @@ snowflake_dialect.patch_lexer_matchers(
     [
         # In snowflake, a double single quote resolves as a single quote in the string.
         # https://docs.snowflake.com/en/sql-reference/data-types-text.html#single-quoted-string-constants
-        RegexMatcher("single_quote", r"'([^']|'')*'", segment_kwargs={"is_code": True}),
+        RegexMatcher("single_quote", r"'([^']|'')*'"),
     ]
 )
 
 snowflake_dialect.insert_lexer_matchers(
     [
         # Keyword assigner needed for keyword functions.
-        StringMatcher("parameter_assigner", "=>", segment_kwargs={"is_code": True}),
+        StringMatcher("parameter_assigner", "=>"),
         # Column selector
         # https://docs.snowflake.com/en/sql-reference/sql/select.html#parameters
-        RegexMatcher("column_selector", r"\$[0-9]+", segment_kwargs={"is_code": True}),
+        RegexMatcher("column_selector", r"\$[0-9]+"),
     ],
     before="not_equal",
 )

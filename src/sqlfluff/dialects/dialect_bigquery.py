@@ -41,12 +41,10 @@ bigquery_dialect.patch_lexer_matchers(
         RegexMatcher(
             "single_quote",
             r"([rR]?[bB]?|[bB]?[rR]?)?('''((?<!\\)(\\{2})*\\'|'{,2}(?!')|[^'])*(?<!\\)(\\{2})*'''|'((?<!\\)(\\{2})*\\'|[^'])*(?<!\\)(\\{2})*')",
-            segment_kwargs={"is_code": True}
         ),
         RegexMatcher(
             "double_quote",
             r'([rR]?[bB]?|[bB]?[rR]?)?(\"\"\"((?<!\\)(\\{2})*\\\"|\"{,2}(?!\")|[^\"])*(?<!\\)(\\{2})*\"\"\"|"((?<!\\)(\\{2})*\\"|[^"])*(?<!\\)(\\{2})*")',
-            segment_kwargs={"is_code": True}
         ),
     ]
 )

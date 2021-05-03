@@ -23,7 +23,7 @@ mysql_dialect.patch_lexer_matchers(
         RegexMatcher(
             "inline_comment",
             r"(-- |#)[^\n]*",
-            segment_kwargs={"is_comment": True, "type": "comment", "trim_start": ("-- ", "#")}
+            segment_kwargs={"is_comment": True, "type": "comment", "trim_start": ("-- ", "#"), "is_code": False}
         )
     ]
 )
