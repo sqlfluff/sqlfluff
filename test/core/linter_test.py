@@ -7,6 +7,7 @@ from unittest.mock import patch
 
 from sqlfluff.core import Linter, FluffConfig
 from sqlfluff.core.errors import SQLBaseError, SQLLintError, SQLParseError
+from sqlfluff.cli.formatters import CallbackFormatter
 from sqlfluff.core.linter import LintingResult, NoQaDirective
 import sqlfluff.core.linter as linter
 from sqlfluff.core.parser import FilePositionMarker
@@ -201,7 +202,8 @@ def test__linter__linting_result_get_violations(parallel):
     all([type(v) == SQLLintError for v in result.get_violations()])
 
 
-def test__linter__linting_parallel_thread(monkeypatch):
+@pytest.mark.parametrize("force_error", [False, True])
+def test__linter__linting_parallel_thread(force_error, monkeypatch):
     """Run linter in parallel mode using threads.
 
     Similar to test__linter__linting_result_get_violations but uses a thread
@@ -211,12 +213,23 @@ def test__linter__linting_parallel_thread(monkeypatch):
     """
     monkeypatch.setattr(Linter, "MIN_THRESHOLD_PARALLEL", 1)
 
-    def _create_pool(*args, **kwargs):
-        return multiprocessing.dummy.Pool(*args, **kwargs)
+    if not force_error:
+        def _create_pool(*args, **kwargs):
+            return multiprocessing.dummy.Pool(*args, **kwargs)
+    else:
+        def _create_pool(*args, **kwargs):
+            class ErrorPool:
+                def __enter__(self):
+                    return self
+                def __exit__(self, exc_type, exc_val, exc_tb):
+                    pass
+                def imap(self, *args, **kwargs):
+                    yield linter.DelayedException(ValueError())
+            return ErrorPool()
 
     monkeypatch.setattr(linter, "_create_pool", _create_pool)
 
-    lntr = Linter()
+    lntr = Linter(formatter=CallbackFormatter(callback=lambda m: None, verbosity=0))
     result = lntr.lint_paths(
         ("test/fixtures/linter/comma_errors.sql",),
         parallel=1,
