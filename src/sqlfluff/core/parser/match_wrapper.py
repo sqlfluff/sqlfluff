@@ -43,7 +43,7 @@ def match_wrapper(v_level=3):
     def inner_match_wrapper(func):
         """Decorate a match function."""
 
-        def wrapped_match_method(self_cls, segments: tuple, parse_context):
+        def wrapped_match_method(self_cls, segments: tuple, parse_context, factory=None):
             """A wrapper on the match function to do some basic validation."""
             # Use the ephemeral_segment if present. This should only
             # be the case for grammars where `ephemeral_name` is defined.
@@ -53,7 +53,7 @@ def match_wrapper(v_level=3):
                 m = MatchResult.from_matched(ephemeral_segment(segments=segments))
             else:
                 # Otherwise carry on through with wrapping the function.
-                m = func(self_cls, segments, parse_context=parse_context)
+                m = func(self_cls, segments, parse_context=parse_context, factory=factory)
 
             # Validate result
             if not isinstance(m, MatchResult):

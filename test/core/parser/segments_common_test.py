@@ -32,7 +32,7 @@ def test__parser__core_keyword(raw_seg_list):
         m = FooKeyword.match(raw_seg_list[1], parse_context=ctx)
         assert m
         assert m.matched_segments[0].raw == "foo"
-        assert isinstance(m.matched_segments[0], FooKeyword)
+        assert isinstance(m.matched_segments[0], FooKeyword.cls)
         # Match it against the final element as a list
         assert FooKeyword.match([raw_seg_list[1]], parse_context=ctx)
         # Match it against a list slice and check it still works

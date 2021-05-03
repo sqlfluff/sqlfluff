@@ -52,12 +52,13 @@ class _ProtoKeywordSegment(RawSegment):
 
     @classmethod
     @match_wrapper(v_level=4)
-    def match(cls, segments, parse_context):
+    def match(cls, segments, parse_context, factory=None):
         """Compare input segments for a match, return a `MatchResult`.
 
         Note: For Keyword matching, we only consider the *first* element,
         because we assume that a keyword can only span one raw segment.
         """
+        cls_ = factory if factory else cls
         # If we've been passed the singular, make it a list
         if isinstance(segments, BaseSegment):
             segments = [segments]
@@ -70,8 +71,8 @@ class _ProtoKeywordSegment(RawSegment):
 
             # Is the target a match and IS IT CODE.
             # The latter stops us accidentally matching comments.
-            if cls._template == raw_comp and segments[0].is_code:
-                m = (cls(raw=raw, pos_marker=pos),)  # Return as a tuple
+            if cls_._template == raw_comp and segments[0].is_code:
+                m = (cls_(raw=raw, pos_marker=pos),)  # Return as a tuple
                 return MatchResult(m, segments[1:])
         return MatchResult.from_unmatched(segments)
 

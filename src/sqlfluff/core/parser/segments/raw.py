@@ -176,3 +176,6 @@ class RawSegmentFactory(BaseSegment):
             **self._kwargs
         )
         return result
+
+    def match(self, *l, **kw):
+        return self.cls.match(factory=self, *l, **kw)
