@@ -8,7 +8,6 @@ from sqlfluff.core.parser.lexer import (
     SingletonMatcher,
     LexMatch,
     RegexMatcher,
-    RepeatedMultiMatcher,
 )
 from sqlfluff.core.parser import RawSegment, FilePositionMarker
 from sqlfluff.core import SQLLexError, FluffConfig
@@ -110,15 +109,15 @@ def test__parser__lexer_regex(raw, reg, res, caplog):
         assert_matches(raw, matcher, res)
 
 
-def test__parser__lexer_multimatcher(caplog):
+def test__parser__lexer_lex_match(caplog):
     """Test the RepeatedMultiMatcher."""
-    matcher = RepeatedMultiMatcher(
+    matchers = [
         SingletonMatcher("dot", ".", RawSegment.make(".", name="dot", is_code=True)),
         RegexMatcher("test", r"#[^#]*#", RawSegment.make("test", name="test")),
-    )
+    ]
     start_pos = FilePositionMarker()
     with caplog.at_level(logging.DEBUG):
-        res = matcher.match("..#..#..#", start_pos)
+        res = Lexer.lex_match("..#..#..#", start_pos, matchers)
         assert res.new_string == "#"  # Should match right up to the final element
         assert res.new_pos == start_pos.advance_by("..#..#..")
         assert len(res.segments) == 5

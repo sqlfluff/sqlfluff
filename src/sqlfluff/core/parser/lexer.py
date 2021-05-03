@@ -225,65 +225,6 @@ class RegexMatcher(SingletonMatcher):
             return None
 
 
-class RepeatedMultiMatcher(SingletonMatcher):
-    """Uses other matchers in priority order.
-
-    Args:
-        *submatchers: An iterable of other matchers which can be tried
-            in turn. If none match a given forward looking string we simply
-            return the unmatched part as per any other matcher.
-
-    """
-
-    def __init__(self, *submatchers):
-        self.submatchers = submatchers
-
-    def match(self, forward_string, start_pos):
-        """Iteratively match strings using the selection of submatchers."""
-        seg_buff = ()
-        while True:
-            if len(forward_string) == 0:
-                return LexMatch(forward_string, start_pos, seg_buff)
-            for matcher in self.submatchers:
-                res = matcher.match(forward_string, start_pos)
-                if res.segments:
-                    # If we have new segments then whoop!
-                    seg_buff += res.segments
-                    forward_string = res.new_string
-                    start_pos = res.new_pos
-                    # Cycle back around again and start with the top
-                    # matcher again.
-                    break
-                else:
-                    continue
-            else:
-                # We've got so far, but now can't match. Return
-                return LexMatch(forward_string, start_pos, seg_buff)
-
-    @classmethod
-    def from_struct(cls, s):
-        """Creates a matcher from a lexer_struct.
-
-        Expects an iterable of :obj:`tuple`. Each tuple should be:
-        (name, type, pattern, kwargs).
-
-        """
-        matchers = []
-        for elem in s:
-            if elem[1] == "regex":
-                m_cls = RegexMatcher
-            elif elem[1] == "singleton":
-                m_cls = SingletonMatcher
-            else:
-                raise ValueError(
-                    "Unexpected matcher type in lexer struct: {0!r}".format(elem[1])
-                )
-            k = elem[3] or {}
-            m = m_cls.from_shorthand(elem[0], elem[2], **k)
-            matchers.append(m)
-        return cls(*matchers)
-
-
 class Lexer:
     """The Lexer class actually does the lexing step."""
 
@@ -295,8 +236,9 @@ class Lexer:
     ):
         # Allow optional config and dialect
         self.config = FluffConfig.from_kwargs(config=config, dialect=dialect)
-        lexer_struct = self.config.get("dialect_obj").get_lexer_struct()
-        self.matcher = RepeatedMultiMatcher.from_struct(lexer_struct)
+        self.lexer_matchers = self._struct_to_matchers(
+            self.config.get("dialect_obj").get_lexer_struct()
+        )
         self.last_resort_lexer = last_resort_lexer or RegexMatcher.from_shorthand(
             "<unlexable>", r"[^\t\n\,\.\ \-\+\*\\\/\'\"\;\:\[\]\(\)\|]*", is_code=True
         )
@@ -318,7 +260,7 @@ class Lexer:
         str_buff = str(raw)
 
         while True:
-            res = self.matcher.match(str_buff, start_pos)
+            res = self.lex_match(str_buff, start_pos, self.lexer_matchers)
             segment_buff += res.segments
             if len(res.new_string) > 0:
                 violations.append(
@@ -345,6 +287,52 @@ class Lexer:
             return self.enrich_segments(segment_buff, raw), violations
         else:
             return segment_buff, violations
+
+    @staticmethod
+    def _struct_to_matchers(s):
+        """Creates a matcher from a lexer_struct.
+
+        Expects an iterable of :obj:`tuple`. Each tuple should be:
+        (name, type, pattern, kwargs).
+
+        """
+        matchers = []
+        for elem in s:
+            if elem[1] == "regex":
+                m_cls = RegexMatcher
+            elif elem[1] == "singleton":
+                m_cls = SingletonMatcher
+            else:
+                raise ValueError(
+                    "Unexpected matcher type in lexer struct: {0!r}".format(elem[1])
+                )
+            k = elem[3] or {}
+            m = m_cls.from_shorthand(elem[0], elem[2], **k)
+            matchers.append(m)
+        return matchers
+
+    @staticmethod
+    def lex_match(forward_string, start_pos, lexer_matchers):
+        """Iteratively match strings using the selection of submatchers."""
+        seg_buff = ()
+        while True:
+            if len(forward_string) == 0:
+                return LexMatch(forward_string, start_pos, seg_buff)
+            for matcher in lexer_matchers:
+                res = matcher.match(forward_string, start_pos)
+                if res.segments:
+                    # If we have new segments then whoop!
+                    seg_buff += res.segments
+                    forward_string = res.new_string
+                    start_pos = res.new_pos
+                    # Cycle back around again and start with the top
+                    # matcher again.
+                    break
+                else:
+                    continue
+            else:
+                # We've got so far, but now can't match. Return
+                return LexMatch(forward_string, start_pos, seg_buff)
 
     @staticmethod
     def enrich_segments(
