@@ -60,4 +60,4 @@ def test__parser__core_ephemeral_segment(raw_seg_list):
         assert isinstance(res, tuple)
         elem = res[0]
         assert not isinstance(elem, ephemeral_segment)
-        assert isinstance(elem, BarKeyword)
+        assert isinstance(elem, BarKeyword.cls)
