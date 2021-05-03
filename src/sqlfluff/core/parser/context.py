@@ -102,11 +102,12 @@ class ParseContext:
 
     # We create a destroy many ParseContexts so we limit the slots
     # to improve performance.
-    __slots__ = ["match_depth", "parse_depth", "match_segment", "recurse", "_root_ctx"]
+    __slots__ = ["match_depth", "parse_depth", "match_segment", "recurse", "_root_ctx", "_factory"]
 
-    def __init__(self, root_ctx, recurse=True):
+    def __init__(self, root_ctx, recurse=True, factory=None):
         self._root_ctx = root_ctx
         self.recurse = recurse
+        self._factory = factory
         # The following attributes are only accessible via a copy
         # and not in the init method.
         self.match_segment = None

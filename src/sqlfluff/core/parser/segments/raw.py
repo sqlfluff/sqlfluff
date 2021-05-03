@@ -177,5 +177,8 @@ class RawSegmentFactory(BaseSegment):
         )
         return result
 
-    def match(self, *l, **kw):
-        return self.cls.match(factory=self, *l, **kw)
+    def match(self, segments, parse_context):
+        parse_context._factory = self
+        result = self.cls.match(segments, parse_context)
+        parse_context._factory = None
+        return result

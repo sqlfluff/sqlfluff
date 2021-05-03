@@ -21,6 +21,12 @@ from sqlfluff.core.parser.context import ParseContext
 MatchableType = Union[Matchable, Type[BaseSegment]]
 
 
+def fluff_issubclass(cls, class_or_tuple):
+    if hasattr(cls, "cls"):
+        cls = getattr(cls, "cls")
+    return issubclass(cls, class_or_tuple)
+
+
 class BracketInfo(NamedTuple):
     """BracketInfo tuple for keeping track of brackets during matching.
 
@@ -84,7 +90,7 @@ class BaseGrammar(Matchable):
 
         for instance, init_type, init_func in initialisers:
             if (instance and isinstance(elem, init_type)) or (
-                not instance and issubclass(elem, init_type)
+                not instance and fluff_issubclass(elem, init_type)
             ):
                 return init_func(elem)
         raise TypeError(

@@ -387,7 +387,7 @@ class BaseSegment:
     @classmethod
     @match_wrapper(v_level=4)
     def match(
-        cls, segments: Tuple["BaseSegment", ...], parse_context: ParseContext, factory=None
+        cls, segments: Tuple["BaseSegment", ...], parse_context: ParseContext
     ) -> MatchResult:
         """Match a list of segments against this segment.
 
@@ -402,7 +402,6 @@ class BaseSegment:
         # Edge case, but it's possible that we have *already matched* on
         # a previous cycle. Do should first check whether this is a case
         # of that.
-        assert factory is None
         if len(segments) == 1 and isinstance(segments[0], cls):
             # This has already matched. Winner.
             parse_match_logging(
