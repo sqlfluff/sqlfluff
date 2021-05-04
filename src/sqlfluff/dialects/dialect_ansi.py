@@ -149,12 +149,12 @@ ansi_dialect.sets("reserved_keywords").update(
 )
 
 # Bracket pairs (a set of tuples).
-# (name, startref, endref, definitely_bracket)
+# (name, startref, endref)
 ansi_dialect.sets("bracket_pairs").update(
     [
-        ("round", "StartBracketSegment", "EndBracketSegment", True),
-        ("square", "StartSquareBracketSegment", "EndSquareBracketSegment", True),
-        ("curly", "StartCurlyBracketSegment", "EndCurlyBracketSegment", True),
+        ("round", "StartBracketSegment", "EndBracketSegment"),
+        ("square", "StartSquareBracketSegment", "EndSquareBracketSegment"),
+        ("curly", "StartCurlyBracketSegment", "EndCurlyBracketSegment"),
     ]
 )
 
@@ -254,8 +254,10 @@ ansi_dialect.add(
     ParameterNameSegment=ReSegment.make(
         r"[A-Z][A-Z0-9_]*", name="parameter", type="parameter"
     ),
-    FunctionNameSegment=ReSegment.make(
-        r"[A-Z][A-Z0-9_]*", name="function_name", type="function_name"
+    FunctionNameIdentifierSegment=ReSegment.make(
+        r"[A-Z][A-Z0-9_]*",
+        name="function_name_identifier",
+        type="function_name_identifier",
     ),
     # Maybe data types should be more restrictive?
     DatatypeIdentifierSegment=ReSegment.make(
@@ -770,6 +772,28 @@ class WindowSpecificationSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class FunctionNameSegment(BaseSegment):
+    """Function name, including any prefix bits, e.g. project or schema."""
+
+    type = "function_name"
+    match_grammar = Sequence(
+        # Project name, schema identifier, etc.
+        AnyNumberOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("DotSegment"),
+            ),
+        ),
+        # Base function name
+        OneOf(
+            Ref("FunctionNameIdentifierSegment"),
+            Ref("QuotedIdentifierSegment"),
+        ),
+        allow_gaps=False,
+    )
+
+
+@ansi_dialect.segment()
 class FunctionSegment(BaseSegment):
     """A scalar or aggregate function.
 
@@ -782,12 +806,6 @@ class FunctionSegment(BaseSegment):
     type = "function"
     match_grammar = Sequence(
         Sequence(
-            Sequence(
-                # a stored function could be accessed by schema identifier
-                Ref("SingleIdentifierGrammar"),
-                Ref("DotSegment"),
-                optional=True,
-            ),
             Ref("FunctionNameSegment"),
             Bracketed(
                 Ref(

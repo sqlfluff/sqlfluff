@@ -23,7 +23,8 @@ file:
           - comma: ','
           - select_clause_element:
               function:
-                function_name: ARRAY
+                function_name:
+                  function_name_identifier: ARRAY
                 start_bracket: (
                 expression:
                   select_statement:
@@ -31,7 +32,8 @@ file:
                       keyword: SELECT
                       select_clause_element:
                         function:
-                          function_name: CAST
+                          function_name:
+                            function_name_identifier: CAST
                           start_bracket: (
                           expression:
                             column_reference:
@@ -46,11 +48,13 @@ file:
                         from_expression_element:
                           table_expression:
                             function:
-                              function_name: UNNEST
+                              function_name:
+                                function_name_identifier: UNNEST
                               start_bracket: (
                               expression:
                                 function:
-                                - function_name: SPLIT
+                                - function_name:
+                                    function_name_identifier: SPLIT
                                 - start_bracket: (
                                 - expression:
                                     column_reference:
@@ -90,7 +94,8 @@ file:
             select_clause_element:
               expression:
                 function:
-                  function_name: bucket_id
+                  function_name:
+                    function_name_identifier: bucket_id
                   start_bracket: (
                   expression:
                   - column_reference:
@@ -102,7 +107,8 @@ file:
                       start_square_bracket: '['
                       expression:
                         function:
-                          function_name: OFFSET
+                          function_name:
+                            function_name_identifier: OFFSET
                           start_bracket: (
                           expression:
                             literal: '0'
@@ -118,7 +124,8 @@ file:
                       start_square_bracket: '['
                       expression:
                         function:
-                          function_name: OFFSET
+                          function_name:
+                            function_name_identifier: OFFSET
                           start_bracket: (
                           expression:
                             literal: '1'
@@ -134,7 +141,8 @@ file:
                       start_square_bracket: '['
                       expression:
                         function:
-                          function_name: OFFSET
+                          function_name:
+                            function_name_identifier: OFFSET
                           start_bracket: (
                           expression:
                             literal: '2'
@@ -150,7 +158,8 @@ file:
                       start_square_bracket: '['
                       expression:
                         function:
-                          function_name: OFFSET
+                          function_name:
+                            function_name_identifier: OFFSET
                           start_bracket: (
                           expression:
                             literal: '3'
@@ -166,7 +175,8 @@ file:
                       start_square_bracket: '['
                       expression:
                         function:
-                          function_name: OFFSET
+                          function_name:
+                            function_name_identifier: OFFSET
                           start_bracket: (
                           expression:
                             literal: '4'
@@ -182,7 +192,8 @@ file:
                       start_square_bracket: '['
                       expression:
                         function:
-                          function_name: OFFSET
+                          function_name:
+                            function_name_identifier: OFFSET
                           start_bracket: (
                           expression:
                             literal: '5'

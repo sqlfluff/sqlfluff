@@ -5,11 +5,13 @@ file:
       - keyword: SELECT
       - select_clause_element:
           function:
-            function_name: TIMESTAMP_TRUNC
+            function_name:
+              function_name_identifier: TIMESTAMP_TRUNC
             start_bracket: (
             expression:
               function:
-              - function_name: TIMESTAMP_ADD
+              - function_name:
+                  function_name_identifier: TIMESTAMP_ADD
               - start_bracket: (
               - expression:
                   column_reference:
@@ -22,11 +24,13 @@ file:
                     keyword: INTERVAL
                     expression:
                       function:
-                        function_name: cast
+                        function_name:
+                          function_name_identifier: cast
                         start_bracket: (
                         expression:
                           function:
-                          - function_name: TIMESTAMP_DIFF
+                          - function_name:
+                              function_name_identifier: TIMESTAMP_DIFF
                           - start_bracket: (
                           - expression:
                               column_reference:
@@ -59,7 +63,8 @@ file:
       - comma: ','
       - select_clause_element:
           function:
-          - function_name: TIME_ADD
+          - function_name:
+              function_name_identifier: TIME_ADD
           - start_bracket: (
           - expression:
               column_reference:
@@ -78,7 +83,8 @@ file:
       - comma: ','
       - select_clause_element:
           function:
-          - function_name: DATE_SUB
+          - function_name:
+              function_name_identifier: DATE_SUB
           - start_bracket: (
           - expression:
               column_reference:

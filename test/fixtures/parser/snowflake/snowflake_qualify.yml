@@ -21,7 +21,8 @@ file:
         keyword: qualify
         expression:
           function:
-            function_name: row_number
+            function_name:
+              function_name_identifier: row_number
             start_bracket: (
             end_bracket: )
             over_clause:

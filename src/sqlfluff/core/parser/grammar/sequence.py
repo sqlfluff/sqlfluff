@@ -195,7 +195,7 @@ class Bracketed(Sequence):
 
     def get_bracket_from_dialect(self, parse_context):
         """Rehydrate the bracket segments in question."""
-        for bracket_type, start_ref, end_ref, _ in parse_context.dialect.sets(
+        for bracket_type, start_ref, end_ref in parse_context.dialect.sets(
             self.bracket_pairs_set
         ):
             if bracket_type == self.bracket_type:
