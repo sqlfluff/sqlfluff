@@ -82,9 +82,13 @@ def generate_test_segments():
                 continue
 
             if set(elem) <= {" ", "\t"}:
-                cls = RawSegment.make(" ", name="whitespace", type="whitespace", _is_code=False)
+                cls = RawSegment.make(
+                    " ", name="whitespace", type="whitespace", _is_code=False
+                )
             elif set(elem) <= {"\n"}:
-                cls = RawSegment.make("\n", name="newline", type="newline", _is_code=False)
+                cls = RawSegment.make(
+                    "\n", name="newline", type="newline", _is_code=False
+                )
             elif elem == "(":
                 cls = RawSegment.make("(", name="bracket_open")
             elif elem == ")":

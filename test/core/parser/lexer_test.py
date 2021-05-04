@@ -72,9 +72,7 @@ def test__parser__lexer_obj(raw, res, caplog):
 )
 def test__parser__lexer_string(raw, res):
     """Test the StringMatcher."""
-    matcher = StringMatcher(
-        "dot", ".", CodeSegment
-    )
+    matcher = StringMatcher("dot", ".", CodeSegment)
     assert_matches(raw, matcher, res)
 
 

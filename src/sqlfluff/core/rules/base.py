@@ -21,7 +21,13 @@ import re
 from typing import Optional, List, Tuple, TYPE_CHECKING
 from collections import namedtuple
 
-from sqlfluff.core.parser import KeywordSegment, BaseSegment, SymbolSegment, WhitespaceSegment, NewlineSegment
+from sqlfluff.core.parser import (
+    KeywordSegment,
+    BaseSegment,
+    SymbolSegment,
+    WhitespaceSegment,
+    NewlineSegment,
+)
 from sqlfluff.core.errors import SQLLintError
 
 if TYPE_CHECKING:

@@ -161,6 +161,7 @@ class CodeSegment(RawSegment):
 
     This has a more explicit name for segment creation.
     """
+
     pass
 
 
@@ -169,6 +170,7 @@ class UnlexableSegment(CodeSegment):
 
     This otherwise behaves exaclty like a code section.
     """
+
     type = "unlexable"
 
 

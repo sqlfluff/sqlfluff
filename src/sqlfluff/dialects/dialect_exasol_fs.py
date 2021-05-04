@@ -39,17 +39,19 @@ exasol_fs_dialect.sets("unreserved_keywords").add("ROWCOUNT")
 
 exasol_fs_dialect.insert_lexer_matchers(
     [
-        StringMatcher("walrus_operator", ":=", CodeSegment, segment_kwargs={"type": "walrus_operator"}),
+        StringMatcher(
+            "walrus_operator",
+            ":=",
+            CodeSegment,
+            segment_kwargs={"type": "walrus_operator"},
+        ),
         RegexMatcher(
             "function_script_terminator",
             r";\s+\/(?!\*)|\s+\/$",
             CodeSegment,
             segment_kwargs={"type": "statement_terminator"},
             subdivider=StringMatcher(
-                "semicolon",
-                ";",
-                CodeSegment,
-                segment_kwargs={"type": "semicolon"}
+                "semicolon", ";", CodeSegment, segment_kwargs={"type": "semicolon"}
             ),
             trim_post_subdivide=RegexMatcher(
                 "newline",

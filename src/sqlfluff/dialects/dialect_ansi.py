@@ -62,7 +62,7 @@ ansi_dialect.set_lexer_matchers(
             "inline_comment",
             r"(--|#)[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": ("--", "#")}
+            segment_kwargs={"trim_start": ("--", "#")},
         ),
         RegexMatcher(
             "block_comment",
@@ -82,7 +82,9 @@ ansi_dialect.set_lexer_matchers(
         RegexMatcher("single_quote", r"'([^'\\]|\\.)*'", CodeSegment),
         RegexMatcher("double_quote", r'"([^"\\]|\\.)*"', CodeSegment),
         RegexMatcher("back_quote", r"`[^`]*`", CodeSegment),
-        RegexMatcher("numeric_literal", r"(\d+(\.\d+)?|\.\d+)([eE][+-]?\d+)?", CodeSegment),
+        RegexMatcher(
+            "numeric_literal", r"(\d+(\.\d+)?|\.\d+)([eE][+-]?\d+)?", CodeSegment
+        ),
         RegexMatcher("not_equal", r"!=|<>", CodeSegment),
         RegexMatcher("like_operator", r"!?~~?\*?", CodeSegment),
         StringMatcher("greater_than_or_equal", ">=", CodeSegment),

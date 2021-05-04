@@ -23,12 +23,16 @@ lexer_logger = logging.getLogger("sqlfluff.lexer")
 
 @dataclass
 class LexedElement:
+    """An element matched during lexing."""
+
     raw: str
     matcher: "StringMatcher"
 
 
 @dataclass
 class TemplateElement:
+    """A LexedElement, bundled with it's position in the templated file."""
+
     raw: str
     template_slice: slice
     matcher: "StringMatcher"
@@ -37,9 +41,7 @@ class TemplateElement:
     def from_element(cls, element: LexedElement, template_slice: slice):
         """Make a TemplateElement from a LexedElement."""
         return cls(
-            raw=element.raw,
-            template_slice=template_slice,
-            matcher=element.matcher
+            raw=element.raw, template_slice=template_slice, matcher=element.matcher
         )
 
     def to_segment(self, pos_marker):
@@ -51,12 +53,13 @@ class TemplateElement:
 
 @dataclass
 class LexMatch:
-    forward_string: str
-    elements: List[LexedElement]
     """A class to hold matches from the Lexer."""
 
+    forward_string: str
+    elements: List[LexedElement]
+
     def __bool__(self):
-        """A LexMatch is truthy if it contains a non-zero number of matched segments."""
+        """A LexMatch is truthy if it contains a non-zero number of matched elements."""
         return len(self.elements) > 0
 
 
@@ -110,7 +113,6 @@ class StringMatcher:
             :obj:`tuple` of LexedElement
 
         """
-
         elem_buff: List[LexedElement] = []
         content_buff = ""
         str_buff = matched_str
@@ -124,28 +126,30 @@ class StringMatcher:
                     break
                 # Start match?
                 elif trim_pos[0] == 0:
-                    elem_buff.append(LexedElement(
-                        str_buff[:trim_pos[1]],
-                        self.trim_post_subdivide,
-                    ))
-                    str_buff = str_buff[trim_pos[1]:]
+                    elem_buff.append(
+                        LexedElement(
+                            str_buff[: trim_pos[1]],
+                            self.trim_post_subdivide,
+                        )
+                    )
+                    str_buff = str_buff[trim_pos[1] :]
                 # End Match?
                 elif trim_pos[1] == len(str_buff):
                     elem_buff += [
                         LexedElement(
-                            content_buff + str_buff[:trim_pos[0]],
+                            content_buff + str_buff[: trim_pos[0]],
                             self,
                         ),
                         LexedElement(
-                            str_buff[trim_pos[0]:trim_pos[1]],
+                            str_buff[trim_pos[0] : trim_pos[1]],
                             self.trim_post_subdivide,
-                        )
+                        ),
                     ]
                     content_buff, str_buff = "", ""
                 # Mid Match? (carry on)
                 else:
-                    content_buff += str_buff[:trim_pos[1]]
-                    str_buff = str_buff[trim_pos[1]:]
+                    content_buff += str_buff[: trim_pos[1]]
+                    str_buff = str_buff[trim_pos[1] :]
 
         # Do we have anything left? (or did nothing happen)
         if content_buff + str_buff:
@@ -173,8 +177,7 @@ class StringMatcher:
                     # Found a division
                     trimmed_elems = self._trim_match(str_buff[: div_pos[0]])
                     div_elem = LexedElement(
-                        str_buff[div_pos[0]: div_pos[1]],
-                        self.subdivider
+                        str_buff[div_pos[0] : div_pos[1]], self.subdivider
                     )
                     elem_buff += trimmed_elems + [div_elem]
                     str_buff = str_buff[div_pos[1] :]
@@ -212,7 +215,9 @@ class StringMatcher:
     def _make_segment_class(self):
         # NOTE: Stub method to override later.
         # THIS NEEDS REFACTORING WITH FACTORIES
-        return self.segment_class.make(self.template, name=self.name, **self.segment_kwargs)
+        return self.segment_class.make(
+            self.template, name=self.name, **self.segment_kwargs
+        )
 
 
 class RegexMatcher(StringMatcher):
@@ -271,7 +276,7 @@ class Lexer:
             "<unlexable>",
             r"[^\t\n\,\.\ \-\+\*\\\/\'\"\;\:\[\]\(\)\|]*",
             UnlexableSegment,
-            segment_kwargs={"is_code": True}
+            segment_kwargs={"is_code": True},
         )
 
     def lex(
@@ -283,7 +288,6 @@ class Lexer:
         found something that we cannot lex. If that happens we should
         package it up as unlexable and keep track of the exceptions.
         """
-
         # Make sure we've got a string buffer and a template
         # regardless of what was passed in.
         if isinstance(raw, str):
@@ -304,7 +308,9 @@ class Lexer:
                     # If we STILL can't match, then just panic out.
                     raise SQLLexError(
                         f"Fatal. Unable to lex characters: {0!r}".format(
-                            res.forward_string[:10] + "..." if len(res.forward_string) > 9 else res.forward_string
+                            res.forward_string[:10] + "..."
+                            if len(res.forward_string) > 9
+                            else res.forward_string
                         )
                     )
                 str_buff = resort_res.forward_string
@@ -317,14 +323,18 @@ class Lexer:
         templated_buffer = self.map_template_slices(element_buffer, template)
 
         # Turn lexed elements into segments.
-        segments: Tuple[RawSegment, ...] = self.elements_to_segments(templated_buffer, template)
+        segments: Tuple[RawSegment, ...] = self.elements_to_segments(
+            templated_buffer, template
+        )
 
         # Generate any violations
         violations: List[SQLLexError] = self.violations_from_segments(segments)
 
         return segments, violations
 
-    def elements_to_segments(self, elements: List[TemplateElement], templated_file: TemplatedFile) -> Tuple[RawSegment, ...]:
+    def elements_to_segments(
+        self, elements: List[TemplateElement], templated_file: TemplatedFile
+    ) -> Tuple[RawSegment, ...]:
         """Convert a tuple of lexed elements into a tuple of segments."""
         # Working buffer to build up segments
         segment_buffer: List[RawSegment] = []
@@ -348,10 +358,12 @@ class Lexer:
                 # ones *also* won't match.
                 if source_only_slice.source_idx > source_slice.start:
                     break
-                # Do we have a match?
-                # NOTE: Why do we only check the start here? Is it never
-                # on the end? If so we can do this on one pass, because
-                # we always have the next position.
+                # Is there a templated section within this soure slice?
+                # If there is then for some reason I can't quite explain,
+                # it will always be at the start of the section. This is
+                # very convenient beause it means we'll always have the
+                # start and end of it in a definite position. This makes
+                # slicing and looping much easier.
                 elif source_only_slice.source_idx == source_slice.start:
                     lexer_logger.debug(
                         "Found templated section! %s, %s, %s",
@@ -376,8 +388,14 @@ class Lexer:
                         segment_buffer.append(
                             Dedent.when(template_blocks_indent=True)(
                                 pos_marker=templated_file.make_position_marker(
-                                    slice(placeholder_source_slice.start, placeholder_source_slice.start),
-                                    slice(element.template_slice.start, element.template_slice.start),
+                                    slice(
+                                        placeholder_source_slice.start,
+                                        placeholder_source_slice.start,
+                                    ),
+                                    slice(
+                                        element.template_slice.start,
+                                        element.template_slice.start,
+                                    ),
                                     is_literal=False,
                                 )
                             )
@@ -387,7 +405,10 @@ class Lexer:
                         TemplateSegment(
                             pos_marker=templated_file.make_position_marker(
                                 placeholder_source_slice,
-                                slice(element.template_slice.start, element.template_slice.start),
+                                slice(
+                                    element.template_slice.start,
+                                    element.template_slice.start,
+                                ),
                                 is_literal=False,
                             ),
                             source_str=source_only_slice.raw,
@@ -399,8 +420,14 @@ class Lexer:
                         segment_buffer.append(
                             Indent.when(template_blocks_indent=True)(
                                 pos_marker=templated_file.make_position_marker(
-                                    slice(placeholder_source_slice.stop, placeholder_source_slice.stop),
-                                    slice(element.template_slice.start, element.template_slice.start),
+                                    slice(
+                                        placeholder_source_slice.stop,
+                                        placeholder_source_slice.stop,
+                                    ),
+                                    slice(
+                                        element.template_slice.start,
+                                        element.template_slice.start,
+                                    ),
                                     is_literal=False,
                                 )
                             )
@@ -427,11 +454,13 @@ class Lexer:
         """Generate any lexing errors for any unlexables."""
         violations = []
         for segment in segments:
-            if segment.is_type('unlexable'):
+            if segment.is_type("unlexable"):
                 violations.append(
                     SQLLexError(
                         "Unable to lex characters: {0!r}".format(
-                            segment.raw[:10] + "..." if len(segment.raw) > 9 else segment.raw
+                            segment.raw[:10] + "..."
+                            if len(segment.raw) > 9
+                            else segment.raw
                         ),
                         pos=segment.pos_marker,
                     )
@@ -461,7 +490,9 @@ class Lexer:
                 return LexMatch(forward_string, elem_buff)
 
     @staticmethod
-    def map_template_slices(elements: List[LexedElement], template: TemplatedFile) -> List[TemplateElement]:
+    def map_template_slices(
+        elements: List[LexedElement], template: TemplatedFile
+    ) -> List[TemplateElement]:
         """Create a tuple of TemplateElement from a tuple of LexedElement.
 
         This adds slices in the templated file to the original lexed
@@ -473,9 +504,7 @@ class Lexer:
         for element in elements:
             template_slice = slice(idx, idx + len(element.raw))
             idx += len(element.raw)
-            templated_buff.append(
-                TemplateElement.from_element(element, template_slice)
-            )
+            templated_buff.append(TemplateElement.from_element(element, template_slice))
             if template.templated_str[template_slice] != element.raw:
                 raise ValueError(
                     "Template and lexed elements do not match. This should never "
