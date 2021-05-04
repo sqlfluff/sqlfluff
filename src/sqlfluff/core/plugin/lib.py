@@ -4,7 +4,7 @@ import os.path
 from sqlfluff.core.config import ConfigLoader
 from sqlfluff.core.plugin import hookimpl
 from sqlfluff.core.rules.config_info import STANDARD_CONFIG_INFO_DICT
-from sqlfluff.core.rules.std import get_rules_from_path
+from sqlfluff.core.rules.loader import get_rules_from_path
 
 
 @hookimpl

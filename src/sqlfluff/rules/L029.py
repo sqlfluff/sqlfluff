@@ -3,7 +3,7 @@
 
 from sqlfluff.core.rules.base import BaseRule, LintResult
 from sqlfluff.core.rules.doc_decorators import document_configuration
-from sqlfluff.core.rules.std.L014 import unquoted_ids_policy_applicable
+from sqlfluff.rules.L014 import unquoted_ids_policy_applicable
 
 
 @document_configuration
