@@ -4,7 +4,7 @@ from typing import Tuple, List
 
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
-from sqlfluff.core.rules.std.L006 import Rule_L006
+from sqlfluff.rules.L006 import Rule_L006
 
 
 @document_fix_compatible
