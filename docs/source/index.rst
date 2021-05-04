@@ -51,6 +51,7 @@ Contents
    gettingstarted
    realworld
    vision
+   teamrollout
    indentation
    rules
    dialects
