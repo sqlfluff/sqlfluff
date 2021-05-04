@@ -164,6 +164,14 @@ class CodeSegment(RawSegment):
     pass
 
 
+class UnlexableSegment(CodeSegment):
+    """A placeholder to unlexable sections.
+
+    This otherwise behaves exaclty like a code section.
+    """
+    type = "unlexable"
+
+
 class CommentSegment(RawSegment):
     """Segment containing a comment."""
 

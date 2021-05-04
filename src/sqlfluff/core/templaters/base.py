@@ -3,6 +3,9 @@
 import logging
 from typing import Dict, Iterator, List, Tuple, Optional, NamedTuple
 
+from sqlfluff.core.parser.markers import FilePositionMarker, EnrichedFilePositionMarker
+
+
 _templater_lookup: Dict[str, "RawTemplater"] = {}
 
 # Instantiate the templater logger
@@ -141,6 +144,9 @@ class TemplatedFile:
             char_pos: The character position in the relevant file.
             source: Are we checking the source file (as opposed to the
                 templated file)
+
+        Returns:
+            line_number, line_position
 
         """
         nl_idx = -1
@@ -353,6 +359,32 @@ class TemplatedFile:
             if elem.slice_type in ("comment", "block_end", "block_start", "block_mid"):
                 ret_buff.append(elem)
         return ret_buff
+
+    def make_position_marker(self, source_slice: slice, templated_slice: slice, is_literal: bool) -> EnrichedFilePositionMarker:
+        """Make a position marker given appropriate slices.
+
+        THIS NEEDS TO BE REVISITED LATER ONCE THE LEXER IS TIDY.
+        """
+        # TODO: Rework once things are severed
+
+        source_line, source_pos = self.get_line_pos_of_char_pos(source_slice.start, source=True)
+        templ_line, templ_pos = self.get_line_pos_of_char_pos(templated_slice.start, source=False)
+
+        return EnrichedFilePositionMarker(
+            statement_index=1,  # DEPRECATE
+            line_no=templ_line,
+            line_pos=templ_pos,
+            char_pos=templated_slice.start,
+            templated_slice=templated_slice,
+            source_slice=source_slice,
+            is_literal=is_literal,
+            source_pos_marker=FilePositionMarker(
+                1,  # DEPRECATE
+                source_line,
+                source_pos,
+                source_slice.start,
+            ),
+        )
 
 
 @register_templater

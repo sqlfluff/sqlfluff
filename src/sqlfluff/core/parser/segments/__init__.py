@@ -7,6 +7,7 @@ from sqlfluff.core.parser.segments.generator import SegmentGenerator
 from sqlfluff.core.parser.segments.raw import (
     RawSegment,
     CodeSegment,
+    UnlexableSegment,
     CommentSegment,
     WhitespaceSegment,
     NewlineSegment,

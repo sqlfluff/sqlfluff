@@ -25,7 +25,7 @@ def assert_matches(instring, matcher, matchstring):
     assert isinstance(res, LexMatch)
     if matchstring is None:
         assert res.forward_string == instring
-        assert res.elements == ()  # tuple
+        assert res.elements == []
     else:
         assert res.forward_string == instring[len(matchstring) :]
         assert len(res.elements) == 1
