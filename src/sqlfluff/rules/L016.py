@@ -6,7 +6,7 @@ from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_configuration,
 )
-from sqlfluff.core.rules.std.L003 import Rule_L003
+from sqlfluff.rules.L003 import Rule_L003
 
 
 @document_fix_compatible

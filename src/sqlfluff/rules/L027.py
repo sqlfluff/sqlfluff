@@ -1,7 +1,7 @@
 """Implementation of Rule L027."""
 
 from sqlfluff.core.rules.base import LintResult
-from sqlfluff.core.rules.std.L025 import Rule_L025
+from sqlfluff.rules.L025 import Rule_L025
 
 
 class Rule_L027(Rule_L025):
