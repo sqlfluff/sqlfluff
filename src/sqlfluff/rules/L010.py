@@ -161,15 +161,21 @@ class Rule_L010(BaseRule):
             )
             return LintResult(
                 anchor=segment,
-                fixes=[
-                    LintFix(
-                        "edit",
-                        segment,
-                        segment.__class__(raw=fixed_raw, pos_marker=segment.pos_marker),
-                    )
-                ],
+                fixes=[self._get_fix(segment, fixed_raw)],
                 memory=memory,
             )
+
+    def _get_fix(self, segment, fixed_raw):
+        """Given a segment found to have a fix, returns a LintFix for it.
+
+        May be overridden by subclasses, which is useful when the parse tree
+        structure varies from this simple base case.
+        """
+        return LintFix(
+            "edit",
+            segment,
+            segment.__class__(raw=fixed_raw, pos_marker=segment.pos_marker),
+        )
 
     def _init_capitalisation_policy(self):
         """Called first time rule is evaluated to fetch & cache the policy."""

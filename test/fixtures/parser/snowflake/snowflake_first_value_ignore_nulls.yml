@@ -9,11 +9,13 @@ file:
       - comma: ','
       - select_clause_element:
           function:
-          - function_name: coalesce
+          - function_name:
+              function_name_identifier: coalesce
           - start_bracket: (
           - expression:
               function:
-              - function_name: first_value
+              - function_name:
+                  function_name_identifier: first_value
               - start_bracket: (
               - expression:
                   case_expression:

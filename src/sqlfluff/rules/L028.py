@@ -2,7 +2,7 @@
 
 from sqlfluff.core.rules.base import LintResult
 from sqlfluff.core.rules.doc_decorators import document_configuration
-from sqlfluff.core.rules.std.L025 import Rule_L025
+from sqlfluff.rules.L025 import Rule_L025
 
 
 @document_configuration

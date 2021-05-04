@@ -15,11 +15,13 @@ file:
           from_expression_element:
             table_expression:
               function:
-                function_name: UNNEST
+                function_name:
+                  function_name_identifier: UNNEST
                 start_bracket: (
                 expression:
                   function:
-                  - function_name: GENERATE_ARRAY
+                  - function_name:
+                      function_name_identifier: GENERATE_ARRAY
                   - start_bracket: (
                   - expression:
                       literal: '1'

@@ -6,7 +6,8 @@ file:
         select_clause_element:
           expression:
           - function:
-              function_name: lower
+              function_name:
+                function_name_identifier: lower
               start_bracket: (
               expression:
                 column_reference:
@@ -17,7 +18,8 @@ file:
           - literal: "'%daycare: {%'"
           - binary_operator: AND
           - function:
-              function_name: lower
+              function_name:
+                function_name_identifier: lower
               start_bracket: (
               expression:
                 column_reference:
@@ -28,7 +30,8 @@ file:
           - literal: "'%grade/ school name:  {%'"
           - binary_operator: AND
           - function:
-              function_name: lower
+              function_name:
+                function_name_identifier: lower
               start_bracket: (
               expression:
                 column_reference:

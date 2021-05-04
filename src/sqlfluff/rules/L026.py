@@ -2,7 +2,7 @@
 
 from sqlfluff.core.rules.analysis.select import get_aliases_from_select
 from sqlfluff.core.rules.base import LintResult
-from sqlfluff.core.rules.std.L025 import Rule_L025
+from sqlfluff.rules.L025 import Rule_L025
 
 
 class Rule_L026(Rule_L025):

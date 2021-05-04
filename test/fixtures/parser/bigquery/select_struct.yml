@@ -11,7 +11,8 @@ file:
       - comma: ','
       - select_clause_element:
           function:
-            function_name: array
+            function_name:
+              function_name_identifier: array
             start_bracket: (
             expression:
               select_statement:

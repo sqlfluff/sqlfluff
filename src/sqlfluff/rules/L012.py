@@ -1,6 +1,6 @@
 """Implementation of Rule L012."""
 
-from sqlfluff.core.rules.std.L011 import Rule_L011
+from sqlfluff.rules.L011 import Rule_L011
 
 
 class Rule_L012(Rule_L011):

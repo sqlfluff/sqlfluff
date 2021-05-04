@@ -2,11 +2,12 @@
 
 from typing import List, Tuple
 
+from sqlfluff.core.rules.base import LintFix
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
 )
-from sqlfluff.core.rules.std.L010 import Rule_L010
+from sqlfluff.rules.L010 import Rule_L010
 
 
 @document_configuration
@@ -38,4 +39,17 @@ class Rule_L030(Rule_L010):
 
     """
 
-    _target_elems: List[Tuple[str, str]] = [("name", "function_name")]
+    _target_elems: List[Tuple[str, str]] = [("type", "function_name")]
+
+    def _get_fix(self, segment, fixed_raw):
+        """Overrides the base class.
+
+        We need to do this because function_name nodes have a child
+        function_name_identifier that holds the actual name.
+        """
+        child_segment = segment.segments[0]
+        return LintFix(
+            "edit",
+            child_segment,
+            child_segment.__class__(raw=fixed_raw, pos_marker=child_segment.pos_marker),
+        )

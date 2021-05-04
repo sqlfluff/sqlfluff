@@ -2,7 +2,7 @@
 
 from sqlfluff.core.rules.base import LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
-from sqlfluff.core.rules.std.L020 import Rule_L020
+from sqlfluff.rules.L020 import Rule_L020
 from sqlfluff.core.dialects.common import AliasInfo
 
 

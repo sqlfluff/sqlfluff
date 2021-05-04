@@ -5,7 +5,8 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-          - function_name: ARRAY_AGG
+          - function_name:
+              function_name_identifier: ARRAY_AGG
           - start_bracket: (
           - keyword: DISTINCT
           - expression:

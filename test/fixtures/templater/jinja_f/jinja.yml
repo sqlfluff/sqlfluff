@@ -9,7 +9,8 @@ file:
       - comma: ","
       - select_clause_element:
           function:
-            function_name: MAX
+            function_name:
+              function_name_identifier: MAX
             start_bracket: (
             expression:
               case_expression:
@@ -34,7 +35,8 @@ file:
       - comma: ","
       - select_clause_element:
           function:
-            function_name: MAX
+            function_name:
+              function_name_identifier: MAX
             start_bracket: (
             expression:
               case_expression:
@@ -59,7 +61,8 @@ file:
       - comma: ","
       - select_clause_element:
           function:
-            function_name: MAX
+            function_name:
+              function_name_identifier: MAX
             start_bracket: (
             expression:
               case_expression:
@@ -84,7 +87,8 @@ file:
       - comma: ","
       - select_clause_element:
           function:
-            function_name: safe_cast
+            function_name:
+              function_name_identifier: safe_cast
             start_bracket: (
             expression:
               column_reference:
@@ -93,7 +97,8 @@ file:
                 start_square_bracket: "["
                 expression:
                   function:
-                    function_name: ORDINAL
+                    function_name:
+                      function_name_identifier: ORDINAL
                     start_bracket: (
                     expression:
                       literal: "0"
@@ -109,7 +114,8 @@ file:
       - comma: ","
       - select_clause_element:
           function:
-            function_name: safe_cast
+            function_name:
+              function_name_identifier: safe_cast
             start_bracket: (
             expression:
               column_reference:
@@ -118,7 +124,8 @@ file:
                 start_square_bracket: "["
                 expression:
                   function:
-                    function_name: ORDINAL
+                    function_name:
+                      function_name_identifier: ORDINAL
                     start_bracket: (
                     expression:
                       literal: "1"

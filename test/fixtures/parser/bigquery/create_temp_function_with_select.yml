@@ -4,7 +4,8 @@ file:
     - keyword: CREATE
     - keyword: TEMP
     - keyword: FUNCTION
-    - function_name: URLDECODE
+    - function_name:
+        function_name_identifier: URLDECODE
     - base:
         start_bracket: (
         parameter: url
@@ -31,11 +32,13 @@ file:
                   from_expression_element:
                   - table_expression:
                       function:
-                        function_name: UNNEST
+                        function_name:
+                          function_name_identifier: UNNEST
                         start_bracket: (
                         expression:
                           function:
-                          - function_name: REGEXP_EXTRACT_ALL
+                          - function_name:
+                              function_name_identifier: REGEXP_EXTRACT_ALL
                           - start_bracket: (
                           - expression:
                               column_reference:
