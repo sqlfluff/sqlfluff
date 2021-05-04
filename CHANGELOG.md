@@ -6,13 +6,30 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.5.3] - 2021-05-04
 ### Added
 - [`L009`](https://docs.sqlfluff.com/en/stable/rules.html#sqlfluff.core.rules.Rule_L009) can now be enforced when `templater = dbt`.
+- Parsing of `EXPLAIN`, `USE` statements.
+- Parsing of `ALTER TABLE x RENAME TO y` syntax.
+- Parsing of `ALTER SESSION` in snowflake.
+- Parsing of numeric literals with exponents.
+- Added rule codes to diff_cover output.
 
 ### Changed
 - Fix `templater = dbt` L009 bug [#861](https://github.com/sqlfluff/sqlfluff/issues/861) where:
     - `sqlfluff lint` would incorrectly always return `L009 | Files must end with a trailing newline.`
     - `sqlfluff fix` would remove trailing newlines when `exclude_rules = L009`.
+- Fix bug with BigQuery comparison operators.
+- Fix recursion bug with L045.
+- Fix tuple index bug with L016.
+- Fix mange coalecse bug with L043.
+- Fix Jinja templating error with _UnboundLocalError_.
+- Improve array parsing.
+- Simplify bracket parsing.
+- Speed up L010 with caching capitalisation policy.
+- Output of `sqlfluff dialects` is now sorted.
+- Handle disabled `dbt` models.
 
 ## [0.5.2] - 2021-04-11
 ### Changed
