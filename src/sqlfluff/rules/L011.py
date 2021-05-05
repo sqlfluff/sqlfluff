@@ -44,29 +44,22 @@ class Rule_L011(BaseRule):
                 if not any(e.name.lower() == "as" for e in segment.segments):
                     insert_buff = []
                     insert_str = ""
-                    init_pos = segment.segments[0].pos_marker
 
                     # Add initial whitespace if we need to...
                     if raw_stack[-1].name not in ["whitespace", "newline"]:
                         insert_buff.append(
-                            self.make_whitespace(raw=" ", pos_marker=init_pos)
+                            self.make_whitespace(raw=" ", pos_marker=None)
                         )
                         insert_str += " "
 
                     # Add an AS (Uppercase for now, but could be corrected later)
-                    insert_buff.append(
-                        self.make_keyword(
-                            raw="AS", pos_marker=init_pos.advance_by(insert_str)
-                        )
-                    )
+                    insert_buff.append(self.make_keyword(raw="AS", pos_marker=None))
                     insert_str += "AS"
 
                     # Add a trailing whitespace if we need to
                     if segment.segments[0].name not in ["whitespace", "newline"]:
                         insert_buff.append(
-                            self.make_whitespace(
-                                raw=" ", pos_marker=init_pos.advance_by(insert_str)
-                            )
+                            self.make_whitespace(raw=" ", pos_marker=None)
                         )
                         insert_str += " "
 

@@ -50,7 +50,7 @@ def test__templater_jinja_error_variable():
     # Check we have violations.
     assert len(vs) > 0
     # Check one of them is a templating error on line 1
-    assert any(v.rule_code() == "TMP" and v.line_no() == 1 for v in vs)
+    assert any(v.rule_code() == "TMP" and v.line_no == 1 for v in vs)
 
 
 def test__templater_jinja_error_syntax():
@@ -63,7 +63,7 @@ def test__templater_jinja_error_syntax():
     # Check we have violations.
     assert len(vs) > 0
     # Check one of them is a templating error on line 1
-    assert any(v.rule_code() == "TMP" and v.line_no() == 1 for v in vs)
+    assert any(v.rule_code() == "TMP" and v.line_no == 1 for v in vs)
 
 
 def test__templater_jinja_error_catatrophic():

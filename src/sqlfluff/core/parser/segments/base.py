@@ -84,7 +84,7 @@ class BaseSegment:
     # A cache variable for expandable
     _is_expandable = None
 
-    def __init__(self, segments, pos_marker=None, validate=True):
+    def __init__(self, segments, pos_marker=None):
         if len(segments) == 0:
             raise RuntimeError(
                 "Setting {0} with a zero length segment set. This shouldn't happen.".format(
@@ -103,9 +103,6 @@ class BaseSegment:
             raise TypeError(
                 "Unexpected type passed to BaseSegment: {0}".format(type(segments))
             )
-
-        # Check elements of segments:
-        self.validate_segments(templated_contigious=validate)
 
         if pos_marker:
             self.pos_marker = pos_marker
@@ -510,63 +507,6 @@ class BaseSegment:
         for key in ["is_code", "is_comment", "raw", "raw_upper", "matched_length"]:
             self.__dict__.pop(key, None)
 
-    def validate_segments(self, text="constructing", templated_contigious=True):
-        """Validate the current set of segments.
-
-        Check the elements of the `segments` attribute are all
-        themselves segments, and that the positions match up.
-
-        `templated_contigious` confirms whether we should check
-        contiguousness in the templated file.
-        """
-        # Placeholder variables for positions
-        prev_seg = None
-        for elem in self.segments:
-            if not isinstance(elem, BaseSegment):
-                raise TypeError(
-                    "In {0} {1}, found an element of the segments tuple which"
-                    " isn't a segment. Instead found element of type {2}.\nFound: {3}\nFull segments:{4}".format(
-                        text, type(self), type(elem), elem, self.segments
-                    )
-                )
-            # While applying fixes, we shouldn't validate here, because it will fail.
-            if templated_contigious:
-                # If we have a previous segment, validate against it's stop.
-                if (
-                    prev_seg
-                    and elem.pos_marker.templated_slice.start
-                    != prev_seg.pos_marker.templated_slice.stop
-                ):
-                    raise TypeError(
-                        "In {0} {1}, found an element of the segments tuple which"
-                        " isn't contiguous with previous: {2} > {3}. {4} != {5}."
-                        " Prev String: {6!r}".format(
-                            text,
-                            type(self),
-                            prev_seg,
-                            elem,
-                            elem.pos_marker.templated_slice.start,
-                            prev_seg.pos_marker.templated_slice.stop,
-                            prev_seg.raw,
-                        )
-                    )
-                prev_seg = elem
-                templated_len = (
-                    elem.pos_marker.templated_slice.stop
-                    - elem.pos_marker.templated_slice.start
-                )
-                if len(elem.raw) != templated_len:
-                    raise TypeError(
-                        "In {0} {1}, found an element of the segments tuple which"
-                        " isn't self consistent: {2}, {3}, {4}".format(
-                            text,
-                            type(self),
-                            elem,
-                            len(elem.raw),
-                            templated_len,
-                        )
-                    )
-
     def get_start_point_marker(self):
         """Get a point marker at the start of this segment."""
         return self.pos_marker.start_point_marker()
@@ -876,9 +816,6 @@ class BaseSegment:
                     + post_nc
                 )
 
-            # Validate new segments
-            self.validate_segments(text="parsing")
-
         bencher = BenchIt()  # starts the timer
         bencher("Parse complete of {0!r}".format(self.__class__.__name__))
 
@@ -895,8 +832,6 @@ class BaseSegment:
             parse_context.logger.debug(parse_depth_msg)
             with parse_context.deeper_parse() as ctx:
                 self.segments = self.expand(self.segments, parse_context=ctx)
-        # Validate new segments
-        self.validate_segments(text="expanding")
 
         return self
 
@@ -975,12 +910,14 @@ class BaseSegment:
 
             # Reform into a new segment
             r = r.__class__(
-                segments=tuple(seg_buffer), pos_marker=r.pos_marker, validate=False
+                # Realign the segments within
+                segments=self._position_segments(
+                    tuple(seg_buffer), parent_pos=r.pos_marker
+                ),
+                pos_marker=r.pos_marker,
             )
-
-            # Lastly, before returning, we should realign positions.
-            # Note: Realign also returns a copy
-            return r.realign(), fixes
+            # Return the new segment with any unused fixes.
+            return r, fixes
         else:
             return self, fixes
 

@@ -33,9 +33,7 @@ class Rule_T001(BaseRule):
         if segment.is_type("star"):
             return LintResult(
                 anchor=segment,
-                fixes=[
-                    LintFix("create", segment, self.make_newline(segment.pos_marker))
-                ],
+                fixes=[LintFix("create", segment, self.make_newline())],
             )
 
 

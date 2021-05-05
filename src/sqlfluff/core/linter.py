@@ -178,7 +178,7 @@ class LintedFile(NamedTuple):
                 v
                 for v in violations
                 if not (
-                    v.line_no() == ignore.line_no
+                    v.line_no == ignore.line_no
                     and (ignore.rules is None or v.rule_code() in ignore.rules)
                 )
             ]
@@ -226,7 +226,7 @@ class LintedFile(NamedTuple):
             )
             # Determine whether to ignore the violation, based on the relevant
             # enable/disable directives.
-            if not cls._should_ignore_violation_line_range(v.line_no(), ignore_rule):
+            if not cls._should_ignore_violation_line_range(v.line_no, ignore_rule):
                 result.append(v)
         return result
 
@@ -1148,9 +1148,7 @@ class Linter:
             filter(
                 lambda e: (
                     # Is it in a literal section?
-                    # This default to YES because if it's missing we probably
-                    # didn't template this file.
-                    getattr(e.segment.pos_marker, "is_literal", True)
+                    e.segment.pos_marker.is_literal()
                     # Is it a rule that is designed to work on templated sections?
                     or e.rule.targets_templated
                 ),

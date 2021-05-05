@@ -32,8 +32,8 @@ class Rule_L009(BaseRule):
             # need to check that each parent segment is also the last
             file_len = len(parent_stack[0].raw)
             pos = segment.pos_marker.templated_slice.stop
-            # Does the length of the file, equal the length of the segment plus its position
-            if file_len != pos + len(segment.raw):
+            # Does the length of the file equal the end of the templated position?
+            if file_len != pos:
                 return None
 
         # We're going to make an edit because we're appending to the end and there's
