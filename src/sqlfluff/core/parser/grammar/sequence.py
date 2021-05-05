@@ -149,9 +149,8 @@ class Sequence(BaseGrammar):
         # the unmatched elements. Meta all go at the end regardless of wny trailing
         # whitespace.
         return MatchResult(
-            BaseSegment._realign_segments(
+            BaseSegment._position_segments(
                 matched_segments.matched_segments + meta_pre_nc + meta_post_nc,
-                meta_only=True,
             ),
             unmatched_segments,
         )
@@ -307,7 +306,7 @@ class Bracketed(Sequence):
             # Append some indent and dedent tokens at the start and the end.
             return MatchResult(
                 # We need to realign the meta segments so the pos markers are correct.
-                BaseSegment._realign_segments(
+                BaseSegment._position_segments(
                     (
                         # NB: The nc segments go *outside* the indents.
                         start_match.matched_segments
@@ -318,7 +317,6 @@ class Bracketed(Sequence):
                         + (Dedent(),)  # Add a meta indent here
                         + end_match.matched_segments
                     ),
-                    meta_only=True,
                 ),
                 end_match.unmatched_segments,
             )

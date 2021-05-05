@@ -28,7 +28,7 @@ from sqlfluff.core.parser.helpers import (
     trim_non_code_segments,
 )
 from sqlfluff.core.parser.matchable import Matchable
-from sqlfluff.core.parser.markers import EnrichedFilePositionMarker
+from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.context import ParseContext
 
 # Instantiate the linter logger (only for use in methods involved with fixing.)
@@ -105,24 +105,14 @@ class BaseSegment:
             )
 
         # Check elements of segments:
-        self.validate_segments(validate=validate)
+        self.validate_segments(templated_contigious=validate)
 
         if pos_marker:
             self.pos_marker = pos_marker
         else:
             # If no pos given, it's the pos of the first segment.
             if isinstance(segments, (tuple, list)):
-                # Find the first segment with an enriched position marker
-                first_enriched = next(
-                    (
-                        seg.pos_marker
-                        for seg in segments
-                        if isinstance(seg.pos_marker, EnrichedFilePositionMarker)
-                    ),
-                    # Default to the first un-enriched segment
-                    segments[0].pos_marker,
-                )
-                self.pos_marker = first_enriched.combine(
+                self.pos_marker = PositionMarker.from_child_markers(
                     *(seg.pos_marker for seg in segments)
                 )
             else:
@@ -328,6 +318,36 @@ class BaseSegment:
             seg_buffer.append(seg)
         return tuple(seg_buffer)
 
+    @staticmethod
+    def _position_segments(segments, parent_pos=None):
+        """Assign positions to any segments without them.
+        
+        New segments are assumed to be metas or insertions
+        and so therefore have a zero-length position in the
+        source and templated file.
+        """
+        # Use the index so that we can look forward
+        # and backward.
+        for idx in range(len(segments)):
+            # Find any ones that don't have a position.
+            if not segments[idx].pos_marker:
+                # Can we get a position from the previous?
+                if idx > 0:
+                    segments[idx].pos_marker = segments[idx - 1].pos_marker.end_point_marker()
+                # Can we get it from the parent?
+                elif parent_pos:
+                    segments[idx].pos_marker = parent_pos.start_point_marker()
+                # Search forward for a following one, if we have to?
+                else:
+                    for fwd_seg in segments[idx + 1:]:
+                        if fwd_seg.pos_marker:
+                            segments[idx].pos_marker = fwd_seg.pos_marker.start_point_marker()
+                            break
+                    else:
+                        raise ValueError("Unable to positon new segment")
+        return segments
+
+
     # ################ CLASS METHODS
 
     @classmethod
@@ -487,17 +507,16 @@ class BaseSegment:
         for key in ["is_code", "is_comment", "raw", "raw_upper", "matched_length"]:
             self.__dict__.pop(key, None)
 
-    def validate_segments(self, text="constructing", validate=True):
+    def validate_segments(self, text="constructing", templated_contigious=True):
         """Validate the current set of segments.
 
         Check the elements of the `segments` attribute are all
         themselves segments, and that the positions match up.
 
-        `validate` confirms whether we should check contiguousness.
+        `templated_contigious` confirms whether we should check
+        contiguousness in the templated file.
         """
         # Placeholder variables for positions
-        start_pos = None
-        end_pos = None
         prev_seg = None
         for elem in self.segments:
             if not isinstance(elem, BaseSegment):
@@ -508,20 +527,19 @@ class BaseSegment:
                     )
                 )
             # While applying fixes, we shouldn't validate here, because it will fail.
-            if validate:
-                # If we have a comparison point, validate that
-                if end_pos and elem.get_start_pos_marker() != end_pos:
+            if templated_contigious:
+                # If we have a previous segment, validate against it's stop.
+                if prev_seg and elem.pos_marker.templated_slice.start != prev_seg.pos_marker.templated_slice.stop:
                     raise TypeError(
                         "In {0} {1}, found an element of the segments tuple which"
-                        " isn't contiguous with previous: {2} > {3}. End pos: {4}."
-                        " Prev String: {5!r}".format(
-                            text, type(self), prev_seg, elem, end_pos, prev_seg.raw
+                        " isn't contiguous with previous: {2} > {3}. {4} != {5}."
+                        " Prev String: {6!r}".format(
+                            text, type(self), prev_seg, elem, elem.pos_marker.templated_slice.start,
+                            prev_seg.pos_marker.templated_slice.stop, prev_seg.raw
                         )
                     )
-                start_pos = elem.get_start_pos_marker()
-                end_pos = elem.get_end_pos_marker()
                 prev_seg = elem
-                if start_pos.advance_by(elem.raw) != end_pos:
+                if len(elem.raw) != (elem.pos_marker.templated_slice.stop - elem.pos_marker.templated_slice.start):
                     raise TypeError(
                         "In {0} {1}, found an element of the segments tuple which"
                         " isn't self consistent: {2}".format(text, type(self), elem)
@@ -940,7 +958,8 @@ class BaseSegment:
 
             # Lastly, before returning, we should realign positions.
             # Note: Realign also returns a copy
-            return r.realign(), fixes
+            #return r.realign(), fixes
+            return r, fixes
         else:
             return self, fixes
 
@@ -961,7 +980,7 @@ class BaseSegment:
         """
         # Create a new version of this class with the new details
         return self.__class__(
-            segments=self._realign_segments(self.segments, self.pos_marker),
+            segments=self._position_segments(self.segments, self.pos_marker),
             pos_marker=self.pos_marker,
         )
 
@@ -1003,8 +1022,8 @@ class BaseSegment:
             for seg_idx, segment in enumerate(self.segments):
 
                 # First check for insertions.
-                # We know it is new if the position marker is NOT ENRICHED.
-                if not isinstance(segment.pos_marker, EnrichedFilePositionMarker):
+                # We know it's an insertion if it has length but not in the templated file.
+                if segment.raw and segment.pos_marker.is_point():
                     # Add it to the insertion buffer if it has length:
                     if segment.raw:
                         insert_buff += segment.raw
