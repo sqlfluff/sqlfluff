@@ -107,8 +107,7 @@ class Rule_L036(BaseRule):
                     loop_while=lambda s: s.is_type("whitespace", "comma") or s.is_meta,
                 )
                 fixes += [LintFix("delete", ws) for ws in ws_to_delete]
-                ins = self.make_newline(pos_marker=select_target.pos_marker)
-                fixes.append(LintFix("create", select_target, ins))
+                fixes.append(LintFix("create", select_target, self.make_newline()))
         if fixes:
             return LintResult(anchor=segment, fixes=fixes)
 

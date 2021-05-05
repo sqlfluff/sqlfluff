@@ -12,6 +12,12 @@ class SQLBaseError(ValueError):
 
     def __init__(self, *args, **kwargs):
         self.ignore = kwargs.pop("ignore", False)
+        pos = kwargs.pop("pos", None)
+        if pos:
+            self.line_no, self.line_pos = pos.source_position()
+        else:
+            self.line_no = kwargs.pop("line_no", 0)
+            self.line_pos = kwargs.pop("line_pos", 0)
         super(SQLBaseError, self).__init__(*args, **kwargs)
 
     @property
@@ -54,72 +60,6 @@ class SQLBaseError(ValueError):
             else:
                 return self.__class__.__name__
 
-    def line_no(self):
-        """Return the line number of the violation."""
-        pm = self.pos_marker()
-        if pm:
-            return pm.line_no
-        else:
-            return None
-
-    def line_pos(self):
-        """Return the line position of the violation."""
-        pm = self.pos_marker()
-        if pm:
-            return pm.line_pos
-        else:
-            return None
-
-    def char_pos(self):
-        """Return the character position in file of the violation."""
-        pm = self.pos_marker()
-        if pm:
-            return pm.char_pos
-        else:
-            return 0
-
-    def pos_marker(self):
-        """Get the position marker of the violation.
-
-        Returns:
-            The :obj:`FilePositionMarker` of the segments if the violation has a segment,
-            the :obj:`FilePositionMarker` directly stored in a `pos` attribute or None
-            if neither is present.
-
-        """
-        if hasattr(self, "segment"):
-            # Linting and Parsing Errors.
-            # Use the source position market if there is one
-            # present.
-            return getattr(
-                self.segment.pos_marker, "source_pos_marker", self.segment.pos_marker
-            )
-        elif hasattr(self, "pos"):
-            # Lexing errors
-            return self.pos
-        else:
-            return None
-
-    def get_info_tuple(self):
-        """Get a tuple representation of this violation.
-
-        Returns:
-            A `tuple` of (code, line_no, line_pos, description)
-
-        """
-        return self.rule_code(), self.line_no(), self.line_pos(), self.desc()
-
-    def get_info_dict(self):
-        """Get a dictionary representation of this violation.
-
-        Returns:
-            A `dictionary` with keys (code, line_no, line_pos, description)
-
-        """
-        return dict(
-            zip(("code", "line_no", "line_pos", "description"), self.get_info_tuple())
-        )
-
     def ignore_if_in(self, ignore_iterable):
         """Ignore this violation if it matches the iterable."""
         # Type conversion
@@ -142,10 +82,6 @@ class SQLTemplaterError(SQLBaseError):
     _code = "TMP"
     _identifier = "templating"
 
-    def __init__(self, *args, **kwargs):
-        self.pos = kwargs.pop("pos", None)
-        super(SQLTemplaterError, self).__init__(*args, **kwargs)
-
 
 class SQLTemplaterSkipFile(RuntimeError):
     """An error returned from a templater to skip a file."""
@@ -165,11 +101,6 @@ class SQLLexError(SQLBaseError):
     _code = "LXR"
     _identifier = "lexing"
 
-    def __init__(self, *args, **kwargs):
-        # Store the segment on creation - we might need it later
-        self.pos = kwargs.pop("pos", None)
-        super(SQLLexError, self).__init__(*args, **kwargs)
-
 
 class SQLParseError(SQLBaseError):
     """An error which occurred during parsing.
@@ -188,6 +119,8 @@ class SQLParseError(SQLBaseError):
     def __init__(self, *args, **kwargs):
         # Store the segment on creation - we might need it later
         self.segment = kwargs.pop("segment", None)
+        if self.segment:
+            kwargs["pos"] = self.segment.pos_marker
         super(SQLParseError, self).__init__(*args, **kwargs)
 
 
@@ -210,6 +143,8 @@ class SQLLintError(SQLBaseError):
     def __init__(self, *args, **kwargs):
         # Something about position, message and fix?
         self.segment = kwargs.pop("segment", None)
+        if self.segment:
+            kwargs["pos"] = self.segment.pos_marker
         self.rule = kwargs.pop("rule", None)
         self.fixes = kwargs.pop("fixes", [])
         self.description = kwargs.pop("description", None)
@@ -226,13 +161,16 @@ class SQLLintError(SQLBaseError):
         """Get a tuple representing this error. Mostly for testing."""
         return (
             self.rule.code,
-            self.pos_marker().line_no,
-            self.pos_marker().line_pos,
+            self.line_no,
+            self.line_pos,
         )
 
     def __repr__(self):
         return (
             "<SQLLintError: rule {0} pos:{1!r}, #fixes: {2}, description: {3}>".format(
-                self.rule_code(), self.pos_marker(), len(self.fixes), self.description
+                self.rule_code(),
+                (self.line_no, self.line_pos),
+                len(self.fixes),
+                self.description,
             )
         )

@@ -3,8 +3,9 @@
 import pytest
 import oyaml
 
-from sqlfluff.core.parser.markers import FilePositionMarker
+from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments import RawSegment, Indent, Dedent
+from sqlfluff.core.templaters import TemplatedFile
 
 
 def process_struct(obj):
@@ -72,13 +73,24 @@ def generate_test_segments():
         for testing. Use with caution.
         """
         buff = []
-        raw_buff = ""
+        raw_file = "".join(elems)
+        templated_file = TemplatedFile.from_string(raw_file)
+        idx = 0
+
         for elem in elems:
             if elem == "<indent>":
-                buff.append(Indent(FilePositionMarker().advance_by(raw_buff)))
+                buff.append(
+                    Indent(
+                        pos_marker=PositionMarker.from_point(idx, idx, templated_file)
+                    )
+                )
                 continue
             elif elem == "<dedent>":
-                buff.append(Dedent(FilePositionMarker().advance_by(raw_buff)))
+                buff.append(
+                    Dedent(
+                        pos_marker=PositionMarker.from_point(idx, idx, templated_file)
+                    )
+                )
                 continue
 
             if set(elem) <= {" ", "\t"}:
@@ -102,9 +114,20 @@ def generate_test_segments():
             else:
                 cls = RawSegment.make("")
 
-            buff.append(cls(elem, FilePositionMarker().advance_by(raw_buff)))
-            raw_buff += elem
-        return tuple(buff)  # Make sure we return a tuple
+            # Set a none position marker which we'll realign at the end.
+            buff.append(
+                cls(
+                    elem,
+                    pos_marker=PositionMarker(
+                        slice(idx, idx + len(elem)),
+                        slice(idx, idx + len(elem)),
+                        templated_file,
+                    ),
+                )
+            )
+            idx += len(elem)
+
+        return tuple(buff)
 
     # Return the function
     return generate_test_segments_func

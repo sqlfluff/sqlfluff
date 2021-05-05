@@ -321,7 +321,7 @@ class BaseSegment:
     @staticmethod
     def _position_segments(segments, parent_pos=None):
         """Assign positions to any segments without them.
-        
+
         New segments are assumed to be metas or insertions
         and so therefore have a zero-length position in the
         source and templated file.
@@ -333,20 +333,23 @@ class BaseSegment:
             if not segments[idx].pos_marker:
                 # Can we get a position from the previous?
                 if idx > 0:
-                    segments[idx].pos_marker = segments[idx - 1].pos_marker.end_point_marker()
+                    segments[idx].pos_marker = segments[
+                        idx - 1
+                    ].pos_marker.end_point_marker()
                 # Can we get it from the parent?
                 elif parent_pos:
                     segments[idx].pos_marker = parent_pos.start_point_marker()
                 # Search forward for a following one, if we have to?
                 else:
-                    for fwd_seg in segments[idx + 1:]:
+                    for fwd_seg in segments[idx + 1 :]:
                         if fwd_seg.pos_marker:
-                            segments[idx].pos_marker = fwd_seg.pos_marker.start_point_marker()
+                            segments[
+                                idx
+                            ].pos_marker = fwd_seg.pos_marker.start_point_marker()
                             break
                     else:
                         raise ValueError("Unable to positon new segment")
         return segments
-
 
     # ################ CLASS METHODS
 
@@ -529,29 +532,48 @@ class BaseSegment:
             # While applying fixes, we shouldn't validate here, because it will fail.
             if templated_contigious:
                 # If we have a previous segment, validate against it's stop.
-                if prev_seg and elem.pos_marker.templated_slice.start != prev_seg.pos_marker.templated_slice.stop:
+                if (
+                    prev_seg
+                    and elem.pos_marker.templated_slice.start
+                    != prev_seg.pos_marker.templated_slice.stop
+                ):
                     raise TypeError(
                         "In {0} {1}, found an element of the segments tuple which"
                         " isn't contiguous with previous: {2} > {3}. {4} != {5}."
                         " Prev String: {6!r}".format(
-                            text, type(self), prev_seg, elem, elem.pos_marker.templated_slice.start,
-                            prev_seg.pos_marker.templated_slice.stop, prev_seg.raw
+                            text,
+                            type(self),
+                            prev_seg,
+                            elem,
+                            elem.pos_marker.templated_slice.start,
+                            prev_seg.pos_marker.templated_slice.stop,
+                            prev_seg.raw,
                         )
                     )
                 prev_seg = elem
-                if len(elem.raw) != (elem.pos_marker.templated_slice.stop - elem.pos_marker.templated_slice.start):
+                templated_len = (
+                    elem.pos_marker.templated_slice.stop
+                    - elem.pos_marker.templated_slice.start
+                )
+                if len(elem.raw) != templated_len:
                     raise TypeError(
                         "In {0} {1}, found an element of the segments tuple which"
-                        " isn't self consistent: {2}".format(text, type(self), elem)
+                        " isn't self consistent: {2}, {3}, {4}".format(
+                            text,
+                            type(self),
+                            elem,
+                            len(elem.raw),
+                            templated_len,
+                        )
                     )
 
-    def get_end_pos_marker(self):
-        """Return the pos marker at the end of this segment."""
-        return self.segments[-1].get_end_pos_marker()
+    def get_start_point_marker(self):
+        """Get a point marker at the start of this segment."""
+        return self.pos_marker.start_point_marker()
 
-    def get_start_pos_marker(self):
-        """Return the pos marker at the start of this segment."""
-        return self.segments[0].get_start_pos_marker()
+    def get_end_point_marker(self):
+        """Get a point marker at the end of this segment."""
+        return self.pos_marker.end_point_marker()
 
     def stringify(self, ident=0, tabsize=4, code_only=False):
         """Use indentation to render this segment and its children as a string."""
@@ -739,9 +761,9 @@ class BaseSegment:
 
         # Are we in the right ballpark?
         if (
-            not self.get_start_pos_marker()
-            <= other.get_start_pos_marker()
-            <= self.get_end_pos_marker()
+            not self.get_start_point_marker()
+            <= other.get_start_point_marker()
+            <= self.get_end_point_marker()
         ):
             return None
 
@@ -958,8 +980,7 @@ class BaseSegment:
 
             # Lastly, before returning, we should realign positions.
             # Note: Realign also returns a copy
-            #return r.realign(), fixes
-            return r, fixes
+            return r.realign(), fixes
         else:
             return self, fixes
 

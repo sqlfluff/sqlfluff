@@ -391,7 +391,7 @@ class Lexer:
                                 pos_marker=PositionMarker.from_point(
                                     placeholder_source_slice.start,
                                     element.template_slice.start,
-                                    templated_file
+                                    templated_file,
                                 )
                             )
                         )
@@ -417,7 +417,7 @@ class Lexer:
                                 pos_marker=PositionMarker.from_point(
                                     placeholder_source_slice.stop,
                                     element.template_slice.start,
-                                    templated_file
+                                    templated_file,
                                 )
                             )
                         )

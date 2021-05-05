@@ -147,14 +147,6 @@ class RawSegment(BaseSegment):
         """
         return self.__class__(raw=raw, pos_marker=self.pos_marker)
 
-    def get_end_pos_marker(self):
-        """Return the pos marker at the end of this segment."""
-        return self.pos_marker.advance_by(self.raw)
-
-    def get_start_pos_marker(self):
-        """Return the pos marker at the start of this segment."""
-        return self.pos_marker
-
 
 class CodeSegment(RawSegment):
     """An alias for RawSegment.

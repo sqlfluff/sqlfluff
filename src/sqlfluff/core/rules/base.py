@@ -129,9 +129,17 @@ class LintFix:
         # the parsed structure.
         self.edit = copy.deepcopy(edit)
         if self.edit:
+            # Check that any edits don't have a position marker set.
+            # We should rely on realignment to make position markers.
             # Strip position markers of anything enriched, otherwise things can get blurry
             for seg in self.edit:
-                seg.pos_marker = seg.pos_marker.strip()
+                if seg.pos_marker:
+                    # Developer warning.
+                    rules_logger.debug(
+                        "Developer Note: Edit segment found with preset position marker. "
+                        "These should be unset and calculated later. %r"
+                    )
+                    seg.pos_marker = None
         # Once stripped, we shouldn't replace any markers because
         # later code may rely on them being accurate, which we
         # can't guarantee with edits.
@@ -310,6 +318,7 @@ class BaseRule:
             self.logger.critical(
                 f"Applying rule {self.code} threw an Exception: {e}", exc_info=True
             )
+            exception_line, _ = segment.pos_marker.source_position()
             vs.append(
                 SQLLintError(
                     rule=self,
@@ -319,7 +328,7 @@ class BaseRule:
                         f"""Unexpected exception: {str(e)};
                         Could you open an issue at https://github.com/sqlfluff/sqlfluff/issues ?
                         You can ignore this exception for now, by adding '--noqa: {self.code}' at the end
-                        of line {segment.pos_marker.line_no}
+                        of line {exception_line}
                         """
                     ),
                 )
@@ -427,19 +436,19 @@ class BaseRule:
         return None
 
     @classmethod
-    def make_whitespace(cls, raw, pos_marker):
+    def make_whitespace(cls, raw, pos_marker=None):
         """Make a whitespace segment."""
         return WhitespaceSegment(raw=raw, pos_marker=pos_marker)
 
     @classmethod
-    def make_newline(cls, pos_marker, raw=None):
+    def make_newline(cls, raw=None, pos_marker=None):
         """Make a newline segment."""
         # Default the newline to \n
         raw = raw or "\n"
         return NewlineSegment(raw=raw, pos_marker=pos_marker)
 
     @classmethod
-    def make_keyword(cls, raw, pos_marker):
+    def make_keyword(cls, raw, pos_marker=None):
         """Make a keyword segment."""
         # For the name of the segment, we force the string to lowercase.
         kws = KeywordSegment.make(raw.lower())
