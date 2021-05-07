@@ -13,11 +13,9 @@ test_single_select_target_and_new_line_before_select_target:
       select
           a
       from x
-  # In a normal "sqlfluff fix" run, the extra spaces in fix_str would be removed
-  # by a different rule, L039.
   fix_str: |
     select a
-        from x
+    from x
 
 test_multiple_select_targets_on_new_lines_and_new_line_after_select:
   pass_str: |
