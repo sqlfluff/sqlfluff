@@ -9,6 +9,8 @@ from sqlfluff.core.parser import (
     BaseSegment,
     NamedSegment,
     Delimited,
+    RegexMatcher,
+    CodeSegment,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -18,14 +20,13 @@ ansi_dialect = load_raw_dialect("ansi")
 postgres_dialect = ansi_dialect.copy_as("postgres")
 
 
-postgres_dialect.insert_lexer_struct(
+postgres_dialect.insert_lexer_matchers(
     # JSON Operators: https://www.postgresql.org/docs/9.5/functions-json.html
     [
-        (
+        RegexMatcher(
             "json_operator",
-            "regex",
             r"->>|#>>|->|#>|@>|<@|\?\||\?|\?&|#-",
-            dict(is_code=True),
+            CodeSegment,
         )
     ],
     before="not_equal",

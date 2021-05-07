@@ -1,17 +1,16 @@
 """The code for the Lexer."""
 
 import logging
-from typing import Optional, List, Tuple, Union
-from collections import namedtuple
+from typing import Optional, List, Tuple, Union, NamedTuple
 import re
 
-from sqlfluff.core.parser.markers import FilePositionMarker, EnrichedFilePositionMarker
 from sqlfluff.core.parser.segments import (
     BaseSegment,
     RawSegment,
     Indent,
     Dedent,
     TemplateSegment,
+    UnlexableSegment,
 )
 from sqlfluff.core.errors import SQLLexError
 from sqlfluff.core.templaters import TemplatedFile
@@ -21,16 +20,47 @@ from sqlfluff.core.config import FluffConfig
 lexer_logger = logging.getLogger("sqlfluff.lexer")
 
 
-class LexMatch(namedtuple("LexMatch", ["new_string", "new_pos", "segments"])):
+class LexedElement(NamedTuple):
+    """An element matched during lexing."""
+
+    raw: str
+    matcher: "StringMatcher"
+
+
+class TemplateElement(NamedTuple):
+    """A LexedElement, bundled with it's position in the templated file."""
+
+    raw: str
+    template_slice: slice
+    matcher: "StringMatcher"
+
+    @classmethod
+    def from_element(cls, element: LexedElement, template_slice: slice):
+        """Make a TemplateElement from a LexedElement."""
+        return cls(
+            raw=element.raw, template_slice=template_slice, matcher=element.matcher
+        )
+
+    def to_segment(self, pos_marker):
+        """Create a segment from this lexed element."""
+        # TODO: Review whether this is sensible later in refactor.
+        SegmentClass = self.matcher._make_segment_class()
+        return SegmentClass(self.raw, pos_marker)
+
+
+class LexMatch(NamedTuple):
     """A class to hold matches from the Lexer."""
 
+    forward_string: str
+    elements: List[LexedElement]
+
     def __bool__(self):
-        """A LexMatch is truthy if it contains a non-zero number of matched segments."""
-        return len(self.segments) > 0
+        """A LexMatch is truthy if it contains a non-zero number of matched elements."""
+        return len(self.elements) > 0
 
 
-class SingletonMatcher:
-    """This singleton matcher matches single characters.
+class StringMatcher:
+    """This singleton matcher matches strings exactly.
 
     This is the simplest usable matcher, but it also defines some of the
     mechanisms for more complicated matchers, which may simply override the
@@ -42,82 +72,89 @@ class SingletonMatcher:
         self,
         name,
         template,
-        target_seg_class,
-        subdivide=None,
+        segment_class,
+        subdivider=None,
         trim_post_subdivide=None,
-        *args,
-        **kwargs
+        segment_kwargs=None,
     ):
         self.name = name
         self.template = template
-        self.target_seg_class = target_seg_class
-        self.subdivide = subdivide
+        self.segment_class = segment_class
+        self.subdivider = subdivider
         self.trim_post_subdivide = trim_post_subdivide
+        self.segment_kwargs = segment_kwargs or {}
 
-    def _match(self, forward_string):
-        """The private match function. Just look for a single character match."""
-        if forward_string[0] == self.template:
-            return forward_string[0]
+    def __repr__(self):
+        return f"<{self.__class__.__name__}: {self.name}>"
+
+    def _match(self, forward_string: str) -> Optional[LexedElement]:
+        """The private match function. Just look for a literal string."""
+        if forward_string.startswith(self.template):
+            return LexedElement(self.template, self)
         else:
             return None
 
-    def _trim(self, matched, start_pos):
+    def search(self, forward_string: str) -> Optional[Tuple[int, int]]:
+        """Use string methods to find a substring."""
+        loc = forward_string.find(self.template)
+        if loc >= 0:
+            return loc, loc + len(self.template)
+        else:
+            return None
+
+    def _trim_match(self, matched_str: str) -> List[LexedElement]:
         """Given a string, trim if we are allowed to.
 
         Returns:
-            :obj:`tuple` of segments
+            :obj:`tuple` of LexedElement
 
         """
-        seg_buff = ()
-        cont_buff = matched
-        cont_pos_buff = start_pos
-        idx = 0
+        elem_buff: List[LexedElement] = []
+        content_buff = ""
+        str_buff = matched_str
 
         if self.trim_post_subdivide:
-            class_kwargs = self.trim_post_subdivide.copy()
-            pattern = class_kwargs.pop("regex")
-            trimmer = re.compile(pattern, re.DOTALL)
-            TrimClass = RawSegment.make(pattern, **class_kwargs)
-
-            for trim_mat in trimmer.finditer(matched):
-                trim_span = trim_mat.span()
-                # Is it at the start?
-                if trim_span[0] == 0:
-                    seg_buff += (
-                        TrimClass(
-                            raw=matched[: trim_span[1]], pos_marker=cont_pos_buff
-                        ),
+            while str_buff:
+                # Iterate through subdividing as appropriate
+                trim_pos = self.trim_post_subdivide.search(str_buff)
+                # No match? Break
+                if not trim_pos:
+                    break
+                # Start match?
+                elif trim_pos[0] == 0:
+                    elem_buff.append(
+                        LexedElement(
+                            str_buff[: trim_pos[1]],
+                            self.trim_post_subdivide,
+                        )
                     )
-                    idx = trim_span[1]
-                    cont_pos_buff = cont_pos_buff.advance_by(matched[: trim_span[1]])
-                    # Have we consumed the whole string? This avoids us having
-                    # an empty string on the end.
-                    if idx == len(matched):
-                        break
-                # Is it at the end?
-                if trim_span[1] == len(matched):
-                    seg_buff += (
-                        self.target_seg_class(
-                            raw=matched[idx : trim_span[0]], pos_marker=cont_pos_buff
+                    str_buff = str_buff[trim_pos[1] :]
+                # End Match?
+                elif trim_pos[1] == len(str_buff):
+                    elem_buff += [
+                        LexedElement(
+                            content_buff + str_buff[: trim_pos[0]],
+                            self,
                         ),
-                        TrimClass(
-                            raw=matched[trim_span[0] : trim_span[1]],
-                            pos_marker=cont_pos_buff.advance_by(
-                                cont_buff[idx : trim_span[0]]
-                            ),
+                        LexedElement(
+                            str_buff[trim_pos[0] : trim_pos[1]],
+                            self.trim_post_subdivide,
                         ),
-                    )
-                    idx = len(matched)
+                    ]
+                    content_buff, str_buff = "", ""
+                # Mid Match? (carry on)
+                else:
+                    content_buff += str_buff[: trim_pos[1]]
+                    str_buff = str_buff[trim_pos[1] :]
 
         # Do we have anything left? (or did nothing happen)
-        if idx < len(matched):
-            seg_buff += (
-                self.target_seg_class(raw=matched[idx:], pos_marker=cont_pos_buff),
+        if content_buff + str_buff:
+            elem_buff.append(
+                LexedElement(content_buff + str_buff, self),
             )
+        return elem_buff
 
-        return seg_buff
-
-    def _subdivide(self, matched, start_pos):
+    def _subdivide(self, matched: LexedElement) -> List[LexedElement]:
         """Given a string, subdivide if we area allowed to.
 
         Returns:
@@ -125,42 +162,31 @@ class SingletonMatcher:
 
         """
         # Can we have to subdivide?
-        if self.subdivide:
+        if self.subdivider:
             # Yes subdivision
-            seg_buff = ()
-            str_buff = matched
-            pos_buff = start_pos
-            class_kwargs = self.subdivide.copy()
-            pattern = class_kwargs.pop("regex")
-            divider = re.compile(pattern, re.DOTALL)
-            DividerClass = RawSegment.make(pattern, **class_kwargs)
-
-            while True:
+            elem_buff: List[LexedElement] = []
+            str_buff = matched.raw
+            while str_buff:
                 # Iterate through subdividing as appropriate
-                mat = divider.search(str_buff)
-                if mat:
+                div_pos = self.subdivider.search(str_buff)
+                if div_pos:
                     # Found a division
-                    span = mat.span()
-                    trimmed_segments = self._trim(str_buff[: span[0]], pos_buff)
-                    div_seg = DividerClass(
-                        raw=str_buff[span[0] : span[1]],
-                        pos_marker=pos_buff.advance_by(str_buff[: span[0]]),
+                    trimmed_elems = self._trim_match(str_buff[: div_pos[0]])
+                    div_elem = LexedElement(
+                        str_buff[div_pos[0] : div_pos[1]], self.subdivider
                     )
-                    seg_buff += trimmed_segments + (div_seg,)
-                    pos_buff = pos_buff.advance_by(str_buff[: span[1]])
-                    str_buff = str_buff[span[1] :]
+                    elem_buff += trimmed_elems + [div_elem]
+                    str_buff = str_buff[div_pos[1] :]
                 else:
                     # No more division matches. Trim?
-                    trimmed_segments = self._trim(str_buff, pos_buff)
-                    seg_buff += trimmed_segments
-                    pos_buff = pos_buff.advance_by(str_buff)
+                    trimmed_elems = self._trim_match(str_buff)
+                    elem_buff += trimmed_elems
                     break
-            return seg_buff
+            return elem_buff
         else:
-            # NB: Tuple literal
-            return (self.target_seg_class(raw=matched, pos_marker=start_pos),)
+            return [matched]
 
-    def match(self, forward_string, start_pos):
+    def match(self, forward_string: str) -> LexMatch:
         """Given a string, match what we can and return the rest.
 
         Returns:
@@ -173,40 +199,24 @@ class SingletonMatcher:
 
         if matched:
             # Handle potential subdivision elsewhere.
-            new_segments = self._subdivide(matched, start_pos)
+            new_elements = self._subdivide(matched)
+
             return LexMatch(
-                forward_string[len(matched) :],
-                new_segments[-1].get_end_pos_marker(),
-                new_segments,
+                forward_string[len(matched.raw) :],
+                new_elements,
             )
         else:
-            return LexMatch(forward_string, start_pos, ())
+            return LexMatch(forward_string, [])
 
-    @classmethod
-    def from_shorthand(cls, name, template, **kwargs):
-        """A shorthand was of making new instances of this class.
-
-        This is the primary way of defining matchers. It is convenient
-        because several parameters of the matcher and the class of segment
-        to be returned are shared, and here we define both together.
-        """
-        # Some kwargs get consumed by the class, the rest
-        # are passed to the raw segment.
-        class_kwargs = {}
-        possible_class_kwargs = ["subdivide", "trim_post_subdivide"]
-        for k in possible_class_kwargs:
-            if k in kwargs:
-                class_kwargs[k] = kwargs.pop(k)
-
-        return cls(
-            name,
-            template,
-            RawSegment.make(template, name=name, **kwargs),
-            **class_kwargs
+    def _make_segment_class(self):
+        # NOTE: Stub method to override later.
+        # THIS NEEDS REFACTORING WITH FACTORIES
+        return self.segment_class.make(
+            self.template, name=self.name, **self.segment_kwargs
         )
 
 
-class RegexMatcher(SingletonMatcher):
+class RegexMatcher(StringMatcher):
     """This RegexMatcher matches based on regular expressions."""
 
     def __init__(self, *args, **kwargs):
@@ -216,72 +226,32 @@ class RegexMatcher(SingletonMatcher):
         flags = re.DOTALL
         self._compiled_regex = re.compile(self.template, flags)
 
-    def _match(self, forward_string):
+    def _match(self, forward_string: str) -> Optional[LexedElement]:
         """Use regexes to match chunks."""
         match = self._compiled_regex.match(forward_string)
         if match:
-            return match.group(0)
-        else:
-            return None
-
-
-class RepeatedMultiMatcher(SingletonMatcher):
-    """Uses other matchers in priority order.
-
-    Args:
-        *submatchers: An iterable of other matchers which can be tried
-            in turn. If none match a given forward looking string we simply
-            return the unmatched part as per any other matcher.
-
-    """
-
-    def __init__(self, *submatchers):
-        self.submatchers = submatchers
-
-    def match(self, forward_string, start_pos):
-        """Iteratively match strings using the selection of submatchers."""
-        seg_buff = ()
-        while True:
-            if len(forward_string) == 0:
-                return LexMatch(forward_string, start_pos, seg_buff)
-            for matcher in self.submatchers:
-                res = matcher.match(forward_string, start_pos)
-                if res.segments:
-                    # If we have new segments then whoop!
-                    seg_buff += res.segments
-                    forward_string = res.new_string
-                    start_pos = res.new_pos
-                    # Cycle back around again and start with the top
-                    # matcher again.
-                    break
-                else:
-                    continue
+            # We can only match strings with length
+            match_str = match.group(0)
+            if match_str:
+                return LexedElement(match_str, self)
             else:
-                # We've got so far, but now can't match. Return
-                return LexMatch(forward_string, start_pos, seg_buff)
-
-    @classmethod
-    def from_struct(cls, s):
-        """Creates a matcher from a lexer_struct.
-
-        Expects an iterable of :obj:`tuple`. Each tuple should be:
-        (name, type, pattern, kwargs).
-
-        """
-        matchers = []
-        for elem in s:
-            if elem[1] == "regex":
-                m_cls = RegexMatcher
-            elif elem[1] == "singleton":
-                m_cls = SingletonMatcher
-            else:
-                raise ValueError(
-                    "Unexpected matcher type in lexer struct: {0!r}".format(elem[1])
+                lexer_logger.warning(
+                    f"Zero length Lex item returned from {self.name!r}. Report this as a bug."
                 )
-            k = elem[3] or {}
-            m = m_cls.from_shorthand(elem[0], elem[2], **k)
-            matchers.append(m)
-        return cls(*matchers)
+        return None
+
+    def search(self, forward_string: str) -> Optional[Tuple[int, int]]:
+        """Use regex to find a substring."""
+        match = self._compiled_regex.search(forward_string)
+        if match:
+            # We can only match strings with length
+            if match.group(0):
+                return match.span()
+            else:
+                lexer_logger.warning(
+                    f"Zero length Lex item returned from {self.name!r}. Report this as a bug."
+                )
+        return None
 
 
 class Lexer:
@@ -290,15 +260,19 @@ class Lexer:
     def __init__(
         self,
         config: Optional[FluffConfig] = None,
-        last_resort_lexer: Optional[SingletonMatcher] = None,
+        last_resort_lexer: Optional[StringMatcher] = None,
         dialect: Optional[str] = None,
     ):
         # Allow optional config and dialect
         self.config = FluffConfig.from_kwargs(config=config, dialect=dialect)
-        lexer_struct = self.config.get("dialect_obj").get_lexer_struct()
-        self.matcher = RepeatedMultiMatcher.from_struct(lexer_struct)
-        self.last_resort_lexer = last_resort_lexer or RegexMatcher.from_shorthand(
-            "<unlexable>", r"[^\t\n\,\.\ \-\+\*\\\/\'\"\;\:\[\]\(\)\|]*", is_code=True
+        # Store the matchers
+        self.lexer_matchers = self.config.get("dialect_obj").get_lexer_matchers()
+
+        self.last_resort_lexer = last_resort_lexer or RegexMatcher(
+            "<unlexable>",
+            r"[^\t\n\,\.\ \-\+\*\\\/\'\"\;\:\[\]\(\)\|]*",
+            UnlexableSegment,
+            segment_kwargs={"is_code": True},
         )
 
     def lex(
@@ -310,200 +284,224 @@ class Lexer:
         found something that we cannot lex. If that happens we should
         package it up as unlexable and keep track of the exceptions.
         """
-        start_pos = FilePositionMarker()
-        segment_buff = ()
-        violations = []
+        # Make sure we've got a string buffer and a template
+        # regardless of what was passed in.
+        if isinstance(raw, str):
+            template = TemplatedFile.from_string(raw)
+            str_buff = raw
+        else:
+            template = raw
+            str_buff = str(template)
 
-        # Handle potential TemplatedFile for now
-        str_buff = str(raw)
-
+        # Lex the string to get a tuple of LexedElement
+        element_buffer: List[LexedElement] = []
         while True:
-            res = self.matcher.match(str_buff, start_pos)
-            segment_buff += res.segments
-            if len(res.new_string) > 0:
-                violations.append(
-                    SQLLexError(
-                        "Unable to lex characters: '{0!r}...'".format(
-                            res.new_string[:10]
-                        ),
-                        pos=res.new_pos,
-                    )
-                )
-                resort_res = self.last_resort_lexer.match(res.new_string, res.new_pos)
+            res = self.lex_match(str_buff, self.lexer_matchers)
+            element_buffer += res.elements
+            if res.forward_string:
+                resort_res = self.last_resort_lexer.match(res.forward_string)
                 if not resort_res:
                     # If we STILL can't match, then just panic out.
-                    raise violations[-1]
-
-                str_buff = resort_res.new_string
-                start_pos = resort_res.new_pos
-                segment_buff += resort_res.segments
+                    raise SQLLexError(
+                        f"Fatal. Unable to lex characters: {0!r}".format(
+                            res.forward_string[:10] + "..."
+                            if len(res.forward_string) > 9
+                            else res.forward_string
+                        )
+                    )
+                str_buff = resort_res.forward_string
+                element_buffer += resort_res.elements
             else:
                 break
 
-        # Enrich the segments if we can using the templated file
-        if isinstance(raw, TemplatedFile):
-            return self.enrich_segments(segment_buff, raw), violations
-        else:
-            return segment_buff, violations
+        # Map tuple LexedElement to list of TemplateElement.
+        # This adds the template_slice to the object.
+        templated_buffer = self.map_template_slices(element_buffer, template)
 
-    @staticmethod
-    def enrich_segments(
-        segment_buff: Tuple[BaseSegment, ...], templated_file: TemplatedFile
-    ) -> Tuple[BaseSegment, ...]:
-        """Enrich the segments using the templated file.
-
-        We use the mapping in the template to provide positions
-        in the source file.
-        """
-        # Make a new buffer to hold the enriched segments.
-        # We need a new buffer to hold the new meta segments
-        # introduced.
-        new_segment_buff = []
-        # Get the templated slices to re-insert tokens for them
-        source_only_slices = templated_file.source_only_slices()
-
-        lexer_logger.info(
-            "Enriching Segments. Source-only slices: %s", source_only_slices
+        # Turn lexed elements into segments.
+        segments: Tuple[RawSegment, ...] = self.elements_to_segments(
+            templated_buffer, template
         )
 
-        for segment in segment_buff:
-            templated_slice = slice(
-                segment.pos_marker.char_pos,
-                segment.pos_marker.char_pos + len(segment.raw),
-            )
+        # Generate any violations
+        violations: List[SQLLexError] = self.violations_from_segments(segments)
+
+        return segments, violations
+
+    def elements_to_segments(
+        self, elements: List[TemplateElement], templated_file: TemplatedFile
+    ) -> Tuple[RawSegment, ...]:
+        """Convert a tuple of lexed elements into a tuple of segments."""
+        # Working buffer to build up segments
+        segment_buffer: List[RawSegment] = []
+
+        lexer_logger.info("Elements to Segments.")
+        # Get the templated slices to re-insert tokens for them
+        source_only_slices = templated_file.source_only_slices()
+        lexer_logger.info("Source-only slices: %s", source_only_slices)
+
+        # Now work out source slices, and add in template placeholders.
+        for element in elements:
+            # Calculate Source Slice
             source_slice = templated_file.templated_slice_to_source_slice(
-                templated_slice
+                element.template_slice
             )
-
-            # At this stage, templated slices will be INCLUDED in the source slice,
-            # so we should consider whether we've captured any. If we have then
-            # we need to re-evaluate whether it's a literal or not.
-
+            # The calculated source slice will include any source only slices.
+            # We should consider all of them in turn to see whether we can
+            # insert them.
             for source_only_slice in source_only_slices:
+                # If it's later in the source, stop looking. Any later
+                # ones *also* won't match.
                 if source_only_slice.source_idx > source_slice.start:
                     break
+                # Is there a templated section within this source slice?
+                # If there is then for some reason I can't quite explain,
+                # it will always be at the start of the section. This is
+                # very convenient beause it means we'll always have the
+                # start and end of it in a definite position. This makes
+                # slicing and looping much easier.
                 elif source_only_slice.source_idx == source_slice.start:
                     lexer_logger.debug(
                         "Found templated section! %s, %s, %s",
                         source_only_slice.source_slice(),
                         source_only_slice.slice_type,
-                        templated_slice.start,
+                        element.template_slice.start,
+                    )
+                    # Calculate a slice for any placeholders
+                    placeholder_source_slice = slice(
+                        source_slice.start, source_only_slice.end_source_idx()
                     )
                     # Adjust the source slice accordingly.
                     source_slice = slice(
                         source_only_slice.end_source_idx(), source_slice.stop
                     )
 
+                    # TODO: Readjust this to remove .when once ProtoSegment is in.
+
                     # Add segments as appropriate.
                     # If it's a block end, add a dedent.
                     if source_only_slice.slice_type in ("block_end", "block_mid"):
-                        new_segment_buff.append(
+                        segment_buffer.append(
                             Dedent.when(template_blocks_indent=True)(
-                                pos_marker=segment.pos_marker
+                                pos_marker=templated_file.make_position_marker(
+                                    slice(
+                                        placeholder_source_slice.start,
+                                        placeholder_source_slice.start,
+                                    ),
+                                    slice(
+                                        element.template_slice.start,
+                                        element.template_slice.start,
+                                    ),
+                                    is_literal=False,
+                                )
                             )
                         )
                     # Always add a placeholder
-                    new_segment_buff.append(
+                    segment_buffer.append(
                         TemplateSegment(
-                            pos_marker=segment.pos_marker,
+                            pos_marker=templated_file.make_position_marker(
+                                placeholder_source_slice,
+                                slice(
+                                    element.template_slice.start,
+                                    element.template_slice.start,
+                                ),
+                                is_literal=False,
+                            ),
                             source_str=source_only_slice.raw,
                             block_type=source_only_slice.slice_type,
                         )
                     )
                     # If it's a block end, add a dedent.
                     if source_only_slice.slice_type in ("block_start", "block_mid"):
-                        new_segment_buff.append(
+                        segment_buffer.append(
                             Indent.when(template_blocks_indent=True)(
-                                pos_marker=segment.pos_marker
+                                pos_marker=templated_file.make_position_marker(
+                                    slice(
+                                        placeholder_source_slice.stop,
+                                        placeholder_source_slice.stop,
+                                    ),
+                                    slice(
+                                        element.template_slice.start,
+                                        element.template_slice.start,
+                                    ),
+                                    is_literal=False,
+                                )
                             )
                         )
 
-            source_line, source_pos = templated_file.get_line_pos_of_char_pos(
-                source_slice.start
-            )
-
-            # Recalculate is_literal
+            # Calculate is_literal
             is_literal = templated_file.is_source_slice_literal(source_slice)
-
-            segment.pos_marker = EnrichedFilePositionMarker(
-                statement_index=segment.pos_marker.statement_index,
-                line_no=segment.pos_marker.line_no,
-                line_pos=segment.pos_marker.line_pos,
-                char_pos=segment.pos_marker.char_pos,
-                templated_slice=templated_slice,
-                source_slice=source_slice,
-                is_literal=is_literal,
-                source_pos_marker=FilePositionMarker(
-                    segment.pos_marker.statement_index,
-                    source_line,
-                    source_pos,
-                    source_slice.start,
-                ),
-            )
-            new_segment_buff.append(segment)
-
-        # Finally, we pass through a final time, enriching any remaining
-        # un-enriched segments using the position of their preceeding marker.
-        for idx in range(len(new_segment_buff)):
-            if not isinstance(
-                new_segment_buff[idx].pos_marker, EnrichedFilePositionMarker
-            ):
-                # get previous marker
-                if idx > 0:
-                    prev_marker = new_segment_buff[idx - 1].pos_marker
-                    prev_pos = (
-                        prev_marker.source_slice.stop,
-                        prev_marker.templated_slice.stop,
+            # Add the atual segment
+            segment_buffer.append(
+                element.to_segment(
+                    pos_marker=templated_file.make_position_marker(
+                        source_slice,
+                        element.template_slice,
+                        is_literal=is_literal,
                     )
-                    prev_line = prev_marker.source_pos_marker.line_no
-                    prev_line_pos = prev_marker.source_pos_marker.line_pos
-                else:
-                    prev_pos = (0, 0)
-                    prev_line = 0
-                    prev_line_pos = 0
-                # Is it a placeholder (i.e. does it have source length?)
-                if isinstance(new_segment_buff[idx], TemplateSegment):
-                    # Find the next enriched marker.
-                    for elem in new_segment_buff[idx + 1 :]:
-                        if isinstance(elem.pos_marker, EnrichedFilePositionMarker):
-                            next_pos = (
-                                elem.pos_marker.source_slice.start,
-                                elem.pos_marker.templated_slice.start,
-                            )
-                            break
-                    else:
-                        # We're at the end of the file.
-                        next_pos = (
-                            len(templated_file.source_str),
-                            len(templated_file.templated_str),
-                        )
-                else:
-                    # It's a point and so we don't need to find the next one.
-                    next_pos = prev_pos
-                # Enrich by proxy
-                new_segment_buff[idx].pos_marker = EnrichedFilePositionMarker(
-                    statement_index=new_segment_buff[idx].pos_marker.statement_index,
-                    line_no=new_segment_buff[idx].pos_marker.line_no,
-                    line_pos=new_segment_buff[idx].pos_marker.line_pos,
-                    char_pos=new_segment_buff[idx].pos_marker.char_pos,
-                    templated_slice=slice(prev_pos[1], next_pos[1]),
-                    source_slice=slice(prev_pos[0], next_pos[0]),
-                    is_literal=False,
-                    source_pos_marker=FilePositionMarker(
-                        new_segment_buff[idx].pos_marker.statement_index,
-                        prev_line,
-                        prev_line_pos,
-                        prev_pos[0],
-                    ),
                 )
-
-        lexer_logger.debug("Enriched Segments:")
-        for seg in new_segment_buff:
-            lexer_logger.debug(
-                "\tTmp: %s\tSrc: %s\tSeg: %s",
-                getattr(seg.pos_marker, "templated_slice", None),
-                getattr(seg.pos_marker, "source_slice", None),
-                seg,
             )
 
-        return tuple(new_segment_buff)
+        # Convert to tuple before return
+        return tuple(segment_buffer)
+
+    @staticmethod
+    def violations_from_segments(segments: Tuple[RawSegment, ...]) -> List[SQLLexError]:
+        """Generate any lexing errors for any unlexables."""
+        violations = []
+        for segment in segments:
+            if segment.is_type("unlexable"):
+                violations.append(
+                    SQLLexError(
+                        "Unable to lex characters: {0!r}".format(
+                            segment.raw[:10] + "..."
+                            if len(segment.raw) > 9
+                            else segment.raw
+                        ),
+                        pos=segment.pos_marker,
+                    )
+                )
+        return violations
+
+    @staticmethod
+    def lex_match(forward_string: str, lexer_matchers: List[StringMatcher]) -> LexMatch:
+        """Iteratively match strings using the selection of submatchers."""
+        elem_buff: List[LexedElement] = []
+        while True:
+            if len(forward_string) == 0:
+                return LexMatch(forward_string, elem_buff)
+            for matcher in lexer_matchers:
+                res = matcher.match(forward_string)
+                if res.elements:
+                    # If we have new segments then whoop!
+                    elem_buff += res.elements
+                    forward_string = res.forward_string
+                    # Cycle back around again and start with the top
+                    # matcher again.
+                    break
+            else:
+                # We've got so far, but now can't match. Return
+                return LexMatch(forward_string, elem_buff)
+
+    @staticmethod
+    def map_template_slices(
+        elements: List[LexedElement], template: TemplatedFile
+    ) -> List[TemplateElement]:
+        """Create a tuple of TemplateElement from a tuple of LexedElement.
+
+        This adds slices in the templated file to the original lexed
+        elements. We'll need this to work out the position in the source
+        file.
+        """
+        idx = 0
+        templated_buff: List[TemplateElement] = []
+        for element in elements:
+            template_slice = slice(idx, idx + len(element.raw))
+            idx += len(element.raw)
+            templated_buff.append(TemplateElement.from_element(element, template_slice))
+            if template.templated_str[template_slice] != element.raw:
+                raise ValueError(
+                    "Template and lexed elements do not match. This should never "
+                    f"happen {element.raw!r} != {template.templated_str[template_slice]!r}"
+                )
+        return templated_buff
