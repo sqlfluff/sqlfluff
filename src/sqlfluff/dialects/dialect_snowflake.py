@@ -21,6 +21,9 @@ from sqlfluff.core.parser import (
     StartsWith,
     Indent,
     Dedent,
+    RegexMatcher,
+    StringMatcher,
+    CodeSegment,
 )
 
 
@@ -29,24 +32,22 @@ postgres_dialect = load_raw_dialect("postgres")
 
 snowflake_dialect = postgres_dialect.copy_as("snowflake")
 
-snowflake_dialect.patch_lexer_struct(
+snowflake_dialect.patch_lexer_matchers(
     [
         # In snowflake, a double single quote resolves as a single quote in the string.
         # https://docs.snowflake.com/en/sql-reference/data-types-text.html#single-quoted-string-constants
-        ("single_quote", "regex", r"'([^']|'')*'", dict(is_code=True)),
+        RegexMatcher("single_quote", r"'([^']|'')*'", CodeSegment),
     ]
 )
 
-snowflake_dialect.insert_lexer_struct(
-    # Keyword assigner needed for keyword functions.
-    [("parameter_assigner", "regex", r"=>", dict(is_code=True))],
-    before="not_equal",
-)
-
-snowflake_dialect.insert_lexer_struct(
-    # Column selector
-    # https://docs.snowflake.com/en/sql-reference/sql/select.html#parameters
-    [("column_selector", "regex", r"\$[0-9]+", dict(is_code=True))],
+snowflake_dialect.insert_lexer_matchers(
+    [
+        # Keyword assigner needed for keyword functions.
+        StringMatcher("parameter_assigner", "=>", CodeSegment),
+        # Column selector
+        # https://docs.snowflake.com/en/sql-reference/sql/select.html#parameters
+        RegexMatcher("column_selector", r"\$[0-9]+", CodeSegment),
+    ],
     before="not_equal",
 )
 

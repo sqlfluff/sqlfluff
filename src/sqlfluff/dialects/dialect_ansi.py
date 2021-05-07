@@ -35,6 +35,12 @@ from sqlfluff.core.parser import (
     Dedent,
     Nothing,
     OptionallyBracketed,
+    StringMatcher,
+    RegexMatcher,
+    CodeSegment,
+    CommentSegment,
+    WhitespaceSegment,
+    NewlineSegment,
 )
 
 from sqlfluff.core.dialects.base import Dialect
@@ -49,70 +55,62 @@ from sqlfluff.dialects.ansi_keywords import (
 ansi_dialect = Dialect("ansi", root_segment_name="FileSegment")
 
 
-ansi_dialect.set_lexer_struct(
+ansi_dialect.set_lexer_matchers(
     [
-        # name, type, pattern, kwargs
-        ("whitespace", "regex", r"[\t ]+", dict(type="whitespace", is_whitespace=True)),
-        (
+        RegexMatcher("whitespace", r"[\t ]+", WhitespaceSegment),
+        RegexMatcher(
             "inline_comment",
-            "regex",
             r"(--|#)[^\n]*",
-            dict(is_comment=True, type="comment", trim_start=("--", "#")),
+            CommentSegment,
+            segment_kwargs={"trim_start": ("--", "#")},
         ),
-        (
+        RegexMatcher(
             "block_comment",
-            "regex",
             r"\/\*([^\*]|\*(?!\/))*\*\/",
-            dict(
-                is_comment=True,
-                type="comment",
-                subdivide=dict(
-                    type="newline", name="newline", regex=r"\r\n|\n", is_whitespace=True
-                ),
-                trim_post_subdivide=dict(
-                    type="whitespace",
-                    name="whitespace",
-                    regex=r"[\t ]+",
-                    is_whitespace=True,
-                ),
+            CommentSegment,
+            subdivider=RegexMatcher(
+                "newline",
+                r"\r\n|\n",
+                NewlineSegment,
+            ),
+            trim_post_subdivide=RegexMatcher(
+                "whitespace",
+                r"[\t ]+",
+                WhitespaceSegment,
             ),
         ),
-        # Matches 0 or more characters surrounded by quotes that (aren't a quote or backslash) or a sequence of backslash followed by any character, aka an escaped character.
-        ("single_quote", "regex", r"'([^'\\]|\\.)*'", dict(is_code=True)),
-        ("double_quote", "regex", r'"([^"\\]|\\.)*"', dict(is_code=True)),
-        ("back_quote", "regex", r"`[^`]*`", dict(is_code=True)),
-        (
-            "numeric_literal",
-            "regex",
-            r"(\d+(\.\d+)?|\.\d+)([eE][+-]?\d+)?",
-            dict(is_code=True),
+        RegexMatcher("single_quote", r"'([^'\\]|\\.)*'", CodeSegment),
+        RegexMatcher("double_quote", r'"([^"\\]|\\.)*"', CodeSegment),
+        RegexMatcher("back_quote", r"`[^`]*`", CodeSegment),
+        RegexMatcher(
+            "numeric_literal", r"(\d+(\.\d+)?|\.\d+)([eE][+-]?\d+)?", CodeSegment
         ),
-        ("not_equal", "regex", r"!=|<>", dict(is_code=True)),
-        ("like_operator", "regex", r"!?~~?\*?", dict(is_code=True)),
-        ("greater_than_or_equal", "regex", r">=", dict(is_code=True)),
-        ("less_than_or_equal", "regex", r"<=", dict(is_code=True)),
-        ("newline", "regex", r"\r\n|\n", dict(type="newline", is_whitespace=True)),
-        ("casting_operator", "regex", r"::", dict(is_code=True)),
-        ("concat_operator", "regex", r"\|\|", dict(is_code=True)),
-        ("equals", "singleton", "=", dict(is_code=True)),
-        ("greater_than", "singleton", ">", dict(is_code=True)),
-        ("less_than", "singleton", "<", dict(is_code=True)),
-        ("dot", "singleton", ".", dict(is_code=True)),
-        ("comma", "singleton", ",", dict(is_code=True, type="comma")),
-        ("plus", "singleton", "+", dict(is_code=True)),
-        ("minus", "singleton", "-", dict(is_code=True)),
-        ("divide", "singleton", "/", dict(is_code=True)),
-        ("percent", "singleton", "%", dict(is_code=True)),
-        ("star", "singleton", "*", dict(is_code=True)),
-        ("bracket_open", "singleton", "(", dict(is_code=True)),
-        ("bracket_close", "singleton", ")", dict(is_code=True)),
-        ("sq_bracket_open", "singleton", "[", dict(is_code=True)),
-        ("sq_bracket_close", "singleton", "]", dict(is_code=True)),
-        ("crly_bracket_open", "singleton", "{", dict(is_code=True)),
-        ("crly_bracket_close", "singleton", "}", dict(is_code=True)),
-        ("colon", "singleton", ":", dict(is_code=True)),
-        ("semicolon", "singleton", ";", dict(is_code=True)),
-        ("code", "regex", r"[0-9a-zA-Z_]*", dict(is_code=True)),
+        RegexMatcher("not_equal", r"!=|<>", CodeSegment),
+        RegexMatcher("like_operator", r"!?~~?\*?", CodeSegment),
+        StringMatcher("greater_than_or_equal", ">=", CodeSegment),
+        StringMatcher("less_than_or_equal", "<=", CodeSegment),
+        RegexMatcher("newline", r"\r\n|\n", NewlineSegment),
+        StringMatcher("casting_operator", "::", CodeSegment),
+        StringMatcher("concat_operator", "||", CodeSegment),
+        StringMatcher("equals", "=", CodeSegment),
+        StringMatcher("greater_than", ">", CodeSegment),
+        StringMatcher("less_than", "<", CodeSegment),
+        StringMatcher("dot", ".", CodeSegment),
+        StringMatcher("comma", ",", CodeSegment, segment_kwargs={"type": "comma"}),
+        StringMatcher("plus", "+", CodeSegment),
+        StringMatcher("minus", "-", CodeSegment),
+        StringMatcher("divide", "/", CodeSegment),
+        StringMatcher("percent", "%", CodeSegment),
+        StringMatcher("star", "*", CodeSegment),
+        StringMatcher("bracket_open", "(", CodeSegment),
+        StringMatcher("bracket_close", ")", CodeSegment),
+        StringMatcher("sq_bracket_open", "[", CodeSegment),
+        StringMatcher("sq_bracket_close", "]", CodeSegment),
+        StringMatcher("crly_bracket_open", "{", CodeSegment),
+        StringMatcher("crly_bracket_close", "}", CodeSegment),
+        StringMatcher("colon", ":", CodeSegment),
+        StringMatcher("semicolon", ";", CodeSegment),
+        RegexMatcher("code", r"[0-9a-zA-Z_]+", CodeSegment),
     ]
 )
 

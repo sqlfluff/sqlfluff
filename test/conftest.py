@@ -82,21 +82,25 @@ def generate_test_segments():
                 continue
 
             if set(elem) <= {" ", "\t"}:
-                cls = RawSegment.make(" ", name="whitespace", type="whitespace")
+                cls = RawSegment.make(
+                    " ", name="whitespace", type="whitespace", _is_code=False
+                )
             elif set(elem) <= {"\n"}:
-                cls = RawSegment.make("\n", name="newline", type="newline")
+                cls = RawSegment.make(
+                    "\n", name="newline", type="newline", _is_code=False
+                )
             elif elem == "(":
-                cls = RawSegment.make("(", name="bracket_open", _is_code=True)
+                cls = RawSegment.make("(", name="bracket_open")
             elif elem == ")":
-                cls = RawSegment.make(")", name="bracket_close", _is_code=True)
+                cls = RawSegment.make(")", name="bracket_close")
             elif elem.startswith("--"):
-                cls = RawSegment.make("--", name="inline_comment")
+                cls = RawSegment.make("--", name="inline_comment", _is_code=False)
             elif elem.startswith('"'):
-                cls = RawSegment.make('"', name="double_quote", _is_code=True)
+                cls = RawSegment.make('"', name="double_quote")
             elif elem.startswith("'"):
-                cls = RawSegment.make("'", name="single_quote", _is_code=True)
+                cls = RawSegment.make("'", name="single_quote")
             else:
-                cls = RawSegment.make("", _is_code=True)
+                cls = RawSegment.make("")
 
             buff.append(cls(elem, FilePositionMarker().advance_by(raw_buff)))
             raw_buff += elem
