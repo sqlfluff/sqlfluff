@@ -98,12 +98,8 @@ class Rule_L037(BaseRule):
             for col_info in orderby_spec:
                 if not col_info.order:
                     # Since ASC is default in SQL, add in ASC for fix
-                    new_whitespace = self.make_whitespace(
-                        raw=" ", pos_marker=col_info.separator.pos_marker
-                    )
-                    new_keyword = self.make_keyword(
-                        raw="ASC", pos_marker=col_info.separator.pos_marker
-                    )
+                    new_whitespace = self.make_whitespace(raw=" ")
+                    new_keyword = self.make_keyword(raw="ASC")
                     order_lint_fix = LintFix(
                         "create", col_info.separator, [new_whitespace, new_keyword]
                     )

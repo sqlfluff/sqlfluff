@@ -70,9 +70,7 @@ class Rule_L004(BaseRule):
                     LintFix(
                         "edit",
                         segment,
-                        self.make_whitespace(
-                            raw=edit_indent, pos_marker=segment.pos_marker
-                        ),
+                        self.make_whitespace(raw=edit_indent),
                     )
                 ]
             elif not (len(raw_stack) == 0 or raw_stack[-1].is_type("newline")):

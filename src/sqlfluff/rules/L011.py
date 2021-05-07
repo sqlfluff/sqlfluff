@@ -47,20 +47,16 @@ class Rule_L011(BaseRule):
 
                     # Add initial whitespace if we need to...
                     if raw_stack[-1].name not in ["whitespace", "newline"]:
-                        insert_buff.append(
-                            self.make_whitespace(raw=" ", pos_marker=None)
-                        )
+                        insert_buff.append(self.make_whitespace(raw=" "))
                         insert_str += " "
 
                     # Add an AS (Uppercase for now, but could be corrected later)
-                    insert_buff.append(self.make_keyword(raw="AS", pos_marker=None))
+                    insert_buff.append(self.make_keyword(raw="AS"))
                     insert_str += "AS"
 
                     # Add a trailing whitespace if we need to
                     if segment.segments[0].name not in ["whitespace", "newline"]:
-                        insert_buff.append(
-                            self.make_whitespace(raw=" ", pos_marker=None)
-                        )
+                        insert_buff.append(self.make_whitespace(raw=" "))
                         insert_str += " "
 
                     return LintResult(

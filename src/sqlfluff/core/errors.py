@@ -60,6 +60,18 @@ class SQLBaseError(ValueError):
             else:
                 return self.__class__.__name__
 
+    def get_info_dict(self):
+        """Return a dict of properties.
+
+        This is useful in the API for outputting violations.
+        """
+        return {
+            "line_no": self.line_no,
+            "line_pos": self.line_pos,
+            "code": self.rule_code(),
+            "description": self.desc(),
+        }
+
     def ignore_if_in(self, ignore_iterable):
         """Ignore this violation if it matches the iterable."""
         # Type conversion

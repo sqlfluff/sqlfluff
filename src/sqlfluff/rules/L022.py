@@ -177,8 +177,7 @@ class Rule_L022(BaseRule):
                         LintFix(
                             fix_type,
                             fix_point,
-                            [self.make_newline(pos_marker=fix_point.pos_marker)]
-                            * num_newlines,
+                            [self.make_newline()] * num_newlines,
                         )
                     ]
                     # Create a result, anchored on the start of the next content.

@@ -7,6 +7,7 @@ from sqlfluff.core.parser import (
     RawSegment,
     BaseSegment,
 )
+from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.parser.context import RootParseContext
 
 
@@ -100,15 +101,17 @@ def test__parser__base_segments_base(raw_seg_list, fresh_ansi_dialect):
 
 def test__parser__base_segments_raw_compare():
     """Test comparison of raw segments."""
-    rs1 = RawSegment("foobar", PositionMarker(slice(0, 6), slice(0, 6), None))
-    rs2 = RawSegment("foobar", PositionMarker(slice(0, 6), slice(0, 6), None))
+    template = TemplatedFile.from_string("foobar")
+    rs1 = RawSegment("foobar", PositionMarker(slice(0, 6), slice(0, 6), template))
+    rs2 = RawSegment("foobar", PositionMarker(slice(0, 6), slice(0, 6), template))
     assert rs1 == rs2
 
 
 def test__parser__base_segments_base_compare():
     """Test comparison of base segments."""
-    rs1 = RawSegment("foobar", PositionMarker(slice(0, 6), slice(0, 6), None))
-    rs2 = RawSegment("foobar", PositionMarker(slice(0, 6), slice(0, 6), None))
+    template = TemplatedFile.from_string("foobar")
+    rs1 = RawSegment("foobar", PositionMarker(slice(0, 6), slice(0, 6), template))
+    rs2 = RawSegment("foobar", PositionMarker(slice(0, 6), slice(0, 6), template))
 
     ds1 = DummySegment([rs1])
     ds2 = DummySegment([rs2])

@@ -9,7 +9,6 @@ Here we define:
 """
 
 from io import StringIO
-import copy
 from benchit import BenchIt
 from cached_property import cached_property
 from typing import Any, Callable, Optional, List, Tuple, NamedTuple, Iterator
@@ -118,13 +117,21 @@ class BaseSegment:
                 )
 
     def __eq__(self, other):
-        # Equal if type, content and pos are the same
         # NB: this should also work for RawSegment
         return (
             # Same class NAME. (could be constructed elsewhere)
             self.__class__.__name__ == other.__class__.__name__
             and (self.raw == other.raw)
-            and (self.pos_marker == other.pos_marker)
+            # Both must have a non-null position marker to compare.
+            and self.pos_marker
+            and other.pos_marker
+            # We only match that the *start* is the same. This means we can
+            # still effectively construct searches look for segments.
+            # This is important for .apply_fixes().
+            and (
+                self.pos_marker.start_point_marker()
+                == other.pos_marker.start_point_marker()
+            )
         )
 
     def __repr__(self):
@@ -268,65 +275,43 @@ class BaseSegment:
         check_still_complete(segments, segs, ())
         return segs
 
-    @staticmethod
-    def _realign_segments(segments, starting_pos=None, meta_only=False):
-        """Realign the positions in the provided segments."""
-        seg_buffer = []
-        todo_buffer = list(segments)
-        if not todo_buffer:
-            return ()
-        # If starting pos not provided, take it from the first of the buffer.
-        running_pos = starting_pos
-        if not running_pos:
-            for seg in todo_buffer:
-                if not seg.is_meta:
-                    running_pos = seg.pos_marker
-                    break
-            else:
-                raise ValueError("No starting pos provided and unable to infer.")
+    @classmethod
+    def _position_segments(cls, segments, parent_pos=None):
+        """Refresh positions of segments within a span.
 
-        # Strip the starting position regardless. This means
-        # we don't accidentally contaminate any inserted initial
-        # segments.
-        running_pos = running_pos.strip()
-
-        while len(todo_buffer) > 0:
-            # Get the first off the buffer
-            seg = todo_buffer.pop(0)
-
-            # We'll preserve statement indexes so we should keep track of that.
-            # When recreating, we use the DELTA of the index so that's what matter...
-            idx = seg.pos_marker.statement_index - running_pos.statement_index
-            new_pos = seg.pos_marker.shift_to(running_pos)
-
-            if not meta_only or seg.is_meta:
-                # Copy the segment
-                seg_copy = copy.copy(seg)
-                # Update the position
-                seg_copy.pos_marker = new_pos
-                # Realign the children of that class if required.
-                if len(seg_copy.segments) > 0:
-                    seg_copy = seg_copy.realign()
-                seg = seg_copy
-
-            # Update the running position with the content of that segment.
-            running_pos = running_pos.advance_by(raw=seg.raw, idx=idx)
-            # Add the buffer to my new segment
-            seg_buffer.append(seg)
-        return tuple(seg_buffer)
-
-    @staticmethod
-    def _position_segments(segments, parent_pos=None):
-        """Assign positions to any segments without them.
+        This does two things:
+        - Assign positions to any segments without them.
+        - Updates the working line_no and line_pos for all
+          segments during fixing.
 
         New segments are assumed to be metas or insertions
         and so therefore have a zero-length position in the
         source and templated file.
         """
+        # If there are no segments, there's no need to reposition.
+        if not segments:
+            return segments
+
+        # Work out our starting position for working through
+        if parent_pos:
+            line_no = parent_pos.working_line_no
+            line_pos = parent_pos.working_line_pos
+        # If we don't have it, infer it from the first position
+        # in this segment that does have a position.
+        else:
+            for fwd_seg in segments:
+                if fwd_seg.pos_marker:
+                    line_no = fwd_seg.pos_marker.working_line_no
+                    line_pos = fwd_seg.pos_marker.working_line_pos
+                    break
+            else:
+                linter_logger.warning("SEG: %r, POS: %r", segments, parent_pos)
+                raise ValueError("Unable to find working position.")
+
         # Use the index so that we can look forward
         # and backward.
         for idx in range(len(segments)):
-            # Find any ones that don't have a position.
+            # Fill any that don't have a position.
             if not segments[idx].pos_marker:
                 # Can we get a position from the previous?
                 if idx > 0:
@@ -346,6 +331,22 @@ class BaseSegment:
                             break
                     else:
                         raise ValueError("Unable to positon new segment")
+
+            # Update the working position.
+            segments[idx].pos_marker = segments[idx].pos_marker.with_working_position(
+                line_no,
+                line_pos,
+            )
+            line_no, line_pos = segments[idx].pos_marker.infer_next_position(
+                segments[idx].raw, line_no, line_pos
+            )
+
+            # If this segment has children, recurse and reposition them too.
+            if segments[idx].segments:
+                segments[idx].segments = cls._position_segments(
+                    segments[idx].segments, parent_pos=segments[idx].pos_marker
+                )
+
         return segments
 
     # ################ CLASS METHODS
@@ -514,6 +515,16 @@ class BaseSegment:
     def get_end_point_marker(self):
         """Get a point marker at the end of this segment."""
         return self.pos_marker.end_point_marker()
+
+    def get_start_loc(self):
+        """Get a location tuple at the start of this segment."""
+        return self.pos_marker.working_loc()
+
+    def get_end_loc(self):
+        """Get a location tuple at the end of this segment."""
+        return self.pos_marker.working_loc_after(
+            self.raw,
+        )
 
     def stringify(self, ident=0, tabsize=4, code_only=False):
         """Use indentation to render this segment and its children as a string."""
@@ -864,7 +875,9 @@ class BaseSegment:
                     unused_fixes = []
                     while fix_buff:
                         f = fix_buff.pop()
-                        if f.anchor == seg:
+                        # Look for identity not just equality.
+                        # This handles potential positioning ambiguity.
+                        if f.anchor is seg:
                             linter_logger.debug(
                                 "Matched fix against segment: %s -> %s", f, seg
                             )
@@ -921,27 +934,6 @@ class BaseSegment:
         else:
             return self, fixes
 
-    def realign(self):
-        """Realign the positions in this segment.
-
-        Returns:
-            a copy of this class with the pos_markers realigned.
-
-        Note: this is used mostly during fixes.
-
-        Realign is recursive. We will assume that the pos_marker of THIS segment is
-        truthful, and that during recursion it will have been set by the parent.
-
-        This function will align the pos marker if its direct children, we then
-        recurse to realign their children.
-
-        """
-        # Create a new version of this class with the new details
-        return self.__class__(
-            segments=self._position_segments(self.segments, self.pos_marker),
-            pos_marker=self.pos_marker,
-        )
-
     def iter_patches(self, templated_str: str) -> Iterator[FixPatch]:
         """Iterate through the segments generating fix patches.
 
@@ -960,7 +952,7 @@ class BaseSegment:
         # If we're here, the segment doesn't match the original.
 
         # If it's all literal, then we don't need to recurse.
-        if self.pos_marker.is_literal:
+        if self.pos_marker.is_literal():
             # Yield the position in the source file and the patch
             yield FixPatch(
                 self.pos_marker.templated_slice, self.raw, patch_type="literal"

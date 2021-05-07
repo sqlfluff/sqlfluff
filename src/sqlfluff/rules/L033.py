@@ -37,12 +37,10 @@ class Rule_L033(BaseRule):
             ):
                 union = self.make_keyword(
                     raw="UNION",
-                    pos_marker=segment.pos_marker,
                 )
-                ins = self.make_whitespace(raw=" ", pos_marker=segment.pos_marker)
+                ins = self.make_whitespace(raw=" ")
                 distinct = self.make_keyword(
                     raw="DISTINCT",
-                    pos_marker=segment.pos_marker,
                 )
                 return LintResult(
                     anchor=segment,

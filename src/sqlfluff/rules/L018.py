@@ -99,9 +99,7 @@ class Rule_L018(BaseRule):
                                     LintFix(
                                         "create",
                                         seg,
-                                        self.make_whitespace(
-                                            " " * (-indent_diff), seg.pos_marker
-                                        ),
+                                        self.make_whitespace(" " * (-indent_diff)),
                                     )
                                 ],
                             )
@@ -123,12 +121,7 @@ class Rule_L018(BaseRule):
                                     LintFix(
                                         "create",
                                         seg,
-                                        [
-                                            self.make_whitespace(
-                                                with_indent_str,
-                                                seg.pos_marker.advance_by("\n"),
-                                            )
-                                        ],
+                                        [self.make_whitespace(with_indent_str)],
                                     )
                                 ] + [
                                     LintFix("delete", elem)
@@ -141,13 +134,8 @@ class Rule_L018(BaseRule):
                                         "create",
                                         seg,
                                         [
-                                            self.make_newline(
-                                                pos_marker=seg.pos_marker
-                                            ),
-                                            self.make_whitespace(
-                                                with_indent_str,
-                                                seg.pos_marker.advance_by("\n"),
-                                            ),
+                                            self.make_newline(),
+                                            self.make_whitespace(with_indent_str),
                                         ],
                                     )
                                 ]

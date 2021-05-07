@@ -97,7 +97,10 @@ class Rule_L036(BaseRule):
             base_segment = (
                 segment if not i else select_targets_info.select_targets[i - 1]
             )
-            if base_segment.pos_marker.line_no == select_target.pos_marker.line_no:
+            if (
+                base_segment.pos_marker.working_line_no
+                == select_target.pos_marker.working_line_no
+            ):
                 # Find and delete any whitespace before the select target.
                 ws_to_delete = segment.select_children(
                     start_seg=segment.segments[select_targets_info.select_idx]
@@ -130,18 +133,9 @@ class Rule_L036(BaseRule):
         ):
             # there is a newline between select and select target
             insert_buff = [
-                self.make_whitespace(
-                    raw=" ",
-                    pos_marker=select_clause.segments[
-                        select_targets_info.first_new_line_idx
-                    ].pos_marker,
-                ),
+                self.make_whitespace(raw=" "),
                 select_clause.segments[select_targets_info.first_select_target_idx],
-                self.make_newline(
-                    pos_marker=select_clause.segments[
-                        select_targets_info.first_new_line_idx
-                    ].pos_marker
-                ),
+                self.make_newline(),
             ]
             fixes = [
                 # Replace "newline" with <<select_target>>, "newline".

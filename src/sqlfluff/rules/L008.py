@@ -44,11 +44,11 @@ class Rule_L008(BaseRule):
         if cm2.name == "comma":
             # comma followed by something that isn't whitespace?
             if cm1.name not in ["whitespace", "newline"]:
-                ins = self.make_whitespace(raw=" ", pos_marker=cm1.pos_marker)
+                ins = self.make_whitespace(raw=" ")
                 return LintResult(anchor=cm1, fixes=[LintFix("create", cm1, ins)])
             # comma followed by too much whitespace?
             if (cm1.raw != " " and cm1.name != "newline") and not segment.is_comment:
-                repl = cm1.__class__(raw=" ", pos_marker=cm1.pos_marker)
+                repl = self.make_whitespace(raw=" ")
                 return LintResult(anchor=cm1, fixes=[LintFix("edit", cm1, repl)])
         # Otherwise we're fine
         return None

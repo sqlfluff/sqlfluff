@@ -129,6 +129,9 @@ class TemplatedFile:
         """Return true if there's a templated file."""
         return bool(self.templated_str)
 
+    def __repr__(self):
+        return "<TemplatedFile>"
+
     def __str__(self):
         """Return the templated file if coerced to string."""
         return self.templated_str
@@ -157,7 +160,7 @@ class TemplatedFile:
         while nl_idx + 1 < len(ref_str) and ref_str[nl_idx + 1] < char_pos:
             nl_idx += 1
 
-        # NB: +1 because character position is 0-indexed, but the character
+        # NB: +1 because character position is 0-indexed, but the line
         # position is 1-indexed.
         if nl_idx >= 0:
             return nl_idx + 2, char_pos - ref_str[nl_idx]

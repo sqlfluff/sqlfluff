@@ -28,9 +28,11 @@ class Rule_L009(BaseRule):
             # We can't fail on a meta segment
             return None
         else:
-            # so this looks like the end of the file, but we
-            # need to check that each parent segment is also the last
-            file_len = len(parent_stack[0].raw)
+            # So this looks like the end of the file, but we
+            # need to check that each parent segment is also the last.
+            # We do this with reference to the templated file, because it's
+            # the best we can do given the information available.
+            file_len = len(segment.pos_marker.templated_file.templated_str)
             pos = segment.pos_marker.templated_slice.stop
             # Does the length of the file equal the end of the templated position?
             if file_len != pos:

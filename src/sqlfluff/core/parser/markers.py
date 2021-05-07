@@ -4,7 +4,7 @@ This class is a construct to keep track of positions within a file.
 """
 
 from dataclasses import dataclass
-from typing import Tuple, TYPE_CHECKING
+from typing import Tuple, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from sqlfluff.core.templaters import TemplatedFile
@@ -18,48 +18,73 @@ class PositionMarker:
         - This combines the previous functionality of FilePositionMarker
           and EnrichedFilePositionMarker. Additionally it contains a reference
           to the original templated file.
-        - It no longer explicitly stores a line number or line position.
-          This is extrapolated from the templated file as required.
-        - It makes no effort to store position in the file after any fixes
-          have been applied. Position markers for inserted elements will
-          have a zero width in both the source and templated slice.
+        - It no longer explicitly stores a line number or line position in the
+          source or template. This is extrapolated from the templated file as required.
+        - It optionally keeps track of the location of the position within
+          the fixed file, this is as a combination of line number and line position.
+        - Arithmetic comparisons are on the location in the fixed file.
         - The use of a `statement_index` is deprecated as it was never used.
     """
 
     source_slice: slice
     templated_slice: slice
     templated_file: "TemplatedFile"
+    working_line_no: Optional[int] = None
+    working_line_pos: Optional[int] = None
+
+    def __post_init__(self):
+        # If the working position has not been explicitly set
+        # then infer it from the position in the templated file.
+        # This is accurate up until the point that any fixes have
+        # been applied.
+        if self.working_line_no is None or self.working_line_pos is None:
+            line_no, line_pos = self.templated_position()
+            # Use the base method because we're working with a frozen class
+            object.__setattr__(self, "working_line_no", line_no)
+            object.__setattr__(self, "working_line_pos", line_pos)
 
     def __str__(self):
         return self.to_source_string()
 
     def __gt__(self, other):
-        # Only allow comparison of point markers.
-        if not self.is_point() or not other.is_point():
-            raise ValueError("Can only compare point markers.")
-        return self.source_slice.start > other.source_slice.start
+        return self.working_loc > other.working_loc
 
     def __lt__(self, other):
-        # Only allow comparison of point markers.
-        if not self.is_point() or not other.is_point():
-            raise ValueError("Can only compare point markers.")
-        return self.source_slice.start < other.source_slice.start
+        return self.working_loc < other.working_loc
 
     def __ge__(self, other):
-        return (self > other) or (self == other)
+        return self.working_loc >= other.working_loc
 
     def __le__(self, other):
-        return (self < other) or (self == other)
+        return self.working_loc <= other.working_loc
+
+    @property
+    def working_loc(self) -> Tuple[int, int]:
+        """Location tuple for the working position."""
+        return self.working_line_no, self.working_line_pos
+
+    def working_loc_after(self, raw: str) -> Tuple[int, int]:
+        """Location tuple for the working position."""
+        return self.infer_next_position(
+            raw,
+            self.working_line_no,
+            self.working_line_pos,
+        )
 
     @classmethod
     def from_point(
-        cls, source_point: int, templated_point: int, templated_file: "TemplatedFile"
+        cls,
+        source_point: int,
+        templated_point: int,
+        templated_file: "TemplatedFile",
+        **kwargs
     ):
         """Convenience method for creating point markers."""
         return cls(
             slice(source_point, source_point),
             slice(templated_point, templated_point),
             templated_file,
+            **kwargs,
         )
 
     @classmethod
@@ -111,10 +136,13 @@ class PositionMarker:
             self.source_slice.start,
             self.templated_slice.start,
             templated_file=self.templated_file,
+            # Start points also pass on the working position.
+            working_line_no=self.working_line_no,
+            working_line_pos=self.working_line_pos,
         )
 
     def end_point_marker(self) -> "PositionMarker":
-        """Get a point marker from the start."""
+        """Get a point marker from the end."""
         return self.__class__.from_point(
             self.source_slice.stop,
             self.templated_slice.stop,
@@ -132,6 +160,26 @@ class PositionMarker:
             self.templated_slice
         )
 
+    @staticmethod
+    def infer_next_position(raw: str, line_no: int, line_pos: int) -> Tuple[int, int]:
+        """Using the raw string provided to infer the position of the next."""
+        if not raw:
+            return line_no, line_pos
+        split = raw.split("\n")
+        return (
+            line_no + len(split) - 1,
+            line_pos + len(raw) if len(split) == 1 else len(split[-1]),
+        )
+
+    def with_working_position(self, line_no: int, line_pos: int):
+        return self.__class__(
+            source_slice=self.source_slice,
+            templated_slice=self.templated_slice,
+            templated_file=self.templated_file,
+            working_line_no=line_no,
+            working_line_pos=line_pos,
+        )
+
     def is_literal(self) -> bool:
         """Infer literalness from context."""
         # NOTE: We should define what the implication of is_literal is here.
@@ -144,3 +192,7 @@ class PositionMarker:
         # 3. Whether we can return simply in `iter_patches`.
         # 4. The application of L046 which is looking for tags.
         return self.templated_file.is_source_slice_literal(self.source_slice)
+
+    def source_str(self) -> str:
+        """Returns the string in the source at this position."""
+        return self.templated_file.source_str[self.source_slice]

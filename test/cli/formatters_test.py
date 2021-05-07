@@ -4,8 +4,9 @@ import re
 
 from sqlfluff.core.rules.base import RuleGhost
 from sqlfluff.core.parser import RawSegment
-from sqlfluff.core.parser.markers import FilePositionMarker
+from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.errors import SQLLintError
+from sqlfluff.core.templaters.base import TemplatedFile
 from sqlfluff.cli.formatters import format_filename, format_violation
 
 
@@ -26,8 +27,15 @@ def test__cli__formatters__violation():
 
     NB Position is 1 + start_pos.
     """
-    s = RawSegment("foobarbar", FilePositionMarker(0, 20, 11, 100))
+    s = RawSegment(
+        "foobarbar",
+        PositionMarker(
+            slice(10, 19),
+            slice(10, 19),
+            TemplatedFile.from_string("      \n\n  foobarbar"),
+        ),
+    )
     r = RuleGhost("A", "DESC")
     v = SQLLintError(segment=s, rule=r)
     f = format_violation(v)
-    assert escape_ansi(f) == "L:  20 | P:  11 |    A | DESC"
+    assert escape_ansi(f) == "L:   3 | P:   3 |    A | DESC"

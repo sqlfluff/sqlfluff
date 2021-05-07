@@ -91,25 +91,15 @@ class Rule_L043(BaseRule):
                 edits = []
                 if then_bool_type == "FALSE":
                     not_space = [
-                        self.make_keyword(
-                            raw="not",
-                            pos_marker=segment.get_start_pos_marker(),
-                        ),
-                        self.make_whitespace(
-                            raw=" ",
-                            pos_marker=segment.get_start_pos_marker(),
-                        ),
+                        self.make_keyword(raw="not"),
+                        self.make_whitespace(raw=" "),
                     ]
                     edits.extend(not_space)
                 # Add coalesce and parenthesis
                 coalesce_parenthesis = [
-                    self.make_keyword(
-                        raw="coalesce",
-                        pos_marker=segment.get_start_pos_marker(),
-                    ),
+                    self.make_keyword(raw="coalesce"),
                     self.make_symbol(
                         raw="(",
-                        pos_marker=segment.get_start_pos_marker(),
                         seg_type="parenthesis",
                     ),
                 ]
@@ -128,20 +118,16 @@ class Rule_L043(BaseRule):
                 closing_parenthesis = [
                     self.make_symbol(
                         raw=",",
-                        pos_marker=expression.pos_marker,
                         seg_type="comma",
                     ),
                     self.make_whitespace(
                         raw=" ",
-                        pos_marker=expression.pos_marker,
                     ),
                     self.make_keyword(
                         raw="false",
-                        pos_marker=expression.pos_marker,
                     ),
                     self.make_symbol(
                         raw=")",
-                        pos_marker=expression.pos_marker,
                         seg_type="parenthesis",
                     ),
                 ]
