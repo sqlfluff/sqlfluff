@@ -101,3 +101,26 @@ test_multiple_select_targets_some_newlines_missing_2:
     g,
       h
     from x
+
+test_cte:
+  fail_str: |
+    WITH
+    cte1 AS (
+        SELECT
+            c1 AS c
+        FROM
+            t
+    )
+
+    SELECT 1
+    FROM cte1
+  fix_str: |
+    WITH
+    cte1 AS (
+        SELECT c1 AS c
+        FROM
+            t
+    )
+
+    SELECT 1
+    FROM cte1
