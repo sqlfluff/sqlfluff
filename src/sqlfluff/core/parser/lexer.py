@@ -1,8 +1,7 @@
 """The code for the Lexer."""
 
 import logging
-from typing import Optional, List, Tuple, Union
-from dataclasses import dataclass
+from typing import Optional, List, Tuple, Union, NamedTuple
 import re
 
 from sqlfluff.core.parser.segments import (
@@ -22,16 +21,14 @@ from sqlfluff.core.config import FluffConfig
 lexer_logger = logging.getLogger("sqlfluff.lexer")
 
 
-@dataclass
-class LexedElement:
+class LexedElement(NamedTuple):
     """An element matched during lexing."""
 
     raw: str
     matcher: "StringMatcher"
 
 
-@dataclass
-class TemplateElement:
+class TemplateElement(NamedTuple):
     """A LexedElement, bundled with it's position in the templated file."""
 
     raw: str
@@ -52,8 +49,7 @@ class TemplateElement:
         return SegmentClass(self.raw, pos_marker)
 
 
-@dataclass
-class LexMatch:
+class LexMatch(NamedTuple):
     """A class to hold matches from the Lexer."""
 
     forward_string: str
@@ -101,8 +97,8 @@ class StringMatcher:
 
     def search(self, forward_string: str) -> Optional[Tuple[int, int]]:
         """Use string methods to find a substring."""
-        if self.template in forward_string:
-            loc = forward_string.find(self.template)
+        loc = forward_string.find(self.template)
+        if loc >= 0:
             return loc, loc + len(self.template)
         else:
             return None
@@ -359,7 +355,7 @@ class Lexer:
                 # ones *also* won't match.
                 if source_only_slice.source_idx > source_slice.start:
                     break
-                # Is there a templated section within this soure slice?
+                # Is there a templated section within this source slice?
                 # If there is then for some reason I can't quite explain,
                 # it will always be at the start of the section. This is
                 # very convenient beause it means we'll always have the
@@ -470,8 +466,6 @@ class Lexer:
                     # Cycle back around again and start with the top
                     # matcher again.
                     break
-                else:
-                    continue
             else:
                 # We've got so far, but now can't match. Return
                 return LexMatch(forward_string, elem_buff)
