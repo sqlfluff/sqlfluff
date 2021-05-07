@@ -4,7 +4,7 @@ This class is a construct to keep track of positions within a file.
 """
 
 from dataclasses import dataclass
-from typing import Tuple, Optional, TYPE_CHECKING
+from typing import Tuple, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from sqlfluff.core.templaters import TemplatedFile
@@ -29,15 +29,16 @@ class PositionMarker:
     source_slice: slice
     templated_slice: slice
     templated_file: "TemplatedFile"
-    working_line_no: Optional[int] = None
-    working_line_pos: Optional[int] = None
+    # If not set, these will be initialised in the post init.
+    working_line_no: int = -1
+    working_line_pos: int = -1
 
     def __post_init__(self):
         # If the working position has not been explicitly set
         # then infer it from the position in the templated file.
         # This is accurate up until the point that any fixes have
         # been applied.
-        if self.working_line_no is None or self.working_line_pos is None:
+        if self.working_line_no == -1 or self.working_line_pos == -1:
             line_no, line_pos = self.templated_position()
             # Use the base method because we're working with a frozen class
             object.__setattr__(self, "working_line_no", line_no)
@@ -118,13 +119,16 @@ class PositionMarker:
 
     @property
     def line_no(self) -> int:
+        """Return the line number in the source."""
         return self.source_position()[0]
 
     @property
     def line_pos(self) -> int:
+        """Return the line position in the source."""
         return self.source_position()[1]
 
     def to_source_string(self) -> str:
+        """Make a formatted string of this position."""
         line, pos = self.source_position()
         return "[C:{0:4d}, L:{1:3d}, P:{2:3d}]".format(
             self.source_slice.start, line, pos
@@ -172,6 +176,7 @@ class PositionMarker:
         )
 
     def with_working_position(self, line_no: int, line_pos: int):
+        """Copy this position and replace the working position."""
         return self.__class__(
             source_slice=self.source_slice,
             templated_slice=self.templated_slice,

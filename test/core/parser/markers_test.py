@@ -18,10 +18,12 @@ from sqlfluff.core.parser.markers import PositionMarker
     ],
 )
 def test_markers__infer_next_position(raw, start_pos, end_pos):
+    """Test that we can correctly infer positions from strings."""
     assert end_pos == PositionMarker.infer_next_position(raw, *start_pos)
 
 
 def test_markers__setting_position_raw():
+    """Test that we can correctly infer positions from strings & locations."""
     templ = TemplatedFile.from_string("foobar")
     # Check inference in the template
     assert templ.get_line_pos_of_char_pos(2, True) == (1, 3)
@@ -33,6 +35,7 @@ def test_markers__setting_position_raw():
 
 
 def test_markers__setting_position_working():
+    """Test that we can correctly set positions manually."""
     templ = TemplatedFile.from_string("foobar")
     pos = PositionMarker(slice(2, 5), slice(2, 5), templ, 4, 4)
     # Can we NOT infer when we're told.
