@@ -157,6 +157,25 @@ class Rule_L036(BaseRule):
                     select_clause.segments[select_targets_info.first_select_target_idx],
                 ),
             ]
+            if (
+                select_targets_info.first_select_target_idx
+                - select_targets_info.first_new_line_idx
+                == 2
+                and select_clause.segments[
+                    select_targets_info.first_new_line_idx + 1
+                ].is_whitespace
+            ):
+                # If the select target is preceded by a single whitespace
+                # segment, delete that as well. This addresses the bug fix
+                # tested in L036.yml's "test_cte" scenario.
+                fixes.append(
+                    LintFix(
+                        "delete",
+                        select_clause.segments[
+                            select_targets_info.first_new_line_idx + 1
+                        ],
+                    ),
+                )
             if parent_stack and parent_stack[-1].type == "select_statement":
                 select_stmt = parent_stack[-1]
                 select_clause_idx = select_stmt.segments.index(select_clause)
