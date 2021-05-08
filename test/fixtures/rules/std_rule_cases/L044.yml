@@ -285,3 +285,32 @@ test_30:
   configs:
     core:
       dialect: bigquery
+
+test_31:
+  # Issue 915: Crash on statements that don't have a SELECT
+  pass_str: CREATE TABLE my_table (id INTEGER)
+
+test_32:
+  # Issue 930: Infinite recursion if CTE queries itself.
+  fail_str: |
+    with
+      hubspot__engagement_calls as (
+        select * from hubspot__engagement_calls
+      )
+
+      select * from hubspot__engagement_calls
+
+test_33:
+  # Another test for issue #930
+  fail_str: |
+    with
+    hubspot__contacts as (
+      select * from ANALYTICS.PUBLIC_intermediate.hubspot__contacts
+    ),
+    final as (
+      select *
+      from
+        hubspot__contacts
+        where not coalesce(_fivetran_deleted, false)
+    )
+    select * from final

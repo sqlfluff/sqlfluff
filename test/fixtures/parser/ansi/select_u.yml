@@ -5,7 +5,8 @@ file:
         keyword: select
         select_clause_element:
           function:
-          - function_name: substring
+          - function_name:
+              function_name_identifier: substring
           - start_bracket: (
           - expression:
               column_reference:

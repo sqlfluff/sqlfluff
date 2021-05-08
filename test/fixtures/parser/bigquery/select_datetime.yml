@@ -17,7 +17,8 @@ file:
       - comma: ','
       - select_clause_element:
           function:
-            function_name: EXTRACT
+            function_name:
+              function_name_identifier: EXTRACT
             start_bracket: (
             date_part: DATE
             keyword: FROM
@@ -49,22 +50,26 @@ file:
           - identifier: datetime
           comparison_operator: '>='
           function:
-            function_name: DATE_TRUNC
+            function_name:
+              function_name_identifier: DATE_TRUNC
             start_bracket: (
             expression:
               function:
-              - function_name: DATE_SUB
+              - function_name:
+                  function_name_identifier: DATE_SUB
               - start_bracket: (
               - expression:
                   function:
-                    function_name: CURRENT_DATE
+                    function_name:
+                      function_name_identifier: CURRENT_DATE
                     start_bracket: (
                     end_bracket: )
               - comma: ','
               - expression:
                   interval_expression:
                     keyword: INTERVAL
-                    literal: '2'
+                    expression:
+                      literal: '2'
                     date_part: YEAR
               - end_bracket: )
             comma: ','

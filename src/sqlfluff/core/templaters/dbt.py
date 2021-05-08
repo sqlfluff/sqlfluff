@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from cached_property import cached_property
 from functools import partial
 
-from sqlfluff.core.errors import SQLTemplaterError
+from sqlfluff.core.errors import SQLTemplaterError, SQLTemplaterSkipFile
 
 from sqlfluff.core.templaters.base import register_templater, TemplatedFile
 from sqlfluff.core.templaters.jinja import JinjaTemplater
@@ -34,7 +34,12 @@ class DbtTemplater(JinjaTemplater):
 
     def __init__(self, **kwargs):
         self.sqlfluff_config = None
+        self.formatter = None
         super().__init__(**kwargs)
+
+    def config_pairs(self):
+        """Returns info about the given templater for output by the cli."""
+        return [("templater", self.name), ("dbt", self.dbt_version)]
 
     @cached_property
     def dbt_version(self):
@@ -104,6 +109,11 @@ class DbtTemplater(JinjaTemplater):
     @cached_property
     def dbt_selector_method(self):
         """Loads the dbt selector method."""
+        if self.formatter:
+            self.formatter.dispatch_compilation_header(
+                "dbt templater", "Compiling dbt project..."
+            )
+
         if "0.17" in self.dbt_version:
             from dbt.graph.selector import PathSelector
 
@@ -173,7 +183,7 @@ class DbtTemplater(JinjaTemplater):
                 "please install dbt dependencies through `pip install sqlfluff[dbt]`"
             ) from e
 
-    def process(self, *, fname, in_str=None, config=None):
+    def process(self, *, fname, in_str=None, config=None, formatter=None):
         """Compile a dbt model and return the compiled SQL.
 
         Args:
@@ -181,7 +191,11 @@ class DbtTemplater(JinjaTemplater):
             in_str (:obj:`str`, optional): This is ignored for dbt
             config (:obj:`FluffConfig`, optional): A specific config to use for this
                 templating operation. Only necessary for some templaters.
+            formatter (:obj:`CallbackFormatter`): Optional object for output.
         """
+        # Stash the formatter if provided to use in cached methods.
+        self.formatter = formatter
+
         self._check_dbt_installed()
         from dbt.exceptions import (
             CompilationException as DbtCompilationException,
@@ -249,6 +263,14 @@ class DbtTemplater(JinjaTemplater):
         results = [self.dbt_manifest.expect(uid) for uid in selected]
 
         if not results:
+            model_name = os.path.splitext(os.path.basename(fname))[0]
+            disabled_model = self.dbt_manifest.find_disabled_by_name(name=model_name)
+            if disabled_model and os.path.abspath(
+                disabled_model.original_file_path
+            ) == os.path.abspath(fname):
+                raise SQLTemplaterSkipFile(
+                    f"Skipped file {fname} because the model was disabled"
+                )
             raise RuntimeError("File %s was not found in dbt project" % fname)
 
         node = self.dbt_compiler.compile_node(
@@ -270,9 +292,41 @@ class DbtTemplater(JinjaTemplater):
                 "by running `dbt compile` directly."
             )
 
-        raw_sliced, sliced_file, templated_sql = self.slice_file(
-            node.raw_sql, compiled_sql, config=config
+        with open(fname, "r") as source_dbt_model:
+            source_dbt_sql = source_dbt_model.read()
+
+        n_trailing_newlines = len(source_dbt_sql) - len(source_dbt_sql.rstrip("\n"))
+
+        templater_logger.debug(
+            "    Trailing newline count in source dbt model: %r", n_trailing_newlines
         )
+        templater_logger.debug("    Raw SQL before compile: %r", source_dbt_sql)
+        templater_logger.debug("    Node raw SQL: %r", node.raw_sql)
+        templater_logger.debug("    Node compiled SQL: %r", compiled_sql)
+
+        # When using dbt-templater, trailing newlines are ALWAYS REMOVED during
+        # compiling. Unless fixed (like below), this will cause:
+        #    1. L009 linting errors when running "sqlfluff lint foo_bar.sql"
+        #       since the linter will use the compiled code with the newlines
+        #       removed.
+        #    2. "No newline at end of file" warnings in Git/GitHub since
+        #       sqlfluff uses the compiled SQL to write fixes back to the
+        #       source SQL in the dbt model.
+        # The solution is:
+        #    1. Check for trailing newlines before compiling by looking at the
+        #       raw SQL in the source dbt file, store the count of trailing newlines.
+        #    2. Append the count from #1 above to the node.raw_sql and
+        #       compiled_sql objects, both of which have had the trailing
+        #       newlines removed by the dbt-templater.
+        node.raw_sql = node.raw_sql + "\n" * n_trailing_newlines
+        compiled_sql = compiled_sql + "\n" * n_trailing_newlines
+
+        raw_sliced, sliced_file, templated_sql = self.slice_file(
+            node.raw_sql,
+            compiled_sql,
+            config=config,
+        )
+
         return (
             TemplatedFile(
                 source_str=node.raw_sql,

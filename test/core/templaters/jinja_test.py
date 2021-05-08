@@ -10,12 +10,35 @@ from sqlfluff.core import Linter, FluffConfig
 JINJA_STRING = "SELECT * FROM {% for c in blah %}{{c}}{% if not loop.last %}, {% endif %}{% endfor %} WHERE {{condition}}\n\n"
 
 
-def test__templater_jinja():
+@pytest.mark.parametrize(
+    "instr, expected_outstr",
+    [
+        (
+            JINJA_STRING,
+            "SELECT * FROM f, o, o WHERE a < 10\n\n",
+        ),
+        # Test for issue #968. This was previously raising an UnboundLocalError.
+        (
+            """
+{% set event_columns = ['campaign', 'click_item'] %}
+
+SELECT
+    event_id
+    {% for event_column in event_columns %}
+    , {{ event_column }}
+    {% endfor %}
+FROM events
+            """,
+            "\n\n\nSELECT\n    event_id\n    \n    , campaign\n    \n    , click_item\n    \nFROM events\n            ",
+        ),
+    ],
+    ids=["simple", "unboundlocal_bugfix"],
+)
+def test__templater_jinja(instr, expected_outstr):
     """Test jinja templating and the treatment of whitespace."""
     t = JinjaTemplater(override_context=dict(blah="foo", condition="a < 10"))
-    instr = JINJA_STRING
     outstr, _ = t.process(in_str=instr, config=FluffConfig())
-    assert str(outstr) == "SELECT * FROM f, o, o WHERE a < 10\n\n"
+    assert str(outstr) == expected_outstr
 
 
 def test__templater_jinja_error_variable():

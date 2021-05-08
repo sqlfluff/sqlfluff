@@ -26,39 +26,41 @@ from sqlfluff.core.parser import (
     Sequence,
     StartsWith,
     SymbolSegment,
+    StringMatcher,
+    RegexMatcher,
+    CodeSegment,
+    NewlineSegment,
 )
 from sqlfluff.core.dialects import load_raw_dialect
 
 exasol_dialect = load_raw_dialect("exasol")
 exasol_fs_dialect = exasol_dialect.copy_as("exasol_fs")
 exasol_fs_dialect.sets("unreserved_keywords").add("ROWCOUNT")
-exasol_fs_dialect.set_lexer_struct(
+
+exasol_fs_dialect.insert_lexer_matchers(
     [
-        (
+        StringMatcher(
             "walrus_operator",
-            "regex",
-            r":=",
-            dict(is_code=True, type="walrus_operator"),
+            ":=",
+            CodeSegment,
+            segment_kwargs={"type": "walrus_operator"},
         ),
-        (
+        RegexMatcher(
             "function_script_terminator",
-            "regex",
-            # TODO: this expression matches multiple functions within a raw string.
-            # but it only matches one script per raw string, because the statement terminator (;)
-            # is not required for scripts (e.g. not present in Python)
-            # need to find another solution but don't mess up with the divide operator.
             r";\s+\/(?!\*)|\s+\/$",
-            dict(
-                is_code=True,
-                type="statement_terminator",
-                subdivide=dict(type="semicolon", name="semicolon", regex=r";"),
-                trim_post_subdivide=dict(
-                    type="newline", name="newline", regex=r"(\n|\r\n)*"
-                ),
+            CodeSegment,
+            segment_kwargs={"type": "statement_terminator"},
+            subdivider=StringMatcher(
+                "semicolon", ";", CodeSegment, segment_kwargs={"type": "semicolon"}
+            ),
+            trim_post_subdivide=RegexMatcher(
+                "newline",
+                r"(\n|\r\n)+",
+                NewlineSegment,
             ),
         ),
-    ]
-    + exasol_fs_dialect.get_lexer_struct()
+    ],
+    before="not_equal",
 )
 
 exasol_fs_dialect.add(

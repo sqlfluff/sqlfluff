@@ -5,7 +5,8 @@ file:
       - keyword: SELECT
       - select_clause_element:
           function:
-            function_name: DATE
+            function_name:
+              function_name_identifier: DATE
             start_bracket: (
             expression:
               column_reference:
@@ -14,7 +15,8 @@ file:
       - comma: ','
       - select_clause_element:
           function:
-          - function_name: ROUND
+          - function_name:
+              function_name_identifier: ROUND
           - start_bracket: (
           - expression:
               column_reference:
@@ -26,11 +28,13 @@ file:
       - comma: ','
       - select_clause_element:
           function:
-          - function_name: LEFT
+          - function_name:
+              function_name_identifier: LEFT
           - start_bracket: (
           - expression:
               function:
-              - function_name: right
+              - function_name:
+                  function_name_identifier: right
               - start_bracket: (
               - expression:
                   column_reference:
@@ -42,7 +46,8 @@ file:
           - comma: ','
           - expression:
               function:
-                function_name: LEN
+                function_name:
+                  function_name_identifier: LEN
                 start_bracket: (
                 expression:
                   column_reference:

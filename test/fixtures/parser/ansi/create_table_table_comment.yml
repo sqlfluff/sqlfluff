@@ -15,5 +15,6 @@ file:
             literal: '100'
           end_bracket: )
     - end_bracket: )
-    - keyword: COMMENT
-    - literal: "'Table comment'"
+    - comment_clause:
+        keyword: COMMENT
+        literal: "'Table comment'"

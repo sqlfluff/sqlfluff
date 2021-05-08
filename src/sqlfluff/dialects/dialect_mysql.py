@@ -4,24 +4,35 @@ For now the only change is the parsing of comments.
 https://dev.mysql.com/doc/refman/8.0/en/differences-from-ansi.html
 """
 
-from sqlfluff.core.parser import NamedSegment, Ref, AnyNumberOf, Sequence, OneOf
-
+from sqlfluff.core.parser import (
+    NamedSegment,
+    Ref,
+    AnyNumberOf,
+    Sequence,
+    OneOf,
+    Bracketed,
+    RegexMatcher,
+    CommentSegment,
+)
 from sqlfluff.core.dialects import load_raw_dialect
 
 ansi_dialect = load_raw_dialect("ansi")
 mysql_dialect = ansi_dialect.copy_as("mysql")
 
-mysql_dialect.patch_lexer_struct(
+mysql_dialect.patch_lexer_matchers(
     [
-        # name, type, pattern, kwargs
-        (
+        RegexMatcher(
             "inline_comment",
-            "regex",
             r"(-- |#)[^\n]*",
-            dict(is_comment=True, type="comment", trim_start=("-- ", "#")),
+            CommentSegment,
+            segment_kwargs={"trim_start": ("-- ", "#")},
         )
     ]
 )
+
+# Reserve USE, FORCE & IGNORE
+mysql_dialect.sets("unreserved_keywords").difference_update(["FORCE", "IGNORE", "USE"])
+mysql_dialect.sets("reserved_keywords").update(["FORCE", "IGNORE", "USE"])
 
 mysql_dialect.replace(
     QuotedIdentifierSegment=NamedSegment.make(
@@ -31,6 +42,12 @@ mysql_dialect.replace(
         insert=[
             Ref("DoubleQuotedLiteralSegment"),
         ]
+    ),
+    PostTableExpressionGrammar=Sequence(
+        OneOf("IGNORE", "FORCE", "USE"),
+        OneOf("INDEX", "KEY"),
+        Sequence("FOR", OneOf("JOIN"), optional=True),
+        Bracketed(Ref("ObjectReferenceSegment")),
     ),
 )
 

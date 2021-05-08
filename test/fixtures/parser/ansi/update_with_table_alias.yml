@@ -3,11 +3,10 @@ file:
     update_statement:
       keyword: UPDATE
       table_reference:
-        table_reference:
-          identifier: my_table
-        alias_expression:
-          keyword: AS
-          identifier: tttd
+        identifier: my_table
+      alias_expression:
+        keyword: AS
+        identifier: tttd
       set_clause_list:
         keyword: SET
         set_clause:
