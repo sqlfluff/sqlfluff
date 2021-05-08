@@ -3,7 +3,8 @@ file:
     create_function_statement:
     - keyword: CREATE
     - keyword: FUNCTION
-    - function_name: qs
+    - function_name:
+        function_name_identifier: qs
     - base:
         start_bracket: (
         parameter: y

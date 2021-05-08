@@ -3,6 +3,9 @@
 import logging
 from typing import Dict, Iterator, List, Tuple, Optional, NamedTuple
 
+from sqlfluff.core.parser.markers import FilePositionMarker, EnrichedFilePositionMarker
+
+
 _templater_lookup: Dict[str, "RawTemplater"] = {}
 
 # Instantiate the templater logger
@@ -119,6 +122,11 @@ class TemplatedFile:
         self._source_newlines = list(iter_indices_of_newlines(self.source_str))
         self._templated_newlines = list(iter_indices_of_newlines(self.templated_str))
 
+    @classmethod
+    def from_string(cls, raw):
+        """Create TemplatedFile from a string."""
+        return cls(source_str=raw)
+
     def __bool__(self):
         """Return true if there's a templated file."""
         return bool(self.templated_str)
@@ -136,6 +144,9 @@ class TemplatedFile:
             char_pos: The character position in the relevant file.
             source: Are we checking the source file (as opposed to the
                 templated file)
+
+        Returns:
+            line_number, line_position
 
         """
         nl_idx = -1
@@ -271,8 +282,14 @@ class TemplatedFile:
                 ts_start_sf_stop, ts_stop_sf_stop
             )
         ]
-        start_slices = self.sliced_file[ts_start_sf_start:ts_start_sf_stop]
-        stop_slices = self.sliced_file[ts_stop_sf_start:ts_stop_sf_stop]
+        if ts_start_sf_start == ts_start_sf_stop:
+            start_slices = [self.sliced_file[ts_start_sf_start]]
+        else:
+            start_slices = self.sliced_file[ts_start_sf_start:ts_start_sf_stop]
+        if ts_stop_sf_start == ts_stop_sf_stop:
+            stop_slices = [self.sliced_file[ts_stop_sf_start]]
+        else:
+            stop_slices = self.sliced_file[ts_stop_sf_start:ts_stop_sf_stop]
 
         # if it's a literal segment then we can get the exact position
         # otherwise we're greedy.
@@ -343,6 +360,38 @@ class TemplatedFile:
                 ret_buff.append(elem)
         return ret_buff
 
+    def make_position_marker(
+        self, source_slice: slice, templated_slice: slice, is_literal: bool
+    ) -> EnrichedFilePositionMarker:
+        """Make a position marker given appropriate slices.
+
+        THIS NEEDS TO BE REVISITED LATER ONCE THE LEXER IS TIDY.
+        """
+        # TODO: Rework once things are severed
+
+        source_line, source_pos = self.get_line_pos_of_char_pos(
+            source_slice.start, source=True
+        )
+        templ_line, templ_pos = self.get_line_pos_of_char_pos(
+            templated_slice.start, source=False
+        )
+
+        return EnrichedFilePositionMarker(
+            statement_index=1,  # DEPRECATE
+            line_no=templ_line,
+            line_pos=templ_pos,
+            char_pos=templated_slice.start,
+            templated_slice=templated_slice,
+            source_slice=source_slice,
+            is_literal=is_literal,
+            source_pos_marker=FilePositionMarker(
+                1,  # DEPRECATE
+                source_line,
+                source_pos,
+                source_slice.start,
+            ),
+        )
+
 
 @register_templater
 class RawTemplater:
@@ -365,7 +414,7 @@ class RawTemplater:
         """
 
     def process(
-        self, *, in_str: str, fname: Optional[str] = None, config=None
+        self, *, in_str: str, fname: Optional[str] = None, config=None, formatter=None
     ) -> Tuple[Optional[TemplatedFile], list]:
         """Process a string and return a TemplatedFile.
 
@@ -383,6 +432,7 @@ class RawTemplater:
                 mostly for loading config files at runtime.
             config (:obj:`FluffConfig`): A specific config to use for this
                 templating operation. Only necessary for some templaters.
+            formatter (:obj:`CallbackFormatter`): Optional object for output.
 
         """
         return TemplatedFile(in_str, fname=fname), []
@@ -393,3 +443,7 @@ class RawTemplater:
         NB: This is useful in comparing configs.
         """
         return isinstance(other, self.__class__)
+
+    def config_pairs(self):
+        """Returns info about the given templater for output by the cli."""
+        return [("templater", self.name)]

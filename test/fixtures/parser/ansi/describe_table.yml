@@ -1,8 +1,8 @@
 file:
   statement:
     describe_statement:
-    - keyword: describe
-    - identifier: table
-    - object_reference:
+      keyword: describe
+      identifier: table
+      object_reference:
         identifier: '"my_table"'
   statement_terminator: ;

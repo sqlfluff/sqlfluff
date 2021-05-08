@@ -21,6 +21,9 @@ from sqlfluff.core.parser import (
     StartsWith,
     Indent,
     Dedent,
+    RegexMatcher,
+    StringMatcher,
+    CodeSegment,
 )
 
 
@@ -29,24 +32,22 @@ postgres_dialect = load_raw_dialect("postgres")
 
 snowflake_dialect = postgres_dialect.copy_as("snowflake")
 
-snowflake_dialect.patch_lexer_struct(
+snowflake_dialect.patch_lexer_matchers(
     [
         # In snowflake, a double single quote resolves as a single quote in the string.
         # https://docs.snowflake.com/en/sql-reference/data-types-text.html#single-quoted-string-constants
-        ("single_quote", "regex", r"'([^']|'')*'", dict(is_code=True)),
+        RegexMatcher("single_quote", r"'([^']|'')*'", CodeSegment),
     ]
 )
 
-snowflake_dialect.insert_lexer_struct(
-    # Keyword assigner needed for keyword functions.
-    [("parameter_assigner", "regex", r"=>", dict(is_code=True))],
-    before="not_equal",
-)
-
-snowflake_dialect.insert_lexer_struct(
-    # Column selector
-    # https://docs.snowflake.com/en/sql-reference/sql/select.html#parameters
-    [("column_selector", "regex", r"\$[0-9]+", dict(is_code=True))],
+snowflake_dialect.insert_lexer_matchers(
+    [
+        # Keyword assigner needed for keyword functions.
+        StringMatcher("parameter_assigner", "=>", CodeSegment),
+        # Column selector
+        # https://docs.snowflake.com/en/sql-reference/sql/select.html#parameters
+        RegexMatcher("column_selector", r"\$[0-9]+", CodeSegment),
+    ],
     before="not_equal",
 )
 
@@ -69,6 +70,7 @@ snowflake_dialect.sets("unreserved_keywords").update(
         "SEED",
         "TERSE",
         "UNSET",
+        "TABULAR",
     ]
 )
 
@@ -124,13 +126,14 @@ snowflake_dialect.replace(
         ),
     ),
     JoinLikeClauseGrammar=Sequence(
-        OneOf(
+        AnyNumberOf(
             Ref("FromAtExpressionSegment"),
             Ref("FromBeforeExpressionSegment"),
             Ref("FromPivotExpressionSegment"),
             Ref("FromUnpivotExpressionSegment"),
+            Ref("SamplingExpressionSegment"),
+            min_times=1,
         ),
-        Ref("SamplingExpressionSegment", optional=True),
         Ref("TableAliasExpressionSegment", optional=True),
     ),
     SingleIdentifierGrammar=OneOf(
@@ -157,6 +160,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("CreateCloneStatementSegment"),
             Ref("ShowStatementSegment"),
             Ref("AlterUserSegment"),
+            Ref("AlterSessionStatementSegment"),
         ],
         remove=[
             Ref("CreateTypeStatementSegment"),
@@ -170,10 +174,11 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
 
 @snowflake_dialect.segment()
 class CreateStatementCommentSegment(BaseSegment):
-    """A comment in a create statement.
+    """A comment in a create view/table statement.
 
-    e.g. comment = 'a new view'
-
+    e.g. comment = 'a new view/table'
+    Please note that, for column comment, the syntax in Snowflake is
+    `COMMENT 'text'` (Without the `=`).
     """
 
     type = "snowflake_comment"
@@ -282,7 +287,11 @@ class SamplingExpressionSegment(BaseSegment):
         OneOf("SAMPLE", "TABLESAMPLE"),
         OneOf("BERNOULLI", "ROW", "SYSTEM", "BLOCK", optional=True),
         Bracketed(Ref("NumericLiteralSegment"), Ref.keyword("ROWS", optional=True)),
-        Sequence(OneOf("REPEATABLE", "SEED"), Bracketed(Ref("NumericLiteralSegment"))),
+        Sequence(
+            OneOf("REPEATABLE", "SEED"),
+            Bracketed(Ref("NumericLiteralSegment")),
+            optional=True,
+        ),
     )
 
 
@@ -404,23 +413,6 @@ class SelectStatementSegment(ansi_dialect.get_segment("SelectStatementSegment"))
     ).parse_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OrderByClauseSegment", optional=True),
-    )
-
-
-@snowflake_dialect.segment()
-class UseStatementSegment(BaseSegment):
-    """A snowflake `USE` statement.
-
-    https://docs.snowflake.com/en/sql-reference/sql/use.html
-    """
-
-    type = "use_statement"
-    match_grammar = StartsWith("USE")
-
-    parse_grammar = Sequence(
-        "USE",
-        OneOf("ROLE", "WAREHOUSE", "DATABASE", "SCHEMA", optional=True),
-        Ref("ObjectReferenceSegment"),
     )
 
 
@@ -665,4 +657,92 @@ class AlterUserSegment(BaseSegment):
             ),
             Sequence("UNSET", Delimited(Ref("ParameterNameSegment"))),
         ),
+    )
+
+
+@snowflake_dialect.segment(replace=True)
+class ExplainStatementSegment(ansi_dialect.get_segment("ExplainStatementSegment")):  # type: ignore
+    """An `Explain` statement.
+
+    EXPLAIN [ USING { TABULAR | JSON | TEXT } ] <statement>
+
+    https://docs.snowflake.com/en/sql-reference/sql/explain.html
+    """
+
+    parse_grammar = Sequence(
+        "EXPLAIN",
+        Sequence(
+            "USING",
+            OneOf("TABULAR", "JSON", "TEXT"),
+            optional=True,
+        ),
+        ansi_dialect.get_segment("ExplainStatementSegment").explainable_stmt,
+    )
+
+
+@snowflake_dialect.segment()
+class AlterSessionStatementSegment(BaseSegment):
+    """Snowflake's ALTER SESSION statement.
+
+    ```
+    ALTER SESSION SET <param_name> = <param_value>;
+    ALTER SESSION UNSET <param_name>, [ , <param_name> , ... ];
+    ```
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-session.html
+    """
+
+    type = "alter_session_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "SESSION",
+        OneOf(
+            Ref("AlterSessionSetClauseSegment"),
+            Ref("AlterSessionUnsetClauseSegment"),
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class AlterSessionSetClauseSegment(BaseSegment):
+    """Snowflake's ALTER SESSION SET clause.
+
+    ```
+    [ALTER SESSION] SET <param_name> = <param_value>;
+    ```
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-session.html
+    """
+
+    type = "alter_session_set_statement"
+
+    match_grammar = Sequence(
+        "SET",
+        Ref("ParameterNameSegment"),
+        Ref("EqualsSegment"),
+        OneOf(
+            Ref("BooleanLiteralGrammar"),
+            Ref("QuotedLiteralSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class AlterSessionUnsetClauseSegment(BaseSegment):
+    """Snowflake's ALTER SESSION UNSET clause.
+
+    ```
+    [ALTER SESSION] UNSET <param_name>, [ , <param_name> , ... ];
+    ```
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-session.html
+    """
+
+    type = "alter_session_unset_clause"
+
+    match_grammar = Sequence(
+        "UNSET",
+        Delimited(Ref("ParameterNameSegment"), delimiter=Ref("CommaSegment")),
     )

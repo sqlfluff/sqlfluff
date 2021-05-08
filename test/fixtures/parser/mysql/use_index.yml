@@ -1,0 +1,30 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+          - table_expression:
+              table_reference:
+                identifier: t1
+          - alias_expression:
+              identifier: test
+          - keyword: USE
+          - keyword: INDEX
+          - start_bracket: (
+          - object_reference:
+              identifier: i2
+          - end_bracket: )
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          identifier: a
+  statement_terminator: ;

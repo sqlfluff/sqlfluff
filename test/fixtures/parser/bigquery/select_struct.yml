@@ -11,7 +11,8 @@ file:
       - comma: ','
       - select_clause_element:
           function:
-            function_name: array
+            function_name:
+              function_name_identifier: array
             start_bracket: (
             expression:
               select_statement:
@@ -56,7 +57,7 @@ file:
           typeless_struct:
           - keyword: struct
           - start_bracket: (
-          - object_reference:
+          - column_reference:
             - identifier: bar
             - dot: .
             - identifier: bar_id
@@ -64,7 +65,7 @@ file:
               keyword: as
               identifier: id
           - comma: ','
-          - object_reference:
+          - column_reference:
             - identifier: bar
             - dot: .
             - identifier: bar_name

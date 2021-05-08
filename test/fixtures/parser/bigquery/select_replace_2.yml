@@ -12,7 +12,8 @@ file:
               start_bracket: (
               select_clause_element:
                 function:
-                  function_name: CAST
+                  function_name:
+                    function_name_identifier: CAST
                   start_bracket: (
                   expression:
                     literal: '1'

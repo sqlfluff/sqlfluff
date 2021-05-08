@@ -32,7 +32,7 @@ def get_parse_fixtures(fail_on_missing_yml=False):
                 if not has_yml and fail_on_missing_yml:
                     raise (
                         Exception(
-                            f"Missing .yml file for {os.path.join(d, f)}. Run the test/core/generate_parse_fixture_yml.py script!"
+                            f"Missing .yml file for {os.path.join(d, f)}. Run the test/generate_parse_fixture_yml.py script!"
                         )
                     )
     return parse_success_examples, parse_structure_examples

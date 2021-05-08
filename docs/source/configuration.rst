@@ -44,7 +44,7 @@ steps overriding those from earlier:
    :ref:`defaultconfig` section.
 1. It will look in the user's os-specific app config directory. On OSX this is
    `~/Library/Preferences/sqlfluff`, Unix is `~/.config/sqlfluff`, Windows is
-   `<home>\AppData\Local\sqlfluff\sqlfluff`, for any of the filenames
+   `<home>\\AppData\\Local\\sqlfluff\\sqlfluff`, for any of the filenames
    above in the main :ref:`config` section. If multiple are present, they will
    *patch*/*override* each other in the order above.
 2. It will look for the same files in the user's home directory (~).
@@ -307,8 +307,6 @@ In *.sqlfluff*:
 
     [sqlfluff]
     templater = dbt
-    # dbt templating does not keep trailing new lines (L009)
-    exclude_rules = L009
 
 In *.sqlfluffignore*:
 
@@ -342,7 +340,7 @@ You already know you can pass arguments (:code:`--verbose`,
 
 .. code-block:: console
 
-    $ sqfluff lint my_code.sql -v -exclude_rules L022,L027
+    $ sqlfluff lint my_code.sql -v -exclude_rules L022,L027
 
 You might have arguments that you pass through every time, e.g rules you
 *always* want to ignore. These can also be configured:
@@ -382,15 +380,39 @@ be ignored by quoting their code or the category.
 
 .. _`flake8's ignore`: https://flake8.pycqa.org/en/3.1.1/user/ignoring-errors.html#in-line-ignoring-errors
 
+Ignoring line ranges
+^^^^^^^^^^^^^^^^^^^^
+
+Similar to `pylint's "pylint" directive"`_, ranges of lines can be ignored by
+adding :code:`-- noqa:disable=<rule>[,...] | all` to the line. Following this
+directive, specified rules (or all rules, if "all" was specified) will be
+ignored until a corresponding `-- noqa:enable=<rule>[,...] | all` directive.
+
+.. code-block:: sql
+
+    -- Ignore rule L012 from this line forward
+    SELECT col_a a FROM foo --noqa: disable=L012
+
+    -- Ignore all rules from this line forward
+    SELECT col_a a FROM foo --noqa: disable=all
+
+    -- Enforce all rules from this line forward
+    SELECT col_a a FROM foo --noqa: enable=all
+
+
+.. _`pylint's "pylint" directive"`: http://pylint.pycqa.org/en/latest/user_guide/message-control.html
+
+.. _sqlfluffignore:
+
 .sqlfluffignore
 ^^^^^^^^^^^^^^^
 
 Similar to `Git's`_ :code:`.gitignore` and `Docker's`_ :code:`.dockerignore`,
-SQLFluff supports a :code:`.sqfluffignore` file to control which files are and
+SQLFluff supports a :code:`.sqlfluffignore` file to control which files are and
 aren't linted. Under the hood we use the python `pathspec library`_ which also
 has a brief tutorial in their documentation.
 
-An example of a potential :code:`.sqfluffignore` placed in the root of your
+An example of a potential :code:`.sqlfluffignore` placed in the root of your
 project would be:
 
 .. code-block:: cfg

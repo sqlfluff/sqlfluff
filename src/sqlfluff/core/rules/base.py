@@ -18,10 +18,20 @@ import copy
 import logging
 import pathlib
 import re
+from typing import Optional, List, Tuple, TYPE_CHECKING
 from collections import namedtuple
 
-from sqlfluff.core.parser import RawSegment, KeywordSegment, BaseSegment, SymbolSegment
+from sqlfluff.core.parser import (
+    KeywordSegment,
+    BaseSegment,
+    SymbolSegment,
+    WhitespaceSegment,
+    NewlineSegment,
+)
 from sqlfluff.core.errors import SQLLintError
+
+if TYPE_CHECKING:
+    from sqlfluff.core.templaters import TemplatedFile
 
 # The ghost of a rule (mostly used for testing)
 RuleGhost = namedtuple("RuleGhost", ["code", "description"])
@@ -99,7 +109,7 @@ class LintFix:
             to be moved *after* the edit), for an `edit` it implies the segment
             to be replaced.
         edit (:obj:`BaseSegment`, optional): For `edit` and `create` fixes, this
-            hold the segment, or iterable of segments to create to replace at the
+            hold the segment, or iterable of segments to create or replace at the
             given `anchor` point.
 
     """
@@ -192,6 +202,7 @@ class BaseRule:
     """
 
     _works_on_unparsable = True
+    targets_templated = False
 
     def __init__(self, code, description, **kwargs):
         self.description = description
@@ -253,6 +264,7 @@ class BaseRule:
         raw_stack=None,
         memory=None,
         fname=None,
+        templated_file: Optional["TemplatedFile"] = None,
     ):
         """Recursively perform the crawl operation on a given segment.
 
@@ -270,8 +282,8 @@ class BaseRule:
         siblings_post = siblings_post or ()
         siblings_pre = siblings_pre or ()
         memory = memory or {}
-        vs = []
-        fixes = []
+        vs: List[SQLLintError] = []
+        fixes: List[LintFix] = []
 
         # First, check whether we're looking at an unparsable and whether
         # this rule will still operate on that.
@@ -290,6 +302,7 @@ class BaseRule:
                 memory=memory,
                 dialect=dialect,
                 path=pathlib.Path(fname) if fname else None,
+                templated_file=templated_file,
             )
         # Any exception at this point would halt the linter and
         # cause the user to get no results
@@ -368,6 +381,7 @@ class BaseRule:
                 memory=memory,
                 dialect=dialect,
                 fname=fname,
+                templated_file=templated_file,
             )
             vs += dvs
             fixes += child_fixes
@@ -415,9 +429,6 @@ class BaseRule:
     @classmethod
     def make_whitespace(cls, raw, pos_marker):
         """Make a whitespace segment."""
-        WhitespaceSegment = RawSegment.make(
-            " ", name="whitespace", type="whitespace", is_whitespace=True
-        )
         return WhitespaceSegment(raw=raw, pos_marker=pos_marker)
 
     @classmethod
@@ -425,8 +436,7 @@ class BaseRule:
         """Make a newline segment."""
         # Default the newline to \n
         raw = raw or "\n"
-        nls = RawSegment.make("\n", name="newline", type="newline")
-        return nls(raw=raw, pos_marker=pos_marker)
+        return NewlineSegment(raw=raw, pos_marker=pos_marker)
 
     @classmethod
     def make_keyword(cls, raw, pos_marker):
@@ -445,6 +455,15 @@ class BaseRule:
         )
         # At the moment we let the rule dictate *case* here.
         return symbol_seg(raw=raw, pos_marker=pos_marker)
+
+    @staticmethod
+    def matches_target_tuples(seg: BaseSegment, target_tuples: List[Tuple[str, str]]):
+        """Does the given segment match any of the given type tuples."""
+        if seg.name in [elem[1] for elem in target_tuples if elem[0] == "name"]:
+            return True
+        elif seg.is_type(*[elem[1] for elem in target_tuples if elem[0] == "type"]):
+            return True
+        return False
 
 
 class RuleSet:

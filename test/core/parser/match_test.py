@@ -48,14 +48,3 @@ def test__parser__match_add(input_func, raw_seg):
     assert isinstance(m2, MatchResult)
     # In all cases, it should also be of length 2
     assert len(m2) == 2
-
-
-@pytest.mark.parametrize(
-    "fail_case", ["string", ["list_of_string"], ("tuple_of_string",), range(10)]
-)
-def test__parser__match_add_raises(fail_case, raw_seg):
-    """Test construction of MatchResults."""
-    m1 = MatchResult.from_matched([raw_seg])
-    # Test adding, and check we get an exception of the right type
-    with pytest.raises(TypeError):
-        m1 + fail_case

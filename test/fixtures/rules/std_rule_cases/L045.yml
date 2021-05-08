@@ -76,3 +76,84 @@ test_7:
     )
     SELECT *
     FROM cte1
+
+test_8:
+  # Issue 915: Crash on statements that don't have a SELECT
+  pass_str: CREATE TABLE my_table (id INTEGER)
+
+test_9:
+  # Issue 944: Detecting use of CTE in nested SELECT
+  pass_str: |
+    WITH max_date_cte AS (
+        SELECT MAX(row_updated_date) AS max_date
+        FROM warehouse.loaded_monthly
+    )
+
+    SELECT stuff
+    FROM warehouse.updated_weekly
+    WHERE row_updated_date <= (SELECT max_date FROM max_date_cte)
+
+test_10:
+  # Variant on test_9, the WHERE with a nested SELECT is in a CTE
+  pass_str: |
+    WITH max_date_cte AS (
+      SELECT MAX(row_updated_date) AS max_date
+      FROM warehouse.loaded_monthly
+    ),
+    uses_max_date_cte AS (
+      SELECT stuff
+          FROM warehouse.updated_weekly
+          WHERE row_updated_date <= (SELECT max_date FROM max_date_cte)
+    )
+
+    SELECT stuff
+    FROM uses_max_date_cte
+
+test_11:
+  # Issue 963: Infinite recursion when a CTE references itself
+  pass_str: |
+    with pages_xf as (
+      select pages.received_at
+      from pages
+      where pages.received_at > (select max(received_at) from pages_xf )
+    ),
+    final as (
+      select pages_xf.received_at
+      from pages_xf
+    )
+
+    select * from final
+
+test_12:
+  # Variant on test_11 where there *is* an unused CTE
+  fail_str: |
+    with pages_xf as (
+      select pages.received_at
+      from pages
+      where pages.received_at > (select max(received_at) from pages_xf )
+    ),
+    final as (
+      select pages_xf.received_at
+      from pages_xf
+    ),
+    unused as (
+      select pages.received_at from pages
+    )
+
+    select * from final
+
+test_13:
+  # Variant on test_11 where the CTE references itself indirectly
+  pass_str: |
+    with pages_xf as (
+      select pages.received_at
+      from pages
+      where pages.received_at > (select max(received_at) from final )
+    ),
+
+    final as (
+      select pages_xf.received_at
+      from pages_xf
+    )
+
+    select * from final
