@@ -7,9 +7,6 @@ from typing import Optional
 from dataclasses import dataclass
 from cached_property import cached_property
 from functools import partial
-from pathlib import Path
-
-from dbt.graph.selector_methods import PathSelectorMethod
 
 from sqlfluff.core.errors import SQLTemplaterError
 
@@ -19,30 +16,6 @@ from sqlfluff.core.templaters.jinja import JinjaTemplater
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
 
-class PathSelectorMethodWithRoot(PathSelectorMethod):
-
-    def __init__(self, root, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.root = root
-
-    def search(
-        self, included_nodes, selector
-    ):
-        """Yields nodes from included_nodes that match the given path.
-
-        Adapted from dbt.graph.selector_methods.PathSelectorMethod to allow root to be
-        specified. This allows SQLFluff to run with dbt templater outside of the dbt project_dir.
-        """
-
-        paths = set(p.relative_to(self.root) for p in self.root.glob(selector))
-        for node, real_node in self.all_nodes(included_nodes):
-            if Path(real_node.root_path) != self.root:
-                continue
-            ofp = Path(real_node.original_file_path)
-            if ofp in paths:
-                yield node
-            elif any(parent in paths for parent in ofp.parents):
-                yield node
 
 @dataclass
 class DbtConfigArgs:
@@ -131,12 +104,7 @@ class DbtTemplater(JinjaTemplater):
     @cached_property
     def dbt_selector_method(self):
         """Loads the dbt selector method."""
-        if self._get_project_dir() != os.getcwd():
-            self.dbt_selector_method = PathSelectorMethodWithRoot(
-                                                Path(self._get_project_dir()),
-                                                manifest = self.dbt_manifest, previous_state=None, arguments=[]
-                                            )
-        elif "0.17" in self.dbt_version:
+        if "0.17" in self.dbt_version:
             from dbt.graph.selector import PathSelector
 
             self.dbt_selector_method = PathSelector(self.dbt_manifest)
@@ -166,24 +134,24 @@ class DbtTemplater(JinjaTemplater):
         """
         from dbt.config.profile import PROFILES_DIR
 
-        return os.path.expanduser(
+        return os.path.abspath(os.path.expanduser(
             self.sqlfluff_config.get_section(
                 (self.templater_selector, self.name, "profiles_dir")
             )
             or PROFILES_DIR
-        )
+        ))
 
     def _get_project_dir(self):
         """Get the dbt project directory from the configuration.
 
         Defaults to the working directory.
         """
-        return os.path.expanduser(
+        return os.path.abspath(os.path.expanduser(
             self.sqlfluff_config.get_section(
                 (self.templater_selector, self.name, "project_dir")
             )
             or os.getcwd()
-        )
+        ))
 
     def _get_profile(self):
         """Get a dbt profile name from the configuration."""
@@ -236,6 +204,25 @@ class DbtTemplater(JinjaTemplater):
         except SQLTemplaterError as e:
             return None, [e]
 
+    def _get_selected_uids(self, fname):
+        '''Get selected manifest unique identifiers 
+        
+        Note: It is necessary to change into the dbt project_dir 
+        because the dbt PathSelector method sets its root with Path.cwd()''' 
+
+        included_nodes = self.dbt_manifest.nodes
+        
+        working_dir = os.getcwd()
+        os.chdir(self._get_project_dir())
+        selected = list(self.dbt_selector_method.search(
+            included_nodes=included_nodes,
+            # Selector needs to be a relative path
+            selector=os.path.relpath(fname, start=os.getcwd()),
+        ))
+        os.chdir(working_dir)
+
+        return selected
+
     def _unsafe_process(self, fname, in_str=None, config=None):
         if not config:
             raise ValueError(
@@ -250,12 +237,9 @@ class DbtTemplater(JinjaTemplater):
                 "The dbt templater does not support stdin input, provide a path instead"
             )
         self.sqlfluff_config = config
-
-        selected = self.dbt_selector_method.search(
-            included_nodes=self.dbt_manifest.nodes,
-            # Selector needs to be a relative path
-            selector=os.path.relpath(fname, start=self._get_project_dir()))
         
+        selected = self._get_selected_uids(fname)
+
         results = [self.dbt_manifest.expect(uid) for uid in selected]
 
         if not results:

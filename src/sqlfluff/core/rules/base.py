@@ -313,6 +313,8 @@ class BaseRule:
             )
             return vs, raw_stack, fixes, memory
 
+        new_lerrs = []
+        new_fixes = []
         if res is None:
             # Assume this means no problems (also means no memory)
             pass
@@ -321,8 +323,8 @@ class BaseRule:
             memory = res.memory
             lerr = res.to_linting_error(rule=self)
             if lerr:
-                vs.append(lerr)
-            fixes += res.fixes
+                new_lerrs = [lerr]
+            new_fixes = res.fixes
         elif isinstance(res, list) and all(
             isinstance(elem, LintResult) for elem in res
         ):
@@ -332,14 +334,23 @@ class BaseRule:
             for elem in res:
                 lerr = elem.to_linting_error(rule=self)
                 if lerr:
-                    vs.append(lerr)
-                fixes += elem.fixes
+                    new_lerrs.append(lerr)
+                new_fixes += elem.fixes
         else:
             raise TypeError(
                 "Got unexpected result [{0!r}] back from linting rule: {1!r}".format(
                     res, self.code
                 )
             )
+
+        for lerr in new_lerrs:
+            self.logger.debug("!! Violation Found: %r", lerr.description)
+        for fix in new_fixes:
+            self.logger.debug("!! Fix Proposed: %r", fix)
+
+        # Consume the new results
+        vs += new_lerrs
+        fixes += new_fixes
 
         # The raw stack only keeps track of the previous raw segments
         if len(segment.segments) == 0:
