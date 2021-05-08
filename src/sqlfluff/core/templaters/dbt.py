@@ -209,11 +209,11 @@ class DbtTemplater(JinjaTemplater):
             return None, [e]
 
     def _get_selected_uids(self, fname):
-        """Get selected manifest unique identifiers
+        """Get selected manifest unique identifiers.
 
         Note: It is necessary to change into the dbt project_dir
-        because the dbt PathSelector method sets its root with Path.cwd()"""
-
+        because the dbt PathSelector method sets its root with Path.cwd()
+        """
         included_nodes = self.dbt_manifest.nodes
 
         working_dir = os.getcwd()
