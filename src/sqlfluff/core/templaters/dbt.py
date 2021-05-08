@@ -134,24 +134,28 @@ class DbtTemplater(JinjaTemplater):
         """
         from dbt.config.profile import PROFILES_DIR
 
-        return os.path.abspath(os.path.expanduser(
-            self.sqlfluff_config.get_section(
-                (self.templater_selector, self.name, "profiles_dir")
+        return os.path.abspath(
+            os.path.expanduser(
+                self.sqlfluff_config.get_section(
+                    (self.templater_selector, self.name, "profiles_dir")
+                )
+                or PROFILES_DIR
             )
-            or PROFILES_DIR
-        ))
+        )
 
     def _get_project_dir(self):
         """Get the dbt project directory from the configuration.
 
         Defaults to the working directory.
         """
-        return os.path.abspath(os.path.expanduser(
-            self.sqlfluff_config.get_section(
-                (self.templater_selector, self.name, "project_dir")
+        return os.path.abspath(
+            os.path.expanduser(
+                self.sqlfluff_config.get_section(
+                    (self.templater_selector, self.name, "project_dir")
+                )
+                or os.getcwd()
             )
-            or os.getcwd()
-        ))
+        )
 
     def _get_profile(self):
         """Get a dbt profile name from the configuration."""
@@ -205,20 +209,22 @@ class DbtTemplater(JinjaTemplater):
             return None, [e]
 
     def _get_selected_uids(self, fname):
-        '''Get selected manifest unique identifiers 
-        
-        Note: It is necessary to change into the dbt project_dir 
-        because the dbt PathSelector method sets its root with Path.cwd()''' 
+        """Get selected manifest unique identifiers
+
+        Note: It is necessary to change into the dbt project_dir
+        because the dbt PathSelector method sets its root with Path.cwd()"""
 
         included_nodes = self.dbt_manifest.nodes
-        
+
         working_dir = os.getcwd()
         os.chdir(self._get_project_dir())
-        selected = list(self.dbt_selector_method.search(
-            included_nodes=included_nodes,
-            # Selector needs to be a relative path
-            selector=os.path.relpath(fname, start=os.getcwd()),
-        ))
+        selected = list(
+            self.dbt_selector_method.search(
+                included_nodes=included_nodes,
+                # Selector needs to be a relative path
+                selector=os.path.relpath(fname, start=os.getcwd()),
+            )
+        )
         os.chdir(working_dir)
 
         return selected
@@ -237,7 +243,7 @@ class DbtTemplater(JinjaTemplater):
                 "The dbt templater does not support stdin input, provide a path instead"
             )
         self.sqlfluff_config = config
-        
+
         selected = self._get_selected_uids(fname)
 
         results = [self.dbt_manifest.expect(uid) for uid in selected]
