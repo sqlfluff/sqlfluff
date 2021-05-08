@@ -443,16 +443,6 @@ class BaseRule:
         # At the moment we let the rule dictate *case* here.
         return kws(raw=raw, pos_marker=None)
 
-    @classmethod
-    def make_symbol(cls, raw, seg_type, name=None):
-        """Make a symbol segment."""
-        # For the name of the segment, we force the string to lowercase.
-        symbol_seg = SymbolSegment.make(
-            raw.lower(), name=name or seg_type, type=seg_type
-        )
-        # At the moment we let the rule dictate *case* here.
-        return symbol_seg(raw=raw, pos_marker=None)
-
     @staticmethod
     def matches_target_tuples(seg: BaseSegment, target_tuples: List[Tuple[str, str]]):
         """Does the given segment match any of the given type tuples."""

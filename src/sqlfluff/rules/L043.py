@@ -1,6 +1,6 @@
 """Implementation of Rule L043."""
 
-from sqlfluff.core.parser import WhitespaceSegment
+from sqlfluff.core.parser import WhitespaceSegment, SymbolSegment
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
@@ -100,10 +100,7 @@ class Rule_L043(BaseRule):
                 # Add coalesce and parenthesis
                 coalesce_parenthesis = [
                     self.make_keyword(raw="coalesce"),
-                    self.make_symbol(
-                        raw="(",
-                        seg_type="parenthesis",
-                    ),
+                    SymbolSegment("(", name="start_bracket", type="start_bracket"),
                 ]
                 edits.extend(coalesce_parenthesis)
                 edit_coalesce_target = segment.segments[0]
@@ -118,18 +115,12 @@ class Rule_L043(BaseRule):
                 # Add comma, bool, closing parenthesis
                 expression = segment.segments[expression_idx + 1]
                 closing_parenthesis = [
-                    self.make_symbol(
-                        raw=",",
-                        seg_type="comma",
-                    ),
+                    SymbolSegment(",", name="comma", type="comma"),
                     WhitespaceSegment(),
                     self.make_keyword(
                         raw="false",
                     ),
-                    self.make_symbol(
-                        raw=")",
-                        seg_type="parenthesis",
-                    ),
+                    SymbolSegment(")", name="end_bracket", type="end_bracket"),
                 ]
                 fixes.append(
                     LintFix(
