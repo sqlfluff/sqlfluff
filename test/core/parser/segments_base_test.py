@@ -37,12 +37,12 @@ class DummyAuxSegment(BaseSegment):
 
 def test__parser__base_segments_type():
     """Test the .is_type() method."""
-    assert BaseSegment.is_type("base")
-    assert not BaseSegment.is_type("foo")
-    assert not BaseSegment.is_type("foo", "bar")
-    assert DummySegment.is_type("dummy")
-    assert DummySegment.is_type("base")
-    assert DummySegment.is_type("base", "foo", "bar")
+    assert BaseSegment.class_is_type("base")
+    assert not BaseSegment.class_is_type("foo")
+    assert not BaseSegment.class_is_type("foo", "bar")
+    assert DummySegment.class_is_type("dummy")
+    assert DummySegment.class_is_type("base")
+    assert DummySegment.class_is_type("base", "foo", "bar")
 
 
 def test__parser__base_segments_raw(raw_seg):

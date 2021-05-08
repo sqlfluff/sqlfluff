@@ -376,17 +376,20 @@ class BaseSegment:
         return cls.optional
 
     @classmethod
-    def is_type(cls, *seg_type):
-        """Is this segment (or its parent) of the given type."""
+    def class_is_type(cls, *seg_type):
+        """Is this segment class (or its parent) of the given type."""
         # Do we match on the type of _this_ class.
         if cls.type in seg_type:
             return True
-        # Have we reached the bottom?
-        elif cls.type == "base":
-            return False
-        # If not, check parent classes.
-        else:
-            return any(base_class.is_type(*seg_type) for base_class in cls.__bases__)
+        # If not, check types of parents.
+        for base_class in cls.__bases__:
+            if base_class is object:
+                break
+            elif base_class.type in seg_type:
+                return True
+            elif base_class.type == "base":
+                break
+        return False
 
     @classmethod
     def structural_simplify(cls, elem):
@@ -487,7 +490,7 @@ class BaseSegment:
         padded_type = "{padding}{modifier}{type}".format(
             padding=" " * (ident * tabsize),
             modifier="[META] " if self.is_meta else "",
-            type=self.type + ":",
+            type=self.get_type() + ":",
         )
         preface = "{pos:20}|{padded_type:60}  {suffix}".format(
             pos=str(self.pos_marker) if self.pos_marker else "-",
@@ -498,6 +501,14 @@ class BaseSegment:
         return preface.rstrip()
 
     # ################ PUBLIC INSTANCE METHODS
+
+    def get_type(self):
+        """Returns the type of this segment as a string."""
+        return self.type
+
+    def is_type(self, *seg_type):
+        """Is this segment (or its parent) of the given type."""
+        return self.class_is_type(*seg_type)
 
     def invalidate_caches(self):
         """Invalidate the cached properties.
@@ -576,10 +587,10 @@ class BaseSegment:
         show_raw = kwargs.get("show_raw", False)
 
         if show_raw and not self.segments:
-            result = (self.type, self.raw)
+            result = (self.get_type(), self.raw)
         elif code_only:
             result = (
-                self.type,
+                self.get_type(),
                 tuple(
                     seg.to_tuple(**kwargs)
                     for seg in self.segments
@@ -588,7 +599,7 @@ class BaseSegment:
             )
         else:
             result = (
-                self.type,
+                self.get_type(),
                 tuple(
                     seg.to_tuple(**kwargs) for seg in self.segments if not seg.is_meta
                 ),

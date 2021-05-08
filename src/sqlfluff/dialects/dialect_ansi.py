@@ -41,6 +41,7 @@ from sqlfluff.core.parser import (
     CommentSegment,
     WhitespaceSegment,
     NewlineSegment,
+    StringParser,
 )
 
 from sqlfluff.core.dialects.base import Dialect
@@ -169,8 +170,8 @@ ansi_dialect.sets("value_table_functions").update([])
 
 ansi_dialect.add(
     # Real segments
-    SemicolonSegment=SymbolSegment.make(
-        ";", name="semicolon", type="statement_terminator"
+    SemicolonSegment=StringParser(
+        ";", SymbolSegment, name="semicolon", type="statement_terminator"
     ),
     ColonSegment=SymbolSegment.make(":", name="colon", type="colon"),
     SliceSegment=SymbolSegment.make(":", name="slice", type="slice"),
@@ -192,7 +193,7 @@ ansi_dialect.add(
     ),
     CommaSegment=SymbolSegment.make(",", name="comma", type="comma"),
     DotSegment=SymbolSegment.make(".", name="dot", type="dot"),
-    StarSegment=SymbolSegment.make("*", name="star", type="star"),
+    StarSegment=StringParser("*", SymbolSegment, name="star", type="star"),
     TildeSegment=SymbolSegment.make("~", name="tilde", type="tilde"),
     CastOperatorSegment=SymbolSegment.make(
         "::", name="casting_operator", type="casting_operator"
