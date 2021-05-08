@@ -9,7 +9,7 @@ from sqlfluff.core.parser import (
     BaseSegment,
     NamedSegment,
     Delimited,
-    RegexMatcher,
+    RegexLexer,
     CodeSegment,
 )
 
@@ -23,7 +23,7 @@ postgres_dialect = ansi_dialect.copy_as("postgres")
 postgres_dialect.insert_lexer_matchers(
     # JSON Operators: https://www.postgresql.org/docs/9.5/functions-json.html
     [
-        RegexMatcher(
+        RegexLexer(
             "json_operator",
             r"->>|#>>|->|#>|@>|<@|\?\||\?|\?&|#-",
             CodeSegment,

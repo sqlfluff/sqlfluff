@@ -22,7 +22,7 @@ from sqlfluff.core.parser import (
     KeywordSegment,
     Indent,
     SymbolSegment,
-    RegexMatcher,
+    RegexLexer,
     CodeSegment,
 )
 
@@ -39,12 +39,12 @@ bigquery_dialect.patch_lexer_matchers(
         # backslashes in front of it.
         # https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and_bytes_literals
         # Triple quoted variant first, then single quoted
-        RegexMatcher(
+        RegexLexer(
             "single_quote",
             r"([rR]?[bB]?|[bB]?[rR]?)?('''((?<!\\)(\\{2})*\\'|'{,2}(?!')|[^'])*(?<!\\)(\\{2})*'''|'((?<!\\)(\\{2})*\\'|[^'])*(?<!\\)(\\{2})*')",
             CodeSegment,
         ),
-        RegexMatcher(
+        RegexLexer(
             "double_quote",
             r'([rR]?[bB]?|[bB]?[rR]?)?(\"\"\"((?<!\\)(\\{2})*\\\"|\"{,2}(?!\")|[^\"])*(?<!\\)(\\{2})*\"\"\"|"((?<!\\)(\\{2})*\\"|[^"])*(?<!\\)(\\{2})*")',
             CodeSegment,

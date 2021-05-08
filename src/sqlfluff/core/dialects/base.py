@@ -15,7 +15,7 @@ class Dialect:
 
     Args:
         name (:obj:`str`): The name of the dialect, used for lookup.
-        lexer_matchers (iterable of :obj:`StringMatcher`): A structure defining
+        lexer_matchers (iterable of :obj:`StringLexer`): A structure defining
             the lexing config for this dialect.
 
     """

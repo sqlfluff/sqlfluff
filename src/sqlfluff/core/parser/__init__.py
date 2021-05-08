@@ -32,6 +32,6 @@ from sqlfluff.core.parser.grammar import (
     OptionallyBracketed,
 )
 from sqlfluff.core.parser.markers import PositionMarker
-from sqlfluff.core.parser.lexer import Lexer, StringMatcher, RegexMatcher
+from sqlfluff.core.parser.lexer import Lexer, StringLexer, RegexLexer
 from sqlfluff.core.parser.parser import Parser
 from sqlfluff.core.parser.matchable import Matchable
