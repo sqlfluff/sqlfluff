@@ -226,7 +226,7 @@ class WhitespaceSegment(RawSegment):
     _is_whitespace = True
     _is_code = False
     _is_comment = False
-    _template = " "
+    _default_raw = " "
 
 
 class NewlineSegment(RawSegment):
@@ -244,4 +244,4 @@ class NewlineSegment(RawSegment):
     _is_whitespace = True
     _is_code = False
     _is_comment = False
-    _template = "\n"
+    _default_raw = "\n"

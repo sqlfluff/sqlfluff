@@ -2,6 +2,8 @@
 
 from typing import Tuple
 
+from sqlfluff.core.parser import NewlineSegment
+
 from sqlfluff.core.rules.base import LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
@@ -124,7 +126,7 @@ class Rule_L016(Rule_L003):
                             "create",
                             create_anchor,
                             [
-                                crawler.make_newline(),
+                                NewlineSegment(),
                                 crawler.make_whitespace(new_indent),
                             ],
                         )
@@ -145,7 +147,7 @@ class Rule_L016(Rule_L003):
                             "create",
                             create_anchor,
                             [
-                                crawler.make_newline(),
+                                NewlineSegment(),
                                 crawler.make_whitespace(new_indent),
                             ],
                         )

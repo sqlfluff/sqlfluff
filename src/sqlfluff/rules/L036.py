@@ -2,7 +2,7 @@
 
 from typing import List, NamedTuple
 
-from sqlfluff.core.parser import BaseSegment
+from sqlfluff.core.parser import BaseSegment, NewlineSegment
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
@@ -110,7 +110,7 @@ class Rule_L036(BaseRule):
                     loop_while=lambda s: s.is_type("whitespace", "comma") or s.is_meta,
                 )
                 fixes += [LintFix("delete", ws) for ws in ws_to_delete]
-                fixes.append(LintFix("create", select_target, self.make_newline()))
+                fixes.append(LintFix("create", select_target, NewlineSegment()))
         if fixes:
             return LintResult(anchor=segment, fixes=fixes)
 
@@ -135,7 +135,7 @@ class Rule_L036(BaseRule):
             insert_buff = [
                 self.make_whitespace(raw=" "),
                 select_clause.segments[select_targets_info.first_select_target_idx],
-                self.make_newline(),
+                NewlineSegment(),
             ]
             fixes = [
                 # Replace "newline" with <<select_target>>, "newline".

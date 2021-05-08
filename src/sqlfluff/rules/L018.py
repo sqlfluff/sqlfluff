@@ -1,5 +1,7 @@
 """Implementation of Rule L018."""
 
+from sqlfluff.core.parser import NewlineSegment
+
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
@@ -134,7 +136,7 @@ class Rule_L018(BaseRule):
                                         "create",
                                         seg,
                                         [
-                                            self.make_newline(),
+                                            NewlineSegment(),
                                             self.make_whitespace(with_indent_str),
                                         ],
                                     )

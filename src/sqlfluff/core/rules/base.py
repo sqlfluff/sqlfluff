@@ -443,13 +443,6 @@ class BaseRule:
         return WhitespaceSegment(raw=raw, pos_marker=None)
 
     @classmethod
-    def make_newline(cls, raw=None):
-        """Make a newline segment."""
-        # Default the newline to \n
-        raw = raw or "\n"
-        return NewlineSegment(raw=raw, pos_marker=None)
-
-    @classmethod
     def make_keyword(cls, raw):
         """Make a keyword segment."""
         # For the name of the segment, we force the string to lowercase.
