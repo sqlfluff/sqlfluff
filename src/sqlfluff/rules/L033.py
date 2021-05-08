@@ -1,5 +1,7 @@
 """Implementation of Rule L033."""
 
+from sqlfluff.core.parser import WhitespaceSegment
+
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 
 
@@ -38,7 +40,7 @@ class Rule_L033(BaseRule):
                 union = self.make_keyword(
                     raw="UNION",
                 )
-                ins = self.make_whitespace(raw=" ")
+                ins = WhitespaceSegment()
                 distinct = self.make_keyword(
                     raw="DISTINCT",
                 )

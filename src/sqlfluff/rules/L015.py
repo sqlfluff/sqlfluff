@@ -1,5 +1,7 @@
 """Implementation of Rule L015."""
 
+from sqlfluff.core.parser import WhitespaceSegment
+
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
@@ -71,7 +73,7 @@ class Rule_L015(BaseRule):
                             LintFix(
                                 "create",
                                 first_segment,
-                                [self.make_whitespace(raw=insert_str)],
+                                [WhitespaceSegment(raw=insert_str)],
                             )
                         )
                     return LintResult(anchor=segment, fixes=fixes)

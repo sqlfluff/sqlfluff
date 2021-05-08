@@ -2,6 +2,8 @@
 
 from typing import List, NamedTuple
 
+from sqlfluff.core.parser import WhitespaceSegment
+
 from sqlfluff.core.parser import BaseSegment, NewlineSegment
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
@@ -133,7 +135,7 @@ class Rule_L036(BaseRule):
         ):
             # there is a newline between select and select target
             insert_buff = [
-                self.make_whitespace(raw=" "),
+                WhitespaceSegment(),
                 select_clause.segments[select_targets_info.first_select_target_idx],
                 NewlineSegment(),
             ]

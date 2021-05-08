@@ -25,8 +25,6 @@ from sqlfluff.core.parser import (
     KeywordSegment,
     BaseSegment,
     SymbolSegment,
-    WhitespaceSegment,
-    NewlineSegment,
 )
 from sqlfluff.core.errors import SQLLintError
 
@@ -436,11 +434,6 @@ class BaseRule:
         # Not directly in the segment and
         # no subsegments to check. Return None.
         return None
-
-    @classmethod
-    def make_whitespace(cls, raw):
-        """Make a whitespace segment."""
-        return WhitespaceSegment(raw=raw, pos_marker=None)
 
     @classmethod
     def make_keyword(cls, raw):

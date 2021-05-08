@@ -2,6 +2,8 @@
 
 from typing import NamedTuple, Optional, List
 
+from sqlfluff.core.parser import WhitespaceSegment
+
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
@@ -98,7 +100,7 @@ class Rule_L037(BaseRule):
             for col_info in orderby_spec:
                 if not col_info.order:
                     # Since ASC is default in SQL, add in ASC for fix
-                    new_whitespace = self.make_whitespace(raw=" ")
+                    new_whitespace = WhitespaceSegment()
                     new_keyword = self.make_keyword(raw="ASC")
                     order_lint_fix = LintFix(
                         "create", col_info.separator, [new_whitespace, new_keyword]

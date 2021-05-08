@@ -44,7 +44,11 @@ class StringParser(Matchable):
         """
         return [self.template]
 
-    def match(self, segments: Union[BaseSegment, Tuple[BaseSegment, ...]], parse_context: "ParseContext") -> MatchResult:
+    def match(
+        self,
+        segments: Union[BaseSegment, Tuple[BaseSegment, ...]],
+        parse_context: "ParseContext",
+    ) -> MatchResult:
         """Compare input segments for a match, return a `MatchResult`.
 
         Note: For matching here, we only consider the *first* element,

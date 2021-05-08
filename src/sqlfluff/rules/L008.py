@@ -1,5 +1,7 @@
 """Implementation of Rule L008."""
 
+from sqlfluff.core.parser import WhitespaceSegment
+
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
@@ -44,11 +46,11 @@ class Rule_L008(BaseRule):
         if cm2.name == "comma":
             # comma followed by something that isn't whitespace?
             if cm1.name not in ["whitespace", "newline"]:
-                ins = self.make_whitespace(raw=" ")
+                ins = WhitespaceSegment(raw=" ")
                 return LintResult(anchor=cm1, fixes=[LintFix("create", cm1, ins)])
             # comma followed by too much whitespace?
             if (cm1.raw != " " and cm1.name != "newline") and not segment.is_comment:
-                repl = self.make_whitespace(raw=" ")
+                repl = WhitespaceSegment(raw=" ")
                 return LintResult(anchor=cm1, fixes=[LintFix("edit", cm1, repl)])
         # Otherwise we're fine
         return None

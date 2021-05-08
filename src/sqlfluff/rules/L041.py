@@ -1,6 +1,6 @@
 """Implementation of Rule L040."""
 
-from sqlfluff.core.parser import NewlineSegment
+from sqlfluff.core.parser import NewlineSegment, WhitespaceSegment
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
@@ -54,7 +54,7 @@ class Rule_L041(BaseRule):
 
             # E.g.: " DISTINCT\n"
             replace_newline_with = [
-                self.make_whitespace(raw=" "),
+                WhitespaceSegment(),
                 select_modifier,
                 NewlineSegment(),
             ]

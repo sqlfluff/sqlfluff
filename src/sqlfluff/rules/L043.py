@@ -1,5 +1,7 @@
 """Implementation of Rule L043."""
 
+from sqlfluff.core.parser import WhitespaceSegment
+
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
@@ -92,7 +94,7 @@ class Rule_L043(BaseRule):
                 if then_bool_type == "FALSE":
                     not_space = [
                         self.make_keyword(raw="not"),
-                        self.make_whitespace(raw=" "),
+                        WhitespaceSegment(),
                     ]
                     edits.extend(not_space)
                 # Add coalesce and parenthesis
@@ -120,9 +122,7 @@ class Rule_L043(BaseRule):
                         raw=",",
                         seg_type="comma",
                     ),
-                    self.make_whitespace(
-                        raw=" ",
-                    ),
+                    WhitespaceSegment(),
                     self.make_keyword(
                         raw="false",
                     ),

@@ -1,5 +1,7 @@
 """Implementation of Rule L011."""
 
+from sqlfluff.core.parser import WhitespaceSegment
+
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
@@ -47,7 +49,7 @@ class Rule_L011(BaseRule):
 
                     # Add initial whitespace if we need to...
                     if raw_stack[-1].name not in ["whitespace", "newline"]:
-                        insert_buff.append(self.make_whitespace(raw=" "))
+                        insert_buff.append(WhitespaceSegment(raw=" "))
                         insert_str += " "
 
                     # Add an AS (Uppercase for now, but could be corrected later)
@@ -56,7 +58,7 @@ class Rule_L011(BaseRule):
 
                     # Add a trailing whitespace if we need to
                     if segment.segments[0].name not in ["whitespace", "newline"]:
-                        insert_buff.append(self.make_whitespace(raw=" "))
+                        insert_buff.append(WhitespaceSegment(raw=" "))
                         insert_str += " "
 
                     return LintResult(

@@ -3,6 +3,8 @@
 
 from typing import Tuple, List
 
+from sqlfluff.core.parser import WhitespaceSegment
+
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
@@ -157,7 +159,7 @@ class Rule_L006(BaseRule):
                                     "create",
                                     # NB the anchor here is always in the parent and not anchor
                                     anchor=sub_seg,
-                                    edit=self.make_whitespace(raw=" "),
+                                    edit=WhitespaceSegment(raw=" "),
                                 )
                             ],
                         )
@@ -182,7 +184,7 @@ class Rule_L006(BaseRule):
                                     "create",
                                     # NB the anchor here is always in the parent and not anchor
                                     anchor=next_seg,
-                                    edit=self.make_whitespace(raw=" "),
+                                    edit=WhitespaceSegment(raw=" "),
                                 )
                             ],
                         )

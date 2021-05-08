@@ -2,6 +2,8 @@
 
 from typing import Optional, List
 
+from sqlfluff.core.parser import WhitespaceSegment
+
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
@@ -68,7 +70,7 @@ class Rule_L023(BaseRule):
                                     LintFix(
                                         "create",
                                         seg,
-                                        [self.make_whitespace(raw=" ")],
+                                        [WhitespaceSegment()],
                                     )
                                 ]
                             else:
