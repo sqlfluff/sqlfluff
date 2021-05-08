@@ -35,6 +35,9 @@ class DbtTemplater(JinjaTemplater):
     def __init__(self, **kwargs):
         self.sqlfluff_config = None
         self.formatter = None
+        self.project_dir = None
+        self.profiles_dir = None
+        self.working_dir = os.getcwd()
         super().__init__(**kwargs)
 
     def config_pairs(self):
@@ -57,8 +60,8 @@ class DbtTemplater(JinjaTemplater):
 
         self.dbt_config = DbtRuntimeConfig.from_args(
             DbtConfigArgs(
-                project_dir=self._get_project_dir(),
-                profiles_dir=self._get_profiles_dir(),
+                project_dir=self.project_dir,
+                profiles_dir=self.profiles_dir,
                 profile=self._get_profile(),
             )
         )
@@ -222,27 +225,6 @@ class DbtTemplater(JinjaTemplater):
         except SQLTemplaterError as e:
             return None, [e]
 
-    def _get_selected_uids(self, fname):
-        """Get selected manifest unique identifiers.
-
-        Note: It is necessary to change into the dbt project_dir
-        because the dbt PathSelector method sets its root with Path.cwd()
-        """
-        included_nodes = self.dbt_manifest.nodes
-
-        working_dir = os.getcwd()
-        os.chdir(self._get_project_dir())
-        selected = list(
-            self.dbt_selector_method.search(
-                included_nodes=included_nodes,
-                # Selector needs to be a relative path
-                selector=os.path.relpath(fname, start=os.getcwd()),
-            )
-        )
-        os.chdir(working_dir)
-
-        return selected
-
     def _unsafe_process(self, fname, in_str=None, config=None):
         if not config:
             raise ValueError(
@@ -256,9 +238,18 @@ class DbtTemplater(JinjaTemplater):
             raise ValueError(
                 "The dbt templater does not support stdin input, provide a path instead"
             )
-        self.sqlfluff_config = config
 
-        selected = self._get_selected_uids(fname)
+        self.sqlfluff_config = config
+        self.project_dir = self._get_project_dir()
+        self.profiles_dir = self._get_profiles_dir()
+
+        os.chdir(self.project_dir)
+
+        selected = self.dbt_selector_method.search(
+            included_nodes=self.dbt_manifest.nodes,
+            # Selector needs to be a relative path
+            selector=os.path.relpath(fname, start=os.getcwd()),
+        )
 
         results = [self.dbt_manifest.expect(uid) for uid in selected]
 
@@ -277,6 +268,8 @@ class DbtTemplater(JinjaTemplater):
             node=results[0],
             manifest=self.dbt_manifest,
         )
+
+        os.chdir(self.working_dir)
 
         if hasattr(node, "injected_sql"):
             # If injected SQL is present, it contains a better picture
