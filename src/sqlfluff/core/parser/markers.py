@@ -20,10 +20,12 @@ class PositionMarker:
           to the original templated file.
         - It no longer explicitly stores a line number or line position in the
           source or template. This is extrapolated from the templated file as required.
-        - It optionally keeps track of the location of the position within
+        - Positions in the source and template are with slices and therefore identify
+          ranges.
+        - Positions within the fixed file are identified with a line number and line
+          position, which identify a point.
           the fixed file, this is as a combination of line number and line position.
         - Arithmetic comparisons are on the location in the fixed file.
-        - The use of a `statement_index` is deprecated as it was never used.
     """
 
     source_slice: slice
