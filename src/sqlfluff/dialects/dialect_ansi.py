@@ -82,6 +82,8 @@ ansi_dialect.set_lexer_matchers(
         RegexMatcher("single_quote", r"'([^'\\]|\\.)*'", CodeSegment),
         RegexMatcher("double_quote", r'"([^"\\]|\\.)*"', CodeSegment),
         RegexMatcher("back_quote", r"`[^`]*`", CodeSegment),
+        # See https://www.geeksforgeeks.org/postgresql-dollar-quoted-string-constants/
+        RegexMatcher("dollar_quote", r"\$(\w*)\$[^\1]*\$\1\$", CodeSegment),
         RegexMatcher(
             "numeric_literal", r"(\d+(\.\d+)?|\.\d+)([eE][+-]?\d+)?", CodeSegment
         ),
@@ -386,6 +388,9 @@ ansi_dialect.add(
         Ref("IntervalExpressionSegment"),
         Ref("ColumnReferenceSegment"),
         Ref("ExpressionSegment"),
+    ),
+    FilterClauseGrammar=Sequence(
+        "FILTER", Bracketed(Sequence("WHERE", Ref("ExpressionSegment")))
     ),
 )
 
@@ -728,12 +733,16 @@ ansi_dialect.add(
             OneOf(Ref("QuotedLiteralSegment"), Ref("SingleIdentifierGrammar")),
         ),
     ),
-    # Optional OVER suffix for window functions.
-    # This is supported in biquery & postgres (and its derivatives)
-    # and so is included here for now.
-    PostFunctionGrammar=Sequence(
-        Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
-        Ref("OverClauseSegment"),
+    PostFunctionGrammar=OneOf(
+        # Optional OVER suffix for window functions.
+        # This is supported in biquery & postgres (and its derivatives)
+        # and so is included here for now.
+        Sequence(
+            Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
+            Ref("OverClauseSegment"),
+        ),
+        # Filter clause supported by both Postgres and SQLite
+        Ref("FilterClauseGrammar"),
     ),
 )
 
