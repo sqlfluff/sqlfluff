@@ -68,6 +68,8 @@ postgres_dialect.replace(
             Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
             Ref("OverClauseSegment"),
         ),
+        # Filter clause supported by both Postgres and SQLite
+        Ref("FilterClauseGrammar"),
     ),
     BinaryOperatorGrammar=OneOf(
         Ref("ArithmeticBinaryOperatorGrammar"),
