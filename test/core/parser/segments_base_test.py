@@ -51,12 +51,10 @@ def test__parser__base_segments_raw(raw_seg):
     assert raw_seg.segments == []
     assert raw_seg.raw == "foobar"
     # Check Formatting and Stringification
-    # NOTE: The preceding underscore shouldn't be there
-    # but it's added by .make(). Revisit later.
     assert (
         str(raw_seg)
         == repr(raw_seg)
-        == "<_RawSegment: ([C:   0, L:  1, P:  1]) 'foobar'>"
+        == "<CodeSegment: ([C:   0, L:  1, P:  1]) 'foobar'>"
     )
     assert (
         raw_seg.stringify(ident=1, tabsize=2)

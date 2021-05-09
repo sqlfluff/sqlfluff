@@ -3,7 +3,7 @@
 import pytest
 import logging
 
-from sqlfluff.core.parser import KeywordSegment, ReSegment
+from sqlfluff.core.parser import KeywordSegment, ReSegment, StringParser, SymbolSegment
 from sqlfluff.core.parser.context import RootParseContext
 from sqlfluff.core.parser.segments import EphemeralSegment
 from sqlfluff.core.parser.grammar.base import BaseGrammar
@@ -30,7 +30,7 @@ def make_result_tuple(result_slice, matcher_keywords, seg_list):
         return ()
 
     return tuple(
-        KeywordSegment.make(elem.raw)(elem.raw, elem.pos_marker)
+        KeywordSegment(elem.raw, pos_marker=elem.pos_marker)
         if elem.raw in matcher_keywords
         else elem
         for elem in seg_list[result_slice]
@@ -55,7 +55,7 @@ def test__parser__grammar__base__longest_trimmed_match__basic(
 ):
     """Test the _longest_trimmed_match method of the BaseGrammar."""
     # Make the matcher keywords
-    matchers = [KeywordSegment.make(keyword) for keyword in matcher_keywords]
+    matchers = [StringParser(keyword, KeywordSegment) for keyword in matcher_keywords]
 
     with RootParseContext(dialect=None) as ctx:
         m, _ = BaseGrammar._longest_trimmed_match(
@@ -74,8 +74,8 @@ def test__parser__grammar__base__longest_trimmed_match__basic(
 
 def test__parser__grammar__base__longest_trimmed_match__adv(seg_list, caplog):
     """Test the _longest_trimmed_match method of the BaseGrammar."""
-    bs = KeywordSegment.make("bar")
-    fs = KeywordSegment.make("foo")
+    bs = StringParser("bar", KeywordSegment)
+    fs = StringParser("foo", KeywordSegment)
     matchers = [
         bs,
         fs,
@@ -83,8 +83,6 @@ def test__parser__grammar__base__longest_trimmed_match__adv(seg_list, caplog):
         OneOf(bs, fs),
         Sequence(bs, fs),  # Another to check we return the first
     ]
-    fs = KeywordSegment.make("foo")
-    bs = KeywordSegment.make("bar")
     with RootParseContext(dialect=None) as ctx:
         # Matching the first element of the list
         with caplog.at_level(logging.DEBUG, logger="sqluff.parser"):
@@ -116,7 +114,7 @@ def test__parser__grammar__base__look_ahead_match(
 ):
     """Test the _look_ahead_match method of the BaseGrammar."""
     # Make the matcher keywords
-    matchers = [KeywordSegment.make(keyword) for keyword in matcher_keywords]
+    matchers = [StringParser(keyword, KeywordSegment) for keyword in matcher_keywords]
     # Fetch the matching keyword from above by index
     winning_matcher = matchers[matcher_keywords.index(winning_matcher)]
 
@@ -174,8 +172,8 @@ def test__parser__grammar__base__bracket_sensitive_look_ahead_match(
     bracket_seg_list, fresh_ansi_dialect
 ):
     """Test the _bracket_sensitive_look_ahead_match method of the BaseGrammar."""
-    fs = KeywordSegment.make("foo")
-    bs = KeywordSegment.make("bar")
+    bs = StringParser("bar", KeywordSegment)
+    fs = StringParser("foo", KeywordSegment)
     # We need a dialect here to do bracket matching
     with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
         # Basic version, we should find bar first
@@ -185,7 +183,7 @@ def test__parser__grammar__base__bracket_sensitive_look_ahead_match(
         assert pre_section == ()
         assert matcher == bs
         # NB the middle element is a match object
-        assert match.matched_segments == (bs("bar", bracket_seg_list[0].pos_marker),)
+        assert match.matched_segments == (KeywordSegment("bar", bracket_seg_list[0].pos_marker),)
 
         # Look ahead for foo, we should find the one AFTER the brackets, not the
         # on IN the brackets.
@@ -196,7 +194,7 @@ def test__parser__grammar__base__bracket_sensitive_look_ahead_match(
         assert len(pre_section) == 8
         assert matcher == fs
         # We shouldn't match the whitespace with the keyword
-        assert match.matched_segments == (fs("foo", bracket_seg_list[8].pos_marker),)
+        assert match.matched_segments == (KeywordSegment("foo", bracket_seg_list[8].pos_marker),)
 
 
 def test__parser__grammar__base__bracket_fail_with_open_paren_close_square_mismatch(
@@ -207,7 +205,7 @@ def test__parser__grammar__base__bracket_fail_with_open_paren_close_square_misma
     Should fail when the type of a close bracket doesn't match the type of the
     corresponding open bracket, but both are "definite" brackets.
     """
-    fs = KeywordSegment.make("foo")
+    fs = StringParser("foo", KeywordSegment)
     # We need a dialect here to do bracket matching
     with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
         # Basic version, we should find bar first
@@ -249,8 +247,8 @@ def test__parser__grammar__ref_eq():
 
 def test__parser__grammar__oneof__copy():
     """Test grammar copying."""
-    fs = KeywordSegment.make("foo")
-    bs = KeywordSegment.make("bar")
+    bs = StringParser("bar", KeywordSegment)
+    fs = StringParser("foo", KeywordSegment)
     g1 = OneOf(fs, bs)
     # Check copy
     g2 = g1.copy()
@@ -274,13 +272,13 @@ def test__parser__grammar_oneof(seg_list, allow_gaps):
     NB: Should behave the same regardless of code_only.
 
     """
-    fs = KeywordSegment.make("foo")
-    bs = KeywordSegment.make("bar")
+    bs = StringParser("bar", KeywordSegment)
+    fs = StringParser("foo", KeywordSegment)
     g = OneOf(fs, bs, allow_gaps=allow_gaps)
     with RootParseContext(dialect=None) as ctx:
         # Check directly
         assert g.match(seg_list, parse_context=ctx).matched_segments == (
-            bs("bar", seg_list[0].pos_marker),
+            KeywordSegment("bar", seg_list[0].pos_marker),
         )
         # Check with a bit of whitespace
         assert not g.match(seg_list[1:], parse_context=ctx)
@@ -292,8 +290,8 @@ def test__parser__grammar_oneof_templated(seg_list):
     NB: Should behave the same regardless of code_only.
 
     """
-    fs = KeywordSegment.make("foo")
-    bs = KeywordSegment.make("bar")
+    bs = StringParser("bar", KeywordSegment)
+    fs = StringParser("foo", KeywordSegment)
     g = OneOf(fs, bs)
     with RootParseContext(dialect=None) as ctx:
         # This shouldn't match, but it *ALSO* shouldn't raise an exception.
@@ -303,8 +301,8 @@ def test__parser__grammar_oneof_templated(seg_list):
 
 def test__parser__grammar_oneof_exclude(seg_list):
     """Test the OneOf grammar exclude option."""
-    fs = KeywordSegment.make("foo")
-    bs = KeywordSegment.make("bar")
+    bs = StringParser("bar", KeywordSegment)
+    fs = StringParser("foo", KeywordSegment)
     g = OneOf(bs, exclude=Sequence(bs, fs))
     with RootParseContext(dialect=None) as ctx:
         # Just against the first alone
@@ -316,12 +314,8 @@ def test__parser__grammar_oneof_exclude(seg_list):
 def test__parser__grammar_oneof_take_longest_match(seg_list):
     """Test that the OneOf grammar takes the longest match."""
     fooRegex = ReSegment.make(r"fo{2}")
-    baar = KeywordSegment.make(
-        "baar",
-    )
-    foo = KeywordSegment.make(
-        "foo",
-    )
+    baar = StringParser("baar", KeywordSegment)
+    foo = StringParser("foo", KeywordSegment)
     fooBaar = Sequence(
         foo,
         baar,
@@ -335,17 +329,15 @@ def test__parser__grammar_oneof_take_longest_match(seg_list):
             fooRegex("foo", seg_list[2].pos_marker),
         )
         assert g.match(seg_list[2:], parse_context=ctx).matched_segments == (
-            foo("foo", seg_list[2].pos_marker),
-            baar("baar", seg_list[3].pos_marker),
+            KeywordSegment("foo", seg_list[2].pos_marker),
+            KeywordSegment("baar", seg_list[3].pos_marker),
         )
 
 
 def test__parser__grammar_oneof_take_first(seg_list):
     """Test that the OneOf grammar takes first match in case they are of same length."""
     fooRegex = ReSegment.make(r"fo{2}")
-    foo = KeywordSegment.make(
-        "foo",
-    )
+    foo = StringParser("foo", KeywordSegment)
 
     # Both segments would match "foo"
     # so we test that order matters
@@ -356,7 +348,7 @@ def test__parser__grammar_oneof_take_first(seg_list):
             fooRegex("foo", seg_list[2].pos_marker),
         )
         assert g2.match(seg_list[2:], parse_context=ctx).matched_segments == (
-            foo("foo", seg_list[2].pos_marker),
+            KeywordSegment("foo", seg_list[2].pos_marker),
         )
 
 
@@ -371,7 +363,7 @@ def test__parser__grammar_startswith_a(
     keyword, match_truthy, seg_list, fresh_ansi_dialect, caplog
 ):
     """Test the StartsWith grammar simply."""
-    Keyword = KeywordSegment.make(keyword)
+    Keyword = StringParser(keyword, KeywordSegment)
     grammar = StartsWith(Keyword)
     with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
         with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
@@ -391,8 +383,8 @@ def test__parser__grammar_startswith_b(
     include_terminator, match_length, seg_list, fresh_ansi_dialect, caplog
 ):
     """Test the StartsWith grammar with a terminator (included & exluded)."""
-    baar = KeywordSegment.make("baar")
-    bar = KeywordSegment.make("bar")
+    baar = StringParser("baar", KeywordSegment)
+    bar = StringParser("bar", KeywordSegment)
     grammar = StartsWith(bar, terminator=baar, include_terminator=include_terminator)
     with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
         with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
@@ -402,8 +394,8 @@ def test__parser__grammar_startswith_b(
 
 def test__parser__grammar_sequence(seg_list, caplog):
     """Test the Sequence grammar."""
-    fs = KeywordSegment.make("foo")
-    bs = KeywordSegment.make("bar")
+    bs = StringParser("bar", KeywordSegment)
+    fs = StringParser("foo", KeywordSegment)
     g = Sequence(bs, fs)
     gc = Sequence(bs, fs, allow_gaps=False)
     with RootParseContext(dialect=None) as ctx:
@@ -414,9 +406,9 @@ def test__parser__grammar_sequence(seg_list, caplog):
             assert m
             assert len(m) == 3
             assert m.matched_segments == (
-                bs("bar", seg_list[0].pos_marker),
+                KeywordSegment("bar", seg_list[0].pos_marker),
                 seg_list[1],  # This will be the whitespace segment
-                fs("foo", seg_list[2].pos_marker),
+                KeywordSegment("foo", seg_list[2].pos_marker),
             )
             # Shouldn't with the allow_gaps matcher
             logging.info("#### TEST 2")
@@ -428,9 +420,9 @@ def test__parser__grammar_sequence(seg_list, caplog):
 
 def test__parser__grammar_sequence_nested(seg_list, caplog):
     """Test the Sequence grammar when nested."""
-    fs = KeywordSegment.make("foo")
-    bs = KeywordSegment.make("bar")
-    bas = KeywordSegment.make("baar")
+    bs = StringParser("bar", KeywordSegment)
+    fs = StringParser("foo", KeywordSegment)
+    bas = StringParser("baar", KeywordSegment)
     g = Sequence(Sequence(bs, fs), bas)
     with RootParseContext(dialect=None) as ctx:
         with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
@@ -440,10 +432,10 @@ def test__parser__grammar_sequence_nested(seg_list, caplog):
             # Matching the whole list should, and the result should be flat
             logging.info("#### TEST 2")
             assert g.match(seg_list, parse_context=ctx).matched_segments == (
-                bs("bar", seg_list[0].pos_marker),
+                KeywordSegment("bar", seg_list[0].pos_marker),
                 seg_list[1],  # This will be the whitespace segment
-                fs("foo", seg_list[2].pos_marker),
-                bas("baar", seg_list[3].pos_marker)
+                KeywordSegment("foo", seg_list[2].pos_marker),
+                KeywordSegment("baar", seg_list[3].pos_marker)
                 # NB: No whitespace at the end, this shouldn't be consumed.
             )
 
@@ -483,8 +475,8 @@ def test__parser__grammar_delimited(
     """Test the Delimited grammar when not code_only."""
     seg_list = generate_test_segments(token_list)
     g = Delimited(
-        KeywordSegment.make("bar"),
-        delimiter=KeywordSegment.make(".", name="dot"),
+        StringParser("bar", KeywordSegment),
+        delimiter=StringParser(".", SymbolSegment, name="dot"),
         allow_gaps=allow_gaps,
         allow_trailing=allow_trailing,
         min_delimiters=min_delimiters,
@@ -514,7 +506,7 @@ def test__parser__grammar_greedyuntil(
 ):
     """Test the GreedyUntil grammar."""
     grammar = GreedyUntil(
-        KeywordSegment.make(keyword),
+        StringParser(keyword, KeywordSegment),
         enforce_whitespace_preceeding_terminator=enforce_ws,
     )
     with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
@@ -526,7 +518,7 @@ def test__parser__grammar_greedyuntil(
 
 def test__parser__grammar_greedyuntil_bracketed(bracket_seg_list, fresh_ansi_dialect):
     """Test the GreedyUntil grammar with brackets."""
-    fs = KeywordSegment.make("foo")
+    fs = StringParser("foo", KeywordSegment)
     g = GreedyUntil(fs)
     with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
         # Check that we can make it past the brackets

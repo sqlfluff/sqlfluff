@@ -14,6 +14,10 @@ from sqlfluff.core.parser.segments import RawSegment, BaseSegment
 class StringParser(Matchable):
     """An object which matches and returns raw segments based on strings."""
 
+    # Meta segments are handled seperately. All StringParser elements
+    # are assumed to be not meta.
+    is_meta = False
+
     def __init__(
         self,
         template: str,
