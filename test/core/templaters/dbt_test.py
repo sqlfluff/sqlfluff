@@ -7,14 +7,14 @@ import logging
 from sqlfluff.core import FluffConfig, Lexer, Linter
 from sqlfluff.core.errors import SQLTemplaterSkipFile
 from sqlfluff.core.templaters.dbt import DbtTemplater
-from test.fixtures.dbt.templater import (  # noqa
+from test.fixtures.dbt.templater import (
     DBT_FLUFF_CONFIG,
     dbt_templater,
     project_dir
 )
 
 @pytest.mark.dbt
-def test__templater_dbt_missing(dbt_templater):  # noqa
+def test__templater_dbt_missing(dbt_templater):  
     """Check that a nice error is returned when dbt module is missing."""
     try:
         import dbt  # noqa: F401
@@ -32,7 +32,7 @@ def test__templater_dbt_missing(dbt_templater):  # noqa
 
 
 @pytest.mark.dbt
-def test__templater_dbt_profiles_dir_expanded(dbt_templater):  # noqa
+def test__templater_dbt_profiles_dir_expanded(dbt_templater):  
     """Check that the profiles_dir is expanded."""
     dbt_templater.sqlfluff_config = FluffConfig(
         configs={"templater": {"dbt": {"profiles_dir": "~/.dbt"}}}
@@ -56,7 +56,7 @@ def test__templater_dbt_profiles_dir_expanded(dbt_templater):  # noqa
 )
 @pytest.mark.dbt
 def test__templater_dbt_templating_result(
-    dbt_templater, fname  # noqa
+    dbt_templater, fname
 ):
     """Test that input sql file gets templated into output sql file."""
     templated_file, _ = dbt_templater.process(
@@ -107,7 +107,7 @@ def test__templater_dbt_slice_file_wrapped_test(
 )
 @pytest.mark.dbt
 def test__templater_dbt_templating_test_lex(
-    project_dir, dbt_templater, fname  # noqa
+    project_dir, dbt_templater, fname
 ):
     """A test to demonstrate the lexer works on both dbt models (with any # of trailing newlines) and dbt tests."""
     source_fpath = os.path.join(project_dir,fname)
@@ -132,7 +132,7 @@ def test__templater_dbt_templating_test_lex(
 
 
 @pytest.mark.dbt
-def test__templater_dbt_skips_disabled_model(dbt_templater):  # noqa
+def test__templater_dbt_skips_disabled_model(dbt_templater):
     """A disabled dbt model should be skipped."""
     with pytest.raises(SQLTemplaterSkipFile, match=r"model was disabled"):
         dbt_templater.process(
@@ -165,10 +165,9 @@ def test__dbt_templated_models_do_not_raise_lint_error(
 
 @pytest.mark.dbt
 def test__templater_dbt_templating_absolute_path(
-    dbt_templater  # noqa
+    project_dir, dbt_templater
 ):
     """Test that absolute path of input path does not cause RuntimeError."""
-    project_dir = DBT_FLUFF_CONFIG["templater"]["dbt"]["project_dir"]
     try:
         dbt_templater.process(
             in_str="",
@@ -191,13 +190,13 @@ def test__templater_dbt_templating_absolute_path(
 )
 @pytest.mark.dbt
 def test__templater_dbt_handle_exceptions(
-    in_dbt_project_dir, dbt_templater, fname, exception_msg  # noqa
+    project_dir, dbt_templater, fname, exception_msg
 ):
     """Test that exceptions during compilation are returned as violation."""
     from dbt.adapters.factory import get_adapter
 
-    src_fpath = "../dbt/error_models/" + fname
-    target_fpath = "models/my_new_project/" + fname
+    src_fpath = "test/fixtures/dbt/error_models/" + fname
+    target_fpath = os.path.abspath(os.path.join(project_dir, "models/my_new_project/", fname))
     # We move the file that throws an error in and out of the project directory
     # as dbt throws an error if a node fails to parse while computing the DAG
     os.rename(src_fpath, target_fpath)
