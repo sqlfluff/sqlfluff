@@ -38,7 +38,7 @@ class Rule_L023(BaseRule):
     """
 
     expected_mother_segment_type = "with_compound_statement"
-    pre_segment_identifier = ("name", "AS")
+    pre_segment_identifier = ("name", "as")
     post_segment_identifier = ("type", "start_bracket")
     allow_newline = False
     expand_children: Optional[List[str]] = ["common_table_expression"]

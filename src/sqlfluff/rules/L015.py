@@ -37,7 +37,7 @@ class Rule_L015(BaseRule):
         # We only trigger when "DISTINCT" is the immediate parent of an
         # expression that begins with start_bracket.
         raw_stack_filtered = self.filter_meta(raw_stack)
-        if raw_stack_filtered and raw_stack_filtered[-1].name == "DISTINCT":
+        if raw_stack_filtered and raw_stack_filtered[-1].name == "distinct":
             if segment.type == "expression":
                 segments_filtered = self.filter_meta(segment.segments)
                 if segments_filtered and segments_filtered[0].type == "start_bracket":

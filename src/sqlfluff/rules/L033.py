@@ -1,6 +1,6 @@
 """Implementation of Rule L033."""
 
-from sqlfluff.core.parser import WhitespaceSegment
+from sqlfluff.core.parser import WhitespaceSegment, KeywordSegment
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 
@@ -37,17 +37,18 @@ class Rule_L033(BaseRule):
             if "UNION" in segment.raw.upper() and not (
                 "ALL" in segment.raw.upper() or "DISTINCT" in segment.raw.upper()
             ):
-                union = self.make_keyword(
-                    raw="UNION",
-                )
-                ins = WhitespaceSegment()
-                distinct = self.make_keyword(
-                    raw="DISTINCT",
-                )
                 return LintResult(
                     anchor=segment,
                     fixes=[
-                        LintFix("edit", segment.segments[0], [union, ins, distinct])
+                        LintFix(
+                            "edit",
+                            segment.segments[0],
+                            [
+                                KeywordSegment("UNION"),
+                                WhitespaceSegment(),
+                                KeywordSegment("DISTINCT"),
+                            ],
+                        )
                     ],
                 )
         return LintResult()

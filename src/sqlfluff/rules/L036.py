@@ -69,7 +69,7 @@ class Rule_L036(BaseRule):
                 select_targets.append(seg)
                 if first_select_target_idx == -1:
                     first_select_target_idx = fname_idx
-            if seg.is_type("keyword") and seg.name == "SELECT" and select_idx == -1:
+            if seg.is_type("keyword") and seg.name == "select" and select_idx == -1:
                 select_idx = fname_idx
             if seg.is_type("newline") and first_new_line_idx == -1:
                 first_new_line_idx = fname_idx

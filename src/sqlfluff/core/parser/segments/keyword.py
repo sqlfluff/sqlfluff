@@ -15,6 +15,7 @@ import re
 from typing import Optional, List
 
 from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.context import ParseContext
 
@@ -85,6 +86,19 @@ class KeywordSegment(_ProtoKeywordSegment):
     """
 
     type = "keyword"
+
+    def __init__(
+        self,
+        raw: Optional[str] = None,
+        pos_marker: Optional[PositionMarker] = None,
+        type: Optional[str] = None,
+        name: Optional[str] = None,
+    ):
+        """If no other name is provided we extrapolate it from the raw."""
+        if raw and not name:
+            # names are all lowercase by convention.
+            name = raw.lower()
+        super().__init__(raw=raw, pos_marker=pos_marker, type=type, name=name)
 
 
 class SymbolSegment(_ProtoKeywordSegment):

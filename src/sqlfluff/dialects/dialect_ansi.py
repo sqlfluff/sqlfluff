@@ -280,9 +280,15 @@ ansi_dialect.add(
         "numeric_literal", name="numeric_literal", type="literal"
     ),
     # NullSegment is defined seperately to the keyword so we can give it a different type
-    NullLiteralSegment=KeywordSegment.make("null", name="null_literal", type="literal"),
-    TrueSegment=KeywordSegment.make("true", name="boolean_literal", type="literal"),
-    FalseSegment=KeywordSegment.make("false", name="boolean_literal", type="literal"),
+    NullLiteralSegment=StringParser(
+        "null", KeywordSegment, name="null_literal", type="literal"
+    ),
+    TrueSegment=StringParser(
+        "true", KeywordSegment, name="boolean_literal", type="literal"
+    ),
+    FalseSegment=StringParser(
+        "false", KeywordSegment, name="boolean_literal", type="literal"
+    ),
     # We use a GRAMMAR here not a Segment. Otherwise we get an unnecessary layer
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"), Ref("QuotedIdentifierSegment")

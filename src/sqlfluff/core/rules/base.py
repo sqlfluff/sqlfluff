@@ -21,11 +21,7 @@ import re
 from typing import Optional, List, Tuple, TYPE_CHECKING
 from collections import namedtuple
 
-from sqlfluff.core.parser import (
-    KeywordSegment,
-    BaseSegment,
-    SymbolSegment,
-)
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.errors import SQLLintError
 
 if TYPE_CHECKING:
@@ -434,14 +430,6 @@ class BaseRule:
         # Not directly in the segment and
         # no subsegments to check. Return None.
         return None
-
-    @classmethod
-    def make_keyword(cls, raw):
-        """Make a keyword segment."""
-        # For the name of the segment, we force the string to lowercase.
-        kws = KeywordSegment.make(raw.lower())
-        # At the moment we let the rule dictate *case* here.
-        return kws(raw=raw, pos_marker=None)
 
     @staticmethod
     def matches_target_tuples(seg: BaseSegment, target_tuples: List[Tuple[str, str]]):
