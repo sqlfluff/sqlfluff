@@ -9,8 +9,7 @@ from sqlfluff.core.errors import SQLTemplaterSkipFile
 from sqlfluff.core.templaters.dbt import DbtTemplater
 from test.fixtures.dbt.templater import (  # noqa
     DBT_FLUFF_CONFIG,
-    dbt_templater,
-    in_dbt_project_dir,
+    dbt_templater
 )
 
 
@@ -56,7 +55,7 @@ def test__templater_dbt_profiles_dir_expanded(dbt_templater):  # noqa
 )
 @pytest.mark.dbt
 def test__templater_dbt_templating_result(
-    in_dbt_project_dir, dbt_templater, fname  # noqa
+    dbt_templater, fname  # noqa
 ):
     """Test that input sql file gets templated into output sql file."""
     templated_file, _ = dbt_templater.process(
@@ -64,7 +63,7 @@ def test__templater_dbt_templating_result(
         fname="models/my_new_project/" + fname,
         config=FluffConfig(configs=DBT_FLUFF_CONFIG),
     )
-    assert str(templated_file) == open("../dbt/" + fname).read()
+    assert str(templated_file) == open("test/fixtures/dbt/" + fname).read()
 
 
 @pytest.mark.dbt
