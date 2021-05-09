@@ -9,7 +9,8 @@ from sqlfluff.core.errors import SQLTemplaterSkipFile
 from sqlfluff.core.templaters.dbt import DbtTemplater
 from test.fixtures.dbt.templater import (  # noqa
     DBT_FLUFF_CONFIG,
-    dbt_templater
+    dbt_templater,
+    project_dir
 )
 
 @pytest.mark.dbt
@@ -106,10 +107,9 @@ def test__templater_dbt_slice_file_wrapped_test(
 )
 @pytest.mark.dbt
 def test__templater_dbt_templating_test_lex(
-    dbt_templater, fname  # noqa
+    project_dir, dbt_templater, fname  # noqa
 ):
     """A test to demonstrate the lexer works on both dbt models (with any # of trailing newlines) and dbt tests."""
-    project_dir = DBT_FLUFF_CONFIG["templater"]["dbt"]["project_dir"]
     source_fpath = os.path.join(project_dir,fname)
     with open(source_fpath, "r") as source_dbt_model:
         source_dbt_sql = source_dbt_model.read()
@@ -153,10 +153,9 @@ def test__templater_dbt_skips_disabled_model(dbt_templater):  # noqa
 )
 @pytest.mark.dbt
 def test__dbt_templated_models_do_not_raise_lint_error(
-    fname  
+    project_dir, fname  
 ):
     """Test that templated dbt models do not raise a linting error."""
-    project_dir = DBT_FLUFF_CONFIG["templater"]["dbt"]["project_dir"]
     lntr = Linter(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
     lnt = lntr.lint_path(path=os.path.join(project_dir,"models/my_new_project/",fname))
     violations = lnt.check_tuples()
@@ -166,13 +165,14 @@ def test__dbt_templated_models_do_not_raise_lint_error(
 
 @pytest.mark.dbt
 def test__templater_dbt_templating_absolute_path(
-    in_dbt_project_dir, dbt_templater  # noqa
+    dbt_templater  # noqa
 ):
     """Test that absolute path of input path does not cause RuntimeError."""
+    project_dir = DBT_FLUFF_CONFIG["templater"]["dbt"]["project_dir"]
     try:
         dbt_templater.process(
             in_str="",
-            fname=os.path.abspath("models/my_new_project/use_var.sql"),
+            fname=os.path.abspath(os.path.join(project_dir,"models/my_new_project/use_var.sql")),
             config=FluffConfig(configs=DBT_FLUFF_CONFIG),
         )
     except Exception as e:

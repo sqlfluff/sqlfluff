@@ -18,6 +18,9 @@ DBT_FLUFF_CONFIG = {
     },
 }
 
+@pytest.fixture()
+def project_dir():
+    return DBT_FLUFF_CONFIG["templater"]["dbt"]["project_dir"]
 
 @pytest.fixture()
 def dbt_templater():
