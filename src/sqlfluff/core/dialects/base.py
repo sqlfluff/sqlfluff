@@ -85,7 +85,7 @@ class Dialect:
             for kw in expanded_copy.sets(keyword_set):
                 n = kw.capitalize() + "KeywordSegment"
                 if n not in expanded_copy._library:
-                    expanded_copy._library[n] = KeywordSegment.make(kw.lower())
+                    expanded_copy._library[n] = StringParser(kw.lower(), KeywordSegment)
         expanded_copy.expanded = True
         return expanded_copy
 
@@ -164,7 +164,7 @@ class Dialect:
         defined using `make`. Segments are passed in as kwargs.
 
         e.g.
-        dialect.add(SomeSegment=KeywordSegment.make(blah, blah, blah))
+        dialect.add(SomeSegment=StringParser("blah", KeywordSegment))
 
         Note that multiple segments can be added in the same call as this method
         will iterate through the kwargs

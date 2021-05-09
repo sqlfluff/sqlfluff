@@ -24,6 +24,7 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     RegexLexer,
     CodeSegment,
+    NamedParser,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -160,8 +161,12 @@ class SelectClauseSegment(ansi_dialect.get_segment("SelectClauseSegment")):  # t
 
 
 bigquery_dialect.replace(
-    QuotedIdentifierSegment=NamedSegment.make(
-        "back_quote", name="quoted_identifier", type="identifier", trim_chars=("`",)
+    QuotedIdentifierSegment=NamedParser(
+        "back_quote",
+        CodeSegment,
+        name="quoted_identifier",
+        type="identifier",
+        trim_chars=("`",),
     ),
     # Add two elements to the ansi LiteralGrammar
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(

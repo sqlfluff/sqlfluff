@@ -77,9 +77,6 @@ class BaseSegment:
     # Can we allow it to be empty? Usually used in combination
     # with the can_start_end_non_code.
     allow_empty = False
-    # What should we trim off the ends to get to content
-    trim_chars = None
-    trim_start = None
     # A cache variable for expandable
     _is_expandable = None
 

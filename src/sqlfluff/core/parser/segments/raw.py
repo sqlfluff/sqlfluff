@@ -4,7 +4,7 @@ This is designed to be the root segment, without
 any children, and the output of the lexer.
 """
 
-from typing import Optional
+from typing import Optional, Tuple
 
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.markers import PositionMarker
@@ -27,6 +27,8 @@ class RawSegment(BaseSegment):
         pos_marker: Optional[PositionMarker] = None,
         type: Optional[str] = None,
         name: Optional[str] = None,
+        trim_start: Optional[Tuple[str, ...]] = None,
+        trim_chars: Optional[Tuple[str, ...]] = None,
     ):
         """Initialise raw segment.
 
@@ -44,6 +46,9 @@ class RawSegment(BaseSegment):
         # if a surrogate type is provided, store it for later.
         self._surrogate_type = type
         self._surrogate_name = name
+        # What should we trim off the ends to get to content
+        self.trim_start = trim_start
+        self.trim_chars = trim_chars
 
     def __repr__(self):
         return "<{0}: ({1}) {2!r}>".format(

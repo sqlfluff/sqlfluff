@@ -44,9 +44,7 @@ class TemplateElement(NamedTuple):
 
     def to_segment(self, pos_marker):
         """Create a segment from this lexed element."""
-        # TODO: Review whether this is sensible later in refactor.
-        SegmentClass = self.matcher._make_segment_class()
-        return SegmentClass(self.raw, pos_marker)
+        return self.matcher.construct_segment(self.raw, pos_marker=pos_marker)
 
 
 class LexMatch(NamedTuple):
@@ -209,11 +207,10 @@ class StringLexer:
         else:
             return LexMatch(forward_string, [])
 
-    def _make_segment_class(self):
-        # NOTE: Stub method to override later.
-        # THIS NEEDS REFACTORING WITH FACTORIES
-        return self.segment_class.make(
-            self.template, name=self.name, **self.segment_kwargs
+    def construct_segment(self, raw, pos_marker):
+        """Construct a segment using the given class a properties."""
+        return self.segment_class(
+            raw=raw, pos_marker=pos_marker, name=self.name, **self.segment_kwargs
         )
 
 
@@ -273,7 +270,6 @@ class Lexer:
             "<unlexable>",
             r"[^\t\n\,\.\ \-\+\*\\\/\'\"\;\:\[\]\(\)\|]*",
             UnlexableSegment,
-            segment_kwargs={"is_code": True},
         )
 
     def lex(
