@@ -205,7 +205,12 @@ class DbtTemplater(JinjaTemplater):
             FailedToConnectException as DbtFailedToConnectException,
         )
 
+        self.sqlfluff_config = config
+        self.project_dir = self._get_project_dir()
+        self.profiles_dir = self._get_profiles_dir()
+
         try:
+            os.chdir(self.project_dir)
             return self._unsafe_process(fname, in_str, config)
         except DbtCompilationException as e:
             return None, [
@@ -224,6 +229,8 @@ class DbtTemplater(JinjaTemplater):
         # If a SQLFluff error is raised, just pass it through
         except SQLTemplaterError as e:
             return None, [e]
+        finally:
+            os.chdir(self.working_dir)
 
     def _unsafe_process(self, fname, in_str=None, config=None):
         if not config:
@@ -238,12 +245,6 @@ class DbtTemplater(JinjaTemplater):
             raise ValueError(
                 "The dbt templater does not support stdin input, provide a path instead"
             )
-
-        self.sqlfluff_config = config
-        self.project_dir = self._get_project_dir()
-        self.profiles_dir = self._get_profiles_dir()
-
-        os.chdir(self.project_dir)
 
         selected = self.dbt_selector_method.search(
             included_nodes=self.dbt_manifest.nodes,
@@ -268,8 +269,6 @@ class DbtTemplater(JinjaTemplater):
             node=results[0],
             manifest=self.dbt_manifest,
         )
-
-        os.chdir(self.working_dir)
 
         if hasattr(node, "injected_sql"):
             # If injected SQL is present, it contains a better picture
