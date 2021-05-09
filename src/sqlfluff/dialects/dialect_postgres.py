@@ -58,6 +58,9 @@ postgres_dialect.add(
     JsonOperatorSegment=NamedSegment.make(
         "json_operator", name="json_operator", type="binary_operator"
     ),
+    DollarQuotedLiteralSegment=NamedSegment.make(
+        "dollar_quote", name="dollar_quoted_literal", type="literal"
+    ),
 )
 
 
@@ -80,6 +83,22 @@ postgres_dialect.replace(
         Ref("JsonOperatorSegment"),
     ),
 )
+
+
+@postgres_dialect.segment(replace=True)
+class FunctionDefinitionGrammar(BaseSegment):
+    """This is the body of a `CREATE FUNCTION AS` statement."""
+
+    match_grammar = Sequence(
+        "AS",
+        OneOf(Ref("QuotedLiteralSegment"), Ref("DollarQuotedLiteralSegment")),
+        Sequence(
+            "LANGUAGE",
+            # Not really a parameter, but best fit for now.
+            Ref("ParameterNameSegment"),
+            optional=True,
+        ),
+    )
 
 
 @postgres_dialect.segment(replace=True)
