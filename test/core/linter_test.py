@@ -1,6 +1,7 @@
 """The Test file for the linter class."""
 
 import pytest
+import os
 from typing import List
 from unittest.mock import patch
 
@@ -9,7 +10,7 @@ from sqlfluff.core.errors import SQLBaseError, SQLLintError, SQLParseError
 from sqlfluff.core.linter import LintingResult, NoQaDirective
 import sqlfluff.core.linter as linter
 from sqlfluff.core.parser import FilePositionMarker
-from test.fixtures.dbt.templater import in_dbt_project_dir  # noqa
+from test.fixtures.dbt.templater import DBT_FLUFF_CONFIG, project_dir
 
 
 class DummyLintError(SQLBaseError):
@@ -524,11 +525,12 @@ def test_linter_noqa_with_templating():
 
 
 @pytest.mark.dbt
-def test__linter__skip_dbt_model_disabled(in_dbt_project_dir):  # noqa
+def test__linter__skip_dbt_model_disabled(project_dir):  # noqa
     """Test that the linter skips disabled dbt models."""
-    conf = FluffConfig(configs={"core": {"templater": "dbt"}})
+    conf = FluffConfig(configs=DBT_FLUFF_CONFIG)
     lntr = Linter(config=conf)
-    linted_path = lntr.lint_path(path="models/my_new_project/disabled_model.sql")
+    model_file_path = os.path.join(project_dir, "models/my_new_project/disabled_model.sql")
+    linted_path = lntr.lint_path(path=model_file_path)
     linted_file = linted_path.files[0]
-    assert linted_file.path == "models/my_new_project/disabled_model.sql"
+    assert linted_file.path == model_file_path
     assert not linted_file.templated_file
