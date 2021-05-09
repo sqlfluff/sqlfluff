@@ -11,7 +11,6 @@ import itertools
 from sqlfluff.core.parser import (
     Anything,
     BaseSegment,
-    NamedSegment,
     OneOf,
     Ref,
     Sequence,
@@ -25,6 +24,7 @@ from sqlfluff.core.parser import (
     RegexLexer,
     CodeSegment,
     NamedParser,
+    StringParser,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -54,15 +54,19 @@ bigquery_dialect.patch_lexer_matchers(
 )
 
 bigquery_dialect.add(
-    DoubleQuotedLiteralSegment=NamedSegment.make(
-        "double_quote", name="quoted_literal", type="literal", trim_chars=('"',)
+    DoubleQuotedLiteralSegment=NamedParser(
+        "double_quote",
+        CodeSegment,
+        name="quoted_literal",
+        type="literal",
+        trim_chars=('"',),
     ),
-    StructKeywordSegment=KeywordSegment.make("struct", name="struct"),
-    StartAngleBracketSegment=SymbolSegment.make(
-        "<", name="start_angle_bracket", type="start_angle_bracket"
+    StructKeywordSegment=StringParser("struct", KeywordSegment, name="struct"),
+    StartAngleBracketSegment=StringParser(
+        "<", SymbolSegment, name="start_angle_bracket", type="start_angle_bracket"
     ),
-    EndAngleBracketSegment=SymbolSegment.make(
-        ">", name="end_angle_bracket", type="end_angle_bracket"
+    EndAngleBracketSegment=StringParser(
+        ">", SymbolSegment, name="end_angle_bracket", type="end_angle_bracket"
     ),
 )
 

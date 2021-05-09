@@ -38,9 +38,9 @@ class Rule_L015(BaseRule):
         # expression that begins with start_bracket.
         raw_stack_filtered = self.filter_meta(raw_stack)
         if raw_stack_filtered and raw_stack_filtered[-1].name == "distinct":
-            if segment.type == "expression":
+            if segment.is_type("expression"):
                 segments_filtered = self.filter_meta(segment.segments)
-                if segments_filtered and segments_filtered[0].type == "start_bracket":
+                if segments_filtered and segments_filtered[0].is_type("start_bracket"):
                     # If we find open_bracket immediately following DISTINCT,
                     # then bad.
                     fixes = []
@@ -48,7 +48,7 @@ class Rule_L015(BaseRule):
                     # e.g. if the expression is (a + b) * c. If and only if it's
                     # at the *end*, then the parentheses are unnecessary and
                     # confusing. Remove them.
-                    if segments_filtered[-1].type == "end_bracket":
+                    if segments_filtered[-1].is_type("end_bracket"):
                         fixes += [
                             LintFix("delete", segments_filtered[0]),
                             LintFix("delete", segments_filtered[-1]),

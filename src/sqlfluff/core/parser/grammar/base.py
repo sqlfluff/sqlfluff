@@ -474,7 +474,7 @@ class BaseGrammar(Matchable):
         _, start_bracket_refs, end_bracket_refs = zip(
             *parse_context.dialect.sets(bracket_pairs_set)
         )
-        # These are currently strings which need rehydrating
+        # These matchables, probably StringParsers
         start_brackets = [
             parse_context.dialect.ref(seg_ref) for seg_ref in start_bracket_refs
         ]
@@ -532,9 +532,13 @@ class BaseGrammar(Matchable):
                             # Found an end bracket. Does its type match that of
                             # the innermost start bracket? E.g. ")" matches "(",
                             # "]" matches "[".
-                            start_index = start_brackets.index(
-                                type(bracket_stack[-1].bracket)
-                            )
+                            # For the start bracket we don't have the matcher
+                            # but we can work out the name, so we use that for
+                            # the lookup.
+                            start_index = [
+                                bracket.name for bracket in start_brackets
+                            ].index(bracket_stack[-1].bracket.name)
+                            # For the end index, we can just look for the matcher
                             end_index = end_brackets.index(matcher)
                             bracket_types_match = start_index == end_index
                             if bracket_types_match:

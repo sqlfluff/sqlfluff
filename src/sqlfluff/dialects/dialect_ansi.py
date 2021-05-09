@@ -173,60 +173,76 @@ ansi_dialect.add(
     SemicolonSegment=StringParser(
         ";", SymbolSegment, name="semicolon", type="statement_terminator"
     ),
-    ColonSegment=SymbolSegment.make(":", name="colon", type="colon"),
-    SliceSegment=SymbolSegment.make(":", name="slice", type="slice"),
-    StartBracketSegment=SymbolSegment.make(
-        "(", name="start_bracket", type="start_bracket"
+    ColonSegment=StringParser(":", SymbolSegment, name="colon", type="colon"),
+    SliceSegment=StringParser(":", SymbolSegment, name="slice", type="slice"),
+    StartBracketSegment=StringParser(
+        "(", SymbolSegment, name="start_bracket", type="start_bracket"
     ),
-    EndBracketSegment=SymbolSegment.make(")", name="end_bracket", type="end_bracket"),
-    StartSquareBracketSegment=SymbolSegment.make(
-        "[", name="start_square_bracket", type="start_square_bracket"
+    EndBracketSegment=StringParser(
+        ")", SymbolSegment, name="end_bracket", type="end_bracket"
     ),
-    EndSquareBracketSegment=SymbolSegment.make(
-        "]", name="end_square_bracket", type="end_square_bracket"
+    StartSquareBracketSegment=StringParser(
+        "[", SymbolSegment, name="start_square_bracket", type="start_square_bracket"
     ),
-    StartCurlyBracketSegment=SymbolSegment.make(
-        "{", name="start_curly_bracket", type="start_curly_bracket"
+    EndSquareBracketSegment=StringParser(
+        "]", SymbolSegment, name="end_square_bracket", type="end_square_bracket"
     ),
-    EndCurlyBracketSegment=SymbolSegment.make(
-        "}", name="end_curly_bracket", type="end_curly_bracket"
+    StartCurlyBracketSegment=StringParser(
+        "{", SymbolSegment, name="start_curly_bracket", type="start_curly_bracket"
     ),
-    CommaSegment=SymbolSegment.make(",", name="comma", type="comma"),
-    DotSegment=SymbolSegment.make(".", name="dot", type="dot"),
+    EndCurlyBracketSegment=StringParser(
+        "}", SymbolSegment, name="end_curly_bracket", type="end_curly_bracket"
+    ),
+    CommaSegment=StringParser(",", SymbolSegment, name="comma", type="comma"),
+    DotSegment=StringParser(".", SymbolSegment, name="dot", type="dot"),
     StarSegment=StringParser("*", SymbolSegment, name="star", type="star"),
-    TildeSegment=SymbolSegment.make("~", name="tilde", type="tilde"),
-    CastOperatorSegment=SymbolSegment.make(
-        "::", name="casting_operator", type="casting_operator"
+    TildeSegment=StringParser("~", SymbolSegment, name="tilde", type="tilde"),
+    CastOperatorSegment=StringParser(
+        "::", SymbolSegment, name="casting_operator", type="casting_operator"
     ),
-    PlusSegment=SymbolSegment.make("+", name="plus", type="binary_operator"),
-    MinusSegment=SymbolSegment.make("-", name="minus", type="binary_operator"),
-    PositiveSegment=SymbolSegment.make("+", name="positive", type="sign_indicator"),
-    NegativeSegment=SymbolSegment.make("-", name="negative", type="sign_indicator"),
-    DivideSegment=SymbolSegment.make("/", name="divide", type="binary_operator"),
-    MultiplySegment=SymbolSegment.make("*", name="multiply", type="binary_operator"),
-    ModuloSegment=SymbolSegment.make("%", name="modulo", type="binary_operator"),
-    ConcatSegment=SymbolSegment.make("||", name="concatenate", type="binary_operator"),
-    EqualsSegment=SymbolSegment.make("=", name="equals", type="comparison_operator"),
+    PlusSegment=StringParser("+", SymbolSegment, name="plus", type="binary_operator"),
+    MinusSegment=StringParser("-", SymbolSegment, name="minus", type="binary_operator"),
+    PositiveSegment=StringParser(
+        "+", SymbolSegment, name="positive", type="sign_indicator"
+    ),
+    NegativeSegment=StringParser(
+        "-", SymbolSegment, name="negative", type="sign_indicator"
+    ),
+    DivideSegment=StringParser(
+        "/", SymbolSegment, name="divide", type="binary_operator"
+    ),
+    MultiplySegment=StringParser(
+        "*", SymbolSegment, name="multiply", type="binary_operator"
+    ),
+    ModuloSegment=StringParser(
+        "%", SymbolSegment, name="modulo", type="binary_operator"
+    ),
+    ConcatSegment=StringParser(
+        "||", SymbolSegment, name="concatenate", type="binary_operator"
+    ),
+    EqualsSegment=StringParser(
+        "=", SymbolSegment, name="equals", type="comparison_operator"
+    ),
     LikeOperatorSegment=NamedSegment.make(
         "like_operator", name="like_operator", type="comparison_operator"
     ),
-    GreaterThanSegment=SymbolSegment.make(
-        ">", name="greater_than", type="comparison_operator"
+    GreaterThanSegment=StringParser(
+        ">", SymbolSegment, name="greater_than", type="comparison_operator"
     ),
-    LessThanSegment=SymbolSegment.make(
-        "<", name="less_than", type="comparison_operator"
+    LessThanSegment=StringParser(
+        "<", SymbolSegment, name="less_than", type="comparison_operator"
     ),
-    GreaterThanOrEqualToSegment=SymbolSegment.make(
-        ">=", name="greater_than_equal_to", type="comparison_operator"
+    GreaterThanOrEqualToSegment=StringParser(
+        ">=", SymbolSegment, name="greater_than_equal_to", type="comparison_operator"
     ),
-    LessThanOrEqualToSegment=SymbolSegment.make(
-        "<=", name="less_than_equal_to", type="comparison_operator"
+    LessThanOrEqualToSegment=StringParser(
+        "<=", SymbolSegment, name="less_than_equal_to", type="comparison_operator"
     ),
-    NotEqualToSegment_a=SymbolSegment.make(
-        "!=", name="not_equal_to", type="comparison_operator"
+    NotEqualToSegment_a=StringParser(
+        "!=", SymbolSegment, name="not_equal_to", type="comparison_operator"
     ),
-    NotEqualToSegment_b=SymbolSegment.make(
-        "<>", name="not_equal_to", type="comparison_operator"
+    NotEqualToSegment_b=StringParser(
+        "<>", SymbolSegment, name="not_equal_to", type="comparison_operator"
     ),
     # The following functions can be called without parentheses per ANSI specification
     BareFunctionSegment=SegmentGenerator(
@@ -330,8 +346,8 @@ ansi_dialect.add(
         Ref("NullLiteralSegment"),
         Ref("DateTimeLiteralGrammar"),
     ),
-    AndKeywordSegment=KeywordSegment.make("and", type="binary_operator"),
-    OrKeywordSegment=KeywordSegment.make("or", type="binary_operator"),
+    AndKeywordSegment=StringParser("and", KeywordSegment, type="binary_operator"),
+    OrKeywordSegment=StringParser("or", KeywordSegment, type="binary_operator"),
     # This is a placeholder for other dialects.
     PreTableFunctionKeywordsGrammar=Nothing(),
     BinaryOperatorGrammar=OneOf(

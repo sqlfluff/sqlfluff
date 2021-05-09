@@ -53,10 +53,12 @@ class Rule_L023(BaseRule):
                 if seg.is_code:
                     if (
                         last_code
-                        and getattr(last_code, self.pre_segment_identifier[0])
-                        == self.pre_segment_identifier[1]
-                        and getattr(seg, self.post_segment_identifier[0])
-                        == self.post_segment_identifier[1]
+                        and self.matches_target_tuples(
+                            last_code, [self.pre_segment_identifier]
+                        )
+                        and self.matches_target_tuples(
+                            seg, [self.post_segment_identifier]
+                        )
                     ):
                         # Do we actually have the right amount of whitespace?
                         raw_inner = "".join(s.raw for s in mid_segs)
