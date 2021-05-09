@@ -1,0 +1,20 @@
+file:
+  statement:
+    alter_default_privileges_statement:
+    - keyword: ALTER
+    - keyword: DEFAULT
+    - keyword: PRIVILEGES
+    - keyword: IN
+    - keyword: SCHEMA
+    - schema_reference:
+        identifier: api
+    - access_statement:
+      - keyword: REVOKE
+      - keyword: EXECUTE
+      - keyword: 'ON'
+      - object_reference:
+          identifier: FUNCTIONS
+      - keyword: FROM
+      - object_reference:
+          identifier: public
+  statement_terminator: ;

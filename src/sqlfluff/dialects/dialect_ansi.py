@@ -2125,10 +2125,41 @@ class DropIndexStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class AlterDefaultPrivilegesSegment(BaseSegment):
+    """Postgres `ALTER DEFAULT PRIVILEGES` statement.
+
+    ```
+    ALTER DEFAULT PRIVILEGES
+    [ FOR { ROLE | USER } target_role [, ...] ]
+    [ IN SCHEMA schema_name [, ...] ]
+    abbreviated_grant_or_revoke
+    ```
+    """
+
+    type = "alter_default_privileges_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "DEFAULT",
+        "PRIVILEGES",
+        Sequence(
+            "FOR",
+            OneOf("ROLE", "USER"),
+            Delimited(Ref("ObjectReferenceSegment")),
+            optional=True,
+        ),
+        Sequence(
+            "IN", "SCHEMA", Delimited(Ref("SchemaReferenceSegment")), optional=True
+        ),
+        Ref("AccessStatementSegment"),
+    )
+
+
+@ansi_dialect.segment()
 class AccessStatementSegment(BaseSegment):
     """A `GRANT` or `REVOKE` statement.
 
-    In order to help reduce code duplication we decided to implement other dialect specific grants (like snowflake)
+    In order to help reduce code duplication we decided to implement other dialect specific grants (like Snowflake)
     here too which will help with maintainability. We also note that this causes the grammar to be less "correct",
     but the benefits outweigh the con in our opinion.
 
@@ -2199,22 +2230,23 @@ class AccessStatementSegment(BaseSegment):
                 ),
             ),
             Sequence("IMPORTED", "PRIVILEGES"),
-            "MODIFY",
-            "USE_ANY_ROLE",
-            "USAGE",
-            "SELECT",
-            "INSERT",
-            "UPDATE",
+            "APPLY",
             "DELETE",
-            "TRUNCATE",
-            "REFERENCES",
-            "READ",
-            "WRITE",
+            "EXECUTE",
+            "INSERT",
+            "MODIFY",
             "MONITOR",
             "OPERATE",
-            "APPLY",
             "OWNERSHIP",
+            "READ",
             "REFERENCE_USAGE",
+            "REFERENCES",
+            "SELECT",
+            "TRUNCATE",
+            "UPDATE",
+            "USAGE",
+            "USE_ANY_ROLE",
+            "WRITE",
             Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
         ),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
@@ -2264,6 +2296,10 @@ class AccessStatementSegment(BaseSegment):
                     _objects,
                 ),
                 Sequence("ROLE", Ref("ObjectReferenceSegment")),
+                # In the case where a role is granted non-explicitly,
+                # e.g. GRANT ROLE_NAME TO OTHER_ROLE_NAME
+                # See https://www.postgresql.org/docs/current/sql-grant.html
+                Ref("ObjectReferenceSegment"),
             ),
             "TO",
             OneOf("GROUP", "USER", "ROLE", "SHARE", optional=True),
@@ -2580,6 +2616,7 @@ class StatementSegment(BaseSegment):
         Ref("InsertStatementSegment"),
         Ref("TransactionStatementSegment"),
         Ref("DropStatementSegment"),
+        Ref("AlterDefaultPrivilegesSegment"),
         Ref("AccessStatementSegment"),
         Ref("CreateTableStatementSegment"),
         Ref("CreateTypeStatementSegment"),
