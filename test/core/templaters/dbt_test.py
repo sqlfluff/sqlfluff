@@ -12,7 +12,7 @@ from test.fixtures.dbt.templater import (  # noqa
     dbt_templater
 )
 
-
+@pytest.mark.dbt
 def test__templater_dbt_missing(dbt_templater):  # noqa
     """Check that a nice error is returned when dbt module is missing."""
     try:
