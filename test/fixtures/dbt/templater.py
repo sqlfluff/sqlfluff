@@ -2,7 +2,6 @@
 
 from sqlfluff.core.templaters import DbtTemplater
 import pytest
-import os
 
 
 DBT_FLUFF_CONFIG = {
