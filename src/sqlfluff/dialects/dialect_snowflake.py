@@ -8,7 +8,6 @@ Based on https://docs.snowflake.com/en/sql-reference-commands.html
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     BaseSegment,
-    NamedSegment,
     OneOf,
     Ref,
     Sequence,
@@ -24,6 +23,7 @@ from sqlfluff.core.parser import (
     RegexLexer,
     StringLexer,
     CodeSegment,
+    NamedParser,
 )
 
 
@@ -100,8 +100,9 @@ snowflake_dialect.add(
         name="naked_semi_structured_element",
         type="semi_structured_element",
     ),
-    QuotedSemiStructuredElementSegment=NamedSegment.make(
+    QuotedSemiStructuredElementSegment=NamedParser(
         "double_quote",
+        CodeSegment,
         name="quoted_semi_structured_element",
         type="semi_structured_element",
     ),

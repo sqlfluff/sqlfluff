@@ -13,7 +13,6 @@ from sqlfluff.core.parser.segments import (
     KeywordSegment,
     SymbolSegment,
     ReSegment,
-    NamedSegment,
     Indent,
     Dedent,
     SegmentGenerator,

@@ -4,7 +4,15 @@ import pytest
 import oyaml
 
 from sqlfluff.core.parser.markers import PositionMarker
-from sqlfluff.core.parser.segments import RawSegment, Indent, Dedent, WhitespaceSegment, NewlineSegment, SymbolSegment, CommentSegment, CodeSegment
+from sqlfluff.core.parser.segments import (
+    Indent,
+    Dedent,
+    WhitespaceSegment,
+    NewlineSegment,
+    SymbolSegment,
+    CommentSegment,
+    CodeSegment,
+)
 from sqlfluff.core.templaters import TemplatedFile
 
 

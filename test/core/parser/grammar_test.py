@@ -183,7 +183,9 @@ def test__parser__grammar__base__bracket_sensitive_look_ahead_match(
         assert pre_section == ()
         assert matcher == bs
         # NB the middle element is a match object
-        assert match.matched_segments == (KeywordSegment("bar", bracket_seg_list[0].pos_marker),)
+        assert match.matched_segments == (
+            KeywordSegment("bar", bracket_seg_list[0].pos_marker),
+        )
 
         # Look ahead for foo, we should find the one AFTER the brackets, not the
         # on IN the brackets.
@@ -194,7 +196,9 @@ def test__parser__grammar__base__bracket_sensitive_look_ahead_match(
         assert len(pre_section) == 8
         assert matcher == fs
         # We shouldn't match the whitespace with the keyword
-        assert match.matched_segments == (KeywordSegment("foo", bracket_seg_list[8].pos_marker),)
+        assert match.matched_segments == (
+            KeywordSegment("foo", bracket_seg_list[8].pos_marker),
+        )
 
 
 def test__parser__grammar__base__bracket_fail_with_open_paren_close_square_mismatch(

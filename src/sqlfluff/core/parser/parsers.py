@@ -106,7 +106,7 @@ class NamedParser(StringParser):
     ) -> MatchResult:
         """Compare input segments for a match, return a `MatchResult`.
 
-        NamedSegment implements its own matching function where
+        NamedParser implements its own matching function where
         we assume that ._template is the `name` of a segment.
         """
         # If we've been passed the singular, make it a tuple

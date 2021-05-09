@@ -7,10 +7,11 @@ from sqlfluff.core.parser import (
     Bracketed,
     Anything,
     BaseSegment,
-    NamedSegment,
     Delimited,
     RegexLexer,
     CodeSegment,
+    NamedParser,
+    SymbolSegment,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -55,8 +56,8 @@ postgres_dialect.sets("datetime_units").update(["EPOCH"])
 
 
 postgres_dialect.add(
-    JsonOperatorSegment=NamedSegment.make(
-        "json_operator", name="json_operator", type="binary_operator"
+    JsonOperatorSegment=NamedParser(
+        "json_operator", SymbolSegment, name="json_operator", type="binary_operator"
     ),
 )
 

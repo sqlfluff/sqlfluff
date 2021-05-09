@@ -18,5 +18,4 @@ from sqlfluff.core.parser.segments.keyword import (
     KeywordSegment,
     SymbolSegment,
     ReSegment,
-    NamedSegment,
 )

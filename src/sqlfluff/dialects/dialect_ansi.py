@@ -20,7 +20,6 @@ from sqlfluff.core.parser import (
     KeywordSegment,
     SymbolSegment,
     ReSegment,
-    NamedSegment,
     Sequence,
     GreedyUntil,
     StartsWith,
@@ -42,6 +41,7 @@ from sqlfluff.core.parser import (
     WhitespaceSegment,
     NewlineSegment,
     StringParser,
+    NamedParser,
 )
 
 from sqlfluff.core.dialects.base import Dialect
@@ -223,8 +223,8 @@ ansi_dialect.add(
     EqualsSegment=StringParser(
         "=", SymbolSegment, name="equals", type="comparison_operator"
     ),
-    LikeOperatorSegment=NamedSegment.make(
-        "like_operator", name="like_operator", type="comparison_operator"
+    LikeOperatorSegment=NamedParser(
+        "like_operator", SymbolSegment, name="like_operator", type="comparison_operator"
     ),
     GreaterThanSegment=StringParser(
         ">", SymbolSegment, name="greater_than", type="comparison_operator"
@@ -286,14 +286,14 @@ ansi_dialect.add(
             type="date_part",
         )
     ),
-    QuotedIdentifierSegment=NamedSegment.make(
-        "double_quote", name="quoted_identifier", type="identifier"
+    QuotedIdentifierSegment=NamedParser(
+        "double_quote", CodeSegment, name="quoted_identifier", type="identifier"
     ),
-    QuotedLiteralSegment=NamedSegment.make(
-        "single_quote", name="quoted_literal", type="literal"
+    QuotedLiteralSegment=NamedParser(
+        "single_quote", CodeSegment, name="quoted_literal", type="literal"
     ),
-    NumericLiteralSegment=NamedSegment.make(
-        "numeric_literal", name="numeric_literal", type="literal"
+    NumericLiteralSegment=NamedParser(
+        "numeric_literal", CodeSegment, name="numeric_literal", type="literal"
     ),
     # NullSegment is defined seperately to the keyword so we can give it a different type
     NullLiteralSegment=StringParser(

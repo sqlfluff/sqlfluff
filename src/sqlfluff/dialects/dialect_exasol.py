@@ -14,7 +14,6 @@ from sqlfluff.core.parser import (
     GreedyUntil,
     Indent,
     KeywordSegment,
-    NamedSegment,
     Nothing,
     OneOf,
     Ref,
@@ -25,6 +24,8 @@ from sqlfluff.core.parser import (
     StringLexer,
     CodeSegment,
     CommentSegment,
+    NamedParser,
+    SymbolSegment,
 )
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.dialects.exasol_keywords import (
@@ -74,7 +75,7 @@ exasol_dialect.add(
     LocalIdentifierSegment=KeywordSegment.make(
         "LOCAL", name="local_identifier", type="identifier"
     ),
-    RangeOperator=NamedSegment.make("range_operator", type="range_operator"),
+    RangeOperator=NamedParser("range_operator", SymbolSegment, type="range_operator"),
     UnknownSegment=KeywordSegment.make(
         "unknown", name="boolean_literal", type="literal"
     ),

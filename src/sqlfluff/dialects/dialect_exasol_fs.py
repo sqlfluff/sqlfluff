@@ -19,7 +19,6 @@ from sqlfluff.core.parser import (
     Bracketed,
     Delimited,
     GreedyUntil,
-    NamedSegment,
     OneOf,
     Ref,
     ReSegment,
@@ -30,6 +29,7 @@ from sqlfluff.core.parser import (
     RegexLexer,
     CodeSegment,
     NewlineSegment,
+    NamedParser,
 )
 from sqlfluff.core.dialects import load_raw_dialect
 
@@ -64,11 +64,11 @@ exasol_fs_dialect.insert_lexer_matchers(
 )
 
 exasol_fs_dialect.add(
-    FunctionScriptTerminatorSegment=NamedSegment.make(
-        "function_script_terminator", type="statement_terminator"
+    FunctionScriptTerminatorSegment=NamedParser(
+        "function_script_terminator", CodeSegment, type="statement_terminator"
     ),
-    WalrusOperatorSegment=NamedSegment.make(
-        "walrus_operator", type="assignment_operator"
+    WalrusOperatorSegment=NamedParser(
+        "walrus_operator", SymbolSegment, type="assignment_operator"
     ),
     VariableNameSegment=ReSegment.make(
         r"[A-Z][A-Z0-9_]*",
