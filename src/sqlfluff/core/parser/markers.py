@@ -131,8 +131,8 @@ class PositionMarker:
     def to_source_string(self) -> str:
         """Make a formatted string of this position."""
         line, pos = self.source_position()
-        return "[C:{0:4d}, L:{1:3d}, P:{2:3d}]".format(
-            self.source_slice.start, line, pos
+        return "[L:{0:3d}, P:{1:3d}]".format(
+            line, pos
         )
 
     def start_point_marker(self) -> "PositionMarker":
@@ -190,10 +190,12 @@ class PositionMarker:
         """Infer literalness from context.
 
         is_literal should return True if a fix can be applied across this area
-        without concern. This obviously applies to any slices which are the same
-        in the source and the templated files. Slices which are zero-length in
-        the source are also "literal" because they can't be "broken" by any fixes,
-        because they don't exist in the source.
+        in the templated file while being confident that the fix is still
+        appropriate in the source file. This obviously applies to any slices
+        which are the same in the source and the templated files. Slices which
+        are zero-length in the source are also "literal" because they can't be
+        "broken" by any fixes, because they don't exist in the source. This
+        includes meta segments and any segments added during the fixing process.
 
         This value is used for:
         - Ignoring linting errors in templated sections.
