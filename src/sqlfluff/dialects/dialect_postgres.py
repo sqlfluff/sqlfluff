@@ -59,6 +59,9 @@ postgres_dialect.add(
     JsonOperatorSegment=NamedParser(
         "json_operator", SymbolSegment, name="json_operator", type="binary_operator"
     ),
+    DollarQuotedLiteralSegment=NamedParser(
+        "dollar_quote", CodeSegment, name="dollar_quoted_literal", type="literal"
+    ),
 )
 
 
@@ -69,6 +72,8 @@ postgres_dialect.replace(
             Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
             Ref("OverClauseSegment"),
         ),
+        # Filter clause supported by both Postgres and SQLite
+        Ref("FilterClauseGrammar"),
     ),
     BinaryOperatorGrammar=OneOf(
         Ref("ArithmeticBinaryOperatorGrammar"),
@@ -79,6 +84,22 @@ postgres_dialect.replace(
         Ref("JsonOperatorSegment"),
     ),
 )
+
+
+@postgres_dialect.segment(replace=True)
+class FunctionDefinitionGrammar(BaseSegment):
+    """This is the body of a `CREATE FUNCTION AS` statement."""
+
+    match_grammar = Sequence(
+        "AS",
+        OneOf(Ref("QuotedLiteralSegment"), Ref("DollarQuotedLiteralSegment")),
+        Sequence(
+            "LANGUAGE",
+            # Not really a parameter, but best fit for now.
+            Ref("ParameterNameSegment"),
+            optional=True,
+        ),
+    )
 
 
 @postgres_dialect.segment(replace=True)

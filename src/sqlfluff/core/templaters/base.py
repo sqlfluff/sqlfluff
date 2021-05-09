@@ -160,11 +160,11 @@ class TemplatedFile:
         while nl_idx + 1 < len(ref_str) and ref_str[nl_idx + 1] < char_pos:
             nl_idx += 1
 
-        # NB: +1 because character position is 0-indexed, but the line
-        # position is 1-indexed.
         if nl_idx >= 0:
             return nl_idx + 2, char_pos - ref_str[nl_idx]
         else:
+            # NB: line_pos is char_pos+1 because character position is 0-indexed,
+            # but the line position is 1-indexed.
             return 1, char_pos + 1
 
     def _find_slice_indices_of_templated_pos(

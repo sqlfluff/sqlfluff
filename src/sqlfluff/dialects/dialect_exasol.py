@@ -194,6 +194,10 @@ exasol_dialect.replace(
     BooleanLiteralGrammar=OneOf(
         Ref("TrueSegment"), Ref("FalseSegment"), Ref("UnknownSegment")
     ),
+    PostFunctionGrammar=Sequence(
+        Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
+        Ref("OverClauseSegment"),
+    ),
 )
 
 ############################

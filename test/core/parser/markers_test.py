@@ -26,8 +26,8 @@ def test_markers__setting_position_raw():
     """Test that we can correctly infer positions from strings & locations."""
     templ = TemplatedFile.from_string("foobar")
     # Check inference in the template
-    assert templ.get_line_pos_of_char_pos(2, True) == (1, 3)
-    assert templ.get_line_pos_of_char_pos(2, False) == (1, 3)
+    assert templ.get_line_pos_of_char_pos(2, source=True) == (1, 3)
+    assert templ.get_line_pos_of_char_pos(2, source=False) == (1, 3)
     # Now check it passes through
     pos = PositionMarker(slice(2, 5), slice(2, 5), templ)
     # Can we infer positions correctly?
