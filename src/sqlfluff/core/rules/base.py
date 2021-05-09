@@ -139,7 +139,7 @@ class LintFix:
                     # Developer warning.
                     rules_logger.debug(
                         "Developer Note: Edit segment found with preset position marker. "
-                        "These should be unset and calculated later. %r"
+                        "These should be unset and calculated later."
                     )
                     seg.pos_marker = None
         # Once stripped, we shouldn't replace any markers because

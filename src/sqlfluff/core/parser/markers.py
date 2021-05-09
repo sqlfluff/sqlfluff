@@ -24,7 +24,6 @@ class PositionMarker:
           ranges.
         - Positions within the fixed file are identified with a line number and line
           position, which identify a point.
-          the fixed file, this is as a combination of line number and line position.
         - Arithmetic comparisons are on the location in the fixed file.
     """
 
@@ -188,16 +187,19 @@ class PositionMarker:
         )
 
     def is_literal(self) -> bool:
-        """Infer literalness from context."""
-        # NOTE: We should define what the implication of is_literal is here.
-        # TODO: I think we were inconsistent in whether a zero length source slice
-        # is (or is not) literal. The lexer initially defined it as False, this
-        # function will say True. Not sure what the implications of that are yet.
-        # NOTE: So far I can see it only controls:
-        # 1. The patch_type of a FixPatch, which appears to then never be referred to.
-        # 2. The ignoring of templated sections in `remove_templated_errors`.
-        # 3. Whether we can return simply in `iter_patches`.
-        # 4. The application of L046 which is looking for tags.
+        """Infer literalness from context.
+
+        is_literal should return True if a fix can be applied across this area
+        without concern. This obviously applies to any slices which are the same
+        in the source and the templated files. Slices which are zero-length in
+        the source are also "literal" because they can't be "broken" by any fixes,
+        because they don't exist in the source.
+
+        This value is used for:
+        - Ignoring linting errors in templated sections.
+        - Whether `iter_patches` can return without recursing.
+        - Whether certain rules (such as L046) are triggered.
+        """
         return self.templated_file.is_source_slice_literal(self.source_slice)
 
     def source_str(self) -> str:

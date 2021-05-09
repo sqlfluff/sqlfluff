@@ -41,7 +41,7 @@ class FixPatch(NamedTuple):
     fixed_raw: str
     # The patch type, functions mostly for debugging and explanation
     # than for function. It allows traceability of *why* this patch was
-    # generated.
+    # generated. It has no siginificance for processing.
     patch_type: str
 
 
@@ -310,17 +310,15 @@ class BaseSegment:
 
         # Use the index so that we can look forward
         # and backward.
-        for idx in range(len(segments)):
+        for idx, segment in enumerate(segments):
             # Fill any that don't have a position.
-            if not segments[idx].pos_marker:
+            if not segment.pos_marker:
                 # Can we get a position from the previous?
                 if idx > 0:
-                    segments[idx].pos_marker = segments[
-                        idx - 1
-                    ].pos_marker.end_point_marker()
+                    segment.pos_marker = segments[idx - 1].pos_marker.end_point_marker()
                 # Can we get it from the parent?
                 elif parent_pos:
-                    segments[idx].pos_marker = parent_pos.start_point_marker()
+                    segment.pos_marker = parent_pos.start_point_marker()
                 # Search forward for a following one, if we have to?
                 else:
                     for fwd_seg in segments[idx + 1 :]:
@@ -330,21 +328,21 @@ class BaseSegment:
                             ].pos_marker = fwd_seg.pos_marker.start_point_marker()
                             break
                     else:
-                        raise ValueError("Unable to positon new segment")
+                        raise ValueError("Unable to position new segment")
 
             # Update the working position.
-            segments[idx].pos_marker = segments[idx].pos_marker.with_working_position(
+            segment.pos_marker = segment.pos_marker.with_working_position(
                 line_no,
                 line_pos,
             )
-            line_no, line_pos = segments[idx].pos_marker.infer_next_position(
-                segments[idx].raw, line_no, line_pos
+            line_no, line_pos = segment.pos_marker.infer_next_position(
+                segment.raw, line_no, line_pos
             )
 
             # If this segment has children, recurse and reposition them too.
-            if segments[idx].segments:
-                segments[idx].segments = cls._position_segments(
-                    segments[idx].segments, parent_pos=segments[idx].pos_marker
+            if segment.segments:
+                segment.segments = cls._position_segments(
+                    segment.segments, parent_pos=segment.pos_marker
                 )
 
         return segments

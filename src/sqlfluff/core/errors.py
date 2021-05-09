@@ -10,14 +10,13 @@ class SQLBaseError(ValueError):
     _code: Optional[str] = None
     _identifier = "base"
 
-    def __init__(self, *args, **kwargs):
-        self.ignore = kwargs.pop("ignore", False)
-        pos = kwargs.pop("pos", None)
+    def __init__(self, *args, pos=None, line_no=0, line_pos=0, ignore=False, **kwargs):
+        self.ignore = ignore
         if pos:
             self.line_no, self.line_pos = pos.source_position()
         else:
-            self.line_no = kwargs.pop("line_no", 0)
-            self.line_pos = kwargs.pop("line_pos", 0)
+            self.line_no = line_no
+            self.line_pos = line_pos
         super(SQLBaseError, self).__init__(*args, **kwargs)
 
     @property
@@ -128,9 +127,9 @@ class SQLParseError(SQLBaseError):
     _code = "PRS"
     _identifier = "parsing"
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, segment=None, **kwargs):
         # Store the segment on creation - we might need it later
-        self.segment = kwargs.pop("segment", None)
+        self.segment = segment
         if self.segment:
             kwargs["pos"] = self.segment.pos_marker
         super(SQLParseError, self).__init__(*args, **kwargs)
@@ -152,14 +151,16 @@ class SQLLintError(SQLBaseError):
 
     _identifier = "linting"
 
-    def __init__(self, *args, **kwargs):
+    def __init__(
+        self, *args, segment=None, rule=None, fixes=None, description=None, **kwargs
+    ):
         # Something about position, message and fix?
-        self.segment = kwargs.pop("segment", None)
+        self.segment = segment
         if self.segment:
             kwargs["pos"] = self.segment.pos_marker
-        self.rule = kwargs.pop("rule", None)
-        self.fixes = kwargs.pop("fixes", [])
-        self.description = kwargs.pop("description", None)
+        self.rule = rule
+        self.fixes = fixes or []
+        self.description = description
         super(SQLLintError, self).__init__(*args, **kwargs)
 
     @property

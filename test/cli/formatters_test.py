@@ -38,4 +38,9 @@ def test__cli__formatters__violation():
     r = RuleGhost("A", "DESC")
     v = SQLLintError(segment=s, rule=r)
     f = format_violation(v)
+    # Position is 3, 3 becase foobarbar is on the third
+    # line (i.e. it has two newlines preceding it) and
+    # it's at the third position in that line (i.e. there
+    # are two characters between it and the preceeding
+    # newline).
     assert escape_ansi(f) == "L:   3 | P:   3 |    A | DESC"
