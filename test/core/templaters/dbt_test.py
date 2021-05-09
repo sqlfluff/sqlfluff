@@ -106,10 +106,12 @@ def test__templater_dbt_slice_file_wrapped_test(
 )
 @pytest.mark.dbt
 def test__templater_dbt_templating_test_lex(
-    in_dbt_project_dir, dbt_templater, fname  # noqa
+    dbt_templater, fname  # noqa
 ):
     """A test to demonstrate the lexer works on both dbt models (with any # of trailing newlines) and dbt tests."""
-    with open(fname, "r") as source_dbt_model:
+    project_dir = DBT_FLUFF_CONFIG["templater"]["dbt"]["project_dir"]
+    source_fpath = os.path.join(project_dir,fname)
+    with open(source_fpath, "r") as source_dbt_model:
         source_dbt_sql = source_dbt_model.read()
     n_trailing_newlines = len(source_dbt_sql) - len(source_dbt_sql.rstrip("\n"))
     lexer = Lexer(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
