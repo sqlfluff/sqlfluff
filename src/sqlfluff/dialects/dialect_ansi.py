@@ -387,6 +387,9 @@ ansi_dialect.add(
         Ref("ColumnReferenceSegment"),
         Ref("ExpressionSegment"),
     ),
+    FilterClauseGrammar=Sequence(
+        "FILTER", Bracketed(Sequence("WHERE", Ref("ExpressionSegment")))
+    ),
 )
 
 
@@ -728,12 +731,16 @@ ansi_dialect.add(
             OneOf(Ref("QuotedLiteralSegment"), Ref("SingleIdentifierGrammar")),
         ),
     ),
-    # Optional OVER suffix for window functions.
-    # This is supported in biquery & postgres (and its derivatives)
-    # and so is included here for now.
-    PostFunctionGrammar=Sequence(
-        Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
-        Ref("OverClauseSegment"),
+    PostFunctionGrammar=OneOf(
+        # Optional OVER suffix for window functions.
+        # This is supported in biquery & postgres (and its derivatives)
+        # and so is included here for now.
+        Sequence(
+            Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
+            Ref("OverClauseSegment"),
+        ),
+        # Filter clause supported by both Postgres and SQLite
+        Ref("FilterClauseGrammar"),
     ),
 )
 
