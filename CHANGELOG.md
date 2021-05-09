@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Parsing of Postgres dollar quoted literals.
+- Parsing of Postgres filter grammar.
+
 ### Changed
 
 Contributors:
