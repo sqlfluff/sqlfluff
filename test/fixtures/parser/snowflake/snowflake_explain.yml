@@ -1,0 +1,43 @@
+file:
+- statement:
+    explain_statement:
+    - keyword: explain
+    - keyword: using
+    - keyword: tabular
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            literal: '1'
+- statement_terminator: ;
+- statement:
+    explain_statement:
+    - keyword: explain
+    - keyword: using
+    - keyword: json
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            literal: '1'
+- statement_terminator: ;
+- statement:
+    explain_statement:
+    - keyword: explain
+    - keyword: using
+    - keyword: text
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            literal: '1'
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: explain
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            literal: '1'
+- statement_terminator: ;

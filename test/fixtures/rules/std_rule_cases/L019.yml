@@ -12,6 +12,24 @@ leading_comma_violations:
       b
     FROM c
 
+leading_comma_violation_with_inline_comment:
+  fail_str: |
+    SELECT
+        a
+        , b -- inline comment
+        , c
+        /* non inline comment */
+        , d
+    FROM e
+  fix_str: |
+    SELECT
+        a,
+        b ,-- inline comment
+        c,
+        /* non inline comment */
+        d
+    FROM e
+
 leading_commas_allowed:
   pass_str: |
     SELECT

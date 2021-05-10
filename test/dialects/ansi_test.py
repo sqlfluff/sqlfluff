@@ -152,7 +152,12 @@ def test__dialect__ansi_specific_segment_not_match(
     [
         # Missing Closing bracket. Error should be raised
         # on the starting bracket.
-        ("SELECT 1 + (2 ", [(1, 12)])
+        ("SELECT 1 + (2 ", [(1, 12)]),
+        # Set expression with inappropriate ORDER BY or LIMIT. Error
+        # raised on the UNION.
+        ("SELECT * FROM a ORDER BY 1 UNION SELECT * FROM b", [(1, 27)]),
+        ("SELECT * FROM a LIMIT 1 UNION SELECT * FROM b", [(1, 24)]),
+        ("SELECT * FROM a ORDER BY 1 LIMIT 1 UNION SELECT * FROM b", [(1, 35)]),
     ],
 )
 def test__dialect__ansi_specific_segment_not_parse(raw, err_locations, caplog):
@@ -160,7 +165,8 @@ def test__dialect__ansi_specific_segment_not_parse(raw, err_locations, caplog):
     lnt = Linter()
     parsed = lnt.parse_string(raw)
     assert len(parsed.violations) > 0
-    locs = [(v.line_no(), v.line_pos()) for v in parsed.violations]
+    print(parsed.violations)
+    locs = [(v.line_no, v.line_pos) for v in parsed.violations]
     assert locs == err_locations
 
 

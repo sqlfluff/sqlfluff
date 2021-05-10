@@ -54,7 +54,8 @@ file:
       - keyword: PARTITION
       - keyword: BY
       - td_partitioning_level:
-        - function_name: RANGE_N
+        - function_name:
+            function_name_identifier: RANGE_N
         - start_bracket: (
         - raw: FEC_OPERACION
         - raw: BETWEEN

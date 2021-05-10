@@ -11,8 +11,9 @@ class RawSegment(BaseSegment):
     """This is a segment without any subsegments."""
 
     type = "raw"
-    _is_code = False
+    _is_code = True
     _is_comment = False
+    _is_whitespace = False
     _template = "<unset>"
 
     def __init__(self, raw, pos_marker):
@@ -47,6 +48,11 @@ class RawSegment(BaseSegment):
     def is_comment(self):
         """Return True if this segment is a comment."""
         return self._is_comment
+
+    @property
+    def is_whitespace(self):
+        """Return True if this segment is whitespace."""
+        return self._is_whitespace
 
     @property
     def raw_upper(self):
@@ -141,10 +147,58 @@ class RawSegment(BaseSegment):
         """
         return self.__class__(raw=raw, pos_marker=self.pos_marker)
 
-    def get_end_pos_marker(self):
-        """Return the pos marker at the end of this segment."""
-        return self.pos_marker.advance_by(self.raw)
 
-    def get_start_pos_marker(self):
-        """Return the pos marker at the start of this segment."""
-        return self.pos_marker
+class CodeSegment(RawSegment):
+    """An alias for RawSegment.
+
+    This has a more explicit name for segment creation.
+    """
+
+    pass
+
+
+class UnlexableSegment(CodeSegment):
+    """A placeholder to unlexable sections.
+
+    This otherwise behaves exaclty like a code section.
+    """
+
+    type = "unlexable"
+
+
+class CommentSegment(RawSegment):
+    """Segment containing a comment."""
+
+    type = "comment"
+    _name = "comment"
+    _is_code = False
+    _is_comment = True
+
+
+class WhitespaceSegment(RawSegment):
+    """Segment containing whitespace."""
+
+    type = "whitespace"
+    _name = "whitespace"
+    _is_whitespace = True
+    _is_code = False
+    _is_comment = False
+    _template = " "
+
+
+class NewlineSegment(RawSegment):
+    """Segment containing a newline.
+
+    NOTE: NewlineSegment does not inherit from WhitespaceSegment.
+    Therefore NewlineSegment.is_type('whitespace') returns False.
+
+    This is intentional and convenient for rules. If users want
+    to match on both, call .is_type('whitespace', 'newline')
+    """
+
+    type = "newline"
+    _name = "newline"
+    _is_whitespace = True
+    _is_code = False
+    _is_comment = False
+    _template = "\n"

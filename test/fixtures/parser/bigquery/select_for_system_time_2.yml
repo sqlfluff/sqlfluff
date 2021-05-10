@@ -19,7 +19,8 @@ file:
           - keyword: OF
           - expression:
               function:
-                function_name: CAST
+                function_name:
+                  function_name_identifier: CAST
                 start_bracket: (
                 expression:
                   literal: "'2020-05-11T14:02:52+00:00'"

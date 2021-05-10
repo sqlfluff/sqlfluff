@@ -5,6 +5,11 @@
 from sqlfluff.core.parser.segments import (
     BaseSegment,
     RawSegment,
+    CodeSegment,
+    UnlexableSegment,
+    CommentSegment,
+    WhitespaceSegment,
+    NewlineSegment,
     KeywordSegment,
     SymbolSegment,
     ReSegment,
@@ -26,7 +31,7 @@ from sqlfluff.core.parser.grammar import (
     Nothing,
     OptionallyBracketed,
 )
-from sqlfluff.core.parser.markers import FilePositionMarker
-from sqlfluff.core.parser.lexer import Lexer
+from sqlfluff.core.parser.markers import PositionMarker
+from sqlfluff.core.parser.lexer import Lexer, StringMatcher, RegexMatcher
 from sqlfluff.core.parser.parser import Parser
 from sqlfluff.core.parser.matchable import Matchable

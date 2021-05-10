@@ -9,7 +9,8 @@ from sqlfluff.core.parser import (
     BaseSegment,
     NamedSegment,
     Delimited,
-    Anything,
+    RegexMatcher,
+    CodeSegment,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -19,22 +20,35 @@ ansi_dialect = load_raw_dialect("ansi")
 postgres_dialect = ansi_dialect.copy_as("postgres")
 
 
-postgres_dialect.insert_lexer_struct(
+postgres_dialect.insert_lexer_matchers(
     # JSON Operators: https://www.postgresql.org/docs/9.5/functions-json.html
     [
-        (
+        RegexMatcher(
             "json_operator",
-            "regex",
             r"->>|#>>|->|#>|@>|<@|\?\||\?|\?&|#-",
-            dict(is_code=True),
+            CodeSegment,
         )
     ],
     before="not_equal",
 )
 
 
+# https://www.postgresql.org/docs/current/sql-keywords-appendix.html
+# SPACE has special status in some SQL dialects, but not Postgres.
+postgres_dialect.sets("unreserved_keywords").remove("SPACE")
 # Reserve WITHIN (required for the WithinGroupClauseSegment)
 postgres_dialect.sets("unreserved_keywords").remove("WITHIN")
+postgres_dialect.sets("unreserved_keywords").update(
+    [
+        "WITHIN",
+        "ANALYZE",
+        "VERBOSE",
+        "COSTS",
+        "BUFFERS",
+        "FORMAT",
+        "XML",
+    ]
+)
 postgres_dialect.sets("reserved_keywords").add("WITHIN")
 # Add the EPOCH datetime unit
 postgres_dialect.sets("datetime_units").update(["EPOCH"])
@@ -43,6 +57,9 @@ postgres_dialect.sets("datetime_units").update(["EPOCH"])
 postgres_dialect.add(
     JsonOperatorSegment=NamedSegment.make(
         "json_operator", name="json_operator", type="binary_operator"
+    ),
+    DollarQuotedLiteralSegment=NamedSegment.make(
+        "dollar_quote", name="dollar_quoted_literal", type="literal"
     ),
 )
 
@@ -54,6 +71,8 @@ postgres_dialect.replace(
             Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
             Ref("OverClauseSegment"),
         ),
+        # Filter clause supported by both Postgres and SQLite
+        Ref("FilterClauseGrammar"),
     ),
     BinaryOperatorGrammar=OneOf(
         Ref("ArithmeticBinaryOperatorGrammar"),
@@ -64,6 +83,22 @@ postgres_dialect.replace(
         Ref("JsonOperatorSegment"),
     ),
 )
+
+
+@postgres_dialect.segment(replace=True)
+class FunctionDefinitionGrammar(BaseSegment):
+    """This is the body of a `CREATE FUNCTION AS` statement."""
+
+    match_grammar = Sequence(
+        "AS",
+        OneOf(Ref("QuotedLiteralSegment"), Ref("DollarQuotedLiteralSegment")),
+        Sequence(
+            "LANGUAGE",
+            # Not really a parameter, but best fit for now.
+            Ref("ParameterNameSegment"),
+            optional=True,
+        ),
+    )
 
 
 @postgres_dialect.segment(replace=True)
@@ -131,4 +166,59 @@ class CreateRoleStatementSegment(BaseSegment):
                 Anything(),
             )
         ],
+    )
+
+
+@postgres_dialect.segment(replace=True)
+class ExplainStatementSegment(ansi_dialect.get_segment("ExplainStatementSegment")):  # type: ignore
+    """An `Explain` statement.
+
+    EXPLAIN [ ( option [, ...] ) ] statement
+    EXPLAIN [ ANALYZE ] [ VERBOSE ] statement
+
+    https://www.postgresql.org/docs/9.1/sql-explain.html
+    """
+
+    parse_grammar = Sequence(
+        "EXPLAIN",
+        OneOf(
+            Sequence(
+                Ref.keyword("ANALYZE", optional=True),
+                Ref.keyword("VERBOSE", optional=True),
+            ),
+            Bracketed(
+                Delimited(Ref("ExplainOptionSegment"), delimiter=Ref("CommaSegment"))
+            ),
+            optional=True,
+        ),
+        ansi_dialect.get_segment("ExplainStatementSegment").explainable_stmt,
+    )
+
+
+@postgres_dialect.segment()
+class ExplainOptionSegment(BaseSegment):
+    """An `Explain` statement option.
+
+    ANALYZE [ boolean ]
+    VERBOSE [ boolean ]
+    COSTS [ boolean ]
+    BUFFERS [ boolean ]
+    FORMAT { TEXT | XML | JSON | YAML }
+
+    https://www.postgresql.org/docs/9.1/sql-explain.html
+    """
+
+    type = "explain_option"
+
+    flag_segment = Sequence(
+        OneOf("ANALYZE", "VERBOSE", "COSTS", "BUFFERS"),
+        OneOf(Ref("TrueSegment"), Ref("FalseSegment"), optional=True),
+    )
+
+    match_grammar = OneOf(
+        flag_segment,
+        Sequence(
+            "FORMAT",
+            OneOf("TEXT", "XML", "JSON", "YAML"),
+        ),
     )

@@ -16,11 +16,13 @@ file:
       - comma: ','
       - select_clause_element:
           function:
-          - function_name: iff
+          - function_name:
+              function_name_identifier: iff
           - start_bracket: (
           - expression:
               function:
-                function_name: rank
+                function_name:
+                  function_name_identifier: rank
                 start_bracket: (
                 end_bracket: )
                 over_clause:
@@ -86,7 +88,8 @@ file:
             keyword: lateral
             table_expression:
               function:
-                function_name: flatten
+                function_name:
+                  function_name_identifier: flatten
                 start_bracket: (
                 snowflake_keyword_expression:
                   parameter: input

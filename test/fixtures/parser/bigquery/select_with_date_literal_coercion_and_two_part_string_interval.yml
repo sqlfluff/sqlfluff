@@ -5,7 +5,8 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-          - function_name: GENERATE_DATE_ARRAY
+          - function_name:
+              function_name_identifier: GENERATE_DATE_ARRAY
           - start_bracket: (
           - expression:
               cast_expression:
@@ -20,7 +21,8 @@ file:
           - expression:
               interval_expression:
                 keyword: INTERVAL
-                literal: "'7'"
+                expression:
+                  literal: "'7'"
                 date_part: DAY
           - end_bracket: )
           alias_expression:

@@ -12,15 +12,6 @@ if TYPE_CHECKING:
     from sqlfluff.core.parser.segments import BaseSegment
 
 
-def is_segment(other):
-    """Return true if this is a Segment.
-
-    The purpose of this helper function is for testing if something
-    is a segment without requiring the import of the class.
-    """
-    return getattr(other, "is_segment", False)
-
-
 class MatchResult(
     namedtuple("MatchResult", ["matched_segments", "unmatched_segments"])
 ):
@@ -94,7 +85,7 @@ class MatchResult(
             )
 
     @staticmethod
-    def seg_to_tuple(segs):
+    def seg_to_tuple(segs) -> Tuple["BaseSegment", ...]:
         """Munge types to a tuple."""
         # Is other iterable?
         try:
@@ -104,20 +95,19 @@ class MatchResult(
         else:
             is_iterable = True
 
-        if is_segment(segs):
-            return (segs,)
-        elif is_iterable:
+        if is_iterable:
             return tuple(iterator)
         else:
-            raise TypeError("Unexpected input to `seg_to_tuple`: {0}".format(segs))
+            # Blindly make into tuple here.
+            return (segs,)
 
     @classmethod
-    def from_unmatched(cls, unmatched) -> "MatchResult":
+    def from_unmatched(cls, unmatched: Tuple["BaseSegment", ...]) -> "MatchResult":
         """Construct a `MatchResult` from just unmatched segments."""
         return cls(matched_segments=(), unmatched_segments=cls.seg_to_tuple(unmatched))
 
     @classmethod
-    def from_matched(cls, matched) -> "MatchResult":
+    def from_matched(cls, matched: Tuple["BaseSegment", ...]) -> "MatchResult":
         """Construct a `MatchResult` from just matched segments."""
         return cls(unmatched_segments=(), matched_segments=cls.seg_to_tuple(matched))
 
@@ -134,21 +124,7 @@ class MatchResult(
                 unmatched_segments=self.unmatched_segments,
             )
         else:
-            try:
-                other_tuple = self.seg_to_tuple(other)
-            except TypeError:
-                raise TypeError(
-                    "Unexpected type passed to MatchResult.__add__: {0}".format(
-                        type(other)
-                    )
-                )
-            if len(other_tuple) > 0 and not is_segment(other_tuple[0]):
-                raise TypeError(
-                    "Unexpected type passed to MatchResult.__add__: {2} of {0}.\n{1}".format(
-                        type(other[0]), other_tuple, type(other)
-                    )
-                )
             return self.__class__(
-                matched_segments=self.matched_segments + other_tuple,
+                matched_segments=self.matched_segments + self.seg_to_tuple(other),
                 unmatched_segments=self.unmatched_segments,
             )
