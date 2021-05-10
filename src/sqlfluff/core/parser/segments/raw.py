@@ -49,6 +49,8 @@ class RawSegment(BaseSegment):
         # What should we trim off the ends to get to content
         self.trim_start = trim_start
         self.trim_chars = trim_chars
+        # A cache variable for expandable
+        self._is_expandable = None
 
     def __repr__(self):
         return "<{0}: ({1}) {2!r}>".format(

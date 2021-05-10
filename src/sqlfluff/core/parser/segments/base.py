@@ -77,10 +77,10 @@ class BaseSegment:
     # Can we allow it to be empty? Usually used in combination
     # with the can_start_end_non_code.
     allow_empty = False
-    # A cache variable for expandable
-    _is_expandable = None
 
     def __init__(self, segments, pos_marker=None):
+        # A cache variable for expandable
+        self._is_expandable = None
         if len(segments) == 0:
             raise RuntimeError(
                 "Setting {0} with a zero length segment set. This shouldn't happen.".format(
