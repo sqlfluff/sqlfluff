@@ -1,5 +1,6 @@
 """Implementation of Rule L016."""
 
+from typing import Tuple
 
 from sqlfluff.core.rules.base import LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import (
@@ -53,7 +54,7 @@ class Rule_L016(Rule_L003):
                     indent_balance=self.indent_balance,
                     indent_impulse=self.indent_impulse,
                     segments="".join(elem.raw for elem in self.segments),
-                    pos=self.segments[0].get_start_pos_marker()
+                    pos=self.segments[0].get_start_point_marker()
                     if self.segments
                     else "",
                 )
@@ -63,12 +64,9 @@ class Rule_L016(Rule_L003):
                 return "".join(seg.raw for seg in self.segments)
 
             @staticmethod
-            def find_segment_at(segments, pos):
-                highest_pos = None
+            def find_segment_at(segments, loc: Tuple[int, int]):
                 for seg in segments:
-                    if highest_pos is None or seg.pos_marker > highest_pos:
-                        highest_pos = seg.pos_marker
-                    if not seg.is_meta and seg.pos_marker == pos:
+                    if not seg.is_meta and seg.pos_marker.working_loc == loc:
                         return seg
 
             def generate_fixes_to_coerce(
@@ -100,7 +98,7 @@ class Rule_L016(Rule_L003):
                     new_indent = indent_section.raw
 
                 create_anchor = self.find_segment_at(
-                    segments, self.segments[-1].get_end_pos_marker()
+                    segments, self.segments[-1].get_end_loc()
                 )
 
                 if self.role == "pausepoint":
@@ -126,10 +124,8 @@ class Rule_L016(Rule_L003):
                             "create",
                             create_anchor,
                             [
-                                crawler.make_newline(create_anchor.pos_marker),
-                                crawler.make_whitespace(
-                                    new_indent, create_anchor.pos_marker
-                                ),
+                                crawler.make_newline(),
+                                crawler.make_whitespace(new_indent),
                             ],
                         )
                     )
@@ -149,10 +145,8 @@ class Rule_L016(Rule_L003):
                             "create",
                             create_anchor,
                             [
-                                crawler.make_newline(create_anchor.pos_marker),
-                                crawler.make_whitespace(
-                                    new_indent, create_anchor.pos_marker
-                                ),
+                                crawler.make_newline(),
+                                crawler.make_whitespace(new_indent),
                             ],
                         )
                     )

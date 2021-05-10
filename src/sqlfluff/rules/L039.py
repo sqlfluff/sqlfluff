@@ -57,7 +57,6 @@ class Rule_L039(BaseRule):
                                         prev_whitespace,
                                         self.make_whitespace(
                                             raw=" ",
-                                            pos_marker=prev_whitespace.pos_marker,
                                         ),
                                     )
                                 ],

@@ -71,14 +71,7 @@ class Rule_L015(BaseRule):
                             LintFix(
                                 "create",
                                 first_segment,
-                                [
-                                    self.make_whitespace(
-                                        raw=insert_str,
-                                        pos_marker=first_segment.pos_marker.advance_by(
-                                            insert_str
-                                        ),
-                                    )
-                                ],
+                                [self.make_whitespace(raw=insert_str)],
                             )
                         )
                     return LintResult(anchor=segment, fixes=fixes)

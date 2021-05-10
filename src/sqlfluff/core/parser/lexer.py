@@ -12,6 +12,7 @@ from sqlfluff.core.parser.segments import (
     TemplateSegment,
     UnlexableSegment,
 )
+from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.errors import SQLLexError
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.config import FluffConfig
@@ -383,29 +384,23 @@ class Lexer:
                     if source_only_slice.slice_type in ("block_end", "block_mid"):
                         segment_buffer.append(
                             Dedent.when(template_blocks_indent=True)(
-                                pos_marker=templated_file.make_position_marker(
-                                    slice(
-                                        placeholder_source_slice.start,
-                                        placeholder_source_slice.start,
-                                    ),
-                                    slice(
-                                        element.template_slice.start,
-                                        element.template_slice.start,
-                                    ),
-                                    is_literal=False,
+                                pos_marker=PositionMarker.from_point(
+                                    placeholder_source_slice.start,
+                                    element.template_slice.start,
+                                    templated_file,
                                 )
                             )
                         )
                     # Always add a placeholder
                     segment_buffer.append(
                         TemplateSegment(
-                            pos_marker=templated_file.make_position_marker(
+                            pos_marker=PositionMarker(
                                 placeholder_source_slice,
                                 slice(
                                     element.template_slice.start,
                                     element.template_slice.start,
                                 ),
-                                is_literal=False,
+                                templated_file,
                             ),
                             source_str=source_only_slice.raw,
                             block_type=source_only_slice.slice_type,
@@ -415,30 +410,22 @@ class Lexer:
                     if source_only_slice.slice_type in ("block_start", "block_mid"):
                         segment_buffer.append(
                             Indent.when(template_blocks_indent=True)(
-                                pos_marker=templated_file.make_position_marker(
-                                    slice(
-                                        placeholder_source_slice.stop,
-                                        placeholder_source_slice.stop,
-                                    ),
-                                    slice(
-                                        element.template_slice.start,
-                                        element.template_slice.start,
-                                    ),
-                                    is_literal=False,
+                                pos_marker=PositionMarker.from_point(
+                                    placeholder_source_slice.stop,
+                                    element.template_slice.start,
+                                    templated_file,
                                 )
                             )
                         )
 
-            # Calculate is_literal
-            is_literal = templated_file.is_source_slice_literal(source_slice)
-            # Add the atual segment
+            # Add the actual segment
             segment_buffer.append(
                 element.to_segment(
-                    pos_marker=templated_file.make_position_marker(
+                    pos_marker=PositionMarker(
                         source_slice,
                         element.template_slice,
-                        is_literal=is_literal,
-                    )
+                        templated_file,
+                    ),
                 )
             )
 

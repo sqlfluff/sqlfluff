@@ -68,11 +68,7 @@ class Rule_L023(BaseRule):
                                     LintFix(
                                         "create",
                                         seg,
-                                        [
-                                            self.make_whitespace(
-                                                raw=" ", pos_marker=seg.pos_marker
-                                            )
-                                        ],
+                                        [self.make_whitespace(raw=" ")],
                                     )
                                 ]
                             else:

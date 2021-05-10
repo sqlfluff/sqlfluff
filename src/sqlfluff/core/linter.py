@@ -178,7 +178,7 @@ class LintedFile(NamedTuple):
                 v
                 for v in violations
                 if not (
-                    v.line_no() == ignore.line_no
+                    v.line_no == ignore.line_no
                     and (ignore.rules is None or v.rule_code() in ignore.rules)
                 )
             ]
@@ -226,7 +226,7 @@ class LintedFile(NamedTuple):
             )
             # Determine whether to ignore the violation, based on the relevant
             # enable/disable directives.
-            if not cls._should_ignore_violation_line_range(v.line_no(), ignore_rule):
+            if not cls._should_ignore_violation_line_range(v.line_no, ignore_rule):
                 result.append(v)
         return result
 
@@ -1012,6 +1012,7 @@ class Linter:
                 if not comment_remainder.startswith(":"):
                     return SQLParseError(
                         "Malformed 'noqa' section. Expected 'noqa: <rule>[,...]",
+                        line_no=line_no,
                     )
                 comment_remainder = comment_remainder[1:].strip()
                 if comment_remainder:
@@ -1021,6 +1022,7 @@ class Linter:
                         if action not in {"disable", "enable"}:
                             return SQLParseError(
                                 "Malformed 'noqa' section. Expected 'noqa: enable=<rule>[,...] | all' or 'noqa: disable=<rule>[,...] | all",
+                                line_no=line_no,
                             )
                     else:
                         action = None
@@ -1028,6 +1030,7 @@ class Linter:
                         if rule_part in {"disable", "enable"}:
                             return SQLParseError(
                                 "Malformed 'noqa' section. Expected 'noqa: enable=<rule>[,...] | all' or 'noqa: disable=<rule>[,...] | all",
+                                line_no=line_no,
                             )
                     rules: Optional[Tuple[str, ...]]
                     if rule_part != "all":
@@ -1043,9 +1046,8 @@ class Linter:
         """Extract ignore mask entries from a comment segment."""
         # Also trim any whitespace afterward
         comment_content = comment.raw_trimmed().strip()
-        result = cls.parse_noqa(
-            comment_content, comment.pos_marker.source_pos_marker.line_no
-        )
+        comment_line, _ = comment.pos_marker.source_position()
+        result = cls.parse_noqa(comment_content, comment_line)
         if isinstance(result, SQLParseError):
             result.segment = comment
         return result
@@ -1146,9 +1148,7 @@ class Linter:
             filter(
                 lambda e: (
                     # Is it in a literal section?
-                    # This default to YES because if it's missing we probably
-                    # didn't template this file.
-                    getattr(e.segment.pos_marker, "is_literal", True)
+                    e.segment.pos_marker.is_literal()
                     # Is it a rule that is designed to work on templated sections?
                     or e.rule.targets_templated
                 ),

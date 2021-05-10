@@ -28,16 +28,19 @@ class Rule_L009(BaseRule):
             # We can't fail on a meta segment
             return None
         else:
-            # so this looks like the end of the file, but we
-            # need to check that each parent segment is also the last
-            file_len = len(parent_stack[0].raw)
-            pos = segment.pos_marker.char_pos
-            # Does the length of the file, equal the length of the segment plus its position
-            if file_len != pos + len(segment.raw):
+            # So this looks like the end of the file, but we
+            # need to check that each parent segment is also the last.
+            # We do this with reference to the templated file, because it's
+            # the best we can do given the information available.
+            file_len = len(segment.pos_marker.templated_file.templated_str)
+            pos = segment.pos_marker.templated_slice.stop
+            # Does the length of the file equal the end of the templated position?
+            if file_len != pos:
                 return None
 
-        ins = self.make_newline(pos_marker=segment.pos_marker.advance_by(segment.raw))
-        # We're going to make an edit because otherwise we would never get a match!
+        # We're going to make an edit because we're appending to the end and there's
+        # no segment after it to match on. Otherwise we would never get a match!
         return LintResult(
-            anchor=segment, fixes=[LintFix("edit", segment, [segment, ins])]
+            anchor=segment,
+            fixes=[LintFix("edit", segment, [segment, self.make_newline()])],
         )

@@ -3,8 +3,6 @@
 import logging
 from typing import Dict, Iterator, List, Tuple, Optional, NamedTuple
 
-from sqlfluff.core.parser.markers import FilePositionMarker, EnrichedFilePositionMarker
-
 
 _templater_lookup: Dict[str, "RawTemplater"] = {}
 
@@ -131,6 +129,9 @@ class TemplatedFile:
         """Return true if there's a templated file."""
         return bool(self.templated_str)
 
+    def __repr__(self):
+        return "<TemplatedFile>"
+
     def __str__(self):
         """Return the templated file if coerced to string."""
         return self.templated_str
@@ -159,11 +160,11 @@ class TemplatedFile:
         while nl_idx + 1 < len(ref_str) and ref_str[nl_idx + 1] < char_pos:
             nl_idx += 1
 
-        # NB: +1 because character position is 0-indexed, but the character
-        # position is 1-indexed.
         if nl_idx >= 0:
             return nl_idx + 2, char_pos - ref_str[nl_idx]
         else:
+            # NB: line_pos is char_pos+1 because character position is 0-indexed,
+            # but the line position is 1-indexed.
             return 1, char_pos + 1
 
     def _find_slice_indices_of_templated_pos(
@@ -359,38 +360,6 @@ class TemplatedFile:
             if elem.slice_type in ("comment", "block_end", "block_start", "block_mid"):
                 ret_buff.append(elem)
         return ret_buff
-
-    def make_position_marker(
-        self, source_slice: slice, templated_slice: slice, is_literal: bool
-    ) -> EnrichedFilePositionMarker:
-        """Make a position marker given appropriate slices.
-
-        THIS NEEDS TO BE REVISITED LATER ONCE THE LEXER IS TIDY.
-        """
-        # TODO: Rework once things are severed
-
-        source_line, source_pos = self.get_line_pos_of_char_pos(
-            source_slice.start, source=True
-        )
-        templ_line, templ_pos = self.get_line_pos_of_char_pos(
-            templated_slice.start, source=False
-        )
-
-        return EnrichedFilePositionMarker(
-            statement_index=1,  # DEPRECATE
-            line_no=templ_line,
-            line_pos=templ_pos,
-            char_pos=templated_slice.start,
-            templated_slice=templated_slice,
-            source_slice=source_slice,
-            is_literal=is_literal,
-            source_pos_marker=FilePositionMarker(
-                1,  # DEPRECATE
-                source_line,
-                source_pos,
-                source_slice.start,
-            ),
-        )
 
 
 @register_templater

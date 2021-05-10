@@ -124,7 +124,7 @@ def test__parser__lexer_fail():
     assert len(vs) == 1
     err = vs[0]
     assert isinstance(err, SQLLexError)
-    assert err.pos_marker().char_pos == 7
+    assert err.line_pos == 8
 
 
 def test__parser__lexer_fail_via_parse():
@@ -135,4 +135,4 @@ def test__parser__lexer_fail_via_parse():
     assert len(vs) == 1
     err = vs[0]
     assert isinstance(err, SQLLexError)
-    assert err.pos_marker().char_pos == 7
+    assert err.line_pos == 8

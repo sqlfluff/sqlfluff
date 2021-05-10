@@ -182,9 +182,7 @@ class Rule_L019(BaseRule):
                 if segment.is_code:
                     last_comma_seg = memory["last_trailing_comma_segment"]
                     # Create whitespace to insert after the new leading comma
-                    new_whitespace_seg = self.make_whitespace(
-                        raw=" ", pos_marker=segment.pos_marker.advance_by(" ")
-                    )
+                    new_whitespace_seg = self.make_whitespace(raw=" ")
                     return LintResult(
                         anchor=last_comma_seg,
                         description="Found trailing comma. Expected only leading.",

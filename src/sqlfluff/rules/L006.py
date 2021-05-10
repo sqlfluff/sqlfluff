@@ -157,9 +157,7 @@ class Rule_L006(BaseRule):
                                     "create",
                                     # NB the anchor here is always in the parent and not anchor
                                     anchor=sub_seg,
-                                    edit=self.make_whitespace(
-                                        raw=" ", pos_marker=sub_seg.pos_marker
-                                    ),
+                                    edit=self.make_whitespace(raw=" "),
                                 )
                             ],
                         )
@@ -184,9 +182,7 @@ class Rule_L006(BaseRule):
                                     "create",
                                     # NB the anchor here is always in the parent and not anchor
                                     anchor=next_seg,
-                                    edit=self.make_whitespace(
-                                        raw=" ", pos_marker=next_seg.pos_marker
-                                    ),
+                                    edit=self.make_whitespace(raw=" "),
                                 )
                             ],
                         )

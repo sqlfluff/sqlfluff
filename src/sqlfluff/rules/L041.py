@@ -52,9 +52,9 @@ class Rule_L041(BaseRule):
 
             # E.g.: " DISTINCT\n"
             replace_newline_with = [
-                self.make_whitespace(raw=" ", pos_marker=newline.pos_marker),
+                self.make_whitespace(raw=" "),
                 select_modifier,
-                self.make_newline(pos_marker=newline.pos_marker),
+                self.make_newline(),
             ]
             fixes = [
                 # E.g. "\n" -> " DISTINCT\n.

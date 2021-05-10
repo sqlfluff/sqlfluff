@@ -175,7 +175,7 @@ class Rule_L003(BaseRule):
                     "create",
                     current_anchor,
                     self.make_whitespace(
-                        raw=desired_indent, pos_marker=current_anchor.pos_marker
+                        raw=desired_indent,
                     ),
                 )
             ]
@@ -188,7 +188,6 @@ class Rule_L003(BaseRule):
                     current_indent_buffer[0],
                     self.make_whitespace(
                         raw=desired_indent,
-                        pos_marker=current_indent_buffer[0].pos_marker,
                     ),
                 )
             ]
@@ -522,7 +521,6 @@ class Rule_L003(BaseRule):
                                             indent_unit=self.indent_unit,
                                             tab_space_size=self.tab_space_size,
                                         ),
-                                        pos_marker=segment.pos_marker,
                                     ),
                                 )
                             ],
@@ -546,7 +544,6 @@ class Rule_L003(BaseRule):
                                         indent_unit=self.indent_unit,
                                         tab_space_size=self.tab_space_size,
                                     ),
-                                    pos_marker=segment.pos_marker,
                                 ),
                             )
                         ],

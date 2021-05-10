@@ -166,7 +166,7 @@ def test__dialect__ansi_specific_segment_not_parse(raw, err_locations, caplog):
     parsed = lnt.parse_string(raw)
     assert len(parsed.violations) > 0
     print(parsed.violations)
-    locs = [(v.line_no(), v.line_pos()) for v in parsed.violations]
+    locs = [(v.line_no, v.line_pos) for v in parsed.violations]
     assert locs == err_locations
 
 
