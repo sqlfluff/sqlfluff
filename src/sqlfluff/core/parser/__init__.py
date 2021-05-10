@@ -30,7 +30,7 @@ from sqlfluff.core.parser.grammar import (
     Nothing,
     OptionallyBracketed,
 )
-from sqlfluff.core.parser.parsers import StringParser, NamedParser
+from sqlfluff.core.parser.parsers import StringParser, NamedParser, RegexParser
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.lexer import Lexer, StringLexer, RegexLexer
 from sqlfluff.core.parser.parser import Parser

@@ -138,7 +138,7 @@ class RegexParser(StringParser):
     ):
         # Store the optional anti-template
         self.anti_template = anti_template
-        super().__init__(template=template, raw_class=raw_class, name=name, type=type, optional=optional, anti_template=anti_template, **segment_kwargs)
+        super().__init__(template=template, raw_class=raw_class, name=name, type=type, optional=optional, **segment_kwargs)
 
     def simple(cls, parse_context: ParseContext) -> Optional[List[str]]:
         """Does this matcher support a uppercase hash matching route?

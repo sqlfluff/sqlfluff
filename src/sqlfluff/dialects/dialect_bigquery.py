@@ -16,7 +16,6 @@ from sqlfluff.core.parser import (
     Sequence,
     Bracketed,
     Delimited,
-    ReSegment,
     AnyNumberOf,
     KeywordSegment,
     Indent,
@@ -25,6 +24,7 @@ from sqlfluff.core.parser import (
     CodeSegment,
     NamedParser,
     StringParser,
+    RegexParser
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -182,12 +182,13 @@ bigquery_dialect.replace(
         ),
         Sequence("WITH", "OFFSET", "AS", Ref("SingleIdentifierGrammar"), optional=True),
     ),
-    FunctionNameIdentifierSegment=ReSegment.make(
+    FunctionNameIdentifierSegment=RegexParser(
         # In BigQuery struct() has a special syntax, so we don't treat it as a function
         r"[A-Z][A-Z0-9_]*",
+        CodeSegment,
         name="function_name_identifier",
         type="function_name_identifier",
-        _anti_template=r"STRUCT",
+        anti_template=r"STRUCT",
     ),
 )
 

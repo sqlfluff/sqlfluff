@@ -19,7 +19,6 @@ from sqlfluff.core.parser import (
     BaseSegment,
     KeywordSegment,
     SymbolSegment,
-    ReSegment,
     Sequence,
     GreedyUntil,
     StartsWith,
@@ -42,6 +41,7 @@ from sqlfluff.core.parser import (
     NewlineSegment,
     StringParser,
     NamedParser,
+    RegexParser,
 )
 
 from sqlfluff.core.dialects.base import Dialect
@@ -248,8 +248,9 @@ ansi_dialect.add(
     ),
     # The following functions can be called without parentheses per ANSI specification
     BareFunctionSegment=SegmentGenerator(
-        lambda dialect: ReSegment.make(
+        lambda dialect: RegexParser(
             r"^(" + r"|".join(dialect.sets("bare_functions")) + r")$",
+            CodeSegment,
             name="bare_function",
             type="bare_function",
         )
@@ -258,32 +259,35 @@ ansi_dialect.add(
     # also use a regex to explicitly exclude disallowed keywords.
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
-        lambda dialect: ReSegment.make(
+        lambda dialect: RegexParser(
             r"[A-Z0-9_]*[A-Z][A-Z0-9_]*",
+            CodeSegment,
             name="naked_identifier",
             type="identifier",
-            _anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
     ),
-    VersionIdentifierSegment=ReSegment.make(
-        r"[A-Z0-9_.]*", name="version", type="identifier"
+    VersionIdentifierSegment=RegexParser(
+        r"[A-Z0-9_.]*", CodeSegment, name="version", type="identifier"
     ),
-    ParameterNameSegment=ReSegment.make(
-        r"[A-Z][A-Z0-9_]*", name="parameter", type="parameter"
+    ParameterNameSegment=RegexParser(
+        r"[A-Z][A-Z0-9_]*", CodeSegment, name="parameter", type="parameter"
     ),
-    FunctionNameIdentifierSegment=ReSegment.make(
+    FunctionNameIdentifierSegment=RegexParser(
         r"[A-Z][A-Z0-9_]*",
+        CodeSegment,
         name="function_name_identifier",
         type="function_name_identifier",
     ),
     # Maybe data types should be more restrictive?
-    DatatypeIdentifierSegment=ReSegment.make(
-        r"[A-Z][A-Z0-9_]*", name="data_type_identifier", type="data_type_identifier"
+    DatatypeIdentifierSegment=RegexParser(
+        r"[A-Z][A-Z0-9_]*", CodeSegment, name="data_type_identifier", type="data_type_identifier"
     ),
     # Ansi Intervals
     DatetimeUnitSegment=SegmentGenerator(
-        lambda dialect: ReSegment.make(
+        lambda dialect: RegexParser(
             r"^(" + r"|".join(dialect.sets("datetime_units")) + r")$",
+            CodeSegment,
             name="date_part",
             type="date_part",
         )

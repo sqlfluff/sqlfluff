@@ -12,7 +12,6 @@ from sqlfluff.core.parser import (
     Ref,
     Sequence,
     AnyNumberOf,
-    ReSegment,
     SymbolSegment,
     Bracketed,
     Anything,
@@ -23,7 +22,9 @@ from sqlfluff.core.parser import (
     RegexLexer,
     StringLexer,
     CodeSegment,
+    StringParser,
     NamedParser,
+    RegexParser,
 )
 
 
@@ -92,11 +93,12 @@ snowflake_dialect.add(
     # In snowflake, these are case sensitive even though they're not quoted
     # so they need a different `name` and `type` so they're not picked up
     # by other rules.
-    ParameterAssignerSegment=SymbolSegment.make(
-        "=>", name="parameter_assigner", type="parameter_assigner"
+    ParameterAssignerSegment=StringParser(
+        "=>", SymbolSegment, name="parameter_assigner", type="parameter_assigner"
     ),
-    NakedSemiStructuredElementSegment=ReSegment.make(
+    NakedSemiStructuredElementSegment=RegexParser(
         r"[A-Z0-9_]*",
+        CodeSegment,
         name="naked_semi_structured_element",
         type="semi_structured_element",
     ),
@@ -106,8 +108,8 @@ snowflake_dialect.add(
         name="quoted_semi_structured_element",
         type="semi_structured_element",
     ),
-    ColumnIndexIdentifierSegment=ReSegment.make(
-        r"\$[0-9]+", name="column_index_identifier_segment", type="identifier"
+    ColumnIndexIdentifierSegment=RegexParser(
+        r"\$[0-9]+", CodeSegment, name="column_index_identifier_segment", type="identifier"
     ),
 )
 

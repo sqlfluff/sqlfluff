@@ -17,7 +17,6 @@ from sqlfluff.core.parser import (
     Nothing,
     OneOf,
     Ref,
-    ReSegment,
     Sequence,
     StartsWith,
     RegexLexer,
@@ -26,6 +25,8 @@ from sqlfluff.core.parser import (
     CommentSegment,
     NamedParser,
     SymbolSegment,
+    StringParser,
+    RegexParser,
 )
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.dialects.exasol_keywords import (
@@ -72,12 +73,12 @@ exasol_dialect.patch_lexer_matchers(
 
 # Access column aliases by using the LOCAL keyword
 exasol_dialect.add(
-    LocalIdentifierSegment=KeywordSegment.make(
-        "LOCAL", name="local_identifier", type="identifier"
+    LocalIdentifierSegment=StringParser(
+        "LOCAL", KeywordSegment, name="local_identifier", type="identifier"
     ),
     RangeOperator=NamedParser("range_operator", SymbolSegment, type="range_operator"),
-    UnknownSegment=KeywordSegment.make(
-        "unknown", name="boolean_literal", type="literal"
+    UnknownSegment=StringParser(
+        "unknown", KeywordSegment, name="boolean_literal", type="literal"
     ),
     ForeignKeyReferencesClauseGrammar=Sequence(
         "REFERENCES",
@@ -129,10 +130,11 @@ exasol_dialect.add(
         enforce_whitespace_preceeding_terminator=True,
     ),
     TableConstraintEnableDisableGrammar=OneOf("ENABLE", "DISABLE"),
-    EscapedIdentifierSegment=ReSegment.make(
+    EscapedIdentifierSegment=RegexParser(
         # This matches escaped identifier e.g. [day]. There can be reserved keywords
         # within the square brackets.
         r"\[[A-Z]\]",
+        CodeSegment,
         name="escaped_identifier",
         type="identifier",
     ),
@@ -145,12 +147,9 @@ exasol_dialect.replace(
         Ref("QuotedIdentifierSegment"),
         Ref("EscapedIdentifierSegment"),
     ),
-    # TODO: Remove?
-    # exasol_dialect.replace(
-    #     SemicolonSegment=SymbolSegment.make(";", name="semicolon", type="semicolon"),
-    # )
-    ParameterNameSegment=ReSegment.make(
+    ParameterNameSegment=RegexParser(
         r"\"?[A-Z][A-Z0-9_]*\"?",
+        CodeSegment,
         name="parameter",
         type="parameter",
     ),

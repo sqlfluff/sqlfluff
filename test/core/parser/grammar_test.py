@@ -3,7 +3,7 @@
 import pytest
 import logging
 
-from sqlfluff.core.parser import KeywordSegment, ReSegment, StringParser, SymbolSegment
+from sqlfluff.core.parser import KeywordSegment, StringParser, SymbolSegment, RegexParser
 from sqlfluff.core.parser.context import RootParseContext
 from sqlfluff.core.parser.segments import EphemeralSegment
 from sqlfluff.core.parser.grammar.base import BaseGrammar
@@ -317,7 +317,7 @@ def test__parser__grammar_oneof_exclude(seg_list):
 
 def test__parser__grammar_oneof_take_longest_match(seg_list):
     """Test that the OneOf grammar takes the longest match."""
-    fooRegex = ReSegment.make(r"fo{2}")
+    fooRegex = RegexParser(r"fo{2}", KeywordSegment)
     baar = StringParser("baar", KeywordSegment)
     foo = StringParser("foo", KeywordSegment)
     fooBaar = Sequence(
@@ -330,7 +330,7 @@ def test__parser__grammar_oneof_take_longest_match(seg_list):
     g = OneOf(fooRegex, fooBaar)
     with RootParseContext(dialect=None) as ctx:
         assert fooRegex.match(seg_list[2:], parse_context=ctx).matched_segments == (
-            fooRegex("foo", seg_list[2].pos_marker),
+            KeywordSegment("foo", seg_list[2].pos_marker),
         )
         assert g.match(seg_list[2:], parse_context=ctx).matched_segments == (
             KeywordSegment("foo", seg_list[2].pos_marker),
@@ -340,7 +340,7 @@ def test__parser__grammar_oneof_take_longest_match(seg_list):
 
 def test__parser__grammar_oneof_take_first(seg_list):
     """Test that the OneOf grammar takes first match in case they are of same length."""
-    fooRegex = ReSegment.make(r"fo{2}")
+    fooRegex = RegexParser(r"fo{2}", KeywordSegment)
     foo = StringParser("foo", KeywordSegment)
 
     # Both segments would match "foo"
@@ -349,7 +349,7 @@ def test__parser__grammar_oneof_take_first(seg_list):
     g2 = OneOf(foo, fooRegex)
     with RootParseContext(dialect=None) as ctx:
         assert g1.match(seg_list[2:], parse_context=ctx).matched_segments == (
-            fooRegex("foo", seg_list[2].pos_marker),
+            KeywordSegment("foo", seg_list[2].pos_marker),
         )
         assert g2.match(seg_list[2:], parse_context=ctx).matched_segments == (
             KeywordSegment("foo", seg_list[2].pos_marker),

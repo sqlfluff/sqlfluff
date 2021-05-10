@@ -21,7 +21,6 @@ from sqlfluff.core.parser import (
     GreedyUntil,
     OneOf,
     Ref,
-    ReSegment,
     Sequence,
     StartsWith,
     SymbolSegment,
@@ -29,7 +28,9 @@ from sqlfluff.core.parser import (
     RegexLexer,
     CodeSegment,
     NewlineSegment,
+    StringParser,
     NamedParser,
+    RegexParser,
 )
 from sqlfluff.core.dialects import load_raw_dialect
 
@@ -70,15 +71,16 @@ exasol_fs_dialect.add(
     WalrusOperatorSegment=NamedParser(
         "walrus_operator", SymbolSegment, type="assignment_operator"
     ),
-    VariableNameSegment=ReSegment.make(
+    VariableNameSegment=RegexParser(
         r"[A-Z][A-Z0-9_]*",
+        CodeSegment,
         name="function_variable",
         type="variable",
     ),
 )
 
 exasol_fs_dialect.replace(
-    SemicolonSegment=SymbolSegment.make(";", name="semicolon", type="semicolon"),
+    SemicolonSegment=StringParser(";", SymbolSegment, name="semicolon", type="semicolon"),
 )
 
 
