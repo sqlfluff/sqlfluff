@@ -4,7 +4,7 @@ from typing import Optional, List, Tuple
 
 from sqlfluff.core.errors import SQLParseError
 
-from sqlfluff.core.parser.segments import BaseSegment, Indent, Dedent
+from sqlfluff.core.parser.segments import BaseSegment, Indent, Dedent, allow_ephemeral
 from sqlfluff.core.parser.helpers import trim_non_code_segments, check_still_complete
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper
@@ -39,6 +39,7 @@ class Sequence(BaseGrammar):
         return simple_buff
 
     @match_wrapper()
+    @allow_ephemeral
     def match(self, segments, parse_context):
         """Match a specific sequence of elements."""
         if isinstance(segments, BaseSegment):
@@ -210,6 +211,7 @@ class Bracketed(Sequence):
         return start_bracket, end_bracket
 
     @match_wrapper()
+    @allow_ephemeral
     def match(
         self, segments: Tuple["BaseSegment", ...], parse_context: ParseContext
     ) -> MatchResult:

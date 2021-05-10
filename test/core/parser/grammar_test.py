@@ -10,7 +10,7 @@ from sqlfluff.core.parser import (
     RegexParser,
 )
 from sqlfluff.core.parser.context import RootParseContext
-from sqlfluff.core.parser.segments import EphemeralSegment
+from sqlfluff.core.parser.segments import EphemeralSegment, BaseSegment
 from sqlfluff.core.parser.grammar.base import BaseGrammar
 from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
 from sqlfluff.core.parser.grammar import (
@@ -156,11 +156,13 @@ def test__parser__grammar__base__look_ahead_match(
 
 
 def test__parser__grammar__base__ephemeral_segment(seg_list):
-    """Test the ephemeral features BaseGrammar.
+    """Test the ephemeral features on BaseGrammar.
 
     Normally you cant call .match() on a BaseGrammar, but
     if things are set up right, then it should be possible
     in the case that the ephemeral_name is set.
+
+    This indirectly tests the allow_ephemeral decorator.
     """
     g = BaseGrammar(ephemeral_name="TestGrammar")
 
@@ -168,9 +170,35 @@ def test__parser__grammar__base__ephemeral_segment(seg_list):
         m = g.match(seg_list, ctx)
         # Check we get an ephemeral segment
         assert isinstance(m.matched_segments[0], EphemeralSegment)
+        assert len(m.matched_segments) == 1
         chkpoint = m.matched_segments[0]
         # Check it's got the same content.
         assert chkpoint.segments == seg_list
+
+
+def test__parser__grammar__oneof__ephemeral_segment(seg_list):
+    """A realistic full test of ephemeral segments."""
+
+    class TestSegment(BaseSegment):
+        match_grammar = OneOf(
+            StringParser("bar", KeywordSegment), ephemeral_name="foofoo"
+        )
+
+    with RootParseContext(dialect=None) as ctx:
+        m = TestSegment.match(seg_list[:1], ctx)
+        # Make sure we've matched
+        assert m
+        seg = m.matched_segments[0]
+        assert isinstance(seg, TestSegment)
+        # Check the content is ephemeral
+        assert isinstance(seg.segments[0], EphemeralSegment)
+        assert seg.segments[0].name == "foofoo"
+        # Expand the segment
+        res = seg.parse(ctx)
+        # Check we still have a test segment
+        assert isinstance(res, TestSegment)
+        # But that it contains a keyword segment now
+        assert isinstance(res.segments[0], KeywordSegment)
 
 
 def test__parser__grammar__base__bracket_sensitive_look_ahead_match(

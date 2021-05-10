@@ -6,7 +6,7 @@ from typing import List, NamedTuple, Optional, Union, Type, Tuple, Any
 from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.string_helpers import curtail_string
 
-from sqlfluff.core.parser.segments import BaseSegment, EphemeralSegment
+from sqlfluff.core.parser.segments import BaseSegment, allow_ephemeral
 from sqlfluff.core.parser.helpers import trim_non_code_segments, iter_indices
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_logging import (
@@ -136,21 +136,12 @@ class BaseGrammar(Matchable):
         # Now we deal with the standard kwargs
         self.allow_gaps = allow_gaps
         self.optional = optional
-        self.ephemeral_segment = None
-        # Set up the ephemeral_segment if name is specified.
-        if ephemeral_name:
-            # Make the EphemeralSegment class. This is effectively syntactic sugar
-            # to allow us to avoid specifying a EphemeralSegment directly in a dialect.
-
-            # Copy self (*before* making the EphemeralSegment, but with everything else in place)
-            parse_grammar = copy.copy(self)
-            # Add the EphemeralSegment to self.
-            self.ephemeral_segment = EphemeralSegment.make(
-                match_grammar=None,
-                # Pass in the copy without the EphemeralSegment
-                parse_grammar=parse_grammar,
-                name=ephemeral_name,
-            )
+        # ephemeral_name is a flag to indicate whether we need to make an
+        # EphemeralSegment class. This is effectively syntactic sugar
+        # to allow us to avoid specifying a EphemeralSegment directly in a dialect.
+        # If this is the case, the actual segment construction happens in the
+        # match_wrapper.
+        self.ephemeral_name = ephemeral_name
 
     def is_optional(self):
         """Return whether this segment is optional.
@@ -160,6 +151,7 @@ class BaseGrammar(Matchable):
         return self.optional
 
     @match_wrapper()
+    @allow_ephemeral
     def match(self, segments: Tuple["BaseSegment", ...], parse_context: ParseContext):
         """Match a list of segments against this segment.
 
@@ -778,6 +770,7 @@ class Ref(BaseGrammar):
         )
 
     @match_wrapper(v_level=4)  # Log less for Ref
+    @allow_ephemeral
     def match(self, segments, parse_context):
         """Match a list of segments against this segment.
 

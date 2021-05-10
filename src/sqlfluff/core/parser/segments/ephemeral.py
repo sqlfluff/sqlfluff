@@ -1,5 +1,9 @@
 """Ephemeral segment definitions."""
 
+import copy
+from typing import Optional
+
+from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.segments.base import BaseSegment
 
 
@@ -12,29 +16,70 @@ class EphemeralSegment(BaseSegment):
     it no longer exists.
     """
 
+    def __init__(self, segments, pos_marker, parse_grammar, name: Optional[str] = None):
+        # Stash the parse grammar for now.
+        self._parse_grammar = parse_grammar
+        super().__init__(segments, pos_marker=pos_marker, name=name)
+
+    @property
+    def is_expandable(self):
+        """Ephemeral segments are always expandable.
+
+        They should dissolve after expansion. So if it exists, it's expandable.
+        We need to redefine this here because the usual introspection doesn't
+        handle the custom parse_grammar properly.
+        """
+        return True
+
     def parse(self, parse_context):
         """Use the parse grammar to find subsegments within this segment.
 
         Return the content of the result, rather than itself.
         """
-        # Call the usual parse function
-        new_self = super().parse(parse_context)
+        # Call the usual parse function, but overriding the parse grammar.
+        new_self = super().parse(parse_context, parse_grammar=self._parse_grammar)
         # Return the content of that result rather than self
         return new_self.segments
 
-    @classmethod
-    def make(cls, match_grammar, parse_grammar, name):
-        """Make a subclass of the segment using a method.
 
-        Note: This requires a custom make method, because it's a bit different.
-        """
-        # Now lets make the classname (it indicates the mother class for clarity)
-        classname = "EphemeralSegment_{name}".format(name=name)
-        # This is the magic, we generate a new class! SORCERY
-        newclass = type(
-            classname,
-            (cls,),
-            dict(match_grammar=match_grammar, parse_grammar=parse_grammar),
-        )
-        # Now we return that class in the abstract. NOT INSTANTIATED
-        return newclass
+def allow_ephemeral(func):
+    """Wraps a .match() method to the option of ephemeral matching for grammars.
+
+    This is designed to be used as follows:
+
+        class SomeMatchableObject(object):
+            @match_wrapper()
+            @allow_ephemeral
+            def match(self, segments, parse_context):
+                ...
+                return m
+
+    NOTE: This should come inside the match_wrapper.
+    """
+
+    def wrapped_match_method(self, segments: tuple, parse_context):
+        """A wrapper on the match function to do some basic validation."""
+        # Use the ephemeral_segment if present. This should only
+        # be the case for grammars where `ephemeral_name` is defined.
+        if self.ephemeral_name:
+            # We're going to return as though it's a full match, similar to Anything().
+            new_grammar = copy.copy(self)
+            # Reset the ephemeral name on the new version of the grammar otherwise
+            # we get infinite recursion.
+            new_grammar.ephemeral_name = None
+            return MatchResult.from_matched(
+                (
+                    EphemeralSegment(
+                        segments=segments,
+                        pos_marker=None,
+                        # Ephemeral segments get a copy of the parent grammar.
+                        parse_grammar=new_grammar,
+                        name=self.ephemeral_name,
+                    ),
+                )
+            )
+        else:
+            # Otherwise carry on through with wrapping the function.
+            return func(self, segments, parse_context=parse_context)
+
+    return wrapped_match_method
