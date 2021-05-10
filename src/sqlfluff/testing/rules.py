@@ -71,7 +71,7 @@ def assert_rule_fail_in_sql(code, sql, configs=None, line_numbers=None):
             pytrace=False,
         )
     if line_numbers:
-        actual_line_numbers = [e.line_no() for e in lerrs]
+        actual_line_numbers = [e.line_no for e in lerrs]
         if line_numbers != actual_line_numbers:
             pytest.fail(
                 "Expected errors on lines {0}, but got errors on lines {1}".format(

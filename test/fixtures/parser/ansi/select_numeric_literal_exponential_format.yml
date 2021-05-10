@@ -1,0 +1,37 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          literal: 1e-9
+      - comma: ','
+      - select_clause_element:
+          numeric_literal:
+            binary_operator: '-'
+            literal: 12.345e12
+      - comma: ','
+      - select_clause_element:
+          literal: '.0123E-6'
+      - comma: ','
+      - select_clause_element:
+          literal: '25'
+      - comma: ','
+      - select_clause_element:
+          numeric_literal:
+            binary_operator: +
+            literal: '6.34'
+      - comma: ','
+      - select_clause_element:
+          literal: '0.5'
+      - comma: ','
+      - select_clause_element:
+          literal: 25e-03
+      - comma: ','
+      - select_clause_element:
+          numeric_literal:
+            binary_operator: '-'
+            literal: '1'
+      - comma: ','
+      - select_clause_element:
+          literal: '25'

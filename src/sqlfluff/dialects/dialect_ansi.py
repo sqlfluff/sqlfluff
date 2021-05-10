@@ -35,6 +35,12 @@ from sqlfluff.core.parser import (
     Dedent,
     Nothing,
     OptionallyBracketed,
+    StringMatcher,
+    RegexMatcher,
+    CodeSegment,
+    CommentSegment,
+    WhitespaceSegment,
+    NewlineSegment,
 )
 
 from sqlfluff.core.dialects.base import Dialect
@@ -49,70 +55,64 @@ from sqlfluff.dialects.ansi_keywords import (
 ansi_dialect = Dialect("ansi", root_segment_name="FileSegment")
 
 
-ansi_dialect.set_lexer_struct(
+ansi_dialect.set_lexer_matchers(
     [
-        # name, type, pattern, kwargs
-        ("whitespace", "regex", r"[\t ]+", dict(type="whitespace", is_whitespace=True)),
-        (
+        RegexMatcher("whitespace", r"[\t ]+", WhitespaceSegment),
+        RegexMatcher(
             "inline_comment",
-            "regex",
             r"(--|#)[^\n]*",
-            dict(is_comment=True, type="comment", trim_start=("--", "#")),
+            CommentSegment,
+            segment_kwargs={"trim_start": ("--", "#")},
         ),
-        (
+        RegexMatcher(
             "block_comment",
-            "regex",
             r"\/\*([^\*]|\*(?!\/))*\*\/",
-            dict(
-                is_comment=True,
-                type="comment",
-                subdivide=dict(
-                    type="newline", name="newline", regex=r"\r\n|\n", is_whitespace=True
-                ),
-                trim_post_subdivide=dict(
-                    type="whitespace",
-                    name="whitespace",
-                    regex=r"[\t ]+",
-                    is_whitespace=True,
-                ),
+            CommentSegment,
+            subdivider=RegexMatcher(
+                "newline",
+                r"\r\n|\n",
+                NewlineSegment,
+            ),
+            trim_post_subdivide=RegexMatcher(
+                "whitespace",
+                r"[\t ]+",
+                WhitespaceSegment,
             ),
         ),
-        # Matches 0 or more characters surrounded by quotes that (aren't a quote or backslash) or a sequence of backslash followed by any character, aka an escaped character.
-        ("single_quote", "regex", r"'([^'\\]|\\.)*'", dict(is_code=True)),
-        ("double_quote", "regex", r'"([^"\\]|\\.)*"', dict(is_code=True)),
-        ("back_quote", "regex", r"`[^`]*`", dict(is_code=True)),
-        (
-            "numeric_literal",
-            "regex",
-            r"([0-9]+(\.[0-9]+)?)|(\.[0-9]+)",
-            dict(is_code=True),
+        RegexMatcher("single_quote", r"'([^'\\]|\\.)*'", CodeSegment),
+        RegexMatcher("double_quote", r'"([^"\\]|\\.)*"', CodeSegment),
+        RegexMatcher("back_quote", r"`[^`]*`", CodeSegment),
+        # See https://www.geeksforgeeks.org/postgresql-dollar-quoted-string-constants/
+        RegexMatcher("dollar_quote", r"\$(\w*)\$[^\1]*\$\1\$", CodeSegment),
+        RegexMatcher(
+            "numeric_literal", r"(\d+(\.\d+)?|\.\d+)([eE][+-]?\d+)?", CodeSegment
         ),
-        ("not_equal", "regex", r"!=|<>", dict(is_code=True)),
-        ("like_operator", "regex", r"!?~~?\*?", dict(is_code=True)),
-        ("greater_than_or_equal", "regex", r">=", dict(is_code=True)),
-        ("less_than_or_equal", "regex", r"<=", dict(is_code=True)),
-        ("newline", "regex", r"\r\n|\n", dict(type="newline", is_whitespace=True)),
-        ("casting_operator", "regex", r"::", dict(is_code=True)),
-        ("concat_operator", "regex", r"\|\|", dict(is_code=True)),
-        ("equals", "singleton", "=", dict(is_code=True)),
-        ("greater_than", "singleton", ">", dict(is_code=True)),
-        ("less_than", "singleton", "<", dict(is_code=True)),
-        ("dot", "singleton", ".", dict(is_code=True)),
-        ("comma", "singleton", ",", dict(is_code=True, type="comma")),
-        ("plus", "singleton", "+", dict(is_code=True)),
-        ("minus", "singleton", "-", dict(is_code=True)),
-        ("divide", "singleton", "/", dict(is_code=True)),
-        ("percent", "singleton", "%", dict(is_code=True)),
-        ("star", "singleton", "*", dict(is_code=True)),
-        ("bracket_open", "singleton", "(", dict(is_code=True)),
-        ("bracket_close", "singleton", ")", dict(is_code=True)),
-        ("sq_bracket_open", "singleton", "[", dict(is_code=True)),
-        ("sq_bracket_close", "singleton", "]", dict(is_code=True)),
-        ("crly_bracket_open", "singleton", "{", dict(is_code=True)),
-        ("crly_bracket_close", "singleton", "}", dict(is_code=True)),
-        ("colon", "singleton", ":", dict(is_code=True)),
-        ("semicolon", "singleton", ";", dict(is_code=True)),
-        ("code", "regex", r"[0-9a-zA-Z_]*", dict(is_code=True)),
+        RegexMatcher("not_equal", r"!=|<>", CodeSegment),
+        RegexMatcher("like_operator", r"!?~~?\*?", CodeSegment),
+        StringMatcher("greater_than_or_equal", ">=", CodeSegment),
+        StringMatcher("less_than_or_equal", "<=", CodeSegment),
+        RegexMatcher("newline", r"\r\n|\n", NewlineSegment),
+        StringMatcher("casting_operator", "::", CodeSegment),
+        StringMatcher("concat_operator", "||", CodeSegment),
+        StringMatcher("equals", "=", CodeSegment),
+        StringMatcher("greater_than", ">", CodeSegment),
+        StringMatcher("less_than", "<", CodeSegment),
+        StringMatcher("dot", ".", CodeSegment),
+        StringMatcher("comma", ",", CodeSegment, segment_kwargs={"type": "comma"}),
+        StringMatcher("plus", "+", CodeSegment),
+        StringMatcher("minus", "-", CodeSegment),
+        StringMatcher("divide", "/", CodeSegment),
+        StringMatcher("percent", "%", CodeSegment),
+        StringMatcher("star", "*", CodeSegment),
+        StringMatcher("bracket_open", "(", CodeSegment),
+        StringMatcher("bracket_close", ")", CodeSegment),
+        StringMatcher("sq_bracket_open", "[", CodeSegment),
+        StringMatcher("sq_bracket_close", "]", CodeSegment),
+        StringMatcher("crly_bracket_open", "{", CodeSegment),
+        StringMatcher("crly_bracket_close", "}", CodeSegment),
+        StringMatcher("colon", ":", CodeSegment),
+        StringMatcher("semicolon", ";", CodeSegment),
+        RegexMatcher("code", r"[0-9a-zA-Z_]+", CodeSegment),
     ]
 )
 
@@ -149,12 +149,12 @@ ansi_dialect.sets("reserved_keywords").update(
 )
 
 # Bracket pairs (a set of tuples).
-# (name, startref, endref, definitely_bracket)
+# (name, startref, endref)
 ansi_dialect.sets("bracket_pairs").update(
     [
-        ("round", "StartBracketSegment", "EndBracketSegment", True),
-        ("square", "StartSquareBracketSegment", "EndSquareBracketSegment", True),
-        ("curly", "StartCurlyBracketSegment", "EndCurlyBracketSegment", True),
+        ("round", "StartBracketSegment", "EndBracketSegment"),
+        ("square", "StartSquareBracketSegment", "EndSquareBracketSegment"),
+        ("curly", "StartCurlyBracketSegment", "EndCurlyBracketSegment"),
     ]
 )
 
@@ -254,8 +254,10 @@ ansi_dialect.add(
     ParameterNameSegment=ReSegment.make(
         r"[A-Z][A-Z0-9_]*", name="parameter", type="parameter"
     ),
-    FunctionNameSegment=ReSegment.make(
-        r"[A-Z][A-Z0-9_]*", name="function_name", type="function_name"
+    FunctionNameIdentifierSegment=ReSegment.make(
+        r"[A-Z][A-Z0-9_]*",
+        name="function_name_identifier",
+        type="function_name_identifier",
     ),
     # Maybe data types should be more restrictive?
     DatatypeIdentifierSegment=ReSegment.make(
@@ -369,6 +371,27 @@ ansi_dialect.add(
         "LIMIT", "GROUP", "ORDER", "HAVING", "QUALIFY", "WINDOW"
     ),
     PrimaryKeyGrammar=Sequence("PRIMARY", "KEY"),
+    # Odd syntax, but prevents eager parameters being confused for data types
+    FunctionParameterGrammar=OneOf(
+        Sequence(
+            Ref("ParameterNameSegment", optional=True),
+            OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
+        ),
+        OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
+    ),
+    # This is a placeholder for other dialects.
+    SimpleArrayTypeGrammar=Nothing(),
+    BaseExpressionElementGrammar=OneOf(
+        Ref("LiteralGrammar"),
+        Ref("BareFunctionSegment"),
+        Ref("FunctionSegment"),
+        Ref("IntervalExpressionSegment"),
+        Ref("ColumnReferenceSegment"),
+        Ref("ExpressionSegment"),
+    ),
+    FilterClauseGrammar=Sequence(
+        "FILTER", Bracketed(Sequence("WHERE", Ref("ExpressionSegment")))
+    ),
 )
 
 
@@ -427,9 +450,9 @@ class IntervalExpressionSegment(BaseSegment):
 class ArrayLiteralSegment(BaseSegment):
     """An array literal segment."""
 
-    type = "array_literal_type"
+    type = "array_literal"
     match_grammar = Bracketed(
-        Delimited(Ref("ExpressionSegment")),
+        Delimited(Ref("ExpressionSegment"), optional=True),
         bracket_type="square",
     )
 
@@ -679,6 +702,7 @@ ansi_dialect.add(
     # in other dialects.
     FunctionContentsExpressionGrammar=Ref("ExpressionSegment"),
     FunctionContentsGrammar=AnyNumberOf(
+        Ref("ExpressionSegment"),
         # A Cast-like function
         Sequence(Ref("ExpressionSegment"), "AS", Ref("DatatypeSegment")),
         # An extract-like or substring-like function
@@ -709,12 +733,16 @@ ansi_dialect.add(
             OneOf(Ref("QuotedLiteralSegment"), Ref("SingleIdentifierGrammar")),
         ),
     ),
-    # Optional OVER suffix for window functions.
-    # This is supported in biquery & postgres (and its derivatives)
-    # and so is included here for now.
-    PostFunctionGrammar=Sequence(
-        Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
-        Ref("OverClauseSegment"),
+    PostFunctionGrammar=OneOf(
+        # Optional OVER suffix for window functions.
+        # This is supported in biquery & postgres (and its derivatives)
+        # and so is included here for now.
+        Sequence(
+            Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
+            Ref("OverClauseSegment"),
+        ),
+        # Filter clause supported by both Postgres and SQLite
+        Ref("FilterClauseGrammar"),
     ),
 )
 
@@ -751,6 +779,28 @@ class WindowSpecificationSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class FunctionNameSegment(BaseSegment):
+    """Function name, including any prefix bits, e.g. project or schema."""
+
+    type = "function_name"
+    match_grammar = Sequence(
+        # Project name, schema identifier, etc.
+        AnyNumberOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("DotSegment"),
+            ),
+        ),
+        # Base function name
+        OneOf(
+            Ref("FunctionNameIdentifierSegment"),
+            Ref("QuotedIdentifierSegment"),
+        ),
+        allow_gaps=False,
+    )
+
+
+@ansi_dialect.segment()
 class FunctionSegment(BaseSegment):
     """A scalar or aggregate function.
 
@@ -763,12 +813,6 @@ class FunctionSegment(BaseSegment):
     type = "function"
     match_grammar = Sequence(
         Sequence(
-            Sequence(
-                # a stored function could be accessed by schema identifier
-                Ref("SingleIdentifierGrammar"),
-                Ref("DotSegment"),
-                optional=True,
-            ),
             Ref("FunctionNameSegment"),
             Bracketed(
                 Ref(
@@ -831,6 +875,8 @@ class FromExpressionElementSegment(BaseSegment):
     match_grammar = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
+        # https://cloud.google.com/bigquery/docs/reference/standard-sql/arrays#flattening_arrays
+        Sequence("WITH", "OFFSET", optional=True),
         Ref("AliasExpressionSegment", optional=True),
         Ref("PostTableExpressionGrammar", optional=True),
     )
@@ -971,14 +1017,7 @@ class SelectClauseElementSegment(BaseSegment):
         # *, blah.*, blah.blah.*, etc.
         Ref("WildcardExpressionSegment"),
         Sequence(
-            OneOf(
-                Ref("LiteralGrammar"),
-                Ref("BareFunctionSegment"),
-                Ref("FunctionSegment"),
-                Ref("IntervalExpressionSegment"),
-                Ref("ColumnReferenceSegment"),
-                Ref("ExpressionSegment"),
-            ),
+            Ref("BaseExpressionElementGrammar"),
             Ref("AliasExpressionSegment", optional=True),
         ),
     )
@@ -1343,7 +1382,9 @@ ansi_dialect.add(
             Ref("LiteralGrammar"),
             Ref("IntervalExpressionSegment"),
             Ref("ColumnReferenceSegment"),
-            Ref("ArrayLiteralSegment"),
+            Sequence(
+                Ref("SimpleArrayTypeGrammar", optional=True), Ref("ArrayLiteralSegment")
+            ),
         ),
         Ref("Accessor_Grammar", optional=True),
         Ref("ShorthandCastSegment", optional=True),
@@ -1793,10 +1834,7 @@ class ColumnOptionSegment(BaseSegment):
                 # Foreign columns making up FOREIGN KEY constraint
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
             ),
-            Sequence(  # [COMMENT 'string'] (MySQL)
-                "COMMENT",
-                Ref("QuotedLiteralSegment"),
-            ),
+            Ref("CommentClauseSegment"),
         ),
     )
 
@@ -1892,9 +1930,7 @@ class CreateTableStatementSegment(BaseSegment):
                         ),
                     )
                 ),
-                Sequence(  # [COMMENT 'string'] (MySQL)
-                    "COMMENT", Ref("QuotedLiteralSegment"), optional=True
-                ),
+                Ref("CommentClauseSegment", optional=True),
             ),
             # Create AS syntax:
             Sequence(
@@ -1905,6 +1941,17 @@ class CreateTableStatementSegment(BaseSegment):
             Sequence("LIKE", Ref("TableReferenceSegment")),
         ),
     )
+
+
+@ansi_dialect.segment()
+class CommentClauseSegment(BaseSegment):
+    """A comment clause.
+
+    e.g. COMMENT 'view/table/column description'
+    """
+
+    type = "comment_clause"
+    match_grammar = Sequence("COMMENT", Ref("QuotedLiteralSegment"))
 
 
 @ansi_dialect.segment()
@@ -2010,6 +2057,12 @@ class AlterTableStatementSegment(BaseSegment):
                         optional=True,
                     ),
                 ),
+                # Rename
+                Sequence(
+                    "RENAME",
+                    OneOf("AS", "TO", optional=True),
+                    Ref("TableReferenceSegment"),
+                ),
             ),
         ),
     )
@@ -2072,10 +2125,41 @@ class DropIndexStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class AlterDefaultPrivilegesSegment(BaseSegment):
+    """Postgres `ALTER DEFAULT PRIVILEGES` statement.
+
+    ```
+    ALTER DEFAULT PRIVILEGES
+    [ FOR { ROLE | USER } target_role [, ...] ]
+    [ IN SCHEMA schema_name [, ...] ]
+    abbreviated_grant_or_revoke
+    ```
+    """
+
+    type = "alter_default_privileges_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "DEFAULT",
+        "PRIVILEGES",
+        Sequence(
+            "FOR",
+            OneOf("ROLE", "USER"),
+            Delimited(Ref("ObjectReferenceSegment")),
+            optional=True,
+        ),
+        Sequence(
+            "IN", "SCHEMA", Delimited(Ref("SchemaReferenceSegment")), optional=True
+        ),
+        Ref("AccessStatementSegment"),
+    )
+
+
+@ansi_dialect.segment()
 class AccessStatementSegment(BaseSegment):
     """A `GRANT` or `REVOKE` statement.
 
-    In order to help reduce code duplication we decided to implement other dialect specific grants (like snowflake)
+    In order to help reduce code duplication we decided to implement other dialect specific grants (like Snowflake)
     here too which will help with maintainability. We also note that this causes the grammar to be less "correct",
     but the benefits outweigh the con in our opinion.
 
@@ -2146,22 +2230,23 @@ class AccessStatementSegment(BaseSegment):
                 ),
             ),
             Sequence("IMPORTED", "PRIVILEGES"),
-            "MODIFY",
-            "USE_ANY_ROLE",
-            "USAGE",
-            "SELECT",
-            "INSERT",
-            "UPDATE",
+            "APPLY",
             "DELETE",
-            "TRUNCATE",
-            "REFERENCES",
-            "READ",
-            "WRITE",
+            "EXECUTE",
+            "INSERT",
+            "MODIFY",
             "MONITOR",
             "OPERATE",
-            "APPLY",
             "OWNERSHIP",
+            "READ",
             "REFERENCE_USAGE",
+            "REFERENCES",
+            "SELECT",
+            "TRUNCATE",
+            "UPDATE",
+            "USAGE",
+            "USE_ANY_ROLE",
+            "WRITE",
             Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
         ),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
@@ -2192,7 +2277,7 @@ class AccessStatementSegment(BaseSegment):
                 optional=True,
             ),
             Ref("ObjectReferenceSegment"),
-            Ref("FunctionParameterGrammar", optional=True),
+            Ref("FunctionParameterListGrammar", optional=True),
         ),
     )
 
@@ -2211,6 +2296,10 @@ class AccessStatementSegment(BaseSegment):
                     _objects,
                 ),
                 Sequence("ROLE", Ref("ObjectReferenceSegment")),
+                # In the case where a role is granted non-explicitly,
+                # e.g. GRANT ROLE_NAME TO OTHER_ROLE_NAME
+                # See https://www.postgresql.org/docs/current/sql-grant.html
+                Ref("ObjectReferenceSegment"),
             ),
             "TO",
             OneOf("GROUP", "USER", "ROLE", "SHARE", optional=True),
@@ -2390,7 +2479,7 @@ class CreateFunctionStatementSegment(BaseSegment):
         "FUNCTION",
         Sequence("IF", "NOT", "EXISTS", optional=True),
         Ref("FunctionNameSegment"),
-        Ref("FunctionParameterGrammar"),
+        Ref("FunctionParameterListGrammar"),
         Sequence(  # Optional function return type
             "RETURNS",
             Ref("DatatypeSegment"),
@@ -2401,20 +2490,13 @@ class CreateFunctionStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
-class FunctionParameterGrammar(BaseSegment):
+class FunctionParameterListGrammar(BaseSegment):
     """The parameters for a function ie. `(string, number)`."""
 
     # Function parameter list
     match_grammar = Bracketed(
         Delimited(
-            # Odd syntax, but prevents eager parameters being confused for data types
-            OneOf(
-                Sequence(
-                    Ref("ParameterNameSegment", optional=True),
-                    OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
-                ),
-                OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
-            ),
+            Ref("FunctionParameterGrammar"),
             delimiter=Ref("CommaSegment"),
         )
     )
@@ -2534,6 +2616,7 @@ class StatementSegment(BaseSegment):
         Ref("InsertStatementSegment"),
         Ref("TransactionStatementSegment"),
         Ref("DropStatementSegment"),
+        Ref("AlterDefaultPrivilegesSegment"),
         Ref("AccessStatementSegment"),
         Ref("CreateTableStatementSegment"),
         Ref("CreateTypeStatementSegment"),
@@ -2550,6 +2633,8 @@ class StatementSegment(BaseSegment):
         Ref("CreateModelStatementSegment"),
         Ref("DropModelStatementSegment"),
         Ref("DescribeStatementSegment"),
+        Ref("UseStatementSegment"),
+        Ref("ExplainStatementSegment"),
     )
 
     def get_table_references(self):
@@ -2596,4 +2681,51 @@ class DescribeStatementSegment(BaseSegment):
         "DESCRIBE",
         Ref("NakedIdentifierSegment"),
         Ref("ObjectReferenceSegment"),
+    )
+
+
+@ansi_dialect.segment()
+class UseStatementSegment(BaseSegment):
+    """A `USE` statement.
+
+    USE [ ROLE ] <name>
+
+    USE [ WAREHOUSE ] <name>
+
+    USE [ DATABASE ] <name>
+
+    USE [ SCHEMA ] [<db_name>.]<name>
+    """
+
+    type = "use_statement"
+    match_grammar = StartsWith("USE")
+
+    parse_grammar = Sequence(
+        "USE",
+        OneOf("ROLE", "WAREHOUSE", "DATABASE", "SCHEMA", optional=True),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+@ansi_dialect.segment()
+class ExplainStatementSegment(BaseSegment):
+    """An `Explain` statement.
+
+    EXPLAIN explainable_stmt
+    """
+
+    type = "explain_statement"
+
+    explainable_stmt = OneOf(
+        Ref("SelectableGrammar"),
+        Ref("InsertStatementSegment"),
+        Ref("UpdateStatementSegment"),
+        Ref("DeleteStatementSegment"),
+    )
+
+    match_grammar = StartsWith("EXPLAIN")
+
+    parse_grammar = Sequence(
+        "EXPLAIN",
+        explainable_stmt,
     )

@@ -177,6 +177,7 @@ def test__cli__command_lint_stdin(command):
                 "_fix",
                 "test/fixtures/cli/fail_many.sql",
             ],
+            "y",
         ),
         # Fix without specifying rules
         (
@@ -186,6 +187,7 @@ def test__cli__command_lint_stdin(command):
                 "_fix",
                 "test/fixtures/cli/fail_many.sql",
             ],
+            "y",
         ),
         # Check that ignoring works (also checks that unicode files parse).
         (

@@ -30,6 +30,7 @@ class Delimited(OneOf):
     ):
         if delimiter is None:
             raise ValueError("Delimited grammars require a `delimiter`")
+        self.bracket_pairs_set = kwargs.pop("bracket_pairs_set", "bracket_pairs")
         self.delimiter = self._resolve_ref(delimiter)
         self.allow_trailing = allow_trailing
         self.terminator = self._resolve_ref(terminator)
@@ -98,6 +99,7 @@ class Delimited(OneOf):
                     seg_buff,
                     matchers,
                     parse_context=ctx,
+                    bracket_pairs_set=self.bracket_pairs_set,
                 )
             # Keep track of the *length* of this pre-content section before we start
             # to change it later. We need this for dealing with terminators.

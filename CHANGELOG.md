@@ -6,9 +6,51 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Parsing of Postgres dollar quoted literals.
+- Parsing of Postgres filter grammar.
+- Parsing of "ALTER DEFAULT PRIVILEGES" Postgres statement.
+- Parsing of Postgres non-explicit role granting and function execution.
+
 ### Changed
-- Fix false positive when CTE used in WHERE clause ([#944](https://github.com/sqlfluff/sqlfluff/issues/944))
+
+Contributors:
+- [@GitHub-Username](Link to GitHub profile) ([#PR-Number](Link to PR))
+
+## [0.5.3] - 2021-05-04
+### Added
+- [`L009`](https://docs.sqlfluff.com/en/stable/rules.html#sqlfluff.core.rules.Rule_L009) can now be enforced when `templater = dbt`.
+- Parsing of `EXPLAIN`, `USE` statements.
+- Parsing of `ALTER TABLE x RENAME TO y` syntax.
+- Parsing of `ALTER SESSION` in snowflake.
+- Parsing of numeric literals with exponents.
+- Added rule codes to diff_cover output.
+
+### Changed
+- Fix `templater = dbt` L009 bug [#861](https://github.com/sqlfluff/sqlfluff/issues/861) where:
+    - `sqlfluff lint` would incorrectly always return `L009 | Files must end with a trailing newline.`
+    - `sqlfluff fix` would remove trailing newlines when `exclude_rules = L009`.
+- Fix bug with BigQuery comparison operators.
+- Fix recursion bug with L045.
+- Fix tuple index bug with L016.
+- Fix mange coalecse bug with L043.
+- Fix Jinja templating error with _UnboundLocalError_.
+- Improve array parsing.
+- Simplify bracket parsing.
+- Speed up L010 with caching capitalisation policy.
+- Output of `sqlfluff dialects` is now sorted.
+- Handle disabled `dbt` models.
+
+## [0.5.2] - 2021-04-11
+### Changed
+- Fix false positive in L045 when CTE used in WHERE clause ([#944](https://github.com/sqlfluff/sqlfluff/issues/944))
 - Logging and readout now includes more detail and a notification of dbt compilation.
+- Fix bug in L048 which flagged adjoining commas as failures.
+- Fix bug in L019 with inline comments.
+- Fix bug in L036 with multiple newlines.
+- Skip disabled dbt models. ([#931](https://github.com/sqlfluff/sqlfluff/issues/931)).
+- Support "USE" statement in ANSI ([#902](https://github.com/sqlfluff/sqlfluff/issues/902)).
+- Parse explain statement ([#893](https://github.com/sqlfluff/sqlfluff/issues/893)).
 
 ## [0.5.1] - 2021-04-09
 ### Changed

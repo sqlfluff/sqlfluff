@@ -8,16 +8,15 @@ from sqlfluff.core import Linter, FluffConfig
 from sqlfluff.core.errors import SQLLexError, SQLBaseError, SQLLintError, SQLParseError
 from sqlfluff.core.linter import LintingResult, NoQaDirective
 import sqlfluff.core.linter as linter
-from sqlfluff.core.parser import FilePositionMarker
+from test.fixtures.dbt.templater import in_dbt_project_dir  # noqa
 
 
 class DummyLintError(SQLBaseError):
     """Fake lint error used by tests, similar to SQLLintError."""
 
-    def __init__(self, pos: FilePositionMarker, code: str = "L001"):
-        self.pos = pos
+    def __init__(self, line_no: int, code: str = "L001"):
         self._code = code
-        super(DummyLintError, self).__init__()
+        super(DummyLintError, self).__init__(line_no=line_no)
 
 
 def normalise_paths(paths):
@@ -341,34 +340,34 @@ def test_parse_noqa(input, expected):
     [
         [
             [],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=1))],
+            [DummyLintError(1)],
             [
                 0,
             ],
         ],
         [
             [dict(comment="noqa: L001", line_no=1)],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=1))],
+            [DummyLintError(1)],
             [],
         ],
         [
             [dict(comment="noqa: L001", line_no=2)],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=1))],
+            [DummyLintError(1)],
             [0],
         ],
         [
             [dict(comment="noqa: L002", line_no=1)],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=1))],
+            [DummyLintError(1)],
             [0],
         ],
         [
             [dict(comment="noqa: enable=L001", line_no=1)],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=1))],
+            [DummyLintError(1)],
             [0],
         ],
         [
             [dict(comment="noqa: disable=L001", line_no=1)],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=1))],
+            [DummyLintError(1)],
             [],
         ],
         [
@@ -376,7 +375,7 @@ def test_parse_noqa(input, expected):
                 dict(comment="noqa: disable=L001", line_no=2),
                 dict(comment="noqa: enable=L001", line_no=4),
             ],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=1))],
+            [DummyLintError(1)],
             [0],
         ],
         [
@@ -384,7 +383,7 @@ def test_parse_noqa(input, expected):
                 dict(comment="noqa: disable=L001", line_no=2),
                 dict(comment="noqa: enable=L001", line_no=4),
             ],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=2))],
+            [DummyLintError(2)],
             [],
         ],
         [
@@ -392,7 +391,7 @@ def test_parse_noqa(input, expected):
                 dict(comment="noqa: disable=L001", line_no=2),
                 dict(comment="noqa: enable=L001", line_no=4),
             ],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=3))],
+            [DummyLintError(3)],
             [],
         ],
         [
@@ -400,7 +399,7 @@ def test_parse_noqa(input, expected):
                 dict(comment="noqa: disable=L001", line_no=2),
                 dict(comment="noqa: enable=L001", line_no=4),
             ],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=4))],
+            [DummyLintError(4)],
             [0],
         ],
         [
@@ -408,7 +407,7 @@ def test_parse_noqa(input, expected):
                 dict(comment="noqa: disable=all", line_no=2),
                 dict(comment="noqa: enable=all", line_no=4),
             ],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=1))],
+            [DummyLintError(1)],
             [0],
         ],
         [
@@ -416,7 +415,7 @@ def test_parse_noqa(input, expected):
                 dict(comment="noqa: disable=all", line_no=2),
                 dict(comment="noqa: enable=all", line_no=4),
             ],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=2))],
+            [DummyLintError(2)],
             [],
         ],
         [
@@ -424,7 +423,7 @@ def test_parse_noqa(input, expected):
                 dict(comment="noqa: disable=all", line_no=2),
                 dict(comment="noqa: enable=all", line_no=4),
             ],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=3))],
+            [DummyLintError(3)],
             [],
         ],
         [
@@ -432,7 +431,7 @@ def test_parse_noqa(input, expected):
                 dict(comment="noqa: disable=all", line_no=2),
                 dict(comment="noqa: enable=all", line_no=4),
             ],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=4))],
+            [DummyLintError(4)],
             [0],
         ],
         [
@@ -441,18 +440,10 @@ def test_parse_noqa(input, expected):
                 dict(comment="noqa: enable=all", line_no=4),
             ],
             [
-                DummyLintError(
-                    FilePositionMarker(statement_index=None, line_no=2), code="L001"
-                ),
-                DummyLintError(
-                    FilePositionMarker(statement_index=None, line_no=2), code="L002"
-                ),
-                DummyLintError(
-                    FilePositionMarker(statement_index=None, line_no=4), code="L001"
-                ),
-                DummyLintError(
-                    FilePositionMarker(statement_index=None, line_no=4), code="L002"
-                ),
+                DummyLintError(2, code="L001"),
+                DummyLintError(2, code="L002"),
+                DummyLintError(4, code="L001"),
+                DummyLintError(4, code="L002"),
             ],
             [1, 2, 3],
         ],
@@ -462,18 +453,10 @@ def test_parse_noqa(input, expected):
                 dict(comment="noqa: enable=L001", line_no=4),
             ],
             [
-                DummyLintError(
-                    FilePositionMarker(statement_index=None, line_no=2), code="L001"
-                ),
-                DummyLintError(
-                    FilePositionMarker(statement_index=None, line_no=2), code="L002"
-                ),
-                DummyLintError(
-                    FilePositionMarker(statement_index=None, line_no=4), code="L001"
-                ),
-                DummyLintError(
-                    FilePositionMarker(statement_index=None, line_no=4), code="L002"
-                ),
+                DummyLintError(2, code="L001"),
+                DummyLintError(2, code="L002"),
+                DummyLintError(4, code="L001"),
+                DummyLintError(4, code="L002"),
             ],
             [2],
         ],
@@ -546,4 +529,37 @@ def test_linter_noqa():
         """
     result = lntr.lint_string(sql)
     violations = result.get_violations()
-    assert {3, 6, 7, 8, 10, 12, 13, 14, 15, 18} == {v.line_no() for v in violations}
+    assert {3, 6, 7, 8, 10, 12, 13, 14, 15, 18} == {v.line_no for v in violations}
+
+
+def test_linter_noqa_with_templating():
+    """Similar to test_linter_noqa, but uses templating (Jinja)."""
+    lntr = Linter(
+        config=FluffConfig(
+            overrides={
+                "templater": "jinja",
+                "rules": "L016",
+            }
+        )
+    )
+    sql = """
+    {%- set a_var = ["1", "2"] -%}
+    SELECT
+      this_is_just_a_very_long_line_for_demonstration_purposes_of_a_bug_involving_templated_sql_files, --noqa: L016
+      this_is_not_so_big
+    FROM
+      a_table
+        """
+    result = lntr.lint_string(sql)
+    assert not result.get_violations()
+
+
+@pytest.mark.dbt
+def test__linter__skip_dbt_model_disabled(in_dbt_project_dir):  # noqa
+    """Test that the linter skips disabled dbt models."""
+    conf = FluffConfig(configs={"core": {"templater": "dbt"}})
+    lntr = Linter(config=conf)
+    linted_path = lntr.lint_path(path="models/my_new_project/disabled_model.sql")
+    linted_file = linted_path.files[0]
+    assert linted_file.path == "models/my_new_project/disabled_model.sql"
+    assert not linted_file.templated_file

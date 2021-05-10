@@ -1,8 +1,6 @@
 """Indent and Dedent classes."""
 
 from sqlfluff.core.parser.match_wrapper import match_wrapper
-from sqlfluff.core.parser.markers import FilePositionMarker
-
 from sqlfluff.core.parser.segments.raw import RawSegment
 
 
@@ -86,14 +84,7 @@ class MetaSegment(RawSegment):
         """
         self._raw = ""
         self._raw_upper = ""
-        # We strip the position marker, so that when fixing it's
-        # skipped and not considered. If no position marker is given
-        # then give it a fresh one - it will need to be realigned
-        # before it's useful.
-        if pos_marker:
-            self.pos_marker = pos_marker.strip()
-        else:
-            self.pos_marker = FilePositionMarker()
+        self.pos_marker = pos_marker
 
 
 class Indent(MetaSegment):

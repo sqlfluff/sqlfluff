@@ -3,7 +3,8 @@ file:
     create_function_statement:
     - keyword: CREATE
     - keyword: FUNCTION
-    - function_name: add
+    - function_name:
+        function_name_identifier: add
     - base:
       - start_bracket: (
       - data_type:
@@ -27,7 +28,8 @@ file:
     - binary_operator: OR
     - keyword: REPLACE
     - keyword: FUNCTION
-    - function_name: increment
+    - function_name:
+        function_name_identifier: increment
     - base:
         start_bracket: (
         parameter: i

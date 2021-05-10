@@ -5,10 +5,11 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-            function_name: myfn
+            function_name:
+              function_name_identifier: myfn
             start_bracket: (
             expression:
-              array_literal_type:
+              array_literal:
               - start_square_bracket: '['
               - expression:
                   literal: '1'

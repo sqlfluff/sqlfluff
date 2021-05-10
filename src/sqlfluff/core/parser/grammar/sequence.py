@@ -149,9 +149,8 @@ class Sequence(BaseGrammar):
         # the unmatched elements. Meta all go at the end regardless of wny trailing
         # whitespace.
         return MatchResult(
-            BaseSegment._realign_segments(
+            BaseSegment._position_segments(
                 matched_segments.matched_segments + meta_pre_nc + meta_post_nc,
-                meta_only=True,
             ),
             unmatched_segments,
         )
@@ -178,6 +177,7 @@ class Bracketed(Sequence):
         # Store the bracket type. NB: This is only
         # hydrated into segments at runtime.
         self.bracket_type = kwargs.pop("bracket_type", "round")
+        self.bracket_pairs_set = kwargs.pop("bracket_pairs_set", "bracket_pairs")
         # Allow optional override for special bracket-like things
         self.start_bracket = kwargs.pop("start_bracket", None)
         self.end_bracket = kwargs.pop("end_bracket", None)
@@ -194,8 +194,8 @@ class Bracketed(Sequence):
 
     def get_bracket_from_dialect(self, parse_context):
         """Rehydrate the bracket segments in question."""
-        for bracket_type, start_ref, end_ref, _ in parse_context.dialect.sets(
-            "bracket_pairs"
+        for bracket_type, start_ref, end_ref in parse_context.dialect.sets(
+            self.bracket_pairs_set
         ):
             if bracket_type == self.bracket_type:
                 start_bracket = parse_context.dialect.ref(start_ref)
@@ -253,6 +253,7 @@ class Bracketed(Sequence):
             parse_context=parse_context,
             start_bracket=start_bracket,
             end_bracket=end_bracket,
+            bracket_pairs_set=self.bracket_pairs_set,
         )
         if not end_match:
             raise SQLParseError(
@@ -305,7 +306,7 @@ class Bracketed(Sequence):
             # Append some indent and dedent tokens at the start and the end.
             return MatchResult(
                 # We need to realign the meta segments so the pos markers are correct.
-                BaseSegment._realign_segments(
+                BaseSegment._position_segments(
                     (
                         # NB: The nc segments go *outside* the indents.
                         start_match.matched_segments
@@ -316,7 +317,6 @@ class Bracketed(Sequence):
                         + (Dedent(),)  # Add a meta indent here
                         + end_match.matched_segments
                     ),
-                    meta_only=True,
                 ),
                 end_match.unmatched_segments,
             )

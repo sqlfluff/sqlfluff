@@ -3,24 +3,24 @@
 import pytest
 
 from sqlfluff.core.parser import (
-    FilePositionMarker,
+    PositionMarker,
     RawSegment,
     BaseSegment,
 )
+from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.parser.context import RootParseContext
 
 
 @pytest.fixture(scope="module")
-def raw_seg():
-    """Construct a raw segment as a fixture."""
-    fp = FilePositionMarker().advance_by("abc")
-    return RawSegment("foobar", fp)
+def raw_seg_list(generate_test_segments):
+    """Construct a list of raw segments as a fixture."""
+    return generate_test_segments(["foobar", ".barfoo"])
 
 
 @pytest.fixture(scope="module")
-def raw_seg_list(raw_seg):
-    """Construct a list of raw segments as a fixture."""
-    return [raw_seg, RawSegment(".barfoo", raw_seg.pos_marker.advance_by(raw_seg.raw))]
+def raw_seg(raw_seg_list):
+    """Construct a raw segment as a fixture."""
+    return raw_seg_list[0]
 
 
 class DummySegment(BaseSegment):
@@ -33,11 +33,6 @@ class DummyAuxSegment(BaseSegment):
     """A different dummy segment for testing with no grammar."""
 
     type = "dummy_aux"
-
-
-def test__parser__base_segments_raw_init():
-    """Test initialisation. Other tests just use the fixture."""
-    RawSegment("foobar", FilePositionMarker())
 
 
 def test__parser__base_segments_type():
@@ -56,10 +51,12 @@ def test__parser__base_segments_raw(raw_seg):
     assert raw_seg.segments == []
     assert raw_seg.raw == "foobar"
     # Check Formatting and Stringification
-    assert str(raw_seg) == repr(raw_seg) == "<RawSegment: ([3](1, 1, 4)) 'foobar'>"
+    # NOTE: The preceding underscore shouldn't be there
+    # but it's added by .make(). Revisit later.
+    assert str(raw_seg) == repr(raw_seg) == "<_RawSegment: ([L:  1, P:  1]) 'foobar'>"
     assert (
         raw_seg.stringify(ident=1, tabsize=2)
-        == "[3](1, 1, 4)        |  raw:                                                        'foobar'\n"
+        == "[L:  1, P:  1]      |  raw:                                                        'foobar'\n"
     )
     # Check tuple
     assert raw_seg.to_tuple() == ("raw", ())
@@ -71,7 +68,14 @@ def test__parser__base_segments_base(raw_seg_list, fresh_ansi_dialect):
     """Test base segments behave as expected."""
     base_seg = DummySegment(raw_seg_list)
     # Check we assume the position correctly
-    assert base_seg.pos_marker == raw_seg_list[0].pos_marker
+    assert (
+        base_seg.pos_marker.start_point_marker()
+        == raw_seg_list[0].pos_marker.start_point_marker()
+    )
+    assert (
+        base_seg.pos_marker.end_point_marker()
+        == raw_seg_list[-1].pos_marker.end_point_marker()
+    )
     with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
         # Expand and given we don't have a grammar we should get the same thing
         assert base_seg.parse(parse_context=ctx) == base_seg
@@ -83,25 +87,27 @@ def test__parser__base_segments_base(raw_seg_list, fresh_ansi_dialect):
         (raw_seg_list[0].to_tuple(), raw_seg_list[1].to_tuple()),
     )
     # Check Formatting and Stringification
-    assert str(base_seg) == repr(base_seg) == "<DummySegment: ([3](1, 1, 4))>"
+    assert str(base_seg) == repr(base_seg) == "<DummySegment: ([L:  1, P:  1])>"
     assert base_seg.stringify(ident=1, tabsize=2) == (
-        "[3](1, 1, 4)        |  dummy:\n"
-        "[3](1, 1, 4)        |    raw:                                                      'foobar'\n"
-        "[9](1, 1, 10)       |    raw:                                                      '.barfoo'\n"
+        "[L:  1, P:  1]      |  dummy:\n"
+        "[L:  1, P:  1]      |    raw:                                                      'foobar'\n"
+        "[L:  1, P:  7]      |    raw:                                                      '.barfoo'\n"
     )
 
 
 def test__parser__base_segments_raw_compare():
     """Test comparison of raw segments."""
-    rs1 = RawSegment("foobar", FilePositionMarker())
-    rs2 = RawSegment("foobar", FilePositionMarker())
+    template = TemplatedFile.from_string("foobar")
+    rs1 = RawSegment("foobar", PositionMarker(slice(0, 6), slice(0, 6), template))
+    rs2 = RawSegment("foobar", PositionMarker(slice(0, 6), slice(0, 6), template))
     assert rs1 == rs2
 
 
 def test__parser__base_segments_base_compare():
     """Test comparison of base segments."""
-    rs1 = RawSegment("foobar", FilePositionMarker())
-    rs2 = RawSegment("foobar", FilePositionMarker())
+    template = TemplatedFile.from_string("foobar")
+    rs1 = RawSegment("foobar", PositionMarker(slice(0, 6), slice(0, 6), template))
+    rs2 = RawSegment("foobar", PositionMarker(slice(0, 6), slice(0, 6), template))
 
     ds1 = DummySegment([rs1])
     ds2 = DummySegment([rs2])
