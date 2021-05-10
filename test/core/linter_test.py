@@ -310,7 +310,7 @@ def test__linter__encoding(fname, config_encoding, lexerror):
     result = lntr.lint_paths([fname])
     assert lexerror == (SQLLexError in [type(v) for v in result.get_violations()])
 
-    
+
 @pytest.mark.parametrize(
     "input,expected",
     [
@@ -492,6 +492,7 @@ def test_linted_file_ignore_masked_violations(
         tree=None,
         ignore_mask=ignore_mask,
         templated_file=linter.TemplatedFile(""),
+        encoding="utf8",
     )
     result = lf._ignore_masked_violations(violations)
     expected_violations = [v for i, v in enumerate(violations) if i in expected]
