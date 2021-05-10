@@ -148,6 +148,28 @@ class WithinGroupClauseSegment(BaseSegment):
 
 
 @postgres_dialect.segment(replace=True)
+class CreateRoleStatementSegment(BaseSegment):
+    """A `CREATE ROLE` statement.
+
+    As per:
+    https://www.postgresql.org/docs/current/sql-createrole.html
+    """
+
+    type = "create_role_statement"
+    match_grammar = ansi_dialect.get_segment(
+        "CreateRoleStatementSegment"
+    ).match_grammar.copy(
+        insert=[
+            Sequence(
+                Ref.keyword("WITH", optional=True),
+                # Very permissive for now. Anything can go here.
+                Anything(),
+            )
+        ],
+    )
+
+
+@postgres_dialect.segment(replace=True)
 class ExplainStatementSegment(ansi_dialect.get_segment("ExplainStatementSegment")):  # type: ignore
     """An `Explain` statement.
 
