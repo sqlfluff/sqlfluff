@@ -51,11 +51,7 @@ def test__parser__base_segments_raw(raw_seg):
     assert raw_seg.segments == []
     assert raw_seg.raw == "foobar"
     # Check Formatting and Stringification
-    assert (
-        str(raw_seg)
-        == repr(raw_seg)
-        == "<CodeSegment: ([L:  1, P:  1]) 'foobar'>"
-    )
+    assert str(raw_seg) == repr(raw_seg) == "<CodeSegment: ([L:  1, P:  1]) 'foobar'>"
     assert (
         raw_seg.stringify(ident=1, tabsize=2)
         == "[L:  1, P:  1]      |  raw:                                                        'foobar'\n"

@@ -131,9 +131,7 @@ class PositionMarker:
     def to_source_string(self) -> str:
         """Make a formatted string of this position."""
         line, pos = self.source_position()
-        return "[L:{0:3d}, P:{1:3d}]".format(
-            line, pos
-        )
+        return "[L:{0:3d}, P:{1:3d}]".format(line, pos)
 
     def start_point_marker(self) -> "PositionMarker":
         """Get a point marker from the start."""
