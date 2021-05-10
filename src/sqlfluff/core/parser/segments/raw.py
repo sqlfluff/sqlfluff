@@ -250,3 +250,38 @@ class NewlineSegment(RawSegment):
     _is_code = False
     _is_comment = False
     _default_raw = "\n"
+
+
+class KeywordSegment(CodeSegment):
+    """A segment used for matching single words.
+
+    We rename the segment class here so that descendants of
+    _ProtoKeywordSegment can use the same functionality
+    but don't end up being labelled as a `keyword` later.
+    """
+
+    type = "keyword"
+
+    def __init__(
+        self,
+        raw: Optional[str] = None,
+        pos_marker: Optional[PositionMarker] = None,
+        type: Optional[str] = None,
+        name: Optional[str] = None,
+    ):
+        """If no other name is provided we extrapolate it from the raw."""
+        if raw and not name:
+            # names are all lowercase by convention.
+            name = raw.lower()
+        super().__init__(raw=raw, pos_marker=pos_marker, type=type, name=name)
+
+
+class SymbolSegment(CodeSegment):
+    """A segment used for matching single entities which aren't keywords.
+
+    We rename the segment class here so that descendants of
+    _ProtoKeywordSegment can use the same functionality
+    but don't end up being labelled as a `keyword` later.
+    """
+
+    type = "symbol"
