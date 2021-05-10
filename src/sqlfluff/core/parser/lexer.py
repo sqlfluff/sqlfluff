@@ -377,9 +377,12 @@ class Lexer:
 
                     # Add segments as appropriate.
                     # If it's a block end, add a dedent.
-                    if source_only_slice.slice_type in ("block_end", "block_mid"):
+                    # Check config to see whether we should be addind indents.
+                    if self.config.get(
+                        "template_blocks_indent", "indentation"
+                    ) and source_only_slice.slice_type in ("block_end", "block_mid"):
                         segment_buffer.append(
-                            Dedent.when(template_blocks_indent=True)(
+                            Dedent(
                                 pos_marker=PositionMarker.from_point(
                                     placeholder_source_slice.start,
                                     element.template_slice.start,
@@ -403,9 +406,11 @@ class Lexer:
                         )
                     )
                     # If it's a block end, add a dedent.
-                    if source_only_slice.slice_type in ("block_start", "block_mid"):
+                    if self.config.get(
+                        "template_blocks_indent", "indentation"
+                    ) and source_only_slice.slice_type in ("block_start", "block_mid"):
                         segment_buffer.append(
-                            Indent.when(template_blocks_indent=True)(
+                            Indent(
                                 pos_marker=PositionMarker.from_point(
                                     placeholder_source_slice.stop,
                                     element.template_slice.start,

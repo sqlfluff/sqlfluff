@@ -42,6 +42,7 @@ from sqlfluff.core.parser import (
     StringParser,
     NamedParser,
     RegexParser,
+    Conditional,
 )
 
 from sqlfluff.core.dialects.base import Dialect
@@ -958,11 +959,11 @@ class FromExpressionSegment(BaseSegment):
             Ref("MLTableExpressionSegment"),
             Ref("FromExpressionElementSegment"),
         ),
-        Dedent.when(indented_joins=False),
+        Conditional(Dedent, config_type="indent", indented_joins=False),
         AnyNumberOf(
             Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar"), optional=True
         ),
-        Dedent.when(indented_joins=True),
+        Conditional(Dedent, config_type="indent", indented_joins=True),
     )
 
 
