@@ -109,7 +109,10 @@ snowflake_dialect.add(
         type="semi_structured_element",
     ),
     ColumnIndexIdentifierSegment=RegexParser(
-        r"\$[0-9]+", CodeSegment, name="column_index_identifier_segment", type="identifier"
+        r"\$[0-9]+",
+        CodeSegment,
+        name="column_index_identifier_segment",
+        type="identifier",
     ),
 )
 

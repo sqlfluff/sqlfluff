@@ -80,7 +80,9 @@ exasol_fs_dialect.add(
 )
 
 exasol_fs_dialect.replace(
-    SemicolonSegment=StringParser(";", SymbolSegment, name="semicolon", type="semicolon"),
+    SemicolonSegment=StringParser(
+        ";", SymbolSegment, name="semicolon", type="semicolon"
+    ),
 )
 
 

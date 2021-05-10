@@ -134,11 +134,18 @@ class RegexParser(StringParser):
         type: Optional[str] = None,
         optional: bool = False,
         anti_template: Optional[str] = None,
-        **segment_kwargs
+        **segment_kwargs,
     ):
         # Store the optional anti-template
         self.anti_template = anti_template
-        super().__init__(template=template, raw_class=raw_class, name=name, type=type, optional=optional, **segment_kwargs)
+        super().__init__(
+            template=template,
+            raw_class=raw_class,
+            name=name,
+            type=type,
+            optional=optional,
+            **segment_kwargs,
+        )
 
     def simple(cls, parse_context: ParseContext) -> Optional[List[str]]:
         """Does this matcher support a uppercase hash matching route?
@@ -163,7 +170,9 @@ class RegexParser(StringParser):
             # Check that we've fully matched
             if result_string == segment.raw_upper:
                 # Check that the anti_template (if set) hasn't also matched
-                if self.anti_template and re.match(self.anti_template, segment.raw_upper):
+                if self.anti_template and re.match(
+                    self.anti_template, segment.raw_upper
+                ):
                     return False
                 else:
                     return True

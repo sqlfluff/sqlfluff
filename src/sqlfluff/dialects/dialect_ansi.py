@@ -281,7 +281,10 @@ ansi_dialect.add(
     ),
     # Maybe data types should be more restrictive?
     DatatypeIdentifierSegment=RegexParser(
-        r"[A-Z][A-Z0-9_]*", CodeSegment, name="data_type_identifier", type="data_type_identifier"
+        r"[A-Z][A-Z0-9_]*",
+        CodeSegment,
+        name="data_type_identifier",
+        type="data_type_identifier",
     ),
     # Ansi Intervals
     DatetimeUnitSegment=SegmentGenerator(

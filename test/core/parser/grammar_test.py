@@ -3,7 +3,12 @@
 import pytest
 import logging
 
-from sqlfluff.core.parser import KeywordSegment, StringParser, SymbolSegment, RegexParser
+from sqlfluff.core.parser import (
+    KeywordSegment,
+    StringParser,
+    SymbolSegment,
+    RegexParser,
+)
 from sqlfluff.core.parser.context import RootParseContext
 from sqlfluff.core.parser.segments import EphemeralSegment
 from sqlfluff.core.parser.grammar.base import BaseGrammar

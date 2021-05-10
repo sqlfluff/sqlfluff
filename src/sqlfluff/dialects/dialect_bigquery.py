@@ -24,7 +24,7 @@ from sqlfluff.core.parser import (
     CodeSegment,
     NamedParser,
     StringParser,
-    RegexParser
+    RegexParser,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
