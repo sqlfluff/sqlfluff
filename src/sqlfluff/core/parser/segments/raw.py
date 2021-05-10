@@ -107,29 +107,6 @@ class RawSegment(BaseSegment):
         """
         return self._surrogate_name or super().name
 
-    # ################ CLASS METHODS
-
-    @classmethod
-    def make(cls, template, case_sensitive=False, name=None, **kwargs):
-        """Make a subclass of the segment using a method."""
-        # Let's deal with the template first
-        if case_sensitive:
-            _template = template
-        else:
-            _template = template.upper()
-        # Use the name if provided otherwise default to the template
-        name = name or _template
-        # Now lets make the classname (it indicates the mother class for clarity)
-        classname = "{0}_{1}".format(name, cls.__name__)
-        # This is the magic, we generate a new class! SORCERY
-        newclass = type(
-            classname,
-            (cls,),
-            dict(_template=_template, _name=name, **kwargs),
-        )
-        # Now we return that class in the abstract. NOT INSTANTIATED
-        return newclass
-
     # ################ INSTANCE METHODS
 
     def get_type(self):
