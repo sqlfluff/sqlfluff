@@ -3,6 +3,7 @@
 Matchable objects which return individual segments.
 """
 
+import re
 from typing import Type, Optional, List, Tuple, Union
 
 from sqlfluff.core.parser.context import ParseContext
@@ -25,7 +26,7 @@ class StringParser(Matchable):
         name: Optional[str] = None,
         type: Optional[str] = None,
         optional: bool = False,
-        **segment_kwargs
+        **segment_kwargs,
     ):
         # String matchers are not case sensitive, so we make the template
         # uppercase on creation. If any SQL dialect is found to be case
@@ -50,6 +51,30 @@ class StringParser(Matchable):
         """
         return [self.template]
 
+    def _is_first_match(self, segment: BaseSegment):
+        """Does the segment provided match according to the current rules."""
+        # Is the target a match and IS IT CODE.
+        # The latter stops us accidentally matching comments.
+        if self.template == segment.raw.upper() and segment.is_code:
+            return True
+        return False
+
+    def _make_match_from_first_result(self, segments: Tuple[BaseSegment, ...]):
+        """Make a MatchResult from the first segment in the given list.
+
+        This is a helper function for reuse by other parsers.
+        """
+        # Construct the segment object
+        new_seg = self.raw_class(
+            raw=segments[0].raw,
+            pos_marker=segments[0].pos_marker,
+            type=self.type,
+            name=self.name,
+            **self.segment_kwargs,
+        )
+        # Return as a tuple
+        return MatchResult((new_seg,), segments[1:])
+
     def match(
         self,
         segments: Union[BaseSegment, Tuple[BaseSegment, ...]],
@@ -66,22 +91,8 @@ class StringParser(Matchable):
 
         # We're only going to match against the first element
         if len(segments) >= 1:
-            seg = segments[0]
-            raw_comp = seg.raw.upper()
-
-            # Is the target a match and IS IT CODE.
-            # The latter stops us accidentally matching comments.
-            if self.template == raw_comp and seg.is_code:
-                # Construct the segment object
-                new_seg = self.raw_class(
-                    raw=seg.raw,
-                    pos_marker=seg.pos_marker,
-                    type=self.type,
-                    name=self.name,
-                    **self.segment_kwargs
-                )
-                # Return as a tuple
-                return MatchResult((new_seg,), segments[1:])
+            if self._is_first_match(segments[0]):
+                return self._make_match_from_first_result(segments)
         return MatchResult.from_unmatched(segments)
 
 
@@ -99,34 +110,61 @@ class NamedParser(StringParser):
         """
         return None
 
-    def match(
-        self,
-        segments: Union[BaseSegment, Tuple[BaseSegment, ...]],
-        parse_context: "ParseContext",
-    ) -> MatchResult:
-        """Compare input segments for a match, return a `MatchResult`.
+    def _is_first_match(self, segment: BaseSegment):
+        """Does the segment provided match according to the current rules.
 
         NamedParser implements its own matching function where
         we assume that ._template is the `name` of a segment.
         """
-        # If we've been passed the singular, make it a tuple
-        if isinstance(segments, BaseSegment):
-            segments = (segments,)
+        # Case sensitivity is not supported. Names are all
+        # lowercase by convention.
+        if self.template.lower() == segment.name.lower():
+            return True
+        return False
 
-        # We're only going to match against the first element
-        if len(segments) >= 1:
-            seg = segments[0]
-            # Case sensitivity is not supported. Names are all
-            # lowercase by convention.
-            if self.template.lower() == seg.name.lower():
-                # Construct the segment object
-                new_seg = self.raw_class(
-                    raw=seg.raw,
-                    pos_marker=seg.pos_marker,
-                    type=self.type,
-                    name=self.name,
-                    **self.segment_kwargs
-                )
-                # Return as a tuple
-                return MatchResult((new_seg,), segments[1:])
-        return MatchResult.from_unmatched(segments)
+
+class RegexParser(StringParser):
+    """An object which matches and returns raw segments based on a regex."""
+
+    def __init__(
+        self,
+        template: str,
+        raw_class: Type[RawSegment],
+        name: Optional[str] = None,
+        type: Optional[str] = None,
+        optional: bool = False,
+        anti_template: Optional[str] = None,
+        **segment_kwargs
+    ):
+        # Store the optional anti-template
+        self.anti_template = anti_template
+        super().__init__(template=template, raw_class=raw_class, name=name, type=type, optional=optional, anti_template=anti_template, **segment_kwargs)
+
+    def simple(cls, parse_context: ParseContext) -> Optional[List[str]]:
+        """Does this matcher support a uppercase hash matching route?
+
+        Regex segment does NOT for now. We might need to later for efficiency.
+        """
+        return None
+
+    def _is_first_match(self, segment: BaseSegment):
+        """Does the segment provided match according to the current rules.
+
+        RegexParser implements its own matching function where
+        we assume that ._template is a r"" string, and is formatted
+        for use directly as a regex. This only matches on a single segment.
+        """
+        if len(segment.raw) == 0:
+            raise ValueError("Zero length string passed to ReSegment!?")
+        # Try the regex. Case sensitivity is not supported.
+        result = re.match(self.template, segment.raw_upper)
+        if result:
+            result_string = result.group(0)
+            # Check that we've fully matched
+            if result_string == segment.raw_upper:
+                # Check that the anti_template (if set) hasn't also matched
+                if self.anti_template and re.match(self.anti_template, segment.raw_upper):
+                    return False
+                else:
+                    return True
+        return False
