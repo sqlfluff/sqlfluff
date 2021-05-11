@@ -19,13 +19,43 @@ any vales read from earlier files.
 - :code:`tox.ini`
 - :code:`pep8.ini`
 - :code:`.sqlfluff`
+- :code:`pyproject.toml`
 
-Within these files, they will be read like an `cfg file`_, and *SQLFluff*
+Within these files, the first four will be read like an `cfg file`_, and *SQLFluff*
 will look for sections which start with *SQLFluff*, and where subsections
 are delimited by a semicolon. For example the *jinjacontext* section will
 be indicated in the section started with *[sqlfluff:jinjacontext]*.
 
+For the `pyproject.toml file`_, all valid sections start with `tool.sqlfluff`
+and subsections are delimited by a dot and suffixed with *__options*.
+For example the *jinjacontext* section will be indicated in the section started
+with *[tools.sqlfluff.jinjacontext]*.
+
+For example
+
+.. code-block:: toml
+
+    [tools.sqlfluff]
+    templater = "jinja"
+    sql_file_exts = [
+        ".sql",
+        ".sql.j2",
+        ".dml",
+        ".ddl",
+    ]
+
+    [sqlfluff.indentation__options]
+    indented_joins = false
+    template_blocks_indent = false
+
+    [sqlfluff.templater__options]
+    unwrap_wrapped_queries = true
+
+    [sqlfluff.templater__options.jinja__options]
+    apply_dbt_builtins = true
+
 .. _`cfg file`: https://docs.python.org/3/library/configparser.html
+.. _`pyproject.toml file`: https://www.python.org/dev/peps/pep-0518/
 
 Nesting
 -------
