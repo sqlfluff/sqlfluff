@@ -69,6 +69,20 @@ def test__config__load_nested():
     }
 
 
+def test__config__load_toml():
+    """Test loading config from a pyproject.toml file."""
+    c = ConfigLoader()
+    cfg = c.load_default_config_file(
+        os.path.join("test", "fixtures", "config"),
+        "pyproject.toml",
+    )
+    assert cfg == {
+        "core": {"testing_int": 5, "testing_bar": 7.698},
+        "bar": {"foo": "foobar"},
+        "fnarr": {"fnarr": {"foo": "foobar"}},
+    }
+
+
 def test__config__iter_config_paths_right_order():
     """Test that config paths are fetched ordered by priority."""
     c = ConfigLoader()

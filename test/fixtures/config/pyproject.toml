@@ -1,0 +1,9 @@
+[tool.sqlfluff]
+testing_int=5
+testing_bar=7.698
+
+[tool.sqlfluff.bar]
+foo="foobar"
+
+[tool.sqlfluff.fnarr.fnarr]
+foo="foobar"
