@@ -11,19 +11,20 @@ import itertools
 from sqlfluff.core.parser import (
     Anything,
     BaseSegment,
-    NamedSegment,
     OneOf,
     Ref,
     Sequence,
     Bracketed,
     Delimited,
-    ReSegment,
     AnyNumberOf,
     KeywordSegment,
     Indent,
     SymbolSegment,
-    RegexMatcher,
+    RegexLexer,
     CodeSegment,
+    NamedParser,
+    StringParser,
+    RegexParser,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -39,12 +40,12 @@ bigquery_dialect.patch_lexer_matchers(
         # backslashes in front of it.
         # https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and_bytes_literals
         # Triple quoted variant first, then single quoted
-        RegexMatcher(
+        RegexLexer(
             "single_quote",
             r"([rR]?[bB]?|[bB]?[rR]?)?('''((?<!\\)(\\{2})*\\'|'{,2}(?!')|[^'])*(?<!\\)(\\{2})*'''|'((?<!\\)(\\{2})*\\'|[^'])*(?<!\\)(\\{2})*')",
             CodeSegment,
         ),
-        RegexMatcher(
+        RegexLexer(
             "double_quote",
             r'([rR]?[bB]?|[bB]?[rR]?)?(\"\"\"((?<!\\)(\\{2})*\\\"|\"{,2}(?!\")|[^\"])*(?<!\\)(\\{2})*\"\"\"|"((?<!\\)(\\{2})*\\"|[^"])*(?<!\\)(\\{2})*")',
             CodeSegment,
@@ -53,15 +54,19 @@ bigquery_dialect.patch_lexer_matchers(
 )
 
 bigquery_dialect.add(
-    DoubleQuotedLiteralSegment=NamedSegment.make(
-        "double_quote", name="quoted_literal", type="literal", trim_chars=('"',)
+    DoubleQuotedLiteralSegment=NamedParser(
+        "double_quote",
+        CodeSegment,
+        name="quoted_literal",
+        type="literal",
+        trim_chars=('"',),
     ),
-    StructKeywordSegment=KeywordSegment.make("struct", name="struct"),
-    StartAngleBracketSegment=SymbolSegment.make(
-        "<", name="start_angle_bracket", type="start_angle_bracket"
+    StructKeywordSegment=StringParser("struct", KeywordSegment, name="struct"),
+    StartAngleBracketSegment=StringParser(
+        "<", SymbolSegment, name="start_angle_bracket", type="start_angle_bracket"
     ),
-    EndAngleBracketSegment=SymbolSegment.make(
-        ">", name="end_angle_bracket", type="end_angle_bracket"
+    EndAngleBracketSegment=StringParser(
+        ">", SymbolSegment, name="end_angle_bracket", type="end_angle_bracket"
     ),
 )
 
@@ -160,8 +165,12 @@ class SelectClauseSegment(ansi_dialect.get_segment("SelectClauseSegment")):  # t
 
 
 bigquery_dialect.replace(
-    QuotedIdentifierSegment=NamedSegment.make(
-        "back_quote", name="quoted_identifier", type="identifier", trim_chars=("`",)
+    QuotedIdentifierSegment=NamedParser(
+        "back_quote",
+        CodeSegment,
+        name="quoted_identifier",
+        type="identifier",
+        trim_chars=("`",),
     ),
     # Add two elements to the ansi LiteralGrammar
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
@@ -173,12 +182,13 @@ bigquery_dialect.replace(
         ),
         Sequence("WITH", "OFFSET", "AS", Ref("SingleIdentifierGrammar"), optional=True),
     ),
-    FunctionNameIdentifierSegment=ReSegment.make(
+    FunctionNameIdentifierSegment=RegexParser(
         # In BigQuery struct() has a special syntax, so we don't treat it as a function
         r"[A-Z][A-Z0-9_]*",
+        CodeSegment,
         name="function_name_identifier",
         type="function_name_identifier",
-        _anti_template=r"STRUCT",
+        anti_template=r"STRUCT",
     ),
 )
 

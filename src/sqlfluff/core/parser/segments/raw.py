@@ -4,7 +4,10 @@ This is designed to be the root segment, without
 any children, and the output of the lexer.
 """
 
+from typing import Optional, Tuple
+
 from sqlfluff.core.parser.segments.base import BaseSegment
+from sqlfluff.core.parser.markers import PositionMarker
 
 
 class RawSegment(BaseSegment):
@@ -14,13 +17,40 @@ class RawSegment(BaseSegment):
     _is_code = True
     _is_comment = False
     _is_whitespace = False
-    _template = "<unset>"
+    # Classes inheriting from RawSegment may provide a _default_raw
+    # to enable simple initialisation.
+    _default_raw = ""
 
-    def __init__(self, raw, pos_marker):
-        self._raw = raw
-        self._raw_upper = raw.upper()
+    def __init__(
+        self,
+        raw: Optional[str] = None,
+        pos_marker: Optional[PositionMarker] = None,
+        type: Optional[str] = None,
+        name: Optional[str] = None,
+        trim_start: Optional[Tuple[str, ...]] = None,
+        trim_chars: Optional[Tuple[str, ...]] = None,
+    ):
+        """Initialise raw segment.
+
+        If raw is not provided, we default to _default_raw if present.
+        If pos_marker is not provided, it is assume that this will be
+        inserted later as part of a reposition phase.
+        """
+        if raw is not None:  # NB, raw *can* be an empty string and be valid
+            self._raw = raw
+        else:
+            self._raw = self._default_raw
+        self._raw_upper = self._raw.upper()
         # pos marker is required here
         self.pos_marker = pos_marker
+        # if a surrogate type is provided, store it for later.
+        self._surrogate_type = type
+        self._surrogate_name = name
+        # What should we trim off the ends to get to content
+        self.trim_start = trim_start
+        self.trim_chars = trim_chars
+        # A cache variable for expandable
+        self._is_expandable = None
 
     def __repr__(self):
         return "<{0}: ({1}) {2!r}>".format(
@@ -67,30 +97,27 @@ class RawSegment(BaseSegment):
         """
         return []
 
-    # ################ CLASS METHODS
+    @property
+    def name(self):
+        """The name of this segment.
 
-    @classmethod
-    def make(cls, template, case_sensitive=False, name=None, **kwargs):
-        """Make a subclass of the segment using a method."""
-        # Let's deal with the template first
-        if case_sensitive:
-            _template = template
-        else:
-            _template = template.upper()
-        # Use the name if provided otherwise default to the template
-        name = name or _template
-        # Now lets make the classname (it indicates the mother class for clarity)
-        classname = "{0}_{1}".format(name, cls.__name__)
-        # This is the magic, we generate a new class! SORCERY
-        newclass = type(
-            classname,
-            (cls,),
-            dict(_template=_template, _name=name, **kwargs),
-        )
-        # Now we return that class in the abstract. NOT INSTANTIATED
-        return newclass
+        In addition to the options defined by BaseSegment, subclasses
+        of RawSegment may also define a _surrogate_name which is also
+        take into account here.
+        """
+        return self._surrogate_name or super().name
 
     # ################ INSTANCE METHODS
+
+    def get_type(self):
+        """Returns the type of this segment as a string."""
+        return self._surrogate_type or self.type
+
+    def is_type(self, *seg_type):
+        """Extend the parent class method with the surrogate types."""
+        if self._surrogate_type and self._surrogate_type in seg_type:
+            return True
+        return self.class_is_type(*seg_type)
 
     def iter_raw_seg(self):
         """Iterate raw segments, mostly for searching."""
@@ -183,7 +210,7 @@ class WhitespaceSegment(RawSegment):
     _is_whitespace = True
     _is_code = False
     _is_comment = False
-    _template = " "
+    _default_raw = " "
 
 
 class NewlineSegment(RawSegment):
@@ -201,4 +228,39 @@ class NewlineSegment(RawSegment):
     _is_whitespace = True
     _is_code = False
     _is_comment = False
-    _template = "\n"
+    _default_raw = "\n"
+
+
+class KeywordSegment(CodeSegment):
+    """A segment used for matching single words.
+
+    We rename the segment class here so that descendants of
+    _ProtoKeywordSegment can use the same functionality
+    but don't end up being labelled as a `keyword` later.
+    """
+
+    type = "keyword"
+
+    def __init__(
+        self,
+        raw: Optional[str] = None,
+        pos_marker: Optional[PositionMarker] = None,
+        type: Optional[str] = None,
+        name: Optional[str] = None,
+    ):
+        """If no other name is provided we extrapolate it from the raw."""
+        if raw and not name:
+            # names are all lowercase by convention.
+            name = raw.lower()
+        super().__init__(raw=raw, pos_marker=pos_marker, type=type, name=name)
+
+
+class SymbolSegment(CodeSegment):
+    """A segment used for matching single entities which aren't keywords.
+
+    We rename the segment class here so that descendants of
+    _ProtoKeywordSegment can use the same functionality
+    but don't end up being labelled as a `keyword` later.
+    """
+
+    type = "symbol"

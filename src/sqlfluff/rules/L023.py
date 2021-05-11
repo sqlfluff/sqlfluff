@@ -2,6 +2,8 @@
 
 from typing import Optional, List
 
+from sqlfluff.core.parser import WhitespaceSegment
+
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
@@ -36,7 +38,7 @@ class Rule_L023(BaseRule):
     """
 
     expected_mother_segment_type = "with_compound_statement"
-    pre_segment_identifier = ("name", "AS")
+    pre_segment_identifier = ("name", "as")
     post_segment_identifier = ("type", "start_bracket")
     allow_newline = False
     expand_children: Optional[List[str]] = ["common_table_expression"]
@@ -51,10 +53,12 @@ class Rule_L023(BaseRule):
                 if seg.is_code:
                     if (
                         last_code
-                        and getattr(last_code, self.pre_segment_identifier[0])
-                        == self.pre_segment_identifier[1]
-                        and getattr(seg, self.post_segment_identifier[0])
-                        == self.post_segment_identifier[1]
+                        and self.matches_target_tuples(
+                            last_code, [self.pre_segment_identifier]
+                        )
+                        and self.matches_target_tuples(
+                            seg, [self.post_segment_identifier]
+                        )
                     ):
                         # Do we actually have the right amount of whitespace?
                         raw_inner = "".join(s.raw for s in mid_segs)
@@ -68,7 +72,7 @@ class Rule_L023(BaseRule):
                                     LintFix(
                                         "create",
                                         seg,
-                                        [self.make_whitespace(raw=" ")],
+                                        [WhitespaceSegment()],
                                     )
                                 ]
                             else:

@@ -2,7 +2,9 @@
 
 from typing import List, NamedTuple
 
-from sqlfluff.core.parser import BaseSegment
+from sqlfluff.core.parser import WhitespaceSegment
+
+from sqlfluff.core.parser import BaseSegment, NewlineSegment
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
@@ -67,7 +69,7 @@ class Rule_L036(BaseRule):
                 select_targets.append(seg)
                 if first_select_target_idx == -1:
                     first_select_target_idx = fname_idx
-            if seg.is_type("keyword") and seg.name == "SELECT" and select_idx == -1:
+            if seg.is_type("keyword") and seg.name == "select" and select_idx == -1:
                 select_idx = fname_idx
             if seg.is_type("newline") and first_new_line_idx == -1:
                 first_new_line_idx = fname_idx
@@ -110,7 +112,7 @@ class Rule_L036(BaseRule):
                     loop_while=lambda s: s.is_type("whitespace", "comma") or s.is_meta,
                 )
                 fixes += [LintFix("delete", ws) for ws in ws_to_delete]
-                fixes.append(LintFix("create", select_target, self.make_newline()))
+                fixes.append(LintFix("create", select_target, NewlineSegment()))
         if fixes:
             return LintResult(anchor=segment, fixes=fixes)
 
@@ -133,9 +135,9 @@ class Rule_L036(BaseRule):
         ):
             # there is a newline between select and select target
             insert_buff = [
-                self.make_whitespace(raw=" "),
+                WhitespaceSegment(),
                 select_clause.segments[select_targets_info.first_select_target_idx],
-                self.make_newline(),
+                NewlineSegment(),
             ]
             fixes = [
                 # Replace "newline" with <<select_target>>, "newline".

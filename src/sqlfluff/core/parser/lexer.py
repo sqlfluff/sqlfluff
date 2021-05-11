@@ -25,7 +25,7 @@ class LexedElement(NamedTuple):
     """An element matched during lexing."""
 
     raw: str
-    matcher: "StringMatcher"
+    matcher: "StringLexer"
 
 
 class TemplateElement(NamedTuple):
@@ -33,7 +33,7 @@ class TemplateElement(NamedTuple):
 
     raw: str
     template_slice: slice
-    matcher: "StringMatcher"
+    matcher: "StringLexer"
 
     @classmethod
     def from_element(cls, element: LexedElement, template_slice: slice):
@@ -44,9 +44,7 @@ class TemplateElement(NamedTuple):
 
     def to_segment(self, pos_marker):
         """Create a segment from this lexed element."""
-        # TODO: Review whether this is sensible later in refactor.
-        SegmentClass = self.matcher._make_segment_class()
-        return SegmentClass(self.raw, pos_marker)
+        return self.matcher.construct_segment(self.raw, pos_marker=pos_marker)
 
 
 class LexMatch(NamedTuple):
@@ -60,7 +58,7 @@ class LexMatch(NamedTuple):
         return len(self.elements) > 0
 
 
-class StringMatcher:
+class StringLexer:
     """This singleton matcher matches strings exactly.
 
     This is the simplest usable matcher, but it also defines some of the
@@ -209,16 +207,15 @@ class StringMatcher:
         else:
             return LexMatch(forward_string, [])
 
-    def _make_segment_class(self):
-        # NOTE: Stub method to override later.
-        # THIS NEEDS REFACTORING WITH FACTORIES
-        return self.segment_class.make(
-            self.template, name=self.name, **self.segment_kwargs
+    def construct_segment(self, raw, pos_marker):
+        """Construct a segment using the given class a properties."""
+        return self.segment_class(
+            raw=raw, pos_marker=pos_marker, name=self.name, **self.segment_kwargs
         )
 
 
-class RegexMatcher(StringMatcher):
-    """This RegexMatcher matches based on regular expressions."""
+class RegexLexer(StringLexer):
+    """This RegexLexer matches based on regular expressions."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -261,7 +258,7 @@ class Lexer:
     def __init__(
         self,
         config: Optional[FluffConfig] = None,
-        last_resort_lexer: Optional[StringMatcher] = None,
+        last_resort_lexer: Optional[StringLexer] = None,
         dialect: Optional[str] = None,
     ):
         # Allow optional config and dialect
@@ -269,11 +266,10 @@ class Lexer:
         # Store the matchers
         self.lexer_matchers = self.config.get("dialect_obj").get_lexer_matchers()
 
-        self.last_resort_lexer = last_resort_lexer or RegexMatcher(
+        self.last_resort_lexer = last_resort_lexer or RegexLexer(
             "<unlexable>",
             r"[^\t\n\,\.\ \-\+\*\\\/\'\"\;\:\[\]\(\)\|]*",
             UnlexableSegment,
-            segment_kwargs={"is_code": True},
         )
 
     def lex(
@@ -451,7 +447,7 @@ class Lexer:
         return violations
 
     @staticmethod
-    def lex_match(forward_string: str, lexer_matchers: List[StringMatcher]) -> LexMatch:
+    def lex_match(forward_string: str, lexer_matchers: List[StringLexer]) -> LexMatch:
         """Iteratively match strings using the selection of submatchers."""
         elem_buff: List[LexedElement] = []
         while True:

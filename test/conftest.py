@@ -4,7 +4,15 @@ import pytest
 import oyaml
 
 from sqlfluff.core.parser.markers import PositionMarker
-from sqlfluff.core.parser.segments import RawSegment, Indent, Dedent
+from sqlfluff.core.parser.segments import (
+    Indent,
+    Dedent,
+    WhitespaceSegment,
+    NewlineSegment,
+    SymbolSegment,
+    CommentSegment,
+    CodeSegment,
+)
 from sqlfluff.core.templaters import TemplatedFile
 
 
@@ -93,36 +101,40 @@ def generate_test_segments():
                 )
                 continue
 
+            seg_kwargs = {}
+
             if set(elem) <= {" ", "\t"}:
-                cls = RawSegment.make(
-                    " ", name="whitespace", type="whitespace", _is_code=False
-                )
+                SegClass = WhitespaceSegment
             elif set(elem) <= {"\n"}:
-                cls = RawSegment.make(
-                    "\n", name="newline", type="newline", _is_code=False
-                )
+                SegClass = NewlineSegment
             elif elem == "(":
-                cls = RawSegment.make("(", name="bracket_open")
+                SegClass = SymbolSegment
+                seg_kwargs = {"name": "bracket_open"}
             elif elem == ")":
-                cls = RawSegment.make(")", name="bracket_close")
+                SegClass = SymbolSegment
+                seg_kwargs = {"name": "bracket_close"}
             elif elem.startswith("--"):
-                cls = RawSegment.make("--", name="inline_comment", _is_code=False)
+                SegClass = CommentSegment
+                seg_kwargs = {"name": "inline_comment"}
             elif elem.startswith('"'):
-                cls = RawSegment.make('"', name="double_quote")
+                SegClass = CodeSegment
+                seg_kwargs = {"name": "double_quote"}
             elif elem.startswith("'"):
-                cls = RawSegment.make("'", name="single_quote")
+                SegClass = CodeSegment
+                seg_kwargs = {"name": "single_quote"}
             else:
-                cls = RawSegment.make("")
+                SegClass = CodeSegment
 
             # Set a none position marker which we'll realign at the end.
             buff.append(
-                cls(
-                    elem,
+                SegClass(
+                    raw=elem,
                     pos_marker=PositionMarker(
                         slice(idx, idx + len(elem)),
                         slice(idx, idx + len(elem)),
                         templated_file,
                     ),
+                    **seg_kwargs
                 )
             )
             idx += len(elem)

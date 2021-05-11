@@ -12,8 +12,6 @@ from sqlfluff.core.parser.segments import (
     NewlineSegment,
     KeywordSegment,
     SymbolSegment,
-    ReSegment,
-    NamedSegment,
     Indent,
     Dedent,
     SegmentGenerator,
@@ -31,7 +29,8 @@ from sqlfluff.core.parser.grammar import (
     Nothing,
     OptionallyBracketed,
 )
+from sqlfluff.core.parser.parsers import StringParser, NamedParser, RegexParser
 from sqlfluff.core.parser.markers import PositionMarker
-from sqlfluff.core.parser.lexer import Lexer, StringMatcher, RegexMatcher
+from sqlfluff.core.parser.lexer import Lexer, StringLexer, RegexLexer
 from sqlfluff.core.parser.parser import Parser
 from sqlfluff.core.parser.matchable import Matchable

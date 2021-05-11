@@ -2,10 +2,10 @@
 
 import logging
 
-from sqlfluff.core.parser import BaseSegment, KeywordSegment, Anything
+from sqlfluff.core.parser import BaseSegment, KeywordSegment, Anything, StringParser
 from sqlfluff.core.parser.context import RootParseContext
 
-BarKeyword = KeywordSegment.make("bar")
+BarKeyword = StringParser("bar", KeywordSegment)
 
 
 class BasicSegment(BaseSegment):
@@ -43,7 +43,7 @@ def test__parser__parse_parse(seg_list, caplog):
         # Check it's still a BasicSegment
         assert isinstance(res, BasicSegment)
         # Check that we now have a keyword inside
-        assert isinstance(res.segments[0], BarKeyword)
+        assert isinstance(res.segments[0], KeywordSegment)
 
 
 def test__parser__parse_expand(seg_list):
@@ -59,4 +59,4 @@ def test__parser__parse_expand(seg_list):
         # Check we get an iterable containing a BasicSegment
         assert isinstance(res[0], BasicSegment)
         # Check that we now have a keyword inside
-        assert isinstance(res[0].segments[0], BarKeyword)
+        assert isinstance(res[0].segments[0], KeywordSegment)
