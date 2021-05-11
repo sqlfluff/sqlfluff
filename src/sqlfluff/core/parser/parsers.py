@@ -31,7 +31,7 @@ class StringParser(Matchable):
         # String matchers are not case sensitive, so we make the template
         # uppercase on creation. If any SQL dialect is found to be case
         # sensitive for keywords, this could be extended to allow
-        # case sentivitiy.
+        # case sensitivity.
         self.template = template.upper()
         self.raw_class = raw_class
         self.name = name
