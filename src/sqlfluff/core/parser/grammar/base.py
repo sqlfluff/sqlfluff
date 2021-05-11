@@ -468,7 +468,7 @@ class BaseGrammar(Matchable):
         _, start_bracket_refs, end_bracket_refs = zip(
             *parse_context.dialect.sets(bracket_pairs_set)
         )
-        # These matchables, probably StringParsers
+        # These are matchables, probably StringParsers.
         start_brackets = [
             parse_context.dialect.ref(seg_ref) for seg_ref in start_bracket_refs
         ]
