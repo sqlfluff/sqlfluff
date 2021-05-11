@@ -149,9 +149,9 @@ class ConfigLoader:
         """Recursively walk the nested config inside a TOML file."""
         buff: List[tuple] = []
         for k, v in config.items():
-            if isinstance(v, dict):
-                key = base_key + (k,)
-                buff.extend(ConfigLoader._walk_toml(v, base_key + (k,)))
+            if isinstance(v, dict) and k.endswith("__options"):
+                key = base_key + (k[:-9],)
+                buff.extend(ConfigLoader._walk_toml(v, key))
             else:
                 key = (base_key or ("core",)) + (k,)
                 buff.append((key, v))

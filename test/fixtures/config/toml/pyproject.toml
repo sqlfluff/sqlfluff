@@ -1,0 +1,12 @@
+[tool.sqlfluff]
+testing_int = 5
+testing_bar = 7.698
+testing_arr = [ "a", "b", "c" ]
+testing_inline_table = { x = 1 }
+bar = "foo"
+
+[tool.sqlfluff.bar__options]
+foo = "foobar"
+
+[tool.sqlfluff.fnarr__options.fnarr__options]
+foo = "foobar"
