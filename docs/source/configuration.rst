@@ -21,10 +21,11 @@ any vales read from earlier files.
 - :code:`.sqlfluff`
 - :code:`pyproject.toml`
 
-Within these files, the first four will be read like an `cfg file`_, and *SQLFluff*
-will look for sections which start with *SQLFluff*, and where subsections
-are delimited by a semicolon. For example the *jinjacontext* section will
-be indicated in the section started with *[sqlfluff:jinjacontext]*.
+Within these files, the first four will be read like an `cfg file`_, and
+*SQLFluff* will look for sections which start with *SQLFluff*, and where
+subsections are delimited by a semicolon. For example the *jinjacontext*
+section will be indicated in the section started with
+*[sqlfluff:jinjacontext]*.
 
 For the `pyproject.toml file`_, all valid sections start with `tool.sqlfluff`
 and subsections are delimited by a dot and suffixed with *__options*.
