@@ -63,7 +63,7 @@ def test__config__load_nested():
         )
     )
     assert cfg == {
-        "core": {"testing_val": "foobar", "testing_int": 6, "testing_bar": 7.698},
+        "core": {"testing_val": "foobar", "testing_int": 1, "testing_bar": 7.698},
         "bar": {"foo": "foobar"},
         "fnarr": {"fnarr": {"foo": "foobar"}},
     }
