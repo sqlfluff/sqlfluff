@@ -26,14 +26,14 @@ class Conditional(BaseGrammar):
             are met for this grammar to be enabled.
 
     Example:
-    .. code-block::
+        .. code-block::
 
-        Conditional(Dedent, config_type="indent", indented_joins=False)
+            Conditional(Dedent, config_type="indent", indented_joins=False)
 
-    This effectively says that if `indented_joins` in the "indent" section
-    of the current config is set to `True`, then this grammar will allow
-    a `Dedent` segment to be matched here. If `indented_joins` is set to
-    `False`, it will be as though there was no `Dedent` in this sequence.
+        This effectively says that if `indented_joins` in the "indent" section
+        of the current config is set to `True`, then this grammar will allow
+        a `Dedent` segment to be matched here. If `indented_joins` is set to
+        `False`, it will be as though there was no `Dedent` in this sequence.
 
     | NOTE: While the Conditional grammar is set up to allow different
     | sources of configuration, it relies on configuration keys being
