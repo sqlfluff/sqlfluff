@@ -14,5 +14,5 @@ from sqlfluff.core.parser.segments.raw import (
     KeywordSegment,
     SymbolSegment,
 )
-from sqlfluff.core.parser.segments.ephemeral import EphemeralSegment
+from sqlfluff.core.parser.segments.ephemeral import EphemeralSegment, allow_ephemeral
 from sqlfluff.core.parser.segments.meta import Indent, Dedent, TemplateSegment

@@ -3,7 +3,7 @@
 from typing import Tuple, List
 
 from sqlfluff.core.parser.grammar import Ref
-from sqlfluff.core.parser.segments import BaseSegment
+from sqlfluff.core.parser.segments import BaseSegment, allow_ephemeral
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.context import ParseContext
@@ -39,6 +39,7 @@ class Delimited(OneOf):
         super().__init__(*args, **kwargs)
 
     @match_wrapper()
+    @allow_ephemeral
     def match(
         self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
     ) -> MatchResult:
