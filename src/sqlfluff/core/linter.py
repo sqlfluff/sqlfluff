@@ -953,11 +953,6 @@ class Linter:
                         # Don't allow it if we're not linting templating block indents.
                         if not templating_blocks_indent:
                             continue
-                        # Don't allow if it's not configure to function.
-                        elif not token.is_enabled(
-                            indent_config=config.get_section("indentation")
-                        ):
-                            continue
                 new_tokens.append(token)
             # Swap the buffers
             tokens = new_tokens  # type: ignore
