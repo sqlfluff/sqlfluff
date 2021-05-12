@@ -41,8 +41,10 @@ class RawSegment(BaseSegment):
         else:
             self._raw = self._default_raw
         self._raw_upper = self._raw.upper()
-        # pos marker is required here
-        self.pos_marker = pos_marker
+        # pos marker is required here. We ignore the typing initially
+        # because it might *initially* be unset, but it will be reset
+        # later.
+        self.pos_marker: PositionMarker = pos_marker  # type: ignore
         # if a surrogate type is provided, store it for later.
         self._surrogate_type = type
         self._surrogate_name = name
@@ -96,16 +98,6 @@ class RawSegment(BaseSegment):
         This is in case something tries to iterate on this segment.
         """
         return []
-
-    @property
-    def name(self):
-        """The name of this segment.
-
-        In addition to the options defined by BaseSegment, subclasses
-        of RawSegment may also define a _surrogate_name which is also
-        take into account here.
-        """
-        return self._surrogate_name or super().name
 
     # ################ INSTANCE METHODS
 
