@@ -959,11 +959,11 @@ class FromExpressionSegment(BaseSegment):
             Ref("MLTableExpressionSegment"),
             Ref("FromExpressionElementSegment"),
         ),
-        Conditional(Dedent, config_type="indent", indented_joins=False),
+        Conditional(Dedent, indented_joins=False),
         AnyNumberOf(
             Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar"), optional=True
         ),
-        Conditional(Dedent, config_type="indent", indented_joins=True),
+        Conditional(Dedent, indented_joins=True),
     )
 
 

@@ -471,10 +471,12 @@ def test__parser__grammar_sequence_indent_conditional(seg_list, caplog):
     bs = StringParser("bar", KeywordSegment)
     fs = StringParser("foo", KeywordSegment)
     # We will assume the default config has indented_joins = False.
+    # We're testing without explictly setting the `config_type` because
+    # that's the assumed way of using the grammar in practice.
     g = Sequence(
-        Conditional(Indent, config_type="indent", indented_joins=False),
+        Conditional(Indent, indented_joins=False),
         bs,
-        Conditional(Indent, config_type="indent", indented_joins=True),
+        Conditional(Indent, indented_joins=True),
         fs,
     )
     with RootParseContext(dialect=None) as ctx:
