@@ -17,7 +17,7 @@ class Conditional(BaseGrammar):
     | may not function within a different context.
 
     Args:
-        *args: A meta segment which is intantiated
+        *args: A meta segment which is instantiated
             conditionally upon the rules set.
         config_type: The area of the config that is used
             when evaluating the status of the given rules.
@@ -65,7 +65,7 @@ class Conditional(BaseGrammar):
     def is_enabled(self, parse_context):
         """Evaluate conditionals and return whether enabled."""
         # NOTE: Because only "indentation" is the only current config_type
-        # supported, this code is much simpler that would be requried in
+        # supported, this code is much simpler that would be required in
         # future if multiple options are available.
         if self._config_type != "indentation":
             raise ValueError(
