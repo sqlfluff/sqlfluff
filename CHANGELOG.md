@@ -16,7 +16,7 @@ Contributors:
 - Parsing of Postgres filter grammar.
 - Parsing of "ALTER DEFAULT PRIVILEGES" Postgres statement.
 - Parsing of Postgres non-explicit role granting and function execution.
-- Early failing on fata dbt templater fails.
+- Early failing on fatal dbt templater fails.
 
 ### Changed
 - Big rewrite of the lexer, segments and position markers for simplicity
