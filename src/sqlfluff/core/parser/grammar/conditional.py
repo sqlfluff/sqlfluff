@@ -26,7 +26,6 @@ class Conditional(BaseGrammar):
             are met for this grammar to be enabled.
 
     Example:
-
     .. code-block::
 
         Conditional(Dedent, config_type="indent", indented_joins=False)
