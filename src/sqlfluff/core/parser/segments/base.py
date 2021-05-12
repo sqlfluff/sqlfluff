@@ -78,9 +78,11 @@ class BaseSegment:
     # with the can_start_end_non_code.
     allow_empty = False
 
-    def __init__(self, segments, pos_marker=None):
+    def __init__(self, segments, pos_marker=None, name: Optional[str] = None):
         # A cache variable for expandable
         self._is_expandable = None
+        # Surrogate name option.
+        self._surrogate_name = name
         if len(segments) == 0:
             raise RuntimeError(
                 "Setting {0} with a zero length segment set. This shouldn't happen.".format(
@@ -100,18 +102,17 @@ class BaseSegment:
                 "Unexpected type passed to BaseSegment: {0}".format(type(segments))
             )
 
-        if pos_marker:
-            self.pos_marker = pos_marker
-        else:
+        if not pos_marker:
             # If no pos given, it's the pos of the first segment.
             if isinstance(segments, (tuple, list)):
-                self.pos_marker = PositionMarker.from_child_markers(
+                pos_marker = PositionMarker.from_child_markers(
                     *(seg.pos_marker for seg in segments)
                 )
             else:
                 raise TypeError(
                     "Unexpected type passed to BaseSegment: {0}".format(type(segments))
                 )
+        self.pos_marker: PositionMarker = pos_marker
 
     def __eq__(self, other):
         # NB: this should also work for RawSegment
@@ -152,16 +153,17 @@ class BaseSegment:
     def name(self):
         """The name of this segment.
 
-        The reason for two routes for names is that some subclasses
-        might want to override the name rather than just getting it
-        the class name.
+        The reason for three routes for names is that some subclasses
+        might want to override the name rather than just getting
+        the class name. Instances may also override this with the
+        _surrogate_name.
 
         Name should be specific to this kind of segment, while `type`
         should be a higher level descriptor of the kind of segment.
         For example, the name of `+` is 'plus' but the type might be
         'binary_operator'.
         """
-        return self._name or self.__class__.__name__
+        return self._surrogate_name or self._name or self.__class__.__name__
 
     @property
     def is_expandable(self):
@@ -735,13 +737,17 @@ class BaseSegment:
                 return [self] + res
         return None
 
-    def parse(self, parse_context=None):
+    def parse(self, parse_context=None, parse_grammar=None):
         """Use the parse grammar to find subsegments within this segment.
 
         A large chunk of the logic around this can be found in the `expand` method.
 
         Use the parse setting in the context for testing, mostly to check how deep to go.
         True/False for yes or no, an integer allows a certain number of levels.
+
+        Optionally, this method allows a custom parse grammar to be
+        provided which will override any existing parse grammar
+        on the segment.
         """
         # Clear the blacklist cache so avoid missteps
         if parse_context:
@@ -753,7 +759,8 @@ class BaseSegment:
             return self
 
         # Check the Parse Grammar
-        if self.parse_grammar is None:
+        parse_grammar = parse_grammar or self.parse_grammar
+        if parse_grammar is None:
             # No parse grammar, go straight to expansion
             parse_context.logger.debug(
                 "{0}.parse: no grammar. Going straight to expansion".format(
@@ -785,7 +792,7 @@ class BaseSegment:
 
             # NOTE: No match_depth kwarg, because this is the start of the matching.
             with parse_context.matching_segment(self.__class__.__name__) as ctx:
-                m = self.parse_grammar.match(segments=segments, parse_context=ctx)
+                m = parse_grammar.match(segments=segments, parse_context=ctx)
 
             if not isinstance(m, MatchResult):
                 raise TypeError(
