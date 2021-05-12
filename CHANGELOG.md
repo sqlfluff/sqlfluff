@@ -21,7 +21,7 @@ Contributors:
 ### Changed
 - Big rewrite of the lexer, segments and position markers for simplicity
   and to support future parallelism work.
-- Fix to L036 which previously manged whitespace.
+- Fix to L036 which previously mangled whitespace.
 
 ## [0.5.3] - 2021-05-04
 ### Added
