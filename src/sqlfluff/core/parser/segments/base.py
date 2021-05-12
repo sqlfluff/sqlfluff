@@ -154,7 +154,7 @@ class BaseSegment:
         """The name of this segment.
 
         The reason for three routes for names is that some subclasses
-        might want to override the name rather than just getting it
+        might want to override the name rather than just getting
         the class name. Instances may also override this with the
         _surrogate_name.
 
