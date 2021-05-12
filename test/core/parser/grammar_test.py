@@ -8,6 +8,8 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
     RegexParser,
+    WhitespaceSegment,
+    Indent,
 )
 from sqlfluff.core.parser.context import RootParseContext
 from sqlfluff.core.parser.segments import EphemeralSegment, BaseSegment
@@ -22,6 +24,7 @@ from sqlfluff.core.parser.grammar import (
     Anything,
     Nothing,
     Ref,
+    Conditional,
 )
 from sqlfluff.core.errors import SQLParseError
 
@@ -475,6 +478,47 @@ def test__parser__grammar_sequence_nested(seg_list, caplog):
                 KeywordSegment("baar", seg_list[3].pos_marker)
                 # NB: No whitespace at the end, this shouldn't be consumed.
             )
+
+
+def test__parser__grammar_sequence_indent(seg_list, caplog):
+    """Test the Sequence grammar with indents."""
+    bs = StringParser("bar", KeywordSegment)
+    fs = StringParser("foo", KeywordSegment)
+    g = Sequence(Indent, bs, fs)
+    with RootParseContext(dialect=None) as ctx:
+        with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
+            m = g.match(seg_list, parse_context=ctx)
+            assert m
+            # check we get an indent.
+            assert isinstance(m.matched_segments[0], Indent)
+            assert isinstance(m.matched_segments[1], KeywordSegment)
+
+
+def test__parser__grammar_sequence_indent_conditional(seg_list, caplog):
+    """Test the Sequence grammar with indents."""
+    bs = StringParser("bar", KeywordSegment)
+    fs = StringParser("foo", KeywordSegment)
+    # We will assume the default config has indented_joins = False.
+    # We're testing without explictly setting the `config_type` because
+    # that's the assumed way of using the grammar in practice.
+    g = Sequence(
+        Conditional(Indent, indented_joins=False),
+        bs,
+        Conditional(Indent, indented_joins=True),
+        fs,
+    )
+    with RootParseContext(dialect=None) as ctx:
+        with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
+            m = g.match(seg_list, parse_context=ctx)
+            assert m
+            # Check we get an Indent.
+            assert isinstance(m.matched_segments[0], Indent)
+            assert isinstance(m.matched_segments[1], KeywordSegment)
+            # check the whitespace is still there
+            assert isinstance(m.matched_segments[2], WhitespaceSegment)
+            # Check the second Indent does not appear
+            assert not isinstance(m.matched_segments[3], Indent)
+            assert isinstance(m.matched_segments[3], KeywordSegment)
 
 
 @pytest.mark.parametrize(

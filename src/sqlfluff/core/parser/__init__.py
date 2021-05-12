@@ -28,6 +28,7 @@ from sqlfluff.core.parser.grammar import (
     Anything,
     Nothing,
     OptionallyBracketed,
+    Conditional,
 )
 from sqlfluff.core.parser.parsers import StringParser, NamedParser, RegexParser
 from sqlfluff.core.parser.markers import PositionMarker
