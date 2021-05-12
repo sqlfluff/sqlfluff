@@ -12,15 +12,32 @@ from sqlfluff.core.parser.grammar.base import (
 class Conditional(BaseGrammar):
     """A grammar which is conditional on the parse context.
 
-    Args:
-        enforce_whitespace_preceeding (:obj:`bool`): Should the GreedyUntil
-            match only match the content if it's preceded by whitespace?
-            (defaults to False). This is useful for some keywords which may
-            have false alarms on some array accessors.
+    | NOTE: The Conditional grammar is assumed to be operating
+    | within a Sequence grammar, and some of the functionality
+    | may not function within a different context.
 
+    Args:
+        *args: A meta segment which is intantiated
+            conditionally upon the rules set.
+        config_type: The area of the config that is used
+            when evaluating the status of the given rules.
+        rules: A set of `rule=boolean` pairs, which are
+            evaluated when understanding whether conditions
+            are met for this grammar to be enabled.
+    
+    Example:
+    
+    .. code-block::
+
+        Conditional(Dedent, config_type="indent", indented_joins=False)
+
+    This effectively says that if `indented_joins` in the "indent" section
+    of the current config is set to `True`, then this grammar will allow
+    a `Dedent` segment to be matched here. If `indented_joins` is set to
+    `False`, it will be as though there was no `Dedent` in this sequence.
     """
 
-    def __init__(self, *args, config_type: str = "", **kwargs):
+    def __init__(self, *args, config_type: str = "", **rules):
         if not all(issubclass(arg, Indent) for arg in args):
             raise ValueError(
                 "Conditional is only designed to work with Indent segments."
@@ -31,10 +48,10 @@ class Conditional(BaseGrammar):
             )
         if not config_type:
             raise ValueError("Conditional config_type must be set.")
-        if not kwargs:
+        if not rules:
             raise ValueError("Conditional requires rules to be set.")
         self._config_type = config_type
-        self._config_rules = kwargs
+        self._config_rules = rules
         super().__init__(*args)
 
     def is_enabled(self, parse_context):
