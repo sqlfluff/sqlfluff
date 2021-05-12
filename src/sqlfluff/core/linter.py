@@ -1417,11 +1417,16 @@ class Linter:
                 fname, "r", encoding="utf8", errors="backslashreplace"
             ) as target_file:
                 try:
-                    linted_path.add(
-                        self.lint_string(
-                            target_file.read(), fname=fname, fix=fix, config=config
-                        )
+                    linted_file = self.lint_string(
+                        target_file.read(), fname=fname, fix=fix, config=config
                     )
+                    linted_path.add(linted_file)
+                    # If any fatal errors, then stop iteration.
+                    if any(v.fatal for v in linted_file.violations):
+                        linter_logger.error(
+                            "Fatal linting error. Halting further linting." ""
+                        )
+                        break
                 except IOError as e:  # IOErrors caught in commands.py, so still raise it
                     raise (e)
                 except Exception:

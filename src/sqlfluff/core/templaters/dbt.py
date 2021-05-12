@@ -203,7 +203,8 @@ class DbtTemplater(JinjaTemplater):
         except DbtCompilationException as e:
             return None, [
                 SQLTemplaterError(
-                    f"dbt compilation error on file '{e.node.original_file_path}', {e.msg}"
+                    f"dbt compilation error on file '{e.node.original_file_path}', {e.msg}",
+                    fatal=True,
                 )
             ]
         except DbtFailedToConnectException as e:
@@ -211,7 +212,8 @@ class DbtTemplater(JinjaTemplater):
                 SQLTemplaterError(
                     "dbt tried to connect to the database and failed: "
                     "you could use 'execute' https://docs.getdbt.com/reference/dbt-jinja-functions/execute/ "
-                    f"to skip the database calls. Error: {e.msg}"
+                    f"to skip the database calls. Error: {e.msg}",
+                    fatal=True,
                 )
             ]
         # If a SQLFluff error is raised, just pass it through
