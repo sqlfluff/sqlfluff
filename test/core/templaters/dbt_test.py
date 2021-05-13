@@ -27,7 +27,7 @@ def test__templater_dbt_missing(dbt_templater, project_dir):  # noqa: F811
     with pytest.raises(ModuleNotFoundError, match=r"pip install sqlfluff\[dbt\]"):
         dbt_templater.process(
             in_str="",
-            fname=os.path.join(project_dir,"models/my_new_project/test.sql"),
+            fname=os.path.join(project_dir, "models/my_new_project/test.sql"),
             config=FluffConfig(configs=DBT_FLUFF_CONFIG),
         )
 
@@ -56,11 +56,13 @@ def test__templater_dbt_profiles_dir_expanded(dbt_templater):  # noqa: F811
     ],
 )
 @pytest.mark.dbt
-def test__templater_dbt_templating_result(project_dir, dbt_templater, fname):  # noqa: F811
+def test__templater_dbt_templating_result(
+    project_dir, dbt_templater, fname  # noqa: F811  # noqa: F811
+):
     """Test that input sql file gets templated into output sql file."""
     templated_file, _ = dbt_templater.process(
         in_str="",
-        fname=os.path.join(project_dir,"models/my_new_project/",fname),
+        fname=os.path.join(project_dir, "models/my_new_project/", fname),
         config=FluffConfig(configs=DBT_FLUFF_CONFIG),
     )
     assert str(templated_file) == open("test/fixtures/dbt/" + fname).read()
@@ -116,7 +118,7 @@ def test__templater_dbt_templating_test_lex(
     lexer = Lexer(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
     templated_file, _ = dbt_templater.process(
         in_str="",
-        fname=os.path.join(project_dir,fname),
+        fname=os.path.join(project_dir, fname),
         config=FluffConfig(configs=DBT_FLUFF_CONFIG),
     )
     tokens, lex_vs = lexer.lex(templated_file)

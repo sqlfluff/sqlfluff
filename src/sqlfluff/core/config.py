@@ -190,7 +190,7 @@ class ConfigLoader:
                 v = coerce_value(val)
 
                 # Attempt to resolve paths
-                if name.lower().endswith(("_path","_dir")):
+                if name.lower().endswith(("_path", "_dir")):
                     # Try to resolve the path.
                     # Make the referenced path.
                     ref_path = os.path.join(os.path.dirname(fpath), val)
