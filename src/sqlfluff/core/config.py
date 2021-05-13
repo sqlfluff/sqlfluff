@@ -11,6 +11,8 @@ from sqlfluff.core.plugin.host import get_plugin_manager
 
 import appdirs
 
+import toml
+
 # Instantiate the templater logger
 config_logger = logging.getLogger("sqlfluff.config")
 
@@ -165,8 +167,6 @@ class ConfigLoader:
         The return value is a list of tuples, were each tuple has two elements,
         the first is a tuple of paths, the second is the value at that path.
         """
-        import toml
-
         config = toml.load(fpath)
         tool = config.get("tool", {}).get("sqlfluff", {})
 
