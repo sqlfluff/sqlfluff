@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Contributors:
 - [@GitHub-Username](Link to GitHub profile) ([#PR-Number](Link to PR))
 
+## [0.5.5] - 2021-05-13
+- Bugfix release for an off-by-one error introduced in L016 as part of `0.5.4`.
+
 ## [0.5.4] - 2021-05-12
 ### Added
 - Parsing of Postgres dollar quoted literals.
