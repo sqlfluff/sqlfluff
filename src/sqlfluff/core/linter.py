@@ -1533,9 +1533,7 @@ To hide this warning, add the failing file to .sqlfluffignore
             linted_path.add(linted_file)
             # If any fatal errors, then stop iteration.
             if any(v.fatal for v in linted_file.violations):
-                linter_logger.error(
-                    "Fatal linting error. Halting further linting." ""
-                )
+                linter_logger.error("Fatal linting error. Halting further linting.")
                 break
         return linted_path
 
