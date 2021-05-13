@@ -1530,7 +1530,6 @@ To hide this warning, add the failing file to .sqlfluffignore
                 )
             g = self._serial_lint_path_body(fnames, fix)
         for linted_file in g:
-            #linted_path.add(linted_file)
             linted_path.add(linted_file)
             # If any fatal errors, then stop iteration.
             if any(v.fatal for v in linted_file.violations):

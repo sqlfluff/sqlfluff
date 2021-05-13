@@ -1,4 +1,5 @@
 """Indent and Dedent classes."""
+
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.segments.raw import RawSegment
 

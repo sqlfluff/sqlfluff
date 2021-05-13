@@ -340,10 +340,6 @@ class FluffConfig:
     def __init__(
         self, configs: Optional[dict] = None, overrides: Optional[dict] = None
     ):
-        self._initialize(configs, overrides)
-
-    def _initialize(self, configs, overrides):
-        self._base_configs = configs
         self._overrides = overrides  # We only store this for child configs
         defaults = nested_combine(*get_plugin_manager().hook.load_default_config())
         self._configs = nested_combine(
@@ -551,18 +547,3 @@ class FluffConfig:
         config_path = [elem.strip() for elem in config_line.split(":")]
         # Set the value
         self.set_value(config_path[:-1], config_path[-1])
-
-    def __getstate__(self):
-        """Allows FluffConfig to be pickled.
-
-        Without this function, pickling fails due to some dynamically created
-        objects not being present in various dialect-related modules.
-        """
-        return dict(
-            configs=self._base_configs,
-            overrides=self._overrides,
-        )
-
-    def __setstate__(self, state):
-        """Allows FluffConfig to be unpickled."""
-        self._initialize(state["configs"], state["overrides"])
