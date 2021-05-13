@@ -176,10 +176,10 @@ def test__linter__linting_result_check_tuples_by_path(by_path, result_type):
     """Test that a LintingResult can partition violations by the source files."""
     lntr = Linter()
     result = lntr.lint_paths(
-        (
+        [
             "test/fixtures/linter/comma_errors.sql",
             "test/fixtures/linter/whitespace_errors.sql",
-        )
+        ]
     )
     check_tuples = result.check_tuples(by_path=by_path)
     isinstance(check_tuples, result_type)
@@ -190,10 +190,10 @@ def test__linter__linting_result_get_violations(parallel):
     """Test that we can get violations from a LintingResult."""
     lntr = Linter()
     result = lntr.lint_paths(
-        (
+        [
             "test/fixtures/linter/comma_errors.sql",
             "test/fixtures/linter/whitespace_errors.sql",
-        ),
+        ],
         parallel=parallel,
     )
 

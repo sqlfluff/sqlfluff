@@ -1,7 +1,6 @@
 """Tests for the configuration routines."""
 
 import os
-import pickle
 
 from sqlfluff.core.config import ConfigLoader, nested_combine, dict_diff
 from sqlfluff.core import Linter, FluffConfig
@@ -124,14 +123,3 @@ def test__config__nested_config_tests():
             assert ("L003", 1, 4) in violations[k]
             assert "L002" not in [c[0] for c in violations[k]]
             assert "L009" not in [c[0] for c in violations[k]]
-
-
-def test_config_pickle():
-    """Test that a FluffConfig instance can be pickled and unpickled."""
-    config = FluffConfig(
-        configs={"core": {"templater": "dbt"}}, overrides=dict(exclude_rules="L002")
-    )
-    pickled = pickle.dumps(config)
-    unpickled = pickle.loads(pickled)
-    assert config._base_configs == unpickled._base_configs
-    assert config._overrides == unpickled._overrides
