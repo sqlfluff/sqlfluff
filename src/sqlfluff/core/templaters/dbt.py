@@ -208,10 +208,10 @@ class DbtTemplater(JinjaTemplater):
         self.sqlfluff_config = config
         self.project_dir = self._get_project_dir()
         self.profiles_dir = self._get_profiles_dir()
-
+        fname_absolute_path = os.path.abspath(fname)
         try:
             os.chdir(self.project_dir)
-            return self._unsafe_process(fname, in_str, config)
+            return self._unsafe_process(fname_absolute_path, in_str, config)
         except DbtCompilationException as e:
             return None, [
                 SQLTemplaterError(
@@ -245,7 +245,6 @@ class DbtTemplater(JinjaTemplater):
             raise ValueError(
                 "The dbt templater does not support stdin input, provide a path instead"
             )
-
         selected = self.dbt_selector_method.search(
             included_nodes=self.dbt_manifest.nodes,
             # Selector needs to be a relative path
