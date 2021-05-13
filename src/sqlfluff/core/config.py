@@ -156,7 +156,7 @@ class ConfigLoader:
             it reads config files.
 
         Note:
-            Any variable names ending with `_path`, will be attempted to be
+            Any variable names ending with `_path` or `_dir`, will be attempted to be
             resolved as relative paths to this config file. If that fails the
             string value will remain.
 
@@ -172,6 +172,7 @@ class ConfigLoader:
         # the optionxform attribute.
         config.optionxform = lambda option: option  # type: ignore
         config.read(fpath)
+
         for k in config.sections():
             if k == "sqlfluff":
                 key: Tuple = ("core",)
@@ -189,14 +190,13 @@ class ConfigLoader:
                 v = coerce_value(val)
 
                 # Attempt to resolve paths
-                if name.lower().endswith("_path"):
+                if name.lower().endswith(("_path","_dir")):
                     # Try to resolve the path.
                     # Make the referenced path.
                     ref_path = os.path.join(os.path.dirname(fpath), val)
                     # Check if it exists, and if it does, replace the value with the path.
                     if os.path.exists(ref_path):
                         v = ref_path
-
                 # Add the name to the end of the key
                 buff.append((key + (name,), v))
         return buff
