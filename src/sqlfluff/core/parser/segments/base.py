@@ -526,7 +526,7 @@ class BaseSegment:
 
     def get_start_loc(self):
         """Get a location tuple at the start of this segment."""
-        return self.pos_marker.working_loc()
+        return self.pos_marker.working_loc
 
     def get_end_loc(self):
         """Get a location tuple at the end of this segment."""
