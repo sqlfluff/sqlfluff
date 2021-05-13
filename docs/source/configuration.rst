@@ -30,7 +30,7 @@ section will be indicated in the section started with
 For the `pyproject.toml file`_, all valid sections start with `tool.sqlfluff`
 and subsections are delimited by a dot and suffixed with *__options*.
 For example the *jinjacontext* section will be indicated in the section started
-with *[tools.sqlfluff.jinjacontext]*.
+with *[tools.sqlfluff.jinjacontext__options]*.
 
 For example
 
