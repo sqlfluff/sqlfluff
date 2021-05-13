@@ -19,6 +19,10 @@ class NonCodeMatcher(Matchable):
         """This element doesn't work with simple."""
         return None
 
+    def is_optional(self):
+        """Not optional."""
+        return False
+
     @match_wrapper(v_level=4)
     def match(self, segments, parse_context):
         """Match any starting non-code segments."""

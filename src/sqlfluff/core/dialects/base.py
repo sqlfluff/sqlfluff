@@ -2,12 +2,19 @@
 
 from typing import Union, Type
 
-from sqlfluff.core.parser import KeywordSegment, SegmentGenerator, BaseSegment
+from sqlfluff.core.parser import (
+    KeywordSegment,
+    SegmentGenerator,
+    BaseSegment,
+    StringParser,
+)
 from sqlfluff.core.parser.grammar.base import BaseGrammar
 
-DialectElementType = Union[Type[BaseSegment], BaseGrammar, SegmentGenerator]
+DialectElementType = Union[
+    Type[BaseSegment], BaseGrammar, StringParser, SegmentGenerator
+]
 # NOTE: Post expansion, no generators remain
-ExpandedDialectElementType = Union[Type[BaseSegment], BaseGrammar]
+ExpandedDialectElementType = Union[Type[BaseSegment], StringParser, BaseGrammar]
 
 
 class Dialect:
@@ -15,7 +22,7 @@ class Dialect:
 
     Args:
         name (:obj:`str`): The name of the dialect, used for lookup.
-        lexer_struct (iterable of :obj:`tuple`): A structure defining
+        lexer_matchers (iterable of :obj:`StringLexer`): A structure defining
             the lexing config for this dialect.
 
     """
@@ -23,7 +30,7 @@ class Dialect:
     def __init__(
         self,
         name,
-        lexer_struct=None,
+        lexer_matchers=None,
         library=None,
         sets=None,
         inherits_from=None,
@@ -31,7 +38,7 @@ class Dialect:
     ):
         self._library = library or {}
         self.name = name
-        self.lexer_struct = lexer_struct
+        self.lexer_matchers = lexer_matchers
         self.expanded = False
         self._sets = sets or {}
         self.inherits_from = inherits_from
@@ -79,9 +86,7 @@ class Dialect:
             for kw in expanded_copy.sets(keyword_set):
                 n = kw.capitalize() + "KeywordSegment"
                 if n not in expanded_copy._library:
-                    expanded_copy._library[n] = KeywordSegment.make(
-                        kw.lower(), module=self.module
-                    )
+                    expanded_copy._library[n] = StringParser(kw.lower(), KeywordSegment)
         expanded_copy.expanded = True
         return expanded_copy
 
@@ -117,7 +122,7 @@ class Dialect:
         return self.__class__(
             name=name,
             library=self._library.copy(),
-            lexer_struct=self.lexer_struct.copy(),
+            lexer_matchers=self.lexer_matchers.copy(),
             sets=new_sets,
             inherits_from=self.name,
             root_segment_name=self.root_segment_name,
@@ -160,7 +165,7 @@ class Dialect:
         defined using `make`. Segments are passed in as kwargs.
 
         e.g.
-        dialect.add(SomeSegment=KeywordSegment.make(blah, blah, blah))
+        dialect.add(SomeSegment=StringParser("blah", KeywordSegment))
 
         Note that multiple segments can be added in the same call as this method
         will iterate through the kwargs
@@ -237,46 +242,46 @@ class Dialect:
                 )
             )
 
-    def set_lexer_struct(self, lexer_struct):
+    def set_lexer_matchers(self, lexer_matchers):
         """Set the lexer struct for the dialect.
 
         This is what is used for base dialects. For derived dialects
         (which don't exist yet) the assumption is that we'll introduce
         some kind of *patch* function which could be used to mutate
-        an existing `lexer_struct`.
+        an existing `lexer_matchers`.
         """
-        self.lexer_struct = lexer_struct
+        self.lexer_matchers = lexer_matchers
 
-    def get_lexer_struct(self):
+    def get_lexer_matchers(self):
         """Fetch the lexer struct for this dialect."""
-        if self.lexer_struct:
-            return self.lexer_struct
+        if self.lexer_matchers:
+            return self.lexer_matchers
         else:
             raise ValueError(
                 "Lexing struct has not been set for dialect {0}".format(self)
             )
 
-    def patch_lexer_struct(self, lexer_patch):
+    def patch_lexer_matchers(self, lexer_patch):
         """Patch an existing lexer struct.
 
         Used to edit the lexer of a sub-dialect.
         """
         buff = []
-        if not self.lexer_struct:
+        if not self.lexer_matchers:
             raise ValueError("Lexer struct must be defined before it can be patched!")
 
         # Make a new data struct for lookups
-        patch_dict = {elem[0]: elem for elem in lexer_patch}
+        patch_dict = {elem.name: elem for elem in lexer_patch}
 
-        for elem in self.lexer_struct:
-            if elem[0] in patch_dict:
-                buff.append(patch_dict[elem[0]])
+        for elem in self.lexer_matchers:
+            if elem.name in patch_dict:
+                buff.append(patch_dict[elem.name])
             else:
                 buff.append(elem)
         # Overwrite with the buffer once we're done
-        self.lexer_struct = buff
+        self.lexer_matchers = buff
 
-    def insert_lexer_struct(self, lexer_patch, before):
+    def insert_lexer_matchers(self, lexer_patch, before):
         """Insert new records into an existing lexer struct.
 
         Used to edit the lexer of a sub-dialect. The patch is
@@ -284,11 +289,11 @@ class Dialect:
         """
         buff = []
         found = False
-        if not self.lexer_struct:
+        if not self.lexer_matchers:
             raise ValueError("Lexer struct must be defined before it can be patched!")
 
-        for elem in self.lexer_struct:
-            if elem[0] == before:
+        for elem in self.lexer_matchers:
+            if elem.name == before:
                 found = True
                 for patch in lexer_patch:
                     buff.append(patch)
@@ -301,7 +306,7 @@ class Dialect:
                 "Lexer struct insert before '%s' failed because tag never found."
             )
         # Overwrite with the buffer once we're done
-        self.lexer_struct = buff
+        self.lexer_matchers = buff
 
     def get_root_segment(self):
         """Get the root segment of the dialect."""

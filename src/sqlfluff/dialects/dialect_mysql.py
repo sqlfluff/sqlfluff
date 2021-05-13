@@ -5,26 +5,28 @@ https://dev.mysql.com/doc/refman/8.0/en/differences-from-ansi.html
 """
 
 from sqlfluff.core.parser import (
-    NamedSegment,
     Ref,
     AnyNumberOf,
     Sequence,
     OneOf,
     Bracketed,
+    RegexLexer,
+    CommentSegment,
+    NamedParser,
+    CodeSegment,
 )
 from sqlfluff.core.dialects import load_raw_dialect
 
 ansi_dialect = load_raw_dialect("ansi")
 mysql_dialect = ansi_dialect.copy_as("mysql")
 
-mysql_dialect.patch_lexer_struct(
+mysql_dialect.patch_lexer_matchers(
     [
-        # name, type, pattern, kwargs
-        (
+        RegexLexer(
             "inline_comment",
-            "regex",
             r"(-- |#)[^\n]*",
-            dict(is_comment=True, type="comment", trim_start=("-- ", "#")),
+            CommentSegment,
+            segment_kwargs={"trim_start": ("-- ", "#")},
         )
     ]
 )
@@ -34,8 +36,12 @@ mysql_dialect.sets("unreserved_keywords").difference_update(["FORCE", "IGNORE", 
 mysql_dialect.sets("reserved_keywords").update(["FORCE", "IGNORE", "USE"])
 
 mysql_dialect.replace(
-    QuotedIdentifierSegment=NamedSegment.make(
-        "back_quote", name="quoted_identifier", type="identifier", trim_chars=("`",)
+    QuotedIdentifierSegment=NamedParser(
+        "back_quote",
+        CodeSegment,
+        name="quoted_identifier",
+        type="identifier",
+        trim_chars=("`",),
     ),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
@@ -51,8 +57,12 @@ mysql_dialect.replace(
 )
 
 mysql_dialect.add(
-    DoubleQuotedLiteralSegment=NamedSegment.make(
-        "double_quote", name="quoted_literal", type="literal", trim_chars=('"',)
+    DoubleQuotedLiteralSegment=NamedParser(
+        "double_quote",
+        CodeSegment,
+        name="quoted_literal",
+        type="literal",
+        trim_chars=('"',),
     )
 )
 

@@ -1,0 +1,3 @@
+SELECT STRUCT(STRUCT(1 AS b) AS a) AS foo;
+
+SELECT ARRAY_AGG(STRUCT(a AS a, b AS b)) FROM foo;

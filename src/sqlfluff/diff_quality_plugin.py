@@ -34,7 +34,7 @@ class SQLFluffViolationReporter(BaseViolationReporter):
             except AttributeError:
                 # Parse errors
                 message = str(violation)
-            result.append(Violation(violation.line_no(), message))
+            result.append(Violation(violation.line_no, message))
         return result
 
 

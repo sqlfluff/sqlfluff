@@ -2,8 +2,6 @@
 import inspect
 
 from sqlfluff.core.parser.match_wrapper import match_wrapper
-from sqlfluff.core.parser.markers import FilePositionMarker
-
 from sqlfluff.core.parser.segments.raw import RawSegment
 
 
@@ -15,64 +13,6 @@ class MetaSegment(RawSegment):
     _template = "<unset>"
     indent_val = 0
     is_meta = True
-    _config_rules = None
-
-    @classmethod
-    def when(cls, **kwargs):
-        """Configure whether this meta segment is available given certain rules.
-
-        All we do is override the _config_rules parameter
-        for the class.
-
-        _config_rules should be an iterable of tuples (config, True|False)
-        which determine whether this class is enabled or not. Later elements
-        override earlier ones.
-        """
-        if len(kwargs) > 1:
-            raise ValueError(
-                "More than one condition specified for {0!r}. [{1!r}]".format(
-                    cls, kwargs
-                )
-            )
-        # Sorcery (but less to than on _ProtoKeywordSegment)
-        classname = (
-            cls.__name__ + "__" + "__".join(f"{k}_{v}" for k, v in kwargs.items())
-        )
-
-        # Store/cache dynamically created classes at dialect module level. This
-        # is necessary in order to allow instances of these classes to be
-        # pickled, e.g. when running "sqlfluff lint" in parallel using a process
-        # pool.
-        calling_module = inspect.getmodule(inspect.currentframe().f_back)
-        class_ = getattr(calling_module, classname, None)
-        if class_ is None:
-            # This is the magic, we generate a new class! SORCERY
-            class_ = type(classname, (cls,), dict(_config_rules=kwargs))
-            class_.__module__ = calling_module.__name__
-            setattr(calling_module, classname, class_)
-        # Now we return that class in the abstract. NOT INSTANTIATED
-        return class_
-
-    @classmethod
-    def is_enabled(cls, indent_config):
-        """Given a certain parse context, determine if this segment is enabled.
-
-        All rules are assumed to be False if not present in the indent_config,
-        and later rules in the config override previous ones.
-        """
-        # If no config rules are set then it's always enabled.
-        if cls._config_rules is not None:
-            config = indent_config or {}
-            # This looks like an iteration, but there should only be one.
-            for rule, val in cls._config_rules.items():
-                # Assume False if not set.
-                conf_val = config.get(rule, False)
-                # Coerce to boolean.
-                if val == bool(conf_val):
-                    return True
-                else:
-                    return False
-        return True
 
     @staticmethod
     def _suffix():
@@ -91,26 +31,6 @@ class MetaSegment(RawSegment):
                 cls.__name__
             )
         )
-
-    def __init__(self, pos_marker=None):
-        """For the meta segment we override the init method.
-
-        For something without content, the content doesn't make
-        sense. The pos_marker, will be matched with the following
-        segment, but meta segments are ignored during fixes so it's
-        ok in this sense. We need the pos marker later for dealing
-        with repairs.
-        """
-        self._raw = ""
-        self._raw_upper = ""
-        # We strip the position marker, so that when fixing it's
-        # skipped and not considered. If no position marker is given
-        # then give it a fresh one - it will need to be realigned
-        # before it's useful.
-        if pos_marker:
-            self.pos_marker = pos_marker.strip()
-        else:
-            self.pos_marker = FilePositionMarker()
 
 
 class Indent(MetaSegment):

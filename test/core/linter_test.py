@@ -10,17 +10,15 @@ from sqlfluff.core.errors import SQLBaseError, SQLLintError, SQLParseError
 from sqlfluff.cli.formatters import CallbackFormatter
 from sqlfluff.core.linter import LintingResult, NoQaDirective
 import sqlfluff.core.linter as linter
-from sqlfluff.core.parser import FilePositionMarker
 from test.fixtures.dbt.templater import in_dbt_project_dir  # noqa
 
 
 class DummyLintError(SQLBaseError):
     """Fake lint error used by tests, similar to SQLLintError."""
 
-    def __init__(self, pos: FilePositionMarker, code: str = "L001"):
-        self.pos = pos
+    def __init__(self, line_no: int, code: str = "L001"):
         self._code = code
-        super(DummyLintError, self).__init__()
+        super(DummyLintError, self).__init__(line_no=line_no)
 
 
 def normalise_paths(paths):
@@ -349,34 +347,34 @@ def test_parse_noqa(input, expected):
     [
         [
             [],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=1))],
+            [DummyLintError(1)],
             [
                 0,
             ],
         ],
         [
             [dict(comment="noqa: L001", line_no=1)],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=1))],
+            [DummyLintError(1)],
             [],
         ],
         [
             [dict(comment="noqa: L001", line_no=2)],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=1))],
+            [DummyLintError(1)],
             [0],
         ],
         [
             [dict(comment="noqa: L002", line_no=1)],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=1))],
+            [DummyLintError(1)],
             [0],
         ],
         [
             [dict(comment="noqa: enable=L001", line_no=1)],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=1))],
+            [DummyLintError(1)],
             [0],
         ],
         [
             [dict(comment="noqa: disable=L001", line_no=1)],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=1))],
+            [DummyLintError(1)],
             [],
         ],
         [
@@ -384,7 +382,7 @@ def test_parse_noqa(input, expected):
                 dict(comment="noqa: disable=L001", line_no=2),
                 dict(comment="noqa: enable=L001", line_no=4),
             ],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=1))],
+            [DummyLintError(1)],
             [0],
         ],
         [
@@ -392,7 +390,7 @@ def test_parse_noqa(input, expected):
                 dict(comment="noqa: disable=L001", line_no=2),
                 dict(comment="noqa: enable=L001", line_no=4),
             ],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=2))],
+            [DummyLintError(2)],
             [],
         ],
         [
@@ -400,7 +398,7 @@ def test_parse_noqa(input, expected):
                 dict(comment="noqa: disable=L001", line_no=2),
                 dict(comment="noqa: enable=L001", line_no=4),
             ],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=3))],
+            [DummyLintError(3)],
             [],
         ],
         [
@@ -408,7 +406,7 @@ def test_parse_noqa(input, expected):
                 dict(comment="noqa: disable=L001", line_no=2),
                 dict(comment="noqa: enable=L001", line_no=4),
             ],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=4))],
+            [DummyLintError(4)],
             [0],
         ],
         [
@@ -416,7 +414,7 @@ def test_parse_noqa(input, expected):
                 dict(comment="noqa: disable=all", line_no=2),
                 dict(comment="noqa: enable=all", line_no=4),
             ],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=1))],
+            [DummyLintError(1)],
             [0],
         ],
         [
@@ -424,7 +422,7 @@ def test_parse_noqa(input, expected):
                 dict(comment="noqa: disable=all", line_no=2),
                 dict(comment="noqa: enable=all", line_no=4),
             ],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=2))],
+            [DummyLintError(2)],
             [],
         ],
         [
@@ -432,7 +430,7 @@ def test_parse_noqa(input, expected):
                 dict(comment="noqa: disable=all", line_no=2),
                 dict(comment="noqa: enable=all", line_no=4),
             ],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=3))],
+            [DummyLintError(3)],
             [],
         ],
         [
@@ -440,7 +438,7 @@ def test_parse_noqa(input, expected):
                 dict(comment="noqa: disable=all", line_no=2),
                 dict(comment="noqa: enable=all", line_no=4),
             ],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=4))],
+            [DummyLintError(4)],
             [0],
         ],
         [
@@ -449,18 +447,10 @@ def test_parse_noqa(input, expected):
                 dict(comment="noqa: enable=all", line_no=4),
             ],
             [
-                DummyLintError(
-                    FilePositionMarker(statement_index=None, line_no=2), code="L001"
-                ),
-                DummyLintError(
-                    FilePositionMarker(statement_index=None, line_no=2), code="L002"
-                ),
-                DummyLintError(
-                    FilePositionMarker(statement_index=None, line_no=4), code="L001"
-                ),
-                DummyLintError(
-                    FilePositionMarker(statement_index=None, line_no=4), code="L002"
-                ),
+                DummyLintError(2, code="L001"),
+                DummyLintError(2, code="L002"),
+                DummyLintError(4, code="L001"),
+                DummyLintError(4, code="L002"),
             ],
             [1, 2, 3],
         ],
@@ -470,18 +460,10 @@ def test_parse_noqa(input, expected):
                 dict(comment="noqa: enable=L001", line_no=4),
             ],
             [
-                DummyLintError(
-                    FilePositionMarker(statement_index=None, line_no=2), code="L001"
-                ),
-                DummyLintError(
-                    FilePositionMarker(statement_index=None, line_no=2), code="L002"
-                ),
-                DummyLintError(
-                    FilePositionMarker(statement_index=None, line_no=4), code="L001"
-                ),
-                DummyLintError(
-                    FilePositionMarker(statement_index=None, line_no=4), code="L002"
-                ),
+                DummyLintError(2, code="L001"),
+                DummyLintError(2, code="L002"),
+                DummyLintError(4, code="L001"),
+                DummyLintError(4, code="L002"),
             ],
             [2],
         ],
@@ -554,7 +536,7 @@ def test_linter_noqa():
         """
     result = lntr.lint_string(sql)
     violations = result.get_violations()
-    assert {3, 6, 7, 8, 10, 12, 13, 14, 15, 18} == {v.line_no() for v in violations}
+    assert {3, 6, 7, 8, 10, 12, 13, 14, 15, 18} == {v.line_no for v in violations}
 
 
 def test_linter_noqa_with_templating():

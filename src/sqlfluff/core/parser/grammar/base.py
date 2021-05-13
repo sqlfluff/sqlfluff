@@ -6,7 +6,7 @@ from typing import List, NamedTuple, Optional, Union, Type, Tuple, Any
 from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.string_helpers import curtail_string
 
-from sqlfluff.core.parser.segments import BaseSegment, EphemeralSegment
+from sqlfluff.core.parser.segments import BaseSegment, allow_ephemeral
 from sqlfluff.core.parser.helpers import trim_non_code_segments, iter_indices
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_logging import (
@@ -16,6 +16,7 @@ from sqlfluff.core.parser.match_logging import (
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.context import ParseContext
+from sqlfluff.core.parser.parsers import StringParser
 
 # Either a Grammar or a Segment CLASS
 MatchableType = Union[Matchable, Type[BaseSegment]]
@@ -76,6 +77,7 @@ class BaseGrammar(Matchable):
             # t: instance / f: class, ref, func
             (True, str, Ref.keyword),
             (True, BaseGrammar, lambda x: x),
+            (True, StringParser, lambda x: x),
             (False, BaseSegment, lambda x: x),
         ]
         # Get-out clause for None
@@ -134,21 +136,12 @@ class BaseGrammar(Matchable):
         # Now we deal with the standard kwargs
         self.allow_gaps = allow_gaps
         self.optional = optional
-        self.ephemeral_segment = None
-        # Set up the ephemeral_segment if name is specified.
-        if ephemeral_name:
-            # Make the EphemeralSegment class. This is effectively syntactic sugar
-            # to allow us to avoid specifying a EphemeralSegment directly in a dialect.
-
-            # Copy self (*before* making the EphemeralSegment, but with everything else in place)
-            parse_grammar = copy.copy(self)
-            # Add the EphemeralSegment to self.
-            self.ephemeral_segment = EphemeralSegment.make(
-                match_grammar=None,
-                # Pass in the copy without the EphemeralSegment
-                parse_grammar=parse_grammar,
-                name=ephemeral_name,
-            )
+        # ephemeral_name is a flag to indicate whether we need to make an
+        # EphemeralSegment class. This is effectively syntactic sugar
+        # to allow us to avoid specifying a EphemeralSegment directly in a dialect.
+        # If this is the case, the actual segment construction happens in the
+        # match_wrapper.
+        self.ephemeral_name = ephemeral_name
 
     def is_optional(self):
         """Return whether this segment is optional.
@@ -158,6 +151,7 @@ class BaseGrammar(Matchable):
         return self.optional
 
     @match_wrapper()
+    @allow_ephemeral
     def match(self, segments: Tuple["BaseSegment", ...], parse_context: ParseContext):
         """Match a list of segments against this segment.
 
@@ -474,7 +468,7 @@ class BaseGrammar(Matchable):
         _, start_bracket_refs, end_bracket_refs = zip(
             *parse_context.dialect.sets(bracket_pairs_set)
         )
-        # These are currently strings which need rehydrating
+        # These are matchables, probably StringParsers.
         start_brackets = [
             parse_context.dialect.ref(seg_ref) for seg_ref in start_bracket_refs
         ]
@@ -532,9 +526,13 @@ class BaseGrammar(Matchable):
                             # Found an end bracket. Does its type match that of
                             # the innermost start bracket? E.g. ")" matches "(",
                             # "]" matches "[".
-                            start_index = start_brackets.index(
-                                type(bracket_stack[-1].bracket)
-                            )
+                            # For the start bracket we don't have the matcher
+                            # but we can work out the name, so we use that for
+                            # the lookup.
+                            start_index = [
+                                bracket.name for bracket in start_brackets
+                            ].index(bracket_stack[-1].bracket.name)
+                            # For the end index, we can just look for the matcher
                             end_index = end_brackets.index(matcher)
                             bracket_types_match = start_index == end_index
                             if bracket_types_match:
@@ -772,6 +770,7 @@ class Ref(BaseGrammar):
         )
 
     @match_wrapper(v_level=4)  # Log less for Ref
+    @allow_ephemeral
     def match(self, segments, parse_context):
         """Match a list of segments against this segment.
 
@@ -790,8 +789,7 @@ class Ref(BaseGrammar):
             )
 
         # First check against the efficiency Cache.
-        # We used to use seg_to_tuple here, but it was too slow,
-        # so instead we rely on segments not being mutated within a given
+        # We rely on segments not being mutated within a given
         # match cycle and so the ids should continue to refer to unchanged
         # objects.
         seg_tuple = (id(seg) for seg in segments)

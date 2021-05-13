@@ -7,8 +7,11 @@ from sqlfluff.core.parser import (
     Bracketed,
     Anything,
     BaseSegment,
-    NamedSegment,
     Delimited,
+    RegexLexer,
+    CodeSegment,
+    NamedParser,
+    SymbolSegment,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -18,14 +21,13 @@ ansi_dialect = load_raw_dialect("ansi")
 postgres_dialect = ansi_dialect.copy_as("postgres")
 
 
-postgres_dialect.insert_lexer_struct(
+postgres_dialect.insert_lexer_matchers(
     # JSON Operators: https://www.postgresql.org/docs/9.5/functions-json.html
     [
-        (
+        RegexLexer(
             "json_operator",
-            "regex",
             r"->>|#>>|->|#>|@>|<@|\?\||\?|\?&|#-",
-            dict(is_code=True),
+            CodeSegment,
         )
     ],
     before="not_equal",
@@ -54,8 +56,11 @@ postgres_dialect.sets("datetime_units").update(["EPOCH"])
 
 
 postgres_dialect.add(
-    JsonOperatorSegment=NamedSegment.make(
-        "json_operator", name="json_operator", type="binary_operator"
+    JsonOperatorSegment=NamedParser(
+        "json_operator", SymbolSegment, name="json_operator", type="binary_operator"
+    ),
+    DollarQuotedLiteralSegment=NamedParser(
+        "dollar_quote", CodeSegment, name="dollar_quoted_literal", type="literal"
     ),
 )
 
@@ -67,6 +72,8 @@ postgres_dialect.replace(
             Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
             Ref("OverClauseSegment"),
         ),
+        # Filter clause supported by both Postgres and SQLite
+        Ref("FilterClauseGrammar"),
     ),
     BinaryOperatorGrammar=OneOf(
         Ref("ArithmeticBinaryOperatorGrammar"),
@@ -77,6 +84,22 @@ postgres_dialect.replace(
         Ref("JsonOperatorSegment"),
     ),
 )
+
+
+@postgres_dialect.segment(replace=True)
+class FunctionDefinitionGrammar(BaseSegment):
+    """This is the body of a `CREATE FUNCTION AS` statement."""
+
+    match_grammar = Sequence(
+        "AS",
+        OneOf(Ref("QuotedLiteralSegment"), Ref("DollarQuotedLiteralSegment")),
+        Sequence(
+            "LANGUAGE",
+            # Not really a parameter, but best fit for now.
+            Ref("ParameterNameSegment"),
+            optional=True,
+        ),
+    )
 
 
 @postgres_dialect.segment(replace=True)
@@ -122,6 +145,28 @@ class WithinGroupClauseSegment(BaseSegment):
         "WITHIN",
         "GROUP",
         Bracketed(Ref("OrderByClauseSegment", optional=True)),
+    )
+
+
+@postgres_dialect.segment(replace=True)
+class CreateRoleStatementSegment(BaseSegment):
+    """A `CREATE ROLE` statement.
+
+    As per:
+    https://www.postgresql.org/docs/current/sql-createrole.html
+    """
+
+    type = "create_role_statement"
+    match_grammar = ansi_dialect.get_segment(
+        "CreateRoleStatementSegment"
+    ).match_grammar.copy(
+        insert=[
+            Sequence(
+                Ref.keyword("WITH", optional=True),
+                # Very permissive for now. Anything can go here.
+                Anything(),
+            )
+        ],
     )
 
 

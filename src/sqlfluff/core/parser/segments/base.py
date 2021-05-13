@@ -9,7 +9,6 @@ Here we define:
 """
 
 from io import StringIO
-import copy
 from benchit import BenchIt
 from cached_property import cached_property
 from typing import Any, Callable, Optional, List, Tuple, NamedTuple, Iterator
@@ -28,7 +27,7 @@ from sqlfluff.core.parser.helpers import (
     trim_non_code_segments,
 )
 from sqlfluff.core.parser.matchable import Matchable
-from sqlfluff.core.parser.markers import EnrichedFilePositionMarker
+from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.context import ParseContext
 
 # Instantiate the linter logger (only for use in methods involved with fixing.)
@@ -42,7 +41,7 @@ class FixPatch(NamedTuple):
     fixed_raw: str
     # The patch type, functions mostly for debugging and explanation
     # than for function. It allows traceability of *why* this patch was
-    # generated.
+    # generated. It has no siginificance for processing.
     patch_type: str
 
 
@@ -70,23 +69,20 @@ class BaseSegment:
     # We define this as Null here but it is assumed that any subclass must override.
     match_grammar: Matchable = None  # type: ignore
     comment_seperate = False
-    is_whitespace = False
     optional = False  # NB: See the sequence grammar for details
-    is_segment = True
-    _name = None
+    _name: Optional[str] = None
     is_meta = False
     # Are we able to have non-code at the start or end?
     can_start_end_non_code = False
     # Can we allow it to be empty? Usually used in combination
     # with the can_start_end_non_code.
     allow_empty = False
-    # What should we trim off the ends to get to content
-    trim_chars = None
-    trim_start = None
-    # A cache variable for expandable
-    _is_expandable = None
 
-    def __init__(self, segments, pos_marker=None, validate=True):
+    def __init__(self, segments, pos_marker=None, name: Optional[str] = None):
+        # A cache variable for expandable
+        self._is_expandable = None
+        # Surrogate name option.
+        self._surrogate_name = name
         if len(segments) == 0:
             raise RuntimeError(
                 "Setting {0} with a zero length segment set. This shouldn't happen.".format(
@@ -106,40 +102,34 @@ class BaseSegment:
                 "Unexpected type passed to BaseSegment: {0}".format(type(segments))
             )
 
-        # Check elements of segments:
-        self.validate_segments(validate=validate)
-
-        if pos_marker:
-            self.pos_marker = pos_marker
-        else:
+        if not pos_marker:
             # If no pos given, it's the pos of the first segment.
             if isinstance(segments, (tuple, list)):
-                # Find the first segment with an enriched position marker
-                first_enriched = next(
-                    (
-                        seg.pos_marker
-                        for seg in segments
-                        if isinstance(seg.pos_marker, EnrichedFilePositionMarker)
-                    ),
-                    # Default to the first un-enriched segment
-                    segments[0].pos_marker,
-                )
-                self.pos_marker = first_enriched.combine(
+                pos_marker = PositionMarker.from_child_markers(
                     *(seg.pos_marker for seg in segments)
                 )
             else:
                 raise TypeError(
                     "Unexpected type passed to BaseSegment: {0}".format(type(segments))
                 )
+        self.pos_marker: PositionMarker = pos_marker
 
     def __eq__(self, other):
-        # Equal if type, content and pos are the same
         # NB: this should also work for RawSegment
         return (
             # Same class NAME. (could be constructed elsewhere)
             self.__class__.__name__ == other.__class__.__name__
             and (self.raw == other.raw)
-            and (self.pos_marker == other.pos_marker)
+            # Both must have a non-null position marker to compare.
+            and self.pos_marker
+            and other.pos_marker
+            # We only match that the *start* is the same. This means we can
+            # still effectively construct searches look for segments.
+            # This is important for .apply_fixes().
+            and (
+                self.pos_marker.start_point_marker()
+                == other.pos_marker.start_point_marker()
+            )
         )
 
     def __repr__(self):
@@ -163,16 +153,17 @@ class BaseSegment:
     def name(self):
         """The name of this segment.
 
-        The reason for two routes for names is that some subclasses
-        might want to override the name rather than just getting it
-        the class name.
+        The reason for three routes for names is that some subclasses
+        might want to override the name rather than just getting
+        the class name. Instances may also override this with the
+        _surrogate_name.
 
         Name should be specific to this kind of segment, while `type`
         should be a higher level descriptor of the kind of segment.
         For example, the name of `+` is 'plus' but the type might be
         'binary_operator'.
         """
-        return self._name or self.__class__.__name__
+        return self._surrogate_name or self._name or self.__class__.__name__
 
     @property
     def is_expandable(self):
@@ -204,6 +195,11 @@ class BaseSegment:
     def is_comment(self):
         """Return True if this is entirely made of comments."""
         return all(seg.is_comment for seg in self.segments)
+
+    @cached_property
+    def is_whitespace(self):
+        """Return True if this segment is entirely whitespace."""
+        return all(seg.is_whitespace for seg in self.segments)
 
     @cached_property
     def raw(self):
@@ -278,52 +274,77 @@ class BaseSegment:
         check_still_complete(segments, segs, ())
         return segs
 
-    @staticmethod
-    def _realign_segments(segments, starting_pos=None, meta_only=False):
-        """Realign the positions in the provided segments."""
-        seg_buffer = []
-        todo_buffer = list(segments)
-        if not todo_buffer:
-            return ()
-        # If starting pos not provided, take it from the first of the buffer.
-        running_pos = starting_pos
-        if not running_pos:
-            for seg in todo_buffer:
-                if not seg.is_meta:
-                    running_pos = seg.pos_marker
+    @classmethod
+    def _position_segments(cls, segments, parent_pos=None):
+        """Refresh positions of segments within a span.
+
+        This does two things:
+        - Assign positions to any segments without them.
+        - Updates the working line_no and line_pos for all
+          segments during fixing.
+
+        New segments are assumed to be metas or insertions
+        and so therefore have a zero-length position in the
+        source and templated file.
+        """
+        # If there are no segments, there's no need to reposition.
+        if not segments:
+            return segments
+
+        # Work out our starting position for working through
+        if parent_pos:
+            line_no = parent_pos.working_line_no
+            line_pos = parent_pos.working_line_pos
+        # If we don't have it, infer it from the first position
+        # in this segment that does have a position.
+        else:
+            for fwd_seg in segments:
+                if fwd_seg.pos_marker:
+                    line_no = fwd_seg.pos_marker.working_line_no
+                    line_pos = fwd_seg.pos_marker.working_line_pos
                     break
             else:
-                raise ValueError("No starting pos provided and unable to infer.")
+                linter_logger.warning("SEG: %r, POS: %r", segments, parent_pos)
+                raise ValueError("Unable to find working position.")
 
-        # Strip the starting position regardless. This means
-        # we don't accidentally contaminate any inserted initial
-        # segments.
-        running_pos = running_pos.strip()
+        # Use the index so that we can look forward
+        # and backward.
+        for idx, segment in enumerate(segments):
+            # Fill any that don't have a position.
+            if not segment.pos_marker:
+                # Can we get a position from the previous?
+                if idx > 0:
+                    segment.pos_marker = segments[idx - 1].pos_marker.end_point_marker()
+                # Can we get it from the parent?
+                elif parent_pos:
+                    segment.pos_marker = parent_pos.start_point_marker()
+                # Search forward for a following one, if we have to?
+                else:
+                    for fwd_seg in segments[idx + 1 :]:
+                        if fwd_seg.pos_marker:
+                            segments[
+                                idx
+                            ].pos_marker = fwd_seg.pos_marker.start_point_marker()
+                            break
+                    else:
+                        raise ValueError("Unable to position new segment")
 
-        while len(todo_buffer) > 0:
-            # Get the first off the buffer
-            seg = todo_buffer.pop(0)
+            # Update the working position.
+            segment.pos_marker = segment.pos_marker.with_working_position(
+                line_no,
+                line_pos,
+            )
+            line_no, line_pos = segment.pos_marker.infer_next_position(
+                segment.raw, line_no, line_pos
+            )
 
-            # We'll preserve statement indexes so we should keep track of that.
-            # When recreating, we use the DELTA of the index so that's what matter...
-            idx = seg.pos_marker.statement_index - running_pos.statement_index
-            new_pos = seg.pos_marker.shift_to(running_pos)
+            # If this segment has children, recurse and reposition them too.
+            if segment.segments:
+                segment.segments = cls._position_segments(
+                    segment.segments, parent_pos=segment.pos_marker
+                )
 
-            if not meta_only or seg.is_meta:
-                # Copy the segment
-                seg_copy = copy.copy(seg)
-                # Update the position
-                seg_copy.pos_marker = new_pos
-                # Realign the children of that class if required.
-                if len(seg_copy.segments) > 0:
-                    seg_copy = seg_copy.realign()
-                seg = seg_copy
-
-            # Update the running position with the content of that segment.
-            running_pos = running_pos.advance_by(raw=seg.raw, idx=idx)
-            # Add the buffer to my new segment
-            seg_buffer.append(seg)
-        return tuple(seg_buffer)
+        return segments
 
     # ################ CLASS METHODS
 
@@ -352,17 +373,20 @@ class BaseSegment:
         return cls.optional
 
     @classmethod
-    def is_type(cls, *seg_type):
-        """Is this segment (or its parent) of the given type."""
+    def class_is_type(cls, *seg_type):
+        """Is this segment class (or its parent) of the given type."""
         # Do we match on the type of _this_ class.
         if cls.type in seg_type:
             return True
-        # Have we reached the bottom?
-        elif cls.type == "base":
-            return False
-        # If not, check parent classes.
-        else:
-            return any(base_class.is_type(*seg_type) for base_class in cls.__bases__)
+        # If not, check types of parents.
+        for base_class in cls.__bases__:
+            if base_class is object:
+                break
+            elif base_class.type in seg_type:
+                return True
+            elif base_class.type == "base":
+                break
+        return False
 
     @classmethod
     def structural_simplify(cls, elem):
@@ -463,7 +487,7 @@ class BaseSegment:
         padded_type = "{padding}{modifier}{type}".format(
             padding=" " * (ident * tabsize),
             modifier="[META] " if self.is_meta else "",
-            type=self.type + ":",
+            type=self.get_type() + ":",
         )
         preface = "{pos:20}|{padded_type:60}  {suffix}".format(
             pos=str(self.pos_marker) if self.pos_marker else "-",
@@ -475,6 +499,14 @@ class BaseSegment:
 
     # ################ PUBLIC INSTANCE METHODS
 
+    def get_type(self):
+        """Returns the type of this segment as a string."""
+        return self.type
+
+    def is_type(self, *seg_type):
+        """Is this segment (or its parent) of the given type."""
+        return self.class_is_type(*seg_type)
+
     def invalidate_caches(self):
         """Invalidate the cached properties.
 
@@ -484,53 +516,23 @@ class BaseSegment:
         for key in ["is_code", "is_comment", "raw", "raw_upper", "matched_length"]:
             self.__dict__.pop(key, None)
 
-    def validate_segments(self, text="constructing", validate=True):
-        """Validate the current set of segments.
+    def get_start_point_marker(self):
+        """Get a point marker at the start of this segment."""
+        return self.pos_marker.start_point_marker()
 
-        Check the elements of the `segments` attribute are all
-        themselves segments, and that the positions match up.
+    def get_end_point_marker(self):
+        """Get a point marker at the end of this segment."""
+        return self.pos_marker.end_point_marker()
 
-        `validate` confirms whether we should check contiguousness.
-        """
-        # Placeholder variables for positions
-        start_pos = None
-        end_pos = None
-        prev_seg = None
-        for elem in self.segments:
-            if not isinstance(elem, BaseSegment):
-                raise TypeError(
-                    "In {0} {1}, found an element of the segments tuple which"
-                    " isn't a segment. Instead found element of type {2}.\nFound: {3}\nFull segments:{4}".format(
-                        text, type(self), type(elem), elem, self.segments
-                    )
-                )
-            # While applying fixes, we shouldn't validate here, because it will fail.
-            if validate:
-                # If we have a comparison point, validate that
-                if end_pos and elem.get_start_pos_marker() != end_pos:
-                    raise TypeError(
-                        "In {0} {1}, found an element of the segments tuple which"
-                        " isn't contiguous with previous: {2} > {3}. End pos: {4}."
-                        " Prev String: {5!r}".format(
-                            text, type(self), prev_seg, elem, end_pos, prev_seg.raw
-                        )
-                    )
-                start_pos = elem.get_start_pos_marker()
-                end_pos = elem.get_end_pos_marker()
-                prev_seg = elem
-                if start_pos.advance_by(elem.raw) != end_pos:
-                    raise TypeError(
-                        "In {0} {1}, found an element of the segments tuple which"
-                        " isn't self consistent: {2}".format(text, type(self), elem)
-                    )
+    def get_start_loc(self):
+        """Get a location tuple at the start of this segment."""
+        return self.pos_marker.working_loc()
 
-    def get_end_pos_marker(self):
-        """Return the pos marker at the end of this segment."""
-        return self.segments[-1].get_end_pos_marker()
-
-    def get_start_pos_marker(self):
-        """Return the pos marker at the start of this segment."""
-        return self.segments[0].get_start_pos_marker()
+    def get_end_loc(self):
+        """Get a location tuple at the end of this segment."""
+        return self.pos_marker.working_loc_after(
+            self.raw,
+        )
 
     def stringify(self, ident=0, tabsize=4, code_only=False):
         """Use indentation to render this segment and its children as a string."""
@@ -582,10 +584,10 @@ class BaseSegment:
         show_raw = kwargs.get("show_raw", False)
 
         if show_raw and not self.segments:
-            result = (self.type, self.raw)
+            result = (self.get_type(), self.raw)
         elif code_only:
             result = (
-                self.type,
+                self.get_type(),
                 tuple(
                     seg.to_tuple(**kwargs)
                     for seg in self.segments
@@ -594,7 +596,7 @@ class BaseSegment:
             )
         else:
             result = (
-                self.type,
+                self.get_type(),
                 tuple(
                     seg.to_tuple(**kwargs) for seg in self.segments if not seg.is_meta
                 ),
@@ -718,9 +720,9 @@ class BaseSegment:
 
         # Are we in the right ballpark?
         if (
-            not self.get_start_pos_marker()
-            <= other.get_start_pos_marker()
-            <= self.get_end_pos_marker()
+            not self.get_start_point_marker()
+            <= other.get_start_point_marker()
+            <= self.get_end_point_marker()
         ):
             return None
 
@@ -735,13 +737,17 @@ class BaseSegment:
                 return [self] + res
         return None
 
-    def parse(self, parse_context=None):
+    def parse(self, parse_context=None, parse_grammar=None):
         """Use the parse grammar to find subsegments within this segment.
 
         A large chunk of the logic around this can be found in the `expand` method.
 
         Use the parse setting in the context for testing, mostly to check how deep to go.
         True/False for yes or no, an integer allows a certain number of levels.
+
+        Optionally, this method allows a custom parse grammar to be
+        provided which will override any existing parse grammar
+        on the segment.
         """
         # Clear the blacklist cache so avoid missteps
         if parse_context:
@@ -753,7 +759,8 @@ class BaseSegment:
             return self
 
         # Check the Parse Grammar
-        if self.parse_grammar is None:
+        parse_grammar = parse_grammar or self.parse_grammar
+        if parse_grammar is None:
             # No parse grammar, go straight to expansion
             parse_context.logger.debug(
                 "{0}.parse: no grammar. Going straight to expansion".format(
@@ -785,7 +792,7 @@ class BaseSegment:
 
             # NOTE: No match_depth kwarg, because this is the start of the matching.
             with parse_context.matching_segment(self.__class__.__name__) as ctx:
-                m = self.parse_grammar.match(segments=segments, parse_context=ctx)
+                m = parse_grammar.match(segments=segments, parse_context=ctx)
 
             if not isinstance(m, MatchResult):
                 raise TypeError(
@@ -833,9 +840,6 @@ class BaseSegment:
                     + post_nc
                 )
 
-            # Validate new segments
-            self.validate_segments(text="parsing")
-
         bencher = BenchIt()  # starts the timer
         bencher("Parse complete of {0!r}".format(self.__class__.__name__))
 
@@ -852,8 +856,6 @@ class BaseSegment:
             parse_context.logger.debug(parse_depth_msg)
             with parse_context.deeper_parse() as ctx:
                 self.segments = self.expand(self.segments, parse_context=ctx)
-        # Validate new segments
-        self.validate_segments(text="expanding")
 
         return self
 
@@ -886,7 +888,9 @@ class BaseSegment:
                     unused_fixes = []
                     while fix_buff:
                         f = fix_buff.pop()
-                        if f.anchor == seg:
+                        # Look for identity not just equality.
+                        # This handles potential positioning ambiguity.
+                        if f.anchor is seg:
                             linter_logger.debug(
                                 "Matched fix against segment: %s -> %s", f, seg
                             )
@@ -932,35 +936,16 @@ class BaseSegment:
 
             # Reform into a new segment
             r = r.__class__(
-                segments=tuple(seg_buffer), pos_marker=r.pos_marker, validate=False
+                # Realign the segments within
+                segments=self._position_segments(
+                    tuple(seg_buffer), parent_pos=r.pos_marker
+                ),
+                pos_marker=r.pos_marker,
             )
-
-            # Lastly, before returning, we should realign positions.
-            # Note: Realign also returns a copy
-            return r.realign(), fixes
+            # Return the new segment with any unused fixes.
+            return r, fixes
         else:
             return self, fixes
-
-    def realign(self):
-        """Realign the positions in this segment.
-
-        Returns:
-            a copy of this class with the pos_markers realigned.
-
-        Note: this is used mostly during fixes.
-
-        Realign is recursive. We will assume that the pos_marker of THIS segment is
-        truthful, and that during recursion it will have been set by the parent.
-
-        This function will align the pos marker if its direct children, we then
-        recurse to realign their children.
-
-        """
-        # Create a new version of this class with the new details
-        return self.__class__(
-            segments=self._realign_segments(self.segments, self.pos_marker),
-            pos_marker=self.pos_marker,
-        )
 
     def iter_patches(self, templated_str: str) -> Iterator[FixPatch]:
         """Iterate through the segments generating fix patches.
@@ -980,7 +965,7 @@ class BaseSegment:
         # If we're here, the segment doesn't match the original.
 
         # If it's all literal, then we don't need to recurse.
-        if self.pos_marker.is_literal:
+        if self.pos_marker.is_literal():
             # Yield the position in the source file and the patch
             yield FixPatch(
                 self.pos_marker.templated_slice, self.raw, patch_type="literal"
@@ -1000,8 +985,8 @@ class BaseSegment:
             for seg_idx, segment in enumerate(self.segments):
 
                 # First check for insertions.
-                # We know it is new if the position marker is NOT ENRICHED.
-                if not isinstance(segment.pos_marker, EnrichedFilePositionMarker):
+                # We know it's an insertion if it has length but not in the templated file.
+                if segment.raw and segment.pos_marker.is_point():
                     # Add it to the insertion buffer if it has length:
                     if segment.raw:
                         insert_buff += segment.raw

@@ -57,7 +57,7 @@ file:
           typeless_struct:
           - keyword: struct
           - start_bracket: (
-          - object_reference:
+          - column_reference:
             - identifier: bar
             - dot: .
             - identifier: bar_id
@@ -65,7 +65,7 @@ file:
               keyword: as
               identifier: id
           - comma: ','
-          - object_reference:
+          - column_reference:
             - identifier: bar
             - dot: .
             - identifier: bar_name

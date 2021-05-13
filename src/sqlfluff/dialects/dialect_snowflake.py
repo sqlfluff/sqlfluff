@@ -8,12 +8,10 @@ Based on https://docs.snowflake.com/en/sql-reference-commands.html
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     BaseSegment,
-    NamedSegment,
     OneOf,
     Ref,
     Sequence,
     AnyNumberOf,
-    ReSegment,
     SymbolSegment,
     Bracketed,
     Anything,
@@ -21,6 +19,12 @@ from sqlfluff.core.parser import (
     StartsWith,
     Indent,
     Dedent,
+    RegexLexer,
+    StringLexer,
+    CodeSegment,
+    StringParser,
+    NamedParser,
+    RegexParser,
 )
 
 
@@ -29,24 +33,22 @@ postgres_dialect = load_raw_dialect("postgres")
 
 snowflake_dialect = postgres_dialect.copy_as("snowflake")
 
-snowflake_dialect.patch_lexer_struct(
+snowflake_dialect.patch_lexer_matchers(
     [
         # In snowflake, a double single quote resolves as a single quote in the string.
         # https://docs.snowflake.com/en/sql-reference/data-types-text.html#single-quoted-string-constants
-        ("single_quote", "regex", r"'([^']|'')*'", dict(is_code=True)),
+        RegexLexer("single_quote", r"'([^']|'')*'", CodeSegment),
     ]
 )
 
-snowflake_dialect.insert_lexer_struct(
-    # Keyword assigner needed for keyword functions.
-    [("parameter_assigner", "regex", r"=>", dict(is_code=True))],
-    before="not_equal",
-)
-
-snowflake_dialect.insert_lexer_struct(
-    # Column selector
-    # https://docs.snowflake.com/en/sql-reference/sql/select.html#parameters
-    [("column_selector", "regex", r"\$[0-9]+", dict(is_code=True))],
+snowflake_dialect.insert_lexer_matchers(
+    [
+        # Keyword assigner needed for keyword functions.
+        StringLexer("parameter_assigner", "=>", CodeSegment),
+        # Column selector
+        # https://docs.snowflake.com/en/sql-reference/sql/select.html#parameters
+        RegexLexer("column_selector", r"\$[0-9]+", CodeSegment),
+    ],
     before="not_equal",
 )
 
@@ -91,21 +93,26 @@ snowflake_dialect.add(
     # In snowflake, these are case sensitive even though they're not quoted
     # so they need a different `name` and `type` so they're not picked up
     # by other rules.
-    ParameterAssignerSegment=SymbolSegment.make(
-        "=>", name="parameter_assigner", type="parameter_assigner"
+    ParameterAssignerSegment=StringParser(
+        "=>", SymbolSegment, name="parameter_assigner", type="parameter_assigner"
     ),
-    NakedSemiStructuredElementSegment=ReSegment.make(
+    NakedSemiStructuredElementSegment=RegexParser(
         r"[A-Z0-9_]*",
+        CodeSegment,
         name="naked_semi_structured_element",
         type="semi_structured_element",
     ),
-    QuotedSemiStructuredElementSegment=NamedSegment.make(
+    QuotedSemiStructuredElementSegment=NamedParser(
         "double_quote",
+        CodeSegment,
         name="quoted_semi_structured_element",
         type="semi_structured_element",
     ),
-    ColumnIndexIdentifierSegment=ReSegment.make(
-        r"\$[0-9]+", name="column_index_identifier_segment", type="identifier"
+    ColumnIndexIdentifierSegment=RegexParser(
+        r"\$[0-9]+",
+        CodeSegment,
+        name="column_index_identifier_segment",
+        type="identifier",
     ),
 )
 
@@ -655,6 +662,39 @@ class AlterUserSegment(BaseSegment):
                 ),
             ),
             Sequence("UNSET", Delimited(Ref("ParameterNameSegment"))),
+        ),
+    )
+
+
+@snowflake_dialect.segment(replace=True)
+class CreateRoleStatementSegment(BaseSegment):
+    """A `CREATE ROLE` statement.
+
+    Redefined because it's much simpler than postgres.
+    https://docs.snowflake.com/en/sql-reference/sql/create-role.html
+    """
+
+    type = "create_role_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence(
+            "OR",
+            "REPLACE",
+            optional=True,
+        ),
+        "ROLE",
+        Sequence(
+            "IF",
+            "NOT",
+            "EXISTS",
+            optional=True,
+        ),
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            "COMMENT",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
         ),
     )
 

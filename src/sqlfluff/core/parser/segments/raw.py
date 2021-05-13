@@ -5,22 +5,55 @@ any children, and the output of the lexer.
 """
 import inspect
 
+from typing import Optional, Tuple
+
 from sqlfluff.core.parser.segments.base import BaseSegment
+from sqlfluff.core.parser.markers import PositionMarker
 
 
 class RawSegment(BaseSegment):
     """This is a segment without any subsegments."""
 
     type = "raw"
-    _is_code = False
+    _is_code = True
     _is_comment = False
-    _template = "<unset>"
+    _is_whitespace = False
+    # Classes inheriting from RawSegment may provide a _default_raw
+    # to enable simple initialisation.
+    _default_raw = ""
 
-    def __init__(self, raw, pos_marker):
-        self._raw = raw
-        self._raw_upper = raw.upper()
-        # pos marker is required here
-        self.pos_marker = pos_marker
+    def __init__(
+        self,
+        raw: Optional[str] = None,
+        pos_marker: Optional[PositionMarker] = None,
+        type: Optional[str] = None,
+        name: Optional[str] = None,
+        trim_start: Optional[Tuple[str, ...]] = None,
+        trim_chars: Optional[Tuple[str, ...]] = None,
+    ):
+        """Initialise raw segment.
+
+        If raw is not provided, we default to _default_raw if present.
+        If pos_marker is not provided, it is assume that this will be
+        inserted later as part of a reposition phase.
+        """
+        if raw is not None:  # NB, raw *can* be an empty string and be valid
+            self._raw = raw
+        else:
+            self._raw = self._default_raw
+        self._raw_upper = self._raw.upper()
+        # pos marker is required here. We ignore the typing initially
+        # because it might *initially* be unset, but it will be reset
+        # later.
+        self.pos_marker: PositionMarker = pos_marker  # type: ignore
+        # if a surrogate type is provided, store it for later.
+        self._surrogate_type = type
+        self._surrogate_name = name
+        # What should we trim off the ends to get to content
+        self.trim_start = trim_start
+        self.trim_chars = trim_chars
+        # A cache variable for expandable
+        self._is_expandable = None
 
     def __repr__(self):
         return "<{0}: ({1}) {2!r}>".format(
@@ -50,6 +83,11 @@ class RawSegment(BaseSegment):
         return self._is_comment
 
     @property
+    def is_whitespace(self):
+        """Return True if this segment is whitespace."""
+        return self._is_whitespace
+
+    @property
     def raw_upper(self):
         """Make an uppercase string from the segments of this segment."""
         return self._raw_upper
@@ -62,57 +100,17 @@ class RawSegment(BaseSegment):
         """
         return []
 
-    # ################ CLASS METHODS
-
-    @classmethod
-    def make(
-        cls,
-        template,
-        case_sensitive=False,
-        name=None,
-        module=None,
-        must_exist=False,
-        **kwargs,
-    ):
-        """Make a subclass of the segment using a method."""
-        # Let's deal with the template first
-        if case_sensitive:
-            _template = template
-        else:
-            _template = template.upper()
-        # Use the name if provided otherwise default to the template
-        name = name or _template
-        # Now lets make the classname (it indicates the mother class for clarity)
-        classname = "{0}_{1}__{2}__{3}____{4}".format(
-            name,
-            cls.__name__,
-            "".join(format(ord(c), "x") for c in _template),
-            "".join(format(ord(c), "x") for c in name),
-            "__".join(f"{k}_{v}" for k, v in kwargs.items()),
-        )
-        # Store/cache dynamically created classes at dialect module level. This
-        # is necessary in order to allow instances of these classes to be
-        # pickled, e.g. when running "sqlfluff lint" in parallel using a process
-        # pool.
-        if module is None:
-            module = inspect.getmodule(inspect.currentframe().f_back)
-        class_ = getattr(module, classname, None)
-        assert (
-            class_ or not must_exist
-        ), f"ERROR: Segment class was not defined at module load time: {name}_{cls.__name__}"
-        if class_ is None:
-            # This is the magic, we generate a new class! SORCERY
-            class_ = type(
-                classname,
-                (cls,),
-                dict(_template=_template, _name=name, **kwargs),
-            )
-            class_.__module__ = module.__name__
-            setattr(module, classname, class_)
-        # Now we return that class in the abstract. NOT INSTANTIATED
-        return class_
-
     # ################ INSTANCE METHODS
+
+    def get_type(self):
+        """Returns the type of this segment as a string."""
+        return self._surrogate_type or self.type
+
+    def is_type(self, *seg_type):
+        """Extend the parent class method with the surrogate types."""
+        if self._surrogate_type and self._surrogate_type in seg_type:
+            return True
+        return self.class_is_type(*seg_type)
 
     def iter_raw_seg(self):
         """Iterate raw segments, mostly for searching."""
@@ -169,10 +167,93 @@ class RawSegment(BaseSegment):
         """
         return self.__class__(raw=raw, pos_marker=self.pos_marker)
 
-    def get_end_pos_marker(self):
-        """Return the pos marker at the end of this segment."""
-        return self.pos_marker.advance_by(self.raw)
 
-    def get_start_pos_marker(self):
-        """Return the pos marker at the start of this segment."""
-        return self.pos_marker
+class CodeSegment(RawSegment):
+    """An alias for RawSegment.
+
+    This has a more explicit name for segment creation.
+    """
+
+    pass
+
+
+class UnlexableSegment(CodeSegment):
+    """A placeholder to unlexable sections.
+
+    This otherwise behaves exaclty like a code section.
+    """
+
+    type = "unlexable"
+
+
+class CommentSegment(RawSegment):
+    """Segment containing a comment."""
+
+    type = "comment"
+    _name = "comment"
+    _is_code = False
+    _is_comment = True
+
+
+class WhitespaceSegment(RawSegment):
+    """Segment containing whitespace."""
+
+    type = "whitespace"
+    _name = "whitespace"
+    _is_whitespace = True
+    _is_code = False
+    _is_comment = False
+    _default_raw = " "
+
+
+class NewlineSegment(RawSegment):
+    """Segment containing a newline.
+
+    NOTE: NewlineSegment does not inherit from WhitespaceSegment.
+    Therefore NewlineSegment.is_type('whitespace') returns False.
+
+    This is intentional and convenient for rules. If users want
+    to match on both, call .is_type('whitespace', 'newline')
+    """
+
+    type = "newline"
+    _name = "newline"
+    _is_whitespace = True
+    _is_code = False
+    _is_comment = False
+    _default_raw = "\n"
+
+
+class KeywordSegment(CodeSegment):
+    """A segment used for matching single words.
+
+    We rename the segment class here so that descendants of
+    _ProtoKeywordSegment can use the same functionality
+    but don't end up being labelled as a `keyword` later.
+    """
+
+    type = "keyword"
+
+    def __init__(
+        self,
+        raw: Optional[str] = None,
+        pos_marker: Optional[PositionMarker] = None,
+        type: Optional[str] = None,
+        name: Optional[str] = None,
+    ):
+        """If no other name is provided we extrapolate it from the raw."""
+        if raw and not name:
+            # names are all lowercase by convention.
+            name = raw.lower()
+        super().__init__(raw=raw, pos_marker=pos_marker, type=type, name=name)
+
+
+class SymbolSegment(CodeSegment):
+    """A segment used for matching single entities which aren't keywords.
+
+    We rename the segment class here so that descendants of
+    _ProtoKeywordSegment can use the same functionality
+    but don't end up being labelled as a `keyword` later.
+    """
+
+    type = "symbol"

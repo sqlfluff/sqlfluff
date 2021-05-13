@@ -11,17 +11,20 @@ import itertools
 from sqlfluff.core.parser import (
     Anything,
     BaseSegment,
-    NamedSegment,
     OneOf,
     Ref,
     Sequence,
     Bracketed,
     Delimited,
-    ReSegment,
     AnyNumberOf,
     KeywordSegment,
     Indent,
     SymbolSegment,
+    RegexLexer,
+    CodeSegment,
+    NamedParser,
+    StringParser,
+    RegexParser,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -29,7 +32,7 @@ from sqlfluff.core.dialects import load_raw_dialect
 ansi_dialect = load_raw_dialect("ansi")
 bigquery_dialect = ansi_dialect.copy_as("bigquery")
 
-bigquery_dialect.patch_lexer_struct(
+bigquery_dialect.patch_lexer_matchers(
     [
         # Quoted literals can have r or b (case insensitive) prefixes, in any order, to
         # indicate a raw/regex string or byte sequence, respectively.  Allow escaped quote
@@ -37,31 +40,33 @@ bigquery_dialect.patch_lexer_struct(
         # backslashes in front of it.
         # https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and_bytes_literals
         # Triple quoted variant first, then single quoted
-        (
+        RegexLexer(
             "single_quote",
-            "regex",
             r"([rR]?[bB]?|[bB]?[rR]?)?('''((?<!\\)(\\{2})*\\'|'{,2}(?!')|[^'])*(?<!\\)(\\{2})*'''|'((?<!\\)(\\{2})*\\'|[^'])*(?<!\\)(\\{2})*')",
-            dict(is_code=True),
+            CodeSegment,
         ),
-        (
+        RegexLexer(
             "double_quote",
-            "regex",
             r'([rR]?[bB]?|[bB]?[rR]?)?(\"\"\"((?<!\\)(\\{2})*\\\"|\"{,2}(?!\")|[^\"])*(?<!\\)(\\{2})*\"\"\"|"((?<!\\)(\\{2})*\\"|[^"])*(?<!\\)(\\{2})*")',
-            dict(is_code=True),
+            CodeSegment,
         ),
     ]
 )
 
 bigquery_dialect.add(
-    DoubleQuotedLiteralSegment=NamedSegment.make(
-        "double_quote", name="quoted_literal", type="literal", trim_chars=('"',)
+    DoubleQuotedLiteralSegment=NamedParser(
+        "double_quote",
+        CodeSegment,
+        name="quoted_literal",
+        type="literal",
+        trim_chars=('"',),
     ),
-    StructKeywordSegment=KeywordSegment.make("struct", name="struct"),
-    StartAngleBracketSegment=SymbolSegment.make(
-        "<", name="start_angle_bracket", type="start_angle_bracket"
+    StructKeywordSegment=StringParser("struct", KeywordSegment, name="struct"),
+    StartAngleBracketSegment=StringParser(
+        "<", SymbolSegment, name="start_angle_bracket", type="start_angle_bracket"
     ),
-    EndAngleBracketSegment=SymbolSegment.make(
-        ">", name="end_angle_bracket", type="end_angle_bracket"
+    EndAngleBracketSegment=StringParser(
+        ">", SymbolSegment, name="end_angle_bracket", type="end_angle_bracket"
     ),
 )
 
@@ -81,6 +86,14 @@ bigquery_dialect.replace(
             bracket_type="angle",
             bracket_pairs_set="angle_bracket_pairs",
         ),
+    ),
+    # BigQuery also supports the special "Struct" construct.
+    BaseExpressionElementGrammar=ansi_dialect.get_grammar(
+        "BaseExpressionElementGrammar"
+    ).copy(insert=[Ref("TypelessStructSegment")]),
+    FunctionContentsGrammar=ansi_dialect.get_grammar("FunctionContentsGrammar").copy(
+        insert=[Ref("TypelessStructSegment")],
+        before=Ref("ExpressionSegment"),
     ),
 )
 
@@ -151,33 +164,13 @@ class SelectClauseSegment(ansi_dialect.get_segment("SelectClauseSegment")):  # t
     )
 
 
-@bigquery_dialect.segment(replace=True)
-class SelectClauseElementSegment(
-    ansi_dialect.get_segment("SelectClauseElementSegment")  # type: ignore
-):
-    """BigQuery also supports the special "Struct" construct."""
-
-    parse_grammar = OneOf(
-        # *, blah.*, blah.blah.*, etc.
-        Ref("WildcardExpressionSegment"),
-        Sequence(
-            OneOf(
-                Ref("LiteralGrammar"),
-                Ref("BareFunctionSegment"),
-                Ref("FunctionSegment"),
-                Ref("IntervalExpressionSegment"),
-                Ref("TypelessStructSegment"),
-                Ref("ColumnReferenceSegment"),
-                Ref("ExpressionSegment"),
-            ),
-            Ref("AliasExpressionSegment", optional=True),
-        ),
-    )
-
-
 bigquery_dialect.replace(
-    QuotedIdentifierSegment=NamedSegment.make(
-        "back_quote", name="quoted_identifier", type="identifier", trim_chars=("`",)
+    QuotedIdentifierSegment=NamedParser(
+        "back_quote",
+        CodeSegment,
+        name="quoted_identifier",
+        type="identifier",
+        trim_chars=("`",),
     ),
     # Add two elements to the ansi LiteralGrammar
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
@@ -189,12 +182,13 @@ bigquery_dialect.replace(
         ),
         Sequence("WITH", "OFFSET", "AS", Ref("SingleIdentifierGrammar"), optional=True),
     ),
-    FunctionNameIdentifierSegment=ReSegment.make(
+    FunctionNameIdentifierSegment=RegexParser(
         # In BigQuery struct() has a special syntax, so we don't treat it as a function
         r"[A-Z][A-Z0-9_]*",
+        CodeSegment,
         name="function_name_identifier",
         type="function_name_identifier",
-        _anti_template=r"STRUCT",
+        anti_template=r"STRUCT",
     ),
 )
 
@@ -359,13 +353,7 @@ class TypelessStructSegment(BaseSegment):
             Delimited(
                 AnyNumberOf(
                     Sequence(
-                        OneOf(
-                            Ref("LiteralGrammar"),
-                            Ref("FunctionSegment"),
-                            Ref("IntervalExpressionSegment"),
-                            Ref("ObjectReferenceSegment"),
-                            Ref("ExpressionSegment"),
-                        ),
+                        Ref("BaseExpressionElementGrammar"),
                         Ref("AliasExpressionSegment", optional=True),
                     ),
                 ),

@@ -19,64 +19,70 @@ from sqlfluff.core.parser import (
     Bracketed,
     Delimited,
     GreedyUntil,
-    NamedSegment,
     OneOf,
     Ref,
-    ReSegment,
     Sequence,
     StartsWith,
     SymbolSegment,
+    StringLexer,
+    RegexLexer,
+    CodeSegment,
+    NewlineSegment,
+    StringParser,
+    NamedParser,
+    RegexParser,
 )
 from sqlfluff.core.dialects import load_raw_dialect
 
 exasol_dialect = load_raw_dialect("exasol")
 exasol_fs_dialect = exasol_dialect.copy_as("exasol_fs")
 exasol_fs_dialect.sets("unreserved_keywords").add("ROWCOUNT")
-exasol_fs_dialect.set_lexer_struct(
+
+exasol_fs_dialect.insert_lexer_matchers(
     [
-        (
+        StringLexer(
             "walrus_operator",
-            "regex",
-            r":=",
-            dict(is_code=True, type="walrus_operator"),
+            ":=",
+            CodeSegment,
+            segment_kwargs={"type": "walrus_operator"},
         ),
-        (
+        RegexLexer(
             "function_script_terminator",
-            "regex",
-            # TODO: this expression matches multiple functions within a raw string.
-            # but it only matches one script per raw string, because the statement terminator (;)
-            # is not required for scripts (e.g. not present in Python)
-            # need to find another solution but don't mess up with the divide operator.
             r";\s+\/(?!\*)|\s+\/$",
-            dict(
-                is_code=True,
-                type="statement_terminator",
-                subdivide=dict(type="semicolon", name="semicolon", regex=r";"),
-                trim_post_subdivide=dict(
-                    type="newline", name="newline", regex=r"(\n|\r\n)*"
-                ),
+            CodeSegment,
+            segment_kwargs={"type": "statement_terminator"},
+            subdivider=StringLexer(
+                "semicolon", ";", CodeSegment, segment_kwargs={"type": "semicolon"}
+            ),
+            trim_post_subdivide=RegexLexer(
+                "newline",
+                r"(\n|\r\n)+",
+                NewlineSegment,
             ),
         ),
-    ]
-    + exasol_fs_dialect.get_lexer_struct()
+    ],
+    before="not_equal",
 )
 
 exasol_fs_dialect.add(
-    FunctionScriptTerminatorSegment=NamedSegment.make(
-        "function_script_terminator", type="statement_terminator"
+    FunctionScriptTerminatorSegment=NamedParser(
+        "function_script_terminator", CodeSegment, type="statement_terminator"
     ),
-    WalrusOperatorSegment=NamedSegment.make(
-        "walrus_operator", type="assignment_operator"
+    WalrusOperatorSegment=NamedParser(
+        "walrus_operator", SymbolSegment, type="assignment_operator"
     ),
-    VariableNameSegment=ReSegment.make(
+    VariableNameSegment=RegexParser(
         r"[A-Z][A-Z0-9_]*",
+        CodeSegment,
         name="function_variable",
         type="variable",
     ),
 )
 
 exasol_fs_dialect.replace(
-    SemicolonSegment=SymbolSegment.make(";", name="semicolon", type="semicolon"),
+    SemicolonSegment=StringParser(
+        ";", SymbolSegment, name="semicolon", type="semicolon"
+    ),
 )
 
 
