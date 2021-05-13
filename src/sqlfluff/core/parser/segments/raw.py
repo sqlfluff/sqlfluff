@@ -3,8 +3,6 @@
 This is designed to be the root segment, without
 any children, and the output of the lexer.
 """
-import inspect
-
 from typing import Optional, Tuple
 
 from sqlfluff.core.parser.segments.base import BaseSegment
