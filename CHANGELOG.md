@@ -6,16 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+Contributors:
+- [@GitHub-Username](Link to GitHub profile) ([#PR-Number](Link to PR))
+
+## [0.5.4] - 2021-05-12
 ### Added
 - Parsing of Postgres dollar quoted literals.
 - Parsing of Postgres filter grammar.
 - Parsing of "ALTER DEFAULT PRIVILEGES" Postgres statement.
 - Parsing of Postgres non-explicit role granting and function execution.
+- Early failing on fatal dbt templater fails.
 
 ### Changed
-
-Contributors:
-- [@GitHub-Username](Link to GitHub profile) ([#PR-Number](Link to PR))
+- Big rewrite of the lexer, segments and position markers for simplicity
+  and to support future parallelism work.
+- Fix to L036 which previously mangled whitespace.
 
 ## [0.5.3] - 2021-05-04
 ### Added
