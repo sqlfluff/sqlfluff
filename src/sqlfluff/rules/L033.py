@@ -33,7 +33,7 @@ class Rule_L033(BaseRule):
         The function does this by looking for a segment of type set_operator
         which has a UNION but no DISTINCT or ALL.
         """
-        if segment.type == "set_operator":
+        if segment.is_type("set_operator"):
             if "UNION" in segment.raw.upper() and not (
                 "ALL" in segment.raw.upper() or "DISTINCT" in segment.raw.upper()
             ):

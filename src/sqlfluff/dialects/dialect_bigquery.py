@@ -412,7 +412,7 @@ class HyphenatedObjectReferenceSegment(ansi_dialect.get_segment("ObjectReference
         # delimiter.
         for is_dot, elems in itertools.groupby(
             self.recursive_crawl("identifier", "binary_operator", "dot"),
-            lambda e: e.type == "dot",
+            lambda e: e.is_type("dot"),
         ):
             if not is_dot:
                 segments = list(elems)
