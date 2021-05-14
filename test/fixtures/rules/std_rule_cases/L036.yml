@@ -122,3 +122,14 @@ test_cte:
 
     SELECT 1
     FROM cte1
+
+test_distinct:
+  fail_str: |
+    SELECT distinct a, b, c
+    FROM my_table
+  fix_str: |
+    SELECT distinct
+    a,
+    b,
+    c
+    FROM my_table
