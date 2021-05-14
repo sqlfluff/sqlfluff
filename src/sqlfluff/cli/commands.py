@@ -289,7 +289,7 @@ def dialects(**kwargs):
     "--parallel",
     type=int,
     default=1,
-    help="If set to a value higher than 1, runs SQLFluff in parallel, "
+    help="If set to a value higher than 1, run SQLFluff in parallel, "
     "speeding up processing.",
 )
 @click.argument("paths", nargs=-1)
@@ -396,7 +396,7 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
     "--parallel",
     type=int,
     default=1,
-    help="If set to a value higher than 1, runs SQLFluff in parallel, "
+    help="If set to a value higher than 1, run SQLFluff in parallel, "
     "speeding up processing.",
 )
 @click.argument("paths", nargs=-1)

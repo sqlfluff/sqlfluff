@@ -803,7 +803,7 @@ class DelayedException(Exception):
         self.ee = ee
         __, __, self.tb = sys.exc_info()
         self.fname = None
-        super(DelayedException, self).__init__(str(ee))
+        super().__init__(str(ee))
 
     def reraise(self):
         """Reraise the encapsulated exception."""
