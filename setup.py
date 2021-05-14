@@ -98,6 +98,8 @@ setup(
         "typing_extensions",
         # We provide a testing library for plugins in sqlfluff.testing
         "pytest",
+        # For returning exceptions from multiprocessing.Pool.map()
+        "tblib",
     ],
     extras_require={
         "dbt": ["dbt>=0.17"],

@@ -1,11 +1,13 @@
 """The Test file for the linter class."""
 
 import pytest
+import multiprocessing.dummy
 from typing import List
 from unittest.mock import patch
 
 from sqlfluff.core import Linter, FluffConfig
 from sqlfluff.core.errors import SQLBaseError, SQLLintError, SQLParseError
+from sqlfluff.cli.formatters import CallbackFormatter
 from sqlfluff.core.linter import LintingResult, NoQaDirective
 import sqlfluff.core.linter as linter
 from test.fixtures.dbt.templater import in_dbt_project_dir  # noqa
@@ -183,17 +185,71 @@ def test__linter__linting_result_check_tuples_by_path(by_path, result_type):
     isinstance(check_tuples, result_type)
 
 
-def test__linter__linting_result_get_violations():
+@pytest.mark.parametrize("parallel", [1, 2])
+def test__linter__linting_result_get_violations(parallel):
     """Test that we can get violations from a LintingResult."""
     lntr = Linter()
     result = lntr.lint_paths(
         [
             "test/fixtures/linter/comma_errors.sql",
             "test/fixtures/linter/whitespace_errors.sql",
-        ]
+        ],
+        parallel=parallel,
     )
 
     all([type(v) == SQLLintError for v in result.get_violations()])
+
+
+@pytest.mark.parametrize("force_error", [False, True])
+def test__linter__linting_parallel_thread(force_error, monkeypatch):
+    """Run linter in parallel mode using threads.
+
+    Similar to test__linter__linting_result_get_violations but uses a thread
+    pool of 1 worker to test parallel mode without subprocesses. This lets the
+    tests capture code coverage information for the backend parts of parallel
+    execution without having to jump through hoops.
+    """
+    monkeypatch.setattr(Linter, "MIN_THRESHOLD_PARALLEL", 1)
+
+    if not force_error:
+
+        def _create_pool(*args, **kwargs):
+            return multiprocessing.dummy.Pool(*args, **kwargs)
+
+    else:
+
+        def _create_pool(*args, **kwargs):
+            class ErrorPool:
+                def __enter__(self):
+                    return self
+
+                def __exit__(self, exc_type, exc_val, exc_tb):
+                    pass
+
+                def imap(self, *args, **kwargs):
+                    yield linter.DelayedException(ValueError())
+
+            return ErrorPool()
+
+    monkeypatch.setattr(linter, "_create_pool", _create_pool)
+
+    lntr = Linter(formatter=CallbackFormatter(callback=lambda m: None, verbosity=0))
+    result = lntr.lint_paths(
+        ("test/fixtures/linter/comma_errors.sql",),
+        parallel=1,
+    )
+
+    all([type(v) == SQLLintError for v in result.get_violations()])
+
+
+@patch("sqlfluff.core.linter.Linter._lint_path_core")
+def test_lint_path_parallel_wrapper_exception(patched_lint_path_core):
+    """Tests the error catching behavior of _lint_path_parallel_wrapper()."""
+    patched_lint_path_core.side_effect = ValueError("Something unexpected happened")
+    result = Linter._lint_path_parallel_wrapper(FluffConfig(), "")
+    assert isinstance(result, linter.DelayedException)
+    with pytest.raises(ValueError):
+        result.reraise()
 
 
 @patch("sqlfluff.core.linter.linter_logger")
@@ -514,3 +570,11 @@ def test__linter__skip_dbt_model_disabled(in_dbt_project_dir):  # noqa
     linted_file = linted_path.files[0]
     assert linted_file.path == "models/my_new_project/disabled_model.sql"
     assert not linted_file.templated_file
+
+
+def test_delayed_exception():
+    """Test that DelayedException stores and reraises a stored exception."""
+    ve = ValueError()
+    de = linter.DelayedException(ve)
+    with pytest.raises(ValueError):
+        de.reraise()
