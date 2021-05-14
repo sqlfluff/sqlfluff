@@ -171,12 +171,12 @@ class Rule_L036(BaseRule):
                         ],
                     ),
                 )
-            if parent_stack and parent_stack[-1].type == "select_statement":
+            if parent_stack and parent_stack[-1].is_type("select_statement"):
                 select_stmt = parent_stack[-1]
                 select_clause_idx = select_stmt.segments.index(select_clause)
                 after_select_clause_idx = select_clause_idx + 1
                 if len(select_stmt.segments) > after_select_clause_idx:
-                    if select_stmt.segments[after_select_clause_idx].type == "newline":
+                    if select_stmt.segments[after_select_clause_idx].is_type("newline"):
                         # The select_clause is immediately followed by a
                         # newline. Delete the newline in order to avoid leaving
                         # behind an empty line after fix.

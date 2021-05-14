@@ -43,7 +43,7 @@ class Rule_L013(BaseRule):
         """
         if segment.is_type("select_clause_element"):
             if not any(e.is_type("alias_expression") for e in segment.segments):
-                types = {e.type for e in segment.segments if e.name != "star"}
+                types = {e.get_type() for e in segment.segments if e.name != "star"}
                 unallowed_types = types - {
                     "whitespace",
                     "newline",
