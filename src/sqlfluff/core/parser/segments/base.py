@@ -719,6 +719,7 @@ class BaseSegment:
             return [self]
 
         # Are we in the right ballpark?
+        # NB: Comparisons have a higher precedence than `not`.
         if not self.get_start_loc() <= other.get_start_loc() <= self.get_end_loc():
             return None
 

@@ -123,7 +123,7 @@ test_cte:
     SELECT 1
     FROM cte1
 
-test_distinct:
+test_distinct_many:
   fail_str: |
     SELECT distinct a, b, c
     FROM my_table
@@ -133,3 +133,27 @@ test_distinct:
     b,
     c
     FROM my_table
+
+test_distinct_single_pass:
+  pass_str: |
+    SELECT distinct a
+    FROM my_table
+
+test_distinct_single_fail_a:
+  fail_str: |
+    SELECT distinct
+      a
+    FROM my_table
+  fix_str: |
+    SELECT distinct a
+    FROM my_table
+
+test_distinct_single_fail_b:
+  fail_str: |
+    SELECT
+      distinct a
+    FROM my_table
+  # NOTE: This doesn't yet reflow nicely. We should solve that elsewhere.
+  fix_str: |
+    SELECT distinct a
+       FROM my_table

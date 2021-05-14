@@ -140,12 +140,28 @@ class Rule_L036(BaseRule):
             < select_targets_info.first_new_line_idx
             < select_targets_info.first_select_target_idx
         ):
+            # Do we have a modifier?
+            modifier = select_clause.get_child("select_clause_modifier")
+
             # there is a newline between select and select target
             insert_buff = [
                 WhitespaceSegment(),
                 select_clause.segments[select_targets_info.first_select_target_idx],
                 NewlineSegment(),
             ]
+
+            # Also move any modifiers if present
+            if modifier:
+                # If it's already on the first line, ignore it.
+                if (
+                    select_clause.segments.index(modifier)
+                    < select_targets_info.first_new_line_idx
+                ):
+                    modifier = None
+                # Otherwise we need to move it too
+                else:
+                    insert_buff = [WhitespaceSegment(), modifier] + insert_buff
+
             fixes = [
                 # Replace "newline" with <<select_target>>, "newline".
                 LintFix(
@@ -159,6 +175,16 @@ class Rule_L036(BaseRule):
                     select_clause.segments[select_targets_info.first_select_target_idx],
                 ),
             ]
+
+            # Also delete the original modifier if present
+            if modifier:
+                fixes += [
+                    LintFix(
+                        "delete",
+                        modifier,
+                    ),
+                ]
+
             if (
                 select_targets_info.first_select_target_idx
                 - select_targets_info.first_new_line_idx
