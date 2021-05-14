@@ -164,7 +164,14 @@ class RawSegment(BaseSegment):
         Used mostly by fixes.
 
         """
-        return self.__class__(raw=raw, pos_marker=self.pos_marker)
+        return self.__class__(
+            raw=raw,
+            pos_marker=self.pos_marker,
+            type=self._surrogate_type,
+            name=self._surrogate_name,
+            trim_start=self.trim_start,
+            trim_chars=self.trim_chars,
+        )
 
 
 class CodeSegment(RawSegment):
@@ -245,6 +252,22 @@ class KeywordSegment(CodeSegment):
             # names are all lowercase by convention.
             name = raw.lower()
         super().__init__(raw=raw, pos_marker=pos_marker, type=type, name=name)
+
+    def edit(self, raw):
+        """Create a new segment, with exactly the same position but different content.
+
+        Returns:
+            A copy of this object with new contents.
+
+        Used mostly by fixes.
+
+        """
+        return self.__class__(
+            raw=raw,
+            pos_marker=self.pos_marker,
+            type=self._surrogate_type,
+            name=self._surrogate_name,
+        )
 
 
 class SymbolSegment(CodeSegment):

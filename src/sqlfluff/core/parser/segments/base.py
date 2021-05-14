@@ -140,12 +140,12 @@ class BaseSegment:
     @property
     def _comments(self):
         """Returns only the comment elements of this segment."""
-        return [seg for seg in self.segments if seg.type == "comment"]
+        return [seg for seg in self.segments if seg.is_type("comment")]
 
     @property
     def _non_comments(self):
         """Returns only the non-comment elements of this segment."""
-        return [seg for seg in self.segments if seg.type != "comment"]
+        return [seg for seg in self.segments if not seg.is_type("comment")]
 
     # ################ PUBLIC PROPERTIES
 
@@ -719,11 +719,8 @@ class BaseSegment:
             return [self]
 
         # Are we in the right ballpark?
-        if (
-            not self.get_start_point_marker()
-            <= other.get_start_point_marker()
-            <= self.get_end_point_marker()
-        ):
+        # NB: Comparisons have a higher precedence than `not`.
+        if not self.get_start_loc() <= other.get_start_loc() <= self.get_end_loc():
             return None
 
         # Do we have any child segments at all?

@@ -144,7 +144,7 @@ Contributors:
   related to `dbt`). For more info see [the docs](https://docs.sqlfluff.com/en/latest/configuration.html#dbt-project-configuration). ([#508](https://github.com/sqlfluff/sqlfluff/pull/508))
 - Support for modulo (`%`) operator. ([#447](https://github.com/sqlfluff/sqlfluff/pull/447))
 - A limit in the internal fix routines to catch any infinite loops. ([#494](https://github.com/sqlfluff/sqlfluff/pull/494))
-- Added the `.istype()` method on segments to more intelligently
+- Added the `.is_type()` method on segments to more intelligently
   deal with type matching in rules when inheritance is at play.
 - Added the ability for the user to add their own rules when interacting
   with the `Linter` directly using `user_rules`.

@@ -73,7 +73,7 @@ class Rule_L034(BaseRule):
         # If we find a matching target element, we append the element to the corresponding index
         self.seen_band_elements = [[] for i in select_element_order_preference] + [[]]
 
-        if segment.type == "select_clause":
+        if segment.is_type("select_clause"):
             select_target_elements = segment.get_children("select_clause_element")
             if not select_target_elements:
                 return None
