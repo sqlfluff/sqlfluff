@@ -2,7 +2,7 @@
 
 from typing import List, NamedTuple
 
-from sqlfluff.core.parser import WhitespaceSegment
+from sqlfluff.core.parser import WhitespaceSegment, segments
 
 from sqlfluff.core.parser import BaseSegment, NewlineSegment
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
@@ -104,8 +104,15 @@ class Rule_L036(BaseRule):
                 == select_target.pos_marker.working_line_no
             ):
                 # Find and delete any whitespace before the select target.
+                start_seg = select_targets_info.select_idx
+                # If any select modifier (e.g. distinct ) is present, start
+                # there rather than at the beginning.
+                modifier = segment.get_child("select_clause_modifier")
+                if modifier:
+                    start_seg = segment.segments.index(modifier)
+
                 ws_to_delete = segment.select_children(
-                    start_seg=segment.segments[select_targets_info.select_idx]
+                    start_seg=segment.segments[start_seg]
                     if not i
                     else select_targets_info.select_targets[i - 1],
                     select_if=lambda s: s.is_type("whitespace"),
