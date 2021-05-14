@@ -25,7 +25,6 @@ from typing_extensions import Literal
 
 from benchit import BenchIt
 import pathspec
-import tblib.pickling_support  # type: ignore
 
 from sqlfluff.core.errors import (
     SQLBaseError,
@@ -50,18 +49,6 @@ from sqlfluff.core.rules.base import BaseRule
 
 # Instantiate the linter logger
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
-
-# This is for "sqlfluff lint" and "sqlfluff fix" multiprocessing (--parallel)
-# support. If an exception (i.e. runtime error) occurs in a worker process, we
-# want to return the tracebook to the main process and report it there, as part
-# of the normal output. However, anything returned from a multiprocessing.Pool
-# worker must be serializable using "pickle". By default, Python traceback
-# objects cannot be pickled. The tblib package addresses this limitation; we
-# simply need to install it before creating the worker pool. See these links for
-# additional context:
-# * https://pypi.org/project/tblib/
-# * https://stackoverflow.com/questions/6126007/python-getting-a-traceback-from-a-multiprocessing-process
-tblib.pickling_support.install()
 
 
 class RuleTuple(NamedTuple):
