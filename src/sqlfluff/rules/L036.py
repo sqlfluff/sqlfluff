@@ -2,7 +2,7 @@
 
 from typing import List, NamedTuple
 
-from sqlfluff.core.parser import WhitespaceSegment, segments
+from sqlfluff.core.parser import WhitespaceSegment
 
 from sqlfluff.core.parser import BaseSegment, NewlineSegment
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
