@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Contributors:
 - [@GitHub-Username](Link to GitHub profile) ([#PR-Number](Link to PR))
 
+## [0.5.6] - 2021-05-14
+- Bugfix release for an issue in `L016` introduced in `0.5.4`.
+- Fix for `L016` issue where `DISTINCT` keywords were mangled during
+  fixing [#1024](https://github.com/sqlfluff/sqlfluff/issues/1024).
+
 ## [0.5.5] - 2021-05-13
 - Bugfix release for an off-by-one error introduced in L016 as part of `0.5.4`.
 
