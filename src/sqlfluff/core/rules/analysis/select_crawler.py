@@ -89,7 +89,7 @@ class SelectCrawler:
                     # It's an external table.
                     yield seg.raw
             else:
-                assert seg.istype("select_statement")
+                assert seg.is_type("select_statement")
                 buff.append(SelectCrawler(seg, dialect))
         if not buff:
             # If we reach here, the SELECT may be querying from a value table
