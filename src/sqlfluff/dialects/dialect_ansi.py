@@ -343,10 +343,8 @@ ansi_dialect.add(
         Ref("BitwiseAndSegment"),
         Ref("BitwiseOrSegment"),
         Ref("BitwiseXorSegment"),
-        Sequence(Ref("LessThanSegment"), Ref("LessThanSegment"), allow_gaps=False),
-        Sequence(
-            Ref("GreaterThanSegment"), Ref("GreaterThanSegment"), allow_gaps=False
-        ),
+        Ref("BitwiseLShiftSegment"),
+        Ref("BitwiseRShiftSegment"),
     ),
     StringBinaryOperatorGrammar=OneOf(Ref("ConcatSegment")),
     BooleanBinaryOperatorGrammar=OneOf(
@@ -1442,6 +1440,26 @@ ansi_dialect.add(
     ),
     Accessor_Grammar=AnyNumberOf(Ref("ArrayAccessorSegment")),
 )
+
+
+@ansi_dialect.segment()
+class BitwiseLShiftSegment(BaseSegment):
+    """Bitwise left-shift operator."""
+
+    type = "binary_operator"
+    match_grammar = Sequence(
+        Ref("LessThanSegment"), Ref("LessThanSegment"), allow_gaps=False
+    )
+
+
+@ansi_dialect.segment()
+class BitwiseRShiftSegment(BaseSegment):
+    """Bitwise right-shift operator."""
+
+    type = "binary_operator"
+    match_grammar = Sequence(
+        Ref("GreaterThanSegment"), Ref("GreaterThanSegment"), allow_gaps=False
+    )
 
 
 @ansi_dialect.segment()

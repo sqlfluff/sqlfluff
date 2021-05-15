@@ -31,8 +31,9 @@ file:
           expression:
           - column_reference:
               identifier: c7
-          - comparison_operator: <
-          - comparison_operator: <
+          - binary_operator:
+            - comparison_operator: <
+            - comparison_operator: <
           - column_reference:
               identifier: c8
       - comma: ','
@@ -40,7 +41,8 @@ file:
           expression:
           - column_reference:
               identifier: c9
-          - comparison_operator: '>'
-          - comparison_operator: '>'
+          - binary_operator:
+            - comparison_operator: '>'
+            - comparison_operator: '>'
           - column_reference:
               identifier: c10
