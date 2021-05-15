@@ -105,6 +105,9 @@ ansi_dialect.set_lexer_matchers(
         StringLexer("minus", "-", CodeSegment),
         StringLexer("divide", "/", CodeSegment),
         StringLexer("percent", "%", CodeSegment),
+        StringLexer("ampersand", "&", CodeSegment),
+        StringLexer("vertical_bar", "|", CodeSegment),
+        StringLexer("caret", "^", CodeSegment),
         StringLexer("star", "*", CodeSegment),
         StringLexer("bracket_open", "(", CodeSegment),
         StringLexer("bracket_close", ")", CodeSegment),
@@ -223,6 +226,15 @@ ansi_dialect.add(
     ConcatSegment=StringParser(
         "||", SymbolSegment, name="concatenate", type="binary_operator"
     ),
+    BitwiseAndSegment=StringParser(
+        "&", SymbolSegment, name="binary_and", type="binary_operator"
+    ),
+    BitwiseOrSegment=StringParser(
+        "|", SymbolSegment, name="binary_or", type="binary_operator"
+    ),
+    BitwiseXorSegment=StringParser(
+        "^", SymbolSegment, name="binary_xor", type="binary_operator"
+    ),
     EqualsSegment=StringParser(
         "=", SymbolSegment, name="equals", type="comparison_operator"
     ),
@@ -328,6 +340,11 @@ ansi_dialect.add(
         Ref("DivideSegment"),
         Ref("MultiplySegment"),
         Ref("ModuloSegment"),
+        Ref("BitwiseAndSegment"),
+        Ref("BitwiseOrSegment"),
+        Ref("BitwiseXorSegment"),
+        Ref("BitwiseLShiftSegment"),
+        Ref("BitwiseRShiftSegment"),
     ),
     StringBinaryOperatorGrammar=OneOf(Ref("ConcatSegment")),
     BooleanBinaryOperatorGrammar=OneOf(
@@ -1423,6 +1440,26 @@ ansi_dialect.add(
     ),
     Accessor_Grammar=AnyNumberOf(Ref("ArrayAccessorSegment")),
 )
+
+
+@ansi_dialect.segment()
+class BitwiseLShiftSegment(BaseSegment):
+    """Bitwise left-shift operator."""
+
+    type = "binary_operator"
+    match_grammar = Sequence(
+        Ref("LessThanSegment"), Ref("LessThanSegment"), allow_gaps=False
+    )
+
+
+@ansi_dialect.segment()
+class BitwiseRShiftSegment(BaseSegment):
+    """Bitwise right-shift operator."""
+
+    type = "binary_operator"
+    match_grammar = Sequence(
+        Ref("GreaterThanSegment"), Ref("GreaterThanSegment"), allow_gaps=False
+    )
 
 
 @ansi_dialect.segment()
