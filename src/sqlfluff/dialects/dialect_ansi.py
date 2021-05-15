@@ -334,7 +334,7 @@ ansi_dialect.add(
     BooleanLiteralGrammar=OneOf(Ref("TrueSegment"), Ref("FalseSegment")),
     # We specifically define a group of arithmetic operators to make it easier to override this
     # if some dialects have different available operators
-    ArithmeticBitwiseOperatorGrammar=OneOf(
+    ArithmeticBinaryOperatorGrammar=OneOf(
         Ref("PlusSegment"),
         Ref("MinusSegment"),
         Ref("DivideSegment"),
@@ -344,7 +344,9 @@ ansi_dialect.add(
         Ref("BitwiseOrSegment"),
         Ref("BitwiseXorSegment"),
         Sequence(Ref("LessThanSegment"), Ref("LessThanSegment"), allow_gaps=False),
-        Sequence(Ref("GreaterThanSegment"), Ref("GreaterThanSegment"), allow_gaps=False),
+        Sequence(
+            Ref("GreaterThanSegment"), Ref("GreaterThanSegment"), allow_gaps=False
+        ),
     ),
     StringBinaryOperatorGrammar=OneOf(Ref("ConcatSegment")),
     BooleanBinaryOperatorGrammar=OneOf(
