@@ -83,7 +83,6 @@ def test__config__load_toml():
             "testing_bool": False,
             "testing_arr": ["a", "b", "c"],
             "testing_inline_table": {"x": 1},
-            "bar": "foo",
         },
         "bar": {"foo": "foobar"},
         "fnarr": {"fnarr": {"foo": "foobar"}},

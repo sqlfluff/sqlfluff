@@ -1,4 +1,4 @@
-[tool.sqlfluff]
+[tool.sqlfluff.core]
 testing_int = 5
 testing_bar = 7.698
 testing_bool = false
