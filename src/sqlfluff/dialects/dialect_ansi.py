@@ -91,8 +91,6 @@ ansi_dialect.set_lexer_matchers(
         ),
         RegexLexer("not_equal", r"!=|<>", CodeSegment),
         RegexLexer("like_operator", r"!?~~?\*?", CodeSegment),
-        StringLexer("left_shift", "<<", CodeSegment),
-        StringLexer("right_shift", ">>", CodeSegment),
         StringLexer("greater_than_or_equal", ">=", CodeSegment),
         StringLexer("less_than_or_equal", "<=", CodeSegment),
         RegexLexer("newline", r"\r\n|\n", NewlineSegment),
@@ -237,12 +235,6 @@ ansi_dialect.add(
     BinaryXorSegment=StringParser(
         "^", SymbolSegment, name="binary_xor", type="binary_operator"
     ),
-    BinaryLShiftSegment=StringParser(
-        "<<", SymbolSegment, name="binary_lshift", type="binary_operator"
-    ),
-    BinaryRShiftSegment=StringParser(
-        ">>", SymbolSegment, name="binary_rshift", type="binary_operator"
-    ),
     EqualsSegment=StringParser(
         "=", SymbolSegment, name="equals", type="comparison_operator"
     ),
@@ -351,8 +343,8 @@ ansi_dialect.add(
         Ref("BinaryAndSegment"),
         Ref("BinaryOrSegment"),
         Ref("BinaryXorSegment"),
-        Ref("BinaryLShiftSegment"),
-        Ref("BinaryRShiftSegment"),
+        Sequence(Ref("LessThanSegment"), Ref("LessThanSegment"), allow_gaps=False),
+        Sequence(Ref("GreaterThanSegment"), Ref("GreaterThanSegment"), allow_gaps=False),
     ),
     StringBinaryOperatorGrammar=OneOf(Ref("ConcatSegment")),
     BooleanBinaryOperatorGrammar=OneOf(

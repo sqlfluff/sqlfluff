@@ -1,0 +1,46 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          expression:
+          - column_reference:
+              identifier: c1
+          - binary_operator: '&'
+          - column_reference:
+              identifier: c2
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+              identifier: c3
+          - binary_operator: '|'
+          - column_reference:
+              identifier: c4
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+              identifier: c5
+          - binary_operator: ^
+          - column_reference:
+              identifier: c6
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+              identifier: c7
+          - comparison_operator: <
+          - comparison_operator: <
+          - column_reference:
+              identifier: c8
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+              identifier: c9
+          - comparison_operator: '>'
+          - comparison_operator: '>'
+          - column_reference:
+              identifier: c10
