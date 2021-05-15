@@ -1,6 +1,6 @@
 """Defines the Parser class."""
 
-from typing import Optional, Tuple, TYPE_CHECKING
+from typing import Optional, Sequence, TYPE_CHECKING
 
 from sqlfluff.core.parser.context import RootParseContext
 from sqlfluff.core.config import FluffConfig
@@ -20,7 +20,7 @@ class Parser:
         self.RootSegment = self.config.get("dialect_obj").get_root_segment()
 
     def parse(
-        self, segments: Tuple["BaseSegment", ...], recurse=True
+        self, segments: Sequence["BaseSegment", ...], recurse=True
     ) -> Optional["BaseSegment"]:
         """Parse a series of lexed tokens using the current dialect."""
         if not segments:

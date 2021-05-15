@@ -15,6 +15,7 @@ from typing import (
     Iterator,
     List,
     NamedTuple,
+    Sequence,
     Optional,
     Tuple,
     Union,
@@ -285,7 +286,8 @@ class LintedFile(NamedTuple):
         bencher("fix_string: start")
 
         linter_logger.debug("Original Tree: %r", self.templated_file.templated_str)
-        linter_logger.debug("Fixed Tree: %r", self.tree.raw)  # type: ignore
+        assert self.tree
+        linter_logger.debug("Fixed Tree: %r", self.tree.raw)
 
         # The sliced file is contiguous in the TEMPLATED space.
         # NB: It has gaps and repeats in the source space.
@@ -318,7 +320,7 @@ class LintedFile(NamedTuple):
         # so when debugging logs we can find a given patch again!
         patch: Union[EnrichedFixPatch, FixPatch]
         for idx, patch in enumerate(
-            self.tree.iter_patches(templated_str=self.templated_file.templated_str)  # type: ignore
+            self.tree.iter_patches(templated_str=self.templated_file.templated_str)
         ):
             linter_logger.debug("  %s Yielded patch: %s", idx, patch)
 
@@ -906,6 +908,7 @@ class Linter:
         violations += templater_violations
         # Detect the case of a catastrophic templater fail. In this case
         # we don't continue. We'll just bow out now.
+        tokens: Optional[Sequence[BaseSegment]]
         if not templated_file:
             linter_logger.info("TEMPLATING FAILED: %s", templater_violations)
             tokens = None
@@ -977,7 +980,7 @@ class Linter:
                             continue
                 new_tokens.append(token)
             # Swap the buffers
-            tokens = new_tokens  # type: ignore
+            tokens = new_tokens
 
         t2 = time.monotonic()
         bencher("Lexing {0!r}".format(short_fname))
