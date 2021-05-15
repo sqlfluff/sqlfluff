@@ -226,13 +226,13 @@ ansi_dialect.add(
     ConcatSegment=StringParser(
         "||", SymbolSegment, name="concatenate", type="binary_operator"
     ),
-    BinaryAndSegment=StringParser(
+    BitwiseAndSegment=StringParser(
         "&", SymbolSegment, name="binary_and", type="binary_operator"
     ),
-    BinaryOrSegment=StringParser(
+    BitwiseOrSegment=StringParser(
         "|", SymbolSegment, name="binary_or", type="binary_operator"
     ),
-    BinaryXorSegment=StringParser(
+    BitwiseXorSegment=StringParser(
         "^", SymbolSegment, name="binary_xor", type="binary_operator"
     ),
     EqualsSegment=StringParser(
@@ -334,15 +334,15 @@ ansi_dialect.add(
     BooleanLiteralGrammar=OneOf(Ref("TrueSegment"), Ref("FalseSegment")),
     # We specifically define a group of arithmetic operators to make it easier to override this
     # if some dialects have different available operators
-    ArithmeticBinaryOperatorGrammar=OneOf(
+    ArithmeticBitwiseOperatorGrammar=OneOf(
         Ref("PlusSegment"),
         Ref("MinusSegment"),
         Ref("DivideSegment"),
         Ref("MultiplySegment"),
         Ref("ModuloSegment"),
-        Ref("BinaryAndSegment"),
-        Ref("BinaryOrSegment"),
-        Ref("BinaryXorSegment"),
+        Ref("BitwiseAndSegment"),
+        Ref("BitwiseOrSegment"),
+        Ref("BitwiseXorSegment"),
         Sequence(Ref("LessThanSegment"), Ref("LessThanSegment"), allow_gaps=False),
         Sequence(Ref("GreaterThanSegment"), Ref("GreaterThanSegment"), allow_gaps=False),
     ),
