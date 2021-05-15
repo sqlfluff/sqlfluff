@@ -223,6 +223,21 @@ ansi_dialect.add(
     ConcatSegment=StringParser(
         "||", SymbolSegment, name="concatenate", type="binary_operator"
     ),
+    # BinaryAndSegment=StringParser(
+    #     "&", SymbolSegment, name="binary_and", type="binary_operator"
+    # ),
+    BinaryOrSegment=StringParser(
+        "|", SymbolSegment, name="binary_or", type="binary_operator"
+    ),
+    # BinaryXorSegment=StringParser(
+    #     "^", SymbolSegment, name="binary_xor", type="binary_operator"
+    # ),
+    # BinaryLShiftSegment=StringParser(
+    #     "<<", SymbolSegment, name="binary_lshift", type="binary_operator"
+    # ),
+    # BinaryRShiftSegment=StringParser(
+    #     ">>", SymbolSegment, name="binary_rshift", type="binary_operator"
+    # ),
     EqualsSegment=StringParser(
         "=", SymbolSegment, name="equals", type="comparison_operator"
     ),
@@ -328,6 +343,11 @@ ansi_dialect.add(
         Ref("DivideSegment"),
         Ref("MultiplySegment"),
         Ref("ModuloSegment"),
+        # Ref("BinaryAndSegment"),
+        Ref("BinaryOrSegment"),
+        # Ref("BinaryXorSegment"),
+        # Ref("BinaryLShiftSegment"),
+        # Ref("BinaryRShiftSegment"),
     ),
     StringBinaryOperatorGrammar=OneOf(Ref("ConcatSegment")),
     BooleanBinaryOperatorGrammar=OneOf(
