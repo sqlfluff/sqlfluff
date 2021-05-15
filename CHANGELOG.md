@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Contributors:
 - [@GitHub-Username](Link to GitHub profile) ([#PR-Number](Link to PR))
 
+### Added
+- Fix [1051](https://github.com/sqlfluff/sqlfluff/issues/1051), adding support
+  for bitwise operators `&`, `|`, `^`, `<<`, `>>`
+  
 ## [0.5.6] - 2021-05-14
 - Bugfix release for an issue in `L016` introduced in `0.5.4`.
 - Fix for `L016` issue where `DISTINCT` keywords were mangled during
