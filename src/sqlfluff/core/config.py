@@ -146,22 +146,21 @@ class ConfigLoader:
             global_loader = cls()
         return global_loader
 
-    @staticmethod
-    def _walk_toml(config: Dict[str, Any], base_key=()):
+    @classmethod
+    def _walk_toml(cls, config: Dict[str, Any], base_key=()):
         """Recursively walk the nested config inside a TOML file."""
         buff: List[tuple] = []
         for k, v in config.items():
-            if isinstance(v, dict) and k.endswith("__options"):
-                key = base_key + (k[:-9],)
-                buff.extend(ConfigLoader._walk_toml(v, key))
+            key = base_key + (k,)
+            if isinstance(v, dict):
+                buff.extend(cls._walk_toml(v, key))
             else:
-                key = (base_key or ("core",)) + (k,)
                 buff.append((key, v))
 
         return buff
 
-    @staticmethod
-    def _get_config_elems_from_toml(fpath: str) -> List[Tuple[tuple, Any]]:
+    @classmethod
+    def _get_config_elems_from_toml(cls, fpath: str) -> List[Tuple[tuple, Any]]:
         """Load a config from a TOML file and return a list of tuples.
 
         The return value is a list of tuples, were each tuple has two elements,
@@ -170,7 +169,7 @@ class ConfigLoader:
         config = toml.load(fpath)
         tool = config.get("tool", {}).get("sqlfluff", {})
 
-        return ConfigLoader._walk_toml(tool)
+        return cls._walk_toml(tool)
 
     @staticmethod
     def _get_config_elems_from_file(fpath: str) -> List[Tuple[tuple, Any]]:

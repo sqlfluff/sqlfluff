@@ -1,2 +1,2 @@
-[tool.sqlfluff]
+[tool.sqlfluff.core]
 testing_int = 1

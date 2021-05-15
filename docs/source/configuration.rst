@@ -28,15 +28,14 @@ section will be indicated in the section started with
 *[sqlfluff:jinjacontext]*.
 
 For the `pyproject.toml file`_, all valid sections start with `tool.sqlfluff`
-and subsections are delimited by a dot and suffixed with *__options*.
-For example the *jinjacontext* section will be indicated in the section started
-with *[tools.sqlfluff.jinjacontext__options]*.
+and subsections are delimited by a dot. For example the *jinjacontext* section
+will be indicated in the section started with *[tool.sqlfluff.jinjacontext]*.
 
 For example
 
 .. code-block:: toml
 
-    [tools.sqlfluff]
+    [tool.sqlfluff.core]
     templater = "jinja"
     sql_file_exts = [
         ".sql",
@@ -45,14 +44,14 @@ For example
         ".ddl",
     ]
 
-    [sqlfluff.indentation__options]
+    [tool.sqlfluff.indentation]
     indented_joins = false
     template_blocks_indent = false
 
-    [sqlfluff.templater__options]
+    [tool.sqlfluff.templater]
     unwrap_wrapped_queries = true
 
-    [sqlfluff.templater__options.jinja__options]
+    [tool.sqlfluff.templater.jinja]
     apply_dbt_builtins = true
 
 .. _`cfg file`: https://docs.python.org/3/library/configparser.html
