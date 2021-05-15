@@ -20,7 +20,7 @@ class Parser:
         self.RootSegment = self.config.get("dialect_obj").get_root_segment()
 
     def parse(
-        self, segments: Sequence["BaseSegment", ...], recurse=True
+        self, segments: Sequence["BaseSegment"], recurse=True
     ) -> Optional["BaseSegment"]:
         """Parse a series of lexed tokens using the current dialect."""
         if not segments:
