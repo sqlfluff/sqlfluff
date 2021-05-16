@@ -68,7 +68,11 @@ class Rule_L042(BaseRule):
                 )
                 if not from_expression_element:
                     return None  # There isn't one. We're done.
-
+                # Is it bracketed?
+                bracketed_expression = from_expression_element.get_child("bracketed")
+                # If it is, lint that instead
+                if bracketed_expression:
+                    from_expression_element = bracketed_expression
                 # If any of the following are found, raise an issue.
                 # If not, we're fine.
                 problem_children = [
