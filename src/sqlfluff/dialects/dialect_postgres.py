@@ -86,19 +86,35 @@ postgres_dialect.replace(
 
 
 @postgres_dialect.segment(replace=True)
-class FunctionDefinitionGrammar(BaseSegment):
-    """This is the body of a `CREATE FUNCTION AS` statement."""
+class FunctionParameterListGrammar(BaseSegment):
+    """The parameters for a function ie. `(string, number)`."""
 
-    match_grammar = Sequence(
-        "AS",
-        OneOf(Ref("QuotedLiteralSegment"), Ref("DollarQuotedLiteralSegment")),
+    # Function parameter list
+    match_grammar = Bracketed(
         Sequence(
-            "LANGUAGE",
-            # Not really a parameter, but best fit for now.
-            Ref("ParameterNameSegment"),
+            Delimited(
+                Ref("FunctionParameterGrammar"),
+                delimiter=Ref("CommaSegment"),
+            ),
             optional=True,
         ),
     )
+
+
+#@postgres_dialect.segment(replace=True)
+#class FunctionDefinitionGrammar(BaseSegment):
+#    """This is the body of a `CREATE FUNCTION AS` statement."""
+#
+#    match_grammar = Sequence(
+#        "AS",
+#        OneOf(Ref("QuotedLiteralSegment"), Ref("DollarQuotedLiteralSegment")),
+#        Sequence(
+#            "LANGUAGE",
+#            # Not really a parameter, but best fit for now.
+#            Ref("ParameterNameSegment"),
+#            optional=True,
+#        ),
+#    )
 
 
 @postgres_dialect.segment(replace=True)
