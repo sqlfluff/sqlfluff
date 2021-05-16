@@ -31,24 +31,25 @@ file:
             wildcard_identifier:
               star: '*'
             select_replace_clause:
-            - keyword: REPLACE
-            - start_bracket: (
-            - select_clause_element:
-                expression:
-                  column_reference:
+              keyword: REPLACE
+              bracketed:
+              - start_bracket: (
+              - select_clause_element:
+                  expression:
+                    column_reference:
+                      identifier: quantity
+                    binary_operator: /
+                    literal: '2'
+                  alias_expression:
+                    keyword: AS
                     identifier: quantity
-                  binary_operator: /
-                  literal: '2'
-                alias_expression:
-                  keyword: AS
-                  identifier: quantity
-            - comma: ','
-            - select_clause_element:
-                literal: "'thing'"
-                alias_expression:
-                  keyword: as
-                  identifier: foo
-            - end_bracket: )
+              - comma: ','
+              - select_clause_element:
+                  literal: "'thing'"
+                  alias_expression:
+                    keyword: as
+                    identifier: foo
+              - end_bracket: )
       from_clause:
         keyword: from
         from_expression:

@@ -6,13 +6,14 @@ file:
     - function_name:
         function_name_identifier: add
     - base:
-      - start_bracket: (
-      - data_type:
-          data_type_identifier: integer
-      - comma: ','
-      - data_type:
-          data_type_identifier: integer
-      - end_bracket: )
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            data_type_identifier: integer
+        - comma: ','
+        - data_type:
+            data_type_identifier: integer
+        - end_bracket: )
     - keyword: RETURNS
     - data_type:
         data_type_identifier: integer
@@ -31,11 +32,12 @@ file:
     - function_name:
         function_name_identifier: increment
     - base:
-        start_bracket: (
-        parameter: i
-        data_type:
-          data_type_identifier: integer
-        end_bracket: )
+        bracketed:
+          start_bracket: (
+          parameter: i
+          data_type:
+            data_type_identifier: integer
+          end_bracket: )
     - keyword: RETURNS
     - data_type:
         data_type_identifier: integer

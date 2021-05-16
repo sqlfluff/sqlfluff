@@ -7,12 +7,13 @@ file:
           expression:
           - literal: '1'
           - binary_operator: +
-          - start_bracket: (
-          - expression:
-            - literal: '2'
-            - binary_operator: '*'
-            - literal: '3'
-          - end_bracket: )
+          - bracketed:
+              start_bracket: (
+              expression:
+              - literal: '2'
+              - binary_operator: '*'
+              - literal: '3'
+              end_bracket: )
           - comparison_operator: '>='
           - literal: '4'
           - binary_operator: +

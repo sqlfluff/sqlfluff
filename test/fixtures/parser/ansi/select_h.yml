@@ -5,18 +5,19 @@ file:
       - keyword: SELECT
       - select_clause_element:
           function:
-          - function_name:
+            function_name:
               function_name_identifier: DATE
-          - start_bracket: (
-          - expression:
-              column_reference:
-              - identifier: zendesk
-              - dot: .
-              - identifier: created_at
-          - comma: ','
-          - expression:
-              literal: "'America/New_York'"
-          - end_bracket: )
+            bracketed:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                - identifier: zendesk
+                - dot: .
+                - identifier: created_at
+            - comma: ','
+            - expression:
+                literal: "'America/New_York'"
+            - end_bracket: )
           alias_expression:
             keyword: AS
             identifier: date
@@ -25,29 +26,31 @@ file:
           function:
             function_name:
               function_name_identifier: COUNT
-            start_bracket: (
-            expression:
-              case_expression:
-              - keyword: CASE
-              - keyword: WHEN
-              - expression:
-                - column_reference:
-                  - identifier: zendesk
-                  - dot: .
-                  - identifier: support_team
-                - keyword: IN
-                - start_bracket: (
-                - literal: "'tech support'"
-                - comma: ','
-                - literal: "'taskus'"
-                - comma: ','
-                - literal: "'onc'"
-                - end_bracket: )
-              - keyword: THEN
-              - expression:
-                  literal: '1'
-              - keyword: END
-            end_bracket: )
+            bracketed:
+              start_bracket: (
+              expression:
+                case_expression:
+                - keyword: CASE
+                - keyword: WHEN
+                - expression:
+                    column_reference:
+                    - identifier: zendesk
+                    - dot: .
+                    - identifier: support_team
+                    keyword: IN
+                    bracketed:
+                    - start_bracket: (
+                    - literal: "'tech support'"
+                    - comma: ','
+                    - literal: "'taskus'"
+                    - comma: ','
+                    - literal: "'onc'"
+                    - end_bracket: )
+                - keyword: THEN
+                - expression:
+                    literal: '1'
+                - keyword: END
+              end_bracket: )
           alias_expression:
             keyword: AS
             identifier: tech_support

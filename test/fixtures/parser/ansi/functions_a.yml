@@ -7,55 +7,60 @@ file:
           function:
             function_name:
               function_name_identifier: DATE
-            start_bracket: (
-            expression:
-              column_reference:
-                identifier: t
-            end_bracket: )
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: t
+              end_bracket: )
       - comma: ','
       - select_clause_element:
           function:
-          - function_name:
+            function_name:
               function_name_identifier: ROUND
-          - start_bracket: (
-          - expression:
-              column_reference:
-                identifier: b
-          - comma: ','
-          - expression:
-              literal: '2'
-          - end_bracket: )
+            bracketed:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  identifier: b
+            - comma: ','
+            - expression:
+                literal: '2'
+            - end_bracket: )
       - comma: ','
       - select_clause_element:
           function:
-          - function_name:
+            function_name:
               function_name_identifier: LEFT
-          - start_bracket: (
-          - expression:
-              function:
-              - function_name:
-                  function_name_identifier: right
-              - start_bracket: (
-              - expression:
-                  column_reference:
-                    identifier: s
-              - comma: ','
-              - expression:
-                  literal: '5'
-              - end_bracket: )
-          - comma: ','
-          - expression:
-              function:
-                function_name:
-                  function_name_identifier: LEN
-                start_bracket: (
-                expression:
-                  column_reference:
-                    identifier: s
-                  binary_operator: +
-                  literal: '6'
-                end_bracket: )
-          - end_bracket: )
+            bracketed:
+            - start_bracket: (
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: right
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        identifier: s
+                  - comma: ','
+                  - expression:
+                      literal: '5'
+                  - end_bracket: )
+            - comma: ','
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: LEN
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        identifier: s
+                      binary_operator: +
+                      literal: '6'
+                    end_bracket: )
+            - end_bracket: )
           alias_expression:
             keyword: as
             identifier: compound

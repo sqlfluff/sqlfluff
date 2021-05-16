@@ -19,15 +19,16 @@ file:
           function:
             function_name:
               function_name_identifier: EXTRACT
-            start_bracket: (
-            date_part: DATE
-            keyword: FROM
-            expression:
-              column_reference:
-              - identifier: gmv
-              - dot: .
-              - identifier: order_created_at
-            end_bracket: )
+            bracketed:
+              start_bracket: (
+              date_part: DATE
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: gmv
+                - dot: .
+                - identifier: order_created_at
+              end_bracket: )
           alias_expression:
             keyword: AS
             identifier: order_dt
@@ -52,29 +53,32 @@ file:
           function:
             function_name:
               function_name_identifier: DATE_TRUNC
-            start_bracket: (
-            expression:
-              function:
-              - function_name:
-                  function_name_identifier: DATE_SUB
-              - start_bracket: (
-              - expression:
-                  function:
-                    function_name:
-                      function_name_identifier: CURRENT_DATE
-                    start_bracket: (
-                    end_bracket: )
-              - comma: ','
-              - expression:
-                  interval_expression:
-                    keyword: INTERVAL
-                    expression:
-                      literal: '2'
-                    date_part: YEAR
-              - end_bracket: )
-            comma: ','
-            date_part: year
-            end_bracket: )
+            bracketed:
+              start_bracket: (
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: DATE_SUB
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      function:
+                        function_name:
+                          function_name_identifier: CURRENT_DATE
+                        bracketed:
+                          start_bracket: (
+                          end_bracket: )
+                  - comma: ','
+                  - expression:
+                      interval_expression:
+                        keyword: INTERVAL
+                        expression:
+                          literal: '2'
+                        date_part: YEAR
+                  - end_bracket: )
+              comma: ','
+              date_part: year
+              end_bracket: )
       limit_clause:
         keyword: LIMIT
         literal: '1'
