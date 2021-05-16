@@ -3,6 +3,7 @@
 import sys
 import functools
 import multiprocessing
+import signal
 import os
 import time
 import logging
@@ -1473,8 +1474,18 @@ To hide this warning, add the failing file to .sqlfluffignore
             )
         dialect = self.config.get("dialect")
         self._init_dialect(dialect)
+        # Disable signal handling in the child processes to let the parent
+        # control all KeyboardInterrupt handling (Control C). This is necessary
+        # in order for keyboard interrupts to exit quickly and cleanly. Adapted
+        # from this post:
+        # https://stackoverflow.com/questions/11312525/catch-ctrlc-sigint-and-exit-multiprocesses-gracefully-in-python
+        original_handler = signal.signal(signal.SIGINT, signal.SIG_IGN)
         with _create_pool(parallel, self._init_dialect, (dialect,)) as pool:
-            for lint_result in pool.imap(self._apply, jobs):
+            signal.signal(signal.SIGINT, original_handler)
+            # From this point forward, any keyboard interrupt will raise an
+            # exception, and the context handler managing the pool will
+            # automatically terminate child processes for us.
+            for lint_result in pool.imap_unordered(self._apply, jobs):
                 if isinstance(lint_result, LintedFile):
                     if self.formatter:
                         self.formatter.dispatch_file_violations(
