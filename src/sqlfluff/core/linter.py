@@ -814,6 +814,19 @@ def _create_pool(*args, **kwargs):
     return multiprocessing.Pool(*args, **kwargs)
 
 
+def _imap_unordered(pool, *l, **kw):
+    """Wraps pool.imap_unordered().
+
+    Some automated tests use a thread pool, which doesn't support
+    imap_unordered(). In this case, falls back to the similar imap().
+    """
+    for fname in ["imap_unordered", "imap"]:
+        try:
+            return getattr(pool, fname)(*l, **kw)
+        except AttributeError:
+            pass
+
+
 class Linter:
     """The interface class to interact with the linter."""
 
@@ -1485,7 +1498,7 @@ To hide this warning, add the failing file to .sqlfluffignore
             # From this point forward, any keyboard interrupt will raise an
             # exception, and the context handler managing the pool will
             # automatically terminate child processes for us.
-            for lint_result in pool.imap_unordered(self._apply, jobs):
+            for lint_result in _imap_unordered(pool, self._apply, jobs):
                 if isinstance(lint_result, LintedFile):
                     if self.formatter:
                         self.formatter.dispatch_file_violations(
