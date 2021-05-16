@@ -54,12 +54,16 @@ class Rule_L015(BaseRule):
             if len(expression.segments) == 1:
                 # Remove the brackets, and strip any meta segments.
                 fixes = [
-                    LintFix("edit", bracketed, self.filter_meta(bracketed.segments[1:-1])),
+                    LintFix(
+                        "edit", bracketed, self.filter_meta(bracketed.segments)[1:-1]
+                    ),
                 ]
             # Is there any whitespace between DISTINCT and the expression?
             distinct_idx = segment.segments.index(modifier)
             elem_idx = segment.segments.index(first_element)
-            if not any(seg.is_whitespace for seg in segment.segments[distinct_idx: elem_idx]):
+            if not any(
+                seg.is_whitespace for seg in segment.segments[distinct_idx:elem_idx]
+            ):
                 fixes.append(
                     LintFix(
                         "create",

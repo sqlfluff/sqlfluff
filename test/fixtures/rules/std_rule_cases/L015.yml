@@ -10,8 +10,8 @@ test_2:
   fix_str: SELECT DISTINCT (a + b) * c
 
 test_3:
-  # Space after DISTINCT makes it okay(-ish)...
-  pass_str: SELECT DISTINCT (a)
+  fail_str: SELECT DISTINCT (a)
+  fix_str: SELECT DISTINCT a
 
 test_4:
   pass_str: SELECT DISTINCT (a + b) * c
