@@ -1,5 +1,7 @@
 """Implementation of Rule L033."""
 
+from sqlfluff.core.parser import WhitespaceSegment, KeywordSegment
+
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 
 
@@ -31,21 +33,22 @@ class Rule_L033(BaseRule):
         The function does this by looking for a segment of type set_operator
         which has a UNION but no DISTINCT or ALL.
         """
-        if segment.type == "set_operator":
+        if segment.is_type("set_operator"):
             if "UNION" in segment.raw.upper() and not (
                 "ALL" in segment.raw.upper() or "DISTINCT" in segment.raw.upper()
             ):
-                union = self.make_keyword(
-                    raw="UNION",
-                )
-                ins = self.make_whitespace(raw=" ")
-                distinct = self.make_keyword(
-                    raw="DISTINCT",
-                )
                 return LintResult(
                     anchor=segment,
                     fixes=[
-                        LintFix("edit", segment.segments[0], [union, ins, distinct])
+                        LintFix(
+                            "edit",
+                            segment.segments[0],
+                            [
+                                KeywordSegment("UNION"),
+                                WhitespaceSegment(),
+                                KeywordSegment("DISTINCT"),
+                            ],
+                        )
                     ],
                 )
         return LintResult()

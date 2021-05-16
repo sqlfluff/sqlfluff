@@ -2,12 +2,19 @@
 
 from typing import Union, Type
 
-from sqlfluff.core.parser import KeywordSegment, SegmentGenerator, BaseSegment
+from sqlfluff.core.parser import (
+    KeywordSegment,
+    SegmentGenerator,
+    BaseSegment,
+    StringParser,
+)
 from sqlfluff.core.parser.grammar.base import BaseGrammar
 
-DialectElementType = Union[Type[BaseSegment], BaseGrammar, SegmentGenerator]
+DialectElementType = Union[
+    Type[BaseSegment], BaseGrammar, StringParser, SegmentGenerator
+]
 # NOTE: Post expansion, no generators remain
-ExpandedDialectElementType = Union[Type[BaseSegment], BaseGrammar]
+ExpandedDialectElementType = Union[Type[BaseSegment], StringParser, BaseGrammar]
 
 
 class Dialect:
@@ -15,7 +22,7 @@ class Dialect:
 
     Args:
         name (:obj:`str`): The name of the dialect, used for lookup.
-        lexer_matchers (iterable of :obj:`StringMatcher`): A structure defining
+        lexer_matchers (iterable of :obj:`StringLexer`): A structure defining
             the lexing config for this dialect.
 
     """
@@ -78,7 +85,7 @@ class Dialect:
             for kw in expanded_copy.sets(keyword_set):
                 n = kw.capitalize() + "KeywordSegment"
                 if n not in expanded_copy._library:
-                    expanded_copy._library[n] = KeywordSegment.make(kw.lower())
+                    expanded_copy._library[n] = StringParser(kw.lower(), KeywordSegment)
         expanded_copy.expanded = True
         return expanded_copy
 
@@ -157,7 +164,7 @@ class Dialect:
         defined using `make`. Segments are passed in as kwargs.
 
         e.g.
-        dialect.add(SomeSegment=KeywordSegment.make(blah, blah, blah))
+        dialect.add(SomeSegment=StringParser("blah", KeywordSegment))
 
         Note that multiple segments can be added in the same call as this method
         will iterate through the kwargs

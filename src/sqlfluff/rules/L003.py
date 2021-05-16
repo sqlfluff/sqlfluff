@@ -1,5 +1,7 @@
 """Implementation of Rule L003."""
 
+from sqlfluff.core.parser import WhitespaceSegment
+
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
@@ -174,7 +176,7 @@ class Rule_L003(BaseRule):
                 LintFix(
                     "create",
                     current_anchor,
-                    self.make_whitespace(
+                    WhitespaceSegment(
                         raw=desired_indent,
                     ),
                 )
@@ -186,7 +188,7 @@ class Rule_L003(BaseRule):
                 LintFix(
                     "edit",
                     current_indent_buffer[0],
-                    self.make_whitespace(
+                    WhitespaceSegment(
                         raw=desired_indent,
                     ),
                 )
@@ -516,7 +518,7 @@ class Rule_L003(BaseRule):
                                 LintFix(
                                     "create",
                                     segment,
-                                    self.make_whitespace(
+                                    WhitespaceSegment(
                                         raw=self._make_indent(
                                             indent_unit=self.indent_unit,
                                             tab_space_size=self.tab_space_size,
@@ -537,7 +539,7 @@ class Rule_L003(BaseRule):
                             LintFix(
                                 "create",
                                 segment,
-                                self.make_whitespace(
+                                WhitespaceSegment(
                                     # Make the minimum indent for it to be ok.
                                     raw=self._make_indent(
                                         num=comp_indent_num - this_indent_num,

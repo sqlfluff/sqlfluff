@@ -14,17 +14,19 @@ from sqlfluff.core.parser import (
     GreedyUntil,
     Indent,
     KeywordSegment,
-    NamedSegment,
     Nothing,
     OneOf,
     Ref,
-    ReSegment,
     Sequence,
     StartsWith,
-    RegexMatcher,
-    StringMatcher,
+    RegexLexer,
+    StringLexer,
     CodeSegment,
     CommentSegment,
+    NamedParser,
+    SymbolSegment,
+    StringParser,
+    RegexParser,
 )
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.dialects.exasol_keywords import (
@@ -46,8 +48,8 @@ exasol_dialect.sets("bare_functions").update(BARE_FUNCTIONS)
 
 exasol_dialect.insert_lexer_matchers(
     [
-        RegexMatcher("range_operator", r"\.{2}", CodeSegment),
-        StringMatcher("hash", "#", CodeSegment),
+        RegexLexer("range_operator", r"\.{2}", CodeSegment),
+        StringLexer("hash", "#", CodeSegment),
     ],
     before="not_equal",
 )
@@ -58,9 +60,9 @@ exasol_dialect.patch_lexer_matchers(
         # It's also used for escaping single quotes inside of STATEMENT strings like in the IMPORT function
         # https://docs.exasol.com/sql_references/basiclanguageelements.htm#Delimited_Identifiers
         # https://docs.exasol.com/sql_references/literals.htm
-        RegexMatcher("single_quote", r"'([^']|'')*'", CodeSegment),
-        RegexMatcher("double_quote", r'"([^"]|"")*"', CodeSegment),
-        RegexMatcher(
+        RegexLexer("single_quote", r"'([^']|'')*'", CodeSegment),
+        RegexLexer("double_quote", r'"([^"]|"")*"', CodeSegment),
+        RegexLexer(
             "inline_comment",
             r"--[^\n]*",
             CommentSegment,
@@ -71,12 +73,12 @@ exasol_dialect.patch_lexer_matchers(
 
 # Access column aliases by using the LOCAL keyword
 exasol_dialect.add(
-    LocalIdentifierSegment=KeywordSegment.make(
-        "LOCAL", name="local_identifier", type="identifier"
+    LocalIdentifierSegment=StringParser(
+        "LOCAL", KeywordSegment, name="local_identifier", type="identifier"
     ),
-    RangeOperator=NamedSegment.make("range_operator", type="range_operator"),
-    UnknownSegment=KeywordSegment.make(
-        "unknown", name="boolean_literal", type="literal"
+    RangeOperator=NamedParser("range_operator", SymbolSegment, type="range_operator"),
+    UnknownSegment=StringParser(
+        "unknown", KeywordSegment, name="boolean_literal", type="literal"
     ),
     ForeignKeyReferencesClauseGrammar=Sequence(
         "REFERENCES",
@@ -128,10 +130,11 @@ exasol_dialect.add(
         enforce_whitespace_preceeding_terminator=True,
     ),
     TableConstraintEnableDisableGrammar=OneOf("ENABLE", "DISABLE"),
-    EscapedIdentifierSegment=ReSegment.make(
+    EscapedIdentifierSegment=RegexParser(
         # This matches escaped identifier e.g. [day]. There can be reserved keywords
         # within the square brackets.
         r"\[[A-Z]\]",
+        CodeSegment,
         name="escaped_identifier",
         type="identifier",
     ),
@@ -144,12 +147,9 @@ exasol_dialect.replace(
         Ref("QuotedIdentifierSegment"),
         Ref("EscapedIdentifierSegment"),
     ),
-    # TODO: Remove?
-    # exasol_dialect.replace(
-    #     SemicolonSegment=SymbolSegment.make(";", name="semicolon", type="semicolon"),
-    # )
-    ParameterNameSegment=ReSegment.make(
+    ParameterNameSegment=RegexParser(
         r"\"?[A-Z][A-Z0-9_]*\"?",
+        CodeSegment,
         name="parameter",
         type="parameter",
     ),

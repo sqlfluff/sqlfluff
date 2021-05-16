@@ -32,7 +32,7 @@ class RootParseContext:
         self.recurse = recurse
         # Indentation config is used by Indent and Dedent and used to control
         # the intended indentation of certain features. Specifically it is
-        # used in segments_common.Indent.when().
+        # used in the Conditional grammar.
         self.indentation_config = indentation_config or {}
         # Initialise the blacklist
         self.blacklist = ParseBlacklist()

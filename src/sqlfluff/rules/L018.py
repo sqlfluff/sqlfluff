@@ -1,5 +1,7 @@
 """Implementation of Rule L018."""
 
+from sqlfluff.core.parser import NewlineSegment, WhitespaceSegment
+
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
@@ -99,7 +101,7 @@ class Rule_L018(BaseRule):
                                     LintFix(
                                         "create",
                                         seg,
-                                        self.make_whitespace(" " * (-indent_diff)),
+                                        WhitespaceSegment(" " * (-indent_diff)),
                                     )
                                 ],
                             )
@@ -121,7 +123,7 @@ class Rule_L018(BaseRule):
                                     LintFix(
                                         "create",
                                         seg,
-                                        [self.make_whitespace(with_indent_str)],
+                                        [WhitespaceSegment(with_indent_str)],
                                     )
                                 ] + [
                                     LintFix("delete", elem)
@@ -134,8 +136,8 @@ class Rule_L018(BaseRule):
                                         "create",
                                         seg,
                                         [
-                                            self.make_newline(),
-                                            self.make_whitespace(with_indent_str),
+                                            NewlineSegment(),
+                                            WhitespaceSegment(with_indent_str),
                                         ],
                                     )
                                 ]

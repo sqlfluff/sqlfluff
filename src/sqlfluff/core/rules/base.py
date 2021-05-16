@@ -21,13 +21,7 @@ import re
 from typing import Optional, List, Tuple, TYPE_CHECKING
 from collections import namedtuple
 
-from sqlfluff.core.parser import (
-    KeywordSegment,
-    BaseSegment,
-    SymbolSegment,
-    WhitespaceSegment,
-    NewlineSegment,
-)
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.errors import SQLLintError
 
 if TYPE_CHECKING:
@@ -436,36 +430,6 @@ class BaseRule:
         # Not directly in the segment and
         # no subsegments to check. Return None.
         return None
-
-    @classmethod
-    def make_whitespace(cls, raw):
-        """Make a whitespace segment."""
-        return WhitespaceSegment(raw=raw, pos_marker=None)
-
-    @classmethod
-    def make_newline(cls, raw=None):
-        """Make a newline segment."""
-        # Default the newline to \n
-        raw = raw or "\n"
-        return NewlineSegment(raw=raw, pos_marker=None)
-
-    @classmethod
-    def make_keyword(cls, raw):
-        """Make a keyword segment."""
-        # For the name of the segment, we force the string to lowercase.
-        kws = KeywordSegment.make(raw.lower())
-        # At the moment we let the rule dictate *case* here.
-        return kws(raw=raw, pos_marker=None)
-
-    @classmethod
-    def make_symbol(cls, raw, seg_type, name=None):
-        """Make a symbol segment."""
-        # For the name of the segment, we force the string to lowercase.
-        symbol_seg = SymbolSegment.make(
-            raw.lower(), name=name or seg_type, type=seg_type
-        )
-        # At the moment we let the rule dictate *case* here.
-        return symbol_seg(raw=raw, pos_marker=None)
 
     @staticmethod
     def matches_target_tuples(seg: BaseSegment, target_tuples: List[Tuple[str, str]]):

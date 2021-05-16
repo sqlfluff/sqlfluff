@@ -1,0 +1,14 @@
+file:
+  statement:
+    create_role_statement:
+    - keyword: CREATE
+    - keyword: ROLE
+    - object_reference:
+        identifier: foo_role
+    - keyword: WITH
+    - raw: SUPERUSER
+    - raw: NOLOGIN
+    - raw: REPLICATION
+    - raw: IN
+    - raw: GROUP
+    - raw: foo_group

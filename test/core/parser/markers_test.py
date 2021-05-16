@@ -11,10 +11,11 @@ from sqlfluff.core.parser.markers import PositionMarker
     [
         ("fsaljk", (0, 0), (0, 6)),
         ("", (2, 2), (2, 2)),
-        ("\n", (2, 2), (3, 0)),
-        ("boo\n", (2, 2), (3, 0)),
-        ("boo\nfoo", (2, 2), (3, 3)),
-        ("\nfoo", (2, 2), (3, 3)),
+        # NB: 1 indexed, not 0 indexed.
+        ("\n", (2, 2), (3, 1)),
+        ("boo\n", (2, 2), (3, 1)),
+        ("boo\nfoo", (2, 2), (3, 4)),
+        ("\nfoo", (2, 2), (3, 4)),
     ],
 )
 def test_markers__infer_next_position(raw, start_pos, end_pos):

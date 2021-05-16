@@ -19,8 +19,6 @@ from sqlfluff.core.parser import (
     BaseSegment,
     KeywordSegment,
     SymbolSegment,
-    ReSegment,
-    NamedSegment,
     Sequence,
     GreedyUntil,
     StartsWith,
@@ -35,12 +33,16 @@ from sqlfluff.core.parser import (
     Dedent,
     Nothing,
     OptionallyBracketed,
-    StringMatcher,
-    RegexMatcher,
+    StringLexer,
+    RegexLexer,
     CodeSegment,
     CommentSegment,
     WhitespaceSegment,
     NewlineSegment,
+    StringParser,
+    NamedParser,
+    RegexParser,
+    Conditional,
 )
 
 from sqlfluff.core.dialects.base import Dialect
@@ -57,62 +59,65 @@ ansi_dialect = Dialect("ansi", root_segment_name="FileSegment")
 
 ansi_dialect.set_lexer_matchers(
     [
-        RegexMatcher("whitespace", r"[\t ]+", WhitespaceSegment),
-        RegexMatcher(
+        RegexLexer("whitespace", r"[\t ]+", WhitespaceSegment),
+        RegexLexer(
             "inline_comment",
             r"(--|#)[^\n]*",
             CommentSegment,
             segment_kwargs={"trim_start": ("--", "#")},
         ),
-        RegexMatcher(
+        RegexLexer(
             "block_comment",
             r"\/\*([^\*]|\*(?!\/))*\*\/",
             CommentSegment,
-            subdivider=RegexMatcher(
+            subdivider=RegexLexer(
                 "newline",
                 r"\r\n|\n",
                 NewlineSegment,
             ),
-            trim_post_subdivide=RegexMatcher(
+            trim_post_subdivide=RegexLexer(
                 "whitespace",
                 r"[\t ]+",
                 WhitespaceSegment,
             ),
         ),
-        RegexMatcher("single_quote", r"'([^'\\]|\\.)*'", CodeSegment),
-        RegexMatcher("double_quote", r'"([^"\\]|\\.)*"', CodeSegment),
-        RegexMatcher("back_quote", r"`[^`]*`", CodeSegment),
+        RegexLexer("single_quote", r"'([^'\\]|\\.)*'", CodeSegment),
+        RegexLexer("double_quote", r'"([^"\\]|\\.)*"', CodeSegment),
+        RegexLexer("back_quote", r"`[^`]*`", CodeSegment),
         # See https://www.geeksforgeeks.org/postgresql-dollar-quoted-string-constants/
-        RegexMatcher("dollar_quote", r"\$(\w*)\$[^\1]*\$\1\$", CodeSegment),
-        RegexMatcher(
+        RegexLexer("dollar_quote", r"\$(\w*)\$[^\1]*\$\1\$", CodeSegment),
+        RegexLexer(
             "numeric_literal", r"(\d+(\.\d+)?|\.\d+)([eE][+-]?\d+)?", CodeSegment
         ),
-        RegexMatcher("not_equal", r"!=|<>", CodeSegment),
-        RegexMatcher("like_operator", r"!?~~?\*?", CodeSegment),
-        StringMatcher("greater_than_or_equal", ">=", CodeSegment),
-        StringMatcher("less_than_or_equal", "<=", CodeSegment),
-        RegexMatcher("newline", r"\r\n|\n", NewlineSegment),
-        StringMatcher("casting_operator", "::", CodeSegment),
-        StringMatcher("concat_operator", "||", CodeSegment),
-        StringMatcher("equals", "=", CodeSegment),
-        StringMatcher("greater_than", ">", CodeSegment),
-        StringMatcher("less_than", "<", CodeSegment),
-        StringMatcher("dot", ".", CodeSegment),
-        StringMatcher("comma", ",", CodeSegment, segment_kwargs={"type": "comma"}),
-        StringMatcher("plus", "+", CodeSegment),
-        StringMatcher("minus", "-", CodeSegment),
-        StringMatcher("divide", "/", CodeSegment),
-        StringMatcher("percent", "%", CodeSegment),
-        StringMatcher("star", "*", CodeSegment),
-        StringMatcher("bracket_open", "(", CodeSegment),
-        StringMatcher("bracket_close", ")", CodeSegment),
-        StringMatcher("sq_bracket_open", "[", CodeSegment),
-        StringMatcher("sq_bracket_close", "]", CodeSegment),
-        StringMatcher("crly_bracket_open", "{", CodeSegment),
-        StringMatcher("crly_bracket_close", "}", CodeSegment),
-        StringMatcher("colon", ":", CodeSegment),
-        StringMatcher("semicolon", ";", CodeSegment),
-        RegexMatcher("code", r"[0-9a-zA-Z_]+", CodeSegment),
+        RegexLexer("not_equal", r"!=|<>", CodeSegment),
+        RegexLexer("like_operator", r"!?~~?\*?", CodeSegment),
+        StringLexer("greater_than_or_equal", ">=", CodeSegment),
+        StringLexer("less_than_or_equal", "<=", CodeSegment),
+        RegexLexer("newline", r"\r\n|\n", NewlineSegment),
+        StringLexer("casting_operator", "::", CodeSegment),
+        StringLexer("concat_operator", "||", CodeSegment),
+        StringLexer("equals", "=", CodeSegment),
+        StringLexer("greater_than", ">", CodeSegment),
+        StringLexer("less_than", "<", CodeSegment),
+        StringLexer("dot", ".", CodeSegment),
+        StringLexer("comma", ",", CodeSegment, segment_kwargs={"type": "comma"}),
+        StringLexer("plus", "+", CodeSegment),
+        StringLexer("minus", "-", CodeSegment),
+        StringLexer("divide", "/", CodeSegment),
+        StringLexer("percent", "%", CodeSegment),
+        StringLexer("ampersand", "&", CodeSegment),
+        StringLexer("vertical_bar", "|", CodeSegment),
+        StringLexer("caret", "^", CodeSegment),
+        StringLexer("star", "*", CodeSegment),
+        StringLexer("bracket_open", "(", CodeSegment),
+        StringLexer("bracket_close", ")", CodeSegment),
+        StringLexer("sq_bracket_open", "[", CodeSegment),
+        StringLexer("sq_bracket_close", "]", CodeSegment),
+        StringLexer("crly_bracket_open", "{", CodeSegment),
+        StringLexer("crly_bracket_close", "}", CodeSegment),
+        StringLexer("colon", ":", CodeSegment),
+        StringLexer("semicolon", ";", CodeSegment),
+        RegexLexer("code", r"[0-9a-zA-Z_]+", CodeSegment),
     ]
 )
 
@@ -171,68 +176,94 @@ ansi_dialect.sets("value_table_functions").update([])
 
 ansi_dialect.add(
     # Real segments
-    SemicolonSegment=SymbolSegment.make(
-        ";", name="semicolon", type="statement_terminator"
+    SemicolonSegment=StringParser(
+        ";", SymbolSegment, name="semicolon", type="statement_terminator"
     ),
-    ColonSegment=SymbolSegment.make(":", name="colon", type="colon"),
-    SliceSegment=SymbolSegment.make(":", name="slice", type="slice"),
-    StartBracketSegment=SymbolSegment.make(
-        "(", name="start_bracket", type="start_bracket"
+    ColonSegment=StringParser(":", SymbolSegment, name="colon", type="colon"),
+    SliceSegment=StringParser(":", SymbolSegment, name="slice", type="slice"),
+    StartBracketSegment=StringParser(
+        "(", SymbolSegment, name="start_bracket", type="start_bracket"
     ),
-    EndBracketSegment=SymbolSegment.make(")", name="end_bracket", type="end_bracket"),
-    StartSquareBracketSegment=SymbolSegment.make(
-        "[", name="start_square_bracket", type="start_square_bracket"
+    EndBracketSegment=StringParser(
+        ")", SymbolSegment, name="end_bracket", type="end_bracket"
     ),
-    EndSquareBracketSegment=SymbolSegment.make(
-        "]", name="end_square_bracket", type="end_square_bracket"
+    StartSquareBracketSegment=StringParser(
+        "[", SymbolSegment, name="start_square_bracket", type="start_square_bracket"
     ),
-    StartCurlyBracketSegment=SymbolSegment.make(
-        "{", name="start_curly_bracket", type="start_curly_bracket"
+    EndSquareBracketSegment=StringParser(
+        "]", SymbolSegment, name="end_square_bracket", type="end_square_bracket"
     ),
-    EndCurlyBracketSegment=SymbolSegment.make(
-        "}", name="end_curly_bracket", type="end_curly_bracket"
+    StartCurlyBracketSegment=StringParser(
+        "{", SymbolSegment, name="start_curly_bracket", type="start_curly_bracket"
     ),
-    CommaSegment=SymbolSegment.make(",", name="comma", type="comma"),
-    DotSegment=SymbolSegment.make(".", name="dot", type="dot"),
-    StarSegment=SymbolSegment.make("*", name="star", type="star"),
-    TildeSegment=SymbolSegment.make("~", name="tilde", type="tilde"),
-    CastOperatorSegment=SymbolSegment.make(
-        "::", name="casting_operator", type="casting_operator"
+    EndCurlyBracketSegment=StringParser(
+        "}", SymbolSegment, name="end_curly_bracket", type="end_curly_bracket"
     ),
-    PlusSegment=SymbolSegment.make("+", name="plus", type="binary_operator"),
-    MinusSegment=SymbolSegment.make("-", name="minus", type="binary_operator"),
-    PositiveSegment=SymbolSegment.make("+", name="positive", type="sign_indicator"),
-    NegativeSegment=SymbolSegment.make("-", name="negative", type="sign_indicator"),
-    DivideSegment=SymbolSegment.make("/", name="divide", type="binary_operator"),
-    MultiplySegment=SymbolSegment.make("*", name="multiply", type="binary_operator"),
-    ModuloSegment=SymbolSegment.make("%", name="modulo", type="binary_operator"),
-    ConcatSegment=SymbolSegment.make("||", name="concatenate", type="binary_operator"),
-    EqualsSegment=SymbolSegment.make("=", name="equals", type="comparison_operator"),
-    LikeOperatorSegment=NamedSegment.make(
-        "like_operator", name="like_operator", type="comparison_operator"
+    CommaSegment=StringParser(",", SymbolSegment, name="comma", type="comma"),
+    DotSegment=StringParser(".", SymbolSegment, name="dot", type="dot"),
+    StarSegment=StringParser("*", SymbolSegment, name="star", type="star"),
+    TildeSegment=StringParser("~", SymbolSegment, name="tilde", type="tilde"),
+    CastOperatorSegment=StringParser(
+        "::", SymbolSegment, name="casting_operator", type="casting_operator"
     ),
-    GreaterThanSegment=SymbolSegment.make(
-        ">", name="greater_than", type="comparison_operator"
+    PlusSegment=StringParser("+", SymbolSegment, name="plus", type="binary_operator"),
+    MinusSegment=StringParser("-", SymbolSegment, name="minus", type="binary_operator"),
+    PositiveSegment=StringParser(
+        "+", SymbolSegment, name="positive", type="sign_indicator"
     ),
-    LessThanSegment=SymbolSegment.make(
-        "<", name="less_than", type="comparison_operator"
+    NegativeSegment=StringParser(
+        "-", SymbolSegment, name="negative", type="sign_indicator"
     ),
-    GreaterThanOrEqualToSegment=SymbolSegment.make(
-        ">=", name="greater_than_equal_to", type="comparison_operator"
+    DivideSegment=StringParser(
+        "/", SymbolSegment, name="divide", type="binary_operator"
     ),
-    LessThanOrEqualToSegment=SymbolSegment.make(
-        "<=", name="less_than_equal_to", type="comparison_operator"
+    MultiplySegment=StringParser(
+        "*", SymbolSegment, name="multiply", type="binary_operator"
     ),
-    NotEqualToSegment_a=SymbolSegment.make(
-        "!=", name="not_equal_to", type="comparison_operator"
+    ModuloSegment=StringParser(
+        "%", SymbolSegment, name="modulo", type="binary_operator"
     ),
-    NotEqualToSegment_b=SymbolSegment.make(
-        "<>", name="not_equal_to", type="comparison_operator"
+    ConcatSegment=StringParser(
+        "||", SymbolSegment, name="concatenate", type="binary_operator"
+    ),
+    BitwiseAndSegment=StringParser(
+        "&", SymbolSegment, name="binary_and", type="binary_operator"
+    ),
+    BitwiseOrSegment=StringParser(
+        "|", SymbolSegment, name="binary_or", type="binary_operator"
+    ),
+    BitwiseXorSegment=StringParser(
+        "^", SymbolSegment, name="binary_xor", type="binary_operator"
+    ),
+    EqualsSegment=StringParser(
+        "=", SymbolSegment, name="equals", type="comparison_operator"
+    ),
+    LikeOperatorSegment=NamedParser(
+        "like_operator", SymbolSegment, name="like_operator", type="comparison_operator"
+    ),
+    GreaterThanSegment=StringParser(
+        ">", SymbolSegment, name="greater_than", type="comparison_operator"
+    ),
+    LessThanSegment=StringParser(
+        "<", SymbolSegment, name="less_than", type="comparison_operator"
+    ),
+    GreaterThanOrEqualToSegment=StringParser(
+        ">=", SymbolSegment, name="greater_than_equal_to", type="comparison_operator"
+    ),
+    LessThanOrEqualToSegment=StringParser(
+        "<=", SymbolSegment, name="less_than_equal_to", type="comparison_operator"
+    ),
+    NotEqualToSegment_a=StringParser(
+        "!=", SymbolSegment, name="not_equal_to", type="comparison_operator"
+    ),
+    NotEqualToSegment_b=StringParser(
+        "<>", SymbolSegment, name="not_equal_to", type="comparison_operator"
     ),
     # The following functions can be called without parentheses per ANSI specification
     BareFunctionSegment=SegmentGenerator(
-        lambda dialect: ReSegment.make(
+        lambda dialect: RegexParser(
             r"^(" + r"|".join(dialect.sets("bare_functions")) + r")$",
+            CodeSegment,
             name="bare_function",
             type="bare_function",
         )
@@ -241,49 +272,61 @@ ansi_dialect.add(
     # also use a regex to explicitly exclude disallowed keywords.
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
-        lambda dialect: ReSegment.make(
+        lambda dialect: RegexParser(
             r"[A-Z0-9_]*[A-Z][A-Z0-9_]*",
+            CodeSegment,
             name="naked_identifier",
             type="identifier",
-            _anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
     ),
-    VersionIdentifierSegment=ReSegment.make(
-        r"[A-Z0-9_.]*", name="version", type="identifier"
+    VersionIdentifierSegment=RegexParser(
+        r"[A-Z0-9_.]*", CodeSegment, name="version", type="identifier"
     ),
-    ParameterNameSegment=ReSegment.make(
-        r"[A-Z][A-Z0-9_]*", name="parameter", type="parameter"
+    ParameterNameSegment=RegexParser(
+        r"[A-Z][A-Z0-9_]*", CodeSegment, name="parameter", type="parameter"
     ),
-    FunctionNameIdentifierSegment=ReSegment.make(
+    FunctionNameIdentifierSegment=RegexParser(
         r"[A-Z][A-Z0-9_]*",
+        CodeSegment,
         name="function_name_identifier",
         type="function_name_identifier",
     ),
     # Maybe data types should be more restrictive?
-    DatatypeIdentifierSegment=ReSegment.make(
-        r"[A-Z][A-Z0-9_]*", name="data_type_identifier", type="data_type_identifier"
+    DatatypeIdentifierSegment=RegexParser(
+        r"[A-Z][A-Z0-9_]*",
+        CodeSegment,
+        name="data_type_identifier",
+        type="data_type_identifier",
     ),
     # Ansi Intervals
     DatetimeUnitSegment=SegmentGenerator(
-        lambda dialect: ReSegment.make(
+        lambda dialect: RegexParser(
             r"^(" + r"|".join(dialect.sets("datetime_units")) + r")$",
+            CodeSegment,
             name="date_part",
             type="date_part",
         )
     ),
-    QuotedIdentifierSegment=NamedSegment.make(
-        "double_quote", name="quoted_identifier", type="identifier"
+    QuotedIdentifierSegment=NamedParser(
+        "double_quote", CodeSegment, name="quoted_identifier", type="identifier"
     ),
-    QuotedLiteralSegment=NamedSegment.make(
-        "single_quote", name="quoted_literal", type="literal"
+    QuotedLiteralSegment=NamedParser(
+        "single_quote", CodeSegment, name="quoted_literal", type="literal"
     ),
-    NumericLiteralSegment=NamedSegment.make(
-        "numeric_literal", name="numeric_literal", type="literal"
+    NumericLiteralSegment=NamedParser(
+        "numeric_literal", CodeSegment, name="numeric_literal", type="literal"
     ),
     # NullSegment is defined seperately to the keyword so we can give it a different type
-    NullLiteralSegment=KeywordSegment.make("null", name="null_literal", type="literal"),
-    TrueSegment=KeywordSegment.make("true", name="boolean_literal", type="literal"),
-    FalseSegment=KeywordSegment.make("false", name="boolean_literal", type="literal"),
+    NullLiteralSegment=StringParser(
+        "null", KeywordSegment, name="null_literal", type="literal"
+    ),
+    TrueSegment=StringParser(
+        "true", KeywordSegment, name="boolean_literal", type="literal"
+    ),
+    FalseSegment=StringParser(
+        "false", KeywordSegment, name="boolean_literal", type="literal"
+    ),
     # We use a GRAMMAR here not a Segment. Otherwise we get an unnecessary layer
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"), Ref("QuotedIdentifierSegment")
@@ -297,6 +340,11 @@ ansi_dialect.add(
         Ref("DivideSegment"),
         Ref("MultiplySegment"),
         Ref("ModuloSegment"),
+        Ref("BitwiseAndSegment"),
+        Ref("BitwiseOrSegment"),
+        Ref("BitwiseXorSegment"),
+        Ref("BitwiseLShiftSegment"),
+        Ref("BitwiseRShiftSegment"),
     ),
     StringBinaryOperatorGrammar=OneOf(Ref("ConcatSegment")),
     BooleanBinaryOperatorGrammar=OneOf(
@@ -325,8 +373,8 @@ ansi_dialect.add(
         Ref("NullLiteralSegment"),
         Ref("DateTimeLiteralGrammar"),
     ),
-    AndKeywordSegment=KeywordSegment.make("and", type="binary_operator"),
-    OrKeywordSegment=KeywordSegment.make("or", type="binary_operator"),
+    AndKeywordSegment=StringParser("and", KeywordSegment, type="binary_operator"),
+    OrKeywordSegment=StringParser("or", KeywordSegment, type="binary_operator"),
     # This is a placeholder for other dialects.
     PreTableFunctionKeywordsGrammar=Nothing(),
     BinaryOperatorGrammar=OneOf(
@@ -928,11 +976,11 @@ class FromExpressionSegment(BaseSegment):
             Ref("MLTableExpressionSegment"),
             Ref("FromExpressionElementSegment"),
         ),
-        Dedent.when(indented_joins=False),
+        Conditional(Dedent, indented_joins=False),
         AnyNumberOf(
             Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar"), optional=True
         ),
-        Dedent.when(indented_joins=True),
+        Conditional(Dedent, indented_joins=True),
     )
 
 
@@ -1392,6 +1440,26 @@ ansi_dialect.add(
     ),
     Accessor_Grammar=AnyNumberOf(Ref("ArrayAccessorSegment")),
 )
+
+
+@ansi_dialect.segment()
+class BitwiseLShiftSegment(BaseSegment):
+    """Bitwise left-shift operator."""
+
+    type = "binary_operator"
+    match_grammar = Sequence(
+        Ref("LessThanSegment"), Ref("LessThanSegment"), allow_gaps=False
+    )
+
+
+@ansi_dialect.segment()
+class BitwiseRShiftSegment(BaseSegment):
+    """Bitwise right-shift operator."""
+
+    type = "binary_operator"
+    match_grammar = Sequence(
+        Ref("GreaterThanSegment"), Ref("GreaterThanSegment"), allow_gaps=False
+    )
 
 
 @ansi_dialect.segment()
@@ -2565,6 +2633,22 @@ class CreateTypeStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class CreateRoleStatementSegment(BaseSegment):
+    """A `CREATE ROLE` statement.
+
+    A very simple create role syntax which can be extended
+    by other dialects.
+    """
+
+    type = "create_role_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "ROLE",
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+@ansi_dialect.segment()
 class DropModelStatementSegment(BaseSegment):
     """A `DROP MODEL` statement."""
 
@@ -2620,6 +2704,7 @@ class StatementSegment(BaseSegment):
         Ref("AccessStatementSegment"),
         Ref("CreateTableStatementSegment"),
         Ref("CreateTypeStatementSegment"),
+        Ref("CreateRoleStatementSegment"),
         Ref("AlterTableStatementSegment"),
         Ref("CreateSchemaStatementSegment"),
         Ref("CreateDatabaseStatementSegment"),

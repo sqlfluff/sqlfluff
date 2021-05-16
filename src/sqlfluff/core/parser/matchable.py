@@ -1,6 +1,7 @@
 """The definition of a matchable interface."""
 
-from abc import ABC
+import copy
+from abc import ABC, abstractmethod
 from typing import List, Optional, TYPE_CHECKING
 
 
@@ -12,14 +13,18 @@ if TYPE_CHECKING:
 class Matchable(ABC):
     """A base object defining the matching interface."""
 
+    @abstractmethod
     def is_optional(self) -> bool:
         """Return whether this element is optional."""
 
+    @abstractmethod
     def simple(self, parse_context: "ParseContext") -> Optional[List[str]]:
         """Try to obtain a simple response from the matcher."""
 
+    @abstractmethod
     def match(self, segments: tuple, parse_context: "ParseContext") -> "MatchResult":
         """Match against this matcher."""
 
     def copy(self, **kwargs) -> "Matchable":
         """Copy this Matchable."""
+        return copy.copy(self)

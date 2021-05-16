@@ -6,16 +6,36 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+Contributors:
+- [@GitHub-Username](Link to GitHub profile) ([#PR-Number](Link to PR))
+
+## [0.6.0a1] - 2021-05-15
+### Added
+- Lint and fix parallelism using `--parallel` CLI argument
+- Fix [1051](https://github.com/sqlfluff/sqlfluff/issues/1051), adding support
+  for bitwise operators `&`, `|`, `^`, `<<`, `>>`
+  
+## [0.5.6] - 2021-05-14
+- Bugfix release for an issue in `L016` introduced in `0.5.4`.
+- Fix for `L016` issue where `DISTINCT` keywords were mangled during
+  fixing [#1024](https://github.com/sqlfluff/sqlfluff/issues/1024).
+
+## [0.5.5] - 2021-05-13
+- Bugfix release for an off-by-one error introduced in L016 as part of `0.5.4`.
+
+## [0.5.4] - 2021-05-12
 ### Added
 - Parsing of Postgres dollar quoted literals.
 - Parsing of Postgres filter grammar.
 - Parsing of "ALTER DEFAULT PRIVILEGES" Postgres statement.
 - Parsing of Postgres non-explicit role granting and function execution.
+- Early failing on fatal dbt templater fails.
 
 ### Changed
-
-Contributors:
-- [@GitHub-Username](Link to GitHub profile) ([#PR-Number](Link to PR))
+- Big rewrite of the lexer, segments and position markers for simplicity
+  and to support future parallelism work.
+- Fix to L036 which previously mangled whitespace.
 
 ## [0.5.3] - 2021-05-04
 ### Added
@@ -135,7 +155,7 @@ Contributors:
   related to `dbt`). For more info see [the docs](https://docs.sqlfluff.com/en/latest/configuration.html#dbt-project-configuration). ([#508](https://github.com/sqlfluff/sqlfluff/pull/508))
 - Support for modulo (`%`) operator. ([#447](https://github.com/sqlfluff/sqlfluff/pull/447))
 - A limit in the internal fix routines to catch any infinite loops. ([#494](https://github.com/sqlfluff/sqlfluff/pull/494))
-- Added the `.istype()` method on segments to more intelligently
+- Added the `.is_type()` method on segments to more intelligently
   deal with type matching in rules when inheritance is at play.
 - Added the ability for the user to add their own rules when interacting
   with the `Linter` directly using `user_rules`.

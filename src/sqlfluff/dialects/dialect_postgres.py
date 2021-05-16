@@ -7,10 +7,11 @@ from sqlfluff.core.parser import (
     Bracketed,
     Anything,
     BaseSegment,
-    NamedSegment,
     Delimited,
-    RegexMatcher,
+    RegexLexer,
     CodeSegment,
+    NamedParser,
+    SymbolSegment,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -23,7 +24,7 @@ postgres_dialect = ansi_dialect.copy_as("postgres")
 postgres_dialect.insert_lexer_matchers(
     # JSON Operators: https://www.postgresql.org/docs/9.5/functions-json.html
     [
-        RegexMatcher(
+        RegexLexer(
             "json_operator",
             r"->>|#>>|->|#>|@>|<@|\?\||\?|\?&|#-",
             CodeSegment,
@@ -55,11 +56,11 @@ postgres_dialect.sets("datetime_units").update(["EPOCH"])
 
 
 postgres_dialect.add(
-    JsonOperatorSegment=NamedSegment.make(
-        "json_operator", name="json_operator", type="binary_operator"
+    JsonOperatorSegment=NamedParser(
+        "json_operator", SymbolSegment, name="json_operator", type="binary_operator"
     ),
-    DollarQuotedLiteralSegment=NamedSegment.make(
-        "dollar_quote", name="dollar_quoted_literal", type="literal"
+    DollarQuotedLiteralSegment=NamedParser(
+        "dollar_quote", CodeSegment, name="dollar_quoted_literal", type="literal"
     ),
 )
 
@@ -160,6 +161,28 @@ class WithinGroupClauseSegment(BaseSegment):
         "WITHIN",
         "GROUP",
         Bracketed(Ref("OrderByClauseSegment", optional=True)),
+    )
+
+
+@postgres_dialect.segment(replace=True)
+class CreateRoleStatementSegment(BaseSegment):
+    """A `CREATE ROLE` statement.
+
+    As per:
+    https://www.postgresql.org/docs/current/sql-createrole.html
+    """
+
+    type = "create_role_statement"
+    match_grammar = ansi_dialect.get_segment(
+        "CreateRoleStatementSegment"
+    ).match_grammar.copy(
+        insert=[
+            Sequence(
+                Ref.keyword("WITH", optional=True),
+                # Very permissive for now. Anything can go here.
+                Anything(),
+            )
+        ],
     )
 
 

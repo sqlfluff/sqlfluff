@@ -1,0 +1,15 @@
+file:
+  statement:
+    create_role_statement:
+    - keyword: CREATE
+    - binary_operator: OR
+    - keyword: REPLACE
+    - keyword: ROLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+        identifier: foo_role
+    - keyword: COMMENT
+    - comparison_operator: '='
+    - literal: "'this is a fake role'"

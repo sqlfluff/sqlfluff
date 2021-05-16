@@ -177,5 +177,5 @@ def test__dialect__ansi_is_whitespace():
         parsed = lnt.parse_string(f.read())
     # Check all the segments that *should* be whitespace, ARE
     for raw_seg in parsed.tree.iter_raw_seg():
-        if raw_seg.type in ("whitespace", "newline"):
+        if raw_seg.is_type("whitespace", "newline"):
             assert raw_seg.is_whitespace

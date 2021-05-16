@@ -74,7 +74,7 @@ def get_select_statement_info(
             in_using_brackets = False
             seen_using = False
             for seg in join_clause.segments:
-                if seg.is_type("keyword") and seg.name == "USING":
+                if seg.is_type("keyword") and seg.name == "using":
                     seen_using = True
                 elif seg.is_type("join_on_condition"):
                     for on_seg in seg.segments:

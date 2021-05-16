@@ -4,7 +4,7 @@ from typing import Optional, List, Tuple
 
 from sqlfluff.core.errors import SQLParseError
 
-from sqlfluff.core.parser.segments import BaseSegment, Indent, Dedent
+from sqlfluff.core.parser.segments import BaseSegment, Indent, Dedent, allow_ephemeral
 from sqlfluff.core.parser.helpers import trim_non_code_segments, check_still_complete
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper
@@ -13,6 +13,7 @@ from sqlfluff.core.parser.grammar.base import (
     BaseGrammar,
     cached_method_for_parse_context,
 )
+from sqlfluff.core.parser.grammar.conditional import Conditional
 
 
 class Sequence(BaseGrammar):
@@ -39,6 +40,7 @@ class Sequence(BaseGrammar):
         return simple_buff
 
     @match_wrapper()
+    @allow_ephemeral
     def match(self, segments, parse_context):
         """Match a specific sequence of elements."""
         if isinstance(segments, BaseSegment):
@@ -70,34 +72,44 @@ class Sequence(BaseGrammar):
 
                 # Is it an indent or dedent?
                 if elem.is_meta:
-                    # Is it actually enabled?
-                    if elem.is_enabled(indent_config=parse_context.indentation_config):
-                        # Elements with a negative indent value come AFTER
-                        # the whitespace. Positive or neutral come BEFORE.
-                        if elem.indent_val < 0:
-                            meta_post_nc += (elem(),)
-                        else:
-                            meta_pre_nc += (elem(),)
+                    # Elements with a negative indent value come AFTER
+                    # the whitespace. Positive or neutral come BEFORE.
+                    if elem.indent_val < 0:
+                        meta_post_nc += (elem(),)
+                    else:
+                        meta_pre_nc += (elem(),)
+                    break
+
+                # Is it a conditional? If so is it active
+                if isinstance(elem, Conditional) and not elem.is_enabled(parse_context):
+                    # If it's not active, skip it.
                     break
 
                 if len(pre_nc + mid_seg + post_nc) == 0:
                     # We've run our of sequence without matching everything.
                     # Do only optional or meta elements remain?
-                    if all(e.is_optional() or e.is_meta for e in self._elements[idx:]):
+                    if all(
+                        e.is_optional() or e.is_meta or isinstance(elem, Conditional)
+                        for e in self._elements[idx:]
+                    ):
                         # then it's ok, and we can return what we've got so far.
                         # No need to deal with anything left over because we're at the end,
                         # unless it's a meta segment.
 
                         # We'll add those meta segments after any existing ones. So
                         # the go on the meta_post_nc stack.
-                        meta_post_nc += tuple(
-                            e()
-                            for e in self._elements[idx:]
-                            if e.is_meta
-                            and e.is_enabled(
-                                indent_config=parse_context.indentation_config
-                            )
-                        )
+                        for e in self._elements[idx:]:
+                            # If it's meta, instantiate it.
+                            if e.is_meta:
+                                meta_post_nc += (e(),)
+                            # If it's conditional and it's enabled, match it.
+                            if isinstance(e, Conditional) and e.is_enabled(
+                                parse_context
+                            ):
+                                meta_match = e.match(tuple(), parse_context)
+                                if meta_match:
+                                    meta_post_nc += meta_match.matched_segments
+
                         # Early break to exit via the happy match path.
                         early_break = True
                         break
@@ -210,6 +222,7 @@ class Bracketed(Sequence):
         return start_bracket, end_bracket
 
     @match_wrapper()
+    @allow_ephemeral
     def match(
         self, segments: Tuple["BaseSegment", ...], parse_context: ParseContext
     ) -> MatchResult:
