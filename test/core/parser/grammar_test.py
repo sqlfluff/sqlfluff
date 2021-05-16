@@ -228,13 +228,18 @@ def test__parser__grammar__base__bracket_sensitive_look_ahead_match(
         pre_section, match, matcher = BaseGrammar._bracket_sensitive_look_ahead_match(
             bracket_seg_list, [fs], ctx
         )
-        # NB: The bracket segments will have been mutated, so we can't directly compare
-        assert len(pre_section) == 8
+        # NB: The bracket segments will have been mutated, so we can't directly compare.
+        # Make sure we've got a bracketed section in there.
+        assert len(pre_section) == 5
+        assert pre_section[2].is_type("bracketed")
+        assert len(pre_section[2].segments) == 4
         assert matcher == fs
         # We shouldn't match the whitespace with the keyword
         assert match.matched_segments == (
             KeywordSegment("foo", bracket_seg_list[8].pos_marker),
         )
+        # Check that the unmatched segments are nothing.
+        assert not match.unmatched_segments
 
 
 def test__parser__grammar__base__bracket_fail_with_open_paren_close_square_mismatch(
@@ -603,7 +608,13 @@ def test__parser__grammar_greedyuntil_bracketed(bracket_seg_list, fresh_ansi_dia
     g = GreedyUntil(fs)
     with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
         # Check that we can make it past the brackets
-        assert len(g.match(bracket_seg_list, parse_context=ctx)) == 7
+        match = g.match(bracket_seg_list, parse_context=ctx)
+        assert len(match) == 4
+        # Check we successfully constructed a bracketed segment
+        assert match.matched_segments[2].is_type("bracketed")
+        assert match.matched_segments[2].raw == "(foo    )"
+        # Check that the unmatched segments is foo AND the whitespace
+        assert len(match.unmatched_segments) == 2
 
 
 def test__parser__grammar_anything(seg_list, fresh_ansi_dialect):

@@ -4,7 +4,13 @@ from typing import Optional, List, Tuple
 
 from sqlfluff.core.errors import SQLParseError
 
-from sqlfluff.core.parser.segments import BaseSegment, Indent, Dedent, allow_ephemeral
+from sqlfluff.core.parser.segments import (
+    BaseSegment,
+    Indent,
+    Dedent,
+    allow_ephemeral,
+    BracketedSegment,
+)
 from sqlfluff.core.parser.helpers import trim_non_code_segments, check_still_complete
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper
@@ -250,43 +256,51 @@ class Bracketed(Sequence):
         start_bracket = self.start_bracket or start_bracket
         end_bracket = self.end_bracket or end_bracket
 
-        # Look for the first bracket
-        with parse_context.deeper_match() as ctx:
-            start_match = start_bracket.match(seg_buff, parse_context=ctx)
-        if start_match:
-            seg_buff = start_match.unmatched_segments
+        # Are we dealing with a pre-existing BracketSegment?
+        if seg_buff[0].is_type("bracketed"):
+            seg: BracketedSegment = seg_buff[0]
+            start_match = seg.start_bracket
+            end_match = seg.end_bracket
+            content_segs = seg.segments[len(start_match):-len(end_match)]
+            bracket_segment = seg
+            trailing_segments = seg_buff[1:]
+        # Otherwise try and match the segments directly.
         else:
-            # Can't find the opening bracket. No Match.
-            return MatchResult.from_unmatched(segments)
-
-        # Look for the closing bracket
-        content_segs, end_match, _ = self._bracket_sensitive_look_ahead_match(
-            segments=seg_buff,
-            matchers=[end_bracket],
-            parse_context=parse_context,
-            start_bracket=start_bracket,
-            end_bracket=end_bracket,
-            bracket_pairs_set=self.bracket_pairs_set,
-        )
-        if not end_match:
-            raise SQLParseError(
-                "Couldn't find closing bracket for opening bracket.",
-                segment=start_match.matched_segments[0],
-            )
-
-        # Match the content now we've confirmed the brackets.
-
-        # First deal with the case of TOTALLY EMPTY BRACKETS e.g. "()"
-        if not content_segs:
-            # If it's allowed, return a match.
-            if not self._elements or all(e.is_optional() for e in self._elements):
-                return MatchResult(
-                    start_match.matched_segments + end_match.matched_segments,
-                    end_match.unmatched_segments,
-                )
-            # If not, don't.
+            # Look for the first bracket
+            with parse_context.deeper_match() as ctx:
+                start_match = start_bracket.match(seg_buff, parse_context=ctx)
+            if start_match:
+                seg_buff = start_match.unmatched_segments
             else:
+                # Can't find the opening bracket. No Match.
                 return MatchResult.from_unmatched(segments)
+
+            # Look for the closing bracket
+            content_segs, end_match, _ = self._bracket_sensitive_look_ahead_match(
+                segments=seg_buff,
+                matchers=[end_bracket],
+                parse_context=parse_context,
+                start_bracket=start_bracket,
+                end_bracket=end_bracket,
+                bracket_pairs_set=self.bracket_pairs_set,
+            )
+            if not end_match:
+                raise SQLParseError(
+                    "Couldn't find closing bracket for opening bracket.",
+                    segment=start_match.matched_segments[0],
+                )
+            
+            # Construct a bracket segment
+            bracket_segment = BracketedSegment(
+                segments=(
+                    start_match.matched_segments
+                    + content_segs
+                    + end_match.matched_segments
+                ),
+                start_bracket=start_match.matched_segments,
+                end_bracket=end_match.matched_segments,
+            )
+            trailing_segments = end_match.unmatched_segments
 
         # Then trim whitespace and deal with the case of no code content e.g. "(   )"
         if self.allow_gaps:
@@ -295,43 +309,40 @@ class Bracketed(Sequence):
             pre_nc = ()
             post_nc = ()
 
-        # If we don't have anything left after trimming, act accordingly.
+        # If we've got a case of empty brackets check whether that is allowed.
         if not content_segs:
             if not self._elements or (
-                all(e.is_optional() for e in self._elements) and self.allow_gaps
+                all(e.is_optional() for e in self._elements) and (self.allow_gaps or (not pre_nc and not post_nc))
             ):
                 return MatchResult(
-                    start_match.matched_segments
-                    + pre_nc
-                    + post_nc
-                    + end_match.matched_segments,
-                    end_match.unmatched_segments,
+                    (bracket_segment,),
+                    trailing_segments,
                 )
             else:
                 return MatchResult.from_unmatched(segments)
 
-        # Match using super. Sequence will interpret the content of the elements.
+        # Match the content using super. Sequence will interpret the content of the elements.
         with parse_context.deeper_match() as ctx:
             content_match = super().match(content_segs, parse_context=ctx)
 
         # We require a complete match for the content (hopefully for obvious reasons)
         if content_match.is_complete():
+            # Reconstruct the bracket segment post match.
             # Append some indent and dedent tokens at the start and the end.
+            # We need to realign the meta segments so the pos markers are correct.
+            bracket_segment.segments = BaseSegment._position_segments(
+                # NB: The nc segments go *outside* the indents.
+                bracket_segment.start_bracket
+                + (Indent(),)  # Add a meta indent here
+                + pre_nc
+                + content_match.all_segments()
+                + post_nc
+                + (Dedent(),)  # Add a meta indent here
+                + bracket_segment.end_bracket
+            )
             return MatchResult(
-                # We need to realign the meta segments so the pos markers are correct.
-                BaseSegment._position_segments(
-                    (
-                        # NB: The nc segments go *outside* the indents.
-                        start_match.matched_segments
-                        + (Indent(),)  # Add a meta indent here
-                        + pre_nc
-                        + content_match.matched_segments
-                        + post_nc
-                        + (Dedent(),)  # Add a meta indent here
-                        + end_match.matched_segments
-                    ),
-                ),
-                end_match.unmatched_segments,
+                (bracket_segment,),
+                trailing_segments,
             )
         # No complete match. Fail.
         else:

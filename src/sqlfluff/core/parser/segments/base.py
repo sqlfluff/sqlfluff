@@ -1033,6 +1033,20 @@ class BaseSegment:
                 )
 
 
+class BracketedSegment(BaseSegment):
+    """A segment containing a bracketed expression."""
+
+    type = "bracketed"
+
+    def __init__(self, *args, start_bracket: Tuple[BaseSegment]=None, end_bracket: Tuple[BaseSegment]=None, **kwargs):
+        """Stash the bracket segments for later."""
+        if not start_bracket or not end_bracket:
+            raise ValueError("Attempted to construct Bracketed segment without specifying brackets.")
+        self.start_bracket = start_bracket
+        self.end_bracket = end_bracket
+        super().__init__(*args, **kwargs)
+
+
 class UnparsableSegment(BaseSegment):
     """This is a segment which can't be parsed. It indicates a error during parsing."""
 
