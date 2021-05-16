@@ -37,7 +37,7 @@ def get_python_version():
 
 def get_python_implementation():
     """Get the current python implementation as a string.
-    
+
     This is useful if testing in pypy or similar.
     """
     return sys.implementation.name

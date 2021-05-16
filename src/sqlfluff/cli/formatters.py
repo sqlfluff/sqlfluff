@@ -239,7 +239,9 @@ class CallbackFormatter:
                 ("dialect", linter.dialect.name),
                 ("verbosity", self._verbosity),
             ] + linter.templater.config_pairs()
-            text_buffer.write(cli_table(config_content, col_width=30, max_label_width=15))
+            text_buffer.write(
+                cli_table(config_content, col_width=30, max_label_width=15)
+            )
             text_buffer.write("\n")
             if linter.config.get("rule_whitelist"):
                 text_buffer.write(
