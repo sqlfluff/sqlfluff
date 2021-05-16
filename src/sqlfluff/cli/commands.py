@@ -286,6 +286,7 @@ def dialects(**kwargs):
     help=("Perform the operation regardless of .sqlfluffignore configurations"),
 )
 @click.option(
+    "-p",
     "--parallel",
     type=int,
     default=1,
