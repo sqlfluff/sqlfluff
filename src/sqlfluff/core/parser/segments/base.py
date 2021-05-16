@@ -1059,6 +1059,30 @@ class BracketedSegment(BaseSegment):
         self.end_bracket = end_bracket
         super().__init__(*args, **kwargs)
 
+    @classmethod
+    def simple(cls, parse_context: ParseContext) -> Optional[List[str]]:
+        """Simple methods for bracketed and the persitent brackets."""
+        start_brackets = [
+            start_bracket
+            for _, start_bracket, _, persistent in parse_context.dialect.sets(
+                "bracket_pairs"
+            )
+            if persistent
+        ]
+        start_simple = []
+        for ref in start_brackets:
+            start_simple += parse_context.dialect.ref(ref).simple(parse_context)
+        return start_simple
+
+    @classmethod
+    def match(
+        cls, segments: Tuple["BaseSegment", ...], parse_context: ParseContext
+    ) -> MatchResult:
+        """Only useful as a terminator."""
+        if segments and isinstance(segments[0], cls):
+            return MatchResult((segments[0],), segments[1:])
+        return MatchResult.from_unmatched(segments)
+
 
 class UnparsableSegment(BaseSegment):
     """This is a segment which can't be parsed. It indicates a error during parsing."""
