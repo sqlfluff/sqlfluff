@@ -154,12 +154,16 @@ ansi_dialect.sets("reserved_keywords").update(
 )
 
 # Bracket pairs (a set of tuples).
-# (name, startref, endref)
+# (name, startref, endref, persists)
+# NOTE: The `persists` value controls whether this type
+# of bracket is persisted during matching to speed up other
+# parts of the matching process. Round brackets are the most
+# common and match the largest areas and so are sufficient.
 ansi_dialect.sets("bracket_pairs").update(
     [
-        ("round", "StartBracketSegment", "EndBracketSegment"),
-        ("square", "StartSquareBracketSegment", "EndSquareBracketSegment"),
-        ("curly", "StartCurlyBracketSegment", "EndCurlyBracketSegment"),
+        ("round", "StartBracketSegment", "EndBracketSegment", True),
+        ("square", "StartSquareBracketSegment", "EndSquareBracketSegment", False),
+        ("curly", "StartCurlyBracketSegment", "EndCurlyBracketSegment", False),
     ]
 )
 

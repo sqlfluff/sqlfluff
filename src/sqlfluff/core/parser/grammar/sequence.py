@@ -207,12 +207,12 @@ class Bracketed(Sequence):
 
         Bracketed does this easily, we just look for the bracket.
         """
-        start_bracket, _ = self.get_bracket_from_dialect(parse_context)
+        start_bracket, _, _ = self.get_bracket_from_dialect(parse_context)
         return start_bracket.simple(parse_context=parse_context)
 
     def get_bracket_from_dialect(self, parse_context):
         """Rehydrate the bracket segments in question."""
-        for bracket_type, start_ref, end_ref in parse_context.dialect.sets(
+        for bracket_type, start_ref, end_ref, persists in parse_context.dialect.sets(
             self.bracket_pairs_set
         ):
             if bracket_type == self.bracket_type:
@@ -225,7 +225,7 @@ class Bracketed(Sequence):
                     self.bracket_type, parse_context.dialect.name
                 )
             )
-        return start_bracket, end_bracket
+        return start_bracket, end_bracket, persists
 
     @match_wrapper()
     @allow_ephemeral
@@ -251,17 +251,18 @@ class Bracketed(Sequence):
             seg_buff = segments
 
         # Rehydrate the bracket segments in question.
-        start_bracket, end_bracket = self.get_bracket_from_dialect(parse_context)
+        # bracket_persits controls whether we make a BracketedSegment or not.
+        start_bracket, end_bracket, bracket_persists = self.get_bracket_from_dialect(
+            parse_context
+        )
         # Allow optional override for special bracket-like things
         start_bracket = self.start_bracket or start_bracket
         end_bracket = self.end_bracket or end_bracket
 
         # Are we dealing with a pre-existing BracketSegment?
         if seg_buff[0].is_type("bracketed"):
-            seg: BracketedSegment = seg_buff[0]
-            start_match = seg.start_bracket
-            end_match = seg.end_bracket
-            content_segs = seg.segments[len(start_match):-len(end_match)]
+            seg: BracketedSegment = seg_buff[0]  # type: ignore
+            content_segs = seg.segments[len(seg.start_bracket) : -len(seg.end_bracket)]
             bracket_segment = seg
             trailing_segments = seg_buff[1:]
         # Otherwise try and match the segments directly.
@@ -289,7 +290,7 @@ class Bracketed(Sequence):
                     "Couldn't find closing bracket for opening bracket.",
                     segment=start_match.matched_segments[0],
                 )
-            
+
             # Construct a bracket segment
             bracket_segment = BracketedSegment(
                 segments=(
@@ -312,10 +313,13 @@ class Bracketed(Sequence):
         # If we've got a case of empty brackets check whether that is allowed.
         if not content_segs:
             if not self._elements or (
-                all(e.is_optional() for e in self._elements) and (self.allow_gaps or (not pre_nc and not post_nc))
+                all(e.is_optional() for e in self._elements)
+                and (self.allow_gaps or (not pre_nc and not post_nc))
             ):
                 return MatchResult(
-                    (bracket_segment,),
+                    (bracket_segment,)
+                    if bracket_persists
+                    else bracket_segment.segments,
                     trailing_segments,
                 )
             else:
@@ -341,7 +345,7 @@ class Bracketed(Sequence):
                 + bracket_segment.end_bracket
             )
             return MatchResult(
-                (bracket_segment,),
+                (bracket_segment,) if bracket_persists else bracket_segment.segments,
                 trailing_segments,
             )
         # No complete match. Fail.

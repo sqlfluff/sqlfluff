@@ -20,10 +20,9 @@ file:
       - comma: ','
       - parameter: INPUT_LABEL_COLS
       - comparison_operator: '='
-      - bracketed:
-          start_square_bracket: '['
-          literal: "'label_str'"
-          end_square_bracket: ']'
+      - start_square_bracket: '['
+      - literal: "'label_str'"
+      - end_square_bracket: ']'
       - end_bracket: )
     - keyword: AS
     - select_statement:

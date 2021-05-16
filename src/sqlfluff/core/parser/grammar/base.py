@@ -2,7 +2,7 @@
 
 import copy
 from dataclasses import dataclass
-from typing import List, NamedTuple, Optional, Union, Type, Tuple, Any
+from typing import List, Optional, Union, Type, Tuple, Any
 
 from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.string_helpers import curtail_string
@@ -39,7 +39,7 @@ class BracketInfo:
         return BracketedSegment(
             segments=self.segments,
             start_bracket=(self.bracket,),
-            end_bracket=end_bracket
+            end_bracket=end_bracket,
         )
 
 
@@ -479,7 +479,7 @@ class BaseGrammar(Matchable):
         # to the list of matchers. We get them from the relevant set on the
         # dialect. We use zip twice to "unzip" them. We ignore the first
         # argument because that's just the name.
-        _, start_bracket_refs, end_bracket_refs = zip(
+        _, start_bracket_refs, end_bracket_refs, persists = zip(
             *parse_context.dialect.sets(bracket_pairs_set)
         )
         # These are matchables, probably StringParsers.
@@ -560,8 +560,16 @@ class BaseGrammar(Matchable):
                                 bracket_stack[-1].segments += (
                                     pre + match.matched_segments
                                 )
-                                # Construct a bracketed segment (as a tuple)
-                                new_segments = (bracket_stack[-1].to_segment(end_bracket=match.matched_segments),)
+                                # Construct a bracketed segment (as a tuple) if allowed.
+                                persist_bracket = persists[end_brackets.index(matcher)]
+                                if persist_bracket:
+                                    new_segments = (
+                                        bracket_stack[-1].to_segment(
+                                            end_bracket=match.matched_segments
+                                        ),
+                                    )
+                                else:
+                                    new_segments = bracket_stack[-1].segments
                                 # Remove the bracket set from the stack
                                 bracket_stack.pop()
                                 # If we're still in a bracket, add the new segments to that bracket
@@ -634,7 +642,11 @@ class BaseGrammar(Matchable):
                                 got=matcher,
                             )
                             # We return with the mutated segments so we can reuse any bracket matching.
-                            return ((), MatchResult.from_unmatched(pre_seg_buff + seg_buff), None)
+                            return (
+                                (),
+                                MatchResult.from_unmatched(pre_seg_buff + seg_buff),
+                                None,
+                            )
                         else:
                             # This shouldn't happen!?
                             raise NotImplementedError(
@@ -644,7 +656,11 @@ class BaseGrammar(Matchable):
                         # Not in a bracket stack, but no match. This is a happy
                         # unmatched exit. We return with the mutated segments so we can
                         # reuse any bracket matching.
-                        return ((), MatchResult.from_unmatched(pre_seg_buff + seg_buff), None)
+                        return (
+                            (),
+                            MatchResult.from_unmatched(pre_seg_buff + seg_buff),
+                            None,
+                        )
             else:
                 # No we're at the end:
                 # Now check have we closed all our brackets?

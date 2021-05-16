@@ -7,17 +7,18 @@ file:
           function:
             function_name:
               function_name_identifier: myfn
-            start_bracket: (
-            expression:
-              array_literal:
-              - start_square_bracket: '['
-              - expression:
-                  literal: '1'
-              - comma: ','
-              - expression:
-                  literal: '2'
-              - comma: ','
-              - expression:
-                  literal: '3'
-              - end_square_bracket: ']'
-            end_bracket: )
+            bracketed:
+              start_bracket: (
+              expression:
+                array_literal:
+                - start_square_bracket: '['
+                - expression:
+                    literal: '1'
+                - comma: ','
+                - expression:
+                    literal: '2'
+                - comma: ','
+                - expression:
+                    literal: '3'
+                - end_square_bracket: ']'
+              end_bracket: )

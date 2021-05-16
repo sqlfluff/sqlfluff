@@ -147,7 +147,7 @@ class Delimited(OneOf):
                     ):
                         # We just return straight away here. We don't add the terminator to
                         # this match, it should go with the unmatched parts.
-    
+
                         # First check we've had enough delimiters
                         if (
                             self.min_delimiters

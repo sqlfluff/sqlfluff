@@ -77,6 +77,8 @@ class BaseSegment:
     # Can we allow it to be empty? Usually used in combination
     # with the can_start_end_non_code.
     allow_empty = False
+    # What other kwargs need to be copied when applying fixes.
+    additional_kwargs = []
 
     def __init__(self, segments, pos_marker=None, name: Optional[str] = None):
         # A cache variable for expandable
@@ -938,6 +940,8 @@ class BaseSegment:
                     tuple(seg_buffer), parent_pos=r.pos_marker
                 ),
                 pos_marker=r.pos_marker,
+                # Pass through any additional kwargs
+                **{k: getattr(self, k) for k in self.additional_kwargs}
             )
             # Return the new segment with any unused fixes.
             return r, fixes
@@ -1037,11 +1041,20 @@ class BracketedSegment(BaseSegment):
     """A segment containing a bracketed expression."""
 
     type = "bracketed"
+    additional_kwargs = ["start_bracket", "end_bracket"]
 
-    def __init__(self, *args, start_bracket: Tuple[BaseSegment]=None, end_bracket: Tuple[BaseSegment]=None, **kwargs):
+    def __init__(
+        self,
+        *args,
+        start_bracket: Tuple[BaseSegment] = None,
+        end_bracket: Tuple[BaseSegment] = None,
+        **kwargs
+    ):
         """Stash the bracket segments for later."""
         if not start_bracket or not end_bracket:
-            raise ValueError("Attempted to construct Bracketed segment without specifying brackets.")
+            raise ValueError(
+                "Attempted to construct Bracketed segment without specifying brackets."
+            )
         self.start_bracket = start_bracket
         self.end_bracket = end_bracket
         super().__init__(*args, **kwargs)
