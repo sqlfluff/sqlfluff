@@ -50,10 +50,6 @@ from sqlfluff.core.rules.base import BaseRule
 
 # Instantiate the linter logger
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
-linter_logger_stream: logging.StreamHandler = logging.StreamHandler(stream=sys.stderr)
-linter_logger_stream.setFormatter(logging.Formatter("%(levelname)s %(message)s"))
-linter_logger.addHandler(linter_logger_stream)
-linter_logger.propagate = False  # do not use default stdout config
 
 
 class RuleTuple(NamedTuple):
