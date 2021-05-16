@@ -332,18 +332,34 @@ class Bracketed(Sequence):
         # We require a complete match for the content (hopefully for obvious reasons)
         if content_match.is_complete():
             # Reconstruct the bracket segment post match.
-            # Append some indent and dedent tokens at the start and the end.
             # We need to realign the meta segments so the pos markers are correct.
-            bracket_segment.segments = BaseSegment._position_segments(
-                # NB: The nc segments go *outside* the indents.
-                bracket_segment.start_bracket
-                + (Indent(),)  # Add a meta indent here
-                + pre_nc
-                + content_match.all_segments()
-                + post_nc
-                + (Dedent(),)  # Add a meta indent here
-                + bracket_segment.end_bracket
-            )
+            # Have we already got indents?
+            meta_idx = None
+            for idx, seg in enumerate(bracket_segment.segments):
+                if seg.is_meta and seg.indent_val > 0:
+                    meta_idx = idx
+                    break
+            # If we've already go indents, don't add more.
+            if meta_idx:
+                bracket_segment.segments = BaseSegment._position_segments(
+                    bracket_segment.start_bracket
+                    + pre_nc
+                    + content_match.all_segments()
+                    + post_nc
+                    + bracket_segment.end_bracket
+                )
+            # Append some indent and dedent tokens at the start and the end.
+            else:
+                bracket_segment.segments = BaseSegment._position_segments(
+                    # NB: The nc segments go *outside* the indents.
+                    bracket_segment.start_bracket
+                    + (Indent(),)  # Add a meta indent here
+                    + pre_nc
+                    + content_match.all_segments()
+                    + post_nc
+                    + (Dedent(),)  # Add a meta indent here
+                    + bracket_segment.end_bracket
+                )
             return MatchResult(
                 (bracket_segment,) if bracket_persists else bracket_segment.segments,
                 trailing_segments,

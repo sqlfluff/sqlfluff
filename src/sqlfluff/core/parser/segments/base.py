@@ -833,7 +833,7 @@ class BaseSegment:
                     + (
                         UnparsableSegment(
                             segments=segments,
-                            expected=self.type,
+                            expected=self.name,
                         ),  # NB: tuple
                     )
                     + post_nc
