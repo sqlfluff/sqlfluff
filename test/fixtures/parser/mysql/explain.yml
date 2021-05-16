@@ -67,7 +67,6 @@ file:
           keyword: values
           bracketed:
             start_bracket: (
-            unparsable:
-              literal: '123'
+            literal: '123'
             end_bracket: )
 - statement_terminator: ;

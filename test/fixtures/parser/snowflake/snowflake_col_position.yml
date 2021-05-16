@@ -26,29 +26,25 @@ file:
                 values_clause:
                 - keyword: values
                 - bracketed:
-                    start_bracket: (
-                    unparsable:
-                      unparsable:
-                      - expression:
-                          literal: "'toffee'"
-                      - comma: ','
-                      - expression:
-                          literal: '5'
-                    end_bracket: )
+                  - start_bracket: (
+                  - expression:
+                      literal: "'toffee'"
+                  - comma: ','
+                  - expression:
+                      literal: '5'
+                  - end_bracket: )
                 - comma: ','
                 - bracketed:
-                    start_bracket: (
-                    unparsable:
-                    - literal: "'starburst'"
-                    - comma: ','
-                    - literal: '8'
-                    end_bracket: )
+                  - start_bracket: (
+                  - literal: "'starburst'"
+                  - comma: ','
+                  - literal: '8'
+                  - end_bracket: )
                 - comma: ','
                 - bracketed:
-                    start_bracket: (
-                    unparsable:
-                    - literal: "'flying_saucer'"
-                    - comma: ','
-                    - literal: '1'
-                    end_bracket: )
+                  - start_bracket: (
+                  - literal: "'flying_saucer'"
+                  - comma: ','
+                  - literal: '1'
+                  - end_bracket: )
                 end_bracket: )

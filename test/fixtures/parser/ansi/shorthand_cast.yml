@@ -4,20 +4,26 @@ file:
       select_clause:
       - keyword: select
       - select_clause_element:
-          literal: "'1'"
-          unparsable:
-          - raw: '::'
-          - raw: INT
-          - raw: as
-          - raw: id1
+          expression:
+            literal: "'1'"
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: INT
+          alias_expression:
+            keyword: as
+            identifier: id1
       - comma: ','
       - select_clause_element:
-          literal: "'2'"
-          unparsable:
-          - raw: '::'
-          - raw: int
-          - raw: as
-          - raw: id2
+          expression:
+            literal: "'2'"
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: int
+          alias_expression:
+            keyword: as
+            identifier: id2
       from_clause:
         keyword: from
         from_expression:

@@ -33,55 +33,48 @@ file:
                       values_clause:
                       - keyword: values
                       - bracketed:
-                          start_bracket: (
-                          unparsable:
-                            unparsable:
-                            - expression:
-                                literal: "'apple'"
-                            - comma: ','
-                            - expression:
-                                literal: "'green'"
-                          end_bracket: )
+                        - start_bracket: (
+                        - expression:
+                            literal: "'apple'"
+                        - comma: ','
+                        - expression:
+                            literal: "'green'"
+                        - end_bracket: )
                       - comma: ','
                       - bracketed:
-                          start_bracket: (
-                          unparsable:
-                          - literal: "'unripe banana'"
-                          - comma: ','
-                          - literal: "'green'"
-                          end_bracket: )
+                        - start_bracket: (
+                        - literal: "'unripe banana'"
+                        - comma: ','
+                        - literal: "'green'"
+                        - end_bracket: )
                       - comma: ','
                       - bracketed:
-                          start_bracket: (
-                          unparsable:
-                          - literal: "'kiwi'"
-                          - comma: ','
-                          - literal: "'green'"
-                          end_bracket: )
+                        - start_bracket: (
+                        - literal: "'kiwi'"
+                        - comma: ','
+                        - literal: "'green'"
+                        - end_bracket: )
                       - comma: ','
                       - bracketed:
-                          start_bracket: (
-                          unparsable:
-                          - literal: "'blueberry'"
-                          - comma: ','
-                          - literal: "'blue'"
-                          end_bracket: )
+                        - start_bracket: (
+                        - literal: "'blueberry'"
+                        - comma: ','
+                        - literal: "'blue'"
+                        - end_bracket: )
                       - comma: ','
                       - bracketed:
-                          start_bracket: (
-                          unparsable:
-                          - literal: "'strawberry'"
-                          - comma: ','
-                          - literal: "'red'"
-                          end_bracket: )
+                        - start_bracket: (
+                        - literal: "'strawberry'"
+                        - comma: ','
+                        - literal: "'red'"
+                        - end_bracket: )
                       - comma: ','
                       - bracketed:
-                          start_bracket: (
-                          unparsable:
-                          - literal: "'grape'"
-                          - comma: ','
-                          - literal: "'red'"
-                          end_bracket: )
+                        - start_bracket: (
+                        - literal: "'grape'"
+                        - comma: ','
+                        - literal: "'red'"
+                        - end_bracket: )
                       end_bracket: )
           end_bracket: )
       select_statement:

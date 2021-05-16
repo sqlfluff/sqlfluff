@@ -4,30 +4,36 @@ file:
       select_clause:
       - keyword: SELECT
       - select_clause_element:
-          literal: "'9999-12-31'"
-          unparsable:
-            bracketed:
-              start_bracket: (
-              raw: DATE
-              end_bracket: )
+          expression:
+            literal: "'9999-12-31'"
+            cast_expression:
+              bracketed:
+                start_bracket: (
+                td_internal_data_type:
+                  data_type_identifier: DATE
+                end_bracket: )
       - comma: ','
       - select_clause_element:
-          literal: "'9999-12-31'"
-          unparsable:
-            bracketed:
-            - start_bracket: (
-            - raw: DATE
-            - raw: FORMAT
-            - raw: "'YYYY-MM-DD'"
-            - end_bracket: )
+          expression:
+            literal: "'9999-12-31'"
+            cast_expression:
+              bracketed:
+                start_bracket: (
+                td_internal_data_type:
+                  data_type_identifier: DATE
+                  keyword: FORMAT
+                  literal: "'YYYY-MM-DD'"
+                end_bracket: )
       - comma: ','
       - select_clause_element:
-          literal: "'100000'"
-          unparsable:
-            bracketed:
-              start_bracket: (
-              raw: SMALLINT
-              end_bracket: )
+          expression:
+            literal: "'100000'"
+            cast_expression:
+              bracketed:
+                start_bracket: (
+                td_internal_data_type:
+                  data_type_identifier: SMALLINT
+                end_bracket: )
       from_clause:
         keyword: from
         from_expression:
