@@ -84,6 +84,8 @@ postgres_dialect.replace(
         Ref("JsonOperatorSegment"),
     ),
 )
+
+
 @postgres_dialect.segment(replace=True)
 class FunctionDefinitionGrammar(BaseSegment):
     """This is the body of a `CREATE FUNCTION AS` statement."""
@@ -114,6 +116,7 @@ class FunctionParameterListGrammar(BaseSegment):
             optional=True,
         ),
     )
+
 
 @postgres_dialect.segment(replace=True)
 class SelectClauseModifierSegment(BaseSegment):
