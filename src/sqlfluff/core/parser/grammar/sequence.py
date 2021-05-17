@@ -1,6 +1,6 @@
 """Sequence and Bracketed Grammars."""
 
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, cast
 
 from sqlfluff.core.errors import SQLParseError
 
@@ -10,6 +10,7 @@ from sqlfluff.core.parser.segments import (
     Dedent,
     allow_ephemeral,
     BracketedSegment,
+    MetaSegment,
 )
 from sqlfluff.core.parser.helpers import trim_non_code_segments, check_still_complete
 from sqlfluff.core.parser.match_result import MatchResult
@@ -261,7 +262,7 @@ class Bracketed(Sequence):
 
         # Are we dealing with a pre-existing BracketSegment?
         if seg_buff[0].is_type("bracketed"):
-            seg: BracketedSegment = seg_buff[0]  # type: ignore
+            seg: BracketedSegment = cast(BracketedSegment, seg_buff[0])
             content_segs = seg.segments[len(seg.start_bracket) : -len(seg.end_bracket)]
             bracket_segment = seg
             trailing_segments = seg_buff[1:]
@@ -303,18 +304,18 @@ class Bracketed(Sequence):
             )
             trailing_segments = end_match.unmatched_segments
 
-        # Then trim whitespace and deal with the case of no code content e.g. "(   )"
+        # Then trim whitespace and deal with the case of non-code content e.g. "(   )"
         if self.allow_gaps:
-            pre_nc, content_segs, post_nc = trim_non_code_segments(content_segs)
+            pre_segs, content_segs, post_segs = trim_non_code_segments(content_segs)
         else:
-            pre_nc = ()
-            post_nc = ()
+            pre_segs = ()
+            post_segs = ()
 
         # If we've got a case of empty brackets check whether that is allowed.
         if not content_segs:
             if not self._elements or (
                 all(e.is_optional() for e in self._elements)
-                and (self.allow_gaps or (not pre_nc and not post_nc))
+                and (self.allow_gaps or (not pre_segs and not post_segs))
             ):
                 return MatchResult(
                     (bracket_segment,)
@@ -336,16 +337,16 @@ class Bracketed(Sequence):
             # Have we already got indents?
             meta_idx = None
             for idx, seg in enumerate(bracket_segment.segments):
-                if seg.is_meta and seg.indent_val > 0:  # type: ignore
+                if seg.is_meta and cast(MetaSegment, seg).indent_val > 0:
                     meta_idx = idx
                     break
-            # If we've already go indents, don't add more.
+            # If we've already got indents, don't add more.
             if meta_idx:
                 bracket_segment.segments = BaseSegment._position_segments(
                     bracket_segment.start_bracket
-                    + pre_nc
+                    + pre_segs
                     + content_match.all_segments()
-                    + post_nc
+                    + post_segs
                     + bracket_segment.end_bracket
                 )
             # Append some indent and dedent tokens at the start and the end.
@@ -354,9 +355,9 @@ class Bracketed(Sequence):
                     # NB: The nc segments go *outside* the indents.
                     bracket_segment.start_bracket
                     + (Indent(),)  # Add a meta indent here
-                    + pre_nc
+                    + pre_segs
                     + content_match.all_segments()
-                    + post_nc
+                    + post_segs
                     + (Dedent(),)  # Add a meta indent here
                     + bracket_segment.end_bracket
                 )

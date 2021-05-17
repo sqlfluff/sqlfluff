@@ -81,18 +81,15 @@ class Rule_L018(BaseRule):
 
             balance = 0
             with_indent, with_indent_str = indent_size_up_to(raw_stack_buff)
-            print("SEG", segment, with_indent, repr(with_indent_str))
             for seg in segment.iter_segments(
                 expanding=["common_table_expression", "bracketed"], pass_through=True
             ):
-                print(seg)
                 if seg.name == "start_bracket":
                     balance += 1
                 elif seg.name == "end_bracket":
                     balance -= 1
                     if balance == 0:
                         closing_bracket_indent, _ = indent_size_up_to(raw_stack_buff)
-                        print("INDENT", closing_bracket_indent)
                         indent_diff = closing_bracket_indent - with_indent
                         # Is indent of closing bracket not the same as
                         # indent of WITH keyword.
