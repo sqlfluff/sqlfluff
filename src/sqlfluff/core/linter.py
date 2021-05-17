@@ -1430,8 +1430,14 @@ class Linter:
         return result
 
     @staticmethod
-    def _init_dialect(dialect):
+    def _init_dialect(dialect, child_process=True):
         """Ensure module-level dialect-related objects exist."""
+        if child_process:
+            # In a child process, disable keyboard interrupts. In this
+            # situation, the parent process alone is responsible for detecting
+            # keyboard, and cleaning up the child processes.
+            signal.signal(signal.SIGINT, signal.SIG_IGN)
+
         Lexer(dialect=dialect)
         dialect_selector(dialect)
 
@@ -1486,30 +1492,32 @@ To hide this warning, add the failing file to .sqlfluffignore
                 )
             )
         dialect = self.config.get("dialect")
-        self._init_dialect(dialect)
+        self._init_dialect(dialect, child_process=False)
         # Disable signal handling in the child processes to let the parent
         # control all KeyboardInterrupt handling (Control C). This is necessary
         # in order for keyboard interrupts to exit quickly and cleanly. Adapted
         # from this post:
         # https://stackoverflow.com/questions/11312525/catch-ctrlc-sigint-and-exit-multiprocesses-gracefully-in-python
-        original_handler = signal.signal(signal.SIGINT, signal.SIG_IGN)
         with _create_pool(parallel, self._init_dialect, (dialect,)) as pool:
-            signal.signal(signal.SIGINT, original_handler)
-            # From this point forward, any keyboard interrupt will raise an
-            # exception, and the context handler managing the pool will
-            # automatically terminate child processes for us.
-            for lint_result in _imap_unordered(pool, self._apply, jobs):
-                if isinstance(lint_result, LintedFile):
-                    if self.formatter:
-                        self.formatter.dispatch_file_violations(
-                            lint_result.path, lint_result, only_fixable=fix
-                        )
-                    yield lint_result
-                elif isinstance(lint_result, DelayedException):
-                    try:
-                        lint_result.reraise()
-                    except Exception as e:
-                        self._handle_lint_path_exception(lint_result.fname, e)
+            try:
+                # From this point forward, any keyboard interrupt will raise an
+                # exception, and the context handler managing the pool will
+                # automatically terminate child processes for us.
+                for lint_result in _imap_unordered(pool, self._apply, jobs):
+                    if isinstance(lint_result, LintedFile):
+                        if self.formatter:
+                            self.formatter.dispatch_file_violations(
+                                lint_result.path, lint_result, only_fixable=fix
+                            )
+                        yield lint_result
+                    elif isinstance(lint_result, DelayedException):
+                        try:
+                            lint_result.reraise()
+                        except Exception as e:
+                            self._handle_lint_path_exception(lint_result.fname, e)
+            except KeyboardInterrupt:
+                print("Received keyboard interrupt. Cleaning up and shutting down...")
+                pool.terminate()
 
     def _lint_path_core(self, fname, fix):
         """Core linting functionality, shared between single and parallel."""
