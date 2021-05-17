@@ -945,7 +945,10 @@ class FromExpressionElementSegment(BaseSegment):
 
         """
         alias_expression = self.get_child("alias_expression")
-        ref = self.get_child("table_expression").get_child("object_reference")
+        tbl_expression = self.get_child("table_expression")
+        if not tbl_expression:
+            tbl_expression = self.get_child("bracketed").get_child("table_expression")
+        ref = tbl_expression.get_child("object_reference")
         if alias_expression:
             # If it has an alias, return that
             segment = alias_expression.get_child("identifier")
