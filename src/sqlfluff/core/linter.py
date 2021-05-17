@@ -814,7 +814,7 @@ def _create_pool(*args, **kwargs):
     return multiprocessing.Pool(*args, **kwargs)
 
 
-def _imap_unordered(pool, *l, **kw):
+def _imap_unordered(pool, *args, **kwargs):
     """Wraps pool.imap_unordered().
 
     Some automated tests use a thread pool, which doesn't support
@@ -822,7 +822,7 @@ def _imap_unordered(pool, *l, **kw):
     """
     for fname in ["imap_unordered", "imap"]:
         try:
-            return getattr(pool, fname)(*l, **kw)
+            return getattr(pool, fname)(*args, **kwargs)
         except AttributeError:
             pass
 
