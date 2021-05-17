@@ -17,13 +17,15 @@ import sqlfluff
 from sqlfluff.cli.commands import lint, version, rules, fix, parse, dialects
 
 
-def invoke_assert_code(ret_code=0, args=None, kwargs=None, cli_input=None):
+def invoke_assert_code(
+    ret_code=0, args=None, kwargs=None, cli_input=None, mix_stderr=True
+):
     """Invoke a command and check return code."""
     args = args or []
     kwargs = kwargs or {}
     if cli_input:
         kwargs["input"] = cli_input
-    runner = CliRunner()
+    runner = CliRunner(mix_stderr=mix_stderr)
     result = runner.invoke(*args, **kwargs)
     # Output the CLI code for debugging
     print(result.output)
@@ -361,6 +363,24 @@ def test__cli__command_fix_stdin(stdin, rules, stdout):
     """Check stdin input for fix works."""
     result = invoke_assert_code(args=[fix, ("-", "--rules", rules)], cli_input=stdin)
     assert result.output == stdout
+
+
+def test__cli__command_fix_stdin_logging_to_stderr(monkeypatch):
+    """Check that logging goes to stderr when stdin is passed to fix."""
+    perfect_sql = "select col from table"
+
+    class MockLinter(sqlfluff.core.Linter):
+        def lint_fix(self, *args, **kwargs):
+            self._warn_unfixable("<FAKE CODE>")
+            return super().lint_fix(*args, **kwargs)
+
+    monkeypatch.setattr(sqlfluff.cli.commands, "Linter", MockLinter)
+    result = invoke_assert_code(
+        args=[fix, ("-", "--rules=L003")], cli_input=perfect_sql, mix_stderr=False
+    )
+
+    assert result.stdout == perfect_sql
+    assert "<FAKE CODE>" in result.stderr
 
 
 def test__cli__command_fix_stdin_safety():
