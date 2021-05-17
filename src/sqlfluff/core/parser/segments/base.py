@@ -78,7 +78,7 @@ class BaseSegment:
     # with the can_start_end_non_code.
     allow_empty = False
     # What other kwargs need to be copied when applying fixes.
-    additional_kwargs = []
+    additional_kwargs: List[str] = []
 
     def __init__(self, segments, pos_marker=None, name: Optional[str] = None):
         # A cache variable for expandable

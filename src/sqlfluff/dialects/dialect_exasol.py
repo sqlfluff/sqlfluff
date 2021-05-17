@@ -839,10 +839,7 @@ class ColumnOptionSegment(BaseSegment):
             Sequence(
                 # IDENTITY(1000) or IDENTITY 1000 or IDENTITY
                 "IDENTITY",
-                OptionallyBracketed(
-                    Ref("NumericLiteralSegment"),
-                    optional=True
-                ),
+                OptionallyBracketed(Ref("NumericLiteralSegment"), optional=True),
             ),
             optional=True,
         ),
@@ -997,9 +994,7 @@ class AlterTableAddColumnSegment(BaseSegment):
         "ADD",
         Ref.keyword("COLUMN", optional=True),
         Ref("IfNotExistsGrammar", optional=True),
-        OptionallyBracketed(
-            Ref("ColumnDefinitionSegment")
-        ),
+        OptionallyBracketed(Ref("ColumnDefinitionSegment")),
     )
 
 
@@ -1063,9 +1058,7 @@ class AlterTableAlterColumnSegment(BaseSegment):
                     Sequence(
                         # IDENTITY(1000) or IDENTITY 1000
                         "IDENTITY",
-                        OptionallyBracketed(
-                            Ref("NumericLiteralSegment")
-                        ),
+                        OptionallyBracketed(Ref("NumericLiteralSegment")),
                     ),
                     Sequence(
                         "DEFAULT",

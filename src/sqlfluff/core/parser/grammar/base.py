@@ -233,9 +233,9 @@ class BaseGrammar(Matchable):
                 if res_match.matched_length > best_match_length:
                     best_match = res_match, matcher
                     best_match_length = res_match.matched_length
-            # Stash the segments regardless, they may have done some bracket
-            # matching that we can reuse.
-            segments = res_match.all_segments()
+            # We could stash segments here, but given we might have some successful
+            # matches here, we shouldn't, because they'll be mutated in the wrong way.
+            # Eventually there might be a performance gain from doing that sensibly here.
 
         # If we get here, then there wasn't a complete match. If we
         # has a best_match, return that.

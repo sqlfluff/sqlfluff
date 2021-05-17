@@ -336,7 +336,7 @@ class Bracketed(Sequence):
             # Have we already got indents?
             meta_idx = None
             for idx, seg in enumerate(bracket_segment.segments):
-                if seg.is_meta and seg.indent_val > 0:
+                if seg.is_meta and seg.indent_val > 0:  # type: ignore
                     meta_idx = idx
                     break
             # If we've already go indents, don't add more.
