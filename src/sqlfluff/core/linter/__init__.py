@@ -1416,6 +1416,7 @@ class Linter:
                 ignore_files=ignore_files,
             )
         )
+        runner: runner_module.BaseRunner
         if parallel >= self.MIN_THRESHOLD_PARALLEL and sys.version_info > (3, 7):
             runner = self.PARALLEL_CLS(
                 type(self), self, self.config, self.dialect.name, parallel
