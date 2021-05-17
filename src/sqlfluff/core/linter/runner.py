@@ -13,7 +13,7 @@ import multiprocessing.dummy
 import signal
 import sys
 import traceback
-from typing import List, Type
+from typing import Callable, List, Type
 
 from sqlfluff.core.dialects import dialect_selector
 from sqlfluff.core.parser import Lexer
@@ -88,17 +88,15 @@ class SequentialRunner(BaseRunner):
                 self._handle_lint_path_exception(fname, e)
 
 
-class MultiProcessRunner(BaseRunner):
-    """Runner that does parallel processing using multiprocessing.Pool."""
+class ParallelRunner(BaseRunner):
+    """Base class for parallel runner implementations."""
+
+    POOL_TYPE: Callable
+    MAP_FUNCTION_NAME: str
 
     def __init__(self, linter_cls, linter, config, dialect, parallel):
         super().__init__(linter_cls, linter, config, dialect)
         self.parallel = parallel
-
-    @classmethod
-    def _init_global(cls, config, dialect):
-        super()._init_global(config, dialect)
-        cls._disable_signal_handling()
 
     def run(self, fnames, fix):
         """Parallel implementation."""
@@ -143,19 +141,6 @@ class MultiProcessRunner(BaseRunner):
                 pool.terminate()
 
     @classmethod
-    def _disable_signal_handling(cls):
-        # Disable signal handling in the child processes to let the parent
-        # control all KeyboardInterrupt handling (Control C). This is
-        # necessary in order for keyboard interrupts to exit quickly and
-        # cleanly. Adapted from this post:
-        # https://stackoverflow.com/questions/11312525/catch-ctrlc-sigint-and-exit-multiprocesses-gracefully-in-python
-        signal.signal(signal.SIGINT, signal.SIG_IGN)
-
-    @classmethod
-    def _create_pool(cls, *args, **kwargs):
-        return multiprocessing.Pool(*args, **kwargs)
-
-    @classmethod
     def _lint_path(cls, linter_cls, config, fname, fix=False):
         """Lint a file in parallel mode.
 
@@ -170,37 +155,47 @@ class MultiProcessRunner(BaseRunner):
             result.fname = fname
             return result
 
-    @classmethod
-    def _map(cls, pool, *args, **kwargs):
-        """Runs a class-appropriate version of the general map() function."""
-        return pool.imap_unordered(*args, **kwargs)
-
     @staticmethod
     def _apply(f):
         """Shim function used in parallel mode."""
         return f()
 
-
-class MultiThreadRunner(MultiProcessRunner):
-    """Subclasses the multiprocess runner. Used only by automated tests."""
-
-    @classmethod
-    def _disable_signal_handling(cls):
-        """Prevent disabling signal handling behavior with threads.
-
-        Reason: All threads share the same signal handling behavior, so it's not
-        appropriate to disable it in child threads as it is with processes.
-        """
-        pass
-
     @classmethod
     def _create_pool(cls, *args, **kwargs):
-        return multiprocessing.dummy.Pool(*args, **kwargs)
+        return cls.POOL_TYPE(*args, **kwargs)
 
     @classmethod
     def _map(cls, pool, *args, **kwargs):
         """Runs a class-appropriate version of the general map() function."""
-        return pool.imap(*args, **kwargs)
+        return getattr(pool, cls.MAP_FUNCTION_NAME)(*args, **kwargs)
+
+
+class MultiProcessRunner(ParallelRunner):
+    """Runner that does parallel processing using multiple processes."""
+
+    POOL_TYPE = multiprocessing.Pool
+    MAP_FUNCTION_NAME = "imap_unordered"
+
+    @classmethod
+    def _init_global(cls, config, dialect):
+        super()._init_global(config, dialect)
+
+        # Disable signal handling in the child processes to let the parent
+        # control all KeyboardInterrupt handling (Control C). This is
+        # necessary in order for keyboard interrupts to exit quickly and
+        # cleanly. Adapted from this post:
+        # https://stackoverflow.com/questions/11312525/catch-ctrlc-sigint-and-exit-multiprocesses-gracefully-in-python
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
+
+
+class MultiThreadRunner(ParallelRunner):
+    """Runner that does parallel processing using multiple threads.
+
+    Used only by automated tests.
+    """
+
+    POOL_TYPE = multiprocessing.dummy.Pool
+    MAP_FUNCTION_NAME = "imap"
 
 
 class DelayedException(Exception):
