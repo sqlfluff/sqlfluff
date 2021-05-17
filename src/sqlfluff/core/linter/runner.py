@@ -89,7 +89,7 @@ class SequentialRunner(BaseRunner):
 
 
 class ParallelRunner(BaseRunner):
-    """Base class for parallel runner implementations."""
+    """Base class for parallel runner implementations (process or thread)."""
 
     POOL_TYPE: Callable
     MAP_FUNCTION_NAME: str
@@ -120,9 +120,6 @@ class ParallelRunner(BaseRunner):
             ),
         ) as pool:
             try:
-                # From this point forward, any keyboard interrupt will raise an
-                # exception, and the context handler managing the pool will
-                # automatically terminate child processes for us.
                 for lint_result in self._map(pool, self._apply, jobs):
                     if isinstance(lint_result, DelayedException):
                         try:
@@ -137,6 +134,9 @@ class ParallelRunner(BaseRunner):
                             )
                         yield lint_result
             except KeyboardInterrupt:
+                # On keyboard interrupt (Ctrl-C), terminate the workers.
+                # Notify the user we've received the signal and are cleaning up,
+                # in case it takes awhile.
                 print("Received keyboard interrupt. Cleaning up and shutting down...")
                 pool.terminate()
 
@@ -144,8 +144,9 @@ class ParallelRunner(BaseRunner):
     def _lint_path(cls, linter_cls, config, fname, fix=False):
         """Lint a file in parallel mode.
 
-        Creates new Linter object to avoid multiprocessing-related pickling
-        errors.
+        Creates new Linter object to avoid potential issues, e.g.
+        - Multiprocessing-related pickling errors
+        - Shared state in general (to avoid race conditions)
         """
         try:
             linter = linter_cls(config=config)
