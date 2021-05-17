@@ -1,11 +1,11 @@
 """The Test file for the linter class."""
 
 import pytest
-import multiprocessing.dummy
 from typing import List
 from unittest.mock import patch
 
 from sqlfluff.core import Linter, FluffConfig
+from sqlfluff.core.linter import runner
 from sqlfluff.core.errors import SQLBaseError, SQLLintError, SQLParseError
 from sqlfluff.cli.formatters import CallbackFormatter
 from sqlfluff.core.linter import LintingResult, NoQaDirective
@@ -213,8 +213,7 @@ def test__linter__linting_parallel_thread(force_error, monkeypatch):
 
     if not force_error:
 
-        def _create_pool(*args, **kwargs):
-            return multiprocessing.dummy.Pool(*args, **kwargs)
+        monkeypatch.setattr(Linter, "PARALLEL_CLS", runner.MultiThreadRunner)
 
     else:
 
@@ -226,12 +225,12 @@ def test__linter__linting_parallel_thread(force_error, monkeypatch):
                 def __exit__(self, exc_type, exc_val, exc_tb):
                     pass
 
-                def imap(self, *args, **kwargs):
-                    yield linter.DelayedException(ValueError())
+                def imap_unordered(self, *args, **kwargs):
+                    yield runner.DelayedException(ValueError())
 
             return ErrorPool()
 
-    monkeypatch.setattr(linter, "_create_pool", _create_pool)
+        monkeypatch.setattr(runner.MultiProcessRunner, "_create_pool", _create_pool)
 
     lntr = Linter(formatter=CallbackFormatter(callback=lambda m: None, verbosity=0))
     result = lntr.lint_paths(
@@ -242,17 +241,17 @@ def test__linter__linting_parallel_thread(force_error, monkeypatch):
     all([type(v) == SQLLintError for v in result.get_violations()])
 
 
-@patch("sqlfluff.core.linter.Linter._lint_path_core")
-def test_lint_path_parallel_wrapper_exception(patched_lint_path_core):
+@patch("sqlfluff.core.linter.runner.BaseRunner._base_run")
+def test_lint_path_parallel_wrapper_exception(patched_base_run):
     """Tests the error catching behavior of _lint_path_parallel_wrapper()."""
-    patched_lint_path_core.side_effect = ValueError("Something unexpected happened")
-    result = Linter._lint_path_parallel_wrapper(FluffConfig(), "")
-    assert isinstance(result, linter.DelayedException)
+    patched_base_run.side_effect = ValueError("Something unexpected happened")
+    result = runner.MultiProcessRunner._lint_path(Linter, FluffConfig(), "")
+    assert isinstance(result, runner.DelayedException)
     with pytest.raises(ValueError):
         result.reraise()
 
 
-@patch("sqlfluff.core.linter.linter_logger")
+@patch("sqlfluff.core.linter.runner.linter_logger")
 @patch("sqlfluff.core.Linter.lint_string")
 def test__linter__linting_unexpected_error_handled_gracefully(
     patched_lint_string, patched_logger
@@ -575,6 +574,6 @@ def test__linter__skip_dbt_model_disabled(in_dbt_project_dir):  # noqa
 def test_delayed_exception():
     """Test that DelayedException stores and reraises a stored exception."""
     ve = ValueError()
-    de = linter.DelayedException(ve)
+    de = runner.DelayedException(ve)
     with pytest.raises(ValueError):
         de.reraise()
