@@ -79,7 +79,7 @@ class PositionMarker:
         source_point: int,
         templated_point: int,
         templated_file: "TemplatedFile",
-        **kwargs
+        **kwargs,
     ):
         """Convenience method for creating point markers."""
         return cls(

@@ -56,9 +56,7 @@ class BaseRunner(ABC):
         """Core linting functionality."""
         config = config.make_child_from_path(fname)
         # Handle unicode issues gracefully
-        with open(
-            fname, encoding="utf8", errors="backslashreplace"
-        ) as target_file:
+        with open(fname, encoding="utf8", errors="backslashreplace") as target_file:
             return linter.lint_string(
                 target_file.read(), fname=fname, fix=fix, config=config
             )

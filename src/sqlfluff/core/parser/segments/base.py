@@ -98,9 +98,7 @@ class BaseSegment:
         elif isinstance(segments, list):
             self.segments = tuple(segments)
         else:
-            raise TypeError(
-                f"Unexpected type passed to BaseSegment: {type(segments)}"
-            )
+            raise TypeError(f"Unexpected type passed to BaseSegment: {type(segments)}")
 
         if not pos_marker:
             # If no pos given, it's the pos of the first segment.

@@ -96,10 +96,8 @@ def test__config__find_sqlfluffignore_in_same_directory():
         working_path="test/fixtures/linter/sqlfluffignore/",
     )
     assert ignore_files == {
-            os.path.abspath(
-                "test/fixtures/linter/sqlfluffignore/path_b/.sqlfluffignore"
-            ),
-            os.path.abspath("test/fixtures/linter/sqlfluffignore/.sqlfluffignore"),
+        os.path.abspath("test/fixtures/linter/sqlfluffignore/path_b/.sqlfluffignore"),
+        os.path.abspath("test/fixtures/linter/sqlfluffignore/.sqlfluffignore"),
     }
 
 

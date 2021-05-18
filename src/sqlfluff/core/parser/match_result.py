@@ -80,9 +80,7 @@ class MatchResult(
         elif isinstance(other, tuple):
             return self.matched_segments == other
         else:
-            raise TypeError(
-                f"Unexpected equality comparison: type: {type(other)}"
-            )
+            raise TypeError(f"Unexpected equality comparison: type: {type(other)}")
 
     @staticmethod
     def seg_to_tuple(segs) -> Tuple["BaseSegment", ...]:

@@ -11,8 +11,8 @@ if sys.version_info[0] < 3:
 # Check minor python version
 elif sys.version_info[1] < 6:
     raise Exception(
-            "Sqlfluff 0.4.0 only supports Python 3.6 and beyond. "
-            "Use an earlier version of sqlfluff or a later version of Python"
+        "Sqlfluff 0.4.0 only supports Python 3.6 and beyond. "
+        "Use an earlier version of sqlfluff or a later version of Python"
     )
 
 # Set the version attribute of the library

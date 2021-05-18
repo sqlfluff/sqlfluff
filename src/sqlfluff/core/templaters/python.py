@@ -520,9 +520,7 @@ class PythonTemplater(RawTemplater):
         for p in priority:
             if p in types:
                 return p
-        raise RuntimeError(
-            f"Exhausted priorities in _coalesce_types! {types!r}"
-        )
+        raise RuntimeError(f"Exhausted priorities in _coalesce_types! {types!r}")
 
     @classmethod
     def _split_uniques_coalesce_rest(

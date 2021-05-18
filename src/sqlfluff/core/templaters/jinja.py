@@ -261,9 +261,7 @@ class JinjaTemplater(PythonTemplater):
             undefined_variables = meta.find_undeclared_variables(syntax_tree)
         except Exception as err:
             # TODO: Add a url here so people can get more help.
-            raise SQLTemplaterError(
-                f"Failure in identifying Jinja variables: {err}."
-            )
+            raise SQLTemplaterError(f"Failure in identifying Jinja variables: {err}.")
 
         # Get rid of any that *are* actually defined.
         for val in live_context:

@@ -3,7 +3,6 @@
 import logging
 import os
 import os.path
-import sys
 import configparser
 from typing import Dict, List, Tuple, Any, Optional, Union, Iterable
 from pathlib import Path
@@ -216,9 +215,7 @@ class ConfigLoader:
                     if isinstance(r[dp], dict):
                         r = r[dp]
                     else:
-                        raise ValueError(
-                            f"Overriding config value with section! [{k}]"
-                        )
+                        raise ValueError(f"Overriding config value with section! [{k}]")
                 else:
                     r[dp] = {}
                     r = r[dp]

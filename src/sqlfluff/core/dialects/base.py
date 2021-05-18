@@ -142,14 +142,10 @@ class Dialect:
             n = cls.__name__
             if replace:
                 if n not in self._library:
-                    raise ValueError(
-                        f"{n!r} is not already registered in {self!r}"
-                    )
+                    raise ValueError(f"{n!r} is not already registered in {self!r}")
             else:
                 if n in self._library:
-                    raise ValueError(
-                        f"{n!r} is already registered in {self!r}"
-                    )
+                    raise ValueError(f"{n!r} is already registered in {self!r}")
             self._library[n] = cls
             # Pass it back after registering it
             return cls
@@ -181,9 +177,7 @@ class Dialect:
         """
         for n in kwargs:
             if n not in self._library:
-                raise ValueError(
-                    f"{n!r} is not already registered in {self!r}"
-                )
+                raise ValueError(f"{n!r} is not already registered in {self!r}")
             self._library[n] = kwargs[n]
 
     def get_grammar(self, name: str) -> BaseGrammar:
@@ -256,9 +250,7 @@ class Dialect:
         if self.lexer_matchers:
             return self.lexer_matchers
         else:
-            raise ValueError(
-                f"Lexing struct has not been set for dialect {self}"
-            )
+            raise ValueError(f"Lexing struct has not been set for dialect {self}")
 
     def patch_lexer_matchers(self, lexer_patch):
         """Patch an existing lexer struct.

@@ -94,9 +94,7 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     lerrs, _, _, _ = r.crawl(parsed.tree, dialect=cfg.get("dialect_obj"))
     print(f"Errors Found: {lerrs}")
     if any(v.rule.code == code for v in lerrs):
-        pytest.fail(
-            f"Found {code} failures in query which should pass.", pytrace=False
-        )
+        pytest.fail(f"Found {code} failures in query which should pass.", pytrace=False)
 
 
 def assert_rule_raises_violations_in_file(rule, fpath, violations, fluff_config):

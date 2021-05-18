@@ -85,9 +85,7 @@ def benchmark(cmd, runs, from_file):
             click.echo("===END PROCESS OUTPUT===")
             t1 = time.monotonic()
             if process.returncode != 0:
-                click.echo(
-                    f"Command failed with return code: {process.returncode}"
-                )
+                click.echo(f"Command failed with return code: {process.returncode}")
                 sys.exit(process.returncode)
             else:
                 duration = t1 - t0

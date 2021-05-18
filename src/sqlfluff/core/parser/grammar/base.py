@@ -784,9 +784,7 @@ class Ref(BaseGrammar):
         elem = self._get_elem(dialect=parse_context.dialect)
 
         if not elem:
-            raise ValueError(
-                f"Null Element returned! _elements: {self._elements!r}"
-            )
+            raise ValueError(f"Null Element returned! _elements: {self._elements!r}")
 
         # First check against the efficiency Cache.
         # We rely on segments not being mutated within a given

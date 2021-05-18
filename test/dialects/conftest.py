@@ -38,9 +38,7 @@ def validate_segment(segmentref, config):
     except TypeError:
         pass
     raise TypeError(
-        "{} is not of type Segment or StringParser. Test is invalid.".format(
-            segmentref
-        )
+        "{} is not of type Segment or StringParser. Test is invalid.".format(segmentref)
     )
 
 

@@ -569,9 +569,7 @@ class Rule_L003(BaseRule):
                     return LintResult(
                         anchor=segment,
                         memory=memory,
-                        description="Line over-indented compared to line #{}".format(
-                            k
-                        ),
+                        description="Line over-indented compared to line #{}".format(k),
                         fixes=fixes,
                     )
 
