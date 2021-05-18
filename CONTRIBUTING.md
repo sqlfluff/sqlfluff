@@ -51,11 +51,11 @@ that's actually useful for the community.
     reach clarity will be pushed to the next release. Getting this clarity
     is important before development work progresses so that we know that
     larger changes are a) in line with the aims of the project and b) are
-    effectively pre-approved changes so that there aren't any suprises
+    effectively pre-approved changes so that there aren't any surprises
     when it comes to merging.
   - Once we reach the deadline for closing the roadmap for a release the
     focus on development work should be on those features.
-- Small features and bugfixes (assuming no backward compatability issues)
+- Small features and bugfixes (assuming no backward compatibility issues)
   don't need to go through the same process and vetting and can be picked
   up and merged at any time.
 
