@@ -274,6 +274,43 @@ def test__parser__grammar__base__bracket_fail_with_open_paren_close_square_misma
         assert sql_parse_error.match("Found unexpected end bracket")
 
 
+def test__parser__grammar__base__bracket_fail_with_unexpected_end_bracket(
+    generate_test_segments, fresh_ansi_dialect
+):
+    """Test _bracket_sensitive_look_ahead_match edge case.
+
+    Should fail gracefully and stop matching if we find a trailing unmatched.
+    """
+    fs = StringParser("foo", KeywordSegment)
+    # We need a dialect here to do bracket matching
+    with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
+        _, match, _ = BaseGrammar._bracket_sensitive_look_ahead_match(
+            generate_test_segments(
+                [
+                    "bar",
+                    "(",  # This bracket pair should be mutated
+                    ")",
+                    " ",
+                    ")",  # This is the unmatched bracket
+                    " ",
+                    "foo",
+                ]
+            ),
+            [fs],
+            ctx,
+        )
+        # Check we don't match (even though there's a foo at the end)
+        assert not match
+        # Check the first bracket pair have been mutated.
+        segs = match.unmatched_segments
+        assert segs[1].is_type("bracketed")
+        assert segs[1].raw == "()"
+        assert len(segs[1].segments) == 2
+        # Check the trailing foo hasn't been mutated
+        assert segs[5].raw == "foo"
+        assert not isinstance(segs[5], KeywordSegment)
+
+
 def test__parser__grammar__ref_eq():
     """Test equality of Ref Grammars."""
     r1 = Ref("foo")
@@ -546,6 +583,8 @@ def test__parser__grammar_sequence_indent_conditional(seg_list, caplog):
         (["bar", ".", "bar"], 1, False, False, 3),
         # Check we still succeed with something trailing right on the end.
         (["bar", ".", "bar", "foo"], 1, False, False, 3),
+        # Check min_delimiters. There's a delimiter here, but not enough to match.
+        (["bar", ".", "bar", "foo"], 2, True, False, 0),
     ],
 )
 def test__parser__grammar_delimited(

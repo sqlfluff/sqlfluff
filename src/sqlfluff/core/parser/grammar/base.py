@@ -32,7 +32,7 @@ class BracketInfo:
     """
 
     bracket: BaseSegment
-    segments: Tuple[BaseSegment]
+    segments: Tuple[BaseSegment, ...]
 
     def to_segment(self, end_bracket):
         """Turn the contained segments into a bracketed segment."""
@@ -452,7 +452,7 @@ class BaseGrammar(Matchable):
         start_bracket=None,
         end_bracket=None,
         bracket_pairs_set="bracket_pairs",
-    ):
+    ) -> Tuple[Tuple[BaseSegment, ...], MatchResult, Optional[MatchableType]]:
         """Same as `_look_ahead_match` but with bracket counting.
 
         NB: Given we depend on `_look_ahead_match` we can also utilise
@@ -497,8 +497,8 @@ class BaseGrammar(Matchable):
         bracket_matchers = start_brackets + end_brackets
 
         # Make some buffers
-        seg_buff = segments
-        pre_seg_buff = ()  # NB: Tuple
+        seg_buff: Tuple[BaseSegment, ...] = segments
+        pre_seg_buff: Tuple[BaseSegment, ...] = ()
         bracket_stack: List[BracketInfo] = []
 
         # Iterate
@@ -563,7 +563,7 @@ class BaseGrammar(Matchable):
                                 # Construct a bracketed segment (as a tuple) if allowed.
                                 persist_bracket = persists[end_brackets.index(matcher)]
                                 if persist_bracket:
-                                    new_segments = (
+                                    new_segments: Tuple[BaseSegment, ...] = (
                                         bracket_stack[-1].to_segment(
                                             end_bracket=match.matched_segments
                                         ),
@@ -641,26 +641,14 @@ class BaseGrammar(Matchable):
                                 v_level=3,
                                 got=matcher,
                             )
-                            # We return with the mutated segments so we can reuse any bracket matching.
-                            return (
-                                (),
-                                MatchResult.from_unmatched(pre_seg_buff + seg_buff),
-                                None,
-                            )
+                            # From here we'll drop out to the happy unmatched exit.
                         else:
                             # This shouldn't happen!?
                             raise NotImplementedError(
                                 "This shouldn't happen. Panic in _bracket_sensitive_look_ahead_match."
                             )
-                    else:
-                        # Not in a bracket stack, but no match. This is a happy
-                        # unmatched exit. We return with the mutated segments so we can
-                        # reuse any bracket matching.
-                        return (
-                            (),
-                            MatchResult.from_unmatched(pre_seg_buff + seg_buff),
-                            None,
-                        )
+                    # Not in a bracket stack, but no match.
+                    # From here we'll drop out to the happy unmatched exit.
             else:
                 # No we're at the end:
                 # Now check have we closed all our brackets?
@@ -671,10 +659,13 @@ class BaseGrammar(Matchable):
                         segment=bracket_stack[-1].bracket,
                     )
 
-                # We reached the end with no open brackets. This is a friendly
-                # unmatched return. We return with the mutated segments so we can
-                # reuse any bracket matching.
-                return ((), MatchResult.from_unmatched(pre_seg_buff + seg_buff), None)
+            # This is the happy unmatched path. This occurs when:
+            # - We reached the end with no open brackets.
+            # - No match while outside a bracket stack.
+            # - We found an unexpected end bracket before matching something interesting.
+            # We return with the mutated segments so we can
+            # reuse any bracket matching.
+            return ((), MatchResult.from_unmatched(pre_seg_buff + seg_buff), None)
 
     def __str__(self):
         return repr(self)

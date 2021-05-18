@@ -1046,6 +1046,10 @@ class BracketedSegment(BaseSegment):
     def __init__(
         self,
         *args,
+        # These are tuples of segments but we're expecting them to
+        # be tuples of length 1. This is because we'll almost always
+        # be doing tuple arithmetic with the results and constructing
+        # 1-tuples on the fly is very easy to misread.
         start_bracket: Tuple[BaseSegment] = None,
         end_bracket: Tuple[BaseSegment] = None,
         **kwargs
