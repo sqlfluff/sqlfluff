@@ -61,7 +61,7 @@ class MatchResult(
         # The ends are the important bits.
         if len(content) > 32:
             content = content[:15] + "..." + content[-15:]
-        return "<MatchResult {0}/{1}: {2!r}>".format(
+        return "<MatchResult {}/{}: {!r}>".format(
             len(self.matched_segments),
             len(self.matched_segments) + len(self.unmatched_segments),
             content,
@@ -81,7 +81,7 @@ class MatchResult(
             return self.matched_segments == other
         else:
             raise TypeError(
-                "Unexpected equality comparison: type: {0}".format(type(other))
+                f"Unexpected equality comparison: type: {type(other)}"
             )
 
     @staticmethod

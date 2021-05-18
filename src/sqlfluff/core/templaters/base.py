@@ -19,7 +19,7 @@ def templater_selector(s=None, **kwargs):
         return cls(**kwargs)
     except KeyError:
         raise ValueError(
-            "Requested templater {0!r} which is not currently available. Try one of {1}".format(
+            "Requested templater {!r} which is not currently available. Try one of {}".format(
                 s, ", ".join(_templater_lookup.keys())
             )
         )

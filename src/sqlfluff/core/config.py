@@ -69,7 +69,7 @@ def nested_combine(*dicts: dict) -> dict:
                     r[k] = nested_combine(r[k], d[k])
                 else:
                     raise ValueError(
-                        "Key {0!r} is a dict in one config but not another! PANIC: {1!r}".format(
+                        "Key {!r} is a dict in one config but not another! PANIC: {!r}".format(
                             k, d[k]
                         )
                     )
@@ -164,8 +164,7 @@ class ConfigLoader:
         buff: List[Tuple[tuple, Any]] = []
         # Disable interpolation so we can load macros
         kw: Dict = {}
-        if sys.version_info >= (3, 0):
-            kw["interpolation"] = None
+        kw["interpolation"] = None
         config = configparser.ConfigParser(**kw)
         # NB: We want to be case sensitive in how we read from files,
         # because jinja is also case sensitive. To do this we override
@@ -218,7 +217,7 @@ class ConfigLoader:
                         r = r[dp]
                     else:
                         raise ValueError(
-                            "Overriding config value with section! [{0}]".format(k)
+                            f"Overriding config value with section! [{k}]"
                         )
                 else:
                     r[dp] = {}

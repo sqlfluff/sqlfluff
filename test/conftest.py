@@ -26,12 +26,12 @@ def process_struct(obj):
             buff = [process_struct(elem) for elem in obj]
             if any(len(elem) > 1 for elem in buff):
                 raise ValueError(
-                    "Not sure how to deal with multi key dict: {0!r}".format(buff)
+                    f"Not sure how to deal with multi key dict: {buff!r}"
                 )
             return tuple(elem[0] for elem in buff)
         else:
             raise TypeError(
-                "Did not expect a list of {0}: {1!r}".format(type(obj[0]), obj[0])
+                f"Did not expect a list of {type(obj[0])}: {obj[0]!r}"
             )
     elif isinstance(obj, (str, int, float)):
         return str(obj)
@@ -39,7 +39,7 @@ def process_struct(obj):
         return None
     else:
         raise TypeError(
-            "Not sure how to deal with type {0}: {1!r}".format(type(obj), obj)
+            f"Not sure how to deal with type {type(obj)}: {obj!r}"
         )
 
 

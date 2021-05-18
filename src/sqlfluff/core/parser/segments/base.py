@@ -85,7 +85,7 @@ class BaseSegment:
         self._surrogate_name = name
         if len(segments) == 0:
             raise RuntimeError(
-                "Setting {0} with a zero length segment set. This shouldn't happen.".format(
+                "Setting {} with a zero length segment set. This shouldn't happen.".format(
                     self.__class__
                 )
             )
@@ -99,7 +99,7 @@ class BaseSegment:
             self.segments = tuple(segments)
         else:
             raise TypeError(
-                "Unexpected type passed to BaseSegment: {0}".format(type(segments))
+                f"Unexpected type passed to BaseSegment: {type(segments)}"
             )
 
         if not pos_marker:
@@ -110,7 +110,7 @@ class BaseSegment:
                 )
             else:
                 raise TypeError(
-                    "Unexpected type passed to BaseSegment: {0}".format(type(segments))
+                    f"Unexpected type passed to BaseSegment: {type(segments)}"
                 )
         self.pos_marker: PositionMarker = pos_marker
 
@@ -133,7 +133,7 @@ class BaseSegment:
         )
 
     def __repr__(self):
-        return "<{0}: ({1})>".format(self.__class__.__name__, self.pos_marker)
+        return f"<{self.__class__.__name__}: ({self.pos_marker})>"
 
     # ################ PRIVATE PROPERTIES
 
@@ -254,11 +254,11 @@ class BaseSegment:
                 raise err
             if not hasattr(stmt, "parse"):
                 raise ValueError(
-                    "{0} has no method `parse`. This segment appears poorly constructed.".format(
+                    "{} has no method `parse`. This segment appears poorly constructed.".format(
                         stmt
                     )
                 )
-            parse_depth_msg = "Parse Depth {0}. Expanding: {1}: {2!r}".format(
+            parse_depth_msg = "Parse Depth {}. Expanding: {}: {!r}".format(
                 parse_context.parse_depth,
                 stmt.__class__.__name__,
                 curtail_string(stmt.raw, length=40),
@@ -457,7 +457,7 @@ class BaseSegment:
             # Calling unify here, allows the MatchResult class to do all the type checking.
             if not isinstance(m, MatchResult):
                 raise TypeError(
-                    "[PD:{0} MD:{1}] {2}.match. Result is {3}, not a MatchResult!".format(
+                    "[PD:{} MD:{}] {}.match. Result is {}, not a MatchResult!".format(
                         parse_context.parse_depth,
                         parse_context.match_depth,
                         cls.__name__,
@@ -473,7 +473,7 @@ class BaseSegment:
                 return MatchResult.from_unmatched(segments)
         else:
             raise NotImplementedError(
-                "{0} has no match function implemented".format(cls.__name__)
+                f"{cls.__name__} has no match function implemented"
             )
 
     # ################ PRIVATE INSTANCE METHODS
@@ -760,7 +760,7 @@ class BaseSegment:
         if parse_grammar is None:
             # No parse grammar, go straight to expansion
             parse_context.logger.debug(
-                "{0}.parse: no grammar. Going straight to expansion".format(
+                "{}.parse: no grammar. Going straight to expansion".format(
                     self.__class__.__name__
                 )
             )
@@ -776,13 +776,13 @@ class BaseSegment:
                 post_nc = ()
                 if (not segments[0].is_code) and (not segments[0].is_meta):
                     raise ValueError(
-                        "Segment {0} starts with non code segment: {1!r}.\n{2!r}".format(
+                        "Segment {} starts with non code segment: {!r}.\n{!r}".format(
                             self, segments[0].raw, segments
                         )
                     )
                 if (not segments[-1].is_code) and (not segments[-1].is_meta):
                     raise ValueError(
-                        "Segment {0} ends with non code segment: {1!r}.\n{2!r}".format(
+                        "Segment {} ends with non code segment: {!r}.\n{!r}".format(
                             self, segments[-1].raw, segments
                         )
                     )
@@ -793,7 +793,7 @@ class BaseSegment:
 
             if not isinstance(m, MatchResult):
                 raise TypeError(
-                    "[PD:{0}] {1}.match. Result is {2}, not a MatchResult!".format(
+                    "[PD:{}] {}.match. Result is {}, not a MatchResult!".format(
                         parse_context.parse_depth, self.__class__.__name__, type(m)
                     )
                 )
@@ -838,15 +838,15 @@ class BaseSegment:
                 )
 
         bencher = BenchIt()  # starts the timer
-        bencher("Parse complete of {0!r}".format(self.__class__.__name__))
+        bencher(f"Parse complete of {self.__class__.__name__!r}")
 
         # Recurse if allowed (using the expand method to deal with the expansion)
         parse_context.logger.debug(
-            "{0}.parse: Done Parse. Plotting Recursion. Recurse={1!r}".format(
+            "{}.parse: Done Parse. Plotting Recursion. Recurse={!r}".format(
                 self.__class__.__name__, parse_context.recurse
             )
         )
-        parse_depth_msg = "###\n#\n# Beginning Parse Depth {0}: {1}\n#\n###\nInitial Structure:\n{2}".format(
+        parse_depth_msg = "###\n#\n# Beginning Parse Depth {}: {}\n#\n###\nInitial Structure:\n{}".format(
             parse_context.parse_depth + 1, self.__class__.__name__, self.stringify()
         )
         if parse_context.may_recurse():
@@ -907,7 +907,7 @@ class BaseSegment:
                                     seg_buffer.append(seg)
                             else:
                                 raise ValueError(
-                                    "Unexpected edit_type: {0!r} in {1!r}".format(
+                                    "Unexpected edit_type: {!r} in {!r}".format(
                                         f.edit_type, f
                                     )
                                 )
@@ -1050,7 +1050,7 @@ class UnparsableSegment(BaseSegment):
 
         NB Override this for specific subclasses if we want extra output.
         """
-        return "!! Expected: {0!r}".format(self._expected)
+        return f"!! Expected: {self._expected!r}"
 
     def iter_unparsables(self):
         """Iterate through any unparsables.

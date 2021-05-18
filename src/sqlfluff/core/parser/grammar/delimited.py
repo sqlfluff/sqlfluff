@@ -167,7 +167,7 @@ class Delimited(OneOf):
                     else:
                         raise RuntimeError(
                             (
-                                "I don't know how I got here. Matched instead on {0}, which "
+                                "I don't know how I got here. Matched instead on {}, which "
                                 "doesn't appear to be delimiter or terminator"
                             ).format(delimiter_matcher)
                         )

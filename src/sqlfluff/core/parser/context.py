@@ -49,7 +49,7 @@ class RootParseContext:
             indentation_config = {k: bool(v) for k, v in indentation_config.items()}
         except TypeError:
             raise TypeError(
-                "One of the configuration keys in the `indentation` section is not True or False: {0!r}".format(
+                "One of the configuration keys in the `indentation` section is not True or False: {!r}".format(
                     indentation_config
                 )
             )
@@ -119,7 +119,7 @@ class ParseContext:
             return getattr(self._root_ctx, name)
         except AttributeError:
             raise AttributeError(
-                "Attribute {0!r} not found in {1!r} or {2!r}".format(
+                "Attribute {!r} not found in {!r} or {!r}".format(
                     name, type(self).__name__, type(self._root_ctx).__name__
                 )
             )

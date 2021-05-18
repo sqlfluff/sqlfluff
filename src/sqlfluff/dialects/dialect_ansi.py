@@ -2724,13 +2724,13 @@ class StatementSegment(BaseSegment):
 
     def get_table_references(self):
         """Use parsed tree to extract table references."""
-        table_refs = set(
+        table_refs = {
             tbl_ref.raw for tbl_ref in self.recursive_crawl("table_reference")
-        )
-        cte_refs = set(
+        }
+        cte_refs = {
             cte_def.get_identifier().raw
             for cte_def in self.recursive_crawl("common_table_expression")
-        )
+        }
         # External references are any table references which aren't
         # also cte aliases.
         return table_refs - cte_refs

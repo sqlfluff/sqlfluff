@@ -51,7 +51,7 @@ def match_wrapper(v_level=3):
             # Validate result
             if not isinstance(m, MatchResult):
                 parse_context.logger.warning(
-                    "{0}.match, returned {1} rather than MatchResult".format(
+                    "{}.match, returned {} rather than MatchResult".format(
                         func.__qualname__, type(m)
                     )
                 )

@@ -520,7 +520,7 @@ class LintedFile(NamedTuple):
                     # Use the patched version
                     linter_logger.debug(
                         "%-30s    %s    %r > %r",
-                        "Appending {} Patch:".format(patch.patch_type),
+                        f"Appending {patch.patch_type} Patch:",
                         patch.source_slice,
                         patch.source_str,
                         patch.fixed_raw,
@@ -859,7 +859,7 @@ class Linter:
         else:
             # this handles the potential case of a null fname
             short_fname = fname
-        bencher("Staring parse_string for {0!r}".format(short_fname))
+        bencher(f"Staring parse_string for {short_fname!r}")
 
         # Dispatch the output for the template header (including the config diff)
         if self.formatter:
@@ -893,7 +893,7 @@ class Linter:
             tokens = None
 
         t1 = time.monotonic()
-        bencher("Templating {0!r}".format(short_fname))
+        bencher(f"Templating {short_fname!r}")
 
         # Dispatch the output for the parse header
         if self.formatter:
@@ -962,7 +962,7 @@ class Linter:
             tokens = new_tokens
 
         t2 = time.monotonic()
-        bencher("Lexing {0!r}".format(short_fname))
+        bencher(f"Lexing {short_fname!r}")
         linter_logger.info("PARSING (%s)", fname)
         parser = Parser(config=config)
         # Parse the file and log any problems
@@ -974,7 +974,7 @@ class Linter:
                 violations.append(err)
                 parsed = None
             if parsed:
-                linter_logger.info("\n###\n#\n# {0}\n#\n###".format("Parsed Tree:"))
+                linter_logger.info("\n###\n#\n# {}\n#\n###".format("Parsed Tree:"))
                 linter_logger.info("\n" + parsed.stringify())
                 # We may succeed parsing, but still have unparsable segments. Extract them here.
                 for unparsable in parsed.iter_unparsables():
@@ -982,7 +982,7 @@ class Linter:
                     # so that we can use the common interface
                     violations.append(
                         SQLParseError(
-                            "Found unparsable section: {0!r}".format(
+                            "Found unparsable section: {!r}".format(
                                 unparsable.raw
                                 if len(unparsable.raw) < 40
                                 else unparsable.raw[:40] + "..."
@@ -997,7 +997,7 @@ class Linter:
 
         t3 = time.monotonic()
         time_dict = {"templating": t1 - t0, "lexing": t2 - t1, "parsing": t3 - t2}
-        bencher("Finish parsing {0!r}".format(short_fname))
+        bencher(f"Finish parsing {short_fname!r}")
         return ParsedString(parsed, violations, time_dict, templated_file, config)
 
     @classmethod
@@ -1298,7 +1298,7 @@ class Linter:
             if ignore_non_existent_files:
                 return []
             else:
-                raise IOError("Specified path does not exist")
+                raise OSError("Specified path does not exist")
 
         # Files referred to exactly are also ignored if
         # matched, but we warn the users when that happens
@@ -1341,7 +1341,7 @@ class Linter:
                 fpath = os.path.join(dirpath, fname)
                 # Handle potential .sqlfluffignore files
                 if ignore_files and fname == ignore_file_name:
-                    with open(fpath, "r") as fh:
+                    with open(fpath) as fh:
                         spec = pathspec.PathSpec.from_lines("gitwildmatch", fh)
                     matches = spec.match_tree(dirpath)
                     for m in matches:
@@ -1481,7 +1481,7 @@ class Linter:
             config = self.config.make_child_from_path(fname)
             # Handle unicode issues gracefully
             with open(
-                fname, "r", encoding="utf8", errors="backslashreplace"
+                fname, encoding="utf8", errors="backslashreplace"
             ) as target_file:
                 yield self.parse_string(
                     target_file.read(), fname=fname, recurse=recurse, config=config

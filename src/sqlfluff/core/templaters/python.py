@@ -227,7 +227,7 @@ class PythonTemplater(RawTemplater):
         except KeyError as err:
             # TODO: Add a url here so people can get more help.
             raise SQLTemplaterError(
-                "Failure in Python templating: {0}. Have you configured your variables?".format(
+                "Failure in Python templating: {}. Have you configured your variables?".format(
                     err
                 )
             )
@@ -431,8 +431,8 @@ class PythonTemplater(RawTemplater):
             if field_name:
                 constructed_token = "{{{field_name}{conv}{spec}}}".format(
                     field_name=field_name,
-                    conv="!{}".format(conversion) if conversion else "",
-                    spec=":{}".format(format_spec) if format_spec else "",
+                    conv=f"!{conversion}" if conversion else "",
+                    spec=f":{format_spec}" if format_spec else "",
                 )
                 yield RawFileSlice(constructed_token, "templated", in_idx)
                 in_idx += len(constructed_token)
@@ -521,7 +521,7 @@ class PythonTemplater(RawTemplater):
             if p in types:
                 return p
         raise RuntimeError(
-            "Exhausted priorities in _coalesce_types! {0!r}".format(types)
+            f"Exhausted priorities in _coalesce_types! {types!r}"
         )
 
     @classmethod

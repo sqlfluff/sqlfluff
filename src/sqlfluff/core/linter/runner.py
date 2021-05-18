@@ -57,7 +57,7 @@ class BaseRunner(ABC):
         config = config.make_child_from_path(fname)
         # Handle unicode issues gracefully
         with open(
-            fname, "r", encoding="utf8", errors="backslashreplace"
+            fname, encoding="utf8", errors="backslashreplace"
         ) as target_file:
             return linter.lint_string(
                 target_file.read(), fname=fname, fix=fix, config=config

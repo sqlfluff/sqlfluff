@@ -81,7 +81,7 @@ def pad_line(s, width, align="left"):
     elif align == "right":
         return (" " * gap) + s
     else:
-        raise ValueError("Unknown alignment: {0}".format(align))
+        raise ValueError(f"Unknown alignment: {align}")
 
 
 def cli_table_row(

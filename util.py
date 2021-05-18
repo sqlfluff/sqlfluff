@@ -1,12 +1,10 @@
 #!/usr/bin/env python
-# -*- encoding: utf-8 -*-
 
 """Utility strings for use during deployment.
 
 NB: This is not part of the core sqlfluff code.
 """
 
-from __future__ import absolute_import
 
 # This contains various utility scripts
 
@@ -36,14 +34,14 @@ def clean_tests(path):
     """
     try:
         shutil.rmtree(path)
-        click.echo("Removed {0!r}...".format(path))
+        click.echo(f"Removed {path!r}...")
     # OSError is for python 27
     # in py36 its FileNotFoundError (but that inherits from IOError, which exists in py27)
-    except (IOError, OSError):
-        click.echo("Directory {0!r} does not exist. Skipping...".format(path))
+    except OSError:
+        click.echo(f"Directory {path!r} does not exist. Skipping...")
 
     os.mkdir(path)
-    click.echo("Created {0!r}".format(path))
+    click.echo(f"Created {path!r}")
 
 
 @cli.command()
@@ -53,7 +51,7 @@ def clean_tests(path):
 def benchmark(cmd, runs, from_file):
     """Benchmark how long it takes to run a particular command."""
     if from_file:
-        with open(from_file, "r") as yaml_file:
+        with open(from_file) as yaml_file:
             parsed = yaml.load(yaml_file.read(), Loader=yaml.FullLoader)
             benchmarks = parsed["benchmarks"]
             click.echo(repr(benchmarks))
@@ -72,15 +70,15 @@ def benchmark(cmd, runs, from_file):
         # click.echo("Available keys: {0!r}".format(available_vars))
         commit_hash = os.environ.get("CIRCLE_SHA1", None)
         post_results = True
-        click.echo("Commit hash is: {0!r}".format(commit_hash))
+        click.echo(f"Commit hash is: {commit_hash!r}")
 
     all_results = {}
     for run_no in range(runs):
-        click.echo("===== Run #{0} =====".format(run_no + 1))
+        click.echo(f"===== Run #{run_no + 1} =====")
         results = {}
         for benchmark in benchmarks:
             # Iterate through benchmarks
-            click.echo("Starting bechmark: {0!r}".format(benchmark["name"]))
+            click.echo("Starting bechmark: {!r}".format(benchmark["name"]))
             t0 = time.monotonic()
             click.echo("===START PROCESS OUTPUT===")
             process = subprocess.run(benchmark["cmd"])
@@ -88,16 +86,16 @@ def benchmark(cmd, runs, from_file):
             t1 = time.monotonic()
             if process.returncode != 0:
                 click.echo(
-                    "Command failed with return code: {0}".format(process.returncode)
+                    f"Command failed with return code: {process.returncode}"
                 )
                 sys.exit(process.returncode)
             else:
                 duration = t1 - t0
-                click.echo("Process completed in {0:.4f}s".format(duration))
+                click.echo(f"Process completed in {duration:.4f}s")
                 results[benchmark["name"]] = duration
 
         if post_results:
-            click.echo("Posting results: {0}".format(results))
+            click.echo(f"Posting results: {results}")
             resp = requests.post(
                 "https://f32cvv8yh3.execute-api.eu-west-1.amazonaws.com/result/gh/{repo}/{commit}".format(
                     # TODO: update the stats collector eventually to allow the new repo path
@@ -111,7 +109,7 @@ def benchmark(cmd, runs, from_file):
         all_results[run_no] = results
     click.echo("===== Done =====")
     for run_no in all_results:
-        click.echo("Run {0:>5}: {1}".format("#{0}".format(run_no), all_results[run_no]))
+        click.echo("Run {:>5}: {}".format(f"#{run_no}", all_results[run_no]))
 
 
 if __name__ == "__main__":

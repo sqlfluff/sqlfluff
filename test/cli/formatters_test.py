@@ -12,7 +12,7 @@ from sqlfluff.cli.formatters import format_filename, format_violation
 
 def escape_ansi(line):
     """Remove ANSI color codes for testing."""
-    ansi_escape = re.compile(u"\u001b\\[[0-9]+(;[0-9]+)?m")
+    ansi_escape = re.compile("\u001b\\[[0-9]+(;[0-9]+)?m")
     return ansi_escape.sub("", line)
 
 
