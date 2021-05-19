@@ -16,6 +16,8 @@ class EphemeralSegment(BaseSegment):
     it no longer exists.
     """
 
+    type = "ephemeral"
+
     def __init__(self, segments, pos_marker, parse_grammar, name: Optional[str] = None):
         # Stash the parse grammar for now.
         self._parse_grammar = parse_grammar
@@ -67,17 +69,22 @@ def allow_ephemeral(func):
             # Reset the ephemeral name on the new version of the grammar otherwise
             # we get infinite recursion.
             new_grammar.ephemeral_name = None
-            return MatchResult.from_matched(
-                (
-                    EphemeralSegment(
-                        segments=segments,
-                        pos_marker=None,
-                        # Ephemeral segments get a copy of the parent grammar.
-                        parse_grammar=new_grammar,
-                        name=self.ephemeral_name,
-                    ),
+            # We shouldn't allow nested ephemerals. If they're present, don't create another.
+            # This can happen when grammars call super() on their match method.
+            if len(segments) == 1 and segments[0].is_type("ephemeral"):
+                return MatchResult.from_matched(segments)
+            else:
+                return MatchResult.from_matched(
+                    (
+                        EphemeralSegment(
+                            segments=segments,
+                            pos_marker=None,
+                            # Ephemeral segments get a copy of the parent grammar.
+                            parse_grammar=new_grammar,
+                            name=self.ephemeral_name,
+                        ),
+                    )
                 )
-            )
         else:
             # Otherwise carry on through with wrapping the function.
             return func(self, segments, parse_context=parse_context)

@@ -1,12 +1,13 @@
 """Base grammar, Ref, Anything and Nothing."""
 
 import copy
-from typing import List, NamedTuple, Optional, Union, Type, Tuple, Any
+from dataclasses import dataclass
+from typing import List, Optional, Union, Type, Tuple, Any
 
 from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.string_helpers import curtail_string
 
-from sqlfluff.core.parser.segments import BaseSegment, allow_ephemeral
+from sqlfluff.core.parser.segments import BaseSegment, BracketedSegment, allow_ephemeral
 from sqlfluff.core.parser.helpers import trim_non_code_segments, iter_indices
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_logging import (
@@ -22,7 +23,8 @@ from sqlfluff.core.parser.parsers import StringParser
 MatchableType = Union[Matchable, Type[BaseSegment]]
 
 
-class BracketInfo(NamedTuple):
+@dataclass
+class BracketInfo:
     """BracketInfo tuple for keeping track of brackets during matching.
 
     This is used in BaseGrammar._bracket_sensitive_look_ahead_match but
@@ -30,6 +32,15 @@ class BracketInfo(NamedTuple):
     """
 
     bracket: BaseSegment
+    segments: Tuple[BaseSegment, ...]
+
+    def to_segment(self, end_bracket):
+        """Turn the contained segments into a bracketed segment."""
+        return BracketedSegment(
+            segments=self.segments,
+            start_bracket=(self.bracket,),
+            end_bracket=end_bracket,
+        )
 
 
 def cached_method_for_parse_context(func):
@@ -222,6 +233,9 @@ class BaseGrammar(Matchable):
                 if res_match.matched_length > best_match_length:
                     best_match = res_match, matcher
                     best_match_length = res_match.matched_length
+            # We could stash segments here, but given we might have some successful
+            # matches here, we shouldn't, because they'll be mutated in the wrong way.
+            # Eventually there might be a performance gain from doing that sensibly here.
 
         # If we get here, then there wasn't a complete match. If we
         # has a best_match, return that.
@@ -438,7 +452,7 @@ class BaseGrammar(Matchable):
         start_bracket=None,
         end_bracket=None,
         bracket_pairs_set="bracket_pairs",
-    ):
+    ) -> Tuple[Tuple[BaseSegment, ...], MatchResult, Optional[MatchableType]]:
         """Same as `_look_ahead_match` but with bracket counting.
 
         NB: Given we depend on `_look_ahead_match` we can also utilise
@@ -465,7 +479,7 @@ class BaseGrammar(Matchable):
         # to the list of matchers. We get them from the relevant set on the
         # dialect. We use zip twice to "unzip" them. We ignore the first
         # argument because that's just the name.
-        _, start_bracket_refs, end_bracket_refs = zip(
+        _, start_bracket_refs, end_bracket_refs, persists = zip(
             *parse_context.dialect.sets(bracket_pairs_set)
         )
         # These are matchables, probably StringParsers.
@@ -483,8 +497,8 @@ class BaseGrammar(Matchable):
         bracket_matchers = start_brackets + end_brackets
 
         # Make some buffers
-        seg_buff = segments
-        pre_seg_buff = ()  # NB: Tuple
+        seg_buff: Tuple[BaseSegment, ...] = segments
+        pre_seg_buff: Tuple[BaseSegment, ...] = ()
         bracket_stack: List[BracketInfo] = []
 
         # Iterate
@@ -512,14 +526,15 @@ class BaseGrammar(Matchable):
                         # handle identical start and end brackets. For now, consider this
                         # a small, speculative investment in a possible future requirement.
                         if matcher in start_brackets and matcher not in end_brackets:
-                            # Same procedure as below in finding brackets.
+                            # Add any segments leading up to this to the previous bracket.
+                            bracket_stack[-1].segments += pre
+                            # Add a bracket to the stack and add the matches from the segment.
                             bracket_stack.append(
                                 BracketInfo(
                                     bracket=match.matched_segments[0],
+                                    segments=match.matched_segments,
                                 )
                             )
-                            pre_seg_buff += pre
-                            pre_seg_buff += match.matched_segments
                             seg_buff = match.unmatched_segments
                             continue
                         elif matcher in end_brackets:
@@ -537,11 +552,32 @@ class BaseGrammar(Matchable):
                             bracket_types_match = start_index == end_index
                             if bracket_types_match:
                                 # Yes, the types match. So we've found a
-                                # matching end bracket. Pop the stack and carry
+                                # matching end bracket. Pop the stack, construct
+                                # a bracketed segment and carry
                                 # on.
+
+                                # Complete the bracketed info
+                                bracket_stack[-1].segments += (
+                                    pre + match.matched_segments
+                                )
+                                # Construct a bracketed segment (as a tuple) if allowed.
+                                persist_bracket = persists[end_brackets.index(matcher)]
+                                if persist_bracket:
+                                    new_segments: Tuple[BaseSegment, ...] = (
+                                        bracket_stack[-1].to_segment(
+                                            end_bracket=match.matched_segments
+                                        ),
+                                    )
+                                else:
+                                    new_segments = bracket_stack[-1].segments
+                                # Remove the bracket set from the stack
                                 bracket_stack.pop()
-                                pre_seg_buff += pre
-                                pre_seg_buff += match.matched_segments
+                                # If we're still in a bracket, add the new segments to that bracket
+                                # Otherwise add them to the buffer
+                                if bracket_stack:
+                                    bracket_stack[-1].segments += new_segments
+                                else:
+                                    pre_seg_buff += new_segments
                                 seg_buff = match.unmatched_segments
                                 continue
                             else:
@@ -583,12 +619,13 @@ class BaseGrammar(Matchable):
                             bracket_stack.append(
                                 BracketInfo(
                                     bracket=match.matched_segments[0],
+                                    segments=match.matched_segments,
                                 )
                             )
-                            # Add the matched elements and anything before it to the
-                            # pre segment buffer. Reset the working buffer.
+                            # The matched element has already been added to the bracket.
+                            # Add anything before it to the pre segment buffer.
+                            # Reset the working buffer.
                             pre_seg_buff += pre
-                            pre_seg_buff += match.matched_segments
                             seg_buff = match.unmatched_segments
                             continue
                         elif matcher in end_brackets:
@@ -604,16 +641,14 @@ class BaseGrammar(Matchable):
                                 v_level=3,
                                 got=matcher,
                             )
-                            return ((), MatchResult.from_unmatched(segments), None)
+                            # From here we'll drop out to the happy unmatched exit.
                         else:
                             # This shouldn't happen!?
                             raise NotImplementedError(
                                 "This shouldn't happen. Panic in _bracket_sensitive_look_ahead_match."
                             )
-                    else:
-                        # Not in a bracket stack, but no match. This is a happy
-                        # unmatched exit.
-                        return ((), MatchResult.from_unmatched(segments), None)
+                    # Not in a bracket stack, but no match.
+                    # From here we'll drop out to the happy unmatched exit.
             else:
                 # No we're at the end:
                 # Now check have we closed all our brackets?
@@ -624,9 +659,13 @@ class BaseGrammar(Matchable):
                         segment=bracket_stack[-1].bracket,
                     )
 
-                # We reached the end with no open brackets. This is a friendly
-                # unmatched return.
-                return ((), MatchResult.from_unmatched(segments), None)
+            # This is the happy unmatched path. This occurs when:
+            # - We reached the end with no open brackets.
+            # - No match while outside a bracket stack.
+            # - We found an unexpected end bracket before matching something interesting.
+            # We return with the mutated segments so we can
+            # reuse any bracket matching.
+            return ((), MatchResult.from_unmatched(pre_seg_buff + seg_buff), None)
 
     def __str__(self):
         return repr(self)

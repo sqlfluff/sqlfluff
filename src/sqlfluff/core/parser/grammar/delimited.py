@@ -102,9 +102,9 @@ class Delimited(OneOf):
                     parse_context=ctx,
                     bracket_pairs_set=self.bracket_pairs_set,
                 )
-            # Keep track of the *length* of this pre-content section before we start
-            # to change it later. We need this for dealing with terminators.
-            pre_content_len = len(pre_content)
+
+            # Store the mutated segments to reuse.
+            mutated_segments = pre_content + delimiter_match.all_segments()
 
             # Have we found a delimiter or terminator looking forward?
             if delimiter_match:
@@ -126,7 +126,7 @@ class Delimited(OneOf):
 
                     # No match, or an incomplete match: Not allowed
                     if not match or not match.is_complete():
-                        return MatchResult.from_unmatched(segments)
+                        return MatchResult.from_unmatched(mutated_segments)
 
                     # We have a complete match!
 
@@ -146,23 +146,18 @@ class Delimited(OneOf):
                         delimiter_matcher, NonCodeMatcher
                     ):
                         # We just return straight away here. We don't add the terminator to
-                        # this match, it should go with the unmatched parts. The terminator
-                        # may also have mutated the returned segments so we also DON'T want
-                        # the mutated version, it can do that itself (so we return `seg_buff`
-                        # and not `delimiter_match.all_segments()``)
+                        # this match, it should go with the unmatched parts.
 
                         # First check we've had enough delimiters
                         if (
                             self.min_delimiters
                             and len(delimiters) < self.min_delimiters
                         ):
-                            return MatchResult.from_unmatched(segments)
+                            return MatchResult.from_unmatched(mutated_segments)
                         else:
                             return MatchResult(
                                 matched_segments.matched_segments,
-                                # Return the part of the seg_buff which isn't in the
-                                # pre-content.
-                                seg_buff[pre_content_len:],
+                                delimiter_match.all_segments(),
                             )
                     else:
                         raise RuntimeError(
@@ -174,7 +169,7 @@ class Delimited(OneOf):
                 else:
                     # Zero length section between delimiters, or zero code
                     # elements if appropriate. Return unmatched.
-                    return MatchResult.from_unmatched(segments)
+                    return MatchResult.from_unmatched(mutated_segments)
             else:
                 # No match for a delimiter looking forward, this means we're
                 # at the end. In this case we look for a potential partial match
@@ -184,13 +179,13 @@ class Delimited(OneOf):
                 # First check we're had enough delimiters, because if we haven't then
                 # there's no sense to try matching
                 if self.min_delimiters and len(delimiters) < self.min_delimiters:
-                    return MatchResult.from_unmatched(segments)
+                    return MatchResult.from_unmatched(mutated_segments)
 
                 # We use the whitespace padded match to hoover up whitespace if enabled,
                 # and default to the longest matcher. We don't care which one matches.
                 with parse_context.deeper_match() as ctx:
                     mat, _ = self._longest_trimmed_match(
-                        seg_buff,
+                        mutated_segments,
                         self._elements,
                         parse_context=ctx,
                         trim_noncode=self.allow_gaps,
@@ -215,4 +210,4 @@ class Delimited(OneOf):
                     if self.allow_trailing:
                         return MatchResult(matched_segments.matched_segments, seg_buff)
                     else:
-                        return MatchResult.from_unmatched(segments)
+                        return MatchResult.from_unmatched(mutated_segments)

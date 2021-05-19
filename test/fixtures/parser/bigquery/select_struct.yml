@@ -13,34 +13,35 @@ file:
           function:
             function_name:
               function_name_identifier: array
-            start_bracket: (
-            expression:
-              select_statement:
-                select_clause:
-                - keyword: select
-                - keyword: as
-                - keyword: struct
-                - star: '*'
-                from_clause:
-                  keyword: from
-                  from_expression:
-                    from_expression_element:
-                      table_expression:
-                        table_reference:
-                          identifier: another_table
-                where_clause:
-                  keyword: where
-                  expression:
-                  - column_reference:
-                    - identifier: another_table
-                    - dot: .
-                    - identifier: foo_id
-                  - comparison_operator: '='
-                  - column_reference:
-                    - identifier: some_table
-                    - dot: .
-                    - identifier: foo_id
-            end_bracket: )
+            bracketed:
+              start_bracket: (
+              expression:
+                select_statement:
+                  select_clause:
+                  - keyword: select
+                  - keyword: as
+                  - keyword: struct
+                  - star: '*'
+                  from_clause:
+                    keyword: from
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            identifier: another_table
+                  where_clause:
+                    keyword: where
+                    expression:
+                    - column_reference:
+                      - identifier: another_table
+                      - dot: .
+                      - identifier: foo_id
+                    - comparison_operator: '='
+                    - column_reference:
+                      - identifier: some_table
+                      - dot: .
+                      - identifier: foo_id
+              end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -55,24 +56,25 @@ file:
         keyword: select
         select_clause_element:
           typeless_struct:
-          - keyword: struct
-          - start_bracket: (
-          - column_reference:
-            - identifier: bar
-            - dot: .
-            - identifier: bar_id
-          - alias_expression:
-              keyword: as
-              identifier: id
-          - comma: ','
-          - column_reference:
-            - identifier: bar
-            - dot: .
-            - identifier: bar_name
-          - alias_expression:
-              keyword: as
-              identifier: bar
-          - end_bracket: )
+            keyword: struct
+            bracketed:
+            - start_bracket: (
+            - column_reference:
+              - identifier: bar
+              - dot: .
+              - identifier: bar_id
+            - alias_expression:
+                keyword: as
+                identifier: id
+            - comma: ','
+            - column_reference:
+              - identifier: bar
+              - dot: .
+              - identifier: bar_name
+            - alias_expression:
+                keyword: as
+                identifier: bar
+            - end_bracket: )
           alias_expression:
             keyword: as
             identifier: bar

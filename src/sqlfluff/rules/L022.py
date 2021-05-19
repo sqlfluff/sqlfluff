@@ -49,7 +49,7 @@ class Rule_L022(BaseRule):
                 segment.iter_segments(expanding=["common_table_expression"])
             )
             for idx, seg in enumerate(expanded_segments):
-                if seg.is_type("end_bracket"):
+                if seg.is_type("bracketed"):
                     bracket_indices.append(idx)
 
             # Work through each point and deal with it individually

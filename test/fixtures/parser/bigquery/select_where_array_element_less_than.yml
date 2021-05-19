@@ -25,10 +25,11 @@ file:
               function:
                 function_name:
                   function_name_identifier: ORDINAL
-                start_bracket: (
-                expression:
-                  literal: '1'
-                end_bracket: )
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    literal: '1'
+                  end_bracket: )
             end_square_bracket: ']'
         - comparison_operator: <
         - column_reference:
@@ -39,10 +40,11 @@ file:
               function:
                 function_name:
                   function_name_identifier: ORDINAL
-                start_bracket: (
-                expression:
-                - literal: '1'
-                - binary_operator: +
-                - literal: '1'
-                end_bracket: )
+                bracketed:
+                  start_bracket: (
+                  expression:
+                  - literal: '1'
+                  - binary_operator: +
+                  - literal: '1'
+                  end_bracket: )
             end_square_bracket: ']'
