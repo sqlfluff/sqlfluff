@@ -982,10 +982,11 @@ class Linter:
                     # so that we can use the common interface
                     violations.append(
                         SQLParseError(
-                            "Found unparsable section: {!r}".format(
+                            "Line {0[0]}, Position {0[1]}: Found unparsable section: {1!r}".format(
+                                unparsable.pos_marker.working_loc,
                                 unparsable.raw
                                 if len(unparsable.raw) < 40
-                                else unparsable.raw[:40] + "..."
+                                else unparsable.raw[:40] + "...",
                             ),
                             segment=unparsable,
                         )
@@ -1480,7 +1481,9 @@ class Linter:
                 self.formatter.dispatch_path(path)
             config = self.config.make_child_from_path(fname)
             # Handle unicode issues gracefully
-            with open(fname, encoding="utf8", errors="backslashreplace") as target_file:
+            with open(
+                fname, encoding="utf8", errors="backslashreplace"
+            ) as target_file:
                 yield self.parse_string(
                     target_file.read(), fname=fname, recurse=recurse, config=config
                 )
