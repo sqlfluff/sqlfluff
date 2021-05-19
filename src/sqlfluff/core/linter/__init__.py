@@ -1481,9 +1481,7 @@ class Linter:
                 self.formatter.dispatch_path(path)
             config = self.config.make_child_from_path(fname)
             # Handle unicode issues gracefully
-            with open(
-                fname, encoding="utf8", errors="backslashreplace"
-            ) as target_file:
+            with open(fname, encoding="utf8", errors="backslashreplace") as target_file:
                 yield self.parse_string(
                     target_file.read(), fname=fname, recurse=recurse, config=config
                 )
