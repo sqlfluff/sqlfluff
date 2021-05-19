@@ -10,7 +10,17 @@ class SQLBaseError(ValueError):
     _code: Optional[str] = None
     _identifier = "base"
 
-    def __init__(self, *args, pos=None, line_no=0, line_pos=0, ignore=False, **kwargs):
+    def __init__(
+        self,
+        *args,
+        pos=None,
+        line_no=0,
+        line_pos=0,
+        ignore=False,
+        fatal=False,
+        **kwargs
+    ):
+        self.fatal = fatal
         self.ignore = ignore
         if pos:
             self.line_no, self.line_pos = pos.source_position()

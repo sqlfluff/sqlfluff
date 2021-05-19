@@ -56,7 +56,7 @@ class Rule_L035(BaseRule):
                     if seg.raw_upper == "NULL":
                         return LintResult(anchor=segment, fixes=fixes)
 
-                if not fixes and seg.name == "ELSE":
+                if not fixes and seg.name == "else":
                     fixes.append(LintFix("delete", seg))
                     # Walk back to remove indents/whitespaces
                     walk_idx = idx - 1

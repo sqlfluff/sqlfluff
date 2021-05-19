@@ -37,12 +37,12 @@ class DummyAuxSegment(BaseSegment):
 
 def test__parser__base_segments_type():
     """Test the .is_type() method."""
-    assert BaseSegment.is_type("base")
-    assert not BaseSegment.is_type("foo")
-    assert not BaseSegment.is_type("foo", "bar")
-    assert DummySegment.is_type("dummy")
-    assert DummySegment.is_type("base")
-    assert DummySegment.is_type("base", "foo", "bar")
+    assert BaseSegment.class_is_type("base")
+    assert not BaseSegment.class_is_type("foo")
+    assert not BaseSegment.class_is_type("foo", "bar")
+    assert DummySegment.class_is_type("dummy")
+    assert DummySegment.class_is_type("base")
+    assert DummySegment.class_is_type("base", "foo", "bar")
 
 
 def test__parser__base_segments_raw(raw_seg):
@@ -51,9 +51,7 @@ def test__parser__base_segments_raw(raw_seg):
     assert raw_seg.segments == []
     assert raw_seg.raw == "foobar"
     # Check Formatting and Stringification
-    # NOTE: The preceding underscore shouldn't be there
-    # but it's added by .make(). Revisit later.
-    assert str(raw_seg) == repr(raw_seg) == "<_RawSegment: ([L:  1, P:  1]) 'foobar'>"
+    assert str(raw_seg) == repr(raw_seg) == "<CodeSegment: ([L:  1, P:  1]) 'foobar'>"
     assert (
         raw_seg.stringify(ident=1, tabsize=2)
         == "[L:  1, P:  1]      |  raw:                                                        'foobar'\n"

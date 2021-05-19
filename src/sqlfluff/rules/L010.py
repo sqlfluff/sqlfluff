@@ -174,7 +174,7 @@ class Rule_L010(BaseRule):
         return LintFix(
             "edit",
             segment,
-            segment.__class__(raw=fixed_raw, pos_marker=segment.pos_marker),
+            segment.edit(fixed_raw),
         )
 
     def _init_capitalisation_policy(self):

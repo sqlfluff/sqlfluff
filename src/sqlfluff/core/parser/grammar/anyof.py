@@ -7,7 +7,7 @@ from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.match_logging import parse_match_logging
 from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.segments import BaseSegment
+from sqlfluff.core.parser.segments import BaseSegment, allow_ephemeral
 from sqlfluff.core.parser.grammar.base import (
     BaseGrammar,
     MatchableType,
@@ -149,6 +149,7 @@ class AnyNumberOf(BaseGrammar):
         return match
 
     @match_wrapper()
+    @allow_ephemeral
     def match(
         self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
     ) -> MatchResult:

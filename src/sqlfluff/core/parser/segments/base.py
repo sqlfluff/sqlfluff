@@ -66,8 +66,8 @@ class BaseSegment:
     # `type` should be the *category* of this kind of segment
     type = "base"
     parse_grammar: Optional[Matchable] = None
-    # We define this as Null here but it is assumed that any subclass must override.
-    match_grammar: Matchable = None  # type: ignore
+    # We define the type here but no value. Subclasses must provide a value.
+    match_grammar: Matchable
     comment_seperate = False
     optional = False  # NB: See the sequence grammar for details
     _name: Optional[str] = None
@@ -77,13 +77,14 @@ class BaseSegment:
     # Can we allow it to be empty? Usually used in combination
     # with the can_start_end_non_code.
     allow_empty = False
-    # What should we trim off the ends to get to content
-    trim_chars = None
-    trim_start = None
-    # A cache variable for expandable
-    _is_expandable = None
+    # What other kwargs need to be copied when applying fixes.
+    additional_kwargs: List[str] = []
 
-    def __init__(self, segments, pos_marker=None):
+    def __init__(self, segments, pos_marker=None, name: Optional[str] = None):
+        # A cache variable for expandable
+        self._is_expandable = None
+        # Surrogate name option.
+        self._surrogate_name = name
         if len(segments) == 0:
             raise RuntimeError(
                 "Setting {0} with a zero length segment set. This shouldn't happen.".format(
@@ -103,18 +104,17 @@ class BaseSegment:
                 "Unexpected type passed to BaseSegment: {0}".format(type(segments))
             )
 
-        if pos_marker:
-            self.pos_marker = pos_marker
-        else:
+        if not pos_marker:
             # If no pos given, it's the pos of the first segment.
             if isinstance(segments, (tuple, list)):
-                self.pos_marker = PositionMarker.from_child_markers(
+                pos_marker = PositionMarker.from_child_markers(
                     *(seg.pos_marker for seg in segments)
                 )
             else:
                 raise TypeError(
                     "Unexpected type passed to BaseSegment: {0}".format(type(segments))
                 )
+        self.pos_marker: PositionMarker = pos_marker
 
     def __eq__(self, other):
         # NB: this should also work for RawSegment
@@ -142,12 +142,12 @@ class BaseSegment:
     @property
     def _comments(self):
         """Returns only the comment elements of this segment."""
-        return [seg for seg in self.segments if seg.type == "comment"]
+        return [seg for seg in self.segments if seg.is_type("comment")]
 
     @property
     def _non_comments(self):
         """Returns only the non-comment elements of this segment."""
-        return [seg for seg in self.segments if seg.type != "comment"]
+        return [seg for seg in self.segments if not seg.is_type("comment")]
 
     # ################ PUBLIC PROPERTIES
 
@@ -155,16 +155,17 @@ class BaseSegment:
     def name(self):
         """The name of this segment.
 
-        The reason for two routes for names is that some subclasses
-        might want to override the name rather than just getting it
-        the class name.
+        The reason for three routes for names is that some subclasses
+        might want to override the name rather than just getting
+        the class name. Instances may also override this with the
+        _surrogate_name.
 
         Name should be specific to this kind of segment, while `type`
         should be a higher level descriptor of the kind of segment.
         For example, the name of `+` is 'plus' but the type might be
         'binary_operator'.
         """
-        return self._name or self.__class__.__name__
+        return self._surrogate_name or self._name or self.__class__.__name__
 
     @property
     def is_expandable(self):
@@ -374,17 +375,20 @@ class BaseSegment:
         return cls.optional
 
     @classmethod
-    def is_type(cls, *seg_type):
-        """Is this segment (or its parent) of the given type."""
+    def class_is_type(cls, *seg_type):
+        """Is this segment class (or its parent) of the given type."""
         # Do we match on the type of _this_ class.
         if cls.type in seg_type:
             return True
-        # Have we reached the bottom?
-        elif cls.type == "base":
-            return False
-        # If not, check parent classes.
-        else:
-            return any(base_class.is_type(*seg_type) for base_class in cls.__bases__)
+        # If not, check types of parents.
+        for base_class in cls.__bases__:
+            if base_class is object:
+                break
+            elif base_class.type in seg_type:
+                return True
+            elif base_class.type == "base":
+                break
+        return False
 
     @classmethod
     def structural_simplify(cls, elem):
@@ -485,7 +489,7 @@ class BaseSegment:
         padded_type = "{padding}{modifier}{type}".format(
             padding=" " * (ident * tabsize),
             modifier="[META] " if self.is_meta else "",
-            type=self.type + ":",
+            type=self.get_type() + ":",
         )
         preface = "{pos:20}|{padded_type:60}  {suffix}".format(
             pos=str(self.pos_marker) if self.pos_marker else "-",
@@ -496,6 +500,14 @@ class BaseSegment:
         return preface.rstrip()
 
     # ################ PUBLIC INSTANCE METHODS
+
+    def get_type(self):
+        """Returns the type of this segment as a string."""
+        return self.type
+
+    def is_type(self, *seg_type):
+        """Is this segment (or its parent) of the given type."""
+        return self.class_is_type(*seg_type)
 
     def invalidate_caches(self):
         """Invalidate the cached properties.
@@ -516,7 +528,7 @@ class BaseSegment:
 
     def get_start_loc(self):
         """Get a location tuple at the start of this segment."""
-        return self.pos_marker.working_loc()
+        return self.pos_marker.working_loc
 
     def get_end_loc(self):
         """Get a location tuple at the end of this segment."""
@@ -574,10 +586,10 @@ class BaseSegment:
         show_raw = kwargs.get("show_raw", False)
 
         if show_raw and not self.segments:
-            result = (self.type, self.raw)
+            result = (self.get_type(), self.raw)
         elif code_only:
             result = (
-                self.type,
+                self.get_type(),
                 tuple(
                     seg.to_tuple(**kwargs)
                     for seg in self.segments
@@ -586,7 +598,7 @@ class BaseSegment:
             )
         else:
             result = (
-                self.type,
+                self.get_type(),
                 tuple(
                     seg.to_tuple(**kwargs) for seg in self.segments if not seg.is_meta
                 ),
@@ -709,11 +721,8 @@ class BaseSegment:
             return [self]
 
         # Are we in the right ballpark?
-        if (
-            not self.get_start_point_marker()
-            <= other.get_start_point_marker()
-            <= self.get_end_point_marker()
-        ):
+        # NB: Comparisons have a higher precedence than `not`.
+        if not self.get_start_loc() <= other.get_start_loc() <= self.get_end_loc():
             return None
 
         # Do we have any child segments at all?
@@ -727,13 +736,17 @@ class BaseSegment:
                 return [self] + res
         return None
 
-    def parse(self, parse_context=None):
+    def parse(self, parse_context=None, parse_grammar=None):
         """Use the parse grammar to find subsegments within this segment.
 
         A large chunk of the logic around this can be found in the `expand` method.
 
         Use the parse setting in the context for testing, mostly to check how deep to go.
         True/False for yes or no, an integer allows a certain number of levels.
+
+        Optionally, this method allows a custom parse grammar to be
+        provided which will override any existing parse grammar
+        on the segment.
         """
         # Clear the blacklist cache so avoid missteps
         if parse_context:
@@ -745,7 +758,8 @@ class BaseSegment:
             return self
 
         # Check the Parse Grammar
-        if self.parse_grammar is None:
+        parse_grammar = parse_grammar or self.parse_grammar
+        if parse_grammar is None:
             # No parse grammar, go straight to expansion
             parse_context.logger.debug(
                 "{0}.parse: no grammar. Going straight to expansion".format(
@@ -777,7 +791,7 @@ class BaseSegment:
 
             # NOTE: No match_depth kwarg, because this is the start of the matching.
             with parse_context.matching_segment(self.__class__.__name__) as ctx:
-                m = self.parse_grammar.match(segments=segments, parse_context=ctx)
+                m = parse_grammar.match(segments=segments, parse_context=ctx)
 
             if not isinstance(m, MatchResult):
                 raise TypeError(
@@ -819,7 +833,7 @@ class BaseSegment:
                     + (
                         UnparsableSegment(
                             segments=segments,
-                            expected=self.type,
+                            expected=self.name,
                         ),  # NB: tuple
                     )
                     + post_nc
@@ -926,6 +940,8 @@ class BaseSegment:
                     tuple(seg_buffer), parent_pos=r.pos_marker
                 ),
                 pos_marker=r.pos_marker,
+                # Pass through any additional kwargs
+                **{k: getattr(self, k) for k in self.additional_kwargs}
             )
             # Return the new segment with any unused fixes.
             return r, fixes
@@ -1019,6 +1035,57 @@ class BaseSegment:
                     insert_buff,
                     patch_type="end_point",
                 )
+
+
+class BracketedSegment(BaseSegment):
+    """A segment containing a bracketed expression."""
+
+    type = "bracketed"
+    additional_kwargs = ["start_bracket", "end_bracket"]
+
+    def __init__(
+        self,
+        *args,
+        # These are tuples of segments but we're expecting them to
+        # be tuples of length 1. This is because we'll almost always
+        # be doing tuple arithmetic with the results and constructing
+        # 1-tuples on the fly is very easy to misread.
+        start_bracket: Tuple[BaseSegment] = None,
+        end_bracket: Tuple[BaseSegment] = None,
+        **kwargs
+    ):
+        """Stash the bracket segments for later."""
+        if not start_bracket or not end_bracket:
+            raise ValueError(
+                "Attempted to construct Bracketed segment without specifying brackets."
+            )
+        self.start_bracket = start_bracket
+        self.end_bracket = end_bracket
+        super().__init__(*args, **kwargs)
+
+    @classmethod
+    def simple(cls, parse_context: ParseContext) -> Optional[List[str]]:
+        """Simple methods for bracketed and the persitent brackets."""
+        start_brackets = [
+            start_bracket
+            for _, start_bracket, _, persistent in parse_context.dialect.sets(
+                "bracket_pairs"
+            )
+            if persistent
+        ]
+        start_simple = []
+        for ref in start_brackets:
+            start_simple += parse_context.dialect.ref(ref).simple(parse_context)
+        return start_simple
+
+    @classmethod
+    def match(
+        cls, segments: Tuple["BaseSegment", ...], parse_context: ParseContext
+    ) -> MatchResult:
+        """Only useful as a terminator."""
+        if segments and isinstance(segments[0], cls):
+            return MatchResult((segments[0],), segments[1:])
+        return MatchResult.from_unmatched(segments)
 
 
 class UnparsableSegment(BaseSegment):

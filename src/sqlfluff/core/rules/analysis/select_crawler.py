@@ -78,7 +78,7 @@ class SelectCrawler:
                 # returns the statement itself. Skip that.
                 continue
 
-            if seg.type == "table_reference":
+            if seg.is_type("table_reference"):
                 if not seg.is_qualified() and seg.raw in queries:
                     # It's a CTE.
                     # :TRICKY: Pop the CTE from "queries" to help callers avoid
@@ -89,7 +89,7 @@ class SelectCrawler:
                     # It's an external table.
                     yield seg.raw
             else:
-                assert seg.type == "select_statement"
+                assert seg.is_type("select_statement")
                 buff.append(SelectCrawler(seg, dialect))
         if not buff:
             # If we reach here, the SELECT may be querying from a value table

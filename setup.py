@@ -100,6 +100,8 @@ setup(
         "pytest",
         # For parsing pyproject.toml
         "toml",
+        # For returning exceptions from multiprocessing.Pool.map()
+        "tblib",
     ],
     extras_require={
         "dbt": ["dbt>=0.17"],

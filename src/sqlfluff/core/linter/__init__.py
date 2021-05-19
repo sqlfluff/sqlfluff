@@ -1,9 +1,9 @@
 """Defines the linter class."""
 
+import sys
 import os
 import time
 import logging
-import traceback
 from typing import (
     Any,
     Dict,
@@ -12,6 +12,7 @@ from typing import (
     Iterator,
     List,
     NamedTuple,
+    Sequence,
     Optional,
     Tuple,
     Union,
@@ -38,6 +39,7 @@ from sqlfluff.core.rules import get_ruleset
 from sqlfluff.core.config import FluffConfig, ConfigLoader
 
 # Classes needed only for type checking
+from sqlfluff.core.linter import runner as runner_module
 from sqlfluff.core.parser.segments.base import BaseSegment, FixPatch
 from sqlfluff.core.parser.segments.meta import MetaSegment
 from sqlfluff.core.parser.segments.raw import RawSegment
@@ -281,7 +283,8 @@ class LintedFile(NamedTuple):
         bencher("fix_string: start")
 
         linter_logger.debug("Original Tree: %r", self.templated_file.templated_str)
-        linter_logger.debug("Fixed Tree: %r", self.tree.raw)  # type: ignore
+        assert self.tree
+        linter_logger.debug("Fixed Tree: %r", self.tree.raw)
 
         # The sliced file is contiguous in the TEMPLATED space.
         # NB: It has gaps and repeats in the source space.
@@ -314,7 +317,7 @@ class LintedFile(NamedTuple):
         # so when debugging logs we can find a given patch again!
         patch: Union[EnrichedFixPatch, FixPatch]
         for idx, patch in enumerate(
-            self.tree.iter_patches(templated_str=self.templated_file.templated_str)  # type: ignore
+            self.tree.iter_patches(templated_str=self.templated_file.templated_str)
         ):
             linter_logger.debug("  %s Yielded patch: %s", idx, patch)
 
@@ -884,6 +887,7 @@ class Linter:
         violations += templater_violations
         # Detect the case of a catastrophic templater fail. In this case
         # we don't continue. We'll just bow out now.
+        tokens: Optional[Sequence[BaseSegment]]
         if not templated_file:
             linter_logger.info("TEMPLATING FAILED: %s", templater_violations)
             tokens = None
@@ -953,14 +957,9 @@ class Linter:
                         # Don't allow it if we're not linting templating block indents.
                         if not templating_blocks_indent:
                             continue
-                        # Don't allow if it's not configure to function.
-                        elif not token.is_enabled(
-                            indent_config=config.get_section("indentation")
-                        ):
-                            continue
                 new_tokens.append(token)
             # Swap the buffers
-            tokens = new_tokens  # type: ignore
+            tokens = new_tokens
 
         t2 = time.monotonic()
         bencher("Lexing {0!r}".format(short_fname))
@@ -983,10 +982,11 @@ class Linter:
                     # so that we can use the common interface
                     violations.append(
                         SQLParseError(
-                            "Found unparsable section: {0!r}".format(
+                            "Line {0[0]}, Position {0[1]}: Found unparsable section: {1!r}".format(
+                                unparsable.pos_marker.working_loc,
                                 unparsable.raw
                                 if len(unparsable.raw) < 40
-                                else unparsable.raw[:40] + "..."
+                                else unparsable.raw[:40] + "...",
                             ),
                             segment=unparsable,
                         )
@@ -1395,42 +1395,49 @@ class Linter:
         result.add(linted_path)
         return result
 
+    MIN_THRESHOLD_PARALLEL = 2
+    PARALLEL_CLS = runner_module.MultiProcessRunner
+
     def lint_path(
         self,
         path: str,
         fix: bool = False,
         ignore_non_existent_files: bool = False,
         ignore_files: bool = True,
+        parallel: int = 1,
     ) -> LintedPath:
         """Lint a path."""
         linted_path = LintedPath(path)
         if self.formatter:
             self.formatter.dispatch_path(path)
-        for fname in self.paths_from_path(
-            path,
-            ignore_non_existent_files=ignore_non_existent_files,
-            ignore_files=ignore_files,
-        ):
-            config = self.config.make_child_from_path(fname)
-            # Handle unicode issues gracefully
-            with open(
-                fname, "r", encoding="utf8", errors="backslashreplace"
-            ) as target_file:
-                try:
-                    linted_path.add(
-                        self.lint_string(
-                            target_file.read(), fname=fname, fix=fix, config=config
-                        )
-                    )
-                except IOError as e:  # IOErrors caught in commands.py, so still raise it
-                    raise (e)
-                except Exception:
-                    linter_logger.warning(
-                        f"""Unable to lint {fname} due to an internal error. \
-Please report this as an issue with your query's contents and stacktrace below!
-To hide this warning, add the failing file to .sqlfluffignore
-{traceback.format_exc()}""",
-                    )
+        fnames = list(
+            self.paths_from_path(
+                path,
+                ignore_non_existent_files=ignore_non_existent_files,
+                ignore_files=ignore_files,
+            )
+        )
+        runner: runner_module.BaseRunner
+        if parallel >= self.MIN_THRESHOLD_PARALLEL and sys.version_info > (3, 7):
+            runner = self.PARALLEL_CLS(
+                type(self), self, self.config, self.dialect.name, parallel
+            )
+        else:
+            if parallel > 1:
+                linter_logger.warning(
+                    "Parallel linting is not supported in Python %s.%s.",
+                    sys.version_info.major,
+                    sys.version_info.minor,
+                )
+            runner = runner_module.SequentialRunner(
+                type(self), self, self.config, self.dialect.name
+            )
+        for linted_file in runner.run(fnames, fix):
+            linted_path.add(linted_file)
+            # If any fatal errors, then stop iteration.
+            if any(v.fatal for v in linted_file.violations):
+                linter_logger.error("Fatal linting error. Halting further linting.")
+                break
         return linted_path
 
     def lint_paths(
@@ -1439,6 +1446,7 @@ To hide this warning, add the failing file to .sqlfluffignore
         fix: bool = False,
         ignore_non_existent_files: bool = False,
         ignore_files: bool = True,
+        parallel: int = 1,
     ) -> LintingResult:
         """Lint an iterable of paths."""
         # If no paths specified - assume local
@@ -1455,6 +1463,7 @@ To hide this warning, add the failing file to .sqlfluffignore
                     fix=fix,
                     ignore_non_existent_files=ignore_non_existent_files,
                     ignore_files=ignore_files,
+                    parallel=parallel,
                 )
             )
         return result

@@ -165,13 +165,17 @@ class PositionMarker:
 
     @staticmethod
     def infer_next_position(raw: str, line_no: int, line_pos: int) -> Tuple[int, int]:
-        """Using the raw string provided to infer the position of the next."""
+        """Using the raw string provided to infer the position of the next.
+
+        NB: Line position in 1-indexed.
+        """
+        # No content?
         if not raw:
             return line_no, line_pos
         split = raw.split("\n")
         return (
             line_no + len(split) - 1,
-            line_pos + len(raw) if len(split) == 1 else len(split[-1]),
+            line_pos + len(raw) if len(split) == 1 else len(split[-1]) + 1,
         )
 
     def with_working_position(self, line_no: int, line_pos: int):

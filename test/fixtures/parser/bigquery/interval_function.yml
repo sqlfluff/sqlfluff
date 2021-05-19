@@ -7,96 +7,102 @@ file:
           function:
             function_name:
               function_name_identifier: TIMESTAMP_TRUNC
-            start_bracket: (
-            expression:
-              function:
-              - function_name:
-                  function_name_identifier: TIMESTAMP_ADD
-              - start_bracket: (
-              - expression:
-                  column_reference:
-                  - identifier: session_start
-                  - dot: .
-                  - identifier: eventTimestamp
-              - comma: ','
-              - expression:
-                  interval_expression:
-                    keyword: INTERVAL
-                    expression:
-                      function:
-                        function_name:
-                          function_name_identifier: cast
-                        start_bracket: (
+            bracketed:
+              start_bracket: (
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: TIMESTAMP_ADD
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                      - identifier: session_start
+                      - dot: .
+                      - identifier: eventTimestamp
+                  - comma: ','
+                  - expression:
+                      interval_expression:
+                        keyword: INTERVAL
                         expression:
                           function:
-                          - function_name:
-                              function_name_identifier: TIMESTAMP_DIFF
-                          - start_bracket: (
-                          - expression:
-                              column_reference:
-                              - identifier: session_end
-                              - dot: .
-                              - identifier: eventTimestamp
-                          - comma: ','
-                          - expression:
-                              column_reference:
-                              - identifier: session_start
-                              - dot: .
-                              - identifier: eventTimestamp
-                          - comma: ','
-                          - date_part: SECOND
-                          - end_bracket: )
-                          binary_operator: /
-                          literal: '2'
-                        keyword: AS
-                        data_type:
-                          data_type_identifier: int64
-                        end_bracket: )
-                    date_part: second
-              - end_bracket: )
-            comma: ','
-            date_part: HOUR
-            end_bracket: )
+                            function_name:
+                              function_name_identifier: cast
+                            bracketed:
+                              start_bracket: (
+                              expression:
+                                function:
+                                  function_name:
+                                    function_name_identifier: TIMESTAMP_DIFF
+                                  bracketed:
+                                  - start_bracket: (
+                                  - expression:
+                                      column_reference:
+                                      - identifier: session_end
+                                      - dot: .
+                                      - identifier: eventTimestamp
+                                  - comma: ','
+                                  - expression:
+                                      column_reference:
+                                      - identifier: session_start
+                                      - dot: .
+                                      - identifier: eventTimestamp
+                                  - comma: ','
+                                  - date_part: SECOND
+                                  - end_bracket: )
+                                binary_operator: /
+                                literal: '2'
+                              keyword: AS
+                              data_type:
+                                data_type_identifier: int64
+                              end_bracket: )
+                        date_part: second
+                  - end_bracket: )
+              comma: ','
+              date_part: HOUR
+              end_bracket: )
           alias_expression:
             keyword: AS
             identifier: avgAtHour
       - comma: ','
       - select_clause_element:
           function:
-          - function_name:
+            function_name:
               function_name_identifier: TIME_ADD
-          - start_bracket: (
-          - expression:
-              column_reference:
-                identifier: time1
-          - comma: ','
-          - expression:
-              interval_expression:
-                keyword: INTERVAL
-                expression:
-                  literal: '10'
-                date_part: MINUTE
-          - end_bracket: )
+            bracketed:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  identifier: time1
+            - comma: ','
+            - expression:
+                interval_expression:
+                  keyword: INTERVAL
+                  expression:
+                    literal: '10'
+                  date_part: MINUTE
+            - end_bracket: )
           alias_expression:
             keyword: AS
             identifier: after
       - comma: ','
       - select_clause_element:
           function:
-          - function_name:
+            function_name:
               function_name_identifier: DATE_SUB
-          - start_bracket: (
-          - expression:
-              column_reference:
-                identifier: time2
-          - comma: ','
-          - expression:
-              interval_expression:
-                keyword: INTERVAL
-                expression:
-                  literal: '5'
-                date_part: YEAR
-          - end_bracket: )
+            bracketed:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  identifier: time2
+            - comma: ','
+            - expression:
+                interval_expression:
+                  keyword: INTERVAL
+                  expression:
+                    literal: '5'
+                  date_part: YEAR
+            - end_bracket: )
           alias_expression:
             keyword: AS
             identifier: before

@@ -5,26 +5,27 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-          - function_name:
+            function_name:
               function_name_identifier: GENERATE_DATE_ARRAY
-          - start_bracket: (
-          - expression:
-              cast_expression:
-                keyword: DATE
-                literal: "'2010-01-01'"
-          - comma: ','
-          - expression:
-              cast_expression:
-                keyword: DATE
-                literal: "'2010-01-31'"
-          - comma: ','
-          - expression:
-              interval_expression:
-                keyword: INTERVAL
-                expression:
-                  literal: "'7'"
-                date_part: DAY
-          - end_bracket: )
+            bracketed:
+            - start_bracket: (
+            - expression:
+                cast_expression:
+                  keyword: DATE
+                  literal: "'2010-01-01'"
+            - comma: ','
+            - expression:
+                cast_expression:
+                  keyword: DATE
+                  literal: "'2010-01-31'"
+            - comma: ','
+            - expression:
+                interval_expression:
+                  keyword: INTERVAL
+                  expression:
+                    literal: "'7'"
+                  date_part: DAY
+            - end_bracket: )
           alias_expression:
             keyword: AS
             identifier: my_array

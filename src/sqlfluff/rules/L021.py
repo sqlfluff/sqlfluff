@@ -42,6 +42,6 @@ class Rule_L021(BaseRule):
                 return None
             select_keywords = select_modifier.get_children("keyword")
             for kw in select_keywords:
-                if kw.name == "DISTINCT":
+                if kw.name == "distinct":
                     return LintResult(anchor=kw)
         return None

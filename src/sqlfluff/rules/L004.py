@@ -1,5 +1,7 @@
 """Implementation of Rule L004."""
 
+from sqlfluff.core.parser import WhitespaceSegment
+
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
@@ -70,7 +72,7 @@ class Rule_L004(BaseRule):
                     LintFix(
                         "edit",
                         segment,
-                        self.make_whitespace(raw=edit_indent),
+                        WhitespaceSegment(raw=edit_indent),
                     )
                 ]
             elif not (len(raw_stack) == 0 or raw_stack[-1].is_type("newline")):
