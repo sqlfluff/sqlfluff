@@ -110,7 +110,7 @@ looks like this:
     c AS bar from my_table
 
 Rerun the same command as before, and you'll see that the original
-problems now no longer show up.
+error (violation of *L006*) no longer show up.
 
 .. code-block:: bash
 
@@ -131,27 +131,20 @@ allows more automated fixing of some errors, to save you time in
 sorting out your sql files. Not all rules can be fixed in this way
 and there may be some situations where a fix may not be able to be
 applied because of the context of the query, but in many simple cases
-it's a good place to start. Another thing to note is that when fixing,
-you must always be specific about which rules you wish to fix. This
-is to minimise any unintended consequences from making large scale
-changes to your code. In this case we want to try and fix rules
-*L003*, *L009*, *L010*, *L034*, *L036* and *L039*.
+it's a good place to start.
+
+For now, we only want to fix the following rules: *L003*, *L009*, *L010*
 
 .. code-block:: bash
 
-    $ sqlfluff fix test.sql --rules L003,L009,L010,L034,L036,L039
+    $ sqlfluff fix test.sql --rules L003,L009,L010
     ==== finding violations ====
     == [test.sql] FAIL
-    L:   1 | P:   1 | L036 | Select targets should be on a new line unless there is
-                           | only one select target.
-    L:   1 | P:   8 | L034 | Use wildcards then simple select targets before
-                           | calculations and aggregates.
-    L:   1 | P:  13 | L039 | Unnecessary whitespace found.
     L:   2 | P:   1 | L003 | Indent expected and not found compared to line #1
     L:   2 | P:  10 | L010 | Inconsistent capitalisation of keywords.
     L:   2 | P:  15 | L009 | Files must end with a trailing newline.
     ==== fixing violations ====
-    6 fixable linting violations found
+    3 fixable linting violations found
     Are you sure you wish to attempt to fix these? [Y/n]
 
 ...at this point you'll have to confirm that you want to make the
@@ -170,24 +163,54 @@ now different.
 
 .. code-block:: sql
 
-    SELECT
-        c AS bar,
-        a + b AS foo FROM my_table
+    SELECT a + b  AS foo,
+        c AS bar FROM my_table
 
 In particular:
 
-* The second line has been indented to reflect being inside
-  the :code:`SELECT` statement.
-* The SELECT targets :code:`bar` and :code:`foo` are on separate lines.
-* The simple SELECT target :code:`foo` is rearranged to before :code:`bar`
-  which is an aggregate of :code:`a` and :code:`b`.
-* Unnecessary whitespaces were removed.
 * The second line has been indented to reflect being inside the
   :code:`SELECT` statement.
 * The :code:`FROM` keyword has been capitalised to match the
   other keywords.
 * A final newline character has been added at the end of the
   file (which may not be obvious in the snippet above).
+
+We could also fix *all* of the fixable errors by not
+specifying :code:`--rules`.
+
+.. code-block:: bash
+
+    $ sqlfluff fix test.sql
+    ==== finding violations ====
+    == [test.sql] FAIL
+    L:   1 | P:   1 | L036 | Select targets should be on a new line unless there is
+                           | only one select target.
+    L:   1 | P:   8 | L034 | Use wildcards then simple select targets before
+                           | calculations and aggregates.
+    L:   1 | P:  13 | L039 | Unnecessary whitespace found.
+    ==== fixing violations ====
+    3 fixable linting violations found
+    Are you sure you wish to attempt to fix these? [Y/n] ...
+    Attempting fixes...
+    Persisting Changes...
+    == [test.sql] PASS
+    Done. Please check your files to confirm.
+
+If we now open up :code:`test.sql`, we'll see the content has
+been updated again.
+
+.. code-block:: sql
+
+    SELECT
+        c AS bar,
+        a + b AS foo FROM my_table
+
+The SQL statement is now well formatted according to all the
+rules defined in SQLFluff.
+
+The :code:`--rules` argument is optional, and could be useful when
+you or your organisation follows a slightly different convention
+than what we have defined.
 
 Custom Usage
 ------------
