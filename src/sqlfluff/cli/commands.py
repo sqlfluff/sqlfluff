@@ -421,7 +421,7 @@ def fix(force, paths, parallel, bench=False, fixed_suffix="", logger=None, **kwa
     formatter.dispatch_config(lnt)
 
     # Set up logging.
-    set_logging_level(verbosity=verbose, logger=logger)
+    set_logging_level(verbosity=verbose, logger=logger, stderr_output=fixing_stdin)
 
     # handle stdin case. should output formatted sql to stdout and nothing else.
     if fixing_stdin:
