@@ -96,7 +96,7 @@ class Sequence(BaseGrammar):
                     # We've run our of sequence without matching everything.
                     # Do only optional or meta elements remain?
                     if all(
-                        e.is_optional() or e.is_meta or isinstance(elem, Conditional)
+                        e.is_optional() or e.is_meta or isinstance(e, Conditional)
                         for e in self._elements[idx:]
                     ):
                         # then it's ok, and we can return what we've got so far.
