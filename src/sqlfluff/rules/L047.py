@@ -56,14 +56,19 @@ class Rule_L047(BaseRule):
             segment.is_type("function")
             and segment.get_child("function_name").raw_upper == "COUNT"
         ):
+            # Get bracketed content
+            bracketed = segment.get_child("bracketed")
+
+            if not bracketed:
+                return None
+
             f_content = [
                 seg
-                for seg in segment.segments
+                for seg in bracketed.segments
                 if not seg.is_meta
                 and not seg.is_type(
                     "start_bracket",
                     "end_bracket",
-                    "function_name",
                     "whitespace",
                     "newline",
                 )

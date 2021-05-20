@@ -8,6 +8,7 @@ from sqlfluff.cli.helpers import (
     cli_table,
     get_package_version,
     get_python_version,
+    get_python_implementation,
     pad_line,
 )
 
@@ -234,10 +235,13 @@ class CallbackFormatter:
             config_content = [
                 ("sqlfluff", get_package_version()),
                 ("python", get_python_version()),
+                ("implementation", get_python_implementation()),
                 ("dialect", linter.dialect.name),
                 ("verbosity", self._verbosity),
             ] + linter.templater.config_pairs()
-            text_buffer.write(cli_table(config_content, col_width=25))
+            text_buffer.write(
+                cli_table(config_content, col_width=30, max_label_width=15)
+            )
             text_buffer.write("\n")
             if linter.config.get("rule_whitelist"):
                 text_buffer.write(

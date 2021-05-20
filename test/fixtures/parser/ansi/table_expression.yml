@@ -17,19 +17,21 @@ file:
               function:
                 function_name:
                   function_name_identifier: UNNEST
-                start_bracket: (
-                expression:
-                  function:
-                  - function_name:
-                      function_name_identifier: GENERATE_ARRAY
-                  - start_bracket: (
-                  - expression:
-                      literal: '1'
-                  - comma: ','
-                  - expression:
-                      literal: '53'
-                  - end_bracket: )
-                end_bracket: )
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    function:
+                      function_name:
+                        function_name_identifier: GENERATE_ARRAY
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          literal: '1'
+                      - comma: ','
+                      - expression:
+                          literal: '53'
+                      - end_bracket: )
+                  end_bracket: )
             alias_expression:
               keyword: AS
               identifier: y

@@ -122,7 +122,7 @@ bigquery_dialect.sets("value_table_functions").update(["unnest"])
 # eliminating many potential parsing errors with the "<" and ">" operators.
 bigquery_dialect.sets("angle_bracket_pairs").update(
     [
-        ("angle", "StartAngleBracketSegment", "EndAngleBracketSegment"),
+        ("angle", "StartAngleBracketSegment", "EndAngleBracketSegment", False),
     ]
 )
 

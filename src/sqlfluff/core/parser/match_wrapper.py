@@ -48,17 +48,17 @@ def match_wrapper(v_level=3):
             # Do the match
             m = func(self_cls, segments, parse_context=parse_context)
 
+            name = getattr(self_cls, "__name__", self_cls.__class__.__name__)
+
             # Validate result
             if not isinstance(m, MatchResult):
                 parse_context.logger.warning(
-                    "{}.match, returned {} rather than MatchResult".format(
-                        func.__qualname__, type(m)
-                    )
+                    f"{name}.match, returned {type(m)} rather than MatchResult"
                 )
 
             # Log the result.
             WrapParseMatchLogObject(
-                grammar=func.__qualname__,
+                grammar=name,
                 func="match",
                 match=m,
                 parse_context=parse_context,

@@ -77,6 +77,8 @@ class BaseSegment:
     # Can we allow it to be empty? Usually used in combination
     # with the can_start_end_non_code.
     allow_empty = False
+    # What other kwargs need to be copied when applying fixes.
+    additional_kwargs: List[str] = []
 
     def __init__(self, segments, pos_marker=None, name: Optional[str] = None):
         # A cache variable for expandable
@@ -829,7 +831,7 @@ class BaseSegment:
                     + (
                         UnparsableSegment(
                             segments=segments,
-                            expected=self.type,
+                            expected=self.name,
                         ),  # NB: tuple
                     )
                     + post_nc
@@ -936,6 +938,8 @@ class BaseSegment:
                     tuple(seg_buffer), parent_pos=r.pos_marker
                 ),
                 pos_marker=r.pos_marker,
+                # Pass through any additional kwargs
+                **{k: getattr(self, k) for k in self.additional_kwargs}
             )
             # Return the new segment with any unused fixes.
             return r, fixes
@@ -1029,6 +1033,57 @@ class BaseSegment:
                     insert_buff,
                     patch_type="end_point",
                 )
+
+
+class BracketedSegment(BaseSegment):
+    """A segment containing a bracketed expression."""
+
+    type = "bracketed"
+    additional_kwargs = ["start_bracket", "end_bracket"]
+
+    def __init__(
+        self,
+        *args,
+        # These are tuples of segments but we're expecting them to
+        # be tuples of length 1. This is because we'll almost always
+        # be doing tuple arithmetic with the results and constructing
+        # 1-tuples on the fly is very easy to misread.
+        start_bracket: Tuple[BaseSegment] = None,
+        end_bracket: Tuple[BaseSegment] = None,
+        **kwargs
+    ):
+        """Stash the bracket segments for later."""
+        if not start_bracket or not end_bracket:
+            raise ValueError(
+                "Attempted to construct Bracketed segment without specifying brackets."
+            )
+        self.start_bracket = start_bracket
+        self.end_bracket = end_bracket
+        super().__init__(*args, **kwargs)
+
+    @classmethod
+    def simple(cls, parse_context: ParseContext) -> Optional[List[str]]:
+        """Simple methods for bracketed and the persitent brackets."""
+        start_brackets = [
+            start_bracket
+            for _, start_bracket, _, persistent in parse_context.dialect.sets(
+                "bracket_pairs"
+            )
+            if persistent
+        ]
+        start_simple = []
+        for ref in start_brackets:
+            start_simple += parse_context.dialect.ref(ref).simple(parse_context)
+        return start_simple
+
+    @classmethod
+    def match(
+        cls, segments: Tuple["BaseSegment", ...], parse_context: ParseContext
+    ) -> MatchResult:
+        """Only useful as a terminator."""
+        if segments and isinstance(segments[0], cls):
+            return MatchResult((segments[0],), segments[1:])
+        return MatchResult.from_unmatched(segments)
 
 
 class UnparsableSegment(BaseSegment):

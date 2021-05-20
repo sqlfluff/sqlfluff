@@ -5,31 +5,34 @@ file:
     - keyword: TABLE
     - table_reference:
         identifier: '`foo`'
-    - start_bracket: (
-    - column_definition:
-      - identifier: '`id`'
-      - data_type:
-          data_type_identifier: int
-          start_bracket: (
-          expression:
-            literal: '11'
-          end_bracket: )
-      - column_constraint:
-          keyword: unsigned
-      - column_constraint:
-        - keyword: NOT
-        - keyword: 'NULL'
-      - column_constraint:
-          keyword: AUTO_INCREMENT
-    - comma: ','
-    - table_constraint_definition:
-      - keyword: PRIMARY
-      - keyword: KEY
-      - start_bracket: (
-      - column_reference:
-          identifier: '`id`'
-      - end_bracket: )
-    - end_bracket: )
+    - bracketed:
+        start_bracket: (
+        column_definition:
+        - identifier: '`id`'
+        - data_type:
+            data_type_identifier: int
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '11'
+              end_bracket: )
+        - column_constraint:
+            keyword: unsigned
+        - column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - column_constraint:
+            keyword: AUTO_INCREMENT
+        comma: ','
+        table_constraint_definition:
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: '`id`'
+            end_bracket: )
+        end_bracket: )
     - parameter: ENGINE
     - comparison_operator: '='
     - parameter: InnoDB
