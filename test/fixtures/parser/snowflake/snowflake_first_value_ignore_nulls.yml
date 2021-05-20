@@ -9,36 +9,38 @@ file:
       - comma: ','
       - select_clause_element:
           function:
-          - function_name:
+            function_name:
               function_name_identifier: coalesce
-          - start_bracket: (
-          - expression:
-              function:
-              - function_name:
-                  function_name_identifier: first_value
-              - start_bracket: (
-              - expression:
-                  case_expression:
-                  - keyword: case
-                  - keyword: when
+            bracketed:
+            - start_bracket: (
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: first_value
+                  bracketed:
+                  - start_bracket: (
                   - expression:
-                      column_reference:
-                        identifier: a
-                  - keyword: then
-                  - expression:
-                      column_reference:
-                        identifier: b
-                  - keyword: else
-                  - expression:
-                      literal: 'null'
-                  - keyword: end
-              - keyword: ignore
-              - keyword: nulls
-              - end_bracket: )
-          - comma: ','
-          - expression:
-              literal: 'false'
-          - end_bracket: )
+                      case_expression:
+                      - keyword: case
+                      - keyword: when
+                      - expression:
+                          column_reference:
+                            identifier: a
+                      - keyword: then
+                      - expression:
+                          column_reference:
+                            identifier: b
+                      - keyword: else
+                      - expression:
+                          literal: 'null'
+                      - keyword: end
+                  - keyword: ignore
+                  - keyword: nulls
+                  - end_bracket: )
+            - comma: ','
+            - expression:
+                literal: 'false'
+            - end_bracket: )
           alias_expression:
             keyword: as
             identifier: c

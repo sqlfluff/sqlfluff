@@ -5,44 +5,45 @@ file:
       common_table_expression:
         identifier: result
         keyword: AS
-        start_bracket: (
-        set_expression:
-        - select_statement:
-            select_clause:
-              keyword: SELECT
-              select_clause_element:
-                column_reference:
-                  identifier: customer
-            from_clause:
-              keyword: FROM
-              from_expression:
-                from_expression_element:
-                  table_expression:
-                    table_reference:
-                      identifier: sales_eu
-                  alias_expression:
-                    keyword: AS
-                    identifier: s
-        - set_operator:
-          - keyword: UNION
-          - keyword: ALL
-        - select_statement:
-            select_clause:
-              keyword: SELECT
-              select_clause_element:
-                column_reference:
-                  identifier: customer
-            from_clause:
-              keyword: FROM
-              from_expression:
-                from_expression_element:
-                  table_expression:
-                    table_reference:
-                      identifier: sales_us
-                  alias_expression:
-                    keyword: AS
-                    identifier: s2
-        end_bracket: )
+        bracketed:
+          start_bracket: (
+          set_expression:
+          - select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    identifier: customer
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        identifier: sales_eu
+                    alias_expression:
+                      keyword: AS
+                      identifier: s
+          - set_operator:
+            - keyword: UNION
+            - keyword: ALL
+          - select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    identifier: customer
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        identifier: sales_us
+                    alias_expression:
+                      keyword: AS
+                      identifier: s2
+          end_bracket: )
       select_statement:
         select_clause:
           keyword: SELECT

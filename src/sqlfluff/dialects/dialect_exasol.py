@@ -335,9 +335,7 @@ class GroupByClauseSegment(BaseSegment):
                 Ref("ExpressionSegment"),
                 Ref("CubeRollupClauseSegment"),
                 Ref("GroupingSetsClauseSegment"),
-                Sequence(
-                    Ref("StartBracketSegment"), Ref("EndBracketSegment")
-                ),  # () possible
+                Bracketed(),  # Allows empty parentheses
             ),
             terminator=OneOf(
                 "ORDER",
@@ -396,9 +394,7 @@ class GroupingSetsClauseSegment(BaseSegment):
             Delimited(
                 Ref("CubeRollupClauseSegment"),
                 Ref("GroupingExpressionList"),
-                Sequence(
-                    Ref("StartBracketSegment"), Ref("EndBracketSegment")
-                ),  # () possible
+                Bracketed(),  # Allows empty parentheses
             )
         ),
     )
@@ -843,9 +839,7 @@ class ColumnOptionSegment(BaseSegment):
             Sequence(
                 # IDENTITY(1000) or IDENTITY 1000 or IDENTITY
                 "IDENTITY",
-                Ref("StartBracketSegment", optional=True),
-                Ref("NumericLiteralSegment", optional=True),
-                Ref("EndBracketSegment", optional=True),
+                OptionallyBracketed(Ref("NumericLiteralSegment"), optional=True),
             ),
             optional=True,
         ),
@@ -1000,9 +994,7 @@ class AlterTableAddColumnSegment(BaseSegment):
         "ADD",
         Ref.keyword("COLUMN", optional=True),
         Ref("IfNotExistsGrammar", optional=True),
-        Ref("StartBracketSegment", optional=True),
-        Ref("ColumnDefinitionSegment"),
-        Ref("EndBracketSegment", optional=True),
+        OptionallyBracketed(Ref("ColumnDefinitionSegment")),
     )
 
 
@@ -1028,11 +1020,11 @@ class AlterTableModifyColumnSegment(BaseSegment):
     match_grammar = Sequence(
         "MODIFY",
         Ref.keyword("COLUMN", optional=True),
-        Ref("StartBracketSegment", optional=True),
-        Ref("SingleIdentifierGrammar"),
-        Ref("DatatypeSegment", optional=True),
-        Ref("ColumnOptionSegment", optional=True),
-        Ref("EndBracketSegment", optional=True),
+        OptionallyBracketed(
+            Ref("SingleIdentifierGrammar"),
+            Ref("DatatypeSegment", optional=True),
+            Ref("ColumnOptionSegment", optional=True),
+        ),
     )
 
 
@@ -1066,9 +1058,7 @@ class AlterTableAlterColumnSegment(BaseSegment):
                     Sequence(
                         # IDENTITY(1000) or IDENTITY 1000
                         "IDENTITY",
-                        Ref("StartBracketSegment", optional=True),
-                        Ref("NumericLiteralSegment"),
-                        Ref("EndBracketSegment", optional=True),
+                        OptionallyBracketed(Ref("NumericLiteralSegment")),
                     ),
                     Sequence(
                         "DEFAULT",

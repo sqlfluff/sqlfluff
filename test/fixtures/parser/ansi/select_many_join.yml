@@ -60,10 +60,11 @@ file:
                 function:
                   function_name:
                     function_name_identifier: g
-                  start_bracket: (
-                  expression:
-                    literal: "'blah'"
-                  end_bracket: )
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      literal: "'blah'"
+                    end_bracket: )
               alias_expression:
                 keyword: as
                 identifier: tbl_func

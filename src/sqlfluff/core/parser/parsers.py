@@ -91,7 +91,15 @@ class StringParser(Matchable):
 
         # We're only going to match against the first element
         if len(segments) >= 1:
-            if self._is_first_match(segments[0]):
+            # Is the first one already of this type?
+            if (
+                isinstance(segments[0], self.raw_class)
+                and segments[0].name == self.name
+                and segments[0].is_type(self.type)
+            ):
+                return MatchResult((segments[0],), segments[1:])
+            # Does it match?
+            elif self._is_first_match(segments[0]):
                 return self._make_match_from_first_result(segments)
         return MatchResult.from_unmatched(segments)
 

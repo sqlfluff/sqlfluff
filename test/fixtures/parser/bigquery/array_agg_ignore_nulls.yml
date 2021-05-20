@@ -5,15 +5,16 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-          - function_name:
+            function_name:
               function_name_identifier: ARRAY_AGG
-          - start_bracket: (
-          - expression:
-              column_reference:
-                identifier: x
-          - keyword: IGNORE
-          - keyword: NULLS
-          - end_bracket: )
+            bracketed:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  identifier: x
+            - keyword: IGNORE
+            - keyword: NULLS
+            - end_bracket: )
           alias_expression:
             keyword: AS
             identifier: array_agg

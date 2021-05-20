@@ -1,5 +1,19 @@
 file:
-  statement:
+- statement:
+    create_role_statement:
+    - keyword: CREATE
+    - keyword: ROLE
+    - object_reference:
+        identifier: MY_ROLE
+- statement_terminator: ;
+- statement:
+    create_role_statement:
+    - keyword: CREATE
+    - keyword: ROLE
+    - object_reference:
+        identifier: '"my_role"'
+- statement_terminator: ;
+- statement:
     create_role_statement:
     - keyword: CREATE
     - binary_operator: OR

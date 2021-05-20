@@ -9,32 +9,34 @@ file:
             - keyword: CASE
             - keyword: WHEN
             - expression:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                    identifier: year_number
-                - binary_operator: '%'
-                - literal: '400'
-                - comparison_operator: '='
-                - literal: '0'
-              - end_bracket: )
+              - bracketed:
+                  start_bracket: (
+                  expression:
+                  - column_reference:
+                      identifier: year_number
+                  - binary_operator: '%'
+                  - literal: '400'
+                  - comparison_operator: '='
+                  - literal: '0'
+                  end_bracket: )
               - binary_operator: OR
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                    identifier: year_number
-                - binary_operator: '%'
-                - literal: '4'
-                - comparison_operator: '='
-                - literal: '0'
-                - binary_operator: AND
-                - column_reference:
-                    identifier: year_number
-                - binary_operator: '%'
-                - literal: '100'
-                - comparison_operator: '!='
-                - literal: '0'
-              - end_bracket: )
+              - bracketed:
+                  start_bracket: (
+                  expression:
+                  - column_reference:
+                      identifier: year_number
+                  - binary_operator: '%'
+                  - literal: '4'
+                  - comparison_operator: '='
+                  - literal: '0'
+                  - binary_operator: AND
+                  - column_reference:
+                      identifier: year_number
+                  - binary_operator: '%'
+                  - literal: '100'
+                  - comparison_operator: '!='
+                  - literal: '0'
+                  end_bracket: )
             - keyword: THEN
             - expression:
                 literal: 'TRUE'

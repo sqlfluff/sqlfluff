@@ -15,32 +15,36 @@ file:
               table_reference:
                 identifier: my_tbl
           from_pivot_expression:
-          - keyword: PIVOT
-          - start_bracket: (
-          - function:
-              function_name:
-                function_name_identifier: min
-              start_bracket: (
-              expression:
-                column_reference:
-                  identifier: f_val
-              end_bracket: )
-          - keyword: FOR
-          - identifier: f_id
-          - keyword: IN
-          - start_bracket: (
-          - literal: '1'
-          - comma: ','
-          - literal: '2'
-          - end_bracket: )
-          - end_bracket: )
+            keyword: PIVOT
+            bracketed:
+            - start_bracket: (
+            - function:
+                function_name:
+                  function_name_identifier: min
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      identifier: f_val
+                  end_bracket: )
+            - keyword: FOR
+            - identifier: f_id
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - literal: '1'
+              - comma: ','
+              - literal: '2'
+              - end_bracket: )
+            - end_bracket: )
           table_alias_expression:
             alias_expression:
               keyword: AS
               identifier: f
-              start_bracket: (
-              identifier_list:
-              - identifier: a
-              - comma: ','
-              - identifier: b
-              end_bracket: )
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                - identifier: a
+                - comma: ','
+                - identifier: b
+                end_bracket: )
