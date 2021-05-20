@@ -18,10 +18,11 @@ file:
               identifier: test
           - keyword: USE
           - keyword: INDEX
-          - start_bracket: (
-          - object_reference:
-              identifier: i2
-          - end_bracket: )
+          - bracketed:
+              start_bracket: (
+              object_reference:
+                identifier: i2
+              end_bracket: )
       orderby_clause:
       - keyword: ORDER
       - keyword: BY

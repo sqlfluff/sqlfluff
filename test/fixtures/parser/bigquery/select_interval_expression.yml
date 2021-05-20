@@ -5,24 +5,26 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-          - function_name:
+            function_name:
               function_name_identifier: DATE_ADD
-          - start_bracket: (
-          - expression:
-              function:
-                function_name:
-                  function_name_identifier: CURRENT_DATE
-                start_bracket: (
-                end_bracket: )
-          - comma: ','
-          - expression:
-              interval_expression:
-                keyword: INTERVAL
-                expression:
-                  numeric_literal:
-                    binary_operator: '-'
-                    literal: '1'
-                  binary_operator: +
-                  literal: '2'
-                date_part: DAY
-          - end_bracket: )
+            bracketed:
+            - start_bracket: (
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: CURRENT_DATE
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+            - comma: ','
+            - expression:
+                interval_expression:
+                  keyword: INTERVAL
+                  expression:
+                    numeric_literal:
+                      binary_operator: '-'
+                      literal: '1'
+                    binary_operator: +
+                    literal: '2'
+                  date_part: DAY
+            - end_bracket: )

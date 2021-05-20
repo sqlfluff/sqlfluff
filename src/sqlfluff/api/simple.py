@@ -3,6 +3,17 @@
 from sqlfluff.core import Linter
 
 
+class APIParsingError(ValueError):
+    """An exception which holds a set of violations."""
+
+    def __init__(self, violations, **kwargs):
+        self.violations = violations
+        self.msg = f"Found {len(violations)} issues while parsing string."
+        for viol in violations:
+            self.msg += f"\n{viol!s}"
+        super().__init__(self.msg, **kwargs)
+
+
 def _unify_str_or_file(sql):
     """Unify string and files in the same format."""
     if not isinstance(sql, str):
@@ -73,7 +84,7 @@ def parse(sql, dialect="ansi"):
     sql = _unify_str_or_file(sql)
     linter = Linter(dialect=dialect)
     parsed = linter.parse_string(sql)
-    # If we encounter any parsing errors, raise the first one we find.
+    # If we encounter any parsing errors, raise them in a combined issue.
     if parsed.violations:
-        raise parsed.violations[0]
+        raise APIParsingError(parsed.violations)
     return parsed

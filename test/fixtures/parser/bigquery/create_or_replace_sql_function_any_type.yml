@@ -8,64 +8,66 @@ file:
     - function_name:
         function_name_identifier: qs
     - base:
-      - start_bracket: (
-      - parameter: y
-      - keyword: ANY
-      - keyword: TYPE
-      - end_bracket: )
+        bracketed:
+        - start_bracket: (
+        - parameter: y
+        - keyword: ANY
+        - keyword: TYPE
+        - end_bracket: )
     - base:
         keyword: AS
-        start_bracket: (
-        expression:
-          case_expression:
-          - keyword: CASE
-          - keyword: WHEN
-          - expression:
-              column_reference:
-                identifier: y
-              comparison_operator: '='
-              literal: '1'
-          - keyword: THEN
-          - expression:
-              literal: "'low'"
-          - keyword: WHEN
-          - expression:
-              column_reference:
-                identifier: y
-              comparison_operator: '='
-              literal: '2'
-          - keyword: THEN
-          - expression:
-              literal: "'midlow'"
-          - keyword: WHEN
-          - expression:
-              column_reference:
-                identifier: y
-              comparison_operator: '='
-              literal: '3'
-          - keyword: THEN
-          - expression:
-              literal: "'mid'"
-          - keyword: WHEN
-          - expression:
-              column_reference:
-                identifier: y
-              comparison_operator: '='
-              literal: '4'
-          - keyword: THEN
-          - expression:
-              literal: "'midhigh'"
-          - keyword: WHEN
-          - expression:
-              column_reference:
-                identifier: y
-              comparison_operator: '='
-              literal: '5'
-          - keyword: THEN
-          - expression:
-              literal: "'high'"
-          - keyword: ELSE
-          - expression:
-              literal: '"unknown"'
-          - keyword: END
-        end_bracket: )
+        bracketed:
+          start_bracket: (
+          expression:
+            case_expression:
+            - keyword: CASE
+            - keyword: WHEN
+            - expression:
+                column_reference:
+                  identifier: y
+                comparison_operator: '='
+                literal: '1'
+            - keyword: THEN
+            - expression:
+                literal: "'low'"
+            - keyword: WHEN
+            - expression:
+                column_reference:
+                  identifier: y
+                comparison_operator: '='
+                literal: '2'
+            - keyword: THEN
+            - expression:
+                literal: "'midlow'"
+            - keyword: WHEN
+            - expression:
+                column_reference:
+                  identifier: y
+                comparison_operator: '='
+                literal: '3'
+            - keyword: THEN
+            - expression:
+                literal: "'mid'"
+            - keyword: WHEN
+            - expression:
+                column_reference:
+                  identifier: y
+                comparison_operator: '='
+                literal: '4'
+            - keyword: THEN
+            - expression:
+                literal: "'midhigh'"
+            - keyword: WHEN
+            - expression:
+                column_reference:
+                  identifier: y
+                comparison_operator: '='
+                literal: '5'
+            - keyword: THEN
+            - expression:
+                literal: "'high'"
+            - keyword: ELSE
+            - expression:
+                literal: '"unknown"'
+            - keyword: END
+          end_bracket: )

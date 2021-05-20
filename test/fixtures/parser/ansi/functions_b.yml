@@ -5,22 +5,24 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-          - function_name:
+            function_name:
               function_name_identifier: SPLIT
-          - start_bracket: (
-          - expression:
-              function:
-                function_name:
-                  function_name_identifier: LOWER
-                start_bracket: (
-                expression:
-                  column_reference:
-                    identifier: text
-                end_bracket: )
-          - comma: ','
-          - expression:
-              literal: "' '"
-          - end_bracket: )
+            bracketed:
+            - start_bracket: (
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: LOWER
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        identifier: text
+                    end_bracket: )
+            - comma: ','
+            - expression:
+                literal: "' '"
+            - end_bracket: )
           alias_expression:
             keyword: AS
             identifier: text

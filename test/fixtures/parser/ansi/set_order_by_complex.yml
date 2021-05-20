@@ -1,55 +1,57 @@
 file:
   statement:
     set_expression:
-    - start_bracket: (
-    - select_statement:
-        select_clause:
-          keyword: SELECT
-          select_clause_element:
-            wildcard_expression:
-              wildcard_identifier:
-                star: '*'
-        from_clause:
-          keyword: FROM
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: a
-        orderby_clause:
-        - keyword: ORDER
-        - keyword: BY
-        - literal: '1'
-        limit_clause:
-          keyword: LIMIT
-          literal: '1'
-    - end_bracket: )
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: a
+          orderby_clause:
+          - keyword: ORDER
+          - keyword: BY
+          - literal: '1'
+          limit_clause:
+            keyword: LIMIT
+            literal: '1'
+        end_bracket: )
     - set_operator:
       - keyword: UNION
       - keyword: ALL
-    - start_bracket: (
-    - select_statement:
-        select_clause:
-          keyword: SELECT
-          select_clause_element:
-            wildcard_expression:
-              wildcard_identifier:
-                star: '*'
-        from_clause:
-          keyword: FROM
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: b
-        orderby_clause:
-        - keyword: ORDER
-        - keyword: BY
-        - literal: '1'
-        limit_clause:
-          keyword: LIMIT
-          literal: '1'
-    - end_bracket: )
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: b
+          orderby_clause:
+          - keyword: ORDER
+          - keyword: BY
+          - literal: '1'
+          limit_clause:
+            keyword: LIMIT
+            literal: '1'
+        end_bracket: )
     - orderby_clause:
       - keyword: ORDER
       - keyword: BY

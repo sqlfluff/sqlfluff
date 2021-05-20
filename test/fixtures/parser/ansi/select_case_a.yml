@@ -27,16 +27,17 @@ file:
               - literal: '2'
             - keyword: WHEN
             - expression:
-              - column_reference:
+                column_reference:
                   identifier: some_var
-              - keyword: IN
-              - start_bracket: (
-              - literal: '1'
-              - comma: ','
-              - literal: '2'
-              - comma: ','
-              - literal: '3'
-              - end_bracket: )
+                keyword: IN
+                bracketed:
+                - start_bracket: (
+                - literal: '1'
+                - comma: ','
+                - literal: '2'
+                - comma: ','
+                - literal: '3'
+                - end_bracket: )
             - keyword: then
             - expression:
                 column_reference:

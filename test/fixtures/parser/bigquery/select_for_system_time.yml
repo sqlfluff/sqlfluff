@@ -24,10 +24,11 @@ file:
               function:
                 function_name:
                   function_name_identifier: CAST
-                start_bracket: (
-                expression:
-                  literal: "'2019-12-02T20:52:34+00:00'"
-                keyword: AS
-                data_type:
-                  data_type_identifier: TIMESTAMP
-                end_bracket: )
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    literal: "'2019-12-02T20:52:34+00:00'"
+                  keyword: AS
+                  data_type:
+                    data_type_identifier: TIMESTAMP
+                  end_bracket: )
