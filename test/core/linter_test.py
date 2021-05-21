@@ -303,6 +303,7 @@ def test__linter__empty_file():
                 ("L006", 3, 16),
                 ("L006", 3, 39),
                 ("L006", 3, 39),
+                ("L016", 4, 32),
             ],
         ),
     ],
@@ -312,7 +313,7 @@ def test__linter__mask_templated_violations(ignore_templated_areas, check_tuples
     lntr = Linter(
         config=FluffConfig(
             overrides={
-                "rules": "L006",
+                "rules": "L006,L016",
                 "ignore_templated_areas": ignore_templated_areas,
             }
         )

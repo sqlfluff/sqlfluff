@@ -1,2 +1,4 @@
 [sqlfluff:templater:jinja]
 load_macros_from_path=macros
+[sqlfluff:templater:jinja:context]
+very_long_table_name=look_over_there_mr_krabs_thats_smitty_werbenjagermanjensen_he_was_number_one
