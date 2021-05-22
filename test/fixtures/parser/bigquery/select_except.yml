@@ -9,25 +9,27 @@ file:
               star: '*'
             select_except_clause:
               keyword: EXCEPT
-              start_bracket: (
-              identifier: seqnum
-              end_bracket: )
+              bracketed:
+                start_bracket: (
+                identifier: seqnum
+                end_bracket: )
             select_replace_clause:
-            - keyword: REPLACE
-            - start_bracket: (
-            - select_clause_element:
-                column_reference:
-                  identifier: foo
-                alias_expression:
-                  keyword: as
-                  identifier: bar
-            - comma: ','
-            - select_clause_element:
-                column_reference:
-                  identifier: baz
-                alias_expression:
-                  identifier: foobar
-            - end_bracket: )
+              keyword: REPLACE
+              bracketed:
+              - start_bracket: (
+              - select_clause_element:
+                  column_reference:
+                    identifier: foo
+                  alias_expression:
+                    keyword: as
+                    identifier: bar
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                    identifier: baz
+                  alias_expression:
+                    identifier: foobar
+              - end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -47,9 +49,10 @@ file:
                 star: '*'
               select_except_clause:
                 keyword: except
-                start_bracket: (
-                identifier: foo
-                end_bracket: )
+                bracketed:
+                  start_bracket: (
+                  identifier: foo
+                  end_bracket: )
         from_clause:
           keyword: from
           from_expression:
@@ -94,9 +97,10 @@ file:
               star: '*'
             select_except_clause:
               keyword: except
-              start_bracket: (
-              identifier: irrelevant
-              end_bracket: )
+              bracketed:
+                start_bracket: (
+                identifier: irrelevant
+                end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -117,9 +121,10 @@ file:
               star: '*'
             select_except_clause:
               keyword: except
-              start_bracket: (
-              identifier: some_column
-              end_bracket: )
+              bracketed:
+                start_bracket: (
+                identifier: some_column
+                end_bracket: )
       - comma: ','
       - select_clause_element:
           wildcard_expression:
@@ -129,9 +134,10 @@ file:
               star: '*'
             select_except_clause:
               keyword: except
-              start_bracket: (
-              identifier: other_column
-              end_bracket: )
+              bracketed:
+                start_bracket: (
+                identifier: other_column
+                end_bracket: )
       from_clause:
         keyword: from
         from_expression:

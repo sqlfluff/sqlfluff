@@ -37,6 +37,7 @@ file:
                 - binary_operator: '-'
                 - identifier: d
           - keyword: USING
-          - start_bracket: (
-          - identifier: a
-          - end_bracket: )
+          - bracketed:
+              start_bracket: (
+              identifier: a
+              end_bracket: )

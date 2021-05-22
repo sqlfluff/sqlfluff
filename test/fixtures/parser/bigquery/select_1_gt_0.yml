@@ -5,9 +5,10 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            start_bracket: (
-            expression:
-            - literal: '1'
-            - comparison_operator: '>'
-            - literal: '0'
-            end_bracket: )
+            bracketed:
+              start_bracket: (
+              expression:
+              - literal: '1'
+              - comparison_operator: '>'
+              - literal: '0'
+              end_bracket: )

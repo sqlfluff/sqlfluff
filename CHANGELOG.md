@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Contributors:
 - [@GitHub-Username](Link to GitHub profile) ([#PR-Number](Link to PR))
 
+### Changed
+- Better exception handling for the simple parsing API (`sqlfluff.parse`)
+  which now raises an exception which holds all potential parsing issues
+  and prints nicely with more than one issue.
+
 ## [0.6.0a1] - 2021-05-15
 ### Added
 - Lint and fix parallelism using `--parallel` CLI argument
@@ -85,7 +90,7 @@ Contributors:
 ## [0.5.0] - 2021-04-05
 ### Added
 - `pascal` (PascalCase) `capitalisation_policy` option for L014 (unquoted identifiers)
-- `only_aliases` configuration option for L014 (unquoted identifers)
+- `only_aliases` configuration option for L014 (unquoted identifiers)
 - Dialects now have more advanced dependency options to allow less repetition
   between related dialects. The methods `get_segment` and `get_grammar` can be
   used on unexpanded grammars to access elements of the parent grammars.
@@ -115,7 +120,7 @@ Contributors:
   it to rule L014 in addition to L029.
 - Parse structure of `FROM` clauses to better represent nested joins and table
   functions.
-- Parse structure of expressions to avoid unneccessary nesting and overly
+- Parse structure of expressions to avoid unnecessary nesting and overly
   recursive method calls.
 
 ## [0.4.1] - 2021-02-25
@@ -248,7 +253,7 @@ Contributors:
   the `FileSegment` has been moved from the core parser directly into
   the dialects. Users can refer to it via the `get_root_segment()`
   method of a dialect. ([#510](https://github.com/sqlfluff/sqlfluff/pull/510))
-- Several perfomance improvements through removing unused functionality,
+- Several performance improvements through removing unused functionality,
   sensible caching and optimising loops within functions. ([#526](https://github.com/sqlfluff/sqlfluff/pull/526))
 - Split up rule tests into separate `yml` files. ([#553](https://github.com/sqlfluff/sqlfluff/pull/553))
 - Allow escaped quotes in strings. ([#557](https://github.com/sqlfluff/sqlfluff/pull/557))
@@ -527,7 +532,7 @@ Contributors:
 - Fix a config file bug if no root config file was present for some
   values. Thanks [@barrywhart](https://github.com/barrywhart).
 - Lexing rules are now part of the dialect rather than a
-  global so that they can be overriden by other dialects
+  global so that they can be overridden by other dialects
   when we get to that stage.
 
 ## [0.2.0] - 2019-12-01
@@ -544,7 +549,7 @@ Contributors:
     Assisted by [@barrywhart](https://github.com/barrywhart).
 - Documentation LINTING (given we're a linting project) introduced in CI.
 - Reimplemented L006 & L007 which lint whitespace around operators.
-- Ability to configure rule behaviour direclty from the config file.
+- Ability to configure rule behaviour directly from the config file.
 - Implemented L010 to lint capitalisation of keywords.
 - Allow casting in the parser using the `::` operator.
 - Implemented `GROUP BY`and `LIMIT`.
@@ -660,7 +665,7 @@ Contributors:
 - Old rules removed and re implemented so we now have parity with the old rule sets.
 - Moved to using Ref mostly within the core grammar so that we can have recursion.
 - Used recursion to do a first implementation of arithmetic parsing. Including a test for it.
-- Moved the main grammar into a seperate dialect and renamed source and test files accordingly.
+- Moved the main grammar into a separate dialect and renamed source and test files accordingly.
 - Moved to file-based tests for the ansi dialect to make it easier to test using the tool directly.
 - As part of file tests - expected outcomes are now encoded in yaml to make it easier to write new tests.
 - Vastly improved readability and debugging potential of the _match logging.

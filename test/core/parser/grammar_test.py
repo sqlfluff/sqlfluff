@@ -228,13 +228,18 @@ def test__parser__grammar__base__bracket_sensitive_look_ahead_match(
         pre_section, match, matcher = BaseGrammar._bracket_sensitive_look_ahead_match(
             bracket_seg_list, [fs], ctx
         )
-        # NB: The bracket segments will have been mutated, so we can't directly compare
-        assert len(pre_section) == 8
+        # NB: The bracket segments will have been mutated, so we can't directly compare.
+        # Make sure we've got a bracketed section in there.
+        assert len(pre_section) == 5
+        assert pre_section[2].is_type("bracketed")
+        assert len(pre_section[2].segments) == 4
         assert matcher == fs
         # We shouldn't match the whitespace with the keyword
         assert match.matched_segments == (
             KeywordSegment("foo", bracket_seg_list[8].pos_marker),
         )
+        # Check that the unmatched segments are nothing.
+        assert not match.unmatched_segments
 
 
 def test__parser__grammar__base__bracket_fail_with_open_paren_close_square_mismatch(
@@ -267,6 +272,43 @@ def test__parser__grammar__base__bracket_fail_with_open_paren_close_square_misma
                 ctx,
             )
         assert sql_parse_error.match("Found unexpected end bracket")
+
+
+def test__parser__grammar__base__bracket_fail_with_unexpected_end_bracket(
+    generate_test_segments, fresh_ansi_dialect
+):
+    """Test _bracket_sensitive_look_ahead_match edge case.
+
+    Should fail gracefully and stop matching if we find a trailing unmatched.
+    """
+    fs = StringParser("foo", KeywordSegment)
+    # We need a dialect here to do bracket matching
+    with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
+        _, match, _ = BaseGrammar._bracket_sensitive_look_ahead_match(
+            generate_test_segments(
+                [
+                    "bar",
+                    "(",  # This bracket pair should be mutated
+                    ")",
+                    " ",
+                    ")",  # This is the unmatched bracket
+                    " ",
+                    "foo",
+                ]
+            ),
+            [fs],
+            ctx,
+        )
+        # Check we don't match (even though there's a foo at the end)
+        assert not match
+        # Check the first bracket pair have been mutated.
+        segs = match.unmatched_segments
+        assert segs[1].is_type("bracketed")
+        assert segs[1].raw == "()"
+        assert len(segs[1].segments) == 2
+        # Check the trailing foo hasn't been mutated
+        assert segs[5].raw == "foo"
+        assert not isinstance(segs[5], KeywordSegment)
 
 
 def test__parser__grammar__ref_eq():
@@ -541,6 +583,8 @@ def test__parser__grammar_sequence_indent_conditional(seg_list, caplog):
         (["bar", ".", "bar"], 1, False, False, 3),
         # Check we still succeed with something trailing right on the end.
         (["bar", ".", "bar", "foo"], 1, False, False, 3),
+        # Check min_delimiters. There's a delimiter here, but not enough to match.
+        (["bar", ".", "bar", "foo"], 2, True, False, 0),
     ],
 )
 def test__parser__grammar_delimited(
@@ -603,7 +647,13 @@ def test__parser__grammar_greedyuntil_bracketed(bracket_seg_list, fresh_ansi_dia
     g = GreedyUntil(fs)
     with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
         # Check that we can make it past the brackets
-        assert len(g.match(bracket_seg_list, parse_context=ctx)) == 7
+        match = g.match(bracket_seg_list, parse_context=ctx)
+        assert len(match) == 4
+        # Check we successfully constructed a bracketed segment
+        assert match.matched_segments[2].is_type("bracketed")
+        assert match.matched_segments[2].raw == "(foo    )"
+        # Check that the unmatched segments is foo AND the whitespace
+        assert len(match.unmatched_segments) == 2
 
 
 def test__parser__grammar_anything(seg_list, fresh_ansi_dialect):

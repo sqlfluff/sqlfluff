@@ -9,34 +9,37 @@ file:
               star: '*'
             select_replace_clause:
               keyword: REPLACE
-              start_bracket: (
-              select_clause_element:
-                function:
-                  function_name:
-                    function_name_identifier: CAST
-                  start_bracket: (
-                  expression:
-                    literal: '1'
-                  keyword: AS
-                  data_type:
-                    data_type_identifier: BOOLEAN
-                  end_bracket: )
-                alias_expression:
-                  keyword: AS
-                  identifier: foo
-              end_bracket: )
+              bracketed:
+                start_bracket: (
+                select_clause_element:
+                  function:
+                    function_name:
+                      function_name_identifier: CAST
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        literal: '1'
+                      keyword: AS
+                      data_type:
+                        data_type_identifier: BOOLEAN
+                      end_bracket: )
+                  alias_expression:
+                    keyword: AS
+                    identifier: foo
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
-              start_bracket: (
-              select_statement:
-                select_clause:
-                  keyword: SELECT
-                  select_clause_element:
-                    literal: '1'
-                    alias_expression:
-                      keyword: AS
-                      identifier: foo
-              end_bracket: )
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      literal: '1'
+                      alias_expression:
+                        keyword: AS
+                        identifier: foo
+                end_bracket: )

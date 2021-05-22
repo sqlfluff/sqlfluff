@@ -47,6 +47,7 @@ from sqlfluff.core.parser import (
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo
+from sqlfluff.core.parser.segments.base import BracketedSegment
 
 from sqlfluff.dialects.ansi_keywords import (
     ansi_reserved_keywords,
@@ -154,12 +155,16 @@ ansi_dialect.sets("reserved_keywords").update(
 )
 
 # Bracket pairs (a set of tuples).
-# (name, startref, endref)
+# (name, startref, endref, persists)
+# NOTE: The `persists` value controls whether this type
+# of bracket is persisted during matching to speed up other
+# parts of the matching process. Round brackets are the most
+# common and match the largest areas and so are sufficient.
 ansi_dialect.sets("bracket_pairs").update(
     [
-        ("round", "StartBracketSegment", "EndBracketSegment"),
-        ("square", "StartSquareBracketSegment", "EndSquareBracketSegment"),
-        ("curly", "StartCurlyBracketSegment", "EndCurlyBracketSegment"),
+        ("round", "StartBracketSegment", "EndBracketSegment", True),
+        ("square", "StartSquareBracketSegment", "EndSquareBracketSegment", False),
+        ("curly", "StartCurlyBracketSegment", "EndCurlyBracketSegment", False),
     ]
 )
 
@@ -561,6 +566,7 @@ class ObjectReferenceSegment(BaseSegment):
             Ref("BinaryOperatorGrammar"),
             Ref("ColonSegment"),
             Ref("SemicolonSegment"),
+            BracketedSegment,
         ),
         allow_gaps=False,
     )
@@ -939,7 +945,10 @@ class FromExpressionElementSegment(BaseSegment):
 
         """
         alias_expression = self.get_child("alias_expression")
-        ref = self.get_child("table_expression").get_child("object_reference")
+        tbl_expression = self.get_child("table_expression")
+        if not tbl_expression:
+            tbl_expression = self.get_child("bracketed").get_child("table_expression")
+        ref = tbl_expression.get_child("object_reference")
         if alias_expression:
             # If it has an alias, return that
             segment = alias_expression.get_child("identifier")
