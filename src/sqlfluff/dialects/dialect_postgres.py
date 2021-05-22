@@ -103,22 +103,6 @@ class FunctionDefinitionGrammar(BaseSegment):
 
 
 @postgres_dialect.segment(replace=True)
-class FunctionParameterListGrammar(BaseSegment):
-    """The parameters for a function ie. `(string, number)`."""
-
-    # Function parameter list
-    match_grammar = Bracketed(
-        Sequence(
-            Delimited(
-                Ref("FunctionParameterGrammar"),
-                delimiter=Ref("CommaSegment"),
-            ),
-            optional=True,
-        ),
-    )
-
-
-@postgres_dialect.segment(replace=True)
 class SelectClauseModifierSegment(BaseSegment):
     """Things that come after SELECT but before the columns."""
 
