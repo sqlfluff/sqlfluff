@@ -954,7 +954,7 @@ class Linter:
                     of the templated file.
 
         """
-        violations = []
+        violations: List[SQLBaseError] = []
         t0 = time.monotonic()
         bencher = BenchIt()  # starts the timer
         if fname:
@@ -1003,16 +1003,16 @@ class Linter:
             self.formatter.dispatch_parse_header(fname)
 
         if templated_file:
-            tokens, vs, config = self._lex_templated_file(templated_file, config)
-            violations += vs
+            tokens, lvs, config = self._lex_templated_file(templated_file, config)
+            violations += lvs
 
         t2 = time.monotonic()
         bencher("Lexing {0!r}".format(short_fname))
         linter_logger.info("PARSING (%s)", fname)
 
         if tokens:
-            parsed, vs = self._parse_tokens(tokens, config, recurse=recurse)
-            violations += vs
+            parsed, pvs = self._parse_tokens(tokens, config, recurse=recurse)
+            violations += pvs
         else:
             parsed = None
 
@@ -1241,23 +1241,13 @@ class Linter:
         if tree:
             t0 = time.monotonic()
             linter_logger.info("LINTING (%s)", fname)
-
-            if fix:
-                tree, initial_linting_errors = self.fix(
-                    tree,
-                    config=config,
-                    fname=fname,
-                    templated_file=parsed.templated_file,
-                )
-            else:
-                lint = self.lint(
-                    tree,
-                    config=config,
-                    fname=fname,
-                    templated_file=parsed.templated_file,
-                )
-                initial_linting_errors = lint
-
+            tree, initial_linting_errors = self.lint_fix(
+                tree,
+                config=config,
+                fix=fix,
+                fname=fname,
+                templated_file=parsed.templated_file,
+            )
             # Update the timing dict
             t1 = time.monotonic()
             time_dict["linting"] = t1 - t0
