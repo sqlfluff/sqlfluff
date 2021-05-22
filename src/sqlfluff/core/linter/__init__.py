@@ -829,6 +829,73 @@ class Linter:
         rs = self.get_ruleset()
         return [RuleTuple(rule.code, rule.description) for rule in rs]
 
+    @staticmethod
+    def _lex_templated_file(
+        templated_file: TemplatedFile, config: FluffConfig
+    ) -> Tuple[Optional[Sequence[BaseSegment]], List[SQLLexError], FluffConfig]:
+        """Lex a templated file.
+
+        NOTE: This potentially mutates the config, so make sure to
+        use the returned one.
+        """
+        violations = []
+        linter_logger.info("LEXING RAW (%s)", templated_file.fname)
+        # Get the lexer
+        lexer = Lexer(config=config)
+        # Lex the file and log any problems
+        try:
+            tokens, lex_vs = lexer.lex(templated_file)
+            # We might just get the violations as a list
+            violations += lex_vs
+            linter_logger.info(
+                "Lexed tokens: %s", [seg.raw for seg in tokens] if tokens else None
+            )
+        except SQLLexError as err:
+            linter_logger.info("LEXING FAILED! (%s): %s", templated_file.fname, err)
+            violations.append(err)
+            return None, violations, config
+
+        if not tokens:
+            return None, violations, config
+
+        # Check that we've got sensible indentation from the lexer.
+        # We might need to suppress if it's a complicated file.
+        templating_blocks_indent = config.get("template_blocks_indent", "indentation")
+        if isinstance(templating_blocks_indent, str):
+            force_block_indent = templating_blocks_indent.lower().strip() == "force"
+        else:
+            force_block_indent = False
+        templating_blocks_indent = bool(templating_blocks_indent)
+        # If we're forcing it through we don't check.
+        if templating_blocks_indent and not force_block_indent:
+            indent_balance = sum(
+                getattr(elem, "indent_val", 0)
+                for elem in cast(Tuple[BaseSegment, ...], tokens)
+            )
+            if indent_balance != 0:
+                linter_logger.debug(
+                    "Indent balance test failed for %r. Template indents will not be linted for this file.",
+                    templated_file.fname,
+                )
+                # Don't enable the templating blocks.
+                templating_blocks_indent = False
+                # Disable the linting of L003 on templated tokens.
+                config.set_value(["rules", "L003", "lint_templated_tokens"], False)
+
+        # The file will have been lexed without config, so check all indents
+        # are enabled.
+        new_tokens = []
+        for token in cast(Tuple[BaseSegment, ...], tokens):
+            if token.is_meta:
+                token = cast(MetaSegment, token)
+                if token.indent_val != 0:
+                    # Don't allow it if we're not linting templating block indents.
+                    if not templating_blocks_indent:
+                        continue
+            new_tokens.append(token)
+        # Return new buffer
+        return new_tokens, violations, config
+
     def parse_string(
         self,
         in_str: str,
@@ -900,66 +967,8 @@ class Linter:
             self.formatter.dispatch_parse_header(fname)
 
         if templated_file:
-            linter_logger.info("LEXING RAW (%s)", fname)
-            # Get the lexer
-            lexer = Lexer(config=config)
-            # Lex the file and log any problems
-            try:
-                tokens, lex_vs = lexer.lex(templated_file)
-                # We might just get the violations as a list
-                violations += lex_vs
-            except SQLLexError as err:
-                linter_logger.info("LEXING FAILED! (%s): %s", fname, err)
-                violations.append(err)
-                tokens = None
-        else:
-            tokens = None
-
-        if tokens:
-            linter_logger.info("Lexed tokens: %s", [seg.raw for seg in tokens])
-        else:
-            linter_logger.info("NO LEXED TOKENS!")
-
-        if tokens:
-            # Check that we've got sensible indentation from the lexer.
-            # We might need to suppress if it's a complicated file.
-            templating_blocks_indent = config.get(
-                "template_blocks_indent", "indentation"
-            )
-            if isinstance(templating_blocks_indent, str):
-                force_block_indent = templating_blocks_indent.lower().strip() == "force"
-            else:
-                force_block_indent = False
-            templating_blocks_indent = bool(templating_blocks_indent)
-            # If we're forcing it through we don't check.
-            if templating_blocks_indent and not force_block_indent:
-                indent_balance = sum(
-                    getattr(elem, "indent_val", 0)
-                    for elem in cast(Tuple[BaseSegment, ...], tokens)
-                )
-                if indent_balance != 0:
-                    linter_logger.debug(
-                        "Indent balance test failed for %r. Template indents will not be linted for this file.",
-                        fname,
-                    )
-                    # Don't enable the templating blocks.
-                    templating_blocks_indent = False
-                    # Disable the linting of L003 on templated tokens.
-                    config.set_value(["rules", "L003", "lint_templated_tokens"], False)
-
-            # The file will have been lexed without config, so check all indents
-            # are enabled.
-            new_tokens = []
-            for token in cast(Tuple[BaseSegment, ...], tokens):
-                if token.is_meta:
-                    token = cast(MetaSegment, token)
-                    if token.indent_val != 0:
-                        # Don't allow it if we're not linting templating block indents.
-                        if not templating_blocks_indent:
-                            continue
-                new_tokens.append(token)
-            # Swap the buffers
-            tokens = new_tokens
+            tokens, vs, config = self._lex_templated_file(templated_file, config)
+            violations += vs
 
         t2 = time.monotonic()
         bencher("Lexing {0!r}".format(short_fname))
