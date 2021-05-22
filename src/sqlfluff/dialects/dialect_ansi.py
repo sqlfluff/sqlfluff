@@ -2579,7 +2579,7 @@ class FunctionParameterListGrammar(BaseSegment):
             ),
             optional=True,
         ),
-    ) 
+    )
 
 
 @ansi_dialect.segment()
