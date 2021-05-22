@@ -896,6 +896,42 @@ class Linter:
         # Return new buffer
         return new_tokens, violations, config
 
+    @staticmethod
+    def _parse_tokens(
+        tokens: Sequence[BaseSegment], config: FluffConfig, recurse: bool = True
+    ) -> Tuple[Optional[BaseSegment], List[SQLParseError]]:
+        parser = Parser(config=config)
+        violations = []
+        # Parse the file and log any problems
+        try:
+            parsed: Optional[BaseSegment] = parser.parse(tokens, recurse=recurse)
+        except SQLParseError as err:
+            linter_logger.info("PARSING FAILED! : %s", err)
+            violations.append(err)
+            return None, violations
+
+        if parsed:
+            linter_logger.info("\n###\n#\n# {0}\n#\n###".format("Parsed Tree:"))
+            linter_logger.info("\n" + parsed.stringify())
+            # We may succeed parsing, but still have unparsable segments. Extract them here.
+            for unparsable in parsed.iter_unparsables():
+                # No exception has been raised explicitly, but we still create one here
+                # so that we can use the common interface
+                violations.append(
+                    SQLParseError(
+                        "Line {0[0]}, Position {0[1]}: Found unparsable section: {1!r}".format(
+                            unparsable.pos_marker.working_loc,
+                            unparsable.raw
+                            if len(unparsable.raw) < 40
+                            else unparsable.raw[:40] + "...",
+                        ),
+                        segment=unparsable,
+                    )
+                )
+                linter_logger.info("Found unparsable segment...")
+                linter_logger.info(unparsable.stringify())
+        return parsed, violations
+
     def parse_string(
         self,
         in_str: str,
@@ -973,35 +1009,10 @@ class Linter:
         t2 = time.monotonic()
         bencher("Lexing {0!r}".format(short_fname))
         linter_logger.info("PARSING (%s)", fname)
-        parser = Parser(config=config)
-        # Parse the file and log any problems
+
         if tokens:
-            try:
-                parsed: Optional[BaseSegment] = parser.parse(tokens, recurse=recurse)
-            except SQLParseError as err:
-                linter_logger.info("PARSING FAILED! (%s): %s", fname, err)
-                violations.append(err)
-                parsed = None
-            if parsed:
-                linter_logger.info("\n###\n#\n# {0}\n#\n###".format("Parsed Tree:"))
-                linter_logger.info("\n" + parsed.stringify())
-                # We may succeed parsing, but still have unparsable segments. Extract them here.
-                for unparsable in parsed.iter_unparsables():
-                    # No exception has been raised explicitly, but we still create one here
-                    # so that we can use the common interface
-                    violations.append(
-                        SQLParseError(
-                            "Line {0[0]}, Position {0[1]}: Found unparsable section: {1!r}".format(
-                                unparsable.pos_marker.working_loc,
-                                unparsable.raw
-                                if len(unparsable.raw) < 40
-                                else unparsable.raw[:40] + "...",
-                            ),
-                            segment=unparsable,
-                        )
-                    )
-                    linter_logger.info("Found unparsable segment...")
-                    linter_logger.info(unparsable.stringify())
+            parsed, vs = self._parse_tokens(tokens, config, recurse=recurse)
+            violations += vs
         else:
             parsed = None
 
