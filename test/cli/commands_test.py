@@ -58,7 +58,7 @@ def test__cli__command_directed():
     assert check_b in result.output
     # Finally check the WHOLE output to make sure that unexpected newlines are not added.
     # The replace command just accounts for cross platform testing.
-    assert result.output.replace("\\", "/") == expected_output
+    assert result.output.replace("\\", "/").startswith(expected_output)
 
 
 def test__cli__command_dialect():
