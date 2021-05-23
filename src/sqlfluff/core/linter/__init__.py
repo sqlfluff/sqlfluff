@@ -932,6 +932,31 @@ class Linter:
                 linter_logger.info(unparsable.stringify())
         return parsed, violations
 
+    @staticmethod
+    def _generate_short_fname(fname: Optional[str] = None):
+        # Handle nulls gracefully
+        if not fname:
+            return None
+        return fname.replace("\\", "/").split("/")[-1]
+
+    def render_string(self, in_str: str, fname: Optional[str], config: FluffConfig):
+        """Template the file."""
+        linter_logger.info("TEMPLATING RAW [%s] (%s)", self.templater.name, fname)
+
+        try:
+            templated_file, templater_violations = self.templater.process(
+                in_str=in_str, fname=fname, config=config, formatter=self.formatter
+            )
+        except SQLTemplaterSkipFile as s:
+            linter_logger.warning(str(s))
+            templated_file = None
+            templater_violations = []
+
+        if not templated_file:
+            linter_logger.info("TEMPLATING FAILED: %s", templater_violations)
+
+        return templated_file, templater_violations
+
     def parse_string(
         self,
         in_str: str,
@@ -957,11 +982,7 @@ class Linter:
         violations: List[SQLBaseError] = []
         t0 = time.monotonic()
         bencher = BenchIt()  # starts the timer
-        if fname:
-            short_fname: Optional[str] = fname.replace("\\", "/").split("/")[-1]
-        else:
-            # this handles the potential case of a null fname
-            short_fname = fname
+        short_fname = self._generate_short_fname(fname)
         bencher("Staring parse_string for {0!r}".format(short_fname))
 
         # Dispatch the output for the template header (including the config diff)
@@ -972,28 +993,10 @@ class Linter:
         config = config or self.config
 
         # Scan the raw file for config commands.
-        for raw_line in in_str.splitlines():
-            if raw_line.startswith("-- sqlfluff"):
-                # Found a in-file config command
-                config.process_inline_config(raw_line)
+        config.process_raw_file_for_config(in_str)
 
-        linter_logger.info("TEMPLATING RAW [%s] (%s)", self.templater.name, fname)
-        try:
-            templated_file, templater_violations = self.templater.process(
-                in_str=in_str, fname=fname, config=config, formatter=self.formatter
-            )
-        except SQLTemplaterSkipFile as s:
-            linter_logger.warning(str(s))
-            templated_file = None
-            templater_violations = []
-
+        templated_file, templater_violations = self.render_string(in_str, fname, config)
         violations += templater_violations
-        # Detect the case of a catastrophic templater fail. In this case
-        # we don't continue. We'll just bow out now.
-        tokens: Optional[Sequence[BaseSegment]]
-        if not templated_file:
-            linter_logger.info("TEMPLATING FAILED: %s", templater_violations)
-            tokens = None
 
         t1 = time.monotonic()
         bencher("Templating {0!r}".format(short_fname))
@@ -1002,9 +1005,12 @@ class Linter:
         if self.formatter:
             self.formatter.dispatch_parse_header(fname)
 
+        tokens: Optional[Sequence[BaseSegment]]
         if templated_file:
             tokens, lvs, config = self._lex_templated_file(templated_file, config)
             violations += lvs
+        else:
+            tokens = None
 
         t2 = time.monotonic()
         bencher("Lexing {0!r}".format(short_fname))
