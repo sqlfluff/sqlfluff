@@ -360,6 +360,8 @@ def lint(
         click.echo(yaml.dump(result.as_records()))
 
     if not nofail:
+        if not non_human_output:
+            click.echo("All Finished 📜 🎉!")
         sys.exit(result.stats()["exit code"])
     else:
         sys.exit(0)
@@ -488,6 +490,8 @@ def fix(force, paths, parallel, bench=False, fixed_suffix="", logger=None, **kwa
                 )
                 if not success:
                     sys.exit(1)
+                else:
+                    click.echo("All Finished 📜 🎉!")
             elif c == "n":
                 click.echo("Aborting...")
             else:
@@ -501,6 +505,7 @@ def fix(force, paths, parallel, bench=False, fixed_suffix="", logger=None, **kwa
                     result.num_violations(types=SQLLintError, fixable=False)
                 )
             )
+        click.echo("All Finished 📜 🎉!")
 
     if bench:
         click.echo("\n\n==== bencher stats ====")
