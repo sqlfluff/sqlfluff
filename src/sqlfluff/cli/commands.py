@@ -360,6 +360,13 @@ def lint(
         click.echo(yaml.dump(result.as_records()))
 
     if not nofail:
+        if not non_human_output:
+            fun_string = "\nThat's some nice looking SQL 🎉! "
+            if result.num_violations() > 0:
+                fun_string += "But you could clean it up a little 😉."
+            else:
+                fun_string += "It's clean as a whistle- Don't change a thing 👍."
+            click.echo(fun_string)
         sys.exit(result.stats()["exit code"])
     else:
         sys.exit(0)
@@ -488,6 +495,10 @@ def fix(force, paths, parallel, bench=False, fixed_suffix="", logger=None, **kwa
                 )
                 if not success:
                     sys.exit(1)
+                else:
+                    fun_string = "\nThat was some nice looking SQL 🎉! "
+                    fun_string += "But we made a few minor changes 😉."
+                    click.echo(fun_string)
             elif c == "n":
                 click.echo("Aborting...")
             else:
@@ -501,6 +512,13 @@ def fix(force, paths, parallel, bench=False, fixed_suffix="", logger=None, **kwa
                     result.num_violations(types=SQLLintError, fixable=False)
                 )
             )
+            fun_string = "\nThat's some nice looking SQL 🎉! "
+            fun_string += "But you might want to look at a few things 😉."
+            click.echo(fun_string)
+        else:
+            fun_string = "\nThat's some nice looking SQL 🎉! "
+            fun_string += "We wouldn't change a thing 👍."
+            click.echo(fun_string)
 
     if bench:
         click.echo("\n\n==== bencher stats ====")
