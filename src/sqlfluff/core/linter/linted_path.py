@@ -1,6 +1,7 @@
 """Defines the LintedPath class.
 
-This stors the idea of a collection of linted files at a single start path
+This stores the idea of a collection of linted files at a single start path
+
 """
 
 from typing import (
