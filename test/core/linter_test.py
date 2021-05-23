@@ -10,6 +10,7 @@ from sqlfluff.core.errors import SQLBaseError, SQLLintError, SQLParseError
 from sqlfluff.cli.formatters import CallbackFormatter
 from sqlfluff.core.linter import LintingResult, NoQaDirective
 import sqlfluff.core.linter as linter
+from sqlfluff.core.templaters import TemplatedFile
 from test.fixtures.dbt.templater import in_dbt_project_dir  # noqa
 
 
@@ -497,7 +498,7 @@ def test_linted_file_ignore_masked_violations(
         time_dict={},
         tree=None,
         ignore_mask=ignore_mask,
-        templated_file=linter.TemplatedFile(""),
+        templated_file=TemplatedFile(""),
     )
     result = lf._ignore_masked_violations(violations)
     expected_violations = [v for i, v in enumerate(violations) if i in expected]
