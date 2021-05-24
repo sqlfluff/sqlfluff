@@ -29,7 +29,19 @@ class NoQaDirective(NamedTuple):
 
 
 class ParsedString(NamedTuple):
-    """An object to store the result of parsing a string."""
+    """An object to store the result of parsing a string.
+
+    Args:
+        `parsed` is a segment structure representing the parsed file. If
+            parsing fails due to an unrecoverable violation then we will
+            return None.
+        `violations` is a :obj:`list` of violations so far, which will either be
+            templating, lexing or parsing violations at this stage.
+        `time_dict` is a :obj:`dict` containing timings for how long each step
+            took in the process.
+        `templated_file` is a :obj:`TemplatedFile` containing the details
+            of the templated file.
+    """
 
     tree: Optional[BaseSegment]
     violations: List[SQLBaseError]

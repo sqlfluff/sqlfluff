@@ -25,7 +25,7 @@ from sqlfluff.core.linter.linted_file import LintedFile
 
 class LintedDir:
     """A class to store the idea of a collection of linted files at a single start path.
-    
+
     A LintedDir may contain files in subdirectories, but they all share
     a common root.
     """

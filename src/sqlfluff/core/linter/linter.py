@@ -7,13 +7,13 @@ import logging
 from typing import (
     Any,
     Generator,
-    Iterator,
     List,
     Sequence,
     Optional,
     Tuple,
     Union,
     cast,
+    Iterable,
 )
 
 from benchit import BenchIt
@@ -42,6 +42,9 @@ from sqlfluff.core.linter.common import RuleTuple, ParsedString, NoQaDirective
 from sqlfluff.core.linter.linted_file import LintedFile
 from sqlfluff.core.linter.linted_dir import LintedDir
 from sqlfluff.core.linter.linting_result import LintingResult
+
+
+WalkableType = Iterable[Tuple[str, Optional[List[str]], List[str]]]
 
 # Instantiate the linter logger
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
@@ -192,7 +195,7 @@ class Linter:
         # Handle nulls gracefully
         if not fname:
             return None
-        return fname.replace("\\", "/").split("/")[-1]
+        return os.path.basename(fname)
 
     def render_string(self, in_str: str, fname: Optional[str], config: FluffConfig):
         """Template the file."""
@@ -219,21 +222,7 @@ class Linter:
         recurse: bool = True,
         config: Optional[FluffConfig] = None,
     ) -> ParsedString:
-        """Parse a string.
-
-        Returns:
-            `ParsedString` of (`parsed`, `violations`, `time_dict`, `templated_file`).
-                `parsed` is a segment structure representing the parsed file. If
-                    parsing fails due to an unrecoverable violation then we will
-                    return None.
-                `violations` is a :obj:`list` of violations so far, which will either be
-                    templating, lexing or parsing violations at this stage.
-                `time_dict` is a :obj:`dict` containing timings for how long each step
-                    took in the process.
-                `templated_file` is a :obj:`TemplatedFile` containing the details
-                    of the templated file.
-
-        """
+        """Parse a string."""
         violations: List[SQLBaseError] = []
         t0 = time.monotonic()
         bencher = BenchIt()  # starts the timer
@@ -574,7 +563,7 @@ class Linter:
 
         # Files referred to exactly are also ignored if
         # matched, but we warn the users when that happens
-        is_exact_file = not os.path.isdir(path)
+        is_exact_file = os.path.isfile(path)
 
         if is_exact_file:
             # When the exact file to lint is passed, we
@@ -598,10 +587,7 @@ class Linter:
                 )
                 for ignore_file_path in ignore_file_paths
             ]
-            path_walk: Union[
-                Iterator[Tuple[str, List[str], List[str]]],
-                List[Tuple[str, None, List[str]]],
-            ] = [(dirpath, None, files)] + path_walk_ignore_file
+            path_walk: WalkableType = [(dirpath, None, files)] + path_walk_ignore_file
         else:
             path_walk = os.walk(path)
 

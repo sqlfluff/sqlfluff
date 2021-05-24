@@ -56,9 +56,7 @@ class LintingResult:
         ...
 
     @overload
-    def check_tuples(
-        self, by_path: Literal[True]
-    ) -> Dict[LintedDir, List[CheckTuple]]:
+    def check_tuples(self, by_path: Literal[True]) -> Dict[LintedDir, List[CheckTuple]]:
         """Return a Dict of LintedDir and CheckTuples when by_path is True."""
         ...
 
