@@ -16,6 +16,7 @@ from typing import (
     Tuple,
     Union,
     cast,
+    Type,
 )
 
 from benchit import BenchIt
@@ -66,7 +67,7 @@ class LintedFile(NamedTuple):
     def get_violations(
         self,
         rules: Optional[Union[str, Tuple[str, ...]]] = None,
-        types: Optional[Union[Any, Iterable[Any]]] = None,
+        types: Optional[Union[Type[SQLBaseError], Iterable[Type[SQLBaseError]]]] = None,
         filter_ignore: bool = True,
         fixable: bool = None,
     ) -> list:
@@ -77,10 +78,13 @@ class LintedFile(NamedTuple):
         violations = self.violations
         # Filter types
         if types:
-            try:
-                types = tuple(types)
-            except TypeError:
+            # If it's a singular type, make it a single item in a tuple
+            # otherwise coerce to tuple normally so that we can use it with
+            # isinstance.
+            if isinstance(types, type) and issubclass(types, SQLBaseError):
                 types = (types,)
+            else:
+                types = tuple(types)
             violations = [v for v in violations if isinstance(v, types)]
         # Filter rules
         if rules:
@@ -196,6 +200,28 @@ class LintedFile(NamedTuple):
         """Return True if there are no ignorable violations."""
         return not any(self.get_violations(filter_ignore=True))
 
+    @staticmethod
+    def _log_hints(
+        patch: Union[EnrichedFixPatch, FixPatch], templated_file: TemplatedFile
+    ):
+        """Log hints for debugging during patch generation."""
+        # This next bit is ALL FOR LOGGING AND DEBUGGING
+        if patch.templated_slice.start >= 10:
+            pre_hint = templated_file.templated_str[
+                patch.templated_slice.start - 10 : patch.templated_slice.start
+            ]
+        else:
+            pre_hint = templated_file.templated_str[: patch.templated_slice.start]
+        if patch.templated_slice.stop + 10 < len(templated_file.templated_str):
+            post_hint = templated_file.templated_str[
+                patch.templated_slice.stop : patch.templated_slice.stop + 10
+            ]
+        else:
+            post_hint = templated_file.templated_str[patch.templated_slice.stop :]
+        linter_logger.debug(
+            "        Templated Hint: ...%r <> %r...", pre_hint, post_hint
+        )
+
     def fix_string(self) -> Tuple[Any, bool]:
         """Obtain the changes to a path as a string.
 
@@ -255,27 +281,7 @@ class LintedFile(NamedTuple):
             self.tree.iter_patches(templated_str=self.templated_file.templated_str)
         ):
             linter_logger.debug("  %s Yielded patch: %s", idx, patch)
-
-            # This next bit is ALL FOR LOGGING AND DEBUGGING
-            if patch.templated_slice.start >= 10:
-                pre_hint = self.templated_file.templated_str[
-                    patch.templated_slice.start - 10 : patch.templated_slice.start
-                ]
-            else:
-                pre_hint = self.templated_file.templated_str[
-                    : patch.templated_slice.start
-                ]
-            if patch.templated_slice.stop + 10 < len(self.templated_file.templated_str):
-                post_hint = self.templated_file.templated_str[
-                    patch.templated_slice.stop : patch.templated_slice.stop + 10
-                ]
-            else:
-                post_hint = self.templated_file.templated_str[
-                    patch.templated_slice.stop :
-                ]
-            linter_logger.debug(
-                "        Templated Hint: ...%r <> %r...", pre_hint, post_hint
-            )
+            self._log_hints(patch, self.templated_file)
 
             # Attempt to convert to source space.
             try:
