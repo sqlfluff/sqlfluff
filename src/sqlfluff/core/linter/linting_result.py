@@ -19,7 +19,7 @@ from sqlfluff.core.errors import (
 from sqlfluff.core.parser.segments.base import BaseSegment
 
 
-from sqlfluff.core.linter.linted_path import LintedPath
+from sqlfluff.core.linter.linted_dir import LintedDir
 
 
 class LintingResult:
@@ -30,7 +30,7 @@ class LintingResult:
     """
 
     def __init__(self) -> None:
-        self.paths: List[LintedPath] = []
+        self.paths: List[LintedDir] = []
 
     @staticmethod
     def sum_dicts(d1: Dict[str, Any], d2: Dict[str, Any]) -> Dict[str, Any]:
@@ -46,8 +46,8 @@ class LintingResult:
             dict_buffer.update(dct)
         return dict_buffer
 
-    def add(self, path: LintedPath) -> None:
-        """Add a new `LintedPath` to this result."""
+    def add(self, path: LintedDir) -> None:
+        """Add a new `LintedDir` to this result."""
         self.paths.append(path)
 
     @overload
@@ -58,8 +58,8 @@ class LintingResult:
     @overload
     def check_tuples(
         self, by_path: Literal[True]
-    ) -> Dict[LintedPath, List[CheckTuple]]:
-        """Return a Dict of LintedPath and CheckTuples when by_path is True."""
+    ) -> Dict[LintedDir, List[CheckTuple]]:
+        """Return a Dict of LintedDir and CheckTuples when by_path is True."""
         ...
 
     @overload
@@ -68,7 +68,7 @@ class LintingResult:
         ...
 
     def check_tuples(self, by_path=False):
-        """Fetch all check_tuples from all contained `LintedPath` objects.
+        """Fetch all check_tuples from all contained `LintedDir` objects.
 
         Args:
             by_path (:obj:`bool`, optional): When False, all the check_tuples
@@ -77,7 +77,7 @@ class LintingResult:
 
         """
         if by_path:
-            buff: Dict[LintedPath, List[CheckTuple]] = {}
+            buff: Dict[LintedDir, List[CheckTuple]] = {}
             for path in self.paths:
                 buff.update(path.check_tuples(by_path=by_path))
             return buff
@@ -138,8 +138,8 @@ class LintingResult:
                     key=lambda v: (v["line_no"], v["line_pos"], v["code"]),
                 ),
             }
-            for lintedpath in self.paths
-            for path, violations in lintedpath.violation_dict().items()
+            for LintedDir in self.paths
+            for path, violations in LintedDir.violation_dict().items()
             if violations
         ]
 

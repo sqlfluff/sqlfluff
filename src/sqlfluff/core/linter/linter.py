@@ -40,7 +40,7 @@ from sqlfluff.core.rules.base import BaseRule
 
 from sqlfluff.core.linter.common import RuleTuple, ParsedString, NoQaDirective
 from sqlfluff.core.linter.linted_file import LintedFile
-from sqlfluff.core.linter.linted_path import LintedPath
+from sqlfluff.core.linter.linted_dir import LintedDir
 from sqlfluff.core.linter.linting_result import LintingResult
 
 # Instantiate the linter logger
@@ -661,7 +661,7 @@ class Linter:
     ) -> LintingResult:
         """Lint strings directly."""
         result = LintingResult()
-        linted_path = LintedPath(fname)
+        linted_path = LintedDir(fname)
         linted_path.add(self.lint_string(string, fname=fname, fix=fix))
         result.add(linted_path)
         return result
@@ -676,9 +676,9 @@ class Linter:
         ignore_non_existent_files: bool = False,
         ignore_files: bool = True,
         parallel: int = 1,
-    ) -> LintedPath:
+    ) -> LintedDir:
         """Lint a path."""
-        linted_path = LintedPath(path)
+        linted_path = LintedDir(path)
         if self.formatter:
             self.formatter.dispatch_path(path)
         fnames = list(

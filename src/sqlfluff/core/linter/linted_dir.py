@@ -1,4 +1,4 @@
-"""Defines the LintedPath class.
+"""Defines the LintedDir class.
 
 This stores the idea of a collection of linted files at a single start path
 
@@ -23,8 +23,12 @@ from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.linter.linted_file import LintedFile
 
 
-class LintedPath:
-    """A class to store the idea of a collection of linted files at a single start path."""
+class LintedDir:
+    """A class to store the idea of a collection of linted files at a single start path.
+    
+    A LintedDir may contain files in subdirectories, but they all share
+    a common root.
+    """
 
     def __init__(self, path: str) -> None:
         self.files: List[LintedFile] = []
@@ -114,6 +118,6 @@ class LintedPath:
         """A convenience method for when there is only one file and we want the tree."""
         if len(self.files) > 1:
             raise ValueError(
-                ".tree() cannot be called when a LintedPath contains more than one file."
+                ".tree() cannot be called when a LintedDir contains more than one file."
             )
         return self.files[0].tree
