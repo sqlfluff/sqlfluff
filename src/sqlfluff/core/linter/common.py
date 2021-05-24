@@ -1,7 +1,6 @@
 """Defines small container classes to hold intermediate results during linting."""
 
 from typing import (
-    Any,
     List,
     NamedTuple,
     Optional,
@@ -29,16 +28,6 @@ class NoQaDirective(NamedTuple):
     action: Optional[str]  # "enable", "disable", or "None"
 
 
-class ProtoFile(NamedTuple):
-    """Proto object to be inherited by LintedFile."""
-
-    path: str
-    violations: list
-    time_dict: dict
-    tree: Any
-    ignore_mask: List[NoQaDirective]
-
-
 class ParsedString(NamedTuple):
     """An object to store the result of parsing a string."""
 
@@ -55,10 +44,10 @@ class EnrichedFixPatch(NamedTuple):
     source_slice: slice
     templated_slice: slice
     fixed_raw: str
-    # The patch type, functions mostly for debugging and explanation
+    # The patch category, functions mostly for debugging and explanation
     # than for function. It allows traceability of *why* this patch was
     # generated.
-    patch_type: str
+    patch_category: str
     templated_str: str
     source_str: str
 

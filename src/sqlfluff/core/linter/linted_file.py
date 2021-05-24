@@ -315,7 +315,7 @@ class LintedFile(NamedTuple):
             enriched_patch = EnrichedFixPatch(
                 source_slice=source_slice,
                 templated_slice=patch.templated_slice,
-                patch_type=patch.patch_type,
+                patch_category=patch.patch_category,
                 fixed_raw=patch.fixed_raw,
                 templated_str=self.templated_file.templated_str[patch.templated_slice],
                 source_str=self.templated_file.source_str[source_slice],
@@ -385,7 +385,7 @@ class LintedFile(NamedTuple):
                 enriched_patch = EnrichedFixPatch(
                     source_slice=new_source_slice,
                     templated_slice=enriched_patch.templated_slice,
-                    patch_type=enriched_patch.patch_type,
+                    patch_category=enriched_patch.patch_category,
                     fixed_raw=enriched_patch.fixed_raw,
                     templated_str=enriched_patch.templated_str,
                     source_str=enriched_patch.source_str,
@@ -455,7 +455,7 @@ class LintedFile(NamedTuple):
                     # Use the patched version
                     linter_logger.debug(
                         "%-30s    %s    %r > %r",
-                        "Appending {} Patch:".format(patch.patch_type),
+                        "Appending {} Patch:".format(patch.patch_category),
                         patch.source_slice,
                         patch.source_str,
                         patch.fixed_raw,
