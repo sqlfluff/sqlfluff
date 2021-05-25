@@ -34,6 +34,7 @@ from sqlfluff.core import (
     SQLLintError,
     dialect_selector,
     dialect_readout,
+    TimingSummary,
 )
 
 
@@ -294,7 +295,14 @@ def dialects(**kwargs):
 )
 @click.argument("paths", nargs=-1)
 def lint(
-    paths, parallel, format, nofail, disregard_sqlfluffignores, logger=None, **kwargs
+    paths,
+    parallel,
+    format,
+    nofail,
+    disregard_sqlfluffignores,
+    logger=None,
+    bench=False,
+    **kwargs,
 ):
     """Lint SQL files via passing a list of files or using stdin.
 
@@ -357,6 +365,13 @@ def lint(
         click.echo(json.dumps(result.as_records()))
     elif format == "yaml":
         click.echo(yaml.dump(result.as_records()))
+
+    if bench:
+        click.echo("==== overall timings ====")
+        timing_summary = result.timing_summary()
+        for step in timing_summary:
+            click.echo(f"=== {step} ===")
+            click.echo(cli_table(timing_summary[step].items()))
 
     if not nofail:
         if not non_human_output:
@@ -598,7 +613,9 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
 
         # iterative print for human readout
         if format == "human":
+            timing = TimingSummary()
             for parsed_string in result:
+                timing.add(parsed_string.time_dict)
                 if parsed_string.tree:
                     click.echo(parsed_string.tree.stringify(code_only=code_only))
                 else:
@@ -617,6 +634,12 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
                 if verbose >= 2:
                     click.echo("==== timings ====")
                     click.echo(cli_table(parsed_string.time_dict.items()))
+            if verbose >= 2 or bench:
+                click.echo("==== overall timings ====")
+                timing_summary = timing.summary()
+                for step in timing_summary:
+                    click.echo(f"=== {step} ===")
+                    click.echo(cli_table(timing_summary[step].items()))
         else:
             # collect result and print as single payload
             # will need to zip in the file paths
@@ -655,10 +678,6 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
         click.echo("==== profiler stats ====")
         # Only print the first 50 lines of it
         click.echo("\n".join(profiler_buffer.getvalue().split("\n")[:50]))
-
-    if bench:
-        click.echo("\n\n==== bencher stats ====")
-        # TODO
 
     if nv > 0 and not nofail:
         sys.exit(66)
