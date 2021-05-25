@@ -333,14 +333,12 @@ def lint(
     set_logging_level(verbosity=verbose, logger=logger, stderr_output=non_human_output)
     # add stdin if specified via lone '-'
     if ("-",) == paths:
-        # TODO: Remove verbose
         result = lnt.lint_string_wrapped(sys.stdin.read(), fname="stdin")
     else:
         # Output the results as we go
         if verbose >= 1:
             click.echo(format_linting_result_header())
         try:
-            # TODO: Remove verbose
             result = lnt.lint_paths(
                 paths,
                 ignore_non_existent_files=False,
@@ -440,7 +438,6 @@ def fix(force, paths, parallel, bench=False, fixed_suffix="", logger=None, **kwa
     # handle stdin case. should output formatted sql to stdout and nothing else.
     if fixing_stdin:
         stdin = sys.stdin.read()
-        # TODO: Remove verbose
         result = lnt.lint_string_wrapped(stdin, fname="stdin", fix=True)
         stdout = result.paths[0].files[0].fix_string()[0]
         click.echo(stdout, nl=False)
@@ -474,7 +471,6 @@ def fix(force, paths, parallel, bench=False, fixed_suffix="", logger=None, **kwa
         )
         if force:
             click.echo(colorize("FORCE MODE", "red") + ": Attempting fixes...")
-            # TODO: Remove verbose
             success = do_fixes(
                 lnt,
                 result,
@@ -492,7 +488,6 @@ def fix(force, paths, parallel, bench=False, fixed_suffix="", logger=None, **kwa
             click.echo("...")
             if c in ("y", "\r", "\n"):
                 click.echo("Attempting fixes...")
-                # TODO: Remove verbose
                 success = do_fixes(
                     lnt,
                     result,
@@ -520,8 +515,11 @@ def fix(force, paths, parallel, bench=False, fixed_suffix="", logger=None, **kwa
         click.echo("All Finished 📜 🎉!")
 
     if bench:
-        click.echo("\n\n==== bencher stats ====")
-        # TODO
+        click.echo("==== overall timings ====")
+        timing_summary = result.timing_summary()
+        for step in timing_summary:
+            click.echo(f"=== {step} ===")
+            click.echo(cli_table(timing_summary[step].items()))
 
     sys.exit(0)
 
@@ -608,7 +606,6 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
             ]
         else:
             # A single path must be specified for this command
-            # TODO: Remove verbose
             result = lnt.parse_path(path, recurse=recurse)
 
         # iterative print for human readout
