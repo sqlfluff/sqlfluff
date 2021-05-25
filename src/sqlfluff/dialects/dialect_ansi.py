@@ -47,7 +47,6 @@ from sqlfluff.core.parser import (
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo
-from sqlfluff.core.parser.segments.base import BracketedSegment
 
 from sqlfluff.dialects.ansi_keywords import (
     ansi_reserved_keywords,
@@ -155,16 +154,12 @@ ansi_dialect.sets("reserved_keywords").update(
 )
 
 # Bracket pairs (a set of tuples).
-# (name, startref, endref, persists)
-# NOTE: The `persists` value controls whether this type
-# of bracket is persisted during matching to speed up other
-# parts of the matching process. Round brackets are the most
-# common and match the largest areas and so are sufficient.
+# (name, startref, endref)
 ansi_dialect.sets("bracket_pairs").update(
     [
-        ("round", "StartBracketSegment", "EndBracketSegment", True),
-        ("square", "StartSquareBracketSegment", "EndSquareBracketSegment", False),
-        ("curly", "StartCurlyBracketSegment", "EndCurlyBracketSegment", False),
+        ("round", "StartBracketSegment", "EndBracketSegment"),
+        ("square", "StartSquareBracketSegment", "EndSquareBracketSegment"),
+        ("curly", "StartCurlyBracketSegment", "EndCurlyBracketSegment"),
     ]
 )
 
@@ -181,6 +176,7 @@ ansi_dialect.sets("value_table_functions").update([])
 
 ansi_dialect.add(
     # Real segments
+    DelimiterSegment=OneOf(Ref("SemicolonSegment")),
     SemicolonSegment=StringParser(
         ";", SymbolSegment, name="semicolon", type="statement_terminator"
     ),
@@ -467,7 +463,7 @@ class FileSegment(BaseSegment):
     # going straight into instantiating it directly usually.
     parse_grammar = Delimited(
         Ref("StatementSegment"),
-        delimiter=Ref("SemicolonSegment"),
+        delimiter=Ref("DelimiterSegment"),
         allow_gaps=True,
         allow_trailing=True,
     )
@@ -565,8 +561,7 @@ class ObjectReferenceSegment(BaseSegment):
             Ref("StartBracketSegment"),
             Ref("BinaryOperatorGrammar"),
             Ref("ColonSegment"),
-            Ref("SemicolonSegment"),
-            BracketedSegment,
+            Ref("DelimiterSegment"),
         ),
         allow_gaps=False,
     )
@@ -945,10 +940,7 @@ class FromExpressionElementSegment(BaseSegment):
 
         """
         alias_expression = self.get_child("alias_expression")
-        tbl_expression = self.get_child("table_expression")
-        if not tbl_expression:
-            tbl_expression = self.get_child("bracketed").get_child("table_expression")
-        ref = tbl_expression.get_child("object_reference")
+        ref = self.get_child("table_expression").get_child("object_reference")
         if alias_expression:
             # If it has an alias, return that
             segment = alias_expression.get_child("identifier")
@@ -2702,7 +2694,7 @@ class StatementSegment(BaseSegment):
     """A generic segment, to any of its child subsegments."""
 
     type = "statement"
-    match_grammar = GreedyUntil(Ref("SemicolonSegment"))
+    match_grammar = GreedyUntil(Ref("DelimiterSegment"))
 
     parse_grammar = OneOf(
         Ref("SelectableGrammar"),

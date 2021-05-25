@@ -5,6 +5,8 @@ https://dev.mysql.com/doc/refman/8.0/en/differences-from-ansi.html
 """
 
 from sqlfluff.core.parser import (
+    BaseSegment,
+    Anything,
     Ref,
     AnyNumberOf,
     Sequence,
@@ -14,8 +16,13 @@ from sqlfluff.core.parser import (
     CommentSegment,
     NamedParser,
     CodeSegment,
+    StringParser,
+    SymbolSegment,
+    KeywordSegment,
+    Delimited,
 )
 from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.core.parser.grammar.greedy import StartsWith
 
 ansi_dialect = load_raw_dialect("ansi")
 mysql_dialect = ansi_dialect.copy_as("mysql")
@@ -88,5 +95,47 @@ class CreateTableStatementSegment(
                     OneOf(Ref("LiteralGrammar"), Ref("ParameterNameSegment")),
                 ),
             ),
+        ],
+    )
+
+mysql_dialect.add(
+    DoubleForwardSlashSegment=StringParser(
+        "//", SymbolSegment, name="doubleforwardslash", type="statement_terminator"
+    ),
+    DoubleDollarSignSegment=StringParser(
+        "$$", SymbolSegment, name="doubledollarsign", type="statement_terminator"
+    ),
+)
+
+mysql_dialect.replace(
+    DelimiterSegment=OneOf(Ref("SemicolonSegment"), Ref("TildeSegment")),
+    TildeSegment=StringParser(
+        "~", SymbolSegment, name="tilde", type="statement_terminator"
+    ), 
+)
+
+
+@mysql_dialect.segment()
+class DelimiterStatement(BaseSegment):
+    type = "delimiter_statement"
+    match_grammar = Sequence(
+        "DELIMITER",
+    )
+
+
+@mysql_dialect.segment(replace=True)
+class StatementSegment(
+    ansi_dialect.get_segment("StatementSegment")  # type: ignore
+):
+    """Create table segment.
+
+    https://dev.mysql.com/doc/refman/8.0/en/create-table.html
+    """
+
+    parse_grammar = ansi_dialect.get_segment(
+        "StatementSegment"
+    ).parse_grammar.copy(
+        insert=[
+            Ref("DelimiterStatement")
         ],
     )
