@@ -5,6 +5,8 @@ https://dev.mysql.com/doc/refman/8.0/en/differences-from-ansi.html
 """
 
 from sqlfluff.core.parser import (
+    BaseSegment,
+    Anything,
     Ref,
     AnyNumberOf,
     Sequence,
@@ -14,8 +16,13 @@ from sqlfluff.core.parser import (
     CommentSegment,
     NamedParser,
     CodeSegment,
+    StringParser,
+    SymbolSegment,
+    KeywordSegment,
+    Delimited,
 )
 from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.core.parser.grammar.greedy import StartsWith
 
 ansi_dialect = load_raw_dialect("ansi")
 mysql_dialect = ansi_dialect.copy_as("mysql")
@@ -90,3 +97,49 @@ class CreateTableStatementSegment(
             ),
         ],
     )
+
+mysql_dialect.add(
+    DoubleForwardSlashSegment=StringParser(
+        "//", SymbolSegment, name="doubleforwardslash", type="statement_terminator"
+    ),
+    DoubleDollarSignSegment=StringParser(
+        "$$", SymbolSegment, name="doubledollarsign", type="statement_terminator"
+    ),
+)
+
+mysql_dialect.replace(
+    DelimiterSegment=OneOf(Ref("SemicolonSegment"), Ref("TildeSegment")),
+    TildeSegment=StringParser(
+        "~", SymbolSegment, name="tilde", type="statement_terminator"
+    ), 
+)
+
+@mysql_dialect.segment()
+class FunctionDelimiterGrammar(BaseSegment):
+    match_grammar = StartsWith("DELIMITER")
+    parse_grammar = Sequence(
+        Sequence(
+            "DELIMITER",
+            OneOf(Ref("DelimiterSegment")),
+            optional=True,
+        ),
+    )
+
+@ansi_dialect.segment(replace=True)
+class FileSegment(BaseSegment):
+    type = "file"
+    can_start_end_non_code = True
+    allow_empty = True
+    parse_grammar = Delimited(
+        Ref("StatementSegment"),
+        delimiter=Ref("DelimiterSegment"),
+        allow_gaps=True,
+        allow_trailing=True,
+    )
+
+    def get_table_references(self):
+        """Use parsed tree to extract table references."""
+        references = set()
+        for stmt in self.get_children("statement"):
+            references |= stmt.get_table_references()
+        return references
