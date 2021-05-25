@@ -114,14 +114,14 @@ mysql_dialect.replace(
     ), 
 )
 
+
 @mysql_dialect.segment()
-class DelimiterGrammar(BaseSegment):
-    match_grammar = StartsWith("DELIMITER")
-    parse_grammar = Sequence(
+class DelimiterStatement(BaseSegment):
+    type = "delimiter_statement"
+    match_grammar = Sequence(
         "DELIMITER",
-        OneOf(Ref("DelimiterSegment")),
-        optional=True,
     )
+
 
 @mysql_dialect.segment(replace=True)
 class StatementSegment(
@@ -136,6 +136,6 @@ class StatementSegment(
         "StatementSegment"
     ).parse_grammar.copy(
         insert=[
-            Ref("DelimiterGrammar")
+            Ref("DelimiterStatement")
         ],
     )
