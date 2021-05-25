@@ -1,0 +1,11 @@
+file:
+  statement:
+    delimiter_statement:
+      keyword: DELIMITER
+      statement_terminator: '~'
+    unparsable:
+    - raw: SELECT
+    - raw: '1'
+    - raw: '~'
+    - raw: DELIMITER
+  statement_terminator: ;

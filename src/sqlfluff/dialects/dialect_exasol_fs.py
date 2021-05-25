@@ -173,7 +173,7 @@ class CreateFunctionStatementSegment(BaseSegment):
             Sequence(
                 Ref("VariableNameSegment"),
                 Ref("DatatypeSegment"),
-                Ref("SemicolonSegment"),
+                Ref("DelimiterSegment"),
             ),
             optional=True,
         ),
@@ -181,10 +181,10 @@ class CreateFunctionStatementSegment(BaseSegment):
         AnyNumberOf(Ref("FunctionBodySegment")),
         "RETURN",
         Ref("FunctionContentsExpressionGrammar"),
-        Ref("SemicolonSegment"),
+        Ref("DelimiterSegment"),
         "END",
         Ref("FunctionReferenceSegment", optional=True),
-        Ref("SemicolonSegment", optional=True),
+        Ref("DelimiterSegment", optional=True),
     )
 
 
@@ -216,7 +216,7 @@ class FunctionAssignmentSegment(BaseSegment):
             Ref("LiteralGrammar"),
             Ref("ExpressionSegment"),
         ),
-        Ref("SemicolonSegment"),
+        Ref("DelimiterSegment"),
     )
 
 
@@ -244,7 +244,7 @@ class FunctionIfBranchSegment(BaseSegment):
         ),
         "END",
         "IF",
-        Ref("SemicolonSegment"),
+        Ref("DelimiterSegment"),
     )
 
 
@@ -281,7 +281,7 @@ class FunctionForLoopSegment(BaseSegment):
                 "LOOP",
             ),
         ),
-        Ref("SemicolonSegment"),
+        Ref("DelimiterSegment"),
     )
 
 
@@ -297,7 +297,7 @@ class FunctionWhileLoopSegment(BaseSegment):
         AnyNumberOf(Ref("FunctionBodySegment"), min_times=1),
         "END",
         "WHILE",
-        Ref("SemicolonSegment"),
+        Ref("DelimiterSegment"),
     )
 
 

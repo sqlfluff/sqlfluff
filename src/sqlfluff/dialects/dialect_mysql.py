@@ -114,24 +114,18 @@ mysql_dialect.replace(
     ), 
 )
 
-
 @mysql_dialect.segment()
 class DelimiterStatement(BaseSegment):
     type = "delimiter_statement"
     match_grammar = Sequence(
         "DELIMITER",
+        Ref("DelimiterSegment"),
     )
-
 
 @mysql_dialect.segment(replace=True)
 class StatementSegment(
     ansi_dialect.get_segment("StatementSegment")  # type: ignore
 ):
-    """Create table segment.
-
-    https://dev.mysql.com/doc/refman/8.0/en/create-table.html
-    """
-
     parse_grammar = ansi_dialect.get_segment(
         "StatementSegment"
     ).parse_grammar.copy(

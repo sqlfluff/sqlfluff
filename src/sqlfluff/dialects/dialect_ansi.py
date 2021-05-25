@@ -1,11 +1,8 @@
 """The core ANSI dialect.
-
 This is the core SQL grammar. We'll probably extend this or make it pluggable
 for other dialects. Here we encode the structure of the language.
-
 There shouldn't be any underlying "machinery" here, that should all
 be defined elsewhere.
-
 A lot of the inspiration for this sql grammar is taken from the cockroach
 labs full sql grammar. In particular their way for dividing up the expression
 grammar. Check out their docs, they're awesome.
@@ -47,6 +44,7 @@ from sqlfluff.core.parser import (
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo
+from sqlfluff.core.parser.segments.base import BracketedSegment
 
 from sqlfluff.dialects.ansi_keywords import (
     ansi_reserved_keywords,
@@ -154,12 +152,16 @@ ansi_dialect.sets("reserved_keywords").update(
 )
 
 # Bracket pairs (a set of tuples).
-# (name, startref, endref)
+# (name, startref, endref, persists)
+# NOTE: The `persists` value controls whether this type
+# of bracket is persisted during matching to speed up other
+# parts of the matching process. Round brackets are the most
+# common and match the largest areas and so are sufficient.
 ansi_dialect.sets("bracket_pairs").update(
     [
-        ("round", "StartBracketSegment", "EndBracketSegment"),
-        ("square", "StartSquareBracketSegment", "EndSquareBracketSegment"),
-        ("curly", "StartCurlyBracketSegment", "EndCurlyBracketSegment"),
+        ("round", "StartBracketSegment", "EndBracketSegment", True),
+        ("square", "StartSquareBracketSegment", "EndSquareBracketSegment", False),
+        ("curly", "StartCurlyBracketSegment", "EndCurlyBracketSegment", False),
     ]
 )
 
@@ -447,7 +449,6 @@ ansi_dialect.add(
 @ansi_dialect.segment()
 class FileSegment(BaseSegment):
     """A segment representing a whole file or script.
-
     This is also the default "root" segment of the dialect,
     and so is usually instantiated directly. It therefore
     has no match_grammar.
@@ -463,7 +464,7 @@ class FileSegment(BaseSegment):
     # going straight into instantiating it directly usually.
     parse_grammar = Delimited(
         Ref("StatementSegment"),
-        delimiter=Ref("DelimiterSegment"),
+        delimiter=Ref("SemicolonSegment"),
         allow_gaps=True,
         allow_trailing=True,
     )
@@ -561,7 +562,8 @@ class ObjectReferenceSegment(BaseSegment):
             Ref("StartBracketSegment"),
             Ref("BinaryOperatorGrammar"),
             Ref("ColonSegment"),
-            Ref("DelimiterSegment"),
+            Ref("SemicolonSegment"),
+            BracketedSegment,
         ),
         allow_gaps=False,
     )
@@ -584,7 +586,6 @@ class ObjectReferenceSegment(BaseSegment):
 
     def iter_raw_references(self) -> Generator[ObjectReferencePart, None, None]:
         """Generate a list of reference strings and elements.
-
         Each reference is an ObjectReferencePart. If some are split, then a
         segment may appear twice, but the substring will only appear once.
         """
@@ -602,7 +603,6 @@ class ObjectReferenceSegment(BaseSegment):
 
     def extract_reference(self, level: int) -> Optional[ObjectReferencePart]:
         """Extract a reference of a given level.
-
         e.g. level 1 = the object.
         level 2 = the table
         level 3 = the schema
@@ -700,7 +700,6 @@ ansi_dialect.add(
 @ansi_dialect.segment()
 class AliasExpressionSegment(BaseSegment):
     """A reference to an object with an `AS` clause.
-
     The optional AS keyword allows both implicit and explicit aliasing.
     """
 
@@ -731,7 +730,6 @@ class ShorthandCastSegment(BaseSegment):
 @ansi_dialect.segment()
 class QualifiedNumericLiteralSegment(BaseSegment):
     """A numeric literal with a + or - sign preceding.
-
     The qualified numeric literal is a compound of a raw
     literal and a plus/minus sign. We do it this way rather
     than at the lexing step because the lexer doesn't deal
@@ -852,7 +850,6 @@ class FunctionNameSegment(BaseSegment):
 @ansi_dialect.segment()
 class FunctionSegment(BaseSegment):
     """A scalar or aggregate function.
-
     Maybe in the future we should distinguish between
     aggregate functions and other functions. For now
     we treat them the same because they look the same
@@ -932,15 +929,16 @@ class FromExpressionElementSegment(BaseSegment):
 
     def get_eventual_alias(self) -> Optional[AliasInfo]:
         """Return the eventual table name referred to by this table expression.
-
         Returns:
             :obj:`tuple` of (:obj:`str`, :obj:`BaseSegment`, :obj:`bool`) containing
                 a string representation of the alias, a reference to the
                 segment containing it, and whether it's an alias.
-
         """
         alias_expression = self.get_child("alias_expression")
-        ref = self.get_child("table_expression").get_child("object_reference")
+        tbl_expression = self.get_child("table_expression")
+        if not tbl_expression:
+            tbl_expression = self.get_child("bracketed").get_child("table_expression")
+        ref = tbl_expression.get_child("object_reference")
         if alias_expression:
             # If it has an alias, return that
             segment = alias_expression.get_child("identifier")
@@ -1003,7 +1001,6 @@ class TableExpressionSegment(BaseSegment):
 @ansi_dialect.segment()
 class WildcardIdentifierSegment(ObjectReferenceSegment):
     """Any identifier of the form a.b.*.
-
     This inherits iter_raw_references from the
     ObjectReferenceSegment.
     """
@@ -1020,7 +1017,6 @@ class WildcardIdentifierSegment(ObjectReferenceSegment):
 
     def iter_raw_references(self):
         """Generate a list of reference strings and elements.
-
         Each element is a tuple of (str, segment). If some are
         split, then a segment may appear twice, but the substring
         will only appear once.
@@ -1033,7 +1029,6 @@ class WildcardIdentifierSegment(ObjectReferenceSegment):
 @ansi_dialect.segment()
 class WildcardExpressionSegment(BaseSegment):
     """A star (*) expression for a SELECT clause.
-
     This is separate from the identifier to allow for
     some dialects which extend this logic to allow
     REPLACE, EXCEPT or similar clauses e.g. BigQuery.
@@ -1198,12 +1193,10 @@ ansi_dialect.add(
 @ansi_dialect.segment()
 class FromClauseSegment(BaseSegment):
     """A `FROM` clause like in `SELECT`.
-
     NOTE: thiis is a delimited set of table expressions, with a variable
     number of optional join clauses with those table expressions. The
     delmited aspect is the higher of the two such that the following is
     valid (albeit unusual):
-
     ```
     SELECT *
     FROM a JOIN b, c JOIN d
@@ -1225,7 +1218,6 @@ class FromClauseSegment(BaseSegment):
 
     def get_eventual_aliases(self) -> List[Tuple[BaseSegment, AliasInfo]]:
         """List the eventual aliases of this from clause.
-
         Comes as a list of tuples (table expr, tuple (string, segment, bool)).
         """
         buff = []
@@ -1466,13 +1458,10 @@ class BitwiseRShiftSegment(BaseSegment):
 @ansi_dialect.segment()
 class ExpressionSegment(BaseSegment):
     """A expression, either arithmetic or boolean.
-
     NB: This is potentially VERY recursive and
-
     mostly uses the grammars above. This version
     also doesn't bound itself first, and so is potentially
     VERY SLOW. I don't really like this solution.
-
     We rely on elements of the expression to bound
     themselves rather than bounding at the expression
     level. Trying to bound the ExpressionSegment itself
@@ -1663,7 +1652,6 @@ class ValuesClauseSegment(BaseSegment):
 @ansi_dialect.segment()
 class UnorderedSelectStatementSegment(BaseSegment):
     """A `SELECT` statement without any ORDER clauses or later.
-
     This is designed for use in the context of set operations,
     for other use cases, we should use the main
     SelectStatementSegment.
@@ -1755,7 +1743,6 @@ ansi_dialect.add(
 @ansi_dialect.segment()
 class CTEDefinitionSegment(BaseSegment):
     """A CTE Definition from a WITH statement.
-
     `tab (col1,col2) AS (SELECT a,b FROM x)`
     """
 
@@ -1775,7 +1762,6 @@ class CTEDefinitionSegment(BaseSegment):
 
     def get_identifier(self) -> BaseSegment:
         """Gets the identifier of this CTE.
-
         Note: it blindly get the first identifier it finds
         which given the structure of a CTE definition is
         usually the right one.
@@ -1786,7 +1772,6 @@ class CTEDefinitionSegment(BaseSegment):
 @ansi_dialect.segment()
 class WithCompoundStatementSegment(BaseSegment):
     """A `SELECT` statement preceded by a selection of `WITH` clauses.
-
     `WITH tab (col1,col2) AS (SELECT a,b FROM x)`
     """
 
@@ -2015,7 +2000,6 @@ class CreateTableStatementSegment(BaseSegment):
 @ansi_dialect.segment()
 class CommentClauseSegment(BaseSegment):
     """A comment clause.
-
     e.g. COMMENT 'view/table/column description'
     """
 
@@ -2052,7 +2036,6 @@ class CreateDatabaseStatementSegment(BaseSegment):
 @ansi_dialect.segment()
 class CreateExtensionStatementSegment(BaseSegment):
     """A `CREATE EXTENSION` statement.
-
     https://www.postgresql.org/docs/9.1/sql-createextension.html
     """
 
@@ -2196,7 +2179,6 @@ class DropIndexStatementSegment(BaseSegment):
 @ansi_dialect.segment()
 class AlterDefaultPrivilegesSegment(BaseSegment):
     """Postgres `ALTER DEFAULT PRIVILEGES` statement.
-
     ```
     ALTER DEFAULT PRIVILEGES
     [ FOR { ROLE | USER } target_role [, ...] ]
@@ -2227,16 +2209,12 @@ class AlterDefaultPrivilegesSegment(BaseSegment):
 @ansi_dialect.segment()
 class AccessStatementSegment(BaseSegment):
     """A `GRANT` or `REVOKE` statement.
-
     In order to help reduce code duplication we decided to implement other dialect specific grants (like Snowflake)
     here too which will help with maintainability. We also note that this causes the grammar to be less "correct",
     but the benefits outweigh the con in our opinion.
-
-
     Grant specific information:
      * https://www.postgresql.org/docs/9.0/sql-grant.html
      * https://docs.snowflake.com/en/sql-reference/sql/grant-privilege.html
-
     Revoke specific information:
      * https://www.postgresql.org/docs/9.0/sql-revoke.html
      * https://docs.snowflake.com/en/sql-reference/sql/revoke-role.html
@@ -2408,7 +2386,6 @@ class AccessStatementSegment(BaseSegment):
 @ansi_dialect.segment()
 class DeleteStatementSegment(BaseSegment):
     """A `DELETE` statement.
-
     DELETE FROM <table name> [ WHERE <search condition> ]
     """
 
@@ -2426,7 +2403,6 @@ class DeleteStatementSegment(BaseSegment):
 @ansi_dialect.segment()
 class UpdateStatementSegment(BaseSegment):
     """A `Update` statement.
-
     UPDATE <table name> SET <set clause list> [ WHERE <search condition> ]
     """
 
@@ -2444,18 +2420,14 @@ class UpdateStatementSegment(BaseSegment):
 @ansi_dialect.segment()
 class SetClauseListSegment(BaseSegment):
     """SQL 1992 set clause list.
-
     <set clause list> ::=
               <set clause> [ { <comma> <set clause> }... ]
-
          <set clause> ::=
               <object column> <equals operator> <update source>
-
          <update source> ::=
                 <value expression>
               | <null specification>
               | DEFAULT
-
          <object column> ::= <column name>
     """
 
@@ -2477,15 +2449,12 @@ class SetClauseListSegment(BaseSegment):
 @ansi_dialect.segment()
 class SetClauseSegment(BaseSegment):
     """SQL 1992 set clause.
-
     <set clause> ::=
               <object column> <equals operator> <update source>
-
          <update source> ::=
                 <value expression>
               | <null specification>
               | DEFAULT
-
          <object column> ::= <column name>
     """
 
@@ -2523,7 +2492,6 @@ class FunctionDefinitionGrammar(BaseSegment):
 @ansi_dialect.segment()
 class CreateFunctionStatementSegment(BaseSegment):
     """A `CREATE FUNCTION` statement.
-
     This version in the ANSI dialect should be a "common subset" of the
     structure of the code for those dialects.
     postgres: https://www.postgresql.org/docs/9.1/sql-createfunction.html
@@ -2614,10 +2582,8 @@ class CreateModelStatementSegment(BaseSegment):
 @ansi_dialect.segment()
 class CreateTypeStatementSegment(BaseSegment):
     """A `CREATE TYPE` statement.
-
     This is based around the Postgres syntax.
     https://www.postgresql.org/docs/current/sql-createtype.html
-
     Note: This is relatively permissive currently
     and does not lint the syntax strictly, to allow
     for some deviation between dialects.
@@ -2636,7 +2602,6 @@ class CreateTypeStatementSegment(BaseSegment):
 @ansi_dialect.segment()
 class CreateRoleStatementSegment(BaseSegment):
     """A `CREATE ROLE` statement.
-
     A very simple create role syntax which can be extended
     by other dialects.
     """
@@ -2694,7 +2659,7 @@ class StatementSegment(BaseSegment):
     """A generic segment, to any of its child subsegments."""
 
     type = "statement"
-    match_grammar = GreedyUntil(Ref("DelimiterSegment"))
+    match_grammar = GreedyUntil(Ref("SemicolonSegment"))
 
     parse_grammar = OneOf(
         Ref("SelectableGrammar"),
@@ -2740,7 +2705,6 @@ class StatementSegment(BaseSegment):
 @ansi_dialect.segment()
 class WithNoSchemaBindingClauseSegment(BaseSegment):
     """WITH NO SCHEMA BINDING clause for Redshift's Late Binding Views.
-
     https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_VIEW.html
     """
 
@@ -2756,7 +2720,6 @@ class WithNoSchemaBindingClauseSegment(BaseSegment):
 @ansi_dialect.segment()
 class DescribeStatementSegment(BaseSegment):
     """A `Describe` statement.
-
     DESCRIBE <object type> <object name>
     """
 
@@ -2773,13 +2736,9 @@ class DescribeStatementSegment(BaseSegment):
 @ansi_dialect.segment()
 class UseStatementSegment(BaseSegment):
     """A `USE` statement.
-
     USE [ ROLE ] <name>
-
     USE [ WAREHOUSE ] <name>
-
     USE [ DATABASE ] <name>
-
     USE [ SCHEMA ] [<db_name>.]<name>
     """
 
@@ -2796,7 +2755,6 @@ class UseStatementSegment(BaseSegment):
 @ansi_dialect.segment()
 class ExplainStatementSegment(BaseSegment):
     """An `Explain` statement.
-
     EXPLAIN explainable_stmt
     """
 
