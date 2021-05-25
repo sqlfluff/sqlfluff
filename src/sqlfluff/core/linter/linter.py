@@ -16,7 +16,6 @@ from typing import (
     Iterable,
 )
 
-from benchit import BenchIt
 import pathspec
 
 from sqlfluff.core.errors import (
@@ -190,13 +189,6 @@ class Linter:
                 linter_logger.info(unparsable.stringify())
         return parsed, violations
 
-    @staticmethod
-    def _generate_short_fname(fname: Optional[str] = None):
-        # Handle nulls gracefully
-        if not fname:
-            return None
-        return os.path.basename(fname)
-
     def render_string(self, in_str: str, fname: Optional[str], config: FluffConfig):
         """Template the file."""
         linter_logger.info("TEMPLATING RAW [%s] (%s)", self.templater.name, fname)
@@ -225,9 +217,6 @@ class Linter:
         """Parse a string."""
         violations: List[SQLBaseError] = []
         t0 = time.monotonic()
-        bencher = BenchIt()  # starts the timer
-        short_fname = self._generate_short_fname(fname)
-        bencher("Staring parse_string for {0!r}".format(short_fname))
 
         # Dispatch the output for the template header (including the config diff)
         if self.formatter:
@@ -243,7 +232,6 @@ class Linter:
         violations += templater_violations
 
         t1 = time.monotonic()
-        bencher("Templating {0!r}".format(short_fname))
 
         # Dispatch the output for the parse header
         if self.formatter:
@@ -257,7 +245,6 @@ class Linter:
             tokens = None
 
         t2 = time.monotonic()
-        bencher("Lexing {0!r}".format(short_fname))
         linter_logger.info("PARSING (%s)", fname)
 
         if tokens:
@@ -268,7 +255,6 @@ class Linter:
 
         t3 = time.monotonic()
         time_dict = {"templating": t1 - t0, "lexing": t2 - t1, "parsing": t3 - t2}
-        bencher("Finish parsing {0!r}".format(short_fname))
         return ParsedString(parsed, violations, time_dict, templated_file, config)
 
     @classmethod

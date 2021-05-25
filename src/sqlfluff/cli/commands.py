@@ -11,7 +11,6 @@ import click
 # For the profiler
 import pstats
 from io import StringIO
-from benchit import BenchIt
 
 # To enable colour cross platform
 import colorama
@@ -418,8 +417,6 @@ def fix(force, paths, parallel, bench=False, fixed_suffix="", logger=None, **kwa
     lnt, formatter = get_linter_and_formatter(c, silent=fixing_stdin)
     verbose = c.get("verbose")
 
-    bencher = BenchIt()
-
     formatter.dispatch_config(lnt)
 
     # Set up logging.
@@ -509,7 +506,7 @@ def fix(force, paths, parallel, bench=False, fixed_suffix="", logger=None, **kwa
 
     if bench:
         click.echo("\n\n==== bencher stats ====")
-        bencher.display()
+        # TODO
 
     sys.exit(0)
 
@@ -561,8 +558,6 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
     character to indicate reading from *stdin* or a dot/blank ('.'/' ') which will
     be interpreted like passing the current working directory as a path argument.
     """
-    # Initialise the benchmarker
-    bencher = BenchIt()  # starts the timer
     c = get_config(**kwargs)
     # We don't want anything else to be logged if we want json or yaml output
     non_human_output = format in ("json", "yaml")
@@ -587,7 +582,6 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
         pr = cProfile.Profile()
         pr.enable()
 
-    bencher("Parse setup")
     try:
         # handle stdin if specified via lone '-'
         if "-" == path:
@@ -623,7 +617,6 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
                 if verbose >= 2:
                     click.echo("==== timings ====")
                     click.echo(cli_table(parsed_string.time_dict.items()))
-                bencher("Output details for file")
         else:
             # collect result and print as single payload
             # will need to zip in the file paths
@@ -665,7 +658,7 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
 
     if bench:
         click.echo("\n\n==== bencher stats ====")
-        bencher.display()
+        # TODO
 
     if nv > 0 and not nofail:
         sys.exit(66)

@@ -19,8 +19,6 @@ from typing import (
     Type,
 )
 
-from benchit import BenchIt
-
 from sqlfluff.core.errors import (
     SQLBaseError,
     SQLLintError,
@@ -240,9 +238,6 @@ class LintedFile(NamedTuple):
         completely dialect agnostic. A Segment is determined by the
         Lexer from portions of strings after templating.
         """
-        bencher = BenchIt()
-        bencher("fix_string: start")
-
         linter_logger.debug("Original Tree: %r", self.templated_file.templated_str)
         assert self.tree
         linter_logger.debug("Fixed Tree: %r", self.tree.raw)
@@ -477,7 +472,6 @@ class LintedFile(NamedTuple):
                 )
                 str_buff += self.templated_file.source_str[source_slice]
 
-        bencher("fix_string: Fixing loop done")
         # The success metric here is whether anything ACTUALLY changed.
         return str_buff, str_buff != original_source
 
