@@ -14,6 +14,9 @@ Contributors:
 - Better exception handling for the simple parsing API (`sqlfluff.parse`)
   which now raises an exception which holds all potential parsing issues
   and prints nicely with more than one issue.
+- Fix bug [#1037](https://github.com/sqlfluff/sqlfluff/issues/1037), in which fix 
+  logging had been sent to stdout when reading data from stdin.
+- Add a little bit of fun on CLI exit 🎉!
 
 ## [0.6.0a1] - 2021-05-15
 ### Added

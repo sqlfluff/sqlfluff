@@ -127,7 +127,7 @@ class ParallelRunner(BaseRunner):
                         except Exception as e:
                             self._handle_lint_path_exception(lint_result.fname, e)
                     else:
-                        # It's a LintedPath.
+                        # It's a LintedDir.
                         if self.linter.formatter:
                             self.linter.formatter.dispatch_file_violations(
                                 lint_result.path, lint_result, only_fixable=fix
