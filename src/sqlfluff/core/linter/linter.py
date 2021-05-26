@@ -26,7 +26,7 @@ from sqlfluff.core.errors import (
 )
 from sqlfluff.core.parser import Lexer, Parser
 from sqlfluff.core.templaters import TemplatedFile
-from sqlfluff.core.rules import get_ruleset
+from sqlfluff.core.rules import get_ruleset, RuleSet
 from sqlfluff.core.config import FluffConfig, ConfigLoader
 
 # Classes needed only for type checking
@@ -367,6 +367,8 @@ class Linter:
 
     def render_file(self, fname: str, root_config: FluffConfig) -> RenderedFile:
         """Load and render a file with relevant config."""
+        if self.formatter:
+            self.formatter.dispatch_path(fname)
         # Load the raw file.
         raw_file, config = self._load_raw_file_and_config(fname, root_config)
         # Render the file
@@ -406,16 +408,18 @@ class Linter:
             f"One fix for {code} not applied, it would re-cause the same error."
         )
 
+    @classmethod
     def lint_fix(
-        self,
+        cls,
         tree: BaseSegment,
-        config: Optional[FluffConfig] = None,
+        config: Optional[FluffConfig],
+        rule_set: RuleSet,
         fix: bool = False,
         fname: Optional[str] = None,
         templated_file: Optional[TemplatedFile] = None,
+        formatter: Any = None,
     ) -> Tuple[BaseSegment, List[SQLLintError]]:
         """Lint and optionally fix a tree object."""
-        config = config or self.config
         # Keep track of the linting errors
         all_linting_errors = []
         # A placeholder for the fixes we had on the previous loop
@@ -427,12 +431,12 @@ class Linter:
         loop_limit = config.get("runaway_limit") if fix else 1
 
         # Dispatch the output for the lint header
-        if self.formatter:
-            self.formatter.dispatch_lint_header(fname)
+        if formatter:
+            formatter.dispatch_lint_header(fname)
 
         for loop in range(loop_limit):
             changed = False
-            for crawler in self.get_ruleset(config=config):
+            for crawler in rule_set:
                 # fixes should be a dict {} with keys edit, delete, create
                 # delete is just a list of segments to delete
                 # edit and create are list of tuples. The first element is the
@@ -450,7 +454,7 @@ class Linter:
                     linter_logger.info(f"Applying Fixes: {fixes}")
                     # Do some sanity checks on the fixes before applying.
                     if fixes == last_fixes:
-                        self._warn_unfixable(crawler.code)
+                        cls._warn_unfixable(crawler.code)
                     else:
                         last_fixes = fixes
                         new_tree, _ = tree.apply_fixes(fixes)
@@ -464,7 +468,7 @@ class Linter:
                         else:
                             # Applying these fixes took us back to a state which we've
                             # seen before. Abort.
-                            self._warn_unfixable(crawler.code)
+                            cls._warn_unfixable(crawler.code)
 
             if loop == 0:
                 # Keep track of initial errors for reporting.
@@ -481,9 +485,7 @@ class Linter:
             linter_logger.warning(f"Loop limit on fixes reached [{loop_limit}].")
 
         if config.get("ignore_templated_areas", default=True):
-            initial_linting_errors = self.remove_templated_errors(
-                initial_linting_errors
-            )
+            initial_linting_errors = cls.remove_templated_errors(initial_linting_errors)
 
         return tree, initial_linting_errors
 
@@ -495,8 +497,10 @@ class Linter:
         templated_file: Optional[TemplatedFile] = None,
     ) -> Tuple[BaseSegment, List[SQLLintError]]:
         """Return the fixed tree and violations from lintfix when we're fixing."""
+        config = config or self.config
+        rule_set = self.get_ruleset(config=config)
         fixed_tree, violations = self.lint_fix(
-            tree, config, fix=True, fname=fname, templated_file=templated_file
+            tree, config, rule_set, fix=True, fname=fname, templated_file=templated_file, formatter=self.formatter
         )
         return fixed_tree, violations
 
@@ -508,8 +512,16 @@ class Linter:
         templated_file: Optional[TemplatedFile] = None,
     ) -> List[SQLLintError]:
         """Return just the violations from lintfix when we're only linting."""
+        config = config or self.config
+        rule_set = self.get_ruleset(config=config)
         _, violations = self.lint_fix(
-            tree, config, fix=False, fname=fname, templated_file=templated_file
+            tree,
+            config,
+            rule_set,
+            fix=False,
+            fname=fname,
+            templated_file=templated_file,
+            formatter=self.formatter,
         )
         return violations
 
@@ -542,12 +554,15 @@ class Linter:
         if tree:
             t0 = time.monotonic()
             linter_logger.info("LINTING (%s)", fname)
+            rule_set = self.get_ruleset(config=config)
             tree, initial_linting_errors = self.lint_fix(
                 tree,
                 config=config,
+                rule_set=rule_set,
                 fix=fix,
                 fname=fname,
                 templated_file=parsed.templated_file,
+                formatter=self.formatter,
             )
             # Update the timing dict
             t1 = time.monotonic()
