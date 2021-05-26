@@ -422,6 +422,68 @@ class Linter:
 
         return tree, initial_linting_errors
 
+    @classmethod
+    def lint_parsed(
+        cls,
+        parsed: ParsedString,
+        rule_set: List[BaseRule],
+        fix: bool = False,
+        formatter: Any = None,
+    ):
+        """Lint a ParsedString and return a LintedFile."""
+        violations = parsed.violations
+        time_dict = parsed.time_dict
+        # Look for comment segments which might indicate lines to ignore.
+        ignore_buff, ivs = cls.extract_ignore_mask(parsed.tree)
+        violations += ivs
+
+        if parsed.tree:
+            t0 = time.monotonic()
+            linter_logger.info("LINTING (%s)", parsed.templated_file.fname)
+            tree, initial_linting_errors = cls.lint_fix_parsed(
+                parsed.tree,
+                config=parsed.config,
+                rule_set=rule_set,
+                fix=fix,
+                fname=parsed.templated_file.fname,
+                templated_file=parsed.templated_file,
+                formatter=formatter,
+            )
+            # Update the timing dict
+            time_dict["linting"] = time.monotonic() - t0
+
+            # We're only going to return the *initial* errors, rather
+            # than any generated during the fixing cycle.
+            violations += initial_linting_errors
+
+        # We process the ignore config here if appropriate
+        for violation in violations:
+            violation.ignore_if_in(parsed.config.get("ignore"))
+
+        linted_file = LintedFile(
+            parsed.templated_file.fname,
+            violations,
+            time_dict,
+            tree,
+            ignore_mask=ignore_buff,
+            templated_file=parsed.templated_file,
+        )
+
+        # This is the main command line output from linting.
+        if formatter:
+            formatter.dispatch_file_violations(
+                parsed.templated_file.fname, linted_file, only_fixable=fix
+            )
+
+        # Safety flag for unset dialects
+        if parsed.config.get("dialect") == "ansi" and linted_file.get_violations(
+            fixable=True if fix else None, types=SQLParseError
+        ):
+            if formatter:
+                formatter.dispatch_dialect_warning()
+
+        return linted_file
+
     # ### Instance Methods
     # These are tied to a specific instance and so are not necessarily
     # safe to use in parallel operations.
@@ -546,66 +608,12 @@ class Linter:
         """
         # Sort out config, defaulting to the built in config if no override
         config = config or self.config
-
-        # Using the new parser, read the file object.
+        # Parse the string.
         parsed = self.parse_string(in_str=in_str, fname=fname, config=config)
-        time_dict = parsed.time_dict
-        vs = parsed.violations
-        tree = parsed.tree
-
-        # Look for comment segments which might indicate lines to ignore.
-        ignore_buff, ivs = self.extract_ignore_mask(tree)
-        vs += ivs
-
-        if tree:
-            t0 = time.monotonic()
-            linter_logger.info("LINTING (%s)", fname)
-            rule_set = self.get_ruleset(config=config)
-            tree, initial_linting_errors = self.lint_fix_parsed(
-                tree,
-                config=config,
-                rule_set=rule_set,
-                fix=fix,
-                fname=fname,
-                templated_file=parsed.templated_file,
-                formatter=self.formatter,
-            )
-            # Update the timing dict
-            t1 = time.monotonic()
-            time_dict["linting"] = t1 - t0
-
-            # We're only going to return the *initial* errors, rather
-            # than any generated during the fixing cycle.
-            vs += initial_linting_errors
-
-        # We process the ignore config here if appropriate
-        if config:
-            for violation in vs:
-                violation.ignore_if_in(config.get("ignore"))
-
-        linted_file = LintedFile(
-            fname,
-            vs,
-            time_dict,
-            tree,
-            ignore_mask=ignore_buff,
-            templated_file=parsed.templated_file,
-        )
-
-        # This is the main command line output from linting.
-        if self.formatter:
-            self.formatter.dispatch_file_violations(
-                fname, linted_file, only_fixable=fix
-            )
-
-        # Safety flag for unset dialects
-        if config.get("dialect") == "ansi" and linted_file.get_violations(
-            fixable=True if fix else None, types=SQLParseError
-        ):
-            if self.formatter:
-                self.formatter.dispatch_dialect_warning()
-
-        return linted_file
+        # Get rules as appropriate
+        rule_set = self.get_ruleset(config=config)
+        # Lint the file and return the LintedFile
+        return self.lint_parsed(parsed, rule_set, fix=fix, formatter=self.formatter)
 
     def paths_from_path(
         self,

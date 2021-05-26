@@ -496,7 +496,7 @@ def test_linted_file_ignore_masked_violations(
         time_dict={},
         tree=None,
         ignore_mask=ignore_mask,
-        templated_file=TemplatedFile(""),
+        templated_file=TemplatedFile.from_string(""),
     )
     result = lf._ignore_masked_violations(violations)
     expected_violations = [v for i, v in enumerate(violations) if i in expected]
