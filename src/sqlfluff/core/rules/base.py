@@ -561,7 +561,7 @@ class RuleSet:
         # Make sure we actually return the original class
         return cls
 
-    def get_rulelist(self, config):
+    def get_rulelist(self, config) -> List[BaseRule]:
         """Use the config to return the appropriate rules.
 
         We use the config both for whitelisting and blacklisting, but also

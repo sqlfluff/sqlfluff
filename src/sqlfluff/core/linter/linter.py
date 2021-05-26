@@ -26,7 +26,7 @@ from sqlfluff.core.errors import (
 )
 from sqlfluff.core.parser import Lexer, Parser
 from sqlfluff.core.templaters import TemplatedFile
-from sqlfluff.core.rules import get_ruleset, RuleSet
+from sqlfluff.core.rules import get_ruleset
 from sqlfluff.core.config import FluffConfig, ConfigLoader
 
 # Classes needed only for type checking
@@ -271,6 +271,12 @@ class Linter:
         )
         return linting_errors
 
+    @staticmethod
+    def _warn_unfixable(code: str):
+        linter_logger.warning(
+            f"One fix for {code} not applied, it would re-cause the same error."
+        )
+
     # ### Class Methods
     # These compose the base static methods into useful recipes.
 
@@ -335,85 +341,12 @@ class Linter:
             linter_logger.info("Parsed noqa directives from file: %r", ignore_buff)
         return ignore_buff, violations
 
-    # ### Instance Methods
-    # These are tied to a specific instance and so are not necessarily
-    # safe to use in parallel operations.
-
-    def render_string(
-        self, in_str: str, fname: Optional[str], config: FluffConfig
-    ) -> RenderedFile:
-        """Template the file."""
-        linter_logger.info("TEMPLATING RAW [%s] (%s)", self.templater.name, fname)
-
-        # Start the templating timer
-        t0 = time.monotonic()
-
-        try:
-            templated_file, templater_violations = self.templater.process(
-                in_str=in_str, fname=fname, config=config, formatter=self.formatter
-            )
-        except SQLTemplaterSkipFile as s:
-            linter_logger.warning(str(s))
-            templated_file = None
-            templater_violations = []
-
-        if not templated_file:
-            linter_logger.info("TEMPLATING FAILED: %s", templater_violations)
-
-        # Record time
-        time_dict = {"templating": time.monotonic() - t0}
-
-        return RenderedFile(templated_file, templater_violations, config, time_dict)
-
-    def render_file(self, fname: str, root_config: FluffConfig) -> RenderedFile:
-        """Load and render a file with relevant config."""
-        if self.formatter:
-            self.formatter.dispatch_path(fname)
-        # Load the raw file.
-        raw_file, config = self._load_raw_file_and_config(fname, root_config)
-        # Render the file
-        return self.render_string(raw_file, fname, config)
-
-    def parse_string(
-        self,
-        in_str: str,
-        fname: Optional[str] = None,
-        recurse: bool = True,
-        config: Optional[FluffConfig] = None,
-    ) -> ParsedString:
-        """Parse a string."""
-        violations: List[SQLBaseError] = []
-
-        # Dispatch the output for the template header (including the config diff)
-        if self.formatter:
-            self.formatter.dispatch_template_header(fname, self.config, config)
-
-        # Just use the local config from here:
-        config = config or self.config
-
-        # Scan the raw file for config commands.
-        config.process_raw_file_for_config(in_str)
-        rendered = self.render_string(in_str, fname, config)
-        violations += rendered.templater_violations
-
-        # Dispatch the output for the parse header
-        if self.formatter:
-            self.formatter.dispatch_parse_header(fname)
-
-        return self.parse_rendered(rendered, recurse=recurse)
-
-    @staticmethod
-    def _warn_unfixable(code: str):
-        linter_logger.warning(
-            f"One fix for {code} not applied, it would re-cause the same error."
-        )
-
     @classmethod
-    def lint_fix(
+    def lint_fix_parsed(
         cls,
         tree: BaseSegment,
-        config: Optional[FluffConfig],
-        rule_set: RuleSet,
+        config: FluffConfig,
+        rule_set: List[BaseRule],
         fix: bool = False,
         fname: Optional[str] = None,
         templated_file: Optional[TemplatedFile] = None,
@@ -489,6 +422,73 @@ class Linter:
 
         return tree, initial_linting_errors
 
+    # ### Instance Methods
+    # These are tied to a specific instance and so are not necessarily
+    # safe to use in parallel operations.
+
+    def render_string(
+        self, in_str: str, fname: Optional[str], config: FluffConfig
+    ) -> RenderedFile:
+        """Template the file."""
+        linter_logger.info("TEMPLATING RAW [%s] (%s)", self.templater.name, fname)
+
+        # Start the templating timer
+        t0 = time.monotonic()
+
+        try:
+            templated_file, templater_violations = self.templater.process(
+                in_str=in_str, fname=fname, config=config, formatter=self.formatter
+            )
+        except SQLTemplaterSkipFile as s:
+            linter_logger.warning(str(s))
+            templated_file = None
+            templater_violations = []
+
+        if not templated_file:
+            linter_logger.info("TEMPLATING FAILED: %s", templater_violations)
+
+        # Record time
+        time_dict = {"templating": time.monotonic() - t0}
+
+        return RenderedFile(templated_file, templater_violations, config, time_dict)
+
+    def render_file(self, fname: str, root_config: FluffConfig) -> RenderedFile:
+        """Load and render a file with relevant config."""
+        if self.formatter:
+            self.formatter.dispatch_path(fname)
+        # Load the raw file.
+        raw_file, config = self._load_raw_file_and_config(fname, root_config)
+        # Render the file
+        return self.render_string(raw_file, fname, config)
+
+    def parse_string(
+        self,
+        in_str: str,
+        fname: Optional[str] = None,
+        recurse: bool = True,
+        config: Optional[FluffConfig] = None,
+    ) -> ParsedString:
+        """Parse a string."""
+        violations: List[SQLBaseError] = []
+
+        # Dispatch the output for the template header (including the config diff)
+        if self.formatter:
+            self.formatter.dispatch_template_header(fname, self.config, config)
+
+        # Just use the local config from here:
+        config = config or self.config
+
+        # Scan the raw file for config commands.
+        config.process_raw_file_for_config(in_str)
+        rendered = self.render_string(in_str, fname, config)
+        violations += rendered.templater_violations
+
+        # Dispatch the output for the parse header
+        if self.formatter:
+            self.formatter.dispatch_parse_header(fname)
+
+        return self.parse_rendered(rendered, recurse=recurse)
+
     def fix(
         self,
         tree: BaseSegment,
@@ -499,8 +499,14 @@ class Linter:
         """Return the fixed tree and violations from lintfix when we're fixing."""
         config = config or self.config
         rule_set = self.get_ruleset(config=config)
-        fixed_tree, violations = self.lint_fix(
-            tree, config, rule_set, fix=True, fname=fname, templated_file=templated_file, formatter=self.formatter
+        fixed_tree, violations = self.lint_fix_parsed(
+            tree,
+            config,
+            rule_set,
+            fix=True,
+            fname=fname,
+            templated_file=templated_file,
+            formatter=self.formatter,
         )
         return fixed_tree, violations
 
@@ -514,7 +520,7 @@ class Linter:
         """Return just the violations from lintfix when we're only linting."""
         config = config or self.config
         rule_set = self.get_ruleset(config=config)
-        _, violations = self.lint_fix(
+        _, violations = self.lint_fix_parsed(
             tree,
             config,
             rule_set,
@@ -555,7 +561,7 @@ class Linter:
             t0 = time.monotonic()
             linter_logger.info("LINTING (%s)", fname)
             rule_set = self.get_ruleset(config=config)
-            tree, initial_linting_errors = self.lint_fix(
+            tree, initial_linting_errors = self.lint_fix_parsed(
                 tree,
                 config=config,
                 rule_set=rule_set,
