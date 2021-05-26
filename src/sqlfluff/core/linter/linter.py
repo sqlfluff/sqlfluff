@@ -317,6 +317,24 @@ class Linter:
             result.segment = comment
         return result
 
+    @classmethod
+    def extract_ignore_mask(cls, tree: Optional[BaseSegment]):
+        """Look for inline ignore comments and return NoQaDirectives."""
+        ignore_buff: List[NoQaDirective] = []
+        violations: List[SQLParseError] = []
+        if not tree:
+            return ignore_buff, violations
+        for comment in tree.recursive_crawl("comment"):
+            if comment.name == "inline_comment":
+                ignore_entry = cls.extract_ignore_from_comment(comment)
+                if isinstance(ignore_entry, SQLParseError):
+                    violations.append(ignore_entry)
+                elif ignore_entry:
+                    ignore_buff.append(ignore_entry)
+        if ignore_buff:
+            linter_logger.info("Parsed noqa directives from file: %r", ignore_buff)
+        return ignore_buff, violations
+
     # ### Instance Methods
     # These are tied to a specific instance and so are not necessarily
     # safe to use in parallel operations.
@@ -518,17 +536,8 @@ class Linter:
         tree = parsed.tree
 
         # Look for comment segments which might indicate lines to ignore.
-        ignore_buff = []
-        if tree:
-            for comment in tree.recursive_crawl("comment"):
-                if comment.name == "inline_comment":
-                    ignore_entry = self.extract_ignore_from_comment(comment)
-                    if isinstance(ignore_entry, SQLParseError):
-                        vs.append(ignore_entry)
-                    elif ignore_entry:
-                        ignore_buff.append(ignore_entry)
-            if ignore_buff:
-                linter_logger.info("Parsed noqa directives from file: %r", ignore_buff)
+        ignore_buff, ivs = self.extract_ignore_mask(tree)
+        vs += ivs
 
         if tree:
             t0 = time.monotonic()
