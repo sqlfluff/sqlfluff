@@ -105,7 +105,7 @@ to keep in mind.
   replacing or patching any segments they need to. One reason for the *Ref*
   grammar is that it allows name resolution of grammar elements at runtime
   and so a *patched* grammar with some elements overriden can still rely on
-  lower level elements which haven't been redeclared within the dialect
+  lower-level elements which haven't been redeclared within the dialect
 - All grammars and segments attempt to match as much as they can and will
   return partial matches where possible. It is up to the calling grammar
   or segment to decide whether a partial or complete match is required
