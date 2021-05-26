@@ -6,14 +6,13 @@ file:
     - function_name:
         function_name_identifier: add
     - base:
-        bracketed:
-        - start_bracket: (
-        - data_type:
-            data_type_identifier: integer
-        - comma: ','
-        - data_type:
-            data_type_identifier: integer
-        - end_bracket: )
+      - start_bracket: (
+      - data_type:
+          data_type_identifier: integer
+      - comma: ','
+      - data_type:
+          data_type_identifier: integer
+      - end_bracket: )
     - keyword: RETURNS
     - data_type:
         data_type_identifier: integer

@@ -7,29 +7,27 @@ file:
           function:
             function_name:
               function_name_identifier: COS
-            bracketed:
-              start_bracket: (
-              expression:
-              - literal: '2'
-              - binary_operator: '*'
-              - function:
-                  function_name:
-                    function_name_identifier: ACOS
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      numeric_literal:
-                        binary_operator: '-'
-                        literal: '1'
-                    end_bracket: )
-              - binary_operator: '*'
-              - literal: '2'
-              - binary_operator: '*'
-              - column_reference:
-                  identifier: y
-              - binary_operator: /
-              - literal: '53'
-              end_bracket: )
+            start_bracket: (
+            expression:
+            - literal: '2'
+            - binary_operator: '*'
+            - function:
+                function_name:
+                  function_name_identifier: ACOS
+                start_bracket: (
+                expression:
+                  numeric_literal:
+                    binary_operator: '-'
+                    literal: '1'
+                end_bracket: )
+            - binary_operator: '*'
+            - literal: '2'
+            - binary_operator: '*'
+            - column_reference:
+                identifier: y
+            - binary_operator: /
+            - literal: '53'
+            end_bracket: )
           alias_expression:
             keyword: AS
             identifier: c2

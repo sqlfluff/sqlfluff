@@ -22,16 +22,15 @@ file:
                   identifier: bar
             join_on_condition:
               keyword: 'ON'
-              bracketed:
-                start_bracket: (
-                expression:
-                - column_reference:
-                  - identifier: foo
-                  - dot: .
-                  - identifier: a
-                - comparison_operator: '='
-                - column_reference:
-                  - identifier: bar
-                  - dot: .
-                  - identifier: a
-                end_bracket: )
+              start_bracket: (
+              expression:
+              - column_reference:
+                - identifier: foo
+                - dot: .
+                - identifier: a
+              - comparison_operator: '='
+              - column_reference:
+                - identifier: bar
+                - dot: .
+                - identifier: a
+              end_bracket: )

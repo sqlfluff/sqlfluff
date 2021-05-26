@@ -19,19 +19,17 @@ file:
           function:
             function_name:
               function_name_identifier: LAST_VALUE
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  identifier: item
-              end_bracket: )
+            start_bracket: (
+            expression:
+              column_reference:
+                identifier: item
+            end_bracket: )
             over_clause:
               keyword: OVER
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  identifier: c
-                end_bracket: )
+              start_bracket: (
+              window_specification:
+                identifier: c
+              end_bracket: )
           alias_expression:
             keyword: AS
             identifier: most_popular
@@ -47,42 +45,39 @@ file:
       - named_window_expression:
           identifier: a
           keyword: AS
-          bracketed:
-            start_bracket: (
-            window_specification:
-              partitionby_clause:
-              - keyword: PARTITION
-              - keyword: BY
-              - expression:
-                  column_reference:
-                    identifier: category
-            end_bracket: )
+          start_bracket: (
+          window_specification:
+            partitionby_clause:
+            - keyword: PARTITION
+            - keyword: BY
+            - expression:
+                column_reference:
+                  identifier: category
+          end_bracket: )
       - comma: ','
       - named_window_expression:
           identifier: b
           keyword: AS
-          bracketed:
-            start_bracket: (
-            window_specification:
-              orderby_clause:
-              - keyword: ORDER
-              - keyword: BY
-              - column_reference:
-                  identifier: purchases
-            end_bracket: )
+          start_bracket: (
+          window_specification:
+            orderby_clause:
+            - keyword: ORDER
+            - keyword: BY
+            - column_reference:
+                identifier: purchases
+          end_bracket: )
       - comma: ','
       - named_window_expression:
           identifier: c
           keyword: AS
-          bracketed:
-            start_bracket: (
-            window_specification:
-              frame_clause:
-              - keyword: ROWS
-              - raw: BETWEEN
-              - raw: '2'
-              - raw: PRECEDING
-              - raw: AND
-              - raw: '2'
-              - raw: FOLLOWING
-            end_bracket: )
+          start_bracket: (
+          window_specification:
+            frame_clause:
+            - keyword: ROWS
+            - raw: BETWEEN
+            - raw: '2'
+            - raw: PRECEDING
+            - raw: AND
+            - raw: '2'
+            - raw: FOLLOWING
+          end_bracket: )

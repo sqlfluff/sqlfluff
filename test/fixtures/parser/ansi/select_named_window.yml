@@ -7,19 +7,17 @@ file:
           function:
             function_name:
               function_name_identifier: AVG
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  identifier: col
-              end_bracket: )
+            start_bracket: (
+            expression:
+              column_reference:
+                identifier: col
+            end_bracket: )
             over_clause:
               keyword: OVER
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  identifier: win
-                end_bracket: )
+              start_bracket: (
+              window_specification:
+                identifier: win
+              end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -32,13 +30,12 @@ file:
         named_window_expression:
           identifier: win
           keyword: AS
-          bracketed:
-            start_bracket: (
-            window_specification:
-              partitionby_clause:
-              - keyword: PARTITION
-              - keyword: BY
-              - expression:
-                  column_reference:
-                    identifier: date
-            end_bracket: )
+          start_bracket: (
+          window_specification:
+            partitionby_clause:
+            - keyword: PARTITION
+            - keyword: BY
+            - expression:
+                column_reference:
+                  identifier: date
+          end_bracket: )

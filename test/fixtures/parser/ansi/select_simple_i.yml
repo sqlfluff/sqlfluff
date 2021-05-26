@@ -83,7 +83,6 @@ file:
               alias_expression:
                 identifier: bar
           - keyword: USING
-          - bracketed:
-              start_bracket: (
-              identifier: b
-              end_bracket: )
+          - start_bracket: (
+          - identifier: b
+          - end_bracket: )

@@ -11,11 +11,10 @@ file:
         identifier: '`name`'
         data_type:
           data_type_identifier: varchar
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '255'
-            end_bracket: )
+          start_bracket: (
+          expression:
+            literal: '255'
+          end_bracket: )
         column_constraint:
         - keyword: NOT
         - keyword: 'NULL'

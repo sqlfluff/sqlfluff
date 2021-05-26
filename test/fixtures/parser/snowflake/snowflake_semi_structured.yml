@@ -108,11 +108,10 @@ file:
               function:
                 function_name:
                   function_name_identifier: flatten
-                bracketed:
-                  start_bracket: (
-                  snowflake_keyword_expression:
-                    parameter: INPUT
-                    parameter_assigner: =>
-                    column_reference:
-                      identifier: custom_fields
-                  end_bracket: )
+                start_bracket: (
+                snowflake_keyword_expression:
+                  parameter: INPUT
+                  parameter_assigner: =>
+                  column_reference:
+                    identifier: custom_fields
+                end_bracket: )

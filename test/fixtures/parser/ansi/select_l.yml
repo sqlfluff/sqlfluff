@@ -19,12 +19,11 @@ file:
           column_reference:
             identifier: c
           comparison_operator: '>='
-          bracketed:
-            start_bracket: (
-            expression:
-              select_statement:
-                select_clause:
-                  keyword: SELECT
-                  select_clause_element:
-                    literal: '1'
-            end_bracket: )
+          start_bracket: (
+          expression:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  literal: '1'
+          end_bracket: )

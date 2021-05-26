@@ -21,30 +21,24 @@ file:
         from_expression:
           from_expression_element:
             table_expression:
-              bracketed:
-                start_bracket: (
-                values_clause:
-                - keyword: values
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                      literal: "'toffee'"
-                  - comma: ','
-                  - expression:
-                      literal: '5'
-                  - end_bracket: )
-                - comma: ','
-                - bracketed:
-                  - start_bracket: (
-                  - literal: "'starburst'"
-                  - comma: ','
-                  - literal: '8'
-                  - end_bracket: )
-                - comma: ','
-                - bracketed:
-                  - start_bracket: (
-                  - literal: "'flying_saucer'"
-                  - comma: ','
-                  - literal: '1'
-                  - end_bracket: )
-                end_bracket: )
+              start_bracket: (
+              values_clause:
+              - keyword: values
+              - start_bracket: (
+              - literal: "'toffee'"
+              - comma: ','
+              - literal: '5'
+              - end_bracket: )
+              - comma: ','
+              - start_bracket: (
+              - literal: "'starburst'"
+              - comma: ','
+              - literal: '8'
+              - end_bracket: )
+              - comma: ','
+              - start_bracket: (
+              - literal: "'flying_saucer'"
+              - comma: ','
+              - literal: '1'
+              - end_bracket: )
+              end_bracket: )

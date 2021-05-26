@@ -56,29 +56,27 @@ file:
             join_on_condition:
               keyword: 'ON'
               expression:
-              - bracketed:
-                  start_bracket: (
-                  expression:
-                  - column_reference:
-                      identifier: business_type
-                  - comparison_operator: '='
-                  - column_reference:
-                      identifier: low_business_type
-                  end_bracket: )
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                    identifier: business_type
+                - comparison_operator: '='
+                - column_reference:
+                    identifier: low_business_type
+              - end_bracket: )
               - binary_operator: AND
-              - bracketed:
-                  start_bracket: (
-                  expression:
-                  - column_reference:
-                      identifier: business_type
-                  - comparison_operator: '='
-                  - column_reference:
-                      identifier: low_business_type
-                  - binary_operator: OR
-                  - column_reference:
-                      identifier: size_label
-                  - comparison_operator: '='
-                  - column_reference:
-                      identifier: low_size_label
-                  end_bracket: )
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                    identifier: business_type
+                - comparison_operator: '='
+                - column_reference:
+                    identifier: low_business_type
+                - binary_operator: OR
+                - column_reference:
+                    identifier: size_label
+                - comparison_operator: '='
+                - column_reference:
+                    identifier: low_size_label
+              - end_bracket: )
 - statement_terminator: ;

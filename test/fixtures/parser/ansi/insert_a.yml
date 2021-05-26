@@ -5,15 +5,13 @@ file:
     - keyword: into
     - table_reference:
         identifier: tbl_b
-    - bracketed:
-        start_bracket: (
-        column_reference:
-          identifier: col1
-        end_bracket: )
+    - start_bracket: (
+    - column_reference:
+        identifier: col1
+    - end_bracket: )
     - values_clause:
         keyword: values
-        bracketed:
-          start_bracket: (
-          literal: '123'
-          end_bracket: )
+        start_bracket: (
+        literal: '123'
+        end_bracket: )
   statement_terminator: ;

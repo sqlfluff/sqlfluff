@@ -32,11 +32,10 @@ file:
             - keyword: INDEX
             - keyword: FOR
             - keyword: JOIN
-            - bracketed:
-                start_bracket: (
-                object_reference:
-                  identifier: idx_index
-                end_bracket: )
+            - start_bracket: (
+            - object_reference:
+                identifier: idx_index
+            - end_bracket: )
           - join_on_condition:
               keyword: 'ON'
               expression:

@@ -148,11 +148,10 @@ file:
     - object_reference:
         identifier: add5
     - base:
-        bracketed:
-          start_bracket: (
-          data_type:
-            data_type_identifier: number
-          end_bracket: )
+        start_bracket: (
+        data_type:
+          data_type_identifier: number
+        end_bracket: )
     - keyword: from
     - keyword: role
     - object_reference:

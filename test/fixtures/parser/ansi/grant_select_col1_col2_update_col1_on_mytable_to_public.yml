@@ -3,21 +3,19 @@ file:
     access_statement:
     - keyword: grant
     - keyword: select
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          identifier: col1
-      - comma: ','
-      - column_reference:
-          identifier: col2
-      - end_bracket: )
+    - start_bracket: (
+    - column_reference:
+        identifier: col1
+    - comma: ','
+    - column_reference:
+        identifier: col2
+    - end_bracket: )
     - comma: ','
     - keyword: update
-    - bracketed:
-        start_bracket: (
-        column_reference:
-          identifier: col1
-        end_bracket: )
+    - start_bracket: (
+    - column_reference:
+        identifier: col1
+    - end_bracket: )
     - keyword: 'on'
     - object_reference:
         identifier: mytable

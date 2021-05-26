@@ -5,22 +5,21 @@ file:
       common_table_expression:
         identifier: cte
         keyword: as
-        bracketed:
-          start_bracket: (
-          select_statement:
-            select_clause:
-              keyword: select
-              select_clause_element:
-                column_reference:
-                  identifier: a
-            from_clause:
-              keyword: from
-              from_expression:
-                from_expression_element:
-                  table_expression:
-                    table_reference:
-                      identifier: tbla
-          end_bracket: )
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: select
+            select_clause_element:
+              column_reference:
+                identifier: a
+          from_clause:
+            keyword: from
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: tbla
+        end_bracket: )
       select_statement:
         select_clause:
           keyword: select
