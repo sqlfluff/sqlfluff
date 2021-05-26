@@ -35,18 +35,18 @@ class BaseRunner(ABC):
     def iter_rendered(self, fnames):
         """Iterate through rendered files ready for linting."""
         for fname in fnames:
-            yield self.linter.render_file(fname, self.config)
+            yield fname, self.linter.render_file(fname, self.config)
 
     def iter_partials(self, fnames, fix: bool = False):
         """Iterate through partials for linted files.
 
         Generates filenames and objects which return LintedFiles.
         """
-        for rendered in self.iter_rendered(fnames):
+        for fname, rendered in self.iter_rendered(fnames):
             # Generate a fresh ruleset
             rule_set = self.linter.get_ruleset(config=rendered.config)
             yield (
-                rendered.templated_file.fname,
+                fname,
                 functools.partial(
                     self.linter.lint_rendered,
                     rendered,
