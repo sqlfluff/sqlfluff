@@ -1,6 +1,5 @@
 """Defines the linter class."""
 
-import sys
 import os
 import time
 import logging
@@ -51,6 +50,9 @@ linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
 
 class Linter:
     """The interface class to interact with the linter."""
+
+    # Default to allowing process parallelism
+    allow_process_parallelism = True
 
     def __init__(
         self,
@@ -638,9 +640,6 @@ class Linter:
         result.add(linted_path)
         return result
 
-    MIN_THRESHOLD_PARALLEL = 2
-    PARALLEL_CLS = runner_module.MultiProcessRunner
-
     def lint_path(
         self,
         path: str,
@@ -660,21 +659,12 @@ class Linter:
                 ignore_files=ignore_files,
             )
         )
-        runner: runner_module.BaseRunner
-        if parallel >= self.MIN_THRESHOLD_PARALLEL and sys.version_info > (3, 7):
-            runner = self.PARALLEL_CLS(
-                type(self), self, self.config, self.dialect.name, parallel
-            )
-        else:
-            if parallel > 1:
-                linter_logger.warning(
-                    "Parallel linting is not supported in Python %s.%s.",
-                    sys.version_info.major,
-                    sys.version_info.minor,
-                )
-            runner = runner_module.SequentialRunner(
-                type(self), self, self.config, self.dialect.name
-            )
+        runner = runner_module.get_runner(
+            self,
+            self.config,
+            parallel=parallel,
+            allow_process_parallelism=self.allow_process_parallelism,
+        )
         for linted_file in runner.run(fnames, fix):
             linted_path.add(linted_file)
             # If any fatal errors, then stop iteration.
