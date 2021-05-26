@@ -766,12 +766,8 @@ class Linter:
         for fname in self.paths_from_path(path):
             if self.formatter:
                 self.formatter.dispatch_path(path)
-
-            config = self.config.make_child_from_path(fname)
-            # Handle unicode issues gracefully
-            with open(
-                fname, "r", encoding="utf8", errors="backslashreplace"
-            ) as target_file:
-                yield self.parse_string(
-                    target_file.read(), fname=fname, recurse=recurse, config=config
-                )
+            # Load the file with the config and yield the result.
+            raw_file, config = self._load_raw_file_and_config(fname, self.config)
+            yield self.parse_string(
+                raw_file, fname=fname, recurse=recurse, config=config
+            )
