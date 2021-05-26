@@ -100,7 +100,7 @@ to keep in mind.
 
 - Grammars are contained in *dialects*, the root dialect being
   the *ansi* dialect. The ansi dialect is used to host logic common
-  to all dialects, and so does not necessary adhere to the formal
+  to all dialects, and so does not necessarily adhere to the formal
   ansi specification. Other SQL dialects inherit from the ansi dialect,
   replacing or patching any segments they need to. One reason for the *Ref*
   grammar is that it allows name resolution of grammar elements at runtime
