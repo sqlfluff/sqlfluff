@@ -15,21 +15,23 @@ file:
     - keyword: clone
     - identifier: testschema
     - from_before_expression:
-      - keyword: before
-      - start_bracket: (
-      - keyword: timestamp
-      - parameter_assigner: =>
-      - expression:
-          function:
-            function_name:
-              function_name_identifier: to_timestamp
-            start_bracket: (
-            expression:
-            - literal: '40'
-            - binary_operator: '*'
-            - literal: '365'
-            - binary_operator: '*'
-            - literal: '86400'
-            end_bracket: )
-      - end_bracket: )
+        keyword: before
+        bracketed:
+          start_bracket: (
+          keyword: timestamp
+          parameter_assigner: =>
+          expression:
+            function:
+              function_name:
+                function_name_identifier: to_timestamp
+              bracketed:
+                start_bracket: (
+                expression:
+                - literal: '40'
+                - binary_operator: '*'
+                - literal: '365'
+                - binary_operator: '*'
+                - literal: '86400'
+                end_bracket: )
+          end_bracket: )
 - statement_terminator: ;

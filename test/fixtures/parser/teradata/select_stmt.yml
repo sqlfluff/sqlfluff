@@ -5,20 +5,21 @@ file:
       - keyword: SELECT
       - select_clause_element:
           function:
-          - function_name:
+            function_name:
               function_name_identifier: ADD_MONTHS
-          - start_bracket: (
-          - expression:
-              column_reference:
-              - identifier: abandono
-              - dot: .
-              - identifier: FEC_CIERRE_EST
-          - comma: ','
-          - expression:
-              numeric_literal:
-                binary_operator: '-'
-                literal: '12'
-          - end_bracket: )
+            bracketed:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                - identifier: abandono
+                - dot: .
+                - identifier: FEC_CIERRE_EST
+            - comma: ','
+            - expression:
+                numeric_literal:
+                  binary_operator: '-'
+                  literal: '12'
+            - end_bracket: )
           alias_expression:
             keyword: AS
             identifier: FEC_CIERRE_EST_ULT12
@@ -27,15 +28,16 @@ file:
           function:
             function_name:
               function_name_identifier: CAST
-            start_bracket: (
-            expression:
-              literal: "'200010'"
-            keyword: AS
-            td_internal_data_type:
-              data_type_identifier: DATE
-              keyword: FORMAT
-              literal: "'YYYYMM'"
-            end_bracket: )
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: "'200010'"
+              keyword: AS
+              td_internal_data_type:
+                data_type_identifier: DATE
+                keyword: FORMAT
+                literal: "'YYYYMM'"
+              end_bracket: )
           alias_expression:
             keyword: AS
             identifier: CAST_STATEMENT_EXAMPLE

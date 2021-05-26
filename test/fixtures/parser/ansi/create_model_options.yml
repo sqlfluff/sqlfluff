@@ -8,21 +8,22 @@ file:
     - object_reference:
         identifier: model3
     - keyword: OPTIONS
-    - start_bracket: (
-    - parameter: MODEL_TYPE
-    - comparison_operator: '='
-    - literal: "'LOGISTIC_REG'"
-    - comma: ','
-    - parameter: AUTO_CLASS_WEIGHTS
-    - comparison_operator: '='
-    - literal: 'TRUE'
-    - comma: ','
-    - parameter: INPUT_LABEL_COLS
-    - comparison_operator: '='
-    - start_square_bracket: '['
-    - literal: "'label_str'"
-    - end_square_bracket: ']'
-    - end_bracket: )
+    - bracketed:
+      - start_bracket: (
+      - parameter: MODEL_TYPE
+      - comparison_operator: '='
+      - literal: "'LOGISTIC_REG'"
+      - comma: ','
+      - parameter: AUTO_CLASS_WEIGHTS
+      - comparison_operator: '='
+      - literal: 'TRUE'
+      - comma: ','
+      - parameter: INPUT_LABEL_COLS
+      - comparison_operator: '='
+      - start_square_bracket: '['
+      - literal: "'label_str'"
+      - end_square_bracket: ']'
+      - end_bracket: )
     - keyword: AS
     - select_statement:
         select_clause:
