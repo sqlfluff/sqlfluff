@@ -36,7 +36,12 @@ from sqlfluff.core.parser.segments.meta import MetaSegment
 from sqlfluff.core.parser.segments.raw import RawSegment
 from sqlfluff.core.rules.base import BaseRule
 
-from sqlfluff.core.linter.common import RuleTuple, ParsedString, NoQaDirective
+from sqlfluff.core.linter.common import (
+    RuleTuple,
+    ParsedString,
+    NoQaDirective,
+    RenderedFile,
+)
 from sqlfluff.core.linter.linted_file import LintedFile
 from sqlfluff.core.linter.linted_dir import LintedDir
 from sqlfluff.core.linter.linting_result import LintingResult
@@ -87,6 +92,22 @@ class Linter:
         """A simple pass through to access the rule tuples of the rule set."""
         rs = self.get_ruleset()
         return [RuleTuple(rule.code, rule.description) for rule in rs]
+
+    # #### Static methods
+    # These are the building blocks of the linting process.
+
+    @staticmethod
+    def _load_raw_file_and_config(fname, root_config):
+        """Load a raw file and the associated config."""
+        file_config = root_config.make_child_from_path(fname)
+        with open(
+            fname, "r", encoding="utf8", errors="backslashreplace"
+        ) as target_file:
+            raw_file = target_file.read()
+        # Scan the raw file for config commands.
+        file_config.process_raw_file_for_config(raw_file)
+        # Return the raw file and config
+        return raw_file, file_config
 
     @staticmethod
     def _lex_templated_file(
@@ -191,76 +212,8 @@ class Linter:
                 linter_logger.info(unparsable.stringify())
         return parsed, violations
 
-    def render_string(self, in_str: str, fname: Optional[str], config: FluffConfig):
-        """Template the file."""
-        linter_logger.info("TEMPLATING RAW [%s] (%s)", self.templater.name, fname)
-
-        try:
-            templated_file, templater_violations = self.templater.process(
-                in_str=in_str, fname=fname, config=config, formatter=self.formatter
-            )
-        except SQLTemplaterSkipFile as s:
-            linter_logger.warning(str(s))
-            templated_file = None
-            templater_violations = []
-
-        if not templated_file:
-            linter_logger.info("TEMPLATING FAILED: %s", templater_violations)
-
-        return templated_file, templater_violations
-
-    def parse_string(
-        self,
-        in_str: str,
-        fname: Optional[str] = None,
-        recurse: bool = True,
-        config: Optional[FluffConfig] = None,
-    ) -> ParsedString:
-        """Parse a string."""
-        violations: List[SQLBaseError] = []
-        t0 = time.monotonic()
-
-        # Dispatch the output for the template header (including the config diff)
-        if self.formatter:
-            self.formatter.dispatch_template_header(fname, self.config, config)
-
-        # Just use the local config from here:
-        config = config or self.config
-
-        # Scan the raw file for config commands.
-        config.process_raw_file_for_config(in_str)
-
-        templated_file, templater_violations = self.render_string(in_str, fname, config)
-        violations += templater_violations
-
-        t1 = time.monotonic()
-
-        # Dispatch the output for the parse header
-        if self.formatter:
-            self.formatter.dispatch_parse_header(fname)
-
-        tokens: Optional[Sequence[BaseSegment]]
-        if templated_file:
-            tokens, lvs, config = self._lex_templated_file(templated_file, config)
-            violations += lvs
-        else:
-            tokens = None
-
-        t2 = time.monotonic()
-        linter_logger.info("PARSING (%s)", fname)
-
-        if tokens:
-            parsed, pvs = self._parse_tokens(tokens, config, recurse=recurse)
-            violations += pvs
-        else:
-            parsed = None
-
-        t3 = time.monotonic()
-        time_dict = {"templating": t1 - t0, "lexing": t2 - t1, "parsing": t3 - t2}
-        return ParsedString(parsed, violations, time_dict, templated_file, config)
-
-    @classmethod
-    def parse_noqa(cls, comment: str, line_no: int):
+    @staticmethod
+    def parse_noqa(comment: str, line_no: int):
         """Extract ignore mask entries from a comment string."""
         # Also trim any whitespace afterward
         if comment.startswith("noqa"):
@@ -299,6 +252,60 @@ class Linter:
             return NoQaDirective(line_no, None, None)
         return None
 
+    @staticmethod
+    def remove_templated_errors(
+        linting_errors: List[SQLLintError],
+    ) -> List[SQLLintError]:
+        """Filter a list of lint errors, removing those which only occur in templated slices."""
+        # Filter out any linting errors in templated sections if relevant.
+        linting_errors = list(
+            filter(
+                lambda e: (
+                    # Is it in a literal section?
+                    e.segment.pos_marker.is_literal()
+                    # Is it a rule that is designed to work on templated sections?
+                    or e.rule.targets_templated
+                ),
+                linting_errors,
+            )
+        )
+        return linting_errors
+
+    # ### Class Methods
+    # These compose the base static methods into useful recipes.
+
+    @classmethod
+    def parse_rendered(cls, rendered: RenderedFile, recurse: bool = True):
+        """Parse a rendered file."""
+        t0 = time.monotonic()
+        violations = cast(List[SQLBaseError], rendered.templater_violations)
+        tokens: Optional[Sequence[BaseSegment]]
+        if rendered.templated_file:
+            tokens, lvs, config = cls._lex_templated_file(
+                rendered.templated_file, rendered.config
+            )
+            violations += lvs
+        else:
+            tokens = None
+
+        t1 = time.monotonic()
+        linter_logger.info("PARSING (%s)", rendered.templated_file.fname)
+
+        if tokens:
+            parsed, pvs = cls._parse_tokens(tokens, rendered.config, recurse=recurse)
+            violations += pvs
+        else:
+            parsed = None
+
+        time_dict = {
+            **rendered.time_dict,
+            "lexing": t1 - t0,
+            "parsing": time.monotonic() - t1,
+        }
+        return ParsedString(
+            parsed, violations, time_dict, rendered.templated_file, rendered.config
+        )
+
     @classmethod
     def extract_ignore_from_comment(cls, comment: RawSegment):
         """Extract ignore mask entries from a comment segment."""
@@ -309,6 +316,71 @@ class Linter:
         if isinstance(result, SQLParseError):
             result.segment = comment
         return result
+
+    # ### Instance Methods
+    # These are tied to a specific instance and so are not necessarily
+    # safe to use in parallel operations.
+
+    def render_string(
+        self, in_str: str, fname: Optional[str], config: FluffConfig
+    ) -> RenderedFile:
+        """Template the file."""
+        linter_logger.info("TEMPLATING RAW [%s] (%s)", self.templater.name, fname)
+
+        # Start the templating timer
+        t0 = time.monotonic()
+
+        try:
+            templated_file, templater_violations = self.templater.process(
+                in_str=in_str, fname=fname, config=config, formatter=self.formatter
+            )
+        except SQLTemplaterSkipFile as s:
+            linter_logger.warning(str(s))
+            templated_file = None
+            templater_violations = []
+
+        if not templated_file:
+            linter_logger.info("TEMPLATING FAILED: %s", templater_violations)
+
+        # Record time
+        time_dict = {"templating": time.monotonic() - t0}
+
+        return RenderedFile(templated_file, templater_violations, config, time_dict)
+
+    def render_file(self, fname: str, root_config: FluffConfig) -> RenderedFile:
+        """Load and render a file with relevant config."""
+        # Load the raw file.
+        raw_file, config = self._load_raw_file_and_config(fname, root_config)
+        # Render the file
+        return self.render_string(raw_file, fname, config)
+
+    def parse_string(
+        self,
+        in_str: str,
+        fname: Optional[str] = None,
+        recurse: bool = True,
+        config: Optional[FluffConfig] = None,
+    ) -> ParsedString:
+        """Parse a string."""
+        violations: List[SQLBaseError] = []
+
+        # Dispatch the output for the template header (including the config diff)
+        if self.formatter:
+            self.formatter.dispatch_template_header(fname, self.config, config)
+
+        # Just use the local config from here:
+        config = config or self.config
+
+        # Scan the raw file for config commands.
+        config.process_raw_file_for_config(in_str)
+        rendered = self.render_string(in_str, fname, config)
+        violations += rendered.templater_violations
+
+        # Dispatch the output for the parse header
+        if self.formatter:
+            self.formatter.dispatch_parse_header(fname)
+
+        return self.parse_rendered(rendered, recurse=recurse)
 
     @staticmethod
     def _warn_unfixable(code: str):
@@ -396,24 +468,6 @@ class Linter:
             )
 
         return tree, initial_linting_errors
-
-    def remove_templated_errors(
-        self, linting_errors: List[SQLLintError]
-    ) -> List[SQLLintError]:
-        """Filter a list of lint errors, removing those which only occur in templated slices."""
-        # Filter out any linting errors in templated sections if relevant.
-        linting_errors = list(
-            filter(
-                lambda e: (
-                    # Is it in a literal section?
-                    e.segment.pos_marker.is_literal()
-                    # Is it a rule that is designed to work on templated sections?
-                    or e.rule.targets_templated
-                ),
-                linting_errors,
-            )
-        )
-        return linting_errors
 
     def fix(
         self,
@@ -712,6 +766,7 @@ class Linter:
         for fname in self.paths_from_path(path):
             if self.formatter:
                 self.formatter.dispatch_path(path)
+
             config = self.config.make_child_from_path(fname)
             # Handle unicode issues gracefully
             with open(
