@@ -30,7 +30,7 @@ from sqlfluff.core.rules import get_ruleset
 from sqlfluff.core.config import FluffConfig, ConfigLoader
 
 # Classes needed only for type checking
-from sqlfluff.core.linter import runner as runner_module
+from sqlfluff.core.linter.runner import get_runner
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.meta import MetaSegment
 from sqlfluff.core.parser.segments.raw import RawSegment
@@ -659,7 +659,7 @@ class Linter:
                 ignore_files=ignore_files,
             )
         )
-        runner = runner_module.get_runner(
+        runner = get_runner(
             self,
             self.config,
             parallel=parallel,
