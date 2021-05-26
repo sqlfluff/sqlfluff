@@ -8,8 +8,9 @@ file:
     - function_name:
         function_name_identifier: a
     - base:
-        start_bracket: (
-        end_bracket: )
+        bracketed:
+          start_bracket: (
+          end_bracket: )
     - keyword: RETURNS
     - data_type:
         data_type_identifier: integer
