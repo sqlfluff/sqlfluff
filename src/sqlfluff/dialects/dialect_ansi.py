@@ -1803,6 +1803,7 @@ class WithCompoundStatementSegment(BaseSegment):
     match_grammar = StartsWith("WITH")
     parse_grammar = Sequence(
         "WITH",
+        Sequence("RECURSIVE", optional=True),
         Delimited(
             Ref("CTEDefinitionSegment"),
             terminator=Ref.keyword("SELECT"),
