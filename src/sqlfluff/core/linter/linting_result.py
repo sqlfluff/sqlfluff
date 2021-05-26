@@ -14,6 +14,7 @@ from sqlfluff.core.errors import (
     CheckTuple,
 )
 
+from sqlfluff.core.timing import TimingSummary
 
 # Classes needed only for type checking
 from sqlfluff.core.parser.segments.base import BaseSegment
@@ -118,6 +119,14 @@ class LintingResult:
         all_stats["exit code"] = 65 if all_stats["violations"] > 0 else 0
         all_stats["status"] = "FAIL" if all_stats["violations"] > 0 else "PASS"
         return all_stats
+
+    def timing_summary(self) -> Dict[str, Dict[str, float]]:
+        """Return a timing summary."""
+        timing = TimingSummary()
+        for dir in self.paths:
+            for file in dir.files:
+                timing.add(file.time_dict)
+        return timing.summary()
 
     def as_records(self) -> List[dict]:
         """Return the result as a list of dictionaries.
