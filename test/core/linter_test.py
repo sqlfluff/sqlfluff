@@ -240,23 +240,28 @@ def test__linter__linting_parallel_thread(force_error, monkeypatch):
     all([type(v) == SQLLintError for v in result.get_violations()])
 
 
-@patch("sqlfluff.core.linter.runner.BaseRunner._base_run")
-def test_lint_path_parallel_wrapper_exception(patched_base_run):
-    """Tests the error catching behavior of _lint_path_parallel_wrapper()."""
-    patched_base_run.side_effect = ValueError("Something unexpected happened")
-    result = runner.MultiProcessRunner._lint_path(Linter, FluffConfig(), "")
-    assert isinstance(result, runner.DelayedException)
-    with pytest.raises(ValueError):
-        result.reraise()
+@patch("sqlfluff.core.linter.Linter.lint_rendered")
+def test_lint_path_parallel_wrapper_exception(patched_lint):
+    """Tests the error catching behavior of _lint_path_parallel_wrapper().
+
+    Test on MultiThread runner because otherwise we have pickling issues.
+    """
+    patched_lint.side_effect = ValueError("Something unexpected happened")
+    for result in runner.MultiThreadRunner(Linter(), FluffConfig(), parallel=1).run(
+        ["test/fixtures/linter/passing.sql"], fix=False
+    ):
+        assert isinstance(result, runner.DelayedException)
+        with pytest.raises(ValueError):
+            result.reraise()
 
 
 @patch("sqlfluff.core.linter.runner.linter_logger")
-@patch("sqlfluff.core.Linter.lint_string")
+@patch("sqlfluff.core.linter.Linter.lint_rendered")
 def test__linter__linting_unexpected_error_handled_gracefully(
-    patched_lint_string, patched_logger
+    patched_lint, patched_logger
 ):
     """Test that an unexpected internal error is handled gracefully and returns the issue-surfacing file."""
-    patched_lint_string.side_effect = Exception("Something unexpected happened")
+    patched_lint.side_effect = Exception("Something unexpected happened")
     lntr = Linter()
     lntr.lint_paths(("test/fixtures/linter/passing.sql",))
     assert (

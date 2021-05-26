@@ -484,6 +484,18 @@ class Linter:
 
         return linted_file
 
+    @classmethod
+    def lint_rendered(
+        cls,
+        rendered: RenderedFile,
+        rule_set: List[BaseRule],
+        fix: bool = False,
+        formatter: Any = None,
+    ) -> LintedFile:
+        """Take a RenderedFile and return a LintedFile."""
+        parsed = cls.parse_rendered(rendered)
+        return cls.lint_parsed(parsed, rule_set=rule_set, fix=fix, formatter=formatter)
+
     # ### Instance Methods
     # These are tied to a specific instance and so are not necessarily
     # safe to use in parallel operations.

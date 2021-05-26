@@ -15,9 +15,6 @@ import sys
 import traceback
 from typing import Callable, List
 
-from sqlfluff.core.dialects import dialect_selector
-from sqlfluff.core.parser import Lexer
-
 
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
 
@@ -33,6 +30,34 @@ class BaseRunner(ABC):
         self.linter = linter
         self.config = config
 
+    pass_formatter = True
+
+    def iter_rendered(self, fnames):
+        """Iterate through rendered files ready for linting."""
+        for fname in fnames:
+            yield self.linter.render_file(fname, self.config)
+
+    def iter_partials(self, fnames, fix: bool = False):
+        """Iterate through partials for linted files.
+
+        Generates filenames and objects which return LintedFiles.
+        """
+        for rendered in self.iter_rendered(fnames):
+            # Generate a fresh ruleset
+            rule_set = self.linter.get_ruleset(config=rendered.config)
+            yield (
+                rendered.templated_file.fname,
+                functools.partial(
+                    self.linter.lint_rendered,
+                    rendered,
+                    rule_set,
+                    fix,
+                    # Formatters may or may not be passed. They don't pickle
+                    # nicely so aren't appropriate in a multiprocessing world.
+                    self.linter.formatter if self.pass_formatter else None,
+                ),
+            )
+
     def run(self, fnames: List[str], fix: bool):
         """Run linting on the specified list of files."""
         raise NotImplementedError
@@ -44,20 +69,7 @@ class BaseRunner(ABC):
         May be overridden by subclasses to apply global configuration, initialize
         logger state in child processes, etc.
         """
-        Lexer(dialect=config.get("dialect"))
-        dialect_selector(config.get("dialect"))
-
-    @classmethod
-    def _base_run(cls, config, linter, fname, fix):
-        """Core linting functionality."""
-        config = config.make_child_from_path(fname)
-        # Handle unicode issues gracefully
-        with open(
-            fname, "r", encoding="utf8", errors="backslashreplace"
-        ) as target_file:
-            return linter.lint_string(
-                target_file.read(), fname=fname, fix=fix, config=config
-            )
+        pass
 
     @staticmethod
     def _handle_lint_path_exception(fname, e):
@@ -77,9 +89,9 @@ class SequentialRunner(BaseRunner):
 
     def run(self, fnames, fix):
         """Sequential implementation."""
-        for fname in fnames:
+        for fname, partial in self.iter_partials(fnames, fix=fix):
             try:
-                yield self._base_run(self.config, self.linter, fname, fix)
+                yield partial()
             except Exception as e:
                 self._handle_lint_path_exception(fname, e)
 
@@ -89,31 +101,31 @@ class ParallelRunner(BaseRunner):
 
     POOL_TYPE: Callable
     MAP_FUNCTION_NAME: str
+    # Don't pass the formatter in a parallel world, they
+    # don't pickle well.
+    pass_formatter = False
 
     def __init__(self, linter, config, parallel):
         super().__init__(linter, config)
         self.parallel = parallel
 
     def run(self, fnames, fix):
-        """Parallel implementation."""
-        jobs = []
-        for fname in fnames:
-            jobs.append(
-                functools.partial(
-                    self._lint_path,
-                    type(self.linter),
-                    self.config,
-                    fname,
-                    fix,
-                )
-            )
+        """Parallel implementation.
+
+        Note that the partials are generated one at a time then
+        passed directly into the pool as they're ready. This means
+        the main thread can do the IO work while passing the parsing
+        and linting work out to the threads.
+        """
         with self._create_pool(
             self.parallel,
             self._init_global,
             (self.config,),
         ) as pool:
             try:
-                for lint_result in self._map(pool, self._apply, jobs):
+                for lint_result in self._map(
+                    pool, self._apply, self.iter_partials(fnames, fix=fix)
+                ):
                     if isinstance(lint_result, DelayedException):
                         try:
                             lint_result.reraise()
@@ -133,26 +145,17 @@ class ParallelRunner(BaseRunner):
                 print("Received keyboard interrupt. Cleaning up and shutting down...")
                 pool.terminate()
 
-    @classmethod
-    def _lint_path(cls, linter_cls, config, fname, fix=False):
-        """Lint a file in parallel mode.
-
-        Creates new Linter object to avoid potential issues, e.g.
-        - Multiprocessing-related pickling errors
-        - Shared state in general (to avoid race conditions)
-        """
-        try:
-            linter = linter_cls(config=config)
-            return cls._base_run(config, linter, fname, fix)
-        except Exception as e:
-            result = DelayedException(e)
-            result.fname = fname
-            return result
-
     @staticmethod
-    def _apply(f):
+    def _apply(partial_tuple):
         """Shim function used in parallel mode."""
-        return f()
+        # Unpack the tuple and ditch the filename in this case.
+        fname, partial = partial_tuple
+        try:
+            return partial()
+        # Capture any exceptions and return as delayed exception to handle
+        # in the main thread.
+        except Exception as e:
+            return DelayedException(e, fname=fname)
 
     @classmethod
     def _create_pool(cls, *args, **kwargs):
@@ -195,7 +198,7 @@ class MultiThreadRunner(ParallelRunner):
 class DelayedException(Exception):
     """Multiprocessing process pool uses this to propagate exceptions."""
 
-    def __init__(self, ee):
+    def __init__(self, ee, fname=None):
         self.ee = ee
         __, __, self.tb = sys.exc_info()
         self.fname = None
