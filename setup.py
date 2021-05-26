@@ -84,8 +84,6 @@ setup(
         "Jinja2",
         # Used for diffcover plugin
         "diff-cover>=2.5.0",
-        # Used for performance profiling
-        "bench-it",
         # Used for .sqlfluffignore
         "pathspec",
         # Used for finding os-specific application config dirs
