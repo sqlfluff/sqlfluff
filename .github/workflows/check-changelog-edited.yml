@@ -1,4 +1,4 @@
-name: "Check CHANGELOG.md was edited."
+name: "Edited CHANGELOG.md"
 on: pull_request
 jobs:
   changelog:
