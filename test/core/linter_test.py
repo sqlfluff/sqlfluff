@@ -210,11 +210,9 @@ def test__linter__linting_parallel_thread(force_error, monkeypatch):
     tests capture code coverage information for the backend parts of parallel
     execution without having to jump through hoops.
     """
-    monkeypatch.setattr(Linter, "MIN_THRESHOLD_PARALLEL", 1)
-
     if not force_error:
 
-        monkeypatch.setattr(Linter, "PARALLEL_CLS", runner.MultiThreadRunner)
+        monkeypatch.setattr(Linter, "allow_process_parallelism", False)
 
     else:
 
@@ -236,7 +234,7 @@ def test__linter__linting_parallel_thread(force_error, monkeypatch):
     lntr = Linter(formatter=CallbackFormatter(callback=lambda m: None, verbosity=0))
     result = lntr.lint_paths(
         ("test/fixtures/linter/comma_errors.sql",),
-        parallel=1,
+        parallel=2,
     )
 
     all([type(v) == SQLLintError for v in result.get_violations()])

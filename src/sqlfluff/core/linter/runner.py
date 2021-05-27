@@ -13,7 +13,7 @@ import multiprocessing.dummy
 import signal
 import sys
 import traceback
-from typing import Callable, List, Type
+from typing import Callable, List
 
 from sqlfluff.core.dialects import dialect_selector
 from sqlfluff.core.parser import Lexer
@@ -27,29 +27,25 @@ class BaseRunner(ABC):
 
     def __init__(
         self,
-        linter_cls: Type,
         linter,
         config,
-        dialect: str,
     ):
-        self.linter_cls = linter_cls
         self.linter = linter
         self.config = config
-        self.dialect = dialect
 
     def run(self, fnames: List[str], fix: bool):
         """Run linting on the specified list of files."""
         raise NotImplementedError
 
     @classmethod
-    def _init_global(cls, config, dialect):
+    def _init_global(cls, config):
         """Initializes any global state.
 
         May be overridden by subclasses to apply global configuration, initialize
         logger state in child processes, etc.
         """
-        Lexer(dialect=dialect)
-        dialect_selector(dialect)
+        Lexer(dialect=config.get("dialect"))
+        dialect_selector(config.get("dialect"))
 
     @classmethod
     def _base_run(cls, config, linter, fname, fix):
@@ -94,8 +90,8 @@ class ParallelRunner(BaseRunner):
     POOL_TYPE: Callable
     MAP_FUNCTION_NAME: str
 
-    def __init__(self, linter_cls, linter, config, dialect, parallel):
-        super().__init__(linter_cls, linter, config, dialect)
+    def __init__(self, linter, config, parallel):
+        super().__init__(linter, config)
         self.parallel = parallel
 
     def run(self, fnames, fix):
@@ -105,7 +101,7 @@ class ParallelRunner(BaseRunner):
             jobs.append(
                 functools.partial(
                     self._lint_path,
-                    self.linter_cls,
+                    type(self.linter),
                     self.config,
                     fname,
                     fix,
@@ -114,10 +110,7 @@ class ParallelRunner(BaseRunner):
         with self._create_pool(
             self.parallel,
             self._init_global,
-            (
-                self.config,
-                self.dialect,
-            ),
+            (self.config,),
         ) as pool:
             try:
                 for lint_result in self._map(pool, self._apply, jobs):
@@ -178,8 +171,8 @@ class MultiProcessRunner(ParallelRunner):
     MAP_FUNCTION_NAME = "imap_unordered"
 
     @classmethod
-    def _init_global(cls, config, dialect):
-        super()._init_global(config, dialect)
+    def _init_global(cls, config):
+        super()._init_global(config)
 
         # Disable signal handling in the child processes to let the parent
         # control all KeyboardInterrupt handling (Control C). This is
@@ -211,3 +204,28 @@ class DelayedException(Exception):
     def reraise(self):
         """Reraise the encapsulated exception."""
         raise self.ee.with_traceback(self.tb)
+
+
+def get_runner(
+    linter,
+    config,
+    parallel: int,
+    allow_process_parallelism: bool = True,
+) -> BaseRunner:
+    """Generate a runner instance based on parallel and sytem configuration."""
+    if parallel > 1 and sys.version_info > (3, 7):
+        # Process parallelism isn't really supported during testing
+        # so this flag allows us to fall back to a threaded runner
+        # in those cases.
+        if allow_process_parallelism:
+            return MultiProcessRunner(linter, config, parallel=parallel)
+        else:
+            return MultiThreadRunner(linter, config, parallel=parallel)
+    else:
+        if parallel > 1:
+            linter_logger.warning(
+                "Parallel linting is not supported in Python %s.%s.",
+                sys.version_info.major,
+                sys.version_info.minor,
+            )
+        return SequentialRunner(linter, config)
