@@ -20,6 +20,7 @@ Contributors:
 - Add a little bit of fun on CLI exit 🎉!
 - Disabled models in the dbt templater are now skipped enitrely rather than
   returning an untemplated file.
+- Add a changelog check to SQLFluff continuous integration.
 
 ## [0.6.0a1] - 2021-05-15
 ### Added
