@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Contributors:
 - [@GitHub-Username](Link to GitHub profile) ([#PR-Number](Link to PR))
 
+## [0.6.0a2] - 2021-05-27
 ### Changed
 - Better exception handling for the simple parsing API (`sqlfluff.parse`)
   which now raises an exception which holds all potential parsing issues
