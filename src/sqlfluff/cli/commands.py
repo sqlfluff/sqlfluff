@@ -3,6 +3,7 @@
 import sys
 import json
 import logging
+import time
 
 import oyaml as yaml
 
@@ -598,6 +599,7 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
         pr.enable()
 
     try:
+        t0 = time.monotonic()
         # handle stdin if specified via lone '-'
         if "-" == path:
             # put the parser result in a list to iterate later
@@ -609,6 +611,7 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
         else:
             # A single path must be specified for this command
             result = lnt.parse_path(path, recurse=recurse)
+        total_time = time.monotonic() - t0
 
         # iterative print for human readout
         if format == "human":
@@ -635,7 +638,7 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
                     click.echo(cli_table(parsed_string.time_dict.items()))
             if verbose >= 2 or bench:
                 click.echo("==== overall timings ====")
-                click.echo(cli_table([("Clock time", result.total_time)]))
+                click.echo(cli_table([("Clock time", total_time)]))
                 timing_summary = timing.summary()
                 for step in timing_summary:
                     click.echo(f"=== {step} ===")
