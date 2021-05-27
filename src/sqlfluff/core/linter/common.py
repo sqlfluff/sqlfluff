@@ -33,7 +33,7 @@ class RenderedFile(NamedTuple):
     """An object to store the result of a templated file/string.
 
     This is notable as it's the intermediate state between what happens
-    in the main thread and the child threads when running in parallel mode.
+    in the main process and the child processes when running in parallel mode.
     """
 
     templated_file: TemplatedFile
