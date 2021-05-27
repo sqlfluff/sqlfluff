@@ -110,7 +110,7 @@ looks like this:
     c AS bar from my_table
 
 Rerun the same command as before, and you'll see that the original
-error (violation of *L006*) no longer show up.
+error (violation of *L006*) no longer shows up.
 
 .. code-block:: bash
 
