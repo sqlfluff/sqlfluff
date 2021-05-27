@@ -570,8 +570,13 @@ def test__linter__skip_dbt_model_disabled(in_dbt_project_dir):  # noqa
     conf = FluffConfig(configs={"core": {"templater": "dbt"}})
     lntr = Linter(config=conf)
     linted_path = lntr.lint_path(path="models/my_new_project/disabled_model.sql")
-    # Check that the file is skipped
-    assert len(linted_path.files) == 0
+    # Check that the file is still there
+    assert len(linted_path.files) == 1
+    linted_file = linted_path.files[0]
+    # Make sure it appears as expected.
+    assert linted_file.path == "models/my_new_project/disabled_model.sql"
+    assert not linted_file.templated_file
+    assert not linted_file.tree
 
 
 def test_delayed_exception():
