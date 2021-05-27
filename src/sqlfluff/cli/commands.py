@@ -644,17 +644,16 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
                     click.echo(f"=== {step} ===")
                     click.echo(cli_table(timing_summary[step].items()))
         else:
-            # collect result and print as single payload
-            # will need to zip in the file paths
-            filepaths = ["stdin"] if "-" == path else lnt.paths_from_path(path)
             result = [
                 dict(
-                    filepath=filepath,
-                    segments=parsed.as_record(code_only=code_only, show_raw=True)
-                    if parsed
+                    filepath=linted_result.fname,
+                    segments=linted_result.tree.as_record(
+                        code_only=code_only, show_raw=True
+                    )
+                    if linted_result.tree
                     else None,
                 )
-                for filepath, (parsed, _, _, _, _, _) in zip(filepaths, result)
+                for linted_result in result
             ]
 
             if format == "yaml":
