@@ -216,7 +216,8 @@ def get_runner(
     allow_process_parallelism: bool = True,
 ) -> BaseRunner:
     """Generate a runner instance based on parallel and sytem configuration."""
-    if parallel > 1 and sys.version_info > (3, 7):
+    # Python multiprocessing isn't supported in 3.6 and before.
+    if parallel > 1 and sys.version_info >= (3, 7):
         # Process parallelism isn't really supported during testing
         # so this flag allows us to fall back to a threaded runner
         # in those cases.
