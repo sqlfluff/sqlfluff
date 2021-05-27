@@ -131,6 +131,11 @@ class DbtTemplater(JinjaTemplater):
                 DbtMethodName.Path, method_arguments=[]
             )
 
+        if self.formatter:
+            self.formatter.dispatch_compilation_header(
+                "dbt templater", "Project Compiled."
+            )
+
         return self.dbt_selector_method
 
     def _get_profiles_dir(self):
