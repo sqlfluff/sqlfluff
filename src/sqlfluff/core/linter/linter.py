@@ -462,7 +462,8 @@ class Linter:
             # than any generated during the fixing cycle.
             violations += initial_linting_errors
         else:
-            # If no parsed tree, set to Nonw
+            # If no parsed tree, set to None
+
             tree = None
 
         # We process the ignore config here if appropriate
