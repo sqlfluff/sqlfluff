@@ -366,6 +366,7 @@ def lint(
 
     if bench:
         click.echo("==== overall timings ====")
+        click.echo(cli_table([("Clock time", result.total_time)]))
         timing_summary = result.timing_summary()
         for step in timing_summary:
             click.echo(f"=== {step} ===")
@@ -516,6 +517,7 @@ def fix(force, paths, parallel, bench=False, fixed_suffix="", logger=None, **kwa
 
     if bench:
         click.echo("==== overall timings ====")
+        click.echo(cli_table([("Clock time", result.total_time)]))
         timing_summary = result.timing_summary()
         for step in timing_summary:
             click.echo(f"=== {step} ===")
@@ -633,6 +635,7 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
                     click.echo(cli_table(parsed_string.time_dict.items()))
             if verbose >= 2 or bench:
                 click.echo("==== overall timings ====")
+                click.echo(cli_table([("Clock time", result.total_time)]))
                 timing_summary = timing.summary()
                 for step in timing_summary:
                     click.echo(f"=== {step} ===")

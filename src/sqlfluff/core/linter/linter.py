@@ -751,6 +751,7 @@ class Linter:
         linted_path = LintedDir(fname)
         linted_path.add(self.lint_string(string, fname=fname, fix=fix))
         result.add(linted_path)
+        result.stop_timer()
         return result
 
     def lint_path(
@@ -812,6 +813,7 @@ class Linter:
                     parallel=parallel,
                 )
             )
+        result.stop_timer()
         return result
 
     def parse_path(
