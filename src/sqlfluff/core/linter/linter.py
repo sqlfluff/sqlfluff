@@ -295,7 +295,7 @@ class Linter:
             tokens = None
 
         t1 = time.monotonic()
-        linter_logger.info("PARSING (%s)", rendered.templated_file.fname)
+        linter_logger.info("PARSING (%s)", rendered.fname)
 
         if tokens:
             parsed, pvs = cls._parse_tokens(tokens, rendered.config, recurse=recurse)
@@ -309,7 +309,12 @@ class Linter:
             "parsing": time.monotonic() - t1,
         }
         return ParsedString(
-            parsed, violations, time_dict, rendered.templated_file, rendered.config
+            parsed,
+            violations,
+            time_dict,
+            rendered.templated_file,
+            rendered.config,
+            rendered.fname,
         )
 
     @classmethod
@@ -437,15 +442,16 @@ class Linter:
         ignore_buff, ivs = cls.extract_ignore_mask(parsed.tree)
         violations += ivs
 
+        tree: Optional[BaseSegment]
         if parsed.tree:
             t0 = time.monotonic()
-            linter_logger.info("LINTING (%s)", parsed.templated_file.fname)
+            linter_logger.info("LINTING (%s)", parsed.fname)
             tree, initial_linting_errors = cls.lint_fix_parsed(
                 parsed.tree,
                 config=parsed.config,
                 rule_set=rule_set,
                 fix=fix,
-                fname=parsed.templated_file.fname,
+                fname=parsed.fname,
                 templated_file=parsed.templated_file,
                 formatter=formatter,
             )
@@ -455,13 +461,16 @@ class Linter:
             # We're only going to return the *initial* errors, rather
             # than any generated during the fixing cycle.
             violations += initial_linting_errors
+        else:
+            # If no parsed tree, set to Nonw
+            tree = None
 
         # We process the ignore config here if appropriate
         for violation in violations:
             violation.ignore_if_in(parsed.config.get("ignore"))
 
         linted_file = LintedFile(
-            parsed.templated_file.fname,
+            parsed.fname,
             violations,
             time_dict,
             tree,
@@ -472,7 +481,7 @@ class Linter:
         # This is the main command line output from linting.
         if formatter:
             formatter.dispatch_file_violations(
-                parsed.templated_file.fname, linted_file, only_fixable=fix
+                parsed.fname, linted_file, only_fixable=fix
             )
 
         # Safety flag for unset dialects
@@ -501,7 +510,7 @@ class Linter:
     # safe to use in parallel operations.
 
     def render_string(
-        self, in_str: str, fname: Optional[str], config: FluffConfig
+        self, in_str: str, fname: str, config: FluffConfig
     ) -> RenderedFile:
         """Template the file."""
         linter_logger.info("TEMPLATING RAW [%s] (%s)", self.templater.name, fname)
@@ -524,7 +533,9 @@ class Linter:
         # Record time
         time_dict = {"templating": time.monotonic() - t0}
 
-        return RenderedFile(templated_file, templater_violations, config, time_dict)
+        return RenderedFile(
+            templated_file, templater_violations, config, time_dict, fname
+        )
 
     def render_file(self, fname: str, root_config: FluffConfig) -> RenderedFile:
         """Load and render a file with relevant config."""
@@ -536,7 +547,7 @@ class Linter:
     def parse_string(
         self,
         in_str: str,
-        fname: Optional[str] = None,
+        fname: str = "<string>",
         recurse: bool = True,
         config: Optional[FluffConfig] = None,
     ) -> ParsedString:

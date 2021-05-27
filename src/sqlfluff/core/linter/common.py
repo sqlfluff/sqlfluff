@@ -40,6 +40,7 @@ class RenderedFile(NamedTuple):
     templater_violations: List[SQLTemplaterError]
     config: FluffConfig
     time_dict: Dict[str, float]
+    fname: str
 
 
 class ParsedString(NamedTuple):
@@ -62,6 +63,7 @@ class ParsedString(NamedTuple):
     time_dict: dict
     templated_file: TemplatedFile
     config: FluffConfig
+    fname: str
 
 
 class EnrichedFixPatch(NamedTuple):

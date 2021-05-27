@@ -648,7 +648,7 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
                     if parsed
                     else None,
                 )
-                for filepath, (parsed, _, _, _, _) in zip(filepaths, result)
+                for filepath, (parsed, _, _, _, _, _) in zip(filepaths, result)
             ]
 
             if format == "yaml":
