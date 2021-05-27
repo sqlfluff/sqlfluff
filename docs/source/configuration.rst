@@ -335,12 +335,12 @@ CLI Arguments
 -------------
 
 You already know you can pass arguments (:code:`--verbose`,
-:code:`--exclude_rules`, etc.) through the CLI commands (:code:`lint`,
+:code:`--exclude-rules`, etc.) through the CLI commands (:code:`lint`,
 :code:`fix`, etc.):
 
 .. code-block:: console
 
-    $ sqlfluff lint my_code.sql -v -exclude_rules L022,L027
+    $ sqlfluff lint my_code.sql -v --exclude-rules L022,L027
 
 You might have arguments that you pass through every time, e.g rules you
 *always* want to ignore. These can also be configured:

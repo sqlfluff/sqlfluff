@@ -547,3 +547,11 @@ class FluffConfig:
         config_path = [elem.strip() for elem in config_line.split(":")]
         # Set the value
         self.set_value(config_path[:-1], config_path[-1])
+
+    def process_raw_file_for_config(self, raw_str: str):
+        """Process a full raw file for inline config and update self."""
+        # Scan the raw file for config commands.
+        for raw_line in raw_str.splitlines():
+            if raw_line.startswith("-- sqlfluff"):
+                # Found a in-file config command
+                self.process_inline_config(raw_line)
