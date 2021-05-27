@@ -528,8 +528,6 @@ class Linter:
 
     def render_file(self, fname: str, root_config: FluffConfig) -> RenderedFile:
         """Load and render a file with relevant config."""
-        if self.formatter:
-            self.formatter.dispatch_path(fname)
         # Load the raw file.
         raw_file, config = self._load_raw_file_and_config(fname, root_config)
         # Render the file
