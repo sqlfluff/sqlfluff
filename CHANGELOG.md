@@ -17,6 +17,8 @@ Contributors:
 - Fix bug [#1037](https://github.com/sqlfluff/sqlfluff/issues/1037), in which fix 
   logging had been sent to stdout when reading data from stdin.
 - Add a little bit of fun on CLI exit 🎉!
+- Disabled models in the dbt templater are now skipped enitrely rather than
+  returning an untemplated file.
 
 ## [0.6.0a1] - 2021-05-15
 ### Added
