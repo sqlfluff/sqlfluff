@@ -19,13 +19,43 @@ any vales read from earlier files.
 - :code:`tox.ini`
 - :code:`pep8.ini`
 - :code:`.sqlfluff`
+- :code:`pyproject.toml`
 
-Within these files, they will be read like an `cfg file`_, and *SQLFluff*
-will look for sections which start with *SQLFluff*, and where subsections
-are delimited by a semicolon. For example the *jinjacontext* section will
-be indicated in the section started with *[sqlfluff:jinjacontext]*.
+Within these files, the first four will be read like an `cfg file`_, and
+*SQLFluff* will look for sections which start with *SQLFluff*, and where
+subsections are delimited by a semicolon. For example the *jinjacontext*
+section will be indicated in the section started with
+*[sqlfluff:jinjacontext]*.
+
+For the `pyproject.toml file`_, all valid sections start with `tool.sqlfluff`
+and subsections are delimited by a dot. For example the *jinjacontext* section
+will be indicated in the section started with *[tool.sqlfluff.jinjacontext]*.
+
+For example
+
+.. code-block:: toml
+
+    [tool.sqlfluff.core]
+    templater = "jinja"
+    sql_file_exts = [
+        ".sql",
+        ".sql.j2",
+        ".dml",
+        ".ddl",
+    ]
+
+    [tool.sqlfluff.indentation]
+    indented_joins = false
+    template_blocks_indent = false
+
+    [tool.sqlfluff.templater]
+    unwrap_wrapped_queries = true
+
+    [tool.sqlfluff.templater.jinja]
+    apply_dbt_builtins = true
 
 .. _`cfg file`: https://docs.python.org/3/library/configparser.html
+.. _`pyproject.toml file`: https://www.python.org/dev/peps/pep-0518/
 
 Nesting
 -------
@@ -335,12 +365,12 @@ CLI Arguments
 -------------
 
 You already know you can pass arguments (:code:`--verbose`,
-:code:`--exclude_rules`, etc.) through the CLI commands (:code:`lint`,
+:code:`--exclude-rules`, etc.) through the CLI commands (:code:`lint`,
 :code:`fix`, etc.):
 
 .. code-block:: console
 
-    $ sqlfluff lint my_code.sql -v -exclude_rules L022,L027
+    $ sqlfluff lint my_code.sql -v --exclude-rules L022,L027
 
 You might have arguments that you pass through every time, e.g rules you
 *always* want to ignore. These can also be configured:

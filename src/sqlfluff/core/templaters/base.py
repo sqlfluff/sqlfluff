@@ -88,8 +88,8 @@ class TemplatedFile:
     def __init__(
         self,
         source_str: str,
+        fname: str,
         templated_str: Optional[str] = None,
-        fname: Optional[str] = None,
         sliced_file: Optional[List[TemplatedFileSlice]] = None,
         raw_sliced: Optional[List[RawFileSlice]] = None,
     ):
@@ -123,7 +123,7 @@ class TemplatedFile:
     @classmethod
     def from_string(cls, raw):
         """Create TemplatedFile from a string."""
-        return cls(source_str=raw)
+        return cls(source_str=raw, fname="<string>")
 
     def __bool__(self):
         """Return true if there's a templated file."""
@@ -383,7 +383,7 @@ class RawTemplater:
         """
 
     def process(
-        self, *, in_str: str, fname: Optional[str] = None, config=None, formatter=None
+        self, *, in_str: str, fname: str, config=None, formatter=None
     ) -> Tuple[Optional[TemplatedFile], list]:
         """Process a string and return a TemplatedFile.
 

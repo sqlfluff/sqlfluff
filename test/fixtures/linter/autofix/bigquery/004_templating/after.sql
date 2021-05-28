@@ -10,16 +10,16 @@ raw_effect_sizes AS (
     SELECT
         COUNT(1) AS campaign_count,
         {{corr_states}}
-    {% for action in considered_actions %}
+        {% for action in considered_actions %}
         , SAFE_DIVIDE(SAFE_MULTIPLY(CORR({{metric}}_rate_su, {{action}}), STDDEV_POP({{metric}}_rate_su)), STDDEV_POP({{action}})) AS {{metric}}_{{action}}
-    {% endfor %}
+        {% endfor %}
     FROM
         `{{gcp_project}}.{{dataset}}.global_actions_states`
     GROUP BY
         {{corr_states}}
 ),
 
-  {% for action in considered_actions %}
+{% for action in considered_actions %}
 {{action}}_raw_effect_sizes AS (
     SELECT
         COUNT(1) AS campaign_count_{{action}},
@@ -41,15 +41,15 @@ raw_effect_sizes AS (
 new_raw_effect_sizes AS (
     SELECT
         {{corr_states}}
-    {% for action in considered_actions %}
+        {% for action in considered_actions %}
         , {{metric}}_{{action}}
         , campaign_count_{{action}}
-    {% endfor %}
+        {% endfor %}
     FROM
     {% for action in considered_actions %}
     {% if loop.first %}
     {{action}}_raw_effect_sizes
-    {% else %}
+        {% else %}
     JOIN
         {{action}}_raw_effect_sizes
         USING
@@ -62,11 +62,11 @@ imputed_effect_sizes AS (
     SELECT
         {{corr_states}}
         , o.campaign_count AS campaign_count
-    {% for action in considered_actions %}
+        {% for action in considered_actions %}
         , COALESCE(IF(IS_NAN(o.{{metric}}_{{action}}), 0, o.{{metric}}_{{action}}), 0) AS {{metric}}_{{action}}
         , COALESCE(IF(IS_NAN(n.{{metric}}_{{action}}), 0, n.{{metric}}_{{action}}), 0) AS new_{{metric}}_{{action}}
         , n.campaign_count_{{action}}
-{% endfor %}
+    {% endfor %}
     FROM
         raw_effect_sizes o
     JOIN

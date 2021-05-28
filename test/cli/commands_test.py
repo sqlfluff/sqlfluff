@@ -370,9 +370,10 @@ def test__cli__command_fix_stdin_logging_to_stderr(monkeypatch):
     perfect_sql = "select col from table"
 
     class MockLinter(sqlfluff.core.Linter):
-        def lint_fix(self, *args, **kwargs):
-            self._warn_unfixable("<FAKE CODE>")
-            return super().lint_fix(*args, **kwargs)
+        @classmethod
+        def lint_fix_parsed(cls, *args, **kwargs):
+            cls._warn_unfixable("<FAKE CODE>")
+            return super().lint_fix_parsed(*args, **kwargs)
 
     monkeypatch.setattr(sqlfluff.cli.commands, "Linter", MockLinter)
     result = invoke_assert_code(
