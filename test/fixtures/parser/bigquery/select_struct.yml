@@ -54,13 +54,13 @@ file:
     select_statement:
       select_clause:
       - keyword: select
+      - keyword: as
+      - keyword: struct
       - select_clause_element:
-          unparsable:
-          - raw: as
-          - raw: struct
-          - raw: "'1'"
-          - raw: as
-          - raw: bb
+          literal: "'1'"
+          alias_expression:
+            keyword: as
+            identifier: bb
       - comma: ','
       - select_clause_element:
           literal: '2'
