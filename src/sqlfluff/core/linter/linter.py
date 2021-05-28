@@ -512,14 +512,14 @@ class Linter:
     ) -> RenderedFile:
         """Template the file."""
         linter_logger.info(
-            "TEMPLATING RAW [%s] (%s)", self.config.get("templater_obj").name, fname
+            "TEMPLATING RAW [%s] (%s)", config.get("templater_obj").name, fname
         )
 
         # Start the templating timer
         t0 = time.monotonic()
 
         try:
-            templated_file, templater_violations = self.config.get(
+            templated_file, templater_violations = config.get(
                 "templater_obj"
             ).process(
                 in_str=in_str, fname=fname, config=config, formatter=self.formatter
