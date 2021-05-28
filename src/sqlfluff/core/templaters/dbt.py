@@ -209,6 +209,7 @@ class DbtTemplater(JinjaTemplater):
         self.project_dir = self._get_project_dir()
         self.profiles_dir = self._get_profiles_dir()
         fname_absolute_path = os.path.abspath(fname)
+
         try:
             os.chdir(self.project_dir)
             return self._unsafe_process(fname_absolute_path, in_str, config)

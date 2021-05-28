@@ -232,9 +232,9 @@ class CallbackFormatter:
             config_content = [
                 ("sqlfluff", get_package_version()),
                 ("python", get_python_version()),
-                ("dialect", linter.dialect.name),
+                ("dialect", linter.config.get("dialect_obj").name),
                 ("verbosity", self._verbosity),
-            ] + linter.templater.config_pairs()
+            ] + linter.config.get("templater_obj").config_pairs()
             text_buffer.write(cli_table(config_content, col_width=25))
             text_buffer.write("\n")
             if linter.config.get("rule_whitelist"):
