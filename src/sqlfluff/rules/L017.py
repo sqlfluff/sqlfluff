@@ -43,7 +43,7 @@ class Rule_L017(BaseRule):
 
             # Look for the start bracket
             for bracket_idx, seg in enumerate(segment.segments):
-                if seg.name == "start_bracket":
+                if seg.is_type("bracketed"):
                     break
 
             if bracket_idx != fname_idx + 1:

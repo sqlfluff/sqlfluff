@@ -45,7 +45,7 @@ def test__templater_raw():
     """Test the raw templater."""
     t = RawTemplater()
     instr = "SELECT * FROM {{blah}}"
-    outstr, _ = t.process(in_str=instr)
+    outstr, _ = t.process(in_str=instr, fname="test")
     assert instr == str(outstr)
 
 
@@ -143,7 +143,10 @@ def test__templated_file_get_line_pos_of_char_pos(
 ):
     """Test TemplatedFile.get_line_pos_of_char_pos."""
     file = TemplatedFile(
-        source_str=source_str, templated_str=templated_str, sliced_file=file_slices
+        source_str=source_str,
+        templated_str=templated_str,
+        sliced_file=file_slices,
+        fname="test",
     )
     res_line_no, res_line_pos = file.get_line_pos_of_char_pos(in_charpos)
     assert res_line_no == out_line_no
@@ -167,7 +170,9 @@ def test__templated_file_find_slice_indices_of_templated_pos(
     templated_position, inclusive, file_slices, sliced_idx_start, sliced_idx_stop
 ):
     """Test TemplatedFile._find_slice_indices_of_templated_pos."""
-    file = TemplatedFile(source_str="Dummy String", sliced_file=file_slices)
+    file = TemplatedFile(
+        source_str="Dummy String", sliced_file=file_slices, fname="test"
+    )
     res_start, res_stop = file._find_slice_indices_of_templated_pos(
         templated_position, inclusive=inclusive
     )
@@ -288,7 +293,10 @@ def test__templated_file_templated_slice_to_source_slice(
 ):
     """Test TemplatedFile.templated_slice_to_source_slice."""
     file = TemplatedFile(
-        source_str="Dummy String", sliced_file=file_slices, raw_sliced=raw_slices
+        source_str="Dummy String",
+        sliced_file=file_slices,
+        raw_sliced=raw_slices,
+        fname="test",
     )
     source_slice = file.templated_slice_to_source_slice(in_slice)
     literal_test = file.is_source_slice_literal(source_slice)
@@ -299,6 +307,7 @@ def test__templated_file_source_only_slices():
     """Test TemplatedFile.source_only_slices."""
     file = TemplatedFile(
         source_str=" Dummy String again ",  # NB: has length 20
+        fname="test",
         raw_sliced=[
             RawFileSlice("a" * 10, "literal", 0),
             RawFileSlice("b" * 7, "comment", 10),

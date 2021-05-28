@@ -3,6 +3,7 @@
 import sys
 import json
 import logging
+import time
 
 import oyaml as yaml
 
@@ -366,6 +367,7 @@ def lint(
 
     if bench:
         click.echo("==== overall timings ====")
+        click.echo(cli_table([("Clock time", result.total_time)]))
         timing_summary = result.timing_summary()
         for step in timing_summary:
             click.echo(f"=== {step} ===")
@@ -516,6 +518,7 @@ def fix(force, paths, parallel, bench=False, fixed_suffix="", logger=None, **kwa
 
     if bench:
         click.echo("==== overall timings ====")
+        click.echo(cli_table([("Clock time", result.total_time)]))
         timing_summary = result.timing_summary()
         for step in timing_summary:
             click.echo(f"=== {step} ===")
@@ -596,6 +599,7 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
         pr.enable()
 
     try:
+        t0 = time.monotonic()
         # handle stdin if specified via lone '-'
         if "-" == path:
             # put the parser result in a list to iterate later
@@ -607,6 +611,7 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
         else:
             # A single path must be specified for this command
             result = lnt.parse_path(path, recurse=recurse)
+        total_time = time.monotonic() - t0
 
         # iterative print for human readout
         if format == "human":
@@ -633,22 +638,22 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
                     click.echo(cli_table(parsed_string.time_dict.items()))
             if verbose >= 2 or bench:
                 click.echo("==== overall timings ====")
+                click.echo(cli_table([("Clock time", total_time)]))
                 timing_summary = timing.summary()
                 for step in timing_summary:
                     click.echo(f"=== {step} ===")
                     click.echo(cli_table(timing_summary[step].items()))
         else:
-            # collect result and print as single payload
-            # will need to zip in the file paths
-            filepaths = ["stdin"] if "-" == path else lnt.paths_from_path(path)
             result = [
                 dict(
-                    filepath=filepath,
-                    segments=parsed.as_record(code_only=code_only, show_raw=True)
-                    if parsed
+                    filepath=linted_result.fname,
+                    segments=linted_result.tree.as_record(
+                        code_only=code_only, show_raw=True
+                    )
+                    if linted_result.tree
                     else None,
                 )
-                for filepath, (parsed, _, _, _, _) in zip(filepaths, result)
+                for linted_result in result
             ]
 
             if format == "yaml":
