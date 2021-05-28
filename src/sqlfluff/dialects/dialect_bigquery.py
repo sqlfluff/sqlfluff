@@ -165,8 +165,10 @@ class SelectClauseSegment(ansi_dialect.get_segment("SelectClauseSegment")):  # t
             Sequence(
                 "AS",
                 "STRUCT",
-                Ref("StarSegment"),
-                Ref("StarModifierSegment", optional=True),
+                OneOf(
+                    Ref("StarSegment"),
+                    Ref("SelectClauseSegment"),
+                ),
             ),
             Delimited(
                 Ref("SelectClauseElementSegment"),
