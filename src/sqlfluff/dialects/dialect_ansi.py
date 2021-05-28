@@ -2572,11 +2572,9 @@ class FunctionParameterListGrammar(BaseSegment):
 
     # Function parameter list
     match_grammar = Bracketed(
-        Sequence(
-            Delimited(
-                Ref("FunctionParameterGrammar"),
-                delimiter=Ref("CommaSegment"),
-            ),
+        Delimited(
+            Ref("FunctionParameterGrammar"),
+            delimiter=Ref("CommaSegment"),
             optional=True,
         ),
     )
