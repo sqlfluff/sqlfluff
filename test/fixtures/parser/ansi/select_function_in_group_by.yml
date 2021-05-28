@@ -5,15 +5,17 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-          - function_name: COALESCE
-          - start_bracket: (
-          - expression:
-              column_reference:
-                identifier: id
-          - comma: ','
-          - expression:
-              literal: '1'
-          - end_bracket: )
+            function_name:
+              function_name_identifier: COALESCE
+            bracketed:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  identifier: id
+            - comma: ','
+            - expression:
+                literal: '1'
+            - end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -26,12 +28,14 @@ file:
       - keyword: BY
       - expression:
           function:
-          - function_name: COALESCE
-          - start_bracket: (
-          - expression:
-              column_reference:
-                identifier: id
-          - comma: ','
-          - expression:
-              literal: '1'
-          - end_bracket: )
+            function_name:
+              function_name_identifier: COALESCE
+            bracketed:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  identifier: id
+            - comma: ','
+            - expression:
+                literal: '1'
+            - end_bracket: )

@@ -6,34 +6,40 @@ file:
         select_clause_element:
           expression:
           - function:
-              function_name: lower
-              start_bracket: (
-              expression:
-                column_reference:
-                  identifier: note_text
-              end_bracket: )
+              function_name:
+                function_name_identifier: lower
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: note_text
+                end_bracket: )
           - keyword: NOT
           - keyword: LIKE
           - literal: "'%daycare: {%'"
           - binary_operator: AND
           - function:
-              function_name: lower
-              start_bracket: (
-              expression:
-                column_reference:
-                  identifier: note_text
-              end_bracket: )
+              function_name:
+                function_name_identifier: lower
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: note_text
+                end_bracket: )
           - keyword: NOT
           - keyword: LIKE
           - literal: "'%grade/ school name:  {%'"
           - binary_operator: AND
           - function:
-              function_name: lower
-              start_bracket: (
-              expression:
-                column_reference:
-                  identifier: note_text
-              end_bracket: )
+              function_name:
+                function_name_identifier: lower
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: note_text
+                end_bracket: )
           - keyword: NOT
           - keyword: LIKE
           - literal: "'%social history:  {%'"

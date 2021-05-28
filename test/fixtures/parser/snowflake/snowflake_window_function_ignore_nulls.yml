@@ -5,38 +5,41 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-          - function_name: FIRST_VALUE
-          - start_bracket: (
-          - expression:
-              column_reference:
-                identifier: foo
-          - end_bracket: )
+          - function_name:
+              function_name_identifier: FIRST_VALUE
+          - bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: foo
+              end_bracket: )
           - keyword: IGNORE
           - keyword: NULLS
           - over_clause:
               keyword: over
-              start_bracket: (
-              window_specification:
-                partitionby_clause:
-                - keyword: PARTITION
-                - keyword: BY
-                - expression:
-                    column_reference:
-                      identifier: buzz
-                orderby_clause:
-                - keyword: ORDER
-                - keyword: BY
-                - column_reference:
-                    identifier: bar
-                frame_clause:
-                - keyword: ROWS
-                - raw: BETWEEN
-                - raw: UNBOUNDED
-                - raw: PRECEDING
-                - raw: AND
-                - raw: CURRENT
-                - raw: ROW
-              end_bracket: )
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        identifier: buzz
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      identifier: bar
+                  frame_clause:
+                  - keyword: ROWS
+                  - raw: BETWEEN
+                  - raw: UNBOUNDED
+                  - raw: PRECEDING
+                  - raw: AND
+                  - raw: CURRENT
+                  - raw: ROW
+                end_bracket: )
           alias_expression:
             keyword: AS
             identifier: bat

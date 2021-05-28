@@ -1,0 +1,22 @@
+file:
+  statement:
+    create_function_statement:
+    - keyword: CREATE
+    - binary_operator: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: a
+    - base:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: integer
+    - base:
+      - keyword: AS
+      - literal: "$$\n    SELECT 1;\n$$"
+      - keyword: LANGUAGE
+      - parameter: SQL
+  statement_terminator: ;

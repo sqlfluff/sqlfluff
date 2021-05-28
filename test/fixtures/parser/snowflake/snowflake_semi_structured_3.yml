@@ -6,14 +6,16 @@ file:
       - select_clause_element:
           expression:
           - function:
-              function_name: PARSE_JSON
-              start_bracket: (
-              expression:
-                column_reference:
-                - identifier: t
-                - dot: .
-                - identifier: metadata
-              end_bracket: )
+              function_name:
+                function_name_identifier: PARSE_JSON
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                  - identifier: t
+                  - dot: .
+                  - identifier: metadata
+                end_bracket: )
           - array_accessor:
               start_square_bracket: '['
               expression:
@@ -30,14 +32,16 @@ file:
       - select_clause_element:
           expression:
             function:
-              function_name: PARSE_JSON
-              start_bracket: (
-              expression:
-                column_reference:
-                - identifier: t
-                - dot: .
-                - identifier: metadata
-              end_bracket: )
+              function_name:
+                function_name_identifier: PARSE_JSON
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                  - identifier: t
+                  - dot: .
+                  - identifier: metadata
+                end_bracket: )
             snowflake_semi_structured_expression:
               colon: ':'
               semi_structured_element: customer_id

@@ -5,16 +5,19 @@ file:
     - keyword: TABLE
     - table_reference:
         identifier: a
-    - start_bracket: (
-    - column_definition:
-        identifier: id
-        data_type:
-          data_type_identifier: VARCHAR
-          start_bracket: (
-          expression:
-            literal: '100'
-          end_bracket: )
-        column_constraint:
-          keyword: COMMENT
-          literal: "'Column comment'"
-    - end_bracket: )
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          identifier: id
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '100'
+              end_bracket: )
+          column_constraint:
+            comment_clause:
+              keyword: COMMENT
+              literal: "'Column comment'"
+        end_bracket: )

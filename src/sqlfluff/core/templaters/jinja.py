@@ -10,7 +10,6 @@ from jinja2 import meta, TemplateSyntaxError, TemplateError
 import jinja2.nodes
 
 from sqlfluff.core.errors import SQLTemplaterError
-from sqlfluff.core.parser import FilePositionMarker
 
 from sqlfluff.core.templaters.base import (
     register_templater,
@@ -157,17 +156,10 @@ class JinjaTemplater(PythonTemplater):
             line_no = tree.lineno
             line = raw.split("\n")[line_no - 1]
             pos = line.index(tree.name) + 1
-            # Generate the charpos. +1 is for the newline characters themselves
-            charpos = (
-                sum(len(raw_line) + 1 for raw_line in raw.split("\n")[: line_no - 1])
-                + pos
-            )
-            # NB: The positions returned here will be *inconsistent* with those
-            # from the linter at the moment, because these are references to the
-            # structure of the file *before* templating.
             yield SQLTemplaterError(
                 "Undefined jinja template variable: {0!r}".format(tree.name),
-                pos=FilePositionMarker(None, line_no, pos, charpos),
+                line_no=line_no,
+                line_pos=pos,
             )
 
     @staticmethod
@@ -182,7 +174,7 @@ class JinjaTemplater(PythonTemplater):
         )
 
     def process(
-        self, *, in_str: str, fname: Optional[str] = None, config=None
+        self, *, in_str: str, fname: str, config=None, formatter=None
     ) -> Tuple[Optional[TemplatedFile], list]:
         """Process a string and return the new string.
 
@@ -200,6 +192,7 @@ class JinjaTemplater(PythonTemplater):
                 mostly for loading config files at runtime.
             config (:obj:`FluffConfig`): A specific config to use for this
                 templating operation. Only necessary for some templaters.
+            formatter (:obj:`CallbackFormatter`): Optional object for output.
 
         """
         if not config:
@@ -253,16 +246,7 @@ class JinjaTemplater(PythonTemplater):
                 [
                     SQLTemplaterError(
                         "Failure to parse jinja template: {0}.".format(err),
-                        pos=FilePositionMarker(
-                            None,
-                            err.lineno,
-                            None,
-                            # Calculate the charpos for sorting.
-                            sum(
-                                len(line)
-                                for line in in_str.split("\n")[: err.lineno - 1]
-                            ),
-                        ),
+                        line_no=err.lineno,
                     )
                 ],
             )

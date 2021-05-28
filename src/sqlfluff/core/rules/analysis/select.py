@@ -71,10 +71,9 @@ def get_select_statement_info(
     fc = segment.get_child("from_clause")
     if fc:
         for join_clause in fc.recursive_crawl("join_clause"):
-            in_using_brackets = False
             seen_using = False
-            for seg in join_clause.segments:
-                if seg.is_type("keyword") and seg.name == "USING":
+            for seg in join_clause.iter_segments():
+                if seg.is_type("keyword") and seg.name == "using":
                     seen_using = True
                 elif seg.is_type("join_on_condition"):
                     for on_seg in seg.segments:
@@ -83,13 +82,11 @@ def get_select_statement_info(
                             reference_buffer += list(
                                 seg.recursive_crawl("object_reference")
                             )
-                elif seen_using and seg.is_type("start_bracket"):
-                    in_using_brackets = True
-                elif seen_using and seg.is_type("end_bracket"):
-                    in_using_brackets = False
+                elif seen_using and seg.is_type("bracketed"):
+                    for subseg in seg.segments:
+                        if subseg.is_type("identifier"):
+                            using_cols.append(subseg.raw)
                     seen_using = False
-                elif in_using_brackets and seg.is_type("identifier"):
-                    using_cols.append(seg.raw)
 
     return SelectStatementColumnsAndTables(
         select_statement=segment,

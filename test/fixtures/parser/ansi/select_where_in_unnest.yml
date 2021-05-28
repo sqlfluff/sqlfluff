@@ -19,11 +19,13 @@ file:
           literal: '1'
           keyword: IN
           function:
-            function_name: UNNEST
-            start_bracket: (
-            expression:
-              column_reference:
-              - identifier: t
-              - dot: .
-              - identifier: c
-            end_bracket: )
+            function_name:
+              function_name_identifier: UNNEST
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                - identifier: t
+                - dot: .
+                - identifier: c
+              end_bracket: )

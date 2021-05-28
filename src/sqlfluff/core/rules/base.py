@@ -18,10 +18,14 @@ import copy
 import logging
 import pathlib
 import re
+from typing import Optional, List, Tuple, TYPE_CHECKING
 from collections import namedtuple
 
-from sqlfluff.core.parser import RawSegment, KeywordSegment, BaseSegment, SymbolSegment
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.errors import SQLLintError
+
+if TYPE_CHECKING:
+    from sqlfluff.core.templaters import TemplatedFile
 
 # The ghost of a rule (mostly used for testing)
 RuleGhost = namedtuple("RuleGhost", ["code", "description"])
@@ -99,15 +103,17 @@ class LintFix:
             to be moved *after* the edit), for an `edit` it implies the segment
             to be replaced.
         edit (:obj:`BaseSegment`, optional): For `edit` and `create` fixes, this
-            hold the segment, or iterable of segments to create to replace at the
+            hold the segment, or iterable of segments to create or replace at the
             given `anchor` point.
 
     """
 
-    def __init__(self, edit_type, anchor, edit=None):
+    def __init__(self, edit_type, anchor: BaseSegment, edit=None):
         if edit_type not in ["create", "edit", "delete"]:
             raise ValueError("Unexpected edit_type: {0}".format(edit_type))
         self.edit_type = edit_type
+        if not anchor:
+            raise ValueError("Fixes must provide an anchor.")
         self.anchor = anchor
         # Coerce to list
         if isinstance(edit, BaseSegment):
@@ -119,9 +125,17 @@ class LintFix:
         # the parsed structure.
         self.edit = copy.deepcopy(edit)
         if self.edit:
+            # Check that any edits don't have a position marker set.
+            # We should rely on realignment to make position markers.
             # Strip position markers of anything enriched, otherwise things can get blurry
             for seg in self.edit:
-                seg.pos_marker = seg.pos_marker.strip()
+                if seg.pos_marker:
+                    # Developer warning.
+                    rules_logger.debug(
+                        "Developer Note: Edit segment found with preset position marker. "
+                        "These should be unset and calculated later."
+                    )
+                    seg.pos_marker = None
         # Once stripped, we shouldn't replace any markers because
         # later code may rely on them being accurate, which we
         # can't guarantee with edits.
@@ -192,6 +206,7 @@ class BaseRule:
     """
 
     _works_on_unparsable = True
+    targets_templated = False
 
     def __init__(self, code, description, **kwargs):
         self.description = description
@@ -253,6 +268,7 @@ class BaseRule:
         raw_stack=None,
         memory=None,
         fname=None,
+        templated_file: Optional["TemplatedFile"] = None,
     ):
         """Recursively perform the crawl operation on a given segment.
 
@@ -270,8 +286,8 @@ class BaseRule:
         siblings_post = siblings_post or ()
         siblings_pre = siblings_pre or ()
         memory = memory or {}
-        vs = []
-        fixes = []
+        vs: List[SQLLintError] = []
+        fixes: List[LintFix] = []
 
         # First, check whether we're looking at an unparsable and whether
         # this rule will still operate on that.
@@ -290,6 +306,7 @@ class BaseRule:
                 memory=memory,
                 dialect=dialect,
                 path=pathlib.Path(fname) if fname else None,
+                templated_file=templated_file,
             )
         # Any exception at this point would halt the linter and
         # cause the user to get no results
@@ -297,6 +314,7 @@ class BaseRule:
             self.logger.critical(
                 f"Applying rule {self.code} threw an Exception: {e}", exc_info=True
             )
+            exception_line, _ = segment.pos_marker.source_position()
             vs.append(
                 SQLLintError(
                     rule=self,
@@ -306,7 +324,7 @@ class BaseRule:
                         f"""Unexpected exception: {str(e)};
                         Could you open an issue at https://github.com/sqlfluff/sqlfluff/issues ?
                         You can ignore this exception for now, by adding '--noqa: {self.code}' at the end
-                        of line {segment.pos_marker.line_no}
+                        of line {exception_line}
                         """
                     ),
                 )
@@ -368,6 +386,7 @@ class BaseRule:
                 memory=memory,
                 dialect=dialect,
                 fname=fname,
+                templated_file=templated_file,
             )
             vs += dvs
             fixes += child_fixes
@@ -412,39 +431,14 @@ class BaseRule:
         # no subsegments to check. Return None.
         return None
 
-    @classmethod
-    def make_whitespace(cls, raw, pos_marker):
-        """Make a whitespace segment."""
-        WhitespaceSegment = RawSegment.make(
-            " ", name="whitespace", type="whitespace", is_whitespace=True
-        )
-        return WhitespaceSegment(raw=raw, pos_marker=pos_marker)
-
-    @classmethod
-    def make_newline(cls, pos_marker, raw=None):
-        """Make a newline segment."""
-        # Default the newline to \n
-        raw = raw or "\n"
-        nls = RawSegment.make("\n", name="newline", type="newline")
-        return nls(raw=raw, pos_marker=pos_marker)
-
-    @classmethod
-    def make_keyword(cls, raw, pos_marker):
-        """Make a keyword segment."""
-        # For the name of the segment, we force the string to lowercase.
-        kws = KeywordSegment.make(raw.lower())
-        # At the moment we let the rule dictate *case* here.
-        return kws(raw=raw, pos_marker=pos_marker)
-
-    @classmethod
-    def make_symbol(cls, raw, pos_marker, seg_type, name=None):
-        """Make a symbol segment."""
-        # For the name of the segment, we force the string to lowercase.
-        symbol_seg = SymbolSegment.make(
-            raw.lower(), name=name or seg_type, type=seg_type
-        )
-        # At the moment we let the rule dictate *case* here.
-        return symbol_seg(raw=raw, pos_marker=pos_marker)
+    @staticmethod
+    def matches_target_tuples(seg: BaseSegment, target_tuples: List[Tuple[str, str]]):
+        """Does the given segment match any of the given type tuples."""
+        if seg.name in [elem[1] for elem in target_tuples if elem[0] == "name"]:
+            return True
+        elif seg.is_type(*[elem[1] for elem in target_tuples if elem[0] == "type"]):
+            return True
+        return False
 
 
 class RuleSet:
@@ -567,7 +561,7 @@ class RuleSet:
         # Make sure we actually return the original class
         return cls
 
-    def get_rulelist(self, config):
+    def get_rulelist(self, config) -> List[BaseRule]:
         """Use the config to return the appropriate rules.
 
         We use the config both for whitelisting and blacklisting, but also

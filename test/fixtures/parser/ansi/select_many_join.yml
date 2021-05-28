@@ -58,11 +58,13 @@ file:
             from_expression_element:
               table_expression:
                 function:
-                  function_name: g
-                  start_bracket: (
-                  expression:
-                    literal: "'blah'"
-                  end_bracket: )
+                  function_name:
+                    function_name_identifier: g
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      literal: "'blah'"
+                    end_bracket: )
               alias_expression:
                 keyword: as
                 identifier: tbl_func

@@ -8,59 +8,60 @@ file:
         keyword: FROM
         from_expression_element:
           table_expression:
-            start_bracket: (
-            select_statement:
-              select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                  column_reference:
-                    identifier: a
-              - comma: ','
-              - select_clause_element:
-                  column_reference:
-                    identifier: b
-              - comma: ','
-              - select_clause_element:
-                  column_reference:
-                    identifier: c
-              - comma: ','
-              - select_clause_element:
-                  column_reference:
-                    identifier: d
-              from_clause:
-                keyword: FROM
-                from_expression:
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                        identifier: t_b
-                  join_clause:
-                  - keyword: INNER
-                  - keyword: JOIN
-                  - from_expression_element:
+            bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                    column_reference:
+                      identifier: a
+                - comma: ','
+                - select_clause_element:
+                    column_reference:
+                      identifier: b
+                - comma: ','
+                - select_clause_element:
+                    column_reference:
+                      identifier: c
+                - comma: ','
+                - select_clause_element:
+                    column_reference:
+                      identifier: d
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
                       table_expression:
                         table_reference:
-                          identifier: t_c
-                  - join_on_condition:
-                      keyword: 'ON'
-                      expression:
-                      - column_reference:
-                        - identifier: t_b
-                        - dot: .
-                        - identifier: d
-                      - comparison_operator: '='
-                      - column_reference:
-                        - identifier: t_c
-                        - dot: .
-                        - identifier: d
-              where_clause:
-                keyword: WHERE
-                expression:
-                  column_reference:
-                    identifier: b
-                  comparison_operator: '='
-                  literal: "'F'"
-            end_bracket: )
+                          identifier: t_b
+                    join_clause:
+                    - keyword: INNER
+                    - keyword: JOIN
+                    - from_expression_element:
+                        table_expression:
+                          table_reference:
+                            identifier: t_c
+                    - join_on_condition:
+                        keyword: 'ON'
+                        expression:
+                        - column_reference:
+                          - identifier: t_b
+                          - dot: .
+                          - identifier: d
+                        - comparison_operator: '='
+                        - column_reference:
+                          - identifier: t_c
+                          - dot: .
+                          - identifier: d
+                where_clause:
+                  keyword: WHERE
+                  expression:
+                    column_reference:
+                      identifier: b
+                    comparison_operator: '='
+                    literal: "'F'"
+              end_bracket: )
           alias_expression:
             keyword: AS
             identifier: t_d

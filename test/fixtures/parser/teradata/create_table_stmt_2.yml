@@ -6,114 +6,120 @@ file:
     - keyword: TABLE
     - table_reference:
         identifier: TABLE_2
-    - start_bracket: (
-    - column_definition:
-      - column_reference:
-          identifier: CHAR_FIELD
-      - td_internal_data_type:
-          data_type_identifier: CHAR
-          start_bracket: (
-          expression:
-            literal: '19'
-          end_bracket: )
-      - td_column_attribute_constraint:
-        - keyword: CHARACTER
-        - keyword: SET
-        - identifier: LATIN
-      - td_column_attribute_constraint:
-        - keyword: NOT
-        - keyword: CASESPECIFIC
-      - column_constraint:
-        - keyword: NOT
-        - keyword: 'NULL'
-    - comma: ','
-    - column_definition:
-        column_reference:
-          identifier: DATE_FIELD
-        td_internal_data_type:
-          data_type_identifier: DATE
-          keyword: FORMAT
-          literal: "'YYYY-MM-DD'"
-        column_constraint:
-        - keyword: NOT
-        - keyword: 'NULL'
-    - comma: ','
-    - column_definition:
-        column_reference:
-          identifier: BYTE_FIELD
-        td_internal_data_type:
-          data_type_identifier: BYTEINT
-        td_column_attribute_constraint:
-          keyword: COMPRESS
-          literal: '0'
-    - comma: ','
-    - column_definition:
-        column_reference:
-          identifier: DECIMAL_FIELD
-        td_internal_data_type:
-        - data_type_identifier: DECIMAL
-        - start_bracket: (
-        - expression:
-            literal: '15'
-        - comma: ','
-        - expression:
-            literal: '2'
-        - end_bracket: )
-        td_column_attribute_constraint:
-        - keyword: COMPRESS
-        - start_bracket: (
-        - literal: '50.00'
-        - comma: ','
-        - literal: '45.50'
-        - comma: ','
-        - literal: '40.00'
-        - comma: ','
-        - literal: '30.00'
-        - comma: ','
-        - literal: '27.80'
-        - comma: ','
-        - literal: '27.05'
-        - comma: ','
-        - literal: '20.00'
-        - comma: ','
-        - literal: '17.87'
-        - comma: ','
-        - literal: '17.56'
-        - comma: ','
-        - literal: '17.41'
-        - comma: ','
-        - literal: '17.26'
-        - comma: ','
-        - literal: '17.11'
-        - comma: ','
-        - literal: '16.96'
-        - comma: ','
-        - literal: '16.82'
-        - comma: ','
-        - literal: '16.68'
-        - end_bracket: )
-    - comma: ','
-    - column_definition:
-        column_reference:
-          identifier: TIMESTAMP_FIELD
-        td_internal_data_type:
-          data_type_identifier: TIMESTAMP
-          start_bracket: (
-          expression:
-            literal: '6'
-          end_bracket: )
-        column_constraint:
-        - keyword: NOT
-        - keyword: 'NULL'
-    - end_bracket: )
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - column_reference:
+            identifier: CHAR_FIELD
+        - td_internal_data_type:
+            data_type_identifier: CHAR
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '19'
+              end_bracket: )
+        - td_column_attribute_constraint:
+          - keyword: CHARACTER
+          - keyword: SET
+          - identifier: LATIN
+        - td_column_attribute_constraint:
+          - keyword: NOT
+          - keyword: CASESPECIFIC
+        - column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+          column_reference:
+            identifier: DATE_FIELD
+          td_internal_data_type:
+            data_type_identifier: DATE
+            keyword: FORMAT
+            literal: "'YYYY-MM-DD'"
+          column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+          column_reference:
+            identifier: BYTE_FIELD
+          td_internal_data_type:
+            data_type_identifier: BYTEINT
+          td_column_attribute_constraint:
+            keyword: COMPRESS
+            literal: '0'
+      - comma: ','
+      - column_definition:
+          column_reference:
+            identifier: DECIMAL_FIELD
+          td_internal_data_type:
+            data_type_identifier: DECIMAL
+            bracketed:
+            - start_bracket: (
+            - expression:
+                literal: '15'
+            - comma: ','
+            - expression:
+                literal: '2'
+            - end_bracket: )
+          td_column_attribute_constraint:
+            keyword: COMPRESS
+            bracketed:
+            - start_bracket: (
+            - literal: '50.00'
+            - comma: ','
+            - literal: '45.50'
+            - comma: ','
+            - literal: '40.00'
+            - comma: ','
+            - literal: '30.00'
+            - comma: ','
+            - literal: '27.80'
+            - comma: ','
+            - literal: '27.05'
+            - comma: ','
+            - literal: '20.00'
+            - comma: ','
+            - literal: '17.87'
+            - comma: ','
+            - literal: '17.56'
+            - comma: ','
+            - literal: '17.41'
+            - comma: ','
+            - literal: '17.26'
+            - comma: ','
+            - literal: '17.11'
+            - comma: ','
+            - literal: '16.96'
+            - comma: ','
+            - literal: '16.82'
+            - comma: ','
+            - literal: '16.68'
+            - end_bracket: )
+      - comma: ','
+      - column_definition:
+          column_reference:
+            identifier: TIMESTAMP_FIELD
+          td_internal_data_type:
+            data_type_identifier: TIMESTAMP
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '6'
+              end_bracket: )
+          column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - end_bracket: )
     - td_table_constraint:
       - keyword: PRIMARY
       - keyword: INDEX
-      - start_bracket: (
-      - identifier: CHAR_FIELD
-      - comma: ','
-      - identifier: DATE_FIELD
-      - comma: ','
-      - identifier: BYTE_FIELD
-      - end_bracket: )
+      - bracketed:
+        - start_bracket: (
+        - identifier: CHAR_FIELD
+        - comma: ','
+        - identifier: DATE_FIELD
+        - comma: ','
+        - identifier: BYTE_FIELD
+        - end_bracket: )
   statement_terminator: ;

@@ -19,13 +19,43 @@ any vales read from earlier files.
 - :code:`tox.ini`
 - :code:`pep8.ini`
 - :code:`.sqlfluff`
+- :code:`pyproject.toml`
 
-Within these files, they will be read like an `cfg file`_, and *SQLFluff*
-will look for sections which start with *SQLFluff*, and where subsections
-are delimited by a semicolon. For example the *jinjacontext* section will
-be indicated in the section started with *[sqlfluff:jinjacontext]*.
+Within these files, the first four will be read like an `cfg file`_, and
+*SQLFluff* will look for sections which start with *SQLFluff*, and where
+subsections are delimited by a semicolon. For example the *jinjacontext*
+section will be indicated in the section started with
+*[sqlfluff:jinjacontext]*.
+
+For the `pyproject.toml file`_, all valid sections start with `tool.sqlfluff`
+and subsections are delimited by a dot. For example the *jinjacontext* section
+will be indicated in the section started with *[tool.sqlfluff.jinjacontext]*.
+
+For example
+
+.. code-block:: toml
+
+    [tool.sqlfluff.core]
+    templater = "jinja"
+    sql_file_exts = [
+        ".sql",
+        ".sql.j2",
+        ".dml",
+        ".ddl",
+    ]
+
+    [tool.sqlfluff.indentation]
+    indented_joins = false
+    template_blocks_indent = false
+
+    [tool.sqlfluff.templater]
+    unwrap_wrapped_queries = true
+
+    [tool.sqlfluff.templater.jinja]
+    apply_dbt_builtins = true
 
 .. _`cfg file`: https://docs.python.org/3/library/configparser.html
+.. _`pyproject.toml file`: https://www.python.org/dev/peps/pep-0518/
 
 Nesting
 -------
@@ -44,7 +74,7 @@ steps overriding those from earlier:
    :ref:`defaultconfig` section.
 1. It will look in the user's os-specific app config directory. On OSX this is
    `~/Library/Preferences/sqlfluff`, Unix is `~/.config/sqlfluff`, Windows is
-   `<home>\AppData\Local\sqlfluff\sqlfluff`, for any of the filenames
+   `<home>\\AppData\\Local\\sqlfluff\\sqlfluff`, for any of the filenames
    above in the main :ref:`config` section. If multiple are present, they will
    *patch*/*override* each other in the order above.
 2. It will look for the same files in the user's home directory (~).
@@ -307,8 +337,6 @@ In *.sqlfluff*:
 
     [sqlfluff]
     templater = dbt
-    # dbt templating does not keep trailing new lines (L009)
-    exclude_rules = L009
 
 In *.sqlfluffignore*:
 
@@ -337,12 +365,12 @@ CLI Arguments
 -------------
 
 You already know you can pass arguments (:code:`--verbose`,
-:code:`--exclude_rules`, etc.) through the CLI commands (:code:`lint`,
+:code:`--exclude-rules`, etc.) through the CLI commands (:code:`lint`,
 :code:`fix`, etc.):
 
 .. code-block:: console
 
-    $ sqfluff lint my_code.sql -v -exclude_rules L022,L027
+    $ sqlfluff lint my_code.sql -v --exclude-rules L022,L027
 
 You might have arguments that you pass through every time, e.g rules you
 *always* want to ignore. These can also be configured:
@@ -382,15 +410,39 @@ be ignored by quoting their code or the category.
 
 .. _`flake8's ignore`: https://flake8.pycqa.org/en/3.1.1/user/ignoring-errors.html#in-line-ignoring-errors
 
+Ignoring line ranges
+^^^^^^^^^^^^^^^^^^^^
+
+Similar to `pylint's "pylint" directive"`_, ranges of lines can be ignored by
+adding :code:`-- noqa:disable=<rule>[,...] | all` to the line. Following this
+directive, specified rules (or all rules, if "all" was specified) will be
+ignored until a corresponding `-- noqa:enable=<rule>[,...] | all` directive.
+
+.. code-block:: sql
+
+    -- Ignore rule L012 from this line forward
+    SELECT col_a a FROM foo --noqa: disable=L012
+
+    -- Ignore all rules from this line forward
+    SELECT col_a a FROM foo --noqa: disable=all
+
+    -- Enforce all rules from this line forward
+    SELECT col_a a FROM foo --noqa: enable=all
+
+
+.. _`pylint's "pylint" directive"`: http://pylint.pycqa.org/en/latest/user_guide/message-control.html
+
+.. _sqlfluffignore:
+
 .sqlfluffignore
 ^^^^^^^^^^^^^^^
 
 Similar to `Git's`_ :code:`.gitignore` and `Docker's`_ :code:`.dockerignore`,
-SQLFluff supports a :code:`.sqfluffignore` file to control which files are and
+SQLFluff supports a :code:`.sqlfluffignore` file to control which files are and
 aren't linted. Under the hood we use the python `pathspec library`_ which also
 has a brief tutorial in their documentation.
 
-An example of a potential :code:`.sqfluffignore` placed in the root of your
+An example of a potential :code:`.sqlfluffignore` placed in the root of your
 project would be:
 
 .. code-block:: cfg

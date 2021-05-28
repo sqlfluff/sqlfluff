@@ -1,6 +1,7 @@
 """Tests for simple use cases of the public api."""
 
 import io
+import pytest
 
 import sqlfluff
 from sqlfluff.core.linter import ParsedString
@@ -121,7 +122,14 @@ def test__api__fix_string():
     # Check return types.
     assert isinstance(result, str)
     # Check actual result
-    assert result == "SELECT\n    *, 1, blah AS foo FROM mytable\n"
+    assert (
+        result
+        == """SELECT
+    *,
+    1,
+    blah AS foo FROM mytable
+"""
+    )
 
 
 def test__api__fix_string_specific():
@@ -149,3 +157,22 @@ def test__api__parse_string():
         tbl_ref.raw for tbl_ref in parsed.tree.recursive_crawl("table_reference")
     ]
     assert tbl_refs == ["myTable"]
+
+
+def test__api__parse_fail():
+    """Basic failure mode of parse functionality."""
+    try:
+        sqlfluff.parse("Select (1 + 2 +++) FROM mytable as blah blah")
+        pytest.fail("sqlfluff.parse should have raised an exception.")
+    except Exception as err:
+        # Check it's the right kind of exception
+        assert isinstance(err, sqlfluff.api.APIParsingError)
+        # Check there are two violations in there.
+        assert len(err.violations) == 2
+        # Check it prints nicely.
+        assert (
+            str(err)
+            == """Found 2 issues while parsing string.
+Line 1, Position 14: Found unparsable section: ' +++'
+Line 1, Position 41: Found unparsable section: 'blah'"""
+        )

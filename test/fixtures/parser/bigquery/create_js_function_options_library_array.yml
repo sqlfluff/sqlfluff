@@ -4,20 +4,22 @@ file:
     - keyword: CREATE
     - keyword: TEMP
     - keyword: FUNCTION
-    - function_name: parseTopSellers
+    - function_name:
+        function_name_identifier: parseTopSellers
     - base:
-        start_bracket: (
-        parameter: arr_str
-        data_type:
-          data_type_identifier: STRING
-        end_bracket: )
+        bracketed:
+          start_bracket: (
+          parameter: arr_str
+          data_type:
+            data_type_identifier: STRING
+          end_bracket: )
     - keyword: RETURNS
     - data_type:
-      - keyword: ARRAY
-      - comparison_operator: <
-      - data_type:
+        keyword: ARRAY
+        start_angle_bracket: <
+        data_type:
         - keyword: STRUCT
-        - comparison_operator: <
+        - start_angle_bracket: <
         - parameter: product_id
         - data_type:
             data_type_identifier: INT64
@@ -25,20 +27,21 @@ file:
         - parameter: rating
         - data_type:
             data_type_identifier: FLOAT64
-        - comparison_operator: '>'
-      - comparison_operator: '>'
+        - end_angle_bracket: '>'
+        end_angle_bracket: '>'
     - base:
       - keyword: LANGUAGE
       - parameter: js
       - keyword: OPTIONS
-      - start_bracket: (
-      - parameter: library
-      - comparison_operator: '='
-      - start_square_bracket: '['
-      - raw: '"gs://my-bucket/path/to/lib1.js"'
-      - comma: ','
-      - raw: '"gs://my-bucket/path/to/lib2.js"'
-      - end_square_bracket: ']'
-      - end_bracket: )
+      - bracketed:
+        - start_bracket: (
+        - parameter: library
+        - comparison_operator: '='
+        - start_square_bracket: '['
+        - raw: '"gs://my-bucket/path/to/lib1.js"'
+        - comma: ','
+        - raw: '"gs://my-bucket/path/to/lib2.js"'
+        - end_square_bracket: ']'
+        - end_bracket: )
       - keyword: AS
       - literal: "\"\"\"\n    CODE GOES HERE\n\"\"\""

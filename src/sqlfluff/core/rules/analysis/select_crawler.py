@@ -1,6 +1,6 @@
 """Tools for more complex analysis of SELECT statements."""
 from collections import defaultdict
-from typing import Dict, List, NamedTuple, Optional, Union
+from typing import Dict, Generator, List, NamedTuple, Optional, Union
 
 from cached_property import cached_property
 
@@ -52,24 +52,44 @@ class SelectCrawler:
         If we find a SELECT, return info list. Otherwise, return table name
         or function call string.
         """
+        for o in cls.crawl(segment, queries, dialect, False):
+            return o
+        assert False, "Should be unreachable"
+
+    @classmethod
+    def crawl(
+        cls,
+        segment: BaseSegment,
+        queries: Dict[str, List["SelectCrawler"]],
+        dialect: Dialect,
+        recurse_into=True,
+    ) -> Generator[Union[str, List["SelectCrawler"]], None, None]:
+        """Find SELECTs, table refs, or value table function calls in segment.
+
+        For each SELECT, yield a list of SelectCrawlers. As we find table
+        references or function call strings, yield those.
+        """
         buff = []
         for seg in segment.recursive_crawl(
-            "table_reference", "select_statement", recurse_into=False
+            "table_reference", "select_statement", recurse_into=recurse_into
         ):
             if seg is segment:
                 # If we are starting with a select_statement, recursive_crawl()
                 # returns the statement itself. Skip that.
                 continue
 
-            if seg.type == "table_reference":
+            if seg.is_type("table_reference"):
                 if not seg.is_qualified() and seg.raw in queries:
                     # It's a CTE.
-                    return queries[seg.raw]
+                    # :TRICKY: Pop the CTE from "queries" to help callers avoid
+                    # infinite recursion. We could make this behavior optional
+                    # someday, if necessary.
+                    yield queries.pop(seg.raw)
                 else:
                     # It's an external table.
-                    return seg.raw
+                    yield seg.raw
             else:
-                assert seg.type == "select_statement"
+                assert seg.is_type("select_statement")
                 buff.append(SelectCrawler(seg, dialect))
         if not buff:
             # If we reach here, the SELECT may be querying from a value table
@@ -77,8 +97,8 @@ class SelectCrawler:
             # same as an external table. Return the "table" part as a string.
             table_expr = segment.get_child("table_expression")
             if table_expr:
-                return table_expr.raw
-        return buff
+                yield table_expr.raw
+        yield buff
 
     def __init__(self, select_statement, dialect):
         self.select_statement = select_statement
@@ -120,6 +140,8 @@ class SelectCrawler:
                             seg,
                             [
                                 alias_info.ref_str
+                                if alias_info.aliased
+                                else alias_info.from_expression_element.raw
                                 for alias_info in self.select_info.table_aliases
                             ],
                         )

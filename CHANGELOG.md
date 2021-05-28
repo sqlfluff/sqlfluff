@@ -6,20 +6,107 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+Contributors:
+- [@GitHub-Username](Link to GitHub profile) ([#PR-Number](Link to PR))
+- [@bolajiwahab](https://github.com/bolajiwahab) ([#1063])(https://github.com/sqlfluff/sqlfluff/pull/1063)
+
+## [0.6.0a2] - 2021-05-27
+### Changed
+- Better exception handling for the simple parsing API (`sqlfluff.parse`)
+  which now raises an exception which holds all potential parsing issues
+  and prints nicely with more than one issue.
+- Fix bug [#1037](https://github.com/sqlfluff/sqlfluff/issues/1037), in which fix 
+  logging had been sent to stdout when reading data from stdin.
+- Add a little bit of fun on CLI exit 🎉!
+- Disabled models in the dbt templater are now skipped enitrely rather than
+  returning an untemplated file.
+- Add a changelog check to SQLFluff continuous integration.
+
+## [0.6.0a1] - 2021-05-15
+### Added
+- Lint and fix parallelism using `--parallel` CLI argument
+- Fix [1051](https://github.com/sqlfluff/sqlfluff/issues/1051), adding support
+  for bitwise operators `&`, `|`, `^`, `<<`, `>>`
+  
+## [0.5.6] - 2021-05-14
+- Bugfix release for an issue in `L016` introduced in `0.5.4`.
+- Fix for `L016` issue where `DISTINCT` keywords were mangled during
+  fixing [#1024](https://github.com/sqlfluff/sqlfluff/issues/1024).
+
+## [0.5.5] - 2021-05-13
+- Bugfix release for an off-by-one error introduced in L016 as part of `0.5.4`.
+
+## [0.5.4] - 2021-05-12
+### Added
+- Parsing of Postgres dollar quoted literals.
+- Parsing of Postgres filter grammar.
+- Parsing of "ALTER DEFAULT PRIVILEGES" Postgres statement.
+- Parsing of Postgres non-explicit role granting and function execution.
+- Early failing on fatal dbt templater fails.
+
+### Changed
+- Big rewrite of the lexer, segments and position markers for simplicity
+  and to support future parallelism work.
+- Fix to L036 which previously mangled whitespace.
+
+## [0.5.3] - 2021-05-04
+### Added
+- [`L009`](https://docs.sqlfluff.com/en/stable/rules.html#sqlfluff.core.rules.Rule_L009) can now be enforced when `templater = dbt`.
+- Parsing of `EXPLAIN`, `USE` statements.
+- Parsing of `ALTER TABLE x RENAME TO y` syntax.
+- Parsing of `ALTER SESSION` in snowflake.
+- Parsing of numeric literals with exponents.
+- Added rule codes to diff_cover output.
+
+### Changed
+- Fix `templater = dbt` L009 bug [#861](https://github.com/sqlfluff/sqlfluff/issues/861) where:
+    - `sqlfluff lint` would incorrectly always return `L009 | Files must end with a trailing newline.`
+    - `sqlfluff fix` would remove trailing newlines when `exclude_rules = L009`.
+- Fix bug with BigQuery comparison operators.
+- Fix recursion bug with L045.
+- Fix tuple index bug with L016.
+- Fix mange coalecse bug with L043.
+- Fix Jinja templating error with _UnboundLocalError_.
+- Improve array parsing.
+- Simplify bracket parsing.
+- Speed up L010 with caching capitalisation policy.
+- Output of `sqlfluff dialects` is now sorted.
+- Handle disabled `dbt` models.
+
+## [0.5.2] - 2021-04-11
+### Changed
+- Fix false positive in L045 when CTE used in WHERE clause ([#944](https://github.com/sqlfluff/sqlfluff/issues/944))
+- Logging and readout now includes more detail and a notification of dbt compilation.
+- Fix bug in L048 which flagged adjoining commas as failures.
+- Fix bug in L019 with inline comments.
+- Fix bug in L036 with multiple newlines.
+- Skip disabled dbt models. ([#931](https://github.com/sqlfluff/sqlfluff/issues/931)).
+- Support "USE" statement in ANSI ([#902](https://github.com/sqlfluff/sqlfluff/issues/902)).
+- Parse explain statement ([#893](https://github.com/sqlfluff/sqlfluff/issues/893)).
+
+## [0.5.1] - 2021-04-09
+### Changed
+- Parsing improvements around optional brackets.
+- Better parsing of set operators (like `UNION`) and how they interact with
+  `ORDER BY` clauses.
+- Support for comparison operators like `~`.
+- Fix parsing of snowflake `SAMPLE` syntax.
+- Fix recursion issues in L044.
+- `SPACE` keyword now has no special meaning in the postgres dialect.
+
+## [0.5.0] - 2021-04-05
 ### Added
 - `pascal` (PascalCase) `capitalisation_policy` option for L014 (unquoted identifiers)
-- `only_aliases` configuration option for L014 (unquoted identifers)
+- `only_aliases` configuration option for L014 (unquoted identifiers)
 - Dialects now have more advanced dependency options to allow less repetition
   between related dialects. The methods `get_segment` and `get_grammar` can be
   used on unexpanded grammars to access elements of the parent grammars.
   The `copy` method on grammars can be used to copy with alterations.
+- Rule L046 to line whitespace within jinja tags.
+- Enable and Disable syntax for [ignoring violations from ranges of lines](https://docs.sqlfluff.com/en/latest/configuration.html#ignoring-line-ranges).
 
 ### Changed
-- Add support for `ALTER USER` commands in Snowflake dialect.
-- Added describe statement to ANSI dialect
-- Renamed `capitalisation_policy` to `extended_capitalisation_policy` for L014 to reflect the fact that it now
-  accepts more options (`pascal`) than regular `capitalisation_policy` still used by L010 and others.
-- Replaced `only_aliases` config with `unquoted_identifiers_policy` and added it to rule L014 in addition to L029.
 - Renamed the BaseCrawler class to BaseRule. This is the base class for all
   rules. This is a breaking change for any custom rules that have been added
   via plugins or by forking the SQLFluff repo.
@@ -32,6 +119,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   only imported as needed at runtime. All dialects should now be accessed
   using the selector methods in `sqlfluff.core.dialects` rather than importing
   from `sqlfluff.dialects` directly.
+- Add support for `ALTER USER` commands in Snowflake dialect.
+- Added describe statement to ANSI dialect
+- Renamed `capitalisation_policy` to `extended_capitalisation_policy` for L014
+  to reflect the fact that it now accepts more options (`pascal`) than regular
+  `capitalisation_policy` still used by L010 and others.
+- Replaced `only_aliases` config with `unquoted_identifiers_policy` and added
+  it to rule L014 in addition to L029.
+- Parse structure of `FROM` clauses to better represent nested joins and table
+  functions.
+- Parse structure of expressions to avoid unnecessary nesting and overly
+  recursive method calls.
 
 ## [0.4.1] - 2021-02-25
 ### Added
@@ -70,7 +168,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   related to `dbt`). For more info see [the docs](https://docs.sqlfluff.com/en/latest/configuration.html#dbt-project-configuration). ([#508](https://github.com/sqlfluff/sqlfluff/pull/508))
 - Support for modulo (`%`) operator. ([#447](https://github.com/sqlfluff/sqlfluff/pull/447))
 - A limit in the internal fix routines to catch any infinite loops. ([#494](https://github.com/sqlfluff/sqlfluff/pull/494))
-- Added the `.istype()` method on segments to more intelligently
+- Added the `.is_type()` method on segments to more intelligently
   deal with type matching in rules when inheritance is at play.
 - Added the ability for the user to add their own rules when interacting
   with the `Linter` directly using `user_rules`.
@@ -163,7 +261,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the `FileSegment` has been moved from the core parser directly into
   the dialects. Users can refer to it via the `get_root_segment()`
   method of a dialect. ([#510](https://github.com/sqlfluff/sqlfluff/pull/510))
-- Several perfomance improvements through removing unused functionality,
+- Several performance improvements through removing unused functionality,
   sensible caching and optimising loops within functions. ([#526](https://github.com/sqlfluff/sqlfluff/pull/526))
 - Split up rule tests into separate `yml` files. ([#553](https://github.com/sqlfluff/sqlfluff/pull/553))
 - Allow escaped quotes in strings. ([#557](https://github.com/sqlfluff/sqlfluff/pull/557))
@@ -442,7 +540,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix a config file bug if no root config file was present for some
   values. Thanks [@barrywhart](https://github.com/barrywhart).
 - Lexing rules are now part of the dialect rather than a
-  global so that they can be overriden by other dialects
+  global so that they can be overridden by other dialects
   when we get to that stage.
 
 ## [0.2.0] - 2019-12-01
@@ -459,7 +557,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     Assisted by [@barrywhart](https://github.com/barrywhart).
 - Documentation LINTING (given we're a linting project) introduced in CI.
 - Reimplemented L006 & L007 which lint whitespace around operators.
-- Ability to configure rule behaviour direclty from the config file.
+- Ability to configure rule behaviour directly from the config file.
 - Implemented L010 to lint capitalisation of keywords.
 - Allow casting in the parser using the `::` operator.
 - Implemented `GROUP BY`and `LIMIT`.
@@ -575,7 +673,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Old rules removed and re implemented so we now have parity with the old rule sets.
 - Moved to using Ref mostly within the core grammar so that we can have recursion.
 - Used recursion to do a first implementation of arithmetic parsing. Including a test for it.
-- Moved the main grammar into a seperate dialect and renamed source and test files accordingly.
+- Moved the main grammar into a separate dialect and renamed source and test files accordingly.
 - Moved to file-based tests for the ansi dialect to make it easier to test using the tool directly.
 - As part of file tests - expected outcomes are now encoded in yaml to make it easier to write new tests.
 - Vastly improved readability and debugging potential of the _match logging.

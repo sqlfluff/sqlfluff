@@ -8,6 +8,7 @@ from sqlfluff.core.parser import (
     Lexer,
     BaseSegment,
     RawSegment,
+    StringParser,
 )
 from sqlfluff.core.parser.context import RootParseContext
 from sqlfluff.core.parser.match_result import MatchResult
@@ -29,11 +30,18 @@ def lex(raw, config):
 def validate_segment(segmentref, config):
     """Get and validate segment for tests below."""
     Seg = config.get("dialect_obj").ref(segmentref)
-    if not issubclass(Seg, BaseSegment):
-        raise TypeError(
-            "{0} is not of type Segment. Test is invalid.".format(segmentref)
+    if isinstance(Seg, StringParser):
+        return Seg
+    try:
+        if issubclass(Seg, BaseSegment):
+            return Seg
+    except TypeError:
+        pass
+    raise TypeError(
+        "{0} is not of type Segment or StringParser. Test is invalid.".format(
+            segmentref
         )
-    return Seg
+    )
 
 
 def _dialect_specific_segment_parses(dialect, segmentref, raw, caplog):
@@ -50,8 +58,8 @@ def _dialect_specific_segment_parses(dialect, segmentref, raw, caplog):
 
     # This test is different if we're working with RawSegment
     # derivatives or not.
-    if issubclass(Seg, RawSegment):
-        print("Raw route...")
+    if isinstance(Seg, StringParser) or issubclass(Seg, RawSegment):
+        print("Raw/Parser route...")
         with RootParseContext.from_config(config) as ctx:
             with caplog.at_level(logging.DEBUG):
                 parsed = Seg.match(segments=seg_list, parse_context=ctx)

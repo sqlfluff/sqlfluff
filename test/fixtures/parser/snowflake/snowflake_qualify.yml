@@ -21,24 +21,27 @@ file:
         keyword: qualify
         expression:
           function:
-            function_name: row_number
-            start_bracket: (
-            end_bracket: )
+            function_name:
+              function_name_identifier: row_number
+            bracketed:
+              start_bracket: (
+              end_bracket: )
             over_clause:
               keyword: over
-              start_bracket: (
-              window_specification:
-                partitionby_clause:
-                - keyword: partition
-                - keyword: by
-                - expression:
-                    column_reference:
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: partition
+                  - keyword: by
+                  - expression:
+                      column_reference:
+                        identifier: col1
+                  orderby_clause:
+                  - keyword: order
+                  - keyword: by
+                  - column_reference:
                       identifier: col1
-                orderby_clause:
-                - keyword: order
-                - keyword: by
-                - column_reference:
-                    identifier: col1
-              end_bracket: )
+                end_bracket: )
           comparison_operator: '='
           literal: '1'

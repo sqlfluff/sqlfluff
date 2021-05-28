@@ -14,11 +14,12 @@ file:
         identifier: bar
     - keyword: AS
     - keyword: ENUM
-    - start_bracket: (
-    - raw: "'foo'"
-    - comma: ','
-    - raw: "'bar'"
-    - end_bracket: )
+    - bracketed:
+      - start_bracket: (
+      - raw: "'foo'"
+      - comma: ','
+      - raw: "'bar'"
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_type_statement:
@@ -28,11 +29,12 @@ file:
         identifier: foobar
     - keyword: AS
     - keyword: RANGE
-    - start_bracket: (
-    - raw: SUBTYPE
-    - raw: '='
-    - raw: FLOAT
-    - end_bracket: )
+    - bracketed:
+      - start_bracket: (
+      - raw: SUBTYPE
+      - raw: '='
+      - raw: FLOAT
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_type_statement:
@@ -41,15 +43,16 @@ file:
     - object_reference:
         identifier: barbar
     - keyword: AS
-    - start_bracket: (
-    - raw: INPUT
-    - raw: '='
-    - raw: foo
-    - comma: ','
-    - raw: OUTPUT
-    - raw: '='
-    - raw: bar
-    - end_bracket: )
+    - bracketed:
+      - start_bracket: (
+      - raw: INPUT
+      - raw: '='
+      - raw: foo
+      - comma: ','
+      - raw: OUTPUT
+      - raw: '='
+      - raw: bar
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_type_statement:
@@ -58,10 +61,11 @@ file:
     - object_reference:
         identifier: foofoo
     - keyword: AS
-    - start_bracket: (
-    - raw: foo
-    - raw: varchar
-    - raw: collate
-    - raw: utf8
-    - end_bracket: )
+    - bracketed:
+      - start_bracket: (
+      - raw: foo
+      - raw: varchar
+      - raw: collate
+      - raw: utf8
+      - end_bracket: )
 - statement_terminator: ;

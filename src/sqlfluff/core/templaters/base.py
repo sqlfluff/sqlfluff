@@ -3,6 +3,7 @@
 import logging
 from typing import Dict, Iterator, List, Tuple, Optional, NamedTuple
 
+
 _templater_lookup: Dict[str, "RawTemplater"] = {}
 
 # Instantiate the templater logger
@@ -87,8 +88,8 @@ class TemplatedFile:
     def __init__(
         self,
         source_str: str,
+        fname: str,
         templated_str: Optional[str] = None,
-        fname: Optional[str] = None,
         sliced_file: Optional[List[TemplatedFileSlice]] = None,
         raw_sliced: Optional[List[RawFileSlice]] = None,
     ):
@@ -119,9 +120,17 @@ class TemplatedFile:
         self._source_newlines = list(iter_indices_of_newlines(self.source_str))
         self._templated_newlines = list(iter_indices_of_newlines(self.templated_str))
 
+    @classmethod
+    def from_string(cls, raw):
+        """Create TemplatedFile from a string."""
+        return cls(source_str=raw, fname="<string>")
+
     def __bool__(self):
         """Return true if there's a templated file."""
         return bool(self.templated_str)
+
+    def __repr__(self):
+        return "<TemplatedFile>"
 
     def __str__(self):
         """Return the templated file if coerced to string."""
@@ -137,6 +146,9 @@ class TemplatedFile:
             source: Are we checking the source file (as opposed to the
                 templated file)
 
+        Returns:
+            line_number, line_position
+
         """
         nl_idx = -1
 
@@ -148,11 +160,11 @@ class TemplatedFile:
         while nl_idx + 1 < len(ref_str) and ref_str[nl_idx + 1] < char_pos:
             nl_idx += 1
 
-        # NB: +1 because character position is 0-indexed, but the character
-        # position is 1-indexed.
         if nl_idx >= 0:
             return nl_idx + 2, char_pos - ref_str[nl_idx]
         else:
+            # NB: line_pos is char_pos+1 because character position is 0-indexed,
+            # but the line position is 1-indexed.
             return 1, char_pos + 1
 
     def _find_slice_indices_of_templated_pos(
@@ -271,8 +283,14 @@ class TemplatedFile:
                 ts_start_sf_stop, ts_stop_sf_stop
             )
         ]
-        start_slices = self.sliced_file[ts_start_sf_start:ts_start_sf_stop]
-        stop_slices = self.sliced_file[ts_stop_sf_start:ts_stop_sf_stop]
+        if ts_start_sf_start == ts_start_sf_stop:
+            start_slices = [self.sliced_file[ts_start_sf_start]]
+        else:
+            start_slices = self.sliced_file[ts_start_sf_start:ts_start_sf_stop]
+        if ts_stop_sf_start == ts_stop_sf_stop:
+            stop_slices = [self.sliced_file[ts_stop_sf_start]]
+        else:
+            stop_slices = self.sliced_file[ts_stop_sf_start:ts_stop_sf_stop]
 
         # if it's a literal segment then we can get the exact position
         # otherwise we're greedy.
@@ -365,7 +383,7 @@ class RawTemplater:
         """
 
     def process(
-        self, *, in_str: str, fname: Optional[str] = None, config=None
+        self, *, in_str: str, fname: str, config=None, formatter=None
     ) -> Tuple[Optional[TemplatedFile], list]:
         """Process a string and return a TemplatedFile.
 
@@ -383,6 +401,7 @@ class RawTemplater:
                 mostly for loading config files at runtime.
             config (:obj:`FluffConfig`): A specific config to use for this
                 templating operation. Only necessary for some templaters.
+            formatter (:obj:`CallbackFormatter`): Optional object for output.
 
         """
         return TemplatedFile(in_str, fname=fname), []
@@ -393,3 +412,7 @@ class RawTemplater:
         NB: This is useful in comparing configs.
         """
         return isinstance(other, self.__class__)
+
+    def config_pairs(self):
+        """Returns info about the given templater for output by the cli."""
+        return [("templater", self.name)]

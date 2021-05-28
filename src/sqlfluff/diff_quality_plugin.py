@@ -30,11 +30,11 @@ class SQLFluffViolationReporter(BaseViolationReporter):
         for violation in linted_path.get_violations():
             try:
                 # Normal SQLFluff warnings
-                message = violation.description
+                message = "{}: {}".format(violation.rule_code(), violation.description)
             except AttributeError:
                 # Parse errors
                 message = str(violation)
-            result.append(Violation(violation.line_no(), message))
+            result.append(Violation(violation.line_no, message))
         return result
 
 

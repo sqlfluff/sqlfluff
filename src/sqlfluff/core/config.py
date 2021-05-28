@@ -11,6 +11,8 @@ from sqlfluff.core.plugin.host import get_plugin_manager
 
 import appdirs
 
+import toml
+
 # Instantiate the templater logger
 config_logger = logging.getLogger("sqlfluff.config")
 
@@ -78,7 +80,7 @@ def nested_combine(*dicts: dict) -> dict:
     return r
 
 
-def dict_diff(left: dict, right: dict) -> dict:
+def dict_diff(left: dict, right: dict, ignore: Optional[List[str]] = None) -> dict:
     """Work out the difference between to dictionaries.
 
     Returns a dictionary which represents elements in the `left`
@@ -102,6 +104,8 @@ def dict_diff(left: dict, right: dict) -> dict:
     """
     buff: dict = {}
     for k in left:
+        if ignore and k in ignore:
+            continue
         # Is the key there at all?
         if k not in right:
             buff[k] = left[k]
@@ -110,8 +114,10 @@ def dict_diff(left: dict, right: dict) -> dict:
             continue
         # If it's not the same but both are dicts, then compare
         elif isinstance(left[k], dict) and isinstance(right[k], dict):
-            diff = dict_diff(left[k], right[k])
-            buff[k] = diff
+            diff = dict_diff(left[k], right[k], ignore=ignore)
+            # Only if the difference is not ignored it do we include it.
+            if diff:
+                buff[k] = diff
         # It's just different
         else:
             buff[k] = left[k]
@@ -139,6 +145,31 @@ class ConfigLoader:
         if not global_loader:
             global_loader = cls()
         return global_loader
+
+    @classmethod
+    def _walk_toml(cls, config: Dict[str, Any], base_key=()):
+        """Recursively walk the nested config inside a TOML file."""
+        buff: List[tuple] = []
+        for k, v in config.items():
+            key = base_key + (k,)
+            if isinstance(v, dict):
+                buff.extend(cls._walk_toml(v, key))
+            else:
+                buff.append((key, v))
+
+        return buff
+
+    @classmethod
+    def _get_config_elems_from_toml(cls, fpath: str) -> List[Tuple[tuple, Any]]:
+        """Load a config from a TOML file and return a list of tuples.
+
+        The return value is a list of tuples, were each tuple has two elements,
+        the first is a tuple of paths, the second is the value at that path.
+        """
+        config = toml.load(fpath)
+        tool = config.get("tool", {}).get("sqlfluff", {})
+
+        return cls._walk_toml(tool)
 
     @staticmethod
     def _get_config_elems_from_file(fpath: str) -> List[Tuple[tuple, Any]]:
@@ -225,7 +256,10 @@ class ConfigLoader:
 
     def load_default_config_file(self, file_dir: str, file_name: str) -> dict:
         """Load the default config file."""
-        elems = self._get_config_elems_from_file(os.path.join(file_dir, file_name))
+        if file_name == "pyproject.toml":
+            elems = self._get_config_elems_from_toml(os.path.join(file_dir, file_name))
+        else:
+            elems = self._get_config_elems_from_file(os.path.join(file_dir, file_name))
         return self._incorporate_vals({}, elems)
 
     def load_config_at_path(self, path: str) -> dict:
@@ -236,7 +270,13 @@ class ConfigLoader:
 
         # The potential filenames we would look for at this path.
         # NB: later in this list overwrites earlier
-        filename_options = ["setup.cfg", "tox.ini", "pep8.ini", ".sqlfluff"]
+        filename_options = [
+            "setup.cfg",
+            "tox.ini",
+            "pep8.ini",
+            ".sqlfluff",
+            "pyproject.toml",
+        ]
 
         configs: dict = {}
 
@@ -249,7 +289,10 @@ class ConfigLoader:
         # iterate this way round to make sure things overwrite is the right direction
         for fname in filename_options:
             if fname in d:
-                elems = self._get_config_elems_from_file(os.path.join(p, fname))
+                if fname == "pyproject.toml":
+                    elems = self._get_config_elems_from_toml(os.path.join(p, fname))
+                else:
+                    elems = self._get_config_elems_from_file(os.path.join(p, fname))
                 configs = self._incorporate_vals(configs, elems)
 
         # Store in the cache
@@ -442,7 +485,9 @@ class FluffConfig:
             or are different to the other.
 
         """
-        return dict_diff(self._configs, other._configs)
+        # We igonre some objects which are not meaningful in the comparison
+        # e.g. dialect_obj, which is generated on the fly.
+        return dict_diff(self._configs, other._configs, ignore=["dialect_obj"])
 
     def get(
         self, val: str, section: Union[str, Iterable[str]] = "core", default: Any = None
@@ -541,3 +586,11 @@ class FluffConfig:
         config_path = [elem.strip() for elem in config_line.split(":")]
         # Set the value
         self.set_value(config_path[:-1], config_path[-1])
+
+    def process_raw_file_for_config(self, raw_str: str):
+        """Process a full raw file for inline config and update self."""
+        # Scan the raw file for config commands.
+        for raw_line in raw_str.splitlines():
+            if raw_line.startswith("-- sqlfluff"):
+                # Found a in-file config command
+                self.process_inline_config(raw_line)

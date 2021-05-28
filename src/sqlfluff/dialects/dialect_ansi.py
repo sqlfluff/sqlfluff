@@ -19,8 +19,6 @@ from sqlfluff.core.parser import (
     BaseSegment,
     KeywordSegment,
     SymbolSegment,
-    ReSegment,
-    NamedSegment,
     Sequence,
     GreedyUntil,
     StartsWith,
@@ -35,10 +33,21 @@ from sqlfluff.core.parser import (
     Dedent,
     Nothing,
     OptionallyBracketed,
+    StringLexer,
+    RegexLexer,
+    CodeSegment,
+    CommentSegment,
+    WhitespaceSegment,
+    NewlineSegment,
+    StringParser,
+    NamedParser,
+    RegexParser,
+    Conditional,
 )
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo
+from sqlfluff.core.parser.segments.base import BracketedSegment
 
 from sqlfluff.dialects.ansi_keywords import (
     ansi_reserved_keywords,
@@ -49,70 +58,67 @@ from sqlfluff.dialects.ansi_keywords import (
 ansi_dialect = Dialect("ansi", root_segment_name="FileSegment")
 
 
-ansi_dialect.set_lexer_struct(
+ansi_dialect.set_lexer_matchers(
     [
-        # name, type, pattern, kwargs
-        ("whitespace", "regex", r"[\t ]+", dict(type="whitespace", is_whitespace=True)),
-        (
+        RegexLexer("whitespace", r"[\t ]+", WhitespaceSegment),
+        RegexLexer(
             "inline_comment",
-            "regex",
             r"(--|#)[^\n]*",
-            dict(is_comment=True, type="comment", trim_start=("--", "#")),
+            CommentSegment,
+            segment_kwargs={"trim_start": ("--", "#")},
         ),
-        (
+        RegexLexer(
             "block_comment",
-            "regex",
             r"\/\*([^\*]|\*(?!\/))*\*\/",
-            dict(
-                is_comment=True,
-                type="comment",
-                subdivide=dict(
-                    type="newline", name="newline", regex=r"\r\n|\n", is_whitespace=True
-                ),
-                trim_post_subdivide=dict(
-                    type="whitespace",
-                    name="whitespace",
-                    regex=r"[\t ]+",
-                    is_whitespace=True,
-                ),
+            CommentSegment,
+            subdivider=RegexLexer(
+                "newline",
+                r"\r\n|\n",
+                NewlineSegment,
+            ),
+            trim_post_subdivide=RegexLexer(
+                "whitespace",
+                r"[\t ]+",
+                WhitespaceSegment,
             ),
         ),
-        # Matches 0 or more characters surrounded by quotes that (aren't a quote or backslash) or a sequence of backslash followed by any character, aka an escaped character.
-        ("single_quote", "regex", r"'([^'\\]|\\.)*'", dict(is_code=True)),
-        ("double_quote", "regex", r'"([^"\\]|\\.)*"', dict(is_code=True)),
-        ("back_quote", "regex", r"`[^`]*`", dict(is_code=True)),
-        (
-            "numeric_literal",
-            "regex",
-            r"([0-9]+(\.[0-9]+)?)|(\.[0-9]+)",
-            dict(is_code=True),
+        RegexLexer("single_quote", r"'([^'\\]|\\.)*'", CodeSegment),
+        RegexLexer("double_quote", r'"([^"\\]|\\.)*"', CodeSegment),
+        RegexLexer("back_quote", r"`[^`]*`", CodeSegment),
+        # See https://www.geeksforgeeks.org/postgresql-dollar-quoted-string-constants/
+        RegexLexer("dollar_quote", r"\$(\w*)\$[^\1]*\$\1\$", CodeSegment),
+        RegexLexer(
+            "numeric_literal", r"(\d+(\.\d+)?|\.\d+)([eE][+-]?\d+)?", CodeSegment
         ),
-        ("not_equal", "regex", r"!=|<>", dict(is_code=True)),
-        ("greater_than_or_equal", "regex", r">=", dict(is_code=True)),
-        ("less_than_or_equal", "regex", r"<=", dict(is_code=True)),
-        ("newline", "regex", r"\r\n|\n", dict(type="newline", is_whitespace=True)),
-        ("casting_operator", "regex", r"::", dict(is_code=True)),
-        ("concat_operator", "regex", r"\|\|", dict(is_code=True)),
-        ("equals", "singleton", "=", dict(is_code=True)),
-        ("greater_than", "singleton", ">", dict(is_code=True)),
-        ("less_than", "singleton", "<", dict(is_code=True)),
-        ("dot", "singleton", ".", dict(is_code=True)),
-        ("comma", "singleton", ",", dict(is_code=True, type="comma")),
-        ("plus", "singleton", "+", dict(is_code=True)),
-        ("tilde", "singleton", "~", dict(is_code=True)),
-        ("minus", "singleton", "-", dict(is_code=True)),
-        ("divide", "singleton", "/", dict(is_code=True)),
-        ("percent", "singleton", "%", dict(is_code=True)),
-        ("star", "singleton", "*", dict(is_code=True)),
-        ("bracket_open", "singleton", "(", dict(is_code=True)),
-        ("bracket_close", "singleton", ")", dict(is_code=True)),
-        ("sq_bracket_open", "singleton", "[", dict(is_code=True)),
-        ("sq_bracket_close", "singleton", "]", dict(is_code=True)),
-        ("crly_bracket_open", "singleton", "{", dict(is_code=True)),
-        ("crly_bracket_close", "singleton", "}", dict(is_code=True)),
-        ("colon", "singleton", ":", dict(is_code=True)),
-        ("semicolon", "singleton", ";", dict(is_code=True)),
-        ("code", "regex", r"[0-9a-zA-Z_]*", dict(is_code=True)),
+        RegexLexer("not_equal", r"!=|<>", CodeSegment),
+        RegexLexer("like_operator", r"!?~~?\*?", CodeSegment),
+        StringLexer("greater_than_or_equal", ">=", CodeSegment),
+        StringLexer("less_than_or_equal", "<=", CodeSegment),
+        RegexLexer("newline", r"\r\n|\n", NewlineSegment),
+        StringLexer("casting_operator", "::", CodeSegment),
+        StringLexer("concat_operator", "||", CodeSegment),
+        StringLexer("equals", "=", CodeSegment),
+        StringLexer("greater_than", ">", CodeSegment),
+        StringLexer("less_than", "<", CodeSegment),
+        StringLexer("dot", ".", CodeSegment),
+        StringLexer("comma", ",", CodeSegment, segment_kwargs={"type": "comma"}),
+        StringLexer("plus", "+", CodeSegment),
+        StringLexer("minus", "-", CodeSegment),
+        StringLexer("divide", "/", CodeSegment),
+        StringLexer("percent", "%", CodeSegment),
+        StringLexer("ampersand", "&", CodeSegment),
+        StringLexer("vertical_bar", "|", CodeSegment),
+        StringLexer("caret", "^", CodeSegment),
+        StringLexer("star", "*", CodeSegment),
+        StringLexer("bracket_open", "(", CodeSegment),
+        StringLexer("bracket_close", ")", CodeSegment),
+        StringLexer("sq_bracket_open", "[", CodeSegment),
+        StringLexer("sq_bracket_close", "]", CodeSegment),
+        StringLexer("crly_bracket_open", "{", CodeSegment),
+        StringLexer("crly_bracket_close", "}", CodeSegment),
+        StringLexer("colon", ":", CodeSegment),
+        StringLexer("semicolon", ";", CodeSegment),
+        RegexLexer("code", r"[0-9a-zA-Z_]+", CodeSegment),
     ]
 )
 
@@ -149,12 +155,16 @@ ansi_dialect.sets("reserved_keywords").update(
 )
 
 # Bracket pairs (a set of tuples).
-# (name, startref, endref, definitely_bracket)
+# (name, startref, endref, persists)
+# NOTE: The `persists` value controls whether this type
+# of bracket is persisted during matching to speed up other
+# parts of the matching process. Round brackets are the most
+# common and match the largest areas and so are sufficient.
 ansi_dialect.sets("bracket_pairs").update(
     [
         ("round", "StartBracketSegment", "EndBracketSegment", True),
-        ("square", "StartSquareBracketSegment", "EndSquareBracketSegment", True),
-        ("curly", "StartCurlyBracketSegment", "EndCurlyBracketSegment", True),
+        ("square", "StartSquareBracketSegment", "EndSquareBracketSegment", False),
+        ("curly", "StartCurlyBracketSegment", "EndCurlyBracketSegment", False),
     ]
 )
 
@@ -171,65 +181,94 @@ ansi_dialect.sets("value_table_functions").update([])
 
 ansi_dialect.add(
     # Real segments
-    SemicolonSegment=SymbolSegment.make(
-        ";", name="semicolon", type="statement_terminator"
+    SemicolonSegment=StringParser(
+        ";", SymbolSegment, name="semicolon", type="statement_terminator"
     ),
-    ColonSegment=SymbolSegment.make(":", name="colon", type="colon"),
-    SliceSegment=SymbolSegment.make(":", name="slice", type="slice"),
-    StartBracketSegment=SymbolSegment.make(
-        "(", name="start_bracket", type="start_bracket"
+    ColonSegment=StringParser(":", SymbolSegment, name="colon", type="colon"),
+    SliceSegment=StringParser(":", SymbolSegment, name="slice", type="slice"),
+    StartBracketSegment=StringParser(
+        "(", SymbolSegment, name="start_bracket", type="start_bracket"
     ),
-    EndBracketSegment=SymbolSegment.make(")", name="end_bracket", type="end_bracket"),
-    StartSquareBracketSegment=SymbolSegment.make(
-        "[", name="start_square_bracket", type="start_square_bracket"
+    EndBracketSegment=StringParser(
+        ")", SymbolSegment, name="end_bracket", type="end_bracket"
     ),
-    EndSquareBracketSegment=SymbolSegment.make(
-        "]", name="end_square_bracket", type="end_square_bracket"
+    StartSquareBracketSegment=StringParser(
+        "[", SymbolSegment, name="start_square_bracket", type="start_square_bracket"
     ),
-    StartCurlyBracketSegment=SymbolSegment.make(
-        "{", name="start_curly_bracket", type="start_curly_bracket"
+    EndSquareBracketSegment=StringParser(
+        "]", SymbolSegment, name="end_square_bracket", type="end_square_bracket"
     ),
-    EndCurlyBracketSegment=SymbolSegment.make(
-        "}", name="end_curly_bracket", type="end_curly_bracket"
+    StartCurlyBracketSegment=StringParser(
+        "{", SymbolSegment, name="start_curly_bracket", type="start_curly_bracket"
     ),
-    CommaSegment=SymbolSegment.make(",", name="comma", type="comma"),
-    DotSegment=SymbolSegment.make(".", name="dot", type="dot"),
-    StarSegment=SymbolSegment.make("*", name="star", type="star"),
-    TildeSegment=SymbolSegment.make("~", name="tilde", type="tilde"),
-    CastOperatorSegment=SymbolSegment.make(
-        "::", name="casting_operator", type="casting_operator"
+    EndCurlyBracketSegment=StringParser(
+        "}", SymbolSegment, name="end_curly_bracket", type="end_curly_bracket"
     ),
-    PlusSegment=SymbolSegment.make("+", name="plus", type="binary_operator"),
-    MinusSegment=SymbolSegment.make("-", name="minus", type="binary_operator"),
-    PositiveSegment=SymbolSegment.make("+", name="positive", type="sign_indicator"),
-    NegativeSegment=SymbolSegment.make("-", name="negative", type="sign_indicator"),
-    DivideSegment=SymbolSegment.make("/", name="divide", type="binary_operator"),
-    MultiplySegment=SymbolSegment.make("*", name="multiply", type="binary_operator"),
-    ModuloSegment=SymbolSegment.make("%", name="modulo", type="binary_operator"),
-    ConcatSegment=SymbolSegment.make("||", name="concatenate", type="binary_operator"),
-    EqualsSegment=SymbolSegment.make("=", name="equals", type="comparison_operator"),
-    GreaterThanSegment=SymbolSegment.make(
-        ">", name="greater_than", type="comparison_operator"
+    CommaSegment=StringParser(",", SymbolSegment, name="comma", type="comma"),
+    DotSegment=StringParser(".", SymbolSegment, name="dot", type="dot"),
+    StarSegment=StringParser("*", SymbolSegment, name="star", type="star"),
+    TildeSegment=StringParser("~", SymbolSegment, name="tilde", type="tilde"),
+    CastOperatorSegment=StringParser(
+        "::", SymbolSegment, name="casting_operator", type="casting_operator"
     ),
-    LessThanSegment=SymbolSegment.make(
-        "<", name="less_than", type="comparison_operator"
+    PlusSegment=StringParser("+", SymbolSegment, name="plus", type="binary_operator"),
+    MinusSegment=StringParser("-", SymbolSegment, name="minus", type="binary_operator"),
+    PositiveSegment=StringParser(
+        "+", SymbolSegment, name="positive", type="sign_indicator"
     ),
-    GreaterThanOrEqualToSegment=SymbolSegment.make(
-        ">=", name="greater_than_equal_to", type="comparison_operator"
+    NegativeSegment=StringParser(
+        "-", SymbolSegment, name="negative", type="sign_indicator"
     ),
-    LessThanOrEqualToSegment=SymbolSegment.make(
-        "<=", name="less_than_equal_to", type="comparison_operator"
+    DivideSegment=StringParser(
+        "/", SymbolSegment, name="divide", type="binary_operator"
     ),
-    NotEqualToSegment_a=SymbolSegment.make(
-        "!=", name="not_equal_to", type="comparison_operator"
+    MultiplySegment=StringParser(
+        "*", SymbolSegment, name="multiply", type="binary_operator"
     ),
-    NotEqualToSegment_b=SymbolSegment.make(
-        "<>", name="not_equal_to", type="comparison_operator"
+    ModuloSegment=StringParser(
+        "%", SymbolSegment, name="modulo", type="binary_operator"
+    ),
+    ConcatSegment=StringParser(
+        "||", SymbolSegment, name="concatenate", type="binary_operator"
+    ),
+    BitwiseAndSegment=StringParser(
+        "&", SymbolSegment, name="binary_and", type="binary_operator"
+    ),
+    BitwiseOrSegment=StringParser(
+        "|", SymbolSegment, name="binary_or", type="binary_operator"
+    ),
+    BitwiseXorSegment=StringParser(
+        "^", SymbolSegment, name="binary_xor", type="binary_operator"
+    ),
+    EqualsSegment=StringParser(
+        "=", SymbolSegment, name="equals", type="comparison_operator"
+    ),
+    LikeOperatorSegment=NamedParser(
+        "like_operator", SymbolSegment, name="like_operator", type="comparison_operator"
+    ),
+    GreaterThanSegment=StringParser(
+        ">", SymbolSegment, name="greater_than", type="comparison_operator"
+    ),
+    LessThanSegment=StringParser(
+        "<", SymbolSegment, name="less_than", type="comparison_operator"
+    ),
+    GreaterThanOrEqualToSegment=StringParser(
+        ">=", SymbolSegment, name="greater_than_equal_to", type="comparison_operator"
+    ),
+    LessThanOrEqualToSegment=StringParser(
+        "<=", SymbolSegment, name="less_than_equal_to", type="comparison_operator"
+    ),
+    NotEqualToSegment_a=StringParser(
+        "!=", SymbolSegment, name="not_equal_to", type="comparison_operator"
+    ),
+    NotEqualToSegment_b=StringParser(
+        "<>", SymbolSegment, name="not_equal_to", type="comparison_operator"
     ),
     # The following functions can be called without parentheses per ANSI specification
     BareFunctionSegment=SegmentGenerator(
-        lambda dialect: ReSegment.make(
+        lambda dialect: RegexParser(
             r"^(" + r"|".join(dialect.sets("bare_functions")) + r")$",
+            CodeSegment,
             name="bare_function",
             type="bare_function",
         )
@@ -238,47 +277,61 @@ ansi_dialect.add(
     # also use a regex to explicitly exclude disallowed keywords.
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
-        lambda dialect: ReSegment.make(
+        lambda dialect: RegexParser(
             r"[A-Z0-9_]*[A-Z][A-Z0-9_]*",
+            CodeSegment,
             name="naked_identifier",
             type="identifier",
-            _anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
     ),
-    VersionIdentifierSegment=ReSegment.make(
-        r"[A-Z0-9_.]*", name="version", type="identifier"
+    VersionIdentifierSegment=RegexParser(
+        r"[A-Z0-9_.]*", CodeSegment, name="version", type="identifier"
     ),
-    ParameterNameSegment=ReSegment.make(
-        r"[A-Z][A-Z0-9_]*", name="parameter", type="parameter"
+    ParameterNameSegment=RegexParser(
+        r"[A-Z][A-Z0-9_]*", CodeSegment, name="parameter", type="parameter"
     ),
-    FunctionNameSegment=ReSegment.make(
-        r"[A-Z][A-Z0-9_]*", name="function_name", type="function_name"
+    FunctionNameIdentifierSegment=RegexParser(
+        r"[A-Z][A-Z0-9_]*",
+        CodeSegment,
+        name="function_name_identifier",
+        type="function_name_identifier",
     ),
     # Maybe data types should be more restrictive?
-    DatatypeIdentifierSegment=ReSegment.make(
-        r"[A-Z][A-Z0-9_]*", name="data_type_identifier", type="data_type_identifier"
+    DatatypeIdentifierSegment=RegexParser(
+        r"[A-Z][A-Z0-9_]*",
+        CodeSegment,
+        name="data_type_identifier",
+        type="data_type_identifier",
     ),
     # Ansi Intervals
     DatetimeUnitSegment=SegmentGenerator(
-        lambda dialect: ReSegment.make(
+        lambda dialect: RegexParser(
             r"^(" + r"|".join(dialect.sets("datetime_units")) + r")$",
+            CodeSegment,
             name="date_part",
             type="date_part",
         )
     ),
-    QuotedIdentifierSegment=NamedSegment.make(
-        "double_quote", name="quoted_identifier", type="identifier"
+    QuotedIdentifierSegment=NamedParser(
+        "double_quote", CodeSegment, name="quoted_identifier", type="identifier"
     ),
-    QuotedLiteralSegment=NamedSegment.make(
-        "single_quote", name="quoted_literal", type="literal"
+    QuotedLiteralSegment=NamedParser(
+        "single_quote", CodeSegment, name="quoted_literal", type="literal"
     ),
-    NumericLiteralSegment=NamedSegment.make(
-        "numeric_literal", name="numeric_literal", type="literal"
+    NumericLiteralSegment=NamedParser(
+        "numeric_literal", CodeSegment, name="numeric_literal", type="literal"
     ),
     # NullSegment is defined seperately to the keyword so we can give it a different type
-    NullLiteralSegment=KeywordSegment.make("null", name="null_literal", type="literal"),
-    TrueSegment=KeywordSegment.make("true", name="boolean_literal", type="literal"),
-    FalseSegment=KeywordSegment.make("false", name="boolean_literal", type="literal"),
+    NullLiteralSegment=StringParser(
+        "null", KeywordSegment, name="null_literal", type="literal"
+    ),
+    TrueSegment=StringParser(
+        "true", KeywordSegment, name="boolean_literal", type="literal"
+    ),
+    FalseSegment=StringParser(
+        "false", KeywordSegment, name="boolean_literal", type="literal"
+    ),
     # We use a GRAMMAR here not a Segment. Otherwise we get an unnecessary layer
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"), Ref("QuotedIdentifierSegment")
@@ -292,6 +345,11 @@ ansi_dialect.add(
         Ref("DivideSegment"),
         Ref("MultiplySegment"),
         Ref("ModuloSegment"),
+        Ref("BitwiseAndSegment"),
+        Ref("BitwiseOrSegment"),
+        Ref("BitwiseXorSegment"),
+        Ref("BitwiseLShiftSegment"),
+        Ref("BitwiseRShiftSegment"),
     ),
     StringBinaryOperatorGrammar=OneOf(Ref("ConcatSegment")),
     BooleanBinaryOperatorGrammar=OneOf(
@@ -305,6 +363,7 @@ ansi_dialect.add(
         Ref("LessThanOrEqualToSegment"),
         Ref("NotEqualToSegment_a"),
         Ref("NotEqualToSegment_b"),
+        Ref("LikeOperatorSegment"),
     ),
     # hookpoint for other dialects
     # e.g. EXASOL str to date cast with DATE '2021-01-01'
@@ -319,8 +378,8 @@ ansi_dialect.add(
         Ref("NullLiteralSegment"),
         Ref("DateTimeLiteralGrammar"),
     ),
-    AndKeywordSegment=KeywordSegment.make("and", type="binary_operator"),
-    OrKeywordSegment=KeywordSegment.make("or", type="binary_operator"),
+    AndKeywordSegment=StringParser("and", KeywordSegment, type="binary_operator"),
+    OrKeywordSegment=StringParser("or", KeywordSegment, type="binary_operator"),
     # This is a placeholder for other dialects.
     PreTableFunctionKeywordsGrammar=Nothing(),
     BinaryOperatorGrammar=OneOf(
@@ -365,6 +424,27 @@ ansi_dialect.add(
         "LIMIT", "GROUP", "ORDER", "HAVING", "QUALIFY", "WINDOW"
     ),
     PrimaryKeyGrammar=Sequence("PRIMARY", "KEY"),
+    # Odd syntax, but prevents eager parameters being confused for data types
+    FunctionParameterGrammar=OneOf(
+        Sequence(
+            Ref("ParameterNameSegment", optional=True),
+            OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
+        ),
+        OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
+    ),
+    # This is a placeholder for other dialects.
+    SimpleArrayTypeGrammar=Nothing(),
+    BaseExpressionElementGrammar=OneOf(
+        Ref("LiteralGrammar"),
+        Ref("BareFunctionSegment"),
+        Ref("FunctionSegment"),
+        Ref("IntervalExpressionSegment"),
+        Ref("ColumnReferenceSegment"),
+        Ref("ExpressionSegment"),
+    ),
+    FilterClauseGrammar=Sequence(
+        "FILTER", Bracketed(Sequence("WHERE", Ref("ExpressionSegment")))
+    ),
 )
 
 
@@ -423,9 +503,9 @@ class IntervalExpressionSegment(BaseSegment):
 class ArrayLiteralSegment(BaseSegment):
     """An array literal segment."""
 
-    type = "array_literal_type"
+    type = "array_literal"
     match_grammar = Bracketed(
-        Delimited(Ref("ExpressionSegment")),
+        Delimited(Ref("ExpressionSegment"), optional=True),
         bracket_type="square",
     )
 
@@ -472,7 +552,9 @@ class ObjectReferenceSegment(BaseSegment):
     # match grammar (don't allow whitespace)
     match_grammar: Matchable = Delimited(
         Ref("SingleIdentifierGrammar"),
-        delimiter=OneOf(Ref("DotSegment"), Sequence(Ref("DotSegment"))),
+        delimiter=OneOf(
+            Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
+        ),
         terminator=OneOf(
             "ON",
             "AS",
@@ -484,6 +566,7 @@ class ObjectReferenceSegment(BaseSegment):
             Ref("BinaryOperatorGrammar"),
             Ref("ColonSegment"),
             Ref("SemicolonSegment"),
+            BracketedSegment,
         ),
         allow_gaps=False,
     )
@@ -492,21 +575,23 @@ class ObjectReferenceSegment(BaseSegment):
         """Details about a table alias."""
 
         part: str  # Name of the part
-        segment: BaseSegment  # Segment containing the part
+        # Segment(s) comprising the part. Usuaully just one segment, but could
+        # be multiple in dialects (e.g. BigQuery) that support unusual
+        # characters in names (e.g. "-")
+        segments: List[BaseSegment]
 
     @classmethod
     def _iter_reference_parts(cls, elem) -> Generator[ObjectReferencePart, None, None]:
         """Extract the elements of a reference and yield."""
         # trim on quotes and split out any dots.
         for part in elem.raw_trimmed().split("."):
-            yield cls.ObjectReferencePart(part, elem)
+            yield cls.ObjectReferencePart(part, [elem])
 
     def iter_raw_references(self) -> Generator[ObjectReferencePart, None, None]:
         """Generate a list of reference strings and elements.
 
-        Each element is a tuple of (str, segment). If some are
-        split, then a segment may appear twice, but the substring
-        will only appear once.
+        Each reference is an ObjectReferencePart. If some are split, then a
+        segment may appear twice, but the substring will only appear once.
         """
         # Extract the references from those identifiers (because some may be quoted)
         for elem in self.recursive_crawl("identifier"):
@@ -609,14 +694,12 @@ class AliasedObjectReferenceSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
-class AliasedTableReferenceSegment(BaseSegment):
-    """A reference to a table with an `AS` clause."""
-
-    type = "table_reference"
-    match_grammar = Sequence(
-        Ref("TableReferenceSegment"), Ref("AliasExpressionSegment", optional=True)
+ansi_dialect.add(
+    # This is a hook point to allow subclassing for other dialects
+    AliasedTableReferenceGrammar=Sequence(
+        Ref("TableReferenceSegment"), Ref("AliasExpressionSegment")
     )
+)
 
 
 @ansi_dialect.segment()
@@ -673,6 +756,7 @@ ansi_dialect.add(
     # in other dialects.
     FunctionContentsExpressionGrammar=Ref("ExpressionSegment"),
     FunctionContentsGrammar=AnyNumberOf(
+        Ref("ExpressionSegment"),
         # A Cast-like function
         Sequence(Ref("ExpressionSegment"), "AS", Ref("DatatypeSegment")),
         # An extract-like or substring-like function
@@ -703,12 +787,16 @@ ansi_dialect.add(
             OneOf(Ref("QuotedLiteralSegment"), Ref("SingleIdentifierGrammar")),
         ),
     ),
-    # Optional OVER suffix for window functions.
-    # This is supported in biquery & postgres (and its derivatives)
-    # and so is included here for now.
-    PostFunctionGrammar=Sequence(
-        Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
-        Ref("OverClauseSegment"),
+    PostFunctionGrammar=OneOf(
+        # Optional OVER suffix for window functions.
+        # This is supported in biquery & postgres (and its derivatives)
+        # and so is included here for now.
+        Sequence(
+            Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
+            Ref("OverClauseSegment"),
+        ),
+        # Filter clause supported by both Postgres and SQLite
+        Ref("FilterClauseGrammar"),
     ),
 )
 
@@ -745,6 +833,28 @@ class WindowSpecificationSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class FunctionNameSegment(BaseSegment):
+    """Function name, including any prefix bits, e.g. project or schema."""
+
+    type = "function_name"
+    match_grammar = Sequence(
+        # Project name, schema identifier, etc.
+        AnyNumberOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("DotSegment"),
+            ),
+        ),
+        # Base function name
+        OneOf(
+            Ref("FunctionNameIdentifierSegment"),
+            Ref("QuotedIdentifierSegment"),
+        ),
+        allow_gaps=False,
+    )
+
+
+@ansi_dialect.segment()
 class FunctionSegment(BaseSegment):
     """A scalar or aggregate function.
 
@@ -757,12 +867,6 @@ class FunctionSegment(BaseSegment):
     type = "function"
     match_grammar = Sequence(
         Sequence(
-            Sequence(
-                # a stored function could be accessed by schema identifier
-                Ref("SingleIdentifierGrammar"),
-                Ref("DotSegment"),
-                optional=True,
-            ),
             Ref("FunctionNameSegment"),
             Bracketed(
                 Ref(
@@ -825,6 +929,8 @@ class FromExpressionElementSegment(BaseSegment):
     match_grammar = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
+        # https://cloud.google.com/bigquery/docs/reference/standard-sql/arrays#flattening_arrays
+        Sequence("WITH", "OFFSET", optional=True),
         Ref("AliasExpressionSegment", optional=True),
         Ref("PostTableExpressionGrammar", optional=True),
     )
@@ -839,7 +945,10 @@ class FromExpressionElementSegment(BaseSegment):
 
         """
         alias_expression = self.get_child("alias_expression")
-        ref = self.get_child("table_expression").get_child("object_reference")
+        tbl_expression = self.get_child("table_expression")
+        if not tbl_expression:
+            tbl_expression = self.get_child("bracketed").get_child("table_expression")
+        ref = tbl_expression.get_child("object_reference")
         if alias_expression:
             # If it has an alias, return that
             segment = alias_expression.get_child("identifier")
@@ -848,11 +957,17 @@ class FromExpressionElementSegment(BaseSegment):
         # If not return the object name (or None if there isn't one)
         # ref = self.get_child("object_reference")
         if ref:
-            # Return the last element of the reference, which
-            # will already be a tuple.
-            penultimate_ref = list(ref.iter_raw_references())[-1]
+            # Return the last element of the reference.
+            penultimate_ref: ObjectReferenceSegment.ObjectReferencePart = list(
+                ref.iter_raw_references()
+            )[-1]
             return AliasInfo(
-                penultimate_ref[0], penultimate_ref[1], False, self, None, ref
+                penultimate_ref.part,
+                penultimate_ref.segments[0],
+                False,
+                self,
+                None,
+                ref,
             )
         # No references or alias, return None
         return None
@@ -870,11 +985,11 @@ class FromExpressionSegment(BaseSegment):
             Ref("MLTableExpressionSegment"),
             Ref("FromExpressionElementSegment"),
         ),
-        Dedent.when(indented_joins=False),
+        Conditional(Dedent, indented_joins=False),
         AnyNumberOf(
             Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar"), optional=True
         ),
-        Dedent.when(indented_joins=True),
+        Conditional(Dedent, indented_joins=True),
     )
 
 
@@ -947,6 +1062,8 @@ class SelectClauseElementSegment(BaseSegment):
     # Important to split elements before parsing, otherwise debugging is really hard.
     match_grammar = GreedyUntil(
         "FROM",
+        "WHERE",
+        "ORDER",
         "LIMIT",
         Ref("CommaSegment"),
         Ref("SetOperatorSegment"),
@@ -957,14 +1074,7 @@ class SelectClauseElementSegment(BaseSegment):
         # *, blah.*, blah.blah.*, etc.
         Ref("WildcardExpressionSegment"),
         Sequence(
-            OneOf(
-                Ref("LiteralGrammar"),
-                Ref("BareFunctionSegment"),
-                Ref("FunctionSegment"),
-                Ref("IntervalExpressionSegment"),
-                Ref("ColumnReferenceSegment"),
-                Ref("ExpressionSegment"),
-            ),
+            Ref("BaseExpressionElementGrammar"),
             Ref("AliasExpressionSegment", optional=True),
         ),
     )
@@ -990,6 +1100,8 @@ class SelectClauseSegment(BaseSegment):
         Sequence("SELECT", Ref("WildcardExpressionSegment", optional=True)),
         terminator=OneOf(
             "FROM",
+            "WHERE",
+            "ORDER",
             "LIMIT",
             Ref("SetOperatorSegment"),
         ),
@@ -1327,7 +1439,9 @@ ansi_dialect.add(
             Ref("LiteralGrammar"),
             Ref("IntervalExpressionSegment"),
             Ref("ColumnReferenceSegment"),
-            Ref("ArrayLiteralSegment"),
+            Sequence(
+                Ref("SimpleArrayTypeGrammar", optional=True), Ref("ArrayLiteralSegment")
+            ),
         ),
         Ref("Accessor_Grammar", optional=True),
         Ref("ShorthandCastSegment", optional=True),
@@ -1335,6 +1449,26 @@ ansi_dialect.add(
     ),
     Accessor_Grammar=AnyNumberOf(Ref("ArrayAccessorSegment")),
 )
+
+
+@ansi_dialect.segment()
+class BitwiseLShiftSegment(BaseSegment):
+    """Bitwise left-shift operator."""
+
+    type = "binary_operator"
+    match_grammar = Sequence(
+        Ref("LessThanSegment"), Ref("LessThanSegment"), allow_gaps=False
+    )
+
+
+@ansi_dialect.segment()
+class BitwiseRShiftSegment(BaseSegment):
+    """Bitwise right-shift operator."""
+
+    type = "binary_operator"
+    match_grammar = Sequence(
+        Ref("GreaterThanSegment"), Ref("GreaterThanSegment"), allow_gaps=False
+    )
 
 
 @ansi_dialect.segment()
@@ -1535,6 +1669,46 @@ class ValuesClauseSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class UnorderedSelectStatementSegment(BaseSegment):
+    """A `SELECT` statement without any ORDER clauses or later.
+
+    This is designed for use in the context of set operations,
+    for other use cases, we should use the main
+    SelectStatementSegment.
+    """
+
+    type = "select_statement"
+    # match grammar. This one makes sense in the context of knowing that it's
+    # definitely a statement, we just don't know what type yet.
+    match_grammar = StartsWith(
+        # NB: In bigquery, the select clause may include an EXCEPT, which
+        # will also match the set operator, but by starting with the whole
+        # select clause rather than just the SELECT keyword, we mitigate that
+        # here.
+        Ref("SelectClauseSegment"),
+        terminator=OneOf(
+            Ref("SetOperatorSegment"),
+            Ref("WithNoSchemaBindingClauseSegment"),
+            Ref("OrderByClauseSegment"),
+            Ref("LimitClauseSegment"),
+            Ref("NamedWindowSegment"),
+        ),
+        enforce_whitespace_preceeding_terminator=True,
+    )
+
+    parse_grammar = Sequence(
+        Ref("SelectClauseSegment"),
+        # Dedent for the indent in the select clause.
+        # It's here so that it can come AFTER any whitespace.
+        Dedent,
+        Ref("FromClauseSegment", optional=True),
+        Ref("WhereClauseSegment", optional=True),
+        Ref("GroupByClauseSegment", optional=True),
+        Ref("HavingClauseSegment", optional=True),
+    )
+
+
+@ansi_dialect.segment()
 class SelectStatementSegment(BaseSegment):
     """A `SELECT` statement."""
 
@@ -1553,18 +1727,13 @@ class SelectStatementSegment(BaseSegment):
         enforce_whitespace_preceeding_terminator=True,
     )
 
-    parse_grammar = Sequence(
-        Ref("SelectClauseSegment"),
-        # Dedent for the indent in the select clause.
-        # It's here so that it can come AFTER any whitespace.
-        Dedent,
-        Ref("FromClauseSegment", optional=True),
-        Ref("WhereClauseSegment", optional=True),
-        Ref("GroupByClauseSegment", optional=True),
-        Ref("HavingClauseSegment", optional=True),
-        Ref("OrderByClauseSegment", optional=True),
-        Ref("LimitClauseSegment", optional=True),
-        Ref("NamedWindowSegment", optional=True),
+    # Inherit most of the parse grammar from the original.
+    parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(
+        insert=[
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("LimitClauseSegment", optional=True),
+            Ref("NamedWindowSegment", optional=True),
+        ]
     )
 
 
@@ -1575,12 +1744,17 @@ ansi_dialect.add(
     ),
     # Things that behave like select statements, which can form part of with expressions.
     NonWithSelectableGrammar=OneOf(
-        Ref("SetExpressionSegment"), Ref("NonSetSelectableGrammar")
+        Ref("SetExpressionSegment"),
+        OptionallyBracketed(Ref("SelectStatementSegment")),
+        Ref("NonSetSelectableGrammar"),
     ),
     # Things that behave like select statements, which can form part of set expressions.
     NonSetSelectableGrammar=OneOf(
-        Ref("SelectStatementSegment"),
         Ref("ValuesClauseSegment"),
+        Ref("UnorderedSelectStatementSegment"),
+        # If it's bracketed, we can have the full select statment here,
+        # otherwise we can't because any order by clauses should belong
+        # to the set expression.
         Bracketed(Ref("SelectStatementSegment")),
     ),
 )
@@ -1629,6 +1803,7 @@ class WithCompoundStatementSegment(BaseSegment):
     match_grammar = StartsWith("WITH")
     parse_grammar = Sequence(
         "WITH",
+        Ref.keyword("RECURSIVE", optional=True),
         Delimited(
             Ref("CTEDefinitionSegment"),
             terminator=Ref.keyword("SELECT"),
@@ -1666,6 +1841,9 @@ class SetExpressionSegment(BaseSegment):
             ),
             min_times=1,
         ),
+        Ref("OrderByClauseSegment", optional=True),
+        Ref("LimitClauseSegment", optional=True),
+        Ref("NamedWindowSegment", optional=True),
     )
 
 
@@ -1687,23 +1865,20 @@ class InsertStatementSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class TransactionStatementSegment(BaseSegment):
-    """A `COMMIT` or `ROLLBACK` statement."""
+    """A `COMMIT`, `ROLLBACK` or `TRANSACTION` statement."""
 
     type = "transaction_statement"
-    match_grammar = OneOf(
+    match_grammar = Sequence(
         # COMMIT [ WORK ] [ AND [ NO ] CHAIN ]
-        Sequence(
-            "COMMIT",
-            Ref.keyword("WORK", optional=True),
-            Sequence("AND", Ref.keyword("NO", optional=True), "CHAIN", optional=True),
-        ),
-        # NOTE: "TO SAVEPOINT" is not yet supported
         # ROLLBACK [ WORK ] [ AND [ NO ] CHAIN ]
-        Sequence(
-            "ROLLBACK",
-            Ref.keyword("WORK", optional=True),
-            Sequence("AND", Ref.keyword("NO", optional=True), "CHAIN", optional=True),
-        ),
+        # BEGIN | END TRANSACTION | WORK
+        # NOTE: "TO SAVEPOINT" is not yet supported
+        # https://docs.snowflake.com/en/sql-reference/sql/begin.html
+        # https://www.postgresql.org/docs/current/sql-end.html
+        OneOf("START", "BEGIN", "COMMIT", "ROLLBACK", "END"),
+        OneOf("TRANSACTION", "WORK", optional=True),
+        Sequence("NAME", Ref("SingleIdentifierGrammar"), optional=True),
+        Sequence("AND", Ref.keyword("NO", optional=True), "CHAIN", optional=True),
     )
 
 
@@ -1737,10 +1912,7 @@ class ColumnOptionSegment(BaseSegment):
                 # Foreign columns making up FOREIGN KEY constraint
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
             ),
-            Sequence(  # [COMMENT 'string'] (MySQL)
-                "COMMENT",
-                Ref("QuotedLiteralSegment"),
-            ),
+            Ref("CommentClauseSegment"),
         ),
     )
 
@@ -1836,9 +2008,7 @@ class CreateTableStatementSegment(BaseSegment):
                         ),
                     )
                 ),
-                Sequence(  # [COMMENT 'string'] (MySQL)
-                    "COMMENT", Ref("QuotedLiteralSegment"), optional=True
-                ),
+                Ref("CommentClauseSegment", optional=True),
             ),
             # Create AS syntax:
             Sequence(
@@ -1849,6 +2019,17 @@ class CreateTableStatementSegment(BaseSegment):
             Sequence("LIKE", Ref("TableReferenceSegment")),
         ),
     )
+
+
+@ansi_dialect.segment()
+class CommentClauseSegment(BaseSegment):
+    """A comment clause.
+
+    e.g. COMMENT 'view/table/column description'
+    """
+
+    type = "comment_clause"
+    match_grammar = Sequence("COMMENT", Ref("QuotedLiteralSegment"))
 
 
 @ansi_dialect.segment()
@@ -1954,6 +2135,12 @@ class AlterTableStatementSegment(BaseSegment):
                         optional=True,
                     ),
                 ),
+                # Rename
+                Sequence(
+                    "RENAME",
+                    OneOf("AS", "TO", optional=True),
+                    Ref("TableReferenceSegment"),
+                ),
             ),
         ),
     )
@@ -2016,10 +2203,41 @@ class DropIndexStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class AlterDefaultPrivilegesSegment(BaseSegment):
+    """Postgres `ALTER DEFAULT PRIVILEGES` statement.
+
+    ```
+    ALTER DEFAULT PRIVILEGES
+    [ FOR { ROLE | USER } target_role [, ...] ]
+    [ IN SCHEMA schema_name [, ...] ]
+    abbreviated_grant_or_revoke
+    ```
+    """
+
+    type = "alter_default_privileges_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "DEFAULT",
+        "PRIVILEGES",
+        Sequence(
+            "FOR",
+            OneOf("ROLE", "USER"),
+            Delimited(Ref("ObjectReferenceSegment")),
+            optional=True,
+        ),
+        Sequence(
+            "IN", "SCHEMA", Delimited(Ref("SchemaReferenceSegment")), optional=True
+        ),
+        Ref("AccessStatementSegment"),
+    )
+
+
+@ansi_dialect.segment()
 class AccessStatementSegment(BaseSegment):
     """A `GRANT` or `REVOKE` statement.
 
-    In order to help reduce code duplication we decided to implement other dialect specific grants (like snowflake)
+    In order to help reduce code duplication we decided to implement other dialect specific grants (like Snowflake)
     here too which will help with maintainability. We also note that this causes the grammar to be less "correct",
     but the benefits outweigh the con in our opinion.
 
@@ -2090,22 +2308,23 @@ class AccessStatementSegment(BaseSegment):
                 ),
             ),
             Sequence("IMPORTED", "PRIVILEGES"),
-            "MODIFY",
-            "USE_ANY_ROLE",
-            "USAGE",
-            "SELECT",
-            "INSERT",
-            "UPDATE",
+            "APPLY",
             "DELETE",
-            "TRUNCATE",
-            "REFERENCES",
-            "READ",
-            "WRITE",
+            "EXECUTE",
+            "INSERT",
+            "MODIFY",
             "MONITOR",
             "OPERATE",
-            "APPLY",
             "OWNERSHIP",
+            "READ",
             "REFERENCE_USAGE",
+            "REFERENCES",
+            "SELECT",
+            "TRUNCATE",
+            "UPDATE",
+            "USAGE",
+            "USE_ANY_ROLE",
+            "WRITE",
             Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
         ),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
@@ -2136,7 +2355,7 @@ class AccessStatementSegment(BaseSegment):
                 optional=True,
             ),
             Ref("ObjectReferenceSegment"),
-            Ref("FunctionParameterGrammar", optional=True),
+            Ref("FunctionParameterListGrammar", optional=True),
         ),
     )
 
@@ -2155,6 +2374,10 @@ class AccessStatementSegment(BaseSegment):
                     _objects,
                 ),
                 Sequence("ROLE", Ref("ObjectReferenceSegment")),
+                # In the case where a role is granted non-explicitly,
+                # e.g. GRANT ROLE_NAME TO OTHER_ROLE_NAME
+                # See https://www.postgresql.org/docs/current/sql-grant.html
+                Ref("ObjectReferenceSegment"),
             ),
             "TO",
             OneOf("GROUP", "USER", "ROLE", "SHARE", optional=True),
@@ -2220,7 +2443,7 @@ class UpdateStatementSegment(BaseSegment):
     match_grammar = StartsWith("UPDATE")
     parse_grammar = Sequence(
         "UPDATE",
-        OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceSegment")),
+        OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
         Ref("SetClauseListSegment"),
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
@@ -2334,7 +2557,7 @@ class CreateFunctionStatementSegment(BaseSegment):
         "FUNCTION",
         Sequence("IF", "NOT", "EXISTS", optional=True),
         Ref("FunctionNameSegment"),
-        Ref("FunctionParameterGrammar"),
+        Ref("FunctionParameterListGrammar"),
         Sequence(  # Optional function return type
             "RETURNS",
             Ref("DatatypeSegment"),
@@ -2345,22 +2568,16 @@ class CreateFunctionStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
-class FunctionParameterGrammar(BaseSegment):
+class FunctionParameterListGrammar(BaseSegment):
     """The parameters for a function ie. `(string, number)`."""
 
     # Function parameter list
     match_grammar = Bracketed(
         Delimited(
-            # Odd syntax, but prevents eager parameters being confused for data types
-            OneOf(
-                Sequence(
-                    Ref("ParameterNameSegment", optional=True),
-                    OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
-                ),
-                OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
-            ),
+            Ref("FunctionParameterGrammar"),
             delimiter=Ref("CommaSegment"),
-        )
+            optional=True,
+        ),
     )
 
 
@@ -2427,6 +2644,22 @@ class CreateTypeStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class CreateRoleStatementSegment(BaseSegment):
+    """A `CREATE ROLE` statement.
+
+    A very simple create role syntax which can be extended
+    by other dialects.
+    """
+
+    type = "create_role_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "ROLE",
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+@ansi_dialect.segment()
 class DropModelStatementSegment(BaseSegment):
     """A `DROP MODEL` statement."""
 
@@ -2478,9 +2711,11 @@ class StatementSegment(BaseSegment):
         Ref("InsertStatementSegment"),
         Ref("TransactionStatementSegment"),
         Ref("DropStatementSegment"),
+        Ref("AlterDefaultPrivilegesSegment"),
         Ref("AccessStatementSegment"),
         Ref("CreateTableStatementSegment"),
         Ref("CreateTypeStatementSegment"),
+        Ref("CreateRoleStatementSegment"),
         Ref("AlterTableStatementSegment"),
         Ref("CreateSchemaStatementSegment"),
         Ref("CreateDatabaseStatementSegment"),
@@ -2494,6 +2729,8 @@ class StatementSegment(BaseSegment):
         Ref("CreateModelStatementSegment"),
         Ref("DropModelStatementSegment"),
         Ref("DescribeStatementSegment"),
+        Ref("UseStatementSegment"),
+        Ref("ExplainStatementSegment"),
     )
 
     def get_table_references(self):
@@ -2540,4 +2777,51 @@ class DescribeStatementSegment(BaseSegment):
         "DESCRIBE",
         Ref("NakedIdentifierSegment"),
         Ref("ObjectReferenceSegment"),
+    )
+
+
+@ansi_dialect.segment()
+class UseStatementSegment(BaseSegment):
+    """A `USE` statement.
+
+    USE [ ROLE ] <name>
+
+    USE [ WAREHOUSE ] <name>
+
+    USE [ DATABASE ] <name>
+
+    USE [ SCHEMA ] [<db_name>.]<name>
+    """
+
+    type = "use_statement"
+    match_grammar = StartsWith("USE")
+
+    parse_grammar = Sequence(
+        "USE",
+        OneOf("ROLE", "WAREHOUSE", "DATABASE", "SCHEMA", optional=True),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+@ansi_dialect.segment()
+class ExplainStatementSegment(BaseSegment):
+    """An `Explain` statement.
+
+    EXPLAIN explainable_stmt
+    """
+
+    type = "explain_statement"
+
+    explainable_stmt = OneOf(
+        Ref("SelectableGrammar"),
+        Ref("InsertStatementSegment"),
+        Ref("UpdateStatementSegment"),
+        Ref("DeleteStatementSegment"),
+    )
+
+    match_grammar = StartsWith("EXPLAIN")
+
+    parse_grammar = Sequence(
+        "EXPLAIN",
+        explainable_stmt,
     )

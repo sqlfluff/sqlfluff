@@ -16,39 +16,44 @@ file:
       - comma: ','
       - select_clause_element:
           function:
-          - function_name: iff
-          - start_bracket: (
-          - expression:
-              function:
-                function_name: rank
-                start_bracket: (
-                end_bracket: )
-                over_clause:
-                  keyword: over
-                  start_bracket: (
-                  window_specification:
-                    partitionby_clause:
-                    - keyword: partition
-                    - keyword: by
-                    - expression:
-                        column_reference:
-                          identifier: id
-                    orderby_clause:
-                    - keyword: order
-                    - keyword: by
-                    - column_reference:
-                        identifier: t_id
-                    - keyword: desc
-                  end_bracket: )
-              comparison_operator: '='
-              literal: '1'
-          - comma: ','
-          - expression:
-              literal: 'true'
-          - comma: ','
-          - expression:
-              literal: 'false'
-          - end_bracket: )
+            function_name:
+              function_name_identifier: iff
+            bracketed:
+            - start_bracket: (
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: rank
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+                  over_clause:
+                    keyword: over
+                    bracketed:
+                      start_bracket: (
+                      window_specification:
+                        partitionby_clause:
+                        - keyword: partition
+                        - keyword: by
+                        - expression:
+                            column_reference:
+                              identifier: id
+                        orderby_clause:
+                        - keyword: order
+                        - keyword: by
+                        - column_reference:
+                            identifier: t_id
+                        - keyword: desc
+                      end_bracket: )
+                comparison_operator: '='
+                literal: '1'
+            - comma: ','
+            - expression:
+                literal: 'true'
+            - comma: ','
+            - expression:
+                literal: 'false'
+            - end_bracket: )
           alias_expression:
             keyword: as
             identifier: most_recent
@@ -68,31 +73,34 @@ file:
                   identifier: b
           - join_on_condition:
               keyword: 'on'
-              start_bracket: (
-              expression:
-              - column_reference:
-                - identifier: b
-                - dot: .
-                - identifier: c_id
-              - comparison_operator: '='
-              - column_reference:
-                - identifier: a
-                - dot: .
-                - identifier: c_id
-              end_bracket: )
+              bracketed:
+                start_bracket: (
+                expression:
+                - column_reference:
+                  - identifier: b
+                  - dot: .
+                  - identifier: c_id
+                - comparison_operator: '='
+                - column_reference:
+                  - identifier: a
+                  - dot: .
+                  - identifier: c_id
+                end_bracket: )
       - comma: ','
       - from_expression:
           from_expression_element:
             keyword: lateral
             table_expression:
               function:
-                function_name: flatten
-                start_bracket: (
-                snowflake_keyword_expression:
-                  parameter: input
-                  parameter_assigner: =>
-                  column_reference:
-                  - identifier: b
-                  - dot: .
-                  - identifier: cool_ids
-                end_bracket: )
+                function_name:
+                  function_name_identifier: flatten
+                bracketed:
+                  start_bracket: (
+                  snowflake_keyword_expression:
+                    parameter: input
+                    parameter_assigner: =>
+                    column_reference:
+                    - identifier: b
+                    - dot: .
+                    - identifier: cool_ids
+                  end_bracket: )

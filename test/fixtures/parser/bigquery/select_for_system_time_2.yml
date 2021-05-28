@@ -19,11 +19,13 @@ file:
           - keyword: OF
           - expression:
               function:
-                function_name: CAST
-                start_bracket: (
-                expression:
-                  literal: "'2020-05-11T14:02:52+00:00'"
-                keyword: AS
-                data_type:
-                  data_type_identifier: TIMESTAMP
-                end_bracket: )
+                function_name:
+                  function_name_identifier: CAST
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    literal: "'2020-05-11T14:02:52+00:00'"
+                  keyword: AS
+                  data_type:
+                    data_type_identifier: TIMESTAMP
+                  end_bracket: )

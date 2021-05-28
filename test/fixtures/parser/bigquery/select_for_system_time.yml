@@ -22,11 +22,13 @@ file:
           - keyword: OF
           - expression:
               function:
-                function_name: CAST
-                start_bracket: (
-                expression:
-                  literal: "'2019-12-02T20:52:34+00:00'"
-                keyword: AS
-                data_type:
-                  data_type_identifier: TIMESTAMP
-                end_bracket: )
+                function_name:
+                  function_name_identifier: CAST
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    literal: "'2019-12-02T20:52:34+00:00'"
+                  keyword: AS
+                  data_type:
+                    data_type_identifier: TIMESTAMP
+                  end_bracket: )

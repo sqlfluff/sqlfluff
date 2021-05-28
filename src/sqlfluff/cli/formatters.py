@@ -8,6 +8,7 @@ from sqlfluff.cli.helpers import (
     cli_table,
     get_package_version,
     get_python_version,
+    get_python_implementation,
     pad_line,
 )
 
@@ -50,13 +51,13 @@ def split_string_on_spaces(s, line_length=100):
 def format_violation(violation, max_line_length=90):
     """Format a violation."""
     if isinstance(violation, SQLBaseError):
-        code, line, pos, desc = violation.get_info_tuple()
-        if line is not None:
-            line_elem = "{0:4d}".format(line)
+        desc = violation.desc()
+        if violation.line_no is not None:
+            line_elem = "{0:4d}".format(violation.line_no)
         else:
             line_elem = "   -"
-        if pos is not None:
-            pos_elem = "{0:4d}".format(pos)
+        if violation.line_pos is not None:
+            pos_elem = "{0:4d}".format(violation.line_pos)
         else:
             pos_elem = "   -"
     else:
@@ -71,7 +72,9 @@ def format_violation(violation, max_line_length=90):
     for idx, line in enumerate(split_desc):
         if idx == 0:
             out_buff += colorize(
-                "L:{0} | P:{1} | {2} | ".format(line_elem, pos_elem, code.rjust(4)),
+                "L:{0} | P:{1} | {2} | ".format(
+                    line_elem, pos_elem, violation.rule_code().rjust(4)
+                ),
                 # Grey out the violation if we're ignoring it.
                 "lightgrey" if violation.ignore else "blue",
             )
@@ -232,10 +235,13 @@ class CallbackFormatter:
             config_content = [
                 ("sqlfluff", get_package_version()),
                 ("python", get_python_version()),
+                ("implementation", get_python_implementation()),
                 ("dialect", linter.dialect.name),
                 ("verbosity", self._verbosity),
-            ]
-            text_buffer.write(cli_table(config_content, col_width=25))
+            ] + linter.templater.config_pairs()
+            text_buffer.write(
+                cli_table(config_content, col_width=30, max_label_width=15)
+            )
             text_buffer.write("\n")
             if linter.config.get("rule_whitelist"):
                 text_buffer.write(
@@ -245,7 +251,7 @@ class CallbackFormatter:
                     )
                 )
             if self._verbosity > 1:
-                text_buffer.write("== Raw Config:\n")
+                text_buffer.write("\n== Raw Config:\n")
                 text_buffer.write(format_config_vals(linter.config.iter_vals()))
         return text_buffer.getvalue()
 
@@ -269,10 +275,10 @@ class CallbackFormatter:
         if self._verbosity > 0:
             self._dispatch(self._format_path(path))
 
-    def dispatch_parse_header(self, fname, linter_config, file_config):
-        """Dispatch the header displayed before parsing."""
+    def dispatch_template_header(self, fname, linter_config, file_config):
+        """Dispatch the header displayed before templating."""
         if self._verbosity > 1:
-            self._dispatch(format_filename(filename=fname, success="PARSING"))
+            self._dispatch(format_filename(filename=fname, success="TEMPLATING"))
             # This is where we output config diffs if they exist.
             if file_config:
                 # Only output config diffs if there is a config to diff to.
@@ -282,6 +288,20 @@ class CallbackFormatter:
                     self._dispatch(
                         format_config_vals(linter_config.iter_vals(cfg=config_diff))
                     )
+
+    def dispatch_parse_header(self, fname):
+        """Dispatch the header displayed before parsing."""
+        if self._verbosity > 1:
+            self._dispatch(format_filename(filename=fname, success="PARSING"))
+
+    def dispatch_lint_header(self, fname):
+        """Dispatch the header displayed before linting."""
+        if self._verbosity > 1:
+            self._dispatch(format_filename(filename=fname, success="LINTING"))
+
+    def dispatch_compilation_header(self, templater, message):
+        """Dispatch the header displayed before linting."""
+        self._dispatch("=== [" + colorize(templater, "lightgrey") + "] " + message)
 
     def dispatch_dialect_warning(self):
         """Dispatch a warning for dialects."""
@@ -294,14 +314,14 @@ class CallbackFormatter:
         success = sum(int(not violation.ignore) for violation in violations) == 0
 
         # Only print the filename if it's either a failure or verbosity > 1
-        if self._verbosity > 1 or not success:
+        if self._verbosity > 0 or not success:
             text_buffer.write(format_filename(fname, success=success))
             text_buffer.write("\n")
 
         # If we have violations, print them
         if not success:
-            # sort by position in file
-            s = sorted(violations, key=lambda v: v.char_pos())
+            # sort by position in file (using line number and position)
+            s = sorted(violations, key=lambda v: (v.line_no, v.line_pos))
             for violation in s:
                 text_buffer.write(
                     format_violation(violation, max_line_length=self.output_line_length)

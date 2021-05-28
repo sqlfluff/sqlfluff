@@ -5,23 +5,26 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-            function_name: ARRAY_AGG
-            start_bracket: (
-            expression:
-              column_reference:
-                identifier: o_orderkey
-            end_bracket: )
+            function_name:
+              function_name_identifier: ARRAY_AGG
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: o_orderkey
+              end_bracket: )
             withingroup_clause:
             - keyword: WITHIN
             - keyword: GROUP
-            - start_bracket: (
-            - orderby_clause:
-              - keyword: ORDER
-              - keyword: BY
-              - column_reference:
-                  identifier: o_orderkey
-              - keyword: ASC
-            - end_bracket: )
+            - bracketed:
+                start_bracket: (
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    identifier: o_orderkey
+                - keyword: ASC
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:

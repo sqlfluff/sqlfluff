@@ -80,6 +80,10 @@ STANDARD_CONFIG_INFO_DICT = {
         "validation": ["join", "from", "both"],
         "definition": "Which clauses should be linted for subqueries",
     },
+    "prefer_count_1": {
+        "validation": [True, False],
+        "definition": ("Should count(1) be preferred over count(*)?"),
+    },
 }
 
 

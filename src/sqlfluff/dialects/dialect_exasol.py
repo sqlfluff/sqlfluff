@@ -8,18 +8,25 @@ from sqlfluff.core.parser import (
     AnyNumberOf,
     BaseSegment,
     Bracketed,
+    OptionallyBracketed,
     Dedent,
     Delimited,
     GreedyUntil,
     Indent,
     KeywordSegment,
-    NamedSegment,
     Nothing,
     OneOf,
     Ref,
-    ReSegment,
     Sequence,
     StartsWith,
+    RegexLexer,
+    StringLexer,
+    CodeSegment,
+    CommentSegment,
+    NamedParser,
+    SymbolSegment,
+    StringParser,
+    RegexParser,
 )
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.dialects.exasol_keywords import (
@@ -39,39 +46,39 @@ exasol_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 exasol_dialect.sets("bare_functions").clear()
 exasol_dialect.sets("bare_functions").update(BARE_FUNCTIONS)
 
-exasol_dialect.set_lexer_struct(
+exasol_dialect.insert_lexer_matchers(
     [
-        ("range_operator", "regex", r"\.{2}", dict(is_code=True)),
-        ("hash", "singleton", "#", dict(is_code=True)),
-    ]
-    + exasol_dialect.get_lexer_struct()
+        RegexLexer("range_operator", r"\.{2}", CodeSegment),
+        StringLexer("hash", "#", CodeSegment),
+    ],
+    before="not_equal",
 )
 
-exasol_dialect.patch_lexer_struct(
+exasol_dialect.patch_lexer_matchers(
     [
         # In EXASOL, a double single/double quote resolves as a single/double quote in the string.
         # It's also used for escaping single quotes inside of STATEMENT strings like in the IMPORT function
         # https://docs.exasol.com/sql_references/basiclanguageelements.htm#Delimited_Identifiers
         # https://docs.exasol.com/sql_references/literals.htm
-        ("single_quote", "regex", r"'([^']|'')*'", dict(is_code=True)),
-        ("double_quote", "regex", r'"([^"]|"")*"', dict(is_code=True)),
-        (
+        RegexLexer("single_quote", r"'([^']|'')*'", CodeSegment),
+        RegexLexer("double_quote", r'"([^"]|"")*"', CodeSegment),
+        RegexLexer(
             "inline_comment",
-            "regex",
             r"--[^\n]*",
-            dict(is_comment=True, type="comment", trim_start=("--")),
+            CommentSegment,
+            segment_kwargs={"trim_start": ("--")},
         ),
     ]
 )
 
 # Access column aliases by using the LOCAL keyword
 exasol_dialect.add(
-    LocalIdentifierSegment=KeywordSegment.make(
-        "LOCAL", name="local_identifier", type="identifier"
+    LocalIdentifierSegment=StringParser(
+        "LOCAL", KeywordSegment, name="local_identifier", type="identifier"
     ),
-    RangeOperator=NamedSegment.make("range_operator", type="range_operator"),
-    UnknownSegment=KeywordSegment.make(
-        "unknown", name="boolean_literal", type="literal"
+    RangeOperator=NamedParser("range_operator", SymbolSegment, type="range_operator"),
+    UnknownSegment=StringParser(
+        "unknown", KeywordSegment, name="boolean_literal", type="literal"
     ),
     ForeignKeyReferencesClauseGrammar=Sequence(
         "REFERENCES",
@@ -123,10 +130,11 @@ exasol_dialect.add(
         enforce_whitespace_preceeding_terminator=True,
     ),
     TableConstraintEnableDisableGrammar=OneOf("ENABLE", "DISABLE"),
-    EscapedIdentifierSegment=ReSegment.make(
+    EscapedIdentifierSegment=RegexParser(
         # This matches escaped identifier e.g. [day]. There can be reserved keywords
         # within the square brackets.
         r"\[[A-Z]\]",
+        CodeSegment,
         name="escaped_identifier",
         type="identifier",
     ),
@@ -139,12 +147,9 @@ exasol_dialect.replace(
         Ref("QuotedIdentifierSegment"),
         Ref("EscapedIdentifierSegment"),
     ),
-    # TODO: Remove?
-    # exasol_dialect.replace(
-    #     SemicolonSegment=SymbolSegment.make(";", name="semicolon", type="semicolon"),
-    # )
-    ParameterNameSegment=ReSegment.make(
+    ParameterNameSegment=RegexParser(
         r"\"?[A-Z][A-Z0-9_]*\"?",
+        CodeSegment,
         name="parameter",
         type="parameter",
     ),
@@ -187,6 +192,10 @@ exasol_dialect.replace(
     PreTableFunctionKeywordsGrammar=Ref.keyword("TABLE"),
     BooleanLiteralGrammar=OneOf(
         Ref("TrueSegment"), Ref("FalseSegment"), Ref("UnknownSegment")
+    ),
+    PostFunctionGrammar=Sequence(
+        Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
+        Ref("OverClauseSegment"),
     ),
 )
 
@@ -326,9 +335,7 @@ class GroupByClauseSegment(BaseSegment):
                 Ref("ExpressionSegment"),
                 Ref("CubeRollupClauseSegment"),
                 Ref("GroupingSetsClauseSegment"),
-                Sequence(
-                    Ref("StartBracketSegment"), Ref("EndBracketSegment")
-                ),  # () possible
+                Bracketed(),  # Allows empty parentheses
             ),
             terminator=OneOf(
                 "ORDER",
@@ -387,9 +394,7 @@ class GroupingSetsClauseSegment(BaseSegment):
             Delimited(
                 Ref("CubeRollupClauseSegment"),
                 Ref("GroupingExpressionList"),
-                Sequence(
-                    Ref("StartBracketSegment"), Ref("EndBracketSegment")
-                ),  # () possible
+                Bracketed(),  # Allows empty parentheses
             )
         ),
     )
@@ -834,9 +839,7 @@ class ColumnOptionSegment(BaseSegment):
             Sequence(
                 # IDENTITY(1000) or IDENTITY 1000 or IDENTITY
                 "IDENTITY",
-                Ref("StartBracketSegment", optional=True),
-                Ref("NumericLiteralSegment", optional=True),
-                Ref("EndBracketSegment", optional=True),
+                OptionallyBracketed(Ref("NumericLiteralSegment"), optional=True),
             ),
             optional=True,
         ),
@@ -991,9 +994,7 @@ class AlterTableAddColumnSegment(BaseSegment):
         "ADD",
         Ref.keyword("COLUMN", optional=True),
         Ref("IfNotExistsGrammar", optional=True),
-        Ref("StartBracketSegment", optional=True),
-        Ref("ColumnDefinitionSegment"),
-        Ref("EndBracketSegment", optional=True),
+        OptionallyBracketed(Ref("ColumnDefinitionSegment")),
     )
 
 
@@ -1019,11 +1020,11 @@ class AlterTableModifyColumnSegment(BaseSegment):
     match_grammar = Sequence(
         "MODIFY",
         Ref.keyword("COLUMN", optional=True),
-        Ref("StartBracketSegment", optional=True),
-        Ref("SingleIdentifierGrammar"),
-        Ref("DatatypeSegment", optional=True),
-        Ref("ColumnOptionSegment", optional=True),
-        Ref("EndBracketSegment", optional=True),
+        OptionallyBracketed(
+            Ref("SingleIdentifierGrammar"),
+            Ref("DatatypeSegment", optional=True),
+            Ref("ColumnOptionSegment", optional=True),
+        ),
     )
 
 
@@ -1057,9 +1058,7 @@ class AlterTableAlterColumnSegment(BaseSegment):
                     Sequence(
                         # IDENTITY(1000) or IDENTITY 1000
                         "IDENTITY",
-                        Ref("StartBracketSegment", optional=True),
-                        Ref("NumericLiteralSegment"),
-                        Ref("EndBracketSegment", optional=True),
+                        OptionallyBracketed(Ref("NumericLiteralSegment")),
                     ),
                     Sequence(
                         "DEFAULT",
@@ -1322,7 +1321,7 @@ class UpdateStatementSegment(BaseSegment):
     match_grammar = StartsWith("UPDATE")
     parse_grammar = Sequence(
         "UPDATE",
-        Ref("AliasedTableReferenceSegment"),
+        OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
         Ref("SetClauseListSegment"),
         Ref("UpdateFromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
@@ -1375,7 +1374,7 @@ class UpdateFromClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "FROM",
         Delimited(
-            Ref("AliasedTableReferenceSegment"),
+            OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
             terminator="WHERE",
         ),
     )
@@ -1404,7 +1403,7 @@ class MergeStatementSegment(BaseSegment):
     parse_grammar = Sequence(
         "MERGE",
         "INTO",
-        Ref("AliasedTableReferenceSegment"),
+        OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
         "USING",
         OneOf(
             Ref("TableReferenceSegment"),  # tables/views
@@ -1527,7 +1526,7 @@ class DeleteStatementSegment(BaseSegment):
         "DELETE",
         Ref("StarSegment", optional=True),
         "FROM",
-        Ref("AliasedTableReferenceSegment"),
+        OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
         Ref("WhereClauseSegment", optional=True),
         Ref("PreferringClauseSegment", optional=True),
     )
@@ -2477,10 +2476,7 @@ class PreferringClauseSegment(BaseSegment):
     )
     parse_grammar = Sequence(
         "PREFERRING",
-        OneOf(
-            Ref("PreferringPreferenceTermSegment"),
-            Bracketed(Ref("PreferringPreferenceTermSegment")),
-        ),
+        OptionallyBracketed(Ref("PreferringPreferenceTermSegment")),
         Ref("PartitionClauseSegment", optional=True),
     )
 
