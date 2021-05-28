@@ -80,6 +80,11 @@ bigquery_dialect.add(
     RightArrowSegment=StringParser(
         "=>", SymbolSegment, name="right_arrow", type="right_arrow"
     ),
+    SelectClauseElementList=Delimited(
+        Ref("SelectClauseElementSegment"),
+        delimiter=Ref("CommaSegment"),
+        allow_trailing=True,
+    ),
 )
 
 
@@ -167,14 +172,10 @@ class SelectClauseSegment(ansi_dialect.get_segment("SelectClauseSegment")):  # t
                 "STRUCT",
                 OneOf(
                     Ref("StarSegment"),
-                    Ref("SelectClauseSegment"),
+                    Ref("SelectClauseElementList"),
                 ),
             ),
-            Delimited(
-                Ref("SelectClauseElementSegment"),
-                delimiter=Ref("CommaSegment"),
-                allow_trailing=True,
-            ),
+            Ref("SelectClauseElementList"),
         ),
     )
 
