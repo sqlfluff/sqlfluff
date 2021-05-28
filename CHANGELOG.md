@@ -25,6 +25,8 @@ Contributors:
 - Fix bug [#1083](https://github.com/sqlfluff/sqlfluff/issues/1083), adding
   support for BigQuery named function arguments, used with functions such as
   [ST_GEOGFROMGEOJSON()](https://cloud.google.com/bigquery/docs/reference/standard-sql/geography_functions#st_geogfromgeojson)
+- Fix bug [#1082](https://github.com/sqlfluff/sqlfluff/issues/1082), adding
+  support for BigQuery `select as struct '1' as bb, 2 as aa` syntax
 
 ## [0.6.0a1] - 2021-05-15
 ### Added
