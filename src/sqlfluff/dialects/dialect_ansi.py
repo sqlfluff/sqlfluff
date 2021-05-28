@@ -97,7 +97,6 @@ ansi_dialect.set_lexer_matchers(
         RegexLexer("newline", r"\r\n|\n", NewlineSegment),
         StringLexer("casting_operator", "::", CodeSegment),
         StringLexer("concat_operator", "||", CodeSegment),
-        StringLexer("right_arrow", "=>", CodeSegment),
         StringLexer("equals", "=", CodeSegment),
         StringLexer("greater_than", ">", CodeSegment),
         StringLexer("less_than", "<", CodeSegment),
@@ -264,9 +263,6 @@ ansi_dialect.add(
     ),
     NotEqualToSegment_b=StringParser(
         "<>", SymbolSegment, name="not_equal_to", type="comparison_operator"
-    ),
-    RightArrowSegment=StringParser(
-        "=>", SymbolSegment, name="right_arrow", type="right_arrow"
     ),
     # The following functions can be called without parentheses per ANSI specification
     BareFunctionSegment=SegmentGenerator(
@@ -758,9 +754,7 @@ class QualifiedNumericLiteralSegment(BaseSegment):
 ansi_dialect.add(
     # FunctionContentsExpressionGrammar intended as a hook to override
     # in other dialects.
-    FunctionContentsExpressionGrammar=OneOf(
-        Ref("ExpressionSegment"), Ref("NamedArgumentSegment")
-    ),
+    FunctionContentsExpressionGrammar=Ref("ExpressionSegment"),
     FunctionContentsGrammar=AnyNumberOf(
         Ref("ExpressionSegment"),
         # A Cast-like function
@@ -884,21 +878,6 @@ class FunctionSegment(BaseSegment):
             ),
         ),
         Ref("PostFunctionGrammar", optional=True),
-    )
-
-
-@ansi_dialect.segment()
-class NamedArgumentSegment(BaseSegment):
-    """Named argument to a function.
-
-    https://cloud.google.com/bigquery/docs/reference/standard-sql/geography_functions#st_geogfromgeojson
-    """
-
-    type = "named_argument"
-    match_grammar = Sequence(
-        Ref("NakedIdentifierSegment"),
-        Ref("RightArrowSegment"),
-        Ref("ExpressionSegment"),
     )
 
 

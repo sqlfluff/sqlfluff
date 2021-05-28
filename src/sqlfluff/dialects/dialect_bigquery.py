@@ -21,6 +21,7 @@ from sqlfluff.core.parser import (
     Indent,
     SymbolSegment,
     RegexLexer,
+    StringLexer,
     CodeSegment,
     NamedParser,
     StringParser,
@@ -31,6 +32,14 @@ from sqlfluff.core.dialects import load_raw_dialect
 
 ansi_dialect = load_raw_dialect("ansi")
 bigquery_dialect = ansi_dialect.copy_as("bigquery")
+
+bigquery_dialect.insert_lexer_matchers(
+    # JSON Operators: https://www.postgresql.org/docs/9.5/functions-json.html
+    [
+        StringLexer("right_arrow", "=>", CodeSegment),
+    ],
+    before="equals",
+)
 
 bigquery_dialect.patch_lexer_matchers(
     [
@@ -68,6 +77,9 @@ bigquery_dialect.add(
     EndAngleBracketSegment=StringParser(
         ">", SymbolSegment, name="end_angle_bracket", type="end_angle_bracket"
     ),
+    RightArrowSegment=StringParser(
+        "=>", SymbolSegment, name="right_arrow", type="right_arrow"
+    ),
 )
 
 
@@ -78,6 +90,7 @@ bigquery_dialect.replace(
             Ref("ExpressionSegment"),
             Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
         ),
+        Ref("NamedArgumentSegment"),
     ),
     SimpleArrayTypeGrammar=Sequence(
         "ARRAY",
@@ -361,6 +374,21 @@ class TypelessStructSegment(BaseSegment):
             ),
             optional=True,
         ),
+    )
+
+
+@bigquery_dialect.segment()
+class NamedArgumentSegment(BaseSegment):
+    """Named argument to a function.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/geography_functions#st_geogfromgeojson
+    """
+
+    type = "named_argument"
+    match_grammar = Sequence(
+        Ref("NakedIdentifierSegment"),
+        Ref("RightArrowSegment"),
+        Ref("ExpressionSegment"),
     )
 
 
