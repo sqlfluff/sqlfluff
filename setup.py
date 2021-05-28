@@ -96,6 +96,8 @@ setup(
         "typing_extensions",
         # We provide a testing library for plugins in sqlfluff.testing
         "pytest",
+        # For parsing pyproject.toml
+        "toml",
         # For returning exceptions from multiprocessing.Pool.map()
         "tblib",
     ],
