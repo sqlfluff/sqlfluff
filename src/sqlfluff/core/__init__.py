@@ -22,6 +22,9 @@ from sqlfluff.core.errors import (
     SQLLintError,
 )
 
+# Timing objects
+from sqlfluff.core.timing import TimingSummary
+
 
 # This is for "sqlfluff lint" and "sqlfluff fix" multiprocessing (--parallel)
 # support. If an exception (i.e. runtime error) occurs in a worker process, we
