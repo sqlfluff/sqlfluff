@@ -2576,7 +2576,8 @@ class FunctionParameterListGrammar(BaseSegment):
         Delimited(
             Ref("FunctionParameterGrammar"),
             delimiter=Ref("CommaSegment"),
-        )
+            optional=True,
+        ),
     )
 
 
