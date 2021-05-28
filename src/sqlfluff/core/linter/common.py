@@ -5,9 +5,10 @@ from typing import (
     NamedTuple,
     Optional,
     Tuple,
+    Dict,
 )
 
-from sqlfluff.core.errors import SQLBaseError
+from sqlfluff.core.errors import SQLBaseError, SQLTemplaterError
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.parser.segments.base import BaseSegment
@@ -26,6 +27,20 @@ class NoQaDirective(NamedTuple):
     line_no: int  # Source line number
     rules: Optional[Tuple[str, ...]]  # Affected rule names
     action: Optional[str]  # "enable", "disable", or "None"
+
+
+class RenderedFile(NamedTuple):
+    """An object to store the result of a templated file/string.
+
+    This is notable as it's the intermediate state between what happens
+    in the main process and the child processes when running in parallel mode.
+    """
+
+    templated_file: TemplatedFile
+    templater_violations: List[SQLTemplaterError]
+    config: FluffConfig
+    time_dict: Dict[str, float]
+    fname: str
 
 
 class ParsedString(NamedTuple):
@@ -48,6 +63,7 @@ class ParsedString(NamedTuple):
     time_dict: dict
     templated_file: TemplatedFile
     config: FluffConfig
+    fname: str
 
 
 class EnrichedFixPatch(NamedTuple):

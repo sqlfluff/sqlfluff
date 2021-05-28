@@ -1,5 +1,6 @@
 """Defines the linter class."""
 
+import time
 from typing import (
     Any,
     Dict,
@@ -32,6 +33,8 @@ class LintingResult:
 
     def __init__(self) -> None:
         self.paths: List[LintedDir] = []
+        self._start_time: float = time.monotonic()
+        self.total_time: float = 0.0
 
     @staticmethod
     def sum_dicts(d1: Dict[str, Any], d2: Dict[str, Any]) -> Dict[str, Any]:
@@ -50,6 +53,10 @@ class LintingResult:
     def add(self, path: LintedDir) -> None:
         """Add a new `LintedDir` to this result."""
         self.paths.append(path)
+
+    def stop_timer(self):
+        """Stop the linting timer."""
+        self.total_time = time.monotonic() - self._start_time
 
     @overload
     def check_tuples(self, by_path: Literal[False]) -> List[CheckTuple]:
