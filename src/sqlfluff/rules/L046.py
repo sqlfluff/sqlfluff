@@ -45,17 +45,11 @@ class Rule_L046(BaseRule):
         pos = main.find(inner)
         return main[:pos], inner, main[pos + len(inner) :]
 
-    def _eval(self, segment, templated_file, memory, **kwargs):
-        # Extract some data from the segment. Importantly, all
-        # of these have defaults in case we don't have an
-        # enriched position marker.
-        source_slice = getattr(segment.pos_marker, "source_slice", None)
-        is_literal = getattr(segment.pos_marker, "is_literal", None)
-        source_str = getattr(templated_file, "source_str", None)
-
-        if source_slice and source_str and not is_literal:
+    def _eval(self, segment, memory, **kwargs):
+        """Look for non-literal segments."""
+        if not segment.pos_marker.is_literal():
             # Does it actually look like a tag?
-            src_raw = source_str[source_slice]
+            src_raw = segment.pos_marker.source_str()
             if not src_raw or src_raw[0] != "{" or src_raw[-1] != "}":
                 return LintResult(memory=memory)
 
@@ -63,7 +57,7 @@ class Rule_L046(BaseRule):
             # This is important because several positions in the
             # templated file may refer to the same position in the
             # source file and we only want to get one violation.
-            src_idx = source_slice.start
+            src_idx = segment.pos_marker.source_slice.start
             if memory and src_idx in memory:
                 return LintResult(memory=memory)
             if not memory:

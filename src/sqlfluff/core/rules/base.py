@@ -21,13 +21,7 @@ import re
 from typing import Optional, List, Tuple, TYPE_CHECKING
 from collections import namedtuple
 
-from sqlfluff.core.parser import (
-    KeywordSegment,
-    BaseSegment,
-    SymbolSegment,
-    WhitespaceSegment,
-    NewlineSegment,
-)
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.errors import SQLLintError
 
 if TYPE_CHECKING:
@@ -114,10 +108,12 @@ class LintFix:
 
     """
 
-    def __init__(self, edit_type, anchor, edit=None):
+    def __init__(self, edit_type, anchor: BaseSegment, edit=None):
         if edit_type not in ["create", "edit", "delete"]:
             raise ValueError("Unexpected edit_type: {0}".format(edit_type))
         self.edit_type = edit_type
+        if not anchor:
+            raise ValueError("Fixes must provide an anchor.")
         self.anchor = anchor
         # Coerce to list
         if isinstance(edit, BaseSegment):
@@ -129,9 +125,17 @@ class LintFix:
         # the parsed structure.
         self.edit = copy.deepcopy(edit)
         if self.edit:
+            # Check that any edits don't have a position marker set.
+            # We should rely on realignment to make position markers.
             # Strip position markers of anything enriched, otherwise things can get blurry
             for seg in self.edit:
-                seg.pos_marker = seg.pos_marker.strip()
+                if seg.pos_marker:
+                    # Developer warning.
+                    rules_logger.debug(
+                        "Developer Note: Edit segment found with preset position marker. "
+                        "These should be unset and calculated later."
+                    )
+                    seg.pos_marker = None
         # Once stripped, we shouldn't replace any markers because
         # later code may rely on them being accurate, which we
         # can't guarantee with edits.
@@ -310,6 +314,7 @@ class BaseRule:
             self.logger.critical(
                 f"Applying rule {self.code} threw an Exception: {e}", exc_info=True
             )
+            exception_line, _ = segment.pos_marker.source_position()
             vs.append(
                 SQLLintError(
                     rule=self,
@@ -319,7 +324,7 @@ class BaseRule:
                         f"""Unexpected exception: {str(e)};
                         Could you open an issue at https://github.com/sqlfluff/sqlfluff/issues ?
                         You can ignore this exception for now, by adding '--noqa: {self.code}' at the end
-                        of line {segment.pos_marker.line_no}
+                        of line {exception_line}
                         """
                     ),
                 )
@@ -425,36 +430,6 @@ class BaseRule:
         # Not directly in the segment and
         # no subsegments to check. Return None.
         return None
-
-    @classmethod
-    def make_whitespace(cls, raw, pos_marker):
-        """Make a whitespace segment."""
-        return WhitespaceSegment(raw=raw, pos_marker=pos_marker)
-
-    @classmethod
-    def make_newline(cls, pos_marker, raw=None):
-        """Make a newline segment."""
-        # Default the newline to \n
-        raw = raw or "\n"
-        return NewlineSegment(raw=raw, pos_marker=pos_marker)
-
-    @classmethod
-    def make_keyword(cls, raw, pos_marker):
-        """Make a keyword segment."""
-        # For the name of the segment, we force the string to lowercase.
-        kws = KeywordSegment.make(raw.lower())
-        # At the moment we let the rule dictate *case* here.
-        return kws(raw=raw, pos_marker=pos_marker)
-
-    @classmethod
-    def make_symbol(cls, raw, pos_marker, seg_type, name=None):
-        """Make a symbol segment."""
-        # For the name of the segment, we force the string to lowercase.
-        symbol_seg = SymbolSegment.make(
-            raw.lower(), name=name or seg_type, type=seg_type
-        )
-        # At the moment we let the rule dictate *case* here.
-        return symbol_seg(raw=raw, pos_marker=pos_marker)
 
     @staticmethod
     def matches_target_tuples(seg: BaseSegment, target_tuples: List[Tuple[str, str]]):
@@ -586,7 +561,7 @@ class RuleSet:
         # Make sure we actually return the original class
         return cls
 
-    def get_rulelist(self, config):
+    def get_rulelist(self, config) -> List[BaseRule]:
         """Use the config to return the appropriate rules.
 
         We use the config both for whitelisting and blacklisting, but also

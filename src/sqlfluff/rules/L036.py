@@ -2,7 +2,9 @@
 
 from typing import List, NamedTuple
 
-from sqlfluff.core.parser import BaseSegment
+from sqlfluff.core.parser import WhitespaceSegment
+
+from sqlfluff.core.parser import BaseSegment, NewlineSegment
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
@@ -67,7 +69,7 @@ class Rule_L036(BaseRule):
                 select_targets.append(seg)
                 if first_select_target_idx == -1:
                     first_select_target_idx = fname_idx
-            if seg.is_type("keyword") and seg.name == "SELECT" and select_idx == -1:
+            if seg.is_type("keyword") and seg.name == "select" and select_idx == -1:
                 select_idx = fname_idx
             if seg.is_type("newline") and first_new_line_idx == -1:
                 first_new_line_idx = fname_idx
@@ -97,18 +99,27 @@ class Rule_L036(BaseRule):
             base_segment = (
                 segment if not i else select_targets_info.select_targets[i - 1]
             )
-            if base_segment.pos_marker.line_no == select_target.pos_marker.line_no:
+            if (
+                base_segment.pos_marker.working_line_no
+                == select_target.pos_marker.working_line_no
+            ):
                 # Find and delete any whitespace before the select target.
+                start_seg = select_targets_info.select_idx
+                # If any select modifier (e.g. distinct ) is present, start
+                # there rather than at the beginning.
+                modifier = segment.get_child("select_clause_modifier")
+                if modifier:
+                    start_seg = segment.segments.index(modifier)
+
                 ws_to_delete = segment.select_children(
-                    start_seg=segment.segments[select_targets_info.select_idx]
+                    start_seg=segment.segments[start_seg]
                     if not i
                     else select_targets_info.select_targets[i - 1],
                     select_if=lambda s: s.is_type("whitespace"),
                     loop_while=lambda s: s.is_type("whitespace", "comma") or s.is_meta,
                 )
                 fixes += [LintFix("delete", ws) for ws in ws_to_delete]
-                ins = self.make_newline(pos_marker=select_target.pos_marker)
-                fixes.append(LintFix("create", select_target, ins))
+                fixes.append(LintFix("create", select_target, NewlineSegment()))
         if fixes:
             return LintResult(anchor=segment, fixes=fixes)
 
@@ -129,21 +140,28 @@ class Rule_L036(BaseRule):
             < select_targets_info.first_new_line_idx
             < select_targets_info.first_select_target_idx
         ):
+            # Do we have a modifier?
+            modifier = select_clause.get_child("select_clause_modifier")
+
             # there is a newline between select and select target
             insert_buff = [
-                self.make_whitespace(
-                    raw=" ",
-                    pos_marker=select_clause.segments[
-                        select_targets_info.first_new_line_idx
-                    ].pos_marker,
-                ),
+                WhitespaceSegment(),
                 select_clause.segments[select_targets_info.first_select_target_idx],
-                self.make_newline(
-                    pos_marker=select_clause.segments[
-                        select_targets_info.first_new_line_idx
-                    ].pos_marker
-                ),
+                NewlineSegment(),
             ]
+
+            # Also move any modifiers if present
+            if modifier:
+                # If it's already on the first line, ignore it.
+                if (
+                    select_clause.segments.index(modifier)
+                    < select_targets_info.first_new_line_idx
+                ):
+                    modifier = None
+                # Otherwise we need to move it too
+                else:
+                    insert_buff = [WhitespaceSegment(), modifier] + insert_buff
+
             fixes = [
                 # Replace "newline" with <<select_target>>, "newline".
                 LintFix(
@@ -157,6 +175,16 @@ class Rule_L036(BaseRule):
                     select_clause.segments[select_targets_info.first_select_target_idx],
                 ),
             ]
+
+            # Also delete the original modifier if present
+            if modifier:
+                fixes += [
+                    LintFix(
+                        "delete",
+                        modifier,
+                    ),
+                ]
+
             if (
                 select_targets_info.first_select_target_idx
                 - select_targets_info.first_new_line_idx
@@ -176,12 +204,12 @@ class Rule_L036(BaseRule):
                         ],
                     ),
                 )
-            if parent_stack and parent_stack[-1].type == "select_statement":
+            if parent_stack and parent_stack[-1].is_type("select_statement"):
                 select_stmt = parent_stack[-1]
                 select_clause_idx = select_stmt.segments.index(select_clause)
                 after_select_clause_idx = select_clause_idx + 1
                 if len(select_stmt.segments) > after_select_clause_idx:
-                    if select_stmt.segments[after_select_clause_idx].type == "newline":
+                    if select_stmt.segments[after_select_clause_idx].is_type("newline"):
                         # The select_clause is immediately followed by a
                         # newline. Delete the newline in order to avoid leaving
                         # behind an empty line after fix.

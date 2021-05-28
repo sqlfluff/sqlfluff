@@ -6,13 +6,30 @@ file:
     - table_reference:
         identifier: final_rows
     - keyword: AS
-    - start_bracket: (
-    - with_compound_statement:
-        keyword: WITH
-        common_table_expression:
-          identifier: source_table
-          keyword: AS
-          start_bracket: (
+    - bracketed:
+        start_bracket: (
+        with_compound_statement:
+          keyword: WITH
+          common_table_expression:
+            identifier: source_table
+            keyword: AS
+            bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    wildcard_expression:
+                      wildcard_identifier:
+                        star: '*'
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          identifier: source_data
+              end_bracket: )
           select_statement:
             select_clause:
               keyword: SELECT
@@ -26,20 +43,5 @@ file:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: source_data
-          end_bracket: )
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              wildcard_expression:
-                wildcard_identifier:
-                  star: '*'
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    identifier: source_table
-    - end_bracket: )
+                      identifier: source_table
+        end_bracket: )

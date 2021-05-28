@@ -20,7 +20,7 @@ def seg_list(generate_test_segments):
     """
     main_list = generate_test_segments(["bar", " \t ", "foo", "baar", " \t "])
     ts = TemplateSegment(
-        pos_marker=main_list[-1].get_end_pos_marker(),
+        pos_marker=main_list[-1].get_end_point_marker(),
         source_str="{# comment #}",
         block_type="comment",
     )

@@ -21,10 +21,11 @@ file:
           function:
             function_name:
               function_name_identifier: UNNEST
-            start_bracket: (
-            expression:
-              column_reference:
-              - identifier: t
-              - dot: .
-              - identifier: c
-            end_bracket: )
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                - identifier: t
+                - dot: .
+                - identifier: c
+              end_bracket: )

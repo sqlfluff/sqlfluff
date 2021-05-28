@@ -6,20 +6,21 @@ from typing import List
 from unittest.mock import patch
 
 from sqlfluff.core import Linter, FluffConfig
+from sqlfluff.core.linter import runner
 from sqlfluff.core.errors import SQLBaseError, SQLLintError, SQLParseError
+from sqlfluff.cli.formatters import CallbackFormatter
 from sqlfluff.core.linter import LintingResult, NoQaDirective
 import sqlfluff.core.linter as linter
-from sqlfluff.core.parser import FilePositionMarker
 from test.fixtures.dbt.templater import DBT_FLUFF_CONFIG, project_dir  # noqa: F401
+from sqlfluff.core.templaters import TemplatedFile
 
 
 class DummyLintError(SQLBaseError):
     """Fake lint error used by tests, similar to SQLLintError."""
 
-    def __init__(self, pos: FilePositionMarker, code: str = "L001"):
-        self.pos = pos
+    def __init__(self, line_no: int, code: str = "L001"):
         self._code = code
-        super(DummyLintError, self).__init__()
+        super(DummyLintError, self).__init__(line_no=line_no)
 
 
 def normalise_paths(paths):
@@ -186,26 +187,82 @@ def test__linter__linting_result_check_tuples_by_path(by_path, result_type):
     isinstance(check_tuples, result_type)
 
 
-def test__linter__linting_result_get_violations():
+@pytest.mark.parametrize("parallel", [1, 2])
+def test__linter__linting_result_get_violations(parallel):
     """Test that we can get violations from a LintingResult."""
     lntr = Linter()
     result = lntr.lint_paths(
         [
             "test/fixtures/linter/comma_errors.sql",
             "test/fixtures/linter/whitespace_errors.sql",
-        ]
+        ],
+        parallel=parallel,
     )
 
     all([type(v) == SQLLintError for v in result.get_violations()])
 
 
-@patch("sqlfluff.core.linter.linter_logger")
-@patch("sqlfluff.core.Linter.lint_string")
+@pytest.mark.parametrize("force_error", [False, True])
+def test__linter__linting_parallel_thread(force_error, monkeypatch):
+    """Run linter in parallel mode using threads.
+
+    Similar to test__linter__linting_result_get_violations but uses a thread
+    pool of 1 worker to test parallel mode without subprocesses. This lets the
+    tests capture code coverage information for the backend parts of parallel
+    execution without having to jump through hoops.
+    """
+    if not force_error:
+
+        monkeypatch.setattr(Linter, "allow_process_parallelism", False)
+
+    else:
+
+        def _create_pool(*args, **kwargs):
+            class ErrorPool:
+                def __enter__(self):
+                    return self
+
+                def __exit__(self, exc_type, exc_val, exc_tb):
+                    pass
+
+                def imap_unordered(self, *args, **kwargs):
+                    yield runner.DelayedException(ValueError())
+
+            return ErrorPool()
+
+        monkeypatch.setattr(runner.MultiProcessRunner, "_create_pool", _create_pool)
+
+    lntr = Linter(formatter=CallbackFormatter(callback=lambda m: None, verbosity=0))
+    result = lntr.lint_paths(
+        ("test/fixtures/linter/comma_errors.sql",),
+        parallel=2,
+    )
+
+    all([type(v) == SQLLintError for v in result.get_violations()])
+
+
+@patch("sqlfluff.core.linter.Linter.lint_rendered")
+def test_lint_path_parallel_wrapper_exception(patched_lint):
+    """Tests the error catching behavior of _lint_path_parallel_wrapper().
+
+    Test on MultiThread runner because otherwise we have pickling issues.
+    """
+    patched_lint.side_effect = ValueError("Something unexpected happened")
+    for result in runner.MultiThreadRunner(Linter(), FluffConfig(), parallel=1).run(
+        ["test/fixtures/linter/passing.sql"], fix=False
+    ):
+        assert isinstance(result, runner.DelayedException)
+        with pytest.raises(ValueError):
+            result.reraise()
+
+
+@patch("sqlfluff.core.linter.runner.linter_logger")
+@patch("sqlfluff.core.linter.Linter.lint_rendered")
 def test__linter__linting_unexpected_error_handled_gracefully(
-    patched_lint_string, patched_logger
+    patched_lint, patched_logger
 ):
     """Test that an unexpected internal error is handled gracefully and returns the issue-surfacing file."""
-    patched_lint_string.side_effect = Exception("Something unexpected happened")
+    patched_lint.side_effect = Exception("Something unexpected happened")
     lntr = Linter()
     lntr.lint_paths(("test/fixtures/linter/passing.sql",))
     assert (
@@ -294,34 +351,34 @@ def test_parse_noqa(input, expected):
     [
         [
             [],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=1))],
+            [DummyLintError(1)],
             [
                 0,
             ],
         ],
         [
             [dict(comment="noqa: L001", line_no=1)],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=1))],
+            [DummyLintError(1)],
             [],
         ],
         [
             [dict(comment="noqa: L001", line_no=2)],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=1))],
+            [DummyLintError(1)],
             [0],
         ],
         [
             [dict(comment="noqa: L002", line_no=1)],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=1))],
+            [DummyLintError(1)],
             [0],
         ],
         [
             [dict(comment="noqa: enable=L001", line_no=1)],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=1))],
+            [DummyLintError(1)],
             [0],
         ],
         [
             [dict(comment="noqa: disable=L001", line_no=1)],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=1))],
+            [DummyLintError(1)],
             [],
         ],
         [
@@ -329,7 +386,7 @@ def test_parse_noqa(input, expected):
                 dict(comment="noqa: disable=L001", line_no=2),
                 dict(comment="noqa: enable=L001", line_no=4),
             ],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=1))],
+            [DummyLintError(1)],
             [0],
         ],
         [
@@ -337,7 +394,7 @@ def test_parse_noqa(input, expected):
                 dict(comment="noqa: disable=L001", line_no=2),
                 dict(comment="noqa: enable=L001", line_no=4),
             ],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=2))],
+            [DummyLintError(2)],
             [],
         ],
         [
@@ -345,7 +402,7 @@ def test_parse_noqa(input, expected):
                 dict(comment="noqa: disable=L001", line_no=2),
                 dict(comment="noqa: enable=L001", line_no=4),
             ],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=3))],
+            [DummyLintError(3)],
             [],
         ],
         [
@@ -353,7 +410,7 @@ def test_parse_noqa(input, expected):
                 dict(comment="noqa: disable=L001", line_no=2),
                 dict(comment="noqa: enable=L001", line_no=4),
             ],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=4))],
+            [DummyLintError(4)],
             [0],
         ],
         [
@@ -361,7 +418,7 @@ def test_parse_noqa(input, expected):
                 dict(comment="noqa: disable=all", line_no=2),
                 dict(comment="noqa: enable=all", line_no=4),
             ],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=1))],
+            [DummyLintError(1)],
             [0],
         ],
         [
@@ -369,7 +426,7 @@ def test_parse_noqa(input, expected):
                 dict(comment="noqa: disable=all", line_no=2),
                 dict(comment="noqa: enable=all", line_no=4),
             ],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=2))],
+            [DummyLintError(2)],
             [],
         ],
         [
@@ -377,7 +434,7 @@ def test_parse_noqa(input, expected):
                 dict(comment="noqa: disable=all", line_no=2),
                 dict(comment="noqa: enable=all", line_no=4),
             ],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=3))],
+            [DummyLintError(3)],
             [],
         ],
         [
@@ -385,7 +442,7 @@ def test_parse_noqa(input, expected):
                 dict(comment="noqa: disable=all", line_no=2),
                 dict(comment="noqa: enable=all", line_no=4),
             ],
-            [DummyLintError(FilePositionMarker(statement_index=None, line_no=4))],
+            [DummyLintError(4)],
             [0],
         ],
         [
@@ -394,18 +451,10 @@ def test_parse_noqa(input, expected):
                 dict(comment="noqa: enable=all", line_no=4),
             ],
             [
-                DummyLintError(
-                    FilePositionMarker(statement_index=None, line_no=2), code="L001"
-                ),
-                DummyLintError(
-                    FilePositionMarker(statement_index=None, line_no=2), code="L002"
-                ),
-                DummyLintError(
-                    FilePositionMarker(statement_index=None, line_no=4), code="L001"
-                ),
-                DummyLintError(
-                    FilePositionMarker(statement_index=None, line_no=4), code="L002"
-                ),
+                DummyLintError(2, code="L001"),
+                DummyLintError(2, code="L002"),
+                DummyLintError(4, code="L001"),
+                DummyLintError(4, code="L002"),
             ],
             [1, 2, 3],
         ],
@@ -415,18 +464,10 @@ def test_parse_noqa(input, expected):
                 dict(comment="noqa: enable=L001", line_no=4),
             ],
             [
-                DummyLintError(
-                    FilePositionMarker(statement_index=None, line_no=2), code="L001"
-                ),
-                DummyLintError(
-                    FilePositionMarker(statement_index=None, line_no=2), code="L002"
-                ),
-                DummyLintError(
-                    FilePositionMarker(statement_index=None, line_no=4), code="L001"
-                ),
-                DummyLintError(
-                    FilePositionMarker(statement_index=None, line_no=4), code="L002"
-                ),
+                DummyLintError(2, code="L001"),
+                DummyLintError(2, code="L002"),
+                DummyLintError(4, code="L001"),
+                DummyLintError(4, code="L002"),
             ],
             [2],
         ],
@@ -461,7 +502,7 @@ def test_linted_file_ignore_masked_violations(
         time_dict={},
         tree=None,
         ignore_mask=ignore_mask,
-        templated_file=linter.TemplatedFile(""),
+        templated_file=TemplatedFile.from_string(""),
     )
     result = lf._ignore_masked_violations(violations)
     expected_violations = [v for i, v in enumerate(violations) if i in expected]
@@ -499,7 +540,7 @@ def test_linter_noqa():
         """
     result = lntr.lint_string(sql)
     violations = result.get_violations()
-    assert {3, 6, 7, 8, 10, 12, 13, 14, 15, 18} == {v.line_no() for v in violations}
+    assert {3, 6, 7, 8, 10, 12, 13, 14, 15, 18} == {v.line_no for v in violations}
 
 
 def test_linter_noqa_with_templating():
@@ -533,6 +574,17 @@ def test__linter__skip_dbt_model_disabled(project_dir):  # noqa
         project_dir, "models/my_new_project/disabled_model.sql"
     )
     linted_path = lntr.lint_path(path=model_file_path)
+    # Check that the file is still there
+    assert len(linted_path.files) == 1
     linted_file = linted_path.files[0]
     assert linted_file.path == model_file_path
     assert not linted_file.templated_file
+    assert not linted_file.tree
+
+
+def test_delayed_exception():
+    """Test that DelayedException stores and reraises a stored exception."""
+    ve = ValueError()
+    de = runner.DelayedException(ve)
+    with pytest.raises(ValueError):
+        de.reraise()

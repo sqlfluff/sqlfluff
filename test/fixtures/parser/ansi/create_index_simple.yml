@@ -8,8 +8,9 @@ file:
     - keyword: 'ON'
     - table_reference:
         identifier: transaction_master
-    - start_bracket: (
-    - index_column_definition:
-        identifier: last_updated
-    - end_bracket: )
+    - bracketed:
+        start_bracket: (
+        index_column_definition:
+          identifier: last_updated
+        end_bracket: )
   statement_terminator: ;

@@ -6,6 +6,7 @@ from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules import get_ruleset
 from sqlfluff.core.rules.doc_decorators import document_configuration
 from sqlfluff.core.config import FluffConfig
+from sqlfluff.core.parser import NewlineSegment
 from sqlfluff.testing.rules import get_rule_from_set
 
 from test.fixtures.dbt.templater import (  # noqa
@@ -33,9 +34,7 @@ class Rule_T001(BaseRule):
         if segment.is_type("star"):
             return LintResult(
                 anchor=segment,
-                fixes=[
-                    LintFix("create", segment, self.make_newline(segment.pos_marker))
-                ],
+                fixes=[LintFix("create", segment, NewlineSegment())],
             )
 
 

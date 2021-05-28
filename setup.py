@@ -84,8 +84,6 @@ setup(
         "Jinja2",
         # Used for diffcover plugin
         "diff-cover>=2.5.0",
-        # Used for performance profiling
-        "bench-it",
         # Used for .sqlfluffignore
         "pathspec",
         # Used for finding os-specific application config dirs
@@ -98,6 +96,8 @@ setup(
         "typing_extensions",
         # We provide a testing library for plugins in sqlfluff.testing
         "pytest",
+        # For returning exceptions from multiprocessing.Pool.map()
+        "tblib",
     ],
     extras_require={
         "dbt": ["dbt>=0.17"],

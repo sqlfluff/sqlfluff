@@ -8,11 +8,12 @@ file:
           - function:
               function_name:
                 function_name_identifier: lower
-              start_bracket: (
-              expression:
-                column_reference:
-                  identifier: note_text
-              end_bracket: )
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: note_text
+                end_bracket: )
           - keyword: NOT
           - keyword: LIKE
           - literal: "'%daycare: {%'"
@@ -20,11 +21,12 @@ file:
           - function:
               function_name:
                 function_name_identifier: lower
-              start_bracket: (
-              expression:
-                column_reference:
-                  identifier: note_text
-              end_bracket: )
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: note_text
+                end_bracket: )
           - keyword: NOT
           - keyword: LIKE
           - literal: "'%grade/ school name:  {%'"
@@ -32,11 +34,12 @@ file:
           - function:
               function_name:
                 function_name_identifier: lower
-              start_bracket: (
-              expression:
-                column_reference:
-                  identifier: note_text
-              end_bracket: )
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: note_text
+                end_bracket: )
           - keyword: NOT
           - keyword: LIKE
           - literal: "'%social history:  {%'"

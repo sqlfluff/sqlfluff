@@ -3,8 +3,17 @@
 import pytest
 import oyaml
 
-from sqlfluff.core.parser.markers import FilePositionMarker
-from sqlfluff.core.parser.segments import RawSegment, Indent, Dedent
+from sqlfluff.core.parser.markers import PositionMarker
+from sqlfluff.core.parser.segments import (
+    Indent,
+    Dedent,
+    WhitespaceSegment,
+    NewlineSegment,
+    SymbolSegment,
+    CommentSegment,
+    CodeSegment,
+)
+from sqlfluff.core.templaters import TemplatedFile
 
 
 def process_struct(obj):
@@ -72,39 +81,65 @@ def generate_test_segments():
         for testing. Use with caution.
         """
         buff = []
-        raw_buff = ""
+        raw_file = "".join(elems)
+        templated_file = TemplatedFile.from_string(raw_file)
+        idx = 0
+
         for elem in elems:
             if elem == "<indent>":
-                buff.append(Indent(FilePositionMarker().advance_by(raw_buff)))
+                buff.append(
+                    Indent(
+                        pos_marker=PositionMarker.from_point(idx, idx, templated_file)
+                    )
+                )
                 continue
             elif elem == "<dedent>":
-                buff.append(Dedent(FilePositionMarker().advance_by(raw_buff)))
+                buff.append(
+                    Dedent(
+                        pos_marker=PositionMarker.from_point(idx, idx, templated_file)
+                    )
+                )
                 continue
 
-            if set(elem) <= {" ", "\t"}:
-                cls = RawSegment.make(
-                    " ", name="whitespace", type="whitespace", _is_code=False
-                )
-            elif set(elem) <= {"\n"}:
-                cls = RawSegment.make(
-                    "\n", name="newline", type="newline", _is_code=False
-                )
-            elif elem == "(":
-                cls = RawSegment.make("(", name="bracket_open")
-            elif elem == ")":
-                cls = RawSegment.make(")", name="bracket_close")
-            elif elem.startswith("--"):
-                cls = RawSegment.make("--", name="inline_comment", _is_code=False)
-            elif elem.startswith('"'):
-                cls = RawSegment.make('"', name="double_quote")
-            elif elem.startswith("'"):
-                cls = RawSegment.make("'", name="single_quote")
-            else:
-                cls = RawSegment.make("")
+            seg_kwargs = {}
 
-            buff.append(cls(elem, FilePositionMarker().advance_by(raw_buff)))
-            raw_buff += elem
-        return tuple(buff)  # Make sure we return a tuple
+            if set(elem) <= {" ", "\t"}:
+                SegClass = WhitespaceSegment
+            elif set(elem) <= {"\n"}:
+                SegClass = NewlineSegment
+            elif elem == "(":
+                SegClass = SymbolSegment
+                seg_kwargs = {"name": "bracket_open"}
+            elif elem == ")":
+                SegClass = SymbolSegment
+                seg_kwargs = {"name": "bracket_close"}
+            elif elem.startswith("--"):
+                SegClass = CommentSegment
+                seg_kwargs = {"name": "inline_comment"}
+            elif elem.startswith('"'):
+                SegClass = CodeSegment
+                seg_kwargs = {"name": "double_quote"}
+            elif elem.startswith("'"):
+                SegClass = CodeSegment
+                seg_kwargs = {"name": "single_quote"}
+            else:
+                SegClass = CodeSegment
+
+            # Set a none position marker which we'll realign at the end.
+            buff.append(
+                SegClass(
+                    raw=elem,
+                    pos_marker=PositionMarker(
+                        slice(idx, idx + len(elem)),
+                        slice(idx, idx + len(elem)),
+                        templated_file,
+                    ),
+                    **seg_kwargs
+                )
+            )
+            idx += len(elem)
+
+        return tuple(buff)
 
     # Return the function
     return generate_test_segments_func

@@ -1,5 +1,7 @@
 """Implementation of Rule L015."""
 
+from sqlfluff.core.parser import WhitespaceSegment
+
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
@@ -32,54 +34,44 @@ class Rule_L015(BaseRule):
 
         Look for DISTINCT keyword immediately followed by open parenthesis.
         """
-        # We only trigger when "DISTINCT" is the immediate parent of an
-        # expression that begins with start_bracket.
-        raw_stack_filtered = self.filter_meta(raw_stack)
-        if raw_stack_filtered and raw_stack_filtered[-1].name == "DISTINCT":
-            if segment.type == "expression":
-                segments_filtered = self.filter_meta(segment.segments)
-                if segments_filtered and segments_filtered[0].type == "start_bracket":
-                    # If we find open_bracket immediately following DISTINCT,
-                    # then bad.
-                    fixes = []
-                    # The end bracket could be anywhere in segments_filtered,
-                    # e.g. if the expression is (a + b) * c. If and only if it's
-                    # at the *end*, then the parentheses are unnecessary and
-                    # confusing. Remove them.
-                    if segments_filtered[-1].type == "end_bracket":
-                        fixes += [
-                            LintFix("delete", segments_filtered[0]),
-                            LintFix("delete", segments_filtered[-1]),
-                        ]
-                        # Update segments_filtered to reflect the pending
-                        # deletions.
-                        segments_filtered = segments_filtered[1:-1]
-                    # If there are still segments remaining after the potential
-                    # deletions above, insert a space between DISTINCT and the
-                    # remainder of the expression. (I think there will always
-                    # be remaining segments; this is a sanity check to ensure
-                    # we don't cause an IndexError.)
-                    if segments_filtered:
-                        # Insert a single space after the open parenthesis being
-                        # removed. Reason: DISTINCT is not a function; it's more
-                        # of a modifier that acts on all the columns. Therefore,
-                        # adding a space makes it clearer what the SQL is
-                        # actually doing.
-                        insert_str = " "
-                        first_segment = segments_filtered[0]
-                        fixes.append(
-                            LintFix(
-                                "create",
-                                first_segment,
-                                [
-                                    self.make_whitespace(
-                                        raw=insert_str,
-                                        pos_marker=first_segment.pos_marker.advance_by(
-                                            insert_str
-                                        ),
-                                    )
-                                ],
-                            )
-                        )
-                    return LintResult(anchor=segment, fixes=fixes)
+        # We trigger on `select_clause` and look for `select_clause_modifier`
+        if segment.is_type("select_clause"):
+            modifier = segment.get_child("select_clause_modifier")
+            if not modifier:
+                return None
+            first_element = segment.get_child("select_clause_element")
+            if not first_element:
+                return None
+            # is the first element only an expression with only brackets?
+            expression = first_element.get_child("expression")
+            if not expression:
+                expression = first_element
+            bracketed = expression.get_child("bracketed")
+            if not bracketed:
+                return None
+            fixes = []
+            # If there's nothing else in the expression, remove the brackets.
+            if len(expression.segments) == 1:
+                # Remove the brackets, and strip any meta segments.
+                fixes = [
+                    LintFix(
+                        "edit", bracketed, self.filter_meta(bracketed.segments)[1:-1]
+                    ),
+                ]
+            # Is there any whitespace between DISTINCT and the expression?
+            distinct_idx = segment.segments.index(modifier)
+            elem_idx = segment.segments.index(first_element)
+            if not any(
+                seg.is_whitespace for seg in segment.segments[distinct_idx:elem_idx]
+            ):
+                fixes.append(
+                    LintFix(
+                        "create",
+                        first_element,
+                        WhitespaceSegment(),
+                    )
+                )
+            # If no fixes, no problem.
+            if fixes:
+                return LintResult(anchor=modifier, fixes=fixes)
         return None

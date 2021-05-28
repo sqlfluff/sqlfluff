@@ -27,3 +27,54 @@ file:
     - object_reference:
         identifier: my_schema
 - statement_terminator: ;
+- statement:
+    use_statement:
+    - keyword: USE
+    - keyword: ROLE
+    - object_reference:
+        identifier: '"MY_ROLE"'
+- statement_terminator: ;
+- statement:
+    use_statement:
+    - keyword: USE
+    - keyword: WAREHOUSE
+    - object_reference:
+        identifier: '"MY_WAREHOUSE"'
+- statement_terminator: ;
+- statement:
+    use_statement:
+    - keyword: USE
+    - keyword: DATABASE
+    - object_reference:
+        identifier: '"MY_DATABASE"'
+- statement_terminator: ;
+- statement:
+    use_statement:
+      keyword: USE
+      object_reference:
+        identifier: '"MY_DATABASE"'
+- statement_terminator: ;
+- statement:
+    use_statement:
+    - keyword: USE
+    - keyword: SCHEMA
+    - object_reference:
+      - identifier: '"MY_DATABASE"'
+      - dot: .
+      - identifier: '"MY_SCHEMA"'
+- statement_terminator: ;
+- statement:
+    use_statement:
+    - keyword: USE
+    - keyword: SCHEMA
+    - object_reference:
+        identifier: '"MY_SCHEMA"'
+- statement_terminator: ;
+- statement:
+    use_statement:
+      keyword: USE
+      object_reference:
+      - identifier: '"MY_DATABASE"'
+      - dot: .
+      - identifier: '"MY_SCHEMA"'
+- statement_terminator: ;
