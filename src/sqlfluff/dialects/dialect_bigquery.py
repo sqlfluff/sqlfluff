@@ -145,6 +145,22 @@ bigquery_dialect.sets("angle_bracket_pairs").update(
 )
 
 
+@bigquery_dialect.segment(replace=True)
+class SelectClauseModifierSegment(BaseSegment):
+    """Things that come after SELECT but before the columns."""
+
+    type = "select_clause_modifier"
+    match_grammar = Sequence(
+        # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax
+        Sequence(
+            "AS",
+            OneOf("STRUCT", "VALUE"),
+            optional=True
+        ),
+        OneOf("DISTINCT", "ALL", optional=True)
+    )
+
+
 # BigQuery allows functions in INTERVAL
 @bigquery_dialect.segment(replace=True)
 class IntervalExpressionSegment(BaseSegment):
@@ -155,28 +171,6 @@ class IntervalExpressionSegment(BaseSegment):
         "INTERVAL",
         Ref("ExpressionSegment"),
         OneOf(Ref("QuotedLiteralSegment"), Ref("DatetimeUnitSegment")),
-    )
-
-
-@bigquery_dialect.segment(replace=True)
-class SelectClauseSegment(ansi_dialect.get_segment("SelectClauseSegment")):  # type: ignore
-    """In BigQuery, select * as struct is valid."""
-
-    parse_grammar = Sequence(
-        "SELECT",
-        Ref("SelectClauseModifierSegment", optional=True),
-        Indent,
-        OneOf(
-            Sequence(
-                "AS",
-                "STRUCT",
-                OneOf(
-                    Ref("StarSegment"),
-                    Ref("SelectClauseElementListGrammar"),
-                ),
-            ),
-            Ref("SelectClauseElementListGrammar"),
-        ),
     )
 
 

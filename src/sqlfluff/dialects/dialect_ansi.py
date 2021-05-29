@@ -1085,10 +1085,7 @@ class SelectClauseModifierSegment(BaseSegment):
     """Things that come after SELECT but before the columns."""
 
     type = "select_clause_modifier"
-    match_grammar = OneOf(
-        "DISTINCT",
-        "ALL",
-    )
+    match_grammar = Sequence(OneOf("DISTINCT", "ALL", optional=True))
 
 
 @ansi_dialect.segment()
