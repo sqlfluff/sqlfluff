@@ -18,7 +18,6 @@ from sqlfluff.core.parser import (
     Delimited,
     AnyNumberOf,
     KeywordSegment,
-    Indent,
     SymbolSegment,
     RegexLexer,
     StringLexer,
@@ -152,12 +151,8 @@ class SelectClauseModifierSegment(BaseSegment):
     type = "select_clause_modifier"
     match_grammar = Sequence(
         # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax
-        Sequence(
-            "AS",
-            OneOf("STRUCT", "VALUE"),
-            optional=True
-        ),
-        OneOf("DISTINCT", "ALL", optional=True)
+        Sequence("AS", OneOf("STRUCT", "VALUE"), optional=True),
+        OneOf("DISTINCT", "ALL", optional=True),
     )
 
 
