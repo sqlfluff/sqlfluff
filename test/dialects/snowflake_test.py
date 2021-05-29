@@ -13,7 +13,8 @@ from sqlfluff.core.dialects import dialect_selector
     [
         (
             "CreateCloneStatementSegment",
-            "create table orders_clone_restore clone orders at (timestamp => to_timestamp_tz('04/05/2013 01:02:03', 'mm/dd/yyyy hh24:mi:ss'));",
+            "create table orders_clone_restore clone orders at (timestamp => to_timestamp_tz('04/05/2013 01:02:03', "
+            "'mm/dd/yyyy hh24:mi:ss'));",
         ),
         ("ShowStatementSegment", "SHOW GRANTS ON ACCOUNT;"),
         ("ShowStatementSegment", "show tables history in tpch.public;"),

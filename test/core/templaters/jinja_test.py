@@ -255,8 +255,16 @@ def test__templater_jinja_slice_template(test, result):
         ),
         # Test splitting with a loop.
         (
-            "SELECT\n    {% for i in [1, 2, 3] %}\n        , c_{{i}}+42 AS the_meaning_of_li{{ 'f' * i }}\n    {% endfor %}\nFROM my_table",
-            "SELECT\n    \n        , c_1+42 AS the_meaning_of_lif\n    \n        , c_2+42 AS the_meaning_of_liff\n    \n        , c_3+42 AS the_meaning_of_lifff\n    \nFROM my_table",
+            "SELECT\n    "
+            "{% for i in [1, 2, 3] %}\n        , "
+            "c_{{i}}+42 AS the_meaning_of_li{{ 'f' * i }}\n    "
+            "{% endfor %}\n"
+            "FROM my_table",
+            "SELECT\n    \n        , "
+            "c_1+42 AS the_meaning_of_lif\n    \n        , "
+            "c_2+42 AS the_meaning_of_liff\n    \n        , "
+            "c_3+42 AS the_meaning_of_lifff\n    \n"
+            "FROM my_table",
             [
                 ("literal", slice(0, 11, None), slice(0, 11, None)),
                 ("block_start", slice(11, 35, None), slice(11, 11, None)),

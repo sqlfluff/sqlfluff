@@ -583,7 +583,10 @@ class BaseGrammar(Matchable):
                             else:
                                 # The types don't match. Error.
                                 raise SQLParseError(
-                                    f"Found unexpected end bracket!, was expecting {end_brackets[start_index]}, but got {matcher}",
+                                    f"Found unexpected end bracket!, "
+                                    f"was expecting "
+                                    f"{end_brackets[start_index]}, "
+                                    f"but got {matcher}",
                                     segment=match.matched_segments[0],
                                 )
 

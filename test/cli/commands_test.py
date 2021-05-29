@@ -353,9 +353,11 @@ def test__cli__command__fix(rule, fname):
         (" select * from t", "L003", "select * from t"),  # fix preceding whitespace
         # L031 fix aliases in joins
         (
-            "SELECT u.id, c.first_name, c.last_name, COUNT(o.user_id) FROM users as u JOIN customers as c on u.id = c.user_id JOIN orders as o on u.id = o.user_id;",
+            "SELECT u.id, c.first_name, c.last_name, COUNT(o.user_id) "
+            "FROM users as u JOIN customers as c on u.id = c.user_id JOIN orders as o on u.id = o.user_id;",
             "L031",
-            "SELECT users.id, customers.first_name, customers.last_name, COUNT(orders.user_id) FROM users JOIN customers on users.id = customers.user_id JOIN orders on users.id = orders.user_id;",
+            "SELECT users.id, customers.first_name, customers.last_name, COUNT(orders.user_id) "
+            "FROM users JOIN customers on users.id = customers.user_id JOIN orders on users.id = orders.user_id;",
         ),
     ],
 )

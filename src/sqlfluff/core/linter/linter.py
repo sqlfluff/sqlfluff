@@ -232,7 +232,9 @@ class Linter:
                         action, rule_part = comment_remainder.split("=", 1)
                         if action not in {"disable", "enable"}:
                             return SQLParseError(
-                                "Malformed 'noqa' section. Expected 'noqa: enable=<rule>[,...] | all' or 'noqa: disable=<rule>[,...] | all",
+                                "Malformed 'noqa' section. "
+                                "Expected 'noqa: enable=<rule>[,...] | all' "
+                                "or 'noqa: disable=<rule>[,...] | all",
                                 line_no=line_no,
                             )
                     else:
@@ -240,7 +242,9 @@ class Linter:
                         rule_part = comment_remainder
                         if rule_part in {"disable", "enable"}:
                             return SQLParseError(
-                                "Malformed 'noqa' section. Expected 'noqa: enable=<rule>[,...] | all' or 'noqa: disable=<rule>[,...] | all",
+                                "Malformed 'noqa' section. "
+                                "Expected 'noqa: enable=<rule>[,...] | all' "
+                                "or 'noqa: disable=<rule>[,...] | all",
                                 line_no=line_no,
                             )
                     rules: Optional[Tuple[str, ...]]

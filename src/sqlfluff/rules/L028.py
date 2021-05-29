@@ -75,7 +75,9 @@ class Rule_L028(Rule_L025):
                     violation_buff.append(
                         LintResult(
                             anchor=ref,
-                            description="{0} reference {1!r} found in single table select which is inconsistent with previous references.".format(
+                            description="{0} reference {1!r} found in single "
+                            "table select which is inconsistent "
+                            "with previous references.".format(
                                 this_ref_type.capitalize(), ref.raw
                             ),
                         )
