@@ -247,7 +247,6 @@ class BaseSegment:
                     segs += (stmt,)
                     continue
             except Exception as err:
-                # raise ValueError("{0} has no attribute `is_expandable`. This segment appears poorly constructed.".format(stmt))
                 parse_context.logger.error(
                     "%s has no attribute `is_expandable`. This segment appears poorly constructed.",
                     stmt,

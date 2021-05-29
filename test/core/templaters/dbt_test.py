@@ -182,7 +182,8 @@ def test__templater_dbt_templating_absolute_path(
     [
         (
             "compiler_error.sql",
-            "dbt compilation error on file 'models/my_new_project/compiler_error.sql', Unexpected end of template. Jinja was looking for the following tags: 'endfor'",
+            "dbt compilation error on file 'models/my_new_project/compiler_error.sql', "
+            "Unexpected end of template. Jinja was looking for the following tags: 'endfor'",
         ),
         ("exception_connect_database.sql", "dbt tried to connect to the database"),
     ],
