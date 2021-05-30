@@ -19,12 +19,14 @@ Contributors:
 - Fix bug [#1037](https://github.com/sqlfluff/sqlfluff/issues/1037), in which fix 
   logging had been sent to stdout when reading data from stdin.
 - Add a little bit of fun on CLI exit 🎉!
-- Disabled models in the dbt templater are now skipped enitrely rather than
+- Disabled models in the dbt templater are now skipped entirely rather than
   returning an untemplated file.
 - Add a changelog check to SQLFluff continuous integration.
 - Fix bug [#1083](https://github.com/sqlfluff/sqlfluff/issues/1083), adding
   support for BigQuery named function arguments, used with functions such as
   [ST_GEOGFROMGEOJSON()](https://cloud.google.com/bigquery/docs/reference/standard-sql/geography_functions#st_geogfromgeojson)
+- Fix bug [#1079](https://github.com/sqlfluff/sqlfluff/issues/1079), addressing
+  issues with L025 and L026 with BigQuery column references involving `STRUCT`
 
 ## [0.6.0a1] - 2021-05-15
 ### Added
