@@ -419,17 +419,19 @@ class LiteralCoercionSegment(BaseSegment):
 
 @bigquery_dialect.segment(replace=True)
 class ObjectReferenceSegment(ansi_dialect.get_segment("ObjectReferenceSegment")):  # type: ignore
+    """A reference to an object."""
+
     pass
 
 
 @bigquery_dialect.segment(replace=True)
 class ColumnReferenceSegment(ObjectReferenceSegment):
+    """A reference to column, field or alias."""
 
     type = "column_reference"
 
     def extract_possible_references(self, level: int):
-        """Extract possible references of a given level.
-        """
+        """Extract possible references of a given level."""
         refs = list(self.iter_raw_references())
         if level == 3 and len(refs) >= 3:
             return [refs[0]]
