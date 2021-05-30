@@ -618,6 +618,23 @@ class ObjectReferenceSegment(BaseSegment):
             return refs[-level]
         return None
 
+    def extract_possible_references(self, level: int) -> List[ObjectReferencePart]:
+        """Extract possible references of a given level.
+
+        NOTE: The base implementation here returns at most one part, but
+        dialects such as BigQuery that support nesting (e.g. STRUCT) may return
+        multiple reference parts.
+
+        e.g. level 1 = the object.
+        level 2 = the table
+        level 3 = the schema
+        etc...
+        """
+        refs = list(self.iter_raw_references())
+        if len(refs) >= level:
+            return [refs[-level]]
+        return []
+
 
 @ansi_dialect.segment()
 class TableReferenceSegment(ObjectReferenceSegment):

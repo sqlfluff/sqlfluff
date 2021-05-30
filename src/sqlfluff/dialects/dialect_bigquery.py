@@ -417,8 +417,31 @@ class LiteralCoercionSegment(BaseSegment):
     )
 
 
+@bigquery_dialect.segment(replace=True)
+class ObjectReferenceSegment(ansi_dialect.get_segment("ObjectReferenceSegment")):  # type: ignore
+    pass
+
+
+@bigquery_dialect.segment(replace=True)
+class ColumnReferenceSegment(ObjectReferenceSegment):
+
+    type = "column_reference"
+
+    def extract_possible_references(self, level: int):
+        """Extract possible references of a given level.
+        """
+        refs = list(self.iter_raw_references())
+        if level == 3 and len(refs) >= 3:
+            return [refs[0]]
+        if level == 2 and len(refs) >= 3:
+            return [refs[0], refs[1]]
+        if level == 1 and len(refs) >= 3:
+            return [refs[1], refs[2]]
+        return super().extract_possible_references(level)
+
+
 @bigquery_dialect.segment()
-class HyphenatedObjectReferenceSegment(ansi_dialect.get_segment("ObjectReferenceSegment")):  # type: ignore
+class HyphenatedObjectReferenceSegment(ObjectReferenceSegment):
     """A reference to an object that may contain embedded hyphens."""
 
     type = "hyphenated_object_reference"
