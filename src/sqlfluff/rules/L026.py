@@ -34,8 +34,7 @@ class Rule_L026(Rule_L020):
             # Last check, this *might* be a correlated subquery reference.
             if parent_select:
                 parent_aliases, _ = get_aliases_from_select(parent_select)
-                if parent_aliases and tbl_ref[0] in [a[0] for a in
-                                                     parent_aliases]:
+                if parent_aliases and tbl_ref[0] in [a[0] for a in parent_aliases]:
                     return False
             return True
         return False
