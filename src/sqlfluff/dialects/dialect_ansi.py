@@ -605,19 +605,6 @@ class ObjectReferenceSegment(BaseSegment):
         """Return the qualification type of this reference."""
         return "qualified" if self.is_qualified() else "unqualified"
 
-    def extract_reference(self, level: int) -> Optional[ObjectReferencePart]:
-        """Extract a reference of a given level.
-
-        e.g. level 1 = the object.
-        level 2 = the table
-        level 3 = the schema
-        etc...
-        """
-        refs = list(self.iter_raw_references())
-        if len(refs) >= level:
-            return refs[-level]
-        return None
-
     def extract_possible_references(self, level: int) -> List[ObjectReferencePart]:
         """Extract possible references of a given level.
 
