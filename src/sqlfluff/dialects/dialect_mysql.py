@@ -18,9 +18,7 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
 )
-from sqlfluff.core.dialects import (
-    load_raw_dialect,
-)
+from sqlfluff.core.dialects import (load_raw_dialect,)
 
 ansi_dialect = load_raw_dialect("ansi")
 mysql_dialect = ansi_dialect.copy_as("mysql")
@@ -67,7 +65,7 @@ mysql_dialect.add(
         CodeSegment,
         name="quoted_literal",
         type="literal",
-        trim_chars=("\"",),
+        trim_chars=('"'),
     )
 )
 
