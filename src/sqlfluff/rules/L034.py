@@ -1,7 +1,5 @@
 """Implementation of Rule L034."""
 
-import itertools
-
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
