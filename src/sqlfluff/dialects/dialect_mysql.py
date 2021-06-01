@@ -98,6 +98,7 @@ class CreateTableStatementSegment(
         ],
     )
 
+
 mysql_dialect.add(
     DoubleForwardSlashSegment=StringParser(
         "//", SymbolSegment, name="doubleforwardslash", type="statement_terminator"
