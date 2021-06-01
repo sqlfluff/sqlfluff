@@ -182,7 +182,7 @@ ansi_dialect.sets("value_table_functions").update([])
 ansi_dialect.add(
     # Real segments
     DelimiterSegment=Ref("SemicolonSegment"),
-    DelimiterSegment=StringParser(
+    SemicolonSegment=StringParser(
         ";", SymbolSegment, name="semicolon", type="statement_terminator"
     ),
     ColonSegment=StringParser(":", SymbolSegment, name="colon", type="colon"),
