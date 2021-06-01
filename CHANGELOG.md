@@ -14,8 +14,8 @@ Contributors:
 ### Changed
 - Added support for additional delimiters by creating a new DelimiterSegment in the 
   ANSI dialect which defaults to the semicolon, but allows it to be more intuitive 
-  when overriden in a specific child dialect (mysql)
-- Added support for the DELIMITER statement in the mysql dialect
+  when overriden in a specific child dialect (mysql) [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
+- Added support for the DELIMITER statement in the mysql dialect [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
 ## [0.6.0a2] - 2021-05-27
 ### Changed
 - Better exception handling for the simple parsing API (`sqlfluff.parse`)
