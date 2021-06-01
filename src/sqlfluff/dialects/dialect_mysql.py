@@ -114,6 +114,7 @@ mysql_dialect.replace(
     ), 
 )
 
+
 @mysql_dialect.segment()
 class DelimiterStatement(BaseSegment):
     """DELIMITER statement."""
@@ -121,6 +122,7 @@ class DelimiterStatement(BaseSegment):
     match_grammar = Sequence(
         "DELIMITER",
     )
+
 
 @mysql_dialect.segment(replace=True)
 class StatementSegment(
