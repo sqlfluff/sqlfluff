@@ -65,7 +65,7 @@ mysql_dialect.add(
         CodeSegment,
         name="quoted_literal",
         type="literal",
-        trim_chars=('"'),
+        trim_chars=('"',),
     )
 )
 
