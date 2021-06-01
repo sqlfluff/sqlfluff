@@ -9,7 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Contributors:
 - [@GitHub-Username](Link to GitHub profile) ([#PR-Number](Link to PR))
+- [@bolajiwahab](https://github.com/bolajiwahab) ([#1063])(https://github.com/sqlfluff/sqlfluff/pull/1063)
 
+## [0.6.0a2] - 2021-05-27
 ### Changed
 - Better exception handling for the simple parsing API (`sqlfluff.parse`)
   which now raises an exception which holds all potential parsing issues
@@ -17,6 +19,12 @@ Contributors:
 - Fix bug [#1037](https://github.com/sqlfluff/sqlfluff/issues/1037), in which fix 
   logging had been sent to stdout when reading data from stdin.
 - Add a little bit of fun on CLI exit 🎉!
+- Disabled models in the dbt templater are now skipped enitrely rather than
+  returning an untemplated file.
+- Add a changelog check to SQLFluff continuous integration.
+- Fix bug [#1083](https://github.com/sqlfluff/sqlfluff/issues/1083), adding
+  support for BigQuery named function arguments, used with functions such as
+  [ST_GEOGFROMGEOJSON()](https://cloud.google.com/bigquery/docs/reference/standard-sql/geography_functions#st_geogfromgeojson)
 
 ## [0.6.0a1] - 2021-05-15
 ### Added

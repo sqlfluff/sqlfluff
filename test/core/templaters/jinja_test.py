@@ -37,7 +37,7 @@ FROM events
 def test__templater_jinja(instr, expected_outstr):
     """Test jinja templating and the treatment of whitespace."""
     t = JinjaTemplater(override_context=dict(blah="foo", condition="a < 10"))
-    outstr, _ = t.process(in_str=instr, config=FluffConfig())
+    outstr, _ = t.process(in_str=instr, fname="test", config=FluffConfig())
     assert str(outstr) == expected_outstr
 
 
@@ -45,7 +45,7 @@ def test__templater_jinja_error_variable():
     """Test missing variable error handling in the jinja templater."""
     t = JinjaTemplater(override_context=dict(blah="foo"))
     instr = JINJA_STRING
-    outstr, vs = t.process(in_str=instr, config=FluffConfig())
+    outstr, vs = t.process(in_str=instr, fname="test", config=FluffConfig())
     assert str(outstr) == "SELECT * FROM f, o, o WHERE \n\n"
     # Check we have violations.
     assert len(vs) > 0
@@ -57,7 +57,7 @@ def test__templater_jinja_error_syntax():
     """Test syntax problems in the jinja templater."""
     t = JinjaTemplater()
     instr = "SELECT {{foo} FROM jinja_error\n"
-    outstr, vs = t.process(in_str=instr, config=FluffConfig())
+    outstr, vs = t.process(in_str=instr, fname="test", config=FluffConfig())
     # Check we just skip templating.
     assert str(outstr) == instr
     # Check we have violations.
@@ -70,7 +70,7 @@ def test__templater_jinja_error_catatrophic():
     """Test error handling in the jinja templater."""
     t = JinjaTemplater(override_context=dict(blah=7))
     instr = JINJA_STRING
-    outstr, vs = t.process(in_str=instr, config=FluffConfig())
+    outstr, vs = t.process(in_str=instr, fname="test", config=FluffConfig())
     assert not outstr
     assert len(vs) > 0
 
@@ -255,8 +255,16 @@ def test__templater_jinja_slice_template(test, result):
         ),
         # Test splitting with a loop.
         (
-            "SELECT\n    {% for i in [1, 2, 3] %}\n        , c_{{i}}+42 AS the_meaning_of_li{{ 'f' * i }}\n    {% endfor %}\nFROM my_table",
-            "SELECT\n    \n        , c_1+42 AS the_meaning_of_lif\n    \n        , c_2+42 AS the_meaning_of_liff\n    \n        , c_3+42 AS the_meaning_of_lifff\n    \nFROM my_table",
+            "SELECT\n    "
+            "{% for i in [1, 2, 3] %}\n        , "
+            "c_{{i}}+42 AS the_meaning_of_li{{ 'f' * i }}\n    "
+            "{% endfor %}\n"
+            "FROM my_table",
+            "SELECT\n    \n        , "
+            "c_1+42 AS the_meaning_of_lif\n    \n        , "
+            "c_2+42 AS the_meaning_of_liff\n    \n        , "
+            "c_3+42 AS the_meaning_of_lifff\n    \n"
+            "FROM my_table",
             [
                 ("literal", slice(0, 11, None), slice(0, 11, None)),
                 ("block_start", slice(11, 35, None), slice(11, 11, None)),

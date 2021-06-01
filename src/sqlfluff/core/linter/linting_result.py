@@ -1,5 +1,6 @@
 """Defines the linter class."""
 
+import time
 from typing import (
     Any,
     Dict,
@@ -14,6 +15,7 @@ from sqlfluff.core.errors import (
     CheckTuple,
 )
 
+from sqlfluff.core.timing import TimingSummary
 
 # Classes needed only for type checking
 from sqlfluff.core.parser.segments.base import BaseSegment
@@ -31,6 +33,8 @@ class LintingResult:
 
     def __init__(self) -> None:
         self.paths: List[LintedDir] = []
+        self._start_time: float = time.monotonic()
+        self.total_time: float = 0.0
 
     @staticmethod
     def sum_dicts(d1: Dict[str, Any], d2: Dict[str, Any]) -> Dict[str, Any]:
@@ -49,6 +53,10 @@ class LintingResult:
     def add(self, path: LintedDir) -> None:
         """Add a new `LintedDir` to this result."""
         self.paths.append(path)
+
+    def stop_timer(self):
+        """Stop the linting timer."""
+        self.total_time = time.monotonic() - self._start_time
 
     @overload
     def check_tuples(self, by_path: Literal[False]) -> List[CheckTuple]:
@@ -118,6 +126,14 @@ class LintingResult:
         all_stats["exit code"] = 65 if all_stats["violations"] > 0 else 0
         all_stats["status"] = "FAIL" if all_stats["violations"] > 0 else "PASS"
         return all_stats
+
+    def timing_summary(self) -> Dict[str, Dict[str, float]]:
+        """Return a timing summary."""
+        timing = TimingSummary()
+        for dir in self.paths:
+            for file in dir.files:
+                timing.add(file.time_dict)
+        return timing.summary()
 
     def as_records(self) -> List[dict]:
         """Return the result as a list of dictionaries.

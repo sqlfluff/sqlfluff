@@ -1780,6 +1780,7 @@ class WithCompoundStatementSegment(BaseSegment):
     match_grammar = StartsWith("WITH")
     parse_grammar = Sequence(
         "WITH",
+        Ref.keyword("RECURSIVE", optional=True),
         Delimited(
             Ref("CTEDefinitionSegment"),
             terminator=Ref.keyword("SELECT"),
@@ -2535,7 +2536,8 @@ class FunctionParameterListGrammar(BaseSegment):
         Delimited(
             Ref("FunctionParameterGrammar"),
             delimiter=Ref("CommaSegment"),
-        )
+            optional=True,
+        ),
     )
 
 

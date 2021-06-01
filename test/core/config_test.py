@@ -63,7 +63,27 @@ def test__config__load_nested():
         )
     )
     assert cfg == {
-        "core": {"testing_val": "foobar", "testing_int": 6, "testing_bar": 7.698},
+        "core": {"testing_val": "foobar", "testing_int": 1, "testing_bar": 7.698},
+        "bar": {"foo": "foobar"},
+        "fnarr": {"fnarr": {"foo": "foobar"}},
+    }
+
+
+def test__config__load_toml():
+    """Test loading config from a pyproject.toml file."""
+    c = ConfigLoader()
+    cfg = c.load_default_config_file(
+        os.path.join("test", "fixtures", "config", "toml"),
+        "pyproject.toml",
+    )
+    assert cfg == {
+        "core": {
+            "testing_int": 5,
+            "testing_bar": 7.698,
+            "testing_bool": False,
+            "testing_arr": ["a", "b", "c"],
+            "testing_inline_table": {"x": 1},
+        },
         "bar": {"foo": "foobar"},
         "fnarr": {"fnarr": {"foo": "foobar"}},
     }
