@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - L034 now ignores select statements which contain macros.
+- L034 now ignores select statements part of a set expression, most commonly a union.
 
 Contributors:
 - [@GitHub-Username](Link to GitHub profile) ([#PR-Number](Link to PR))

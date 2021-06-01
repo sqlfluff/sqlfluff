@@ -45,7 +45,7 @@ class Rule_L034(BaseRule):
         self.current_element_band = i
         self.seen_band_elements[i].append(segment)
 
-    def _eval(self, segment, **kwargs):
+    def _eval(self, segment, parent_stack, **kwargs):
         self.violation_buff = []
         self.violation_exists = False
         # Bands of select targets in order to be enforced
@@ -64,7 +64,10 @@ class Rule_L034(BaseRule):
         # If we find a matching target element, we append the element to the corresponding index
         self.seen_band_elements = [[] for i in select_element_order_preference] + [[]]
 
-        if segment.is_type("select_clause"):
+        # Ignore select clauses which belong to a set expression, which are most commonly a union.
+        if segment.is_type("select_clause") and not parent_stack[-2].is_type(
+            "set_expression"
+        ):
             select_clause_segment = segment
             select_target_elements = segment.get_children("select_clause_element")
             if not select_target_elements:
