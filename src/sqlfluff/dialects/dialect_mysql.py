@@ -127,7 +127,5 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
     """Overriding StatementSegment to allow for DELIMITER."""
 
     parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
-        insert=[
-            Ref("DelimiterStatement")
-        ],
+        insert=[Ref("DelimiterStatement")],
     )
