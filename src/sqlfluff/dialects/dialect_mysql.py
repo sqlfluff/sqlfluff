@@ -123,9 +123,7 @@ class DelimiterStatement(BaseSegment):
 
 
 @mysql_dialect.segment(replace=True)
-class StatementSegment(
-    ansi_dialect.get_segment("StatementSegment")  # type: ignore
-):
+class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
     """Overriding StatementSegment to allow for DELIMITER."""
 
     parse_grammar = ansi_dialect.get_segment(
