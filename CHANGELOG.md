@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- L034 now ignores select statements which contain macros.
+
 Contributors:
 - [@GitHub-Username](Link to GitHub profile) ([#PR-Number](Link to PR))
 - [@bolajiwahab](https://github.com/bolajiwahab) ([#1063])(https://github.com/sqlfluff/sqlfluff/pull/1063)
@@ -16,7 +19,7 @@ Contributors:
 - Better exception handling for the simple parsing API (`sqlfluff.parse`)
   which now raises an exception which holds all potential parsing issues
   and prints nicely with more than one issue.
-- Fix bug [#1037](https://github.com/sqlfluff/sqlfluff/issues/1037), in which fix 
+- Fix bug [#1037](https://github.com/sqlfluff/sqlfluff/issues/1037), in which fix
   logging had been sent to stdout when reading data from stdin.
 - Add a little bit of fun on CLI exit 🎉!
 - Disabled models in the dbt templater are now skipped enitrely rather than
@@ -31,7 +34,7 @@ Contributors:
 - Lint and fix parallelism using `--parallel` CLI argument
 - Fix [1051](https://github.com/sqlfluff/sqlfluff/issues/1051), adding support
   for bitwise operators `&`, `|`, `^`, `<<`, `>>`
-  
+
 ## [0.5.6] - 2021-05-14
 - Bugfix release for an issue in `L016` introduced in `0.5.4`.
 - Fix for `L016` issue where `DISTINCT` keywords were mangled during

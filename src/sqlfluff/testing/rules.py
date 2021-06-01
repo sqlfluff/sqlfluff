@@ -15,8 +15,6 @@ class RuleTestCase(NamedTuple):
 
     rule: Optional[str] = None
     desc: Optional[str] = None
-    templater: Optional[str] = None
-    dbt_model_name: Optional[str] = None
     pass_str: Optional[str] = None
     fail_str: Optional[str] = None
     fix_str: Optional[str] = None
