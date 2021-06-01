@@ -19,7 +19,7 @@ from sqlfluff.core.parser import (
     SymbolSegment,
 )
 from sqlfluff.core.dialects import (
-    load_raw_dialect
+    load_raw_dialect,
 )
 
 ansi_dialect = load_raw_dialect("ansi")
