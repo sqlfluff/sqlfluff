@@ -148,6 +148,7 @@ def test__templater_dbt_skips_disabled_model(in_dbt_project_dir, dbt_templater):
         "incremental.sql",
         "single_trailing_newline.sql",
         "multiple_trailing_newline.sql",
+        "L034_test.sql",
     ],
 )
 @pytest.mark.dbt
@@ -158,7 +159,6 @@ def test__dbt_templated_models_do_not_raise_lint_error(
     lntr = Linter(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
     lnt = lntr.lint_path(path="models/my_new_project/" + fname)
     violations = lnt.check_tuples()
-    print(violations)
     assert len(violations) == 0
 
 
