@@ -111,7 +111,7 @@ mysql_dialect.replace(
     DelimiterSegment=OneOf(Ref("SemicolonSegment"), Ref("TildeSegment")),
     TildeSegment=StringParser(
         "~", SymbolSegment, name="tilde", type="statement_terminator"
-    ), 
+    ),
 )
 
 
