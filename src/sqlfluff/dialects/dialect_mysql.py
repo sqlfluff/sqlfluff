@@ -117,9 +117,7 @@ class DelimiterStatement(BaseSegment):
     """DELIMITER statement."""
 
     type = "delimiter_statement"
-    match_grammar = Sequence(
-        "DELIMITER",
-    )
+    match_grammar = Ref.keyword("DELIMITER")
 
 
 @mysql_dialect.segment(replace=True)
