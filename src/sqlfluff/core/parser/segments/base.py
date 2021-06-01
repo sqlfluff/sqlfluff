@@ -9,7 +9,6 @@ Here we define:
 """
 
 from io import StringIO
-from benchit import BenchIt
 from cached_property import cached_property
 from typing import Any, Callable, Optional, List, Tuple, NamedTuple, Iterator
 import logging
@@ -248,7 +247,6 @@ class BaseSegment:
                     segs += (stmt,)
                     continue
             except Exception as err:
-                # raise ValueError("{0} has no attribute `is_expandable`. This segment appears poorly constructed.".format(stmt))
                 parse_context.logger.error(
                     "%s has no attribute `is_expandable`. This segment appears poorly constructed.",
                     stmt,
@@ -838,9 +836,6 @@ class BaseSegment:
                     )
                     + post_nc
                 )
-
-        bencher = BenchIt()  # starts the timer
-        bencher("Parse complete of {0!r}".format(self.__class__.__name__))
 
         # Recurse if allowed (using the expand method to deal with the expansion)
         parse_context.logger.debug(
