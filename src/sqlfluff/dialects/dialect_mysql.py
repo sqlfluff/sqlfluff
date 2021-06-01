@@ -6,7 +6,6 @@ https://dev.mysql.com/doc/refman/8.0/en/differences-from-ansi.html
 
 from sqlfluff.core.parser import (
     BaseSegment,
-    Anything,
     Ref,
     AnyNumberOf,
     Sequence,
@@ -18,11 +17,8 @@ from sqlfluff.core.parser import (
     CodeSegment,
     StringParser,
     SymbolSegment,
-    KeywordSegment,
-    Delimited,
 )
 from sqlfluff.core.dialects import load_raw_dialect
-from sqlfluff.core.parser.grammar.greedy import StartsWith
 
 ansi_dialect = load_raw_dialect("ansi")
 mysql_dialect = ansi_dialect.copy_as("mysql")
