@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - L034 now ignores select statements which contain macros.
 - L034 now ignores select statements part of a set expression, most commonly a union.
+- Fix bug [#1082](https://github.com/sqlfluff/sqlfluff/issues/1082), adding
+  support for BigQuery `select as struct '1' as bb, 2 as aa` syntax
 
 Contributors:
 - [@GitHub-Username](Link to GitHub profile) ([#PR-Number](Link to PR))

@@ -18,10 +18,14 @@ file:
               expression:
                 select_statement:
                   select_clause:
-                  - keyword: select
-                  - keyword: as
-                  - keyword: struct
-                  - star: '*'
+                    keyword: select
+                    select_clause_modifier:
+                    - keyword: as
+                    - keyword: struct
+                    select_clause_element:
+                      wildcard_expression:
+                        wildcard_identifier:
+                          star: '*'
                   from_clause:
                     keyword: from
                     from_expression:
@@ -49,6 +53,25 @@ file:
             table_expression:
               table_reference:
                 identifier: another_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_modifier:
+        - keyword: as
+        - keyword: struct
+      - select_clause_element:
+          literal: "'1'"
+          alias_expression:
+            keyword: as
+            identifier: bb
+      - comma: ','
+      - select_clause_element:
+          literal: '2'
+          alias_expression:
+            keyword: as
+            identifier: aa
 - statement_terminator: ;
 - statement:
     select_statement:
