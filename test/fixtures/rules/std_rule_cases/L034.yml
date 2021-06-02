@@ -15,7 +15,7 @@ test_2:
       row_number() over (partition by id order by date) as y,
       b
     from x
-  line_numbers: [3]
+  line_numbers: [1]
 
   fix_str: |
     select
@@ -31,7 +31,7 @@ test_3:
       *,
       cast(b as int) as b_int
     from x
-  line_numbers: [2]
+  line_numbers: [1]
 
   fix_str: |
     select
@@ -47,7 +47,7 @@ test_4:
       cast(b as int) as b_int,
       *
     from x
-  line_numbers: [2, 3]
+  line_numbers: [1]
 
   fix_str: |
     select
@@ -63,7 +63,7 @@ test_5:
       b::int,
       *
     from x
-  line_numbers: [2, 3]
+  line_numbers: [1]
 
   fix_str: |
     select
@@ -80,7 +80,7 @@ test_6:
       2::int + 4 as sum,
       cast(b) as c
     from x
-  line_numbers: [2, 4]
+  line_numbers: [1]
 
   fix_str: |
     select
@@ -89,3 +89,15 @@ test_6:
       row_number() over (partition by id order by date) as y,
       2::int + 4 as sum
     from x
+
+test_union_statements_ignored:
+  pass_str: |
+    select
+      a + b as c,
+      d
+    from table_a
+    union all
+    select
+      c,
+      d
+    from table_b

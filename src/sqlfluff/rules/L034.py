@@ -1,14 +1,12 @@
 """Implementation of Rule L034."""
 
-import itertools
-
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
 @document_fix_compatible
 class Rule_L034(BaseRule):
-    """Use wildcards then simple select targets before calculations and aggregates.
+    """Use wildcards then simple targets before calculations and aggregates in select statements.
 
     | **Anti-pattern**
 
@@ -42,21 +40,14 @@ class Rule_L034(BaseRule):
             self.seen_band_elements[i + 1 : :]
         ):
             # Found a violation (i.e. a simpler element that *follows* a more
-            # complex element. Find the more complex element occurring JUST
-            # PRIOR TO "segment" by sorting on line number and position, then
-            # report that as the location of the issue.
-            more_complex_segments = sorted(
-                itertools.chain(*self.seen_band_elements[i + 1 : :]),
-                key=lambda s: (s.pos_marker.line_no, s.pos_marker.line_pos),
-            )
-            misplaced_segment = more_complex_segments[-1]
-            if misplaced_segment not in [v.anchor for v in self.violation_buff]:
-                self.violation_buff.append(LintResult(anchor=misplaced_segment))
+            # complex element.
+            self.violation_exists = True
         self.current_element_band = i
         self.seen_band_elements[i].append(segment)
 
-    def _eval(self, segment, **kwargs):
+    def _eval(self, segment, parent_stack, **kwargs):
         self.violation_buff = []
+        self.violation_exists = False
         # Bands of select targets in order to be enforced
         select_element_order_preference = (
             ("wildcard_expression",),
@@ -73,7 +64,11 @@ class Rule_L034(BaseRule):
         # If we find a matching target element, we append the element to the corresponding index
         self.seen_band_elements = [[] for i in select_element_order_preference] + [[]]
 
-        if segment.is_type("select_clause"):
+        # Ignore select clauses which belong to a set expression, which are most commonly a union.
+        if segment.is_type("select_clause") and not parent_stack[-2].is_type(
+            "set_expression"
+        ):
+            select_clause_segment = segment
             select_target_elements = segment.get_children("select_clause_element")
             if not select_target_elements:
                 return None
@@ -128,7 +123,7 @@ class Rule_L034(BaseRule):
                 if self.current_element_band is None:
                     self.seen_band_elements[-1].append(segment)
 
-            if self.violation_buff:
+            if self.violation_exists:
                 # Create a list of all the edit fixes
                 # We have to do this at the end of iterating through all the select_target_elements to get the order correct
                 # This means we can't add a lint fix to each individual LintResult as we go
@@ -145,8 +140,10 @@ class Rule_L034(BaseRule):
                         select_target_elements, ordered_select_target_elements
                     )
                 ]
-
-                # Add the set of fixes to the last lint result in the violation buffer
-                self.violation_buff[-1].fixes = fixes
+                # Anchoring on the select statement segment ensures that
+                # select statements which include macro targets are ignored
+                # when ignore_templated_areas is set
+                lint_result = LintResult(anchor=select_clause_segment, fixes=fixes)
+                self.violation_buff = [lint_result]
 
         return self.violation_buff or None

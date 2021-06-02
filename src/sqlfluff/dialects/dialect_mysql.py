@@ -5,6 +5,7 @@ https://dev.mysql.com/doc/refman/8.0/en/differences-from-ansi.html
 """
 
 from sqlfluff.core.parser import (
+    BaseSegment,
     Ref,
     AnyNumberOf,
     Sequence,
@@ -14,6 +15,8 @@ from sqlfluff.core.parser import (
     CommentSegment,
     NamedParser,
     CodeSegment,
+    StringParser,
+    SymbolSegment,
 )
 from sqlfluff.core.dialects import load_raw_dialect
 
@@ -89,4 +92,38 @@ class CreateTableStatementSegment(
                 ),
             ),
         ],
+    )
+
+
+mysql_dialect.add(
+    DoubleForwardSlashSegment=StringParser(
+        "//", SymbolSegment, name="doubleforwardslash", type="statement_terminator"
+    ),
+    DoubleDollarSignSegment=StringParser(
+        "$$", SymbolSegment, name="doubledollarsign", type="statement_terminator"
+    ),
+)
+
+mysql_dialect.replace(
+    DelimiterSegment=OneOf(Ref("SemicolonSegment"), Ref("TildeSegment")),
+    TildeSegment=StringParser(
+        "~", SymbolSegment, name="tilde", type="statement_terminator"
+    ),
+)
+
+
+@mysql_dialect.segment()
+class DelimiterStatement(BaseSegment):
+    """DELIMITER statement."""
+
+    type = "delimiter_statement"
+    match_grammar = Ref.keyword("DELIMITER")
+
+
+@mysql_dialect.segment(replace=True)
+class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
+    """Overriding StatementSegment to allow for DELIMITER."""
+
+    parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
+        insert=[Ref("DelimiterStatement")],
     )

@@ -31,7 +31,7 @@ L:   1 | P:  14 | L006 | Operators should be surrounded by a single space unless
 L:   1 | P:  27 | L001 | Unnecessary trailing whitespace
 ```
 
-You can also have a play using [SQLFluff online](https://sqlfluff-online.herokuapp.com/).
+You can also have a play using [SQLFluff online](https://online.sqlfluff.com/).
 
 For full CLI usage and rules reference, see the docs.
 

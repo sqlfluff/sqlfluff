@@ -7,16 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- L034 now ignores select statements which contain macros.
+- L034 now ignores select statements part of a set expression, most commonly a union.
+- Fix bug [#1079](https://github.com/sqlfluff/sqlfluff/issues/1079), addressing
+  issues with L025 and L026 with BigQuery column references involving `STRUCT`
+- Added support for additional delimiters by creating a new DelimiterSegment in the 
+  ANSI dialect which defaults to the semicolon, but allows it to be more intuitive 
+  when overriden in a specific child dialect (mysql) [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
+- Added support for the DELIMITER statement in the mysql dialect [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
+
 Contributors:
 - [@GitHub-Username](Link to GitHub profile) ([#PR-Number](Link to PR))
 - [@bolajiwahab](https://github.com/bolajiwahab) ([#1063])(https://github.com/sqlfluff/sqlfluff/pull/1063)
-
 ## [0.6.0a2] - 2021-05-27
 ### Changed
 - Better exception handling for the simple parsing API (`sqlfluff.parse`)
   which now raises an exception which holds all potential parsing issues
   and prints nicely with more than one issue.
-- Fix bug [#1037](https://github.com/sqlfluff/sqlfluff/issues/1037), in which fix 
+- Fix bug [#1037](https://github.com/sqlfluff/sqlfluff/issues/1037), in which fix
   logging had been sent to stdout when reading data from stdin.
 - Add a little bit of fun on CLI exit 🎉!
 - Disabled models in the dbt templater are now skipped entirely rather than
@@ -25,15 +34,14 @@ Contributors:
 - Fix bug [#1083](https://github.com/sqlfluff/sqlfluff/issues/1083), adding
   support for BigQuery named function arguments, used with functions such as
   [ST_GEOGFROMGEOJSON()](https://cloud.google.com/bigquery/docs/reference/standard-sql/geography_functions#st_geogfromgeojson)
-- Fix bug [#1079](https://github.com/sqlfluff/sqlfluff/issues/1079), addressing
-  issues with L025 and L026 with BigQuery column references involving `STRUCT`
+- Update documentation links to sqlfluff-online.
 
 ## [0.6.0a1] - 2021-05-15
 ### Added
 - Lint and fix parallelism using `--parallel` CLI argument
 - Fix [1051](https://github.com/sqlfluff/sqlfluff/issues/1051), adding support
   for bitwise operators `&`, `|`, `^`, `<<`, `>>`
-  
+
 ## [0.5.6] - 2021-05-14
 - Bugfix release for an issue in `L016` introduced in `0.5.4`.
 - Fix for `L016` issue where `DISTINCT` keywords were mangled during
