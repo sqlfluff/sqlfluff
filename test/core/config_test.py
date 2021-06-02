@@ -175,7 +175,8 @@ def test__config__load_user_appdir_config(
     c = ConfigLoader()
 
     with patch.object(appdirs, attribute="system", new="darwin"):
-        resolved_path, _ = c.load_user_appdir_config()
+        resolved_path = c._get_user_config_dir_path()
+        c.load_user_appdir_config()
     assert resolved_path == os.path.expanduser("~/Library/Application Support/sqlfluff")
 
     mock_path_exists.assert_has_calls(

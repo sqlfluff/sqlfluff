@@ -299,8 +299,8 @@ class ConfigLoader:
         self._config_cache[str(path)] = configs
         return configs
 
-    def load_user_appdir_config(self) -> Tuple[Optional[str], dict]:
-        """Load the config from the user's OS specific appdir config directory."""
+    @staticmethod
+    def _get_user_config_dir_path() -> str:
         appname = "sqlfluff"
         appauthor = "sqlfluff"
 
@@ -311,12 +311,19 @@ class ConfigLoader:
             appdirs.system = "linux2"
             user_config_dir_path = appdirs.user_config_dir(appname, appauthor)
             appdirs.system = "darwin"
+
         if not os.path.exists(user_config_dir_path):
             user_config_dir_path = appdirs.user_config_dir(appname, appauthor)
 
+        return user_config_dir_path
+
+    def load_user_appdir_config(self) -> dict:
+        """Load the config from the user's OS specific appdir config directory."""
+        user_config_dir_path = self._get_user_config_dir_path()
         if os.path.exists(user_config_dir_path):
-            return user_config_dir_path, self.load_config_at_path(user_config_dir_path)
-        return None, {}
+            return self.load_config_at_path(user_config_dir_path)
+        else:
+            return {}
 
     def load_user_config(self) -> dict:
         """Load the config from the user's home directory."""
@@ -325,7 +332,7 @@ class ConfigLoader:
 
     def load_config_up_to_path(self, path: str) -> dict:
         """Loads a selection of config files from both the path and its parent paths."""
-        _, user_appdir_config = self.load_user_appdir_config()
+        user_appdir_config = self.load_user_appdir_config()
         user_config = self.load_user_config()
         config_paths = self.iter_config_locations_up_to_path(path)
         config_stack = [self.load_config_at_path(p) for p in config_paths]
