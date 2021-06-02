@@ -133,13 +133,6 @@ jobs:
       - image: circleci/python:3.9
         environment:
           TOXENV: mypy
-  dbt017-py38:
-    <<: *common
-    docker:
-      - image: circleci/python:3.8
-        environment:
-          TOXENV: dbt017-py38
-          TOX_ARGS: -m dbt
   dbt018-py38:
     <<: *common
     docker:
@@ -181,7 +174,6 @@ workflows:
       - py37
       - py38
       - py39
-      - dbt017-py38
       - dbt018-py38
       - dbt019-py38
       - bench

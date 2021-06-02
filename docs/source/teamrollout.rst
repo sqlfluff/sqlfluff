@@ -108,7 +108,7 @@ the `SQLFluff VSCode plugin`_ or `SQLFluff online formatter`_.
 
 .. _`SQLFluff pre-commit hook`: https://github.com/sqlfluff/sqlfluff-github-actions
 .. _`SQLFluff VSCode plugin`: https://github.com/sqlfluff/vscode-sqlfluff
-.. _`SQLFluff online formatter`: https://sqlfluff-online.herokuapp.com/
+.. _`SQLFluff online formatter`: https://online.sqlfluff.com/
 
 4. Do, Review & Reassess
 ------------------------

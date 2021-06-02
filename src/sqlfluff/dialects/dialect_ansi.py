@@ -181,6 +181,7 @@ ansi_dialect.sets("value_table_functions").update([])
 
 ansi_dialect.add(
     # Real segments
+    DelimiterSegment=Ref("SemicolonSegment"),
     SemicolonSegment=StringParser(
         ";", SymbolSegment, name="semicolon", type="statement_terminator"
     ),
@@ -467,7 +468,7 @@ class FileSegment(BaseSegment):
     # going straight into instantiating it directly usually.
     parse_grammar = Delimited(
         Ref("StatementSegment"),
-        delimiter=Ref("SemicolonSegment"),
+        delimiter=Ref("DelimiterSegment"),
         allow_gaps=True,
         allow_trailing=True,
     )
@@ -565,7 +566,7 @@ class ObjectReferenceSegment(BaseSegment):
             Ref("StartBracketSegment"),
             Ref("BinaryOperatorGrammar"),
             Ref("ColonSegment"),
-            Ref("SemicolonSegment"),
+            Ref("DelimiterSegment"),
             BracketedSegment,
         ),
         allow_gaps=False,
@@ -2704,7 +2705,7 @@ class StatementSegment(BaseSegment):
     """A generic segment, to any of its child subsegments."""
 
     type = "statement"
-    match_grammar = GreedyUntil(Ref("SemicolonSegment"))
+    match_grammar = GreedyUntil(Ref("DelimiterSegment"))
 
     parse_grammar = OneOf(
         Ref("SelectableGrammar"),

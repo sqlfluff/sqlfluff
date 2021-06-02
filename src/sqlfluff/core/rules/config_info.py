@@ -53,7 +53,9 @@ STANDARD_CONFIG_INFO_DICT = {
     "extended_capitalisation_policy": {
         "validation": ["consistent", "upper", "lower", "pascal", "capitalise"],
         "definition": (
-            "The capitalisation policy to enforce, extended with PascalCase. This is separate from capitalisation_policy as it should not be applied to keywords."
+            "The capitalisation policy to enforce, extended with PascalCase. "
+            "This is separate from capitalisation_policy as it should not be "
+            "applied to keywords."
         ),
     },
     "lint_templated_tokens": {
