@@ -1,0 +1,39 @@
+file:
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        identifier: '`add`'
+    - base:
+        bracketed:
+          start_bracket: (
+          parameter: test
+          data_type:
+            data_type_identifier: int
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: longtext
+    - characteristic_statement:
+      - keyword: DETERMINISTIC
+      - keyword: SQL
+      - keyword: SECURITY
+      - keyword: INVOKER
+    - base:
+        transaction_statement:
+          keyword: BEGIN
+        statement:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                expression:
+                - literal: '1'
+                - binary_operator: +
+                - literal: '2'
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+      keyword: END
+- statement_terminator: '~'
