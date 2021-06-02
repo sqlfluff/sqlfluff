@@ -107,7 +107,7 @@ exasol_dialect.add(
         ),
         terminator=OneOf(
             Ref("TablePartitionByGrammar"),
-            Ref("SemicolonSegment"),
+            Ref("DelimiterSegment"),
         ),
         enforce_whitespace_preceeding_terminator=True,
     ),
@@ -125,7 +125,7 @@ exasol_dialect.add(
         ),
         terminator=OneOf(
             Ref("TableDistributeByGrammar"),
-            Ref("SemicolonSegment"),
+            Ref("DelimiterSegment"),
         ),
         enforce_whitespace_preceeding_terminator=True,
     ),
