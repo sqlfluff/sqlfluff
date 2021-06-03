@@ -285,7 +285,7 @@ class ConfigLoader:
         else:
             p = os.path.dirname(path)
 
-        d = os.listdir(p)
+        d = os.listdir(os.path.expanduser(p))
         # iterate this way round to make sure things overwrite is the right direction
         for fname in filename_options:
             if fname in d:
@@ -299,14 +299,31 @@ class ConfigLoader:
         self._config_cache[str(path)] = configs
         return configs
 
-    def load_user_appdir_config(self) -> dict:
-        """Load the config from the user's OS specific appdir config directory."""
+    @staticmethod
+    def _get_user_config_dir_path() -> str:
         appname = "sqlfluff"
         appauthor = "sqlfluff"
-        user_config_dir_path = appdirs.user_config_dir(appname, appauthor)
+
+        # On Mac OSX follow Linux XDG base dirs
+        # https://github.com/sqlfluff/sqlfluff/issues/889
+        user_config_dir_path = os.path.expanduser("~/.config/sqlfluff")
+        if appdirs.system == "darwin":
+            appdirs.system = "linux2"
+            user_config_dir_path = appdirs.user_config_dir(appname, appauthor)
+            appdirs.system = "darwin"
+
+        if not os.path.exists(user_config_dir_path):
+            user_config_dir_path = appdirs.user_config_dir(appname, appauthor)
+
+        return user_config_dir_path
+
+    def load_user_appdir_config(self) -> dict:
+        """Load the config from the user's OS specific appdir config directory."""
+        user_config_dir_path = self._get_user_config_dir_path()
         if os.path.exists(user_config_dir_path):
             return self.load_config_at_path(user_config_dir_path)
-        return {}
+        else:
+            return {}
 
     def load_user_config(self) -> dict:
         """Load the config from the user's home directory."""
