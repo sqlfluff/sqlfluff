@@ -180,7 +180,7 @@ def core_options(f):
     )(f)
     f = click.option(
         "--logger",
-        type=click.Choice(["parser", "linter", "rules"], case_sensitive=False),
+        type=click.Choice(["templater", "lexer", "parser", "linter", "rules"], case_sensitive=False),
         help="Choose to limit the logging to one of the loggers.",
     )(f)
     return f
