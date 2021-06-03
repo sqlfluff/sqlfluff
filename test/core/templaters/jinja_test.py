@@ -75,7 +75,7 @@ def test__templater_jinja_error_catatrophic():
     assert len(vs) > 0
 
 
-def assert_structure(yaml_loader, path, code_only=True):
+def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
     """Check that a parsed sql file matches the yaml file with the same name."""
     lntr = Linter()
     p = list(lntr.parse_path(path + ".sql"))
@@ -84,7 +84,7 @@ def assert_structure(yaml_loader, path, code_only=True):
         print(p)
         raise RuntimeError(p[0][1])
     # Whitespace is important here to test how that's treated
-    tpl = parsed.to_tuple(code_only=code_only, show_raw=True)
+    tpl = parsed.to_tuple(code_only=code_only, show_raw=True, include_meta=include_meta)
     # Check nothing unparsable
     if "unparsable" in parsed.type_set():
         print(parsed.stringify())
@@ -94,38 +94,40 @@ def assert_structure(yaml_loader, path, code_only=True):
 
 
 @pytest.mark.parametrize(
-    "subpath,code_only",
+    "subpath,code_only,include_meta",
     [
         # Config Scalar
-        ("jinja_a/jinja", True),
+        ("jinja_a/jinja", True, False),
         # Macros
-        ("jinja_b/jinja", False),
+        ("jinja_b/jinja", False, False),
         # dbt builting
-        ("jinja_c_dbt/dbt_builtins", True),
+        ("jinja_c_dbt/dbt_builtins", True, False),
         # do directive
-        ("jinja_e/jinja", True),
+        ("jinja_e/jinja", True, False),
         # case sensitivity and python literals
-        ("jinja_f/jinja", True),
+        ("jinja_f/jinja", True, False),
         # Macro loading from a folder
-        ("jinja_g_macros/jinja", True),
+        ("jinja_g_macros/jinja", True, False),
         # jinja raw tag
-        ("jinja_h_macros/jinja", True),
-        ("jinja_i_raw/raw_tag", True),
-        ("jinja_i_raw/raw_tag_2", True),
+        ("jinja_h_macros/jinja", True, False),
+        ("jinja_i_raw/raw_tag", True, False),
+        ("jinja_i_raw/raw_tag_2", True, False),
         # Library Loading from a folder
-        ("jinja_j_libraries/jinja", True),
+        ("jinja_j_libraries/jinja", True, False),
         # Priority of macros
-        ("jinja_k_config_override_path_macros/jinja", True),
+        ("jinja_k_config_override_path_macros/jinja", True, False),
+        # Placeholders and metas
+        ("jinja_l_metas/jinja", False, True)
     ],
 )
-def test__templater_full(subpath, code_only, yaml_loader, caplog):
+def test__templater_full(subpath, code_only, include_meta, yaml_loader, caplog):
     """Check structure can be parsed from jinja templated files."""
     # Log the templater and lexer throughout this test
     caplog.set_level(logging.DEBUG, logger="sqlfluff.templater")
     caplog.set_level(logging.DEBUG, logger="sqlfluff.lexer")
 
     assert_structure(
-        yaml_loader, "test/fixtures/templater/" + subpath, code_only=code_only
+        yaml_loader, "test/fixtures/templater/" + subpath, code_only=code_only, include_meta=include_meta
     )
 
 
