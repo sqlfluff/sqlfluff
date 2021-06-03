@@ -89,3 +89,15 @@ class TemplateSegment(MetaSegment):
     def _suffix(self):
         """Also output what it's a placeholder for."""
         return "[Type: {0!r}, Raw: {1!r}]".format(self.block_type, self.source_str)
+
+    def to_tuple(self, code_only=False, show_raw=False, include_meta=False):
+        """Return a tuple structure from this segment.
+
+        Unlike most segments, we return the _source_ content for placeholders
+        if viewing metas is allowed. This allows verification of the content
+        of those placeholders for inspection or debugging.
+        """
+        if include_meta:
+            return (self.get_type(), self.source_str)
+        else:
+            return (self.get_type(), self.raw)

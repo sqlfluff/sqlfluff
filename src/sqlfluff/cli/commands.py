@@ -549,6 +549,15 @@ def quoted_presenter(dumper, data):
     help="Output only the code elements of the parse tree.",
 )
 @click.option(
+    "-m",
+    "--include-meta",
+    is_flag=True,
+    help=(
+        "Include meta segments (indents, dedents and placeholders) in the output. "
+        "This only applies when outputting json or yaml."
+    ),
+)
+@click.option(
     "-f",
     "--format",
     default="human",
@@ -566,7 +575,17 @@ def quoted_presenter(dumper, data):
         "found. This is potentially useful during rollout."
     ),
 )
-def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwargs):
+def parse(
+    path,
+    code_only,
+    include_meta,
+    format,
+    profiler,
+    bench,
+    nofail,
+    logger=None,
+    **kwargs,
+):
     """Parse SQL files and just spit out the result.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -648,7 +667,7 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
                 dict(
                     filepath=linted_result.fname,
                     segments=linted_result.tree.as_record(
-                        code_only=code_only, show_raw=True
+                        code_only=code_only, show_raw=True, include_meta=include_meta
                     )
                     if linted_result.tree
                     else None,
