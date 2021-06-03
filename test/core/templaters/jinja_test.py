@@ -117,7 +117,7 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         # Priority of macros
         ("jinja_k_config_override_path_macros/jinja", True, False),
         # Placeholders and metas
-        ("jinja_l_metas/jinja", False, True)
+        ("jinja_l_metas/jinja", False, True),
     ],
 )
 def test__templater_full(subpath, code_only, include_meta, yaml_loader, caplog):
@@ -127,7 +127,10 @@ def test__templater_full(subpath, code_only, include_meta, yaml_loader, caplog):
     caplog.set_level(logging.DEBUG, logger="sqlfluff.lexer")
 
     assert_structure(
-        yaml_loader, "test/fixtures/templater/" + subpath, code_only=code_only, include_meta=include_meta
+        yaml_loader,
+        "test/fixtures/templater/" + subpath,
+        code_only=code_only,
+        include_meta=include_meta,
     )
 
 
