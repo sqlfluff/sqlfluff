@@ -164,6 +164,15 @@ def test__templater_full(subpath, code_only, include_meta, yaml_loader, caplog):
                 (" ", "literal", 104),
             ],
         ),
+        (
+            "{% set thing %}FOO{% endset %} BAR",
+            [
+                ("{% set thing %}", "block_start", 0),
+                ("FOO", "literal", 15),
+                ("{% endset %}", "block_end", 18),
+                (" BAR", "literal", 30),
+            ],
+        ),
     ],
 )
 def test__templater_jinja_slice_template(test, result):
@@ -306,6 +315,18 @@ def test__templater_jinja_slice_template(test, result):
                 ("literal", slice(15, 30, None), slice(14, 29, None)),
             ],
         ),
+        # Test an example where a block is removed entirely.
+        (
+            "{% set thing %}FOO{% endset %} SELECT 1",
+            " SELECT 1",
+            # There should be a zero length templated part at the start.
+            [
+                # The templated section at the start should be entirely
+                # templated and not include a distinct literal within it.
+                ("templated", slice(0, 30, None), slice(0, 0, None)),
+                ("literal", slice(30, 39, None), slice(0, 9, None)),
+            ]
+        )
     ],
 )
 def test__templater_jinja_slice_file(raw_file, templated_file, result, caplog):

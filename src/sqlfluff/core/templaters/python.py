@@ -512,6 +512,11 @@ class PythonTemplater(RawTemplater):
         """Coalesce to the priority type."""
         # Make a set of types
         types = {elem.slice_type for elem in elems}
+        # Replace block types with templated
+        for typ in list(types):
+            if typ.startswith("block_"):
+                types.remove(typ)
+                types.add("templated")
         # Take the easy route if they're all the same type
         if len(types) == 1:
             return types.pop()
@@ -554,6 +559,13 @@ class PythonTemplater(RawTemplater):
                 )
                 yield from tail_buffer
                 tail_buffer = []
+
+            # Check whether we're handling a zero length slice.
+            if int_file_slice.templated_slice.stop - int_file_slice.templated_slice.start == 0:
+                point_combo = int_file_slice.coalesce()
+                templater_logger.debug("        Yielding Point Combination: %s", point_combo)
+                yield point_combo
+                continue
 
             # Yield anything simple
             try:
