@@ -325,8 +325,8 @@ def test__templater_jinja_slice_template(test, result):
                 # templated and not include a distinct literal within it.
                 ("templated", slice(0, 30, None), slice(0, 0, None)),
                 ("literal", slice(30, 39, None), slice(0, 9, None)),
-            ]
-        )
+            ],
+        ),
     ],
 )
 def test__templater_jinja_slice_file(raw_file, templated_file, result, caplog):

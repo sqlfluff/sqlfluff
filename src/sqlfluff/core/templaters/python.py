@@ -297,7 +297,9 @@ class PythonTemplater(RawTemplater):
                     split_sliced, raw_occurrences, templated_occurances, templated_str
                 )
             )
-            templater_logger.debug("    Fully Sliced: %s", sliced_file)
+            templater_logger.debug("    Fully Sliced:")
+            for idx, templ_slice in enumerate(sliced_file):
+                templater_logger.debug("        %s: %r", idx, templ_slice)
             unwrap_wrapped = (
                 True
                 if config is None
@@ -442,15 +444,20 @@ class PythonTemplater(RawTemplater):
                 yield RawFileSlice(constructed_token, "templated", in_idx)
                 in_idx += len(constructed_token)
 
-    @staticmethod
+    @classmethod
     def _split_invariants(
+        cls,
         raw_sliced: List[RawFileSlice],
         literals: List[str],
         raw_occurances: Dict[str, List[int]],
         templated_occurances: Dict[str, List[int]],
         templated_str: str,
     ) -> Iterator[IntermediateFileSlice]:
-        """Split a sliced file on its invariant literals."""
+        """Split a sliced file on its invariant literals.
+
+        We prioritise the _longest_ invariants first as they
+        are more likely to the the anchors.
+        """
         # Calculate invariants
         invariants = [
             literal
@@ -458,6 +465,30 @@ class PythonTemplater(RawTemplater):
             if len(raw_occurances[literal]) == 1
             and len(templated_occurances[literal]) == 1
         ]
+        # Work through the invariants and make sure they appear
+        # in order.
+        for linv in sorted(invariants, key=len, reverse=True):
+            # Any invariants which have templated positions, relative
+            # to source positions, which aren't in order, should be
+            # ignored.
+
+            # Is this one still relevant?
+            if linv not in invariants:
+                continue
+
+            source_pos, templ_pos = raw_occurances[linv], templated_occurances[linv]
+            # Copy the list before iterating because we're going to edit it.
+            for tinv in invariants.copy():
+                if tinv != linv:
+                    src_dir = source_pos > raw_occurances[tinv]
+                    tmp_dir = templ_pos > templated_occurances[tinv]
+                    # If it's not in the same direction in the source and template remove it.
+                    if src_dir != tmp_dir:
+                        templater_logger.debug(
+                            "          Invariant found out of order: %r", tinv
+                        )
+                        invariants.remove(tinv)
+
         # Set up some buffers
         buffer: List[RawFileSlice] = []
         idx: Optional[int] = None
@@ -566,9 +597,15 @@ class PythonTemplater(RawTemplater):
                 tail_buffer = []
 
             # Check whether we're handling a zero length slice.
-            if int_file_slice.templated_slice.stop - int_file_slice.templated_slice.start == 0:
+            if (
+                int_file_slice.templated_slice.stop
+                - int_file_slice.templated_slice.start
+                == 0
+            ):
                 point_combo = int_file_slice.coalesce()
-                templater_logger.debug("        Yielding Point Combination: %s", point_combo)
+                templater_logger.debug(
+                    "        Yielding Point Combination: %s", point_combo
+                )
                 yield point_combo
                 continue
 
