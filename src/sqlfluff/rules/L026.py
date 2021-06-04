@@ -63,7 +63,7 @@ class Rule_L026(Rule_L020):
 
         # Check all the references that we have, do they reference present aliases?
         for r in references:
-            tbl_refs = r.extract_possible_references(level=2)
+            tbl_refs = r.extract_possible_references(level=r.ReferencePart.TABLE.value)
             if tbl_refs and all(
                 self._is_bad_tbl_ref(table_aliases, parent_select, tbl_ref)
                 for tbl_ref in tbl_refs

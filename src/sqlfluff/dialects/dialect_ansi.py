@@ -12,6 +12,7 @@ grammar. Check out their docs, they're awesome.
 https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 """
 
+from enum import Enum
 from typing import Generator, List, Tuple, NamedTuple, Optional
 
 from sqlfluff.core.parser import (
@@ -606,17 +607,32 @@ class ObjectReferenceSegment(BaseSegment):
         """Return the qualification type of this reference."""
         return "qualified" if self.is_qualified() else "unqualified"
 
+    class ReferencePart(Enum):
+        """Labels for the "levels" of a reference.
+
+        Note: Since SQLFluff does not have access to database catalog
+        information, interpreting references will often be ambiguous.
+        Typical example: The first part *may* refer to a schema, but that is
+        almost always optional if referring to an object in some default or
+        currently "active" schema. For this reason, use of this enum is optional
+        and intended mainly to clarify the intent of the code -- no guarantees!
+        Additionally, the terminology may vary by dialect, e.g. in BigQuery,
+        "project" would be a more accurate term than "schema".
+        """
+
+        OBJECT = 1
+        TABLE = 2
+        SCHEMA = 3
+
     def extract_possible_references(self, level: int) -> List[ObjectReferencePart]:
         """Extract possible references of a given level.
+
+        "level" may be (but is not required to be) a value from the
+        ReferencePart enum defined above.
 
         NOTE: The base implementation here returns at most one part, but
         dialects such as BigQuery that support nesting (e.g. STRUCT) may return
         multiple reference parts.
-
-        e.g. level 1 = the object.
-        level 2 = the table
-        level 3 = the schema
-        etc...
         """
         refs = list(self.iter_raw_references())
         if len(refs) >= level:

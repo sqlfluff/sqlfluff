@@ -51,7 +51,12 @@ class Rule_L025(Rule_L020):
         # Check all the references that we have, keep track of which aliases we refer to.
         tbl_refs = set()
         for r in references:
-            tbl_refs.update(tr.part for tr in r.extract_possible_references(level=2))
+            tbl_refs.update(
+                tr.part
+                for tr in r.extract_possible_references(
+                    level=r.ReferencePart.TABLE.value
+                )
+            )
 
         alias: AliasInfo
         for alias in table_aliases:
