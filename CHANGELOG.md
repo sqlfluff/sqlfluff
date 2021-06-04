@@ -12,6 +12,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Respect XDG base dirs on Mac OS ([#889](https://github.com/sqlfluff/sqlfluff/issues/889)).
 - Fix bug [#1082](https://github.com/sqlfluff/sqlfluff/issues/1082), adding
   support for BigQuery `select as struct '1' as bb, 2 as aa` syntax
+- Rationalisation of the placement of meta segments within templated
+  queries to support more reliable indentation. This includes prioritising
+  _longer_ invariant sections first and then dropping any shorter ones
+  which then are relatively out of place.
+- Additional logging within the lexer and templater engines.
+- Add an `--include-metas` option for parse output to show the meta
+  segments in the parse tree.
+- Allow meta segments to parse within `Delimited` grammars which otherwise
+  don't allow gaps. This is facilitated through an optional agrument to
+  `trim_non_code_segments`.
 
 Contributors:
 - [@GitHub-Username](Link to GitHub profile) ([#PR-Number](Link to PR))
