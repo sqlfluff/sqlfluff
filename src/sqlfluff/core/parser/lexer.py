@@ -336,13 +336,17 @@ class Lexer:
         # Get the templated slices to re-insert tokens for them
         source_only_slices = templated_file.source_only_slices()
         lexer_logger.info("Source-only slices: %s", source_only_slices)
+        stash_source_slice, last_source_slice = None, None
 
         # Now work out source slices, and add in template placeholders.
         for idx, element in enumerate(elements):
             # Calculate Source Slice
+            if idx != 0:
+                last_source_slice = stash_source_slice
             source_slice = templated_file.templated_slice_to_source_slice(
                 element.template_slice
             )
+            stash_source_slice = source_slice
             # Output the slice as we lex.
             lexer_logger.debug(
                 "  %s, %s, %s, %r",
@@ -356,13 +360,16 @@ class Lexer:
             # We should consider all of them in turn to see whether we can
             # insert them.
             so_slices = []
-            for source_only_slice in source_only_slices:
-                # If it's later in the source, stop looking. Any later
-                # ones *also* won't match.
-                if source_only_slice.source_idx >= source_slice.stop:
-                    break
-                elif source_only_slice.source_idx >= source_slice.start:
-                    so_slices.append(source_only_slice)
+            # Only look for source only slices if we've got a new source slice to
+            # avoid unnecessary duplication.
+            if last_source_slice != source_slice:
+                for source_only_slice in source_only_slices:
+                    # If it's later in the source, stop looking. Any later
+                    # ones *also* won't match.
+                    if source_only_slice.source_idx >= source_slice.stop:
+                        break
+                    elif source_only_slice.source_idx >= source_slice.start:
+                        so_slices.append(source_only_slice)
 
             if so_slices:
                 lexer_logger.debug("    Collected Source Only Slices")
@@ -422,6 +429,7 @@ class Lexer:
 
                 # Add a dedent if appropriate.
                 if lead_dedent and add_indents:
+                    lexer_logger.debug("      DEDENT")
                     segment_buffer.append(
                         Dedent(
                             pos_marker=PositionMarker.from_point(
@@ -449,9 +457,13 @@ class Lexer:
                         else "compound",
                     )
                 )
+                lexer_logger.debug(
+                    "      Placholder: %s, %r", segment_buffer[-1], placeholder_str
+                )
 
                 # Add a dedent if appropriate.
                 if trail_indent and add_indents:
+                    lexer_logger.debug("      INDENT")
                     segment_buffer.append(
                         Indent(
                             pos_marker=PositionMarker.from_point(

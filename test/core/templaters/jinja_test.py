@@ -117,7 +117,8 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         # Priority of macros
         ("jinja_k_config_override_path_macros/jinja", True, False),
         # Placeholders and metas
-        ("jinja_l_metas/jinja", False, True),
+        ("jinja_l_metas/001", False, True),
+        ("jinja_l_metas/002", False, True),
     ],
 )
 def test__templater_full(subpath, code_only, include_meta, yaml_loader, caplog):
