@@ -13,7 +13,7 @@ https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 """
 
 from enum import Enum
-from typing import Generator, List, Tuple, NamedTuple, Optional
+from typing import Generator, List, Tuple, NamedTuple, Optional, Union
 
 from sqlfluff.core.parser import (
     Matchable,
@@ -607,7 +607,7 @@ class ObjectReferenceSegment(BaseSegment):
         """Return the qualification type of this reference."""
         return "qualified" if self.is_qualified() else "unqualified"
 
-    class ReferencePart(Enum):
+    class ObjectReferenceLevel(Enum):
         """Labels for the "levels" of a reference.
 
         Note: Since SQLFluff does not have access to database catalog
@@ -624,16 +624,22 @@ class ObjectReferenceSegment(BaseSegment):
         TABLE = 2
         SCHEMA = 3
 
-    def extract_possible_references(self, level: int) -> List[ObjectReferencePart]:
+    def extract_possible_references(
+        self, level: Union[ObjectReferenceLevel, int]
+    ) -> List[ObjectReferencePart]:
         """Extract possible references of a given level.
 
         "level" may be (but is not required to be) a value from the
-        ReferencePart enum defined above.
+        ObjectReferenceLevel enum defined above.
 
         NOTE: The base implementation here returns at most one part, but
         dialects such as BigQuery that support nesting (e.g. STRUCT) may return
         multiple reference parts.
         """
+        # If it's an ObjectReferenceLevel, get the value. Otherwise, assume it's an int.
+        level = getattr(level, "value", level)
+        assert isinstance(level, int)
+
         refs = list(self.iter_raw_references())
         if len(refs) >= level:
             return [refs[-level]]

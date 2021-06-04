@@ -54,7 +54,7 @@ class Rule_L025(Rule_L020):
             tbl_refs.update(
                 tr.part
                 for tr in r.extract_possible_references(
-                    level=r.ReferencePart.TABLE.value
+                    level=r.ObjectReferenceLevel.TABLE
                 )
             )
 
