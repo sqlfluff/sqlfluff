@@ -31,7 +31,6 @@ class Rule_L026(Rule_L020):
     @staticmethod
     def _is_bad_tbl_ref(table_aliases, parent_select, tbl_ref):
         """Given a table reference, try to find what it's referring to."""
-
         # Is it referring to one of the table aliases?
         if tbl_ref[0] in [a.ref_str for a in table_aliases]:
             # Yes. Therefore okay.
