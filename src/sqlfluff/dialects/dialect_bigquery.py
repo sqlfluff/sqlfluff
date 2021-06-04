@@ -412,7 +412,7 @@ class LiteralCoercionSegment(BaseSegment):
 # Dialects should not use Python "import" to access other dialects. Instead,
 # get a reference to the ANSI ObjectReferenceSegment this way so we can inherit
 # from it.
-ObjectReferenceSegment = ansi_dialect.get_segment("ObjectReferenceSegment")
+ObjectReferenceSegment = ansi_dialect.get_segment("ObjectReferenceSegment")  # type: ignore
 
 
 @bigquery_dialect.segment(replace=True)
