@@ -636,14 +636,19 @@ class ObjectReferenceSegment(BaseSegment):
         dialects such as BigQuery that support nesting (e.g. STRUCT) may return
         multiple reference parts.
         """
-        # If it's an ObjectReferenceLevel, get the value. Otherwise, assume it's an int.
-        level = getattr(level, "value", level)
-        assert isinstance(level, int)
-
+        level = self._level_to_int(level)
         refs = list(self.iter_raw_references())
         if len(refs) >= level:
             return [refs[-level]]
         return []
+
+    @staticmethod
+    def _level_to_int(level: Union[ObjectReferenceLevel, int]) -> int:
+        # If it's an ObjectReferenceLevel, get the value. Otherwise, assume it's
+        # an int.
+        level = getattr(level, "value", level)
+        assert isinstance(level, int)
+        return level
 
 
 @ansi_dialect.segment()

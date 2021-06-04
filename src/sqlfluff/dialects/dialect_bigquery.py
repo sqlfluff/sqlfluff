@@ -423,9 +423,7 @@ class ColumnReferenceSegment(ObjectReferenceSegment):  # type: ignore
 
     def extract_possible_references(self, level):
         """Extract possible references of a given level."""
-        # If it's an ObjectReferenceLevel, get the value. Otherwise, assume it's an int.
-        level = getattr(level, "value", level)
-
+        level = self._level_to_int(level)
         refs = list(self.iter_raw_references())
         if level == self.ObjectReferenceLevel.SCHEMA.value and len(refs) >= 3:
             return [refs[0]]
