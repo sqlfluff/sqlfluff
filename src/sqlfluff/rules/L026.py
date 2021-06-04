@@ -31,23 +31,22 @@ class Rule_L026(Rule_L020):
     @staticmethod
     def _is_bad_tbl_ref(table_aliases, parent_select, tbl_ref):
         """Given a table reference, try to find what it's referring to."""
-        # :TRICKY: I'm not sure this "if tbl_ref" check is necessary anymore,
-        # but was probably added to avoid a crash in an earlier version. Keeping
-        # this for now.
-        if tbl_ref:
-            # Is it referring to one of the table aliases?
-            if tbl_ref[0] not in [a.ref_str for a in table_aliases]:
-                # Not a table alias. It it referring to a correlated subquery?
-                if parent_select:
-                    parent_aliases, _ = get_aliases_from_select(parent_select)
-                    if parent_aliases and tbl_ref[0] in [a[0] for a in parent_aliases]:
-                        # Yes, it's referring to a correlated subquery.
-                        return False
-                # It's not referring to an alias or a correlated subquery.
-                # Looks like a bad reference (i.e. referring to something
-                # unknown.)
-                return True
-        return False
+
+        # Is it referring to one of the table aliases?
+        if tbl_ref[0] in [a.ref_str for a in table_aliases]:
+            # Yes. Therefore okay.
+            return False
+
+        # Not a table alias. It it referring to a correlated subquery?
+        if parent_select:
+            parent_aliases, _ = get_aliases_from_select(parent_select)
+            if parent_aliases and tbl_ref[0] in [a[0] for a in parent_aliases]:
+                # Yes. Therefore okay.
+                return False
+
+        # It's not referring to an alias or a correlated subquery. Looks like a
+        # bad reference (i.e. referring to something unknown.)
+        return True
 
     def _lint_references_and_aliases(
         self,
