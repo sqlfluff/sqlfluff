@@ -258,6 +258,9 @@ class PythonTemplater(RawTemplater):
         templater_logger.debug("    Templated String: %r", templated_str)
         # Slice the raw file
         raw_sliced = list(cls._slice_template(raw_str))
+        templater_logger.debug("    Raw Sliced:")
+        for idx, raw_slice in enumerate(raw_sliced):
+            templater_logger.debug("        %s: %r", idx, raw_slice)
         # Find the literals
         literals = [
             raw_slice.raw
@@ -285,7 +288,9 @@ class PythonTemplater(RawTemplater):
                     templated_str,
                 )
             )
-            templater_logger.debug("    Split Sliced: %s", split_sliced)
+            templater_logger.debug("    Split Sliced:")
+            for idx, split_slice in enumerate(split_sliced):
+                templater_logger.debug("        %s: %r", idx, split_slice)
             # Deal with uniques and coalesce the rest
             sliced_file = list(
                 cls._split_uniques_coalesce_rest(
