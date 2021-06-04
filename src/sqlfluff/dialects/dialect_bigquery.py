@@ -412,11 +412,11 @@ class LiteralCoercionSegment(BaseSegment):
 # Dialects should not use Python "import" to access other dialects. Instead,
 # get a reference to the ANSI ObjectReferenceSegment this way so we can inherit
 # from it.
-ObjectReferenceSegment = ansi_dialect.get_segment("ObjectReferenceSegment")  # type: ignore
+ObjectReferenceSegment = ansi_dialect.get_segment("ObjectReferenceSegment")
 
 
 @bigquery_dialect.segment(replace=True)
-class ColumnReferenceSegment(ObjectReferenceSegment):
+class ColumnReferenceSegment(ObjectReferenceSegment):  # type: ignore
     """A reference to column, field or alias."""
 
     type = "column_reference"
@@ -434,7 +434,7 @@ class ColumnReferenceSegment(ObjectReferenceSegment):
 
 
 @bigquery_dialect.segment()
-class HyphenatedObjectReferenceSegment(ObjectReferenceSegment):
+class HyphenatedObjectReferenceSegment(ObjectReferenceSegment):  # type: ignore
     """A reference to an object that may contain embedded hyphens."""
 
     type = "hyphenated_object_reference"
