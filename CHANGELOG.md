@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   issues with L025 and L026 with BigQuery column references involving `STRUCT`
 - Fix bug [#1080](https://github.com/sqlfluff/sqlfluff/issues/1080), add
   SET SCHEMA and DROP SCHEMA support to ANSI dialect.
+- Fix bug [#849](https://github.com/sqlfluff/sqlfluff/issues/849), add support
+  for function as a default column value.
 
 Contributors:
 - [@GitHub-Username](Link to GitHub profile) ([#PR-Number](Link to PR))
