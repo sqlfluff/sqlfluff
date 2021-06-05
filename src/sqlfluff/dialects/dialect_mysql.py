@@ -155,7 +155,8 @@ class CreateProcedureStatementSegment(BaseSegment):
     """
 
     type = "create_procedure_statement"
-
+    # purposefully left out DEFINER
+    # will be addressed when issue [#1131](https://github.com/sqlfluff/sqlfluff/issues/1131) is addressed
     match_grammar = Sequence(
         "CREATE",
         "PROCEDURE",
@@ -228,7 +229,8 @@ class CreateFunctionStatementSegment(BaseSegment):
         "FUNCTION",
         Anything(),
     )
-
+    # purposefully left out DEFINER
+    # will be addressed when issue [#1131](https://github.com/sqlfluff/sqlfluff/issues/1131) is addressed
     parse_grammar = Sequence(
         "CREATE",
         "FUNCTION",
