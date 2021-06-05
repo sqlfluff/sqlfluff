@@ -397,7 +397,7 @@ class Rule_L003(BaseRule):
                     return LintResult(
                         anchor=segment,
                         memory=memory,
-                        description="Indentation not consistent with line #{0}".format(
+                        description="Indentation not consistent with line #{}".format(
                             k
                         ),
                         # See above for logic
@@ -457,7 +457,7 @@ class Rule_L003(BaseRule):
                         anchor=segment,
                         memory=memory,
                         description=(
-                            "Indentation not hanging or a multiple of {0} spaces"
+                            "Indentation not hanging or a multiple of {} spaces"
                         ).format(self.tab_space_size),
                         fixes=fixes,
                     )
@@ -510,7 +510,7 @@ class Rule_L003(BaseRule):
                         return LintResult(
                             anchor=segment,
                             memory=memory,
-                            description="Indent expected and not found compared to line #{0}".format(
+                            description="Indent expected and not found compared to line #{}".format(
                                 k
                             ),
                             # Add in an extra bit of whitespace for the indent
@@ -532,7 +532,7 @@ class Rule_L003(BaseRule):
                     return LintResult(
                         anchor=segment,
                         memory=memory,
-                        description="Line under-indented compared to line #{0}".format(
+                        description="Line under-indented compared to line #{}".format(
                             k
                         ),
                         fixes=[
@@ -569,9 +569,7 @@ class Rule_L003(BaseRule):
                     return LintResult(
                         anchor=segment,
                         memory=memory,
-                        description="Line over-indented compared to line #{0}".format(
-                            k
-                        ),
+                        description="Line over-indented compared to line #{}".format(k),
                         fixes=fixes,
                     )
 

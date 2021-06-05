@@ -81,7 +81,7 @@ class Rule_L025(Rule_L020):
                 violation_buff.append(
                     LintResult(
                         anchor=alias.segment,
-                        description="Alias {0!r} is never used in SELECT statement.".format(
+                        description="Alias {!r} is never used in SELECT statement.".format(
                             alias.ref_str
                         ),
                         fixes=fixes,

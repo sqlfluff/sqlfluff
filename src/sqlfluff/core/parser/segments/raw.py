@@ -55,7 +55,7 @@ class RawSegment(BaseSegment):
         self._is_expandable = None
 
     def __repr__(self):
-        return "<{0}: ({1}) {2!r}>".format(
+        return "<{}: ({}) {!r}>".format(
             self.__class__.__name__, self.pos_marker, self.raw
         )
 
@@ -153,7 +153,7 @@ class RawSegment(BaseSegment):
 
         NB Override this for specific subclasses if we want extra output.
         """
-        return "{0!r}".format(self.raw)
+        return f"{self.raw!r}"
 
     def edit(self, raw):
         """Create a new segment, with exactly the same position but different content.

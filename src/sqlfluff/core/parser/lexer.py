@@ -441,7 +441,7 @@ class Lexer:
             if segment.is_type("unlexable"):
                 violations.append(
                     SQLLexError(
-                        "Unable to lex characters: {0!r}".format(
+                        "Unable to lex characters: {!r}".format(
                             segment.raw[:10] + "..."
                             if len(segment.raw) > 9
                             else segment.raw
