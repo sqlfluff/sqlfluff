@@ -12,7 +12,8 @@ grammar. Check out their docs, they're awesome.
 https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 """
 
-from typing import Generator, List, Tuple, NamedTuple, Optional
+from enum import Enum
+from typing import Generator, List, Tuple, NamedTuple, Optional, Union
 
 from sqlfluff.core.parser import (
     Matchable,
@@ -606,18 +607,48 @@ class ObjectReferenceSegment(BaseSegment):
         """Return the qualification type of this reference."""
         return "qualified" if self.is_qualified() else "unqualified"
 
-    def extract_reference(self, level: int) -> Optional[ObjectReferencePart]:
-        """Extract a reference of a given level.
+    class ObjectReferenceLevel(Enum):
+        """Labels for the "levels" of a reference.
 
-        e.g. level 1 = the object.
-        level 2 = the table
-        level 3 = the schema
-        etc...
+        Note: Since SQLFluff does not have access to database catalog
+        information, interpreting references will often be ambiguous.
+        Typical example: The first part *may* refer to a schema, but that is
+        almost always optional if referring to an object in some default or
+        currently "active" schema. For this reason, use of this enum is optional
+        and intended mainly to clarify the intent of the code -- no guarantees!
+        Additionally, the terminology may vary by dialect, e.g. in BigQuery,
+        "project" would be a more accurate term than "schema".
         """
+
+        OBJECT = 1
+        TABLE = 2
+        SCHEMA = 3
+
+    def extract_possible_references(
+        self, level: Union[ObjectReferenceLevel, int]
+    ) -> List[ObjectReferencePart]:
+        """Extract possible references of a given level.
+
+        "level" may be (but is not required to be) a value from the
+        ObjectReferenceLevel enum defined above.
+
+        NOTE: The base implementation here returns at most one part, but
+        dialects such as BigQuery that support nesting (e.g. STRUCT) may return
+        multiple reference parts.
+        """
+        level = self._level_to_int(level)
         refs = list(self.iter_raw_references())
         if len(refs) >= level:
-            return refs[-level]
-        return None
+            return [refs[-level]]
+        return []
+
+    @staticmethod
+    def _level_to_int(level: Union[ObjectReferenceLevel, int]) -> int:
+        # If it's an ObjectReferenceLevel, get the value. Otherwise, assume it's
+        # an int.
+        level = getattr(level, "value", level)
+        assert isinstance(level, int)
+        return level
 
 
 @ansi_dialect.segment()
