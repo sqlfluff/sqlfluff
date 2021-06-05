@@ -55,9 +55,9 @@ class Rule_L026(Rule_L025):
                     LintResult(
                         # Return the first segment rather than the string
                         anchor=tbl_ref.segments[0],
-                        description="Reference {0!r} refers to table/view "
-                        "{1!r} not found in the FROM clause or "
-                        "found in parent subquery.".format(r.raw, tbl_ref.part),
+                        description=f"Reference {r.raw!r} refers to table/view "
+                        f"{tbl_ref.part!r} not found in the FROM clause or "
+                        "found in parent subquery.",
                     )
                 )
         return violation_buff or None

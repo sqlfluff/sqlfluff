@@ -34,7 +34,7 @@ class Rule_L020(BaseRule):
                         # Reference the element, not the string.
                         anchor=a2.segment,
                         description=(
-                            "Duplicate table alias {0!r}. Table "
+                            "Duplicate table alias {!r}. Table "
                             "aliases should be unique."
                         ).format(a2.ref_str),
                     )

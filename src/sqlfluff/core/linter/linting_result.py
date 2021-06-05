@@ -147,7 +147,7 @@ class LintingResult:
                 "filepath": path,
                 "violations": sorted(
                     # Sort violations by line and then position
-                    [v.get_info_dict() for v in violations],
+                    (v.get_info_dict() for v in violations),
                     # The tuple allows sorting by line number, then position, then code
                     key=lambda v: (v["line_no"], v["line_pos"], v["code"]),
                 ),
@@ -160,10 +160,10 @@ class LintingResult:
     def persist_changes(self, formatter, **kwargs) -> dict:
         """Run all the fixes for all the files and return a dict."""
         return self.combine_dicts(
-            *[
+            *(
                 path.persist_changes(formatter=formatter, **kwargs)
                 for path in self.paths
-            ]
+            )
         )
 
     @property

@@ -155,12 +155,12 @@ class LintedFile(NamedTuple):
             # because they specifically reference it or because they don't
             # specify a list of rules, thus affecting ALL rules.
             ignore_rule = sorted(
-                [
+                (
                     ignore
                     for ignore in ignore_mask
                     if not ignore.rules
                     or (v.rule_code() in cast(Tuple[str, ...], ignore.rules))
-                ],
+                ),
                 key=lambda ignore: ignore.line_no,
             )
             # Determine whether to ignore the violation, based on the relevant
@@ -456,7 +456,7 @@ class LintedFile(NamedTuple):
                     # Use the patched version
                     linter_logger.debug(
                         "%-30s    %s    %r > %r",
-                        "Appending {} Patch:".format(patch.patch_category),
+                        f"Appending {patch.patch_category} Patch:",
                         patch.source_slice,
                         patch.source_str,
                         patch.fixed_raw,
