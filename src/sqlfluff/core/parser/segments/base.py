@@ -933,7 +933,7 @@ class BaseSegment:
                 ),
                 pos_marker=r.pos_marker,
                 # Pass through any additional kwargs
-                **{k: getattr(self, k) for k in self.additional_kwargs}
+                **{k: getattr(self, k) for k in self.additional_kwargs},
             )
             # Return the new segment with any unused fixes.
             return r, fixes
@@ -1044,7 +1044,7 @@ class BracketedSegment(BaseSegment):
         # 1-tuples on the fly is very easy to misread.
         start_bracket: Tuple[BaseSegment] = None,
         end_bracket: Tuple[BaseSegment] = None,
-        **kwargs
+        **kwargs,
     ):
         """Stash the bracket segments for later."""
         if not start_bracket or not end_bracket:

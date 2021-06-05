@@ -70,6 +70,7 @@ class BaseRunner(ABC):
         logger state in child processes, etc.
         """
         pass
+
     @staticmethod
     def _handle_lint_path_exception(fname, e):
         if isinstance(e, IOError):
