@@ -19,7 +19,7 @@ class DummyLintError(SQLBaseError):
 
     def __init__(self, line_no: int, code: str = "L001"):
         self._code = code
-        super(DummyLintError, self).__init__(line_no=line_no)
+        super().__init__(line_no=line_no)
 
 
 def normalise_paths(paths):
@@ -130,7 +130,7 @@ def test__linter__path_from_paths__ignore(path):
 )
 def test__linter__lint_string_vs_file(path):
     """Test the linter finds the same things on strings and files."""
-    with open(path, "r") as f:
+    with open(path) as f:
         sql_str = f.read()
     lntr = Linter()
     assert (

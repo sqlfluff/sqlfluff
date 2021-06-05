@@ -3,7 +3,7 @@
 from sqlfluff.core.parser.helpers import join_segments_raw_curtailed
 
 
-class LateLoggingObject(object):
+class LateLoggingObject:
     """A basic late binding log object for parse_match_logging.
 
     This allows us to defer the string manipulation involved
@@ -54,17 +54,17 @@ class ParseMatchLogObject(LateLoggingObject):
     def __str__(self):
         """Actually materialise the string."""
         symbol = self.kwargs.pop("symbol", "")
-        s = "[PD:{0:<2} MD:{1:<2}]\t{2:<50}\t{3:<20}\t{4:<4}".format(
+        s = "[PD:{:<2} MD:{:<2}]\t{:<50}\t{:<20}\t{:<4}".format(
             self.context.parse_depth,
             self.context.match_depth,
             ("." * self.context.match_depth) + str(self.context.match_segment),
-            "{0:.5}.{1} {2}".format(self.grammar, self.func, self.msg),
+            f"{self.grammar:.5}.{self.func} {self.msg}",
             symbol,
         )
         if self.kwargs:
-            s += "\t[{0}]".format(
+            s += "\t[{}]".format(
                 ", ".join(
-                    "{0}={1}".format(k, repr(v) if isinstance(v, str) else str(v))
+                    f"{k}={repr(v) if isinstance(v, str) else str(v)}"
                     for k, v in self.kwargs.items()
                 )
             )

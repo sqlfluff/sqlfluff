@@ -20,7 +20,7 @@ def generic_roundtrip_test(source_file, rulestring):
     """
     if isinstance(source_file, str):
         # If it's a string, treat it as a path so lets load it.
-        with open(source_file, mode="r") as f:
+        with open(source_file) as f:
             source_file = StringIO(f.read())
 
     filename = "tesing.sql"
@@ -60,16 +60,16 @@ def jinja_roundtrip_test(
 
     # Copy the SQL file
     with open(sql_filepath, mode="w") as dest_file:
-        with open(os.path.join(source_path, sqlfile), mode="r") as source_file:
+        with open(os.path.join(source_path, sqlfile)) as source_file:
             for line in source_file:
                 dest_file.write(line)
     # Copy the Config file
     with open(cfg_filepath, mode="w") as dest_file:
-        with open(os.path.join(source_path, cfgfile), mode="r") as source_file:
+        with open(os.path.join(source_path, cfgfile)) as source_file:
             for line in source_file:
                 dest_file.write(line)
 
-    with open(sql_filepath, mode="r") as f:
+    with open(sql_filepath) as f:
         # Get a record of the pre-existing jinja tags
         tags = re.findall(r"{{[^}]*}}|{%[^}%]*%}", f.read(), flags=0)
 
@@ -85,13 +85,13 @@ def jinja_roundtrip_test(
     if result.exit_code != 0:
         # Output the file content for debugging
         print("File content:")
-        with open(sql_filepath, mode="r") as f:
+        with open(sql_filepath) as f:
             print(repr(f.read()))
         print("Command output:")
         print(result.output)
     assert result.exit_code == 0
 
-    with open(sql_filepath, mode="r") as f:
+    with open(sql_filepath) as f:
         # Check that the tags are all still there!
         new_tags = re.findall(r"{{[^}]*}}|{%[^}%]*%}", f.read(), flags=0)
 

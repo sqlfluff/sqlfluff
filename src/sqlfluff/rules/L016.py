@@ -153,7 +153,7 @@ class Rule_L016(Rule_L003):
                         )
                     )
                     return fixes
-                raise ValueError("Unexpected break generated at {0}".format(self))
+                raise ValueError(f"Unexpected break generated at {self}")
 
         segment_buff = ()
         whitespace_buff = ()
@@ -269,7 +269,7 @@ class Rule_L016(Rule_L003):
 
         self.logger.info("Sections:")
         for idx, sec in enumerate(chunk_buff):
-            self.logger.info("    {0}: {1!r}".format(idx, sec))
+            self.logger.info(f"    {idx}: {sec!r}")
 
         # How do we prioritise where to work?
         # First, do we ever go through a negative breakpoint?

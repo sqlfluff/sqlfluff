@@ -15,8 +15,8 @@ def time_function(func, name, iterations=20):
     time = timeit.timeit(func, number=iterations) / iterations
     # Output the result
     print(
-        "{0:<35} {1:.6}s [{2} iterations]".format(
-            "Time to {0}:".format(name),
+        "{:<35} {:.6}s [{} iterations]".format(
+            f"Time to {name}:",
             time,
             iterations,
         )
