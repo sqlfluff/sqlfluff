@@ -288,7 +288,7 @@ def dialects(**kwargs):
 )
 @click.option(
     "-p",
-    "--parallel",
+    "--processes",
     type=int,
     default=1,
     help="If set to a value higher than 1, run SQLFluff in parallel, "
@@ -297,7 +297,7 @@ def dialects(**kwargs):
 @click.argument("paths", nargs=-1)
 def lint(
     paths,
-    parallel,
+    processes,
     format,
     nofail,
     disregard_sqlfluffignores,
@@ -344,7 +344,7 @@ def lint(
                 paths,
                 ignore_non_existent_files=False,
                 ignore_files=not disregard_sqlfluffignores,
-                parallel=parallel,
+                processes=processes,
             )
         except IOError:
             click.echo(

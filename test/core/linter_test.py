@@ -186,8 +186,8 @@ def test__linter__linting_result_check_tuples_by_path(by_path, result_type):
     isinstance(check_tuples, result_type)
 
 
-@pytest.mark.parametrize("parallel", [1, 2])
-def test__linter__linting_result_get_violations(parallel):
+@pytest.mark.parametrize("processes", [1, 2])
+def test__linter__linting_result_get_violations(processes):
     """Test that we can get violations from a LintingResult."""
     lntr = Linter()
     result = lntr.lint_paths(
@@ -195,7 +195,7 @@ def test__linter__linting_result_get_violations(parallel):
             "test/fixtures/linter/comma_errors.sql",
             "test/fixtures/linter/whitespace_errors.sql",
         ],
-        parallel=parallel,
+        processes=processes,
     )
 
     all([type(v) == SQLLintError for v in result.get_violations()])
@@ -234,7 +234,7 @@ def test__linter__linting_parallel_thread(force_error, monkeypatch):
     lntr = Linter(formatter=CallbackFormatter(callback=lambda m: None, verbosity=0))
     result = lntr.lint_paths(
         ("test/fixtures/linter/comma_errors.sql",),
-        parallel=2,
+        processes=2,
     )
 
     all([type(v) == SQLLintError for v in result.get_violations()])
@@ -247,7 +247,7 @@ def test_lint_path_parallel_wrapper_exception(patched_lint):
     Test on MultiThread runner because otherwise we have pickling issues.
     """
     patched_lint.side_effect = ValueError("Something unexpected happened")
-    for result in runner.MultiThreadRunner(Linter(), FluffConfig(), parallel=1).run(
+    for result in runner.MultiThreadRunner(Linter(), FluffConfig(), processes=1).run(
         ["test/fixtures/linter/passing.sql"], fix=False
     ):
         assert isinstance(result, runner.DelayedException)
