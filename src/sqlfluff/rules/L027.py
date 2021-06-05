@@ -54,9 +54,8 @@ class Rule_L027(Rule_L025):
                 violation_buff.append(
                     LintResult(
                         anchor=r,
-                        description="Unqualified reference {0!r} found in "
-                        "select with more than one referenced "
-                        "table/view.".format(r.raw),
+                        description=f"Unqualified reference {r.raw!r} found in "
+                        "select with more than one referenced table/view.",
                     )
                 )
 

@@ -79,7 +79,7 @@ class PositionMarker:
         source_point: int,
         templated_point: int,
         templated_file: "TemplatedFile",
-        **kwargs
+        **kwargs,
     ):
         """Convenience method for creating point markers."""
         return cls(
@@ -100,7 +100,7 @@ class PositionMarker:
             min(m.templated_slice.start for m in markers),
             max(m.templated_slice.stop for m in markers),
         )
-        templated_files = set(m.templated_file for m in markers)
+        templated_files = {m.templated_file for m in markers}
         if len(templated_files) != 1:
             raise ValueError("Attempted to make a parent marker from multiple files.")
         templated_file = templated_files.pop()
@@ -131,7 +131,7 @@ class PositionMarker:
     def to_source_string(self) -> str:
         """Make a formatted string of this position."""
         line, pos = self.source_position()
-        return "[L:{0:3d}, P:{1:3d}]".format(line, pos)
+        return f"[L:{line:3d}, P:{pos:3d}]"
 
     def start_point_marker(self) -> "PositionMarker":
         """Get a point marker from the start."""

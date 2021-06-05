@@ -200,7 +200,7 @@ class Bracketed(Sequence):
         # Allow optional override for special bracket-like things
         self.start_bracket = kwargs.pop("start_bracket", None)
         self.end_bracket = kwargs.pop("end_bracket", None)
-        super(Bracketed, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     @cached_method_for_parse_context
     def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
@@ -222,7 +222,7 @@ class Bracketed(Sequence):
                 break
         else:
             raise ValueError(
-                "bracket_type {0!r} not found in bracket_pairs of {1!r} dialect.".format(
+                "bracket_type {!r} not found in bracket_pairs of {!r} dialect.".format(
                     self.bracket_type, parse_context.dialect.name
                 )
             )
