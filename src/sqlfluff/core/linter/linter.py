@@ -765,7 +765,7 @@ class Linter:
         fix: bool = False,
         ignore_non_existent_files: bool = False,
         ignore_files: bool = True,
-        parallel: int = 1,
+        processes: int = 1,
     ) -> LintedDir:
         """Lint a path."""
         linted_path = LintedDir(path)
@@ -781,7 +781,7 @@ class Linter:
         runner = get_runner(
             self,
             self.config,
-            parallel=parallel,
+            processes=processes,
             allow_process_parallelism=self.allow_process_parallelism,
         )
         for linted_file in runner.run(fnames, fix):
@@ -798,7 +798,7 @@ class Linter:
         fix: bool = False,
         ignore_non_existent_files: bool = False,
         ignore_files: bool = True,
-        parallel: int = 1,
+        processes: int = 1,
     ) -> LintingResult:
         """Lint an iterable of paths."""
         # If no paths specified - assume local
@@ -815,7 +815,7 @@ class Linter:
                     fix=fix,
                     ignore_non_existent_files=ignore_non_existent_files,
                     ignore_files=ignore_files,
-                    parallel=parallel,
+                    processes=processes,
                 )
             )
         result.stop_timer()

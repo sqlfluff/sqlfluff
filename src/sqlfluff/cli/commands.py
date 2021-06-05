@@ -410,14 +410,14 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
     "--fixed-suffix", default=None, help="An optional suffix to add to fixed files."
 )
 @click.option(
-    "--parallel",
+    "--processes",
     type=int,
     default=1,
     help="If set to a value higher than 1, run SQLFluff in parallel, "
     "speeding up processing.",
 )
 @click.argument("paths", nargs=-1)
-def fix(force, paths, parallel, bench=False, fixed_suffix="", logger=None, **kwargs):
+def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kwargs):
     """Fix SQL files.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -449,7 +449,7 @@ def fix(force, paths, parallel, bench=False, fixed_suffix="", logger=None, **kwa
     click.echo("==== finding fixable violations ====")
     try:
         result = lnt.lint_paths(
-            paths, fix=True, ignore_non_existent_files=False, parallel=parallel
+            paths, fix=True, ignore_non_existent_files=False, processes=processes
         )
     except IOError:
         click.echo(
