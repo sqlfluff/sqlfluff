@@ -28,3 +28,14 @@ test_5:
   pass_str: |
     SELECT * FROM db.sc.tbl2
     WHERE a NOT IN (SELECT tbl2.a FROM db.sc.tbl1)
+
+test_6:
+  # Test ambiguous column reference caused by use of BigQuery structure fields.
+  # Here, 'et2' could either be a schema name or a table name.
+  # https://github.com/sqlfluff/sqlfluff/issues/1079
+  pass_str: |
+    SELECT et2.txn.amount
+    FROM `example_dataset2.example_table2` AS et2
+  configs:
+    core:
+      dialect: bigquery
