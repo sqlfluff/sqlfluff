@@ -18,9 +18,9 @@ from sqlfluff.core.parser import (
     Delimited,
     AnyNumberOf,
     KeywordSegment,
-    Indent,
     SymbolSegment,
     RegexLexer,
+    StringLexer,
     CodeSegment,
     NamedParser,
     StringParser,
@@ -32,6 +32,14 @@ from sqlfluff.core.dialects import load_raw_dialect
 ansi_dialect = load_raw_dialect("ansi")
 bigquery_dialect = ansi_dialect.copy_as("bigquery")
 
+bigquery_dialect.insert_lexer_matchers(
+    # JSON Operators: https://www.postgresql.org/docs/9.5/functions-json.html
+    [
+        StringLexer("right_arrow", "=>", CodeSegment),
+    ],
+    before="equals",
+)
+
 bigquery_dialect.patch_lexer_matchers(
     [
         # Quoted literals can have r or b (case insensitive) prefixes, in any order, to
@@ -42,12 +50,15 @@ bigquery_dialect.patch_lexer_matchers(
         # Triple quoted variant first, then single quoted
         RegexLexer(
             "single_quote",
-            r"([rR]?[bB]?|[bB]?[rR]?)?('''((?<!\\)(\\{2})*\\'|'{,2}(?!')|[^'])*(?<!\\)(\\{2})*'''|'((?<!\\)(\\{2})*\\'|[^'])*(?<!\\)(\\{2})*')",
+            r"([rR]?[bB]?|[bB]?[rR]?)?('''((?<!\\)(\\{2})*\\'|'{,2}(?!')|[^'])"
+            r"*(?<!\\)(\\{2})*'''|'((?<!\\)(\\{2})*\\'|[^'])*(?<!\\)(\\{2})*')",
             CodeSegment,
         ),
         RegexLexer(
             "double_quote",
-            r'([rR]?[bB]?|[bB]?[rR]?)?(\"\"\"((?<!\\)(\\{2})*\\\"|\"{,2}(?!\")|[^\"])*(?<!\\)(\\{2})*\"\"\"|"((?<!\\)(\\{2})*\\"|[^"])*(?<!\\)(\\{2})*")',
+            r"([rR]?[bB]?|[bB]?[rR]?)?(\"\"\"((?<!\\)(\\{2})*\\\"|\"{,2}(?!\")"
+            r'|[^\"])*(?<!\\)(\\{2})*\"\"\"|"((?<!\\)(\\{2})*\\"|[^"])*(?<!\\)'
+            r'(\\{2})*")',
             CodeSegment,
         ),
     ]
@@ -68,6 +79,14 @@ bigquery_dialect.add(
     EndAngleBracketSegment=StringParser(
         ">", SymbolSegment, name="end_angle_bracket", type="end_angle_bracket"
     ),
+    RightArrowSegment=StringParser(
+        "=>", SymbolSegment, name="right_arrow", type="right_arrow"
+    ),
+    SelectClauseElementListGrammar=Delimited(
+        Ref("SelectClauseElementSegment"),
+        delimiter=Ref("CommaSegment"),
+        allow_trailing=True,
+    ),
 )
 
 
@@ -78,6 +97,7 @@ bigquery_dialect.replace(
             Ref("ExpressionSegment"),
             Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
         ),
+        Ref("NamedArgumentSegment"),
     ),
     SimpleArrayTypeGrammar=Sequence(
         "ARRAY",
@@ -127,6 +147,18 @@ bigquery_dialect.sets("angle_bracket_pairs").update(
 )
 
 
+@bigquery_dialect.segment(replace=True)
+class SelectClauseModifierSegment(BaseSegment):
+    """Things that come after SELECT but before the columns."""
+
+    type = "select_clause_modifier"
+    match_grammar = Sequence(
+        # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax
+        Sequence("AS", OneOf("STRUCT", "VALUE"), optional=True),
+        OneOf("DISTINCT", "ALL", optional=True),
+    )
+
+
 # BigQuery allows functions in INTERVAL
 @bigquery_dialect.segment(replace=True)
 class IntervalExpressionSegment(BaseSegment):
@@ -137,30 +169,6 @@ class IntervalExpressionSegment(BaseSegment):
         "INTERVAL",
         Ref("ExpressionSegment"),
         OneOf(Ref("QuotedLiteralSegment"), Ref("DatetimeUnitSegment")),
-    )
-
-
-@bigquery_dialect.segment(replace=True)
-class SelectClauseSegment(ansi_dialect.get_segment("SelectClauseSegment")):  # type: ignore
-    """In BigQuery, select * as struct is valid."""
-
-    parse_grammar = Sequence(
-        "SELECT",
-        Ref("SelectClauseModifierSegment", optional=True),
-        Indent,
-        OneOf(
-            Sequence(
-                "AS",
-                "STRUCT",
-                Ref("StarSegment"),
-                Ref("StarModifierSegment", optional=True),
-            ),
-            Delimited(
-                Ref("SelectClauseElementSegment"),
-                delimiter=Ref("CommaSegment"),
-                allow_trailing=True,
-            ),
-        ),
     )
 
 
@@ -361,6 +369,21 @@ class TypelessStructSegment(BaseSegment):
             ),
             optional=True,
         ),
+    )
+
+
+@bigquery_dialect.segment()
+class NamedArgumentSegment(BaseSegment):
+    """Named argument to a function.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/geography_functions#st_geogfromgeojson
+    """
+
+    type = "named_argument"
+    match_grammar = Sequence(
+        Ref("NakedIdentifierSegment"),
+        Ref("RightArrowSegment"),
+        Ref("ExpressionSegment"),
     )
 
 

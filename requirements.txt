@@ -2,8 +2,6 @@ click>=7.1
 colorama>=0.3
 configparser
 cached-property
-# bench-it is used while profiling
-bench-it
 # oyaml is like pyyaml but preserves orderings
 oyaml
 Jinja2
@@ -15,3 +13,4 @@ tblib
 appdirs
 # dataclasses backport for python 3.6
 dataclasses; python_version < '3.7'
+toml

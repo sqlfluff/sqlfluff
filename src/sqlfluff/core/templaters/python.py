@@ -200,7 +200,7 @@ class PythonTemplater(RawTemplater):
         return live_context
 
     def process(
-        self, *, in_str: str, fname: Optional[str] = None, config=None, formatter=None
+        self, *, in_str: str, fname: str, config=None, formatter=None
     ) -> Tuple[Optional[TemplatedFile], list]:
         """Process a string and return a TemplatedFile.
 

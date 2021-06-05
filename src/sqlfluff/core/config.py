@@ -10,6 +10,8 @@ from sqlfluff.core.plugin.host import get_plugin_manager
 
 import appdirs
 
+import toml
+
 # Instantiate the templater logger
 config_logger = logging.getLogger("sqlfluff.config")
 
@@ -143,6 +145,31 @@ class ConfigLoader:
             global_loader = cls()
         return global_loader
 
+    @classmethod
+    def _walk_toml(cls, config: Dict[str, Any], base_key=()):
+        """Recursively walk the nested config inside a TOML file."""
+        buff: List[tuple] = []
+        for k, v in config.items():
+            key = base_key + (k,)
+            if isinstance(v, dict):
+                buff.extend(cls._walk_toml(v, key))
+            else:
+                buff.append((key, v))
+
+        return buff
+
+    @classmethod
+    def _get_config_elems_from_toml(cls, fpath: str) -> List[Tuple[tuple, Any]]:
+        """Load a config from a TOML file and return a list of tuples.
+
+        The return value is a list of tuples, were each tuple has two elements,
+        the first is a tuple of paths, the second is the value at that path.
+        """
+        config = toml.load(fpath)
+        tool = config.get("tool", {}).get("sqlfluff", {})
+
+        return cls._walk_toml(tool)
+
     @staticmethod
     def _get_config_elems_from_file(fpath: str) -> List[Tuple[tuple, Any]]:
         """Load a config from a file and return a list of tuples.
@@ -225,7 +252,10 @@ class ConfigLoader:
 
     def load_default_config_file(self, file_dir: str, file_name: str) -> dict:
         """Load the default config file."""
-        elems = self._get_config_elems_from_file(os.path.join(file_dir, file_name))
+        if file_name == "pyproject.toml":
+            elems = self._get_config_elems_from_toml(os.path.join(file_dir, file_name))
+        else:
+            elems = self._get_config_elems_from_file(os.path.join(file_dir, file_name))
         return self._incorporate_vals({}, elems)
 
     def load_config_at_path(self, path: str) -> dict:
@@ -236,7 +266,13 @@ class ConfigLoader:
 
         # The potential filenames we would look for at this path.
         # NB: later in this list overwrites earlier
-        filename_options = ["setup.cfg", "tox.ini", "pep8.ini", ".sqlfluff"]
+        filename_options = [
+            "setup.cfg",
+            "tox.ini",
+            "pep8.ini",
+            ".sqlfluff",
+            "pyproject.toml",
+        ]
 
         configs: dict = {}
 
@@ -245,25 +281,45 @@ class ConfigLoader:
         else:
             p = os.path.dirname(path)
 
-        d = os.listdir(p)
+        d = os.listdir(os.path.expanduser(p))
         # iterate this way round to make sure things overwrite is the right direction
         for fname in filename_options:
             if fname in d:
-                elems = self._get_config_elems_from_file(os.path.join(p, fname))
+                if fname == "pyproject.toml":
+                    elems = self._get_config_elems_from_toml(os.path.join(p, fname))
+                else:
+                    elems = self._get_config_elems_from_file(os.path.join(p, fname))
                 configs = self._incorporate_vals(configs, elems)
 
         # Store in the cache
         self._config_cache[str(path)] = configs
         return configs
 
-    def load_user_appdir_config(self) -> dict:
-        """Load the config from the user's OS specific appdir config directory."""
+    @staticmethod
+    def _get_user_config_dir_path() -> str:
         appname = "sqlfluff"
         appauthor = "sqlfluff"
-        user_config_dir_path = appdirs.user_config_dir(appname, appauthor)
+
+        # On Mac OSX follow Linux XDG base dirs
+        # https://github.com/sqlfluff/sqlfluff/issues/889
+        user_config_dir_path = os.path.expanduser("~/.config/sqlfluff")
+        if appdirs.system == "darwin":
+            appdirs.system = "linux2"
+            user_config_dir_path = appdirs.user_config_dir(appname, appauthor)
+            appdirs.system = "darwin"
+
+        if not os.path.exists(user_config_dir_path):
+            user_config_dir_path = appdirs.user_config_dir(appname, appauthor)
+
+        return user_config_dir_path
+
+    def load_user_appdir_config(self) -> dict:
+        """Load the config from the user's OS specific appdir config directory."""
+        user_config_dir_path = self._get_user_config_dir_path()
         if os.path.exists(user_config_dir_path):
             return self.load_config_at_path(user_config_dir_path)
-        return {}
+        else:
+            return {}
 
     def load_user_config(self) -> dict:
         """Load the config from the user's home directory."""
@@ -543,3 +599,11 @@ class FluffConfig:
         config_path = [elem.strip() for elem in config_line.split(":")]
         # Set the value
         self.set_value(config_path[:-1], config_path[-1])
+
+    def process_raw_file_for_config(self, raw_str: str):
+        """Process a full raw file for inline config and update self."""
+        # Scan the raw file for config commands.
+        for raw_line in raw_str.splitlines():
+            if raw_line.startswith("-- sqlfluff"):
+                # Found a in-file config command
+                self.process_inline_config(raw_line)

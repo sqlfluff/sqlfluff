@@ -3,6 +3,7 @@
 import sys
 import json
 import logging
+import time
 
 import oyaml as yaml
 
@@ -11,7 +12,6 @@ import click
 # For the profiler
 import pstats
 from io import StringIO
-from benchit import BenchIt
 
 # To enable colour cross platform
 import colorama
@@ -35,6 +35,7 @@ from sqlfluff.core import (
     SQLLintError,
     dialect_selector,
     dialect_readout,
+    TimingSummary,
 )
 
 
@@ -295,7 +296,14 @@ def dialects(**kwargs):
 )
 @click.argument("paths", nargs=-1)
 def lint(
-    paths, parallel, format, nofail, disregard_sqlfluffignores, logger=None, **kwargs
+    paths,
+    parallel,
+    format,
+    nofail,
+    disregard_sqlfluffignores,
+    logger=None,
+    bench=False,
+    **kwargs,
 ):
     """Lint SQL files via passing a list of files or using stdin.
 
@@ -326,14 +334,12 @@ def lint(
     set_logging_level(verbosity=verbose, logger=logger, stderr_output=non_human_output)
     # add stdin if specified via lone '-'
     if ("-",) == paths:
-        # TODO: Remove verbose
         result = lnt.lint_string_wrapped(sys.stdin.read(), fname="stdin")
     else:
         # Output the results as we go
         if verbose >= 1:
             click.echo(format_linting_result_header())
         try:
-            # TODO: Remove verbose
             result = lnt.lint_paths(
                 paths,
                 ignore_non_existent_files=False,
@@ -359,7 +365,17 @@ def lint(
     elif format == "yaml":
         click.echo(yaml.dump(result.as_records()))
 
+    if bench:
+        click.echo("==== overall timings ====")
+        click.echo(cli_table([("Clock time", result.total_time)]))
+        timing_summary = result.timing_summary()
+        for step in timing_summary:
+            click.echo(f"=== {step} ===")
+            click.echo(cli_table(timing_summary[step].items()))
+
     if not nofail:
+        if not non_human_output:
+            click.echo("All Finished 📜 🎉!")
         sys.exit(result.stats()["exit code"])
     else:
         sys.exit(0)
@@ -416,8 +432,6 @@ def fix(force, paths, parallel, bench=False, fixed_suffix="", logger=None, **kwa
     lnt, formatter = get_linter_and_formatter(c, silent=fixing_stdin)
     verbose = c.get("verbose")
 
-    bencher = BenchIt()
-
     formatter.dispatch_config(lnt)
 
     # Set up logging.
@@ -426,7 +440,6 @@ def fix(force, paths, parallel, bench=False, fixed_suffix="", logger=None, **kwa
     # handle stdin case. should output formatted sql to stdout and nothing else.
     if fixing_stdin:
         stdin = sys.stdin.read()
-        # TODO: Remove verbose
         result = lnt.lint_string_wrapped(stdin, fname="stdin", fix=True)
         stdout = result.paths[0].files[0].fix_string()[0]
         click.echo(stdout, nl=False)
@@ -460,7 +473,6 @@ def fix(force, paths, parallel, bench=False, fixed_suffix="", logger=None, **kwa
         )
         if force:
             click.echo(colorize("FORCE MODE", "red") + ": Attempting fixes...")
-            # TODO: Remove verbose
             success = do_fixes(
                 lnt,
                 result,
@@ -478,7 +490,6 @@ def fix(force, paths, parallel, bench=False, fixed_suffix="", logger=None, **kwa
             click.echo("...")
             if c in ("y", "\r", "\n"):
                 click.echo("Attempting fixes...")
-                # TODO: Remove verbose
                 success = do_fixes(
                     lnt,
                     result,
@@ -488,6 +499,8 @@ def fix(force, paths, parallel, bench=False, fixed_suffix="", logger=None, **kwa
                 )
                 if not success:
                     sys.exit(1)
+                else:
+                    click.echo("All Finished 📜 🎉!")
             elif c == "n":
                 click.echo("Aborting...")
             else:
@@ -501,10 +514,15 @@ def fix(force, paths, parallel, bench=False, fixed_suffix="", logger=None, **kwa
                     result.num_violations(types=SQLLintError, fixable=False)
                 )
             )
+        click.echo("All Finished 📜 🎉!")
 
     if bench:
-        click.echo("\n\n==== bencher stats ====")
-        bencher.display()
+        click.echo("==== overall timings ====")
+        click.echo(cli_table([("Clock time", result.total_time)]))
+        timing_summary = result.timing_summary()
+        for step in timing_summary:
+            click.echo(f"=== {step} ===")
+            click.echo(cli_table(timing_summary[step].items()))
 
     sys.exit(0)
 
@@ -556,8 +574,6 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
     character to indicate reading from *stdin* or a dot/blank ('.'/' ') which will
     be interpreted like passing the current working directory as a path argument.
     """
-    # Initialise the benchmarker
-    bencher = BenchIt()  # starts the timer
     c = get_config(**kwargs)
     # We don't want anything else to be logged if we want json or yaml output
     non_human_output = format in ("json", "yaml")
@@ -582,8 +598,8 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
         pr = cProfile.Profile()
         pr.enable()
 
-    bencher("Parse setup")
     try:
+        t0 = time.monotonic()
         # handle stdin if specified via lone '-'
         if "-" == path:
             # put the parser result in a list to iterate later
@@ -594,12 +610,14 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
             ]
         else:
             # A single path must be specified for this command
-            # TODO: Remove verbose
             result = lnt.parse_path(path, recurse=recurse)
+        total_time = time.monotonic() - t0
 
         # iterative print for human readout
         if format == "human":
+            timing = TimingSummary()
             for parsed_string in result:
+                timing.add(parsed_string.time_dict)
                 if parsed_string.tree:
                     click.echo(parsed_string.tree.stringify(code_only=code_only))
                 else:
@@ -618,19 +636,24 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
                 if verbose >= 2:
                     click.echo("==== timings ====")
                     click.echo(cli_table(parsed_string.time_dict.items()))
-                bencher("Output details for file")
+            if verbose >= 2 or bench:
+                click.echo("==== overall timings ====")
+                click.echo(cli_table([("Clock time", total_time)]))
+                timing_summary = timing.summary()
+                for step in timing_summary:
+                    click.echo(f"=== {step} ===")
+                    click.echo(cli_table(timing_summary[step].items()))
         else:
-            # collect result and print as single payload
-            # will need to zip in the file paths
-            filepaths = ["stdin"] if "-" == path else lnt.paths_from_path(path)
             result = [
                 dict(
-                    filepath=filepath,
-                    segments=parsed.as_record(code_only=code_only, show_raw=True)
-                    if parsed
+                    filepath=linted_result.fname,
+                    segments=linted_result.tree.as_record(
+                        code_only=code_only, show_raw=True
+                    )
+                    if linted_result.tree
                     else None,
                 )
-                for filepath, (parsed, _, _, _, _) in zip(filepaths, result)
+                for linted_result in result
             ]
 
             if format == "yaml":
@@ -657,10 +680,6 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
         click.echo("==== profiler stats ====")
         # Only print the first 50 lines of it
         click.echo("\n".join(profiler_buffer.getvalue().split("\n")[:50]))
-
-    if bench:
-        click.echo("\n\n==== bencher stats ====")
-        bencher.display()
 
     if nv > 0 and not nofail:
         sys.exit(66)

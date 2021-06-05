@@ -31,10 +31,12 @@ class DbtTemplater(JinjaTemplater):
     """A templater using dbt."""
 
     name = "dbt"
+    sequential_fail_limit = 3
 
     def __init__(self, **kwargs):
         self.sqlfluff_config = None
         self.formatter = None
+        self._sequential_fails = 0
         super().__init__(**kwargs)
 
     def config_pairs(self):
@@ -131,6 +133,11 @@ class DbtTemplater(JinjaTemplater):
                 DbtMethodName.Path, method_arguments=[]
             )
 
+        if self.formatter:
+            self.formatter.dispatch_compilation_header(
+                "dbt templater", "Project Compiled."
+            )
+
         return self.dbt_selector_method
 
     def _get_profiles_dir(self):
@@ -199,12 +206,18 @@ class DbtTemplater(JinjaTemplater):
         )
 
         try:
-            return self._unsafe_process(fname, in_str, config)
+            processed_result = self._unsafe_process(fname, in_str, config)
+            # Reset the fail counter
+            self._sequential_fails = 0
+            return processed_result
         except DbtCompilationException as e:
+            # Increment the counter
+            self._sequential_fails += 1
             return None, [
                 SQLTemplaterError(
                     f"dbt compilation error on file '{e.node.original_file_path}', {e.msg}",
-                    fatal=True,
+                    # It's fatal if we're over the limit
+                    fatal=self._sequential_fails > self.sequential_fail_limit,
                 )
             ]
         except DbtFailedToConnectException as e:

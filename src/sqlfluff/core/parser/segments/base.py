@@ -9,7 +9,6 @@ Here we define:
 """
 
 from io import StringIO
-from benchit import BenchIt
 from cached_property import cached_property
 from typing import Any, Callable, Optional, List, Tuple, NamedTuple, Iterator
 import logging
@@ -39,10 +38,10 @@ class FixPatch(NamedTuple):
 
     templated_slice: slice
     fixed_raw: str
-    # The patch type, functions mostly for debugging and explanation
+    # The patch category, functions mostly for debugging and explanation
     # than for function. It allows traceability of *why* this patch was
     # generated. It has no siginificance for processing.
-    patch_type: str
+    patch_category: str
 
 
 class BaseSegment:
@@ -246,7 +245,6 @@ class BaseSegment:
                     segs += (stmt,)
                     continue
             except Exception as err:
-                # raise ValueError("{0} has no attribute `is_expandable`. This segment appears poorly constructed.".format(stmt))
                 parse_context.logger.error(
                     "%s has no attribute `is_expandable`. This segment appears poorly constructed.",
                     stmt,
@@ -836,10 +834,6 @@ class BaseSegment:
                     )
                     + post_nc
                 )
-
-        bencher = BenchIt()  # starts the timer
-        bencher(f"Parse complete of {self.__class__.__name__!r}")
-
         # Recurse if allowed (using the expand method to deal with the expansion)
         parse_context.logger.debug(
             "{}.parse: Done Parse. Plotting Recursion. Recurse={!r}".format(
@@ -967,7 +961,7 @@ class BaseSegment:
         if self.pos_marker.is_literal():
             # Yield the position in the source file and the patch
             yield FixPatch(
-                self.pos_marker.templated_slice, self.raw, patch_type="literal"
+                self.pos_marker.templated_slice, self.raw, patch_category="literal"
             )
         # Can we go deeper?
         elif not self.segments:
@@ -1010,7 +1004,7 @@ class BaseSegment:
                             segment.pos_marker.templated_slice.start,
                         ),
                         insert_buff,
-                        patch_type="mid_point",
+                        patch_category="mid_point",
                     )
                     insert_buff = ""
 
@@ -1031,7 +1025,7 @@ class BaseSegment:
                         self.pos_marker.templated_slice.stop,
                     ),
                     insert_buff,
-                    patch_type="end_point",
+                    patch_category="end_point",
                 )
 
 

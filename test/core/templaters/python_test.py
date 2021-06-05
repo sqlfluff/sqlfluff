@@ -17,7 +17,7 @@ def test__templater_python():
     """Test the python templater."""
     t = PythonTemplater(override_context=dict(blah="foo"))
     instr = PYTHON_STRING
-    outstr, _ = t.process(in_str=instr)
+    outstr, _ = t.process(in_str=instr, fname="test")
     assert str(outstr) == "SELECT * FROM foo"
 
 
@@ -26,7 +26,7 @@ def test__templater_python_error():
     t = PythonTemplater(override_context=dict(noblah="foo"))
     instr = PYTHON_STRING
     with pytest.raises(SQLTemplaterError):
-        t.process(in_str=instr)
+        t.process(in_str=instr, fname="test")
 
 
 @pytest.mark.parametrize(
