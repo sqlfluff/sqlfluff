@@ -47,14 +47,14 @@ def document_configuration(cls, ruleset="std"):
                         keyword, cls.__name__
                     )
                 )
-            config_doc += "\n    |     `{0}`: {1}.".format(
+            config_doc += "\n    |     `{}`: {}.".format(
                 keyword, info_dict["definition"]
             )
             if "validation" in info_dict:
-                config_doc += " Must be one of {0}.".format(info_dict["validation"])
+                config_doc += " Must be one of {}.".format(info_dict["validation"])
             config_doc += "\n    |"
     except AttributeError:
-        rules_logger.info("No config_keywords defined for {0}".format(cls.__name__))
+        rules_logger.info(f"No config_keywords defined for {cls.__name__}")
         return cls
     # Add final blank line
     config_doc += "\n"

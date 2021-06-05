@@ -77,7 +77,7 @@ def set_logging_level(verbosity, logger=None, stderr_output=False):
     # Set up a handler to colour warnings red.
     handler.addFilter(RedWarningsFilter())
     if logger:
-        focus_logger = logging.getLogger("sqlfluff.{0}".format(logger))
+        focus_logger = logging.getLogger(f"sqlfluff.{logger}")
         focus_logger.addHandler(handler)
     else:
         fluff_logger.addHandler(handler)
@@ -193,7 +193,7 @@ def get_config(**kwargs):
             # We're just making sure it exists at this stage - it will be fetched properly in the linter
             dialect_selector(kwargs["dialect"])
         except KeyError:
-            click.echo("Error: Unknown dialect {0!r}".format(kwargs["dialect"]))
+            click.echo("Error: Unknown dialect {!r}".format(kwargs["dialect"]))
             sys.exit(66)
     # Instantiate a config object (filtering out the nulls)
     overrides = {k: kwargs[k] for k in kwargs if kwargs[k] is not None}
@@ -206,7 +206,7 @@ def get_linter_and_formatter(cfg, silent=False):
         # We're just making sure it exists at this stage - it will be fetched properly in the linter
         dialect_selector(cfg.get("dialect"))
     except KeyError:
-        click.echo("Error: Unknown dialect {0!r}".format(cfg.get("dialect")))
+        click.echo("Error: Unknown dialect {!r}".format(cfg.get("dialect")))
         sys.exit(66)
 
     if not silent:
@@ -346,10 +346,10 @@ def lint(
                 ignore_files=not disregard_sqlfluffignores,
                 processes=processes,
             )
-        except IOError:
+        except OSError:
             click.echo(
                 colorize(
-                    "The path(s) {0!r} could not be accessed. Check it/they exist(s).".format(
+                    "The path(s) {!r} could not be accessed. Check it/they exist(s).".format(
                         paths
                     ),
                     "red",
@@ -451,10 +451,10 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
         result = lnt.lint_paths(
             paths, fix=True, ignore_non_existent_files=False, processes=processes
         )
-    except IOError:
+    except OSError:
         click.echo(
             colorize(
-                "The path(s) {0!r} could not be accessed. Check it/they exist(s).".format(
+                "The path(s) {!r} could not be accessed. Check it/they exist(s).".format(
                     paths
                 ),
                 "red",
@@ -467,7 +467,7 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
     if result.num_violations(types=SQLLintError, fixable=True) > 0:
         click.echo("==== fixing violations ====")
         click.echo(
-            "{0} fixable linting violations found".format(
+            "{} fixable linting violations found".format(
                 result.num_violations(types=SQLLintError, fixable=True)
             )
         )
@@ -510,7 +510,7 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
         click.echo("==== no fixable linting violations found ====")
         if result.num_violations(types=SQLLintError, fixable=False) > 0:
             click.echo(
-                "  [{0} unfixable linting violations found]".format(
+                "  [{} unfixable linting violations found]".format(
                     result.num_violations(types=SQLLintError, fixable=False)
                 )
             )
@@ -663,10 +663,10 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
                 click.echo(yaml.dump(result))
             elif format == "json":
                 click.echo(json.dumps(result))
-    except IOError:
+    except OSError:
         click.echo(
             colorize(
-                "The path {0!r} could not be accessed. Check it exists.".format(path),
+                f"The path {path!r} could not be accessed. Check it exists.",
                 "red",
             )
         )
