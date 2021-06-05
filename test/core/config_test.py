@@ -124,14 +124,10 @@ def test__config__find_sqlfluffignore_in_same_directory():
         path="test/fixtures/linter/sqlfluffignore/path_b/query_b.sql",
         working_path="test/fixtures/linter/sqlfluffignore/",
     )
-    assert ignore_files == set(
-        [
-            os.path.abspath(
-                "test/fixtures/linter/sqlfluffignore/path_b/.sqlfluffignore"
-            ),
-            os.path.abspath("test/fixtures/linter/sqlfluffignore/.sqlfluffignore"),
-        ]
-    )
+    assert ignore_files == {
+        os.path.abspath("test/fixtures/linter/sqlfluffignore/path_b/.sqlfluffignore"),
+        os.path.abspath("test/fixtures/linter/sqlfluffignore/.sqlfluffignore"),
+    }
 
 
 def test__config__nested_config_tests():
