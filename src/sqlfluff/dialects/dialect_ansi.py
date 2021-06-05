@@ -2047,6 +2047,32 @@ class CreateSchemaStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class SetSchemaStatementSegment(BaseSegment):
+    """A `SET SCHEMA` statement."""
+
+    type = "set_schema_statement"
+    match_grammar = Sequence(
+        "SET",
+        "SCHEMA",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("SchemaReferenceSegment"),
+    )
+
+
+@ansi_dialect.segment()
+class DropSchemaStatementSegment(BaseSegment):
+    """A `DROP SCHEMA` statement."""
+
+    type = "drop_schema_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "SCHEMA",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("SchemaReferenceSegment"),
+    )
+
+
+@ansi_dialect.segment()
 class CreateDatabaseStatementSegment(BaseSegment):
     """A `CREATE DATABASE` statement."""
 
@@ -2719,6 +2745,8 @@ class StatementSegment(BaseSegment):
         Ref("CreateRoleStatementSegment"),
         Ref("AlterTableStatementSegment"),
         Ref("CreateSchemaStatementSegment"),
+        Ref("SetSchemaStatementSegment"),
+        Ref("DropSchemaStatementSegment"),
         Ref("CreateDatabaseStatementSegment"),
         Ref("CreateExtensionStatementSegment"),
         Ref("CreateIndexStatementSegment"),
