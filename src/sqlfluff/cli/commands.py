@@ -291,8 +291,7 @@ def dialects(**kwargs):
     "--processes",
     type=int,
     default=1,
-    help="If set to a value higher than 1, run SQLFluff in parallel, "
-    "speeding up processing.",
+    help="The number of parallel processes to run.",
 )
 @click.argument("paths", nargs=-1)
 def lint(
@@ -413,8 +412,7 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
     "--processes",
     type=int,
     default=1,
-    help="If set to a value higher than 1, run SQLFluff in parallel, "
-    "speeding up processing.",
+    help="The number of parallel processes to run.",
 )
 @click.argument("paths", nargs=-1)
 def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kwargs):
