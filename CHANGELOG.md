@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Respect XDG base dirs on Mac OS ([#889](https://github.com/sqlfluff/sqlfluff/issues/889)).
 - Fix bug [#1082](https://github.com/sqlfluff/sqlfluff/issues/1082), adding
   support for BigQuery `select as struct '1' as bb, 2 as aa` syntax
+- Fix bug [#1080](https://github.com/sqlfluff/sqlfluff/issues/1080), add
+  SET SCHEMA and DROP SCHEMA support to ANSI dialect.
 
 Contributors:
 - [@GitHub-Username](Link to GitHub profile) ([#PR-Number](Link to PR))
