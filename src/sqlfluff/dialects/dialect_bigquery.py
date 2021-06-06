@@ -409,8 +409,37 @@ class LiteralCoercionSegment(BaseSegment):
     )
 
 
+# Dialects should not use Python "import" to access other dialects. Instead,
+# get a reference to the ANSI ObjectReferenceSegment this way so we can inherit
+# from it.
+ObjectReferenceSegment = ansi_dialect.get_segment("ObjectReferenceSegment")
+
+
+@bigquery_dialect.segment(replace=True)
+class ColumnReferenceSegment(ObjectReferenceSegment):  # type: ignore
+    """A reference to column, field or alias."""
+
+    type = "column_reference"
+
+    def extract_possible_references(self, level):
+        """Extract possible references of a given level."""
+        level = self._level_to_int(level)
+        refs = list(self.iter_raw_references())
+        if level == self.ObjectReferenceLevel.SCHEMA.value and len(refs) >= 3:
+            return [refs[0]]
+        if level == self.ObjectReferenceLevel.TABLE.value and len(refs) >= 3:
+            # Ambiguous case: The table could be the first or second part, so
+            # return both.
+            return [refs[0], refs[1]]
+        if level == self.ObjectReferenceLevel.OBJECT.value and len(refs) >= 3:
+            # Ambiguous case: The object (i.e. column) could be the first or
+            # second part, so return both.
+            return [refs[1], refs[2]]
+        return super().extract_possible_references(level)
+
+
 @bigquery_dialect.segment()
-class HyphenatedObjectReferenceSegment(ansi_dialect.get_segment("ObjectReferenceSegment")):  # type: ignore
+class HyphenatedObjectReferenceSegment(ObjectReferenceSegment):  # type: ignore
     """A reference to an object that may contain embedded hyphens."""
 
     type = "hyphenated_object_reference"

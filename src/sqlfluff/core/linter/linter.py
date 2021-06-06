@@ -100,9 +100,7 @@ class Linter:
     def _load_raw_file_and_config(fname, root_config):
         """Load a raw file and the associated config."""
         file_config = root_config.make_child_from_path(fname)
-        with open(
-            fname, "r", encoding="utf8", errors="backslashreplace"
-        ) as target_file:
+        with open(fname, encoding="utf8", errors="backslashreplace") as target_file:
             raw_file = target_file.read()
         # Scan the raw file for config commands.
         file_config.process_raw_file_for_config(raw_file)
@@ -191,7 +189,7 @@ class Linter:
             return None, violations
 
         if parsed:
-            linter_logger.info("\n###\n#\n# {0}\n#\n###".format("Parsed Tree:"))
+            linter_logger.info("\n###\n#\n# {}\n#\n###".format("Parsed Tree:"))
             linter_logger.info("\n" + parsed.stringify())
             # We may succeed parsing, but still have unparsable segments. Extract them here.
             for unparsable in parsed.iter_unparsables():
@@ -665,7 +663,7 @@ class Linter:
             if ignore_non_existent_files:
                 return []
             else:
-                raise IOError("Specified path does not exist")
+                raise OSError("Specified path does not exist")
 
         # Files referred to exactly are also ignored if
         # matched, but we warn the users when that happens
@@ -705,7 +703,7 @@ class Linter:
                 fpath = os.path.join(dirpath, fname)
                 # Handle potential .sqlfluffignore files
                 if ignore_files and fname == ignore_file_name:
-                    with open(fpath, "r") as fh:
+                    with open(fpath) as fh:
                         spec = pathspec.PathSpec.from_lines("gitwildmatch", fh)
                     matches = spec.match_tree(dirpath)
                     for m in matches:
@@ -765,7 +763,7 @@ class Linter:
         fix: bool = False,
         ignore_non_existent_files: bool = False,
         ignore_files: bool = True,
-        parallel: int = 1,
+        processes: int = 1,
     ) -> LintedDir:
         """Lint a path."""
         linted_path = LintedDir(path)
@@ -781,7 +779,7 @@ class Linter:
         runner = get_runner(
             self,
             self.config,
-            parallel=parallel,
+            processes=processes,
             allow_process_parallelism=self.allow_process_parallelism,
         )
         for linted_file in runner.run(fnames, fix):
@@ -798,7 +796,7 @@ class Linter:
         fix: bool = False,
         ignore_non_existent_files: bool = False,
         ignore_files: bool = True,
-        parallel: int = 1,
+        processes: int = 1,
     ) -> LintingResult:
         """Lint an iterable of paths."""
         # If no paths specified - assume local
@@ -815,7 +813,7 @@ class Linter:
                     fix=fix,
                     ignore_non_existent_files=ignore_non_existent_files,
                     ignore_files=ignore_files,
-                    parallel=parallel,
+                    processes=processes,
                 )
             )
         result.stop_timer()

@@ -101,7 +101,7 @@ class BaseGrammar(Matchable):
             ):
                 return init_func(elem)
         raise TypeError(
-            "Grammar element [{0!r}] was found of unexpected type [{1}] was found.".format(
+            "Grammar element [{!r}] was found of unexpected type [{}] was found.".format(
                 elem, type(elem)
             )
         )
@@ -171,7 +171,7 @@ class BaseGrammar(Matchable):
         on the underlying class.
         """
         raise NotImplementedError(
-            "{0} has no match function implemented".format(self.__class__.__name__)
+            f"{self.__class__.__name__} has no match function implemented"
         )
 
     @cached_method_for_parse_context
@@ -674,7 +674,7 @@ class BaseGrammar(Matchable):
         return repr(self)
 
     def __repr__(self):
-        return "<{0}: [{1}]>".format(
+        return "<{}: [{}]>".format(
             self.__class__.__name__,
             curtail_string(
                 ", ".join(curtail_string(repr(elem), 40) for elem in self._elements),
@@ -743,7 +743,7 @@ class BaseGrammar(Matchable):
                     idx = new_elems.index(before)
                 except ValueError:
                     raise ValueError(
-                        "Could not insert {0} in copy of {1}. {2} not Found.".format(
+                        "Could not insert {} in copy of {}. {} not Found.".format(
                             insert, self, before
                         )
                     )
@@ -758,7 +758,7 @@ class BaseGrammar(Matchable):
                     new_elems.remove(elem)
                 except ValueError:
                     raise ValueError(
-                        "Could not remove {0} from copy of {1}. Not Found.".format(
+                        "Could not remove {} from copy of {}. Not Found.".format(
                             elem, self
                         )
                     )
@@ -793,7 +793,7 @@ class Ref(BaseGrammar):
             return self._elements[0]
         else:
             raise ValueError(
-                "Ref grammar can only deal with precisely one element for now. Instead found {0!r}".format(
+                "Ref grammar can only deal with precisely one element for now. Instead found {!r}".format(
                     self._elements
                 )
             )
@@ -807,7 +807,7 @@ class Ref(BaseGrammar):
             raise ReferenceError("No Dialect has been provided to Ref grammar!")
 
     def __repr__(self):
-        return "<Ref: {0}{1}>".format(
+        return "<Ref: {}{}>".format(
             ", ".join(self._elements), " [opt]" if self.is_optional() else ""
         )
 
@@ -826,9 +826,7 @@ class Ref(BaseGrammar):
         elem = self._get_elem(dialect=parse_context.dialect)
 
         if not elem:
-            raise ValueError(
-                "Null Element returned! _elements: {0!r}".format(self._elements)
-            )
+            raise ValueError(f"Null Element returned! _elements: {self._elements!r}")
 
         # First check against the efficiency Cache.
         # We rely on segments not being mutated within a given

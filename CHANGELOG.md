@@ -6,12 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## Added
+- Respect XDG base dirs on Mac OS ([#889](https://github.com/sqlfluff/sqlfluff/issues/889)).
+- Added support for additional delimiters by creating a new DelimiterSegment in the
+  ANSI dialect which defaults to the semicolon, but allows it to be more intuitive
+  when overriden in a specific child dialect (mysql) [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
+- Added support for the DELIMITER statement in the mysql dialect [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
+- Added support for additional delimiters by creating a new DelimiterSegment in the
+  ANSI dialect which defaults to the semicolon, but allows it to be more intuitive.
+
 ### Changed
+- Renamed --parallel CLI argument to --processes to be more accurate.
 - L034 now ignores select statements which contain macros.
 - L034 now ignores select statements part of a set expression, most commonly a union.
-- Respect XDG base dirs on Mac OS ([#889](https://github.com/sqlfluff/sqlfluff/issues/889)).
 - Fix bug [#1082](https://github.com/sqlfluff/sqlfluff/issues/1082), adding
-  support for BigQuery `select as struct '1' as bb, 2 as aa` syntax
+  support for BigQuery `select as struct '1' as bb, 2 as aa` syntax.
 - Rationalisation of the placement of meta segments within templated
   queries to support more reliable indentation. This includes prioritising
   _longer_ invariant sections first and then dropping any shorter ones
@@ -22,16 +32,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allow meta segments to parse within `Delimited` grammars which otherwise
   don't allow gaps. This is facilitated through an optional agrument to
   `trim_non_code_segments`.
+- Fix bug [#1079](https://github.com/sqlfluff/sqlfluff/issues/1079), addressing
+  issues with L025 and L026 with BigQuery column references involving `STRUCT`.
+- Fix bug [#1080](https://github.com/sqlfluff/sqlfluff/issues/1080), add
+  SET SCHEMA and DROP SCHEMA support to ANSI dialect.
+  when overriden in a specific child dialect (mysql) [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
 
 Contributors:
-- [@GitHub-Username](Link to GitHub profile) ([#PR-Number](Link to PR))
 - [@bolajiwahab](https://github.com/bolajiwahab) ([#1063])(https://github.com/sqlfluff/sqlfluff/pull/1063)
-## [0.6.1] - 2021-06-01
-### Changed
-- Added support for additional delimiters by creating a new DelimiterSegment in the 
-  ANSI dialect which defaults to the semicolon, but allows it to be more intuitive 
-  when overriden in a specific child dialect (mysql) [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
-- Added support for the DELIMITER statement in the mysql dialect [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
+
 ## [0.6.0a2] - 2021-05-27
 ### Changed
 - Better exception handling for the simple parsing API (`sqlfluff.parse`)
@@ -40,7 +49,7 @@ Contributors:
 - Fix bug [#1037](https://github.com/sqlfluff/sqlfluff/issues/1037), in which fix
   logging had been sent to stdout when reading data from stdin.
 - Add a little bit of fun on CLI exit 🎉!
-- Disabled models in the dbt templater are now skipped enitrely rather than
+- Disabled models in the dbt templater are now skipped entirely rather than
   returning an untemplated file.
 - Add a changelog check to SQLFluff continuous integration.
 - Fix bug [#1083](https://github.com/sqlfluff/sqlfluff/issues/1083), adding
