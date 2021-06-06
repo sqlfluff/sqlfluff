@@ -519,6 +519,10 @@ class Linter:
         # Start the templating timer
         t0 = time.monotonic()
 
+        if not config.get("templater_obj") == self.templater:
+            linter_logger.warn((f"Attempt to set templater to {config.get('templater_obj').name} failed. Using {self.templater.name} templater. "
+                               f"Templater must be set in a .sqlfluff config file in the working directory and cannot be changed " 
+                                "in .sqlfluff files in subdirectories."))
         try:
             templated_file, templater_violations = self.templater.process(
                 in_str=in_str, fname=fname, config=config, formatter=self.formatter
