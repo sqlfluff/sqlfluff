@@ -11,6 +11,8 @@ from sqlfluff.core.plugin.host import get_plugin_manager
 
 import appdirs
 
+import toml
+
 # Instantiate the templater logger
 config_logger = logging.getLogger("sqlfluff.config")
 
@@ -144,6 +146,31 @@ class ConfigLoader:
             global_loader = cls()
         return global_loader
 
+    @classmethod
+    def _walk_toml(cls, config: Dict[str, Any], base_key=()):
+        """Recursively walk the nested config inside a TOML file."""
+        buff: List[tuple] = []
+        for k, v in config.items():
+            key = base_key + (k,)
+            if isinstance(v, dict):
+                buff.extend(cls._walk_toml(v, key))
+            else:
+                buff.append((key, v))
+
+        return buff
+
+    @classmethod
+    def _get_config_elems_from_toml(cls, fpath: str) -> List[Tuple[tuple, Any]]:
+        """Load a config from a TOML file and return a list of tuples.
+
+        The return value is a list of tuples, were each tuple has two elements,
+        the first is a tuple of paths, the second is the value at that path.
+        """
+        config = toml.load(fpath)
+        tool = config.get("tool", {}).get("sqlfluff", {})
+
+        return cls._walk_toml(tool)
+
     @staticmethod
     def _get_config_elems_from_file(fpath: str) -> List[Tuple[tuple, Any]]:
         """Load a config from a file and return a list of tuples.
@@ -228,7 +255,10 @@ class ConfigLoader:
 
     def load_default_config_file(self, file_dir: str, file_name: str) -> dict:
         """Load the default config file."""
-        elems = self._get_config_elems_from_file(os.path.join(file_dir, file_name))
+        if file_name == "pyproject.toml":
+            elems = self._get_config_elems_from_toml(os.path.join(file_dir, file_name))
+        else:
+            elems = self._get_config_elems_from_file(os.path.join(file_dir, file_name))
         return self._incorporate_vals({}, elems)
 
     def load_config_at_path(self, path: str) -> dict:
@@ -239,7 +269,13 @@ class ConfigLoader:
 
         # The potential filenames we would look for at this path.
         # NB: later in this list overwrites earlier
-        filename_options = ["setup.cfg", "tox.ini", "pep8.ini", ".sqlfluff"]
+        filename_options = [
+            "setup.cfg",
+            "tox.ini",
+            "pep8.ini",
+            ".sqlfluff",
+            "pyproject.toml",
+        ]
 
         configs: dict = {}
 
@@ -252,7 +288,10 @@ class ConfigLoader:
         # iterate this way round to make sure things overwrite is the right direction
         for fname in filename_options:
             if fname in d:
-                elems = self._get_config_elems_from_file(os.path.join(p, fname))
+                if fname == "pyproject.toml":
+                    elems = self._get_config_elems_from_toml(os.path.join(p, fname))
+                else:
+                    elems = self._get_config_elems_from_file(os.path.join(p, fname))
                 configs = self._incorporate_vals(configs, elems)
 
         # Store in the cache

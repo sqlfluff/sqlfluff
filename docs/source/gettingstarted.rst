@@ -82,8 +82,13 @@ You can then run :code:`sqlfluff lint test.sql` to lint this file.
 
     $ sqlfluff lint test.sql
     == [test.sql] FAIL
-    L:   1 | P:   9 | L006 | Operators should be preceded by a space.
-    L:   1 | P:  10 | L006 | Operators should be followed by a space.
+    L:   1 | P:   1 | L036 | Select targets should be on a new line unless there is
+                           | only one select target.
+    L:   1 | P:   8 | L034 | Use wildcards then simple select targets before
+                           | calculations and aggregates.
+    L:   1 | P:   9 | L006 | Missing whitespace before +
+    L:   1 | P:   9 | L006 | Missing whitespace after +
+    L:   1 | P:  11 | L039 | Unnecessary whitespace found.
     L:   2 | P:   1 | L003 | Indent expected and not found compared to line #1
     L:   2 | P:  10 | L010 | Inconsistent capitalisation of keywords.
     L:   2 | P:  15 | L009 | Files must end with a trailing newline.
@@ -91,7 +96,7 @@ You can then run :code:`sqlfluff lint test.sql` to lint this file.
 You'll see that *SQLFluff* has failed the linting check for this file.
 On each of the following lines you can see each of the problems it has
 found, with some information about the location and what kind of
-problem there is. The first one has been found on *line 1*, *position 9*
+problem there is. One of the errors has been found on *line 1*, *position *
 (as shown by :code:`L:   1 | P:   9`) and it's a problem with rule
 *L006* (for a full list of rules, see :ref:`ruleref`). From this
 (and the following error) we can see that the problem is that there
@@ -105,12 +110,17 @@ looks like this:
     c AS bar from my_table
 
 Rerun the same command as before, and you'll see that the original
-problems now no longer show up.
+error (violation of *L006*) no longer shows up.
 
 .. code-block:: bash
 
     $ sqlfluff lint test.sql
     == [test.sql] FAIL
+    L:   1 | P:   1 | L036 | Select targets should be on a new line unless there is
+                           | only one select target.
+    L:   1 | P:   8 | L034 | Use wildcards then simple select targets before
+                           | calculations and aggregates.
+    L:   1 | P:  13 | L039 | Unnecessary whitespace found.
     L:   2 | P:   1 | L003 | Indent expected and not found compared to line #1
     L:   2 | P:  10 | L010 | Inconsistent capitalisation of keywords.
     L:   2 | P:  15 | L009 | Files must end with a trailing newline.
@@ -121,11 +131,9 @@ allows more automated fixing of some errors, to save you time in
 sorting out your sql files. Not all rules can be fixed in this way
 and there may be some situations where a fix may not be able to be
 applied because of the context of the query, but in many simple cases
-it's a good place to start. Another thing to note is that when fixing,
-you must always be specific about which rules you wish to fix. This
-is to minimise any unintended consequences from making large scale
-changes to your code. In this case we want to try and fix rules
-*L003*, *L009* and *L010*.
+it's a good place to start.
+
+For now, we only want to fix the following rules: *L003*, *L009*, *L010*
 
 .. code-block:: bash
 
@@ -136,7 +144,7 @@ changes to your code. In this case we want to try and fix rules
     L:   2 | P:  10 | L010 | Inconsistent capitalisation of keywords.
     L:   2 | P:  15 | L009 | Files must end with a trailing newline.
     ==== fixing violations ====
-    3 linting violations found
+    3 fixable linting violations found
     Are you sure you wish to attempt to fix these? [Y/n]
 
 ...at this point you'll have to confirm that you want to make the
@@ -160,12 +168,49 @@ now different.
 
 In particular:
 
-* The :code:`FROM` keyword has been capitalised to match the
-  other keywords.
 * The second line has been indented to reflect being inside the
   :code:`SELECT` statement.
+* The :code:`FROM` keyword has been capitalised to match the
+  other keywords.
 * A final newline character has been added at the end of the
   file (which may not be obvious in the snippet above).
+
+We could also fix *all* of the fixable errors by not
+specifying :code:`--rules`.
+
+.. code-block:: bash
+
+    $ sqlfluff fix test.sql
+    ==== finding violations ====
+    == [test.sql] FAIL
+    L:   1 | P:   1 | L036 | Select targets should be on a new line unless there is
+                           | only one select target.
+    L:   1 | P:   8 | L034 | Use wildcards then simple select targets before
+                           | calculations and aggregates.
+    L:   1 | P:  13 | L039 | Unnecessary whitespace found.
+    ==== fixing violations ====
+    3 fixable linting violations found
+    Are you sure you wish to attempt to fix these? [Y/n] ...
+    Attempting fixes...
+    Persisting Changes...
+    == [test.sql] PASS
+    Done. Please check your files to confirm.
+
+If we now open up :code:`test.sql`, we'll see the content has
+been updated again.
+
+.. code-block:: sql
+
+    SELECT
+        c AS bar,
+        a + b AS foo FROM my_table
+
+The SQL statement is now well formatted according to all the
+rules defined in SQLFluff.
+
+The :code:`--rules` argument is optional, and could be useful when
+you or your organisation follows a slightly different convention
+than what we have defined.
 
 Custom Usage
 ------------
@@ -194,15 +239,16 @@ Then rerun the same command as before.
 
 .. code-block:: bash
 
-    $ sqlfluff fix test.sql --rules L003,L009,L010
+    $ sqlfluff fix test.sql --rules L003,L009,L010,L034,L036,L039
 
 Then examine the file again, and you'll notice that the
 file has been fixed accordingly.
 
 .. code-block:: sql
 
-    select a + b  as foo,
-      c as bar from my_table
+    select
+        c as bar,
+        a + b as foo from my_table
 
 For a full list of configuration options check out :ref:`defaultconfig`.
 To see how these options apply to specific rules check out the
