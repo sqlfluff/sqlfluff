@@ -591,7 +591,6 @@ def test_delayed_exception():
         de.reraise()
 
 
-@pytest.mark.here
 def test__attempt_to_change_templater_warning(caplog):
     """Test warning if user tries to change templater in .sqlfluff file in subdirectory"""
     initial_config = FluffConfig(configs={"core": {"templater": "jinja"}})
