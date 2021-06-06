@@ -142,20 +142,53 @@ def format_config_vals(config_vals):
         )
     return text_buffer.getvalue()
 
+def transform_rule_to_verbose(rule) -> dict:
+    """Transform a rule into a shape that can be used for verbose output.
 
-def format_rules(linter, verbose=0):
-    """Format the a set of rules given a `Linter`."""
+    NB: The intent here is to create a shape that can mimic "MAN" style output
+    """
+
+    # The position value of "2" is determined by looking at the docstring of
+    # the rule class and removing the summary line, the following "new line",
+    long_desc = rule.__doc__.split("\n")
+    return {"NAME": rule.code, "SYNOPSIS": rule.description, "DESCRIPTION": "\n".join(long_desc[2:])}
+
+def format_rules(linter, verbose=0, filter_fn=lambda a: a):
+    """Format the a set of rules given a `Linter`.
+
+    Args:
+        linter (Linter):  The Linter being used
+        verbose (int): The verbosity level
+        filter_fn (callable): A function to filter the RuleSet. Defaults to a
+                              passthrough
+    """
     text_buffer = StringIO()
-    text_buffer.write("==== sqlfluff - rules ====\n")
-    text_buffer.write(
-        cli_table(
-            linter.rule_tuples(),
-            col_width=80,
-            cols=1,
-            label_color="blue",
-            val_align="left",
+    if verbose < 1:
+        text_buffer.write("==== sqlfluff - rules ====\n")
+        text_buffer.write(
+            cli_table(
+                filter(filter_fn, linter.rule_tuples()),
+                col_width=80,
+                cols=1,
+                label_color="blue",
+                val_align="left",
+            )
         )
-    )
+        return text_buffer.getvalue()
+
+
+    # When verbosity is specified, we'll grab the entire docstring of the class and output that
+    rs = [transform_rule_to_verbose(r) for r in filter(filter_fn, linter.get_ruleset())]
+    for rule in rs:
+        text_buffer.write(
+                "\n".join(
+                    [
+                        f"{colorize(k, 'blue')}\n\t{v}\n"
+                        for (k,v) in rule.items()
+                    ]
+                )
+        )
+
     return text_buffer.getvalue()
 
 
