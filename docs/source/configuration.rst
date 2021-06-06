@@ -352,10 +352,10 @@ You can set the dbt project directory, profiles directory and profile with:
 
 .. code-block::
 
-[sqlfluff:templater:dbt]
-project_dir = <relative or absolute path to dbt_project directory>
-profiles_dir = <relative or absolute path to the directory that contains the profiles.yml file>
-profile = <dbt profile>
+    [sqlfluff:templater:dbt]
+    project_dir = <relative or absolute path to dbt_project directory>
+    profiles_dir = <relative or absolute path to the directory that contains the profiles.yml file>
+    profile = <dbt profile>
 
 Known Caveats
 ^^^^^^^^^^^^^
