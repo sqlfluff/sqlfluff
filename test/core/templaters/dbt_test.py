@@ -219,3 +219,16 @@ def test__templater_dbt_handle_exceptions(
     assert violations
     # NB: Replace slashes to deal with different plaform paths being returned.
     assert violations[0].desc().replace("\\", "/").startswith(exception_msg)
+
+
+@pytest.mark.dbt
+def test__project_dir_does_not_exist_error(dbt_templater, caplog):
+    dbt_templater.sqlfluff_config = FluffConfig(
+        configs={"templater": {"dbt": {"project_dir": "./non_existing_directory"}}}
+    )
+    with caplog.at_level(logging.ERROR):
+        dbt_project_dir = dbt_templater._get_project_dir()
+    assert (
+        f"dbt_project_dir: {dbt_project_dir} could not be accessed. Check it exists."
+        in caplog.text
+    )
