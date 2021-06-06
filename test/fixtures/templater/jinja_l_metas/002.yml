@@ -1,0 +1,187 @@
+file:
+  statement:
+    select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - indent: ''
+      - newline: "\n"
+      - whitespace: '    '
+      - select_clause_element:
+          column_reference:
+            identifier: foo
+      - newline: "\n"
+      - whitespace: ' '
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: bar
+      - newline: "\n"
+      - whitespace: '    '
+      - placeholder: '{% for action in actions %}'
+      - indent: ''
+      - newline: "\n"
+      - whitespace: '        '
+      - comma: ','
+      - whitespace: ' '
+      - select_clause_element:
+          column_reference:
+            identifier: open_a
+      - newline: "\n"
+      - whitespace: '        '
+      - comma: ','
+      - whitespace: ' '
+      - select_clause_element:
+          column_reference:
+            identifier: campaign_count_a
+      - newline: "\n"
+      - whitespace: '    '
+      - newline: "\n"
+      - whitespace: '        '
+      - comma: ','
+      - whitespace: ' '
+      - select_clause_element:
+          column_reference:
+            identifier: open_b
+      - newline: "\n"
+      - whitespace: '        '
+      - comma: ','
+      - whitespace: ' '
+      - select_clause_element:
+          column_reference:
+            identifier: campaign_count_b
+      - newline: "\n"
+      - whitespace: '    '
+      - newline: "\n"
+      - whitespace: '        '
+      - comma: ','
+      - whitespace: ' '
+      - select_clause_element:
+          column_reference:
+            identifier: open_c
+      - newline: "\n"
+      - whitespace: '        '
+      - comma: ','
+      - whitespace: ' '
+      - select_clause_element:
+          column_reference:
+            identifier: campaign_count_c
+    - newline: "\n"
+    - whitespace: '    '
+    - dedent: ''
+    - placeholder: '{% endfor %}'
+    - newline: "\n"
+    - dedent: ''
+    - from_clause:
+      - keyword: FROM
+      - newline: "\n"
+      - whitespace: '    '
+      - placeholder: '{% for action in actions %}'
+      - indent: ''
+      - newline: "\n"
+      - whitespace: '        '
+      - placeholder: '{% if loop.first %}'
+      - indent: ''
+      - newline: "\n"
+      - whitespace: '            '
+      - from_expression:
+        - indent: ''
+        - from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: a_raw_effect_sizes
+        - newline: "\n"
+        - whitespace: '        '
+        - dedent: ''
+        - placeholder: '{% else %}'
+        - indent: ''
+        - newline: "\n"
+        - whitespace: '    '
+        - newline: "\n"
+        - whitespace: '        '
+        - newline: "\n"
+        - whitespace: '        '
+        - dedent: ''
+        - join_clause:
+          - keyword: JOIN
+          - indent: ''
+          - newline: "\n"
+          - whitespace: '            '
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: b_raw_effect_sizes
+          - newline: "\n"
+          - whitespace: '        '
+          - keyword: USING
+          - indent: ''
+          - newline: "\n"
+          - whitespace: '            '
+          - bracketed:
+            - start_bracket: (
+            - indent: ''
+            - identifier: foo
+            - newline: "\n"
+            - whitespace: ' '
+            - comma: ','
+            - identifier: bar
+            - dedent: ''
+            - end_bracket: )
+          - dedent: ''
+          - dedent: ''
+        - newline: "\n"
+        - whitespace: '        '
+        - placeholder: '{% if loop.first %}{% else %}{% endif %}'
+        - newline: "\n"
+        - whitespace: '    '
+        - newline: "\n"
+        - whitespace: '        '
+        - newline: "\n"
+        - whitespace: '        '
+        - join_clause:
+          - keyword: JOIN
+          - indent: ''
+          - newline: "\n"
+          - whitespace: '            '
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: c_raw_effect_sizes
+          - newline: "\n"
+          - whitespace: '        '
+          - keyword: USING
+          - indent: ''
+          - newline: "\n"
+          - whitespace: '            '
+          - bracketed:
+            - start_bracket: (
+            - indent: ''
+            - identifier: foo
+            - newline: "\n"
+            - whitespace: ' '
+            - comma: ','
+            - identifier: bar
+            - dedent: ''
+            - end_bracket: )
+          - dedent: ''
+          - dedent: ''
+        - newline: "\n"
+        - whitespace: '        '
+        - dedent: ''
+        - placeholder: '{% endif %}'
+        - newline: "\n"
+        - whitespace: '    '
+        - dedent: ''
+        - placeholder: '{% endfor %}'
+        - newline: "\n"
+        - join_clause:
+          - keyword: CROSS
+          - whitespace: ' '
+          - keyword: JOIN
+          - indent: ''
+          - whitespace: ' '
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: action_states
+          - dedent: ''
+  newline: "\n"

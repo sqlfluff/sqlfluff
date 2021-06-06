@@ -571,15 +571,9 @@ class BaseSegment:
                     )
         return buff.getvalue()
 
-    def to_tuple(self, **kwargs):
-        """Return a tuple structure from this segment.
-
-        NB: If he segment is a meta segment, i.e. it's an indent or dedent,
-        then it will never be returned from here!
-        """
+    def to_tuple(self, code_only=False, show_raw=False, include_meta=False):
+        """Return a tuple structure from this segment."""
         # works for both base and raw
-        code_only = kwargs.get("code_only", False)
-        show_raw = kwargs.get("show_raw", False)
 
         if show_raw and not self.segments:
             result = (self.get_type(), self.raw)
@@ -587,7 +581,11 @@ class BaseSegment:
             result = (
                 self.get_type(),
                 tuple(
-                    seg.to_tuple(**kwargs)
+                    seg.to_tuple(
+                        code_only=code_only,
+                        show_raw=show_raw,
+                        include_meta=include_meta,
+                    )
                     for seg in self.segments
                     if seg.is_code and not seg.is_meta
                 ),
@@ -596,7 +594,13 @@ class BaseSegment:
             result = (
                 self.get_type(),
                 tuple(
-                    seg.to_tuple(**kwargs) for seg in self.segments if not seg.is_meta
+                    seg.to_tuple(
+                        code_only=code_only,
+                        show_raw=show_raw,
+                        include_meta=include_meta,
+                    )
+                    for seg in self.segments
+                    if include_meta or not seg.is_meta
                 ),
             )
         return result

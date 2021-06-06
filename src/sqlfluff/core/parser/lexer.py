@@ -336,88 +336,143 @@ class Lexer:
         # Get the templated slices to re-insert tokens for them
         source_only_slices = templated_file.source_only_slices()
         lexer_logger.info("Source-only slices: %s", source_only_slices)
+        stash_source_slice, last_source_slice = None, None
 
         # Now work out source slices, and add in template placeholders.
-        for element in elements:
+        for idx, element in enumerate(elements):
             # Calculate Source Slice
+            if idx != 0:
+                last_source_slice = stash_source_slice
             source_slice = templated_file.templated_slice_to_source_slice(
                 element.template_slice
             )
+            stash_source_slice = source_slice
+            # Output the slice as we lex.
+            lexer_logger.debug(
+                "  %s, %s, %s, %r",
+                idx,
+                element,
+                source_slice,
+                templated_file.templated_str[element.template_slice],
+            )
+
             # The calculated source slice will include any source only slices.
             # We should consider all of them in turn to see whether we can
             # insert them.
-            for source_only_slice in source_only_slices:
-                # If it's later in the source, stop looking. Any later
-                # ones *also* won't match.
-                if source_only_slice.source_idx > source_slice.start:
-                    break
-                # Is there a templated section within this source slice?
-                # If there is then for some reason I can't quite explain,
-                # it will always be at the start of the section. This is
-                # very convenient beause it means we'll always have the
-                # start and end of it in a definite position. This makes
-                # slicing and looping much easier.
-                elif source_only_slice.source_idx == source_slice.start:
-                    lexer_logger.debug(
-                        "Found templated section! %s, %s, %s",
-                        source_only_slice.source_slice(),
-                        source_only_slice.slice_type,
-                        element.template_slice.start,
-                    )
-                    # Calculate a slice for any placeholders
-                    placeholder_source_slice = slice(
-                        source_slice.start, source_only_slice.end_source_idx()
-                    )
-                    # Adjust the source slice accordingly.
-                    source_slice = slice(
-                        source_only_slice.end_source_idx(), source_slice.stop
-                    )
+            so_slices = []
+            # Only look for source only slices if we've got a new source slice to
+            # avoid unnecessary duplication.
+            if last_source_slice != source_slice:
+                for source_only_slice in source_only_slices:
+                    # If it's later in the source, stop looking. Any later
+                    # ones *also* won't match.
+                    if source_only_slice.source_idx >= source_slice.stop:
+                        break
+                    elif source_only_slice.source_idx >= source_slice.start:
+                        so_slices.append(source_only_slice)
 
-                    # TODO: Readjust this to remove .when once ProtoSegment is in.
+            if so_slices:
+                lexer_logger.debug("    Collected Source Only Slices")
+                for so_slice in so_slices:
+                    lexer_logger.debug("       %s", so_slice)
 
-                    # Add segments as appropriate.
-                    # If it's a block end, add a dedent.
-                    # Check config to see whether we should be addind indents.
-                    if self.config.get(
-                        "template_blocks_indent", "indentation"
-                    ) and source_only_slice.slice_type in ("block_end", "block_mid"):
-                        segment_buffer.append(
-                            Dedent(
-                                pos_marker=PositionMarker.from_point(
-                                    placeholder_source_slice.start,
-                                    element.template_slice.start,
-                                    templated_file,
-                                )
-                            )
-                        )
-                    # Always add a placeholder
+                # Calculate some things which will be useful
+                templ_str = templated_file.templated_str[element.template_slice]
+                source_str = templated_file.source_str[source_slice]
+
+                # For reasons which aren't entirely clear right now, if there is
+                # an included literal, it will always be at the end. Let's see if it's
+                # there.
+                if source_str.endswith(templ_str):
+                    existing_len = len(templ_str)
+                else:
+                    existing_len = 0
+
+                # Calculate slices
+                placeholder_slice = slice(
+                    source_slice.start, source_slice.stop - existing_len
+                )
+                placeholder_str = source_str[:-existing_len]
+                source_slice = slice(
+                    source_slice.stop - existing_len, source_slice.stop
+                )
+                # If it doesn't manage to extract a placeholder string from the source
+                # just concatenate the source only strings. There is almost always
+                # only one of them.
+                if not placeholder_str:
+                    placeholder_str = "".join(s.raw for s in so_slices)
+                lexer_logger.debug(
+                    "    Overlap Length: %s. PS: %s, LS: %s, p_str: %r, templ_str: %r",
+                    existing_len,
+                    placeholder_slice,
+                    source_slice,
+                    placeholder_str,
+                    templ_str,
+                )
+
+                # Caluculate potential indent/dedent
+                block_slices = sum(s.slice_type.startswith("block_") for s in so_slices)
+                block_balance = sum(
+                    s.slice_type == "block_start" for s in so_slices
+                ) - sum(s.slice_type == "block_end" for s in so_slices)
+                lead_dedent = so_slices[0].slice_type in ("block_end", "block_mid")
+                trail_indent = so_slices[-1].slice_type in ("block_start", "block_mid")
+                add_indents = self.config.get("template_blocks_indent", "indentation")
+                lexer_logger.debug(
+                    "    Block Slices: %s. Block Balance: %s. Lead: %s, Trail: %s, Add: %s",
+                    block_slices,
+                    block_balance,
+                    lead_dedent,
+                    trail_indent,
+                    add_indents,
+                )
+
+                # Add a dedent if appropriate.
+                if lead_dedent and add_indents:
+                    lexer_logger.debug("      DEDENT")
                     segment_buffer.append(
-                        TemplateSegment(
-                            pos_marker=PositionMarker(
-                                placeholder_source_slice,
-                                slice(
-                                    element.template_slice.start,
-                                    element.template_slice.start,
-                                ),
+                        Dedent(
+                            pos_marker=PositionMarker.from_point(
+                                placeholder_slice.start,
+                                element.template_slice.start,
                                 templated_file,
-                            ),
-                            source_str=source_only_slice.raw,
-                            block_type=source_only_slice.slice_type,
-                        )
-                    )
-                    # If it's a block end, add a dedent.
-                    if self.config.get(
-                        "template_blocks_indent", "indentation"
-                    ) and source_only_slice.slice_type in ("block_start", "block_mid"):
-                        segment_buffer.append(
-                            Indent(
-                                pos_marker=PositionMarker.from_point(
-                                    placeholder_source_slice.stop,
-                                    element.template_slice.start,
-                                    templated_file,
-                                )
                             )
                         )
+                    )
+
+                # Always add a placeholder
+                segment_buffer.append(
+                    TemplateSegment(
+                        pos_marker=PositionMarker(
+                            placeholder_slice,
+                            slice(
+                                element.template_slice.start,
+                                element.template_slice.start,
+                            ),
+                            templated_file,
+                        ),
+                        source_str=placeholder_str,
+                        block_type=so_slices[0].slice_type
+                        if len(so_slices) == 1
+                        else "compound",
+                    )
+                )
+                lexer_logger.debug(
+                    "      Placholder: %s, %r", segment_buffer[-1], placeholder_str
+                )
+
+                # Add a dedent if appropriate.
+                if trail_indent and add_indents:
+                    lexer_logger.debug("      INDENT")
+                    segment_buffer.append(
+                        Indent(
+                            pos_marker=PositionMarker.from_point(
+                                placeholder_slice.stop,
+                                element.template_slice.start,
+                                templated_file,
+                            )
+                        )
+                    )
 
             # Add the actual segment
             segment_buffer.append(
