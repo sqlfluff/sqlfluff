@@ -26,7 +26,7 @@ from sqlfluff.core.errors import (
 from sqlfluff.core.timing import TimingSummary
 
 
-# This is for "sqlfluff lint" and "sqlfluff fix" multiprocessing (--parallel)
+# This is for "sqlfluff lint" and "sqlfluff fix" multiprocessing (--processes)
 # support. If an exception (i.e. runtime error) occurs in a worker process, we
 # want to return the tracebook to the main process and report it there, as part
 # of the normal output. However, anything returned from a multiprocessing.Pool

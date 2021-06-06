@@ -1,6 +1,7 @@
 """Tests for the configuration routines."""
 
 import os
+import sys
 
 from sqlfluff.core.config import ConfigLoader, nested_combine, dict_diff
 from sqlfluff.core import Linter, FluffConfig
@@ -152,6 +153,7 @@ def test__config__nested_config_tests():
 
 @patch("os.path.exists")
 @patch("os.listdir")
+@pytest.mark.skipif(sys.platform == "win32", reason="Not applicable on Windows")
 def test__config__load_user_appdir_config(
     mock_listdir, mock_path_exists, mock_xdg_home
 ):

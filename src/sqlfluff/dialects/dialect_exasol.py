@@ -662,7 +662,7 @@ class AlterVirtualSchemaStatementSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
+@exasol_dialect.segment(replace=True)
 class DropSchemaStatementSegment(BaseSegment):
     """A `DROP` statement for EXASOL schema.
 

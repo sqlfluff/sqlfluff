@@ -258,6 +258,9 @@ class PythonTemplater(RawTemplater):
         templater_logger.debug("    Templated String: %r", templated_str)
         # Slice the raw file
         raw_sliced = list(cls._slice_template(raw_str))
+        templater_logger.debug("    Raw Sliced:")
+        for idx, raw_slice in enumerate(raw_sliced):
+            templater_logger.debug("        %s: %r", idx, raw_slice)
         # Find the literals
         literals = [
             raw_slice.raw
@@ -285,14 +288,18 @@ class PythonTemplater(RawTemplater):
                     templated_str,
                 )
             )
-            templater_logger.debug("    Split Sliced: %s", split_sliced)
+            templater_logger.debug("    Split Sliced:")
+            for idx, split_slice in enumerate(split_sliced):
+                templater_logger.debug("        %s: %r", idx, split_slice)
             # Deal with uniques and coalesce the rest
             sliced_file = list(
                 cls._split_uniques_coalesce_rest(
                     split_sliced, raw_occurrences, templated_occurances, templated_str
                 )
             )
-            templater_logger.debug("    Fully Sliced: %s", sliced_file)
+            templater_logger.debug("    Fully Sliced:")
+            for idx, templ_slice in enumerate(sliced_file):
+                templater_logger.debug("        %s: %r", idx, templ_slice)
             unwrap_wrapped = (
                 True
                 if config is None
@@ -437,15 +444,20 @@ class PythonTemplater(RawTemplater):
                 yield RawFileSlice(constructed_token, "templated", in_idx)
                 in_idx += len(constructed_token)
 
-    @staticmethod
+    @classmethod
     def _split_invariants(
+        cls,
         raw_sliced: List[RawFileSlice],
         literals: List[str],
         raw_occurances: Dict[str, List[int]],
         templated_occurances: Dict[str, List[int]],
         templated_str: str,
     ) -> Iterator[IntermediateFileSlice]:
-        """Split a sliced file on its invariant literals."""
+        """Split a sliced file on its invariant literals.
+
+        We prioritise the _longest_ invariants first as they
+        are more likely to the the anchors.
+        """
         # Calculate invariants
         invariants = [
             literal
@@ -453,6 +465,30 @@ class PythonTemplater(RawTemplater):
             if len(raw_occurances[literal]) == 1
             and len(templated_occurances[literal]) == 1
         ]
+        # Work through the invariants and make sure they appear
+        # in order.
+        for linv in sorted(invariants, key=len, reverse=True):
+            # Any invariants which have templated positions, relative
+            # to source positions, which aren't in order, should be
+            # ignored.
+
+            # Is this one still relevant?
+            if linv not in invariants:
+                continue
+
+            source_pos, templ_pos = raw_occurances[linv], templated_occurances[linv]
+            # Copy the list before iterating because we're going to edit it.
+            for tinv in invariants.copy():
+                if tinv != linv:
+                    src_dir = source_pos > raw_occurances[tinv]
+                    tmp_dir = templ_pos > templated_occurances[tinv]
+                    # If it's not in the same direction in the source and template remove it.
+                    if src_dir != tmp_dir:
+                        templater_logger.debug(
+                            "          Invariant found out of order: %r", tinv
+                        )
+                        invariants.remove(tinv)
+
         # Set up some buffers
         buffer: List[RawFileSlice] = []
         idx: Optional[int] = None
@@ -512,6 +548,11 @@ class PythonTemplater(RawTemplater):
         """Coalesce to the priority type."""
         # Make a set of types
         types = {elem.slice_type for elem in elems}
+        # Replace block types with templated
+        for typ in list(types):
+            if typ.startswith("block_"):
+                types.remove(typ)
+                types.add("templated")
         # Take the easy route if they're all the same type
         if len(types) == 1:
             return types.pop()
@@ -552,6 +593,19 @@ class PythonTemplater(RawTemplater):
                 )
                 yield from tail_buffer
                 tail_buffer = []
+
+            # Check whether we're handling a zero length slice.
+            if (
+                int_file_slice.templated_slice.stop
+                - int_file_slice.templated_slice.start
+                == 0
+            ):
+                point_combo = int_file_slice.coalesce()
+                templater_logger.debug(
+                    "        Yielding Point Combination: %s", point_combo
+                )
+                yield point_combo
+                continue
 
             # Yield anything simple
             try:

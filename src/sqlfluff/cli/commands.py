@@ -180,7 +180,9 @@ def core_options(f):
     )(f)
     f = click.option(
         "--logger",
-        type=click.Choice(["parser", "linter", "rules"], case_sensitive=False),
+        type=click.Choice(
+            ["templater", "lexer", "parser", "linter", "rules"], case_sensitive=False
+        ),
         help="Choose to limit the logging to one of the loggers.",
     )(f)
     return f
@@ -288,16 +290,15 @@ def dialects(**kwargs):
 )
 @click.option(
     "-p",
-    "--parallel",
+    "--processes",
     type=int,
     default=1,
-    help="If set to a value higher than 1, run SQLFluff in parallel, "
-    "speeding up processing.",
+    help="The number of parallel processes to run.",
 )
 @click.argument("paths", nargs=-1)
 def lint(
     paths,
-    parallel,
+    processes,
     format,
     nofail,
     disregard_sqlfluffignores,
@@ -344,7 +345,7 @@ def lint(
                 paths,
                 ignore_non_existent_files=False,
                 ignore_files=not disregard_sqlfluffignores,
-                parallel=parallel,
+                processes=processes,
             )
         except OSError:
             click.echo(
@@ -410,14 +411,13 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
     "--fixed-suffix", default=None, help="An optional suffix to add to fixed files."
 )
 @click.option(
-    "--parallel",
+    "--processes",
     type=int,
     default=1,
-    help="If set to a value higher than 1, run SQLFluff in parallel, "
-    "speeding up processing.",
+    help="The number of parallel processes to run.",
 )
 @click.argument("paths", nargs=-1)
-def fix(force, paths, parallel, bench=False, fixed_suffix="", logger=None, **kwargs):
+def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kwargs):
     """Fix SQL files.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -449,7 +449,7 @@ def fix(force, paths, parallel, bench=False, fixed_suffix="", logger=None, **kwa
     click.echo("==== finding fixable violations ====")
     try:
         result = lnt.lint_paths(
-            paths, fix=True, ignore_non_existent_files=False, parallel=parallel
+            paths, fix=True, ignore_non_existent_files=False, processes=processes
         )
     except OSError:
         click.echo(
@@ -549,6 +549,15 @@ def quoted_presenter(dumper, data):
     help="Output only the code elements of the parse tree.",
 )
 @click.option(
+    "-m",
+    "--include-meta",
+    is_flag=True,
+    help=(
+        "Include meta segments (indents, dedents and placeholders) in the output. "
+        "This only applies when outputting json or yaml."
+    ),
+)
+@click.option(
     "-f",
     "--format",
     default="human",
@@ -566,7 +575,17 @@ def quoted_presenter(dumper, data):
         "found. This is potentially useful during rollout."
     ),
 )
-def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwargs):
+def parse(
+    path,
+    code_only,
+    include_meta,
+    format,
+    profiler,
+    bench,
+    nofail,
+    logger=None,
+    **kwargs,
+):
     """Parse SQL files and just spit out the result.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -648,7 +667,7 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
                 dict(
                     filepath=linted_result.fname,
                     segments=linted_result.tree.as_record(
-                        code_only=code_only, show_raw=True
+                        code_only=code_only, show_raw=True, include_meta=include_meta
                     )
                     if linted_result.tree
                     else None,
