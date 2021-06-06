@@ -12,7 +12,7 @@ DBT_FLUFF_CONFIG = {
     "templater": {
         "dbt": {
             "profiles_dir": "test/fixtures/dbt",
-            "project_dir": "test/fixtures/dbt_project",
+            "project_dir": "test/fixtures/dbt/dbt_project",
         },
     },
 }
