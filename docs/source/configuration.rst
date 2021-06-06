@@ -64,7 +64,8 @@ Nesting
 closer *overriding* (or *patching*, if you will) values from other files.
 That means you'll end up with a final config which will be a patchwork
 of all the values from the config files loaded up to that path. The exception
-to this is the value for `templater`, which must be set in the  
+to this is the value for `templater`, which cannot be set in config files in
+subdirectories of the working directory.
 You don't **need** any config files to be present to make *SQLFluff*
 work. If you do want to override any values though SQLFluff will use
 files in the following locations in order, with values from later
