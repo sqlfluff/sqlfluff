@@ -523,7 +523,7 @@ class Linter:
             linter_logger.warn(
                 (
                     f"Attempt to set templater to {config.get('templater_obj').name} failed. Using {self.templater.name} templater. "
-                    f"Templater cannot be set in a .sqlfluff file in a subdirectory of the current working directory. It can be set"
+                    f"Templater cannot be set in a .sqlfluff file in a subdirectory of the current working directory. It can be set "
                     "in a .sqlfluff in the current working directory. See Nesting section of the docs for more details."
                 )
             )
