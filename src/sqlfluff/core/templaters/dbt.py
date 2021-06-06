@@ -164,7 +164,9 @@ class DbtTemplater(JinjaTemplater):
         )
 
         if not os.path.exists(dbt_profiles_dir):
-            templater_logger.error(f"dbt_profiles_dir: {dbt_profiles_dir} could not be accessed. Check it exists.")
+            templater_logger.error(
+                f"dbt_profiles_dir: {dbt_profiles_dir} could not be accessed. Check it exists."
+            )
 
         return dbt_profiles_dir
 
@@ -182,7 +184,9 @@ class DbtTemplater(JinjaTemplater):
             )
         )
         if not os.path.exists(dbt_project_dir):
-            templater_logger.error(f"dbt_project_dir: {dbt_project_dir} could not be accessed. Check it exists.")
+            templater_logger.error(
+                f"dbt_project_dir: {dbt_project_dir} could not be accessed. Check it exists."
+            )
 
         return dbt_project_dir
 
@@ -220,6 +224,7 @@ class DbtTemplater(JinjaTemplater):
             CompilationException as DbtCompilationException,
             FailedToConnectException as DbtFailedToConnectException,
         )
+
         self.sqlfluff_config = config
         self.project_dir = self._get_project_dir()
         self.profiles_dir = self._get_profiles_dir()
