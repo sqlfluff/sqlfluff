@@ -154,7 +154,7 @@ class DbtTemplater(JinjaTemplater):
         """
         from dbt.config.profile import PROFILES_DIR
 
-        return os.path.abspath(
+        dbt_profiles_dir = os.path.abspath(
             os.path.expanduser(
                 self.sqlfluff_config.get_section(
                     (self.templater_selector, self.name, "profiles_dir")
@@ -163,12 +163,17 @@ class DbtTemplater(JinjaTemplater):
             )
         )
 
+        if not os.path.exists(dbt_profiles_dir):
+            templater_logger.error(f"dbt_profiles_dir: {dbt_profiles_dir} could not be accessed. Check it exists.")
+
+        return dbt_profiles_dir
+
     def _get_project_dir(self):
         """Get the dbt project directory from the configuration.
 
         Defaults to the working directory.
         """
-        return os.path.abspath(
+        dbt_project_dir = os.path.abspath(
             os.path.expanduser(
                 self.sqlfluff_config.get_section(
                     (self.templater_selector, self.name, "project_dir")
@@ -176,6 +181,10 @@ class DbtTemplater(JinjaTemplater):
                 or os.getcwd()
             )
         )
+        if not os.path.exists(dbt_project_dir):
+            templater_logger.error(f"dbt_project_dir: {dbt_project_dir} could not be accessed. Check it exists.")
+
+        return dbt_project_dir
 
     def _get_profile(self):
         """Get a dbt profile name from the configuration."""
@@ -211,7 +220,6 @@ class DbtTemplater(JinjaTemplater):
             CompilationException as DbtCompilationException,
             FailedToConnectException as DbtFailedToConnectException,
         )
-
         self.sqlfluff_config = config
         self.project_dir = self._get_project_dir()
         self.profiles_dir = self._get_profiles_dir()
@@ -266,7 +274,6 @@ class DbtTemplater(JinjaTemplater):
             # Selector needs to be a relative path
             selector=os.path.relpath(fname, start=os.getcwd()),
         )
-
         results = [self.dbt_manifest.expect(uid) for uid in selected]
 
         if not results:
