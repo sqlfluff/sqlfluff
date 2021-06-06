@@ -75,7 +75,7 @@ def test__templater_jinja_error_catatrophic():
     assert len(vs) > 0
 
 
-def assert_structure(yaml_loader, path, code_only=True):
+def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
     """Check that a parsed sql file matches the yaml file with the same name."""
     lntr = Linter()
     p = list(lntr.parse_path(path + ".sql"))
@@ -84,7 +84,7 @@ def assert_structure(yaml_loader, path, code_only=True):
         print(p)
         raise RuntimeError(p[0][1])
     # Whitespace is important here to test how that's treated
-    tpl = parsed.to_tuple(code_only=code_only, show_raw=True)
+    tpl = parsed.to_tuple(code_only=code_only, show_raw=True, include_meta=include_meta)
     # Check nothing unparsable
     if "unparsable" in parsed.type_set():
         print(parsed.stringify())
@@ -94,38 +94,44 @@ def assert_structure(yaml_loader, path, code_only=True):
 
 
 @pytest.mark.parametrize(
-    "subpath,code_only",
+    "subpath,code_only,include_meta",
     [
         # Config Scalar
-        ("jinja_a/jinja", True),
+        ("jinja_a/jinja", True, False),
         # Macros
-        ("jinja_b/jinja", False),
+        ("jinja_b/jinja", False, False),
         # dbt builting
-        ("jinja_c_dbt/dbt_builtins", True),
+        ("jinja_c_dbt/dbt_builtins", True, False),
         # do directive
-        ("jinja_e/jinja", True),
+        ("jinja_e/jinja", True, False),
         # case sensitivity and python literals
-        ("jinja_f/jinja", True),
+        ("jinja_f/jinja", True, False),
         # Macro loading from a folder
-        ("jinja_g_macros/jinja", True),
+        ("jinja_g_macros/jinja", True, False),
         # jinja raw tag
-        ("jinja_h_macros/jinja", True),
-        ("jinja_i_raw/raw_tag", True),
-        ("jinja_i_raw/raw_tag_2", True),
+        ("jinja_h_macros/jinja", True, False),
+        ("jinja_i_raw/raw_tag", True, False),
+        ("jinja_i_raw/raw_tag_2", True, False),
         # Library Loading from a folder
-        ("jinja_j_libraries/jinja", True),
+        ("jinja_j_libraries/jinja", True, False),
         # Priority of macros
-        ("jinja_k_config_override_path_macros/jinja", True),
+        ("jinja_k_config_override_path_macros/jinja", True, False),
+        # Placeholders and metas
+        ("jinja_l_metas/001", False, True),
+        ("jinja_l_metas/002", False, True),
     ],
 )
-def test__templater_full(subpath, code_only, yaml_loader, caplog):
+def test__templater_full(subpath, code_only, include_meta, yaml_loader, caplog):
     """Check structure can be parsed from jinja templated files."""
     # Log the templater and lexer throughout this test
     caplog.set_level(logging.DEBUG, logger="sqlfluff.templater")
     caplog.set_level(logging.DEBUG, logger="sqlfluff.lexer")
 
     assert_structure(
-        yaml_loader, "test/fixtures/templater/" + subpath, code_only=code_only
+        yaml_loader,
+        "test/fixtures/templater/" + subpath,
+        code_only=code_only,
+        include_meta=include_meta,
     )
 
 
@@ -157,6 +163,15 @@ def test__templater_full(subpath, code_only, yaml_loader, caplog):
                 (" FROM my_schema.", "literal", 76),
                 ("{{my_table}}", "templated", 92),
                 (" ", "literal", 104),
+            ],
+        ),
+        (
+            "{% set thing %}FOO{% endset %} BAR",
+            [
+                ("{% set thing %}", "block_start", 0),
+                ("FOO", "literal", 15),
+                ("{% endset %}", "block_end", 18),
+                (" BAR", "literal", 30),
             ],
         ),
     ],
@@ -299,6 +314,18 @@ def test__templater_jinja_slice_template(test, result):
                 ("literal", slice(0, 7, None), slice(0, 7, None)),
                 ("templated", slice(7, 15, None), slice(7, 14, None)),
                 ("literal", slice(15, 30, None), slice(14, 29, None)),
+            ],
+        ),
+        # Test an example where a block is removed entirely.
+        (
+            "{% set thing %}FOO{% endset %} SELECT 1",
+            " SELECT 1",
+            # There should be a zero length templated part at the start.
+            [
+                # The templated section at the start should be entirely
+                # templated and not include a distinct literal within it.
+                ("templated", slice(0, 30, None), slice(0, 0, None)),
+                ("literal", slice(30, 39, None), slice(0, 9, None)),
             ],
         ),
     ],

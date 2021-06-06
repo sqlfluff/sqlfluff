@@ -23,6 +23,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - L034 now ignores select statements part of a set expression, most commonly a union.
 - Fix bug [#1082](https://github.com/sqlfluff/sqlfluff/issues/1082), adding
   support for BigQuery `select as struct '1' as bb, 2 as aa` syntax.
+- Rationalisation of the placement of meta segments within templated
+  queries to support more reliable indentation. This includes prioritising
+  _longer_ invariant sections first and then dropping any shorter ones
+  which then are relatively out of place.
+- Additional logging within the lexer and templater engines.
+- Add an `--include-metas` option for parse output to show the meta
+  segments in the parse tree.
+- Allow meta segments to parse within `Delimited` grammars which otherwise
+  don't allow gaps. This is facilitated through an optional agrument to
+  `trim_non_code_segments`.
 - Fix bug [#1079](https://github.com/sqlfluff/sqlfluff/issues/1079), addressing
   issues with L025 and L026 with BigQuery column references involving `STRUCT`.
 - Fix bug [#1080](https://github.com/sqlfluff/sqlfluff/issues/1080), add

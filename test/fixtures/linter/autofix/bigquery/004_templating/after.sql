@@ -49,7 +49,7 @@ new_raw_effect_sizes AS (
     {% for action in considered_actions %}
     {% if loop.first %}
     {{action}}_raw_effect_sizes
-        {% else %}
+    {% else %}
     JOIN
         {{action}}_raw_effect_sizes
         USING
