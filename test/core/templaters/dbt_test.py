@@ -222,7 +222,8 @@ def test__templater_dbt_handle_exceptions(
 
 
 @pytest.mark.dbt
-def test__project_dir_does_not_exist_error(dbt_templater, caplog):
+def test__project_dir_does_not_exist_error(dbt_templater, caplog):  # noqa: F811
+    """Test that an error is logged if the specified dbt project directory doesn't exist."""
     dbt_templater.sqlfluff_config = FluffConfig(
         configs={"templater": {"dbt": {"project_dir": "./non_existing_directory"}}}
     )
