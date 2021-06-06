@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added support for the DELIMITER statement in the mysql dialect [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
 - Added support for additional delimiters by creating a new DelimiterSegment in the
   ANSI dialect which defaults to the semicolon, but allows it to be more intuitive.
+- Added support for function as a default column value [#849](https://github.com/sqlfluff/sqlfluff/issues/849).
 
 ### Changed
 - Renamed --parallel CLI argument to --processes to be more accurate.
@@ -36,6 +37,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   issues with L025 and L026 with BigQuery column references involving `STRUCT`.
 - Fix bug [#1080](https://github.com/sqlfluff/sqlfluff/issues/1080), add
   SET SCHEMA and DROP SCHEMA support to ANSI dialect.
+- Added support for additional delimiters by creating a new DelimiterSegment in the 
+  ANSI dialect which defaults to the semicolon, but allows it to be more intuitive 
   when overriden in a specific child dialect (mysql) [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
 
 Contributors:

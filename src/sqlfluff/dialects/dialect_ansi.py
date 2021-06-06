@@ -1931,8 +1931,11 @@ class ColumnOptionSegment(BaseSegment):
             Sequence(Ref.keyword("NOT", optional=True), "NULL"),  # NOT NULL or NULL
             Sequence(  # DEFAULT <value>
                 "DEFAULT",
-                Ref("LiteralGrammar"),
-                # ?? Ref('IntervalExpressionSegment')
+                OneOf(
+                    Ref("LiteralGrammar"),
+                    Ref("FunctionSegment"),
+                    # ?? Ref('IntervalExpressionSegment')
+                ),
             ),
             Ref("PrimaryKeyGrammar"),
             "UNIQUE",  # UNIQUE
