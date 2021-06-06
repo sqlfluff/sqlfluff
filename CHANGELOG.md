@@ -21,8 +21,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   when overriden in a specific child dialect (mysql) [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
 - Added support for the DELIMITER statement in the mysql dialect [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
 - Added support for additional delimiters by creating a new DelimiterSegment in the
-  ANSI dialect which defaults to the semicolon, but allows it to be more intuitive.
+  ANSI dialect which defaults to the semicolon, but allows it to be more intuitive
+  when overriden in a specific child dialect (mysql) [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
 - Added support for function as a default column value [#849](https://github.com/sqlfluff/sqlfluff/issues/849).
+- Add an `--include-metas` option for parse output to show the meta
+  segments in the parse tree.
+- Allow CREATE FUNCTION syntax without arguments [@bolajiwahab](https://github.com/bolajiwahab) [#1063](https://github.com/sqlfluff/sqlfluff/pull/1063).
 
 ### Changed
 - Renamed --parallel CLI argument to --processes to be more accurate.
@@ -35,18 +39,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   _longer_ invariant sections first and then dropping any shorter ones
   which then are relatively out of place.
 - Additional logging within the lexer and templater engines.
-- Add an `--include-metas` option for parse output to show the meta
-  segments in the parse tree.
 - Allow meta segments to parse within `Delimited` grammars which otherwise
   don't allow gaps. This is facilitated through an optional agrument to
   `trim_non_code_segments`.
 - Fix bug [#1079](https://github.com/sqlfluff/sqlfluff/issues/1079), addressing
   issues with L025 and L026 with BigQuery column references involving `STRUCT`.
-- Fix bug [#1080](https://github.com/sqlfluff/sqlfluff/issues/1080), add
+- [#1080](https://github.com/sqlfluff/sqlfluff/issues/1080) Add
   SET SCHEMA and DROP SCHEMA support to ANSI dialect.
-- Added support for additional delimiters by creating a new DelimiterSegment in the
-  ANSI dialect which defaults to the semicolon, but allows it to be more intuitive
-  when overriden in a specific child dialect (mysql) [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
 
 ## [0.6.0a2] - 2021-05-27
 ### Changed
