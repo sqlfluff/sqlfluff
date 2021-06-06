@@ -172,7 +172,6 @@ class ConfigLoader:
         # the optionxform attribute.
         config.optionxform = lambda option: option  # type: ignore
         config.read(fpath)
-
         for k in config.sections():
             if k == "sqlfluff":
                 key: Tuple = ("core",)

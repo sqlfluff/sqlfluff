@@ -71,6 +71,9 @@ class Linter:
         self.config = FluffConfig.from_kwargs(
             config=config, dialect=dialect, rules=rules
         )
+        # Get the dialect and templater
+        self.dialect = self.config.get("dialect_obj")
+        self.templater = self.config.get("templater_obj")
         # Store the formatter for output
         self.formatter = formatter
         # Store references to user rule classes
@@ -511,17 +514,13 @@ class Linter:
         self, in_str: str, fname: str, config: FluffConfig
     ) -> RenderedFile:
         """Template the file."""
-        linter_logger.info(
-            "TEMPLATING RAW [%s] (%s)", config.get("templater_obj").name, fname
-        )
+        linter_logger.info("TEMPLATING RAW [%s] (%s)", self.templater.name, fname)
 
         # Start the templating timer
         t0 = time.monotonic()
 
         try:
-            templated_file, templater_violations = config.get(
-                "templater_obj"
-            ).process(
+            templated_file, templater_violations = self.templater.process(
                 in_str=in_str, fname=fname, config=config, formatter=self.formatter
             )
         except SQLTemplaterSkipFile as s:

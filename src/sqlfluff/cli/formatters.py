@@ -236,9 +236,9 @@ class CallbackFormatter:
                 ("sqlfluff", get_package_version()),
                 ("python", get_python_version()),
                 ("implementation", get_python_implementation()),
-                ("dialect", linter.config.get("dialect_obj").name),
+                ("dialect", linter.dialect.name),
                 ("verbosity", self._verbosity),
-            ] + linter.config.get("templater_obj").config_pairs()
+            ] + linter.templater.config_pairs()
             text_buffer.write(
                 cli_table(config_content, col_width=30, max_label_width=15)
             )
