@@ -6,8 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+### Changed
 
-## Added
+### Contributors
+- [@GitHub-Username](Link to GitHub profile) ([#PR-Number](Link to PR))
+
+
+## [0.6.0] - 2021-06-06
+### Added
 - Respect XDG base dirs on Mac OS ([#889](https://github.com/sqlfluff/sqlfluff/issues/889)).
 - Added support for additional delimiters by creating a new DelimiterSegment in the
   ANSI dialect which defaults to the semicolon, but allows it to be more intuitive
@@ -37,12 +44,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   issues with L025 and L026 with BigQuery column references involving `STRUCT`.
 - Fix bug [#1080](https://github.com/sqlfluff/sqlfluff/issues/1080), add
   SET SCHEMA and DROP SCHEMA support to ANSI dialect.
-- Added support for additional delimiters by creating a new DelimiterSegment in the 
-  ANSI dialect which defaults to the semicolon, but allows it to be more intuitive 
+- Added support for additional delimiters by creating a new DelimiterSegment in the
+  ANSI dialect which defaults to the semicolon, but allows it to be more intuitive
   when overriden in a specific child dialect (mysql) [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
-
-Contributors:
-- [@bolajiwahab](https://github.com/bolajiwahab) ([#1063])(https://github.com/sqlfluff/sqlfluff/pull/1063)
 
 ## [0.6.0a2] - 2021-05-27
 ### Changed
