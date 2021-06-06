@@ -105,9 +105,9 @@ class ParallelRunner(BaseRunner):
     # don't pickle well.
     pass_formatter = False
 
-    def __init__(self, linter, config, parallel):
+    def __init__(self, linter, config, processes):
         super().__init__(linter, config)
-        self.parallel = parallel
+        self.processes = processes
 
     def run(self, fnames, fix):
         """Parallel implementation.
@@ -118,7 +118,7 @@ class ParallelRunner(BaseRunner):
         and linting work out to the threads.
         """
         with self._create_pool(
-            self.parallel,
+            self.processes,
             self._init_global,
             (self.config,),
         ) as pool:
@@ -212,22 +212,22 @@ class DelayedException(Exception):
 def get_runner(
     linter,
     config,
-    parallel: int,
+    processes: int,
     allow_process_parallelism: bool = True,
 ) -> BaseRunner:
     """Generate a runner instance based on parallel and sytem configuration."""
     # Python multiprocessing isn't supported in 3.6 and before.
     # The library exists but we get pickling errors with LintedFile.
-    if parallel > 1 and sys.version_info >= (3, 7):
+    if processes > 1 and sys.version_info >= (3, 7):
         # Process parallelism isn't really supported during testing
         # so this flag allows us to fall back to a threaded runner
         # in those cases.
         if allow_process_parallelism:
-            return MultiProcessRunner(linter, config, parallel=parallel)
+            return MultiProcessRunner(linter, config, processes=processes)
         else:
-            return MultiThreadRunner(linter, config, parallel=parallel)
+            return MultiThreadRunner(linter, config, processes=processes)
     else:
-        if parallel > 1:
+        if processes > 1:
             linter_logger.warning(
                 "Parallel linting is not supported in Python %s.%s.",
                 sys.version_info.major,
