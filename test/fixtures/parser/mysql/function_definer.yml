@@ -1,0 +1,29 @@
+file:
+  statement:
+    create_function_statement:
+    - keyword: CREATE
+    - definer_segment:
+      - keyword: DEFINER
+      - comparison_operator: '='
+      - identifier: '`test`'
+      - literal: '@'
+      - identifier: '`%`'
+    - keyword: FUNCTION
+    - function_name:
+        identifier: '`testfunction`'
+    - base:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: longtext
+    - characteristic_statement:
+        keyword: DETERMINISTIC
+    - base:
+        transaction_statement:
+          keyword: BEGIN
+          statement:
+            transaction_statement:
+              keyword: END
+  statement_terminator: '~'

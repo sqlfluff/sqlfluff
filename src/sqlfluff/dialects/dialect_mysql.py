@@ -69,7 +69,14 @@ mysql_dialect.add(
         name="quoted_literal",
         type="literal",
         trim_chars=('"',),
-    )
+    ),
+    AmpersandLiteralSegment=NamedParser(
+        "ampersand",
+        CodeSegment,
+        name="ampersand_literal",
+        type="literal",
+        trim_chars=("@",),
+    ),
 )
 
 
@@ -259,12 +266,7 @@ class CreateProcedureStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        "PROCEDURE",
-        Anything(),
-    )
-
-    parse_grammar = Sequence(
-        "CREATE",
+        Ref("DefinerSegment", optional=True),
         "PROCEDURE",
         Ref("FunctionNameSegment"),
         Ref("ProcedureParameterListGrammar", optional=True),
@@ -311,13 +313,6 @@ class CreateFunctionStatementSegment(BaseSegment):
     type = "create_function_statement"
 
     match_grammar = Sequence(
-        "CREATE",
-        Ref("DefinerSegment", optional=True),
-        "FUNCTION",
-        Anything(),
-    )
-
-    parse_grammar = Sequence(
         "CREATE",
         Ref("DefinerSegment", optional=True),
         "FUNCTION",
@@ -463,4 +458,10 @@ class DefinerSegment(BaseSegment):
 
     type = "definer_segment"
 
-    match_grammar = Sequence("DEFINER")
+    match_grammar = Sequence(
+        "DEFINER",
+        Ref("EqualsSegment"),
+        Ref("SingleIdentifierGrammar"),
+        Ref("AmpersandLiteralSegment"),
+        Ref("SingleIdentifierGrammar"),
+    )
