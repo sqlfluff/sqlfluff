@@ -361,12 +361,14 @@ class CreateFunctionStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CREATE",
+        Ref("DefinerSegment", optional=True),
         "FUNCTION",
         Anything(),
     )
 
     parse_grammar = Sequence(
         "CREATE",
+        Ref("DefinerSegment", optional=True),
         "FUNCTION",
         Ref("FunctionNameSegment"),
         Ref("FunctionParameterListGrammar", optional=True),
@@ -502,3 +504,12 @@ class IfExpressionStatement(BaseSegment):
         ),
         Sequence("ELSE", Ref("StatementSegment"), optional=True),
     )
+
+
+@mysql_dialect.segment()
+class DefinerSegment(BaseSegment):
+    """This is the body of a `CREATE FUNCTION` statement."""
+
+    type = "definer_segment"
+
+    match_grammar = Sequence("DEFINER")

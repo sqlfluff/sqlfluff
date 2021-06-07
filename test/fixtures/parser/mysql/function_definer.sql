@@ -1,0 +1,1 @@
+CREATE DEFINER FUNCTION `testfunction`(var1 int)
