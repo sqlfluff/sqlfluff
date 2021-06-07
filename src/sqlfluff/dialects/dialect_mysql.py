@@ -20,6 +20,9 @@ from sqlfluff.core.parser import (
     Anything,
     Delimited,
     RegexParser,
+    GreedyUntil,
+    Indent,
+    Dedent,
 )
 from sqlfluff.core.dialects import load_raw_dialect
 
@@ -165,7 +168,6 @@ class DeclareStatement(BaseSegment):
     """
 
     type = "declare_statement"
-
     match_grammar = OneOf(
         Sequence(
             "DECLARE",
@@ -211,6 +213,65 @@ class DeclareStatement(BaseSegment):
             ),
         ),
     )
+
+
+# @mysql_dialect.segment(replace=True)
+# class StatementSegment(BaseSegment):
+#    """A generic segment, to any of its child subsegments."""
+
+#    type = "statement"
+#    match_grammar = GreedyUntil(Ref("DelimiterSegment"))
+
+#    parse_grammar = AnyNumberOf(
+#        OneOf(
+#            Ref("SelectableGrammar"),
+#            Ref("InsertStatementSegment"),
+#            Ref("DropStatementSegment"),
+#            Ref("AlterDefaultPrivilegesSegment"),
+#            Ref("AccessStatementSegment"),
+#            Ref("CreateTableStatementSegment"),
+#            Ref("CreateTypeStatementSegment"),
+#            Ref("CreateRoleStatementSegment"),
+#            Ref("AlterTableStatementSegment"),
+#            Ref("CreateSchemaStatementSegment"),
+#            Ref("CreateDatabaseStatementSegment"),
+#            Ref("CreateExtensionStatementSegment"),
+#            Ref("CreateIndexStatementSegment"),
+#            Ref("DropIndexStatementSegment"),
+#            Ref("CreateViewStatementSegment"),
+#            Ref("DeleteStatementSegment"),
+#            Ref("UpdateStatementSegment"),
+#            Ref("CreateFunctionStatementSegment"),
+#            Ref("CreateModelStatementSegment"),
+#            Ref("DropModelStatementSegment"),
+#            Ref("DescribeStatementSegment"),
+#            Ref("UseStatementSegment"),
+#            Ref("ExplainStatementSegment"),
+#            Ref("DelimiterStatement"),
+#            Ref("CreateProcedureStatementSegment"),
+#            Ref("TransactionStatementSegment"),
+#            Ref("DeclareStatement"),
+#            Ref("SetAssignmentStatementSegment"),
+#            Ref("IfExpressionStatement"),
+#        ),
+#        Ref("TransactionStatementSegment"),
+#        Ref("DeclareStatement"),
+#        Ref("SetAssignmentStatementSegment"),
+#        Ref("IfExpressionStatement"),
+#    )
+
+#   def get_table_references(self):
+#       """Use parsed tree to extract table references."""
+#        table_refs = set(
+#            tbl_ref.raw for tbl_ref in self.recursive_crawl("table_reference")
+#        )
+#        cte_refs = set(
+#            cte_def.get_identifier().raw
+#            for cte_def in self.recursive_crawl("common_table_expression")
+#        )
+#        # External references are any table references which aren't
+#        # also cte aliases.
+#        return table_refs - cte_refs
 
 
 @mysql_dialect.segment(replace=True)
@@ -275,7 +336,6 @@ class CharacteristicStatement(BaseSegment):
     """A Characteristics statement for functions/procedures."""
 
     type = "characteristic_statement"
-
     match_grammar = Sequence(
         OneOf("DETERMINISTIC", Sequence("NOT", "DETERMINISTIC")),
         Sequence("LANGUAGE", "SQL", optional=True),
@@ -387,7 +447,6 @@ class TransactionStatementSegment(BaseSegment):
     """
 
     type = "transaction_statement"
-
     match_grammar = OneOf(
         Sequence("START", "TRANSACTION"),
         Sequence(
@@ -428,7 +487,6 @@ class IfExpressionStatement(BaseSegment):
     """
 
     type = "if_then_statement"
-
     match_grammar = AnyNumberOf(
         Sequence(
             "IF",

@@ -1,22 +1,22 @@
 file:
   statement:
     create_procedure_statement:
-    - keyword: CREATE
-    - keyword: PROCEDURE
-    - function_name:
-        identifier: '`testprocedure`'
-    - base:
-        bracketed:
-          start_bracket: (
-          parameter_direction: in
-          parameter: test
-          data_type:
-            data_type_identifier: int
-          end_bracket: )
-    - base:
-        transaction_statement:
-          keyword: BEGIN
-          statement:
-            transaction_statement:
-              keyword: END
+      - keyword: CREATE
+      - keyword: PROCEDURE
+      - function_name:
+          identifier: '`testprocedure`'
+      - base:
+          bracketed:
+            start_bracket: (
+            parameter_direction: in
+            parameter: test
+            data_type:
+              data_type_identifier: int
+            end_bracket: )
+      - base:
+          transaction_statement:
+            keyword: BEGIN
+            statement:
+              transaction_statement:
+                keyword: END
   statement_terminator: '~'
