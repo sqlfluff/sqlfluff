@@ -600,7 +600,4 @@ def test__attempt_to_change_templater_warning(caplog):
         lntr.render_string(
             in_str="select * from table", fname="test.sql", config=updated_config
         )
-    assert (
-        f"Attempt to set templater to "
-        in caplog.text
-    )
+    assert f"Attempt to set templater to " in caplog.text
