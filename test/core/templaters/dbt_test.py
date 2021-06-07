@@ -57,7 +57,7 @@ def test__templater_dbt_profiles_dir_expanded(dbt_templater):  # noqa: F811
 )
 @pytest.mark.dbt
 def test__templater_dbt_templating_result(
-    project_dir, dbt_templater, fname  # noqa: F811  # noqa: F811
+    project_dir, dbt_templater, fname  # noqa: F811
 ):
     """Test that input sql file gets templated into output sql file."""
     templated_file, _ = dbt_templater.process(
