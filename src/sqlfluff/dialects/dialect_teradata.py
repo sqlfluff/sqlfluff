@@ -565,7 +565,7 @@ class StatementSegment(BaseSegment):
         Ref("BteqStatementSegment"),
         Ref("TdRenameStatementSegment"),
     )
-    match_grammar = GreedyUntil(Ref("SemicolonSegment"))
+    match_grammar = GreedyUntil(Ref("DelimiterSegment"))
 
 
 teradata_dialect.add(

@@ -106,7 +106,7 @@ def test__cli__command_lint_stdin(command):
 
     The subprocess command should exit without errors, as no issues should be found.
     """
-    with open("test/fixtures/cli/passing_a.sql", "r") as test_file:
+    with open("test/fixtures/cli/passing_a.sql") as test_file:
         sql = test_file.read()
     invoke_assert_code(args=[lint, command], cli_input=sql)
 
@@ -329,7 +329,7 @@ def generic_roundtrip_test(
 )
 def test__cli__command__fix(rule, fname):
     """Test the round trip of detecting, fixing and then not detecting the rule."""
-    with open(fname, mode="r") as test_file:
+    with open(fname) as test_file:
         generic_roundtrip_test(test_file, rule)
 
 
@@ -353,9 +353,11 @@ def test__cli__command__fix(rule, fname):
         (" select * from t", "L003", "select * from t"),  # fix preceding whitespace
         # L031 fix aliases in joins
         (
-            "SELECT u.id, c.first_name, c.last_name, COUNT(o.user_id) FROM users as u JOIN customers as c on u.id = c.user_id JOIN orders as o on u.id = o.user_id;",
+            "SELECT u.id, c.first_name, c.last_name, COUNT(o.user_id) "
+            "FROM users as u JOIN customers as c on u.id = c.user_id JOIN orders as o on u.id = o.user_id;",
             "L031",
-            "SELECT users.id, customers.first_name, customers.last_name, COUNT(orders.user_id) FROM users JOIN customers on users.id = customers.user_id JOIN orders on users.id = orders.user_id;",
+            "SELECT users.id, customers.first_name, customers.last_name, COUNT(orders.user_id) "
+            "FROM users JOIN customers on users.id = customers.user_id JOIN orders on users.id = orders.user_id;",
         ),
     ],
 )
@@ -402,7 +404,7 @@ def test__cli__command_fix_stdin_safety():
 )
 def test__cli__command__fix_no_force(rule, fname, prompt, exit_code):
     """Round trip test, using the prompts."""
-    with open(fname, mode="r") as test_file:
+    with open(fname) as test_file:
         generic_roundtrip_test(
             test_file, rule, force=False, final_exit_code=exit_code, fix_input=prompt
         )

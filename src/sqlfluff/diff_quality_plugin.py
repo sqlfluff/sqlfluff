@@ -12,7 +12,7 @@ class SQLFluffViolationReporter(BaseViolationReporter):
 
     def __init__(self):
         """Calls the base class constructor to set the object's name."""
-        super(SQLFluffViolationReporter, self).__init__("sqlfluff")
+        super().__init__("sqlfluff")
 
     @staticmethod
     def violations(src_path):
@@ -30,7 +30,7 @@ class SQLFluffViolationReporter(BaseViolationReporter):
         for violation in linted_path.get_violations():
             try:
                 # Normal SQLFluff warnings
-                message = "{}: {}".format(violation.rule_code(), violation.description)
+                message = f"{violation.rule_code()}: {violation.description}"
             except AttributeError:
                 # Parse errors
                 message = str(violation)

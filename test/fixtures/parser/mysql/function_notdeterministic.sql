@@ -1,0 +1,6 @@
+CREATE FUNCTION `add`(test int)
+RETURNS longtext
+NOT DETERMINISTIC
+BEGIN
+SELECT 1 + 2;
+END~

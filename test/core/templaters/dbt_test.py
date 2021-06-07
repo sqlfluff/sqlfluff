@@ -112,7 +112,7 @@ def test__templater_dbt_templating_test_lex(
 ):
     """A test to demonstrate the lexer works on both dbt models (with any # of trailing newlines) and dbt tests."""
     source_fpath = os.path.join(project_dir, fname)
-    with open(source_fpath, "r") as source_dbt_model:
+    with open(source_fpath, "r") as source_dbt_model
         source_dbt_sql = source_dbt_model.read()
     n_trailing_newlines = len(source_dbt_sql) - len(source_dbt_sql.rstrip("\n"))
     lexer = Lexer(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
@@ -150,6 +150,7 @@ def test__templater_dbt_skips_disabled_model(dbt_templater, project_dir):  # noq
         "incremental.sql",
         "single_trailing_newline.sql",
         "multiple_trailing_newline.sql",
+        "L034_test.sql",
     ],
 )
 @pytest.mark.dbt
@@ -162,7 +163,6 @@ def test__dbt_templated_models_do_not_raise_lint_error(
         path=os.path.join(project_dir, "models/my_new_project/", fname)
     )
     violations = lnt.check_tuples()
-    print(violations)
     assert len(violations) == 0
 
 
@@ -188,7 +188,8 @@ def test__templater_dbt_templating_absolute_path(
     [
         (
             "compiler_error.sql",
-            "dbt compilation error on file 'models/my_new_project/compiler_error.sql', Unexpected end of template. Jinja was looking for the following tags: 'endfor'",
+            "dbt compilation error on file 'models/my_new_project/compiler_error.sql', "
+            "Unexpected end of template. Jinja was looking for the following tags: 'endfor'",
         ),
         ("exception_connect_database.sql", "dbt tried to connect to the database"),
     ],

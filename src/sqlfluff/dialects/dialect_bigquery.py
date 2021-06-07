@@ -18,9 +18,9 @@ from sqlfluff.core.parser import (
     Delimited,
     AnyNumberOf,
     KeywordSegment,
-    Indent,
     SymbolSegment,
     RegexLexer,
+    StringLexer,
     CodeSegment,
     NamedParser,
     StringParser,
@@ -32,6 +32,14 @@ from sqlfluff.core.dialects import load_raw_dialect
 ansi_dialect = load_raw_dialect("ansi")
 bigquery_dialect = ansi_dialect.copy_as("bigquery")
 
+bigquery_dialect.insert_lexer_matchers(
+    # JSON Operators: https://www.postgresql.org/docs/9.5/functions-json.html
+    [
+        StringLexer("right_arrow", "=>", CodeSegment),
+    ],
+    before="equals",
+)
+
 bigquery_dialect.patch_lexer_matchers(
     [
         # Quoted literals can have r or b (case insensitive) prefixes, in any order, to
@@ -42,12 +50,15 @@ bigquery_dialect.patch_lexer_matchers(
         # Triple quoted variant first, then single quoted
         RegexLexer(
             "single_quote",
-            r"([rR]?[bB]?|[bB]?[rR]?)?('''((?<!\\)(\\{2})*\\'|'{,2}(?!')|[^'])*(?<!\\)(\\{2})*'''|'((?<!\\)(\\{2})*\\'|[^'])*(?<!\\)(\\{2})*')",
+            r"([rR]?[bB]?|[bB]?[rR]?)?('''((?<!\\)(\\{2})*\\'|'{,2}(?!')|[^'])"
+            r"*(?<!\\)(\\{2})*'''|'((?<!\\)(\\{2})*\\'|[^'])*(?<!\\)(\\{2})*')",
             CodeSegment,
         ),
         RegexLexer(
             "double_quote",
-            r'([rR]?[bB]?|[bB]?[rR]?)?(\"\"\"((?<!\\)(\\{2})*\\\"|\"{,2}(?!\")|[^\"])*(?<!\\)(\\{2})*\"\"\"|"((?<!\\)(\\{2})*\\"|[^"])*(?<!\\)(\\{2})*")',
+            r"([rR]?[bB]?|[bB]?[rR]?)?(\"\"\"((?<!\\)(\\{2})*\\\"|\"{,2}(?!\")"
+            r'|[^\"])*(?<!\\)(\\{2})*\"\"\"|"((?<!\\)(\\{2})*\\"|[^"])*(?<!\\)'
+            r'(\\{2})*")',
             CodeSegment,
         ),
     ]
@@ -68,6 +79,14 @@ bigquery_dialect.add(
     EndAngleBracketSegment=StringParser(
         ">", SymbolSegment, name="end_angle_bracket", type="end_angle_bracket"
     ),
+    RightArrowSegment=StringParser(
+        "=>", SymbolSegment, name="right_arrow", type="right_arrow"
+    ),
+    SelectClauseElementListGrammar=Delimited(
+        Ref("SelectClauseElementSegment"),
+        delimiter=Ref("CommaSegment"),
+        allow_trailing=True,
+    ),
 )
 
 
@@ -78,6 +97,7 @@ bigquery_dialect.replace(
             Ref("ExpressionSegment"),
             Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
         ),
+        Ref("NamedArgumentSegment"),
     ),
     SimpleArrayTypeGrammar=Sequence(
         "ARRAY",
@@ -127,6 +147,18 @@ bigquery_dialect.sets("angle_bracket_pairs").update(
 )
 
 
+@bigquery_dialect.segment(replace=True)
+class SelectClauseModifierSegment(BaseSegment):
+    """Things that come after SELECT but before the columns."""
+
+    type = "select_clause_modifier"
+    match_grammar = Sequence(
+        # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax
+        Sequence("AS", OneOf("STRUCT", "VALUE"), optional=True),
+        OneOf("DISTINCT", "ALL", optional=True),
+    )
+
+
 # BigQuery allows functions in INTERVAL
 @bigquery_dialect.segment(replace=True)
 class IntervalExpressionSegment(BaseSegment):
@@ -137,30 +169,6 @@ class IntervalExpressionSegment(BaseSegment):
         "INTERVAL",
         Ref("ExpressionSegment"),
         OneOf(Ref("QuotedLiteralSegment"), Ref("DatetimeUnitSegment")),
-    )
-
-
-@bigquery_dialect.segment(replace=True)
-class SelectClauseSegment(ansi_dialect.get_segment("SelectClauseSegment")):  # type: ignore
-    """In BigQuery, select * as struct is valid."""
-
-    parse_grammar = Sequence(
-        "SELECT",
-        Ref("SelectClauseModifierSegment", optional=True),
-        Indent,
-        OneOf(
-            Sequence(
-                "AS",
-                "STRUCT",
-                Ref("StarSegment"),
-                Ref("StarModifierSegment", optional=True),
-            ),
-            Delimited(
-                Ref("SelectClauseElementSegment"),
-                delimiter=Ref("CommaSegment"),
-                allow_trailing=True,
-            ),
-        ),
     )
 
 
@@ -365,6 +373,21 @@ class TypelessStructSegment(BaseSegment):
 
 
 @bigquery_dialect.segment()
+class NamedArgumentSegment(BaseSegment):
+    """Named argument to a function.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/geography_functions#st_geogfromgeojson
+    """
+
+    type = "named_argument"
+    match_grammar = Sequence(
+        Ref("NakedIdentifierSegment"),
+        Ref("RightArrowSegment"),
+        Ref("ExpressionSegment"),
+    )
+
+
+@bigquery_dialect.segment()
 class LiteralCoercionSegment(BaseSegment):
     """A casting operation with a type name preceding a string literal.
 
@@ -386,8 +409,37 @@ class LiteralCoercionSegment(BaseSegment):
     )
 
 
+# Dialects should not use Python "import" to access other dialects. Instead,
+# get a reference to the ANSI ObjectReferenceSegment this way so we can inherit
+# from it.
+ObjectReferenceSegment = ansi_dialect.get_segment("ObjectReferenceSegment")
+
+
+@bigquery_dialect.segment(replace=True)
+class ColumnReferenceSegment(ObjectReferenceSegment):  # type: ignore
+    """A reference to column, field or alias."""
+
+    type = "column_reference"
+
+    def extract_possible_references(self, level):
+        """Extract possible references of a given level."""
+        level = self._level_to_int(level)
+        refs = list(self.iter_raw_references())
+        if level == self.ObjectReferenceLevel.SCHEMA.value and len(refs) >= 3:
+            return [refs[0]]
+        if level == self.ObjectReferenceLevel.TABLE.value and len(refs) >= 3:
+            # Ambiguous case: The table could be the first or second part, so
+            # return both.
+            return [refs[0], refs[1]]
+        if level == self.ObjectReferenceLevel.OBJECT.value and len(refs) >= 3:
+            # Ambiguous case: The object (i.e. column) could be the first or
+            # second part, so return both.
+            return [refs[1], refs[2]]
+        return super().extract_possible_references(level)
+
+
 @bigquery_dialect.segment()
-class HyphenatedObjectReferenceSegment(ansi_dialect.get_segment("ObjectReferenceSegment")):  # type: ignore
+class HyphenatedObjectReferenceSegment(ObjectReferenceSegment):  # type: ignore
     """A reference to an object that may contain embedded hyphens."""
 
     type = "hyphenated_object_reference"

@@ -151,7 +151,7 @@ class Rule_L006(BaseRule):
                     violations.append(
                         LintResult(
                             anchor=before_anchor,
-                            description="Missing whitespace before {0}".format(
+                            description="Missing whitespace before {}".format(
                                 before_anchor.raw[:10]
                             ),
                             fixes=[
@@ -176,7 +176,7 @@ class Rule_L006(BaseRule):
                     violations.append(
                         LintResult(
                             anchor=after_anchor,
-                            description="Missing whitespace after {0}".format(
+                            description="Missing whitespace after {}".format(
                                 after_anchor.raw[-10:]
                             ),
                             fixes=[

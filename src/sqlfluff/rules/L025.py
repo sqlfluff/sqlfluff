@@ -51,9 +51,12 @@ class Rule_L025(Rule_L020):
         # Check all the references that we have, keep track of which aliases we refer to.
         tbl_refs = set()
         for r in references:
-            tbl_ref = r.extract_reference(level=2)
-            if tbl_ref:
-                tbl_refs.add(tbl_ref.part)
+            tbl_refs.update(
+                tr.part
+                for tr in r.extract_possible_references(
+                    level=r.ObjectReferenceLevel.TABLE
+                )
+            )
 
         alias: AliasInfo
         for alias in table_aliases:
@@ -78,7 +81,7 @@ class Rule_L025(Rule_L020):
                 violation_buff.append(
                     LintResult(
                         anchor=alias.segment,
-                        description="Alias {0!r} is never used in SELECT statement.".format(
+                        description="Alias {!r} is never used in SELECT statement.".format(
                             alias.ref_str
                         ),
                         fixes=fixes,

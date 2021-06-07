@@ -5,7 +5,7 @@ from typing import Iterator
 
 def frame_msg(msg: str) -> str:
     """Frame a message with hashes so that it covers five lines."""
-    return "\n###\n#\n# {0}\n#\n###".format(msg)
+    return f"\n###\n#\n# {msg}\n#\n###"
 
 
 def curtail_string(s: str, length=20) -> str:

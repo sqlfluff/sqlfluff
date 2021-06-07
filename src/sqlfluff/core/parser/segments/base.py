@@ -86,7 +86,7 @@ class BaseSegment:
         self._surrogate_name = name
         if len(segments) == 0:
             raise RuntimeError(
-                "Setting {0} with a zero length segment set. This shouldn't happen.".format(
+                "Setting {} with a zero length segment set. This shouldn't happen.".format(
                     self.__class__
                 )
             )
@@ -99,9 +99,7 @@ class BaseSegment:
         elif isinstance(segments, list):
             self.segments = tuple(segments)
         else:
-            raise TypeError(
-                "Unexpected type passed to BaseSegment: {0}".format(type(segments))
-            )
+            raise TypeError(f"Unexpected type passed to BaseSegment: {type(segments)}")
 
         if not pos_marker:
             # If no pos given, it's the pos of the first segment.
@@ -111,7 +109,7 @@ class BaseSegment:
                 )
             else:
                 raise TypeError(
-                    "Unexpected type passed to BaseSegment: {0}".format(type(segments))
+                    f"Unexpected type passed to BaseSegment: {type(segments)}"
                 )
         self.pos_marker: PositionMarker = pos_marker
 
@@ -134,7 +132,7 @@ class BaseSegment:
         )
 
     def __repr__(self):
-        return "<{0}: ({1})>".format(self.__class__.__name__, self.pos_marker)
+        return f"<{self.__class__.__name__}: ({self.pos_marker})>"
 
     # ################ PRIVATE PROPERTIES
 
@@ -247,7 +245,6 @@ class BaseSegment:
                     segs += (stmt,)
                     continue
             except Exception as err:
-                # raise ValueError("{0} has no attribute `is_expandable`. This segment appears poorly constructed.".format(stmt))
                 parse_context.logger.error(
                     "%s has no attribute `is_expandable`. This segment appears poorly constructed.",
                     stmt,
@@ -255,11 +252,11 @@ class BaseSegment:
                 raise err
             if not hasattr(stmt, "parse"):
                 raise ValueError(
-                    "{0} has no method `parse`. This segment appears poorly constructed.".format(
+                    "{} has no method `parse`. This segment appears poorly constructed.".format(
                         stmt
                     )
                 )
-            parse_depth_msg = "Parse Depth {0}. Expanding: {1}: {2!r}".format(
+            parse_depth_msg = "Parse Depth {}. Expanding: {}: {!r}".format(
                 parse_context.parse_depth,
                 stmt.__class__.__name__,
                 curtail_string(stmt.raw, length=40),
@@ -458,7 +455,7 @@ class BaseSegment:
             # Calling unify here, allows the MatchResult class to do all the type checking.
             if not isinstance(m, MatchResult):
                 raise TypeError(
-                    "[PD:{0} MD:{1}] {2}.match. Result is {3}, not a MatchResult!".format(
+                    "[PD:{} MD:{}] {}.match. Result is {}, not a MatchResult!".format(
                         parse_context.parse_depth,
                         parse_context.match_depth,
                         cls.__name__,
@@ -474,7 +471,7 @@ class BaseSegment:
                 return MatchResult.from_unmatched(segments)
         else:
             raise NotImplementedError(
-                "{0} has no match function implemented".format(cls.__name__)
+                f"{cls.__name__} has no match function implemented"
             )
 
     # ################ PRIVATE INSTANCE METHODS
@@ -574,15 +571,9 @@ class BaseSegment:
                     )
         return buff.getvalue()
 
-    def to_tuple(self, **kwargs):
-        """Return a tuple structure from this segment.
-
-        NB: If he segment is a meta segment, i.e. it's an indent or dedent,
-        then it will never be returned from here!
-        """
+    def to_tuple(self, code_only=False, show_raw=False, include_meta=False):
+        """Return a tuple structure from this segment."""
         # works for both base and raw
-        code_only = kwargs.get("code_only", False)
-        show_raw = kwargs.get("show_raw", False)
 
         if show_raw and not self.segments:
             result = (self.get_type(), self.raw)
@@ -590,7 +581,11 @@ class BaseSegment:
             result = (
                 self.get_type(),
                 tuple(
-                    seg.to_tuple(**kwargs)
+                    seg.to_tuple(
+                        code_only=code_only,
+                        show_raw=show_raw,
+                        include_meta=include_meta,
+                    )
                     for seg in self.segments
                     if seg.is_code and not seg.is_meta
                 ),
@@ -599,7 +594,13 @@ class BaseSegment:
             result = (
                 self.get_type(),
                 tuple(
-                    seg.to_tuple(**kwargs) for seg in self.segments if not seg.is_meta
+                    seg.to_tuple(
+                        code_only=code_only,
+                        show_raw=show_raw,
+                        include_meta=include_meta,
+                    )
+                    for seg in self.segments
+                    if include_meta or not seg.is_meta
                 ),
             )
         return result
@@ -761,7 +762,7 @@ class BaseSegment:
         if parse_grammar is None:
             # No parse grammar, go straight to expansion
             parse_context.logger.debug(
-                "{0}.parse: no grammar. Going straight to expansion".format(
+                "{}.parse: no grammar. Going straight to expansion".format(
                     self.__class__.__name__
                 )
             )
@@ -777,13 +778,13 @@ class BaseSegment:
                 post_nc = ()
                 if (not segments[0].is_code) and (not segments[0].is_meta):
                     raise ValueError(
-                        "Segment {0} starts with non code segment: {1!r}.\n{2!r}".format(
+                        "Segment {} starts with non code segment: {!r}.\n{!r}".format(
                             self, segments[0].raw, segments
                         )
                     )
                 if (not segments[-1].is_code) and (not segments[-1].is_meta):
                     raise ValueError(
-                        "Segment {0} ends with non code segment: {1!r}.\n{2!r}".format(
+                        "Segment {} ends with non code segment: {!r}.\n{!r}".format(
                             self, segments[-1].raw, segments
                         )
                     )
@@ -794,7 +795,7 @@ class BaseSegment:
 
             if not isinstance(m, MatchResult):
                 raise TypeError(
-                    "[PD:{0}] {1}.match. Result is {2}, not a MatchResult!".format(
+                    "[PD:{}] {}.match. Result is {}, not a MatchResult!".format(
                         parse_context.parse_depth, self.__class__.__name__, type(m)
                     )
                 )
@@ -837,14 +838,13 @@ class BaseSegment:
                     )
                     + post_nc
                 )
-
         # Recurse if allowed (using the expand method to deal with the expansion)
         parse_context.logger.debug(
-            "{0}.parse: Done Parse. Plotting Recursion. Recurse={1!r}".format(
+            "{}.parse: Done Parse. Plotting Recursion. Recurse={!r}".format(
                 self.__class__.__name__, parse_context.recurse
             )
         )
-        parse_depth_msg = "###\n#\n# Beginning Parse Depth {0}: {1}\n#\n###\nInitial Structure:\n{2}".format(
+        parse_depth_msg = "###\n#\n# Beginning Parse Depth {}: {}\n#\n###\nInitial Structure:\n{}".format(
             parse_context.parse_depth + 1, self.__class__.__name__, self.stringify()
         )
         if parse_context.may_recurse():
@@ -905,7 +905,7 @@ class BaseSegment:
                                     seg_buffer.append(seg)
                             else:
                                 raise ValueError(
-                                    "Unexpected edit_type: {0!r} in {1!r}".format(
+                                    "Unexpected edit_type: {!r} in {!r}".format(
                                         f.edit_type, f
                                     )
                                 )
@@ -937,7 +937,7 @@ class BaseSegment:
                 ),
                 pos_marker=r.pos_marker,
                 # Pass through any additional kwargs
-                **{k: getattr(self, k) for k in self.additional_kwargs}
+                **{k: getattr(self, k) for k in self.additional_kwargs},
             )
             # Return the new segment with any unused fixes.
             return r, fixes
@@ -1048,7 +1048,7 @@ class BracketedSegment(BaseSegment):
         # 1-tuples on the fly is very easy to misread.
         start_bracket: Tuple[BaseSegment] = None,
         end_bracket: Tuple[BaseSegment] = None,
-        **kwargs
+        **kwargs,
     ):
         """Stash the bracket segments for later."""
         if not start_bracket or not end_bracket:
@@ -1101,7 +1101,7 @@ class UnparsableSegment(BaseSegment):
 
         NB Override this for specific subclasses if we want extra output.
         """
-        return "!! Expected: {0!r}".format(self._expected)
+        return f"!! Expected: {self._expected!r}"
 
     def iter_unparsables(self):
         """Iterate through any unparsables.
