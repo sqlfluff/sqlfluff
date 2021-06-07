@@ -241,6 +241,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("DeclareStatement"),
             Ref("SetAssignmentStatementSegment"),
             Ref("IfExpressionStatement"),
+            Ref("CallStoredProcedureSegment"),
         ],
     )
 
@@ -463,4 +464,34 @@ class DefinerSegment(BaseSegment):
         Ref("SingleIdentifierGrammar"),
         Ref("AmpersandLiteralSegment"),
         Ref("SingleIdentifierGrammar"),
+    )
+
+
+@mysql_dialect.segment()
+class CallStoredProcedureSegment(BaseSegment):
+    """This is a CALL statement used to execute a stored procedure.
+
+    mysql: https://dev.mysql.com/doc/refman/8.0/en/call.html
+    """
+
+    type = "call_segment"
+
+    match_grammar = Sequence(
+        "CALL",
+        OneOf(
+            Ref("SingleIdentifierGrammar"),
+            Ref("QuotedIdentifierSegment"),
+        ),
+        Bracketed(
+            AnyNumberOf(
+                Delimited(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("NumericLiteralSegment"),
+                    Ref("DoubleQuotedLiteralSegment"),
+                    Ref("SessionVariableNameSegment"),
+                    Ref("LocalVariableNameSegment"),
+                    Ref("FunctionSegment"),
+                ),
+            ),
+        ),
     )
