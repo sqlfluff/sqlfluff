@@ -1,1 +1,1 @@
-CREATE DEFINER FUNCTION `testfunction`(var1 int)
+CREATE DEFINER=`test`@ FUNCTION `testfunction`(var1 int)

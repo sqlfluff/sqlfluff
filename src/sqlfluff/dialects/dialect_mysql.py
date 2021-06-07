@@ -69,7 +69,14 @@ mysql_dialect.add(
         name="quoted_literal",
         type="literal",
         trim_chars=('"',),
-    )
+    ),
+    AmpersandLiteralSegment=NamedParser(
+        "ampersand",
+        CodeSegment,
+        name="ampersand_literal",
+        type="literal",
+        trim_chars=("@",),
+    ),
 )
 
 
@@ -463,4 +470,10 @@ class DefinerSegment(BaseSegment):
 
     type = "definer_segment"
 
-    match_grammar = Sequence("DEFINER")
+    match_grammar = Sequence(
+        "DEFINER",
+        Ref("EqualsSegment"),
+        Ref("SingleIdentifierGrammar"),
+        Ref("AmpersandLiteralSegment"),
+        Ref("SingleIdentifierGrammar"),
+    )

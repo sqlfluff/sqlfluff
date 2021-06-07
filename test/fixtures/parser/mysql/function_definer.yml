@@ -1,0 +1,15 @@
+file:
+  statement:
+    unparsable:
+    - raw: CREATE
+    - raw: DEFINER
+    - raw: '='
+    - raw: '`test`'
+    - raw: '@'
+    - raw: FUNCTION
+    - raw: '`testfunction`'
+    - bracketed:
+      - start_bracket: (
+      - raw: var1
+      - raw: int
+      - end_bracket: )
