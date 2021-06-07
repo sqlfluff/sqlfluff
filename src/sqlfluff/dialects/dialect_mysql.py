@@ -17,7 +17,6 @@ from sqlfluff.core.parser import (
     CodeSegment,
     StringParser,
     SymbolSegment,
-    Anything,
     Delimited,
     RegexParser,
 )
@@ -179,11 +178,19 @@ class DeclareStatement(BaseSegment):
     mysql: https://dev.mysql.com/doc/refman/8.0/en/declare-local-variable.html
     mysql: https://dev.mysql.com/doc/refman/8.0/en/declare-handler.html
     mysql: https://dev.mysql.com/doc/refman/8.0/en/declare-condition.html
+    https://dev.mysql.com/doc/refman/8.0/en/declare-cursor.html
     """
 
     type = "declare_statement"
 
     match_grammar = OneOf(
+        Sequence(
+            "DECLARE",
+            Ref("NakedIdentifierSegment"),
+            "CURSOR",
+            "FOR",
+            Ref("StatementSegment"),
+        ),
         Sequence(
             "DECLARE",
             OneOf("CONTINUE", "EXIT", "UNDO"),
