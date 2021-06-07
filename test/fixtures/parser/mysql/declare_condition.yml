@@ -1,0 +1,9 @@
+file:
+  statement:
+    declare_statement:
+    - keyword: DECLARE
+    - identifier: random_condition_name
+    - keyword: CONDITION
+    - keyword: FOR
+    - literal: '1051'
+  statement_terminator: ;
