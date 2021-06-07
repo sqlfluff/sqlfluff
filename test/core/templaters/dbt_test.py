@@ -112,7 +112,7 @@ def test__templater_dbt_templating_test_lex(
 ):
     """A test to demonstrate the lexer works on both dbt models (with any # of trailing newlines) and dbt tests."""
     source_fpath = os.path.join(project_dir, fname)
-    with open(source_fpath, "r") as source_dbt_model
+    with open(source_fpath, "r") as source_dbt_model:
         source_dbt_sql = source_dbt_model.read()
     n_trailing_newlines = len(source_dbt_sql) - len(source_dbt_sql.rstrip("\n"))
     lexer = Lexer(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
