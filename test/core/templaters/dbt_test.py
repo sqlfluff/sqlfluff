@@ -227,7 +227,7 @@ def test__project_dir_does_not_exist_error(dbt_templater, caplog):  # noqa: F811
     dbt_templater.sqlfluff_config = FluffConfig(
         configs={"templater": {"dbt": {"project_dir": "./non_existing_directory"}}}
     )
-    with caplog.at_level(logging.ERROR):
+    with caplog.at_level(logging.ERROR, logger="templater_logger"):
         dbt_project_dir = dbt_templater._get_project_dir()
     assert (
         f"dbt_project_dir: {dbt_project_dir} could not be accessed. Check it exists."
