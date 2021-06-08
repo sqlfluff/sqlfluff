@@ -1,0 +1,25 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: table
+        unparsable:
+          raw: PARTITION
+          bracketed:
+          - start_bracket: (
+          - raw: part1
+          - comma: ','
+          - raw: part2
+          - end_bracket: )
+  statement_terminator: ;
