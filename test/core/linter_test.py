@@ -596,8 +596,14 @@ def test__attempt_to_change_templater_warning(caplog):
     initial_config = FluffConfig(configs={"core": {"templater": "jinja"}})
     lntr = Linter(config=initial_config)
     updated_config = FluffConfig(configs={"core": {"templater": "dbt"}})
-    with caplog.at_level(logging.WARNING, logger="linter_logger"):
-        lntr.render_string(
-            in_str="select * from table", fname="test.sql", config=updated_config
-        )
-    assert "Attempt to set templater to " in caplog.text
+    logger = logging.getLogger("sqlfluff")
+    original_propagate_value = logger.propagate
+    try:
+        logger.propagate = True
+        with caplog.at_level(logging.WARNING, logger="sqlfluff.linter"):
+            lntr.render_string(
+                in_str="select * from table", fname="test.sql", config=updated_config
+            )
+        assert "Attempt to set templater to " in caplog.text
+    finally:
+        logger.propagate = original_propagate_value
