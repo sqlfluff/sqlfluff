@@ -160,14 +160,15 @@ mysql_dialect.replace(
     ),
 )
 
-mysql_dialect.patch_lexer_matchers(
+mysql_dialect.insert_lexer_matchers(
     [
         RegexLexer(
             "atsign",
             r"[@][a-zA-Z0-9_]*",
             CodeSegment,
         ),
-    ]
+    ],
+    before="code",
 )
 
 
