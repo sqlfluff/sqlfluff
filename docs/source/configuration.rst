@@ -63,7 +63,9 @@ Nesting
 **SQLFluff** uses **nesting** in its configuration files, with files
 closer *overriding* (or *patching*, if you will) values from other files.
 That means you'll end up with a final config which will be a patchwork
-of all the values from the config files loaded up to that path.
+of all the values from the config files loaded up to that path. The exception
+to this is the value for `templater`, which cannot be set in config files in
+subdirectories of the working directory.
 You don't **need** any config files to be present to make *SQLFluff*
 work. If you do want to override any values though SQLFluff will use
 files in the following locations in order, with values from later
@@ -346,13 +348,21 @@ In *.sqlfluffignore*:
     dbt_modules/
     macros/
 
+You can set the dbt project directory, profiles directory and profile with:
+
+.. code-block::
+
+    [sqlfluff:templater:dbt]
+    project_dir = <relative or absolute path to dbt_project directory>
+    profiles_dir = <relative or absolute path to the directory that contains the profiles.yml file>
+    profile = <dbt profile>
+
 Known Caveats
 ^^^^^^^^^^^^^
 
-- In SQLFluff 0.4.0 dbt templating only works if SQLFluff CLI commands
-  are invoked from the dbt project's root directory (containing
-  `dbt_project.yml`). There is an issue to address this:
-  https://github.com/sqlfluff/sqlfluff/issues/601
+- To use the dbt templater, you must set `templater = dbt` in the `.sqlfluff`
+  config file in the directory where sqlfluff is run. The templater cannot
+  be changed in `.sqlfluff` files in subdirectories.
 - In SQLFluff 0.4.0 using the dbt templater requires that all files
   within the root and child directories of the dbt project must be part
   of the project. If there are deployment scripts which refer to SQL files
