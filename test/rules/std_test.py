@@ -1,5 +1,6 @@
 """Tests for the standard set of rules."""
 import pytest
+import os
 
 from sqlfluff.core.rules import get_ruleset
 from sqlfluff.core.config import FluffConfig
@@ -7,7 +8,7 @@ from sqlfluff.testing.rules import assert_rule_raises_violations_in_file
 
 from test.fixtures.dbt.templater import (  # noqa
     DBT_FLUFF_CONFIG,
-    in_dbt_project_dir,
+    project_dir,
     dbt_templater,
 )
 
@@ -111,11 +112,11 @@ def test__rules__std_file(rule, path, violations):
         ("L021", "models/my_new_project/select_distinct_group_by.sql", [(1, 8)]),
     ],
 )
-def test__rules__std_file_dbt(rule, path, violations, in_dbt_project_dir):  # noqa
+def test__rules__std_file_dbt(rule, path, violations, project_dir):  # noqa
     """Test the linter finds the given errors in (and only in) the right places (DBT)."""
     assert_rule_raises_violations_in_file(
         rule=rule,
-        fpath=path,
+        fpath=os.path.join(project_dir, path),
         violations=violations,
         fluff_config=FluffConfig(configs=DBT_FLUFF_CONFIG, overrides=dict(rules=rule)),
     )
