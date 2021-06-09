@@ -7,21 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## Added
+### Added
+
+- Support for DECLARE statement for the mysql dialect [#1140](https://github.com/sqlfluff/sqlfluff/issues/1140))
+- Support for the IF-THEN-ELSEIF-ELSE syntax for the mysql dialect [#1140](https://github.com/sqlfluff/sqlfluff/issues/1140))
+- Support for the DEFINER syntax for the mysql dialect [#1131](https://github.com/sqlfluff/sqlfluff/issues/1131))
+
+### Changed
+
+### Contributors
+
+- [@GitHub-Username](Link to GitHub profile) ([#PR-Number](Link to PR))
+- [@silverbullettruck2001](https://github.com/silverbullettruck2001) ([#1141](https://github.com/sqlfluff/sqlfluff/pull/1141))
+
+## [0.6.0] - 2021-06-06
+
+### Added
 
 - Respect XDG base dirs on Mac OS ([#889](https://github.com/sqlfluff/sqlfluff/issues/889)).
 - Added support for additional delimiters by creating a new DelimiterSegment in the
   ANSI dialect which defaults to the semicolon, but allows it to be more intuitive
   when overriden in a specific child dialect (mysql) [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
-- Support for the DELIMITER statement in the mysql dialect [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
-- Support for additional delimiters by creating a new DelimiterSegment in the
-  ANSI dialect which defaults to the semicolon, but allows it to be more intuitive.
-- Support for function as a default column value [#849](https://github.com/sqlfluff/sqlfluff/issues/849).
-- Support for the CREATE/DROP PROCEDURE statement for the mysql dialect [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
-- Specific allowed/required syntaxes for CREATE/DROP FUNCTION within the mysql dialect [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
-- Support for DECLARE statement for the mysql dialect [#1140](https://github.com/sqlfluff/sqlfluff/issues/1140))
-- Support for the IF-THEN-ELSEIF-ELSE syntax for the mysql dialect [#1140](https://github.com/sqlfluff/sqlfluff/issues/1140))
-- Support for the DEFINER syntax for the mysql dialect [#1131](https://github.com/sqlfluff/sqlfluff/issues/1131))
+- Added support for the DELIMITER statement in the mysql dialect [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
+- Added support for additional delimiters by creating a new DelimiterSegment in the
+  ANSI dialect which defaults to the semicolon, but allows it to be more intuitive
+  when overriden in a specific child dialect (mysql) [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
+- Added support for function as a default column value [#849](https://github.com/sqlfluff/sqlfluff/issues/849).
+- Add an `--include-metas` option for parse output to show the meta
+  segments in the parse tree.
+- Allow CREATE FUNCTION syntax without arguments [@bolajiwahab](https://github.com/bolajiwahab) [#1063](https://github.com/sqlfluff/sqlfluff/pull/1063).
+- Added support for the CREATE/DROP PROCEDURE statement for the mysql dialect [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
+- Added specific allowed/required syntaxes for CREATE/DROP FUNCTION within the mysql dialect [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
+- Now possible to run sqlfluff commands outside the project root when using the dbt templater.
 
 ### Changed
 
@@ -35,18 +52,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   _longer_ invariant sections first and then dropping any shorter ones
   which then are relatively out of place.
 - Additional logging within the lexer and templater engines.
-- Add an `--include-metas` option for parse output to show the meta
-  segments in the parse tree.
 - Allow meta segments to parse within `Delimited` grammars which otherwise
   don't allow gaps. This is facilitated through an optional agrument to
   `trim_non_code_segments`.
 - Fix bug [#1079](https://github.com/sqlfluff/sqlfluff/issues/1079), addressing
   issues with L025 and L026 with BigQuery column references involving `STRUCT`.
-- Fix bug [#1080](https://github.com/sqlfluff/sqlfluff/issues/1080), add
+- [#1080](https://github.com/sqlfluff/sqlfluff/issues/1080) Add
   SET SCHEMA and DROP SCHEMA support to ANSI dialect.
-- Added support for additional delimiters by creating a new DelimiterSegment in the
-  ANSI dialect which defaults to the semicolon, but allows it to be more intuitive
-  when overriden in a specific child dialect (mysql) [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
 
 Contributors:
 
