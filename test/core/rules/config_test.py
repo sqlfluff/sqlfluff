@@ -11,7 +11,7 @@ from sqlfluff.testing.rules import get_rule_from_set
 
 from test.fixtures.dbt.templater import (  # noqa
     DBT_FLUFF_CONFIG,
-    in_dbt_project_dir,
+    project_dir,
     dbt_templater,
 )
 from test.fixtures.rules.custom.L000 import Rule_L000
