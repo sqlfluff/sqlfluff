@@ -7,10 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Added support for array types and array literals in postgres dialect ([#1142](https://github.com/sqlfluff/sqlfluff/issues/1142))
+
 ### Changed
 
 ### Contributors
 - [@GitHub-Username](Link to GitHub profile) ([#PR-Number](Link to PR))
+- [@boblannon](https://github.com/boblannon) ([#1151](https://github.com/sqlfluff/sqlfluff/pull/1151))
 
 ## [0.6.0] - 2021-06-06
 ### Added
