@@ -17,9 +17,11 @@ file:
             index_hint_clause:
             - keyword: FORCE
             - keyword: INDEX
+            - keyword: FOR
+            - keyword: JOIN
             - bracketed:
                 start_bracket: (
                 object_reference:
-                  identifier: idx_index
+                  identifier: i2
                 end_bracket: )
   statement_terminator: ;

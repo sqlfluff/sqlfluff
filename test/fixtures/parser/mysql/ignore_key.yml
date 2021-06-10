@@ -15,11 +15,11 @@ file:
               table_reference:
                 identifier: onetable
             index_hint_clause:
-            - keyword: FORCE
-            - keyword: INDEX
+            - keyword: IGNORE
+            - keyword: KEY
             - bracketed:
                 start_bracket: (
                 object_reference:
-                  identifier: idx_index
+                  identifier: i2
                 end_bracket: )
   statement_terminator: ;

@@ -23,7 +23,6 @@ from sqlfluff.core.parser import (
     Dedent,
     StartsWith,
     GreedyUntil,
-    Anything,
 )
 from sqlfluff.core.dialects import load_raw_dialect
 
@@ -83,10 +82,7 @@ mysql_dialect.replace(
         ]
     ),
     PostTableExpressionGrammar=Sequence(
-        OneOf("IGNORE", "FORCE", "USE"),
-        OneOf("INDEX", "KEY"),
-        Sequence("FOR", Ref.keyword("JOIN"), optional=True),
-        Bracketed(Ref("ObjectReferenceSegment")),
+        Ref("IndexHintClauseSegment"),
     ),
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",
@@ -96,7 +92,10 @@ mysql_dialect.replace(
         "HAVING",
         "QUALIFY",
         "WINDOW",
-        "FOR",
+        Sequence(
+            "FOR",
+            OneOf("UPDATE", "SHARE"),
+        ),
         Sequence("LOCK", "IN", "SHARE", "MODE"),
         Ref("SetOperatorSegment"),
         Ref("WithNoSchemaBindingClauseSegment"),
@@ -603,6 +602,9 @@ class IntoClauseSegment(BaseSegment):
     )
 
 
+# I wanted to do an override and just insert the new Refs but I need
+# to have the IntoClause be before FromClauseSegment, but it doesn't work to add the `before` clause
+# looking for suggestions on how to do this differently, if possible
 @mysql_dialect.segment(replace=True)
 class UnorderedSelectStatementSegment(BaseSegment):
     """A `SELECT` statement without any ORDER clauses or later.
@@ -621,13 +623,11 @@ class UnorderedSelectStatementSegment(BaseSegment):
         # local or session variables
         Ref("SelectClauseSegment"),
         terminator=OneOf(
-            Ref("IntoClauseSegment"),
             Ref("SetOperatorSegment"),
             Ref("WithNoSchemaBindingClauseSegment"),
             Ref("OrderByClauseSegment"),
             Ref("LimitClauseSegment"),
             Ref("NamedWindowSegment"),
-            Ref("ForClauseSegment"),
         ),
         enforce_whitespace_preceeding_terminator=True,
     )
@@ -646,6 +646,8 @@ class UnorderedSelectStatementSegment(BaseSegment):
     )
 
 
+# I am unclear why I have to override this segement, but if I don't then new segments won't parse
+# looking for suggestions on how to avoid this since it seems unnecessary
 @mysql_dialect.segment(replace=True)
 class SelectClauseElementSegment(BaseSegment):
     """An element in the targets of a select statement."""
@@ -658,7 +660,6 @@ class SelectClauseElementSegment(BaseSegment):
         "WHERE",
         "ORDER",
         "LIMIT",
-        "FOR",
         Ref("CommaSegment"),
         Ref("SetOperatorSegment"),
         enforce_whitespace_preceeding_terminator=True,
@@ -674,6 +675,8 @@ class SelectClauseElementSegment(BaseSegment):
     )
 
 
+# I am unclear why I have to override this segement, but if I don't then new segments won't parse
+# looking for suggestions on how to avoid this since it seems unnecessary
 @mysql_dialect.segment(replace=True)
 class SelectClauseSegment(BaseSegment):
     """A group of elements in a select target statement."""
@@ -687,7 +690,6 @@ class SelectClauseSegment(BaseSegment):
             "WHERE",
             "ORDER",
             "LIMIT",
-            "FOR",
             Ref("SetOperatorSegment"),
         ),
         enforce_whitespace_preceeding_terminator=True,
@@ -707,6 +709,8 @@ class SelectClauseSegment(BaseSegment):
     )
 
 
+# I am unclear why I have to override this segement, but if I don't then new segments don't parse
+# looking for suggestions on how to avoid this since it seems unnecessary
 @mysql_dialect.segment(replace=True)
 class SelectStatementSegment(BaseSegment):
     """A `SELECT` statement.
@@ -756,4 +760,24 @@ class ForClauseSegment(BaseSegment):
         ),
         Sequence("LOCK", "IN", "SHARE", "MODE"),
         optional=True,
+    )
+
+
+@mysql_dialect.segment()
+class IndexHintClauseSegment(BaseSegment):
+    """This is the body of a index hint clause."""
+
+    type = "index_hint_clause"
+
+    match_grammar = Sequence(
+        OneOf("USE", "IGNORE", "FORCE"),
+        OneOf("INDEX", "KEY"),
+        Sequence(
+            "FOR",
+            OneOf(
+                "JOIN", Sequence("ORDER", "BY"), Sequence("GROUP", "BY"), optional=True
+            ),
+            optional=True,
+        ),
+        Bracketed(Ref("ObjectReferenceSegment")),
     )

@@ -13,13 +13,15 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: onetable
+                identifier: t1
+            alias_expression:
+              identifier: test
             index_hint_clause:
-            - keyword: FORCE
-            - keyword: INDEX
+            - keyword: USE
+            - keyword: KEY
             - bracketed:
                 start_bracket: (
                 object_reference:
-                  identifier: idx_index
+                  identifier: i2
                 end_bracket: )
   statement_terminator: ;
