@@ -13,7 +13,6 @@ from sqlfluff.core.parser import (
     NamedParser,
     SymbolSegment,
     AnyNumberOf,
-    RegexParser,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
