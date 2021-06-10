@@ -1,0 +1,52 @@
+file:
+  statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: encounters
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          identifier: my_type
+          data_type:
+            data_type_identifier:
+              raw: text
+      - comma: ','
+      - column_definition:
+          identifier: pay_by_quarter
+          data_type:
+            data_type_identifier:
+              raw: integer
+              start_square_bracket: '['
+              end_square_bracket: ']'
+      - comma: ','
+      - column_definition:
+          identifier: schedule
+          data_type:
+            data_type_identifier:
+            - raw: text
+            - start_square_bracket: '['
+            - literal: '2'
+            - end_square_bracket: ']'
+            - start_square_bracket: '['
+            - literal: '3'
+            - end_square_bracket: ']'
+      - comma: ','
+      - column_definition:
+          identifier: days_open
+          data_type:
+            data_type_identifier:
+              raw: boolean
+              keyword: array
+              start_square_bracket: '['
+              literal: '7'
+              end_square_bracket: ']'
+      - comma: ','
+      - column_definition:
+          identifier: coordinates
+          data_type:
+            data_type_identifier:
+              raw: numeric
+              keyword: array
+      - end_bracket: )

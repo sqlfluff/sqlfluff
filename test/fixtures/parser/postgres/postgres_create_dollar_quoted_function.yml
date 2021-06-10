@@ -9,14 +9,17 @@ file:
         bracketed:
         - start_bracket: (
         - data_type:
-            data_type_identifier: integer
+            data_type_identifier:
+              raw: integer
         - comma: ','
         - data_type:
-            data_type_identifier: integer
+            data_type_identifier:
+              raw: integer
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-        data_type_identifier: integer
+        data_type_identifier:
+          raw: integer
     - base:
       - keyword: AS
       - literal: $$ select $1 + $2; $$

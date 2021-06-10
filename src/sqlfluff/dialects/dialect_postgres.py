@@ -12,6 +12,8 @@ from sqlfluff.core.parser import (
     CodeSegment,
     NamedParser,
     SymbolSegment,
+    AnyNumberOf,
+    RegexParser,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -84,6 +86,72 @@ postgres_dialect.replace(
         Ref("JsonOperatorSegment"),
     ),
 )
+
+
+@postgres_dialect.segment(replace=True)
+class ArrayLiteralSegment(BaseSegment):
+    """An array literal segment."""
+
+    type = "array_literal"
+    match_grammar = Sequence(
+        "ARRAY",
+        Bracketed(
+            Delimited(Ref("LiteralGrammar"), optional=False),
+            bracket_type="square",
+        ),
+    )
+
+
+postgres_dialect.replace(
+    BaseExpressionElementGrammar=OneOf(
+        Ref("LiteralGrammar"),
+        Ref("ArrayLiteralSegment"),
+        Ref("BareFunctionSegment"),
+        Ref("FunctionSegment"),
+        Ref("IntervalExpressionSegment"),
+        Ref("ColumnReferenceSegment"),
+        Ref("ExpressionSegment"),
+    )
+)
+
+
+@postgres_dialect.segment(replace=True)
+class DatatypeIdentifierSegment(BaseSegment):
+    """A data type segment."""
+
+    name = "data_type_identifier"
+    type = "data_type_identifier"
+
+    match_grammar = Sequence(
+        RegexParser(
+            r"[A-Z][A-Z0-9_]*",
+            CodeSegment,
+        ),
+        OneOf(
+            # integer[] or text[][] or boolean[1][3]
+            AnyNumberOf(
+                Bracketed(
+                    Ref("NumericLiteralSegment", optional=True),
+                    bracket_type="square",
+                ),
+                min_times=1,
+            ),
+            Sequence(
+                # integer ARRAY[2]
+                "ARRAY",
+                OneOf(
+                    Bracketed(
+                        Ref("NumericLiteralSegment", optional=False),
+                        bracket_type="square",
+                    ),
+                    optional=True,
+                ),
+            ),
+            # There may be no brackets for some data types
+            optional=True,
+        ),
+        Ref("CharCharacterSetSegment", optional=True),
+    )
 
 
 @postgres_dialect.segment(replace=True)

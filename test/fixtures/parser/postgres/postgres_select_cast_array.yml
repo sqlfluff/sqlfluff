@@ -1,0 +1,18 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            literal: "'{1,2,3}'"
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                data_type_identifier:
+                  raw: integer
+                  start_square_bracket: '['
+                  end_square_bracket: ']'
+          alias_expression:
+            keyword: as
+            identifier: my_array

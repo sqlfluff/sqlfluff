@@ -152,6 +152,13 @@ snowflake_dialect.replace(
         Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
         Ref("OverClauseSegment", optional=True),
     ),
+    # This was replaced in postgres_dialect, so revert back to original ansi
+    DatatypeIdentifierSegment=RegexParser(
+        r"[A-Z][A-Z0-9_]*",
+        CodeSegment,
+        name="data_type_identifier",
+        type="data_type_identifier",
+    ),
 )
 
 
