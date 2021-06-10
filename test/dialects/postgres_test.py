@@ -61,7 +61,7 @@ def test_array_type(raw):
 @pytest.mark.parametrize(
     "raw",
     [
-        "SELECT '{1, 2, 3}'::int[] FROM t1",
+        "SELECT '{1, 2, 3}'::integer[] FROM t1",
     ],
 )
 def test_array_cast(raw):
@@ -78,6 +78,7 @@ def test_array_cast(raw):
     "raw",
     [
         "SELECT ARRAY[1, 2, 3] AS int_array FROM t1",
+        "SELECT ARRAY['a', 'b', 'c'] AS string_array FROM t1",
     ],
 )
 def test_array_literal(raw):

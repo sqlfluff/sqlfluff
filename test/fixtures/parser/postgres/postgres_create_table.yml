@@ -12,5 +12,6 @@ file:
           data_type:
             identifier: public
             dot: .
-            data_type_identifier: MY_TYPE
+            data_type_identifier:
+              raw: MY_TYPE
         end_bracket: )
