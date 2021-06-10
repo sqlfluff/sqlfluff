@@ -10,7 +10,7 @@ file:
               casting_operator: '::'
               data_type:
                 data_type_identifier:
-                  raw: integer
+                  identifier: integer
                   start_square_bracket: '['
                   end_square_bracket: ']'
           alias_expression:

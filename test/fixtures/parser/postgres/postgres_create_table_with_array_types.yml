@@ -11,13 +11,13 @@ file:
           identifier: my_type
           data_type:
             data_type_identifier:
-              raw: text
+              identifier: text
       - comma: ','
       - column_definition:
           identifier: pay_by_quarter
           data_type:
             data_type_identifier:
-              raw: integer
+              identifier: integer
               start_square_bracket: '['
               end_square_bracket: ']'
       - comma: ','
@@ -25,7 +25,7 @@ file:
           identifier: schedule
           data_type:
             data_type_identifier:
-            - raw: text
+            - identifier: text
             - start_square_bracket: '['
             - literal: '2'
             - end_square_bracket: ']'
@@ -37,7 +37,7 @@ file:
           identifier: days_open
           data_type:
             data_type_identifier:
-              raw: boolean
+              identifier: boolean
               keyword: array
               start_square_bracket: '['
               literal: '7'
@@ -47,6 +47,6 @@ file:
           identifier: coordinates
           data_type:
             data_type_identifier:
-              raw: numeric
+              identifier: numeric
               keyword: array
       - end_bracket: )

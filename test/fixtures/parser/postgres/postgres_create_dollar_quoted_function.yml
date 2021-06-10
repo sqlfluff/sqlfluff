@@ -10,16 +10,16 @@ file:
         - start_bracket: (
         - data_type:
             data_type_identifier:
-              raw: integer
+              identifier: integer
         - comma: ','
         - data_type:
             data_type_identifier:
-              raw: integer
+              identifier: integer
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
         data_type_identifier:
-          raw: integer
+          identifier: integer
     - base:
       - keyword: AS
       - literal: $$ select $1 + $2; $$

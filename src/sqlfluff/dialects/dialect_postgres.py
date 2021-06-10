@@ -123,10 +123,7 @@ class DatatypeIdentifierSegment(BaseSegment):
     type = "data_type_identifier"
 
     match_grammar = Sequence(
-        RegexParser(
-            r"[A-Z][A-Z0-9_]*",
-            CodeSegment,
-        ),
+        Ref("SingleIdentifierGrammar"),
         OneOf(
             # integer[] or text[][] or boolean[1][3]
             AnyNumberOf(

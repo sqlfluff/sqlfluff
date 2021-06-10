@@ -14,7 +14,7 @@ file:
     - keyword: RETURNS
     - data_type:
         data_type_identifier:
-          raw: integer
+          identifier: integer
     - base:
       - keyword: AS
       - literal: "$$\n    SELECT 1;\n$$"
