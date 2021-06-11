@@ -271,7 +271,7 @@ def dialects(**kwargs):
     "format",
     default="human",
     type=click.Choice(["human", "json", "yaml"], case_sensitive=False),
-    help="What format to return the lint result in.",
+    help="What format to return the lint result in (default=human).",
 )
 @click.option(
     "--nofail",
