@@ -170,7 +170,9 @@ class RegexParser(StringParser):
         for use directly as a regex. This only matches on a single segment.
         """
         if len(segment.raw) == 0:
-            raise ValueError("Zero length string passed to ReSegment!?")
+            # If it's of zero length it's probably a meta segment.
+            # In any case, it won't match here.
+            return False
         # Try the regex. Case sensitivity is not supported.
         result = re.match(self.template, segment.raw_upper)
         if result:

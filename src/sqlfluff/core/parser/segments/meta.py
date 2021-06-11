@@ -26,7 +26,7 @@ class MetaSegment(RawSegment):
     def match(cls, segments, parse_context):
         """This will never be called. If it is then we're using it wrong."""
         raise NotImplementedError(
-            "{0} has no match method, it should only be used in a Sequence!".format(
+            "{} has no match method, it should only be used in a Sequence!".format(
                 cls.__name__
             )
         )
@@ -88,4 +88,16 @@ class TemplateSegment(MetaSegment):
 
     def _suffix(self):
         """Also output what it's a placeholder for."""
-        return "[Type: {0!r}, Raw: {1!r}]".format(self.block_type, self.source_str)
+        return f"[Type: {self.block_type!r}, Raw: {self.source_str!r}]"
+
+    def to_tuple(self, code_only=False, show_raw=False, include_meta=False):
+        """Return a tuple structure from this segment.
+
+        Unlike most segments, we return the _source_ content for placeholders
+        if viewing metas is allowed. This allows verification of the content
+        of those placeholders for inspection or debugging.
+        """
+        if include_meta:
+            return (self.get_type(), self.source_str)
+        else:
+            return (self.get_type(), self.raw)

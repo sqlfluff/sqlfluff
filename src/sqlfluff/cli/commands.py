@@ -77,7 +77,7 @@ def set_logging_level(verbosity, logger=None, stderr_output=False):
     # Set up a handler to colour warnings red.
     handler.addFilter(RedWarningsFilter())
     if logger:
-        focus_logger = logging.getLogger("sqlfluff.{0}".format(logger))
+        focus_logger = logging.getLogger(f"sqlfluff.{logger}")
         focus_logger.addHandler(handler)
     else:
         fluff_logger.addHandler(handler)
@@ -180,7 +180,9 @@ def core_options(f):
     )(f)
     f = click.option(
         "--logger",
-        type=click.Choice(["parser", "linter", "rules"], case_sensitive=False),
+        type=click.Choice(
+            ["templater", "lexer", "parser", "linter", "rules"], case_sensitive=False
+        ),
         help="Choose to limit the logging to one of the loggers.",
     )(f)
     return f
@@ -193,7 +195,7 @@ def get_config(**kwargs):
             # We're just making sure it exists at this stage - it will be fetched properly in the linter
             dialect_selector(kwargs["dialect"])
         except KeyError:
-            click.echo("Error: Unknown dialect {0!r}".format(kwargs["dialect"]))
+            click.echo("Error: Unknown dialect {!r}".format(kwargs["dialect"]))
             sys.exit(66)
     # Instantiate a config object (filtering out the nulls)
     overrides = {k: kwargs[k] for k in kwargs if kwargs[k] is not None}
@@ -206,7 +208,7 @@ def get_linter_and_formatter(cfg, silent=False):
         # We're just making sure it exists at this stage - it will be fetched properly in the linter
         dialect_selector(cfg.get("dialect"))
     except KeyError:
-        click.echo("Error: Unknown dialect {0!r}".format(cfg.get("dialect")))
+        click.echo("Error: Unknown dialect {!r}".format(cfg.get("dialect")))
         sys.exit(66)
 
     if not silent:
@@ -288,16 +290,15 @@ def dialects(**kwargs):
 )
 @click.option(
     "-p",
-    "--parallel",
+    "--processes",
     type=int,
     default=1,
-    help="If set to a value higher than 1, run SQLFluff in parallel, "
-    "speeding up processing.",
+    help="The number of parallel processes to run.",
 )
 @click.argument("paths", nargs=-1)
 def lint(
     paths,
-    parallel,
+    processes,
     format,
     nofail,
     disregard_sqlfluffignores,
@@ -344,12 +345,12 @@ def lint(
                 paths,
                 ignore_non_existent_files=False,
                 ignore_files=not disregard_sqlfluffignores,
-                parallel=parallel,
+                processes=processes,
             )
-        except IOError:
+        except OSError:
             click.echo(
                 colorize(
-                    "The path(s) {0!r} could not be accessed. Check it/they exist(s).".format(
+                    "The path(s) {!r} could not be accessed. Check it/they exist(s).".format(
                         paths
                     ),
                     "red",
@@ -410,14 +411,13 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
     "--fixed-suffix", default=None, help="An optional suffix to add to fixed files."
 )
 @click.option(
-    "--parallel",
+    "--processes",
     type=int,
     default=1,
-    help="If set to a value higher than 1, run SQLFluff in parallel, "
-    "speeding up processing.",
+    help="The number of parallel processes to run.",
 )
 @click.argument("paths", nargs=-1)
-def fix(force, paths, parallel, bench=False, fixed_suffix="", logger=None, **kwargs):
+def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kwargs):
     """Fix SQL files.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -449,12 +449,12 @@ def fix(force, paths, parallel, bench=False, fixed_suffix="", logger=None, **kwa
     click.echo("==== finding fixable violations ====")
     try:
         result = lnt.lint_paths(
-            paths, fix=True, ignore_non_existent_files=False, parallel=parallel
+            paths, fix=True, ignore_non_existent_files=False, processes=processes
         )
-    except IOError:
+    except OSError:
         click.echo(
             colorize(
-                "The path(s) {0!r} could not be accessed. Check it/they exist(s).".format(
+                "The path(s) {!r} could not be accessed. Check it/they exist(s).".format(
                     paths
                 ),
                 "red",
@@ -467,7 +467,7 @@ def fix(force, paths, parallel, bench=False, fixed_suffix="", logger=None, **kwa
     if result.num_violations(types=SQLLintError, fixable=True) > 0:
         click.echo("==== fixing violations ====")
         click.echo(
-            "{0} fixable linting violations found".format(
+            "{} fixable linting violations found".format(
                 result.num_violations(types=SQLLintError, fixable=True)
             )
         )
@@ -510,7 +510,7 @@ def fix(force, paths, parallel, bench=False, fixed_suffix="", logger=None, **kwa
         click.echo("==== no fixable linting violations found ====")
         if result.num_violations(types=SQLLintError, fixable=False) > 0:
             click.echo(
-                "  [{0} unfixable linting violations found]".format(
+                "  [{} unfixable linting violations found]".format(
                     result.num_violations(types=SQLLintError, fixable=False)
                 )
             )
@@ -549,6 +549,15 @@ def quoted_presenter(dumper, data):
     help="Output only the code elements of the parse tree.",
 )
 @click.option(
+    "-m",
+    "--include-meta",
+    is_flag=True,
+    help=(
+        "Include meta segments (indents, dedents and placeholders) in the output. "
+        "This only applies when outputting json or yaml."
+    ),
+)
+@click.option(
     "-f",
     "--format",
     default="human",
@@ -566,7 +575,17 @@ def quoted_presenter(dumper, data):
         "found. This is potentially useful during rollout."
     ),
 )
-def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwargs):
+def parse(
+    path,
+    code_only,
+    include_meta,
+    format,
+    profiler,
+    bench,
+    nofail,
+    logger=None,
+    **kwargs,
+):
     """Parse SQL files and just spit out the result.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -648,7 +667,7 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
                 dict(
                     filepath=linted_result.fname,
                     segments=linted_result.tree.as_record(
-                        code_only=code_only, show_raw=True
+                        code_only=code_only, show_raw=True, include_meta=include_meta
                     )
                     if linted_result.tree
                     else None,
@@ -663,10 +682,10 @@ def parse(path, code_only, format, profiler, bench, nofail, logger=None, **kwarg
                 click.echo(yaml.dump(result))
             elif format == "json":
                 click.echo(json.dumps(result))
-    except IOError:
+    except OSError:
         click.echo(
             colorize(
-                "The path {0!r} could not be accessed. Check it exists.".format(path),
+                f"The path {path!r} could not be accessed. Check it exists.",
                 "red",
             )
         )

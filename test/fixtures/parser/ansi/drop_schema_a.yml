@@ -1,0 +1,7 @@
+file:
+  statement:
+    drop_schema_statement:
+    - keyword: drop
+    - keyword: schema
+    - schema_reference:
+        identifier: my_schema

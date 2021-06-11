@@ -36,6 +36,9 @@ class DbtTemplater(JinjaTemplater):
     def __init__(self, **kwargs):
         self.sqlfluff_config = None
         self.formatter = None
+        self.project_dir = None
+        self.profiles_dir = None
+        self.working_dir = os.getcwd()
         self._sequential_fails = 0
         super().__init__(**kwargs)
 
@@ -59,8 +62,8 @@ class DbtTemplater(JinjaTemplater):
 
         self.dbt_config = DbtRuntimeConfig.from_args(
             DbtConfigArgs(
-                project_dir=self._get_project_dir(),
-                profiles_dir=self._get_profiles_dir(),
+                project_dir=self.project_dir,
+                profiles_dir=self.profiles_dir,
                 profile=self._get_profile(),
             )
         )
@@ -151,24 +154,41 @@ class DbtTemplater(JinjaTemplater):
         """
         from dbt.config.profile import PROFILES_DIR
 
-        return os.path.expanduser(
-            self.sqlfluff_config.get_section(
-                (self.templater_selector, self.name, "profiles_dir")
+        dbt_profiles_dir = os.path.abspath(
+            os.path.expanduser(
+                self.sqlfluff_config.get_section(
+                    (self.templater_selector, self.name, "profiles_dir")
+                )
+                or PROFILES_DIR
             )
-            or PROFILES_DIR
         )
+
+        if not os.path.exists(dbt_profiles_dir):
+            templater_logger.error(
+                f"dbt_profiles_dir: {dbt_profiles_dir} could not be accessed. Check it exists."
+            )
+
+        return dbt_profiles_dir
 
     def _get_project_dir(self):
         """Get the dbt project directory from the configuration.
 
         Defaults to the working directory.
         """
-        return os.path.expanduser(
-            self.sqlfluff_config.get_section(
-                (self.templater_selector, self.name, "project_dir")
+        dbt_project_dir = os.path.abspath(
+            os.path.expanduser(
+                self.sqlfluff_config.get_section(
+                    (self.templater_selector, self.name, "project_dir")
+                )
+                or os.getcwd()
             )
-            or os.getcwd()
         )
+        if not os.path.exists(dbt_project_dir):
+            templater_logger.error(
+                f"dbt_project_dir: {dbt_project_dir} could not be accessed. Check it exists."
+            )
+
+        return dbt_project_dir
 
     def _get_profile(self):
         """Get a dbt profile name from the configuration."""
@@ -205,8 +225,14 @@ class DbtTemplater(JinjaTemplater):
             FailedToConnectException as DbtFailedToConnectException,
         )
 
+        self.sqlfluff_config = config
+        self.project_dir = self._get_project_dir()
+        self.profiles_dir = self._get_profiles_dir()
+        fname_absolute_path = os.path.abspath(fname)
+
         try:
-            processed_result = self._unsafe_process(fname, in_str, config)
+            os.chdir(self.project_dir)
+            processed_result = self._unsafe_process(fname_absolute_path, in_str, config)
             # Reset the fail counter
             self._sequential_fails = 0
             return processed_result
@@ -232,6 +258,8 @@ class DbtTemplater(JinjaTemplater):
         # If a SQLFluff error is raised, just pass it through
         except SQLTemplaterError as e:
             return None, [e]
+        finally:
+            os.chdir(self.working_dir)
 
     def _unsafe_process(self, fname, in_str=None, config=None):
         if not config:
@@ -246,8 +274,6 @@ class DbtTemplater(JinjaTemplater):
             raise ValueError(
                 "The dbt templater does not support stdin input, provide a path instead"
             )
-        self.sqlfluff_config = config
-
         selected = self.dbt_selector_method.search(
             included_nodes=self.dbt_manifest.nodes,
             # Selector needs to be a relative path
@@ -285,7 +311,7 @@ class DbtTemplater(JinjaTemplater):
                 "by running `dbt compile` directly."
             )
 
-        with open(fname, "r") as source_dbt_model:
+        with open(fname) as source_dbt_model:
             source_dbt_sql = source_dbt_model.read()
 
         n_trailing_newlines = len(source_dbt_sql) - len(source_dbt_sql.rstrip("\n"))

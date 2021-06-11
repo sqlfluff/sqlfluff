@@ -1,6 +1,8 @@
 """The Test file for the linter class."""
 
 import pytest
+import logging
+import os
 from typing import List
 from unittest.mock import patch
 
@@ -10,8 +12,8 @@ from sqlfluff.core.errors import SQLBaseError, SQLLintError, SQLParseError
 from sqlfluff.cli.formatters import CallbackFormatter
 from sqlfluff.core.linter import LintingResult, NoQaDirective
 import sqlfluff.core.linter as linter
+from test.fixtures.dbt.templater import DBT_FLUFF_CONFIG, project_dir  # noqa: F401
 from sqlfluff.core.templaters import TemplatedFile
-from test.fixtures.dbt.templater import in_dbt_project_dir  # noqa
 
 
 class DummyLintError(SQLBaseError):
@@ -19,7 +21,7 @@ class DummyLintError(SQLBaseError):
 
     def __init__(self, line_no: int, code: str = "L001"):
         self._code = code
-        super(DummyLintError, self).__init__(line_no=line_no)
+        super().__init__(line_no=line_no)
 
 
 def normalise_paths(paths):
@@ -130,7 +132,7 @@ def test__linter__path_from_paths__ignore(path):
 )
 def test__linter__lint_string_vs_file(path):
     """Test the linter finds the same things on strings and files."""
-    with open(path, "r") as f:
+    with open(path) as f:
         sql_str = f.read()
     lntr = Linter()
     assert (
@@ -186,8 +188,8 @@ def test__linter__linting_result_check_tuples_by_path(by_path, result_type):
     isinstance(check_tuples, result_type)
 
 
-@pytest.mark.parametrize("parallel", [1, 2])
-def test__linter__linting_result_get_violations(parallel):
+@pytest.mark.parametrize("processes", [1, 2])
+def test__linter__linting_result_get_violations(processes):
     """Test that we can get violations from a LintingResult."""
     lntr = Linter()
     result = lntr.lint_paths(
@@ -195,7 +197,7 @@ def test__linter__linting_result_get_violations(parallel):
             "test/fixtures/linter/comma_errors.sql",
             "test/fixtures/linter/whitespace_errors.sql",
         ],
-        parallel=parallel,
+        processes=processes,
     )
 
     all([type(v) == SQLLintError for v in result.get_violations()])
@@ -234,7 +236,7 @@ def test__linter__linting_parallel_thread(force_error, monkeypatch):
     lntr = Linter(formatter=CallbackFormatter(callback=lambda m: None, verbosity=0))
     result = lntr.lint_paths(
         ("test/fixtures/linter/comma_errors.sql",),
-        parallel=2,
+        processes=2,
     )
 
     all([type(v) == SQLLintError for v in result.get_violations()])
@@ -247,7 +249,7 @@ def test_lint_path_parallel_wrapper_exception(patched_lint):
     Test on MultiThread runner because otherwise we have pickling issues.
     """
     patched_lint.side_effect = ValueError("Something unexpected happened")
-    for result in runner.MultiThreadRunner(Linter(), FluffConfig(), parallel=1).run(
+    for result in runner.MultiThreadRunner(Linter(), FluffConfig(), processes=1).run(
         ["test/fixtures/linter/passing.sql"], fix=False
     ):
         assert isinstance(result, runner.DelayedException)
@@ -565,16 +567,18 @@ def test_linter_noqa_with_templating():
 
 
 @pytest.mark.dbt
-def test__linter__skip_dbt_model_disabled(in_dbt_project_dir):  # noqa
+def test__linter__skip_dbt_model_disabled(project_dir):  # noqa
     """Test that the linter skips disabled dbt models."""
-    conf = FluffConfig(configs={"core": {"templater": "dbt"}})
+    conf = FluffConfig(configs=DBT_FLUFF_CONFIG)
     lntr = Linter(config=conf)
-    linted_path = lntr.lint_path(path="models/my_new_project/disabled_model.sql")
+    model_file_path = os.path.join(
+        project_dir, "models/my_new_project/disabled_model.sql"
+    )
+    linted_path = lntr.lint_path(path=model_file_path)
     # Check that the file is still there
     assert len(linted_path.files) == 1
     linted_file = linted_path.files[0]
-    # Make sure it appears as expected.
-    assert linted_file.path == "models/my_new_project/disabled_model.sql"
+    assert linted_file.path == model_file_path
     assert not linted_file.templated_file
     assert not linted_file.tree
 
@@ -585,3 +589,21 @@ def test_delayed_exception():
     de = runner.DelayedException(ve)
     with pytest.raises(ValueError):
         de.reraise()
+
+
+def test__attempt_to_change_templater_warning(caplog):
+    """Test warning if user tries to change templater in .sqlfluff file in subdirectory."""
+    initial_config = FluffConfig(configs={"core": {"templater": "jinja"}})
+    lntr = Linter(config=initial_config)
+    updated_config = FluffConfig(configs={"core": {"templater": "dbt"}})
+    logger = logging.getLogger("sqlfluff")
+    original_propagate_value = logger.propagate
+    try:
+        logger.propagate = True
+        with caplog.at_level(logging.WARNING, logger="sqlfluff.linter"):
+            lntr.render_string(
+                in_str="select * from table", fname="test.sql", config=updated_config
+            )
+        assert "Attempt to set templater to " in caplog.text
+    finally:
+        logger.propagate = original_propagate_value
