@@ -7,19 +7,14 @@ file:
           wildcard_expression:
             wildcard_identifier:
               star: '*'
-      into_clause:
-      - keyword: into
-      - keyword: outfile
-      - literal: "'a'"
-      - keyword: lines
-      - keyword: starting
-      - keyword: by
-      - literal: "'\\n'"
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: table
+      unparsable:
+      - raw: into
+      - raw: outfile
+      - raw: "'a'"
+      - raw: lines
+      - raw: starting
+      - raw: by
+      - raw: "'\\n'"
+      - raw: from
+      - raw: table
   statement_terminator: ;

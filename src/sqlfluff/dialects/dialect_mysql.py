@@ -606,44 +606,19 @@ class IntoClauseSegment(BaseSegment):
 # to have the IntoClause be before FromClauseSegment, but it doesn't work to add the `before` clause
 # looking for suggestions on how to do this differently, if possible
 @mysql_dialect.segment(replace=True)
-class UnorderedSelectStatementSegment(BaseSegment):
-    """A `SELECT` statement without any ORDER clauses or later.
+class UnorderedSelectStatementSegment(ansi_dialect.get_segment("UnorderedSelectStatementSegment")):  # type: ignore
+    """Overriding the UnorderedSelectStatementSegment to add additional segments for mysql dialect."""
 
-    This is designed for use in the context of set operations,
-    for other use cases, we should use the main
-    SelectStatementSegment.
-    """
-
-    type = "select_statement"
-    # match grammar. This one makes sense in the context of knowing that it's
-    # definitely a statement, we just don't know what type yet.
-    match_grammar = StartsWith(
-        # In mysql, the select clause may include an INTO statement
-        # to assign values from columns/functions to corresponding
-        # local or session variables
-        Ref("SelectClauseSegment"),
-        terminator=OneOf(
-            Ref("SetOperatorSegment"),
-            Ref("WithNoSchemaBindingClauseSegment"),
-            Ref("OrderByClauseSegment"),
-            Ref("LimitClauseSegment"),
-            Ref("NamedWindowSegment"),
+    parse_grammar = (
+        ansi_dialect.get_segment("UnorderedSelectStatementSegment").parse_grammar.copy(
+            insert=[Ref("IntoClauseSegment", optional=True)],
+            before=Ref("FromClauseSegment", optional=True),
         ),
-        enforce_whitespace_preceeding_terminator=True,
     )
 
-    parse_grammar = Sequence(
-        Ref("SelectClauseSegment"),
-        # Dedent for the indent in the select clause.
-        # It's here so that it can come AFTER any whitespace.
-        Dedent,
-        Ref("IntoClauseSegment", optional=True),
-        Ref("FromClauseSegment", optional=True),
-        Ref("WhereClauseSegment", optional=True),
-        Ref("GroupByClauseSegment", optional=True),
-        Ref("HavingClauseSegment", optional=True),
-        Ref("ForClauseSegment", optional=True),
-    )
+    parse_grammar = ansi_dialect.get_segment(
+        "UnorderedSelectStatementSegment"
+    ).parse_grammar.copy(insert=[Ref("ForClauseSegment", optional=True)])
 
 
 # I am unclear why I have to override this segement, but if I don't then new segments won't parse

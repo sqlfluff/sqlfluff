@@ -26,17 +26,17 @@ file:
                 column_reference:
                   identifier: test5
               end_bracket: )
-      into_clause:
+      unparsable:
       - keyword: into
-      - variable: '@test1'
+      - raw: '@test1'
       - comma: ','
-      - variable: '@test2'
+      - raw: '@test2'
       - comma: ','
-      - variable: _test3
+      - raw: _test3
       - comma: ','
-      - variable: '@test4'
+      - raw: '@test4'
       - comma: ','
-      - variable: '@test5'
-      - variable: from
-      - variable: table
+      - raw: '@test5'
+      - raw: from
+      - raw: table
   statement_terminator: ;

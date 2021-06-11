@@ -5,9 +5,9 @@ file:
         keyword: select
         select_clause_element:
           literal: '1'
-      into_clause:
+      unparsable:
       - keyword: into
-      - variable: '@dumpfile'
-      - variable: from
-      - variable: table
+      - raw: '@dumpfile'
+      - raw: from
+      - raw: table
   statement_terminator: ;
