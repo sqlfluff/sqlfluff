@@ -7,10 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Added support for OVERLAPS predicate [#1091](https://github.com/sqlfluff/sqlfluff/issues/1091).
 ### Changed
 
 ### Contributors
 - [@GitHub-Username](Link to GitHub profile) ([#PR-Number](Link to PR))
+- [@dflss](https://github.com/dflss) ([#1154](https://github.com/sqlfluff/sqlfluff/pull/1153))
 
 ## [0.6.0] - 2021-06-06
 ### Added
