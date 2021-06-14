@@ -1,0 +1,27 @@
+file:
+  statement:
+    update_statement:
+      keyword: UPDATE
+      table_reference:
+        identifier: t1
+      set_clause_list:
+        keyword: set
+        set_clause:
+          column_reference:
+            identifier: a
+          comparison_operator: '='
+          literal: "'dogs-and-fishes-are-fun'"
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            identifier: a
+        - keyword: IS
+        - keyword: 'NULL'
+        - binary_operator: AND
+        - column_reference:
+            identifier: b
+        - binary_operator: ->>
+        - literal: "'wombat'"
+        - comparison_operator: '='
+        - literal: "'YingTongIddleIPo'"

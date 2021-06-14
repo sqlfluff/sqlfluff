@@ -1,0 +1,58 @@
+file:
+  statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: t1
+    - bracketed:
+      - start_bracket: (
+      - raw: a
+      - raw: UUID
+      - raw: PRIMARY
+      - raw: KEY
+      - comma: ','
+      - raw: b
+      - raw: UUID
+      - raw: NOT
+      - raw: 'NULL'
+      - raw: REFERENCES
+      - raw: t2
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            identifier: a
+          end_bracket: )
+      - comma: ','
+      - raw: c
+      - raw: numeric
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            literal: '7'
+        - comma: ','
+        - expression:
+            literal: '6'
+        - end_bracket: )
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: d
+      - raw: date
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: e
+      - raw: timestamp
+      - raw: with
+      - raw: time
+      - raw: zone
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: f
+      - raw: character
+      - raw: varying
+      - raw: NOT
+      - raw: 'NULL'
+      - end_bracket: )
+  statement_terminator: ;

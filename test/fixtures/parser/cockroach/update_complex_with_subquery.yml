@@ -1,0 +1,100 @@
+file:
+  statement:
+    update_statement:
+      keyword: UPDATE
+      table_reference:
+        identifier: t1
+      set_clause_list:
+        keyword: SET
+        set_clause:
+          column_reference:
+            identifier: a
+          comparison_operator: '='
+          function:
+            function_name:
+              function_name_identifier: SUBSTR
+            bracketed:
+            - start_bracket: (
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: REPLACE
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      function:
+                        function_name:
+                          function_name_identifier: CAST
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            function:
+                              function_name:
+                                function_name_identifier: gen_random_uuid
+                              bracketed:
+                                start_bracket: (
+                                end_bracket: )
+                          keyword: AS
+                          data_type:
+                            data_type_identifier: VARCHAR
+                            bracketed:
+                              start_bracket: (
+                              expression:
+                                literal: '32'
+                              end_bracket: )
+                          end_bracket: )
+                  - comma: ','
+                  - expression:
+                      literal: "'-'"
+                  - comma: ','
+                  - expression:
+                      literal: "''"
+                  - end_bracket: )
+            - comma: ','
+            - expression:
+                literal: '1'
+            - comma: ','
+            - expression:
+                literal: '16'
+            - end_bracket: )
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            identifier: a
+          keyword: in
+          bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    identifier: a
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        identifier: t1
+              groupby_clause:
+              - keyword: GROUP
+              - keyword: BY
+              - column_reference:
+                  identifier: a
+              having_clause:
+                keyword: HAVING
+                expression:
+                  function:
+                    function_name:
+                      function_name_identifier: SUM
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        literal: '1'
+                      end_bracket: )
+                  comparison_operator: '>'
+                  literal: '1'
+            end_bracket: )
+  statement_terminator: ;

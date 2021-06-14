@@ -1,0 +1,22 @@
+file:
+  statement:
+    update_statement:
+      keyword: UPDATE
+      table_reference:
+        identifier: t1
+      set_clause_list:
+        keyword: SET
+        set_clause:
+        - column_reference:
+            identifier: a
+        - comparison_operator: '='
+        - column_reference:
+            identifier: b
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            identifier: a
+        - keyword: IS
+        - keyword: 'NULL'
+  statement_terminator: ;

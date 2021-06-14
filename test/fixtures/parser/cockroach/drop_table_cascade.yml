@@ -1,0 +1,9 @@
+file:
+  statement:
+    drop_statement:
+    - keyword: DROP
+    - keyword: TABLE
+    - table_reference:
+        identifier: t1
+    - keyword: CASCADE
+  statement_terminator: ;

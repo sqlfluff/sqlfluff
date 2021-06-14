@@ -1,0 +1,258 @@
+file:
+  statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: IF
+    - raw: NOT
+    - raw: EXISTS
+    - raw: t1
+    - bracketed:
+      - start_bracket: (
+      - raw: a
+      - raw: UUID
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: b
+      - raw: UUID
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: c
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          expression:
+            literal: '35'
+          end_bracket: )
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: d
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          expression:
+            literal: '15'
+          end_bracket: )
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: e
+      - raw: INT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: f
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          expression:
+            literal: '255'
+          end_bracket: )
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: g
+      - raw: UUID
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: h
+      - raw: UUID
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: i
+      - raw: UUID
+      - raw: 'NULL'
+      - comma: ','
+      - raw: j
+      - raw: TIMESTAMP
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: k
+      - raw: TIMESTAMP
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: l
+      - raw: DATE
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: m
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          expression:
+            literal: '10'
+          end_bracket: )
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: n
+      - raw: DATE
+      - raw: 'NULL'
+      - comma: ','
+      - raw: o
+      - raw: INTEGER
+      - raw: 'NULL'
+      - comma: ','
+      - raw: p
+      - raw: JSONB
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: q
+      - raw: JSONB
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: r
+      - raw: JSONB
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: s
+      - raw: JSONB
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: t
+      - raw: JSONB
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: u
+      - raw: JSONB
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: CONSTRAINT
+      - raw: c1
+      - raw: PRIMARY
+      - raw: KEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            identifier: a
+          end_bracket: )
+      - comma: ','
+      - raw: CONSTRAINT
+      - raw: c2
+      - raw: UNIQUE
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            identifier: b
+        - comma: ','
+        - column_reference:
+            identifier: c
+        - comma: ','
+        - column_reference:
+            identifier: d
+        - end_bracket: )
+      - comma: ','
+      - raw: CONSTRAINT
+      - raw: c3
+      - raw: UNIQUE
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            identifier: message_id
+          end_bracket: )
+      - comma: ','
+      - raw: CONSTRAINT
+      - raw: c4
+      - raw: CHECK
+      - bracketed:
+        - start_bracket: (
+        - raw: m
+        - raw: in
+        - bracketed:
+          - start_bracket: (
+          - raw: "'HAPPY'"
+          - comma: ','
+          - raw: "'GRUMPY'"
+          - comma: ','
+          - raw: "'SLEEPY'"
+          - comma: ','
+          - raw: "'SNEEZY'"
+          - comma: ','
+          - raw: "'DOPEY'"
+          - comma: ','
+          - raw: "'BASHFUL'"
+          - comma: ','
+          - raw: "'DOC'"
+          - comma: ','
+          - raw: "'SHAKY'"
+          - end_bracket: )
+        - end_bracket: )
+      - comma: ','
+      - raw: CONSTRAINT
+      - raw: c5
+      - raw: CHECK
+      - bracketed:
+        - start_bracket: (
+        - raw: c
+        - raw: in
+        - bracketed:
+          - start_bracket: (
+          - raw: "'EENIE'"
+          - comma: ','
+          - raw: "'MEENIE'"
+          - comma: ','
+          - raw: "'MINIE'"
+          - comma: ','
+          - raw: "'MOH'"
+          - end_bracket: )
+        - end_bracket: )
+      - comma: ','
+      - raw: CONSTRAINT
+      - raw: c6
+      - raw: CHECK
+      - bracketed:
+        - start_bracket: (
+        - raw: n
+        - raw: '>='
+        - raw: now
+        - bracketed:
+            start_bracket: (
+            end_bracket: )
+        - raw: '::'
+        - raw: DATE
+        - end_bracket: )
+      - comma: ','
+      - raw: CONSTRAINT
+      - raw: c7
+      - raw: CHECK
+      - bracketed:
+        - start_bracket: (
+        - bracketed:
+          - start_bracket: (
+          - raw: n
+          - raw: IS
+          - raw: NOT
+          - raw: 'NULL'
+          - raw: AND
+          - raw: o
+          - raw: IS
+          - raw: 'NULL'
+          - end_bracket: )
+        - raw: OR
+        - bracketed:
+          - start_bracket: (
+          - raw: n
+          - raw: IS
+          - raw: 'NULL'
+          - raw: AND
+          - raw: o
+          - raw: IS
+          - raw: NOT
+          - raw: 'NULL'
+          - end_bracket: )
+        - end_bracket: )
+      - end_bracket: )
+  statement_terminator: ;

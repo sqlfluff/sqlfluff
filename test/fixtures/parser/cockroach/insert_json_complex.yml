@@ -1,0 +1,67 @@
+file:
+  statement:
+    insert_statement:
+    - keyword: insert
+    - keyword: into
+    - table_reference:
+        identifier: t2
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: a
+      - comma: ','
+      - column_reference:
+          identifier: b
+      - comma: ','
+      - column_reference:
+          identifier: '"c"'
+      - comma: ','
+      - column_reference:
+          identifier: '"d"'
+      - comma: ','
+      - column_reference:
+          identifier: e
+      - comma: ','
+      - column_reference:
+          identifier: f
+      - comma: ','
+      - column_reference:
+          identifier: g
+      - comma: ','
+      - column_reference:
+          identifier: h
+      - comma: ','
+      - column_reference:
+          identifier: i
+      - end_bracket: )
+    - values_clause:
+        keyword: values
+        bracketed:
+        - start_bracket: (
+        - literal: "'d48c8947-ee47-45ee-ab30-85331aa9af19'"
+        - comma: ','
+        - literal: "'BORN\xA7'"
+        - comma: ','
+        - literal: "'fieldmice'"
+        - comma: ','
+        - literal: "'HOONING_LOON'"
+        - comma: ','
+        - literal: "'{\"Type\": \"HOONING_LOON\",\n\"Nicknack\": \"BBBBzbpV\",\n\"\
+            Range\": \"tankful\",\n \"Stuff\": {\n \"Yeet\": {\"Metadata\": {\"yeet-key\"\
+            : \"yeet-value\"}},\n  \"YeetRole\": \"yeet\",\n   \"YeetAppName\": \"\
+            yeet-test\",\n    \"YeetIdentifier\": \"yeet-id\",\n    \"YeetGrantedPermissions\"\
+            : {\n         \"ExpiryDateTime\": \"2029-08-07T17:50:31+0000\"}},\n  \
+            \ \"YEETVersion\": \"6.a\",\n \"EntitledYeeter\": [\n {\n\"LockAndKey\"\
+            : \"10000\",\n \"Fixer\": {\"FixName\": \"fixTricks\", \"Code\": \"fixCode\"\
+            },\n \"FixNo\": \"5802f6e8-5ac1-4801-b42f-f605dbb010f1\",\n \"Name\":\
+            \ \"Yeet\",\n \"Type\": \"Yeeter\"}]}'"
+        - comma: ','
+        - literal: "'4db18d5c-a57f-45a6-8549-1a2dbc534584'"
+        - comma: ','
+        - literal: "'OPOPO'"
+        - comma: ','
+        - literal: "'2019-06-12 16:25:45.942274+05:30'"
+        - comma: ','
+        - literal: "'673cd503-2919-4828-801d-af0af8e9d4f1'"
+        - end_bracket: )
+  statement_terminator: ;

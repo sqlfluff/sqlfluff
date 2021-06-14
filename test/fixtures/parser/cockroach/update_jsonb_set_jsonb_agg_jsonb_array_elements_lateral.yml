@@ -1,0 +1,186 @@
+file:
+  statement:
+    update_statement:
+      keyword: UPDATE
+      table_reference:
+        identifier: t1
+      set_clause_list:
+        keyword: SET
+        set_clause:
+          column_reference:
+            identifier: a
+          comparison_operator: '='
+          function:
+            function_name:
+              function_name_identifier: jsonb_set
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: a
+              unparsable:
+              - comma: ','
+              - raw: "'{inbound,rules}'"
+              - raw: '::'
+              - raw: text
+              - start_square_bracket: '['
+              - end_square_bracket: ']'
+              - comma: ','
+              - raw: t2
+              - raw: .
+              - raw: c
+              end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      column_reference:
+                      - identifier: t3
+                      - dot: .
+                      - identifier: c
+                  - comma: ','
+                  - select_clause_element:
+                      function:
+                        function_name:
+                          function_name_identifier: jsonb_agg
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                            - identifier: t3
+                            - dot: .
+                            - identifier: b
+                          end_bracket: )
+                      alias_expression:
+                        keyword: as
+                        identifier: updated_laws
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          bracketed:
+                            start_bracket: (
+                            select_statement:
+                              select_clause:
+                              - keyword: SELECT
+                              - select_clause_element:
+                                  column_reference:
+                                  - identifier: p
+                                  - dot: .
+                                  - identifier: b
+                              - comma: ','
+                              - select_clause_element:
+                                  function:
+                                    function_name:
+                                      function_name_identifier: jsonb_set
+                                    bracketed:
+                                      start_bracket: (
+                                      expression:
+                                        column_reference:
+                                          identifier: rule
+                                      unparsable:
+                                      - comma: ','
+                                      - raw: "'{key}'"
+                                      - raw: '::'
+                                      - raw: text
+                                      - start_square_bracket: '['
+                                      - end_square_bracket: ']'
+                                      - comma: ','
+                                      - raw: concat
+                                      - bracketed:
+                                        - start_bracket: (
+                                        - raw: "'\"'"
+                                        - comma: ','
+                                        - raw: gen_random_uuid
+                                        - bracketed:
+                                            start_bracket: (
+                                            end_bracket: )
+                                        - raw: '::'
+                                        - raw: text
+                                        - comma: ','
+                                        - raw: "'\"'"
+                                        - end_bracket: )
+                                      - raw: '::'
+                                      - raw: jsonb
+                                      end_bracket: )
+                                  alias_expression:
+                                    keyword: AS
+                                    identifier: c
+                              from_clause:
+                              - keyword: FROM
+                              - from_expression:
+                                  from_expression_element:
+                                    table_expression:
+                                      table_reference:
+                                        identifier: t1
+                                    alias_expression:
+                                      identifier: p
+                              - comma: ','
+                              - from_expression:
+                                  from_expression_element:
+                                    table_expression:
+                                      table_reference:
+                                        identifier: lateral
+                                    alias_expression:
+                                      identifier: jsonb_array_elements
+                              - unparsable:
+                                - bracketed:
+                                  - start_bracket: (
+                                  - raw: p
+                                  - raw: .
+                                  - raw: massaction_rules
+                                  - raw: ->
+                                  - raw: "'hidebound'"
+                                  - raw: ->
+                                  - raw: "'laws'"
+                                  - end_bracket: )
+                                - raw: AS
+                                - raw: law
+                              where_clause:
+                                keyword: WHERE
+                                expression:
+                                - column_reference:
+                                  - identifier: p
+                                  - dot: .
+                                  - identifier: massaction_laws
+                                - binary_operator: ->
+                                - literal: "'hidebound'"
+                                - binary_operator: ->>
+                                - literal: "'laws'"
+                                - keyword: IS
+                                - keyword: NOT
+                                - keyword: 'NULL'
+                            end_bracket: )
+                        alias_expression:
+                          identifier: t3
+                  groupby_clause:
+                  - keyword: GROUP
+                  - keyword: BY
+                  - column_reference:
+                    - identifier: t3
+                    - dot: .
+                    - identifier: c
+                end_bracket: )
+            alias_expression:
+              identifier: t2
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: b
+        - comparison_operator: '='
+        - column_reference:
+          - identifier: t2
+          - dot: .
+          - identifier: a
+  statement_terminator: ;

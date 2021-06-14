@@ -1,0 +1,259 @@
+file:
+  statement:
+    insert_statement:
+    - keyword: insert
+    - keyword: into
+    - table_reference:
+        identifier: t1
+    - values_clause:
+      - keyword: values
+      - bracketed:
+          start_bracket: (
+          literal: "'MARS.POOT.AAAA'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'MARS.POOT.AAAB'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'MARS.POOT.AAAC'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'MARS.POOT.AAAD'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.POOT.AAAE'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.POOT.AAAF'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'MOON.POOT.AAAG'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'MOON.DOGS.AAAH'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.POOT.AAAI'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.POOT.AAAJ'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.DOGS.AAAK'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'MOON.POOT.AAAL'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'MOON.DOGS.AAAM'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.DOGS.AAAN'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.POOT.AAAO'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.DOGS.AAAP'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.POOT.AAAQ'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.DOGS.AAAR'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.POOT.AAAS'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.DOGS.AAAT'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.DOGS.AAAU'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.DOGS.AAAV'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.DOGS.AAAX'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.POOT.AAAY'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.POOT.AAAZ'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.POOT.AABA'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.DOGS.AACA'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.POOT.AADA'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.POOT.AAEA'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.DOGS.AAFA'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.DOGS.AAGA'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.POOT.AAHA'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.DOGS.AAIA'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.POOT.AAJA'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.POOT.AAKA'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.DOGS.AALA'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'MARS.POOT.AAMA'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'MARS.POOT.AANA'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.DOGS.AAOA'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.DOGS.AAPA'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.DOGS.AAQA'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.DOGS.AARA'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.DOGS.AASA'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.DOGS.AATA'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.DOGS.AAUA'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.DOGS.AAVA'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.DOGS.AAWA'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.DOGS.AAXA'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'MARS.POOT.AAYA'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          literal: "'GAIA.POOT.ABBA'"
+          end_bracket: )
+  statement_terminator: ;

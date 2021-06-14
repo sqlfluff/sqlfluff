@@ -1,0 +1,20 @@
+file:
+  statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: t1
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        identifier: c
+        data_type:
+          data_type_identifier: CHARACTER
+    unparsable:
+      raw: VARYING
+      bracketed:
+        start_bracket: (
+        raw: '40'
+        end_bracket: )
+  statement_terminator: ;

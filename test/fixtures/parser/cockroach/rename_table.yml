@@ -1,0 +1,12 @@
+file:
+  statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: t1
+    - keyword: RENAME
+    - keyword: TO
+    - table_reference:
+        identifier: t2
+  statement_terminator: ;

@@ -1,0 +1,96 @@
+file:
+  statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: IF
+    - raw: NOT
+    - raw: EXISTS
+    - raw: t1
+    - bracketed:
+      - start_bracket: (
+      - raw: a
+      - raw: UUID
+      - raw: NOT
+      - raw: 'NULL'
+      - raw: DEFAULT
+      - raw: gen_random_uuid
+      - bracketed:
+          start_bracket: (
+          end_bracket: )
+      - comma: ','
+      - raw: b
+      - raw: UUID
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: c
+      - raw: UUID
+      - comma: ','
+      - raw: d
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          raw: '8'
+          end_bracket: )
+      - comma: ','
+      - raw: e
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          raw: '10'
+          end_bracket: )
+      - comma: ','
+      - raw: f
+      - raw: NUMERIC
+      - bracketed:
+        - start_bracket: (
+        - raw: '38'
+        - comma: ','
+        - raw: '3'
+        - end_bracket: )
+      - comma: ','
+      - raw: g
+      - raw: TIMESTAMP
+      - raw: WITH
+      - raw: TIME
+      - raw: ZONE
+      - comma: ','
+      - raw: h
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          raw: '1000'
+          end_bracket: )
+      - comma: ','
+      - raw: i
+      - raw: NUMERIC
+      - bracketed:
+        - start_bracket: (
+        - raw: '38'
+        - comma: ','
+        - raw: '3'
+        - end_bracket: )
+      - comma: ','
+      - raw: j
+      - raw: NUMERIC
+      - bracketed:
+        - start_bracket: (
+        - raw: '38'
+        - comma: ','
+        - raw: '3'
+        - end_bracket: )
+      - comma: ','
+      - raw: k
+      - raw: TIMESTAMP
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: l
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          raw: '8'
+          end_bracket: )
+      - end_bracket: )
+  statement_terminator: ;

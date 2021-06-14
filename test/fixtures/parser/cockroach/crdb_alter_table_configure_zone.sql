@@ -1,0 +1,1 @@
+ALTER TABLE t1 CONFIGURE ZONE USING gc.ttlseconds = 1800;

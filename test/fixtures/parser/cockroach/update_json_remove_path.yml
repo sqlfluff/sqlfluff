@@ -1,0 +1,54 @@
+file:
+  statement:
+    update_statement:
+      keyword: UPDATE
+      table_reference:
+        identifier: t1
+      set_clause_list:
+        keyword: SET
+        set_clause:
+          column_reference:
+            identifier: a
+          comparison_operator: '='
+          function:
+            function_name:
+              function_name_identifier: json_remove_path
+            bracketed:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  identifier: a
+            - comma: ','
+            - expression:
+                literal: "'{nata,pastryLimits,0,pastryName}'"
+                cast_expression:
+                  casting_operator: '::'
+                  data_type:
+                    data_type_identifier: string
+            - expression:
+                array_literal:
+                  start_square_bracket: '['
+                  end_square_bracket: ']'
+            - end_bracket: )
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            identifier: a
+        - binary_operator: ->
+        - literal: "'nata'"
+        - binary_operator: ->
+        - literal: "'pastryLimits'"
+        - binary_operator: ->
+        - literal: '0'
+        - binary_operator: ->>
+        - literal: "'pastryName'"
+        - keyword: NOT
+        - keyword: IN
+        - bracketed:
+          - start_bracket: (
+          - literal: "'PUFF'"
+          - comma: ','
+          - literal: "'ROLL'"
+          - end_bracket: )
+  statement_terminator: ;

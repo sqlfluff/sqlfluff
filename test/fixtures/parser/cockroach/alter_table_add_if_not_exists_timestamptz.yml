@@ -1,0 +1,18 @@
+file:
+  statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: t1
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        identifier: IF
+        data_type:
+          data_type_identifier: NOT
+    unparsable:
+    - raw: EXISTS
+    - raw: a
+    - raw: timestamptz
+  statement_terminator: ;

@@ -1,0 +1,19 @@
+file:
+  statement:
+    unparsable:
+    - raw: ALTER
+    - raw: TABLE
+    - raw: t1
+    - raw: ADD
+    - raw: COLUMN
+    - raw: IF
+    - raw: NOT
+    - raw: EXISTS
+    - raw: a
+    - raw: text
+    - comma: ','
+    - raw: ADD
+    - raw: COLUMN
+    - raw: b
+    - raw: text
+  statement_terminator: ;

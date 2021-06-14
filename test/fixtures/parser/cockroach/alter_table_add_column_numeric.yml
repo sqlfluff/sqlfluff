@@ -1,0 +1,22 @@
+file:
+  statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        identifier: t1
+    - keyword: add
+    - keyword: COLUMN
+    - column_definition:
+        identifier: b
+        data_type:
+          data_type_identifier: numeric
+          bracketed:
+          - start_bracket: (
+          - expression:
+              literal: '20'
+          - comma: ','
+          - expression:
+              literal: '10'
+          - end_bracket: )
+  statement_terminator: ;

@@ -1,0 +1,89 @@
+file:
+  statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: IF
+    - raw: NOT
+    - raw: EXISTS
+    - raw: t1
+    - bracketed:
+      - start_bracket: (
+      - raw: a
+      - raw: UUID
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: b
+      - raw: TIMESTAMP
+      - raw: WITH
+      - raw: TIME
+      - raw: ZONE
+      - raw: NOT
+      - raw: 'NULL'
+      - raw: DEFAULT
+      - raw: CURRENT_TIMESTAMP
+      - comma: ','
+      - raw: c
+      - raw: INT
+      - raw: AS
+      - bracketed:
+        - start_bracket: (
+        - raw: CAST
+        - bracketed:
+          - start_bracket: (
+          - bracketed:
+            - start_bracket: (
+            - bracketed:
+                start_bracket: (
+                raw: extract
+                bracketed:
+                - start_bracket: (
+                - raw: epoch
+                - raw: from
+                - raw: b
+                - end_bracket: )
+                end_bracket: )
+            - raw: /
+            - raw: '10'
+            - end_bracket: )
+          - raw: AS
+          - raw: INT
+          - end_bracket: )
+        - raw: '%'
+        - raw: '8640'
+        - end_bracket: )
+      - raw: STORED
+      - comma: ','
+      - raw: d
+      - raw: INT4
+      - raw: NOT
+      - raw: 'NULL'
+      - raw: DEFAULT
+      - raw: CAST
+      - bracketed:
+        - start_bracket: (
+        - raw: random
+        - bracketed:
+            start_bracket: (
+            end_bracket: )
+        - raw: '*'
+        - raw: '2147483647'
+        - raw: AS
+        - raw: INT4
+        - end_bracket: )
+      - comma: ','
+      - raw: CONSTRAINT
+      - raw: c1
+      - raw: PRIMARY
+      - raw: KEY
+      - bracketed:
+        - start_bracket: (
+        - raw: a
+        - comma: ','
+        - raw: b
+        - comma: ','
+        - raw: d
+        - end_bracket: )
+      - end_bracket: )
+  statement_terminator: ;

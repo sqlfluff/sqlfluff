@@ -1,0 +1,158 @@
+file:
+  statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: t1
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        identifier: a
+        data_type:
+          data_type_identifier: VARCHAR
+          bracketed:
+            start_bracket: (
+            expression:
+              literal: '50'
+            end_bracket: )
+    - comma: ','
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        identifier: b
+        data_type:
+          data_type_identifier: VARCHAR
+          bracketed:
+            start_bracket: (
+            expression:
+              literal: '30'
+            end_bracket: )
+    - comma: ','
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        identifier: c
+        data_type:
+          data_type_identifier: VARCHAR
+          bracketed:
+            start_bracket: (
+            expression:
+              literal: '20'
+            end_bracket: )
+    - comma: ','
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        identifier: d
+        data_type:
+          data_type_identifier: VARCHAR
+          bracketed:
+            start_bracket: (
+            expression:
+              literal: '40'
+            end_bracket: )
+    - comma: ','
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        identifier: e
+        data_type:
+          data_type_identifier: UUID
+    - comma: ','
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        identifier: f
+        data_type:
+          data_type_identifier: VARCHAR
+          bracketed:
+            start_bracket: (
+            expression:
+              literal: '300'
+            end_bracket: )
+    - comma: ','
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        identifier: g
+        data_type:
+          data_type_identifier: VARCHAR
+          bracketed:
+            start_bracket: (
+            expression:
+              literal: '10'
+            end_bracket: )
+    - comma: ','
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        identifier: h
+        data_type:
+          data_type_identifier: VARCHAR
+          bracketed:
+            start_bracket: (
+            expression:
+              literal: '10'
+            end_bracket: )
+    - comma: ','
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        identifier: i
+        data_type:
+          data_type_identifier: VARCHAR
+          bracketed:
+            start_bracket: (
+            expression:
+              literal: '500'
+            end_bracket: )
+    - comma: ','
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        identifier: j
+        data_type:
+          data_type_identifier: UUID
+    - comma: ','
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        identifier: k
+        data_type:
+          data_type_identifier: UUID
+    - comma: ','
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        identifier: l
+        data_type:
+          data_type_identifier: VARCHAR
+          bracketed:
+            start_bracket: (
+            expression:
+              literal: '10'
+            end_bracket: )
+    - comma: ','
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        identifier: m
+        data_type:
+          data_type_identifier: VARCHAR
+          bracketed:
+            start_bracket: (
+            expression:
+              literal: '10'
+            end_bracket: )
+    - comma: ','
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        identifier: n
+        data_type:
+          data_type_identifier: TIMESTAMP
+    unparsable:
+    - raw: DEFAULT
+    - raw: CURRENT_TIMESTAMP
+  statement_terminator: ;

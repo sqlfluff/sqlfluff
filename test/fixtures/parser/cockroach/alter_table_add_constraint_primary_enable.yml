@@ -1,0 +1,23 @@
+file:
+  statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: t1
+    - keyword: ADD
+    - column_definition:
+        identifier: CONSTRAINT
+        data_type:
+          data_type_identifier: c1
+        column_constraint:
+        - keyword: PRIMARY
+        - keyword: KEY
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: a
+        end_bracket: )
+    unparsable:
+      raw: ENABLE
+  statement_terminator: ;

@@ -1,0 +1,23 @@
+file:
+  statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: IF
+    - parameter: EXISTS
+    - identifier: t1
+    unparsable:
+    - raw: ADD
+    - raw: COLUMN
+    - raw: IF
+    - raw: NOT
+    - raw: EXISTS
+    - raw: a
+    - raw: TIMESTAMP
+    - raw: DEFAULT
+    - raw: clock_timestamp
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+  statement_terminator: ;

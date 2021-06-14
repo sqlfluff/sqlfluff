@@ -1,0 +1,2 @@
+ALTER TABLE t1 ADD COLUMN a boolean;
+

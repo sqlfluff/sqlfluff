@@ -1,0 +1,9 @@
+file:
+  statement:
+    unparsable:
+    - raw: DROP
+    - raw: INDEX
+    - raw: t1
+    - unlexable: '@i1'
+    - raw: CASCADE
+  statement_terminator: ;

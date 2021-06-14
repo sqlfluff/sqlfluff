@@ -1,0 +1,8 @@
+file:
+  statement:
+    unparsable:
+    - raw: SET
+    - raw: sql_safe_updates
+    - raw: '='
+    - raw: 'false'
+  statement_terminator: ;

@@ -1,0 +1,11 @@
+file:
+  statement:
+    create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - schema_reference:
+        identifier: s1
+  statement_terminator: ;

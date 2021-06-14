@@ -1,0 +1,26 @@
+file:
+  statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: t1
+    - keyword: ADD
+    - column_definition:
+        identifier: CONSTRAINT
+        data_type:
+          data_type_identifier: c1
+        column_constraint:
+          keyword: UNIQUE
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: a
+      - comma: ','
+      - column_reference:
+          identifier: d
+      - comma: ','
+      - column_reference:
+          identifier: f
+      - end_bracket: )
+  statement_terminator: ;

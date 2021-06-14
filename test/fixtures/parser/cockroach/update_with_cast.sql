@@ -1,0 +1,1 @@
+UPDATE t1 SET a = CAST(b ->> 'goOnADate' AS TIMESTAMP WITH TIME ZONE);

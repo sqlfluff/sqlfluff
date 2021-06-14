@@ -1,0 +1,74 @@
+file:
+  statement:
+    unparsable:
+    - raw: ALTER
+    - raw: TABLE
+    - raw: t1
+    - raw: DROP
+    - raw: COLUMN
+    - raw: a
+    - comma: ','
+    - raw: ADD
+    - raw: COLUMN
+    - raw: b
+    - raw: BOOLEAN
+    - raw: DEFAULT
+    - raw: 'FALSE'
+    - comma: ','
+    - raw: ADD
+    - raw: COLUMN
+    - raw: c
+    - raw: TEXT
+    - comma: ','
+    - raw: ADD
+    - raw: COLUMN
+    - raw: d
+    - raw: JSONB
+    - comma: ','
+    - raw: ALTER
+    - raw: COLUMN
+    - raw: e
+    - raw: DROP
+    - raw: NOT
+    - raw: 'NULL'
+    - comma: ','
+    - raw: ADD
+    - raw: CONSTRAINT
+    - raw: c1
+    - raw: CHECK
+    - bracketed:
+      - start_bracket: (
+      - bracketed:
+        - start_bracket: (
+        - raw: d
+        - raw: IS
+        - raw: NOT
+        - raw: 'NULL'
+        - end_bracket: )
+      - raw: '!='
+      - bracketed:
+        - start_bracket: (
+        - raw: e
+        - raw: IS
+        - raw: NOT
+        - raw: 'NULL'
+        - end_bracket: )
+      - end_bracket: )
+    - comma: ','
+    - raw: ADD
+    - raw: CONSTRAINT
+    - raw: c2
+    - raw: CHECK
+    - bracketed:
+      - start_bracket: (
+      - raw: b
+      - raw: '='
+      - bracketed:
+        - start_bracket: (
+        - raw: e
+        - raw: IS
+        - raw: NOT
+        - raw: 'NULL'
+        - end_bracket: )
+      - end_bracket: )
+  statement_terminator: ;

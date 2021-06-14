@@ -1,0 +1,14 @@
+file:
+  statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        identifier: t1
+    - parameter: rename
+    - identifier: column
+    unparsable:
+    - raw: a
+    - raw: to
+    - raw: b
+  statement_terminator: ;

@@ -1,0 +1,19 @@
+file:
+  statement:
+    create_index_statement:
+    - keyword: create
+    - keyword: index
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - index_reference:
+        identifier: i1
+    - keyword: 'on'
+    - table_reference:
+        identifier: t1
+    - bracketed:
+        start_bracket: (
+        index_column_definition:
+          identifier: a
+        end_bracket: )
+  statement_terminator: ;

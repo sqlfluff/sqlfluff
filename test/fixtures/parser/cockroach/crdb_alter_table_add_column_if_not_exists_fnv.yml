@@ -1,0 +1,64 @@
+file:
+  statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: t1
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        identifier: IF
+        data_type:
+          data_type_identifier: NOT
+    unparsable:
+    - raw: EXISTS
+    - raw: x
+    - raw: int8
+    - raw: AS
+    - bracketed:
+      - start_bracket: (
+      - raw: fnv32
+      - bracketed:
+        - start_bracket: (
+        - raw: a
+        - raw: '::'
+        - raw: string
+        - comma: ','
+        - raw: b
+        - raw: '::'
+        - raw: string
+        - comma: ','
+        - raw: c
+        - raw: '::'
+        - raw: string
+        - end_bracket: )
+      - raw: '%'
+      - raw: '8'
+      - end_bracket: )
+    - raw: stored
+    - raw: CHECK
+    - bracketed:
+      - start_bracket: (
+      - raw: x
+      - raw: IN
+      - bracketed:
+        - start_bracket: (
+        - raw: '0'
+        - comma: ','
+        - raw: '1'
+        - comma: ','
+        - raw: '2'
+        - comma: ','
+        - raw: '3'
+        - comma: ','
+        - raw: '4'
+        - comma: ','
+        - raw: '5'
+        - comma: ','
+        - raw: '6'
+        - comma: ','
+        - raw: '7'
+        - end_bracket: )
+      - end_bracket: )
+  statement_terminator: ;

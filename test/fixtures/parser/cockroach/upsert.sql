@@ -1,0 +1,1 @@
+UPSERT INTO t1 (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) SELECT t2.a, t3.b, t3.c, t3.d, t3.e, t3.f, '567654', t2.h, t2.i, t2.j, t2.k, t2.l, t2.m, t3.n, t2.o FROM t2@i2 t2, t t3 WHERE t2.a = t3.a AND t2.d IS NULL AND t3.0 IS NULL AND t2.p BETWEEN 0 AND 4;

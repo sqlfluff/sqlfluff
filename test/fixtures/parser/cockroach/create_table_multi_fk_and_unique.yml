@@ -1,0 +1,90 @@
+file:
+  statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: t3
+    - bracketed:
+      - start_bracket: (
+      - raw: a
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          expression:
+            literal: '255'
+          end_bracket: )
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: b
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          expression:
+            literal: '255'
+          end_bracket: )
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: c
+      - raw: INT8
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: CONSTRAINT
+      - raw: fkmj1gk1jugvhbvivigv58p484n
+      - raw: FOREIGN
+      - raw: KEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            identifier: c
+          end_bracket: )
+      - raw: REFERENCES
+      - raw: t4
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            identifier: a
+          end_bracket: )
+      - comma: ','
+      - raw: UNIQUE
+      - raw: INDEX
+      - raw: ukihbvfdx2sepbue138k3klttaa4
+      - bracketed:
+        - start_bracket: (
+        - raw: c
+        - raw: ASC
+        - end_bracket: )
+      - comma: ','
+      - raw: CONSTRAINT
+      - raw: fkc5ckayrrihbvfdxveirrgtlwo
+      - raw: FOREIGN
+      - raw: KEY
+      - bracketed:
+        - start_bracket: (
+        - raw: a
+        - comma: ','
+        - raw: b
+        - end_bracket: )
+      - raw: REFERENCES
+      - raw: t5
+      - bracketed:
+        - start_bracket: (
+        - raw: a
+        - comma: ','
+        - raw: b
+        - end_bracket: )
+      - comma: ','
+      - raw: INDEX
+      - raw: i99
+      - bracketed:
+        - start_bracket: (
+        - raw: a
+        - raw: ASC
+        - comma: ','
+        - raw: b
+        - raw: ASC
+        - end_bracket: )
+      - end_bracket: )
+  statement_terminator: ;

@@ -1,0 +1,16 @@
+file:
+  statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        identifier: ix_i1
+    - keyword: 'ON'
+    - table_reference:
+        identifier: t1
+    - bracketed:
+        start_bracket: (
+        index_column_definition:
+          identifier: a
+        end_bracket: )
+  statement_terminator: ;

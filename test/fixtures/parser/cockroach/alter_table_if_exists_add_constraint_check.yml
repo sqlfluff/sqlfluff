@@ -1,0 +1,30 @@
+file:
+  statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: IF
+    - parameter: EXISTS
+    - identifier: t1
+    unparsable:
+    - raw: ADD
+    - raw: CONSTRAINT
+    - raw: x
+    - raw: CHECK
+    - bracketed:
+      - start_bracket: (
+      - raw: x
+      - raw: IN
+      - bracketed:
+        - start_bracket: (
+        - raw: "'BENDING'"
+        - comma: ','
+        - raw: "'OVERUSED'"
+        - comma: ','
+        - raw: "'GONE'"
+        - comma: ','
+        - raw: "'MAILED'"
+        - end_bracket: )
+      - end_bracket: )
+  statement_terminator: ;

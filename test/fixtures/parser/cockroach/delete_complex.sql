@@ -1,0 +1,12 @@
+
+delete from t1 where a ='sports-massages-topic' and b in ('MOON.POOT.ABBA','MOON.TGIF.BABA','MOON.FIST.MAMA','MOON.ACAB.DADA') and
+c in (
+'MOCKED',
+'IN_LIMBO',
+'DEFERRED_SPURNED',
+'SPURNED',
+'SPURN_MOCKED',
+'SPURN_JOURNALED',
+'SPURN_MAILED',
+'SPURN_DEFERRED',
+'SPURN_SELECTED');

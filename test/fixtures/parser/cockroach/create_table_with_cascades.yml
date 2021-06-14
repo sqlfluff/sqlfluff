@@ -1,0 +1,89 @@
+file:
+  statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: t1
+    - bracketed:
+      - start_bracket: (
+      - raw: a
+      - raw: uuid
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: b
+      - raw: uuid
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: c
+      - raw: uuid
+      - comma: ','
+      - raw: d
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          expression:
+            literal: '30'
+          end_bracket: )
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: e
+      - raw: BOOLEAN
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: f
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          expression:
+            literal: '20'
+          end_bracket: )
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: g
+      - raw: TIMESTAMP
+      - raw: DEFAULT
+      - raw: CURRENT_TIMESTAMP
+      - comma: ','
+      - raw: h
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          raw: '8'
+          end_bracket: )
+      - comma: ','
+      - raw: CONSTRAINT
+      - raw: c1
+      - raw: PRIMARY
+      - raw: KEY
+      - bracketed:
+          start_bracket: (
+          raw: a
+          end_bracket: )
+      - comma: ','
+      - raw: CONSTRAINT
+      - raw: c2
+      - raw: FOREIGN
+      - raw: KEY
+      - bracketed:
+          start_bracket: (
+          raw: b
+          end_bracket: )
+      - raw: REFERENCES
+      - raw: t3
+      - bracketed:
+          start_bracket: (
+          raw: a
+          end_bracket: )
+      - raw: 'ON'
+      - raw: DELETE
+      - raw: CASCADE
+      - raw: 'ON'
+      - raw: UPDATE
+      - raw: CASCADE
+      - end_bracket: )
+  statement_terminator: ;

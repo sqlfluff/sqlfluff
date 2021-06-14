@@ -1,0 +1,38 @@
+file:
+  statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        identifier: t2
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          identifier: a
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '14'
+              end_bracket: )
+          column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
+        comma: ','
+        table_constraint_definition:
+        - keyword: CONSTRAINT
+        - object_reference:
+            identifier: c2
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: a
+            end_bracket: )
+        end_bracket: )
+  statement_terminator: ;

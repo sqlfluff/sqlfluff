@@ -1,0 +1,20 @@
+file:
+  statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: t1
+    - parameter: ALTER
+    - identifier: COLUMN
+    unparsable:
+    - raw: a
+    - raw: SET
+    - raw: DATA
+    - raw: TYPE
+    - raw: varchar
+    - bracketed:
+        start_bracket: (
+        raw: '256'
+        end_bracket: )
+  statement_terminator: ;

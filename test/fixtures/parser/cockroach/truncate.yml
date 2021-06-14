@@ -1,0 +1,6 @@
+file:
+  statement:
+    unparsable:
+    - raw: TRUNCATE
+    - raw: a
+  statement_terminator: ;

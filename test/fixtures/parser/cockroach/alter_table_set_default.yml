@@ -1,0 +1,16 @@
+file:
+  statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: IF
+    - parameter: EXISTS
+    - identifier: t1
+    unparsable:
+    - raw: ALTER
+    - raw: a
+    - raw: SET
+    - raw: DEFAULT
+    - raw: CURRENT_TIMESTAMP
+  statement_terminator: ;

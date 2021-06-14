@@ -1,0 +1,29 @@
+file:
+  statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: IF
+    - parameter: EXISTS
+    - identifier: t1
+    unparsable:
+    - raw: ADD
+    - raw: CONSTRAINT
+    - raw: c1
+    - raw: FOREIGN
+    - raw: KEY
+    - bracketed:
+        start_bracket: (
+        raw: a
+        end_bracket: )
+    - raw: REFERENCES
+    - raw: t2
+    - bracketed:
+        start_bracket: (
+        raw: a
+        end_bracket: )
+    - raw: 'ON'
+    - raw: DELETE
+    - raw: CASCADE
+  statement_terminator: ;

@@ -1,0 +1,19 @@
+file:
+  statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        identifier: t1
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+          start_bracket: (
+          literal: "'WARZONE'"
+          end_bracket: )
+    - unparsable:
+      - raw: 'ON'
+      - raw: CONFLICT
+      - raw: DO
+      - raw: NOTHING
+  statement_terminator: ;

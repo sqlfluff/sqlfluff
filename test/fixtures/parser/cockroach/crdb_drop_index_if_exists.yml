@@ -1,0 +1,12 @@
+file:
+  statement:
+    drop_statement:
+    - keyword: DROP
+    - keyword: index
+    - keyword: IF
+    - keyword: EXISTS
+    - index_reference:
+        identifier: t1
+    unparsable:
+      unlexable: '@i1'
+  statement_terminator: ;

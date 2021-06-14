@@ -1,0 +1,16 @@
+file:
+  statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: IF
+    - parameter: EXISTS
+    - identifier: t1
+    unparsable:
+    - raw: DROP
+    - raw: CONSTRAINT
+    - raw: IF
+    - raw: EXISTS
+    - raw: c1
+  statement_terminator: ;

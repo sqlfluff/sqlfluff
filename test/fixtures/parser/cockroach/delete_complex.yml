@@ -1,0 +1,57 @@
+file:
+  statement:
+    delete_statement:
+      keyword: delete
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+      where_clause:
+        keyword: where
+        expression:
+        - column_reference:
+            identifier: a
+        - comparison_operator: '='
+        - literal: "'sports-massages-topic'"
+        - binary_operator: and
+        - column_reference:
+            identifier: b
+        - keyword: in
+        - bracketed:
+          - start_bracket: (
+          - literal: "'MOON.POOT.ABBA'"
+          - comma: ','
+          - literal: "'MOON.TGIF.BABA'"
+          - comma: ','
+          - literal: "'MOON.FIST.MAMA'"
+          - comma: ','
+          - literal: "'MOON.ACAB.DADA'"
+          - end_bracket: )
+        - binary_operator: and
+        - column_reference:
+            identifier: c
+        - keyword: in
+        - bracketed:
+          - start_bracket: (
+          - literal: "'MOCKED'"
+          - comma: ','
+          - literal: "'IN_LIMBO'"
+          - comma: ','
+          - literal: "'DEFERRED_SPURNED'"
+          - comma: ','
+          - literal: "'SPURNED'"
+          - comma: ','
+          - literal: "'SPURN_MOCKED'"
+          - comma: ','
+          - literal: "'SPURN_JOURNALED'"
+          - comma: ','
+          - literal: "'SPURN_MAILED'"
+          - comma: ','
+          - literal: "'SPURN_DEFERRED'"
+          - comma: ','
+          - literal: "'SPURN_SELECTED'"
+          - end_bracket: )
+  statement_terminator: ;

@@ -1,0 +1,111 @@
+file:
+  statement:
+    unparsable:
+    - raw: ALTER
+    - raw: TABLE
+    - raw: IF
+    - raw: EXISTS
+    - raw: t1
+    - raw: ADD
+    - raw: COLUMN
+    - raw: IF
+    - raw: NOT
+    - raw: EXISTS
+    - raw: a
+    - raw: VARCHAR
+    - bracketed:
+        start_bracket: (
+        raw: '100'
+        end_bracket: )
+    - comma: ','
+    - raw: ADD
+    - raw: COLUMN
+    - raw: IF
+    - raw: NOT
+    - raw: EXISTS
+    - raw: b
+    - raw: uuid
+    - comma: ','
+    - raw: ADD
+    - raw: COLUMN
+    - raw: IF
+    - raw: NOT
+    - raw: EXISTS
+    - raw: c
+    - raw: TIMESTAMP
+    - raw: with
+    - raw: time
+    - raw: zone
+    - comma: ','
+    - raw: ADD
+    - raw: COLUMN
+    - raw: IF
+    - raw: NOT
+    - raw: EXISTS
+    - raw: d
+    - raw: VARCHAR
+    - bracketed:
+        start_bracket: (
+        raw: '16'
+        end_bracket: )
+    - comma: ','
+    - raw: ADD
+    - raw: COLUMN
+    - raw: IF
+    - raw: NOT
+    - raw: EXISTS
+    - raw: TYPE
+    - raw: VARCHAR
+    - bracketed:
+        start_bracket: (
+        raw: '32'
+        end_bracket: )
+    - comma: ','
+    - raw: ADD
+    - raw: COLUMN
+    - raw: IF
+    - raw: NOT
+    - raw: EXISTS
+    - raw: json
+    - raw: text
+    - comma: ','
+    - raw: ADD
+    - raw: COLUMN
+    - raw: IF
+    - raw: NOT
+    - raw: EXISTS
+    - raw: e
+    - raw: VARCHAR
+    - bracketed:
+        start_bracket: (
+        raw: '16'
+        end_bracket: )
+    - comma: ','
+    - raw: ADD
+    - raw: COLUMN
+    - raw: IF
+    - raw: NOT
+    - raw: EXISTS
+    - raw: f
+    - raw: VARCHAR
+    - bracketed:
+        start_bracket: (
+        raw: '64'
+        end_bracket: )
+    - comma: ','
+    - raw: ADD
+    - raw: COLUMN
+    - raw: IF
+    - raw: NOT
+    - raw: EXISTS
+    - raw: g
+    - raw: TEXT
+    - comma: ','
+    - raw: ADD
+    - raw: COLUMN
+    - raw: IF
+    - raw: NOT
+    - raw: EXISTS
+    - raw: h
+    - raw: TEXT
+  statement_terminator: ;

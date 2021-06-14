@@ -1,0 +1,44 @@
+file:
+  statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: IF
+    - raw: NOT
+    - raw: EXISTS
+    - raw: t1
+    - bracketed:
+      - start_bracket: (
+      - raw: a
+      - raw: UUID
+      - raw: PRIMARY
+      - raw: KEY
+      - comma: ','
+      - raw: b
+      - raw: VARCHAR
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: c
+      - raw: TIMESTAMP
+      - raw: NOT
+      - raw: 'NULL'
+      - raw: DEFAULT
+      - raw: CURRENT_TIMESTAMP
+      - comma: ','
+      - raw: d
+      - raw: TIMESTAMP
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: e
+      - raw: JSONB
+      - comma: ','
+      - raw: INDEX
+      - raw: i1
+      - bracketed:
+          start_bracket: (
+          raw: d
+          end_bracket: )
+      - end_bracket: )
+  statement_terminator: ;

@@ -1,0 +1,41 @@
+file:
+  statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: IF
+    - raw: NOT
+    - raw: EXISTS
+    - raw: t1
+    - bracketed:
+      - start_bracket: (
+      - raw: a
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          expression:
+            literal: '100'
+          end_bracket: )
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: b
+      - raw: TIMESTAMP
+      - raw: WITH
+      - raw: TIME
+      - raw: ZONE
+      - raw: NOT
+      - raw: 'NULL'
+      - raw: DEFAULT
+      - raw: "'1970-01-01 00:00:01.000000+00:00'"
+      - comma: ','
+      - raw: CONSTRAINT
+      - raw: c1
+      - raw: PRIMARY
+      - raw: KEY
+      - bracketed:
+          start_bracket: (
+          raw: a
+          end_bracket: )
+      - end_bracket: )
+  statement_terminator: ;

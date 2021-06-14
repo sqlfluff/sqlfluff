@@ -1,0 +1,12 @@
+file:
+  statement:
+    unparsable:
+    - raw: COMMENT
+    - raw: 'ON'
+    - raw: COLUMN
+    - raw: t1
+    - raw: .
+    - raw: a
+    - raw: IS
+    - raw: "'Monty Python'"
+  statement_terminator: ;

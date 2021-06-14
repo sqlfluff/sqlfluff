@@ -1,0 +1,59 @@
+file:
+  statement:
+    delete_statement:
+      keyword: delete
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t2
+            alias_expression:
+              identifier: pd
+      where_clause:
+        keyword: where
+        expression:
+          keyword: exists
+          bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: select
+                select_clause_element:
+                  literal: '1'
+              from_clause:
+                keyword: from
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        identifier: t2
+              where_clause:
+                keyword: where
+                expression:
+                - column_reference:
+                    identifier: b
+                - comparison_operator: '='
+                - column_reference:
+                  - identifier: pd
+                  - dot: .
+                  - identifier: b
+                - binary_operator: and
+                - column_reference:
+                    identifier: c
+                - comparison_operator: '='
+                - column_reference:
+                  - identifier: pd
+                  - dot: .
+                  - identifier: c
+                - binary_operator: and
+                - column_reference:
+                    identifier: d
+                - comparison_operator: '!='
+                - column_reference:
+                  - identifier: pd
+                  - dot: .
+                  - identifier: d
+            end_bracket: )
+  statement_terminator: ;

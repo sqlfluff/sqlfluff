@@ -1,0 +1,26 @@
+file:
+  statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: IF
+    - parameter: EXISTS
+    - identifier: t1
+    unparsable:
+    - raw: ADD
+    - raw: COLUMN
+    - raw: IF
+    - raw: NOT
+    - raw: EXISTS
+    - raw: x
+    - raw: numeric
+    - bracketed:
+      - start_bracket: (
+      - raw: '20'
+      - comma: ','
+      - raw: '2'
+      - end_bracket: )
+    - raw: DEFAULT
+    - raw: '0'
+  statement_terminator: ;

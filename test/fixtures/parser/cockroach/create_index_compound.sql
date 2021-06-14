@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS i1  ON t1 (a,b) ;

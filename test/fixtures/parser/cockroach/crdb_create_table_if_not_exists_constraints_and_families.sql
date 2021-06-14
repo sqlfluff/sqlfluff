@@ -1,0 +1,17 @@
+CREATE TABLE IF NOT EXISTS t1 (
+    a uuid NOT NULL CONSTRAINT c1 PRIMARY KEY,
+    b uuid NOT NULL,
+    c TIMESTAMP NOT NULL,
+    d TIMESTAMP NOT NULL,
+    e JSONB NOT NULL,
+    f VARCHAR(128) NOT NULL,
+    g VARCHAR(128) NOT NULL,
+    h VARCHAR(512) NOT NULL,
+    i VARCHAR(128) NOT NULL,
+    j BIGINT NOT NULL,
+    CONSTRAINT c2 CHECK (i IN ('BENDING','BENT')),
+    FAMILY f1 (a, b, c, d, e, f, g),
+    FAMILY f2 (h, i, j)
+
+);
+

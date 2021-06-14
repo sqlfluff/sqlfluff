@@ -1,0 +1,25 @@
+file:
+  statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: t1
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+      - identifier: c
+      - data_type:
+          data_type_identifier: VARCHAR
+          bracketed:
+            start_bracket: (
+            expression:
+              literal: '36'
+            end_bracket: )
+      - column_constraint:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - column_constraint:
+          keyword: DEFAULT
+          literal: "'temp'"
+  statement_terminator: ;

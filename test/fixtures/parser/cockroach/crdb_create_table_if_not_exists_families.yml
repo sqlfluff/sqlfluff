@@ -1,0 +1,113 @@
+file:
+  statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: IF
+    - raw: NOT
+    - raw: EXISTS
+    - raw: t1
+    - bracketed:
+      - start_bracket: (
+      - raw: a
+      - raw: TEXT
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: b
+      - raw: TEXT
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: c
+      - raw: BYTEA
+      - comma: ','
+      - raw: d
+      - raw: TIMESTAMP
+      - raw: WITH
+      - raw: TIME
+      - raw: ZONE
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: e
+      - raw: BOOLEAN
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: f
+      - raw: TEXT
+      - comma: ','
+      - raw: g
+      - raw: TIMESTAMP
+      - raw: WITH
+      - raw: TIME
+      - raw: ZONE
+      - comma: ','
+      - raw: h
+      - raw: TIMESTAMP
+      - raw: WITH
+      - raw: TIME
+      - raw: ZONE
+      - comma: ','
+      - raw: i
+      - raw: INT
+      - comma: ','
+      - raw: j
+      - raw: TIMESTAMP
+      - raw: WITH
+      - raw: TIME
+      - raw: ZONE
+      - comma: ','
+      - raw: k
+      - raw: BIGINT
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: PRIMARY
+      - raw: KEY
+      - bracketed:
+        - start_bracket: (
+        - raw: a
+        - comma: ','
+        - raw: b
+        - end_bracket: )
+      - comma: ','
+      - raw: FAMILY
+      - raw: f1
+      - bracketed:
+        - start_bracket: (
+        - raw: a
+        - comma: ','
+        - raw: b
+        - comma: ','
+        - raw: c
+        - comma: ','
+        - raw: d
+        - comma: ','
+        - raw: e
+        - comma: ','
+        - raw: f
+        - comma: ','
+        - raw: g
+        - end_bracket: )
+      - comma: ','
+      - raw: FAMILY
+      - raw: f2
+      - bracketed:
+        - start_bracket: (
+        - raw: h
+        - comma: ','
+        - raw: i
+        - comma: ','
+        - raw: k
+        - end_bracket: )
+      - comma: ','
+      - raw: FAMILY
+      - raw: f3
+      - bracketed:
+          start_bracket: (
+          raw: j
+          end_bracket: )
+      - end_bracket: )
+  statement_terminator: ;

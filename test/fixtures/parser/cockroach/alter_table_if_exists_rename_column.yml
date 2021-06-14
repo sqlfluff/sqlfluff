@@ -1,0 +1,16 @@
+file:
+  statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: IF
+    - parameter: EXISTS
+    - identifier: t1
+    unparsable:
+    - raw: RENAME
+    - raw: COLUMN
+    - raw: a
+    - raw: TO
+    - raw: b
+  statement_terminator: ;

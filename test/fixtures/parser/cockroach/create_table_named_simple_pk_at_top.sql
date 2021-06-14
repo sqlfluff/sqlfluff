@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS t1
+(
+	a UUID NOT NULL CONSTRAINT "primary" PRIMARY KEY,
+	b uuid NOT NULL,
+	c text NOT NULL,
+    d TIMESTAMP NULL,
+    e TIMESTAMP NULL,
+    f text NULL
+);

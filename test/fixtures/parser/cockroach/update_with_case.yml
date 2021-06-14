@@ -1,0 +1,113 @@
+file:
+  statement:
+    update_statement:
+      unparsable:
+      - keyword: UPDATE
+      - raw: t1
+      - raw: SET
+      - raw: a
+      - raw: '='
+      - raw: CASE
+      - raw: WHEN
+      - raw: c
+      - raw: IN
+      - bracketed:
+        - start_bracket: (
+        - raw: "'Type1'"
+        - comma: ','
+        - raw: "'Type2'"
+        - comma: ','
+        - raw: "'Type3'"
+        - comma: ','
+        - raw: "'Type4'"
+        - comma: ','
+        - raw: "'Type5'"
+        - end_bracket: )
+      - raw: THEN
+      - raw: "'FREEBNORT'"
+      - raw: WHEN
+      - raw: c
+      - raw: IN
+      - bracketed:
+        - start_bracket: (
+        - raw: "'Type6'"
+        - comma: ','
+        - raw: "'Type7'"
+        - end_bracket: )
+      - raw: THEN
+      - raw: "'UMMAGUMMA'"
+      - raw: WHEN
+      - raw: c
+      - raw: IN
+      - bracketed:
+        - start_bracket: (
+        - raw: "'Type8'"
+        - comma: ','
+        - raw: "'Type9'"
+        - end_bracket: )
+      - raw: THEN
+      - raw: "'WAGAMAMA'"
+      - raw: ELSE
+      - raw: 'NULL'
+      - raw: END
+      - comma: ','
+      - raw: b
+      - raw: '='
+      - raw: CASE
+      - raw: WHEN
+      - raw: c
+      - raw: IN
+      - bracketed:
+        - start_bracket: (
+        - raw: "'Type1'"
+        - comma: ','
+        - raw: "'Type2'"
+        - end_bracket: )
+      - raw: THEN
+      - raw: "'DINGBATS'"
+      - raw: WHEN
+      - raw: c
+      - raw: IN
+      - bracketed:
+        - start_bracket: (
+        - raw: "'Type3'"
+        - comma: ','
+        - raw: "'Type4'"
+        - comma: ','
+        - raw: "'Type5'"
+        - end_bracket: )
+      - raw: THEN
+      - raw: "'HURDLES'"
+      - raw: WHEN
+      - raw: c
+      - raw: IN
+      - bracketed:
+          start_bracket: (
+          raw: "'Type6'"
+          end_bracket: )
+      - raw: THEN
+      - raw: "'DISCUS'"
+      - raw: WHEN
+      - raw: c
+      - raw: IN
+      - bracketed:
+          start_bracket: (
+          raw: "'Type7'"
+          end_bracket: )
+      - raw: THEN
+      - raw: "'BEANBAGS'"
+      - raw: WHEN
+      - raw: c
+      - raw: IN
+      - bracketed:
+        - start_bracket: (
+        - raw: "'Type8'"
+        - comma: ','
+        - raw: "'Type9'"
+        - end_bracket: )
+      - raw: THEN
+      - raw: "'BOVVERED'"
+      - raw: ELSE
+      - raw: 'NULL'
+      - raw: END
+  statement_terminator: ;

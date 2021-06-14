@@ -1,0 +1,22 @@
+file:
+  statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: t1
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        identifier: a
+        data_type:
+          data_type_identifier: varchar
+          bracketed:
+            start_bracket: (
+            expression:
+              literal: '100'
+            end_bracket: )
+        column_constraint:
+          keyword: DEFAULT
+          literal: 'NULL'
+  statement_terminator: ;

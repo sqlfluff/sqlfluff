@@ -1,0 +1,15 @@
+
+CREATE TABLE IF NOT EXISTS t1(
+    a UUID NOT NULL DEFAULT gen_random_uuid(),
+    b UUID NOT NULL,
+    c UUID,
+    d VARCHAR(8),
+    e VARCHAR(10),
+    f NUMERIC(38, 3),
+    g TIMESTAMP WITH TIME ZONE,
+    h VARCHAR(1000),
+    i NUMERIC(38, 3),
+    j NUMERIC(38, 3),
+    k TIMESTAMP NOT NULL,
+    l VARCHAR(8)
+  );

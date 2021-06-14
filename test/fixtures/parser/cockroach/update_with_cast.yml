@@ -1,0 +1,36 @@
+file:
+  statement:
+    update_statement:
+      keyword: UPDATE
+      table_reference:
+        identifier: t1
+      set_clause_list:
+        keyword: SET
+        set_clause:
+          column_reference:
+            identifier: a
+          comparison_operator: '='
+          function:
+            function_name:
+              function_name_identifier: CAST
+            bracketed:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  identifier: b
+                binary_operator: ->>
+                literal: "'goOnADate'"
+            - keyword: AS
+            - data_type:
+                data_type_identifier: TIMESTAMP
+            - expression:
+                column_reference:
+                  identifier: WITH
+            - expression:
+                column_reference:
+                  identifier: TIME
+            - expression:
+                column_reference:
+                  identifier: ZONE
+            - end_bracket: )
+  statement_terminator: ;

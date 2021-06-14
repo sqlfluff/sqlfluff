@@ -1,0 +1,8 @@
+file:
+  statement:
+    unparsable:
+    - raw: TRUNCATE
+    - raw: TABLE
+    - raw: t1
+    - raw: CASCADE
+  statement_terminator: ;

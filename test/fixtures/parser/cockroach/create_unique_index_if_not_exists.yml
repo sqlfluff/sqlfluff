@@ -1,0 +1,17 @@
+file:
+  statement:
+    unparsable:
+    - raw: CREATE
+    - raw: UNIQUE
+    - raw: INDEX
+    - raw: IF
+    - raw: NOT
+    - raw: EXISTS
+    - raw: i1
+    - raw: 'ON'
+    - raw: t1
+    - bracketed:
+        start_bracket: (
+        raw: a
+        end_bracket: )
+  statement_terminator: ;

@@ -1,0 +1,64 @@
+file:
+  statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - identifier: a
+        - data_type:
+            data_type_identifier: UUID
+        - column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - column_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              identifier: '"primary"'
+          - keyword: PRIMARY
+          - keyword: KEY
+      - comma: ','
+      - column_definition:
+          identifier: b
+          data_type:
+            data_type_identifier: uuid
+          column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+          identifier: c
+          data_type:
+            data_type_identifier: text
+          column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+          identifier: d
+          data_type:
+            data_type_identifier: TIMESTAMP
+          column_constraint:
+            keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+          identifier: e
+          data_type:
+            data_type_identifier: TIMESTAMP
+          column_constraint:
+            keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+          identifier: f
+          data_type:
+            data_type_identifier: text
+          column_constraint:
+            keyword: 'NULL'
+      - end_bracket: )
+  statement_terminator: ;

@@ -1,0 +1,26 @@
+file:
+  statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: t1
+    - keyword: ADD
+    - column_definition:
+        identifier: CONSTRAINT
+        data_type:
+          data_type_identifier: c1
+    unparsable:
+      raw: CHECK
+      bracketed:
+      - start_bracket: (
+      - raw: x
+      - raw: IN
+      - bracketed:
+        - start_bracket: (
+        - raw: "'ACTIVE'"
+        - comma: ','
+        - raw: "'COUCH POTATO'"
+        - end_bracket: )
+      - end_bracket: )
+  statement_terminator: ;

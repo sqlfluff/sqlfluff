@@ -1,0 +1,12 @@
+file:
+  statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: t1
+    - parameter: DROP
+    - identifier: COLUMN
+    unparsable:
+      raw: a
+  statement_terminator: ;

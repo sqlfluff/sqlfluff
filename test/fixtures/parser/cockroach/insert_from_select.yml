@@ -1,0 +1,75 @@
+file:
+  statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: a
+      - comma: ','
+      - column_reference:
+          identifier: b
+      - comma: ','
+      - column_reference:
+          identifier: c
+      - comma: ','
+      - column_reference:
+          identifier: d
+      - comma: ','
+      - column_reference:
+          identifier: e
+      - comma: ','
+      - column_reference:
+          identifier: f
+      - comma: ','
+      - column_reference:
+          identifier: g
+      - comma: ','
+      - column_reference:
+          identifier: h
+      - end_bracket: )
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: b
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: c
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: d
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: e
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: f
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: g
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: h
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+  statement_terminator: ;

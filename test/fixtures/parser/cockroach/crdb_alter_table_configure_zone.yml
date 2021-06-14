@@ -1,0 +1,17 @@
+file:
+  statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: t1
+    - parameter: CONFIGURE
+    - identifier: ZONE
+    unparsable:
+    - raw: USING
+    - raw: gc
+    - raw: .
+    - raw: ttlseconds
+    - raw: '='
+    - raw: '1800'
+  statement_terminator: ;

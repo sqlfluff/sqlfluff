@@ -1,0 +1,2 @@
+ALTER TABLE IF EXISTS t1
+  ADD COLUMN IF NOT EXISTS p FLOAT NOT NULL default (round((random()*1000))%100);

@@ -1,0 +1,16 @@
+file:
+  statement:
+    unparsable:
+    - raw: CREATE
+    - raw: SEQUENCE
+    - raw: IF
+    - raw: NOT
+    - raw: EXISTS
+    - raw: hibernate_sequence
+    - raw: START
+    - raw: WITH
+    - raw: '1'
+    - raw: INCREMENT
+    - raw: BY
+    - raw: '1'
+  statement_terminator: ;

@@ -1,0 +1,39 @@
+file:
+  statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: IF
+    - parameter: EXISTS
+    - identifier: t1
+    unparsable:
+    - raw: ADD
+    - raw: COLUMN
+    - raw: IF
+    - raw: NOT
+    - raw: EXISTS
+    - raw: p
+    - raw: FLOAT
+    - raw: NOT
+    - raw: 'NULL'
+    - raw: default
+    - bracketed:
+      - start_bracket: (
+      - raw: round
+      - bracketed:
+          start_bracket: (
+          bracketed:
+          - start_bracket: (
+          - raw: random
+          - bracketed:
+              start_bracket: (
+              end_bracket: )
+          - raw: '*'
+          - raw: '1000'
+          - end_bracket: )
+          end_bracket: )
+      - raw: '%'
+      - raw: '100'
+      - end_bracket: )
+  statement_terminator: ;

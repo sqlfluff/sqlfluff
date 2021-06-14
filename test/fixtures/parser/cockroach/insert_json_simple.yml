@@ -1,0 +1,51 @@
+file:
+  statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: a
+      - comma: ','
+      - column_reference:
+          identifier: b
+      - comma: ','
+      - column_reference:
+          identifier: c
+      - comma: ','
+      - column_reference:
+          identifier: d
+      - comma: ','
+      - column_reference:
+          identifier: e
+      - comma: ','
+      - column_reference:
+          identifier: f
+      - comma: ','
+      - column_reference:
+          identifier: g
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - literal: "'7f0b6403-6fd0-49de-84d8-df5d803af04e'"
+        - comma: ','
+        - literal: "'2019-10-21 12:22:11.829'"
+        - comma: ','
+        - literal: "'{\"Data\": {\"Freebnort\": {\"Name\": \"ACME Inc\", \"DreamName\"\
+            : \"UK.FOO.WingDing\", \"Idempotence\": \"588887766778646\", \"SecondaryIdempotence\"\
+            : \"0006\"}, \"ExpirationDateTime\": \"2019-11-17T07:33:34.672Z\"}}'"
+        - comma: ','
+        - literal: "'AwaitingConsensus'"
+        - comma: ','
+        - literal: "'2019-10-21 12:22:11.829'"
+        - comma: ','
+        - literal: "'v6.7.8'"
+        - comma: ','
+        - literal: 'NULL'
+        - end_bracket: )
+  statement_terminator: ;

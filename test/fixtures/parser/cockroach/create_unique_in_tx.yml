@@ -1,0 +1,35 @@
+file:
+- statement:
+    transaction_statement:
+      keyword: BEGIN
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: CREATE
+    - raw: UNIQUE
+    - raw: INDEX
+    - raw: i1
+    - raw: 'ON'
+    - raw: t1
+    - bracketed:
+        start_bracket: (
+        raw: a
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: CREATE
+    - raw: UNIQUE
+    - raw: INDEX
+    - raw: i2
+    - raw: 'ON'
+    - raw: t2
+    - bracketed:
+        start_bracket: (
+        raw: a
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+      keyword: COMMIT
+- statement_terminator: ;

@@ -1,0 +1,59 @@
+file:
+  statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: IF
+    - raw: NOT
+    - raw: EXISTS
+    - raw: s1
+    - raw: .
+    - raw: t1
+    - bracketed:
+      - start_bracket: (
+      - raw: a
+      - raw: UUID
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: b
+      - raw: VARCHAR
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: c
+      - raw: VARCHAR
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: d
+      - raw: VARCHAR
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: e
+      - raw: VARCHAR
+      - raw: NOT
+      - raw: 'NULL'
+      - comma: ','
+      - raw: f
+      - raw: VARCHAR
+      - comma: ','
+      - raw: g
+      - raw: VARCHAR
+      - comma: ','
+      - raw: h
+      - raw: TIMESTAMP
+      - raw: DEFAULT
+      - raw: CURRENT_TIMESTAMP
+      - comma: ','
+      - raw: CONSTRAINT
+      - raw: c1
+      - raw: PRIMARY
+      - raw: KEY
+      - bracketed:
+          start_bracket: (
+          raw: a
+          end_bracket: )
+      - end_bracket: )
+  statement_terminator: ;

@@ -1,0 +1,10 @@
+file:
+  statement:
+    drop_statement:
+    - keyword: DROP
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        identifier: t1
+  statement_terminator: ;
