@@ -1,0 +1,14 @@
+file:
+  statement:
+    declare_statement:
+    - keyword: DECLARE
+    - identifier: test
+    - keyword: CURSOR
+    - keyword: FOR
+    - statement:
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              literal: '1'
+  statement_terminator: ;
