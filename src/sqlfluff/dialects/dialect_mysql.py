@@ -69,10 +69,10 @@ mysql_dialect.add(
         type="literal",
         trim_chars=('"',),
     ),
-    AmpersandLiteralSegment=NamedParser(
-        "ampersand",
+    AtSignLiteralSegment=NamedParser(
+        "atsign",
         CodeSegment,
-        name="ampersand_literal",
+        name="atsign_literal",
         type="literal",
         trim_chars=("@",),
     ),
@@ -111,8 +111,8 @@ mysql_dialect.add(
     DoubleDollarSignSegment=StringParser(
         "$$", SymbolSegment, name="doubledollarsign", type="statement_terminator"
     ),
-    AmpersandSignSegment=StringParser(
-        "@", SymbolSegment, name="ampersandsign", type="user_designator"
+    AtSignSignSegment=StringParser(
+        "@", SymbolSegment, name="atsign", type="user_designator"
     ),
     OutputParameterSegment=StringParser(
         "OUT", SymbolSegment, name="inputparameter", type="parameter_direction"
@@ -160,14 +160,15 @@ mysql_dialect.replace(
     ),
 )
 
-mysql_dialect.patch_lexer_matchers(
+mysql_dialect.insert_lexer_matchers(
     [
         RegexLexer(
-            "ampersand",
+            "atsign",
             r"[@][a-zA-Z0-9_]*",
             CodeSegment,
         ),
-    ]
+    ],
+    before="code",
 )
 
 
@@ -178,11 +179,19 @@ class DeclareStatement(BaseSegment):
     mysql: https://dev.mysql.com/doc/refman/8.0/en/declare-local-variable.html
     mysql: https://dev.mysql.com/doc/refman/8.0/en/declare-handler.html
     mysql: https://dev.mysql.com/doc/refman/8.0/en/declare-condition.html
+    https://dev.mysql.com/doc/refman/8.0/en/declare-cursor.html
     """
 
     type = "declare_statement"
 
     match_grammar = OneOf(
+        Sequence(
+            "DECLARE",
+            Ref("NakedIdentifierSegment"),
+            "CURSOR",
+            "FOR",
+            Ref("StatementSegment"),
+        ),
         Sequence(
             "DECLARE",
             OneOf("CONTINUE", "EXIT", "UNDO"),
@@ -237,7 +246,6 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
         insert=[
             Ref("DelimiterStatement"),
             Ref("CreateProcedureStatementSegment"),
-            Ref("TransactionStatementSegment"),
             Ref("DeclareStatement"),
             Ref("SetAssignmentStatementSegment"),
             Ref("IfExpressionStatement"),
@@ -462,7 +470,7 @@ class DefinerSegment(BaseSegment):
         "DEFINER",
         Ref("EqualsSegment"),
         Ref("SingleIdentifierGrammar"),
-        Ref("AmpersandLiteralSegment"),
+        Ref("AtSignLiteralSegment"),
         Ref("SingleIdentifierGrammar"),
     )
 
