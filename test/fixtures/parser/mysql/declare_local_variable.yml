@@ -1,0 +1,8 @@
+file:
+  statement:
+    declare_statement:
+      keyword: DECLARE
+      variable: abc
+      data_type:
+        data_type_identifier: int
+  statement_terminator: ;

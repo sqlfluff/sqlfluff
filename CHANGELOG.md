@@ -7,17 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## Added
+### Added
+
+- Support for DECLARE statement for the mysql dialect [#1140](https://github.com/sqlfluff/sqlfluff/issues/1140))
+- Support for the IF-THEN-ELSEIF-ELSE syntax for the mysql dialect [#1140](https://github.com/sqlfluff/sqlfluff/issues/1140))
+- Support for the DEFINER syntax for the mysql dialect [#1131](https://github.com/sqlfluff/sqlfluff/issues/1131))
+
+### Changed
+
+### Contributors
+
+- [@GitHub-Username](Link to GitHub profile) ([#PR-Number](Link to PR))
+- [@silverbullettruck2001](https://github.com/silverbullettruck2001) ([#1141](https://github.com/sqlfluff/sqlfluff/pull/1141))
+
+## [0.6.0] - 2021-06-06
+
+### Added
+
 - Respect XDG base dirs on Mac OS ([#889](https://github.com/sqlfluff/sqlfluff/issues/889)).
 - Added support for additional delimiters by creating a new DelimiterSegment in the
   ANSI dialect which defaults to the semicolon, but allows it to be more intuitive
   when overriden in a specific child dialect (mysql) [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
 - Added support for the DELIMITER statement in the mysql dialect [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
 - Added support for additional delimiters by creating a new DelimiterSegment in the
-  ANSI dialect which defaults to the semicolon, but allows it to be more intuitive.
+  ANSI dialect which defaults to the semicolon, but allows it to be more intuitive
+  when overriden in a specific child dialect (mysql) [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
 - Added support for function as a default column value [#849](https://github.com/sqlfluff/sqlfluff/issues/849).
+- Add an `--include-metas` option for parse output to show the meta
+  segments in the parse tree.
+- Allow CREATE FUNCTION syntax without arguments [@bolajiwahab](https://github.com/bolajiwahab) [#1063](https://github.com/sqlfluff/sqlfluff/pull/1063).
+- Added support for the CREATE/DROP PROCEDURE statement for the mysql dialect [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
+- Added specific allowed/required syntaxes for CREATE/DROP FUNCTION within the mysql dialect [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
+- Now possible to run sqlfluff commands outside the project root when using the dbt templater.
 
 ### Changed
+
 - Renamed --parallel CLI argument to --processes to be more accurate.
 - L034 now ignores select statements which contain macros.
 - L034 now ignores select statements part of a set expression, most commonly a union.
@@ -28,24 +52,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   _longer_ invariant sections first and then dropping any shorter ones
   which then are relatively out of place.
 - Additional logging within the lexer and templater engines.
-- Add an `--include-metas` option for parse output to show the meta
-  segments in the parse tree.
 - Allow meta segments to parse within `Delimited` grammars which otherwise
   don't allow gaps. This is facilitated through an optional agrument to
   `trim_non_code_segments`.
 - Fix bug [#1079](https://github.com/sqlfluff/sqlfluff/issues/1079), addressing
   issues with L025 and L026 with BigQuery column references involving `STRUCT`.
-- Fix bug [#1080](https://github.com/sqlfluff/sqlfluff/issues/1080), add
+- [#1080](https://github.com/sqlfluff/sqlfluff/issues/1080) Add
   SET SCHEMA and DROP SCHEMA support to ANSI dialect.
-- Added support for additional delimiters by creating a new DelimiterSegment in the 
-  ANSI dialect which defaults to the semicolon, but allows it to be more intuitive 
-  when overriden in a specific child dialect (mysql) [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
 
 Contributors:
+
 - [@bolajiwahab](https://github.com/bolajiwahab) ([#1063])(https://github.com/sqlfluff/sqlfluff/pull/1063)
+- [@silverbullettruck2001](https://github.com/silverbullettruck2001) ([#1126](https://github.com/sqlfluff/sqlfluff/pull/1126)), ([#1099](https://github.com/sqlfluff/sqlfluff/pull/1099)), ([#1141](https://github.com/sqlfluff/sqlfluff/pull/1141))
 
 ## [0.6.0a2] - 2021-05-27
+
 ### Changed
+
 - Better exception handling for the simple parsing API (`sqlfluff.parse`)
   which now raises an exception which holds all potential parsing issues
   and prints nicely with more than one issue.
@@ -61,21 +84,27 @@ Contributors:
 - Update documentation links to sqlfluff-online.
 
 ## [0.6.0a1] - 2021-05-15
+
 ### Added
+
 - Lint and fix parallelism using `--parallel` CLI argument
 - Fix [1051](https://github.com/sqlfluff/sqlfluff/issues/1051), adding support
   for bitwise operators `&`, `|`, `^`, `<<`, `>>`
 
 ## [0.5.6] - 2021-05-14
+
 - Bugfix release for an issue in `L016` introduced in `0.5.4`.
 - Fix for `L016` issue where `DISTINCT` keywords were mangled during
   fixing [#1024](https://github.com/sqlfluff/sqlfluff/issues/1024).
 
 ## [0.5.5] - 2021-05-13
+
 - Bugfix release for an off-by-one error introduced in L016 as part of `0.5.4`.
 
 ## [0.5.4] - 2021-05-12
+
 ### Added
+
 - Parsing of Postgres dollar quoted literals.
 - Parsing of Postgres filter grammar.
 - Parsing of "ALTER DEFAULT PRIVILEGES" Postgres statement.
@@ -83,12 +112,15 @@ Contributors:
 - Early failing on fatal dbt templater fails.
 
 ### Changed
+
 - Big rewrite of the lexer, segments and position markers for simplicity
   and to support future parallelism work.
 - Fix to L036 which previously mangled whitespace.
 
 ## [0.5.3] - 2021-05-04
+
 ### Added
+
 - [`L009`](https://docs.sqlfluff.com/en/stable/rules.html#sqlfluff.core.rules.Rule_L009) can now be enforced when `templater = dbt`.
 - Parsing of `EXPLAIN`, `USE` statements.
 - Parsing of `ALTER TABLE x RENAME TO y` syntax.
@@ -97,9 +129,10 @@ Contributors:
 - Added rule codes to diff_cover output.
 
 ### Changed
+
 - Fix `templater = dbt` L009 bug [#861](https://github.com/sqlfluff/sqlfluff/issues/861) where:
-    - `sqlfluff lint` would incorrectly always return `L009 | Files must end with a trailing newline.`
-    - `sqlfluff fix` would remove trailing newlines when `exclude_rules = L009`.
+  - `sqlfluff lint` would incorrectly always return `L009 | Files must end with a trailing newline.`
+  - `sqlfluff fix` would remove trailing newlines when `exclude_rules = L009`.
 - Fix bug with BigQuery comparison operators.
 - Fix recursion bug with L045.
 - Fix tuple index bug with L016.
@@ -112,7 +145,9 @@ Contributors:
 - Handle disabled `dbt` models.
 
 ## [0.5.2] - 2021-04-11
+
 ### Changed
+
 - Fix false positive in L045 when CTE used in WHERE clause ([#944](https://github.com/sqlfluff/sqlfluff/issues/944))
 - Logging and readout now includes more detail and a notification of dbt compilation.
 - Fix bug in L048 which flagged adjoining commas as failures.
@@ -123,7 +158,9 @@ Contributors:
 - Parse explain statement ([#893](https://github.com/sqlfluff/sqlfluff/issues/893)).
 
 ## [0.5.1] - 2021-04-09
+
 ### Changed
+
 - Parsing improvements around optional brackets.
 - Better parsing of set operators (like `UNION`) and how they interact with
   `ORDER BY` clauses.
@@ -133,7 +170,9 @@ Contributors:
 - `SPACE` keyword now has no special meaning in the postgres dialect.
 
 ## [0.5.0] - 2021-04-05
+
 ### Added
+
 - `pascal` (PascalCase) `capitalisation_policy` option for L014 (unquoted identifiers)
 - `only_aliases` configuration option for L014 (unquoted identifiers)
 - Dialects now have more advanced dependency options to allow less repetition
@@ -144,6 +183,7 @@ Contributors:
 - Enable and Disable syntax for [ignoring violations from ranges of lines](https://docs.sqlfluff.com/en/latest/configuration.html#ignoring-line-ranges).
 
 ### Changed
+
 - Renamed the BaseCrawler class to BaseRule. This is the base class for all
   rules. This is a breaking change for any custom rules that have been added
   via plugins or by forking the SQLFluff repo.
@@ -169,10 +209,11 @@ Contributors:
   recursive method calls.
 
 ## [0.4.1] - 2021-02-25
+
 ### Added
 
 - Initial architecture for rule plugins to allow custom rules. This
-  initial release should be considered *beta* until the release of
+  initial release should be considered _beta_ until the release of
   0.5.0.
 - Add tests for dbt 0.19.0.
 - General increased parsing coverage.
@@ -194,6 +235,7 @@ Contributors:
 - Fixed bug in expression parsing leading to recursion errors.
 
 ## [0.4.0] - 2021-02-14
+
 ### Added
 
 - Public API to enable people to import `sqlfluff` as a python module
@@ -320,6 +362,7 @@ Contributors:
   of brackets between dialects. ([#325](https://github.com/sqlfluff/sqlfluff/pull/325))
 
 ### Removed
+
 - Dropped support for python 3.5. ([#482](https://github.com/sqlfluff/sqlfluff/pull/482))
 - From the CLI, the `--no-safety` option has been removed, the default
   is now that all enabled rules will be fixed. ([#583](https://github.com/sqlfluff/sqlfluff/pull/583))
@@ -447,13 +490,13 @@ Contributors:
 - Refactor of whitespace and non-code handling so that segments are
   less greedy and default to not holding whitespace on ends. This allows
   more consistent linting rule application.
-- Change config file reading to *case-sensitive* to support case
+- Change config file reading to _case-sensitive_ to support case
   sensitivity in jinja templating.
 - Non-string values (including lists) now function in the python
   and jinja templating libraries.
 - Validation of the match results of grammars has been reduced. In
   production cases the validation will still be done, but only on
-  *parse* and not on *match*.
+  _parse_ and not on _match_.
 - At low verbosities, python level logging is also reduced.
 - Some matcher rules in the parser can now be classified as _simple_
   which allows them to shortcut some of the matching routines.
@@ -509,7 +552,7 @@ Contributors:
 
 ### Added
 
-- *Meta segments* for indicating where things can be present in the parsed
+- _Meta segments_ for indicating where things can be present in the parsed
   tree. This is mostly illustrated using the `Indent` and `Dedent` segments
   used for indicating the position of theoretical indents in the structure.
   Several helper functions have been added across the codebase to handle
@@ -553,7 +596,7 @@ Contributors:
 ### Changed
 
 - Bugfix, correct missing files in `setup.py` `install_requires` section.
-- Better parsing of the *not equal* operator.
+- Better parsing of the _not equal_ operator.
 - Added more exclusions to identifier reserved words to fix cross joins.
 - At verbosity levels 2 or above, the root config is printed and then any
   diffs to that for specific files are also printed.
@@ -647,8 +690,8 @@ Contributors:
 
 - Complete rewrite of the bracket counting functions, using some centralised class methods
   on the `BaseGrammar` class to support common matching features across multiple grammars.
-  In particular this affects the `Delimited` grammar which is now *much simpler* but does
-  also require *slightly* more liberal use of terminators to match effectively.
+  In particular this affects the `Delimited` grammar which is now _much simpler_ but does
+  also require _slightly_ more liberal use of terminators to match effectively.
 - Rather than passing around multiple variables during parsing and matching, there is now
   a `ParseContext` object which contains things like the dialect and various depths. This
   simplifies the parsing and matching code significantly.
@@ -685,8 +728,8 @@ Contributors:
 
 ### Changed
 
-- *Big Rewrite - some loss in functionality might be apparent compared
-  to pre-0.1.0. Please submit any major problems as issues on github*
+- _Big Rewrite - some loss in functionality might be apparent compared
+  to pre-0.1.0. Please submit any major problems as issues on github_
 - Changed unicode handling for better escape codes in python 2.
   Thanks [@mrshu](https://github.com/mrshu)
 - BIG rewrite of the parser, completely new architecture. This introduces
@@ -713,7 +756,7 @@ Contributors:
 - Moved the main grammar into a separate dialect and renamed source and test files accordingly.
 - Moved to file-based tests for the ansi dialect to make it easier to test using the tool directly.
 - As part of file tests - expected outcomes are now encoded in yaml to make it easier to write new tests.
-- Vastly improved readability and debugging potential of the _match logging.
+- Vastly improved readability and debugging potential of the \_match logging.
 - Added support for windows line endings in the lexer.
 
 ## [0.0.7] - 2018-11-19

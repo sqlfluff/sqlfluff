@@ -1,0 +1,22 @@
+file:
+- statement:
+    declare_statement:
+    - keyword: DECLARE
+    - keyword: undo
+    - keyword: handler
+    - keyword: for
+    - keyword: sqlexception
+    - statement:
+        transaction_statement:
+          keyword: begin
+          statement:
+            select_statement:
+              select_clause:
+                keyword: select
+                select_clause_element:
+                  literal: '1'
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+      keyword: end
+- statement_terminator: ;
