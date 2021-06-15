@@ -17,8 +17,8 @@ from sqlfluff.core.parser import (
     CodeSegment,
     StringParser,
     SymbolSegment,
-    Anything,
     Delimited,
+    RegexParser,
 )
 from sqlfluff.core.dialects import load_raw_dialect
 
@@ -68,7 +68,14 @@ mysql_dialect.add(
         name="quoted_literal",
         type="literal",
         trim_chars=('"',),
-    )
+    ),
+    AtSignLiteralSegment=NamedParser(
+        "atsign",
+        CodeSegment,
+        name="atsign_literal",
+        type="literal",
+        trim_chars=("@",),
+    ),
 )
 
 
@@ -104,8 +111,8 @@ mysql_dialect.add(
     DoubleDollarSignSegment=StringParser(
         "$$", SymbolSegment, name="doubledollarsign", type="statement_terminator"
     ),
-    AmpersandSignSegment=StringParser(
-        "@", SymbolSegment, name="ampersandsign", type="user_designator"
+    AtSignSignSegment=StringParser(
+        "@", SymbolSegment, name="atsign", type="user_designator"
     ),
     OutputParameterSegment=StringParser(
         "OUT", SymbolSegment, name="inputparameter", type="parameter_direction"
@@ -129,6 +136,18 @@ mysql_dialect.add(
         ),
         Ref("DatatypeSegment"),
     ),
+    LocalVariableNameSegment=RegexParser(
+        r"`?[a-zA-Z0-9_]*`?",
+        CodeSegment,
+        name="declared_variable",
+        type="variable",
+    ),
+    SessionVariableNameSegment=RegexParser(
+        r"[@][a-zA-Z0-9_]*",
+        CodeSegment,
+        name="declared_variable",
+        type="variable",
+    ),
 )
 
 mysql_dialect.replace(
@@ -136,41 +155,86 @@ mysql_dialect.replace(
     TildeSegment=StringParser(
         "~", SymbolSegment, name="tilde", type="statement_terminator"
     ),
+    ParameterNameSegment=RegexParser(
+        r"`?[A-Za-z0-9_]*`?", CodeSegment, name="parameter", type="parameter"
+    ),
+)
+
+mysql_dialect.insert_lexer_matchers(
+    [
+        RegexLexer(
+            "atsign",
+            r"[@][a-zA-Z0-9_]*",
+            CodeSegment,
+        ),
+    ],
+    before="code",
 )
 
 
 @mysql_dialect.segment()
-class DelimiterStatement(BaseSegment):
-    """DELIMITER statement."""
+class DeclareStatement(BaseSegment):
+    """DECLARE statement.
 
-    type = "delimiter_statement"
-    match_grammar = Ref.keyword("DELIMITER")
-
-
-@mysql_dialect.segment()
-class CreateProcedureStatementSegment(BaseSegment):
-    """A `CREATE PROCEDURE` statement.
-
-    mysql: https://dev.mysql.com/doc/refman/8.0/en/create-procedure.html
+    mysql: https://dev.mysql.com/doc/refman/8.0/en/declare-local-variable.html
+    mysql: https://dev.mysql.com/doc/refman/8.0/en/declare-handler.html
+    mysql: https://dev.mysql.com/doc/refman/8.0/en/declare-condition.html
+    https://dev.mysql.com/doc/refman/8.0/en/declare-cursor.html
     """
 
-    type = "create_procedure_statement"
-    # purposefully left out DEFINER
-    # will be addressed when issue [#1131](https://github.com/sqlfluff/sqlfluff/issues/1131) is addressed
-    match_grammar = Sequence(
-        "CREATE",
-        "PROCEDURE",
-        Anything(),
-    )
+    type = "declare_statement"
 
-    parse_grammar = Sequence(
-        "CREATE",
-        "PROCEDURE",
-        Ref("FunctionNameSegment"),
-        Ref("ProcedureParameterListGrammar", optional=True),
-        Ref("CommentClauseSegment", optional=True),
-        Ref("CharacteristicStatement", optional=True),
-        Ref("FunctionDefinitionGrammar"),
+    match_grammar = OneOf(
+        Sequence(
+            "DECLARE",
+            Ref("NakedIdentifierSegment"),
+            "CURSOR",
+            "FOR",
+            Ref("StatementSegment"),
+        ),
+        Sequence(
+            "DECLARE",
+            OneOf("CONTINUE", "EXIT", "UNDO"),
+            "HANDLER",
+            "FOR",
+            OneOf(
+                "SQLEXCEPTION",
+                "SQLWARNING",
+                Sequence("NOT", "FOUND"),
+                Sequence(
+                    "SQLSTATE",
+                    Ref.keyword("VALUE", optional=True),
+                    Ref("QuotedLiteralSegment"),
+                ),
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("NumericLiteralSegment"),
+                    Ref("NakedIdentifierSegment"),
+                ),
+            ),
+            Sequence(Ref("StatementSegment")),
+        ),
+        Sequence(
+            "DECLARE",
+            Ref("NakedIdentifierSegment"),
+            "CONDITION",
+            "FOR",
+            OneOf(Ref("QuotedLiteralSegment"), Ref("NumericLiteralSegment")),
+        ),
+        Sequence(
+            "DECLARE",
+            Ref("LocalVariableNameSegment"),
+            Ref("DatatypeSegment"),
+            Sequence(
+                Ref.keyword("DEFAULT"),
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("NumericLiteralSegment"),
+                    Ref("FunctionSegment"),
+                ),
+                optional=True,
+            ),
+        ),
     )
 
 
@@ -182,7 +246,41 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
         insert=[
             Ref("DelimiterStatement"),
             Ref("CreateProcedureStatementSegment"),
+            Ref("DeclareStatement"),
+            Ref("SetAssignmentStatementSegment"),
+            Ref("IfExpressionStatement"),
+            Ref("CallStoredProcedureSegment"),
         ],
+    )
+
+
+@mysql_dialect.segment()
+class DelimiterStatement(BaseSegment):
+    """DELIMITER statement."""
+
+    type = "delimiter_statement"
+
+    match_grammar = Ref.keyword("DELIMITER")
+
+
+@mysql_dialect.segment()
+class CreateProcedureStatementSegment(BaseSegment):
+    """A `CREATE PROCEDURE` statement.
+
+    mysql: https://dev.mysql.com/doc/refman/8.0/en/create-procedure.html
+    """
+
+    type = "create_procedure_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("DefinerSegment", optional=True),
+        "PROCEDURE",
+        Ref("FunctionNameSegment"),
+        Ref("ProcedureParameterListGrammar", optional=True),
+        Ref("CommentClauseSegment", optional=True),
+        Ref("CharacteristicStatement", optional=True),
+        Ref("FunctionDefinitionGrammar"),
     )
 
 
@@ -190,10 +288,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
 class FunctionDefinitionGrammar(BaseSegment):
     """This is the body of a `CREATE FUNCTION` statement."""
 
-    match_grammar = Sequence(
-        Ref("TransactionStatementSegment"),
-        Ref("StatementSegment"),
-    )
+    match_grammar = Ref("TransactionStatementSegment")
 
 
 @mysql_dialect.segment()
@@ -201,6 +296,7 @@ class CharacteristicStatement(BaseSegment):
     """A Characteristics statement for functions/procedures."""
 
     type = "characteristic_statement"
+
     match_grammar = Sequence(
         OneOf("DETERMINISTIC", Sequence("NOT", "DETERMINISTIC")),
         Sequence("LANGUAGE", "SQL", optional=True),
@@ -226,13 +322,7 @@ class CreateFunctionStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        "FUNCTION",
-        Anything(),
-    )
-    # purposefully left out DEFINER
-    # will be addressed when issue [#1131](https://github.com/sqlfluff/sqlfluff/issues/1131) is addressed
-    parse_grammar = Sequence(
-        "CREATE",
+        Ref("DefinerSegment", optional=True),
         "FUNCTION",
         Ref("FunctionNameSegment"),
         Ref("FunctionParameterListGrammar", optional=True),
@@ -270,11 +360,146 @@ class DropStatementSegment(BaseSegment):
 class ProcedureParameterListGrammar(BaseSegment):
     """The parameters for a procedure ie. `(in/out/inout name datatype)`."""
 
-    # Function parameter list
     match_grammar = Bracketed(
         Delimited(
             Ref("ProcedureParameterGrammar"),
             delimiter=Ref("CommaSegment"),
             optional=True,
+        ),
+    )
+
+
+@mysql_dialect.segment()
+class SetAssignmentStatementSegment(BaseSegment):
+    """A `SET` statement.
+
+    mysql: https://dev.mysql.com/doc/refman/8.0/en/set-variable.html
+    """
+
+    type = "set_statement"
+
+    match_grammar = Sequence(
+        "SET",
+        OneOf(Ref("SessionVariableNameSegment"), Ref("LocalVariableNameSegment")),
+        Ref("EqualsSegment"),
+        AnyNumberOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("DoubleQuotedLiteralSegment"),
+            Ref("SessionVariableNameSegment"),
+            Ref("LocalVariableNameSegment"),
+            Ref("FunctionSegment"),
+        ),
+    )
+
+
+@mysql_dialect.segment(replace=True)
+class TransactionStatementSegment(BaseSegment):
+    """A `COMMIT`, `ROLLBACK` or `TRANSACTION` statement.
+
+    mysql: https://dev.mysql.com/doc/refman/8.0/en/commit.html
+    mysql: https://dev.mysql.com/doc/refman/8.0/en/begin-end.html
+    """
+
+    type = "transaction_statement"
+
+    match_grammar = OneOf(
+        Sequence("START", "TRANSACTION"),
+        Sequence(
+            Sequence(
+                Ref("SingleIdentifierGrammar"), Ref("ColonSegment"), optional=True
+            ),
+            Sequence(
+                "BEGIN",
+                Ref.keyword("WORK", optional=True),
+                Ref("StatementSegment"),
+            ),
+        ),
+        Sequence(
+            "LEAVE",
+            Ref("SingleIdentifierGrammar", optional=True),
+        ),
+        Sequence(
+            "COMMIT",
+            Ref.keyword("WORK", optional=True),
+            Sequence("AND", Ref.keyword("NO", optional=True), "CHAIN", optional=True),
+        ),
+        Sequence(
+            "ROLLBACK",
+            Ref.keyword("WORK", optional=True),
+        ),
+        Sequence(
+            "END",
+            Ref("SingleIdentifierGrammar", optional=True),
+        ),
+    )
+
+
+@mysql_dialect.segment()
+class IfExpressionStatement(BaseSegment):
+    """IF-THEN-ELSE-ELSEIF-END IF statement.
+
+    mysql:https://dev.mysql.com/doc/refman/8.0/en/if.html
+    """
+
+    type = "if_then_statement"
+
+    match_grammar = AnyNumberOf(
+        Sequence(
+            "IF",
+            Ref("ExpressionSegment"),
+            "THEN",
+            Ref("StatementSegment"),
+        ),
+        Sequence(
+            "ELSEIF",
+            Ref("ExpressionSegment"),
+            "THEN",
+            Ref("StatementSegment"),
+        ),
+        Sequence("ELSE", Ref("StatementSegment"), optional=True),
+    )
+
+
+@mysql_dialect.segment()
+class DefinerSegment(BaseSegment):
+    """This is the body of a `CREATE FUNCTION` statement."""
+
+    type = "definer_segment"
+
+    match_grammar = Sequence(
+        "DEFINER",
+        Ref("EqualsSegment"),
+        Ref("SingleIdentifierGrammar"),
+        Ref("AtSignLiteralSegment"),
+        Ref("SingleIdentifierGrammar"),
+    )
+
+
+@mysql_dialect.segment()
+class CallStoredProcedureSegment(BaseSegment):
+    """This is a CALL statement used to execute a stored procedure.
+
+    mysql: https://dev.mysql.com/doc/refman/8.0/en/call.html
+    """
+
+    type = "call_segment"
+
+    match_grammar = Sequence(
+        "CALL",
+        OneOf(
+            Ref("SingleIdentifierGrammar"),
+            Ref("QuotedIdentifierSegment"),
+        ),
+        Bracketed(
+            AnyNumberOf(
+                Delimited(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("NumericLiteralSegment"),
+                    Ref("DoubleQuotedLiteralSegment"),
+                    Ref("SessionVariableNameSegment"),
+                    Ref("LocalVariableNameSegment"),
+                    Ref("FunctionSegment"),
+                ),
+            ),
         ),
     )
