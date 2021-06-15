@@ -1,53 +1,53 @@
 rule: L014
 
-test_consistency_1:
+test_pass_consistent_capitalisation_1:
   pass_str: SELECT a, b
 
-test_consistency_2:
+test_pass_consistent_capitalisation_2:
   pass_str: SELECT A, B
 
-test_consistency_3:
+test_pass_consistent_capitalisation_with_null:
+  # Test that NULL is classed as a keyword and not an identifier
+  pass_str: SELECT NULL,   a
+
+test_pass_consistent_capitalisation_with_single_letter_upper:
+  # Single-letter ambiguity: Upper vs Capitalise
+  pass_str: SELECT A, Boo
+
+test_pass_consistent_capitalisation_with_single_word_snake:
+  # Single-word ambiguity: Pascal vs Capitalise
+  pass_str: SELECT Apple, Banana_split
+
+test_pass_consistent_capitalisation_with_single_word_pascal:
+  # Single-word ambiguity: Pascal vs Capitalise
+  pass_str: SELECT AppleFritter, Banana
+
+test_fail_inconsistent_capitalisation_1:
   # Test that fixes are consistent
   fail_str: SELECT a,   B
   fix_str: SELECT a,   b
 
-test_consistency_4:
+test_fail_inconsistent_capitalisation_2:
   fail_str: SELECT B,   a
   fix_str: SELECT B,   A
 
-test_consistency_5:
-  # Test that NULL is classed as a keyword and not an identifier
-  pass_str: SELECT NULL,   a
-
-test_consistency_6:
-  # Single-letter ambiguity: Upper vs Capitalise
-  pass_str: SELECT A, Boo
-
-test_consistency_7:
-  # Single-word ambiguity: Pascal vs Capitalise
-  pass_str: SELECT Apple, Banana_split
-
-test_consistency_8:
-  # Single-word ambiguity: Pascal vs Capitalise
-  pass_str: SELECT AppleFritter, Banana
-
 # PascalCase tests are based on this comment by @alanmcruickshank:
 # https://github.com/sqlfluff/sqlfluff/issues/820#issuecomment-787050507
-test_pascal_1:
+test_pass_consistent_capitalisation_policy_pascal_1:
   pass_str: SELECT PascalCase
   configs:
     rules:
       L014:
         extended_capitalisation_policy: pascal
 
-test_pascal_2:
+test_pass_consistent_capitalisation_policy_pascal_2:
   pass_str: SELECT Pascalcase
   configs:
     rules:
       L014:
         extended_capitalisation_policy: pascal
 
-test_pascal_3:
+test_pass_consistent_capitalisation_policy_pascal_3:
   fail_str: SELECT pascalCase
   fix_str: SELECT Pascalcase
   configs:
@@ -55,28 +55,28 @@ test_pascal_3:
       L014:
         extended_capitalisation_policy: pascal
 
-test_pascal_4:
+test_pass_consistent_capitalisation_policy_pascal_4:
   pass_str: SELECT PasCalCaSe 
   configs:
     rules:
       L014:
         extended_capitalisation_policy: pascal
 
-test_pascal_5:
+test_pass_consistent_capitalisation_policy_pascal_5:
   pass_str: SELECT PAscalcase 
   configs:
     rules:
       L014:
         extended_capitalisation_policy: pascal
 
-test_pascal_6:
+test_pass_consistent_capitalisation_policy_pascal_6:
   pass_str: SELECT PASCALCASE 
   configs:
     rules:
       L014:
         extended_capitalisation_policy: pascal
 
-test_pascal_7:
+test_fail_inconsistent_capitalisation_policy_pascal_1:
   fail_str: SELECT pascalcase
   fix_str: SELECT Pascalcase
   configs:
@@ -84,7 +84,7 @@ test_pascal_7:
       L014:
         extended_capitalisation_policy: pascal
 
-test_pascal_8:
+test_fail_inconsistent_capitalisation_policy_pascal_2:
   fail_str: SELECT pascal_case
   fix_str: SELECT PascalCase
   configs:
@@ -92,7 +92,7 @@ test_pascal_8:
       L014:
         extended_capitalisation_policy: pascal
 
-test_pascal_9:
+test_fail_inconsistent_capitalisation_policy_pascal_3:
   fail_str: SELECT PASCAL_CASE
   fix_str: SELECT PascalCase
   configs:
@@ -100,7 +100,7 @@ test_pascal_9:
       L014:
         extended_capitalisation_policy: pascal
 
-test_pascal_10:
+test_fail_inconsistent_capitalisation_policy_pascal_4:
   fail_str: SELECT PasCalCase
   fix_str: SELECT pas_cal_case
   configs:
@@ -108,7 +108,7 @@ test_pascal_10:
       L014:
         extended_capitalisation_policy: lower
 
-test_pascal_11:
+test_fail_consistent_capitalisation_policy_pascal_5:
   fail_str: SELECT PascalCaseNAME
   fix_str: SELECT PASCAL_CASE_NAME
   configs:
@@ -116,26 +116,26 @@ test_pascal_11:
       L014:
         extended_capitalisation_policy: upper
 
-test_pascal_12:
+test_fail_inconsistent_capitalisation_1:
   # Pascal vs Capitalise
   fail_str: SELECT AppleFritter, Banana_split
   fix_str: SELECT AppleFritter, BananaSplit
 
-test_only_aliases_1:
+test_pass_policy_unquoted_identifiers_aliases_1:
   pass_str: SELECT a,   B
   configs:
     rules:
       L014:
         unquoted_identifiers_policy: aliases
 
-test_only_aliases_2:
+test_pass_policy_unquoted_identifiers_aliases_2:
   pass_str: SELECT B,   a
   configs:
     rules:
       L014:
         unquoted_identifiers_policy: aliases
 
-test_only_aliases_3:
+test_pass_policy_unquoted_identifiers_aliases_3:
   pass_str: SELECT PASCAL_CASE
   configs:
     rules:
@@ -143,14 +143,14 @@ test_only_aliases_3:
         extended_capitalisation_policy: pascal
         unquoted_identifiers_policy: aliases
 
-test_only_aliases_4:
+test_pass_policy_unquoted_identifiers_aliases_4:
   pass_str: SELECT UPPER_CASE AS low_case, PascalCase AS low_case
   configs:
     rules:
       L014:
         unquoted_identifiers_policy: aliases
 
-test_only_aliases_5:
+test_policy_unquoted_identifiers_aliases_5:
   fail_str: SELECT UPPER_CASE AS PascalCase, PascalCase AS lower_case
   fix_str: SELECT UPPER_CASE AS PascalCase, PascalCase AS LowerCase
   configs:
@@ -158,7 +158,7 @@ test_only_aliases_5:
       L014:
         unquoted_identifiers_policy: aliases
 
-test_only_aliases_6:
+test_policy_unquoted_identifiers_aliases_6:
   fail_str: SELECT UPPER_CASE AS PascalCase, PascalCase AS lower_case
   fix_str: SELECT UPPER_CASE AS PASCAL_CASE, PascalCase AS LOWER_CASE
   configs:
@@ -167,7 +167,7 @@ test_only_aliases_6:
         extended_capitalisation_policy: upper
         unquoted_identifiers_policy: aliases
 
-test_only_aliases_7:
+test_policy_unquoted_identifiers_aliases_7:
   fail_str: SELECT UPPER_CASE AS low_case, PascalCase AS low_case FROM UPPER_CASE AS UPPER_CASE
   fix_str: SELECT UPPER_CASE AS low_case, PascalCase AS low_case FROM UPPER_CASE AS upper_case
   configs:
@@ -175,7 +175,7 @@ test_only_aliases_7:
       L014:
         unquoted_identifiers_policy: aliases
 
-test_only_aliases_8:
+test_policy_unquoted_identifiers_aliases_8:
   fail_str: SELECT UPPER_CASE AS PascalCase, PascalCase AS lower_case FROM lower_case AS lower_case
   fix_str: SELECT UPPER_CASE AS PascalCase, PascalCase AS LowerCase FROM lower_case AS LowerCase
   configs:
@@ -183,14 +183,14 @@ test_only_aliases_8:
       L014:
         unquoted_identifiers_policy: aliases
 
-test_only_aliases_9:
+test_policy_unquoted_identifiers_column_aliases_1:
   pass_str: SELECT UPPER_CASE AS low_case, PascalCase AS low_case FROM UPPER_CASE AS UPPER_CASE
   configs:
     rules:
       L014:
         unquoted_identifiers_policy: column_aliases
 
-test_only_aliases_10:
+test_policy_unquoted_identifiers_aliases_2:
   fail_str: SELECT UPPER_CASE AS PascalCase, PascalCase AS lower_case FROM lower_case AS lower_case
   fix_str: SELECT UPPER_CASE AS PascalCase, PascalCase AS LowerCase FROM lower_case AS lower_case
   configs:
