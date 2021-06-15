@@ -369,7 +369,9 @@ ansi_dialect.add(
     ),
     # hookpoint for other dialects
     # e.g. EXASOL str to date cast with DATE '2021-01-01'
-    DateTimeLiteralGrammar=Nothing(),
+    DateTimeLiteralGrammar=Sequence(
+        OneOf("DATE", "TIME", "TIMESTAMP", "INTERVAL"), Ref("QuotedLiteralSegment")
+    ),
     LiteralGrammar=OneOf(
         Ref("QuotedLiteralSegment"),
         Ref("NumericLiteralSegment"),
@@ -423,7 +425,7 @@ ansi_dialect.add(
         Ref("WithNoSchemaBindingClauseSegment"),
     ),
     WhereClauseTerminatorGrammar=OneOf(
-        "LIMIT", "GROUP", "ORDER", "HAVING", "QUALIFY", "WINDOW"
+        "LIMIT", "GROUP", "ORDER", "HAVING", "QUALIFY", "WINDOW", "OVERLAPS"
     ),
     PrimaryKeyGrammar=Sequence("PRIMARY", "KEY"),
     # Odd syntax, but prevents eager parameters being confused for data types
@@ -1135,6 +1137,7 @@ class SelectClauseSegment(BaseSegment):
             "WHERE",
             "ORDER",
             "LIMIT",
+            "OVERLAPS",
             Ref("SetOperatorSegment"),
         ),
         enforce_whitespace_preceeding_terminator=True,
@@ -1652,6 +1655,29 @@ class LimitClauseSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class OverlapsClauseSegment(BaseSegment):
+    """An `OVERLAPS` clause like in `SELECT."""
+
+    type = "overlaps_clause"
+    match_grammar = StartsWith(
+        "OVERLAPS",
+    )
+    parse_grammar = Sequence(
+        "OVERLAPS",
+        OneOf(
+            Sequence(
+                Bracketed(
+                    Ref("DateTimeLiteralGrammar"),
+                    Ref("CommaSegment"),
+                    Ref("DateTimeLiteralGrammar"),
+                )
+            ),
+            Ref("ColumnReferenceSegment"),
+        ),
+    )
+
+
+@ansi_dialect.segment()
 class NamedWindowSegment(BaseSegment):
     """A WINDOW clause."""
 
@@ -1737,6 +1763,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
         Ref("WhereClauseSegment", optional=True),
         Ref("GroupByClauseSegment", optional=True),
         Ref("HavingClauseSegment", optional=True),
+        Ref("OverlapsClauseSegment", optional=True),
     )
 
 
