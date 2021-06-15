@@ -1,0 +1,26 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            bracketed:
+              - start_bracket: (
+              - keyword: DATE
+              - literal: "'2001-02-16'"
+              - comma: ','
+              - keyword: DATE
+              - literal: "'2001-12-21'"
+              - end_bracket: )
+      overlaps_clause:
+        keyword: OVERLAPS
+        bracketed:
+          - start_bracket: (
+          - keyword: DATE
+          - literal: "'2001-10-30'"
+          - comma: ','
+          - keyword: DATE
+          - literal: "'2002-10-30'"
+          - end_bracket: )
+  statement_terminator: ;

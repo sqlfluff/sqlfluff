@@ -1,0 +1,25 @@
+file:
+  statement:
+    call_segment:
+      keyword: CALL
+      identifier: zproc_validate_send_adminuser_otp
+      bracketed:
+      - start_bracket: (
+      - literal: "'test'"
+      - comma: ','
+      - variable: '@test1'
+      - comma: ','
+      - variable: test2
+      - comma: ','
+      - function:
+          function_name:
+            function_name_identifier: test3
+          bracketed:
+            start_bracket: (
+            expression:
+              literal: "'test'"
+            end_bracket: )
+      - comma: ','
+      - literal: '"test4"'
+      - end_bracket: )
+  statement_terminator: ;
