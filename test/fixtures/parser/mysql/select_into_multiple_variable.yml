@@ -1,0 +1,42 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          literal: '1'
+      - comma: ','
+      - select_clause_element:
+          variable: '@test2'
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: _test3
+      - comma: ','
+      - select_clause_element:
+          literal: "'test4'"
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: func
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: test5
+              end_bracket: )
+      unparsable:
+      - keyword: into
+      - raw: '@test1'
+      - comma: ','
+      - raw: '@test2'
+      - comma: ','
+      - raw: _test3
+      - comma: ','
+      - raw: '@test4'
+      - comma: ','
+      - raw: '@test5'
+      - raw: from
+      - raw: table
+  statement_terminator: ;

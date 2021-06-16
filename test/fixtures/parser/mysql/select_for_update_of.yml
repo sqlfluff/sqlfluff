@@ -1,0 +1,20 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          literal: '1'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: table
+      unparsable:
+      - keyword: FOR
+      - keyword: UPDATE
+      - raw: OF
+      - raw: test
+  statement_terminator: ;

@@ -19,6 +19,8 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     Delimited,
     RegexParser,
+    Indent,
+    StartsWith,
 )
 from sqlfluff.core.dialects import load_raw_dialect
 
@@ -37,8 +39,32 @@ mysql_dialect.patch_lexer_matchers(
 )
 
 # Reserve USE, FORCE & IGNORE
-mysql_dialect.sets("unreserved_keywords").difference_update(["FORCE", "IGNORE", "USE"])
-mysql_dialect.sets("reserved_keywords").update(["FORCE", "IGNORE", "USE"])
+mysql_dialect.sets("unreserved_keywords").difference_update(
+    [
+        "FORCE",
+        "IGNORE",
+        "USE",
+        "SQL_BUFFER_RESULT",
+        "SQL_NO_CACHE",
+        "SQL_CACHE",
+        "DUMPFILE",
+        "SKIP",
+        "LOCKED",
+    ]
+)
+mysql_dialect.sets("reserved_keywords").update(
+    [
+        "FORCE",
+        "IGNORE",
+        "USE",
+        "SQL_BUFFER_RESULT",
+        "SQL_NO_CACHE",
+        "SQL_CACHE",
+        "DUMPFILE",
+        "SKIP",
+        "LOCKED",
+    ]
+)
 
 mysql_dialect.replace(
     QuotedIdentifierSegment=NamedParser(
@@ -54,10 +80,33 @@ mysql_dialect.replace(
         ]
     ),
     PostTableExpressionGrammar=Sequence(
-        OneOf("IGNORE", "FORCE", "USE"),
-        OneOf("INDEX", "KEY"),
-        Sequence("FOR", OneOf("JOIN"), optional=True),
-        Bracketed(Ref("ObjectReferenceSegment")),
+        Ref("IndexHintClauseSegment"),
+    ),
+    FromClauseTerminatorGrammar=OneOf(
+        "WHERE",
+        "LIMIT",
+        "GROUP",
+        "ORDER",
+        "HAVING",
+        "QUALIFY",
+        "WINDOW",
+        Sequence(
+            "FOR",
+            OneOf("UPDATE", "SHARE"),
+        ),
+        Sequence("LOCK", "IN", "SHARE", "MODE"),
+        Ref("SetOperatorSegment"),
+        Ref("WithNoSchemaBindingClauseSegment"),
+    ),
+    BaseExpressionElementGrammar=OneOf(
+        Ref("LiteralGrammar"),
+        Ref("BareFunctionSegment"),
+        Ref("FunctionSegment"),
+        Ref("IntervalExpressionSegment"),
+        Ref("ColumnReferenceSegment"),
+        Ref("ExpressionSegment"),
+        Ref("SessionVariableNameSegment"),
+        Ref("LocalVariableNameSegment"),
     ),
 )
 
@@ -249,7 +298,6 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("DeclareStatement"),
             Ref("SetAssignmentStatementSegment"),
             Ref("IfExpressionStatement"),
-            Ref("CallStoredProcedureSegment"),
         ],
     )
 
@@ -475,31 +523,234 @@ class DefinerSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment()
-class CallStoredProcedureSegment(BaseSegment):
-    """This is a CALL statement used to execute a stored procedure.
+@mysql_dialect.segment(replace=True)
+class SelectClauseModifierSegment(BaseSegment):
+    """Things that come after SELECT but before the columns."""
 
-    mysql: https://dev.mysql.com/doc/refman/8.0/en/call.html
+    type = "select_clause_modifier"
+    match_grammar = Sequence(
+        OneOf("DISTINCT", "ALL", "DISTINCTROW", optional=True),
+        Ref.keyword("HIGH_PRIORITY", optional=True),
+        Ref.keyword("STRAIGHT_JOIN", optional=True),
+        Ref.keyword("SQL_SMALL_RESULT", optional=True),
+        Ref.keyword("SQL_BIG_RESULT", optional=True),
+        Ref.keyword("SQL_BUFFER_RESULT", optional=True),
+        Ref.keyword("SQL_CACHE", optional=True),
+        Ref.keyword("SQL_NO_CACHE", optional=True),
+        Ref.keyword("SQL_CALC_FOUND_ROWS", optional=True),
+        optional=True,
+    )
+
+
+@mysql_dialect.segment()
+class IntoClauseSegment(BaseSegment):
+    """This is an `INTO` clause for assigning variables in a select statement.
+
+    https://dev.mysql.com/doc/refman/5.7/en/load-data.html
+    https://dev.mysql.com/doc/refman/5.7/en/select-into.html
     """
 
-    type = "call_segment"
+    type = "into_clause"
 
     match_grammar = Sequence(
-        "CALL",
+        "INTO",
         OneOf(
-            Ref("SingleIdentifierGrammar"),
-            Ref("QuotedIdentifierSegment"),
-        ),
-        Bracketed(
-            AnyNumberOf(
-                Delimited(
-                    Ref("QuotedLiteralSegment"),
-                    Ref("NumericLiteralSegment"),
-                    Ref("DoubleQuotedLiteralSegment"),
+            Delimited(
+                AnyNumberOf(
                     Ref("SessionVariableNameSegment"),
                     Ref("LocalVariableNameSegment"),
-                    Ref("FunctionSegment"),
+                ),
+            ),
+            Sequence("DUMPFILE", Ref("QuotedLiteralSegment")),
+            Sequence(
+                "OUTFILE",
+                Ref("QuotedLiteralSegment"),
+                Sequence(
+                    "CHARACTER", "SET", Ref("NakedIdentifierSegment"), optional=True
+                ),
+                Sequence(
+                    OneOf("FIELDS", "COLUMNS"),
+                    Sequence(
+                        "TERMINATED", "BY", Ref("QuotedLiteralSegment"), optional=True
+                    ),
+                    Sequence(
+                        Ref.keyword("OPTIONALLY", optional=True),
+                        "ENCLOSED",
+                        "BY",
+                        Ref("QuotedLiteralSegment"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "ESCAPED", "BY", Ref("QuotedLiteralSegment"), optional=True
+                    ),
+                    optional=True,
+                ),
+                Sequence(
+                    "LINES",
+                    Sequence(
+                        "STARTING", "BY", Ref("QuotedLiteralSegment"), optional=True
+                    ),
+                    Sequence(
+                        "TERMINATED", "BY", Ref("QuotedLiteralSegment"), optional=True
+                    ),
+                    optional=True,
                 ),
             ),
         ),
+    )
+
+
+# I wanted to do an override and just insert the new Refs but I need
+# to have the IntoClause be before FromClauseSegment, but it doesn't work to add the `before` clause
+# looking for suggestions on how to do this differently, if possible
+@mysql_dialect.segment(replace=True)
+class UnorderedSelectStatementSegment(ansi_dialect.get_segment("UnorderedSelectStatementSegment")):  # type: ignore
+    """Overriding the UnorderedSelectStatementSegment to add additional segments for mysql dialect."""
+
+    parse_grammar = (
+        ansi_dialect.get_segment("UnorderedSelectStatementSegment").parse_grammar.copy(
+            insert=[Ref("IntoClauseSegment", optional=True)],
+            before=Ref("FromClauseSegment", optional=True),
+        ),
+    )
+
+    parse_grammar = ansi_dialect.get_segment(
+        "UnorderedSelectStatementSegment"
+    ).parse_grammar.copy(insert=[Ref("ForClauseSegment", optional=True)])
+
+
+# I am unclear why I have to override this segement, but if I don't then new segments won't parse
+# looking for suggestions on how to avoid this since it seems unnecessary
+# @mysql_dialect.segment(replace=True)
+# class SelectClauseElementSegment(BaseSegment):
+#     """An element in the targets of a select statement."""
+
+#     type = "select_clause_element"
+#     # Important to split elements before parsing, otherwise debugging is really hard.
+#     match_grammar = GreedyUntil(
+#         "INTO",
+#         "FROM",
+#         "WHERE",
+#         "ORDER",
+#         "LIMIT",
+#         Ref("CommaSegment"),
+#         Ref("SetOperatorSegment"),
+#         enforce_whitespace_preceeding_terminator=True,
+#     )
+
+#     parse_grammar = OneOf(
+#         # *, blah.*, blah.blah.*, etc.
+#         Ref("WildcardExpressionSegment"),
+#         Sequence(
+#             Ref("BaseExpressionElementGrammar"),
+#             Ref("AliasExpressionSegment", optional=True),
+#         ),
+#     )
+
+
+# I am unclear why I have to override this segement, but if I don't then new segments won't parse
+# looking for suggestions on how to avoid this since it seems unnecessary
+@mysql_dialect.segment(replace=True)
+class SelectClauseSegment(BaseSegment):
+    """A group of elements in a select target statement."""
+
+    type = "select_clause"
+    match_grammar = StartsWith(
+        Sequence("SELECT", Ref("WildcardExpressionSegment", optional=True)),
+        terminator=OneOf(
+            "INTO",
+            "FROM",
+            "WHERE",
+            "ORDER",
+            "LIMIT",
+            Ref("SetOperatorSegment"),
+        ),
+        enforce_whitespace_preceeding_terminator=True,
+    )
+
+    parse_grammar = Sequence(
+        "SELECT",
+        Ref("SelectClauseModifierSegment", optional=True),
+        Indent,
+        Delimited(
+            ansi_dialect.get_segment("SelectClauseElementSegment"),
+            allow_trailing=True,
+        ),
+        # NB: The Dedent for the indent above lives in the
+        # SelectStatementSegment so that it sits in the right
+        # place corresponding to the whitespace.
+    )
+
+
+# I am unclear why I have to override this segement, but if I don't then new segments don't parse
+# looking for suggestions on how to avoid this since it seems unnecessary
+# @mysql_dialect.segment(replace=True)
+# class SelectStatementSegment(BaseSegment):
+#     """A `SELECT` statement.
+
+#     https://dev.mysql.com/doc/refman/5.7/en/select.html
+#     """
+
+#     type = "select_statement"
+#     # match grammar. This one makes sense in the context of knowing that it's
+#     # definitely a statement, we just don't know what type yet.
+#     match_grammar = StartsWith(
+#         # NB: In bigquery, the select clause may include an EXCEPT, which
+#         # will also match the set operator, but by starting with the whole
+#         # select clause rather than just the SELECT keyword, we mitigate that
+#         # here.
+#         Ref("SelectClauseSegment"),
+#         terminator=OneOf(
+#             Ref("SetOperatorSegment"), Ref("WithNoSchemaBindingClauseSegment")
+#         ),
+#         enforce_whitespace_preceeding_terminator=True,
+#     )
+
+#     # Inherit most of the parse grammar from the original.
+#     parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(
+#         insert=[
+#             Ref("OrderByClauseSegment", optional=True),
+#             Ref("LimitClauseSegment", optional=True),
+#             Ref("NamedWindowSegment", optional=True),
+#         ]
+#     )
+
+
+@mysql_dialect.segment()
+class ForClauseSegment(BaseSegment):
+    """This is the body of a `FOR` clause."""
+
+    type = "for_clause"
+
+    match_grammar = OneOf(
+        Sequence(
+            Sequence(
+                "FOR",
+                OneOf("UPDATE", "SHARE"),
+            ),
+            Sequence("OF", Delimited(Ref("NakedIdentifierSegment")), optional=True),
+            OneOf("NOWAIT", Sequence("SKIP", "LOCKED"), optional=True),
+        ),
+        Sequence("LOCK", "IN", "SHARE", "MODE"),
+        optional=True,
+    )
+
+
+@mysql_dialect.segment()
+class IndexHintClauseSegment(BaseSegment):
+    """This is the body of a index hint clause."""
+
+    type = "index_hint_clause"
+
+    match_grammar = Sequence(
+        OneOf("USE", "IGNORE", "FORCE"),
+        OneOf("INDEX", "KEY"),
+        Sequence(
+            "FOR",
+            OneOf(
+                "JOIN", Sequence("ORDER", "BY"), Sequence("GROUP", "BY"), optional=True
+            ),
+            optional=True,
+        ),
+        Bracketed(Ref("ObjectReferenceSegment")),
     )
