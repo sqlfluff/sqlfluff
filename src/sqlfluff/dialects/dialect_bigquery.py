@@ -26,6 +26,8 @@ from sqlfluff.core.parser import (
     StringParser,
     RegexParser,
     Nothing,
+    StartsWith,
+    GreedyUntil
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -147,6 +149,18 @@ bigquery_dialect.sets("angle_bracket_pairs").update(
         ("angle", "StartAngleBracketSegment", "EndAngleBracketSegment", False),
     ]
 )
+
+@bigquery_dialect.segment(replace=True)
+class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
+    """Overriding StatementSegment to allow for additional segment parsing."""
+
+    parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
+        insert=[
+            Ref("DeclareStatementSegment"),
+            Ref("BeginStatementSegment")
+
+        ],
+    )
 
 
 @bigquery_dialect.segment(replace=True)
@@ -486,3 +500,35 @@ class TableExpressionSegment(BaseSegment):
             Ref("HyphenatedObjectReferenceSegment"),
         ]
     )
+
+@bigquery_dialect.segment()
+class DeclareStatementSegment(BaseSegment):
+    """Declaration of a variable
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/scripting#declare
+    """
+    type = "declare_segment"
+    match_grammar = StartsWith("DECLARE")
+    parse_grammar = Sequence("DECLARE",
+                             Delimited(Ref("NakedIdentifierSegment")),
+                             Ref("DatatypeIdentifierSegment"),
+                             Sequence(
+                                 "DEFAULT",
+                                 OneOf(
+                                     Ref("LiteralGrammar"),
+                                     Bracketed(Ref("SelectStatementSegment")),
+                                     Ref("BareFunctionSegment"),
+                                     Ref("FunctionSegment")
+                                 ),
+                                 optional=True
+                             ))
+
+@bigquery_dialect.segment()
+class BeginStatementSegment(BaseSegment):
+    """
+    Scripting BEGIN and END statement with embedded error handling https://cloud.google.com/bigquery/docs/reference/standard-sql/scripting#begin
+    """
+    type = "begin_statement"
+    match_grammar = StartsWith(Ref.keyword("BEGIN"), terminator="END")
+    parse_grammar = Sequence(Ref.keyword("BEGIN"), Delimited(Ref("StatementSegment"), delimiter=Ref("SemicolonSegment")))
+
+
