@@ -1,35 +1,50 @@
 file:
   statement:
-    unparsable:
-    - raw: CREATE
-    - raw: TABLE
-    - raw: IF
-    - raw: NOT
-    - raw: EXISTS
-    - raw: t1
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        identifier: t1
     - bracketed:
       - start_bracket: (
-      - raw: a
-      - raw: uuid
-      - raw: NOT
-      - raw: 'NULL'
+      - column_definition:
+          identifier: a
+          data_type:
+            data_type_identifier: uuid
+          column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
       - comma: ','
-      - raw: b
-      - raw: TIMESTAMP
-      - raw: 'NULL'
+      - column_definition:
+          identifier: b
+          data_type:
+            data_type_identifier: TIMESTAMP
+          column_constraint:
+            keyword: 'NULL'
       - comma: ','
-      - raw: c
-      - raw: int8
-      - raw: DEFAULT
-      - raw: unique_rowid
-      - bracketed:
-          start_bracket: (
-          end_bracket: )
-      - raw: NOT
-      - raw: 'NULL'
-      - raw: CONSTRAINT
-      - raw: '"primary"'
-      - raw: PRIMARY
-      - raw: KEY
+      - column_definition:
+        - identifier: c
+        - data_type:
+            data_type_identifier: int8
+        - column_constraint:
+            keyword: DEFAULT
+            function:
+              function_name:
+                function_name_identifier: unique_rowid
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+        - column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - column_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              identifier: '"primary"'
+          - keyword: PRIMARY
+          - keyword: KEY
       - end_bracket: )
   statement_terminator: ;

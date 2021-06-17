@@ -6,8 +6,9 @@ file:
     - keyword: IF
     - keyword: NOT
     - keyword: EXISTS
-    - index_reference:
-        identifier: i1
+    - index_expression:
+        index_reference:
+          identifier: i1
     - keyword: 'on'
     - table_reference:
         identifier: t1

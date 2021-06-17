@@ -21,7 +21,10 @@ file:
         - binary_operator: AND
         - column_reference:
             identifier: b
-        - binary_operator: ->>
-        - literal: "'wombat'"
-        - comparison_operator: '='
-        - literal: "'YingTongIddleIPo'"
+        unparsable:
+        - binary_operator: '-'
+        - raw: '>'
+        - raw: '>'
+        - raw: "'wombat'"
+        - raw: '='
+        - raw: "'YingTongIddleIPo'"

@@ -4,6 +4,7 @@ file:
     - raw: DROP
     - raw: INDEX
     - raw: t1
-    - unlexable: '@i1'
+    - raw: '@'
+    - raw: i1
     - raw: CASCADE
   statement_terminator: ;

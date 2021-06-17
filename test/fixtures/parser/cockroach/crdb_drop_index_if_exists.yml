@@ -5,8 +5,11 @@ file:
     - keyword: index
     - keyword: IF
     - keyword: EXISTS
-    - index_reference:
-        identifier: t1
-    unparsable:
-      unlexable: '@i1'
+    - index_expression:
+        hinted_table:
+          table_reference:
+            identifier: t1
+          at: '@'
+          index_reference:
+            identifier: i1
   statement_terminator: ;

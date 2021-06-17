@@ -31,23 +31,27 @@ file:
       - raw: VARCHAR
       - bracketed:
           start_bracket: (
-          raw: '8'
+          expression:
+            literal: '8'
           end_bracket: )
       - comma: ','
       - raw: e
       - raw: VARCHAR
       - bracketed:
           start_bracket: (
-          raw: '10'
+          expression:
+            literal: '10'
           end_bracket: )
       - comma: ','
       - raw: f
       - raw: NUMERIC
       - bracketed:
         - start_bracket: (
-        - raw: '38'
+        - expression:
+            literal: '38'
         - comma: ','
-        - raw: '3'
+        - expression:
+            literal: '3'
         - end_bracket: )
       - comma: ','
       - raw: g

@@ -5,6 +5,7 @@ file:
     - keyword: INDEX
     - keyword: IF
     - keyword: EXISTS
-    - index_reference:
-        identifier: i1
+    - index_expression:
+        index_reference:
+          identifier: i1
   statement_terminator: ;

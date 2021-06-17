@@ -8,15 +8,17 @@ file:
     - keyword: ADD
     - keyword: COLUMN
     - column_definition:
-        identifier: a
-        data_type:
+      - identifier: a
+      - data_type:
           data_type_identifier: uuid
-        column_constraint:
+      - column_constraint:
           keyword: 'NULL'
-    unparsable:
-    - raw: DEFAULT
-    - raw: gen_random_uuid
-    - bracketed:
-        start_bracket: (
-        end_bracket: )
+      - column_constraint:
+          keyword: DEFAULT
+          function:
+            function_name:
+              function_name_identifier: gen_random_uuid
+            bracketed:
+              start_bracket: (
+              end_bracket: )
   statement_terminator: ;

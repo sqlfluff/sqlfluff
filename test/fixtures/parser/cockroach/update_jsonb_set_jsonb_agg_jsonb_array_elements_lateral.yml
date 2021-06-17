@@ -137,9 +137,11 @@ file:
                                   - raw: p
                                   - raw: .
                                   - raw: massaction_rules
-                                  - raw: ->
+                                  - raw: '-'
+                                  - raw: '>'
                                   - raw: "'hidebound'"
-                                  - raw: ->
+                                  - raw: '-'
+                                  - raw: '>'
                                   - raw: "'laws'"
                                   - end_bracket: )
                                 - raw: AS
@@ -147,17 +149,21 @@ file:
                               where_clause:
                                 keyword: WHERE
                                 expression:
-                                - column_reference:
+                                  column_reference:
                                   - identifier: p
                                   - dot: .
                                   - identifier: massaction_laws
-                                - binary_operator: ->
-                                - literal: "'hidebound'"
-                                - binary_operator: ->>
-                                - literal: "'laws'"
-                                - keyword: IS
-                                - keyword: NOT
-                                - keyword: 'NULL'
+                                unparsable:
+                                - raw: '-'
+                                - raw: '>'
+                                - raw: "'hidebound'"
+                                - raw: '-'
+                                - raw: '>'
+                                - raw: '>'
+                                - raw: "'laws'"
+                                - raw: IS
+                                - raw: NOT
+                                - raw: 'NULL'
                             end_bracket: )
                         alias_expression:
                           identifier: t3

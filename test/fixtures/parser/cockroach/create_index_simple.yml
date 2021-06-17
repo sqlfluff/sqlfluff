@@ -3,8 +3,9 @@ file:
     create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
-    - index_reference:
-        identifier: ix_i1
+    - index_expression:
+        index_reference:
+          identifier: ix_i1
     - keyword: 'ON'
     - table_reference:
         identifier: t1

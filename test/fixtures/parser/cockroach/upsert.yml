@@ -96,7 +96,8 @@ file:
     - raw: o
     - raw: FROM
     - raw: t2
-    - unlexable: '@i2'
+    - raw: '@'
+    - raw: i2
     - raw: t2
     - comma: ','
     - raw: t
