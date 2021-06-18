@@ -1,15 +1,15 @@
 rule: L003
 
-test_reindent_first_line_1:
+test_fail_reindent_first_line_1:
   fail_str: '     SELECT 1'
   fix_str: SELECT 1
 
-test_reindent_first_line_2:
+test_fail_reindent_first_line_2:
   # Github Bug #99. Python2 Issues with fixing L003
   fail_str: '  select 1 from tbl;'
   fix_str: select 1 from tbl;
 
-test_identation_of_comments_1:
+test_pass_indentation_of_comments_1:
   # Github Bug #203
   # Comments should be aligned to the following line.
   pass_str: |
@@ -19,7 +19,7 @@ test_identation_of_comments_1:
     FROM
         acceptable_buckets
 
-test_indentation_of_comments_2:
+test_pass_indentation_of_comments_2:
   # Comments should be aligned to the following line.
   pass_str: |
     SELECT
@@ -35,7 +35,7 @@ test_indentation_of_comments_2:
         USING
             (user_id)
 
-test_tab_indentation:
+test_fail_tab_indentation:
   # Using tabs as indents works
   fail_str: |
     SELECT
@@ -53,7 +53,7 @@ test_tab_indentation:
     rules:
       indent_unit: tab
 
-test_indented_joins_default:
+test_pass_indented_joins_default:
   # Configurable indents work.
   # a) default
   pass_str: |
@@ -61,7 +61,7 @@ test_indented_joins_default:
     FROM my_tbl
     LEFT JOIN another_tbl USING(a)
 
-test_indented_joins_false:
+test_pass_indented_joins_false:
   # b) specific
   pass_str: |
     SELECT a, b, c
@@ -72,7 +72,7 @@ test_indented_joins_false:
     indentation:
       indented_joins: false
 
-test_indented_joins_true:
+test_pass_indented_joins_true:
   # c) specific True, but passing
   pass_str: |
     SELECT a, b, c
@@ -83,7 +83,7 @@ test_indented_joins_true:
     indentation:
       indented_joins: true
 
-test_indented_joins_true_fix:
+test_fail_indented_joins_true_fix:
   # d) specific True, but failing
   fail_str: |
     SELECT a, b, c
@@ -99,7 +99,7 @@ test_indented_joins_true_fix:
     indentation:
       indented_joins: true
 
-test_indented_joins_false_fix:
+test_fail_indented_joins_false_fix:
   # e) specific False, and failing
   fail_str: |
     SELECT a, b, c
@@ -115,7 +115,7 @@ test_indented_joins_false_fix:
     indentation:
       indented_joins: false
 
-test_indented_from_with_comment:
+test_pass_indented_from_with_comment:
   pass_str: |
     SELECT *
     FROM
@@ -123,7 +123,7 @@ test_indented_from_with_comment:
     -- Comment
     JOIN t2 USING (user_id)
 
-test_indented_from_with_comment_fix:
+test_fail_indented_from_with_comment_fix:
   fail_str: |
     SELECT *
     FROM
@@ -138,35 +138,7 @@ test_indented_from_with_comment_fix:
     -- Comment
     JOIN t2 USING (user_id)
 
-# https://github.com/sqlfluff/sqlfluff/issues/643
-snowflake_with_indent:
-  pass_str: |
-    with source_data as (
-        select * from {{ source('source_name', 'xxx_yyy_zzz') }}   
-    )
-
-    select *
-    from source_data
-  
-  configs:
-    core:
-      dialect: snowflake
-
-# https://github.com/sqlfluff/sqlfluff/issues/643
-bigquery_with_indent:
-  pass_str: |
-    with source_data as (
-        select * from {{ source('source_name', 'xxx_yyy_zzz') }}   
-    )
-
-    select *
-    from source_data
-  
-  configs:
-    core:
-      dialect: bigquery
-
-test_attempted_hanger_fix:
+test_fail_attempted_hanger_fix:
   # It's almost a hanger and so should be corrected to one.
   fail_str: |
     SELECT coalesce(foo,
@@ -178,7 +150,7 @@ test_attempted_hanger_fix:
                     bar)
     FROM tbl
 
-test_possible_hanger_fix:
+test_fail_possible_hanger_fix:
   # It's not even close to a hanging indent, but we should
   # still attempt this, although this is potentially a questionable
   # fix and could be an approach we change in the future.
@@ -192,7 +164,7 @@ test_possible_hanger_fix:
                     bar)
     FROM tbl
 
-test_clean_reindent_fix:
+test_fail_clean_reindent_fix:
   # A "clean" indent is where the previous line ends with an
   # indent token (as per this example). We should use the
   # default approach and indent by 1 step.
@@ -207,3 +179,31 @@ test_clean_reindent_fix:
         foo,
         bar)
     FROM tbl
+
+# https://github.com/sqlfluff/sqlfluff/issues/643
+test_pass_indent_snowflake:
+  pass_str: |
+    with source_data as (
+        select * from {{ source('source_name', 'xxx_yyy_zzz') }}   
+    )
+
+    select *
+    from source_data
+  
+  configs:
+    core:
+      dialect: snowflake
+
+# https://github.com/sqlfluff/sqlfluff/issues/643
+test_pass_indent_indent_bigquery:
+  pass_str: |
+    with source_data as (
+        select * from {{ source('source_name', 'xxx_yyy_zzz') }}   
+    )
+
+    select *
+    from source_data
+  
+  configs:
+    core:
+      dialect: bigquery

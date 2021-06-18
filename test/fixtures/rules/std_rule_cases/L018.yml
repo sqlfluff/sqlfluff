@@ -1,17 +1,17 @@
 rule: L018
 
-test_1:
+test_pass_with_clause_closing_aligned:
   # with statement indentation
   pass_str: |
     with cte as (
         select 1
     ) select * from cte
 
-test_2:
+test_pass_with_clause_closing_oneline:
   # with statement oneline
   pass_str: with cte as (select 1) select * from cte
 
-test_3:
+test_fail_with_clause_closing_misaligned_indentation:
   # Fix with statement indentation
   fail_str: |
     with cte as (
@@ -23,7 +23,7 @@ test_3:
         select 1
     ) select * from cte
 
-test_4:
+test_fail_with_clause_closing_misaligned_negative_indentation:
   # Fix with statement that has negative indentation
   fail_str: |2
         with cte as (
