@@ -527,7 +527,7 @@ class BeginStatementSegment(BaseSegment):
     Scripting BEGIN and END statement with embedded error handling https://cloud.google.com/bigquery/docs/reference/standard-sql/scripting#begin
     """
     type = "begin_statement"
-    match_grammar = StartsWith(Ref.keyword("BEGIN"), terminator="END")
-    parse_grammar = Sequence(Ref.keyword("BEGIN"), Delimited(Ref("StatementSegment"), delimiter=Ref("SemicolonSegment")))
+    match_grammar = StartsWith(Ref.keyword("BEGIN"), terminator=Sequence("END", Ref("SemicolonSegment")))
+    parse_grammar = Sequence(Ref.keyword("BEGIN"), Delimited(Ref("StatementSegment")))
 
 
