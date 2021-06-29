@@ -1,22 +1,25 @@
 file:
   statement:
-    unparsable:
-    - raw: CALL
-    - raw: zproc_validate_send_adminuser_otp
-    - bracketed:
+    call_segment:
+      keyword: CALL
+      identifier: somefunction
+      bracketed:
       - start_bracket: (
-      - raw: "'test'"
+      - literal: "'test'"
       - comma: ','
-      - raw: '@test1'
+      - variable: '@test1'
       - comma: ','
-      - raw: test2
+      - variable: test2
       - comma: ','
-      - raw: test3
-      - bracketed:
-          start_bracket: (
-          raw: "'test'"
-          end_bracket: )
+      - function:
+          function_name:
+            function_name_identifier: test3
+          bracketed:
+            start_bracket: (
+            expression:
+              literal: "'test'"
+            end_bracket: )
       - comma: ','
-      - raw: '"test4"'
+      - literal: '"test4"'
       - end_bracket: )
   statement_terminator: ;

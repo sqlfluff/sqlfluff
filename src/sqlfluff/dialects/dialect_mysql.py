@@ -21,6 +21,9 @@ from sqlfluff.core.parser import (
     RegexParser,
     Indent,
     StartsWith,
+    GreedyUntil,
+    Indent,
+    Dedent,
 )
 from sqlfluff.core.dialects import load_raw_dialect
 
@@ -298,6 +301,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("DeclareStatement"),
             Ref("SetAssignmentStatementSegment"),
             Ref("IfExpressionStatement"),
+            Ref("CallStoredProcedureSegment"),
         ],
     )
 
@@ -604,48 +608,74 @@ class IntoClauseSegment(BaseSegment):
 # to have the IntoClause be before FromClauseSegment, but it doesn't work to add the `before` clause
 # looking for suggestions on how to do this differently, if possible
 @mysql_dialect.segment(replace=True)
-class UnorderedSelectStatementSegment(ansi_dialect.get_segment("UnorderedSelectStatementSegment")):  # type: ignore
-    """Overriding the UnorderedSelectStatementSegment to add additional segments for mysql dialect."""
+class UnorderedSelectStatementSegment(BaseSegment):
+    """A `SELECT` statement without any ORDER clauses or later.
+    This is designed for use in the context of set operations,
+    for other use cases, we should use the main
+    SelectStatementSegment.
+    """
 
-    parse_grammar = (
-        ansi_dialect.get_segment("UnorderedSelectStatementSegment").parse_grammar.copy(
-            insert=[Ref("IntoClauseSegment", optional=True)],
-            before=Ref("FromClauseSegment", optional=True),
+    type = "select_statement"
+    # match grammar. This one makes sense in the context of knowing that it's
+    # definitely a statement, we just don't know what type yet.
+    match_grammar = StartsWith(
+        # In mysql, the select clause may include an INTO statement
+        # to assign values from columns/functions to corresponding
+        # local or session variables
+        Ref("SelectClauseSegment"),
+        terminator=OneOf(
+            Ref("IntoClauseSegment"),
+            Ref("SetOperatorSegment"),
+            Ref("WithNoSchemaBindingClauseSegment"),
+            Ref("OrderByClauseSegment"),
+            Ref("LimitClauseSegment"),
+            Ref("NamedWindowSegment"),
+            Ref("ForClauseSegment"),
         ),
+        enforce_whitespace_preceeding_terminator=True,
     )
 
-    parse_grammar = ansi_dialect.get_segment(
-        "UnorderedSelectStatementSegment"
-    ).parse_grammar.copy(insert=[Ref("ForClauseSegment", optional=True)])
+    parse_grammar = Sequence(
+        Ref("SelectClauseSegment"),
+        # Dedent for the indent in the select clause.
+        # It's here so that it can come AFTER any whitespace.
+        Dedent,
+        Ref("IntoClauseSegment", optional=True),
+        Ref("FromClauseSegment", optional=True),
+        Ref("WhereClauseSegment", optional=True),
+        Ref("GroupByClauseSegment", optional=True),
+        Ref("HavingClauseSegment", optional=True),
+        Ref("ForClauseSegment", optional=True),
+    )
 
 
 # I am unclear why I have to override this segement, but if I don't then new segments won't parse
 # looking for suggestions on how to avoid this since it seems unnecessary
-# @mysql_dialect.segment(replace=True)
-# class SelectClauseElementSegment(BaseSegment):
-#     """An element in the targets of a select statement."""
+@mysql_dialect.segment(replace=True)
+class SelectClauseElementSegment(BaseSegment):
+    """An element in the targets of a select statement."""
 
-#     type = "select_clause_element"
-#     # Important to split elements before parsing, otherwise debugging is really hard.
-#     match_grammar = GreedyUntil(
-#         "INTO",
-#         "FROM",
-#         "WHERE",
-#         "ORDER",
-#         "LIMIT",
-#         Ref("CommaSegment"),
-#         Ref("SetOperatorSegment"),
-#         enforce_whitespace_preceeding_terminator=True,
-#     )
+    type = "select_clause_element"
+    # Important to split elements before parsing, otherwise debugging is really hard.
+    match_grammar = GreedyUntil(
+        "INTO",
+        "FROM",
+        "WHERE",
+        "ORDER",
+        "LIMIT",
+        Ref("CommaSegment"),
+        Ref("SetOperatorSegment"),
+        enforce_whitespace_preceeding_terminator=True,
+    )
 
-#     parse_grammar = OneOf(
-#         # *, blah.*, blah.blah.*, etc.
-#         Ref("WildcardExpressionSegment"),
-#         Sequence(
-#             Ref("BaseExpressionElementGrammar"),
-#             Ref("AliasExpressionSegment", optional=True),
-#         ),
-#     )
+    parse_grammar = OneOf(
+        # *, blah.*, blah.blah.*, etc.
+        Ref("WildcardExpressionSegment"),
+        Sequence(
+            Ref("BaseExpressionElementGrammar"),
+            Ref("AliasExpressionSegment", optional=True),
+        ),
+    )
 
 
 # I am unclear why I have to override this segement, but if I don't then new segments won't parse
@@ -684,36 +714,36 @@ class SelectClauseSegment(BaseSegment):
 
 # I am unclear why I have to override this segement, but if I don't then new segments don't parse
 # looking for suggestions on how to avoid this since it seems unnecessary
-# @mysql_dialect.segment(replace=True)
-# class SelectStatementSegment(BaseSegment):
-#     """A `SELECT` statement.
+@mysql_dialect.segment(replace=True)
+class SelectStatementSegment(BaseSegment):
+    """A `SELECT` statement.
 
-#     https://dev.mysql.com/doc/refman/5.7/en/select.html
-#     """
+    https://dev.mysql.com/doc/refman/5.7/en/select.html
+    """
 
-#     type = "select_statement"
-#     # match grammar. This one makes sense in the context of knowing that it's
-#     # definitely a statement, we just don't know what type yet.
-#     match_grammar = StartsWith(
-#         # NB: In bigquery, the select clause may include an EXCEPT, which
-#         # will also match the set operator, but by starting with the whole
-#         # select clause rather than just the SELECT keyword, we mitigate that
-#         # here.
-#         Ref("SelectClauseSegment"),
-#         terminator=OneOf(
-#             Ref("SetOperatorSegment"), Ref("WithNoSchemaBindingClauseSegment")
-#         ),
-#         enforce_whitespace_preceeding_terminator=True,
-#     )
+    type = "select_statement"
+    # match grammar. This one makes sense in the context of knowing that it's
+    # definitely a statement, we just don't know what type yet.
+    match_grammar = StartsWith(
+        # NB: In bigquery, the select clause may include an EXCEPT, which
+        # will also match the set operator, but by starting with the whole
+        # select clause rather than just the SELECT keyword, we mitigate that
+        # here.
+        Ref("SelectClauseSegment"),
+        terminator=OneOf(
+            Ref("SetOperatorSegment"), Ref("WithNoSchemaBindingClauseSegment")
+        ),
+        enforce_whitespace_preceeding_terminator=True,
+    )
 
-#     # Inherit most of the parse grammar from the original.
-#     parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(
-#         insert=[
-#             Ref("OrderByClauseSegment", optional=True),
-#             Ref("LimitClauseSegment", optional=True),
-#             Ref("NamedWindowSegment", optional=True),
-#         ]
-#     )
+    # Inherit most of the parse grammar from the original.
+    parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(
+        insert=[
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("LimitClauseSegment", optional=True),
+            Ref("NamedWindowSegment", optional=True),
+        ]
+    )
 
 
 @mysql_dialect.segment()
@@ -753,4 +783,34 @@ class IndexHintClauseSegment(BaseSegment):
             optional=True,
         ),
         Bracketed(Ref("ObjectReferenceSegment")),
+    )
+
+
+@mysql_dialect.segment()
+class CallStoredProcedureSegment(BaseSegment):
+    """This is a CALL statement used to execute a stored procedure.
+
+    mysql: https://dev.mysql.com/doc/refman/8.0/en/call.html
+    """
+
+    type = "call_segment"
+
+    match_grammar = Sequence(
+        "CALL",
+        OneOf(
+            Ref("SingleIdentifierGrammar"),
+            Ref("QuotedIdentifierSegment"),
+        ),
+        Bracketed(
+            AnyNumberOf(
+                Delimited(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("NumericLiteralSegment"),
+                    Ref("DoubleQuotedLiteralSegment"),
+                    Ref("SessionVariableNameSegment"),
+                    Ref("LocalVariableNameSegment"),
+                    Ref("FunctionSegment"),
+                ),
+            ),
+        ),
     )

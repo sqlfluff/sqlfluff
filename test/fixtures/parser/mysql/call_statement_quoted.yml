@@ -1,10 +1,10 @@
 file:
   statement:
-    unparsable:
-    - raw: CALL
-    - raw: '`zproc_validate_send_adminuser_otp`'
-    - bracketed:
+    call_segment:
+      keyword: CALL
+      identifier: '`somefunction`'
+      bracketed:
         start_bracket: (
-        raw: "'a'"
+        literal: "'a'"
         end_bracket: )
   statement_terminator: ;
