@@ -46,6 +46,8 @@ class Rule_L010(BaseRule):
         ("type", "binary_operator"),
     ]
     config_keywords = ["capitalisation_policy"]
+    # Human readable target elem for description
+    _description_elem = "Keywords"
 
     def _eval(self, segment, memory, parent_stack, **kwargs):
         """Inconsistent capitalisation of keywords.
@@ -154,15 +156,42 @@ class Rule_L010(BaseRule):
             )
             return LintResult(memory=memory)
         else:
+
+            # build description based on the policy in use
+            if cap_policy == "consistent":
+                consistency = "consistently "
+
+            if concrete_policy in ["upper", "lower"]:
+                policy = f"{concrete_policy} case."
+            elif concrete_policy == "capitalise":
+                policy = "capitalised."
+            elif concrete_policy == "pascal":
+                policy = "pascal case."
+
+            # build description based on the policy in use
+            if cap_policy == "consistent":
+                consistency = "consistently "
+            else:
+                consistency = ""
+
+            if concrete_policy in ["upper", "lower"]:
+                policy = f"{concrete_policy} case."
+            elif concrete_policy == "capitalise":
+                policy = "capitalised."
+            elif concrete_policy == "pascal":
+                policy = "pascal case."
+
             # Return the fixed segment
             self.logger.debug(
                 f"INCONSISTENT Capitalisation of segment '{segment.raw}', fixing to "
                 f"'{fixed_raw}' and returning with memory {memory}"
             )
+
             return LintResult(
                 anchor=segment,
                 fixes=[self._get_fix(segment, fixed_raw)],
                 memory=memory,
+                description=f"{self._description_elem} must be {consistency}{policy}",
             )
 
     def _get_fix(self, segment, fixed_raw):
@@ -171,11 +200,7 @@ class Rule_L010(BaseRule):
         May be overridden by subclasses, which is useful when the parse tree
         structure varies from this simple base case.
         """
-        return LintFix(
-            "edit",
-            segment,
-            segment.edit(fixed_raw),
-        )
+        return LintFix("edit", segment, segment.edit(fixed_raw))
 
     def _init_capitalisation_policy(self):
         """Called first time rule is evaluated to fetch & cache the policy."""

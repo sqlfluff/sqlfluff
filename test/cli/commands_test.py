@@ -41,7 +41,7 @@ def invoke_assert_code(
 
 expected_output = """== [test/fixtures/linter/indentation_error_simple.sql] FAIL
 L:   2 | P:   4 | L003 | Indentation not hanging or a multiple of 4 spaces
-L:   5 | P:  10 | L010 | Inconsistent capitalisation of keywords.
+L:   5 | P:  10 | L010 | Keywords must be consistently upper case.
 L:   5 | P:  13 | L031 | Avoid using aliases in join condition
 """
 
@@ -456,13 +456,13 @@ def test__cli__command_parse_serialize_from_stdin(serialize):
                             "code": "L010",
                             "line_no": 1,
                             "line_pos": 1,
-                            "description": "Inconsistent capitalisation of keywords.",
+                            "description": "Keywords must be consistently upper case.",
                         },
                         {
                             "code": "L010",
                             "line_no": 1,
                             "line_pos": 10,
-                            "description": "Inconsistent capitalisation of keywords.",
+                            "description": "Keywords must be consistently upper case.",
                         },
                     ],
                 }
