@@ -16,18 +16,15 @@ file:
                 identifier: t1
             alias_expression:
               identifier: test
-        unparsable:
-        - raw: USE
-        - raw: INDEX
-        - raw: FOR
-      orderby_clause:
+      index_hint_clause:
+      - keyword: USE
+      - keyword: INDEX
+      - keyword: FOR
       - keyword: ORDER
       - keyword: BY
-      - expression:
-          bracketed:
-            start_bracket: (
-            expression:
-              column_reference:
-                identifier: i2
-            end_bracket: )
+      - bracketed:
+          start_bracket: (
+          object_reference:
+            identifier: i2
+          end_bracket: )
   statement_terminator: ;

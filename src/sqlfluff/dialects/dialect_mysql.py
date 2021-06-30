@@ -21,7 +21,6 @@ from sqlfluff.core.parser import (
     RegexParser,
     Indent,
     StartsWith,
-    GreedyUntil,
     Dedent,
 )
 from sqlfluff.core.dialects import load_raw_dialect
@@ -81,9 +80,6 @@ mysql_dialect.replace(
             Ref("DoubleQuotedLiteralSegment"),
         ]
     ),
-    PostTableExpressionGrammar=Sequence(
-        Ref("IndexHintClauseSegment"),
-    ),
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",
         "LIMIT",
@@ -92,11 +88,8 @@ mysql_dialect.replace(
         "HAVING",
         "QUALIFY",
         "WINDOW",
-        Sequence(
-            "FOR",
-            OneOf("UPDATE", "SHARE"),
-        ),
-        Sequence("LOCK", "IN", "SHARE", "MODE"),
+        Ref("IndexHintClauseSegment"),
+        Ref("ForClauseSegment"),
         Ref("SetOperatorSegment"),
         Ref("WithNoSchemaBindingClauseSegment"),
     ),
@@ -629,6 +622,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
             Ref("OrderByClauseSegment"),
             Ref("LimitClauseSegment"),
             Ref("NamedWindowSegment"),
+            Ref("IndexHintClauseSegment"),
             Ref("ForClauseSegment"),
         ),
         enforce_whitespace_preceeding_terminator=True,
@@ -641,6 +635,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
         Dedent,
         Ref("IntoClauseSegment", optional=True),
         Ref("FromClauseSegment", optional=True),
+        Ref("IndexHintClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
         Ref("GroupByClauseSegment", optional=True),
         Ref("HavingClauseSegment", optional=True),
@@ -648,33 +643,20 @@ class UnorderedSelectStatementSegment(BaseSegment):
     )
 
 
-# I am unclear why I have to override this segement, but if I don't then new segments won't parse
-# looking for suggestions on how to avoid this since it seems unnecessary
 @mysql_dialect.segment(replace=True)
 class SelectClauseElementSegment(BaseSegment):
+
     """An element in the targets of a select statement."""
 
     type = "select_clause_element"
-    # Important to split elements before parsing, otherwise debugging is really hard.
-    match_grammar = GreedyUntil(
-        "INTO",
-        "FROM",
-        "WHERE",
-        "ORDER",
-        "LIMIT",
-        Ref("CommaSegment"),
-        Ref("SetOperatorSegment"),
-        enforce_whitespace_preceeding_terminator=True,
-    )
 
-    parse_grammar = OneOf(
-        # *, blah.*, blah.blah.*, etc.
-        Ref("WildcardExpressionSegment"),
-        Sequence(
-            Ref("BaseExpressionElementGrammar"),
-            Ref("AliasExpressionSegment", optional=True),
-        ),
-    )
+    match_grammar = ansi_dialect.get_segment(
+        "SelectClauseElementSegment"
+    ).match_grammar.copy()
+
+    parse_grammar = ansi_dialect.get_segment(
+        "SelectClauseElementSegment"
+    ).parse_grammar.copy()
 
 
 # I am unclear why I have to override this segement, but if I don't then new segments won't parse

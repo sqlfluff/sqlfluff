@@ -16,14 +16,14 @@ file:
                 identifier: t1
             alias_expression:
               identifier: test
-            index_hint_clause:
-            - keyword: USE
-            - keyword: INDEX
-            - keyword: FOR
-            - keyword: JOIN
-            - bracketed:
-                start_bracket: (
-                object_reference:
-                  identifier: i2
-                end_bracket: )
+      index_hint_clause:
+      - keyword: USE
+      - keyword: INDEX
+      - keyword: FOR
+      - keyword: JOIN
+      - bracketed:
+          start_bracket: (
+          object_reference:
+            identifier: i2
+          end_bracket: )
   statement_terminator: ;
