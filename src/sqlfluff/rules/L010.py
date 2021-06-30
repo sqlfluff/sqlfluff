@@ -163,11 +163,24 @@ class Rule_L010(BaseRule):
                 f"INCONSISTENT Capitalisation of segment '{segment.raw}', fixing to "
                 f"'{fixed_raw}' and returning with memory {memory}"
             )
+
+            # build description based on the policy in use
+            element = self._target_elems[0][1].replace('_', ' ').capitalize()
+            if cap_policy == 'consistent':
+                if concrete_policy in ["upper", "lower"]:
+                    policy = f"must be consistently {concrete_policy} case."
+                elif concrete_policy == 'capitalise':
+                    policy = "must be consistently capitalised."            
+            elif concrete_policy in ["upper", "lower"]:
+                policy = f"must be {concrete_policy} case."
+            elif concrete_policy == 'capitalise':
+                policy = "must be capitalised."
+            
             return LintResult(
                 anchor=segment,
                 fixes=[self._get_fix(segment, fixed_raw)],
                 memory=memory,
-                description=f"{self._target_elems[0][1].capitalize()} must be {concrete_policy} case"
+                description=f"{element} {policy}"
             )
 
     def _get_fix(self, segment, fixed_raw):
