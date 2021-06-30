@@ -154,10 +154,7 @@ class Rule_L010(BaseRule):
             )
             return LintResult(memory=memory)
         else:
-            
-            
-            
-            
+
             # Return the fixed segment
             self.logger.debug(
                 f"INCONSISTENT Capitalisation of segment '{segment.raw}', fixing to "
@@ -165,22 +162,22 @@ class Rule_L010(BaseRule):
             )
 
             # build description based on the policy in use
-            element = self._target_elems[0][1].replace('_', ' ').capitalize()
-            if cap_policy == 'consistent':
+            element = self._target_elems[0][1].replace("_", " ").capitalize()
+            if cap_policy == "consistent":
                 if concrete_policy in ["upper", "lower"]:
                     policy = f"must be consistently {concrete_policy} case."
-                elif concrete_policy == 'capitalise':
-                    policy = "must be consistently capitalised."            
+                elif concrete_policy == "capitalise":
+                    policy = "must be consistently capitalised."
             elif concrete_policy in ["upper", "lower"]:
                 policy = f"must be {concrete_policy} case."
-            elif concrete_policy == 'capitalise':
+            elif concrete_policy == "capitalise":
                 policy = "must be capitalised."
-            
+
             return LintResult(
                 anchor=segment,
                 fixes=[self._get_fix(segment, fixed_raw)],
                 memory=memory,
-                description=f"{element} {policy}"
+                description=f"{element} {policy}",
             )
 
     def _get_fix(self, segment, fixed_raw):
@@ -189,11 +186,7 @@ class Rule_L010(BaseRule):
         May be overridden by subclasses, which is useful when the parse tree
         structure varies from this simple base case.
         """
-        return LintFix(
-            "edit",
-            segment,
-            segment.edit(fixed_raw),
-        )
+        return LintFix("edit", segment, segment.edit(fixed_raw))
 
     def _init_capitalisation_policy(self):
         """Called first time rule is evaluated to fetch & cache the policy."""
