@@ -26,17 +26,28 @@ file:
                 column_reference:
                   identifier: test5
               end_bracket: )
-      into_clause:
-      - keyword: into
-      - variable: '@test1'
+          alias_expression:
+            identifier: into
+          unparsable:
+            raw: '@test1'
       - comma: ','
-      - variable: '@test2'
+      - select_clause_element:
+          variable: '@test2'
       - comma: ','
-      - variable: _test3
+      - select_clause_element:
+          column_reference:
+            identifier: _test3
       - comma: ','
-      - variable: '@test4'
+      - select_clause_element:
+          variable: '@test4'
       - comma: ','
-      - variable: '@test5'
-      - variable: from
-      - variable: table
+      - select_clause_element:
+          variable: '@test5'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: table
   statement_terminator: ;

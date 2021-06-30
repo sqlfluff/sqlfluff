@@ -659,72 +659,103 @@ class SelectClauseElementSegment(BaseSegment):
     ).parse_grammar.copy()
 
 
-# I am unclear why I have to override this segement, but if I don't then new segments won't parse
-# looking for suggestions on how to avoid this since it seems unnecessary
 @mysql_dialect.segment(replace=True)
 class SelectClauseSegment(BaseSegment):
+
     """A group of elements in a select target statement."""
 
     type = "select_clause"
-    match_grammar = StartsWith(
-        Sequence("SELECT", Ref("WildcardExpressionSegment", optional=True)),
-        terminator=OneOf(
-            "INTO",
-            "FROM",
-            "WHERE",
-            "ORDER",
-            "LIMIT",
-            Ref("SetOperatorSegment"),
-        ),
-        enforce_whitespace_preceeding_terminator=True,
-    )
 
-    parse_grammar = Sequence(
-        "SELECT",
-        Ref("SelectClauseModifierSegment", optional=True),
-        Indent,
-        Delimited(
-            ansi_dialect.get_segment("SelectClauseElementSegment"),
-            allow_trailing=True,
-        ),
-        # NB: The Dedent for the indent above lives in the
-        # SelectStatementSegment so that it sits in the right
-        # place corresponding to the whitespace.
-    )
+    match_grammar = ansi_dialect.get_segment("SelectClauseSegment").match_grammar.copy()
+
+    parse_grammar = ansi_dialect.get_segment("SelectClauseSegment").parse_grammar.copy()
 
 
-# I am unclear why I have to override this segement, but if I don't then new segments don't parse
+# I am unclear why I have to override this segement, but if I don't then new segments won't parse
 # looking for suggestions on how to avoid this since it seems unnecessary
+# @mysql_dialect.segment(replace=True)
+# class SelectClauseSegment(BaseSegment):
+#     """A group of elements in a select target statement."""
+
+#     type = "select_clause"
+#     match_grammar = StartsWith(
+#         Sequence("SELECT", Ref("WildcardExpressionSegment", optional=True)),
+#         terminator=OneOf(
+#             "INTO",
+#             "FROM",
+#             "WHERE",
+#             "ORDER",
+#             "LIMIT",
+#             Ref("SetOperatorSegment"),
+#         ),
+#         enforce_whitespace_preceeding_terminator=True,
+#     )
+
+#     parse_grammar = Sequence(
+#         "SELECT",
+#         Ref("SelectClauseModifierSegment", optional=True),
+#         Indent,
+#         Delimited(
+#             ansi_dialect.get_segment("SelectClauseElementSegment"),
+#             allow_trailing=True,
+#         ),
+#         # NB: The Dedent for the indent above lives in the
+#         # SelectStatementSegment so that it sits in the right
+#         # place corresponding to the whitespace.
+#     )
+
+
 @mysql_dialect.segment(replace=True)
 class SelectStatementSegment(BaseSegment):
+
     """A `SELECT` statement.
 
     https://dev.mysql.com/doc/refman/5.7/en/select.html
     """
 
     type = "select_statement"
-    # match grammar. This one makes sense in the context of knowing that it's
-    # definitely a statement, we just don't know what type yet.
-    match_grammar = StartsWith(
-        # NB: In bigquery, the select clause may include an EXCEPT, which
-        # will also match the set operator, but by starting with the whole
-        # select clause rather than just the SELECT keyword, we mitigate that
-        # here.
-        Ref("SelectClauseSegment"),
-        terminator=OneOf(
-            Ref("SetOperatorSegment"), Ref("WithNoSchemaBindingClauseSegment")
-        ),
-        enforce_whitespace_preceeding_terminator=True,
-    )
 
-    # Inherit most of the parse grammar from the original.
-    parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(
-        insert=[
-            Ref("OrderByClauseSegment", optional=True),
-            Ref("LimitClauseSegment", optional=True),
-            Ref("NamedWindowSegment", optional=True),
-        ]
-    )
+    match_grammar = ansi_dialect.get_segment(
+        "SelectStatementSegment"
+    ).match_grammar.copy()
+
+    parse_grammar = ansi_dialect.get_segment(
+        "SelectStatementSegment"
+    ).parse_grammar.copy()
+
+
+# I am unclear why I have to override this segement, but if I don't then new segments don't parse
+# looking for suggestions on how to avoid this since it seems unnecessary
+# @mysql_dialect.segment(replace=True)
+# class SelectStatementSegment(BaseSegment):
+#     """A `SELECT` statement.
+
+#     https://dev.mysql.com/doc/refman/5.7/en/select.html
+#     """
+
+#     type = "select_statement"
+#     # match grammar. This one makes sense in the context of knowing that it's
+#     # definitely a statement, we just don't know what type yet.
+#     match_grammar = StartsWith(
+#         # NB: In bigquery, the select clause may include an EXCEPT, which
+#         # will also match the set operator, but by starting with the whole
+#         # select clause rather than just the SELECT keyword, we mitigate that
+#         # here.
+#         Ref("SelectClauseSegment"),
+#         terminator=OneOf(
+#             Ref("SetOperatorSegment"), Ref("WithNoSchemaBindingClauseSegment")
+#         ),
+#         enforce_whitespace_preceeding_terminator=True,
+#     )
+
+#     # Inherit most of the parse grammar from the original.
+#     parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(
+#         insert=[
+#             Ref("OrderByClauseSegment", optional=True),
+#             Ref("LimitClauseSegment", optional=True),
+#             Ref("NamedWindowSegment", optional=True),
+#         ]
+#     )
 
 
 @mysql_dialect.segment()

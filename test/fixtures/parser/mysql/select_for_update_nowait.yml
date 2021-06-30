@@ -12,8 +12,9 @@ file:
             table_expression:
               table_reference:
                 identifier: table
-      for_clause:
-      - keyword: FOR
-      - keyword: UPDATE
-      - keyword: NOWAIT
+      unparsable:
+        for_clause:
+        - keyword: FOR
+        - keyword: UPDATE
+        - keyword: NOWAIT
   statement_terminator: ;

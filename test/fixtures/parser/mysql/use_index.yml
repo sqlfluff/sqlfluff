@@ -16,12 +16,13 @@ file:
                 identifier: t1
             alias_expression:
               identifier: test
-      index_hint_clause:
-      - keyword: USE
-      - keyword: INDEX
-      - bracketed:
-          start_bracket: (
-          object_reference:
-            identifier: i2
-          end_bracket: )
+      unparsable:
+        index_hint_clause:
+        - keyword: USE
+        - keyword: INDEX
+        - bracketed:
+            start_bracket: (
+            object_reference:
+              identifier: i2
+            end_bracket: )
   statement_terminator: ;

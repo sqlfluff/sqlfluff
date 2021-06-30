@@ -5,9 +5,15 @@ file:
         keyword: select
         select_clause_element:
           literal: '1'
-      into_clause:
-      - keyword: into
-      - variable: '@dumpfile'
-      - variable: from
-      - variable: table
+          alias_expression:
+            identifier: into
+          unparsable:
+            raw: '@dumpfile'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: table
   statement_terminator: ;
