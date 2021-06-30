@@ -154,6 +154,10 @@ class Rule_L010(BaseRule):
             )
             return LintResult(memory=memory)
         else:
+            
+            
+            
+            
             # Return the fixed segment
             self.logger.debug(
                 f"INCONSISTENT Capitalisation of segment '{segment.raw}', fixing to "
@@ -163,6 +167,7 @@ class Rule_L010(BaseRule):
                 anchor=segment,
                 fixes=[self._get_fix(segment, fixed_raw)],
                 memory=memory,
+                description=f"{self._target_elems[0][1].capitalize()} must be {concrete_policy} case"
             )
 
     def _get_fix(self, segment, fixed_raw):
