@@ -159,29 +159,39 @@ class Rule_L010(BaseRule):
 
             # build description based on the policy in use
             if cap_policy == "consistent":
-                if concrete_policy in ["upper", "lower"]:
-                    policy = f"must be consistently {concrete_policy} case."
-                elif concrete_policy == "capitalise":
-                    policy = "must be consistently capitalised."
-                elif concrete_policy == "pascal":
-                    policy = "must be consistently pascal case."
-            elif concrete_policy in ["upper", "lower"]:
-                policy = f"must be {concrete_policy} case."
+                consistency = "consistently "
+
+            if concrete_policy in ["upper", "lower"]:
+                policy = f"{concrete_policy} case."
             elif concrete_policy == "capitalise":
-                policy = "must be capitalised."
+                policy = "capitalised."
             elif concrete_policy == "pascal":
-                policy = "must be pascal case."
+                policy = "pascal case."
+
+            # build description based on the policy in use
+            if cap_policy == "consistent":
+                consistency = "consistently "
+            else:
+                consistency = ""
+
+            if concrete_policy in ["upper", "lower"]:
+                policy = f"{concrete_policy} case."
+            elif concrete_policy == "capitalise":
+                policy = "capitalised."
+            elif concrete_policy == "pascal":
+                policy = "pascal case."
 
             # Return the fixed segment
             self.logger.debug(
                 f"INCONSISTENT Capitalisation of segment '{segment.raw}', fixing to "
                 f"'{fixed_raw}' and returning with memory {memory}"
             )
+
             return LintResult(
                 anchor=segment,
                 fixes=[self._get_fix(segment, fixed_raw)],
                 memory=memory,
-                description=f"{self._description_elem} {policy}",
+                description=f"{self._description_elem} must be {consistency}{policy}",
             )
 
     def _get_fix(self, segment, fixed_raw):
