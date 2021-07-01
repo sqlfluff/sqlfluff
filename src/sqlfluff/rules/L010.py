@@ -46,6 +46,8 @@ class Rule_L010(BaseRule):
         ("type", "binary_operator"),
     ]
     config_keywords = ["capitalisation_policy"]
+    # Human readable target elem for description
+    _description_elem = "Keywords"
 
     def _eval(self, segment, memory, parent_stack, **kwargs):
         """Inconsistent capitalisation of keywords.
@@ -156,7 +158,6 @@ class Rule_L010(BaseRule):
         else:
 
             # build description based on the policy in use
-            element = self._target_elems[0][1].replace("_", " ").capitalize()
             if cap_policy == "consistent":
                 if concrete_policy in ["upper", "lower"]:
                     policy = f"must be consistently {concrete_policy} case."
@@ -180,7 +181,7 @@ class Rule_L010(BaseRule):
                 anchor=segment,
                 fixes=[self._get_fix(segment, fixed_raw)],
                 memory=memory,
-                description=f"{element} {policy}",
+                description=f"{self._description_elem} {policy}",
             )
 
     def _get_fix(self, segment, fixed_raw):

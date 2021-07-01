@@ -40,6 +40,7 @@ class Rule_L030(Rule_L010):
     """
 
     _target_elems: List[Tuple[str, str]] = [("type", "function_name")]
+    _description_elem = "Function names"
 
     def _get_fix(self, segment, fixed_raw):
         """Overrides the base class.
