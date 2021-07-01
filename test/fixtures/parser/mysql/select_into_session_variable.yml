@@ -1,0 +1,13 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          literal: '1'
+      into_clause:
+      - keyword: into
+      - variable: '@dumpfile'
+      - variable: from
+      - variable: table
+  statement_terminator: ;

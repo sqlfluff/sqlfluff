@@ -2,7 +2,7 @@ file:
   statement:
     call_segment:
       keyword: CALL
-      identifier: '`zproc_validate_send_adminuser_otp`'
+      identifier: '`somefunction`'
       bracketed:
         start_bracket: (
         literal: "'a'"
