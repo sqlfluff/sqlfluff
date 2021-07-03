@@ -41,6 +41,7 @@ class RenderedFile(NamedTuple):
     config: FluffConfig
     time_dict: Dict[str, float]
     fname: str
+    encoding: str
 
 
 class ParsedString(NamedTuple):
