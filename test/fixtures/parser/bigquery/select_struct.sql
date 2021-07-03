@@ -8,6 +8,11 @@ select
   )
 from another_table;
 
+-- Example of "select as struct <<column list>>" syntax
+select as struct
+  '1' as bb,
+  2 as aa;
+
 -- Example of explicitly building a struct in a select clause.
 select
   struct(

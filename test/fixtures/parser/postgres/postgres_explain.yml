@@ -1,29 +1,30 @@
 file:
 - statement:
     explain_statement:
-    - keyword: explain
-    - start_bracket: (
-    - explain_option:
-        keyword: analyze
-        literal: 'true'
-    - comma: ','
-    - explain_option:
-        keyword: costs
-        literal: 'false'
-    - comma: ','
-    - explain_option:
-        keyword: verbose
-        literal: 'true'
-    - comma: ','
-    - explain_option:
-        keyword: buffers
-        literal: 'true'
-    - comma: ','
-    - explain_option:
-      - keyword: format
-      - keyword: xml
-    - end_bracket: )
-    - select_statement:
+      keyword: explain
+      bracketed:
+      - start_bracket: (
+      - explain_option:
+          keyword: analyze
+          literal: 'true'
+      - comma: ','
+      - explain_option:
+          keyword: costs
+          literal: 'false'
+      - comma: ','
+      - explain_option:
+          keyword: verbose
+          literal: 'true'
+      - comma: ','
+      - explain_option:
+          keyword: buffers
+          literal: 'true'
+      - comma: ','
+      - explain_option:
+        - keyword: format
+        - keyword: xml
+      - end_bracket: )
+      select_statement:
         select_clause:
           keyword: select
           select_clause_element:
@@ -53,11 +54,12 @@ file:
 - statement:
     explain_statement:
       keyword: explain
-      start_bracket: (
-      explain_option:
-      - keyword: format
-      - keyword: text
-      end_bracket: )
+      bracketed:
+        start_bracket: (
+        explain_option:
+        - keyword: format
+        - keyword: text
+        end_bracket: )
       select_statement:
         select_clause:
           keyword: select
@@ -67,11 +69,12 @@ file:
 - statement:
     explain_statement:
       keyword: explain
-      start_bracket: (
-      explain_option:
-      - keyword: format
-      - keyword: json
-      end_bracket: )
+      bracketed:
+        start_bracket: (
+        explain_option:
+        - keyword: format
+        - keyword: json
+        end_bracket: )
       select_statement:
         select_clause:
           keyword: select
@@ -81,11 +84,12 @@ file:
 - statement:
     explain_statement:
       keyword: explain
-      start_bracket: (
-      explain_option:
-      - keyword: format
-      - keyword: yaml
-      end_bracket: )
+      bracketed:
+        start_bracket: (
+        explain_option:
+        - keyword: format
+        - keyword: yaml
+        end_bracket: )
       select_statement:
         select_clause:
           keyword: select

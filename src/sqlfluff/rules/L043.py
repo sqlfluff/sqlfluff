@@ -1,5 +1,7 @@
 """Implementation of Rule L043."""
 
+from sqlfluff.core.parser import WhitespaceSegment, SymbolSegment, KeywordSegment
+
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
@@ -49,29 +51,29 @@ class Rule_L043(BaseRule):
             * wrap with parenthesis and coalesce
         """
         # Look for a case expression
-        if segment.is_type("case_expression") and segment.segments[0].name == "CASE":
+        if segment.is_type("case_expression") and segment.segments[0].name == "case":
             # Find the first expression and "then"
             idx = 0
-            while segment.segments[idx].name != "THEN":
+            while segment.segments[idx].name != "then":
                 if segment.segments[idx].is_type("expression"):
                     expression_idx = idx
                 idx += 1
             # Determine if "then" is followed by a boolean
             then_bool_type = None
-            while segment.segments[idx].name not in ["WHEN", "ELSE", "END"]:
+            while segment.segments[idx].name not in ["when", "else", "end"]:
                 if segment.segments[idx].raw_upper in ["TRUE", "FALSE"]:
                     then_bool_type = segment.segments[idx].raw_upper
                 idx += 1
             if then_bool_type:
                 # Determine if the first then-bool is followed by an else-bool
-                while segment.segments[idx].name != "ELSE":
+                while segment.segments[idx].name != "else":
                     # If the first then-bool is followed by a "WHEN" or "END", exit
-                    if segment.segments[idx].name in ["WHEN", "END"]:
+                    if segment.segments[idx].name in ["when", "end"]:
                         return None
                     idx += 1
                 # Determine if "else" is followed by a boolean
                 else_bool_type = None
-                while segment.segments[idx].name != "END":
+                while segment.segments[idx].name != "end":
                     if segment.segments[idx].raw_upper in ["TRUE", "FALSE"]:
                         else_bool_type = segment.segments[idx].raw_upper
                     idx += 1
@@ -90,20 +92,19 @@ class Rule_L043(BaseRule):
                 # If then-false, add "not" and space
                 edits = []
                 if then_bool_type == "FALSE":
-                    not_space = [
-                        self.make_keyword(raw="not"),
-                        self.make_whitespace(raw=" "),
-                    ]
-                    edits.extend(not_space)
+                    edits.extend(
+                        [
+                            KeywordSegment("not"),
+                            WhitespaceSegment(),
+                        ]
+                    )
                 # Add coalesce and parenthesis
-                coalesce_parenthesis = [
-                    self.make_keyword(raw="coalesce"),
-                    self.make_symbol(
-                        raw="(",
-                        seg_type="parenthesis",
-                    ),
-                ]
-                edits.extend(coalesce_parenthesis)
+                edits.extend(
+                    [
+                        KeywordSegment("coalesce"),
+                        SymbolSegment("(", name="start_bracket", type="start_bracket"),
+                    ]
+                )
                 edit_coalesce_target = segment.segments[0]
                 fixes = []
                 fixes.append(
@@ -116,20 +117,10 @@ class Rule_L043(BaseRule):
                 # Add comma, bool, closing parenthesis
                 expression = segment.segments[expression_idx + 1]
                 closing_parenthesis = [
-                    self.make_symbol(
-                        raw=",",
-                        seg_type="comma",
-                    ),
-                    self.make_whitespace(
-                        raw=" ",
-                    ),
-                    self.make_keyword(
-                        raw="false",
-                    ),
-                    self.make_symbol(
-                        raw=")",
-                        seg_type="parenthesis",
-                    ),
+                    SymbolSegment(",", name="comma", type="comma"),
+                    WhitespaceSegment(),
+                    KeywordSegment("false"),
+                    SymbolSegment(")", name="end_bracket", type="end_bracket"),
                 ]
                 fixes.append(
                     LintFix(

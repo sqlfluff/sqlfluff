@@ -56,12 +56,12 @@ class JinjaTemplater(PythonTemplater):
         """Take a path and extract macros from it."""
         # Does the path exist? It should as this check was done on config load.
         if not os.path.exists(path):
-            raise ValueError("Path does not exist: {0}".format(path))
+            raise ValueError(f"Path does not exist: {path}")
 
         macro_ctx = {}
         if os.path.isfile(path):
             # It's a file. Extract macros from it.
-            with open(path, "r") as opened_file:
+            with open(path) as opened_file:
                 template = opened_file.read()
             # Update the context with macros from the file.
             macro_ctx.update(
@@ -157,7 +157,7 @@ class JinjaTemplater(PythonTemplater):
             line = raw.split("\n")[line_no - 1]
             pos = line.index(tree.name) + 1
             yield SQLTemplaterError(
-                "Undefined jinja template variable: {0!r}".format(tree.name),
+                f"Undefined jinja template variable: {tree.name!r}",
                 line_no=line_no,
                 line_pos=pos,
             )
@@ -174,7 +174,7 @@ class JinjaTemplater(PythonTemplater):
         )
 
     def process(
-        self, *, in_str: str, fname: Optional[str] = None, config=None, formatter=None
+        self, *, in_str: str, fname: str, config=None, formatter=None
     ) -> Tuple[Optional[TemplatedFile], list]:
         """Process a string and return the new string.
 
@@ -245,7 +245,7 @@ class JinjaTemplater(PythonTemplater):
                 TemplatedFile(source_str=in_str, fname=fname),
                 [
                     SQLTemplaterError(
-                        "Failure to parse jinja template: {0}.".format(err),
+                        f"Failure to parse jinja template: {err}.",
                         line_no=err.lineno,
                     )
                 ],
@@ -261,9 +261,7 @@ class JinjaTemplater(PythonTemplater):
             undefined_variables = meta.find_undeclared_variables(syntax_tree)
         except Exception as err:
             # TODO: Add a url here so people can get more help.
-            raise SQLTemplaterError(
-                "Failure in identifying Jinja variables: {0}.".format(err)
-            )
+            raise SQLTemplaterError(f"Failure in identifying Jinja variables: {err}.")
 
         # Get rid of any that *are* actually defined.
         for val in live_context:
@@ -297,7 +295,7 @@ class JinjaTemplater(PythonTemplater):
             violations.append(
                 SQLTemplaterError(
                     (
-                        "Unrecoverable failure in Jinja templating: {0}. Have you configured "
+                        "Unrecoverable failure in Jinja templating: {}. Have you configured "
                         "your variables? https://docs.sqlfluff.com/en/latest/configuration.html"
                     ).format(err)
                 )

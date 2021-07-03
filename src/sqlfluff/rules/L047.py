@@ -56,14 +56,19 @@ class Rule_L047(BaseRule):
             segment.is_type("function")
             and segment.get_child("function_name").raw_upper == "COUNT"
         ):
+            # Get bracketed content
+            bracketed = segment.get_child("bracketed")
+
+            if not bracketed:
+                return None
+
             f_content = [
                 seg
-                for seg in segment.segments
+                for seg in bracketed.segments
                 if not seg.is_meta
                 and not seg.is_type(
                     "start_bracket",
                     "end_bracket",
-                    "function_name",
                     "whitespace",
                     "newline",
                 )
@@ -71,7 +76,7 @@ class Rule_L047(BaseRule):
             if len(f_content) != 1:
                 return None
 
-            if self.prefer_count_1 and f_content[0].type == "star":
+            if self.prefer_count_1 and f_content[0].is_type("star"):
                 return LintResult(
                     anchor=segment,
                     fixes=[
@@ -82,13 +87,13 @@ class Rule_L047(BaseRule):
                         ),
                     ],
                 )
-            if not self.prefer_count_1 and f_content[0].type == "expression":
+            if not self.prefer_count_1 and f_content[0].is_type("expression"):
                 expression_content = [
                     seg for seg in f_content[0].segments if not seg.is_meta
                 ]
                 if (
                     len(expression_content) == 1
-                    and expression_content[0].type == "literal"
+                    and expression_content[0].is_type("literal")
                     and expression_content[0].raw == "1"
                 ):
                     return LintResult(

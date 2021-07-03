@@ -45,27 +45,20 @@ def match_wrapper(v_level=3):
 
         def wrapped_match_method(self_cls, segments: tuple, parse_context):
             """A wrapper on the match function to do some basic validation."""
-            # Use the ephemeral_segment if present. This should only
-            # be the case for grammars where `ephemeral_name` is defined.
-            ephemeral_segment = getattr(self_cls, "ephemeral_segment", None)
-            if ephemeral_segment:
-                # We're going to return as though it's a full match, similar to Anything().
-                m = MatchResult.from_matched(ephemeral_segment(segments=segments))
-            else:
-                # Otherwise carry on through with wrapping the function.
-                m = func(self_cls, segments, parse_context=parse_context)
+            # Do the match
+            m = func(self_cls, segments, parse_context=parse_context)
+
+            name = getattr(self_cls, "__name__", self_cls.__class__.__name__)
 
             # Validate result
             if not isinstance(m, MatchResult):
                 parse_context.logger.warning(
-                    "{0}.match, returned {1} rather than MatchResult".format(
-                        func.__qualname__, type(m)
-                    )
+                    f"{name}.match, returned {type(m)} rather than MatchResult"
                 )
 
             # Log the result.
             WrapParseMatchLogObject(
-                grammar=func.__qualname__,
+                grammar=name,
                 func="match",
                 match=m,
                 parse_context=parse_context,

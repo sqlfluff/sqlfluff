@@ -2,6 +2,8 @@
 
 from typing import NamedTuple, Optional, List
 
+from sqlfluff.core.parser import WhitespaceSegment, KeywordSegment
+
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
@@ -50,8 +52,8 @@ class Rule_L037(BaseRule):
             if child_segment.is_type("column_reference"):
                 found_column_reference = True
             elif child_segment.is_type("keyword") and child_segment.name in (
-                "ASC",
-                "DESC",
+                "asc",
+                "desc",
             ):
                 ordering_reference = child_segment.name
             elif found_column_reference and child_segment.type not in [
@@ -98,12 +100,13 @@ class Rule_L037(BaseRule):
             for col_info in orderby_spec:
                 if not col_info.order:
                     # Since ASC is default in SQL, add in ASC for fix
-                    new_whitespace = self.make_whitespace(raw=" ")
-                    new_keyword = self.make_keyword(raw="ASC")
-                    order_lint_fix = LintFix(
-                        "create", col_info.separator, [new_whitespace, new_keyword]
+                    lint_fixes.append(
+                        LintFix(
+                            "create",
+                            col_info.separator,
+                            [WhitespaceSegment(), KeywordSegment("ASC")],
+                        )
                     )
-                    lint_fixes.append(order_lint_fix)
 
             return [
                 LintResult(

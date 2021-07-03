@@ -7,18 +7,20 @@ file:
           function:
           - function_name:
               function_name_identifier: COUNT
-          - start_bracket: (
-          - star: '*'
-          - end_bracket: )
+          - bracketed:
+              start_bracket: (
+              star: '*'
+              end_bracket: )
           - keyword: FILTER
-          - start_bracket: (
-          - keyword: WHERE
-          - expression:
-              column_reference:
-                identifier: c_expires
-              comparison_operator: '>'
-              bare_function: CURRENT_TIMESTAMP
-          - end_bracket: )
+          - bracketed:
+              start_bracket: (
+              keyword: WHERE
+              expression:
+                column_reference:
+                  identifier: c_expires
+                comparison_operator: '>'
+                bare_function: CURRENT_TIMESTAMP
+              end_bracket: )
           alias_expression:
             keyword: AS
             identifier: c_active

@@ -8,6 +8,7 @@ from sqlfluff.cli.helpers import (
     cli_table,
     get_package_version,
     get_python_version,
+    get_python_implementation,
     pad_line,
 )
 
@@ -22,7 +23,7 @@ def format_filename(filename, success=False, success_text="PASS"):
         status_string = colorize(
             success_text if success else "FAIL", "green" if success else "red"
         )
-    return "== [" + colorize("{0}".format(filename), "lightgrey") + "] " + status_string
+    return "== [" + colorize(f"{filename}", "lightgrey") + "] " + status_string
 
 
 def split_string_on_spaces(s, line_length=100):
@@ -52,15 +53,15 @@ def format_violation(violation, max_line_length=90):
     if isinstance(violation, SQLBaseError):
         desc = violation.desc()
         if violation.line_no is not None:
-            line_elem = "{0:4d}".format(violation.line_no)
+            line_elem = f"{violation.line_no:4d}"
         else:
             line_elem = "   -"
         if violation.line_pos is not None:
-            pos_elem = "{0:4d}".format(violation.line_pos)
+            pos_elem = f"{violation.line_pos:4d}"
         else:
             pos_elem = "   -"
     else:
-        raise ValueError("Unexpected violation format: {0}".format(violation))
+        raise ValueError(f"Unexpected violation format: {violation}")
 
     if violation.ignore:
         desc = "IGNORE: " + desc
@@ -71,7 +72,7 @@ def format_violation(violation, max_line_length=90):
     for idx, line in enumerate(split_desc):
         if idx == 0:
             out_buff += colorize(
-                "L:{0} | P:{1} | {2} | ".format(
+                "L:{} | P:{} | {} | ".format(
                     line_elem, pos_elem, violation.rule_code().rjust(4)
                 ),
                 # Grey out the violation if we're ignoring it.
@@ -234,10 +235,13 @@ class CallbackFormatter:
             config_content = [
                 ("sqlfluff", get_package_version()),
                 ("python", get_python_version()),
+                ("implementation", get_python_implementation()),
                 ("dialect", linter.dialect.name),
                 ("verbosity", self._verbosity),
             ] + linter.templater.config_pairs()
-            text_buffer.write(cli_table(config_content, col_width=25))
+            text_buffer.write(
+                cli_table(config_content, col_width=30, max_label_width=15)
+            )
             text_buffer.write("\n")
             if linter.config.get("rule_whitelist"):
                 text_buffer.write(
@@ -264,7 +268,7 @@ class CallbackFormatter:
     @staticmethod
     def _format_path(path):
         """Format paths."""
-        return "=== [ path: {0} ] ===\n".format(colorize(path, "lightgrey"))
+        return "=== [ path: {} ] ===\n".format(colorize(path, "lightgrey"))
 
     def dispatch_path(self, path):
         """Dispatch paths for display."""

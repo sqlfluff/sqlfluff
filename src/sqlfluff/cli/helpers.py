@@ -35,6 +35,14 @@ def get_python_version():
     return "{0[0]}.{0[1]}.{0[2]}".format(sys.version_info)
 
 
+def get_python_implementation():
+    """Get the current python implementation as a string.
+
+    This is useful if testing in pypy or similar.
+    """
+    return sys.implementation.name
+
+
 def get_package_version():
     """Get the current version of the sqlfluff package."""
     return pkg_version
@@ -81,7 +89,7 @@ def pad_line(s, width, align="left"):
     elif align == "right":
         return (" " * gap) + s
     else:
-        raise ValueError("Unknown alignment: {0}".format(align))
+        raise ValueError(f"Unknown alignment: {align}")
 
 
 def cli_table_row(

@@ -11,13 +11,14 @@ file:
             - identifier: functions
             - dot: .
             - function_name_identifier: timestamp_parsing
-            start_bracket: (
-            expression:
-              column_reference:
-              - identifier: log_tbl
-              - dot: .
-              - identifier: orderdate
-            end_bracket: )
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                - identifier: log_tbl
+                - dot: .
+                - identifier: orderdate
+              end_bracket: )
           alias_expression:
             keyword: AS
             identifier: orderdate

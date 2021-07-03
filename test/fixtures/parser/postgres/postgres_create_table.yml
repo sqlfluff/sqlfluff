@@ -5,11 +5,12 @@ file:
     - keyword: TABLE
     - table_reference:
         identifier: counters
-    - start_bracket: (
-    - column_definition:
-        identifier: my_type
-        data_type:
-          identifier: public
-          dot: .
-          data_type_identifier: MY_TYPE
-    - end_bracket: )
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          identifier: my_type
+          data_type:
+            identifier: public
+            dot: .
+            data_type_identifier: MY_TYPE
+        end_bracket: )

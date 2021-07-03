@@ -16,6 +16,7 @@ file:
                 identifier: real_data
           snowflake_sample_expression:
             keyword: sample
-            start_bracket: (
-            literal: '20'
-            end_bracket: )
+            bracketed:
+              start_bracket: (
+              literal: '20'
+              end_bracket: )

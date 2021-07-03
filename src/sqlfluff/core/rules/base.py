@@ -21,13 +21,7 @@ import re
 from typing import Optional, List, Tuple, TYPE_CHECKING
 from collections import namedtuple
 
-from sqlfluff.core.parser import (
-    KeywordSegment,
-    BaseSegment,
-    SymbolSegment,
-    WhitespaceSegment,
-    NewlineSegment,
-)
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.errors import SQLLintError
 
 if TYPE_CHECKING:
@@ -45,7 +39,7 @@ class RuleLoggingAdapter(logging.LoggerAdapter):
 
     def process(self, msg, kwargs):
         """Add the code element to the logging message before emit."""
-        return "[%s] %s" % (self.extra["code"], msg), kwargs
+        return "[{}] {}".format(self.extra["code"], msg), kwargs
 
 
 class LintResult:
@@ -116,7 +110,7 @@ class LintFix:
 
     def __init__(self, edit_type, anchor: BaseSegment, edit=None):
         if edit_type not in ["create", "edit", "delete"]:
-            raise ValueError("Unexpected edit_type: {0}".format(edit_type))
+            raise ValueError(f"Unexpected edit_type: {edit_type}")
         self.edit_type = edit_type
         if not anchor:
             raise ValueError("Fixes must provide an anchor.")
@@ -167,7 +161,7 @@ class LintFix:
 
     def __repr__(self):
         if self.edit_type == "delete":
-            detail = "delete:{0!r}".format(self.anchor.raw)
+            detail = f"delete:{self.anchor.raw!r}"
         elif self.edit_type in ("edit", "create"):
             if hasattr(self.edit, "raw"):
                 new_detail = self.edit.raw
@@ -175,12 +169,12 @@ class LintFix:
                 new_detail = "".join(s.raw for s in self.edit)
 
             if self.edit_type == "edit":
-                detail = "edt:{0!r}->{1!r}".format(self.anchor.raw, new_detail)
+                detail = f"edt:{self.anchor.raw!r}->{new_detail!r}"
             else:
-                detail = "create:{0!r}".format(new_detail)
+                detail = f"create:{new_detail!r}"
         else:
             detail = ""
-        return "<LintFix: {0} @{1} {2}>".format(
+        return "<LintFix: {} @{} {}>".format(
             self.edit_type, self.anchor.pos_marker, detail
         )
 
@@ -231,13 +225,13 @@ class BaseRule:
                 if keyword not in kwargs.keys():
                     raise ValueError(
                         (
-                            "Unrecognized config '{0}' for Rule {1}. If this "
+                            "Unrecognized config '{}' for Rule {}. If this "
                             "is a new option, please add it to "
                             "`default_config.cfg`"
                         ).format(keyword, code)
                     )
         except AttributeError:
-            self.logger.info("No config_keywords defined for {0}".format(code))
+            self.logger.info(f"No config_keywords defined for {code}")
 
     def _eval(self, **kwargs):
         """Evaluate this rule against the current context.
@@ -259,7 +253,7 @@ class BaseRule:
         """
         raise NotImplementedError(
             (
-                "{0} has not had its `eval` function defined. This is a problem "
+                "{} has not had its `eval` function defined. This is a problem "
                 "with the rule setup."
             ).format(self.__class__.__name__)
         )
@@ -362,7 +356,7 @@ class BaseRule:
                 new_fixes += elem.fixes
         else:
             raise TypeError(
-                "Got unexpected result [{0!r}] back from linting rule: {1!r}".format(
+                "Got unexpected result [{!r}] back from linting rule: {!r}".format(
                     res, self.code
                 )
             )
@@ -437,36 +431,6 @@ class BaseRule:
         # no subsegments to check. Return None.
         return None
 
-    @classmethod
-    def make_whitespace(cls, raw):
-        """Make a whitespace segment."""
-        return WhitespaceSegment(raw=raw, pos_marker=None)
-
-    @classmethod
-    def make_newline(cls, raw=None):
-        """Make a newline segment."""
-        # Default the newline to \n
-        raw = raw or "\n"
-        return NewlineSegment(raw=raw, pos_marker=None)
-
-    @classmethod
-    def make_keyword(cls, raw):
-        """Make a keyword segment."""
-        # For the name of the segment, we force the string to lowercase.
-        kws = KeywordSegment.make(raw.lower())
-        # At the moment we let the rule dictate *case* here.
-        return kws(raw=raw, pos_marker=None)
-
-    @classmethod
-    def make_symbol(cls, raw, seg_type, name=None):
-        """Make a symbol segment."""
-        # For the name of the segment, we force the string to lowercase.
-        symbol_seg = SymbolSegment.make(
-            raw.lower(), name=name or seg_type, type=seg_type
-        )
-        # At the moment we let the rule dictate *case* here.
-        return symbol_seg(raw=raw, pos_marker=None)
-
     @staticmethod
     def matches_target_tuples(seg: BaseSegment, target_tuples: List[Tuple[str, str]]):
         """Does the given segment match any of the given type tuples."""
@@ -525,7 +489,7 @@ class RuleSet:
             ):
                 raise ValueError(
                     (
-                        "Invalid option '{0}' for {1} configuration. Must be one of {2}"
+                        "Invalid option '{}' for {} configuration. Must be one of {}"
                     ).format(
                         config_option,
                         config_name,
@@ -572,8 +536,8 @@ class RuleSet:
         if not rule_name_match:
             raise ValueError(
                 (
-                    "Tried to register rule on set {0!r} with unexpected "
-                    "format: {1}, format should be: Rule_PluginName_L123 (for plugins) "
+                    "Tried to register rule on set {!r} with unexpected "
+                    "format: {}, format should be: Rule_PluginName_L123 (for plugins) "
                     "or Rule_L123 (for core rules)."
                 ).format(self.name, cls.__name__)
             )
@@ -588,7 +552,7 @@ class RuleSet:
         # Keep track of the *class* in the register. Don't instantiate yet.
         if code in self._register:
             raise ValueError(
-                "Rule {0!r} has already been registered on RuleSet {1!r}!".format(
+                "Rule {!r} has already been registered on RuleSet {!r}!".format(
                     code, self.name
                 )
             )
@@ -597,7 +561,7 @@ class RuleSet:
         # Make sure we actually return the original class
         return cls
 
-    def get_rulelist(self, config):
+    def get_rulelist(self, config) -> List[BaseRule]:
         """Use the config to return the appropriate rules.
 
         We use the config both for whitelisting and blacklisting, but also
@@ -618,7 +582,7 @@ class RuleSet:
         ]
         if any(whitelisted_unknown_rule_codes):
             rules_logger.warning(
-                "Tried to whitelist unknown rules: {0!r}".format(
+                "Tried to whitelist unknown rules: {!r}".format(
                     whitelisted_unknown_rule_codes
                 )
             )
@@ -628,7 +592,7 @@ class RuleSet:
         ]
         if any(blacklisted_unknown_rule_codes):
             rules_logger.warning(
-                "Tried to blacklist unknown rules: {0!r}".format(
+                "Tried to blacklist unknown rules: {!r}".format(
                     blacklisted_unknown_rule_codes
                 )
             )

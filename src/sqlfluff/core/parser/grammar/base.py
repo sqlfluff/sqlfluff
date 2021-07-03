@@ -1,12 +1,13 @@
 """Base grammar, Ref, Anything and Nothing."""
 
 import copy
-from typing import List, NamedTuple, Optional, Union, Type, Tuple, Any
+from dataclasses import dataclass
+from typing import List, Optional, Union, Type, Tuple, Any
 
 from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.string_helpers import curtail_string
 
-from sqlfluff.core.parser.segments import BaseSegment, EphemeralSegment
+from sqlfluff.core.parser.segments import BaseSegment, BracketedSegment, allow_ephemeral
 from sqlfluff.core.parser.helpers import trim_non_code_segments, iter_indices
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_logging import (
@@ -16,12 +17,14 @@ from sqlfluff.core.parser.match_logging import (
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.context import ParseContext
+from sqlfluff.core.parser.parsers import StringParser
 
 # Either a Grammar or a Segment CLASS
 MatchableType = Union[Matchable, Type[BaseSegment]]
 
 
-class BracketInfo(NamedTuple):
+@dataclass
+class BracketInfo:
     """BracketInfo tuple for keeping track of brackets during matching.
 
     This is used in BaseGrammar._bracket_sensitive_look_ahead_match but
@@ -29,6 +32,15 @@ class BracketInfo(NamedTuple):
     """
 
     bracket: BaseSegment
+    segments: Tuple[BaseSegment, ...]
+
+    def to_segment(self, end_bracket):
+        """Turn the contained segments into a bracketed segment."""
+        return BracketedSegment(
+            segments=self.segments,
+            start_bracket=(self.bracket,),
+            end_bracket=end_bracket,
+        )
 
 
 def cached_method_for_parse_context(func):
@@ -76,6 +88,7 @@ class BaseGrammar(Matchable):
             # t: instance / f: class, ref, func
             (True, str, Ref.keyword),
             (True, BaseGrammar, lambda x: x),
+            (True, StringParser, lambda x: x),
             (False, BaseSegment, lambda x: x),
         ]
         # Get-out clause for None
@@ -88,7 +101,7 @@ class BaseGrammar(Matchable):
             ):
                 return init_func(elem)
         raise TypeError(
-            "Grammar element [{0!r}] was found of unexpected type [{1}] was found.".format(
+            "Grammar element [{!r}] was found of unexpected type [{}] was found.".format(
                 elem, type(elem)
             )
         )
@@ -134,21 +147,12 @@ class BaseGrammar(Matchable):
         # Now we deal with the standard kwargs
         self.allow_gaps = allow_gaps
         self.optional = optional
-        self.ephemeral_segment = None
-        # Set up the ephemeral_segment if name is specified.
-        if ephemeral_name:
-            # Make the EphemeralSegment class. This is effectively syntactic sugar
-            # to allow us to avoid specifying a EphemeralSegment directly in a dialect.
-
-            # Copy self (*before* making the EphemeralSegment, but with everything else in place)
-            parse_grammar = copy.copy(self)
-            # Add the EphemeralSegment to self.
-            self.ephemeral_segment = EphemeralSegment.make(
-                match_grammar=None,
-                # Pass in the copy without the EphemeralSegment
-                parse_grammar=parse_grammar,
-                name=ephemeral_name,
-            )
+        # ephemeral_name is a flag to indicate whether we need to make an
+        # EphemeralSegment class. This is effectively syntactic sugar
+        # to allow us to avoid specifying a EphemeralSegment directly in a dialect.
+        # If this is the case, the actual segment construction happens in the
+        # match_wrapper.
+        self.ephemeral_name = ephemeral_name
 
     def is_optional(self):
         """Return whether this segment is optional.
@@ -158,6 +162,7 @@ class BaseGrammar(Matchable):
         return self.optional
 
     @match_wrapper()
+    @allow_ephemeral
     def match(self, segments: Tuple["BaseSegment", ...], parse_context: ParseContext):
         """Match a list of segments against this segment.
 
@@ -166,7 +171,7 @@ class BaseGrammar(Matchable):
         on the underlying class.
         """
         raise NotImplementedError(
-            "{0} has no match function implemented".format(self.__class__.__name__)
+            f"{self.__class__.__name__} has no match function implemented"
         )
 
     @cached_method_for_parse_context
@@ -228,6 +233,9 @@ class BaseGrammar(Matchable):
                 if res_match.matched_length > best_match_length:
                     best_match = res_match, matcher
                     best_match_length = res_match.matched_length
+            # We could stash segments here, but given we might have some successful
+            # matches here, we shouldn't, because they'll be mutated in the wrong way.
+            # Eventually there might be a performance gain from doing that sensibly here.
 
         # If we get here, then there wasn't a complete match. If we
         # has a best_match, return that.
@@ -444,7 +452,7 @@ class BaseGrammar(Matchable):
         start_bracket=None,
         end_bracket=None,
         bracket_pairs_set="bracket_pairs",
-    ):
+    ) -> Tuple[Tuple[BaseSegment, ...], MatchResult, Optional[MatchableType]]:
         """Same as `_look_ahead_match` but with bracket counting.
 
         NB: Given we depend on `_look_ahead_match` we can also utilise
@@ -471,10 +479,10 @@ class BaseGrammar(Matchable):
         # to the list of matchers. We get them from the relevant set on the
         # dialect. We use zip twice to "unzip" them. We ignore the first
         # argument because that's just the name.
-        _, start_bracket_refs, end_bracket_refs = zip(
+        _, start_bracket_refs, end_bracket_refs, persists = zip(
             *parse_context.dialect.sets(bracket_pairs_set)
         )
-        # These are currently strings which need rehydrating
+        # These are matchables, probably StringParsers.
         start_brackets = [
             parse_context.dialect.ref(seg_ref) for seg_ref in start_bracket_refs
         ]
@@ -489,8 +497,8 @@ class BaseGrammar(Matchable):
         bracket_matchers = start_brackets + end_brackets
 
         # Make some buffers
-        seg_buff = segments
-        pre_seg_buff = ()  # NB: Tuple
+        seg_buff: Tuple[BaseSegment, ...] = segments
+        pre_seg_buff: Tuple[BaseSegment, ...] = ()
         bracket_stack: List[BracketInfo] = []
 
         # Iterate
@@ -518,38 +526,67 @@ class BaseGrammar(Matchable):
                         # handle identical start and end brackets. For now, consider this
                         # a small, speculative investment in a possible future requirement.
                         if matcher in start_brackets and matcher not in end_brackets:
-                            # Same procedure as below in finding brackets.
+                            # Add any segments leading up to this to the previous bracket.
+                            bracket_stack[-1].segments += pre
+                            # Add a bracket to the stack and add the matches from the segment.
                             bracket_stack.append(
                                 BracketInfo(
                                     bracket=match.matched_segments[0],
+                                    segments=match.matched_segments,
                                 )
                             )
-                            pre_seg_buff += pre
-                            pre_seg_buff += match.matched_segments
                             seg_buff = match.unmatched_segments
                             continue
                         elif matcher in end_brackets:
                             # Found an end bracket. Does its type match that of
                             # the innermost start bracket? E.g. ")" matches "(",
                             # "]" matches "[".
-                            start_index = start_brackets.index(
-                                type(bracket_stack[-1].bracket)
-                            )
+                            # For the start bracket we don't have the matcher
+                            # but we can work out the name, so we use that for
+                            # the lookup.
+                            start_index = [
+                                bracket.name for bracket in start_brackets
+                            ].index(bracket_stack[-1].bracket.name)
+                            # For the end index, we can just look for the matcher
                             end_index = end_brackets.index(matcher)
                             bracket_types_match = start_index == end_index
                             if bracket_types_match:
                                 # Yes, the types match. So we've found a
-                                # matching end bracket. Pop the stack and carry
+                                # matching end bracket. Pop the stack, construct
+                                # a bracketed segment and carry
                                 # on.
+
+                                # Complete the bracketed info
+                                bracket_stack[-1].segments += (
+                                    pre + match.matched_segments
+                                )
+                                # Construct a bracketed segment (as a tuple) if allowed.
+                                persist_bracket = persists[end_brackets.index(matcher)]
+                                if persist_bracket:
+                                    new_segments: Tuple[BaseSegment, ...] = (
+                                        bracket_stack[-1].to_segment(
+                                            end_bracket=match.matched_segments
+                                        ),
+                                    )
+                                else:
+                                    new_segments = bracket_stack[-1].segments
+                                # Remove the bracket set from the stack
                                 bracket_stack.pop()
-                                pre_seg_buff += pre
-                                pre_seg_buff += match.matched_segments
+                                # If we're still in a bracket, add the new segments to that bracket
+                                # Otherwise add them to the buffer
+                                if bracket_stack:
+                                    bracket_stack[-1].segments += new_segments
+                                else:
+                                    pre_seg_buff += new_segments
                                 seg_buff = match.unmatched_segments
                                 continue
                             else:
                                 # The types don't match. Error.
                                 raise SQLParseError(
-                                    f"Found unexpected end bracket!, was expecting {end_brackets[start_index]}, but got {matcher}",
+                                    f"Found unexpected end bracket!, "
+                                    f"was expecting "
+                                    f"{end_brackets[start_index]}, "
+                                    f"but got {matcher}",
                                     segment=match.matched_segments[0],
                                 )
 
@@ -585,12 +622,13 @@ class BaseGrammar(Matchable):
                             bracket_stack.append(
                                 BracketInfo(
                                     bracket=match.matched_segments[0],
+                                    segments=match.matched_segments,
                                 )
                             )
-                            # Add the matched elements and anything before it to the
-                            # pre segment buffer. Reset the working buffer.
+                            # The matched element has already been added to the bracket.
+                            # Add anything before it to the pre segment buffer.
+                            # Reset the working buffer.
                             pre_seg_buff += pre
-                            pre_seg_buff += match.matched_segments
                             seg_buff = match.unmatched_segments
                             continue
                         elif matcher in end_brackets:
@@ -606,16 +644,14 @@ class BaseGrammar(Matchable):
                                 v_level=3,
                                 got=matcher,
                             )
-                            return ((), MatchResult.from_unmatched(segments), None)
+                            # From here we'll drop out to the happy unmatched exit.
                         else:
                             # This shouldn't happen!?
                             raise NotImplementedError(
                                 "This shouldn't happen. Panic in _bracket_sensitive_look_ahead_match."
                             )
-                    else:
-                        # Not in a bracket stack, but no match. This is a happy
-                        # unmatched exit.
-                        return ((), MatchResult.from_unmatched(segments), None)
+                    # Not in a bracket stack, but no match.
+                    # From here we'll drop out to the happy unmatched exit.
             else:
                 # No we're at the end:
                 # Now check have we closed all our brackets?
@@ -626,15 +662,19 @@ class BaseGrammar(Matchable):
                         segment=bracket_stack[-1].bracket,
                     )
 
-                # We reached the end with no open brackets. This is a friendly
-                # unmatched return.
-                return ((), MatchResult.from_unmatched(segments), None)
+            # This is the happy unmatched path. This occurs when:
+            # - We reached the end with no open brackets.
+            # - No match while outside a bracket stack.
+            # - We found an unexpected end bracket before matching something interesting.
+            # We return with the mutated segments so we can
+            # reuse any bracket matching.
+            return ((), MatchResult.from_unmatched(pre_seg_buff + seg_buff), None)
 
     def __str__(self):
         return repr(self)
 
     def __repr__(self):
-        return "<{0}: [{1}]>".format(
+        return "<{}: [{}]>".format(
             self.__class__.__name__,
             curtail_string(
                 ", ".join(curtail_string(repr(elem), 40) for elem in self._elements),
@@ -703,7 +743,7 @@ class BaseGrammar(Matchable):
                     idx = new_elems.index(before)
                 except ValueError:
                     raise ValueError(
-                        "Could not insert {0} in copy of {1}. {2} not Found.".format(
+                        "Could not insert {} in copy of {}. {} not Found.".format(
                             insert, self, before
                         )
                     )
@@ -718,7 +758,7 @@ class BaseGrammar(Matchable):
                     new_elems.remove(elem)
                 except ValueError:
                     raise ValueError(
-                        "Could not remove {0} from copy of {1}. Not Found.".format(
+                        "Could not remove {} from copy of {}. Not Found.".format(
                             elem, self
                         )
                     )
@@ -753,7 +793,7 @@ class Ref(BaseGrammar):
             return self._elements[0]
         else:
             raise ValueError(
-                "Ref grammar can only deal with precisely one element for now. Instead found {0!r}".format(
+                "Ref grammar can only deal with precisely one element for now. Instead found {!r}".format(
                     self._elements
                 )
             )
@@ -767,11 +807,12 @@ class Ref(BaseGrammar):
             raise ReferenceError("No Dialect has been provided to Ref grammar!")
 
     def __repr__(self):
-        return "<Ref: {0}{1}>".format(
+        return "<Ref: {}{}>".format(
             ", ".join(self._elements), " [opt]" if self.is_optional() else ""
         )
 
     @match_wrapper(v_level=4)  # Log less for Ref
+    @allow_ephemeral
     def match(self, segments, parse_context):
         """Match a list of segments against this segment.
 
@@ -785,9 +826,7 @@ class Ref(BaseGrammar):
         elem = self._get_elem(dialect=parse_context.dialect)
 
         if not elem:
-            raise ValueError(
-                "Null Element returned! _elements: {0!r}".format(self._elements)
-            )
+            raise ValueError(f"Null Element returned! _elements: {self._elements!r}")
 
         # First check against the efficiency Cache.
         # We rely on segments not being mutated within a given

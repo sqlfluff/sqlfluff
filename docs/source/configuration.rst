@@ -19,13 +19,43 @@ any vales read from earlier files.
 - :code:`tox.ini`
 - :code:`pep8.ini`
 - :code:`.sqlfluff`
+- :code:`pyproject.toml`
 
-Within these files, they will be read like an `cfg file`_, and *SQLFluff*
-will look for sections which start with *SQLFluff*, and where subsections
-are delimited by a semicolon. For example the *jinjacontext* section will
-be indicated in the section started with *[sqlfluff:jinjacontext]*.
+Within these files, the first four will be read like an `cfg file`_, and
+*SQLFluff* will look for sections which start with *SQLFluff*, and where
+subsections are delimited by a semicolon. For example the *jinjacontext*
+section will be indicated in the section started with
+*[sqlfluff:jinjacontext]*.
+
+For the `pyproject.toml file`_, all valid sections start with `tool.sqlfluff`
+and subsections are delimited by a dot. For example the *jinjacontext* section
+will be indicated in the section started with *[tool.sqlfluff.jinjacontext]*.
+
+For example
+
+.. code-block:: toml
+
+    [tool.sqlfluff.core]
+    templater = "jinja"
+    sql_file_exts = [
+        ".sql",
+        ".sql.j2",
+        ".dml",
+        ".ddl",
+    ]
+
+    [tool.sqlfluff.indentation]
+    indented_joins = false
+    template_blocks_indent = false
+
+    [tool.sqlfluff.templater]
+    unwrap_wrapped_queries = true
+
+    [tool.sqlfluff.templater.jinja]
+    apply_dbt_builtins = true
 
 .. _`cfg file`: https://docs.python.org/3/library/configparser.html
+.. _`pyproject.toml file`: https://www.python.org/dev/peps/pep-0518/
 
 Nesting
 -------
@@ -33,7 +63,9 @@ Nesting
 **SQLFluff** uses **nesting** in its configuration files, with files
 closer *overriding* (or *patching*, if you will) values from other files.
 That means you'll end up with a final config which will be a patchwork
-of all the values from the config files loaded up to that path.
+of all the values from the config files loaded up to that path. The exception
+to this is the value for `templater`, which cannot be set in config files in
+subdirectories of the working directory.
 You don't **need** any config files to be present to make *SQLFluff*
 work. If you do want to override any values though SQLFluff will use
 files in the following locations in order, with values from later
@@ -316,13 +348,21 @@ In *.sqlfluffignore*:
     dbt_modules/
     macros/
 
+You can set the dbt project directory, profiles directory and profile with:
+
+.. code-block::
+
+    [sqlfluff:templater:dbt]
+    project_dir = <relative or absolute path to dbt_project directory>
+    profiles_dir = <relative or absolute path to the directory that contains the profiles.yml file>
+    profile = <dbt profile>
+
 Known Caveats
 ^^^^^^^^^^^^^
 
-- In SQLFluff 0.4.0 dbt templating only works if SQLFluff CLI commands
-  are invoked from the dbt project's root directory (containing
-  `dbt_project.yml`). There is an issue to address this:
-  https://github.com/sqlfluff/sqlfluff/issues/601
+- To use the dbt templater, you must set `templater = dbt` in the `.sqlfluff`
+  config file in the directory where sqlfluff is run. The templater cannot
+  be changed in `.sqlfluff` files in subdirectories.
 - In SQLFluff 0.4.0 using the dbt templater requires that all files
   within the root and child directories of the dbt project must be part
   of the project. If there are deployment scripts which refer to SQL files
@@ -335,12 +375,12 @@ CLI Arguments
 -------------
 
 You already know you can pass arguments (:code:`--verbose`,
-:code:`--exclude_rules`, etc.) through the CLI commands (:code:`lint`,
+:code:`--exclude-rules`, etc.) through the CLI commands (:code:`lint`,
 :code:`fix`, etc.):
 
 .. code-block:: console
 
-    $ sqlfluff lint my_code.sql -v -exclude_rules L022,L027
+    $ sqlfluff lint my_code.sql -v --exclude-rules L022,L027
 
 You might have arguments that you pass through every time, e.g rules you
 *always* want to ignore. These can also be configured:

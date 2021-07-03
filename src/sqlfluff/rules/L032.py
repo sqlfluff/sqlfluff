@@ -36,7 +36,7 @@ class Rule_L032(BaseRule):
         """Look for USING in a join clause."""
         if segment.is_type("join_clause"):
             for seg in segment.segments:
-                if seg.is_type("keyword") and seg.name == "USING":
+                if seg.is_type("keyword") and seg.name == "using":
                     return [
                         LintResult(
                             # Reference the element, not the string.

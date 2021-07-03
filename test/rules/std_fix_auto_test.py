@@ -80,14 +80,14 @@ def auto_fix_test(dialect, folder, caplog):
     # Open the example file and write the content to it
     print_buff = ""
     with open(filepath, mode="w") as dest_file:
-        with open(src_filepath, mode="r") as source_file:
+        with open(src_filepath) as source_file:
             for line in source_file:
                 dest_file.write(line)
                 print_buff += line
     # Copy the config file too
     try:
         with open(cfgpath, mode="w") as dest_file:
-            with open(cfg_filepath, mode="r") as source_file:
+            with open(cfg_filepath) as source_file:
                 print("## Config File Found.")
                 for line in source_file:
                     dest_file.write(line)
@@ -95,10 +95,10 @@ def auto_fix_test(dialect, folder, caplog):
         # No config file? No biggie
         print("## No Config File Found.")
         pass
-    print("## Input file:\n{0}".format(print_buff))
+    print(f"## Input file:\n{print_buff}")
     # Do we need to do a violations check?
     try:
-        with open(vio_filepath, mode="r") as vio_file:
+        with open(vio_filepath) as vio_file:
             violations = json.load(vio_file)
     except FileNotFoundError:
         # No violations file. Let's not worry
@@ -109,7 +109,7 @@ def auto_fix_test(dialect, folder, caplog):
     lnt = Linter(config=cfg)
     res = lnt.lint_path(filepath, fix=True)
 
-    print("## Templated file:\n{0}".format(res.tree.raw))
+    print(f"## Templated file:\n{res.tree.raw}")
 
     # We call the check_tuples here, even to makes sure any non-linting
     # violations are raised, and the test fails.
@@ -126,12 +126,12 @@ def auto_fix_test(dialect, folder, caplog):
     # Actually do the fixes
     res = res.persist_changes()
     # Read the fixed file
-    with open(filepath, mode="r") as fixed_file:
+    with open(filepath) as fixed_file:
         fixed_buff = fixed_file.read()
     # Clearup once read
     shutil.rmtree(tempdir_path)
     # Read the comparison file
-    with open(cmp_filepath, mode="r") as comp_file:
+    with open(cmp_filepath) as comp_file:
         comp_buff = comp_file.read()
 
     # Make sure we were successful

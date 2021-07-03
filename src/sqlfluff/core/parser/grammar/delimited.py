@@ -3,7 +3,8 @@
 from typing import Tuple, List
 
 from sqlfluff.core.parser.grammar import Ref
-from sqlfluff.core.parser.segments import BaseSegment
+from sqlfluff.core.parser.segments import BaseSegment, allow_ephemeral
+from sqlfluff.core.parser.helpers import trim_non_code_segments
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.context import ParseContext
@@ -39,6 +40,7 @@ class Delimited(OneOf):
         super().__init__(*args, **kwargs)
 
     @match_wrapper()
+    @allow_ephemeral
     def match(
         self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
     ) -> MatchResult:
@@ -101,9 +103,9 @@ class Delimited(OneOf):
                     parse_context=ctx,
                     bracket_pairs_set=self.bracket_pairs_set,
                 )
-            # Keep track of the *length* of this pre-content section before we start
-            # to change it later. We need this for dealing with terminators.
-            pre_content_len = len(pre_content)
+
+            # Store the mutated segments to reuse.
+            mutated_segments = pre_content + delimiter_match.all_segments()
 
             # Have we found a delimiter or terminator looking forward?
             if delimiter_match:
@@ -115,22 +117,36 @@ class Delimited(OneOf):
                 # of the things we're looking for. NB: If it's of zero length then
                 # we return without trying it.
                 if len(pre_content) > 0:
+                    pre_non_code, pre_content, post_non_code = trim_non_code_segments(
+                        pre_content
+                    )
+                    # Check for whitespace gaps.
+                    # We do this explicitly here rather than relying on an
+                    # untrimmed match so we can handle _whitespace_ explicitly
+                    # compared to other non code segments like placeholders.
+                    if not self.allow_gaps and any(
+                        seg.is_whitespace for seg in pre_non_code + post_non_code
+                    ):
+                        return MatchResult.from_unmatched(mutated_segments)
+
                     with parse_context.deeper_match() as ctx:
-                        match, matcher = self._longest_trimmed_match(
+                        match, _ = self._longest_trimmed_match(
                             segments=pre_content,
                             matchers=self._elements,
                             parse_context=ctx,
-                            trim_noncode=self.allow_gaps,
+                            # We've already trimmed
+                            trim_noncode=False,
                         )
-
                     # No match, or an incomplete match: Not allowed
                     if not match or not match.is_complete():
-                        return MatchResult.from_unmatched(segments)
+                        return MatchResult.from_unmatched(mutated_segments)
 
                     # We have a complete match!
 
                     # First add the segment up to the delimiter to the matched segments
-                    matched_segments += match.matched_segments
+                    matched_segments += (
+                        pre_non_code + match.matched_segments + post_non_code
+                    )
                     # Then it depends what we matched.
                     # Delimiter
                     if delimiter_matcher is self.delimiter:
@@ -145,35 +161,30 @@ class Delimited(OneOf):
                         delimiter_matcher, NonCodeMatcher
                     ):
                         # We just return straight away here. We don't add the terminator to
-                        # this match, it should go with the unmatched parts. The terminator
-                        # may also have mutated the returned segments so we also DON'T want
-                        # the mutated version, it can do that itself (so we return `seg_buff`
-                        # and not `delimiter_match.all_segments()``)
+                        # this match, it should go with the unmatched parts.
 
                         # First check we've had enough delimiters
                         if (
                             self.min_delimiters
                             and len(delimiters) < self.min_delimiters
                         ):
-                            return MatchResult.from_unmatched(segments)
+                            return MatchResult.from_unmatched(mutated_segments)
                         else:
                             return MatchResult(
                                 matched_segments.matched_segments,
-                                # Return the part of the seg_buff which isn't in the
-                                # pre-content.
-                                seg_buff[pre_content_len:],
+                                delimiter_match.all_segments(),
                             )
                     else:
                         raise RuntimeError(
                             (
-                                "I don't know how I got here. Matched instead on {0}, which "
+                                "I don't know how I got here. Matched instead on {}, which "
                                 "doesn't appear to be delimiter or terminator"
                             ).format(delimiter_matcher)
                         )
                 else:
                     # Zero length section between delimiters, or zero code
                     # elements if appropriate. Return unmatched.
-                    return MatchResult.from_unmatched(segments)
+                    return MatchResult.from_unmatched(mutated_segments)
             else:
                 # No match for a delimiter looking forward, this means we're
                 # at the end. In this case we look for a potential partial match
@@ -183,30 +194,49 @@ class Delimited(OneOf):
                 # First check we're had enough delimiters, because if we haven't then
                 # there's no sense to try matching
                 if self.min_delimiters and len(delimiters) < self.min_delimiters:
-                    return MatchResult.from_unmatched(segments)
+                    return MatchResult.from_unmatched(mutated_segments)
 
                 # We use the whitespace padded match to hoover up whitespace if enabled,
                 # and default to the longest matcher. We don't care which one matches.
+                pre_non_code, trimmed_segments, post_non_code = trim_non_code_segments(
+                    mutated_segments
+                )
+                # Check for whitespace gaps.
+                # We do this explicitly here rather than relying on an
+                # untrimmed match so we can handle _whitespace_ explicitly
+                # compared to other non code segments like placeholders.
+                if not self.allow_gaps and any(
+                    seg.is_whitespace for seg in pre_non_code + post_non_code
+                ):
+                    return MatchResult.from_unmatched(mutated_segments)
+
                 with parse_context.deeper_match() as ctx:
                     mat, _ = self._longest_trimmed_match(
-                        seg_buff,
+                        trimmed_segments,
                         self._elements,
                         parse_context=ctx,
-                        trim_noncode=self.allow_gaps,
+                        # We've already trimmed
+                        trim_noncode=False,
                     )
+
                 if mat:
                     # We've got something at the end. Return!
                     if mat.unmatched_segments:
                         # We have something unmatched and so we should let it also have the trailing elements
                         return MatchResult(
-                            matched_segments.matched_segments + mat.matched_segments,
-                            mat.unmatched_segments,
+                            matched_segments.matched_segments
+                            + pre_non_code
+                            + mat.matched_segments,
+                            mat.unmatched_segments + post_non_code,
                         )
                     else:
                         # If there's nothing unmatched in the most recent match, then we can consume the trailing
                         # non code segments
                         return MatchResult.from_matched(
-                            matched_segments.matched_segments + mat.matched_segments,
+                            matched_segments.matched_segments
+                            + pre_non_code
+                            + mat.matched_segments
+                            + post_non_code,
                         )
                 else:
                     # No match at the end, are we allowed to trail? If we are then return,
@@ -214,4 +244,4 @@ class Delimited(OneOf):
                     if self.allow_trailing:
                         return MatchResult(matched_segments.matched_segments, seg_buff)
                     else:
-                        return MatchResult.from_unmatched(segments)
+                        return MatchResult.from_unmatched(mutated_segments)

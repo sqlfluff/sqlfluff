@@ -1,5 +1,7 @@
 """Implementation of Rule L009."""
 
+from sqlfluff.core.parser import NewlineSegment
+
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
@@ -42,5 +44,5 @@ class Rule_L009(BaseRule):
         # no segment after it to match on. Otherwise we would never get a match!
         return LintResult(
             anchor=segment,
-            fixes=[LintFix("edit", segment, [segment, self.make_newline()])],
+            fixes=[LintFix("edit", segment, [segment, NewlineSegment()])],
         )

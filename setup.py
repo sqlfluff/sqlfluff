@@ -1,12 +1,8 @@
 #!/usr/bin/env python
-# -*- encoding: utf-8 -*-
 
 """The script for setting up sqlfluff."""
 
-from __future__ import absolute_import
-from __future__ import print_function
 
-import io
 import sys
 
 if sys.version_info[0] < 3:
@@ -28,7 +24,7 @@ version = config.get("sqlfluff", "version")
 
 def read(*names, **kwargs):
     """Read a file and return the contents as a string."""
-    return io.open(
+    return open(
         join(dirname(__file__), *names), encoding=kwargs.get("encoding", "utf8")
     ).read()
 
@@ -84,8 +80,6 @@ setup(
         "Jinja2",
         # Used for diffcover plugin
         "diff-cover>=2.5.0",
-        # Used for performance profiling
-        "bench-it",
         # Used for .sqlfluffignore
         "pathspec",
         # Used for finding os-specific application config dirs
@@ -98,6 +92,10 @@ setup(
         "typing_extensions",
         # We provide a testing library for plugins in sqlfluff.testing
         "pytest",
+        # For parsing pyproject.toml
+        "toml",
+        # For returning exceptions from multiprocessing.Pool.map()
+        "tblib",
     ],
     extras_require={
         "dbt": ["dbt>=0.17"],

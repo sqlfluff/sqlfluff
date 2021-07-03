@@ -1,0 +1,18 @@
+file:
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: MY_DATABASE
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - database_reference:
+        identifier: MY_DATABASE
+- statement_terminator: ;

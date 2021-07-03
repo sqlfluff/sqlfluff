@@ -1,5 +1,7 @@
 """Implementation of Rule L018."""
 
+from sqlfluff.core.parser import NewlineSegment, WhitespaceSegment
+
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
@@ -79,7 +81,9 @@ class Rule_L018(BaseRule):
 
             balance = 0
             with_indent, with_indent_str = indent_size_up_to(raw_stack_buff)
-            for seg in segment.iter_segments(expanding=["common_table_expression"]):
+            for seg in segment.iter_segments(
+                expanding=["common_table_expression", "bracketed"], pass_through=True
+            ):
                 if seg.name == "start_bracket":
                     balance += 1
                 elif seg.name == "end_bracket":
@@ -99,7 +103,7 @@ class Rule_L018(BaseRule):
                                     LintFix(
                                         "create",
                                         seg,
-                                        self.make_whitespace(" " * (-indent_diff)),
+                                        WhitespaceSegment(" " * (-indent_diff)),
                                     )
                                 ],
                             )
@@ -108,7 +112,8 @@ class Rule_L018(BaseRule):
                             prev_segs_on_line = [
                                 elem
                                 for elem in segment.iter_segments(
-                                    expanding=["common_table_expression"]
+                                    expanding=["common_table_expression", "bracketed"],
+                                    pass_through=True,
                                 )
                                 if elem.pos_marker.line_no == seg.pos_marker.line_no
                                 and elem.pos_marker.line_pos < seg.pos_marker.line_pos
@@ -121,7 +126,7 @@ class Rule_L018(BaseRule):
                                     LintFix(
                                         "create",
                                         seg,
-                                        [self.make_whitespace(with_indent_str)],
+                                        [WhitespaceSegment(with_indent_str)],
                                     )
                                 ] + [
                                     LintFix("delete", elem)
@@ -134,8 +139,8 @@ class Rule_L018(BaseRule):
                                         "create",
                                         seg,
                                         [
-                                            self.make_newline(),
-                                            self.make_whitespace(with_indent_str),
+                                            NewlineSegment(),
+                                            WhitespaceSegment(with_indent_str),
                                         ],
                                     )
                                 ]

@@ -1,0 +1,4 @@
+[sqlfluff:templater:jinja:context]
+actions=['a', 'b', 'c']
+states="foo\n ,bar"
+metric=open

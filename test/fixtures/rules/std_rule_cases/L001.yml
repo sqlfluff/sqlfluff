@@ -1,5 +1,5 @@
 rule: L001
 
-test_1:
+test_fail_trailing_whitespace:
   fail_str: "SELECT 1     \n"
   fix_str: "SELECT 1\n"

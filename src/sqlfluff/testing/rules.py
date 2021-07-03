@@ -48,7 +48,7 @@ def get_rule_from_set(code, config):
     for r in get_ruleset().get_rulelist(config=config):
         if r.code == code:
             return r
-    raise ValueError("{0!r} not in {1!r}".format(code, get_ruleset()))
+    raise ValueError(f"{code!r} not in {get_ruleset()!r}")
 
 
 def assert_rule_fail_in_sql(code, sql, configs=None, line_numbers=None):
@@ -58,7 +58,7 @@ def assert_rule_fail_in_sql(code, sql, configs=None, line_numbers=None):
     # Lint it using the current config (while in fix mode)
     linted = Linter(config=cfg).lint_string(sql, fix=True)
     lerrs = linted.get_violations()
-    print("Errors Found: {0}".format(lerrs))
+    print(f"Errors Found: {lerrs}")
     for e in lerrs:
         if e.desc().startswith("Unexpected exception"):
             pytest.fail(f"Linter failed with {e.desc()}")
@@ -67,14 +67,14 @@ def assert_rule_fail_in_sql(code, sql, configs=None, line_numbers=None):
         pytest.fail(f"Found the following parse errors in test case: {parse_errors}")
     if not any(v.rule.code == code for v in lerrs):
         pytest.fail(
-            "No {0} failures found in query which should fail.".format(code),
+            f"No {code} failures found in query which should fail.",
             pytrace=False,
         )
     if line_numbers:
         actual_line_numbers = [e.line_no for e in lerrs]
         if line_numbers != actual_line_numbers:
             pytest.fail(
-                "Expected errors on lines {0}, but got errors on lines {1}".format(
+                "Expected errors on lines {}, but got errors on lines {}".format(
                     line_numbers, actual_line_numbers
                 )
             )
@@ -90,13 +90,11 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     parsed = Linter(config=cfg).parse_string(sql)
     if parsed.violations:
         pytest.fail(parsed.violations[0].desc() + "\n" + parsed.tree.stringify())
-    print("Parsed:\n {0}".format(parsed.tree.stringify()))
+    print(f"Parsed:\n {parsed.tree.stringify()}")
     lerrs, _, _, _ = r.crawl(parsed.tree, dialect=cfg.get("dialect_obj"))
-    print("Errors Found: {0}".format(lerrs))
+    print(f"Errors Found: {lerrs}")
     if any(v.rule.code == code for v in lerrs):
-        pytest.fail(
-            "Found {0} failures in query which should pass.".format(code), pytrace=False
-        )
+        pytest.fail(f"Found {code} failures in query which should pass.", pytrace=False)
 
 
 def assert_rule_raises_violations_in_file(rule, fpath, violations, fluff_config):

@@ -10,14 +10,24 @@ class SQLBaseError(ValueError):
     _code: Optional[str] = None
     _identifier = "base"
 
-    def __init__(self, *args, pos=None, line_no=0, line_pos=0, ignore=False, **kwargs):
+    def __init__(
+        self,
+        *args,
+        pos=None,
+        line_no=0,
+        line_pos=0,
+        ignore=False,
+        fatal=False,
+        **kwargs
+    ):
+        self.fatal = fatal
         self.ignore = ignore
         if pos:
             self.line_no, self.line_pos = pos.source_position()
         else:
             self.line_no = line_no
             self.line_pos = line_pos
-        super(SQLBaseError, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     @property
     def fixable(self):
@@ -132,7 +142,7 @@ class SQLParseError(SQLBaseError):
         self.segment = segment
         if self.segment:
             kwargs["pos"] = self.segment.pos_marker
-        super(SQLParseError, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class SQLLintError(SQLBaseError):
@@ -161,7 +171,7 @@ class SQLLintError(SQLBaseError):
         self.rule = rule
         self.fixes = fixes or []
         self.description = description
-        super(SQLLintError, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     @property
     def fixable(self):
@@ -179,11 +189,9 @@ class SQLLintError(SQLBaseError):
         )
 
     def __repr__(self):
-        return (
-            "<SQLLintError: rule {0} pos:{1!r}, #fixes: {2}, description: {3}>".format(
-                self.rule_code(),
-                (self.line_no, self.line_pos),
-                len(self.fixes),
-                self.description,
-            )
+        return "<SQLLintError: rule {} pos:{!r}, #fixes: {}, description: {}>".format(
+            self.rule_code(),
+            (self.line_no, self.line_pos),
+            len(self.fixes),
+            self.description,
         )

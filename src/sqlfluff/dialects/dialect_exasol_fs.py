@@ -19,17 +19,18 @@ from sqlfluff.core.parser import (
     Bracketed,
     Delimited,
     GreedyUntil,
-    NamedSegment,
     OneOf,
     Ref,
-    ReSegment,
     Sequence,
     StartsWith,
     SymbolSegment,
-    StringMatcher,
-    RegexMatcher,
+    StringLexer,
+    RegexLexer,
     CodeSegment,
     NewlineSegment,
+    StringParser,
+    NamedParser,
+    RegexParser,
 )
 from sqlfluff.core.dialects import load_raw_dialect
 
@@ -39,21 +40,21 @@ exasol_fs_dialect.sets("unreserved_keywords").add("ROWCOUNT")
 
 exasol_fs_dialect.insert_lexer_matchers(
     [
-        StringMatcher(
+        StringLexer(
             "walrus_operator",
             ":=",
             CodeSegment,
             segment_kwargs={"type": "walrus_operator"},
         ),
-        RegexMatcher(
+        RegexLexer(
             "function_script_terminator",
             r";\s+\/(?!\*)|\s+\/$",
             CodeSegment,
             segment_kwargs={"type": "statement_terminator"},
-            subdivider=StringMatcher(
+            subdivider=StringLexer(
                 "semicolon", ";", CodeSegment, segment_kwargs={"type": "semicolon"}
             ),
-            trim_post_subdivide=RegexMatcher(
+            trim_post_subdivide=RegexLexer(
                 "newline",
                 r"(\n|\r\n)+",
                 NewlineSegment,
@@ -64,21 +65,24 @@ exasol_fs_dialect.insert_lexer_matchers(
 )
 
 exasol_fs_dialect.add(
-    FunctionScriptTerminatorSegment=NamedSegment.make(
-        "function_script_terminator", type="statement_terminator"
+    FunctionScriptTerminatorSegment=NamedParser(
+        "function_script_terminator", CodeSegment, type="statement_terminator"
     ),
-    WalrusOperatorSegment=NamedSegment.make(
-        "walrus_operator", type="assignment_operator"
+    WalrusOperatorSegment=NamedParser(
+        "walrus_operator", SymbolSegment, type="assignment_operator"
     ),
-    VariableNameSegment=ReSegment.make(
+    VariableNameSegment=RegexParser(
         r"[A-Z][A-Z0-9_]*",
+        CodeSegment,
         name="function_variable",
         type="variable",
     ),
 )
 
 exasol_fs_dialect.replace(
-    SemicolonSegment=SymbolSegment.make(";", name="semicolon", type="semicolon"),
+    SemicolonSegment=StringParser(
+        ";", SymbolSegment, name="semicolon", type="semicolon"
+    ),
 )
 
 
@@ -169,7 +173,7 @@ class CreateFunctionStatementSegment(BaseSegment):
             Sequence(
                 Ref("VariableNameSegment"),
                 Ref("DatatypeSegment"),
-                Ref("SemicolonSegment"),
+                Ref("DelimiterSegment"),
             ),
             optional=True,
         ),
@@ -177,10 +181,10 @@ class CreateFunctionStatementSegment(BaseSegment):
         AnyNumberOf(Ref("FunctionBodySegment")),
         "RETURN",
         Ref("FunctionContentsExpressionGrammar"),
-        Ref("SemicolonSegment"),
+        Ref("DelimiterSegment"),
         "END",
         Ref("FunctionReferenceSegment", optional=True),
-        Ref("SemicolonSegment", optional=True),
+        Ref("DelimiterSegment", optional=True),
     )
 
 
@@ -212,7 +216,7 @@ class FunctionAssignmentSegment(BaseSegment):
             Ref("LiteralGrammar"),
             Ref("ExpressionSegment"),
         ),
-        Ref("SemicolonSegment"),
+        Ref("DelimiterSegment"),
     )
 
 
@@ -240,7 +244,7 @@ class FunctionIfBranchSegment(BaseSegment):
         ),
         "END",
         "IF",
-        Ref("SemicolonSegment"),
+        Ref("DelimiterSegment"),
     )
 
 
@@ -277,7 +281,7 @@ class FunctionForLoopSegment(BaseSegment):
                 "LOOP",
             ),
         ),
-        Ref("SemicolonSegment"),
+        Ref("DelimiterSegment"),
     )
 
 
@@ -293,7 +297,7 @@ class FunctionWhileLoopSegment(BaseSegment):
         AnyNumberOf(Ref("FunctionBodySegment"), min_times=1),
         "END",
         "WHILE",
-        Ref("SemicolonSegment"),
+        Ref("DelimiterSegment"),
     )
 
 

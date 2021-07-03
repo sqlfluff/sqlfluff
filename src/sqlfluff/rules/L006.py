@@ -3,6 +3,8 @@
 
 from typing import Tuple, List
 
+from sqlfluff.core.parser import WhitespaceSegment
+
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
@@ -149,7 +151,7 @@ class Rule_L006(BaseRule):
                     violations.append(
                         LintResult(
                             anchor=before_anchor,
-                            description="Missing whitespace before {0}".format(
+                            description="Missing whitespace before {}".format(
                                 before_anchor.raw[:10]
                             ),
                             fixes=[
@@ -157,7 +159,7 @@ class Rule_L006(BaseRule):
                                     "create",
                                     # NB the anchor here is always in the parent and not anchor
                                     anchor=sub_seg,
-                                    edit=self.make_whitespace(raw=" "),
+                                    edit=WhitespaceSegment(raw=" "),
                                 )
                             ],
                         )
@@ -174,7 +176,7 @@ class Rule_L006(BaseRule):
                     violations.append(
                         LintResult(
                             anchor=after_anchor,
-                            description="Missing whitespace after {0}".format(
+                            description="Missing whitespace after {}".format(
                                 after_anchor.raw[-10:]
                             ),
                             fixes=[
@@ -182,7 +184,7 @@ class Rule_L006(BaseRule):
                                     "create",
                                     # NB the anchor here is always in the parent and not anchor
                                     anchor=next_seg,
-                                    edit=self.make_whitespace(raw=" "),
+                                    edit=WhitespaceSegment(raw=" "),
                                 )
                             ],
                         )

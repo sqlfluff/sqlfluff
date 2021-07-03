@@ -18,9 +18,10 @@ file:
               star: '*'
             select_except_clause:
               keyword: except
-              start_bracket: (
-              identifier: date_key
-              end_bracket: )
+              bracketed:
+                start_bracket: (
+                identifier: date_key
+                end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -42,6 +43,7 @@ file:
                 keyword: as
                 identifier: r
           - keyword: using
-          - start_bracket: (
-          - identifier: date_key
-          - end_bracket: )
+          - bracketed:
+              start_bracket: (
+              identifier: date_key
+              end_bracket: )

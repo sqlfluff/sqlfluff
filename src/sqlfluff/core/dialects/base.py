@@ -2,12 +2,19 @@
 
 from typing import Union, Type
 
-from sqlfluff.core.parser import KeywordSegment, SegmentGenerator, BaseSegment
+from sqlfluff.core.parser import (
+    KeywordSegment,
+    SegmentGenerator,
+    BaseSegment,
+    StringParser,
+)
 from sqlfluff.core.parser.grammar.base import BaseGrammar
 
-DialectElementType = Union[Type[BaseSegment], BaseGrammar, SegmentGenerator]
+DialectElementType = Union[
+    Type[BaseSegment], BaseGrammar, StringParser, SegmentGenerator
+]
 # NOTE: Post expansion, no generators remain
-ExpandedDialectElementType = Union[Type[BaseSegment], BaseGrammar]
+ExpandedDialectElementType = Union[Type[BaseSegment], StringParser, BaseGrammar]
 
 
 class Dialect:
@@ -15,7 +22,7 @@ class Dialect:
 
     Args:
         name (:obj:`str`): The name of the dialect, used for lookup.
-        lexer_matchers (iterable of :obj:`StringMatcher`): A structure defining
+        lexer_matchers (iterable of :obj:`StringLexer`): A structure defining
             the lexing config for this dialect.
 
     """
@@ -38,7 +45,7 @@ class Dialect:
         self.root_segment_name = root_segment_name
 
     def __repr__(self):
-        return "<Dialect: {0}>".format(self.name)
+        return f"<Dialect: {self.name}>"
 
     def expand(self) -> "Dialect":
         """Expand any callable references to concrete ones.
@@ -78,7 +85,7 @@ class Dialect:
             for kw in expanded_copy.sets(keyword_set):
                 n = kw.capitalize() + "KeywordSegment"
                 if n not in expanded_copy._library:
-                    expanded_copy._library[n] = KeywordSegment.make(kw.lower())
+                    expanded_copy._library[n] = StringParser(kw.lower(), KeywordSegment)
         expanded_copy.expanded = True
         return expanded_copy
 
@@ -135,14 +142,10 @@ class Dialect:
             n = cls.__name__
             if replace:
                 if n not in self._library:
-                    raise ValueError(
-                        "{0!r} is not already registered in {1!r}".format(n, self)
-                    )
+                    raise ValueError(f"{n!r} is not already registered in {self!r}")
             else:
                 if n in self._library:
-                    raise ValueError(
-                        "{0!r} is already registered in {1!r}".format(n, self)
-                    )
+                    raise ValueError(f"{n!r} is already registered in {self!r}")
             self._library[n] = cls
             # Pass it back after registering it
             return cls
@@ -157,14 +160,14 @@ class Dialect:
         defined using `make`. Segments are passed in as kwargs.
 
         e.g.
-        dialect.add(SomeSegment=KeywordSegment.make(blah, blah, blah))
+        dialect.add(SomeSegment=StringParser("blah", KeywordSegment))
 
         Note that multiple segments can be added in the same call as this method
         will iterate through the kwargs
         """
         for n in kwargs:
             if n in self._library:
-                raise ValueError("{0!r} is already registered in {1!r}".format(n, self))
+                raise ValueError(f"{n!r} is already registered in {self!r}")
             self._library[n] = kwargs[n]
 
     def replace(self, **kwargs: DialectElementType):
@@ -174,9 +177,7 @@ class Dialect:
         """
         for n in kwargs:
             if n not in self._library:
-                raise ValueError(
-                    "{0!r} is not already registered in {1!r}".format(n, self)
-                )
+                raise ValueError(f"{n!r} is not already registered in {self!r}")
             self._library[n] = kwargs[n]
 
     def get_grammar(self, name: str) -> BaseGrammar:
@@ -186,10 +187,10 @@ class Dialect:
         also validates that the result is a grammar.
         """
         if name not in self._library:
-            raise ValueError("Element {0} not found in dialect.".format(name))
+            raise ValueError(f"Element {name} not found in dialect.")
         if not isinstance(self._library[name], BaseGrammar):
             raise TypeError(
-                "Attempted to fetch non grammar [{}] with get_grammar.".format(name)
+                f"Attempted to fetch non grammar [{name}] with get_grammar."
             )
         return self._library[name]
 
@@ -200,10 +201,10 @@ class Dialect:
         also validates that the result is a segment.
         """
         if name not in self._library:
-            raise ValueError("Element {0} not found in dialect.".format(name))
+            raise ValueError(f"Element {name} not found in dialect.")
         if not issubclass(self._library[name], BaseSegment):
             raise TypeError(
-                "Attempted to fetch non segment [{}] with get_segment.".format(name)
+                f"Attempted to fetch non segment [{name}] with get_segment."
             )
         return self._library[name]
 
@@ -223,13 +224,13 @@ class Dialect:
                 return res
             else:
                 raise ValueError(
-                    "Unexpected Null response while fetching {0!r} from {1}".format(
+                    "Unexpected Null response while fetching {!r} from {}".format(
                         name, self.name
                     )
                 )
         else:
             raise RuntimeError(
-                "Grammar refers to {0!r} which was not found in the {1} dialect".format(
+                "Grammar refers to {!r} which was not found in the {} dialect".format(
                     name, self.name
                 )
             )
@@ -249,9 +250,7 @@ class Dialect:
         if self.lexer_matchers:
             return self.lexer_matchers
         else:
-            raise ValueError(
-                "Lexing struct has not been set for dialect {0}".format(self)
-            )
+            raise ValueError(f"Lexing struct has not been set for dialect {self}")
 
     def patch_lexer_matchers(self, lexer_patch):
         """Patch an existing lexer struct.

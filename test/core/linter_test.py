@@ -1,14 +1,19 @@
 """The Test file for the linter class."""
 
 import pytest
+import logging
+import os
 from typing import List
 from unittest.mock import patch
 
 from sqlfluff.core import Linter, FluffConfig
+from sqlfluff.core.linter import runner
 from sqlfluff.core.errors import SQLLexError, SQLBaseError, SQLLintError, SQLParseError
+from sqlfluff.cli.formatters import CallbackFormatter
 from sqlfluff.core.linter import LintingResult, NoQaDirective
 import sqlfluff.core.linter as linter
-from test.fixtures.dbt.templater import in_dbt_project_dir  # noqa
+from test.fixtures.dbt.templater import DBT_FLUFF_CONFIG, project_dir  # noqa: F401
+from sqlfluff.core.templaters import TemplatedFile
 
 
 class DummyLintError(SQLBaseError):
@@ -16,7 +21,7 @@ class DummyLintError(SQLBaseError):
 
     def __init__(self, line_no: int, code: str = "L001"):
         self._code = code
-        super(DummyLintError, self).__init__(line_no=line_no)
+        super().__init__(line_no=line_no)
 
 
 def normalise_paths(paths):
@@ -127,7 +132,7 @@ def test__linter__path_from_paths__ignore(path):
 )
 def test__linter__lint_string_vs_file(path):
     """Test the linter finds the same things on strings and files."""
-    with open(path, "r") as f:
+    with open(path) as f:
         sql_str = f.read()
     lntr = Linter()
     assert (
@@ -183,26 +188,82 @@ def test__linter__linting_result_check_tuples_by_path(by_path, result_type):
     isinstance(check_tuples, result_type)
 
 
-def test__linter__linting_result_get_violations():
+@pytest.mark.parametrize("processes", [1, 2])
+def test__linter__linting_result_get_violations(processes):
     """Test that we can get violations from a LintingResult."""
     lntr = Linter()
     result = lntr.lint_paths(
         [
             "test/fixtures/linter/comma_errors.sql",
             "test/fixtures/linter/whitespace_errors.sql",
-        ]
+        ],
+        processes=processes,
     )
 
     all([type(v) == SQLLintError for v in result.get_violations()])
 
 
-@patch("sqlfluff.core.linter.linter_logger")
-@patch("sqlfluff.core.Linter.lint_string")
+@pytest.mark.parametrize("force_error", [False, True])
+def test__linter__linting_parallel_thread(force_error, monkeypatch):
+    """Run linter in parallel mode using threads.
+
+    Similar to test__linter__linting_result_get_violations but uses a thread
+    pool of 1 worker to test parallel mode without subprocesses. This lets the
+    tests capture code coverage information for the backend parts of parallel
+    execution without having to jump through hoops.
+    """
+    if not force_error:
+
+        monkeypatch.setattr(Linter, "allow_process_parallelism", False)
+
+    else:
+
+        def _create_pool(*args, **kwargs):
+            class ErrorPool:
+                def __enter__(self):
+                    return self
+
+                def __exit__(self, exc_type, exc_val, exc_tb):
+                    pass
+
+                def imap_unordered(self, *args, **kwargs):
+                    yield runner.DelayedException(ValueError())
+
+            return ErrorPool()
+
+        monkeypatch.setattr(runner.MultiProcessRunner, "_create_pool", _create_pool)
+
+    lntr = Linter(formatter=CallbackFormatter(callback=lambda m: None, verbosity=0))
+    result = lntr.lint_paths(
+        ("test/fixtures/linter/comma_errors.sql",),
+        processes=2,
+    )
+
+    all([type(v) == SQLLintError for v in result.get_violations()])
+
+
+@patch("sqlfluff.core.linter.Linter.lint_rendered")
+def test_lint_path_parallel_wrapper_exception(patched_lint):
+    """Tests the error catching behavior of _lint_path_parallel_wrapper().
+
+    Test on MultiThread runner because otherwise we have pickling issues.
+    """
+    patched_lint.side_effect = ValueError("Something unexpected happened")
+    for result in runner.MultiThreadRunner(Linter(), FluffConfig(), processes=1).run(
+        ["test/fixtures/linter/passing.sql"], fix=False
+    ):
+        assert isinstance(result, runner.DelayedException)
+        with pytest.raises(ValueError):
+            result.reraise()
+
+
+@patch("sqlfluff.core.linter.runner.linter_logger")
+@patch("sqlfluff.core.linter.Linter.lint_rendered")
 def test__linter__linting_unexpected_error_handled_gracefully(
-    patched_lint_string, patched_logger
+    patched_lint, patched_logger
 ):
     """Test that an unexpected internal error is handled gracefully and returns the issue-surfacing file."""
-    patched_lint_string.side_effect = Exception("Something unexpected happened")
+    patched_lint.side_effect = Exception("Something unexpected happened")
     lntr = Linter()
     lntr.lint_paths(("test/fixtures/linter/passing.sql",))
     assert (
@@ -491,7 +552,7 @@ def test_linted_file_ignore_masked_violations(
         time_dict={},
         tree=None,
         ignore_mask=ignore_mask,
-        templated_file=linter.TemplatedFile(""),
+        templated_file=TemplatedFile.from_string(""),
         encoding="utf8",
     )
     result = lf._ignore_masked_violations(violations)
@@ -556,11 +617,43 @@ def test_linter_noqa_with_templating():
 
 
 @pytest.mark.dbt
-def test__linter__skip_dbt_model_disabled(in_dbt_project_dir):  # noqa
+def test__linter__skip_dbt_model_disabled(project_dir):  # noqa
     """Test that the linter skips disabled dbt models."""
-    conf = FluffConfig(configs={"core": {"templater": "dbt"}})
+    conf = FluffConfig(configs=DBT_FLUFF_CONFIG)
     lntr = Linter(config=conf)
-    linted_path = lntr.lint_path(path="models/my_new_project/disabled_model.sql")
+    model_file_path = os.path.join(
+        project_dir, "models/my_new_project/disabled_model.sql"
+    )
+    linted_path = lntr.lint_path(path=model_file_path)
+    # Check that the file is still there
+    assert len(linted_path.files) == 1
     linted_file = linted_path.files[0]
-    assert linted_file.path == "models/my_new_project/disabled_model.sql"
+    assert linted_file.path == model_file_path
     assert not linted_file.templated_file
+    assert not linted_file.tree
+
+
+def test_delayed_exception():
+    """Test that DelayedException stores and reraises a stored exception."""
+    ve = ValueError()
+    de = runner.DelayedException(ve)
+    with pytest.raises(ValueError):
+        de.reraise()
+
+
+def test__attempt_to_change_templater_warning(caplog):
+    """Test warning if user tries to change templater in .sqlfluff file in subdirectory."""
+    initial_config = FluffConfig(configs={"core": {"templater": "jinja"}})
+    lntr = Linter(config=initial_config)
+    updated_config = FluffConfig(configs={"core": {"templater": "dbt"}})
+    logger = logging.getLogger("sqlfluff")
+    original_propagate_value = logger.propagate
+    try:
+        logger.propagate = True
+        with caplog.at_level(logging.WARNING, logger="sqlfluff.linter"):
+            lntr.render_string(
+                in_str="select * from table", fname="test.sql", config=updated_config
+            )
+        assert "Attempt to set templater to " in caplog.text
+    finally:
+        logger.propagate = original_propagate_value

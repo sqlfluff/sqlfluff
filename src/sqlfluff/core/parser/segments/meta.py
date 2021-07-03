@@ -12,48 +12,6 @@ class MetaSegment(RawSegment):
     _template = "<unset>"
     indent_val = 0
     is_meta = True
-    _config_rules = None
-
-    @classmethod
-    def when(cls, **kwargs):
-        """Configure whether this meta segment is available given certain rules.
-
-        All we do is override the _config_rules parameter
-        for the class.
-
-        _config_rules should be an iterable of tuples (config, True|False)
-        which determine whether this class is enabled or not. Later elements
-        override earlier ones.
-        """
-        if len(kwargs) > 1:
-            raise ValueError(
-                "More than one condition specified for {0!r}. [{1!r}]".format(
-                    cls, kwargs
-                )
-            )
-        # Sorcery (but less to than on _ProtoKeywordSegment)
-        return type(cls.__name__, (cls,), dict(_config_rules=kwargs))
-
-    @classmethod
-    def is_enabled(cls, indent_config):
-        """Given a certain parse context, determine if this segment is enabled.
-
-        All rules are assumed to be False if not present in the indent_config,
-        and later rules in the config override previous ones.
-        """
-        # If no config rules are set then it's always enabled.
-        if cls._config_rules is not None:
-            config = indent_config or {}
-            # This looks like an iteration, but there should only be one.
-            for rule, val in cls._config_rules.items():
-                # Assume False if not set.
-                conf_val = config.get(rule, False)
-                # Coerce to boolean.
-                if val == bool(conf_val):
-                    return True
-                else:
-                    return False
-        return True
 
     @staticmethod
     def _suffix():
@@ -68,23 +26,10 @@ class MetaSegment(RawSegment):
     def match(cls, segments, parse_context):
         """This will never be called. If it is then we're using it wrong."""
         raise NotImplementedError(
-            "{0} has no match method, it should only be used in a Sequence!".format(
+            "{} has no match method, it should only be used in a Sequence!".format(
                 cls.__name__
             )
         )
-
-    def __init__(self, pos_marker=None):
-        """For the meta segment we override the init method.
-
-        For something without content, the content doesn't make
-        sense. The pos_marker, will be matched with the following
-        segment, but meta segments are ignored during fixes so it's
-        ok in this sense. We need the pos marker later for dealing
-        with repairs.
-        """
-        self._raw = ""
-        self._raw_upper = ""
-        self.pos_marker = pos_marker
 
 
 class Indent(MetaSegment):
@@ -143,4 +88,16 @@ class TemplateSegment(MetaSegment):
 
     def _suffix(self):
         """Also output what it's a placeholder for."""
-        return "[Type: {0!r}, Raw: {1!r}]".format(self.block_type, self.source_str)
+        return f"[Type: {self.block_type!r}, Raw: {self.source_str!r}]"
+
+    def to_tuple(self, code_only=False, show_raw=False, include_meta=False):
+        """Return a tuple structure from this segment.
+
+        Unlike most segments, we return the _source_ content for placeholders
+        if viewing metas is allowed. This allows verification of the content
+        of those placeholders for inspection or debugging.
+        """
+        if include_meta:
+            return (self.get_type(), self.source_str)
+        else:
+            return (self.get_type(), self.raw)

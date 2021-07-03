@@ -6,6 +6,7 @@ from sqlfluff.core.parser.helpers import trim_non_code_segments
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.context import ParseContext
+from sqlfluff.core.parser.segments import allow_ephemeral
 
 from sqlfluff.core.parser.grammar.base import (
     BaseGrammar,
@@ -28,13 +29,14 @@ class GreedyUntil(BaseGrammar):
         self.enforce_whitespace_preceeding_terminator = kwargs.pop(
             "enforce_whitespace_preceeding_terminator", False
         )
-        super(GreedyUntil, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if not self.allow_gaps:
             raise NotImplementedError(
-                "{0} does not support allow_gaps=False.".format(self.__class__)
+                f"{self.__class__} does not support allow_gaps=False."
             )
 
     @match_wrapper()
+    @allow_ephemeral
     def match(self, segments, parse_context):
         """Matching for GreedyUntil works just how you'd expect."""
         return self.greedy_match(
@@ -153,7 +155,7 @@ class StartsWith(GreedyUntil):
         self.target = self._resolve_ref(target)
         self.terminator = self._resolve_ref(kwargs.pop("terminator", None))
         self.include_terminator = kwargs.pop("include_terminator", False)
-        super(StartsWith, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     @cached_method_for_parse_context
     def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
