@@ -286,6 +286,8 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("DeclareStatement"),
             Ref("SetAssignmentStatementSegment"),
             Ref("IfExpressionStatement"),
+            Ref("WhileStatementSegment"),
+            Ref("LoopStatementSegment"),
             Ref("CallStoredProcedureSegment"),
         ],
     )
@@ -760,4 +762,59 @@ class SelectPartitionClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "PARTITION",
         Bracketed(Delimited(Ref("ObjectReferenceSegment"))),
+    )
+
+
+@mysql_dialect.segment()
+class WhileStatementSegment(BaseSegment):
+    """A `WHILE-DO-END WHILE` statement.
+
+    mysql: https://dev.mysql.com/doc/refman/8.0/en/while.html
+    """
+
+    type = "while_statement"
+
+    match_grammar = OneOf(
+        Sequence(
+            Sequence(
+                Ref("SingleIdentifierGrammar"), Ref("ColonSegment"), optional=True
+            ),
+            Sequence(
+                "WHILE",
+                Ref("ExpressionSegment"),
+                Ref.keyword("DO"),
+                Ref("StatementSegment"),
+            ),
+        ),
+        Sequence(
+            "END",
+            Ref("SingleIdentifierGrammar", optional=True),
+        ),
+    )
+
+
+@mysql_dialect.segment()
+class LoopStatementSegment(BaseSegment):
+    """A `LOOP` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/loop.html
+    """
+
+    type = "loop_statement"
+
+    match_grammar = OneOf(
+        Sequence(
+            Sequence(
+                Ref("SingleIdentifierGrammar"), Ref("ColonSegment"), optional=True
+            ),
+            Sequence(
+                "LOOP",
+                Ref("StatementSegment"),
+            ),
+        ),
+        Sequence(
+            "END",
+            "LOOP",
+            Ref("SingleIdentifierGrammar", optional=True),
+        ),
     )
