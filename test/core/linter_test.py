@@ -652,7 +652,10 @@ def test__attempt_to_change_templater_warning(caplog):
         logger.propagate = True
         with caplog.at_level(logging.WARNING, logger="sqlfluff.linter"):
             lntr.render_string(
-                in_str="select * from table", fname="test.sql", config=updated_config
+                in_str="select * from table",
+                fname="test.sql",
+                config=updated_config,
+                encoding="utf-8",
             )
         assert "Attempt to set templater to " in caplog.text
     finally:
