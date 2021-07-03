@@ -14,4 +14,5 @@ appdirs
 # dataclasses backport for python 3.6
 dataclasses; python_version < '3.7'
 chardet
+types-chardet
 toml
