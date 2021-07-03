@@ -7,6 +7,7 @@ import shutil
 import json
 import oyaml as yaml
 import subprocess
+import chardet
 
 # Testing libraries
 import pytest
@@ -286,6 +287,8 @@ def generic_roundtrip_test(
     force=True,
     fix_input=None,
     fix_exit_code=0,
+    input_file_encoding="utf-8",
+    output_file_encoding=None,
 ):
     """A test for roundtrip testing, take a file buffer, lint, fix and lint.
 
@@ -297,7 +300,7 @@ def generic_roundtrip_test(
     tempdir_path = tempfile.mkdtemp()
     filepath = os.path.join(tempdir_path, filename)
     # Open the example file and write the content to it
-    with open(filepath, mode="w") as dest_file:
+    with open(filepath, mode="w", encoding=input_file_encoding) as dest_file:
         for line in source_file:
             dest_file.write(line)
     # Check that we first detect the issue
@@ -314,6 +317,11 @@ def generic_roundtrip_test(
     invoke_assert_code(
         ret_code=final_exit_code, args=[lint, ["--rules", rulestring, filepath]]
     )
+    # Check the output file has the correct encoding after fix
+    if output_file_encoding:
+        with open(filepath, mode="rb") as f:
+            data = f.read()
+        assert chardet.detect(data)["encoding"] == output_file_encoding
     shutil.rmtree(tempdir_path)
 
 
@@ -513,3 +521,22 @@ def test___main___help():
     """Test that the CLI can be access via __main__."""
     # nonzero exit is good enough
     subprocess.check_output(["python", "-m", "sqlfluff", "--help"])
+
+
+@pytest.mark.parametrize(
+    "encoding_in,encoding_out",
+    [
+        ("utf-8", "ascii"),  # chardet will detect ascii as a subset of utf-8
+        ("utf-8-sig", "UTF-8-SIG"),
+        ("utf-32", "UTF-32"),
+    ],
+)
+def test_encoding(encoding_in, encoding_out):
+    """Check the encoding of the test file remains the same after fix is applied."""
+    with open("test/fixtures/linter/indentation_errors.sql", "r") as testfile:
+        generic_roundtrip_test(
+            testfile,
+            "L001",
+            input_file_encoding=encoding_in,
+            output_file_encoding=encoding_out,
+        )

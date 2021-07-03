@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 from sqlfluff.core import Linter, FluffConfig
 from sqlfluff.core.linter import runner
-from sqlfluff.core.errors import SQLBaseError, SQLLintError, SQLParseError
+from sqlfluff.core.errors import SQLLexError, SQLBaseError, SQLLintError, SQLParseError
 from sqlfluff.cli.formatters import CallbackFormatter
 from sqlfluff.core.linter import LintingResult, NoQaDirective
 import sqlfluff.core.linter as linter
@@ -324,6 +324,55 @@ def test__linter__mask_templated_violations(ignore_templated_areas, check_tuples
 
 
 @pytest.mark.parametrize(
+    "fname,config_encoding,lexerror",
+    [
+        (
+            "test/fixtures/linter/encoding-utf-8.sql",
+            "autodetect",
+            False,
+        ),
+        (
+            "test/fixtures/linter/encoding-utf-8-sig.sql",
+            "autodetect",
+            False,
+        ),
+        (
+            "test/fixtures/linter/encoding-utf-8.sql",
+            "utf-8",
+            False,
+        ),
+        (
+            "test/fixtures/linter/encoding-utf-8-sig.sql",
+            "utf-8",
+            True,
+        ),
+        (
+            "test/fixtures/linter/encoding-utf-8.sql",
+            "utf-8-sig",
+            False,
+        ),
+        (
+            "test/fixtures/linter/encoding-utf-8-sig.sql",
+            "utf-8-sig",
+            False,
+        ),
+    ],
+)
+def test__linter__encoding(fname, config_encoding, lexerror):
+    """Test linter deals with files with different encoding."""
+    lntr = Linter(
+        config=FluffConfig(
+            overrides={
+                "rules": "L001",
+                "encoding": config_encoding,
+            }
+        )
+    )
+    result = lntr.lint_paths([fname])
+    assert lexerror == (SQLLexError in [type(v) for v in result.get_violations()])
+
+
+@pytest.mark.parametrize(
     "input,expected",
     [
         ("", None),
@@ -504,6 +553,7 @@ def test_linted_file_ignore_masked_violations(
         tree=None,
         ignore_mask=ignore_mask,
         templated_file=TemplatedFile.from_string(""),
+        encoding="utf8",
     )
     result = lf._ignore_masked_violations(violations)
     expected_violations = [v for i, v in enumerate(violations) if i in expected]
@@ -602,7 +652,10 @@ def test__attempt_to_change_templater_warning(caplog):
         logger.propagate = True
         with caplog.at_level(logging.WARNING, logger="sqlfluff.linter"):
             lntr.render_string(
-                in_str="select * from table", fname="test.sql", config=updated_config
+                in_str="select * from table",
+                fname="test.sql",
+                config=updated_config,
+                encoding="utf-8",
             )
         assert "Attempt to set templater to " in caplog.text
     finally:
