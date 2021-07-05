@@ -1,5 +1,5 @@
 rule: L020
 
-test_1:
+test_fail_duplicated_aliases:
   # duplicate aliases
   fail_str: select 1 from table_1 as a join table_2 as a using(pk)

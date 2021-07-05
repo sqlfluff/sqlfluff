@@ -25,6 +25,7 @@ from sqlfluff.core.parser import (
     NamedParser,
     StringParser,
     RegexParser,
+    Nothing,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -115,6 +116,7 @@ bigquery_dialect.replace(
         insert=[Ref("TypelessStructSegment")],
         before=Ref("ExpressionSegment"),
     ),
+    DateTimeLiteralGrammar=Nothing(),
 )
 
 

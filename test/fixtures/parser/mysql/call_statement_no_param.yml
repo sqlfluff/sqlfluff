@@ -1,0 +1,9 @@
+file:
+  statement:
+    call_segment:
+      keyword: CALL
+      identifier: zproc_validate_send_adminuser_otp
+      bracketed:
+        start_bracket: (
+        end_bracket: )
+  statement_terminator: ;
