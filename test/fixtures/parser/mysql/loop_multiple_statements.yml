@@ -1,8 +1,6 @@
 file:
 - statement:
     loop_statement:
-      identifier: iteration
-      colon: ':'
       keyword: loop
       statement:
         select_statement:
@@ -12,18 +10,20 @@ file:
               literal: '1'
 - statement_terminator: ;
 - statement:
-    iterate_statement:
-      keyword: iterate
-      identifier: iteration
+    select_statement:
+      select_clause:
+        unparsable:
+          keyword: select
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: onetable
 - statement_terminator: ;
 - statement:
     transaction_statement:
-      keyword: leave
-      identifier: iteration
-- statement_terminator: ;
-- statement:
-    loop_statement:
-    - keyword: end
-    - keyword: loop
-    - identifier: iteration
+      keyword: end
+      identifier: loop
 - statement_terminator: ;

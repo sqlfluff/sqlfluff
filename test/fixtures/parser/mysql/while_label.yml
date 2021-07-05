@@ -17,14 +17,12 @@ file:
         - variable: _cnt
         - comparison_operator: '='
         - variable: _cnt
-        unparsable:
-        - raw: +
-        - raw: '1'
+        - binary_operator: +
+        - variable: '1'
 - statement_terminator: ;
 - statement:
-    transaction_statement:
-      keyword: end
-      identifier: while
-    unparsable:
-      raw: iteration
+    while_statement:
+    - keyword: end
+    - keyword: while
+    - identifier: iteration
 - statement_terminator: ;

@@ -1,0 +1,10 @@
+file:
+  statement:
+    set_statement:
+    - keyword: set
+    - variable: '@abc'
+    - comparison_operator: '='
+    - variable: '1'
+    - binary_operator: +
+    - variable: '2'
+  statement_terminator: ;

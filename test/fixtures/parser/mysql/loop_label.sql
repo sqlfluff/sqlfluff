@@ -1,1 +1,1 @@
-iterate:loop select 1; end loop iteration;
+iteration:loop select 1; iterate iteration; leave iteration; end loop iteration;
