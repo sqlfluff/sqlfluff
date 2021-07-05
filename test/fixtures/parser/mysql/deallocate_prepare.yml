@@ -1,0 +1,7 @@
+file:
+  statement:
+    deallocate_segment:
+    - keyword: DEALLOCATE
+    - keyword: PREPARE
+    - identifier: dynam
+  statement_terminator: ;
