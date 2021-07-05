@@ -48,6 +48,20 @@ mysql_dialect.sets("unreserved_keywords").difference_update(
         "DUMPFILE",
         "SKIP",
         "LOCKED",
+        "CLASS_ORIGIN",
+        "SUBCLASS_ORIGIN",
+        "RETURNED_SQLSTATE",
+        "MESSAGE_TEXT",
+        "MYSQL_ERRNO",
+        "CONSTRAINT_CATALOG",
+        "CONSTRAINT_SCHEMA",
+        "CONSTRAINT_NAME",
+        "CATALOG_NAME",
+        "SCHEMA_NAME",
+        "TABLE_NAME",
+        "COLUMN_NAME",
+        "CURSOR_NAME",
+        "STACKED",
     ]
 )
 mysql_dialect.sets("reserved_keywords").update(
@@ -61,6 +75,20 @@ mysql_dialect.sets("reserved_keywords").update(
         "DUMPFILE",
         "SKIP",
         "LOCKED",
+        "CLASS_ORIGIN",
+        "SUBCLASS_ORIGIN",
+        "RETURNED_SQLSTATE",
+        "MESSAGE_TEXT",
+        "MYSQL_ERRNO",
+        "CONSTRAINT_CATALOG",
+        "CONSTRAINT_SCHEMA",
+        "CONSTRAINT_NAME",
+        "CATALOG_NAME",
+        "SCHEMA_NAME",
+        "TABLE_NAME",
+        "COLUMN_NAME",
+        "CURSOR_NAME",
+        "STACKED",
     ]
 )
 
@@ -287,6 +315,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("SetAssignmentStatementSegment"),
             Ref("IfExpressionStatement"),
             Ref("CallStoredProcedureSegment"),
+            Ref("GetDiagnosticsSegment"),
         ],
     )
 
@@ -760,4 +789,60 @@ class SelectPartitionClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "PARTITION",
         Bracketed(Delimited(Ref("ObjectReferenceSegment"))),
+    )
+
+
+@mysql_dialect.segment()
+class GetDiagnosticsSegment(BaseSegment):
+    """This is the body of a `GET DIAGNOSTICS` statement.
+
+    mysql: https://dev.mysql.com/doc/refman/8.0/en/get-diagnostics.html
+    """
+
+    type = "get_diagnostics_segment"
+
+    match_grammar = Sequence(
+        "GET",
+        Sequence("CURRENT", "STACKED", optional=True),
+        "DIAGNOSTICS",
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("SessionVariableNameSegment"), Ref("LocalVariableNameSegment")
+                ),
+                Ref("EqualsSegment"),
+                OneOf("NUMBER", "ROW_COUNT"),
+            ),
+            optional=True,
+        ),
+        "CONDITION",
+        OneOf(
+            Ref("SessionVariableNameSegment"),
+            Ref("LocalVariableNameSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("SessionVariableNameSegment"), Ref("LocalVariableNameSegment")
+                ),
+                Ref("EqualsSegment"),
+                OneOf(
+                    "CLASS_ORIGIN",
+                    "SUBCLASS_ORIGIN",
+                    "RETURNED_SQLSTATE",
+                    "MESSAGE_TEXT",
+                    "MYSQL_ERRNO",
+                    "CONSTRAINT_CATALOG",
+                    "CONSTRAINT_SCHEMA",
+                    "CONSTRAINT_NAME",
+                    "CATALOG_NAME",
+                    "SCHEMA_NAME",
+                    "TABLE_NAME",
+                    "COLUMN_NAME",
+                    "CURSOR_NAME",
+                ),
+            ),
+            optional=True,
+        ),
     )
