@@ -316,6 +316,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("IfExpressionStatement"),
             Ref("CallStoredProcedureSegment"),
             Ref("GetDiagnosticsSegment"),
+            Ref("ResignalSegment"),
         ],
     )
 
@@ -796,7 +797,7 @@ class SelectPartitionClauseSegment(BaseSegment):
 class GetDiagnosticsSegment(BaseSegment):
     """This is the body of a `GET DIAGNOSTICS` statement.
 
-    mysql: https://dev.mysql.com/doc/refman/8.0/en/get-diagnostics.html
+    https://dev.mysql.com/doc/refman/8.0/en/get-diagnostics.html
     """
 
     type = "get_diagnostics_segment"
@@ -841,6 +842,58 @@ class GetDiagnosticsSegment(BaseSegment):
                     "TABLE_NAME",
                     "COLUMN_NAME",
                     "CURSOR_NAME",
+                ),
+            ),
+            optional=True,
+        ),
+    )
+
+
+@mysql_dialect.segment()
+class ResignalSegment(BaseSegment):
+    """This is the body of a `RESIGNAL` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/resignal.html
+    """
+
+    type = "resignal_segment"
+
+    match_grammar = Sequence(
+        OneOf("SIGNAL", "RESIGNAL"),
+        OneOf(
+            Sequence(
+                "SQLSTATE",
+                Ref.keyword("VALUE", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Ref("NakedIdentifierSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "SET",
+            Delimited(
+                Sequence(
+                    OneOf(
+                        "CLASS_ORIGIN",
+                        "SUBCLASS_ORIGIN",
+                        "RETURNED_SQLSTATE",
+                        "MESSAGE_TEXT",
+                        "MYSQL_ERRNO",
+                        "CONSTRAINT_CATALOG",
+                        "CONSTRAINT_SCHEMA",
+                        "CONSTRAINT_NAME",
+                        "CATALOG_NAME",
+                        "SCHEMA_NAME",
+                        "TABLE_NAME",
+                        "COLUMN_NAME",
+                        "CURSOR_NAME",
+                    ),
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        Ref("SessionVariableNameSegment"),
+                        Ref("LocalVariableNameSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
                 ),
             ),
             optional=True,
