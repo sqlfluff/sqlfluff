@@ -14,19 +14,23 @@ file:
             function_name:
               function_name_identifier: CAST
             bracketed:
-              start_bracket: (
-              expression:
+            - start_bracket: (
+            - expression:
                 column_reference:
                   identifier: b
-              unparsable:
-              - raw: '-'
-              - raw: '>'
-              - raw: '>'
-              - raw: "'goOnADate'"
-              - raw: AS
-              - raw: TIMESTAMP
-              - raw: WITH
-              - raw: TIME
-              - raw: ZONE
-              end_bracket: )
+                binary_operator: ->>
+                literal: "'goOnADate'"
+            - keyword: AS
+            - data_type:
+                data_type_identifier: TIMESTAMP
+            - expression:
+                column_reference:
+                  identifier: WITH
+            - expression:
+                column_reference:
+                  identifier: TIME
+            - expression:
+                column_reference:
+                  identifier: ZONE
+            - end_bracket: )
   statement_terminator: ;

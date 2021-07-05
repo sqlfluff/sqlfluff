@@ -33,28 +33,22 @@ file:
       where_clause:
         keyword: WHERE
         expression:
-          column_reference:
+        - column_reference:
             identifier: a
-        unparsable:
-        - raw: '-'
-        - raw: '>'
-        - raw: "'nata'"
-        - raw: '-'
-        - raw: '>'
-        - raw: "'pastryLimits'"
-        - raw: '-'
-        - raw: '>'
-        - raw: '0'
-        - raw: '-'
-        - raw: '>'
-        - raw: '>'
-        - raw: "'pastryName'"
-        - raw: NOT
-        - raw: IN
+        - binary_operator: ->
+        - literal: "'nata'"
+        - binary_operator: ->
+        - literal: "'pastryLimits'"
+        - binary_operator: ->
+        - literal: '0'
+        - binary_operator: ->>
+        - literal: "'pastryName'"
+        - keyword: NOT
+        - keyword: IN
         - bracketed:
           - start_bracket: (
-          - raw: "'PUFF'"
+          - literal: "'PUFF'"
           - comma: ','
-          - raw: "'ROLL'"
+          - literal: "'ROLL'"
           - end_bracket: )
   statement_terminator: ;

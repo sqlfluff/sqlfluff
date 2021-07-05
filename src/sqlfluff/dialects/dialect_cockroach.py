@@ -20,7 +20,7 @@ from sqlfluff.core.dialects import load_raw_dialect
 
 ansi_dialect = load_raw_dialect("ansi")
 
-postgres_dialect = ansi_dialect.copy_as("postgres")
+postgres_dialect = load_raw_dialect("postgres")
 
 cockroach_dialect = postgres_dialect.copy_as("cockroach")
 
@@ -33,7 +33,7 @@ cockroach_dialect.insert_lexer_matchers(
             CodeSegment,
         )
     ],
-    before="semicolon",
+    before="json_operator",
 )
 
             # r"[_A-Z]*[_A-Z0-9]@[_A-Z]*[_A-Z0-9]",
@@ -123,11 +123,11 @@ class HintedTableReferenceSegment(BaseSegment):
         Ref("IndexReferenceSegment"),
     )
 
-    # parse_grammar = Sequence(
-        # Ref("TableReferenceSegment"),
-        # Ref("AtSegment"),
-        # Ref("IndexReferenceSegment"),
-    # )
+    parse_grammar = Sequence(
+        Ref("TableReferenceSegment"),
+        Ref("AtSegment"),
+        Ref("IndexReferenceSegment"),
+    )
 
 
 @cockroach_dialect.segment()
@@ -141,9 +141,9 @@ class HintedIndexReferenceSegment(BaseSegment):
         Ref("IndexReferenceSegment"),
     )
 
-    # parse_grammar = Sequence(
-        # Ref("TableReferenceSegment"),
-        # Ref("AtSegment"),
-        # Ref("IndexReferenceSegment"),
-    # )
+    parse_grammar = Sequence(
+        Ref("TableReferenceSegment"),
+        Ref("AtSegment"),
+        Ref("IndexReferenceSegment"),
+    )
 

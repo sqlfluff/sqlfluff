@@ -6,6 +6,7 @@ def get_parse_fixtures(fail_on_missing_yml=False):
     """Search for all parsing fixtures."""
     parse_success_examples = []
     parse_structure_examples = []
+
     # Generate the filenames for each dialect from the parser test directory
     for d in os.listdir(os.path.join("test", "fixtures", "parser")):
         # Ignore documentation

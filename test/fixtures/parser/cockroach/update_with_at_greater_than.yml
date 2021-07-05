@@ -33,8 +33,7 @@ file:
         expression:
           column_reference:
             identifier: a
-        unparsable:
-          unlexable: '@>'
-          raw: "'{\"nata\": {\"pastryStructureEligibility\": [{\"pastryIncluded\"\
+          binary_operator: '@>'
+          literal: "'{\"nata\": {\"pastryStructureEligibility\": [{\"pastryIncluded\"\
             : [\"PF\"]}]}}'"
   statement_terminator: ;
