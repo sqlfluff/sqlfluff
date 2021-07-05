@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for select statement syntax specific to mysql dialect [#1175](https://github.com/sqlfluff/sqlfluff/issues/1175)
 - Support for the CALL statement for the mysql dialect [#1144](https://github.com/sqlfluff/sqlfluff/issues/1144)
 - Support for OVERLAPS predicate [#1091](https://github.com/sqlfluff/sqlfluff/issues/1091).
+- Support sequential shorthand casts [#1178](https://github.com/sqlfluff/sqlfluff/pull/1178)
+- Support for select statement syntax specific to mysql dialect [#1175](https://github.com/sqlfluff/sqlfluff/issues/1175)
+- Support for the CALL statement for the mysql dialect [#1144](https://github.com/sqlfluff/sqlfluff/issues/1144)
+- Support for OVERLAPS predicate [#1091](https://github.com/sqlfluff/sqlfluff/issues/1091)
 - Support for the CREATE/DROP PROCEDURE statement for the mysql dialect [#901](https://github.com/sqlfluff/sqlfluff/issues/901)
 - Specific allowed/required syntaxes for CREATE/DROP FUNCTION within the mysql dialect [#901](https://github.com/sqlfluff/sqlfluff/issues/901)
 - Support for DECLARE statement for the mysql dialect [#1140](https://github.com/sqlfluff/sqlfluff/issues/1140)
