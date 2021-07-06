@@ -1,0 +1,10 @@
+file:
+  statement:
+    unparsable:
+    - raw: CREATE
+    - raw: SEQUENCE
+    - raw: IF
+    - raw: NOT
+    - raw: EXISTS
+    - raw: cust_numbers
+  statement_terminator: ;

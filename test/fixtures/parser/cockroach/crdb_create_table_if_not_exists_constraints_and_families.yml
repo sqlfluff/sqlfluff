@@ -1,131 +1,192 @@
 file:
   statement:
-    unparsable:
-    - raw: CREATE
-    - raw: TABLE
-    - raw: IF
-    - raw: NOT
-    - raw: EXISTS
-    - raw: t1
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        identifier: t1
     - bracketed:
       - start_bracket: (
-      - raw: a
-      - raw: uuid
-      - raw: NOT
-      - raw: 'NULL'
-      - raw: CONSTRAINT
-      - raw: c1
-      - raw: PRIMARY
-      - raw: KEY
+      - column_definition:
+        - identifier: a
+        - data_type:
+            data_type_identifier: uuid
+        - column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - column_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+              identifier: c1
+          - keyword: PRIMARY
+          - keyword: KEY
       - comma: ','
-      - raw: b
-      - raw: uuid
-      - raw: NOT
-      - raw: 'NULL'
+      - column_definition:
+          identifier: b
+          data_type:
+            data_type_identifier: uuid
+          column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
       - comma: ','
-      - raw: c
-      - raw: TIMESTAMP
-      - raw: NOT
-      - raw: 'NULL'
+      - column_definition:
+          identifier: c
+          data_type:
+            data_type_identifier: TIMESTAMP
+          column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
       - comma: ','
-      - raw: d
-      - raw: TIMESTAMP
-      - raw: NOT
-      - raw: 'NULL'
+      - column_definition:
+          identifier: d
+          data_type:
+            data_type_identifier: TIMESTAMP
+          column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
       - comma: ','
-      - raw: e
-      - raw: JSONB
-      - raw: NOT
-      - raw: 'NULL'
+      - column_definition:
+          identifier: e
+          data_type:
+            data_type_identifier: JSONB
+          column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
       - comma: ','
-      - raw: f
-      - raw: VARCHAR
-      - bracketed:
-          start_bracket: (
-          expression:
-            literal: '128'
-          end_bracket: )
-      - raw: NOT
-      - raw: 'NULL'
+      - column_definition:
+          identifier: f
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '128'
+              end_bracket: )
+          column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
       - comma: ','
-      - raw: g
-      - raw: VARCHAR
-      - bracketed:
-          start_bracket: (
-          expression:
-            literal: '128'
-          end_bracket: )
-      - raw: NOT
-      - raw: 'NULL'
+      - column_definition:
+          identifier: g
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '128'
+              end_bracket: )
+          column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
       - comma: ','
-      - raw: h
-      - raw: VARCHAR
-      - bracketed:
-          start_bracket: (
-          expression:
-            literal: '512'
-          end_bracket: )
-      - raw: NOT
-      - raw: 'NULL'
+      - column_definition:
+          identifier: h
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '512'
+              end_bracket: )
+          column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
       - comma: ','
-      - raw: i
-      - raw: VARCHAR
-      - bracketed:
-          start_bracket: (
-          expression:
-            literal: '128'
-          end_bracket: )
-      - raw: NOT
-      - raw: 'NULL'
+      - column_definition:
+          identifier: i
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '128'
+              end_bracket: )
+          column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
       - comma: ','
-      - raw: j
-      - raw: BIGINT
-      - raw: NOT
-      - raw: 'NULL'
+      - column_definition:
+          identifier: j
+          data_type:
+            data_type_identifier: BIGINT
+          column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
       - comma: ','
-      - raw: CONSTRAINT
-      - raw: c2
-      - raw: CHECK
-      - bracketed:
-        - start_bracket: (
-        - raw: i
-        - raw: IN
+      - table_constraint_definition:
+        - keyword: CONSTRAINT
+        - object_reference:
+            identifier: c2
+        - keyword: CHECK
         - bracketed:
-          - start_bracket: (
-          - raw: "'BENDING'"
-          - comma: ','
-          - raw: "'BENT'"
-          - end_bracket: )
-        - end_bracket: )
+            start_bracket: (
+            expression:
+              column_reference:
+                identifier: i
+              keyword: IN
+              bracketed:
+              - start_bracket: (
+              - literal: "'BENDING'"
+              - comma: ','
+              - literal: "'BENT'"
+              - end_bracket: )
+            end_bracket: )
       - comma: ','
-      - raw: FAMILY
-      - raw: f1
-      - bracketed:
-        - start_bracket: (
-        - raw: a
-        - comma: ','
-        - raw: b
-        - comma: ','
-        - raw: c
-        - comma: ','
-        - raw: d
-        - comma: ','
-        - raw: e
-        - comma: ','
-        - raw: f
-        - comma: ','
-        - raw: g
-        - end_bracket: )
+      - column_definition:
+          identifier: FAMILY
+          data_type:
+            data_type_identifier: f1
+            bracketed:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  identifier: a
+            - comma: ','
+            - expression:
+                column_reference:
+                  identifier: b
+            - comma: ','
+            - expression:
+                column_reference:
+                  identifier: c
+            - comma: ','
+            - expression:
+                column_reference:
+                  identifier: d
+            - comma: ','
+            - expression:
+                column_reference:
+                  identifier: e
+            - comma: ','
+            - expression:
+                column_reference:
+                  identifier: f
+            - comma: ','
+            - expression:
+                column_reference:
+                  identifier: g
+            - end_bracket: )
       - comma: ','
-      - raw: FAMILY
-      - raw: f2
-      - bracketed:
-        - start_bracket: (
-        - raw: h
-        - comma: ','
-        - raw: i
-        - comma: ','
-        - raw: j
-        - end_bracket: )
+      - column_definition:
+          identifier: FAMILY
+          data_type:
+            data_type_identifier: f2
+            bracketed:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  identifier: h
+            - comma: ','
+            - expression:
+                column_reference:
+                  identifier: i
+            - comma: ','
+            - expression:
+                column_reference:
+                  identifier: j
+            - end_bracket: )
       - end_bracket: )
   statement_terminator: ;

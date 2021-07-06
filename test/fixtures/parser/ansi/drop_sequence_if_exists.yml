@@ -1,0 +1,9 @@
+file:
+  statement:
+    unparsable:
+    - raw: DROP
+    - raw: SEQUENCE
+    - raw: IF
+    - raw: EXISTS
+    - raw: even_numbers
+  statement_terminator: ;

@@ -5,11 +5,13 @@ file:
     - keyword: TABLE
     - table_reference:
         identifier: t1
-    - parameter: ALTER
-    - identifier: COLUMN
+    - keyword: ALTER
+    - keyword: COLUMN
+    - column_definition:
+        identifier: a
+        data_type:
+          data_type_identifier: SET
     unparsable:
-    - raw: a
-    - raw: SET
     - raw: DATA
     - raw: TYPE
     - raw: varchar

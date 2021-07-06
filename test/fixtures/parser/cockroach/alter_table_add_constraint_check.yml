@@ -6,21 +6,22 @@ file:
     - table_reference:
         identifier: t1
     - keyword: ADD
-    - column_definition:
-        identifier: CONSTRAINT
-        data_type:
-          data_type_identifier: c1
-    unparsable:
-      raw: CHECK
-      bracketed:
-      - start_bracket: (
-      - raw: x
-      - raw: IN
+    - table_constraint_definition:
+      - keyword: CONSTRAINT
+      - object_reference:
+          identifier: c1
+      - keyword: CHECK
       - bracketed:
-        - start_bracket: (
-        - raw: "'ACTIVE'"
-        - comma: ','
-        - raw: "'COUCH POTATO'"
-        - end_bracket: )
-      - end_bracket: )
+          start_bracket: (
+          expression:
+            column_reference:
+              identifier: x
+            keyword: IN
+            bracketed:
+            - start_bracket: (
+            - literal: "'ACTIVE'"
+            - comma: ','
+            - literal: "'COUCH POTATO'"
+            - end_bracket: )
+          end_bracket: )
   statement_terminator: ;

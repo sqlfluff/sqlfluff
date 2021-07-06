@@ -1,0 +1,13 @@
+file:
+  statement:
+    unparsable:
+    - raw: CREATE
+    - raw: SEQUENCE
+    - raw: desc_customer_list
+    - raw: START
+    - raw: '-'
+    - raw: '1'
+    - raw: INCREMENT
+    - raw: '-'
+    - raw: '2'
+  statement_terminator: ;

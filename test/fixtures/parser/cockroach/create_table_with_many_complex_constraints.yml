@@ -1,258 +1,353 @@
 file:
   statement:
-    unparsable:
-    - raw: CREATE
-    - raw: TABLE
-    - raw: IF
-    - raw: NOT
-    - raw: EXISTS
-    - raw: t1
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        identifier: t1
     - bracketed:
       - start_bracket: (
-      - raw: a
-      - raw: UUID
-      - raw: NOT
-      - raw: 'NULL'
+      - column_definition:
+          identifier: a
+          data_type:
+            data_type_identifier: UUID
+          column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
       - comma: ','
-      - raw: b
-      - raw: UUID
-      - raw: NOT
-      - raw: 'NULL'
+      - column_definition:
+          identifier: b
+          data_type:
+            data_type_identifier: UUID
+          column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
       - comma: ','
-      - raw: c
-      - raw: VARCHAR
-      - bracketed:
-          start_bracket: (
-          expression:
-            literal: '35'
-          end_bracket: )
-      - raw: NOT
-      - raw: 'NULL'
+      - column_definition:
+          identifier: c
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '35'
+              end_bracket: )
+          column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
       - comma: ','
-      - raw: d
-      - raw: VARCHAR
-      - bracketed:
-          start_bracket: (
-          expression:
-            literal: '15'
-          end_bracket: )
-      - raw: NOT
-      - raw: 'NULL'
+      - column_definition:
+          identifier: d
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '15'
+              end_bracket: )
+          column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
       - comma: ','
-      - raw: e
-      - raw: INT
-      - raw: 'NULL'
+      - column_definition:
+          identifier: e
+          data_type:
+            data_type_identifier: INT
+          column_constraint:
+            keyword: 'NULL'
       - comma: ','
-      - raw: f
-      - raw: VARCHAR
-      - bracketed:
-          start_bracket: (
-          expression:
-            literal: '255'
-          end_bracket: )
-      - raw: NOT
-      - raw: 'NULL'
+      - column_definition:
+          identifier: f
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '255'
+              end_bracket: )
+          column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
       - comma: ','
-      - raw: g
-      - raw: UUID
-      - raw: NOT
-      - raw: 'NULL'
+      - column_definition:
+          identifier: g
+          data_type:
+            data_type_identifier: UUID
+          column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
       - comma: ','
-      - raw: h
-      - raw: UUID
-      - raw: NOT
-      - raw: 'NULL'
+      - column_definition:
+          identifier: h
+          data_type:
+            data_type_identifier: UUID
+          column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
       - comma: ','
-      - raw: i
-      - raw: UUID
-      - raw: 'NULL'
+      - column_definition:
+          identifier: i
+          data_type:
+            data_type_identifier: UUID
+          column_constraint:
+            keyword: 'NULL'
       - comma: ','
-      - raw: j
-      - raw: TIMESTAMP
-      - raw: NOT
-      - raw: 'NULL'
+      - column_definition:
+          identifier: j
+          data_type:
+            data_type_identifier: TIMESTAMP
+          column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
       - comma: ','
-      - raw: k
-      - raw: TIMESTAMP
-      - raw: NOT
-      - raw: 'NULL'
+      - column_definition:
+          identifier: k
+          data_type:
+            data_type_identifier: TIMESTAMP
+          column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
       - comma: ','
-      - raw: l
-      - raw: DATE
-      - raw: NOT
-      - raw: 'NULL'
+      - column_definition:
+          identifier: l
+          data_type:
+            data_type_identifier: DATE
+          column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
       - comma: ','
-      - raw: m
-      - raw: VARCHAR
-      - bracketed:
-          start_bracket: (
-          expression:
-            literal: '10'
-          end_bracket: )
-      - raw: NOT
-      - raw: 'NULL'
+      - column_definition:
+          identifier: m
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '10'
+              end_bracket: )
+          column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
       - comma: ','
-      - raw: n
-      - raw: DATE
-      - raw: 'NULL'
+      - column_definition:
+          identifier: n
+          data_type:
+            data_type_identifier: DATE
+          column_constraint:
+            keyword: 'NULL'
       - comma: ','
-      - raw: o
-      - raw: INTEGER
-      - raw: 'NULL'
+      - column_definition:
+          identifier: o
+          data_type:
+            data_type_identifier: INTEGER
+          column_constraint:
+            keyword: 'NULL'
       - comma: ','
-      - raw: p
-      - raw: JSONB
-      - raw: NOT
-      - raw: 'NULL'
+      - column_definition:
+          identifier: p
+          data_type:
+            data_type_identifier: JSONB
+          column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
       - comma: ','
-      - raw: q
-      - raw: JSONB
-      - raw: NOT
-      - raw: 'NULL'
+      - column_definition:
+          identifier: q
+          data_type:
+            data_type_identifier: JSONB
+          column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
       - comma: ','
-      - raw: r
-      - raw: JSONB
-      - raw: NOT
-      - raw: 'NULL'
+      - column_definition:
+          identifier: r
+          data_type:
+            data_type_identifier: JSONB
+          column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
       - comma: ','
-      - raw: s
-      - raw: JSONB
-      - raw: NOT
-      - raw: 'NULL'
+      - column_definition:
+          identifier: s
+          data_type:
+            data_type_identifier: JSONB
+          column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
       - comma: ','
-      - raw: t
-      - raw: JSONB
-      - raw: NOT
-      - raw: 'NULL'
+      - column_definition:
+          identifier: t
+          data_type:
+            data_type_identifier: JSONB
+          column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
       - comma: ','
-      - raw: u
-      - raw: JSONB
-      - raw: NOT
-      - raw: 'NULL'
+      - column_definition:
+          identifier: u
+          data_type:
+            data_type_identifier: JSONB
+          column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
       - comma: ','
-      - raw: CONSTRAINT
-      - raw: c1
-      - raw: PRIMARY
-      - raw: KEY
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            identifier: a
-          end_bracket: )
-      - comma: ','
-      - raw: CONSTRAINT
-      - raw: c2
-      - raw: UNIQUE
-      - bracketed:
-        - start_bracket: (
-        - column_reference:
-            identifier: b
-        - comma: ','
-        - column_reference:
-            identifier: c
-        - comma: ','
-        - column_reference:
-            identifier: d
-        - end_bracket: )
-      - comma: ','
-      - raw: CONSTRAINT
-      - raw: c3
-      - raw: UNIQUE
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            identifier: message_id
-          end_bracket: )
-      - comma: ','
-      - raw: CONSTRAINT
-      - raw: c4
-      - raw: CHECK
-      - bracketed:
-        - start_bracket: (
-        - raw: m
-        - raw: in
-        - bracketed:
-          - start_bracket: (
-          - raw: "'HAPPY'"
-          - comma: ','
-          - raw: "'GRUMPY'"
-          - comma: ','
-          - raw: "'SLEEPY'"
-          - comma: ','
-          - raw: "'SNEEZY'"
-          - comma: ','
-          - raw: "'DOPEY'"
-          - comma: ','
-          - raw: "'BASHFUL'"
-          - comma: ','
-          - raw: "'DOC'"
-          - comma: ','
-          - raw: "'SHAKY'"
-          - end_bracket: )
-        - end_bracket: )
-      - comma: ','
-      - raw: CONSTRAINT
-      - raw: c5
-      - raw: CHECK
-      - bracketed:
-        - start_bracket: (
-        - raw: c
-        - raw: in
-        - bracketed:
-          - start_bracket: (
-          - raw: "'EENIE'"
-          - comma: ','
-          - raw: "'MEENIE'"
-          - comma: ','
-          - raw: "'MINIE'"
-          - comma: ','
-          - raw: "'MOH'"
-          - end_bracket: )
-        - end_bracket: )
-      - comma: ','
-      - raw: CONSTRAINT
-      - raw: c6
-      - raw: CHECK
-      - bracketed:
-        - start_bracket: (
-        - raw: n
-        - raw: '>='
-        - raw: now
+      - table_constraint_definition:
+        - keyword: CONSTRAINT
+        - object_reference:
+            identifier: c1
+        - keyword: PRIMARY
+        - keyword: KEY
         - bracketed:
             start_bracket: (
+            column_reference:
+              identifier: a
             end_bracket: )
-        - raw: '::'
-        - raw: DATE
-        - end_bracket: )
       - comma: ','
-      - raw: CONSTRAINT
-      - raw: c7
-      - raw: CHECK
-      - bracketed:
-        - start_bracket: (
+      - table_constraint_definition:
+        - keyword: CONSTRAINT
+        - object_reference:
+            identifier: c2
+        - keyword: UNIQUE
         - bracketed:
           - start_bracket: (
-          - raw: n
-          - raw: IS
-          - raw: NOT
-          - raw: 'NULL'
-          - raw: AND
-          - raw: o
-          - raw: IS
-          - raw: 'NULL'
+          - column_reference:
+              identifier: b
+          - comma: ','
+          - column_reference:
+              identifier: c
+          - comma: ','
+          - column_reference:
+              identifier: d
           - end_bracket: )
-        - raw: OR
+      - comma: ','
+      - table_constraint_definition:
+        - keyword: CONSTRAINT
+        - object_reference:
+            identifier: c3
+        - keyword: UNIQUE
         - bracketed:
-          - start_bracket: (
-          - raw: n
-          - raw: IS
-          - raw: 'NULL'
-          - raw: AND
-          - raw: o
-          - raw: IS
-          - raw: NOT
-          - raw: 'NULL'
-          - end_bracket: )
-        - end_bracket: )
+            start_bracket: (
+            column_reference:
+              identifier: message_id
+            end_bracket: )
+      - comma: ','
+      - table_constraint_definition:
+        - keyword: CONSTRAINT
+        - object_reference:
+            identifier: c4
+        - keyword: CHECK
+        - bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                identifier: m
+              keyword: in
+              bracketed:
+              - start_bracket: (
+              - literal: "'HAPPY'"
+              - comma: ','
+              - literal: "'GRUMPY'"
+              - comma: ','
+              - literal: "'SLEEPY'"
+              - comma: ','
+              - literal: "'SNEEZY'"
+              - comma: ','
+              - literal: "'DOPEY'"
+              - comma: ','
+              - literal: "'BASHFUL'"
+              - comma: ','
+              - literal: "'DOC'"
+              - comma: ','
+              - literal: "'SHAKY'"
+              - end_bracket: )
+            end_bracket: )
+      - comma: ','
+      - table_constraint_definition:
+        - keyword: CONSTRAINT
+        - object_reference:
+            identifier: c5
+        - keyword: CHECK
+        - bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                identifier: c
+              keyword: in
+              bracketed:
+              - start_bracket: (
+              - literal: "'EENIE'"
+              - comma: ','
+              - literal: "'MEENIE'"
+              - comma: ','
+              - literal: "'MINIE'"
+              - comma: ','
+              - literal: "'MOH'"
+              - end_bracket: )
+            end_bracket: )
+      - comma: ','
+      - table_constraint_definition:
+        - keyword: CONSTRAINT
+        - object_reference:
+            identifier: c6
+        - keyword: CHECK
+        - bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                identifier: n
+              comparison_operator: '>='
+              function:
+                function_name:
+                  function_name_identifier: now
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+              cast_expression:
+                casting_operator: '::'
+                data_type:
+                  data_type_identifier: DATE
+            end_bracket: )
+      - comma: ','
+      - table_constraint_definition:
+        - keyword: CONSTRAINT
+        - object_reference:
+            identifier: c7
+        - keyword: CHECK
+        - bracketed:
+            start_bracket: (
+            expression:
+            - bracketed:
+                start_bracket: (
+                expression:
+                - column_reference:
+                    identifier: n
+                - keyword: IS
+                - keyword: NOT
+                - keyword: 'NULL'
+                - binary_operator: AND
+                - column_reference:
+                    identifier: o
+                - keyword: IS
+                - keyword: 'NULL'
+                end_bracket: )
+            - binary_operator: OR
+            - bracketed:
+                start_bracket: (
+                expression:
+                - column_reference:
+                    identifier: n
+                - keyword: IS
+                - keyword: 'NULL'
+                - binary_operator: AND
+                - column_reference:
+                    identifier: o
+                - keyword: IS
+                - keyword: NOT
+                - keyword: 'NULL'
+                end_bracket: )
+            end_bracket: )
       - end_bracket: )
   statement_terminator: ;

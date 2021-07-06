@@ -5,11 +5,13 @@ file:
     - keyword: TABLE
     - table_reference:
         identifier: t1
-    - parameter: ALTER
-    - identifier: COLUMN
-    unparsable:
-    - raw: c
-    - raw: DROP
-    - raw: NOT
-    - raw: 'NULL'
+    - keyword: ALTER
+    - keyword: COLUMN
+    - column_definition:
+        identifier: c
+        data_type:
+          data_type_identifier: DROP
+        column_constraint:
+        - keyword: NOT
+        - keyword: 'NULL'
   statement_terminator: ;

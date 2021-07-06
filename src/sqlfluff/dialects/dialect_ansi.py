@@ -2041,6 +2041,10 @@ class TableConstraintSegment(BaseSegment):
                 # Later add support for [MATCH FULL/PARTIAL/SIMPLE] ?
                 # Later add support for [ ON DELETE/UPDATE action ] ?
             ),
+            Sequence(  # CHECK ( <search_condition> )
+                "CHECK",
+                Bracketed(Ref("ExpressionSegment")),
+            ),
         ),
     )
 
@@ -2211,16 +2215,21 @@ class AlterTableStatementSegment(BaseSegment):
                 ),
                 # Add things
                 Sequence(
-                    OneOf("ADD", "MODIFY"),
-                    Ref.keyword("COLUMN", optional=True),
-                    Ref("ColumnDefinitionSegment"),
+                    OneOf("ADD", "MODIFY", "ALTER"),
                     OneOf(
                         Sequence(
-                            OneOf("FIRST", "AFTER"), Ref("ColumnReferenceSegment")
+                            Ref.keyword("COLUMN", optional=True),
+                            Ref("ColumnDefinitionSegment"),
+                            OneOf(
+                                Sequence(
+                                    OneOf("FIRST", "AFTER"), Ref("ColumnReferenceSegment")
+                                ),
+                                # Bracketed Version of the same
+                                Ref("BracketedColumnReferenceListGrammar"),
+                                optional=True,
+                            ),
                         ),
-                        # Bracketed Version of the same
-                        Ref("BracketedColumnReferenceListGrammar"),
-                        optional=True,
+                        Ref("TableConstraintSegment")
                     ),
                 ),
                 # Rename

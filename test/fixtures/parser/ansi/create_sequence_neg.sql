@@ -1,0 +1,1 @@
+CREATE SEQUENCE desc_customer_list START -1 INCREMENT -2;

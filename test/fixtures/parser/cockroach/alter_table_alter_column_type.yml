@@ -5,13 +5,15 @@ file:
     - keyword: TABLE
     - table_reference:
         identifier: t1
-    - parameter: ALTER
-    - identifier: COLUMN
+    - keyword: ALTER
+    - keyword: COLUMN
+    - column_definition:
+        identifier: x
+        data_type:
+          data_type_identifier: TYPE
     unparsable:
-    - raw: x
-    - raw: TYPE
-    - raw: varchar
-    - bracketed:
+      raw: varchar
+      bracketed:
         start_bracket: (
         raw: '32'
         end_bracket: )
@@ -22,13 +24,15 @@ file:
     - keyword: TABLE
     - table_reference:
         identifier: t2
-    - parameter: ALTER
-    - identifier: COLUMN
+    - keyword: ALTER
+    - keyword: COLUMN
+    - column_definition:
+        identifier: x
+        data_type:
+          data_type_identifier: TYPE
     unparsable:
-    - raw: x
-    - raw: TYPE
-    - raw: varchar
-    - bracketed:
+      raw: varchar
+      bracketed:
         start_bracket: (
         raw: '32'
         end_bracket: )

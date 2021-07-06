@@ -1,0 +1,7 @@
+file:
+  statement:
+    unparsable:
+    - raw: CREATE
+    - raw: SEQUENCE
+    - raw: customer_seq
+  statement_terminator: ;
