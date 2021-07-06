@@ -1,0 +1,6 @@
+file:
+  statement:
+    cursor_open_close_segment:
+      keyword: CLOSE
+      identifier: '`curcursor`'
+  statement_terminator: ;

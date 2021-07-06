@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Support for cursor syntax specific to mysql dialect [#1145](https://github.com/sqlfluff/sqlfluff/pull/1145)
 - Support sequential shorthand casts [#1178](https://github.com/sqlfluff/sqlfluff/pull/1178)
 - Support for select statement syntax specific to mysql dialect [#1175](https://github.com/sqlfluff/sqlfluff/issues/1175)
 - Support for the CALL statement for the mysql dialect [#1144](https://github.com/sqlfluff/sqlfluff/issues/1144)
