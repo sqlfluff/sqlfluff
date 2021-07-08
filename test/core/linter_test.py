@@ -92,6 +92,16 @@ def test__linter__path_from_paths__explicit_ignore():
     )
     assert len(paths) == 0
 
+def test__linter__path_from_path__explicit_ignore():
+    """Test ignoring files within a path that was passed explicitly."""
+    lntr = Linter()
+    paths = lntr.paths_from_path(
+        "test/fixtures/linter/sqlfluffignore/path_a/",
+        ignore_non_existent_files=True,
+        ignore_files=True,
+        working_path="test/fixtures/linter/sqlfluffignore/",
+    )
+    assert len(paths) == 0
 
 def test__linter__path_from_paths__dot():
     """Test extracting paths from a dot."""
