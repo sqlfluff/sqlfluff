@@ -500,7 +500,8 @@ class TableExpressionSegment(BaseSegment):
 
 @bigquery_dialect.segment()
 class DeclareStatementSegment(BaseSegment):
-    """Declaration of a variable
+    """Declaration of a variable.
+
     https://cloud.google.com/bigquery/docs/reference/standard-sql/scripting#declare
     """
 
@@ -525,8 +526,8 @@ class DeclareStatementSegment(BaseSegment):
 
 @bigquery_dialect.segment()
 class SetStatementSegment(BaseSegment):
-    """
-    Setting an already declared variable.
+    """Setting an already declared variable.
+
     https://cloud.google.com/bigquery/docs/reference/standard-sql/scripting#set
     """
 
